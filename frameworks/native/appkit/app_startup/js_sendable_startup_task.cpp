@@ -13,38 +13,45 @@
  * limitations under the License.
  */
 
-#include "js_startup_task.h"
+#include "js_sendable_startup_task.h"
 
 #include "hilog_wrapper.h"
-#include "js_runtime_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-JsStartupTask::JsStartupTask(const std::string &name, JsRuntime &jsRuntime,
+JsSendableStartupTask::JsSendableStartupTask(const std::string &name, JsRuntime &jsRuntime,
     std::unique_ptr<NativeReference> &startupJsRef, std::shared_ptr<NativeReference> &contextJsRef)
-    : StartupTask(name), jsRuntime_(jsRuntime), startupJsRef_(std::move(startupJsRef)), contextJsRef_(contextJsRef) {}
-
-JsStartupTask::JsStartupTask(const std::string &name, JsRuntime &jsRuntime):
-    StartupTask(name), jsRuntime_(jsRuntime) {}
-
-JsStartupTask::~JsStartupTask() = default;
-
-int32_t JsStartupTask::Init()
+    : StartupTask(name), jsRuntime_(jsRuntime), startupJsRef_(std::move(startupJsRef)), contextJsRef_(contextJsRef)
 {
-    // init dependencies_, callCreateOnMainThread_, waitOnMainThread_, isExcludeFromAutoStart_
+}
+
+JsSendableStartupTask::~JsSendableStartupTask() = default;
+
+int32_t JsSendableStartupTask::Init()
+{
     HILOG_DEBUG("%{public}s, dump: %{public}d%{public}d%{public}d, dep: %{public}s", name_.c_str(),
         callCreateOnMainThread_, waitOnMainThread_, isExcludeFromAutoStart_, DumpDependencies().c_str());
+
+    HandleScope handleScope(jsRuntime_);
+    auto env = jsRuntime_.GetNapiEnv();
+
+    if (contextJsRef_ == nullptr) {
+        HILOG_ERROR("%{public}s, context is null", name_.c_str());
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+    napi_value object = contextJsRef_->GetNapiValue();
+    BindNativeProperty(env, object, "HandleInitComplete", JsSendableStartupTask::HandleInitComplete);
     return ERR_OK;
 }
 
-int32_t JsStartupTask::RunTaskInit(std::unique_ptr<StartupTaskResultCallback> callback)
+int32_t JsSendableStartupTask::RunTaskInit(std::unique_ptr<StartupTaskResultCallback> callback)
 {
+    // startupTaskResultCallback_ = std::move(callback);
     if (state_ != State::CREATED) {
         HILOG_ERROR("%{public}s, state is wrong %{public}d", name_.c_str(), static_cast<int32_t>(state_));
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     state_ = State::INITIALIZING;
-    // startupTaskResultCallback_ = std::move(callback);
     callback->Push([weak = weak_from_this()](const std::shared_ptr<StartupTaskResult> &result) {
         auto startupTask = weak.lock();
         if (startupTask == nullptr) {
@@ -54,11 +61,31 @@ int32_t JsStartupTask::RunTaskInit(std::unique_ptr<StartupTaskResultCallback> ca
         startupTask->SaveResult(result);
         startupTask->CallExtraCallback(result);
     });
-    HILOG_DEBUG("%{public}s, RunOnMainThread ", name_.c_str());
-    return JsStartupTaskExecutor::RunOnMainThread(jsRuntime_, startupJsRef_, contextJsRef_, std::move(callback));
+    HILOG_DEBUG("%{public}s, RunOnTaskPool", name_.c_str());
+    if(startupJsRef_ == NULL) {
+        HILOG_ERROR("startupJsRef_ is nullptr.");
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+
+    HandleScope handleScope(jsRuntime_);
+    auto env = jsRuntime_.GetNapiEnv();
+
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
+    if (object == nullptr) {
+        HILOG_ERROR("object is nullptr.");
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+    asynctaskexcutorJsRef_ = JsRuntime::LoadSystemModuleByEngine(env, "app.appstartup.AsyncTaskExcutor", &object, 1);
+    if (asynctaskexcutorJsRef_ == nullptr) {
+        HILOG_ERROR("asynctaskexcutorJsRef_ is nullptr.");
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+
+    return JsStartupTaskExecutor::RunOnTaskPool(jsRuntime_, startupJsRef_, contextJsRef_, std::move(asynctaskexcutorJsRef_));
 }
 
-int32_t JsStartupTask::RunTaskOnDependencyCompleted(const std::string &dependencyName,
+int32_t JsSendableStartupTask::RunTaskOnDependencyCompleted(const std::string &dependencyName,
     const std::shared_ptr<StartupTaskResult> &result)
 {
     HandleScope handleScope(jsRuntime_);
@@ -94,7 +121,7 @@ int32_t JsStartupTask::RunTaskOnDependencyCompleted(const std::string &dependenc
     return ERR_OK;
 }
 
-napi_value JsStartupTask::GetDependencyResult(napi_env env, const std::string &dependencyName,
+napi_value JsSendableStartupTask::GetDependencyResult(napi_env env, const std::string &dependencyName,
     const std::shared_ptr<StartupTaskResult> &result)
 {
     if (result == nullptr || result->GetResultType() != StartupTaskResult::ResultType::JS) {
@@ -111,6 +138,16 @@ napi_value JsStartupTask::GetDependencyResult(napi_env env, const std::string &d
         }
         return jsResultRef->GetNapiValue();
     }
+}
+
+napi_value JsSendableStartupTask::HandleInitComplete(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsSendableStartupTask, OnHandleInitComplete, nullptr);
+}
+
+napi_value JsSendableStartupTask::OnHandleInitComplete(napi_env env, NapiCallbackInfo &info)
+{
+    return CreateJsUndefined(env);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

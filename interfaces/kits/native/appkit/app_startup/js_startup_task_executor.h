@@ -30,12 +30,16 @@ public:
 
     static int32_t RunOnTaskPool(JsRuntime &jsRuntime,
         const std::unique_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
-        std::unique_ptr<StartupTaskResultCallback> callback);
+        const std::unique_ptr<NativeReference> asynctaskexcutor);
 
 private:
     static int32_t CallStartupInit(napi_env env, const std::unique_ptr<NativeReference> &startup,
         const std::shared_ptr<NativeReference> &context, std::unique_ptr<StartupTaskResultCallback> &callback,
         napi_value &returnVal);
+
+    // static int32_t CallStartupPushTask(napi_env env, const std::unique_ptr<NativeReference> &startup,
+    //     const std::shared_ptr<NativeReference> &context, std::unique_ptr<StartupTaskResultCallback> &callback,
+    //     napi_value &returnVal, const std::unique_ptr<NativeReference> &asynctaskexcutor);
 
     static int32_t HandleReturnVal(napi_env env, napi_value returnVal,
         std::unique_ptr<StartupTaskResultCallback> &callback);

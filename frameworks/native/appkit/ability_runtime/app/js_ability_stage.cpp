@@ -48,6 +48,7 @@ constexpr const char* EXCLUDE_FROM_AUTO_START = "excludeFromAutoStart";
 constexpr const char* RUN_ON_THREAD = "runOnThread";
 constexpr const char* WAIT_ON_MAIN_THREAD = "waitOnMainThread";
 constexpr const char* CONFIG_ENTRY = "configEntry";
+constexpr const char* MAIN_THREAD = "mainThread";
     
 napi_value AttachAbilityStageContext(napi_env env, void *value, void *)
 {
@@ -517,6 +518,9 @@ std::unique_ptr<NativeReference> JsAbilityStage::LoadJsSrcEntry(const std::strin
     srcPath.erase(pos);
     srcPath.append(".abc");
     
+    HILOG_DEBUG("srcPath = %{public}s hapModuleInfo->hapPath = %{public}s",
+        srcPath.c_str(), hapModuleInfo->hapPath.c_str());
+    HILOG_DEBUG("moduleName = %{public}s", moduleName.c_str());
     std::unique_ptr<NativeReference> jsCode(
         jsRuntime_.LoadModule(moduleName, srcPath, hapModuleInfo->hapPath, esmodule));
     
@@ -550,7 +554,7 @@ bool JsAbilityStage::LoadJsStartupConfig(const std::string &srcEntry)
 
 void JsAbilityStage::SetOptionalParameters(
     const nlohmann::json &module,
-    JsStartupTask &jsStartupTask)
+    std::shared_ptr<StartupTask> task)
 {
     HILOG_DEBUG("SetOptionalParameters called.");
     if (module.contains(DEPENDENCIES) && module[DEPENDENCIES].is_array()) {
@@ -560,22 +564,38 @@ void JsAbilityStage::SetOptionalParameters(
                 dependencies.push_back(dependency.get<std::string>());
             }
         }
-        jsStartupTask.SetDependencies(dependencies);
+        task->SetDependencies(dependencies);
     }
 
     if (module.contains(EXCLUDE_FROM_AUTO_START) && module[EXCLUDE_FROM_AUTO_START].is_boolean()) {
-        jsStartupTask.SetIsExcludeFromAutoStart(module.at(EXCLUDE_FROM_AUTO_START).get<bool>());
+       task->SetIsExcludeFromAutoStart(module.at(EXCLUDE_FROM_AUTO_START).get<bool>());
     } else {
-        jsStartupTask.SetIsExcludeFromAutoStart(false);
+        task->SetIsExcludeFromAutoStart(false);
     }
 
-    // always true
-    jsStartupTask.SetCallCreateOnMainThread(true);
+    //always true
+    // if (module.contains(RUN_ON_THREAD) && module[RUN_ON_THREAD].is_string()) {
+    //     std::string profileName = module.at(RUN_ON_THREAD).get<std::string>();
+    //     HILOG_DEBUG("profileName = %{public}s", profileName.c_str());
+    //     if (profileName == "mainThread") {
+    //         HILOG_DEBUG("jsStartupTask.SetCallCreateOnMainThread(true) profileName == mainThread");
+    //         jsStartupTask.SetCallCreateOnMainThread(true);
+    //     }
+    //     else {
+    //         HILOG_DEBUG("jsStartupTask.SetCallCreateOnMainThread(false)");
+    //         jsStartupTask.SetCallCreateOnMainThread(false);
+    //     }
+    // } 
+    // else {
+    //     HILOG_DEBUG("jsStartupTask.SetCallCreateOnMainThread(false)");
+    //     jsStartupTask.SetCallCreateOnMainThread(false);
+    // }
+    // jsStartupTask.SetCallCreateOnMainThread(true);
     
     if (module.contains(WAIT_ON_MAIN_THREAD) && module[WAIT_ON_MAIN_THREAD].is_boolean()) {
-        jsStartupTask.SetWaitOnMainThread(module.at(WAIT_ON_MAIN_THREAD).get<bool>());
+        task->SetWaitOnMainThread(module.at(WAIT_ON_MAIN_THREAD).get<bool>());
     } else {
-        jsStartupTask.SetWaitOnMainThread(true);
+        task->SetWaitOnMainThread(true);
     }
 }
 
@@ -610,7 +630,7 @@ bool JsAbilityStage::AnalyzeProfileInfoAndRegisterStartupTask(const std::vector<
         HILOG_ERROR("startupTasks invalid.");
         return false;
     }
-    std::vector<std::shared_ptr<JsStartupTask>> jsStartupTasks;
+    // std::vector<std::shared_ptr<JsStartupTask>> jsStartupTasks;
     for (const auto& module : startupInfoJson.at(STARTUP_TASKS).get<nlohmann::json>()) {
         if (!module.contains(SRC_ENTRY) || !module[SRC_ENTRY].is_string() ||
         !module.contains(NAME) || !module[NAME].is_string()) {
@@ -623,16 +643,46 @@ bool JsAbilityStage::AnalyzeProfileInfoAndRegisterStartupTask(const std::vector<
             HILOG_ERROR("load js appStartup tasks failed.");
             return false;
         }
+        if (startupJsRef == nullptr) {
+            HILOG_ERROR("load js AsyncTaskExcutor failed.");
+            return false;
+        }
 
-        auto jsStartupTask = std::make_shared<JsStartupTask>(
-            module.at(NAME).get<std::string>(), jsRuntime_, startupJsRef, shellContextRef_);
-        SetOptionalParameters(module, *jsStartupTask);
-        jsStartupTasks.push_back(jsStartupTask);
+        auto startupTask = CreateStartupTaskByModule(module, startupJsRef);
+        SetOptionalParameters(module, startupTask);
+        // jsStartupTasks.push_back(jsStartupTask);
+        DelayedSingleton<StartupManager>::GetInstance()->RegisterStartupTask(startupTask->GetName(), startupTask);
     }
-    for (auto &iter : jsStartupTasks) {
-        DelayedSingleton<StartupManager>::GetInstance()->RegisterStartupTask(iter->GetName(), iter);
-    }
+    // for (auto &iter : jsStartupTasks) {
+    //     DelayedSingleton<StartupManager>::GetInstance()->RegisterStartupTask(iter->GetName(), iter);
+    // }
     return true;
+}
+
+std::shared_ptr<StartupTask> JsAbilityStage::CreateStartupTaskByModule(
+    const nlohmann::json &module, std::unique_ptr<NativeReference> &startupJsRef)
+{
+    bool isRunOnMainThread = false;
+    if (module.contains(RUN_ON_THREAD) && module[RUN_ON_THREAD].is_string()) {
+        std::string profileName = module.at(RUN_ON_THREAD).get<std::string>();
+        HILOG_DEBUG("profileName = %{public}s", profileName.c_str());
+        if (profileName == MAIN_THREAD) {
+            isRunOnMainThread = true;
+        }
+    } 
+    else if (!module.contains(RUN_ON_THREAD)){
+        isRunOnMainThread = false;
+    }
+
+    HILOG_DEBUG("isRunOnMainThread = %{public}s", isRunOnMainThread ? "true" : "false");
+
+    if (isRunOnMainThread) {
+        return std::make_shared<JsStartupTask>(
+            module.at(NAME).get<std::string>(), jsRuntime_, startupJsRef, shellContextRef_);
+    }
+
+    return std::make_shared<JsSendableStartupTask>(
+        module.at(NAME).get<std::string>(), jsRuntime_, startupJsRef, shellContextRef_);
 }
 
 napi_value JsAbilityStage::CallObjectMethod(const char* name, napi_value const * argv, size_t argc)
