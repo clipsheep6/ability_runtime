@@ -85,7 +85,6 @@
             "webview",
             "window_manager",
             "icu",
-            "json",
             "jsoncpp",
             "libuv",
             "zlib",
