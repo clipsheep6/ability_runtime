@@ -1307,7 +1307,7 @@ void AbilityConnectManager::PostTimeOutTask(const std::shared_ptr<AbilityRecord>
     CHECK_POINTER(taskHandler_);
 
     std::string taskName;
-    uint32_t delayTime = 0;
+    int32_t delayTime = 0;
     if (messageId == AbilityManagerService::LOAD_TIMEOUT_MSG) {
         // first load ability, There is at most one connect record.
         int recordId = abilityRecord->GetRecordId();
