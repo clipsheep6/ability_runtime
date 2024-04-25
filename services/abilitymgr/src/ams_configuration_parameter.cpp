@@ -87,11 +87,6 @@ int AmsConfigurationParameter::GetRestartIntervalTime() const
     return restartIntervalTime_;
 }
 
-std::string AmsConfigurationParameter::GetDeviceType() const
-{
-    return deviceType_;
-}
-
 int AmsConfigurationParameter::GetBootAnimationTimeoutTime() const
 {
     return bootAnimationTime_;
@@ -204,6 +199,7 @@ int AmsConfigurationParameter::LoadAmsConfiguration(const std::string &filePath)
     }
 
     LoadSystemConfiguration(amsJson);
+    LoadSafeUriPermission(amsJson);
     SetPickerJsonObject(amsJson);
     amsJson.clear();
     inFile.close();
@@ -230,7 +226,6 @@ int AmsConfigurationParameter::LoadAppConfigurationForStartUpService(nlohmann::j
     UpdateStartUpServiceConfigInteger(Object, AmsConfig::ROOT_LAUNCHER_RESTART_MAX, maxRootLauncherRestartNum_);
     UpdateStartUpServiceConfigInteger(Object, AmsConfig::RESIDENT_RESTART_MAX, maxResidentRestartNum_);
     UpdateStartUpServiceConfigInteger(Object, AmsConfig::RESTART_INTERVAL_TIME, restartIntervalTime_);
-    UpdateStartUpServiceConfigString(Object, AmsConfig::DEVICE_TYPE, deviceType_);
     UpdateStartUpServiceConfigInteger(Object, AmsConfig::BOOT_ANIMATION_TIMEOUT_TIME, bootAnimationTime_);
     UpdateStartUpServiceConfigInteger(Object, AmsConfig::TIMEOUT_UNIT_TIME, timeoutUnitTime_);
     UpdateStartUpServiceConfigInteger(Object, AmsConfig::MULTI_USER_TYPE, multiUserType_);
@@ -258,6 +253,22 @@ int AmsConfigurationParameter::LoadSystemConfiguration(nlohmann::json& Object)
     }
 
     return READ_FAIL;
+}
+
+int AmsConfigurationParameter::LoadSafeUriPermission(nlohmann::json& Object)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "LoadSafeUriPermission called.");
+    if (Object.contains(AmsConfig::SAFE_URI_PERMISSION) && Object.at(AmsConfig::SAFE_URI_PERMISSION).is_boolean()) {
+        safeUriPermission_ = Object.at(AmsConfig::SAFE_URI_PERMISSION).get<bool>();
+        return READ_OK;
+    }
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "LoadSafeUriPermission return error.");
+    return READ_FAIL;
+}
+
+bool AmsConfigurationParameter::SafeUriPermission() const
+{
+    return safeUriPermission_;
 }
 
 bool AmsConfigurationParameter::CheckServiceConfigEnable(nlohmann::json& Object, const std::string &configName,

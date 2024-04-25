@@ -86,6 +86,7 @@ bool ControlInterceptor::CheckControl(const Want &want, int32_t userId,
         return false;
     }
 
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "GetAppRunningControlRule");
     auto ret = IN_PROCESS_CALL(appControlMgr->GetAppRunningControlRule(bundleName, userId, controlRule));
     if (ret != ERR_OK) {
         HILOG_DEBUG("Get No AppRunningControlRule.");

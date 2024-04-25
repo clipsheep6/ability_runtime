@@ -1021,7 +1021,6 @@ private:
     void GrantUriPermissionFor2In1Inner(
         Want &want, std::vector<std::string> &uriVec, const std::string &targetBundleName, uint32_t tokenId);
 
-    bool CheckUriPermission(Uri &uri, uint32_t callerTokenId, int32_t userId);
     LastExitReason CovertAppExitReasonToLastReason(const Reason exitReason);
 
     void NotifyMissionBindPid();

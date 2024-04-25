@@ -81,6 +81,7 @@ constexpr int32_t U0_USER_ID = 0;
 constexpr int32_t INVALID_USER_ID = -1;
 using OHOS::AppExecFwk::IAbilityController;
 class PendingWantManager;
+struct StartAbilityInfo;
 /**
  * @class AbilityManagerService
  * AbilityManagerService provides a facility for managing ability life cycle.
@@ -1815,8 +1816,7 @@ private:
 
     int GenerateExtensionAbilityRequest(const Want &want, AbilityRequest &request,
         const sptr<IRemoteObject> &callerToken, int32_t userId);
-    int32_t InitialAbilityRequest(AbilityRequest &request,
-        const std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos) const;
+    int32_t InitialAbilityRequest(AbilityRequest &request, const StartAbilityInfo &abilityInfo) const;
     int CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
         int32_t validUserId, AppExecFwk::ExtensionAbilityType extensionType);
 
@@ -1900,6 +1900,15 @@ private:
     int CheckStartByCallPermission(const AbilityRequest &abilityRequest);
 
     /**
+     * @brief Check some specified uiextension type should be a system app.
+     * Consider expanding it to table-driven in the future.
+     *
+     * @param abilityRequest The ability request.
+     * @return Returns ERR_OK when allowed, others when check failed.
+     */
+    int CheckUIExtensionPermission(const AbilityRequest &abilityRequest);
+
+    /**
      * Judge if Caller-Application is in background state.
      *
      * @param abilityRequest, abilityRequest.
@@ -1940,6 +1949,7 @@ private:
         int requestCode, int32_t userId);
 
     bool CheckCallingTokenId(const std::string &bundleName, int32_t userId = INVALID_USER_ID);
+    bool IsCallerSceneBoard();
 
     void ReleaseAbilityTokenMap(const sptr<IRemoteObject> &token);
 

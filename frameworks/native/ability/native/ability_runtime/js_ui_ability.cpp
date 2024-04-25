@@ -127,12 +127,14 @@ napi_value AttachJsAbilityContext(napi_env env, void *value, void *extValue)
     auto contextObj = systemModule->GetNapiValue();
     napi_coerce_to_native_binding_object(env, contextObj, DetachCallbackFunc, AttachJsAbilityContext, value, extValue);
     auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::AbilityContext>(ptr);
-    napi_wrap(env, contextObj, workContext,
-        [](napi_env, void* data, void*) {
-            TAG_LOGD(AAFwkTag::UIABILITY, "Finalizer for weak_ptr ability context is called");
-            delete static_cast<std::weak_ptr<AbilityRuntime::AbilityContext> *>(data);
-        },
-        nullptr, nullptr);
+    if (workContext != nullptr) {
+        napi_wrap(env, contextObj, workContext,
+            [](napi_env, void* data, void*) {
+              TAG_LOGD(AAFwkTag::UIABILITY, "Finalizer for weak_ptr ability context is called");
+              delete static_cast<std::weak_ptr<AbilityRuntime::AbilityContext> *>(data);
+            },
+            nullptr, nullptr);
+    }
     return contextObj;
 }
 
@@ -503,6 +505,22 @@ void JsUIAbility::OnSceneRestored()
     }
 
     jsWindowStageObj_ = std::shared_ptr<NativeReference>(jsAppWindowStage.release());
+}
+
+void JsUIAbility::OnSceneWillDestroy()
+{
+    TAG_LOGD(AAFwkTag::UIABILITY, "Begin ability is %{public}s.", GetAbilityName().c_str());
+    HandleScope handleScope(jsRuntime_);
+    if (jsWindowStageObj_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UIABILITY, "jsWindowStageObj_ is nullptr.");
+        return;
+    }
+    napi_value argv[] = {jsWindowStageObj_->GetNapiValue()};
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "onWindowStageWillDestroy");
+        std::string methodName = "onWindowStageWillDestroy";
+        CallObjectMethod("onWindowStageWillDestroy", argv, ArraySize(argv));
+    }
 }
 
 void JsUIAbility::onSceneDestroyed()
@@ -1083,7 +1101,8 @@ void JsUIAbility::OnConfigurationUpdated(const Configuration &configuration)
         return;
     }
 
-    napi_value napiConfiguration = OHOS::AppExecFwk::WrapConfiguration(env, configuration);
+    TAG_LOGD(AAFwkTag::UIABILITY, "fullConfig: %{public}s", fullConfig->GetName().c_str());
+    napi_value napiConfiguration = OHOS::AppExecFwk::WrapConfiguration(env, *fullConfig);
     CallObjectMethod("onConfigurationUpdated", &napiConfiguration, 1);
     CallObjectMethod("onConfigurationUpdate", &napiConfiguration, 1);
     JsAbilityContext::ConfigurationUpdated(env, shellContextRef_, fullConfig);
@@ -1342,7 +1361,9 @@ bool JsUIAbility::CallPromise(napi_value result, int32_t &onContinueRes)
         onContinueRes = result;
     };
     auto *callbackInfo = AppExecFwk::AbilityTransactionCallbackInfo<int32_t>::Create();
-    callbackInfo->Push(asyncCallback);
+    if (callbackInfo != nullptr) {
+        callbackInfo->Push(asyncCallback);
+    }
 
     HandleScope handleScope(jsRuntime_);
     napi_value promiseCallback = nullptr;

@@ -51,13 +51,29 @@ int UriPermissionManagerClient::GrantUriPermission(const std::vector<Uri> &uriVe
 {
     TAG_LOGD(AAFwkTag::URIPERMMGR, "targetBundleName: %{public}s, uriVec size: %{public}zu", targetBundleName.c_str(),
         uriVec.size());
-    if (uriVec.size() == 0 || uriVec.size() > MAX_URI_COUNT) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "The size of uriVec should be between 1 and %{public}i.", MAX_URI_COUNT);
-        return INNER_ERR;
+    if (uriVec.empty() || uriVec.size() > MAX_URI_COUNT) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec is empty or exceed maximum size %{public}d.", MAX_URI_COUNT);
+        return ERR_URI_LIST_OUT_OF_RANGE;
     }
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
         return uriPermMgr->GrantUriPermission(uriVec, flag, targetBundleName, appIndex, initiatorTokenId);
+    }
+    return INNER_ERR;
+}
+
+int32_t UriPermissionManagerClient::GrantUriPermissionPrivileged(const std::vector<Uri> &uriVec, uint32_t flag,
+    const std::string &targetBundleName, int32_t appIndex)
+{
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "targetBundleName: %{public}s, uriVec size: %{public}zu",
+        targetBundleName.c_str(), uriVec.size());
+    if (uriVec.empty() || uriVec.size() > MAX_URI_COUNT) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec is empty or exceed maximum size %{public}d.", MAX_URI_COUNT);
+        return ERR_URI_LIST_OUT_OF_RANGE;
+    }
+    auto uriPermMgr = ConnectUriPermService();
+    if (uriPermMgr) {
+        return uriPermMgr->GrantUriPermissionPrivileged(uriVec, flag, targetBundleName, appIndex);
     }
     return INNER_ERR;
 }
@@ -67,9 +83,9 @@ int UriPermissionManagerClient::GrantUriPermissionFor2In1(const std::vector<Uri>
 {
     TAG_LOGD(AAFwkTag::URIPERMMGR, "targetBundleName: %{public}s, uriVec size: %{public}zu", targetBundleName.c_str(),
         uriVec.size());
-    if (uriVec.size() == 0 || uriVec.size() > MAX_URI_COUNT) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "The size of uriVec should be between 1 and %{public}i.", MAX_URI_COUNT);
-        return INNER_ERR;
+    if (uriVec.empty() || uriVec.size() > MAX_URI_COUNT) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec is empty or exceed maximum size %{public}d.", MAX_URI_COUNT);
+        return ERR_URI_LIST_OUT_OF_RANGE;
     }
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr != nullptr) {
@@ -114,6 +130,23 @@ bool UriPermissionManagerClient::VerifyUriPermission(const Uri& uri, uint32_t fl
         return uriPermMgr->VerifyUriPermission(uri, flag, tokenId);
     }
     return false;
+}
+
+std::vector<bool> UriPermissionManagerClient::CheckUriAuthorization(const std::vector<std::string> &uriVec,
+    uint32_t flag, uint32_t tokenId)
+{
+    uint32_t size = uriVec.size();
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "flag: %{public}u, tokenId: %{public}u", flag, tokenId);
+    std::vector<bool> errorRes(size, false);
+    if (uriVec.empty() || uriVec.size() > MAX_URI_COUNT) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec is empty or exceed maximum size %{public}d.", MAX_URI_COUNT);
+        return errorRes;
+    }
+    auto uriPermMgr = ConnectUriPermService();
+    if (uriPermMgr) {
+        return uriPermMgr->CheckUriAuthorization(uriVec, flag, tokenId);
+    }
+    return errorRes;
 }
 
 bool UriPermissionManagerClient::IsAuthorizationUriAllowed(uint32_t fromTokenId)

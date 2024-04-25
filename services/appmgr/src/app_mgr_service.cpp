@@ -33,6 +33,7 @@
 #include "base/security/access_token/interfaces/innerkits/accesstoken/include/accesstoken_kit.h"
 #include "app_mgr_service_const.h"
 #include "app_mgr_service_dump_error_code.h"
+#include "cache_process_manager.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -168,6 +169,7 @@ ErrCode AppMgrService::Init()
     eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrServiceInner_);
     appMgrServiceInner_->SetTaskHandler(taskHandler_);
     appMgrServiceInner_->SetEventHandler(eventHandler_);
+    DelayedSingleton<CacheProcessManager>::GetInstance()->SetAppMgr(appMgrServiceInner_);
     std::function<void()> initAppMgrServiceInnerTask =
         std::bind(&AppMgrServiceInner::Init, appMgrServiceInner_);
     taskHandler_->SubmitTask(initAppMgrServiceInnerTask, TASK_INIT_APPMGRSERVICEINNER);
@@ -204,6 +206,17 @@ void AppMgrService::AttachApplication(const sptr<IRemoteObject> &app)
         .taskName_ = TASK_ATTACH_APPLICATION,
         .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
     });
+}
+
+int32_t AppMgrService::PreloadApplication(const std::string &bundleName, int32_t userId,
+    AppExecFwk::PreloadMode preloadMode, int32_t appIndex)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "PreloadApplication called");
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication failed, appMgr not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->PreloadApplication(bundleName, userId, preloadMode, appIndex);
 }
 
 void AppMgrService::ApplicationForegrounded(const int32_t recordId)
@@ -1317,6 +1330,16 @@ int32_t AppMgrService::NotifyMemonySizeStateChanged(bool isMemorySizeSufficent)
     }
 
     return appMgrServiceInner_->NotifyMemonySizeStateChanged(isMemorySizeSufficent);
+}
+
+int32_t AppMgrService::SetSupportedProcessCacheSelf(bool isSupport)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "Called");
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->SetSupportedProcessCacheSelf(isSupport);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

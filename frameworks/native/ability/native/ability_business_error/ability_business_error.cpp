@@ -74,6 +74,8 @@ constexpr const char* ERROR_MSG_ABILITY_ALREADY_RUNNING = "Ability already runni
 constexpr const char* ERROR_MSG_NOT_SUPPORT_CROSS_APP_START =
     "The application is not allow jumping to other applications when api version is above 11.";
 constexpr const char* ERROR_MSG_CANNOT_MATCH_ANY_COMPONENT = "Can not match any component.";
+constexpr const char* ERROR_MSG_TARGET_BUNDLE_NOT_EXIST = "The target bundle does not exist.";
+constexpr const char* ERROR_MSG_SET_SUPPORTED_PROCESS_CACHE_AGAIN = "Can not set process cache state more than once.";
 
 // follow ERR_BUNDLE_MANAGER_BUNDLE_NOT_EXIST of appexecfwk_errors.h in bundle_framework
 constexpr int32_t ERR_BUNDLE_MANAGER_BUNDLE_NOT_EXIST = 8521220;
@@ -124,6 +126,8 @@ static std::unordered_map<AbilityErrorCode, const char*> ERR_CODE_MAP = {
     { AbilityErrorCode::ERROR_ABILITY_ALREADY_RUNNING, ERROR_MSG_ABILITY_ALREADY_RUNNING },
     { AbilityErrorCode::ERROR_CODE_NOT_SUPPORT_CROSS_APP_START, ERROR_MSG_NOT_SUPPORT_CROSS_APP_START },
     { AbilityErrorCode::ERROR_CODE_CANNOT_MATCH_ANY_COMPONENT, ERROR_MSG_CANNOT_MATCH_ANY_COMPONENT },
+    { AbilityErrorCode::ERROR_CODE_TARGET_BUNDLE_NOT_EXIST, ERROR_MSG_TARGET_BUNDLE_NOT_EXIST },
+    { AbilityErrorCode::ERROR_CODE_SET_SUPPORTED_PROCESS_CACHE_AGAIN, ERROR_MSG_SET_SUPPORTED_PROCESS_CACHE_AGAIN },
 };
 
 static std::unordered_map<int32_t, AbilityErrorCode> INNER_TO_JS_ERROR_CODE_MAP {
@@ -176,7 +180,9 @@ static std::unordered_map<int32_t, AbilityErrorCode> INNER_TO_JS_ERROR_CODE_MAP 
     {ERR_WUKONG_MODE_CANT_MOVE_STATE, AbilityErrorCode::ERROR_CODE_WUKONG_MODE_CANT_MOVE_STATE},
     {ERR_OPERATION_NOT_SUPPORTED_ON_CURRENT_DEVICE, AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED},
     {ERR_IMPLICIT_START_ABILITY_FAIL, AbilityErrorCode::ERROR_CODE_CANNOT_MATCH_ANY_COMPONENT},
-    {ERR_START_OTHER_APP_FAILED, AbilityErrorCode::ERROR_CODE_NOT_SUPPORT_CROSS_APP_START}
+    {ERR_START_OTHER_APP_FAILED, AbilityErrorCode::ERROR_CODE_NOT_SUPPORT_CROSS_APP_START},
+    {ERR_TARGET_BUNDLE_NOT_EXIST, AbilityErrorCode::ERROR_CODE_TARGET_BUNDLE_NOT_EXIST},
+    {ERR_SET_SUPPORTED_PROCESS_CACHE_AGAIN, AbilityErrorCode::ERROR_CODE_SET_SUPPORTED_PROCESS_CACHE_AGAIN},
 };
 }
 

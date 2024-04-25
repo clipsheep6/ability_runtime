@@ -49,6 +49,7 @@ public:
     std::string GetDatabaseDir() override;
     std::string GetPreferencesDir() override;
     std::string GetDistributedFilesDir() override;
+    std::string GetCloudFileDir() override;
     sptr<IRemoteObject> GetToken() override;
     void SetToken(const sptr<IRemoteObject> &token) override;
     void SwitchArea(int mode) override;

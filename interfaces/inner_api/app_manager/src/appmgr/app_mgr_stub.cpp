@@ -39,6 +39,8 @@ AppMgrStub::AppMgrStub()
 {
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_ATTACH_APPLICATION)] =
         &AppMgrStub::HandleAttachApplication;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::PRELOAD_APPLICATION)] =
+        &AppMgrStub::HandlePreloadApplication;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_APPLICATION_FOREGROUNDED)] =
         &AppMgrStub::HandleApplicationForegrounded;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_APPLICATION_BACKGROUNDED)] =
@@ -184,6 +186,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleUpdateConfigurationByBundleName;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_MEMORY_SIZE_STATE_CHANGED)] =
         &AppMgrStub::HandleNotifyMemonySizeStateChanged;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SET_SUPPORTED_PROCESS_CACHE_SELF)] =
+        &AppMgrStub::HandleSetSupportedProcessCacheSelf;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -218,6 +222,22 @@ int32_t AppMgrStub::HandleAttachApplication(MessageParcel &data, MessageParcel &
     HITRACE_METER(HITRACE_TAG_APP);
     sptr<IRemoteObject> client = data.ReadRemoteObject();
     AttachApplication(client);
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandlePreloadApplication(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    TAG_LOGD(AAFwkTag::APPMGR, "Stub HandlePreloadApplication called.");
+    std::string bundleName = Str16ToStr8(data.ReadString16());
+    int32_t userId = data.ReadInt32();
+    int32_t preloadMode = data.ReadInt32();
+    int32_t appIndex = data.ReadInt32();
+    auto result = PreloadApplication(bundleName, userId, static_cast<AppExecFwk::PreloadMode>(preloadMode), appIndex);
+    if (!reply.WriteInt32(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Stub HandlePreloadApplication Write result failed.");
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
     return NO_ERROR;
 }
 
@@ -1254,6 +1274,18 @@ int32_t AppMgrStub::HandleNotifyMemonySizeStateChanged(MessageParcel &data, Mess
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write result error.");
         return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleSetSupportedProcessCacheSelf(MessageParcel &data, MessageParcel &reply)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    bool isSupport = data.ReadBool();
+    auto ret = SetSupportedProcessCacheSelf(isSupport);
+    if (!reply.WriteInt32(ret)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write ret error.");
+        return IPC_STUB_ERR;
     }
     return NO_ERROR;
 }

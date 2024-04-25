@@ -216,6 +216,11 @@ public:
         return serviceMap_;
     }
 
+    uint32_t GetSceneBoardTokenId() const
+    {
+        return sceneBoardTokenId_;
+    }
+
     /**
      * OnAbilityDied.
      *
@@ -356,13 +361,14 @@ private:
     int DispatchBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     int DispatchTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
-    void HandleStartTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord, int resultCode);
+    void HandleStartTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void HandleStopTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void HandleTerminateDisconnectTask(const ConnectListType& connectlist);
     void HandleCommandTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void HandleCommandWindowTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord,
         const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd);
     void HandleForegroundTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void HandleConnectTimeoutTask(std::shared_ptr<AbilityRecord> abilityRecord);
     void HandleRestartResidentTask(const AbilityRequest &abilityRequest);
     void HandleActiveAbility(std::shared_ptr<AbilityRecord> &targetService,
         std::shared_ptr<ConnectionRecord> &connectRecord);
@@ -557,6 +563,7 @@ private:
     UIExtensionMapType uiExtensionMap_;
     WindowExtensionMapType windowExtensionMap_;
     std::unique_ptr<UIExtensionAbilityConnectManager> uiExtensionAbilityRecordMgr_ = nullptr;
+    uint32_t sceneBoardTokenId_ = 0;
 
     DISALLOW_COPY_AND_MOVE(AbilityConnectManager);
 };

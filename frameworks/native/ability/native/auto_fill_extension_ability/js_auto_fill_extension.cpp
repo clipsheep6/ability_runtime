@@ -83,12 +83,15 @@ napi_value AttachAutoFillExtensionContext(napi_env env, void *value, void *)
         env, contextObj, DetachCallbackFunc, AttachAutoFillExtensionContext, value, nullptr);
 
     auto workContext = new (std::nothrow) std::weak_ptr<AutoFillExtensionContext>(ptr);
-    napi_wrap(env, contextObj, workContext,
-        [](napi_env, void *data, void *) {
-            TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Finalizer for weak_ptr ui extension context is called");
-            delete static_cast<std::weak_ptr<AutoFillExtensionContext> *>(data);
-        },
-        nullptr, nullptr);
+    if (workContext != nullptr) {
+        napi_wrap(env, contextObj, workContext,
+            [](napi_env, void *data, void *) {
+              TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Finalizer for weak_ptr ui extension context is called");
+              delete static_cast<std::weak_ptr<AutoFillExtensionContext> *>(data);
+            },
+            nullptr, nullptr);
+    }
+
     return contextObj;
 }
 

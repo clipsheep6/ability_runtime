@@ -126,6 +126,7 @@ int32_t AutoFillManager::HandleRequestExecuteInner(
     extensionCallback->SetWindowType(autoFillWindowType);
     extensionCallback->SetExtensionType(isSmartAutoFill);
     extensionCallback->SetAutoFillType(request.autoFillType);
+    extensionCallback->SetAutoFillRequestConfig(request.config);
     std::lock_guard<std::mutex> lock(extensionCallbacksMutex_);
     extensionCallbacks_.emplace(eventId_, extensionCallback);
     return AutoFill::AUTO_FILL_SUCCESS;

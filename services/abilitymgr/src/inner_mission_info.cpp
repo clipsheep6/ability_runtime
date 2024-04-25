@@ -65,6 +65,9 @@ std::string InnerMissionInfo::ToJsonStr() const
 bool InnerMissionInfo::FromJsonStr(const std::string &jsonStr)
 {
     // Do not throw exceptions in nlohmann::json::parse
+    if (jsonStr.empty()) {
+        return false;
+    }
     nlohmann::json value = nlohmann::json::parse(jsonStr, nullptr, false);
     if (value.is_discarded()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to parse json sting: %{private}s.", jsonStr.c_str());

@@ -39,8 +39,10 @@ public:
     bool AddInstance(int32_t tid, int32_t instanceId, const std::string& instanceName = "PandaDebugger");
     void RemoveInstance(int32_t instanceId);
     void SendInspector(const std::string& jsonTreeStr, const std::string& jsonSnapshotStr);
+    void SendArkUIStateProfilerMessage(const std::string &message);
     void SetLayoutInspectorCallback(
         const std::function<void(int32_t)> &createLayoutInfo, const std::function<void(bool)> &setStatus);
+    void SetStateProfilerCallback(const std::function<void(bool)> &setArkUIStateProfilerStatus);
     std::function<void(int32_t)> GetLayoutInspectorCallback();
     bool StoreInstanceMessage(
         int32_t tid, int32_t instanceId, const std::string& instanceName = "PandaDebugger");
@@ -64,6 +66,7 @@ private:
     std::unordered_map<int32_t, std::pair<std::string, int32_t>> instanceMap_;
     std::function<void(int32_t)> createLayoutInfo_;
     std::function<void(int32_t)> setStatus_;
+    std::function<void(int32_t)> setArkUIStateProfilerStatus_;
     ConnectServerManager(const ConnectServerManager&) = delete;
     ConnectServerManager(ConnectServerManager&&) = delete;
     ConnectServerManager& operator=(const ConnectServerManager&) = delete;

@@ -70,6 +70,18 @@ public:
      */
     virtual void AttachApplication(const sptr<IRemoteObject> &app) override;
 
+    /**
+     * Preload application.
+     *
+     * @param bundleName The bundle name of the application to preload.
+     * @param userId Indicates the user identification.
+     * @param preloadMode Preload application mode.
+     * @param appIndex The index of application clone.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t PreloadApplication(const std::string &bundleName, int32_t userId,
+        AppExecFwk::PreloadMode preloadMode, int32_t appIndex) override;
+
     // notify the ams update the state of an app, when it entered foreground.
 
     /**
@@ -478,6 +490,7 @@ public:
 
     int32_t NotifyMemonySizeStateChanged(bool isMemorySizeSufficent) override;
 
+    int32_t SetSupportedProcessCacheSelf(bool isSupport) override;
 private:
     /**
      * Init, Initialize application services.

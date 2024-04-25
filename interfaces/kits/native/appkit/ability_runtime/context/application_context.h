@@ -85,6 +85,7 @@ public:
     int32_t GetSystemPreferencesDir(const std::string &groupId, bool checkExist, std::string &preferencesDir) override;
     std::string GetGroupDir(std::string groupId) override;
     std::string GetDistributedFilesDir() override;
+    std::string GetCloudFileDir() override;
     sptr<IRemoteObject> GetToken() override;
     void SetToken(const sptr<IRemoteObject> &token) override;
     void SwitchArea(int mode) override;
@@ -112,6 +113,7 @@ public:
 
     std::string GetAppRunningUniqueId() const;
     void SetAppRunningUniqueId(const std::string &appRunningUniqueId);
+    int32_t SetSupportedProcessCacheSelf(bool isSupport);
 private:
     std::shared_ptr<ContextImpl> contextImpl_;
     static std::vector<std::shared_ptr<AbilityLifecycleCallback>> callbacks_;

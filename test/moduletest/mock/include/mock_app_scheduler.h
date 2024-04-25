@@ -37,7 +37,7 @@ public:
     MOCK_METHOD2(ScheduleLaunchApplication, void(const AppExecFwk::AppLaunchData&, const Configuration& config));
     MOCK_METHOD4(ScheduleLaunchAbility, void(const AppExecFwk::AbilityInfo&, const sptr<IRemoteObject>&,
         const std::shared_ptr<AAFwk::Want>&, int32_t));
-    MOCK_METHOD1(ScheduleCleanAbility, void(const sptr<IRemoteObject>&));
+    MOCK_METHOD2(ScheduleCleanAbility, void(const sptr<IRemoteObject>&, bool));
     MOCK_METHOD1(ScheduleProfileChanged, void(const AppExecFwk::Profile&));
     MOCK_METHOD1(ScheduleConfigurationUpdated, void(const AppExecFwk::Configuration& config));
     MOCK_METHOD1(ScheduleShrinkMemory, void(const int));

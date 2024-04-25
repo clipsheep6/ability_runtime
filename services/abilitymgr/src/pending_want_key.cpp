@@ -40,6 +40,7 @@ void PendingWantKey::SetRequestCode(int32_t requestCode)
 
 void PendingWantKey::SetRequestWant(const Want &requestWant)
 {
+    std::lock_guard<std::mutex> lock(requestWantMutex_);
     requestWant_ = requestWant;
 }
 
@@ -91,11 +92,13 @@ int32_t PendingWantKey::GetRequestCode()
 
 Want PendingWantKey::GetRequestWant()
 {
+    std::lock_guard<std::mutex> lock(requestWantMutex_);
     return requestWant_;
 }
 
 Want& PendingWantKey::GetRequestWantRef()
 {
+    std::lock_guard<std::mutex> lock(requestWantMutex_);
     return requestWant_;
 }
 
@@ -123,6 +126,12 @@ int32_t PendingWantKey::GetCode()
 int32_t PendingWantKey::GetUserId()
 {
     return userId_;
+}
+
+bool PendingWantKey::IsEqualsRequestWant(const Want &otherWant)
+{
+    std::lock_guard<std::mutex> lock(requestWantMutex_);
+    return requestWant_.IsEquals(otherWant);
 }
 }  // namespace AAFwk
 }  // namespace OHOS
