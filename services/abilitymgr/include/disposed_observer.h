@@ -30,10 +30,12 @@ public:
     DisposedObserver(const AppExecFwk::DisposedRule &disposedRule,
         const std::shared_ptr<DisposedRuleInterceptor> &interceptor);
     ~DisposedObserver() = default;
+    void UpdateDisposedRule(const AppExecFwk::DisposedRule &disposedRule);
 
 private:
     void OnAbilityStateChanged(const AppExecFwk::AbilityStateData &abilityStateData) override;
     void OnPageShow(const AppExecFwk::PageStateData &pageStateData) override;
+    void OnAppStateChanged(const AppExecFwk::AppStateData &appStateData) override;
 private:
     ffrt::mutex observerLock_;
     AppExecFwk::DisposedRule disposedRule_;

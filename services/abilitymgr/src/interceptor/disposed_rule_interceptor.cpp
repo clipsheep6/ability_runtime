@@ -28,8 +28,8 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 const std::string UNREGISTER_EVENT_TASK = "unregister event task";
-const std::string UNREGISTER_TIMEOUT_OBSERVER_TASK = "unregister timeout observer task";
-constexpr int UNREGISTER_OBSERVER_MICRO_SECONDS = 5000;
+// const std::string UNREGISTER_TIMEOUT_OBSERVER_TASK = "unregister timeout observer task";
+// constexpr int UNREGISTER_OBSERVER_MICRO_SECONDS = 5000;
 const std::string UIEXTENSION_MODAL_TYPE = "ability.want.params.modalType";
 }
 
@@ -160,7 +160,9 @@ ErrCode DisposedRuleInterceptor::StartNonBlockRule(const Want &want, AppExecFwk:
     std::string bundleName = want.GetBundle();
     {
         std::lock_guard<ffrt::mutex> guard(observerLock_);
-        if (disposedObserverMap_.find(bundleName) != disposedObserverMap_.end()) {
+        auto iter = disposedObserverMap_.find(bundleName);
+        if (iter != disposedObserverMap_.end()) {
+            iter->second->UpdateDisposedRule(disposedRule);
             HILOG_DEBUG("start same disposed app, do not need to register again");
             return ERR_OK;
         }
@@ -181,16 +183,16 @@ ErrCode DisposedRuleInterceptor::StartNonBlockRule(const Want &want, AppExecFwk:
         std::lock_guard<ffrt::mutex> guard(observerLock_);
         disposedObserverMap_.emplace(bundleName, disposedObserver);
     }
-    auto unregisterTask = [appManager, bundleName, interceptor = shared_from_this()] () {
-        std::lock_guard<ffrt::mutex> guard{interceptor->observerLock_};
-        auto iter = interceptor->disposedObserverMap_.find(bundleName);
-        if (iter != interceptor->disposedObserverMap_.end()) {
-            HILOG_ERROR("start disposed app time out, need to unregister observer");
-            IN_PROCESS_CALL(appManager->UnregisterApplicationStateObserver(iter->second));
-            interceptor->disposedObserverMap_.erase(iter);
-        }
-    };
-    taskHandler_->SubmitTask(unregisterTask, UNREGISTER_TIMEOUT_OBSERVER_TASK, UNREGISTER_OBSERVER_MICRO_SECONDS);
+    // auto unregisterTask = [appManager, bundleName, interceptor = shared_from_this()] () {
+    //     std::lock_guard<ffrt::mutex> guard{interceptor->observerLock_};
+    //     auto iter = interceptor->disposedObserverMap_.find(bundleName);
+    //     if (iter != interceptor->disposedObserverMap_.end()) {
+    //         HILOG_ERROR("start disposed app time out, need to unregister observer");
+    //         IN_PROCESS_CALL(appManager->UnregisterApplicationStateObserver(iter->second));
+    //         interceptor->disposedObserverMap_.erase(iter);
+    //     }
+    // };
+    // taskHandler_->SubmitTask(unregisterTask, UNREGISTER_TIMEOUT_OBSERVER_TASK, UNREGISTER_OBSERVER_MICRO_SECONDS);
     return ERR_OK;
 }
 
@@ -217,7 +219,7 @@ sptr<OHOS::AppExecFwk::IAppMgr> DisposedRuleInterceptor::GetAppMgr()
 void DisposedRuleInterceptor::UnregisterObserver(const std::string &bundleName)
 {
     HILOG_DEBUG("Call");
-    taskHandler_->CancelTask(UNREGISTER_TIMEOUT_OBSERVER_TASK);
+    // taskHandler_->CancelTask(UNREGISTER_TIMEOUT_OBSERVER_TASK);
     auto unregisterTask = [bundleName, interceptor = shared_from_this()] () {
         std::lock_guard<ffrt::mutex> guard{interceptor->observerLock_};
         auto iter = interceptor->disposedObserverMap_.find(bundleName);

@@ -1820,7 +1820,9 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
     auto requestCode = sessionInfo->requestCode;
     StartAbilityInfoWrap threadLocalInfo(sessionInfo->want, currentUserId,
         StartAbilityUtils::GetAppIndex(sessionInfo->want, sessionInfo->callerToken));
-    if (sessionInfo->want.GetBoolParam(IS_CALL_BY_SCB, true)) {
+    auto abilityRecord = uiAbilityLifecycleManager_->GetUIAbilityRecordBySessionInfo(sessionInfo);
+    if (sessionInfo->want.GetBoolParam(IS_CALL_BY_SCB, true) ||
+        (abilityRecord != nullptr && abilityRecord->IsAbilityState(AbilityState::BACKGROUND))) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "interceptorExecuter_ called.");
         AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(sessionInfo->want, requestCode,
             currentUserId, true, nullptr);
