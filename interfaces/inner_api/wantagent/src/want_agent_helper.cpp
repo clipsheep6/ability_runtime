@@ -221,12 +221,12 @@ ErrCode WantAgentHelper::Send(const std::shared_ptr<PendingWant> &pendingWant,
         TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::Send invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
-
     return pendingWant->Send(paramsInfo.GetResultCode(),
         paramsInfo.GetWant(),
         callBack,
         paramsInfo.GetPermission(),
         paramsInfo.GetExtraInfo(),
+        paramsInfo.GetStartOptions(),
         pendingWant->GetTarget());
 }
 

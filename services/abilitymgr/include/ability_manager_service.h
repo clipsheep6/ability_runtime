@@ -212,6 +212,24 @@ public:
         int requestCode = DEFAULT_INVAL_VALUE) override;
 
     /**
+     * Starts a new ability with specific start options.
+     *
+     * @param want the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @param callerToken caller ability token.
+     * @param userId Designation User ID.
+     * @param requestCode the resultCode of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int StartAbilityByTrigger(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE,
+        uint32_t callerTokenId = 0);
+
+    /**
      * Starts a new ability using the original caller information.
      *
      * @param want the want of the ability to start.
@@ -946,7 +964,8 @@ public:
         const sptr<IRemoteObject> &callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE,
-        bool isStartAsCaller = false);
+        bool isStartAsCaller = false,
+        uint32_t callerTokenId = 0);
 
     int StartAbilityForOptionInner(
         const Want &want,
@@ -954,7 +973,8 @@ public:
         const sptr<IRemoteObject> &callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE,
-        bool isStartAsCaller = false);
+        bool isStartAsCaller = false,
+        uint32_t specifyTokenId = 0);
 
     void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag);
     void OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want);
@@ -2038,7 +2058,7 @@ private:
     std::shared_ptr<AbilityDebugDeal> ConnectInitAbilityDebugDeal();
 
     int StartUIAbilityForOptionWrap(const Want &want, const StartOptions &options, sptr<IRemoteObject> callerToken,
-        int32_t userId, int requestCode);
+        int32_t userId, int requestCode, uint32_t callerTokenId = 0);
 
     int32_t SetBackgroundCall(const AppExecFwk::RunningProcessInfo &processInfo,
         const AbilityRequest &abilityRequest, bool &isBackgroundCall) const;

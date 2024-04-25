@@ -121,6 +121,7 @@ public:
      * @param callerToken, caller ability token.
      * @param userId, Designation User ID.
      * @param requestCode the resultCode of the ability to start.
+     * @param callerTokenId the tokenId of the caller to start ability.
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int StartAbility(
