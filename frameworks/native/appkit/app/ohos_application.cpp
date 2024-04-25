@@ -458,7 +458,7 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
         char valueGet[buffSize] = { 0 };
         auto res = GetParameter(PERSIST_DARKMODE_KEY, colorMode.c_str(), valueGet, buffSize);
         if (res <= 0) {
-            HILOG_ERROR("get parameter failed.");
+            TAG_LOGE(AAFwkTag::APPKIT, "get parameter failed.");
             return;
         }
         config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, valueGet);

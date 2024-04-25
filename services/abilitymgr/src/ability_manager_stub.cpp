@@ -3234,7 +3234,7 @@ int32_t AbilityManagerStub::UpdateSessionInfoBySCBInner(MessageParcel &data, Mes
     }
     size = static_cast<int32_t>(sessionIds.size());
     if (size > threshold) {
-        HILOG_ERROR("Size of vector too large for sessionIds.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Size of vector too large for sessionIds.");
         return ERR_ENOUGH_DATA;
     }
     reply.WriteInt32(size);

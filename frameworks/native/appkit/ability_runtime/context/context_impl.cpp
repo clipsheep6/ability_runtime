@@ -1076,7 +1076,7 @@ ErrCode ContextImpl::GetOverlayMgrProxy()
         return ERR_NULL_OBJECT;
     }
 
-    HILOG_DEBUG("Success.");
+    TAG_LOGD(AAFwkTag::APPKIT, "Success.");
     return ERR_OK;
 }
 
@@ -1085,7 +1085,7 @@ int ContextImpl::GetOverlayModuleInfos(const std::string &bundleName, const std:
 {
     int errCode = GetOverlayMgrProxy();
     if (errCode != ERR_OK) {
-        HILOG_ERROR("failed, errCode: %{public}d.", errCode);
+        TAG_LOGE(AAFwkTag::APPKIT, "failed, errCode: %{public}d.", errCode);
         return errCode;
     }
 

@@ -365,7 +365,7 @@ bool AppfreezeManager::IsProcessDebug(int32_t pid, std::string processName)
     GetParameter(filter.c_str(), "", param, buffSize - 1);
     int32_t debugPid = atoi(param);
     if (debugPid == pid) {
-        HILOG_INFO("appfreeze filtration %{public}s_%{public}d don't exit.",
+        TAG_LOGI(AAFwkTag::APPDFR, "appfreeze filtration %{public}s_%{public}d don't exit.",
             processName.c_str(), debugPid);
         return true;
     }
@@ -375,7 +375,7 @@ bool AppfreezeManager::IsProcessDebug(int32_t pid, std::string processName)
     std::string debugBundle(paramBundle);
 
     if (processName.compare(debugBundle) == 0) {
-        HILOG_INFO("appfreeze filtration %{public}s_%{public}s don't exit.",
+        TAG_LOGI(AAFwkTag::APPDFR, "appfreeze filtration %{public}s_%{public}s don't exit.",
             debugBundle.c_str(), processName.c_str());
         return true;
     }

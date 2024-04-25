@@ -70,7 +70,7 @@ bool ImplicitStartProcessor::IsImplicitStartAction(const Want &want)
     }
 
     if (want.GetIntParam(AAFwk::SCREEN_MODE_KEY, ScreenMode::IDLE_SCREEN_MODE) != ScreenMode::IDLE_SCREEN_MODE) {
-        HILOG_INFO("The implicit startup process is not used for the startup of EmbeddaUIAbility");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "The implicit startup process is not used for the startup of EmbeddaUIAbility");
         return false;
     }
 

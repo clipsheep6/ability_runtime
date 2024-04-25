@@ -1095,11 +1095,11 @@ void AppMgrServiceInner::SendProcessExitEventTask(
     const std::shared_ptr<AppRunningRecord> &appRecord, time_t exitTime, int32_t count)
 {
     if (appRecord == nullptr) {
-        HILOG_ERROR("appRecord is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr");
         return;
     }
     if (appRecord->GetPriorityObject() == nullptr) {
-        HILOG_ERROR("Get priority object is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Get priority object is nullptr.");
         return;
     }
     auto pid = appRecord->GetPriorityObject()->GetPid();
@@ -2512,11 +2512,11 @@ void AppMgrServiceInner::SetProcessJITState(const std::shared_ptr<AppRunningReco
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "SetProcessJITState called.");
     if (!appRecord) {
-        HILOG_ERROR("appRecord is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr.");
         return;
     }
     if (!securityModeManager_) {
-        HILOG_ERROR("securityModeManager_ is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "securityModeManager_ is nullptr.");
         appRecord->SetJITEnabled(true);
         return;
     }
@@ -2632,7 +2632,7 @@ bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningR
     }
     eventInfo.processName = appRecord->GetProcessName();
     if (appRecord->GetPriorityObject() == nullptr) {
-        HILOG_ERROR("appRecord's priorityObject is null");
+        TAG_LOGE(AAFwkTag::APPMGR, "appRecord's priorityObject is null");
     } else {
         eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
     }
@@ -5211,14 +5211,15 @@ int32_t AppMgrServiceInner::DetachAppDebug(const std::string &bundleName)
 
 int32_t AppMgrServiceInner::SetAppWaitingDebug(const std::string &bundleName, bool isPersist)
 {
-    HILOG_DEBUG("Called, bundle name is %{public}s, persist flag is %{public}d.", bundleName.c_str(), isPersist);
+    TAG_LOGD(AAFwkTag::APPMGR,
+        "Called, bundle name is %{public}s, persist flag is %{public}d.", bundleName.c_str(), isPersist);
     if (!system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
-        HILOG_ERROR("Developer mode is false.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Developer mode is false.");
         return AAFwk::ERR_NOT_DEVELOPER_MODE;
     }
 
     if (bundleName.empty()) {
-        HILOG_ERROR("The bundle name is empty.");
+        TAG_LOGE(AAFwkTag::APPMGR, "The bundle name is empty.");
         return ERR_INVALID_VALUE;
     }
 
@@ -5249,9 +5250,9 @@ int32_t AppMgrServiceInner::SetAppWaitingDebug(const std::string &bundleName, bo
 
 int32_t AppMgrServiceInner::CancelAppWaitingDebug()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (!system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
-        HILOG_ERROR("Developer mode is false.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Developer mode is false.");
         return AAFwk::ERR_NOT_DEVELOPER_MODE;
     }
 
@@ -5264,9 +5265,9 @@ int32_t AppMgrServiceInner::CancelAppWaitingDebug()
 
 int32_t AppMgrServiceInner::GetWaitingDebugApp(std::vector<std::string> &debugInfoList)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (!system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
-        HILOG_ERROR("Developer mode is false.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Developer mode is false.");
         return AAFwk::ERR_NOT_DEVELOPER_MODE;
     }
 
@@ -5274,7 +5275,7 @@ int32_t AppMgrServiceInner::GetWaitingDebugApp(std::vector<std::string> &debugIn
 
     std::lock_guard<ffrt::mutex> lock(waitingDebugLock_);
     if (waitingDebugBundleList_.empty()) {
-        HILOG_DEBUG("The waiting debug bundle list is empty.");
+        TAG_LOGD(AAFwkTag::APPMGR, "The waiting debug bundle list is empty.");
         return ERR_OK;
     }
 
@@ -5289,11 +5290,11 @@ int32_t AppMgrServiceInner::GetWaitingDebugApp(std::vector<std::string> &debugIn
 
 void AppMgrServiceInner::InitAppWaitingDebugList()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     {
         std::lock_guard<ffrt::mutex> lock(waitingDebugLock_);
         if (isInitAppWaitingDebugListExecuted_) {
-            HILOG_DEBUG("No need to initialize again.");
+            TAG_LOGD(AAFwkTag::APPMGR, "No need to initialize again.");
             return;
         }
         isInitAppWaitingDebugListExecuted_ = true;
@@ -5311,12 +5312,12 @@ void AppMgrServiceInner::InitAppWaitingDebugList()
 
 bool AppMgrServiceInner::IsWaitingDebugApp(const std::string &bundleName)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     InitAppWaitingDebugList();
 
     std::lock_guard<ffrt::mutex> lock(waitingDebugLock_);
     if (waitingDebugBundleList_.empty()) {
-        HILOG_DEBUG("The waiting debug bundle list is empty.");
+        TAG_LOGD(AAFwkTag::APPMGR, "The waiting debug bundle list is empty.");
         return false;
     }
 
@@ -5330,7 +5331,7 @@ bool AppMgrServiceInner::IsWaitingDebugApp(const std::string &bundleName)
 
 void AppMgrServiceInner::ClearNonPersistWaitingDebugFlag()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     bool isClear = false;
     {
         std::lock_guard<ffrt::mutex> lock(waitingDebugLock_);

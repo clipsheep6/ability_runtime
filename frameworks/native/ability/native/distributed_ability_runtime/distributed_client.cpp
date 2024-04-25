@@ -16,6 +16,7 @@
 
 #include "ability_manager_errors.h"
 #include "distributed_parcel_helper.h"
+#include "hilog_tag_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
@@ -207,9 +208,9 @@ ErrCode DistributedClient::NotifyCompleteContinuation(
     }
     MessageParcel reply;
     MessageOption option = {MessageOption::TF_ASYNC};
-    HILOG_INFO("NotifyCompleteContinuation SendRequest async begin.");
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "NotifyCompleteContinuation SendRequest async begin.");
     int32_t result = remote->SendRequest(NOTIFY_COMPLETE_CONTINUATION, data, reply, option);
-    HILOG_INFO("NotifyCompleteContinuation SendRequest async end.");
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "NotifyCompleteContinuation SendRequest async end.");
     if (result != ERR_NONE) {
         TAG_LOGE(AAFwkTag::DISTRIBUTED, "SendRequest failed, result = %{public}d", result);
         return result;

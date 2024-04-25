@@ -15,6 +15,7 @@
 
 #include "render_state_data.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "parcel_macro_base.h"
 
@@ -29,23 +30,23 @@ bool RenderStateData::Marshalling(Parcel &parcel) const
 bool RenderStateData::ReadFromParcel(Parcel &parcel)
 {
     if (!parcel.ReadInt32(pid)) {
-        HILOG_ERROR("pid read failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "pid read failed.");
         return false;
     }
     if (!parcel.ReadInt32(uid)) {
-        HILOG_ERROR("uid read failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "uid read failed.");
         return false;
     }
     if (!parcel.ReadInt32(hostPid)) {
-        HILOG_ERROR("hostPid read failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "hostPid read failed.");
         return false;
     }
     if (!parcel.ReadInt32(hostUid)) {
-        HILOG_ERROR("hostUid read failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "hostUid read failed.");
         return false;
     }
     if (!parcel.ReadInt32(state)) {
-        HILOG_ERROR("state read failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "state read failed.");
         return false;
     }
     return true;
@@ -55,7 +56,7 @@ RenderStateData *RenderStateData::Unmarshalling(Parcel &parcel)
 {
     RenderStateData *renderStateData = new (std::nothrow) RenderStateData();
     if (renderStateData && !renderStateData->ReadFromParcel(parcel)) {
-        HILOG_WARN("renderStateData failed, because ReadFromParcel failed");
+        TAG_LOGW(AAFwkTag::APPMGR, "renderStateData failed, because ReadFromParcel failed");
         delete renderStateData;
         renderStateData = nullptr;
     }

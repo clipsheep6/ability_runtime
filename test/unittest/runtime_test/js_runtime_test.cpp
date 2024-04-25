@@ -1357,7 +1357,7 @@ HWTEST_F(JsRuntimeTest, Deinitialize_0100, TestSize.Level0)
  */
 HWTEST_F(JsRuntimeTest, GetPkgContextInfoListMap_0100, TestSize.Level0)
 {
-    HILOG_INFO("GetPkgContextInfoListMap_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "GetPkgContextInfoListMap_0100 start");
 
     std::map<std::string, std::string> modulePkgContentMap;
     std::string pkgContentJsonString = R"({"library":{"packageName":"library","bundleName":"com.xxx.xxxx","moduleName":
@@ -1381,7 +1381,7 @@ HWTEST_F(JsRuntimeTest, GetPkgContextInfoListMap_0100, TestSize.Level0)
         }
     }
     ASSERT_EQ(pkgRetString, expectString);
-    HILOG_INFO("GetPkgContextInfoListMap_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "GetPkgContextInfoListMap_0100 end");
 }
 
 /**
@@ -1391,7 +1391,7 @@ HWTEST_F(JsRuntimeTest, GetPkgContextInfoListMap_0100, TestSize.Level0)
  */
 HWTEST_F(JsRuntimeTest, GetPkgContextInfoListMap_0200, TestSize.Level0)
 {
-    HILOG_INFO("GetPkgContextInfoListMap_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "GetPkgContextInfoListMap_0200 start");
 
     std::map<std::string, std::string> modulePkgContentMap;
     std::string pkgContentJsonString = R"({"library":{"packageName":"library","bundleName":"com.xxx.xxxx","moduleName":
@@ -1421,7 +1421,7 @@ HWTEST_F(JsRuntimeTest, GetPkgContextInfoListMap_0200, TestSize.Level0)
         }
     }
     ASSERT_EQ(pkgRetString, expectString);
-    HILOG_INFO("GetPkgContextInfoListMap_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "GetPkgContextInfoListMap_0200 end");
 }
 
 /**

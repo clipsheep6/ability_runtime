@@ -109,11 +109,11 @@ static bool CheckCallerIsDlpManager(const std::shared_ptr<AppExecFwk::BundleMgrH
     std::string bundleName;
     auto callerUid = IPCSkeleton::GetCallingUid();
     if (IN_PROCESS_CALL(bundleManager->GetNameForUid(callerUid, bundleName)) != ERR_OK) {
-        HILOG_WARN("Get Bundle Name failed.");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "Get Bundle Name failed.");
         return false;
     }
     if (bundleName != "com.ohos.dlpmanager") {
-        HILOG_WARN("Wrong Caller.");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "Wrong Caller.");
         return false;
     }
     return true;

@@ -1346,7 +1346,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             AppExecFwk::PKG_CONTEXT_PROFILE, appInfo.bundleName, hapModuleInfo.moduleName, pkgContextInfoJsonString,
             AppExecFwk::OsAccountManagerWrapper::GetCurrentActiveAccountId());
         if (ret != ERR_OK) {
-            HILOG_ERROR("GetJsonProfile failed: %{public}d.", ret);
+            TAG_LOGE(AAFwkTag::APPKIT, "GetJsonProfile failed: %{public}d.", ret);
         }
         if (!pkgContextInfoJsonString.empty()) {
             pkgContextInfoJsonStringMap[hapModuleInfo.moduleName] = pkgContextInfoJsonString;

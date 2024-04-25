@@ -2332,7 +2332,7 @@ int AbilityManagerService::RequestModalUIExtensionInner(Want want)
         return record->CreateModalUIExtension(want);
     }
 
-    HILOG_DEBUG("Window Modal System Create UIExtension is called!");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Window Modal System Create UIExtension is called!");
     want.SetParam(UIEXTENSION_MODAL_TYPE, 1);
     auto connection = std::make_shared<Rosen::ModalSystemUiExtension>();
     return connection->CreateModalUIExtension(want) ? ERR_OK : INNER_ERR;
@@ -2533,7 +2533,7 @@ void AbilityManagerService::SetAutoFillElementName(const sptr<SessionInfo> &exte
     } else if (extensionSessionInfo->want.GetStringParam(UIEXTENSION_TYPE_KEY) == AUTO_FILL_SMART_TPYE) {
         SplitStr(KEY_SMART_AUTO_FILL_ABILITY, "/", argList);
     } else {
-        HILOG_WARN("It is not autofill type.");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "It is not autofill type.");
         return;
     }
 
@@ -8892,7 +8892,7 @@ int32_t AbilityManagerService::NotifySaveAsResult(const Want &want, int resultCo
 
     //caller check
     if (!DlpUtils::CheckCallerIsDlpManager(GetBundleManager())) {
-        HILOG_WARN("caller check failed");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "caller check failed");
         return ERR_INVALID_CALLER;
     }
 
@@ -9624,7 +9624,7 @@ int AbilityManagerService::CreateModalDialog(const Want &replaceWant, sptr<IRemo
     (const_cast<Want &>(replaceWant)).SetParam("dialogSessionId", dialogSessionId);
     auto connection = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
     if (callerToken == nullptr) {
-        HILOG_DEBUG("create modal ui extension for system");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "create modal ui extension for system");
         (const_cast<Want &>(replaceWant)).SetParam(UIEXTENSION_MODAL_TYPE, 1);
         return connection->CreateModalUIExtension(replaceWant) ? ERR_OK : INNER_ERR;
     }
@@ -9637,7 +9637,7 @@ int AbilityManagerService::CreateModalDialog(const Want &replaceWant, sptr<IRemo
     sptr<IRemoteObject> token;
     int ret = IN_PROCESS_CALL(GetTopAbility(token));
     if (ret != ERR_OK || token == nullptr) {
-        HILOG_DEBUG("create modal ui extension for system");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "create modal ui extension for system");
         (const_cast<Want &>(replaceWant)).SetParam(UIEXTENSION_MODAL_TYPE, 1);
         return connection->CreateModalUIExtension(replaceWant) ? ERR_OK : INNER_ERR;
     }
@@ -9646,7 +9646,7 @@ int AbilityManagerService::CreateModalDialog(const Want &replaceWant, sptr<IRemo
         TAG_LOGD(AAFwkTag::ABILITYMGR, "create modal ui extension for application");
         return callerRecord->CreateModalUIExtension(replaceWant);
     }
-    HILOG_DEBUG("create modal ui extension for system");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "create modal ui extension for system");
     (const_cast<Want &>(replaceWant)).SetParam(UIEXTENSION_MODAL_TYPE, 1);
     return connection->CreateModalUIExtension(replaceWant) ? ERR_OK : INNER_ERR;
 }

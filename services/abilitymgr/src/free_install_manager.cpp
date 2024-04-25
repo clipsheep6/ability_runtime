@@ -311,7 +311,7 @@ void FreeInstallManager::StartAbilityByFreeInstall(FreeInstallInfo &info, std::s
             info.callerToken, info.userId, info.requestCode);
     }
     IPCSkeleton::SetCallingIdentity(identity);
-    HILOG_INFO("The result of StartAbility is %{public}d.", result);
+    TAG_LOGI(AAFwkTag::FREE_INSTALL, "The result of StartAbility is %{public}d.", result);
     DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinished(
         bundleName, abilityName, startTime, result);
 }
@@ -323,7 +323,7 @@ int32_t FreeInstallManager::UpdateElementName(Want &want, int32_t userId) const
     Want launchWant;
     auto errCode = IN_PROCESS_CALL(bundleMgrHelper->GetLaunchWantForBundle(want.GetBundle(), launchWant, userId));
     if (errCode != ERR_OK) {
-        HILOG_ERROR("GetLaunchWantForBundle returns %{public}d.", errCode);
+        TAG_LOGE(AAFwkTag::FREE_INSTALL, "GetLaunchWantForBundle returns %{public}d.", errCode);
         return errCode;
     }
     want.SetElement(launchWant.GetElement());
