@@ -37,10 +37,21 @@ void AutoFillExtensionCallback::OnResult(int32_t errCode, const AAFwk::Want &wan
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called, result code is %{public}d.", errCode);
     AutoFillManager::GetInstance().RemoveEvent(eventId_);
     CloseModalUIExtension();
-    
-    isOnResult_ = true;
-    want_ = want;
-    errCode_ = errCode;
+
+    if (autoFillWindowType_ == AutoFill::AutoFillWindowType::POPUP_WINDOW) {
+        isOnResult_ = true;
+        want_ = want;
+        errCode_ = errCode;
+        return;
+    }
+
+    if (errCode == AutoFill::AUTO_FILL_SUCCESS) {
+        SendAutoFillSucess(want);
+    } else {
+        auto resultCode = (errCode == AutoFill::AUTO_FILL_CANCEL) ?
+            AutoFill::AUTO_FILL_CANCEL : AutoFill::AUTO_FILL_FAILED;
+        SendAutoFillFailed(resultCode);
+    }
 }
 
 void AutoFillExtensionCallback::OnRelease(int32_t errCode)
@@ -151,7 +162,7 @@ void AutoFillExtensionCallback::onDestroy()
         isReloadInModal_ = false;
         return;
     }
-    if (isOnResult_) {
+    if (isOnResult_ && autoFillWindowType_ == AutoFill::AutoFillWindowType::POPUP_WINDOW) {
         isOnResult_ = false;
         if (errCode_ == AutoFill::AUTO_FILL_SUCCESS) {
             SendAutoFillSucess(want_);
