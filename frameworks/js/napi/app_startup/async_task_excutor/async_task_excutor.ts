@@ -19,7 +19,6 @@ function ConcurrentFunc(asyncTask) {
   console.log('AsyncTaskExcutor ConcurrentFunc start ');
   let taskPool = requireNapi('taskpool');
   let context = undefined;
-  other.init(context);
   console.log('AsyncTaskExcutor ConcurrentFunc start 555555555555');
   asyncTask.init(context);
   taskPool.Task.sendData(1);
