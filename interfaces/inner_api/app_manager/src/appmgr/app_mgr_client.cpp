@@ -1121,14 +1121,14 @@ int32_t AppMgrClient::GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pi
     return service->GetAllUIExtensionProviderPid(hostPid, providerPids);
 }
 
-int32_t AppMgrClient::NotifyMemonySizeStateChanged(bool isMemorySizeSufficent)
+int32_t AppMgrClient::NotifyMemorySizeStateChanged(bool isMemorySizeSufficent)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "Service is nullptr.");
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
-    return service->NotifyMemonySizeStateChanged(isMemorySizeSufficent);
+    return service->NotifyMemorySizeStateChanged(isMemorySizeSufficent);
 }
 
 bool AppMgrClient::IsMemorySizeSufficent() const

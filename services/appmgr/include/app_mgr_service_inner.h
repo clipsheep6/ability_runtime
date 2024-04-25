@@ -998,7 +998,7 @@ public:
      * @param isMemorySizeSufficent Indicates the memory size state.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t NotifyMemonySizeStateChanged(bool isMemorySizeSufficent);
+    int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent);
 
     /**
      * whether memory size is sufficent.

@@ -2092,6 +2092,26 @@ HWTEST_F(AppMgrServiceInnerTest, CheckGetRunningInfoPermission_001, TestSize.Lev
 }
 
 /**
+ * @tc.name: IsMemorySizeSufficent_001
+ * @tc.desc: check get running info permission.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, IsMemorySizeSufficent_001, TestSize.Level0)
+{
+    TAG_LOGI(AAFwkTag::TEST, "IsMemorySizeSufficent start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    appMgrServiceInner->IsMemorySizeSufficent();
+
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    appMgrServiceInner->IsMemorySizeSufficent();
+
+    TAG_LOGI(AAFwkTag::TEST, "IsMemorySizeSufficent_001 end");
+}
+
+/**
  * @tc.name: LoadResidentProcess_001
  * @tc.desc: load resident process.
  * @tc.type: FUNC

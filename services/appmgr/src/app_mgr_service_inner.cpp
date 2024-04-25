@@ -6186,9 +6186,9 @@ int32_t AppMgrServiceInner::GetAllUIExtensionProviderPid(pid_t hostPid, std::vec
     return appRunningManager_->GetAllUIExtensionProviderPid(hostPid, providerPids);
 }
 
-int32_t AppMgrServiceInner::NotifyMemonySizeStateChanged(bool isMemorySizeSufficent)
+int32_t AppMgrServiceInner::NotifyMemorySizeStateChanged(bool isMemorySizeSufficent)
 {
-    TAG_LOGI(AAFwkTag::APPMGR, "NotifyMemonySizeStateChanged, isMemorySizeSufficent: %{public}d",
+    TAG_LOGI(AAFwkTag::APPMGR, "NotifyMemorySizeStateChanged, isMemorySizeSufficent: %{public}d",
         isMemorySizeSufficent);
     bool isMemmgrCall = AAFwk::PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission(
         MEMMGR_PROC_NAME);
@@ -6198,7 +6198,11 @@ int32_t AppMgrServiceInner::NotifyMemonySizeStateChanged(bool isMemorySizeSuffic
     }
 
     if (!isMemorySizeSufficent) {
-        return ExitResidentProcessManager::GetInstance().HandleMemorySizeInSufficent();
+        auto ret = ExitResidentProcessManager::GetInstance().HandleMemorySizeInSufficent();
+        if (ret != ERR_OK) {
+            TAG_LOGE(AAFwkTag::APPMGR, "HandleMemorySizeInSufficent failed, ret is %{public}d.", ret);
+        }
+        return ret;
     }
     std::vector<std::string> exitBundleNames;
     auto ret = ExitResidentProcessManager::GetInstance().HandleMemorySizeSufficent(exitBundleNames);
