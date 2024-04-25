@@ -1580,6 +1580,7 @@ int AbilityManagerStub::UnRegisterMissionListenerInner(MessageParcel &data, Mess
 
 int AbilityManagerStub::GetMissionInfosInner(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::string deviceId = Str16ToStr8(data.ReadString16());
     int numMax = data.ReadInt32();
     std::vector<MissionInfo> missionInfos;

@@ -91,6 +91,7 @@ int AbilityManagerProxy::StartAbility(const Want &want, int32_t userId, int requ
 
 AppExecFwk::ElementName AbilityManagerProxy::GetTopAbility(bool isNeedLocalDeviceId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -2545,6 +2546,7 @@ int AbilityManagerProxy::UnRegisterMissionListener(const sptr<IMissionListener> 
 int AbilityManagerProxy::GetMissionInfos(const std::string& deviceId, int32_t numMax,
     std::vector<MissionInfo> &missionInfos)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;

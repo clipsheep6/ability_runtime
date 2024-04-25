@@ -906,6 +906,7 @@ void ContextImpl::SetResourceManager(const std::shared_ptr<Global::Resource::Res
 
 std::shared_ptr<Global::Resource::ResourceManager> ContextImpl::GetResourceManager() const
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (resourceManager_) {
         return resourceManager_;
     }
@@ -915,6 +916,7 @@ std::shared_ptr<Global::Resource::ResourceManager> ContextImpl::GetResourceManag
 
 std::shared_ptr<AppExecFwk::ApplicationInfo> ContextImpl::GetApplicationInfo() const
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (parentContext_ != nullptr) {
         return parentContext_->GetApplicationInfo();
     }

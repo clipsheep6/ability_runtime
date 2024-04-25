@@ -16,6 +16,7 @@
 #include "ability_manager.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "singleton.h"
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
@@ -52,6 +53,7 @@ int32_t AbilityManager::ClearUpApplicationData(const std::string &bundleName)
 
 std::vector<RunningProcessInfo> AbilityManager::GetAllRunningProcesses()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPKIT, "%s, %d", __func__, __LINE__);
     auto object = OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(APP_MGR_SERVICE_ID);
     sptr<IAppMgr> appMgr_ = iface_cast<IAppMgr>(object);

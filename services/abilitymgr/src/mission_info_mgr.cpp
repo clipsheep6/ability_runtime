@@ -217,6 +217,7 @@ bool MissionInfoMgr::DeleteAllMissionInfos(const std::shared_ptr<MissionListener
 
 static bool DoesNotShowInTheMissionList(const InnerMissionInfo &mission)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     bool isStartByCall = false;
     switch (static_cast<StartMethod>(mission.startMethod)) {
         case StartMethod::START_CALL:
