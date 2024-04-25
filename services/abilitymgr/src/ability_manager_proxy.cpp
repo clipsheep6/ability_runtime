@@ -5134,5 +5134,26 @@ int32_t AbilityManagerProxy::StartShortcut(const Want &want, const StartOptions 
     }
     return reply.ReadInt32();
 }
+
+int32_t AbilityManagerProxy::GetAbilityStateByPersistentId(int32_t persistentId, bool &state)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return IPC_PROXY_ERR;
+    }
+    if (!data.WriteInt32(persistentId)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
+        return IPC_PROXY_ERR;
+    }
+    auto error = SendRequest(AbilityManagerInterfaceCode::GET_ABILITY_STATE_BY_PERSISTENT_ID, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        return error;
+    }
+    state = reply.ReadBool();
+    return NO_ERROR;
+}
 } // namespace AAFwk
 } // namespace OHOS

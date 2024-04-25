@@ -295,6 +295,7 @@ private:
     int32_t RequestAssertFaultDialogInner(MessageParcel &data, MessageParcel &reply);
     int32_t NotifyDebugAssertResultInner(MessageParcel &data, MessageParcel &reply);
     int32_t StartShortcutInner(MessageParcel &data, MessageParcel &reply);
+    int32_t GetAbilityStateByPersistentIdInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

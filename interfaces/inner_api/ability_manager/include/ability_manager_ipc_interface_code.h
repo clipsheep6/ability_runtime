@@ -431,6 +431,8 @@ enum class AbilityManagerInterfaceCode {
     START_ABILITY_WITH_SPECIFY_TOKENID = 1125,
     REGISTER_ABILITY_FIRST_FRAME_STATE_OBSERVER = 1126,
     UNREGISTER_ABILITY_FIRST_FRAME_STATE_OBSERVER = 1127,
+    // ipc for get ability state by persistent id
+    GET_ABILITY_STATE_BY_PERSISTENT_ID = 1128,
 
     // ipc id 2001-3000 for tools
     // ipc id for dumping state (2001)

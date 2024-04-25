@@ -1553,6 +1553,18 @@ public:
     {
         return 0;
     }
+
+    /**
+     * Get ability state by persistent id.
+     *
+     * @param persistentId, the persistentId of the session.
+     * @param state Indicates the ability state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetAbilityStateByPersistentId(int32_t persistentId, bool &state)
+    {
+        return 0;
+    }
 };
 }  // namespace AAFwk
 }  // namespace OHOS

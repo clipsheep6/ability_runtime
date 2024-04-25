@@ -2329,5 +2329,21 @@ int UIAbilityLifecycleManager::StartWithPersistentIdByDistributed(const AbilityR
     sessionInfo->processOptions = abilityRequest.processOptions;
     return NotifySCBPendingActivation(sessionInfo, abilityRequest);
 }
+
+int32_t UIAbilityLifecycleManager::GetAbilityStateByPersistentId(int32_t persistentId, bool &state)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "GetAbilityStateByPersistentId, called.");
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    auto iter = sessionAbilityMap_.find(persistentId);
+    if (iter != sessionAbilityMap_.end()) {
+        std::shared_ptr<AbilityRecord> uiAbilityRecord = iter->second;
+        if (uiAbilityRecord && uiAbilityRecord->GetPendingState() == AbilityState::INITIAL) {
+            state = true;
+            return ERR_OK;
+        }
+    }
+    state = false;
+    return ERR_INVALID_VALUE;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

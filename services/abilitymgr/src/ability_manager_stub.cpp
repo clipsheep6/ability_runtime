@@ -430,6 +430,8 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::ChangeUIAbilityVisibilityBySCBInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_SHORTCUT)] =
         &AbilityManagerStub::StartShortcutInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ABILITY_STATE_BY_PERSISTENT_ID)] =
+        &AbilityManagerStub::GetAbilityStateByPersistentIdInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -3355,6 +3357,20 @@ int32_t AbilityManagerStub::StartShortcutInner(MessageParcel &data, MessageParce
     reply.WriteInt32(result);
     delete startOptions;
     return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::GetAbilityStateByPersistentIdInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t persistentId = data.ReadInt32();
+    bool state = false;
+    int32_t result = GetAbilityStateByPersistentId(persistentId, state);
+    if (result == ERR_OK) {
+        if (!reply.WriteBool(state)) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "reply write failed.");
+            return IPC_STUB_ERR;
+        }
+    }
+    return result;
 }
 } // namespace AAFwk
 } // namespace OHOS

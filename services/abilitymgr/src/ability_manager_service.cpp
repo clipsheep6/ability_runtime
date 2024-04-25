@@ -10231,5 +10231,22 @@ int32_t AbilityManagerService::StartShortcut(const Want &want, const StartOption
     }
     return StartAbility(want, startOptions, nullptr);
 }
+
+int32_t AbilityManagerService::GetAbilityStateByPersistentId(int32_t persistentId, bool &state)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (!CheckCallerIsDmsProcess()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetAbilityStateByPersistentId, caller is not dms.");
+        return ERR_PERMISSION_DENIED;
+    }
+
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto uiAbilityManager = GetUIAbilityManagerByUid(IPCSkeleton::GetCallingUid());
+        CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
+        return uiAbilityManager->GetAbilityStateByPersistentId(persistentId, state);
+    }
+    TAG_LOGE(AAFwkTag::ABILITYMGR, "GetAbilityStateByPersistentId, mission not have persistent id.");
+    return INNER_ERR;
+}
 }  // namespace AAFwk
 }  // namespace OHOS
