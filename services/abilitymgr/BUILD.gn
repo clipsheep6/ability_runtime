@@ -131,16 +131,19 @@ ohos_shared_library("abilityms") {
   ]
 
   external_deps = [
-    "ability_base:base",
+    # "ability_base:base",
     "ability_base:configuration",
-    "ability_base:extractortool",
+
+    # "ability_base:extractortool",
     "ability_base:session_info",
     "ability_base:view_data",
-    "ability_base:want",
-    "ability_base:zuri",
+
+    # "ability_base:want",
+    # "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
-    "background_task_mgr:bgtaskmgr_innerkits",
+
+    # "background_task_mgr:bgtaskmgr_innerkits",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "bundle_framework:libappexecfwk_common",
@@ -154,13 +157,15 @@ ohos_shared_library("abilityms") {
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
-    "icu:shared_icuuc",
+
+    # "icu:shared_icuuc",
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
     "kv_store:distributeddata_inner",
-    "os_account:os_account_innerkits",
-    "relational_store:native_appdatafwk",
+
+    # "os_account:os_account_innerkits",
+    # "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
@@ -171,7 +176,16 @@ ohos_shared_library("abilityms") {
     "window_manager:session_manager_lite",
     "window_manager:sms",
   ]
-
+  public_external_deps = [
+    "ability_base:base",
+    "ability_base:extractortool",
+    "ability_base:want",
+    "ability_base:zuri",
+    "background_task_mgr:bgtaskmgr_innerkits",
+    "icu:shared_icuuc",
+    "os_account:os_account_innerkits",
+    "relational_store:native_appdatafwk",
+  ]
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
   }
