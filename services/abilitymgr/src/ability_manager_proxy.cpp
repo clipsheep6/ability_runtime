@@ -3886,7 +3886,7 @@ int32_t AbilityManagerProxy::IsValidMissionIds(
     }
 
     constexpr int32_t MAX_COUNT = 20;
-    int32_t num = missionIds.size() > MAX_COUNT ? MAX_COUNT : missionIds.size();
+    int32_t num = static_cast<int32_t>(missionIds.size() > MAX_COUNT ? MAX_COUNT : missionIds.size());
     data.WriteInt32(num);
     for (auto i = 0; i < num; ++i) {
         data.WriteInt32(missionIds.at(i));

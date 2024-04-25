@@ -288,7 +288,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     }
 
     if (appLinkingOnly) {
-        abilityInfoFlag = abilityInfoFlag |
+        abilityInfoFlag = static_cast<uint32_t>(abilityInfoFlag) |
             static_cast<uint32_t>(AppExecFwk::GetAbilityInfoFlag::GET_ABILITY_INFO_WITH_APP_LINKING);
     }
 

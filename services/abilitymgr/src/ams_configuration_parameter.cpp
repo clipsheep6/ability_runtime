@@ -14,6 +14,7 @@
  */
 
 #include "ams_configuration_parameter.h"
+#include <unistd.h>
 #include "app_utils.h"
 #include "config_policy_utils.h"
 #include "hilog_tag_wrapper.h"
@@ -117,6 +118,15 @@ const std::map<std::string, std::string>& AmsConfigurationParameter::GetPickerMa
 void AmsConfigurationParameter::LoadUIExtensionPickerConfig(const std::string &filePath)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s", __func__);
+    if (filePath.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "the file is not existed due to empty file path.");
+        return;
+    }
+
+    if (access(filePath.c_str(), F_OK) != 0) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "can not access the file: %{private}s.", filePath.c_str());
+        return;
+    }
     std::ifstream inFile;
     inFile.open(filePath, std::ios::in);
     if (!inFile.is_open()) {
@@ -171,6 +181,15 @@ int AmsConfigurationParameter::LoadAmsConfiguration(const std::string &filePath)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s", __func__);
     int ret[2] = {0};
+    if (filePath.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "the file is not existed due to empty file path.");
+        return READ_FAIL;
+    }
+
+    if (access(filePath.c_str(), F_OK) != 0) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "can not access the file: %{private}s.", filePath.c_str());
+        return READ_FAIL;
+    }
     std::ifstream inFile;
     inFile.open(filePath, std::ios::in);
     if (!inFile.is_open()) {

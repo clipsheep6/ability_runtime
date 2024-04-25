@@ -487,7 +487,7 @@ struct SelectorPcDialog {
                 .height(40)
                 .fontSize(16)
                 .borderRadius(20)
-                .margin({ top : 16 , left : 48 })
+                .margin({ top : 16, left : 48 })
               }
           }
       }

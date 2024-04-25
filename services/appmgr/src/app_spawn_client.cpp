@@ -184,34 +184,43 @@ int32_t AppSpawnClient::AppspawnSetExtMsg(const AppSpawnStartMsg &startMsg, AppS
         return ret;
     }
 
-    if (!startMsg.hspList.empty() &&
-        (ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_HSP_LIST,
-            DumpHspListToJson(startMsg.hspList).c_str()))) {
-        TAG_LOGE(AAFwkTag::APPMGR, "SetExtraHspList failed, ret: %{public}d", ret);
-        return ret;
+    if (!startMsg.hspList.empty()) {
+        ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_HSP_LIST,
+            DumpHspListToJson(startMsg.hspList).c_str());
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "SetExtraHspList failed, ret: %{public}d", ret);
+            return ret;
+        }
     }
 
-    if (!startMsg.dataGroupInfoList.empty() &&
-        (ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_DATA_GROUP,
-            DumpDataGroupInfoListToJson(startMsg.dataGroupInfoList).c_str()))) {
-        TAG_LOGE(AAFwkTag::APPMGR, "SetExtraDataGroupInfo failed, ret: %{public}d", ret);
-        return ret;
+    if (!startMsg.dataGroupInfoList.empty()) {
+        ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_DATA_GROUP,
+            DumpDataGroupInfoListToJson(startMsg.dataGroupInfoList).c_str());
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "SetExtraDataGroupInfo failed, ret: %{public}d", ret);
+            return ret;
+        }
     }
 
-    if (!startMsg.overlayInfo.empty() &&
-        (ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_OVERLAY, startMsg.overlayInfo.c_str()))) {
-        TAG_LOGE(AAFwkTag::APPMGR, "SetExtraOverlayInfo failed, ret: %{public}d", ret);
-        return ret;
+    if (!startMsg.overlayInfo.empty()) {
+        ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_OVERLAY, startMsg.overlayInfo.c_str());
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "SetExtraOverlayInfo failed, ret: %{public}d", ret);
+            return ret;
+        }
     }
-    if (!startMsg.appEnv.empty() &&
-        (ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_APP_ENV,
-            DumpAppEnvToJson(startMsg.appEnv).c_str()))) {
-        TAG_LOGE(AAFwkTag::APPMGR, "SetExtraEnv failed, ret: %{public}d", ret);
-        return ret;
+
+    if (!startMsg.appEnv.empty()) {
+        ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_APP_ENV, DumpAppEnvToJson(startMsg.appEnv).c_str());
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "SetExtraEnv failed, ret: %{public}d", ret);
+            return ret;
+        }
     }
 
     return ret;
 }
+
 int32_t AppSpawnClient::AppspawnCreateDefaultMsg(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle)
 {
     TAG_LOGI(AAFwkTag::APPMGR, "AppspawnCreateDefaultMsg");
@@ -230,11 +239,13 @@ int32_t AppSpawnClient::AppspawnCreateDefaultMsg(const AppSpawnStartMsg &startMs
             TAG_LOGE(AAFwkTag::APPMGR, "SetInternetPermissionInfo failed, ret: %{public}d", ret);
             break;
         }
-        if (startMsg.ownerId.size() &&
-            (ret = AppSpawnReqMsgSetAppOwnerId(reqHandle, startMsg.ownerId.c_str()))) {
-            TAG_LOGE(AAFwkTag::APPMGR, "SetOwnerId %{public}s failed, ret: %{public}d",
-                startMsg.ownerId.c_str(), ret);
-            break;
+        if (startMsg.ownerId.size()) {
+            ret = AppSpawnReqMsgSetAppOwnerId(reqHandle, startMsg.ownerId.c_str());
+            if (ret) {
+                TAG_LOGE(AAFwkTag::APPMGR, "SetOwnerId %{public}s failed, ret: %{public}d",
+                    startMsg.ownerId.c_str(), ret);
+                break;
+            }
         }
         if ((ret = AppSpawnReqMsgSetAppAccessToken(reqHandle, startMsg.accessTokenIdEx))) {
             TAG_LOGE(AAFwkTag::APPMGR, "SetAccessTokenInfo %{public}llu failed, ret: %{public}d",
