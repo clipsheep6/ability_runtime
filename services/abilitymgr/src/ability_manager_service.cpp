@@ -1464,6 +1464,8 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         if (PermissionVerification::GetInstance()->IsSystemAppCall()) {
             bool windowFocused = startOptions.GetWindowFocused();
             abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_FOCUSED, windowFocused);
+        } else {
+            abilityRequest.want.RemoveParam(Want::PARAM_RESV_WINDOW_FOCUSED);
         }
         if (startOptions.GetDisplayID() == 0) {
             abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID,
@@ -1604,6 +1606,8 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     if (PermissionVerification::GetInstance()->IsSystemAppCall()) {
         bool windowFocused = startOptions.GetWindowFocused();
         abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_FOCUSED, windowFocused);
+    } else {
+        abilityRequest.want.RemoveParam(Want::PARAM_RESV_WINDOW_FOCUSED);
     }
 
     Want newWant = abilityRequest.want;
