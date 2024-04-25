@@ -198,7 +198,9 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
             request.want.RemoveParam("isCreateAppGallerySelector");
             return NotifyCreateModalDialog(request, request.want, userId, dialogAppInfos);
         }
-        ret = abilityMgr->StartAbilityAsCaller(request.want, request.callerToken, nullptr);
+
+        ret = abilityMgr->StartAbilityAsCaller(request.want, request.callerToken, nullptr, DEFAULT_INVAL_VALUE,
+            DEFAULT_INVAL_VALUE, false, true);
         // reset calling indentity
         IPCSkeleton::SetCallingIdentity(identity);
         return ret;
@@ -216,7 +218,9 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         request.want.RemoveParam("isCreateAppGallerySelector");
         return NotifyCreateModalDialog(request, request.want, userId, dialogAppInfos);
     }
-    ret = abilityMgr->StartAbilityAsCaller(request.want, request.callerToken, nullptr);
+
+    ret = abilityMgr->StartAbilityAsCaller(request.want, request.callerToken, nullptr, DEFAULT_INVAL_VALUE,
+        DEFAULT_INVAL_VALUE, false, true);
     // reset calling indentity
     IPCSkeleton::SetCallingIdentity(identity);
     return ret;
@@ -454,22 +458,22 @@ int32_t ImplicitStartProcessor::ImplicitStartAbilityInner(const Want &targetWant
             startOptions.SetDisplayID(static_cast<int32_t>(displayId));
             startOptions.SetWindowMode(static_cast<int32_t>(windowMode));
             result = abilityMgr->StartAbility(
-                targetWant, startOptions, request.callerToken, userId, request.requestCode);
+                targetWant, startOptions, request.callerToken, userId, request.requestCode, true);
             break;
         }
         case AbilityCallType::START_SETTINGS_TYPE: {
             CHECK_POINTER_AND_RETURN(request.startSetting, ERR_INVALID_VALUE);
             result = abilityMgr->StartAbility(
-                targetWant, *request.startSetting, request.callerToken, userId, request.requestCode);
+                targetWant, *request.startSetting, request.callerToken, userId, request.requestCode, true);
             break;
         }
         case AbilityCallType::START_EXTENSION_TYPE:
             result = abilityMgr->StartExtensionAbility(
-                targetWant, request.callerToken, userId, request.extensionType);
+                targetWant, request.callerToken, userId, request.extensionType, true);
             break;
         default:
             result = abilityMgr->StartAbilityWrap(
-                targetWant, request.callerToken, request.requestCode, userId);
+                targetWant, request.callerToken, request.requestCode, userId, false, false, 0, false, true);
             break;
     }
 

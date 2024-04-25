@@ -46,7 +46,7 @@ int MockServiceAbilityManagerService::StartAbility(
 
 int MockServiceAbilityManagerService::StartAbilityAsCaller(
     const Want& want, const sptr<IRemoteObject>& callerToken, sptr<IRemoteObject> asCallerSourceToken,
-    int32_t userId, int requestCode, bool isSendDialogResult)
+    int32_t userId, int requestCode, bool isSendDialogResult, bool isImplicit)
 {
     return 0;
 }
@@ -65,7 +65,7 @@ int MockServiceAbilityManagerService::StartAbilityByCall(const Want& want, const
 
 int MockServiceAbilityManagerService::StartAbility(
     const Want& want, const StartOptions& startOptions,
-    const sptr<IRemoteObject>& callerToken, int32_t userId, int requestCode)
+    const sptr<IRemoteObject>& callerToken, int32_t userId, int requestCode, bool isImplicit)
 {
     return 0;
 }
@@ -73,7 +73,7 @@ int MockServiceAbilityManagerService::StartAbility(
 int MockServiceAbilityManagerService::StartAbilityAsCaller(
     const Want& want, const StartOptions& startOptions,
     const sptr<IRemoteObject>& callerToken, sptr<IRemoteObject> asCallerSourceToken,
-    int32_t userId, int requestCode)
+    int32_t userId, int requestCode, bool isImplicit)
 {
     return 0;
 }
