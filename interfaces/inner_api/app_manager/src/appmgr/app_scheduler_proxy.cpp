@@ -208,7 +208,7 @@ void AppSchedulerProxy::ScheduleLaunchAbility(const AbilityInfo &info, const spt
         return;
     }
     if (!data.WriteInt32(abilityRecordId)) {
-        HILOG_ERROR("write ability record id fail.");
+        TAG_LOGE(AAFwkTag::APPMGR, "write ability record id fail.");
         return;
     }
     int32_t ret = SendTransactCmd(

@@ -40,10 +40,10 @@ ErrCode UIExtensionContext::StartAbility(const AAFwk::Want &want) const
 ErrCode UIExtensionContext::StartAbility(const AAFwk::Want &want, int requestCode) const
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("Start ability begin, requestCode:%{public}d.", requestCode);
+    TAG_LOGD(AAFwkTag::UI_EXT, "Start ability begin, requestCode:%{public}d.", requestCode);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode);
     if (err != ERR_OK) {
-        HILOG_ERROR("StartAbility is failed %{public}d", err);
+        TAG_LOGE(AAFwkTag::UI_EXT, "StartAbility is failed %{public}d", err);
     }
     return err;
 }
@@ -113,7 +113,7 @@ ErrCode UIExtensionContext::StartAbilityForResult(const AAFwk::Want &want, int r
 
 void UIExtensionContext::InsertResultCallbackTask(int requestCode, RuntimeTask &&task)
 {
-    HILOG_DEBUG("InsertResultCallbackTask");
+    TAG_LOGD(AAFwkTag::UI_EXT, "InsertResultCallbackTask");
     {
         std::lock_guard<std::mutex> lock(mutexlock_);
         resultCallbacks_.insert(make_pair(requestCode, std::move(task)));

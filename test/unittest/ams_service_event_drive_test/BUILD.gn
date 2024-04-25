@@ -95,7 +95,7 @@ ohos_unittest("AmsServiceEventDriveTest") {
   ]
 
   if (ability_runtime_use_memmgr_plugin) {
-    external_deps += [ "memmgr_plugin:memmgrclient" ]
+    external_deps += [ "memmgr_override:memmgrclient" ]
   } else if (ability_runtime_use_memmgr) {
     external_deps += [ "memmgr:memmgrclient" ]
   }

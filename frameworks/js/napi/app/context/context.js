@@ -146,6 +146,10 @@ class Context {
     return this.__context_impl__.bundleCodeDir;
   }
 
+  get cloudFileDir() {
+    return this.__context_impl__.cloudFileDir;
+  }
+
   get eventHub() {
     return this.__context_impl__.eventHub;
   }

@@ -128,7 +128,8 @@ void AppfreezeInner::SendProcessKillEvent(const std::string& killReason)
         int result = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "PROCESS_KILL",
             HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_PID, pid,
             EVENT_PROCESS_NAME, applicationInfo->process, EVENT_MESSAGE, killReason);
-        HILOG_INFO("hisysevent write result=%{public}d, send event [FRAMEWORK,PROCESS_KILL], msg=%{public}s",
+        TAG_LOGI(AAFwkTag::APPDFR,
+            "hisysevent write result=%{public}d, send event [FRAMEWORK,PROCESS_KILL], msg=%{public}s",
             result, killReason.c_str());
     }
 }

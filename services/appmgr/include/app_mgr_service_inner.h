@@ -1087,8 +1087,9 @@ private:
         const std::string& debugCmd, bool isSandboxApp) const;
 
     void StartProcessVerifyPermission(const BundleInfo &bundleInfo, bool &hasAccessBundleDirReq,
-        uint8_t &setAllowInternet, uint8_t &allowInternet, std::vector<int32_t> &gids,
-        std::set<std::string> &permissions);
+        uint8_t &setAllowInternet, uint8_t &allowInternet, std::vector<int32_t> &gids);
+
+    void AddMountPermission(uint32_t accessTokenId, std::set<std::string> &permissions);
 
     /**
      * StartProcess, load the ability that needed to be started(Start on a new boot process).
@@ -1428,6 +1429,7 @@ private:
     std::vector<std::string> serviceExtensionWhiteList_;
     std::shared_ptr<AdvancedSecurityModeManager> securityModeManager_;
     std::shared_ptr<AAFwk::TaskHandlerWrap> dfxTaskHandler_;
+    std::shared_ptr<AAFwk::TaskHandlerWrap> otherTaskHandler_;
     std::shared_ptr<AppPreloader> appPreloader_;
 };
 }  // namespace AppExecFwk

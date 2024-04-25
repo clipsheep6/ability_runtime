@@ -690,7 +690,7 @@ void JsUIExtensionBase::OnAbilityResult(int32_t requestCode, int32_t resultCode,
     }
     context_->OnAbilityResult(requestCode, resultCode, resultData);
     if (abilityResultListeners_ == nullptr) {
-        HILOG_WARN("abilityResultListensers is nullptr");
+        TAG_LOGW(AAFwkTag::UI_EXT, "abilityResultListensers is nullptr");
         return;
     }
     abilityResultListeners_->OnAbilityResult(requestCode, resultCode, resultData);

@@ -17,6 +17,7 @@
 
 #include "ability_util.h"
 #include "app_running_control_rule_result.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
@@ -36,10 +37,11 @@ ErrCode ControlInterceptor::DoProcess(AbilityInterceptorParam param)
 {
     AppExecFwk::AppRunningControlRuleResult controlRule;
     if (CheckControl(param.want, param.userId, controlRule)) {
-        HILOG_INFO("The target application is intercpted. %{public}s", controlRule.controlMessage.c_str());
+        TAG_LOGI(AAFwkTag::ABILITYMGR,
+            "The target application is intercpted. %{public}s", controlRule.controlMessage.c_str());
 #ifdef SUPPORT_GRAPHICS
         if (!param.isWithUI || controlRule.controlWant == nullptr) {
-            HILOG_ERROR("Can not start control want");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Can not start control want");
             return AbilityUtil::EdmErrorType(controlRule.isEdm);
         }
         if (controlRule.controlWant->GetBoolParam(IS_FROM_PARENTCONTROL, false)) {
@@ -58,7 +60,7 @@ ErrCode ControlInterceptor::DoProcess(AbilityInterceptorParam param)
         int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*controlRule.controlWant,
             param.requestCode, param.userId));
         if (ret != ERR_OK) {
-            HILOG_ERROR("Control implicit start appgallery failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Control implicit start appgallery failed.");
             return ret;
         }
 #endif
@@ -74,7 +76,7 @@ bool ControlInterceptor::CheckControl(const Want &want, int32_t userId,
     // get bms
     auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
     if (bundleMgrHelper == nullptr) {
-        HILOG_ERROR("The bundleMgrHelper is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "The bundleMgrHelper is nullptr.");
         return false;
     }
 
@@ -82,14 +84,14 @@ bool ControlInterceptor::CheckControl(const Want &want, int32_t userId,
     std::string bundleName = want.GetBundle();
     auto appControlMgr = bundleMgrHelper->GetAppControlProxy();
     if (appControlMgr == nullptr) {
-        HILOG_ERROR("The appControlMgr is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "The appControlMgr is nullptr.");
         return false;
     }
 
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "GetAppRunningControlRule");
     auto ret = IN_PROCESS_CALL(appControlMgr->GetAppRunningControlRule(bundleName, userId, controlRule));
     if (ret != ERR_OK) {
-        HILOG_DEBUG("Get No AppRunningControlRule.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Get No AppRunningControlRule.");
         return false;
     }
     return true;

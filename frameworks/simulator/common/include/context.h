@@ -51,6 +51,8 @@ public:
 
     virtual std::string GetDistributedFilesDir() = 0;
 
+    virtual std::string GetCloudFileDir() = 0;
+
     virtual void SwitchArea(int mode) = 0;
 
     virtual int GetArea() = 0;

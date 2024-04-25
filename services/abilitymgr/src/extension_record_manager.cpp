@@ -79,12 +79,12 @@ void ExtensionRecordManager::RemoveExtensionRecord(const int32_t extensionRecord
 
 void ExtensionRecordManager::AddExtensionRecordToTerminatedList(const int32_t extensionRecordId)
 {
-    HILOG_DEBUG("extensionRecordId %{public}d.", extensionRecordId);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "extensionRecordId %{public}d.", extensionRecordId);
     std::lock_guard<std::mutex> lock(mutex_);
 
     auto findRecord = extensionRecords_.find(extensionRecordId);
     if (findRecord == extensionRecords_.end()) {
-        HILOG_ERROR("extensionRecordId %{public}d not found.", extensionRecordId);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "extensionRecordId %{public}d not found.", extensionRecordId);
         return;
     }
     terminateRecords_.emplace(*findRecord);
@@ -398,7 +398,7 @@ std::shared_ptr<ExtensionRecord> ExtensionRecordManager::GetExtensionRecordById(
     }
     findRecord = terminateRecords_.find(extensionRecordId);
     if (findRecord == terminateRecords_.end()) {
-        HILOG_ERROR("Ui extension record not found, id: %{public}d.", extensionRecordId);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Ui extension record not found, id: %{public}d.", extensionRecordId);
         return nullptr;
     }
 
@@ -407,49 +407,49 @@ std::shared_ptr<ExtensionRecord> ExtensionRecordManager::GetExtensionRecordById(
 
 void ExtensionRecordManager::LoadTimeout(int32_t extensionRecordId)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     auto uiExtensionRecord = std::static_pointer_cast<UIExtensionRecord>(GetExtensionRecordById(extensionRecordId));
     if (uiExtensionRecord == nullptr) {
-        HILOG_ERROR("Parsing ui extension record failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Parsing ui extension record failed.");
         return;
     }
-    HILOG_DEBUG("Start load timeout.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Start load timeout.");
     uiExtensionRecord->LoadTimeout();
 }
 
 void ExtensionRecordManager::ForegroundTimeout(int32_t extensionRecordId)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     auto uiExtensionRecord = std::static_pointer_cast<UIExtensionRecord>(GetExtensionRecordById(extensionRecordId));
     if (uiExtensionRecord == nullptr) {
-        HILOG_ERROR("Parsing ui extension record failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Parsing ui extension record failed.");
         return;
     }
-    HILOG_DEBUG("Start foreground timeout.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Start foreground timeout.");
     uiExtensionRecord->ForegroundTimeout();
 }
 
 void ExtensionRecordManager::BackgroundTimeout(int32_t extensionRecordId)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     auto uiExtensionRecord = std::static_pointer_cast<UIExtensionRecord>(GetExtensionRecordById(extensionRecordId));
     if (uiExtensionRecord == nullptr) {
-        HILOG_ERROR("Parsing ui extension record failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Parsing ui extension record failed.");
         return;
     }
-    HILOG_DEBUG("Start background timeout.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Start background timeout.");
     uiExtensionRecord->BackgroundTimeout();
 }
 
 void ExtensionRecordManager::TerminateTimeout(int32_t extensionRecordId)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     auto uiExtensionRecord = std::static_pointer_cast<UIExtensionRecord>(GetExtensionRecordById(extensionRecordId));
     if (uiExtensionRecord == nullptr) {
-        HILOG_ERROR("Parsing ui extension record failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Parsing ui extension record failed.");
         return;
     }
-    HILOG_DEBUG("Start terminate timeout.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Start terminate timeout.");
     uiExtensionRecord->TerminateTimeout();
 }
 } // namespace AbilityRuntime
