@@ -75,7 +75,6 @@ bool UriPermissionManagerService::Init()
 
     if (impl_ == nullptr) {
         impl_ = new UriPermissionManagerStubImpl();
-        impl_->Init();
     }
     ready_ = true;
     return true;

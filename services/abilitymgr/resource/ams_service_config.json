@@ -13,6 +13,5 @@
     },
     "system_configuration":{
         "system_orientation": "vertical"
-    },
-    "safe_uri_permission": false
+    }
 }
