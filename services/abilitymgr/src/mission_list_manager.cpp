@@ -1331,6 +1331,10 @@ void MissionListManager::TerminatePreviousAbility(const std::shared_ptr<AbilityR
         TAG_LOGI(AAFwkTag::ABILITYMGR, "terminatingAbilityRecord is nullptr.");
         return;
     }
+    if (!terminatingAbilityRecord->IsTerminating()) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "terminatingAbilityRecord is not terminating.");
+        return;
+    }
     abilityRecord->SetPreAbilityRecord(nullptr);
     auto self(shared_from_this());
     if (terminatingAbilityRecord->GetAbilityState() == AbilityState::FOREGROUND) {
