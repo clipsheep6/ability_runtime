@@ -1535,6 +1535,7 @@ int AbilityManagerStub::LockMissionForCleanupInner(MessageParcel &data, MessageP
 
 int AbilityManagerStub::UnlockMissionForCleanupInner(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int32_t id = data.ReadInt32();
     int result = UnlockMissionForCleanup(id);
     if (!reply.WriteInt32(result)) {
@@ -1598,6 +1599,7 @@ int AbilityManagerStub::GetMissionInfosInner(MessageParcel &data, MessageParcel 
 
 int AbilityManagerStub::GetMissionInfoInner(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     MissionInfo info;
     std::string deviceId = Str16ToStr8(data.ReadString16());
     int32_t missionId = data.ReadInt32();
@@ -1616,6 +1618,7 @@ int AbilityManagerStub::GetMissionInfoInner(MessageParcel &data, MessageParcel &
 
 int AbilityManagerStub::CleanMissionInner(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int32_t missionId = data.ReadInt32();
     int result = CleanMission(missionId);
     if (!reply.WriteInt32(result)) {
@@ -1627,6 +1630,7 @@ int AbilityManagerStub::CleanMissionInner(MessageParcel &data, MessageParcel &re
 
 int AbilityManagerStub::CleanAllMissionsInner(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int result = CleanAllMissions();
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "CleanAllMissions failed.");
@@ -1637,6 +1641,7 @@ int AbilityManagerStub::CleanAllMissionsInner(MessageParcel &data, MessageParcel
 
 int AbilityManagerStub::MoveMissionToFrontInner(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int32_t missionId = data.ReadInt32();
     int result = MoveMissionToFront(missionId);
     if (!reply.WriteInt32(result)) {
@@ -1659,6 +1664,7 @@ int AbilityManagerStub::GetMissionIdByTokenInner(MessageParcel &data, MessagePar
 
 int AbilityManagerStub::MoveMissionToFrontByOptionsInner(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int32_t missionId = data.ReadInt32();
     std::unique_ptr<StartOptions> startOptions(data.ReadParcelable<StartOptions>());
     if (startOptions == nullptr) {
