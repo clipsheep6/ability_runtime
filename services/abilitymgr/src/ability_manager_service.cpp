@@ -8421,10 +8421,19 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
 int AbilityManagerService::CheckUIExtensionPermission(const AbilityRequest &abilityRequest)
 {
     auto extensionType = abilityRequest.abilityInfo.extensionAbilityType;
-    if (AAFwk::UIExtensionUtils::IsSystemUIExtension(extensionType) && !abilityRequest.appInfo.isSystemApp) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Bundle %{public}s wanna to start isn't system app, not allowed.",
-            abilityRequest.appInfo.bundleName.c_str());
-        return CHECK_PERMISSION_FAILED;
+    if (AAFwk::UIExtensionUtils::IsSystemUIExtension(extensionType)) {
+        auto callerRecord = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+        if (callerRecord == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid caller.");
+            return NO_FOUND_ABILITY_BY_CALLER;
+        }
+
+        if (!abilityRequest.appInfo.isSystemApp && !callerRecord->GetApplicationInfo().isSystemApp) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Bundle %{public}s wanna to start or caller bundle %{public}s "
+                "isn't system app, type %{public}d not allowed.", abilityRequest.appInfo.bundleName.c_str(),
+                callerRecord->GetApplicationInfo().bundleName.c_str(), extensionType);
+            return CHECK_PERMISSION_FAILED;
+        }
     }
     return ERR_OK;
 }
