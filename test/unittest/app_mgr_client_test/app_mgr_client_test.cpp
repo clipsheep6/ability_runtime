@@ -184,6 +184,25 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_GetRunningProcessInfoByToken_001, TestSi
 }
 
 /**
+ * @tc.name: AppMgrClient_IsMemorySizeSufficent_001
+ * @tc.desc: can not get the not running process info by AccessTokenID.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_IsMemorySizeSufficent_001, TestSize.Level0)
+{
+    AppExecFwk::RunningProcessInfo info;
+
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    bool res = appMgrClient->IsMemorySizeSufficent();
+    EXPECT_EQ(res, true);
+}
+
+/**
  * @tc.name: AppMgrClient_GetRunningProcessInfoByPid_001
  * @tc.desc: can not get the not running process info by AccessTokenID.
  * @tc.type: FUNC

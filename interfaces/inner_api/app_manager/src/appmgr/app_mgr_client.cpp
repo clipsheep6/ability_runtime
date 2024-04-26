@@ -885,7 +885,7 @@ int32_t AppMgrClient::DetachAppDebug(const std::string &bundleName)
 int32_t AppMgrClient::SetAppWaitingDebug(const std::string &bundleName, bool isPersist)
 {
     if (!IsAmsServiceReady()) {
-        HILOG_ERROR("App manager service is not ready.");
+        TAG_LOGE(AAFwkTag::APPMGR, "App manager service is not ready.");
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
     return amsService_->SetAppWaitingDebug(bundleName, isPersist);
@@ -894,7 +894,7 @@ int32_t AppMgrClient::SetAppWaitingDebug(const std::string &bundleName, bool isP
 int32_t AppMgrClient::CancelAppWaitingDebug()
 {
     if (!IsAmsServiceReady()) {
-        HILOG_ERROR("App manager service is not ready.");
+        TAG_LOGE(AAFwkTag::APPMGR, "App manager service is not ready.");
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
     return amsService_->CancelAppWaitingDebug();
@@ -903,7 +903,7 @@ int32_t AppMgrClient::CancelAppWaitingDebug()
 int32_t AppMgrClient::GetWaitingDebugApp(std::vector<std::string> &debugInfoList)
 {
     if (!IsAmsServiceReady()) {
-        HILOG_ERROR("App manager service is not ready.");
+        TAG_LOGE(AAFwkTag::APPMGR, "App manager service is not ready.");
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
     return amsService_->GetWaitingDebugApp(debugInfoList);
@@ -912,7 +912,7 @@ int32_t AppMgrClient::GetWaitingDebugApp(std::vector<std::string> &debugInfoList
 bool AppMgrClient::IsWaitingDebugApp(const std::string &bundleName)
 {
     if (!IsAmsServiceReady()) {
-        HILOG_ERROR("App manager service is not ready.");
+        TAG_LOGE(AAFwkTag::APPMGR, "App manager service is not ready.");
         return false;
     }
     return amsService_->IsWaitingDebugApp(bundleName);
@@ -921,7 +921,7 @@ bool AppMgrClient::IsWaitingDebugApp(const std::string &bundleName)
 void AppMgrClient::ClearNonPersistWaitingDebugFlag()
 {
     if (!IsAmsServiceReady()) {
-        HILOG_ERROR("App manager service is not ready.");
+        TAG_LOGE(AAFwkTag::APPMGR, "App manager service is not ready.");
         return;
     }
     amsService_->ClearNonPersistWaitingDebugFlag();
@@ -1121,14 +1121,14 @@ int32_t AppMgrClient::GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pi
     return service->GetAllUIExtensionProviderPid(hostPid, providerPids);
 }
 
-int32_t AppMgrClient::NotifyMemonySizeStateChanged(bool isMemorySizeSufficent)
+int32_t AppMgrClient::NotifyMemorySizeStateChanged(bool isMemorySizeSufficent)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "Service is nullptr.");
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
-    return service->NotifyMemonySizeStateChanged(isMemorySizeSufficent);
+    return service->NotifyMemorySizeStateChanged(isMemorySizeSufficent);
 }
 
 bool AppMgrClient::IsMemorySizeSufficent() const

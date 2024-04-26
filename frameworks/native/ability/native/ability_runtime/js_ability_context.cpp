@@ -465,11 +465,11 @@ bool JsAbilityContext::CreateOpenLinkTask(const napi_env &env, const napi_value 
     CreateAsyncTaskWithLastParam(env, lastParam, nullptr, nullptr, &result);
     std::shared_ptr<NapiAsyncTask> asyncTask = std::move(uasyncTask);
     RuntimeTask task = [env, asyncTask](int resultCode, const AAFwk::Want& want, bool isInner) {
-        HILOG_INFO("OnOpenLink async callback is begin");
+        TAG_LOGI(AAFwkTag::CONTEXT, "OnOpenLink async callback is begin");
         HandleScope handleScope(env);
         napi_value abilityResult = AppExecFwk::WrapAbilityResult(env, resultCode, want);
         if (abilityResult == nullptr) {
-            HILOG_WARN("wrap abilityResult error");
+            TAG_LOGW(AAFwkTag::CONTEXT, "wrap abilityResult error");
             asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
         } else {
             if (isInner) {
@@ -483,7 +483,7 @@ bool JsAbilityContext::CreateOpenLinkTask(const napi_env &env, const napi_value 
     requestCode = curRequestCode_;
     auto context = context_.lock();
     if (context == nullptr) {
-        HILOG_WARN("context is released");
+        TAG_LOGW(AAFwkTag::CONTEXT, "context is released");
         return false;
     } else {
         context->InsertResultCallbackTask(requestCode, std::move(task));
@@ -495,23 +495,23 @@ static bool ParseOpenLinkParams(const napi_env &env, const NapiCallbackInfo &inf
     AAFwk::OpenLinkOptions &openLinkOptions, AAFwk::Want &want)
 {
     if (info.argc != ARGC_THREE) {
-        HILOG_ERROR("wrong arguments num");
+        TAG_LOGE(AAFwkTag::CONTEXT, "wrong arguments num");
         return false;
     }
 
     if (!CheckTypeForNapiValue(env, info.argv[ARGC_ZERO], napi_string)) {
-        HILOG_ERROR("link must be string");
+        TAG_LOGE(AAFwkTag::CONTEXT, "link must be string");
         return false;
     }
     if (!ConvertFromJsValue(env, info.argv[ARGC_ZERO], linkValue) || !CheckUrl(linkValue)) {
-        HILOG_ERROR("link parameter invalid");
+        TAG_LOGE(AAFwkTag::CONTEXT, "link parameter invalid");
         return false;
     }
 
     if (CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
-        HILOG_DEBUG("OpenLinkOptions is used.");
+        TAG_LOGD(AAFwkTag::CONTEXT, "OpenLinkOptions is used.");
         if (!AppExecFwk::UnwrapOpenLinkOptions(env, info.argv[INDEX_ONE], openLinkOptions, want)) {
-            HILOG_ERROR("openLinkOptions parse failed");
+            TAG_LOGE(AAFwkTag::CONTEXT, "openLinkOptions parse failed");
             return false;
         }
     }
@@ -523,7 +523,7 @@ napi_value JsAbilityContext::OnOpenLink(napi_env env, NapiCallbackInfo& info)
 {
     StartAsyncTrace(HITRACE_TAG_ABILITY_MANAGER, TRACE_ATOMIC_SERVICE, TRACE_ATOMIC_SERVICE_ID);
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("OnOpenLink");
+    TAG_LOGI(AAFwkTag::CONTEXT, "OnOpenLink");
 
     std::string linkValue("");
     AAFwk::OpenLinkOptions openLinkOptions;
@@ -532,16 +532,16 @@ napi_value JsAbilityContext::OnOpenLink(napi_env env, NapiCallbackInfo& info)
     want.SetParam(AppExecFwk::APP_LINKING_ONLY, false);
 
     if (!ParseOpenLinkParams(env, info, linkValue, openLinkOptions, want)) {
-        HILOG_ERROR("parse openLink arguments failed");
+        TAG_LOGE(AAFwkTag::CONTEXT, "parse openLink arguments failed");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
     }
 
-    HILOG_INFO("open link:%{public}s.", linkValue.c_str());
+    TAG_LOGI(AAFwkTag::CONTEXT, "open link:%{public}s.", linkValue.c_str());
     want.SetUri(linkValue);
     int requestCode = -1;
     if (CheckTypeForNapiValue(env, info.argv[INDEX_TWO], napi_function)) {
-        HILOG_DEBUG("completionHandler is used.");
+        TAG_LOGD(AAFwkTag::CONTEXT, "completionHandler is used.");
         lastParam = info.argv[INDEX_TWO];
         CreateOpenLinkTask(env, lastParam, want, requestCode);
     }
@@ -550,7 +550,7 @@ napi_value JsAbilityContext::OnOpenLink(napi_env env, NapiCallbackInfo& info)
     NapiAsyncTask::ExecuteCallback execute = [weak = context_, want, innerErrorCode, requestCode]() {
         auto context = weak.lock();
         if (!context) {
-            HILOG_WARN("context is released");
+            TAG_LOGW(AAFwkTag::CONTEXT, "context is released");
             *innerErrorCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
             return;
         }
@@ -559,10 +559,10 @@ napi_value JsAbilityContext::OnOpenLink(napi_env env, NapiCallbackInfo& info)
 
     NapiAsyncTask::CompleteCallback complete = [innerErrorCode](napi_env env, NapiAsyncTask& task, int32_t status) {
         if (*innerErrorCode == 0) {
-            HILOG_INFO("OpenLink success.");
+            TAG_LOGI(AAFwkTag::CONTEXT, "OpenLink success.");
             task.ResolveWithNoError(env, CreateJsUndefined(env));
         } else {
-            HILOG_INFO("OpenLink failed.");
+            TAG_LOGI(AAFwkTag::CONTEXT, "OpenLink failed.");
             task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
         }
     };
@@ -2124,7 +2124,7 @@ napi_value JsAbilityContext::OnOpenAtomicService(napi_env env, NapiCallbackInfo&
     }
 
     std::string bundleName = ATOMIC_SERVICE_PREFIX + appId;
-    HILOG_DEBUG("bundleName: %{public}s.", bundleName.c_str());
+    TAG_LOGD(AAFwkTag::CONTEXT, "bundleName: %{public}s.", bundleName.c_str());
     want.SetBundle(bundleName);
     return OpenAtomicServiceInner(env, info, want, startOptions);
 }

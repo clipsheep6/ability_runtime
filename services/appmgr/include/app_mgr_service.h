@@ -491,7 +491,7 @@ public:
     int32_t NotifyLoadPatch(const std::string &bundleName, const std::string &moduleName,
                             const sptr<IQuickFixCallback> &callback, const int &patchVersion) override;
                             
-    int32_t NotifyMemonySizeStateChanged(bool isMemorySizeSufficent) override;
+    int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent) override;
 
     int32_t SetSupportedProcessCacheSelf(bool isSupport) override;
 private:

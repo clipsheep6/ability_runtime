@@ -1464,6 +1464,8 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         if (PermissionVerification::GetInstance()->IsSystemAppCall()) {
             bool windowFocused = startOptions.GetWindowFocused();
             abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_FOCUSED, windowFocused);
+        } else {
+            abilityRequest.want.RemoveParam(Want::PARAM_RESV_WINDOW_FOCUSED);
         }
         if (startOptions.GetDisplayID() == 0) {
             abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID,
@@ -1604,6 +1606,8 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     if (PermissionVerification::GetInstance()->IsSystemAppCall()) {
         bool windowFocused = startOptions.GetWindowFocused();
         abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_FOCUSED, windowFocused);
+    } else {
+        abilityRequest.want.RemoveParam(Want::PARAM_RESV_WINDOW_FOCUSED);
     }
 
     Want newWant = abilityRequest.want;
@@ -2332,7 +2336,7 @@ int AbilityManagerService::RequestModalUIExtensionInner(Want want)
         return record->CreateModalUIExtension(want);
     }
 
-    HILOG_DEBUG("Window Modal System Create UIExtension is called!");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Window Modal System Create UIExtension is called!");
     want.SetParam(UIEXTENSION_MODAL_TYPE, 1);
     auto connection = std::make_shared<Rosen::ModalSystemUiExtension>();
     return connection->CreateModalUIExtension(want) ? ERR_OK : INNER_ERR;
@@ -2533,7 +2537,7 @@ void AbilityManagerService::SetAutoFillElementName(const sptr<SessionInfo> &exte
     } else if (extensionSessionInfo->want.GetStringParam(UIEXTENSION_TYPE_KEY) == AUTO_FILL_SMART_TPYE) {
         SplitStr(KEY_SMART_AUTO_FILL_ABILITY, "/", argList);
     } else {
-        HILOG_WARN("It is not autofill type.");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "It is not autofill type.");
         return;
     }
 
@@ -8417,10 +8421,19 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
 int AbilityManagerService::CheckUIExtensionPermission(const AbilityRequest &abilityRequest)
 {
     auto extensionType = abilityRequest.abilityInfo.extensionAbilityType;
-    if (AAFwk::UIExtensionUtils::IsSystemUIExtension(extensionType) && !abilityRequest.appInfo.isSystemApp) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Bundle %{public}s wanna to start isn't system app, not allowed.",
-            abilityRequest.appInfo.bundleName.c_str());
-        return CHECK_PERMISSION_FAILED;
+    if (AAFwk::UIExtensionUtils::IsSystemUIExtension(extensionType)) {
+        auto callerRecord = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+        if (callerRecord == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid caller.");
+            return NO_FOUND_ABILITY_BY_CALLER;
+        }
+
+        if (!abilityRequest.appInfo.isSystemApp && !callerRecord->GetApplicationInfo().isSystemApp) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Bundle %{public}s wanna to start or caller bundle %{public}s "
+                "isn't system app, type %{public}d not allowed.", abilityRequest.appInfo.bundleName.c_str(),
+                callerRecord->GetApplicationInfo().bundleName.c_str(), extensionType);
+            return CHECK_PERMISSION_FAILED;
+        }
     }
     return ERR_OK;
 }
@@ -8892,7 +8905,7 @@ int32_t AbilityManagerService::NotifySaveAsResult(const Want &want, int resultCo
 
     //caller check
     if (!DlpUtils::CheckCallerIsDlpManager(GetBundleManager())) {
-        HILOG_WARN("caller check failed");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "caller check failed");
         return ERR_INVALID_CALLER;
     }
 
@@ -9624,7 +9637,7 @@ int AbilityManagerService::CreateModalDialog(const Want &replaceWant, sptr<IRemo
     (const_cast<Want &>(replaceWant)).SetParam("dialogSessionId", dialogSessionId);
     auto connection = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
     if (callerToken == nullptr) {
-        HILOG_DEBUG("create modal ui extension for system");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "create modal ui extension for system");
         (const_cast<Want &>(replaceWant)).SetParam(UIEXTENSION_MODAL_TYPE, 1);
         return connection->CreateModalUIExtension(replaceWant) ? ERR_OK : INNER_ERR;
     }
@@ -9637,7 +9650,7 @@ int AbilityManagerService::CreateModalDialog(const Want &replaceWant, sptr<IRemo
     sptr<IRemoteObject> token;
     int ret = IN_PROCESS_CALL(GetTopAbility(token));
     if (ret != ERR_OK || token == nullptr) {
-        HILOG_DEBUG("create modal ui extension for system");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "create modal ui extension for system");
         (const_cast<Want &>(replaceWant)).SetParam(UIEXTENSION_MODAL_TYPE, 1);
         return connection->CreateModalUIExtension(replaceWant) ? ERR_OK : INNER_ERR;
     }
@@ -9646,7 +9659,7 @@ int AbilityManagerService::CreateModalDialog(const Want &replaceWant, sptr<IRemo
         TAG_LOGD(AAFwkTag::ABILITYMGR, "create modal ui extension for application");
         return callerRecord->CreateModalUIExtension(replaceWant);
     }
-    HILOG_DEBUG("create modal ui extension for system");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "create modal ui extension for system");
     (const_cast<Want &>(replaceWant)).SetParam(UIEXTENSION_MODAL_TYPE, 1);
     return connection->CreateModalUIExtension(replaceWant) ? ERR_OK : INNER_ERR;
 }
@@ -10230,6 +10243,23 @@ int32_t AbilityManagerService::StartShortcut(const Want &want, const StartOption
         return ERR_PERMISSION_DENIED;
     }
     return StartAbility(want, startOptions, nullptr);
+}
+
+int32_t AbilityManagerService::GetAbilityStateByPersistentId(int32_t persistentId, bool &state)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (!CheckCallerIsDmsProcess()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetAbilityStateByPersistentId, caller is not dms.");
+        return ERR_PERMISSION_DENIED;
+    }
+
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto uiAbilityManager = GetUIAbilityManagerByUid(IPCSkeleton::GetCallingUid());
+        CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
+        return uiAbilityManager->GetAbilityStateByPersistentId(persistentId, state);
+    }
+    TAG_LOGE(AAFwkTag::ABILITYMGR, "GetAbilityStateByPersistentId, mission not have persistent id.");
+    return INNER_ERR;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

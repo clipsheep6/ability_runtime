@@ -128,7 +128,8 @@ void AppfreezeInner::SendProcessKillEvent(const std::string& killReason)
         int result = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "PROCESS_KILL",
             HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_PID, pid,
             EVENT_PROCESS_NAME, applicationInfo->process, EVENT_MESSAGE, killReason);
-        HILOG_INFO("hisysevent write result=%{public}d, send event [FRAMEWORK,PROCESS_KILL], msg=%{public}s",
+        TAG_LOGI(AAFwkTag::APPDFR,
+            "hisysevent write result=%{public}d, send event [FRAMEWORK,PROCESS_KILL], msg=%{public}s",
             result, killReason.c_str());
     }
 }
@@ -214,21 +215,17 @@ int AppfreezeInner::NotifyANR(const FaultData& faultData)
         faultData.errorObject.name.c_str());
     auto applicationInfo = applicationInfo_.lock();
     if (applicationInfo == nullptr) {
-        TAG_LOGE(AAFwkTag::APPDFR, "reportEvent fail, applicationInfo_ is nullptr.");
+        TAG_LOGE(AAFwkTag::APPDFR, "NotifyANR fail, applicationInfo_ is nullptr.");
         return -1;
     }
 
     int32_t pid = static_cast<int32_t>(getpid());
-    TAG_LOGI(AAFwkTag::APPDFR, "reportEvent:%{public}s, pid:%{public}d, bundleName:%{public}s. success",
+    TAG_LOGI(AAFwkTag::APPDFR, "Start NotifyAppFault:%{public}s, pid:%{public}d, bundleName:%{public}s.",
         faultData.errorObject.name.c_str(), pid, applicationInfo->bundleName.c_str());
 
     int ret = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFault(faultData);
     if (ret != 0) {
-        HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, faultData.errorObject.name,
-            OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_UID, applicationInfo->uid,
-            EVENT_PID, pid, EVENT_PACKAGE_NAME, applicationInfo->bundleName,
-            EVENT_PROCESS_NAME, applicationInfo->process, EVENT_MESSAGE,
-            faultData.errorObject.message, EVENT_STACK, faultData.errorObject.stack);
+        TAG_LOGW(AAFwkTag::APPDFR, "NotifyAppFault ret :%{public}d", ret);
     }
     return ret;
 }

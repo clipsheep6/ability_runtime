@@ -329,7 +329,7 @@ HWTEST_F(AbilityManagerServiceSecondTest, CheckCallOtherExtensionPermission_003,
     abilityRequest_.abilityInfo.extensionAbilityType = AppExecFwk::ExtensionAbilityType::SYS_COMMON_UI;
     abilityRequest_.appInfo.isSystemApp = false;
     abilityRequest_.appInfo.bundleName = "test.bundleName";
-    EXPECT_EQ(abilityMs_->CheckCallOtherExtensionPermission(abilityRequest_), CHECK_PERMISSION_FAILED);
+    EXPECT_EQ(abilityMs_->CheckCallOtherExtensionPermission(abilityRequest_), NO_FOUND_ABILITY_BY_CALLER);
     TAG_LOGI(AAFwkTag::TEST, "testcase end.");
 }
 
@@ -346,7 +346,7 @@ HWTEST_F(AbilityManagerServiceSecondTest, CheckCallOtherExtensionPermission_004,
     abilityRequest_.abilityInfo.extensionAbilityType = AppExecFwk::ExtensionAbilityType::SYS_COMMON_UI;
     abilityRequest_.appInfo.isSystemApp = true;
     abilityRequest_.appInfo.bundleName = "test.bundleName";
-    EXPECT_EQ(abilityMs_->CheckCallOtherExtensionPermission(abilityRequest_), ERR_OK);
+    EXPECT_EQ(abilityMs_->CheckCallOtherExtensionPermission(abilityRequest_), NO_FOUND_ABILITY_BY_CALLER);
     TAG_LOGI(AAFwkTag::TEST, "testcase end.");
 }
 

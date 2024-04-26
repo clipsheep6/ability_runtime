@@ -19,7 +19,6 @@
 
 #include "ability_manager_errors.h"
 #include "accesstoken_kit.h"
-#include "ams_configuration_parameter.h"
 #include "app_utils.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
@@ -51,11 +50,6 @@ constexpr const char* FOUNDATION_PROCESS_NAME = "foundation";
 constexpr const char* UDMF_PROCESS_NAME = "distributeddata";
 constexpr const char* PASTE_BOARD_SERVICE = "pasterboard_service";
 constexpr const char* BROKER = "broker";
-}
-
-void UriPermissionManagerStubImpl::Init()
-{
-    DelayedSingleton<ProxyAuthorizationUriConfig>::GetInstance()->LoadConfiguration();
 }
 
 bool UriPermissionManagerStubImpl::VerifyUriPermission(const Uri &uri, uint32_t flag, uint32_t tokenId)
@@ -95,7 +89,7 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned in
 int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
     const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
 {
-    TAG_LOGI(AAFwkTag::URIPERMMGR, "BundleName is %{public}s, appIndex is %{public}d, size of uriVec is %{public}u.",
+    TAG_LOGI(AAFwkTag::URIPERMMGR, "BundleName is %{public}s, appIndex is %{public}d, size of uriVec is %{public}zu.",
         targetBundleName.c_str(), appIndex, uriVec.size());
     auto checkResult = CheckCalledBySandBox();
     if (checkResult != ERR_OK) {
@@ -124,7 +118,7 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uri
 int32_t UriPermissionManagerStubImpl::GrantUriPermissionPrivileged(const std::vector<Uri> &uriVec, uint32_t flag,
     const std::string &targetBundleName, int32_t appIndex)
 {
-    TAG_LOGI(AAFwkTag::URIPERMMGR, "BundleName is %{public}s, appIndex is %{public}d, size of uriVec is %{public}u.",
+    TAG_LOGI(AAFwkTag::URIPERMMGR, "BundleName is %{public}s, appIndex is %{public}d, size of uriVec is %{public}zu.",
         targetBundleName.c_str(), appIndex, uriVec.size());
     uint32_t callerTokenId = IPCSkeleton::GetCallingTokenID();
     auto callerName = GetTokenName(callerTokenId);
@@ -915,50 +909,6 @@ bool UriPermissionManagerStubImpl::CheckIsSystemAppByTokenId(uint32_t tokenId)
 
 bool UriPermissionManagerStubImpl::CheckUriPermission(Uri uri, uint32_t flag, TokenIdPermission &tokenIdPermission)
 {
-    if (AmsConfigurationParameter::GetInstance().SafeUriPermission()) {
-        return SafeCheckUriPermission(uri, flag, tokenIdPermission);
-    }
-    return UnSafeCheckUriPermission(uri, flag, tokenIdPermission);
-}
-
-bool UriPermissionManagerStubImpl::UnSafeCheckUriPermission(Uri uri,
-    uint32_t flag, TokenIdPermission &tokenIdPermission)
-{
-    TAG_LOGI(AAFwkTag::URIPERMMGR, "UnSafeCheckUriPermission called.");
-    if (IsAuthorizationUriAllowed(tokenIdPermission.GetTokenId())) {
-        TAG_LOGD(AAFwkTag::URIPERMMGR, "is authorization uri allowed!");
-        return true;
-    }
-    
-    auto &&authority = uri.GetAuthority();
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "Authority of uri is %{public}s", authority.c_str());
-
-    if (authority == "docs" || authority == "media") {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "Authotity is media or docs, do not have permission.");
-        return false;
-    }
-    
-    uint32_t authorityTokenId = 0;
-    if (GetTokenIdByBundleName(authority, 0, authorityTokenId) != ERR_OK) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "Get tokenId of %{public}s failed.", authority.c_str());
-        return false;
-    }
-    if (tokenIdPermission.GetTokenId() == authorityTokenId) {
-        return true;
-    }
-    TAG_LOGE(AAFwkTag::URIPERMMGR, "callerTokenId not equal to authorityTokenId %{public}u", authorityTokenId);
-    return false;
-}
-
-bool UriPermissionManagerStubImpl::SafeCheckUriPermission(Uri uri, uint32_t flag, TokenIdPermission &tokenIdPermission)
-{
-    TAG_LOGI(AAFwkTag::URIPERMMGR, "SafeCheckUriPermission called.");
-    // temporary for udmf and pastboard
-    auto permissionName = PermissionConstants::PERMISSION_GRANT_URI_PERMISSION;
-    if (VerifyPermissionByTokenId(tokenIdPermission.GetTokenId(), permissionName)) {
-        TAG_LOGI(AAFwkTag::URIPERMMGR, "Check PERMISSION_GRANT_URI_PERMISSION_PRIVILEGED success.");
-        return true;
-    }
     auto &&authority = uri.GetAuthority();
     TAG_LOGD(AAFwkTag::URIPERMMGR, "Authority of uri is %{public}s", authority.c_str());
     if (authority == "docs") {
@@ -990,6 +940,7 @@ bool UriPermissionManagerStubImpl::VerifyPermissionByTokenId(uint32_t tokenId, c
         }
         auto callerName = nativeInfo.processName;
         TAG_LOGI(AAFwkTag::URIPERMMGR, "Caller process name : %{public}s", callerName.c_str());
+        // waiting accessToken permission request.
         return callerName == BROKER || callerName == PASTE_BOARD_SERVICE || callerName == UDMF_PROCESS_NAME ||
             callerName == FOUNDATION_PROCESS_NAME;
     }

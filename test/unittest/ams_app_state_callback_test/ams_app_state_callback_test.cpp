@@ -18,6 +18,7 @@
 #include "app_mgr_constants.h"
 #include "iapp_state_callback.h"
 #include "app_process_data.h"
+#include "bundle_info.h"
 #include "mock_ability_token.h"
 
 using namespace testing::ext;
@@ -103,6 +104,22 @@ HWTEST_F(AmsAppStateCallBackTest, OnAbilityRequestDone_001, TestSize.Level1)
     sptr<AppStateCallbackHost> host(new AppStateCallbackHost());
     EXPECT_NE(host, nullptr);
     host->OnAbilityRequestDone(token, state);
+}
+
+/*
+ * Feature: AppStateCallBackHost
+ * Function: AppStateCallBackHost
+ * SubFunction: NotifyStartResidentProcess Function
+ * FunctionPoints: NotifyStartResidentProcess Onreceived interface
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Verify if Onreceived works when ability request done.
+ */
+HWTEST_F(AmsAppStateCallBackTest, NotifyStartResidentProcess_001, TestSize.Level1)
+{
+    sptr<AppStateCallbackHost> host(new AppStateCallbackHost());
+    EXPECT_NE(host, nullptr);
+    std::vector<AppExecFwk::BundleInfo> bundleInfos;
+    host->NotifyStartResidentProcess(bundleInfos);
 }
 
 /*

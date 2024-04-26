@@ -17,6 +17,7 @@
 
 #include "ability_record.h"
 #include "ability_util.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
@@ -35,34 +36,35 @@ const std::string UIEXTENSION_MODAL_TYPE = "ability.want.params.modalType";
 
 ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
 {
-    HILOG_DEBUG("Call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Call");
     AppExecFwk::DisposedRule disposedRule;
     if (CheckControl(param.want, param.userId, disposedRule)) {
-        HILOG_INFO("The target ability is intercpted, disposedType is %{public}d, controlType is %{public}d, "
+        TAG_LOGI(AAFwkTag::ABILITYMGR,
+            "The target ability is intercpted, disposedType is %{public}d, controlType is %{public}d, "
             "componentType is %{public}d.", disposedRule.disposedType, disposedRule.controlType,
             disposedRule.componentType);
 #ifdef SUPPORT_GRAPHICS
         if (!param.isWithUI || disposedRule.want == nullptr
             || disposedRule.disposedType == AppExecFwk::DisposedType::NON_BLOCK) {
-            HILOG_ERROR("Can not start disposed want");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Can not start disposed want");
             return AbilityUtil::EdmErrorType(disposedRule.isEdm);
         }
         if (disposedRule.want->GetBundle() == param.want.GetBundle()) {
-            HILOG_ERROR("Can not start disposed want with same bundleName");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Can not start disposed want with same bundleName");
             return AbilityUtil::EdmErrorType(disposedRule.isEdm);
         }
         if (disposedRule.componentType == AppExecFwk::ComponentType::UI_ABILITY) {
             int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*disposedRule.want,
                 param.requestCode, param.userId));
             if (ret != ERR_OK) {
-                HILOG_ERROR("DisposedRuleInterceptor start ability failed.");
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "DisposedRuleInterceptor start ability failed.");
                 return ret;
             }
         }
         if (disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
             int ret = CreateModalUIExtension(*disposedRule.want, param.callerToken);
             if (ret != ERR_OK) {
-                HILOG_ERROR("failed to start disposed UIExtension");
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start disposed UIExtension");
                 return ret;
             }
         }
@@ -82,7 +84,7 @@ bool DisposedRuleInterceptor::CheckControl(const Want &want, int32_t userId,
     // get bms
     auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
     if (bundleMgrHelper == nullptr) {
-        HILOG_ERROR("The bundleMgrHelper is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "The bundleMgrHelper is nullptr.");
         return false;
     }
 
@@ -90,7 +92,7 @@ bool DisposedRuleInterceptor::CheckControl(const Want &want, int32_t userId,
     std::string bundleName = want.GetBundle();
     auto appControlMgr = bundleMgrHelper->GetAppControlProxy();
     if (appControlMgr == nullptr) {
-        HILOG_ERROR("The appControlMgr is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "The appControlMgr is nullptr.");
         return false;
     }
     std::vector<AppExecFwk::DisposedRule> disposedRuleList;
@@ -148,20 +150,20 @@ bool DisposedRuleInterceptor::CheckDisposedRule(const Want &want, AppExecFwk::Di
 ErrCode DisposedRuleInterceptor::StartNonBlockRule(const Want &want, AppExecFwk::DisposedRule &disposedRule)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("not block");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "not block");
     if (disposedRule.want == nullptr) {
-        HILOG_ERROR("Can not start disposed app, want is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Can not start disposed app, want is nullptr");
         return ERR_OK;
     }
     if (disposedRule.want->GetBundle() == want.GetBundle()) {
-        HILOG_ERROR("Can not start disposed app with same bundleName");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Can not start disposed app with same bundleName");
         return ERR_OK;
     }
     std::string bundleName = want.GetBundle();
     {
         std::lock_guard<ffrt::mutex> guard(observerLock_);
         if (disposedObserverMap_.find(bundleName) != disposedObserverMap_.end()) {
-            HILOG_DEBUG("start same disposed app, do not need to register again");
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "start same disposed app, do not need to register again");
             return ERR_OK;
         }
     }
@@ -173,7 +175,7 @@ ErrCode DisposedRuleInterceptor::StartNonBlockRule(const Want &want, AppExecFwk:
     bundleNameList.push_back(bundleName);
     int32_t ret = IN_PROCESS_CALL(appManager->RegisterApplicationStateObserver(disposedObserver, bundleNameList));
     if (ret != 0) {
-        HILOG_ERROR("register to appmanager failed. err:%{public}d", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "register to appmanager failed. err:%{public}d", ret);
         disposedObserver = nullptr;
         return ret;
     }
@@ -185,7 +187,7 @@ ErrCode DisposedRuleInterceptor::StartNonBlockRule(const Want &want, AppExecFwk:
         std::lock_guard<ffrt::mutex> guard{interceptor->observerLock_};
         auto iter = interceptor->disposedObserverMap_.find(bundleName);
         if (iter != interceptor->disposedObserverMap_.end()) {
-            HILOG_ERROR("start disposed app time out, need to unregister observer");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "start disposed app time out, need to unregister observer");
             IN_PROCESS_CALL(appManager->UnregisterApplicationStateObserver(iter->second));
             interceptor->disposedObserverMap_.erase(iter);
         }
@@ -199,12 +201,12 @@ sptr<OHOS::AppExecFwk::IAppMgr> DisposedRuleInterceptor::GetAppMgr()
     OHOS::sptr<OHOS::ISystemAbilityManager> systemAbilityManager =
         OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (!systemAbilityManager) {
-        HILOG_ERROR("get systemAbilityManager failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "get systemAbilityManager failed");
         return nullptr;
     }
     OHOS::sptr<OHOS::IRemoteObject> object = systemAbilityManager->GetSystemAbility(OHOS::APP_MGR_SERVICE_ID);
     if (!object) {
-        HILOG_ERROR("get systemAbilityManager failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "get systemAbilityManager failed");
         return nullptr;
     }
     sptr<OHOS::AppExecFwk::IAppMgr> appMgr = iface_cast<AppExecFwk::IAppMgr>(object);
@@ -216,13 +218,13 @@ sptr<OHOS::AppExecFwk::IAppMgr> DisposedRuleInterceptor::GetAppMgr()
 
 void DisposedRuleInterceptor::UnregisterObserver(const std::string &bundleName)
 {
-    HILOG_DEBUG("Call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Call");
     taskHandler_->CancelTask(UNREGISTER_TIMEOUT_OBSERVER_TASK);
     auto unregisterTask = [bundleName, interceptor = shared_from_this()] () {
         std::lock_guard<ffrt::mutex> guard{interceptor->observerLock_};
         auto iter = interceptor->disposedObserverMap_.find(bundleName);
         if (iter == interceptor->disposedObserverMap_.end()) {
-            HILOG_ERROR("Can not find observer");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Can not find observer");
         } else {
             auto disposedObserver = iter->second;
             CHECK_POINTER(disposedObserver);

@@ -516,6 +516,34 @@ HWTEST_F(AppMgrStubTest, HandleSignRestartAppFlag_0100, TestSize.Level1)
 }
 
 /**
+ * @tc.name: HandleNotifyMemorySizeStateChanged_0100
+ * @tc.desc: Test notify memory size state changed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrStubTest, HandleNotifyMemorySizeStateChanged_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(true);
+    auto res = mockAppMgrService_->HandleNotifyMemorySizeStateChanged(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: HandleNotifyMemorySizeStateChanged_0200
+ * @tc.desc: Test notify memory size state changed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrStubTest, HandleNotifyMemorySizeStateChanged_0200, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(false);
+    auto res = mockAppMgrService_->HandleNotifyMemorySizeStateChanged(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
  * @tc.name: HandleGetAllUIExtensionRootHostPid_0100
  * @tc.desc: Get all ui extension root host pid.
  * @tc.type: FUNC

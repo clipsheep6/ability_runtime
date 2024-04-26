@@ -1952,7 +1952,7 @@ int32_t AppMgrProxy::GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid
     return reply.ReadInt32();
 }
 
-int32_t AppMgrProxy::NotifyMemonySizeStateChanged(bool isMemorySizeSufficent)
+int32_t AppMgrProxy::NotifyMemorySizeStateChanged(bool isMemorySizeSufficent)
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {

@@ -329,6 +329,8 @@ public:
 #endif
     void CompleteFirstFrameDrawing(int32_t sessionId) const;
 
+    int32_t GetAbilityStateByPersistentId(int32_t persistentId, bool &state);
+
 private:
     int32_t GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest, bool &reuse) const;
     int32_t GetReusedSpecifiedPersistentId(const AbilityRequest &abilityRequest, bool &reuse) const;

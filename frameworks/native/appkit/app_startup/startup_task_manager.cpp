@@ -15,6 +15,7 @@
 
 #include "startup_task_manager.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "startup_manager.h"
 #include "startup_topologysort.h"
@@ -28,19 +29,19 @@ StartupTaskManager::StartupTaskManager(uint32_t startupTaskManagerId,
 
 StartupTaskManager::~StartupTaskManager()
 {
-    HILOG_DEBUG("id: %{public}u deconstruct", startupTaskManagerId_);
+    TAG_LOGD(AAFwkTag::STARTUP, "id: %{public}u deconstruct", startupTaskManagerId_);
 }
 
 int32_t StartupTaskManager::AddTask(const std::shared_ptr<StartupTask> &task)
 {
     if (task == nullptr) {
-        HILOG_ERROR("Invalid task.");
+        TAG_LOGE(AAFwkTag::STARTUP, "Invalid task.");
         return ERR_STARTUP_INVALID_VALUE;
     }
     std::string name = task->GetName();
     auto result = tasks_.emplace(name, task);
     if (!result.second) {
-        HILOG_ERROR("Failed to add task, name: %{public}s already exist.", name.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP, "Failed to add task, name: %{public}s already exist.", name.c_str());
         return ERR_STARTUP_INVALID_VALUE;
     }
     return ERR_OK;
@@ -54,7 +55,7 @@ int32_t StartupTaskManager::SetConfig(const std::shared_ptr<StartupConfig> &conf
 
 int32_t StartupTaskManager::Prepare()
 {
-    HILOG_DEBUG("id: %{public}u, task number: %{public}zu", startupTaskManagerId_, tasks_.size());
+    TAG_LOGD(AAFwkTag::STARTUP, "id: %{public}u, task number: %{public}zu", startupTaskManagerId_, tasks_.size());
     std::shared_ptr<StartupSortResult> startupSortResult = nullptr;
     int32_t result = StartupTopologySort::Sort(tasks_, startupSortResult);
     if (result != ERR_OK) {
@@ -62,12 +63,12 @@ int32_t StartupTaskManager::Prepare()
         return result;
     }
     if (startupSortResult == nullptr) {
-        HILOG_ERROR("startupSortResult is nullptr.");
+        TAG_LOGE(AAFwkTag::STARTUP, "startupSortResult is nullptr.");
         CallListenerOnCompleted(ERR_STARTUP_INTERNAL_ERROR);
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     if (tasks_.empty()) {
-        HILOG_ERROR("no tasks.");
+        TAG_LOGE(AAFwkTag::STARTUP, "no tasks.");
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     dispatcher_ = std::make_shared<StartupTaskDispatcher>(tasks_, startupSortResult);
@@ -76,9 +77,9 @@ int32_t StartupTaskManager::Prepare()
 
 int32_t StartupTaskManager::Run(const std::shared_ptr<OnCompletedCallback> &mainThreadAwaitCallback)
 {
-    HILOG_DEBUG("id: %{public}u, task number: %{public}zu", startupTaskManagerId_, tasks_.size());
+    TAG_LOGD(AAFwkTag::STARTUP, "id: %{public}u, task number: %{public}zu", startupTaskManagerId_, tasks_.size());
     if (dispatcher_ == nullptr) {
-        HILOG_ERROR("dispatcher_ is nullptr.");
+        TAG_LOGE(AAFwkTag::STARTUP, "dispatcher_ is nullptr.");
         CallListenerOnCompleted(ERR_STARTUP_INTERNAL_ERROR);
         return ERR_STARTUP_INTERNAL_ERROR;
     }
@@ -87,12 +88,12 @@ int32_t StartupTaskManager::Run(const std::shared_ptr<OnCompletedCallback> &main
         [weak = weak_from_this()](const std::shared_ptr<StartupTaskResult> &result) {
             auto startupTaskManager = weak.lock();
             if (startupTaskManager == nullptr) {
-                HILOG_ERROR("startupTaskManager is nullptr.");
+                TAG_LOGE(AAFwkTag::STARTUP, "startupTaskManager is nullptr.");
                 return;
             }
             startupTaskManager->CancelAsyncTimeoutTimer();
             if (result == nullptr) {
-                HILOG_ERROR("result is nullptr.");
+                TAG_LOGE(AAFwkTag::STARTUP, "result is nullptr.");
                 return;
             }
             startupTaskManager->CallListenerOnCompleted(result->GetResultCode(), result->GetResultMessage());
@@ -112,10 +113,11 @@ int32_t StartupTaskManager::Run(const std::shared_ptr<OnCompletedCallback> &main
 void StartupTaskManager::CallListenerOnCompleted(int32_t result, const std::string &resultMessage)
 {
     if (config_ == nullptr) {
-        HILOG_INFO("id: %{public}u, config is null, result: %{public}d", startupTaskManagerId_, result);
+        TAG_LOGI(AAFwkTag::STARTUP,
+            "id: %{public}u, config is null, result: %{public}d", startupTaskManagerId_, result);
         return;
     }
-    HILOG_DEBUG("id: %{public}u, complete, result: %{public}d", startupTaskManagerId_, result);
+    TAG_LOGD(AAFwkTag::STARTUP, "id: %{public}u, complete, result: %{public}d", startupTaskManagerId_, result);
     if (resultMessage.empty()) {
         auto startupTaskResult = std::make_shared<StartupTaskResult>(result, StartupUtils::GetErrorMessage(result));
         config_->ListenerOnCompleted(startupTaskResult);
@@ -130,18 +132,18 @@ void StartupTaskManager::AddAsyncTimeoutTimer()
 {
     mainHandler_ = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
     if (mainHandler_ == nullptr) {
-        HILOG_ERROR("failed to get mainHandler_");
+        TAG_LOGE(AAFwkTag::STARTUP, "failed to get mainHandler_");
         return;
     }
     int32_t timeoutMs = StartupConfig::DEFAULT_AWAIT_TIMEOUT_MS;
     if (config_ != nullptr) {
         timeoutMs = config_->GetAwaitTimeoutMs();
     }
-    HILOG_DEBUG("id: %{public}d, add timeout timer: %{public}d", startupTaskManagerId_, timeoutMs);
+    TAG_LOGD(AAFwkTag::STARTUP, "id: %{public}d, add timeout timer: %{public}d", startupTaskManagerId_, timeoutMs);
     auto callback = [weak = weak_from_this()]() {
         auto startupTaskManager = weak.lock();
         if (startupTaskManager == nullptr) {
-            HILOG_ERROR("startupTaskManager is nullptr.");
+            TAG_LOGE(AAFwkTag::STARTUP, "startupTaskManager is nullptr.");
             return;
         }
         startupTaskManager->OnTimeout();
@@ -152,10 +154,10 @@ void StartupTaskManager::AddAsyncTimeoutTimer()
 void StartupTaskManager::CancelAsyncTimeoutTimer()
 {
     if (mainHandler_ == nullptr) {
-        HILOG_ERROR("failed to get mainHandler_");
+        TAG_LOGE(AAFwkTag::STARTUP, "failed to get mainHandler_");
         return;
     }
-    HILOG_DEBUG("id: %{public}d, cancel timeout timer", startupTaskManagerId_);
+    TAG_LOGD(AAFwkTag::STARTUP, "id: %{public}d, cancel timeout timer", startupTaskManagerId_);
     mainHandler_->RemoveTask("StartupTaskManager_" + std::to_string(startupTaskManagerId_));
 }
 

@@ -20,6 +20,7 @@
 #include "app_mgr_constants.h"
 #include "app_state_callback_host.h"
 #include "app_process_data.h"
+#include "bundle_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -32,6 +33,7 @@ public:
 
     MOCK_METHOD1(OnAppStateChanged, void(const AppProcessData&));
     MOCK_METHOD2(OnAbilityRequestDone, void(const sptr<IRemoteObject>&, const AbilityState));
+    MOCK_METHOD1(NotifyStartResidentProcess, void(std::vector<AppExecFwk::BundleInfo>&));
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

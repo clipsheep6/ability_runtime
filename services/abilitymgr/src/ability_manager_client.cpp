@@ -1813,5 +1813,13 @@ int32_t AbilityManagerClient::StartShortcut(const Want &want, const StartOptions
     CHECK_POINTER_RETURN_INVALID_VALUE(abms);
     return abms->StartShortcut(want, startOptions);
 }
+
+int32_t AbilityManagerClient::GetAbilityStateByPersistentId(int32_t persistentId, bool &state)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "GetAbilityStateByPersistentId, called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_INVALID_VALUE(abms);
+    return abms->GetAbilityStateByPersistentId(persistentId, state);
+}
 } // namespace AAFwk
 } // namespace OHOS

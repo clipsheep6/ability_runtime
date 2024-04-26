@@ -3886,7 +3886,7 @@ int32_t AbilityManagerProxy::IsValidMissionIds(
     }
 
     constexpr int32_t MAX_COUNT = 20;
-    int32_t num = missionIds.size() > MAX_COUNT ? MAX_COUNT : missionIds.size();
+    int32_t num = static_cast<int32_t>(missionIds.size() > MAX_COUNT ? MAX_COUNT : missionIds.size());
     data.WriteInt32(num);
     for (auto i = 0; i < num; ++i) {
         data.WriteInt32(missionIds.at(i));
@@ -5133,6 +5133,27 @@ int32_t AbilityManagerProxy::StartShortcut(const Want &want, const StartOptions 
         return error;
     }
     return reply.ReadInt32();
+}
+
+int32_t AbilityManagerProxy::GetAbilityStateByPersistentId(int32_t persistentId, bool &state)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return IPC_PROXY_ERR;
+    }
+    if (!data.WriteInt32(persistentId)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
+        return IPC_PROXY_ERR;
+    }
+    auto error = SendRequest(AbilityManagerInterfaceCode::GET_ABILITY_STATE_BY_PERSISTENT_ID, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        return error;
+    }
+    state = reply.ReadBool();
+    return NO_ERROR;
 }
 } // namespace AAFwk
 } // namespace OHOS
