@@ -180,7 +180,7 @@ napi_value JsUIExtensionContext::OnStartAbility(napi_env env, NapiCallbackInfo& 
     AAFwk::StartOptions startOptions;
     if (!CheckStartAbilityInputParam(env, info, want, startOptions, unwrapArgc)) {
         TAG_LOGD(AAFwkTag::UI_EXT, "Failed, input param type invalid");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM, "Parameter error. Parse want failed.");
         return CreateJsUndefined(env);
     }
 
@@ -299,7 +299,7 @@ napi_value JsUIExtensionContext::OnOpenLink(napi_env env, NapiCallbackInfo& info
 
     if (!ParseOpenLinkParams(env, info, linkValue, openLinkOptions, want)) {
         HILOG_ERROR("parse openLink arguments failed");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM, "Parameter error. The first parameter is not of type string or parse second parameter failed.");
         return CreateJsUndefined(env);
     }
 
@@ -330,7 +330,7 @@ napi_value JsUIExtensionContext::OnOpenLink(napi_env env, NapiCallbackInfo& info
             task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
         }
     };
-    
+
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsUIExtensionContext::OnOpenLink", env,
         CreateAsyncTaskWithLastParam(env, nullptr, nullptr, std::move(complete), &result));
@@ -376,7 +376,7 @@ napi_value JsUIExtensionContext::OnStartAbilityForResult(napi_env env, NapiCallb
     AAFwk::Want want;
     AAFwk::StartOptions startOptions;
     if (!CheckStartAbilityInputParam(env, info, want, startOptions, unwrapArgc)) {
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM, "Parameter error. Parse want failed.");
         TAG_LOGD(AAFwkTag::UI_EXT, "input param type invalid");
         return CreateJsUndefined(env);
     }
@@ -424,7 +424,7 @@ napi_value JsUIExtensionContext::OnTerminateSelfWithResult(napi_env env, NapiCal
     AAFwk::Want want;
     if (!AppExecFwk::UnWrapAbilityResult(env, info.argv[INDEX_ZERO], resultCode, want)) {
         TAG_LOGE(AAFwkTag::UI_EXT, "OnTerminateSelfWithResult Failed to parse ability result!");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM, "Parameter error. Parse ability result failed.");
         return CreateJsUndefined(env);
     }
 
@@ -474,7 +474,7 @@ napi_value JsUIExtensionContext::OnStartAbilityForResultAsCaller(napi_env env, N
     AAFwk::Want want;
     AAFwk::StartOptions startOptions;
     if (!CheckStartAbilityInputParam(env, info, want, startOptions, unwrapArgc)) {
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM, "Parameter error. Parse want failed.");
         TAG_LOGD(AAFwkTag::UI_EXT, "Input param type invalid.");
         return CreateJsUndefined(env);
     }
@@ -524,7 +524,7 @@ napi_value JsUIExtensionContext::OnConnectAbility(napi_env env, NapiCallbackInfo
     sptr<JSUIExtensionConnection> connection = new JSUIExtensionConnection(env);
     if (!AppExecFwk::UnwrapWant(env, info.argv[0], want) ||
         !CheckConnectionParam(env, info.argv[1], connection, want)) {
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM, "Parameter error. Parse want or connection failed.");
         return CreateJsUndefined(env);
     }
     int64_t connectId = connection->GetConnectionId();
@@ -563,7 +563,7 @@ napi_value JsUIExtensionContext::OnDisconnectAbility(napi_env env, NapiCallbackI
     int64_t connectId = -1;
     if (!AppExecFwk::UnwrapInt64FromJS2(env, info.argv[INDEX_ZERO], connectId)) {
         TAG_LOGE(AAFwkTag::UI_EXT, "Invalid connectId");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM, "Parameter error.The type of connectId must be number. ");
         return CreateJsUndefined(env);
     }
 
@@ -641,7 +641,7 @@ napi_value JsUIExtensionContext::OnOpenAtomicService(napi_env env, NapiCallbackI
     std::string appId;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], appId)) {
         TAG_LOGE(AAFwkTag::UI_EXT, "OnOpenAtomicService, parse appId failed.");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM, "Parameter error. Parse appId failed.");
         return CreateJsUndefined(env);
     }
 
@@ -652,7 +652,7 @@ napi_value JsUIExtensionContext::OnOpenAtomicService(napi_env env, NapiCallbackI
         TAG_LOGD(AAFwkTag::UI_EXT, "OnOpenAtomicService atomic service options is used.");
         if (!AppExecFwk::UnwrapStartOptionsAndWant(env, info.argv[INDEX_ONE], startOptions, want)) {
             TAG_LOGE(AAFwkTag::UI_EXT, "Fail to parse atomic service options.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM, "Parameter error. Parse atomic service options failed.");
             return CreateJsUndefined(env);
         }
         unwrapArgc++;
