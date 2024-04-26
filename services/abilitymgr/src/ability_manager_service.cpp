@@ -9933,10 +9933,11 @@ void AbilityManagerService::SetDebugAppByWaitingDebugFlag(
         return;
     }
 
-    if (DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->IsWaitingDebugApp(bundleName)) {
+    if (IN_PROCESS_CALL(DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->IsWaitingDebugApp(bundleName))) {
         (const_cast<Want &>(want)).SetParam(DEBUG_APP, true);
         requestWant.SetParam(DEBUG_APP, true);
-        DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->ClearNonPersistWaitingDebugFlag();
+        IN_PROCESS_CALL_WITHOUT_RET(
+            DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->ClearNonPersistWaitingDebugFlag());
     }
 }
 
