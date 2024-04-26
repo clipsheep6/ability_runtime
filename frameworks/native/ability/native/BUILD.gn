@@ -115,6 +115,7 @@ config("abilitykit_utils_public_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
+    "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "//third_party/json/include",
   ]
 
@@ -155,7 +156,6 @@ ohos_shared_library("abilitykit_utils") {
     "resource_management:global_resmgr",
   ]
   public_external_deps = [
-    "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "jsoncpp:jsoncpp",
     "window_manager:libwm",
@@ -333,6 +333,7 @@ config("extensionkit_public_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
+    "${bundlefwk_inner_api_path}/appexecfwk_base/include",
 
     "//third_party/json/include",
   ]
@@ -385,7 +386,6 @@ ohos_shared_library("extensionkit_native") {
     "napi:ace_napi",
   ]
   public_external_deps = [
-    "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "jsoncpp:jsoncpp",
   ]
@@ -458,6 +458,7 @@ config("uiability_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/app",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_services_path}/abilitymgr/include",
+    "${bundlefwk_inner_api_path}/appexecfwk_base/include",
   ]
 
   if (ability_runtime_graphics) {
@@ -512,6 +513,7 @@ ohos_shared_library("uiabilitykit_native") {
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
+    "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "ets_runtime:libark_jsruntime",
@@ -523,7 +525,6 @@ ohos_shared_library("uiabilitykit_native") {
     "resource_management:global_resmgr",
   ]
   public_external_deps = [
-    "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "libuv:uv",
     "napi:ace_napi",
