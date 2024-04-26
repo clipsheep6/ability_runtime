@@ -1985,7 +1985,7 @@ void AppMgrServiceInner::KillProcessesByPids(std::vector<int32_t> &pids)
         auto appRecord = GetAppRunningRecordByPid(pid);
         if (appRecord == nullptr) {
             TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr.");
-            return;
+            continue;
         }
         auto result = KillProcessByPid(pid, "KillProcessesByPids");
         if (result < 0) {
