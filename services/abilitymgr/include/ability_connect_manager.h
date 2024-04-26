@@ -43,7 +43,6 @@ namespace AAFwk {
 using OHOS::AppExecFwk::AbilityType;
 using UIExtensionAbilityConnectInfo = AbilityRuntime::UIExtensionAbilityConnectInfo;
 using UIExtensionAbilityConnectManager = AbilityRuntime::ExtensionRecordManager;
-
 /**
  * @class AbilityConnectManager
  * AbilityConnectManager provides a facility for managing service ability connection.
@@ -100,6 +99,32 @@ public:
         const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo = nullptr,
         sptr<UIExtensionAbilityConnectInfo> connectInfo = nullptr);
 
+    /**
+     * PreloadUIExtensionAbilityInner, preload uiextension ability.
+     *
+     * @param abilityRequest, Special want for service type's ability.
+     * @param hostBundleName, the caller application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int PreloadUIExtensionAbilityInner(const AbilityRequest &abilityRequest, std::string &hostBundleName);
+
+    /**
+     * PreloadUIExtensionAbilityLocked, preload uiextension ability.
+     *
+     * @param abilityRequest, Special want for service type's ability.
+     * @param hostBundleName, the caller application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int PreloadUIExtensionAbilityLocked(const AbilityRequest &abilityRequest, std::string &hostBundleName);
+    /**
+     * UnloadUIExtension, unload uiextension ability.
+     *
+     * @param abilityRecord, uiextension ability record.
+     * @param hostBundleName, the caller application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int UnloadUIExtension(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord, std::string &bundleName);
+    
     /**
      * DisconnectAbilityLocked, disconnect session with callback.
      *

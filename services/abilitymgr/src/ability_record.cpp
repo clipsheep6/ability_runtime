@@ -1893,6 +1893,12 @@ void AbilityRecord::RemoveConnectRecordFromList(const std::shared_ptr<Connection
     connRecordList_.remove(connRecord);
 }
 
+void AbilityRecord::RemoveSpecifiedWantParam(const std::string &key)
+{
+    std::lock_guard guard(wantLock_);
+    want_.RemoveParam(key);
+}
+
 void AbilityRecord::AddCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode, std::string srcAbilityId,
     uint32_t callingTokenId)
 {
