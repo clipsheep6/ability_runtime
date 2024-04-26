@@ -2579,6 +2579,7 @@ int AbilityManagerProxy::GetMissionInfos(const std::string& deviceId, int32_t nu
 int AbilityManagerProxy::GetMissionInfo(const std::string& deviceId, int32_t missionId,
     MissionInfo &missionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -2611,6 +2612,7 @@ int AbilityManagerProxy::GetMissionInfo(const std::string& deviceId, int32_t mis
 
 int AbilityManagerProxy::CleanMission(int32_t missionId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -2633,6 +2635,7 @@ int AbilityManagerProxy::CleanMission(int32_t missionId)
 
 int AbilityManagerProxy::CleanAllMissions()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -2651,6 +2654,7 @@ int AbilityManagerProxy::CleanAllMissions()
 
 int AbilityManagerProxy::MoveMissionToFront(int32_t missionId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -2673,6 +2677,7 @@ int AbilityManagerProxy::MoveMissionToFront(int32_t missionId)
 
 int AbilityManagerProxy::MoveMissionToFront(int32_t missionId, const StartOptions &startOptions)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
