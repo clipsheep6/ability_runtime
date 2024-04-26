@@ -68,7 +68,7 @@ void AutoFillExtensionCallback::OnError(int32_t errCode, const std::string &name
 
 void AutoFillExtensionCallback::HandleReloadInModal(const AAFwk::WantParams &wantParams)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     isReloadInModal_ = true;
     AutoFillManager::GetInstance().RemoveAutoFillExtensionProxy(uiContent_);
     auto customDataString(wantParams.GetStringParam(WANT_PARAMS_CUSTOM_DATA_KEY));
@@ -87,14 +87,14 @@ void AutoFillExtensionCallback::HandleReloadInModal(const AAFwk::WantParams &wan
     }
 
     if (uiContent_ == nullptr) {
-        HILOG_ERROR("UI content is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UI content is nullptr.");
         return;
     }
 
     if (request.autoFillWindowType == AutoFill::AutoFillWindowType::POPUP_WINDOW) {
         uiContent_->DestroyCustomPopupUIExtension(request.nodeId);
     } else {
-        HILOG_WARN("Window type is not popup, the window can not be destroyed.");
+        TAG_LOGW(AAFwkTag::AUTOFILLMGR, "Window type is not popup, the window can not be destroyed.");
     }
 }
 

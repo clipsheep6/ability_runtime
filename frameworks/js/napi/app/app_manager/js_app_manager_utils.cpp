@@ -141,7 +141,7 @@ JsAppProcessState ConvertToJsAppProcessState(
             processState = STATE_DESTROY;
             break;
         default:
-            HILOG_ERROR("Process state is invalid.");
+            TAG_LOGE(AAFwkTag::APPMGR, "Process state is invalid.");
             processState = STATE_DESTROY;
             break;
     }

@@ -1119,26 +1119,32 @@ std::shared_ptr<AbilityRecord> MissionListManager::GetAbilityRecordByTokenInner(
         return nullptr;
     }
     // first find in terminating list
-    for (auto ability : terminateAbilityList_) {
-        if (ability && token == ability->GetToken()->AsObject()) {
-            return ability;
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "for (auto ability : terminateAbilityList_)");
+        for (auto ability : terminateAbilityList_) {
+            if (ability && token == ability->GetToken()->AsObject()) {
+                return ability;
+            }
         }
     }
-
     return GetAliveAbilityRecordByToken(token);
 }
 
 std::shared_ptr<AbilityRecord> MissionListManager::GetAliveAbilityRecordByToken(
     const sptr<IRemoteObject> &token) const
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (!token) {
         return nullptr;
     }
 
     std::shared_ptr<AbilityRecord> abilityRecord = nullptr;
-    for (auto missionList : currentMissionLists_) {
-        if (missionList && (abilityRecord = missionList->GetAbilityRecordByToken(token)) != nullptr) {
-            return abilityRecord;
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "for (auto missionList : currentMissionLists_)");
+        for (auto missionList : currentMissionLists_) {
+            if (missionList && (abilityRecord = missionList->GetAbilityRecordByToken(token)) != nullptr) {
+                return abilityRecord;
+            }
         }
     }
 
@@ -2593,11 +2599,15 @@ int32_t MissionListManager::GetMissionIdByAbilityTokenInner(const sptr<IRemoteOb
 
 sptr<IRemoteObject> MissionListManager::GetAbilityTokenByMissionId(int32_t missionId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard guard(managerLock_);
     sptr<IRemoteObject> result = nullptr;
-    for (auto missionList : currentMissionLists_) {
-        if (missionList && (result = missionList->GetAbilityTokenByMissionId(missionId)) != nullptr) {
-            return result;
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "for (auto missionList : currentMissionLists_)");
+        for (auto missionList : currentMissionLists_) {
+            if (missionList && (result = missionList->GetAbilityTokenByMissionId(missionId)) != nullptr) {
+                return result;
+            }
         }
     }
 
@@ -3899,13 +3909,13 @@ bool MissionListManager::UpdateAbilityRecordLaunchReason(
         return false;
     }
 
-    if (abilityRequest.IsContinuation()) {
-        abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_CONTINUATION);
+    if (abilityRequest.IsAppRecovery() || abilityRecord->GetRecoveryInfo()) {
+        abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_APP_RECOVERY);
         return true;
     }
 
-    if (abilityRequest.IsAppRecovery() || abilityRecord->GetRecoveryInfo()) {
-        abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_APP_RECOVERY);
+    if (abilityRequest.IsContinuation()) {
+        abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_CONTINUATION);
         return true;
     }
 

@@ -125,13 +125,13 @@ public:
         }
     }
 
-    void SetUIExtensionBaseImpl(std::unique_ptr<UIExtensionBaseImpl> impl)
+    void SetUIExtensionBaseImpl(const std::shared_ptr<UIExtensionBaseImpl> &impl)
     {
-        impl_ = std::move(impl);
+        impl_ = impl;
     }
 
 private:
-    std::unique_ptr<UIExtensionBaseImpl> impl_ = nullptr;
+    std::shared_ptr<UIExtensionBaseImpl> impl_ = nullptr;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

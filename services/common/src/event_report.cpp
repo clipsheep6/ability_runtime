@@ -16,6 +16,7 @@
 #include <map>
 
 #include "event_report.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 
@@ -96,7 +97,7 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, 
 {
     std::string name = ConvertEventName(eventName);
     if (name == INVALID_EVENT_NAME) {
-        HILOG_ERROR("invalid eventName");
+        TAG_LOGE(AAFwkTag::DEFAULT, "invalid eventName");
         return;
     }
     switch (eventName) {
@@ -113,7 +114,8 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, 
                 EVENT_KEY_START_TYPE, eventInfo.startType);
             break;
         case EventName::DRAWN_COMPLETED:
-            HILOG_INFO("HiSysEvent name: DRAWN_COMPLETED, bundleName: %{public}s, abilityName: %{public}s",
+            TAG_LOGI(AAFwkTag::DEFAULT,
+                "HiSysEvent name: DRAWN_COMPLETED, bundleName: %{public}s, abilityName: %{public}s",
                 eventInfo.bundleName.c_str(), eventInfo.abilityName.c_str());
             HiSysEventWrite(
                 HiSysEvent::Domain::AAFWK,
@@ -144,7 +146,7 @@ void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType ty
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::string name = ConvertEventName(eventName);
     if (name == INVALID_EVENT_NAME) {
-        HILOG_ERROR("invalid eventName");
+        TAG_LOGE(AAFwkTag::DEFAULT, "invalid eventName");
         return;
     }
     switch (eventName) {
@@ -233,7 +235,7 @@ void EventReport::SendExtensionEvent(const EventName &eventName, HiSysEventType 
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::string name = ConvertEventName(eventName);
     if (name == INVALID_EVENT_NAME) {
-        HILOG_ERROR("invalid eventName");
+        TAG_LOGE(AAFwkTag::DEFAULT, "invalid eventName");
         return;
     }
     switch (eventName) {
@@ -262,10 +264,10 @@ void EventReport::SendKeyEvent(const EventName &eventName, HiSysEventType type, 
 {
     std::string name = ConvertEventName(eventName);
     if (name == INVALID_EVENT_NAME) {
-        HILOG_ERROR("invalid eventName");
+        TAG_LOGE(AAFwkTag::DEFAULT, "invalid eventName");
         return;
     }
-    HILOG_INFO("name is %{public}s", name.c_str());
+    TAG_LOGI(AAFwkTag::DEFAULT, "name is %{public}s", name.c_str());
     switch (eventName) {
         case EventName::GRANT_URI_PERMISSION:
             HiSysEventWrite(
@@ -306,7 +308,7 @@ void EventReport::SendAppLaunchEvent(const EventName &eventName, const EventInfo
 {
     std::string name = ConvertEventName(eventName);
     if (name == INVALID_EVENT_NAME) {
-        HILOG_ERROR("invalid eventName");
+        TAG_LOGE(AAFwkTag::DEFAULT, "invalid eventName");
         return;
     }
     HiSysEventWrite(
@@ -329,7 +331,7 @@ void EventReport::SendAppForegroundEvent(const EventName &eventName, const Event
 {
     std::string name = ConvertEventName(eventName);
     if (name == INVALID_EVENT_NAME) {
-        HILOG_ERROR("invalid eventName");
+        TAG_LOGE(AAFwkTag::DEFAULT, "invalid eventName");
         return;
     }
     HiSysEventWrite(
@@ -350,7 +352,7 @@ void EventReport::SendAppBackgroundEvent(const EventName &eventName, const Event
 {
     std::string name = ConvertEventName(eventName);
     if (name == INVALID_EVENT_NAME) {
-        HILOG_ERROR("invalid eventName");
+        TAG_LOGE(AAFwkTag::DEFAULT, "invalid eventName");
         return;
     }
     HiSysEventWrite(
@@ -371,7 +373,7 @@ void EventReport::SendProcessStartEvent(const EventName &eventName, const EventI
     constexpr int32_t defaultVal = -1;
     std::string name = ConvertEventName(eventName);
     if (name == INVALID_EVENT_NAME) {
-        HILOG_ERROR("invalid eventName");
+        TAG_LOGE(AAFwkTag::DEFAULT, "invalid eventName");
         return;
     }
     if (eventInfo.extensionType == defaultVal) {
@@ -410,7 +412,7 @@ void EventReport::SendProcessExitEvent(const EventName &eventName, const EventIn
 {
     std::string name = ConvertEventName(eventName);
     if (name == INVALID_EVENT_NAME) {
-        HILOG_ERROR("invalid eventName");
+        TAG_LOGE(AAFwkTag::DEFAULT, "invalid eventName");
         return;
     }
     HiSysEventWrite(
@@ -428,7 +430,7 @@ void EventReport::SendStartServiceEvent(const EventName &eventName, const EventI
 {
     std::string name = ConvertEventName(eventName);
     if (name == INVALID_EVENT_NAME) {
-        HILOG_ERROR("invalid eventName");
+        TAG_LOGE(AAFwkTag::DEFAULT, "invalid eventName");
         return;
     }
     HiSysEventWrite(
@@ -451,7 +453,7 @@ void EventReport::SendStopServiceEvent(const EventName &eventName, const EventIn
 {
     std::string name = ConvertEventName(eventName);
     if (name == INVALID_EVENT_NAME) {
-        HILOG_ERROR("invalid eventName");
+        TAG_LOGE(AAFwkTag::DEFAULT, "invalid eventName");
         return;
     }
     HiSysEventWrite(
@@ -474,7 +476,7 @@ void EventReport::SendConnectServiceEvent(const EventName &eventName, const Even
 {
     std::string name = ConvertEventName(eventName);
     if (name == INVALID_EVENT_NAME) {
-        HILOG_ERROR("invalid eventName");
+        TAG_LOGE(AAFwkTag::DEFAULT, "invalid eventName");
         return;
     }
     HiSysEventWrite(
@@ -496,7 +498,7 @@ void EventReport::SendDisconnectServiceEvent(const EventName &eventName, const E
 {
     std::string name = ConvertEventName(eventName);
     if (name == INVALID_EVENT_NAME) {
-        HILOG_ERROR("invalid eventName");
+        TAG_LOGE(AAFwkTag::DEFAULT, "invalid eventName");
         return;
     }
     HiSysEventWrite(HiSysEvent::Domain::AAFWK,

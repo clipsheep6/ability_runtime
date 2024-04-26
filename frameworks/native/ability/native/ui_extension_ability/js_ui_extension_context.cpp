@@ -233,11 +233,11 @@ bool JsUIExtensionContext::CreateOpenLinkTask(const napi_env &env, const napi_va
     CreateAsyncTaskWithLastParam(env, lastParam, nullptr, nullptr, &result);
     std::shared_ptr<NapiAsyncTask> asyncTask = std::move(uasyncTask);
     RuntimeTask task = [env, asyncTask](int resultCode, const AAFwk::Want& want, bool isInner) {
-        HILOG_INFO("OnOpenLink async callback is begin");
+        TAG_LOGI(AAFwkTag::UI_EXT, "OnOpenLink async callback is begin");
         HandleScope handleScope(env);
         napi_value abilityResult = AppExecFwk::WrapAbilityResult(env, resultCode, want);
         if (abilityResult == nullptr) {
-            HILOG_WARN("wrap abilityResult error");
+            TAG_LOGW(AAFwkTag::UI_EXT, "wrap abilityResult error");
             asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
         } else {
             if (isInner) {
@@ -249,7 +249,7 @@ bool JsUIExtensionContext::CreateOpenLinkTask(const napi_env &env, const napi_va
     };
     auto context = context_.lock();
     if (context == nullptr) {
-        HILOG_WARN("context is released");
+        TAG_LOGW(AAFwkTag::UI_EXT, "context is released");
         return false;
     } else {
         requestCode = context->GenerateCurRequestCode();
@@ -262,23 +262,23 @@ static bool ParseOpenLinkParams(const napi_env &env, const NapiCallbackInfo &inf
     AAFwk::OpenLinkOptions &openLinkOptions, AAFwk::Want &want)
 {
     if (info.argc != ARGC_THREE) {
-        HILOG_ERROR("wrong arguments num");
+        TAG_LOGE(AAFwkTag::UI_EXT, "wrong arguments num");
         return false;
     }
 
     if (!CheckTypeForNapiValue(env, info.argv[ARGC_ZERO], napi_string)) {
-        HILOG_ERROR("link must be string");
+        TAG_LOGE(AAFwkTag::UI_EXT, "link must be string");
         return false;
     }
     if (!ConvertFromJsValue(env, info.argv[ARGC_ZERO], linkValue) || !CheckUrl(linkValue)) {
-        HILOG_ERROR("link parameter invalid");
+        TAG_LOGE(AAFwkTag::UI_EXT, "link parameter invalid");
         return false;
     }
 
     if (CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
-        HILOG_DEBUG("OpenLinkOptions is used.");
+        TAG_LOGD(AAFwkTag::UI_EXT, "OpenLinkOptions is used.");
         if (!AppExecFwk::UnwrapOpenLinkOptions(env, info.argv[INDEX_ONE], openLinkOptions, want)) {
-            HILOG_ERROR("openLinkOptions parse failed");
+            TAG_LOGE(AAFwkTag::UI_EXT, "openLinkOptions parse failed");
             return false;
         }
     }
@@ -289,7 +289,7 @@ static bool ParseOpenLinkParams(const napi_env &env, const NapiCallbackInfo &inf
 napi_value JsUIExtensionContext::OnOpenLink(napi_env env, NapiCallbackInfo& info)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("OnOpenLink");
+    TAG_LOGI(AAFwkTag::UI_EXT, "OnOpenLink");
 
     std::string linkValue("");
     AAFwk::OpenLinkOptions openLinkOptions;
@@ -298,16 +298,16 @@ napi_value JsUIExtensionContext::OnOpenLink(napi_env env, NapiCallbackInfo& info
     want.SetParam(AppExecFwk::APP_LINKING_ONLY, false);
 
     if (!ParseOpenLinkParams(env, info, linkValue, openLinkOptions, want)) {
-        HILOG_ERROR("parse openLink arguments failed");
+        TAG_LOGE(AAFwkTag::UI_EXT, "parse openLink arguments failed");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
     }
 
-    HILOG_INFO("open link:%{public}s.", linkValue.c_str());
+    TAG_LOGI(AAFwkTag::UI_EXT, "open link:%{public}s.", linkValue.c_str());
     want.SetUri(linkValue);
     int requestCode = -1;
     if (CheckTypeForNapiValue(env, info.argv[INDEX_TWO], napi_function)) {
-        HILOG_DEBUG("completionHandler is used.");
+        TAG_LOGD(AAFwkTag::UI_EXT, "completionHandler is used.");
         lastParam = info.argv[INDEX_TWO];
         CreateOpenLinkTask(env, lastParam, want, requestCode);
     }
@@ -316,17 +316,17 @@ napi_value JsUIExtensionContext::OnOpenLink(napi_env env, NapiCallbackInfo& info
         NapiAsyncTask& task, int32_t status) {
         auto context = weak.lock();
         if (!context) {
-            HILOG_WARN("context is released");
+            TAG_LOGW(AAFwkTag::UI_EXT, "context is released");
             task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
             return;
         }
         auto innerErrorCode = std::make_shared<int>(ERR_OK);
         *innerErrorCode = context->StartAbility(want, requestCode);
         if (*innerErrorCode == 0) {
-            HILOG_INFO("OpenLink success.");
+            TAG_LOGI(AAFwkTag::UI_EXT, "OpenLink success.");
             task.ResolveWithNoError(env, CreateJsUndefined(env));
         } else {
-            HILOG_INFO("OpenLink failed.");
+            TAG_LOGI(AAFwkTag::UI_EXT, "OpenLink failed.");
             task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
         }
     };
@@ -659,7 +659,7 @@ napi_value JsUIExtensionContext::OnOpenAtomicService(napi_env env, NapiCallbackI
     }
 
     std::string bundleName = ATOMIC_SERVICE_PREFIX + appId;
-    HILOG_DEBUG("bundleName: %{public}s.", bundleName.c_str());
+    TAG_LOGD(AAFwkTag::UI_EXT, "bundleName: %{public}s.", bundleName.c_str());
     want.SetBundle(bundleName);
     return OpenAtomicServiceInner(env, info, want, startOptions, unwrapArgc);
 }
@@ -675,9 +675,9 @@ napi_value JsUIExtensionContext::OpenAtomicServiceInner(napi_env env, NapiCallba
     AddFreeInstallObserver(env, want, nullptr, &result, true);
     RuntimeTask task = [env, element = want.GetElement(), startTime, &observer = freeInstallObserver_](
         int resultCode, const AAFwk::Want& want, bool isInner) {
-        HILOG_DEBUG("OnOpenAtomicService async callback is begin");
+        TAG_LOGD(AAFwkTag::UI_EXT, "OnOpenAtomicService async callback is begin");
         if (observer == nullptr) {
-            HILOG_WARN("observer is nullptr.");
+            TAG_LOGW(AAFwkTag::UI_EXT, "observer is nullptr.");
             return;
         }
         HandleScope handleScope(env);
@@ -685,7 +685,7 @@ napi_value JsUIExtensionContext::OpenAtomicServiceInner(napi_env env, NapiCallba
         std::string abilityName = element.GetAbilityName();
         napi_value abilityResult = AppExecFwk::WrapAbilityResult(env, resultCode, want);
         if (abilityResult == nullptr) {
-            HILOG_WARN("wrap abilityResult failed");
+            TAG_LOGW(AAFwkTag::UI_EXT, "wrap abilityResult failed");
             isInner = true;
             resultCode = ERR_INVALID_VALUE;
         }
@@ -697,7 +697,7 @@ napi_value JsUIExtensionContext::OpenAtomicServiceInner(napi_env env, NapiCallba
     };
     auto context = context_.lock();
     if (context == nullptr) {
-        HILOG_WARN("context is released");
+        TAG_LOGW(AAFwkTag::UI_EXT, "context is released");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
         return CreateJsUndefined(env);
     } else {
@@ -713,7 +713,7 @@ void JsUIExtensionContext::AddFreeInstallObserver(napi_env env, const AAFwk::Wan
     napi_value *result, bool isAbilityResult)
 {
     // adapter free install async return install and start result
-    HILOG_DEBUG("ConvertWindowSize begin.");
+    TAG_LOGD(AAFwkTag::UI_EXT, "ConvertWindowSize begin.");
     int ret = 0;
     if (freeInstallObserver_ == nullptr) {
         freeInstallObserver_ = new JsFreeInstallObserver(env);
@@ -721,9 +721,9 @@ void JsUIExtensionContext::AddFreeInstallObserver(napi_env env, const AAFwk::Wan
     }
 
     if (ret != ERR_OK) {
-        HILOG_ERROR("AddFreeInstallObserver error.");
+        TAG_LOGE(AAFwkTag::UI_EXT, "AddFreeInstallObserver error.");
     } else {
-        HILOG_INFO("AddJsObserverObject");
+        TAG_LOGI(AAFwkTag::UI_EXT, "AddJsObserverObject");
         std::string bundleName = want.GetElement().GetBundleName();
         std::string abilityName = want.GetElement().GetAbilityName();
         std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);

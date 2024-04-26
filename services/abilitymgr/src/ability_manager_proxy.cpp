@@ -91,6 +91,7 @@ int AbilityManagerProxy::StartAbility(const Want &want, int32_t userId, int requ
 
 AppExecFwk::ElementName AbilityManagerProxy::GetTopAbility(bool isNeedLocalDeviceId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -2545,6 +2546,7 @@ int AbilityManagerProxy::UnRegisterMissionListener(const sptr<IMissionListener> 
 int AbilityManagerProxy::GetMissionInfos(const std::string& deviceId, int32_t numMax,
     std::vector<MissionInfo> &missionInfos)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -5141,6 +5143,27 @@ int32_t AbilityManagerProxy::StartShortcut(const Want &want, const StartOptions 
         return error;
     }
     return reply.ReadInt32();
+}
+
+int32_t AbilityManagerProxy::GetAbilityStateByPersistentId(int32_t persistentId, bool &state)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return IPC_PROXY_ERR;
+    }
+    if (!data.WriteInt32(persistentId)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
+        return IPC_PROXY_ERR;
+    }
+    auto error = SendRequest(AbilityManagerInterfaceCode::GET_ABILITY_STATE_BY_PERSISTENT_ID, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        return error;
+    }
+    state = reply.ReadBool();
+    return NO_ERROR;
 }
 } // namespace AAFwk
 } // namespace OHOS

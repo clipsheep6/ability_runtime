@@ -70,7 +70,7 @@
             "ipc",
             "kv_store",
             "memmgr",
-            "memmgr_plugin",
+            "memmgr_override",
             "memory_utils",
             "napi",
             "netmanager_base",

@@ -632,21 +632,19 @@ bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObj
         TAG_LOGI(AAFwkTag::ABILITYMGR, "force");
         return UpdateMissionSnapshot(missionId, abilityToken, missionSnapshot, isLowResolution);
     }
-    {
-        std::unique_lock<ffrt::mutex> lock(savingSnapshotLock_);
-        auto search = savingSnapshot_.find(missionId);
-        if (search != savingSnapshot_.end()) {
-            auto savingSnapshotTimeout = 100; // ms
-            std::chrono::milliseconds timeout { savingSnapshotTimeout };
-            auto waitingCount = 5;
-            auto waitingNum = 0;
-            while (waitSavingCondition_.wait_for(lock, timeout) == ffrt::cv_status::no_timeout) {
-                ++waitingNum;
-                auto iter = savingSnapshot_.find(missionId);
-                if (iter == savingSnapshot_.end() || waitingNum == waitingCount) {
-                    TAG_LOGI(AAFwkTag::ABILITYMGR, "Saved successfully or waiting failed.");
-                    break;
-                }
+    std::unique_lock<ffrt::mutex> lock(savingSnapshotLock_);
+    auto search = savingSnapshot_.find(missionId);
+    if (search != savingSnapshot_.end()) {
+        auto savingSnapshotTimeout = 100; // ms
+        std::chrono::milliseconds timeout { savingSnapshotTimeout };
+        auto waitingCount = 5;
+        auto waitingNum = 0;
+        while (waitSavingCondition_.wait_for(lock, timeout) == ffrt::cv_status::no_timeout) {
+            ++waitingNum;
+            auto iter = savingSnapshot_.find(missionId);
+            if (iter == savingSnapshot_.end() || waitingNum == waitingCount) {
+                TAG_LOGI(AAFwkTag::ABILITYMGR, "Saved successfully or waiting failed.");
+                break;
             }
         }
     }

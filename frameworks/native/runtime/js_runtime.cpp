@@ -1562,7 +1562,7 @@ void JsRuntime::GetPkgContextInfoListMap(const std::map<std::string, std::string
         std::vector<std::vector<std::string>> pkgContextInfoList;
         auto jsonObject = nlohmann::json::parse(it->second);
         if (jsonObject.is_discarded()) {
-            HILOG_ERROR("moduleName: %{public}s parse json error", it->first.c_str());
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "moduleName: %{public}s parse json error", it->first.c_str());
             continue;
         }
         for (nlohmann::json::iterator it = jsonObject.begin(); it != jsonObject.end(); it++) {
@@ -1625,7 +1625,7 @@ void JsRuntime::GetPkgContextInfoListMap(const std::map<std::string, std::string
             }
             pkgContextInfoList.emplace_back(items);
         }
-        HILOG_INFO("moduleName: %{public}s parse json success", it->first.c_str());
+        TAG_LOGI(AAFwkTag::JSRUNTIME, "moduleName: %{public}s parse json success", it->first.c_str());
         pkgContextInfoMap[it->first] = pkgContextInfoList;
     }
 }

@@ -48,6 +48,7 @@ ohos_source_set("appexecfwk_appmgr_mock") {
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
   ]
 

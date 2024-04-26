@@ -83,7 +83,7 @@ const int32_t UI_JUMP_INTERCEPTOR_DIALOG_WIDTH_NARROW = 328 * 2;
 const int32_t UI_ANR_DIALOG_WIDTH = 328 * 2;
 const int32_t UI_ANR_DIALOG_HEIGHT = 192 * 2;
 const std::string APP_NAME = "appName";
-const std::string DEVICE_TYPE = "deviceType";
+const std::string IS_DEFAULT_SELECTOR = "isDefaultSelector";
 const std::string OFF_SET_X = "offsetX";
 const std::string OFF_SET_Y = "offsetY";
 const std::string WIDTH = "width";
@@ -110,7 +110,6 @@ const std::string BUNDLE_NAME_DIALOG = "com.ohos.amsdialog";
 const std::string DIALOG_PARAMS = "params";
 const std::string DIALOG_POSITION = "position";
 const std::string VERTICAL_SCREEN_DIALOG_POSITION = "landscapeScreen";
-const std::string ABILITY_NAME_ANR_DIALOG = "AnrDialog";
 const std::string ABILITY_NAME_FREEZE_DIALOG = "SwitchUserDialog";
 const std::string ABILITY_NAME_ASSERT_FAULT_DIALOG = "AssertFaultDialog";
 const std::string ABILITY_NAME_TIPS_DIALOG = "TipsDialog";
@@ -133,44 +132,6 @@ const float WIDTH_MULTIPLE = 0.8;
 const float HEIGHT_MULTIPLE = 0.3;
 const float SETX_WIDTH_MULTIPLE = 0.1;
 
-bool SystemDialogScheduler::GetANRDialogWant(int userId, int pid, AAFwk::Want &want)
-{
-    TAG_LOGD(AAFwkTag::DIALOG, "GetANRDialogWant start");
-    AppExecFwk::ApplicationInfo appInfo;
-    bool debug;
-    auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
-    if (appScheduler->GetApplicationInfoByProcessID(pid, appInfo, debug) != ERR_OK) {
-        TAG_LOGE(AAFwkTag::DIALOG, "Get application info failed.");
-        return false;
-    }
-
-    std::string appName {""};
-    GetAppNameFromResource(appInfo.labelId, appInfo.bundleName, userId, appName);
-    DialogPosition position;
-    GetDialogPositionAndSize(DialogType::DIALOG_ANR, position);
-    std::string params = GetAnrParams(position, appName);
-
-    want.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_ANR_DIALOG);
-    want.SetParam(BUNDLE_NAME, appInfo.bundleName);
-    want.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
-    want.SetParam(DIALOG_PARAMS, params);
-    return true;
-}
-
-const std::string SystemDialogScheduler::GetAnrParams(const DialogPosition position, const std::string &appName) const
-{
-    nlohmann::json anrData;
-    anrData[APP_NAME] = appName;
-    anrData[DEVICE_TYPE] = deviceType_;
-    if (!position.wideScreen) {
-        anrData[OFF_SET_X] = position.window_offsetX;
-        anrData[OFF_SET_Y] = position.window_offsetY;
-        anrData[WIDTH] = position.window_width;
-        anrData[HEIGHT] = position.window_height;
-    }
-    return anrData.dump();
-}
-
 Want SystemDialogScheduler::GetTipsDialogWant(const sptr<IRemoteObject> &callerToken)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -180,7 +141,7 @@ Want SystemDialogScheduler::GetTipsDialogWant(const sptr<IRemoteObject> &callerT
     GetDialogPositionAndSize(DialogType::DIALOG_TIPS, position);
 
     nlohmann::json jsonObj;
-    jsonObj[DEVICE_TYPE] = deviceType_;
+    jsonObj[IS_DEFAULT_SELECTOR] = AppUtils::GetInstance().IsSelectorDialogDefaultPossion();
     const std::string params = jsonObj.dump();
 
     AAFwk::Want want;
@@ -202,7 +163,7 @@ Want SystemDialogScheduler::GetJumpInterceptorDialogWant(Want &targetWant)
     GetDialogPositionAndSize(DialogType::DIALOG_JUMP_INTERCEPTOR, position);
 
     nlohmann::json jsonObj;
-    jsonObj[DEVICE_TYPE] = deviceType_;
+    jsonObj[IS_DEFAULT_SELECTOR] = AppUtils::GetInstance().IsSelectorDialogDefaultPossion();
     jsonObj["bundleName"] = targetWant.GetElement().GetBundleName();
     jsonObj["abilityName"] = targetWant.GetElement().GetAbilityName();
     jsonObj["moduleName"] = targetWant.GetElement().GetModuleName();
@@ -381,13 +342,13 @@ const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<Dia
     }
 
     nlohmann::json jsonObject;
-    jsonObject[DEVICE_TYPE] = deviceType_;
+    jsonObject[IS_DEFAULT_SELECTOR] = AppUtils::GetInstance().IsSelectorDialogDefaultPossion();
 
     nlohmann::json hapListObj = nlohmann::json::array();
     for (const auto &aInfo : infos) {
         nlohmann::json aObj;
-        aObj["label"] = std::to_string(aInfo.labelId);
-        aObj["icon"] = std::to_string(aInfo.iconId);
+        aObj["label"] = std::to_string(aInfo.abilityLabelId);
+        aObj["icon"] = std::to_string(aInfo.abilityIconId);
         aObj["bundle"] = aInfo.bundleName;
         aObj["ability"] = aInfo.abilityName;
         aObj["module"] = aInfo.moduleName;
@@ -423,7 +384,7 @@ const std::string SystemDialogScheduler::GetPcSelectorParams(const std::vector<D
     }
 
     nlohmann::json jsonObject;
-    jsonObject[DEVICE_TYPE] = deviceType_;
+    jsonObject[IS_DEFAULT_SELECTOR] = AppUtils::GetInstance().IsSelectorDialogDefaultPossion();
     jsonObject[ACTION] = action;
     if (type == TYPE_ONLY_MATCH_WILDCARD) {
         jsonObject[MODEL_FLAG] = true;
@@ -434,8 +395,8 @@ const std::string SystemDialogScheduler::GetPcSelectorParams(const std::vector<D
     nlohmann::json hapListObj = nlohmann::json::array();
     for (const auto &info : infos) {
         nlohmann::json aObj;
-        aObj["label"] = std::to_string(info.labelId);
-        aObj["icon"] = std::to_string(info.iconId);
+        aObj["label"] = std::to_string(info.abilityLabelId);
+        aObj["icon"] = std::to_string(info.abilityIconId);
         aObj["bundle"] = info.bundleName;
         aObj["ability"] = info.abilityName;
         aObj["module"] = info.moduleName;
@@ -452,10 +413,10 @@ int SystemDialogScheduler::GetSelectorDialogWantCommon(const std::vector<DialogA
     Want &targetWant, const sptr<IRemoteObject> &callerToken)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("GetSelectorDialogWantCommon start");
+    TAG_LOGD(AAFwkTag::DIALOG, "GetSelectorDialogWantCommon start");
     bool isCallerStageBasedModel = true;
     if (callerToken != nullptr) {
-        HILOG_DEBUG("set callertoken to targetWant");
+        TAG_LOGD(AAFwkTag::DIALOG, "set callertoken to targetWant");
         auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
         if (abilityRecord && !abilityRecord->GetAbilityInfo().isStageBasedModel) {
             isCallerStageBasedModel = false;
@@ -471,12 +432,12 @@ int SystemDialogScheduler::GetSelectorDialogWantCommon(const std::vector<DialogA
         && isCallerStageBasedModel) {
         auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
         if (bundleMgrHelper == nullptr) {
-            HILOG_ERROR("The bundleMgrHelper is nullptr.");
+            TAG_LOGE(AAFwkTag::DIALOG, "The bundleMgrHelper is nullptr.");
             return INNER_ERR;
         }
         std::string bundleName;
         if (!IN_PROCESS_CALL(bundleMgrHelper->QueryAppGalleryBundleName(bundleName))) {
-            HILOG_ERROR("QueryAppGalleryBundleName failed.");
+            TAG_LOGE(AAFwkTag::DIALOG, "QueryAppGalleryBundleName failed.");
             return INNER_ERR;
         }
         targetWant.SetElementName(bundleName, ABILITY_NAME_APPGALLERY_SELECTOR_DIALOG);

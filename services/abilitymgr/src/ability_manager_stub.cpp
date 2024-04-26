@@ -431,6 +431,8 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::ChangeUIAbilityVisibilityBySCBInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_SHORTCUT)] =
         &AbilityManagerStub::StartShortcutInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ABILITY_STATE_BY_PERSISTENT_ID)] =
+        &AbilityManagerStub::GetAbilityStateByPersistentIdInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -1581,6 +1583,7 @@ int AbilityManagerStub::UnRegisterMissionListenerInner(MessageParcel &data, Mess
 
 int AbilityManagerStub::GetMissionInfosInner(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::string deviceId = Str16ToStr8(data.ReadString16());
     int numMax = data.ReadInt32();
     std::vector<MissionInfo> missionInfos;
@@ -3240,7 +3243,7 @@ int32_t AbilityManagerStub::UpdateSessionInfoBySCBInner(MessageParcel &data, Mes
     }
     size = static_cast<int32_t>(sessionIds.size());
     if (size > threshold) {
-        HILOG_ERROR("Size of vector too large for sessionIds.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Size of vector too large for sessionIds.");
         return ERR_ENOUGH_DATA;
     }
     reply.WriteInt32(size);
@@ -3363,6 +3366,20 @@ int32_t AbilityManagerStub::StartShortcutInner(MessageParcel &data, MessageParce
     reply.WriteInt32(result);
     delete startOptions;
     return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::GetAbilityStateByPersistentIdInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t persistentId = data.ReadInt32();
+    bool state = false;
+    int32_t result = GetAbilityStateByPersistentId(persistentId, state);
+    if (result == ERR_OK) {
+        if (!reply.WriteBool(state)) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "reply write failed.");
+            return IPC_STUB_ERR;
+        }
+    }
+    return result;
 }
 } // namespace AAFwk
 } // namespace OHOS

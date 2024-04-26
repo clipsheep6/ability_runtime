@@ -15,6 +15,7 @@
 
 #include "app_utils.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "parameters.h"
 #include "scene_board_judgement.h"
@@ -80,7 +81,7 @@ bool AppUtils::IsInheritWindowSplitScreenMode()
         isInheritWindowSplitScreenMode_.value = system::GetBoolParameter(INHERIT_WINDOW_SPLIT_SCREEN_MODE, true);
         isInheritWindowSplitScreenMode_.isLoaded = true;
     }
-    HILOG_INFO("isInheritWindowSplitScreenMode is %{public}d", isInheritWindowSplitScreenMode_.value);
+    TAG_LOGI(AAFwkTag::DEFAULT, "isInheritWindowSplitScreenMode is %{public}d", isInheritWindowSplitScreenMode_.value);
     return isInheritWindowSplitScreenMode_.value;
 }
 
@@ -90,7 +91,7 @@ bool AppUtils::IsSupportAncoApp()
         isSupportAncoApp_.value = system::GetBoolParameter(SUPPORT_ANCO_APP, false);
         isSupportAncoApp_.isLoaded = true;
     }
-    HILOG_INFO("isSupportAncoApp is %{public}d", isSupportAncoApp_.value);
+    TAG_LOGI(AAFwkTag::DEFAULT, "isSupportAncoApp is %{public}d", isSupportAncoApp_.value);
     return isSupportAncoApp_.value;
 }
 
@@ -100,7 +101,7 @@ int32_t AppUtils::GetTimeoutUnitTimeRatio()
         timeoutUnitTimeRatio_.value = system::GetIntParameter<int32_t>(TIMEOUT_UNIT_TIME_RATIO, 1);
         timeoutUnitTimeRatio_.isLoaded = true;
     }
-    HILOG_INFO("timeoutUnitTimeRatio is %{public}d", timeoutUnitTimeRatio_.value);
+    TAG_LOGI(AAFwkTag::DEFAULT, "timeoutUnitTimeRatio is %{public}d", timeoutUnitTimeRatio_.value);
     return timeoutUnitTimeRatio_.value;
 }
 
@@ -110,7 +111,7 @@ bool AppUtils::IsSelectorDialogDefaultPossion()
         isSelectorDialogDefaultPossion_.value = system::GetBoolParameter(SELECTOR_DIALOG_POSSION, true);
         isSelectorDialogDefaultPossion_.isLoaded = true;
     }
-    HILOG_INFO("isSelectorDialogDefaultPossion is %{public}d", isSelectorDialogDefaultPossion_.value);
+    TAG_LOGI(AAFwkTag::DEFAULT, "isSelectorDialogDefaultPossion is %{public}d", isSelectorDialogDefaultPossion_.value);
     return isSelectorDialogDefaultPossion_.value;
 }
 
@@ -120,7 +121,7 @@ bool AppUtils::IsStartSpecifiedProcess()
         isStartSpecifiedProcess_.value = system::GetBoolParameter(START_SPECIFIED_PROCESS, false);
         isStartSpecifiedProcess_.isLoaded = true;
     }
-    HILOG_INFO("isStartSpecifiedProcess is %{public}d", isStartSpecifiedProcess_.value);
+    TAG_LOGI(AAFwkTag::DEFAULT, "isStartSpecifiedProcess is %{public}d", isStartSpecifiedProcess_.value);
     return isStartSpecifiedProcess_.value;
 }
 
@@ -130,7 +131,7 @@ bool AppUtils::IsUseMultiRenderProcess()
         isUseMultiRenderProcess_.value = system::GetBoolParameter(USE_MULTI_RENDER_PROCESS, true);
         isUseMultiRenderProcess_.isLoaded = true;
     }
-    HILOG_INFO("isUseMultiRenderProcess is %{public}d", isUseMultiRenderProcess_.value);
+    TAG_LOGI(AAFwkTag::DEFAULT, "isUseMultiRenderProcess is %{public}d", isUseMultiRenderProcess_.value);
     return isUseMultiRenderProcess_.value;
 }
 
@@ -140,7 +141,7 @@ bool AppUtils::IsLimitMaximumOfRenderProcess()
         isLimitMaximumOfRenderProcess_.value = system::GetBoolParameter(LIMIT_MAXIMUM_OF_RENDER_PROCESS, true);
         isLimitMaximumOfRenderProcess_.isLoaded = true;
     }
-    HILOG_INFO("isLimitMaximumOfRenderProcess_ is %{public}d", isLimitMaximumOfRenderProcess_.value);
+    TAG_LOGI(AAFwkTag::DEFAULT, "isLimitMaximumOfRenderProcess_ is %{public}d", isLimitMaximumOfRenderProcess_.value);
     return isLimitMaximumOfRenderProcess_.value;
 }
 
@@ -150,7 +151,7 @@ bool AppUtils::IsGrantPersistUriPermission()
         isGrantPersistUriPermission_.value = system::GetBoolParameter(GRANT_PERSIST_URI_PERMISSION, false);
         isGrantPersistUriPermission_.isLoaded = true;
     }
-    HILOG_INFO("isGrantPersistUriPermission_ is %{public}d", isGrantPersistUriPermission_.value);
+    TAG_LOGI(AAFwkTag::DEFAULT, "isGrantPersistUriPermission_ is %{public}d", isGrantPersistUriPermission_.value);
     return isGrantPersistUriPermission_.value;
 }
 
@@ -160,7 +161,7 @@ bool AppUtils::IsStartOptionsWithAnimation()
         isStartOptionsWithAnimation_.value = system::GetBoolParameter(START_OPTIONS_WITH_ANIMATION, false);
         isStartOptionsWithAnimation_.isLoaded = true;
     }
-    HILOG_INFO("isStartOptionsWithAnimation_ is %{public}d", isStartOptionsWithAnimation_.value);
+    TAG_LOGI(AAFwkTag::DEFAULT, "isStartOptionsWithAnimation_ is %{public}d", isStartOptionsWithAnimation_.value);
     return isStartOptionsWithAnimation_.value;
 }
 
@@ -170,7 +171,7 @@ bool AppUtils::IsMultiProcessModel()
         isMultiProcessModel_.value = system::GetBoolParameter(MULTI_PROCESS_MODEL, false);
         isMultiProcessModel_.isLoaded = true;
     }
-    HILOG_INFO("isMultiProcessModel_ is %{public}d", isMultiProcessModel_.value);
+    TAG_LOGI(AAFwkTag::DEFAULT, "isMultiProcessModel_ is %{public}d", isMultiProcessModel_.value);
     return isMultiProcessModel_.value;
 }
 
@@ -180,7 +181,8 @@ bool AppUtils::IsStartOptionsWithProcessOptions()
         isStartOptionsWithProcessOptions_.value = system::GetBoolParameter(START_OPTIONS_WITH_PROCESS_OPTION, false);
         isStartOptionsWithProcessOptions_.isLoaded = true;
     }
-    HILOG_INFO("isStartOptionsWithProcessOptions_ is %{public}d", isStartOptionsWithProcessOptions_.value);
+    TAG_LOGI(AAFwkTag::DEFAULT,
+        "isStartOptionsWithProcessOptions_ is %{public}d", isStartOptionsWithProcessOptions_.value);
     return isStartOptionsWithProcessOptions_.value;
 }
 
@@ -191,7 +193,8 @@ bool AppUtils::EnableMoveUIAbilityToBackgroundApi()
             system::GetBoolParameter(MOVE_UI_ABILITY_TO_BACKGROUND_API_ENABLE, true);
         enableMoveUIAbilityToBackgroundApi_.isLoaded = true;
     }
-    HILOG_INFO("enableMoveUIAbilityToBackgroundApi_ is %{public}d", enableMoveUIAbilityToBackgroundApi_.value);
+    TAG_LOGI(AAFwkTag::DEFAULT,
+        "enableMoveUIAbilityToBackgroundApi_ is %{public}d", enableMoveUIAbilityToBackgroundApi_.value);
     return enableMoveUIAbilityToBackgroundApi_.value;
 }
 
@@ -201,7 +204,7 @@ bool AppUtils::IsLaunchEmbededUIAbility()
         isLaunchEmbededUIAbility_.value = system::GetBoolParameter(LAUNCH_EMBEDED_UI_ABILITY, false);
         isLaunchEmbededUIAbility_.isLoaded = true;
     }
-    HILOG_INFO("isLaunchEmbededUIAbility_ is %{public}d", isLaunchEmbededUIAbility_.value);
+    TAG_LOGI(AAFwkTag::DEFAULT, "isLaunchEmbededUIAbility_ is %{public}d", isLaunchEmbededUIAbility_.value);
     return isLaunchEmbededUIAbility_.value;
 }
 }  // namespace AAFwk
