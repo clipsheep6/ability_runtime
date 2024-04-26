@@ -20,6 +20,7 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 #include <sys/stat.h>
+#include <fstream>
 
 #include "faultloggerd_client.h"
 #include "file_ex.h"
@@ -46,6 +47,8 @@ constexpr char EVENT_STACK[] = "STACK";
 constexpr char BINDER_INFO[] = "BINDER_INFO";
 constexpr char APP_RUNNING_UNIQUE_ID[] = "APP_RUNNING_UNIQUE_ID";
 constexpr int MAX_LAYER = 8;
+const std::string LOG_FILE_PATH = "data/log/eventlog";
+std::string g_fullStackPath = "";
 }
 std::shared_ptr<AppfreezeManager> AppfreezeManager::instance_ = nullptr;
 ffrt::mutex AppfreezeManager::singletonMutex_;
@@ -127,11 +130,19 @@ int AppfreezeManager::AppfreezeHandleWithStack(const FaultData& faultData, const
     HITRACE_METER_FMT(HITRACE_TAG_APP, "AppfreezeHandleWithStack pid:%d-name:%s",
         appInfo.pid, faultData.errorObject.name.c_str());
 
+    std::string fileName = faultData.errorObject.name + "_" + std::to_string(appInfo.pid) + "_stack";
+    std::string catcherStack = "";
+    std::string catchJsonStack = "";
+
     if (faultData.errorObject.name == AppFreezeType::LIFECYCLE_HALF_TIMEOUT
         || faultData.errorObject.name == AppFreezeType::LIFECYCLE_TIMEOUT) {
-        faultNotifyData.errorObject.stack += CatcherStacktrace(appInfo.pid);
+        catcherStack += CatcherStacktrace(appInfo.pid);
+        WriteToFile(fileName, catcherStack);
+        faultNotifyData.errorObject.stack = g_fullStackPath;
     } else {
-        faultNotifyData.errorObject.stack += CatchJsonStacktrace(appInfo.pid);
+        catchJsonStack += CatchJsonStacktrace(appInfo.pid);
+        WriteToFile(fileName, catchJsonStack);
+        faultNotifyData.errorObject.stack = g_fullStackPath;
     }
 
     if (faultNotifyData.errorObject.name == AppFreezeType::APP_INPUT_BLOCK) {
@@ -140,6 +151,30 @@ int AppfreezeManager::AppfreezeHandleWithStack(const FaultData& faultData, const
         NotifyANR(faultNotifyData, appInfo, "");
     }
     return 0;
+}
+
+bool AppfreezeManager::WriteToFile(const std::string& fileName, std::string& content)
+{
+    std::string dir_name = "freeze";
+    std::string dir_path = LOG_FILE_PATH + "/" + dir_name;
+    constexpr mode_t defaultLogDirMode = 0770;
+    if (!OHOS::FileExists(dir_path)) {
+        OHOS::ForceCreateDirectory(dir_path);
+        OHOS::ChangeModeDirectory(dir_path, defaultLogDirMode);
+    }
+
+    g_fullStackPath = dir_path + "/" + fileName;
+    constexpr mode_t defaultLogFileMode = 0664;
+    auto fd = open(g_fullStackPath.c_str(), O_CREAT | O_WRONLY | O_TRUNC, defaultLogFileMode);
+    if (fd < 0) {
+        TAG_LOGI(AAFwkTag::APPDFR, "Failed to create g_fullStackPath");
+        return false;
+    } else {
+        TAG_LOGI(AAFwkTag::APPDFR, "g_fullStackPath = %{public}s", g_fullStackPath.c_str());
+    }
+    OHOS::SaveStringToFd(fd, content);
+    close(fd);
+    return true;
 }
 
 int AppfreezeManager::LifecycleTimeoutHandle(const ParamInfo& info, std::unique_ptr<FreezeUtil::LifecycleFlow> flow)
@@ -196,6 +231,10 @@ int AppfreezeManager::AcquireStack(const FaultData& faultData, const AppfreezeMa
             binderInfo += content;
         }
     }
+
+    std::string fileName = faultData.errorObject.name + "_" + std::to_string(appInfo.pid) + "_binder";
+    WriteToFile(fileName, binderInfo);
+    binderInfo = g_fullStackPath;
 
     ret = NotifyANR(faultNotifyData, appInfo, binderInfo);
     return ret;
