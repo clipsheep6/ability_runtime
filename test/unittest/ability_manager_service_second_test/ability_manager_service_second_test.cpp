@@ -399,6 +399,23 @@ HWTEST_F(AbilityManagerServiceSecondTest, StartAbility_002, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
+ * Function: StartAbilityDetails
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityDetails
+ */
+HWTEST_F(AbilityManagerServiceSecondTest, StartAbility_003, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    Want want;
+    AbilityStartSetting abilityStartSetting;
+    sptr<IRemoteObject> callerToken = nullptr;
+    int requestCode = 0;
+    EXPECT_EQ(abilityMs_->StartAbilityDetails(want, abilityStartSetting, callerToken, 0, requestCode),
+        CHECK_PERMISSION_FAILED);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: StartAbilityAsCaller
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService StartAbilityAsCaller
