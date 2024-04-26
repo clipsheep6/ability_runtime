@@ -61,10 +61,7 @@ ohos_shared_library("missionmanager_napi") {
 }
 
 ohos_shared_library("distributedmissionmanager") {
-  include_dirs = [
-    "//third_party/libuv/include",
-    "//third_party/node/src",
-  ]
+  include_dirs = []
 
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
 
@@ -96,7 +93,9 @@ ohos_shared_library("distributedmissionmanager") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "libuv:uv",
     "napi:ace_napi",
+    "node:node_header_notice",
     "samgr:samgr_proxy",
   ]
 
