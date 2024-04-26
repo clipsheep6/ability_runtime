@@ -58,6 +58,10 @@ bool UriPermissionManagerStubImpl::VerifyUriPermission(const Uri &uri, uint32_t 
     auto uriStr = uri.ToString();
     TAG_LOGI(AAFwkTag::URIPERMMGR, "uri is %{private}s, flag is %{public}u, tokenId is %{public}u",
         uriStr.c_str(), flag, tokenId);
+    if (!IsSAOrSystemAppCall()) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Only support SA and SystemApp called.");
+        return false;
+    }
     std::lock_guard<std::mutex> guard(mutex_);
     auto search = uriMap_.find(uriStr);
     if (search != uriMap_.end()) {
@@ -75,6 +79,10 @@ bool UriPermissionManagerStubImpl::VerifyUriPermission(const Uri &uri, uint32_t 
 
 bool UriPermissionManagerStubImpl::IsAuthorizationUriAllowed(uint32_t fromTokenId)
 {
+    if (!IsSAOrSystemAppCall()) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Only support SA and SystemApp called.");
+        return false;
+    }
     return DelayedSingleton<ProxyAuthorizationUriConfig>::GetInstance()->IsAuthorizationUriAllowed(fromTokenId);
 }
 
@@ -82,6 +90,10 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned in
     const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
 {
     TAG_LOGI(AAFwkTag::URIPERMMGR, "Uri is %{private}s.", uri.ToString().c_str());
+    if (!IsSAOrSystemAppCall()) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Only support SA and SystemApp called.");
+        return CHECK_PERMISSION_FAILED;
+    }
     std::vector<Uri> uriVec = { uri };
     return GrantUriPermission(uriVec, flag, targetBundleName, appIndex, initiatorTokenId);
 }
@@ -91,6 +103,10 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uri
 {
     TAG_LOGI(AAFwkTag::URIPERMMGR, "BundleName is %{public}s, appIndex is %{public}d, size of uriVec is %{public}zu.",
         targetBundleName.c_str(), appIndex, uriVec.size());
+    if (!IsSAOrSystemAppCall()) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Only support SA and SystemApp called.");
+        return CHECK_PERMISSION_FAILED;
+    }
     auto checkResult = CheckCalledBySandBox();
     if (checkResult != ERR_OK) {
         return checkResult;
@@ -103,11 +119,6 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uri
         bool isSystemAppCall = PermissionVerification::GetInstance()->IsSystemAppCall();
         if (IsFoundationCall()) {
             isSystemAppCall = CheckIsSystemAppByTokenId(initiatorTokenId);
-        }
-        // IsSACall function used for visibility checks.
-        if (!isSystemAppCall && !PermissionVerification::GetInstance()->IsSACall()) {
-            TAG_LOGE(AAFwkTag::URIPERMMGR, "Not system application and SA call.");
-            return CHECK_PERMISSION_FAILED;
         }
         return GrantUriPermissionFor2In1Inner(
             uriVec, flag, targetBundleName, appIndex, isSystemAppCall, initiatorTokenId);
@@ -534,6 +545,10 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
 {
     TAG_LOGI(AAFwkTag::URIPERMMGR, "Revoke uri permission manually, uri is %{private}s, bundleName is %{public}s",
         uri.ToString().c_str(), bundleName.c_str());
+    if (!IsSAOrSystemAppCall()) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Only support SA and SystemApp called.");
+        return CHECK_PERMISSION_FAILED;
+    }
     if (!CheckUriTypeIsValid(uri)) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Check uri type failed, uri is %{private}s.", uri.ToString().c_str());
         return ERR_CODE_INVALID_URI_TYPE;
@@ -543,13 +558,13 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
     if (ret != ERR_OK) {
         return ret;
     }
-    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
     
     auto uriStr = uri.ToString();
     auto uriInner = uri;
     uint32_t authorityTokenId = 0;
     GetTokenIdByBundleName(uriInner.GetAuthority(), 0, authorityTokenId);
     // uri belong to caller or caller is target.
+    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
     bool isRevokeSelfUri = (callerTokenId == targetTokenId || callerTokenId == authorityTokenId);
     std::vector<std::string> uriList;
     {
@@ -595,8 +610,11 @@ std::vector<bool> UriPermissionManagerStubImpl::CheckUriAuthorization(const std:
     TAG_LOGI(AAFwkTag::URIPERMMGR,
         "tokenId is %{public}u, tokenName is %{public}s, flag is %{public}u, size of uris is %{public}zu",
         tokenId, GetTokenName(tokenId).c_str(), flag, uriVec.size());
-
     std::vector<bool> result(uriVec.size(), false);
+    if (!IsSAOrSystemAppCall()) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Only support SA and SystemApp called.");
+        return result;
+    }
     if ((flag & FLAG_READ_WRITE_URI) == 0) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Flag is invalid.");
         return result;
@@ -1009,6 +1027,12 @@ bool UriPermissionManagerStubImpl::CheckUriTypeIsValid(Uri uri)
         return false;
     }
     return true;
+}
+
+bool UriPermissionManagerStubImpl::IsSAOrSystemAppCall()
+{
+    return PermissionVerification::GetInstance()->IsSystemAppCall() ||
+        PermissionVerification::GetInstance()->IsSACall();
 }
 }  // namespace AAFwk
 }  // namespace OHOS

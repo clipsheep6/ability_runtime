@@ -134,6 +134,8 @@ private:
     
     int32_t DeleteShareFile(uint32_t targetTokenId, const std::vector<std::string> &uriVec);
 
+    bool IsSAOrSystemAppCall();
+
     class ProxyDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         explicit ProxyDeathRecipient(ClearProxyCallback&& proxy) : proxy_(proxy) {}
