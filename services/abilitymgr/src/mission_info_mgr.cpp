@@ -571,6 +571,7 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
 
 void MissionInfoMgr::CompleteSaveSnapshot(int32_t missionId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::unique_lock<ffrt::mutex> lock(savingSnapshotLock_);
     auto search = savingSnapshot_.find(missionId);
     if (search != savingSnapshot_.end()) {

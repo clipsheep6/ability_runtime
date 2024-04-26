@@ -2338,6 +2338,7 @@ int AbilityManagerProxy::LockMissionForCleanup(int32_t missionId)
 
 int AbilityManagerProxy::UnlockMissionForCleanup(int32_t missionId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;

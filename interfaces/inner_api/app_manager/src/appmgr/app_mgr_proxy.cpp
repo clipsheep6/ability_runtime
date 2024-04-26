@@ -218,6 +218,7 @@ int32_t AppMgrProxy::ClearUpApplicationDataBySelf(int32_t userId)
 
 int32_t AppMgrProxy::GetAllRunningProcesses(std::vector<RunningProcessInfo> &info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);

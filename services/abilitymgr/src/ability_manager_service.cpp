@@ -3165,6 +3165,7 @@ int AbilityManagerService::StartRemoteAbility(const Want &want, int requestCode,
 
 bool AbilityManagerService::CheckIsRemote(const std::string& deviceId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (deviceId.empty()) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "CheckIsRemote: deviceId is empty.");
         return false;
@@ -4253,6 +4254,7 @@ int AbilityManagerService::GetMissionInfo(const std::string& deviceId, int32_t m
 int AbilityManagerService::GetRemoteMissionInfo(const std::string& deviceId, int32_t missionId,
     MissionInfo &missionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "GetMissionInfoFromDms begin");
     std::vector<MissionInfo> missionVector;
     int result = GetRemoteMissionInfos(deviceId, MAX_NUMBER_OF_DISTRIBUTED_MISSIONS, missionVector);
@@ -7780,6 +7782,7 @@ int AbilityManagerService::FreeInstallAbilityFromRemote(const Want &want, const 
 
 AppExecFwk::ElementName AbilityManagerService::GetTopAbility(bool isNeedLocalDeviceId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s start.", __func__);
     AppExecFwk::ElementName elementName = {};
 #ifdef SUPPORT_GRAPHICS
