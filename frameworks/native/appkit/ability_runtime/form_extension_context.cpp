@@ -49,7 +49,7 @@ int FormExtensionContext::UpdateForm(const int64_t formId, const AppExecFwk::For
     }
 
     // update form request to fms
-	HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "AppExecFwk::FormMgr::GetInstance().UpdateForm");
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "AppExecFwk::FormMgr::GetInstance().UpdateForm");
     return AppExecFwk::FormMgr::GetInstance().UpdateForm(formId, formProviderData);
 }
 
