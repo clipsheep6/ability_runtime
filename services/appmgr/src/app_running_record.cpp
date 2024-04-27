@@ -1563,6 +1563,7 @@ const AAFwk::Want &AppRunningRecord::GetNewProcessRequestWant() const
 
 int32_t AppRunningRecord::UpdateConfiguration(const Configuration &config)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!appLifeCycleDeal_) {
         TAG_LOGI(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");

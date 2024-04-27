@@ -21,6 +21,7 @@
 #include "configuration_convertor.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "running_process_info.h"
 
 namespace OHOS {
@@ -48,6 +49,7 @@ void ApplicationContext::AttachContextImpl(const std::shared_ptr<ContextImpl> &c
 void ApplicationContext::RegisterAbilityLifecycleCallback(
     const std::shared_ptr<AbilityLifecycleCallback> &abilityLifecycleCallback)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPKIT, "ApplicationContext RegisterAbilityLifecycleCallback");
     if (abilityLifecycleCallback == nullptr) {
         return;
@@ -76,6 +78,7 @@ bool ApplicationContext::IsAbilityLifecycleCallbackEmpty()
 void ApplicationContext::RegisterEnvironmentCallback(
     const std::shared_ptr<EnvironmentCallback> &environmentCallback)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPKIT, "ApplicationContext RegisterEnvironmentCallback");
     if (environmentCallback == nullptr) {
         return;
@@ -98,6 +101,7 @@ void ApplicationContext::UnregisterEnvironmentCallback(
 void ApplicationContext::RegisterApplicationStateChangeCallback(
     const std::weak_ptr<ApplicationStateChangeCallback> &applicationStateChangeCallback)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<std::recursive_mutex> lock(applicationStateCallbackLock_);
     applicationStateCallback_.push_back(applicationStateChangeCallback);
 }

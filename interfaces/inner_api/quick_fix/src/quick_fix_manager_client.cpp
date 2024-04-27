@@ -78,6 +78,7 @@ int32_t QuickFixManagerClient::GetApplyedQuickFixInfo(const std::string &bundleN
 
 sptr<IQuickFixManager> QuickFixManagerClient::GetQuickFixMgrProxy()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
     auto quickFixMgr = GetQuickFixMgr();
     if (quickFixMgr != nullptr) {
@@ -143,43 +144,46 @@ void QuickFixManagerClient::QfmsDeathRecipient::OnRemoteDied([[maybe_unused]] co
 
 bool QuickFixManagerClient::LoadQuickFixMgrService()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     {
         std::unique_lock<std::mutex> lock(loadSaMutex_);
         loadSaFinished_ = false;
     }
 
-    auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (systemAbilityMgr == nullptr) {
-        TAG_LOGE(AAFwkTag::QUICKFIX, "Failed to get SystemAbilityManager.");
-        return false;
-    }
-
-    sptr<QuickFixLoadCallback> loadCallback = new (std::nothrow) QuickFixLoadCallback();
-    if (loadCallback == nullptr) {
-        TAG_LOGE(AAFwkTag::QUICKFIX, "Create load callback failed.");
-        return false;
-    }
-
-    auto ret = systemAbilityMgr->LoadSystemAbility(QUICK_FIX_MGR_SERVICE_ID, loadCallback);
-    if (ret != 0) {
-        TAG_LOGE(AAFwkTag::QUICKFIX, "Load system ability %{public}d failed with %{public}d.", QUICK_FIX_MGR_SERVICE_ID,
-            ret);
-        return false;
-    }
-
     {
-        std::unique_lock<std::mutex> lock(loadSaMutex_);
-        auto waitStatus = loadSaCondation_.wait_for(lock, std::chrono::milliseconds(LOAD_SA_TIMEOUT_MS),
-            [this]() {
-                return loadSaFinished_;
-            });
-        if (!waitStatus) {
-            TAG_LOGE(AAFwkTag::QUICKFIX, "Wait for load sa timeout.");
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "GetSystemAbilityManager");
+        auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        if (systemAbilityMgr == nullptr) {
+            TAG_LOGE(AAFwkTag::QUICKFIX, "Failed to get SystemAbilityManager.");
             return false;
         }
-    }
 
-    return true;
+        sptr<QuickFixLoadCallback> loadCallback = new (std::nothrow) QuickFixLoadCallback();
+        if (loadCallback == nullptr) {
+            TAG_LOGE(AAFwkTag::QUICKFIX, "Create load callback failed.");
+            return false;
+        }
+
+        auto ret = systemAbilityMgr->LoadSystemAbility(QUICK_FIX_MGR_SERVICE_ID, loadCallback);
+        if (ret != 0) {
+            TAG_LOGE(AAFwkTag::QUICKFIX, "Load system ability %{public}d failed with %{public}d.", QUICK_FIX_MGR_SERVICE_ID,
+                ret);
+            return false;
+        }
+
+        {
+            std::unique_lock<std::mutex> lock(loadSaMutex_);
+            auto waitStatus = loadSaCondation_.wait_for(lock, std::chrono::milliseconds(LOAD_SA_TIMEOUT_MS),
+                [this]() {
+                    return loadSaFinished_;
+                });
+            if (!waitStatus) {
+                TAG_LOGE(AAFwkTag::QUICKFIX, "Wait for load sa timeout.");
+                return false;
+            }
+        }
+        return true;
+    }
 }
 
 void QuickFixManagerClient::SetQuickFixMgr(const sptr<IRemoteObject> &remoteObject)

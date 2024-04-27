@@ -18,6 +18,7 @@
 #include "directory_ex.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -149,6 +150,7 @@ std::shared_ptr<Media::PixelMap> TaskDataPersistenceMgr::GetSnapshot(int mission
 
 bool TaskDataPersistenceMgr::GetMissionSnapshot(int missionId, MissionSnapshot& snapshot, bool isLowResolution)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> lock(mutex_);
     if (!currentMissionDataStorage_) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: currentMissionDataStorage_ is nullptr");

@@ -16,9 +16,9 @@
 #include "app_scheduler_host.h"
 #include "ability_info.h"
 #include "appexecfwk_errors.h"
-#include "hitrace_meter.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "ipc_types.h"
 
 namespace OHOS {
@@ -268,6 +268,7 @@ int32_t AppSchedulerHost::HandleScheduleProfileChanged(MessageParcel &data, Mess
 
 int32_t AppSchedulerHost::HandleScheduleConfigurationUpdated(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HITRACE_METER(HITRACE_TAG_APP);
     std::unique_ptr<Configuration> configuration(data.ReadParcelable<Configuration>());
     if (!configuration) {

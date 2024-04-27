@@ -1086,6 +1086,7 @@ int32_t JsUIAbility::OnSaveState(int32_t reason, WantParams &wantParams)
 
 void JsUIAbility::OnConfigurationUpdated(const Configuration &configuration)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     UIAbility::OnConfigurationUpdated(configuration);
     TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
     if (abilityContext_ == nullptr) {

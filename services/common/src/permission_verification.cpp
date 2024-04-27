@@ -19,6 +19,7 @@
 #include "accesstoken_kit.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "permission_constants.h"
 #include "support_system_ability_permission.h"
 #include "tokenid_kit.h"
@@ -53,6 +54,7 @@ bool PermissionVerification::VerifyPermissionByTokenId(const int &tokenId, const
 bool PermissionVerification::VerifyCallingPermission(
     const std::string &permissionName, const uint32_t specifyTokenId) const
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::DEFAULT, "VerifyCallingPermission permission %{public}s, specifyTokenId is %{public}u",
         permissionName.c_str(), specifyTokenId);
     auto callerToken = specifyTokenId == 0 ? GetCallingTokenID() : specifyTokenId;
@@ -94,6 +96,7 @@ bool PermissionVerification::IsShellCall() const
 
 bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission(const std::string &processName) const
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::DEFAULT, "PermissionVerification::CheckSpecifidSystemAbilityAccessToken is called.");
     if (!IsSACall()) {
         TAG_LOGE(AAFwkTag::DEFAULT, "caller tokenType is not native, verify failed.");
@@ -172,6 +175,7 @@ int PermissionVerification::VerifyAccountPermission() const
 
 bool PermissionVerification::VerifyMissionPermission() const
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_MANAGE_MISSION)) {
         TAG_LOGD(AAFwkTag::DEFAULT, "%{public}s: Permission verification succeeded.", __func__);
         return true;

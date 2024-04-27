@@ -28,6 +28,7 @@
 #include "appexecfwk_errors.h"
 #include "configuration.h"
 #include "hilog_tag_wrapper.h"
+#include "hitrace_meter.h"
 #include "session_info.h"
 #include "status_bar_delegate_interface.h"
 
@@ -90,6 +91,7 @@ int AbilityManagerProxy::StartAbility(const Want &want, int32_t userId, int requ
 
 AppExecFwk::ElementName AbilityManagerProxy::GetTopAbility(bool isNeedLocalDeviceId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -585,6 +587,7 @@ int AbilityManagerProxy::StartAbilityByUIContentSession(const Want &want, const 
 int AbilityManagerProxy::StartExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -2335,6 +2338,7 @@ int AbilityManagerProxy::LockMissionForCleanup(int32_t missionId)
 
 int AbilityManagerProxy::UnlockMissionForCleanup(int32_t missionId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -2543,6 +2547,7 @@ int AbilityManagerProxy::UnRegisterMissionListener(const sptr<IMissionListener> 
 int AbilityManagerProxy::GetMissionInfos(const std::string& deviceId, int32_t numMax,
     std::vector<MissionInfo> &missionInfos)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -2574,6 +2579,7 @@ int AbilityManagerProxy::GetMissionInfos(const std::string& deviceId, int32_t nu
 int AbilityManagerProxy::GetMissionInfo(const std::string& deviceId, int32_t missionId,
     MissionInfo &missionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -2606,6 +2612,7 @@ int AbilityManagerProxy::GetMissionInfo(const std::string& deviceId, int32_t mis
 
 int AbilityManagerProxy::CleanMission(int32_t missionId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -2628,6 +2635,7 @@ int AbilityManagerProxy::CleanMission(int32_t missionId)
 
 int AbilityManagerProxy::CleanAllMissions()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -2646,6 +2654,7 @@ int AbilityManagerProxy::CleanAllMissions()
 
 int AbilityManagerProxy::MoveMissionToFront(int32_t missionId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -2668,6 +2677,7 @@ int AbilityManagerProxy::MoveMissionToFront(int32_t missionId)
 
 int AbilityManagerProxy::MoveMissionToFront(int32_t missionId, const StartOptions &startOptions)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -4908,6 +4918,7 @@ int32_t AbilityManagerProxy::UpdateSessionInfoBySCB(std::list<SessionInfo> &sess
 ErrCode AbilityManagerProxy::SendRequest(AbilityManagerInterfaceCode code, MessageParcel &data, MessageParcel &reply,
     MessageOption& option)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Remote() is NULL");

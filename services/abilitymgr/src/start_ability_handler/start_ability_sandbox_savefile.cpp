@@ -17,6 +17,7 @@
 #include <climits>
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "ability_manager_errors.h"
 #include "ability_util.h"
 #include "ability_manager_service.h"
@@ -61,6 +62,7 @@ bool StartAbilitySandboxSavefile::MatchStartRequest(StartAbilityParams &params)
 
 int StartAbilitySandboxSavefile::HandleStartRequest(StartAbilityParams &params)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto callerRecord = params.GetCallerRecord();
     if (!callerRecord) {
@@ -84,6 +86,7 @@ int StartAbilitySandboxSavefile::HandleStartRequest(StartAbilityParams &params)
 
 int StartAbilitySandboxSavefile::StartAbility(StartAbilityParams &params, int requestCode)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     AbilityRequest abilityRequest;
     abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
     abilityRequest.callerUid = IPCSkeleton::GetCallingUid();

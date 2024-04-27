@@ -107,10 +107,13 @@ int32_t QuickFixManagerService::GetApplyedQuickFixInfo(const std::string &bundle
     }
 
     AppExecFwk::BundleInfo bundleInfo;
-    if (!bundleMgrHelper->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo,
-        AppExecFwk::Constants::ANY_USERID)) {
-        TAG_LOGE(AAFwkTag::QUICKFIX, "Get bundle info failed!");
-        return QUICK_FIX_GET_BUNDLE_INFO_FAILED;
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "bundleMgrHelper->GetBundleInfo");
+        if (!bundleMgrHelper->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo,
+            AppExecFwk::Constants::ANY_USERID)) {
+            TAG_LOGE(AAFwkTag::QUICKFIX, "Get bundle info failed!");
+            return QUICK_FIX_GET_BUNDLE_INFO_FAILED;
+        }
     }
 
     quickFixInfo.bundleName = bundleName;

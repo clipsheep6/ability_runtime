@@ -51,6 +51,7 @@ ohos_unittest("ability_manager_test") {
     "ability_runtime:abilitykit_native",
     "c_utils:utils",
     "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "napi:ace_napi",
   ]

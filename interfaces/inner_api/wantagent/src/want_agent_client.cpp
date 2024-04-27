@@ -21,6 +21,7 @@
 #include "ability_util.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
@@ -261,6 +262,7 @@ void WantAgentClient::UnregisterCancelListener(
 
 ErrCode WantAgentClient::GetPendingRequestWant(const sptr<IWantSender> &target, std::shared_ptr<Want> &want)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_POINTER_AND_RETURN(target, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
     CHECK_POINTER_AND_RETURN(want, INVALID_PARAMETERS_ERR);
     auto abms = GetAbilityManager();
@@ -340,28 +342,32 @@ ErrCode WantAgentClient::GetWantSenderInfo(const sptr<IWantSender> &target, std:
 
 sptr<IRemoteObject> WantAgentClient::GetAbilityManager()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<std::mutex> lock(mutex_);
     if (proxy_ == nullptr) {
-        auto systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        if (systemManager == nullptr) {
-            TAG_LOGE(AAFwkTag::WANTAGENT, "Fail to get registry.");
-            return nullptr;
-        }
-        auto remoteObj = systemManager->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
-        if (remoteObj == nullptr) {
-            TAG_LOGE(AAFwkTag::WANTAGENT, "Fail to connect ability manager service.");
-            return nullptr;
-        }
+        {
+            HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "GetSystemAbilityManager");
+            auto systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+            if (systemManager == nullptr) {
+                TAG_LOGE(AAFwkTag::WANTAGENT, "Fail to get registry.");
+                return nullptr;
+            }
+            auto remoteObj = systemManager->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+            if (remoteObj == nullptr) {
+                TAG_LOGE(AAFwkTag::WANTAGENT, "Fail to connect ability manager service.");
+                return nullptr;
+            }
 
-        deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new (std::nothrow) WantAgentDeathRecipient());
-        if (deathRecipient_ == nullptr) {
-            TAG_LOGE(AAFwkTag::WANTAGENT, "%{public}s :Failed to create WantAgentDeathRecipient!", __func__);
-            return nullptr;
+            deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new (std::nothrow) WantAgentDeathRecipient());
+            if (deathRecipient_ == nullptr) {
+                TAG_LOGE(AAFwkTag::WANTAGENT, "%{public}s :Failed to create WantAgentDeathRecipient!", __func__);
+                return nullptr;
+            }
+            if (!remoteObj->AddDeathRecipient(deathRecipient_)) {
+                TAG_LOGI(AAFwkTag::WANTAGENT, "%{public}s :Add death recipient to failed, maybe already add.", __func__);
+            }
+            proxy_ = remoteObj;
         }
-        if (!remoteObj->AddDeathRecipient(deathRecipient_)) {
-            TAG_LOGI(AAFwkTag::WANTAGENT, "%{public}s :Add death recipient to failed, maybe already add.", __func__);
-        }
-        proxy_ = remoteObj;
     }
 
     return proxy_;

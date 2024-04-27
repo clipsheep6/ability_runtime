@@ -194,6 +194,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByAbilit
 std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByTokenInner(
     const sptr<IRemoteObject> &abilityToken)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetAbilityRunningRecordByToken(abilityToken)) {
@@ -571,6 +572,7 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
 void AppRunningManager::GetRunningProcessInfoByToken(
     const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> guard(lock_);
     auto appRecord = GetAppRunningRecordByTokenInner(token);
 
@@ -588,6 +590,7 @@ void AppRunningManager::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExe
 void AppRunningManager::AssignRunningProcessInfoByAppRecord(
     std::shared_ptr<AppRunningRecord> appRecord, AppExecFwk::RunningProcessInfo &info) const
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (!appRecord) {
         TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr");
         return;
@@ -694,6 +697,7 @@ void AppRunningManager::HandleStartSpecifiedAbilityTimeOut(const int64_t eventId
 
 int32_t AppRunningManager::UpdateConfiguration(const Configuration &config)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> guard(lock_);
     TAG_LOGD(AAFwkTag::APPMGR, "current app size %{public}zu", appRunningRecordMap_.size());
     int32_t result = ERR_OK;
