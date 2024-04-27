@@ -2134,18 +2134,12 @@ private:
     int32_t SetBackgroundCall(const AppExecFwk::RunningProcessInfo &processInfo,
         const AbilityRequest &abilityRequest, bool &isBackgroundCall) const;
 
-    constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
-    constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
-
     std::shared_ptr<TaskHandlerWrap> taskHandler_;
     std::shared_ptr<AbilityEventHandler> eventHandler_;
     ServiceRunningState state_;
     sptr<AppExecFwk::IBundleMgr> iBundleManager_;
     std::shared_ptr<AppExecFwk::BundleMgrHelper> bundleMgrHelper_;
     sptr<OHOS::AppExecFwk::IAppMgr> appMgr_ { nullptr };
-    const static std::map<std::string, AbilityManagerService::DumpKey> dumpMap;
-    const static std::map<std::string, AbilityManagerService::DumpsysKey> dumpsysMap;
-    const static std::map<int32_t, AppExecFwk::SupportWindowMode> windowModeMap;
 
     std::shared_ptr<FreeInstallManager> freeInstallManager_;
 

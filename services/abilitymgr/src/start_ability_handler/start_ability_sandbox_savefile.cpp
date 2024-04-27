@@ -26,8 +26,8 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
-const std::string DLP_ABILITY_NAME = "SaveAsAbility";
+constexpr const char* DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
+constexpr const char* DLP_ABILITY_NAME = "SaveAsAbility";
 
 class EmptyConnection : public IRemoteStub<IAbilityConnection> {
 public:

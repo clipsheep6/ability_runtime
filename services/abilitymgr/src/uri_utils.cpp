@@ -22,9 +22,9 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string PARAMS_URI = "ability.verify.uri";
-const std::string DISTRIBUTED_FILES_PATH = "/data/storage/el2/distributedfiles/";
-const int32_t MAX_URI_COUNT = 500;
+constexpr const char* PARAMS_URI = "ability.verify.uri";
+constexpr const char* DISTRIBUTED_FILES_PATH = "/data/storage/el2/distributedfiles/";
+constexpr int32_t MAX_URI_COUNT = 500;
 }
 
 UriUtils::UriUtils() {}
@@ -71,7 +71,8 @@ std::vector<std::string> UriUtils::GetUriListFromWantDms(const Want &want)
         } else {
             absolutePath = srcPath;
         }
-        if (absolutePath.compare(0, DISTRIBUTED_FILES_PATH.size(), DISTRIBUTED_FILES_PATH) != 0) {
+        std::string distributedFilePath(DISTRIBUTED_FILES_PATH);
+        if (absolutePath.compare(0, distributedFilePath.size(), distributedFilePath) != 0) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "uri is not distributed path");
             continue;
         }

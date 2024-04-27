@@ -26,13 +26,13 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string CONFIG_PATH_DEFAULT = "/system/etc/proxy_authorization_uri.json";
-const std::string CONFIG_PATH_PREFIX = "/system/variant/";
-const std::string CONFIG_PATH = "/base/etc/proxy_authorization_uri.json";
+constexpr const char* CONFIG_PATH_DEFAULT = "/system/etc/proxy_authorization_uri.json";
+constexpr const char* CONFIG_PATH_PREFIX = "/system/variant/";
+constexpr const char* CONFIG_PATH = "/base/etc/proxy_authorization_uri.json";
 
-const std::string PROXY_AUTHORIZATION_URI_NAME = "proxyAuthorizationUri";
-const std::string BUNDLE_NAME = "bundleName";
-const std::string PROCESS_NAME = "processName";
+constexpr const char* PROXY_AUTHORIZATION_URI_NAME = "proxyAuthorizationUri";
+constexpr const char* BUNDLE_NAME = "bundleName";
+constexpr const char* PROCESS_NAME = "processName";
 }
 
 void ProxyAuthorizationUriConfig::LoadConfiguration()

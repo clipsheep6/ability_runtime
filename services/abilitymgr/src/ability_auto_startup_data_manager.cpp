@@ -30,12 +30,12 @@ namespace {
 constexpr int32_t CHECK_INTERVAL = 100000; // 100ms
 constexpr int32_t MAX_TIMES = 5;           // 5 * 100ms = 500ms
 constexpr const char *AUTO_STARTUP_STORAGE_DIR = "/data/service/el1/public/database/auto_startup_service";
-const std::string JSON_KEY_BUNDLE_NAME = "bundleName";
-const std::string JSON_KEY_ABILITY_NAME = "abilityName";
-const std::string JSON_KEY_MODULE_NAME = "moduleName";
-const std::string JSON_KEY_IS_AUTO_STARTUP = "isAutoStartup";
-const std::string JSON_KEY_IS_EDM_FORCE = "isEdmForce";
-const std::string JSON_KEY_TYPE_NAME = "abilityTypeName";
+constexpr const char* JSON_KEY_BUNDLE_NAME = "bundleName";
+constexpr const char* JSON_KEY_ABILITY_NAME = "abilityName";
+constexpr const char* JSON_KEY_MODULE_NAME = "moduleName";
+constexpr const char* JSON_KEY_IS_AUTO_STARTUP = "isAutoStartup";
+constexpr const char* JSON_KEY_IS_EDM_FORCE = "isEdmForce";
+constexpr const char* JSON_KEY_TYPE_NAME = "abilityTypeName";
 } // namespace
 const DistributedKv::AppId AbilityAutoStartupDataManager::APP_ID = { "auto_startup_storage" };
 const DistributedKv::StoreId AbilityAutoStartupDataManager::STORE_ID = { "auto_startup_infos" };

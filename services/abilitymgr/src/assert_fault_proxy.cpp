@@ -21,8 +21,8 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-constexpr char ASSERT_FAULT_DETAIL[] = "assertFaultDialogDetail";
-constexpr char UIEXTENSION_TYPE_KEY[] = "ability.want.params.uiExtensionType";
+constexpr const char* ASSERT_FAULT_DETAIL = "assertFaultDialogDetail";
+constexpr const char* UIEXTENSION_TYPE_KEY = "ability.want.params.uiExtensionType";
 constexpr int32_t DEFAULT_VAL = 0;
 constexpr int32_t INVALID_USERID = -1;
 constexpr int32_t MESSAGE_PARCEL_KEY_SIZE = 3;

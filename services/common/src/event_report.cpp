@@ -57,40 +57,6 @@ constexpr const char *EVENT_KEY_PROCESS_TYPE = "PROCESS_TYPE";
 constexpr const char *EVENT_KEY_TIME = "TIME";
 constexpr const char *EVENT_KEY_PID = "PID";
 constexpr const char *INVALID_EVENT_NAME = "INVALIDEVENTNAME";
-const std::map<EventName, std::string> eventNameToStrMap_ = {
-    std::map<EventName, std::string>::value_type(EventName::START_ABILITY_ERROR, "START_ABILITY_ERROR"),
-    std::map<EventName, std::string>::value_type(EventName::TERMINATE_ABILITY_ERROR, "TERMINATE_ABILITY_ERROR"),
-    std::map<EventName, std::string>::value_type(EventName::START_EXTENSION_ERROR, "START_EXTENSION_ERROR"),
-    std::map<EventName, std::string>::value_type(EventName::STOP_EXTENSION_ERROR, "STOP_EXTENSION_ERROR"),
-    std::map<EventName, std::string>::value_type(EventName::CONNECT_SERVICE_ERROR, "CONNECT_SERVICE_ERROR"),
-    std::map<EventName, std::string>::value_type(EventName::DISCONNECT_SERVICE_ERROR, "DISCONNECT_SERVICE_ERROR"),
-    std::map<EventName, std::string>::value_type(EventName::START_ABILITY, "START_ABILITY"),
-    std::map<EventName, std::string>::value_type(EventName::TERMINATE_ABILITY, "TERMINATE_ABILITY"),
-    std::map<EventName, std::string>::value_type(EventName::CLOSE_ABILITY, "CLOSE_ABILITY"),
-    std::map<EventName, std::string>::value_type(EventName::ABILITY_ONFOREGROUND, "ABILITY_ONFOREGROUND"),
-    std::map<EventName, std::string>::value_type(EventName::ABILITY_ONBACKGROUND, "ABILITY_ONBACKGROUND"),
-    std::map<EventName, std::string>::value_type(EventName::ABILITY_ONACTIVE, "ABILITY_ONACTIVE"),
-    std::map<EventName, std::string>::value_type(EventName::ABILITY_ONINACTIVE, "ABILITY_ONINACTIVE"),
-    std::map<EventName, std::string>::value_type(EventName::START_SERVICE, "START_SERVICE"),
-    std::map<EventName, std::string>::value_type(EventName::STOP_SERVICE, "STOP_SERVICE"),
-    std::map<EventName, std::string>::value_type(EventName::CONNECT_SERVICE, "CONNECT_SERVICE"),
-    std::map<EventName, std::string>::value_type(EventName::DISCONNECT_SERVICE, "DISCONNECT_SERVICE"),
-    std::map<EventName, std::string>::value_type(EventName::APP_ATTACH, "APP_ATTACH"),
-    std::map<EventName, std::string>::value_type(EventName::APP_LAUNCH, "APP_LAUNCH"),
-    std::map<EventName, std::string>::value_type(EventName::APP_FOREGROUND, "APP_FOREGROUND"),
-    std::map<EventName, std::string>::value_type(EventName::APP_BACKGROUND, "APP_BACKGROUND"),
-    std::map<EventName, std::string>::value_type(EventName::APP_TERMINATE, "APP_TERMINATE"),
-    std::map<EventName, std::string>::value_type(EventName::PROCESS_START, "PROCESS_START"),
-    std::map<EventName, std::string>::value_type(EventName::PROCESS_EXIT, "PROCESS_EXIT"),
-    std::map<EventName, std::string>::value_type(EventName::DRAWN_COMPLETED, "DRAWN_COMPLETED"),
-    std::map<EventName, std::string>::value_type(EventName::APP_STARTUP_TYPE, "APP_STARTUP_TYPE"),
-    std::map<EventName, std::string>::value_type(EventName::GRANT_URI_PERMISSION, "GRANT_URI_PERMISSION"),
-    std::map<EventName, std::string>::value_type(EventName::FA_SHOW_ON_LOCK, "FA_SHOW_ON_LOCK"),
-    std::map<EventName, std::string>::value_type(EventName::START_PRIVATE_ABILITY, "START_PRIVATE_ABILITY"),
-    std::map<EventName, std::string>::value_type(EventName::RESTART_PROCESS_BY_SAME_APP,
-        "RESTART_PROCESS_BY_SAME_APP"),
-    std::map<EventName, std::string>::value_type(EventName::START_STANDARD_ABILITIES, "START_STANDARD_ABILITIES"),
-};
 }
 
 void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo)
@@ -522,6 +488,39 @@ void EventReport::SendDisconnectServiceEvent(const EventName &eventName, const E
 
 std::string EventReport::ConvertEventName(const EventName &eventName)
 {
+    const std::map<EventName, std::string> eventNameToStrMap_ = {
+        { EventName::START_ABILITY_ERROR, "START_ABILITY_ERROR" },
+        { EventName::TERMINATE_ABILITY_ERROR, "TERMINATE_ABILITY_ERROR" },
+        { EventName::START_EXTENSION_ERROR, "START_EXTENSION_ERROR" },
+        { EventName::STOP_EXTENSION_ERROR, "STOP_EXTENSION_ERROR" },
+        { EventName::CONNECT_SERVICE_ERROR, "CONNECT_SERVICE_ERROR" },
+        { EventName::DISCONNECT_SERVICE_ERROR, "DISCONNECT_SERVICE_ERROR" },
+        { EventName::START_ABILITY, "START_ABILITY" },
+        { EventName::TERMINATE_ABILITY, "TERMINATE_ABILITY" },
+        { EventName::CLOSE_ABILITY, "CLOSE_ABILITY" },
+        { EventName::ABILITY_ONFOREGROUND, "ABILITY_ONFOREGROUND" },
+        { EventName::ABILITY_ONBACKGROUND, "ABILITY_ONBACKGROUND" },
+        { EventName::ABILITY_ONACTIVE, "ABILITY_ONACTIVE" },
+        { EventName::ABILITY_ONINACTIVE, "ABILITY_ONINACTIVE" },
+        { EventName::START_SERVICE, "START_SERVICE" },
+        { EventName::STOP_SERVICE, "STOP_SERVICE" },
+        { EventName::CONNECT_SERVICE, "CONNECT_SERVICE" },
+        { EventName::DISCONNECT_SERVICE, "DISCONNECT_SERVICE" },
+        { EventName::APP_ATTACH, "APP_ATTACH" },
+        { EventName::APP_LAUNCH, "APP_LAUNCH" },
+        { EventName::APP_FOREGROUND, "APP_FOREGROUND" },
+        { EventName::APP_BACKGROUND, "APP_BACKGROUND" },
+        { EventName::APP_TERMINATE, "APP_TERMINATE" },
+        { EventName::PROCESS_START, "PROCESS_START" },
+        { EventName::PROCESS_EXIT, "PROCESS_EXIT" },
+        { EventName::DRAWN_COMPLETED, "DRAWN_COMPLETED" },
+        { EventName::APP_STARTUP_TYPE, "APP_STARTUP_TYPE" },
+        { EventName::GRANT_URI_PERMISSION, "GRANT_URI_PERMISSION" },
+        { EventName::FA_SHOW_ON_LOCK, "FA_SHOW_ON_LOCK" },
+        { EventName::START_PRIVATE_ABILITY, "START_PRIVATE_ABILITY" },
+        { EventName::RESTART_PROCESS_BY_SAME_APP, "RESTART_PROCESS_BY_SAME_APP" },
+        { EventName::START_STANDARD_ABILITIES, "START_STANDARD_ABILITIES" },
+    };
     auto it = eventNameToStrMap_.find(eventName);
     if (it != eventNameToStrMap_.end()) {
         return it->second;

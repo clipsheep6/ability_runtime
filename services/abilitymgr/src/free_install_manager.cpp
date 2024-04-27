@@ -32,11 +32,11 @@
 
 namespace OHOS {
 namespace AAFwk {
-const std::u16string DMS_FREE_INSTALL_CALLBACK_TOKEN = u"ohos.DistributedSchedule.IDmsFreeInstallCallback";
-const std::string DMS_MISSION_ID = "dmsMissionId";
-const std::string PARAM_FREEINSTALL_APPID = "ohos.freeinstall.params.callingAppId";
-const std::string PARAM_FREEINSTALL_BUNDLENAMES = "ohos.freeinstall.params.callingBundleNames";
-const std::string PARAM_FREEINSTALL_UID = "ohos.freeinstall.params.callingUid";
+constexpr const char16_t* DMS_FREE_INSTALL_CALLBACK_TOKEN = u"ohos.DistributedSchedule.IDmsFreeInstallCallback";
+constexpr const char* DMS_MISSION_ID = "dmsMissionId";
+constexpr const char* PARAM_FREEINSTALL_APPID = "ohos.freeinstall.params.callingAppId";
+constexpr const char* PARAM_FREEINSTALL_BUNDLENAMES = "ohos.freeinstall.params.callingBundleNames";
+constexpr const char* PARAM_FREEINSTALL_UID = "ohos.freeinstall.params.callingUid";
 constexpr uint32_t IDMS_CALLBACK_ON_FREE_INSTALL_DONE = 0;
 constexpr uint32_t UPDATE_ATOMOIC_SERVICE_TASK_TIMER = 24 * 60 * 60 * 1000; /* 24h */
 

@@ -22,7 +22,7 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
+constexpr const char* DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 }
 
 DlpStateItem::DlpStateItem(int32_t dlpUid, int32_t dlpPid) : dlpUid_(dlpUid), dlpPid_(dlpPid) {}

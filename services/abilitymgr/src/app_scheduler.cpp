@@ -27,16 +27,6 @@
 
 namespace OHOS {
 namespace AAFwk {
-const std::map<AppState, std::string> appStateToStrMap_ = {
-    std::map<AppState, std::string>::value_type(AppState::BEGIN, "BEGIN"),
-    std::map<AppState, std::string>::value_type(AppState::READY, "READY"),
-    std::map<AppState, std::string>::value_type(AppState::FOREGROUND, "FOREGROUND"),
-    std::map<AppState, std::string>::value_type(AppState::BACKGROUND, "BACKGROUND"),
-    std::map<AppState, std::string>::value_type(AppState::SUSPENDED, "SUSPENDED"),
-    std::map<AppState, std::string>::value_type(AppState::TERMINATED, "TERMINATED"),
-    std::map<AppState, std::string>::value_type(AppState::END, "END"),
-    std::map<AppState, std::string>::value_type(AppState::FOCUS, "FOCUS"),
-};
 AppScheduler::AppScheduler() : appMgrClient_(std::make_unique<AppExecFwk::AppMgrClient>())
 {}
 
@@ -380,8 +370,18 @@ int AppScheduler::GetProcessRunningInfosByUserId(std::vector<AppExecFwk::Running
 
 std::string AppScheduler::ConvertAppState(const AppState &state)
 {
-    auto it = appStateToStrMap_.find(state);
-    if (it != appStateToStrMap_.end()) {
+    const std::map<AppState, std::string> appStateToStrMap = {
+        {AppState::BEGIN, "BEGIN"},
+        {AppState::READY, "READY"},
+        {AppState::FOREGROUND, "FOREGROUND"},
+        {AppState::BACKGROUND, "BACKGROUND"},
+        {AppState::SUSPENDED, "SUSPENDED"},
+        {AppState::TERMINATED, "TERMINATED"},
+        {AppState::END, "END"},
+        {AppState::FOCUS, "FOCUS"},
+    };
+    auto it = appStateToStrMap.find(state);
+    if (it != appStateToStrMap.end()) {
         return it->second;
     }
     return "INVALIDSTATE";

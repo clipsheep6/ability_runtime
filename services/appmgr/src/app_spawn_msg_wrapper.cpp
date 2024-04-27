@@ -23,19 +23,19 @@
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
-    const std::string HSPLIST_BUNDLES = "bundles";
-    const std::string HSPLIST_MODULES = "modules";
-    const std::string HSPLIST_VERSIONS = "versions";
-    const std::string HSPLIST_SOCKET_TYPE = "|HspList|";
-    const std::string OVERLAY_SOCKET_TYPE = "|Overlay|";
-    const std::string DATA_GROUP_SOCKET_TYPE = "|DataGroup|";
-    const std::string APP_ENV_TYPE = "|AppEnv|";
-    const std::string DATAGROUPINFOLIST_DATAGROUPID = "dataGroupId";
-    const std::string DATAGROUPINFOLIST_GID = "gid";
-    const std::string DATAGROUPINFOLIST_DIR = "dir";
-    const std::string JSON_DATA_APP = "/data/app/el2/";
-    const std::string JSON_GROUP = "/group/";
-    const std::string VERSION_PREFIX = "v";
+constexpr const char* HSPLIST_BUNDLES = "bundles";
+constexpr const char* HSPLIST_MODULES = "modules";
+constexpr const char* HSPLIST_VERSIONS = "versions";
+constexpr const char* HSPLIST_SOCKET_TYPE = "|HspList|";
+constexpr const char* OVERLAY_SOCKET_TYPE = "|Overlay|";
+constexpr const char* DATA_GROUP_SOCKET_TYPE = "|DataGroup|";
+constexpr const char* APP_ENV_TYPE = "|AppEnv|";
+constexpr const char* DATAGROUPINFOLIST_DATAGROUPID = "dataGroupId";
+constexpr const char* DATAGROUPINFOLIST_GID = "gid";
+constexpr const char* DATAGROUPINFOLIST_DIR = "dir";
+constexpr const char* JSON_DATA_APP = "/data/app/el2/";
+constexpr const char* JSON_GROUP = "/group/";
+constexpr const char* VERSION_PREFIX = "v";
 }
 
 AppSpawnMsgWrapper::~AppSpawnMsgWrapper()

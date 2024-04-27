@@ -70,113 +70,74 @@ using AbilityRuntime::FreezeUtil;
 namespace AAFwk {
 using namespace OHOS::Security;
 using namespace OHOS::AAFwk::PermissionConstants;
-const std::string DEBUG_APP = "debugApp";
-const std::string NATIVE_DEBUG = "nativeDebug";
-const std::string PERF_CMD = "perfCmd";
-const std::string MULTI_THREAD = "multiThread";
-const std::string DMS_PROCESS_NAME = "distributedsched";
-const std::string DMS_MISSION_ID = "dmsMissionId";
-const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
-const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
-const std::u16string SYSTEM_ABILITY_TOKEN_CALLBACK = u"ohos.aafwk.ISystemAbilityTokenCallback";
-const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
-const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
-const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
-const std::string KEY_MISSION_ID = "ohos.anco.param.missionId";
-const std::string NEED_STARTINGWINDOW = "ohos.ability.NeedStartingWindow";
-const std::string PARAMS_URI = "ability.verify.uri";
-const std::string PARAMS_FILE_SAVING_URL_KEY = "pick_path_return";
-const uint32_t RELEASE_STARTING_BG_TIMEOUT = 15000; // release starting window resource timeout.
-const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
-const std::string SHELL_ASSISTANT_ABILITYNAME = "MainAbility";
-const std::string SHELL_ASSISTANT_DIEREASON = "crash_die";
-const std::string PARAM_MISSION_AFFINITY_KEY = "ohos.anco.param.missionAffinity";
-const std::string DISTRIBUTED_FILES_PATH = "/data/storage/el2/distributedfiles/";
-const std::string UIEXTENSION_ABILITY_ID = "ability.want.params.uiExtensionAbilityId";
-const std::string UIEXTENSION_ROOT_HOST_PID = "ability.want.params.uiExtensionRootHostPid";
-const int32_t SHELL_ASSISTANT_DIETYPE = 0;
+constexpr const char* DEBUG_APP = "debugApp";
+constexpr const char* NATIVE_DEBUG = "nativeDebug";
+constexpr const char* PERF_CMD = "perfCmd";
+constexpr const char* MULTI_THREAD = "multiThread";
+constexpr const char* DMS_PROCESS_NAME = "distributedsched";
+constexpr const char* DMS_MISSION_ID = "dmsMissionId";
+constexpr const char* DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
+constexpr const char* ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
+constexpr const char16_t* SYSTEM_ABILITY_TOKEN_CALLBACK = u"ohos.aafwk.ISystemAbilityTokenCallback";
+constexpr const char* SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
+constexpr const char* DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
+constexpr const char* COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
+constexpr const char* KEY_MISSION_ID = "ohos.anco.param.missionId";
+constexpr const char* NEED_STARTINGWINDOW = "ohos.ability.NeedStartingWindow";
+constexpr const char* PARAMS_URI = "ability.verify.uri";
+constexpr const char* PARAMS_FILE_SAVING_URL_KEY = "pick_path_return";
+constexpr const uint32_t RELEASE_STARTING_BG_TIMEOUT = 15000; // release starting window resource timeout.
+constexpr const char* SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
+constexpr const char* SHELL_ASSISTANT_ABILITYNAME = "MainAbility";
+constexpr const char* SHELL_ASSISTANT_DIEREASON = "crash_die";
+constexpr const char* PARAM_MISSION_AFFINITY_KEY = "ohos.anco.param.missionAffinity";
+constexpr const char* DISTRIBUTED_FILES_PATH = "/data/storage/el2/distributedfiles/";
+constexpr const char* UIEXTENSION_ABILITY_ID = "ability.want.params.uiExtensionAbilityId";
+constexpr const char* UIEXTENSION_ROOT_HOST_PID = "ability.want.params.uiExtensionRootHostPid";
+constexpr int32_t SHELL_ASSISTANT_DIETYPE = 0;
 int64_t AbilityRecord::abilityRecordId = 0;
-const int32_t DEFAULT_USER_ID = 0;
-const int32_t SEND_RESULT_CANCELED = -1;
-const int VECTOR_SIZE = 2;
-const int LOAD_TIMEOUT_ASANENABLED = 150;
-const int TERMINATE_TIMEOUT_ASANENABLED = 150;
-const int HALF_TIMEOUT = 2;
-const int MAX_URI_COUNT = 500;
-const int32_t BROKER_UID = 5557;
-const int RESTART_SCENEBOARD_DELAY = 500;
+constexpr int32_t DEFAULT_USER_ID = 0;
+constexpr int32_t SEND_RESULT_CANCELED = -1;
+constexpr int VECTOR_SIZE = 2;
+constexpr int LOAD_TIMEOUT_ASANENABLED = 150;
+constexpr int TERMINATE_TIMEOUT_ASANENABLED = 150;
+constexpr int HALF_TIMEOUT = 2;
+constexpr int MAX_URI_COUNT = 500;
+constexpr int32_t BROKER_UID = 5557;
+constexpr int RESTART_SCENEBOARD_DELAY = 500;
 #ifdef SUPPORT_ASAN
-const int COLDSTART_TIMEOUT_MULTIPLE = 15000;
-const int LOAD_TIMEOUT_MULTIPLE = 15000;
-const int FOREGROUND_TIMEOUT_MULTIPLE = 7500;
-const int BACKGROUND_TIMEOUT_MULTIPLE = 4500;
-const int ACTIVE_TIMEOUT_MULTIPLE = 7500;
-const int TERMINATE_TIMEOUT_MULTIPLE = 15000;
-const int INACTIVE_TIMEOUT_MULTIPLE = 800;
-const int DUMP_TIMEOUT_MULTIPLE = 1500;
-const int SHAREDATA_TIMEOUT_MULTIPLE = 7500;
+constexpr int COLDSTART_TIMEOUT_MULTIPLE = 15000;
+constexpr int LOAD_TIMEOUT_MULTIPLE = 15000;
+constexpr int FOREGROUND_TIMEOUT_MULTIPLE = 7500;
+constexpr int BACKGROUND_TIMEOUT_MULTIPLE = 4500;
+constexpr int ACTIVE_TIMEOUT_MULTIPLE = 7500;
+constexpr int TERMINATE_TIMEOUT_MULTIPLE = 15000;
+constexpr int INACTIVE_TIMEOUT_MULTIPLE = 800;
+constexpr int DUMP_TIMEOUT_MULTIPLE = 1500;
+constexpr int SHAREDATA_TIMEOUT_MULTIPLE = 7500;
 #else
-const int COLDSTART_TIMEOUT_MULTIPLE = 10;
-const int LOAD_TIMEOUT_MULTIPLE = 10;
-const int FOREGROUND_TIMEOUT_MULTIPLE = 5;
-const int BACKGROUND_TIMEOUT_MULTIPLE = 3;
-const int ACTIVE_TIMEOUT_MULTIPLE = 5;
-const int TERMINATE_TIMEOUT_MULTIPLE = 10;
-const int INACTIVE_TIMEOUT_MULTIPLE = 1;
-const int DUMP_TIMEOUT_MULTIPLE = 1000;
-const int SHAREDATA_TIMEOUT_MULTIPLE = 5;
-const int32_t TYPE_RESERVE = 1;
-const int32_t TYPE_OTHERS = 2;
+constexpr int COLDSTART_TIMEOUT_MULTIPLE = 10;
+constexpr int LOAD_TIMEOUT_MULTIPLE = 10;
+constexpr int FOREGROUND_TIMEOUT_MULTIPLE = 5;
+constexpr int BACKGROUND_TIMEOUT_MULTIPLE = 3;
+constexpr int ACTIVE_TIMEOUT_MULTIPLE = 5;
+constexpr int TERMINATE_TIMEOUT_MULTIPLE = 10;
+constexpr int INACTIVE_TIMEOUT_MULTIPLE = 1;
+constexpr int DUMP_TIMEOUT_MULTIPLE = 1000;
+constexpr int SHAREDATA_TIMEOUT_MULTIPLE = 5;
+constexpr int32_t TYPE_RESERVE = 1;
+constexpr int32_t TYPE_OTHERS = 2;
 #endif
-const std::map<AbilityState, std::string> AbilityRecord::stateToStrMap = {
-    std::map<AbilityState, std::string>::value_type(INITIAL, "INITIAL"),
-    std::map<AbilityState, std::string>::value_type(INACTIVE, "INACTIVE"),
-    std::map<AbilityState, std::string>::value_type(ACTIVE, "ACTIVE"),
-    std::map<AbilityState, std::string>::value_type(INACTIVATING, "INACTIVATING"),
-    std::map<AbilityState, std::string>::value_type(ACTIVATING, "ACTIVATING"),
-    std::map<AbilityState, std::string>::value_type(TERMINATING, "TERMINATING"),
-    std::map<AbilityState, std::string>::value_type(FOREGROUND, "FOREGROUND"),
-    std::map<AbilityState, std::string>::value_type(BACKGROUND, "BACKGROUND"),
-    std::map<AbilityState, std::string>::value_type(FOREGROUNDING, "FOREGROUNDING"),
-    std::map<AbilityState, std::string>::value_type(BACKGROUNDING, "BACKGROUNDING"),
-    std::map<AbilityState, std::string>::value_type(FOREGROUND_FAILED, "FOREGROUND_FAILED"),
-    std::map<AbilityState, std::string>::value_type(FOREGROUND_INVALID_MODE, "FOREGROUND_INVALID_MODE"),
-    std::map<AbilityState, std::string>::value_type(FOREGROUND_WINDOW_FREEZED, "FOREGROUND_WINDOW_FREEZED"),
-    std::map<AbilityState, std::string>::value_type(FOREGROUND_DO_NOTHING, "FOREGROUND_DO_NOTHING"),
-    std::map<AbilityState, std::string>::value_type(BACKGROUND_FAILED, "BACKGROUND_FAILED"),
-};
-const std::map<AppState, std::string> AbilityRecord::appStateToStrMap_ = {
-    std::map<AppState, std::string>::value_type(AppState::BEGIN, "BEGIN"),
-    std::map<AppState, std::string>::value_type(AppState::READY, "READY"),
-    std::map<AppState, std::string>::value_type(AppState::FOREGROUND, "FOREGROUND"),
-    std::map<AppState, std::string>::value_type(AppState::BACKGROUND, "BACKGROUND"),
-    std::map<AppState, std::string>::value_type(AppState::SUSPENDED, "SUSPENDED"),
-    std::map<AppState, std::string>::value_type(AppState::TERMINATED, "TERMINATED"),
-    std::map<AppState, std::string>::value_type(AppState::END, "END"),
-    std::map<AppState, std::string>::value_type(AppState::FOCUS, "FOCUS"),
-};
-const std::map<AbilityLifeCycleState, AbilityState> AbilityRecord::convertStateMap = {
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_INITIAL, INITIAL),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_INACTIVE, INACTIVE),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_ACTIVE, ACTIVE),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_FOREGROUND_NEW, FOREGROUND),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_BACKGROUND_NEW, BACKGROUND),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_FOREGROUND_FAILED, FOREGROUND_FAILED),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_INVALID_WINDOW_MODE,
-        FOREGROUND_INVALID_MODE),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_WINDOW_FREEZED,
-        FOREGROUND_WINDOW_FREEZED),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_DO_NOTHING, FOREGROUND_DO_NOTHING),
-    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_BACKGROUND_FAILED, BACKGROUND_FAILED),
-};
-
-auto g_addLifecycleEventTask = [](sptr<Token> token, FreezeUtil::TimeoutState state, std::string &methodName) {
+namespace {
+void AddLifecycleEventTask(sptr<Token> token, FreezeUtil::TimeoutState state, std::string &methodName)
+{
     CHECK_POINTER_LOG(token, "token is nullptr");
     FreezeUtil::LifecycleFlow flow = { token->AsObject(), state };
     auto entry = std::to_string(AbilityUtil::SystemTimeMillis()) + "; AbilityRecord::" + methodName +
         "; the " + methodName + " lifecycle starts.";
     FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
 };
+}
 
 Token::Token(std::weak_ptr<AbilityRecord> abilityRecord) : abilityRecord_(abilityRecord)
 {}
@@ -339,7 +300,7 @@ void AbilityRecord::LoadUIAbility()
         SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, delayTime / HALF_TIMEOUT);
     }
     std::string methodName = "LoadAbility";
-    g_addLifecycleEventTask(token_, FreezeUtil::TimeoutState::LOAD, methodName);
+    AddLifecycleEventTask(token_, FreezeUtil::TimeoutState::LOAD, methodName);
 }
 
 int AbilityRecord::LoadAbility()
@@ -438,7 +399,7 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
             AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
         SendEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, foregroundTimeout / HALF_TIMEOUT);
         std::string methodName = "ForegroundAbility";
-        g_addLifecycleEventTask(token_, FreezeUtil::TimeoutState::FOREGROUND, methodName);
+        AddLifecycleEventTask(token_, FreezeUtil::TimeoutState::FOREGROUND, methodName);
     }
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
@@ -1217,7 +1178,7 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
 
             if (abilityInfo_.type == AppExecFwk::AbilityType::PAGE) {
                 std::string methodName = "BackgroundAbility";
-                g_addLifecycleEventTask(token_, FreezeUtil::TimeoutState::BACKGROUND, methodName);
+                AddLifecycleEventTask(token_, FreezeUtil::TimeoutState::BACKGROUND, methodName);
             }
         }
     } else {
@@ -2067,6 +2028,23 @@ void AbilityRecord::GetAbilityTypeString(std::string &typeStr)
 
 std::string AbilityRecord::ConvertAbilityState(const AbilityState &state)
 {
+    const std::map<AbilityState, std::string> stateToStrMap = {
+        { INITIAL, "INITIAL" },
+        { INACTIVE, "INACTIVE" },
+        { ACTIVE, "ACTIVE" },
+        { INACTIVATING, "INACTIVATING" },
+        { ACTIVATING, "ACTIVATING" },
+        { TERMINATING, "TERMINATING" },
+        { FOREGROUND, "FOREGROUND" },
+        { BACKGROUND, "BACKGROUND" },
+        { FOREGROUNDING, "FOREGROUNDING" },
+        { BACKGROUNDING, "BACKGROUNDING" },
+        { FOREGROUND_FAILED, "FOREGROUND_FAILED" },
+        { FOREGROUND_INVALID_MODE, "FOREGROUND_INVALID_MODE" },
+        { FOREGROUND_WINDOW_FREEZED, "FOREGROUND_WINDOW_FREEZED" },
+        { FOREGROUND_DO_NOTHING, "FOREGROUND_DO_NOTHING" },
+        { BACKGROUND_FAILED, "BACKGROUND_FAILED" },
+    };
     auto it = stateToStrMap.find(state);
     if (it != stateToStrMap.end()) {
         return it->second;
@@ -2076,8 +2054,18 @@ std::string AbilityRecord::ConvertAbilityState(const AbilityState &state)
 
 std::string AbilityRecord::ConvertAppState(const AppState &state)
 {
-    auto it = appStateToStrMap_.find(state);
-    if (it != appStateToStrMap_.end()) {
+    const std::map<AppState, std::string> appStateToStrMap = {
+        { AppState::BEGIN, "BEGIN" },
+        { AppState::READY, "READY" },
+        { AppState::FOREGROUND, "FOREGROUND" },
+        { AppState::BACKGROUND, "BACKGROUND" },
+        { AppState::SUSPENDED, "SUSPENDED" },
+        { AppState::TERMINATED, "TERMINATED" },
+        { AppState::END, "END" },
+        { AppState::FOCUS, "FOCUS" },
+    };
+    auto it = appStateToStrMap.find(state);
+    if (it != appStateToStrMap.end()) {
         return it->second;
     }
     return "INVALIDSTATE";
@@ -2085,6 +2073,18 @@ std::string AbilityRecord::ConvertAppState(const AppState &state)
 
 int AbilityRecord::ConvertLifeCycleToAbilityState(const AbilityLifeCycleState &state)
 {
+    const std::map<AbilityLifeCycleState, AbilityState> convertStateMap = {
+        { ABILITY_STATE_INITIAL, INITIAL },
+        { ABILITY_STATE_INACTIVE, INACTIVE },
+        { ABILITY_STATE_ACTIVE, ACTIVE },
+        { ABILITY_STATE_FOREGROUND_NEW, FOREGROUND },
+        { ABILITY_STATE_BACKGROUND_NEW, BACKGROUND },
+        { ABILITY_STATE_FOREGROUND_FAILED, FOREGROUND_FAILED },
+        { ABILITY_STATE_INVALID_WINDOW_MODE, FOREGROUND_INVALID_MODE },
+        { ABILITY_STATE_WINDOW_FREEZED, FOREGROUND_WINDOW_FREEZED },
+        { ABILITY_STATE_DO_NOTHING, FOREGROUND_DO_NOTHING },
+        { ABILITY_STATE_BACKGROUND_FAILED, BACKGROUND_FAILED },
+    };
     auto it = convertStateMap.find(state);
     if (it != convertStateMap.end()) {
         return it->second;

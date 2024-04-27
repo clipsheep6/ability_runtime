@@ -36,7 +36,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 using namespace OHOS::AAFwk;
 namespace {
-constexpr char PRODUCT_APPBOOT_SETTING_ENABLED[] = "const.product.appboot.setting.enabled";
+constexpr const char* PRODUCT_APPBOOT_SETTING_ENABLED = "const.product.appboot.setting.enabled";
 } // namespace
 
 AbilityAutoStartupService::AbilityAutoStartupService() {}

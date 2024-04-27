@@ -28,7 +28,7 @@ namespace AAFwk {
 namespace ApplicationUtil {
 using Want = OHOS::AAFwk::Want;
 const int32_t BOOT_COMPLETED_SIZE = 6;
-const char* BOOTEVENT_BOOT_COMPLETED = "bootevent.boot.completed";
+constexpr const char* BOOTEVENT_BOOT_COMPLETED = "bootevent.boot.completed";
 
 [[maybe_unused]] static void AppFwkBootEventCallback(const char *key, const char *value, void *context)
 {

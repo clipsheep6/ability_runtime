@@ -69,7 +69,6 @@ HWTEST_F(AbilityStartSettingTest, AppExecFwk_IsEmpty_0100, Function | MediumTest
         return;
     }
     EXPECT_EQ(true, abilityStartSetting_->IsEmpty());
-    abilityStartSetting_->AddProperty(AbilityStartSetting::BOUNDS_KEY, std::string("system_bounds_test"));
     abilityStartSetting_->AddProperty(
         AbilityStartSetting::WINDOW_DISPLAY_ID_KEY, std::string("system_window_display_key_test"));
     abilityStartSetting_->AddProperty(AbilityStartSetting::WINDOW_MODE_KEY, std::string("system_mode_key_test"));
@@ -78,17 +77,12 @@ HWTEST_F(AbilityStartSettingTest, AppExecFwk_IsEmpty_0100, Function | MediumTest
     EXPECT_EQ((unsigned int)3, set.size());
     std::set<std::string>::iterator it = set.begin();
     if (it != set.end()) {
-        EXPECT_EQ(*it, AbilityStartSetting::BOUNDS_KEY.c_str());
-        GTEST_LOG_(INFO) << "AppExecFwk_AbilityStartSetting_0100 test 1";
-    }
-    it++;
-    if (it != set.end()) {
-        EXPECT_EQ(*it, AbilityStartSetting::WINDOW_DISPLAY_ID_KEY.c_str());
+        EXPECT_EQ(*it, AbilityStartSetting::WINDOW_DISPLAY_ID_KEY);
         GTEST_LOG_(INFO) << "AppExecFwk_AbilityStartSetting_0100 test 2";
     }
     it++;
     if (it != set.end()) {
-        EXPECT_EQ(*it, AbilityStartSetting::WINDOW_MODE_KEY.c_str());
+        EXPECT_EQ(*it, AbilityStartSetting::WINDOW_MODE_KEY);
         GTEST_LOG_(INFO) << "AppExecFwk_AbilityStartSetting_0100 test 3";
     }
     Parcel parcel;
@@ -104,17 +98,12 @@ HWTEST_F(AbilityStartSettingTest, AppExecFwk_IsEmpty_0100, Function | MediumTest
     EXPECT_EQ((unsigned int)3, unmarshallingSet.size());
     it = unmarshallingSet.begin();
     if (it != unmarshallingSet.end()) {
-        EXPECT_EQ(*it, AbilityStartSetting::BOUNDS_KEY.c_str());
-        GTEST_LOG_(INFO) << "AppExecFwk_AbilityStartSetting_0100 test 4";
-    }
-    it++;
-    if (it != unmarshallingSet.end()) {
-        EXPECT_EQ(*it, AbilityStartSetting::WINDOW_DISPLAY_ID_KEY.c_str());
+        EXPECT_EQ(*it, AbilityStartSetting::WINDOW_DISPLAY_ID_KEY);
         GTEST_LOG_(INFO) << "AppExecFwk_AbilityStartSetting_0100 test 5";
     }
     it++;
     if (it != unmarshallingSet.end()) {
-        EXPECT_EQ(*it, AbilityStartSetting::WINDOW_MODE_KEY.c_str());
+        EXPECT_EQ(*it, AbilityStartSetting::WINDOW_MODE_KEY);
         GTEST_LOG_(INFO) << "AppExecFwk_AbilityStartSetting_0100 test 6";
     }
 }

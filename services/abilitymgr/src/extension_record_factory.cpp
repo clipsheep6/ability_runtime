@@ -23,6 +23,12 @@ namespace OHOS {
 namespace AbilityRuntime {
 using namespace OHOS::AppExecFwk;
 namespace {
+const std::map<AppExecFwk::ExtensionAbilityType, ExtensionRecordConfig> EXTENSION_RECORD_CONFIG_MAP = {
+    { AppExecFwk::ExtensionAbilityType::EMBEDDED_UI,
+      { PROCESS_MODE_BUNDLE, PROCESS_MODE_SUPPORT_DEFAULT | PROCESS_MODE_HOST_SPECIFIED | PROCESS_MODE_HOST_INSTANCE,
+        PRE_CHECK_FLAG_CALLED_WITHIN_THE_BUNDLE | PRE_CHECK_FLAG_MULTIPLE_PROCESSES }},
+};
+
 uint32_t GetPreCheckFlag(ExtensionAbilityType type)
 {
     auto iter = EXTENSION_RECORD_CONFIG_MAP.find(type);

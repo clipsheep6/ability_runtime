@@ -28,16 +28,12 @@
 
 namespace OHOS {
 namespace AAFwk {
-const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
+constexpr const char* DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
 namespace {
-const int32_t SHELL_START_EXTENSION_FLOOR = 0; // FORM
-const int32_t SHELL_START_EXTENSION_CEIL = 21; // EMBEDDED_UI
-const int32_t BROKER_UID = 5557;
-const std::string FOUNDATION_PROCESS_NAME = "foundation";
-const std::set<std::string> OBSERVER_NATIVE_CALLER = {
-    "memmgrservice",
-    "resource_schedule_service",
-};
+constexpr int32_t SHELL_START_EXTENSION_FLOOR = 0; // FORM
+constexpr int32_t SHELL_START_EXTENSION_CEIL = 21; // EMBEDDED_UI
+constexpr int32_t BROKER_UID = 5557;
+constexpr const char* FOUNDATION_PROCESS_NAME = "foundation";
 }
 bool PermissionVerification::VerifyPermissionByTokenId(const int &tokenId, const std::string &permissionName) const
 {
@@ -122,8 +118,12 @@ bool PermissionVerification::CheckObserverCallerPermission() const
     auto callerToken = GetCallingTokenID();
     Security::AccessToken::NativeTokenInfo nativeTokenInfo;
     int32_t result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerToken, nativeTokenInfo);
+    const std::set<std::string> observerNativeCaller = {
+        "memmgrservice",
+        "resource_schedule_service",
+    };
     if (result != ERR_OK ||
-        OBSERVER_NATIVE_CALLER.find(nativeTokenInfo.processName) == OBSERVER_NATIVE_CALLER.end()) {
+        observerNativeCaller.find(nativeTokenInfo.processName) == observerNativeCaller.end()) {
         TAG_LOGE(AAFwkTag::DEFAULT, "Check native token failed.");
         return false;
     }

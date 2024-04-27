@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
-const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
+constexpr const char* ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
 }
 ModuleRunningRecord::ModuleRunningRecord(
     const std::shared_ptr<ApplicationInfo> &info, const std::shared_ptr<AMSEventHandler> &eventHandler)

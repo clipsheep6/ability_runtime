@@ -25,18 +25,18 @@
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
-    const std::string HSPLIST_BUNDLES = "bundles";
-    const std::string HSPLIST_MODULES = "modules";
-    const std::string HSPLIST_VERSIONS = "versions";
-    const std::string DATAGROUPINFOLIST_DATAGROUPID = "dataGroupId";
-    const std::string DATAGROUPINFOLIST_GID = "gid";
-    const std::string DATAGROUPINFOLIST_DIR = "dir";
-    const std::string JSON_DATA_APP = "/data/app/el2/";
-    const std::string JSON_GROUP = "/group/";
-    const std::string VERSION_PREFIX = "v";
-    const std::string APPSPAWN_CLIENT_USER_NAME = "APP_MANAGER_SERVICE";
-    constexpr int32_t RIGHT_SHIFT_STEP = 1;
-    constexpr int32_t START_FLAG_TEST_NUM = 1;
+constexpr const char* HSPLIST_BUNDLES = "bundles";
+constexpr const char* HSPLIST_MODULES = "modules";
+constexpr const char* HSPLIST_VERSIONS = "versions";
+constexpr const char* DATAGROUPINFOLIST_DATAGROUPID = "dataGroupId";
+constexpr const char* DATAGROUPINFOLIST_GID = "gid";
+constexpr const char* DATAGROUPINFOLIST_DIR = "dir";
+constexpr const char* JSON_DATA_APP = "/data/app/el2/";
+constexpr const char* JSON_GROUP = "/group/";
+constexpr const char* VERSION_PREFIX = "v";
+constexpr const char* APPSPAWN_CLIENT_USER_NAME = "APP_MANAGER_SERVICE";
+constexpr int32_t RIGHT_SHIFT_STEP = 1;
+constexpr int32_t START_FLAG_TEST_NUM = 1;
 }
 AppSpawnClient::AppSpawnClient(bool isNWebSpawn)
 {
@@ -59,7 +59,7 @@ ErrCode AppSpawnClient::OpenConnection()
         return 0;
     }
     TAG_LOGI(AAFwkTag::APPMGR, "OpenConnection");
-    
+
     AppSpawnClientHandle handle = nullptr;
     ErrCode ret = 0;
     ret = AppSpawnClientInit(serviceName_.c_str(), &handle);
@@ -142,7 +142,7 @@ int32_t AppSpawnClient::SetDacInfo(const AppSpawnStartMsg &startMsg, AppSpawnReq
     for (uint32_t i = startMsg.gids.size(); i < appDacInfo.gidCount; i++) {
         appDacInfo.gidTable[i] = startMsg.dataGroupInfoList[i - startMsg.gids.size()].gid;
     }
-    ret = strcpy_s(appDacInfo.userName, sizeof(appDacInfo.userName), APPSPAWN_CLIENT_USER_NAME.c_str());
+    ret = strcpy_s(appDacInfo.userName, sizeof(appDacInfo.userName), APPSPAWN_CLIENT_USER_NAME);
     if (ret) {
         TAG_LOGE(AAFwkTag::APPMGR, "failed to set dac userName!");
         return ret;

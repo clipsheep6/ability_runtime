@@ -30,15 +30,15 @@ namespace {
 constexpr int32_t CHECK_INTERVAL = 100000; // 100ms
 constexpr int32_t MAX_TIMES = 5;           // 5 * 100ms = 500ms
 constexpr const char *APP_EXIT_REASON_STORAGE_DIR = "/data/service/el1/public/database/app_exit_reason";
-const std::string JSON_KEY_REASON = "reason";
-const std::string JSON_KEY_EXIT_MSG = "exit_msg";
-const std::string JSON_KEY_TIME_STAMP = "time_stamp";
-const std::string JSON_KEY_ABILITY_LIST = "ability_list";
-const std::string KEY_RECOVER_INFO_PREFIX = "recover_info";
-const std::string JSON_KEY_RECOVER_INFO_LIST = "recover_info_list";
-const std::string JSON_KEY_SESSION_ID_LIST = "session_id_list";
-const std::string JSON_KEY_EXTENSION_NAME = "extension_name";
-const std::string SEPARATOR = ":";
+constexpr const char* JSON_KEY_REASON = "reason";
+constexpr const char* JSON_KEY_EXIT_MSG = "exit_msg";
+constexpr const char* JSON_KEY_TIME_STAMP = "time_stamp";
+constexpr const char* JSON_KEY_ABILITY_LIST = "ability_list";
+constexpr const char* KEY_RECOVER_INFO_PREFIX = "recover_info";
+constexpr const char* JSON_KEY_RECOVER_INFO_LIST = "recover_info_list";
+constexpr const char* JSON_KEY_SESSION_ID_LIST = "session_id_list";
+constexpr const char* JSON_KEY_EXTENSION_NAME = "extension_name";
+constexpr const char* SEPARATOR = ":";
 } // namespace
 AppExitReasonDataManager::AppExitReasonDataManager() {}
 

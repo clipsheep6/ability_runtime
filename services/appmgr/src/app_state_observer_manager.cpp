@@ -28,9 +28,9 @@
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
-const std::string THREAD_NAME = "AppStateObserverManager";
-const int BUNDLE_NAME_LIST_MAX_SIZE = 128;
-constexpr char DEVELOPER_MODE_STATE[] = "const.security.developermode.state";
+constexpr const char* THREAD_NAME = "AppStateObserverManager";
+constexpr int BUNDLE_NAME_LIST_MAX_SIZE = 128;
+constexpr const char* DEVELOPER_MODE_STATE = "const.security.developermode.state";
 } // namespace
 AppStateObserverManager::AppStateObserverManager()
 {

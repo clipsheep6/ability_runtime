@@ -45,30 +45,40 @@ namespace AAFwk {
 namespace {
 constexpr const char* SEPARATOR = ":";
 constexpr int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
-const std::string PARAM_MISSION_AFFINITY_KEY = "ohos.anco.param.missionAffinity";
-const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
-const std::string DMS_MISSION_ID = "dmsMissionId";
-const int DEFAULT_DMS_MISSION_ID = -1;
-const std::string PARAM_SPECIFIED_PROCESS_FLAG = "ohoSpecifiedProcessFlag";
-const std::string DMS_PROCESS_NAME = "distributedsched";
-const std::string DMS_PERSISTENT_ID = "ohos.dms.persistentId";
+constexpr const char* PARAM_MISSION_AFFINITY_KEY = "ohos.anco.param.missionAffinity";
+constexpr const char* DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
+constexpr const char* DMS_MISSION_ID = "dmsMissionId";
+constexpr int DEFAULT_DMS_MISSION_ID = -1;
+constexpr const char* PARAM_SPECIFIED_PROCESS_FLAG = "ohoSpecifiedProcessFlag";
+constexpr const char* DMS_PROCESS_NAME = "distributedsched";
+constexpr const char* DMS_PERSISTENT_ID = "ohos.dms.persistentId";
 #ifdef SUPPORT_ASAN
-const int KILL_TIMEOUT_MULTIPLE = 45;
+constexpr int KILL_TIMEOUT_MULTIPLE = 45;
 #else
-const int KILL_TIMEOUT_MULTIPLE = 3;
+constexpr int KILL_TIMEOUT_MULTIPLE = 3;
 #endif
 constexpr int32_t DEFAULT_USER_ID = 0;
-const std::unordered_map<uint32_t, FreezeUtil::TimeoutState> stateMap = {
-    { AbilityManagerService::LOAD_TIMEOUT_MSG, FreezeUtil::TimeoutState::LOAD },
-    { AbilityManagerService::FOREGROUND_TIMEOUT_MSG, FreezeUtil::TimeoutState::FOREGROUND },
-    { AbilityManagerService::BACKGROUND_TIMEOUT_MSG, FreezeUtil::TimeoutState::BACKGROUND }
-};
 
-auto g_deleteLifecycleEventTask = [](const sptr<Token> &token, FreezeUtil::TimeoutState state) {
+FreezeUtil::TimeoutState ConvertTimeoutState(uint32_t msgId)
+{
+    const std::unordered_map<uint32_t, FreezeUtil::TimeoutState> stateMap = {
+        { AbilityManagerService::LOAD_TIMEOUT_MSG, FreezeUtil::TimeoutState::LOAD },
+        { AbilityManagerService::FOREGROUND_TIMEOUT_MSG, FreezeUtil::TimeoutState::FOREGROUND },
+        { AbilityManagerService::BACKGROUND_TIMEOUT_MSG, FreezeUtil::TimeoutState::BACKGROUND }
+    };
+    auto search = stateMap.find(msgId);
+    if (search != stateMap.end()) {
+        return search->second;
+    }
+    return FreezeUtil::TimeoutState::UNKNOWN;
+}
+
+void DeleteLifecycleEventTask(const sptr<Token> &token, FreezeUtil::TimeoutState state)
+{
     CHECK_POINTER_LOG(token, "token is nullptr.");
     FreezeUtil::LifecycleFlow flow = { token->AsObject(), state };
     FreezeUtil::GetInstance().DeleteLifecycleEvent(flow);
-};
+}
 }
 
 UIAbilityLifecycleManager::UIAbilityLifecycleManager(int32_t userId): userId_(userId) {}
@@ -386,7 +396,7 @@ int UIAbilityLifecycleManager::DispatchForeground(const std::shared_ptr<AbilityR
 
     TAG_LOGD(AAFwkTag::ABILITYMGR, "ForegroundLifecycle: end.");
     handler->RemoveEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
-    g_deleteLifecycleEventTask(abilityRecord->GetToken(), FreezeUtil::TimeoutState::FOREGROUND);
+    DeleteLifecycleEventTask(abilityRecord->GetToken(), FreezeUtil::TimeoutState::FOREGROUND);
     auto self(weak_from_this());
     if (success) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "foreground succeeded.");
@@ -436,7 +446,7 @@ int UIAbilityLifecycleManager::DispatchBackground(const std::shared_ptr<AbilityR
     TAG_LOGD(AAFwkTag::ABILITYMGR, "end.");
     // remove background timeout task.
     handler->CancelTask("background_" + std::to_string(abilityRecord->GetAbilityRecordId()));
-    g_deleteLifecycleEventTask(abilityRecord->GetToken(), FreezeUtil::TimeoutState::BACKGROUND);
+    DeleteLifecycleEventTask(abilityRecord->GetToken(), FreezeUtil::TimeoutState::BACKGROUND);
     auto self(shared_from_this());
     auto task = [self, abilityRecord]() { self->CompleteBackground(abilityRecord); };
     handler->SubmitTask(task, TaskQoS::USER_INTERACTIVE);
@@ -984,11 +994,7 @@ void UIAbilityLifecycleManager::PrintTimeOutLog(std::shared_ptr<AbilityRecord> a
         .eventName = eventName,
         .bundleName = ability->GetAbilityInfo().bundleName,
     };
-    FreezeUtil::TimeoutState state = FreezeUtil::TimeoutState::UNKNOWN;
-    auto search = stateMap.find(msgId);
-    if (search != stateMap.end()) {
-        state = search->second;
-    }
+    FreezeUtil::TimeoutState state = ConvertTimeoutState(msgId);
     if (state != FreezeUtil::TimeoutState::UNKNOWN) {
         auto flow = std::make_unique<FreezeUtil::LifecycleFlow>();
         if (ability->GetToken() != nullptr) {

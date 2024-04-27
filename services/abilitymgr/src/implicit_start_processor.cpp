@@ -34,36 +34,23 @@
 
 namespace OHOS {
 namespace AAFwk {
-const size_t IDENTITY_LIST_MAX_SIZE = 10;
-const int32_t BROKER_UID = 5557;
+constexpr size_t IDENTITY_LIST_MAX_SIZE = 10;
+constexpr int32_t BROKER_UID = 5557;
 
-const std::string BLACK_ACTION_SELECT_DATA = "ohos.want.action.select";
-const std::string ACTION_VIEW = "ohos.want.action.viewData";
-const std::string STR_PHONE = "phone";
-const std::string STR_DEFAULT = "default";
-const std::string TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
-const std::string SHOW_DEFAULT_PICKER_FLAG = "ohos.ability.params.showDefaultPicker";
-const std::string PARAM_ABILITY_APPINFOS = "ohos.ability.params.appInfos";
-const std::string ANCO_PENDING_REQUEST = "ancoPendingRequest";
-const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
-const int NFC_CALLER_UID = 1027;
-const int NFC_QUERY_LENGTH = 2;
-const std::string OPEN_LINK_APP_LINKING_ONLY = "appLinkingOnly";
-const std::string HTTP_SCHEME_NAME = "http";
-const std::string HTTPS_SCHEME_NAME = "https";
-
-const std::vector<std::string> ImplicitStartProcessor::blackList = {
-    std::vector<std::string>::value_type(BLACK_ACTION_SELECT_DATA),
-};
-
-const std::unordered_set<AppExecFwk::ExtensionAbilityType> ImplicitStartProcessor::extensionWhiteList = {
-    AppExecFwk::ExtensionAbilityType::FORM,
-    AppExecFwk::ExtensionAbilityType::INPUTMETHOD,
-    AppExecFwk::ExtensionAbilityType::WALLPAPER,
-    AppExecFwk::ExtensionAbilityType::WINDOW,
-    AppExecFwk::ExtensionAbilityType::THUMBNAIL,
-    AppExecFwk::ExtensionAbilityType::PREVIEW
-};
+constexpr const char* BLACK_ACTION_SELECT_DATA = "ohos.want.action.select";
+constexpr const char* ACTION_VIEW = "ohos.want.action.viewData";
+constexpr const char* STR_PHONE = "phone";
+constexpr const char* STR_DEFAULT = "default";
+constexpr const char* TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
+constexpr const char* SHOW_DEFAULT_PICKER_FLAG = "ohos.ability.params.showDefaultPicker";
+constexpr const char* PARAM_ABILITY_APPINFOS = "ohos.ability.params.appInfos";
+constexpr const char* ANCO_PENDING_REQUEST = "ancoPendingRequest";
+constexpr const char* SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
+constexpr int NFC_CALLER_UID = 1027;
+constexpr int NFC_QUERY_LENGTH = 2;
+constexpr const char* OPEN_LINK_APP_LINKING_ONLY = "appLinkingOnly";
+constexpr const char* HTTP_SCHEME_NAME = "http";
+constexpr const char* HTTPS_SCHEME_NAME = "https";
 
 bool ImplicitStartProcessor::IsImplicitStartAction(const Want &want)
 {
@@ -76,7 +63,7 @@ bool ImplicitStartProcessor::IsImplicitStartAction(const Want &want)
         TAG_LOGI(AAFwkTag::ABILITYMGR, "The implicit startup process is not used for the startup of EmbeddaUIAbility");
         return false;
     }
-
+    const std::vector<std::string> blackList = { BLACK_ACTION_SELECT_DATA };
     if (std::find(blackList.begin(), blackList.end(), want.GetAction()) == blackList.end()) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "implicit start, the action is %{public}s", want.GetAction().data());
         return true;
@@ -520,6 +507,14 @@ bool ImplicitStartProcessor::CheckImplicitStartExtensionIsValid(const AbilityReq
     }
     TAG_LOGD(
         AAFwkTag::ABILITYMGR, "ImplicitStartExtension type: %{public}d.", static_cast<int32_t>(extensionInfo.type));
+    const std::unordered_set<AppExecFwk::ExtensionAbilityType> extensionWhiteList = {
+        AppExecFwk::ExtensionAbilityType::FORM,
+        AppExecFwk::ExtensionAbilityType::INPUTMETHOD,
+        AppExecFwk::ExtensionAbilityType::WALLPAPER,
+        AppExecFwk::ExtensionAbilityType::WINDOW,
+        AppExecFwk::ExtensionAbilityType::THUMBNAIL,
+        AppExecFwk::ExtensionAbilityType::PREVIEW
+    };
     if (extensionWhiteList.find(extensionInfo.type) == extensionWhiteList.end()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "The extension without UI is not allowed ImplicitStart");
         return false;

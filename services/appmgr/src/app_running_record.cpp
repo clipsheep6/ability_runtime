@@ -28,11 +28,11 @@
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
-static constexpr int64_t NANOSECONDS = 1000000000;  // NANOSECONDS mean 10^9 nano second
-static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 millias second
+constexpr int64_t NANOSECONDS = 1000000000;  // NANOSECONDS mean 10^9 nano second
+constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 millias second
 constexpr int32_t MAX_RESTART_COUNT = 3;
 constexpr int32_t RESTART_INTERVAL_TIME = 120000;
-const std::string LAUNCHER_NAME = "com.ohos.sceneboard";
+constexpr const char* LAUNCHER_NAME = "com.ohos.sceneboard";
 }
 
 int64_t AppRunningRecord::appEventId_ = 0;
