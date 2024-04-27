@@ -484,6 +484,11 @@ enum {
      * Result(2097245) for size of uri list out of range.
      */
     ERR_URI_LIST_OUT_OF_RANGE,
+
+    /**
+     * Native error(2097246) for not allow preload by rss.
+     */
+    ERR_NOT_ALLOW_PRELOAD_BY_RSS,
 };
 
 enum {

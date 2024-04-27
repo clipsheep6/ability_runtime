@@ -88,6 +88,7 @@ ohos_unittest("AMSEventHandlerTest") {
     "ipc:ipc_core",
     "kv_store:distributeddata_inner",
     "memory_utils:libmeminfo",
+    "resource_schedule_service:ressched_client",
   ]
 
   if (ability_runtime_graphics) {

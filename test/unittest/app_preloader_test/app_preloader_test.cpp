@@ -44,7 +44,7 @@ void AppPreloaderTest::TearDown()
 
 /**
  * @tc.number: AppPreloaderTest_GeneratePreloadRequest_0100
- * @tc.desc: Test Init works
+ * @tc.desc: Test GeneratePreloadRequest works
  * @tc.type: FUNC
  */
 HWTEST_F(AppPreloaderTest, AppPreloaderTest_GeneratePreloadRequest_0100, TestSize.Level0)
@@ -59,6 +59,22 @@ HWTEST_F(AppPreloaderTest, AppPreloaderTest_GeneratePreloadRequest_0100, TestSiz
     PreloadRequest request;
     auto ret = manager->GeneratePreloadRequest(bundleName, userId, appIndex, request);
     EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.number: AppPreloaderTest_PreCheck_0100
+ * @tc.desc: Test PreCheck works
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppPreloaderTest, AppPreloaderTest_PreCheck_0100, TestSize.Level0)
+{
+    TAG_LOGD(AAFwkTag::TEST, "AppPreloaderTest_PreCheck_0100 start.");
+    auto manager = std::make_shared<AppPreloader>(remoteClientManager_);
+    EXPECT_NE(manager, nullptr);
+
+    std::string bundleName = "com.acts.preloadtest";
+    auto ret = manager->PreCheck(bundleName, PreloadMode::PRE_MAKE);
+    EXPECT_EQ(ret, true);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

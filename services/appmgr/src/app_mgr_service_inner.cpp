@@ -290,8 +290,12 @@ int32_t AppMgrServiceInner::PreloadApplication(const std::string &bundleName, in
         TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication appPreloader is nullptr.");
         return ERR_INVALID_VALUE;
     }
+    auto allowPreload = appPreloader_->PreCheck(bundleName, preloadMode);
+    if (!allowPreload) {
+        HILOG_ERROR("BundleName: %{public}s preload preCheck failed.", bundleName.c_str());
+        return AAFwk::ERR_NOT_ALLOW_PRELOAD_BY_RSS;
+    }
 
-    // todo RSS preCheck
     PreloadRequest request;
     auto ret = appPreloader_->GeneratePreloadRequest(bundleName, userId, appIndex, request);
     if (ret != ERR_OK) {

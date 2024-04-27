@@ -19,6 +19,7 @@
 #include <string>
 
 #include "ability_info.h"
+#include "app_mgr_constants.h"
 #include "remote_client_manager.h"
 #include "want.h"
 
@@ -40,6 +41,8 @@ public:
 
     int32_t GeneratePreloadRequest(const std::string &bundleName, int32_t userId, int32_t appIndex,
         PreloadRequest &request);
+
+    bool PreCheck(const std::string &bundleName, PreloadMode mode);
 
 private:
     bool GetLaunchWant(const std::string &bundleName, int32_t userId, AAFwk::Want &want);
