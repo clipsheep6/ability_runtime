@@ -524,7 +524,7 @@ napi_value JsApplicationContextUtils::OnRestartApp(napi_env env, NapiCallbackInf
     // only support one params
     if (info.argc == ARGC_ZERO) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parameter error: Not enough params.");
         return CreateJsUndefined(env);
     }
     auto applicationContext = applicationContext_.lock();
@@ -535,7 +535,7 @@ napi_value JsApplicationContextUtils::OnRestartApp(napi_env env, NapiCallbackInf
     AAFwk::Want want;
     if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse want failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parameter error: Parse want failed.");
         return CreateJsUndefined(env);
     }
 
@@ -585,7 +585,7 @@ napi_value JsApplicationContextUtils::OnKillProcessBySelf(napi_env env, NapiCall
     // only support 0 or 1 params
     if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parameter error: Not enough params.");
         return CreateJsUndefined(env);
     }
     TAG_LOGD(AAFwkTag::APPKIT, "kill self process");
@@ -618,7 +618,7 @@ napi_value JsApplicationContextUtils::OnSetColorMode(napi_env env, NapiCallbackI
     // only support one params
     if (info.argc == ARGC_ZERO) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parameter error: Not enough params.");
         return CreateJsUndefined(env);
     }
     auto applicationContext = applicationContext_.lock();
@@ -630,7 +630,7 @@ napi_value JsApplicationContextUtils::OnSetColorMode(napi_env env, NapiCallbackI
     int32_t colorMode = 0;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], colorMode)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse colorMode failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parameter error: Parse colorMode failed.");
         return CreateJsUndefined(env);
     }
     applicationContext->SetColorMode(colorMode);
@@ -647,7 +647,7 @@ napi_value JsApplicationContextUtils::OnSetLanguage(napi_env env, NapiCallbackIn
     // only support one params
     if (info.argc == ARGC_ZERO) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parameter error: Not enough params.");
         return CreateJsUndefined(env);
     }
     auto applicationContext = applicationContext_.lock();
@@ -658,7 +658,7 @@ napi_value JsApplicationContextUtils::OnSetLanguage(napi_env env, NapiCallbackIn
     std::string language;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], language)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse language failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parameter error: Parse language failed.");
         return CreateJsUndefined(env);
     }
     applicationContext->SetLanguage(language);
@@ -676,7 +676,7 @@ napi_value JsApplicationContextUtils::OnClearUpApplicationData(napi_env env, Nap
     // only support 0 or 1 params
     if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parameter error: Not enough params.");
         return CreateJsUndefined(env);
     }
     NapiAsyncTask::CompleteCallback complete =
@@ -708,7 +708,7 @@ napi_value JsApplicationContextUtils::OnGetRunningProcessInformation(napi_env en
     // only support 0 or 1 params
     if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parameter error: Not enough params.");
         return CreateJsUndefined(env);
     }
     TAG_LOGD(AAFwkTag::APPKIT, "Get Process Info");
@@ -949,19 +949,19 @@ napi_value JsApplicationContextUtils::OnOn(napi_env env, NapiCallbackInfo& info)
 
     if (info.argc != ARGC_TWO) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params.");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parameter error: Not enough params.");
         return CreateJsUndefined(env);
     }
 
     if (!CheckTypeForNapiValue(env, info.argv[0], napi_string)) {
         TAG_LOGE(AAFwkTag::APPKIT, "param0 is invalid");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parameter error: Param0 is invalid.");
         return CreateJsUndefined(env);
     }
     std::string type;
     if (!ConvertFromJsValue(env, info.argv[0], type)) {
         TAG_LOGE(AAFwkTag::APPKIT, "convert type failed!");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parameter error: Convert type failed!");
         return CreateJsUndefined(env);
     }
 
@@ -981,7 +981,7 @@ napi_value JsApplicationContextUtils::OnOn(napi_env env, NapiCallbackInfo& info)
         return OnOnApplicationStateChange(env, info);
     }
     TAG_LOGE(AAFwkTag::APPKIT, "on function type not match.");
-    AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    ThrowInvalidParamError(env, "Parameter error: On function type not match.");
     return CreateJsUndefined(env);
 }
 
@@ -990,19 +990,19 @@ napi_value JsApplicationContextUtils::OnOff(napi_env env, NapiCallbackInfo& info
     TAG_LOGD(AAFwkTag::APPKIT, "called");
     if (info.argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parameter error: Not enough params.");
         return CreateJsUndefined(env);
     }
 
     if (!CheckTypeForNapiValue(env, info.argv[0], napi_string)) {
         TAG_LOGE(AAFwkTag::APPKIT, "param0 is invalid");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parameter error: Param0 is invalid.");
         return CreateJsUndefined(env);
     }
     std::string type;
     if (!ConvertFromJsValue(env, info.argv[0], type)) {
         TAG_LOGE(AAFwkTag::APPKIT, "convert type failed!");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parameter error: Convert type failed!");
         return CreateJsUndefined(env);
     }
 
@@ -1012,7 +1012,7 @@ napi_value JsApplicationContextUtils::OnOff(napi_env env, NapiCallbackInfo& info
 
     if (info.argc != ARGC_TWO && info.argc != ARGC_THREE) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parameter error: Not enough params.");
         return CreateJsUndefined(env);
     }
 
@@ -1035,7 +1035,7 @@ napi_value JsApplicationContextUtils::OnOff(napi_env env, NapiCallbackInfo& info
         return OnOffEnvironmentEventSync(env, info, callbackId);
     }
     TAG_LOGE(AAFwkTag::APPKIT, "off function type not match.");
-    AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    ThrowInvalidParamError(env, "Parameter error: Off function type not match.");
     return CreateJsUndefined(env);
 }
 
@@ -1371,7 +1371,7 @@ napi_value JsApplicationContextUtils::OnSetSupportedProcessCacheSelf(napi_env en
     // only support one params
     if (info.argc == ARGC_ZERO) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parameter error: Not enough params.");
         return CreateJsUndefined(env);
     }
     auto applicationContext = applicationContext_.lock();
@@ -1384,7 +1384,7 @@ napi_value JsApplicationContextUtils::OnSetSupportedProcessCacheSelf(napi_env en
     bool isSupport = false;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], isSupport)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse isSupport failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR);
+        ThrowInvalidParamError(env, "Parameter error: Parse isSupport failed.");
         return CreateJsUndefined(env);
     }
 

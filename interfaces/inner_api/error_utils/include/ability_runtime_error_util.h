@@ -102,6 +102,14 @@ public:
     static bool Throw(napi_env env, int32_t errCode, const std::string &errMessage = "");
 
     /**
+     * @brief Throw an runtime exception for js with param error code.
+     * @param engine js runtime engine.
+     * @param errMessage error msg.
+     * @return true if success.
+     */
+    static bool ThrowByParamError(napi_env env, const std::string &errMessage = "");
+
+    /**
      * @brief Throw an runtime exception for js with internal error code.
      * @param engine js runtime engine.
      * @param errCode internal errorcode.
