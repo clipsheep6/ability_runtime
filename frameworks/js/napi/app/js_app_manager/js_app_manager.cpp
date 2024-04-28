@@ -412,7 +412,7 @@ private:
         int32_t ret = abilityManager_->RegisterAbilityFirstFrameStateObserver(observer, bundleName);
         if (ret != NO_ERROR) {
             TAG_LOGE(AAFwkTag::APPMGR, "Failed error: %{public}d.", ret);
-            ThrowErrorByNativeErr(env, ret);
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
             return CreateJsUndefined(env);
         }
         observer->SetJsObserverObject(argv[INDEX_ONE]);
@@ -435,9 +435,9 @@ private:
             return CreateJsUndefined(env);
         }
         if (argc == ARGC_TWO) {
-            if ((!IsParasNullOrUndefined(env, argv[INDEX_ONE]) &&
-                !AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) ||
-                !IsJSFunctionExist(env, argv[INDEX_ONE], "onAbilityFirstFrameDrawn")) {
+            if (!IsParasNullOrUndefined(env, argv[INDEX_ONE]) &&
+                (!AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object) ||
+                !IsJSFunctionExist(env, argv[INDEX_ONE], "onAbilityFirstFrameDrawn"))) {
                 TAG_LOGE(AAFwkTag::APPMGR, "Invalid param.");
                 ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
                 return CreateJsUndefined(env);
