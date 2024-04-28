@@ -318,8 +318,9 @@ HWTEST_F(AppMgrProxyTest, GetRunningMultiAppInfoByBundleName_001, TestSize.Level
     std::string bundleName = "testBundleName";
     std::vector<RunningMultiAppInfo> info;
     appMgrProxy_->GetRunningMultiAppInfoByBundleName(bundleName, info);
-    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::GET_RUNNING_MULTIAPP_INFO_By_BUNDLENAME));
-    EXPECT_GE(info, 0);
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>
+        (AppMgrInterfaceCode::GET_RUNNING_MULTIAPP_INFO_By_BUNDLENAME));
+    EXPECT_GE(info.size(), 0);
 
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }

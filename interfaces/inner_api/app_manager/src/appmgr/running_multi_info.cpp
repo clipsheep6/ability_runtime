@@ -53,7 +53,6 @@ RunningMultiAppInfo *RunningMultiAppInfo::Unmarshalling(Parcel &parcel)
 bool RunningMultiAppInfo::Marshalling(Parcel &parcel) const
 {
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String16, parcel, Str8ToStr16(bundleName));
-    int32_t mode;
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, mode);
     if (!parcel.WriteStringVector(instance)) {
         TAG_LOGE(AAFwkTag::APPMGR, "write instance failed.");

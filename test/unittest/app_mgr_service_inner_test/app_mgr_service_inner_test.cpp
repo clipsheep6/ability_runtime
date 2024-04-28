@@ -3399,7 +3399,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetRunningMultiAppInfoByBundleName_001, TestSiz
     ret = appMgrServiceInner->GetRunningMultiAppInfoByBundleName(bundleName, info);
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
 
-    TAG_LOGI(AAFwkTag::TEST, "GetRunningMultiAppInfoByBundleName_001 end"); 
+    TAG_LOGI(AAFwkTag::TEST, "GetRunningMultiAppInfoByBundleName_001 end");
 }
 
 /**
