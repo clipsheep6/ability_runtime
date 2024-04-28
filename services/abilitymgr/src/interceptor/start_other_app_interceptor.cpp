@@ -40,7 +40,7 @@ ErrCode StartOtherAppInterceptor::DoProcess(AbilityInterceptorParam param)
     if (StartAbilityUtils::skipStartOther) {
         return ERR_OK;
     }
-    std::string supportStart = OHOS::system::GetParameter(ABILITY_SUPPORT_START_OTHER_APP, "false");
+    std::string supportStart = OHOS::system::GetParameter(ABILITY_SUPPORT_START_OTHER_APP, "true");
     if (supportStart == "true") {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Abilityms support start other app.");
         return ERR_OK;
