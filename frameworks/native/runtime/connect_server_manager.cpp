@@ -180,7 +180,7 @@ void ConnectServerManager::SendDebuggerInfo(bool needBreakPoint, bool isDebugApp
         ConnectServerManager::Get().SendInstanceMessage(tid, instanceId, instanceName);
         auto storeDebugInfoTask = [needBreakPoint, isDebugApp, instanceId, vm, debuggerPoskTask, instanceName]() {
             panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? needBreakPoint : false};
-            panda::JSNApi::StoreDebugInfo(gettid(), vm, debugOption, debuggerPoskTask, isDebugApp);
+            panda::JSNApi::StoreDebugInfo(getproctid(), vm, debugOption, debuggerPoskTask, isDebugApp);
         };
 
         debuggerPoskTask(storeDebugInfoTask);

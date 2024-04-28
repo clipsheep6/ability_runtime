@@ -253,7 +253,7 @@ void JsRuntime::StartDebugMode(const DebugOption dOption)
     }
     // Set instance id to tid after the first instance.
     if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
-        instanceId_ = static_cast<uint32_t>(gettid());
+        instanceId_ = static_cast<uint32_t>(getproctid());
     }
 
     bool isStartWithDebug = dOption.isStartWithDebug;
@@ -289,12 +289,12 @@ void JsRuntime::StartDebugMode(const DebugOption dOption)
         ConnectServerManager::Get().StartConnectServer(bundleName_, -1, true);
     }
 
-    ConnectServerManager::Get().StoreInstanceMessage(gettid(), instanceId_);
+    ConnectServerManager::Get().StoreInstanceMessage(getproctid(), instanceId_);
     EcmaVM* vm = GetEcmaVm();
     auto dTask = jsEnv_->GetDebuggerPostTask();
     panda::JSNApi::DebugOption option = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? isStartWithDebug : false};
     ConnectServerManager::Get().StoreDebuggerInfo(instanceId_, reinterpret_cast<void*>(vm), option, dTask, isDebugApp);
-    jsEnv_->NotifyDebugMode(gettid(), ARK_DEBUGGER_LIB_PATH, instanceId_, isDebugApp, isStartWithDebug);
+    jsEnv_->NotifyDebugMode(getproctid(), ARK_DEBUGGER_LIB_PATH, instanceId_, isDebugApp, isStartWithDebug);
 }
 
 void JsRuntime::StopDebugMode()
@@ -381,7 +381,7 @@ void JsRuntime::StartProfiler(const DebugOption dOption)
 {
     CHECK_POINTER(jsEnv_);
     if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
-        instanceId_ = static_cast<uint32_t>(gettid());
+        instanceId_ = static_cast<uint32_t>(getproctid());
     }
 
     bool isStartWithDebug = dOption.isStartWithDebug;
@@ -414,7 +414,7 @@ void JsRuntime::StartProfiler(const DebugOption dOption)
     if (isDebugApp) {
         ConnectServerManager::Get().StartConnectServer(bundleName_, 0, true);
     }
-    ConnectServerManager::Get().StoreInstanceMessage(gettid(), instanceId_);
+    ConnectServerManager::Get().StoreInstanceMessage(getproctid(), instanceId_);
     JsEnv::JsEnvironment::PROFILERTYPE profiler = JsEnv::JsEnvironment::PROFILERTYPE::PROFILERTYPE_HEAP;
     int32_t interval = 0;
     const std::string profilerCommand("profile");
@@ -427,7 +427,7 @@ void JsRuntime::StartProfiler(const DebugOption dOption)
     panda::JSNApi::DebugOption option = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? isStartWithDebug : false};
     ConnectServerManager::Get().StoreDebuggerInfo(instanceId_, reinterpret_cast<void*>(vm), option, dTask, isDebugApp);
     TAG_LOGD(AAFwkTag::JSRUNTIME, "profiler:%{public}d interval:%{public}d.", profiler, interval);
-    jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval, gettid(), isDebugApp);
+    jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval, getproctid(), isDebugApp);
 }
 
 bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer)
