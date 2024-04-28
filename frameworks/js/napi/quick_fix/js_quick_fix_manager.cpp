@@ -58,12 +58,18 @@ public:
         GET_NAPI_INFO_AND_CALL(env, info, JsQuickFixManager, OnRevokeQuickFix);
     }
 
-    static void Throw(napi_env env, int32_t errCode)
+    static void Throw(napi_env env, int32_t errCode, const std::string &errMessage)
     {
+        std::string eMes = errMessage ? errMessage : "";
         auto externalErrCode = AAFwk::QuickFixErrorUtil::GetErrorCode(errCode);
-        auto errMsg = AAFwk::QuickFixErrorUtil::GetErrorMessage(errCode);
+        auto errMsg = eMes + AAFwk::QuickFixErrorUtil::GetErrorMessage(errCode);
         napi_value error = CreateJsError(env, externalErrCode, errMsg);
         napi_throw(env, error);
+    }
+
+    static void ThrowInvalidParamError(napi_env env, const std::string &errMessage)
+    {
+        Throw(env, AAFwk::ERR_QUICKFIX_PARAM_INVALID, errMessage);
     }
 
     static napi_value CreateJsErrorByErrorCode(napi_env env, int32_t errCode)
@@ -79,14 +85,14 @@ private:
         TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
         if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
             TAG_LOGE(AAFwkTag::QUICKFIX, "The number of parameter is invalid.");
-            Throw(env, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
+            ThrowInvalidParamError(env, "Parameter error: The number of parameter is invalid.");
             return CreateJsUndefined(env);
         }
 
         std::string bundleName;
         if (!OHOS::AppExecFwk::UnwrapStringFromJS2(env, info.argv[0], bundleName)) {
             TAG_LOGE(AAFwkTag::QUICKFIX, "The bundleName is invalid.");
-            Throw(env, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
+            ThrowInvalidParamError(env, "Parameter error: The bundleName is invalid, must be a string.");
             return CreateJsUndefined(env);
         }
 
@@ -114,14 +120,14 @@ private:
         TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
         if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
             TAG_LOGE(AAFwkTag::QUICKFIX, "The number of parameter is invalid.");
-            Throw(env, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
+            ThrowInvalidParamError(env, "Parameter error: The number of parameter is invalid.");
             return CreateJsUndefined(env);
         }
 
         std::vector<std::string> hapQuickFixFiles;
         if (!OHOS::AppExecFwk::UnwrapArrayStringFromJS(env, info.argv[0], hapQuickFixFiles)) {
             TAG_LOGE(AAFwkTag::QUICKFIX, "Hap quick fix files is invalid.");
-            Throw(env, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
+            ThrowInvalidParamError(env, "Parameter error: Hap quick fix files is invalid, must be a Array<string>.");
             return CreateJsUndefined(env);
         }
 
@@ -148,14 +154,14 @@ private:
         TAG_LOGD(AAFwkTag::QUICKFIX, "called.");
         if (info.argc == ARGC_ZERO) {
             TAG_LOGE(AAFwkTag::QUICKFIX, "The number of parameter is invalid.");
-            Throw(env, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
+            ThrowInvalidParamError(env, "Parameter error: The number of parameter is invalid.");
             return CreateJsUndefined(env);
         }
 
         std::string bundleName;
         if (!ConvertFromJsValue(env, info.argv[ARGC_ZERO], bundleName)) {
             TAG_LOGE(AAFwkTag::QUICKFIX, "The bundleName is invalid.");
-            Throw(env, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
+            ThrowInvalidParamError(env, "Parameter error: The bundleName is invalid, must be a string.");
             return CreateJsUndefined(env);
         }
 
