@@ -152,7 +152,7 @@ public:
      * @param info, output multiapp information.
      * @return ERR_OK ,return back success，others fail.
      */
-    virtual int32_t GetRunningMultiAppInfoByBundleName(const std::string & bundleName,
+    virtual int32_t GetRunningMultiAppInfoByBundleName(const std::string &bundleName,
         std::vector<RunningMultiAppInfo> &info) = 0;
     
     /**

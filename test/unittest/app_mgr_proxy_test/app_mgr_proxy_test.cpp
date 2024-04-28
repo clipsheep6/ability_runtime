@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -319,6 +319,7 @@ HWTEST_F(AppMgrProxyTest, GetRunningMultiAppInfoByBundleName_001, TestSize.Level
     std::vector<RunningMultiAppInfo> info;
     appMgrProxy_->GetRunningMultiAppInfoByBundleName(bundleName, info);
     EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::GET_RUNNING_MULTIAPP_INFO_By_BUNDLENAME));
+    EXPECT_GE(info, 0);
 
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
