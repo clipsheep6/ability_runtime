@@ -710,13 +710,6 @@ bool JsRuntime::Initialize(const Options& options)
             isBundle_ = options.isBundle;
             bundleName_ = options.bundleName;
             codePath_ = options.codePath;
-            ReInitJsEnvImpl(options);
-            LoadAotFile(options);
-            panda::JSNApi::SetBundle(vm, options.isBundle);
-            panda::JSNApi::SetBundleName(vm, options.bundleName);
-            panda::JSNApi::SetHostResolveBufferTracker(
-                vm, JsModuleReader(options.bundleName, options.hapPath, options.isUnique));
-            isModular = !panda::JSNApi::IsBundle(vm);
             panda::JSNApi::SetSearchHapPathTracker(
                 vm, [options](const std::string moduleName, std::string &hapPath) -> bool {
                     if (options.hapModulePath.find(moduleName) == options.hapModulePath.end()) {
@@ -725,6 +718,13 @@ bool JsRuntime::Initialize(const Options& options)
                     hapPath = options.hapModulePath.find(moduleName)->second;
                     return true;
                 });
+            ReInitJsEnvImpl(options);
+            LoadAotFile(options);
+            panda::JSNApi::SetBundle(vm, options.isBundle);
+            panda::JSNApi::SetBundleName(vm, options.bundleName);
+            panda::JSNApi::SetHostResolveBufferTracker(
+                vm, JsModuleReader(options.bundleName, options.hapPath, options.isUnique));
+            isModular = !panda::JSNApi::IsBundle(vm);
             std::vector<panda::HmsMap> systemKitsMap = GetSystemKitsMap(apiTargetVersion_);
             panda::JSNApi::SetHmsModuleList(vm, systemKitsMap);
             std::map<std::string, std::vector<std::vector<std::string>>> pkgContextInfoMap;
