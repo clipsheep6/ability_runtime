@@ -54,7 +54,8 @@ const std::unordered_set<AppExecFwk::ExtensionAbilityType> UI_EXTENSION_SET = {
     AppExecFwk::ExtensionAbilityType::SYSPICKER_APPSELECTOR,
     AppExecFwk::ExtensionAbilityType::SYSPICKER_CAMERA,
     AppExecFwk::ExtensionAbilityType::AUTO_FILL_SMART,
-    AppExecFwk::ExtensionAbilityType::LIVEVIEW_LOCKSCREEN
+    AppExecFwk::ExtensionAbilityType::LIVEVIEW_LOCKSCREEN,
+    AppExecFwk::ExtensionAbilityType::SYSDIALOG_FILEDOWNLOAD
 };
 
 // The following extension ability types can be used only in system applications.
