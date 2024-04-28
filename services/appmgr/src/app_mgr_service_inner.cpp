@@ -2334,9 +2334,10 @@ void AppMgrServiceInner::SetAppEnvInfo(const BundleInfo &bundleInfo, AppSpawnSta
 void AppMgrServiceInner::AddMountPermission(uint32_t accessTokenId, std::set<std::string> &permissions)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    int32_t maxPermissionIndex = GetMaxPermissionIndex();
+    auto handle = remoteClientManager_->GetSpawnClient()->GetAppSpawnClientHandle();
+    int32_t maxPermissionIndex = GetMaxPermissionIndex(handle);
     for (int i = 0; i < maxPermissionIndex; i++) {
-        std::string permission = std::string(GetPermissionByIndex(i));
+        std::string permission = std::string(GetPermissionByIndex(handle, i));
         if (Security::AccessToken::AccessTokenKit::VerifyAccessToken(accessTokenId, permission, false) ==
             Security::AccessToken::PERMISSION_GRANTED) {
             permissions.insert(permission);
