@@ -1247,6 +1247,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
 
     auto bundleName = appInfo.bundleName;
+    watchdog_->SetBundleInfo(bundleName, appInfo.versionName);
     BundleInfo bundleInfo;
     if (!GetBundleForLaunchApplication(bundleMgrHelper, bundleName, appLaunchData.GetAppIndex(), bundleInfo)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Failed to get bundle info.");
