@@ -1245,7 +1245,7 @@ sptr<IRemoteObject> JsUIAbility::CallRequest()
 napi_value JsUIAbility::CallObjectMethod(const char *name, napi_value const *argv, size_t argc, bool withResult,
     bool showMethodNotFoundLog)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, std::string("CallObjectMethod:") + name);
     TAG_LOGD(AAFwkTag::UIABILITY, "Lifecycle: the begin of %{public}s", name);
     if (jsAbilityObj_ == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "Not found Ability.js");
