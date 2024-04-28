@@ -330,7 +330,7 @@ int32_t AppMgrStub::HandleGetRunningMultiAppInfoByBundleName(MessageParcel &data
 {
     std::string bundleName = data.ReadString();
     std::vector<RunningMultiAppInfo> info;
-    int32_t result = GetRunningMultiAppInfoByBundleName(info, bundleName);
+    int32_t result = GetRunningMultiAppInfoByBundleName(bundleName, info);
     reply.WriteInt32(info.size());
     for (auto &it : info) {
         if (!reply.WriteParcelable(&it)) {

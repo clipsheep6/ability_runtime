@@ -640,36 +640,34 @@ private:
     napi_value OnGetRunningMultiAppInfo(napi_env env, size_t argc, napi_value* argv)
     {
         TAG_LOGD(AAFwkTag::APPMGR, "called");
-        int32_t errCode = 0;
-        std::string bundleName;
-
         // only support 1 params
-        if (argc != ARGC_ONE) {
+        if (argc < ARGC_ONE) {
             TAG_LOGE(AAFwkTag::APPMGR, "Not enough arguments");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
-        } else {
-            if (!ConvertFromJsValue(env, argv[0], bundleName)) {
-                TAG_LOGE(AAFwkTag::APPMGR, "get bundleName failed!");
-                ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-                return CreateJsUndefined(env);
-            }
+        }
+        std::string bundleName;
+        if (!ConvertFromJsValue(env, argv[0], bundleName)) {
+            TAG_LOGE(AAFwkTag::APPMGR, "get bundleName failed!");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
         }
         NapiAsyncTask::CompleteCallback complete =
-            [appManager = appManager_, bundleName, errCode](napi_env env, NapiAsyncTask &task, int32_t status) {
-                if (errCode != 0) {
-                    task.Reject(env, CreateJsError(env, errCode, "Invalidate params."));
+            [appManager = appManager_, bundleName](napi_env env, NapiAsyncTask &task, int32_t status) {
+                if (appManager == nullptr) {
+                    TAG_LOGW(AAFwkTag::APPMGR, "abilityManager nullptr");
+                    task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
                     return;
                 }
                 std::vector<AppExecFwk::RunningMultiAppInfo> infos;
-                auto ret = appManager->GetRunningMultiAppInfoByBundleName(infos, bundleName);
+                auto ret = appManager->GetRunningMultiAppInfoByBundleName(bundleName, infos);
                 if (ret == 0) {
                     task.Resolve(env, CreateJsRunningMultiAppInfoArray(env, infos));
                 } else {
                     task.Reject(env, CreateJsError(env, ret, "Get mission infos failed."));
                 }
             };
-        napi_value lastParam = (argc == ARGC_ONE) ? argv[INDEX_ZERO] : nullptr;
+        napi_value lastParam = nullptr;
         napi_value result = nullptr;
         NapiAsyncTask::Schedule("JSAppManager::OnGetRunningMultiAppInfo",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));

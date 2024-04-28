@@ -313,7 +313,8 @@ public:
      * @param info, output multiapp information.
      * @return ERR_OK ,return back success，others fail.
      */
-    virtual int32_t GetRunningMultiAppInfoByBundleName(std::vector<RunningMultiAppInfo> &info, std::string bundleName);
+    virtual int32_t GetRunningMultiAppInfoByBundleName(const std::string &bundleName,
+        std::vector<RunningMultiAppInfo> &info);
     
     /**
      * GetProcessRunningInfosByUserId, Obtains information about application processes that are running on the device.

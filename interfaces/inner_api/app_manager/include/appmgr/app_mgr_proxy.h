@@ -129,7 +129,8 @@ public:
      * @param info, app name in multiappinfo.
      * @return ERR_OK ,return back success，others fail.
      */
-    virtual int32_t GetRunningMultiAppInfoByBundleName(std::vector<RunningMultiAppInfo> &info, const std::string bundleName) override;
+    virtual int32_t GetRunningMultiAppInfoByBundleName(const std::string &bundleName,
+        std::vector<RunningMultiAppInfo> &info) override;
 
     /**
      * GetAllRenderProcesses, call GetAllRenderProcesses() through proxy project.

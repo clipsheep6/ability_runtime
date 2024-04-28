@@ -26,19 +26,16 @@
 namespace OHOS {
 namespace AppExecFwk {
 struct RunningMultiAppInfo : public Parcelable {
-    std::string bundleName_;
-    int32_t mode_;
-    std::vector<std::string> instance_;
-    std::vector<std::string> isolation_;
-    RunningMultiAppInfo(std::string bundleName, int32_t mode, std::vector<std::string> instance,
-        std::vector<std::string> isolation): bundleName_(bundleName), mode_(mode), instance_(instance), isolation_(isolation) {}
+    std::string bundleName;
+    int32_t mode;
+    std::vector<std::string> instance;
+    std::vector<std::string> isolation;
     RunningMultiAppInfo() {}
     
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;
     static RunningMultiAppInfo *Unmarshalling(Parcel &parcel);
 };
-
 }  // namespace AppExecFwk
 }  // namespace OHOS
 

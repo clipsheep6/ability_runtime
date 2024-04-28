@@ -168,10 +168,10 @@ napi_value CreateJsRunningMultiAppInfo(napi_env env, const RunningMultiAppInfo &
         TAG_LOGE(AAFwkTag::APPMGR, "objValue nullptr.");
         return nullptr;
     }
-    napi_set_named_property(env, object, "bundleName", CreateJsValue(env, info.bundleName_));
-    napi_set_named_property(env, object, "mode", CreateJsValue(env, info.mode_));
-    napi_set_named_property(env, object, "instance", CreateNativeArray(env, info.instance_));
-    napi_set_named_property(env, object, "isolation", CreateNativeArray(env, info.isolation_));
+    napi_set_named_property(env, object, "bundleName", CreateJsValue(env, info.bundleName));
+    napi_set_named_property(env, object, "mode", CreateJsValue(env, info.mode));
+    napi_set_named_property(env, object, "instance", CreateNativeArray(env, info.instance));
+    napi_set_named_property(env, object, "isolation", CreateNativeArray(env, info.isolation));
 
     return object;
 }

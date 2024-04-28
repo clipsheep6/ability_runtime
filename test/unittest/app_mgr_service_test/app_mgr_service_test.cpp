@@ -1314,6 +1314,49 @@ HWTEST_F(AppMgrServiceTest, GetRunningProcessInformation_002, TestSize.Level0)
     EXPECT_EQ(res, ERR_OK);
 }
 
+/*
+ * Feature: AppMgrService
+ * Function: GetRunningMultiAppInfoByBundleName
+ * SubFunction: NA
+ * FunctionPoints: AppMgrService GetRunningMultiAppInfoByBundleName
+ * EnvConditions: NA
+ * CaseDescription: Verify GetRunningMultiAppInfoByBundleName
+ */
+HWTEST_F(AppMgrServiceTest, GetRunningMultiAppInfoByBundleName_001, TestSize.Level0)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
+    appMgrService->SetInnerService(nullptr);
+
+    std::string bundleName = "testBundleName";
+    std::vector<RunningMultiAppInfo> info;
+    int32_t res = appMgrService->GetRunningMultiAppInfoByBundleName(bundleName, info);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+}
+
+/*
+ * Feature: AppMgrService
+ * Function: GetRunningMultiAppInfoByBundleName
+ * SubFunction: NA
+ * FunctionPoints: AppMgrService GetRunningMultiAppInfoByBundleName
+ * EnvConditions: NA
+ * CaseDescription: Verify GetRunningMultiAppInfoByBundleName
+ */
+HWTEST_F(AppMgrServiceTest, GetRunningMultiAppInfoByBundleName_002, TestSize.Level0)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
+
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
+
+    std::string bundleName = "testBundleName";
+    std::vector<RunningMultiAppInfo> info;
+    int32_t res = appMgrService->GetRunningMultiAppInfoByBundleName(bundleName, info);
+    EXPECT_EQ(res, ERR_OK);
+}
+
 /**
  * @tc.name: NotifyAppFault_001
  * @tc.desc: Verify that the NotifyAppFault interface calls normally

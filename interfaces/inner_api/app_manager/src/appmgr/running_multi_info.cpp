@@ -26,13 +26,13 @@ namespace OHOS {
 namespace AppExecFwk {
 bool RunningMultiAppInfo::ReadFromParcel(Parcel &parcel)
 {
-    bundleName_ = Str16ToStr8(parcel.ReadString16());
-    mode_ = parcel.ReadInt32();
-    if (!parcel.ReadStringVector(&instance_)) {
+    bundleName = Str16ToStr8(parcel.ReadString16());
+    mode = parcel.ReadInt32();
+    if (!parcel.ReadStringVector(&instance)) {
         TAG_LOGE(AAFwkTag::APPMGR, "read instance failed.");
         return false;
     }
-    if (!parcel.ReadStringVector(&isolation_)) {
+    if (!parcel.ReadStringVector(&isolation)) {
         TAG_LOGE(AAFwkTag::APPMGR, "read isolation failed.");
         return false;
     }
@@ -52,13 +52,13 @@ RunningMultiAppInfo *RunningMultiAppInfo::Unmarshalling(Parcel &parcel)
 
 bool RunningMultiAppInfo::Marshalling(Parcel &parcel) const
 {
-    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String16, parcel, Str8ToStr16(bundleName_));
-    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, static_cast<int32_t>(mode_));
-    if (!parcel.WriteStringVector(instance_)) {
+    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String16, parcel, Str8ToStr16(bundleName));
+    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, static_cast<int32_t>(mode));
+    if (!parcel.WriteStringVector(instance)) {
         TAG_LOGE(AAFwkTag::APPMGR, "write instance failed.");
         return false;
     }
-    if (!parcel.WriteStringVector(isolation_)) {
+    if (!parcel.WriteStringVector(isolation)) {
         TAG_LOGE(AAFwkTag::APPMGR, "write isolation failed.");
         return false;
     }
