@@ -866,7 +866,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         if (AbilityUtil::HandleDlpApp(const_cast<Want &>(want))) {
             InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
             return StartExtensionAbilityInner(want, callerToken, userId,
-                AppExecFwk::ExtensionAbilityType::SERVICE, false);
+                AppExecFwk::ExtensionAbilityType::SERVICE, false, false, true);
         }
     }
 
@@ -2411,7 +2411,8 @@ int AbilityManagerService::ChangeUIAbilityVisibilityBySCB(sptr<SessionInfo> sess
 }
 
 int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sptr<IRemoteObject> &callerToken,
-    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType, bool checkSystemCaller, bool isImplicit)
+    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType, bool checkSystemCaller, bool isImplicit,
+    bool isDlp)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR,
         "Start extension ability come, bundlename: %{public}s, ability is %{public}s, userId is %{public}d",
@@ -2484,7 +2485,12 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
     TAG_LOGD(AAFwkTag::ABILITYMGR, "userId is : %{public}d, singleton is : %{public}d",
         validUserId, static_cast<int>(abilityInfo.applicationInfo.singleton));
 
-    result = CheckOptExtensionAbility(want, abilityRequest, validUserId, extensionType, isImplicit);
+    if (isDlp) {
+        result = IN_PROCESS_CALL(
+            CheckOptExtensionAbility(want, abilityRequest, validUserId, extensionType, isImplicit));
+    } else {
+        result = CheckOptExtensionAbility(want, abilityRequest, validUserId, extensionType, isImplicit);
+    }
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "CheckOptExtensionAbility error.");
         eventInfo.errCode = result;

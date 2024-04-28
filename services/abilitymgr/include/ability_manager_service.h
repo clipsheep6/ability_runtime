@@ -939,7 +939,8 @@ public:
         int32_t userId,
         AppExecFwk::ExtensionAbilityType extensionType,
         bool checkSystemCaller = true,
-        bool isImplicit = false);
+        bool isImplicit = false,
+        bool isDlp = false);
 
     int RequestModalUIExtensionInner(Want want);
 
