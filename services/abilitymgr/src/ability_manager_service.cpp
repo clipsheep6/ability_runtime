@@ -7364,14 +7364,21 @@ int AbilityManagerService::DelegatorDoAbilityForeground(const sptr<IRemoteObject
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "enter");
     CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
+    auto &&abilityRecord = Token::GetAbilityRecordByToken(token);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    int32_t callerPid = IPCSkeleton::GetCallingPid();
+    int32_t appPid = abilityRecord->GetPid();
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "callerPid: %{public}d, appPid: %{public}d", callerPid, appPid);
+    if (callerPid != appPid) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Caller is not the application itself");
+        return ERR_INVALID_VALUE;
+    }
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sessionId = GetMissionIdByAbilityTokenInner(token);
         if (!sessionId) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid session id.");
             return ERR_INVALID_VALUE;
         }
-        auto&& abilityRecord = Token::GetAbilityRecordByToken(token);
-        CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
         auto want = abilityRecord->GetWant();
         if (!IsAbilityControllerStart(want, want.GetBundle())) {
             TAG_LOGE(AAFwkTag::ABILITYMGR,
@@ -7391,6 +7398,16 @@ int AbilityManagerService::DelegatorDoAbilityForeground(const sptr<IRemoteObject
 int AbilityManagerService::DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "enter");
+    CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
+    auto &&abilityRecord = Token::GetAbilityRecordByToken(token);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    int32_t appPid = abilityRecord->GetPid();
+    int32_t callerPid = IPCSkeleton::GetCallingPid();
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "callerPid: %{public}d, appPid: %{public}d", callerPid, appPid);
+    if (callerPid != appPid) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Caller is not the application itself");
+        return ERR_INVALID_VALUE;
+    }
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         return ERR_OK;
     }
