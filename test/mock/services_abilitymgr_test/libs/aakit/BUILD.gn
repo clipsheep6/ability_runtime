@@ -54,6 +54,7 @@ ohos_source_set("aakit_mock") {
     "c_utils:utils",
     "ffrt:libffrt",
     "hilog:libhilog",
+    "image_framework:image_native",
     "ipc:ipc_core",
   ]
 
