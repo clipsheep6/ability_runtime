@@ -48,6 +48,8 @@ const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 const int NFC_CALLER_UID = 1027;
 const int NFC_QUERY_LENGTH = 2;
 const std::string OPEN_LINK_APP_LINKING_ONLY = "appLinkingOnly";
+const std::string HTTP_SCHEME_NAME = "http";
+const std::string HTTPS_SCHEME_NAME = "https";
 
 const std::vector<std::string> ImplicitStartProcessor::blackList = {
     std::vector<std::string>::value_type(BLACK_ACTION_SELECT_DATA),
@@ -258,6 +260,34 @@ std::string ImplicitStartProcessor::MatchTypeAndUri(const AAFwk::Want &want)
     return type;
 }
 
+static void ProcessLinkType(std::vector<AppExecFwk::AbilityInfo> &abilityInfos)
+{
+    bool appLinkingExist = false;
+    if (!abilityInfos.size()) {
+        return;
+    }
+    for (const auto &info : abilityInfos) {
+        if (info.linkType == AppExecFwk::LinkType::APP_LINK) {
+            appLinkingExist = true;
+            break;
+        }
+    }
+    if (!appLinkingExist) {
+        return;
+    }
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Open applink first!");
+    for (auto it = abilityInfos.begin(); it != abilityInfos.end();) {
+        if (it->linkType == AppExecFwk::LinkType::APP_LINK) {
+            it++;
+            continue;
+        }
+        if (it->linkType == AppExecFwk::LinkType::DEEP_LINK) {
+            it = abilityInfos.erase(it);
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s deleted.", it->name.c_str());
+        }
+    }
+}
+
 int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     AbilityRequest &request, std::vector<DialogAppInfo> &dialogAppInfos, bool isMoreHapList)
 {
@@ -307,6 +337,10 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
         return ERR_IMPLICIT_START_ABILITY_FAIL;
     }
 
+    if (isOpenLink && !appLinkingOnly) {
+        ProcessLinkType(abilityInfos);
+    }
+
     if (abilityInfos.size() == 1) {
         auto skillUri =  abilityInfos.front().skillUri;
         SetTargetLinkInfo(skillUri, request.want);
@@ -340,6 +374,14 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
             }
         }
     }
+
+    if (isOpenLink) {
+        std::string linkUriScheme = request.want.GetUri().GetScheme();
+        if (linkUriScheme == HTTPS_SCHEME_NAME || linkUriScheme == HTTP_SCHEME_NAME) {
+            request.want.SetAction(ACTION_VIEW);
+        }
+    }
+
     for (const auto &info : abilityInfos) {
         AddInfoParam param = {
             .info = info,
