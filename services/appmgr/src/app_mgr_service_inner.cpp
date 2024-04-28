@@ -5119,7 +5119,12 @@ int32_t AppMgrServiceInner::GetRunningProcessInformation(
 
 int32_t AppMgrServiceInner::ChangeAppGcState(pid_t pid, int32_t state)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "called, pid:%{public}d, state:%{public}d.", pid, state);
+    auto callerUid = IPCSkeleton::GetCallingUid();
+    TAG_LOGD(AAFwkTag::APPMGR, "called, pid:%{public}d, state:%{public}d, uid:%{public}d.", pid, state, callerUid);
+    if (callerUid != ROOT_UID) { // The current UID for resource management is 0
+        TAG_LOGE(AAFwkTag::APPMGR, "The caller is not a resource manager.");
+        return ERR_INVALID_VALUE;
+    }
     auto appRecord = GetAppRunningRecordByPid(pid);
     if (!appRecord) {
         TAG_LOGE(AAFwkTag::APPMGR, "no such appRecord");
