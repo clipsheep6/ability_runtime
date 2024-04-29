@@ -202,6 +202,16 @@ int32_t PermissionVerification::VerifyUpdateConfigurationPerm() const
     return ERR_PERMISSION_DENIED;
 }
 
+int32_t PermissionVerification::VerifyUpdateAPPConfigurationPerm() const
+{
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_UPDATE_APP_CONFIGURATION)) {
+        HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_UPDATE_APP_CONFIGURATION);
+        return ERR_OK;
+    }
+    HILOG_ERROR("Verify permission %{public}s failed.", PermissionConstants::PERMISSION_UPDATE_APP_CONFIGURATION);
+    return ERR_PERMISSION_DENIED;
+}
+
 bool PermissionVerification::VerifyInstallBundlePermission() const
 {
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_INSTALL_BUNDLE)) {

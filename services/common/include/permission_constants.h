@@ -28,6 +28,7 @@ constexpr const char* PERMISSION_MANAGE_MISSION = "ohos.permission.MANAGE_MISSIO
 constexpr const char* PERMISSION_RUNNING_STATE_OBSERVER = "ohos.permission.RUNNING_STATE_OBSERVER";
 constexpr const char* PERMISSION_SET_ABILITY_CONTROLLER = "ohos.permission.SET_ABILITY_CONTROLLER";
 constexpr const char* PERMISSION_UPDATE_CONFIGURATION = "ohos.permission.UPDATE_CONFIGURATION";
+constexpr const char* PERMISSION_UPDATE_APP_CONFIGURATION = "ohos.permission.UPDATE_APP_CONFIGURATION";
 constexpr const char* PERMISSION_INSTALL_BUNDLE = "ohos.permission.INSTALL_BUNDLE";
 constexpr const char* PERMISSION_GET_BUNDLE_INFO_PRIVILEGED = "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED";
 constexpr const char* PERMISSION_START_INVISIBLE_ABILITY = "ohos.permission.START_INVISIBLE_ABILITY";

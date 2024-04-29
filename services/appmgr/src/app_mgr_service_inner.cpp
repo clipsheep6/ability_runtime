@@ -3689,6 +3689,11 @@ int32_t AppMgrServiceInner::UpdateConfigurationByBundleName(const Configuration 
         TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is null");
         return ERR_INVALID_VALUE;
     }
+    CHECK_CALLER_IS_SYSTEM_APP;
+    auto ret = AAFwk::PermissionVerification::GetInstance()->VerifyUpdateAPPConfigurationPerm();
+    if (ret != ERR_OK) {
+        return ret;
+    }
 
     int32_t result = appRunningManager_->UpdateConfigurationByBundleName(config, name);
     if (result != ERR_OK) {
