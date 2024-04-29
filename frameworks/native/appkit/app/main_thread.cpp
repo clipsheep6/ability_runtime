@@ -141,6 +141,7 @@ constexpr char EVENT_KEY_SUMMARY[] = "SUMMARY";
 constexpr char EVENT_KEY_APP_RUNING_UNIQUE_ID[] = "APP_RUNNING_UNIQUE_ID";
 constexpr char DEVELOPER_MODE_STATE[] = "const.security.developermode.state";
 constexpr char PRODUCT_ASSERT_FAULT_DIALOG_ENABLED[] = "persisit.sys.abilityms.support_assert_fault_dialog";
+constexpr char KILL_REASON[] = "Kill Reason:Js Error";
 
 const int32_t JSCRASH_TYPE = 3;
 const std::string JSVM_TYPE = "ARK";
@@ -1405,10 +1406,13 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         }
 
         auto perfCmd = appLaunchData.GetPerfCmd();
+
+        int32_t pid = -1;
         std::string processName = "";
         if (processInfo_ != nullptr) {
+            pid = processInfo_->GetPid();
             processName = processInfo_->GetProcessName();
-            TAG_LOGD(AAFwkTag::APPKIT, "processName is %{public}s", processName.c_str());
+            TAG_LOGD(AAFwkTag::APPKIT, "pid is %{public}d, processName is %{public}s", pid, processName.c_str());
         }
         AbilityRuntime::Runtime::DebugOption debugOption;
         debugOption.isStartWithDebug = appLaunchData.GetDebugApp();
@@ -1441,8 +1445,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo;
         uncaughtExceptionInfo.hapPath = hapPath;
         wptr<MainThread> weak = this;
-        uncaughtExceptionInfo.uncaughtTask = [weak, bundleName, versionCode, appRunningId = std::move(appRunningId)]
-            (std::string summary, const JsEnv::ErrorObject errorObj) {
+        uncaughtExceptionInfo.uncaughtTask = [weak, bundleName, versionCode, appRunningId = std::move(appRunningId),
+            pid, processName] (std::string summary, const JsEnv::ErrorObject errorObj) {
             auto appThread = weak.promote();
             if (appThread == nullptr) {
                 TAG_LOGE(AAFwkTag::APPKIT, "appThread is nullptr.");
@@ -1469,6 +1473,13 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             faultData.faultType = FaultDataType::JS_ERROR;
             faultData.errorObject = appExecErrorObj;
             DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFault(faultData);
+            int result = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "PROCESS_KILL",
+                HiviewDFX::HiSysEvent::EventType::FAULT, "PID", pid, "PROCESS_NAME", processName,
+                "MSG", KILL_REASON);
+            TAG_LOGI(AAFwkTag::APPKIT, "hisysevent write result=%{public}d, send event [FRAMEWORK,PROCESS_KILL],"
+                " pid=%{public}d, processName=%{public}s, msg=%{public}s", result, pid, processName.c_str(),
+                KILL_REASON);
+
             if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary) &&
                 ApplicationDataManager::GetInstance().NotifyExceptionObject(appExecErrorObj)) {
                 return;
