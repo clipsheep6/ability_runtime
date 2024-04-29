@@ -151,6 +151,8 @@ const std::map<int32_t, std::string> ERROR_MSG_MAP = {
     { ERR_ABILITY_RUNTIME_EXTERNAL_NOT_SYSTEM_HSP,
         "The input bundleName and moduleName is not system HSP" },
 };
+
+constexpr const char *ERR_ABILITY_RUNTIME_EXTERNAL_TOO_FEW_PARAM = "Parameter error. Too few parameters.";
 }
 
 bool AbilityRuntimeErrorUtil::Throw(napi_env env, int32_t errCode, const std::string &errMessage)
@@ -167,6 +169,18 @@ bool AbilityRuntimeErrorUtil::Throw(napi_env env, int32_t errCode, const std::st
     }
     napi_throw(env, error);
     return true;
+}
+
+bool AbilityRuntimeErrorUtil::ThrowByParamError(napi_env env, const std::string &errMessage)
+{
+    std::string eMes = errMessage;
+    return Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER, eMes);
+}
+
+bool AbilityRuntimeErrorUtil::ThrowTooFewParametersError(napi_env env)
+{
+    return Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER,
+        ERR_ABILITY_RUNTIME_EXTERNAL_TOO_FEW_PARAM);
 }
 
 bool AbilityRuntimeErrorUtil::ThrowByInternalErrCode(napi_env env, int32_t errCode)
