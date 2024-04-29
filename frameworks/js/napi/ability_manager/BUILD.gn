@@ -29,11 +29,7 @@ template("abilitymanager") {
       "js_ability_manager_utils.cpp",
     ]
 
-    include_dirs = [
-      "./",
-      "//third_party/icu/icu4c/source/common",
-      "${ipc_native_path}/src/napi/include",
-    ]
+    include_dirs = [ "./" ]
 
     deps = [
       "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
@@ -55,6 +51,7 @@ template("abilitymanager") {
       "common_event_service:cesfwk_innerkits",
       "eventhandler:libeventhandler",
       "hilog:libhilog",
+      "icu:shared_icuuc",
       "ipc:ipc_core",
       "ipc:ipc_napi",
       "napi:ace_napi",

@@ -23,7 +23,6 @@ config("appmgr_config") {
     "${ability_runtime_services_path}/common/include",
     "${ability_runtime_path}/tools/aa/include",
     "${ability_runtime_path}/utils/global/time/include",
-    "${distributeddatamgr_path}/kv_store/interfaces/innerkits/distributeddatamgr/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
   ]
 }
@@ -128,7 +127,7 @@ ohos_shared_library("libappms") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
-
+  public_external_deps = [ "kv_store:distributeddata_mgr" ]
   if (product_name != "ohcore") {
     external_deps += [ "netmanager_base:net_conn_manager_if" ]
   }
