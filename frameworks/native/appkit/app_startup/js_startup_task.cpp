@@ -50,8 +50,45 @@ int32_t JsStartupTask::RunTaskInit(std::unique_ptr<StartupTaskResultCallback> ca
         startupTask->SaveResult(result);
         startupTask->CallExtraCallback(result);
     });
-    HILOG_DEBUG("%{public}s, RunOnMainThread", name_.c_str());
-    return JsStartupTaskExecutor::RunOnMainThread(jsRuntime_, startupJsRef_, contextJsRef_, std::move(callback));
+
+    HILOG_DEBUG("%{public}s, RunTaskInit", name_.c_str());
+    if (callCreateOnMainThread_) {
+        return JsStartupTaskExecutor::RunOnMainThread(jsRuntime_, startupJsRef_, contextJsRef_, std::move(callback));
+    } else {
+        HandleScope handleScope(jsRuntime_);
+        auto env = jsRuntime_.GetNapiEnv();
+
+        napi_value object = nullptr;
+        napi_create_object(env, &object);
+        if (object == nullptr) {
+            HILOG_ERROR("object is nullptr.");
+            return ERR_STARTUP_INTERNAL_ERROR;
+        }
+        AsyncTaskExcutorJsRef_ =
+            JsRuntime::LoadSystemModuleByEngine(env, "app.appstartup.AsyncTaskExcutor", &object, 1);
+
+        napi_value callbackObject = nullptr;
+        napi_create_object(env, &callbackObject);
+        if (callbackObject == nullptr) {
+            HILOG_ERROR("callbackObject is nullptr.");
+            return ERR_STARTUP_INTERNAL_ERROR;
+        }
+
+        std::unique_ptr<AsyncTaskCallBack> AsyncCallback = std::make_unique<AsyncTaskCallBack>();
+        napi_wrap(env, callbackObject, AsyncCallback.get(), AsyncTaskCallBack::Finalizer, nullptr, nullptr);
+
+        const char *moduleName = "app.appstartup.SendableAsyncTaskCallback";
+        BindNativeFunction(env, callbackObject, "onAsyncTaskCompleted", moduleName, AsyncTaskCallBack::AsyncTaskCompleted);
+        AsyncTaskExcutorCallbackJsRef_ =
+            JsRuntime::LoadSystemModuleByEngine(env, "app.appstartup.SendableAsyncTaskCallback", &callbackObject, 1);
+        
+        // napi_coerce_to_native_binding_object(
+        //     env, callbackObject, nullptr, nullptr, AsyncCallback.get(), nullptr);
+        // napi_wrap(env, callbackObject, AsyncCallback.get(), nullptr, nullptr, nullptr);
+
+        return JsStartupTaskExecutor::RunOnTaskPool(jsRuntime_, startupJsRef_, contextJsRef_, AsyncTaskExcutorJsRef_,
+            AsyncTaskExcutorCallbackJsRef_);
+    }
 }
 
 int32_t JsStartupTask::RunTaskOnDependencyCompleted(const std::string &dependencyName,
@@ -107,6 +144,24 @@ napi_value JsStartupTask::GetDependencyResult(napi_env env, const std::string &d
         }
         return jsResultRef->GetNapiValue();
     }
+}
+
+napi_value AsyncTaskCallBack::AsyncTaskCompleted(napi_env env, napi_callback_info info)
+{
+    HILOG_INFO("AsyncTaskCompleted called");
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, AsyncTaskCallBack, onAsyncTaskCompleted, nullptr);
+}
+
+napi_value AsyncTaskCallBack::onAsyncTaskCompleted(napi_env env, NapiCallbackInfo &info)
+{
+    HILOG_INFO("onAsyncTaskCompleted called");
+    return CreateJsUndefined(env);
+}
+
+void AsyncTaskCallBack::Finalizer(napi_env env, void* data, void* hint)
+{
+    HILOG_INFO("Finalizer called");
+    std::unique_ptr<AsyncTaskCallBack>(static_cast<AsyncTaskCallBack*>(data));
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

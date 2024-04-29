@@ -40,8 +40,36 @@ int32_t JsStartupTaskExecutor::RunOnMainThread(JsRuntime &jsRuntime,
 
 int32_t JsStartupTaskExecutor::RunOnTaskPool(JsRuntime &jsRuntime,
     const std::unique_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
-    std::unique_ptr<StartupTaskResultCallback> callback)
+    const std::unique_ptr<NativeReference> &asyncTaskExcutor,
+    const std::unique_ptr<NativeReference> &asyncTaskCallbackJsRef)
 {
+    HandleScope handleScope(jsRuntime);
+    auto env = jsRuntime.GetNapiEnv();
+
+    if (asyncTaskExcutor == nullptr || startup == nullptr || context == nullptr) {
+        HILOG_ERROR("asyncTaskExcutor is null or startup is null or context is null .");
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+    napi_value asyncTaskExcutorValue = asyncTaskExcutor->GetNapiValue();
+    if (!CheckTypeForNapiValue(env, asyncTaskExcutorValue, napi_object)) {
+        HILOG_ERROR("asyncTaskExcutor is not napi object.");
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+    napi_value asyncTaskExcutorPushTask = nullptr;
+    napi_get_named_property(env, asyncTaskExcutorValue, "AsyncPushTask", &asyncTaskExcutorPushTask);
+    if (asyncTaskExcutorPushTask == nullptr) {
+        HILOG_ERROR("failed to get property AsyncPushTask from asyncTaskExcutor.");
+        return ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP;
+    }
+    bool isCallable = false;
+    napi_is_callable(env, asyncTaskExcutorPushTask, &isCallable);
+    if (!isCallable) {
+        HILOG_ERROR("asyncTaskExcutor AsyncPushTask is not callable.");
+        return ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP;
+    }
+    napi_value returnVal = nullptr;
+    napi_value argv[3] = { startup->GetNapiValue(), asyncTaskCallbackJsRef->GetNapiValue(), context->GetNapiValue() };
+    napi_call_function(env, asyncTaskExcutorValue, asyncTaskExcutorPushTask, 3, argv, &returnVal);
     return ERR_OK;
 }
 
