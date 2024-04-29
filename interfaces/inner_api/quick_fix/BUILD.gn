@@ -1,0 +1,79 @@
+# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+import("//foundation/ability/idl_tool/idl_config.gni")
+
+idl_interface_sources = [
+  "${target_gen_dir}/quick_fix_manager_proxy.cpp",
+  "${target_gen_dir}/quick_fix_manager_stub.cpp",
+]
+
+idl_gen_interface("quickfix_manager_interface") {
+  src_idl = rebase_path("IQuickFixManager.idl")
+  dst_file = string_join(",", idl_interface_sources)
+  hitrace = "HITRACE_TAG_ABILITY_MANAGER"
+  log_domainid = "0xD003900"
+  log_tag = "QuickFixManagerService"
+}
+
+config("quickfix_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "include",
+    "${target_gen_dir}",
+  ]
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+}
+
+ohos_shared_library("quickfix_manager") {
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper" ]
+  configs = [ "${ability_runtime_services_path}/common:common_config" ]
+  public_configs = [ ":quickfix_config" ]
+
+  output_values = get_target_outputs(":quickfix_manager_interface")
+  sources = [
+    "src/quick_fix_error_utils.cpp",
+    "src/quick_fix_info.cpp",
+    "src/quick_fix_load_callback.cpp",
+    "src/quick_fix_manager_client.cpp",
+    "src/quick_fix_utils.cpp",
+  ]
+  sources += filter_include(output_values, [ "*.cpp" ])
+  defines = [ "AMS_LOG_TAG = \"QuickFixService\"" ]
+  deps = [
+    ":quickfix_manager_interface",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_single",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  innerapi_tags = [ "platformsdk" ]
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}

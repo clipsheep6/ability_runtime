@@ -1,0 +1,73 @@
+# Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//build/test.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+
+ohos_unittest("auto_fill_manager_test") {
+  module_out_path = "ability_runtime/abilitymgr"
+
+  include_dirs = [
+    "${ability_runtime_innerkits_path}/auto_fill_manager/include/",
+    "${ability_runtime_services_path}/common/include",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
+    "foundation/barrierfree/accessibility/interfaces/innerkits/common/include",
+  ]
+
+  sources = [
+    "${ability_runtime_innerkits_path}/auto_fill_manager/src/auto_fill_event_handler.cpp",
+    "${ability_runtime_innerkits_path}/auto_fill_manager/src/auto_fill_extension_callback.cpp",
+    "${ability_runtime_innerkits_path}/auto_fill_manager/src/auto_fill_manager.cpp",
+    "${ability_runtime_innerkits_path}/auto_fill_manager/src/auto_fill_manager_util.cpp",
+    "auto_fill_manager_test.cpp",
+  ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${ability_runtime_native_path}/ability/native:ability_business_error",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  configs = [ "${ability_runtime_services_path}/common:common_config" ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:configuration",
+    "ability_base:view_data",
+    "ability_base:want",
+    "accessibility:accessibility_common",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "faultloggerd:libdfx_dumpcatcher",
+    "faultloggerd:libfaultloggerd",
+    "ffrt:libffrt",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "hitrace:hitrace_meter",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
+  ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "ace_engine:ace_uicontent" ]
+  }
+}
+
+group("unittest") {
+  testonly = true
+  deps = [ ":auto_fill_manager_test" ]
+}

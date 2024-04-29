@@ -1,0 +1,210 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/test.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+
+module_output_path = "ability_runtime/abilitymgr"
+
+config("coverage_flags") {
+  cflags = [ "--coverage" ]
+  ldflags = [ "--coverage" ]
+}
+
+ohos_unittest("quickfix_callback_test") {
+  module_out_path = module_output_path
+
+  include_dirs = [
+    "${ability_runtime_native_path}/runtime",
+    "${ability_runtime_native_path}/runtime/utils/include",
+  ]
+
+  sources = [ "js_quickfix_callback_test.cpp" ]
+
+  configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
+  deps = []
+
+  external_deps = [
+    "ability_runtime:runtime",
+    "c_utils:utils",
+  ]
+}
+
+ohos_unittest("runtime_test") {
+  module_out_path = module_output_path
+
+  include_dirs = [
+    "${ability_runtime_native_path}/runtime",
+    "${ability_runtime_native_path}/runtime/utils/include",
+    "${ability_base_kits_path}/extractortool/include",
+    "//third_party/zlib/contrib/minizip",
+    "//third_party/zlib",
+  ]
+
+  sources = [
+    # add mock file
+    "js_module_reader_test.cpp",
+  ]
+
+  configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
+  deps = []
+
+  external_deps = [
+    "ability_base:extractortool",
+    "ability_runtime:runtime",
+    "c_utils:utils",
+  ]
+}
+
+ohos_unittest("js_runtime_test") {
+  module_out_path = module_output_path
+
+  include_dirs = [
+    "${ability_runtime_native_path}/runtime",
+    "${ability_runtime_native_path}/runtime/utils/include",
+    "//third_party/zlib/contrib/minizip",
+    "//third_party/zlib",
+  ]
+
+  sources = [
+    # add mock file
+    "js_runtime_test.cpp",
+    "mock_jsnapi.cpp",
+  ]
+
+  configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
+  deps = [
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_runtime:js_environment",
+    "ability_runtime:runtime",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "ets_runtime:libark_jsruntime",
+    "eventhandler:libeventhandler",
+    "ffrt:libffrt",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+}
+
+ohos_unittest("hdc_register_test") {
+  module_out_path = module_output_path
+
+  include_dirs = [
+    "${ability_runtime_native_path}/runtime",
+    "${ability_runtime_native_path}/runtime/utils/include",
+    "//third_party/zlib/contrib/minizip",
+    "//third_party/zlib",
+  ]
+
+  sources = [
+    # add mock file
+    "${ability_runtime_native_path}/runtime/hdc_register.cpp",
+    "hdc_register_test.cpp",
+  ]
+
+  configs = [
+    "${ability_runtime_services_path}/abilitymgr:abilityms_config",
+    ":coverage_flags",
+  ]
+  deps = [
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_runtime:js_environment",
+    "ability_runtime:runtime",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+}
+
+ohos_unittest("ohos_js_environment_test") {
+  module_out_path = module_output_path
+
+  include_dirs = [ "${ability_runtime_native_path}/runtime" ]
+
+  sources = [ "ohos_js_environment_test.cpp" ]
+
+  configs = []
+
+  deps = [
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_runtime:js_environment",
+    "ability_runtime:runtime",
+    "c_utils:utils",
+    "ets_runtime:libark_jsruntime",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "napi:ace_napi",
+  ]
+}
+
+ohos_unittest("js_worker_test") {
+  module_out_path = module_output_path
+
+  include_dirs = [
+    "${ability_runtime_native_path}/runtime",
+    "${ability_runtime_native_path}/runtime/utils/include",
+    "${ability_base_kits_path}/extractortool/include",
+    "//third_party/zlib/contrib/minizip",
+    "//third_party/zlib",
+  ]
+
+  sources = [
+    # add mock file
+    "js_worker_test.cpp",
+  ]
+
+  configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
+  deps = []
+
+  external_deps = [
+    "ability_base:extractortool",
+    "ability_runtime:js_environment",
+    "ability_runtime:runtime",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "ets_runtime:libark_jsruntime",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+}
+
+group("unittest") {
+  testonly = true
+
+  deps = [
+    ":hdc_register_test",
+    ":js_runtime_test",
+    ":js_worker_test",
+    ":ohos_js_environment_test",
+    ":runtime_test",
+  ]
+}

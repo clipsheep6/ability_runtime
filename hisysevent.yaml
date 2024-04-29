@@ -1,0 +1,354 @@
+#  Copyright (c) 2021-2024 Huawei Device Co., Ltd.
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+domain: AAFWK
+
+LIFECYCLE_TIMEOUT:
+  __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: ability timeout}
+  PID: {type: INT32, desc: process id}
+  UID: {type: INT32, desc: app uid}
+  PACKAGE_NAME: {type: STRING, desc: package name}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  MSG: {type: STRING, desc: application event message}
+  STACK: {type: STRING, desc: main thread stacktrace}
+
+LIFECYCLE_HALF_TIMEOUT:
+  __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: ability timeout}
+  PID: {type: INT32, desc: process id}
+  UID: {type: INT32, desc: app uid}
+  PACKAGE_NAME: {type: STRING, desc: package name}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  MSG: {type: STRING, desc: application event message}
+  STACK: {type: STRING, desc: main thread stacktrace}
+
+APP_LIFECYCLE_TIMEOUT:
+  __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: application timeout}
+  PID: {type: INT32, desc: process id}
+  UID: {type: INT32, desc: app uid}
+  PACKAGE_NAME: {type: STRING, desc: package name}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  MSG: {type: STRING, desc: application event message}
+
+JS_ERROR:
+  __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: js runtime error}
+  PACKAGE_NAME: {type: STRING, desc: app package name}
+  VERSION: {type: STRING, desc: app version}
+  TYPE: {type: INT32, desc: js crash type}
+  HAPPEN_TIME: {type: INT64, desc: fault trigger time}
+  REASON: {type: STRING, desc: error type}
+  JSVM: {type: STRING, desc: js runtime type}
+  SUMMARY: {type: STRING, desc: fault summary}
+
+THREAD_BLOCK_3S:
+  __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: application freeze}
+  PID: {type: INT32, desc: process id}
+  UID: {type: INT32, desc: app uid}
+  PACKAGE_NAME: {type: STRING, desc: package name}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  MSG: {type: STRING, desc: application event message}
+  STACK: {type: STRING, desc: stacktrace of current process}
+
+THREAD_BLOCK_6S:
+  __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: application freeze}
+  PID: {type: INT32, desc: process id}
+  UID: {type: INT32, desc: app uid}
+  PACKAGE_NAME: {type: STRING, desc: package name}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  MSG: {type: STRING, desc: application event message}
+  STACK: {type: STRING, desc: main thread stacktrace}
+
+APP_INPUT_BLOCK:
+  __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: application freeze}
+  PID: {type: INT32, desc: process id}
+  UID: {type: INT32, desc: app uid}
+  PACKAGE_NAME: {type: STRING, desc: package name}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  MSG: {type: STRING, desc: application event message}
+  STACK: {type: STRING, desc: main thread stacktrace}
+# fault event
+
+START_ABILITY_ERROR:
+  __BASE: {type: FAULT, level: MINOR, tag: ability, desc: start ability error}
+  USER_ID: {type: INT32, desc: userId}
+  ERROR_CODE: {type: INT32, desc: error code}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+
+TERMINATE_ABILITY_ERROR:
+  __BASE: {type: FAULT, level: MINOR, tag: ability, desc: terminate ability error}
+  USER_ID: {type: INT32, desc: userId}
+  ERROR_CODE: {type: INT32, desc: error code}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+
+START_EXTENSION_ERROR:
+  __BASE: {type: FAULT, level: MINOR, tag: ability, desc: start extensionAbility error}
+  USER_ID: {type: INT32, desc: userId}
+  ERROR_CODE: {type: INT32, desc: error code}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+
+STOP_EXTENSION_ERROR:
+  __BASE: {type: FAULT, level: MINOR, tag: ability, desc: stop extensionAbility error}
+  USER_ID: {type: INT32, desc: userId}
+  ERROR_CODE: {type: INT32, desc: error code}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+
+CONNECT_SERVICE_ERROR:
+  __BASE: {type: FAULT, level: MINOR, tag: ability, desc: connect serviceExtensionAbility error}
+  USER_ID: {type: INT32, desc: userId}
+  ERROR_CODE: {type: INT32, desc: error code}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+
+DISCONNECT_SERVICE_ERROR:
+  __BASE: {type: FAULT, level: MINOR, tag: ability, desc: disconnect serviceExtensionAbility error}
+  USER_ID: {type: INT32, desc: userId}
+  ERROR_CODE: {type: INT32, desc: error code}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+
+# ability behavior event
+
+START_ABILITY:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: PowerStats, desc: start ability}
+  USER_ID: {type: INT32, desc: userId}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+
+CLOSE_ABILITY:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: close ability}
+
+TERMINATE_ABILITY:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: terminate ability}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+
+ABILITY_ONFOREGROUND:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: ability onForeground}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  BUNDLE_TYPE: {type: INT32, desc: 'type of componment, atomic service or normal app'}
+  CALLER_BUNDLENAME: {type: STRING, desc: caller bundle name}
+
+ABILITY_ONBACKGROUND:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: ability onBackground}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  BUNDLE_TYPE: {type: INT32, desc: 'type of componment, atomic service or normal app'}
+
+ABILITY_ONACTIVE:
+  __BASE: {type: BEHAVIOR, level: MINOR, desc: ability onActive}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  ABILITY_TYPE: {type: INT32, desc: ability type}
+  BUNDLE_TYPE: {type: INT32, desc: 'type of componment, atomic service or normal app'}
+  CALLER_BUNDLENAME: {type: STRING, desc: caller bundle name}
+
+ABILITY_ONINACTIVE:
+  __BASE: {type: BEHAVIOR, level: MINOR, desc: ability onInactive}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  BUNDLE_TYPE: {type: INT32, desc: 'type of componment, atomic service or normal app'}
+
+# serviceExtensionAbility behavior event
+
+START_SERVICE:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: start serviceExtensionAbility}
+  USER_ID: {type: INT32, desc: userId}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  EXTENSION_TYPE: {type: INT32, desc: extension type}
+  TIME: {type: INT64, desc: start service time}
+  PID: {type: INT32, desc: processId}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  CALLER_PROCESS_ID: {type: INT32, desc: caller processId}
+  CALLER_PROCESS_NAME: {type: STRING, desc: caller process name}
+
+STOP_SERVICE:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: stop serviceExtensionAbility}
+  USER_ID: {type: INT32, desc: userId}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  EXTENSION_TYPE: {type: INT32, desc: extension type}
+  TIME: {type: INT64, desc: stop service time}
+  PID: {type: INT32, desc: processId}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  CALLER_PROCESS_ID: {type: INT32, desc: caller processId}
+  CALLER_PROCESS_NAME: {type: STRING, desc: caller process name}
+
+CONNECT_SERVICE:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: connect serviceAbility}
+  USER_ID: {type: INT32, desc: userId}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  TIME: {type: INT64, desc: connect service time}
+  PID: {type: INT32, desc: processId}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  CALLER_PROCESS_ID: {type: INT32, desc: caller processId}
+  CALLER_PROCESS_NAME: {type: STRING, desc: caller process name}
+
+DISCONNECT_SERVICE:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: disconnect serviceAbility}
+  TIME: {type: INT64, desc: disconnect service time}
+  PID: {type: INT32, desc: processId}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  CALLER_PROCESS_ID: {type: INT32, desc: caller processId}
+  CALLER_PROCESS_NAME: {type: STRING, desc: caller process name}
+
+# app behavior event
+
+APP_ATTACH:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: attach app}
+  APP_PID: {type: INT32, desc: app pid}
+  VERSION_CODE: {type: INT32, desc: version code}
+  VERSION_NAME: {type: STRING, desc: version name}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+
+APP_LAUNCH:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: launch app}
+  APP_PID: {type: INT32, desc: app pid}
+  VERSION_CODE: {type: INT32, desc: version code}
+  VERSION_NAME: {type: STRING, desc: version name}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  CALLER_BUNDLE_NAME: {type: STRING, desc: caller bundle name}
+  CALLER_VERSION_NAME: {type: STRING, desc: caller version name}
+  CALLER_VERSION_CODE: {type: UINT32, desc: caller version code}
+  CALLER_UID: {type: INT32, desc: caller app uid}
+  CALLER_STATE: {type: INT32, desc: caller app state}
+
+APP_FOREGROUND:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: PowerStats, desc: foreground app}
+  APP_PID: {type: INT32, desc: app pid}
+  VERSION_CODE: {type: INT32, desc: version code}
+  VERSION_NAME: {type: STRING, desc: version name}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  BUNDLE_TYPE: {type: INT32, desc: 'type of componment, atomic service or normal app'}
+  CALLER_BUNDLENAME: {type: STRING, desc: caller bundle name}
+  PROCESS_TYPE: {type: INT32, desc: type of process}
+
+APP_BACKGROUND:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: PowerStats, desc: background app}
+  APP_PID: {type: INT32, desc: app pid}
+  VERSION_CODE: {type: INT32, desc: version code}
+  VERSION_NAME: {type: STRING, desc: version name}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  BUNDLE_TYPE: {type: INT32, desc: 'type of componment, atomic service or normal app'}
+  PROCESS_TYPE: {type: INT32, desc: type of process}
+
+APP_TERMINATE:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: terminate app}
+  APP_PID: {type: INT32, desc: app pid}
+  VERSION_CODE: {type: INT32, desc: version code}
+  VERSION_NAME: {type: STRING, desc: version name}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+
+APP_RECOVERY:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: recover app status}
+  APP_UID: {type: INT32, desc: app uid}
+  VERSION_CODE: {type: INT32, desc: version code}
+  VERSION_NAME: {type: STRING, desc: version name}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  RECOVERY_RESULT: {type: STRING, desc: recovery result}
+
+APP_STARTUP_TYPE:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: app start type}
+  APP_PID: {type: INT32, desc: app pid}
+  VERSION_CODE: {type: INT32, desc: version code}
+  VERSION_NAME: {type: STRING, desc: version name}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  START_TYPE: {type: INT32, desc: 'type of start, cold or hot'}
+
+PROCESS_START:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: application process startup event reporting}
+  STARTUP_TIME: {type: INT64, desc: process start time}
+  STARTUP_ABILITY_TYPE: {type: INT32, desc: process start ability type}
+  STARTUP_EXTENSION_TYPE: {type: INT32, desc: process start extension type}
+  CALLER_BUNDLE_NAME: {type: STRING, desc: caller bundle name}
+  CALLER_UID: {type: INT32, desc: caller uid}
+  CALLER_PROCESS_NAME: {type: STRING, desc: caller process name}
+  CALLER_PROCESS_ID: {type: INT32, desc: caller processId}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  PID: {type: INT32, desc: processId}
+
+PROCESS_EXIT:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: application process exit event reporting}
+  EXIT_TIME: {type: INT64, desc: process exit time}
+  EXIT_RESULT: {type: INT32, desc: process exit result}
+  EXIT_PID: {type: INT32, desc: pid}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  EXTENSION_TYPE: {type: INT32, desc: process exit extension type}
+
+DRAWN_COMPLETED:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: drawn completed event reporting}
+  APP_UID: {type: INT32, desc: app uid}
+  APP_PID: {type: INT32, desc: app pid}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+
+FA_SHOW_ON_LOCK:
+  __BASE: {type: BEHAVIOR, level: MINOR, desc: fa show on lock}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+
+GRANT_URI_PERMISSION:
+  __BASE: {type: BEHAVIOR, level: MINOR, desc: grant uri permission form SA to third-party app}
+  BUNDLE_NAME: {type: STRING, desc: callee bundle name}
+  CALLER_BUNDLE_NAME: {type: STRING, desc: caller bundle name}
+  URI: {type: STRING, desc: uri information}
+
+START_PRIVATE_ABILITY:
+  __BASE: {type: BEHAVIOR, level: MINOR, desc: start private ability}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  
+RESTART_PROCESS_BY_SAME_APP:
+  __BASE: {type: BEHAVIOR, level: MINOR, desc: reStart process by different processes from the same app}
+  RESTART_TIME: {type: INT64, desc: process reStart time}
+  APP_UID: {type: INT32, desc: app uid}
+  CALLER_PROCESS_NAME: {type: STRING, desc: caller process name}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+
+START_STANDARD_ABILITIES:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: PowerStats, desc: start more than one standard ability}
+  USER_ID: {type: INT32, desc: userId}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}

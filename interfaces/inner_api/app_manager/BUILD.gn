@@ -1,0 +1,148 @@
+# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+
+config("appmgr_sdk_config") {
+  include_dirs = [
+    "include/appmgr",
+    "${ability_base_kits_path}/configuration/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_innerkits_path}/ability_manager/include",
+  ]
+  defines = []
+  if (ability_command_for_test) {
+    defines += [ "ABILITY_COMMAND_FOR_TEST" ]
+  }
+}
+
+config("appmgr_core_config") {
+  include_dirs = [ "include" ]
+  defines = []
+  if (ability_command_for_test) {
+    defines += [ "ABILITY_COMMAND_FOR_TEST" ]
+  }
+}
+
+ohos_shared_library("app_manager") {
+  include_dirs = [
+    "//third_party/json/include",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/dfr",
+    "${ability_runtime_services_path}/appdfr/include",
+    "${ability_runtime_services_path}/appmgr/include",
+    "${ability_runtime_services_path}/common/include",
+  ]
+
+  sources = [
+    "${ability_runtime_services_path}/appdfr/src/appfreeze_manager.cpp",
+    "src/appmgr/ability_controller_proxy.cpp",
+    "src/appmgr/ability_controller_stub.cpp",
+    "src/appmgr/ability_debug_response_proxy.cpp",
+    "src/appmgr/ability_debug_response_stub.cpp",
+    "src/appmgr/ability_foreground_state_observer_proxy.cpp",
+    "src/appmgr/ability_foreground_state_observer_stub.cpp",
+    "src/appmgr/ability_info_callback_proxy.cpp",
+    "src/appmgr/ability_info_callback_stub.cpp",
+    "src/appmgr/ability_state_data.cpp",
+    "src/appmgr/ams_mgr_proxy.cpp",
+    "src/appmgr/ams_mgr_stub.cpp",
+    "src/appmgr/app_debug_info.cpp",
+    "src/appmgr/app_debug_listener_proxy.cpp",
+    "src/appmgr/app_debug_listener_stub.cpp",
+    "src/appmgr/app_foreground_state_observer_proxy.cpp",
+    "src/appmgr/app_foreground_state_observer_stub.cpp",
+    "src/appmgr/app_jsheap_mem_info.cpp",
+    "src/appmgr/app_launch_data.cpp",
+    "src/appmgr/app_malloc_info.cpp",
+    "src/appmgr/app_mgr_client.cpp",
+    "src/appmgr/app_mgr_proxy.cpp",
+    "src/appmgr/app_mgr_stub.cpp",
+    "src/appmgr/app_process_data.cpp",
+    "src/appmgr/app_record_id.cpp",
+    "src/appmgr/app_running_status_proxy.cpp",
+    "src/appmgr/app_running_status_stub.cpp",
+    "src/appmgr/app_scheduler_host.cpp",
+    "src/appmgr/app_scheduler_proxy.cpp",
+    "src/appmgr/app_service_manager.cpp",
+    "src/appmgr/app_state_callback_host.cpp",
+    "src/appmgr/app_state_callback_proxy.cpp",
+    "src/appmgr/app_state_data.cpp",
+    "src/appmgr/app_task_info.cpp",
+    "src/appmgr/application_state_observer_proxy.cpp",
+    "src/appmgr/application_state_observer_stub.cpp",
+    "src/appmgr/child_process_info.cpp",
+    "src/appmgr/child_scheduler_proxy.cpp",
+    "src/appmgr/child_scheduler_stub.cpp",
+    "src/appmgr/configuration_observer_proxy.cpp",
+    "src/appmgr/configuration_observer_stub.cpp",
+    "src/appmgr/fault_data.cpp",
+    "src/appmgr/memory_level_info.cpp",
+    "src/appmgr/page_state_data.cpp",
+    "src/appmgr/priority_object.cpp",
+    "src/appmgr/process_data.cpp",
+    "src/appmgr/process_info.cpp",
+    "src/appmgr/profile.cpp",
+    "src/appmgr/quick_fix_callback_proxy.cpp",
+    "src/appmgr/quick_fix_callback_stub.cpp",
+    "src/appmgr/render_process_info.cpp",
+    "src/appmgr/render_scheduler_host.cpp",
+    "src/appmgr/render_scheduler_proxy.cpp",
+    "src/appmgr/render_state_data.cpp",
+    "src/appmgr/render_state_observer_proxy.cpp",
+    "src/appmgr/render_state_observer_stub.cpp",
+    "src/appmgr/running_process_info.cpp",
+    "src/appmgr/start_specified_ability_response_proxy.cpp",
+    "src/appmgr/start_specified_ability_response_stub.cpp",
+    "src/appmgr/system_memory_attr.cpp",
+  ]
+
+  public_configs = [
+    ":appmgr_core_config",
+    ":appmgr_sdk_config",
+  ]
+
+  defines = [ "AMS_LOG_TAG = \"AppexecfwkCore\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001306" ]
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+  deps = [ "${ability_runtime_path}/utils/global/freeze:freeze_util" ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "c_utils:utils",
+    "faultloggerd:libdfx_dumpcatcher",
+    "faultloggerd:libfaultloggerd",
+    "ffrt:libffrt",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "hitrace:hitrace_meter",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
+  ]
+  public_external_deps = [
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
+  ]
+
+  if (background_task_mgr_continuous_task_enable) {
+    defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
+  }
+
+  innerapi_tags = [ "platformsdk" ]
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}

@@ -1,0 +1,73 @@
+# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/test.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+
+module_output_path = "ability_runtime/mstappmgrservice"
+
+ohos_moduletest("AmsIpcAppmgrModuleTest") {
+  module_out_path = module_output_path
+
+  include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
+    "${ability_runtime_test_path}/mock/services_appmgr_test/include",
+  ]
+
+  sources = [
+    "${ability_runtime_services_path}/appmgr/src/cache_process_manager.cpp",
+    "ams_ipc_app_mgr_module_test.cpp",
+  ]
+
+  deps = [
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
+    "${ability_runtime_services_path}/common:perm_verification",
+    "${ability_runtime_test_path}/moduletest/common/ams:appmgr_mst_source",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:configuration",
+    "ability_base:want",
+    "access_token:libaccesstoken_sdk",
+    "appspawn:appspawn_client",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "ffrt:libffrt",
+    "hicollie:libhicollie",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "hitrace:hitrace_meter",
+    "init:libbeget_proxy",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "kv_store:distributeddata_mgr",
+    "memory_utils:libmeminfo",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+    "window_manager:libwm",
+    "window_manager:libwsutils",
+  ]
+
+  if (background_task_mgr_continuous_task_enable) {
+    external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
+}
+
+group("moduletest") {
+  testonly = true
+
+  deps = [ ":AmsIpcAppmgrModuleTest" ]
+}

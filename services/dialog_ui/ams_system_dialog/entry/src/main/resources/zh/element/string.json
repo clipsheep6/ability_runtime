@@ -1,0 +1,116 @@
+{
+  "string": [
+    {
+      "name": "entry_desc",
+      "value": "description"
+    },
+    {
+      "name": "SelectorServiceExtAbility_desc",
+      "value": "SelectorDialog"
+    },
+    {
+      "name": "SelectorServiceExtAbility_label",
+      "value": "SelectorDialog"
+    },
+    {
+      "name": "TipsServiceExtAbility_desc",
+      "value": "TipsDialog"
+    },
+    {
+      "name": "TipsServiceExtAbility_label",
+      "value": "TipsDialog"
+    },
+    {
+      "name": "SwitchUserServiceExtAbility_desc",
+      "value": "SwitchUserDialog"
+    },
+    {
+      "name": "SwitchUserServiceExtAbility_label",
+      "value": "SwitchUserDialog"
+    },
+    {
+      "name": "AssertFaultShareExtAbility_desc",
+      "value": "AssertFaultDialog"
+    },
+    {
+      "name": "message_title_selector",
+      "value": "使用以下方式打开"
+    },
+    {
+      "name": "message_title_pc_selector",
+      "value": "选择打开方式"
+    },
+    {
+      "name": "message_cancel_selector",
+      "value": "取消"
+    },
+    {
+      "name": "message_title_tips",
+      "value": "无法打开此文件"
+    },
+    {
+      "name": "message_close_tips",
+      "value": "知道了"
+    },
+    {
+      "name": "message_title_jump_interceptor",
+      "value": "“%s”想要打开“%s”"
+    },
+    {
+      "name": "message_confirm_jump",
+      "value": "打开"
+    },
+    {
+      "name": "message_cancel_jump",
+      "value": "取消"
+    },
+    {
+      "name": "JumpInterceptorServiceExtAbility_desc",
+      "value": "JumpInterceptorDialog"
+    },
+    {
+      "name": "JumpInterceptorServiceExtAbility_label",
+      "value": "JumpInterceptorDialog"
+    },
+    {
+        "name": "message_recommendApps_selector",
+        "value": "推荐的应用"
+    },
+    {
+        "name": "message_openThisWay_selector",
+        "value": "始终用此方式打开"
+    },
+    {
+        "name": "message_sure_selector",
+        "value": "确定"
+    },
+    {
+        "name": "message_moreOpenMode_selector",
+        "value": "更多打开方式"
+    },
+    {
+        "name": "message_moreApps_selector",
+        "value": "更多的应用"
+    },
+    {
+        "name": "message_title_switchUser",
+        "value": "正在切换,请稍候..."
+    },
+    {
+        "name": "button_continue",
+        "value": "继续"
+    },
+    {
+        "name": "button_termination",
+        "value": "终止"
+    },
+    {
+        "name": "button_retry",
+        "value": "重试"
+    },
+    {
+        "name": "title_assertFault",
+        "value": "AssertFaultDialog"
+    }
+  ]
+}

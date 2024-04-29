@@ -1,0 +1,228 @@
+/*
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "js_fill_request_callback.h"
+
+#include "ability_manager_client.h"
+#include "accesstoken_kit.h"
+#include "hilog_tag_wrapper.h"
+#include "hilog_wrapper.h"
+#include "int_wrapper.h"
+#include "ipc_skeleton.h"
+#include "js_auto_fill_extension_util.h"
+#include "js_error_utils.h"
+#include "js_runtime_utils.h"
+#include "napi_common_util.h"
+#include "native_engine.h"
+#include "native_value.h"
+#include "tokenid_kit.h"
+#include "ui_content.h"
+#include "view_data.h"
+#include "want.h"
+#include "window.h"
+
+namespace OHOS {
+namespace AbilityRuntime {
+namespace {
+constexpr int32_t INDEX_ZERO = 0;
+constexpr size_t ARGC_ONE = 1;
+constexpr const char *WANT_PARAMS_VIEW_DATA = "ohos.ability.params.viewData";
+constexpr const char *WANT_PARAMS_AUTO_FILL_CMD = "ohos.ability.params.autoFillCmd";
+constexpr const char *WANT_PARAMS_AUTO_FILL_CMD_AUTOFILL = "autofill";
+constexpr const char *WANT_PARAMS_UPDATE_POPUP_WIDTH = "ohos.ability.params.popupWidth";
+constexpr const char *WANT_PARAMS_UPDATE_POPUP_HEIGHT = "ohos.ability.params.popupHeight";
+constexpr const char *WANT_PARAMS_UPDATE_POPUP_PLACEMENT = "ohos.ability.params.popupPlacement";
+constexpr const char *CONFIG_POPUP_SIZE = "popupSize";
+constexpr const char *CONFIG_POPUP_PLACEMENT = "placement";
+} // namespace
+
+JsFillRequestCallback::JsFillRequestCallback(
+    const sptr<AAFwk::SessionInfo> &sessionInfo, const sptr<Rosen::Window> &uiWindow)
+    : sessionInfo_(sessionInfo), uiWindow_(uiWindow)
+{}
+
+void JsFillRequestCallback::Finalizer(napi_env env, void* data, void *hint)
+{
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "JsFillRequestCallback Finalizer is called");
+    std::unique_ptr<JsFillRequestCallback>(static_cast<JsFillRequestCallback*>(data));
+}
+
+napi_value JsFillRequestCallback::FillRequestSuccess(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsFillRequestCallback, OnFillRequestSuccess);
+}
+
+napi_value JsFillRequestCallback::FillRequestFailed(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsFillRequestCallback, OnFillRequestFailed);
+}
+
+napi_value JsFillRequestCallback::FillRequestCanceled(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsFillRequestCallback, OnFillRequestCanceled);
+}
+
+napi_value JsFillRequestCallback::FillRequestAutoFillPopupConfig(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsFillRequestCallback, OnFillRequestAutoFillPopupConfig);
+}
+
+napi_value JsFillRequestCallback::OnFillRequestSuccess(napi_env env, NapiCallbackInfo &info)
+{
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    if (info.argc < ARGC_ONE || !IsTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_object)) {
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to parse viewData JsonString!");
+        SendResultCodeAndViewData(
+            JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED_INVALID_PARAM, "");
+        return CreateJsUndefined(env);
+    }
+
+    FillResponse response;
+    JsAutoFillExtensionUtil::UnwrapFillResponse(env, info.argv[INDEX_ZERO], response);
+    std::string jsonString = response.viewData.ToJsonString();
+    if (jsonString.empty()) {
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "JsonString is empty");
+        SendResultCodeAndViewData(
+            JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED_INVALID_PARAM, "");
+        return CreateJsUndefined(env);
+    }
+
+    SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_SUCESS, jsonString);
+    return CreateJsUndefined(env);
+}
+
+napi_value JsFillRequestCallback::OnFillRequestFailed(napi_env env, NapiCallbackInfo &info)
+{
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED, "");
+    return CreateJsUndefined(env);
+}
+
+napi_value JsFillRequestCallback::OnFillRequestCanceled(napi_env env, NapiCallbackInfo &info)
+{
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_CANCEL, "");
+    return CreateJsUndefined(env);
+}
+
+napi_value JsFillRequestCallback::OnFillRequestAutoFillPopupConfig(napi_env env, NapiCallbackInfo &info)
+{
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    auto selfToken = IPCSkeleton::GetSelfTokenID();
+    if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "This application is not system-app, can not use system-api");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
+        return CreateJsUndefined(env);
+    }
+    if (uiWindow_ == nullptr) {
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "UIWindow is nullptr.");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+        return CreateJsUndefined(env);
+    }
+
+    if (info.argc < ARGC_ONE || !IsTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_object)) {
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to parse resize data!");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+    AAFwk::WantParams wantParams;
+    wantParams.SetParam(WANT_PARAMS_AUTO_FILL_CMD, AAFwk::Integer::Box(AutoFillCommand::RESIZE));
+    auto isValueChanged = SetPopupConfigToWantParams(env, info, wantParams);
+    if (isValueChanged) {
+        auto ret = uiWindow_->TransferExtensionData(wantParams);
+        if (ret != Rosen::WMError::WM_OK) {
+            TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Transfer ability result failed.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+        }
+    }
+    return CreateJsUndefined(env);
+}
+
+bool JsFillRequestCallback::SetPopupConfigToWantParams(
+    napi_env env, NapiCallbackInfo& info, AAFwk::WantParams& wantParams)
+{
+    napi_value jsValue = nullptr;
+    bool isValueChanged = false;
+    jsValue = GetPropertyValueByPropertyName(env, info.argv[INDEX_ZERO], CONFIG_POPUP_SIZE, napi_object);
+    if (jsValue) {
+        PopupSize popupSize;
+        JsAutoFillExtensionUtil::UnwrapPopupSize(env, jsValue, popupSize);
+        wantParams.SetParam(WANT_PARAMS_UPDATE_POPUP_WIDTH, AAFwk::Integer::Box(popupSize.width));
+        wantParams.SetParam(WANT_PARAMS_UPDATE_POPUP_HEIGHT, AAFwk::Integer::Box(popupSize.height));
+        isValueChanged = true;
+    }
+
+    jsValue = nullptr;
+    jsValue = GetPropertyValueByPropertyName(env, info.argv[INDEX_ZERO], CONFIG_POPUP_PLACEMENT, napi_number);
+    if (jsValue) {
+        int popupPlacement = 0;
+        napi_get_value_int32(env, jsValue, &popupPlacement);
+        wantParams.SetParam(WANT_PARAMS_UPDATE_POPUP_PLACEMENT, AAFwk::Integer::Box(popupPlacement));
+        isValueChanged = true;
+    }
+    return isValueChanged;
+}
+
+void JsFillRequestCallback::SendResultCodeAndViewData(
+    const JsAutoFillExtensionUtil::AutoFillResultCode &resultCode, const std::string &jsString)
+{
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    if (uiWindow_ == nullptr) {
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "UiWindow is nullptr.");
+        return;
+    }
+
+    AAFwk::Want want;
+    if (resultCode == JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_SUCESS) {
+        want.SetParam(WANT_PARAMS_VIEW_DATA, jsString);
+        want.SetParam(WANT_PARAMS_AUTO_FILL_CMD, WANT_PARAMS_AUTO_FILL_CMD_AUTOFILL);
+    }
+
+    auto ret = uiWindow_->TransferAbilityResult(resultCode, want);
+    if (ret != Rosen::WMError::WM_OK) {
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Transfer ability result failed.");
+        return;
+    }
+
+    auto errorCode = AAFwk::AbilityManagerClient::GetInstance()->TerminateUIExtensionAbility(sessionInfo_);
+    if (errorCode != ERR_OK) {
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Terminate ui extension ability failed, errorCode: %{public}d", errorCode);
+    }
+}
+
+napi_value JsFillRequestCallback::CreateJsFillRequestCallback(napi_env env,
+    const sptr<AAFwk::SessionInfo> &sessionInfo, const sptr<Rosen::Window> &uiWindow)
+{
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
+    if (object == nullptr) {
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Object is null");
+        return CreateJsUndefined(env);
+    }
+
+    std::unique_ptr<JsFillRequestCallback> jsSession =
+        std::make_unique<JsFillRequestCallback>(sessionInfo, uiWindow);
+    napi_wrap(env, object, jsSession.release(), Finalizer, nullptr, nullptr);
+
+    const char *moduleName = "JsFillRequestCallback";
+    BindNativeFunction(env, object, "onSuccess", moduleName, FillRequestSuccess);
+    BindNativeFunction(env, object, "onFailure", moduleName, FillRequestFailed);
+    BindNativeFunction(env, object, "onCancel", moduleName, FillRequestCanceled);
+    BindNativeFunction(env, object, "setAutoFillPopupConfig", moduleName, FillRequestAutoFillPopupConfig);
+    return object;
+}
+} // namespace AbilityRuntime
+} // namespace OHOS

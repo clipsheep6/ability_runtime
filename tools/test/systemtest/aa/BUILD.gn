@@ -1,0 +1,134 @@
+# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/test.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+
+module_output_path = "ability_tools/tools"
+
+config("tools_aa_test_config") {
+  include_dirs = []
+}
+
+ohos_systemtest("aa_command_start_system_test") {
+  module_out_path = module_output_path
+
+  include_dirs = [ "//third_party/jsoncpp/include" ]
+
+  sources = [
+    "aa_command_start_system_test.cpp",
+    "tool_system_test.cpp",
+  ]
+
+  configs = [ ":tools_aa_test_config" ]
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+
+  deps = [
+    "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_path}/tools/test/resource/aa/pageAbilityBundleForStart:pageAbilityBundleForStart",
+    "${ability_runtime_path}/tools/test/resource/aa/serviceAbilityBundleForStart:serviceAbilityBundleForStart",
+    "${ability_runtime_path}/tools/test/resource/ohos_test:copy_ohos_test",
+    "//third_party/googletest:gtest_main",
+    "//third_party/jsoncpp:jsoncpp",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:configuration",
+    "bundle_framework:appexecfwk_base",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+}
+
+ohos_systemtest("aa_command_stop_service_system_test") {
+  module_out_path = module_output_path
+
+  sources = [
+    "aa_command_stop_service_system_test.cpp",
+    "tool_system_test.cpp",
+  ]
+
+  configs = [ ":tools_aa_test_config" ]
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+
+  deps = [
+    "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_path}/tools/test/resource/aa/serviceAbilityBundleForStop:serviceAbilityBundleForStop",
+    "${ability_runtime_path}/tools/test/resource/ohos_test:copy_ohos_test",
+    "//third_party/googletest:gtest_main",
+    "//third_party/jsoncpp:jsoncpp",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:configuration",
+    "bundle_framework:appexecfwk_base",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+}
+
+ohos_systemtest("aa_command_dump_system_test") {
+  module_out_path = module_output_path
+
+  include_dirs = [ "//third_party/jsoncpp/include" ]
+
+  sources = [
+    "aa_command_dump_system_test.cpp",
+    "tool_system_test.cpp",
+  ]
+
+  configs = [ ":tools_aa_test_config" ]
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+
+  deps = [
+    "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_path}/tools/test/resource/aa/dataAbilityBundleForDump:dataAbilityBundleForDump",
+    "${ability_runtime_path}/tools/test/resource/aa/pageAbilityBundleForDump:pageAbilityBundleForDump",
+    "${ability_runtime_path}/tools/test/resource/aa/serviceAbilityBundleForStart:serviceAbilityBundleForStart",
+    "${ability_runtime_path}/tools/test/resource/ohos_test:copy_ohos_test",
+    "//third_party/googletest:gtest_main",
+    "//third_party/jsoncpp:jsoncpp",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:configuration",
+    "bundle_framework:appexecfwk_base",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+}
+
+group("systemtest") {
+  testonly = true
+
+  deps = [
+    ":aa_command_dump_system_test",
+    ":aa_command_start_system_test",
+    ":aa_command_stop_service_system_test",
+  ]
+}

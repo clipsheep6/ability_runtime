@@ -1,0 +1,115 @@
+# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+
+ohos_source_set("appmgr_mst_source") {
+  testonly = true
+  cflags_cc = []
+  sources = [
+    "${ability_runtime_services_path}/appmgr/src/app_mgr_service.cpp",
+    "${ability_runtime_test_path}/mock/services_appmgr_test/src/mock_bundle_manager.cpp",
+  ]
+
+  defines = [ "AMS_LOG_TAG = \"AppMgrService\"" ]
+
+  include_dirs = [
+    "//third_party/json/include",
+    "${ability_runtime_test_path}/mock/services_appmgr_test/include",
+  ]
+
+  public_configs = [
+    "${ability_runtime_test_path}/moduletest:services_module_test_config",
+    "${ability_runtime_services_path}/appmgr:appmgr_config",
+    "${ability_runtime_services_path}/appmgr:appmgr_exception_config",
+    "${ability_runtime_test_path}/moduletest:services_mock_ams_config",
+    "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy_config",
+    "${c_utils_base_path}:utils_config",
+    "//third_party/googletest:gtest_config",
+    "//third_party/googletest:gmock_config",
+  ]
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+  deps = [
+    "${ability_runtime_services_path}/appmgr:libappms",
+    "${ability_runtime_services_path}/common:task_handler_wrap",
+  ]
+  public_deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_services_path}/common:perm_verification",
+    "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
+    "${bundlefwk_inner_api_path}/appexecfwk_core:appexecfwk_core",
+    "${c_utils_base_path}:utils",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+    "//third_party/icu/icu4c:shared_icuuc",
+  ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "ability_base:want",
+    "ability_runtime:ability_deps_wrapper",
+    "access_token:libaccesstoken_sdk",
+    "appspawn:appspawn_client",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "common_event_service:cesfwk_core",
+    "common_event_service:cesfwk_innerkits",
+    "ffrt:libffrt",
+    "hicollie:libhicollie",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "hitrace:hitrace_meter",
+    "init:libbeget_proxy",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+  ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libwm" ]
+  }
+
+  if (background_task_mgr_continuous_task_enable) {
+    external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+group("moduletest") {
+  testonly = true
+
+  deps = [
+    "ability_running_record_test:moduletest",
+    "app_life_cycle_test:moduletest",
+    "app_mgr_service_test:moduletest",
+    "app_recent_list_test:moduletest",
+    "app_running_processes_info_module_test:moduletest",
+    "app_running_record_test:moduletest",
+    "app_service_flow_test:moduletest",
+    "ipc_ams_mgr_test:moduletest",
+    "ipc_app_mgr_test:moduletest",
+    "ipc_app_scheduler_test:moduletest",
+    "service_start_process_test:moduletest",
+    "specified_ability_service_test:moduletest",
+  ]
+}

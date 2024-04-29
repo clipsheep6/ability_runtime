@@ -1,0 +1,193 @@
+# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/test.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+
+module_output_path = "ability_runtime/moduletest/application_test/"
+
+###############################################################################
+config("module_private_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
+    "${ability_runtime_test_path}/mock/frameworks_kits_appkit_native_test/include",
+    "${ability_runtime_test_path}/mock/frameworks_kits_appkit_test/include",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/app",
+  ]
+
+  defines = [ "AMS_LOG_TAG = \"ApplicationModuleTest\"" ]
+}
+
+ohos_moduletest("appexecfwk_appkit_native_app_module_test_first") {
+  module_out_path = module_output_path
+  sources = [
+    "${ability_runtime_test_path}/mock/frameworks_kits_appkit_test/include/mock_app_thread.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_appkit_test/include/mock_application.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_appkit_test/include/sys_mgr_client_mock.cpp",
+    "appexecfwk_appkit_native_app_module_test_first.cpp",
+  ]
+
+  configs = [ ":module_private_config" ]
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+}
+
+ohos_moduletest("appexecfwk_appkit_native_app_module_test_second") {
+  module_out_path = module_output_path
+  sources = [
+    "${ability_runtime_test_path}/mock/frameworks_kits_appkit_test/include/mock_app_thread.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_appkit_test/include/mock_application.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_appkit_test/include/sys_mgr_client_mock.cpp",
+    "appexecfwk_appkit_native_app_module_test_second.cpp",
+  ]
+
+  configs = [ ":module_private_config" ]
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+}
+
+ohos_moduletest("appexecfwk_appkit_native_app_module_test_third") {
+  module_out_path = module_output_path
+  sources = [
+    "${ability_runtime_test_path}/mock/frameworks_kits_appkit_test/include/mock_app_thread.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_appkit_test/include/mock_application.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_appkit_test/include/sys_mgr_client_mock.cpp",
+    "appexecfwk_appkit_native_app_module_test_third.cpp",
+  ]
+
+  configs = [ ":module_private_config" ]
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+}
+
+ohos_moduletest("appexecfwk_appkit_native_app_module_test_fourth") {
+  module_out_path = module_output_path
+  sources = [
+    "${ability_runtime_test_path}/mock/frameworks_kits_appkit_test/include/mock_app_thread.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_appkit_test/include/mock_application.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_appkit_test/include/sys_mgr_client_mock.cpp",
+    "appexecfwk_appkit_native_app_module_test_fourth.cpp",
+  ]
+
+  configs = [ ":module_private_config" ]
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+}
+
+###############################################################################
+
+group("moduletest") {
+  testonly = true
+  deps = []
+
+  deps += [
+    # ":appexecfwk_appkit_native_app_module_test_first",
+    # ":appexecfwk_appkit_native_app_module_test_fourth",
+    # ":appexecfwk_appkit_native_app_module_test_second",
+    # ":appexecfwk_appkit_native_app_module_test_third",
+  ]
+}
+###############################################################################

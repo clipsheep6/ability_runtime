@@ -1,0 +1,55 @@
+# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import("//build/test.gni")
+import("//foundation/ability/ability_runtime/service_router_framework/srms.gni")
+
+module_output_path = "ability_runtime/serviceroutermanagerservice"
+
+ohos_unittest("ServiceRouterMgrInterfaceTest") {
+  use_exceptions = true
+  module_out_path = module_output_path
+  include_dirs = [ "${srms_services_path}/include" ]
+
+  sources = [
+    "${srms_services_path}/src/inner_service_info.cpp",
+    "${srms_services_path}/src/service_router_data_mgr.cpp",
+    "srms_interface_test.cpp",
+  ]
+
+  deps = [
+    "${bundlefwk_common_path}:libappexecfwk_common",
+    "${srms_inner_api_path}:srms_fwk",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libtokenid_sdk",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "ipc:ipc_single",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+}
+
+group("unittest") {
+  testonly = true
+  deps = [ ":ServiceRouterMgrInterfaceTest" ]
+}

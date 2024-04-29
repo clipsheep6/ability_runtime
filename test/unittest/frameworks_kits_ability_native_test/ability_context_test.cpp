@@ -1,0 +1,633 @@
+/*
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include <gtest/gtest.h>
+#include <singleton.h>
+
+#define private public
+#include "ability.h"
+#include "ability_context.h"
+#include "ability_info.h"
+#include "if_system_ability_manager.h"
+#include "mock_ability_manager_service.h"
+#include "mock_bundle_installer_service.h"
+#include "mock_bundle_manager.h"
+#include "mock_bundle_manager_service.h"
+#include "mock_context_deal.h"
+#include "mock_system_ability_manager.h"
+#include "napi_common_ability.h"
+#include "ohos_application.h"
+#include "sa_mgr_client.h"
+#include "sys_mgr_client.h"
+#include "system_ability_definition.h"
+#include "context_deal.h"
+#include "iservice_registry.h"
+#undef private
+
+namespace OHOS {
+namespace AppExecFwk {
+using namespace testing::ext;
+using namespace OHOS;
+using namespace OHOS::AppExecFwk;
+
+sptr<MockBundleInstallerService> mockBundleInstaller = new (std::nothrow) MockBundleInstallerService();
+sptr<MockBundleManagerService> mockBundleMgr = new (std::nothrow) MockBundleManagerService();
+
+class AbilityContextTest : public testing::Test {
+public:
+    AbilityContextTest() : context_(nullptr)
+    {}
+    ~AbilityContextTest()
+    {}
+    std::unique_ptr<AbilityContext> context_ = nullptr;
+    sptr<ISystemAbilityManager> iSystemAbilityMgr_ = nullptr;
+    sptr<AppExecFwk::MockSystemAbilityManager> mockSystemAbility_ = nullptr;
+    static void SetUpTestCase(void);
+    static void TearDownTestCase(void);
+    void SetUp();
+    void TearDown();
+    void MockBundleInstaller();
+};
+
+void AbilityContextTest::SetUpTestCase(void)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityContext_SetUpTestCase start";
+    OHOS::sptr<OHOS::IRemoteObject> bundleObject = new (std::nothrow) BundleMgrService();
+    OHOS::sptr<OHOS::IRemoteObject> abilityObject = new (std::nothrow) AAFwk::MockAbilityManagerService();
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityContext_SetUpTestCase bundleObject->" << bundleObject.GetRefPtr();
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityContext_SetUpTestCase abilityObject->" << abilityObject.GetRefPtr();
+
+    auto sysMgr = OHOS::DelayedSingleton<SysMrgClient>::GetInstance();
+    if (sysMgr == nullptr) {
+        GTEST_LOG_(ERROR) << "fail to get ISystemAbilityManager";
+        return;
+    }
+
+    sysMgr->RegisterSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, bundleObject);
+    sysMgr->RegisterSystemAbility(OHOS::ABILITY_MGR_SERVICE_ID, abilityObject);
+
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityContext_SetUpTestCase end";
+}
+
+void AbilityContextTest::TearDownTestCase(void)
+{}
+
+void AbilityContextTest::SetUp(void)
+{
+    mockSystemAbility_ = new (std::nothrow) AppExecFwk::MockSystemAbilityManager();
+    iSystemAbilityMgr_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = mockSystemAbility_;
+    context_ = std::make_unique<AbilityContext>();
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityContext_SetUp end";
+}
+
+void AbilityContextTest::TearDown(void)
+{
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = iSystemAbilityMgr_;
+}
+
+void AbilityContextTest::MockBundleInstaller()
+{
+    auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
+    auto mockGetSystemAbility = [bms = mockBundleMgr, saMgr = iSystemAbilityMgr_](int32_t systemAbilityId) {
+        if (systemAbilityId == BUNDLE_MGR_SERVICE_SYS_ABILITY_ID) {
+            return bms->AsObject();
+        } else {
+            return saMgr->GetSystemAbility(systemAbilityId);
+        }
+    };
+    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
+    EXPECT_CALL(*mockSystemAbility_, GetSystemAbility(testing::_)).WillOnce(testing::Invoke(mockGetSystemAbility));
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_StartAbility_0100
+ * @tc.name: StartAbility
+ * @tc.desc: Test whether startability is called normally.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_StartAbility_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityContext_StartAbility_0100 start";
+    AAFwk::Want want;
+    int requestCode = 0;
+    context_->StartAbility(want, requestCode);
+    EXPECT_NE(context_, nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityContext_StartAbility_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_TerminateAbility_0100
+ * @tc.name: TerminateAbility
+ * @tc.desc: Test whether TerminateAbility is called normally.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_TerminateAbility_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityContext_TerminateAbility_0100 start";
+    context_->TerminateAbility();
+    EXPECT_NE(context_, nullptr);
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityContext_TerminateAbility_0100 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_GetCallingAbility_0100
+ * @tc.name: GetCallingAbility
+ * @tc.desc: Test whether the return value of getcallingability is correct.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetCallingAbility_0100, Function | MediumTest | Level1)
+{
+    // init
+    AAFwk::Want want;
+    OHOS::AppExecFwk::ElementName elementName;
+    elementName.SetBundleName(std::string("App.System.Test.bundleName_0127"));
+    elementName.SetAbilityName(std::string("App.System.Test.AbilityName_0127"));
+    want.SetElement(elementName);
+
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+
+    // called when abilityInfo is nullptr
+    ability->StartAbilityForResult(want, -1);
+
+    // start
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->type = AppExecFwk::AbilityType::PAGE;
+    std::shared_ptr<AbilityHandler> handler = nullptr;
+    ability->Init(abilityInfo, nullptr, handler, nullptr);
+    ability->StartAbilityForResult(want, -1);
+
+    ability->SetCallingContext("", "", std::string("App.System.Test.AbilityName_0127"), "");
+    std::shared_ptr<ElementName> elementNameTest = ability->GetCallingAbility();
+    std::string abilityName;
+    if (elementNameTest != nullptr) {
+        abilityName = elementNameTest->GetAbilityName();
+    }
+
+    // Test
+    EXPECT_EQ(abilityName, std::string("App.System.Test.AbilityName_0127"));
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_GetApplicationInfo_0100
+ * @tc.name: GetApplicationInfo
+ * @tc.desc: Test whether the getapplicationinfo return value is correct.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetApplicationInfo_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
+    std::shared_ptr<ApplicationInfo> info = std::make_shared<ApplicationInfo>();
+    std::string name = "WeChat";
+    info->name = name;
+    deal->SetApplicationInfo(info);
+
+    context_->AttachBaseContext(deal);
+    EXPECT_STREQ(name.c_str(), context_->GetApplicationInfo()->name.c_str());
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_GetDatabaseDir_0100
+ * @tc.name: GetDatabaseDir
+ * @tc.desc: Test the attachbasecontext call to verify whether the return value of getdatabasedir is correct.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetDatabaseDir_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
+    std::shared_ptr<ApplicationInfo> info = std::make_shared<ApplicationInfo>();
+    std::string dir = "dataBaseDir";
+    info->dataBaseDir = dir;
+    deal->SetApplicationInfo(info);
+    context_->AttachBaseContext(deal);
+
+    EXPECT_STREQ("/data/storage/el2/database", context_->GetDatabaseDir().c_str());
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_GetDataDir_0100
+ * @tc.name: GetDataDir
+ * @tc.desc: Test the attachbasecontext call to verify whether the return value of getdatadir is correct.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetDataDir_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
+    std::shared_ptr<ApplicationInfo> info = std::make_shared<ApplicationInfo>();
+    std::string dir = "dataDir";
+    info->dataDir = dir;
+    deal->SetApplicationInfo(info);
+    context_->AttachBaseContext(deal);
+
+    EXPECT_STREQ("/data/storage/el2/base/data", context_->GetDataDir().c_str());
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_GetBundleManager_0100
+ * @tc.name: GetBundleManager
+ * @tc.desc: Test the attachbasecontext call to verify whether the return value of getbundlemanager is correct.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetBundleManager_0100, Function | MediumTest | Level3)
+{
+    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
+    context_->AttachBaseContext(deal);
+    auto ptr = context_->GetBundleManager();
+
+    EXPECT_NE(nullptr, ptr);
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_GetBundleCodePath_0100
+ * @tc.name: GetBundleCodePath
+ * @tc.desc: Test the attachbasecontext call to verify whether the return value of getbundlecodepath is correct.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetBundleCodePath_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    std::string codePath = "hello";
+    appInfo->codePath = codePath;
+
+    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
+    deal->SetApplicationInfo(appInfo);
+
+    context_->AttachBaseContext(deal);
+    EXPECT_STREQ("/data/storage/el1/bundle", context_->GetBundleCodePath().c_str());
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_GetBundleName_0100
+ * @tc.name: GetBundleName
+ * @tc.desc: Test the attachbasecontext call to verify whether the return value of getbundlename is correct.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetBundleName_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    std::string name = "hello";
+    appInfo->bundleName = name;
+
+    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
+    deal->SetApplicationInfo(appInfo);
+
+    context_->AttachBaseContext(deal);
+    EXPECT_STREQ(name.c_str(), context_->GetBundleName().c_str());
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_GetBundleResourcePath_0100
+ * @tc.name: GetBundleResourcePath
+ * @tc.desc: Test the attachbasecontext call to verify whether the return value of getbundleresourcepath is correct.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetBundleResourcePath_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::string resourcePath = "hello";
+    abilityInfo->resourcePath = resourcePath;
+
+    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
+    deal->SetAbilityInfo(abilityInfo);
+
+    context_->AttachBaseContext(deal);
+    EXPECT_STREQ(resourcePath.c_str(), context_->GetBundleResourcePath().c_str());
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_GetApplicationContext_0100
+ * @tc.name: GetApplicationContext
+ * @tc.desc: Test the attachbasecontext call to verify whether the return value of getapplicationcontext is correct.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetApplicationContext_0100, Function | MediumTest | Level3)
+{
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
+    deal->SetApplicationContext(application);
+    context_->AttachBaseContext(deal);
+    EXPECT_NE(nullptr, context_->GetApplicationContext());
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_GetContext_0100
+ * @tc.name: GetContext
+ * @tc.desc: Test the attachbasecontext call to verify whether the getcontext return value is correct.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetContext_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+
+    std::string name = "hello";
+    abilityInfo->name = name;
+
+    deal->SetAbilityInfo(abilityInfo);
+    std::shared_ptr<Context> context(ability);
+    deal->SetContext(context);
+    ability->AttachBaseContext(deal);
+
+    EXPECT_STREQ(name.c_str(), ability->GetContext()->GetAbilityInfo()->name.c_str());
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_GetAbilityManager_0100
+ * @tc.name: GetAbilityManager
+ * @tc.desc: Test the attachbasecontext call to verify whether the return value of getabilitymanager is correct.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetAbilityManager_0100, Function | MediumTest | Level3)
+{
+    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
+    context_->AttachBaseContext(deal);
+    MockBundleInstaller();
+    sptr<AAFwk::IAbilityManager> ptr = context_->GetAbilityManager();
+
+    EXPECT_NE(nullptr, ptr);
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_GetProcessInfo_0100
+ * @tc.name: GetProcessInfo
+ * @tc.desc: Test the attachbasecontext call to verify that the getprocessinfo return value is correct.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetProcessInfo_0100, Function | MediumTest | Level1)
+{
+    std::string name = "OHOS";
+    pid_t id = 0;
+    ProcessInfo info(name, id);
+
+    std::shared_ptr<ProcessInfo> processInfo = std::make_shared<ProcessInfo>(info);
+    context_->SetProcessInfo(processInfo);
+
+    EXPECT_STREQ(name.c_str(), context_->GetProcessInfo()->GetProcessName().c_str());
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_GetAppType_0100
+ * @tc.name: GetAppType
+ * @tc.desc: Test the attachbasecontext call to verify that the getapptype return value is correct.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetAppType_0100, Function | MediumTest | Level1)
+{
+    std::string empty = "system";
+    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
+    std::shared_ptr<ApplicationInfo> info = std::make_shared<ApplicationInfo>();
+    info->bundleName = "hello";
+    deal->SetApplicationInfo(info);
+    context_->AttachBaseContext(deal);
+
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetAppType(testing::_))
+        .WillOnce(testing::Return("system"))
+        .WillRepeatedly(testing::Return("system"));
+    EXPECT_STREQ(empty.c_str(), context_->GetAppType().c_str());
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_GetAbilityInfo_0100
+ * @tc.name: GetAbilityInfo
+ * @tc.desc: Test the attachbasecontext call to verify that the getabilityinfo return value is correct.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetAbilityInfo_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+
+    std::string name = "hello";
+    abilityInfo->name = name;
+    deal->SetAbilityInfo(abilityInfo);
+    context_->AttachBaseContext(deal);
+
+    EXPECT_STREQ(name.c_str(), context_->GetAbilityInfo()->name.c_str());
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_GetElementName_0100
+ * @tc.name: GetElementName
+ * @tc.desc: Verify that the getelementname return value is correct.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetElementName_0100, Function | MediumTest | Level3)
+{
+    EXPECT_EQ(nullptr, context_->GetElementName());
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_GetElementName_0200
+ * @tc.name: GetElementName
+ * @tc.desc: Test getelementname exception status.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetElementName_0200, Function | MediumTest | Level3)
+{
+    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+
+    std::string name = "abilityName";
+    abilityInfo->name = name;
+    deal->SetAbilityInfo(abilityInfo);
+    context_->AttachBaseContext(deal);
+
+    EXPECT_STREQ(name.c_str(), context_->GetElementName()->GetAbilityName().c_str());
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_GetCallingBundle_0100
+ * @tc.name: GetCallingBundle
+ * @tc.desc: Test getcallingbundle exception state.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetCallingBundle_0100, Function | MediumTest | Level3)
+{
+    std::string empty = "";
+    EXPECT_STREQ(empty.c_str(), context_->GetCallingBundle().c_str());
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_GetCallingBundle_0200
+ * @tc.name: GetCallingBundle
+ * @tc.desc: Test whether the return value of getcallingbundle is correct.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetCallingBundle_0200, Function | MediumTest | Level1)
+{
+    Want want;
+    std::string bundleName = "BundleName";
+    std::string abilityName = "abilityName";
+    want.SetElementName(bundleName, abilityName);
+
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->type = AppExecFwk::AbilityType::PAGE;
+    std::shared_ptr<AbilityHandler> handler = nullptr;
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ability->Init(abilityInfo, nullptr, handler, nullptr);
+    ability->StartAbilityForResult(want, -1);
+    ability->SetCallingContext("", "BundleName", "", "");
+
+    EXPECT_STREQ(bundleName.c_str(), ability->GetCallingBundle().c_str());
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_GetCallingAbility_0200
+ * @tc.name: GetCallingAbility
+ * @tc.desc: Test getcallingability exception status.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetCallingAbility_0200, Function | MediumTest | Level3)
+{
+    EXPECT_NE(nullptr, context_->GetCallingAbility());
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_ConnectAbility_0100
+ * @tc.name: ConnectAbility
+ * @tc.desc: Test the attachbasecontext call to verify that the return value of connectability is true.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_ConnectAbility_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+
+    abilityInfo->type = AppExecFwk::AbilityType::SERVICE;
+    deal->SetAbilityInfo(abilityInfo);
+    context_->AttachBaseContext(deal);
+
+    Want want;
+    bool ret = context_->ConnectAbility(want, nullptr);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_ConnectAbility_0200
+ * @tc.name: ConnectAbility
+ * @tc.desc: Test the attachbasecontext call to verify that the return value of connectability is false.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_ConnectAbility_0200, Function | MediumTest | Level3)
+{
+    Want want;
+    bool ret = context_->ConnectAbility(want, nullptr);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name: AaFwk_AbilityContext_ConnectAbility_0300
+ * @tc.desc: Test the attachbasecontext call to verify that the return value of connectability is true.
+ * @tc.type: FUNC
+ * @tc.require: AR000GI8I8
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_ConnectAbility_0300, Function | MediumTest | Level1)
+{
+    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+
+    abilityInfo->type = AppExecFwk::AbilityType::SERVICE;
+    deal->SetAbilityInfo(abilityInfo);
+    context_->AttachBaseContext(deal);
+
+    Want want;
+    OHOS::sptr<AAFwk::IAbilityConnection> callback = new NAPIAbilityConnection();
+    bool ret = context_->ConnectAbility(want, callback);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.name: AaFwk_AbilityContext_ConnectAbility_0400
+ * @tc.desc: Test the attachbasecontext call to verify that the return value of connectability is false.
+ * @tc.type: FUNC
+ * @tc.require: AR000GI8I8
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_ConnectAbility_0400, Function | MediumTest | Level3)
+{
+    Want want;
+    OHOS::sptr<AAFwk::IAbilityConnection> callback = new NAPIAbilityConnection();
+    bool ret = context_->ConnectAbility(want, callback);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_DisconnectAbility_0100
+ * @tc.name: DisconnectAbility
+ * @tc.desc: Test whether the disconnectability is called normally.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_DisconnectAbility_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+
+    abilityInfo->type = AppExecFwk::AbilityType::SERVICE;
+    deal->SetAbilityInfo(abilityInfo);
+    context_->AttachBaseContext(deal);
+    auto result = context_->DisconnectAbility(nullptr);
+    EXPECT_EQ(result, 0);
+}
+
+/**
+ * @tc.name: AaFwk_AbilityContext_DisconnectAbility_0200
+ * @tc.desc: Test whether the disconnectability is called normally.
+ * @tc.type: FUNC
+ * @tc.require: AR000GI8I8
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_DisconnectAbility_0200, Function | MediumTest | Level1)
+{
+    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+
+    abilityInfo->type = AppExecFwk::AbilityType::SERVICE;
+    deal->SetAbilityInfo(abilityInfo);
+    context_->AttachBaseContext(deal);
+    OHOS::sptr<AAFwk::IAbilityConnection> callback = new NAPIAbilityConnection();
+    auto result = context_->DisconnectAbility(callback);
+    EXPECT_EQ(result, 0);
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_StopAbility_0100
+ * @tc.name: StopAbility
+ * @tc.desc: Test the attachbasecontext call to verify that the return value of stopability is true.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_StopAbility_0100, Function | MediumTest | Level1)
+{
+    Want want;
+    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+
+    abilityInfo->type = AppExecFwk::AbilityType::SERVICE;
+    deal->SetAbilityInfo(abilityInfo);
+    context_->AttachBaseContext(deal);
+    bool ret = context_->StopAbility(want);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.number: AaFwk_AbilityContext_StopAbility_0200
+ * @tc.name: StopAbility
+ * @tc.desc: Test the attachbasecontext call to verify that the return value of stopability is false.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_StopAbility_0200, Function | MediumTest | Level3)
+{
+    Want want;
+    bool ret = context_->StopAbility(want);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.number: AaFwk_Ability_GetHapModuleInfo_0100
+ * @tc.name: GetHapModuleInfo
+ * @tc.desc: Test the attachbasecontext call to verify that the return value of gethapmoduleinfo is correct.
+ */
+HWTEST_F(AbilityContextTest, AaFwk_Ability_GetHapModuleInfo_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_Ability_GetHapModuleInfo_0100 start";
+
+    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+    std::string package = "com.ohos.callui";
+    contextDeal->hapModuleInfoLocal_ = std::make_shared<HapModuleInfo>();
+    contextDeal->hapModuleInfoLocal_->name = "com.ohos.callui";
+    context_->AttachBaseContext(contextDeal);
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
+    context_->AttachBaseContext(contextDeal);
+    std::shared_ptr<HapModuleInfo> info = context_->GetHapModuleInfo();
+    EXPECT_STREQ(info->name.c_str(), package.c_str());
+    GTEST_LOG_(INFO) << "AaFwk_Ability_GetHapModuleInfo_0100 end";
+}
+}  // namespace AppExecFwk
+}  // namespace OHOS

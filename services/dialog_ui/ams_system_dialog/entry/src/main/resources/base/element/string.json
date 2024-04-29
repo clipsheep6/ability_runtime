@@ -1,0 +1,96 @@
+{
+  "string": [
+    {
+      "name": "entry_desc",
+      "value": "description"
+    },
+    {
+      "name": "SelectorServiceExtAbility_desc",
+      "value": "SelectorDialog"
+    },
+    {
+      "name": "SelectorServiceExtAbility_label",
+      "value": "SelectorDialog"
+    },
+    {
+      "name": "SelectorExtAbility_label",
+      "value": "SelectorDialog"
+    },
+    {
+      "name": "TipsServiceExtAbility_desc",
+      "value": "TipsDialog"
+    },
+    {
+      "name": "TipsServiceExtAbility_label",
+      "value": "TipsDialog"
+    },
+    {
+      "name": "message_title_selector",
+      "value": "Open with the following options"
+    },
+    {
+      "name": "message_cancel_selector",
+      "value": "Cancel"
+    },
+    {
+      "name": "message_title_tips",
+      "value": "Cannot open this file"
+    },
+    {
+      "name": "message_close_tips",
+      "value": "Got it"
+    },
+    {
+      "name": "message_title_jump_interceptor",
+      "value": "\"%s\" wants to open \"%s\""
+    },
+    {
+      "name": "message_confirm_jump",
+      "value": "Open"
+    },
+    {
+      "name": "message_cancel_jump",
+      "value": "Cancel"
+    },
+    {
+      "name": "JumpInterceptorServiceExtAbility_desc",
+      "value": "JumpInterceptorDialog"
+    },
+    {
+      "name": "JumpInterceptorServiceExtAbility_label",
+      "value": "JumpInterceptorDialog"
+    },
+    {
+      "name": "SwitchUserServiceExtAbility_desc",
+      "value": "SwitchUserDialog"
+    },
+    {
+      "name": "SwitchUserServiceExtAbility_label",
+      "value": "SwitchUserDialog"
+    },
+    {
+      "name": "AssertFaultShareExtAbility_desc",
+      "value": "AssertFaultDialog"
+    },
+    {
+        "name": "message_title_switchUser",
+        "value": "Switching, please wait a moment..."
+    },
+    {
+        "name": "button_continue",
+        "value": "continue"
+    },
+    {
+        "name": "button_termination",
+        "value": "termination"
+    },
+    {
+        "name": "button_retry",
+        "value": "retry"
+    },
+    {
+        "name": "title_assertFault",
+        "value": "AssertFaultDialog"
+    }
+  ]
+}

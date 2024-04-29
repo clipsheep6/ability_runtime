@@ -1,0 +1,146 @@
+# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
+import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+import("//foundation/arkui/ace_engine/build/ace_gen_obj.gni")
+
+es2abc_gen_abc("gen_abc_js_mock") {
+  js_mock_path =
+      get_label_info("${previewer_path}/automock:gen_snapshot_jsmock",
+                     "target_out_dir") + "/dist/jsMockSystemPlugin.js"
+  src_js = rebase_path(js_mock_path)
+  dst_file = rebase_path(target_out_dir + "/jsMockSystemPlugin.abc")
+  in_puts = [ js_mock_path ]
+  out_puts = [ target_out_dir + "/jsMockSystemPlugin.abc" ]
+  extra_dependencies = [ "${previewer_path}/automock:gen_snapshot_jsmock" ]
+}
+
+gen_obj("js_mock_abc") {
+  input = get_label_info(":gen_abc_js_mock", "target_out_dir") +
+          "/jsMockSystemPlugin.abc"
+
+  if (is_mac || is_mingw) {
+    output = target_out_dir + "/js_mock_abc.c"
+  } else {
+    output = target_out_dir + "/js_mock_abc.o"
+  }
+
+  snapshot_dep = [ ":gen_abc_js_mock" ]
+}
+
+config("ability_simulator_public_config") {
+  include_dirs = [ "include" ]
+  cflags_cc = [ "-Wno-unused-variable" ]
+}
+
+ohos_shared_library("ability_simulator_inner") {
+  if (is_mingw || is_mac) {
+    if (is_mingw) {
+      defines = [
+        "WINDOWS_PLATFORM",
+        "NOGDI",
+      ]
+    }
+
+    cflags = [ "-std=c++17" ]
+
+    include_dirs = [
+      "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_business_error",
+      "${ability_runtime_native_path}/runtime",
+      "${ability_runtime_innerkits_path}/ability_manager/include",
+      "${ability_runtime_innerkits_path}/runtime/include",
+      "${windowmanager_path}/previewer/include",
+      "${windowmanager_path}/previewer/mock",
+      "${windowmanager_path}/previewer/mock/transaction",
+      "${windowmanager_path}/previewer/mock/ui",
+      "${windowmanager_path}/interfaces/innerkits/wm",
+      "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_stage_napi",
+      "include/bundle_parser",
+      "//third_party/json/include",
+    ]
+
+    sources = [
+      "${ability_runtime_native_path}/ability/native/ability_business_error/ability_business_error.cpp",
+      "${ability_runtime_native_path}/runtime/js_module_searcher.cpp",
+      "src/ability_context.cpp",
+      "src/ability_stage_context.cpp",
+      "src/bundle_parser/ability_info.cpp",
+      "src/bundle_parser/application_info.cpp",
+      "src/bundle_parser/bundle_container.cpp",
+      "src/bundle_parser/extension_ability_info.cpp",
+      "src/bundle_parser/hap_module_info.cpp",
+      "src/bundle_parser/inner_bundle_info.cpp",
+      "src/bundle_parser/module_info.cpp",
+      "src/bundle_parser/module_profile.cpp",
+      "src/common_func.cpp",
+      "src/js_ability_context.cpp",
+      "src/js_ability_stage_context.cpp",
+      "src/js_application_context_utils.cpp",
+      "src/js_console_log.cpp",
+      "src/js_context_utils.cpp",
+      "src/js_data_converter.cpp",
+      "src/js_resource_manager_utils.cpp",
+      "src/js_runtime_utils.cpp",
+      "src/js_timer.cpp",
+      "src/resource_manager_addon.cpp",
+      "src/simulator.cpp",
+    ]
+
+    public_configs = [
+      ":ability_simulator_public_config",
+      "${simulator_path}/common:ability_simulator_common_config",
+    ]
+
+    configs = [ "${windowmanager_path}/previewer:previewer_window_config" ]
+
+    deps = [
+      ":gen_obj_src_js_mock_abc",
+      "//third_party/jsoncpp:jsoncpp_static",
+    ]
+
+    external_deps = [
+      "ability_base:string_utils",
+      "ets_runtime:libark_jsruntime",
+      "ets_utils:console",
+      "ets_utils:timer",
+      "hilog:libhilog",
+      "napi:ace_napi",
+    ]
+
+    if (ability_runtime_graphics) {
+      external_deps += [
+        "window_manager:previewer_window",
+        "window_manager:previewer_window_napi",
+      ]
+    }
+
+    if (is_mingw) {
+      external_deps += [ "resource_management:win_resmgr" ]
+    } else {
+      external_deps += [ "resource_management:mac_resmgr" ]
+    }
+  }
+
+  output_name = "ability_simulator"
+  innerapi_tags = [ "platformsdk" ]
+  part_name = "ability_runtime"
+  subsystem_name = "ability"
+}
+
+group("ability_simulator") {
+  if (is_mingw || is_mac) {
+    public_deps = [ ":ability_simulator_inner" ]
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "module": {
+    "name": "entry",
+    "type": "entry",
+    "srcEntrance": "./ets/Application/AbilityStage.ts",
+    "description": "$string:entry_desc",
+    "mainElement": "MainAbility",
+    "deviceTypes": [
+      "default",
+      "tablet",
+      "2in1"
+    ],
+    "deliveryWithInstall": true,
+    "installationFree": false,
+    "pages": "$profile:main_pages",
+    "uiSyntax": "ets",
+    "abilities": [],
+    "extensionAbilities": [
+      {
+        "name": "SelectorDialog",
+        "srcEntrance": "./ets/ServiceExtAbility/SelectorServiceExtAbility.ts",
+        "description": "$string:SelectorServiceExtAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:SelectorServiceExtAbility_label",
+        "visible": false,
+        "type": "service"
+      },
+      {
+        "name": "TipsDialog",
+        "srcEntrance": "./ets/ServiceExtAbility/TipsServiceExtAbility.ts",
+        "description": "$string:TipsServiceExtAbility_desc",
+        "icon": "$media:icon",
+        "label":"$string:TipsServiceExtAbility_label",
+        "visible": false,
+        "type": "service"
+      },
+      {
+        "name": "JumpInterceptorDialog",
+        "srcEntrance": "./ets/ServiceExtAbility/JumpInterceptorServiceExtAbility.ts",
+        "description": "$string:JumpInterceptorServiceExtAbility_desc",
+        "icon": "$media:icon",
+        "label":"$string:JumpInterceptorServiceExtAbility_label",
+        "visible": false,
+        "type": "service"
+      },
+      {
+        "name": "SwitchUserDialog",
+        "srcEntrance": "./ets/ServiceExtAbility/SwitchUserServiceExtAbility.ts",
+        "description": "$string:SwitchUserServiceExtAbility_desc",
+        "icon": "$media:icon",
+        "label":"$string:SwitchUserServiceExtAbility_label",
+        "visible": false,
+        "type": "service"
+      },
+      {
+        "name": "CommonSelectPickerAbility",
+        "srcEntrance": "./ets/ServiceExtAbility/SelectorExtensionAbility.ets",
+        "description": "SelectorExtensionAbility",
+        "icon": "$media:icon",
+        "label": "$string:SelectorExtAbility_label",
+        "type": "sys/commonUI",
+        "visible": false,
+        "exported": true
+      },
+      {
+        "name": "AssertFaultDialog",
+        "icon": "$media:icon",
+        "description": "$string:AssertFaultShareExtAbility_desc",
+        "type": "sys/commonUI",
+        "visible": true,
+        "srcEntry": "./ets/ShareExtAbility/AssertFaultShareExtAbility.ts"
+      }
+    ],
+    "metadata": [
+      {
+        "name": "ArkTSPartialUpdate",
+        "value": "true"
+      }
+    ],
+    "requestPermissions": [
+      {
+        "name": "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED"
+      },
+      {
+        "name": "ohos.permission.START_ABILITIES_FROM_BACKGROUND"
+      },
+      {
+        "name": "ohos.permission.SET_DEFAULT_APPLICATION"
+      },
+      {
+        "name": "ohos.permission.NOTIFY_DEBUG_ASSERT_RESULT"
+      }
+    ]
+  }
+}

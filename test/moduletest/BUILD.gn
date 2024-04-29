@@ -1,0 +1,71 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+
+config("moduletest_exception_config") {
+  cflags_cc = [ "-fexceptions" ]
+}
+
+config("aafwk_module_test_config") {
+  configs = [
+    "${ability_runtime_services_path}/abilitymgr:abilityms_config",
+    ":moduletest_exception_config",
+  ]
+
+  include_dirs = [
+    "${ability_runtime_test_path}/moduletest/mock/include",
+    "//third_party/jsoncpp/include",
+  ]
+}
+
+config("services_module_test_config") {
+  include_dirs = [ "appmgr/mock/include" ]
+
+  configs = []
+}
+
+config("services_mock_ams_config") {
+  include_dirs = [ "../appmgr/test/mock/include" ]
+}
+
+group("moduletest") {
+  testonly = true
+
+  deps = [
+    "ability_caller_fw_module_test:moduletest",
+    "ability_delegator_test:moduletest",
+    "ability_manager_client_test:moduletest",
+    "ability_manager_service_dump_test:moduletest",
+    "ability_record_test:moduletest",
+    "ability_test:moduletest",
+    "ability_timeout_module_test:moduletest",
+    "app_mgr_client_test:moduletest",
+    "appexecfwk_appkit_native_app_module_test:moduletest",
+    "call_module_test:moduletest",
+    "common/ams:moduletest",
+    "ipc_ability_connect_test:moduletest",
+    "ipc_ability_mgr_test:moduletest",
+    "ipc_ability_scheduler_test:moduletest",
+    "mission_dump_test:moduletest",
+    "module_test_dump_util:module_test_dump_util",
+    "on_new_want_module_test:moduletest",
+    "panding_want_manager_test:moduletest",
+    "quick_fix:moduletest",
+    "running_infos_module_test:moduletest",
+    "start_option_display_id_test:moduletest",
+    "ui_extension_ability_test:moduletest",
+    "//third_party/icu/icu4c:shared_icuuc",
+    "//third_party/jsoncpp:jsoncpp",
+  ]
+}

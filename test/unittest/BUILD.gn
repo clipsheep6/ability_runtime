@@ -1,0 +1,534 @@
+# Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/test.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+import(
+    "//foundation/ability/ability_runtime/services/abilitymgr/abilitymgr.gni")
+
+config("appmgr_test_config") {
+  configs = [
+    "${ability_runtime_services_path}/appmgr:appmgr_config",
+    "${ability_runtime_services_path}/appmgr:appmgr_exception_config",
+    "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config",
+    "${ability_runtime_test_path}/moduletest:services_mock_ams_config",
+  ]
+
+  defines = [ "AMS_LOG_TAG = \"AppMgrService\"" ]
+
+  include_dirs = [
+    "${ability_runtime_services_path}/appdfr/include",
+    "${ability_runtime_test_path}/mock/services_appmgr_test/include",
+    "${distributeddatamgr_path}/kv_store/interfaces/innerkits/distributeddata/include",
+    "${global_path}/i18n/frameworks/intl/include",
+  ]
+}
+
+ohos_source_set("appmgr_test_source") {
+  testonly = true
+
+  sources = [
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/app_launch_data.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/app_mgr_proxy.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/app_mgr_stub.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/app_process_data.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/app_record_id.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/app_scheduler_host.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/app_scheduler_proxy.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/app_state_callback_host.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/app_state_callback_proxy.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/app_task_info.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/fault_data.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/process_info.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/profile.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/render_scheduler_host.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/render_scheduler_proxy.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/running_process_info.cpp",
+  ]
+
+  include_dirs = [ "//third_party/json/include" ]
+
+  public_configs = [
+    ":appmgr_test_config",
+    "${c_utils_base_path}:utils_config",
+  ]
+
+  public_deps = [
+    "${c_utils_base_path}:utils",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+  deps = [
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+  ]
+
+  if (ability_runtime_graphics) {
+    deps += [ "${global_path}/i18n/frameworks/intl:intl_util" ]
+  }
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:configuration",
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "common_event_service:cesfwk_core",
+    "common_event_service:cesfwk_innerkits",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "kv_store:distributeddata_mgr",
+  ]
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+config("test_exception_config") {
+  cflags_cc = [ "-fexceptions" ]
+}
+
+ohos_source_set("abilityms_test_source") {
+  sources = [
+    "${ability_runtime_services_path}/abilitymgr/src/ability_background_connection.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_bundle_event_callback.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_connect_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_debug_deal.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_event_handler.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_event_util.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_collaborator_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_service.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_token_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ams_configuration_parameter.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/app_exit_reason_data_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/app_exit_reason_helper.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/assert_fault_callback_death_mgr.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/assert_fault_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/atomic_service_status_callback.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/atomic_service_status_callback_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/atomic_service_status_callback_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/background_task_observer.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/call_container.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/call_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/caller_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/connection_observer_controller.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/connection_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/connection_state_item.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/connection_state_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/data_ability_caller_recipient.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/data_ability_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/data_ability_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/dialog_session_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/dlp_state_item.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ecological_rule/ability_ecological_rule_mgr_service.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ecological_rule/ability_ecological_rule_mgr_service_param.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/exit_reason.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/extension_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/extension_record_factory.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/extension_record_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/free_install_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/insight_intent_execute_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/insight_intent_profile.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/insight_intent_utils.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/interceptor/ability_interceptor_executer.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/interceptor/ability_jump_interceptor.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/interceptor/control_interceptor.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/interceptor/crowd_test_interceptor.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/interceptor/disposed_rule_interceptor.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/interceptor/ecological_rule_interceptor.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/interceptor/start_other_app_interceptor.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/lifecycle_deal.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/pending_want_common_event.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/pending_want_key.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/pending_want_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/pending_want_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/resident_process_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/restart_app_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/scene_board/status_bar_delegate_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/scene_board/ui_ability_lifecycle_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/sender_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/start_ability_handler.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/start_ability_handler/start_ability_sandbox_savefile.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/start_ability_utils.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/sub_managers_helper.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/task_data_persistence_mgr.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ui_extension_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ui_extension_record_factory.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/uri_utils.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/user_controller.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/user_event_handler.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_receiver_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_receiver_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_sender_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_sender_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_sender_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/wants_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/window_focus_changed_listener.cpp",
+    "${ability_runtime_services_path}/common/src/event_report.cpp",
+    "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/app_mgr_client.cpp",
+    "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/app_state_callback_host.cpp",
+    "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/app_state_callback_proxy.cpp",
+  ]
+
+  include_dirs = [
+    "${ability_runtime_services_path}/appdfr/include",
+
+    "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core",
+
+    "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",
+    "${ability_runtime_innerkits_path}/dataobs_manager/include",
+  ]
+
+  cflags_cc = []
+  configs = [ ":test_exception_config" ]
+
+  public_configs = [
+    "${ability_runtime_services_path}/abilitymgr:abilityms_config",
+    "${ability_runtime_test_path}/mock/services_abilitymgr_test:aafwk_mock_config",
+  ]
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:process_options",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/connectionobs_manager:connection_obs_manager",
+    "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_path}/utils/global/freeze:freeze_util",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
+    "${ability_runtime_services_path}/common:task_handler_wrap",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:configuration",
+    "ability_base:extractortool",
+    "ability_base:view_data",
+    "ability_base:want",
+    "ability_runtime:ability_deps_wrapper",
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "bundle_framework:libappexecfwk_common",
+    "c_utils:utils",
+    "common_event_service:cesfwk_core",
+    "common_event_service:cesfwk_innerkits",
+    "config_policy:configpolicy_util",
+    "dsoftbus:softbus_client",
+    "ffrt:libffrt",
+    "hicollie:libhicollie",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "hitrace:hitrace_meter",
+    "init:libbeget_proxy",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "kv_store:distributeddata_inner",
+    "relational_store:native_appdatafwk",
+    "relational_store:native_dataability",
+    "relational_store:native_rdb",
+    "resource_management:global_resmgr",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+    "window_manager:libmodal_system_ui_extension_client",
+    "window_manager:libwsutils",
+    "window_manager:sms",
+  ]
+
+  if (efficiency_manager) {
+    sources += [ "${ability_runtime_services_path}/abilitymgr/src/process_frozen_state_observer.cpp" ]
+    cflags_cc += [ "-DEFFICIENCY_MANAGER_ENABLE" ]
+    external_deps += [ "efficiency_manager:suspend_manager_client" ]
+  }
+
+  if (resource_schedule_service_enable) {
+    cflags_cc += [ "-RESOURCE_SCHEDULE_SERVICE_ENABLE" ]
+    external_deps += [ "resource_schedule_service:ressched_client" ]
+  }
+
+  if (ability_runtime_graphics) {
+    sources += [
+      "${ability_runtime_services_path}/abilitymgr/src/ability_first_frame_state_observer_manager.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/implicit_start_processor.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/inner_mission_info.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/mission.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/mission_data_storage.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/mission_info.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/mission_info_mgr.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/mission_list.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/mission_list_manager.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/mission_listener_controller.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/mission_listener_proxy.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/mission_listener_stub.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/mission_snapshot.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_proxy.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_stub.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/system_dialog_scheduler.cpp",
+      "${ability_runtime_services_path}/appdfr/src/application_anr_listener.cpp",
+    ]
+    deps += [
+      "${ace_engine_path}/interfaces/inner_api/ui_service_manager:ui_service_mgr",
+      "//third_party/libjpeg-turbo:turbojpeg_static",
+    ]
+    external_deps += [
+      "i18n:intl_util",
+      "icu:shared_icuuc",
+      "image_framework:image_native",
+      "input:libmmi-client",
+      "window_manager:libdm",
+      "window_manager:libmodal_system_ui_extension_client",
+      "window_manager:libwm",
+      "window_manager:libwsutils",
+      "window_manager:sms",
+    ]
+  }
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+group("unittest") {
+  testonly = true
+
+  deps = [
+    "ability_auto_startup_data_manager_test:unittest",
+    "ability_auto_startup_service_test:unittest",
+    "ability_bundle_event_callback_test:unittest",
+    "ability_business_error_test:unittest",
+    "ability_connect_callback_proxy_test:unittest",
+    "ability_connect_callback_stub_test:unittest",
+    "ability_connect_manager_test:unittest",
+    "ability_connection_test:unittest",
+    "ability_debug_deal_test:unittest",
+    "ability_debug_response_proxy_test:unittest",
+    "ability_debug_response_stub_test:unittest",
+    "ability_event_handler_test:unittest",
+    "ability_extension_base_test:unittest",
+    "ability_extension_context_test:unittest",
+    "ability_extension_module_loader_test:unittest",
+    "ability_extension_running_info_test:unittest",
+    "ability_extension_test:unittest",
+    "ability_first_frame_state_observer_manager_test:unittest",
+    "ability_first_frame_state_observer_proxy_test:unittest",
+    "ability_first_frame_state_observer_stub_test:unittest",
+    "ability_foreground_state_observer_proxy_test:unittest",
+    "ability_foreground_state_observer_stub_test:unittest",
+    "ability_interceptor_test:unittest",
+    "ability_manager_client_branch_test:unittest",
+    "ability_manager_proxy_test:unittest",
+    "ability_manager_service_dialog_test:unittest",
+    "ability_manager_service_first_test:unittest",
+    "ability_manager_service_second_test:unittest",
+    "ability_manager_service_third_test:unittest",
+    "ability_manager_stub_test:unittest",
+    "ability_manager_test:unittest",
+    "ability_record_dump_test:unittest",
+    "ability_record_test:unittest",
+    "ability_running_info_test:unittest",
+    "ability_runtime_error_util_test:unittest",
+    "ability_scheduler_proxy_test:unittest",
+    "ability_scheduler_stub_test:unittest",
+    "ability_service_extension_test:unittest",
+    "ability_service_start_test:unittest",
+    "ability_timeout_test",
+    "ability_token_proxy_test:unittest",
+    "ability_token_stub_test:unittest",
+    "advanced_security_mode_manager_test:unittest",
+    "ams_ability_running_record_test:unittest",
+    "ams_app_death_recipient_test:unittest",
+    "ams_app_life_cycle_test:unittest",
+    "ams_app_mgr_client_test:unittest",
+    "ams_app_running_record_test:unittest",
+    "ams_app_state_callback_test:unittest",
+    "ams_ipc_interface_test:unittest",
+    "ams_mgr_kill_process_test:unittest",
+    "ams_mgr_proxy_test:unittest",
+    "ams_mgr_scheduler_dump_test:unittest",
+    "ams_mgr_scheduler_test:unittest",
+    "ams_mgr_stub_test:unittest",
+    "ams_recent_app_list_test:unittest",
+    "ams_service_load_ability_process_test:unittest",
+    "ams_service_startup_test:unittest",
+    "app_debug_info_test:unittest",
+    "app_debug_listener_proxy_test:unittest",
+    "app_debug_listener_stub_test:unittest",
+    "app_debug_manager_test:unittest",
+    "app_exit_reason_data_manager_test:unittest",
+    "app_foreground_state_observer_proxy_test:unittest",
+    "app_foreground_state_observer_stub_test:unittest",
+    "app_launch_data_test:unittest",
+    "app_lifecycle_deal_test:unittest",
+    "app_mgr_client_test:unittest",
+    "app_mgr_proxy_test:unittest",
+    "app_mgr_service_dump_ipc_test:unittest",
+    "app_mgr_service_dump_test:unittest",
+    "app_mgr_service_event_handler_test:unittest",
+    "app_mgr_service_inner_tdd_test:unittest",
+    "app_mgr_service_inner_test:unittest",
+    "app_mgr_service_test:unittest",
+    "app_mgr_stub_test:unittest",
+    "app_preloader_test:unittest",
+    "app_recovery_test:unittest",
+    "app_running_manager_test:unittest",
+    "app_running_processes_info_test:unittest",
+    "app_running_record_test:unittest",
+    "app_scheduler_host_test:unittest",
+    "app_scheduler_proxy_test:unittest",
+    "app_scheduler_test:unittest",
+    "app_spawn_client_test:unittest",
+    "app_state_observer_manager_test:unittest",
+    "app_utils_test:unittest",
+    "appkit:unittest",
+    "application_context_test:unittest",
+    "atomic_service_status_callback_proxy_test:unittest",
+    "atomic_service_status_callback_stub_test:unittest",
+    "authorization_result_test:unittest",
+    "auto_fill_manager_test:unittest",
+    "auto_fill_manager_util_test:unittest",
+    "auto_startup_callback_proxy_test:unittest",
+    "auto_startup_callback_stub_test:unittest",
+    "auto_startup_info_test:unittest",
+    "background_task_observer_test:unittest",
+    "bundle_mgr_helper_test:unittest",
+    "cache_process_manager_test:unittest",
+    "call_record_test:unittest",
+    "child_process_manager_test:unittest",
+    "completed_dispatcher_test:unittest",
+    "configuration_test:unittest",
+    "connect_server_manager_test:unittest",
+    "connection_observer_controller_test:unittest",
+    "connection_observer_test:unittest",
+    "connection_record_test:unittest",
+    "connection_state_item_test:unittest",
+    "connection_state_manager_test:unittest",
+    "continuation_test:unittest",
+    "data_ability_manager_test:unittest",
+    "data_ability_observer_proxy_test:unittest",
+    "data_ability_observer_stub_test:unittest",
+    "data_ability_record_test:unittest",
+    "dataobs_mgr_client_test:unittest",
+    "dataobs_mgr_inner_ext_test:unittest",
+    "dataobs_mgr_inner_pref_test:unittest",
+    "dataobs_mgr_inner_test:unittest",
+    "dataobs_mgr_proxy_test:unittest",
+    "dataobs_mgr_service_dump_test:unittest",
+    "dataobs_mgr_service_test:unittest",
+    "dataobs_mgr_stub_test:unittest",
+    "dfr_test:unittest",
+    "dlp_state_item_test:unittest",
+    "dlp_utils_test:unittest",
+    "dummy_values_bucket_test:unittest",
+    "event_report_test:unittest",
+    "extension_config_mgr_test:unittest",
+    "extension_manager_client_test:unittest",
+    "fault_data:unittest",
+    "file_path_utils_test:unittest",
+    "frameworks_kits_ability_ability_runtime_test:unittest",
+    "frameworks_kits_ability_native_test:unittest",
+    "frameworks_kits_appkit_native_test:unittest",
+    "free_install_manager_test:unittest",
+    "implicit_start_processor_test:unittest",
+    "insight_intent:unittest",
+    "js_auto_fill_extension_test:unittest",
+    "js_service_extension_test:unittest",
+    "lifecycle_deal_test:unittest",
+    "lifecycle_test:unittest",
+    "mission_data_storage_test:unittest",
+    "mission_info_mgr_test:unittest",
+    "mission_listener_proxy_test:unittest",
+    "mission_listener_stub_test:unittest",
+    "mission_listener_test:unittest",
+    "napi_base_context_test:unittest",
+    "native_runtime_test:unittest",
+    "os_account_manager_wrapper_test:unittest",
+    "page_state_data_test:unittest",
+    "pending_want_key_test:unittest",
+    "pending_want_manager_dump_test:unittest",
+    "pending_want_manager_test:unittest",
+    "pending_want_record_test:unittest",
+    "pending_want_test:unittest",
+    "permission_verification_test:unittest",
+    "quick_fix:unittest",
+    "remote_mission_listener_proxy_test:unittest",
+    "remote_mission_listener_stub_test:unittest",
+    "render_state_observer_manager_test:unittest",
+    "render_state_observer_proxy_test:unittest",
+    "render_state_observer_stub_test:unittest",
+    "resident_process_manager_test:unittest",
+    "running_infos_test:unittest",
+    "runtime_test:unittest",
+    "sender_info_test:unittest",
+    "service_extension_context_test:unittest",
+    "services/ability_util_test:unittest",
+    "start_options_test:unittest",
+    "start_other_app_interceptor_test:unittest",
+    "stop_user_callback_proxy_test:unittest",
+    "stop_user_callback_stub_test:unittest",
+    "sys_mgr_client_test:unittest",
+    "system_ability_token_callback_stub_test:unittest",
+    "task_data_persistence_mgr_test:unittest",
+    "task_handler_wrap_test:unittest",
+    "trigger_Info_test:unittest",
+    "ui_extension:unittest",
+    "ui_extension_ability_test:unittest",
+    "ui_extension_context_test:unittest",
+    "ui_extension_utils_test:unittest",
+    "uri_permission_impl_test:unittest",
+    "uri_permission_manager_test:unittest",
+    "uri_permission_test:unittest",
+    "user_controller_test:unittest",
+    "user_event_handler_test:unittest",
+    "want_agent_helper_test:unittest",
+    "want_agent_info_test:unittest",
+    "want_agent_log_wrapper_test:unittest",
+    "want_agent_test:unittest",
+    "want_receiver_proxy_test:unittest",
+    "want_receiver_stub_test:unittest",
+    "want_sender_info_test:unittest",
+    "want_sender_proxy_test:unittest",
+    "want_sender_stub_test:unittest",
+    "wants_info_test:unittest",
+  ]
+
+  if (ability_runtime_graphics) {
+    deps += [
+      "call_container_test:unittest",
+      "mission_info_test:unittest",
+      "mission_list_dump_test:unittest",
+      "mission_list_manager_dump_test:unittest",
+      "mission_list_manager_test:unittest",
+      "mission_list_manager_ut_test:unittest",
+      "mission_list_test:unittest",
+      "mission_test:unittest",
+      "specified_mission_list_test:unittest",
+      "start_option_display_id_test:unittest",
+      "ui_ability_lifecycle_manager_test:unittest",
+    ]
+  }
+}

@@ -1,0 +1,86 @@
+# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+
+ohos_shared_library("particleability") {
+  include_dirs = [
+    "${ability_runtime_napi_path}/featureAbility",
+    "${ability_runtime_services_path}/common/include",
+  ]
+
+  sources = [
+    "${ability_runtime_napi_path}/featureAbility/napi_data_ability_helper.cpp",
+    "${ability_runtime_napi_path}/featureAbility/napi_data_ability_operation.cpp",
+    "native_module.cpp",
+    "particle_ability.cpp",
+  ]
+
+  configs = [ "${ability_runtime_services_path}/common:common_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
+    "${ability_runtime_innerkits_path}/napi_base_context:napi_base_context",
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${ability_runtime_innerkits_path}/wantagent:wantagent_innerkits",
+    "${ability_runtime_napi_path}/inner/napi_ability_common:napi_ability_common",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:data_ability_helper",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "access_token:libaccesstoken_sdk",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "jsoncpp:jsoncpp",
+    "libuv:uv",
+    "napi:ace_napi",
+    "node:node_header_notice",
+  ]
+
+  if (ability_runtime_relational) {
+    include_dirs += [
+      "${common_tool_path}",
+      "${relational_store_napi_path}/common/include",
+      "${relational_store_napi_path}/dataability/include",
+      "${relational_store_napi_path}/rdb/include",
+      "${relational_store_common_path}/include",
+    ]
+    sources += [
+      "${relational_store_napi_path}/common/src/js_utils.cpp",
+      "${relational_store_napi_path}/dataability/src/napi_data_ability_predicates.cpp",
+      "${relational_store_napi_path}/rdb/src/napi_rdb_js_utils.cpp",
+      "${relational_store_napi_path}/rdb/src/napi_result_set.cpp",
+    ]
+    external_deps += [
+      "relational_store:native_dataability",
+      "relational_store:native_rdb",
+      "relational_store:rdb_data_share_adapter",
+    ]
+  }
+
+  relative_install_dir = "module/ability"
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}

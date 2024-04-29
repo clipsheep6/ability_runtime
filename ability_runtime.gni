@@ -1,0 +1,180 @@
+# Copyright (c) 2021-2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+ability_runtime_path = "//foundation/ability/ability_runtime"
+ability_runtime_napi_path = "${ability_runtime_path}/frameworks/js/napi"
+ability_base_path = "//foundation/ability/ability_base"
+form_fwk_path = "//foundation/ability/form_fwk"
+ability_runtime_innerkits_path = "${ability_runtime_path}/interfaces/inner_api"
+ability_runtime_native_path = "${ability_runtime_path}/frameworks/native"
+ability_runtime_services_path = "${ability_runtime_path}/services"
+ability_runtime_abilitymgr_path = "${ability_runtime_services_path}/abilitymgr"
+ability_runtime_test_path = "${ability_runtime_path}/test"
+ace_engine_path = "//foundation/arkui/ace_engine"
+arkui_path = "//foundation/arkui"
+previewer_path = "//ide/tools/previewer"
+simulator_path = "//foundation/ability/ability_runtime/frameworks/simulator"
+
+bundlefwk_path = "//foundation/bundlemanager/bundle_framework"
+bundlefwk_inner_api_path = "${bundlefwk_path}/interfaces/inner_api"
+c_utils_base_path = "//commonlibrary/c_utils/base"
+ets_utils_path = "//commonlibrary/ets_utils"
+print_fwk_path = "//base/print/print_fwk"
+imf_path = "//base/inputmethod/imf"
+wallpaper_mgr_path = "//base/theme/wallpaper_mgr"
+os_account_path = "//base/account/os_account"
+distributed_notification_service_path =
+    "//base/notification/distributed_notification_service"
+power_manager_path = "//base/powermgr/power_manager"
+request_path = "//base/request/request"
+hiebpf_path = "//developtools/profiler/hiebpf"
+
+multimedia_path = "//foundation/multimedia/image_framework"
+multimodalinput_path = "//foundation/multimodalinput/input"
+windowmanager_path = "//foundation/window/window_manager"
+graphic_path = "//foundation/graphic/graphic_2d"
+global_path = "//base/global"
+distributedschedule_path = "//foundation/systemabilitymgr"
+eventhandler_path = "//base/notification/eventhandler"
+distributeddatamgr_path = "//foundation/distributeddatamgr"
+form_fwk_napi_path = "${form_fwk_path}/frameworks/js/napi"
+ability_base_kits_path = "${ability_base_path}/interfaces/kits/native"
+ability_base_native_path = "${ability_base_path}/frameworks/native"
+appspawn_path = "//base/startup/appspawn"
+init_path = "//base/startup/init"
+ipc_native_path = "//foundation/communication/ipc/ipc/native"
+third_party_path = "//third_party"
+hiviewdfx_path = "//base/hiviewdfx/hiview"
+hilog_path = "//base/hiviewdfx/hilog"
+webview_path = "//base/web/webview"
+resource_management_path = "//base/global/resource_management"
+common_event_service_path = "//base/notification/common_event_service"
+safwk_path = "//utils/system/safwk"
+user_file_service_innerkits_path =
+    "//foundation/filemanagement/user_file_service/interfaces/inner_api"
+resourceschedule_path = "//foundation/resourceschedule"
+device_usage_statistics_path =
+    "//foundation/resourceschedule/device_usage_statistics"
+device_manager_path = "//foundation/distributedhardware/device_manager"
+graphic_2d_path = "//foundation/graphic/graphic_2d"
+srms_inner_api_path =
+    "${ability_runtime_path}/service_router_framework/interfaces/inner_api"
+fuzz_test_output_path = "ability_runtime/ability_runtime"
+accessibility_path = "//foundation/barrierfree/accessibility"
+relational_store_base_path = "//foundation/distributeddatamgr/relational_store"
+relational_store_napi_path = "${relational_store_base_path}/frameworks/js/napi"
+common_tool_path = "//foundation/distributeddatamgr/kv_store/frameworks/common"
+relational_store_common_path = "${relational_store_base_path}/frameworks/common"
+ability_base_path = "//foundation/ability/ability_base"
+ability_base_innerapi_path = "${ability_base_path}/interfaces/inner_api"
+relational_store_innerapi_path =
+    "${relational_store_base_path}/interfaces/inner_api"
+bgtaskmgr_root_path = "//foundation/resourceschedule/background_task_mgr"
+bgtaskmgr_interfaces_path = "${bgtaskmgr_root_path}/interfaces"
+bgtaskmgr_frameworks_path = "${bgtaskmgr_root_path}/frameworks"
+os_account_path = "//base/account/os_account"
+access_token_path = "//base/security/access_token"
+
+declare_args() {
+  background_task_mgr_continuous_task_enable = true
+  resource_schedule_service_enable = true
+  ability_runtime_graphics = true
+  ability_runtime_power = true
+  ability_runtime_relational = true
+  ability_runtime_ces = true
+  ability_runtime_resource = true
+  ability_runtime_appspawn = true
+  efficiency_manager = true
+  ability_fault_and_exit_test = false
+  ability_command_for_test = false
+  ability_runtime_feature_coverage = false
+  ability_runtime_auto_fill_ability =
+      "com.ohos.passwordbox/entry/AutoFillAbility"
+  ability_runtime_smart_auto_fill_ability =
+      "com.ohos.textautofill/entry/TextAutoFillAbility"
+  ability_runtime_use_memmgr_plugin = false
+  ability_runtime_use_memmgr = false
+
+  if (!defined(global_parts_info) ||
+      defined(global_parts_info.account_os_account)) {
+    os_account_part_enabled = true
+  } else {
+    os_account_part_enabled = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.resourceschedule_background_task_mgr)) {
+    background_task_mgr_continuous_task_enable = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.resourceschedule_resource_schedule_service)) {
+    resource_schedule_service_enable = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.resourceschedule_efficiency_manager)) {
+    efficiency_manager = false
+  }
+
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.resourceschedule_memmgr_plugin)) {
+    ability_runtime_use_memmgr_plugin = true
+  }
+
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.resourceschedule_memmgr)) {
+    ability_runtime_use_memmgr = true
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.distributeddatamgr_relational_store)) {
+    ability_runtime_relational = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.notification_common_event_service)) {
+    ability_runtime_ces = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.global_resource_management)) {
+    ability_runtime_resource = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.startup_appspawn)) {
+    ability_runtime_appspawn = false
+  }
+
+  if (!defined(global_parts_info) ||
+      defined(global_parts_info.security_dlp_permission_service)) {
+    os_dlp_part_enabled = true
+  } else {
+    os_dlp_part_enabled = false
+  }
+
+  if (!defined(global_parts_info) ||
+      defined(global_parts_info.barrierfree_accessibility)) {
+    accessibility_enable = true
+  } else {
+    accessibility_enable = false
+  }
+
+  if (!defined(global_parts_info) ||
+      defined(global_parts_info.hiviewdfx_hichecker)) {
+    hichecker_enabled = true
+  } else {
+    hichecker_enabled = false
+  }
+}

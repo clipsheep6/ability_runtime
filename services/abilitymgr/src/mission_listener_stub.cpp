@@ -1,0 +1,124 @@
+/*
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "mission_listener_stub.h"
+
+#include "hilog_tag_wrapper.h"
+#include "hilog_wrapper.h"
+#include "ipc_types.h"
+#include "message_parcel.h"
+
+namespace OHOS {
+namespace AAFwk {
+MissionListenerStub::MissionListenerStub()
+{
+    vecMemberFunc_.resize(IMissionListener::MISSION_LINSTENER_CMD_MAX);
+    vecMemberFunc_[ON_MISSION_CREATED] = &MissionListenerStub::OnMissionCreatedInner;
+    vecMemberFunc_[ON_MISSION_DESTROYED] = &MissionListenerStub::OnMissionDestroyedInner;
+    vecMemberFunc_[ON_MISSION_SNAPSHOT_CHANGED] = &MissionListenerStub::OnMissionSnapshotChangedInner;
+    vecMemberFunc_[ON_MISSION_MOVED_TO_FRONT] = &MissionListenerStub::OnMissionMovedToFrontInner;
+    vecMemberFunc_[ON_MISSION_ICON_UPDATED] = &MissionListenerStub::OnMissionIconUpdatedInner;
+    vecMemberFunc_[ON_MISSION_CLOSED] = &MissionListenerStub::OnMissionClosedInner;
+    vecMemberFunc_[ON_MISSION_LABEL_UPDATED] = &MissionListenerStub::OnMissionLabelUpdatedInner;
+    vecMemberFunc_[ON_MISSION_FOCUSED] = &MissionListenerStub::OnMissionFocusedInner;
+    vecMemberFunc_[ON_MISSION_UNFOCUSED] = &MissionListenerStub::OnMissionUnfocusedInner;
+}
+
+int MissionListenerStub::OnMissionCreatedInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto missionId = data.ReadInt32();
+    OnMissionCreated(missionId);
+    return NO_ERROR;
+}
+
+int MissionListenerStub::OnMissionDestroyedInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto missionId = data.ReadInt32();
+    OnMissionDestroyed(missionId);
+    return NO_ERROR;
+}
+
+int MissionListenerStub::OnMissionSnapshotChangedInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto missionId = data.ReadInt32();
+    OnMissionSnapshotChanged(missionId);
+    return NO_ERROR;
+}
+
+int MissionListenerStub::OnMissionMovedToFrontInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto missionId = data.ReadInt32();
+    OnMissionMovedToFront(missionId);
+    return NO_ERROR;
+}
+
+int MissionListenerStub::OnMissionFocusedInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto missionId = data.ReadInt32();
+    OnMissionFocused(missionId);
+    return NO_ERROR;
+}
+
+int MissionListenerStub::OnMissionUnfocusedInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto missionId = data.ReadInt32();
+    OnMissionUnfocused(missionId);
+    return NO_ERROR;
+}
+
+int MissionListenerStub::OnMissionIconUpdatedInner(MessageParcel &data, MessageParcel &reply)
+{
+#ifdef SUPPORT_GRAPHICS
+    auto missionId = data.ReadInt32();
+    std::shared_ptr<Media::PixelMap> icon(data.ReadParcelable<Media::PixelMap>());
+    OnMissionIconUpdated(missionId, icon);
+    return NO_ERROR;
+#else
+    TAG_LOGE(AAFwkTag::ABILITYMGR, "do not support OnMissionIconUpdated");
+    return ERR_INVALID_STATE;
+#endif
+}
+
+int MissionListenerStub::OnMissionClosedInner(MessageParcel &data, MessageParcel &reply)
+{
+    OnMissionClosed(data.ReadInt32());
+    return NO_ERROR;
+}
+
+int MissionListenerStub::OnMissionLabelUpdatedInner(MessageParcel &data, MessageParcel &reply)
+{
+    OnMissionLabelUpdated(data.ReadInt32());
+    return NO_ERROR;
+}
+
+int MissionListenerStub::OnRemoteRequest(
+    uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    std::u16string descriptor = MissionListenerStub::GetDescriptor();
+    std::u16string remoteDescriptor = data.ReadInterfaceToken();
+    if (descriptor != remoteDescriptor) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "Local descriptor is not equal to remote");
+        return ERR_INVALID_STATE;
+    }
+
+    if (code < IMissionListener::MISSION_LINSTENER_CMD_MAX && code >= 0) {
+        auto memberFunc = vecMemberFunc_[code];
+        return (this->*memberFunc)(data, reply);
+    }
+
+    return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+}
+}  // namespace AAFwk
+}  // namespace OHOS
