@@ -53,7 +53,6 @@ ohos_shared_library("particleability") {
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "jsoncpp:jsoncpp",
-    "jsoncpp:jsoncpp",
     "libuv:uv",
     "napi:ace_napi",
     "node:node_header_notice",
