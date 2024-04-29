@@ -373,6 +373,7 @@ ohos_shared_library("extensionkit_native") {
     "${ability_runtime_native_path}/ability/native/extension_module_loader.cpp",
     "${ability_runtime_native_path}/ability/native/js_extension_common.cpp",
     "${ability_runtime_native_path}/appkit/ability_runtime/extension_context.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
   ]
 
   public_configs = [ ":extensionkit_public_config" ]
@@ -646,8 +647,10 @@ ohos_shared_library("form_extension") {
 }
 
 ohos_shared_library("form_extension_module") {
-  include_dirs =
-      [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
+  include_dirs = [
+    "${ability_runtime_path}/interfaces/inner_api/ability_manager/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+  ]
 
   sources = [ "${ability_runtime_native_path}/ability/native/form_extension_module_loader.cpp" ]
 
@@ -811,8 +814,10 @@ ohos_shared_library("data_ability_helper") {
 }
 
 ohos_shared_library("service_extension_module") {
-  include_dirs =
-      [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
+  include_dirs = [
+    "${ability_runtime_path}/interfaces/inner_api/ability_manager/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+  ]
 
   sources = [ "${ability_runtime_native_path}/ability/native/service_extension_module_loader.cpp" ]
 

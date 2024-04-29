@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,6 +23,7 @@
 #include "iremote_object.h"
 #include "session_info.h"
 #include "foundation/window/window_manager/interfaces/innerkits/wm/window.h"
+#include "launch_param.h"
 #include "ui_extension_window_command.h"
 #include "want.h"
 
@@ -226,6 +227,20 @@ public:
     void SetExtensionWindowLifeCycleListener(const sptr<Rosen::IWindowLifeCycle> &listener);
 
     /**
+     * @brief Set the launch param.
+     *
+     * @param launchParam The launch param.
+     */
+    void SetLaunchParam(const AAFwk::LaunchParam &launchParam);
+
+    /**
+     * @brief Get the launch param.
+     *
+     * @return Launch param information.
+     */
+    const AAFwk::LaunchParam &GetLaunchParam() const;
+
+    /**
      * @brief Called when startAbilityForResult(ohos.aafwk.content.Want,int) is called to start an extension ability
      * and the result is returned.
      * @param requestCode Indicates the request code returned after the ability is started. You can define the request
@@ -256,6 +271,7 @@ private:
     std::shared_ptr<AppExecFwk::OHOSApplication> application_ = nullptr;
     std::shared_ptr<AAFwk::Want> launchWant_ = nullptr;
     std::shared_ptr<AAFwk::Want> lastRequestWant_ = nullptr;
+    AAFwk::LaunchParam launchParam_;
     std::shared_ptr<CallingInfo> callingInfo_ = nullptr;
 };
 }  // namespace AbilityRuntime

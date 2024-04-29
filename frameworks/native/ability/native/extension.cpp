@@ -184,6 +184,16 @@ void Extension::OnInsightIntentExecuteDone(const sptr<AAFwk::SessionInfo> &sessi
     TAG_LOGD(AAFwkTag::EXT, "call.");
 }
 
+void Extension::SetLaunchParam(const AAFwk::LaunchParam &launchParam)
+{
+    launchParam_ = launchParam;
+}
+
+const AAFwk::LaunchParam &Extension::GetLaunchParam() const
+{
+    return launchParam_;
+}
+
 bool Extension::HandleInsightIntent(const AAFwk::Want &want)
 {
     TAG_LOGD(AAFwkTag::EXT, "call.");

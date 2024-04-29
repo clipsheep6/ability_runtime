@@ -222,6 +222,20 @@ public:
     }
 
     /**
+     * @brief Get extensionList by pid.
+     * @param pid Process id.
+     * @param extensionList UIExtensionAbility name list.
+     */
+    int32_t GetActiveUIExtensionList(const int32_t pid, std::vector<std::string> &extensionList);
+
+    /**
+     * @brief Get extensionList by bundleName.
+     * @param bundleName The application bundle name.
+     * @param extensionList UIExtensionAbility name list.
+     */
+    int32_t GetActiveUIExtensionList(const std::string &bundleName, std::vector<std::string> &extensionList);
+
+    /**
      * OnAbilityDied.
      *
      * @param abilityRecord, service ability record.
@@ -526,6 +540,7 @@ private:
     int TerminateAbilityInner(const sptr<IRemoteObject> &token);
     bool IsLauncher(std::shared_ptr<AbilityRecord> serviceExtension) const;
     void KillProcessesByUserId() const;
+    void SetLastExitReason(const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetService);
     inline bool IsUIExtensionAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
     inline bool CheckUIExtensionAbilityLoaded(const AbilityRequest &abilityRequest);
     inline bool CheckUIExtensionAbilitySessionExistLocked(const std::shared_ptr<AbilityRecord> &abilityRecord);

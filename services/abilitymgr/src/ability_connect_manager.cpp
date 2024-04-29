@@ -24,6 +24,7 @@
 #include "ability_manager_service.h"
 #include "ability_util.h"
 #include "appfreeze_manager.h"
+#include "app_exit_reason_data_manager.h"
 #include "app_utils.h"
 #include "assert_fault_callback_death_mgr.h"
 #include "extension_config.h"
@@ -51,6 +52,7 @@ const std::string FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
 const std::string UIEXTENSION_ABILITY_ID = "ability.want.params.uiExtensionAbilityId";
 const std::string UIEXTENSION_ROOT_HOST_PID = "ability.want.params.uiExtensionRootHostPid";
 const std::string MAX_UINT64_VALUE = "18446744073709551615";
+const std::string SEPARATOR = ":";
 #ifdef SUPPORT_ASAN
 const int LOAD_TIMEOUT_MULTIPLE = 150;
 const int CONNECT_TIMEOUT_MULTIPLE = 45;
@@ -246,6 +248,10 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     if (!isLoadedAbility) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Target service has not been loaded.");
         targetService->GrantUriPermissionForServiceExtension();
+        SetLastExitReason(abilityRequest, targetService);
+        if (IsUIExtensionAbility(targetService)) {
+            targetService->SetLaunchReason(LaunchReason::LAUNCHREASON_START_ABILITY);
+        }
         LoadAbility(targetService);
     } else if (targetService->IsAbilityState(AbilityState::ACTIVE) && !IsUIExtensionAbility(targetService)) {
         // It may have been started through connect
@@ -267,6 +273,31 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     }
     DelayedSingleton<AppScheduler>::GetInstance()->AbilityBehaviorAnalysis(token, preToken, 0, 1, 1);
     return ERR_OK;
+}
+
+void AbilityConnectManager::SetLastExitReason(
+    const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetRecord)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
+    if (targetRecord == nullptr || !UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to set UIExtensionAbility last exit reason.");
+        return;
+    }
+    auto appExitReasonDataMgr = DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance();
+    if (appExitReasonDataMgr == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get app exit reason data mgr instance is nullptr.");
+        return;
+    }
+
+    ExitReason exitReason = { REASON_UNKNOWN, "" };
+    const std::string keyEx = targetRecord->GetAbilityInfo().bundleName + SEPARATOR +
+                              targetRecord->GetAbilityInfo().moduleName + SEPARATOR +
+                              targetRecord->GetAbilityInfo().name;
+    if (!appExitReasonDataMgr->GetUIExtensionAbilityExitReason(keyEx, exitReason)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "There is no record of UIExtensionAbility's last exit reason in the database.");
+        return;
+    }
+    targetRecord->SetLastExitReason(exitReason);
 }
 
 void AbilityConnectManager::DoForegroundUIExtension(std::shared_ptr<AbilityRecord> abilityRecord,
@@ -1836,6 +1867,20 @@ void AbilityConnectManager::HandleCallBackDiedTask(const sptr<IRemoteObject> &co
     DisconnectAbilityLocked(object, true);
 }
 
+int32_t AbilityConnectManager::GetActiveUIExtensionList(
+    const int32_t pid, std::vector<std::string> &extensionList)
+{
+    CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, ERR_NULL_OBJECT);
+    return uiExtensionAbilityRecordMgr_->GetActiveUIExtensionList(pid, extensionList);
+}
+
+int32_t AbilityConnectManager::GetActiveUIExtensionList(
+    const std::string &bundleName, std::vector<std::string> &extensionList)
+{
+    CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, ERR_NULL_OBJECT);
+    return uiExtensionAbilityRecordMgr_->GetActiveUIExtensionList(bundleName, extensionList);
+}
+
 void AbilityConnectManager::OnAbilityDied(const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t currentUserId)
 {
     CHECK_POINTER(abilityRecord);
@@ -1930,6 +1975,9 @@ void AbilityConnectManager::HandleAbilityDiedTask(
     if (GetExtensionFromServiceMapInner(abilityRecord->GetAbilityRecordId()) != nullptr) {
         MoveToTerminatingMap(abilityRecord);
         RemoveServiceAbility(abilityRecord);
+        if (UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
+            RemoveUIExtensionAbilityRecord(abilityRecord);
+        }
         isRemove = true;
     }
 

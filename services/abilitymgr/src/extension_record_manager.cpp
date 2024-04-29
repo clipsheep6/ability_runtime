@@ -120,6 +120,39 @@ bool ExtensionRecordManager::IsBelongToManager(const AppExecFwk::AbilityInfo &ab
     return AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo.extensionAbilityType);
 }
 
+int32_t ExtensionRecordManager::GetActiveUIExtensionList(const int32_t pid, std::vector<std::string> &extensionList)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    std::lock_guard<std::mutex> lock(mutex_);
+    for (const auto &it : extensionRecords_) {
+        if (it.second == nullptr || it.second->abilityRecord_ == nullptr ||
+            pid != it.second->abilityRecord_->GetPid()) {
+            continue;
+        }
+
+        extensionList.push_back(it.second->abilityRecord_->GetAbilityInfo().moduleName + SEPARATOR +
+                                it.second->abilityRecord_->GetAbilityInfo().name);
+    }
+    return ERR_OK;
+}
+
+int32_t ExtensionRecordManager::GetActiveUIExtensionList(
+    const std::string &bundleName, std::vector<std::string> &extensionList)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    std::lock_guard<std::mutex> lock(mutex_);
+    for (const auto &it : extensionRecords_) {
+        if (it.second == nullptr || it.second->abilityRecord_ == nullptr ||
+            bundleName != it.second->abilityRecord_->GetAbilityInfo().bundleName) {
+            continue;
+        }
+
+        extensionList.push_back(it.second->abilityRecord_->GetAbilityInfo().moduleName + SEPARATOR +
+                                it.second->abilityRecord_->GetAbilityInfo().name);
+    }
+    return ERR_OK;
+}
+
 int32_t ExtensionRecordManager::GetOrCreateExtensionRecord(const AAFwk::AbilityRequest &abilityRequest,
     const std::string &hostBundleName, std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord, bool &isLoaded)
 {

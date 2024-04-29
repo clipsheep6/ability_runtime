@@ -27,6 +27,7 @@
 #include "insight_intent_executor_info.h"
 #include "insight_intent_executor_mgr.h"
 #include "int_wrapper.h"
+#include "js_data_struct_converter.h"
 #include "js_extension_common.h"
 #include "js_extension_context.h"
 #include "js_runtime.h"
@@ -204,12 +205,21 @@ void JsUIExtensionBase::BindContext(napi_env env, napi_value obj)
         nullptr, nullptr);
 }
 
-void JsUIExtensionBase::OnStart(const AAFwk::Want &want)
+void JsUIExtensionBase::OnStart(const AAFwk::Want &want, AAFwk::LaunchParam &launchParam)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::UI_EXT, "called");
     HandleScope handleScope(jsRuntime_);
-    CallObjectMethod("onCreate");
+    napi_env env = jsRuntime_.GetNapiEnv();
+    napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
+    if (InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
+        launchParam.launchReason = AAFwk::LaunchReason::LAUNCHREASON_INSIGHT_INTENT;
+    }
+    napi_value argv[] = {
+        CreateJsLaunchParam(env, launchParam),
+        napiWant
+    };
+    CallObjectMethod("onCreate", argv, ARGC_TWO);
 }
 
 void JsUIExtensionBase::OnStop()
