@@ -2108,6 +2108,26 @@ void AbilityConnectManager::HandleNotifyAssertFaultDialogDied(const std::shared_
     callbackDeathMgr->CallAssertFaultCallback(std::stoull(assertSessionStr));
 }
 
+void AbilityConnectManager::CloseAssertDialog(const std::string &assertSessionId)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called");
+    std::lock_guard guard(Lock_);
+    for (const auto &item : serviceMap_) {
+        if (item.second == nullptr) {
+            continue;
+        }
+
+        auto assertSessionStr = item.second->GetWant().GetStringParam(Want::PARAM_ASSERT_FAULT_SESSION_ID);
+        if (assertSessionStr == assertSessionId) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Terminate assert fault dialog called.");
+            terminatingExtensionMap_.emplace(item.first, item.second);
+            serviceMap_.erase(item.first);
+            TerminateAbilityLocked(item.second->GetToken());
+            return;
+        }
+    }
+}
+
 void AbilityConnectManager::HandleUIExtensionDied(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "called");

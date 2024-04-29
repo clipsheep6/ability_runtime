@@ -309,6 +309,8 @@ public:
 
     std::shared_ptr<AAFwk::AbilityRecord> GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token);
 
+    void CloseAssertDialog(const std::string &assertSessionId);
+
     void SignRestartAppFlag(const std::string &bundleName);
 
     void DeleteInvalidServiceRecord(const std::string &bundleName);

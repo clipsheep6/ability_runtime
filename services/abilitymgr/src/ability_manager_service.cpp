@@ -9917,6 +9917,19 @@ int32_t AbilityManagerService::CheckDebugAssertPermission()
     return ERR_OK;
 }
 
+void AbilityManagerService::CloseAssertDialog(const std::string &assertSessionId)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Close assert fault dialog begin.");
+    auto validUserId = GetUserId();
+    auto connectManager = GetConnectManagerByUserId(validUserId);
+    if (connectManager == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Connect manager is nullptr, userId: %{public}d.", validUserId);
+        return;
+    }
+
+    connectManager->CloseAssertDialog(assertSessionId);
+}
+
 int32_t AbilityManagerService::RequestAssertFaultDialog(
     const sptr<IRemoteObject> &callback, const AAFwk::WantParams &wantParams)
 {
@@ -9927,43 +9940,45 @@ int32_t AbilityManagerService::RequestAssertFaultDialog(
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Check debug assert permission error.");
         return checkRet;
     }
-
     sptr<IRemoteObject> remoteCallback = callback;
     if (remoteCallback == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Params remote callback is nullptr");
         return ERR_INVALID_VALUE;
     }
-
     auto debugDeal = ConnectInitAbilityDebugDeal();
     auto sysDialog = DelayedSingleton<SystemDialogScheduler>::GetInstance();
     if (sysDialog == nullptr || debugDeal == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "sysDialog or debugDeal is nullptr.");
         return ERR_INVALID_VALUE;
     }
-
     Want want;
     if (!sysDialog->GetAssertFaultDialogWant(want)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Get assert fault dialog want failed.");
         return ERR_INVALID_VALUE;
     }
-
     uint64_t assertFaultSessionId = reinterpret_cast<uint64_t>(remoteCallback.GetRefPtr());
     want.SetParam(Want::PARAM_ASSERT_FAULT_SESSION_ID, std::to_string(assertFaultSessionId));
     want.SetParam(ASSERT_FAULT_DETAIL, wantParams.GetStringParam(ASSERT_FAULT_DETAIL));
-
     auto connection = std::make_shared<ModalSystemAssertUIExtension>();
     want.SetParam(UIEXTENSION_MODAL_TYPE, 1);
     if (connection == nullptr || !IN_PROCESS_CALL(connection->CreateModalUIExtension(want))) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Connection is nullptr or create modal ui extension failed.");
         return ERR_INVALID_VALUE;
     }
-
     auto callbackDeathMgr = DelayedSingleton<AbilityRuntime::AssertFaultCallbackDeathMgr>::GetInstance();
     if (callbackDeathMgr == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Get callback death manager instance is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    callbackDeathMgr->AddAssertFaultCallback(remoteCallback);
+    auto callbackTask = [weak = weak_from_this()] (const std::string &assertSessionId) {
+        auto abilityMgr = weak.lock();
+        if (abilityMgr == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "ability manager instance is nullptr.");
+            return;
+        }
+        abilityMgr->CloseAssertDialog(assertSessionId);
+    };
+    callbackDeathMgr->AddAssertFaultCallback(remoteCallback, callbackTask);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Request to display assert fault dialog end.");
     return ERR_OK;
 }
