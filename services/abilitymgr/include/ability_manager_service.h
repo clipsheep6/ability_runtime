@@ -146,6 +146,25 @@ public:
         int requestCode = DEFAULT_INVAL_VALUE);
 
     /**
+     * Starts a new ability with specific start options and specialId, send want to ability manager service.
+     *
+     * @param want the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @param callerToken caller ability token.
+     * @param userId Designation User ID.
+     * @param requestCode the resultCode of the ability to start.
+     * @param specifyTokenId The Caller ID.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int StartAbilityWithSpecifyTokenIdInner(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE,
+        uint32_t specifyTokenId = 0);
+
+    /**
      * StartAbilityWithSpecifyTokenId with want and specialId, send want to ability manager service.
      *
      * @param want, the want of the ability to start.
@@ -959,6 +978,7 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false,
+        uint32_t callerTokenId = 0,
         bool isImplicit = false);
 
     int StartAbilityForOptionInner(
@@ -968,6 +988,7 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false,
+        uint32_t specifyTokenId = 0,
         bool isImplicit = false);
 
     int ImplicitStartAbility(
@@ -2097,7 +2118,7 @@ private:
     std::shared_ptr<AbilityDebugDeal> ConnectInitAbilityDebugDeal();
 
     int StartUIAbilityForOptionWrap(const Want &want, const StartOptions &options, sptr<IRemoteObject> callerToken,
-        int32_t userId, int requestCode, bool isImplicit = false);
+        int32_t userId, int requestCode, uint32_t callerTokenId = 0, bool isImplicit = false);
 
     int32_t SetBackgroundCall(const AppExecFwk::RunningProcessInfo &processInfo,
         const AbilityRequest &abilityRequest, bool &isBackgroundCall) const;

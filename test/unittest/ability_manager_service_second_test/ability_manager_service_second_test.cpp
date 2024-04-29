@@ -416,6 +416,25 @@ HWTEST_F(AbilityManagerServiceSecondTest, StartAbility_003, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
+ * Function: StartAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityWithSpecifyTokenIdInner
+ */
+HWTEST_F(AbilityManagerServiceSecondTest, StartAbility_004, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    Want want;
+    ElementName element("", "com.ix.hiMusic", "MusicAbility");
+    want.SetElement(element);
+    StartOptions startOptions;
+    sptr<IRemoteObject> callerToken = nullptr;
+    int requestCode = 0;
+    EXPECT_EQ(abilityMs_->StartAbilityWithSpecifyTokenIdInner(want, startOptions, callerToken,
+        USER_ID_U100, requestCode), CHECK_PERMISSION_FAILED);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: StartAbilityAsCaller
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService StartAbilityAsCaller

@@ -20,6 +20,7 @@
 
 #include "parcel.h"
 
+#include "start_options.h"
 #include "want.h"
 
 #include "want_receiver_interface.h"
@@ -32,6 +33,7 @@ struct SenderInfo : public Parcelable {
     std::string resolvedType;
     sptr<IWantReceiver> finishedReceiver;
     std::string requiredPermission;
+    sptr<StartOptions> startOptions;
 
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;

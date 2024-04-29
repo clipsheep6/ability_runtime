@@ -223,15 +223,28 @@ void PendingWantManager::CancelWantSenderLocked(PendingWantRecord &record, bool 
         wantRecords_.erase(record.GetKey());
     }
 }
-int32_t PendingWantManager::DeviceIdDetermine(const Want &want, const sptr<IRemoteObject> &callerToken,
-    int32_t requestCode, const int32_t callerUid, int32_t callerTokenId)
+
+int32_t PendingWantManager::DeviceIdDetermine(const Want &want, const sptr<StartOptions> &startOptions,
+    const sptr<IRemoteObject> &callerToken, int32_t requestCode, const int32_t callerUid, int32_t callerTokenId)
 {
     int32_t result = ERR_OK;
     std::string localDeviceId;
     DelayedSingleton<AbilityManagerService>::GetInstance()->GetLocalDeviceId(localDeviceId);
     if (want.GetElement().GetDeviceID() == "" || want.GetElement().GetDeviceID() == localDeviceId) {
-        result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbilityWithSpecifyTokenIdInner(
-            want, callerToken, callerTokenId, requestCode, callerUid);
+        if (!startOptions) {
+            result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbilityWithSpecifyTokenIdInner(
+                want, callerToken, callerTokenId, requestCode, callerUid);
+        } else {
+            TAG_LOGD(AAFwkTag::WANTAGENT, "StartOptions windowMode:%{public}d displayId:%{public}d \
+                withAnimation:%{public}d windowLeft:%{public}d windowTop:%{public}d windowWidth:%{public}d \
+                windowHeight:%{public}d",
+                startOptions->GetWindowMode(), startOptions->GetDisplayID(), startOptions->GetWithAnimation(),
+                startOptions->GetWindowLeft(), startOptions->GetWindowTop(), startOptions->GetWindowWidth(),
+                startOptions->GetWindowHeight());
+            result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbilityWithSpecifyTokenIdInner(
+                want, *startOptions, callerToken, requestCode, callerUid, callerTokenId);
+        }
+
         if (result != ERR_OK && result != START_ABILITY_WAITING) {
             TAG_LOGE(AAFwkTag::WANTAGENT, "%{public}s:result != ERR_OK && result != START_ABILITY_WAITING.", __func__);
         }
@@ -256,22 +269,23 @@ int32_t PendingWantManager::DeviceIdDetermine(const Want &want, const sptr<IRemo
     return result;
 }
 
-int32_t PendingWantManager::PendingWantStartAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
-    int32_t requestCode, const int32_t callerUid, int32_t callerTokenId)
+int32_t PendingWantManager::PendingWantStartAbility(const Want &want, const sptr<StartOptions> &startOptions,
+    const sptr<IRemoteObject> &callerToken, int32_t requestCode, const int32_t callerUid, int32_t callerTokenId)
 {
     TAG_LOGI(AAFwkTag::WANTAGENT, "begin");
-    int32_t result = DeviceIdDetermine(want, callerToken, requestCode, callerUid, callerTokenId);
+    int32_t result = DeviceIdDetermine(want, startOptions, callerToken, requestCode, callerUid, callerTokenId);
     return result;
 }
 
-int32_t PendingWantManager::PendingWantStartAbilitys(const std::vector<WantsInfo> wantsInfo,
-    const sptr<IRemoteObject> &callerToken, int32_t requestCode, const int32_t callerUid, int32_t callerTokenId)
+int32_t PendingWantManager::PendingWantStartAbilitys(const std::vector<WantsInfo> &wantsInfo,
+    const sptr<StartOptions> &startOptions, const sptr<IRemoteObject> &callerToken, int32_t requestCode,
+    const int32_t callerUid, int32_t callerTokenId)
 {
     TAG_LOGI(AAFwkTag::WANTAGENT, "begin");
 
     int32_t result = ERR_OK;
     for (const auto &item : wantsInfo) {
-        auto res = DeviceIdDetermine(item.want, callerToken, requestCode, callerUid, callerTokenId);
+        auto res = DeviceIdDetermine(item.want, startOptions, callerToken, requestCode, callerUid, callerTokenId);
         if (res != ERR_OK && res != START_ABILITY_WAITING) {
             result = res;
         }
