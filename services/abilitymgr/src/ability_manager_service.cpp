@@ -8517,6 +8517,11 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
 
 int AbilityManagerService::CheckUIExtensionPermission(const AbilityRequest &abilityRequest)
 {
+    if (abilityRequest.want.HasParameter(AAFwk::SCREEN_MODE_KEY)) {
+        // If started by embedded atomic service, allow it.
+        return ERR_OK;
+    }
+
     auto extensionType = abilityRequest.abilityInfo.extensionAbilityType;
     if (AAFwk::UIExtensionUtils::IsSystemUIExtension(extensionType)) {
         auto callerRecord = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
