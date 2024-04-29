@@ -703,11 +703,16 @@ HWTEST_F(AbilityManagerServiceSecondTest, ContinueMissionBundleName_001, TestSiz
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest ContinueMissionBundleName_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    std::string srcDeviceId = "test";
-    std::string dstDeviceId = "test";
+    std::string srcDeviceId = "";
+    std::string dstDeviceId = "";
+    const sptr<IRemoteObject> callback = nullptr;
     AAFwk::WantParams wantParams;
-    EXPECT_EQ(abilityMs_->ContinueMission(srcDeviceId, dstDeviceId, "bundleName", nullptr, wantParams),
-        CHECK_PERMISSION_FAILED);
+    ContinueMissionInfo continueMissionInfo;
+    continueMissionInfo.dstDeviceId = dstDeviceId;
+    continueMissionInfo.srcDeviceId = srcDeviceId;
+    continueMissionInfo.bundleName = "bundleName";
+    continueMissionInfo.wantParams = wantParams;
+    EXPECT_EQ(abilityMs_->ContinueMission(continueMissionInfo, callback), CHECK_PERMISSION_FAILED);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest ContinueMissionBundleName_001 end");
 }
 

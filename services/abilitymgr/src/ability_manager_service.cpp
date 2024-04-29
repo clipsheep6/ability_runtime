@@ -3748,8 +3748,8 @@ int AbilityManagerService::ContinueMission(const std::string &srcDeviceId, const
     return dmsClient.ContinueMission(srcDeviceId, dstDeviceId, missionId, callBack, wantParams);
 }
 
-int AbilityManagerService::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
-    const std::string &bundleName, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
+int AbilityManagerService::ContinueMission(AAFwk::ContinueMissionInfo continueMissionInfo,
+    const sptr<IRemoteObject> &callback)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "amsServ %{public}s called.", __func__);
     AAFWK::ContinueRadar::GetInstance().ClickIconContinue("ContinueMission");
@@ -3759,7 +3759,7 @@ int AbilityManagerService::ContinueMission(const std::string &srcDeviceId, const
     }
 
     DistributedClient dmsClient;
-    return dmsClient.ContinueMission(srcDeviceId, dstDeviceId, bundleName, callBack, wantParams);
+    return dmsClient.ContinueMission(continueMissionInfo, callback);
 }
 
 int AbilityManagerService::ContinueAbility(const std::string &deviceId, int32_t missionId, uint32_t versionCode)

@@ -602,8 +602,7 @@ public:
      * @param wantParams, extended params.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
-        const std::string &bundleName, sptr<IRemoteObject> callback, AAFwk::WantParams &wantParams);
+    ErrCode ContinueMission(AAFwk::ContinueMissionInfo continueMissionInfo, const sptr<IRemoteObject> &callback);
 
     /**
      * start continuation.

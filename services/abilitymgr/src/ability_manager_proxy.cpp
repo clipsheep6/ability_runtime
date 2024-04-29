@@ -2158,8 +2158,8 @@ int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const s
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
-    const std::string &bundleName, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
+int AbilityManagerProxy::ContinueMission(AAFwk::ContinueMissionInfo continueMissionInfo,
+    const sptr<IRemoteObject> &callback)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -2167,27 +2167,34 @@ int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const s
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
-    if (!data.WriteString(srcDeviceId)) {
+    if (!data.WriteString(continueMissionInfo.srcDeviceId)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "srcDeviceId write failed.");
         return INNER_ERR;
     }
-    if (!data.WriteString(dstDeviceId)) {
+    if (!data.WriteString(continueMissionInfo.dstDeviceId)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "dstDeviceId write failed.");
         return INNER_ERR;
     }
-    if (!data.WriteString(bundleName)) {
+    if (!data.WriteString(continueMissionInfo.bundleName)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "missionId write failed.");
         return INNER_ERR;
     }
-    if (!data.WriteRemoteObject(callBack)) {
+    if (!data.WriteRemoteObject(callback)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "callBack write failed.");
         return INNER_ERR;
     }
-    if (!data.WriteParcelable(&wantParams)) {
+    if (!data.WriteParcelable(&continueMissionInfo.wantParams)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "wantParams write failed.");
         return INNER_ERR;
     }
-
+    if (!data.WriteString(continueMissionInfo.srcBundleName)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "srcBundleName write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteString(continueMissionInfo.continueType)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "continueType write failed.");
+        return INNER_ERR;
+    }
     auto error = SendRequest(AbilityManagerInterfaceCode::CONTINUE_MISSION_OF_BUNDLENAME, data, reply, option);
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);

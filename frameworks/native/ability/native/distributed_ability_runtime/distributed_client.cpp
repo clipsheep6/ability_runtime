@@ -130,8 +130,8 @@ int32_t DistributedClient::ContinueMission(const std::string& srcDeviceId, const
     PARCEL_TRANSACT_SYNC_RET_INT(remote, CONTINUE_MISSION, data, reply);
 }
 
-int32_t DistributedClient::ContinueMission(const std::string& srcDeviceId, const std::string& dstDeviceId,
-    const std::string& bundleName, const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams)
+int32_t DistributedClient::ContinueMission(AAFwk::ContinueMissionInfo continueMissionInfo,
+    const sptr<IRemoteObject> &callback)
 {
     TAG_LOGI(AAFwkTag::DISTRIBUTED, "dmsClient %{public}s called.", __func__);
     if (callback == nullptr) {
@@ -148,11 +148,13 @@ int32_t DistributedClient::ContinueMission(const std::string& srcDeviceId, const
     if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
         return ERR_FLATTEN_OBJECT;
     }
-    PARCEL_WRITE_HELPER(data, String, srcDeviceId);
-    PARCEL_WRITE_HELPER(data, String, dstDeviceId);
-    PARCEL_WRITE_HELPER(data, String, bundleName);
+    PARCEL_WRITE_HELPER(data, String, continueMissionInfo.srcDeviceId);
+    PARCEL_WRITE_HELPER(data, String, continueMissionInfo.dstDeviceId);
+    PARCEL_WRITE_HELPER(data, String, continueMissionInfo.bundleName);
     PARCEL_WRITE_HELPER(data, RemoteObject, callback);
-    PARCEL_WRITE_HELPER(data, Parcelable, &wantParams);
+    PARCEL_WRITE_HELPER(data, Parcelable, &continueMissionInfo.wantParams);
+    PARCEL_WRITE_HELPER(data, String, continueMissionInfo.srcBundleName);
+    PARCEL_WRITE_HELPER(data, String, continueMissionInfo.continueType);
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, CONTINUE_MISSION_OF_BUNDLENAME, data, reply);
 }
