@@ -54,6 +54,7 @@ struct CallbackInfo {
     WantAgent* wantAgent = nullptr;
     napi_env env = nullptr;
     std::unique_ptr<NativeReference> nativeRef = nullptr;
+    int32_t callbackId = -1;
 };
 
 struct TriggerReceiveDataWorker {
@@ -122,8 +123,13 @@ public:
 public:
     void OnSendFinished(const AAFwk::Want &want, int resultCode, const std::string &resultData,
         const AAFwk::WantParams &resultExtras) override;
-    void SetCallbackInfo(napi_env env, NativeReference* ref);
+    void SetCallbackInfo(napi_env env, int32_t callbackId);
     void SetWantAgentInstance(WantAgent* wantAgent);
+    static std::unique_ptr<NativeReference> GetCallbackById(int32_t callbackId);
+    static void AddCallback(NativeReference *callbackRef, int32_t &callbackId);
+
+private:
+    static int32_t TriggerCallBackIdCreate();
 
 private:
     CallbackInfo triggerCompleteInfo_;

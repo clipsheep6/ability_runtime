@@ -48,6 +48,8 @@ constexpr uint8_t INDEX_TWO = 2;
 constexpr int32_t ERR_NOT_OK = -1;
 constexpr int32_t BUSINESS_ERROR_CODE_OK = 0;
 constexpr int32_t PARAMETER_ERROR = -1;
+static std::mutex callbackMutex;
+static std::map<int32_t, std::unique_ptr<NativeReference>> callbackMap;
 } // namespace
 
 
@@ -57,15 +59,43 @@ TriggerCompleteCallBack::TriggerCompleteCallBack()
 TriggerCompleteCallBack::~TriggerCompleteCallBack()
 {}
 
-void TriggerCompleteCallBack::SetCallbackInfo(napi_env env, NativeReference* ref)
+void TriggerCompleteCallBack::SetCallbackInfo(napi_env env, int32_t callbackId)
 {
     triggerCompleteInfo_.env = env;
-    triggerCompleteInfo_.nativeRef.reset(ref);
+    triggerCompleteInfo_.callbackId = callbackId;
 }
 
 void TriggerCompleteCallBack::SetWantAgentInstance(WantAgent* wantAgent)
 {
     triggerCompleteInfo_.wantAgent = wantAgent;
+}
+
+int32_t TriggerCompleteCallBack::TriggerCallBackIdCreate()
+{
+    static std::atomic_int id(0);
+    return ++id;
+}
+
+std::unique_ptr<NativeReference> TriggerCompleteCallBack::GetCallbackById(int32_t callbackId)
+{
+    std::lock_guard<std::mutex> guard(callbackMutex);
+    auto it = callbackMap.find(callbackId);
+    if (it != callbackMap.end()) {
+        callbackMap.erase(callbackId);
+        return std::move(it->second);
+    }
+    return nullptr;
+}
+
+void TriggerCompleteCallBack::AddCallback(NativeReference *callbackRef, int32_t &callbackId)
+{
+    if (callbackRef == nullptr) {
+        return;
+    }
+    std::lock_guard<std::mutex> guard(callbackMutex);
+    callbackId = TriggerCallBackIdCreate();
+    std::unique_ptr<NativeReference> callbackRefPtr(callbackRef);
+    callbackMap[callbackId] = std::move(callbackRefPtr);
 }
 
 napi_value RetErrMsg(napi_env env, napi_value lastParam, int32_t errorCode)
@@ -178,8 +208,9 @@ void TriggerCompleteCallBack::OnSendFinished(
     const AAFwk::Want &want, int resultCode, const std::string &resultData, const AAFwk::WantParams &resultExtras)
 {
     TAG_LOGI(AAFwkTag::WANTAGENT, "TriggerCompleteCallBack::OnSendFinished start");
-    if (triggerCompleteInfo_.nativeRef == nullptr) {
-        TAG_LOGI(AAFwkTag::WANTAGENT, "triggerCompleteInfo_ CallBack is nullptr");
+    std::unique_ptr<NativeReference> callBackPtr = GetCallbackById(triggerCompleteInfo_.callbackId);
+    if (callBackPtr == nullptr) {
+        TAG_LOGI(AAFwkTag::WANTAGENT, "callBackPtr is nullptr");
         return;
     }
 
@@ -204,12 +235,13 @@ void TriggerCompleteCallBack::OnSendFinished(
         work = nullptr;
         return;
     }
+    dataWorker->nativeRef = std::move(callBackPtr);
     dataWorker->want = want;
     dataWorker->resultCode = resultCode;
     dataWorker->resultData = resultData;
     dataWorker->resultExtras = resultExtras;
     dataWorker->env = triggerCompleteInfo_.env;
-    dataWorker->nativeRef = std::move(triggerCompleteInfo_.nativeRef);
+   // dataWorker->nativeRef = std::move(triggerCompleteInfo_.nativeRef);
     dataWorker->wantAgent = triggerCompleteInfo_.wantAgent;
     work->data = static_cast<void *>(dataWorker);
     int ret = uv_queue_work(loop, work, [](uv_work_t *work) {}, OnSendFinishedUvAfterWorkCallback);
@@ -733,7 +765,11 @@ int32_t JsWantAgent::UnWrapTriggerInfoParam(napi_env env, napi_callback_info inf
 
     napi_ref ref = nullptr;
     napi_create_reference(env, argv[ARGC_TWO], 1, &ref);
-    triggerObj->SetCallbackInfo(env, reinterpret_cast<NativeReference*>(ref));
+//   triggerObj->SetCallbackInfo(env, reinterpret_cast<NativeReference*>(ref));
+    int32_t callbackId = -1;
+    TriggerCompleteCallBack::AddCallback(reinterpret_cast<NativeReference*>(ref), callbackId);
+    triggerObj->SetCallbackInfo(env, callbackId);
+
     triggerObj->SetWantAgentInstance(pWantAgent);
 
     return BUSINESS_ERROR_CODE_OK;
