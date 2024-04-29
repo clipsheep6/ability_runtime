@@ -12,11 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+class AsyncTaskCallback {
+  private __impl__: any;
 
-class StartupTask {
-  onDependenceCompleted(dependence, result) {
-    console.log('onDependenceCompleted');
+  constructor(object) {
+    "use sendable"
+    console.log('AsyncTaskCallback constructor config is ' + object.config);
+    this.__impl__ = object;
+    object.onAsyncTaskCompleted();
+  }
+
+  onAsyncTaskCompleted() {
+    console.log('AsyncTaskCallback onAsyncTaskCompleted called.');
+    return this.__impl__.onAsyncTaskCompleted();
   }
 }
 
-export default StartupTask;
+export default AsyncTaskCallback;

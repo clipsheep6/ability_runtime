@@ -14,27 +14,27 @@
 import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
 import("//build/ohos.gni")
 
-es2abc_gen_abc("gen_sendable_async_task_callback_abc") {
-  src_js = rebase_path("sendable_async_task_callback.ts")
-  dst_file = rebase_path(target_out_dir + "/sendable_async_task_callback.abc")
-  in_puts = [ "sendable_async_task_callback.ts" ]
-  out_puts = [ target_out_dir + "/sendable_async_task_callback.abc" ]
+es2abc_gen_abc("gen_async_task_callback_abc") {
+  src_js = rebase_path("async_task_callback.ts")
+  dst_file = rebase_path(target_out_dir + "/async_task_callback.abc")
+  in_puts = [ "async_task_callback.ts" ]
+  out_puts = [ target_out_dir + "/async_task_callback.abc" ]
   extra_args = [ "--module" ]
 }
 
-gen_js_obj("sendable_async_task_callback_js") {
-  input = "sendable_async_task_callback.ts"
-  output = target_out_dir + "/sendable_async_task_callback.o"
+gen_js_obj("async_task_callback_js") {
+  input = "async_task_callback.ts"
+  output = target_out_dir + "/async_task_callback.o"
 }
 
-gen_js_obj("sendable_async_task_callback_abc") {
-  input = get_label_info(":gen_sendable_async_task_callback_abc", "target_out_dir") +
-          "/sendable_async_task_callback.abc"
-  output = target_out_dir + "/sendable_async_task_callback_abc.o"
-  dep = ":gen_sendable_async_task_callback_abc"
+gen_js_obj("async_task_callback_abc") {
+  input = get_label_info(":gen_async_task_callback_abc", "target_out_dir") +
+          "/async_task_callback.abc"
+  output = target_out_dir + "/async_task_callback_abc.o"
+  dep = ":gen_async_task_callback_abc"
 }
 
-ohos_shared_library("sendableasynctaskcallback_napi") {
+ohos_shared_library("asynctaskcallback_napi") {
   sanitize = {
     integer_overflow = true
     ubsan = true
@@ -46,11 +46,11 @@ ohos_shared_library("sendableasynctaskcallback_napi") {
   }
   branch_protector_ret = "pac_ret"
 
-  sources = [ "sendable_async_task_callback_module.cpp" ]
+  sources = [ "async_task_callback_module.cpp" ]
 
   deps = [
-    ":sendable_async_task_callback_abc",
-    ":sendable_async_task_callback_js",
+    ":async_task_callback_abc",
+    ":async_task_callback_js",
   ]
 
   external_deps = [ "napi:ace_napi" ]

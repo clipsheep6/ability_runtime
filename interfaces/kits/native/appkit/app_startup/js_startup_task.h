@@ -28,13 +28,10 @@ namespace AbilityRuntime {
 class AsyncTaskCallBack {
 public:
     AsyncTaskCallBack() = default;
-
     ~AsyncTaskCallBack() = default;
 
     static napi_value AsyncTaskCompleted(napi_env env, napi_callback_info info);
-
     napi_value onAsyncTaskCompleted(napi_env env, NapiCallbackInfo &info);
-
     static void Finalizer(napi_env env, void* data, void* hint);
 };
 
@@ -51,6 +48,9 @@ public:
 
     int32_t RunTaskOnDependencyCompleted(const std::string &dependencyName,
         const std::shared_ptr<StartupTaskResult> &result) override;
+
+    int32_t LoadJsAsyncTaskExcutor();
+    int32_t LoadJsAsyncTaskCallback();
 
 private:
     JsRuntime &jsRuntime_;

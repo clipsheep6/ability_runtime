@@ -21,12 +21,6 @@ class StartupTask {
   onDependenceCompleted(dependence, result) {
     console.log('onDependenceCompleted');
   }
-
-  // onAsyncTaskCompleted() {
-  //   console.log('StartupTask onAsyncTaskCompleted end');
-  //   let ExtensionContext = requireNapi('application.ExtensionContext');
-  //   return ExtensionContext.__context_impl__.onAsyncTaskCompleted();
-  // }
 }
 
 export default StartupTask;
