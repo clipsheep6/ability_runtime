@@ -141,7 +141,6 @@ ohos_shared_library("abilityms") {
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
-    "background_task_mgr:bgtaskmgr_innerkits",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "bundle_framework:libappexecfwk_common",
@@ -172,7 +171,7 @@ ohos_shared_library("abilityms") {
     "window_manager:session_manager_lite",
     "window_manager:sms",
   ]
-
+  public_external_deps = [ "background_task_mgr:bgtaskmgr_innerkits" ]
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
   }
