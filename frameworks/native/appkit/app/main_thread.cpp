@@ -1380,6 +1380,10 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         options.pkgContextInfoJsonStringMap = pkgContextInfoJsonStringMap;
         options.jitEnabled = appLaunchData.IsJITEnabled();
         AbilityRuntime::ChildProcessManager::GetInstance().SetForkProcessJITEnabled(appLaunchData.IsJITEnabled());
+        TAG_LOGD(AAFwkTag::APPKIT, "isStartWithDebug:%{public}d, debug:%{public}d, isNativeStart:%{public}d",
+            appLaunchData.GetDebugApp(), appInfo.debug, appLaunchData.isNativeStart());
+        AbilityRuntime::ChildProcessManager::GetInstance().SetForkProcessDebugOption(appInfo.bundleName,
+            appLaunchData.GetDebugApp(), appInfo.debug, appLaunchData.isNativeStart());
         if (!bundleInfo.hapModuleInfos.empty()) {
             for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
                 options.hapModulePath[hapModuleInfo.moduleName] = hapModuleInfo.hapPath;

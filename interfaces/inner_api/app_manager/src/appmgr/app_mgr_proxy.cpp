@@ -1600,7 +1600,8 @@ int32_t AppMgrProxy::IsApplicationRunning(const std::string &bundleName, bool &i
     return reply.ReadInt32();
 }
 
-int32_t AppMgrProxy::StartChildProcess(const std::string &srcEntry, pid_t &childPid)
+int32_t AppMgrProxy::StartChildProcess(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount,
+    bool isStartWithDebug)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (srcEntry.empty()) {
@@ -1614,6 +1615,14 @@ int32_t AppMgrProxy::StartChildProcess(const std::string &srcEntry, pid_t &child
     }
     if (!data.WriteString(srcEntry)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write param srcEntry failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteInt32(childProcessCount)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write param childProcessCount failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteBool(isStartWithDebug)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write param isStartWithDebug failed.");
         return ERR_FLATTEN_OBJECT;
     }
 

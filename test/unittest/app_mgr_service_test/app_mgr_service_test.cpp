@@ -1444,11 +1444,11 @@ HWTEST_F(AppMgrServiceTest, StartChildProcess_001, TestSize.Level1)
     appMgrService->taskHandler_ = taskHandler_;
     appMgrService->eventHandler_ = eventHandler_;
 
-    EXPECT_CALL(*mockAppMgrServiceInner_, StartChildProcess(_, _, _))
+    EXPECT_CALL(*mockAppMgrServiceInner_, StartChildProcess(_, _, _, _, _))
         .Times(1)
         .WillOnce(Return(ERR_OK));
     pid_t pid = 0;
-    int32_t res = appMgrService->StartChildProcess("./ets/AProcess.ts", pid);
+    int32_t res = appMgrService->StartChildProcess("./ets/AProcess.ts", pid, 1, false);
     EXPECT_EQ(res, ERR_OK);
 }
 

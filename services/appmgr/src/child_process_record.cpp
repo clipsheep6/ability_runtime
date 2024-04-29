@@ -22,8 +22,9 @@
 namespace OHOS {
 namespace AppExecFwk {
 ChildProcessRecord::ChildProcessRecord(pid_t hostPid, const std::string &srcEntry,
-    const std::shared_ptr<AppRunningRecord> hostRecord)
-    : hostPid_(hostPid), srcEntry_(srcEntry), hostRecord_(hostRecord)
+    const std::shared_ptr<AppRunningRecord> hostRecord, int32_t childProcessCount, bool isStartWithDebug)
+    : hostPid_(hostPid), childProcessCount_(childProcessCount), srcEntry_(srcEntry), hostRecord_(hostRecord),
+    isStartWithDebug_(isStartWithDebug)
 {
     MakeProcessName(hostRecord);
 }
@@ -34,14 +35,15 @@ ChildProcessRecord::~ChildProcessRecord()
 }
 
 std::shared_ptr<ChildProcessRecord> ChildProcessRecord::CreateChildProcessRecord(pid_t hostPid,
-    const std::string &srcEntry, const std::shared_ptr<AppRunningRecord> hostRecord)
+    const std::string &srcEntry, const std::shared_ptr<AppRunningRecord> hostRecord, int32_t childProcessCount,
+    bool isStartWithDebug)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "hostPid: %{public}d, srcEntry: %{public}s", hostPid, srcEntry.c_str());
     if (hostPid <= 0 || srcEntry.empty() || !hostRecord) {
         TAG_LOGE(AAFwkTag::APPMGR, "Invalid parameter.");
         return nullptr;
     }
-    return std::make_shared<ChildProcessRecord>(hostPid, srcEntry, hostRecord);
+    return std::make_shared<ChildProcessRecord>(hostPid, srcEntry, hostRecord, childProcessCount, isStartWithDebug);
 }
 
 void ChildProcessRecord::SetPid(pid_t pid)
@@ -148,6 +150,13 @@ void ChildProcessRecord::MakeProcessName(const std::shared_ptr<AppRunningRecord>
         processName_.append(":");
         processName_.append(filename);
     }
+    processName_.append(std::to_string(childProcessCount_));
+    TAG_LOGD(AAFwkTag::APPMGR, "MakeSpawnForkProcessName processName is %{public}s", processName_.c_str());
+}
+
+bool ChildProcessRecord::isStartWithDebug()
+{
+    return isStartWithDebug_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

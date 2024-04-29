@@ -1098,7 +1098,9 @@ int32_t AppMgrStub::HandleStartChildProcess(MessageParcel &data, MessageParcel &
     TAG_LOGD(AAFwkTag::APPMGR, "called.");
     std::string srcEntry = data.ReadString();
     int32_t childPid = 0;
-    int32_t result = StartChildProcess(srcEntry, childPid);
+    int32_t childProcessCount = data.ReadInt32();
+    int32_t isStartWithDebug = data.ReadBool();
+    int32_t result = StartChildProcess(srcEntry, childPid, childProcessCount, isStartWithDebug);
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write result error.");
         return ERR_INVALID_VALUE;

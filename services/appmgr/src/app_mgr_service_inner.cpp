@@ -5621,7 +5621,8 @@ int32_t AppMgrServiceInner::UnregisterAppRunningStatusListener(const sptr<IRemot
     return appRunningStatusModule_->UnregisterListener(appRunningStatusListener);
 }
 
-int32_t AppMgrServiceInner::StartChildProcess(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid)
+int32_t AppMgrServiceInner::StartChildProcess(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid,
+    int32_t childProcessCount, bool isStartWithDebug)
 {
     TAG_LOGI(AAFwkTag::APPMGR, "StarChildProcess, hostPid:%{public}d", hostPid);
     auto errCode = StartChildProcessPreCheck(hostPid);
@@ -5637,7 +5638,8 @@ int32_t AppMgrServiceInner::StartChildProcess(const pid_t hostPid, const std::st
         return ERR_NO_INIT;
     }
     auto appRecord = GetAppRunningRecordByPid(hostPid);
-    auto childProcessRecord = ChildProcessRecord::CreateChildProcessRecord(hostPid, srcEntry, appRecord);
+    auto childProcessRecord = ChildProcessRecord::CreateChildProcessRecord(hostPid, srcEntry, appRecord,
+        childProcessCount, isStartWithDebug);
     return StartChildProcessImpl(childProcessRecord, appRecord, childPid);
 }
 
@@ -5740,6 +5742,13 @@ int32_t AppMgrServiceInner::GetChildProcessInfo(const std::shared_ptr<ChildProce
     info.processName = childProcessRecord->GetProcessName();
     info.srcEntry = childProcessRecord->GetSrcEntry();
     info.jitEnabled = appRecord->IsJITEnabled();
+    info.isStartWithDebug = childProcessRecord->isStartWithDebug();
+    auto applicationInfo = appRecord->GetApplicationInfo();
+    if (applicationInfo) {
+        TAG_LOGD(AAFwkTag::APPMGR, "applicationInfo is exist, debug:%{public}d", applicationInfo->debug);
+        info.isDebugApp = applicationInfo->debug;
+    }
+    info.isStartWithNative = appRecord->isNativeStart();
     return ERR_OK;
 }
 
