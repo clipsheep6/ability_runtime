@@ -360,6 +360,11 @@ public:
      */
     int RequestModalUIExtension(const Want &want) override;
 
+    int PreloadUIExtensionAbility(const Want &want, std::string &hostBundleName,
+        int32_t userId = DEFAULT_INVAL_VALUE) override;
+
+    int UnloadUIExtension(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord, std::string &bundleName);
+
     int ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow) override;
 
     int ChangeUIAbilityVisibilityBySCB(sptr<SessionInfo> sessionInfo, bool isShow) override;
@@ -943,6 +948,9 @@ public:
         bool isDlp = false);
 
     int RequestModalUIExtensionInner(Want want);
+
+    int PreloadUIExtensionAbilityInner(const Want &want, std::string &bundleName,
+        int32_t userId = DEFAULT_INVAL_VALUE);
 
     int StartAbilityForOptionWrap(
         const Want &want,

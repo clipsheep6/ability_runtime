@@ -646,6 +646,12 @@ public:
     Want GetWant() const;
 
     /**
+     * remove specified wantParam for start ability.
+     *
+     */
+    void RemoveSpecifiedWantParam(const std::string &key);
+    
+    /**
      * get request code of the ability to start.
      *
      */
