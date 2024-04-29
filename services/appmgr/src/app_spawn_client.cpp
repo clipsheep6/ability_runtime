@@ -256,8 +256,7 @@ int32_t AppSpawnClient::AppspawnCreateDefaultMsg(const AppSpawnStartMsg &startMs
             }
         }
         if ((ret = AppSpawnReqMsgSetAppAccessToken(reqHandle, startMsg.accessTokenIdEx))) {
-            TAG_LOGE(AAFwkTag::APPMGR, "SetAccessTokenInfo %{public}llu failed, ret: %{public}d",
-                startMsg.accessTokenIdEx, ret);
+            TAG_LOGE(AAFwkTag::APPMGR, "ret: %{public}d", ret);
             break;
         }
         if ((ret = AppSpawnReqMsgSetAppDomainInfo(reqHandle, startMsg.hapFlags, startMsg.apl.c_str()))) {
