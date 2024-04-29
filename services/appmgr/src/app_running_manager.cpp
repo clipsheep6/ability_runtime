@@ -32,6 +32,7 @@
 #include "ui_extension_utils.h"
 #include "app_mgr_service_const.h"
 #include "cache_process_manager.h"
+#include "running_multi_info.h"
 #ifdef EFFICIENCY_MANAGER_ENABLE
 #include "suspend_manager_client.h"
 #endif
@@ -363,6 +364,12 @@ std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> AppRunningManag
 {
     std::lock_guard<ffrt::mutex> guard(lock_);
     return appRunningRecordMap_;
+}
+
+std::map<const std::string, const std::vector<RunningMultiAppInfo>> AppRunningManager::GetRunningMultiAppInfoMap()
+{
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    return runningMultiAppInfoMap_;
 }
 
 void AppRunningManager::RemoveAppRunningRecordById(const int32_t recordId)

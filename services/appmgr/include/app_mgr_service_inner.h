@@ -306,6 +306,17 @@ public:
     virtual int32_t GetAllRunningProcesses(std::vector<RunningProcessInfo> &info);
 
     /**
+     * GetRunningMultiAppInfoByBundleName, call GetRunningMultiAppInfoByBundleName() through proxy project.
+     * Obtains information about multiapp that are running on the device.
+     *
+     * @param bundlename, input.
+     * @param info, output multiapp information.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t GetRunningMultiAppInfoByBundleName(const std::string &bundleName,
+        std::vector<RunningMultiAppInfo> &info);
+    
+    /**
      * GetProcessRunningInfosByUserId, Obtains information about application processes that are running on the device.
      *
      * @param info, app name in Application record.

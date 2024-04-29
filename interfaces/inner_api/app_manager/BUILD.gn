@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -105,6 +105,7 @@ ohos_shared_library("app_manager") {
     "src/appmgr/render_state_data.cpp",
     "src/appmgr/render_state_observer_proxy.cpp",
     "src/appmgr/render_state_observer_stub.cpp",
+    "src/appmgr/running_multi_info.cpp",
     "src/appmgr/running_process_info.cpp",
     "src/appmgr/start_specified_ability_response_proxy.cpp",
     "src/appmgr/start_specified_ability_response_stub.cpp",
