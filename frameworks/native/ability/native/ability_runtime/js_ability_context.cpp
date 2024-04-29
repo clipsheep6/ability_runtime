@@ -382,7 +382,7 @@ napi_value JsAbilityContext::OnStartAbility(napi_env env, NapiCallbackInfo& info
     if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
         TAG_LOGD(AAFwkTag::CONTEXT, "OnStartAbility start options is used.");
         if (!AppExecFwk::UnwrapStartOptionsWithProcessOption(env, info.argv[INDEX_ONE], startOptions)) {
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param startOptions failed, startOptions must be StartOptions.");
             TAG_LOGE(AAFwkTag::CONTEXT, "unwrap startOptions failed.");
             return CreateJsUndefined(env);
         }
@@ -566,7 +566,7 @@ napi_value JsAbilityContext::OnOpenLink(napi_env env, NapiCallbackInfo& info)
             task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
         }
     };
-    
+
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnOpenLink", env,
         CreateAsyncTaskWithLastParam(env, nullptr, std::move(execute), std::move(complete), &result));
@@ -640,7 +640,7 @@ napi_value JsAbilityContext::OnStartAbilityWithAccount(napi_env env, NapiCallbac
     int32_t accountId = 0;
     if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(env, info.argv[INDEX_ONE], accountId)) {
         TAG_LOGD(AAFwkTag::CONTEXT, "the second parameter is invalid.");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parse param accountId failed, accountId must be number.");
         return CreateJsUndefined(env);
     }
     unwrapArgc++;
@@ -712,7 +712,7 @@ bool JsAbilityContext::CheckStartAbilityByCallParams(napi_env env, NapiCallbackI
     if (!CheckTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_object) ||
         !AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
         TAG_LOGE(AAFwkTag::CONTEXT, "Failed to parse want!");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parse param want failed, want must be Want.");
         return false;
     }
 
@@ -725,12 +725,12 @@ bool JsAbilityContext::CheckStartAbilityByCallParams(napi_env env, NapiCallbackI
     bool paramOneIsFunction = CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_function);
     if (!paramOneIsNumber && !paramOneIsFunction) {
         TAG_LOGE(AAFwkTag::CONTEXT, "Failed, input param type invalid");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parse second param failed, second param must be callback or number.");
         return false;
     }
     if (paramOneIsNumber && !ConvertFromJsValue(env, info.argv[INDEX_ONE], userId)) {
         TAG_LOGE(AAFwkTag::CONTEXT, "Failed to parse accountId!");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parse param accountId failed, accountId must be number.");
         return false;
     }
     if (paramOneIsFunction) {
@@ -806,7 +806,7 @@ napi_value JsAbilityContext::OnStartAbilityForResult(napi_env env, NapiCallbackI
     AAFwk::Want want;
     if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
         TAG_LOGE(AAFwkTag::CONTEXT, "Failed to parse want!");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parse param want failed, want must be Want.");
         return CreateJsUndefined(env);
     }
     InheritWindowMode(want);
@@ -885,7 +885,7 @@ napi_value JsAbilityContext::OnStartAbilityForResultWithAccount(napi_env env, Na
     AAFwk::Want want;
     if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
         TAG_LOGE(AAFwkTag::CONTEXT, "Failed to parse want!");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parse param want failed, want must be Want.");
         return CreateJsUndefined(env);
     }
     InheritWindowMode(want);
@@ -893,7 +893,7 @@ napi_value JsAbilityContext::OnStartAbilityForResultWithAccount(napi_env env, Na
     int32_t accountId = 0;
     if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(env, info.argv[INDEX_ONE], accountId)) {
         TAG_LOGE(AAFwkTag::CONTEXT, "the second parameter is invalid.");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parse param accountId failed, accountId must be number.");
         return CreateJsUndefined(env);
     }
     unwrapArgc++;
@@ -965,7 +965,7 @@ napi_value JsAbilityContext::OnStartExtensionAbility(napi_env env, NapiCallbackI
     AAFwk::Want want;
     if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
         TAG_LOGE(AAFwkTag::CONTEXT, "Failed to parse want!");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parse param want failed, want must be Want.");
         return CreateJsUndefined(env);
     }
 
@@ -1005,7 +1005,7 @@ napi_value JsAbilityContext::OnStartExtensionAbilityWithAccount(napi_env env, Na
     int32_t accountId = -1;
     if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want) ||
         !OHOS::AppExecFwk::UnwrapInt32FromJS2(env, info.argv[INDEX_ONE], accountId)) {
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parse param accountId failed, accountId must be number.");
         return CreateJsUndefined(env);
     }
 
@@ -1043,7 +1043,7 @@ napi_value JsAbilityContext::OnStopExtensionAbility(napi_env env, NapiCallbackIn
 
     AAFwk::Want want;
     if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parse param want failed, want must be Want.");
         return CreateJsUndefined(env);
     }
 
@@ -1083,7 +1083,8 @@ napi_value JsAbilityContext::OnStopExtensionAbilityWithAccount(napi_env env, Nap
     AAFwk::Want want;
     if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want) ||
         !AppExecFwk::UnwrapInt32FromJS2(env, info.argv[INDEX_ONE], accountId)) {
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env,
+            "Parse param want or accountId failed, want must be Want and accountId must be number.");
         return CreateJsUndefined(env);
     }
 
@@ -1124,7 +1125,7 @@ napi_value JsAbilityContext::OnTerminateSelfWithResult(napi_env env, NapiCallbac
     AAFwk::Want want;
     if (!AppExecFwk::UnWrapAbilityResult(env, info.argv[INDEX_ZERO], resultCode, want)) {
         TAG_LOGE(AAFwkTag::CONTEXT, "%s Failed to parse ability result!", __func__);
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parse param want failed, want must be Want.");
         return CreateJsUndefined(env);
     }
 
@@ -1228,7 +1229,7 @@ napi_value JsAbilityContext::OnConnectAbilityWithAccount(napi_env env, NapiCallb
     int32_t accountId = 0;
     if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(env, info.argv[INDEX_ONE], accountId)) {
         TAG_LOGE(AAFwkTag::CONTEXT, "the second parameter is invalid.");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parse param accountId failed, accountId must be number.");
         return CreateJsUndefined(env);
     }
 
@@ -1849,7 +1850,7 @@ napi_value JsAbilityContext::OnSetMissionContinueState(napi_env env, NapiCallbac
     AAFwk::ContinueState state;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], state)) {
         TAG_LOGE(AAFwkTag::CONTEXT, "OnSetMissionContinueState, parse state failed.");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parse param state failed, state must be State.");
         return CreateJsUndefined(env);
     }
 
@@ -1906,7 +1907,7 @@ napi_value JsAbilityContext::OnSetMissionLabel(napi_env env, NapiCallbackInfo& i
     std::string label;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], label)) {
         TAG_LOGE(AAFwkTag::CONTEXT, "OnSetMissionLabel, parse label failed.");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parse param label failed, label must be string.");
         return CreateJsUndefined(env);
     }
 
@@ -1987,14 +1988,14 @@ napi_value JsAbilityContext::OnStartAbilityByType(napi_env env, NapiCallbackInfo
     std::string type;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], type)) {
         TAG_LOGE(AAFwkTag::CONTEXT, "OnStartAbilityByType, parse type failed.");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parse param type failed, type must be string.");
         return CreateJsUndefined(env);
     }
 
     AAFwk::WantParams wantParam;
     if (!AppExecFwk::UnwrapWantParams(env, info.argv[INDEX_ONE], wantParam)) {
         TAG_LOGE(AAFwkTag::CONTEXT, "OnStartAbilityByType, parse wantParam failed.");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parse param want failed, want must be Want.");
         return CreateJsUndefined(env);
     }
 
@@ -2036,7 +2037,7 @@ napi_value JsAbilityContext::OnRequestModalUIExtension(napi_env env, NapiCallbac
     AAFwk::Want want;
     if (!AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
         TAG_LOGE(AAFwkTag::CONTEXT, "Failed to parse want!");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parse param want failed, want must be Want.");
         return CreateJsUndefined(env);
     }
 
@@ -2108,7 +2109,7 @@ napi_value JsAbilityContext::OnOpenAtomicService(napi_env env, NapiCallbackInfo&
     std::string appId;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], appId)) {
         TAG_LOGE(AAFwkTag::CONTEXT, "Fail to parse appId.");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parse param appId failed, appId must be string.");
         return CreateJsUndefined(env);
     }
 
@@ -2118,7 +2119,7 @@ napi_value JsAbilityContext::OnOpenAtomicService(napi_env env, NapiCallbackInfo&
         TAG_LOGD(AAFwkTag::CONTEXT, "OnOpenAtomicService atomic service options is used.");
         if (!AppExecFwk::UnwrapStartOptionsAndWant(env, info.argv[INDEX_ONE], startOptions, want)) {
             TAG_LOGE(AAFwkTag::CONTEXT, "Fail to parse atomic service options.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param startOptions failed, startOptions must be StartOption.");
             return CreateJsUndefined(env);
         }
     }

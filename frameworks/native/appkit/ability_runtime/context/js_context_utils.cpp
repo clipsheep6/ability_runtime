@@ -26,6 +26,7 @@
 #include "js_resource_manager_utils.h"
 #include "js_runtime_utils.h"
 #include "tokenid_kit.h"
+#include "js_error_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -168,7 +169,7 @@ napi_value JsBaseContext::OnCreateModuleContext(napi_env env, NapiCallbackInfo& 
         TAG_LOGD(AAFwkTag::APPKIT, "Parse inner module name.");
         if (!ConvertFromJsValue(env, info.argv[0], moduleName)) {
             TAG_LOGE(AAFwkTag::APPKIT, "Parse moduleName failed");
-            AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+            ThrowInvalidParamError(env, "Parse param moduleName failed, moduleName must be string.");
             return CreateJsUndefined(env);
         }
         moduleContext = context->CreateModuleContext(moduleName);
@@ -176,7 +177,7 @@ napi_value JsBaseContext::OnCreateModuleContext(napi_env env, NapiCallbackInfo& 
         std::string bundleName;
         if (!ConvertFromJsValue(env, info.argv[0], bundleName)) {
             TAG_LOGE(AAFwkTag::APPKIT, "Parse bundleName failed");
-            AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+            ThrowInvalidParamError(env, "Parse param bundleName failed, bundleName must be string.");
             return CreateJsUndefined(env);
         }
         if (!CheckCallerIsSystemApp()) {
@@ -237,13 +238,13 @@ napi_value JsBaseContext::OnCreateSystemHspModuleResourceManager(napi_env env, N
     std::string bundleName = "";
     if (!ConvertFromJsValue(env, info.argv[0], bundleName)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse bundleName failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param bundleName failed, bundleName must be string.");
         return CreateJsUndefined(env);
     }
     std::string moduleName = "";
     if (!ConvertFromJsValue(env, info.argv[1], moduleName)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse moduleName failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param moduleName failed, moduleName must be string.");
         return CreateJsUndefined(env);
     }
 
@@ -281,13 +282,13 @@ napi_value JsBaseContext::OnCreateModuleResourceManager(napi_env env, NapiCallba
     std::string bundleName;
     if (!ConvertFromJsValue(env, info.argv[0], bundleName)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse bundleName failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param bundleName failed, bundleName must be string.");
         return CreateJsUndefined(env);
     }
     std::string moduleName;
     if (!ConvertFromJsValue(env, info.argv[1], moduleName)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse moduleName failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param moduleName failed, moduleName must be string.");
         return CreateJsUndefined(env);
     }
     if (!CheckCallerIsSystemApp()) {
@@ -458,7 +459,7 @@ napi_value JsBaseContext::OnGetGroupDir(napi_env env, NapiCallbackInfo& info)
     std::string groupId;
     if (!ConvertFromJsValue(env, info.argv[0], groupId)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse groupId failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param groupId failed, groupId must be string.");
         return CreateJsUndefined(env);
     }
 
@@ -539,7 +540,7 @@ napi_value JsBaseContext::OnCreateBundleContext(napi_env env, NapiCallbackInfo& 
     std::string bundleName;
     if (!ConvertFromJsValue(env, info.argv[0], bundleName)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse bundleName failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param bundleName failed, bundleName must be string.");
         return CreateJsUndefined(env);
     }
 
