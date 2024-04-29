@@ -779,5 +779,246 @@ HWTEST_F(FormExtensionProviderClientTest, FormExtensionProviderAcquireFormData_3
     EXPECT_EQ(result, false);
     GTEST_LOG_(INFO) << "FormExtensionProviderAcquireFormData_3000 end";
 }
+
+
+/**
+ * @tc.number: NotifyFormDelete_3100
+ * @tc.name: NotifyFormDelete
+ * @tc.desc: test NotifyFormDelete.
+ */
+HWTEST_F(FormExtensionProviderClientTest, NotifyFormDelete_3100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "NotifyFormDelete_3100 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension(AbilityRuntime::JsFormExtension::Create(runtime));
+    formExtensionProviderClient.SetOwner(formExtension);
+
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(formExtension == extension);
+
+    int64_t formId = 10;
+    Want want;
+    const sptr<IRemoteObject> callerToken = nullptr;
+    int32_t result = formExtensionProviderClient.NotifyFormDelete(formId, want, callerToken);
+    EXPECT_EQ(result, ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED);
+    GTEST_LOG_(INFO) << "NotifyFormDelete_3100 end";
+}
+
+/**
+ * @tc.number: NotifyFormDelete_3200
+ * @tc.name: NotifyFormDelete
+ * @tc.desc: test NotifyFormDelete.
+ */
+HWTEST_F(FormExtensionProviderClientTest, NotifyFormDelete_3200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "NotifyFormDelete_3200 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension(AbilityRuntime::JsFormExtension::Create(runtime));
+    formExtensionProviderClient.SetOwner(formExtension);
+
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(formExtension == extension);
+
+    int64_t formId = 10;
+    Want want; 
+    int32_t result = formExtensionProviderClient.NotifyFormDelete(formId, want, callerToken);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "NotifyFormDelete_3200 end";
+}
+
+/**
+ * @tc.number: NotifyFormsDelete_3300
+ * @tc.name: NotifyFormsDelete
+ * @tc.desc: test NotifyFormsDelete.
+ */
+HWTEST_F(FormExtensionProviderClientTest, NotifyFormsDelete_3300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "NotifyFormsDelete_3300 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension(AbilityRuntime::JsFormExtension::Create(runtime));
+    formExtensionProviderClient.SetOwner(formExtension);
+
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(formExtension == extension);
+
+    int64_t formId = 10;
+    std::vector<int64_t> formIds;
+    formIds.push_back(formId);
+    Want want; 
+    int32_t result = formExtensionProviderClient.NotifyFormsDelete(formIds, want, callerToken);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "NotifyFormsDelete_3300 end";
+}
+
+/**
+ * @tc.number: NotifyFormsDelete_3300
+ * @tc.name: NotifyFormsDelete
+ * @tc.desc: test NotifyFormsDelete.
+ */
+HWTEST_F(FormExtensionProviderClientTest, NotifyFormsDelete_3300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "NotifyFormsDelete_3300 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension(AbilityRuntime::JsFormExtension::Create(runtime));
+    formExtensionProviderClient.SetOwner(formExtension);
+
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(formExtension == extension);
+
+    int64_t formId = 10;
+    std::vector<int64_t> formIds;
+    formIds.push_back(formId);
+    Want want; 
+    int32_t result = formExtensionProviderClient.NotifyFormsDelete(formIds, want, callerToken);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "NotifyFormsDelete_3300 end";
+}
+
+/**
+ * @tc.number: NotifyFormUpdate_3400
+ * @tc.name: NotifyFormUpdate
+ * @tc.desc: test NotifyFormUpdate.
+ */
+HWTEST_F(FormExtensionProviderClientTest, NotifyFormUpdate_3400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "NotifyFormUpdate_3400 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension(AbilityRuntime::JsFormExtension::Create(runtime));
+    formExtensionProviderClient.SetOwner(formExtension);
+
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(formExtension == extension);
+
+    std::vector<int64_t> formIds;
+    Want want; 
+    const sptr<IRemoteObject> callerToken = nullptr;
+    int32_t result = formExtensionProviderClient.NotifyFormUpdate(formIds, want, callerToken);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "NotifyFormUpdate_3400 end";
+}
+
+/**
+ * @tc.number: EventNotify_3500
+ * @tc.name: EventNotify
+ * @tc.desc: test EventNotify.
+ */
+HWTEST_F(FormExtensionProviderClientTest, EventNotify_3500, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "EventNotify_3500 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension(AbilityRuntime::JsFormExtension::Create(runtime));
+    formExtensionProviderClient.SetOwner(formExtension);
+
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(formExtension == extension);
+
+    int64_t formId = 10;
+    std::vector<int64_t> formIds;
+    formIds.push_back(formId);
+    int32_t formVisibleType = 10;
+    Want want; 
+    const sptr<IRemoteObject> callerToken = nullptr;
+    int32_t result = formExtensionProviderClient.EventNotify(formIds, formVisibleType, want, callerToken);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "EventNotify_3500 end";
+}
+
+/**
+ * @tc.number: NotifyFormCastTempForm_3600
+ * @tc.name: NotifyFormCastTempForm
+ * @tc.desc: test NotifyFormCastTempForm.
+ */
+HWTEST_F(FormExtensionProviderClientTest, NotifyFormCastTempForm_3600, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "NotifyFormCastTempForm_3600 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension(AbilityRuntime::JsFormExtension::Create(runtime));
+    formExtensionProviderClient.SetOwner(formExtension);
+
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(formExtension == extension);
+
+    int64_t formId = 10;
+    Want want; 
+    const sptr<IRemoteObject> callerToken = nullptr;
+    int32_t result = formExtensionProviderClient.NotifyFormCastTempForm(formId, want, callerToken);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "NotifyFormCastTempForm_3600 end";
+}
+
+/**
+ * @tc.number: FireFormEvent_3700
+ * @tc.name: FireFormEvent
+ * @tc.desc: test FireFormEvent.
+ */
+HWTEST_F(FormExtensionProviderClientTest, FireFormEvent_3700, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "FireFormEvent_3700 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension(AbilityRuntime::JsFormExtension::Create(runtime));
+    formExtensionProviderClient.SetOwner(formExtension);
+
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(formExtension == extension);
+
+    int64_t formId = 10;
+    std::string message;
+    Want want; 
+    const sptr<IRemoteObject> callerToken = nullptr;
+    int32_t result = formExtensionProviderClient.FireFormEvent(formId, message, want, callerToken);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "FireFormEvent_3700 end";
+}
+
+/**
+ * @tc.number: AcquireState_3800
+ * @tc.name: AcquireState
+ * @tc.desc: test AcquireState.
+ */
+HWTEST_F(FormExtensionProviderClientTest, AcquireState_3800, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AcquireState_3800 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension(AbilityRuntime::JsFormExtension::Create(runtime));
+    formExtensionProviderClient.SetOwner(formExtension);
+
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(formExtension == extension);
+
+    int64_t formId = 10;
+    std::string message;
+    Want want; 
+    const sptr<IRemoteObject> callerToken = nullptr;
+    int32_t result = formExtensionProviderClient.AcquireState(formId, message, want, callerToken);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "AcquireState_3800 end";
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
