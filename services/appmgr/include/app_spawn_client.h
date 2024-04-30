@@ -153,6 +153,14 @@ public:
     int32_t SetStartFlags(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle);
 
     /**
+     * Set atomic service flags.
+     *
+     * @param startMsg, request message.
+     * @param reqHandle, handle for request message
+     */
+    int32_t SetAtomicServiceFlag(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle);
+
+    /**
      * Set extra info: render-cmd, HspList, Overlay, DataGroup, AppEnv.
      *
      * @param startMsg, request message.
