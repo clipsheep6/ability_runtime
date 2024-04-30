@@ -13,10 +13,17 @@
  * limitations under the License.
  */
 
+//let taskPool = requireNapi('taskpool');
+
 class StartupTask {
-  onDependenceCompleted(dependence, result) {
+  constructor() {
+    "use sendable"
+  }
+
+  onDependenceCompleted() {
     console.log('onDependenceCompleted');
   }
 }
+
 
 export default StartupTask;
