@@ -646,6 +646,12 @@ public:
     Want GetWant() const;
 
     /**
+     * remove specified wantParam for start ability.
+     *
+     */
+    void RemoveSpecifiedWantParam(const std::string &key);
+    
+    /**
      * get request code of the ability to start.
      *
      */
@@ -846,7 +852,6 @@ public:
     void SetRestarting(const bool isRestart, int32_t canReStartCount);
     int32_t GetRestartCount() const;
     void SetRestartCount(int32_t restartCount);
-    void SetKeepAlive();
     bool GetKeepAlive() const;
     void SetLoading(bool status);
     bool IsLoading() const;
@@ -1086,7 +1091,6 @@ private:
     bool isWindowStarted_ = false;                     // is window hotstart or coldstart?
     bool isWindowAttached_ = false;                   // Is window of this ability attached?
     bool isLauncherAbility_ = false;                  // is launcher?
-    bool isKeepAlive_ = false;                 // is keep alive or resident ability?
 
     sptr<IAbilityScheduler> scheduler_ = {};       // kit scheduler
     bool isLoading_ = false;        // is loading?

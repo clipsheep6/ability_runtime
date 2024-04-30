@@ -14,8 +14,11 @@
  */
 
 #include "extension_record.h"
+#include "ability_manager_service.h"
 #include "ability_util.h"
 #include "errors.h"
+#include "hilog_tag_wrapper.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -41,6 +44,30 @@ sptr<IRemoteObject> ExtensionRecord::GetRootCallerToken() const
 void ExtensionRecord::SetRootCallerToken(sptr<IRemoteObject> &rootCallerToken)
 {
     rootCallerToken_ = rootCallerToken;
+}
+
+void ExtensionRecord::UnLoadUIExtension()
+{
+    auto ret = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->UnregisterApplicationStateObserver(
+        preLoadUIExtStateObserver_);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Unregister application state observer error.");
+    }
+    auto result = DelayedSingleton<AAFwk::AbilityManagerService>::GetInstance()->UnloadUIExtension(
+        abilityRecord_, hostBundleName_);
+    if (result != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Unload UIExtension error.");
+    }
+}
+
+int32_t ExtensionRecord::RegisterStateObserver(const std::string &hostBundleName)
+{
+    preLoadUIExtStateObserver_ = sptr<AAFwk::PreLoadUIExtStateObserver>(
+        new AAFwk::PreLoadUIExtStateObserver(weak_from_this()));
+    auto ret = IN_PROCESS_CALL(
+        DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->RegisterApplicationStateObserver(
+            preLoadUIExtStateObserver_, {hostBundleName}));
+    return ret;
 }
 
 bool ExtensionRecord::ContinueToGetCallerToken()

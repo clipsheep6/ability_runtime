@@ -717,6 +717,26 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_017, TestSize.Level1)
 
 /*
  * Feature: AbilityConnectManager
+ * Function: GetActiveUIExtensionList
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions:NA
+ * CaseDescription: verify the GetActiveUIExtensionList function.
+ */
+HWTEST_F(AbilityConnectManagerTest, GetActiveUIExtensionList_01, TestSize.Level1)
+{
+    int32_t pid = 1;
+    std::vector<std::string> extensionList;
+    auto result = ConnectManager()->GetActiveUIExtensionList(pid, extensionList);
+    EXPECT_EQ(result, ERR_OK);
+
+    std::string bundleName = "com.test.demo";
+    result = ConnectManager()->GetActiveUIExtensionList(bundleName, extensionList);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/*
+ * Feature: AbilityConnectManager
  * Function: ScheduleConnectAbilityDoneLocked
  * SubFunction: NA
  * FunctionPoints: NA

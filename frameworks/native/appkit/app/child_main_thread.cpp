@@ -152,6 +152,15 @@ void ChildMainThread::HandleLoadJs()
         TAG_LOGE(AAFwkTag::APPKIT, "Failed to create child process runtime");
         return;
     }
+    AbilityRuntime::Runtime::DebugOption debugOption;
+    debugOption.isStartWithDebug = processInfo_->isStartWithDebug;
+    debugOption.processName = processInfo_->processName;
+    debugOption.isDebugApp = processInfo_->isDebugApp;
+    debugOption.isStartWithNative = processInfo_->isStartWithNative;
+    TAG_LOGD(AAFwkTag::APPKIT, "StartDebugMode, isStartWithDebug is %{public}d, processName is %{public}s, "
+        "isDebugApp is %{public}d, isStartWithNative is %{public}d.", processInfo_->isStartWithDebug,
+        processInfo_->processName.c_str(), processInfo_->isDebugApp, processInfo_->isStartWithNative);
+    runtime_->StartDebugMode(debugOption);
     childProcessManager.LoadJsFile(processInfo_->srcEntry, hapModuleInfo, runtime_);
     TAG_LOGD(AAFwkTag::APPKIT, "ChildMainThread::HandleLoadJs end.");
     ExitProcessSafely();

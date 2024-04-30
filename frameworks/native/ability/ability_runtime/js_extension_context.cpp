@@ -15,6 +15,7 @@
 
 #include "js_extension_context.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_context_utils.h"
 #include "js_data_struct_converter.h"
@@ -27,24 +28,24 @@ void JsExtensionContext::ConfigurationUpdated(napi_env env, const std::shared_pt
     const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
     if (env == nullptr || jsContext == nullptr || config == nullptr) {
-        HILOG_ERROR("engine or jsContext or config is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "engine or jsContext or config is nullptr.");
         return;
     }
 
     napi_value object = jsContext->GetNapiValue();
     if (!CheckTypeForNapiValue(env, object, napi_object)) {
-        HILOG_ERROR("object is not object.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "object is not object.");
         return;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env, object, "onUpdateConfiguration", &method);
     if (method == nullptr) {
-        HILOG_ERROR("Failed to get onUpdateConfiguration from object");
+        TAG_LOGE(AAFwkTag::CONTEXT, "Failed to get onUpdateConfiguration from object");
         return;
     }
 
-    HILOG_DEBUG("call onUpdateConfiguration.");
+    TAG_LOGD(AAFwkTag::CONTEXT, "call onUpdateConfiguration.");
     napi_value argv[] = { CreateJsConfiguration(env, *config) };
     napi_call_function(env, object, method, 1, argv, nullptr);
 }
@@ -53,12 +54,12 @@ napi_value CreateJsExtensionContext(napi_env env, const std::shared_ptr<Extensio
     std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo)
 {
     if (context == nullptr) {
-        HILOG_ERROR("Failed to CreateJsExtensionContext, context is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "Failed to CreateJsExtensionContext, context is nullptr.");
         return nullptr;
     }
     napi_value object = CreateJsBaseContext(env, context);
     if (object == nullptr) {
-        HILOG_ERROR("Failed to CreateJsExtensionContext, object is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTEXT, "Failed to CreateJsExtensionContext, object is nullptr.");
         return nullptr;
     }
     auto configuration = context->GetConfiguration();
@@ -69,13 +70,13 @@ napi_value CreateJsExtensionContext(napi_env env, const std::shared_ptr<Extensio
     auto hapModuleInfo = context->GetHapModuleInfo();
     if (abilityInfo && hapModuleInfo) {
         auto isExist = [&abilityInfo](const AppExecFwk::ExtensionAbilityInfo& info) {
-            HILOG_DEBUG("%{public}s, %{public}s", info.bundleName.c_str(), info.name.c_str());
+            TAG_LOGD(AAFwkTag::CONTEXT, "%{public}s, %{public}s", info.bundleName.c_str(), info.name.c_str());
             return info.bundleName == abilityInfo->bundleName && info.name == abilityInfo->name;
         };
         auto infoIter = std::find_if(
             hapModuleInfo->extensionInfos.begin(), hapModuleInfo->extensionInfos.end(), isExist);
         if (infoIter == hapModuleInfo->extensionInfos.end()) {
-            HILOG_ERROR("Set extensionAbilityInfo fail.");
+            TAG_LOGE(AAFwkTag::CONTEXT, "Set extensionAbilityInfo fail.");
         } else {
             napi_set_named_property(env, object, "extensionAbilityInfo", CreateJsExtensionAbilityInfo(env, *infoIter));
         }

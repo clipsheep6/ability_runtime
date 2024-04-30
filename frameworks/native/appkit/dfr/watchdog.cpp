@@ -88,9 +88,15 @@ void Watchdog::SetAppMainThreadState(const bool appMainThreadState)
     appMainThreadIsAlive_.store(appMainThreadState);
 }
 
+void Watchdog::SetBundleInfo(const std::string& bundleName, const std::string& bundleVersion)
+{
+    OHOS::HiviewDFX::Watchdog::GetInstance().SetBundleInfo(bundleName, bundleVersion);
+}
+
 void Watchdog::SetBackgroundStatus(const bool isInBackground)
 {
     isInBackground_.store(isInBackground);
+    OHOS::HiviewDFX::Watchdog::GetInstance().SetForeground(!isInBackground);
 }
 
 void Watchdog::AllowReportEvent()

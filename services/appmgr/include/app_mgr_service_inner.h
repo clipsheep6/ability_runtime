@@ -955,7 +955,8 @@ public:
      * @param childPid Created child process pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t StartChildProcess(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid);
+    virtual int32_t StartChildProcess(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid,
+        int32_t childProcessCount, bool isStartWithDebug);
 
     /**
      * Get child process record for self.
@@ -998,7 +999,7 @@ public:
      * @param isMemorySizeSufficent Indicates the memory size state.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t NotifyMemonySizeStateChanged(bool isMemorySizeSufficent);
+    int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent);
 
     /**
      * whether memory size is sufficent.
@@ -1015,6 +1016,8 @@ public:
     int32_t SignRestartAppFlag(const std::string &bundleName);
 
     void SetAppAssertionPauseState(int32_t pid, bool flag);
+
+    void SetKeepAliveEnableState(const std::string &bundleName, bool enable);
 
     int32_t GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId);
 

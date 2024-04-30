@@ -85,6 +85,8 @@ private:
 
     static std::mutex mutex_;
     static sptr<QuickFixManagerService> instance_;
+    std::mutex eventMutex_;
+    std::mutex taskMutex_;
     std::shared_ptr<AppExecFwk::EventRunner> eventRunner_;
     std::shared_ptr<AppExecFwk::EventHandler> eventHandler_;
     std::vector<std::shared_ptr<QuickFixManagerApplyTask>> applyTasks_;

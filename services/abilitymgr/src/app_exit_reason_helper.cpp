@@ -55,6 +55,12 @@ int32_t AppExitReasonHelper::RecordAppExitReason(const ExitReason &exitReason)
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Get Bundle Name failed.");
         return GET_BUNDLE_INFO_FAILED;
     }
+
+    int32_t resultCode = RecordProcessExtensionExitReason(NO_PID, bundleName, exitReason);
+    if (resultCode != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Record Process Extension Exit Reason failed.code: %{public}d", resultCode);
+    }
+
     CHECK_POINTER_AND_RETURN(subManagersHelper_, ERR_NULL_OBJECT);
     std::vector<std::string> abilityList;
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -85,6 +91,12 @@ int32_t AppExitReasonHelper::RecordProcessExitReason(const int32_t pid, const Ex
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Get bundle name by pid failed.");
         return GET_BUNDLE_INFO_FAILED;
     }
+
+    int32_t resultCode = RecordProcessExtensionExitReason(pid, bundleName, exitReason);
+    if (resultCode != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Record Process Extension Exit Reason failed.code: %{public}d", resultCode);
+    }
+
     return RecordProcessExitReason(pid, exitReason, bundleName, uid);
 }
 
@@ -112,6 +124,39 @@ int32_t AppExitReasonHelper::RecordProcessExitReason(const int32_t pid, const Ex
     }
     return DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->SetAppExitReason(
         bundleName, abilityLists, exitReason);
+}
+
+int32_t AppExitReasonHelper::RecordProcessExtensionExitReason(
+    const int32_t pid, const std::string &bundleName, const ExitReason &exitReason)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    CHECK_POINTER_AND_RETURN(subManagersHelper_, ERR_NULL_OBJECT);
+    auto connectManager = subManagersHelper_->GetCurrentConnectManager();
+    CHECK_POINTER_AND_RETURN(connectManager, ERR_NULL_OBJECT);
+    std::vector<std::string> extensionList;
+    int32_t resultCode = ERR_OK;
+    if (pid <= NO_PID) {
+        resultCode = connectManager->GetActiveUIExtensionList(bundleName, extensionList);
+    } else {
+        resultCode = connectManager->GetActiveUIExtensionList(pid, extensionList);
+    }
+    if (resultCode != ERR_OK) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "ResultCode: %{public}d", resultCode);
+        return ERR_GET_ACTIVE_EXTENSION_LIST_EMPTY;
+    }
+
+    if (extensionList.empty()) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "ExtensionList is empty.");
+        return ERR_GET_ACTIVE_EXTENSION_LIST_EMPTY;
+    }
+
+    auto appExitReasonDataMgr = DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance();
+    if (appExitReasonDataMgr == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get app exit reason data mgr instance is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    return appExitReasonDataMgr->SetUIExtensionAbilityExitReason(bundleName, extensionList, exitReason);
 }
 
 void AppExitReasonHelper::GetActiveAbilityListByU0(const std::string bundleName,

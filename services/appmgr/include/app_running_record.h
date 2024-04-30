@@ -536,9 +536,9 @@ public:
 
     bool IsEmptyKeepAliveApp() const;
 
-    void SetKeepAliveAppState(bool isKeepAlive, bool isEmptyKeepAliveApp);
+    void SetEmptyKeepAliveAppState(bool isEmptyKeepAliveApp);
 
-    void SetEmptyKeepAliveAppState(bool isEmptyKeepAlive);
+    void SetKeepAliveEnableState(bool isKeepAliveEnable);
 
     void SetStageModelState(bool isStageBasedModel);
 

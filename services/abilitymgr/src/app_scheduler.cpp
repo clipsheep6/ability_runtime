@@ -302,6 +302,7 @@ void AppScheduler::OnAppStateChanged(const AppExecFwk::AppProcessData &appData)
     }
     info.processName = appData.processName;
     info.state = static_cast<AppState>(appData.appState);
+    info.pid = appData.pid;
     callback->OnAppStateChanged(info);
 }
 

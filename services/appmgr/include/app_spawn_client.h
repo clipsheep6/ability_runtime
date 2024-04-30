@@ -122,6 +122,11 @@ public:
     SpawnConnectionState QueryConnectionState() const;
 
     /**
+     * Return the clent handle.
+     */
+    AppSpawnClientHandle GetAppSpawnClientHandle() const;
+
+    /**
      * Set dac info.
      *
      * @param startMsg, request message.

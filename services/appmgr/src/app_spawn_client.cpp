@@ -17,6 +17,7 @@
 #include <unordered_set>
 
 #include "hitrace_meter.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "nlohmann/json.hpp"
 #include "securec.h"
@@ -39,7 +40,7 @@ namespace {
 }
 AppSpawnClient::AppSpawnClient(bool isNWebSpawn)
 {
-    HILOG_INFO("AppspawnCreateClient");
+    TAG_LOGI(AAFwkTag::APPMGR, "AppspawnCreateClient");
     if (isNWebSpawn) {
         serviceName_ = NWEBSPAWN_SERVER_NAME;
     }
@@ -57,13 +58,13 @@ ErrCode AppSpawnClient::OpenConnection()
     if (state_ == SpawnConnectionState::STATE_CONNECTED) {
         return 0;
     }
-    HILOG_INFO("OpenConnection");
+    TAG_LOGI(AAFwkTag::APPMGR, "OpenConnection");
     
     AppSpawnClientHandle handle = nullptr;
     ErrCode ret = 0;
     ret = AppSpawnClientInit(serviceName_.c_str(), &handle);
     if (FAILED(ret)) {
-        HILOG_ERROR("create appspawn client faild.");
+        TAG_LOGE(AAFwkTag::APPMGR, "create appspawn client faild.");
         state_ = SpawnConnectionState::STATE_CONNECT_FAILED;
         return ret;
     }
@@ -75,7 +76,7 @@ ErrCode AppSpawnClient::OpenConnection()
 
 void AppSpawnClient::CloseConnection()
 {
-    HILOG_INFO("AppspawnDestroyClient");
+    TAG_LOGI(AAFwkTag::APPMGR, "AppspawnDestroyClient");
     if (state_ == SpawnConnectionState::STATE_CONNECTED) {
         AppSpawnClientDestroy(handle_);
     }
@@ -85,6 +86,14 @@ void AppSpawnClient::CloseConnection()
 SpawnConnectionState AppSpawnClient::QueryConnectionState() const
 {
     return state_;
+}
+
+AppSpawnClientHandle AppSpawnClient::GetAppSpawnClientHandle() const
+{
+    if (state_ == SpawnConnectionState::STATE_CONNECTED) {
+        return handle_;
+    }
+    return nullptr;
 }
 
 static std::string DumpDataGroupInfoListToJson(const DataGroupInfoList &dataGroupInfoList)
@@ -135,7 +144,7 @@ int32_t AppSpawnClient::SetDacInfo(const AppSpawnStartMsg &startMsg, AppSpawnReq
     }
     ret = strcpy_s(appDacInfo.userName, sizeof(appDacInfo.userName), APPSPAWN_CLIENT_USER_NAME.c_str());
     if (ret) {
-        HILOG_ERROR("failed to set dac userName!");
+        TAG_LOGE(AAFwkTag::APPMGR, "failed to set dac userName!");
         return ret;
     }
     return AppSpawnReqMsgSetAppDacInfo(reqHandle, &appDacInfo);
@@ -146,9 +155,9 @@ int32_t AppSpawnClient::SetMountPermission(const AppSpawnStartMsg &startMsg, App
     int32_t ret = 0;
     std::set<std::string> mountPermissionList = startMsg.permissions;
     for (std::string permission : mountPermissionList) {
-        ret = AppSpawnReqMsgAddPermission(reqHandle, permission.c_str());
+        ret = AppSpawnClientAddPermission(handle_, reqHandle, permission.c_str());
         if (ret != 0) {
-            HILOG_ERROR("AppSpawnReqMsgAddPermission %{public}s failed", permission.c_str());
+            TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnReqMsgAddPermission %{public}s failed", permission.c_str());
             return ret;
         }
     }
@@ -165,7 +174,7 @@ int32_t AppSpawnClient::SetStartFlags(const AppSpawnStartMsg &startMsg, AppSpawn
         if (startFlagTmp & START_FLAG_TEST_NUM) {
             ret = AppSpawnReqMsgSetAppFlag(reqHandle, static_cast<AppFlagsIndex>(flagIndex));
             if (ret != 0) {
-                HILOG_ERROR("SetFlagIdx %{public}d failed, ret: %{public}d", flagIndex, ret);
+                TAG_LOGE(AAFwkTag::APPMGR, "SetFlagIdx %{public}d failed, ret: %{public}d", flagIndex, ret);
                 return ret;
             }
         }
@@ -179,77 +188,89 @@ int32_t AppSpawnClient::AppspawnSetExtMsg(const AppSpawnStartMsg &startMsg, AppS
 {
     int32_t ret = 0;
     if ((ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_RENDER_CMD, startMsg.renderParam.c_str()))) {
-        HILOG_ERROR("SetRenderCmd failed, ret: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "SetRenderCmd failed, ret: %{public}d", ret);
         return ret;
     }
 
-    if (!startMsg.hspList.empty() &&
-        (ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_HSP_LIST,
-            DumpHspListToJson(startMsg.hspList).c_str()))) {
-        HILOG_ERROR("SetExtraHspList failed, ret: %{public}d", ret);
-        return ret;
+    if (!startMsg.hspList.empty()) {
+        ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_HSP_LIST,
+            DumpHspListToJson(startMsg.hspList).c_str());
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "SetExtraHspList failed, ret: %{public}d", ret);
+            return ret;
+        }
     }
 
-    if (!startMsg.dataGroupInfoList.empty() &&
-        (ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_DATA_GROUP,
-            DumpDataGroupInfoListToJson(startMsg.dataGroupInfoList).c_str()))) {
-        HILOG_ERROR("SetExtraDataGroupInfo failed, ret: %{public}d", ret);
-        return ret;
+    if (!startMsg.dataGroupInfoList.empty()) {
+        ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_DATA_GROUP,
+            DumpDataGroupInfoListToJson(startMsg.dataGroupInfoList).c_str());
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "SetExtraDataGroupInfo failed, ret: %{public}d", ret);
+            return ret;
+        }
     }
 
-    if (!startMsg.overlayInfo.empty() &&
-        (ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_OVERLAY, startMsg.overlayInfo.c_str()))) {
-        HILOG_ERROR("SetExtraOverlayInfo failed, ret: %{public}d", ret);
-        return ret;
+    if (!startMsg.overlayInfo.empty()) {
+        ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_OVERLAY, startMsg.overlayInfo.c_str());
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "SetExtraOverlayInfo failed, ret: %{public}d", ret);
+            return ret;
+        }
     }
-    if (!startMsg.appEnv.empty() &&
-        (ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_APP_ENV,
-            DumpAppEnvToJson(startMsg.appEnv).c_str()))) {
-        HILOG_ERROR("SetExtraEnv failed, ret: %{public}d", ret);
-        return ret;
+
+    if (!startMsg.appEnv.empty()) {
+        ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_APP_ENV, DumpAppEnvToJson(startMsg.appEnv).c_str());
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "SetExtraEnv failed, ret: %{public}d", ret);
+            return ret;
+        }
     }
 
     return ret;
 }
+
 int32_t AppSpawnClient::AppspawnCreateDefaultMsg(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle)
 {
-    HILOG_INFO("AppspawnCreateDefaultMsg");
+    TAG_LOGI(AAFwkTag::APPMGR, "AppspawnCreateDefaultMsg");
     int32_t ret = 0;
     do {
         if ((ret = SetDacInfo(startMsg, reqHandle))) {
-            HILOG_ERROR("SetDacInfo failed, ret: %{public}d", ret);
+            TAG_LOGE(AAFwkTag::APPMGR, "SetDacInfo failed, ret: %{public}d", ret);
             break;
         }
         if ((ret = AppSpawnReqMsgSetBundleInfo(reqHandle, startMsg.bundleIndex, startMsg.bundleName.c_str()))) {
-            HILOG_ERROR("SetBundleInfo failed, ret: %{public}d", ret);
+            TAG_LOGE(AAFwkTag::APPMGR, "SetBundleInfo failed, ret: %{public}d", ret);
             break;
         }
         if ((ret = AppSpawnReqMsgSetAppInternetPermissionInfo(reqHandle, startMsg.allowInternet,
             startMsg.setAllowInternet))) {
-            HILOG_ERROR("SetInternetPermissionInfo failed, ret: %{public}d", ret);
+            TAG_LOGE(AAFwkTag::APPMGR, "SetInternetPermissionInfo failed, ret: %{public}d", ret);
             break;
         }
-        if (startMsg.ownerId.size() &&
-            (ret = AppSpawnReqMsgSetAppOwnerId(reqHandle, startMsg.ownerId.c_str()))) {
-            HILOG_ERROR("SetOwnerId %{public}s failed, ret: %{public}d",
-                startMsg.ownerId.c_str(), ret);
-            break;
+        if (startMsg.ownerId.size()) {
+            ret = AppSpawnReqMsgSetAppOwnerId(reqHandle, startMsg.ownerId.c_str());
+            if (ret) {
+                TAG_LOGE(AAFwkTag::APPMGR, "SetOwnerId %{public}s failed, ret: %{public}d",
+                    startMsg.ownerId.c_str(), ret);
+                break;
+            }
         }
         if ((ret = AppSpawnReqMsgSetAppAccessToken(reqHandle, startMsg.accessTokenIdEx))) {
-            HILOG_ERROR("ret: %{public}d", ret);
+            TAG_LOGE(AAFwkTag::APPMGR, "ret: %{public}d", ret);
             break;
         }
         if ((ret = AppSpawnReqMsgSetAppDomainInfo(reqHandle, startMsg.hapFlags, startMsg.apl.c_str()))) {
-            HILOG_ERROR("SetDomainInfo failed, hapFlags is %{public}d, apl is %{public}s, ret: %{public}d",
+            TAG_LOGE(AAFwkTag::APPMGR,
+                "SetDomainInfo failed, hapFlags is %{public}d, apl is %{public}s, ret: %{public}d",
                 startMsg.hapFlags, startMsg.apl.c_str(), ret);
             break;
         }
         if ((ret = SetStartFlags(startMsg, reqHandle))) {
-            HILOG_ERROR("SetStartFlags failed, ret: %{public}d", ret);
+            TAG_LOGE(AAFwkTag::APPMGR, "SetStartFlags failed, ret: %{public}d", ret);
             break;
         }
         if ((ret = SetMountPermission(startMsg, reqHandle))) {
-            HILOG_ERROR("SetMountPermission failed, ret: %{public}d", ret);
+            TAG_LOGE(AAFwkTag::APPMGR, "SetMountPermission failed, ret: %{public}d", ret);
             break;
         }
         if (AppspawnSetExtMsg(startMsg, reqHandle)) {
@@ -259,7 +280,7 @@ int32_t AppSpawnClient::AppspawnCreateDefaultMsg(const AppSpawnStartMsg &startMs
         return ret;
     } while (0);
 
-    HILOG_INFO("AppSpawnReqMsgFree");
+    TAG_LOGI(AAFwkTag::APPMGR, "AppSpawnReqMsgFree");
     AppSpawnReqMsgFree(reqHandle);
 
     return ret;
@@ -267,41 +288,41 @@ int32_t AppSpawnClient::AppspawnCreateDefaultMsg(const AppSpawnStartMsg &startMs
 
 bool AppSpawnClient::VerifyMsg(const AppSpawnStartMsg &startMsg)
 {
-    HILOG_INFO("VerifyMsg");
+    TAG_LOGI(AAFwkTag::APPMGR, "VerifyMsg");
     if (startMsg.code == MSG_APP_SPAWN ||
         startMsg.code == MSG_SPAWN_NATIVE_PROCESS) {
         if (startMsg.uid < 0) {
-            HILOG_ERROR("invalid uid! [%{public}d]", startMsg.uid);
+            TAG_LOGE(AAFwkTag::APPMGR, "invalid uid! [%{public}d]", startMsg.uid);
             return false;
         }
 
         if (startMsg.gid < 0) {
-            HILOG_ERROR("invalid gid! [%{public}d]", startMsg.gid);
+            TAG_LOGE(AAFwkTag::APPMGR, "invalid gid! [%{public}d]", startMsg.gid);
             return false;
         }
 
         if (startMsg.gids.size() > APP_MAX_GIDS) {
-            HILOG_ERROR("too many app gids!");
+            TAG_LOGE(AAFwkTag::APPMGR, "too many app gids!");
             return false;
         }
 
         for (uint32_t i = 0; i < startMsg.gids.size(); ++i) {
             if (startMsg.gids[i] < 0) {
-                HILOG_ERROR("invalid gids array! [%{public}d]", startMsg.gids[i]);
+                TAG_LOGE(AAFwkTag::APPMGR, "invalid gids array! [%{public}d]", startMsg.gids[i]);
                 return false;
             }
         }
         if (startMsg.procName.empty() || startMsg.procName.size() >= MAX_PROC_NAME_LEN) {
-            HILOG_ERROR("invalid procName!");
+            TAG_LOGE(AAFwkTag::APPMGR, "invalid procName!");
             return false;
         }
     } else if (startMsg.code == MSG_GET_RENDER_TERMINATION_STATUS) {
         if (startMsg.pid < 0) {
-            HILOG_ERROR("invalid pid!");
+            TAG_LOGE(AAFwkTag::APPMGR, "invalid pid!");
             return false;
         }
     } else {
-        HILOG_ERROR("invalid code!");
+        TAG_LOGE(AAFwkTag::APPMGR, "invalid code!");
         return false;
     }
 
@@ -311,13 +332,13 @@ bool AppSpawnClient::VerifyMsg(const AppSpawnStartMsg &startMsg)
 // 预启动
 int32_t AppSpawnClient::PreStartNWebSpawnProcess()
 {
-    HILOG_INFO("PreStartNWebSpawnProcess");
+    TAG_LOGI(AAFwkTag::APPMGR, "PreStartNWebSpawnProcess");
     return OpenConnection();
 }
 
 int32_t AppSpawnClient::StartProcess(const AppSpawnStartMsg &startMsg, pid_t &pid)
 {
-    HILOG_INFO("StartProcess");
+    TAG_LOGI(AAFwkTag::APPMGR, "StartProcess");
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!VerifyMsg(startMsg)) {
         return ERR_INVALID_VALUE;  // 入参非法
@@ -333,7 +354,7 @@ int32_t AppSpawnClient::StartProcess(const AppSpawnStartMsg &startMsg, pid_t &pi
 
     ret = AppSpawnReqMsgCreate(static_cast<AppSpawnMsgType>(startMsg.code), startMsg.procName.c_str(), &reqHandle);
     if (ret != 0) {
-        HILOG_ERROR("AppSpawnReqMsgCreate faild.");
+        TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnReqMsgCreate faild.");
         return ret;
     }
 
@@ -342,26 +363,26 @@ int32_t AppSpawnClient::StartProcess(const AppSpawnStartMsg &startMsg, pid_t &pi
         return ret; // create msg failed
     }
 
-    HILOG_INFO("AppspawnSendMsg");
+    TAG_LOGI(AAFwkTag::APPMGR, "AppspawnSendMsg");
     AppSpawnResult result = {0};
     ret = AppSpawnClientSendMsg(handle_, reqHandle, &result);
     if (ret != 0) {
-        HILOG_ERROR("appspawn send msg faild!");
+        TAG_LOGE(AAFwkTag::APPMGR, "appspawn send msg faild!");
         return ret;
     }
     if (result.pid <= 0) {
-        HILOG_ERROR("pid invalid!");
+        TAG_LOGE(AAFwkTag::APPMGR, "pid invalid!");
         return ERR_APPEXECFWK_INVALID_PID;
     } else {
         pid = result.pid;
     }
-    HILOG_INFO("pid = [%{public}d]", pid);
+    TAG_LOGI(AAFwkTag::APPMGR, "pid = [%{public}d]", pid);
     return ret;
 }
 
 int32_t AppSpawnClient::GetRenderProcessTerminationStatus(const AppSpawnStartMsg &startMsg, int &status)
 {
-    HILOG_INFO("GetRenderProcessTerminationStatus");
+    TAG_LOGI(AAFwkTag::APPMGR, "GetRenderProcessTerminationStatus");
     int32_t ret = 0;
     AppSpawnReqMsgHandle reqHandle = nullptr;
 
@@ -377,19 +398,19 @@ int32_t AppSpawnClient::GetRenderProcessTerminationStatus(const AppSpawnStartMsg
 
     ret = AppSpawnTerminateMsgCreate(startMsg.pid, &reqHandle);
     if (ret != 0) {
-        HILOG_ERROR("AppSpawnTerminateMsgCreate faild.");
+        TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnTerminateMsgCreate faild.");
         return ret;
     }
 
-    HILOG_INFO("AppspawnSendMsg");
+    TAG_LOGI(AAFwkTag::APPMGR, "AppspawnSendMsg");
     AppSpawnResult result = {0};
     ret = AppSpawnClientSendMsg(handle_, reqHandle, &result);
     status = result.result;
     if (ret != 0) {
-        HILOG_ERROR("appspawn send msg faild!");
+        TAG_LOGE(AAFwkTag::APPMGR, "appspawn send msg faild!");
         return ret;
     }
-    HILOG_INFO("status = [%{public}d]", status);
+    TAG_LOGI(AAFwkTag::APPMGR, "status = [%{public}d]", status);
 
     return ret;
 }

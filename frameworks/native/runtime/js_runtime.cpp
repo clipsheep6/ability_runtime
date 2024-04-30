@@ -253,7 +253,7 @@ void JsRuntime::StartDebugMode(const DebugOption dOption)
     }
     // Set instance id to tid after the first instance.
     if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
-        instanceId_ = static_cast<uint32_t>(gettid());
+        instanceId_ = static_cast<uint32_t>(getproctid());
     }
 
     bool isStartWithDebug = dOption.isStartWithDebug;
@@ -289,12 +289,12 @@ void JsRuntime::StartDebugMode(const DebugOption dOption)
         ConnectServerManager::Get().StartConnectServer(bundleName_, -1, true);
     }
 
-    ConnectServerManager::Get().StoreInstanceMessage(gettid(), instanceId_);
+    ConnectServerManager::Get().StoreInstanceMessage(getproctid(), instanceId_);
     EcmaVM* vm = GetEcmaVm();
     auto dTask = jsEnv_->GetDebuggerPostTask();
     panda::JSNApi::DebugOption option = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? isStartWithDebug : false};
     ConnectServerManager::Get().StoreDebuggerInfo(instanceId_, reinterpret_cast<void*>(vm), option, dTask, isDebugApp);
-    jsEnv_->NotifyDebugMode(gettid(), ARK_DEBUGGER_LIB_PATH, instanceId_, isDebugApp, isStartWithDebug);
+    jsEnv_->NotifyDebugMode(getproctid(), ARK_DEBUGGER_LIB_PATH, instanceId_, isDebugApp, isStartWithDebug);
 }
 
 void JsRuntime::StopDebugMode()
@@ -381,7 +381,7 @@ void JsRuntime::StartProfiler(const DebugOption dOption)
 {
     CHECK_POINTER(jsEnv_);
     if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
-        instanceId_ = static_cast<uint32_t>(gettid());
+        instanceId_ = static_cast<uint32_t>(getproctid());
     }
 
     bool isStartWithDebug = dOption.isStartWithDebug;
@@ -414,7 +414,7 @@ void JsRuntime::StartProfiler(const DebugOption dOption)
     if (isDebugApp) {
         ConnectServerManager::Get().StartConnectServer(bundleName_, 0, true);
     }
-    ConnectServerManager::Get().StoreInstanceMessage(gettid(), instanceId_);
+    ConnectServerManager::Get().StoreInstanceMessage(getproctid(), instanceId_);
     JsEnv::JsEnvironment::PROFILERTYPE profiler = JsEnv::JsEnvironment::PROFILERTYPE::PROFILERTYPE_HEAP;
     int32_t interval = 0;
     const std::string profilerCommand("profile");
@@ -427,7 +427,7 @@ void JsRuntime::StartProfiler(const DebugOption dOption)
     panda::JSNApi::DebugOption option = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? isStartWithDebug : false};
     ConnectServerManager::Get().StoreDebuggerInfo(instanceId_, reinterpret_cast<void*>(vm), option, dTask, isDebugApp);
     TAG_LOGD(AAFwkTag::JSRUNTIME, "profiler:%{public}d interval:%{public}d.", profiler, interval);
-    jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval, gettid(), isDebugApp);
+    jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval, getproctid(), isDebugApp);
 }
 
 bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer)
@@ -710,13 +710,6 @@ bool JsRuntime::Initialize(const Options& options)
             isBundle_ = options.isBundle;
             bundleName_ = options.bundleName;
             codePath_ = options.codePath;
-            ReInitJsEnvImpl(options);
-            LoadAotFile(options);
-            panda::JSNApi::SetBundle(vm, options.isBundle);
-            panda::JSNApi::SetBundleName(vm, options.bundleName);
-            panda::JSNApi::SetHostResolveBufferTracker(
-                vm, JsModuleReader(options.bundleName, options.hapPath, options.isUnique));
-            isModular = !panda::JSNApi::IsBundle(vm);
             panda::JSNApi::SetSearchHapPathTracker(
                 vm, [options](const std::string moduleName, std::string &hapPath) -> bool {
                     if (options.hapModulePath.find(moduleName) == options.hapModulePath.end()) {
@@ -725,6 +718,13 @@ bool JsRuntime::Initialize(const Options& options)
                     hapPath = options.hapModulePath.find(moduleName)->second;
                     return true;
                 });
+            ReInitJsEnvImpl(options);
+            LoadAotFile(options);
+            panda::JSNApi::SetBundle(vm, options.isBundle);
+            panda::JSNApi::SetBundleName(vm, options.bundleName);
+            panda::JSNApi::SetHostResolveBufferTracker(
+                vm, JsModuleReader(options.bundleName, options.hapPath, options.isUnique));
+            isModular = !panda::JSNApi::IsBundle(vm);
             std::vector<panda::HmsMap> systemKitsMap = GetSystemKitsMap(apiTargetVersion_);
             panda::JSNApi::SetHmsModuleList(vm, systemKitsMap);
             std::map<std::string, std::vector<std::vector<std::string>>> pkgContextInfoMap;
@@ -1562,7 +1562,7 @@ void JsRuntime::GetPkgContextInfoListMap(const std::map<std::string, std::string
         std::vector<std::vector<std::string>> pkgContextInfoList;
         auto jsonObject = nlohmann::json::parse(it->second);
         if (jsonObject.is_discarded()) {
-            HILOG_ERROR("moduleName: %{public}s parse json error", it->first.c_str());
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "moduleName: %{public}s parse json error", it->first.c_str());
             continue;
         }
         for (nlohmann::json::iterator it = jsonObject.begin(); it != jsonObject.end(); it++) {
@@ -1625,7 +1625,7 @@ void JsRuntime::GetPkgContextInfoListMap(const std::map<std::string, std::string
             }
             pkgContextInfoList.emplace_back(items);
         }
-        HILOG_INFO("moduleName: %{public}s parse json success", it->first.c_str());
+        TAG_LOGI(AAFwkTag::JSRUNTIME, "moduleName: %{public}s parse json success", it->first.c_str());
         pkgContextInfoMap[it->first] = pkgContextInfoList;
     }
 }

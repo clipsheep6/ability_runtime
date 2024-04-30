@@ -476,7 +476,8 @@ public:
      * @param childPid Created child process pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid) override;
+    int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount,
+        bool isStartWithDebug) override;
 
     /**
      * Get child process record for self.
@@ -553,7 +554,7 @@ public:
      * @param isMemorySizeSufficent Indicates the memory size state.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t NotifyMemonySizeStateChanged(bool isMemorySizeSufficent) override;
+    virtual int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent) override;
 
     int32_t SetSupportedProcessCacheSelf(bool isSupport) override;
 private:

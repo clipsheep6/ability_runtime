@@ -48,8 +48,6 @@ constexpr const char* UIEATENSION = "uiextension";
 constexpr const char* UIEATENSION_TYPE = "type";
 constexpr const char* UIEATENSION_TYPE_PICKER = "typePicker";
 constexpr const char* MULTI_USER_TYPE = "multiUserType";
-constexpr const char* SAFE_URI_PERMISSION = "safe_uri_permission";
-
 }  // namespace AmsConfig
 
 enum class SatrtUiMode { STATUSBAR = 1, NAVIGATIONBAR = 2, STARTUIBOTH = 3 };
@@ -128,8 +126,6 @@ public:
 
     int MultiUserType() const;
 
-    bool SafeUriPermission() const;
-
     const std::map<std::string, std::string>& GetPickerMap() const;
 
     enum { READ_OK = 0, READ_FAIL = 1, READ_JSON_FAIL = 2 };
@@ -153,8 +149,6 @@ private:
     void UpdatePickerConfigurationString(nlohmann::json& Object, const std::string &configName, std::string &value);
     void LoadUIExtensionPickerConfig(const std::string &filePath);
 
-    int LoadSafeUriPermission(nlohmann::json& Object);
-
 private:
     bool nonConfigFile_ {false};
     int maxRootLauncherRestartNum_ = 0;
@@ -172,7 +166,6 @@ private:
     nlohmann::json pickerJsonObject_ = nlohmann::json::object();
     std::map<std::string, std::string> picker_;
     int multiUserType_ {0};
-    bool safeUriPermission_{false};
 };
 }  // namespace AAFwk
 }  // namespace OHOS

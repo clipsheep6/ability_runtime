@@ -64,7 +64,9 @@ HWTEST_F(RemoteOnListenerProxyTest, OnCallback_001, TestSize.Level1)
     std::string srcDeviceId = "";
     uint32_t continueState = 0;
     std::string bundleName = "bundleName";
-    proxy_->OnCallback(continueState, srcDeviceId, bundleName);
+    std::string continueType = "continueType";
+    std::string srcBundleName = "srcBundleName";
+    proxy_->OnCallback(continueState, srcDeviceId, bundleName, continueType, srcBundleName);
     EXPECT_EQ(IRemoteOnListener::ON_CALLBACK, mock_->code_);
 }
 
@@ -84,7 +86,9 @@ HWTEST_F(RemoteOnListenerProxyTest, OnCallback_002, TestSize.Level1)
     std::string srcDeviceId = "test";
     uint32_t continueState = 0;
     std::string bundleName = "bundleName";
-    proxy_->OnCallback(continueState, srcDeviceId, bundleName);
+    std::string continueType = "continueType";
+    std::string srcBundleName = "srcBundleName";
+    proxy_->OnCallback(continueState, srcDeviceId, bundleName, continueType, srcBundleName);
     EXPECT_EQ(IRemoteOnListener::ON_CALLBACK, mock_->code_);
 }
 }  // namespace AAFwk

@@ -16,6 +16,7 @@
 
 #include "startup_task.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -75,10 +76,11 @@ void StartupTask::SetIsExcludeFromAutoStart(bool excludeFromAutoStart)
 void StartupTask::SaveResult(const std::shared_ptr<StartupTaskResult> &result)
 {
     if (result == nullptr) {
-        HILOG_ERROR("startup task: %{public}s, result is null", name_.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP, "startup task: %{public}s, result is null", name_.c_str());
         return;
     }
-    HILOG_DEBUG("startup task: %{public}s, result code: %{public}d", name_.c_str(), result->GetResultCode());
+    TAG_LOGD(AAFwkTag::STARTUP,
+        "startup task: %{public}s, result code: %{public}d", name_.c_str(), result->GetResultCode());
     result_ = result;
     if (result->GetResultCode() == ERR_OK) {
         state_ = State::INITIALIZED;
@@ -90,7 +92,7 @@ void StartupTask::SaveResult(const std::shared_ptr<StartupTaskResult> &result)
 int32_t StartupTask::RemoveResult()
 {
     if (state_ != State::INITIALIZED) {
-        HILOG_ERROR("%{public}s, the result is not init", name_.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, the result is not init", name_.c_str());
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     result_ = nullptr;
@@ -134,7 +136,7 @@ uint32_t StartupTask::getDependenciesCount() const
 int32_t StartupTask::AddExtraCallback(std::unique_ptr<StartupTaskResultCallback> callback)
 {
     if (state_ != State::INITIALIZING) {
-        HILOG_ERROR("state is not INITIALIZING");
+        TAG_LOGE(AAFwkTag::STARTUP, "state is not INITIALIZING");
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     // extra callback will called while init done

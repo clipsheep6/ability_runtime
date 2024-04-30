@@ -491,7 +491,7 @@ HWTEST_F(PendingWantTest, PendingWant_2100, Function | MediumTest | Level1)
     flags |= FLAG_NO_CREATE;
     AbilityManagerClient::GetInstance()->Connect();
     EXPECT_EQ(ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT,
-        pendingWant.SendAndReturnResult(requestCode, want, nullptr, "Permission", nullptr, nullptr));
+        pendingWant.SendAndReturnResult(requestCode, want, nullptr, "Permission", nullptr, nullptr, nullptr));
 }
 
 /*
@@ -887,8 +887,9 @@ HWTEST_F(PendingWantTest, PendingWant_5000, Function | MediumTest | Level1)
     sptr<CompletedDispatcher> onCompleted;
     std::string requiredPermission = "Permission";
     std::shared_ptr<WantParams> options;
+    std::shared_ptr<StartOptions> startOptions = nullptr;
     sptr<AAFwk::IWantSender> target;
-    pendingWant.Send(requestCode, want, onCompleted, requiredPermission, options, target);
+    pendingWant.Send(requestCode, want, onCompleted, requiredPermission, options, startOptions, target);
     EXPECT_TRUE(true);
     GTEST_LOG_(INFO) << "PendingWant_5000 end";
 }

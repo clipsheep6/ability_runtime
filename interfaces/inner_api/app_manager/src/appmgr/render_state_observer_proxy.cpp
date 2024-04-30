@@ -47,7 +47,7 @@ void RenderStateObserverProxy::OnRenderStateChanged(const RenderStateData &rende
     }
 
     if (!data.WriteParcelable(&renderStateData)) {
-        HILOG_ERROR("Failed to write renderStateData");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write renderStateData");
         return;
     }
 

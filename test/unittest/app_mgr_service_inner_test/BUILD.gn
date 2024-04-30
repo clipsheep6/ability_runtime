@@ -24,6 +24,7 @@ ohos_unittest("AppMgrServiceInnerTest") {
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
     "${ability_runtime_test_path}/mock/mock_sa_call",
     "${ability_runtime_test_path}/mock/services_appmgr_test/include",
+    "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_test_path}/moduletest/mock/include",
   ]

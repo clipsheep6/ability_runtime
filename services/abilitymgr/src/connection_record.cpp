@@ -139,7 +139,7 @@ void ConnectionRecord::CompleteConnect(int resultCode)
     auto callback = connCallback_;
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (remoteObject == nullptr) {
-        HILOG_WARN("extension returned null object: %{public}s", element.GetURI().c_str());
+        TAG_LOGW(AAFwkTag::CONNECTION, "extension returned null object: %{public}s", element.GetURI().c_str());
         if (handler) {
             SetConnectState(ConnectionState::DISCONNECTING);
             handler->SubmitTask([service = targetService_]() {

@@ -28,9 +28,9 @@ namespace AbilityRuntime {
 namespace {
 void PostTaskToHandler(void* handler, uv_io_cb func, void* data, int priority)
 {
-    HILOG_DEBUG("Enter.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "Enter.");
     if (!handler || !func || !data) {
-        HILOG_ERROR("Invalid parameters!");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Invalid parameters!");
         return;
     }
     uv_parm_t* uvData = static_cast<uv_parm_t*>(data);
@@ -38,9 +38,9 @@ void PostTaskToHandler(void* handler, uv_io_cb func, void* data, int priority)
     int status = uvData->status;
 
     auto task = [func, work, status]() {
-        HILOG_DEBUG("Do uv work.");
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "Do uv work.");
         func(work, status);
-        HILOG_DEBUG("Do uv work end.");
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "Do uv work end.");
     };
 
     auto eventHandler = static_cast<AppExecFwk::EventHandler*>(handler);
@@ -60,7 +60,7 @@ void PostTaskToHandler(void* handler, uv_io_cb func, void* data, int priority)
             break;
     }
     eventHandler->PostTask(task, prio);
-    HILOG_DEBUG("PostTask end.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "PostTask end.");
 }
 }
 OHOSJsEnvironmentImpl::OHOSJsEnvironmentImpl()
@@ -137,7 +137,7 @@ bool OHOSJsEnvironmentImpl::InitLoop(NativeEngine* engine, bool isStage)
     if (eventHandler_ != nullptr) {
         uint32_t events = AppExecFwk::FILE_DESCRIPTOR_INPUT_EVENT | AppExecFwk::FILE_DESCRIPTOR_OUTPUT_EVENT;
         eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<OHOSLoopHandler>(uvLoop), "uvLoopTask");
-        HILOG_DEBUG("uv_register_task_to_event, isStage: %{public}d", isStage);
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "uv_register_task_to_event, isStage: %{public}d", isStage);
         if (isStage) {
             uv_register_task_to_event(uvLoop, PostTaskToHandler, eventHandler_.get());
         }

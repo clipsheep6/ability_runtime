@@ -645,6 +645,32 @@ int AbilityManagerProxy::RequestModalUIExtension(const Want &want)
     return reply.ReadInt32();
 }
 
+int AbilityManagerProxy::PreloadUIExtensionAbility(const Want &want, std::string &hostBundleName, int32_t userId)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, &want);
+    
+    if (!data.WriteString16(Str8ToStr16(hostBundleName))) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "hostBundleName write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, userId);
+    int error;
+    MessageParcel reply;
+    MessageOption option;
+    error = SendRequest(AbilityManagerInterfaceCode::PRELOAD_UIEXTENSION_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "PreloadUIExtensionAbility, Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 int AbilityManagerProxy::ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow)
 {
     MessageParcel data;
@@ -2158,8 +2184,8 @@ int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const s
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
-    const std::string &bundleName, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
+int AbilityManagerProxy::ContinueMission(AAFwk::ContinueMissionInfo continueMissionInfo,
+    const sptr<IRemoteObject> &callback)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -2167,27 +2193,34 @@ int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const s
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
-    if (!data.WriteString(srcDeviceId)) {
+    if (!data.WriteString(continueMissionInfo.srcDeviceId)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "srcDeviceId write failed.");
         return INNER_ERR;
     }
-    if (!data.WriteString(dstDeviceId)) {
+    if (!data.WriteString(continueMissionInfo.dstDeviceId)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "dstDeviceId write failed.");
         return INNER_ERR;
     }
-    if (!data.WriteString(bundleName)) {
+    if (!data.WriteString(continueMissionInfo.bundleName)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "missionId write failed.");
         return INNER_ERR;
     }
-    if (!data.WriteRemoteObject(callBack)) {
+    if (!data.WriteRemoteObject(callback)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "callBack write failed.");
         return INNER_ERR;
     }
-    if (!data.WriteParcelable(&wantParams)) {
+    if (!data.WriteParcelable(&continueMissionInfo.wantParams)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "wantParams write failed.");
         return INNER_ERR;
     }
-
+    if (!data.WriteString(continueMissionInfo.srcBundleName)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "srcBundleName write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteString(continueMissionInfo.continueType)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "continueType write failed.");
+        return INNER_ERR;
+    }
     auto error = SendRequest(AbilityManagerInterfaceCode::CONTINUE_MISSION_OF_BUNDLENAME, data, reply, option);
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
@@ -3886,7 +3919,7 @@ int32_t AbilityManagerProxy::IsValidMissionIds(
     }
 
     constexpr int32_t MAX_COUNT = 20;
-    int32_t num = missionIds.size() > MAX_COUNT ? MAX_COUNT : missionIds.size();
+    int32_t num = static_cast<int32_t>(missionIds.size() > MAX_COUNT ? MAX_COUNT : missionIds.size());
     data.WriteInt32(num);
     for (auto i = 0; i < num; ++i) {
         data.WriteInt32(missionIds.at(i));
@@ -5077,6 +5110,32 @@ int32_t AbilityManagerProxy::OpenAtomicService(Want& want, const StartOptions &o
     return reply.ReadInt32();
 }
 
+int32_t AbilityManagerProxy::SetResidentProcessEnabled(const std::string &bundleName, bool enable)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteString(bundleName)) {
+        HILOG_ERROR("Write bundl name failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteBool(enable)) {
+        HILOG_ERROR("Write enable status failed.");
+        return INNER_ERR;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AbilityManagerInterfaceCode::SET_RESIDENT_PROCESS_ENABLE, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d.", ret);
+        return ret;
+    }
+
+    return reply.ReadInt32();
+}
+
 bool AbilityManagerProxy::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken, const std::string &appId)
 {
     if (callerToken == nullptr) {
@@ -5133,6 +5192,27 @@ int32_t AbilityManagerProxy::StartShortcut(const Want &want, const StartOptions 
         return error;
     }
     return reply.ReadInt32();
+}
+
+int32_t AbilityManagerProxy::GetAbilityStateByPersistentId(int32_t persistentId, bool &state)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return IPC_PROXY_ERR;
+    }
+    if (!data.WriteInt32(persistentId)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
+        return IPC_PROXY_ERR;
+    }
+    auto error = SendRequest(AbilityManagerInterfaceCode::GET_ABILITY_STATE_BY_PERSISTENT_ID, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        return error;
+    }
+    state = reply.ReadBool();
+    return NO_ERROR;
 }
 } // namespace AAFwk
 } // namespace OHOS
