@@ -126,8 +126,6 @@ private:
 
     int32_t CheckProxyUriPermission(TokenIdPermission &tokenIdPermission, const Uri &uri, uint32_t flag);
 
-    bool VerifyPermissionByTokenId(uint32_t tokenId, const std::string &permissionName);
-    
     bool AccessMediaUriPermission(TokenIdPermission &tokenIdPermission, const Uri &uri, uint32_t flag);
 
     bool AccessDocsUriPermission(TokenIdPermission &tokenIdPermission, const Uri &uri, uint32_t flag);

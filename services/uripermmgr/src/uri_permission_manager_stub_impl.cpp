@@ -47,9 +47,6 @@ constexpr int32_t ERR_OK = 0;
 constexpr uint32_t FLAG_READ_WRITE_URI = Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION;
 constexpr const char* CLOUND_DOCS_URI_MARK = "?networkid=";
 constexpr const char* FOUNDATION_PROCESS_NAME = "foundation";
-constexpr const char* UDMF_PROCESS_NAME = "distributeddata";
-constexpr const char* PASTE_BOARD_SERVICE = "pasterboard_service";
-constexpr const char* BROKER = "broker";
 }
 
 bool UriPermissionManagerStubImpl::VerifyUriPermission(const Uri &uri, uint32_t flag, uint32_t tokenId)
@@ -135,7 +132,8 @@ int32_t UriPermissionManagerStubImpl::GrantUriPermissionPrivileged(const std::ve
     auto callerName = GetTokenName(callerTokenId);
     TAG_LOGD(AAFwkTag::URIPERMMGR, "callerTokenId is %{public}u, callerName is %{public}s",
         callerTokenId, callerName.c_str());
-    if (!VerifyPermissionByTokenId(callerTokenId, PermissionConstants::PERMISSION_GRANT_URI_PERMISSION)) {
+    auto permissionName = PermissionConstants::PERMISSION_GRANT_URI_PERMISSION_PRIVILEGED;
+    if (!PermissionVerification::GetInstance()->VerifyPermissionByTokenId(callerTokenId, permissionName)) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "No permission to call.");
         return CHECK_PERMISSION_FAILED;
     }
@@ -944,25 +942,6 @@ bool UriPermissionManagerStubImpl::CheckUriPermission(Uri uri, uint32_t flag, To
         return true;
     }
     return CheckProxyUriPermission(tokenIdPermission, uri, flag);
-}
-
-bool UriPermissionManagerStubImpl::VerifyPermissionByTokenId(uint32_t tokenId, const std::string &permissionName)
-{
-    // temporary method.
-    if (permissionName == PermissionConstants::PERMISSION_GRANT_URI_PERMISSION) {
-        Security::AccessToken::NativeTokenInfo nativeInfo;
-        auto result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(tokenId, nativeInfo);
-        if (result != ERR_OK) {
-            TAG_LOGE(AAFwkTag::URIPERMMGR, "GetNativeTokenInfo failed, tokenId is %{public}u.", tokenId);
-            return false;
-        }
-        auto callerName = nativeInfo.processName;
-        TAG_LOGI(AAFwkTag::URIPERMMGR, "Caller process name : %{public}s", callerName.c_str());
-        // waiting accessToken permission request.
-        return callerName == BROKER || callerName == PASTE_BOARD_SERVICE || callerName == UDMF_PROCESS_NAME ||
-            callerName == FOUNDATION_PROCESS_NAME;
-    }
-    return PermissionVerification::GetInstance()->VerifyPermissionByTokenId(tokenId, permissionName);
 }
 
 bool UriPermissionManagerStubImpl::AccessMediaUriPermission(TokenIdPermission &tokenIdPermission,
