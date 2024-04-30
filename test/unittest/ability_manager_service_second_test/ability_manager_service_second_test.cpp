@@ -1427,6 +1427,21 @@ HWTEST_F(AbilityManagerServiceSecondTest, DumpMissionInfosInner_001, TestSize.Le
 
 /*
  * Feature: AbilityManagerService
+ * Function: SetResidentProcessEnabled
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService SetResidentProcessEnabled
+ */
+HWTEST_F(AbilityManagerServiceSecondTest, SetResidentProcessEnable_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    ASSERT_NE(abilityMs_, nullptr);
+    std::string bundleName = "ability.manager.service.test";
+    bool enable = false;
+    EXPECT_EQ(abilityMs_->SetResidentProcessEnabled(bundleName, enable), ERR_NOT_SYSTEM_APP);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: DumpMissionInner
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService DumpMissionInner

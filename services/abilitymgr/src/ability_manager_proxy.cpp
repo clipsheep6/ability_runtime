@@ -5110,6 +5110,32 @@ int32_t AbilityManagerProxy::OpenAtomicService(Want& want, const StartOptions &o
     return reply.ReadInt32();
 }
 
+int32_t AbilityManagerProxy::SetResidentProcessEnabled(const std::string &bundleName, bool enable)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteString(bundleName)) {
+        HILOG_ERROR("Write bundl name failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteBool(enable)) {
+        HILOG_ERROR("Write enable status failed.");
+        return INNER_ERR;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AbilityManagerInterfaceCode::SET_RESIDENT_PROCESS_ENABLE, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d.", ret);
+        return ret;
+    }
+
+    return reply.ReadInt32();
+}
+
 bool AbilityManagerProxy::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken, const std::string &appId)
 {
     if (callerToken == nullptr) {

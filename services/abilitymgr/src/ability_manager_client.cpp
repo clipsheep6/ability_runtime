@@ -1805,6 +1805,14 @@ int32_t AbilityManagerClient::OpenAtomicService(Want& want, const StartOptions &
     return abms->OpenAtomicService(want, options, callerToken, requestCode, userId);
 }
 
+int32_t AbilityManagerClient::SetResidentProcessEnabled(const std::string &bundleName, bool enable)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_INVALID_VALUE(abms);
+    return abms->SetResidentProcessEnabled(bundleName, enable);
+}
+
 bool AbilityManagerClient::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken, const std::string &appId)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Get ui extension host info.");

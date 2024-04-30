@@ -575,16 +575,20 @@ HWTEST_F(AppMgrServiceInnerTest, LaunchApplication_001, TestSize.Level0)
     appRecord->SetState(ApplicationState::APP_STATE_CREATE);
     appMgrServiceInner->LaunchApplication(appRecord);
 
-    appRecord->SetKeepAliveAppState(false, true);
+    appRecord->SetEmptyKeepAliveAppState(true);
+    appRecord->SetKeepAliveEnableState(false);
     appMgrServiceInner->LaunchApplication(appRecord);
 
-    appRecord->SetKeepAliveAppState(true, false);
+    appRecord->SetKeepAliveEnableState(true);
+    appRecord->SetEmptyKeepAliveAppState(false);
     appMgrServiceInner->LaunchApplication(appRecord);
 
-    appRecord->SetKeepAliveAppState(true, true);
+    appRecord->SetKeepAliveEnableState(true);
+    appRecord->SetEmptyKeepAliveAppState(true);
     appMgrServiceInner->LaunchApplication(appRecord);
 
-    appRecord->SetKeepAliveAppState(false, false);
+    appRecord->SetKeepAliveEnableState(false);
+    appRecord->SetEmptyKeepAliveAppState(false);
     appMgrServiceInner->LaunchApplication(appRecord);
 
     Want want;
@@ -750,16 +754,20 @@ HWTEST_F(AppMgrServiceInnerTest, ApplicationTerminated_001, TestSize.Level0)
 
     appMgrServiceInner->ApplicationTerminated(recordId_);
 
-    appRecord->SetKeepAliveAppState(false, true);
+    appRecord->SetKeepAliveEnableState(false);
+    appRecord->SetEmptyKeepAliveAppState(true);
     appMgrServiceInner->ApplicationTerminated(recordId_);
 
-    appRecord->SetKeepAliveAppState(true, false);
+    appRecord->SetKeepAliveEnableState(true);
+    appRecord->SetEmptyKeepAliveAppState(false);
     appMgrServiceInner->ApplicationTerminated(recordId_);
 
-    appRecord->SetKeepAliveAppState(true, true);
+    appRecord->SetKeepAliveEnableState(true);
+    appRecord->SetEmptyKeepAliveAppState(true);
     appMgrServiceInner->ApplicationTerminated(recordId_);
 
-    appRecord->SetKeepAliveAppState(false, false);
+    appRecord->SetKeepAliveEnableState(false);
+    appRecord->SetEmptyKeepAliveAppState(false);
     appMgrServiceInner->ApplicationTerminated(recordId_);
 
     appRecord->SetState(ApplicationState::APP_STATE_FOREGROUND);
@@ -1523,7 +1531,8 @@ HWTEST_F(AppMgrServiceInnerTest, KillProcessByAbilityToken_001, TestSize.Level0)
     EXPECT_NE(appRecord, nullptr);
     appMgrServiceInner->KillProcessByAbilityToken(token);
 
-    appRecord->SetKeepAliveAppState(true, true);
+    appRecord->SetKeepAliveEnableState(true);
+    appRecord->SetEmptyKeepAliveAppState(true);
     appMgrServiceInner->KillProcessByAbilityToken(token);
 
     TAG_LOGI(AAFwkTag::TEST, "KillProcessByAbilityToken_001 end");
@@ -1780,9 +1789,11 @@ HWTEST_F(AppMgrServiceInnerTest, RemoveAppFromRecentList_001, TestSize.Level0)
 
     pid_t pid = 123;
     appMgrServiceInner->AddAppToRecentList(appName1, processName1, pid, 0);
-    appRecord->SetKeepAliveAppState(true, true);
+    appRecord->SetKeepAliveEnableState(true);
+    appRecord->SetEmptyKeepAliveAppState(true);
     appMgrServiceInner->RemoveAppFromRecentList(appName1, processName1);
-    appRecord->SetKeepAliveAppState(false, false);
+    appRecord->SetKeepAliveEnableState(false);
+    appRecord->SetEmptyKeepAliveAppState(false);
     appMgrServiceInner->RemoveAppFromRecentList(appName1, processName1);
 
     TAG_LOGI(AAFwkTag::TEST, "RemoveAppFromRecentList_001 end");
@@ -3882,7 +3893,8 @@ HWTEST_F(AppMgrServiceInnerTest, SendAppLaunchEvent_001, TestSize.Level0)
         appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
     recordId_ += 1;
     appRecord->SetState(ApplicationState::APP_STATE_CREATE);
-    appRecord->SetKeepAliveAppState(false, false);
+    appRecord->SetKeepAliveEnableState(false);
+    appRecord->SetEmptyKeepAliveAppState(false);
     Want want;
     appRecord->SetSpecifiedAbilityFlagAndWant(false, want, "");
     appMgrServiceInner->SendAppLaunchEvent(appRecord);

@@ -1198,6 +1198,15 @@ public:
     virtual bool IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken, const std::string &appId) override;
 
     /**
+     * Set the enable status for starting and stopping resident processes.
+     * The caller application can only set the resident status of the configured process.
+     * @param bundleName The bundle name of the resident process.
+     * @param enable Set resident process enable status.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t SetResidentProcessEnabled(const std::string &bundleName, bool enable) override;
+
+    /**
      * @brief Request to display assert fault dialog.
      * @param callback Listen for user operation callbacks.
      * @param wantParams Assert dialog box display information.

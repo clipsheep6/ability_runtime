@@ -36,6 +36,7 @@
 #include "ability_manager_constants.h"
 #include "ability_manager_errors.h"
 #include "ability_manager_radar.h"
+#include "ability_resident_process_rdb.h"
 #include "ability_util.h"
 #include "accesstoken_kit.h"
 #include "app_utils.h"
@@ -2022,7 +2023,9 @@ void AbilityManagerService::AppUpgradeCompleted(const std::string &bundleName, i
         return;
     }
 
-    if (!bundleInfo.isKeepAlive) {
+    bool keepAliveEnable = bundleInfo.isKeepAlive;
+    AmsResidentProcessRdb::GetInstance().GetResidentProcessEnable(bundleInfo.name, keepAliveEnable);
+    if (!keepAliveEnable) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "Not a resident application.");
         return;
     }
@@ -5478,6 +5481,10 @@ void AbilityManagerService::OnAppStateChanged(const AppInfo &info)
     auto dataAbilityManager = GetCurrentDataAbilityManager();
     CHECK_POINTER(dataAbilityManager);
     dataAbilityManager->OnAppStateChanged(info);
+
+    auto residentProcessMgr = DelayedSingleton<ResidentProcessManager>::GetInstance();
+    CHECK_POINTER(residentProcessMgr);
+    residentProcessMgr->OnAppStateChanged(info);
 }
 
 std::shared_ptr<AbilityEventHandler> AbilityManagerService::GetEventHandler()
@@ -5801,7 +5808,9 @@ int AbilityManagerService::KillProcess(const std::string &bundleName)
         return GET_BUNDLE_INFO_FAILED;
     }
 
-    if (bundleInfo.isKeepAlive && DelayedSingleton<AppScheduler>::GetInstance()->IsMemorySizeSufficent()) {
+    bool keepAliveEnable = bundleInfo.isKeepAlive;
+    AmsResidentProcessRdb::GetInstance().GetResidentProcessEnable(bundleName, keepAliveEnable);
+    if (keepAliveEnable && DelayedSingleton<AppScheduler>::GetInstance()->IsMemorySizeSufficent()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Can not kill keep alive process.");
         return KILL_PROCESS_KEEP_ALIVE;
     }
@@ -6234,7 +6243,7 @@ void AbilityManagerService::StartResidentApps()
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Get resident bundleinfos failed");
         return;
     }
-
+    DelayedSingleton<ResidentProcessManager>::GetInstance()->Init();
     TAG_LOGI(AAFwkTag::ABILITYMGR, "StartResidentApps GetBundleInfos size: %{public}zu", bundleInfos.size());
 
     DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcessWithMainElement(bundleInfos);
@@ -9928,6 +9937,32 @@ void AbilityManagerService::CloseAssertDialog(const std::string &assertSessionId
     }
 
     connectManager->CloseAssertDialog(assertSessionId);
+}
+
+int32_t AbilityManagerService::SetResidentProcessEnabled(const std::string &bundleName, bool enable)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSystemAppCall()) {
+        HILOG_ERROR("Permission verification failed.");
+        return ERR_NOT_SYSTEM_APP;
+    }
+
+    auto residentProcessManager = DelayedSingleton<ResidentProcessManager>::GetInstance();
+    if (residentProcessManager == nullptr) {
+        HILOG_ERROR("Get resident proces mgr is nullptr");
+        return INNER_ERR;
+    }
+    
+    std::string callerName;
+    int32_t uid = 0;
+    auto callerPid = IPCSkeleton::GetCallingPid();
+    DelayedSingleton<AppScheduler>::GetInstance()->GetBundleNameByPid(callerPid, callerName, uid);
+    if (callerName.empty()) {
+        HILOG_ERROR("Failed to obtain caller name.");
+        return INNER_ERR;
+    }
+
+    return residentProcessManager->SetResidentProcessEnabled(bundleName, callerName, enable);
 }
 
 int32_t AbilityManagerService::RequestAssertFaultDialog(

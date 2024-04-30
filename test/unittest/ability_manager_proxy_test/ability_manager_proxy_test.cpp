@@ -2710,6 +2710,23 @@ HWTEST_F(AbilityManagerProxyTest, QueryAllAutoStartupApplications_0100, TestSize
 }
 
 /**
+ * @tc.name: AbilityManagerProxy_SetResidentProcessEnable_0100
+ * @tc.desc: RestartApp
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_SetResidentProcessEnable_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+
+    std::string bundleName = "ability.manager.proxy.test";
+    bool enable = true;
+    proxy_->SetResidentProcessEnabled(bundleName, enable);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_RESIDENT_PROCESS_ENABLE), mock_->code_);
+}
+
+/**
  * @tc.name: AbilityManagerProxy_GetUIExtensionRootHostInfo_0100
  * @tc.desc: GetUIExtensionRootHostInfo
  * @tc.type: FUNC

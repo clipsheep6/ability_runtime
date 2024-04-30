@@ -124,6 +124,11 @@ public:
         GET_NAPI_INFO_AND_CALL(env, info, JsAbilityManager, OnIsEmbeddedOpenAllowed);
     }
 
+    static napi_value SetResidentProcessEnabled(napi_env env, napi_callback_info info)
+    {
+        GET_CB_INFO_AND_CALL(env, info, JsAbilityManager, OnSetResidentProcessEnabled);
+    }
+
     static napi_value NotifyDebugAssertResult(napi_env env, napi_callback_info info)
     {
         GET_CB_INFO_AND_CALL(env, info, JsAbilityManager, OnNotifyDebugAssertResult);
@@ -564,6 +569,58 @@ private:
         return result;
     }
 
+    napi_value OnSetResidentProcessEnabled(napi_env env, size_t argc, napi_value *argv)
+    {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+        if (argc < ARGC_TWO) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Not enough params when off.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+
+        std::string bundleName;
+        if (!ConvertFromJsValue(env, argv[INDEX_ZERO], bundleName) || bundleName.empty()) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Convert session id error.");
+            auto errMsg = "Non empty package name needs to be provided";
+            ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM), errMsg);
+            return CreateJsUndefined(env);
+        }
+
+        bool enableState = false;
+        if (!ConvertFromJsValue(env, argv[INDEX_ONE], enableState)) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Convert status failed.");
+            auto errMsg = "The second parameter needs to provide a Boolean type setting value";
+            ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM), errMsg);
+            return CreateJsUndefined(env);
+        }
+
+        auto innerErrorCode = std::make_shared<int32_t>(ERR_OK);
+        NapiAsyncTask::ExecuteCallback execute = [bundleName, enableState, innerErrorCode, env]() {
+            auto amsClient = AbilityManagerClient::GetInstance();
+            if (amsClient == nullptr) {
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability manager service instance is nullptr.");
+                *innerErrorCode = static_cast<int32_t>(AAFwk::INNER_ERR);
+                return;
+            }
+            *innerErrorCode = amsClient->SetResidentProcessEnabled(bundleName, enableState);
+        };
+
+        NapiAsyncTask::CompleteCallback complete = [innerErrorCode](napi_env env, NapiAsyncTask &task, int32_t status) {
+            if (*innerErrorCode != ERR_OK) {
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "Set resident process result failed, error is %{public}d.",
+                    *innerErrorCode);
+                task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
+                return;
+            }
+            task.ResolveWithNoError(env, CreateJsUndefined(env));
+        };
+
+        napi_value result = nullptr;
+        NapiAsyncTask::Schedule("JsAbilityManager::OnSetResidentProcessEnabled", env,
+            CreateAsyncTaskWithLastParam(env, nullptr, std::move(execute), std::move(complete), &result));
+        return result;
+    }
+
     napi_value OnIsEmbeddedOpenAllowed(napi_env env, NapiCallbackInfo& info)
     {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
@@ -645,6 +702,8 @@ napi_value JsAbilityManagerInit(napi_env env, napi_value exportObj)
     BindNativeFunction(
         env, exportObj, "notifyDebugAssertResult", moduleName, JsAbilityManager::NotifyDebugAssertResult);
     BindNativeFunction(env, exportObj, "isEmbeddedOpenAllowed", moduleName, JsAbilityManager::IsEmbeddedOpenAllowed);
+    BindNativeFunction(
+        env, exportObj, "setResidentProcessEnabled", moduleName, JsAbilityManager::SetResidentProcessEnabled);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "end");
     return CreateJsUndefined(env);
 }

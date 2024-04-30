@@ -595,6 +595,14 @@ void AppMgrClient::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecF
     amsService->StartSpecifiedAbility(want, abilityInfo);
 }
 
+void AppMgrClient::SetKeepAliveEnableState(const std::string &bundleName, bool enable)
+{
+    if (!IsAmsServiceReady()) {
+        return;
+    }
+    amsService_->SetKeepAliveEnableState(bundleName, enable);
+}
+
 void AppMgrClient::StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "call.");

@@ -612,7 +612,7 @@ void AppMgrServiceInner::LoadAbilityNoAppRecord(const std::shared_ptr<AppRunning
         appRecord->SetSpecifiedProcessFlag(specifiedProcessFlag);
     }
     if (hapModuleInfo.isStageBasedModel && !IsMainProcess(appInfo, hapModuleInfo)) {
-        appRecord->SetKeepAliveAppState(false, false);
+        appRecord->SetEmptyKeepAliveAppState(false);
         TAG_LOGI(AAFwkTag::APPMGR, "The process %{public}s will not keepalive", hapModuleInfo.process.c_str());
     }
     // As taskHandler_ is busy now, the task should be submit to other task queue.
@@ -1694,8 +1694,6 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(spt
     }
 
     appRecord->SetProcessAndExtensionType(abilityInfo);
-    bool isKeepAlive = bundleInfo.isKeepAlive && bundleInfo.singleton;
-    appRecord->SetKeepAliveAppState(isKeepAlive, false);
     appRecord->SetTaskHandler(taskHandler_);
     appRecord->SetEventHandler(eventHandler_);
     appRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, want, abilityRecordId);
@@ -3092,8 +3090,6 @@ void AppMgrServiceInner::StartEmptyResidentProcess(
         return;
     }
 
-    appRecord->SetKeepAliveAppState(true, isEmptyKeepAliveApp);
-
     StartProcess(appInfo->name, processName, 0, appRecord, appInfo->uid, info, appInfo->bundleName, 0, appExistFlag);
 
     // If it is empty, the startup failed
@@ -3106,6 +3102,8 @@ void AppMgrServiceInner::StartEmptyResidentProcess(
         TAG_LOGI(AAFwkTag::APPMGR, "StartEmptyResidentProcess restartCount : [%{public}d], ", restartCount);
         appRecord->SetRestartResidentProcCount(restartCount);
     }
+    appRecord->SetEmptyKeepAliveAppState(isEmptyKeepAliveApp);
+    appRecord->SetKeepAliveEnableState(true);
 
     appRecord->SetTaskHandler(taskHandler_);
     appRecord->SetEventHandler(eventHandler_);
@@ -3508,7 +3506,7 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
             return;
         }
         if (hapModuleInfo.isStageBasedModel && !IsMainProcess(appInfo, hapModuleInfo)) {
-            appRecord->SetKeepAliveAppState(false, false);
+            appRecord->SetEmptyKeepAliveAppState(false);
             TAG_LOGD(AAFwkTag::APPMGR, "The process %{public}s will not keepalive", hapModuleInfo.process.c_str());
         }
         auto wantPtr = std::make_shared<AAFwk::Want>(want);
@@ -6271,6 +6269,29 @@ int32_t AppMgrServiceInner::NotifyMemorySizeStateChanged(bool isMemorySizeSuffic
     };
     taskHandler_->SubmitTask(StartExitKeepAliveProcessTask, "startexitkeepaliveprocess");
     return ERR_OK;
+}
+
+void AppMgrServiceInner::SetKeepAliveEnableState(const std::string &bundleName, bool enable)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    if (bundleName.empty()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Bundle name is empty.");
+        return;
+    }
+
+    if (appRunningManager_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "App running manager error.");
+        return;
+    }
+
+    for (const auto &item : appRunningManager_->GetAppRunningRecordMap()) {
+        const auto &appRecord = item.second;
+        if (appRecord != nullptr && appRecord->GetBundleName() == bundleName) {
+            TAG_LOGD(AAFwkTag::APPMGR, "%{public}s update state: %{public}d",
+                bundleName.c_str(), static_cast<int32_t>(enable));
+            appRecord->SetKeepAliveEnableState(enable);
+        }
+    }
 }
 
 bool AppMgrServiceInner::IsMemorySizeSufficent()

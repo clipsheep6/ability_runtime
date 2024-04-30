@@ -144,6 +144,9 @@ enum class AbilityErrorCode {
     // invalid caller.
     ERROR_CODE_INVALID_CALLER = 16200001,
 
+    // Setting permissions for resident processes
+    ERROR_CODE_NO_RESIDENT_PERMISSION = 16200006,
+
     // no such mission id.
     ERROR_CODE_NO_MISSION_ID = 16300001,
 

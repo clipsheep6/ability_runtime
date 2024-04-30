@@ -1616,6 +1616,15 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE) override;
 
     /**
+     * Set the enable status for starting and stopping resident processes.
+     * The caller application can only set the resident status of the configured process.
+     * @param bundleName The bundle name of the resident process.
+     * @param enable Set resident process enable status.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t SetResidentProcessEnabled(const std::string &bundleName, bool enable) override;
+
+    /**
      * @brief Restart app self.
      * @param want The ability type must be UIAbility.
      * @return Returns ERR_OK on success, others on failure.

@@ -1017,6 +1017,8 @@ public:
 
     void SetAppAssertionPauseState(int32_t pid, bool flag);
 
+    void SetKeepAliveEnableState(const std::string &bundleName, bool enable);
+
     int32_t GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId);
 
     int32_t GetAllUIExtensionRootHostPid(pid_t pid, std::vector<pid_t> &hostPids);

@@ -499,6 +499,11 @@ enum {
      * Result(2097248) for get ExtensionName by uid fail.
      */
     GET_EXTENSION_NAME_BY_UID_FAIL,
+
+    /**
+     * Native error(2097249) no resident process permissions set.
+     */
+    ERR_NO_RESIDENT_PERMISSION,
 };
 
 enum {

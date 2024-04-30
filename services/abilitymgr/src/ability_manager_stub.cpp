@@ -432,6 +432,8 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::ChangeUIAbilityVisibilityBySCBInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_SHORTCUT)] =
         &AbilityManagerStub::StartShortcutInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_RESIDENT_PROCESS_ENABLE)] =
+        &AbilityManagerStub::SetResidentProcessEnableInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ABILITY_STATE_BY_PERSISTENT_ID)] =
         &AbilityManagerStub::GetAbilityStateByPersistentIdInner;
 }
@@ -3335,6 +3337,18 @@ int32_t AbilityManagerStub::OpenAtomicServiceInner(MessageParcel &data, MessageP
         return ERR_INVALID_VALUE;
     }
     return ERR_OK;
+}
+
+int32_t AbilityManagerStub::SetResidentProcessEnableInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::string bundleName = data.ReadString();
+    bool enable = data.ReadBool();
+    auto result = SetResidentProcessEnabled(bundleName, enable);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
 }
 
 int32_t AbilityManagerStub::IsEmbeddedOpenAllowedInner(MessageParcel &data, MessageParcel &reply)
