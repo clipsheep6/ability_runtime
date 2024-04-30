@@ -121,7 +121,6 @@ config("abilitykit_utils_public_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
-    "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
     "//third_party/jsoncpp/include",
     "//third_party/json/include",
   ]
@@ -171,6 +170,8 @@ ohos_shared_library("abilitykit_utils") {
     "napi:ace_napi",
     "resource_management:global_resmgr",
   ]
+
+  public_external_deps = [ "bundle_framework:appexecfwk_core" ]
 
   if (ability_runtime_graphics) {
     deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
@@ -282,6 +283,8 @@ ohos_shared_library("abilitykit_native") {
     "samgr:samgr_proxy",
   ]
 
+  public_external_deps = [ "bundle_framework:appexecfwk_core" ]
+
   defines = []
 
   if (background_task_mgr_continuous_task_enable) {
@@ -338,7 +341,6 @@ config("extensionkit_public_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
-    "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
     "//third_party/jsoncpp/include",
     "//third_party/json/include",
   ]
@@ -396,6 +398,8 @@ ohos_shared_library("extensionkit_native") {
   ]
 
   public_deps = [ ":abilitykit_utils" ]
+
+  public_external_deps = [ "bundle_framework:appexecfwk_core" ]
 
   if (ability_runtime_graphics) {
     external_deps += [ "ability_base:session_info" ]
@@ -460,7 +464,6 @@ config("uiability_config") {
     "${arkui_path}/napi",
     "${arkui_path}/napi/interfaces/kits",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
-    "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
     "//third_party/libuv/include",
     "//third_party/node/src",
   ]
@@ -533,6 +536,8 @@ ohos_shared_library("uiabilitykit_native") {
     "napi:ace_napi",
     "resource_management:global_resmgr",
   ]
+
+  public_external_deps = [ "bundle_framework:appexecfwk_core" ]
 
   if (ability_runtime_graphics) {
     deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
