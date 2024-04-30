@@ -67,7 +67,7 @@ napi_value JsApplicationContextUtils::OnCreateBundleContext(napi_env env, NapiCa
 
     if (info.argc == 0) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough arguments");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Not enough params.");
         return CreateJsUndefined(env);
     }
 
@@ -81,7 +81,7 @@ napi_value JsApplicationContextUtils::OnCreateBundleContext(napi_env env, NapiCa
     std::string bundleName;
     if (!ConvertFromJsValue(env, info.argv[0], bundleName)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse bundleName failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param bundleName failed, bundleName must be string.");
         return CreateJsUndefined(env);
     }
 
@@ -182,7 +182,7 @@ napi_value JsApplicationContextUtils::OnCreateModuleContext(napi_env env, NapiCa
         TAG_LOGD(AAFwkTag::APPKIT, "Parse inner module name.");
         if (!ConvertFromJsValue(env, info.argv[0], moduleName)) {
             TAG_LOGE(AAFwkTag::APPKIT, "Parse moduleName failed");
-            AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+            ThrowInvalidParamError(env, "Parse param moduleName failed, moduleName must be string.");
             return CreateJsUndefined(env);
         }
         moduleContext = applicationContext->CreateModuleContext(moduleName);
@@ -190,7 +190,7 @@ napi_value JsApplicationContextUtils::OnCreateModuleContext(napi_env env, NapiCa
         std::string bundleName;
         if (!ConvertFromJsValue(env, info.argv[0], bundleName)) {
             TAG_LOGE(AAFwkTag::APPKIT, "Parse bundleName failed");
-            AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+            ThrowInvalidParamError(env, "Parse param bundleName failed, bundleName must be string.");
             return CreateJsUndefined(env);
         }
         if (!CheckCallerIsSystemApp()) {
@@ -250,13 +250,13 @@ napi_value JsApplicationContextUtils::OnCreateSystemHspModuleResourceManager(nap
     std::string bundleName = "";
     if (!ConvertFromJsValue(env, info.argv[0], bundleName)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse bundleName failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param bundleName failed, bundleName must be string.");
         return CreateJsUndefined(env);
     }
     std::string moduleName = "";
     if (!ConvertFromJsValue(env, info.argv[1], moduleName)) {
         TAG_LOGD(AAFwkTag::APPKIT, "Parse module name failed.");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param moduleName failed, moduleName must be string.");
         return CreateJsUndefined(env);
     }
 
@@ -293,13 +293,13 @@ napi_value JsApplicationContextUtils::OnCreateModuleResourceManager(napi_env env
     std::string bundleName;
     if (!ConvertFromJsValue(env, info.argv[0], bundleName)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse bundleName failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param bundleName failed, bundleName must be string.");
         return CreateJsUndefined(env);
     }
     std::string moduleName;
     if (!ConvertFromJsValue(env, info.argv[1], moduleName)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse moduleName failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param moduleName failed, moduleName must be string.");
         return CreateJsUndefined(env);
     }
     if (!CheckCallerIsSystemApp()) {
@@ -482,14 +482,14 @@ napi_value JsApplicationContextUtils::OnGetGroupDir(napi_env env, NapiCallbackIn
 {
     if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Not enough params.");
         return CreateJsUndefined(env);
     }
 
     std::string groupId;
     if (!ConvertFromJsValue(env, info.argv[0], groupId)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse groupId failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param groupId failed, groupId must be string.");
         return CreateJsUndefined(env);
     }
 
@@ -524,7 +524,7 @@ napi_value JsApplicationContextUtils::OnRestartApp(napi_env env, NapiCallbackInf
     // only support one params
     if (info.argc == ARGC_ZERO) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Not enough params");
         return CreateJsUndefined(env);
     }
     auto applicationContext = applicationContext_.lock();
@@ -535,7 +535,7 @@ napi_value JsApplicationContextUtils::OnRestartApp(napi_env env, NapiCallbackInf
     AAFwk::Want want;
     if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse want failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param want failed, want must be Want.");
         return CreateJsUndefined(env);
     }
 
@@ -585,7 +585,7 @@ napi_value JsApplicationContextUtils::OnKillProcessBySelf(napi_env env, NapiCall
     // only support 0 or 1 params
     if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Not enough params.");
         return CreateJsUndefined(env);
     }
     TAG_LOGD(AAFwkTag::APPKIT, "kill self process");
@@ -618,7 +618,7 @@ napi_value JsApplicationContextUtils::OnSetColorMode(napi_env env, NapiCallbackI
     // only support one params
     if (info.argc == ARGC_ZERO) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Not enough params.");
         return CreateJsUndefined(env);
     }
     auto applicationContext = applicationContext_.lock();
@@ -630,7 +630,7 @@ napi_value JsApplicationContextUtils::OnSetColorMode(napi_env env, NapiCallbackI
     int32_t colorMode = 0;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], colorMode)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse colorMode failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param colorMode failed, colorMode must be number.");
         return CreateJsUndefined(env);
     }
     applicationContext->SetColorMode(colorMode);
@@ -647,7 +647,7 @@ napi_value JsApplicationContextUtils::OnSetLanguage(napi_env env, NapiCallbackIn
     // only support one params
     if (info.argc == ARGC_ZERO) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Not enough params.");
         return CreateJsUndefined(env);
     }
     auto applicationContext = applicationContext_.lock();
@@ -658,11 +658,59 @@ napi_value JsApplicationContextUtils::OnSetLanguage(napi_env env, NapiCallbackIn
     std::string language;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], language)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse language failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param language failed, language must be string.");
         return CreateJsUndefined(env);
     }
     applicationContext->SetLanguage(language);
     return CreateJsUndefined(env);
+}
+
+napi_value JsApplicationContextUtils::PreloadUIExtensionAbility(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(
+        env, info, JsApplicationContextUtils, OnPreloadUIExtensionAbility, APPLICATION_CONTEXT_NAME);
+}
+
+napi_value JsApplicationContextUtils::OnPreloadUIExtensionAbility(napi_env env, NapiCallbackInfo& info)
+{
+    HILOG_DEBUG("called");
+    if (info.argc < ARGC_ONE) {
+        TAG_LOGW(AAFwkTag::APPKIT, "Params error!");
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    AAFwk::Want want;
+    if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
+        TAG_LOGW(AAFwkTag::APPKIT, "Parse want failed");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return CreateJsUndefined(env);
+    }
+
+    auto innerErrCode = std::make_shared<ErrCode>(ERR_OK);
+    NapiAsyncTask::ExecuteCallback execute = [applicationContext = applicationContext_, want, innerErrCode]() {
+        auto context = applicationContext.lock();
+        auto hostBundleName = context->GetBundleName();
+        TAG_LOGD(AAFwkTag::APPKIT, "HostBundleName is %{public}s.", hostBundleName.c_str());
+        if (!context) {
+            TAG_LOGE(AAFwkTag::APPKIT, "context is released");
+            *innerErrCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+            return;
+        }
+        *innerErrCode = AAFwk::AbilityManagerClient::GetInstance()->PreloadUIExtensionAbility(want, hostBundleName);
+    };
+    NapiAsyncTask::CompleteCallback complete = [innerErrCode](napi_env env, NapiAsyncTask& task, int32_t status) {
+        if (*innerErrCode == ERR_OK) {
+            task.Resolve(env, CreateJsUndefined(env));
+        } else {
+            TAG_LOGE(AAFwkTag::APPKIT, "OnPreloadUIExtensionAbility is failed %{public}d", *innerErrCode);
+            task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrCode));
+        }
+    };
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsApplicationContextUtils::OnPreloadUIExtensionAbility",
+        env, CreateAsyncTaskWithLastParam(env, nullptr, std::move(execute), std::move(complete), &result));
+    return result;
 }
 
 napi_value JsApplicationContextUtils::ClearUpApplicationData(napi_env env, napi_callback_info info)
@@ -676,7 +724,7 @@ napi_value JsApplicationContextUtils::OnClearUpApplicationData(napi_env env, Nap
     // only support 0 or 1 params
     if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Not enough params.");
         return CreateJsUndefined(env);
     }
     NapiAsyncTask::CompleteCallback complete =
@@ -708,7 +756,7 @@ napi_value JsApplicationContextUtils::OnGetRunningProcessInformation(napi_env en
     // only support 0 or 1 params
     if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Not enough params.");
         return CreateJsUndefined(env);
     }
     TAG_LOGD(AAFwkTag::APPKIT, "Get Process Info");
@@ -949,13 +997,13 @@ napi_value JsApplicationContextUtils::OnOn(napi_env env, NapiCallbackInfo& info)
 
     if (info.argc != ARGC_TWO) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params.");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Not enough params.");
         return CreateJsUndefined(env);
     }
 
     if (!CheckTypeForNapiValue(env, info.argv[0], napi_string)) {
         TAG_LOGE(AAFwkTag::APPKIT, "param0 is invalid");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param type failed, type must be string.");
         return CreateJsUndefined(env);
     }
     std::string type;
@@ -990,13 +1038,13 @@ napi_value JsApplicationContextUtils::OnOff(napi_env env, NapiCallbackInfo& info
     TAG_LOGD(AAFwkTag::APPKIT, "called");
     if (info.argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Not enough params.");
         return CreateJsUndefined(env);
     }
 
     if (!CheckTypeForNapiValue(env, info.argv[0], napi_string)) {
         TAG_LOGE(AAFwkTag::APPKIT, "param0 is invalid");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param type failed, type must be string.");
         return CreateJsUndefined(env);
     }
     std::string type;
@@ -1012,7 +1060,7 @@ napi_value JsApplicationContextUtils::OnOff(napi_env env, NapiCallbackInfo& info
 
     if (info.argc != ARGC_TWO && info.argc != ARGC_THREE) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Not enough params.");
         return CreateJsUndefined(env);
     }
 
@@ -1371,7 +1419,7 @@ napi_value JsApplicationContextUtils::OnSetSupportedProcessCacheSelf(napi_env en
     // only support one params
     if (info.argc == ARGC_ZERO) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Not enough params.");
         return CreateJsUndefined(env);
     }
     auto applicationContext = applicationContext_.lock();
@@ -1438,6 +1486,8 @@ void JsApplicationContextUtils::BindNativeApplicationContext(napi_env env, napi_
     BindNativeFunction(env, object, "setLanguage", MD_NAME, JsApplicationContextUtils::SetLanguage);
     BindNativeFunction(env, object, "clearUpApplicationData", MD_NAME,
         JsApplicationContextUtils::ClearUpApplicationData);
+    BindNativeFunction(env, object, "preloadUIExtensionAbility", MD_NAME,
+        JsApplicationContextUtils::PreloadUIExtensionAbility);
     BindNativeFunction(env, object, "getProcessRunningInformation", MD_NAME,
         JsApplicationContextUtils::GetRunningProcessInformation);
     BindNativeFunction(env, object, "getRunningProcessInformation", MD_NAME,

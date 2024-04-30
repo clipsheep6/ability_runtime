@@ -370,8 +370,10 @@ void AppRunningManager::RemoveAppRunningRecordById(const int32_t recordId)
     std::shared_ptr<AppRunningRecord> appRecord = nullptr;
     {
         std::lock_guard<ffrt::mutex> guard(lock_);
-        appRecord = appRunningRecordMap_.at(recordId);
-        appRunningRecordMap_.erase(recordId);
+        if (appRunningRecordMap_.find(recordId) != appRunningRecordMap_.end()) {
+            appRecord = appRunningRecordMap_.at(recordId);
+            appRunningRecordMap_.erase(recordId);
+        }
     }
 
     if (appRecord != nullptr && appRecord->GetPriorityObject() != nullptr) {

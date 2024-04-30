@@ -17,6 +17,7 @@
 
 #include <mutex>
 #include "cpp/mutex.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ffrt_task_utils_wrap.h"
 #include "queue_task_handler_wrap.h"
@@ -46,12 +47,12 @@ void TaskHandle::Sync() const
 {
     auto handler = handler_.lock();
     if (!status_ || !handler || !innerTaskHandle_) {
-        HILOG_ERROR("Invalid state");
+        TAG_LOGE(AAFwkTag::DEFAULT, "Invalid state");
         return;
     }
     auto &status = *status_;
     if (status == TaskStatus::FINISHED || status == TaskStatus::CANCELED) {
-        HILOG_ERROR("Invalid status");
+        TAG_LOGE(AAFwkTag::DEFAULT, "Invalid status");
         return;
     }
     handler->WaitTaskInner(innerTaskHandle_);
@@ -104,7 +105,7 @@ TaskHandle TaskHandlerWrap::SubmitTask(const std::function<void()> &task,
     std::lock_guard<ffrt::mutex> guard(*tasksMutex_);
     auto it = tasks_.find(name);
     if (it != tasks_.end()) {
-        HILOG_DEBUG("SubmitTask repeated task: %{public}s", name.c_str());
+        TAG_LOGD(AAFwkTag::DEFAULT, "SubmitTask repeated task: %{public}s", name.c_str());
         if (forceSubmit) {
             return SubmitTask(task, atskAttr);
         } else {
@@ -143,7 +144,7 @@ TaskHandle TaskHandlerWrap::SubmitTask(const std::function<void()> &task, const 
 }
 bool TaskHandlerWrap::CancelTask(const std::string &name)
 {
-    HILOG_DEBUG("CancelTask task: %{public}s", name.c_str());
+    TAG_LOGD(AAFwkTag::DEFAULT, "CancelTask task: %{public}s", name.c_str());
     std::lock_guard<ffrt::mutex> guard(*tasksMutex_);
     auto it = tasks_.find(name);
     if (it == tasks_.end()) {

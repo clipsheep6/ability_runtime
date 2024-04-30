@@ -530,6 +530,15 @@ void AmsMgrScheduler::SetAppAssertionPauseState(int32_t pid, bool flag)
     amsMgrServiceInner_->SetAppAssertionPauseState(pid, flag);
 }
 
+void AmsMgrScheduler::SetKeepAliveEnableState(const std::string &bundleName, bool enable)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return;
+    }
+    amsMgrServiceInner_->SetKeepAliveEnableState(bundleName, enable);
+}
+
 void AmsMgrScheduler::ClearProcessByToken(sptr<IRemoteObject> token)
 {
     if (!IsReady()) {

@@ -1346,14 +1346,18 @@ bool AppRunningRecord::IsKeepAliveApp() const
     return isKeepAliveApp_;
 }
 
+void AppRunningRecord::SetKeepAliveEnableState(bool isKeepAliveEnable)
+{
+    isKeepAliveApp_ = isKeepAliveEnable;
+}
+
 bool AppRunningRecord::IsEmptyKeepAliveApp() const
 {
     return isEmptyKeepAliveApp_;
 }
 
-void AppRunningRecord::SetKeepAliveAppState(bool isKeepAlive, bool isEmptyKeepAliveApp)
+void AppRunningRecord::SetEmptyKeepAliveAppState(bool isEmptyKeepAliveApp)
 {
-    isKeepAliveApp_ = isKeepAlive;
     isEmptyKeepAliveApp_ = isEmptyKeepAliveApp;
 }
 

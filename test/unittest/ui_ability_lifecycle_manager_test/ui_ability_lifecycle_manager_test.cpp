@@ -2480,5 +2480,38 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartAbilityBySpecifed_001, TestSize.Lev
     uiAbilityLifecycleManager->StartAbilityBySpecifed(request, callerAbility);
     uiAbilityLifecycleManager.reset();
 }
+
+/**
+ * @tc.name: UIAbilityLifecycleManager_GetAbilityStateByPersistentId_0100
+ * @tc.desc: GetAbilityStateByPersistentId
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, GetAbilityStateByPersistentId_001, TestSize.Level1)
+{
+    auto uiAbilityLifecycleManager = std::make_shared<UIAbilityLifecycleManager>();
+    EXPECT_NE(uiAbilityLifecycleManager, nullptr);
+    int32_t persistentId = 100;
+    bool state;
+    int32_t ret = uiAbilityLifecycleManager->GetAbilityStateByPersistentId(persistentId, state);
+    EXPECT_EQ(ERR_INVALID_VALUE, ret);
+}
+
+/**
+ * @tc.name: UIAbilityLifecycleManager_GetAbilityStateByPersistentId_0200
+ * @tc.desc: GetAbilityStateByPersistentId
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, GetAbilityStateByPersistentId_002, TestSize.Level1)
+{
+    auto uiAbilityLifecycleManager = std::make_shared<UIAbilityLifecycleManager>();
+    EXPECT_NE(uiAbilityLifecycleManager, nullptr);
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    abilityRecord->SetPendingState(AbilityState::INITIAL);
+    uiAbilityLifecycleManager->sessionAbilityMap_.emplace(100, abilityRecord);
+    int32_t persistentId = 100;
+    bool state;
+    int32_t ret = uiAbilityLifecycleManager->GetAbilityStateByPersistentId(persistentId, state);
+    EXPECT_EQ(ERR_OK, ret);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

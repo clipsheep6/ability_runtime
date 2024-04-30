@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "hilog_tag_wrapper.h"
 #include "startup_topologysort.h"
 
 namespace OHOS {
@@ -22,14 +23,14 @@ int32_t StartupTopologySort::Sort(const std::map<std::string, std::shared_ptr<St
 {
     startupSortResult = std::make_shared<StartupSortResult>();
     if (startupSortResult == nullptr) {
-        HILOG_ERROR("Create StartupSortResult obj fail.");
+        TAG_LOGE(AAFwkTag::STARTUP, "Create StartupSortResult obj fail.");
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     std::deque<std::string> zeroDeque;
     std::map<std::string, std::uint32_t> inDegreeMap;
     for (auto &iter : startupMap) {
         if (iter.second == nullptr) {
-            HILOG_ERROR("StartupTask is nullptr.");
+            TAG_LOGE(AAFwkTag::STARTUP, "StartupTask is nullptr.");
             return ERR_STARTUP_INTERNAL_ERROR;
         }
         int32_t result = SortZeroDeque(iter.second, startupMap, inDegreeMap, zeroDeque, startupSortResult);
@@ -45,7 +46,7 @@ int32_t StartupTopologySort::Sort(const std::map<std::string, std::shared_ptr<St
         zeroDeque.pop_front();
         auto it = startupMap.find(key);
         if (it == startupMap.end()) {
-            HILOG_ERROR("startup not found: %{public}s", key.c_str());
+            TAG_LOGE(AAFwkTag::STARTUP, "startup not found: %{public}s", key.c_str());
             return ERR_STARTUP_INTERNAL_ERROR;
         }
         if (it->second->GetCallCreateOnMainThread()) {
@@ -64,11 +65,11 @@ int32_t StartupTopologySort::Sort(const std::map<std::string, std::shared_ptr<St
     }
 
     if (mainStartupCount + threadStartupCount != startupMap.size()) {
-        HILOG_ERROR("circular dependency, main: %{public}u, thread: %{public}u, startupMap %{public}zu",
+        TAG_LOGE(AAFwkTag::STARTUP, "circular dependency, main: %{public}u, thread: %{public}u, startupMap %{public}zu",
             mainStartupCount, threadStartupCount, startupMap.size());
         return ERR_STARTUP_CIRCULAR_DEPENDENCY;
     }
-    HILOG_DEBUG("main: %{public}u, thread: %{public}u", mainStartupCount, threadStartupCount);
+    TAG_LOGD(AAFwkTag::STARTUP, "main: %{public}u, thread: %{public}u", mainStartupCount, threadStartupCount);
     return ERR_OK;
 }
 
@@ -80,7 +81,7 @@ int32_t StartupTopologySort::SortZeroDeque(const std::shared_ptr<StartupTask> &s
     std::string key = startup->GetName();
     auto result = inDegreeMap.emplace(key, startup->getDependenciesCount());
     if (!result.second) {
-        HILOG_ERROR("%{public}s, failed to emplace to inDegreeMap.", key.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, failed to emplace to inDegreeMap.", key.c_str());
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     std::vector<std::string> dependencies = startup->GetDependencies();
@@ -90,7 +91,8 @@ int32_t StartupTopologySort::SortZeroDeque(const std::shared_ptr<StartupTask> &s
     } else {
         for (auto &parentName : dependencies) {
             if (startupMap.find(parentName) == startupMap.end()) {
-                HILOG_ERROR("%{public}s, failed to find dep: %{public}s.", key.c_str(), parentName.c_str());
+                TAG_LOGE(AAFwkTag::STARTUP,
+                    "%{public}s, failed to find dep: %{public}s.", key.c_str(), parentName.c_str());
                 return ERR_STARTUP_DEPENDENCY_NOT_FOUND;
             }
             auto &childStartVector = startupSortResult->startupChildrenMap_[parentName];

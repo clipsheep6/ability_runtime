@@ -76,6 +76,8 @@ constexpr const char* ERROR_MSG_NOT_SUPPORT_CROSS_APP_START =
 constexpr const char* ERROR_MSG_CANNOT_MATCH_ANY_COMPONENT = "Can not match any component.";
 constexpr const char* ERROR_MSG_TARGET_BUNDLE_NOT_EXIST = "The target bundle does not exist.";
 constexpr const char* ERROR_MSG_SET_SUPPORTED_PROCESS_CACHE_AGAIN = "Can not set process cache state more than once.";
+constexpr const char* ERROR_MSG_NO_RESIDENT_PERMISSION =
+    "The caller application can only set the resident status of the configured process.";
 
 // follow ERR_BUNDLE_MANAGER_BUNDLE_NOT_EXIST of appexecfwk_errors.h in bundle_framework
 constexpr int32_t ERR_BUNDLE_MANAGER_BUNDLE_NOT_EXIST = 8521220;
@@ -128,6 +130,7 @@ static std::unordered_map<AbilityErrorCode, const char*> ERR_CODE_MAP = {
     { AbilityErrorCode::ERROR_CODE_CANNOT_MATCH_ANY_COMPONENT, ERROR_MSG_CANNOT_MATCH_ANY_COMPONENT },
     { AbilityErrorCode::ERROR_CODE_TARGET_BUNDLE_NOT_EXIST, ERROR_MSG_TARGET_BUNDLE_NOT_EXIST },
     { AbilityErrorCode::ERROR_CODE_SET_SUPPORTED_PROCESS_CACHE_AGAIN, ERROR_MSG_SET_SUPPORTED_PROCESS_CACHE_AGAIN },
+    { AbilityErrorCode::ERROR_CODE_NO_RESIDENT_PERMISSION, ERROR_MSG_NO_RESIDENT_PERMISSION },
 };
 
 static std::unordered_map<int32_t, AbilityErrorCode> INNER_TO_JS_ERROR_CODE_MAP {
@@ -183,6 +186,7 @@ static std::unordered_map<int32_t, AbilityErrorCode> INNER_TO_JS_ERROR_CODE_MAP 
     {ERR_START_OTHER_APP_FAILED, AbilityErrorCode::ERROR_CODE_NOT_SUPPORT_CROSS_APP_START},
     {ERR_TARGET_BUNDLE_NOT_EXIST, AbilityErrorCode::ERROR_CODE_TARGET_BUNDLE_NOT_EXIST},
     {ERR_SET_SUPPORTED_PROCESS_CACHE_AGAIN, AbilityErrorCode::ERROR_CODE_SET_SUPPORTED_PROCESS_CACHE_AGAIN},
+    {ERR_NO_RESIDENT_PERMISSION, AbilityErrorCode::ERROR_CODE_NO_RESIDENT_PERMISSION},
 };
 }
 

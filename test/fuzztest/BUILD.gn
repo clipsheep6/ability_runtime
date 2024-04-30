@@ -55,6 +55,7 @@ group("fuzztest") {
     "abilitystubforceexitapp_fuzzer:fuzztest",
     "abilitystubfreeinstallabilityfromremote_fuzzer:fuzztest",
     "abilitystubgetabilityrunninginfo_fuzzer:fuzztest",
+    "abilitystubgetabilitystatebypersistentid_fuzzer:fuzztest",
     "abilitystubgetabilitytoken_fuzzer:fuzztest",
     "abilitystubgetappmemorysize_fuzzer:fuzztest",
     "abilitystubgetdlpconnectioninfos_fuzzer:fuzztest",

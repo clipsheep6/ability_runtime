@@ -9,10 +9,9 @@
         "device_type" : "phone",
         "boot_animation_timeout_time" : 3,
         "timeout_unit_time" : 1000,
-        "multiUserType": 0
+        "multiUserType": 1
     },
     "system_configuration":{
         "system_orientation": "vertical"
-    },
-    "safe_uri_permission": false
+    }
 }

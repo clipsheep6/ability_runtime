@@ -406,10 +406,10 @@ const std::string SystemDialogScheduler::GetPcSelectorParams(const std::vector<D
 int SystemDialogScheduler::GetSelectorDialogWantCommon(const std::vector<DialogAppInfo> &dialogAppInfos,
     Want &targetWant, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_DEBUG("GetSelectorDialogWantCommon start");
+    TAG_LOGD(AAFwkTag::DIALOG, "GetSelectorDialogWantCommon start");
     bool isCallerStageBasedModel = true;
     if (callerToken != nullptr) {
-        HILOG_DEBUG("set callertoken to targetWant");
+        TAG_LOGD(AAFwkTag::DIALOG, "set callertoken to targetWant");
         auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
         if (abilityRecord && !abilityRecord->GetAbilityInfo().isStageBasedModel) {
             isCallerStageBasedModel = false;
@@ -425,12 +425,12 @@ int SystemDialogScheduler::GetSelectorDialogWantCommon(const std::vector<DialogA
         && isCallerStageBasedModel) {
         auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
         if (bundleMgrHelper == nullptr) {
-            HILOG_ERROR("The bundleMgrHelper is nullptr.");
+            TAG_LOGE(AAFwkTag::DIALOG, "The bundleMgrHelper is nullptr.");
             return INNER_ERR;
         }
         std::string bundleName;
         if (!IN_PROCESS_CALL(bundleMgrHelper->QueryAppGalleryBundleName(bundleName))) {
-            HILOG_ERROR("QueryAppGalleryBundleName failed.");
+            TAG_LOGE(AAFwkTag::DIALOG, "QueryAppGalleryBundleName failed.");
             return INNER_ERR;
         }
         targetWant.SetElementName(bundleName, ABILITY_NAME_APPGALLERY_SELECTOR_DIALOG);

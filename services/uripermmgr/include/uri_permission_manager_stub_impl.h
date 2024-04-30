@@ -52,7 +52,6 @@ class UriPermissionManagerStubImpl : public UriPermissionManagerStub,
 public:
     UriPermissionManagerStubImpl() = default;
     virtual ~UriPermissionManagerStubImpl() = default;
-    void Init();
 
     int GrantUriPermission(const Uri &uri, unsigned int flag,
         const std::string targetBundleName, int32_t appIndex = 0, uint32_t initiatorTokenId = 0) override;
@@ -105,8 +104,6 @@ private:
     int32_t CheckCalledBySandBox();
 
     bool CheckUriPermission(Uri uri, uint32_t flag, TokenIdPermission &tokenIdPermission);
-    bool SafeCheckUriPermission(Uri uri, uint32_t flag, TokenIdPermission &tokenIdPermission);
-    bool UnSafeCheckUriPermission(Uri uri, uint32_t flag, TokenIdPermission &tokenIdPermission);
 
     bool CheckUriTypeIsValid(Uri uri);
     bool CheckAndCreateEventInfo(uint32_t callerTokenId, uint32_t targetTokenId, EventInfo &eventInfo);
@@ -129,13 +126,13 @@ private:
 
     int32_t CheckProxyUriPermission(TokenIdPermission &tokenIdPermission, const Uri &uri, uint32_t flag);
 
-    bool VerifyPermissionByTokenId(uint32_t tokenId, const std::string &permissionName);
-    
     bool AccessMediaUriPermission(TokenIdPermission &tokenIdPermission, const Uri &uri, uint32_t flag);
 
     bool AccessDocsUriPermission(TokenIdPermission &tokenIdPermission, const Uri &uri, uint32_t flag);
     
     int32_t DeleteShareFile(uint32_t targetTokenId, const std::vector<std::string> &uriVec);
+
+    bool IsSAOrSystemAppCall();
 
     class ProxyDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

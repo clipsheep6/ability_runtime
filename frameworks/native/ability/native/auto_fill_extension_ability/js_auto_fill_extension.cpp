@@ -429,14 +429,14 @@ void JsAutoFillExtension::OnBackground()
 
 int32_t JsAutoFillExtension::OnReloadInModal(const sptr<AAFwk::SessionInfo> &sessionInfo, const CustomData &customData)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     if (!isPopup_) {
-        HILOG_ERROR("The current window type is not popup.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "The current window type is not popup.");
         return ERR_INVALID_OPERATION;
     }
 
     if (sessionInfo == nullptr) {
-        HILOG_ERROR("SessionInfo is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "SessionInfo is nullptr.");
         return ERR_NULL_OBJECT;
     }
 
@@ -445,7 +445,7 @@ int32_t JsAutoFillExtension::OnReloadInModal(const sptr<AAFwk::SessionInfo> &ses
     auto obj = sessionInfo->sessionToken;
     auto &uiWindow = uiWindowMap_[obj];
     if (uiWindow == nullptr) {
-        HILOG_ERROR("UI window is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "UI window is nullptr.");
         return ERR_NULL_OBJECT;
     }
     AAFwk::WantParams wantParams;
@@ -454,7 +454,7 @@ int32_t JsAutoFillExtension::OnReloadInModal(const sptr<AAFwk::SessionInfo> &ses
     wantParams.SetParam(WANT_PARAMS_CUSTOM_DATA, AAFwk::String::Box(customDataString));
     auto ret = static_cast<int32_t>(uiWindow->TransferExtensionData(wantParams));
     if (ret != ERR_OK) {
-        HILOG_ERROR("Transfer extension data failed.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Transfer extension data failed.");
         return ERR_INVALID_OPERATION;
     }
     return ERR_OK;
@@ -462,12 +462,12 @@ int32_t JsAutoFillExtension::OnReloadInModal(const sptr<AAFwk::SessionInfo> &ses
 
 void JsAutoFillExtension::UpdateRequest(const AAFwk::WantParams &wantParams)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     HandleScope handleScope(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
     napi_value request = JsAutoFillExtensionUtil::WrapUpdateRequest(wantParams, env);
     if (request == nullptr) {
-        HILOG_ERROR("Failed to create update request.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to create update request.");
         return;
     }
     napi_value argv[] = { request };
@@ -522,7 +522,7 @@ void JsAutoFillExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<A
 
     auto context = GetContext();
     if (context == nullptr) {
-        HILOG_ERROR("Failed to get context.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to get context.");
         return;
     }
     context->SetSessionInfo(sessionInfo);
@@ -656,7 +656,7 @@ void JsAutoFillExtension::CallJsOnRequest(
 
     napi_value request = JsAutoFillExtensionUtil::WrapFillRequest(want, env);
     if (request == nullptr) {
-        HILOG_ERROR("Fill request is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Fill request is nullptr.");
         return;
     }
 
@@ -683,15 +683,15 @@ void JsAutoFillExtension::CallJsOnRequest(
 
 void JsAutoFillExtension::RegisterTransferComponentDataListener(const sptr<Rosen::Window> &uiWindow)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     if (uiWindow == nullptr) {
-        HILOG_ERROR("Invalid ui window object.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Invalid ui window object.");
         return;
     }
 
     auto handler = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
     if (handler == nullptr) {
-        HILOG_ERROR("Failed to create event handler.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to create event handler.");
         return;
     }
     uiWindow->RegisterTransferComponentDataListener([this, handler](

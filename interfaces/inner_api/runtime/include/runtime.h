@@ -71,10 +71,11 @@ public:
     };
 
     struct DebugOption {
+        std::string bundleName = "";
         std::string perfCmd;
-        bool isStartWithDebug = false;
         std::string processName = "";
         bool isDebugApp = true;
+        bool isStartWithDebug = false;
         bool isStartWithNative = false;
     };
 

@@ -185,7 +185,7 @@ AppMgrStub::AppMgrStub()
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UPDATE_CONFIGURATION_BY_BUNDLE_NAME)] =
         &AppMgrStub::HandleUpdateConfigurationByBundleName;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_MEMORY_SIZE_STATE_CHANGED)] =
-        &AppMgrStub::HandleNotifyMemonySizeStateChanged;
+        &AppMgrStub::HandleNotifyMemorySizeStateChanged;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SET_SUPPORTED_PROCESS_CACHE_SELF)] =
         &AppMgrStub::HandleSetSupportedProcessCacheSelf;
 }
@@ -1098,7 +1098,9 @@ int32_t AppMgrStub::HandleStartChildProcess(MessageParcel &data, MessageParcel &
     TAG_LOGD(AAFwkTag::APPMGR, "called.");
     std::string srcEntry = data.ReadString();
     int32_t childPid = 0;
-    int32_t result = StartChildProcess(srcEntry, childPid);
+    int32_t childProcessCount = data.ReadInt32();
+    int32_t isStartWithDebug = data.ReadBool();
+    int32_t result = StartChildProcess(srcEntry, childPid, childProcessCount, isStartWithDebug);
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write result error.");
         return ERR_INVALID_VALUE;
@@ -1267,10 +1269,10 @@ int32_t AppMgrStub::HandleGetAllUIExtensionProviderPid(MessageParcel &data, Mess
     return NO_ERROR;
 }
 
-int32_t AppMgrStub::HandleNotifyMemonySizeStateChanged(MessageParcel &data, MessageParcel &reply)
+int32_t AppMgrStub::HandleNotifyMemorySizeStateChanged(MessageParcel &data, MessageParcel &reply)
 {
     bool isMemorySizeSufficent = data.ReadBool();
-    int result = NotifyMemonySizeStateChanged(isMemorySizeSufficent);
+    int result = NotifyMemorySizeStateChanged(isMemorySizeSufficent);
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write result error.");
         return ERR_INVALID_VALUE;

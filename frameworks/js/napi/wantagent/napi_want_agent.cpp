@@ -26,8 +26,9 @@
 #include "ipc_skeleton.h"
 #include "js_runtime_utils.h"
 #include "napi_common.h"
-#include "want_agent_helper.h"
+#include "start_options.h"
 #include "tokenid_kit.h"
+#include "want_agent_helper.h"
 
 using namespace OHOS::AbilityRuntime;
 namespace OHOS {
@@ -48,6 +49,16 @@ constexpr uint8_t INDEX_TWO = 2;
 constexpr int32_t ERR_NOT_OK = -1;
 constexpr int32_t BUSINESS_ERROR_CODE_OK = 0;
 constexpr int32_t PARAMETER_ERROR = -1;
+
+bool CheckCallerIsSystemApp()
+{
+    auto selfToken = IPCSkeleton::GetSelfTokenID();
+    if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Current app is not system app, not allow.");
+        return false;
+    }
+    return true;
+}
 } // namespace
 
 
@@ -801,7 +812,24 @@ int32_t JsWantAgent::GetTriggerInfo(napi_env env, napi_value param, TriggerInfo 
         }
     }
 
-    TriggerInfo triggerInfoData(permission, extraInfo, want, code);
+    std::shared_ptr<AAFwk::StartOptions> startOptions = nullptr;
+    bool hasStartOptions = false;
+    napi_value jsStartOptions = nullptr;
+    napi_has_named_property(env, param, "startOptions", &hasStartOptions);
+    if (hasStartOptions) {
+        if (!CheckCallerIsSystemApp()) {
+            TAG_LOGE(AAFwkTag::WANTAGENT, "Current app is not system app");
+            AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_NOT_SYSTEM_APP);
+            return ERR_NOT_OK;
+        }
+        startOptions = std::make_shared<AAFwk::StartOptions>();
+        napi_get_named_property(env, param, "startOptions", &jsStartOptions);
+        if (!UnwrapStartOptions(env, jsStartOptions, *startOptions)) {
+            TAG_LOGE(AAFwkTag::WANTAGENT, "GetTriggerInfo convert startOptions error!");
+            return ERR_NOT_OK;
+        }
+    }
+    TriggerInfo triggerInfoData(permission, extraInfo, want, startOptions, code);
     triggerInfo = triggerInfoData;
     return BUSINESS_ERROR_CODE_OK;
 }

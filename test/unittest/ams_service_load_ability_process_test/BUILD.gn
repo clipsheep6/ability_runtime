@@ -94,6 +94,7 @@ ohos_unittest("AmsServiceLoadAbilityProcessTest") {
     "kv_store:distributeddata_inner",
     "kv_store:distributeddata_mgr",
     "memory_utils:libmeminfo",
+    "resource_schedule_service:ressched_client",
   ]
 
   if (ability_runtime_graphics) {
@@ -104,7 +105,7 @@ ohos_unittest("AmsServiceLoadAbilityProcessTest") {
   }
 
   if (ability_runtime_use_memmgr_plugin) {
-    external_deps += [ "memmgr_plugin:memmgrclient" ]
+    external_deps += [ "memmgr_override:memmgrclient" ]
   } else if (ability_runtime_use_memmgr) {
     external_deps += [ "memmgr:memmgrclient" ]
   }

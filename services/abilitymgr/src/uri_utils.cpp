@@ -89,7 +89,7 @@ void UriUtils::FilterUriWithPermissionDms(Want &want, uint32_t tokenId)
         return;
     }
     auto uriVec = GetUriListFromWantDms(want);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "size of uri valid uris is %{public}u", uriVec.size());
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "size of uri valid uris is %{public}zu", uriVec.size());
     if (uriVec.empty()) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "uriVec is empty.");
         want.SetParam(PARAMS_URI, uriVec);

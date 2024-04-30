@@ -43,7 +43,6 @@ namespace AAFwk {
 using OHOS::AppExecFwk::AbilityType;
 using UIExtensionAbilityConnectInfo = AbilityRuntime::UIExtensionAbilityConnectInfo;
 using UIExtensionAbilityConnectManager = AbilityRuntime::ExtensionRecordManager;
-
 /**
  * @class AbilityConnectManager
  * AbilityConnectManager provides a facility for managing service ability connection.
@@ -100,6 +99,32 @@ public:
         const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo = nullptr,
         sptr<UIExtensionAbilityConnectInfo> connectInfo = nullptr);
 
+    /**
+     * PreloadUIExtensionAbilityInner, preload uiextension ability.
+     *
+     * @param abilityRequest, Special want for service type's ability.
+     * @param hostBundleName, the caller application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int PreloadUIExtensionAbilityInner(const AbilityRequest &abilityRequest, std::string &hostBundleName);
+
+    /**
+     * PreloadUIExtensionAbilityLocked, preload uiextension ability.
+     *
+     * @param abilityRequest, Special want for service type's ability.
+     * @param hostBundleName, the caller application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int PreloadUIExtensionAbilityLocked(const AbilityRequest &abilityRequest, std::string &hostBundleName);
+    /**
+     * UnloadUIExtension, unload uiextension ability.
+     *
+     * @param abilityRecord, uiextension ability record.
+     * @param hostBundleName, the caller application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int UnloadUIExtension(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord, std::string &bundleName);
+    
     /**
      * DisconnectAbilityLocked, disconnect session with callback.
      *
@@ -222,6 +247,20 @@ public:
     }
 
     /**
+     * @brief Get extensionList by pid.
+     * @param pid Process id.
+     * @param extensionList UIExtensionAbility name list.
+     */
+    int32_t GetActiveUIExtensionList(const int32_t pid, std::vector<std::string> &extensionList);
+
+    /**
+     * @brief Get extensionList by bundleName.
+     * @param bundleName The application bundle name.
+     * @param extensionList UIExtensionAbility name list.
+     */
+    int32_t GetActiveUIExtensionList(const std::string &bundleName, std::vector<std::string> &extensionList);
+
+    /**
      * OnAbilityDied.
      *
      * @param abilityRecord, service ability record.
@@ -269,6 +308,8 @@ public:
     void RemoveLauncherDeathRecipient();
 
     std::shared_ptr<AAFwk::AbilityRecord> GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token);
+
+    void CloseAssertDialog(const std::string &assertSessionId);
 
     void SignRestartAppFlag(const std::string &bundleName);
 
@@ -526,6 +567,7 @@ private:
     int TerminateAbilityInner(const sptr<IRemoteObject> &token);
     bool IsLauncher(std::shared_ptr<AbilityRecord> serviceExtension) const;
     void KillProcessesByUserId() const;
+    void SetLastExitReason(const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetService);
     inline bool IsUIExtensionAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
     inline bool CheckUIExtensionAbilityLoaded(const AbilityRequest &abilityRequest);
     inline bool CheckUIExtensionAbilitySessionExistLocked(const std::shared_ptr<AbilityRecord> &abilityRecord);

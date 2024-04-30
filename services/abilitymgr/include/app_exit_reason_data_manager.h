@@ -50,6 +50,11 @@ public:
     int32_t GetAbilityRecoverInfo(const std::string &bundleName,
         const std::string &moduleName, const std::string &abilityName, bool &hasRecoverInfo);
 
+    int32_t SetUIExtensionAbilityExitReason(const std::string &bundleName,
+        const std::vector<std::string> &extensionList, const AAFwk::ExitReason &exitReason);
+
+    bool GetUIExtensionAbilityExitReason(const std::string &keyEx, AAFwk::ExitReason &exitReason);
+
     int32_t GetAbilitySessionId(const std::string &bundleName,
         const std::string &moduleName, const std::string &abilityName, int &sessionId);
 
@@ -71,6 +76,8 @@ private:
     void ConvertAbilityRecoverInfoFromValue(
         const DistributedKv::Value &value, std::vector<std::string> &recoverInfoList, std::vector<int> &sessionIdList);
     void InnerDeleteAbilityRecoverInfo(const std::string &bundleName);
+    DistributedKv::Value ConvertAppExitReasonInfoToValueOfExtensionName(
+        const std::string &extensionListName, const AAFwk::ExitReason &exitReason);
 
     const DistributedKv::AppId appId_ { "app_exit_reason_storage" };
     const DistributedKv::StoreId storeId_ { "app_exit_reason_infos" };

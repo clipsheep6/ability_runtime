@@ -182,7 +182,7 @@ HWTEST_F(UriPermissionManagerTest, UriPermissionManager_RevokeUriPermissionManua
     auto uri = Uri("http://com.example.test1001/data/storage/el2/base/haps/entry/files/test_A.txt");
     std::string bundleName = "com.example.test1001";
     auto ret = upmc.RevokeUriPermissionManually(uri, bundleName);
-    EXPECT_EQ(ret, ERR_CODE_INVALID_URI_TYPE);
+    EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
 }
 
 /*
@@ -198,7 +198,7 @@ HWTEST_F(UriPermissionManagerTest, UriPermissionManager_RevokeUriPermissionManua
     auto uri = Uri("file://com.example.test1001/data/storage/el2/base/haps/entry/files/test_A.txt");
     std::string bundleName = "com.example.test1001";
     auto ret = upmc.RevokeUriPermissionManually(uri, bundleName);
-    EXPECT_NE(ret, ERR_OK);
+    EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
 }
 
 /*

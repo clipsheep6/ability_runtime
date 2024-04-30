@@ -107,6 +107,7 @@ void AppLifeCycleDeal::ScheduleForegroundRunning()
         return;
     }
 
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     appThread->ScheduleForegroundApplication();
 }
 

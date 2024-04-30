@@ -14,6 +14,7 @@
  */
 
 #include "app_state_callback_proxy.h"
+#include "bundle_info.h"
 
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
@@ -33,6 +34,9 @@ void AppStateCallbackProxy::OnAbilityRequestDone(const sptr<IRemoteObject>& toke
 {}
 
 void AppStateCallbackProxy::OnAppStateChanged(const AppProcessData& appProcessData)
+{}
+
+void AppStateCallbackProxy::NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos)
 {}
 }  // namespace AppExecFwk
 }  // namespace OHOS

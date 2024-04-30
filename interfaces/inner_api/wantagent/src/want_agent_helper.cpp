@@ -227,6 +227,7 @@ ErrCode WantAgentHelper::Send(const std::shared_ptr<PendingWant> &pendingWant,
         callBack,
         paramsInfo.GetPermission(),
         paramsInfo.GetExtraInfo(),
+        paramsInfo.GetStartOptions(),
         pendingWant->GetTarget());
 }
 

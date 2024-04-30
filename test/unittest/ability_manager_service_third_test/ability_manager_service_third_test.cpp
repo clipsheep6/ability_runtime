@@ -1140,5 +1140,20 @@ HWTEST_F(AbilityManagerServiceThirdTest, CheckRestartAppWant_001, TestSize.Level
     int32_t res = abilityMs->CheckRestartAppWant(want);
     EXPECT_EQ(res, AAFwk::ERR_RESTART_APP_INCORRECT_ABILITY);
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: GetAbilityStateByPersistentId
+ * FunctionPoints: AbilityManagerService GetAbilityStateByPersistentId
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, GetAbilityStateByPersistentId_001, TestSize.Level1)
+{
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs, nullptr);
+    int32_t persistentId = 100;
+    bool state;
+    int32_t res = abilityMs->GetAbilityStateByPersistentId(persistentId, state);
+    EXPECT_EQ(res, ERR_PERMISSION_DENIED);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
