@@ -32,6 +32,19 @@ namespace OHOS {
 namespace AbilityRuntime {
 struct NapiCallbackInfo;
 class JsEmbeddableUIAbilityContext;
+class JSAbilityConnection;
+class UIServiceHostCallback;
+
+struct JSAbilityAsyncNapiContext {
+    napi_env env_ = nullptr;
+    napi_async_work work_ = nullptr;
+    napi_deferred deferred_ = nullptr;
+    std::weak_ptr<AbilityContext> context_;
+    AAFwk::Want want_;
+    int64_t connectId_ = 0;
+    wptr<JSAbilityConnection> connection_;
+};
+
 class JsAbilityContext final {
 public:
     explicit JsAbilityContext(const std::shared_ptr<AbilityContext>& context) : context_(context) {}
@@ -67,6 +80,9 @@ public:
     static napi_value HideAbility(napi_env env, napi_callback_info info);
     static napi_value OpenAtomicService(napi_env env, napi_callback_info info);
     static napi_value MoveAbilityToBackground(napi_env env, napi_callback_info info);
+    static napi_value StartUIServiceExtension(napi_env env, napi_callback_info info);
+    static napi_value ConnectUIServiceExtension(napi_env env, napi_callback_info info);
+    static napi_value DisconnectUIServiceExtension(napi_env env, napi_callback_info info);
 
     static void ConfigurationUpdated(napi_env env, std::shared_ptr<NativeReference> &jsContext,
         const std::shared_ptr<AppExecFwk::Configuration> &config);
@@ -122,6 +138,9 @@ private:
     napi_value OnMoveAbilityToBackground(napi_env env, NapiCallbackInfo& info);
     bool CreateOpenLinkTask(const napi_env &env, const napi_value &lastParam, AAFwk::Want &want,
         int &requestCode);
+    napi_value OnStartUIServiceExtension(napi_env env, NapiCallbackInfo& info);
+    napi_value OnConnectUIServiceExtension(napi_env env, NapiCallbackInfo& info);
+    napi_value OnDisconnectUIServiceExtension(napi_env env, NapiCallbackInfo& info);
 
     static bool UnWrapWant(napi_env env, napi_value argv, AAFwk::Want& want);
     static napi_value WrapWant(napi_env env, const AAFwk::Want& want);
@@ -160,11 +179,17 @@ public:
     void RemoveConnectionObject();
     void CallJsFailed(int32_t errorCode);
     void SetConnectionId(int64_t id);
+    void SetUIServiceExtensionAsyncContext(const JSAbilityAsyncNapiContext& context);
+    JSAbilityAsyncNapiContext& GetUIServiceExtensionAsyncContext();
+    std::unique_ptr<UIServiceHostCallback>& GetCallback() { return callback_; }
+    void SendData(OHOS::AAFwk::WantParams &data);
 private:
     napi_value ConvertElement(const AppExecFwk::ElementName &element);
     napi_env env_;
     std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;
     int64_t connectionId_ = -1;
+    JSAbilityAsyncNapiContext uiserviceExtAsynccontext_;
+    std::unique_ptr<UIServiceHostCallback> callback_;
 };
 
 struct ConnectionKey {

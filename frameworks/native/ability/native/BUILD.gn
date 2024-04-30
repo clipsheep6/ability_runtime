@@ -193,6 +193,7 @@ ohos_shared_library("abilitykit_native") {
     "${relational_store_napi_path}/rdb/include",
     "${relational_store_napi_path}/common/include",
     "${relational_store_napi_path}/dataability/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_service_extension_ability"
   ]
 
   sources = [
@@ -227,6 +228,12 @@ ohos_shared_library("abilitykit_native") {
     "${ability_runtime_native_path}/appkit/app/context_deal.cpp",
     "${ability_runtime_native_path}/appkit/app/sys_mgr_client.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/js_ui_service_proxy.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/js_ui_service_host_proxy.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/ui_service_host_proxy.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/ui_service_host_stub.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/ui_service_proxy.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/ui_service_stub.cpp",
   ]
   configs = [ ":ability_config" ]
   public_configs = [
@@ -729,6 +736,108 @@ ohos_shared_library("service_extension") {
   part_name = "ability_runtime"
 }
 
+ohos_shared_library("ui_service_extension") {
+  defines = [ "AMS_LOG_TAG = \"Ability\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001300" ]
+  include_dirs = [
+    #"${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_service_extension_ability",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
+    "${ability_runtime_innerkits_path}/ability_manager/include",
+    "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_napi",
+    "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_stage_napi",
+    "${ability_runtime_path}/utils/global/time/include",
+  ]
+
+  sources = [
+    "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/js_ui_service_extension_context.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/js_ui_service_extension.cpp",
+    "${ability_runtime_path}/frameworks/native/appkit/ability_runtime/ui_service_extension_context.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/ui_service_extension.cpp"
+  ]
+
+  deps = [
+    ":abilitykit_native",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
+    "${ability_runtime_native_path}/ability:ability_context_native",
+    "${ability_runtime_native_path}/ability/native:ability_business_error",
+    "${ability_runtime_native_path}/ability/native:insight_intent_executor",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:appkit_delegator",
+    "${ability_runtime_native_path}/insight_intent/insight_intent_context:insightintentcontext",
+    "${ability_runtime_path}/utils/global/freeze:freeze_util",
+  ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "ability_base:want",
+    "ability_base:zuri",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "ipc:ipc_napi",
+    "napi:ace_napi",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  if (ability_runtime_graphics) {
+    deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
+    external_deps += [
+      "ability_base:session_info",
+      "window_manager:libdm",
+      "window_manager:libwm",
+      "window_manager:libwsutils",
+      "window_manager:window_native_kit",
+      "window_manager:windowstage_kit",
+    ]
+  }
+
+  innerapi_tags = [ "platformsdk" ]
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_shared_library("ui_service_extension_module") {
+  include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_service_extension_ability",
+    "${ability_runtime_innerkits_path}/ability_manager/include",
+  ]
+
+  sources = [ "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/ui_service_extension_module_loader.cpp" ]
+
+  configs = [ ":ability_config" ]
+  public_configs = [ ":ability_public_config" ]
+
+  deps = [ ":ui_service_extension" ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "ability_base:session_info",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "napi:ace_napi",
+  ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "image_framework:image",
+      "window_manager:libdm",
+    ]
+  }
+
+  relative_install_dir = "extensionability/"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
 ohos_shared_library("continuation_ipc") {
   include_dirs = []
 
@@ -928,6 +1037,7 @@ group("extension_module") {
     ":service_extension_module",
     ":share_extension_module",
     ":ui_extension_module",
+    ":ui_service_extension_module",
   ]
 
   if (ability_runtime_graphics) {
@@ -949,6 +1059,10 @@ config("ui_extension_public_config") {
 }
 
 ohos_shared_library("ui_extension") {
+  include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_service_extension_ability"
+  ]
+
   sources = [
     "${ability_runtime_native_path}/ability/native/ui_extension_ability/js_embeddable_ui_ability_context.cpp",
     "${ability_runtime_native_path}/ability/native/ui_extension_ability/js_ui_extension.cpp",

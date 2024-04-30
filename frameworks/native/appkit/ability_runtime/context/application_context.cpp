@@ -131,6 +131,22 @@ void ApplicationContext::DispatchOnWindowStageCreate(const std::shared_ptr<Nativ
     }
 }
 
+void ApplicationContext::DispatchOnWindowStageDidCreate(const std::shared_ptr<NativeReference> &ability,
+    const std::shared_ptr<NativeReference> &windowStage)
+{
+    TAG_LOGI(AAFwkTag::APPKIT, "DispatchOnWindowStageDidCreate start");
+    if (!ability || !windowStage) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ability or windowStage is nullptr");
+        return;
+    }
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnWindowStageDidCreate(ability, windowStage);
+        }
+    }
+}
+
 void ApplicationContext::DispatchOnWindowStageDestroy(const std::shared_ptr<NativeReference> &ability,
     const std::shared_ptr<NativeReference> &windowStage)
 {

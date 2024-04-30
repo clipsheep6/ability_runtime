@@ -76,6 +76,7 @@ enum class AAFwkLogTag : uint32_t {
     UI_EXT,
     ACTION_EXT,
     EMBEDDED_EXT,
+    UISERVC_EXT,
 
     WANTAGENT = DEFAULT + 0x50, // 0xD001350
     AUTOFILLMGR,
@@ -133,6 +134,7 @@ const std::map<AAFwkLogTag, const char*> AAFWK_DOMAIN_MAP = {
     { AAFwkLogTag::FORM_EXT,        "AAFwkFormExt" },
     { AAFwkLogTag::SHARE_EXT,       "AAFwkShareExt" },
     { AAFwkLogTag::UI_EXT,          "AAFwkUIExt" },
+    { AAFwkLogTag::UISERVC_EXT,     "AAFwkUIServiceExt" },
     { AAFwkLogTag::ACTION_EXT,      "AAFwkActionExt" },
     { AAFwkLogTag::EMBEDDED_EXT,    "AAFwkEmbeddedExt" },
 
