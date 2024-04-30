@@ -18,7 +18,6 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#include "app_log_wrapper.h"
 #include "hilog_tag_wrapper.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"

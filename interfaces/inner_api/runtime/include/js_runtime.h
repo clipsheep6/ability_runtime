@@ -98,8 +98,7 @@ public:
 
     void PreloadSystemModule(const std::string& moduleName) override;
 
-    void StartDebugMode(bool needBreakPoint, const std::string &processName, bool isDebug = true,
-        bool isNativeStart = false) override;
+    void StartDebugMode(const DebugOption debugOption) override;
     void StopDebugMode();
     bool LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath) override;
     bool UnLoadRepairPatch(const std::string& hqfFile) override;
@@ -120,8 +119,7 @@ public:
     void InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorImpl);
     void FreeNativeReference(std::unique_ptr<NativeReference> reference);
     void FreeNativeReference(std::shared_ptr<NativeReference>&& reference);
-    void StartProfiler(const std::string &perfCmd, bool needBreakPoint, const std::string &processName,
-        bool isDebug = true, bool isNativeStart = false) override;
+    void StartProfiler(const DebugOption debugOption) override;
 
     void ReloadFormComponent(); // Reload ArkTS-Card component
     void DoCleanWorkAfterStageCleaned() override;
@@ -165,7 +163,7 @@ private:
 private:
     bool CreateJsEnv(const Options& options);
     void PreloadAce(const Options& options);
-    bool InitLoop();
+    bool InitLoop(bool isStage = true);
     inline bool IsUseAbilityRuntime(const Options& options) const;
     void FreeNativeReference(std::unique_ptr<NativeReference> uniqueNativeRef,
         std::shared_ptr<NativeReference>&& sharedNativeRef);
@@ -177,7 +175,12 @@ private:
     void LoadAotFile(const Options& options);
     void SetRequestAotCallback();
 
+    std::string GetSystemKitPath();
     std::vector<panda::HmsMap> GetSystemKitsMap(uint32_t version);
+
+    void GetPkgContextInfoListMap(const std::map<std::string, std::string> &contextInfoMap,
+        std::map<std::string, std::vector<std::vector<std::string>>> &pkgContextInfoMap,
+        std::map<std::string, std::string> &pkgAliasMap);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

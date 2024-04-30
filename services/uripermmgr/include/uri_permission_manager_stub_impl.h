@@ -24,6 +24,7 @@
 #include "bundle_mgr_helper.h"
 #include "event_report.h"
 #include "istorage_manager.h"
+#include "tokenid_permission.h"
 #include "uri.h"
 #include "uri_permission_manager_stub.h"
 
@@ -51,22 +52,28 @@ class UriPermissionManagerStubImpl : public UriPermissionManagerStub,
 public:
     UriPermissionManagerStubImpl() = default;
     virtual ~UriPermissionManagerStubImpl() = default;
-    void Init();
 
     int GrantUriPermission(const Uri &uri, unsigned int flag,
         const std::string targetBundleName, int32_t appIndex = 0, uint32_t initiatorTokenId = 0) override;
     int GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
         const std::string targetBundleName, int32_t appIndex = 0, uint32_t initiatorTokenId = 0) override;
+    int32_t GrantUriPermissionPrivileged(const std::vector<Uri> &uriVec, uint32_t flag,
+        const std::string &targetBundleName, int32_t appIndex = 0) override;
+    
+    std::vector<bool> CheckUriAuthorization(const std::vector<std::string> &uriVec, uint32_t flag,
+        uint32_t tokenId) override;
+
+    // To be deleted.
     int GrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
         const std::string &targetBundleName, int32_t appIndex = 0, bool isSystemAppCall = false) override;
+    // only for foundation calling
     void RevokeUriPermission(const TokenId tokenId) override;
     int RevokeAllUriPermissions(uint32_t tokenId) override;
     int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) override;
 
     bool VerifyUriPermission(const Uri &uri, uint32_t flag, uint32_t tokenId) override;
     bool IsAuthorizationUriAllowed(uint32_t fromTokenId) override;
-    
-    uint32_t GetTokenIdByBundleName(const std::string bundleName, int32_t appIndex);
+    int32_t GetTokenIdByBundleName(const std::string &bundleName, int32_t appIndex, uint32_t &tokenId);
 
 private:
     template<typename T>
@@ -77,24 +84,31 @@ private:
         TokenId fromTokenId, TokenId targetTokenId, uint32_t autoRemove);
     int AddTempUriPermission(const std::string &uri, unsigned int flag, TokenId fromTokenId,
         TokenId targetTokenId, uint32_t autoRemove);
-    int DeleteTempUriPermission(const std::string &uri, uint32_t fromTokenId, uint32_t targetTokenId);
 
     int GrantBatchUriPermissionImpl(const std::vector<std::string> &uriVec, unsigned int flag,
         TokenId initiatorTokenId, TokenId targetTokenId, uint32_t autoRemove);
     int GrantBatchUriPermission(const std::vector<Uri> &uriVec, unsigned int flag, uint32_t initiatorTokenId,
         uint32_t targetTokenId, uint32_t autoRemove);
+    
+    int32_t GrantBatchUriPermissionPrivileged(const std::vector<Uri> &uriVec, uint32_t flag,
+        uint32_t callerTokenId, uint32_t targetTokenId, uint32_t autoRemove);
+    
+    int32_t GrantBatchUriPermissionFor2In1Privileged(const std::vector<Uri> &uriVec, uint32_t flag,
+        uint32_t callerTokenId, uint32_t targetTokenId, uint32_t autoRemove);
 
     int GrantSingleUriPermission(const Uri &uri, unsigned int flag, uint32_t callerTokenId, uint32_t targetTokenId,
         uint32_t autoRemove);
 
     bool SendEvent(uint32_t callerTokenId, uint32_t targetTokenId, std::string &uri);
 
-    int CheckRule(unsigned int flag);
+    int32_t CheckCalledBySandBox();
 
-    bool CheckUriPermission(const Uri &uri, unsigned int flag, uint32_t callerTokenId);
-    bool CheckUriTypeIsValid(const Uri &uri);
+    bool CheckUriPermission(Uri uri, uint32_t flag, TokenIdPermission &tokenIdPermission);
+
+    bool CheckUriTypeIsValid(Uri uri);
     bool CheckAndCreateEventInfo(uint32_t callerTokenId, uint32_t targetTokenId, EventInfo &eventInfo);
     bool CheckIsSystemAppByBundleName(std::string &bundleName);
+    bool CheckIsSystemAppByTokenId(uint32_t tokenId);
     std::string GetBundleNameByTokenId(uint32_t tokenId);
 
     int GrantUriPermissionInner(const std::vector<Uri> &uriVec, unsigned int flag, const std::string targetBundleName,
@@ -107,6 +121,20 @@ private:
         uint64_t tokenId, unsigned int flag, std::vector<PolicyInfo> &docsVec, bool isSystemAppCall);
 
     bool IsFoundationCall();
+
+    std::string GetTokenName(uint32_t callerTokenId);
+
+    int32_t CheckProxyUriPermission(TokenIdPermission &tokenIdPermission, const Uri &uri, uint32_t flag);
+
+    bool VerifyPermissionByTokenId(uint32_t tokenId, const std::string &permissionName);
+    
+    bool AccessMediaUriPermission(TokenIdPermission &tokenIdPermission, const Uri &uri, uint32_t flag);
+
+    bool AccessDocsUriPermission(TokenIdPermission &tokenIdPermission, const Uri &uri, uint32_t flag);
+    
+    int32_t DeleteShareFile(uint32_t targetTokenId, const std::vector<std::string> &uriVec);
+
+    bool IsSAOrSystemAppCall();
 
     class ProxyDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

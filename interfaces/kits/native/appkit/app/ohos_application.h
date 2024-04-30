@@ -175,7 +175,7 @@ public:
      *
      * @param config Indicates the new Configuration object.
      */
-    virtual void OnConfigurationUpdated(const Configuration &config);
+    virtual void OnConfigurationUpdated(Configuration config);
 
     /**
      *
@@ -246,7 +246,8 @@ public:
      *
      * @param abilityInfo
      */
-    void CleanAbilityStage(const sptr<IRemoteObject> &token, const std::shared_ptr<AbilityInfo> &abilityInfo);
+    void CleanAbilityStage(const sptr<IRemoteObject> &token, const std::shared_ptr<AbilityInfo> &abilityInfo,
+        bool isCacheProcess = false);
 
     /**
      * @brief return the application context

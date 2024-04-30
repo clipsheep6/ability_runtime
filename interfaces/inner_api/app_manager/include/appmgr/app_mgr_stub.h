@@ -57,6 +57,7 @@ public:
 
 private:
     int32_t HandleAttachApplication(MessageParcel &data, MessageParcel &reply);
+    int32_t HandlePreloadApplication(MessageParcel &data, MessageParcel &reply);
     int32_t HandleApplicationForegrounded(MessageParcel &data, MessageParcel &reply);
     int32_t HandleApplicationBackgrounded(MessageParcel &data, MessageParcel &reply);
     int32_t HandleApplicationTerminated(MessageParcel &data, MessageParcel &reply);
@@ -87,6 +88,7 @@ private:
     int32_t HandleGetRenderProcessTerminationStatus(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetConfiguration(MessageParcel &data, MessageParcel &reply);
     int32_t HandleUpdateConfiguration(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleUpdateConfigurationByBundleName(MessageParcel &data, MessageParcel &reply);
     int32_t HandleRegisterConfigurationObserver(MessageParcel &data, MessageParcel &reply);
     int32_t HandleUnregisterConfigurationObserver(MessageParcel &data, MessageParcel &reply);
     int32_t HandleDumpHeapMemory(MessageParcel &data, MessageParcel &reply);
@@ -128,6 +130,10 @@ private:
     int32_t HandleUpdateRenderState(MessageParcel &data, MessageParcel &reply);
     int32_t HandleSignRestartAppFlag(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetAppRunningUniqueIdByPid(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleGetAllUIExtensionRootHostPid(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleGetAllUIExtensionProviderPid(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleNotifyMemorySizeStateChanged(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleSetSupportedProcessCacheSelf(MessageParcel &data, MessageParcel &reply);
 
     using AppMgrFunc = int32_t (AppMgrStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AppMgrFunc> memberFuncMap_;

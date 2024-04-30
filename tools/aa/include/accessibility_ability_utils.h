@@ -29,7 +29,7 @@ public:
     static std::uint32_t GetCapabilityValue(const std::string& capabilityNames);
     static std::string GetInvalidCapabilityNames(const std::string& enabledCapabilityNames,
         const std::string& installedCapabilityNames);
-    static std::string GetUnknownArgumentsMsg(const std::vector<std::string>& unknownArugments);
+    static std::string GetUnknownArgumentsMsg(const std::vector<std::string>& unknownArguments);
     static bool IsValidStateString(std::string& stateString);
     static bool IsValidIntString(std::string& intString, const int32_t lowBound, const int32_t highBound);
     static std::string& Trim(std::string& inputStr);

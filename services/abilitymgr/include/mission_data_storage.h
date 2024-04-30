@@ -113,7 +113,8 @@ private:
     bool CheckFileNameValid(const std::string &fileName);
 
 #ifdef SUPPORT_GRAPHICS
-    void WriteRgb888ToJpeg(const char* fileName, uint32_t width, uint32_t height, const uint8_t* data);
+    template<typename T>
+    void WriteToJpeg(const std::string &filePath, T &snapshot) const;
 
     bool GetCachedSnapshot(int32_t missionId, MissionSnapshot& missionSnapshot);
 
@@ -126,11 +127,6 @@ private:
 
     void SaveSnapshotFile(int32_t missionId, const std::shared_ptr<OHOS::Media::PixelMap>& snapshot,
         bool isPrivate, bool isLowResolution);
-
-    bool RGB565ToRGB888(const uint16_t *rgb565Buf, int32_t rgb565Size, uint8_t *rgb888Buf, int32_t rgb888Size);
-    bool RGBA8888ToRGB888(const uint32_t *rgba8888Buf, int32_t rgba8888Size, uint8_t *rgb888Buf, int32_t rgb888Size);
-    void SaveRGB565Image(const std::shared_ptr<Media::PixelMap> &frame, const char* fileName);
-    void SaveRGBA8888Image(const std::shared_ptr<Media::PixelMap> &frame, const char* fileName);
 
     std::map<int32_t, std::shared_ptr<Media::PixelMap>> cachedPixelMap_;
 #endif

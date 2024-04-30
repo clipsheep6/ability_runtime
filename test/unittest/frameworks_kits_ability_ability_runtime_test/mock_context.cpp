@@ -76,6 +76,11 @@ std::string MockContext::GetDistributedFilesDir()
     return "/mnt/hmdfs/device_view/local/data/bundleName";
 }
 
+std::string MockContext::GetCloudFileDir()
+{
+    return "/data/service/el2/hmdfs/cloud/data/bundleName";
+}
+
 std::shared_ptr<Context> MockContext::CreateModuleContext(const std::string &moduleName)
 {
     return nullptr;

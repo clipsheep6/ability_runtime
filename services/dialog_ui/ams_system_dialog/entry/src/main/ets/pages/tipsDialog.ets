@@ -20,15 +20,15 @@ interface TipBtn {
 @Entry
 @Component
 struct TipsDialog {
-  @State private deviceType: string = "phone";
-  @State private btn: TipBtn = { color: "#FFFFFF" }
-  private TAG = "TipsDialog_Page"
+  @State private isDefaultSelector: boolean = true;
+  @State private btn: TipBtn = { color: '#FFFFFF' }
+  private TAG = 'TipsDialog_Page'
 
   aboutToAppear() {
-    console.log(this.TAG, "dialog page appears");
-    this.deviceType = globalThis.params.deviceType
-    if (this.deviceType == "pc") {
-      this.btn.color = "#F2F2F2";
+    console.log(this.TAG, 'dialog page appears');
+    this.isDefaultSelector = globalThis.params.isDefaultSelector
+    if (this.isDefaultSelector == false) {
+      this.btn.color = '#F2F2F2';
     }
   }
 
@@ -43,15 +43,15 @@ struct TipsDialog {
         Text($r('app.string.message_title_tips'))
           .fontSize(22)
           .fontWeight(FontWeight.Medium)
-          .height("29%")
+          .height('29%')
           .textOverflow({overflow: TextOverflow.Ellipsis})
         .textAlign(TextAlign.Center)
       }
       Flex({ justifyContent: FlexAlign.Center }) {
         Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
           Text($r('app.string.message_close_tips'))
-            .fontSize("21fp")
-            .fontColor("#0A59F7")
+            .fontSize('21fp')
+            .fontColor('#0A59F7')
             .fontWeight(FontWeight.Regular)
             .textAlign(TextAlign.Center)
         }
@@ -66,7 +66,7 @@ struct TipsDialog {
     }
     .borderRadius(20)
     .borderWidth(1)
-    .borderColor("#e9e9e9")
-    .backgroundColor("#FFFFFF")
+    .borderColor('#e9e9e9')
+    .backgroundColor('#FFFFFF')
   }
 }

@@ -35,6 +35,7 @@
 #include "system_ability_definition.h"
 #include "ui_extension_utils.h"
 #include "hilog_wrapper.h"
+#include "int_wrapper.h"
 #ifdef SUPPORT_GRAPHICS
 #define private public
 #define protected public
@@ -2562,6 +2563,21 @@ HWTEST_F(AbilityRecordTest, SetLaunchReason_0200, TestSize.Level1)
     abilityRecord->isAppAutoStartup_ = false;
     abilityRecord->SetLaunchReason(reason);
     EXPECT_EQ(abilityRecord->lifeCycleStateInfo_.launchParam.launchReason, LaunchReason::LAUNCHREASON_START_ABILITY);
+}
+
+/**
+ * @tc.name: UpdateWantParams_0100
+ * @tc.desc: Update want of ability record.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRecordTest, UpdateWantParams_0100, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    ASSERT_NE(abilityRecord, nullptr);
+    WantParams wantParams;
+    wantParams.SetParam("ability.want.params.uiExtensionAbilityId", AAFwk::Integer::Box(1));
+    wantParams.SetParam("ability.want.params.uiExtensionRootHostPid", AAFwk::Integer::Box(1000));
+    abilityRecord->UpdateUIExtensionInfo(wantParams);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

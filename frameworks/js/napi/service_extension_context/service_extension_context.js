@@ -35,6 +35,11 @@ class ServiceExtensionContext extends ExtensionContext {
     return this.__context_impl__.startAbility(want, options, callback);
   }
 
+  openLink(link, options) {
+    console.log('openLink');
+    return this.__context_impl__.openLink(link, options);
+  }
+
   startAbilityAsCaller(want, options, callback) {
     console.log('startAbilityAsCaller');
     return this.__context_impl__.startAbilityAsCaller(want, options, callback);

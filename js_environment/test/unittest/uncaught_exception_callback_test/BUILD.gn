@@ -29,6 +29,7 @@ ohos_unittest("uncaught_exception_callback_test") {
     "ability_runtime:js_environment",
     "ability_runtime:runtime",
     "ets_runtime:libark_jsruntime",
+    "ffrt:libffrt",
     "napi:ace_napi",
   ]
 }

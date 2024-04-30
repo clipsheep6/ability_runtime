@@ -15,7 +15,6 @@
 
 #include "sr_samgr_helper.h"
 
-#include "app_log_wrapper.h"
 #include "bundle_constants.h"
 #include "bundle_mgr_proxy.h"
 #include "hilog_tag_wrapper.h"

@@ -74,7 +74,6 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_client.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_collaborator_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_proxy.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_radar.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_running_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_proxy.cpp",
@@ -94,6 +93,7 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr/src/lifecycle_state_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/mission_listener_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/mission_listener_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/open_link/open_link_options.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/prepare_terminate_callback_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/prepare_terminate_callback_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_proxy.cpp",
@@ -112,11 +112,20 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr/src/want_sender_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/want_sender_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/wants_info.cpp",
+    "${ability_runtime_services_path}/common/src/ability_manager_radar.cpp",
     "src/status_bar_delegate/status_bar_delegate_proxy.cpp",
     "src/status_bar_delegate/status_bar_delegate_stub.cpp",
     "src/window_manager_service_handler_proxy.cpp",
     "src/window_manager_service_handler_stub.cpp",
   ]
+
+  if (ability_runtime_graphics) {
+    sources += [
+      "src/ability_first_frame_state_data.cpp",
+      "src/ability_first_frame_state_observer_proxy.cpp",
+      "src/ability_first_frame_state_observer_stub.cpp",
+    ]
+  }
 
   public_configs = [
     ":ability_manager_public_config",
@@ -236,6 +245,7 @@ ohos_shared_library("process_options") {
     boundary_sanitize = true
     cfi = true
     cfi_cross_dso = true
+    cfi_vcall_icall_only = true
     debug = false
   }
   branch_protector_ret = "pac_ret"

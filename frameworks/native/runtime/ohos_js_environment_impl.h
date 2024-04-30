@@ -36,7 +36,7 @@ public:
 
     void InitConsoleModule(NativeEngine* engine) override;
 
-    bool InitLoop(NativeEngine* engine) override;
+    bool InitLoop(NativeEngine* engine, bool isStage = true) override;
 
     void DeInitLoop(NativeEngine* engine) override;
 

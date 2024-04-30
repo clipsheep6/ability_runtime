@@ -19,34 +19,58 @@
 #include "app_scheduler.h"
 #include "hilog_tag_wrapper.h"
 #include "ipc_skeleton.h"
+#include "parameters.h"
 #include "permission_verification.h"
+#include "running_process_info.h"
+#include "start_ability_utils.h"
 #include "tokenid_kit.h"
 
 namespace OHOS {
 namespace AAFwk {
 namespace {
+const uint32_t API_VERSION_MOD = 100;
 const uint32_t API_SINCE_VISION = 12;
+const std::string ABILITY_SUPPORT_START_OTHER_APP = "persist.sys.abilityms.support.start_other_app";
+const std::string IS_DELEGATOR_CALL = "isDelegatorCall";
+const std::string OPEN_LINK_SCENE_IDENTIFICATION = "appLinkingOnly";
 }
 
 ErrCode StartOtherAppInterceptor::DoProcess(AbilityInterceptorParam param)
 {
-    if (!param.isWithUI) {
+    if (StartAbilityUtils::skipStartOther) {
         return ERR_OK;
     }
-    if (CheckNativeCall() || CheckCallerIsSystemApp() || CheckTargetIsSystemApp(param.abilityInfo.applicationInfo)) {
+    std::string supportStart = OHOS::system::GetParameter(ABILITY_SUPPORT_START_OTHER_APP, "true");
+    if (supportStart == "true") {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Abilityms support start other app.");
         return ERR_OK;
     }
-    
+
+    if (!param.isWithUI || param.isStartAsCaller) {
+        return ERR_OK;
+    }
+    if (CheckNativeCall() || CheckCallerIsSystemApp() ||
+        (param.abilityInfo != nullptr && CheckTargetIsSystemApp(param.abilityInfo->applicationInfo))) {
+        return ERR_OK;
+    }
+
     if (!CheckStartOtherApp(param.want)) {
         return ERR_OK;
     }
 
-    if (CheckAncoShellCall(param.abilityInfo.applicationInfo, param.want)) {
+    if (param.abilityInfo != nullptr && CheckAncoShellCall(param.abilityInfo->applicationInfo, param.want)) {
+        return ERR_OK;
+    }
+
+    if (param.want.HasParameter(OPEN_LINK_SCENE_IDENTIFICATION)) {
         return ERR_OK;
     }
 
     AppExecFwk::ApplicationInfo callerApplicationInfo;
     if (!GetApplicationInfo(param.callerToken, callerApplicationInfo)) {
+        if (IsDelegatorCall(param.want)) {
+            return ERR_OK;
+        }
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Can not find caller info");
         return ERR_INVALID_CALLER;
     }
@@ -117,7 +141,18 @@ bool StartOtherAppInterceptor::CheckStartOtherApp(const Want want)
 
 bool StartOtherAppInterceptor::CheckCallerApiBelow12(const AppExecFwk::ApplicationInfo &applicationInfo)
 {
-    return applicationInfo.apiTargetVersion < API_SINCE_VISION;
+    return (applicationInfo.apiTargetVersion % API_VERSION_MOD < API_SINCE_VISION);
+}
+
+bool StartOtherAppInterceptor::IsDelegatorCall(const Want want)
+{
+    AppExecFwk::RunningProcessInfo processInfo;
+    DelayedSingleton<AppScheduler>::GetInstance()->
+        GetRunningProcessInfoByPid(IPCSkeleton::GetCallingPid(), processInfo);
+    if (processInfo.isTestProcess && want.GetBoolParam(IS_DELEGATOR_CALL, false)) {
+        return true;
+    }
+    return false;
 }
 }
 }

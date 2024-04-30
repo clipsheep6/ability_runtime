@@ -19,6 +19,7 @@
 #define private public
 #include "interceptor/start_other_app_interceptor.h"
 #undef private
+#include "start_ability_utils.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -26,6 +27,8 @@ using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace AAFwk {
+thread_local bool StartAbilityUtils::skipStartOther = false;
+
 class StartOtherAppInterceptorTest : public testing::Test {
 public:
     static void SetUpTestCase();

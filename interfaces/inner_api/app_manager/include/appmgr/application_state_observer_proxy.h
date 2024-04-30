@@ -116,6 +116,13 @@ public:
      */
     virtual void OnPageHide(const PageStateData &pageStateData) override;
 
+    /**
+     * Will be called when application cache state change.
+     *
+     * @param appStateData Application state data.
+     */
+    virtual void OnAppCacheStateChanged(const AppStateData &appStateData) override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     static inline BrokerDelegator<ApplicationStateObserverProxy> delegator_;

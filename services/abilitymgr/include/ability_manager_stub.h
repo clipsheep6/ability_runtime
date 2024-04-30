@@ -112,6 +112,7 @@ private:
     int RequestModalUIExtensionInner(MessageParcel &data, MessageParcel &reply);
     int ChangeAbilityVisibilityInner(MessageParcel &data, MessageParcel &reply);
     int ChangeUIAbilityVisibilityBySCBInner(MessageParcel &data, MessageParcel &reply);
+    int PreloadUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
 
     int GetWantSenderInner(MessageParcel &data, MessageParcel &reply);
     int SendWantSenderInner(MessageParcel &data, MessageParcel &reply);
@@ -204,6 +205,9 @@ private:
     int PrepareTerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
     int GetDialogSessionInfoInner(MessageParcel &data, MessageParcel &reply);
     int SendDialogResultInner(MessageParcel &data, MessageParcel &reply);
+    int RegisterAbilityFirstFrameStateObserverInner(MessageParcel &data, MessageParcel &reply);
+    int UnregisterAbilityFirstFrameStateObserverInner(MessageParcel &data, MessageParcel &reply);
+    int CompleteFirstFrameDrawingBySCBInner(MessageParcel &data, MessageParcel &reply);
 #endif
 
     #ifdef ABILITY_COMMAND_FOR_TEST
@@ -291,6 +295,8 @@ private:
     int32_t RestartAppInner(MessageParcel &data, MessageParcel &reply);
     int32_t RequestAssertFaultDialogInner(MessageParcel &data, MessageParcel &reply);
     int32_t NotifyDebugAssertResultInner(MessageParcel &data, MessageParcel &reply);
+    int32_t StartShortcutInner(MessageParcel &data, MessageParcel &reply);
+    int32_t GetAbilityStateByPersistentIdInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

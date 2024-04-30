@@ -83,6 +83,7 @@ public:
         const std::shared_ptr<ISaveRequestCallback> &saveCallback);
 
     void UpdateCustomPopupUIExtension(Ace::UIContent *uiContent, const AbilityBase::ViewData &viewData);
+    int32_t UpdateCustomPopupConfig(Ace::UIContent *uiContent, const Ace::CustomPopupUIExtensionConfig &popupConfig);
     void SetAutoFillExtensionProxy(Ace::UIContent *uiContent,
         const std::shared_ptr<Ace::ModalUIExtensionProxy> &modalUIExtensionProxy);
     void RemoveAutoFillExtensionProxy(Ace::UIContent *uiContent);

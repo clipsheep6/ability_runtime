@@ -258,6 +258,17 @@ public:
      */
     int RequestModalUIExtension(const Want &want) override;
 
+    /**
+     * Preload UIExtension with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param hostBundleName, the caller application bundle name.
+     * @param userId, the extension runs in.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int PreloadUIExtensionAbility(const Want &want, std::string &hostBundleName,
+        int32_t userId = DEFAULT_INVAL_VALUE) override;
+
     int ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow) override;
 
     int ChangeUIAbilityVisibilityBySCB(sptr<SessionInfo> sessionInfo, bool isShow) override;
@@ -619,8 +630,8 @@ public:
     virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
         int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams) override;
 
-    virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
-        const std::string &bundleName, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams) override;
+    virtual int ContinueMission(AAFwk::ContinueMissionInfo continueMissionInfo,
+        const sptr<IRemoteObject> &callback) override;
 
     virtual int ContinueAbility(const std::string &deviceId, int32_t missionId, uint32_t versionCode) override;
 
@@ -710,12 +721,20 @@ public:
 
     virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override;
 
+    virtual void CompleteFirstFrameDrawing(int32_t sessionId) override;
+
     virtual int PrepareTerminateAbility(
         const sptr<IRemoteObject> &token, sptr<IPrepareTerminateCallback> &callback) override;
 
     virtual int GetDialogSessionInfo(const std::string dialogSessionId, sptr<DialogSessionInfo> &info) override;
 
     virtual int SendDialogResult(const Want &want, const std::string dialogSessionId, bool isAllow) override;
+
+    virtual int RegisterAbilityFirstFrameStateObserver(const sptr<IAbilityFirstFrameStateObserver> &observer,
+        const std::string &targetBundleName) override;
+
+    virtual int UnregisterAbilityFirstFrameStateObserver(
+        const sptr<IAbilityFirstFrameStateObserver> &observer) override;
 #endif
 
     virtual int GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info) override;
@@ -1194,6 +1213,24 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t NotifyDebugAssertResult(uint64_t assertFaultSessionId, AAFwk::UserStatus userStatus) override;
+
+    /**
+     * Starts a new ability with specific start options.
+     *
+     * @param want, the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t StartShortcut(const Want &want, const StartOptions &startOptions) override;
+
+    /**
+     * Get ability state by persistent id.
+     *
+     * @param persistentId, the persistentId of the session.
+     * @param state Indicates the ability state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetAbilityStateByPersistentId(int32_t persistentId, bool &state) override;
 
 private:
     template <typename T>

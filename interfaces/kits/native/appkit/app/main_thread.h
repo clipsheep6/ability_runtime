@@ -221,7 +221,7 @@ public:
      * @param token The token belong to the ability which want to be cleaned.
      *
      */
-    void ScheduleCleanAbility(const sptr<IRemoteObject> &token) override;
+    void ScheduleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess = false) override;
 
     /**
      *
@@ -298,6 +298,37 @@ public:
 
     void AssertFaultPauseMainThreadDetection();
     void AssertFaultResumeMainThreadDetection();
+
+    /**
+     * ScheduleDumpIpcStart, call ScheduleDumpIpcStart(std::string& result) through proxy project,
+     * Start querying the application's IPC payload info.
+     *
+     * @param result, start IPC dump result output.
+     *
+     * @return Returns 0 on success, error code on failure.
+     */
+    int32_t ScheduleDumpIpcStart(std::string& result) override;
+
+    /**
+     * ScheduleDumpIpcStop, call ScheduleDumpIpcStop(std::string& result) through proxy project,
+     * Stop querying the application's IPC payload info.
+     *
+     * @param result, stop IPC dump result output.
+     *
+     * @return Returns 0 on success, error code on failure.
+     */
+    int32_t ScheduleDumpIpcStop(std::string& result) override;
+
+    /**
+     * ScheduleDumpIpcStat, call ScheduleDumpIpcStat(std::string& result) through proxy project,
+     * Collect the application's IPC payload info.
+     *
+     * @param result, IPC payload result output.
+     *
+     * @return Returns 0 on success, error code on failure.
+     */
+    int32_t ScheduleDumpIpcStat(std::string& result) override;
+
 private:
     /**
      *
@@ -369,7 +400,7 @@ private:
      * @param token The token which belongs to the ability launched.
      *
      */
-    void HandleCleanAbility(const sptr<IRemoteObject> &token);
+    void HandleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess = false);
 
     /**
      *

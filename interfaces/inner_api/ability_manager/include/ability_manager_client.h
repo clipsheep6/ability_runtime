@@ -297,14 +297,24 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE,
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
 
-     /**
+    /**
      * Create UIExtension with want, send want to ability manager service.
      *
      * @param want, the want of the ability to start.
-     * @param userId, Designation User ID.
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode RequestModalUIExtension(const Want &want);
+
+    /**
+     * Preload UIExtension with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param hostBundleName, the caller application bundle name.
+     * @param userId, the extension runs in.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode PreloadUIExtensionAbility(const Want &want, std::string &hostBundleName,
+        int32_t userId = DEFAULT_INVAL_VALUE);
 
     ErrCode ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow);
 
@@ -602,8 +612,7 @@ public:
      * @param wantParams, extended params.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
-        const std::string &bundleName, sptr<IRemoteObject> callback, AAFwk::WantParams &wantParams);
+    ErrCode ContinueMission(AAFwk::ContinueMissionInfo continueMissionInfo, const sptr<IRemoteObject> &callback);
 
     /**
      * start continuation.
@@ -1015,6 +1024,13 @@ public:
      * @param abilityToken Indidate token of ability.
      */
     void CompleteFirstFrameDrawing(sptr<IRemoteObject> abilityToken);
+
+    /**
+     * WindowManager notification AbilityManager after the first frame is drawn.
+     *
+     * @param sessionId Indidate session id.
+     */
+    void CompleteFirstFrameDrawing(int32_t sessionId);
 
     /**
      * Called to update mission snapshot.
@@ -1434,6 +1450,24 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t NotifyDebugAssertResult(uint64_t assertFaultSessionId, AAFwk::UserStatus userStatus);
+
+    /**
+     * Starts a new ability with specific start options.
+     *
+     * @param want, the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t StartShortcut(const Want &want, const StartOptions &startOptions);
+
+    /**
+     * Get ability state by persistent id.
+     *
+     * @param persistentId, the persistentId of the session.
+     * @param state Indicates the ability state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t GetAbilityStateByPersistentId(int32_t persistentId, bool &state);
 
 private:
     AbilityManagerClient();

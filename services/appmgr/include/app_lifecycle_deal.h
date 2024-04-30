@@ -152,7 +152,7 @@ public:
      * @param token, The ability token.
      * @return
      */
-    void ScheduleCleanAbility(const sptr<IRemoteObject> &token);
+    void ScheduleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess = false);
 
     /**
      * ScheduleProcessSecurityExit, call ScheduleTerminateApplication() through proxy project,
@@ -216,6 +216,12 @@ public:
      * @return Returns true is final application process, others return false.
      */
     bool IsFinalAppProcess();
+
+    int DumpIpcStart(std::string& result);
+
+    int DumpIpcStop(std::string& result);
+
+    int DumpIpcStat(std::string& result);
 
 private:
     mutable std::mutex schedulerMutex_;

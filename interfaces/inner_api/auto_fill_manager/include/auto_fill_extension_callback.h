@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_AUTO_FILL_EXTENSION_CALLBACK_H
 #define OHOS_ABILITY_RUNTIME_AUTO_FILL_EXTENSION_CALLBACK_H
 
+#include "auto_fill_custom_config.h"
 #include "fill_request_callback_interface.h"
 #include "save_request_callback_interface.h"
 #include "ui_content.h"
@@ -51,6 +52,7 @@ public:
     void SetExtensionType(bool isSmartAutoFill);
     void SetAutoFillType(const AbilityBase::AutoFillType &autoFillType);
     void SetViewData(const AbilityBase::ViewData &viewData);
+    void SetAutoFillRequestConfig(const AutoFill::AutoFillCustomConfig &config);
     AbilityBase::ViewData GetViewData();
     void HandleTimeOut();
 
@@ -67,8 +69,12 @@ private:
     uint32_t eventId_ = 0;
     AutoFill::AutoFillWindowType autoFillWindowType_ = AutoFill::AutoFillWindowType::MODAL_WINDOW;
     AbilityBase::ViewData viewData_;
+    AutoFill::AutoFillCustomConfig autoFillCustomConfig_;
     bool isReloadInModal_ = false;
     bool isSmartAutoFill_ = false;
+    bool isOnResult_ = false;
+    AAFwk::Want want_;
+    int32_t errCode_ = 0;
     AbilityBase::AutoFillType autoFillType_ = AbilityBase::AutoFillType::UNSPECIFIED;
 };
 } // AbilityRuntime

@@ -111,7 +111,7 @@ public:
         scheduled_ |= LAUNCH_ABILITY_SCHEDULED;
         abilityLaunchTime++;
     }
-    void ScheduleCleanAbility(const sptr<IRemoteObject>&) override
+    void ScheduleCleanAbility(const sptr<IRemoteObject>&, bool isCacheProcess) override
     {
         scheduled_ |= CLEAN_ABILITY_SCHEDULED;
     }
@@ -188,6 +188,21 @@ public:
 
     void ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info) override
     {}
+
+    int32_t ScheduleDumpIpcStart(std::string& result) override
+    {
+        return 0;
+    }
+
+    int32_t ScheduleDumpIpcStop(std::string& result) override
+    {
+        return 0;
+    }
+
+    int32_t ScheduleDumpIpcStat(std::string& result) override
+    {
+        return 0;
+    }
 
 private:
     int abilityLaunchTime = 0;

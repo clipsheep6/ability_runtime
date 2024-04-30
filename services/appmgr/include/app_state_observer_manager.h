@@ -71,6 +71,7 @@ public:
     void OnProcessReused(const std::shared_ptr<AppRunningRecord> &appRecord);
     void OnPageShow(const PageStateData pageStateData);
     void OnPageHide(const PageStateData pageStateData);
+    void OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord);
 private:
     void HandleAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
         bool needNotifyApp, bool isFromWindowFocusChanged);
@@ -101,6 +102,7 @@ private:
     void HandleOnProcessResued(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleOnPageShow(const PageStateData pageStateData);
     void HandleOnPageHide(const PageStateData pageStateData);
+    void HandleOnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord);
 
 private:
     std::shared_ptr<AAFwk::TaskHandlerWrap> handler_;

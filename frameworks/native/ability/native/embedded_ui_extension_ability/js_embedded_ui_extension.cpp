@@ -29,8 +29,8 @@ JsEmbeddedUIExtension *JsEmbeddedUIExtension::Create(const std::unique_ptr<Runti
 
 JsEmbeddedUIExtension::JsEmbeddedUIExtension(const std::unique_ptr<Runtime> &runtime)
 {
-    auto uiExtensionBaseImpl = std::make_unique<JsUIExtensionBase>(runtime);
-    SetUIExtensionBaseImpl(std::move(uiExtensionBaseImpl));
+    std::shared_ptr<UIExtensionBaseImpl> uiExtensionBaseImpl = std::make_shared<JsUIExtensionBase>(runtime);
+    SetUIExtensionBaseImpl(uiExtensionBaseImpl);
 }
 
 JsEmbeddedUIExtension::~JsEmbeddedUIExtension()

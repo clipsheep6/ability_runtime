@@ -84,11 +84,12 @@ HWTEST_F(JsWorkerTest, AssetHelper_0100, TestSize.Level1)
     std::string uri = "/data";
     uint8_t *buff = nullptr;
     size_t buffSize;
+    std::vector<uint8_t> content;
     std::string ami;
     bool useSecureMem;
     bool isRestricted = false;
     auto func = TestGetGetAssetFunc();
-    func("/data", &buff, &buffSize, ami, useSecureMem, isRestricted);
+    func("/data", &buff, &buffSize, content, ami, useSecureMem, isRestricted);
     EXPECT_EQ(useSecureMem, false);
 }
 

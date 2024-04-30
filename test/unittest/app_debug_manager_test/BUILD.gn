@@ -39,10 +39,12 @@ ohos_unittest("app_debug_manager_test") {
   ]
 
   external_deps = [
-    "appspawn:appspawn_socket_client",
+    "appspawn:appspawn_client",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "hilog:libhilog",
+    "init:libbegetutil",
     "ipc:ipc_core",
   ]
 }

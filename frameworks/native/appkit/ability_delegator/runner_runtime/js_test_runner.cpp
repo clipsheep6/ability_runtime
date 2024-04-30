@@ -29,7 +29,7 @@ namespace {
 const std::string CAPITALTESTRUNNER = "/ets/TestRunner/";
 const std::string LOWERCASETESTRUNNER = "/ets/testrunner/";
 }  // namespace
-    
+
 std::unique_ptr<TestRunner> JsTestRunner::Create(const std::unique_ptr<Runtime> &runtime,
     const std::shared_ptr<AbilityDelegatorArgs> &args, const AppExecFwk::BundleInfo &bundleInfo, bool isFaJsModel)
 {
@@ -117,19 +117,18 @@ bool JsTestRunner::Initialize()
             TAG_LOGE(AAFwkTag::DELEGATOR, "RunScript err");
             return false;
         }
-        std::vector<uint8_t> buffer((uint8_t*)_binary_delegator_mgmt_abc_start,
-            (uint8_t*)_binary_delegator_mgmt_abc_end);
-        napi_env env = jsRuntime_.GetNapiEnv();
-        napi_value mgmtResult = nullptr;
-        napi_run_buffer_script(env, buffer, &mgmtResult);
-        if (mgmtResult == nullptr) {
-            TAG_LOGE(AAFwkTag::DELEGATOR, "mgmtResult init error");
+
+        if (!jsRuntime_.RunScript("/system/etc/abc/ability/delegator_mgmt.abc", "")) {
+            TAG_LOGE(AAFwkTag::DELEGATOR, "Run delegator failed.");
             return false;
         }
+
         if (!jsRuntime_.RunSandboxScript(srcPath_, hapPath_)) {
             TAG_LOGE(AAFwkTag::DELEGATOR, "RunScript srcPath_ err");
             return false;
         }
+
+        napi_env env = jsRuntime_.GetNapiEnv();
         napi_value object = nullptr;
         napi_get_global(env, &object);
         if (object == nullptr) {

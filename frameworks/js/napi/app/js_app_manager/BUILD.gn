@@ -29,6 +29,10 @@ ohos_shared_library("appmanager") {
     "js_app_state_observer.cpp",
   ]
 
+  if (ability_runtime_graphics) {
+    sources += [ "js_ability_first_frame_state_observer.cpp" ]
+  }
+
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
 
   deps = [
@@ -49,6 +53,10 @@ ohos_shared_library("appmanager") {
     "napi:ace_napi",
     "samgr:samgr_proxy",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "access_token:libtokenid_sdk" ]
+  }
 
   relative_install_dir = "module/app/ability"
 

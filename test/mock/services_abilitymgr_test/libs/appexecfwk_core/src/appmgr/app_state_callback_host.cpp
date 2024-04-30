@@ -45,12 +45,22 @@ void AppStateCallbackHost::OnAppStateChanged(const AppProcessData&)
     TAG_LOGD(AAFwkTag::TEST, "OnAppStateChanged called");
 }
 
+void AppStateCallbackHost::NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos)
+{
+    TAG_LOGD(AAFwkTag::TEST, "NotifyStartResidentProcess called");
+}
+
 int32_t AppStateCallbackHost::HandleOnAppStateChanged(MessageParcel& data, MessageParcel& reply)
 {
     return NO_ERROR;
 }
 
 int32_t AppStateCallbackHost::HandleOnAbilityRequestDone(MessageParcel& data, MessageParcel& reply)
+{
+    return NO_ERROR;
+}
+
+int32_t AppStateCallbackHost::HandleNotifyStartResidentProcess(MessageParcel &data, MessageParcel &reply)
 {
     return NO_ERROR;
 }

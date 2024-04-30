@@ -14,7 +14,6 @@
  */
 #include "service_router_data_mgr.h"
 
-#include "app_log_wrapper.h"
 #include "bundle_info_resolve_util.h"
 #include "bundle_mgr_helper.h"
 #include "hilog_tag_wrapper.h"

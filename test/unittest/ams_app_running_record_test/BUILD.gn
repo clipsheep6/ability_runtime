@@ -53,11 +53,13 @@ ohos_unittest("AmsAppRunningRecordTest") {
   external_deps = [
     "ability_base:configuration",
     "ability_base:want",
-    "appspawn:appspawn_socket_client",
+    "appspawn:appspawn_client",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "ffrt:libffrt",
     "hilog:libhilog",
+    "init:libbegetutil",
     "ipc:ipc_core",
   ]
 

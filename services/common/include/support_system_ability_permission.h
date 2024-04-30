@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_SUPPORT_SYSTEM_ABILITY_PERMISSION_H
 
 #include <string>
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "parameters.h"
 
@@ -27,7 +28,7 @@ const std::string SUPPORT_SYSTEM_ABILITY_PERMISSION = "abilitymanagerservice.sup
 
 inline bool IsSupportSaCallPermission()
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::DEFAULT, "call");
     std::string ret = OHOS::system::GetParameter(SUPPORT_SYSTEM_ABILITY_PERMISSION, "true");
     return ret == "true";
 }

@@ -274,8 +274,8 @@ ohos_shared_library("abilitykit_native") {
     "hitrace:hitrace_meter",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "ipc:ipc_js",
     "ipc:ipc_napi",
+    "ipc:rpc",
     "napi:ace_napi",
     "relational_store:native_rdb",
     "resource_management:global_resmgr",
@@ -373,6 +373,7 @@ ohos_shared_library("extensionkit_native") {
     "${ability_runtime_native_path}/ability/native/extension_module_loader.cpp",
     "${ability_runtime_native_path}/ability/native/js_extension_common.cpp",
     "${ability_runtime_native_path}/appkit/ability_runtime/extension_context.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
   ]
 
   public_configs = [ ":extensionkit_public_config" ]
@@ -646,8 +647,10 @@ ohos_shared_library("form_extension") {
 }
 
 ohos_shared_library("form_extension_module") {
-  include_dirs =
-      [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
+  include_dirs = [
+    "${ability_runtime_path}/interfaces/inner_api/ability_manager/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+  ]
 
   sources = [ "${ability_runtime_native_path}/ability/native/form_extension_module_loader.cpp" ]
 
@@ -701,6 +704,7 @@ ohos_shared_library("service_extension") {
   external_deps = [
     "ability_base:configuration",
     "ability_base:want",
+    "ability_base:zuri",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
@@ -810,8 +814,10 @@ ohos_shared_library("data_ability_helper") {
 }
 
 ohos_shared_library("service_extension_module") {
-  include_dirs =
-      [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
+  include_dirs = [
+    "${ability_runtime_path}/interfaces/inner_api/ability_manager/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+  ]
 
   sources = [ "${ability_runtime_native_path}/ability/native/service_extension_module_loader.cpp" ]
 
@@ -970,6 +976,7 @@ ohos_shared_library("ui_extension") {
   external_deps = [
     "ability_base:base",
     "ability_base:want",
+    "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
     "c_utils:utils",
@@ -986,6 +993,7 @@ ohos_shared_library("ui_extension") {
   if (ability_runtime_graphics) {
     external_deps += [
       "ace_engine:ace_uicontent",
+      "window_manager:libdm",
       "window_manager:libwm",
     ]
   }
@@ -1280,6 +1288,7 @@ ohos_shared_library("embedded_ui_extension") {
     boundary_sanitize = true
     cfi = true
     cfi_cross_dso = true
+    cfi_vcall_icall_only = true
     debug = false
   }
   branch_protector_ret = "pac_ret"
@@ -1327,6 +1336,7 @@ ohos_shared_library("embedded_ui_extension_module") {
     boundary_sanitize = true
     cfi = true
     cfi_cross_dso = true
+    cfi_vcall_icall_only = true
     debug = false
   }
   branch_protector_ret = "pac_ret"

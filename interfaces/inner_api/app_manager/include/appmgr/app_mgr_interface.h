@@ -58,6 +58,21 @@ public:
     virtual void AttachApplication(const sptr<IRemoteObject> &app) = 0;
 
     /**
+     * Preload application.
+     *
+     * @param bundleName The bundle name of the application to preload.
+     * @param userId Indicates the user identification.
+     * @param preloadMode Preload application mode.
+     * @param appIndex The index of application clone.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t PreloadApplication(const std::string &bundleName, int32_t userId,
+        AppExecFwk::PreloadMode preloadMode, int32_t appIndex = 0)
+    {
+        return 0;
+    }
+
+    /**
      * ApplicationForegrounded, call ApplicationForegrounded() through proxy object,
      * set the application to Foreground State.
      *
@@ -334,6 +349,8 @@ public:
 
     virtual int32_t UpdateConfiguration(const Configuration &config) = 0;
 
+    virtual int32_t UpdateConfigurationByBundleName(const Configuration &config, const std::string &name) = 0;
+
     virtual int32_t RegisterConfigurationObserver(const sptr<IConfigurationObserver> &observer) = 0;
 
     virtual int32_t UnregisterConfigurationObserver(const sptr<IConfigurationObserver> &observer) = 0;
@@ -443,7 +460,7 @@ public:
      */
     virtual int32_t GetRunningProcessInformation(
         const std::string &bundleName, int32_t userId, std::vector<RunningProcessInfo> &info) = 0;
-    
+
     /**
      * @brief Notify AbilityManagerService the page show.
      * @param token Ability identify.
@@ -491,7 +508,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener) = 0;
-	
+
 	/**
      * Register application foreground state observer.
      * @param observer Is app foreground state observer
@@ -522,7 +539,8 @@ public:
      * @param childPid Created child process pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid) = 0;
+    virtual int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount,
+        bool isStartWithDebug) = 0;
 
     /**
      * Get child process record for self.
@@ -587,6 +605,42 @@ public:
     {
         return 0;
     }
+
+    /*
+     * Get all uiextension root host process id, need apply permission ohos.permission.GET_RUNNING_INFO.
+     * If specified pid mismatch UIExtensionAbility type, return empty vector.
+     * @param pid Process id.
+     * @param hostPids All host process id.
+     * @return Returns 0 on success, others on failure.
+     */
+    virtual int32_t GetAllUIExtensionRootHostPid(pid_t pid, std::vector<pid_t> &hostPids)
+    {
+        return 0;
+    }
+
+    /**
+     * Get all uiextension provider process id, need apply permission ohos.permission.GET_RUNNING_INFO.
+     * If specified hostPid didn't start any UIExtensionAbility, return empty vector.
+     * @param hostPid Host process id.
+     * @param providerPids All provider process id started by specified hostPid.
+     * @return Returns 0 on success, others on failure.
+     */
+    virtual int32_t GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid_t> &providerPids)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Notify memory size state changed to sufficient or insufficent.
+     * @param isMemorySizeSufficent Indicates the memory size state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent)
+    {
+        return 0;
+    }
+
+    virtual int32_t SetSupportedProcessCacheSelf(bool isSupport) = 0;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

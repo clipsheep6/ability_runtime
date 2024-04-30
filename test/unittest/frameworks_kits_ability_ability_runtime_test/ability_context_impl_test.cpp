@@ -924,6 +924,30 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetDistributedFilesDir_020
 }
 
 /**
+ * @tc.number: Ability_Context_Impl_GetCloudFileDir_0100
+ * @tc.name: GetCloudFileDir
+ * @tc.desc: Get Cloud File Dir sucess
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetCloudFileDir_0100, Function | MediumTest | Level1)
+{
+    context_->SetStageContext(mock_);
+    auto ret = context_->GetCloudFileDir();
+    EXPECT_EQ(ret, "/data/service/el2/hmdfs/cloud/data/bundleName");
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_GetCloudFileDir_0200
+ * @tc.name: GetCloudFileDir
+ * @tc.desc: Get Cloud File Dir failed
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetCloudFileDir_0200, Function | MediumTest | Level1)
+{
+    context_->SetStageContext(nullptr);
+    auto ret = context_->GetCloudFileDir();
+    EXPECT_EQ(ret, "");
+}
+
+/**
  * @tc.number: Ability_Context_Impl_IsUpdatingConfigurations_0100
  * @tc.name: IsUpdatingConfigurations
  * @tc.desc: Is Updating Configurations true
@@ -1306,5 +1330,206 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_RegisterAbilityLifecycleOb
     EXPECT_EQ(LifeCycle::Event::ON_STOP, lifeCycle->GetLifecycleState());
     EXPECT_EQ(finalObservedState, observer->GetLifecycleState());
 }
+
+/**
+ * @tc.number: Ability_Context_Impl_StartAbilityAsCaller_0100
+ * @tc.name: StartAbilityAsCaller
+ * @tc.desc: Start Ability As Caller
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityAsCaller_0100, Function | MediumTest | Level1)
+{
+    AAFwk::Want want;
+    int requestCode = 1;
+    ErrCode ret = context_->StartAbilityAsCaller(want, requestCode);
+    EXPECT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_StartAbilityAsCaller_0200
+ * @tc.name: StartAbilityAsCaller
+ * @tc.desc: Start Ability As Caller
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityAsCaller_0200, Function | MediumTest | Level1)
+{
+    AAFwk::Want want;
+    AAFwk::StartOptions startOptions;
+    int requestCode = 1;
+    ErrCode ret = context_->StartAbilityAsCaller(want, startOptions, requestCode);
+    EXPECT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_DisconnectAbility_0100
+ * @tc.name: DisconnectAbility
+ * @tc.desc: Disconnect Ability
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_DisconnectAbility_0100, Function | MediumTest | Level1)
+{
+    AAFwk::Want want;
+    sptr<AbilityConnectCallback> connectCallback;
+    context_->DisconnectAbility(want, connectCallback);
+    auto ret = context_->GetAbilityInfo();
+    EXPECT_TRUE(ret == nullptr);
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_OnBackPressedCallBack_0100
+ * @tc.name: OnBackPressedCallBack
+ * @tc.desc: On Back Pressed CallBack
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_OnBackPressedCallBack_0100, Function | MediumTest | Level1)
+{
+    context_->MinimizeAbility(false);
+    bool needMoveToBackground = true;
+    std::shared_ptr<MyAbilityCallback> abilityCallback = std::make_shared<MyAbilityCallback>();
+    context_->RegisterAbilityCallback(abilityCallback);
+    ErrCode ret = context_->OnBackPressedCallBack(needMoveToBackground);
+    EXPECT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_OnBackPressedCallBack_0200
+ * @tc.name: OnBackPressedCallBack
+ * @tc.desc: On Back Pressed CallBack
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_OnBackPressedCallBack_0200, Function | MediumTest | Level1)
+{
+    bool needMoveToBackground = true;
+    std::shared_ptr<MyAbilityCallback> abilityCallback = nullptr;
+    context_->RegisterAbilityCallback(abilityCallback);
+    ErrCode ret = context_->OnBackPressedCallBack(needMoveToBackground);
+    EXPECT_TRUE(ret == ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_MoveAbilityToBackground_0100
+ * @tc.name: MoveAbilityToBackground
+ * @tc.desc: MoveAbilityToBackground
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_MoveAbilityToBackground_0100, Function | MediumTest | Level1)
+{
+    ErrCode ret = context_->MoveAbilityToBackground();
+    EXPECT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_RestoreWindowStage_0100
+ * @tc.name: RestoreWindowStage
+ * @tc.desc: RestoreWindowStage
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_RestoreWindowStage_0100, Function | MediumTest | Level1)
+{
+    napi_env env = nullptr;
+    AAFwk::Want want;
+    ErrCode ret = context_->RequestDialogService(env, want, nullptr);
+    EXPECT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_ReportDrawnCompleted_0100
+ * @tc.name: ReportDrawnCompleted
+ * @tc.desc: ReportDrawnCompleted
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ReportDrawnCompleted_0100, Function | MediumTest | Level1)
+{
+    ErrCode ret = context_->ReportDrawnCompleted();
+    EXPECT_TRUE(ret == ERR_OK);
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_RequestDialogResultJSThreadWorker_0100
+ * @tc.name: RequestDialogResultJSThreadWorker
+ * @tc.desc: RequestDialogResultJSThreadWorker
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_RequestDialog_0100, Function | MediumTest | Level1)
+{
+    int status = 1;
+    context_->RequestDialogResultJSThreadWorker(nullptr, status);
+    uv_work_t* work = new (std::nothrow) uv_work_t;
+    context_->RequestDialogResultJSThreadWorker(work, status);
+    int32_t missionId = -1;
+    ErrCode ret = context_->GetMissionId(missionId);
+    EXPECT_FALSE(ret == ERR_OK);
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_GetMissionId_0100
+ * @tc.name: GetMissionId
+ * @tc.desc: GetMissionId
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetMissionId_0100, Function | MediumTest | Level1)
+{
+    int32_t missionId = 1;
+    ErrCode ret = context_->GetMissionId(missionId);
+    EXPECT_FALSE(ret == ERR_OK);
+    int32_t left = 1;
+    int32_t top = 1;
+    int32_t width = 1;
+    int32_t height = 1;
+    context_->GetWindowRect(left, top, width, height);
+    int res = context_->GetCurrentWindowMode();
+    EXPECT_EQ(res, 0);
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_SetMissionIcon_0300
+ * @tc.name: SetMissionIcon
+ * @tc.desc: SetMissionIcon
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_SetMissionIcon_0300, Function | MediumTest | Level1)
+{
+    std::shared_ptr<MyAbilityCallback> abilityCallback = std::make_shared<MyAbilityCallback>();
+    abilityCallback.reset();
+    context_->RegisterAbilityCallback(abilityCallback);
+    context_->RegisterAbilityLifecycleObserver(nullptr);
+    context_->UnregisterAbilityLifecycleObserver(nullptr);
+    auto ret = context_->SetMissionLabel(TEST_LABEL);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(ret, 0);
+    }
+    auto ret1 = context_->SetMissionIcon(nullptr);
+    EXPECT_TRUE(ret1 == ERR_OK);
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_RequestModalUIExtension_0100
+ * @tc.name: RequestModalUIExtension
+ * @tc.desc: RequestModalUIExtension
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_RequestModalUIExtension_0100, Function | MediumTest | Level1)
+{
+    AAFwk::Want want;
+    context_->RequestModalUIExtension(want);
+    EXPECT_TRUE(context_ != nullptr);
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_ChangeAbilityVisibility_0100
+ * @tc.name: ChangeAbilityVisibility
+ * @tc.desc: ChangeAbilityVisibility
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ChangeAbilityVisibility_0100, Function | MediumTest | Level1)
+{
+    bool isShow = true;
+    context_->ChangeAbilityVisibility(isShow);
+    EXPECT_TRUE(context_ != nullptr);
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_OpenAtomicService_0100
+ * @tc.name: OpenAtomicService
+ * @tc.desc: OpenAtomicService
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_OpenAtomicService_0100, Function | MediumTest | Level1)
+{
+    AAFwk::Want want;
+    AAFwk::StartOptions options;
+    int requestCode = 0;
+    RuntimeTask task = [](const int32_t count, const Want& want, bool isInner)
+    { GTEST_LOG_(INFO) << "Ability_Context_Impl_StartAbilityForResult_0100 task called"; };
+    context_->OpenAtomicService(want, options, requestCode, std::move(task));
+    EXPECT_TRUE(context_ != nullptr);
+}
 } // namespace AppExecFwk
 } // namespace OHOS
+

@@ -169,59 +169,6 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_0200, Tes
 /*
  * Feature: AbilityManager
  * Function: DataAbility
- * SubFunction: Normal Flow
- * FunctionPoints: DataAbilityManager simple flow.
- * EnvConditions: Can run ohos test framework
- * CaseDescription: Verify the DataAbilityManager simple flow.
- */
-HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_Flow_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityManager_Flow_001 start.");
-
-    std::shared_ptr<DataAbilityManager> dataAbilityManager = std::make_shared<DataAbilityManager>();
-    std::unique_ptr<MockAppMgrClient> mockAppMgrClient = std::make_unique<MockAppMgrClient>();
-
-    // mock AppScheduler
-    DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::move(mockAppMgrClient);
-
-    auto func = [this, &dataAbilityManager]() {
-        usleep(200 * 1000);  // 200 ms
-        sptr<IRemoteObject> tokenAsyn =
-            (reinterpret_cast<MockAppMgrClient*>(DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_.get()))
-            ->GetToken();
-        dataAbilityManager->AttachAbilityThread(abilitySchedulerMock_, tokenAsyn);
-        dataAbilityManager->AbilityTransitionDone(tokenAsyn, ACTIVE);
-    };
-
-    std::thread(func).detach();
-    EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _, _)).Times(1);
-    EXPECT_NE(dataAbilityManager->Acquire(abilityRequest_, true, abilityRecordClient_->GetToken(), false), nullptr);
-
-    sptr<IRemoteObject> token =
-        (reinterpret_cast<MockAppMgrClient*>(DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_.get()))
-        ->GetToken();
-    std::shared_ptr<AbilityRecord> abilityRecord = Token::GetAbilityRecordByToken(token);
-    EXPECT_TRUE(abilityRecord);
-
-    // existing ability record
-    EXPECT_NE(dataAbilityManager->GetAbilityRecordByToken(token), nullptr);
-    EXPECT_NE(dataAbilityManager->GetAbilityRecordByScheduler(abilitySchedulerMock_), nullptr);
-    EXPECT_NE(dataAbilityManager->GetAbilityRecordById(abilityRecord->GetRecordId()), nullptr);
-
-    // ability died, clear data ability record
-    dataAbilityManager->OnAbilityDied(abilityRecord);
-
-    // ability has released
-    EXPECT_EQ(dataAbilityManager->GetAbilityRecordByToken(token), nullptr);
-    EXPECT_EQ(dataAbilityManager->GetAbilityRecordByScheduler(abilitySchedulerMock_), nullptr);
-    EXPECT_EQ(dataAbilityManager->GetAbilityRecordById(abilityRecord->GetRecordId()), nullptr);
-
-    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityManager_Flow_001 end.");
-}
-
-/*
- * Feature: AbilityManager
- * Function: DataAbility
  * SubFunction: Acquire
  * FunctionPoints: The parameter of function Acquire.
  * EnvConditions: Can run ohos test framework

@@ -21,6 +21,7 @@
 #include "napi_common_util.h"
 #include "ui_content.h"
 #include "ws_common.h"
+#include "napi_common_want.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -109,6 +110,68 @@ void JsUIExtensionCallback::OnError(int32_t number)
         return;
     }
     uiContent_->CloseModalUIExtension(sessionId_);
+}
+
+void JsUIExtensionCallback::OnResult(int32_t resultCode, const AAFwk::Want &want)
+{
+    TAG_LOGI(AAFwkTag::UI_EXT, "call");
+    if (env_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "env_ null");
+        return;
+    }
+    // js callback should run in js thread
+    std::shared_ptr<JsUIExtensionCallback> jsUIExtensionCallback = shared_from_this();
+    std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
+        ([jsUIExtensionCallback, resultCode, want](napi_env env, NapiAsyncTask &task, int32_t status) {
+            if (jsUIExtensionCallback != nullptr) {
+                jsUIExtensionCallback->CallJsResult(resultCode, want);
+            }
+        });
+    napi_ref callback = nullptr;
+    std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
+    NapiAsyncTask::Schedule("JsUIExtensionCallback::OnResult:",
+        env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
+    if (uiContent_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "uiContent_ null");
+        return;
+    }
+    uiContent_->CloseModalUIExtension(sessionId_);
+}
+
+void JsUIExtensionCallback::CallJsResult(int32_t resultCode, const AAFwk::Want &want)
+{
+    TAG_LOGI(AAFwkTag::UI_EXT, "call");
+    if (env_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "env_ is null, not call js Result.");
+        return;
+    }
+
+    napi_value abilityResult = OHOS::AppExecFwk::WrapAbilityResult(env_, resultCode, want);
+    if (abilityResult == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "abilityResult is nullptr");
+        return;
+    }
+
+    if (jsCallbackObject_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "jsCallbackObject_ is nullptr");
+        return;
+    }
+    napi_value obj = jsCallbackObject_->GetNapiValue();
+    if (obj == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Failed to get js object");
+        return;
+    }
+    napi_value method = nullptr;
+    napi_get_named_property(env_, obj, "onResult", &method);
+    if (method == nullptr || AppExecFwk::IsTypeForNapiValue(env_, method, napi_undefined)
+        || AppExecFwk::IsTypeForNapiValue(env_, method, napi_null)) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Failed to get onResult method from object");
+        return;
+    }
+
+    napi_value argv[] = { abilityResult };
+    napi_call_function(env_, obj, method, ArraySize(argv), argv, nullptr);
+    TAG_LOGI(AAFwkTag::UI_EXT, "end");
 }
 
 void JsUIExtensionCallback::OnRelease(int32_t code)

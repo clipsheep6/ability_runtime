@@ -41,6 +41,18 @@ public:
     virtual void AttachApplication(const sptr<IRemoteObject> &obj) override;
 
     /**
+     * Preload application.
+     *
+     * @param bundleName The bundle name of the application to preload.
+     * @param userId Indicates the user identification.
+     * @param preloadMode Preload application mode.
+     * @param appIndex The index of application clone.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t PreloadApplication(const std::string &bundleName, int32_t userId,
+        AppExecFwk::PreloadMode preloadMode, int32_t appIndex = 0) override;
+
+    /**
      * ApplicationForegrounded, call ApplicationForegrounded() through proxy object,
      * set the application to Foreground State.
      *
@@ -334,6 +346,8 @@ public:
 
     virtual int32_t UpdateConfiguration(const Configuration &config) override;
 
+    virtual int32_t UpdateConfigurationByBundleName(const Configuration &config, const std::string &name) override;
+
     virtual int32_t RegisterConfigurationObserver(const sptr<IConfigurationObserver> &observer) override;
 
     virtual int32_t UnregisterConfigurationObserver(const sptr<IConfigurationObserver> &observer) override;
@@ -390,7 +404,7 @@ public:
      */
     virtual int32_t GetRunningProcessInformation(
         const std::string &bundleName, int32_t userId, std::vector<RunningProcessInfo> &info) override;
-    
+
     /**
      * @brief Notify AbilityManagerService the page show.
      * @param token Ability identify.
@@ -454,7 +468,7 @@ public:
      * @return Return ERR_OK if success, others fail.
      */
     int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning) override;
-    
+
     /**
      * Start child process, called by ChildProcessManager.
      *
@@ -462,7 +476,8 @@ public:
      * @param childPid Created child process pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid) override;
+    int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount,
+        bool isStartWithDebug) override;
 
     /**
      * Get child process record for self.
@@ -477,7 +492,7 @@ public:
      * @param childScheduler scheduler of child process.
      */
     void AttachChildProcess(const sptr<IRemoteObject> &childScheduler) override;
-    
+
     /**
      * Exit child process, called by itself.
      */
@@ -515,6 +530,33 @@ public:
     int32_t SignRestartAppFlag(const std::string &bundleName) override;
 
     int32_t GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId) override;
+
+    /*
+     * Get all uiextension root host process id, need apply permission ohos.permission.GET_RUNNING_INFO.
+     * If specified pid mismatch UIExtensionAbility type, return empty vector.
+     * @param pid Process id.
+     * @param hostPids All host process id.
+     * @return Returns 0 on success, others on failure.
+     */
+    int32_t GetAllUIExtensionRootHostPid(pid_t pid, std::vector<pid_t> &hostPids) override;
+
+    /**
+     * Get all uiextension provider process id, need apply permission ohos.permission.GET_RUNNING_INFO.
+     * If specified hostPid didn't start any UIExtensionAbility, return empty vector.
+     * @param hostPid Host process id.
+     * @param providerPids All provider process id started by specified hostPid.
+     * @return Returns 0 on success, others on failure.
+     */
+    int32_t GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid_t> &providerPids) override;
+
+    /**
+     * @brief Notify memory size state changed to sufficient or insufficent.
+     * @param isMemorySizeSufficent Indicates the memory size state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent) override;
+
+    int32_t SetSupportedProcessCacheSelf(bool isSupport) override;
 private:
     bool SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply);
     bool WriteInterfaceToken(MessageParcel &data);

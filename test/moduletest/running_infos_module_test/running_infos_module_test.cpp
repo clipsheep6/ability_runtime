@@ -121,20 +121,16 @@ void RunningInfosModuleTest::OnStartAms()
         abilityMgrServ_->userController_->Init();
         int userId = MOCK_MAIN_USER_ID;
         abilityMgrServ_->userController_->SetCurrentUserId(userId);
-        abilityMgrServ_->InitConnectManager(userId, true);
-        abilityMgrServ_->InitDataAbilityManager(userId, true);
-        abilityMgrServ_->InitPendWantManager(userId, true);
-        abilityMgrServ_->systemDataAbilityManager_ = std::make_shared<DataAbilityManager>();
-        EXPECT_TRUE(abilityMgrServ_->systemDataAbilityManager_);
 
         AmsConfigurationParameter::GetInstance().Parse();
 
         abilityMgrServ_->interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
         EXPECT_TRUE(abilityMgrServ_->interceptorExecuter_);
 
-        abilityMgrServ_->InitMissionListManager(userId, true);
-        abilityMgrServ_->connectManager_->SetTaskHandler(abilityMgrServ_->taskHandler_);
-        auto topAbility = abilityMgrServ_->GetListManagerByUserId(MOCK_MAIN_USER_ID)->GetCurrentTopAbilityLocked();
+        abilityMgrServ_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+        abilityMgrServ_->subManagersHelper_->InitSubManagers(userId, true);
+        abilityMgrServ_->subManagersHelper_->currentConnectManager_->SetTaskHandler(abilityMgrServ_->taskHandler_);
+        auto topAbility = abilityMgrServ_->GetMissionListManagerByUserId(userId)->GetCurrentTopAbilityLocked();
         if (topAbility) {
             topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
         }
@@ -285,7 +281,7 @@ HWTEST_F(RunningInfosModuleTest, GetAbilityRunningInfos_004, TestSize.Level1)
     auto result = abilityMgrServ_->StartAbility(want);
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    auto topAbility = abilityMgrServ_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMgrServ_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_TRUE(topAbility);
     topAbility->SetAbilityState(AbilityState::FOREGROUND);
 
@@ -361,7 +357,7 @@ HWTEST_F(RunningInfosModuleTest, GetAbilityRunningInfos_006, TestSize.Level1)
     auto result = abilityMgrServ_->StartAbility(want);
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    auto topAbility = abilityMgrServ_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMgrServ_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_TRUE(topAbility);
     topAbility->SetAbilityState(AbilityState::FOREGROUND);
 

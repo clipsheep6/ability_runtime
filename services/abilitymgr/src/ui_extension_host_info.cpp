@@ -50,7 +50,7 @@ UIExtensionHostInfo *UIExtensionHostInfo::Unmarshalling(Parcel &parcel)
 bool UIExtensionHostInfo::Marshalling(Parcel &parcel) const
 {
     if (!parcel.WriteParcelable(&elementName_)) {
-        HILOG_ERROR("Write element name failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write element name failed.");
         return false;
     }
 

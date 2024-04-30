@@ -24,7 +24,6 @@
 #include "app_scheduler_host.h"
 #include "app_scheduler_proxy.h"
 #include "mock_app_mgr_service_inner.h"
-#include "mock_app_spawn_socket.h"
 #include "mock_native_token.h"
 #include "semaphore_ex.h"
 
@@ -61,7 +60,7 @@ public:
     void ScheduleLaunchAbility(const AbilityInfo&, const sptr<IRemoteObject>&,
         const std::shared_ptr<AAFwk::Want>&, int32_t) override
     {}
-    void ScheduleCleanAbility(const sptr<IRemoteObject>&) override
+    void ScheduleCleanAbility(const sptr<IRemoteObject>&, bool isCacheProcess) override
     {}
     void ScheduleProfileChanged(const Profile&) override
     {}
@@ -109,6 +108,21 @@ public:
 
     void ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info) override
     {}
+
+    int32_t ScheduleDumpIpcStart(std::string& result) override
+    {
+        return 0;
+    }
+
+    int32_t ScheduleDumpIpcStop(std::string& result) override
+    {
+        return 0;
+    }
+
+    int32_t ScheduleDumpIpcStat(std::string& result) override
+    {
+        return 0;
+    }
 };
 class AppMgrServiceModuleTest : public testing::Test {
 public:

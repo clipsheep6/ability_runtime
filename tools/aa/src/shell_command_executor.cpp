@@ -131,7 +131,7 @@ bool ShellCommandExecutor::CheckCommand()
     std::istringstream iss(cmd_);
     std::string firstCommand = "";
     iss >> firstCommand;
-    if (ShellCommandConfigLoder::commands_.find(firstCommand) != ShellCommandConfigLoder::commands_.end()) {
+    if (ShellCommandConfigLoader::commands_.find(firstCommand) != ShellCommandConfigLoader::commands_.end()) {
         return true;
     }
     return false;

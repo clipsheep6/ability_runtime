@@ -234,6 +234,86 @@ void JSAppStateObserver::HandleOnProcessDied(const ProcessData &processData)
     }
 }
 
+void JSAppStateObserver::OnAppStarted(const AppStateData &appStateData)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "onAppStarted bundleName:%{public}s, uid:%{public}d, state:%{public}d",
+        appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
+    if (!valid_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has destoryed");
+        return;
+    }
+    wptr<JSAppStateObserver> jsObserver = this;
+    std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
+        ([jsObserver, appStateData](napi_env env, NapiAsyncTask &task, int32_t status) {
+            sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
+            if (!jsObserverSptr) {
+                TAG_LOGW(AAFwkTag::APPMGR, "jsObserverSptr nullptr.");
+                return;
+            }
+            jsObserverSptr->HandleOnAppStarted(appStateData);
+        });
+    napi_ref callback = nullptr;
+    std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
+    NapiAsyncTask::Schedule("JSAppStateObserver::OnAppStarted",
+        env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
+}
+
+void JSAppStateObserver::HandleOnAppStarted(const AppStateData &appStateData)
+{
+    TAG_LOGD(AAFwkTag::APPMGR,
+        "HandleOnAppStarted bundleName:%{public}s, uid:%{public}d, state:%{public}d",
+        appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
+    auto tmpMap = jsObserverObjectMap_;
+    for (auto &item : tmpMap) {
+        if (item.second == nullptr) {
+            continue;
+        }
+        napi_value obj = (item.second)->GetNapiValue();
+        napi_value argv[] = {CreateJsAppStateData(env_, appStateData)};
+        CallJsFunction(obj, "onAppStarted", argv, ARGC_ONE);
+    }
+}
+
+void JSAppStateObserver::OnAppStopped(const AppStateData &appStateData)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "OnAppStopped bundleName:%{public}s, uid:%{public}d, state:%{public}d",
+        appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
+    if (!valid_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has destoryed");
+        return;
+    }
+    wptr<JSAppStateObserver> jsObserver = this;
+    std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
+        ([jsObserver, appStateData](napi_env env, NapiAsyncTask &task, int32_t status) {
+            sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
+            if (!jsObserverSptr) {
+                TAG_LOGW(AAFwkTag::APPMGR, "jsObserverSptr nullptr.");
+                return;
+            }
+            jsObserverSptr->HandleOnAppStopped(appStateData);
+        });
+    napi_ref callback = nullptr;
+    std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
+    NapiAsyncTask::Schedule("JSAppStateObserver::OnAppStopped",
+        env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
+}
+
+void JSAppStateObserver::HandleOnAppStopped(const AppStateData &appStateData)
+{
+    TAG_LOGD(AAFwkTag::APPMGR,
+        "HandleOnAppStopped bundleName:%{public}s, uid:%{public}d, state:%{public}d",
+        appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
+    auto tmpMap = jsObserverObjectMap_;
+    for (auto &item : tmpMap) {
+        if (item.second == nullptr) {
+            continue;
+        }
+        napi_value obj = (item.second)->GetNapiValue();
+        napi_value argv[] = {CreateJsAppStateData(env_, appStateData)};
+        CallJsFunction(obj, "onAppStopped", argv, ARGC_ONE);
+    }
+}
+
 void JSAppStateObserver::CallJsFunction(
     napi_value value, const char *methodName, napi_value* argv, size_t argc)
 {

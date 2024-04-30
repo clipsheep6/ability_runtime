@@ -43,12 +43,12 @@ bool WriteTokenObject(MessageParcel &data, sptr<IRemoteObject> token)
 {
     if (token) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(token)) {
-            HILOG_ERROR("Failed to write flag or token");
+            TAG_LOGE(AAFwkTag::APPMGR, "Failed to write flag or token");
             return false;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("Failed to write flag");
+            TAG_LOGE(AAFwkTag::APPMGR, "Failed to write flag");
             return false;
         }
     }
@@ -87,7 +87,7 @@ void AmsMgrProxy::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemo
         return;
     }
     if (!data.WriteInt32(abilityRecordId)) {
-        HILOG_ERROR("Write data abilityRecordId failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write data abilityRecordId failed.");
         return;
     }
 
@@ -842,20 +842,20 @@ int32_t AmsMgrProxy::DetachAppDebug(const std::string &bundleName)
 
 int32_t AmsMgrProxy::SetAppWaitingDebug(const std::string &bundleName, bool isPersist)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_INVALID_DATA;
     }
 
     if (bundleName.empty() || !data.WriteString(bundleName)) {
-        HILOG_ERROR("Write bundle name failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write bundle name failed.");
         return ERR_INVALID_DATA;
     }
 
     if (!data.WriteBool(isPersist)) {
-        HILOG_ERROR("Write persist flag failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write persist flag failed.");
         return ERR_INVALID_DATA;
     }
 
@@ -863,7 +863,7 @@ int32_t AmsMgrProxy::SetAppWaitingDebug(const std::string &bundleName, bool isPe
     MessageOption option(MessageOption::TF_SYNC);
     auto ret = SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::SET_APP_WAITING_DEBUG), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed, error code is %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request failed, error code is %{public}d.", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -871,10 +871,10 @@ int32_t AmsMgrProxy::SetAppWaitingDebug(const std::string &bundleName, bool isPe
 
 int32_t AmsMgrProxy::CancelAppWaitingDebug()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_INVALID_DATA;
     }
 
@@ -882,7 +882,7 @@ int32_t AmsMgrProxy::CancelAppWaitingDebug()
     MessageOption option(MessageOption::TF_SYNC);
     auto ret = SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::CANCEL_APP_WAITING_DEBUG), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed, error code is %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request failed, error code is %{public}d.", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -890,10 +890,10 @@ int32_t AmsMgrProxy::CancelAppWaitingDebug()
 
 int32_t AmsMgrProxy::GetWaitingDebugApp(std::vector<std::string> &debugInfoList)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_INVALID_DATA;
     }
 
@@ -901,24 +901,24 @@ int32_t AmsMgrProxy::GetWaitingDebugApp(std::vector<std::string> &debugInfoList)
     MessageOption option(MessageOption::TF_SYNC);
     auto ret = SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::GET_WAITING_DEBUG_APP), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed, error code is %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request failed, error code is %{public}d.", ret);
         return ret;
     }
 
     auto resultCode = reply.ReadInt32();
     if (resultCode != ERR_OK) {
-        HILOG_ERROR("Reply error is %{public}d.", resultCode);
+        TAG_LOGE(AAFwkTag::APPMGR, "Reply error is %{public}d.", resultCode);
         return resultCode;
     }
 
     auto infoSize = reply.ReadInt32();
     if (infoSize > MAX_APP_DEBUG_COUNT) {
-        HILOG_ERROR("Max app debug count is %{public}d.", infoSize);
+        TAG_LOGE(AAFwkTag::APPMGR, "Max app debug count is %{public}d.", infoSize);
         return ERR_INVALID_DATA;
     }
 
     if (!reply.ReadStringVector(&debugInfoList)) {
-        HILOG_ERROR("Fail to read string vector debug info list.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Fail to read string vector debug info list.");
         return ERR_INVALID_DATA;
     }
 
@@ -927,15 +927,15 @@ int32_t AmsMgrProxy::GetWaitingDebugApp(std::vector<std::string> &debugInfoList)
 
 bool AmsMgrProxy::IsWaitingDebugApp(const std::string &bundleName)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return false;
     }
 
     if (bundleName.empty() || !data.WriteString(bundleName)) {
-        HILOG_ERROR("Write bundle name failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write bundle name failed.");
         return false;
     }
 
@@ -943,7 +943,7 @@ bool AmsMgrProxy::IsWaitingDebugApp(const std::string &bundleName)
     MessageOption option(MessageOption::TF_SYNC);
     auto ret = SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::IS_WAITING_DEBUG_APP), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed, error code is %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request failed, error code is %{public}d.", ret);
         return false;
     }
     return reply.ReadBool();
@@ -951,10 +951,10 @@ bool AmsMgrProxy::IsWaitingDebugApp(const std::string &bundleName)
 
 void AmsMgrProxy::ClearNonPersistWaitingDebugFlag()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return;
     }
 
@@ -963,7 +963,7 @@ void AmsMgrProxy::ClearNonPersistWaitingDebugFlag()
     auto ret = SendTransactCmd(
         static_cast<uint32_t>(IAmsMgr::Message::CLEAR_NON_PERSIST_WAITING_DEBUG_FLAG), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("Send request is failed, error code is %{public}d.", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "Send request is failed, error code is %{public}d.", ret);
     }
 }
 
@@ -1062,6 +1062,24 @@ void AmsMgrProxy::ClearProcessByToken(sptr<IRemoteObject> token)
     if (ret != NO_ERROR) {
         TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
+}
+
+bool AmsMgrProxy::IsMemorySizeSufficent()
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return true;
+    }
+
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    auto ret = SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::IS_MEMORY_SIZE_SUFFICIENT), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed, error code is %{public}d.", ret);
+        return true;
+    }
+    return reply.ReadBool();
 }
 
 int32_t AmsMgrProxy::SendTransactCmd(uint32_t code, MessageParcel &data,

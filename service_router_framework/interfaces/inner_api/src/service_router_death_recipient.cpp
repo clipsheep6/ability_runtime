@@ -14,7 +14,6 @@
  */
 #include "service_router_death_recipient.h"
 
-#include "app_log_wrapper.h"
 #include "hilog_tag_wrapper.h"
 #include "service_router_mgr_helper.h"
 

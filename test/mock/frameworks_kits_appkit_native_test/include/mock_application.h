@@ -53,7 +53,7 @@ public:
         state_ = APP_STATE_BACKGROUND;
     }
 
-    virtual void OnConfigurationUpdated(const Configuration& config)
+    virtual void OnConfigurationUpdated(Configuration config)
     {
         GTEST_LOG_(INFO) << "MockApplication::OnConfigurationUpdated called";
         onConfigurationUpdatedCalled_ = true;

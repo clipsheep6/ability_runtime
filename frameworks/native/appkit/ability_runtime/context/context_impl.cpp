@@ -58,6 +58,8 @@ const std::string ContextImpl::CONTEXT_BUNDLE("/bundle/");
 const std::string ContextImpl::CONTEXT_DISTRIBUTEDFILES_BASE_BEFORE("/mnt/hmdfs/");
 const std::string ContextImpl::CONTEXT_DISTRIBUTEDFILES_BASE_MIDDLE("/device_view/local/data/");
 const std::string ContextImpl::CONTEXT_DISTRIBUTEDFILES("distributedfiles");
+const std::string ContextImpl::CONTEXT_CLOUDFILE_DIR_BASE_BEFORE("/data/service/el2/");
+const std::string ContextImpl::CONTEXT_CLOUDFILE_DIR_BASE_MIDDLE("/hmdfs/cloud/data/");
 const std::string ContextImpl::CONTEXT_FILE_SEPARATOR("/");
 const std::string ContextImpl::CONTEXT_DATA("/data/");
 const std::string ContextImpl::CONTEXT_DATA_STORAGE("/data/storage/");
@@ -335,6 +337,14 @@ std::string ContextImpl::GetDistributedFilesDir()
     }
     CreateDirIfNotExist(dir, 0);
     TAG_LOGD(AAFwkTag::APPKIT, "dir:%{public}s", dir.c_str());
+    return dir;
+}
+
+std::string ContextImpl::GetCloudFileDir()
+{
+    std::string dir = CONTEXT_CLOUDFILE_DIR_BASE_BEFORE + std::to_string(GetCurrentAccountId()) +
+        CONTEXT_CLOUDFILE_DIR_BASE_MIDDLE + GetBundleName();
+    CreateDirIfNotExist(dir, MODE);
     return dir;
 }
 
@@ -1066,7 +1076,7 @@ ErrCode ContextImpl::GetOverlayMgrProxy()
         return ERR_NULL_OBJECT;
     }
 
-    HILOG_DEBUG("Success.");
+    TAG_LOGD(AAFwkTag::APPKIT, "Success.");
     return ERR_OK;
 }
 
@@ -1075,7 +1085,7 @@ int ContextImpl::GetOverlayModuleInfos(const std::string &bundleName, const std:
 {
     int errCode = GetOverlayMgrProxy();
     if (errCode != ERR_OK) {
-        HILOG_ERROR("failed, errCode: %{public}d.", errCode);
+        TAG_LOGE(AAFwkTag::APPKIT, "failed, errCode: %{public}d.", errCode);
         return errCode;
     }
 
@@ -1202,6 +1212,17 @@ void ContextImpl::ClearUpApplicationData()
         TAG_LOGE(AAFwkTag::APPKIT, "Delete bundle side user data by self is fail.");
         return;
     }
+}
+
+int32_t ContextImpl::SetSupportedProcessCacheSelf(bool isSupport)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "Called");
+    auto appMgrClient = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance();
+    if (appMgrClient == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "appMgrClient is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    return appMgrClient->SetSupportedProcessCacheSelf(isSupport);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

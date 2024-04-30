@@ -41,6 +41,7 @@ private:
         const Want want);
     bool CheckStartOtherApp(const Want want);
     bool CheckCallerApiBelow12(const AppExecFwk::ApplicationInfo &applicationInfo);
+    bool IsDelegatorCall(const Want want);
 };
 } // namespace AAFwk
 } // namespace OHOS

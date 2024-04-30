@@ -27,7 +27,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 std::vector<std::shared_ptr<AbilityLifecycleCallback>> ApplicationContext::callbacks_;
 std::vector<std::shared_ptr<EnvironmentCallback>> ApplicationContext::envCallbacks_;
-std::weak_ptr<ApplicationStateChangeCallback> ApplicationContext::applicationStateCallback_;
+std::vector<std::weak_ptr<ApplicationStateChangeCallback>> ApplicationContext::applicationStateCallback_;
 
 std::shared_ptr<ApplicationContext> ApplicationContext::GetInstance()
 {
@@ -98,7 +98,8 @@ void ApplicationContext::UnregisterEnvironmentCallback(
 void ApplicationContext::RegisterApplicationStateChangeCallback(
     const std::weak_ptr<ApplicationStateChangeCallback> &applicationStateChangeCallback)
 {
-    applicationStateCallback_ = applicationStateChangeCallback;
+    std::lock_guard<std::recursive_mutex> lock(applicationStateCallbackLock_);
+    applicationStateCallback_.push_back(applicationStateChangeCallback);
 }
 
 void ApplicationContext::DispatchOnAbilityCreate(const std::shared_ptr<NativeReference> &ability)
@@ -255,24 +256,24 @@ void ApplicationContext::DispatchMemoryLevel(const int level)
 
 void ApplicationContext::NotifyApplicationForeground()
 {
-    auto callback = applicationStateCallback_.lock();
-    if (callback == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "applicationStateCallback is nullptr");
-        return;
+    std::lock_guard<std::recursive_mutex> lock(applicationStateCallbackLock_);
+    for (auto callback : applicationStateCallback_) {
+        auto callbackSptr = callback.lock();
+        if (callbackSptr != nullptr) {
+            callbackSptr->NotifyApplicationForeground();
+        }
     }
-
-    callback->NotifyApplicationForeground();
 }
 
 void ApplicationContext::NotifyApplicationBackground()
 {
-    auto callback = applicationStateCallback_.lock();
-    if (callback == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "applicationStateCallback is nullptr");
-        return;
+    std::lock_guard<std::recursive_mutex> lock(applicationStateCallbackLock_);
+    for (auto callback : applicationStateCallback_) {
+        auto callbackSptr = callback.lock();
+        if (callbackSptr != nullptr) {
+            callbackSptr->NotifyApplicationBackground();
+        }
     }
-
-    callback->NotifyApplicationBackground();
 }
 
 std::string ApplicationContext::GetBundleName() const
@@ -448,6 +449,11 @@ std::string ApplicationContext::GetDistributedFilesDir()
     return (contextImpl_ != nullptr) ? contextImpl_->GetDistributedFilesDir() : "";
 }
 
+std::string ApplicationContext::GetCloudFileDir()
+{
+    return (contextImpl_ != nullptr) ? contextImpl_->GetCloudFileDir() : "";
+}
+
 sptr<IRemoteObject> ApplicationContext::GetToken()
 {
     return (contextImpl_ != nullptr) ? contextImpl_->GetToken() : nullptr;
@@ -531,16 +537,25 @@ void ApplicationContext::RegisterAppConfigUpdateObserver(AppConfigUpdateCallback
     appConfigChangeCallback_ = appConfigChangeCallback;
 }
 
-std::string ApplicationContext::GetAppRunningUniqueIdByPid() const
+std::string ApplicationContext::GetAppRunningUniqueId() const
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "GetAppRunningUniqueIdByPid is %{public}s.", appRunningUniqueId_.c_str());
+    TAG_LOGD(AAFwkTag::APPKIT, "GetAppRunningUniqueId is %{public}s.", appRunningUniqueId_.c_str());
     return appRunningUniqueId_;
 }
 
-void ApplicationContext::SetAppRunningUniqueIdByPid(const std::string &appRunningUniqueId)
+void ApplicationContext::SetAppRunningUniqueId(const std::string &appRunningUniqueId)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "SetAppRunningUniqueIdByPid is %{public}s.", appRunningUniqueId.c_str());
+    TAG_LOGD(AAFwkTag::APPKIT, "SetAppRunningUniqueId is %{public}s.", appRunningUniqueId.c_str());
     appRunningUniqueId_ = appRunningUniqueId;
+}
+
+int32_t ApplicationContext::SetSupportedProcessCacheSelf(bool isSupport)
+{
+    if (contextImpl_ != nullptr) {
+        return contextImpl_->SetSupportedProcessCacheSelf(isSupport);
+    }
+    TAG_LOGE(AAFwkTag::APPKIT, "contextImpl_ is nullptr.");
+    return ERR_INVALID_VALUE;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

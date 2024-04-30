@@ -51,7 +51,7 @@ public:
 
     virtual void InitConsoleModule(NativeEngine* engine) = 0;
 
-    virtual bool InitLoop(NativeEngine* engine) = 0;
+    virtual bool InitLoop(NativeEngine* engine, bool isStage = true) = 0;
 
     virtual void DeInitLoop(NativeEngine* engine) = 0;
 

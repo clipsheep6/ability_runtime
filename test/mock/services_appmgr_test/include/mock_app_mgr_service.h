@@ -67,6 +67,7 @@ public:
     MOCK_METHOD2(GetAbilityRecordsByProcessID, int(const int pid, std::vector<sptr<IRemoteObject>>& tokens));
     MOCK_METHOD1(GetConfiguration, int32_t(Configuration& config));
     MOCK_METHOD1(UpdateConfiguration, int32_t(const Configuration& config));
+    MOCK_METHOD2(UpdateConfigurationByBundleName, int32_t(const Configuration& config, const std::string &name));
     MOCK_METHOD1(RegisterConfigurationObserver, int32_t(const sptr<IConfigurationObserver>& observer));
     MOCK_METHOD1(UnregisterConfigurationObserver, int32_t(const sptr<IConfigurationObserver>& observer));
 #ifdef ABILITY_COMMAND_FOR_TEST
@@ -87,7 +88,8 @@ public:
     MOCK_METHOD3(GetRunningProcessInformation, int32_t(const std::string & bundleName, int32_t userId,
         std::vector<RunningProcessInfo> &info));
     MOCK_METHOD2(IsApplicationRunning, int32_t(const std::string &bundleName, bool &isRunning));
-    MOCK_METHOD2(StartChildProcess, int32_t(const std::string &srcEntry, pid_t &childPid));
+    MOCK_METHOD4(StartChildProcess, int32_t(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount,
+        bool isStartWithNative));
     MOCK_METHOD1(GetChildProcessInfoForSelf, int32_t(ChildProcessInfo &info));
     MOCK_METHOD1(AttachChildProcess, void(const sptr<IRemoteObject> &childScheduler));
     MOCK_METHOD0(ExitChildProcessSafely, void());
@@ -96,6 +98,7 @@ public:
     MOCK_METHOD2(UpdateRenderState, int32_t(pid_t renderPid, int32_t state));
 
     MOCK_METHOD0(IsFinalAppProcess, bool());
+    MOCK_METHOD1(SetSupportedProcessCacheSelf, int32_t(bool isSupport));
     virtual int StartUserTestProcess(
         const AAFwk::Want &want, const sptr<IRemoteObject> &observer, const BundleInfo &bundleInfo, int32_t userId)
     {

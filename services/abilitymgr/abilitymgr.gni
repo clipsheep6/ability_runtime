@@ -15,12 +15,12 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 abilityms_files = [
   "src/ability_app_state_observer.cpp",
+  "src/preload_uiext_state_observer.cpp",
   "src/ability_background_connection.cpp",
   "src/ability_connect_manager.cpp",
   "src/ability_debug_deal.cpp",
   "src/ability_event_handler.cpp",
   "src/disposed_observer.cpp",
-  "src/ability_manager_radar.cpp",
   "src/ability_manager_service.cpp",
   "src/ability_manager_stub.cpp",
   "src/ability_manager_proxy.cpp",
@@ -46,6 +46,7 @@ abilityms_files = [
   "src/extension_running_info.cpp",
   "src/caller_info.cpp",
   "src/sender_info.cpp",
+  "src/sub_managers_helper.cpp",
   "src/wants_info.cpp",
   "src/want_sender_info.cpp",
   "src/pending_want_record.cpp",
@@ -67,6 +68,7 @@ abilityms_files = [
   "src/interceptor/disposed_rule_interceptor.cpp",
   "src/interceptor/ecological_rule_interceptor.cpp",
   "src/interceptor/start_other_app_interceptor.cpp",
+  "src/uri_utils.cpp",
   "src/window_focus_changed_listener.cpp",
 
   # start ability handler
@@ -99,6 +101,7 @@ abilityms_files = [
   "src/mission_list.cpp",
   "src/scene_board/status_bar_delegate_manager.cpp",
   "src/scene_board/ui_ability_lifecycle_manager.cpp",
+  "src/open_link/open_link_options.cpp",
 
   #connection observer
   "src/connection_observer_controller.cpp",
@@ -139,6 +142,7 @@ if (ability_runtime_graphics) {
     "${ability_runtime_services_path}/appdfr/src/application_anr_listener.cpp",
     "src/implicit_start_processor.cpp",
     "src/system_dialog_scheduler.cpp",
+    "src/ability_first_frame_state_observer_manager.cpp",
   ]
 }
 

@@ -40,6 +40,7 @@ public:
     static void Finalizer(napi_env env, void* data, void* hint);
 
     static napi_value StartAbility(napi_env env, napi_callback_info info);
+    static napi_value OpenLink(napi_env env, napi_callback_info info);
     static napi_value StartAbilityAsCaller(napi_env env, napi_callback_info info);
     static napi_value StartRecentAbility(napi_env env, napi_callback_info info);
     static napi_value StartAbilityWithAccount(napi_env env, napi_callback_info info);
@@ -89,6 +90,7 @@ private:
     static void ClearFailedCallConnection(
         const std::weak_ptr<AbilityContext>& abilityContext, const std::shared_ptr<CallerCallBack> &callback);
     napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info, bool isStartRecent = false);
+    napi_value OnOpenLink(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartAbilityAsCaller(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartRecentAbility(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartAbilityWithAccount(napi_env env, NapiCallbackInfo& info);
@@ -118,6 +120,8 @@ private:
     napi_value OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, AAFwk::Want &want,
         AAFwk::StartOptions &options);
     napi_value OnMoveAbilityToBackground(napi_env env, NapiCallbackInfo& info);
+    bool CreateOpenLinkTask(const napi_env &env, const napi_value &lastParam, AAFwk::Want &want,
+        int &requestCode);
 
     static bool UnWrapWant(napi_env env, napi_value argv, AAFwk::Want& want);
     static napi_value WrapWant(napi_env env, const AAFwk::Want& want);

@@ -57,22 +57,12 @@ void AppLaunchData::SetUserTestInfo(const std::shared_ptr<UserTestRecord> &recor
 
 bool AppLaunchData::Marshalling(Parcel &parcel) const
 {
-    if (!parcel.WriteParcelable(&applicationInfo_)) {
+    if (!parcel.WriteParcelable(&applicationInfo_) ||
+        !parcel.WriteParcelable(&profile_) || !parcel.WriteParcelable(&processInfo_)) {
         return false;
     }
-    if (!parcel.WriteParcelable(&profile_)) {
-        return false;
-    }
-    if (!parcel.WriteParcelable(&processInfo_)) {
-        return false;
-    }
-    if (!parcel.WriteInt32(recordId_)) {
-        return false;
-    }
-    if (!parcel.WriteInt32(uId_)) {
-        return false;
-    }
-    if (!parcel.WriteInt32(appIndex_)) {
+    if (!parcel.WriteInt32(recordId_) ||
+        !parcel.WriteInt32(uId_) || !parcel.WriteInt32(appIndex_)) {
         return false;
     }
 
@@ -98,16 +88,14 @@ bool AppLaunchData::Marshalling(Parcel &parcel) const
         return false;
     }
 
-    if (!parcel.WriteBool(jitEnabled_)) {
-        HILOG_ERROR("Failed to write jitEnabled.");
+    if (!parcel.WriteBool(jitEnabled_) || !parcel.WriteBool(isNativeStart_)) {
         return false;
     }
 
-    if (!parcel.WriteBool(isNativeStart_)) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write native flag.");
+    if (!parcel.WriteString(appRunningUniqueId_)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Marshalling, Failed to write app running unique id.");
         return false;
     }
-
     return true;
 }
 
@@ -151,6 +139,7 @@ bool AppLaunchData::ReadFromParcel(Parcel &parcel)
     perfCmd_ = parcel.ReadString();
     jitEnabled_ = parcel.ReadBool();
     isNativeStart_ = parcel.ReadBool();
+    appRunningUniqueId_ = parcel.ReadString();
     return true;
 }
 

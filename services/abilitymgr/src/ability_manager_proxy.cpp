@@ -18,6 +18,7 @@
 #include "errors.h"
 #include "string_ex.h"
 
+#include "hilog_tag_wrapper.h"
 #include "ability_connect_callback_proxy.h"
 #include "ability_connect_callback_stub.h"
 #include "ability_manager_errors.h"
@@ -639,6 +640,32 @@ int AbilityManagerProxy::RequestModalUIExtension(const Want &want)
     error = SendRequest(AbilityManagerInterfaceCode::REQUESET_MODAL_UIEXTENSION, data, reply, option);
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "RequestModalUIExtension, Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::PreloadUIExtensionAbility(const Want &want, std::string &hostBundleName, int32_t userId)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, &want);
+    
+    if (!data.WriteString16(Str8ToStr16(hostBundleName))) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "hostBundleName write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, userId);
+    int error;
+    MessageParcel reply;
+    MessageOption option;
+    error = SendRequest(AbilityManagerInterfaceCode::PRELOAD_UIEXTENSION_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "PreloadUIExtensionAbility, Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2157,8 +2184,8 @@ int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const s
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
-    const std::string &bundleName, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
+int AbilityManagerProxy::ContinueMission(AAFwk::ContinueMissionInfo continueMissionInfo,
+    const sptr<IRemoteObject> &callback)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -2166,27 +2193,34 @@ int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const s
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
-    if (!data.WriteString(srcDeviceId)) {
+    if (!data.WriteString(continueMissionInfo.srcDeviceId)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "srcDeviceId write failed.");
         return INNER_ERR;
     }
-    if (!data.WriteString(dstDeviceId)) {
+    if (!data.WriteString(continueMissionInfo.dstDeviceId)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "dstDeviceId write failed.");
         return INNER_ERR;
     }
-    if (!data.WriteString(bundleName)) {
+    if (!data.WriteString(continueMissionInfo.bundleName)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "missionId write failed.");
         return INNER_ERR;
     }
-    if (!data.WriteRemoteObject(callBack)) {
+    if (!data.WriteRemoteObject(callback)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "callBack write failed.");
         return INNER_ERR;
     }
-    if (!data.WriteParcelable(&wantParams)) {
+    if (!data.WriteParcelable(&continueMissionInfo.wantParams)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "wantParams write failed.");
         return INNER_ERR;
     }
-
+    if (!data.WriteString(continueMissionInfo.srcBundleName)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "srcBundleName write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteString(continueMissionInfo.continueType)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "continueType write failed.");
+        return INNER_ERR;
+    }
     auto error = SendRequest(AbilityManagerInterfaceCode::CONTINUE_MISSION_OF_BUNDLENAME, data, reply, option);
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
@@ -2228,7 +2262,7 @@ int AbilityManagerProxy::StartContinuation(const Want &want, const sptr<IRemoteO
 {
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option;
+    MessageOption option = {MessageOption::TF_ASYNC};
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
@@ -2245,7 +2279,9 @@ int AbilityManagerProxy::StartContinuation(const Want &want, const sptr<IRemoteO
         return INNER_ERR;
     }
 
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "SendRequest StartContinuation begin");
     auto error = SendRequest(AbilityManagerInterfaceCode::START_CONTINUATION, data, reply, option);
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "SendRequest StartContinuation end");
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
@@ -3043,6 +3079,80 @@ int AbilityManagerProxy::SendDialogResult(const Want &want, const std::string di
     }
     return reply.ReadInt32();
 }
+
+int32_t AbilityManagerProxy::RegisterAbilityFirstFrameStateObserver(
+    const sptr<IAbilityFirstFrameStateObserver> &observer, const std::string &targetBundleName)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
+        return INNER_ERR;
+    }
+
+    if (observer == nullptr || !data.WriteRemoteObject(observer->AsObject())) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Observer is null or Write Remote failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteString(targetBundleName)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write target bundleName failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AbilityManagerInterfaceCode::REGISTER_ABILITY_FIRST_FRAME_STATE_OBSERVER,
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AbilityManagerProxy::UnregisterAbilityFirstFrameStateObserver(
+    const sptr<IAbilityFirstFrameStateObserver> &observer)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
+        return INNER_ERR;
+    }
+    if (observer == nullptr || !data.WriteRemoteObject(observer->AsObject())) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Observer is null or Write Remote failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret =
+        SendRequest(AbilityManagerInterfaceCode::UNREGISTER_ABILITY_FIRST_FRAME_STATE_OBSERVER, data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
+void AbilityManagerProxy::CompleteFirstFrameDrawing(int32_t sessionId)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "CompleteFirstFrameDrawing, write interface token failed.");
+        return;
+    }
+    if (!data.WriteInt32(sessionId)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "CompleteFirstFrameDrawing,  sessionId write failed.");
+        return;
+    }
+    MessageOption option;
+    MessageParcel reply;
+    auto error = SendRequest(AbilityManagerInterfaceCode::COMPLETE_FIRST_FRAME_DRAWING_BY_SCB, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "CompleteFirstFrameDrawing, send request error: %{public}d", error);
+    }
+}
 #endif
 
 int AbilityManagerProxy::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info)
@@ -3809,7 +3919,7 @@ int32_t AbilityManagerProxy::IsValidMissionIds(
     }
 
     constexpr int32_t MAX_COUNT = 20;
-    int32_t num = missionIds.size() > MAX_COUNT ? MAX_COUNT : missionIds.size();
+    int32_t num = static_cast<int32_t>(missionIds.size() > MAX_COUNT ? MAX_COUNT : missionIds.size());
     data.WriteInt32(num);
     for (auto i = 0; i < num; ++i) {
         data.WriteInt32(missionIds.at(i));
@@ -4818,7 +4928,7 @@ int32_t AbilityManagerProxy::UpdateSessionInfoBySCB(std::list<SessionInfo> &sess
     }
     size = reply.ReadInt32();
     if (size > threshold) {
-        HILOG_ERROR("Size of vector too large.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Size of vector too large.");
         return ERR_NATIVE_IPC_PARCEL_FAILED;
     }
     sessionIds.clear();
@@ -5031,6 +5141,52 @@ bool AbilityManagerProxy::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken,
         return false;
     }
     return reply.ReadBool();
+}
+
+int32_t AbilityManagerProxy::StartShortcut(const Want &want, const StartOptions &startOptions)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&startOptions)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "startOptions write failed.");
+        return INNER_ERR;
+    }
+
+    auto error = SendRequest(AbilityManagerInterfaceCode::START_SHORTCUT, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AbilityManagerProxy::GetAbilityStateByPersistentId(int32_t persistentId, bool &state)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return IPC_PROXY_ERR;
+    }
+    if (!data.WriteInt32(persistentId)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
+        return IPC_PROXY_ERR;
+    }
+    auto error = SendRequest(AbilityManagerInterfaceCode::GET_ABILITY_STATE_BY_PERSISTENT_ID, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        return error;
+    }
+    state = reply.ReadBool();
+    return NO_ERROR;
 }
 } // namespace AAFwk
 } // namespace OHOS

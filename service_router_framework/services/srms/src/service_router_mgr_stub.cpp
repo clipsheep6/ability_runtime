@@ -19,7 +19,6 @@
 
 #include "accesstoken_kit.h"
 #include "appexecfwk_errors.h"
-#include "app_log_wrapper.h"
 #include "bundle_constants.h"
 #include "hilog_tag_wrapper.h"
 #include "ipc_skeleton.h"

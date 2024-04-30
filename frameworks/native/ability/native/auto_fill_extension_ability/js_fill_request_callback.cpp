@@ -19,11 +19,15 @@
 #include "accesstoken_kit.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "int_wrapper.h"
+#include "ipc_skeleton.h"
+#include "js_auto_fill_extension_util.h"
 #include "js_error_utils.h"
 #include "js_runtime_utils.h"
 #include "napi_common_util.h"
 #include "native_engine.h"
 #include "native_value.h"
+#include "tokenid_kit.h"
 #include "ui_content.h"
 #include "view_data.h"
 #include "want.h"
@@ -37,6 +41,11 @@ constexpr size_t ARGC_ONE = 1;
 constexpr const char *WANT_PARAMS_VIEW_DATA = "ohos.ability.params.viewData";
 constexpr const char *WANT_PARAMS_AUTO_FILL_CMD = "ohos.ability.params.autoFillCmd";
 constexpr const char *WANT_PARAMS_AUTO_FILL_CMD_AUTOFILL = "autofill";
+constexpr const char *WANT_PARAMS_UPDATE_POPUP_WIDTH = "ohos.ability.params.popupWidth";
+constexpr const char *WANT_PARAMS_UPDATE_POPUP_HEIGHT = "ohos.ability.params.popupHeight";
+constexpr const char *WANT_PARAMS_UPDATE_POPUP_PLACEMENT = "ohos.ability.params.popupPlacement";
+constexpr const char *CONFIG_POPUP_SIZE = "popupSize";
+constexpr const char *CONFIG_POPUP_PLACEMENT = "placement";
 } // namespace
 
 JsFillRequestCallback::JsFillRequestCallback(
@@ -63,6 +72,11 @@ napi_value JsFillRequestCallback::FillRequestFailed(napi_env env, napi_callback_
 napi_value JsFillRequestCallback::FillRequestCanceled(napi_env env, napi_callback_info info)
 {
     GET_NAPI_INFO_AND_CALL(env, info, JsFillRequestCallback, OnFillRequestCanceled);
+}
+
+napi_value JsFillRequestCallback::FillRequestAutoFillPopupConfig(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsFillRequestCallback, OnFillRequestAutoFillPopupConfig);
 }
 
 napi_value JsFillRequestCallback::OnFillRequestSuccess(napi_env env, NapiCallbackInfo &info)
@@ -101,6 +115,64 @@ napi_value JsFillRequestCallback::OnFillRequestCanceled(napi_env env, NapiCallba
     TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_CANCEL, "");
     return CreateJsUndefined(env);
+}
+
+napi_value JsFillRequestCallback::OnFillRequestAutoFillPopupConfig(napi_env env, NapiCallbackInfo &info)
+{
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    auto selfToken = IPCSkeleton::GetSelfTokenID();
+    if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "This application is not system-app, can not use system-api");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
+        return CreateJsUndefined(env);
+    }
+    if (uiWindow_ == nullptr) {
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "UIWindow is nullptr.");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+        return CreateJsUndefined(env);
+    }
+
+    if (info.argc < ARGC_ONE || !IsTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_object)) {
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to parse resize data!");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+    AAFwk::WantParams wantParams;
+    wantParams.SetParam(WANT_PARAMS_AUTO_FILL_CMD, AAFwk::Integer::Box(AutoFillCommand::RESIZE));
+    auto isValueChanged = SetPopupConfigToWantParams(env, info, wantParams);
+    if (isValueChanged) {
+        auto ret = uiWindow_->TransferExtensionData(wantParams);
+        if (ret != Rosen::WMError::WM_OK) {
+            TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Transfer ability result failed.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+        }
+    }
+    return CreateJsUndefined(env);
+}
+
+bool JsFillRequestCallback::SetPopupConfigToWantParams(
+    napi_env env, NapiCallbackInfo& info, AAFwk::WantParams& wantParams)
+{
+    napi_value jsValue = nullptr;
+    bool isValueChanged = false;
+    jsValue = GetPropertyValueByPropertyName(env, info.argv[INDEX_ZERO], CONFIG_POPUP_SIZE, napi_object);
+    if (jsValue) {
+        PopupSize popupSize;
+        JsAutoFillExtensionUtil::UnwrapPopupSize(env, jsValue, popupSize);
+        wantParams.SetParam(WANT_PARAMS_UPDATE_POPUP_WIDTH, AAFwk::Integer::Box(popupSize.width));
+        wantParams.SetParam(WANT_PARAMS_UPDATE_POPUP_HEIGHT, AAFwk::Integer::Box(popupSize.height));
+        isValueChanged = true;
+    }
+
+    jsValue = nullptr;
+    jsValue = GetPropertyValueByPropertyName(env, info.argv[INDEX_ZERO], CONFIG_POPUP_PLACEMENT, napi_number);
+    if (jsValue) {
+        int popupPlacement = 0;
+        napi_get_value_int32(env, jsValue, &popupPlacement);
+        wantParams.SetParam(WANT_PARAMS_UPDATE_POPUP_PLACEMENT, AAFwk::Integer::Box(popupPlacement));
+        isValueChanged = true;
+    }
+    return isValueChanged;
 }
 
 void JsFillRequestCallback::SendResultCodeAndViewData(
@@ -149,6 +221,7 @@ napi_value JsFillRequestCallback::CreateJsFillRequestCallback(napi_env env,
     BindNativeFunction(env, object, "onSuccess", moduleName, FillRequestSuccess);
     BindNativeFunction(env, object, "onFailure", moduleName, FillRequestFailed);
     BindNativeFunction(env, object, "onCancel", moduleName, FillRequestCanceled);
+    BindNativeFunction(env, object, "setAutoFillPopupConfig", moduleName, FillRequestAutoFillPopupConfig);
     return object;
 }
 } // namespace AbilityRuntime

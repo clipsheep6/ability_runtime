@@ -33,6 +33,7 @@ public:
     virtual ~JsUIExtensionContext() = default;
     static void Finalizer(napi_env env, void* data, void* hint);
     static napi_value StartAbility(napi_env env, napi_callback_info info);
+    static napi_value OpenLink(napi_env env, napi_callback_info info);
     static napi_value TerminateSelf(napi_env env, napi_callback_info info);
     static napi_value TerminateSelfWithResult(napi_env env, napi_callback_info info);
     static napi_value CreateJsUIExtensionContext(napi_env env, std::shared_ptr<UIExtensionContext> context);
@@ -65,6 +66,9 @@ private:
         const AAFwk::StartOptions &options, size_t unwrapArgc);
     void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback, napi_value* result,
         bool isAbilityResult = false);
+    bool CreateOpenLinkTask(const napi_env &env, const napi_value &lastParam,
+        AAFwk::Want &want, int &requestCode);
+    napi_value OnOpenLink(napi_env env, NapiCallbackInfo& info);
 };
 
 class JSUIExtensionConnection : public AbilityConnectCallback {

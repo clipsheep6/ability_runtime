@@ -17,7 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_APPSPAWN_UTIL_H
 
 #include "ability_info.h"
-#include "app_spawn_msg_wrapper.h"
+#include "app_spawn_client.h"
 #include "want.h"
 
 namespace OHOS {
@@ -29,30 +29,30 @@ static uint32_t BuildStartFlags(const AAFwk::Want &want, const ApplicationInfo &
 {
     uint32_t startFlags = 0x0;
     if (want.GetBoolParam("coldStart", false)) {
-        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::COLD_START);
+        startFlags = startFlags | (START_FLAG_BASE << StartFlags::COLD_START);
     }
 
     if (want.GetIntParam(DLP_PARAMS_INDEX, 0) != 0) {
-        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::DLP_MANAGER);
+        startFlags = startFlags | (START_FLAG_BASE << StartFlags::DLP_MANAGER);
     }
 
     if (applicationInfo.debug) {
-        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::DEBUGGABLE);
+        startFlags = startFlags | (START_FLAG_BASE << StartFlags::DEBUGGABLE);
     }
     if (applicationInfo.asanEnabled) {
-        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::ASANENABLED);
+        startFlags = startFlags | (START_FLAG_BASE << StartFlags::ASANENABLED);
     }
     if (want.GetBoolParam("nativeDebug", false)) {
-        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::NATIVEDEBUG);
+        startFlags = startFlags | (START_FLAG_BASE << StartFlags::NATIVEDEBUG);
     }
     if (applicationInfo.gwpAsanEnabled) {
-        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::GWP_ENABLED_FORCE);
+        startFlags = startFlags | (START_FLAG_BASE << StartFlags::GWP_ENABLED_FORCE);
     }
     if (applicationInfo.isSystemApp) {
-        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::GWP_ENABLED_NORMAL);
+        startFlags = startFlags | (START_FLAG_BASE << StartFlags::GWP_ENABLED_NORMAL);
     }
     if (applicationInfo.tsanEnabled) {
-        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::TSANENABLED);
+        startFlags = startFlags | (START_FLAG_BASE << StartFlags::TSANENABLED);
     }
 
     return startFlags;
@@ -63,7 +63,7 @@ static uint32_t BuildStartFlags(const AAFwk::Want &want, const AbilityInfo &abil
     uint32_t startFlags = BuildStartFlags(want, abilityInfo.applicationInfo);
 
     if (abilityInfo.extensionAbilityType == ExtensionAbilityType::BACKUP) {
-        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::BACKUP_EXTENSION);
+        startFlags = startFlags | (START_FLAG_BASE << StartFlags::BACKUP_EXTENSION);
     }
 
     return startFlags;

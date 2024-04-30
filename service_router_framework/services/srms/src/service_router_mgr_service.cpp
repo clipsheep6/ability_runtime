@@ -19,7 +19,6 @@
 #include <string>
 
 #include "ability_manager_client.h"
-#include "app_log_wrapper.h"
 #include "appexecfwk_errors.h"
 #include "bundle_constants.h"
 #include "common_event_manager.h"

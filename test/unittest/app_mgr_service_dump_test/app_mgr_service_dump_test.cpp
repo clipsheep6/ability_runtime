@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,7 @@
 #include "hilog_wrapper.h"
 #include "mock_native_token.h"
 #include "mock_sa_call.h"
+#include "app_mgr_service_dump_error_code.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -193,7 +194,7 @@ HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_0400, TestSize.Level1)
     auto arg = Str8ToStr16("-i");
     args.emplace_back(arg);
     auto result = appMgrService->Dump(fd, args);
-    EXPECT_EQ(result, ERR_OK);
+    EXPECT_EQ(result, DumpErrorCode::ERR_UNKNOWN_OPTION_ERROR);
 
     TAG_LOGI(AAFwkTag::TEST, "AppMgrServiceDump_0400 end");
 }

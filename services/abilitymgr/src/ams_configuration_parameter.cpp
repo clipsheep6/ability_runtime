@@ -14,6 +14,7 @@
  */
 
 #include "ams_configuration_parameter.h"
+#include <unistd.h>
 #include "app_utils.h"
 #include "config_policy_utils.h"
 #include "hilog_tag_wrapper.h"
@@ -87,11 +88,6 @@ int AmsConfigurationParameter::GetRestartIntervalTime() const
     return restartIntervalTime_;
 }
 
-std::string AmsConfigurationParameter::GetDeviceType() const
-{
-    return deviceType_;
-}
-
 int AmsConfigurationParameter::GetBootAnimationTimeoutTime() const
 {
     return bootAnimationTime_;
@@ -122,6 +118,15 @@ const std::map<std::string, std::string>& AmsConfigurationParameter::GetPickerMa
 void AmsConfigurationParameter::LoadUIExtensionPickerConfig(const std::string &filePath)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s", __func__);
+    if (filePath.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "the file is not existed due to empty file path.");
+        return;
+    }
+
+    if (access(filePath.c_str(), F_OK) != 0) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "can not access the file: %{private}s.", filePath.c_str());
+        return;
+    }
     std::ifstream inFile;
     inFile.open(filePath, std::ios::in);
     if (!inFile.is_open()) {
@@ -176,6 +181,15 @@ int AmsConfigurationParameter::LoadAmsConfiguration(const std::string &filePath)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s", __func__);
     int ret[2] = {0};
+    if (filePath.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "the file is not existed due to empty file path.");
+        return READ_FAIL;
+    }
+
+    if (access(filePath.c_str(), F_OK) != 0) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "can not access the file: %{private}s.", filePath.c_str());
+        return READ_FAIL;
+    }
     std::ifstream inFile;
     inFile.open(filePath, std::ios::in);
     if (!inFile.is_open()) {
@@ -230,7 +244,6 @@ int AmsConfigurationParameter::LoadAppConfigurationForStartUpService(nlohmann::j
     UpdateStartUpServiceConfigInteger(Object, AmsConfig::ROOT_LAUNCHER_RESTART_MAX, maxRootLauncherRestartNum_);
     UpdateStartUpServiceConfigInteger(Object, AmsConfig::RESIDENT_RESTART_MAX, maxResidentRestartNum_);
     UpdateStartUpServiceConfigInteger(Object, AmsConfig::RESTART_INTERVAL_TIME, restartIntervalTime_);
-    UpdateStartUpServiceConfigString(Object, AmsConfig::DEVICE_TYPE, deviceType_);
     UpdateStartUpServiceConfigInteger(Object, AmsConfig::BOOT_ANIMATION_TIMEOUT_TIME, bootAnimationTime_);
     UpdateStartUpServiceConfigInteger(Object, AmsConfig::TIMEOUT_UNIT_TIME, timeoutUnitTime_);
     UpdateStartUpServiceConfigInteger(Object, AmsConfig::MULTI_USER_TYPE, multiUserType_);

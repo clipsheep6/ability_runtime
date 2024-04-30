@@ -23,15 +23,13 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-void StartDebuggerInWorkerModule();
-void SetDebuggerApp(bool isDebugApp);
+void StartDebuggerInWorkerModule(bool isDebugApp, bool isNativeStart);
 void InitWorkerFunc(NativeEngine* nativeEngine);
 void OffWorkerFunc(NativeEngine* nativeEngine);
 int32_t GetContainerId();
 void UpdateContainerScope(int32_t id);
 void RestoreContainerScope(int32_t id);
 void SetJsFramework();
-void SetNativeStart(bool isNativeStart);
 
 class AssetHelper final {
 public:
@@ -44,16 +42,16 @@ public:
 
     virtual ~AssetHelper();
 
-    void operator()(const std::string& uri, uint8_t** buff, size_t* buffSize, std::string& ami,
-        bool& useSecureMem, bool isRestricted = false);
+    void operator()(const std::string& uri, uint8_t** buff, size_t* buffSize, std::vector<uint8_t>& content,
+        std::string& ami, bool& useSecureMem, bool isRestricted = false);
 
 private:
     std::string NormalizedFileName(const std::string& fileName) const;
 
-    bool ReadAmiData(const std::string& ami, uint8_t** buff, size_t* buffSize,
+    bool ReadAmiData(const std::string& ami, uint8_t** buff, size_t* buffSize, std::vector<uint8_t>& content,
         bool& useSecureMem, bool isRestricted);
 
-    bool ReadFilePathData(const std::string& filePath, uint8_t** buff, size_t* buffSize,
+    bool ReadFilePathData(const std::string& filePath, uint8_t** buff, size_t* buffSize, std::vector<uint8_t>& content,
         bool& useSecureMem, bool isRestricted);
 
     void GetAmi(std::string& ami, const std::string& filePath);

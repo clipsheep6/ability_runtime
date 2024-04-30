@@ -15,6 +15,7 @@
 #include "uncaught_exception_callback.h"
 
 #include <string>
+#include <sstream>
 
 #include "js_env_logger.h"
 #include "native_engine/native_engine.h"
@@ -24,6 +25,7 @@
 namespace OHOS {
 namespace JsEnv {
 constexpr int32_t INDEX_EIGHT = 8;
+constexpr char BACKTRACE[] = "=====================Backtrace========================";
 
 std::string NapiUncaughtExceptionCallback::GetNativeStrFromJsTaggedObj(napi_value obj, const char* key)
 {
@@ -85,7 +87,11 @@ void NapiUncaughtExceptionCallback::operator()(napi_value obj)
             error = reinterpret_cast<NativeEngine*>(env_)->GetSourceCodeInfo(fuc, errorPos);
         }
     }
-    summary += error + "Stacktrace:\n" + errorStack;
+    if (errorStack.find(BACKTRACE) != std::string::npos) {
+        summary += error + "Stacktrace:\n" + GetBuildId(errorStack);
+    } else {
+        summary += error + "Stacktrace:\n" + errorStack;
+    }
     std::string str = Ace::UIContent::GetCurrentUIStackInfo();
     if (!str.empty()) {
         summary.append(str);
@@ -95,14 +101,26 @@ void NapiUncaughtExceptionCallback::operator()(napi_value obj)
     }
 }
 
-std::string NapiUncaughtExceptionCallback::GetNativeStack()
+std::string NapiUncaughtExceptionCallback::GetBuildId(std::string nativeStack)
 {
-    auto unwinder = std::make_shared<HiviewDFX::Unwinder>();
-    if (!unwinder->UnwindLocal(false, DEFAULT_MAX_FRAME_NUM, INDEX_EIGHT)) {
-        JSENV_LOG_E("Feiled to unwind locak");
+    std::stringstream ss(nativeStack);
+    std::string tempStr;
+    std::string addBuildId;
+    int i = 0;
+    while (std::getline(ss, tempStr)) {
+        auto spitlPos = tempStr.rfind(" ");
+        if (spitlPos != std::string::npos) {
+            auto elfFile = std::make_shared<HiviewDFX::DfxElf>(tempStr.substr(spitlPos + 1));
+            std::string buildId = elfFile->GetBuildId();
+            if (i != 0 && !buildId.empty()) {
+                addBuildId += tempStr + "(" + buildId + ")" + "\n";
+            } else {
+                addBuildId += tempStr + "\n";
+            }
+        }
+        i++;
     }
-    auto frames = unwinder->GetFrames();
-    return HiviewDFX::Unwinder::GetFramesStr(frames);
+    return addBuildId;
 }
 } // namespace JsEnv
 } // namespace OHOS

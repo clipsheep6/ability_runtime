@@ -597,6 +597,24 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_032, TestSize.Level1)
     EXPECT_NE(res, NO_ERROR);
 }
 
+/**
+ * @tc.name: AbilityManagerProxy_033
+ * @tc.desc: test StartContinuation send async request succeeded
+ * @tc.type: FUNC
+ * @tc.require: AR000GI8IL
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_033, TestSize.Level0)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    Want want;
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    int res = proxy_->StartContinuation(want, abilityToken, 0);
+    EXPECT_EQ(res, NO_ERROR);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::START_CONTINUATION), mock_->code_);
+}
+
 /*
  * Feature: AbilityManagerService
  * Function: AcquireDataAbility
@@ -1266,7 +1284,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ContinueMission_001, TestS
     std::string srcDeviceId = "";
     std::string dstDeviceId = "";
     int32_t missionId = 1;
-    const sptr<IRemoteObject>& callBack = nullptr;
+    const sptr<IRemoteObject> callBack = nullptr;
     AAFwk::WantParams wantParams;
     auto res = proxy_->ContinueMission(srcDeviceId, dstDeviceId, missionId, callBack, wantParams);
     EXPECT_EQ(res, INNER_ERR);
@@ -1284,9 +1302,14 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ContinueMissionBundleName_
 {
     std::string srcDeviceId = "";
     std::string dstDeviceId = "";
-    const sptr<IRemoteObject>& callBack = nullptr;
+    const sptr<IRemoteObject> callback = nullptr;
     AAFwk::WantParams wantParams;
-    auto res = proxy_->ContinueMission(srcDeviceId, dstDeviceId, "bundleName", callBack, wantParams);
+    ContinueMissionInfo continueMissionInfo;
+    continueMissionInfo.dstDeviceId = dstDeviceId;
+    continueMissionInfo.srcDeviceId = srcDeviceId;
+    continueMissionInfo.bundleName = "bundleName";
+    continueMissionInfo.wantParams = wantParams;
+    auto res = proxy_->ContinueMission(continueMissionInfo, callback);
     EXPECT_EQ(res, INNER_ERR);
 }
 

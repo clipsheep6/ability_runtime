@@ -238,6 +238,9 @@ enum class AbilityManagerInterfaceCode {
     // Querying whether to allow embedded startup of atomic service.
     IS_EMBEDDED_OPEN_ALLOWED = 78,
 
+    // Starts a new ability by shortcut.
+    START_SHORTCUT = 79,
+
     // ipc id 1001-2000 for DMS
     // ipc id for starting ability (1001)
     START_ABILITY = 1001,
@@ -388,6 +391,9 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for start ability for result as caller
     START_ABILITY_FOR_RESULT_AS_CALLER_FOR_OPTIONS = 1061,
 
+    // ipc id for preload UIExtension ability by want
+    PRELOAD_UIEXTENSION_ABILITY = 1062,
+
     // ipc id for continue ability(1101)
     START_CONTINUATION = 1101,
 
@@ -426,6 +432,10 @@ enum class AbilityManagerInterfaceCode {
     GET_TOP_ABILITY_TOKEN         = 1124,
     // ipc id for starting ability with specify token id(1125)
     START_ABILITY_WITH_SPECIFY_TOKENID = 1125,
+    REGISTER_ABILITY_FIRST_FRAME_STATE_OBSERVER = 1126,
+    UNREGISTER_ABILITY_FIRST_FRAME_STATE_OBSERVER = 1127,
+    // ipc for get ability state by persistent id
+    GET_ABILITY_STATE_BY_PERSISTENT_ID = 1128,
 
     // ipc id 2001-3000 for tools
     // ipc id for dumping state (2001)
@@ -439,6 +449,7 @@ enum class AbilityManagerInterfaceCode {
     UNREGISTER_CONNECTION_OBSERVER = 2503,
     GET_DLP_CONNECTION_INFOS = 2504,
     GET_CONNECTION_DATA = 2505,
+    COMPLETE_FIRST_FRAME_DRAWING_BY_SCB = 2506,
 
     GET_TOP_ABILITY = 3000,
     FREE_INSTALL_ABILITY_FROM_REMOTE = 3001,

@@ -41,7 +41,7 @@
 #include "priority_object.h"
 #include "app_lifecycle_deal.h"
 #include "module_running_record.h"
-#include "app_spawn_msg_wrapper.h"
+#include "app_spawn_client.h"
 #include "app_malloc_info.h"
 #include "window_visibility_changed_listener.h"
 #include "app_jsheap_mem_info.h"
@@ -712,6 +712,12 @@ public:
     std::shared_ptr<ChildProcessRecord> GetChildProcessRecordByPid(const pid_t pid);
     std::map<pid_t, std::shared_ptr<ChildProcessRecord>> GetChildProcessRecordMap();
 
+    void SetPreloadState(PreloadState state);
+
+    bool IsPreloading() const;
+
+    bool IsPreloaded() const;
+
     /**
      * @brief Obtains the app record assign tokenId.
      *
@@ -746,6 +752,13 @@ public:
     
     void SetJITEnabled(const bool jitEnabled);
     bool IsJITEnabled() const;
+
+    int DumpIpcStart(std::string& result);
+    int DumpIpcStop(std::string& result);
+    int DumpIpcStat(std::string& result);
+
+    bool SetSupportedProcessCache(bool isSupport);
+    SupportProcessCacheState GetSupportProcessCacheState();
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -858,6 +871,7 @@ private:
     int64_t startTimeMillis_ = 0;   // The time of app start(CLOCK_MONOTONIC)
     int64_t restartTimeMillis_ = 0; // The time of last trying app restart
     bool jitEnabled_ = false;
+    PreloadState preloadState_ = PreloadState::NONE;
 
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
 
@@ -892,7 +906,9 @@ private:
     bool isRestartApp_ = false; // Only app calling RestartApp can be set to true
     bool isAssertPause_ = false;
     bool isNativeStart_ = false;
+    SupportProcessCacheState procCacheSupportState_ = SupportProcessCacheState::UNSPECIFIED;
 };
+
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_APP_RUNNING_RECORD_H

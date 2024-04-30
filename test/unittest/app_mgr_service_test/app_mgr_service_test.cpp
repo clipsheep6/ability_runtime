@@ -19,6 +19,7 @@
 #include "app_mgr_service.h"
 #include "app_utils.h"
 #undef private
+#include "ability_manager_errors.h"
 #include "child_main_thread.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
@@ -890,6 +891,42 @@ HWTEST_F(AppMgrServiceTest, UpdateConfiguration_002, TestSize.Level0)
 
 /*
  * Feature: AppMgrService
+ * Function: UpdateConfigurationByBundleName
+ * SubFunction: NA
+ * FunctionPoints: AppMgrService UpdateConfigurationByBundleName
+ * EnvConditions: NA
+ * CaseDescription: Verify UpdateConfigurationByBundleName
+ */
+HWTEST_F(AppMgrServiceTest, UpdateConfigurationByBundleName_001, TestSize.Level0)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    Configuration config;
+    appMgrService->SetInnerService(nullptr);
+    int32_t res = appMgrService->UpdateConfigurationByBundleName(config, "");
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+}
+
+/*
+ * Feature: AppMgrService
+ * Function: UpdateConfigurationByBundleName
+ * SubFunction: NA
+ * FunctionPoints: AppMgrService UpdateConfigurationByBundleName
+ * EnvConditions: NA
+ * CaseDescription: Verify UpdateConfigurationByBundleName
+ */
+HWTEST_F(AppMgrServiceTest, UpdateConfigurationByBundleName_002, TestSize.Level0)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    Configuration config;
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
+    int32_t res = appMgrService->UpdateConfigurationByBundleName(config, "");
+    EXPECT_NE(res, ERR_INVALID_OPERATION);
+}
+
+/*
+ * Feature: AppMgrService
  * Function: RegisterConfigurationObserver
  * SubFunction: NA
  * FunctionPoints: AppMgrService RegisterConfigurationObserver
@@ -1407,11 +1444,11 @@ HWTEST_F(AppMgrServiceTest, StartChildProcess_001, TestSize.Level1)
     appMgrService->taskHandler_ = taskHandler_;
     appMgrService->eventHandler_ = eventHandler_;
 
-    EXPECT_CALL(*mockAppMgrServiceInner_, StartChildProcess(_, _, _))
+    EXPECT_CALL(*mockAppMgrServiceInner_, StartChildProcess(_, _, _, _, _))
         .Times(1)
         .WillOnce(Return(ERR_OK));
     pid_t pid = 0;
-    int32_t res = appMgrService->StartChildProcess("./ets/AProcess.ts", pid);
+    int32_t res = appMgrService->StartChildProcess("./ets/AProcess.ts", pid, 1, false);
     EXPECT_EQ(res, ERR_OK);
 }
 
@@ -1547,6 +1584,72 @@ HWTEST_F(AppMgrServiceTest, UpdateRenderState_001, TestSize.Level1)
     int32_t state = 0;
     auto res = appMgrService->UpdateRenderState(renderPid, state);
     EXPECT_EQ(ERR_INVALID_OPERATION, res);
+}
+
+/**
+ * @tc.name: GetAllUIExtensionRootHostPid_0100
+ * @tc.desc: Get all ui extension root host pid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, GetAllUIExtensionRootHostPid_0100, TestSize.Level1)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
+    pid_t pid = 0;
+    std::vector<pid_t> hostPids;
+    EXPECT_EQ(appMgrService->GetAllUIExtensionRootHostPid(pid, hostPids), ERR_INVALID_OPERATION);
+
+    // app manager service isn't nullptr but app running manager is nullptr.
+    appMgrService->SetInnerService(mockAppMgrServiceInner_);
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = eventHandler_;
+    EXPECT_EQ(appMgrService->GetAllUIExtensionRootHostPid(pid, hostPids), ERR_OK);
+}
+
+/**
+ * @tc.name: GetAllUIExtensionProviderPid_0100
+ * @tc.desc: Get all ui extension provider pid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, GetAllUIExtensionProviderPid_0100, TestSize.Level1)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
+    pid_t hostPid = 0;
+    std::vector<pid_t> providerPids;
+    EXPECT_EQ(appMgrService->GetAllUIExtensionProviderPid(hostPid, providerPids), ERR_INVALID_OPERATION);
+
+    // app manager service isn't nullptr but app running manager is nullptr.
+    appMgrService->SetInnerService(mockAppMgrServiceInner_);
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = eventHandler_;
+    EXPECT_EQ(appMgrService->GetAllUIExtensionProviderPid(hostPid, providerPids), ERR_OK);
+}
+
+/**
+ * @tc.name: PreloadApplication_0100
+ * @tc.desc: Preload application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, PreloadApplication_0100, TestSize.Level1)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
+    appMgrService->SetInnerService(mockAppMgrServiceInner_);
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = eventHandler_;
+
+    std::string bundleName = "com.acts.preloadtest";
+    int32_t userId = 100;
+    PreloadMode preloadMode = PreloadMode::PRE_MAKE;
+    int32_t appIndex = 0;
+
+    EXPECT_CALL(*mockAppMgrServiceInner_, PreloadApplication(_, _, _, _))
+    .Times(1)
+    .WillOnce(Return(ERR_OK));
+
+    int32_t ret = appMgrService->PreloadApplication(bundleName, userId, preloadMode, appIndex);
+    EXPECT_EQ(ret, ERR_OK);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

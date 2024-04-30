@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,7 @@
 #include "exit_reason.h"
 #include "ffrt.h"
 #include "freeze_util.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "hisysevent.h"
@@ -93,7 +94,7 @@ int AppfreezeInner::AppfreezeHandle(const FaultData& faultData, bool onlyMainThr
     }
     auto reportFreeze = [faultData, onlyMainThread]() {
         if (faultData.errorObject.name == "") {
-            HILOG_ERROR("name is nullptr, AppfreezeHandle failed.");
+            TAG_LOGE(AAFwkTag::APPDFR, "name is nullptr, AppfreezeHandle failed.");
             return;
         }
         AppExecFwk::AppfreezeInner::GetInstance()->AcquireStack(faultData, onlyMainThread);
@@ -124,11 +125,13 @@ void AppfreezeInner::SendProcessKillEvent(const std::string& killReason)
     auto applicationInfo = applicationInfo_.lock();
     if (applicationInfo != nullptr) {
         int32_t pid = static_cast<int32_t>(getpid());
+        std::string processName = applicationInfo->process;
         int result = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "PROCESS_KILL",
             HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_PID, pid,
             EVENT_PROCESS_NAME, applicationInfo->process, EVENT_MESSAGE, killReason);
-        HILOG_INFO("hisysevent write result=%{public}d, send event [FRAMEWORK,PROCESS_KILL], msg=%{public}s",
-            result, killReason.c_str());
+        TAG_LOGI(AAFwkTag::APPDFR, "hisysevent write result=%{public}d, send event [FRAMEWORK,PROCESS_KILL],"
+            " pid=%{public}d, processName=%{public}s, msg=%{public}s", result, pid, processName.c_str(),
+            killReason.c_str());
     }
 }
 
@@ -213,21 +216,17 @@ int AppfreezeInner::NotifyANR(const FaultData& faultData)
         faultData.errorObject.name.c_str());
     auto applicationInfo = applicationInfo_.lock();
     if (applicationInfo == nullptr) {
-        HILOG_ERROR("reportEvent fail, applicationInfo_ is nullptr.");
+        TAG_LOGE(AAFwkTag::APPDFR, "NotifyANR fail, applicationInfo_ is nullptr.");
         return -1;
     }
 
     int32_t pid = static_cast<int32_t>(getpid());
-    HILOG_INFO("reportEvent:%{public}s, pid:%{public}d, bundleName:%{public}s. success",
+    TAG_LOGI(AAFwkTag::APPDFR, "Start NotifyAppFault:%{public}s, pid:%{public}d, bundleName:%{public}s.",
         faultData.errorObject.name.c_str(), pid, applicationInfo->bundleName.c_str());
 
     int ret = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFault(faultData);
     if (ret != 0) {
-        HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, faultData.errorObject.name,
-            OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_UID, applicationInfo->uid,
-            EVENT_PID, pid, EVENT_PACKAGE_NAME, applicationInfo->bundleName,
-            EVENT_PROCESS_NAME, applicationInfo->process, EVENT_MESSAGE,
-            faultData.errorObject.message, EVENT_STACK, faultData.errorObject.stack);
+        TAG_LOGW(AAFwkTag::APPDFR, "NotifyAppFault ret :%{public}d", ret);
     }
     return ret;
 }

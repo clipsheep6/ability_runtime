@@ -30,6 +30,8 @@ enum class ApplicationState {
     APP_STATE_BACKGROUND,
     APP_STATE_TERMINATED,
     APP_STATE_END,
+    APP_STATE_SET_COLD_START = 99,
+    APP_STATE_CACHED = 100,
 };
 
 enum class ApplicationPendingState {
@@ -82,6 +84,23 @@ enum class AppStartType {
     COLD = 0,
     HOT,
     MULTI_INSTANCE,
+};
+
+enum class PreloadMode {
+    PRESS_DOWN = 0,
+    PRE_MAKE = 1,
+};
+
+enum class PreloadState {
+    NONE = 0,
+    PRELOADING = 1,
+    PRELOADED = 2,
+};
+
+enum class SupportProcessCacheState {
+    UNSPECIFIED = 0,
+    SUPPORT,
+    NOT_SUPPORT
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

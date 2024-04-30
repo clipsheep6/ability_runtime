@@ -233,6 +233,7 @@ struct AbilityRequest {
     AppExecFwk::ExtensionProcessMode extensionProcessMode = AppExecFwk::ExtensionProcessMode::UNDEFINED;
 
     sptr<SessionInfo> sessionInfo;
+    uint32_t specifyTokenId = 0;
 
     bool IsContinuation() const
     {
@@ -524,6 +525,8 @@ public:
 
     void SetCompleteFirstFrameDrawing(const bool flag);
     bool IsCompleteFirstFrameDrawing() const;
+    bool GetColdStartFlag();
+    void SetColdStartFlag(bool isColdStart);
 #endif
 
     /**
@@ -642,6 +645,12 @@ public:
      */
     Want GetWant() const;
 
+    /**
+     * remove specified wantParam for start ability.
+     *
+     */
+    void RemoveSpecifiedWantParam(const std::string &key);
+    
     /**
      * get request code of the ability to start.
      *
@@ -967,6 +976,11 @@ public:
 
     void SetRestartAppFlag(bool isRestartApp);
     bool GetRestartAppFlag() const;
+
+    void UpdateUIExtensionInfo(const WantParams &wantParams);
+
+    void SetSpecifyTokenId(const uint32_t specifyTokenId);
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 
@@ -1009,11 +1023,10 @@ private:
     bool GrantPermissionToShell(const std::vector<std::string> &uriVec, uint32_t flag, std::string targetPkg);
 
     void GrantUriPermissionInner(Want &want, std::vector<std::string> &uriVec, const std::string &targetBundleName,
-         uint32_t tokenId, uint32_t specifyTokenId = 0);
+         uint32_t tokenId);
     void GrantUriPermissionFor2In1Inner(
         Want &want, std::vector<std::string> &uriVec, const std::string &targetBundleName, uint32_t tokenId);
 
-    bool CheckUriPermission(Uri &uri, uint32_t callerTokenId, int32_t userId);
     LastExitReason CovertAppExitReasonToLastReason(const Reason exitReason);
 
     void NotifyMissionBindPid();
@@ -1149,6 +1162,7 @@ private:
     ffrt::mutex lock_;
     mutable ffrt::mutex dumpInfoLock_;
     mutable ffrt::mutex dumpLock_;
+    mutable ffrt::mutex resultLock_;
     mutable ffrt::mutex wantLock_;
     mutable ffrt::condition_variable dumpCondition_;
     mutable bool isDumpTimeout_ = false;
@@ -1169,6 +1183,7 @@ private:
     std::shared_ptr<Media::PixelMap> startingWindowBg_ = nullptr;
 
     bool isCompleteFirstFrameDrawing_ = false;
+    bool coldStart_ = false;
 #endif
 
     bool isGrantedUriPermission_ = false;
@@ -1185,6 +1200,7 @@ private:
     std::atomic_bool backgroundAbilityWindowDelayed_ = false;
 
     bool isRestartApp_ = false; // Only app calling RestartApp can be set to true
+    uint32_t specifyTokenId_ = 0;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -368,6 +368,7 @@ public:
 #endif
     virtual bool IsTerminating() = 0;
     virtual void SetTerminating(bool state) = 0;
+    virtual void InsertResultCallbackTask(int requestCode, RuntimeTask&& task) = 0;
     using SelfType = AbilityContext;
     static const size_t CONTEXT_TYPE_ID;
 

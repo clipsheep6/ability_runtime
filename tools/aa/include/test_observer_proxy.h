@@ -16,8 +16,8 @@
 #ifndef OHOS_ABILITY_RUNTIME_TEST_OBSERVER_PROXY_H
 #define OHOS_ABILITY_RUNTIME_TEST_OBSERVER_PROXY_H
 
-#include "itest_observer.h"
 #include "iremote_proxy.h"
+#include "itest_observer.h"
 
 namespace OHOS {
 namespace AAFwk {

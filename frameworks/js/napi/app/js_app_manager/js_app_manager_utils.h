@@ -19,6 +19,9 @@
 #include "application_state_observer_stub.h"
 #include "native_engine/native_engine.h"
 #include "running_process_info.h"
+#ifdef SUPPORT_GRAPHICS
+#include "ability_first_frame_state_data.h"
+#endif
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -26,6 +29,9 @@ using OHOS::AppExecFwk::AppStateData;
 using OHOS::AppExecFwk::AbilityStateData;
 using OHOS::AppExecFwk::ProcessData;
 using OHOS::AppExecFwk::RunningProcessInfo;
+#ifdef SUPPORT_GRAPHICS
+using OHOS::AppExecFwk::AbilityFirstFrameStateData;
+#endif
 enum JsAppProcessState {
     STATE_CREATE,
     STATE_FOREGROUND,
@@ -33,14 +39,28 @@ enum JsAppProcessState {
     STATE_BACKGROUND,
     STATE_DESTROY
 };
+struct PreloadApplicationParam {
+    std::string bundleName;
+    int32_t userId;
+    AppExecFwk::PreloadMode preloadMode;
+    int32_t appIndex;
+};
+
 napi_value CreateJsAppStateData(napi_env env, const AppStateData &appStateData);
 napi_value CreateJsAbilityStateData(napi_env env, const AbilityStateData &abilityStateData);
+#ifdef SUPPORT_GRAPHICS
+napi_value CreateJsAbilityFirstFrameStateData(napi_env env,
+    const AbilityFirstFrameStateData &abilityFirstFrameStateData);
+#endif
 napi_value CreateJsProcessData(napi_env env, const ProcessData &processData);
 napi_value CreateJsAppStateDataArray(napi_env env, const std::vector<AppStateData> &appStateDatas);
 napi_value CreateJsRunningProcessInfoArray(napi_env env, const std::vector<RunningProcessInfo> &infos);
 napi_value CreateJsRunningProcessInfo(napi_env env, const RunningProcessInfo &info);
 napi_value ApplicationStateInit(napi_env env);
 napi_value ProcessStateInit(napi_env env);
+napi_value PreloadModeInit(napi_env env);
+bool ConvertPreloadApplicationParam(napi_env env, size_t argc, napi_value *argv, PreloadApplicationParam &param,
+    std::string &errorMsg);
 JsAppProcessState ConvertToJsAppProcessState(
     const AppExecFwk::AppProcessState &appProcessState, const bool &isFocused);
 }  // namespace AbilityRuntime

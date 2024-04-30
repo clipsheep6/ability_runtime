@@ -27,11 +27,6 @@ ohos_shared_library("srms_fwk") {
     "src/service_router_mgr_proxy.cpp",
   ]
 
-  defines = [
-    "APP_LOG_TAG = \"ServiceRouterMgrService\"",
-    "LOG_DOMAIN = 0xD001120",
-  ]
-
   public_configs = [ ":srms_fwk_config" ]
 
   deps = [ "${ability_runtime_innerkits_path}/ability_manager:ability_manager" ]

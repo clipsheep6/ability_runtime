@@ -301,6 +301,11 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     RemoveWindowModeKey(want);
 }
 
+[[maybe_unused]] static void WantSetParameterWindowMode(Want &want, int32_t windowMode)
+{
+    want.SetParam(Want::PARAM_RESV_WINDOW_MODE, windowMode);
+}
+
 [[maybe_unused]] static void ProcessWindowMode(Want &want, uint32_t accessTokenId, int32_t windowMode)
 {
     if (PermissionVerification::GetInstance()->IsSystemAppCall()) {
@@ -311,7 +316,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
         windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY ||
         windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY)) {
         want.SetParam(Want::PARAM_RESV_WINDOW_MODE, windowMode);
-        HILOG_INFO("set parameter windownMode for inner application split-screen mode");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "set parameter windownMode for inner application split-screen mode");
     } else {
         RemoveWindowModeKey(want);
     }

@@ -462,7 +462,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_016, TestSize.Level1)
     TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_016 start");
     AppMgrClient* ret = new AppMgrClient();
     auto ans = ret->NotifyMemoryLevel(MemoryLevel::MEMORY_LEVEL_CRITICAL);
-    EXPECT_EQ(ans, 0);
+    EXPECT_EQ(ans, ERR_INVALID_VALUE);
     TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_016 end");
 }
 
@@ -477,7 +477,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_017, TestSize.Level1)
     TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_017 start");
     AppMgrClient* ret = new AppMgrClient();
     auto ans = ret->NotifyMemoryLevel(MemoryLevel::MEMORY_LEVEL_LOW);
-    EXPECT_EQ(ans, 0);
+    EXPECT_EQ(ans, ERR_INVALID_VALUE);
     TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_017 end");
 }
 
@@ -492,7 +492,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_018, TestSize.Level1)
     TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_018 start");
     AppMgrClient* ret = new AppMgrClient();
     auto ans = ret->NotifyMemoryLevel(MemoryLevel::MEMORY_LEVEL_MODERATE);
-    EXPECT_EQ(ans, 0);
+    EXPECT_EQ(ans, ERR_INVALID_VALUE);
     TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_018 end");
 }
 
@@ -507,7 +507,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_019, TestSize.Level1)
     TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_019 start");
     AppMgrClient* ret = new AppMgrClient();
     auto ans = ret->NotifyMemoryLevel(MemoryLevel::MEMORY_LEVEL_CRITICAL);
-    EXPECT_EQ(ans, 0);
+    EXPECT_EQ(ans, ERR_INVALID_VALUE);
     TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_019 end");
 }
 
@@ -522,7 +522,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_020, TestSize.Level1)
     TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_020 start");
     AppMgrClient* ret = new AppMgrClient();
     auto ans = ret->NotifyMemoryLevel(MemoryLevel::MEMORY_LEVEL_LOW);
-    EXPECT_EQ(ans, 0);
+    EXPECT_EQ(ans, ERR_INVALID_VALUE);
     TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_020 end");
 }
 
@@ -537,7 +537,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_021, TestSize.Level1)
     TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_021 start");
     AppMgrClient* ret = new AppMgrClient();
     auto ans = ret->NotifyMemoryLevel(MemoryLevel::MEMORY_LEVEL_MODERATE);
-    EXPECT_EQ(ans, 0);
+    EXPECT_EQ(ans, ERR_INVALID_VALUE);
     TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_021 end");
 }
 }  // namespace AppExecFwk

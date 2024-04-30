@@ -18,6 +18,7 @@
 
 #include <string>
 #include "native_engine/native_reference.h"
+#include "want.h"
 
 namespace OHOS {
 namespace Ace {
@@ -30,6 +31,8 @@ public:
     ~JsUIExtensionCallback();
     void OnError(int32_t number);
     void OnRelease(int32_t code);
+    void OnResult(int32_t resultCode, const AAFwk::Want &want);
+    void CallJsResult(int32_t resultCode, const AAFwk::Want &want);
     void SetJsCallbackObject(napi_value jsCallbackObject);
     void CallJsError(int32_t number);
     void SetSessionId(int32_t sessionId);

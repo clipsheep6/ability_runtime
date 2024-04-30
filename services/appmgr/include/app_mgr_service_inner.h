@@ -33,6 +33,7 @@
 #include "app_foreground_state_observer_interface.h"
 #include "app_malloc_info.h"
 #include "app_mgr_constants.h"
+#include "app_preloader.h"
 #include "app_process_manager.h"
 #include "app_record_id.h"
 #include "app_running_manager.h"
@@ -184,6 +185,18 @@ public:
      * @return
      */
     virtual void AttachApplication(const pid_t pid, const sptr<IAppScheduler> &appScheduler);
+
+    /**
+     * Preload application.
+     *
+     * @param bundleName The bundle name of the application to preload.
+     * @param userId Indicates the user identification.
+     * @param preloadMode Preload application mode.
+     * @param appIndex The index of application clone.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t PreloadApplication(const std::string &bundleName, int32_t userId,
+        AppExecFwk::PreloadMode preloadMode, int32_t appIndex);
 
     /**
      * ApplicationForegrounded, set the application to Foreground State.
@@ -567,6 +580,8 @@ public:
      */
     int32_t UpdateConfiguration(const Configuration &config);
 
+    int32_t UpdateConfigurationByBundleName(const Configuration &config, const std::string &name);
+
     std::shared_ptr<AppExecFwk::Configuration> GetConfiguration();
 
     int32_t RegisterConfigurationObserver(const sptr<IConfigurationObserver>& observer);
@@ -940,7 +955,8 @@ public:
      * @param childPid Created child process pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t StartChildProcess(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid);
+    virtual int32_t StartChildProcess(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid,
+        int32_t childProcessCount, bool isStartWithDebug);
 
     /**
      * Get child process record for self.
@@ -978,6 +994,19 @@ public:
      */
     void ClearProcessByToken(sptr<IRemoteObject> token);
 
+    /**
+     * @brief Notify memory size state changed to sufficient or insufficent.
+     * @param isMemorySizeSufficent Indicates the memory size state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent);
+
+    /**
+     * whether memory size is sufficent.
+     * @return Returns true is sufficent memory size, others return false.
+     */
+    bool IsMemorySizeSufficent();
+
     int32_t RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
 
     int32_t UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
@@ -989,6 +1018,26 @@ public:
     void SetAppAssertionPauseState(int32_t pid, bool flag);
 
     int32_t GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId);
+
+    int32_t GetAllUIExtensionRootHostPid(pid_t pid, std::vector<pid_t> &hostPids);
+
+    int32_t GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid_t> &providerPids);
+
+    virtual int DumpIpcAllStart(std::string& result);
+
+    virtual int DumpIpcAllStop(std::string& result);
+
+    virtual int DumpIpcAllStat(std::string& result);
+
+    virtual int DumpIpcStart(const int32_t pid, std::string& result);
+
+    virtual int DumpIpcStop(const int32_t pid, std::string& result);
+
+    virtual int DumpIpcStat(const int32_t pid, std::string& result);
+
+    int32_t SetSupportedProcessCacheSelf(bool isSupport);
+
+    void OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord);
 private:
 
     std::string FaultTypeToString(FaultDataType type);
@@ -1039,8 +1088,9 @@ private:
         const std::string& debugCmd, bool isSandboxApp) const;
 
     void StartProcessVerifyPermission(const BundleInfo &bundleInfo, bool &hasAccessBundleDirReq,
-        uint8_t &setAllowInternet, uint8_t &allowInternet, std::vector<int32_t> &gids,
-        std::set<std::string> &permissions);
+        uint8_t &setAllowInternet, uint8_t &allowInternet, std::vector<int32_t> &gids);
+
+    void AddMountPermission(uint32_t accessTokenId, std::set<std::string> &permissions);
 
     /**
      * StartProcess, load the ability that needed to be started(Start on a new boot process).
@@ -1055,7 +1105,8 @@ private:
      */
     void StartProcess(const std::string &appName, const std::string &processName, uint32_t startFlags,
                       std::shared_ptr<AppRunningRecord> appRecord, const int uid, const BundleInfo &bundleInfo,
-                      const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag = true);
+                      const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag = true,
+                      bool isPreload = false);
 
     /**
      * PushAppFront, Adjust the latest application record to the top level.
@@ -1298,6 +1349,23 @@ private:
      */
     bool NotifyMemMgrPriorityChanged(const std::shared_ptr<AppRunningRecord> appRecord);
 
+    void HandlePreloadApplication(const PreloadRequest &request);
+
+    std::string GetSpecifiedProcessFlag(std::shared_ptr<AbilityInfo> abilityInfo, std::shared_ptr<AAFwk::Want> want);
+
+    void LoadAbilityNoAppRecord(const std::shared_ptr<AppRunningRecord> appRecord,
+        sptr<IRemoteObject> preToken,
+        std::shared_ptr<ApplicationInfo> appInfo,
+        std::shared_ptr<AbilityInfo> abilityInfo,
+        const std::string &processName,
+        const std::string &specifiedProcessFlag,
+        const BundleInfo &bundleInfo,
+        const HapModuleInfo &hapModuleInfo,
+        std::shared_ptr<AAFwk::Want> want,
+        bool appExistFlag,
+        bool isPreload);
+
+    int32_t CheckSetProcessCachePermission() const;
 private:
     /**
      * Notify application status.
@@ -1322,6 +1390,10 @@ private:
     void HandleConfigurationChange(const Configuration &config);
     bool CheckAppFault(const std::shared_ptr<AppRunningRecord> &appRecord, const FaultData &faultData);
     int32_t KillFaultApp(int32_t pid, const std::string &bundleName, const FaultData &faultData);
+    void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos);
+    void AddUIExtensionLauncherItem(std::shared_ptr<AAFwk::Want> want, std::shared_ptr<AppRunningRecord> appRecord,
+        sptr<IRemoteObject> token);
+    void RemoveUIExtensionLauncherItem(std::shared_ptr<AppRunningRecord> appRecord, sptr<IRemoteObject> token);
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
     std::vector<const sptr<IAppStateCallback>> appStateCallbacks_;
     std::shared_ptr<AppProcessManager> appProcessManager_;
@@ -1353,10 +1425,13 @@ private:
     std::shared_ptr<AppDebugManager> appDebugManager_;
     ffrt::mutex killpedProcessMapLock_;
     mutable std::map<int64_t, std::string> killedPorcessMap_;
+    ffrt::mutex startChildProcessLock_;
     std::shared_ptr<AbilityRuntime::AppRunningStatusModule> appRunningStatusModule_;
     std::vector<std::string> serviceExtensionWhiteList_;
     std::shared_ptr<AdvancedSecurityModeManager> securityModeManager_;
     std::shared_ptr<AAFwk::TaskHandlerWrap> dfxTaskHandler_;
+    std::shared_ptr<AAFwk::TaskHandlerWrap> otherTaskHandler_;
+    std::shared_ptr<AppPreloader> appPreloader_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

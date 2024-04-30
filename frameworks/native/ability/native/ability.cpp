@@ -1547,7 +1547,7 @@ void Ability::OnBackground()
 bool Ability::OnBackPress()
 {
     TAG_LOGD(AAFwkTag::ABILITY, "call");
-    return true;
+    return false;
 }
 
 bool Ability::OnPrepareTerminate()

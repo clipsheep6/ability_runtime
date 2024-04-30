@@ -25,6 +25,7 @@
 #include "iservice_registry.h"
 #include "mission_snapshot.h"
 #include "bool_wrapper.h"
+#include "parameters.h"
 #include "sa_mgr_client.h"
 #include "system_ability_definition.h"
 #include "test_observer.h"
@@ -43,6 +44,8 @@ constexpr int OPTION_PARAMETER_INTEGER = 257;
 constexpr int OPTION_PARAMETER_STRING = 258;
 constexpr int OPTION_PARAMETER_BOOL = 259;
 constexpr int OPTION_PARAMETER_NULL_STRING = 260;
+
+const std::string DEVELOPERMODE_STATE = "const.security.developermode.state";
 
 const std::string SHORT_OPTIONS = "ch:d:a:b:e:t:p:s:m:A:U:CDSN";
 constexpr struct option LONG_OPTIONS[] = {
@@ -285,6 +288,10 @@ ErrCode AbilityManagerShellCommand::CreateMessageMap()
         {
             GET_BUNDLE_INFO_FAILED,
             "error: get bundle info failed.",
+        },
+        {
+            ERR_NOT_DEVELOPER_MODE,
+            "error: not developer mode.",
         },
         {
             KILL_PROCESS_KEEP_ALIVE,
@@ -759,49 +766,42 @@ ErrCode AbilityManagerShellCommand::RunAsDetachDebugCommand()
     return result;
 }
 
-void AbilityManagerShellCommand::SwitchOptionForAppDebug(
+bool AbilityManagerShellCommand::SwitchOptionForAppDebug(
     int32_t option, std::string &bundleName, bool &isPersist, bool &isCancel, bool &isGet)
 {
     switch (option) {
         case 'h': { // 'aa appdebug -h' or 'aa appdebug --help'
-            HILOG_DEBUG("'aa %{public}s -h' with no argument.", cmd_.c_str());
-            resultReceiver_.append(HELP_MSG_APPDEBUG_APP_DEBUG);
-            break;
+            TAG_LOGD(AAFwkTag::AA_TOOL, "'aa %{public}s -h' help.", cmd_.c_str());
+            return true;
         }
         case 'b': { // 'aa appdebug -b bundlename'
-            HILOG_DEBUG("'aa %{public}s -b' bundle name.", cmd_.c_str());
+            TAG_LOGD(AAFwkTag::AA_TOOL, "'aa %{public}s -b' bundle name.", cmd_.c_str());
             bundleName = optarg;
-            break;
+            return false;
         }
         case 'p': { // 'aa appdebug -p persist'
-            HILOG_DEBUG("'aa %{public}s -p' persist.", cmd_.c_str());
+            TAG_LOGD(AAFwkTag::AA_TOOL, "'aa %{public}s -p' persist.", cmd_.c_str());
             isPersist = true;
-            break;
+            return false;
         }
         case 'c': { // 'aa appdebug -c cancel'
-            HILOG_DEBUG("'aa %{public}s -c' cancel.", cmd_.c_str());
+            TAG_LOGD(AAFwkTag::AA_TOOL, "'aa %{public}s -c' cancel.", cmd_.c_str());
             isCancel = true;
-            break;
+            return true;
         }
         case 'g': { // 'aa appdebug -g get'
-            HILOG_DEBUG("'aa %{public}s -g' get.", cmd_.c_str());
+            TAG_LOGD(AAFwkTag::AA_TOOL, "'aa %{public}s -g' get.", cmd_.c_str());
             isGet = true;
-            break;
-        }
-        case '?': {
-            std::string unknownOption = "";
-            std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
-            HILOG_DEBUG("'aa appdebug' with an unknown option.");
-            resultReceiver_.append(unknownOptionMsg);
-            break;
+            return true;
         }
         default: {
             break;
         }
     }
+    return true;
 }
 
-void AbilityManagerShellCommand::ParseAppDebugParameter(
+bool AbilityManagerShellCommand::ParseAppDebugParameter(
     std::string &bundleName, bool &isPersist, bool &isCancel, bool &isGet)
 {
     int32_t option = -1;
@@ -811,29 +811,62 @@ void AbilityManagerShellCommand::ParseAppDebugParameter(
         option = getopt_long(argc_, argv_, SHORT_OPTIONS_APPDEBUG.c_str(), LONG_OPTIONS_APPDEBUG, nullptr);
 
         if (optind < 0 || optind > argc_) {
-            break;
+            return false;
         }
 
         if (option == -1) {
             if (counter == 1 && strcmp(argv_[optind], cmd_.c_str()) == 0) {
-                HILOG_ERROR("'aa %{public}s' %{public}s", HELP_MSG_NO_OPTION.c_str(), cmd_.c_str());
+                TAG_LOGE(AAFwkTag::AA_TOOL, "'aa %{public}s' %{public}s", HELP_MSG_NO_OPTION.c_str(), cmd_.c_str());
                 resultReceiver_.append(HELP_MSG_NO_OPTION + "\n");
+                return false;
             }
-            break;
+            return true;
         }
 
-        SwitchOptionForAppDebug(option, bundleName, isPersist, isCancel, isGet);
+        if (option == '?') {
+            switch (optopt) {
+                case 'b': {
+                    // 'aa appdebug -b' with no argument
+                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -b' with no argument.", cmd_.c_str());
+                    resultReceiver_.append("error: option requires a valid value.\n");
+                    return false;
+                }
+                default: {
+                    // 'aa appdebug' with an unknown option: aa appdebug -x
+                    std::string unknownOption = "";
+                    std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
+                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa appdebug' with an unknown option.");
+                    resultReceiver_.append(unknownOptionMsg);
+                    return false;
+                }
+            }
+        }
+
+        if (SwitchOptionForAppDebug(option, bundleName, isPersist, isCancel, isGet)) {
+            return true;
+        }
     }
+    return false;
 }
 
 ErrCode AbilityManagerShellCommand::RunAsAppDebugDebugCommand()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AA_TOOL, "Called.");
     std::string bundleName;
     bool isPersist = false;
     bool isCancel = false;
     bool isGet = false;
-    ParseAppDebugParameter(bundleName, isPersist, isCancel, isGet);
+
+    if (!system::GetBoolParameter(DEVELOPERMODE_STATE, false)) {
+        resultReceiver_ = STRING_APP_DEBUG_NG + "\n";
+        resultReceiver_.append(GetMessageFromCode(ERR_NOT_DEVELOPER_MODE));
+        return OHOS::ERR_INVALID_OPERATION;
+    }
+
+    if (!ParseAppDebugParameter(bundleName, isPersist, isCancel, isGet)) {
+        resultReceiver_.append(HELP_MSG_APPDEBUG_APP_DEBUG + "\n");
+        return OHOS::ERR_INVALID_VALUE;
+    }
 
     int32_t result = OHOS::ERR_OK;
     std::vector<std::string> debugInfoList;
@@ -843,21 +876,19 @@ ErrCode AbilityManagerShellCommand::RunAsAppDebugDebugCommand()
         result = DelayedSingleton<AppMgrClient>::GetInstance()->CancelAppWaitingDebug();
     } else if (!bundleName.empty()) {
         result = DelayedSingleton<AppMgrClient>::GetInstance()->SetAppWaitingDebug(bundleName, isPersist);
-    } else if (bundleName.empty() && isPersist) {
-        resultReceiver_.append(HELP_MSG_APPDEBUG_APP_DEBUG);
-        return OHOS::ERR_OK;
     } else {
+        resultReceiver_.append(HELP_MSG_APPDEBUG_APP_DEBUG);
         return OHOS::ERR_OK;
     }
 
     if (result != OHOS::ERR_OK) {
-        HILOG_INFO("%{public}s result is %{public}d", STRING_BLOCK_APP_SERVICE_NG.c_str(), result);
-        resultReceiver_ = STRING_BLOCK_APP_SERVICE_NG + "\n";
+        TAG_LOGI(AAFwkTag::AA_TOOL, "%{public}s result is %{public}d", STRING_APP_DEBUG_NG.c_str(), result);
+        resultReceiver_ = STRING_APP_DEBUG_NG + "\n";
         resultReceiver_.append(GetMessageFromCode(result));
         return result;
     }
 
-    resultReceiver_ = STRING_BLOCK_APP_SERVICE_OK + "\n";
+    resultReceiver_ = STRING_APP_DEBUG_OK + "\n";
     if (isGet && !debugInfoList.empty()) {
         for (auto it : debugInfoList) {
             resultReceiver_ += it + "\n";
@@ -1208,7 +1239,7 @@ ErrCode AbilityManagerShellCommand::MakeWantForProcess(Want& want)
             }
             case 'S': {
                 // 'aa process -S'
-                // enter sanbox to perform app
+                // enter sandbox to perform app
                 isSandboxApp = true;
                 break;
             }
@@ -1491,7 +1522,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                     break;
                 }
                 case OPTION_PARAMETER_INTEGER: {
-                    // 'aa start --pi' with no argumnet
+                    // 'aa start --pi' with no argument
                     TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s --pi' with no argument.", cmd_.c_str());
 
                     resultReceiver_.append("error: option ");
@@ -1502,7 +1533,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                     break;
                 }
                 case OPTION_PARAMETER_STRING: {
-                    // 'aa start --ps' with no argumnet
+                    // 'aa start --ps' with no argument
                     TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s --ps' with no argument.", cmd_.c_str());
 
                     resultReceiver_.append("error: option ");
@@ -1513,7 +1544,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                     break;
                 }
                 case OPTION_PARAMETER_BOOL: {
-                    // 'aa start --pb' with no argumnet
+                    // 'aa start --pb' with no argument
                     TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -pb' with no argument.", cmd_.c_str());
 
                     resultReceiver_.append("error: option ");
@@ -1524,7 +1555,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                     break;
                 }
                 case OPTION_PARAMETER_NULL_STRING: {
-                    // 'aa start --psn' with no argumnet
+                    // 'aa start --psn' with no argument
                     TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s --psn' with no argument.", cmd_.c_str());
 
                     resultReceiver_.append("error: option ");
@@ -1536,7 +1567,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                 }
 
                 case 'A': {
-                    // 'aa start -A' with no argumnet
+                    // 'aa start -A' with no argument
                     TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -A' with no argument.", cmd_.c_str());
 
                     resultReceiver_.append("error: option ");
@@ -1547,7 +1578,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                     break;
                 }
                 case 'U': {
-                    // 'aa start -U' with no argumnet
+                    // 'aa start -U' with no argument
                     TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -U' with no argument.", cmd_.c_str());
 
                     resultReceiver_.append("error: option ");
@@ -1749,7 +1780,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
             }
             case 'S': {
                 // 'aa start -b <bundleName> -a <abilityName> -p <perf-cmd> -S'
-                // enter sanbox to perform app
+                // enter sandbox to perform app
                 isSandboxApp = true;
                 break;
             }

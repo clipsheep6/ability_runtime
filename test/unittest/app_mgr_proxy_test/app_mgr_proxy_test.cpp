@@ -503,5 +503,86 @@ HWTEST_F(AppMgrProxyTest, SignRestartAppFlag_0100, TestSize.Level1)
     auto res = appMgrProxy_->SignRestartAppFlag(bundleName);
     EXPECT_EQ(res, NO_ERROR);
 }
+
+/**
+ * @tc.name: NotifyMemorySizeStateChanged_0100
+ * @tc.desc: Test NotifyMemorySizeStateChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, NotifyMemorySizeStateChanged_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _)).Times(1);
+    auto res = appMgrProxy_->NotifyMemorySizeStateChanged(true);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: NotifyMemorySizeStateChanged_0200
+ * @tc.desc: Test NotifyMemorySizeStateChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, NotifyMemorySizeStateChanged_0200, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _)).Times(1);
+    auto res = appMgrProxy_->NotifyMemorySizeStateChanged(false);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: GetAllUIExtensionRootHostPid_0100
+ * @tc.desc: Get all ui extension root host pid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, GetAllUIExtensionRootHostPid_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+    pid_t pid = 0;
+    std::vector<pid_t> hostPids;
+    auto res = appMgrProxy_->GetAllUIExtensionRootHostPid(pid, hostPids);
+    EXPECT_EQ(res, NO_ERROR);
+    EXPECT_EQ(mockAppMgrService_->code_,
+        static_cast<uint32_t>(AppMgrInterfaceCode::GET_ALL_UI_EXTENSION_ROOT_HOST_PID));
+}
+
+/**
+ * @tc.name: GetAllUIExtensionProviderPid_0100
+ * @tc.desc: Get all ui extension provider pid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, GetAllUIExtensionProviderPid_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+    pid_t hostPid = 0;
+    std::vector<pid_t> providerPids;
+    auto res = appMgrProxy_->GetAllUIExtensionProviderPid(hostPid, providerPids);
+    EXPECT_EQ(res, NO_ERROR);
+    EXPECT_EQ(mockAppMgrService_->code_,
+        static_cast<uint32_t>(AppMgrInterfaceCode::GET_ALL_UI_EXTENSION_PROVIDER_PID));
+}
+
+/**
+ * @tc.name: PreloadApplication_0100
+ * @tc.desc: Preload application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, PreloadApplication_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+
+    std::string bundleName = "com.acts.preloadtest";
+    int32_t userId = 100;
+    PreloadMode preloadMode = PreloadMode::PRE_MAKE;
+    int32_t appIndex = 0;
+    auto ret = appMgrProxy_->PreloadApplication(bundleName, userId, preloadMode, appIndex);
+    EXPECT_EQ(ret, NO_ERROR);
+    EXPECT_EQ(mockAppMgrService_->code_,
+        static_cast<uint32_t>(AppMgrInterfaceCode::PRELOAD_APPLICATION));
+}
 } // namespace AppExecFwk
 } // namespace OHOS

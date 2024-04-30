@@ -182,6 +182,16 @@ public:
         return jitEnabled_;
     }
 
+    inline std::string GetAppRunningUniqueId() const
+    {
+        return appRunningUniqueId_;
+    }
+
+    inline void SetAppRunningUniqueId(const std::string &appRunningUniqueId)
+    {
+        appRunningUniqueId_ = appRunningUniqueId;
+    }
+
     /**
      * @brief read this Sequenceable object from a Parcel.
      *
@@ -228,6 +238,7 @@ private:
     std::string perfCmd_;
     bool jitEnabled_ = false;
     bool isNativeStart_ = false;
+    std::string appRunningUniqueId_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

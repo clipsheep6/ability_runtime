@@ -18,6 +18,7 @@
 #include <cstdint>
 #include <mutex>
 
+#include "ability_manager_client.h"
 #include "ability_manager_interface.h"
 #include "ability_runtime_error_util.h"
 #include "app_mgr_interface.h"
@@ -30,12 +31,16 @@
 #include "js_app_foreground_state_observer.h"
 #include "js_app_manager_utils.h"
 #include "js_app_state_observer.h"
+#ifdef SUPPORT_GRAPHICS
+#include "js_ability_first_frame_state_observer.h"
+#endif
 #include "js_error_utils.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"
 #include "napi_common_util.h"
 #include "system_ability_definition.h"
+#include "tokenid_kit.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -49,7 +54,8 @@ constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
 constexpr const char* ON_OFF_TYPE = "applicationState";
 constexpr const char* ON_OFF_TYPE_SYNC = "applicationStateEvent";
-constexpr const char *ON_OFF_TYPE_APP_FOREGROUND_STATE = "appForegroundState";
+constexpr const char* ON_OFF_TYPE_APP_FOREGROUND_STATE = "appForegroundState";
+constexpr const char* ON_OFF_TYPE_ABILITY_FIRST_FRAME_STATE = "abilityFirstFrameState";
 
 class JsAppManager final {
 public:
@@ -142,6 +148,53 @@ public:
     {
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnIsApplicationRunning);
     }
+
+    static bool CheckCallerIsSystemApp()
+    {
+        auto selfToken = IPCSkeleton::GetSelfTokenID();
+        if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
+            return false;
+        }
+        return true;
+    }
+
+    static bool IsParasNullOrUndefined(napi_env env, const napi_value& para)
+    {
+        return AppExecFwk::IsTypeForNapiValue(env, para, napi_null) ||
+            AppExecFwk::IsTypeForNapiValue(env, para, napi_undefined);
+    }
+
+    static bool IsJSFunctionExist(napi_env env, const napi_value para, const std::string& methodName)
+    {
+        if (para == nullptr) {
+            TAG_LOGE(AAFwkTag::APPMGR, "para is nullptr.");
+            return false;
+        }
+        napi_ref ref = nullptr;
+        napi_create_reference(env, para, 1, &ref);
+        NativeReference* nativeReferece = reinterpret_cast<NativeReference *>(ref);
+        auto object = nativeReferece->GetNapiValue();
+        napi_value method = nullptr;
+        napi_get_named_property(env, object, methodName.c_str(), &method);
+        if (method == nullptr) {
+            napi_delete_reference(env, ref);
+            TAG_LOGE(AAFwkTag::APPMGR, "Get name from object Failed.");
+            return false;
+        }
+        if (!AppExecFwk::IsTypeForNapiValue(env, method, napi_function)) {
+            napi_delete_reference(env, ref);
+            TAG_LOGE(AAFwkTag::APPMGR, "Illegal type not a function.");
+            return false;
+        }
+        napi_delete_reference(env, ref);
+        return true;
+    }
+
+    static napi_value PreloadApplication(napi_env env, napi_callback_info info)
+    {
+        GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnPreloadApplication);
+    }
+
 private:
     sptr<OHOS::AppExecFwk::IAppMgr> appManager_ = nullptr;
     sptr<OHOS::AAFwk::IAbilityManager> abilityManager_ = nullptr;
@@ -158,6 +211,13 @@ private:
             return OnOnNew(env, argc, argv);
         } else if (type == ON_OFF_TYPE_APP_FOREGROUND_STATE) {
             return OnOnForeground(env, argc, argv);
+        } else if (type == ON_OFF_TYPE_ABILITY_FIRST_FRAME_STATE) {
+#ifdef SUPPORT_GRAPHICS
+            return OnOnAbilityFirstFrameState(env, argc, argv);
+#elif
+            TAG_LOGE(AAFwkTag::APPMGR, "Not Supported.");
+            return CreateJsUndefined(env);
+#endif
         }
 
         return OnOnOld(env, argc, argv);
@@ -295,10 +355,104 @@ private:
             return OnOffNew(env, argc, argv);
         } else if (type == ON_OFF_TYPE_APP_FOREGROUND_STATE) {
             return OnOffForeground(env, argc, argv);
+        } else if (type == ON_OFF_TYPE_ABILITY_FIRST_FRAME_STATE) {
+#ifdef SUPPORT_GRAPHICS
+            return OnOffAbilityFirstFrameState(env, argc, argv);
+#elif
+            TAG_LOGE(AAFwkTag::APPMGR, "Not Supported.");
+            return CreateJsUndefined(env);
+#endif
         }
 
         return OnOffOld(env, argc, argv);
     }
+
+#ifdef SUPPORT_GRAPHICS
+    napi_value OnOnAbilityFirstFrameState(napi_env env, size_t argc, napi_value *argv)
+    {
+        if (!CheckCallerIsSystemApp()) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Current app is not system app");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
+            return CreateJsUndefined(env);
+        }
+        JSAbilityFirstFrameStateObserverManager::GetInstance()->Init(env);
+        TAG_LOGD(AAFwkTag::APPMGR, "OnOnAbilityFirstFrameState called");
+        if (argc < ARGC_TWO) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Not enough params.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+        if (!AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object) ||
+            !IsJSFunctionExist(env, argv[INDEX_ONE], "onAbilityFirstFrameDrawn")) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Invalid param.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+        std::string bundleName;
+        if (argc == ARGC_THREE) {
+            if (!IsParasNullOrUndefined(env, argv[INDEX_TWO]) &&
+                (!ConvertFromJsValue(env, argv[INDEX_TWO], bundleName) || bundleName.empty())) {
+                TAG_LOGE(AAFwkTag::APPMGR, "Get bundleName error or bundleName empty!");
+                ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+                return CreateJsUndefined(env);
+            }
+        }
+
+        sptr<JSAbilityFirstFrameStateObserver> observer = new (std::nothrow) JSAbilityFirstFrameStateObserver(env);
+        if (abilityManager_ == nullptr || observer == nullptr) {
+            TAG_LOGE(AAFwkTag::APPMGR, "AbilityManager_ or observer is nullptr.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+            return CreateJsUndefined(env);
+        }
+
+        if (JSAbilityFirstFrameStateObserverManager::GetInstance()->IsObserverObjectExist(argv[INDEX_ONE])) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Observer is already exists.");
+            return CreateJsUndefined(env);
+        }
+        int32_t ret = abilityManager_->RegisterAbilityFirstFrameStateObserver(observer, bundleName);
+        if (ret != NO_ERROR) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Failed error: %{public}d.", ret);
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+            return CreateJsUndefined(env);
+        }
+        observer->SetJsObserverObject(argv[INDEX_ONE]);
+        JSAbilityFirstFrameStateObserverManager::GetInstance()->AddJSAbilityFirstFrameStateObserver(observer);
+        return CreateJsUndefined(env);
+    }
+
+    napi_value OnOffAbilityFirstFrameState(napi_env env, size_t argc, napi_value *argv)
+    {
+        if (!CheckCallerIsSystemApp()) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Current app is not system app");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
+            return CreateJsUndefined(env);
+        }
+        JSAbilityFirstFrameStateObserverManager::GetInstance()->Init(env);
+        TAG_LOGD(AAFwkTag::APPMGR, "OnOffAbilityFirstFrameState called");
+        if (argc < ARGC_ONE) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Not enough params.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+        if (argc == ARGC_TWO) {
+            if (!IsParasNullOrUndefined(env, argv[INDEX_ONE]) &&
+                (!AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object) ||
+                !IsJSFunctionExist(env, argv[INDEX_ONE], "onAbilityFirstFrameDrawn"))) {
+                TAG_LOGE(AAFwkTag::APPMGR, "Invalid param.");
+                ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+                return CreateJsUndefined(env);
+            }
+        }
+
+        if (argc == ARGC_ONE || (argc == ARGC_TWO && IsParasNullOrUndefined(env, argv[INDEX_ONE]))) {
+            JSAbilityFirstFrameStateObserverManager::GetInstance()->RemoveAllJsObserverObjects(abilityManager_);
+        } else if (argc == ARGC_TWO) {
+            JSAbilityFirstFrameStateObserverManager::GetInstance()->RemoveJsObserverObject(abilityManager_,
+                argv[INDEX_ONE]);
+        }
+        return CreateJsUndefined(env);
+    }
+#endif
 
     napi_value OnOffOld(napi_env env, size_t argc, napi_value* argv)
     {
@@ -842,6 +996,48 @@ private:
         return result;
     }
 
+    napi_value OnPreloadApplication(napi_env env, size_t argc, napi_value *argv)
+    {
+        TAG_LOGD(AAFwkTag::APPMGR, "OnPreloadApplication called.");
+        if (argc < ARGC_THREE) {
+            TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication Invalid param count.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+        PreloadApplicationParam param;
+        std::string errorMsg;
+        if (!ConvertPreloadApplicationParam(env, argc, argv, param, errorMsg)) {
+            ThrowInvalidParamError(env, errorMsg);
+            return CreateJsUndefined(env);
+        }
+
+        wptr<OHOS::AppExecFwk::IAppMgr> weak = appManager_;
+        auto innerErrorCode = std::make_shared<int32_t>(ERR_OK);
+        NapiAsyncTask::ExecuteCallback execute =
+            [param, innerErrorCode, weak]() {
+            sptr<OHOS::AppExecFwk::IAppMgr> appMgr = weak.promote();
+            if (appMgr == nullptr) {
+                TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication appMgr is nullptr.");
+                *innerErrorCode = static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER);
+                return;
+            }
+            *innerErrorCode = appMgr->PreloadApplication(param.bundleName, param.userId, param.preloadMode,
+                param.appIndex);
+        };
+        NapiAsyncTask::CompleteCallback complete =
+            [innerErrorCode](napi_env env, NapiAsyncTask &task, int32_t status) {
+            if (*innerErrorCode == ERR_OK) {
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
+            }
+        };
+        napi_value result = nullptr;
+        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnPreloadApplication",
+            env, CreateAsyncTaskWithLastParam(env, nullptr, std::move(execute), std::move(complete), &result));
+        return result;
+    }
+
     bool CheckOnOffType(napi_env env, size_t argc, napi_value* argv)
     {
         if (argc < ARGC_ONE) {
@@ -908,6 +1104,7 @@ napi_value JsAppManagerInit(napi_env env, napi_value exportObj)
 
     napi_set_named_property(env, exportObj, "ApplicationState", ApplicationStateInit(env));
     napi_set_named_property(env, exportObj, "ProcessState", ProcessStateInit(env));
+    napi_set_named_property(env, exportObj, "PreloadMode", PreloadModeInit(env));
 
     const char *moduleName = "AppManager";
     BindNativeFunction(env, exportObj, "on", moduleName, JsAppManager::On);
@@ -940,6 +1137,8 @@ napi_value JsAppManagerInit(napi_env env, napi_value exportObj)
         JsAppManager::GetRunningProcessInfoByBundleName);
     BindNativeFunction(env, exportObj, "isApplicationRunning", moduleName,
         JsAppManager::IsApplicationRunning);
+    BindNativeFunction(env, exportObj, "preloadApplication", moduleName,
+        JsAppManager::PreloadApplication);
     TAG_LOGD(AAFwkTag::APPMGR, "end");
     return CreateJsUndefined(env);
 }

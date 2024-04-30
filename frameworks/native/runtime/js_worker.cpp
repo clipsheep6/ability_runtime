@@ -54,6 +54,7 @@ constexpr int32_t API8 = 8;
 constexpr int32_t API12 = 12;
 const std::string BUNDLE_NAME_FLAG = "@bundle:";
 const std::string CACHE_DIRECTORY = "el2";
+const std::string RESTRICTED_PREFIX_PATH = "abcs/";
 const int PATH_THREE = 3;
 #ifdef APP_USE_ARM
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/platformsdk/libark_debugger.z.so";
@@ -95,7 +96,7 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
     }
 
     if (g_debugMode) {
-        auto instanceId = gettid();
+        auto instanceId = getproctid();
         std::string instanceName = "workerThread_" + std::to_string(instanceId);
         bool needBreakPoint = ConnectServerManager::Get().AddInstance(instanceId, instanceId, instanceName);
         if (g_nativeStart) {
@@ -123,7 +124,7 @@ void OffWorkerFunc(NativeEngine* nativeEngine)
     }
 
     if (g_debugMode) {
-        auto instanceId = gettid();
+        auto instanceId = getproctid();
         ConnectServerManager::Get().RemoveInstance(instanceId);
         auto arkNativeEngine = static_cast<ArkNativeEngine*>(nativeEngine);
         auto vm = const_cast<EcmaVM*>(arkNativeEngine->GetEcmaVm());
@@ -164,8 +165,8 @@ AssetHelper::~AssetHelper()
     }
 }
 
-void AssetHelper::operator()(const std::string& uri, uint8_t** buff, size_t* buffSize, std::string& ami,
-    bool& useSecureMem, bool isRestricted)
+void AssetHelper::operator()(const std::string& uri, uint8_t** buff, size_t* buffSize, std::vector<uint8_t>& content,
+    std::string& ami, bool& useSecureMem, bool isRestricted)
 {
     if (uri.empty() || buff == nullptr || buffSize == nullptr || workerInfo_ == nullptr) {
         TAG_LOGE(AAFwkTag::JSRUNTIME, "Input params invalid.");
@@ -211,10 +212,10 @@ void AssetHelper::operator()(const std::string& uri, uint8_t** buff, size_t* buf
 
         TAG_LOGD(AAFwkTag::JSRUNTIME, "Get asset, ami: %{private}s", ami.c_str());
         if (ami.find(CACHE_DIRECTORY) != std::string::npos) {
-            if (!ReadAmiData(ami, buff, buffSize, useSecureMem, isRestricted)) {
+            if (!ReadAmiData(ami, buff, buffSize, content, useSecureMem, isRestricted)) {
                 TAG_LOGE(AAFwkTag::JSRUNTIME, "Get buffer by ami failed.");
             }
-        } else if (!ReadFilePathData(filePath, buff, buffSize, useSecureMem, isRestricted)) {
+        } else if (!ReadFilePathData(filePath, buff, buffSize, content, useSecureMem, isRestricted)) {
             TAG_LOGE(AAFwkTag::JSRUNTIME, "Get buffer by filepath failed.");
         }
     } else {
@@ -246,13 +247,17 @@ void AssetHelper::operator()(const std::string& uri, uint8_t** buff, size_t* buf
         }
 
         filePath = NormalizedFileName(realPath);
+        // for safe reason, filePath must starts with 'abcs/' in restricted env
+        if (isRestricted && filePath.find(RESTRICTED_PREFIX_PATH) && workerInfo_->apiTargetVersion >= API12) {
+            filePath = RESTRICTED_PREFIX_PATH + filePath;
+        }
         ami = workerInfo_->codePath + filePath;
         TAG_LOGD(AAFwkTag::JSRUNTIME, "Get asset, ami: %{private}s", ami.c_str());
         if (ami.find(CACHE_DIRECTORY) != std::string::npos) {
-            if (!ReadAmiData(ami, buff, buffSize, useSecureMem, isRestricted)) {
+            if (!ReadAmiData(ami, buff, buffSize, content, useSecureMem, isRestricted)) {
                 TAG_LOGE(AAFwkTag::JSRUNTIME, "Get buffer by ami failed.");
             }
-        } else if (!ReadFilePathData(filePath, buff, buffSize, useSecureMem, isRestricted)) {
+        } else if (!ReadFilePathData(filePath, buff, buffSize, content, useSecureMem, isRestricted)) {
             TAG_LOGE(AAFwkTag::JSRUNTIME, "Get buffer by filepath failed.");
         }
     }
@@ -303,7 +308,7 @@ bool AssetHelper::GetSafeData(const std::string& ami, uint8_t** buff, size_t* bu
     return true;
 }
 
-bool AssetHelper::ReadAmiData(const std::string& ami, uint8_t** buff, size_t* buffSize,
+bool AssetHelper::ReadAmiData(const std::string& ami, uint8_t** buff, size_t* buffSize, std::vector<uint8_t>& content,
     bool& useSecureMem, bool isRestricted)
 {
     // Current function is a private, validity of workerInfo_ has been checked by caller.
@@ -344,22 +349,14 @@ bool AssetHelper::ReadAmiData(const std::string& ami, uint8_t** buff, size_t* bu
         return false;
     }
 
-    auto temp = std::make_unique<uint8_t[]>(fileLen);
-    if (temp == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "Alloc mem failed.");
-        return false;
-    }
-
-    stream.seekg(0, std::ios::beg);
-    stream.read(reinterpret_cast<char*>(temp.get()), fileLen);
-
-    *buff = temp.get();
-    *buffSize = fileLen;
+    content.resize(fileLen);
+    stream.seekg(0);
+    stream.read(reinterpret_cast<char*>(content.data()), content.size());
     return true;
 }
 
 bool AssetHelper::ReadFilePathData(const std::string& filePath, uint8_t** buff, size_t* buffSize,
-    bool& useSecureMem, bool isRestricted)
+    std::vector<uint8_t>& content, bool& useSecureMem, bool isRestricted)
 {
     auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
@@ -453,8 +450,7 @@ bool AssetHelper::ReadFilePathData(const std::string& filePath, uint8_t** buff, 
         return false;
     }
 
-    *buff = dataPtr.get();
-    *buffSize = fileLen;
+    content.assign(dataPtr.get(), dataPtr.get() + fileLen);
     return true;
 }
 
@@ -538,24 +534,16 @@ ContainerScope::UpdateCurrent(-1);
 #endif
 }
 
-void StartDebuggerInWorkerModule()
+void StartDebuggerInWorkerModule(bool isDebugApp, bool isNativeStart)
 {
     g_debugMode = true;
-}
-
-void SetDebuggerApp(bool isDebugApp)
-{
     g_debugApp = isDebugApp;
+    g_nativeStart = isNativeStart;
 }
 
 void SetJsFramework()
 {
     g_jsFramework = true;
-}
-
-void SetNativeStart(bool isNativeStart)
-{
-    g_nativeStart = isNativeStart;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

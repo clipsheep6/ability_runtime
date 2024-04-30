@@ -19,13 +19,24 @@ module_output_path = "ability_runtime/abilitymgr"
 ohos_unittest("ability_util_test") {
   module_out_path = module_output_path
 
-  sources = [ "ability_util_test.cpp" ]
+  include_dirs = [ "mock/include" ]
+
+  sources = [
+    "ability_util_test.cpp",
+    "mock/src/mock_ipc.cpp",
+    "mock/src/mock_my_flag.cpp",
+    "mock/src/mock_permission_verification.cpp",
+  ]
 
   configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
 
-  deps = []
+  deps = [
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
 
   external_deps = [
+    "ability_base:base",
     "ability_base:want",
     "ability_runtime:ability_manager",
     "bundle_framework:appexecfwk_base",

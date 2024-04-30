@@ -61,6 +61,7 @@ enum class AppState {
     TERMINATED,
     END,
     SUSPENDED,
+    COLD_START = 99,
 };
 
 struct AppData {
@@ -89,6 +90,8 @@ public:
     virtual void OnAppStateChanged(const AppInfo &info) = 0;
 
     virtual void NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId) {}
+
+    virtual void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos) {}
 };
 
 class StartSpecifiedAbilityResponse : public AppExecFwk::StartSpecifiedAbilityResponseStub {
@@ -417,6 +420,12 @@ public:
      */
     void SetAppAssertionPauseState(int32_t pid, bool flag);
 
+    /**
+     * whether memory size is sufficent.
+     * @return Returns true is sufficent memory size, others return false.
+     */
+    virtual bool IsMemorySizeSufficent() const;
+
 protected:
     /**
      * OnAbilityRequestDone, app manager service call this interface after ability request done.
@@ -439,6 +448,12 @@ protected:
      * @param userId userId Designation User ID.
      */
     virtual void NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId) override;
+
+    /**
+     * @brief Notify abilityms start resident process.
+     * @param bundleInfos resident process bundle infos.
+     */
+    virtual void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos) override;
 
 private:
     std::mutex lock_;

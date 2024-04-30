@@ -44,6 +44,7 @@ public:
     std::string GetGroupDir(std::string groupId) override;
     std::string GetPreferencesDir() override;
     std::string GetDistributedFilesDir() override;
+    std::string GetCloudFileDir() override;
     int32_t GetSystemDatabaseDir(const std::string &groupId, bool checkExist, std::string &databaseDir) override;
     int32_t GetSystemPreferencesDir(const std::string &groupId, bool checkExist, std::string &preferencesDir) override;
     void SwitchArea(int mode) override;
@@ -224,6 +225,8 @@ public:
     void RegisterAbilityLifecycleObserver(const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer) override;
 
     void UnregisterAbilityLifecycleObserver(const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer) override;
+
+    void InsertResultCallbackTask(int requestCode, RuntimeTask&& task) override;
 
 #ifdef SUPPORT_GRAPHICS
     /**

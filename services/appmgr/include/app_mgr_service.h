@@ -70,6 +70,18 @@ public:
      */
     virtual void AttachApplication(const sptr<IRemoteObject> &app) override;
 
+    /**
+     * Preload application.
+     *
+     * @param bundleName The bundle name of the application to preload.
+     * @param userId Indicates the user identification.
+     * @param preloadMode Preload application mode.
+     * @param appIndex The index of application clone.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t PreloadApplication(const std::string &bundleName, int32_t userId,
+        AppExecFwk::PreloadMode preloadMode, int32_t appIndex) override;
+
     // notify the ams update the state of an app, when it entered foreground.
 
     /**
@@ -296,6 +308,8 @@ public:
 
     virtual int32_t UpdateConfiguration(const Configuration &config) override;
 
+    virtual int32_t UpdateConfigurationByBundleName(const Configuration &config, const std::string &name) override;
+
     virtual int32_t RegisterConfigurationObserver(const sptr<IConfigurationObserver> &observer) override;
 
     virtual int32_t UnregisterConfigurationObserver(const sptr<IConfigurationObserver> &observer) override;
@@ -439,7 +453,8 @@ public:
      * @param childPid Created child process pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid) override;
+    int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCoun,
+        bool isStartWithDebug) override;
 
     /**
      * Get child process record for self.
@@ -469,6 +484,14 @@ public:
     int32_t SignRestartAppFlag(const std::string &bundleName) override;
 
     int32_t GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId) override;
+
+    int32_t GetAllUIExtensionRootHostPid(pid_t pid, std::vector<pid_t> &hostPids) override;
+
+    int32_t GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid_t> &providerPids) override;
+
+    int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent) override;
+
+    int32_t SetSupportedProcessCacheSelf(bool isSupport) override;
 private:
     /**
      * Init, Initialize application services.
@@ -542,8 +565,15 @@ private:
      */
     virtual int32_t GetForegroundApplications(std::vector<AppStateData> &list) override;
 
-    void Dump(const std::vector<std::u16string>& args, std::string& result) const;
+    int Dump(const std::vector<std::u16string>& args, std::string& result);
     void ShowHelp(std::string& result) const;
+    int DumpIpc(const std::vector<std::u16string>& args, std::string& result);
+    int DumpIpcAllStart(std::string& result);
+    int DumpIpcAllStop(std::string& result);
+    int DumpIpcAllStat(std::string& result);
+    int DumpIpcStart(const int32_t pid, std::string& result);
+    int DumpIpcStop(const int32_t pid, std::string& result);
+    int DumpIpcStat(const int32_t pid, std::string& result);
 
     bool JudgeAppSelfCalled(int32_t recordId);
 
@@ -579,6 +609,19 @@ private:
      */
     bool IsFinalAppProcess() override;
 
+    enum DumpIpcKey {
+        KEY_DUMP_IPC_START = 0,
+        KEY_DUMP_IPC_STOP,
+        KEY_DUMP_IPC_STAT,
+    };
+
+private:
+    void DumpIpcAllFuncInit();
+    void DumpIpcFuncInit();
+    int DumpIpcAllInner(const AppMgrService::DumpIpcKey key, std::string& result);
+    int DumpIpcWithPidInner(const AppMgrService::DumpIpcKey key,
+        const std::string& optionPid, std::string& result);
+
 private:
     std::shared_ptr<AppMgrServiceInner> appMgrServiceInner_;
     AppMgrServiceState appMgrServiceState_;
@@ -586,6 +629,14 @@ private:
     std::shared_ptr<AMSEventHandler> eventHandler_;
     sptr<ISystemAbilityManager> systemAbilityMgr_;
     sptr<IAmsMgr> amsMgrScheduler_;
+
+    const static std::map<std::string, AppMgrService::DumpIpcKey> dumpIpcMap;
+
+    using DumpIpcAllFuncType = int (AppMgrService::*)(std::string& result);
+    std::map<uint32_t, DumpIpcAllFuncType> dumpIpcAllFuncMap_;
+
+    using DumpIpcFuncType = int (AppMgrService::*)(const int32_t pid, std::string& result);
+    std::map<uint32_t, DumpIpcFuncType> dumpIpcFuncMap_;
 
     DISALLOW_COPY_AND_MOVE(AppMgrService);
 };

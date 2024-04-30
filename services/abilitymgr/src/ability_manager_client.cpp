@@ -289,6 +289,15 @@ ErrCode AbilityManagerClient::RequestModalUIExtension(const Want &want)
     return abms->RequestModalUIExtension(want);
 }
 
+ErrCode AbilityManagerClient::PreloadUIExtensionAbility(const Want &want, std::string &hostBundleName, int32_t userId)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "elementName:%{public}s, hostBundleName:%{public}s.",
+        want.GetElement().GetURI().c_str(), hostBundleName.c_str());
+    return abms->PreloadUIExtensionAbility(want, hostBundleName, userId);
+}
+
 ErrCode AbilityManagerClient::ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -668,17 +677,18 @@ ErrCode AbilityManagerClient::ContinueMission(const std::string &srcDeviceId, co
     return result;
 }
 
-ErrCode AbilityManagerClient::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
-    const std::string &bundleName, sptr<IRemoteObject> callback, AAFwk::WantParams &wantParams)
+ErrCode AbilityManagerClient::ContinueMission(AAFwk::ContinueMissionInfo continueMissionInfo,
+    const sptr<IRemoteObject> &callback)
+
 {
-    if (srcDeviceId.empty() || dstDeviceId.empty() || callback == nullptr) {
+    if (continueMissionInfo.srcDeviceId.empty() || continueMissionInfo.dstDeviceId.empty() || callback == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "srcDeviceId or dstDeviceId or callback is null!");
         return ERR_INVALID_VALUE;
     }
 
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    int result = abms->ContinueMission(srcDeviceId, dstDeviceId, bundleName, callback, wantParams);
+    int result = abms->ContinueMission(continueMissionInfo, callback);
     return result;
 }
 
@@ -1255,6 +1265,13 @@ void AbilityManagerClient::CompleteFirstFrameDrawing(sptr<IRemoteObject> ability
     abms->CompleteFirstFrameDrawing(abilityToken);
 }
 
+void AbilityManagerClient::CompleteFirstFrameDrawing(int32_t sessionId)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN(abms);
+    abms->CompleteFirstFrameDrawing(sessionId);
+}
+
 ErrCode AbilityManagerClient::PrepareTerminateAbility(sptr<IRemoteObject> token,
     sptr<IPrepareTerminateCallback> callback)
 {
@@ -1402,17 +1419,14 @@ AppExecFwk::ElementName AbilityManagerClient::GetTopAbility(bool isNeedLocalDevi
         std::lock_guard<std::recursive_mutex> lock_l(mutex_);
         if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
             AppExecFwk::ElementName elementName = {};
-            sptr<IRemoteObject> token = nullptr;
-            auto ret = GetTopAbility(token);
-            if (ret != ERR_OK) {
-                TAG_LOGE(AAFwkTag::ABILITYMGR, "get top ability token failed");
+            auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
+            if (sceneSessionManager == nullptr) {
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to get sceneSessionManager.");
                 return elementName;
             }
-            if (token == nullptr) {
-                TAG_LOGE(AAFwkTag::ABILITYMGR, "token is nullptr");
-                return elementName;
-            }
-            return GetElementNameByToken(token, isNeedLocalDeviceId);
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
+            (void)sceneSessionManager->GetFocusSessionElement(elementName);
+            return elementName;
         }
     }
     TAG_LOGD(AAFwkTag::ABILITYMGR, "enter.");
@@ -1800,6 +1814,22 @@ bool AbilityManagerClient::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken
         return false;
     }
     return abms->IsEmbeddedOpenAllowed(callerToken, appId);
+}
+
+int32_t AbilityManagerClient::StartShortcut(const Want &want, const StartOptions &startOptions)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "start short cut.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_INVALID_VALUE(abms);
+    return abms->StartShortcut(want, startOptions);
+}
+
+int32_t AbilityManagerClient::GetAbilityStateByPersistentId(int32_t persistentId, bool &state)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "GetAbilityStateByPersistentId, called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_INVALID_VALUE(abms);
+    return abms->GetAbilityStateByPersistentId(persistentId, state);
 }
 } // namespace AAFwk
 } // namespace OHOS

@@ -66,7 +66,7 @@ public:
     bool WaitForFinish(const int64_t& timeoutMs);
 
 private:
-    bool isFinished_;
+    bool isFinished_ = false;
     static constexpr int64_t SHELL_COMMAND_TIMEOUT_MAX = 5;
 };
 }  // namespace AAFwk

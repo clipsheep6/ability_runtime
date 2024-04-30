@@ -18,8 +18,8 @@
 
 #include <regex>
 
-#include "shell_command.h"
 #include "ability_manager_interface.h"
+#include "shell_command.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -30,6 +30,8 @@ using ParametersBool = std::map<std::string, bool>;
 
 const std::string TOOL_NAME = "aa";
 
+// not show in command
+// process -- debug ability with options
 const std::string HELP_MSG = "usage: aa <command> <options>\n"
     "These are common aa commands list:\n"
     "  help                        list available commands\n"
@@ -37,8 +39,7 @@ const std::string HELP_MSG = "usage: aa <command> <options>\n"
     "  stop-service                stop service with options\n"
     "  dump                        dump the ability info\n"
     "  force-stop <bundle-name>    force stop the process with bundle name\n"
-    "  process                     debug ability with options\n"
-    "  attach                      attach application to enter debug mdoe\n"
+    "  attach                      attach application to enter debug mode\n"
     "  detach                      detach application to exit debug mode\n"
 #ifdef ABILITY_COMMAND_FOR_TEST
     "  test                        start the test framework with options\n"
@@ -47,7 +48,8 @@ const std::string HELP_MSG = "usage: aa <command> <options>\n"
     "  block-ams-service                       block ams service\n"
     "  block-app-service                       block app service\n";
 #else
-    "  test                        start the test framework with options\n";
+    "  test                        start the test framework with options\n"
+    "  appdebug                    set / cancel / get waiting debug status\n";
 #endif
 
 const std::string HELP_MSG_SCREEN =
@@ -62,11 +64,13 @@ const std::string HELP_ApplicationNotResponding =
     "  -h, --help                   list available commands\n"
     "  -p, --pid                    Pass in pid with option\n";
 
+// not show in command
+// [-N] [-p <perf-cmd>]
 const std::string HELP_MSG_START =
     "usage: aa start <options>\n"
     "options list:\n"
     "  -h, --help                                                   list available commands\n"
-    "  [-d <device-id>] [-a <ability-name> -b <bundle-name>] [-m <module-name>] [-p <perf-cmd>] [-D] [-S] [-N] "
+    "  [-d <device-id>] [-a <ability-name> -b <bundle-name>] [-m <module-name>] [-D] [-S] "
     "  [--ps <key> <string-value>] "
     "  [--pi <key> <integer-value>] "
     "  [--pb <key> <boolean-value>] "
@@ -144,7 +148,7 @@ const std::string HELP_MSG_APPDEBUG_APP_DEBUG =
     "usage: aa appdebug <options>\n"
     "options list:\n"
     "  -h, --help                                  list available commands\n"
-    "  -b <bundle-name>                            let application set wait debug mode by bundle name with options\n"
+    "  -b, --bundlename <bundle-name>              let application set wait debug mode by bundle name with options\n"
     "                  [-p, --persist]             option: persist flag\n"
     "  -c, --cancel                                let application cancel wait debug\n"
     "  -g, --get                                   get wait debug mode application bundle name and persist flag\n";
@@ -187,6 +191,9 @@ const std::string STRING_BLOCK_AMS_SERVICE_NG = "error: failed to block ams serv
 const std::string STRING_BLOCK_APP_SERVICE_OK = "block app service successfully.";
 const std::string STRING_BLOCK_APP_SERVICE_NG = "error: failed to block app service.";
 
+const std::string STRING_APP_DEBUG_OK = "app debug successfully.";
+const std::string STRING_APP_DEBUG_NG = "error: failed to app debug.";
+
 const std::string STRING_START_NATIVE_PROCESS_OK = "start native process successfully.";
 const std::string STRING_START_NATIVE_PROCESS_NG = "error: failed to start native process.";
 
@@ -227,8 +234,8 @@ private:
     ErrCode RunAsStopService();
     ErrCode RunAsDumpsysCommand();
     ErrCode RunAsForceStop();
-    void SwitchOptionForAppDebug(int32_t option, std::string &bundleName, bool &isPersist, bool &isCancel, bool &isGet);
-    void ParseAppDebugParameter(std::string &bundleName, bool &isPersist, bool &isCancel, bool &isGet);
+    bool SwitchOptionForAppDebug(int32_t option, std::string &bundleName, bool &isPersist, bool &isCancel, bool &isGet);
+    bool ParseAppDebugParameter(std::string &bundleName, bool &isPersist, bool &isCancel, bool &isGet);
     ErrCode RunAsAppDebugDebugCommand();
     ErrCode RunAsProcessCommand();
     ErrCode RunAsAttachDebugCommand();

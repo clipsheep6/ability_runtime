@@ -40,14 +40,14 @@ void UriPermissionManagerService::OnStart()
 {
     TAG_LOGI(AAFwkTag::URIPERMMGR, "UriPermissionManagerService start is triggered.");
     if (!Init()) {
-        HILOG_ERROR("init failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "init failed.");
         return;
     }
 
     if (!registerToService_) {
         auto systemAabilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (!systemAabilityMgr || systemAabilityMgr->AddSystemAbility(URI_PERMISSION_MGR_SERVICE_ID, impl_) != 0) {
-            HILOG_ERROR("fail to register to system ability manager");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "fail to register to system ability manager");
             return;
         }
         TAG_LOGI(AAFwkTag::URIPERMMGR, "register to system ability manager success");
@@ -75,7 +75,6 @@ bool UriPermissionManagerService::Init()
 
     if (impl_ == nullptr) {
         impl_ = new UriPermissionManagerStubImpl();
-        impl_->Init();
     }
     ready_ = true;
     return true;

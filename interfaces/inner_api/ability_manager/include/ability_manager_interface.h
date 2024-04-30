@@ -30,6 +30,7 @@
 #include "ability_state_data.h"
 #include "app_debug_listener_interface.h"
 #include "auto_startup_info.h"
+#include "dms_continueInfo.h"
 #include "exit_reason.h"
 #include "extension_running_info.h"
 #include "free_install_observer_interface.h"
@@ -61,6 +62,7 @@
 #include "dialog_session_info.h"
 #ifdef SUPPORT_GRAPHICS
 #include "window_manager_service_handler.h"
+#include "ability_first_frame_state_observer_interface.h"
 #endif
 
 namespace OHOS {
@@ -74,6 +76,10 @@ using InsightIntentExecuteParam = AppExecFwk::InsightIntentExecuteParam;
 using InsightIntentExecuteResult = AppExecFwk::InsightIntentExecuteResult;
 using UIExtensionAbilityConnectInfo = AbilityRuntime::UIExtensionAbilityConnectInfo;
 using UIExtensionHostInfo = AbilityRuntime::UIExtensionHostInfo;
+#ifdef SUPPORT_GRAPHICS
+using IAbilityFirstFrameStateObserver = AppExecFwk::IAbilityFirstFrameStateObserver;
+#endif
+
 constexpr const char* ABILITY_MANAGER_SERVICE_NAME = "AbilityManagerService";
 const int DEFAULT_INVAL_VALUE = -1;
 const int DELAY_LOCAL_FREE_INSTALL_TIMEOUT = 40000;
@@ -328,6 +334,20 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int RequestModalUIExtension(const Want &want)
+    {
+        return 0;
+    }
+
+    /**
+     * Preload UIExtension with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param hostBundleName, the caller application bundle name.
+     * @param userId, the extension runs in.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int PreloadUIExtensionAbility(const Want &want, std::string &hostBundleName,
+        int32_t userId = DEFAULT_INVAL_VALUE)
     {
         return 0;
     }
@@ -754,8 +774,7 @@ public:
     virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId, int32_t missionId,
         const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams) = 0;
 
-    virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
-        const std::string &bundleName, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
+    virtual int ContinueMission(AAFwk::ContinueMissionInfo continueMissionInfo, const sptr<IRemoteObject> &callback)
     {
         return 0;
     }
@@ -883,6 +902,14 @@ public:
     virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) = 0;
 
     /**
+     * WindowManager notification AbilityManager after the first frame is drawn.
+     *
+     * @param sessionId Indidate session id.
+     */
+    virtual void CompleteFirstFrameDrawing(int32_t sessionId)
+    {}
+
+    /**
      * PrepareTerminateAbility, prepare terminate the special ability.
      *
      * @param token, the token of the ability to terminate.
@@ -900,6 +927,28 @@ public:
     }
 
     virtual int SendDialogResult(const Want &want, const std::string dialogSessionId, bool isAllow)
+    {
+        return 0;
+    }
+
+    /**
+     * Register ability first frame state observer.
+     * @param observer Is ability first frame state observer.
+     * @param bundleName Is bundleName of the app to observe.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterAbilityFirstFrameStateObserver(const sptr<IAbilityFirstFrameStateObserver> &observer,
+        const std::string &targetBundleName)
+    {
+        return 0;
+    }
+
+    /**
+     * Unregister ability first frame state observer.
+     * @param observer Is ability first frame state observer.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterAbilityFirstFrameStateObserver(const sptr<IAbilityFirstFrameStateObserver> &observer)
     {
         return 0;
     }
@@ -1505,6 +1554,30 @@ public:
     virtual int32_t NotifyDebugAssertResult(uint64_t assertFaultSessionId, AAFwk::UserStatus userStatus)
     {
         return -1;
+    }
+
+    /**
+     * Starts a new ability with specific start options.
+     *
+     * @param want, the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t StartShortcut(const Want &want, const StartOptions &startOptions)
+    {
+        return 0;
+    }
+
+    /**
+     * Get ability state by persistent id.
+     *
+     * @param persistentId, the persistentId of the session.
+     * @param state Indicates the ability state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetAbilityStateByPersistentId(int32_t persistentId, bool &state)
+    {
+        return 0;
     }
 };
 }  // namespace AAFwk

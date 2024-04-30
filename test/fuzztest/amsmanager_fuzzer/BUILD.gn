@@ -42,6 +42,7 @@ ohos_fuzztest("AmsManagerFuzzTest") {
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
+    "appspawn:appspawn_client",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",

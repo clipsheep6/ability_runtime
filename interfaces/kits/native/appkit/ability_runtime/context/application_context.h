@@ -85,6 +85,7 @@ public:
     int32_t GetSystemPreferencesDir(const std::string &groupId, bool checkExist, std::string &preferencesDir) override;
     std::string GetGroupDir(std::string groupId) override;
     std::string GetDistributedFilesDir() override;
+    std::string GetCloudFileDir() override;
     sptr<IRemoteObject> GetToken() override;
     void SetToken(const sptr<IRemoteObject> &token) override;
     void SwitchArea(int mode) override;
@@ -110,15 +111,17 @@ public:
     void SetApplicationInfoUpdateFlag(bool flag);
     void RegisterAppConfigUpdateObserver(AppConfigUpdateCallback appConfigChangeCallback);
 
-    std::string GetAppRunningUniqueIdByPid() const;
-    void SetAppRunningUniqueIdByPid(const std::string &appRunningUniqueId);
+    std::string GetAppRunningUniqueId() const;
+    void SetAppRunningUniqueId(const std::string &appRunningUniqueId);
+    int32_t SetSupportedProcessCacheSelf(bool isSupport);
 private:
     std::shared_ptr<ContextImpl> contextImpl_;
     static std::vector<std::shared_ptr<AbilityLifecycleCallback>> callbacks_;
     static std::vector<std::shared_ptr<EnvironmentCallback>> envCallbacks_;
-    static std::weak_ptr<ApplicationStateChangeCallback> applicationStateCallback_;
+    static std::vector<std::weak_ptr<ApplicationStateChangeCallback>> applicationStateCallback_;
     std::recursive_mutex callbackLock_;
     std::recursive_mutex envCallbacksLock_;
+    std::recursive_mutex applicationStateCallbackLock_;
     bool applicationInfoUpdateFlag_ = false;
     AppConfigUpdateCallback appConfigChangeCallback_ = nullptr;
     std::string appRunningUniqueId_;

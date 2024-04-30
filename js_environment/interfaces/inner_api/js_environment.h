@@ -80,7 +80,7 @@ public:
 
     void InitConsoleModule();
 
-    bool InitLoop();
+    bool InitLoop(bool isStage = true);
 
     void DeInitLoop();
 

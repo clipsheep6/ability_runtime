@@ -117,6 +117,13 @@ public:
      */
     virtual void OnPageHide(const PageStateData &pageStateData) {};
 
+    /**
+     * Will be called when application cache state change.
+     *
+     * @param appStateData Application state data.
+     */
+    virtual void OnAppCacheStateChanged(const AppStateData &appStateData) {};
+
     enum class Message {
         TRANSACT_ON_FOREGROUND_APPLICATION_CHANGED = 0,
         TRANSACT_ON_ABILITY_STATE_CHANGED,
@@ -131,6 +138,7 @@ public:
         TRANSACT_ON_APP_STOPPED,
         TRANSACT_ON_PAGE_SHOW,
         TRANSACT_ON_PAGE_HIDE,
+        TRANSACT_ON_APP_CACHE_STATE_CHANGED,
     };
 };
 }  // namespace AppExecFwk

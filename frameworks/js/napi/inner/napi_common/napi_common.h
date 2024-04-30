@@ -22,4 +22,5 @@
 #include "napi_common_util.h"
 #include "napi_common_want.h"
 #include "napi_common_start_options.h"
+#include "./open_link/napi_common_open_link_options.h"
 #endif  // OHOS_ABILITY_RUNTIME_NAPI_COMMON_H
