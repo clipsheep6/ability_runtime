@@ -26,6 +26,7 @@
 #include "js_data_struct_converter.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
+#include "js_ui_service_proxy.h"
 #include "napi/native_api.h"
 #include "napi_common_ability.h"
 #include "napi_common_want.h"
@@ -36,6 +37,7 @@
 #include "open_link/napi_common_open_link_options.h"
 #include "start_options.h"
 #include "hitrace_meter.h"
+#include "ui_service_host_stub.h"
 #include "uri.h"
 
 namespace OHOS {
@@ -51,6 +53,24 @@ constexpr size_t ARGC_TWO = 2;
 const std::string ATOMIC_SERVICE_PREFIX = "com.atomicservice.";
 constexpr size_t ARGC_THREE = 3;
 } // namespace
+
+class UIExtensionServiceHostCallback : public AAFwk::UIServiceHostStub {
+public:
+    UIExtensionServiceHostCallback(wptr<JSUIExtensionConnection> conn) { conn_ = conn; }
+    virtual void SendData(OHOS::AAFwk::WantParams &data) override;
+
+protected:
+    wptr<JSUIExtensionConnection> conn_;
+};
+
+void UIExtensionServiceHostCallback::SendData(OHOS::AAFwk::WantParams &data)
+{
+    sptr<JSUIExtensionConnection> scon = conn_.promote();
+    if (scon != nullptr) {
+        scon->SendData(data);
+    }
+}
+
 
 static std::map<UIExtensionConnectionKey, sptr<JSUIExtensionConnection>, key_compare> g_connects;
 static int64_t g_serialNumber = 0;
@@ -163,6 +183,21 @@ napi_value JsUIExtensionContext::ReportDrawnCompleted(napi_env env, napi_callbac
 napi_value JsUIExtensionContext::OpenAtomicService(napi_env env, napi_callback_info info)
 {
     GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContext, OnOpenAtomicService);
+}
+
+napi_value JsUIExtensionContext::StartUIServiceExtension(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContext, OnStartUIServiceExtension);
+}
+
+napi_value JsUIExtensionContext::ConnectUIServiceExtension(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContext, OnConnectUIServiceExtension);
+}
+
+napi_value JsUIExtensionContext::DisconnectUIServiceExtension(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContext, OnDisconnectUIServiceExtension);
 }
 
 napi_value JsUIExtensionContext::OnStartAbility(napi_env env, NapiCallbackInfo& info)
@@ -602,6 +637,140 @@ napi_value JsUIExtensionContext::OnDisconnectAbility(napi_env env, NapiCallbackI
     return result;
 }
 
+napi_value JsUIExtensionContext::OnStartUIServiceExtension(napi_env env, NapiCallbackInfo& info)
+{
+    napi_value result = nullptr;
+    return result;
+    //todo OnStartUIServiceExtension
+}
+
+napi_value JsUIExtensionContext::OnConnectUIServiceExtension(napi_env env, NapiCallbackInfo& info)
+{
+    if (info.argc < ARGC_TWO) {
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "aaa OnConnectUIServiceExtension failed, not enough params.");
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    AAFwk::Want want;
+    OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want);
+    TAG_LOGI(AAFwkTag::UISERVC_EXT, "aaa OnConnectUIServiceExtension, callee:%{public}s.%{public}s",
+        want.GetBundle().c_str(),
+        want.GetElement().GetAbilityName().c_str());
+
+    sptr<JSUIExtensionConnection> connection = new JSUIExtensionConnection(env);
+    if (!AppExecFwk::UnwrapWant(env, info.argv[0], want) ||
+        !CheckConnectionParam(env, info.argv[1], connection, want)) {
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+    int64_t connectId = connection->GetConnectionId();
+
+    std::unique_ptr<UIExtensionServiceHostCallback>& callback = connection->GetCallback();
+    want.SetParam("UIServiceExtensionCallbackStub", callback->AsObject());
+
+    UIExtensionAsyncNapiContext& asyncContext = connection->GetUIServiceExtensionAsyncContext();
+    asyncContext.env_ = env;
+    asyncContext.connectId_ = connectId;
+    asyncContext.connection_ = connection;
+    asyncContext.want_ = want;
+    napi_value result = nullptr;
+    napi_create_promise(env, &asyncContext.deferred_, &result);
+ 
+    napi_value resourceName;
+    napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
+    napi_create_async_work(
+        env,
+        nullptr,
+        resourceName,
+        nullptr,
+        [](napi_env env, napi_status status, void *data) {
+            UIExtensionAsyncNapiContext* asyncContext = (UIExtensionAsyncNapiContext*)data;
+            sptr<JSUIExtensionConnection> connection = asyncContext->connection_.promote();
+
+            auto context = asyncContext->context_.lock();
+            if (!context || !connection) {
+                TAG_LOGE(AAFwkTag::UISERVC_EXT, "aaa OnConnectUIServiceExtension failed, context is released.");
+                napi_reject_deferred(env, asyncContext->deferred_, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                RemoveConnection(asyncContext->connectId_);
+                if (asyncContext->work_) {
+                    napi_delete_async_work(env, asyncContext->work_);
+                    asyncContext->work_ = nullptr;
+                }
+                return;
+            }
+            auto innerErrorCode = context->ConnectAbility(asyncContext->want_, connection);
+            int32_t errcode = static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(innerErrorCode));
+            if (errcode) {
+                connection->CallJsFailed(errcode);
+                napi_reject_deferred(env, asyncContext->deferred_, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                RemoveConnection(asyncContext->connectId_);
+                if (asyncContext->work_) {
+                    napi_delete_async_work(env, asyncContext->work_);
+                    asyncContext->work_ = nullptr;
+                }
+                return;
+            }
+            napi_delete_async_work(env, asyncContext->work_);
+            asyncContext->work_ = nullptr;
+        },
+        &asyncContext,
+        &asyncContext.work_);
+    napi_queue_async_work_with_qos(env, asyncContext.work_, napi_qos_user_initiated);
+
+    return result;
+}
+
+napi_value JsUIExtensionContext::OnDisconnectUIServiceExtension(napi_env env, NapiCallbackInfo& info)
+{
+    TAG_LOGD(AAFwkTag::UISERVC_EXT, "OnDisconnectUIServiceExtension start");
+    if (info.argc < ARGC_ONE) {
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "Disconnect ability error, not enough params.");
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+    AAFwk::JsUIServiceProxy* proxy = nullptr;
+    napi_status status = napi_unwrap(env, info.argv[INDEX_ZERO], reinterpret_cast<void**>(&proxy));
+    if (status != napi_ok || proxy == nullptr) {
+        TAG_LOGI(AAFwkTag::UISERVC_EXT, "OnDisconnectUIServiceExtension,napi_unwrap err or proxy == nullptr");
+        return CreateJsUndefined(env);
+    }
+
+    AAFwk::Want want;
+    int64_t connectId = proxy->GetConnectionId();
+    sptr<JSUIExtensionConnection> connection = nullptr;
+    FindConnection(want, connection, connectId);
+    // begin disconnect
+    NapiAsyncTask::CompleteCallback complete =
+        [weak = context_, want, connection](
+            napi_env env, NapiAsyncTask& task, int32_t status) {
+            auto context = weak.lock();
+            if (!context) {
+                TAG_LOGW(AAFwkTag::UISERVC_EXT, "context is released.");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                return;
+            }
+            if (connection == nullptr) {
+                TAG_LOGW(AAFwkTag::UISERVC_EXT, "connection nullptr");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            TAG_LOGD(AAFwkTag::UISERVC_EXT, "context->DisconnectAbility.");
+            auto innerErrorCode = context->DisconnectAbility(want, connection);
+            if (innerErrorCode == 0) {
+                task.Resolve(env, CreateJsUndefined(env));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, innerErrorCode));
+            }
+        };
+
+    napi_value lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[INDEX_ONE];
+    napi_value result = nullptr;
+    NapiAsyncTask::Schedule("JSUIExtensionConnection::OnDisconnectUIServiceExtension",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
 napi_value JsUIExtensionContext::OnReportDrawnCompleted(napi_env env, NapiCallbackInfo& info)
 {
     TAG_LOGD(AAFwkTag::UI_EXT, "called.");
@@ -758,6 +927,9 @@ napi_value JsUIExtensionContext::CreateJsUIExtensionContext(napi_env env,
     BindNativeFunction(env, objValue, "disconnectServiceExtensionAbility", moduleName, DisconnectAbility);
     BindNativeFunction(env, objValue, "reportDrawnCompleted", moduleName, ReportDrawnCompleted);
     BindNativeFunction(env, objValue, "openAtomicService", moduleName, OpenAtomicService);
+    BindNativeFunction(env, objValue, "startUIServiceExtension", moduleName, StartUIServiceExtension);
+    BindNativeFunction(env, objValue, "connectUIServiceExtension", moduleName, ConnectUIServiceExtension);
+    BindNativeFunction(env, objValue, "disconnectUIServiceExtension", moduleName, DisconnectUIServiceExtension);
 
     return objValue;
 }
@@ -784,7 +956,10 @@ bool JsUIExtensionContext::CheckStartAbilityInputParam(napi_env env, NapiCallbac
     return true;
 }
 
-JSUIExtensionConnection::JSUIExtensionConnection(napi_env env) : env_(env) {}
+JSUIExtensionConnection::JSUIExtensionConnection(napi_env env) : env_(env) {
+    wptr<JSUIExtensionConnection> weakthis = this;
+    callback_ = std::make_unique<UIExtensionServiceHostCallback>(weakthis);
+}
 
 JSUIExtensionConnection::~JSUIExtensionConnection()
 {
@@ -836,6 +1011,16 @@ int64_t JSUIExtensionConnection::GetConnectionId()
     return connectionId_;
 }
 
+void JSUIExtensionConnection::SetUIServiceExtensionAsyncContext(const UIExtensionAsyncNapiContext& context)
+{
+    asyncNapiContext_ = context;
+}
+
+UIExtensionAsyncNapiContext& JSUIExtensionConnection::GetUIServiceExtensionAsyncContext()
+{
+    return asyncNapiContext_;
+}
+
 void JSUIExtensionConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
     const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
@@ -861,6 +1046,14 @@ void JSUIExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::Eleme
     const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
     TAG_LOGD(AAFwkTag::UI_EXT, "HandleOnAbilityConnectDone start, resultCode:%{public}d", resultCode);
+    UIExtensionAsyncNapiContext& context = GetUIServiceExtensionAsyncContext();
+    if (context.deferred_ != nullptr) {
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "HandleOnAbilityConnectDone, CreateJsUIServiceProxy");
+        napi_resolve_deferred(env_, context.deferred_, AAFwk::JsUIServiceProxy::CreateJsUIServiceProxy(env_, remoteObject));
+        context.deferred_ = nullptr;
+        return;
+    }
+
     // wrap ElementName
     napi_value napiElementName = OHOS::AppExecFwk::WrapElementName(env_, element);
 
@@ -941,6 +1134,31 @@ void JSUIExtensionConnection::SetJsConnectionObject(napi_value jsConnectionObjec
 void JSUIExtensionConnection::RemoveConnectionObject()
 {
     jsConnectionObject_.reset();
+}
+
+void JSUIExtensionConnection::SendData(OHOS::AAFwk::WantParams &data)
+{
+    TAG_LOGI(AAFwkTag::CONTEXT, "SendData");
+    if (jsConnectionObject_ == nullptr) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "jsConnectionObject_ nullptr");
+        return;
+    }
+    napi_value obj = jsConnectionObject_->GetNapiValue();
+    if (!CheckTypeForNapiValue(env_, obj, napi_object)) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Failed to get object");
+        return;
+    }
+
+    napi_value method = nullptr;
+    napi_get_named_property(env_, obj, "onData", &method);
+    if (method == nullptr) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Failed to get onData from object");
+        return;
+    }
+
+    napi_value argv[] = {AppExecFwk::CreateJsWantParams(env_, data)};
+    napi_call_function(env_, obj, method, ARGC_ONE, argv, nullptr);
+    TAG_LOGD(AAFwkTag::CONTEXT, "SendData end");
 }
 
 void JSUIExtensionConnection::CallJsFailed(int32_t errorCode)

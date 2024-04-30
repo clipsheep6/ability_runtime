@@ -24,6 +24,10 @@ class AbilityLifecycleCallback {
     console.log('onWindowStageCreate');
   }
 
+  onWindowStageDidCreate(ability, windowStage) {
+    console.log('onWindowStageDidCreate');
+  }
+
   onWindowStageActive(ability, windowStage) {
     console.log('onWindowStageActive');
   }
