@@ -803,6 +803,12 @@ int AbilityConnectManager::AttachAbilityThreadLocked(
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard guard(Lock_);
     auto abilityRecord = GetExtensionFromServiceMapInner(token);
+    if (abilityRecord == nullptr) {
+        abilityRecord = GetExtensionFromTerminatingMapInner(token);
+        if (abilityRecord != nullptr && !IsUIExtensionAbility(abilityRecord)) {
+            abilityRecord = nullptr;
+        }
+    }
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     if (taskHandler_ != nullptr) {
         int recordId = abilityRecord->GetRecordId();
