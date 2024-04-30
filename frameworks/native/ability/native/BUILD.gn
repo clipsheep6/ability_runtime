@@ -527,7 +527,6 @@ ohos_shared_library("uiabilitykit_native") {
     "ipc:ipc_napi",
     "resource_management:global_resmgr",
   ]
-
   public_external_deps = [
     "bundle_framework:appexecfwk_core",
     "libuv:uv",
