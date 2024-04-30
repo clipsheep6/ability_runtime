@@ -144,6 +144,17 @@ public:
     virtual int GetAllRunningProcesses(std::vector<RunningProcessInfo> &info) = 0;
 
     /**
+     * GetRunningProcessesByBundleType, call GetRunningProcessesByBundleType() through proxy project.
+     * Obtains information about application processes by bundle type that are running on the device.
+     *
+     * @param bundleType, bundle type of the processes
+     * @param info, app name in Application record.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int GetRunningProcessesByBundleType(const BundleType bundleType,
+        std::vector<RunningProcessInfo> &info) = 0;
+
+    /**
      * GetAllRenderProcesses, call GetAllRenderProcesses() through proxy project.
      * Obtains information about render processes that are running on the device.
      *

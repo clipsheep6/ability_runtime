@@ -44,6 +44,8 @@ public:
     MOCK_METHOD2(KillApplicationByUid, int(const std::string&, const int uid));
     MOCK_METHOD1(IsBackgroundRunningRestricted, int(const std::string& bundleName));
     MOCK_METHOD1(GetAllRunningProcesses, int(std::vector<RunningProcessInfo>& info));
+    MOCK_METHOD2(GetRunningProcessesByBundleType, int(const BundleType bundleType,
+        std::vector<RunningProcessInfo>& info));
     MOCK_METHOD2(GetProcessRunningInfosByUserId, int(std::vector<RunningProcessInfo>& info, int32_t userId));
     MOCK_METHOD1(GetAllRenderProcesses, int(std::vector<RenderProcessInfo>& info));
     MOCK_METHOD0(GetAmsMgr, sptr<IAmsMgr>());

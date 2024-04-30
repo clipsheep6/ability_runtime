@@ -236,6 +236,31 @@ int32_t AppMgrProxy::GetAllRunningProcesses(std::vector<RunningProcessInfo> &inf
     return result;
 }
 
+int32_t AppMgrProxy::GetRunningProcessesByBundleType(const BundleType bundleType,
+    std::vector<RunningProcessInfo> &info)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteInt32(static_cast<int32_t>(bundleType))) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Bundle type write failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!SendTransactCmd(AppMgrInterfaceCode::APP_GET_RUNNING_PROCESSES_BY_BUNDLE_TYPE, data, reply)) {
+        return ERR_NULL_OBJECT;
+    }
+    auto error = GetParcelableInfos<RunningProcessInfo>(reply, info);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::APPMGR, "GetParcelableInfos fail, error: %{public}d", error);
+        return error;
+    }
+    int result = reply.ReadInt32();
+    return result;
+}
+
 int32_t AppMgrProxy::GetAllRenderProcesses(std::vector<RenderProcessInfo> &info)
 {
     MessageParcel data;

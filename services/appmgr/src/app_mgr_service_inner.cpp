@@ -57,6 +57,9 @@
 #include "mem_mgr_client.h"
 #include "mem_mgr_process_state_info.h"
 #include "os_account_manager_wrapper.h"
+#ifdef OHOS_ACCOUNT_ENABLED
+#include "ohos_account_kits.h"
+#endif // OHOS_ACCOUNT_ENABLED
 #include "parameter.h"
 #include "parameters.h"
 #include "perf_profile.h"
@@ -1350,7 +1353,7 @@ int32_t AppMgrServiceInner::GetAllRunningProcesses(std::vector<RunningProcessInf
     // check permission
     for (const auto &item : appRunningManager_->GetAppRunningRecordMap()) {
         const auto &appRecord = item.second;
-        if (!appRecord->GetSpawned()) {
+        if (!appRecord || !appRecord->GetSpawned()) {
             continue;
         }
         if (isPerm) {
@@ -1365,6 +1368,28 @@ int32_t AppMgrServiceInner::GetAllRunningProcesses(std::vector<RunningProcessInf
             if (callingTokenId == tokenId) {
                 GetRunningProcesses(appRecord, info);
             }
+        }
+    }
+    return ERR_OK;
+}
+
+int32_t AppMgrServiceInner::GetRunningProcessesByBundleType(BundleType bundleType,
+    std::vector<RunningProcessInfo> &info)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "called.");
+    CHECK_CALLER_IS_SYSTEM_APP;
+    if (!AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "permission deny");
+        return ERR_PERMISSION_DENIED;
+    }
+    for (const auto &item : appRunningManager_->GetAppRunningRecordMap()) {
+        const auto &appRecord = item.second;
+        if (!appRecord || !appRecord->GetSpawned()) {
+            continue;
+        }
+        auto appInfo = appRecord->GetApplicationInfo();
+        if (appInfo && appInfo->bundleType == bundleType) {
+            GetRunningProcesses(appRecord, info);
         }
     }
     return ERR_OK;
@@ -1532,6 +1557,10 @@ void AppMgrServiceInner::GetRunningProcess(const std::shared_ptr<AppRunningRecor
     info.extensionType_ = appRecord->GetExtensionType();
     if (appRecord->GetUserTestInfo() != nullptr && system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
         info.isTestMode = true;
+    }
+    auto appInfo = appRecord->GetApplicationInfo();
+    if (appInfo) {
+        info.bundleType = static_cast<int32_t>(appInfo->bundleType);
     }
 }
 
@@ -2465,6 +2494,25 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     if (hasAccessBundleDirReq) {
         startMsg.flags = startMsg.flags | APP_ACCESS_BUNDLE_DIR;
     }
+
+#ifdef OHOS_ACCOUNT_ENABLED
+    TAG_LOGI(AAFwkTag::APPMGR, "execute with OHOS_ACCOUNT_ENABLED on");
+    auto appInfo = appRecord->GetApplicationInfo();
+    if (appInfo && appInfo->bundleType == BundleType::ATOMIC_SERVICE) {
+        TAG_LOGI(AAFwkTag::APPMGR, "application is of atomic service type");
+        AccountSA::OhosAccountInfo accountInfo;
+        auto errCode = AccountSA::OhosAccountKits::GetInstance().GetOhosAccountInfo(accountInfo);
+        if (errCode == ERR_OK) {
+            TAG_LOGI(AAFwkTag::APPMGR, "GetOhosAccountInfo succeeds, uid %{public}s", accountInfo.uid_.c_str());
+            startMsg.atomicServiceFlag = true;
+            startMsg.atomicAccount = accountInfo.uid_;
+        } else {
+            TAG_LOGE(AAFwkTag::APPMGR, "failed to get ohos account info:%{public}d", errCode);
+        }
+    }
+#else
+    TAG_LOGI(AAFwkTag::APPMGR, "execute with OHOS_ACCOUNT_ENABLED off");
+#endif // OHOS_ACCOUNT_ENABLED
 
     SetOverlayInfo(bundleName, userId, startMsg);
     SetAppEnvInfo(bundleInfo, startMsg);
