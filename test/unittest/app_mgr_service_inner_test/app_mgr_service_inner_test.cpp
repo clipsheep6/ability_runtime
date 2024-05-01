@@ -1206,6 +1206,12 @@ HWTEST_F(AppMgrServiceInnerTest, CreateAppRunningRecord_001, TestSize.Level0)
         applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_EQ(appRecord5, nullptr);
 
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    want->SetParam("multiThread", false);
+    std::shared_ptr<AppRunningRecord> appRecord6 = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
+    EXPECT_EQ(appRecord6, nullptr);
+
     TAG_LOGI(AAFwkTag::TEST, "CreateAppRunningRecord_001 end");
 }
 

@@ -593,6 +593,7 @@ public:
     bool IsDebugging() const;
     void SetNativeDebug(bool isNativeDebug);
     void SetPerfCmd(const std::string &perfCmd);
+    void SetMultiThread(const bool multiThread);
     void AddRenderRecord(const std::shared_ptr<RenderRecord> &record);
     void RemoveRenderRecord(const std::shared_ptr<RenderRecord> &record);
     std::shared_ptr<RenderRecord> GetRenderRecordByPid(const pid_t pid);
@@ -749,7 +750,7 @@ public:
 
     void SetAssertionPauseFlag(bool flag);
     bool IsAssertionPause() const;
-    
+
     void SetJITEnabled(const bool jitEnabled);
     bool IsJITEnabled() const;
 
@@ -906,6 +907,7 @@ private:
     bool isRestartApp_ = false; // Only app calling RestartApp can be set to true
     bool isAssertPause_ = false;
     bool isNativeStart_ = false;
+    bool isMultiThread_ = false;
     SupportProcessCacheState procCacheSupportState_ = SupportProcessCacheState::UNSPECIFIED;
 };
 

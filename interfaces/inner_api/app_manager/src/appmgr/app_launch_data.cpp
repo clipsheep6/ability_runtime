@@ -96,6 +96,12 @@ bool AppLaunchData::Marshalling(Parcel &parcel) const
         TAG_LOGE(AAFwkTag::APPMGR, "Marshalling, Failed to write app running unique id.");
         return false;
     }
+
+    if (!parcel.WriteBool(isMultiThread_)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write is multi thread flag.");
+        return false;
+    }
+
     return true;
 }
 
@@ -140,6 +146,7 @@ bool AppLaunchData::ReadFromParcel(Parcel &parcel)
     jitEnabled_ = parcel.ReadBool();
     isNativeStart_ = parcel.ReadBool();
     appRunningUniqueId_ = parcel.ReadString();
+    isMultiThread_ = parcel.ReadBool();
     return true;
 }
 
