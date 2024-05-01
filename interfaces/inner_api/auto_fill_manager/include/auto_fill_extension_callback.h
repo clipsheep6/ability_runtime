@@ -58,7 +58,7 @@ public:
 
 private:
     void SendAutoFillSucess(const AAFwk::Want &want);
-    void SendAutoFillFailed(int32_t errCode);
+    void SendAutoFillFailed(int32_t errCode, const AAFwk::Want &want = AAFwk::Want());
     void CloseModalUIExtension();
     void HandleReloadInModal(const AAFwk::WantParams &wantParams);
 
