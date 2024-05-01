@@ -13,18 +13,17 @@
  * limitations under the License.
  */
 class AsyncTaskCallback {
-  private __impl__: any;
-
+  private __impl__: AsyncTaskCallback;
   constructor(object) {
     "use sendable"
     console.log('AsyncTaskCallback constructor config is ' + object.config);
+    console.log('type of object.on***');
     this.__impl__ = object;
-    object.onAsyncTaskCompleted();
   }
 
-  onAsyncTaskCompleted() {
-    console.log('AsyncTaskCallback onAsyncTaskCompleted called.');
-    return this.__impl__.onAsyncTaskCompleted();
+  onAsyncTaskCompleted(startupName) {
+    console.log('AsyncTaskCallback onAsyncTaskCompleted called .' + startupName);
+    this.__impl__.onAsyncTaskCompleted(startupName);
   }
 }
 

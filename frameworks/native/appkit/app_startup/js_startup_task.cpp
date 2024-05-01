@@ -21,8 +21,8 @@
 namespace OHOS {
 namespace AbilityRuntime {
 JsStartupTask::JsStartupTask(const std::string &name, JsRuntime &jsRuntime,
-    std::unique_ptr<NativeReference> &startupJsRef, std::shared_ptr<NativeReference> &contextJsRef)
-    : StartupTask(name), jsRuntime_(jsRuntime), startupJsRef_(std::move(startupJsRef)), contextJsRef_(contextJsRef) {}
+    std::shared_ptr<NativeReference> &startupJsRef, std::shared_ptr<NativeReference> &contextJsRef)
+    : StartupTask(name), jsRuntime_(jsRuntime), startupJsRef_(startupJsRef), contextJsRef_(contextJsRef) {}
 
 JsStartupTask::~JsStartupTask() = default;
 
@@ -37,34 +37,35 @@ int32_t JsStartupTask::Init()
 int32_t JsStartupTask::RunTaskInit(std::unique_ptr<StartupTaskResultCallback> callback)
 {
     if (state_ != State::CREATED) {
-        HILOG_ERROR("%{public}s, state is wrong %{public}d", name_.c_str(), static_cast<int32_t>(state_));
+        HILOG_ERROR("%{public}s, State is wrong %{public}d.", name_.c_str(), static_cast<int32_t>(state_));
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     state_ = State::INITIALIZING;
     callback->Push([weak = weak_from_this()](const std::shared_ptr<StartupTaskResult> &result) {
         auto startupTask = weak.lock();
         if (startupTask == nullptr) {
-            HILOG_ERROR("startupTask is nullptr.");
+            HILOG_ERROR("StartupTask is nullptr.");
             return;
         }
         startupTask->SaveResult(result);
         startupTask->CallExtraCallback(result);
     });
-
-    HILOG_DEBUG("%{public}s, RunTaskInit", name_.c_str());
+    HILOG_DEBUG("%{public}s, RunTaskInit.", name_.c_str());
     if (callCreateOnMainThread_) {
         return JsStartupTaskExecutor::RunOnMainThread(jsRuntime_, startupJsRef_, contextJsRef_, std::move(callback));
     } else {
+        startupTaskResultCallback_ = std::move(callback);
+        AsyncTaskCallBack::jsStartupTaskObjects_.emplace(GetName(), shared_from_this());
         if (LoadJsAsyncTaskExcutor() != ERR_OK) {
-            HILOG_ERROR("LoadJsAsyncTaskExcutor is failed");
+            HILOG_ERROR("Load async task excutor is failed.");
             return ERR_STARTUP_INTERNAL_ERROR;
         }
         if (LoadJsAsyncTaskCallback() != ERR_OK) {
-            HILOG_ERROR("LoadJsAsyncTaskCallback is failed");
+            HILOG_ERROR("Load async task callback is failed.");
             return ERR_STARTUP_INTERNAL_ERROR;
         }
         return JsStartupTaskExecutor::RunOnTaskPool(jsRuntime_, startupJsRef_, contextJsRef_, AsyncTaskExcutorJsRef_,
-            AsyncTaskExcutorCallbackJsRef_);
+            AsyncTaskExcutorCallbackJsRef_, GetName());
     }
 }
 
@@ -92,27 +93,33 @@ int32_t JsStartupTask::LoadJsAsyncTaskCallback()
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
 
-    napi_value callbackObject = nullptr;
-    napi_create_object(env, &callbackObject);
-    if (callbackObject == nullptr) {
-        HILOG_ERROR("CallbackObject is nullptr.");
-        return ERR_STARTUP_INTERNAL_ERROR;
-    }
-
+    napi_value config;
     std::string value = "This is callback value";
-    napi_set_named_property(env, callbackObject, "config", CreateJsValue(env, value));
+    NAPI_CALL_RETURN_INT(
+        env, napi_create_string_utf8(env, value.c_str(), value.length(), &config), ERR_STARTUP_INTERNAL_ERROR);
 
-    std::unique_ptr<AsyncTaskCallBack> AsyncCallback = std::make_unique<AsyncTaskCallBack>();
-    if (AsyncCallback == nullptr) {
-        HILOG_ERROR("Async callback is nullptr.");
-        return ERR_STARTUP_INTERNAL_ERROR;
-    }
-    napi_wrap(env, callbackObject, AsyncCallback.get(), AsyncTaskCallBack::Finalizer, nullptr, nullptr);
-    const char *moduleName = "AsyncTaskCallback";
-    BindNativeFunction(env, callbackObject, "onAsyncTaskCompleted", moduleName, AsyncTaskCallBack::AsyncTaskCompleted);
+    napi_property_descriptor props[] = {
+        DECLARE_NAPI_STATIC_FUNCTION("onAsyncTaskCompleted", AsyncTaskCallBack::AsyncTaskCompleted),
+        DECLARE_NAPI_INSTANCE_PROPERTY("config", config),
+    };
+    napi_value asyncTaskCallbackClass = nullptr;
+    napi_define_sendable_class(env, "AsyncTaskCallback", NAPI_AUTO_LENGTH, AsyncTaskCallBack::Constructor,
+        nullptr, sizeof(props) / sizeof(props[0]), props, nullptr, &asyncTaskCallbackClass);
     AsyncTaskExcutorCallbackJsRef_ =
-        JsRuntime::LoadSystemModuleByEngine(env, "app.appstartup.AsyncTaskCallback", &callbackObject, 1);
+        JsRuntime::LoadSystemModuleByEngine(env, "app.appstartup.AsyncTaskCallback", &asyncTaskCallbackClass, 1);
     return ERR_OK;
+}
+
+void JsStartupTask::onAsyncTaskCompleted()
+{
+    HILOG_INFO("Begin.");
+    if (startupTaskResultCallback_ == nullptr) {
+        HILOG_ERROR("Startup task result callback object is nullptr.");
+        return;
+    }
+    std::shared_ptr<StartupTaskResult> result = std::make_shared<JsStartupTaskResult>(nullptr);
+    startupTaskResultCallback_->Call(result);
+    HILOG_INFO("End.");
 }
 
 int32_t JsStartupTask::RunTaskOnDependencyCompleted(const std::string &dependencyName,
@@ -170,15 +177,45 @@ napi_value JsStartupTask::GetDependencyResult(napi_env env, const std::string &d
     }
 }
 
+std::map<std::string, std::shared_ptr<StartupTask>> AsyncTaskCallBack::jsStartupTaskObjects_;
+
 napi_value AsyncTaskCallBack::AsyncTaskCompleted(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("Called.");
-    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, AsyncTaskCallBack, onAsyncTaskCompleted, nullptr);
+    size_t argc = 1;
+    napi_value argv[1] = {nullptr};
+    napi_value thisVar = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
+
+    std::string startupName;
+    if (!ConvertFromJsValue(env, argv[0], startupName)) {
+        HILOG_INFO("Convert from js value error.");
+        return CreateJsUndefined(env);
+    }
+
+    std::shared_ptr<StartupTask> startupTask;
+    for (auto iter : AsyncTaskCallBack::jsStartupTaskObjects_) {
+        if (iter.first == startupName) {
+            startupTask = iter.second;
+        }
+    }
+
+    if (startupTask != nullptr) {
+        startupTask->onAsyncTaskCompleted();
+    }
+    HILOG_INFO("End.");
+    return CreateJsUndefined(env);
 }
 
 napi_value AsyncTaskCallBack::onAsyncTaskCompleted(napi_env env, NapiCallbackInfo &info)
 {
     HILOG_INFO("Called.");
+    auto startup = startup_.lock();
+    if (startup == nullptr) {
+        HILOG_ERROR("Startup object is nullptr.");
+        return CreateJsUndefined(env);
+    }
+    startup->onAsyncTaskCompleted();
     return CreateJsUndefined(env);
 }
 
@@ -186,6 +223,12 @@ void AsyncTaskCallBack::Finalizer(napi_env env, void* data, void* hint)
 {
     HILOG_INFO("Called.");
     std::unique_ptr<AsyncTaskCallBack>(static_cast<AsyncTaskCallBack*>(data));
+}
+
+napi_value AsyncTaskCallBack::Constructor(napi_env env, napi_callback_info cbinfo)
+{
+    HILOG_INFO("Called.");
+    return nullptr;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

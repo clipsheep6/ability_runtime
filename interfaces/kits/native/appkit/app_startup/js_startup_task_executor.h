@@ -25,16 +25,16 @@ namespace AbilityRuntime {
 class JsStartupTaskExecutor {
 public:
     static int32_t RunOnMainThread(JsRuntime &jsRuntime,
-        const std::unique_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
+        const std::shared_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
         std::unique_ptr<StartupTaskResultCallback> callback);
 
     static int32_t RunOnTaskPool(JsRuntime &jsRuntime,
-        const std::unique_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
+        const std::shared_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
         const std::unique_ptr<NativeReference> &asynctaskexcutor,
-        const std::unique_ptr<NativeReference> &asyncTaskCallbackJsRef);
+        const std::unique_ptr<NativeReference> &asyncTaskCallbackJsRef, const std::string &name);
 
 private:
-    static int32_t CallStartupInit(napi_env env, const std::unique_ptr<NativeReference> &startup,
+    static int32_t CallStartupInit(napi_env env, const std::shared_ptr<NativeReference> &startup,
         const std::shared_ptr<NativeReference> &context, std::unique_ptr<StartupTaskResultCallback> &callback,
         napi_value &returnVal);
 
