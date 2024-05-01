@@ -41,10 +41,6 @@ ohos_unittest("extension_manager_client_test") {
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
-
-  if (ability_runtime_graphics) {
-    external_deps += [ "window_manager:scene_session" ]
-  }
 }
 
 group("unittest") {

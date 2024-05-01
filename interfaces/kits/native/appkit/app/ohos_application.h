@@ -246,7 +246,8 @@ public:
      *
      * @param abilityInfo
      */
-    void CleanAbilityStage(const sptr<IRemoteObject> &token, const std::shared_ptr<AbilityInfo> &abilityInfo);
+    void CleanAbilityStage(const sptr<IRemoteObject> &token, const std::shared_ptr<AbilityInfo> &abilityInfo,
+        bool isCacheProcess = false);
 
     /**
      * @brief return the application context

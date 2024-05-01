@@ -110,7 +110,8 @@ HWTEST_F(AbilityStageTest, AppExecFwk_AbilityStage_GetContext_002, Function | Me
 {
     GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_GetContext_002 start";
     std::shared_ptr<AbilityRuntime::Context> context = std::make_shared<AbilityRuntime::ContextImpl>();
-    abilityStage_->Init(context);
+    std::weak_ptr<AppExecFwk::OHOSApplication> weak;
+    abilityStage_->Init(context, weak);
     EXPECT_NE(abilityStage_->GetContext(), nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_GetContext_002 end";
 }

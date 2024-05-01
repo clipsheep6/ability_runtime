@@ -40,7 +40,7 @@ sptr<QuickFixManagerService> QuickFixManagerService::GetInstance()
 
 bool QuickFixManagerService::Init()
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(eventMutex_);
     eventRunner_ = AppExecFwk::EventRunner::Create("QuickFixMgrSvrMain");
     if (eventRunner_ == nullptr) {
         TAG_LOGE(AAFwkTag::QUICKFIX, "Create event runner failed.");
@@ -176,13 +176,13 @@ int32_t QuickFixManagerService::RevokeQuickFix(const std::string &bundleName)
 
 void QuickFixManagerService::AddApplyTask(std::shared_ptr<QuickFixManagerApplyTask> applyTask)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(taskMutex_);
     applyTasks_.emplace_back(applyTask);
 }
 
 void QuickFixManagerService::RemoveApplyTask(std::shared_ptr<QuickFixManagerApplyTask> applyTask)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(taskMutex_);
     for (auto it = applyTasks_.begin(); it != applyTasks_.end();) {
         if (*it == applyTask) {
             it = applyTasks_.erase(it);
@@ -194,7 +194,7 @@ void QuickFixManagerService::RemoveApplyTask(std::shared_ptr<QuickFixManagerAppl
 
 bool QuickFixManagerService::CheckTaskRunningState(const std::string &bundleName)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(taskMutex_);
     for (auto &item : applyTasks_) {
         if (item != nullptr && item->GetBundleName() == bundleName) {
             return true;

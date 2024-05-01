@@ -289,6 +289,15 @@ ErrCode AbilityManagerClient::RequestModalUIExtension(const Want &want)
     return abms->RequestModalUIExtension(want);
 }
 
+ErrCode AbilityManagerClient::PreloadUIExtensionAbility(const Want &want, std::string &hostBundleName, int32_t userId)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "elementName:%{public}s, hostBundleName:%{public}s.",
+        want.GetElement().GetURI().c_str(), hostBundleName.c_str());
+    return abms->PreloadUIExtensionAbility(want, hostBundleName, userId);
+}
+
 ErrCode AbilityManagerClient::ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -668,17 +677,18 @@ ErrCode AbilityManagerClient::ContinueMission(const std::string &srcDeviceId, co
     return result;
 }
 
-ErrCode AbilityManagerClient::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
-    const std::string &bundleName, sptr<IRemoteObject> callback, AAFwk::WantParams &wantParams)
+ErrCode AbilityManagerClient::ContinueMission(AAFwk::ContinueMissionInfo continueMissionInfo,
+    const sptr<IRemoteObject> &callback)
+
 {
-    if (srcDeviceId.empty() || dstDeviceId.empty() || callback == nullptr) {
+    if (continueMissionInfo.srcDeviceId.empty() || continueMissionInfo.dstDeviceId.empty() || callback == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "srcDeviceId or dstDeviceId or callback is null!");
         return ERR_INVALID_VALUE;
     }
 
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    int result = abms->ContinueMission(srcDeviceId, dstDeviceId, bundleName, callback, wantParams);
+    int result = abms->ContinueMission(continueMissionInfo, callback);
     return result;
 }
 
@@ -1795,6 +1805,14 @@ int32_t AbilityManagerClient::OpenAtomicService(Want& want, const StartOptions &
     return abms->OpenAtomicService(want, options, callerToken, requestCode, userId);
 }
 
+int32_t AbilityManagerClient::SetResidentProcessEnabled(const std::string &bundleName, bool enable)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_INVALID_VALUE(abms);
+    return abms->SetResidentProcessEnabled(bundleName, enable);
+}
+
 bool AbilityManagerClient::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken, const std::string &appId)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Get ui extension host info.");
@@ -1812,6 +1830,14 @@ int32_t AbilityManagerClient::StartShortcut(const Want &want, const StartOptions
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_INVALID_VALUE(abms);
     return abms->StartShortcut(want, startOptions);
+}
+
+int32_t AbilityManagerClient::GetAbilityStateByPersistentId(int32_t persistentId, bool &state)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "GetAbilityStateByPersistentId, called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_INVALID_VALUE(abms);
+    return abms->GetAbilityStateByPersistentId(persistentId, state);
 }
 } // namespace AAFwk
 } // namespace OHOS

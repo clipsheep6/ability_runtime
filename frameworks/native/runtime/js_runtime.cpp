@@ -244,7 +244,7 @@ std::unique_ptr<JsRuntime> JsRuntime::Create(const Options& options)
     return instance;
 }
 
-void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processName, bool isDebugApp, bool isNativeStart)
+void JsRuntime::StartDebugMode(const DebugOption dOption)
 {
     CHECK_POINTER(jsEnv_);
     if (jsEnv_->GetDebugMode()) {
@@ -253,25 +253,21 @@ void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processNa
     }
     // Set instance id to tid after the first instance.
     if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
-        instanceId_ = static_cast<uint32_t>(gettid());
+        instanceId_ = static_cast<uint32_t>(getproctid());
     }
 
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
-    StartDebuggerInWorkerModule();
-    SetDebuggerApp(isDebugApp);
-    SetNativeStart(isNativeStart);
+    bool isStartWithDebug = dOption.isStartWithDebug;
+    bool isDebugApp = dOption.isDebugApp;
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "Ark VM is starting debug mode [%{public}s]", isStartWithDebug ? "break" : "normal");
+    StartDebuggerInWorkerModule(isDebugApp, dOption.isStartWithNative);
     const std::string bundleName = bundleName_;
     uint32_t instanceId = instanceId_;
     auto weak = jsEnv_;
-    std::string inputProcessName = "";
-    if (bundleName_ != processName) {
-        inputProcessName = processName;
-    }
-    HdcRegister::Get().StartHdcRegister(bundleName_, inputProcessName, isDebugApp,
-        [bundleName, needBreakPoint, instanceId, weak, isDebugApp](int socketFd, std::string option) {
-            TAG_LOGI(AAFwkTag::JSRUNTIME,
-                "HdcRegister callback is call, socket fd is %{public}d, option is %{public}s.", socketFd,
-                option.c_str());
+    std::string inputProcessName = bundleName_ != dOption.processName ? dOption.processName : "";
+    HdcRegister::Get().StartHdcRegister(bundleName_, inputProcessName, isDebugApp, [bundleName,
+            isStartWithDebug, instanceId, weak, isDebugApp] (int socketFd, std::string option) {
+            TAG_LOGI(AAFwkTag::JSRUNTIME, "HdcRegister msg, fd= %{public}d, option= %{public}s.",
+                socketFd, option.c_str());
         if (weak == nullptr) {
                 TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr in hdc register callback");
             return;
@@ -280,26 +276,25 @@ void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processNa
             if (isDebugApp) {
                 ConnectServerManager::Get().StopConnectServer(false);
             }
-            ConnectServerManager::Get().SendDebuggerInfo(needBreakPoint, isDebugApp);
+            ConnectServerManager::Get().SendDebuggerInfo(isStartWithDebug, isDebugApp);
             ConnectServerManager::Get().StartConnectServer(bundleName, socketFd, false);
         } else {
             if (isDebugApp) {
                 weak->StopDebugger(option);
             }
-            weak->StartDebugger(option, ARK_DEBUGGER_LIB_PATH, socketFd, needBreakPoint, instanceId);
+            weak->StartDebugger(option, ARK_DEBUGGER_LIB_PATH, socketFd, isStartWithDebug, instanceId);
         }
     });
     if (isDebugApp) {
         ConnectServerManager::Get().StartConnectServer(bundleName_, -1, true);
     }
 
-    ConnectServerManager::Get().StoreInstanceMessage(gettid(), instanceId_);
+    ConnectServerManager::Get().StoreInstanceMessage(getproctid(), instanceId_);
     EcmaVM* vm = GetEcmaVm();
-    auto debuggerPostTask = jsEnv_->GetDebuggerPostTask();
-    panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? needBreakPoint : false};
-    ConnectServerManager::Get().StoreDebuggerInfo(
-        instanceId_, reinterpret_cast<void*>(vm), debugOption, debuggerPostTask, isDebugApp);
-    jsEnv_->NotifyDebugMode(gettid(), ARK_DEBUGGER_LIB_PATH, instanceId_, isDebugApp, needBreakPoint);
+    auto dTask = jsEnv_->GetDebuggerPostTask();
+    panda::JSNApi::DebugOption option = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? isStartWithDebug : false};
+    ConnectServerManager::Get().StoreDebuggerInfo(instanceId_, reinterpret_cast<void*>(vm), option, dTask, isDebugApp);
+    jsEnv_->NotifyDebugMode(getproctid(), ARK_DEBUGGER_LIB_PATH, instanceId_, isDebugApp, isStartWithDebug);
 }
 
 void JsRuntime::StopDebugMode()
@@ -382,28 +377,23 @@ int32_t JsRuntime::JsperfProfilerCommandParse(const std::string &command, int32_
     return std::stoi(interval);
 }
 
-void JsRuntime::StartProfiler(const std::string &perfCmd, bool needBreakPoint, const std::string &processName,
-    bool isDebugApp, bool isNativeStart)
+void JsRuntime::StartProfiler(const DebugOption dOption)
 {
     CHECK_POINTER(jsEnv_);
     if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
-        instanceId_ = static_cast<uint32_t>(gettid());
+        instanceId_ = static_cast<uint32_t>(getproctid());
     }
 
-    StartDebuggerInWorkerModule();
-    SetDebuggerApp(isDebugApp);
-    SetNativeStart(isNativeStart);
+    bool isStartWithDebug = dOption.isStartWithDebug;
+    bool isDebugApp = dOption.isDebugApp;
+    StartDebuggerInWorkerModule(isDebugApp, dOption.isStartWithNative);
     const std::string bundleName = bundleName_;
     auto weak = jsEnv_;
     uint32_t instanceId = instanceId_;
-    std::string inputProcessName = "";
-    if (bundleName_ != processName) {
-        inputProcessName = processName;
-    }
+    std::string inputProcessName = bundleName_ != dOption.processName ? dOption.processName : "";
     HdcRegister::Get().StartHdcRegister(bundleName_, inputProcessName, isDebugApp,
-        [bundleName, needBreakPoint, instanceId, weak, isDebugApp](int socketFd, std::string option) {
-        TAG_LOGI(AAFwkTag::JSRUNTIME, "HdcRegister callback is call, socket fd is %{public}d, option is %{public}s.",
-            socketFd, option.c_str());
+        [bundleName, isStartWithDebug, instanceId, weak, isDebugApp](int socketFd, std::string option) {
+        TAG_LOGI(AAFwkTag::JSRUNTIME, "HdcRegister msg, fd= %{public}d, option= %{public}s.", socketFd, option.c_str());
         if (weak == nullptr) {
             TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr in hdc register callback");
             return;
@@ -412,33 +402,32 @@ void JsRuntime::StartProfiler(const std::string &perfCmd, bool needBreakPoint, c
             if (isDebugApp) {
                 ConnectServerManager::Get().StopConnectServer(false);
             }
-            ConnectServerManager::Get().SendDebuggerInfo(needBreakPoint, isDebugApp);
+            ConnectServerManager::Get().SendDebuggerInfo(isStartWithDebug, isDebugApp);
             ConnectServerManager::Get().StartConnectServer(bundleName, socketFd, false);
         } else {
             if (isDebugApp) {
                 weak->StopDebugger(option);
             }
-            weak->StartDebugger(option, ARK_DEBUGGER_LIB_PATH, socketFd, needBreakPoint, instanceId);
+            weak->StartDebugger(option, ARK_DEBUGGER_LIB_PATH, socketFd, isStartWithDebug, instanceId);
         }
     });
     if (isDebugApp) {
         ConnectServerManager::Get().StartConnectServer(bundleName_, 0, true);
     }
-    ConnectServerManager::Get().StoreInstanceMessage(gettid(), instanceId_);
+    ConnectServerManager::Get().StoreInstanceMessage(getproctid(), instanceId_);
     JsEnv::JsEnvironment::PROFILERTYPE profiler = JsEnv::JsEnvironment::PROFILERTYPE::PROFILERTYPE_HEAP;
     int32_t interval = 0;
     const std::string profilerCommand("profile");
-    if (perfCmd.find(profilerCommand) != std::string::npos) {
+    if (dOption.perfCmd.find(profilerCommand) != std::string::npos) {
         profiler = JsEnv::JsEnvironment::PROFILERTYPE::PROFILERTYPE_CPU;
-        interval = JsperfProfilerCommandParse(perfCmd, DEFAULT_INTER_VAL);
+        interval = JsperfProfilerCommandParse(dOption.perfCmd, DEFAULT_INTER_VAL);
     }
     EcmaVM* vm = GetEcmaVm();
-    auto debuggerPostTask = jsEnv_->GetDebuggerPostTask();
-    panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? needBreakPoint : false};
-    ConnectServerManager::Get().StoreDebuggerInfo(
-        instanceId_, reinterpret_cast<void*>(vm), debugOption, debuggerPostTask, isDebugApp);
+    auto dTask = jsEnv_->GetDebuggerPostTask();
+    panda::JSNApi::DebugOption option = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? isStartWithDebug : false};
+    ConnectServerManager::Get().StoreDebuggerInfo(instanceId_, reinterpret_cast<void*>(vm), option, dTask, isDebugApp);
     TAG_LOGD(AAFwkTag::JSRUNTIME, "profiler:%{public}d interval:%{public}d.", profiler, interval);
-    jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval, gettid(), isDebugApp);
+    jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval, getproctid(), isDebugApp);
 }
 
 bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer)
@@ -721,13 +710,6 @@ bool JsRuntime::Initialize(const Options& options)
             isBundle_ = options.isBundle;
             bundleName_ = options.bundleName;
             codePath_ = options.codePath;
-            ReInitJsEnvImpl(options);
-            LoadAotFile(options);
-            panda::JSNApi::SetBundle(vm, options.isBundle);
-            panda::JSNApi::SetBundleName(vm, options.bundleName);
-            panda::JSNApi::SetHostResolveBufferTracker(
-                vm, JsModuleReader(options.bundleName, options.hapPath, options.isUnique));
-            isModular = !panda::JSNApi::IsBundle(vm);
             panda::JSNApi::SetSearchHapPathTracker(
                 vm, [options](const std::string moduleName, std::string &hapPath) -> bool {
                     if (options.hapModulePath.find(moduleName) == options.hapModulePath.end()) {
@@ -736,6 +718,13 @@ bool JsRuntime::Initialize(const Options& options)
                     hapPath = options.hapModulePath.find(moduleName)->second;
                     return true;
                 });
+            ReInitJsEnvImpl(options);
+            LoadAotFile(options);
+            panda::JSNApi::SetBundle(vm, options.isBundle);
+            panda::JSNApi::SetBundleName(vm, options.bundleName);
+            panda::JSNApi::SetHostResolveBufferTracker(
+                vm, JsModuleReader(options.bundleName, options.hapPath, options.isUnique));
+            isModular = !panda::JSNApi::IsBundle(vm);
             std::vector<panda::HmsMap> systemKitsMap = GetSystemKitsMap(apiTargetVersion_);
             panda::JSNApi::SetHmsModuleList(vm, systemKitsMap);
             std::map<std::string, std::vector<std::vector<std::string>>> pkgContextInfoMap;
@@ -1573,7 +1562,7 @@ void JsRuntime::GetPkgContextInfoListMap(const std::map<std::string, std::string
         std::vector<std::vector<std::string>> pkgContextInfoList;
         auto jsonObject = nlohmann::json::parse(it->second);
         if (jsonObject.is_discarded()) {
-            HILOG_ERROR("moduleName: %{public}s parse json error", it->first.c_str());
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "moduleName: %{public}s parse json error", it->first.c_str());
             continue;
         }
         for (nlohmann::json::iterator it = jsonObject.begin(); it != jsonObject.end(); it++) {
@@ -1636,7 +1625,7 @@ void JsRuntime::GetPkgContextInfoListMap(const std::map<std::string, std::string
             }
             pkgContextInfoList.emplace_back(items);
         }
-        HILOG_INFO("moduleName: %{public}s parse json success", it->first.c_str());
+        TAG_LOGI(AAFwkTag::JSRUNTIME, "moduleName: %{public}s parse json success", it->first.c_str());
         pkgContextInfoMap[it->first] = pkgContextInfoList;
     }
 }

@@ -48,6 +48,8 @@ public:
     bool LoadJsFile(const std::string &srcEntry, const AppExecFwk::HapModuleInfo &hapModuleInfo,
         std::unique_ptr<AbilityRuntime::Runtime> &runtime);
     void SetForkProcessJITEnabled(bool jitEnabled);
+    void SetForkProcessDebugOption(const std::string bundleName, const bool isStartWithDebug, const bool isDebugApp,
+        const bool isStartWithNative);
 
 private:
     ChildProcessManager();
@@ -57,9 +59,11 @@ private:
     void HandleChildProcessBySelfFork(const std::string &srcEntry, const AppExecFwk::BundleInfo &bundleInfo);
     bool hasChildProcessRecord();
     sptr<AppExecFwk::IAppMgr> GetAppMgr();
+    void MakeProcessName(const std::string &srcEntry);
 
     static bool signalRegistered_;
     bool isChildProcessBySelfFork_ = false;
+    int32_t childProcessCount_ = 0;
     
     DISALLOW_COPY_AND_MOVE(ChildProcessManager);
 };

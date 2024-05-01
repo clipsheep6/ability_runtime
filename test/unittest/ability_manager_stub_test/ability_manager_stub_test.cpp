@@ -1746,6 +1746,20 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_RegisterRemoteOnListenerInne
     EXPECT_EQ(res, ERR_NULL_OBJECT);
 }
 
+/**
+ * @tc.name: SetResidentProcessEnableInner_001
+ * @tc.desc: SetResidentProcessEnableInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, SetResidentProcessEnableInner_001, TestSize.Level1)
+{
+    ASSERT_NE(stub_, nullptr);
+    MessageParcel data;
+    MessageParcel reply;
+    auto result = stub_->SetResidentProcessEnableInner(data, reply);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
 /*
  * Feature: AbilityManagerService
  * Function: RegisterRemoteOffListenerInner

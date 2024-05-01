@@ -29,24 +29,16 @@
 #include "ipc_skeleton.h"
 #include "scene_board_judgement.h"
 #include "singleton.h"
+#include "sub_managers_helper.h"
 
 namespace OHOS {
 namespace AAFwk {
 namespace {
     constexpr int32_t U0_USER_ID = 0;
 }
-AppExitReasonHelper::AppExitReasonHelper(
-    std::shared_ptr<UIAbilityLifecycleManager> &uiAbilityLifecycleManager,
-    std::unordered_map<int, std::shared_ptr<MissionListManager>> &missionListManagers,
-    ffrt::mutex &managersMutex) : uiAbilityLifecycleManager_(uiAbilityLifecycleManager),
-    missionListManagers_(missionListManagers),
-    managersMutex_(managersMutex) {}
 
-void AppExitReasonHelper::SetCurrentMissionListManager(
-    const std::shared_ptr<MissionListManager> currentMissionListManager)
-{
-    currentMissionListManager_ = currentMissionListManager;
-}
+AppExitReasonHelper::AppExitReasonHelper(std::shared_ptr<SubManagersHelper> subManagersHelper)
+    : subManagersHelper_(subManagersHelper) {}
 
 int32_t AppExitReasonHelper::RecordAppExitReason(const ExitReason &exitReason)
 {
@@ -64,13 +56,21 @@ int32_t AppExitReasonHelper::RecordAppExitReason(const ExitReason &exitReason)
         return GET_BUNDLE_INFO_FAILED;
     }
 
+    int32_t resultCode = RecordProcessExtensionExitReason(NO_PID, bundleName, exitReason);
+    if (resultCode != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Record Process Extension Exit Reason failed.code: %{public}d", resultCode);
+    }
+
+    CHECK_POINTER_AND_RETURN(subManagersHelper_, ERR_NULL_OBJECT);
     std::vector<std::string> abilityList;
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        CHECK_POINTER_AND_RETURN(uiAbilityLifecycleManager_, ERR_NULL_OBJECT);
-        uiAbilityLifecycleManager_->GetActiveAbilityList(bundleName, abilityList);
+        auto uiAbilityManager = subManagersHelper_->GetUIAbilityManagerByUid(IPCSkeleton::GetCallingUid());
+        CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_NULL_OBJECT);
+        uiAbilityManager->GetActiveAbilityList(bundleName, abilityList);
     } else {
-        CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NULL_OBJECT);
-        currentMissionListManager_->GetActiveAbilityList(bundleName, abilityList);
+        auto currentMissionListManager = subManagersHelper_->GetCurrentMissionListManager();
+        CHECK_POINTER_AND_RETURN(currentMissionListManager, ERR_NULL_OBJECT);
+        currentMissionListManager->GetActiveAbilityList(bundleName, abilityList);
     }
 
     if (abilityList.empty()) {
@@ -91,6 +91,12 @@ int32_t AppExitReasonHelper::RecordProcessExitReason(const int32_t pid, const Ex
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Get bundle name by pid failed.");
         return GET_BUNDLE_INFO_FAILED;
     }
+
+    int32_t resultCode = RecordProcessExtensionExitReason(pid, bundleName, exitReason);
+    if (resultCode != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Record Process Extension Exit Reason failed.code: %{public}d", resultCode);
+    }
+
     return RecordProcessExitReason(pid, exitReason, bundleName, uid);
 }
 
@@ -105,8 +111,7 @@ int32_t AppExitReasonHelper::RecordProcessExitReason(const int32_t pid, const Ex
     int32_t targetUserId = uid / AppExecFwk::Constants::BASE_USER_RANGE;
     std::vector<std::string> abilityLists;
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        CHECK_POINTER_AND_RETURN(uiAbilityLifecycleManager_, ERR_NULL_OBJECT);
-        uiAbilityLifecycleManager_->GetActiveAbilityList(bundleName, abilityLists, targetUserId, pid);
+        GetActiveAbilityListFromUIAabilityManager(bundleName, abilityLists, targetUserId, pid);
     } else if (targetUserId == U0_USER_ID) {
         GetActiveAbilityListByU0(bundleName, abilityLists, pid);
     } else {
@@ -121,11 +126,45 @@ int32_t AppExitReasonHelper::RecordProcessExitReason(const int32_t pid, const Ex
         bundleName, abilityLists, exitReason);
 }
 
+int32_t AppExitReasonHelper::RecordProcessExtensionExitReason(
+    const int32_t pid, const std::string &bundleName, const ExitReason &exitReason)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    CHECK_POINTER_AND_RETURN(subManagersHelper_, ERR_NULL_OBJECT);
+    auto connectManager = subManagersHelper_->GetCurrentConnectManager();
+    CHECK_POINTER_AND_RETURN(connectManager, ERR_NULL_OBJECT);
+    std::vector<std::string> extensionList;
+    int32_t resultCode = ERR_OK;
+    if (pid <= NO_PID) {
+        resultCode = connectManager->GetActiveUIExtensionList(bundleName, extensionList);
+    } else {
+        resultCode = connectManager->GetActiveUIExtensionList(pid, extensionList);
+    }
+    if (resultCode != ERR_OK) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "ResultCode: %{public}d", resultCode);
+        return ERR_GET_ACTIVE_EXTENSION_LIST_EMPTY;
+    }
+
+    if (extensionList.empty()) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "ExtensionList is empty.");
+        return ERR_GET_ACTIVE_EXTENSION_LIST_EMPTY;
+    }
+
+    auto appExitReasonDataMgr = DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance();
+    if (appExitReasonDataMgr == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get app exit reason data mgr instance is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    return appExitReasonDataMgr->SetUIExtensionAbilityExitReason(bundleName, extensionList, exitReason);
+}
+
 void AppExitReasonHelper::GetActiveAbilityListByU0(const std::string bundleName,
     std::vector<std::string> &abilityLists, const int32_t pid)
 {
-    std::lock_guard lock(managersMutex_);
-    for (auto item: missionListManagers_) {
+    CHECK_POINTER(subManagersHelper_);
+    auto missionListManagers = subManagersHelper_->GetMissionListManagers();
+    for (auto& item: missionListManagers) {
         if (!item.second) {
             continue;
         }
@@ -140,27 +179,35 @@ void AppExitReasonHelper::GetActiveAbilityListByU0(const std::string bundleName,
 void AppExitReasonHelper::GetActiveAbilityListByUser(const std::string bundleName,
     std::vector<std::string> &abilityLists, const int32_t targetUserId, const int32_t pid)
 {
-    auto listManager = GetListManagerByUserId(targetUserId);
+    CHECK_POINTER(subManagersHelper_);
+    auto listManager = subManagersHelper_->GetMissionListManagerByUserId(targetUserId);
     if (listManager) {
         listManager->GetActiveAbilityList(bundleName, abilityLists, pid);
     }
-}
-
-std::shared_ptr<MissionListManager> AppExitReasonHelper::GetListManagerByUserId(int32_t userId)
-{
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
-    auto it = missionListManagers_.find(userId);
-    if (it != missionListManagers_.end()) {
-        return it->second;
-    }
-    TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to get MissionListManager. UserId = %{public}d", userId);
-    return nullptr;
 }
 
 bool AppExitReasonHelper::IsExitReasonValid(const ExitReason &exitReason)
 {
     const Reason reason = exitReason.reason;
     return reason >= REASON_MIN || reason <= REASON_MAX;
+}
+
+void AppExitReasonHelper::GetActiveAbilityListFromUIAabilityManager(const std::string bundleName,
+    std::vector<std::string> &abilityLists, const int32_t targetUserId, const int32_t pid)
+{
+    CHECK_POINTER(subManagersHelper_);
+    if (targetUserId == U0_USER_ID) {
+        auto uiAbilityManagers = subManagersHelper_->GetUIAbilityManagers();
+        for (auto& item: uiAbilityManagers) {
+            if (item.second) {
+                item.second->GetActiveAbilityList(bundleName, abilityLists, pid);
+            }
+        }
+    } else {
+        auto uiAbilityManager = subManagersHelper_->GetUIAbilityManagerByUserId(targetUserId);
+        CHECK_POINTER(uiAbilityManager);
+        uiAbilityManager->GetActiveAbilityList(bundleName, abilityLists, pid);
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

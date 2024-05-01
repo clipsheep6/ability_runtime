@@ -60,11 +60,11 @@ ShellCommandResult TestObserver::ExecuteShellCommand(const std::string& cmd, con
 
     auto cmdExecutor = std::make_shared<ShellCommandExecutor>(cmd, timeoutSec);
     if (!cmdExecutor) {
-        TAG_LOGE(AAFwkTag::AA_TOOL, "Failed to create ShellCommandExecutor intance");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Failed to create ShellCommandExecutor instance");
         return {};
     }
 
-    if (!std::make_shared<ShellCommandConfigLoder>()->ReadConfig(AA_TOOL_COMMAND_CONFIG)) {
+    if (!std::make_shared<ShellCommandConfigLoader>()->ReadConfig(AA_TOOL_COMMAND_CONFIG)) {
         TAG_LOGE(AAFwkTag::AA_TOOL, "Failed to read config");
         return {};
     }

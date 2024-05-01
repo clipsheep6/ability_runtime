@@ -51,8 +51,10 @@ struct DialogPosition {
     DialogAlign align = DialogAlign::CENTER;
 };
 struct DialogAppInfo {
-    int32_t iconId = 0;
-    int32_t labelId = 0;
+    int32_t abilityIconId = 0;
+    int32_t abilityLabelId = 0;
+    int32_t bundleIconId = 0;
+    int32_t bundleLabelId = 0;
     std::string bundleName = {};
     std::string abilityName = {};
     std::string moduleName = {};
@@ -67,7 +69,6 @@ public:
     explicit SystemDialogScheduler() = default;
     virtual ~SystemDialogScheduler() = default;
 
-    bool GetANRDialogWant(int userId, int pid, AAFwk::Want &want);
     int GetSelectorDialogWantCommon(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant,
         const sptr<IRemoteObject> &callerToken);
     int GetPcSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant,
@@ -79,18 +80,7 @@ public:
     Want GetSwitchUserDialogWant();
     bool GetAssertFaultDialogWant(Want &want);
 
-    void SetDeviceType(const std::string &deviceType)
-    {
-        deviceType_ = deviceType;
-    }
-
-    const std::string GetDeviceType()
-    {
-        return deviceType_;
-    }
-
 private:
-    const std::string GetAnrParams(const DialogPosition position, const std::string &appName) const;
     const std::string GetSelectorParams(const std::vector<DialogAppInfo> &infos) const;
     const std::string GetPcSelectorParams(const std::vector<DialogAppInfo> &infos,
         const std::string &type, int32_t userId, const std::string &action) const;
@@ -112,9 +102,6 @@ private:
 
     void GetAppNameFromResource(int32_t labelId,
         const std::string &bundleName, int32_t userId, std::string &appName);
-
-private:
-    std::string deviceType_ = {};
 };
 }  // namespace AAFwk
 }  // namespace OHOS

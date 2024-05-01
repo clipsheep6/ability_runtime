@@ -283,7 +283,14 @@ public:
      * @param pid App process pid.
      * @param flag assertion pause state.
      */
-    virtual void SetAppAssertionPauseState(int32_t pid, bool flag) {};
+    virtual void SetAppAssertionPauseState(int32_t pid, bool flag) {}
+
+    /**
+     * @brief Set resident process enable status.
+     * @param bundleName The application bundle name.
+     * @param enable The current updated enable status.
+     */
+    virtual void SetKeepAliveEnableState(const std::string &bundleName, bool enable) {};
 
     /**
      * To clear the process by ability token.
@@ -291,6 +298,12 @@ public:
      * @param token the unique identification to the ability.
      */
     virtual void ClearProcessByToken(sptr<IRemoteObject> token) {}
+
+    /**
+     * whether memory size is sufficent.
+     * @return Returns true is sufficent memory size, others return false.
+     */
+    virtual bool IsMemorySizeSufficent() = 0;
 
     enum class Message {
         LOAD_ABILITY = 0,
@@ -335,6 +348,8 @@ public:
         REGISTER_ABILITY_MS_DELEGATE,
         KILL_PROCESSES_BY_PIDS,
         ATTACH_PID_TO_PARENT,
+        IS_MEMORY_SIZE_SUFFICIENT,
+        SET_KEEP_ALIVE_ENABLE_STATE,
     };
 };
 }  // namespace AppExecFwk

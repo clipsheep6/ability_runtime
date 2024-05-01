@@ -70,19 +70,19 @@ private:
         std::string uriStr;
         if (!OHOS::AppExecFwk::UnwrapStringFromJS2(env, info.argv[0], uriStr)) {
             TAG_LOGE(AAFwkTag::URIPERMMGR, "The uriStr is invalid.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param uri failed, uri must be string.");
             return CreateJsUndefined(env);
         }
         int flag = 0;
         if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(env, info.argv[1], flag)) {
             TAG_LOGE(AAFwkTag::URIPERMMGR, "The flag is invalid.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param flag failed, flag must be number.");
             return CreateJsUndefined(env);
         }
         std::string targetBundleName;
         if (!OHOS::AppExecFwk::UnwrapStringFromJS2(env, info.argv[argCountTwo], targetBundleName)) {
             TAG_LOGE(AAFwkTag::URIPERMMGR, "The targetBundleName is invalid.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param targetBundleName failed, targetBundleName must be string.");
             return CreateJsUndefined(env);
         }
         auto selfToken = IPCSkeleton::GetSelfTokenID();
@@ -132,13 +132,13 @@ private:
         std::string uriStr;
         if (!OHOS::AppExecFwk::UnwrapStringFromJS2(env, info.argv[0], uriStr)) {
             TAG_LOGE(AAFwkTag::URIPERMMGR, "invalid of the uriStr.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param uri failed, uri must be string.");
             return CreateJsUndefined(env);
         }
         std::string bundleName;
         if (!OHOS::AppExecFwk::UnwrapStringFromJS2(env, info.argv[1], bundleName)) {
             TAG_LOGE(AAFwkTag::URIPERMMGR, "The bundleName is invalid.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param bundleName failed, bundleName must be string.");
             return CreateJsUndefined(env);
         }
         auto selfToken = IPCSkeleton::GetSelfTokenID();

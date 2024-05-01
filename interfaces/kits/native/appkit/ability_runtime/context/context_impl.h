@@ -140,6 +140,8 @@ public:
      */
     std::string GetDistributedFilesDir() override;
 
+    std::string GetCloudFileDir() override;
+
     /**
      * @brief Switch file area
      *
@@ -353,6 +355,8 @@ public:
      */
     Global::Resource::DeviceType GetDeviceType() const override;
 
+    int32_t SetSupportedProcessCacheSelf(bool isSupport);
+
     static const int EL_DEFAULT = 1;
 
 protected:
@@ -365,6 +369,8 @@ private:
     static const std::string CONTEXT_DISTRIBUTEDFILES_BASE_BEFORE;
     static const std::string CONTEXT_DISTRIBUTEDFILES_BASE_MIDDLE;
     static const std::string CONTEXT_DISTRIBUTEDFILES;
+    static const std::string CONTEXT_CLOUDFILE_DIR_BASE_BEFORE;
+    static const std::string CONTEXT_CLOUDFILE_DIR_BASE_MIDDLE;
     static const std::string CONTEXT_FILE_SEPARATOR;
     static const std::string CONTEXT_DATA;
     static const std::string CONTEXT_DATA_STORAGE;

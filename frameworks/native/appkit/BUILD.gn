@@ -224,9 +224,9 @@ ohos_shared_library("appkit_native") {
   }
 
   if (purgeable_ashmem_enable && defined(global_parts_info) &&
-      defined(global_parts_info.resourceschedule_memmgr_plugin)) {
+      defined(global_parts_info.resourceschedule_memmgr_override)) {
     defines += [ "IMAGE_PURGEABLE_PIXELMAP" ]
-    external_deps += [ "memmgr_plugin:libpurgeablemem_plugin" ]
+    external_deps += [ "memmgr_override:libpurgeablemem_plugin" ]
   }
 
   innerapi_tags = [ "platformsdk" ]
@@ -443,6 +443,7 @@ ohos_shared_library("appkit_manager_helper") {
     "bundle_framework:libappexecfwk_common",
     "c_utils:utils",
     "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]

@@ -21,6 +21,7 @@
 
 #include "appexecfwk_errors.h"
 #include "common_event_support.h"
+#include "exit_resident_process_manager.h"
 #include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
 #include "os_account_manager_wrapper.h"
@@ -30,6 +31,7 @@
 #include "scene_board_judgement.h"
 #include "ui_extension_utils.h"
 #include "app_mgr_service_const.h"
+#include "cache_process_manager.h"
 #ifdef EFFICIENCY_MANAGER_ENABLE
 #include "suspend_manager_client.h"
 #endif
@@ -131,6 +133,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
             };
             auto appInfoIter = std::find_if(appInfoList.begin(), appInfoList.end(), isExist);
             if (appInfoIter != appInfoList.end()) {
+                DelayedSingleton<CacheProcessManager>::GetInstance()->ReuseCachedProcess(appRecord);
                 return appRecord;
             }
         }
@@ -207,7 +210,8 @@ bool AppRunningManager::ProcessExitByBundleName(const std::string &bundleName, s
         const auto &appRecord = item.second;
         // condition [!appRecord->IsKeepAliveApp()] Is to not kill the resident process.
         // Before using this method, consider whether you need.
-        if (appRecord && !appRecord->IsKeepAliveApp()) {
+        if (appRecord && (!appRecord->IsKeepAliveApp() ||
+            !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent())) {
             pid_t pid = appRecord->GetPriorityObject()->GetPid();
             auto appInfoList = appRecord->GetAppInfoList();
             auto isExist = [&bundleName](const std::shared_ptr<ApplicationInfo> &appInfo) {
@@ -366,8 +370,10 @@ void AppRunningManager::RemoveAppRunningRecordById(const int32_t recordId)
     std::shared_ptr<AppRunningRecord> appRecord = nullptr;
     {
         std::lock_guard<ffrt::mutex> guard(lock_);
-        appRecord = appRunningRecordMap_.at(recordId);
-        appRunningRecordMap_.erase(recordId);
+        if (appRunningRecordMap_.find(recordId) != appRunningRecordMap_.end()) {
+            appRecord = appRunningRecordMap_.at(recordId);
+            appRunningRecordMap_.erase(recordId);
+        }
     }
 
     if (appRecord != nullptr && appRecord->GetPriorityObject() != nullptr) {
@@ -455,7 +461,8 @@ void AppRunningManager::HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &to
         abilityRecord->SetTerminating();
     }
 
-    if (appRecord->IsLastAbilityRecord(token) && !appRecord->IsKeepAliveApp()) {
+    if (appRecord->IsLastAbilityRecord(token) && (!appRecord->IsKeepAliveApp() ||
+        !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent())) {
         appRecord->SetTerminating();
     }
 
@@ -485,7 +492,15 @@ void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token)
         abilityRecord->SetTerminating();
     }
 
-    if (appRecord->IsLastAbilityRecord(token) && !appRecord->IsKeepAliveApp()) {
+    if (appRecord->IsLastAbilityRecord(token) && (!appRecord->IsKeepAliveApp() ||
+        !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent())) {
+        auto cacheProcMgr = DelayedSingleton<CacheProcessManager>::GetInstance();
+        if (cacheProcMgr != nullptr && cacheProcMgr->IsAppShouldCache(appRecord)) {
+            cacheProcMgr->PenddingCacheProcess(appRecord);
+            TAG_LOGI(AAFwkTag::APPMGR, "App %{public}s supports process cache, not terminate record.",
+                appRecord->GetBundleName().c_str());
+            return;
+        }
         TAG_LOGI(AAFwkTag::APPMGR, "The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
     }
@@ -537,7 +552,14 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
         appRecord->TerminateAbility(token, false);
     }
     auto isLauncherApp = appRecord->GetApplicationInfo()->isLauncherApp;
-    if (isLastAbility && !appRecord->IsKeepAliveApp() && !isLauncherApp) {
+    if (isLastAbility && (!appRecord->IsKeepAliveApp() ||
+        !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent()) && !isLauncherApp) {
+        auto cacheProcMgr = DelayedSingleton<CacheProcessManager>::GetInstance();
+        if (cacheProcMgr != nullptr && cacheProcMgr->IsAppShouldCache(appRecord)) {
+            TAG_LOGI(AAFwkTag::APPMGR, "App %{public}s is cached, not terminate app.",
+                appRecord->GetBundleName().c_str());
+            return;
+        }
         TAG_LOGD(AAFwkTag::APPMGR, "The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
         if (clearMissionFlag && appMgrServiceInner != nullptr) {
@@ -585,6 +607,10 @@ void AppRunningManager::AssignRunningProcessInfoByAppRecord(
     info.isTestMode = info.isTestProcess && system::GetBoolParameter(DEVELOPER_MODE_STATE, false);
     info.extensionType_ = appRecord->GetExtensionType();
     info.processType_ = appRecord->GetProcessType();
+    auto appInfo = appRecord->GetApplicationInfo();
+    if (appInfo) {
+        info.bundleType = static_cast<int32_t>(appInfo->bundleType);
+    }
 }
 
 void AppRunningManager::SetAbilityForegroundingFlagToAppRecord(const pid_t pid)
@@ -1318,6 +1344,20 @@ int32_t AppRunningManager::RemoveUIExtensionLauncherItem(pid_t pid)
     std::lock_guard<ffrt::mutex> guard(uiExtensionMapLock_);
     for (auto it = uiExtensionLauncherMap_.begin(); it != uiExtensionLauncherMap_.end();) {
         if (it->second.first == pid || it->second.second == pid) {
+            it = uiExtensionLauncherMap_.erase(it);
+            continue;
+        }
+        it++;
+    }
+
+    return ERR_OK;
+}
+
+int32_t AppRunningManager::RemoveUIExtensionLauncherItemById(int32_t uiExtensionAbilityId)
+{
+    std::lock_guard<ffrt::mutex> guard(uiExtensionMapLock_);
+    for (auto it = uiExtensionLauncherMap_.begin(); it != uiExtensionLauncherMap_.end();) {
+        if (it->first == uiExtensionAbilityId) {
             it = uiExtensionLauncherMap_.erase(it);
             continue;
         }

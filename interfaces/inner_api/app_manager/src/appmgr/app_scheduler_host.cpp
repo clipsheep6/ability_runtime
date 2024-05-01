@@ -204,7 +204,8 @@ int32_t AppSchedulerHost::HandleScheduleCleanAbility(MessageParcel &data, Messag
 {
     HITRACE_METER(HITRACE_TAG_APP);
     sptr<IRemoteObject> token = data.ReadRemoteObject();
-    ScheduleCleanAbility(token);
+    bool isCacheProcess = data.ReadBool();
+    ScheduleCleanAbility(token, isCacheProcess);
     return NO_ERROR;
 }
 
@@ -319,6 +320,10 @@ int32_t AppSchedulerHost::HandleNotifyLoadRepairPatch(MessageParcel &data, Messa
     HITRACE_METER(HITRACE_TAG_APP);
     std::string bundleName = data.ReadString();
     auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
+    if (callback == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Callback is null.");
+        return ERR_INVALID_VALUE;
+    }
     auto recordId = data.ReadInt32();
     ScheduleNotifyLoadRepairPatch(bundleName, callback, recordId);
     return NO_ERROR;
@@ -328,6 +333,10 @@ int32_t AppSchedulerHost::HandleNotifyHotReloadPage(MessageParcel &data, Message
 {
     HITRACE_METER(HITRACE_TAG_APP);
     auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
+    if (callback == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Callback is null.");
+        return ERR_INVALID_VALUE;
+    }
     auto recordId = data.ReadInt32();
     ScheduleNotifyHotReloadPage(callback, recordId);
     return NO_ERROR;
@@ -338,6 +347,10 @@ int32_t AppSchedulerHost::HandleNotifyUnLoadRepairPatch(MessageParcel &data, Mes
     HITRACE_METER(HITRACE_TAG_APP);
     std::string bundleName = data.ReadString();
     auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
+    if (callback == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Callback is null.");
+        return ERR_INVALID_VALUE;
+    }
     auto recordId = data.ReadInt32();
     ScheduleNotifyUnLoadRepairPatch(bundleName, callback, recordId);
     return NO_ERROR;

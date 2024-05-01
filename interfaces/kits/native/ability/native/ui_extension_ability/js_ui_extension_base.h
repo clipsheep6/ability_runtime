@@ -65,8 +65,9 @@ public:
      * This function can be called only once in the entire lifecycle of an ui extension.
      *
      * @param Want Indicates the {@link Want} structure containing startup information about the ui extension.
+     * @param launchParam The launch param.
      */
-    void OnStart(const AAFwk::Want &want) override;
+    void OnStart(const AAFwk::Want &want, AAFwk::LaunchParam &launchParam) override;
 
     /**
      * @brief Called back when ui extension is started.

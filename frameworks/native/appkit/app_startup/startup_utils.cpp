@@ -32,7 +32,6 @@ const std::map<int32_t, std::string> ERR_MSG_MAP = {
 
 std::string StartupUtils::GetErrorMessage(int32_t errCode)
 {
-    std::string errMsg;
     auto iter = ERR_MSG_MAP.find(errCode);
     if (iter == ERR_MSG_MAP.end()) {
         return ERR_MSG_MAP.at(ERR_STARTUP_INTERNAL_ERROR);

@@ -23,7 +23,9 @@
 #include "running_process_info.h"
 #include "want.h"
 #include "configuration_convertor.h"
+#include "ability_manager_errors.h"
 using namespace testing::ext;
+
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -659,6 +661,35 @@ HWTEST_F(ApplicationContextTest, GetDistributedFilesDir_0200, TestSize.Level1)
 }
 
 /**
+ * @tc.number: GetCloudFileDir_0100
+ * @tc.name: GetCloudFileDir
+ * @tc.desc: Get Cloud File Dir failed
+ */
+HWTEST_F(ApplicationContextTest, GetCloudFileDir_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetCloudFileDir_0100 start";
+    std::shared_ptr<ContextImpl> contextImpl = nullptr;
+    context_->AttachContextImpl(contextImpl);
+    auto ret = context_->GetCloudFileDir();
+    EXPECT_EQ(ret, "");
+    GTEST_LOG_(INFO) << "GetCloudFileDir_0100 end";
+}
+
+/**
+ * @tc.number: GetCloudFileDir_0200
+ * @tc.name: GetCloudFileDir
+ * @tc.desc:Get Cloud File Dir sucess
+ */
+HWTEST_F(ApplicationContextTest, GetCloudFileDir_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetCloudFileDir_0200 start";
+    context_->AttachContextImpl(mock_);
+    auto ret = context_->GetCloudFileDir();
+    EXPECT_EQ(ret, "/data/service/el2/hmdfs/cloud/data/bundleName");
+    GTEST_LOG_(INFO) << "GetCloudFileDir_0200 end";
+}
+
+/**
  * @tc.number: GetToken_0100
  * @tc.name: GetToken
  * @tc.desc: Get Token failed
@@ -1178,6 +1209,77 @@ HWTEST_F(ApplicationContextTest, RestartApp_0100, TestSize.Level1)
 {
     AAFwk::Want want;
     int32_t res = context_->RestartApp(want);
+    EXPECT_EQ(res, OHOS::ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.number: DispatchConfigurationUpdated_0100
+ * @tc.name: DispatchConfigurationUpdated
+ * @tc.desc: DispatchConfigurationUpdated
+ */
+HWTEST_F(ApplicationContextTest, DispatchConfigurationUpdated_0100, TestSize.Level1)
+{
+    AppExecFwk::Configuration config;
+    context_->DispatchConfigurationUpdated(config);
+    EXPECT_NE(context_, nullptr);
+}
+
+/**
+ * @tc.number: DispatchMemoryLevel_0100
+ * @tc.name: DispatchMemoryLevel
+ * @tc.desc: DispatchMemoryLevel
+ */
+HWTEST_F(ApplicationContextTest, DispatchMemoryLevel_0100, TestSize.Level1)
+{
+    int level = 0;
+    context_->DispatchMemoryLevel(level);
+    EXPECT_NE(context_, nullptr);
+}
+
+/**
+ * @tc.number: RegisterAppConfigUpdateObserver_0100
+ * @tc.name: RegisterAppConfigUpdateObserver
+ * @tc.desc: RegisterAppConfigUpdateObserver
+ */
+HWTEST_F(ApplicationContextTest, RegisterAppConfigUpdateObserver_0100, TestSize.Level1)
+{
+    AppConfigUpdateCallback appConfigChangeCallback;
+    context_->RegisterAppConfigUpdateObserver(appConfigChangeCallback);
+    EXPECT_NE(context_, nullptr);
+}
+
+/**
+ * @tc.number: GetAppRunningUniqueId_0100
+ * @tc.name: GetAppRunningUniqueId
+ * @tc.desc: GetAppRunningUniqueId
+ */
+HWTEST_F(ApplicationContextTest, GetAppRunningUniqueId_0100, TestSize.Level1)
+{
+    context_->GetAppRunningUniqueId();
+    EXPECT_NE(context_, nullptr);
+}
+
+/**
+ * @tc.number: SetAppRunningUniqueId_0100
+ * @tc.name: SetAppRunningUniqueId
+ * @tc.desc: SetAppRunningUniqueId
+ */
+HWTEST_F(ApplicationContextTest, SetAppRunningUniqueId_0100, TestSize.Level1)
+{
+    std::string appRunningUniqueId;
+    context_->SetAppRunningUniqueId(appRunningUniqueId);
+    EXPECT_NE(context_, nullptr);
+}
+
+/**
+ * @tc.number: SetSupportedProcessCacheSelf_0100
+ * @tc.name: SetSupportedProcessCacheSelf
+ * @tc.desc: SetSupportedProcessCacheSelf fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, SetSupportedProcessCacheSelf_0100, TestSize.Level1)
+{
+    bool isSupport = false;
+    int32_t res = context_->SetSupportedProcessCacheSelf(isSupport);
     EXPECT_EQ(res, OHOS::ERR_INVALID_VALUE);
 }
 }  // namespace AbilityRuntime

@@ -392,8 +392,14 @@ void QuickFixManagerApplyTask::HandlePatchDeleted()
 
 void QuickFixManagerApplyTask::PostDeployQuickFixTask(const std::vector<std::string> &quickFixFiles, bool isDebug)
 {
-    sptr<AppExecFwk::IQuickFixStatusCallback> callback = new (std::nothrow) QuickFixManagerStatusCallback(
-        shared_from_this());
+    auto callback = sptr<QuickFixManagerStatusCallback>::MakeSptr(shared_from_this());
+    if (callback == nullptr) {
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Create deploy callback failed.");
+        NotifyApplyStatus(QUICK_FIX_DEPLOY_FAILED);
+        RemoveSelf();
+        return;
+    }
+
     std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
     auto deployTask = [thisWeakPtr, quickFixFiles, callback, isDebug]() {
         auto applyTask = thisWeakPtr.lock();
@@ -426,8 +432,14 @@ void QuickFixManagerApplyTask::PostDeployQuickFixTask(const std::vector<std::str
 
 void QuickFixManagerApplyTask::PostSwitchQuickFixTask()
 {
-    sptr<AppExecFwk::IQuickFixStatusCallback> callback = new (std::nothrow) QuickFixManagerStatusCallback(
-        shared_from_this());
+    auto callback = sptr<QuickFixManagerStatusCallback>::MakeSptr(shared_from_this());
+    if (callback == nullptr) {
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Create switch callback failed.");
+        NotifyApplyStatus(QUICK_FIX_SWICH_FAILED);
+        RemoveSelf();
+        return;
+    }
+
     std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
     auto switchTask = [thisWeakPtr, callback]() {
         auto applyTask = thisWeakPtr.lock();
@@ -459,11 +471,14 @@ void QuickFixManagerApplyTask::PostSwitchQuickFixTask()
 
 void QuickFixManagerApplyTask::PostDeleteQuickFixTask()
 {
-    auto callback = new (std::nothrow) QuickFixManagerStatusCallback(shared_from_this());
+    auto callback = sptr<QuickFixManagerStatusCallback>::MakeSptr(shared_from_this());
     if (callback == nullptr) {
-        TAG_LOGE(AAFwkTag::QUICKFIX, "callback is nullptr.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Create delete callback failed.");
+        NotifyApplyStatus(QUICK_FIX_DELETE_FAILED);
+        RemoveSelf();
         return;
     }
+
     std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
     auto deleteTask = [thisWeakPtr, callback]() {
         auto applyTask = thisWeakPtr.lock();
@@ -628,7 +643,14 @@ void QuickFixManagerApplyTask::NotifyApplyStatus(int32_t resultCode)
 
 void QuickFixManagerApplyTask::PostNotifyLoadRepairPatchTask()
 {
-    sptr<AppExecFwk::IQuickFixCallback> callback = new (std::nothrow) QuickFixNotifyCallback(shared_from_this());
+    auto callback = sptr<QuickFixNotifyCallback>::MakeSptr(shared_from_this());
+    if (callback == nullptr) {
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Create load patch callback failed.");
+        NotifyApplyStatus(QUICK_FIX_NOTIFY_LOAD_PATCH_FAILED);
+        RemoveSelf();
+        return;
+    }
+
     std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
     auto loadPatchTask = [thisWeakPtr, callback]() {
         auto applyTask = thisWeakPtr.lock();
@@ -659,7 +681,14 @@ void QuickFixManagerApplyTask::PostNotifyLoadRepairPatchTask()
 
 void QuickFixManagerApplyTask::PostNotifyUnloadRepairPatchTask()
 {
-    sptr<AppExecFwk::IQuickFixCallback> callback = new (std::nothrow) QuickFixNotifyCallback(shared_from_this());
+    auto callback = sptr<QuickFixNotifyCallback>::MakeSptr(shared_from_this());
+    if (callback == nullptr) {
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Create unload patch callback failed.");
+        NotifyApplyStatus(QUICK_FIX_NOTIFY_UNLOAD_PATCH_FAILED);
+        RemoveSelf();
+        return;
+    }
+
     std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
     auto unloadPatchTask = [thisWeakPtr, callback]() {
         auto applyTask = thisWeakPtr.lock();
@@ -690,7 +719,14 @@ void QuickFixManagerApplyTask::PostNotifyUnloadRepairPatchTask()
 
 void QuickFixManagerApplyTask::PostNotifyHotReloadPageTask()
 {
-    sptr<AppExecFwk::IQuickFixCallback> callback = new (std::nothrow) QuickFixNotifyCallback(shared_from_this());
+    auto callback = sptr<QuickFixNotifyCallback>::MakeSptr(shared_from_this());
+    if (callback == nullptr) {
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Create hotreload callback failed.");
+        NotifyApplyStatus(QUICK_FIX_NOTIFY_RELOAD_PAGE_FAILED);
+        RemoveSelf();
+        return;
+    }
+
     std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
     auto reloadPageTask = [thisWeakPtr, callback]() {
         auto applyTask = thisWeakPtr.lock();
@@ -731,8 +767,8 @@ void QuickFixManagerApplyTask::RegAppStateObserver()
 
     std::vector<std::string> bundleNameList;
     bundleNameList.push_back(bundleName_);
-    sptr<AppExecFwk::IApplicationStateObserver> callback = new (std::nothrow) QuickFixMgrAppStateObserver(
-        shared_from_this());
+    auto callback = sptr<QuickFixMgrAppStateObserver>::MakeSptr(shared_from_this());
+    // The validity of callback will be checked below.
     auto ret = appMgr_->RegisterApplicationStateObserver(callback, bundleNameList);
     if (ret != 0) {
         TAG_LOGE(AAFwkTag::QUICKFIX, "Register application state observer failed.");
@@ -795,7 +831,6 @@ void QuickFixManagerApplyTask::PostRevokeQuickFixTask()
         }
         applyTask->HandleRevokeQuickFixAppStop();
     };
-
     if (eventHandler_ == nullptr || !eventHandler_->PostTask(revokeTask, "QuickFixManager:revokeTask")) {
         TAG_LOGE(AAFwkTag::QUICKFIX, "Post revoke task failed.");
     }
@@ -840,8 +875,8 @@ void QuickFixManagerApplyTask::PostRevokeQuickFixNotifyUnloadPatchTask()
     }
 
     // app process run and wait callback
-    sptr<AppExecFwk::IQuickFixCallback> callback =
-        new (std::nothrow) RevokeQuickFixNotifyCallback(shared_from_this());
+    auto callback = sptr<RevokeQuickFixNotifyCallback>::MakeSptr(shared_from_this());
+    // The validity of callback will be checked below.
     auto ret = appMgr_->NotifyUnLoadRepairPatch(bundleName_, callback);
     if (ret != 0) {
         TAG_LOGE(AAFwkTag::QUICKFIX, "Notify app unload patch failed.");
@@ -854,10 +889,9 @@ void QuickFixManagerApplyTask::PostRevokeQuickFixNotifyUnloadPatchTask()
 
 void QuickFixManagerApplyTask::PostRevokeQuickFixDeleteTask()
 {
-    sptr<AppExecFwk::IQuickFixStatusCallback> callback = new (std::nothrow) RevokeQuickFixTaskCallback(
-        shared_from_this());
-    if (bundleQfMgr_ == nullptr) {
-        TAG_LOGE(AAFwkTag::QUICKFIX, "Bundle quick fix manager is nullptr.");
+    auto callback = sptr<RevokeQuickFixTaskCallback>::MakeSptr(shared_from_this());
+    if (callback == nullptr || bundleQfMgr_ == nullptr) {
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Param invalid.");
         NotifyApplyStatus(QUICK_FIX_BUNDLEMGR_INVALID);
         RemoveSelf();
         return;
@@ -885,10 +919,9 @@ void QuickFixManagerApplyTask::PostRevokeQuickFixProcessDiedTask()
 
 void QuickFixManagerApplyTask::HandleRevokeQuickFixAppStop()
 {
-    sptr<AppExecFwk::IQuickFixStatusCallback> callback = new (std::nothrow) RevokeQuickFixTaskCallback(
-        shared_from_this());
-    if (bundleQfMgr_ == nullptr) {
-        TAG_LOGE(AAFwkTag::QUICKFIX, "Bundle quick fix manager is nullptr.");
+    auto callback = sptr<RevokeQuickFixTaskCallback>::MakeSptr(shared_from_this());
+    if (callback == nullptr || bundleQfMgr_ == nullptr) {
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Param invalid.");
         NotifyApplyStatus(QUICK_FIX_BUNDLEMGR_INVALID);
         RemoveSelf();
         return;

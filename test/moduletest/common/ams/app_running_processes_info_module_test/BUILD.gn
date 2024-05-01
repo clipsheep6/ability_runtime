@@ -27,6 +27,7 @@ ohos_moduletest("AppRunningProcessesInfoModuleTest") {
   ]
 
   sources = [
+    "${ability_runtime_services_path}/appmgr/src/cache_process_manager.cpp",
     "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
     "app_running_processes_info_module_test.cpp",
   ]
@@ -44,6 +45,7 @@ ohos_moduletest("AppRunningProcessesInfoModuleTest") {
     "bundle_framework:appexecfwk_base",
     "ffrt:libffrt",
     "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
   ]

@@ -37,6 +37,7 @@ const size_t IDENTITY_LIST_MAX_SIZE = 10;
 const int32_t BROKER_UID = 5557;
 
 const std::string BLACK_ACTION_SELECT_DATA = "ohos.want.action.select";
+const std::string ACTION_VIEW = "ohos.want.action.viewData";
 const std::string STR_PHONE = "phone";
 const std::string STR_DEFAULT = "default";
 const std::string TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
@@ -47,6 +48,8 @@ const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 const int NFC_CALLER_UID = 1027;
 const int NFC_QUERY_LENGTH = 2;
 const std::string OPEN_LINK_APP_LINKING_ONLY = "appLinkingOnly";
+const std::string HTTP_SCHEME_NAME = "http";
+const std::string HTTPS_SCHEME_NAME = "https";
 
 const std::vector<std::string> ImplicitStartProcessor::blackList = {
     std::vector<std::string>::value_type(BLACK_ACTION_SELECT_DATA),
@@ -69,7 +72,7 @@ bool ImplicitStartProcessor::IsImplicitStartAction(const Want &want)
     }
 
     if (want.GetIntParam(AAFwk::SCREEN_MODE_KEY, ScreenMode::IDLE_SCREEN_MODE) != ScreenMode::IDLE_SCREEN_MODE) {
-        HILOG_INFO("The implicit startup process is not used for the startup of EmbeddaUIAbility");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "The implicit startup process is not used for the startup of EmbeddaUIAbility");
         return false;
     }
 
@@ -88,9 +91,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     CHECK_POINTER_AND_RETURN(sysDialogScheduler, ERR_INVALID_VALUE);
 
     std::vector<DialogAppInfo> dialogAppInfos;
-    auto deviceType = OHOS::system::GetDeviceType();
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "deviceType is %{public}s", deviceType.c_str());
-    auto ret = GenerateAbilityRequestByAction(userId, request, dialogAppInfos, deviceType, false);
+    auto ret = GenerateAbilityRequestByAction(userId, request, dialogAppInfos, false);
     if (ret != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "generate ability request by action failed.");
         return ret;
@@ -152,7 +153,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         }
         std::vector<DialogAppInfo> dialogAllAppInfos;
         bool isMoreHapList = true;
-        ret = GenerateAbilityRequestByAction(userId, request, dialogAllAppInfos, deviceType, isMoreHapList);
+        ret = GenerateAbilityRequestByAction(userId, request, dialogAllAppInfos, isMoreHapList);
         if (ret != ERR_OK) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "generate ability request by action failed.");
             return ret;
@@ -199,7 +200,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
             request.want.RemoveParam("isCreateAppGallerySelector");
             return NotifyCreateModalDialog(request, request.want, userId, dialogAppInfos);
         }
-        ret = abilityMgr->StartAbilityAsCaller(request.want, request.callerToken, nullptr);
+        ret = abilityMgr->ImplicitStartAbilityAsCaller(request.want, request.callerToken, nullptr);
         // reset calling indentity
         IPCSkeleton::SetCallingIdentity(identity);
         return ret;
@@ -217,7 +218,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         request.want.RemoveParam("isCreateAppGallerySelector");
         return NotifyCreateModalDialog(request, request.want, userId, dialogAppInfos);
     }
-    ret = abilityMgr->StartAbilityAsCaller(request.want, request.callerToken, nullptr);
+    ret = abilityMgr->ImplicitStartAbilityAsCaller(request.want, request.callerToken, nullptr);
     // reset calling indentity
     IPCSkeleton::SetCallingIdentity(identity);
     return ret;
@@ -259,15 +260,44 @@ std::string ImplicitStartProcessor::MatchTypeAndUri(const AAFwk::Want &want)
     return type;
 }
 
+static void ProcessLinkType(std::vector<AppExecFwk::AbilityInfo> &abilityInfos)
+{
+    bool appLinkingExist = false;
+    if (!abilityInfos.size()) {
+        return;
+    }
+    for (const auto &info : abilityInfos) {
+        if (info.linkType == AppExecFwk::LinkType::APP_LINK) {
+            appLinkingExist = true;
+            break;
+        }
+    }
+    if (!appLinkingExist) {
+        return;
+    }
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Open applink first!");
+    for (auto it = abilityInfos.begin(); it != abilityInfos.end();) {
+        if (it->linkType == AppExecFwk::LinkType::APP_LINK) {
+            it++;
+            continue;
+        }
+        if (it->linkType == AppExecFwk::LinkType::DEEP_LINK) {
+            it = abilityInfos.erase(it);
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s deleted.", it->name.c_str());
+        }
+    }
+}
+
 int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
-    AbilityRequest &request, std::vector<DialogAppInfo> &dialogAppInfos, std::string &deviceType, bool isMoreHapList)
+    AbilityRequest &request, std::vector<DialogAppInfo> &dialogAppInfos, bool isMoreHapList)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s.", __func__);
     // get abilityinfos from bms
     auto bundleMgrHelper = GetBundleManagerHelper();
     CHECK_POINTER_AND_RETURN(bundleMgrHelper, GET_ABILITY_SERVICE_FAILED);
     auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
-        | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL_URI;
+        | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL_URI
+        | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION;
     std::vector<AppExecFwk::AbilityInfo> abilityInfos;
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
     bool withDefault = false;
@@ -286,30 +316,34 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     if (!IsCallFromAncoShellOrBroker(request.callerToken)) {
         request.want.RemoveParam(ANCO_PENDING_REQUEST);
     }
+
+    if (appLinkingOnly) {
+        abilityInfoFlag = static_cast<uint32_t>(abilityInfoFlag) |
+            static_cast<uint32_t>(AppExecFwk::GetAbilityInfoFlag::GET_ABILITY_INFO_WITH_APP_LINKING);
+    }
+
     IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->ImplicitQueryInfos(
         request.want, abilityInfoFlag, userId, withDefault, abilityInfos, extensionInfos));
-
+    if (isOpenLink && extensionInfos.size() > 0) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "Clear extensionInfos when isOpenLink.");
+        extensionInfos.clear();
+    }
     TAG_LOGI(AAFwkTag::ABILITYMGR,
         "ImplicitQueryInfos, abilityInfo size : %{public}zu, extensionInfos size: %{public}zu.", abilityInfos.size(),
         extensionInfos.size());
 
-    if (isOpenLink && abilityInfos.size() == 0) {
-        HILOG_ERROR("There isn't match app.");
+    if (appLinkingOnly && abilityInfos.size() == 0) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "There isn't match app.");
         return ERR_IMPLICIT_START_ABILITY_FAIL;
     }
 
-    if (appLinkingOnly && abilityInfos.size() == 0) {
-        HILOG_ERROR("There isn't match app.");
-        return ERR_IMPLICIT_START_ABILITY_FAIL;
+    if (isOpenLink && !appLinkingOnly) {
+        ProcessLinkType(abilityInfos);
     }
 
     if (abilityInfos.size() == 1) {
         auto skillUri =  abilityInfos.front().skillUri;
-        for (const auto& iter : skillUri) {
-            if (iter.isMatch) {
-                request.want.SetParam("send_to_erms_targetLinkFeature", iter.linkFeature);
-            }
-        }
+        SetTargetLinkInfo(skillUri, request.want);
     }
 
     if (abilityInfos.size() + extensionInfos.size() > 1) {
@@ -340,6 +374,14 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
             }
         }
     }
+
+    if (isOpenLink) {
+        std::string linkUriScheme = request.want.GetUri().GetScheme();
+        if (linkUriScheme == HTTPS_SCHEME_NAME || linkUriScheme == HTTP_SCHEME_NAME) {
+            request.want.SetAction(ACTION_VIEW);
+        }
+    }
+
     for (const auto &info : abilityInfos) {
         AddInfoParam param = {
             .info = info,
@@ -347,7 +389,6 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
             .isExtension = isExtension,
             .isMoreHapList = isMoreHapList,
             .withDefault = withDefault,
-            .deviceType = deviceType,
             .typeName = typeName,
             .infoNames = infoNames
         };
@@ -355,14 +396,16 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     }
 
     for (const auto &info : extensionInfos) {
-        if (isOpenLink || !isExtension || !CheckImplicitStartExtensionIsValid(request, info)) {
+        if (!isExtension || !CheckImplicitStartExtensionIsValid(request, info)) {
             continue;
         }
         DialogAppInfo dialogAppInfo;
         dialogAppInfo.abilityName = info.name;
         dialogAppInfo.bundleName = info.bundleName;
-        dialogAppInfo.iconId = info.iconId;
-        dialogAppInfo.labelId = info.labelId;
+        dialogAppInfo.abilityIconId = info.iconId;
+        dialogAppInfo.abilityLabelId = info.labelId;
+        dialogAppInfo.bundleIconId = info.applicationInfo.iconId;
+        dialogAppInfo.bundleLabelId = info.applicationInfo.labelId;
         dialogAppInfos.emplace_back(dialogAppInfo);
     }
 
@@ -375,7 +418,8 @@ int ImplicitStartProcessor::QueryBmsAppInfos(AbilityRequest &request, int32_t us
     auto bundleMgrHelper = GetBundleManagerHelper();
     std::vector<AppExecFwk::AbilityInfo> bmsApps;
     auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
-        | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL_URI;
+        | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL_URI
+        | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION;
     std::vector<std::string> apps = request.want.GetStringArrayParam(PARAM_ABILITY_APPINFOS);
     for (std::string appInfoStr : apps) {
         AppExecFwk::AbilityInfo abilityInfo;
@@ -401,8 +445,10 @@ int ImplicitStartProcessor::QueryBmsAppInfos(AbilityRequest &request, int32_t us
             dialogAppInfo.abilityName = abilityInfo.name;
             dialogAppInfo.bundleName = abilityInfo.bundleName;
             dialogAppInfo.moduleName = abilityInfo.moduleName;
-            dialogAppInfo.iconId = abilityInfo.iconId;
-            dialogAppInfo.labelId = abilityInfo.labelId;
+            dialogAppInfo.abilityIconId = abilityInfo.iconId;
+            dialogAppInfo.abilityLabelId = abilityInfo.labelId;
+            dialogAppInfo.bundleIconId = abilityInfo.applicationInfo.iconId;
+            dialogAppInfo.bundleLabelId = abilityInfo.applicationInfo.labelId;
             dialogAppInfos.emplace_back(dialogAppInfo);
         }
     }
@@ -449,23 +495,23 @@ int32_t ImplicitStartProcessor::ImplicitStartAbilityInner(const Want &targetWant
             auto windowMode = targetWant.GetIntParam(Want::PARAM_RESV_WINDOW_MODE, 0);
             startOptions.SetDisplayID(static_cast<int32_t>(displayId));
             startOptions.SetWindowMode(static_cast<int32_t>(windowMode));
-            result = abilityMgr->StartAbility(
+            result = abilityMgr->ImplicitStartAbility(
                 targetWant, startOptions, request.callerToken, userId, request.requestCode);
             break;
         }
         case AbilityCallType::START_SETTINGS_TYPE: {
             CHECK_POINTER_AND_RETURN(request.startSetting, ERR_INVALID_VALUE);
-            result = abilityMgr->StartAbility(
+            result = abilityMgr->ImplicitStartAbility(
                 targetWant, *request.startSetting, request.callerToken, userId, request.requestCode);
             break;
         }
         case AbilityCallType::START_EXTENSION_TYPE:
-            result = abilityMgr->StartExtensionAbility(
+            result = abilityMgr->ImplicitStartExtensionAbility(
                 targetWant, request.callerToken, userId, request.extensionType);
             break;
         default:
             result = abilityMgr->StartAbilityWrap(
-                targetWant, request.callerToken, request.requestCode, userId);
+                targetWant, request.callerToken, request.requestCode, userId, false, false, 0, false, true);
             break;
     }
 
@@ -628,8 +674,10 @@ void ImplicitStartProcessor::AddAbilityInfoToDialogInfos(const AddInfoParam &par
     dialogAppInfo.abilityName = param.info.name;
     dialogAppInfo.bundleName = param.info.bundleName;
     dialogAppInfo.moduleName = param.info.moduleName;
-    dialogAppInfo.iconId = param.info.iconId;
-    dialogAppInfo.labelId = param.info.labelId;
+    dialogAppInfo.abilityIconId = param.info.iconId;
+    dialogAppInfo.abilityLabelId = param.info.labelId;
+    dialogAppInfo.bundleIconId = param.info.applicationInfo.iconId;
+    dialogAppInfo.bundleLabelId = param.info.applicationInfo.labelId;
     dialogAppInfos.emplace_back(dialogAppInfo);
 }
 
@@ -670,6 +718,26 @@ bool ImplicitStartProcessor::IsCallFromAncoShellOrBroker(const sptr<IRemoteObjec
         return true;
     }
     return false;
+}
+
+void ImplicitStartProcessor::SetTargetLinkInfo(const std::vector<AppExecFwk::SkillUriForAbilityAndExtension> &skillUri,
+    Want &want)
+{
+    for (const auto& iter : skillUri) {
+        if (iter.isMatch) {
+            want.RemoveParam("send_to_erms_targetLinkFeature");
+            want.SetParam("send_to_erms_targetLinkFeature", iter.linkFeature);
+            want.RemoveParam("send_to_erms_targetLinkType");
+            if (want.GetBoolParam(OPEN_LINK_APP_LINKING_ONLY, false)) {
+                want.SetParam("send_to_erms_targetLinkType", AbilityCallerInfo::LINK_TYPE_UNIVERSAL_LINK);
+            } else if ((iter.scheme == "https" || iter.scheme == "http") &&
+                want.GetAction().compare(ACTION_VIEW)) {
+                want.SetParam("send_to_erms_targetLinkType", AbilityCallerInfo::LINK_TYPE_WEB_LINK);
+            } else {
+                want.SetParam("send_to_erms_targetLinkType", AbilityCallerInfo::LINK_TYPE_DEEP_LINK);
+            }
+        }
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS

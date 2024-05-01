@@ -16,6 +16,7 @@
 #include "js_startup_manager.h"
 
 #include "ability_runtime_error_util.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_startup_config.h"
 #include "js_startup_task_result.h"
@@ -32,7 +33,7 @@ constexpr size_t ARGC_TWO = 2;
 } // namespace
 void JsStartupManager::Finalizer(napi_env env, void *data, void *hint)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::STARTUP, "Called.");
     std::unique_ptr<JsStartupManager>(static_cast<JsStartupManager *>(data));
 }
 
@@ -63,9 +64,9 @@ napi_value JsStartupManager::RemoveResult(napi_env env, napi_callback_info info)
 
 napi_value JsStartupManager::OnRun(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::STARTUP, "called.");
     if (info.argc < ARGC_ONE) {
-        HILOG_ERROR("the param is invalid.");
+        TAG_LOGE(AAFwkTag::STARTUP, "the param is invalid.");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
@@ -104,22 +105,22 @@ napi_value JsStartupManager::OnRun(napi_env env, NapiCallbackInfo &info)
 
 napi_value JsStartupManager::OnRemoveAllResult(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::STARTUP, "called.");
     DelayedSingleton<StartupManager>::GetInstance()->RemoveAllResult();
     return CreateJsUndefined(env);
 }
 
 napi_value JsStartupManager::OnGetResult(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::STARTUP, "called.");
     if (info.argc < ARGC_ONE) {
-        HILOG_ERROR("the param is invalid.");
+        TAG_LOGE(AAFwkTag::STARTUP, "the param is invalid.");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
     std::string startupTask;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], startupTask)) {
-        HILOG_ERROR("convert startupTask name failed.");
+        TAG_LOGE(AAFwkTag::STARTUP, "convert startupTask name failed.");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
@@ -127,18 +128,18 @@ napi_value JsStartupManager::OnGetResult(napi_env env, NapiCallbackInfo &info)
     std::shared_ptr<StartupTaskResult> result;
     int32_t res = DelayedSingleton<StartupManager>::GetInstance()->GetResult(startupTask, result);
     if (res != ERR_OK || result == nullptr || result->GetResultCode() != ERR_OK) {
-        HILOG_ERROR("%{public}s, failed to get result.", startupTask.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, failed to get result.", startupTask.c_str());
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
     if (result->GetResultType() != StartupTaskResult::ResultType::JS) {
-        HILOG_ERROR("%{public}s, the result type is not js.", startupTask.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, the result type is not js.", startupTask.c_str());
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
     std::shared_ptr<JsStartupTaskResult> jsResult = std::static_pointer_cast<JsStartupTaskResult>(result);
     if (jsResult == nullptr) {
-        HILOG_ERROR("%{public}s, failed to convert to js result.", startupTask.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, failed to convert to js result.", startupTask.c_str());
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
@@ -151,15 +152,15 @@ napi_value JsStartupManager::OnGetResult(napi_env env, NapiCallbackInfo &info)
 
 napi_value JsStartupManager::OnIsInitialized(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::STARTUP, "called.");
     if (info.argc < ARGC_ONE) {
-        HILOG_ERROR("the param is invalid.");
+        TAG_LOGE(AAFwkTag::STARTUP, "the param is invalid.");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
     std::string startupTask;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], startupTask)) {
-        HILOG_ERROR("convert startupTask name failed.");
+        TAG_LOGE(AAFwkTag::STARTUP, "convert startupTask name failed.");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
@@ -167,7 +168,7 @@ napi_value JsStartupManager::OnIsInitialized(napi_env env, NapiCallbackInfo &inf
     bool isInitialized = false;
     int32_t res = DelayedSingleton<StartupManager>::GetInstance()->IsInitialized(startupTask, isInitialized);
     if (res != ERR_OK) {
-        HILOG_ERROR("%{public}s, failed to get result, res = %{public}d.", startupTask.c_str(), res);
+        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, failed to get result, res = %{public}d.", startupTask.c_str(), res);
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
@@ -176,22 +177,22 @@ napi_value JsStartupManager::OnIsInitialized(napi_env env, NapiCallbackInfo &inf
 
 napi_value JsStartupManager::OnRemoveResult(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::STARTUP, "called.");
     if (info.argc < ARGC_ONE) {
-        HILOG_ERROR("the param is invalid.");
+        TAG_LOGE(AAFwkTag::STARTUP, "the param is invalid.");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
     std::string startupTask;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], startupTask)) {
-        HILOG_ERROR("convert startupTask name failed.");
+        TAG_LOGE(AAFwkTag::STARTUP, "convert startupTask name failed.");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
 
     int32_t res = DelayedSingleton<StartupManager>::GetInstance()->RemoveResult(startupTask);
     if (res != ERR_OK) {
-        HILOG_ERROR("%{public}s, failed to remove result, res = %{public}d.", startupTask.c_str(), res);
+        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, failed to remove result, res = %{public}d.", startupTask.c_str(), res);
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
@@ -200,9 +201,9 @@ napi_value JsStartupManager::OnRemoveResult(napi_env env, NapiCallbackInfo &info
 
 napi_value JsStartupManagerInit(napi_env env, napi_value exportObj)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::STARTUP, "Called.");
     if (env == nullptr || exportObj == nullptr) {
-        HILOG_ERROR("Env or exportObj nullptr.");
+        TAG_LOGE(AAFwkTag::STARTUP, "Env or exportObj nullptr.");
         return nullptr;
     }
 
@@ -223,7 +224,7 @@ int32_t JsStartupManager::GetDependencies(napi_env env, napi_value value, std::v
     bool isArray;
     napi_is_array(env, value, &isArray);
     if (!isArray) {
-        HILOG_ERROR("value is not array.");
+        TAG_LOGE(AAFwkTag::STARTUP, "value is not array.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
@@ -237,13 +238,13 @@ int32_t JsStartupManager::GetDependencies(napi_env env, napi_value value, std::v
         napi_valuetype valueType = napi_undefined;
         napi_typeof(env, napiDep, &valueType);
         if (valueType != napi_string) {
-            HILOG_ERROR("element is not string.");
+            TAG_LOGE(AAFwkTag::STARTUP, "element is not string.");
             return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
         }
 
         std::string startupTask;
         if (!ConvertFromJsValue(env, napiDep, startupTask)) {
-            HILOG_ERROR("convert startupTask name failed.");
+            TAG_LOGE(AAFwkTag::STARTUP, "convert startupTask name failed.");
             return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
         }
         dependencies.push_back(startupTask);
@@ -255,11 +256,11 @@ int32_t JsStartupManager::GetConfig(napi_env env, napi_value value, std::shared_
 {
     std::shared_ptr<JsStartupConfig> startupConfig = std::make_shared<JsStartupConfig>(env);
     if (startupConfig == nullptr) {
-        HILOG_ERROR("startupConfig is null.");
+        TAG_LOGE(AAFwkTag::STARTUP, "startupConfig is null.");
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     if (startupConfig->Init(value) != ERR_OK) {
-        HILOG_ERROR("failed to init config");
+        TAG_LOGE(AAFwkTag::STARTUP, "failed to init config");
         return ERR_STARTUP_INVALID_VALUE;
     }
     config = startupConfig;
@@ -271,14 +272,14 @@ int32_t JsStartupManager::RunStartupTask(napi_env env, NapiCallbackInfo &info,
 {
     std::vector<std::string> dependencies;
     if (GetDependencies(env, info.argv[INDEX_ZERO], dependencies) != ERR_OK) {
-        HILOG_ERROR("failed to get dependencies.");
+        TAG_LOGE(AAFwkTag::STARTUP, "failed to get dependencies.");
         return ERR_STARTUP_INVALID_VALUE;
     }
     std::shared_ptr<StartupConfig> config;
     if (info.argc >= ARGC_TWO) {
         int32_t result = GetConfig(env, info.argv[INDEX_ONE], config);
         if (result != ERR_OK) {
-            HILOG_ERROR("failed to get config: %{public}d", result);
+            TAG_LOGE(AAFwkTag::STARTUP, "failed to get config: %{public}d", result);
             return result;
         }
     }
@@ -286,16 +287,16 @@ int32_t JsStartupManager::RunStartupTask(napi_env env, NapiCallbackInfo &info,
     int32_t result = DelayedSingleton<StartupManager>::GetInstance()->BuildStartupTaskManager(dependencies,
         startupTaskManager);
     if (result != ERR_OK) {
-        HILOG_ERROR("failed to build startup task manager: %{public}d", result);
+        TAG_LOGE(AAFwkTag::STARTUP, "failed to build startup task manager: %{public}d", result);
         return result;
     }
     if (startupTaskManager == nullptr) {
-        HILOG_ERROR("startupTaskManager is nullptr");
+        TAG_LOGE(AAFwkTag::STARTUP, "startupTaskManager is nullptr");
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     result = startupTaskManager->Prepare();
     if (result != ERR_OK) {
-        HILOG_ERROR("failed to prepare startup task manager: %{public}d", result);
+        TAG_LOGE(AAFwkTag::STARTUP, "failed to prepare startup task manager: %{public}d", result);
         return result;
     }
     if (config != nullptr) {

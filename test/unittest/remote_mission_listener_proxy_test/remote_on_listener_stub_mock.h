@@ -46,7 +46,7 @@ public:
     int code_ = 0;
 
     virtual void OnCallback(const uint32_t ContinueState, const std::string &srcDeviceId,
-        const std::string &bundleName) {};
+        const std::string &bundleName, const std::string &continueType, const std::string &srcBundleName) {};
 };
 }  // namespace AAFwk
 }  // namespace OHOS
