@@ -15,12 +15,15 @@
 
 #include "js_startup_task_executor.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
 #include "js_startup_task_result.h"
 
 #define TMP_NAPI_ANONYMOUS_FUNC "_"
-
+namespace {
+constexpr size_t ARGC_FOUR = 4;
+}
 namespace OHOS {
 namespace AbilityRuntime {
 int32_t JsStartupTaskExecutor::RunOnMainThread(JsRuntime &jsRuntime,
@@ -38,39 +41,43 @@ int32_t JsStartupTaskExecutor::RunOnMainThread(JsRuntime &jsRuntime,
     return HandleReturnVal(env, returnVal, callback);
 }
 
-int32_t JsStartupTaskExecutor::RunOnTaskPool(JsRuntime &jsRuntime,
-    const std::unique_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
+int32_t JsStartupTaskExecutor::RunOnTaskPool(
+    JsRuntime &jsRuntime,
+    const std::unique_ptr<NativeReference> &startup,
+    const std::shared_ptr<NativeReference> &context,
     const std::unique_ptr<NativeReference> &asyncTaskExcutor,
-    const std::unique_ptr<NativeReference> &asyncTaskCallbackJsRef, const std::string &name)
+    const std::unique_ptr<NativeReference> &asyncTaskCallback,
+    const std::string &startupName)
 {
+    TAG_LOGD(AAFwkTag::STARTUP, "Called.");
     HandleScope handleScope(jsRuntime);
     auto env = jsRuntime.GetNapiEnv();
 
     if (asyncTaskExcutor == nullptr || startup == nullptr || context == nullptr) {
-        HILOG_ERROR("AsyncTaskExcutor or startup or context is null.");
+        TAG_LOGE(AAFwkTag::STARTUP, "AsyncTaskExcutor or startup or context is null.");
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     napi_value asyncTaskExcutorValue = asyncTaskExcutor->GetNapiValue();
     if (!CheckTypeForNapiValue(env, asyncTaskExcutorValue, napi_object)) {
-        HILOG_ERROR("AsyncTaskExcutor is not napi object.");
+        TAG_LOGE(AAFwkTag::STARTUP, "AsyncTaskExcutor is not napi object.");
         return ERR_STARTUP_INTERNAL_ERROR;
     }
-    napi_value asyncTaskExcutorPushTask = nullptr;
-    napi_get_named_property(env, asyncTaskExcutorValue, "AsyncPushTask", &asyncTaskExcutorPushTask);
-    if (asyncTaskExcutorPushTask == nullptr) {
-        HILOG_ERROR("Failed to get property AsyncPushTask from asyncTaskExcutor.");
+    napi_value asyncPushTask = nullptr;
+    napi_get_named_property(env, asyncTaskExcutorValue, "asyncPushTask", &asyncPushTask);
+    if (asyncPushTask == nullptr) {
+        TAG_LOGE(AAFwkTag::STARTUP, "Failed to get property asyncPushTask from AsyncTaskExcutor.");
         return ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP;
     }
     bool isCallable = false;
-    napi_is_callable(env, asyncTaskExcutorPushTask, &isCallable);
+    napi_is_callable(env, asyncPushTask, &isCallable);
     if (!isCallable) {
-        HILOG_ERROR("AsyncTaskExcutor AsyncPushTask is not callable.");
+        TAG_LOGE(AAFwkTag::STARTUP, "AsyncPushTask is not callable.");
         return ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP;
     }
     napi_value returnVal = nullptr;
-    napi_value argv[4] = { startup->GetNapiValue(), asyncTaskCallbackJsRef->GetNapiValue(),
-        context->GetNapiValue(), CreateJsValue(env, name) };
-    napi_call_function(env, asyncTaskExcutorValue, asyncTaskExcutorPushTask, 4, argv, &returnVal);
+    napi_value argv[] = { startup->GetNapiValue(), asyncTaskCallback->GetNapiValue(),
+        context->GetNapiValue(), CreateJsValue(env, startupName) };
+    napi_call_function(env, asyncTaskExcutorValue, asyncPushTask, ARGC_FOUR, argv, &returnVal);
     return ERR_OK;
 }
 
@@ -140,7 +147,7 @@ int32_t JsStartupTaskExecutor::HandleReturnVal(napi_env env, napi_value returnVa
 
 napi_value JsStartupTaskExecutor::ResolveResultCallback(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::STARTUP, "enter");
     size_t argc = 1;
     napi_value argv[1] = { nullptr };
     void *data = nullptr;
@@ -156,7 +163,7 @@ napi_value JsStartupTaskExecutor::ResolveResultCallback(napi_env env, napi_callb
 
 napi_value JsStartupTaskExecutor::RejectResultCallback(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::STARTUP, "enter");
     void *data = nullptr;
     napi_get_cb_info(env, info, nullptr, nullptr, nullptr, &data);
     auto *callback = static_cast<StartupTaskResultCallback *>(data);
@@ -168,7 +175,7 @@ napi_value JsStartupTaskExecutor::RejectResultCallback(napi_env env, napi_callba
 void JsStartupTaskExecutor::ReplyFailed(StartupTaskResultCallback *callback,
     int32_t resultCode, const std::string &resultMessage)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::STARTUP, "enter");
     if (callback == nullptr) {
         return;
     }
@@ -180,7 +187,7 @@ void JsStartupTaskExecutor::ReplyFailed(StartupTaskResultCallback *callback,
 void JsStartupTaskExecutor::ReplyFailed(std::unique_ptr<StartupTaskResultCallback> callback,
     int32_t resultCode, const std::string &resultMessage)
 {
-    HILOG_ERROR("Failed to execute: %{public}s", resultMessage.c_str());
+    TAG_LOGD(AAFwkTag::STARTUP, "Failed to execute: %{public}s", resultMessage.c_str());
     if (callback == nullptr) {
         return;
     }
@@ -191,7 +198,7 @@ void JsStartupTaskExecutor::ReplyFailed(std::unique_ptr<StartupTaskResultCallbac
 void JsStartupTaskExecutor::ReplySucceeded(StartupTaskResultCallback *callback,
     const std::shared_ptr<NativeReference> &resultRef)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::STARTUP, "enter");
     if (callback == nullptr) {
         return;
     }

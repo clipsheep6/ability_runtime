@@ -15,9 +15,14 @@
 
 #include "js_startup_task.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
 
+namespace {
+constexpr size_t ARGC_TWO = 2;
+constexpr int32_t INDEX_ZERO = 0;
+}
 namespace OHOS {
 namespace AbilityRuntime {
 JsStartupTask::JsStartupTask(const std::string &name, JsRuntime &jsRuntime,
@@ -29,7 +34,7 @@ JsStartupTask::~JsStartupTask() = default;
 int32_t JsStartupTask::Init()
 {
     // init dependencies_, callCreateOnMainThread_, waitOnMainThread_, isExcludeFromAutoStart_
-    HILOG_DEBUG("%{public}s, dump: %{public}d%{public}d%{public}d, dep: %{public}s", name_.c_str(),
+    TAG_LOGD(AAFwkTag::STARTUP, "%{public}s, dump: %{public}d%{public}d%{public}d, dep: %{public}s", name_.c_str(),
         callCreateOnMainThread_, waitOnMainThread_, isExcludeFromAutoStart_, DumpDependencies().c_str());
     return ERR_OK;
 }
@@ -37,45 +42,53 @@ int32_t JsStartupTask::Init()
 int32_t JsStartupTask::RunTaskInit(std::unique_ptr<StartupTaskResultCallback> callback)
 {
     if (state_ != State::CREATED) {
-        HILOG_ERROR("%{public}s, State is wrong %{public}d.", name_.c_str(), static_cast<int32_t>(state_));
+        TAG_LOGE(AAFwkTag::STARTUP,
+            "%{public}s, state is wrong %{public}d", name_.c_str(), static_cast<int32_t>(state_));
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     state_ = State::INITIALIZING;
     callback->Push([weak = weak_from_this()](const std::shared_ptr<StartupTaskResult> &result) {
         auto startupTask = weak.lock();
         if (startupTask == nullptr) {
-            HILOG_ERROR("StartupTask is nullptr.");
+            TAG_LOGE(AAFwkTag::STARTUP, "startupTask is nullptr.");
             return;
         }
         startupTask->SaveResult(result);
         startupTask->CallExtraCallback(result);
     });
-    HILOG_DEBUG("%{public}s, RunTaskInit.", name_.c_str());
+
     if (callCreateOnMainThread_) {
         return JsStartupTaskExecutor::RunOnMainThread(jsRuntime_, startupJsRef_, contextJsRef_, std::move(callback));
-    } else {
-        startupTaskResultCallback_ = std::move(callback);
-        AsyncTaskCallBack::jsStartupTaskObjects_.emplace(GetName(), shared_from_this());
-        if (LoadJsAsyncTaskExcutor() != ERR_OK) {
-            HILOG_ERROR("Load async task excutor is failed.");
-            return ERR_STARTUP_INTERNAL_ERROR;
-        }
-        LoadJsAsyncTaskCallback();
-        return JsStartupTaskExecutor::RunOnTaskPool(jsRuntime_, startupJsRef_, contextJsRef_, AsyncTaskExcutorJsRef_,
-            AsyncTaskExcutorCallbackJsRef_, GetName());
     }
+
+    if (LoadJsAsyncTaskExcutor() != ERR_OK) {
+        TAG_LOGE(AAFwkTag::STARTUP, "Load async task excutor is failed.");
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+    LoadJsAsyncTaskCallback();
+
+    startupTaskResultCallback_ = std::move(callback);
+    auto startupName = GetName();
+    AsyncTaskCallBack::jsStartupTaskObjects_.emplace(startupName, shared_from_this());
+
+    auto result = JsStartupTaskExecutor::RunOnTaskPool(
+        jsRuntime_, startupJsRef_, contextJsRef_, AsyncTaskExcutorJsRef_, AsyncTaskExcutorCallbackJsRef_, startupName);
+    if (result != ERR_OK) {
+        AsyncTaskCallBack::jsStartupTaskObjects_.erase(startupName);
+    }
+    return result;
 }
 
 int32_t JsStartupTask::LoadJsAsyncTaskExcutor()
 {
-    HILOG_INFO("Called.");
+    TAG_LOGD(AAFwkTag::STARTUP, "Called.");
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
 
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
-        HILOG_ERROR("Object is nullptr.");
+        TAG_LOGE(AAFwkTag::STARTUP, "Object is nullptr.");
         return ERR_STARTUP_INTERNAL_ERROR;
     }
 
@@ -86,7 +99,7 @@ int32_t JsStartupTask::LoadJsAsyncTaskExcutor()
 
 void JsStartupTask::LoadJsAsyncTaskCallback()
 {
-    HILOG_INFO("Called.");
+    TAG_LOGD(AAFwkTag::STARTUP, "Called.");
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
 
@@ -106,16 +119,15 @@ void JsStartupTask::LoadJsAsyncTaskCallback()
         JsRuntime::LoadSystemModuleByEngine(env, "app.appstartup.AsyncTaskCallback", &asyncTaskCallbackClass, 1);
 }
 
-void JsStartupTask::onAsyncTaskCompleted()
+void JsStartupTask::OnAsyncTaskCompleted()
 {
-    HILOG_INFO("Begin.");
+    TAG_LOGD(AAFwkTag::STARTUP, "Called.");
     if (startupTaskResultCallback_ == nullptr) {
-        HILOG_ERROR("Startup task result callback object is nullptr.");
+        TAG_LOGE(AAFwkTag::STARTUP, "Startup task result callback object is nullptr.");
         return;
     }
     std::shared_ptr<StartupTaskResult> result = std::make_shared<JsStartupTaskResult>(nullptr);
     startupTaskResultCallback_->Call(result);
-    HILOG_INFO("End.");
 }
 
 int32_t JsStartupTask::RunTaskOnDependencyCompleted(const std::string &dependencyName,
@@ -125,24 +137,25 @@ int32_t JsStartupTask::RunTaskOnDependencyCompleted(const std::string &dependenc
     auto env = jsRuntime_.GetNapiEnv();
 
     if (startupJsRef_ == nullptr) {
-        HILOG_ERROR("%{public}s, startup task is null", name_.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, startup task is null", name_.c_str());
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     napi_value startupValue = startupJsRef_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, startupValue, napi_object)) {
-        HILOG_ERROR("%{public}s, startup task is not napi object", name_.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, startup task is not napi object", name_.c_str());
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     napi_value startupOnDepCompleted = nullptr;
     napi_get_named_property(env, startupValue, "onDependencyCompleted", &startupOnDepCompleted);
     if (startupOnDepCompleted == nullptr) {
-        HILOG_ERROR("%{public}s, failed to get property onDependencyCompleted from startup task.", name_.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP,
+            "%{public}s, failed to get property onDependencyCompleted from startup task.", name_.c_str());
         return ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP;
     }
     bool isCallable = false;
     napi_is_callable(env, startupOnDepCompleted, &isCallable);
     if (!isCallable) {
-        HILOG_ERROR("%{public}s, startup task onDependencyCompleted is not callable.", name_.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, startup task onDependencyCompleted is not callable.", name_.c_str());
         return ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP;
     }
 
@@ -162,7 +175,7 @@ napi_value JsStartupTask::GetDependencyResult(napi_env env, const std::string &d
     } else {
         std::shared_ptr<JsStartupTaskResult> jsResultPtr = std::static_pointer_cast<JsStartupTaskResult>(result);
         if (jsResultPtr == nullptr) {
-            HILOG_ERROR("%{public}s, failed to convert to js result.", dependencyName.c_str());
+            TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, failed to convert to js result.", dependencyName.c_str());
             return CreateJsUndefined(env);
         }
         std::shared_ptr<NativeReference> jsResultRef = jsResultPtr->GetJsStartupResultRef();
@@ -177,54 +190,37 @@ std::map<std::string, std::shared_ptr<StartupTask>> AsyncTaskCallBack::jsStartup
 
 napi_value AsyncTaskCallBack::AsyncTaskCompleted(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("Called.");
-    size_t argc = 2;
-    napi_value argv[2] = {nullptr};
+    TAG_LOGD(AAFwkTag::STARTUP, "Called.");
+    size_t argc = ARGC_TWO;
+    napi_value argv[ARGC_TWO] = { nullptr };
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
 
     std::string startupName;
-    if (!ConvertFromJsValue(env, argv[0], startupName)) {
-        HILOG_INFO("Convert from js startupName error.");
+    if (!ConvertFromJsValue(env, argv[INDEX_ZERO], startupName)) {
+        TAG_LOGE(AAFwkTag::STARTUP, "Convert from js startupName error.");
         return CreateJsUndefined(env);
     }
 
     std::shared_ptr<StartupTask> startupTask;
     for (auto iter : AsyncTaskCallBack::jsStartupTaskObjects_) {
         if (iter.first == startupName) {
-            startupTask = iter.second;
+            startupTask = iter.second.lock();
         }
     }
 
     if (startupTask != nullptr) {
-        startupTask->onAsyncTaskCompleted();
+        startupTask->OnAsyncTaskCompleted();
+        AsyncTaskCallBack::jsStartupTaskObjects_.erase(startupName);
     }
-    HILOG_INFO("End.");
-    return CreateJsUndefined(env);
-}
 
-napi_value AsyncTaskCallBack::onAsyncTaskCompleted(napi_env env, NapiCallbackInfo &info)
-{
-    HILOG_INFO("Called.");
-    auto startup = startup_.lock();
-    if (startup == nullptr) {
-        HILOG_ERROR("Startup object is nullptr.");
-        return CreateJsUndefined(env);
-    }
-    startup->onAsyncTaskCompleted();
     return CreateJsUndefined(env);
-}
-
-void AsyncTaskCallBack::Finalizer(napi_env env, void* data, void* hint)
-{
-    HILOG_INFO("Called.");
-    std::unique_ptr<AsyncTaskCallBack>(static_cast<AsyncTaskCallBack*>(data));
 }
 
 napi_value AsyncTaskCallBack::Constructor(napi_env env, napi_callback_info cbinfo)
 {
-    HILOG_INFO("Called.");
-    return nullptr;
+    TAG_LOGD(AAFwkTag::STARTUP, "Called.");
+    return CreateJsUndefined(env);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

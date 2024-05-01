@@ -13,34 +13,34 @@
  * limitations under the License.
  */
 
-function ConcurrentFunc(startup, asyncCallback, context, startupName) {
+function concurrentFunc(startup, asyncCallback, context, startupName) {
   "use concurrent";
-  console.log('AsyncTaskExcutor ConcurrentFunc start');
+  console.log('concurrentFunc start.');
   let taskPool = requireNapi('taskpool');
   startup.init(context);
   taskPool.Task.sendData(asyncCallback, startupName);
-  console.log('AsyncTaskExcutor ConcurrentFunc end');
+  console.log('concurrentFunc end.');
 }
 
-function SaveInitResult(asyncCallback, startupName) {
-  console.log('AsyncTaskExcutor SaveInitResult');
+function receiveResult(asyncCallback, startupName) {
+  console.log('receiveResult called.');
   asyncCallback.onAsyncTaskCompleted(startupName);
 }
 
-function PushTask(startup, asyncCallback, context, startupName) {
-  console.log('AsyncTaskExcutor PushTask start');
+function pushTask(startup, asyncCallback, context, startupName) {
+  console.log('pushTask start.');
   let taskPool = requireNapi('taskpool');
-  let task = new taskPool.Task(ConcurrentFunc, startup, asyncCallback, context, startupName);
-  task.onReceiveData(SaveInitResult);
+  let task = new taskPool.Task(concurrentFunc, startup, asyncCallback, context, startupName);
+  task.onReceiveData(receiveResult);
   taskPool.execute(task);
-  console.log('AsyncTaskExcutor PushTask end');
+  console.log('pushTask end.');
 }
 
 class AsyncTaskExcutor {
-  public AsyncPushTask(startup, asyncCallback, context, startupName) {
-    console.log('AsyncTaskExcutor AsyncPushTask start');
-    PushTask(startup, asyncCallback, context, startupName);
-    console.log('AsyncTaskExcutor AsyncPushTask end');
+  public asyncPushTask(startup, asyncCallback, context, startupName) {
+    console.log('asyncPushTask AsyncPushTask start.');
+    pushTask(startup, asyncCallback, context, startupName);
+    console.log('asyncPushTask AsyncPushTask end.');
   }
 }
 

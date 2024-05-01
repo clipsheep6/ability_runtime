@@ -27,17 +27,12 @@ namespace OHOS {
 namespace AbilityRuntime {
 class AsyncTaskCallBack {
 public:
-    AsyncTaskCallBack(const std::shared_ptr<StartupTask> &taskup) :startup_(taskup) {}
+    AsyncTaskCallBack() = default;
     ~AsyncTaskCallBack() = default;
 
     static napi_value AsyncTaskCompleted(napi_env env, napi_callback_info info);
-    napi_value onAsyncTaskCompleted(napi_env env, NapiCallbackInfo &info);
-    static void Finalizer(napi_env env, void* data, void* hint);
     static napi_value Constructor(napi_env env, napi_callback_info cbinfo);
-
-    static std::map<std::string, std::shared_ptr<StartupTask>> jsStartupTaskObjects_;
-private:
-    std::weak_ptr<StartupTask> startup_;
+    static std::map<std::string, std::weak_ptr<StartupTask>> jsStartupTaskObjects_;
 };
 
 class JsStartupTask : public StartupTask {
@@ -55,8 +50,10 @@ public:
         const std::shared_ptr<StartupTaskResult> &result) override;
 
     int32_t LoadJsAsyncTaskExcutor();
+
     void LoadJsAsyncTaskCallback();
-    void onAsyncTaskCompleted() override;
+
+    void OnAsyncTaskCompleted() override;
 
 private:
     JsRuntime &jsRuntime_;
