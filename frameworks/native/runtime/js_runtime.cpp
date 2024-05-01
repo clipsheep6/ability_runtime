@@ -617,7 +617,7 @@ void JsRuntime::PostPreload(const Options& options)
         std::string sandBoxAnFilePath = SANDBOX_ARK_CACHE_PATH + options.arkNativeFilePath;
         postOption.SetAnDir(sandBoxAnFilePath);
     }
-    bool profileEnabled = OHOS::system::GetBoolParameter("ark.profile", false);
+    bool profileEnabled = OHOS::system::GetBoolParameter("ark.profile", true);
     postOption.SetEnableProfile(profileEnabled);
     TAG_LOGD(AAFwkTag::JSRUNTIME, "ASMM JIT Verify PostFork, jitEnabled: %{public}d", options.jitEnabled);
     postOption.SetEnableJIT(options.jitEnabled);
