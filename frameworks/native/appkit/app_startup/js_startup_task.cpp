@@ -23,9 +23,9 @@ namespace {
 constexpr size_t ARGC_TWO = 2;
 constexpr int32_t INDEX_ZERO = 0;
 }
-std::map<std::string, std::weak_ptr<StartupTask>> AsyncTaskCallBack::jsStartupTaskObjects_;
 namespace OHOS {
 namespace AbilityRuntime {
+std::map<std::string, std::weak_ptr<StartupTask>> AsyncTaskCallBack::jsStartupTaskObjects_;
 JsStartupTask::JsStartupTask(const std::string &name, JsRuntime &jsRuntime,
     std::unique_ptr<NativeReference> &startupJsRef, std::shared_ptr<NativeReference> &contextJsRef)
     : StartupTask(name), jsRuntime_(jsRuntime), startupJsRef_(std::move(startupJsRef)), contextJsRef_(contextJsRef) {}
