@@ -107,11 +107,11 @@ const std::string PERFCMD_PROFILE = "profile";
 const std::string PERFCMD_DUMPHEAP = "dumpheap";
 namespace {
 #ifdef APP_USE_ARM
-constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib/libformrender.z.so";
+constexpr char FORM_RENDER_LIB_PATH[] = "libformrender.z.so";
 #elif defined(APP_USE_X86_64)
-constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib64/libformrender.z.so";
+constexpr char FORM_RENDER_LIB_PATH[] = "libformrender.z.so";
 #else
-constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib64/libformrender.z.so";
+constexpr char FORM_RENDER_LIB_PATH[] = "libformrender.z.so";
 #endif
 
 constexpr int32_t DELIVERY_TIME = 200;
