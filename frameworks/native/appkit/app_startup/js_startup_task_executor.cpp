@@ -187,7 +187,7 @@ void JsStartupTaskExecutor::ReplyFailed(StartupTaskResultCallback *callback,
 void JsStartupTaskExecutor::ReplyFailed(std::unique_ptr<StartupTaskResultCallback> callback,
     int32_t resultCode, const std::string &resultMessage)
 {
-    TAG_LOGD(AAFwkTag::STARTUP, "Failed to execute: %{public}s", resultMessage.c_str());
+    TAG_LOGE(AAFwkTag::STARTUP, "Failed to execute: %{public}s", resultMessage.c_str());
     if (callback == nullptr) {
         return;
     }
