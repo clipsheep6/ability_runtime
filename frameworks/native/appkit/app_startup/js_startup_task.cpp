@@ -23,6 +23,7 @@ namespace {
 constexpr size_t ARGC_TWO = 2;
 constexpr int32_t INDEX_ZERO = 0;
 }
+std::map<std::string, std::weak_ptr<StartupTask>> AsyncTaskCallBack::jsStartupTaskObjects_;
 namespace OHOS {
 namespace AbilityRuntime {
 JsStartupTask::JsStartupTask(const std::string &name, JsRuntime &jsRuntime,
@@ -185,8 +186,6 @@ napi_value JsStartupTask::GetDependencyResult(napi_env env, const std::string &d
         return jsResultRef->GetNapiValue();
     }
 }
-
-std::map<std::string, std::shared_ptr<StartupTask>> AsyncTaskCallBack::jsStartupTaskObjects_;
 
 napi_value AsyncTaskCallBack::AsyncTaskCompleted(napi_env env, napi_callback_info info)
 {
