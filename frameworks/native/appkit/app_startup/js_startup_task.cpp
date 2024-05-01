@@ -21,8 +21,8 @@
 namespace OHOS {
 namespace AbilityRuntime {
 JsStartupTask::JsStartupTask(const std::string &name, JsRuntime &jsRuntime,
-    std::shared_ptr<NativeReference> &startupJsRef, std::shared_ptr<NativeReference> &contextJsRef)
-    : StartupTask(name), jsRuntime_(jsRuntime), startupJsRef_(startupJsRef), contextJsRef_(contextJsRef) {}
+    std::unique_ptr<NativeReference> &startupJsRef, std::shared_ptr<NativeReference> &contextJsRef)
+    : StartupTask(name), jsRuntime_(jsRuntime), startupJsRef_(std::move(startupJsRef)), contextJsRef_(contextJsRef) {}
 
 JsStartupTask::~JsStartupTask() = default;
 
@@ -60,10 +60,7 @@ int32_t JsStartupTask::RunTaskInit(std::unique_ptr<StartupTaskResultCallback> ca
             HILOG_ERROR("Load async task excutor is failed.");
             return ERR_STARTUP_INTERNAL_ERROR;
         }
-        if (LoadJsAsyncTaskCallback() != ERR_OK) {
-            HILOG_ERROR("Load async task callback is failed.");
-            return ERR_STARTUP_INTERNAL_ERROR;
-        }
+        LoadJsAsyncTaskCallback();
         return JsStartupTaskExecutor::RunOnTaskPool(jsRuntime_, startupJsRef_, contextJsRef_, AsyncTaskExcutorJsRef_,
             AsyncTaskExcutorCallbackJsRef_, GetName());
     }
@@ -87,7 +84,7 @@ int32_t JsStartupTask::LoadJsAsyncTaskExcutor()
     return ERR_OK;
 }
 
-int32_t JsStartupTask::LoadJsAsyncTaskCallback()
+void JsStartupTask::LoadJsAsyncTaskCallback()
 {
     HILOG_INFO("Called.");
     HandleScope handleScope(jsRuntime_);
@@ -95,8 +92,8 @@ int32_t JsStartupTask::LoadJsAsyncTaskCallback()
 
     napi_value config;
     std::string value = "This is callback value";
-    NAPI_CALL_RETURN_INT(
-        env, napi_create_string_utf8(env, value.c_str(), value.length(), &config), ERR_STARTUP_INTERNAL_ERROR);
+    NAPI_CALL_RETURN_VOID(
+        env, napi_create_string_utf8(env, value.c_str(), value.length(), &config));
 
     napi_property_descriptor props[] = {
         DECLARE_NAPI_STATIC_FUNCTION("onAsyncTaskCompleted", AsyncTaskCallBack::AsyncTaskCompleted),
@@ -107,7 +104,6 @@ int32_t JsStartupTask::LoadJsAsyncTaskCallback()
         nullptr, sizeof(props) / sizeof(props[0]), props, nullptr, &asyncTaskCallbackClass);
     AsyncTaskExcutorCallbackJsRef_ =
         JsRuntime::LoadSystemModuleByEngine(env, "app.appstartup.AsyncTaskCallback", &asyncTaskCallbackClass, 1);
-    return ERR_OK;
 }
 
 void JsStartupTask::onAsyncTaskCompleted()
@@ -182,14 +178,14 @@ std::map<std::string, std::shared_ptr<StartupTask>> AsyncTaskCallBack::jsStartup
 napi_value AsyncTaskCallBack::AsyncTaskCompleted(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("Called.");
-    size_t argc = 1;
-    napi_value argv[1] = {nullptr};
+    size_t argc = 2;
+    napi_value argv[2] = {nullptr};
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
 
     std::string startupName;
     if (!ConvertFromJsValue(env, argv[0], startupName)) {
-        HILOG_INFO("Convert from js value error.");
+        HILOG_INFO("Convert from js startupName error.");
         return CreateJsUndefined(env);
     }
 

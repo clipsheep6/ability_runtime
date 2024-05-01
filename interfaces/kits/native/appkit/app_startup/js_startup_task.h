@@ -43,7 +43,7 @@ private:
 class JsStartupTask : public StartupTask {
 public:
     JsStartupTask(const std::string &name, JsRuntime &jsRuntime,
-        std::shared_ptr<NativeReference> &startupJsRef, std::shared_ptr<NativeReference> &contextJsRef_);
+        std::unique_ptr<NativeReference> &startupJsRef, std::shared_ptr<NativeReference> &contextJsRef_);
 
     ~JsStartupTask() override;
 
@@ -55,12 +55,12 @@ public:
         const std::shared_ptr<StartupTaskResult> &result) override;
 
     int32_t LoadJsAsyncTaskExcutor();
-    int32_t LoadJsAsyncTaskCallback();
+    void LoadJsAsyncTaskCallback();
     void onAsyncTaskCompleted() override;
 
 private:
     JsRuntime &jsRuntime_;
-    std::shared_ptr<NativeReference> startupJsRef_;
+    std::unique_ptr<NativeReference> startupJsRef_;
     std::shared_ptr<NativeReference> contextJsRef_;
     std::unique_ptr<NativeReference> AsyncTaskExcutorJsRef_;
     std::unique_ptr<NativeReference> AsyncTaskExcutorCallbackJsRef_;

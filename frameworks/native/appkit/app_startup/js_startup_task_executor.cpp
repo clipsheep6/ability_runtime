@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 int32_t JsStartupTaskExecutor::RunOnMainThread(JsRuntime &jsRuntime,
-    const std::shared_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
+    const std::unique_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
     std::unique_ptr<StartupTaskResultCallback> callback)
 {
     HandleScope handleScope(jsRuntime);
@@ -39,7 +39,7 @@ int32_t JsStartupTaskExecutor::RunOnMainThread(JsRuntime &jsRuntime,
 }
 
 int32_t JsStartupTaskExecutor::RunOnTaskPool(JsRuntime &jsRuntime,
-    const std::shared_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
+    const std::unique_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
     const std::unique_ptr<NativeReference> &asyncTaskExcutor,
     const std::unique_ptr<NativeReference> &asyncTaskCallbackJsRef, const std::string &name)
 {
@@ -74,7 +74,7 @@ int32_t JsStartupTaskExecutor::RunOnTaskPool(JsRuntime &jsRuntime,
     return ERR_OK;
 }
 
-int32_t JsStartupTaskExecutor::CallStartupInit(napi_env env, const std::shared_ptr<NativeReference> &startup,
+int32_t JsStartupTaskExecutor::CallStartupInit(napi_env env, const std::unique_ptr<NativeReference> &startup,
     const std::shared_ptr<NativeReference> &context, std::unique_ptr<StartupTaskResultCallback> &callback,
     napi_value &returnVal)
 {

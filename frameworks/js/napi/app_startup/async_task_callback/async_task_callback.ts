@@ -16,8 +16,6 @@ class AsyncTaskCallback {
   private __impl__: AsyncTaskCallback;
   constructor(object) {
     "use sendable"
-    console.log('AsyncTaskCallback constructor config is ' + object.config);
-    console.log('type of object.on***');
     this.__impl__ = object;
   }
 
