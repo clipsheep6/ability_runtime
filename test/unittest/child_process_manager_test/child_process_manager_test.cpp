@@ -173,5 +173,18 @@ HWTEST_F(ChildProcessManagerTest, LoadJsFile_0100, TestSize.Level0)
     auto ret = ChildProcessManager::GetInstance().LoadJsFile("./ets/process/AProcess.ts", hapModuleInfo, runtime);
     EXPECT_TRUE(ret);
 }
+
+/**
+ * @tc.number: SetForkProcessDebugOption_0100
+ * @tc.desc: Test SetForkProcessDebugOption.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ChildProcessManagerTest, SetForkProcessDebugOption_0100, TestSize.Level0)
+{
+TAG_LOGD(AAFwkTag::TEST, "SetForkProcessDebugOption called.");
+AbilityRuntime::Runtime::DebugOption debugOption;
+ChildProcessManager::GetInstance().SetForkProcessDebugOption("test", false, false, false);
+EXPECT_TRUE(true);
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -17,6 +17,7 @@
 
 #include "ability_manager_errors.h"
 #include "hisysevent.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -40,7 +41,7 @@ bool ContinueRadar::ClickIconContinue(const std::string& func)
         BIZ_STAGE, static_cast<int32_t>(ClickIcon::CLICKICON_CONTINUE),
         STAGE_RES, static_cast<int32_t>(StageRes::STAGE_SUCC));
     if (res != ERR_OK) {
-        HILOG_ERROR("ClickIconContinue error, res:%{public}d", res);
+        TAG_LOGE(AAFwkTag::DEFAULT, "ClickIconContinue error, res:%{public}d", res);
         return false;
     }
     return true;
@@ -73,7 +74,7 @@ bool ContinueRadar::ClickIconStartAbility(const std::string& func, int32_t errCo
             ERROR_CODE, errCode);
     }
     if (res != ERR_OK) {
-        HILOG_ERROR("ClickIconStartAbility error, res:%{public}d", res);
+        TAG_LOGE(AAFwkTag::DEFAULT, "ClickIconStartAbility error, res:%{public}d", res);
         return false;
     }
     return true;
@@ -92,7 +93,7 @@ bool ContinueRadar::ClickIconRecvOver(const std::string& func)
         BIZ_STAGE, static_cast<int32_t>(ClickIcon::CLICKICON_RECV_OVER),
         STAGE_RES, static_cast<int32_t>(StageRes::STAGE_SUCC));
     if (res != ERR_OK) {
-        HILOG_ERROR("ClickIconRecvOver error, res:%{public}d", res);
+        TAG_LOGE(AAFwkTag::DEFAULT, "ClickIconRecvOver error, res:%{public}d", res);
         return false;
     }
     return true;
@@ -125,7 +126,7 @@ bool ContinueRadar::SaveDataContinue(const std::string& func, int32_t errCode)
             ERROR_CODE, errCode);
     }
     if (res != ERR_OK) {
-        HILOG_ERROR("SaveDataContinue error, res:%{public}d", res);
+        TAG_LOGE(AAFwkTag::DEFAULT, "SaveDataContinue error, res:%{public}d", res);
         return false;
     }
     return true;
@@ -143,7 +144,7 @@ bool ContinueRadar::SaveDataRes(const std::string& func)
         BIZ_STAGE, static_cast<int32_t>(SaveData::SAVEDATA_RES),
         STAGE_RES, static_cast<int32_t>(StageRes::STAGE_SUCC));
     if (res != ERR_OK) {
-        HILOG_ERROR("SaveDataRes error, res:%{public}d", res);
+        TAG_LOGE(AAFwkTag::DEFAULT, "SaveDataRes error, res:%{public}d", res);
         return false;
     }
     return true;
@@ -179,7 +180,7 @@ bool ContinueRadar::SaveDataRemoteWant(const std::string& func, int32_t errCode)
             ERROR_CODE, errCode);
     }
     if (res != ERR_OK) {
-        HILOG_ERROR("SaveDataRemoteWant error, res:%{public}d", res);
+        TAG_LOGE(AAFwkTag::DEFAULT, "SaveDataRemoteWant error, res:%{public}d", res);
         return false;
     }
     return true;

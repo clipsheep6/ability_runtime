@@ -16,6 +16,7 @@
 #include "interceptor/crowd_test_interceptor.h"
 
 #include "ability_util.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "start_ability_utils.h"
@@ -27,14 +28,17 @@ const std::string ACTION_MARKET_CROWDTEST = "ohos.want.action.marketCrowdTest";
 }
 ErrCode CrowdTestInterceptor::DoProcess(AbilityInterceptorParam param)
 {
+    if (StartAbilityUtils::skipCrowTest) {
+        return ERR_OK;
+    }
     if (CheckCrowdtest(param.want, param.userId)) {
-        HILOG_ERROR("Crowdtest expired.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Crowdtest expired.");
 #ifdef SUPPORT_GRAPHICS
         if (param.isWithUI) {
             int ret = IN_PROCESS_CALL(AbilityUtil::StartAppgallery(param.want.GetBundle(), param.requestCode,
                 param.userId, ACTION_MARKET_CROWDTEST));
             if (ret != ERR_OK) {
-                HILOG_ERROR("Crowdtest implicit start appgallery failed.");
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "Crowdtest implicit start appgallery failed.");
                 return ret;
             }
         }
@@ -49,7 +53,7 @@ bool CrowdTestInterceptor::CheckCrowdtest(const Want &want, int32_t userId)
     // get crowdtest status and time
     AppExecFwk::ApplicationInfo appInfo;
     if (!StartAbilityUtils::GetApplicationInfo(want.GetBundle(), userId, appInfo)) {
-        HILOG_ERROR("failed to get application info.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to get application info.");
         return false;
     }
 
@@ -57,7 +61,7 @@ bool CrowdTestInterceptor::CheckCrowdtest(const Want &want, int32_t userId)
     int64_t now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
         system_clock::now().time_since_epoch()).count();
     if (appCrowdtestDeadline > 0 && appCrowdtestDeadline < now) {
-        HILOG_INFO("The application is expired, expired time is %{public}s",
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "The application is expired, expired time is %{public}s",
             std::to_string(appCrowdtestDeadline).c_str());
         return true;
     }

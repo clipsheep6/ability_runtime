@@ -284,7 +284,7 @@ napi_value JsUIExtensionContentSession::OnGetUIExtensionHostWindowProxy(napi_env
     napi_value jsExtensionWindow =
         Rosen::JsExtensionWindow::CreateJsExtensionWindow(env, uiWindow_, sessionInfo_->hostWindowId);
     if (jsExtensionWindow == nullptr) {
-        HILOG_ERROR("Failed to create jsExtensionWindow object.");
+        TAG_LOGE(AAFwkTag::UI_EXT, "Failed to create jsExtensionWindow object.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         return CreateJsUndefined(env);
     }
@@ -298,9 +298,9 @@ napi_value JsUIExtensionContentSession::OnGetUIExtensionHostWindowProxy(napi_env
 
 napi_value JsUIExtensionContentSession::OnGetUIExtensionWindowProxy(napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::UI_EXT, "called");
     if (sessionInfo_ == nullptr) {
-        HILOG_ERROR("Invalid session info");
+        TAG_LOGE(AAFwkTag::UI_EXT, "Invalid session info");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         return CreateJsUndefined(env);
     }
@@ -308,7 +308,7 @@ napi_value JsUIExtensionContentSession::OnGetUIExtensionWindowProxy(napi_env env
     napi_value jsExtensionWindow =
         Rosen::JsExtensionWindow::CreateJsExtensionWindow(env, uiWindow_, sessionInfo_->hostWindowId);
     if (jsExtensionWindow == nullptr) {
-        HILOG_ERROR("Failed to create jsExtensionWindow object.");
+        TAG_LOGE(AAFwkTag::UI_EXT, "Failed to create jsExtensionWindow object.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         return CreateJsUndefined(env);
     }
@@ -475,12 +475,12 @@ void JsUIExtensionContentSession::StartAbilityForResultRuntimeTask(napi_env env,
     std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
     RuntimeTask task = [env, asyncTask, element = want.GetElement(), flags = want.GetFlags(), startTime,
         &observer = freeInstallObserver_](int resultCode, const AAFwk::Want& want, bool isInner) {
-        HILOG_DEBUG("OnStartAbilityForResult async callback is enter");
+        TAG_LOGD(AAFwkTag::UI_EXT, "OnStartAbilityForResult async callback is enter");
         std::string bundleName = element.GetBundleName();
         std::string abilityName = element.GetAbilityName();
         napi_value abilityResult = AppExecFwk::WrapAbilityResult(env, resultCode, want);
         if (abilityResult == nullptr) {
-            HILOG_WARN("wrap abilityResult wrong");
+            TAG_LOGW(AAFwkTag::UI_EXT, "wrap abilityResult wrong");
             isInner = true;
             resultCode = ERR_INVALID_VALUE;
         }

@@ -17,6 +17,7 @@
 #include <fstream>
 #include <sstream>
 #include <nlohmann/json.hpp>
+#include <unistd.h>
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
@@ -28,15 +29,25 @@ namespace {
     constexpr static int  COMMANDS_MAX_SIZE = 100;
 }
 
-bool ShellCommandConfigLoder::configState_ = false;
-std::set<std::string> ShellCommandConfigLoder::commands_ = {};
+bool ShellCommandConfigLoader::configState_ = false;
+std::set<std::string> ShellCommandConfigLoader::commands_ = {};
 
-bool ShellCommandConfigLoder::ReadConfig(const std::string &filePath)
+bool ShellCommandConfigLoader::ReadConfig(const std::string &filePath)
 {
     TAG_LOGI(AAFwkTag::AA_TOOL, "%{public}s", __func__);
     if (configState_) {
         TAG_LOGI(AAFwkTag::AA_TOOL, "config has been read");
         return true;
+    }
+
+    if (filePath.empty()) {
+        TAG_LOGE(AAFwkTag::AA_TOOL, "the file is not existed due to empty file path.");
+        return false;
+    }
+
+    if (access(filePath.c_str(), F_OK) != 0) {
+        TAG_LOGE(AAFwkTag::AA_TOOL, "can not access the file: %{private}s.", filePath.c_str());
+        return false;
     }
 
     std::ifstream inFile;

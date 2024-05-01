@@ -144,6 +144,9 @@ enum class AbilityErrorCode {
     // invalid caller.
     ERROR_CODE_INVALID_CALLER = 16200001,
 
+    // Setting permissions for resident processes
+    ERROR_CODE_NO_RESIDENT_PERMISSION = 16200006,
+
     // no such mission id.
     ERROR_CODE_NO_MISSION_ID = 16300001,
 
@@ -155,6 +158,11 @@ enum class AbilityErrorCode {
 
     // observer not found.
     ERROR_CODE_OBSERVER_NOT_FOUND = 16300004,
+
+    // target bundle not exist.
+    ERROR_CODE_TARGET_BUNDLE_NOT_EXIST = 16300005,
+
+    ERROR_CODE_SET_SUPPORTED_PROCESS_CACHE_AGAIN = 16300006,
 };
 
 std::string GetErrorMsg(const AbilityErrorCode& errCode);

@@ -16,6 +16,7 @@
 #include "startup_task_dispatcher.h"
 
 #include "event_handler.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "startup_manager.h"
 
@@ -27,19 +28,19 @@ StartupTaskDispatcher::StartupTaskDispatcher(const std::map<std::string, std::sh
 
 StartupTaskDispatcher::~StartupTaskDispatcher()
 {
-    HILOG_DEBUG("deconstruct");
+    TAG_LOGD(AAFwkTag::STARTUP, "deconstruct");
 }
 
 int32_t StartupTaskDispatcher::Run(const std::shared_ptr<OnCompletedCallback> &completedCallback,
     const std::shared_ptr<OnCompletedCallback> &mainThreadAwaitCallback)
 {
     if (sortResult_ == nullptr) {
-        HILOG_ERROR("sortResult_ is nullptr");
+        TAG_LOGE(AAFwkTag::STARTUP, "sortResult_ is nullptr");
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     for (auto &iter : tasks_) {
         if (iter.second == nullptr) {
-            HILOG_ERROR("startup task %{public}s is nullptr", iter.first.c_str());
+            TAG_LOGE(AAFwkTag::STARTUP, "startup task %{public}s is nullptr", iter.first.c_str());
             return ERR_STARTUP_INTERNAL_ERROR;
         }
         inDegreeMap_.emplace(iter.first, iter.second->getDependenciesCount());
@@ -52,7 +53,7 @@ int32_t StartupTaskDispatcher::Run(const std::shared_ptr<OnCompletedCallback> &c
     mainThreadAwaitCallback_ = mainThreadAwaitCallback;
 
     if (mainThreadAwaitCount_ == 0) {
-        HILOG_DEBUG("no main thread await task. call mainThreadAwaitCallback");
+        TAG_LOGD(AAFwkTag::STARTUP, "no main thread await task. call mainThreadAwaitCallback");
         if (mainThreadAwaitCallback_ != nullptr) {
             auto result = std::make_shared<StartupTaskResult>();
             mainThreadAwaitCallback_->Call(result);
@@ -62,11 +63,11 @@ int32_t StartupTaskDispatcher::Run(const std::shared_ptr<OnCompletedCallback> &c
     for (auto &iter : sortResult_->zeroDequeResult_) {
         auto findResult = tasks_.find(iter);
         if (findResult == tasks_.end()) {
-            HILOG_ERROR("startup task not found %{public}s", iter.c_str());
+            TAG_LOGE(AAFwkTag::STARTUP, "startup task not found %{public}s", iter.c_str());
             return ERR_STARTUP_INTERNAL_ERROR;
         }
         if (findResult->second == nullptr) {
-            HILOG_ERROR("startup task %{public}s is nullptr", iter.c_str());
+            TAG_LOGE(AAFwkTag::STARTUP, "startup task %{public}s is nullptr", iter.c_str());
             return ERR_STARTUP_INTERNAL_ERROR;
         }
         int32_t result = RunTaskInit(iter, findResult->second);
@@ -79,7 +80,7 @@ int32_t StartupTaskDispatcher::Run(const std::shared_ptr<OnCompletedCallback> &c
 
 void StartupTaskDispatcher::Dispatch(const std::string &name, const std::shared_ptr<StartupTaskResult> &result)
 {
-    HILOG_DEBUG("run startup task %{public}s dispatch.", name.c_str());
+    TAG_LOGD(AAFwkTag::STARTUP, "run startup task %{public}s dispatch.", name.c_str());
     if (result == nullptr) {
         OnError(ERR_STARTUP_INTERNAL_ERROR, name + ": result is null");
         return;
@@ -99,7 +100,7 @@ void StartupTaskDispatcher::Dispatch(const std::string &name, const std::shared_
 
     if (findResult->second->GetWaitOnMainThread()) {
         mainThreadAwaitCount_--;
-        HILOG_DEBUG("mainThreadAwaitCount_ %{public}d.", mainThreadAwaitCount_);
+        TAG_LOGD(AAFwkTag::STARTUP, "mainThreadAwaitCount_ %{public}d.", mainThreadAwaitCount_);
         if (mainThreadAwaitCount_ == 0) {
             if (mainThreadAwaitCallback_ != nullptr) {
                 mainThreadAwaitCallback_->Call(result);
@@ -107,7 +108,7 @@ void StartupTaskDispatcher::Dispatch(const std::string &name, const std::shared_
         }
     }
     tasksCount_--;
-    HILOG_DEBUG("tasksCount_ %{public}d.", tasksCount_);
+    TAG_LOGD(AAFwkTag::STARTUP, "tasksCount_ %{public}d.", tasksCount_);
     if (tasksCount_ == 0) {
         if (completedCallback_ != nullptr) {
             completedCallback_->Call(result);
@@ -159,12 +160,12 @@ int32_t StartupTaskDispatcher::NotifyChildren(const std::string &name, const std
 
 int32_t StartupTaskDispatcher::RunTaskInit(const std::string &name, const std::shared_ptr<StartupTask> &task)
 {
-    HILOG_DEBUG("run startup task %{public}s init.", name.c_str());
+    TAG_LOGD(AAFwkTag::STARTUP, "run startup task %{public}s init.", name.c_str());
     std::unique_ptr<StartupTaskResultCallback> callback = std::make_unique<StartupTaskResultCallback>();
     callback->Push([weak = weak_from_this(), name](const std::shared_ptr<StartupTaskResult> &result) {
         auto startupTaskDispatcher = weak.lock();
         if (startupTaskDispatcher == nullptr) {
-            HILOG_DEBUG("startupTaskDispatcher may have been release due to previous error.");
+            TAG_LOGD(AAFwkTag::STARTUP, "startupTaskDispatcher may have been release due to previous error.");
             return;
         }
         startupTaskDispatcher->Dispatch(name, result);
@@ -179,14 +180,14 @@ int32_t StartupTaskDispatcher::RunTaskInit(const std::string &name, const std::s
         return task->AddExtraCallback(std::move(callback));
     } else {
         // state: INVALID
-        HILOG_ERROR("%{public}s task state is: INVALID", name.c_str());
+        TAG_LOGE(AAFwkTag::STARTUP, "%{public}s task state is: INVALID", name.c_str());
         return ERR_STARTUP_INTERNAL_ERROR;
     }
 }
 
 void StartupTaskDispatcher::OnError(const std::string &name, const std::shared_ptr<StartupTaskResult> &result)
 {
-    HILOG_ERROR("%{public}s failed, %{public}d", name.c_str(), result->GetResultCode());
+    TAG_LOGE(AAFwkTag::STARTUP, "%{public}s failed, %{public}d", name.c_str(), result->GetResultCode());
     std::string resultMessage = name + ": " + result->GetResultMessage();
     result->SetResultMessage(resultMessage);
     if (completedCallback_ != nullptr) {
@@ -202,7 +203,7 @@ void StartupTaskDispatcher::OnError(const std::string &name, const std::shared_p
 
 void StartupTaskDispatcher::OnError(int32_t errorCode, const std::string &errorMessage)
 {
-    HILOG_ERROR("%{public}s", errorMessage.c_str());
+    TAG_LOGE(AAFwkTag::STARTUP, "%{public}s", errorMessage.c_str());
     auto result = std::make_shared<StartupTaskResult>(errorCode, errorMessage);
     if (completedCallback_ != nullptr) {
         completedCallback_->Call(result);

@@ -54,6 +54,7 @@ Watchdog::~Watchdog()
 
 void Watchdog::Init(const std::shared_ptr<EventHandler> mainHandler)
 {
+    std::unique_lock<std::mutex> lock(cvMutex_);
     Watchdog::appMainHandler_ = mainHandler;
     if (appMainHandler_ != nullptr) {
         TAG_LOGD(AAFwkTag::APPDFR, "Watchdog init send event");
@@ -85,16 +86,25 @@ void Watchdog::Stop()
 
 void Watchdog::SetAppMainThreadState(const bool appMainThreadState)
 {
+    std::unique_lock<std::mutex> lock(cvMutex_);
     appMainThreadIsAlive_.store(appMainThreadState);
+}
+
+void Watchdog::SetBundleInfo(const std::string& bundleName, const std::string& bundleVersion)
+{
+    OHOS::HiviewDFX::Watchdog::GetInstance().SetBundleInfo(bundleName, bundleVersion);
 }
 
 void Watchdog::SetBackgroundStatus(const bool isInBackground)
 {
+    std::unique_lock<std::mutex> lock(cvMutex_);
     isInBackground_.store(isInBackground);
+    OHOS::HiviewDFX::Watchdog::GetInstance().SetForeground(!isInBackground);
 }
 
 void Watchdog::AllowReportEvent()
 {
+    std::unique_lock<std::mutex> lock(cvMutex_);
     needReport_.store(true);
     isSixSecondEvent_.store(false);
     backgroundReportCount_.store(0);
@@ -112,6 +122,7 @@ bool Watchdog::IsReportEvent()
 
 bool Watchdog::IsStopWatchdog()
 {
+    std::unique_lock<std::mutex> lock(cvMutex_);
     return stopWatchdog_;
 }
 

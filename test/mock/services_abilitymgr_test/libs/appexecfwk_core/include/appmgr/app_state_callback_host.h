@@ -22,6 +22,7 @@
 #include "string_ex.h"
 #include "app_mgr_constants.h"
 #include "appmgr/iapp_state_callback.h"
+#include "bundle_info.h"
 #include "iremote_object.h"
 
 namespace OHOS {
@@ -49,9 +50,16 @@ public:
      */
     virtual void OnAppStateChanged(const AppProcessData&) override;
 
+    /**
+     * @brief Notify abilityms start resident process.
+     * @param bundleInfos resident process bundle infos.
+     */
+    virtual void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos) override;
+
 private:
     int32_t HandleOnAppStateChanged(MessageParcel& data, MessageParcel& reply);
     int32_t HandleOnAbilityRequestDone(MessageParcel& data, MessageParcel& reply);
+    int32_t HandleNotifyStartResidentProcess(MessageParcel &data, MessageParcel &reply);
 
     using AppStateCallbackFunc = int32_t(AppStateCallbackHost::*)(MessageParcel& data, MessageParcel& reply);
     std::map<uint32_t, AppStateCallbackFunc> memberFuncMap_;

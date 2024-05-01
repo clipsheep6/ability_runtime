@@ -208,7 +208,7 @@ void AppSchedulerProxy::ScheduleLaunchAbility(const AbilityInfo &info, const spt
         return;
     }
     if (!data.WriteInt32(abilityRecordId)) {
-        HILOG_ERROR("write ability record id fail.");
+        TAG_LOGE(AAFwkTag::APPMGR, "write ability record id fail.");
         return;
     }
     int32_t ret = SendTransactCmd(
@@ -218,7 +218,7 @@ void AppSchedulerProxy::ScheduleLaunchAbility(const AbilityInfo &info, const spt
     }
 }
 
-void AppSchedulerProxy::ScheduleCleanAbility(const sptr<IRemoteObject> &token)
+void AppSchedulerProxy::ScheduleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -228,6 +228,10 @@ void AppSchedulerProxy::ScheduleCleanAbility(const sptr<IRemoteObject> &token)
     }
     if (!data.WriteRemoteObject(token.GetRefPtr())) {
         TAG_LOGE(AAFwkTag::APPMGR, "Failed to write token");
+        return;
+    }
+    if (!data.WriteBool(isCacheProcess)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write bool");
         return;
     }
     int32_t ret = SendTransactCmd(

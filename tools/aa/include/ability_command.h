@@ -18,8 +18,8 @@
 
 #include <regex>
 
-#include "shell_command.h"
 #include "ability_manager_interface.h"
+#include "shell_command.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -39,7 +39,7 @@ const std::string HELP_MSG = "usage: aa <command> <options>\n"
     "  stop-service                stop service with options\n"
     "  dump                        dump the ability info\n"
     "  force-stop <bundle-name>    force stop the process with bundle name\n"
-    "  attach                      attach application to enter debug mdoe\n"
+    "  attach                      attach application to enter debug mode\n"
     "  detach                      detach application to exit debug mode\n"
 #ifdef ABILITY_COMMAND_FOR_TEST
     "  test                        start the test framework with options\n"

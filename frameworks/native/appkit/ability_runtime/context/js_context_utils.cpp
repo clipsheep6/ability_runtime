@@ -26,6 +26,7 @@
 #include "js_resource_manager_utils.h"
 #include "js_runtime_utils.h"
 #include "tokenid_kit.h"
+#include "js_error_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -59,6 +60,7 @@ public:
     napi_value OnGetPreferencesDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetGroupDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetBundleCodeDir(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetCloudFileDir(napi_env env, NapiCallbackInfo& info);
 
     static napi_value GetCacheDir(napi_env env, napi_callback_info info);
     static napi_value GetTempDir(napi_env env, napi_callback_info info);
@@ -69,6 +71,7 @@ public:
     static napi_value GetPreferencesDir(napi_env env, napi_callback_info info);
     static napi_value GetGroupDir(napi_env env, napi_callback_info info);
     static napi_value GetBundleCodeDir(napi_env env, napi_callback_info info);
+    static napi_value GetCloudFileDir(napi_env env, napi_callback_info info);
 
 protected:
     std::weak_ptr<Context> context_;
@@ -140,6 +143,7 @@ napi_value JsBaseContext::OnSwitchArea(napi_env env, NapiCallbackInfo& info)
     BindNativeProperty(env, object, "databaseDir", GetDatabaseDir);
     BindNativeProperty(env, object, "preferencesDir", GetPreferencesDir);
     BindNativeProperty(env, object, "bundleCodeDir", GetBundleCodeDir);
+    BindNativeProperty(env, object, "cloudFileDir", GetCloudFileDir);
     return CreateJsUndefined(env);
 }
 
@@ -165,7 +169,7 @@ napi_value JsBaseContext::OnCreateModuleContext(napi_env env, NapiCallbackInfo& 
         TAG_LOGD(AAFwkTag::APPKIT, "Parse inner module name.");
         if (!ConvertFromJsValue(env, info.argv[0], moduleName)) {
             TAG_LOGE(AAFwkTag::APPKIT, "Parse moduleName failed");
-            AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+            ThrowInvalidParamError(env, "Parse param moduleName failed, moduleName must be string.");
             return CreateJsUndefined(env);
         }
         moduleContext = context->CreateModuleContext(moduleName);
@@ -173,7 +177,7 @@ napi_value JsBaseContext::OnCreateModuleContext(napi_env env, NapiCallbackInfo& 
         std::string bundleName;
         if (!ConvertFromJsValue(env, info.argv[0], bundleName)) {
             TAG_LOGE(AAFwkTag::APPKIT, "Parse bundleName failed");
-            AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+            ThrowInvalidParamError(env, "Parse param bundleName failed, bundleName must be string.");
             return CreateJsUndefined(env);
         }
         if (!CheckCallerIsSystemApp()) {
@@ -234,13 +238,13 @@ napi_value JsBaseContext::OnCreateSystemHspModuleResourceManager(napi_env env, N
     std::string bundleName = "";
     if (!ConvertFromJsValue(env, info.argv[0], bundleName)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse bundleName failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param bundleName failed, bundleName must be string.");
         return CreateJsUndefined(env);
     }
     std::string moduleName = "";
     if (!ConvertFromJsValue(env, info.argv[1], moduleName)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse moduleName failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param moduleName failed, moduleName must be string.");
         return CreateJsUndefined(env);
     }
 
@@ -278,13 +282,13 @@ napi_value JsBaseContext::OnCreateModuleResourceManager(napi_env env, NapiCallba
     std::string bundleName;
     if (!ConvertFromJsValue(env, info.argv[0], bundleName)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse bundleName failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param bundleName failed, bundleName must be string.");
         return CreateJsUndefined(env);
     }
     std::string moduleName;
     if (!ConvertFromJsValue(env, info.argv[1], moduleName)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse moduleName failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param moduleName failed, moduleName must be string.");
         return CreateJsUndefined(env);
     }
     if (!CheckCallerIsSystemApp()) {
@@ -455,7 +459,7 @@ napi_value JsBaseContext::OnGetGroupDir(napi_env env, NapiCallbackInfo& info)
     std::string groupId;
     if (!ConvertFromJsValue(env, info.argv[0], groupId)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse groupId failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param groupId failed, groupId must be string.");
         return CreateJsUndefined(env);
     }
 
@@ -496,6 +500,22 @@ napi_value JsBaseContext::OnGetBundleCodeDir(napi_env env, NapiCallbackInfo& inf
     return CreateJsValue(env, path);
 }
 
+napi_value JsBaseContext::GetCloudFileDir(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsBaseContext, OnGetCloudFileDir, BASE_CONTEXT_NAME);
+}
+
+napi_value JsBaseContext::OnGetCloudFileDir(napi_env env, NapiCallbackInfo& info)
+{
+    auto context = context_.lock();
+    if (!context) {
+        HILOG_WARN("context is already released");
+        return CreateJsUndefined(env);
+    }
+    std::string path = context->GetCloudFileDir();
+    return CreateJsValue(env, path);
+}
+
 napi_value JsBaseContext::OnCreateBundleContext(napi_env env, NapiCallbackInfo& info)
 {
     if (!CheckCallerIsSystemApp()) {
@@ -520,7 +540,7 @@ napi_value JsBaseContext::OnCreateBundleContext(napi_env env, NapiCallbackInfo& 
     std::string bundleName;
     if (!ConvertFromJsValue(env, info.argv[0], bundleName)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse bundleName failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param bundleName failed, bundleName must be string.");
         return CreateJsUndefined(env);
     }
 
@@ -728,6 +748,7 @@ napi_value CreateJsBaseContext(napi_env env, std::shared_ptr<Context> context, b
     BindNativeProperty(env, object, "databaseDir", JsBaseContext::GetDatabaseDir);
     BindNativeProperty(env, object, "preferencesDir", JsBaseContext::GetPreferencesDir);
     BindNativeProperty(env, object, "bundleCodeDir", JsBaseContext::GetBundleCodeDir);
+    BindNativeProperty(env, object, "cloudFileDir", JsBaseContext::GetCloudFileDir);
     BindNativeProperty(env, object, "area", JsBaseContext::GetArea);
     const char *moduleName = "JsBaseContext";
     BindNativeFunction(env, object, "createBundleContext", moduleName, JsBaseContext::CreateBundleContext);

@@ -177,8 +177,16 @@ class ApplicationContext {
     return this.__context_impl__.clearUpApplicationData(callback);
   }
 
+  preloadUIExtensionAbility(want) {
+    return this.__context_impl__.preloadUIExtensionAbility(want);
+  }
+
   restartApp(want) {
     return this.__context_impl__.restartApp(want);
+  }
+
+  setSupportedProcessCache(isSupport) {
+    return this.__context_impl__.setSupportedProcessCache(isSupport);
   }
 
   set area(mode) {
@@ -227,6 +235,10 @@ class ApplicationContext {
 
   get bundleCodeDir() {
     return this.__context_impl__.bundleCodeDir;
+  }
+
+  get cloudFileDir() {
+    return this.__context_impl__.cloudFileDir;
   }
 
   get eventHub() {

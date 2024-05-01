@@ -24,6 +24,7 @@
 
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "ipc_types.h"
 #include "mock_app_mgr_service.h"
 #include "render_state_observer_stub.h"
 
@@ -515,6 +516,34 @@ HWTEST_F(AppMgrStubTest, HandleSignRestartAppFlag_0100, TestSize.Level1)
 }
 
 /**
+ * @tc.name: HandleNotifyMemorySizeStateChanged_0100
+ * @tc.desc: Test notify memory size state changed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrStubTest, HandleNotifyMemorySizeStateChanged_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(true);
+    auto res = mockAppMgrService_->HandleNotifyMemorySizeStateChanged(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: HandleNotifyMemorySizeStateChanged_0200
+ * @tc.desc: Test notify memory size state changed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrStubTest, HandleNotifyMemorySizeStateChanged_0200, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(false);
+    auto res = mockAppMgrService_->HandleNotifyMemorySizeStateChanged(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
  * @tc.name: HandleGetAllUIExtensionRootHostPid_0100
  * @tc.desc: Get all ui extension root host pid.
  * @tc.type: FUNC
@@ -546,6 +575,33 @@ HWTEST_F(AppMgrStubTest, HandleGetAllUIExtensionProviderPid_0100, TestSize.Level
     EXPECT_EQ(res, NO_ERROR);
     int32_t size = reply.ReadInt32();
     EXPECT_EQ(size, 0);
+}
+
+/**
+ * @tc.name: PreloadApplication_0100
+ * @tc.desc: Preload application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrStubTest, PreloadApplication_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    WriteInterfaceToken(data);
+    std::string bundleName = "com.acts.preloadtest";
+    int32_t userId = 100;
+    PreloadMode preloadMode = PreloadMode::PRE_MAKE;
+    int32_t appIndex = 0;
+
+    data.WriteString16(Str8ToStr16(bundleName));
+    data.WriteInt32(userId);
+    data.WriteInt32(static_cast<int32_t>(preloadMode));
+    data.WriteInt32(appIndex);
+
+    auto result = mockAppMgrService_->OnRemoteRequest(
+        static_cast<uint32_t>(AppMgrInterfaceCode::PRELOAD_APPLICATION), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

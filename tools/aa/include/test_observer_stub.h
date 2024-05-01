@@ -16,8 +16,8 @@
 #ifndef OHOS_ABILITY_RUNTIME_TEST_OBSERVER_STUB_H
 #define OHOS_ABILITY_RUNTIME_TEST_OBSERVER_STUB_H
 
-#include "itest_observer.h"
 #include "iremote_stub.h"
+#include "itest_observer.h"
 
 namespace OHOS {
 namespace AAFwk {

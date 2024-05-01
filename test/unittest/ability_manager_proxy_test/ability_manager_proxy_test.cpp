@@ -1284,7 +1284,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ContinueMission_001, TestS
     std::string srcDeviceId = "";
     std::string dstDeviceId = "";
     int32_t missionId = 1;
-    const sptr<IRemoteObject>& callBack = nullptr;
+    const sptr<IRemoteObject> callBack = nullptr;
     AAFwk::WantParams wantParams;
     auto res = proxy_->ContinueMission(srcDeviceId, dstDeviceId, missionId, callBack, wantParams);
     EXPECT_EQ(res, INNER_ERR);
@@ -1302,9 +1302,14 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ContinueMissionBundleName_
 {
     std::string srcDeviceId = "";
     std::string dstDeviceId = "";
-    const sptr<IRemoteObject>& callBack = nullptr;
+    const sptr<IRemoteObject> callback = nullptr;
     AAFwk::WantParams wantParams;
-    auto res = proxy_->ContinueMission(srcDeviceId, dstDeviceId, "bundleName", callBack, wantParams);
+    ContinueMissionInfo continueMissionInfo;
+    continueMissionInfo.dstDeviceId = dstDeviceId;
+    continueMissionInfo.srcDeviceId = srcDeviceId;
+    continueMissionInfo.bundleName = "bundleName";
+    continueMissionInfo.wantParams = wantParams;
+    auto res = proxy_->ContinueMission(continueMissionInfo, callback);
     EXPECT_EQ(res, INNER_ERR);
 }
 
@@ -2702,6 +2707,23 @@ HWTEST_F(AbilityManagerProxyTest, QueryAllAutoStartupApplications_0100, TestSize
     std::vector<AutoStartupInfo> infoList;
     auto res = proxy_->QueryAllAutoStartupApplications(infoList);
     EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerProxy_SetResidentProcessEnable_0100
+ * @tc.desc: RestartApp
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_SetResidentProcessEnable_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+
+    std::string bundleName = "ability.manager.proxy.test";
+    bool enable = true;
+    proxy_->SetResidentProcessEnabled(bundleName, enable);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_RESIDENT_PROCESS_ENABLE), mock_->code_);
 }
 
 /**

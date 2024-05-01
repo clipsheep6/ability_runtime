@@ -2495,5 +2495,79 @@ HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_RestartApp_0100, T
     EXPECT_NE(client_, nullptr);
     GTEST_LOG_(INFO) << "RestartApp_0100 end";
 }
+
+/**
+ * @tc.name: AbilityManagerClient_KillProcessWithPrepareTerminate_0100
+ * @tc.desc: KillProcessWithPrepareTerminate
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_KillProcessWithPrepareTerminate_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityManagerClient_KillProcessWithPrepareTerminate_0100 start";
+    std::vector<int32_t> pids;
+    client_->KillProcessWithPrepareTerminate(pids);
+    EXPECT_NE(client_, nullptr);
+    GTEST_LOG_(INFO) << "AbilityManagerClient_KillProcessWithPrepareTerminate_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RequestAssertFaultDialog_0100
+ * @tc.desc: RequestAssertFaultDialog
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_RequestAssertFaultDialog_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityManagerClient_RequestAssertFaultDialog_0100 start";
+    sptr<IRemoteObject> callback;
+    AAFwk::WantParams wantParams;
+    client_->RequestAssertFaultDialog(callback, wantParams);
+    EXPECT_NE(client_, nullptr);
+    GTEST_LOG_(INFO) << "AbilityManagerClient_RequestAssertFaultDialog_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_NotifyDebugAssertResult_0100
+ * @tc.desc: NotifyDebugAssertResult
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_NotifyDebugAssertResult_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityManagerClient_NotifyDebugAssertResult_0100 start";
+    uint64_t assertFaultSessionId = 1;
+    AAFwk::UserStatus userStatus = ASSERT_TERMINATE;
+    client_->NotifyDebugAssertResult(assertFaultSessionId, userStatus);
+    EXPECT_NE(client_, nullptr);
+    GTEST_LOG_(INFO) << "AbilityManagerClient_NotifyDebugAssertResult_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartShortcut_0100
+ * @tc.desc: StartShortcut
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_StartShortcut_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityManagerClient_StartShortcut_0100 start";
+    Want want;
+    StartOptions startOptions;
+    client_->StartShortcut(want, startOptions);
+    EXPECT_NE(client_, nullptr);
+    GTEST_LOG_(INFO) << "AbilityManagerClient_StartShortcut_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetAbilityStateByPersistentId_0100
+ * @tc.desc: GetAbilityStateByPersistentId
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_GetAbilityStateByPersistentId_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityManagerClient_GetAbilityStateByPersistentId_0100 start";
+    int32_t persistentId = 100;
+    bool state;
+    client_->GetAbilityStateByPersistentId(persistentId, state);
+    EXPECT_NE(client_, nullptr);
+    GTEST_LOG_(INFO) << "AbilityManagerClient_GetAbilityStateByPersistentId_0100 end";
+}
 }  // namespace AAFwk
 }  // namespace OHOS

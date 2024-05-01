@@ -48,6 +48,10 @@ public:
     bool FindObserverByObserverId(const int32_t observerId);
     size_t GetJsObserverMapSize();
     void SetValid(const bool valid);
+    void OnAppStarted(const AppStateData &appStateData) override;
+    void OnAppStopped(const AppStateData &appStateData) override;
+    void HandleOnAppStarted(const AppStateData &appStateData);
+    void HandleOnAppStopped(const AppStateData &appStateData);
 
 private:
     napi_env env_;

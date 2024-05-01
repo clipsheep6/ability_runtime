@@ -107,6 +107,11 @@ std::string MockAbilityRuntimeContext::GetDistributedFilesDir()
     return {};
 };
 
+std::string MockAbilityRuntimeContext::GetCloudFileDir()
+{
+    return {};
+};
+
 sptr<IRemoteObject> MockAbilityRuntimeContext::GetToken()
 {
     return {};

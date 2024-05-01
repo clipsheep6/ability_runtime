@@ -27,7 +27,7 @@ using namespace OHOS;
 using namespace OHOS::AAFwk;
 
 namespace {
-const std::string SHELLCOMMANDDRESULT = "shell cmd result aaaaaaaaaaaaaaaaa";
+const std::string SHELL_COMMAND_RESULT = "shell cmd result aaaaaaaaaaaaaaaaa";
 const int EXITCODE = 150;
 }  // namespace
 
@@ -60,7 +60,7 @@ HWTEST_F(ShellCommandResultModuleTest, Shell_Command_Result_Module_Test_0100, Fu
 {
     ShellCommandResult shellCmd;
     shellCmd.exitCode = EXITCODE;
-    shellCmd.stdResult = SHELLCOMMANDDRESULT;
+    shellCmd.stdResult = SHELL_COMMAND_RESULT;
     Parcel parcel;
     EXPECT_TRUE(shellCmd.Marshalling(parcel));
     EXPECT_NE(shellCmd.Unmarshalling(parcel), nullptr);
@@ -75,11 +75,11 @@ HWTEST_F(ShellCommandResultModuleTest, Shell_Command_Result_Module_Test_0200, Fu
 {
     ShellCommandResult shellCmd;
     shellCmd.exitCode = EXITCODE;
-    shellCmd.stdResult = SHELLCOMMANDDRESULT;
+    shellCmd.stdResult = SHELL_COMMAND_RESULT;
     Parcel parcel;
     EXPECT_TRUE(shellCmd.Marshalling(parcel));
     shellCmd.ReadFromParcel(parcel);
     EXPECT_EQ(shellCmd.exitCode, EXITCODE);
-    EXPECT_EQ(shellCmd.stdResult, SHELLCOMMANDDRESULT);
+    EXPECT_EQ(shellCmd.stdResult, SHELL_COMMAND_RESULT);
 }
 

@@ -20,15 +20,15 @@ interface TipBtn {
 @Entry
 @Component
 struct JumpInterceptorDialog {
-  @State private deviceType: string = "phone";
-  @State private btn: TipBtn = { color: "#FFFFFF" }
-  private TAG = "JumpInterceptorDialog_Page"
+  @State private isDefaultSelector: boolean = true;
+  @State private btn: TipBtn = { color: '#FFFFFF' }
+  private TAG = 'JumpInterceptorDialog_Page'
 
   aboutToAppear() {
-    console.log(this.TAG, "dialog page appears");
-    this.deviceType = globalThis.params.deviceType
-    if (this.deviceType == "pc") {
-      this.btn.color = "#F2F2F2";
+    console.log(this.TAG, 'dialog page appears');
+    this.isDefaultSelector = globalThis.params.isDefaultSelector
+    if (this.isDefaultSelector == false) {
+      this.btn.color = '#F2F2F2';
     }
   }
 
@@ -37,15 +37,15 @@ struct JumpInterceptorDialog {
   }
 
   onJumpApp() {
-    globalThis.abilityWant.bundleName =  globalThis.params.bundleName;
+    globalThis.abilityWant.bundleName = globalThis.params.bundleName;
     globalThis.abilityWant.abilityName = globalThis.params.abilityName;
     globalThis.abilityWant.moduleName = globalThis.params.moduleName;
     globalThis.jumpInterceptorExtensionContext.startAbilityAsCaller(globalThis.abilityWant, (data, error) => {
       if (error) {
-        console.error(this.TAG + "startAbility finish, error: " + JSON.stringify(error));
+        console.error(this.TAG + 'startAbility finish, error: ' + JSON.stringify(error));
         return;
       }
-      console.log(this.TAG + "startAbility finish, data: " + JSON.stringify(data));
+      console.log(this.TAG + 'startAbility finish, data: ' + JSON.stringify(data));
       globalThis.jumpInterceptorExtensionContext.terminateSelf();
     });
   }
@@ -56,7 +56,7 @@ struct JumpInterceptorDialog {
         Text($r('app.string.message_title_jump_interceptor', globalThis.callerAppName, globalThis.targetAppName))
           .fontSize(22)
           .fontWeight(FontWeight.Medium)
-          .height("29%")
+          .height('29%')
           .textOverflow({overflow: TextOverflow.Ellipsis})
           .maxLines(2)
         .textAlign(TextAlign.Center)
@@ -64,8 +64,8 @@ struct JumpInterceptorDialog {
       Flex({ justifyContent: FlexAlign.Center }) {
         Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
           Text($r('app.string.message_cancel_jump'))
-            .fontSize("21fp")
-            .fontColor("#0A59F7")
+            .fontSize('21fp')
+            .fontColor('#0A59F7')
             .fontWeight(FontWeight.Regular)
             .textAlign(TextAlign.Center)
         }
@@ -78,8 +78,8 @@ struct JumpInterceptorDialog {
         })
         Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
           Text($r('app.string.message_confirm_jump'))
-            .fontSize("21fp")
-            .fontColor("#0A59F7")
+            .fontSize('21fp')
+            .fontColor('#0A59F7')
             .fontWeight(FontWeight.Regular)
             .textAlign(TextAlign.Center)
         }
@@ -94,7 +94,7 @@ struct JumpInterceptorDialog {
     }
     .borderRadius(20)
     .borderWidth(1)
-    .borderColor("#e9e9e9")
-    .backgroundColor("#FFFFFF")
+    .borderColor('#e9e9e9')
+    .backgroundColor('#FFFFFF')
   }
 }

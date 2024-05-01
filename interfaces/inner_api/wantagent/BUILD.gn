@@ -39,7 +39,6 @@ config("wantagent_innerkits_public_config") {
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
-    "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_path}/interfaces/kits/native/appkit",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
@@ -85,6 +84,8 @@ ohos_shared_library("wantagent_innerkits") {
     "napi:ace_napi",
     "samgr:samgr_proxy",
   ]
+
+  public_external_deps = [ "bundle_framework:appexecfwk_core" ]
 
   if (is_double_framework) {
     cflags = [ "-DCONFIG_DUAL_FRAMEWORK" ]

@@ -141,6 +141,7 @@ constexpr char EVENT_KEY_SUMMARY[] = "SUMMARY";
 constexpr char EVENT_KEY_APP_RUNING_UNIQUE_ID[] = "APP_RUNNING_UNIQUE_ID";
 constexpr char DEVELOPER_MODE_STATE[] = "const.security.developermode.state";
 constexpr char PRODUCT_ASSERT_FAULT_DIALOG_ENABLED[] = "persisit.sys.abilityms.support_assert_fault_dialog";
+constexpr char KILL_REASON[] = "Kill Reason:Js Error";
 
 const int32_t JSCRASH_TYPE = 3;
 const std::string JSVM_TYPE = "ARK";
@@ -751,8 +752,10 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPKIT, "ability %{public}s, type is %{public}d.", info.name.c_str(), info.type);
 
-    AAFwk::Want newWant(*want);
-    newWant.CloseAllFd();
+    if (want != nullptr) {
+        AAFwk::Want newWant(*want);
+        newWant.CloseAllFd();
+    }
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>(info);
     auto abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     abilityRecord->SetWant(want);
@@ -784,17 +787,17 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
  * @param token The token belong to the ability which want to be cleaned.
  *
  */
-void MainThread::ScheduleCleanAbility(const sptr<IRemoteObject> &token)
+void MainThread::ScheduleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called, with isCacheProcess =%{public}d.", isCacheProcess);
     wptr<MainThread> weak = this;
-    auto task = [weak, token]() {
+    auto task = [weak, token, isCacheProcess]() {
         auto appThread = weak.promote();
         if (appThread == nullptr) {
             TAG_LOGE(AAFwkTag::APPKIT, "appThread is nullptr");
             return;
         }
-        appThread->HandleCleanAbility(token);
+        appThread->HandleCleanAbility(token, isCacheProcess);
     };
     if (!mainHandler_->PostTask(task, "MainThread:CleanAbility")) {
         TAG_LOGE(AAFwkTag::APPKIT, "PostTask task failed");
@@ -1218,7 +1221,7 @@ bool GetBundleForLaunchApplication(std::shared_ptr<BundleMgrHelper> bundleMgrHel
 void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, const Configuration &config)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPKIT, "called");
+    TAG_LOGI(AAFwkTag::APPKIT, "HandleLaunchApplication called.");
     if (!CheckForHandleLaunchApplication(appLaunchData)) {
         TAG_LOGE(AAFwkTag::APPKIT, "CheckForHandleLaunchApplication failed.");
         return;
@@ -1245,6 +1248,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
 
     auto bundleName = appInfo.bundleName;
+    watchdog_->SetBundleInfo(bundleName, appInfo.versionName);
     BundleInfo bundleInfo;
     if (!GetBundleForLaunchApplication(bundleMgrHelper, bundleName, appLaunchData.GetAppIndex(), bundleInfo)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Failed to get bundle info.");
@@ -1344,7 +1348,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             AppExecFwk::PKG_CONTEXT_PROFILE, appInfo.bundleName, hapModuleInfo.moduleName, pkgContextInfoJsonString,
             AppExecFwk::OsAccountManagerWrapper::GetCurrentActiveAccountId());
         if (ret != ERR_OK) {
-            HILOG_ERROR("GetJsonProfile failed: %{public}d.", ret);
+            TAG_LOGE(AAFwkTag::APPKIT, "GetJsonProfile failed: %{public}d.", ret);
         }
         if (!pkgContextInfoJsonString.empty()) {
             pkgContextInfoJsonStringMap[hapModuleInfo.moduleName] = pkgContextInfoJsonString;
@@ -1376,6 +1380,10 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         options.pkgContextInfoJsonStringMap = pkgContextInfoJsonStringMap;
         options.jitEnabled = appLaunchData.IsJITEnabled();
         AbilityRuntime::ChildProcessManager::GetInstance().SetForkProcessJITEnabled(appLaunchData.IsJITEnabled());
+        TAG_LOGD(AAFwkTag::APPKIT, "isStartWithDebug:%{public}d, debug:%{public}d, isNativeStart:%{public}d",
+            appLaunchData.GetDebugApp(), appInfo.debug, appLaunchData.isNativeStart());
+        AbilityRuntime::ChildProcessManager::GetInstance().SetForkProcessDebugOption(appInfo.bundleName,
+            appLaunchData.GetDebugApp(), appInfo.debug, appLaunchData.isNativeStart());
         if (!bundleInfo.hapModuleInfos.empty()) {
             for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
                 options.hapModulePath[hapModuleInfo.moduleName] = hapModuleInfo.hapPath;
@@ -1402,19 +1410,26 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         }
 
         auto perfCmd = appLaunchData.GetPerfCmd();
+
+        int32_t pid = -1;
         std::string processName = "";
         if (processInfo_ != nullptr) {
+            pid = processInfo_->GetPid();
             processName = processInfo_->GetProcessName();
-            TAG_LOGD(AAFwkTag::APPKIT, "processName is %{public}s", processName.c_str());
+            TAG_LOGD(AAFwkTag::APPKIT, "pid is %{public}d, processName is %{public}s", pid, processName.c_str());
         }
+        AbilityRuntime::Runtime::DebugOption debugOption;
+        debugOption.isStartWithDebug = appLaunchData.GetDebugApp();
+        debugOption.processName = processName;
+        debugOption.isDebugApp = appInfo.debug;
+        debugOption.isStartWithNative = appLaunchData.isNativeStart();
         if (perfCmd.find(PERFCMD_PROFILE) != std::string::npos ||
             perfCmd.find(PERFCMD_DUMPHEAP) != std::string::npos) {
             TAG_LOGD(AAFwkTag::APPKIT, "perfCmd is %{public}s", perfCmd.c_str());
-            runtime->StartProfiler(perfCmd, appLaunchData.GetDebugApp(), processName, appInfo.debug,
-                appLaunchData.isNativeStart());
+            debugOption.perfCmd = perfCmd;
+            runtime->StartProfiler(debugOption);
         } else {
-            runtime->StartDebugMode(appLaunchData.GetDebugApp(), processName, appInfo.debug,
-                appLaunchData.isNativeStart());
+            runtime->StartDebugMode(debugOption);
         }
 
         std::vector<HqfInfo> hqfInfos = appInfo.appQuickFix.deployedAppqfInfo.hqfInfos;
@@ -1434,8 +1449,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo;
         uncaughtExceptionInfo.hapPath = hapPath;
         wptr<MainThread> weak = this;
-        uncaughtExceptionInfo.uncaughtTask = [weak, bundleName, versionCode, appRunningId = std::move(appRunningId)]
-            (std::string summary, const JsEnv::ErrorObject errorObj) {
+        uncaughtExceptionInfo.uncaughtTask = [weak, bundleName, versionCode, appRunningId = std::move(appRunningId),
+            pid, processName] (std::string summary, const JsEnv::ErrorObject errorObj) {
             auto appThread = weak.promote();
             if (appThread == nullptr) {
                 TAG_LOGE(AAFwkTag::APPKIT, "appThread is nullptr.");
@@ -1462,6 +1477,13 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             faultData.faultType = FaultDataType::JS_ERROR;
             faultData.errorObject = appExecErrorObj;
             DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFault(faultData);
+            int result = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "PROCESS_KILL",
+                HiviewDFX::HiSysEvent::EventType::FAULT, "PID", pid, "PROCESS_NAME", processName,
+                "MSG", KILL_REASON);
+            TAG_LOGI(AAFwkTag::APPKIT, "hisysevent write result=%{public}d, send event [FRAMEWORK,PROCESS_KILL],"
+                " pid=%{public}d, processName=%{public}s, msg=%{public}s", result, pid, processName.c_str(),
+                KILL_REASON);
+
             if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary) &&
                 ApplicationDataManager::GetInstance().NotifyExceptionObject(appExecErrorObj)) {
                 return;
@@ -1956,7 +1978,7 @@ void MainThread::HandleCleanAbilityLocal(const sptr<IRemoteObject> &token)
     TAG_LOGD(AAFwkTag::APPKIT, "ability name: %{public}s", abilityInfo->name.c_str());
 
     abilityRecordMgr_->RemoveAbilityRecord(token);
-    application_->CleanAbilityStage(token, abilityInfo);
+    application_->CleanAbilityStage(token, abilityInfo, false);
 #ifdef APP_ABILITY_USE_TWO_RUNNER
     std::shared_ptr<EventRunner> runner = record->GetEventRunner();
     if (runner != nullptr) {
@@ -1965,7 +1987,7 @@ void MainThread::HandleCleanAbilityLocal(const sptr<IRemoteObject> &token)
             TAG_LOGE(AAFwkTag::APPKIT, "MainThread::main failed. ability runner->Run failed ret = %{public}d", ret);
         }
         abilityRecordMgr_->RemoveAbilityRecord(token);
-        application_->CleanAbilityStage(token, abilityInfo);
+        application_->CleanAbilityStage(token, abilityInfo, false);
     } else {
         TAG_LOGW(AAFwkTag::APPKIT, "runner not found");
     }
@@ -1979,7 +2001,7 @@ void MainThread::HandleCleanAbilityLocal(const sptr<IRemoteObject> &token)
  * @param token The token which belongs to the ability launched.
  *
  */
-void MainThread::HandleCleanAbility(const sptr<IRemoteObject> &token)
+void MainThread::HandleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (applicationInfo_ == nullptr) {
@@ -2016,7 +2038,7 @@ void MainThread::HandleCleanAbility(const sptr<IRemoteObject> &token)
 #endif
 
     abilityRecordMgr_->RemoveAbilityRecord(token);
-    application_->CleanAbilityStage(token, abilityInfo);
+    application_->CleanAbilityStage(token, abilityInfo, isCacheProcess);
 #ifdef APP_ABILITY_USE_TWO_RUNNER
     std::shared_ptr<EventRunner> runner = record->GetEventRunner();
     if (runner != nullptr) {
@@ -2025,7 +2047,7 @@ void MainThread::HandleCleanAbility(const sptr<IRemoteObject> &token)
             TAG_LOGE(AAFwkTag::APPKIT, "MainThread::main failed. ability runner->Run failed ret = %{public}d", ret);
         }
         abilityRecordMgr_->RemoveAbilityRecord(token);
-        application_->CleanAbilityStage(token, abilityInfo);
+        application_->CleanAbilityStage(token, abilityInfo, isCacheProcess);
     } else {
         TAG_LOGW(AAFwkTag::APPKIT, "runner not found");
     }

@@ -1182,7 +1182,7 @@ HWTEST_F(AmsAppRunningRecordTest, TerminateAbility_001, TestSize.Level1)
     TAG_LOGI(AAFwkTag::TEST, "AmsAppRunningRecordTest TerminateAbility_001 start");
 
     auto record = GetTestAppRunningRecord();
-    EXPECT_CALL(*mockAppSchedulerClient_, ScheduleCleanAbility(_)).Times(0);
+    EXPECT_CALL(*mockAppSchedulerClient_, ScheduleCleanAbility(_, _)).Times(0);
     record->TerminateAbility(GetMockToken(), false);
 
     TAG_LOGI(AAFwkTag::TEST, "AmsAppRunningRecordTest TerminateAbility_001 end");
@@ -1215,7 +1215,7 @@ HWTEST_F(AmsAppRunningRecordTest, TerminateAbility_002, TestSize.Level1)
     std::shared_ptr<AppRunningRecord> record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr, 0);
 
-    EXPECT_CALL(*mockAppSchedulerClient_, ScheduleCleanAbility(_)).Times(0);
+    EXPECT_CALL(*mockAppSchedulerClient_, ScheduleCleanAbility(_, _)).Times(0);
     record->TerminateAbility(GetMockToken(), false);
 
     TAG_LOGI(AAFwkTag::TEST, "AmsAppRunningRecordTest TerminateAbility_002 end");

@@ -24,16 +24,16 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-class AbilityFistFrameStateObserverProxy : public IRemoteProxy<IAbilityFirstFrameStateObserver> {
+class AbilityFirstFrameStateObserverProxy : public IRemoteProxy<IAbilityFirstFrameStateObserver> {
 public:
-    explicit AbilityFistFrameStateObserverProxy(const sptr<IRemoteObject> &impl);
-    virtual ~AbilityFistFrameStateObserverProxy() = default;
+    explicit AbilityFirstFrameStateObserverProxy(const sptr<IRemoteObject> &impl);
+    virtual ~AbilityFirstFrameStateObserverProxy() = default;
 
     void OnAbilityFirstFrameState(const AbilityFirstFrameStateData &abilityFirstFrameStateData) override;
 
 private:
     bool WriteInterfaceToken(MessageParcel &data);
-    static inline BrokerDelegator<AbilityFistFrameStateObserverProxy> delegator_;
+    static inline BrokerDelegator<AbilityFirstFrameStateObserverProxy> delegator_;
 };
 } // namespace AppExecFwk
 } // namespace OHOS

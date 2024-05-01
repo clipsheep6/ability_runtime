@@ -77,7 +77,6 @@ void AaCommandDumpsysTest::MakeMockObjects() const
  * @tc.number: Aa_Command_Dumpsys_0100
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_0100, Function | MediumTest | Level1)
 {
@@ -96,7 +95,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_0100, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_0200
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump xxx" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_0200, Function | MediumTest | Level1)
 {
@@ -116,7 +114,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_0200, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_0300
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump -x" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_0300, Function | MediumTest | Level1)
 {
@@ -136,7 +133,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_0300, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_0400
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump -xxx" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_0400, Function | MediumTest | Level1)
 {
@@ -156,7 +152,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_0400, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_0500
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump --x" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_0500, Function | MediumTest | Level1)
 {
@@ -176,7 +171,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_0500, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_0600
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump --xxx" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_0600, Function | MediumTest | Level1)
 {
@@ -196,7 +190,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_0600, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_0700
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump -h" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_0700, Function | MediumTest | Level1)
 {
@@ -216,7 +209,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_0700, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_0800
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump --help" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_0800, Function | MediumTest | Level1)
 {
@@ -236,7 +228,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_0800, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_0900
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump -a" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_0900, Function | MediumTest | Level1)
 {
@@ -256,7 +247,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_0900, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_1000
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump --all" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_1000, Function | MediumTest | Level1)
 {
@@ -276,7 +266,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_1000, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_1100
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump -l" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_1100, Function | MediumTest | Level1)
 {
@@ -296,7 +285,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_1100, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_1200
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump --mission-list" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_1200, Function | MediumTest | Level1)
 {
@@ -316,7 +304,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_1200, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_1300
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump -i" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_1300, Function | MediumTest | Level1)
 {
@@ -336,7 +323,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_1300, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_1400
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump --ability" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_1400, Function | MediumTest | Level1)
 {
@@ -356,7 +342,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_1400, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_1500
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump -e" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_1500, Function | MediumTest | Level1)
 {
@@ -376,7 +361,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_1500, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_1600
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump --extension" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_1600, Function | MediumTest | Level1)
 {
@@ -396,7 +380,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_1600, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_1700
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump -p" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_1700, Function | MediumTest | Level1)
 {
@@ -416,7 +399,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_1700, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_1800
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump --pending" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_1800, Function | MediumTest | Level1)
 {
@@ -436,7 +418,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_1800, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_1900
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump -r" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_1900, Function | MediumTest | Level1)
 {
@@ -456,7 +437,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_1900, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_2000
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump --process" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_2000, Function | MediumTest | Level1)
 {
@@ -476,7 +456,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_2000, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_2100
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump -d" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_2100, Function | MediumTest | Level1)
 {
@@ -496,7 +475,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_2100, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_2200
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump --data" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_2200, Function | MediumTest | Level1)
 {
@@ -516,7 +494,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_2200, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_2300
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump -u" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_2300, Function | MediumTest | Level1)
 {
@@ -536,7 +513,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_2300, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_2400
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump --userId" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_2400, Function | MediumTest | Level1)
 {
@@ -556,7 +532,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_2400, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_2500
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump -c" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_2500, Function | MediumTest | Level1)
 {
@@ -576,7 +551,6 @@ HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_2500, Function | MediumTest | 
  * @tc.number: Aa_Command_Dumpsys_2600
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa dump --client" command.
- * @tc.require: SR000GH1GO
  */
 HWTEST_F(AaCommandDumpsysTest, Aa_Command_Dumpsys_2600, Function | MediumTest | Level1)
 {

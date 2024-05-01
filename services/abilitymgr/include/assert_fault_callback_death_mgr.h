@@ -29,23 +29,25 @@ class AssertFaultCallbackDeathMgr : public DelayedSingleton<AssertFaultCallbackD
     public std::enable_shared_from_this<AssertFaultCallbackDeathMgr> {
     DISALLOW_COPY_AND_MOVE(AssertFaultCallbackDeathMgr);
 public:
+    using CallbackTask = std::function<void(const std::string &)>;
     AssertFaultCallbackDeathMgr() = default;
     virtual ~AssertFaultCallbackDeathMgr();
     struct DeathItem {
         int32_t pid_;
         sptr<IRemoteObject> iremote_;
         sptr<IRemoteObject::DeathRecipient> deathObj_;
+        CallbackTask callbackTask_;
     };
 
-    void AddAssertFaultCallback(sptr<IRemoteObject> &remote);
-    void RemoveAssertFaultCallback(const wptr<IRemoteObject> &remote);
+    void AddAssertFaultCallback(sptr<IRemoteObject> &remote, CallbackTask callback);
+    void RemoveAssertFaultCallback(const wptr<IRemoteObject> &remote, bool isCallbackDeath = false);
     void CallAssertFaultCallback(
         uint64_t assertFaultSessionId, AAFwk::UserStatus status = AAFwk::UserStatus::ASSERT_TERMINATE);
 
 private:
     using DeathMap = std::unordered_map<uint64_t, DeathItem>;
     std::mutex assertFaultSessionMutex_;
-    DeathMap assertFaultSessionDailogs_;
+    DeathMap assertFaultSessionDialogs_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

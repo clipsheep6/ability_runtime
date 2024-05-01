@@ -50,8 +50,8 @@ protected:
     static constexpr int MIN_ARGUMENT_NUMBER = 2;
     static constexpr int MAX_ARGUMENT_NUMBER = 4096;
 
-    int argc_;
-    char** argv_;
+    int argc_ = 0;
+    char** argv_ = nullptr;
 
     std::string cmd_;
     std::vector<std::string> argList_;

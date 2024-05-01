@@ -41,7 +41,8 @@ public:
     JsAbilityStage(JsRuntime& jsRuntime, std::unique_ptr<NativeReference>&& jsAbilityStageObj);
     ~JsAbilityStage() override;
 
-    void Init(const std::shared_ptr<Context> &context) override;
+    void Init(const std::shared_ptr<Context> &context,
+        const std::weak_ptr<AppExecFwk::OHOSApplication> application) override;
 
     void OnCreate(const AAFwk::Want &want) const override;
 

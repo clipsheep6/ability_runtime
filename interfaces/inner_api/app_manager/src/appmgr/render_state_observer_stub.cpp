@@ -38,7 +38,7 @@ int32_t RenderStateObserverStub::OnRenderStateChangedInner(MessageParcel &data, 
 {
     std::unique_ptr<RenderStateData> renderStateData(data.ReadParcelable<RenderStateData>());
     if (renderStateData == nullptr) {
-        HILOG_ERROR("renderStateData is null");
+        TAG_LOGE(AAFwkTag::APPMGR, "renderStateData is null");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
