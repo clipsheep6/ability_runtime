@@ -20,7 +20,7 @@
 #include "js_runtime_utils.h"
 
 namespace {
-constexpr size_t ARGC_TWO = 2;
+constexpr size_t ARGC_ONE = 1;
 constexpr int32_t INDEX_ZERO = 0;
 }
 namespace OHOS {
@@ -190,8 +190,8 @@ napi_value JsStartupTask::GetDependencyResult(napi_env env, const std::string &d
 napi_value AsyncTaskCallBack::AsyncTaskCompleted(napi_env env, napi_callback_info info)
 {
     TAG_LOGD(AAFwkTag::STARTUP, "Called.");
-    size_t argc = ARGC_TWO;
-    napi_value argv[ARGC_TWO] = { nullptr };
+    size_t argc = ARGC_ONE;
+    napi_value argv[ARGC_ONE] = { nullptr };
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
 
