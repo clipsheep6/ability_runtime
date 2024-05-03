@@ -48,6 +48,8 @@ constexpr const char* EXCLUDE_FROM_AUTO_START = "excludeFromAutoStart";
 constexpr const char* RUN_ON_THREAD = "runOnThread";
 constexpr const char* WAIT_ON_MAIN_THREAD = "waitOnMainThread";
 constexpr const char* CONFIG_ENTRY = "configEntry";
+constexpr const char *MAIN_THREAD = "mainThread";
+constexpr const char *TASKPOOL = "taskpool";
     
 napi_value AttachAbilityStageContext(napi_env env, void *value, void *)
 {
@@ -569,8 +571,16 @@ void JsAbilityStage::SetOptionalParameters(
         jsStartupTask.SetIsExcludeFromAutoStart(false);
     }
 
-    // always true
-    jsStartupTask.SetCallCreateOnMainThread(true);
+    if (module.contains(RUN_ON_THREAD) && module[RUN_ON_THREAD].is_string()) {
+        std::string profileName = module.at(RUN_ON_THREAD).get<std::string>();
+        if (profileName == MAIN_THREAD) {
+            jsStartupTask.SetCallCreateOnMainThread(true);
+        } else if (profileName == TASKPOOL) {
+            jsStartupTask.SetCallCreateOnMainThread(false);
+        } else {
+            TAG_LOGW(AAFwkTag::APPKIT, "RunOnThread configuration is invalid.");
+        }
+    }
     
     if (module.contains(WAIT_ON_MAIN_THREAD) && module[WAIT_ON_MAIN_THREAD].is_boolean()) {
         jsStartupTask.SetWaitOnMainThread(module.at(WAIT_ON_MAIN_THREAD).get<bool>());

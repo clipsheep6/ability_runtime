@@ -15,27 +15,28 @@
 
 #include "native_engine/native_engine.h"
 
-extern const char _binary_startup_task_abc_start[];
-extern const char _binary_startup_task_abc_end[];
+extern const char _binary_async_task_callback_abc_start[];
+extern const char _binary_async_task_callback_abc_end[];
 
 static napi_module _module = {
     .nm_version = 0,
-    .nm_filename = "app/appstartup/libstartuptask_napi.so/startup_task.js",
-    .nm_modname = "app.appstartup.StartupTask",
+    .nm_filename = "app/appstartup/libasynctaskcallback_napi.so/async_task_callback.js",
+    .nm_modname = "app.appstartup.AsyncTaskCallback",
 };
 extern "C" __attribute__((constructor))
-void NAPI_app_appstartup_StartupTask_AutoRegister()
+void NAPI_app_appstartup_AsyncTaskCallback_AutoRegister()
 {
     napi_module_register(&_module);
 }
 
 extern "C" __attribute__((visibility("default")))
-void NAPI_app_appstartup_StartupTask_GetABCCode(const char **buf, int *buflen)
+void NAPI_app_appstartup_AsyncTaskCallback_GetABCCode(const char **buf, int *buflen)
 {
     if (buf != nullptr) {
-        *buf = _binary_startup_task_abc_start;
+        *buf = _binary_async_task_callback_abc_start;
     }
     if (buflen != nullptr) {
-        *buflen = _binary_startup_task_abc_end - _binary_startup_task_abc_start;
+        *buflen = _binary_async_task_callback_abc_end - _binary_async_task_callback_abc_start;
     }
 }
+
