@@ -19,6 +19,7 @@
 #include "ability_manager_client.h"
 #include "ability_manager_stub_mock_test.h"
 #include "ability_connect_manager.h"
+#include "ability_manager_interface.h"
 #undef private
 #undef protected
 
@@ -28,6 +29,7 @@
 #include "mock_ability_manager_collaborator.h"
 #include "session/host/include/session.h"
 #include "scene_board_judgement.h"
+#include "status_bar_delegate_interface.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -2569,5 +2571,35 @@ HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_GetAbilityStateByP
     EXPECT_NE(client_, nullptr);
     GTEST_LOG_(INFO) << "AbilityManagerClient_GetAbilityStateByPersistentId_0100 end";
 }
+
+/**
+ * @tc.name: AbilityManagerClient_RegisterStatusBarDelegate_0100
+ * @tc.desc: RegisterStatusBarDelegate
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_RegisterStatusBarDelegate_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityManagerClient_RegisterStatusBarDelegate_0100 start";
+    ErrCode ret = client_->RegisterStatusBarDelegate(nullptr);
+    EXPECT_EQ(ret, ERR_OK);
+    GTEST_LOG_(INFO) << "AbilityManagerClient_RegisterStatusBarDelegate_0100 end";
+}
+
+#ifdef SUPPORT_GRAPHICS
+/**
+ * @tc.name: AbilityManagerClient_SetMissionLabel_0100
+ * @tc.desc: SetMissionLabel
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_SetMissionLabel_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityManagerClient_SetMissionLabel_0100 start";
+    sptr<IRemoteObject> token = nullptr;
+    std::string label = "label";
+    ErrCode ret = client_->SetMissionLabel(token, label);
+    EXPECT_EQ(ret, ERR_OK);
+    GTEST_LOG_(INFO) << "AbilityManagerClient_SetMissionLabel_0100 end";
+}
+#endif
 }  // namespace AAFwk
 }  // namespace OHOS
