@@ -46,6 +46,15 @@ class BusinessError extends Error {
   }
 }
 
+class ThrowInvalidParamError extends Error {
+  constructor(msg) {
+    let code = ERROR_CODE_INVALID_PARAM;
+    let oriMsg = ERROR_MSG_INVALID_PARAM;
+    super(code);
+    this.msg = oriMsg + msg;
+  }
+}
+
 class Caller {
   constructor(obj) {
     console.log('Caller::constructor obj is ' + typeof obj);
@@ -181,7 +190,7 @@ class Caller {
     console.log('Caller onRelease jscallback called.');
     if (typeof callback !== 'function') {
       console.log('Caller onRelease ' + typeof callback);
-      throw new BusinessError(ERROR_CODE_INVALID_PARAM);
+      throw new ThrowInvalidParamError('Parameter error: Failed to get callback, must be a function.');
     }
 
     if (this.releaseState === true) {
@@ -196,7 +205,7 @@ class Caller {
     console.log('Caller onRemoteStateChange jscallback called.');
     if (typeof callback !== 'function') {
       console.log('Caller onRemoteStateChange ' + typeof callback);
-      throw new BusinessError(ERROR_CODE_INVALID_PARAM);
+      throw new ThrowInvalidParamError('Parameter error: Failed to get callback, must be a function.');
     }
 
     if (this.releaseState === true) {
@@ -212,12 +221,12 @@ class Caller {
     if (typeof type !== 'string' || type !== 'release') {
       console.log(
         'Caller onRelease error, input [type] is invalid.');
-      throw new BusinessError(ERROR_CODE_INVALID_PARAM);
+      throw new ThrowInvalidParamError('Parameter error: Failed to get type, must be string type release.');
     }
 
     if (typeof callback !== 'function') {
       console.log('Caller onRelease error ' + typeof callback);
-      throw new BusinessError(ERROR_CODE_INVALID_PARAM);
+      throw new ThrowInvalidParamError('Parameter error: Failed to get callback, must be a function.');
     }
 
     if (this.releaseState === true) {
@@ -232,12 +241,12 @@ class Caller {
     if (typeof type !== 'string' || type !== 'release') {
       console.log(
         'Caller onRelease error, input [type] is invalid.');
-      throw new BusinessError(ERROR_CODE_INVALID_PARAM);
+      throw new ThrowInvalidParamError('Parameter error: Failed to get type, must be string type release.');
     }
 
     if (callback && typeof callback !== 'function') {
       console.log('Caller onRelease error ' + typeof callback);
-      throw new BusinessError(ERROR_CODE_INVALID_PARAM);
+      throw new ThrowInvalidParamError('Parameter error: Failed to get callback, must be a function.');
     }
     // Empty
   }
@@ -245,12 +254,13 @@ class Caller {
   callCheck(method, data) {
     if (typeof method !== 'string' || typeof data !== 'object') {
       console.log('Caller callCheck ' + typeof method + ' ' + typeof data);
-      return new BusinessError(ERROR_CODE_INVALID_PARAM);
+      return new ThrowInvalidParamError('Parameter error: Failed to get method or data, ' +
+        'method must be a string, data must be a rpc.Parcelable');
     }
 
     if (method === '' || data == null) {
       console.log('Caller callCheck ' + method + ', ' + data);
-      return new BusinessError(ERROR_CODE_INVALID_PARAM);
+      return new ThrowInvalidParamError('Parameter error: method or data is empty, Please check it.');
     }
 
     if (this.releaseState === true) {

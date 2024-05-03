@@ -105,7 +105,7 @@ private:
         InsightIntentExecuteParam param;
         if (!UnwrapExecuteParam(env, info.argv[INDEX_ZERO], param)) {
             TAG_LOGE(AAFwkTag::INTENT, "CheckOnOffType, Parse on off type failed");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parameter error: Parse param failed, param must be a ExecuteParam.");
             return CreateJsUndefined(env);
         }
 

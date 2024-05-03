@@ -243,7 +243,7 @@ private:
 
         std::string type;
         if (!ConvertFromJsValue(env, argv[INDEX_ZERO], type) || type != ON_OFF_TYPE) {
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parameter error: Parse type failed, must be a string error.");
             TAG_LOGE(AAFwkTag::JSNAPI, "Parse type failed");
             return CreateJsUndefined(env);
         }
@@ -297,7 +297,7 @@ private:
 
         if (!CheckTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
             TAG_LOGE(AAFwkTag::JSNAPI, "Invalid param");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parameter error: Parse ovserver failed, must be a ErrorObserver.");
             return CreateJsUndefined(env);
         }
 
@@ -363,7 +363,7 @@ private:
         std::string type;
         if (!ConvertFromJsValue(env, argv[INDEX_ZERO], type) || type != ON_OFF_TYPE) {
             TAG_LOGE(AAFwkTag::JSNAPI, "Parse type failed");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parameter error: Parse type failed, must be a string error.");
             return CreateJsUndefined(env);
         }
 
@@ -434,7 +434,7 @@ private:
         int32_t observerId = -1;
         if (!ConvertFromJsValue(env, argv[INDEX_ONE], observerId)) {
             TAG_LOGE(AAFwkTag::JSNAPI, "Parse observerId failed");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parameter error: Parse observerId failed, must be a number.");
             return CreateJsUndefined(env);
         }
         if (observer_ == nullptr) {
@@ -511,23 +511,23 @@ private:
         }
         if (!CheckTypeForNapiValue(env, argv[INDEX_ONE], napi_number)) {
             TAG_LOGE(AAFwkTag::JSNAPI, "OnSetLoopWatch: Invalid param");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parameter error: Failed to parse timeout, must be a number.");
             return CreateJsUndefined(env);
         }
         if (!CheckTypeForNapiValue(env, argv[INDEX_TWO], napi_object)) {
             TAG_LOGE(AAFwkTag::JSNAPI, "OnSetLoopWatch: Invalid param");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parameter error: Failed to parse observer, must be a LoopObserver.");
             return CreateJsUndefined(env);
         }
         int64_t number;
         if (!ConvertFromJsNumber(env, argv[INDEX_ONE], number)) {
             TAG_LOGE(AAFwkTag::JSNAPI, "OnSetLoopWatch: Parse timeout failed");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parameter error: Failed to parse timeout, must be a number.");
             return CreateJsUndefined(env);
         }
         if (number <= 0) {
             TAG_LOGE(AAFwkTag::JSNAPI, "The timeout cannot be less than 0");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parameter error: The timeout cannot be less than 0.");
             return CreateJsUndefined(env);
         }
 
