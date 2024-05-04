@@ -407,6 +407,7 @@ bool AbilityManagerService::Init()
 
     InitInterceptor();
     InitStartAbilityChain();
+    InitDeepLinkReserve();
 
     abilityAutoStartupService_ = std::make_shared<AbilityRuntime::AbilityAutoStartupService>();
 
@@ -418,6 +419,18 @@ bool AbilityManagerService::Init()
     appExitReasonHelper_ = std::make_shared<AppExitReasonHelper>(subManagersHelper_);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Init success.");
     return true;
+}
+
+void AbilityManagerService::InitDeepLinkReserve()
+{
+    deepLinkReserveConfig_ = DelayedSingleton<DeepLinkReserveConfig>::GetInstance();
+    if (deepLinkReserveConfig_ == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get DeepLinkReserveConfig instance is nullptr.");
+        return;
+    }
+    if (!deepLinkReserveConfig_->LoadConfiguration()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "InitDeepLinkReserve failed.");
+    }
 }
 
 void AbilityManagerService::InitInterceptor()
@@ -863,6 +876,22 @@ int AbilityManagerService::StartAbilityWrap(const Want &want, const sptr<IRemote
         requestCode, userId, isStartAsCaller, isSendDialogResult, specifyToken, isForegroundToRestartApp, isImplicit);
 }
 
+void AbilityManagerService::SetReserveInfo(const std::string &linkString)
+{
+    if (!linkString.size()) {
+        return;
+    }
+
+    std::string reservedBundleName = "";
+    if (deepLinkReserveConfig_->isLinkReserved(linkString, reservedBundleName)) {
+        implicitStartProcessor_->SetUriReservedFlag(true);
+        implicitStartProcessor_->SetUriReservedBundle(reservedBundleName);
+    } else {
+        implicitStartProcessor_->SetUriReservedFlag(false);
+        implicitStartProcessor_->SetUriReservedBundle(reservedBundleName);
+    }
+}
+
 int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemoteObject> &callerToken,
     int requestCode, int32_t userId, bool isStartAsCaller, bool isSendDialogResult, uint32_t specifyTokenId,
     bool isForegroundToRestartApp, bool isImplicit)
@@ -936,6 +965,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             UpdateCallerInfo(abilityRequest.want, callerToken);
         }
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
+        SetReserveInfo(want.GetUriString());
         return implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
     }
     if (want.GetAction().compare(ACTION_CHOOSE) == 0) {

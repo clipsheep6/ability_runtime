@@ -105,6 +105,7 @@ abilityms_files = [
   "src/scene_board/status_bar_delegate_manager.cpp",
   "src/scene_board/ui_ability_lifecycle_manager.cpp",
   "src/open_link/open_link_options.cpp",
+  "src/deeplink_reserve/deeplink_reserve.cpp",
 
   #connection observer
   "src/connection_observer_controller.cpp",

@@ -241,9 +241,16 @@ ohos_prebuilt_etc("proxy_authorization_uri.json") {
   part_name = "ability_runtime"
 }
 
+ohos_prebuilt_etc("deeplink_reserve_config.json") {
+  source = "resource/deeplink_reserve_config.json"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
 group("ams_service_config") {
   deps = [
     ":ams_service_config.json",
+    ":deeplink_reserve_config.json",
     ":proxy_authorization_uri.json",
     ":uiextension_picker_config.json",
   ]
