@@ -86,7 +86,7 @@ struct DebuggerTask {
     std::function<void()> func;
 };
 
-class SimulatorImpl : public Simulator {
+class SimulatorImpl : public Simulator, public std::enable_shared_from_this<SimulatorImpl> {
 public:
     SimulatorImpl() = default;
     ~SimulatorImpl();
@@ -124,6 +124,7 @@ private:
     panda::ecmascript::EcmaVM *vm_ = nullptr;
     DebuggerTask debuggerTask_;
     napi_env nativeEngine_ = nullptr;
+    TerminateCallback terminateCallback_;
 
     int64_t currentId_ = 0;
     std::unordered_map<int64_t, std::shared_ptr<NativeReference>> abilities_;
@@ -357,6 +358,7 @@ int64_t SimulatorImpl::StartAbility(
     }
 
     ++currentId_;
+    terminateCallback_ = callback;
     InitResourceMgr();
     InitJsAbilityContext(nativeEngine_, instanceValue);
     DispatchStartLifecycle(instanceValue);
@@ -684,6 +686,20 @@ bool SimulatorImpl::OnInit()
         return false;
     }
     napi_env env = reinterpret_cast<napi_env>(nativeEngine);
+    auto uncaughtTask = [weak = weak_from_this()](napi_value value) {
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "uncaught exception");
+        auto self = weak.lock();
+        if (self == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITY_SIM, "SimulatorImpl is nullptr.");
+            return;
+        }
+        if (self->terminateCallback_ == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITY_SIM, "terminateCallback is nullptr.");
+            return;
+        }
+        self->terminateCallback_(self->currentId_);
+    };
+    nativeEngine->RegisterNapiUncaughtExceptionHandler(uncaughtTask);
 
     napi_value globalObj;
     napi_get_global(env, &globalObj);
