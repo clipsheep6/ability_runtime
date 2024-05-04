@@ -18,6 +18,7 @@
 #include "ability_runtime_error_util.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "want_agent_client.h"
 #include "want_agent_log_wrapper.h"
 #include "want_sender_info.h"
@@ -431,6 +432,7 @@ ErrCode PendingWant::GetBundleName(const sptr<AAFwk::IWantSender> &target, std::
 
 std::shared_ptr<Want> PendingWant::GetWant(const sptr<AAFwk::IWantSender> &target)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::shared_ptr<Want> want = std::make_shared<Want>();
     int ret = WantAgentClient::GetInstance().GetPendingRequestWant(target, want);
     return ret ? nullptr : want;

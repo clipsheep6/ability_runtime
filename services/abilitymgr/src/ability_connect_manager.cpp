@@ -2265,6 +2265,7 @@ void AbilityConnectManager::DumpStateByUri(std::vector<std::string> &info, bool 
 void AbilityConnectManager::GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info,
     const int32_t userId, bool isPerm)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Get extension running info.");
     std::lock_guard guard(Lock_);
     auto mgr = shared_from_this();
@@ -2314,6 +2315,7 @@ void AbilityConnectManager::GetAbilityRunningInfos(std::vector<AbilityRunningInf
 void AbilityConnectManager::GetExtensionRunningInfo(std::shared_ptr<AbilityRecord> &abilityRecord,
     const int32_t userId, std::vector<ExtensionRunningInfo> &info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     ExtensionRunningInfo extensionInfo;
     AppExecFwk::RunningProcessInfo processInfo;
     extensionInfo.extension = abilityRecord->GetElementName();

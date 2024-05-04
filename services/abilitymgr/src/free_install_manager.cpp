@@ -131,6 +131,7 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
 int FreeInstallManager::RemoteFreeInstall(const Want &want, int32_t userId, int requestCode,
     const sptr<IRemoteObject> &callerToken)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::FREE_INSTALL, "RemoteFreeInstall called");
     bool isFromRemote = want.GetBoolParam(FROM_REMOTE_KEY, false);
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
@@ -182,6 +183,7 @@ FreeInstallInfo FreeInstallManager::BuildFreeInstallInfo(const Want &want, int32
 int FreeInstallManager::StartRemoteFreeInstall(const Want &want, int requestCode, int32_t validUserId,
     const sptr<IRemoteObject> &callerToken)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::FREE_INSTALL, "%{public}s", __func__);
     if (!want.GetBoolParam(Want::PARAM_RESV_FOR_RESULT, false)) {
         TAG_LOGI(AAFwkTag::FREE_INSTALL, "%{public}s: StartAbility freeInstall", __func__);

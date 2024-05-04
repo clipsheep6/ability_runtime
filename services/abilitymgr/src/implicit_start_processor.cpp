@@ -26,6 +26,7 @@
 #include "event_report.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 #include "parameters.h"
 #include "scene_board_judgement.h"
@@ -86,6 +87,7 @@ bool ImplicitStartProcessor::IsImplicitStartAction(const Want &want)
 
 int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_t userId, int32_t windowMode)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "implicit start ability by type: %{public}d", request.callType);
     auto sysDialogScheduler = DelayedSingleton<SystemDialogScheduler>::GetInstance();
     CHECK_POINTER_AND_RETURN(sysDialogScheduler, ERR_INVALID_VALUE);
@@ -227,6 +229,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
 int ImplicitStartProcessor::NotifyCreateModalDialog(AbilityRequest &abilityRequest, const Want &want, int32_t userId,
     std::vector<DialogAppInfo> &dialogAppInfos)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     std::string dialogSessionId;
     if (abilityMgr->GenerateDialogSessionRecord(abilityRequest, userId, dialogSessionId, dialogAppInfos, true)) {
@@ -291,6 +294,7 @@ static void ProcessLinkType(std::vector<AppExecFwk::AbilityInfo> &abilityInfos)
 int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     AbilityRequest &request, std::vector<DialogAppInfo> &dialogAppInfos, bool isMoreHapList)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s.", __func__);
     // get abilityinfos from bms
     auto bundleMgrHelper = GetBundleManagerHelper();
@@ -382,17 +386,20 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
         }
     }
 
-    for (const auto &info : abilityInfos) {
-        AddInfoParam param = {
-            .info = info,
-            .userId = userId,
-            .isExtension = isExtension,
-            .isMoreHapList = isMoreHapList,
-            .withDefault = withDefault,
-            .typeName = typeName,
-            .infoNames = infoNames
-        };
-        AddAbilityInfoToDialogInfos(param, dialogAppInfos);
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "for (const auto &info : abilityInfos)");
+        for (const auto &info : abilityInfos) {
+            AddInfoParam param = {
+                .info = info,
+                .userId = userId,
+                .isExtension = isExtension,
+                .isMoreHapList = isMoreHapList,
+                .withDefault = withDefault,
+                .typeName = typeName,
+                .infoNames = infoNames
+            };
+            AddAbilityInfoToDialogInfos(param, dialogAppInfos);
+        }
     }
 
     for (const auto &info : extensionInfos) {
@@ -484,6 +491,7 @@ bool ImplicitStartProcessor::CheckImplicitStartExtensionIsValid(const AbilityReq
 int32_t ImplicitStartProcessor::ImplicitStartAbilityInner(const Want &targetWant,
     const AbilityRequest &request, int32_t userId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     CHECK_POINTER_AND_RETURN(abilityMgr, ERR_INVALID_VALUE);
 
@@ -723,6 +731,7 @@ bool ImplicitStartProcessor::IsCallFromAncoShellOrBroker(const sptr<IRemoteObjec
 void ImplicitStartProcessor::SetTargetLinkInfo(const std::vector<AppExecFwk::SkillUriForAbilityAndExtension> &skillUri,
     Want &want)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     for (const auto& iter : skillUri) {
         if (iter.isMatch) {
             want.RemoveParam("send_to_erms_targetLinkFeature");
