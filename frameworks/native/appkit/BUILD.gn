@@ -199,6 +199,17 @@ ohos_shared_library("appkit_native") {
     "samgr:samgr_proxy",
   ]
 
+  if (cj_frontend) {
+    sources += [
+      "${ability_runtime_native_path}/appkit/ability_runtime/app/cj_ability_stage.cpp",
+      "${ability_runtime_native_path}/appkit/ability_runtime/app/cj_ability_stage_proxy.cpp",
+    ]
+
+    include_dirs += [
+      "${ability_runtime_path}/cj_environment/interfaces/inner_api",
+    ]
+  }
+
   if (ability_runtime_graphics) {
     deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
     external_deps += [
