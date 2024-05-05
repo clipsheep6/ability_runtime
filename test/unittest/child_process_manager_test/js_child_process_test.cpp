@@ -80,5 +80,64 @@ HWTEST_F(JsChildProcessTest, JsChildProcessInit_0100, TestSize.Level0)
     process->Init(info);
     EXPECT_TRUE(process->processStartInfo_ != nullptr);
 }
+
+/**
+ * @tc.number: JsChildProcessInit_0200
+ * @tc.desc: Test JsChildProcess Init works
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsChildProcessTest, JsChildProcessInit_0200, TestSize.Level0)
+{
+    TAG_LOGD(AAFwkTag::TEST, "JsChildProcessInit_0200 called.");
+    std::unique_ptr<Runtime> runtime = std::make_unique<JsRuntime>();
+    auto process = JsChildProcess::Create(runtime);
+    EXPECT_TRUE(process != nullptr);
+
+    auto ret = process->Init(nullptr);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.number: JsChildProcessInit_0300
+ * @tc.desc: Test JsChildProcess Init works
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsChildProcessTest, JsChildProcessInit_0300, TestSize.Level0)
+{
+    TAG_LOGD(AAFwkTag::TEST, "JsChildProcessInit_0300 called.");
+    std::unique_ptr<Runtime> runtime = std::make_unique<JsRuntime>();
+    auto process = JsChildProcess::Create(runtime);
+    EXPECT_TRUE(process != nullptr);
+
+    std::shared_ptr<ChildProcessStartInfo> info = std::make_shared<ChildProcessStartInfo>();
+    info->name = "AProcess";
+    info->srcEntry = "";
+    info->moduleName = "entry";
+
+    auto ret = process->Init(info);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.number: JsChildProcessOnStart_0100
+ * @tc.desc: Test JsChildProcess OnStart works
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsChildProcessTest, JsChildProcessOnStart_0100, TestSize.Level0)
+{
+    TAG_LOGD(AAFwkTag::TEST, "JsChildProcessOnStart_0100 called.");
+    std::unique_ptr<Runtime> runtime = std::make_unique<JsRuntime>();
+    auto process = JsChildProcess::Create(runtime);
+    EXPECT_TRUE(process != nullptr);
+
+    std::shared_ptr<ChildProcessStartInfo> info = std::make_shared<ChildProcessStartInfo>();
+    info->name = "AProcess";
+    info->srcEntry = "./ets/process/AProcess.ts";
+    info->moduleName = "entry";
+
+    process->Init(info);
+    process->OnStart();
+    EXPECT_TRUE(process->processStartInfo_ != nullptr);
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

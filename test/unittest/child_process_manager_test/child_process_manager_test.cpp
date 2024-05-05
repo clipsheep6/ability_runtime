@@ -83,6 +83,21 @@ HWTEST_F(ChildProcessManagerTest, StartChildProcessBySelfFork_0100, TestSize.Lev
 }
 
 /**
+ * @tc.number: StartChildProcessBySelfFork_0200
+ * @tc.desc: Test StartChildProcessBySelfFork works
+ * @tc.type: FUNC
+ */
+HWTEST_F(ChildProcessManagerTest, StartChildProcessBySelfFork_0200, TestSize.Level0)
+{
+    TAG_LOGD(AAFwkTag::TEST, "StartChildProcessBySelfFork_0200 called.");
+    AAFwk::AppUtils::GetInstance().isMultiProcessModel_.isLoaded = true;
+    AAFwk::AppUtils::GetInstance().isMultiProcessModel_.value = true;
+    pid_t pid;
+    auto ret = ChildProcessManager::GetInstance().StartChildProcessBySelfFork("./ets/process/DemoProcess.ts", pid);
+    EXPECT_NE(ret, ChildProcessManagerErrorCode::ERR_FORK_FAILED);
+}
+
+/**
  * @tc.number: StartChildProcessByAppSpawnFork_0100
  * @tc.desc: Test StartChildProcessByAppSpawnFork works.
  * @tc.type: FUNC
@@ -158,6 +173,31 @@ HWTEST_F(ChildProcessManagerTest, CreateRuntime_0100, TestSize.Level0)
 
     auto runtime = ChildProcessManager::GetInstance().CreateRuntime(bundleInfo, hapModuleInfo, false, false);
     EXPECT_TRUE(runtime != nullptr);
+}
+
+/**
+ * @tc.number: ChildProcessErrorUtils_0100
+ * @tc.desc: Test ChildProcessErrorUtils.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ChildProcessManagerTest, ChildProcessErrorUtils_0100, TestSize.Level0)
+{
+    TAG_LOGD(AAFwkTag::TEST, "ChildProcessErrorUtils_0100 called.");
+    auto err = ChildProcessManagerErrorUtil::GetAbilityErrorCode(ChildProcessManagerErrorCode::ERR_OK);
+    EXPECT_EQ(err, AbilityErrorCode::ERROR_OK);
+}
+
+/**
+ * @tc.number: HandleChildProcessBySelfFork_0100
+ * @tc.desc: Test HandleChildProcessBySelfFork works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ChildProcessManagerTest, HandleChildProcessBySelfFork, TestSize.Level0)
+{
+    TAG_LOGD(AAFwkTag::TEST, "HandleChildProcessBySelfFork_0100 called.");
+    AppExecFwk::BundleInfo bundleInfo;
+    ChildProcessManager::GetInstance().HandleChildProcessBySelfFork("./ets/process/DemoProcess.ts", bundleInfo);
+    EXPECT_EQ(ChildProcessManager::GetInstance().isChildProcessBySelfFork_, true);
 }
 
 /**
