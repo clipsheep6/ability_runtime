@@ -103,6 +103,8 @@ public:
 
     ServiceRunningState QueryServiceState() const;
 
+    AbilityRequest GetAbilityRequest();
+
     /**
      * StartAbility with want, send want to ability manager service.
      *
@@ -1769,6 +1771,8 @@ private:
      */
     void InitGlobalConfiguration();
 
+    void SetAbilityRequest(AbilityRequest &abilityRequest);
+
     std::shared_ptr<AppExecFwk::BundleMgrHelper> GetBundleManager();
 
     sptr<OHOS::AppExecFwk::IAppMgr> GetAppMgr();
@@ -2191,6 +2195,8 @@ private:
     std::map<std::string, std::list<std::string>> whiteListMap_;
 
     std::list<std::string> exportWhiteList_;
+
+    AbilityRequest abilityRequest_;
 
     bool ShouldPreventStartAbility(const AbilityRequest &abilityRequest);
 
