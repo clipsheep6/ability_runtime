@@ -412,7 +412,7 @@ int32_t UriPermissionManagerStubImpl::GrantBatchUriPermissionPrivileged(const st
     }
     if (uriStrVec.empty()) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Valid uri list is empty.");
-        return ERR_CODE_INVALID_URI_FLAG;
+        return ERR_CODE_INVALID_URI_TYPE;
     }
     return GrantBatchUriPermissionImpl(uriStrVec, flag, callerTokenId, targetTokenId, autoRemove);
 }
@@ -444,7 +444,7 @@ int32_t UriPermissionManagerStubImpl::GrantBatchUriPermissionFor2In1Privileged(c
     
     if (uriStrVec.empty() && docsVec.empty()) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Valid uri list is empty.");
-        return ERR_CODE_INVALID_URI_FLAG;
+        return ERR_CODE_INVALID_URI_TYPE;
     }
     
     if (!uriStrVec.empty()) {
@@ -621,6 +621,10 @@ std::vector<bool> UriPermissionManagerStubImpl::CheckUriAuthorization(const std:
     TokenIdPermission tokenIdPermission(tokenId);
     for (size_t i = 0; i < uriVec.size(); i++) {
         Uri uri(uriVec[i]);
+        if (!CheckUriTypeIsValid(uri)) {
+            TAG_LOGW(AAFwkTag::URIPERMMGR, "uri is invalid, uri is %{private}s.", uriVec[i].c_str());
+            continue;
+        }
         result[i] = CheckUriPermission(uri, flag, tokenIdPermission);
         if (!result[i]) {
             TAG_LOGW(AAFwkTag::URIPERMMGR, "Check uri permission failed, uri is %{private}s.", uriVec[i].c_str());

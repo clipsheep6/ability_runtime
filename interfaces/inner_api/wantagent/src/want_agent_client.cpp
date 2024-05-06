@@ -21,6 +21,7 @@
 #include "ability_util.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
@@ -261,6 +262,7 @@ void WantAgentClient::UnregisterCancelListener(
 
 ErrCode WantAgentClient::GetPendingRequestWant(const sptr<IWantSender> &target, std::shared_ptr<Want> &want)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_POINTER_AND_RETURN(target, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
     CHECK_POINTER_AND_RETURN(want, INVALID_PARAMETERS_ERR);
     auto abms = GetAbilityManager();
@@ -340,6 +342,7 @@ ErrCode WantAgentClient::GetWantSenderInfo(const sptr<IWantSender> &target, std:
 
 sptr<IRemoteObject> WantAgentClient::GetAbilityManager()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<std::mutex> lock(mutex_);
     if (proxy_ == nullptr) {
         auto systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();

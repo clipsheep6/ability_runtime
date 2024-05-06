@@ -24,6 +24,7 @@
 #include "distributed_client.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 #include "permission_verification.h"
 
@@ -337,6 +338,7 @@ int32_t PendingWantManager::PendingRecordIdCreate()
 
 sptr<PendingWantRecord> PendingWantManager::GetPendingWantRecordByCode(int32_t code)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::WANTAGENT, "begin. wantRecords_ size = %{public}zu", wantRecords_.size());
 
     std::lock_guard<ffrt::mutex> locker(mutex_);
@@ -497,6 +499,7 @@ void PendingWantManager::UnregisterCancelListener(const sptr<IWantSender> &sende
 
 int32_t PendingWantManager::GetPendingRequestWant(const sptr<IWantSender> &target, std::shared_ptr<Want> &want)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::WANTAGENT, "begin");
     if (target == nullptr) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "%{public}s:target is nullptr.", __func__);

@@ -275,6 +275,7 @@ ErrCode AbilityManagerClient::SendResultToAbility(int requestCode, int resultCod
 ErrCode AbilityManagerClient::StartExtensionAbility(const Want &want, sptr<IRemoteObject> callerToken,
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "name:%{public}s %{public}s, userId=%{public}d.",
@@ -579,6 +580,7 @@ ErrCode AbilityManagerClient::DumpSysState(
 
 ErrCode AbilityManagerClient::Connect()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (proxy_ != nullptr) {
         return ERR_OK;
@@ -742,6 +744,7 @@ ErrCode AbilityManagerClient::LockMissionForCleanup(int32_t missionId)
 
 ErrCode AbilityManagerClient::UnlockMissionForCleanup(int32_t missionId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
@@ -833,6 +836,7 @@ ErrCode AbilityManagerClient::UnRegisterMissionListener(const std::string &devic
 ErrCode AbilityManagerClient::GetMissionInfos(const std::string& deviceId, int32_t numMax,
     std::vector<MissionInfo> &missionInfos)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
@@ -851,6 +855,7 @@ ErrCode AbilityManagerClient::GetMissionInfos(const std::string& deviceId, int32
 ErrCode AbilityManagerClient::GetMissionInfo(const std::string& deviceId, int32_t missionId,
     MissionInfo &missionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
@@ -868,6 +873,7 @@ ErrCode AbilityManagerClient::GetMissionInfo(const std::string& deviceId, int32_
 
 ErrCode AbilityManagerClient::CleanMission(int32_t missionId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
@@ -885,6 +891,7 @@ ErrCode AbilityManagerClient::CleanMission(int32_t missionId)
 
 ErrCode AbilityManagerClient::CleanAllMissions()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
@@ -902,6 +909,7 @@ ErrCode AbilityManagerClient::CleanAllMissions()
 
 ErrCode AbilityManagerClient::MoveMissionToFront(int32_t missionId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->MoveMissionToFront(missionId);
@@ -909,6 +917,7 @@ ErrCode AbilityManagerClient::MoveMissionToFront(int32_t missionId)
 
 ErrCode AbilityManagerClient::MoveMissionToFront(int32_t missionId, const StartOptions &startOptions)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->MoveMissionToFront(missionId, startOptions);
@@ -1016,6 +1025,7 @@ ErrCode AbilityManagerClient::ReleaseCall(
 
 ErrCode AbilityManagerClient::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->GetAbilityRunningInfos(info);
@@ -1023,6 +1033,7 @@ ErrCode AbilityManagerClient::GetAbilityRunningInfos(std::vector<AbilityRunningI
 
 ErrCode AbilityManagerClient::GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->GetExtensionRunningInfos(upperLimit, info);
@@ -1108,6 +1119,7 @@ ErrCode AbilityManagerClient::RegisterSnapshotHandler(sptr<ISnapshotHandler> han
 ErrCode AbilityManagerClient::GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
     MissionSnapshot& snapshot, bool isLowResolution)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
@@ -1374,6 +1386,7 @@ ErrCode AbilityManagerClient::BlockAppService()
 
 sptr<IAbilityManager> AbilityManagerClient::GetAbilityManager()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (!proxy_) {
         (void)Connect();
@@ -1452,6 +1465,7 @@ void AbilityManagerClient::HandleDlpApp(Want &want)
 {
 #ifdef WITH_DLP
     if (!want.GetParams().HasParam(DLP_PARAMS_SANDBOX)) {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "Security::DlpPermission::DlpFileKits::GetSandboxFlag");
         bool sandboxFlag = Security::DlpPermission::DlpFileKits::GetSandboxFlag(want);
         want.SetParam(DLP_PARAMS_SANDBOX, sandboxFlag);
     }

@@ -18,6 +18,7 @@
 #include "ability_runtime_error_util.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "want_params_wrapper.h"
 #include "pending_want.h"
 #include "want_agent_client.h"
@@ -295,6 +296,7 @@ ErrCode WantAgentHelper::GetUid(const std::shared_ptr<WantAgent> &agent, int32_t
 
 std::shared_ptr<Want> WantAgentHelper::GetWant(const std::shared_ptr<WantAgent> &agent)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (agent == nullptr) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::GetWant WantAgent invalid input param.");
         return nullptr;

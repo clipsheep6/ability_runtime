@@ -901,6 +901,9 @@ int UIAbilityLifecycleManager::NotifySCBPendingActivation(sptr<SessionInfo> &ses
         CHECK_POINTER_AND_RETURN(callerSessionInfo, ERR_INVALID_VALUE);
         CHECK_POINTER_AND_RETURN(callerSessionInfo->sessionToken, ERR_INVALID_VALUE);
         auto callerSession = iface_cast<Rosen::ISession>(callerSessionInfo->sessionToken);
+        bool hasContinuousTask = DelayedSingleton<AbilityManagerService>::GetInstance()->
+            IsBackgroundTaskUid(abilityRecord->GetUid());
+        sessionInfo->hasContinuousTask = hasContinuousTask;
         TAG_LOGI(AAFwkTag::ABILITYMGR, "Call PendingSessionActivation by callerSession.");
         return static_cast<int>(callerSession->PendingSessionActivation(sessionInfo));
     }
@@ -1609,6 +1612,9 @@ int UIAbilityLifecycleManager::SendSessionInfoToSCB(std::shared_ptr<AbilityRecor
         auto callerSessionInfo = callerAbility->GetSessionInfo();
         if (callerSessionInfo != nullptr && callerSessionInfo->sessionToken != nullptr) {
             auto callerSession = iface_cast<Rosen::ISession>(callerSessionInfo->sessionToken);
+            bool hasContinuousTask = DelayedSingleton<AbilityManagerService>::GetInstance()->
+                IsBackgroundTaskUid(callerAbility->GetUid());
+            sessionInfo->hasContinuousTask = hasContinuousTask;
             callerSession->PendingSessionActivation(sessionInfo);
         } else {
             CHECK_POINTER_AND_RETURN(rootSceneSession_, ERR_INVALID_VALUE);
@@ -2114,6 +2120,7 @@ void UIAbilityLifecycleManager::DumpMissionListByRecordId(std::vector<std::strin
 
 int UIAbilityLifecycleManager::MoveMissionToFront(int32_t sessionId, std::shared_ptr<StartOptions> startOptions)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_POINTER_AND_RETURN(rootSceneSession_, ERR_INVALID_VALUE);
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecordsById(sessionId);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);

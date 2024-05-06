@@ -151,8 +151,8 @@ public:
      */
     void SetContext(const std::shared_ptr<UIExtensionContext> &context) override;
 
-private:
-    void BindContext(napi_env env, napi_value obj);
+    void BindContext() override;
+protected:
     napi_value CallObjectMethod(const char *name, napi_value const *argv = nullptr, size_t argc = 0);
     void ForegroundWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
     void BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);
@@ -168,15 +168,16 @@ private:
     void PostInsightIntentExecuted(const sptr<AAFwk::SessionInfo> &sessionInfo,
         const AppExecFwk::InsightIntentExecuteResult &result, bool needForeground);
 
+protected:
     JsRuntime &jsRuntime_;
-    std::unique_ptr<NativeReference> jsObj_;
     std::shared_ptr<NativeReference> shellContextRef_;
+    std::unique_ptr<NativeReference> jsObj_;
+    std::shared_ptr<UIExtensionContext> context_;
     std::map<uint64_t, sptr<Rosen::Window>> uiWindowMap_;
     std::set<uint64_t> foregroundWindows_;
     std::map<uint64_t, std::shared_ptr<NativeReference>> contentSessions_;
     std::shared_ptr<AbilityResultListeners> abilityResultListeners_ = nullptr;
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_;
-    std::shared_ptr<UIExtensionContext> context_;
     sptr<IRemoteObject> token_ = nullptr;
 };
 } // namespace AbilityRuntime

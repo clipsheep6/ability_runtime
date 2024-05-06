@@ -123,11 +123,15 @@ ohos_shared_library("libappms") {
     "kv_store:distributeddata_inner",
     "kv_store:distributeddata_mgr",
     "memory_utils:libmeminfo",
+    "os_account:libaccountkits",
     "resource_schedule_service:ressched_client",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
   public_external_deps = [ "kv_store:distributeddata_mgr" ]
+
+  defines += [ "OHOS_ACCOUNT_ENABLED" ]
+
   if (product_name != "ohcore") {
     external_deps += [ "netmanager_base:net_conn_manager_if" ]
   }

@@ -29,7 +29,11 @@ ohos_unittest("app_running_record_test") {
     "${ability_runtime_test_path}/mock/services_appmgr_test/include/",
   ]
 
-  sources = [ "app_running_record_test.cpp" ]
+  sources = [
+    "${ability_runtime_services_path}/appmgr/src/child_process_record.cpp",
+    "app_running_record_test.cpp",
+    "child_process_record_test.cpp",
+  ]
 
   deps = [
     "${ability_runtime_innerkits_path}/app_manager:app_manager",

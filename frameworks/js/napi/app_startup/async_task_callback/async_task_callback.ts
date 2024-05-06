@@ -13,10 +13,17 @@
  * limitations under the License.
  */
 
-class StartupTask {
-  onDependenceCompleted(dependence, result) {
-    console.log('onDependenceCompleted');
+class AsyncTaskCallback {
+  private __impl__: AsyncTaskCallback;
+  constructor(object) {
+    "use sendable"
+    this.__impl__ = object;
+  }
+
+  onAsyncTaskCompleted(startupName) {
+    console.log('AsyncTaskCallback onAsyncTaskCompleted called, startupName: ' + startupName);
+    this.__impl__.onAsyncTaskCompleted(startupName);
   }
 }
 
-export default StartupTask;
+export default AsyncTaskCallback;

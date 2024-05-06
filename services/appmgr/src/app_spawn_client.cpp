@@ -184,6 +184,16 @@ int32_t AppSpawnClient::SetStartFlags(const AppSpawnStartMsg &startMsg, AppSpawn
     return ret;
 }
 
+int32_t AppSpawnClient::SetAtomicServiceFlag(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle)
+{
+    int32_t ret = 0;
+    if (startMsg.atomicServiceFlag &&
+        (ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_ATOMIC_SERVICE))) {
+        HILOG_ERROR("AppSpawnReqMsgSetAppFlag failed, ret: %{public}d", ret);
+    }
+    return ret;
+}
+
 int32_t AppSpawnClient::AppspawnSetExtMsg(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle)
 {
     int32_t ret = 0;
@@ -224,6 +234,13 @@ int32_t AppSpawnClient::AppspawnSetExtMsg(const AppSpawnStartMsg &startMsg, AppS
             TAG_LOGE(AAFwkTag::APPMGR, "SetExtraEnv failed, ret: %{public}d", ret);
             return ret;
         }
+    }
+    if (!startMsg.atomicAccount.empty() &&
+        (ret = AppSpawnReqMsgAddExtInfo(reqHandle, MSG_EXT_NAME_ACCOUNT_ID,
+            reinterpret_cast<const uint8_t*>(startMsg.atomicAccount.c_str()),
+            startMsg.atomicAccount.size()))) {
+        HILOG_ERROR("AppSpawnReqMsgAddExtInfo failed, ret: %{public}d", ret);
+        return ret;
     }
 
     return ret;
@@ -267,6 +284,10 @@ int32_t AppSpawnClient::AppspawnCreateDefaultMsg(const AppSpawnStartMsg &startMs
         }
         if ((ret = SetStartFlags(startMsg, reqHandle))) {
             TAG_LOGE(AAFwkTag::APPMGR, "SetStartFlags failed, ret: %{public}d", ret);
+            break;
+        }
+        if ((ret = SetAtomicServiceFlag(startMsg, reqHandle))) {
+            HILOG_ERROR("SetAtomicServiceFlag failed, ret: %{public}d", ret);
             break;
         }
         if ((ret = SetMountPermission(startMsg, reqHandle))) {

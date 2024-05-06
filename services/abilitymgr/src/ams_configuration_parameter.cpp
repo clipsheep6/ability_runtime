@@ -152,16 +152,14 @@ void AmsConfigurationParameter::LoadUIExtensionPickerConfig(const std::string &f
         return;
     }
 
-    if (pickerJson[AmsConfig::UIEATENSION].is_null()
-        || !pickerJson[AmsConfig::UIEATENSION].is_array()
+    if (pickerJson[AmsConfig::UIEATENSION].is_null() || !pickerJson[AmsConfig::UIEATENSION].is_array()
         || pickerJson[AmsConfig::UIEATENSION].empty()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "invalid obj");
         return;
     }
 
     for (auto extension : pickerJson[AmsConfig::UIEATENSION]) {
-        if (extension[AmsConfig::UIEATENSION_TYPE].is_null()
-            || !extension[AmsConfig::UIEATENSION_TYPE].is_string()
+        if (extension[AmsConfig::UIEATENSION_TYPE].is_null() || !extension[AmsConfig::UIEATENSION_TYPE].is_string()
             || extension[AmsConfig::UIEATENSION_TYPE_PICKER].is_null()
             || !extension[AmsConfig::UIEATENSION_TYPE_PICKER].is_string()) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "invalid key or value");
@@ -169,8 +167,7 @@ void AmsConfigurationParameter::LoadUIExtensionPickerConfig(const std::string &f
         }
         std::string type = extension[AmsConfig::UIEATENSION_TYPE].get<std::string>();
         std::string typePicker = extension[AmsConfig::UIEATENSION_TYPE_PICKER].get<std::string>();
-        TAG_LOGI(AAFwkTag::ABILITYMGR,
-            "type is %{public}s, typePicker is %{public}s", type.c_str(), typePicker.c_str());
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "type: %{public}s, typePicker: %{public}s", type.c_str(), typePicker.c_str());
         picker_[type] = typePicker;
     }
     pickerJson.clear();

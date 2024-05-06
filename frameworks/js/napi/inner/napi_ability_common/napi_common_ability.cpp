@@ -1748,83 +1748,73 @@ HapModuleInfoCB *CreateHapModuleInfoCBInfo(napi_env env)
     return hapModuleInfoCB;
 }
 
-napi_value WrapHapModuleInfo(napi_env env, const HapModuleInfoCB &hapModuleInfoCB)
+napi_value WrapHapModuleInfo(napi_env env, const HapModuleInfoCB &cb)
 {
     TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
     napi_value result = nullptr;
     napi_value proValue = nullptr;
     NAPI_CALL(env, napi_create_object(env, &result));
-    NAPI_CALL(
-        env, napi_create_string_utf8(env, hapModuleInfoCB.hapModuleInfo.name.c_str(), NAPI_AUTO_LENGTH, &proValue));
+    NAPI_CALL(env, napi_create_string_utf8(env, cb.hapModuleInfo.name.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "name", proValue));
 
-    NAPI_CALL(env,
-        napi_create_string_utf8(env, hapModuleInfoCB.hapModuleInfo.description.c_str(), NAPI_AUTO_LENGTH, &proValue));
+    NAPI_CALL(env, napi_create_string_utf8(env, cb.hapModuleInfo.description.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "description", proValue));
 
-    NAPI_CALL(
-        env, napi_create_string_utf8(env, hapModuleInfoCB.hapModuleInfo.iconPath.c_str(), NAPI_AUTO_LENGTH, &proValue));
+    NAPI_CALL(env, napi_create_string_utf8(env, cb.hapModuleInfo.iconPath.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "icon", proValue));
 
-    NAPI_CALL(
-        env, napi_create_string_utf8(env, hapModuleInfoCB.hapModuleInfo.label.c_str(), NAPI_AUTO_LENGTH, &proValue));
+    NAPI_CALL(env, napi_create_string_utf8(env, cb.hapModuleInfo.label.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "label", proValue));
 
-    NAPI_CALL(env,
-        napi_create_string_utf8(env, hapModuleInfoCB.hapModuleInfo.backgroundImg.c_str(), NAPI_AUTO_LENGTH, &proValue));
+    NAPI_CALL(env, napi_create_string_utf8(env, cb.hapModuleInfo.backgroundImg.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "backgroundImg", proValue));
 
-    NAPI_CALL(env,
-        napi_create_string_utf8(env, hapModuleInfoCB.hapModuleInfo.moduleName.c_str(), NAPI_AUTO_LENGTH, &proValue));
+    NAPI_CALL(env, napi_create_string_utf8(env, cb.hapModuleInfo.moduleName.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "moduleName", proValue));
 
-    NAPI_CALL(env, napi_create_int32(env, hapModuleInfoCB.hapModuleInfo.supportedModes, &proValue));
+    NAPI_CALL(env, napi_create_int32(env, cb.hapModuleInfo.supportedModes, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "supportedModes", proValue));
 
-    NAPI_CALL(env, napi_create_int32(env, hapModuleInfoCB.hapModuleInfo.descriptionId, &proValue));
+    NAPI_CALL(env, napi_create_int32(env, cb.hapModuleInfo.descriptionId, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "descriptionId", proValue));
 
-    NAPI_CALL(env, napi_create_int32(env, hapModuleInfoCB.hapModuleInfo.labelId, &proValue));
+    NAPI_CALL(env, napi_create_int32(env, cb.hapModuleInfo.labelId, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "labelId", proValue));
 
-    NAPI_CALL(env, napi_create_int32(env, hapModuleInfoCB.hapModuleInfo.iconId, &proValue));
+    NAPI_CALL(env, napi_create_int32(env, cb.hapModuleInfo.iconId, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "iconId", proValue));
 
-    NAPI_CALL(env,
-        napi_create_string_utf8(
-            env, hapModuleInfoCB.hapModuleInfo.mainAbility.c_str(), NAPI_AUTO_LENGTH, &proValue));
+    NAPI_CALL(env, napi_create_string_utf8(env, cb.hapModuleInfo.mainAbility.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "mainAbilityName", proValue));
 
-    NAPI_CALL(env, napi_get_boolean(env, hapModuleInfoCB.hapModuleInfo.installationFree, &proValue));
+    NAPI_CALL(env, napi_get_boolean(env, cb.hapModuleInfo.installationFree, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "installationFree", proValue));
 
     napi_value jsArrayreqCapabilities = nullptr;
     NAPI_CALL(env, napi_create_array(env, &jsArrayreqCapabilities));
-    for (size_t i = 0; i < hapModuleInfoCB.hapModuleInfo.reqCapabilities.size(); i++) {
+    for (size_t i = 0; i < cb.hapModuleInfo.reqCapabilities.size(); i++) {
         proValue = nullptr;
         NAPI_CALL(env,
-            napi_create_string_utf8(
-                env, hapModuleInfoCB.hapModuleInfo.reqCapabilities.at(i).c_str(), NAPI_AUTO_LENGTH, &proValue));
+            napi_create_string_utf8(env, cb.hapModuleInfo.reqCapabilities.at(i).c_str(), NAPI_AUTO_LENGTH, &proValue));
         NAPI_CALL(env, napi_set_element(env, jsArrayreqCapabilities, i, proValue));
     }
     NAPI_CALL(env, napi_set_named_property(env, result, "reqCapabilities", jsArrayreqCapabilities));
 
     napi_value jsArraydeviceTypes = nullptr;
     NAPI_CALL(env, napi_create_array(env, &jsArraydeviceTypes));
-    for (size_t i = 0; i < hapModuleInfoCB.hapModuleInfo.deviceTypes.size(); i++) {
+    for (size_t i = 0; i < cb.hapModuleInfo.deviceTypes.size(); i++) {
         proValue = nullptr;
         NAPI_CALL(env,
-            napi_create_string_utf8(
-                env, hapModuleInfoCB.hapModuleInfo.deviceTypes.at(i).c_str(), NAPI_AUTO_LENGTH, &proValue));
+            napi_create_string_utf8(env, cb.hapModuleInfo.deviceTypes.at(i).c_str(), NAPI_AUTO_LENGTH, &proValue));
         NAPI_CALL(env, napi_set_element(env, jsArraydeviceTypes, i, proValue));
     }
     NAPI_CALL(env, napi_set_named_property(env, result, "deviceTypes", jsArraydeviceTypes));
 
     napi_value abilityInfos = nullptr;
     NAPI_CALL(env, napi_create_array(env, &abilityInfos));
-    for (size_t i = 0; i < hapModuleInfoCB.hapModuleInfo.abilityInfos.size(); i++) {
+    for (size_t i = 0; i < cb.hapModuleInfo.abilityInfos.size(); i++) {
         napi_value abilityInfo = nullptr;
-        abilityInfo = WrapAbilityInfo(env, hapModuleInfoCB.hapModuleInfo.abilityInfos.at(i));
+        abilityInfo = WrapAbilityInfo(env, cb.hapModuleInfo.abilityInfos.at(i));
         NAPI_CALL(env, napi_set_element(env, abilityInfos, i, abilityInfo));
     }
     NAPI_CALL(env, napi_set_named_property(env, result, "abilityInfo", abilityInfos));
@@ -2413,11 +2403,7 @@ napi_value GetContextAsync(
         TAG_LOGD(AAFwkTag::JSNAPI, "napi_create_reference");
         napi_create_reference(env, args[argCallback], 1, &asyncCallbackInfo->cbInfo.callback);
     }
-    napi_create_async_work(
-        env,
-        nullptr,
-        resourceName,
-        GetContextAsyncExecuteCB,
+    napi_create_async_work(env, nullptr, resourceName, GetContextAsyncExecuteCB,
         [](napi_env env, napi_status, void *data) {
             TAG_LOGI(AAFwkTag::JSNAPI, "GetContextAsync, main event thread complete.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
@@ -2443,9 +2429,7 @@ napi_value GetContextAsync(
             delete asyncCallbackInfo;
             asyncCallbackInfo = nullptr;
             TAG_LOGI(AAFwkTag::JSNAPI, "GetContextAsync, main event thread complete end.");
-        },
-        static_cast<void *>(asyncCallbackInfo),
-        &asyncCallbackInfo->asyncWork);
+        }, static_cast<void *>(asyncCallbackInfo), &asyncCallbackInfo->asyncWork);
     napi_queue_async_work_with_qos(env, asyncCallbackInfo->asyncWork, napi_qos_user_initiated);
     napi_value result = nullptr;
     napi_get_null(env, &result);
@@ -2604,11 +2588,7 @@ napi_value GetWantAsync(napi_env env, napi_value *args, const size_t argCallback
         TAG_LOGD(AAFwkTag::JSNAPI, "napi_create_reference.");
         napi_create_reference(env, args[argCallback], 1, &asyncCallbackInfo->cbInfo.callback);
     }
-    napi_create_async_work(
-        env,
-        nullptr,
-        resourceName,
-        GetWantExecuteCB,
+    napi_create_async_work(env, nullptr, resourceName, GetWantExecuteCB,
         [](napi_env env, napi_status, void *data) {
             TAG_LOGI(AAFwkTag::JSNAPI, "GetWantAsync, main event thread complete.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
@@ -3689,14 +3669,12 @@ napi_value AcquireDataAbilityHelperWrap(napi_env env, napi_callback_info info, D
             return nullptr;
         }
     }
-
     napi_valuetype valuetype = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, args[uriIndex], &valuetype));
     if (valuetype != napi_string) {
         TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s, Wrong argument type.", __func__);
         return nullptr;
     }
-
     napi_value result = nullptr;
     NAPI_CALL(env, napi_new_instance(env, GetGlobalDataAbilityHelper(env), uriIndex + 1, &args[PARAM0], &result));
 
@@ -4098,15 +4076,13 @@ napi_value JsNapiCommon::JsConnectAbility(napi_env env, napi_callback_info info,
             abilityConnection->AddConnectionCallback(connectionCallback);
             // Judge connection-state
             auto connectionState = abilityConnection->GetConnectionState();
+            TAG_LOGI(AAFwkTag::JSNAPI, "connectionState = %{public}d", connectionState);
             if (connectionState == CONNECTION_STATE_CONNECTED) {
-                TAG_LOGI(AAFwkTag::JSNAPI, "Ability is connected, callback to client.");
                 abilityConnection->HandleOnAbilityConnectDone(*connectionCallback, ERR_OK);
                 return CreateJsValue(env, id);
             } else if (connectionState == CONNECTION_STATE_CONNECTING) {
-                TAG_LOGI(AAFwkTag::JSNAPI, "Ability is connecting, just wait callback.");
                 return CreateJsValue(env, id);
             } else {
-                TAG_LOGE(AAFwkTag::JSNAPI, "AbilityConnection has disconnected, erase it.");
                 RemoveConnectionLocked(want);
                 return CreateJsUndefined(env);
             }

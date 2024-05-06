@@ -268,6 +268,7 @@ int32_t AppSchedulerHost::HandleScheduleProfileChanged(MessageParcel &data, Mess
 
 int32_t AppSchedulerHost::HandleScheduleConfigurationUpdated(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HITRACE_METER(HITRACE_TAG_APP);
     std::unique_ptr<Configuration> configuration(data.ReadParcelable<Configuration>());
     if (!configuration) {

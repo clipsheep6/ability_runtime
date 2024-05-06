@@ -568,8 +568,10 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Want, TestSize.Level1)
 {
     Want want;
     want.SetFlags(100);
+    want.SetParam("multiThread", true);
     abilityRecord_->SetWant(want);
     EXPECT_EQ(want.GetFlags(), abilityRecord_->GetWant().GetFlags());
+    EXPECT_EQ(want.GetBoolParam("multiThread", false), abilityRecord_->GetWant().GetBoolParam("multiThread", false));
 }
 
 /*

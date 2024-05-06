@@ -57,6 +57,9 @@
 #include "mem_mgr_client.h"
 #include "mem_mgr_process_state_info.h"
 #include "os_account_manager_wrapper.h"
+#ifdef OHOS_ACCOUNT_ENABLED
+#include "ohos_account_kits.h"
+#endif // OHOS_ACCOUNT_ENABLED
 #include "parameter.h"
 #include "parameters.h"
 #include "perf_profile.h"
@@ -118,6 +121,7 @@ const std::string FUNC_NAME = "main";
 const std::string RENDER_PARAM = "invalidparam";
 const std::string COLD_START = "coldStart";
 const std::string PERF_CMD = "perfCmd";
+const std::string MULTI_THREAD = "multiThread";
 const std::string DEBUG_CMD = "debugCmd";
 const std::string ENTER_SANDBOX = "sandboxApp";
 const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
@@ -172,6 +176,8 @@ const std::string EVENT_MESSAGE_START_SPECIFIED_PROCESS_TIMEOUT = "Start Specifi
 const std::string EVENT_MESSAGE_START_SPECIFIED_ABILITY_TIMEOUT = "Start Specified Ability TimeOut!";
 const std::string EVENT_MESSAGE_START_PROCESS_SPECIFIED_ABILITY_TIMEOUT = "Start Process Specified Ability TimeOut!";
 const std::string EVENT_MESSAGE_DEFAULT = "AppMgrServiceInner HandleTimeOut!";
+const std::string SUPPORT_CALL_NOTIFY_MEMORY_CHANGED =
+    "persist.sys.abilityms.support_call_notify_memory_changed";
 
 const std::string SYSTEM_BASIC = "system_basic";
 const std::string SYSTEM_CORE = "system_core";
@@ -1346,11 +1352,12 @@ int32_t AppMgrServiceInner::ClearUpApplicationDataByUserId(
 
 int32_t AppMgrServiceInner::GetAllRunningProcesses(std::vector<RunningProcessInfo> &info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto isPerm = AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm();
     // check permission
     for (const auto &item : appRunningManager_->GetAppRunningRecordMap()) {
         const auto &appRecord = item.second;
-        if (!appRecord->GetSpawned()) {
+        if (!appRecord || !appRecord->GetSpawned()) {
             continue;
         }
         if (isPerm) {
@@ -1365,6 +1372,28 @@ int32_t AppMgrServiceInner::GetAllRunningProcesses(std::vector<RunningProcessInf
             if (callingTokenId == tokenId) {
                 GetRunningProcesses(appRecord, info);
             }
+        }
+    }
+    return ERR_OK;
+}
+
+int32_t AppMgrServiceInner::GetRunningProcessesByBundleType(BundleType bundleType,
+    std::vector<RunningProcessInfo> &info)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "called.");
+    CHECK_CALLER_IS_SYSTEM_APP;
+    if (!AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "permission deny");
+        return ERR_PERMISSION_DENIED;
+    }
+    for (const auto &item : appRunningManager_->GetAppRunningRecordMap()) {
+        const auto &appRecord = item.second;
+        if (!appRecord || !appRecord->GetSpawned()) {
+            continue;
+        }
+        auto appInfo = appRecord->GetApplicationInfo();
+        if (appInfo && appInfo->bundleType == bundleType) {
+            GetRunningProcesses(appRecord, info);
         }
     }
     return ERR_OK;
@@ -1511,6 +1540,7 @@ int32_t AppMgrServiceInner::DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &i
 void AppMgrServiceInner::GetRunningProcesses(const std::shared_ptr<AppRunningRecord> &appRecord,
     std::vector<RunningProcessInfo> &info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     RunningProcessInfo runningProcessInfo;
     GetRunningProcess(appRecord, runningProcessInfo);
     info.emplace_back(runningProcessInfo);
@@ -1532,6 +1562,10 @@ void AppMgrServiceInner::GetRunningProcess(const std::shared_ptr<AppRunningRecor
     info.extensionType_ = appRecord->GetExtensionType();
     if (appRecord->GetUserTestInfo() != nullptr && system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
         info.isTestMode = true;
+    }
+    auto appInfo = appRecord->GetApplicationInfo();
+    if (appInfo) {
+        info.bundleType = static_cast<int32_t>(appInfo->bundleType);
     }
 }
 
@@ -1704,6 +1738,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(spt
             appRecord->SetDebugApp(true);
         }
         appRecord->SetPerfCmd(want->GetStringParam(PERF_CMD));
+        appRecord->SetMultiThread(want->GetBoolParam(MULTI_THREAD, false));
         appRecord->SetAppIndex(want->GetIntParam(DLP_PARAMS_INDEX, 0));
         appRecord->SetSecurityFlag(want->GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false));
         appRecord->SetRequestProcCode(want->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0));
@@ -2466,6 +2501,25 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         startMsg.flags = startMsg.flags | APP_ACCESS_BUNDLE_DIR;
     }
 
+#ifdef OHOS_ACCOUNT_ENABLED
+    TAG_LOGI(AAFwkTag::APPMGR, "execute with OHOS_ACCOUNT_ENABLED on");
+    auto appInfo = appRecord->GetApplicationInfo();
+    if (appInfo && appInfo->bundleType == BundleType::ATOMIC_SERVICE) {
+        TAG_LOGI(AAFwkTag::APPMGR, "application is of atomic service type");
+        AccountSA::OhosAccountInfo accountInfo;
+        auto errCode = AccountSA::OhosAccountKits::GetInstance().GetOhosAccountInfo(accountInfo);
+        if (errCode == ERR_OK) {
+            TAG_LOGI(AAFwkTag::APPMGR, "GetOhosAccountInfo succeeds, uid %{public}s", accountInfo.uid_.c_str());
+            startMsg.atomicServiceFlag = true;
+            startMsg.atomicAccount = accountInfo.uid_;
+        } else {
+            TAG_LOGE(AAFwkTag::APPMGR, "failed to get ohos account info:%{public}d", errCode);
+        }
+    }
+#else
+    TAG_LOGI(AAFwkTag::APPMGR, "execute with OHOS_ACCOUNT_ENABLED off");
+#endif // OHOS_ACCOUNT_ENABLED
+
     SetOverlayInfo(bundleName, userId, startMsg);
     SetAppEnvInfo(bundleInfo, startMsg);
 
@@ -2983,6 +3037,7 @@ void AppMgrServiceInner::HandleAddAbilityStageTimeOut(const int64_t eventId)
 void AppMgrServiceInner::GetRunningProcessInfoByToken(
     const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!CheckGetRunningInfoPermission()) {
         return;
@@ -3233,6 +3288,7 @@ int32_t AppMgrServiceInner::UnregisterAppForegroundStateObserver(const sptr<IApp
 int32_t AppMgrServiceInner::RegisterAbilityForegroundStateObserver(
     const sptr<IAbilityForegroundStateObserver> &observer)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_CALLER_IS_SYSTEM_APP;
     return DelayedSingleton<AppStateObserverManager>::GetInstance()->RegisterAbilityForegroundStateObserver(observer);
 }
@@ -3523,6 +3579,7 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
                 appRecord->SetDebugApp(true);
             }
             appRecord->SetPerfCmd(wantPtr->GetStringParam(PERF_CMD));
+            appRecord->SetMultiThread(wantPtr->GetBoolParam(MULTI_THREAD, false));
         }
         appRecord->SetProcessAndExtensionType(abilityInfoPtr);
         appRecord->SetTaskHandler(taskHandler_);
@@ -3649,6 +3706,7 @@ void AppMgrServiceInner::HandleStartSpecifiedProcessTimeout(const int64_t eventI
 
 int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (!appRunningManager_) {
         TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is null");
         return ERR_INVALID_VALUE;
@@ -3660,13 +3718,19 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
     }
 
     std::vector<std::string> changeKeyV;
-    configuration_->CompareDifferent(changeKeyV, config);
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "configuration_->CompareDifferent");
+        configuration_->CompareDifferent(changeKeyV, config);
+    }
     TAG_LOGI(AAFwkTag::APPMGR, "changeKeyV size :%{public}zu", changeKeyV.size());
     if (config.GetItem(AAFwk::GlobalConfigurationKey::THEME).empty() && changeKeyV.empty()) {
         TAG_LOGE(AAFwkTag::APPMGR, "changeKeyV is empty");
         return ERR_INVALID_VALUE;
     }
-    configuration_->Merge(changeKeyV, config);
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "configuration_->Merge");
+        configuration_->Merge(changeKeyV, config);
+    }
     // all app
     int32_t result = appRunningManager_->UpdateConfiguration(config);
     HandleConfigurationChange(config);
@@ -3706,6 +3770,7 @@ int32_t AppMgrServiceInner::UpdateConfigurationByBundleName(const Configuration 
 
 void AppMgrServiceInner::HandleConfigurationChange(const Configuration &config)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard lock(appStateCallbacksLock_);
     for (const auto &callback : appStateCallbacks_) {
         if (callback != nullptr) {
@@ -6238,7 +6303,8 @@ int32_t AppMgrServiceInner::NotifyMemorySizeStateChanged(bool isMemorySizeSuffic
         isMemorySizeSufficent);
     bool isMemmgrCall = AAFwk::PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission(
         MEMMGR_PROC_NAME);
-    if (!isMemmgrCall) {
+    bool isSupportCall = OHOS::system::GetBoolParameter(SUPPORT_CALL_NOTIFY_MEMORY_CHANGED, false);
+    if (!isMemmgrCall && !isSupportCall) {
         TAG_LOGE(AAFwkTag::APPMGR, "callerToken not %{public}s. %{public}s", MEMMGR_PROC_NAME.c_str(), __func__);
         return ERR_PERMISSION_DENIED;
     }

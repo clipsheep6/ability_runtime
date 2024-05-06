@@ -29,8 +29,6 @@ ohos_source_set("sa_mgr_mock") {
     "${ability_runtime_services_path}/common:common_config",
   ]
 
-  deps = []
-
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
