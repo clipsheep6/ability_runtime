@@ -61,7 +61,22 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
                 return ret;
             }
         }
-        if (disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
+        if (disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION_WITH_RESULT &&
+        disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
+            AbilityRequest abilityRequest =DelayedSingleton<AbilityManagerService>::GetInstance()->GetAbilityRequest();
+            std::string dialogSessionId;
+            std::vector<DialogAppInfo> dialogAppInfos(1);
+            if (DelayedSingleton<AbilityManagerService>::GetInstance()->GenerateDialogSessionRecord(abilityRequest, param.userId, dialogSessionId,             dialogAppInfos, false)) {
+                TAG_LOGI(AAFwkTag::ABILITYMGR, "generated dialogSessionId");
+            }
+            disposedRule.want->SetParam("dialogSessionId", dialogSessionId);
+            disposedRule.want->SetParam("reservedDialogSessionId", true);
+            int ret = CreateModalUIExtension(*disposedRule.want, param.callerToken);
+            if (ret != ERR_OK) {
+                TAG_LOGE("failed to start disposed UIExtension.");
+                return ret;
+            }
+        } else if (disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
             int ret = CreateModalUIExtension(*disposedRule.want, param.callerToken);
             if (ret != ERR_OK) {
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start disposed UIExtension");
@@ -130,6 +145,13 @@ bool DisposedRuleInterceptor::CheckDisposedRule(const Want &want, AppExecFwk::Di
     if (disposedRule.disposedType == AppExecFwk::DisposedType::NON_BLOCK) {
         return false;
     }
+
+    bool Verified = want.GetBoolParam("Verified", false);
+    if (Verified == true && disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION_WITH_RESULT) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "The app lock is unlocked");
+        return false;
+    }
+
     bool isAllowed = disposedRule.controlType == AppExecFwk::ControlType::ALLOWED_LIST;
     if (disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION) {
         return !isAllowed;
