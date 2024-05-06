@@ -6412,8 +6412,6 @@ int32_t AppMgrServiceInner::CheckSetProcessCachePermission() const
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     CHECK_CALLER_IS_SYSTEM_APP;
     auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifySetProcessCachePermission();
-    // for test purpose
-    isCallingPerm = true;
     TAG_LOGI(AAFwkTag::APPMGR, "ProcessCache permission: %{public}d", isCallingPerm);
     return isCallingPerm ? ERR_OK : AAFwk::CHECK_PERMISSION_FAILED;
 }

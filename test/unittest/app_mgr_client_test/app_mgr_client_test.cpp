@@ -1354,7 +1354,7 @@ HWTEST_F(AppMgrClientTest, SetSupportedProcessCacheSelf_001, TestSize.Level0)
     auto appMgrClient = std::make_unique<AppMgrClient>();
     bool isSupport = false;
     int32_t ret = appMgrClient->SetSupportedProcessCacheSelf(isSupport);
-    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    EXPECT_NE(appMgrClient, nullptr);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

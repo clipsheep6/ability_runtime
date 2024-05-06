@@ -1432,7 +1432,7 @@ napi_value JsApplicationContextUtils::OnSetSupportedProcessCacheSelf(napi_env en
     bool isSupport = false;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], isSupport)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse isSupport failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR);
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
 
