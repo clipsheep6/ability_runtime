@@ -892,6 +892,16 @@ void AbilityManagerService::SetReserveInfo(const std::string &linkString)
     }
 }
 
+AbilityRequest AbilityManagerService::GetAbilityRequest()
+{
+    return abilityRequest_;
+}
+
+void AbilityManagerService::SetAbilityRequest(AbilityRequest &abilityRequest)
+{
+    abilityRequest_ = abilityRequest;
+}
+
 int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemoteObject> &callerToken,
     int requestCode, int32_t userId, bool isStartAsCaller, bool isSendDialogResult, uint32_t specifyTokenId,
     bool isForegroundToRestartApp, bool isImplicit)
@@ -916,7 +926,8 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     AbilityUtil::RemoveWindowModeKey(const_cast<Want &>(want));
     std::string dialogSessionId = want.GetStringParam("dialogSessionId");
     isSendDialogResult = false;
-    if (!dialogSessionId.empty() && dialogSessionRecord_->GetDialogCallerInfo(dialogSessionId) != nullptr) {
+    if (!dialogSessionId.empty() && dialogSessionRecord_->GetDialogCallerInfo(dialogSessionId) != nullptr &&
+     !want.GetBoolParam("reservedDialogSessionId",false)) {
         isSendDialogResult = true;
         dialogSessionRecord_->ClearDialogContext(dialogSessionId);
     }
@@ -1089,6 +1100,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
 
     Want newWant = abilityRequest.want;
+    SetAbilityRequest(abilityRequest);
     AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(newWant, requestCode, GetUserId(),
         true, callerToken, std::make_shared<AppExecFwk::AbilityInfo>(abilityInfo), isStartAsCaller);
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -9926,6 +9938,7 @@ int AbilityManagerService::SendDialogResult(const Want &want, const std::string 
     targetWant.SetElement(want.GetElement());
     targetWant.SetParam("isSelector", dialogCallerInfo->isSelector);
     targetWant.SetParam("dialogSessionId", dialogSessionId);
+    targetWant.SetParam("Verified", true);
     sptr<IRemoteObject> callerToken = dialogCallerInfo->callerToken;
     int ret = StartAbilityAsCaller(targetWant, callerToken, nullptr, dialogCallerInfo->userId,
         dialogCallerInfo->requestCode, true);
