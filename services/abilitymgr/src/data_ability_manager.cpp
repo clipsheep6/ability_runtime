@@ -683,7 +683,7 @@ void DataAbilityManager::ReportDataAbilityAcquired(const sptr<IRemoteObject> &cl
 {
     DataAbilityCaller caller;
     caller.isNotHap = isNotHap;
-    caller.callerPid = IPCSkeleton::GetCallingPid();
+    caller.callerPid = IPCSkeleton::GetCallingRealPid();
     caller.callerUid = IPCSkeleton::GetCallingUid();
     caller.callerToken = client;
     if (client && !isNotHap) {
@@ -703,7 +703,7 @@ void DataAbilityManager::ReportDataAbilityReleased(const sptr<IRemoteObject> &cl
 {
     DataAbilityCaller caller;
     caller.isNotHap = isNotHap;
-    caller.callerPid = IPCSkeleton::GetCallingPid();
+    caller.callerPid = IPCSkeleton::GetCallingRealPid();
     caller.callerUid = IPCSkeleton::GetCallingUid();
     caller.callerToken = client;
     DelayedSingleton<ConnectionStateManager>::GetInstance()->RemoveDataAbilityConnection(caller, record);

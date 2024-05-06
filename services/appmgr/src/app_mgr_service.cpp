@@ -200,7 +200,7 @@ void AppMgrService::AttachApplication(const sptr<IRemoteObject> &app)
         return;
     }
 
-    pid_t pid = IPCSkeleton::GetCallingPid();
+    pid_t pid = IPCSkeleton::GetCallingRealPid();
     std::function<void()> attachApplicationFunc =
         std::bind(&AppMgrServiceInner::AttachApplication, appMgrServiceInner_, pid, iface_cast<IAppScheduler>(app));
     taskHandler_->SubmitTask(attachApplicationFunc, AAFwk::TaskAttribute{
@@ -304,8 +304,8 @@ void AppMgrService::StartupResidentProcess(const std::vector<AppExecFwk::BundleI
     if (!IsReady()) {
         return;
     }
-    pid_t callingPid = IPCSkeleton::GetCallingPid();
-    pid_t pid = getpid();
+    pid_t callingPid = IPCSkeleton::GetCallingRealPid();
+    pid_t pid = getprocpid();
     if (callingPid != pid) {
         TAG_LOGE(AAFwkTag::APPMGR, "Not this process call.");
         return;
@@ -355,7 +355,7 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, con
         }
     }
     int32_t uid = IPCSkeleton::GetCallingUid();
-    pid_t pid = IPCSkeleton::GetCallingPid();
+    pid_t pid = IPCSkeleton::GetCallingRealPid();
     appMgrServiceInner_->ClearUpApplicationData(bundleName, uid, pid, userId);
     return ERR_OK;
 }
@@ -366,7 +366,7 @@ int32_t AppMgrService::ClearUpApplicationDataBySelf(int32_t userId)
         return ERR_INVALID_OPERATION;
     }
     int32_t uid = IPCSkeleton::GetCallingUid();
-    pid_t pid = IPCSkeleton::GetCallingPid();
+    pid_t pid = IPCSkeleton::GetCallingRealPid();
     return appMgrServiceInner_->ClearUpApplicationDataBySelf(uid, pid, userId);
 }
 
@@ -585,7 +585,7 @@ int AppMgrService::FinishUserTest(const std::string &msg, const int64_t &resultC
         TAG_LOGE(AAFwkTag::APPMGR, "GetBundleName failed: %{public}d.", result);
         return ERR_INVALID_OPERATION;
     }
-    pid_t callingPid = IPCSkeleton::GetCallingPid();
+    pid_t callingPid = IPCSkeleton::GetCallingRealPid();
     std::function<void()> finishUserTestProcessFunc =
         std::bind(&AppMgrServiceInner::FinishUserTest, appMgrServiceInner_, msg, resultCode, bundleName, callingPid);
     taskHandler_->SubmitTask(finishUserTestProcessFunc, TASK_FINISH_USER_TEST);
@@ -809,7 +809,7 @@ int32_t AppMgrService::PreStartNWebSpawnProcess()
         return ERR_INVALID_OPERATION;
     }
 
-    return appMgrServiceInner_->PreStartNWebSpawnProcess(IPCSkeleton::GetCallingPid());
+    return appMgrServiceInner_->PreStartNWebSpawnProcess(IPCSkeleton::GetCallingRealPid());
 }
 
 int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
@@ -820,7 +820,7 @@ int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_
         return ERR_INVALID_OPERATION;
     }
 
-    return appMgrServiceInner_->StartRenderProcess(IPCSkeleton::GetCallingPid(),
+    return appMgrServiceInner_->StartRenderProcess(IPCSkeleton::GetCallingRealPid(),
         renderParam, ipcFd, sharedFd, crashFd, renderPid);
 }
 
@@ -832,7 +832,7 @@ void AppMgrService::AttachRenderProcess(const sptr<IRemoteObject> &scheduler)
         return;
     }
 
-    auto pid = IPCSkeleton::GetCallingPid();
+    auto pid = IPCSkeleton::GetCallingRealPid();
     auto fun = std::bind(&AppMgrServiceInner::AttachRenderProcess,
         appMgrServiceInner_, pid, iface_cast<IRenderScheduler>(scheduler));
     taskHandler_->SubmitTask(fun, AAFwk::TaskAttribute{
@@ -1188,8 +1188,8 @@ int32_t AppMgrService::StartChildProcess(const std::string &srcEntry, pid_t &chi
         TAG_LOGE(AAFwkTag::APPMGR, "StartChildProcess failed, AppMgrService not ready.");
         return ERR_INVALID_OPERATION;
     }
-    return appMgrServiceInner_->StartChildProcess(IPCSkeleton::GetCallingPid(), srcEntry, childPid, childProcessCount,
-        isStartWithDebug);
+    return appMgrServiceInner_->StartChildProcess(IPCSkeleton::GetCallingRealPid(), srcEntry, childPid,
+        childProcessCount, isStartWithDebug);
 }
 
 int32_t AppMgrService::GetChildProcessInfoForSelf(ChildProcessInfo &info)
@@ -1212,7 +1212,7 @@ void AppMgrService::AttachChildProcess(const sptr<IRemoteObject> &childScheduler
         TAG_LOGE(AAFwkTag::APPMGR, "taskHandler_ is null.");
         return;
     }
-    pid_t pid = IPCSkeleton::GetCallingPid();
+    pid_t pid = IPCSkeleton::GetCallingRealPid();
     std::function<void()> task = std::bind(&AppMgrServiceInner::AttachChildProcess,
         appMgrServiceInner_, pid, iface_cast<IChildScheduler>(childScheduler));
     taskHandler_->SubmitTask(task, AAFwk::TaskAttribute{
@@ -1231,7 +1231,7 @@ void AppMgrService::ExitChildProcessSafely()
         TAG_LOGE(AAFwkTag::APPMGR, "taskHandler_ is null.");
         return;
     }
-    pid_t pid = IPCSkeleton::GetCallingPid();
+    pid_t pid = IPCSkeleton::GetCallingRealPid();
     std::function<void()> task = std::bind(&AppMgrServiceInner::ExitChildProcessSafelyByChildPid,
         appMgrServiceInner_, pid);
     taskHandler_->SubmitTask(task, AAFwk::TaskAttribute{

@@ -215,7 +215,7 @@ int32_t UriPermissionManagerStubImpl::CheckCalledBySandBox()
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Get BundleManager failed!");
         return INNER_ERR;
     }
-    auto callerPid = IPCSkeleton::GetCallingPid();
+    auto callerPid = IPCSkeleton::GetCallingRealPid();
     bool isSandbox = false;
     if (appMgr_->JudgeSandboxByPid(callerPid, isSandbox) != ERR_OK) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "JudgeSandboxByPid failed.");
@@ -441,12 +441,12 @@ int32_t UriPermissionManagerStubImpl::GrantBatchUriPermissionFor2In1Privileged(c
         policyInfo.mode = (flag & Want::FLAG_AUTH_WRITE_URI_PERMISSION) == 0 ? READ_MODE : WRITE_MODE;
         docsVec.emplace_back(policyInfo);
     }
-    
+
     if (uriStrVec.empty() && docsVec.empty()) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Valid uri list is empty.");
         return ERR_CODE_INVALID_URI_TYPE;
     }
-    
+
     if (!uriStrVec.empty()) {
         auto ret = GrantBatchUriPermissionImpl(uriStrVec, flag, callerTokenId, targetTokenId, autoRemove);
         if (docsVec.empty()) {
@@ -556,7 +556,7 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
     if (ret != ERR_OK) {
         return ret;
     }
-    
+
     auto uriStr = uri.ToString();
     auto uriInner = uri;
     uint32_t authorityTokenId = 0;
