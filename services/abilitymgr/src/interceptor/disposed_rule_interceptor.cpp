@@ -65,8 +65,8 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
             AbilityRequest abilityRequest = DelayedSingleton<AbilityManagerService>::GetInstance()->GetAbilityRequest();
             std::string dialogSessionId;
             std::vector<DialogAppInfo> dialogAppInfos(1);
-            if (DelayedSingleton<AbilityManagerService>::GetInstance()->GenerateDialogSessionRecord(abilityRequest, param.userId,
-            dialogSessionId, dialogAppInfos, false)) {
+            if (DelayedSingleton<AbilityManagerService>::GetInstance()->GenerateDialogSessionRecord(abilityRequest,
+            param.userId, dialogSessionId, dialogAppInfos, false)) {
                 TAG_LOGI(AAFwkTag::ABILITYMGR, "generated dialogSessionId");
             }
             disposedRule.want->SetParam("dialogSessionId", dialogSessionId);
