@@ -2575,5 +2575,18 @@ HWTEST_F(AbilityRecordTest, UpdateWantParams_0100, TestSize.Level1)
     wantParams.SetParam("ability.want.params.uiExtensionRootHostPid", AAFwk::Integer::Box(1000));
     abilityRecord->UpdateUIExtensionInfo(wantParams);
 }
+
+/**
+ * @tc.name: AbilityRecord_GetAbilityVisibilityState_001
+ * @tc.desc: Test GetAbilityVisibilityState
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_GetAbilityVisibilityState_001, TestSize.Level1)
+{
+    EXPECT_NE(abilityRecord_, nullptr);
+    EXPECT_EQ(AbilityVisibilityState::INITIAL, abilityRecord_->GetAbilityVisibilityState());
+    abilityRecord_->SetAbilityVisibilityState(AbilityVisibilityState::FOREGROUND_HIDE);
+    EXPECT_EQ(AbilityVisibilityState::FOREGROUND_HIDE, abilityRecord_->GetAbilityVisibilityState());
+}
 }  // namespace AAFwk
 }  // namespace OHOS

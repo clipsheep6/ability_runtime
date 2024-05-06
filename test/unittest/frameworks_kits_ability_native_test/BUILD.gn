@@ -661,6 +661,7 @@ ohos_unittest("ui_ability_impl_test") {
 
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:process_options",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_native_path}/ability/native:ability_thread",
@@ -676,6 +677,7 @@ ohos_unittest("ui_ability_impl_test") {
   external_deps = [
     "ability_base:base",
     "ability_base:configuration",
+    "ability_base:session_info",
     "ability_base:want",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
