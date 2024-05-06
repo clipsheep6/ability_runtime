@@ -8359,9 +8359,9 @@ bool AbilityManagerService::CheckWindowMode(int32_t windowMode,
     }
     const std::map<int32_t, AppExecFwk::SupportWindowMode> windowModeMap = {
         { MULTI_WINDOW_DISPLAY_FULLSCREEN, AppExecFwk::SupportWindowMode::FULLSCREEN },
-        { MULTI_WINDOW_DISPLAY_PRIMARY,AppExecFwk::SupportWindowMode::SPLIT },
-        { MULTI_WINDOW_DISPLAY_SECONDARY,AppExecFwk::SupportWindowMode::SPLIT },
-        { MULTI_WINDOW_DISPLAY_FLOATING,AppExecFwk::SupportWindowMode::FLOATING },
+        { MULTI_WINDOW_DISPLAY_PRIMARY, AppExecFwk::SupportWindowMode::SPLIT },
+        { MULTI_WINDOW_DISPLAY_SECONDARY, AppExecFwk::SupportWindowMode::SPLIT },
+        { MULTI_WINDOW_DISPLAY_FLOATING, AppExecFwk::SupportWindowMode::FLOATING },
     };
     auto it = windowModeMap.find(windowMode);
     if (it != windowModeMap.end()) {

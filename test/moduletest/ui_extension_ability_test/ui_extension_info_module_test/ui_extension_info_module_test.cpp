@@ -115,8 +115,39 @@ HWTEST_F(UIExtensionInfoModuleTest, QueryUIExtensionAbilityInfos_0100, TestSize.
 {
     TAG_LOGI(AAFwkTag::TEST, "start.");
     ASSERT_NE(bundleMgr_, nullptr);
-
-    for (auto &type : UIExtensionUtils::UI_EXTENSION_SET) {
+    // ui extension type list
+    const std::unordered_set<AppExecFwk::ExtensionAbilityType> uiExtensionSet = {
+        AppExecFwk::ExtensionAbilityType::SHARE,
+        AppExecFwk::ExtensionAbilityType::ACTION,
+        AppExecFwk::ExtensionAbilityType::EMBEDDED_UI,
+        AppExecFwk::ExtensionAbilityType::INSIGHT_INTENT_UI,
+        AppExecFwk::ExtensionAbilityType::AUTO_FILL_PASSWORD,
+        AppExecFwk::ExtensionAbilityType::UI,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL,
+        AppExecFwk::ExtensionAbilityType::SYSDIALOG_USERAUTH,
+        AppExecFwk::ExtensionAbilityType::SYSDIALOG_COMMON,
+        AppExecFwk::ExtensionAbilityType::SYSDIALOG_ATOMICSERVICEPANEL,
+        AppExecFwk::ExtensionAbilityType::SYSDIALOG_POWER,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_SHARE,
+        AppExecFwk::ExtensionAbilityType::HMS_ACCOUNT,
+        AppExecFwk::ExtensionAbilityType::ADS,
+        AppExecFwk::ExtensionAbilityType::VOIP,
+        AppExecFwk::ExtensionAbilityType::STATUS_BAR_VIEW,
+        AppExecFwk::ExtensionAbilityType::SYSDIALOG_MEETIMECALL,
+        AppExecFwk::ExtensionAbilityType::SYSDIALOG_MEETIMECONTACT,
+        AppExecFwk::ExtensionAbilityType::SYSDIALOG_MEETIMEMESSAGE,
+        AppExecFwk::ExtensionAbilityType::SYSDIALOG_PRINT,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_MEETIMECONTACT,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_MEETIMECALLLOG,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOPICKER,
+        AppExecFwk::ExtensionAbilityType::SYS_COMMON_UI,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_NAVIGATION,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_APPSELECTOR,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_CAMERA,
+        AppExecFwk::ExtensionAbilityType::AUTO_FILL_SMART,
+        AppExecFwk::ExtensionAbilityType::LIVEVIEW_LOCKSCREEN
+    };
+    for (auto &type : uiExtensionSet) {
         std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
         bool queryResult = bundleMgr_->QueryExtensionAbilityInfos(type, AppExecFwk::Constants::ALL_USERID,
             extensionInfos);
