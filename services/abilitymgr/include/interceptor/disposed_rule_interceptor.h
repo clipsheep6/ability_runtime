@@ -18,6 +18,7 @@
 
 #include "ability_interceptor_interface.h"
 
+#include "ability_manager_service.h"
 #include "app_mgr_interface.h"
 #include "disposed_observer.h"
 #include "task_utils_wrap.h"
