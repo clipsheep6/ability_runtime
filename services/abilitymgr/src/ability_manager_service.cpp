@@ -3527,7 +3527,8 @@ int AbilityManagerService::ConnectAbilityCommon(
     Want abilityWant = want;
     AbilityRequest abilityRequest;
     std::string uri = abilityWant.GetUri().ToString();
-    if (!uri.empty()) {
+    bool isFileUri = (abilityWant.GetUri().GetScheme() == "file");
+    if (!uri.empty() && !isFileUri) {
         // if the want include uri, it may only has uri information. it is probably a datashare extension.
         TAG_LOGD(AAFwkTag::ABILITYMGR,
             "%{public}s called. uri:%{public}s, userId %{public}d", __func__, uri.c_str(), validUserId);

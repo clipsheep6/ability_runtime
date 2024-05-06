@@ -1606,6 +1606,7 @@ void AbilityRecord::ConnectAbility()
     if (isConnected) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "connect state error.");
     }
+    GrantUriPermissionForServiceExtension();
     lifecycleDeal_->ConnectAbility(GetWant());
     isConnected = true;
 }
@@ -1637,6 +1638,7 @@ void AbilityRecord::CommandAbility()
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "startId_:%{public}d.", startId_);
     CHECK_POINTER(lifecycleDeal_);
+    GrantUriPermissionForServiceExtension();
     lifecycleDeal_->CommandAbility(GetWant(), false, startId_);
 }
 

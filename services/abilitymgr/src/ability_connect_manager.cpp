@@ -256,7 +256,6 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
 
     if (!isLoadedAbility) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Target service has not been loaded.");
-        targetService->GrantUriPermissionForServiceExtension();
         SetLastExitReason(abilityRequest, targetService);
         if (IsUIExtensionAbility(targetService)) {
             targetService->SetLaunchReason(LaunchReason::LAUNCHREASON_START_ABILITY);
@@ -265,7 +264,6 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     } else if (targetService->IsAbilityState(AbilityState::ACTIVE) && !IsUIExtensionAbility(targetService)) {
         // It may have been started through connect
         targetService->SetWant(abilityRequest.want);
-        targetService->GrantUriPermissionForServiceExtension();
         CommandAbility(targetService);
     } else if (IsUIExtensionAbility(targetService)) {
         DoForegroundUIExtension(targetService, abilityRequest);
