@@ -927,7 +927,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     std::string dialogSessionId = want.GetStringParam("dialogSessionId");
     isSendDialogResult = false;
     if (!dialogSessionId.empty() && dialogSessionRecord_->GetDialogCallerInfo(dialogSessionId) != nullptr &&
-     !want.GetBoolParam("reservedDialogSessionId",false)) {
+     !want.GetBoolParam("reservedDialogSessionId", false)) {
         isSendDialogResult = true;
         dialogSessionRecord_->ClearDialogContext(dialogSessionId);
     }
