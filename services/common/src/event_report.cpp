@@ -334,7 +334,7 @@ void EventReport::SendAppForegroundEvent(const EventName &eventName, const Event
         TAG_LOGE(AAFwkTag::DEFAULT, "invalid eventName");
         return;
     }
-    HiSysEventWrite(
+    auto ret = HiSysEventWrite(
         HiSysEvent::Domain::AAFWK,
         name,
         HiSysEventType::BEHAVIOR,
@@ -346,6 +346,9 @@ void EventReport::SendAppForegroundEvent(const EventName &eventName, const Event
         EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType,
         EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName,
         EVENT_KEY_PROCESS_TYPE, eventInfo.processType);
+    if (ret != 0) {
+        TAG_LOGE(AAFwkTag::DEFAULT, "Write event fail: %{public}s, ret %{public}d", name.c_str(), ret);
+    }
 }
 
 void EventReport::SendAppBackgroundEvent(const EventName &eventName, const EventInfo &eventInfo)
@@ -355,7 +358,7 @@ void EventReport::SendAppBackgroundEvent(const EventName &eventName, const Event
         TAG_LOGE(AAFwkTag::DEFAULT, "invalid eventName");
         return;
     }
-    HiSysEventWrite(
+    auto ret = HiSysEventWrite(
         HiSysEvent::Domain::AAFWK,
         name,
         HiSysEventType::BEHAVIOR,
@@ -366,6 +369,9 @@ void EventReport::SendAppBackgroundEvent(const EventName &eventName, const Event
         EVENT_KEY_PROCESS_NAME, eventInfo.processName,
         EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType,
         EVENT_KEY_PROCESS_TYPE, eventInfo.processType);
+    if (ret != 0) {
+        TAG_LOGE(AAFwkTag::DEFAULT, "Write event fail: %{public}s, ret %{public}d", name.c_str(), ret);
+    }
 }
 
 void EventReport::SendProcessStartEvent(const EventName &eventName, const EventInfo &eventInfo)
