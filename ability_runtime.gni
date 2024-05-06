@@ -11,6 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//build/ohos.gni")
+
 ability_runtime_path = "//foundation/ability/ability_runtime"
 ability_runtime_napi_path = "${ability_runtime_path}/frameworks/js/napi"
 ability_base_path = "//foundation/ability/ability_base"
@@ -75,7 +77,6 @@ accessibility_path = "//foundation/barrierfree/accessibility"
 declare_args() {
   background_task_mgr_continuous_task_enable = true
   resource_schedule_service_enable = true
-  ability_runtime_graphics = true
   ability_runtime_power = true
   ability_runtime_relational = true
   ability_runtime_ces = true
