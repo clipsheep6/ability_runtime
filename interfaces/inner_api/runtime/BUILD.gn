@@ -134,7 +134,7 @@ ohos_shared_library("runtime") {
     external_deps += [
       "ace_engine:ace_forward_compatibility",
       "ace_engine:ace_uicontent",
-      "napi:ace_container_scope",
+      "ace_engine:ace_container_scope",
     ]
     defines += [ "SUPPORT_GRAPHICS" ]
   }
