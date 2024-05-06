@@ -61,8 +61,7 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
                 return ret;
             }
         }
-        if (disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION_WITH_RESULT &&
-        disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
+        if (disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION_WITH_RESULT) {
             AbilityRequest abilityRequest =DelayedSingleton<AbilityManagerService>::GetInstance()->GetAbilityRequest();
             std::string dialogSessionId;
             std::vector<DialogAppInfo> dialogAppInfos(1);
