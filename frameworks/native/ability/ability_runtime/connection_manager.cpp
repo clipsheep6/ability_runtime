@@ -237,6 +237,33 @@ bool ConnectionManager::RemoveConnection(const sptr<AbilityConnection> connectio
     return isDisconnect;
 }
 
+void ConnectionManager::DisconnectNonexistentService(
+    const AppExecFwk::ElementName& element, const sptr<AbilityConnection> connection)
+{
+    bool exit = false;
+    std::map<ConnectionInfo, std::vector<sptr<AbilityConnectCallback>>> abilityConnections;
+    {
+        std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
+        abilityConnections = abilityConnections_;
+    }
+    HILOG_DEBUG("abilityConnectionsSize: %{public}zu", abilityConnections.size());
+
+    for (auto &&abilityConnection : abilityConnections) {
+        ConnectionInfo connectionInfo = abilityConnection.first;
+        if (connectionInfo.abilityConnection == connection &&
+            connectionInfo.connectReceiver.GetBundleName() == element.GetBundleName() &&
+            connectionInfo.connectReceiver.GetAbilityName() == element.GetAbilityName()) {
+            HILOG_DEBUG("find connection.");
+            exit = true;
+            break;
+        }
+    }
+    if (!exit) {
+        HILOG_ERROR("this service need disconnect");
+        AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(connection);
+    }
+}
+
 void ConnectionManager::ReportConnectionLeakEvent(const int pid, const int tid)
 {
     TAG_LOGD(AAFwkTag::CONNECTION, "pid:%{public}d, tid:%{public}d.", pid, tid);
