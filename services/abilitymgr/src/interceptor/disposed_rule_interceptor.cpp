@@ -73,7 +73,7 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
             disposedRule.want->SetParam("reservedDialogSessionId", true);
             int ret = CreateModalUIExtension(*disposedRule.want, param.callerToken);
             if (ret != ERR_OK) {
-                TAG_LOGE("failed to start disposed UIExtension.");
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start disposed UIExtension.");
                 return ret;
             }
         } else if (disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
