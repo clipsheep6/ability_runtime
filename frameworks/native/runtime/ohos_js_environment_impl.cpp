@@ -26,16 +26,13 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-void PostTaskToHandler(void* handler, uv_io_cb func, void* data, int priority)
+void PostTaskToHandler(void* handler, uv_io_cb func, void* work, int status, int priority)
 {
     TAG_LOGD(AAFwkTag::JSRUNTIME, "Enter.");
-    if (!handler || !func || !data) {
+    if (!handler || !func || !work) {
         TAG_LOGE(AAFwkTag::JSRUNTIME, "Invalid parameters!");
         return;
     }
-    uv_parm_t* uvData = static_cast<uv_parm_t*>(data);
-    uv_work_t* work = uvData->work;
-    int status = uvData->status;
 
     auto task = [func, work, status]() {
         TAG_LOGD(AAFwkTag::JSRUNTIME, "Do uv work.");
