@@ -65,8 +65,10 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
             AbilityRequest abilityRequest = DelayedSingleton<AbilityManagerService>::GetInstance()->GetAbilityRequest();
             std::string dialogSessionId;
             std::vector<DialogAppInfo> dialogAppInfos(1);
-            DelayedSingleton<AbilityManagerService>::GetInstance()->GenerateDialogSessionRecord(abilityRequest,
-            param.userId, dialogSessionId, dialogAppInfos, false);
+            if(DelayedSingleton<AbilityManagerService>::GetInstance()->GenerateDialogSessionRecord(abilityRequest,
+            param.userId, dialogSessionId, dialogAppInfos, false)) {
+                TAG_LOGI(AAFwkTag::ABILITYMGR, "generated dialogSessionId success");
+            }
             disposedRule.want->SetParam("dialogSessionId", dialogSessionId);
             disposedRule.want->SetParam("reservedDialogSessionId", true);
             int ret = CreateModalUIExtension(*disposedRule.want, param.callerToken);
@@ -145,7 +147,6 @@ bool DisposedRuleInterceptor::CheckDisposedRule(const Want &want, AppExecFwk::Di
     }
 
     bool Verified = want.GetBoolParam("Verified", false);
-
     if (Verified == true && disposedRule.disposedType ==
     AppExecFwk::DisposedType::BLOCK_APPLICATION_WITH_RESULT) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "The app lock is unlocked");
