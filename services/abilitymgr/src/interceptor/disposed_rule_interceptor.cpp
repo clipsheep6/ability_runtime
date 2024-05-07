@@ -86,10 +86,10 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
 ErrCode DisposedRuleInterceptor::HandleBlockApplicationWithResult(
     const AbilityInterceptorParam &param, const AppExecFwk::DisposedRule &disposedRule)
 {
-    AbilityRequest abilityRequest = DelayedSingleton<AbilityManagerService>::GetInstance()->GetAbilityRequest();
+    auto abilityRequest = DelayedSingleton<AbilityManagerService>::GetInstance()->GetAbilityRequest();
     std::string dialogSessionId;
     std::vector<DialogAppInfo> dialogAppInfos(1);
-    if (DelayedSingleton<AbilityManagerService>::GetInstance()->GenerateDialogSessionRecord(abilityRequest,
+    if (DelayedSingleton<AbilityManagerService>::GetInstance()->GenerateDialogSessionRecord(*abilityRequest,
         param.userId, dialogSessionId, dialogAppInfos, false)) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "generate dialogSessionId success");
     }
