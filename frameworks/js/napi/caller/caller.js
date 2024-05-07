@@ -105,6 +105,8 @@ class Caller {
         }
       } catch (e) {
         console.log('Caller call msgData sendMessageRequest retval error');
+        msgData.reclaim();
+        msgReply.reclaim();
         reject(new BusinessError(ERROR_CODE_INNER_ERROR));
         return;
       }
@@ -160,6 +162,8 @@ class Caller {
         }
       } catch (e) {
         console.log('Caller callWithResult msgData sendMessageRequest retval error');
+        msgData.reclaim();
+        msgReply.reclaim();
         reject(new BusinessError(ERROR_CODE_INNER_ERROR));
         return;
       }
