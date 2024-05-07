@@ -32,7 +32,7 @@ UIServiceHostStub::~UIServiceHostStub()
     requestFuncMap_.clear();
 }
 
-int32_t UIServiceHostStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply,
+int UIServiceHostStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply,
     MessageOption& option)
 {
     std::u16string descriptor = UIServiceHostStub::GetDescriptor();

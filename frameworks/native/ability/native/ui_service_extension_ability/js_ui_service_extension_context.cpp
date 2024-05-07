@@ -51,7 +51,8 @@ constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
 static std::mutex g_connectsMutex;
-static std::map<ConnectionKey, sptr<JSUIServiceExtensionContext>, key_compare> g_connects;
+
+static std::map<ConnectionKey, sptr<JSUIServiceExtensionConnection>, key_compare> g_connects;
 
 class JSUIServiceExtensionContext final {
 public:
@@ -315,9 +316,9 @@ napi_value CreateJsUIServiceExtensionContext(napi_env env, std::shared_ptr<UISer
     return object;
 }
 
-JSUIServiceExtensionContext::JSUIServiceExtensionContext(napi_env env) : env_(env) {}
+JSUIServiceExtensionConnection::JSUIServiceExtensionConnection(napi_env env) : env_(env) {}
 
-JSUIServiceExtensionContext::~JSUIServiceExtensionContext()
+JSUIServiceExtensionConnection::~JSUIServiceExtensionConnection()
 {
     if (uiJsConnectionObject_ == nullptr) {
         return;
@@ -357,14 +358,14 @@ JSUIServiceExtensionContext::~JSUIServiceExtensionContext()
     }
 }
 
-void JSUIServiceExtensionContext::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
+void JSUIServiceExtensionConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
     const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
     TAG_LOGD(AAFwkTag::UISERVC_EXT, "OnAbilityConnectDone, resultCode:%{public}d", resultCode);
-    wptr<JSUIServiceExtensionContext> connection = this;
+    wptr<JSUIServiceExtensionConnection> connection = this;
     std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
         ([connection, element, remoteObject, resultCode](napi_env env, NapiAsyncTask &task, int32_t status) {
-            sptr<JSUIServiceExtensionContext> connectionSptr = connection.promote();
+            sptr<JSUIServiceExtensionConnection> connectionSptr = connection.promote();
             if (!connectionSptr) {
                 TAG_LOGE(AAFwkTag::UISERVC_EXT, "connectionSptr nullptr");
                 return;
@@ -374,11 +375,11 @@ void JSUIServiceExtensionContext::OnAbilityConnectDone(const AppExecFwk::Element
 
     napi_ref callback = nullptr;
     std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
-    NapiAsyncTask::Schedule("JSUIServiceExtensionContext::OnAbilityConnectDone",
+    NapiAsyncTask::Schedule("JSUIServiceExtensionConnection::OnAbilityConnectDone",
         env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
-void JSUIServiceExtensionContext::HandleOnAbilityConnectDone(
+void JSUIServiceExtensionConnection::HandleOnAbilityConnectDone(
     const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
     TAG_LOGD(AAFwkTag::UISERVC_EXT, "resultCode:%{public}d", resultCode);
@@ -406,14 +407,14 @@ void JSUIServiceExtensionContext::HandleOnAbilityConnectDone(
     napi_call_function(env_, obj, methodOnConnect, ARGC_TWO, argv, nullptr);
 }
 
-void JSUIServiceExtensionContext::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
+void JSUIServiceExtensionConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
     int resultCode)
 {
     TAG_LOGD(AAFwkTag::UISERVC_EXT, "OnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
-    wptr<JSUIServiceExtensionContext> connection = this;
+    wptr<JSUIServiceExtensionConnection> connection = this;
     std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
         ([connection, element, resultCode](napi_env env, NapiAsyncTask &task, int32_t status) {
-            sptr<JSUIServiceExtensionContext> connectionSptr = connection.promote();
+            sptr<JSUIServiceExtensionConnection> connectionSptr = connection.promote();
             if (!connectionSptr) {
                 TAG_LOGI(AAFwkTag::UISERVC_EXT, "connectionSptr nullptr");
                 return;
@@ -422,11 +423,11 @@ void JSUIServiceExtensionContext::OnAbilityDisconnectDone(const AppExecFwk::Elem
         });
     napi_ref callback = nullptr;
     std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
-    NapiAsyncTask::Schedule("JSUIServiceExtensionContext::OnAbilityDisconnectDone",
+    NapiAsyncTask::Schedule("JSUIServiceExtensionConnection::OnAbilityDisconnectDone",
         env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
-void JSUIServiceExtensionContext::HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
+void JSUIServiceExtensionConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
     int resultCode)
 {
     TAG_LOGI(AAFwkTag::UISERVC_EXT, "HandleOnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
@@ -473,14 +474,14 @@ void JSUIServiceExtensionContext::HandleOnAbilityDisconnectDone(const AppExecFwk
     napi_call_function(env_, obj, method, ARGC_ONE, argv, nullptr);
 }
 
-void JSUIServiceExtensionContext::SetJsConnectionObject(napi_value jsConnectionObject)
+void JSUIServiceExtensionConnection::SetJsConnectionObject(napi_value jsConnectionObject)
 {
     napi_ref ref = nullptr;
     napi_create_reference(env_, jsConnectionObject, 1, &ref);
     uiJsConnectionObject_ = std::unique_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref));
 }
 
-void JSUIServiceExtensionContext::RemoveConnectionObject()
+void JSUIServiceExtensionConnection::RemoveConnectionObject()
 {
     uiJsConnectionObject_.reset();
 }

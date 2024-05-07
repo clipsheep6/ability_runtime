@@ -17,6 +17,8 @@
 
 #include <iremote_object.h>
 #include <iremote_stub.h>
+#include "ipc_types.h"
+#include "message_parcel.h"
 #include "ui_service_host_interface.h"
 
 #ifndef OHOS_ABILITY_RUNTIME_UI_SERVICE_HOST_STUB_H
@@ -30,7 +32,7 @@ public:
     UIServiceHostStub();
     virtual ~UIServiceHostStub();
 
-    int32_t OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
+    int OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
 
     int32_t OnSendData(MessageParcel& data, MessageParcel& reply);
 

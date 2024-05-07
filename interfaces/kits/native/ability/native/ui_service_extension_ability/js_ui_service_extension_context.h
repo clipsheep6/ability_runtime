@@ -27,10 +27,10 @@
 namespace OHOS {
 namespace AbilityRuntime {
 napi_value CreateJsUIServiceExtensionContext(napi_env env, std::shared_ptr<UIServiceExtensionContext> context);
-class JSUIServiceExtensionContext : public AbilityConnectCallback {
+class JSUIServiceExtensionConnection : public AbilityConnectCallback {
 public:
-    explicit JSUIServiceExtensionContext(napi_env env);
-    ~JSUIServiceExtensionContext();
+    explicit JSUIServiceExtensionConnection(napi_env env);
+    ~JSUIServiceExtensionConnection();
     void OnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override;
@@ -40,10 +40,26 @@ public:
     void SetJsConnectionObject(napi_value jsConnectionObject);
     void RemoveConnectionObject();
 
+	struct ConnectionKey {
+	    AAFwk::Want want;
+	    int64_t id;
+    };
+
+	struct key_compare {
+	    bool operator()(const ConnectionKey &key1, const ConnectionKey &key2) const
+	    {
+	        if (key1.id < key2.id) {
+	            return true;
+	        }
+	        return false;
+	    }
+	};
+
 private:
     napi_env env_;
     std::unique_ptr<NativeReference> uiJsConnectionObject_ = nullptr;
     int64_t connectionId_ = -1;
+//	static std::map<ConnectionKey, sptr<JSUIServiceExtensionConnection>, key_compare> connects_;
 };
 
 }  // namespace AbilityRuntime

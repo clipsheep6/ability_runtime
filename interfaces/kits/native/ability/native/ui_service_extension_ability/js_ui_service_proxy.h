@@ -42,7 +42,7 @@ private:
     napi_value OnSendData(napi_env env, NapiCallbackInfo& info);
 
 protected:
-    std::unique_ptr<UIServiceProxy> proxy_;
+    std::unique_ptr<OHOS::AAFwk::UIServiceProxy> proxy_;
     int64_t connectionId_ = 0;
 };
 

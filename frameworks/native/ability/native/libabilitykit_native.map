@@ -82,10 +82,6 @@
       *ProcessInfo*;
       *ExtensionModuleLoader*;
       *SysMrgClient*;
-      *JsUIServiceProxy*;
-      *JsUIServiceHostProxy*;
-      *UIServiceHostStub*;
-      *UIServiceStub*;
     };
   local:
     *;
