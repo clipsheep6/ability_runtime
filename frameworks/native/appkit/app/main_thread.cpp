@@ -2320,8 +2320,12 @@ void MainThread::HandleDumpHeapPrepare()
         return;
     }
     auto app = applicationForDump_.lock();
+    if (app == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "HandleDumpHeapPrepare app is nullptr");
+        return;
+    }
     auto &runtime = app->GetRuntime();
-    if (app == nullptr || runtime == nullptr) {
+    if (runtime == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "HandleDumpHeapPrepare runtime is nullptr");
         return;
     }
@@ -2336,8 +2340,12 @@ void MainThread::HandleDumpHeap(bool isPrivate)
         return;
     }
     auto app = applicationForDump_.lock();
+    if (app == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "HandleDumpHeap app is nullptr");
+        return;
+    }
     auto &runtime = app->GetRuntime();
-    if (app == nullptr || runtime == nullptr) {
+    if (runtime == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "HandleDumpHeap runtime is nullptr");
         return;
     }
