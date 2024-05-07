@@ -761,7 +761,8 @@ napi_value JsUIExtensionContentSession::OnLoadContent(napi_env env, NapiCallback
         isFirstTriggerBindModal_ = false;
     }
     sptr<IRemoteObject> parentToken = sessionInfo_->parentToken;
-    Rosen::WMError ret = uiWindow_->NapiSetUIContent(contextPath, env, storage, false, parentToken);
+    Rosen::WMError ret = uiWindow_->NapiSetUIContent(
+        contextPath, env, storage, Rosen::BackupAndRestoreType::NONE, parentToken);
     if (ret == Rosen::WMError::WM_OK) {
         TAG_LOGD(AAFwkTag::UI_EXT, "NapiSetUIContent success");
     } else {
