@@ -62,16 +62,7 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
             }
         }
         if (disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION_WITH_RESULT) {
-            AbilityRequest abilityRequest = DelayedSingleton<AbilityManagerService>::GetInstance()->GetAbilityRequest();
-            std::string dialogSessionId;
-            std::vector<DialogAppInfo> dialogAppInfos(1);
-            if(DelayedSingleton<AbilityManagerService>::GetInstance()->GenerateDialogSessionRecord(abilityRequest,
-            param.userId, dialogSessionId, dialogAppInfos, false)) {
-                TAG_LOGD(AAFwkTag::ABILITYMGR, "generate dialogSessionId success");
-            }
-            disposedRule.want->SetParam("dialogSessionId", dialogSessionId);
-            disposedRule.want->SetParam("reservedDialogSessionId", true);
-            int ret = CreateModalUIExtension(*disposedRule.want, param.callerToken);
+            int ret = HandleBlockApplicationWithResult(param, disposedRule);
             if (ret != ERR_OK) {
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start disposed UIExtension.");
                 return ret;
@@ -90,6 +81,20 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
         return ERR_OK;
     }
     return StartNonBlockRule(param.want, disposedRule);
+}
+
+ErrCode DisposedRuleInterceptor::HandleBlockApplicationWithResult(const AbilityInterceptorParam& param, const AppExecFwk::DisposedRule& disposedRule)
+{
+    AbilityRequest abilityRequest = DelayedSingleton<AbilityManagerService>::GetInstance()->GetAbilityRequest();
+    std::string dialogSessionId;
+    std::vector<DialogAppInfo> dialogAppInfos(1);
+    if (DelayedSingleton<AbilityManagerService>::GetInstance()->GenerateDialogSessionRecord(abilityRequest,
+        param.userId, dialogSessionId, dialogAppInfos, false)) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "generate dialogSessionId success");
+    }
+    disposedRule.want->SetParam("dialogSessionId", dialogSessionId);
+    disposedRule.want->SetParam("reservedDialogSessionId", true);
+    return CreateModalUIExtension(*disposedRule.want, param.callerToken);
 }
 
 bool DisposedRuleInterceptor::CheckControl(const Want &want, int32_t userId,
