@@ -892,14 +892,15 @@ void AbilityManagerService::SetReserveInfo(const std::string &linkString)
     }
 }
 
-AbilityRequest AbilityManagerService::GetAbilityRequest()
+std::shared_ptr<AbilityRequest> AbilityManagerService::GetAbilityRequest() const
 {
     return abilityRequest_;
 }
 
-void AbilityManagerService::SetAbilityRequest(AbilityRequest &abilityRequest)
+void AbilityManagerService::SetAbilityRequest(const AbilityRequest &abilityRequest)
 {
-    abilityRequest_ = abilityRequest;
+    std::lock_guard<ffrt::mutex> lock(abilityRequestMutex_);
+    abilityRequest_ = std::make_shared<AbilityRequest>(abilityRequest);
 }
 
 int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemoteObject> &callerToken,
