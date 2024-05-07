@@ -1344,7 +1344,16 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 
     std::map<std::string, std::string> pkgContextInfoJsonStringMap;
     for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-        pkgContextInfoJsonStringMap[hapModuleInfo.moduleName] = hapModuleInfo.hapPath;
+        std::string pkgContextInfoJsonString;
+        ErrCode errCode = bundleMgrHelper->GetJsonProfile(
+            AppExecFwk::PKG_CONTEXT_PROFILE, appInfo.bundleName, hapModuleInfo.moduleName, pkgContextInfoJsonString,
+            AppExecFwk::OsAccountManagerWrapper::GetCurrentActiveAccountId());
+        if (ret != ERR_OK) {
+            TAG_LOGE(AAFwkTag::APPKIT, "GetJsonProfile failed: %{public}d.", ret);
+        }
+        if (!pkgContextInfoJsonString.empty()) {
+            pkgContextInfoJsonStringMap[hapModuleInfo.moduleName] = pkgContextInfoJsonString;
+        }
     }
 
     AppLibPathMap appLibPaths {};
