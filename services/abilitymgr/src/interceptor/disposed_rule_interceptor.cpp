@@ -66,7 +66,7 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
             std::string dialogSessionId;
             std::vector<DialogAppInfo> dialogAppInfos(1);
             DelayedSingleton<AbilityManagerService>::GetInstance()->GenerateDialogSessionRecord(abilityRequest,
-            param.userId, dialogSessionId, dialogAppInfos, false)；
+            param.userId, dialogSessionId, dialogAppInfos, false);
             disposedRule.want->SetParam("dialogSessionId", dialogSessionId);
             disposedRule.want->SetParam("reservedDialogSessionId", true);
             int ret = CreateModalUIExtension(*disposedRule.want, param.callerToken);
