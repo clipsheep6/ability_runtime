@@ -499,6 +499,11 @@ napi_value JsAbilityContext::OnConnectUIServiceExtension(napi_env env, NapiCallb
         want.GetBundle().c_str(),
         want.GetElement().GetAbilityName().c_str());
 
+    if (!CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_function)) {
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+
     sptr<JSAbilityConnection> connection = new JSAbilityConnection(env);
     connection->SetJsConnectionObject(info.argv[INDEX_ONE]);
     int64_t connectId = InsertConnection(connection, want);
@@ -526,8 +531,13 @@ napi_value JsAbilityContext::OnConnectUIServiceExtension(napi_env env, NapiCallb
             sptr<JSAbilityConnection> connection = asyncContext->connection_.promote();
             auto context = asyncContext->context_.lock();
             if (!context || !connection) {
-                TAG_LOGE(AAFwkTag::UISERVC_EXT, "OnConnectUIServiceExtension failed, context is released.");
-                napi_reject_deferred(env, asyncContext->deferred_, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                if (!connection) {
+                    TAG_LOGE(AAFwkTag::UISERVC_EXT, "OnConnectUIServiceExtension failed, connection is null.");
+                    napi_reject_deferred(env, asyncContext->deferred_, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                } else {
+                    TAG_LOGE(AAFwkTag::UISERVC_EXT, "OnConnectUIServiceExtension failed, context is released.");
+                    napi_reject_deferred(env, asyncContext->deferred_, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                }
                 RemoveConnection(asyncContext->connectId_);
                 if (asyncContext->work_) {
                     napi_delete_async_work(env, asyncContext->work_);
@@ -538,8 +548,8 @@ napi_value JsAbilityContext::OnConnectUIServiceExtension(napi_env env, NapiCallb
             auto innerErrorCode = context->ConnectAbility(asyncContext->want_, connection);
             int32_t errcode = static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(innerErrorCode));
             if (errcode) {
-                connection->CallJsFailed(errcode);
-                napi_reject_deferred(env, asyncContext->deferred_, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                TAG_LOGE(AAFwkTag::UISERVC_EXT, "ConnectAbility failed, errcode is %{public}d.", errcode);
+                napi_reject_deferred(env, asyncContext->deferred_, CreateJsError(env, errcode));
                 RemoveConnection(asyncContext->connectId_);
                 if (asyncContext->work_) {
                     napi_delete_async_work(env, asyncContext->work_);
@@ -2030,27 +2040,22 @@ void JSAbilityConnection::RemoveConnectionObject()
 
 void JSAbilityConnection::SendData(OHOS::AAFwk::WantParams &data)
 {
-    TAG_LOGI(AAFwkTag::CONTEXT, "SendData");
+    TAG_LOGI(AAFwkTag::UISERVC_EXT, "SendData");
     if (jsConnectionObject_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "jsConnectionObject_ nullptr");
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "jsConnectionObject_ nullptr");
         return;
     }
     napi_value obj = jsConnectionObject_->GetNapiValue();
-    if (!CheckTypeForNapiValue(env_, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Failed to get object");
+    if (!CheckTypeForNapiValue(env_, obj, napi_function)) {
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "jsConnectionObject_ isn't function");
         return;
     }
 
-    napi_value method = nullptr;
-    napi_get_named_property(env_, obj, "onData", &method);
-    if (method == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Failed to get onData from object");
-        return;
-    }
-
+    napi_value undefined = nullptr;
+    napi_get_undefined(env_, &undefined);
     napi_value argv[] = {AppExecFwk::CreateJsWantParams(env_, data)};
-    napi_call_function(env_, obj, method, ARGC_ONE, argv, nullptr);
-    TAG_LOGD(AAFwkTag::CONTEXT, "SendData end");
+    napi_call_function(env_, undefined, obj, ARGC_ONE, argv, nullptr);
+    TAG_LOGD(AAFwkTag::UISERVC_EXT, "SendData end");
 }
 
 napi_value JsAbilityContext::SetMissionContinueState(napi_env env, napi_callback_info info)

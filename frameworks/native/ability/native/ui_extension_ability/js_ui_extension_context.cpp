@@ -699,6 +699,11 @@ napi_value JsUIExtensionContext::OnConnectUIServiceExtension(napi_env env, NapiC
         want.GetBundle().c_str(),
         want.GetElement().GetAbilityName().c_str());
 
+    if (!CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_function)) {
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+
     sptr<JSUIExtensionConnection> connection = new JSUIExtensionConnection(env);
     if (!AppExecFwk::UnwrapWant(env, info.argv[0], want) ||
         !CheckConnectionParam(env, info.argv[1], connection, want)) {
@@ -731,7 +736,13 @@ napi_value JsUIExtensionContext::OnConnectUIServiceExtension(napi_env env, NapiC
 
             auto context = asyncContext->context_.lock();
             if (!context || !connection) {
-                TAG_LOGE(AAFwkTag::UISERVC_EXT, "aaa OnConnectUIServiceExtension failed, context is released.");
+                if (!connection) {
+                    TAG_LOGE(AAFwkTag::UISERVC_EXT, "OnConnectUIServiceExtension failed, connection is null.");
+                    napi_reject_deferred(env, asyncContext->deferred_, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                } else {
+                    TAG_LOGE(AAFwkTag::UISERVC_EXT, "OnConnectUIServiceExtension failed, context is released.");
+                    napi_reject_deferred(env, asyncContext->deferred_, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                }
                 napi_reject_deferred(env, asyncContext->deferred_, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                 RemoveConnection(asyncContext->connectId_);
                 if (asyncContext->work_) {
@@ -743,8 +754,7 @@ napi_value JsUIExtensionContext::OnConnectUIServiceExtension(napi_env env, NapiC
             auto innerErrorCode = context->ConnectAbility(asyncContext->want_, connection);
             int32_t errcode = static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(innerErrorCode));
             if (errcode) {
-                connection->CallJsFailed(errcode);
-                napi_reject_deferred(env, asyncContext->deferred_, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                napi_reject_deferred(env, asyncContext->deferred_, CreateJsError(env, errcode));
                 RemoveConnection(asyncContext->connectId_);
                 if (asyncContext->work_) {
                     napi_delete_async_work(env, asyncContext->work_);
@@ -1179,27 +1189,22 @@ void JSUIExtensionConnection::RemoveConnectionObject()
 
 void JSUIExtensionConnection::SendData(OHOS::AAFwk::WantParams &data)
 {
-    TAG_LOGI(AAFwkTag::CONTEXT, "SendData");
+    TAG_LOGI(AAFwkTag::UISERVC_EXT, "SendData");
     if (jsConnectionObject_ == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "jsConnectionObject_ nullptr");
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "jsConnectionObject_ nullptr");
         return;
     }
-    napi_value obj = jsConnectionObject_->GetNapiValue();
-    if (!CheckTypeForNapiValue(env_, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Failed to get object");
-        return;
-    }
-
-    napi_value method = nullptr;
-    napi_get_named_property(env_, obj, "onData", &method);
-    if (method == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Failed to get onData from object");
+   napi_value obj = jsConnectionObject_->GetNapiValue();
+    if (!CheckTypeForNapiValue(env_, obj, napi_function)) {
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "jsConnectionObject_ isn't function");
         return;
     }
 
+    napi_value undefined = nullptr;
+    napi_get_undefined(env_, &undefined);
     napi_value argv[] = {AppExecFwk::CreateJsWantParams(env_, data)};
-    napi_call_function(env_, obj, method, ARGC_ONE, argv, nullptr);
-    TAG_LOGD(AAFwkTag::CONTEXT, "SendData end");
+    napi_call_function(env_, undefined, obj, ARGC_ONE, argv, nullptr);
+    TAG_LOGD(AAFwkTag::UISERVC_EXT, "SendData end");
 }
 
 void JSUIExtensionConnection::CallJsFailed(int32_t errorCode)
