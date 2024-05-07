@@ -1572,7 +1572,7 @@ void JsRuntime::GetPkgContextInfoListMap(const std::map<std::string, std::string
         std::string filePath = it->second;
         bool newCreate = false;
         std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(
-            ExtractorUtil::GetLoadFilePath(filePath), newCreate, true);
+            ExtractorUtil::GetLoadFilePath(filePath), newCreate, false);
         if (!extractor) {
             TAG_LOGE(AAFwkTag::JSRUNTIME, "moduleName: %{public}s load hapPath failed", it->first.c_str());
             continue;
