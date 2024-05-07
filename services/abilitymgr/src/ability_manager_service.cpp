@@ -9938,7 +9938,7 @@ int AbilityManagerService::SendDialogResult(const Want &want, const std::string 
     targetWant.SetElement(want.GetElement());
     targetWant.SetParam("isSelector", dialogCallerInfo->isSelector);
     targetWant.SetParam("dialogSessionId", dialogSessionId);
-    targetWant.SetParam("Verified", true);
+    targetWant.SetParam("verified", true);
     sptr<IRemoteObject> callerToken = dialogCallerInfo->callerToken;
     int ret = StartAbilityAsCaller(targetWant, callerToken, nullptr, dialogCallerInfo->userId,
         dialogCallerInfo->requestCode, true);
