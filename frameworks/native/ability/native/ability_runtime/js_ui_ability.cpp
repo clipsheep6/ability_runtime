@@ -1279,11 +1279,14 @@ napi_value JsUIAbility::CallObjectMethod(const char *name, napi_value const *arg
         }
         return handleEscape.Escape(result);
     }
+    int64_t timeStart = AbilityRuntime::TimeUtil::SystemTimeMillisecond();
     napi_call_function(env, obj, methodOnCreate, argc, argv, nullptr);
+    int64_t timeEnd = AbilityRuntime::TimeUtil::SystemTimeMillisecond();
     if (tryCatch.HasCaught()) {
         reinterpret_cast<NativeEngine*>(env)->HandleUncaughtException();
     }
-    TAG_LOGD(AAFwkTag::UIABILITY, "Lifecycle: the end of %{public}s", name);
+    TAG_LOGI(AAFwkTag::UIABILITY, "Lifecycle: the end of %{public}s, time: %{public}s",
+        name, std::to_string(timeEnd - timeStart).c_str());
     return nullptr;
 }
 
