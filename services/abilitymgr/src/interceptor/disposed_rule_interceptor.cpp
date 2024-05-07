@@ -83,8 +83,8 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
     return StartNonBlockRule(param.want, disposedRule);
 }
 
-ErrCode DisposedRuleInterceptor::HandleBlockApplicationWithResult(const AbilityInterceptorParam &param, 
-    const AppExecFwk::DisposedRule &disposedRule)
+ErrCode DisposedRuleInterceptor::HandleBlockApplicationWithResult(
+    const AbilityInterceptorParam &param, const AppExecFwk::DisposedRule &disposedRule)
 {
     AbilityRequest abilityRequest = DelayedSingleton<AbilityManagerService>::GetInstance()->GetAbilityRequest();
     std::string dialogSessionId;
