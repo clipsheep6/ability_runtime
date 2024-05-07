@@ -67,7 +67,7 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
             std::vector<DialogAppInfo> dialogAppInfos(1);
             if(DelayedSingleton<AbilityManagerService>::GetInstance()->GenerateDialogSessionRecord(abilityRequest,
             param.userId, dialogSessionId, dialogAppInfos, false)) {
-                TAG_LOGI(AAFwkTag::ABILITYMGR, "generated dialogSessionId success");
+                TAG_LOGI(AAFwkTag::ABILITYMGR, "generate dialogSessionId success");
             }
             disposedRule.want->SetParam("dialogSessionId", dialogSessionId);
             disposedRule.want->SetParam("reservedDialogSessionId", true);
