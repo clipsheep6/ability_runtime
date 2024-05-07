@@ -211,15 +211,11 @@ void JsUIExtensionBase::OnStart(const AAFwk::Want &want, AAFwk::LaunchParam &lau
     TAG_LOGD(AAFwkTag::UI_EXT, "called");
     HandleScope handleScope(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
-    napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
     if (InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
         launchParam.launchReason = AAFwk::LaunchReason::LAUNCHREASON_INSIGHT_INTENT;
     }
-    napi_value argv[] = {
-        CreateJsLaunchParam(env, launchParam),
-        napiWant
-    };
-    CallObjectMethod("onCreate", argv, ARGC_TWO);
+    napi_value argv[] = { CreateJsLaunchParam(env, launchParam) };
+    CallObjectMethod("onCreate", argv, ARGC_ONE);
 }
 
 void JsUIExtensionBase::OnStop()

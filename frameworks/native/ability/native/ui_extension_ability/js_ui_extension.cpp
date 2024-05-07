@@ -255,16 +255,12 @@ void JsUIExtension::OnStart(const AAFwk::Want &want)
         JsExtensionContext::ConfigurationUpdated(env, shellContextRef_, context->GetConfiguration());
     }
 
-    napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
     auto launchParam = Extension::GetLaunchParam();
     if (InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
         launchParam.launchReason = AAFwk::LaunchReason::LAUNCHREASON_INSIGHT_INTENT;
     }
-    napi_value argv[] = {
-        CreateJsLaunchParam(env, launchParam),
-        napiWant
-    };
-    CallObjectMethod("onCreate", argv, ARGC_TWO);
+    napi_value argv[] = { CreateJsLaunchParam(env, launchParam) };
+    CallObjectMethod("onCreate", argv, ARGC_ONE);
     TAG_LOGD(AAFwkTag::UI_EXT, "JsUIExtension OnStart end.");
 }
 

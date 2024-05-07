@@ -16,7 +16,7 @@
 let ExtensionAbility = requireNapi('app.ability.ExtensionAbility');
 
 class UIExtensionAbility extends ExtensionAbility {
-  onCreate(launchParam, want) {
+  onCreate(launchParam) {
     console.log('onCreate');
   }
 
