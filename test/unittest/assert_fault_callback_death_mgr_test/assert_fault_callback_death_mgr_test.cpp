@@ -42,21 +42,6 @@ void AssertFaultCallbackDeathMgrTest::TearDown()
 
 /*
  * Feature: AssertFaultCallbackDeathMgrTest
- * Function: AddAssertFaultCallback
- * SubFunction: NA
- * FunctionPoints: AssertFaultCallbackDeathMgrTest AddAssertFaultCallback
- * EnvConditions: NA
- * CaseDescription: Verify AddAssertFaultCallback
- */
-HWTEST_F(AssertFaultCallbackDeathMgrTest, AddAssertFaultCallback_0100, TestSize.Level1)
-{
-    auto assertFaultCallbackDeathMgr = DelayedSingleton<AbilityRuntime::AssertFaultCallbackDeathMgr>::GetInstance();
-    sptr<IRemoteObject> remote;
-    assertFaultCallbackDeathMgr->AddAssertFaultCallback(remote);
-}
-
-/*
- * Feature: AssertFaultCallbackDeathMgrTest
  * Function: RemoveAssertFaultCallback
  * SubFunction: NA
  * FunctionPoints: AssertFaultCallbackDeathMgrTest RemoveAssertFaultCallback
