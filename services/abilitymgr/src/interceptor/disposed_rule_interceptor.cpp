@@ -146,7 +146,7 @@ bool DisposedRuleInterceptor::CheckDisposedRule(const Want &want, AppExecFwk::Di
         return false;
     }
 
-    bool verified = want.GetBoolParam("Verified", false);
+    bool verified = want.GetBoolParam("verified", false);
     if (verified == true && disposedRule.disposedType ==
     AppExecFwk::DisposedType::BLOCK_APPLICATION_WITH_RESULT) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "The app lock is unlocked");
