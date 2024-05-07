@@ -1590,6 +1590,8 @@ void AppMgrServiceInner::GetRenderProcesses(const std::shared_ptr<AppRunningReco
             renderProcessInfo.pid_ = renderRecord->GetPid();
             renderProcessInfo.uid_ = renderRecord->GetUid();
             renderProcessInfo.hostUid_ = renderRecord->GetHostUid();
+            renderProcessInfo.hostPid_ = renderRecord->GetHostPid();
+            renderProcessInfo.state_ = renderRecord->GetState();
             info.emplace_back(renderProcessInfo);
         }
     }
@@ -6213,6 +6215,7 @@ int32_t AppMgrServiceInner::UpdateRenderState(pid_t renderPid, int32_t state)
         TAG_LOGE(AAFwkTag::APPMGR, "renderPid:%{pubclic}d not exist.", renderPid);
         return ERR_INVALID_VALUE;
     }
+    renderRecord->SetState(state);
     return DelayedSingleton<RenderStateObserverManager>::GetInstance()->OnRenderStateChanged(
         renderRecord, state);
 }

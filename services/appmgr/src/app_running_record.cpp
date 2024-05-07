@@ -178,6 +178,16 @@ void RenderRecord::RegisterDeathRecipient()
     }
 }
 
+void RenderRecord::SetState(int32_t state)
+{
+    state_ = state;
+}
+
+int32_t RenderRecord::GetState() const
+{
+    return state_;
+}
+
 AppRunningRecord::AppRunningRecord(
     const std::shared_ptr<ApplicationInfo> &info, const int32_t recordId, const std::string &processName)
     : appRecordId_(recordId), processName_(processName)

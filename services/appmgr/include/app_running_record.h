@@ -87,6 +87,8 @@ public:
     void SetScheduler(const sptr<IRenderScheduler> &scheduler);
     void SetDeathRecipient(const sptr<AppDeathRecipient> recipient);
     void RegisterDeathRecipient();
+    void SetState(int32_t state);
+    int32_t GetState() const;
 
 private:
     void SetHostUid(const int32_t hostUid);
@@ -103,6 +105,7 @@ private:
     int32_t ipcFd_ = 0;
     int32_t sharedFd_ = 0;
     int32_t crashFd_ = 0;
+    int32_t state_ = 0;
     ProcessType processType_ = ProcessType::RENDER;
     std::weak_ptr<AppRunningRecord> host_; // nweb host
     sptr<IRenderScheduler> renderScheduler_ = nullptr;
