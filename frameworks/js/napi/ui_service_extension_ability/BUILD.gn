@@ -35,7 +35,7 @@ gen_js_obj("ui_service_extension_ability_abc") {
 }
 
 ohos_shared_library("uiserviceextensionability_napi") {
-sanitize = {
+  sanitize = {
     integer_overflow = true
     ubsan = true
     boundary_sanitize = true
@@ -61,7 +61,7 @@ sanitize = {
 }
 
 ohos_shared_library("uiserviceextensionability") {
-sanitize = {
+  sanitize = {
     integer_overflow = true
     ubsan = true
     boundary_sanitize = true
