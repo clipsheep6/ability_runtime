@@ -723,7 +723,7 @@ private:
         if (!CheckStartAbilityWithAccountInputParam(env, info, want, accountId, unwrapArgc)) {
             return CreateJsUndefined(env);
         }
-        if (!CheckConnectionParam(env, info.argv[INDEX_TWO], connection, want)) {
+        if (!CheckConnectionParam(env, info.argv[INDEX_TWO], connection, want, accountId)) {
             ThrowInvalidParamError(env, "Parse param options failed, must be a ConnectOptions");
             return CreateJsUndefined(env);
         }
@@ -755,7 +755,7 @@ private:
     }
 
     bool CheckConnectionParam(napi_env env, napi_value value,
-        sptr<JSServiceExtensionConnection>& connection, AAFwk::Want& want) const
+        sptr<JSServiceExtensionConnection>& connection, AAFwk::Want& want, int32_t accountId = -1) const
     {
         if (!CheckTypeForNapiValue(env, value, napi_object)) {
             TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get connection object");
@@ -767,6 +767,7 @@ private:
             std::lock_guard guard(g_connectsMutex);
             key.id = g_serialNumber;
             key.want = want;
+            key.accountId = accountId;
             connection->SetConnectionId(key.id);
             g_connects.emplace(key, connection);
             if (g_serialNumber < INT32_MAX) {
@@ -795,10 +796,11 @@ private:
 
         AAFwk::Want want;
         sptr<JSServiceExtensionConnection> connection = nullptr;
-        FindConnection(want, connection, connectId);
+        int32_t accountId = -1;
+        FindConnection(want, connection, connectId, accountId);
         // begin disconnect
         NapiAsyncTask::CompleteCallback complete =
-            [weak = context_, want, connection](
+            [weak = context_, want, connection, accountId](
                 napi_env env, NapiAsyncTask& task, int32_t status) {
                 auto context = weak.lock();
                 if (!context) {
@@ -812,7 +814,7 @@ private:
                     return;
                 }
                 TAG_LOGD(AAFwkTag::SERVICE_EXT, "context->DisconnectAbility");
-                auto innerErrorCode = context->DisconnectAbility(want, connection);
+                auto innerErrorCode = context->DisconnectAbility(want, connection, accountId);
                 if (innerErrorCode == 0) {
                     task.Resolve(env, CreateJsUndefined(env));
                 } else {
@@ -827,7 +829,8 @@ private:
         return result;
     }
 
-    void FindConnection(AAFwk::Want& want, sptr<JSServiceExtensionConnection>& connection, int64_t& connectId) const
+    void FindConnection(AAFwk::Want& want, sptr<JSServiceExtensionConnection>& connection, int64_t& connectId,
+        int32_t &accountId) const
     {
         TAG_LOGI(AAFwkTag::SERVICE_EXT, "Disconnect ability begin, connection:%{public}d.",
             static_cast<int32_t>(connectId));
@@ -841,6 +844,7 @@ private:
             // match id
             want = item->first.want;
             connection = item->second;
+            accountId = item->first.accountId;
             TAG_LOGD(AAFwkTag::SERVICE_EXT, "find conn ability exist");
         }
         return;

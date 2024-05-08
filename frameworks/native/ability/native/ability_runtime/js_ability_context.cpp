@@ -86,7 +86,7 @@ void RemoveConnection(int64_t connectId)
     }
 }
 
-int64_t InsertConnection(sptr<JSAbilityConnection> connection, const AAFwk::Want &want)
+int64_t InsertConnection(sptr<JSAbilityConnection> connection, const AAFwk::Want &want, int32_t accountId = -1)
 {
     std::lock_guard<std::mutex> lock(gConnectsLock_);
     if (connection == nullptr) {
@@ -97,6 +97,7 @@ int64_t InsertConnection(sptr<JSAbilityConnection> connection, const AAFwk::Want
     ConnectionKey key;
     key.id = g_serialNumber;
     key.want = want;
+    key.accountId = accountId;
     connection->SetConnectionId(key.id);
     g_connects.emplace(key, connection);
     if (g_serialNumber < INT32_MAX) {
@@ -1236,7 +1237,7 @@ napi_value JsAbilityContext::OnConnectAbilityWithAccount(napi_env env, NapiCallb
     // unwarp connection
     sptr<JSAbilityConnection> connection = new JSAbilityConnection(env);
     connection->SetJsConnectionObject(info.argv[INDEX_TWO]);
-    int64_t connectId = InsertConnection(connection, want);
+    int64_t connectId = InsertConnection(connection, want, accountId);
     NapiAsyncTask::CompleteCallback complete =
         [weak = context_, want, accountId, connection, connectId](
             napi_env env, NapiAsyncTask& task, int32_t status) {
@@ -1277,6 +1278,7 @@ napi_value JsAbilityContext::OnDisconnectAbility(napi_env env, NapiCallbackInfo&
     // unwrap connectId
     int64_t connectId = -1;
     sptr<JSAbilityConnection> connection = nullptr;
+    int32_t accountId = -1;
     napi_get_value_int64(env, info.argv[INDEX_ZERO], &connectId);
     TAG_LOGI(AAFwkTag::CONTEXT, "DisconnectAbility, connection:%{public}d.", static_cast<int32_t>(connectId));
     auto item = std::find_if(g_connects.begin(),
@@ -1288,12 +1290,13 @@ napi_value JsAbilityContext::OnDisconnectAbility(napi_env env, NapiCallbackInfo&
         // match id
         want = item->first.want;
         connection = item->second;
+        accountId = item->first.accountId;
     } else {
         TAG_LOGI(AAFwkTag::CONTEXT, "not find conn exist.");
     }
     // begin disconnect
     NapiAsyncTask::CompleteCallback complete =
-        [weak = context_, want, connection](
+        [weak = context_, want, connection, accountId](
             napi_env env, NapiAsyncTask& task, int32_t status) {
             auto context = weak.lock();
             if (!context) {
@@ -1307,7 +1310,7 @@ napi_value JsAbilityContext::OnDisconnectAbility(napi_env env, NapiCallbackInfo&
                 return;
             }
             TAG_LOGD(AAFwkTag::CONTEXT, "context->DisconnectAbility");
-            context->DisconnectAbility(want, connection);
+            context->DisconnectAbility(want, connection, accountId);
             task.Resolve(env, CreateJsUndefined(env));
         };
 
