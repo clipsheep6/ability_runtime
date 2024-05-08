@@ -274,10 +274,12 @@ int32_t ExtensionRecordManager::AddPreloadUIExtensionRecord(const std::shared_pt
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     std::lock_guard<std::mutex> lock(mutex_);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     std::shared_ptr<ExtensionRecord> extensionRecord = nullptr;
     auto extensionRecordId = abilityRecord->GetUIExtensionAbilityId();
     if (extensionRecords_.find(extensionRecordId) != extensionRecords_.end()) {
         extensionRecord = extensionRecords_[extensionRecordId];
+        CHECK_POINTER_AND_RETURN(extensionRecord, ERR_INVALID_VALUE);
         auto hostBundleName = extensionRecord->hostBundleName_;
         auto preLoadUIExtensionInfo = std::make_tuple(abilityRecord->GetWant().GetElement().GetAbilityName(),
             abilityRecord->GetWant().GetElement().GetBundleName(),
