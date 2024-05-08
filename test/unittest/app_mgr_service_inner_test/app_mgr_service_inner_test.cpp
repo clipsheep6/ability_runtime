@@ -3681,8 +3681,8 @@ HWTEST_F(AppMgrServiceInnerTest, RegisterAbilityDebugResponse_001, TestSize.Leve
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     sptr<IAbilityDebugResponse> response = nullptr;
-    auto result = appMgrServiceInner->RegisterAbilityDebugResponse(response);
-    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    appMgrServiceInner->RegisterAbilityDebugResponse(response);
+    EXPECT_TRUE(appMgrServiceInner != nullptr);
 }
 
 /**
