@@ -518,7 +518,7 @@ napi_value JsAbilityContext::OnConnectUIServiceExtension(napi_env env, NapiCallb
     asyncContext.want_ = want;
     napi_value result = nullptr;
     napi_create_promise(env, &asyncContext.deferred_, &result);
- 
+
     napi_value resourceName;
     napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
     napi_create_async_work(
@@ -592,7 +592,7 @@ napi_value JsAbilityContext::OnDisconnectUIServiceExtension(napi_env env, NapiCa
     if (item != g_connects.end()) {
         want = item->first.want;
         connection = item->second;
-    } 
+    }
     NapiAsyncTask::CompleteCallback complete =
         [weak = context_, want, connectId, connection](
             napi_env env, NapiAsyncTask& task, int32_t status) {

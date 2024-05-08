@@ -18,6 +18,7 @@
 #include <regex>
 
 #include "ability_business_error.h"
+#include "ability_delegator_registry.h"
 #include "ability_handler.h"
 #include "ability_info.h"
 #include "ability.h"
@@ -36,16 +37,13 @@
 #include "js_runtime_utils.h"
 #include "js_ui_service_extension_context.h"
 #include "js_ui_service_host_proxy.h"
+#include "string_wrapper.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "napi_common_configuration.h"
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
 #include "scene_board_judgement.h"
-#include "foundation/ability/ability_runtime/interfaces/kits/native/ability/ability_runtime/ability_context.h"
-#include "session_info.h"
-#include "window_scene.h"
-#include "js_window_stage.h"
 #include "wm_common.h"
 #include "window.h"
 #ifdef SUPPORT_GRAPHICS
@@ -60,12 +58,17 @@ namespace {
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 }
+using namespace OHOS::AppExecFwk;
 const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
 const std::string LAUNCHER_BUNDLE_NAME = "com.ohos.launcher";
 const std::string LAUNCHER_ABILITY_NAME = "com.ohos.launcher.MainAbility";
-// const int32_t BASE_DISPLAY_ID_NUM (10);
+const int32_t BASE_DISPLAY_ID_NUM (10);
 namespace {
-
+#ifdef SUPPORT_GRAPHICS
+const std::string PAGE_STACK_PROPERTY_NAME = "pageStack";
+const std::string SUPPORT_CONTINUE_PAGE_STACK_PROPERTY_NAME = "ohos.extra.param.key.supportContinuePageStack";
+const std::string METHOD_NAME = "WindowScene::GoForeground";
+#endif
 sptr<IRemoteObject> GetNativeRemoteObject(napi_env env, napi_value obj)
 {
     if (env == nullptr || obj == nullptr) {
@@ -115,7 +118,6 @@ napi_value OnConnectPromiseCallback(napi_env env, napi_callback_info info)
     return nullptr;
 }
 }
-using namespace OHOS::AppExecFwk;
 
 void UIServiceExtStub::SendData(OHOS::AAFwk::WantParams &data)
 {
@@ -157,6 +159,261 @@ napi_value AttachUIServiceExtensionContext(napi_env env, void *value, void *)
 }
 
 
+#ifdef SUPPORT_GRAPHICS
+void JsUIServiceExtension::OnSceneWillCreated(std::shared_ptr<Rosen::WindowStageConfig> windowStageConfig)
+{
+    HandleScope handleScope(jsRuntime_);
+    auto env = jsRuntime_.GetNapiEnv();
+    auto jsAppWindowStageConfig = CreateJsWindowStageConfig(env, windowStageConfig);
+    if (jsAppWindowStageConfig == nullptr) {
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "Failed to create jsWindowSatgeConfig object.");
+        return;
+    }
+    napi_value argv[] = {jsAppWindowStageConfig};
+    {
+        std::string methodName = "OnSceneWillCreated";
+        AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
+        CallObjectMethod("onWindowStageWillCreate", argv, ArraySize(argv));
+        AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
+    }
+
+    TAG_LOGD(AAFwkTag::UISERVC_EXT, "End ability is %{public}s.", GetAbilityName().c_str());
+}
+
+void JsUIServiceExtension::OnSceneDidCreated()
+{
+    auto jsAppWindowStage = CreateAppWindowStage();
+    if (jsAppWindowStage == nullptr) {
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "JsAppWindowStage is nullptr.");
+        return;
+    }
+
+    HandleScope handleScope(jsRuntime_);
+    UpdateJsWindowStage(jsAppWindowStage->GetNapiValue());
+    napi_value argv[] = {jsAppWindowStage->GetNapiValue()};
+    {
+        std::string methodName = "OnSceneDidCreated";
+        AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
+        CallObjectMethod("onWindowStageDidCreate", argv, ArraySize(argv));
+        AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
+    }
+    TAG_LOGI(AAFwkTag::UISERVC_EXT, "Call onWindowStageDidCreate finish.");
+    auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
+    if (delegator) {
+        TAG_LOGI(AAFwkTag::UISERVC_EXT, "Call PostPerformScenceCreated.");
+        delegator->PostPerformScenceCreated(CreateADelegatorAbilityProperty());
+    }
+    jsWindowStageObj_ = std::shared_ptr<NativeReference>(jsAppWindowStage.release());
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnWindowStageDidCreate(jsObj_, jsWindowStageObj_);
+    }
+
+    TAG_LOGI(AAFwkTag::UISERVC_EXT, "End ability is %{public}s.", GetAbilityName().c_str());
+}
+
+void JsUIServiceExtension::OnSceneRestored()
+{
+    TAG_LOGD(AAFwkTag::UISERVC_EXT, "called.");
+    HandleScope handleScope(jsRuntime_);
+    auto jsAppWindowStage = CreateAppWindowStage();
+    if (jsAppWindowStage == nullptr) {
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "JsAppWindowStage is nullptr.");
+        return;
+    }
+    UpdateJsWindowStage(jsAppWindowStage->GetNapiValue());
+
+    auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
+    if (delegator) {
+        TAG_LOGD(AAFwkTag::UISERVC_EXT, "Call PostPerformScenceRestored.");
+        delegator->PostPerformScenceRestored(CreateADelegatorAbilityProperty());
+    }
+
+    jsWindowStageObj_ = std::shared_ptr<NativeReference>(jsAppWindowStage.release());
+}
+
+std::unique_ptr<NativeReference> JsUIServiceExtension::CreateAppWindowStage()
+{
+    HandleScope handleScope(jsRuntime_);
+    auto env = jsRuntime_.GetNapiEnv();
+    napi_value jsWindowStage = Rosen::CreateJsWindowStage(env, GetScene());
+    if (jsWindowStage == nullptr) {
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "Failed to create jsWindowSatge object.");
+        return nullptr;
+    }
+    return JsRuntime::LoadSystemModuleByEngine(env, "application.WindowStage", &jsWindowStage, 1);
+}
+
+void JsUIServiceExtension::UpdateJsWindowStage(napi_value windowStage)
+{
+    TAG_LOGD(AAFwkTag::UISERVC_EXT, "Called.");
+    if (shellContextRef_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "shellContextRef_ is nullptr.");
+        return;
+    }
+    napi_value contextObj = shellContextRef_->GetNapiValue();
+    napi_env env = jsRuntime_.GetNapiEnv();
+    if (!CheckTypeForNapiValue(env, contextObj, napi_object)) {
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "Failed to get context native object.");
+        return;
+    }
+    if (windowStage == nullptr) {
+        TAG_LOGD(AAFwkTag::UISERVC_EXT, "Set context windowStage is undefined.");
+        napi_set_named_property(env, contextObj, "windowStage", CreateJsUndefined(env));
+        return;
+    }
+    TAG_LOGD(AAFwkTag::UISERVC_EXT, "Set context windowStage object.");
+    napi_set_named_property(env, contextObj, "windowStage", windowStage);
+}
+
+void JsUIServiceExtension::GetPageStackFromWant(const Want &want, std::string &pageStack)
+{
+    auto stringObj = AAFwk::IString::Query(want.GetParams().GetParam(PAGE_STACK_PROPERTY_NAME));
+    if (stringObj != nullptr) {
+        pageStack = AAFwk::String::Unbox(stringObj);
+    }
+}
+
+bool JsUIServiceExtension::IsRestorePageStack(const Want &want)
+{
+    return want.GetBoolParam(SUPPORT_CONTINUE_PAGE_STACK_PROPERTY_NAME, true);
+}
+
+void JsUIServiceExtension::RestorePageStack(const Want &want)
+{
+    if (IsRestorePageStack(want)) {
+        std::string pageStack;
+        GetPageStackFromWant(want, pageStack);
+        HandleScope handleScope(jsRuntime_);
+        auto env = jsRuntime_.GetNapiEnv();
+        if (abilityContext_->GetContentStorage()) {
+            scene_->GetMainWindow()->NapiSetUIContent(pageStack, env,
+                abilityContext_->GetContentStorage()->GetNapiValue(), true);
+        } else {
+            TAG_LOGE(AAFwkTag::UISERVC_EXT, "Content storage is nullptr.");
+        }
+    }
+}
+
+void JsUIServiceExtension::AbilityContinuationOrRecover(const Want &want)
+{
+    // multi-instance ability continuation
+    TAG_LOGD(AAFwkTag::UISERVC_EXT, "Launch reason is %{public}d.", launchParam_.launchReason);
+    if (IsRestoredInContinuation()) {
+        RestorePageStack(want);
+        OnSceneRestored();
+    } else if (ShouldRecoverState(want)) {
+        std::string pageStack = abilityRecovery_->GetSavedPageStack(AppExecFwk::StateReason::DEVELOPER_REQUEST);
+        HandleScope handleScope(jsRuntime_);
+        auto env = jsRuntime_.GetNapiEnv();
+        auto mainWindow = scene_->GetMainWindow();
+        if (mainWindow != nullptr) {
+            mainWindow->NapiSetUIContent(pageStack, env, abilityContext_->GetContentStorage()->GetNapiValue(), true);
+        } else {
+            TAG_LOGE(AAFwkTag::UISERVC_EXT, "MainWindow is nullptr.");
+        }
+        OnSceneRestored();
+    } else {
+        OnSceneDidCreated();
+    }
+}
+
+void JsUIServiceExtension::DoOnForegroundForSceneIsNull(const Want &want,
+    const std::shared_ptr< Rosen::WindowStageConfig> windowStageConfig)
+{
+    scene_ = std::make_shared<Rosen::WindowScene>();
+    int32_t displayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
+    if (setting_ != nullptr) {
+        std::string strDisplayId = setting_->GetProperty(OHOS::AppExecFwk::AbilityStartSetting::WINDOW_DISPLAY_ID_KEY);
+        std::regex formatRegex("[0-9]{0,9}$");
+        std::smatch sm;
+        bool flag = std::regex_match(strDisplayId, sm, formatRegex);
+        if (flag && !strDisplayId.empty()) {
+            displayId = strtol(strDisplayId.c_str(), nullptr, BASE_DISPLAY_ID_NUM);
+            TAG_LOGD(AAFwkTag::UISERVC_EXT, "Success displayId is %{public}d.", displayId);
+        } else {
+            TAG_LOGE(AAFwkTag::UISERVC_EXT, "Failed to formatRegex: [%{public}s].", strDisplayId.c_str());
+        }
+    }
+    auto option = GetWindowOption(want, windowStageConfig);
+    Rosen::WMError ret = Rosen::WMError::WM_OK;
+    auto sessionToken = GetSessionToken();
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionToken != nullptr) {
+        abilityContext_->SetWeakSessionToken(sessionToken);
+        ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionToken);
+    } else {
+        ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
+    }
+    if (ret != Rosen::WMError::WM_OK) {
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "Failed to init window scene.");
+        return;
+    }
+
+    AbilityContinuationOrRecover(want);
+}
+
+void JsUIServiceExtension::DoOnForeground(const Want &want)
+{
+    if (scene_ == nullptr) {
+        if ((abilityContext_ == nullptr) || (sceneListener_ == nullptr)) {
+            TAG_LOGE(AAFwkTag::UISERVC_EXT, "AbilityContext or sceneListener_ is nullptr.");
+            return;
+        }
+        std::shared_ptr<Rosen::WindowStageConfig> windowStageConfig = std::make_shared<Rosen::WindowStageConfig>();
+        OnSceneWillCreated(windowStageConfig);
+        DoOnForegroundForSceneIsNull(want, windowStageConfig);
+    } else {
+        auto window = scene_->GetMainWindow();
+        if (window != nullptr && want.HasParameter(Want::PARAM_RESV_WINDOW_MODE)) {
+            auto windowMode = want.GetIntParam(
+                Want::PARAM_RESV_WINDOW_MODE, AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
+            window->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
+            windowMode_ = windowMode;
+            TAG_LOGD(AAFwkTag::UISERVC_EXT, "Set window mode is %{public}d.", windowMode);
+        }
+    }
+
+    auto window = scene_->GetMainWindow();
+    if (window != nullptr && securityFlag_) {
+        window->SetSystemPrivacyMode(true);
+    }
+
+    if (CheckIsSilentForeground()) {
+        TAG_LOGI(AAFwkTag::UISERVC_EXT, "silent foreground, do not show window");
+        return;
+    }
+
+    TAG_LOGD(AAFwkTag::UISERVC_EXT, "Move scene to foreground, sceneFlag_: %{public}d.", UIServiceExtension::sceneFlag_);
+    AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, METHOD_NAME);
+    scene_->GoForeground(UIServiceExtension::sceneFlag_);
+    TAG_LOGD(AAFwkTag::UISERVC_EXT, "End.");
+}
+#endif
+
+std::shared_ptr<AppExecFwk::ADelegatorAbilityProperty> JsUIServiceExtension::CreateADelegatorAbilityProperty()
+{
+    if (abilityContext_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "abilityContext_ is nullptr.");
+        return nullptr;
+    }
+    auto property = std::make_shared<AppExecFwk::ADelegatorAbilityProperty>();
+    property->token_ = abilityContext_->GetToken();
+    property->name_ = GetAbilityName();
+    property->moduleName_ = GetModuleName();
+    if (GetContext()->GetApplicationInfo() == nullptr || GetContext()->GetApplicationInfo()->bundleName.empty()) {
+        property->fullName_ = GetAbilityName();
+    } else {
+        std::string::size_type pos = GetAbilityName().find(GetContext()->GetApplicationInfo()->bundleName);
+        if (pos == std::string::npos || pos != 0) {
+            property->fullName_ = GetContext()->GetApplicationInfo()->bundleName + "." + GetAbilityName();
+        } else {
+            property->fullName_ = GetAbilityName();
+        }
+    }
+    property->lifecycleState_ = GetState();
+    property->object_ = jsObj_;
+    return property;
+}
 
 JsUIServiceExtension* JsUIServiceExtension::Create(const std::unique_ptr<Runtime>& runtime)
 {
@@ -331,10 +588,6 @@ void JsUIServiceExtension::OnStop()
     }
     Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(displayListener_);
 
-	if (windowStage_ != nullptr){
-		// windowStage_->GoDestroy();		
-	}		
-		
     TAG_LOGD(AAFwkTag::UISERVC_EXT, "ok");
 }
 
@@ -548,38 +801,21 @@ bool JsUIServiceExtension::OnInsightIntentExecuteDone(uint64_t intentId,
     return true;
 }
 
-// sptr<Rosen::WindowOption> JsUIServiceExtension::GetWindowOption(const AAFwk::Want &want)
-// {
-//     auto option = sptr<Rosen::WindowOption>::MakeSptr();
-// 	if (option == nullptr) {
-// 		TAG_LOGE(AAFwkTag::UISERVC_EXT, "Option is null.");
-// 		return nullptr;
-// 	}
-// 	auto windowMode = want.GetIntParam(
-// 		AAFwk::Want::PARAM_RESV_WINDOW_MODE, AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
-// 	TAG_LOGD(AAFwkTag::UISERVC_EXT, "Window mode is %{public}d.", windowMode);
-// 	option->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
-// 	bool showOnLockScreen = false;
-// 	if (abilityInfo_) {
-// 		std::vector<AppExecFwk::CustomizeData> datas = abilityInfo_->metaData.customizeData;
-// 		for (AppExecFwk::CustomizeData data : datas) {
-// 			if (data.name == SHOW_ON_LOCK_SCREEN) {
-// 				showOnLockScreen = true;
-// 			}
-// 		}
-// 	}
-// 	if (showOnLockScreen_ || showOnLockScreen) {
-// 		TAG_LOGD(AAFwkTag::UISERVC_EXT, "Add window flag WINDOW_FLAG_SHOW_WHEN_LOCKED.");
-// 		option->AddWindowFlag(Rosen::WindowFlag::WINDOW_FLAG_SHOW_WHEN_LOCKED);
-// 	}
+void JsUIServiceExtension::AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState state, const std::string &methodName)
+{
+    FreezeUtil::LifecycleFlow flow = { abilityContext_->GetToken(), state };
+    auto entry = std::to_string(TimeUtil::SystemTimeMillisecond()) + "; JsUIServiceExtension::" + methodName +
+        "; the " + methodName + " begin.";
+    FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
+}
 
-// 	if (want.GetElement().GetBundleName() == LAUNCHER_BUNDLE_NAME &&
-// 		want.GetElement().GetAbilityName() == LAUNCHER_ABILITY_NAME) {
-// 		TAG_LOGD(AAFwkTag::UISERVC_EXT, "Set window type for launcher.");
-// 		option->SetWindowType(Rosen::WindowType::WINDOW_TYPE_DESKTOP);
-// 	}
-// 	return option;
-// }
+void JsUIServiceExtension::AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState state, const std::string &methodName)
+{
+    FreezeUtil::LifecycleFlow flow = { abilityContext_->GetToken(), state };
+    auto entry = std::to_string(TimeUtil::SystemTimeMillisecond()) + "; JsUIServiceExtension::" + methodName +
+        "; the " + methodName + " end.";
+    FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
+}
 
 napi_value JsUIServiceExtension::CallObjectMethod(const char* name, napi_value const* argv, size_t argc)
 {
@@ -848,7 +1084,6 @@ void JsUIServiceExtension::Dump(const std::vector<std::string> &params, std::vec
     TAG_LOGD(AAFwkTag::UISERVC_EXT, "Dump info size: %{public}zu", info.size());
 }
 
-
 void JsUIServiceExtension::ListenWMS()
 {
 #ifdef SUPPORT_GRAPHICS
@@ -877,49 +1112,6 @@ void JsUIServiceExtension::ListenWMS()
         TAG_LOGE(AAFwkTag::UISERVC_EXT, "subscribe system ability failed, ret = %{public}d.", ret);
     }
 #endif
-}
-
-void JsUIServiceExtension::CreateWindowStage(const Want& want, WindowStageConfig&  config)
-{
-//   windowStage_ = std::make_shared<Rosen::WindowScene>();
-//   int32_t displayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
-//   if (setting_ != nullptr) {
-//	   std::string strDisplayId = setting_->GetProperty(OHOS::AppExecFwk::AbilityStartSetting::WINDOW_DISPLAY_ID_KEY);
-//	   std::regex formatRegex("[0-9]{0,9}$");
-//	   std::smatch sm;
-//	   bool flag = std::regex_match(strDisplayId, sm, formatRegex);
-//	   if (flag && !strDisplayId.empty()) {
-//		   displayId = strtol(strDisplayId.c_str(), nullptr, BASE_DISPLAY_ID_NUM);
-//		   TAG_LOGD(AAFwkTag::UISERVC_EXT, "Success displayId is %{public}d.", displayId);
-//	   } else {
-//		   TAG_LOGE(AAFwkTag::UISERVC_EXT, "Failed to formatRegex: [%{public}s].", strDisplayId.c_str());
-//	   }
-//   }
-//   auto option = GetWindowOption(want);
-//   Rosen::WMError ret = Rosen::WMError::WM_OK;
-//   auto sessionToken = GetSessionToken();
-//   if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionToken != nullptr) {
-//	   abilityContext_->SetWeakSessionToken(sessionToken);
-//	   ret = windowStage_->Init(displayId, abilityContext_, sceneListener_, option, sessionToken);
-//   } else {
-//	   ret = windowStage_->Init(displayId, abilityContext_, sceneListener_, option);
-//   }
-//   if (ret != Rosen::WMError::WM_OK) {
-//	   TAG_LOGE(AAFwkTag::UISERVC_EXT, "Failed to init window scene.");
-//	   return;
-//   }
-
-//   AbilityContinuationOrRecover(want);
-//   auto window = windowStage_->GetMainWindow();
-//   if (window) {
-//	   TAG_LOGD(AAFwkTag::UISERVC_EXT, "Call RegisterDisplayMoveListener, windowId: %{public}d.", window->GetWindowId());
-//	   abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weak_from_this());
-//	   if (abilityDisplayMoveListener_ == nullptr) {
-//		   TAG_LOGE(AAFwkTag::UISERVC_EXT, "abilityDisplayMoveListener_ is nullptr.");
-//		   return;
-//	   }
-//	   window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
-//   }
 }
 
 void JsUIServiceExtension::SendData(OHOS::AAFwk::WantParams &data)

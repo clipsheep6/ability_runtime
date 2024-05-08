@@ -17,28 +17,19 @@
 #define OHOS_ABILITY_RUNTIME_UI_SERVICE_EXTENSION_H
 
 #include "extension_base.h"
-//#include "ui_ability.h"
-#ifdef SUPPORT_GRAPHICS
-#include "js_window_stage.h"
-#endif
-#include "foundation/ability/ability_runtime/utils/global/freeze/include/freeze_util.h"
 #include "js_runtime.h"
-
+#include "ability_lifecycle_executor.h"
+#include "ability_context.h"
 #include "context/context.h"
-namespace OHOS {
+#include "ability_continuation_interface.h"
+#include "ability_recovery.h"
+#include "continuation_manager_stage.h"
 #ifdef SUPPORT_GRAPHICS
-enum class WindowStageAttribute : int8_t {
-    SYSTEM_WINDOW_STAGE,
-    SUB_WINDOW_STAGE,
-    UNKNOWN
-};
-
-struct WindowStageConfig {
-    WindowStageAttribute windowStageAttribute = WindowStageAttribute::UNKNOWN;
-    OHOS::Rosen::Rect rect;
-};
+#include "js_window_stage_config.h"
+#include "window_scene.h"
+#include "js_window_stage.h"
+#include "session_info.h"
 #endif
-} // OHOS
 
 class NativeReference;
 
@@ -89,7 +80,7 @@ public:
         const std::shared_ptr<OHOSApplication> &application,
         std::shared_ptr<AbilityHandler> &handler,
         const sptr<IRemoteObject> &token) override;
-    
+
     /**
      * @brief Create ui service extension.
      *
@@ -98,42 +89,57 @@ public:
      */
     static UIServiceExtension* Create(const std::unique_ptr<Runtime>& runtime);
 
-    std::shared_ptr<AbilityRuntime::AbilityContext> abilityContext_ = nullptr;
-    sptr<Rosen::IWindowLifeCycle> sceneListener_ = nullptr;
-    // std::shared_ptr<Rosen::WindowScene> scene_ = nullptr;
-    sptr<Rosen::IDisplayMoveListener> abilityDisplayMoveListener_ = nullptr;
+    /**
+     * @brief Obtains the class name in this ability name, without the prefixed bundle name.
+     * @return Returns the class name of this ability.
+     */
+    std::string GetAbilityName();
+
+    /**
+     * @brief Obtains the module name in this ability name, without the prefixed bundle name.
+     * @return Returns the module name of this ability.
+     */
+    std::string GetModuleName();
+    AppExecFwk::AbilityLifecycleExecutor::LifecycleState GetState();
+    void AttachAbilityContext(const std::shared_ptr<AbilityRuntime::AbilityContext> &abilityContext);
+    void SetStartAbilitySetting(std::shared_ptr<AppExecFwk::AbilityStartSetting> setting);
+    void SetLaunchParam(const AAFwk::LaunchParam &launchParam);
+    bool CheckIsSilentForeground() const;
+    void SetIsSilentForeground(bool isSilentForeground);
 #ifdef SUPPORT_GRAPHICS
     /**
-     * @brief Called before instantiating WindowScene.
-     * You can override this function to implement your own processing logic.
+     * @brief get the scene belong to the ability.
+     * @return Returns a WindowScene object pointer.
      */
-    void OnSceneWillCreated(WindowStageConfig &windowStageConfig);
+    std::shared_ptr<Rosen::WindowScene> GetScene();
 
-    /**
-     * @brief Called after instantiating WindowScene.
-     * You can override this function to implement your own processing logic.
-     */
-    void OnSceneDidCreated();
-private:
-    void UpdateJsWindowStage(napi_value windowStage);
+    sptr<Rosen::WindowOption> GetWindowOption(const AAFwk::Want &want,
+        const std::shared_ptr< Rosen::WindowStageConfig>& windowStageConfig);
+    void SetSceneListener(const sptr<Rosen::IWindowLifeCycle> &listener);
+
+    uint32_t sceneFlag_ = 0;
+#endif
+protected:
+    bool IsRestoredInContinuation() const;
+    bool ShouldRecoverState(const AAFwk::Want &want);
+    sptr<IRemoteObject> GetSessionToken();
+
+    std::shared_ptr<AbilityRuntime::AbilityContext> abilityContext_ = nullptr;
+    std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_ = nullptr;
+    std::shared_ptr<AppExecFwk::AbilityStartSetting> setting_ = nullptr;
+    std::shared_ptr<AppExecFwk::AbilityRecovery> abilityRecovery_ = nullptr;
+    sptr<IRemoteObject> sessionToken_;
+    AAFwk::LaunchParam launchParam_;
+    bool securityFlag_ = false;
+    bool showOnLockScreen_ = false;
+#ifdef SUPPORT_GRAPHICS
+    std::shared_ptr<Rosen::WindowScene> scene_ = nullptr;
+    sptr<Rosen::IWindowLifeCycle> sceneListener_ = nullptr;
 #endif
 private:
-    napi_value CallObjectMethod(const char *name, napi_value const *argv = nullptr, size_t argc = 0,
-        bool withResult = false, bool showMethodNotFoundLog = true);
-    std::unique_ptr<NativeReference> CreateAppWindowStage();
-    // void AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState state, const std::string &methodName) const;
-    // void AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState state, const std::string &methodName) const;
-    // std::shared_ptr<AppExecFwk::ADelegatorAbilityProperty> CreateADelegatorAbilityProperty();
-
-    // JsRuntime &jsRuntime_;
-    JsRuntime jsRuntime_;
-    std::shared_ptr<AppExecFwk::Ability> ability_;
-    std::shared_ptr<Context> context_;
-    std::shared_ptr<NativeReference> shellContextRef_;
-    std::shared_ptr<NativeReference> jsAbilityObj_;
-    std::shared_ptr<NativeReference> jsWindowStageObj_;
-    std::shared_ptr<int32_t> screenModePtr_;
-    sptr<IRemoteObject> remoteCallee_;
+    std::shared_ptr<AppExecFwk::AbilityLifecycleExecutor> abilityLifecycleExecutor_ = nullptr;
+    sptr<IRemoteObject> reverseContinuationSchedulerReplica_ = nullptr;
+    bool isSilentForeground_ = false;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

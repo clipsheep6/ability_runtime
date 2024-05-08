@@ -23,27 +23,17 @@
 #include "insight_intent_executor_info.h"
 #include "ability_info.h"
 #include "ui_service_extension_context.h"
-#include "window_option.h"
 #ifdef SUPPORT_GRAPHICS
 #include "display_manager.h"
 #include "system_ability_status_change_stub.h"
-#include "js_window_stage.h"
 #endif
 #include "ui_service_extension.h"
 #include "ui_service_stub.h"
+#include "freeze_util.h"
+#include "time_util.h"
+#include "ability_delegator_infos.h"
 
 class NativeReference;
-#ifdef SUPPORT_GRAPHICS
-enum class WindowStageAttribute : int8_t {
-    SYSTEM_WINDOW_STAGE,
-    SUB_WINDOW_STAGE,
-    UNKNOWN
-};
-struct WindowStageConfig {
-    WindowStageAttribute windowStageAttribute = WindowStageAttribute::UNKNOWN;
-    OHOS::Rosen::Rect rect;
-};
-#endif
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -51,6 +41,7 @@ class UIServiceExtension;
 class Runtime;
 class UIServiceExtensionContext;
 class JsUIServiceExtension;
+
 class UIServiceExtStub : public AAFwk::UIServiceStub {
 public:
     UIServiceExtStub(JsUIServiceExtension* ext) { extension_ = ext; }
@@ -178,8 +169,6 @@ public:
      */
     bool HandleInsightIntent(const AAFwk::Want &want) override;
 
-   
-
     /**
      * @brief Called when the system configuration is updated.
      *
@@ -202,9 +191,35 @@ public:
     virtual void Dump(const std::vector<std::string> &params, std::vector<std::string> &info) override;
 
     void SendData(OHOS::AAFwk::WantParams &data);
-protected:
-    bool showOnLockScreen_ = false;
+#ifdef SUPPORT_GRAPHICS
+    /**
+     * @brief Called before instantiating WindowScene.
+     * You can override this function to implement your own processing logic.
+     */
+    void OnSceneWillCreated(std::shared_ptr<Rosen::WindowStageConfig> windowStageConfig);
 
+    /**
+     * @brief Called after instantiating WindowScene.
+     * You can override this function to implement your own processing logic.
+     */
+    void OnSceneDidCreated();
+
+    /**
+     * @brief Called after ability restored.
+     * You can override this function to implement your own processing logic.
+     */
+    void OnSceneRestored();
+
+    void UpdateJsWindowStage(napi_value windowStage);
+private:
+    bool IsRestorePageStack(const Want &want);
+    void RestorePageStack(const Want &want);
+    void GetPageStackFromWant(const Want &want, std::string &pageStack);
+    void AbilityContinuationOrRecover(const Want &want);
+
+    std::shared_ptr<NativeReference> jsWindowStageObj_;
+    int32_t windowMode_ = 0;
+#endif
 private:
     napi_value CallObjectMethod(const char* name, napi_value const *argv = nullptr, size_t argc = 0);
 
@@ -227,18 +242,19 @@ private:
         InsightIntentExecutorInfo &executorInfo);
 
     bool OnInsightIntentExecuteDone(uint64_t intentId, const AppExecFwk::InsightIntentExecuteResult &result) override;
-
-	void CreateWindowStage(const Want& want, WindowStageConfig&  config);
-
-    // sptr<Rosen::WindowOption> GetWindowOption(const AAFwk::Want &want);
+    std::unique_ptr<NativeReference> CreateAppWindowStage();
+    std::shared_ptr<AppExecFwk::ADelegatorAbilityProperty> CreateADelegatorAbilityProperty();
+    void AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState state, const std::string &methodName);
+    void AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState state, const std::string &methodName);
+    void DoOnForeground(const Want &want);
+    void DoOnForegroundForSceneIsNull(const Want &want,
+        const std::shared_ptr< Rosen::WindowStageConfig> windowStageConfig);
 
     JsRuntime& jsRuntime_;
-    std::unique_ptr<NativeReference> jsObj_;
+    std::shared_ptr<NativeReference> jsObj_;
     std::shared_ptr<AbilityContext> aContext_ = nullptr;
-    std::shared_ptr<AbilityStartSetting> setting_ = nullptr;
     std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
     std::shared_ptr<AbilityHandler> handler_ = nullptr;
-	std::shared_ptr<Rosen::WindowScene> windowStage_ = nullptr;
     sptr<IRemoteObject> callbackProxy_ = nullptr;
     std::unique_ptr<UIServiceExtStub> extensionStub_ = nullptr;
 

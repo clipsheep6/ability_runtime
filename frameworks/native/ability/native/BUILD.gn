@@ -767,6 +767,9 @@ ohos_shared_library("ui_service_extension") {
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_path}/services/common/include",
     "${ability_runtime_innerkits_path}/ability_manager/include",
+    "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_napi",
+    "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_stage_napi",
+    "${ability_runtime_path}/utils/global/time/include",
   ]
 
   sources = [
@@ -785,6 +788,7 @@ ohos_shared_library("ui_service_extension") {
   deps = [
     ":abilitykit_native",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
     "${ability_runtime_innerkits_path}/ability_manager:process_options",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
@@ -793,6 +797,7 @@ ohos_shared_library("ui_service_extension") {
     "${ability_runtime_native_path}/ability:ability_context_native",
     "${ability_runtime_native_path}/ability/native:ability_business_error",
     "${ability_runtime_native_path}/ability/native:insight_intent_executor",
+    "${ability_runtime_native_path}/ability/native:uiabilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:app_context_utils",
     "${ability_runtime_native_path}/appkit:appkit_delegator",
@@ -805,6 +810,7 @@ ohos_shared_library("ui_service_extension") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
+    "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
@@ -825,10 +831,12 @@ ohos_shared_library("ui_service_extension") {
       "window_manager:libwsutils",
       "window_manager:scene_session",
       "window_manager:session_manager_lite",
+      "window_manager:window_native_kit",
       "window_manager:windowstage_kit",
     ]
   }
 
+  innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
@@ -866,6 +874,7 @@ ohos_shared_library("ui_service_extension_module") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/app/task",
     "${ability_runtime_napi_path}/inner/napi_common",
     "${ability_runtime_napi_path}/featureAbility",
+    "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_napi",
   ]
 
   sources = [ "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/ui_service_extension_module_loader.cpp" ]
