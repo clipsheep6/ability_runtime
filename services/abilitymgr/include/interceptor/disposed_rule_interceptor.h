@@ -41,7 +41,7 @@ public:
     void UnregisterObserver(const std::string &bundleName);
 private:
     ErrCode HandleBlockApplicationWithResult(const AbilityInterceptorParam &param,
-        const AppExecFwk::DisposedRule &disposedRule);
+        AppExecFwk::DisposedRule &disposedRule);
     bool CheckControl(const Want &want, int32_t userId, AppExecFwk::DisposedRule &disposedRule);
     bool CheckDisposedRule(const Want &want, AppExecFwk::DisposedRule &disposedRule);
     ErrCode StartNonBlockRule(const Want &want, AppExecFwk::DisposedRule &disposedRule);
