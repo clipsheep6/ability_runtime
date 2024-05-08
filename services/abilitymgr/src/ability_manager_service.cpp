@@ -2438,12 +2438,12 @@ int AbilityManagerService::PreloadUIExtensionAbilityInner(const Want &want, std:
     return connectManager->PreloadUIExtensionAbilityLocked(abilityRequest, hostBundleName);
 }
 
-int AbilityManagerService::UnloadUIExtension(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord,
+int AbilityManagerService::UnloadUIExtensionAbility(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord,
     std::string &hostBundleName)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Call.");
     auto connectManager = GetConnectManagerByToken(abilityRecord->GetToken());
-    return connectManager->UnloadUIExtension(abilityRecord, hostBundleName);
+    return connectManager->UnloadUIExtensionAbility(abilityRecord, hostBundleName);
 }
 
 int AbilityManagerService::RequestModalUIExtension(const Want &want)

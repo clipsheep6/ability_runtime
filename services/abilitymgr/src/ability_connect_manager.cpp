@@ -566,6 +566,10 @@ int AbilityConnectManager::PreloadUIExtensionAbilityInner(const AbilityRequest &
     //get target service ability record, and check whether it has been loaded.
     std::shared_ptr<AbilityRecord> targetService = AbilityRecord::CreateAbilityRecord(abilityRequest);
     CHECK_POINTER_AND_RETURN(targetService, ERR_INVALID_VALUE);
+    if (!UIExtensionUtils::IsUIExtension(targetService->GetAbilityInfo().extensionAbilityType)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Can't preload non-uiextension type.");
+        return ERR_WRONG_INTERFACE_CALL;
+    }
     std::shared_ptr<ExtensionRecord> extensionRecord = nullptr;
     CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, ERR_NULL_OBJECT);
     int32_t extensionRecordId = INVALID_EXTENSION_RECORD_ID;
@@ -584,7 +588,7 @@ int AbilityConnectManager::PreloadUIExtensionAbilityInner(const AbilityRequest &
     return ERR_OK;
 }
 
-int AbilityConnectManager::UnloadUIExtension(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord,
+int AbilityConnectManager::UnloadUIExtensionAbility(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord,
     std::string &hostBundleName)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call");

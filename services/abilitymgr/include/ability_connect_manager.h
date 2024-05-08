@@ -116,14 +116,15 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int PreloadUIExtensionAbilityLocked(const AbilityRequest &abilityRequest, std::string &hostBundleName);
+    
     /**
-     * UnloadUIExtension, unload uiextension ability.
+     * UnloadUIExtensionAbility, unload uiextension ability.
      *
      * @param abilityRecord, uiextension ability record.
      * @param hostBundleName, the caller application bundle name.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int UnloadUIExtension(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord, std::string &bundleName);
+    int UnloadUIExtensionAbility(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord, std::string &bundleName);
 
     /**
      * DisconnectAbilityLocked, disconnect session with callback.

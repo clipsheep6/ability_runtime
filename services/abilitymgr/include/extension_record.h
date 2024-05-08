@@ -45,7 +45,7 @@ public:
 
     virtual void Update(const AAFwk::AbilityRequest &abilityRequest);
 
-    void UnLoadUIExtension();
+    void UnloadUIExtensionAbility();
 
     int32_t RegisterStateObserver(const std::string &hostBundleName);
 
