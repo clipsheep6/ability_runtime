@@ -84,7 +84,7 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
 }
 
 ErrCode DisposedRuleInterceptor::HandleBlockApplicationWithResult(
-    const AbilityInterceptorParam &param, const AppExecFwk::DisposedRule &disposedRule)
+    const AbilityInterceptorParam &param, AppExecFwk::DisposedRule &disposedRule)
 {
     auto abilityRequest = DelayedSingleton<AbilityManagerService>::GetInstance()->GetAbilityRequest();
     std::string dialogSessionId;
