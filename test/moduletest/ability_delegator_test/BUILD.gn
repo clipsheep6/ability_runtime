@@ -223,6 +223,7 @@ ohos_moduletest("js_test_runner_moduletest") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:extractortool",
     "ability_base:want",
     "ability_runtime:ability_manager",
     "ability_runtime:runtime",
