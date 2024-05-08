@@ -2120,5 +2120,20 @@ SupportProcessCacheState AppRunningRecord::GetSupportProcessCacheState()
 {
     return procCacheSupportState_;
 }
+
+void AppRunningRecord::SetBrowserHost(sptr<IRemoteObject> browser)
+{
+    browserHost_ = browser;
+}
+
+void AppRunningRecord::SetIsGPU(bool gpu)
+{
+    isGPU = gpu;
+}
+
+bool AppRunningRecord::GetIsGPU()
+{
+    return isGPU;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
