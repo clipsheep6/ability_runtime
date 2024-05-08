@@ -165,4 +165,11 @@ declare_args() {
   } else {
     hichecker_enabled = false
   }
+
+  if (!defined(global_parts_info) ||
+      defined(global_parts_info.ability_form_fwk)) {
+    form_fwk_enable = true
+  } else {
+    form_fwk_enable = false
+  }
 }
