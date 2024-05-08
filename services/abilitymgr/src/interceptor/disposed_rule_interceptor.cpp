@@ -160,7 +160,8 @@ bool DisposedRuleInterceptor::CheckDisposedRule(const Want &want, AppExecFwk::Di
     }
 
     bool isAllowed = disposedRule.controlType == AppExecFwk::ControlType::ALLOWED_LIST;
-    if (disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION) {
+    if (disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION ||
+    disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION_WITH_RESULT) {
         return !isAllowed;
     }
 
