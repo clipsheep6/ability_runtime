@@ -49,6 +49,7 @@
 #include "extension_module_loader.h"
 #include "extension_plugin_info.h"
 #include "extract_resource_manager.h"
+#include "ffrt.h"
 #include "file_path_utils.h"
 #include "freeze_util.h"
 #include "hilog_tag_wrapper.h"
@@ -101,7 +102,6 @@ using AbilityRuntime::FreezeUtil;
 namespace AppExecFwk {
 using namespace OHOS::AbilityBase::Constants;
 std::weak_ptr<OHOSApplication> MainThread::applicationForDump_;
-std::shared_ptr<EventHandler> MainThread::signalHandler_ = nullptr;
 std::shared_ptr<MainThread::MainHandler> MainThread::mainHandler_ = nullptr;
 const std::string PERFCMD_PROFILE = "profile";
 const std::string PERFCMD_DUMPHEAP = "dumpheap";
@@ -901,11 +901,6 @@ void MainThread::HandleTerminateApplicationLocal()
         return;
     }
     applicationImpl_->PerformTerminateStrong();
-
-    std::shared_ptr<EventRunner> signalRunner = signalHandler_->GetEventRunner();
-    if (signalRunner) {
-        signalRunner->Stop();
-    }
 
     std::shared_ptr<EventRunner> runner = mainHandler_->GetEventRunner();
     if (runner == nullptr) {
@@ -2137,11 +2132,6 @@ void MainThread::HandleTerminateApplication(bool isLastProcess)
         TAG_LOGD(AAFwkTag::APPKIT, "PerformTerminate() failed.");
     }
 
-    std::shared_ptr<EventRunner> signalRunner = signalHandler_->GetEventRunner();
-    if (signalRunner) {
-        signalRunner->Stop();
-    }
-
     std::shared_ptr<EventRunner> runner = mainHandler_->GetEventRunner();
     if (runner == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "get manHandler error");
@@ -2248,7 +2238,6 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner)
     TAG_LOGD(AAFwkTag::APPKIT, "Start");
     mainHandler_ = std::make_shared<MainHandler>(runner, this);
     watchdog_ = std::make_shared<Watchdog>();
-    signalHandler_ = std::make_shared<EventHandler>(EventRunner::Create(SIGNAL_HANDLER));
     extensionConfigMgr_ = std::make_unique<AbilityRuntime::ExtensionConfigMgr>();
     wptr<MainThread> weak = this;
     auto task = [weak]() {
@@ -2313,7 +2302,7 @@ void MainThread::HandleSignal(int signal, [[maybe_unused]] siginfo_t *siginfo, v
         }
         case SignalType::SIGNAL_FORCE_FULLGC: {
             auto forceFullGCFunc = std::bind(&MainThread::ForceFullGC);
-            signalHandler_->PostTask(forceFullGCFunc, "MainThread:SIGNAL_FORCE_FULLGC");
+            ffrt::submit(forceFullGCFunc);
             break;
         }
         default:
@@ -2359,6 +2348,7 @@ void MainThread::HandleDumpHeap(bool isPrivate)
         return;
     }
     auto taskFork = [&runtime, &isPrivate] {
+        TAG_LOGD(AAFwkTag::APPKIT, "HandleDump Heap taskFork start.");
         time_t startTime = time(nullptr);
         int pid = -1;
         if ((pid = fork()) < 0) {
@@ -2390,10 +2380,8 @@ void MainThread::HandleDumpHeap(bool isPrivate)
             usleep(DEFAULT_SLEEP_TIME);
         }
     };
-    if (!signalHandler_->PostTask(taskFork, "MainThread::HandleDumpHeap",
-                                  0, AppExecFwk::EventQueue::Priority::IMMEDIATE)) {
-        TAG_LOGE(AAFwkTag::APPKIT, "HandleDumpHeap postTask false");
-    }
+
+    ffrt::submit(taskFork, {}, {}, ffrt::task_attr().qos(ffrt::qos_user_initiated));
     runtime->DumpCpuProfile(isPrivate);
 }
 

@@ -624,7 +624,6 @@ private:
     std::string aceApplicationName_ = "AceApplication";
     std::string pathSeparator_ = "/";
     std::string abilityLibraryType_ = ".so";
-    static std::shared_ptr<EventHandler> signalHandler_;
     static std::weak_ptr<OHOSApplication> applicationForDump_;
 
 #ifdef ABILITY_LIBRARY_LOADER
