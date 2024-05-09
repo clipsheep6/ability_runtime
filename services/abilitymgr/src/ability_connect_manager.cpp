@@ -593,6 +593,7 @@ int AbilityConnectManager::UnloadUIExtensionAbility(const std::shared_ptr<AAFwk:
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     //Get preLoadUIExtensionInfo
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     auto preLoadUIExtensionInfo = std::make_tuple(abilityRecord->GetWant().GetElement().GetAbilityName(),
         abilityRecord->GetWant().GetElement().GetBundleName(),
         abilityRecord->GetWant().GetElement().GetModuleName(), hostBundleName);
