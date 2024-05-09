@@ -1446,6 +1446,27 @@ int32_t AppMgrServiceInner::GetProcessRunningInformation(RunningProcessInfo &inf
     return ERR_OK;
 }
 
+int32_t AppMgrServiceInner::GetCurrentAppCloneIndex(int32_t &appIndex)
+{
+    auto callerPid = IPCSkeleton::GetCallingPid();
+    auto appRecord = GetAppRunningRecordByPid(callerPid);
+    if (!appRecord) {
+        TAG_LOGE(AAFwkTag::APPMGR, "no such appRecord, callerPid:%{public}d", callerPid);
+        return ERR_INVALID_VALUE;
+    }
+    auto applicationInfo = appRecord->GetApplicationInfo();
+    if (!applicationInfo) {
+        TAG_LOGE(AAFwkTag::APPMGR, "applicationInfo is nullptr, can not get app informations");
+        return ERR_INVALID_VALUE;
+    }
+    if (applicationInfo->multiAppMode.multiAppModeType != MultiAppModeType::APP_CLONE) {
+        return AAFwk::ERR_NOT_APP_CLONE;
+    }
+    appIndex = appRecord->GetAppIndex();
+    TAG_LOGD(AAFwkTag::APPMGR, "appIndex %{public}d.", appIndex);
+    return ERR_OK;
+}
+
 int32_t AppMgrServiceInner::GetAllRenderProcesses(std::vector<RenderProcessInfo> &info)
 {
     auto isPerm = AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm();

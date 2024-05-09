@@ -801,6 +801,30 @@ napi_value JsApplicationContextUtils::OnGetRunningProcessInformation(napi_env en
     return result;
 }
 
+napi_value JsApplicationContextUtils::GetCurrentAppCloneIndex(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils,
+        OnGetCurrentAppCloneIndex, APPLICATION_CONTEXT_NAME);
+}
+
+napi_value JsApplicationContextUtils::OnGetCurrentAppCloneIndex(napi_env env, NapiCallbackInfo& info)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "Get App Index");
+    auto context = applicationContext_.lock();
+    if (context == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "context is nullptr.");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+        return CreateJsUndefined(env);
+    }
+    int32_t appIndex = 0;
+    auto ret = context->GetCurrentAppCloneIndex(appIndex);
+    if (ret != ERR_OK) {
+        ThrowErrorByNativeErr(env, ret);
+        return CreateJsUndefined(env);
+    }
+    return CreateJsValue(env, appIndex);
+}
+
 void JsApplicationContextUtils::Finalizer(napi_env env, void *data, void *hint)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "called");
@@ -1492,6 +1516,8 @@ void JsApplicationContextUtils::BindNativeApplicationContext(napi_env env, napi_
         JsApplicationContextUtils::GetRunningProcessInformation);
     BindNativeFunction(env, object, "getRunningProcessInformation", MD_NAME,
         JsApplicationContextUtils::GetRunningProcessInformation);
+    BindNativeFunction(env, object, "getCurrentAppCloneIndex", MD_NAME,
+        JsApplicationContextUtils::GetCurrentAppCloneIndex);
     BindNativeFunction(env, object, "getGroupDir", MD_NAME,
         JsApplicationContextUtils::GetGroupDir);
     BindNativeFunction(env, object, "restartApp", MD_NAME,

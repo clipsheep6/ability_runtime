@@ -98,6 +98,7 @@ public:
     Global::Resource::DeviceType GetDeviceType() const override;
     void KillProcessBySelf();
     int32_t GetProcessRunningInformation(AppExecFwk::RunningProcessInfo &info);
+    int32_t GetCurrentAppCloneIndex(int32_t &appIndex);
     int32_t RestartApp(const AAFwk::Want& want);
 
     void AttachContextImpl(const std::shared_ptr<ContextImpl> &contextImpl);

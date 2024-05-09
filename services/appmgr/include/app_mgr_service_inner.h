@@ -335,6 +335,14 @@ public:
     virtual int32_t GetProcessRunningInformation(RunningProcessInfo &info);
 
     /**
+     * GetCurrentAppCloneIndex, Obtains Index about current application
+     * which is running on the device.
+     *
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t GetCurrentAppCloneIndex(int32_t &appIndex);
+
+    /**
      * GetAllRenderProcesses, Obtains information about render processes that are running on the device.
      *
      * @param info, render process record.

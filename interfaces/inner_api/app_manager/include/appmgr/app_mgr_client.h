@@ -226,6 +226,14 @@ public:
      */
     virtual AppMgrResultCode GetProcessRunningInformation(RunningProcessInfo &info);
 
+     /**
+     * GetCurrentAppCloneIndex, call GetCurrentAppCloneIndex() through proxy project.
+     * Obtains Index about current application which is running on the device.
+     *
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual AppMgrResultCode GetCurrentAppCloneIndex(int32_t &appIndex);
+
     /**
      * GetAllRenderProcesses, call GetAllRenderProcesses() through proxy project.
      * Obtains information about render processes that are running on the device.
