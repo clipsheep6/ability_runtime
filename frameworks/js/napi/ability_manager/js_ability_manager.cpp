@@ -124,6 +124,11 @@ public:
         GET_NAPI_INFO_AND_CALL(env, info, JsAbilityManager, OnIsEmbeddedOpenAllowed);
     }
 
+    static napi_value SetResidentProcessEnabled(napi_env env, napi_callback_info info)
+    {
+        GET_CB_INFO_AND_CALL(env, info, JsAbilityManager, OnSetResidentProcessEnabled);
+    }
+
     static napi_value NotifyDebugAssertResult(napi_env env, napi_callback_info info)
     {
         GET_CB_INFO_AND_CALL(env, info, JsAbilityManager, OnNotifyDebugAssertResult);
@@ -152,15 +157,15 @@ private:
         }
         if (!AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid param.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param observer failed, must be a AbilityForegroundStateObserver");
             return CreateJsUndefined(env);
         }
 
         std::string type = ParseParamType(env, argc, argv);
         if (type == ON_OFF_TYPE_ABILITY_FOREGROUND_STATE) {
-            OnOnAbilityForeground(env, argc, argv);
+            return OnOnAbilityForeground(env, argc, argv);
         }
-
+        ThrowInvalidParamError(env, "Parse param type failed, must be a string, value must be abilityForegroundState");
         return CreateJsUndefined(env);
     }
 
@@ -198,14 +203,15 @@ private:
         }
         if (argc == ARGC_TWO && !AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid param.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param observer failed, must be a AbilityForegroundStateObserver");
             return CreateJsUndefined(env);
         }
 
         std::string type = ParseParamType(env, argc, argv);
         if (type == ON_OFF_TYPE_ABILITY_FOREGROUND_STATE) {
-            OnOffAbilityForeground(env, argc, argv);
+            return OnOffAbilityForeground(env, argc, argv);
         }
+        ThrowInvalidParamError(env, "Parse param type failed, must be a string, value must be abilityForegroundState");
         return CreateJsUndefined(env);
     }
 
@@ -237,19 +243,19 @@ private:
         std::string assertSessionStr;
         if (!ConvertFromJsValue(env, argv[INDEX_ZERO], assertSessionStr) || !CheckIsNumString(assertSessionStr)) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Convert session id error.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param sessionId failed, must be a string");
             return CreateJsUndefined(env);
         }
         uint64_t assertSessionId = std::stoull(assertSessionStr);
         if (assertSessionId == 0) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Convert session id failed.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param sessionId failed, value must not be equal to zero");
             return CreateJsUndefined(env);
         }
         int32_t userStatus;
         if (!ConvertFromJsValue(env, argv[INDEX_ONE], userStatus)) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Convert status failed.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param status failed, must be a UserStatus");
             return CreateJsUndefined(env);
         }
 
@@ -340,7 +346,7 @@ private:
         int upperLimit = -1;
         if (!ConvertFromJsValue(env, info.argv[0], upperLimit)) {
 #ifdef ENABLE_ERRCODE
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param upperLimit failed, must be a number");
 #endif
             return CreateJsUndefined(env);
         }
@@ -391,7 +397,7 @@ private:
             AppExecFwk::Configuration changeConfig;
             if (!UnwrapConfiguration(env, info.argv[0], changeConfig)) {
 #ifdef ENABLE_ERRCODE
-                ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+                ThrowInvalidParamError(env, "Parse param config failed, must be a Configuration");
 #else
                 complete = [](napi_env env, NapiAsyncTask& task, int32_t status) {
                     task.Reject(env, CreateJsError(env, ERR_INVALID_VALUE, "config is invalid."));
@@ -456,12 +462,12 @@ private:
     {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s is called", __FUNCTION__);
         if (info.argc < ARGC_ONE) {
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         int32_t missionId = -1;
         if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], missionId)) {
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param missionId failed, must be a number");
             return CreateJsUndefined(env);
         }
         napi_value lastParam = info.argc > ARGC_ONE  ? info.argv[INDEX_ONE] : nullptr;
@@ -509,7 +515,7 @@ private:
             int reqCode = 0;
             if (!ConvertFromJsValue(env, info.argv[1], reqCode)) {
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "Get requestCode param error");
-                ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+                ThrowInvalidParamError(env, "Parse param requestCode failed, must be a number");
                 break;
             }
 
@@ -517,7 +523,7 @@ private:
             int resultCode = ERR_OK;
             if (!AppExecFwk::UnWrapAbilityResult(env, info.argv[0], resultCode, want)) {
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "Unrwrap abilityResult param error");
-                ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+                ThrowInvalidParamError(env, "Parse param parameter failed, must be a AbilityResult");
                 break;
             }
 
@@ -563,6 +569,58 @@ private:
         return result;
     }
 
+    napi_value OnSetResidentProcessEnabled(napi_env env, size_t argc, napi_value *argv)
+    {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+        if (argc < ARGC_TWO) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Not enough params when off.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+
+        std::string bundleName;
+        if (!ConvertFromJsValue(env, argv[INDEX_ZERO], bundleName) || bundleName.empty()) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Convert session id error.");
+            auto errMsg = "Non empty package name needs to be provided";
+            ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM), errMsg);
+            return CreateJsUndefined(env);
+        }
+
+        bool enableState = false;
+        if (!ConvertFromJsValue(env, argv[INDEX_ONE], enableState)) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Convert status failed.");
+            auto errMsg = "The second parameter needs to provide a Boolean type setting value";
+            ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM), errMsg);
+            return CreateJsUndefined(env);
+        }
+
+        auto innerErrorCode = std::make_shared<int32_t>(ERR_OK);
+        NapiAsyncTask::ExecuteCallback execute = [bundleName, enableState, innerErrorCode, env]() {
+            auto amsClient = AbilityManagerClient::GetInstance();
+            if (amsClient == nullptr) {
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability manager service instance is nullptr.");
+                *innerErrorCode = static_cast<int32_t>(AAFwk::INNER_ERR);
+                return;
+            }
+            *innerErrorCode = amsClient->SetResidentProcessEnabled(bundleName, enableState);
+        };
+
+        NapiAsyncTask::CompleteCallback complete = [innerErrorCode](napi_env env, NapiAsyncTask &task, int32_t status) {
+            if (*innerErrorCode != ERR_OK) {
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "Set resident process result failed, error is %{public}d.",
+                    *innerErrorCode);
+                task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
+                return;
+            }
+            task.ResolveWithNoError(env, CreateJsUndefined(env));
+        };
+
+        napi_value result = nullptr;
+        NapiAsyncTask::Schedule("JsAbilityManager::OnSetResidentProcessEnabled", env,
+            CreateAsyncTaskWithLastParam(env, nullptr, std::move(execute), std::move(complete), &result));
+        return result;
+    }
+
     napi_value OnIsEmbeddedOpenAllowed(napi_env env, NapiCallbackInfo& info)
     {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
@@ -576,26 +634,26 @@ private:
         napi_status status = OHOS::AbilityRuntime::IsStageContext(env, info.argv[0], stageMode);
         if (status != napi_ok || !stageMode) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "it is not a stage mode");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param context failed, must be stageMode");
             return CreateJsUndefined(env);
         }
         auto context = OHOS::AbilityRuntime::GetStageModeContext(env, info.argv[0]);
         if (context == nullptr) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "get context failed");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param context failed, must not be nullptr");
             return CreateJsUndefined(env);
         }
         auto uiAbilityContext = AbilityRuntime::Context::ConvertTo<AbilityRuntime::AbilityContext>(context);
         if (uiAbilityContext == nullptr) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "convert to UIAbility context failed");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param context failed, must be UIAbilityContext");
             return CreateJsUndefined(env);
         }
 
         std::string appId;
         if (!ConvertFromJsValue(env, info.argv[1], appId)) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "OnOpenAtomicService, parse appId failed.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param appId failed, must be a string");
             return CreateJsUndefined(env);
         }
 
@@ -644,6 +702,8 @@ napi_value JsAbilityManagerInit(napi_env env, napi_value exportObj)
     BindNativeFunction(
         env, exportObj, "notifyDebugAssertResult", moduleName, JsAbilityManager::NotifyDebugAssertResult);
     BindNativeFunction(env, exportObj, "isEmbeddedOpenAllowed", moduleName, JsAbilityManager::IsEmbeddedOpenAllowed);
+    BindNativeFunction(
+        env, exportObj, "setResidentProcessEnabled", moduleName, JsAbilityManager::SetResidentProcessEnabled);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "end");
     return CreateJsUndefined(env);
 }

@@ -92,8 +92,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 #ifdef ABILITY_COMMAND_FOR_TEST
     abilityms->ForceTimeoutForTest(stringParam, stringParam);
 #endif
-    AppExecFwk::AbilityInfo abilityInfo;
-    abilityms->CheckStaticCfgPermission(abilityInfo, false, -1);
+    AppExecFwk::AbilityRequest abilityRequest;
+    abilityms->CheckStaticCfgPermission(abilityRequest, false, -1);
 
     return true;
 }

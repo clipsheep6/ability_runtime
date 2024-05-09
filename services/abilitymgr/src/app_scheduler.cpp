@@ -302,11 +302,13 @@ void AppScheduler::OnAppStateChanged(const AppExecFwk::AppProcessData &appData)
     }
     info.processName = appData.processName;
     info.state = static_cast<AppState>(appData.appState);
+    info.pid = appData.pid;
     callback->OnAppStateChanged(info);
 }
 
 void AppScheduler::GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_POINTER(appMgrClient_);
     IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->GetRunningProcessInfoByToken(token, info));
 }

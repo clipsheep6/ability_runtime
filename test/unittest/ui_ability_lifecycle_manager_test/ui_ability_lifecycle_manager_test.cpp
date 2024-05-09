@@ -27,7 +27,9 @@
 #undef private
 #include "app_mgr_client.h"
 #include "mock_ability_info_callback_stub.h"
+#include "process_options.h"
 #include "session/host/include/session.h"
+#include "session_info.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -2479,6 +2481,88 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartAbilityBySpecifed_001, TestSize.Lev
     std::shared_ptr<AbilityRecord> callerAbility = nullptr;
     uiAbilityLifecycleManager->StartAbilityBySpecifed(request, callerAbility);
     uiAbilityLifecycleManager.reset();
+}
+
+/**
+ * @tc.name: UIAbilityLifecycleManager_GetAbilityStateByPersistentId_0100
+ * @tc.desc: GetAbilityStateByPersistentId
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, GetAbilityStateByPersistentId_001, TestSize.Level1)
+{
+    auto uiAbilityLifecycleManager = std::make_shared<UIAbilityLifecycleManager>();
+    EXPECT_NE(uiAbilityLifecycleManager, nullptr);
+    int32_t persistentId = 100;
+    bool state;
+    int32_t ret = uiAbilityLifecycleManager->GetAbilityStateByPersistentId(persistentId, state);
+    EXPECT_EQ(ERR_INVALID_VALUE, ret);
+}
+
+/**
+ * @tc.name: UIAbilityLifecycleManager_GetAbilityStateByPersistentId_0200
+ * @tc.desc: GetAbilityStateByPersistentId
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, GetAbilityStateByPersistentId_002, TestSize.Level1)
+{
+    auto uiAbilityLifecycleManager = std::make_shared<UIAbilityLifecycleManager>();
+    EXPECT_NE(uiAbilityLifecycleManager, nullptr);
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    abilityRecord->SetPendingState(AbilityState::INITIAL);
+    uiAbilityLifecycleManager->sessionAbilityMap_.emplace(100, abilityRecord);
+    int32_t persistentId = 100;
+    bool state;
+    int32_t ret = uiAbilityLifecycleManager->GetAbilityStateByPersistentId(persistentId, state);
+    EXPECT_EQ(ERR_OK, ret);
+}
+
+/**
+ * @tc.name: UIAbilityLifecycleManager_UpdateProcessName_0100
+ * @tc.desc: UpdateProcessName
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, UpdateProcessName_001, TestSize.Level1)
+{
+    auto uiAbilityLifecycleManager = std::make_shared<UIAbilityLifecycleManager>();
+    EXPECT_NE(uiAbilityLifecycleManager, nullptr);
+    sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
+    sessionInfo->processOptions = std::make_shared<ProcessOptions>();
+    EXPECT_NE(sessionInfo->processOptions, nullptr);
+    sessionInfo->processOptions->processMode = ProcessMode::NEW_PROCESS_ATTACH_TO_PARENT;
+    AbilityRequest abilityRequest;
+    abilityRequest.sessionInfo = sessionInfo;
+    abilityRequest.abilityInfo.bundleName = "com.example.unittest";
+    abilityRequest.abilityInfo.moduleName = "entry";
+    abilityRequest.abilityInfo.name = "MainAbility";
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    uiAbilityLifecycleManager->UpdateProcessName(abilityRequest, abilityRecord);
+    EXPECT_EQ("com.example.unittest:entry:MainAbility:0", abilityRecord->GetProcessName());
+}
+
+/**
+ * @tc.name: UIAbilityLifecycleManager_ChangeAbilityVisibility_0100
+ * @tc.desc: ChangeAbilityVisibility
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, ChangeAbilityVisibility_001, TestSize.Level1)
+{
+    auto uiAbilityLifecycleManager = std::make_shared<UIAbilityLifecycleManager>();
+    EXPECT_NE(uiAbilityLifecycleManager, nullptr);
+    int32_t ret = uiAbilityLifecycleManager->ChangeAbilityVisibility(nullptr, true);
+    EXPECT_EQ(ERR_INVALID_VALUE, ret);
+}
+
+/**
+ * @tc.name: UIAbilityLifecycleManager_ChangeUIAbilityVisibilityBySCB_0100
+ * @tc.desc: ChangeUIAbilityVisibilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, ChangeUIAbilityVisibilityBySCB_001, TestSize.Level1)
+{
+    auto uiAbilityLifecycleManager = std::make_shared<UIAbilityLifecycleManager>();
+    EXPECT_NE(uiAbilityLifecycleManager, nullptr);
+    int32_t ret = uiAbilityLifecycleManager->ChangeUIAbilityVisibilityBySCB(nullptr, true);
+    EXPECT_EQ(ERR_INVALID_VALUE, ret);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

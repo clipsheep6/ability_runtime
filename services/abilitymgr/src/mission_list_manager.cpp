@@ -1108,6 +1108,7 @@ std::shared_ptr<AbilityRecord> MissionListManager::GetAbilityRecordByToken(
 std::shared_ptr<AbilityRecord> MissionListManager::GetAbilityRecordByTokenInner(
     const sptr<IRemoteObject> &token) const
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (!token) {
         return nullptr;
     }
@@ -1124,6 +1125,7 @@ std::shared_ptr<AbilityRecord> MissionListManager::GetAbilityRecordByTokenInner(
 std::shared_ptr<AbilityRecord> MissionListManager::GetAliveAbilityRecordByToken(
     const sptr<IRemoteObject> &token) const
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (!token) {
         return nullptr;
     }
@@ -1329,6 +1331,10 @@ void MissionListManager::TerminatePreviousAbility(const std::shared_ptr<AbilityR
     auto terminatingAbilityRecord = abilityRecord->GetPreAbilityRecord();
     if (!terminatingAbilityRecord) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "terminatingAbilityRecord is nullptr.");
+        return;
+    }
+    if (!terminatingAbilityRecord->IsTerminating()) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "terminatingAbilityRecord is not terminating.");
         return;
     }
     abilityRecord->SetPreAbilityRecord(nullptr);
@@ -1829,6 +1835,7 @@ std::shared_ptr<AbilityRecord> MissionListManager::GetAbilityFromTerminateListIn
 
 int MissionListManager::ClearMission(int missionId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (missionId < 0) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Mission id is invalid.");
         return ERR_INVALID_VALUE;
@@ -1865,6 +1872,7 @@ int MissionListManager::ClearMissionLocking(int missionId, const std::shared_ptr
 
 int MissionListManager::ClearMissionLocked(int missionId, const std::shared_ptr<Mission> &mission)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (missionId != -1) {
         DelayedSingleton<MissionInfoMgr>::GetInstance()->DeleteMissionInfo(missionId);
         if (listenerController_) {
@@ -1898,19 +1906,23 @@ int MissionListManager::ClearMissionLocked(int missionId, const std::shared_ptr<
 
 int MissionListManager::ClearAllMissions()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard guard(managerLock_);
     DelayedSingleton<MissionInfoMgr>::GetInstance()->DeleteAllMissionInfos(listenerController_);
     std::list<std::shared_ptr<Mission>> foregroundAbilities;
     ClearAllMissionsLocked(defaultStandardList_->GetAllMissions(), foregroundAbilities, false);
     ClearAllMissionsLocked(defaultSingleList_->GetAllMissions(), foregroundAbilities, false);
-
-    for (auto listIter = currentMissionLists_.begin(); listIter != currentMissionLists_.end();) {
-        auto missionList = (*listIter);
-        listIter++;
-        if (!missionList || missionList->GetType() == MissionListType::LAUNCHER) {
-            continue;
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER,
+            "for (auto listIter = currentMissionLists_.begin(); listIter != currentMissionLists_.end();)");
+        for (auto listIter = currentMissionLists_.begin(); listIter != currentMissionLists_.end();) {
+            auto missionList = (*listIter);
+            listIter++;
+            if (!missionList || missionList->GetType() == MissionListType::LAUNCHER) {
+                continue;
+            }
+            ClearAllMissionsLocked(missionList->GetAllMissions(), foregroundAbilities, true);
         }
-        ClearAllMissionsLocked(missionList->GetAllMissions(), foregroundAbilities, true);
     }
 
     ClearAllMissionsLocked(foregroundAbilities, foregroundAbilities, false);
@@ -1920,6 +1932,7 @@ int MissionListManager::ClearAllMissions()
 void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Mission>> &missionList,
     std::list<std::shared_ptr<Mission>> &foregroundAbilities, bool searchActive)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     for (auto listIter = missionList.begin(); listIter != missionList.end();) {
         auto mission = (*listIter);
         listIter++;
@@ -1952,6 +1965,7 @@ void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Missio
 
 int MissionListManager::SetMissionLockedState(int missionId, bool lockedState)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard guard(managerLock_);
     if (missionId < 0) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "param is invalid");
@@ -2579,6 +2593,7 @@ int32_t MissionListManager::GetMissionIdByAbilityTokenInner(const sptr<IRemoteOb
 
 sptr<IRemoteObject> MissionListManager::GetAbilityTokenByMissionId(int32_t missionId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard guard(managerLock_);
     sptr<IRemoteObject> result = nullptr;
     for (auto missionList : currentMissionLists_) {
@@ -3584,6 +3599,7 @@ void MissionListManager::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& h
 bool MissionListManager::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
     MissionSnapshot& missionSnapshot, bool isLowResolution)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "snapshot: Start get mission snapshot.");
     bool forceSnapshot = false;
     {
@@ -3600,6 +3616,7 @@ bool MissionListManager::GetMissionSnapshot(int32_t missionId, const sptr<IRemot
 
 void MissionListManager::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info, bool isPerm)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard guard(managerLock_);
 
     auto func = [&info, isPerm](const std::shared_ptr<Mission> &mission) {
@@ -3630,6 +3647,7 @@ void MissionListManager::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> 
         auto list = defaultSingleList_->GetAllMissions();
         std::for_each(list.begin(), list.end(), func);
     }
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "for (auto missionList : currentMissionLists_)");
     for (auto missionList : currentMissionLists_) {
         if (!(missionList->GetAllMissions().empty())) {
             auto list = missionList->GetAllMissions();
@@ -3880,13 +3898,13 @@ bool MissionListManager::UpdateAbilityRecordLaunchReason(
         return false;
     }
 
-    if (abilityRequest.IsContinuation()) {
-        abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_CONTINUATION);
+    if (abilityRequest.IsAppRecovery() || abilityRecord->GetRecoveryInfo()) {
+        abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_APP_RECOVERY);
         return true;
     }
 
-    if (abilityRequest.IsAppRecovery() || abilityRecord->GetRecoveryInfo()) {
-        abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_APP_RECOVERY);
+    if (abilityRequest.IsContinuation()) {
+        abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_CONTINUATION);
         return true;
     }
 

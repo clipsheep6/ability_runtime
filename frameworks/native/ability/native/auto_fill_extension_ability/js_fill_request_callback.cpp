@@ -46,6 +46,8 @@ constexpr const char *WANT_PARAMS_UPDATE_POPUP_HEIGHT = "ohos.ability.params.pop
 constexpr const char *WANT_PARAMS_UPDATE_POPUP_PLACEMENT = "ohos.ability.params.popupPlacement";
 constexpr const char *CONFIG_POPUP_SIZE = "popupSize";
 constexpr const char *CONFIG_POPUP_PLACEMENT = "placement";
+constexpr const char *WANT_PARAMS_FILL_CONTENT = "ohos.ability.params.fillContent";
+constexpr const char *ERROR_MSG_INVALID_PARAM = "Invalid input parameter, unable to parse json.";
 } // namespace
 
 JsFillRequestCallback::JsFillRequestCallback(
@@ -113,7 +115,25 @@ napi_value JsFillRequestCallback::OnFillRequestFailed(napi_env env, NapiCallback
 napi_value JsFillRequestCallback::OnFillRequestCanceled(napi_env env, NapiCallbackInfo &info)
 {
     TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
-    SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_CANCEL, "");
+    if (info.argc < ARGC_ONE) {
+        SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_CANCEL, "");
+        return CreateJsUndefined(env);
+    }
+    if (!IsTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_string)) {
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to parse fillContent JsonString!");
+        ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM), ERROR_MSG_INVALID_PARAM);
+        SendResultCodeAndViewData(
+            JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED_INVALID_PARAM, "");
+        return CreateJsUndefined(env);
+    }
+    std::string jsonString = UnwrapStringFromJS(env, info.argv[INDEX_ZERO], "");
+    if (jsonString.empty()) {
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "JsonString is empty");
+        SendResultCodeAndViewData(
+            JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED_INVALID_PARAM, "");
+        return CreateJsUndefined(env);
+    }
+    SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_CANCEL, jsonString);
     return CreateJsUndefined(env);
 }
 
@@ -188,6 +208,10 @@ void JsFillRequestCallback::SendResultCodeAndViewData(
     if (resultCode == JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_SUCESS) {
         want.SetParam(WANT_PARAMS_VIEW_DATA, jsString);
         want.SetParam(WANT_PARAMS_AUTO_FILL_CMD, WANT_PARAMS_AUTO_FILL_CMD_AUTOFILL);
+    }
+
+    if (resultCode == JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_CANCEL) {
+        want.SetParam(WANT_PARAMS_FILL_CONTENT, jsString);
     }
 
     auto ret = uiWindow_->TransferAbilityResult(resultCode, want);

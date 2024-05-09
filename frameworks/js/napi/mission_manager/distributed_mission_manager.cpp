@@ -1098,23 +1098,29 @@ void UvWorkOnCallback(uv_work_t *work, int status)
         delete work;
         return;
     }
-
     napi_value result[3] = {nullptr};
     napi_create_int32(onCB->cbBase.cbInfo.env, onCB->continueState, &result[0]);
     napi_create_object(onCB->cbBase.cbInfo.env, &result[1]);
     napi_create_object(onCB->cbBase.cbInfo.env, &result[ARGS_TWO]);
     std::string napiValue1 = onCB->srcDeviceId;
     std::string napiValue2 = onCB->bundleName;
-    napi_value jsValue1 = nullptr;
-    napi_value jsValue2 = nullptr;
-    napi_create_string_utf8(onCB->cbBase.cbInfo.env, napiValue1.c_str(), NAPI_AUTO_LENGTH, &jsValue1);
-    napi_create_string_utf8(onCB->cbBase.cbInfo.env, napiValue2.c_str(), NAPI_AUTO_LENGTH, &jsValue2);
+    std::string napiValue3 = onCB->continueType;
+    std::string napiValue4 = onCB->srcBundleName;
+    napi_value jsValueArr[PARAM4] = {nullptr};
+    napi_create_string_utf8(onCB->cbBase.cbInfo.env, napiValue1.c_str(), NAPI_AUTO_LENGTH, &jsValueArr[0]);
+    napi_create_string_utf8(onCB->cbBase.cbInfo.env, napiValue2.c_str(), NAPI_AUTO_LENGTH, &jsValueArr[1]);
+    napi_create_string_utf8(onCB->cbBase.cbInfo.env, napiValue3.c_str(), NAPI_AUTO_LENGTH, &jsValueArr[ARGS_TWO]);
+    napi_create_string_utf8(onCB->cbBase.cbInfo.env, napiValue4.c_str(), NAPI_AUTO_LENGTH, &jsValueArr[ARGS_THREE]);
     std::string napiState = "state";
     std::string paramName1 = "srcDeviceId";
     std::string paramName2 = "bundleName";
+    std::string paramName3 = "continueType";
+    std::string paramName4 = "srcBundleName";
     std::string napiInfo = "info";
-    napi_set_named_property(onCB->cbBase.cbInfo.env, result[1], paramName1.c_str(), jsValue1);
-    napi_set_named_property(onCB->cbBase.cbInfo.env, result[1], paramName2.c_str(), jsValue2);
+    napi_set_named_property(onCB->cbBase.cbInfo.env, result[1], paramName1.c_str(), jsValueArr[0]);
+    napi_set_named_property(onCB->cbBase.cbInfo.env, result[1], paramName2.c_str(), jsValueArr[1]);
+    napi_set_named_property(onCB->cbBase.cbInfo.env, result[1], paramName3.c_str(), jsValueArr[ARGS_TWO]);
+    napi_set_named_property(onCB->cbBase.cbInfo.env, result[1], paramName4.c_str(), jsValueArr[ARGS_THREE]);
     napi_set_named_property(onCB->cbBase.cbInfo.env, result[ARGS_TWO], napiState.c_str(), result[0]);
     napi_set_named_property(onCB->cbBase.cbInfo.env, result[ARGS_TWO], napiInfo.c_str(), result[1]);
     for (auto ele = onCB->cbBase.cbInfo.vecCallbacks.begin(); ele != onCB->cbBase.cbInfo.vecCallbacks.end(); ++ele) {
@@ -1165,7 +1171,7 @@ void NAPIRemoteMissionListener::NotifyMissionsChanged(const std::string &deviceI
 }
 
 void NAPIRemoteOnListener::OnCallback(const uint32_t continueState, const std::string &srcDeviceId,
-    const std::string &bundleName)
+    const std::string &bundleName, const std::string &continueType, const std::string &srcBundleName)
 {
     TAG_LOGI(AAFwkTag::MISSION, "%{public}s, called.", __func__);
     uv_loop_s *loop = nullptr;
@@ -1191,6 +1197,8 @@ void NAPIRemoteOnListener::OnCallback(const uint32_t continueState, const std::s
     onCB->continueState = continueState;
     onCB->srcDeviceId = srcDeviceId;
     onCB->bundleName = bundleName;
+    onCB->continueType = continueType;
+    onCB->srcBundleName = srcBundleName;
     work->data = static_cast<void *>(onCB);
 
     int rev = uv_queue_work_with_qos(
@@ -1616,10 +1624,15 @@ void ContinueAbilityExecuteCB(napi_env env, void *data)
     continueAbilityCB->result = -1;
     continueAbilityCB->abilityContinuation->SetContinueAbilityHasBundleName(continueAbilityCB->hasArgsWithBundleName);
     if (continueAbilityCB->hasArgsWithBundleName) {
+        ContinueMissionInfo continueMissionInfo;
+        continueMissionInfo.dstDeviceId = continueAbilityCB->dstDeviceId;
+        continueMissionInfo.srcDeviceId = continueAbilityCB->srcDeviceId;
+        continueMissionInfo.bundleName = continueAbilityCB->bundleName;
+        continueMissionInfo.srcBundleName = continueAbilityCB->srcBundleName;
+        continueMissionInfo.continueType = continueAbilityCB->continueType;
+        continueMissionInfo.wantParams = continueAbilityCB->wantParams;
         continueAbilityCB->result = AAFwk::AbilityManagerClient::GetInstance()->
-        ContinueMission(continueAbilityCB->srcDeviceId, continueAbilityCB->dstDeviceId,
-        continueAbilityCB->bundleName, continueAbilityCB->abilityContinuation,
-        continueAbilityCB->wantParams);
+        ContinueMission(continueMissionInfo, continueAbilityCB->abilityContinuation);
     } else {
         continueAbilityCB->result = AAFwk::AbilityManagerClient::GetInstance()->
         ContinueMission(continueAbilityCB->srcDeviceId, continueAbilityCB->dstDeviceId,
@@ -1703,39 +1716,6 @@ napi_value ContinueAbilityAsync(napi_env env, ContinueAbilityCB *continueAbility
     return result;
 }
 
-bool CheckContinueKeyExist(napi_env &env, const napi_value &value)
-{
-    bool isSrcDeviceId = false;
-    napi_has_named_property(env, value, "srcDeviceId", &isSrcDeviceId);
-    bool isDstDeviceId = false;
-    napi_has_named_property(env, value, "dstDeviceId", &isDstDeviceId);
-    bool isMissionId = false;
-    napi_has_named_property(env, value, "missionId", &isMissionId);
-    bool isWantParam = false;
-    napi_has_named_property(env, value, "wantParam", &isWantParam);
-    if (!isSrcDeviceId && !isDstDeviceId && !isMissionId && !isWantParam) {
-        TAG_LOGE(AAFwkTag::MISSION, "%{public}s, Wrong argument key.", __func__);
-        return false;
-    }
-    return true;
-}
-
-bool CheckBundleNameExist(napi_env &env, const napi_value &value)
-{
-    bool isSrcDeviceId = false;
-    napi_has_named_property(env, value, "srcDeviceId", &isSrcDeviceId);
-    bool isDstDeviceId = false;
-    napi_has_named_property(env, value, "dstDeviceId", &isDstDeviceId);
-    bool isBundleName = false;
-    napi_has_named_property(env, value, "bundleName", &isBundleName);
-    bool isWantParam = false;
-    napi_has_named_property(env, value, "wantParam", &isWantParam);
-    if (!isSrcDeviceId && !isDstDeviceId && !isBundleName && !isWantParam) {
-        return false;
-    }
-    return true;
-}
-
 bool CheckContinueDeviceInfoSrcDeviceId(napi_env &env, napi_value &napiSrcDeviceId,
     ContinueAbilityCB *continueAbilityCB, std::string &errInfo)
 {
@@ -1792,6 +1772,34 @@ bool CheckContinueDeviceInfoBundleName(napi_env &env, napi_value &napiBundleName
     return true;
 }
 
+bool CheckContinueDeviceInfoSrcBundleName(napi_env &env, napi_value &napiSrcBundleName,
+    ContinueAbilityCB *continueAbilityCB, std::string &errInfo)
+{
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, napiSrcBundleName, &valueType);
+    if (valueType != napi_string) {
+        TAG_LOGE(AAFwkTag::MISSION, "%{public}s, Wrong argument type missionId.", __func__);
+        errInfo = "Parameter error. The type of \"bundleName\" must be string";
+        return false;
+    }
+    continueAbilityCB->srcBundleName = AppExecFwk::UnwrapStringFromJS(env, napiSrcBundleName, "");
+    return true;
+}
+
+bool CheckContinueDeviceInfoContinueType(napi_env &env, napi_value &napiContinueType,
+    ContinueAbilityCB *continueAbilityCB, std::string &errInfo)
+{
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, napiContinueType, &valueType);
+    if (valueType != napi_string) {
+        TAG_LOGE(AAFwkTag::MISSION, "%{public}s, Wrong argument type missionId.", __func__);
+        errInfo = "Parameter error. The type of \"bundleName\" must be string";
+        return false;
+    }
+    continueAbilityCB->continueType = AppExecFwk::UnwrapStringFromJS(env, napiContinueType, "");
+    return true;
+}
+
 bool CheckContinueDeviceInfoWantParam(napi_env &env, napi_value &napiWantParam,
     ContinueAbilityCB *continueAbilityCB, std::string &errInfo)
 {
@@ -1840,7 +1848,6 @@ bool CheckContinueFirstArgs(napi_env &env, const napi_value &value,
         errInfo = "Parameter error. The number of \"ContinueMission\" must be 4";
         return false;
     }
-
     if (!CheckContinueDeviceInfoSrcDeviceId(env, napiSrcDeviceId, continueAbilityCB, errInfo) ||
         !CheckContinueDeviceInfoDstDeviceId(env, napiDstDeviceId, continueAbilityCB, errInfo) ||
         !CheckContinueDeviceInfoMissionId(env, napiMissionId, continueAbilityCB, errInfo) ||
@@ -1848,7 +1855,6 @@ bool CheckContinueFirstArgs(napi_env &env, const napi_value &value,
         TAG_LOGE(AAFwkTag::MISSION, "%{public}s, continueMission check ContinueDeviceInfo value failed.", __func__);
         return false;
     }
-
     TAG_LOGI(AAFwkTag::MISSION, "%{public}s called end.", __func__);
     return true;
 }
@@ -1861,30 +1867,30 @@ bool CheckArgsWithBundleName(napi_env &env, const napi_value &value,
         TAG_LOGE(AAFwkTag::MISSION, "%{public}s, Args without bundleName.", __func__);
         return false;
     }
-    napi_value napiSrcDeviceId = nullptr;
-    napi_value napiDstDeviceId = nullptr;
-    napi_value napiBundleName = nullptr;
-    napi_value napiWantParam = nullptr;
+    napi_value napiValue[ARGS_SIX] = {nullptr};
     napi_valuetype valueType = napi_undefined;
     napi_typeof(env, value, &valueType);
     if (valueType != napi_object) {
         TAG_LOGE(AAFwkTag::MISSION, "%{public}s, Args without bundleName.", __func__);
         return false;
     }
-    napi_get_named_property(env, value, "srcDeviceId", &napiSrcDeviceId);
-    napi_get_named_property(env, value, "dstDeviceId", &napiDstDeviceId);
-    napi_get_named_property(env, value, "bundleName", &napiBundleName);
-    napi_get_named_property(env, value, "wantParam", &napiWantParam);
-    if (napiSrcDeviceId == nullptr || napiDstDeviceId == nullptr ||
-        napiBundleName == nullptr || napiWantParam == nullptr) {
+    napi_get_named_property(env, value, "srcDeviceId", &napiValue[ARGS_ZERO]);
+    napi_get_named_property(env, value, "dstDeviceId", &napiValue[ARGS_ONE]);
+    napi_get_named_property(env, value, "bundleName", &napiValue[ARGS_TWO]);
+    napi_get_named_property(env, value, "wantParam", &napiValue[ARGS_THREE]);
+    napi_get_named_property(env, value, "srcBundleName", &napiValue[ARGS_FOUR]);
+    napi_get_named_property(env, value, "continueType", &napiValue[ARGS_FIVE]);
+    if (napiValue[ARGS_ZERO] == nullptr || napiValue[ARGS_ONE] == nullptr ||
+        napiValue[ARGS_TWO] == nullptr || napiValue[ARGS_THREE] == nullptr) {
         TAG_LOGE(AAFwkTag::MISSION, "%{public}s, miss required parameters.", __func__);
         return false;
     }
-
-    if (!CheckContinueDeviceInfoSrcDeviceId(env, napiSrcDeviceId, continueAbilityCB, errInfo) ||
-        !CheckContinueDeviceInfoDstDeviceId(env, napiDstDeviceId, continueAbilityCB, errInfo) ||
-        !CheckContinueDeviceInfoBundleName(env, napiBundleName, continueAbilityCB, errInfo) ||
-        !CheckContinueDeviceInfoWantParam(env, napiWantParam, continueAbilityCB, errInfo)) {
+    CheckContinueDeviceInfoContinueType(env, napiValue[ARGS_FIVE], continueAbilityCB, errInfo);
+    CheckContinueDeviceInfoSrcBundleName(env, napiValue[ARGS_FOUR], continueAbilityCB, errInfo);
+    if (!CheckContinueDeviceInfoSrcDeviceId(env, napiValue[ARGS_ZERO], continueAbilityCB, errInfo) ||
+        !CheckContinueDeviceInfoDstDeviceId(env, napiValue[ARGS_ONE], continueAbilityCB, errInfo) ||
+        !CheckContinueDeviceInfoBundleName(env, napiValue[ARGS_TWO], continueAbilityCB, errInfo) ||
+        !CheckContinueDeviceInfoWantParam(env, napiValue[ARGS_THREE], continueAbilityCB, errInfo)) {
         TAG_LOGE(AAFwkTag::MISSION, "%{public}s, continueMission check ContinueDeviceInfo value failed.", __func__);
         return false;
     }

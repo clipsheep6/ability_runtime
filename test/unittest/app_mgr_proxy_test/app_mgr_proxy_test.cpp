@@ -505,6 +505,30 @@ HWTEST_F(AppMgrProxyTest, SignRestartAppFlag_0100, TestSize.Level1)
 }
 
 /**
+ * @tc.name: NotifyMemorySizeStateChanged_0100
+ * @tc.desc: Test NotifyMemorySizeStateChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, NotifyMemorySizeStateChanged_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _)).Times(1);
+    auto res = appMgrProxy_->NotifyMemorySizeStateChanged(true);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: NotifyMemorySizeStateChanged_0200
+ * @tc.desc: Test NotifyMemorySizeStateChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, NotifyMemorySizeStateChanged_0200, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _)).Times(1);
+    auto res = appMgrProxy_->NotifyMemorySizeStateChanged(false);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
  * @tc.name: GetAllUIExtensionRootHostPid_0100
  * @tc.desc: Get all ui extension root host pid.
  * @tc.type: FUNC

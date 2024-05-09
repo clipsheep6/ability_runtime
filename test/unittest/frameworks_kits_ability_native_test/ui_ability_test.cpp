@@ -1342,5 +1342,21 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_RegisterAbilityLifecycleObserver_0100, Fun
     EXPECT_EQ(LifeCycle::Event::ON_STOP, lifeCycle->GetLifecycleState());
     EXPECT_EQ(finalObservedState, observer->GetLifecycleState());
 }
+
+/**
+ * @tc.name: UIAbility_CheckIsSilentForeground_0100
+ * @tc.desc: CheckIsSilentForeground test
+ * @tc.desc: Verify function CheckIsSilentForeground.
+ */
+HWTEST_F(UIAbilityBaseTest, UIAbility_CheckIsSilentForeground_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "start.");
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
+    EXPECT_NE(ability, nullptr);
+    EXPECT_EQ(false, ability->CheckIsSilentForeground());
+    ability->SetIsSilentForeground(true);
+    EXPECT_EQ(true, ability->CheckIsSilentForeground());
+    TAG_LOGI(AAFwkTag::TEST, "end.");
+}
 } // namespace AppExecFwk
 } // namespace OHOS

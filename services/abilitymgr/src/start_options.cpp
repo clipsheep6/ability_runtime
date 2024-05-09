@@ -35,6 +35,7 @@ StartOptions::StartOptions(const StartOptions &other)
     windowWidthUsed_ = other.windowWidthUsed_;
     windowHeightUsed_ = other.windowHeightUsed_;
     processOptions = other.processOptions;
+    windowFocused_ = other.windowFocused_;
 }
 
 StartOptions &StartOptions::operator=(const StartOptions &other)
@@ -52,6 +53,7 @@ StartOptions &StartOptions::operator=(const StartOptions &other)
         windowWidthUsed_ = other.windowWidthUsed_;
         windowHeightUsed_ = other.windowHeightUsed_;
         processOptions = other.processOptions;
+        windowFocused_ = other.windowFocused_;
     }
     return *this;
 }
@@ -65,6 +67,7 @@ bool StartOptions::ReadFromParcel(Parcel &parcel)
     SetWindowTop(parcel.ReadInt32());
     SetWindowWidth(parcel.ReadInt32());
     SetWindowHeight(parcel.ReadInt32());
+    SetWindowFocused(parcel.ReadBool());
     windowLeftUsed_ = parcel.ReadBool();
     windowTopUsed_ = parcel.ReadBool();
     windowWidthUsed_ = parcel.ReadBool();
@@ -97,6 +100,7 @@ bool StartOptions::Marshalling(Parcel &parcel) const
     parcel.WriteInt32(GetWindowTop());
     parcel.WriteInt32(GetWindowWidth());
     parcel.WriteInt32(GetWindowHeight());
+    parcel.WriteBool(GetWindowFocused());
     parcel.WriteBool(windowLeftUsed_);
     parcel.WriteBool(windowTopUsed_);
     parcel.WriteBool(windowWidthUsed_);
@@ -176,6 +180,16 @@ void StartOptions::SetWindowHeight(int32_t windowHeight)
 int32_t StartOptions::GetWindowHeight() const
 {
     return windowHeight_;
+}
+
+void StartOptions::SetWindowFocused(bool windowFocused)
+{
+    windowFocused_ = windowFocused;
+}
+
+int32_t StartOptions::GetWindowFocused() const
+{
+    return windowFocused_;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

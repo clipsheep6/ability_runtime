@@ -127,12 +127,14 @@ napi_value AttachJsAbilityContext(napi_env env, void *value, void *extValue)
     auto contextObj = systemModule->GetNapiValue();
     napi_coerce_to_native_binding_object(env, contextObj, DetachCallbackFunc, AttachJsAbilityContext, value, extValue);
     auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::AbilityContext>(ptr);
-    napi_wrap(env, contextObj, workContext,
-        [](napi_env, void* data, void*) {
-            TAG_LOGD(AAFwkTag::UIABILITY, "Finalizer for weak_ptr ability context is called");
-            delete static_cast<std::weak_ptr<AbilityRuntime::AbilityContext> *>(data);
-        },
-        nullptr, nullptr);
+    if (workContext != nullptr) {
+        napi_wrap(env, contextObj, workContext,
+            [](napi_env, void* data, void*) {
+              TAG_LOGD(AAFwkTag::UIABILITY, "Finalizer for weak_ptr ability context is called");
+              delete static_cast<std::weak_ptr<AbilityRuntime::AbilityContext> *>(data);
+            },
+            nullptr, nullptr);
+    }
     return contextObj;
 }
 
@@ -1084,6 +1086,7 @@ int32_t JsUIAbility::OnSaveState(int32_t reason, WantParams &wantParams)
 
 void JsUIAbility::OnConfigurationUpdated(const Configuration &configuration)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     UIAbility::OnConfigurationUpdated(configuration);
     TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
     if (abilityContext_ == nullptr) {
@@ -1243,7 +1246,7 @@ sptr<IRemoteObject> JsUIAbility::CallRequest()
 napi_value JsUIAbility::CallObjectMethod(const char *name, napi_value const *argv, size_t argc, bool withResult,
     bool showMethodNotFoundLog)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, std::string("CallObjectMethod:") + name);
     TAG_LOGD(AAFwkTag::UIABILITY, "Lifecycle: the begin of %{public}s", name);
     if (jsAbilityObj_ == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "Not found Ability.js");
@@ -1276,11 +1279,14 @@ napi_value JsUIAbility::CallObjectMethod(const char *name, napi_value const *arg
         }
         return handleEscape.Escape(result);
     }
+    int64_t timeStart = AbilityRuntime::TimeUtil::SystemTimeMillisecond();
     napi_call_function(env, obj, methodOnCreate, argc, argv, nullptr);
+    int64_t timeEnd = AbilityRuntime::TimeUtil::SystemTimeMillisecond();
     if (tryCatch.HasCaught()) {
         reinterpret_cast<NativeEngine*>(env)->HandleUncaughtException();
     }
-    TAG_LOGD(AAFwkTag::UIABILITY, "Lifecycle: the end of %{public}s", name);
+    TAG_LOGI(AAFwkTag::UIABILITY, "Lifecycle: the end of %{public}s, time: %{public}s",
+        name, std::to_string(timeEnd - timeStart).c_str());
     return nullptr;
 }
 
@@ -1359,7 +1365,9 @@ bool JsUIAbility::CallPromise(napi_value result, int32_t &onContinueRes)
         onContinueRes = result;
     };
     auto *callbackInfo = AppExecFwk::AbilityTransactionCallbackInfo<int32_t>::Create();
-    callbackInfo->Push(asyncCallback);
+    if (callbackInfo != nullptr) {
+        callbackInfo->Push(asyncCallback);
+    }
 
     HandleScope handleScope(jsRuntime_);
     napi_value promiseCallback = nullptr;

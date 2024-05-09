@@ -13,10 +13,32 @@
  * limitations under the License.
  */
 
-class StartupTask {
-  onDependenceCompleted(dependence, result) {
-    console.log('onDependenceCompleted');
-  }
-}
+#ifndef OHOS_ABILITY_RUNTIME_URI_UTILS_H
+#define OHOS_ABILITY_RUNTIME_URI_UTILS_H
 
-export default StartupTask;
+#include <string>
+#include <vector>
+
+#include "nocopyable.h"
+#include "uri.h"
+#include "want.h"
+
+namespace OHOS {
+namespace AAFwk {
+class UriUtils {
+public:
+    static UriUtils &GetInstance();
+
+    void FilterUriWithPermissionDms(Want &want, uint32_t tokenId);
+
+private:
+    UriUtils();
+    ~UriUtils();
+
+    std::vector<std::string> GetUriListFromWantDms(const Want &want);
+
+    DISALLOW_COPY_AND_MOVE(UriUtils);
+};
+} // namespace AAFwk
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_URI_UTILS_H

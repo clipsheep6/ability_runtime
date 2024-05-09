@@ -31,7 +31,6 @@
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
-const std::string TASK_LOAD_ABILITY = "LoadAbilityTask";
 const std::string TASK_TERMINATE_ABILITY = "TerminateAbilityTask";
 const std::string TASK_UPDATE_ABILITY_STATE = "UpdateAbilityStateTask";
 const std::string TASK_UPDATE_EXTENSION_STATE = "UpdateExtensionStateTask";
@@ -82,10 +81,7 @@ void AmsMgrScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<I
         std::bind(&AppMgrServiceInner::LoadAbility, amsMgrServiceInner_, token, preToken, abilityInfo,
             appInfo, want, abilityRecordId);
 
-    amsHandler_->SubmitTask(loadAbilityFunc, AAFwk::TaskAttribute{
-        .taskName_ = TASK_LOAD_ABILITY,
-        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
-    });
+    amsHandler_->SubmitTask(loadAbilityFunc);
 }
 
 void AmsMgrScheduler::UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state)
@@ -215,8 +211,8 @@ void AmsMgrScheduler::KillProcessesByPids(std::vector<int32_t> &pids)
         return;
     }
 
-    pid_t callingPid = IPCSkeleton::GetCallingPid();
-    pid_t pid = getpid();
+    pid_t callingPid = IPCSkeleton::GetCallingRealPid();
+    pid_t pid = getprocpid();
     if (callingPid != pid) {
         TAG_LOGE(AAFwkTag::APPMGR, "Not allow other process to call.");
         return;
@@ -233,8 +229,8 @@ void AmsMgrScheduler::AttachPidToParent(const sptr<IRemoteObject> &token, const 
         return;
     }
 
-    pid_t callingPid = IPCSkeleton::GetCallingPid();
-    pid_t pid = getpid();
+    pid_t callingPid = IPCSkeleton::GetCallingRealPid();
+    pid_t pid = getprocpid();
     if (callingPid != pid) {
         TAG_LOGE(AAFwkTag::APPMGR, "Not allow other process to call.");
         return;
@@ -532,6 +528,15 @@ void AmsMgrScheduler::SetAppAssertionPauseState(int32_t pid, bool flag)
         return;
     }
     amsMgrServiceInner_->SetAppAssertionPauseState(pid, flag);
+}
+
+void AmsMgrScheduler::SetKeepAliveEnableState(const std::string &bundleName, bool enable)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return;
+    }
+    amsMgrServiceInner_->SetKeepAliveEnableState(bundleName, enable);
 }
 
 void AmsMgrScheduler::ClearProcessByToken(sptr<IRemoteObject> token)

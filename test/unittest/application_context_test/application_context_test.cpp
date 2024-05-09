@@ -661,6 +661,35 @@ HWTEST_F(ApplicationContextTest, GetDistributedFilesDir_0200, TestSize.Level1)
 }
 
 /**
+ * @tc.number: GetCloudFileDir_0100
+ * @tc.name: GetCloudFileDir
+ * @tc.desc: Get Cloud File Dir failed
+ */
+HWTEST_F(ApplicationContextTest, GetCloudFileDir_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetCloudFileDir_0100 start";
+    std::shared_ptr<ContextImpl> contextImpl = nullptr;
+    context_->AttachContextImpl(contextImpl);
+    auto ret = context_->GetCloudFileDir();
+    EXPECT_EQ(ret, "");
+    GTEST_LOG_(INFO) << "GetCloudFileDir_0100 end";
+}
+
+/**
+ * @tc.number: GetCloudFileDir_0200
+ * @tc.name: GetCloudFileDir
+ * @tc.desc:Get Cloud File Dir sucess
+ */
+HWTEST_F(ApplicationContextTest, GetCloudFileDir_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetCloudFileDir_0200 start";
+    context_->AttachContextImpl(mock_);
+    auto ret = context_->GetCloudFileDir();
+    EXPECT_EQ(ret, "/data/service/el2/hmdfs/cloud/data/bundleName");
+    GTEST_LOG_(INFO) << "GetCloudFileDir_0200 end";
+}
+
+/**
  * @tc.number: GetToken_0100
  * @tc.name: GetToken
  * @tc.desc: Get Token failed

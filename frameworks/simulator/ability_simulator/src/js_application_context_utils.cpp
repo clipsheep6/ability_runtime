@@ -55,6 +55,7 @@ napi_value JsApplicationContextUtils::OnSwitchArea(napi_env env, NapiCallbackInf
     BindNativeProperty(env, object, "databaseDir", GetDatabaseDir);
     BindNativeProperty(env, object, "preferencesDir", GetPreferencesDir);
     BindNativeProperty(env, object, "bundleCodeDir", GetBundleCodeDir);
+    BindNativeProperty(env, object, "cloudFileDir", GetCloudFileDir);
     return CreateJsUndefined(env);
 }
 
@@ -216,6 +217,23 @@ napi_value JsApplicationContextUtils::OnGetBundleCodeDir(napi_env env, NapiCallb
     return CreateJsValue(env, path);
 }
 
+napi_value JsApplicationContextUtils::GetCloudFileDir(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils,
+        OnGetCloudFileDir, APPLICATION_CONTEXT_NAME);
+}
+
+napi_value JsApplicationContextUtils::OnGetCloudFileDir(napi_env env, NapiCallbackInfo &info)
+{
+    auto context = context_.lock();
+    if (!context) {
+        HILOG_WARN("context is already released");
+        return CreateJsUndefined(env);
+    }
+    std::string path = context->GetCloudFileDir();
+    return CreateJsValue(env, path);
+}
+
 napi_value JsApplicationContextUtils::KillProcessBySelf(napi_env env, napi_callback_info info)
 {
     return nullptr;
@@ -314,6 +332,7 @@ void JsApplicationContextUtils::BindNativeApplicationContext(napi_env env, napi_
     BindNativeProperty(env, object, "databaseDir", JsApplicationContextUtils::GetDatabaseDir);
     BindNativeProperty(env, object, "preferencesDir", JsApplicationContextUtils::GetPreferencesDir);
     BindNativeProperty(env, object, "bundleCodeDir", JsApplicationContextUtils::GetBundleCodeDir);
+    BindNativeProperty(env, object, "cloudFileDir", JsApplicationContextUtils::GetCloudFileDir);
     BindNativeFunction(env, object, "registerAbilityLifecycleCallback", MD_NAME,
         JsApplicationContextUtils::RegisterAbilityLifecycleCallback);
     BindNativeFunction(env, object, "unregisterAbilityLifecycleCallback", MD_NAME,

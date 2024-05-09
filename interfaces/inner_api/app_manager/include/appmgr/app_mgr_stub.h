@@ -65,6 +65,7 @@ private:
     int32_t HandleGetAmsMgr(MessageParcel &data, MessageParcel &reply);
     int32_t HandleClearUpApplicationData(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetAllRunningProcesses(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleGetRunningProcessesByBundleType(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetProcessRunningInfosByUserId(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetProcessRunningInformation(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetCurrentAppIndex(MessageParcel &data, MessageParcel &reply);
@@ -133,7 +134,7 @@ private:
     int32_t HandleGetAppRunningUniqueIdByPid(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetAllUIExtensionRootHostPid(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetAllUIExtensionProviderPid(MessageParcel &data, MessageParcel &reply);
-    int32_t HandleNotifyMemonySizeStateChanged(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleNotifyMemorySizeStateChanged(MessageParcel &data, MessageParcel &reply);
     int32_t HandleSetSupportedProcessCacheSelf(MessageParcel &data, MessageParcel &reply);
 
     using AppMgrFunc = int32_t (AppMgrStub::*)(MessageParcel &data, MessageParcel &reply);

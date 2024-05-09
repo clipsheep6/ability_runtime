@@ -621,6 +621,13 @@ public:
     bool IsAttachDebug(const std::string &bundleName);
 
     /**
+     * @brief Set resident process enable status.
+     * @param bundleName The application bundle name.
+     * @param enable The current updated enable status.
+     */
+    void SetKeepAliveEnableState(const std::string &bundleName, bool enable);
+
+    /**
      * Set application assertion pause state.
      *
      * @param pid App process pid.
@@ -721,7 +728,7 @@ public:
      * @param isMemorySizeSufficent Indicates the memory size state.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t NotifyMemonySizeStateChanged(bool isMemorySizeSufficent);
+    int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent);
 
     /**
      * whether memory size is sufficent.

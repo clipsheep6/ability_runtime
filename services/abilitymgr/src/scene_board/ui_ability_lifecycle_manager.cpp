@@ -167,6 +167,7 @@ bool UIAbilityLifecycleManager::CheckSessionInfo(sptr<SessionInfo> sessionInfo) 
 std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::CreateAbilityRecord(AbilityRequest &abilityRequest,
     sptr<SessionInfo> sessionInfo) const
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (sessionInfo->startSetting != nullptr) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "startSetting is valid.");
         abilityRequest.startSetting = sessionInfo->startSetting;
@@ -176,7 +177,7 @@ std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::CreateAbilityRecord(Ab
         TAG_LOGE(AAFwkTag::ABILITYMGR, "uiAbilityRecord is invalid.");
         return nullptr;
     }
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "user id: %{public}d.", sessionInfo->userId);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "user id: %{public}d.", userId_);
     uiAbilityRecord->SetOwnerMissionUserId(userId_);
     SetRevicerInfo(abilityRequest, uiAbilityRecord);
     SetLastExitReason(uiAbilityRecord);
@@ -638,13 +639,13 @@ void UIAbilityLifecycleManager::UpdateAbilityRecordLaunchReason(
         return;
     }
 
-    if (abilityRequest.IsContinuation()) {
-        abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_CONTINUATION);
+    if (abilityRequest.IsAppRecovery() || abilityRecord->GetRecoveryInfo()) {
+        abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_APP_RECOVERY);
         return;
     }
 
-    if (abilityRequest.IsAppRecovery() || abilityRecord->GetRecoveryInfo()) {
-        abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_APP_RECOVERY);
+    if (abilityRequest.IsContinuation()) {
+        abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_CONTINUATION);
         return;
     }
 
@@ -855,6 +856,22 @@ void UIAbilityLifecycleManager::CallUIAbilityBySCB(const sptr<SessionInfo> &sess
         return;
     }
 
+    for (auto [persistentId, record] : sessionAbilityMap_) {
+        auto recordAbilityInfo = record->GetAbilityInfo();
+        if (sessionInfo->want.GetElement().GetBundleName() == recordAbilityInfo.bundleName &&
+            sessionInfo->want.GetElement().GetAbilityName() == recordAbilityInfo.name &&
+            sessionInfo->want.GetElement().GetModuleName() == recordAbilityInfo.moduleName) {
+            EventInfo eventInfo;
+            eventInfo.userId = sessionInfo->userId;
+            eventInfo.abilityName = sessionInfo->want.GetElement().GetAbilityName();
+            eventInfo.bundleName = sessionInfo->want.GetElement().GetBundleName();
+            eventInfo.moduleName = sessionInfo->want.GetElement().GetModuleName();
+            EventReport::SendAbilityEvent(
+                EventName::START_STANDARD_ABILITIES, HiSysEventType::BEHAVIOR, eventInfo);
+            break;
+        }
+    }
+
     sessionAbilityMap_.emplace(sessionInfo->persistentId, uiAbilityRecord);
     tmpAbilityMap_.erase(search);
     uiAbilityRecord->SetSessionInfo(sessionInfo);
@@ -884,6 +901,9 @@ int UIAbilityLifecycleManager::NotifySCBPendingActivation(sptr<SessionInfo> &ses
         CHECK_POINTER_AND_RETURN(callerSessionInfo, ERR_INVALID_VALUE);
         CHECK_POINTER_AND_RETURN(callerSessionInfo->sessionToken, ERR_INVALID_VALUE);
         auto callerSession = iface_cast<Rosen::ISession>(callerSessionInfo->sessionToken);
+        bool hasContinuousTask = DelayedSingleton<AbilityManagerService>::GetInstance()->
+            IsBackgroundTaskUid(abilityRecord->GetUid());
+        sessionInfo->hasContinuousTask = hasContinuousTask;
         TAG_LOGI(AAFwkTag::ABILITYMGR, "Call PendingSessionActivation by callerSession.");
         return static_cast<int>(callerSession->PendingSessionActivation(sessionInfo));
     }
@@ -1592,6 +1612,9 @@ int UIAbilityLifecycleManager::SendSessionInfoToSCB(std::shared_ptr<AbilityRecor
         auto callerSessionInfo = callerAbility->GetSessionInfo();
         if (callerSessionInfo != nullptr && callerSessionInfo->sessionToken != nullptr) {
             auto callerSession = iface_cast<Rosen::ISession>(callerSessionInfo->sessionToken);
+            bool hasContinuousTask = DelayedSingleton<AbilityManagerService>::GetInstance()->
+                IsBackgroundTaskUid(callerAbility->GetUid());
+            sessionInfo->hasContinuousTask = hasContinuousTask;
             callerSession->PendingSessionActivation(sessionInfo);
         } else {
             CHECK_POINTER_AND_RETURN(rootSceneSession_, ERR_INVALID_VALUE);
@@ -1745,6 +1768,7 @@ void UIAbilityLifecycleManager::SetRevicerInfo(const AbilityRequest &abilityRequ
 
 void UIAbilityLifecycleManager::SetLastExitReason(std::shared_ptr<AbilityRecord> &abilityRecord) const
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (abilityRecord == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityRecord is nullptr.");
         return;
@@ -2096,6 +2120,7 @@ void UIAbilityLifecycleManager::DumpMissionListByRecordId(std::vector<std::strin
 
 int UIAbilityLifecycleManager::MoveMissionToFront(int32_t sessionId, std::shared_ptr<StartOptions> startOptions)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_POINTER_AND_RETURN(rootSceneSession_, ERR_INVALID_VALUE);
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecordsById(sessionId);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
@@ -2310,6 +2335,22 @@ int UIAbilityLifecycleManager::StartWithPersistentIdByDistributed(const AbilityR
     sessionInfo->userId = userId_;
     sessionInfo->processOptions = abilityRequest.processOptions;
     return NotifySCBPendingActivation(sessionInfo, abilityRequest);
+}
+
+int32_t UIAbilityLifecycleManager::GetAbilityStateByPersistentId(int32_t persistentId, bool &state)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "GetAbilityStateByPersistentId, called.");
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    auto iter = sessionAbilityMap_.find(persistentId);
+    if (iter != sessionAbilityMap_.end()) {
+        std::shared_ptr<AbilityRecord> uiAbilityRecord = iter->second;
+        if (uiAbilityRecord && uiAbilityRecord->GetPendingState() == AbilityState::INITIAL) {
+            state = true;
+            return ERR_OK;
+        }
+    }
+    state = false;
+    return ERR_INVALID_VALUE;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

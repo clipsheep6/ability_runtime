@@ -168,6 +168,11 @@ void AppScheduler::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk:
     TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::GetRunningProcessInfoByPid()");
 }
 
+bool AppScheduler::IsMemorySizeSufficent() const
+{
+    return true;
+}
+
 void AppScheduler::StartSpecifiedAbility(const AAFwk::Want& want, const AppExecFwk::AbilityInfo& abilityInfo)
 {}
 

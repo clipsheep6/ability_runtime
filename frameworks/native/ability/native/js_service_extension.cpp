@@ -54,17 +54,17 @@ namespace {
 sptr<IRemoteObject> GetNativeRemoteObject(napi_env env, napi_value obj)
 {
     if (env == nullptr || obj == nullptr) {
-        HILOG_ERROR("obj is null.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "obj is null.");
         return nullptr;
     }
     napi_valuetype type;
     napi_typeof(env, obj, &type);
     if (type == napi_undefined || type == napi_null) {
-        HILOG_ERROR("obj is invalid type.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "obj is invalid type.");
         return nullptr;
     }
     if (type != napi_object) {
-        HILOG_ERROR("obj is not an object.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "obj is not an object.");
         return nullptr;
     }
     return NAPI_ohos_rpc_getNativeRemoteObject(env, obj);

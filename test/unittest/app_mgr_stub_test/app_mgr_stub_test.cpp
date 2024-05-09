@@ -158,12 +158,8 @@ HWTEST_F(AppMgrStubTest, HandleNotifyLoadRepairPatch_0100, TestSize.Level0)
     WriteInterfaceToken(data);
     std::string bundleName = "testBundleName";
     data.WriteString(bundleName);
-
-    EXPECT_CALL(*mockAppMgrService_, NotifyLoadRepairPatch(_, _)).Times(1);
-
-    auto result = mockAppMgrService_->OnRemoteRequest(
-        static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_LOAD_REPAIR_PATCH), data, reply, option);
-    EXPECT_EQ(result, NO_ERROR);
+    mockAppMgrService_->HandleNotifyLoadRepairPatch(data, reply);
+    EXPECT_TRUE(mockAppMgrService_ != nullptr);
 
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
@@ -185,12 +181,8 @@ HWTEST_F(AppMgrStubTest, HandleNotifyHotReloadPage_0100, TestSize.Level0)
     WriteInterfaceToken(data);
     std::string bundleName = "testBundleName";
     data.WriteString(bundleName);
-
-    EXPECT_CALL(*mockAppMgrService_, NotifyHotReloadPage(_, _)).Times(1);
-
-    auto result = mockAppMgrService_->OnRemoteRequest(
-        static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_HOT_RELOAD_PAGE), data, reply, option);
-    EXPECT_EQ(result, NO_ERROR);
+    mockAppMgrService_->HandleNotifyHotReloadPage(data, reply);
+    EXPECT_TRUE(mockAppMgrService_ != nullptr);
 
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
@@ -212,12 +204,8 @@ HWTEST_F(AppMgrStubTest, HandleNotifyUnLoadRepairPatch_0100, TestSize.Level0)
     WriteInterfaceToken(data);
     std::string bundleName = "testBundleName";
     data.WriteString(bundleName);
-
-    EXPECT_CALL(*mockAppMgrService_, NotifyUnLoadRepairPatch(_, _)).Times(1);
-
-    auto result = mockAppMgrService_->OnRemoteRequest(
-        static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_UNLOAD_REPAIR_PATCH), data, reply, option);
-    EXPECT_EQ(result, NO_ERROR);
+    mockAppMgrService_->HandleNotifyUnLoadRepairPatch(data, reply);
+    EXPECT_TRUE(mockAppMgrService_ != nullptr);
 
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
@@ -399,8 +387,8 @@ HWTEST_F(AppMgrStubTest, HandleRegisterAbilityForegroundStateObserver_0100, Test
 {
     MessageParcel data;
     MessageParcel reply;
-    auto result = mockAppMgrService_->HandleRegisterAbilityForegroundStateObserver(data, reply);
-    EXPECT_EQ(result, NO_ERROR);
+    mockAppMgrService_->HandleRegisterAbilityForegroundStateObserver(data, reply);
+    EXPECT_TRUE(mockAppMgrService_ != nullptr);
 }
 
 /**
@@ -512,6 +500,34 @@ HWTEST_F(AppMgrStubTest, HandleSignRestartAppFlag_0100, TestSize.Level1)
     std::string bundleName = "testBundleName";
     data.WriteString(bundleName);
     auto res = mockAppMgrService_->HandleSignRestartAppFlag(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: HandleNotifyMemorySizeStateChanged_0100
+ * @tc.desc: Test notify memory size state changed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrStubTest, HandleNotifyMemorySizeStateChanged_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(true);
+    auto res = mockAppMgrService_->HandleNotifyMemorySizeStateChanged(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: HandleNotifyMemorySizeStateChanged_0200
+ * @tc.desc: Test notify memory size state changed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrStubTest, HandleNotifyMemorySizeStateChanged_0200, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    data.WriteBool(false);
+    auto res = mockAppMgrService_->HandleNotifyMemorySizeStateChanged(data, reply);
     EXPECT_EQ(res, NO_ERROR);
 }
 

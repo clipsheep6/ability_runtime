@@ -21,6 +21,7 @@
 #include "configuration_convertor.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "running_process_info.h"
 
 namespace OHOS {
@@ -452,6 +453,11 @@ int32_t ApplicationContext::RestartApp(const AAFwk::Want& want)
 std::string ApplicationContext::GetDistributedFilesDir()
 {
     return (contextImpl_ != nullptr) ? contextImpl_->GetDistributedFilesDir() : "";
+}
+
+std::string ApplicationContext::GetCloudFileDir()
+{
+    return (contextImpl_ != nullptr) ? contextImpl_->GetCloudFileDir() : "";
 }
 
 sptr<IRemoteObject> ApplicationContext::GetToken()

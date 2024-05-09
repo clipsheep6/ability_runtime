@@ -851,7 +851,7 @@ void from_json(const nlohmann::json &jsonObject, AbilityInfo &abilityInfo)
         parseResult,
         ArrayType::STRING);
     if (parseResult != ERR_OK) {
-        HILOG_ERROR("AbilityInfo from_json error, error code : %{public}d", parseResult);
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "AbilityInfo from_json error, error code : %{public}d", parseResult);
     }
 }
 }  // namespace AppExecFwk

@@ -36,6 +36,9 @@ ohos_unittest("data_ability_manager_test") {
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_event_subscriber.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/app_scheduler.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/extension_config.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/rdb/ability_resident_process_rdb.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/rdb/parser_util.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/rdb/rdb_data_manager.cpp",
     "data_ability_manager_test.cpp",  # add mock file
   ]
 
@@ -69,6 +72,7 @@ ohos_unittest("data_ability_manager_test") {
     "access_token:libtokenid_sdk",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "config_policy:configpolicy_util",
     "ffrt:libffrt",
     "hilog:libhilog",
     "hitrace:hitrace_meter",

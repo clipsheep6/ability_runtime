@@ -89,6 +89,7 @@ public:
     napi_value OnGetPreferencesDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetGroupDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetBundleCodeDir(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetCloudFileDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnKillProcessBySelf(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetRunningProcessInformation(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetCurrentAppIndex(napi_env env, NapiCallbackInfo& info);
@@ -97,6 +98,7 @@ public:
     napi_value OnClearUpApplicationData(napi_env env, NapiCallbackInfo& info);
     napi_value OnRestartApp(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetSupportedProcessCacheSelf(napi_env env, NapiCallbackInfo& info);
+    napi_value OnPreloadUIExtensionAbility(napi_env env, NapiCallbackInfo& info);
 
     static napi_value GetCacheDir(napi_env env, napi_callback_info info);
     static napi_value GetTempDir(napi_env env, napi_callback_info info);
@@ -107,6 +109,7 @@ public:
     static napi_value GetPreferencesDir(napi_env env, napi_callback_info info);
     static napi_value GetGroupDir(napi_env env, napi_callback_info info);
     static napi_value GetBundleCodeDir(napi_env env, napi_callback_info info);
+    static napi_value GetCloudFileDir(napi_env env, napi_callback_info info);
     static napi_value GetApplicationContext(napi_env env, napi_callback_info info);
     static napi_value KillProcessBySelf(napi_env env, napi_callback_info info);
     static napi_value SetColorMode(napi_env env, napi_callback_info info);
@@ -117,6 +120,7 @@ public:
     static napi_value CreateJsApplicationContext(napi_env env);
     static napi_value RestartApp(napi_env env, napi_callback_info info);
     static napi_value SetSupportedProcessCacheSelf(napi_env env, napi_callback_info info);
+    static napi_value PreloadUIExtensionAbility(napi_env env, napi_callback_info info);
 
 protected:
     std::weak_ptr<ApplicationContext> applicationContext_;

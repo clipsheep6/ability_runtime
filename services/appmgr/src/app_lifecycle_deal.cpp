@@ -107,6 +107,7 @@ void AppLifeCycleDeal::ScheduleForegroundRunning()
         return;
     }
 
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     appThread->ScheduleForegroundApplication();
 }
 
@@ -233,6 +234,7 @@ void AppLifeCycleDeal::ScheduleNewProcessRequest(const AAFwk::Want &want, const 
 
 int32_t AppLifeCycleDeal::UpdateConfiguration(const Configuration &config)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "call");
     auto appThread = GetApplicationClient();
     if (!appThread) {

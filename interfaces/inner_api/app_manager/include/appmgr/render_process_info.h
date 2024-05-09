@@ -31,6 +31,8 @@ struct RenderProcessInfo : public Parcelable {
     std::int32_t pid_;
     std::int32_t uid_;
     std::int32_t hostUid_;
+    std::int32_t hostPid_;
+    std::int32_t state_;
 
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;

@@ -724,7 +724,6 @@ HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0200, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
-    mainThread_->signalHandler_->SetEventRunner(nullptr);
     mainThread_->HandleTerminateApplicationLocal();
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
@@ -1170,7 +1169,6 @@ HWTEST_F(MainThreadTest, HandleTerminateApplication_0400, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
-    mainThread_->signalHandler_->SetEventRunner(nullptr);
     mainThread_->HandleTerminateApplication();
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }

@@ -29,11 +29,12 @@ class AppRunningRecord;
 
 class ChildProcessRecord {
 public:
-    ChildProcessRecord(pid_t hostPid, const std::string &srcEntry, const std::shared_ptr<AppRunningRecord> hostRecord);
+    ChildProcessRecord(pid_t hostPid, const std::string &srcEntry, const std::shared_ptr<AppRunningRecord> hostRecord,
+        int32_t childProcessCount, bool isStartWithDebug);
     virtual ~ChildProcessRecord();
 
     static std::shared_ptr<ChildProcessRecord> CreateChildProcessRecord(pid_t hostPid, const std::string &srcEntry,
-        const std::shared_ptr<AppRunningRecord> hostRecord);
+        const std::shared_ptr<AppRunningRecord> hostRecord, int32_t childProcessCount, bool isStartWithDebug);
 
     void SetPid(pid_t pid);
     pid_t GetPid() const;
@@ -49,18 +50,20 @@ public:
     void RegisterDeathRecipient();
     void RemoveDeathRecipient();
     void ScheduleExitProcessSafely();
-
+    bool isStartWithDebug();
 private:
     void MakeProcessName(const std::shared_ptr<AppRunningRecord> hostRecord);
 
     pid_t pid_ = 0;
     pid_t hostPid_ = 0;
     int32_t uid_ = 0;
+    int32_t childProcessCount_ = 0;
     std::string processName_;
     std::string srcEntry_;
     std::weak_ptr<AppRunningRecord> hostRecord_;
     sptr<IChildScheduler> scheduler_ = nullptr;
     sptr<AppDeathRecipient> deathRecipient_ = nullptr;
+    bool isStartWithDebug_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

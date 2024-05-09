@@ -47,7 +47,7 @@ constexpr int OPTION_PARAMETER_NULL_STRING = 260;
 
 const std::string DEVELOPERMODE_STATE = "const.security.developermode.state";
 
-const std::string SHORT_OPTIONS = "ch:d:a:b:e:t:p:s:m:A:U:CDSN";
+const std::string SHORT_OPTIONS = "ch:d:a:b:e:t:p:s:m:A:U:CDSNR";
 constexpr struct option LONG_OPTIONS[] = {
     {"help", no_argument, nullptr, 'h'},
     {"device", required_argument, nullptr, 'd'},
@@ -59,6 +59,7 @@ constexpr struct option LONG_OPTIONS[] = {
     {"cold-start", no_argument, nullptr, 'C'},
     {"debug", no_argument, nullptr, 'D'},
     {"native-debug", no_argument, nullptr, 'N'},
+    {"mutil-thread", no_argument, nullptr, 'R'},
     {"action", required_argument, nullptr, 'A'},
     {"URI", required_argument, nullptr, 'U'},
     {"entity", required_argument, nullptr, 'e'},
@@ -1398,6 +1399,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
     bool isContinuation = false;
     bool isSandboxApp = false;
     bool isNativeDebug = false;
+    bool isMultiThread = false;
 
     while (true) {
         counter++;
@@ -1796,6 +1798,10 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                 isNativeDebug = true;
                 break;
             }
+            case 'R': {
+                isMultiThread = true;
+                TAG_LOGD(AAFwkTag::AA_TOOL, "isMultiThread");
+            }
             case 0: {
                 break;
             }
@@ -1857,6 +1863,9 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
             }
             if (!typeVal.empty()) {
                 want.SetType(typeVal);
+            }
+            if (isMultiThread) {
+                want.SetParam("multiThread", isMultiThread);
             }
         }
     }

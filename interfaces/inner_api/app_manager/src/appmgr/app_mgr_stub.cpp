@@ -187,9 +187,11 @@ AppMgrStub::AppMgrStub()
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UPDATE_CONFIGURATION_BY_BUNDLE_NAME)] =
         &AppMgrStub::HandleUpdateConfigurationByBundleName;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_MEMORY_SIZE_STATE_CHANGED)] =
-        &AppMgrStub::HandleNotifyMemonySizeStateChanged;
+        &AppMgrStub::HandleNotifyMemorySizeStateChanged;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SET_SUPPORTED_PROCESS_CACHE_SELF)] =
         &AppMgrStub::HandleSetSupportedProcessCacheSelf;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_RUNNING_PROCESSES_BY_BUNDLE_TYPE)] =
+        &AppMgrStub::HandleGetRunningProcessesByBundleType;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -314,6 +316,24 @@ int32_t AppMgrStub::HandleGetAllRunningProcesses(MessageParcel &data, MessagePar
     HITRACE_METER(HITRACE_TAG_APP);
     std::vector<RunningProcessInfo> info;
     auto result = GetAllRunningProcesses(info);
+    reply.WriteInt32(info.size());
+    for (auto &it : info) {
+        if (!reply.WriteParcelable(&it)) {
+            return ERR_INVALID_VALUE;
+        }
+    }
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleGetRunningProcessesByBundleType(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    int32_t bundleType = data.ReadInt32();
+    std::vector<RunningProcessInfo> info;
+    auto result = GetRunningProcessesByBundleType(static_cast<BundleType>(bundleType), info);
     reply.WriteInt32(info.size());
     for (auto &it : info) {
         if (!reply.WriteParcelable(&it)) {
@@ -517,6 +537,7 @@ int32_t AppMgrStub::HandleUnregisterApplicationStateObserver(MessageParcel &data
 
 int32_t AppMgrStub::HandleRegisterAbilityForegroundStateObserver(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto callback = iface_cast<AppExecFwk::IAbilityForegroundStateObserver>(data.ReadRemoteObject());
     if (callback == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "Callback is null.");
@@ -1114,7 +1135,9 @@ int32_t AppMgrStub::HandleStartChildProcess(MessageParcel &data, MessageParcel &
     TAG_LOGD(AAFwkTag::APPMGR, "called.");
     std::string srcEntry = data.ReadString();
     int32_t childPid = 0;
-    int32_t result = StartChildProcess(srcEntry, childPid);
+    int32_t childProcessCount = data.ReadInt32();
+    int32_t isStartWithDebug = data.ReadBool();
+    int32_t result = StartChildProcess(srcEntry, childPid, childProcessCount, isStartWithDebug);
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write result error.");
         return ERR_INVALID_VALUE;
@@ -1283,10 +1306,10 @@ int32_t AppMgrStub::HandleGetAllUIExtensionProviderPid(MessageParcel &data, Mess
     return NO_ERROR;
 }
 
-int32_t AppMgrStub::HandleNotifyMemonySizeStateChanged(MessageParcel &data, MessageParcel &reply)
+int32_t AppMgrStub::HandleNotifyMemorySizeStateChanged(MessageParcel &data, MessageParcel &reply)
 {
     bool isMemorySizeSufficent = data.ReadBool();
-    int result = NotifyMemonySizeStateChanged(isMemorySizeSufficent);
+    int result = NotifyMemorySizeStateChanged(isMemorySizeSufficent);
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write result error.");
         return ERR_INVALID_VALUE;

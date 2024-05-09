@@ -87,6 +87,8 @@ public:
     void SetScheduler(const sptr<IRenderScheduler> &scheduler);
     void SetDeathRecipient(const sptr<AppDeathRecipient> recipient);
     void RegisterDeathRecipient();
+    void SetState(int32_t state);
+    int32_t GetState() const;
 
 private:
     void SetHostUid(const int32_t hostUid);
@@ -103,6 +105,7 @@ private:
     int32_t ipcFd_ = 0;
     int32_t sharedFd_ = 0;
     int32_t crashFd_ = 0;
+    int32_t state_ = 0;
     ProcessType processType_ = ProcessType::RENDER;
     std::weak_ptr<AppRunningRecord> host_; // nweb host
     sptr<IRenderScheduler> renderScheduler_ = nullptr;
@@ -536,9 +539,9 @@ public:
 
     bool IsEmptyKeepAliveApp() const;
 
-    void SetKeepAliveAppState(bool isKeepAlive, bool isEmptyKeepAliveApp);
+    void SetEmptyKeepAliveAppState(bool isEmptyKeepAliveApp);
 
-    void SetEmptyKeepAliveAppState(bool isEmptyKeepAlive);
+    void SetKeepAliveEnableState(bool isKeepAliveEnable);
 
     void SetStageModelState(bool isStageBasedModel);
 
@@ -593,6 +596,7 @@ public:
     bool IsDebugging() const;
     void SetNativeDebug(bool isNativeDebug);
     void SetPerfCmd(const std::string &perfCmd);
+    void SetMultiThread(const bool multiThread);
     void AddRenderRecord(const std::shared_ptr<RenderRecord> &record);
     void RemoveRenderRecord(const std::shared_ptr<RenderRecord> &record);
     std::shared_ptr<RenderRecord> GetRenderRecordByPid(const pid_t pid);
@@ -749,7 +753,7 @@ public:
 
     void SetAssertionPauseFlag(bool flag);
     bool IsAssertionPause() const;
-    
+
     void SetJITEnabled(const bool jitEnabled);
     bool IsJITEnabled() const;
 
@@ -906,6 +910,7 @@ private:
     bool isRestartApp_ = false; // Only app calling RestartApp can be set to true
     bool isAssertPause_ = false;
     bool isNativeStart_ = false;
+    bool isMultiThread_ = false;
     SupportProcessCacheState procCacheSupportState_ = SupportProcessCacheState::UNSPECIFIED;
 };
 

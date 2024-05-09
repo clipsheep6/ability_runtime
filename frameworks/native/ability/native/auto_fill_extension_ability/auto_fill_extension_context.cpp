@@ -15,6 +15,7 @@
 
 #include "auto_fill_extension_context.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -32,15 +33,15 @@ void AutoFillExtensionContext::SetSessionInfo(const wptr<AAFwk::SessionInfo> &se
 
 int32_t AutoFillExtensionContext::ReloadInModal(const CustomData &customData)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     auto sessionInfo = sessionInfo_.promote();
     if (sessionInfo == nullptr) {
-        HILOG_ERROR("Session info is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Session info is nullptr.");
         return ERR_NULL_OBJECT;
     }
     auto autoFillExtensionCallback = autoFillExtensionCallback_.lock();
     if (autoFillExtensionCallback == nullptr) {
-        HILOG_ERROR("Auto fill extension callback is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Auto fill extension callback is nullptr.");
         return ERR_NULL_OBJECT;
     }
     return autoFillExtensionCallback->OnReloadInModal(sessionInfo, customData);

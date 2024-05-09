@@ -286,6 +286,13 @@ public:
     virtual void SetAppAssertionPauseState(int32_t pid, bool flag) {}
 
     /**
+     * @brief Set resident process enable status.
+     * @param bundleName The application bundle name.
+     * @param enable The current updated enable status.
+     */
+    virtual void SetKeepAliveEnableState(const std::string &bundleName, bool enable) {};
+
+    /**
      * To clear the process by ability token.
      *
      * @param token the unique identification to the ability.
@@ -342,6 +349,7 @@ public:
         KILL_PROCESSES_BY_PIDS,
         ATTACH_PID_TO_PARENT,
         IS_MEMORY_SIZE_SUFFICIENT,
+        SET_KEEP_ALIVE_ENABLE_STATE,
     };
 };
 }  // namespace AppExecFwk
