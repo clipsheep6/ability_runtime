@@ -328,6 +328,13 @@ public:
     int32_t GetProcessRunningInformation(AppExecFwk::RunningProcessInfo &info);
 
     /**
+     * @brief Get current App Index
+     *
+     * @return error code
+     */
+    int32_t GetCurrentAppTwinIndex(int32_t &appIndex);
+
+    /**
      * @brief Restart app
      *
      * @return error code
