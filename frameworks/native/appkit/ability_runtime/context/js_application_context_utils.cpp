@@ -1511,7 +1511,7 @@ void JsApplicationContextUtils::BindNativeApplicationContext(napi_env env, napi_
         JsApplicationContextUtils::GetRunningProcessInformation);
     BindNativeFunction(env, object, "getRunningProcessInformation", MD_NAME,
         JsApplicationContextUtils::GetRunningProcessInformation);
-    BindNativeFunction(env, object, "getCurrentAppIndex", MD_NAME,
+    BindNativeFunction(env, object, "getCurrentTwinAppIndex", MD_NAME,
         JsApplicationContextUtils::GetCurrentAppIndex);
     BindNativeFunction(env, object, "getGroupDir", MD_NAME,
         JsApplicationContextUtils::GetGroupDir);
