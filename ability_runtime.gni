@@ -74,6 +74,7 @@ srms_inner_api_path =
     "${ability_runtime_path}/service_router_framework/interfaces/inner_api"
 fuzz_test_output_path = "ability_runtime/ability_runtime"
 accessibility_path = "//foundation/barrierfree/accessibility"
+cj_ability_path = "${ability_runtime_path}/frameworks/cj"
 
 declare_args() {
   background_task_mgr_continuous_task_enable = true
@@ -93,6 +94,7 @@ declare_args() {
       "com.ohos.textautofill/entry/TextAutoFillAbility"
   ability_runtime_use_memmgr_plugin = false
   ability_runtime_use_memmgr = false
+  cj_frontend = true
 
   if (!defined(global_parts_info) ||
       defined(global_parts_info.account_os_account)) {
