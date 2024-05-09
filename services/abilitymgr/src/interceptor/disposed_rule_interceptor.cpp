@@ -66,7 +66,7 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
             disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
             int ret = HandleBlockApplicationWithResult(param, disposedRule);
             if (ret != ERR_OK) {
-                TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start disposed UIExtension.");
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start disposed UIExtension");
                 return ret;
             }
         }
