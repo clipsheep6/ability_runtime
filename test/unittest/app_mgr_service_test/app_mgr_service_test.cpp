@@ -400,6 +400,23 @@ HWTEST_F(AppMgrServiceTest, NotifyMemoryLevel_001, TestSize.Level0)
 
 /*
  * Feature: AppMgrService
+ * Function: GetCurrentAppTwinIndex
+ * SubFunction: NA
+ * FunctionPoints: AppMgrService GetCurrentAppTwinIndex
+ * EnvConditions: NA
+ * CaseDescription: Verify NotifyMemoryLevel
+ */
+HWTEST_F(AppMgrServiceTest, GetCurrentAppTwinIndex_001, TestSize.Level0)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    int32_t level = 1;
+    appMgrService->SetInnerService(nullptr);
+    int32_t res = appMgrService->GetCurrentAppTwinIndex(level);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+}
+
+/*
+ * Feature: AppMgrService
  * Function: NotifyMemoryLevel
  * SubFunction: NA
  * FunctionPoints: AppMgrService NotifyMemoryLevel

@@ -4211,5 +4211,20 @@ HWTEST_F(AppMgrServiceInnerTest, PreloadApplication_0100, TestSize.Level1)
     int32_t ret = appMgrServiceInner->PreloadApplication(bundleName, userId, preloadMode, appIndex);
     EXPECT_EQ(ret, ERR_PERMISSION_DENIED);
 }
+
+/**
+ * @tc.name: GetCurrentAppTwinIndex_0100
+ * @tc.desc: GetCurrentAppTwinIndex.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, GetCurrentAppTwinIndex_0100, TestSize.Level1)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    ASSERT_NE(appMgrServiceInner, nullptr);
+
+    int32_t appIndex = 0;
+    int32_t ret = appMgrServiceInner->GetCurrentAppTwinIndex(appIndex);
+    EXPECT_EQ(ret, ERR_PERMISSION_DENIED);
+}
 } // namespace AppExecFwk
 } // namespace OHOS
