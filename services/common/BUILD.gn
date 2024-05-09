@@ -52,6 +52,8 @@ config("common_config") {
 
 #build so
 ohos_shared_library("perm_verification") {
+  include_dirs = [ "${ability_runtime_utils_path}/server/constant" ]
+
   public_configs = [ ":common_config" ]
 
   sources = [ "src/permission_verification.cpp" ]

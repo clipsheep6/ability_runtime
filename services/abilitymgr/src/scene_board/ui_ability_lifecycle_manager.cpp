@@ -34,6 +34,7 @@
 #include "scene_board/status_bar_delegate_manager.h"
 #include "session_info.h"
 #include "session_manager_lite.h"
+#include "startup_util.h"
 #ifdef SUPPORT_GRAPHICS
 #include "ability_first_frame_state_observer_manager.h"
 #endif
@@ -43,12 +44,6 @@ using AbilityRuntime::FreezeUtil;
 namespace AAFwk {
 namespace {
 constexpr const char* SEPARATOR = ":";
-constexpr char EVENT_KEY_UID[] = "UID";
-constexpr char EVENT_KEY_PID[] = "PID";
-constexpr char EVENT_KEY_MESSAGE[] = "MSG";
-constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
-constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
-const std::string DLP_INDEX = "ohos.dlp.params.index";
 constexpr int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
 const std::string PARAM_MISSION_AFFINITY_KEY = "ohos.anco.param.missionAffinity";
 const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
@@ -1286,7 +1281,7 @@ bool UIAbilityLifecycleManager::CheckProperties(const std::shared_ptr<AbilityRec
     return abilityInfo.launchMode == launchMode && abilityRequest.abilityInfo.name == abilityInfo.name &&
         abilityRequest.abilityInfo.bundleName == abilityInfo.bundleName &&
         abilityRequest.abilityInfo.moduleName == abilityInfo.moduleName &&
-        abilityRequest.want.GetIntParam(DLP_INDEX, 0) == abilityRecord->GetAppIndex();
+        AbilityRuntime::StartupUtil::GetAppTwinIndex(abilityRequest.want) == abilityRecord->GetAppIndex();
 }
 
 void UIAbilityLifecycleManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId, bool isHalf)

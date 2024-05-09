@@ -42,6 +42,7 @@
 #include "child_process_manager.h"
 #include "configuration_convertor.h"
 #include "common_event_manager.h"
+#include "global_constant.h"
 #include "context_deal.h"
 #include "context_impl.h"
 #include "exit_reason.h"
@@ -1186,7 +1187,7 @@ bool GetBundleForLaunchApplication(std::shared_ptr<BundleMgrHelper> bundleMgrHel
     int32_t appIndex, BundleInfo &bundleInfo)
 {
     bool queryResult;
-    if (appIndex != 0) {
+    if (appIndex > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
         TAG_LOGD(AAFwkTag::APPKIT, "The bundleName = %{public}s.", bundleName.c_str());
         queryResult = (bundleMgrHelper->GetSandboxBundleInfo(bundleName,
             appIndex, UNSPECIFIED_USERID, bundleInfo) == 0);

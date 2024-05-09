@@ -15,6 +15,7 @@
 
 #include "dlp_state_item.h"
 
+#include "global_constant.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
@@ -53,7 +54,7 @@ int32_t DlpStateItem::GetOpenedAbilitySize() const
 bool DlpStateItem::HandleDlpConnectionState(const std::shared_ptr<AbilityRecord> &record, bool isAdd,
     AbilityRuntime::DlpStateData &data)
 {
-    if (!record || record->GetAppIndex() == 0) {
+    if (!record || record->GetAppIndex() <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "invalid dlp ability.");
         return false;
     }

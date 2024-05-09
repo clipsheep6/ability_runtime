@@ -19,14 +19,16 @@
 #include "ability_util.h"
 #include "bundle_constants.h"
 #include "bundle_mgr_helper.h"
+#include "global_constant.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "server_constant.h"
+#include "startup_util.h"
 
 namespace OHOS {
 namespace AAFwk {
 namespace {
-constexpr const char* DLP_INDEX = "ohos.dlp.params.index";
 constexpr const char* SCREENSHOT_BUNDLE_NAME = "com.huawei.ohos.screenshot";
 constexpr const char* SCREENSHOT_ABILITY_NAME = "com.huawei.ohos.screenshot.ServiceExtAbility";
 }
@@ -37,12 +39,16 @@ thread_local bool StartAbilityUtils::skipErms = false;
 
 int32_t StartAbilityUtils::GetAppIndex(const Want &want, sptr<IRemoteObject> callerToken)
 {
+    int32_t appIndex = want.GetIntParam(AbilityRuntime::ServerConstant::APP_TWIN_INDEX, 0);
+    if (appIndex > 0 && appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+        return appIndex;
+    }
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-    if (abilityRecord && abilityRecord->GetAppIndex() != 0 &&
+    if (abilityRecord && abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX &&
         abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
         return abilityRecord->GetAppIndex();
     }
-    return want.GetIntParam(DLP_INDEX, 0);
+    return want.GetIntParam(AbilityRuntime::ServerConstant::DLP_INDEX, 0);
 }
 
 bool StartAbilityUtils::GetApplicationInfo(const std::string &bundleName, int32_t userId,
@@ -145,11 +151,17 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartAbilityInfo(const
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto bms = AbilityUtil::GetBundleManagerHelper();
     CHECK_POINTER_AND_RETURN(bms, nullptr);
-    auto abilityInfoFlag = (AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL);
+    auto abilityInfoFlag = AbilityRuntime::StartupUtil::BuildAbilityInfoFlag() |
+        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL;
     auto request = std::make_shared<StartAbilityInfo>();
+    if (appIndex != 0 && appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+        IN_PROCESS_CALL_WITHOUT_RET(bms->QueryCloneAbilityInfo(want.GetElement(), abilityInfoFlag, appIndex,
+            request->abilityInfo, userId));
+        if (request->abilityInfo.name.empty() || request->abilityInfo.bundleName.empty()) {
+            request->status = ERR_APP_TWIN_INDEX_INVALID;
+        }
+        return request;
+    }
     if (appIndex == 0) {
         IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(want, abilityInfoFlag, userId, request->abilityInfo));
     } else {
@@ -191,10 +203,8 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartExtensionInfo(con
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto bms = AbilityUtil::GetBundleManagerHelper();
     CHECK_POINTER_AND_RETURN(bms, nullptr);
-    auto abilityInfoFlag = (AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL);
+    auto abilityInfoFlag = AbilityRuntime::StartupUtil::BuildAbilityInfoFlag() |
+        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL;
     auto abilityInfo = std::make_shared<StartAbilityInfo>();
 
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;

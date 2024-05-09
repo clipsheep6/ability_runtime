@@ -53,6 +53,7 @@ ohos_unittest("ui_ability_lifecycle_manager_test") {
     "${ability_runtime_native_path}/ability/native:auto_startup_callback",
     "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_path}/utils/global/freeze:freeze_util",
+    "${ability_runtime_path}/utils/server/startup:startup_util",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${ability_runtime_services_path}/common:app_util",
     "${ability_runtime_services_path}/common:perm_verification",

@@ -799,5 +799,37 @@ HWTEST_F(BundleMgrHelperTest, GetJsonProfile_001, TestSize.Level1)
     auto ret = bundleMgrHelper->GetJsonProfile(profileType, bundleName, moduleName, profile, userId);
     EXPECT_EQ(ret, ERR_COD7);
 }
+
+/**
+ * @tc.name: BundleMgrHelperTest_QueryCloneAbilityInfo_001
+ * @tc.desc: QueryCloneAbilityInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryCloneAbilityInfo_001, TestSize.Level1)
+{
+    ElementName element;
+    AbilityInfo abilityInfo;
+    int32_t flags = 4;
+    int32_t appTwinIndex = 1;
+    int32_t userId = 100;
+    auto ret = bundleMgrHelper->QueryCloneAbilityInfo(element, flags, appTwinIndex, abilityInfo, userId);
+    EXPECT_NE(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_GetCloneBundleInfo_001
+ * @tc.desc: GetCloneBundleInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetCloneBundleInfo_001, TestSize.Level1)
+{
+    std::string bundleName;
+    BundleInfo bundleInfo;
+    int32_t flags = 1;
+    int32_t appTwinIndex = 1;
+    int32_t userId = 100;
+    auto ret = bundleMgrHelper->GetCloneBundleInfo(bundleName, flags, appTwinIndex, bundleInfo, userId);
+    EXPECT_NE(ret, ERR_OK);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

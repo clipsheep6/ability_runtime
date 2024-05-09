@@ -97,6 +97,7 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_path}/utils/global/time/include",
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_napi_path}/inner/napi_common",
+    "${ability_runtime_utils_path}/global/constant",
   ]
 
   if (ability_runtime_graphics) {
@@ -425,6 +426,7 @@ ohos_shared_library("appkit_manager_helper") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
     "${ability_runtime_services_path}/common/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_utils_path}/global/constant",
   ]
 
   configs = [ ":appkit_config" ]

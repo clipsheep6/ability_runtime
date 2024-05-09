@@ -54,6 +54,7 @@
 #include "errors.h"
 #include "extension_config.h"
 #include "freeze_util.h"
+#include "global_constant.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hisysevent.h"
@@ -86,11 +87,13 @@
 #include "restart_app_manager.h"
 #include "sa_mgr_client.h"
 #include "scene_board_judgement.h"
+#include "server_constant.h"
 #include "session_info.h"
 #include "softbus_bus_center.h"
 #include "start_ability_handler/start_ability_sandbox_savefile.h"
 #include "start_options.h"
 #include "start_ability_utils.h"
+#include "startup_util.h"
 #include "status_bar_delegate_interface.h"
 #include "string_ex.h"
 #include "string_wrapper.h"
@@ -252,7 +255,6 @@ const std::string DMS_API_VERSION = "dmsApiVersion";
 const std::string DMS_IS_CALLER_BACKGROUND = "dmsIsCallerBackGround";
 const std::string DMS_PROCESS_NAME = "distributedsched";
 const std::string DMS_MISSION_ID = "dmsMissionId";
-const std::string DLP_INDEX = "ohos.dlp.params.index";
 const std::string BOOTEVENT_APPFWK_READY = "bootevent.appfwk.ready";
 const std::string BOOTEVENT_BOOT_COMPLETED = "bootevent.boot.completed";
 const std::string BOOTEVENT_BOOT_ANIMATION_STARTED = "bootevent.bootanimation.started";
@@ -5621,9 +5623,9 @@ int AbilityManagerService::GenerateAbilityRequest(
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-    if (abilityRecord && abilityRecord->GetAppIndex() != 0 &&
+    if (abilityRecord && abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX &&
         abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
-        (const_cast<Want &>(want)).SetParam(DLP_INDEX, abilityRecord->GetAppIndex());
+        (const_cast<Want &>(want)).SetParam(AbilityRuntime::ServerConstant::DLP_INDEX, abilityRecord->GetAppIndex());
     }
 
     if (abilityRecord != nullptr) {
@@ -5637,11 +5639,12 @@ int AbilityManagerService::GenerateAbilityRequest(
 
     auto abilityInfo = StartAbilityUtils::startAbilityInfo;
     if (abilityInfo == nullptr || abilityInfo->GetAppBundleName() != want.GetElement().GetBundleName()) {
-        abilityInfo = StartAbilityInfo::CreateStartAbilityInfo(want, userId, want.GetIntParam(DLP_INDEX, 0));
+        abilityInfo = StartAbilityInfo::CreateStartAbilityInfo(want, userId,
+            AbilityRuntime::StartupUtil::GetAppTwinIndex(want));
     }
     CHECK_POINTER_AND_RETURN(abilityInfo, GET_ABILITY_SERVICE_FAILED);
-    if (abilityInfo->status == RESOLVE_ABILITY_ERR) {
-        return RESOLVE_ABILITY_ERR;
+    if (abilityInfo->status != ERR_OK) {
+        return abilityInfo->status;
     }
     request.abilityInfo = abilityInfo->abilityInfo;
     request.extensionProcessMode = abilityInfo->extensionProcessMode;
@@ -5692,9 +5695,9 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
     const Want &want, AbilityRequest &request, const sptr<IRemoteObject> &callerToken, int32_t userId)
 {
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-    if (abilityRecord && abilityRecord->GetAppIndex() != 0 &&
+    if (abilityRecord && abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX &&
         abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
-        (const_cast<Want &>(want)).SetParam(DLP_INDEX, abilityRecord->GetAppIndex());
+        (const_cast<Want &>(want)).SetParam(AbilityRuntime::ServerConstant::DLP_INDEX, abilityRecord->GetAppIndex());
     }
     request.want = want;
     request.callerToken = callerToken;
@@ -5702,11 +5705,12 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
 
     auto abilityInfo = StartAbilityUtils::startAbilityInfo;
     if (abilityInfo == nullptr || abilityInfo->GetAppBundleName() != want.GetElement().GetBundleName()) {
-        abilityInfo = StartAbilityInfo::CreateStartExtensionInfo(want, userId, want.GetIntParam(DLP_INDEX, 0));
+        abilityInfo = StartAbilityInfo::CreateStartExtensionInfo(want, userId,
+            AbilityRuntime::StartupUtil::GetAppTwinIndex(want));
     }
     CHECK_POINTER_AND_RETURN(abilityInfo, GET_ABILITY_SERVICE_FAILED);
-    if (abilityInfo->status == RESOLVE_ABILITY_ERR) {
-        return RESOLVE_ABILITY_ERR;
+    if (abilityInfo->status != ERR_OK) {
+        return abilityInfo->status;
     }
 
     auto result = InitialAbilityRequest(request, *abilityInfo);
@@ -10286,9 +10290,7 @@ int32_t AbilityManagerService::CheckRestartAppWant(const AAFwk::Want &want)
 
     auto bms = GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
-    auto abilityInfoFlag = (AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA);
+    auto abilityInfoFlag = AbilityRuntime::StartupUtil::BuildAbilityInfoFlag();
     auto userId = IPCSkeleton::GetCallingUid() / BASE_USER_RANGE;
     AppExecFwk::AbilityInfo abilityInfo;
     bool queryResult = IN_PROCESS_CALL(bms->QueryAbilityInfo(want, abilityInfoFlag, userId, abilityInfo));

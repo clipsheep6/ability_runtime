@@ -43,6 +43,7 @@
 #include "distributed_data_mgr.h"
 #include "exit_resident_process_manager.h"
 #include "freeze_util.h"
+#include "global_constant.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
@@ -66,8 +67,9 @@
 #include "permission_constants.h"
 #include "permission_verification.h"
 #include "render_state_observer_manager.h"
-#include "system_ability_definition.h"
+#include "startup_util.h"
 #include "string_ex.h"
+#include "system_ability_definition.h"
 #include "time_util.h"
 #include "ui_extension_utils.h"
 #include "uri_permission_manager_client.h"
@@ -124,7 +126,6 @@ const std::string PERF_CMD = "perfCmd";
 const std::string MULTI_THREAD = "multiThread";
 const std::string DEBUG_CMD = "debugCmd";
 const std::string ENTER_SANDBOX = "sandboxApp";
-const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
 const std::string PERMISSION_INTERNET = "ohos.permission.INTERNET";
 const std::string PERMISSION_MANAGE_VPN = "ohos.permission.MANAGE_VPN";
 const std::string PERMISSION_ACCESS_BUNDLE_DIR = "ohos.permission.ACCESS_BUNDLE_DIR";
@@ -247,7 +248,7 @@ void AppMgrServiceInner::StartSpecifiedProcess(const AAFwk::Want &want, const Ap
     HapModuleInfo hapModuleInfo;
     auto appInfo = std::make_shared<ApplicationInfo>(abilityInfo.applicationInfo);
 
-    int32_t appIndex = want.GetIntParam(DLP_PARAMS_INDEX, 0);
+    int32_t appIndex = AbilityRuntime::StartupUtil::GetAppTwinIndex(want);
     if (!GetBundleAndHapInfo(abilityInfo, appInfo, bundleInfo, hapModuleInfo, appIndex)) {
         return;
     }
@@ -397,7 +398,7 @@ void AppMgrServiceInner::LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObje
 
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
-    int32_t appIndex = (want == nullptr) ? 0 : want->GetIntParam(DLP_PARAMS_INDEX, 0);
+    int32_t appIndex = (want == nullptr) ? 0 : AbilityRuntime::StartupUtil::GetAppTwinIndex(*want);
     if (!GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo, appIndex)) {
         TAG_LOGE(AAFwkTag::APPMGR, "GetBundleAndHapInfo failed");
         return;
@@ -641,7 +642,7 @@ void AppMgrServiceInner::LoadAbilityNoAppRecord(const std::shared_ptr<AppRunning
         }
     }
     uint32_t startFlags = (want == nullptr) ? 0 : AppspawnUtil::BuildStartFlags(*want, *abilityInfo);
-    int32_t bundleIndex = (want == nullptr) ? 0 : want->GetIntParam(DLP_PARAMS_INDEX, 0);
+    int32_t bundleIndex = (want == nullptr) ? 0 : AbilityRuntime::StartupUtil::GetAppTwinIndex(*want);
     StartProcess(abilityInfo->applicationName, processName, startFlags, appRecord,
         appInfo->uid, bundleInfo, appInfo->bundleName, bundleIndex, appExistFlag, isPreload);
     std::string perfCmd = (want == nullptr) ? "" : want->GetStringParam(PERF_CMD);
@@ -721,25 +722,29 @@ bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
 
     auto userId = GetUserIdByUid(appInfo->uid);
     TAG_LOGD(AAFwkTag::APPMGR, "UserId:%{public}d.", userId);
-    bool bundleMgrResult;
+    int32_t bundleMgrResult;
     if (appIndex == 0) {
-        bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetBundleInfo(appInfo->bundleName,
-            BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
+        bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetBundleInfoV9(appInfo->bundleName,
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION), bundleInfo, userId));
+    } else if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+        bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetCloneBundleInfo(appInfo->bundleName,
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION), appIndex, bundleInfo, userId));
     } else {
-        bundleMgrResult = (IN_PROCESS_CALL(bundleMgrHelper->GetSandboxBundleInfo(appInfo->bundleName,
-            appIndex, userId, bundleInfo)) == 0);
+        bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetSandboxBundleInfo(appInfo->bundleName,
+            appIndex, userId, bundleInfo));
     }
 
-    if (!bundleMgrResult) {
+    if (bundleMgrResult != ERR_OK) {
         TAG_LOGE(AAFwkTag::APPMGR, "GetBundleInfo is fail.");
         return false;
     }
-    if (appIndex == 0) {
-        bundleMgrResult = bundleMgrHelper->GetHapModuleInfo(abilityInfo, userId, hapModuleInfo);
+    bool hapQueryResult = false;
+    if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+        hapQueryResult = bundleMgrHelper->GetHapModuleInfo(abilityInfo, userId, hapModuleInfo);
     } else {
-        bundleMgrResult = (bundleMgrHelper->GetSandboxHapModuleInfo(abilityInfo, appIndex, userId, hapModuleInfo) == 0);
+        hapQueryResult = (bundleMgrHelper->GetSandboxHapModuleInfo(abilityInfo, appIndex, userId, hapModuleInfo) == 0);
     }
-    if (!bundleMgrResult) {
+    if (!hapQueryResult) {
         TAG_LOGE(AAFwkTag::APPMGR, "GetHapModuleInfo is fail.");
         return false;
     }
@@ -1746,7 +1751,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(spt
         }
         appRecord->SetPerfCmd(want->GetStringParam(PERF_CMD));
         appRecord->SetMultiThread(want->GetBoolParam(MULTI_THREAD, false));
-        appRecord->SetAppIndex(want->GetIntParam(DLP_PARAMS_INDEX, 0));
+        appRecord->SetAppIndex(AbilityRuntime::StartupUtil::GetAppTwinIndex(*want));
         appRecord->SetSecurityFlag(want->GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false));
         appRecord->SetRequestProcCode(want->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0));
         appRecord->SetCallerPid(want->GetIntParam(Want::PARAM_RESV_CALLER_PID, -1));
@@ -3449,10 +3454,10 @@ int AppMgrServiceInner::StartEmptyProcess(const AAFwk::Want &want, const sptr<IR
     testRecord->userId = userId;
     appRecord->SetUserTestInfo(testRecord);
 
-    int32_t bundleIndex = want.GetIntParam(DLP_PARAMS_INDEX, 0);
+    int32_t appIndex = AbilityRuntime::StartupUtil::GetAppTwinIndex(want);
     uint32_t startFlags = AppspawnUtil::BuildStartFlags(want, info.applicationInfo);
     StartProcess(appInfo->name, processName, startFlags, appRecord, appInfo->uid, info, appInfo->bundleName,
-        bundleIndex, appExistFlag);
+        appIndex, appExistFlag);
 
     // If it is empty, the startup failed
     if (!appRecord) {
@@ -3539,7 +3544,7 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
     HapModuleInfo hapModuleInfo;
     auto appInfo = std::make_shared<ApplicationInfo>(abilityInfo.applicationInfo);
 
-    int32_t appIndex = want.GetIntParam(DLP_PARAMS_INDEX, 0);
+    int32_t appIndex = AbilityRuntime::StartupUtil::GetAppTwinIndex(want);
     if (!GetBundleAndHapInfo(abilityInfo, appInfo, bundleInfo, hapModuleInfo, appIndex)) {
         return;
     }
@@ -3591,9 +3596,8 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
         appRecord->SendEventForSpecifiedAbility(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG,
             AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT);
         uint32_t startFlags = AppspawnUtil::BuildStartFlags(want, abilityInfo);
-        int32_t bundleIndex = want.GetIntParam(DLP_PARAMS_INDEX, 0);
         StartProcess(appInfo->name, processName, startFlags, appRecord, appInfo->uid, bundleInfo, appInfo->bundleName,
-            bundleIndex, appExistFlag);
+            appIndex, appExistFlag);
 
         appRecord->SetSpecifiedAbilityFlagAndWant(true, want, hapModuleInfo.moduleName);
         appRecord->AddModules(appInfo, hapModules);
@@ -5019,7 +5023,8 @@ int32_t AppMgrServiceInner::StartNativeProcessForDebugger(const AAFwk::Want &wan
 
     AbilityInfo abilityInfo;
     auto userId = GetCurrentAccountId();
-    IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->QueryAbilityInfo(want, GetFlag(), userId, abilityInfo));
+    auto abilityInfoFlag = AbilityRuntime::StartupUtil::BuildAbilityInfoFlag();
+    IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->QueryAbilityInfo(want, abilityInfoFlag, userId, abilityInfo));
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
     auto appInfo = std::make_shared<ApplicationInfo>(abilityInfo.applicationInfo);
@@ -5055,13 +5060,6 @@ int32_t AppMgrServiceInner::StartNativeProcessForDebugger(const AAFwk::Want &wan
     } else {
         return StartPerfProcess(appRecord, cmd, "", isSandboxApp);
     }
-}
-
-int32_t AppMgrServiceInner::GetFlag() const
-{
-    return AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA;
 }
 
 int32_t AppMgrServiceInner::GetCurrentAccountId() const

@@ -23,6 +23,7 @@
 #include "app_death_recipient.h"
 #include "app_mgr_constants.h"
 #include "datetime_ex.h"
+#include "global_constant.h"
 #include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
@@ -402,7 +403,7 @@ int32_t AppMgrService::JudgeSandboxByPid(pid_t pid, bool &isSandbox)
         return ERR_INVALID_OPERATION;
     }
     auto appRunningRecord = appMgrServiceInner_->GetAppRunningRecordByPid(pid);
-    if (appRunningRecord && appRunningRecord->GetAppIndex() > 0) {
+    if (appRunningRecord && appRunningRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
         isSandbox = true;
         TAG_LOGD(AAFwkTag::APPMGR, "current app is a sandbox.");
         return ERR_OK;

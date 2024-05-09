@@ -19,6 +19,7 @@
 
 #include "app_mgr_interface.h"
 #include "connection_observer_errors.h"
+#include "global_constant.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
@@ -486,7 +487,7 @@ bool ConnectionStateManager::HandleDlpAbilityInner(const std::shared_ptr<Ability
         return false;
     }
 
-    if (dlpAbility->GetAppIndex() == 0) {
+    if (dlpAbility->GetAppIndex() <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
         TAG_LOGD(AAFwkTag::CONNECTION, "this is not dlp ability, do not report connection stat.");
         return false;
     }

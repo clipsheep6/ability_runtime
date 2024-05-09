@@ -22,13 +22,16 @@
 #include "ability_util.h"
 #include "app_exit_reason_data_manager.h"
 #include "appfreeze_manager.h"
-#include "hitrace_meter.h"
 #include "errors.h"
+#include "global_constant.h"
+#include "hitrace_meter.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hisysevent.h"
 #include "mission_info_mgr.h"
 #include "in_process_call_wrapper.h"
+#include "server_constant.h"
+#include "startup_util.h"
 #ifdef RESOURCE_SCHEDULE_SERVICE_ENABLE
 #include "res_sched_client.h"
 #include "res_type.h"
@@ -55,7 +58,6 @@ constexpr uint64_t NANO_SECOND_PER_SEC = 1000000000; // ns
 const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const int DEFAULT_DMS_MISSION_ID = -1;
-const std::string DLP_INDEX = "ohos.dlp.params.index";
 #ifdef SUPPORT_ASAN
 const int KILL_TIMEOUT_MULTIPLE = 45;
 #else
@@ -544,7 +546,7 @@ bool MissionListManager::HandleReusedMissionAndAbility(const AbilityRequest &abi
 
 std::string MissionListManager::GetMissionName(const AbilityRequest &abilityRequest) const
 {
-    int32_t appIndex = abilityRequest.want.GetIntParam(DLP_INDEX, 0);
+    int32_t appIndex = AbilityRuntime::StartupUtil::GetAppTwinIndex(abilityRequest.want);
     return AbilityUtil::ConvertBundleNameSingleton(abilityRequest.abilityInfo.bundleName,
         abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName, appIndex);
 }
@@ -673,7 +675,8 @@ void MissionListManager::BuildInnerMissionInfo(InnerMissionInfo &info, const std
     info.missionInfo.want = abilityRequest.want;
     info.missionInfo.unclearable = abilityRequest.abilityInfo.unclearableMission;
     info.isTemporary = abilityRequest.abilityInfo.removeMissionAfterTerminate;
-    if (abilityRequest.want.GetIntParam(DLP_INDEX, 0) != 0) {
+    auto dlpIndex = abilityRequest.want.GetIntParam(AbilityRuntime::ServerConstant::DLP_INDEX, 0);
+    if (dlpIndex > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
         info.isTemporary = true;
     }
     info.specifiedFlag = abilityRequest.specifiedFlag;
@@ -1785,8 +1788,8 @@ void MissionListManager::CompleteTerminateAndUpdateMission(const std::shared_ptr
             terminateAbilityList_.remove(it);
             // update inner mission info time
             bool excludeFromMissions = abilityRecord->GetAbilityInfo().excludeFromMissions;
-            if ((abilityRecord->GetAppIndex() != 0) || abilityRecord->GetAbilityInfo().removeMissionAfterTerminate ||
-                excludeFromMissions) {
+            if ((abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) ||
+                abilityRecord->GetAbilityInfo().removeMissionAfterTerminate || excludeFromMissions) {
                 RemoveMissionLocked(abilityRecord->GetMissionId(), excludeFromMissions);
                 return;
             }
@@ -2007,7 +2010,7 @@ void MissionListManager::UpdateSnapShot(const sptr<IRemoteObject> &token,
         return;
     }
     int32_t missionId = abilityRecord->GetMissionId();
-    auto isPrivate = abilityRecord->GetAppIndex() != 0;
+    auto isPrivate = abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX;
     DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionSnapshot(missionId, pixelMap, isPrivate);
     if (listenerController_) {
         listenerController_->NotifyMissionSnapshotChanged(missionId);
@@ -2169,7 +2172,7 @@ void MissionListManager::UpdateMissionSnapshot(const std::shared_ptr<AbilityReco
     }
     int32_t missionId = abilityRecord->GetMissionId();
     MissionSnapshot snapshot;
-    snapshot.isPrivate = (abilityRecord->GetAppIndex() != 0);
+    snapshot.isPrivate = (abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX);
     DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionSnapshot(missionId, abilityRecord->GetToken(),
         snapshot);
     if (listenerController_) {
@@ -2694,8 +2697,8 @@ void MissionListManager::HandleAbilityDiedByDefault(std::shared_ptr<AbilityRecor
     // update running state.
     auto missionId = mission->GetMissionId();
     if (!ability->IsUninstallAbility()) {
-        if ((ability->GetAppIndex() != 0) || ability->GetAbilityInfo().removeMissionAfterTerminate ||
-            ability->GetAbilityInfo().excludeFromMissions) {
+        if ((ability->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) ||
+            ability->GetAbilityInfo().removeMissionAfterTerminate || ability->GetAbilityInfo().excludeFromMissions) {
             RemoveMissionLocked(missionId, ability->GetAbilityInfo().excludeFromMissions);
         } else {
             InnerMissionInfo info;
@@ -3607,7 +3610,8 @@ bool MissionListManager::GetMissionSnapshot(int32_t missionId, const sptr<IRemot
         auto abilityRecord = GetAbilityRecordByTokenInner(abilityToken);
         if (abilityRecord && abilityRecord->IsAbilityState(FOREGROUND)) {
             forceSnapshot = true;
-            missionSnapshot.isPrivate = (abilityRecord->GetAppIndex() != 0);
+            missionSnapshot.isPrivate =
+                (abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX);
         }
     }
     return DelayedSingleton<MissionInfoMgr>::GetInstance()->GetMissionSnapshot(

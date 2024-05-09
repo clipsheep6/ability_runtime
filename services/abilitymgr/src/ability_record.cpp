@@ -35,6 +35,7 @@
 #include "configuration_convertor.h"
 #include "connection_state_manager.h"
 #include "freeze_util.h"
+#include "global_constant.h"
 #include "hitrace_meter.h"
 #include "image_source.h"
 #include "in_process_call_wrapper.h"
@@ -47,6 +48,8 @@
 #include "parameters.h"
 #include "ui_extension_host_info.h"
 #include "scene_board_judgement.h"
+#include "start_ability_utils.h"
+#include "startup_util.h"
 #include "system_ability_token_callback.h"
 #include "ui_extension_utils.h"
 #include "uri_permission_manager_client.h"
@@ -77,7 +80,6 @@ const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
 const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
 const std::u16string SYSTEM_ABILITY_TOKEN_CALLBACK = u"ohos.aafwk.ISystemAbilityTokenCallback";
 const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
-const std::string DLP_INDEX = "ohos.dlp.params.index";
 const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
 const std::string KEY_MISSION_ID = "ohos.anco.param.missionId";
@@ -226,7 +228,6 @@ AbilityRecord::AbilityRecord(const Want &want, const AppExecFwk::AbilityInfo &ab
         want_.SetParam(COMPONENT_STARTUP_NEW_RULES, flag);
     }
     restartCount_ = restartMax_;
-    appIndex_ = want.GetIntParam(DLP_INDEX, 0);
     isAppAutoStartup_ = want_.GetBoolParam(Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON, false);
     if (want_.HasParameter(Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON)) {
         want_.RemoveParam(Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON);
@@ -251,7 +252,7 @@ std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityR
         abilityRequest.want, abilityRequest.abilityInfo, abilityRequest.appInfo, abilityRequest.requestCode);
     CHECK_POINTER_AND_RETURN(abilityRecord, nullptr);
     abilityRecord->SetUid(abilityRequest.uid);
-    abilityRecord->SetAppIndex(abilityRequest.want.GetIntParam(DLP_INDEX, 0));
+    abilityRecord->SetAppIndex(AbilityRuntime::StartupUtil::GetAppTwinIndex(abilityRequest.want));
     abilityRecord->SetCallerAccessTokenId(abilityRequest.callerAccessTokenId);
     abilityRecord->sessionInfo_ = abilityRequest.sessionInfo;
     if (!abilityRecord->Init()) {
@@ -1749,7 +1750,7 @@ void AbilityRecord::SendResultToCallers(bool schedulerdied)
         }
         std::shared_ptr<AbilityRecord> callerAbilityRecord = caller->GetCaller();
         if (callerAbilityRecord != nullptr && callerAbilityRecord->GetResult() != nullptr) {
-            bool isSandboxApp = appIndex_ > 0 ? true : false;
+            bool isSandboxApp = appIndex_ > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX ? true : false;
             callerAbilityRecord->SendResult(isSandboxApp, applicationInfo_.accessTokenId);
         } else {
             std::shared_ptr<SystemAbilityCallerRecord> callerSystemAbilityRecord = caller->GetSaCaller();
@@ -3022,7 +3023,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     // reject sandbox to grant uri permission by start ability
     if (!callerList_.empty() && callerList_.back()) {
         auto caller = callerList_.back()->GetCaller();
-        if (caller && caller->appIndex_ > 0) {
+        if (caller && caller->appIndex_ > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Sandbox can not grant UriPermission by start ability.");
             return;
         }
