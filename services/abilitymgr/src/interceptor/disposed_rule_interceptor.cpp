@@ -61,7 +61,7 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
                 return ret;
             }
         }
-        if (disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION_WITH_RESULT ||
+        if (disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION_WITH_RESULT &&
             disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
             int ret = HandleBlockApplicationWithResult(param, disposedRule);
             if (ret != ERR_OK) {
