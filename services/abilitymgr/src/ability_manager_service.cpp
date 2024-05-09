@@ -2443,6 +2443,10 @@ int AbilityManagerService::UnloadUIExtension(const std::shared_ptr<AAFwk::Abilit
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Call.");
     auto connectManager = GetConnectManagerByToken(abilityRecord->GetToken());
+    if (connectManager == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "connectManager is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
     return connectManager->UnloadUIExtension(abilityRecord, hostBundleName);
 }
 

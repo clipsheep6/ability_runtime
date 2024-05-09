@@ -690,13 +690,13 @@ napi_value JsApplicationContextUtils::OnPreloadUIExtensionAbility(napi_env env, 
     auto innerErrCode = std::make_shared<ErrCode>(ERR_OK);
     NapiAsyncTask::ExecuteCallback execute = [applicationContext = applicationContext_, want, innerErrCode]() {
         auto context = applicationContext.lock();
-        auto hostBundleName = context->GetBundleName();
-        TAG_LOGD(AAFwkTag::APPKIT, "HostBundleName is %{public}s.", hostBundleName.c_str());
         if (!context) {
             TAG_LOGE(AAFwkTag::APPKIT, "context is released");
             *innerErrCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
             return;
         }
+        auto hostBundleName = context->GetBundleName();
+        TAG_LOGD(AAFwkTag::APPKIT, "HostBundleName is %{public}s.", hostBundleName.c_str());
         *innerErrCode = AAFwk::AbilityManagerClient::GetInstance()->PreloadUIExtensionAbility(want, hostBundleName);
     };
     NapiAsyncTask::CompleteCallback complete = [innerErrCode](napi_env env, NapiAsyncTask& task, int32_t status) {
