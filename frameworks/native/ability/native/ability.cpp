@@ -337,11 +337,6 @@ bool Ability::IsRestoredInContinuation() const
         return false;
     }
 
-    if (abilityContext_->GetContentStorage() == nullptr) {
-        TAG_LOGD(AAFwkTag::ABILITY, "not Restored In Continuation");
-        return false;
-    }
-
     TAG_LOGD(AAFwkTag::ABILITY, "Is Restored In Continuation");
     return true;
 }

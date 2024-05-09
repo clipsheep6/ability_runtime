@@ -3928,9 +3928,9 @@ int AbilityManagerService::StartContinuation(const Want &want, const sptr<IRemot
         TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerService::StartContinuation failed to get missionId.");
         return ERR_INVALID_VALUE;
     }
+    AAFWK::ContinueRadar::GetInstance().SaveDataRemoteWant("StartContinuation");
     DistributedClient dmsClient;
     auto result =  dmsClient.StartContinuation(want, missionId, appUid, status, accessToken);
-    AAFWK::ContinueRadar::GetInstance().SaveDataRemoteWant("StartContinuation", result);
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "StartContinuation failed, result = %{public}d, notify caller", result);
         NotifyContinuationResult(missionId, result);
