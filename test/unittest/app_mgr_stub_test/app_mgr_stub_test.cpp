@@ -591,5 +591,30 @@ HWTEST_F(AppMgrStubTest, PreloadApplication_0100, TestSize.Level1)
         static_cast<uint32_t>(AppMgrInterfaceCode::PRELOAD_APPLICATION), data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 }
+
+/**
+ * @tc.name: SetSupportedProcessCacheSelf_001
+ * @tc.desc: The application sets itself whether or not to support process cache.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrStubTest, SetSupportedProcessCacheSelf_001, TestSize.Level0)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    WriteInterfaceToken(data);
+    bool isSupported = false;
+    data.WriteBool(isSupported);
+
+    EXPECT_CALL(*mockAppMgrService_, SetSupportedProcessCacheSelf(_)).Times(1);
+
+    auto result = mockAppMgrService_->OnRemoteRequest(
+        static_cast<uint32_t>(AppMgrInterfaceCode::SET_SUPPORTED_PROCESS_CACHE_SELF), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

@@ -20,12 +20,15 @@
 #undef private
 #undef protected
 #include "mock_app_mgr_service_inner.h"
+#include "mock_ability_token.h"
 
 using namespace testing;
 using namespace testing::ext;
 
 namespace OHOS {
 namespace AppExecFwk {
+
+const std::string ABILITY_RECORD_NAME = "Ability_Name_Z";
 
 class CacheProcessManagerTest : public testing::Test {
 public:
@@ -310,6 +313,112 @@ HWTEST_F(CacheProcessManagerTest, CacheProcessManager_KillProcessByRecord_0100, 
     auto appRecord = MockAppRecord();
     EXPECT_NE(appRecord, nullptr);
     EXPECT_EQ(cacheProcMgr->KillProcessByRecord(appRecord), false);
+}
+
+/**
+ * @tc.name: AppRunningManager_IsAppShouldCache_0100
+ * @tc.desc: Test the state of IsAppShouldCache
+ * @tc.type: FUNC
+ */
+HWTEST_F(CacheProcessManagerTest, CacheProcessManager_IsAppShouldCache_0100, TestSize.Level1)
+{
+    auto cacheProcMgr = std::make_shared<CacheProcessManager>();
+    EXPECT_NE(cacheProcMgr, nullptr);
+
+    // nullptr check
+    EXPECT_EQ(cacheProcMgr->IsAppShouldCache(nullptr), false);
+
+    // Not enable
+    cacheProcMgr->maxProcCacheNum_ = 0;
+    EXPECT_EQ(cacheProcMgr->IsAppShouldCache(nullptr), false);
+
+    // Cached app
+    cacheProcMgr->maxProcCacheNum_ = 2;
+    auto appRecord = MockAppRecord();
+    EXPECT_NE(appRecord, nullptr);
+    cacheProcMgr->cachedAppRecordQueue_.push_back(appRecord);
+    EXPECT_EQ(cacheProcMgr->IsAppShouldCache(appRecord), true);
+
+    // App not support cache
+    cacheProcMgr->cachedAppRecordQueue_.clear();
+    appRecord->procCacheSupportState_ = SupportProcessCacheState::NOT_SUPPORT;
+    EXPECT_EQ(cacheProcMgr->IsAppShouldCache(appRecord), false);
+}
+
+/**
+ * @tc.name: AppRunningManager_IsAppAbilitiesEmpty_0100
+ * @tc.desc: Test the state of IsAppAbilitiesEmpty
+ * @tc.type: FUNC
+ */
+HWTEST_F(CacheProcessManagerTest, CacheProcessManager_IsAppAbilitiesEmpty_0100, TestSize.Level1)
+{
+    auto cacheProcMgr = std::make_shared<CacheProcessManager>();
+    EXPECT_NE(cacheProcMgr, nullptr);
+    cacheProcMgr->maxProcCacheNum_ = 2;
+
+    // Abilities empty
+    auto appRecord = MockAppRecord();
+    EXPECT_NE(appRecord, nullptr);
+    EXPECT_EQ(cacheProcMgr->IsAppAbilitiesEmpty(appRecord), true);
+    
+    // Not empty
+    auto caseAbilityInfo = std::make_shared<AbilityInfo>();
+    caseAbilityInfo->name = ABILITY_RECORD_NAME;
+    sptr<IRemoteObject> token = new MockAbilityToken();
+    HapModuleInfo hapModuleInfo;
+    hapModuleInfo.moduleName = "Module";
+    auto appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->bundleName = "com.ohos.test.helloworld";
+    appRecord->AddModule(appInfo, caseAbilityInfo, token, hapModuleInfo, nullptr, 0);
+    auto moduleRecord = appRecord->GetModuleRecordByModuleName(appInfo->bundleName,
+        hapModuleInfo.moduleName);
+    auto caseAbilityRunningRecord = moduleRecord->AddAbility(token, caseAbilityInfo, nullptr, 0);
+    EXPECT_TRUE(caseAbilityRunningRecord == nullptr);
+    EXPECT_EQ(cacheProcMgr->IsAppAbilitiesEmpty(appRecord), false);
+}
+
+/**
+ * @tc.name: AppRunningManager_ShrinkAndKillCache_0100
+ * @tc.desc: Test the state of ShrinkAndKillCache
+ * @tc.type: FUNC
+ */
+HWTEST_F(CacheProcessManagerTest, CacheProcessManager_ShrinkAndKillCache_0100, TestSize.Level1)
+{
+    auto cacheProcMgr = std::make_shared<CacheProcessManager>();
+    EXPECT_NE(cacheProcMgr, nullptr);
+    cacheProcMgr->maxProcCacheNum_ = 2;
+
+    auto appRecord1 = MockAppRecord();
+    EXPECT_NE(appRecord1, nullptr);
+    auto appRecord2 = MockAppRecord();
+    EXPECT_NE(appRecord2, nullptr);
+    auto appRecord3 = MockAppRecord();
+    EXPECT_NE(appRecord3, nullptr);
+
+    cacheProcMgr->cachedAppRecordQueue_.push_back(appRecord1);
+    cacheProcMgr->cachedAppRecordQueue_.push_back(appRecord2);
+    cacheProcMgr->cachedAppRecordQueue_.push_back(appRecord3);
+
+    cacheProcMgr->ShrinkAndKillCache();
+}
+
+/**
+ * @tc.name: AppRunningManager_PrintCacheQueue_0100
+ * @tc.desc: Test the state of PrintCacheQueue
+ * @tc.type: FUNC
+ */
+HWTEST_F(CacheProcessManagerTest, CacheProcessManager_PrintCacheQueue_0100, TestSize.Level1)
+{
+    auto cacheProcMgr = std::make_shared<CacheProcessManager>();
+    EXPECT_NE(cacheProcMgr, nullptr);
+    cacheProcMgr->maxProcCacheNum_ = 2;
+
+    auto appRecord1 = MockAppRecord();
+    EXPECT_NE(appRecord1, nullptr);
+    auto appRecord2 = MockAppRecord();
+    EXPECT_NE(appRecord2, nullptr);
+
+    EXPECT_NE(cacheProcMgr->PrintCacheQueue(), "");
 }
 } // namespace AppExecFwk
 } // namespace OHOS
