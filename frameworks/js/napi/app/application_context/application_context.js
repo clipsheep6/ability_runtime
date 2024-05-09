@@ -149,6 +149,10 @@ class ApplicationContext {
     return this.__context_impl__.getProcessRunningInformation(callback);
   }
 
+  getCurrentAppTwinIndex(){
+    return this.__context_impl__.getCurrentAppTwinIndex()
+  }
+
   setColorMode(colorMode) {
     return this.__context_impl__.setColorMode(colorMode);
   }

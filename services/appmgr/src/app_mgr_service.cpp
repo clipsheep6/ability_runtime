@@ -427,6 +427,14 @@ int32_t AppMgrService::GetProcessRunningInformation(RunningProcessInfo &info)
     return appMgrServiceInner_->GetProcessRunningInformation(info);
 }
 
+int32_t AppMgrService::GetCurrentAppTwinIndex(int32_t &appIndex)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->GetCurrentAppTwinIndex(appIndex);
+}
+
 int32_t AppMgrService::NotifyMemoryLevel(int32_t level)
 {
     if (!IsReady()) {

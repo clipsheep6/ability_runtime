@@ -68,6 +68,7 @@ private:
     int32_t HandleGetRunningProcessesByBundleType(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetProcessRunningInfosByUserId(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetProcessRunningInformation(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleGetCurrentAppTwinIndex(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetAllRenderProcesses(MessageParcel &data, MessageParcel &reply);
     int32_t HandleAddAbilityStageDone(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyMemoryLevel(MessageParcel &data, MessageParcel &reply);

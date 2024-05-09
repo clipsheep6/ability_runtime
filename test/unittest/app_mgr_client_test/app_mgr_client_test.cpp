@@ -658,6 +658,24 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_GetProcessRunningInformation_001, TestSi
 }
 
 /**
+ * @tc.name: AppMgrClient_GetCurrentAppTwinIndex_001
+ * @tc.desc: GetCurrentTwinAppIndex.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_GetCurrentAppTwinIndex_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    std::int32_t appIndex_;
+    auto res = appMgrClient->GetCurrentTwinAppIndex(appIndex_);
+    EXPECT_EQ(res, AppMgrResultCode::RESULT_OK);
+}
+
+/**
  * @tc.name: AppMgrClient_DumpHeapMemory_001
  * @tc.desc: DumpHeapMemory.
  * @tc.type: FUNC
