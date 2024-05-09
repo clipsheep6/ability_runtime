@@ -208,7 +208,7 @@ void AppSchedulerProxy::ScheduleLaunchAbility(const AbilityInfo &info, const spt
         return;
     }
     if (!data.WriteInt32(abilityRecordId)) {
-        HILOG_ERROR("write ability record id fail.");
+        TAG_LOGE(AAFwkTag::APPMGR, "write ability record id fail.");
         return;
     }
     int32_t ret = SendTransactCmd(
@@ -218,7 +218,7 @@ void AppSchedulerProxy::ScheduleLaunchAbility(const AbilityInfo &info, const spt
     }
 }
 
-void AppSchedulerProxy::ScheduleCleanAbility(const sptr<IRemoteObject> &token)
+void AppSchedulerProxy::ScheduleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -228,6 +228,10 @@ void AppSchedulerProxy::ScheduleCleanAbility(const sptr<IRemoteObject> &token)
     }
     if (!data.WriteRemoteObject(token.GetRefPtr())) {
         TAG_LOGE(AAFwkTag::APPMGR, "Failed to write token");
+        return;
+    }
+    if (!data.WriteBool(isCacheProcess)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write bool");
         return;
     }
     int32_t ret = SendTransactCmd(
@@ -341,6 +345,7 @@ void AppSchedulerProxy::ScheduleProfileChanged(const Profile &profile)
 
 void AppSchedulerProxy::ScheduleConfigurationUpdated(const Configuration &config)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
@@ -701,12 +706,14 @@ int32_t AppSchedulerProxy::ScheduleDumpIpcStat(std::string& result)
 int32_t AppSchedulerProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "Remote is nullptr.");
         return ERR_NULL_OBJECT;
     }
 
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "remote->SendRequest");
     auto ret = remote->SendRequest(code, data, reply, option);
     if (ret != NO_ERROR) {
         TAG_LOGE(AAFwkTag::APPMGR, "Send request failed with error code: %{public}d", ret);

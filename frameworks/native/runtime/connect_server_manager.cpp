@@ -24,7 +24,7 @@
 namespace OHOS::AbilityRuntime {
 namespace {
 std::string GetInstanceMapMessage(
-    const std::string& messageType, int32_t instanceId, const std::string& instanceName, int tid)
+    const std::string& messageType, int32_t instanceId, const std::string& instanceName, int32_t tid)
 {
     std::string message;
     message.append("{\"type\":\"");
@@ -51,6 +51,7 @@ using SendLayoutMessage = void (*)(const std::string&);
 using StopServer = void (*)(const std::string&);
 using StoreMessage = void (*)(int32_t, const std::string&);
 using StoreInspectorInfo = void (*)(const std::string&, const std::string&);
+using SetProfilerCallback = void (*)(const std::function<void(bool)> &setArkUIStateProfilerStatus);
 using SetSwitchCallBack = void (*)(const std::function<void(bool)> &setStatus,
     const std::function<void(int32_t)> &createLayoutInfo, int32_t instanceId);
 using SetConnectCallback = void (*)(const std::function<void(bool)>);
@@ -131,7 +132,7 @@ void ConnectServerManager::StopConnectServer(bool isCloseSo)
 }
 
 
-bool ConnectServerManager::StoreInstanceMessage(int tid, int32_t instanceId, const std::string& instanceName)
+bool ConnectServerManager::StoreInstanceMessage(int32_t tid, int32_t instanceId, const std::string& instanceName)
 {
     {
         std::lock_guard<std::mutex> lock(mutex_);
@@ -145,7 +146,7 @@ bool ConnectServerManager::StoreInstanceMessage(int tid, int32_t instanceId, con
     return true;
 }
 
-void ConnectServerManager::StoreDebuggerInfo(int tid, void* vm, const panda::JSNApi::DebugOption& debugOption,
+void ConnectServerManager::StoreDebuggerInfo(int32_t tid, void* vm, const panda::JSNApi::DebugOption& debugOption,
     const DebuggerPostTask& debuggerPostTask, bool isDebugApp)
 {
     std::lock_guard<std::mutex> lock(g_debuggerMutex);
@@ -179,7 +180,7 @@ void ConnectServerManager::SendDebuggerInfo(bool needBreakPoint, bool isDebugApp
         ConnectServerManager::Get().SendInstanceMessage(tid, instanceId, instanceName);
         auto storeDebugInfoTask = [needBreakPoint, isDebugApp, instanceId, vm, debuggerPoskTask, instanceName]() {
             panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? needBreakPoint : false};
-            panda::JSNApi::StoreDebugInfo(gettid(), vm, debugOption, debuggerPoskTask, isDebugApp);
+            panda::JSNApi::StoreDebugInfo(getproctid(), vm, debugOption, debuggerPoskTask, isDebugApp);
         };
 
         debuggerPoskTask(storeDebugInfoTask);
@@ -203,7 +204,7 @@ void ConnectServerManager::SetConnectedCallback()
     });
 }
 
-bool ConnectServerManager::SendInstanceMessage(int tid, int32_t instanceId, const std::string& instanceName)
+bool ConnectServerManager::SendInstanceMessage(int32_t tid, int32_t instanceId, const std::string& instanceName)
 {
     TAG_LOGI(AAFwkTag::JSRUNTIME, "ConnectServerManager::SendInstanceMessage Add instance to connect server");
     LoadConnectServerDebuggerSo();
@@ -221,9 +222,19 @@ bool ConnectServerManager::SendInstanceMessage(int tid, int32_t instanceId, cons
         TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::SendInstanceMessage failed to find symbol 'StoreMessage'");
         return false;
     }
-    
+
+    auto setProfilerCallback = reinterpret_cast<SetProfilerCallback>(
+        dlsym(handlerConnectServerSo_, "SetProfilerCallback"));
+    if (setProfilerCallback == nullptr) {
+        TAG_LOGI(AAFwkTag::JSRUNTIME,
+                 "ConnectServerManager::SendInstanceMessage failed to find symbol 'setProfilerCallback'");
+        return false;
+    }
+
     setSwitchCallBack([this](bool status) { setStatus_(status); },
         [this](int32_t containerId) { createLayoutInfo_(containerId); }, instanceId);
+    
+    setProfilerCallback([this](bool status) { setArkUIStateProfilerStatus_(status); });
 
     std::string message = GetInstanceMapMessage("addInstance", instanceId, instanceName, tid);
     storeMessage(instanceId, message);
@@ -232,7 +243,7 @@ bool ConnectServerManager::SendInstanceMessage(int tid, int32_t instanceId, cons
 }
 
  
-bool ConnectServerManager::AddInstance(int tid, int32_t instanceId, const std::string& instanceName)
+bool ConnectServerManager::AddInstance(int32_t tid, int32_t instanceId, const std::string& instanceName)
 {
     {
         std::lock_guard<std::mutex> lock(mutex_);
@@ -261,6 +272,16 @@ bool ConnectServerManager::AddInstance(int tid, int32_t instanceId, const std::s
     setSwitchCallBack([this](bool status) { setStatus_(status); },
         [this](int32_t containerId) { createLayoutInfo_(containerId); }, instanceId);
 
+    auto setProfilerCallback = reinterpret_cast<SetProfilerCallback>(
+        dlsym(handlerConnectServerSo_, "SetProfilerCallback"));
+    if (setProfilerCallback == nullptr) {
+        TAG_LOGE(AAFwkTag::JSRUNTIME,
+                 "ConnectServerManager::AddInstance failed to find symbol 'setProfilerCallback'");
+        return false;
+    }
+
+    setProfilerCallback([this](bool status) { setArkUIStateProfilerStatus_(status); });
+
     // Get the message including information of new instance, which will be send to IDE.
     std::string message = GetInstanceMapMessage("addInstance", instanceId, instanceName, tid);
 
@@ -286,7 +307,7 @@ void ConnectServerManager::RemoveInstance(int32_t instanceId)
 {
     TAG_LOGD(AAFwkTag::JSRUNTIME, "ConnectServerManager::RemoveInstance Remove instance to connect server");
     std::string instanceName;
-    int tid;
+    int32_t tid;
 
     {
         std::lock_guard<std::mutex> lock(mutex_);
@@ -366,6 +387,24 @@ void ConnectServerManager::SetLayoutInspectorCallback(
 std::function<void(int32_t)> ConnectServerManager::GetLayoutInspectorCallback()
 {
     return createLayoutInfo_;
+}
+
+void ConnectServerManager::SetStateProfilerCallback(const std::function<void(bool)> &setArkUIStateProfilerStatus)
+{
+    setArkUIStateProfilerStatus_ = setArkUIStateProfilerStatus;
+}
+
+void ConnectServerManager::SendArkUIStateProfilerMessage(const std::string &message)
+{
+    TAG_LOGI(AAFwkTag::JSRUNTIME, "ConnectServerManager SendArkUIStateProfilerMessage Start");
+    auto sendProfilerMessage = reinterpret_cast<SendMessage>(dlsym(handlerConnectServerSo_, "SendProfilerMessage"));
+    if (sendProfilerMessage == nullptr) {
+        TAG_LOGE(AAFwkTag::JSRUNTIME,
+                 "ConnectServerManager::SendArkUIStateProfilerMessage failed to find symbol 'sendProfilerMessage'");
+        return;
+    }
+
+    sendProfilerMessage(message);
 }
 
 } // namespace OHOS::AbilityRuntime

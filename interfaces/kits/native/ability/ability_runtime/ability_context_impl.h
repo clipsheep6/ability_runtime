@@ -84,8 +84,8 @@ public:
                         const sptr<AbilityConnectCallback> &connectCallback) override;
     ErrCode ConnectAbilityWithAccount(const AAFwk::Want &want, int accountId,
                         const sptr<AbilityConnectCallback> &connectCallback) override;
-    void DisconnectAbility(const AAFwk::Want &want,
-                           const sptr<AbilityConnectCallback> &connectCallback) override;
+    void DisconnectAbility(const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback,
+        int32_t accountId = -1) override;
     std::shared_ptr<AppExecFwk::HapModuleInfo> GetHapModuleInfo() const override;
     std::shared_ptr<AppExecFwk::AbilityInfo> GetAbilityInfo() const override;
     void MinimizeAbility(bool fromUser = false) override;

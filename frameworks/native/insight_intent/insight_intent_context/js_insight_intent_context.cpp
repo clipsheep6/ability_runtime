@@ -44,14 +44,15 @@ napi_value JsInsightIntentContext::OnStartAbility(napi_env env, NapiCallbackInfo
 {
     TAG_LOGD(AAFwkTag::INTENT, "enter");
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    if (info.argc == 0) {
-        TAG_LOGE(AAFwkTag::INTENT, "not enough args");
-        ThrowTooFewParametersError(env);
-        return CreateJsUndefined(env);
-    }
+
     // unwrap want
     AAFwk::Want want;
-    OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want);
+
+    bool checkParamResult = CheckStartAbilityParam(env, info, want);
+    if (!checkParamResult) {
+        TAG_LOGE(AAFwkTag::INTENT, "check startAbility param failed");
+        return CreateJsUndefined(env);
+    }
 
     auto context = context_.lock();
     if (context == nullptr) {
@@ -115,6 +116,24 @@ napi_value CreateJsInsightIntentContext(napi_env env, const std::shared_ptr<Insi
     BindNativeFunction(env, contextObj, "startAbility", CONTEXT_MODULE_NAME, JsInsightIntentContext::StartAbiity);
     TAG_LOGD(AAFwkTag::INTENT, "end");
     return contextObj;
+}
+
+bool CheckStartAbilityParam(napi_env env, NapiCallbackInfo& info, AAFwk::Want want)
+{
+    if (info.argc == 0) {
+        TAG_LOGE(AAFwkTag::INTENT, "not enough args");
+        ThrowTooFewParametersError(env);
+        return false;
+    }
+
+    // unwrap want
+    bool unwrapWantFlag = OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want);
+    if (!unwrapWantFlag) {
+        TAG_LOGE(AAFwkTag::INTENT, "Failed to parse want.");
+        ThrowInvalidParamError(env, "Parameter error: Failed to parse want, must be a Want.");
+        return false;
+    }
+    return true;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

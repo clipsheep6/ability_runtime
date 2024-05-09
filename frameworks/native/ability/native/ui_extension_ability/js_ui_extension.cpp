@@ -28,6 +28,7 @@
 #include "insight_intent_executor_info.h"
 #include "insight_intent_executor_mgr.h"
 #include "int_wrapper.h"
+#include "js_data_struct_converter.h"
 #include "js_embeddable_ui_ability_context.h"
 #include "js_embeddable_window_stage.h"
 #include "js_extension_common.h"
@@ -239,11 +240,31 @@ void JsUIExtension::OnStart(const AAFwk::Want &want)
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::UI_EXT, "JsUIExtension OnStart begin.");
     Extension::OnStart(want);
+    auto context = GetContext();
+    if (context != nullptr) {
+        int32_t  displayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
+        displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, displayId);
+        TAG_LOGD(AAFwkTag::UI_EXT, "displayId %{public}d", displayId);
+        auto configUtils = std::make_shared<ConfigurationUtils>();
+        configUtils->InitDisplayConfig(displayId, context->GetConfiguration(), context->GetResourceManager());
+    }
+
     HandleScope handleScope(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
+    if (context != nullptr) {
+        JsExtensionContext::ConfigurationUpdated(env, shellContextRef_, context->GetConfiguration());
+    }
+
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
-    napi_value argv[] = {napiWant};
-    CallObjectMethod("onCreate", argv, ARGC_ONE);
+    auto launchParam = Extension::GetLaunchParam();
+    if (InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
+        launchParam.launchReason = AAFwk::LaunchReason::LAUNCHREASON_INSIGHT_INTENT;
+    }
+    napi_value argv[] = {
+        CreateJsLaunchParam(env, launchParam),
+        napiWant
+    };
+    CallObjectMethod("onCreate", argv, ARGC_TWO);
     TAG_LOGD(AAFwkTag::UI_EXT, "JsUIExtension OnStart end.");
 }
 

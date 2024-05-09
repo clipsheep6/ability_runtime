@@ -38,6 +38,7 @@ ohos_shared_library("demo_ui_extension") {
   sources = [
     "src/demo_ui_extension.cpp",
     "src/js_demo_ui_extension.cpp",
+    "src/js_demo_ui_extension_context.cpp",
   ]
 
   # If not in ability_runtime repo, use external_deps

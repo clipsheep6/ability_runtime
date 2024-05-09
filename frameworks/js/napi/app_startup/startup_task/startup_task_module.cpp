@@ -15,8 +15,6 @@
 
 #include "native_engine/native_engine.h"
 
-extern const char _binary_startup_task_js_start[];
-extern const char _binary_startup_task_js_end[];
 extern const char _binary_startup_task_abc_start[];
 extern const char _binary_startup_task_abc_end[];
 
@@ -29,18 +27,6 @@ extern "C" __attribute__((constructor))
 void NAPI_app_appstartup_StartupTask_AutoRegister()
 {
     napi_module_register(&_module);
-}
-
-extern "C" __attribute__((visibility("default")))
-void NAPI_app_appstartup_StartupTask_GetJSCode(const char **buf, int *bufLen)
-{
-    if (buf != nullptr) {
-        *buf = _binary_startup_task_js_start;
-    }
-
-    if (bufLen != nullptr) {
-        *bufLen = _binary_startup_task_js_end - _binary_startup_task_js_start;
-    }
 }
 
 extern "C" __attribute__((visibility("default")))

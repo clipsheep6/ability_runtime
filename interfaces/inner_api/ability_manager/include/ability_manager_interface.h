@@ -30,6 +30,7 @@
 #include "ability_state_data.h"
 #include "app_debug_listener_interface.h"
 #include "auto_startup_info.h"
+#include "dms_continueInfo.h"
 #include "exit_reason.h"
 #include "extension_running_info.h"
 #include "free_install_observer_interface.h"
@@ -333,6 +334,20 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int RequestModalUIExtension(const Want &want)
+    {
+        return 0;
+    }
+
+    /**
+     * Preload UIExtension with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param hostBundleName, the caller application bundle name.
+     * @param userId, the extension runs in.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int PreloadUIExtensionAbility(const Want &want, std::string &hostBundleName,
+        int32_t userId = DEFAULT_INVAL_VALUE)
     {
         return 0;
     }
@@ -759,8 +774,7 @@ public:
     virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId, int32_t missionId,
         const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams) = 0;
 
-    virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
-        const std::string &bundleName, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
+    virtual int ContinueMission(AAFwk::ContinueMissionInfo continueMissionInfo, const sptr<IRemoteObject> &callback)
     {
         return 0;
     }
@@ -1508,6 +1522,18 @@ public:
         return 0;
     }
 
+    /*
+     * Set the enable status for starting and stopping resident processes.
+     * The caller application can only set the resident status of the configured process.
+     * @param bundleName The bundle name of the resident process.
+     * @param enable Set resident process enable status.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t SetResidentProcessEnabled(const std::string &bundleName, bool enable)
+    {
+        return 0;
+    }
+
     /**
      * @brief Querying whether to allow embedded startup of atomic service.
      *
@@ -1550,6 +1576,18 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t StartShortcut(const Want &want, const StartOptions &startOptions)
+    {
+        return 0;
+    }
+
+    /**
+     * Get ability state by persistent id.
+     *
+     * @param persistentId, the persistentId of the session.
+     * @param state Indicates the ability state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetAbilityStateByPersistentId(int32_t persistentId, bool &state)
     {
         return 0;
     }

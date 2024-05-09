@@ -355,6 +355,8 @@ public:
      */
     Global::Resource::DeviceType GetDeviceType() const override;
 
+    int32_t SetSupportedProcessCacheSelf(bool isSupport);
+
     static const int EL_DEFAULT = 1;
 
 protected:

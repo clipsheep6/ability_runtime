@@ -24,6 +24,7 @@
 #include "app_mgr_constants.h"
 #include "datetime_ex.h"
 #include "hilog_tag_wrapper.h"
+#include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
 #include "perf_profile.h"
@@ -33,6 +34,7 @@
 #include "base/security/access_token/interfaces/innerkits/accesstoken/include/accesstoken_kit.h"
 #include "app_mgr_service_const.h"
 #include "app_mgr_service_dump_error_code.h"
+#include "cache_process_manager.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -168,6 +170,7 @@ ErrCode AppMgrService::Init()
     eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrServiceInner_);
     appMgrServiceInner_->SetTaskHandler(taskHandler_);
     appMgrServiceInner_->SetEventHandler(eventHandler_);
+    DelayedSingleton<CacheProcessManager>::GetInstance()->SetAppMgr(appMgrServiceInner_);
     std::function<void()> initAppMgrServiceInnerTask =
         std::bind(&AppMgrServiceInner::Init, appMgrServiceInner_);
     taskHandler_->SubmitTask(initAppMgrServiceInnerTask, TASK_INIT_APPMGRSERVICEINNER);
@@ -197,13 +200,24 @@ void AppMgrService::AttachApplication(const sptr<IRemoteObject> &app)
         return;
     }
 
-    pid_t pid = IPCSkeleton::GetCallingPid();
+    pid_t pid = IPCSkeleton::GetCallingRealPid();
     std::function<void()> attachApplicationFunc =
         std::bind(&AppMgrServiceInner::AttachApplication, appMgrServiceInner_, pid, iface_cast<IAppScheduler>(app));
     taskHandler_->SubmitTask(attachApplicationFunc, AAFwk::TaskAttribute{
         .taskName_ = TASK_ATTACH_APPLICATION,
         .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
     });
+}
+
+int32_t AppMgrService::PreloadApplication(const std::string &bundleName, int32_t userId,
+    AppExecFwk::PreloadMode preloadMode, int32_t appIndex)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "PreloadApplication called");
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication failed, appMgr not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->PreloadApplication(bundleName, userId, preloadMode, appIndex);
 }
 
 void AppMgrService::ApplicationForegrounded(const int32_t recordId)
@@ -290,8 +304,8 @@ void AppMgrService::StartupResidentProcess(const std::vector<AppExecFwk::BundleI
     if (!IsReady()) {
         return;
     }
-    pid_t callingPid = IPCSkeleton::GetCallingPid();
-    pid_t pid = getpid();
+    pid_t callingPid = IPCSkeleton::GetCallingRealPid();
+    pid_t pid = getprocpid();
     if (callingPid != pid) {
         TAG_LOGE(AAFwkTag::APPMGR, "Not this process call.");
         return;
@@ -341,7 +355,7 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, con
         }
     }
     int32_t uid = IPCSkeleton::GetCallingUid();
-    pid_t pid = IPCSkeleton::GetCallingPid();
+    pid_t pid = IPCSkeleton::GetCallingRealPid();
     appMgrServiceInner_->ClearUpApplicationData(bundleName, uid, pid, userId);
     return ERR_OK;
 }
@@ -352,7 +366,7 @@ int32_t AppMgrService::ClearUpApplicationDataBySelf(int32_t userId)
         return ERR_INVALID_OPERATION;
     }
     int32_t uid = IPCSkeleton::GetCallingUid();
-    pid_t pid = IPCSkeleton::GetCallingPid();
+    pid_t pid = IPCSkeleton::GetCallingRealPid();
     return appMgrServiceInner_->ClearUpApplicationDataBySelf(uid, pid, userId);
 }
 
@@ -362,6 +376,15 @@ int32_t AppMgrService::GetAllRunningProcesses(std::vector<RunningProcessInfo> &i
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->GetAllRunningProcesses(info);
+}
+
+int32_t AppMgrService::GetRunningProcessesByBundleType(BundleType bundleType,
+    std::vector<RunningProcessInfo> &info)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->GetRunningProcessesByBundleType(bundleType, info);
 }
 
 int32_t AppMgrService::GetAllRenderProcesses(std::vector<RenderProcessInfo> &info)
@@ -487,6 +510,7 @@ int32_t AppMgrService::UnregisterApplicationStateObserver(const sptr<IApplicatio
 
 int32_t AppMgrService::RegisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (!IsReady()) {
         TAG_LOGE(AAFwkTag::APPMGR, "Not ready.");
@@ -561,7 +585,7 @@ int AppMgrService::FinishUserTest(const std::string &msg, const int64_t &resultC
         TAG_LOGE(AAFwkTag::APPMGR, "GetBundleName failed: %{public}d.", result);
         return ERR_INVALID_OPERATION;
     }
-    pid_t callingPid = IPCSkeleton::GetCallingPid();
+    pid_t callingPid = IPCSkeleton::GetCallingRealPid();
     std::function<void()> finishUserTestProcessFunc =
         std::bind(&AppMgrServiceInner::FinishUserTest, appMgrServiceInner_, msg, resultCode, bundleName, callingPid);
     taskHandler_->SubmitTask(finishUserTestProcessFunc, TASK_FINISH_USER_TEST);
@@ -785,7 +809,7 @@ int32_t AppMgrService::PreStartNWebSpawnProcess()
         return ERR_INVALID_OPERATION;
     }
 
-    return appMgrServiceInner_->PreStartNWebSpawnProcess(IPCSkeleton::GetCallingPid());
+    return appMgrServiceInner_->PreStartNWebSpawnProcess(IPCSkeleton::GetCallingRealPid());
 }
 
 int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
@@ -796,19 +820,19 @@ int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_
         return ERR_INVALID_OPERATION;
     }
 
-    return appMgrServiceInner_->StartRenderProcess(IPCSkeleton::GetCallingPid(),
+    return appMgrServiceInner_->StartRenderProcess(IPCSkeleton::GetCallingRealPid(),
         renderParam, ipcFd, sharedFd, crashFd, renderPid);
 }
 
 void AppMgrService::AttachRenderProcess(const sptr<IRemoteObject> &scheduler)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "AttachRenderProcess called.");
+    TAG_LOGI(AAFwkTag::APPMGR, "AttachRenderProcess called.");
     if (!IsReady()) {
         TAG_LOGE(AAFwkTag::APPMGR, "AttachRenderProcess failed, not ready.");
         return;
     }
 
-    auto pid = IPCSkeleton::GetCallingPid();
+    auto pid = IPCSkeleton::GetCallingRealPid();
     auto fun = std::bind(&AppMgrServiceInner::AttachRenderProcess,
         appMgrServiceInner_, pid, iface_cast<IRenderScheduler>(scheduler));
     taskHandler_->SubmitTask(fun, AAFwk::TaskAttribute{
@@ -839,6 +863,7 @@ int32_t AppMgrService::GetConfiguration(Configuration& config)
 
 int32_t AppMgrService::UpdateConfiguration(const Configuration& config)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (!IsReady()) {
         TAG_LOGE(AAFwkTag::APPMGR, "UpdateConfiguration failed, AppMgrService not ready.");
         return ERR_INVALID_OPERATION;
@@ -1155,14 +1180,16 @@ int32_t AppMgrService::IsApplicationRunning(const std::string &bundleName, bool 
     return appMgrServiceInner_->IsApplicationRunning(bundleName, isRunning);
 }
 
-int32_t AppMgrService::StartChildProcess(const std::string &srcEntry, pid_t &childPid)
+int32_t AppMgrService::StartChildProcess(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount,
+    bool isStartWithDebug)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (!IsReady()) {
         TAG_LOGE(AAFwkTag::APPMGR, "StartChildProcess failed, AppMgrService not ready.");
         return ERR_INVALID_OPERATION;
     }
-    return appMgrServiceInner_->StartChildProcess(IPCSkeleton::GetCallingPid(), srcEntry, childPid);
+    return appMgrServiceInner_->StartChildProcess(IPCSkeleton::GetCallingRealPid(), srcEntry, childPid,
+        childProcessCount, isStartWithDebug);
 }
 
 int32_t AppMgrService::GetChildProcessInfoForSelf(ChildProcessInfo &info)
@@ -1185,7 +1212,7 @@ void AppMgrService::AttachChildProcess(const sptr<IRemoteObject> &childScheduler
         TAG_LOGE(AAFwkTag::APPMGR, "taskHandler_ is null.");
         return;
     }
-    pid_t pid = IPCSkeleton::GetCallingPid();
+    pid_t pid = IPCSkeleton::GetCallingRealPid();
     std::function<void()> task = std::bind(&AppMgrServiceInner::AttachChildProcess,
         appMgrServiceInner_, pid, iface_cast<IChildScheduler>(childScheduler));
     taskHandler_->SubmitTask(task, AAFwk::TaskAttribute{
@@ -1204,7 +1231,7 @@ void AppMgrService::ExitChildProcessSafely()
         TAG_LOGE(AAFwkTag::APPMGR, "taskHandler_ is null.");
         return;
     }
-    pid_t pid = IPCSkeleton::GetCallingPid();
+    pid_t pid = IPCSkeleton::GetCallingRealPid();
     std::function<void()> task = std::bind(&AppMgrServiceInner::ExitChildProcessSafelyByChildPid,
         appMgrServiceInner_, pid);
     taskHandler_->SubmitTask(task, AAFwk::TaskAttribute{
@@ -1307,6 +1334,26 @@ int32_t AppMgrService::GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<p
     }
 
     return appMgrServiceInner_->GetAllUIExtensionProviderPid(hostPid, providerPids);
+}
+
+int32_t AppMgrService::NotifyMemorySizeStateChanged(bool isMemorySizeSufficent)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    return appMgrServiceInner_->NotifyMemorySizeStateChanged(isMemorySizeSufficent);
+}
+
+int32_t AppMgrService::SetSupportedProcessCacheSelf(bool isSupport)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "Called");
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->SetSupportedProcessCacheSelf(isSupport);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

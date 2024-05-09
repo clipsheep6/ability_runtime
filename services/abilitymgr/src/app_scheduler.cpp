@@ -232,6 +232,13 @@ void AppScheduler::NotifyConfigurationChange(const AppExecFwk::Configuration &co
     callback->NotifyConfigurationChange(config, userId);
 }
 
+void AppScheduler::NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos)
+{
+    auto callback = callback_.lock();
+    CHECK_POINTER(callback);
+    callback->NotifyStartResidentProcess(bundleInfos);
+}
+
 int AppScheduler::KillApplication(const std::string &bundleName)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
@@ -295,11 +302,13 @@ void AppScheduler::OnAppStateChanged(const AppExecFwk::AppProcessData &appData)
     }
     info.processName = appData.processName;
     info.state = static_cast<AppState>(appData.appState);
+    info.pid = appData.pid;
     callback->OnAppStateChanged(info);
 }
 
 void AppScheduler::GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_POINTER(appMgrClient_);
     IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->GetRunningProcessInfoByToken(token, info));
 }
@@ -569,6 +578,15 @@ void AppScheduler::ClearProcessByToken(sptr<IRemoteObject> token) const
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_POINTER(appMgrClient_);
     appMgrClient_->ClearProcessByToken(token);
+}
+
+bool AppScheduler::IsMemorySizeSufficent() const
+{
+    if (!appMgrClient_) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "appMgrClient is nullptr");
+        return true;
+    }
+    return appMgrClient_->IsMemorySizeSufficent();
 }
 }  // namespace AAFwk
 }  // namespace OHOS

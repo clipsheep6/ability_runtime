@@ -163,13 +163,13 @@ public:
     void SetUp();
     void TearDown();
 
-    std::string cmdhelp_ = "help";
-    std::string cmdenable_ = "enable";
-    std::string cmddisable_ = "disable";
+    std::string cmdHelp_ = "help";
+    std::string cmdEnable_ = "enable";
+    std::string cmdDisable_ = "disable";
     std::string cmdsetShortKeyState_ = "setShortKeyState";
     std::string cmdsetMouseKeyState_ = "setMouseKeyState";
     std::string cmdsetCaptionState_ = "setCaptionState";
-    std::string cmdssetMouseAutoClick_ = "setMouseAutoClick";
+    std::string cmdsSetMouseAutoClick_ = "setMouseAutoClick";
     std::string cmdsetShortKeyTarget_ = "setShortKeyTarget";
     std::string cmdsetHighContrastTextState_ = "setHighContrastTextState";
     std::string cmdsetInvertColorState_ = "setInvertColorState";
@@ -178,7 +178,7 @@ public:
     std::string cmdsetAnimationOffState_ = "setAnimationOffState";
     std::string cmdsetBrightnessDiscount_ = "setBrightnessDiscount";
     std::string cmdsetAudioMonoState_ = "setAudioMonoState";
-    std::string cmdsetAudioBalance_ = "setAudioBalance";       
+    std::string cmdsetAudioBalance_ = "setAudioBalance";
     std::string cmdSetScreenMagnificationState_ = "setScreenMagnificationState";
 };
 
@@ -241,7 +241,7 @@ HWTEST_F(AccessibilityAbilityShellCommandTest, AccessibilityAbilityShellCommand_
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsHelpCommand_0100 start";
     char* argv[] = {
         (char*)ACCESSIBILITY_TOOL_NAME.c_str(),
-        (char*)cmdhelp_.c_str(),
+        (char*)cmdHelp_.c_str(),
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
@@ -255,7 +255,7 @@ HWTEST_F(AccessibilityAbilityShellCommandTest, AccessibilityAbilityShellCommand_
  * @tc.name: GetEnabledAbilities
  * @tc.desc: Test whether GetEnabledAbilities is called normally.
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_GetEnabledAbilities_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_GetEnabledAbilities_0100 start";
@@ -307,7 +307,7 @@ AccessibilityAbilityShellCommand_CheckAbilityArgument_0100, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckAbilityArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckAbilityArgument(argument, resultMessage);
     EXPECT_EQ(result, false);
     EXPECT_EQ(resultMessage, ACCESSIBILITY_ABILITY_NO_ABILITY_ARGUMENT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckAbilityArgument_0100 end";
@@ -330,7 +330,7 @@ AccessibilityAbilityShellCommand_CheckAbilityArgument_0200, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckAbilityArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckAbilityArgument(argument, resultMessage);
     EXPECT_EQ(result, false);
     EXPECT_EQ(resultMessage, ACCESSIBILITY_ABILITY_DUPLICATE_ARGUMENT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckAbilityArgument_0200 end";
@@ -400,7 +400,7 @@ AccessibilityAbilityShellCommand_CheckBundleArgument_0100, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckBundleArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckBundleArgument(argument, resultMessage);
     EXPECT_EQ(result, false);
     EXPECT_EQ(resultMessage, ACCESSIBILITY_ABILITY_NO_BUNDLE_ARGUMENT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckBundleArgument_0100 end";
@@ -423,7 +423,7 @@ AccessibilityAbilityShellCommand_CheckBundleArgument_0200, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckBundleArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckBundleArgument(argument, resultMessage);
     EXPECT_EQ(result, false);
     EXPECT_EQ(resultMessage, ACCESSIBILITY_ABILITY_DUPLICATE_ARGUMENT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckBundleArgument_0200 end";
@@ -518,7 +518,7 @@ AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0200, TestSize.Level1
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckCapabilitiesArgument(argument,installedAbilities,resultMessage);
+    ErrCode result = cmd.CheckCapabilitiesArgument(argument, installedAbilities, resultMessage);
     EXPECT_EQ(result, false);
     EXPECT_EQ(resultMessage, ACCESSIBILITY_ABILITY_DUPLICATE_ARGUMENT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0200 end";
@@ -543,7 +543,7 @@ AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0300, TestSize.Level1
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckCapabilitiesArgument(argument,installedAbilities,resultMessage);
+    ErrCode result = cmd.CheckCapabilitiesArgument(argument, installedAbilities, resultMessage);
     EXPECT_EQ(result, false);
     EXPECT_EQ(resultMessage, ACCESSIBILITY_ABILITY_NO_CAPABILITIES_ARGUMENT_VALUE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0300 end";
@@ -591,7 +591,7 @@ AccessibilityAbilityShellCommand_CheckSetCommandArgument_0100, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckSetCommandArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckSetCommandArgument(argument, resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(resultMessage, ": and exist duplicated arguments.and exist unknown arguments ");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckSetCommandArgument_0100 end";
@@ -615,7 +615,7 @@ AccessibilityAbilityShellCommand_CheckSetCommandArgument_0200, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckSetCommandArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckSetCommandArgument(argument, resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(resultMessage, ": unknown arguments ");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckSetCommandArgument_0200 end";
@@ -701,7 +701,7 @@ AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0200, TestSize
     AccessibilityCommandArgument argument;
     char* argv[] = {
         (char*)ACCESSIBILITY_TOOL_NAME.c_str(),
-        (char*)cmdenable_.c_str(),
+        (char*)cmdEnable_.c_str(),
         (char*)" ",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
@@ -724,7 +724,7 @@ AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0300, TestSize
     AccessibilityCommandArgument argument;
     char* argv[] = {
         (char*)ACCESSIBILITY_TOOL_NAME.c_str(),
-        (char*)cmdenable_.c_str(),
+        (char*)cmdEnable_.c_str(),
         (char*)"-a",
         (char*)" ",
     };
@@ -748,7 +748,7 @@ AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0400, TestSize
     AccessibilityCommandArgument argument;
     char* argv[] = {
         (char*)ACCESSIBILITY_TOOL_NAME.c_str(),
-        (char*)cmdenable_.c_str(),
+        (char*)cmdEnable_.c_str(),
         (char*)"-a",
         (char*)"ability",
         (char*)"-b",
@@ -774,7 +774,7 @@ AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0500, TestSize
     AccessibilityCommandArgument argument;
     char* argv[] = {
         (char*)ACCESSIBILITY_TOOL_NAME.c_str(),
-        (char*)cmdenable_.c_str(),
+        (char*)cmdEnable_.c_str(),
         (char*)"-a",
         (char*)"ability",
         (char*)"-b",
@@ -803,7 +803,7 @@ AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0600, TestSize
     AccessibilityCommandArgument argument;
     char* argv[] = {
         (char*)ACCESSIBILITY_TOOL_NAME.c_str(),
-        (char*)cmdenable_.c_str(),
+        (char*)cmdEnable_.c_str(),
         (char*)"-a",
         (char*)"ability",
         (char*)"-b",
@@ -818,7 +818,7 @@ AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0600, TestSize
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.MakeEnableCommandArgumentFromCmd(argument);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "enable: " + ACCESSIBILITY_ABILITY_TOO_MANY_ARGUMENT 
+    EXPECT_EQ(cmd.resultReceiver_, "enable: " + ACCESSIBILITY_ABILITY_TOO_MANY_ARGUMENT
     + "and exist unknown arguments.-v ");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0600 end";
 }
@@ -836,7 +836,7 @@ AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0700, TestSize
     AccessibilityCommandArgument argument;
     char* argv[] = {
         (char*)ACCESSIBILITY_TOOL_NAME.c_str(),
-        (char*)cmdenable_.c_str(),
+        (char*)cmdEnable_.c_str(),
         (char*)"-a",
         (char*)"ability",
         (char*)"-b",
@@ -849,7 +849,7 @@ AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0700, TestSize
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.MakeEnableCommandArgumentFromCmd(argument);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "enable: the auxiliary application bundle/ability" 
+    EXPECT_EQ(cmd.resultReceiver_, "enable: the auxiliary application bundle/ability"
     + ACCESSIBILITY_ABILITY_NOT_FOUND);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0700 end";
 }
@@ -880,7 +880,7 @@ AccessibilityAbilityShellCommand_CheckParamValidity_0100, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    bool result = cmd.CheckParamValidity(argument,installedAbilities,resultMessage);
+    bool result = cmd.CheckParamValidity(argument, installedAbilities, resultMessage);
     EXPECT_EQ(result, true);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckParamValidity_0100 end";
 }
@@ -907,7 +907,7 @@ AccessibilityAbilityShellCommand_CheckParamValidity_0200, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    bool result = cmd.CheckParamValidity(argument,installedAbilities,resultMessage);
+    bool result = cmd.CheckParamValidity(argument, installedAbilities, resultMessage);
     EXPECT_EQ(result, false);
     EXPECT_EQ(resultMessage, "the auxiliary application " +
             argument.bundleName + "/" + argument.abilityName + ACCESSIBILITY_ABILITY_NOT_FOUND);
@@ -971,8 +971,8 @@ AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0100, TestSize.Level
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.CheckEnableCommandArgument(argument,resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(resultMessage, ": and exist duplicated argumentsand exist unknown arguments.");
-    EXPECT_EQ( cmd.resultReceiver_, ACCESSIBILITY_ABILITY_TOO_MANY_ARGUMENT);
+    EXPECT_EQ(resultMessage, ": and exist duplicated arguments and exist unknown arguments.");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_ABILITY_TOO_MANY_ARGUMENT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0100 end";
 }
 
@@ -1022,7 +1022,7 @@ AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0300, TestSize.Level
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckEnableCommandArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckEnableCommandArgument(argument, resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(resultMessage, ": " + ACCESSIBILITY_ABILITY_NO_ABILITY_ARGUMENT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0300 end";
@@ -1051,7 +1051,7 @@ AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0400, TestSize.Level
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckEnableCommandArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckEnableCommandArgument(argument, resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(resultMessage, ": " + ACCESSIBILITY_ABILITY_NO_BUNDLE_ARGUMENT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0400 end";
@@ -1261,7 +1261,7 @@ AccessibilityAbilityShellCommand_RunAsSetScreenMagnificationState_0300, TestSize
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetScreenMagnificationState();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "setScreenMagnificationState: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID + 
+    EXPECT_EQ(cmd.resultReceiver_, "setScreenMagnificationState: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
     "\n" + ACCESSIBILITY_HELP_MSG_SET_SCREEN_MAGNIFICATION_STATE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetScreenMagnificationState_0300 end";
 }
@@ -1334,7 +1334,7 @@ AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0300, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetShortKeyState();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "setShortKeyState: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID + 
+    EXPECT_EQ(cmd.resultReceiver_, "setShortKeyState: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
     "\n" + ACCESSIBILITY_HELP_MSG_SET_SHORT_KEY_STATE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0300 end";
 }
@@ -1428,7 +1428,7 @@ AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0300, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetMouseKeyState();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "setMouseKeyState: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID + 
+    EXPECT_EQ(cmd.resultReceiver_, "setMouseKeyState: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
     "\n" + ACCESSIBILITY_HELP_MSG_SET_MOUSE_KEY_STATE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0300 end";
 }
@@ -1523,7 +1523,7 @@ AccessibilityAbilityShellCommand_RunAsSetCaptionState_0300, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetCaptionState();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "setCaptionState: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID + 
+    EXPECT_EQ(cmd.resultReceiver_, "setCaptionState: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
     "\n" + ACCESSIBILITY_HELP_MSG_SET_CAPTION_STATE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetCaptionState_0300 end";
 }
@@ -1534,7 +1534,7 @@ AccessibilityAbilityShellCommand_RunAsSetCaptionState_0300, TestSize.Level1)
  * @tc.desc: Test whether RunAsSetCaptionState is called normally.
  *           (MakeSetCommandArgumentFromCmd = OHOS::ERR_INVALID_VALUE)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetCaptionState_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetCaptionState_0400 start";
@@ -1560,7 +1560,7 @@ AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0100, TestSize.Level1)
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0100 start";
     char* argv[] = {
         (char*)ACCESSIBILITY_TOOL_NAME.c_str(),
-        (char*)cmdssetMouseAutoClick_.c_str(),
+        (char*)cmdsSetMouseAutoClick_.c_str(),
         (char*)"-v",
         (char*)"1000",
         (char*)" ",
@@ -1584,7 +1584,7 @@ AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0200, TestSize.Level1)
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0200 start";
     char* argv[] = {
         (char*)ACCESSIBILITY_TOOL_NAME.c_str(),
-        (char*)cmdssetMouseAutoClick_.c_str(),
+        (char*)cmdsSetMouseAutoClick_.c_str(),
         (char*)"-v",
         (char*)"5000",
         (char*)" ",
@@ -1608,7 +1608,7 @@ AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0300, TestSize.Level1)
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0300 start";
     char* argv[] = {
         (char*)ACCESSIBILITY_TOOL_NAME.c_str(),
-        (char*)cmdssetMouseAutoClick_.c_str(),
+        (char*)cmdsSetMouseAutoClick_.c_str(),
         (char*)"-v",
         (char*)"5001",
         (char*)" ",
@@ -1617,7 +1617,7 @@ AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0300, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetMouseAutoClick();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "setMouseAutoClick: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID + 
+    EXPECT_EQ(cmd.resultReceiver_, "setMouseAutoClick: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
     "\n" + ACCESSIBILITY_HELP_MSG_SET_AUTO_CLICK_TIME);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0300 end";
 }
@@ -1732,7 +1732,7 @@ AccessibilityAbilityShellCommand_RunAsSetHighContrastTextState_0300, TestSize.Le
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetHighContrastTextState();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "setHighContrastTextState: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID + 
+    EXPECT_EQ(cmd.resultReceiver_, "setHighContrastTextState: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
     "\n" + ACCESSIBILITY_HELP_MSG_HIGH_CONTRAST_TEXT_STATE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetHighContrastTextState_0300 end";
 }
@@ -1826,7 +1826,7 @@ AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0300, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetInvertColorState();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "setInvertColorState: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID + 
+    EXPECT_EQ(cmd.resultReceiver_, "setInvertColorState: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
     "\n" + ACCESSIBILITY_HELP_MSG_SET_INVERT_COLOR_STATE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0300 end";
 }
@@ -2062,7 +2062,7 @@ AccessibilityAbilityShellCommand_RunAsSetContentTimeout_0300, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetContentTimeout();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "setContentTimeout: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID + 
+    EXPECT_EQ(cmd.resultReceiver_, "setContentTimeout: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
     "\n" + ACCESSIBILITY_HELP_MSG_SET_CONTENT_TIME_OUT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetContentTimeout_0300 end";
 }
@@ -2156,7 +2156,7 @@ AccessibilityAbilityShellCommand_RunAsSetAnimationOffState_0300, TestSize.Level1
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetAnimationOffState();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "setAnimationOffState: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID + 
+    EXPECT_EQ(cmd.resultReceiver_, "setAnimationOffState: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
     "\n" + ACCESSIBILITY_HELP_MSG_ANIMATION_OFF_STATE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAnimationOffState_0300 end";
 }
@@ -2255,7 +2255,7 @@ AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0300, TestSize.Level
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetBrightnessDiscount();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "setSetBrightnessDiscount: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID + 
+    EXPECT_EQ(cmd.resultReceiver_, "setSetBrightnessDiscount: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
     "\n" + ACCESSIBILITY_HELP_MSG_SET_BRIGHTNESS_DISCOUNT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0300 end";
 }
@@ -2349,7 +2349,7 @@ AccessibilityAbilityShellCommand_RunAsSetAudioMonoState_0300, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetAudioMonoState();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "setAudioMonoState: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID + 
+    EXPECT_EQ(cmd.resultReceiver_, "setAudioMonoState: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
     "\n" + ACCESSIBILITY_HELP_MSG_SET_AUDIO_MONO_STATE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAudioMonoState_0300 end";
 }
@@ -2443,7 +2443,7 @@ AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0300, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetAudioBalance();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "setAudioBalance: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID + 
+    EXPECT_EQ(cmd.resultReceiver_, "setAudioBalance: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
     "\n" + ACCESSIBILITY_HELP_MSG_SET_AUDIO_BALANCE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0300 end";
 }
@@ -2784,7 +2784,7 @@ AccessibilityAbilityShellCommand_MakeDisableCommandArgumentFromCmd_0100, TestSiz
     argument.unknownArgumentNum = 0;
     char* argv[] = {
         (char*)ACCESSIBILITY_TOOL_NAME.c_str(),
-        (char*)cmddisable_.c_str(),
+        (char*)cmdDisable_.c_str(),
         (char*)"-a",
         (char*)"ability",
         (char*)"-b",
@@ -2821,7 +2821,7 @@ AccessibilityAbilityShellCommand_CheckDisableCommandArgument_0100, TestSize.Leve
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckDisableCommandArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckDisableCommandArgument(argument, resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(resultMessage, ": the auxiliary application bundle/ability" + ACCESSIBILITY_ABILITY_NOT_FOUND);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckDisableCommandArgument_0100 end";
@@ -2849,7 +2849,7 @@ AccessibilityAbilityShellCommand_CheckCommandArgument_0100, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckCommandArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckCommandArgument(argument, resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(resultMessage, ": and duplicated arguments exist.and unknown arguments exist.");
     EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_ABILITY_TOO_MANY_ARGUMENT);
@@ -2878,7 +2878,7 @@ AccessibilityAbilityShellCommand_CheckCommandArgument_0200, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckCommandArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckCommandArgument(argument, resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(resultMessage, ": unknown arguments exist.");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckCommandArgument_0200 end";

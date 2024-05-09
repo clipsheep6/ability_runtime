@@ -263,5 +263,73 @@ HWTEST_F(ImplicitStartProcessorTest, CallStartAbilityInner_003, TestSize.Level1)
     bool res = processor->CallStartAbilityInner(userId, want, callBack, callType);
     EXPECT_EQ(res, ERR_OK);
 }
+
+/*
+ * Feature: ImplicitStartProcessor
+ * Function: SetTargetLinkInfo
+ * SubFunction: NA
+ * FunctionPoints:ImplicitStartProcessor SetTargetLinkInfo
+ * EnvConditions: NA
+ * CaseDescription: Verify SetTargetLinkInfo
+ */
+HWTEST_F(ImplicitStartProcessorTest, SetTargetLinkInfo_001, TestSize.Level1)
+{
+    auto processor = std::make_shared<ImplicitStartProcessor>();
+    std::vector<AppExecFwk::SkillUriForAbilityAndExtension> skillUri;
+    AppExecFwk::SkillUriForAbilityAndExtension uri;
+    uri.isMatch = true;
+    uri.scheme = "https";
+    skillUri.emplace_back(uri);
+    Want want;
+    want.SetParam("appLinkingOnly", true);
+    processor->SetTargetLinkInfo(skillUri, want);
+    int32_t targetLinkType = want.GetIntParam("send_to_erms_targetLinkType", 0);
+    EXPECT_EQ(targetLinkType, 1);
+}
+
+/*
+ * Feature: ImplicitStartProcessor
+ * Function: SetTargetLinkInfo
+ * SubFunction: NA
+ * FunctionPoints:ImplicitStartProcessor SetTargetLinkInfo
+ * EnvConditions: NA
+ * CaseDescription: Verify SetTargetLinkInfo
+ */
+HWTEST_F(ImplicitStartProcessorTest, SetTargetLinkInfo_002, TestSize.Level1)
+{
+    auto processor = std::make_shared<ImplicitStartProcessor>();
+    std::vector<AppExecFwk::SkillUriForAbilityAndExtension> skillUri;
+    AppExecFwk::SkillUriForAbilityAndExtension uri;
+    uri.isMatch = true;
+    uri.scheme = "https";
+    skillUri.emplace_back(uri);
+    Want want;
+    want.SetAction("ohos.want.action.viewData");
+    processor->SetTargetLinkInfo(skillUri, want);
+    int32_t targetLinkType = want.GetIntParam("send_to_erms_targetLinkType", 0);
+    EXPECT_EQ(targetLinkType, 3);
+}
+
+/*
+ * Feature: ImplicitStartProcessor
+ * Function: SetTargetLinkInfo
+ * SubFunction: NA
+ * FunctionPoints:ImplicitStartProcessor SetTargetLinkInfo
+ * EnvConditions: NA
+ * CaseDescription: Verify SetTargetLinkInfo
+ */
+HWTEST_F(ImplicitStartProcessorTest, SetTargetLinkInfo_003, TestSize.Level1)
+{
+    auto processor = std::make_shared<ImplicitStartProcessor>();
+    std::vector<AppExecFwk::SkillUriForAbilityAndExtension> skillUri;
+    AppExecFwk::SkillUriForAbilityAndExtension uri;
+    uri.isMatch = true;
+    uri.scheme = "https";
+    skillUri.emplace_back(uri);
+    Want want;
+    processor->SetTargetLinkInfo(skillUri, want);
+    int32_t targetLinkType = want.GetIntParam("send_to_erms_targetLinkType", 0);
+    EXPECT_EQ(targetLinkType, 2);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

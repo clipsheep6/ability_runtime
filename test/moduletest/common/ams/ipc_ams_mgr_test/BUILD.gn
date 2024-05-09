@@ -26,6 +26,7 @@ ohos_moduletest("AmsIpcAmsmgrModuleTest") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
   sources = [
+    "${ability_runtime_services_path}/appmgr/src/cache_process_manager.cpp",
     "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
     "ams_ipc_ams_mgr_module_test.cpp",
   ]
@@ -46,6 +47,7 @@ ohos_moduletest("AmsIpcAmsmgrModuleTest") {
     "ffrt:libffrt",
     "hicollie:libhicollie",
     "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
   ]

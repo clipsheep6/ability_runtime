@@ -717,6 +717,26 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_017, TestSize.Level1)
 
 /*
  * Feature: AbilityConnectManager
+ * Function: GetActiveUIExtensionList
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions:NA
+ * CaseDescription: verify the GetActiveUIExtensionList function.
+ */
+HWTEST_F(AbilityConnectManagerTest, GetActiveUIExtensionList_01, TestSize.Level1)
+{
+    int32_t pid = 1;
+    std::vector<std::string> extensionList;
+    auto result = ConnectManager()->GetActiveUIExtensionList(pid, extensionList);
+    EXPECT_EQ(result, ERR_OK);
+
+    std::string bundleName = "com.test.demo";
+    result = ConnectManager()->GetActiveUIExtensionList(bundleName, extensionList);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/*
+ * Feature: AbilityConnectManager
  * Function: ScheduleConnectAbilityDoneLocked
  * SubFunction: NA
  * FunctionPoints: NA
@@ -1790,9 +1810,8 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleStartTimeoutTask_001, 
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
     ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
-    int resultCode = LOAD_ABILITY_TIMEOUT;
     abilityRecord->abilityInfo_.name = "abilityName";
-    connectManager->HandleStartTimeoutTask(abilityRecord, resultCode);
+    connectManager->HandleStartTimeoutTask(abilityRecord);
 }
 
 /*
@@ -1808,27 +1827,25 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleStartTimeoutTask_002, 
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
     ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
-    int resultCode = LOAD_ABILITY_TIMEOUT;
     abilityRecord->abilityInfo_.name = AbilityConfig::LAUNCHER_ABILITY_NAME;
-    connectManager->HandleStartTimeoutTask(abilityRecord, resultCode);
+    connectManager->HandleStartTimeoutTask(abilityRecord);
 }
 
 /*
  * Feature: AbilityConnectManager
- * Function: HandleStartTimeoutTask
- * SubFunction: HandleStartTimeoutTask
+ * Function: HandleConnectTimeoutTask
+ * SubFunction: HandleConnectTimeoutTask
  * FunctionPoints: NA
  * EnvConditions: NA
- * CaseDescription: Verify AbilityConnectManager HandleStartTimeoutTask
+ * CaseDescription: Verify AbilityConnectManager HandleConnectTimeoutTask
  */
-HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleStartTimeoutTask_003, TestSize.Level1)
+HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleConnectTimeoutTask_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
     ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
-    int resultCode = CONNECTION_TIMEOUT;
     abilityRecord->abilityInfo_.name = AbilityConfig::LAUNCHER_ABILITY_NAME;
-    connectManager->HandleStartTimeoutTask(abilityRecord, resultCode);
+    connectManager->HandleConnectTimeoutTask(abilityRecord);
 }
 
 /*

@@ -53,6 +53,7 @@ public:
     int32_t GetFlags();
     int32_t GetCode();
     int32_t GetUserId();
+    bool IsEqualsRequestWant(const Want &otherWant);
 
 private:
     int32_t type_ = {};
@@ -66,6 +67,7 @@ private:
     int32_t code_ = {};
     int32_t userId_ = {};
     std::mutex wantsInfosMutex_;
+    std::mutex requestWantMutex_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

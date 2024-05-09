@@ -221,7 +221,7 @@ public:
      * @param token The token belong to the ability which want to be cleaned.
      *
      */
-    void ScheduleCleanAbility(const sptr<IRemoteObject> &token) override;
+    void ScheduleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess = false) override;
 
     /**
      *
@@ -400,7 +400,7 @@ private:
      * @param token The token which belongs to the ability launched.
      *
      */
-    void HandleCleanAbility(const sptr<IRemoteObject> &token);
+    void HandleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess = false);
 
     /**
      *
@@ -624,7 +624,6 @@ private:
     std::string aceApplicationName_ = "AceApplication";
     std::string pathSeparator_ = "/";
     std::string abilityLibraryType_ = ".so";
-    static std::shared_ptr<EventHandler> signalHandler_;
     static std::weak_ptr<OHOSApplication> applicationForDump_;
 
 #ifdef ABILITY_LIBRARY_LOADER

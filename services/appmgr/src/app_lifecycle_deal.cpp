@@ -107,6 +107,7 @@ void AppLifeCycleDeal::ScheduleForegroundRunning()
         return;
     }
 
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     appThread->ScheduleForegroundApplication();
 }
 
@@ -176,14 +177,14 @@ void AppLifeCycleDeal::LowMemoryWarning()
     appThread->ScheduleLowMemory();
 }
 
-void AppLifeCycleDeal::ScheduleCleanAbility(const sptr<IRemoteObject> &token)
+void AppLifeCycleDeal::ScheduleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess)
 {
     auto appThread = GetApplicationClient();
     if (!appThread) {
         TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
         return;
     }
-    appThread->ScheduleCleanAbility(token);
+    appThread->ScheduleCleanAbility(token, isCacheProcess);
 }
 
 void AppLifeCycleDeal::ScheduleProcessSecurityExit()
@@ -233,6 +234,7 @@ void AppLifeCycleDeal::ScheduleNewProcessRequest(const AAFwk::Want &want, const 
 
 int32_t AppLifeCycleDeal::UpdateConfiguration(const Configuration &config)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "call");
     auto appThread = GetApplicationClient();
     if (!appThread) {

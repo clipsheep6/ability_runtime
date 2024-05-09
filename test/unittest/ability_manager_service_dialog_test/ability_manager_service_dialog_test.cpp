@@ -149,7 +149,7 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0500, TestSize.Lev
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialog_0500 start");
     DialogAppInfo dialogAppInfo = {
-        0, 0, "com.example.test", "MainAbility", "entry"
+        0, 0, 0, 0, "com.example.test", "MainAbility", "entry"
     };
     std::vector<DialogAppInfo> dialogAppInfos = { dialogAppInfo };
     auto params = systemDialogScheduler_->GetSelectorParams(dialogAppInfos);

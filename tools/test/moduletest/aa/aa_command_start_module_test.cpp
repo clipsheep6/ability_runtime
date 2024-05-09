@@ -159,7 +159,6 @@ HWTEST_F(AaCommandStartModuleTest, Aa_Command_Start_ModuleTest_0300, Function | 
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa start -d <device-id> -a <ability-name> -b <bundle-name> -D" command.
  * @tc.type: FUNC
- * @tc.require: AR000GJUN4
  */
 HWTEST_F(AaCommandStartModuleTest, Aa_Command_Start_ModuleTest_0400, Function | MediumTest | Level1)
 {
@@ -186,7 +185,6 @@ HWTEST_F(AaCommandStartModuleTest, Aa_Command_Start_ModuleTest_0400, Function | 
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa start -d <device-id> -a <ability-name> -b <bundle-name> --pi <key> <integer-value>" command.
  * @tc.type: FUNC
- * @tc.require: AR000GJUN4
  */
 HWTEST_F(AaCommandStartModuleTest, Aa_Command_Start_ModuleTest_0500, Function | MediumTest | Level1)
 {
@@ -215,7 +213,6 @@ HWTEST_F(AaCommandStartModuleTest, Aa_Command_Start_ModuleTest_0500, Function | 
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa start -d <device-id> -a <ability-name> -b <bundle-name> --pb <key> <bool-value>" command.
  * @tc.type: FUNC
- * @tc.require: AR000GJUN4
  */
 HWTEST_F(AaCommandStartModuleTest, Aa_Command_Start_ModuleTest_0600, Function | MediumTest | Level1)
 {
@@ -244,7 +241,6 @@ HWTEST_F(AaCommandStartModuleTest, Aa_Command_Start_ModuleTest_0600, Function | 
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa start -d <device-id> -a <ability-name> -b <bundle-name> --ps <key> <value>" command.
  * @tc.type: FUNC
- * @tc.require: AR000GJUN4
  */
 HWTEST_F(AaCommandStartModuleTest, Aa_Command_Start_ModuleTest_0700, Function | MediumTest | Level1)
 {
@@ -274,7 +270,6 @@ HWTEST_F(AaCommandStartModuleTest, Aa_Command_Start_ModuleTest_0700, Function | 
  * @tc.desc: Verify the "aa start -d <device-id> -a <ability-name> -b <bundle-name> \
  * --psn <key> <integer-value>" command.
  * @tc.type: FUNC
- * @tc.require: AR000GJUN4
  */
 HWTEST_F(AaCommandStartModuleTest, Aa_Command_Start_ModuleTest_0800, Function | MediumTest | Level1)
 {

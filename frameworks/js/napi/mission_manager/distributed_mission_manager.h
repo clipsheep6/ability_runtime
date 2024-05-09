@@ -18,6 +18,7 @@
 
 #include <uv.h>
 
+#include "distributed_mission_manager_helper.h"
 #include "mission_continue_interface.h"
 #include "mission_continue_stub.h"
 #include "napi/native_api.h"
@@ -83,7 +84,8 @@ public:
     virtual ~NAPIRemoteOnListener();
 
     void OnCallback(const uint32_t continueState, const std::string &srcDeviceId,
-        const std::string &bundleName) override;
+        const std::string &bundleName, const std::string &continueType = "",
+        const std::string &srcBundleName = "") override;
     void SetEnv(const napi_env &env);
     void SetOnCallbackCBRef(std::shared_ptr<NativeReference> &ref);
     std::vector<std::shared_ptr<NativeReference>> GetOnCallbackCBRef();
@@ -139,6 +141,8 @@ struct OnCB {
     int continueState = 0;
     std::string srcDeviceId;
     std::string bundleName;
+    std::string continueType;
+    std::string srcBundleName;
     OnCallbackCB onCallbackCB;
     int result = 0;
     napi_ref callbackRef;
@@ -160,6 +164,8 @@ struct ContinueAbilityCB {
     int resultCode = 0;
     int missionId = 0;
     std::string bundleName;
+    std::string srcBundleName;
+    std::string continueType;
     bool hasArgsWithBundleName = false;
     napi_ref callbackRef = nullptr;
 };

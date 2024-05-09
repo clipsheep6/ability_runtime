@@ -19,6 +19,7 @@
 #include "app_foreground_state_observer_stub.h"
 #include "application_state_observer_stub.h"
 #include "hilog_tag_wrapper.h"
+#include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 #include "remote_client_manager.h"
 #include "ui_extension_utils.h"
@@ -77,6 +78,7 @@ int32_t AppStateObserverManager::RegisterApplicationStateObserver(
 
 int32_t AppStateObserverManager::UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (AAFwk::PermissionVerification::GetInstance()->VerifyAppStateObserverPermission() == ERR_PERMISSION_DENIED) {
         TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed");
@@ -124,6 +126,7 @@ int32_t AppStateObserverManager::RegisterAppForegroundStateObserver(const sptr<I
 
 int32_t AppStateObserverManager::UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (observer == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "Observer nullptr.");
@@ -147,6 +150,7 @@ int32_t AppStateObserverManager::UnregisterAppForegroundStateObserver(const sptr
 int32_t AppStateObserverManager::RegisterAbilityForegroundStateObserver(
     const sptr<IAbilityForegroundStateObserver> &observer)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (observer == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "The param observer is nullptr.");
@@ -170,6 +174,7 @@ int32_t AppStateObserverManager::RegisterAbilityForegroundStateObserver(
 int32_t AppStateObserverManager::UnregisterAbilityForegroundStateObserver(
     const sptr<IAbilityForegroundStateObserver> &observer)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (observer == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "Observer nullptr.");
@@ -724,6 +729,7 @@ bool AppStateObserverManager::IsAppForegroundObserverExist(const sptr<IRemoteBro
 
 void AppStateObserverManager::AddObserverDeathRecipient(const sptr<IRemoteBroker> &observer, const ObserverType &type)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "Add observer death recipient begin.");
     if (observer == nullptr || observer->AsObject() == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "The param observer is nullptr.");
@@ -765,6 +771,7 @@ void AppStateObserverManager::AddObserverDeathRecipient(const sptr<IRemoteBroker
 
 void AppStateObserverManager::RemoveObserverDeathRecipient(const sptr<IRemoteBroker> &observer)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "Remove observer death recipient begin.");
     if (observer == nullptr || observer->AsObject() == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "The param observer is nullptr.");
@@ -798,6 +805,7 @@ AbilityforegroundObserverSet AppStateObserverManager::GetAbilityforegroundObserv
 
 void AppStateObserverManager::OnObserverDied(const wptr<IRemoteObject> &remote, const ObserverType &type)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::APPMGR, "OnObserverDied");
     auto object = remote.promote();
     if (object == nullptr) {
@@ -830,7 +838,7 @@ AppStateData AppStateObserverManager::WrapAppStateData(const std::shared_ptr<App
     appStateData.uid = appRecord->GetUid();
     appStateData.extensionType = appRecord->GetExtensionType();
     if (appRecord->GetApplicationInfo() != nullptr) {
-        appStateData.accessTokenId = static_cast<int32_t>(appRecord->GetApplicationInfo()->accessTokenId);
+        appStateData.accessTokenId = static_cast<uint32_t>(appRecord->GetApplicationInfo()->accessTokenId);
     }
     appStateData.isFocused = appRecord->GetFocusFlag();
     auto renderRecordMap = appRecord->GetRenderRecordMap();
@@ -924,10 +932,42 @@ void AppStateObserverManager::HandleOnPageHide(const PageStateData pageStateData
 
 void AppStateObserverManager::OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord)
 {
+    if (handler_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "handler is nullptr, OnAppCacheStateChanged failed.");
+        return;
+    }
+
+    auto task = [weak = weak_from_this(), appRecord]() {
+        auto self = weak.lock();
+        if (self == nullptr) {
+            TAG_LOGE(AAFwkTag::APPMGR, "self is nullptr, OnAppCacheStateChanged failed.");
+            return;
+        }
+        TAG_LOGD(AAFwkTag::APPMGR, "OnAppCacheStateChanged come.");
+        self->HandleOnAppCacheStateChanged(appRecord);
+    };
+    handler_->SubmitTask(task);
 }
 
 void AppStateObserverManager::HandleOnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord)
 {
+    if (appRecord == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "app record is null");
+        return;
+    }
+
+    AppStateData data = WrapAppStateData(appRecord, appRecord->GetState());
+    data.isSpecifyTokenId = appRecord->GetAssignTokenId() > 0 ? true : false;
+    TAG_LOGD(AAFwkTag::APPMGR, "HandleOnAppCacheStateChanged, bundle:%{public}s, uid:%{public}d, state:%{public}d",
+        data.bundleName.c_str(), data.uid, data.state);
+    auto appStateObserverMapCopy = GetAppStateObserverMapCopy();
+    for (auto it = appStateObserverMapCopy.begin(); it != appStateObserverMapCopy.end(); ++it) {
+        std::vector<std::string>::iterator iter = std::find(it->second.begin(),
+            it->second.end(), data.bundleName);
+        if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
+            it->first->OnAppCacheStateChanged(data);
+        }
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

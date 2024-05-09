@@ -95,6 +95,29 @@ protected:
     std::unordered_map<std::string, TaskHandle> tasks_;
     std::unique_ptr<ffrt::mutex> tasksMutex_;
 };
+
+class AutoSyncTaskHandle {
+public:
+    explicit AutoSyncTaskHandle(const TaskHandle &handle) : handle_(handle) {}
+    ~AutoSyncTaskHandle()
+    {
+        Sync();
+    }
+
+    AutoSyncTaskHandle(AutoSyncTaskHandle&) = delete;
+    void operator=(AutoSyncTaskHandle&) = delete;
+
+    void Sync()
+    {
+        auto handle = handle_;
+        handle_ = TaskHandle();
+        if (handle) {
+            handle.Sync();
+        }
+    }
+private:
+    TaskHandle handle_;
+};
 }  // namespace AAFWK
 }  // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_TASK_HANDLER_WRAP_H

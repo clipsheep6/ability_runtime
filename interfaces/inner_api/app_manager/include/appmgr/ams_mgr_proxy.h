@@ -263,11 +263,24 @@ public:
     void SetAppAssertionPauseState(int32_t pid, bool flag) override;
 
     /**
+     * @brief Set resident process enable status.
+     * @param bundleName The application bundle name.
+     * @param enable The current updated enable status.
+     */
+    void SetKeepAliveEnableState(const std::string &bundleName, bool enable) override;
+
+    /**
      * To clear the process by ability token.
      *
      * @param token the unique identification to the ability.
      */
     virtual void ClearProcessByToken(sptr<IRemoteObject> token) override;
+
+    /**
+     * whether memory size is sufficent.
+     * @return Returns true is sufficent memory size, others return false.
+     */
+    virtual bool IsMemorySizeSufficent() override;
 
 private:
     bool WriteInterfaceToken(MessageParcel &data);

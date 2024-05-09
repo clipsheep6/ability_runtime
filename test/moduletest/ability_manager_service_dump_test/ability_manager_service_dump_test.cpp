@@ -213,8 +213,9 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DataDumpSysStateIn
 HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_OnAppStateChanged_0100, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->connectManager_ = std::make_shared<AbilityConnectManager>(0);
-    EXPECT_NE(abilityMs_->connectManager_, nullptr);
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentConnectManager_ = std::make_shared<AbilityConnectManager>(0);
+    EXPECT_NE(abilityMs_->subManagersHelper_->currentConnectManager_, nullptr);
 
     Want want;
     OHOS::AppExecFwk::AbilityInfo abilityInfo;
@@ -224,19 +225,19 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_OnAppStateChanged_
     EXPECT_NE(abilityRecord, nullptr);
 
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        abilityMs_->currentMissionListManager_ = std::make_shared<MissionListManager>(USER_ID);
-        EXPECT_NE(abilityMs_->currentMissionListManager_, nullptr);
-        abilityMs_->currentMissionListManager_->terminateAbilityList_.push_back(abilityRecord);
+        abilityMs_->subManagersHelper_->currentMissionListManager_ = std::make_shared<MissionListManager>(USER_ID);
+        EXPECT_NE(abilityMs_->subManagersHelper_->currentMissionListManager_, nullptr);
+        abilityMs_->subManagersHelper_->currentMissionListManager_->terminateAbilityList_.push_back(abilityRecord);
 
-        abilityMs_->dataAbilityManager_ = std::make_shared<DataAbilityManager>();
-        EXPECT_NE(abilityMs_->dataAbilityManager_, nullptr);
+        abilityMs_->subManagersHelper_->currentDataAbilityManager_ = std::make_shared<DataAbilityManager>();
+        EXPECT_NE(abilityMs_->subManagersHelper_->currentDataAbilityManager_, nullptr);
 
         AppInfo info;
         info.processName = STRING_PROCESS_NAME;
         info.state = AppState::TERMINATED;
         abilityMs_->OnAppStateChanged(info);
 
-        abilityRecord = abilityMs_->currentMissionListManager_->terminateAbilityList_.front();
+        abilityRecord = abilityMs_->subManagersHelper_->currentMissionListManager_->terminateAbilityList_.front();
         EXPECT_NE(abilityRecord, nullptr);
         EXPECT_EQ(abilityRecord->GetAppState(), AppState::TERMINATED);
     }

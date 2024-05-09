@@ -50,6 +50,7 @@ ohos_shared_library("connection_obs_manager") {
   deps = []
 
   external_deps = [
+    "ability_base:want",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",

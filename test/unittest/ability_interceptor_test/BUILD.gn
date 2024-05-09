@@ -26,10 +26,12 @@ ohos_unittest("ability_interceptor_test") {
     "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
+    "${ability_runtime_services_path}/abilitymgr/include",
   ]
 
   sources = [
     # add mock file
+    "${ability_runtime_services_path}/abilitymgr/src/start_ability_utils.cpp",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",
     "ability_interceptor_test.cpp",
   ]
@@ -66,6 +68,7 @@ ohos_unittest("ability_interceptor_test") {
     "dsoftbus:softbus_client",
     "ffrt:libffrt",
     "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "napi:ace_napi",
   ]

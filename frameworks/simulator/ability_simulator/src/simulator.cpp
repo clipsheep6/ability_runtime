@@ -86,7 +86,7 @@ struct DebuggerTask {
     std::function<void()> func;
 };
 
-class SimulatorImpl : public Simulator {
+class SimulatorImpl : public Simulator, public std::enable_shared_from_this<SimulatorImpl> {
 public:
     SimulatorImpl() = default;
     ~SimulatorImpl();
@@ -116,6 +116,7 @@ private:
     bool LoadRuntimeEnv(napi_env env, napi_value globalObject);
     static napi_value RequireNapi(napi_env env, napi_callback_info info);
     inline void SetHostResolveBufferTracker();
+    void LoadJsMock(const std::string &fileName);
 
     panda::ecmascript::EcmaVM *CreateJSVM();
     Options options_;
@@ -123,6 +124,7 @@ private:
     panda::ecmascript::EcmaVM *vm_ = nullptr;
     DebuggerTask debuggerTask_;
     napi_env nativeEngine_ = nullptr;
+    TerminateCallback terminateCallback_;
 
     int64_t currentId_ = 0;
     std::unordered_map<int64_t, std::shared_ptr<NativeReference>> abilities_;
@@ -356,6 +358,7 @@ int64_t SimulatorImpl::StartAbility(
     }
 
     ++currentId_;
+    terminateCallback_ = callback;
     InitResourceMgr();
     InitJsAbilityContext(nativeEngine_, instanceValue);
     DispatchStartLifecycle(instanceValue);
@@ -683,6 +686,20 @@ bool SimulatorImpl::OnInit()
         return false;
     }
     napi_env env = reinterpret_cast<napi_env>(nativeEngine);
+    auto uncaughtTask = [weak = weak_from_this()](napi_value value) {
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "uncaught exception");
+        auto self = weak.lock();
+        if (self == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITY_SIM, "SimulatorImpl is nullptr.");
+            return;
+        }
+        if (self->terminateCallback_ == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITY_SIM, "terminateCallback is nullptr.");
+            return;
+        }
+        self->terminateCallback_(self->currentId_);
+    };
+    nativeEngine->RegisterNapiUncaughtExceptionHandler(uncaughtTask);
 
     napi_value globalObj;
     napi_get_global(env, &globalObj);
@@ -727,6 +744,21 @@ napi_value SimulatorImpl::RequireNapi(napi_env env, napi_callback_info info)
     return result;
 }
 
+void SimulatorImpl::LoadJsMock(const std::string &fileName)
+{
+    std::ifstream stream(fileName, std::ios::ate | std::ios::binary);
+    if (!stream.is_open()) {
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to open: %{public}s", fileName.c_str());
+        return;
+    }
+    size_t len = stream.tellg();
+    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(len);
+    stream.seekg(0);
+    stream.read(reinterpret_cast<char*>(buffer.get()), len);
+    stream.close();
+    panda::JSNApi::Execute(vm_, buffer.get(), len, "_GLOBAL::func_main_0");
+}
+
 bool SimulatorImpl::LoadRuntimeEnv(napi_env env, napi_value globalObj)
 {
     JsSysModule::Console::InitConsoleModule(env);
@@ -763,7 +795,7 @@ bool SimulatorImpl::LoadRuntimeEnv(napi_env env, napi_value globalObj)
     std::string fileName = options_.containerSdkPath + fileSeparator + "apiMock" + fileSeparator + "jsMockHmos.abc";
     TAG_LOGD(AAFwkTag::ABILITY_SIM, "file name: %{public}s", fileName.c_str());
     if (!fileName.empty() && AbilityStageContext::Access(fileName)) {
-        panda::JSNApi::Execute(vm_, fileName, "_GLOBAL::func_main_0");
+        LoadJsMock(fileName);
     }
 
     const char *moduleName = "SimulatorImpl";

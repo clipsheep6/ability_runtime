@@ -83,6 +83,13 @@ public:
      */
     bool IsReportEvent();
 
+    /**
+     *
+     * @brief Set bundle info.
+     *
+     */
+    void SetBundleInfo(const std::string& bundleName, const std::string& bundleVersion);
+
 private:
     void Timer();
     void ReportEvent();

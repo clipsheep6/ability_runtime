@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,7 +25,7 @@ public:
     virtual ~IFillRequestCallback() {}
 
     virtual void OnFillRequestSuccess(const AbilityBase::ViewData &viewData) = 0;
-    virtual void OnFillRequestFailed(int32_t errCode) = 0;
+    virtual void OnFillRequestFailed(int32_t errCode, const std::string& fillContent = "") = 0;
 };
 } // AbilityRuntime
 } // OHOS

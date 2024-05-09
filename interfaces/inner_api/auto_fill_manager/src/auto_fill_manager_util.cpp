@@ -15,6 +15,7 @@
 
 #include "auto_fill_manager_util.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -132,7 +133,7 @@ Ace::PopupPlacement AutoFillManagerUtil::ConvertPopupPlacement(const AutoFill::P
             popupPlacement = Ace::PopupPlacement::RIGHT_BOTTOM;
             break;
         default:
-            HILOG_ERROR("Popup placement is invalid.");
+            TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Popup placement is invalid.");
             break;
     }
     return popupPlacement;

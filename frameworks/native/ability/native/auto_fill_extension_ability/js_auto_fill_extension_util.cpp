@@ -95,7 +95,7 @@ napi_value JsAutoFillExtensionUtil::WrapViewData(const napi_env env, const Abili
 
 napi_value JsAutoFillExtensionUtil::WrapCustomData(const napi_env env, const AAFwk::WantParams &param)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     napi_value jsObject = nullptr;
     NAPI_CALL(env, napi_create_object(env, &jsObject));
     napi_value jsValue = nullptr;
@@ -145,7 +145,7 @@ napi_value JsAutoFillExtensionUtil::WrapPageNodeInfo(const napi_env env, const A
 
 napi_value JsAutoFillExtensionUtil::WrapRectData(const napi_env env, const AbilityBase::Rect &rect)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     napi_value jsObject = nullptr;
     NAPI_CALL(env, napi_create_object(env, &jsObject));
     napi_value jsValue = nullptr;
@@ -225,7 +225,7 @@ void JsAutoFillExtensionUtil::UnwrapPageNodeInfo(
 void JsAutoFillExtensionUtil::UnwrapRectData(
     const napi_env env, const napi_value value, AbilityBase::Rect &rect)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     int32_t position;
     UnwrapInt32ByPropertyName(env, value, RECT_POSITION_LEFT, position);
     rect.left = position;
@@ -281,11 +281,11 @@ napi_value JsAutoFillExtensionUtil::WrapFillRequest(const AAFwk::Want &want, con
     if (want.HasParameter(WANT_PARAMS_CUSTOM_DATA)) {
         std::string customDataString = want.GetStringParam(WANT_PARAMS_CUSTOM_DATA);
         if (customDataString.empty()) {
-            HILOG_ERROR("Custom data is empty.");
+            TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Custom data is empty.");
             return jsObject;
         }
         if (!AAFwk::WantParamWrapper::ValidateStr(customDataString)) {
-            HILOG_ERROR("Custom data string is invalid.");
+            TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Custom data string is invalid.");
             return jsObject;
         }
         AAFwk::WantParams param = AAFwk::WantParamWrapper::ParseWantParams(customDataString);
@@ -298,17 +298,17 @@ napi_value JsAutoFillExtensionUtil::WrapFillRequest(const AAFwk::Want &want, con
 
 napi_value JsAutoFillExtensionUtil::WrapUpdateRequest(const AAFwk::WantParams &wantParams, const napi_env env)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     napi_value jsObject = nullptr;
     NAPI_CALL(env, napi_create_object(env, &jsObject));
     if (jsObject == nullptr) {
-        HILOG_ERROR("Failed to create Object.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to create Object.");
         return nullptr;
     }
 
     std::string viewDataString = wantParams.GetStringParam(WANT_PARAMS_VIEW_DATA);
     if (viewDataString.empty()) {
-        HILOG_ERROR("View data is empty.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "View data is empty.");
         return jsObject;
     }
 

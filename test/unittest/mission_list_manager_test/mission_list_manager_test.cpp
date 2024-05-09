@@ -839,6 +839,128 @@ HWTEST_F(MissionListManagerTest, CreateOrReusedMissionInfo_004, TestSize.Level1)
 
 /*
  * Feature: MissionListManager
+ * Function: CreateOrReusedMissionInfo
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager CreateOrReusedMissionInfo
+ * EnvConditions: NA
+ * CaseDescription: Verify CreateOrReusedMissionInfo
+ */
+HWTEST_F(MissionListManagerTest, CreateOrReusedMissionInfo_005, TestSize.Level1)
+{
+    int userId = 0;
+    std::string deviceId = "deviceId";
+    std::string bundleName = "bundleName";
+    std::string abilityName = "abilityName";
+    std::string moduleName = "moduleName";
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+
+    std::string missionName = "missionName";
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    abilityRecord->abilityInfo_.deviceId = deviceId;
+    abilityRecord->abilityInfo_.bundleName = bundleName;
+    abilityRecord->abilityInfo_.name = abilityName;
+    abilityRecord->abilityInfo_.moduleName = moduleName;
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(2, abilityRecord, missionName);
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    missionList->missions_.push_front(mission);
+    missionListManager->defaultStandardList_ = std::make_shared<MissionList>();
+    missionListManager->launcherList_ = std::make_shared<MissionList>();
+    missionListManager->currentMissionLists_.push_front(missionList);
+
+    AbilityRequest abilityRequest;
+    InnerMissionInfo info;
+    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::STANDARD;
+    abilityRequest.want.SetElementName(deviceId, bundleName, abilityName, moduleName);
+    bool res = missionListManager->CreateOrReusedMissionInfo(abilityRequest, info);
+    EXPECT_FALSE(res);
+    missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: CreateOrReusedMissionInfo
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager CreateOrReusedMissionInfo
+ * EnvConditions: NA
+ * CaseDescription: Verify CreateOrReusedMissionInfo
+ */
+HWTEST_F(MissionListManagerTest, CreateOrReusedMissionInfo_006, TestSize.Level1)
+{
+    int userId = 0;
+    std::string deviceId = "deviceId";
+    std::string bundleName = "bundleName";
+    std::string abilityName = "abilityName";
+    std::string moduleName = "moduleName";
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+
+    std::string missionName = "missionName";
+        std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    abilityRecord->abilityInfo_.deviceId = deviceId;
+    abilityRecord->abilityInfo_.bundleName = bundleName;
+    abilityRecord->abilityInfo_.name = abilityName;
+    abilityRecord->abilityInfo_.moduleName = moduleName;
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(2, abilityRecord, missionName);
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    missionList->missions_.push_front(mission);
+    missionListManager->defaultStandardList_= missionList;
+    missionListManager->launcherList_ = std::make_shared<MissionList>();
+    std::shared_ptr<MissionList> missionList2 = std::make_shared<MissionList>();
+    missionListManager->currentMissionLists_.push_front(missionList2);
+
+    AbilityRequest abilityRequest;
+    InnerMissionInfo info;
+    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::STANDARD;
+    abilityRequest.want.SetElementName(deviceId, bundleName, abilityName, moduleName);
+    bool res = missionListManager->CreateOrReusedMissionInfo(abilityRequest, info);
+    EXPECT_FALSE(res);
+    missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: CreateOrReusedMissionInfo
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager CreateOrReusedMissionInfo
+ * EnvConditions: NA
+ * CaseDescription: Verify CreateOrReusedMissionInfo
+ */
+HWTEST_F(MissionListManagerTest, CreateOrReusedMissionInfo_007, TestSize.Level1)
+{
+    int userId = 0;
+    std::string deviceId = "deviceId";
+    std::string deviceId2 = "deviceId2";
+    std::string bundleName = "bundleName";
+    std::string abilityName = "abilityName";
+    std::string moduleName = "moduleName";
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+
+    std::string missionName = "missionName";
+        std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    abilityRecord->abilityInfo_.deviceId = deviceId;
+    abilityRecord->abilityInfo_.bundleName = bundleName;
+    abilityRecord->abilityInfo_.name = abilityName;
+    abilityRecord->abilityInfo_.moduleName = moduleName;
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(2, abilityRecord, missionName);
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    missionList->missions_.push_front(mission);
+    std::shared_ptr<Mission> mission2 = std::make_shared<Mission>(2, abilityRecord, missionName);
+    std::shared_ptr<MissionList> missionList2 = std::make_shared<MissionList>();
+    missionList2->missions_.push_front(mission2);
+    missionListManager->defaultStandardList_ = std::make_shared<MissionList>();
+    missionListManager->currentMissionLists_.push_front(missionList2);
+    missionListManager->launcherList_ = missionList;
+
+    AbilityRequest abilityRequest;
+    InnerMissionInfo info;
+    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::STANDARD;
+    abilityRequest.want.SetElementName(deviceId, bundleName, abilityName, moduleName);
+    bool res = missionListManager->CreateOrReusedMissionInfo(abilityRequest, info);
+    EXPECT_FALSE(res);
+    missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
  * Function: BuildInnerMissionInfo
  * SubFunction: NA
  * FunctionPoints: MissionListManager BuildInnerMissionInfo
@@ -5078,35 +5200,6 @@ HWTEST_F(MissionListManagerTest, CompleteFirstFrameDrawing_002, TestSize.Level1)
     missionListManager->defaultStandardList_ = missionList;
     missionListManager->CompleteFirstFrameDrawing(abilityToken);
     missionListManager.reset();
-}
-
-
-/*
- * Feature: MissionListManager
- * Function: CompleteFirstFrameDrawing
- * SubFunction: NA
- * FunctionPoints: MissionListManager CompleteFirstFrameDrawing
- * EnvConditions: NA
- * CaseDescription: Verify CompleteFirstFrameDrawing
- */
-HWTEST_F(MissionListManagerTest, CompleteFirstFrameDrawing_003, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "CompleteFirstFrameDrawing_003 start");
-    int userId = 3;
-    auto missionListManager = std::make_shared<MissionListManager>(userId);
-    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
-    EXPECT_EQ(abilityRecord->IsCompleteFirstFrameDrawing(), false);
-    sptr<IRemoteObject> abilityToken = abilityRecord->GetToken();
-    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
-    std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord, "missionName");
-    missionList->missions_.push_front(mission);
-    missionListManager->terminateAbilityList_.clear();
-    missionListManager->currentMissionLists_.clear();
-    missionListManager->currentMissionLists_.push_front(missionList);
-    missionListManager->defaultSingleList_ = missionList;
-    missionListManager->defaultStandardList_ = missionList;
-    missionListManager->CompleteFirstFrameDrawing(abilityToken);
-    EXPECT_EQ(abilityRecord->IsCompleteFirstFrameDrawing(), true);
 }
 #endif
 
