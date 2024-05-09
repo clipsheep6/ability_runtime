@@ -430,7 +430,8 @@ void JsRuntime::StartProfiler(const DebugOption dOption)
     jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval, getproctid(), isDebugApp);
 }
 
-bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer)
+bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer,
+                              bool isABC)
 {
     Extractor extractor(filePath);
     if (!extractor.Init()) {
@@ -439,7 +440,11 @@ bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFull
     }
 
     std::vector<std::string> fileNames;
-    extractor.GetSpecifiedTypeFiles(fileNames, ".abc");
+    if (isABC) {
+        extractor.GetSpecifiedTypeFiles(fileNames, ".abc");
+    } else {
+        extractor.GetSpecifiedTypeFiles(fileNames, ".map");
+    }
     if (fileNames.empty()) {
         TAG_LOGW(
             AAFwkTag::JSRUNTIME, "GetFileBuffer, There's no abc file in hap or hqf %{private}s.", filePath.c_str());
@@ -464,6 +469,21 @@ bool JsRuntime::LoadRepairPatch(const std::string& hqfFile, const std::string& h
     TAG_LOGD(AAFwkTag::JSRUNTIME, "LoadRepairPatch function called.");
     auto vm = GetEcmaVm();
     CHECK_POINTER_AND_RETURN(vm, false);
+
+    std::string patchSoureMapFile;
+    std::vector<uint8_t> soureMapBuffer;
+    if (!GetFileBuffer(hqfFile, patchSoureMapFile, soureMapBuffer, false)) {
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "LoadRepairPatch, get patchSoureMap file buffer failed.");
+        return false;
+    }
+    std::string str(soureMapBuffer.begin(), soureMapBuffer.end());
+    auto sourceMapOperator = jsEnv_->GetSourceMapOperator();
+    if (sourceMapOperator != nullptr) {
+        auto sourceMapObj = sourceMapOperator->GetSourceMapObj();
+        if (sourceMapObj != nullptr) {
+            sourceMapObj->SplitSourceMap(str);
+        }
+    }
 
     std::string patchFile;
     std::vector<uint8_t> patchBuffer;
