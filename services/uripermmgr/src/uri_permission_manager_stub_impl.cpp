@@ -47,6 +47,7 @@ constexpr int32_t ERR_OK = 0;
 constexpr uint32_t FLAG_READ_WRITE_URI = Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION;
 constexpr const char* CLOUND_DOCS_URI_MARK = "?networkid=";
 constexpr const char* FOUNDATION_PROCESS_NAME = "foundation";
+constexpr const char* LINUX_FUSION_SERVICE = "linux_fusion_service";
 }
 
 bool UriPermissionManagerStubImpl::VerifyUriPermission(const Uri &uri, uint32_t flag, uint32_t tokenId)
@@ -133,7 +134,8 @@ int32_t UriPermissionManagerStubImpl::GrantUriPermissionPrivileged(const std::ve
     TAG_LOGD(AAFwkTag::URIPERMMGR, "callerTokenId is %{public}u, callerName is %{public}s",
         callerTokenId, callerName.c_str());
     auto permissionName = PermissionConstants::PERMISSION_GRANT_URI_PERMISSION_PRIVILEGED;
-    if (!PermissionVerification::GetInstance()->VerifyPermissionByTokenId(callerTokenId, permissionName)) {
+    if (!PermissionVerification::GetInstance()->VerifyPermissionByTokenId(callerTokenId, permissionName) &&
+        !IsLinuxFusionCall()) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "No permission to call.");
         return CHECK_PERMISSION_FAILED;
     }
@@ -836,6 +838,25 @@ bool UriPermissionManagerStubImpl::IsFoundationCall()
     return nativeInfo.processName == FOUNDATION_PROCESS_NAME;
 }
 
+bool UriPermissionManagerStubImpl::IsLinuxFusionCall()
+{
+    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "callerTokenId is %{public}u", callerTokenId);
+    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerTokenId);
+    if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "Is not native call");
+        return false;
+    }
+    Security::AccessToken::NativeTokenInfo nativeInfo;
+    auto result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
+    if (result != ERR_OK) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "GetNativeTokenInfo failed, callerTokenId is %{public}u.", callerTokenId);
+        return false;
+    }
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "Caller process name : %{public}s", nativeInfo.processName.c_str());
+    return nativeInfo.processName == LINUX_FUSION_SERVICE;
+}
+
 std::string UriPermissionManagerStubImpl::GetTokenName(uint32_t callerTokenId)
 {
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerTokenId);
@@ -931,6 +952,10 @@ bool UriPermissionManagerStubImpl::CheckUriPermission(Uri uri, uint32_t flag, To
 {
     auto &&authority = uri.GetAuthority();
     TAG_LOGD(AAFwkTag::URIPERMMGR, "Authority of uri is %{public}s", authority.c_str());
+    if (IsLinuxFusionCall()) {
+        TAG_LOGI(AAFwkTag::URIPERMMGR, "Caller is linux_fusion_service.");
+        return true;
+    }
     if (authority == "docs") {
         return AccessDocsUriPermission(tokenIdPermission, uri, flag);
     }
