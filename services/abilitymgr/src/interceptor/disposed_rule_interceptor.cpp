@@ -53,8 +53,7 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Can not start disposed want with same bundleName");
             return AbilityUtil::EdmErrorType(disposedRule.isEdm);
         }
-        if (disposedRule.componentType == AppExecFwk::ComponentType::UI_ABILITY &&
-            disposedRule.disposedType != AppExecFwk::DisposedType::BLOCK_APPLICATION_WITH_RESULT) {
+        if (disposedRule.componentType == AppExecFwk::ComponentType::UI_ABILITY) {
             int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*disposedRule.want,
                 param.requestCode, param.userId));
             if (ret != ERR_OK) {
@@ -62,20 +61,18 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
                 return ret;
             }
         }
-        if (disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION_WITH_RESULT &&
-            disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
+        if (disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION &&
+            disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION_WITH_RESULT) {
             int ret = HandleBlockApplicationWithResult(param, disposedRule);
+            if (ret != ERR_OK) {
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start disposed UIExtension.");
+                return ret;
+            }
+        } else if (disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
+            int ret = CreateModalUIExtension(*disposedRule.want, param.callerToken);
             if (ret != ERR_OK) {
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start disposed UIExtension");
                 return ret;
-            }
-        }
-        if (disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION &&
-            disposedRule.disposedType != AppExecFwk::DisposedType::BLOCK_APPLICATION_WITH_RESULT) {
-            int ret = CreateModalUIExtension(*disposedRule.want, param.callerToken);
-            if (ret != ERR_OK) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start disposed UIExtension");
-            return ret;
             }
         }
 #endif
