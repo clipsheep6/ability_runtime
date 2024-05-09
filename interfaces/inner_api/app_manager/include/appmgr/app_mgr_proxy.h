@@ -417,6 +417,13 @@ public:
         const std::string &bundleName, int32_t userId, std::vector<RunningProcessInfo> &info) override;
 
     /**
+     * get application Index  by context.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetCurrentAppIndex(int32_t &appIndex) override;
+
+    /**
      * @brief Notify AbilityManagerService the page show.
      * @param token Ability identify.
      * @param pageStateData The data of ability's page state.

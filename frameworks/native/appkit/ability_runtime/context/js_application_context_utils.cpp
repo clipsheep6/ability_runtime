@@ -801,6 +801,25 @@ napi_value JsApplicationContextUtils::OnGetRunningProcessInformation(napi_env en
     return result;
 }
 
+napi_value JsApplicationContextUtils::GetCurrentAppIndex(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils,
+        OnGetCurrentAppIndex, APPLICATION_CONTEXT_NAME);
+}
+
+napi_value JsApplicationContextUtils::OnGetCurrentAppIndex(napi_env env, NapiCallbackInfo& info)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "Get App Index");
+    auto context = applicationContext_.lock();
+    if (context == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "context is nullptr.");
+        return CreateJsUndefined(env);
+    }
+    int32_t appIndex_;
+    auto ret = context->GetCurrentAppIndex(appIndex_);
+    return CreateJsValue(env, ret);
+}
+
 void JsApplicationContextUtils::Finalizer(napi_env env, void *data, void *hint)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "called");
@@ -1492,6 +1511,8 @@ void JsApplicationContextUtils::BindNativeApplicationContext(napi_env env, napi_
         JsApplicationContextUtils::GetRunningProcessInformation);
     BindNativeFunction(env, object, "getRunningProcessInformation", MD_NAME,
         JsApplicationContextUtils::GetRunningProcessInformation);
+    BindNativeFunction(env, object, "getCurrentTwinAppIndex", MD_NAME,
+        JsApplicationContextUtils::GetCurrentAppIndex);
     BindNativeFunction(env, object, "getGroupDir", MD_NAME,
         JsApplicationContextUtils::GetGroupDir);
     BindNativeFunction(env, object, "restartApp", MD_NAME,

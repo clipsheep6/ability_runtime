@@ -152,6 +152,11 @@ public:
         return 0;
     }
 
+    virtual int GetCurrentAppIndex(int32_t &appIndex)
+    {
+        return 0;
+    }
+
     virtual void RegisterAppStateCallback(const sptr<IAppStateCallback>& callback)
     {
         callback_ = callback;

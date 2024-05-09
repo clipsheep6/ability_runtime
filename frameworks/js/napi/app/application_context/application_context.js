@@ -149,6 +149,10 @@ class ApplicationContext {
     return this.__context_impl__.getProcessRunningInformation(callback);
   }
 
+  getCurrentAppIndex(){
+    return this.__context_impl__.getCurrentAppIndex()
+  }
+
   setColorMode(colorMode) {
     return this.__context_impl__.setColorMode(colorMode);
   }

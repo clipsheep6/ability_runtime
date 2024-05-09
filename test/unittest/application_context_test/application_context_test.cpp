@@ -1058,6 +1058,22 @@ HWTEST_F(ApplicationContextTest, GetProcessRunningInformation_0100, TestSize.Lev
 }
 
 /**
+ * @tc.number: GetCurrentAppIndex_0100
+ * @tc.name: GetCurrentAppIndex
+ * @tc.desc: GetCurrentAppIndex
+ */
+HWTEST_F(ApplicationContextTest, GetCurrentAppIndex_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetCurrentAppIndex_0100 start";
+    std::shared_ptr<ContextImpl> contextImpl = nullptr;
+    context_->AttachContextImpl(contextImpl);
+    std::int32_t appIndex_;
+    auto ret = context_->GetCurrentAppIndex(appIndex_);
+    EXPECT_EQ(ret, -1);
+    GTEST_LOG_(INFO) << "GetCurrentAppIndex_0100 end";
+}
+
+/**
  * @tc.number: GetCacheDir_0100
  * @tc.name: GetCacheDir
  * @tc.desc: Get Bundle Code Dir failed

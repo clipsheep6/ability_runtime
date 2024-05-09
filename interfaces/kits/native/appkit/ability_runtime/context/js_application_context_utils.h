@@ -92,6 +92,7 @@ public:
     napi_value OnGetCloudFileDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnKillProcessBySelf(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetRunningProcessInformation(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetCurrentAppIndex(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetColorMode(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetLanguage(napi_env env, NapiCallbackInfo& info);
     napi_value OnClearUpApplicationData(napi_env env, NapiCallbackInfo& info);
@@ -115,6 +116,7 @@ public:
     static napi_value SetLanguage(napi_env env, napi_callback_info info);
     static napi_value ClearUpApplicationData(napi_env env, napi_callback_info info);
     static napi_value GetRunningProcessInformation(napi_env env, napi_callback_info info);
+    static napi_value GetCurrentAppIndex(napi_env env, napi_callback_info info);
     static napi_value CreateJsApplicationContext(napi_env env);
     static napi_value RestartApp(napi_env env, napi_callback_info info);
     static napi_value SetSupportedProcessCacheSelf(napi_env env, napi_callback_info info);
