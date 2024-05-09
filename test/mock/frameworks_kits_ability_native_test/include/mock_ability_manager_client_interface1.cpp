@@ -112,7 +112,7 @@ ErrCode AbilityManagerClient::TerminateAbility(sptr<IRemoteObject> token, int re
 }
 
 ErrCode AbilityManagerClient::ConnectAbility(
-    const Want& want, sptr<IAbilityConnection> connect, sptr<IRemoteObject> callerToken)
+    const Want& want, sptr<IAbilityConnection> connect, sptr<IRemoteObject> callerToken, bool)
 {
     return ERR_OK;
 }
