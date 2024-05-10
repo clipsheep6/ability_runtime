@@ -119,12 +119,15 @@ napi_value OnConnectPromiseCallback(napi_env env, napi_callback_info info)
 }
 }
 
-void UIServiceExtStub::SendData(OHOS::AAFwk::WantParams &data)
+int32_t UIServiceExtensionHostStub::SendData(OHOS::AAFwk::WantParams &data)
 {
-    TAG_LOGE(AAFwkTag::UISERVC_EXT, "UIServiceExtStub::SendData");
-    if (extension_) {
-        extension_->SendData(data);
+    TAG_LOGE(AAFwkTag::UISERVC_EXT, "UIServiceExtensionHostStub::SendData");
+    auto sptr = extension_.lock();
+    if (sptr) {
+        return sptr->SendData(data);
     }
+
+    return static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER);
 }
 
 napi_value AttachUIServiceExtensionContext(napi_env env, void *value, void *)
@@ -421,14 +424,12 @@ JsUIServiceExtension* JsUIServiceExtension::Create(const std::unique_ptr<Runtime
 }
 
 JsUIServiceExtension::JsUIServiceExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {
-    extensionStub_ = std::make_unique<UIServiceExtStub>(this);
 }
 
 JsUIServiceExtension::~JsUIServiceExtension()
 {
 //    TAG_LOGD(AAFwkTag::UISERVC_EXT, "Js UIservice extension destructor.");
     if (extensionStub_) {
-        extensionStub_->SetExtension(nullptr);
         extensionStub_.reset();
     }
     auto context = GetContext();
@@ -876,7 +877,7 @@ napi_value JsUIServiceExtension::CallOnConnect(const AAFwk::Want &want)
     TAG_LOGD(AAFwkTag::UISERVC_EXT, "call");
     napi_env env = jsRuntime_.GetNapiEnv();
 
-    callbackProxy_ = want.GetRemoteObject("UIServiceExtensionCallbackStub");
+    callbackProxy_ = want.GetRemoteObject("UIServiceStub");
     napi_value napiHostProxy = AAFwk::JsUIServiceHostProxy::CreateJsUIServiceHostProxy(env, callbackProxy_);
 
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
@@ -903,16 +904,23 @@ napi_value JsUIServiceExtension::CallOnConnect(const AAFwk::Want &want)
     napi_call_function(env, obj, method, ARGC_TWO, argv, &result);
 
     napi_value napiStubObject = CreateJsUndefined(env);
-    if (extensionStub_) {
-        napiStubObject = NAPI_ohos_rpc_CreateJsRemoteObject(env, extensionStub_->AsObject());
+    if (extensionStub_ == nullptr) {
+        auto shareThis = std::static_pointer_cast<JsUIServiceExtension>(shared_from_this());
+        std::weak_ptr<JsUIServiceExtension> weakThis = shareThis;
+        extensionStub_ = std::make_unique<UIServiceExtensionHostStub>(weakThis);
     }
 
+    napiStubObject = NAPI_ohos_rpc_CreateJsRemoteObject(env, extensionStub_->AsObject());
+    
     TAG_LOGD(AAFwkTag::UISERVC_EXT, "ok");
     return napiStubObject;
 }
 
 napi_value JsUIServiceExtension::CallOnDisconnect(const AAFwk::Want &want, bool withResult)
 {
+    if (extensionStub_) {
+        extensionStub_.reset();
+    }
     HandleEscape handleEscape(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
@@ -1114,20 +1122,45 @@ void JsUIServiceExtension::ListenWMS()
 #endif
 }
 
-void JsUIServiceExtension::SendData(OHOS::AAFwk::WantParams &data)
+int32_t JsUIServiceExtension::SendData(OHOS::AAFwk::WantParams &data)
+{
+    TAG_LOGE(AAFwkTag::UISERVC_EXT, "JsUIServiceExtension::SendData");
+    napi_env env = jsRuntime_.GetNapiEnv();
+    std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
+        ([weak = weak_from_this(), wantParams = data](napi_env env, NapiAsyncTask &task, int32_t status) {
+            auto extensionSptr = weak.lock();
+            if (!extensionSptr) {
+                TAG_LOGE(AAFwkTag::UISERVC_EXT, "extensionSptr nullptr");
+                return;
+            }
+            auto sptrThis = std::static_pointer_cast<JsUIServiceExtension>(extensionSptr);
+            if (!sptrThis) {
+                TAG_LOGE(AAFwkTag::UISERVC_EXT, "sptrThis nullptr");
+                return;
+            }
+            sptrThis->HandleSendData(wantParams);
+        });
+
+    napi_ref callback = nullptr;
+    std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
+    NapiAsyncTask::Schedule("JsUIServiceExtension::SendData",
+        env, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
+    return static_cast<int32_t>(AbilityErrorCode::ERROR_OK);
+}
+
+void JsUIServiceExtension::HandleSendData(const OHOS::AAFwk::WantParams &data)
 {
     napi_env env = jsRuntime_.GetNapiEnv();
-
     napi_value obj = jsObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::UISERVC_EXT, "JsUIServiceExtension::SendData, Failed to get ServiceExtension object");
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "JsUIServiceExtension::HandleSendData, Failed to get ServiceExtension object");
         return;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env, obj, "onData", &method);
     if (method == nullptr) {
-        TAG_LOGE(AAFwkTag::UISERVC_EXT, "JsUIServiceExtension::SendData, Failed to get onData from ServiceExtension object");
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "JsUIServiceExtension::HandleSendData, Failed to get onData from ServiceExtension object");
         return;
     }
 

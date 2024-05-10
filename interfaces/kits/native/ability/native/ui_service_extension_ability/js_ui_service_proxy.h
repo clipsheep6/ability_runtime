@@ -29,7 +29,7 @@ using namespace AbilityRuntime;
 
 class JsUIServiceProxy {
 public:
-    static napi_value CreateJsUIServiceProxy(napi_env env, const sptr<IRemoteObject>& impl);
+    static napi_value CreateJsUIServiceProxy(napi_env env, const sptr<IRemoteObject>& impl, int64_t connectionId);
     static void Finalizer(napi_env env, void* data, void* hint);
 
     JsUIServiceProxy(const sptr<IRemoteObject>& impl);
@@ -42,7 +42,7 @@ private:
     napi_value OnSendData(napi_env env, NapiCallbackInfo& info);
 
 protected:
-    std::unique_ptr<OHOS::AAFwk::UIServiceProxy> proxy_;
+    sptr<OHOS::AAFwk::IUIService> proxy_;
     int64_t connectionId_ = 0;
 };
 

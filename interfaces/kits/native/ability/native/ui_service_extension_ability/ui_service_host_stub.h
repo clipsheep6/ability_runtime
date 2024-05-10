@@ -27,7 +27,7 @@
 namespace OHOS {
 namespace AAFwk {
 
-class UIServiceHostStub : public IRemoteStub<IUiServiceHost> {
+class UIServiceHostStub : public IRemoteStub<IUIServiceHost> {
 public:
     UIServiceHostStub();
     virtual ~UIServiceHostStub();

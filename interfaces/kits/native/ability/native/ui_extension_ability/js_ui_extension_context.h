@@ -108,7 +108,7 @@ public:
     void SetUIServiceExtensionAsyncContext(const UIExtensionAsyncNapiContext& context);
     UIExtensionAsyncNapiContext& GetUIServiceExtensionAsyncContext();
     std::unique_ptr<UIExtensionServiceHostCallback>& GetCallback() { return callback_; }
-    void SendData(OHOS::AAFwk::WantParams &data);
+    int32_t SendData(OHOS::AAFwk::WantParams &data);
 
 private:
     napi_env env_ = nullptr;

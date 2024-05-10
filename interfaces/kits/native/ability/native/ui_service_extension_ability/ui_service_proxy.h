@@ -23,14 +23,16 @@
 
 namespace OHOS {
 namespace AAFwk {
-class UIServiceProxy : public IRemoteProxy<IUiService> {
+class UIServiceProxy : public IRemoteProxy<IUIService> {
 public:
     explicit UIServiceProxy(const sptr<IRemoteObject>& impl)
-        :IRemoteProxy<IUiService>(impl) {}
+        :IRemoteProxy<IUIService>(impl) {}
     virtual ~UIServiceProxy() {}
 
-    virtual void SendData(OHOS::AAFwk::WantParams &data) override;
+    virtual int32_t SendData(OHOS::AAFwk::WantParams &data) override;
 
+private:
+    static inline BrokerDelegator<UIServiceProxy> delegator_;
 };
 } // namespace AAFwk
 } // namespace OHOS

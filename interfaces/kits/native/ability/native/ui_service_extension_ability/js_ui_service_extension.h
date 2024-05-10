@@ -28,7 +28,7 @@
 #include "system_ability_status_change_stub.h"
 #endif
 #include "ui_service_extension.h"
-#include "ui_service_stub.h"
+#include "ui_service_host_stub.h"
 #include "freeze_util.h"
 #include "time_util.h"
 #include "ability_delegator_infos.h"
@@ -42,14 +42,13 @@ class Runtime;
 class UIServiceExtensionContext;
 class JsUIServiceExtension;
 
-class UIServiceExtStub : public AAFwk::UIServiceStub {
+class UIServiceExtensionHostStub : public AAFwk::UIServiceHostStub {
 public:
-    UIServiceExtStub(JsUIServiceExtension* ext) { extension_ = ext; }
-    void SetExtension(JsUIServiceExtension* ext) { extension_ = ext; }
-    virtual void SendData(OHOS::AAFwk::WantParams &data) override;
+    UIServiceExtensionHostStub(std::weak_ptr<JsUIServiceExtension>& ext) { extension_ = ext; }
+    virtual int32_t SendData(OHOS::AAFwk::WantParams &data) override;
 
 protected:
-    JsUIServiceExtension* extension_;
+    std::weak_ptr<JsUIServiceExtension> extension_;
 };
 
 /**
@@ -190,7 +189,9 @@ public:
      */
     virtual void Dump(const std::vector<std::string> &params, std::vector<std::string> &info) override;
 
-    void SendData(OHOS::AAFwk::WantParams &data);
+    int32_t SendData(OHOS::AAFwk::WantParams &data);
+    void HandleSendData(const OHOS::AAFwk::WantParams &data);
+
 #ifdef SUPPORT_GRAPHICS
     /**
      * @brief Called before instantiating WindowScene.
@@ -256,7 +257,7 @@ private:
     std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
     std::shared_ptr<AbilityHandler> handler_ = nullptr;
     sptr<IRemoteObject> callbackProxy_ = nullptr;
-    std::unique_ptr<UIServiceExtStub> extensionStub_ = nullptr;
+    std::unique_ptr<UIServiceExtensionHostStub> extensionStub_ = nullptr;
 
 #ifdef SUPPORT_GRAPHICS
 protected:

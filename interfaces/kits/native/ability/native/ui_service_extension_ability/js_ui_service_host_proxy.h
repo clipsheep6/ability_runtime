@@ -36,6 +36,7 @@ public:
     virtual ~JsUIServiceHostProxy();
 
 private:
+    bool CheckCallerIsSystemApp();
     static napi_value SendData(napi_env env, napi_callback_info info);
     napi_value OnSendData(napi_env env, NapiCallbackInfo& info);
 

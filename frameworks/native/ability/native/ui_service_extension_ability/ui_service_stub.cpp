@@ -23,7 +23,7 @@ namespace AAFwk {
 UIServiceStub::UIServiceStub()
 {
     TAG_LOGI(AAFwkTag::UISERVC_EXT, "UIServiceStub::UIServiceStub");
-    requestFuncMap_[SENDDATA] = &UIServiceStub::OnSendData;
+    requestFuncMap_[SEND_DATA] = &UIServiceStub::OnSendData;
 }
 
 UIServiceStub::~UIServiceStub()
@@ -55,9 +55,8 @@ int32_t UIServiceStub::OnSendData(MessageParcel& data, MessageParcel& reply)
     TAG_LOGI(AAFwkTag::UISERVC_EXT, "UIServiceStub::OnSendData");
 
     AAFwk::WantParams* wantParams = data.ReadParcelable<AAFwk::WantParams>();
-    SendData(*wantParams);
-
-    return NO_ERROR;
+    int ret = SendData(*wantParams);
+    return ret;
 }
 
 }

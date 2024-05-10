@@ -17,6 +17,7 @@
 
 #include <cstdint>
 
+#include "ability_business_error.h"
 #include "ability_manager_client.h"
 #include "event_handler.h"
 #include "hilog_tag_wrapper.h"
@@ -37,7 +38,7 @@
 #include "open_link/napi_common_open_link_options.h"
 #include "start_options.h"
 #include "hitrace_meter.h"
-#include "ui_service_host_stub.h"
+#include "ui_service_stub.h"
 #include "uri.h"
 
 namespace OHOS {
@@ -54,23 +55,24 @@ const std::string ATOMIC_SERVICE_PREFIX = "com.atomicservice.";
 constexpr size_t ARGC_THREE = 3;
 } // namespace
 
-class UIExtensionServiceHostCallback : public OHOS::AAFwk::UIServiceHostStub {
+class UIExtensionServiceHostCallback : public OHOS::AAFwk::UIServiceStub {
 public:
     UIExtensionServiceHostCallback(wptr<JSUIExtensionConnection> conn) { conn_ = conn; }
-    virtual void SendData(OHOS::AAFwk::WantParams &data) override;
+    virtual int32_t SendData(OHOS::AAFwk::WantParams &data) override;
 
 protected:
     wptr<JSUIExtensionConnection> conn_;
 };
 
-void UIExtensionServiceHostCallback::SendData(OHOS::AAFwk::WantParams &data)
+int32_t UIExtensionServiceHostCallback::SendData(OHOS::AAFwk::WantParams &data)
 {
-    sptr<JSUIExtensionConnection> scon = conn_.promote();
-    if (scon != nullptr) {
-        scon->SendData(data);
+    sptr<JSUIExtensionConnection> conn = conn_.promote();
+    if (conn != nullptr) {
+        return conn->SendData(data);
     }
-}
 
+    return static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER);
+}
 
 static std::map<UIExtensionConnectionKey, sptr<JSUIExtensionConnection>, key_compare> g_connects;
 static int64_t g_serialNumber = 0;
@@ -713,7 +715,7 @@ napi_value JsUIExtensionContext::OnConnectUIServiceExtension(napi_env env, NapiC
     int64_t connectId = connection->GetConnectionId();
 
     std::unique_ptr<UIExtensionServiceHostCallback>& callback = connection->GetCallback();
-    want.SetParam("UIServiceExtensionCallbackStub", callback->AsObject());
+    want.SetParam("UIServiceStub", callback->AsObject());
 
     UIExtensionAsyncNapiContext& asyncContext = connection->GetUIServiceExtensionAsyncContext();
     asyncContext.env_ = env;
@@ -1100,7 +1102,7 @@ void JSUIExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::Eleme
     UIExtensionAsyncNapiContext& context = GetUIServiceExtensionAsyncContext();
     if (context.deferred_ != nullptr) {
         TAG_LOGE(AAFwkTag::UISERVC_EXT, "HandleOnAbilityConnectDone, CreateJsUIServiceProxy");
-        napi_resolve_deferred(env_, context.deferred_, OHOS::AAFwk::JsUIServiceProxy::CreateJsUIServiceProxy(env_, remoteObject));
+        napi_resolve_deferred(env_, context.deferred_, OHOS::AAFwk::JsUIServiceProxy::CreateJsUIServiceProxy(env_, remoteObject, connectionId_));
         context.deferred_ = nullptr;
         return;
     }
@@ -1187,17 +1189,17 @@ void JSUIExtensionConnection::RemoveConnectionObject()
     jsConnectionObject_.reset();
 }
 
-void JSUIExtensionConnection::SendData(OHOS::AAFwk::WantParams &data)
+int32_t JSUIExtensionConnection::SendData(OHOS::AAFwk::WantParams &data)
 {
     TAG_LOGI(AAFwkTag::UISERVC_EXT, "SendData");
     if (jsConnectionObject_ == nullptr) {
         TAG_LOGE(AAFwkTag::UISERVC_EXT, "jsConnectionObject_ nullptr");
-        return;
+        return static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER);
     }
    napi_value obj = jsConnectionObject_->GetNapiValue();
     if (!CheckTypeForNapiValue(env_, obj, napi_function)) {
         TAG_LOGE(AAFwkTag::UISERVC_EXT, "jsConnectionObject_ isn't function");
-        return;
+        return static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER);
     }
 
     napi_value undefined = nullptr;
@@ -1205,6 +1207,8 @@ void JSUIExtensionConnection::SendData(OHOS::AAFwk::WantParams &data)
     napi_value argv[] = {AppExecFwk::CreateJsWantParams(env_, data)};
     napi_call_function(env_, undefined, obj, ARGC_ONE, argv, nullptr);
     TAG_LOGD(AAFwkTag::UISERVC_EXT, "SendData end");
+
+    return static_cast<int32_t>(AbilityErrorCode::ERROR_OK);
 }
 
 void JSUIExtensionConnection::CallJsFailed(int32_t errorCode)

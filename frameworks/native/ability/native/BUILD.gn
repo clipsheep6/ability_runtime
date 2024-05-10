@@ -185,7 +185,7 @@ ohos_shared_library("abilitykit_utils") {
 ohos_shared_library("abilitykit_native") {
   include_dirs = [
     "${ability_runtime_path}/utils/global/time/include",
-    "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_service_extension_ability"
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_service_extension_ability",
   ]
 
   sources = [
@@ -767,8 +767,6 @@ ohos_shared_library("ui_service_extension") {
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_path}/services/common/include",
     "${ability_runtime_innerkits_path}/ability_manager/include",
-    "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_napi",
-    "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_stage_napi",
     "${ability_runtime_path}/utils/global/time/include",
   ]
 
@@ -810,6 +808,7 @@ ohos_shared_library("ui_service_extension") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
+    "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
@@ -874,7 +873,6 @@ ohos_shared_library("ui_service_extension_module") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/app/task",
     "${ability_runtime_napi_path}/inner/napi_common",
     "${ability_runtime_napi_path}/featureAbility",
-    "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_napi",
   ]
 
   sources = [ "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/ui_service_extension_module_loader.cpp" ]

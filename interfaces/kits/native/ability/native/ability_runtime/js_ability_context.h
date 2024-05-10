@@ -172,25 +172,38 @@ public:
     void OnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override;
-    void HandleOnAbilityConnectDone(
+    virtual void HandleOnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode);
-    void HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode);
+    virtual void HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode);
     void SetJsConnectionObject(napi_value jsConnectionObject);
     void RemoveConnectionObject();
     void CallJsFailed(int32_t errorCode);
     void SetConnectionId(int64_t id);
-    void SetUIServiceExtensionAsyncContext(const JSAbilityAsyncNapiContext& context);
-    JSAbilityAsyncNapiContext& GetUIServiceExtensionAsyncContext();
-    std::unique_ptr<UIServiceHostCallback>& GetCallback() { return callback_; }
-    void SendData(OHOS::AAFwk::WantParams &data);
 
-private:
+protected:
     napi_value ConvertElement(const AppExecFwk::ElementName &element);
     napi_env env_;
     std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;
     int64_t connectionId_ = -1;
-    JSAbilityAsyncNapiContext uiserviceExtAsynccontext_;
-    std::unique_ptr<UIServiceHostCallback> callback_;
+};
+
+class JSUIServiceExtensionAbilityConnection : public JSAbilityConnection {
+public:
+    JSUIServiceExtensionAbilityConnection(napi_env env);
+    ~JSUIServiceExtensionAbilityConnection();
+    virtual void HandleOnAbilityConnectDone(
+        const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
+    virtual void HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override;
+    void SetCallbackObject(napi_value callbackFunctionObject);
+    std::unique_ptr<UIServiceHostCallback>& GetServiceHostStub() { return serviceHostStub_; }
+    void SetNapiAsyncTask(std::unique_ptr<NapiAsyncTask>& task);
+    int32_t SendData(OHOS::AAFwk::WantParams &data);
+    void HandleSendData(const OHOS::AAFwk::WantParams &data);
+
+private:
+    std::unique_ptr<NativeReference> jsCallbackFunctionObject_ = nullptr;
+    std::unique_ptr<UIServiceHostCallback> serviceHostStub_;
+    std::unique_ptr<NapiAsyncTask> napiAsyncTask_;
 };
 
 struct ConnectionKey {

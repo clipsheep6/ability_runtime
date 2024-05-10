@@ -14,7 +14,9 @@
  */
 
 #include "js_ui_service_proxy.h"
+#include "ability_business_error.h"
 #include "hilog_tag_wrapper.h"
+#include "js_error_utils.h"
 #include "napi_common_want.h"
 
 namespace OHOS {
@@ -23,7 +25,7 @@ using namespace AbilityRuntime;
 
 static constexpr int32_t INDEX_ZERO = 0;
 
-napi_value JsUIServiceProxy::CreateJsUIServiceProxy(napi_env env, const sptr<IRemoteObject>& impl)
+napi_value JsUIServiceProxy::CreateJsUIServiceProxy(napi_env env, const sptr<IRemoteObject>& impl, int64_t connectionId)
 {
     TAG_LOGI(AAFwkTag::UISERVC_EXT, "JsUIServiceProxy::CreateJsUIServiceProxy");
     napi_value object = nullptr;
@@ -34,9 +36,10 @@ napi_value JsUIServiceProxy::CreateJsUIServiceProxy(napi_env env, const sptr<IRe
     }
 
     std::unique_ptr<JsUIServiceProxy> proxy = std::make_unique<JsUIServiceProxy>(impl);
+    proxy->SetConnectionId(connectionId);
     napi_wrap(env, object, proxy.release(), Finalizer, nullptr, nullptr);
 
-    const char *moduleName = "UIServiceProxy";
+    const char *moduleName = "JsUIServiceProxy";
     BindNativeFunction(env, object, "sendData", moduleName, SendData);
     return object;
 }
@@ -50,7 +53,11 @@ void JsUIServiceProxy::Finalizer(napi_env env, void* data, void* hint)
 JsUIServiceProxy::JsUIServiceProxy(const sptr<IRemoteObject>& impl)
 {
     TAG_LOGI(AAFwkTag::UISERVC_EXT, "JsUIServiceProxy::JsUIServiceProxy");
-    proxy_ = std::make_unique<UIServiceProxy>(impl);
+    //proxy_ = std::make_unique<UIServiceProxy>(impl);
+    proxy_ = iface_cast<OHOS::AAFwk::IUIService>(impl);
+    if (proxy_ == nullptr) {
+        TAG_LOGI(AAFwkTag::UISERVC_EXT, "iface_cast return null");
+    }
 }
 
 JsUIServiceProxy::~JsUIServiceProxy()
@@ -67,13 +74,20 @@ napi_value JsUIServiceProxy::OnSendData(napi_env env, NapiCallbackInfo& info)
 {
     TAG_LOGI(AAFwkTag::UISERVC_EXT, "JsUIServiceProxy::OnSendData");
     if (proxy_ == nullptr) {
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         return CreateJsUndefined(env);
     }
 
     AAFwk::WantParams params;
     bool result = AppExecFwk::UnwrapWantParams(env, info.argv[INDEX_ZERO], params);
-    if (result) {
-        proxy_->SendData(params);
+    if (!result) {
+        ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM), "Parameter verification failed");
+        return CreateJsUndefined(env);
+    }
+
+    int32_t ret = proxy_->SendData(params);
+    if (ret != static_cast<int32_t>(AbilityErrorCode::ERROR_OK)) {
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
     }
     return CreateJsUndefined(env);
 }

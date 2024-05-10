@@ -23,19 +23,19 @@
 namespace OHOS {
 namespace AAFwk {
 
-class IUiServiceHost : public IRemoteBroker {
+class IUIServiceHost : public IRemoteBroker {
 public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.aafwk.IUiServiceHost");
+    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.aafwk.IUIServiceHost");
 
     /**
      * SendData, send the data from ui sevice host to other application
      *
      * @param data, the data which is sent
      */
-    virtual void SendData(OHOS::AAFwk::WantParams &data) = 0;
+    virtual int32_t SendData(OHOS::AAFwk::WantParams &data) = 0;
 
     enum {
-        SENDDATA = 1,
+        SEND_DATA = 1,
     };
 };
 }  // namespace AAFwk

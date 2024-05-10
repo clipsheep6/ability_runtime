@@ -24,13 +24,13 @@
 namespace OHOS {
 namespace AAFwk {
 
-class UIServiceHostProxy : public IRemoteProxy<IUiServiceHost> {
+class UIServiceHostProxy : public IRemoteProxy<IUIServiceHost> {
 public:
     explicit UIServiceHostProxy(const sptr<IRemoteObject>& impl)
-        :IRemoteProxy<IUiServiceHost>(impl) {}
+        :IRemoteProxy<IUIServiceHost>(impl) {}
     virtual ~UIServiceHostProxy() {}
 
-    virtual void SendData(OHOS::AAFwk::WantParams &data) override;
+    virtual int32_t SendData(OHOS::AAFwk::WantParams &data) override;
 };
 } // namespace AAFwk
 } // namespace OHOS

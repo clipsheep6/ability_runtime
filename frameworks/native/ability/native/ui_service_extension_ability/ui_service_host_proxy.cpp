@@ -14,33 +14,43 @@
  */
 
 #include "ui_service_host_proxy.h"
-#include "ipc_types.h"
+
+#include "ability_business_error.h"
 #include "ability_manager_ipc_interface_code.h"
+#include "ipc_types.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
+using namespace AbilityRuntime;
 
-void UIServiceHostProxy::SendData(OHOS::AAFwk::WantParams &data)
+int32_t UIServiceHostProxy::SendData(OHOS::AAFwk::WantParams &data)
 {
+    TAG_LOGI(AAFwkTag::UISERVC_EXT, "UIServiceHostProxy::SendData");
     MessageParcel parcelData;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     if (!parcelData.WriteInterfaceToken(UIServiceHostProxy::GetDescriptor())) {
-        return;
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "Write interface token failed.");
+        return static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER);
     }
     if (!parcelData.WriteParcelable(&data)) {
-        return;
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "Write data failed.");
+        return static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER);
     }
     sptr<IRemoteObject> remoteObject = Remote();
     if (remoteObject == nullptr) {
-        return;
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "remoteObject null");
+        return static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER);
     }
-    if (!remoteObject->SendRequest(static_cast<uint32_t>(IUiServiceHost::SENDDATA), parcelData, reply, option)) {
-        return ;
+    if (!remoteObject->SendRequest(static_cast<uint32_t>(IUIServiceHost::SEND_DATA), parcelData, reply, option)) {
+        TAG_LOGE(AAFwkTag::UISERVC_EXT, "SendRequest failed");
+        return static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER);
     }
-    TAG_LOGI(AAFwkTag::UISERVC_EXT, "UIServiceHostProxy::SendData success");
+    int32_t ret = reply.ReadInt32();
+    TAG_LOGI(AAFwkTag::UISERVC_EXT, "UIServiceHostProxy::SendData finished, ret %{public}d", ret);
+    return ret;
 }
 
 }
