@@ -193,6 +193,7 @@ ohos_unittest("ability_delegator_registry_unittest") {
   ]
 
   external_deps = [
+    "ability_base:extractortool",
     "ability_base:want",
     "ability_runtime:ability_manager",
     "ability_runtime:runtime",
@@ -227,6 +228,7 @@ ohos_unittest("js_test_runner_unittest") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:extractortool",
     "ability_base:want",
     "ability_runtime:ability_manager",
     "ability_runtime:runtime",

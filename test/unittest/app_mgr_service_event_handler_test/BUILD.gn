@@ -88,6 +88,7 @@ ohos_unittest("AMSEventHandlerTest") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "kv_store:distributeddata_inner",
+    "kv_store:distributeddata_mgr",
     "memory_utils:libmeminfo",
     "resource_schedule_service:ressched_client",
   ]
