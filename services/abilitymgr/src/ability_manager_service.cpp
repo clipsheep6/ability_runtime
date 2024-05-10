@@ -915,7 +915,6 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     isSendDialogResult = false;
     if (!dialogSessionId.empty() && dialogSessionRecord_->GetDialogCallerInfo(dialogSessionId) != nullptr) {
         isSendDialogResult = true;
-        dialogSessionRecord_->ClearDialogContext(dialogSessionId);
     }
     if (callerToken != nullptr && !VerificationAllToken(callerToken) && !isSendDialogResult) {
         auto isSpecificSA = AAFwk::PermissionVerification::GetInstance()->
@@ -9933,6 +9932,9 @@ int AbilityManagerService::SendDialogResult(const Want &want, const std::string 
     sptr<IRemoteObject> callerToken = dialogCallerInfo->callerToken;
     int ret = StartAbilityAsCaller(targetWant, callerToken, nullptr, dialogCallerInfo->userId,
         dialogCallerInfo->requestCode, true);
+    if (ret == ERR_OK) {
+        dialogSessionRecord_->ClearDialogContext(dialogSessionId);
+    }
     return ret;
 }
 
