@@ -88,6 +88,14 @@ SpawnConnectionState AppSpawnClient::QueryConnectionState() const
     return state_;
 }
 
+AppSpawnClientHandle AppSpawnClient::GetAppSpawnClientHandle() const
+{
+    if (state_ == SpawnConnectionState::STATE_CONNECTED) {
+        return handle_;
+    }
+    return nullptr;
+}
+
 static std::string DumpDataGroupInfoListToJson(const DataGroupInfoList &dataGroupInfoList)
 {
     nlohmann::json dataGroupInfoListJson;
@@ -147,7 +155,7 @@ int32_t AppSpawnClient::SetMountPermission(const AppSpawnStartMsg &startMsg, App
     int32_t ret = 0;
     std::set<std::string> mountPermissionList = startMsg.permissions;
     for (std::string permission : mountPermissionList) {
-        ret = AppSpawnReqMsgAddPermission(reqHandle, permission.c_str());
+        ret = AppSpawnClientAddPermission(handle_, reqHandle, permission.c_str());
         if (ret != 0) {
             TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnReqMsgAddPermission %{public}s failed", permission.c_str());
             return ret;
@@ -172,6 +180,16 @@ int32_t AppSpawnClient::SetStartFlags(const AppSpawnStartMsg &startMsg, AppSpawn
         }
         startFlagTmp = startFlagTmp >> RIGHT_SHIFT_STEP;
         flagIndex++;
+    }
+    return ret;
+}
+
+int32_t AppSpawnClient::SetAtomicServiceFlag(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle)
+{
+    int32_t ret = 0;
+    if (startMsg.atomicServiceFlag &&
+        (ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_ATOMIC_SERVICE))) {
+        HILOG_ERROR("AppSpawnReqMsgSetAppFlag failed, ret: %{public}d", ret);
     }
     return ret;
 }
@@ -217,6 +235,13 @@ int32_t AppSpawnClient::AppspawnSetExtMsg(const AppSpawnStartMsg &startMsg, AppS
             return ret;
         }
     }
+    if (!startMsg.atomicAccount.empty() &&
+        (ret = AppSpawnReqMsgAddExtInfo(reqHandle, MSG_EXT_NAME_ACCOUNT_ID,
+            reinterpret_cast<const uint8_t*>(startMsg.atomicAccount.c_str()),
+            startMsg.atomicAccount.size()))) {
+        HILOG_ERROR("AppSpawnReqMsgAddExtInfo failed, ret: %{public}d", ret);
+        return ret;
+    }
 
     return ret;
 }
@@ -248,8 +273,7 @@ int32_t AppSpawnClient::AppspawnCreateDefaultMsg(const AppSpawnStartMsg &startMs
             }
         }
         if ((ret = AppSpawnReqMsgSetAppAccessToken(reqHandle, startMsg.accessTokenIdEx))) {
-            TAG_LOGE(AAFwkTag::APPMGR, "SetAccessTokenInfo %{public}llu failed, ret: %{public}d",
-                startMsg.accessTokenIdEx, ret);
+            TAG_LOGE(AAFwkTag::APPMGR, "ret: %{public}d", ret);
             break;
         }
         if ((ret = AppSpawnReqMsgSetAppDomainInfo(reqHandle, startMsg.hapFlags, startMsg.apl.c_str()))) {
@@ -260,6 +284,10 @@ int32_t AppSpawnClient::AppspawnCreateDefaultMsg(const AppSpawnStartMsg &startMs
         }
         if ((ret = SetStartFlags(startMsg, reqHandle))) {
             TAG_LOGE(AAFwkTag::APPMGR, "SetStartFlags failed, ret: %{public}d", ret);
+            break;
+        }
+        if ((ret = SetAtomicServiceFlag(startMsg, reqHandle))) {
+            HILOG_ERROR("SetAtomicServiceFlag failed, ret: %{public}d", ret);
             break;
         }
         if ((ret = SetMountPermission(startMsg, reqHandle))) {

@@ -28,6 +28,7 @@
 #include "appexecfwk_errors.h"
 #include "configuration.h"
 #include "hilog_tag_wrapper.h"
+#include "hitrace_meter.h"
 #include "session_info.h"
 #include "status_bar_delegate_interface.h"
 
@@ -90,6 +91,7 @@ int AbilityManagerProxy::StartAbility(const Want &want, int32_t userId, int requ
 
 AppExecFwk::ElementName AbilityManagerProxy::GetTopAbility(bool isNeedLocalDeviceId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -585,6 +587,7 @@ int AbilityManagerProxy::StartAbilityByUIContentSession(const Want &want, const 
 int AbilityManagerProxy::StartExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -640,6 +643,32 @@ int AbilityManagerProxy::RequestModalUIExtension(const Want &want)
     error = SendRequest(AbilityManagerInterfaceCode::REQUESET_MODAL_UIEXTENSION, data, reply, option);
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "RequestModalUIExtension, Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::PreloadUIExtensionAbility(const Want &want, std::string &hostBundleName, int32_t userId)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, &want);
+    
+    if (!data.WriteString16(Str8ToStr16(hostBundleName))) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "hostBundleName write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, userId);
+    int error;
+    MessageParcel reply;
+    MessageOption option;
+    error = SendRequest(AbilityManagerInterfaceCode::PRELOAD_UIEXTENSION_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "PreloadUIExtensionAbility, Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2158,8 +2187,8 @@ int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const s
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
-    const std::string &bundleName, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
+int AbilityManagerProxy::ContinueMission(AAFwk::ContinueMissionInfo continueMissionInfo,
+    const sptr<IRemoteObject> &callback)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -2167,27 +2196,34 @@ int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const s
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
-    if (!data.WriteString(srcDeviceId)) {
+    if (!data.WriteString(continueMissionInfo.srcDeviceId)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "srcDeviceId write failed.");
         return INNER_ERR;
     }
-    if (!data.WriteString(dstDeviceId)) {
+    if (!data.WriteString(continueMissionInfo.dstDeviceId)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "dstDeviceId write failed.");
         return INNER_ERR;
     }
-    if (!data.WriteString(bundleName)) {
+    if (!data.WriteString(continueMissionInfo.bundleName)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "missionId write failed.");
         return INNER_ERR;
     }
-    if (!data.WriteRemoteObject(callBack)) {
+    if (!data.WriteRemoteObject(callback)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "callBack write failed.");
         return INNER_ERR;
     }
-    if (!data.WriteParcelable(&wantParams)) {
+    if (!data.WriteParcelable(&continueMissionInfo.wantParams)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "wantParams write failed.");
         return INNER_ERR;
     }
-
+    if (!data.WriteString(continueMissionInfo.srcBundleName)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "srcBundleName write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteString(continueMissionInfo.continueType)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "continueType write failed.");
+        return INNER_ERR;
+    }
     auto error = SendRequest(AbilityManagerInterfaceCode::CONTINUE_MISSION_OF_BUNDLENAME, data, reply, option);
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
@@ -2335,6 +2371,7 @@ int AbilityManagerProxy::LockMissionForCleanup(int32_t missionId)
 
 int AbilityManagerProxy::UnlockMissionForCleanup(int32_t missionId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -2543,6 +2580,7 @@ int AbilityManagerProxy::UnRegisterMissionListener(const sptr<IMissionListener> 
 int AbilityManagerProxy::GetMissionInfos(const std::string& deviceId, int32_t numMax,
     std::vector<MissionInfo> &missionInfos)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -2574,6 +2612,7 @@ int AbilityManagerProxy::GetMissionInfos(const std::string& deviceId, int32_t nu
 int AbilityManagerProxy::GetMissionInfo(const std::string& deviceId, int32_t missionId,
     MissionInfo &missionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -2606,6 +2645,7 @@ int AbilityManagerProxy::GetMissionInfo(const std::string& deviceId, int32_t mis
 
 int AbilityManagerProxy::CleanMission(int32_t missionId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -2628,6 +2668,7 @@ int AbilityManagerProxy::CleanMission(int32_t missionId)
 
 int AbilityManagerProxy::CleanAllMissions()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -2646,6 +2687,7 @@ int AbilityManagerProxy::CleanAllMissions()
 
 int AbilityManagerProxy::MoveMissionToFront(int32_t missionId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -2668,6 +2710,7 @@ int AbilityManagerProxy::MoveMissionToFront(int32_t missionId)
 
 int AbilityManagerProxy::MoveMissionToFront(int32_t missionId, const StartOptions &startOptions)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -4908,6 +4951,7 @@ int32_t AbilityManagerProxy::UpdateSessionInfoBySCB(std::list<SessionInfo> &sess
 ErrCode AbilityManagerProxy::SendRequest(AbilityManagerInterfaceCode code, MessageParcel &data, MessageParcel &reply,
     MessageOption& option)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Remote() is NULL");
@@ -5074,6 +5118,32 @@ int32_t AbilityManagerProxy::OpenAtomicService(Want& want, const StartOptions &o
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d.", ret);
         return ret;
     }
+    return reply.ReadInt32();
+}
+
+int32_t AbilityManagerProxy::SetResidentProcessEnabled(const std::string &bundleName, bool enable)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteString(bundleName)) {
+        HILOG_ERROR("Write bundl name failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteBool(enable)) {
+        HILOG_ERROR("Write enable status failed.");
+        return INNER_ERR;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AbilityManagerInterfaceCode::SET_RESIDENT_PROCESS_ENABLE, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d.", ret);
+        return ret;
+    }
+
     return reply.ReadInt32();
 }
 

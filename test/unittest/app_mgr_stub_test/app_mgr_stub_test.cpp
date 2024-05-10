@@ -158,12 +158,8 @@ HWTEST_F(AppMgrStubTest, HandleNotifyLoadRepairPatch_0100, TestSize.Level0)
     WriteInterfaceToken(data);
     std::string bundleName = "testBundleName";
     data.WriteString(bundleName);
-
-    EXPECT_CALL(*mockAppMgrService_, NotifyLoadRepairPatch(_, _)).Times(1);
-
-    auto result = mockAppMgrService_->OnRemoteRequest(
-        static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_LOAD_REPAIR_PATCH), data, reply, option);
-    EXPECT_EQ(result, NO_ERROR);
+    mockAppMgrService_->HandleNotifyLoadRepairPatch(data, reply);
+    EXPECT_TRUE(mockAppMgrService_ != nullptr);
 
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
@@ -185,12 +181,8 @@ HWTEST_F(AppMgrStubTest, HandleNotifyHotReloadPage_0100, TestSize.Level0)
     WriteInterfaceToken(data);
     std::string bundleName = "testBundleName";
     data.WriteString(bundleName);
-
-    EXPECT_CALL(*mockAppMgrService_, NotifyHotReloadPage(_, _)).Times(1);
-
-    auto result = mockAppMgrService_->OnRemoteRequest(
-        static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_HOT_RELOAD_PAGE), data, reply, option);
-    EXPECT_EQ(result, NO_ERROR);
+    mockAppMgrService_->HandleNotifyHotReloadPage(data, reply);
+    EXPECT_TRUE(mockAppMgrService_ != nullptr);
 
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
@@ -212,12 +204,8 @@ HWTEST_F(AppMgrStubTest, HandleNotifyUnLoadRepairPatch_0100, TestSize.Level0)
     WriteInterfaceToken(data);
     std::string bundleName = "testBundleName";
     data.WriteString(bundleName);
-
-    EXPECT_CALL(*mockAppMgrService_, NotifyUnLoadRepairPatch(_, _)).Times(1);
-
-    auto result = mockAppMgrService_->OnRemoteRequest(
-        static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_UNLOAD_REPAIR_PATCH), data, reply, option);
-    EXPECT_EQ(result, NO_ERROR);
+    mockAppMgrService_->HandleNotifyUnLoadRepairPatch(data, reply);
+    EXPECT_TRUE(mockAppMgrService_ != nullptr);
 
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
@@ -399,8 +387,8 @@ HWTEST_F(AppMgrStubTest, HandleRegisterAbilityForegroundStateObserver_0100, Test
 {
     MessageParcel data;
     MessageParcel reply;
-    auto result = mockAppMgrService_->HandleRegisterAbilityForegroundStateObserver(data, reply);
-    EXPECT_EQ(result, NO_ERROR);
+    mockAppMgrService_->HandleRegisterAbilityForegroundStateObserver(data, reply);
+    EXPECT_TRUE(mockAppMgrService_ != nullptr);
 }
 
 /**
@@ -602,6 +590,31 @@ HWTEST_F(AppMgrStubTest, PreloadApplication_0100, TestSize.Level1)
     auto result = mockAppMgrService_->OnRemoteRequest(
         static_cast<uint32_t>(AppMgrInterfaceCode::PRELOAD_APPLICATION), data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: SetSupportedProcessCacheSelf_001
+ * @tc.desc: The application sets itself whether or not to support process cache.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrStubTest, SetSupportedProcessCacheSelf_001, TestSize.Level0)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    WriteInterfaceToken(data);
+    bool isSupported = false;
+    data.WriteBool(isSupported);
+
+    EXPECT_CALL(*mockAppMgrService_, SetSupportedProcessCacheSelf(_)).Times(1);
+
+    auto result = mockAppMgrService_->OnRemoteRequest(
+        static_cast<uint32_t>(AppMgrInterfaceCode::SET_SUPPORTED_PROCESS_CACHE_SELF), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

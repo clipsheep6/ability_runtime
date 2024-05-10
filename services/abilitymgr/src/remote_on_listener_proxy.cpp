@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace AAFwk {
 void RemoteOnListenerProxy::OnCallback(const uint32_t continueState, const std::string &srcDeviceId,
-    const std::string &bundleName)
+    const std::string &bundleName, const std::string &continueType, const std::string &srcBundleName)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -43,6 +43,14 @@ void RemoteOnListenerProxy::OnCallback(const uint32_t continueState, const std::
     }
     if (!data.WriteString(bundleName)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyOnsChanged Write bundleName failed.");
+        return;
+    }
+    if (!data.WriteString(continueType)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyOnsChanged Write continueType failed.");
+        return;
+    }
+    if (!data.WriteString(srcBundleName)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyOnsChanged Write srcBundleName failed.");
         return;
     }
     sptr<IRemoteObject> remote = Remote();

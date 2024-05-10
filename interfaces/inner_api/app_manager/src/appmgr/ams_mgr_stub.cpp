@@ -122,6 +122,8 @@ void AmsMgrStub::CreateMemberFuncMap()
         &AmsMgrStub::HandleAttachPidToParent;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::IS_MEMORY_SIZE_SUFFICIENT)] =
         &AmsMgrStub::HandleIsMemorySizeSufficent;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::SET_KEEP_ALIVE_ENABLE_STATE)] =
+        &AmsMgrStub::HandleSetKeepAliveEnableState;
 }
 
 int AmsMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -595,6 +597,15 @@ int32_t AmsMgrStub::HandleIsWaitingDebugApp(MessageParcel &data, MessageParcel &
         TAG_LOGE(AAFwkTag::APPMGR, "Fail to write result.");
         return ERR_INVALID_VALUE;
     }
+    return NO_ERROR;
+}
+
+int32_t AmsMgrStub::HandleSetKeepAliveEnableState(MessageParcel &data, MessageParcel &reply)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    auto bundleName = data.ReadString();
+    auto enable = data.ReadBool();
+    SetKeepAliveEnableState(bundleName, enable);
     return NO_ERROR;
 }
 

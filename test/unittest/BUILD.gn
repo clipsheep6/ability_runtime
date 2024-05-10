@@ -221,6 +221,7 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_innerkits_path}/connectionobs_manager:connection_obs_manager",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_path}/utils/global/freeze:freeze_util",
+    "${ability_runtime_path}/utils/server/startup:startup_util",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${ability_runtime_services_path}/common:task_handler_wrap",
   ]
@@ -487,6 +488,7 @@ group("unittest") {
     "services/ability_util_test:unittest",
     "start_options_test:unittest",
     "start_other_app_interceptor_test:unittest",
+    "startup_util_test:unittest",
     "stop_user_callback_proxy_test:unittest",
     "stop_user_callback_stub_test:unittest",
     "sys_mgr_client_test:unittest",

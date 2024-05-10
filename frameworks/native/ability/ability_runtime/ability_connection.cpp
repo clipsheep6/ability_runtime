@@ -44,6 +44,8 @@ void AbilityConnection::OnAbilityConnectDone(
 
     std::vector<sptr<AbilityConnectCallback>> callbacks = GetCallbackList();
     mutex_.unlock();
+    sptr<AbilityConnection> connection(this);
+    ConnectionManager::GetInstance().DisconnectNonexistentService(element, connection);
 
     auto item = callbacks.begin();
     while (item != callbacks.end()) {

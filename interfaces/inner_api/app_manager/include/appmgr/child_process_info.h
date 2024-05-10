@@ -30,6 +30,9 @@ struct ChildProcessInfo : public Parcelable {
     std::string processName;
     std::string srcEntry;
     bool jitEnabled = false;
+    bool isDebugApp = true;
+    bool isStartWithDebug = false;
+    bool isStartWithNative = false;
 
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;

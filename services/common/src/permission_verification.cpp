@@ -19,14 +19,15 @@
 #include "accesstoken_kit.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "permission_constants.h"
+#include "server_constant.h"
 #include "support_system_ability_permission.h"
 #include "tokenid_kit.h"
 #include "hilog_tag_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
-const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
 const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
 namespace {
 const int32_t SHELL_START_EXTENSION_FLOOR = 0; // FORM
@@ -53,6 +54,7 @@ bool PermissionVerification::VerifyPermissionByTokenId(const int &tokenId, const
 bool PermissionVerification::VerifyCallingPermission(
     const std::string &permissionName, const uint32_t specifyTokenId) const
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::DEFAULT, "VerifyCallingPermission permission %{public}s, specifyTokenId is %{public}u",
         permissionName.c_str(), specifyTokenId);
     auto callerToken = specifyTokenId == 0 ? GetCallingTokenID() : specifyTokenId;
@@ -94,6 +96,7 @@ bool PermissionVerification::IsShellCall() const
 
 bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission(const std::string &processName) const
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::DEFAULT, "PermissionVerification::CheckSpecifidSystemAbilityAccessToken is called.");
     if (!IsSACall()) {
         TAG_LOGE(AAFwkTag::DEFAULT, "caller tokenType is not native, verify failed.");
@@ -149,7 +152,7 @@ bool PermissionVerification::VerifyControllerPerm() const
 
 bool PermissionVerification::VerifyDlpPermission(Want &want) const
 {
-    if (want.GetIntParam(DLP_PARAMS_INDEX, 0) == 0) {
+    if (want.GetIntParam(AbilityRuntime::ServerConstant::DLP_INDEX, 0) == 0) {
         want.RemoveParam(DLP_PARAMS_SECURITY_FLAG);
         return true;
     }
@@ -172,6 +175,7 @@ int PermissionVerification::VerifyAccountPermission() const
 
 bool PermissionVerification::VerifyMissionPermission() const
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_MANAGE_MISSION)) {
         TAG_LOGD(AAFwkTag::DEFAULT, "%{public}s: Permission verification succeeded.", __func__);
         return true;
@@ -199,6 +203,16 @@ int32_t PermissionVerification::VerifyUpdateConfigurationPerm() const
     }
     TAG_LOGE(AAFwkTag::DEFAULT,
         "Verify permission %{public}s failed.", PermissionConstants::PERMISSION_UPDATE_CONFIGURATION);
+    return ERR_PERMISSION_DENIED;
+}
+
+int32_t PermissionVerification::VerifyUpdateAPPConfigurationPerm() const
+{
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_UPDATE_APP_CONFIGURATION)) {
+        HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_UPDATE_APP_CONFIGURATION);
+        return ERR_OK;
+    }
+    HILOG_ERROR("Verify permission %{public}s failed.", PermissionConstants::PERMISSION_UPDATE_APP_CONFIGURATION);
     return ERR_PERMISSION_DENIED;
 }
 

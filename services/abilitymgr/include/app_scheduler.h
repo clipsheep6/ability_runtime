@@ -73,6 +73,7 @@ struct AppInfo {
     std::vector<AppData> appData;
     std::string processName;
     AppState state;
+    pid_t pid = 0;
 };
 /**
  * @class AppStateCallback

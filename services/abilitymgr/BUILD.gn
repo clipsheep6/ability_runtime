@@ -33,6 +33,7 @@ config("abilityms_exception_config") {
 config("abilityms_config") {
   include_dirs = [
     "include/",
+    "include/rdb/",
     "${ability_runtime_innerkits_path}/ability_manager/include",
     "${ability_runtime_services_path}/appdfr/include",
     "${ability_runtime_innerkits_path}/app_manager/include",
@@ -59,6 +60,8 @@ config("abilityms_config") {
     "${ability_runtime_innerkits_path}/session_handler/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
+    "${ability_runtime_utils_path}/global/constant",
+    "${ability_runtime_utils_path}/server/constant",
     "${bgtaskmgr_interfaces_path}/innerkits/include",
     "${bgtaskmgr_frameworks_path}/common/include",
     "${bgtaskmgr_frameworks_path}/include",
@@ -137,6 +140,7 @@ ohos_shared_library("abilityms") {
     "${ability_runtime_native_path}/ability/native:auto_startup_callback",
     "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_path}/utils/global/freeze:freeze_util",
+    "${ability_runtime_path}/utils/server/startup:startup_util",
     "${ability_runtime_services_path}/common:app_util",
     "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",
@@ -240,9 +244,16 @@ ohos_prebuilt_etc("proxy_authorization_uri.json") {
   part_name = "ability_runtime"
 }
 
+ohos_prebuilt_etc("deeplink_reserve_config.json") {
+  source = "resource/deeplink_reserve_config.json"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
 group("ams_service_config") {
   deps = [
     ":ams_service_config.json",
+    ":deeplink_reserve_config.json",
     ":proxy_authorization_uri.json",
     ":uiextension_picker_config.json",
   ]

@@ -613,6 +613,13 @@ public:
     bool IsAttachDebug(const std::string &bundleName);
 
     /**
+     * @brief Set resident process enable status.
+     * @param bundleName The application bundle name.
+     * @param enable The current updated enable status.
+     */
+    void SetKeepAliveEnableState(const std::string &bundleName, bool enable);
+
+    /**
      * Set application assertion pause state.
      *
      * @param pid App process pid.

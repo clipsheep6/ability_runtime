@@ -22,6 +22,7 @@
 #include "js_startup_task_result.h"
 #include "napi/native_api.h"
 #include "startup_manager.h"
+#include "js_error_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -67,7 +68,7 @@ napi_value JsStartupManager::OnRun(napi_env env, NapiCallbackInfo &info)
     TAG_LOGD(AAFwkTag::STARTUP, "called.");
     if (info.argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::STARTUP, "the param is invalid.");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
 
@@ -115,13 +116,13 @@ napi_value JsStartupManager::OnGetResult(napi_env env, NapiCallbackInfo &info)
     TAG_LOGD(AAFwkTag::STARTUP, "called.");
     if (info.argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::STARTUP, "the param is invalid.");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
     std::string startupTask;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], startupTask)) {
         TAG_LOGE(AAFwkTag::STARTUP, "convert startupTask name failed.");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parameter error: Failed to convert startupTask, must be a string.");
         return CreateJsUndefined(env);
     }
 
@@ -129,18 +130,18 @@ napi_value JsStartupManager::OnGetResult(napi_env env, NapiCallbackInfo &info)
     int32_t res = DelayedSingleton<StartupManager>::GetInstance()->GetResult(startupTask, result);
     if (res != ERR_OK || result == nullptr || result->GetResultCode() != ERR_OK) {
         TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, failed to get result.", startupTask.c_str());
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "%{public}s, failed to get result.");
         return CreateJsUndefined(env);
     }
     if (result->GetResultType() != StartupTaskResult::ResultType::JS) {
         TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, the result type is not js.", startupTask.c_str());
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "%{public}s, the result type is not js.");
         return CreateJsUndefined(env);
     }
     std::shared_ptr<JsStartupTaskResult> jsResult = std::static_pointer_cast<JsStartupTaskResult>(result);
     if (jsResult == nullptr) {
         TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, failed to convert to js result.", startupTask.c_str());
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "%{public}s, failed to convert to js result.");
         return CreateJsUndefined(env);
     }
     std::shared_ptr<NativeReference> jsResultRef = jsResult->GetJsStartupResultRef();
@@ -155,13 +156,14 @@ napi_value JsStartupManager::OnIsInitialized(napi_env env, NapiCallbackInfo &inf
     TAG_LOGD(AAFwkTag::STARTUP, "called.");
     if (info.argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::STARTUP, "the param is invalid.");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
     std::string startupTask;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], startupTask)) {
         TAG_LOGE(AAFwkTag::STARTUP, "convert startupTask name failed.");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parameter error: Failed to convert startupTask,"
+            "must be a string or startupTask name is not matched.");
         return CreateJsUndefined(env);
     }
 
@@ -169,7 +171,7 @@ napi_value JsStartupManager::OnIsInitialized(napi_env env, NapiCallbackInfo &inf
     int32_t res = DelayedSingleton<StartupManager>::GetInstance()->IsInitialized(startupTask, isInitialized);
     if (res != ERR_OK) {
         TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, failed to get result, res = %{public}d.", startupTask.c_str(), res);
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "%{public}s, failed to get result, res = %{public}d.");
         return CreateJsUndefined(env);
     }
     return CreateJsValue(env, isInitialized);
@@ -180,20 +182,21 @@ napi_value JsStartupManager::OnRemoveResult(napi_env env, NapiCallbackInfo &info
     TAG_LOGD(AAFwkTag::STARTUP, "called.");
     if (info.argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::STARTUP, "the param is invalid.");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
     std::string startupTask;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], startupTask)) {
         TAG_LOGE(AAFwkTag::STARTUP, "convert startupTask name failed.");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parameter error: Failed to convert startupTask,"
+            "must be a string or startupTask name is not matched.");
         return CreateJsUndefined(env);
     }
 
     int32_t res = DelayedSingleton<StartupManager>::GetInstance()->RemoveResult(startupTask);
     if (res != ERR_OK) {
         TAG_LOGE(AAFwkTag::STARTUP, "%{public}s, failed to remove result, res = %{public}d.", startupTask.c_str(), res);
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "%{public}s, failed to get result, res = %{public}d.");
         return CreateJsUndefined(env);
     }
     return CreateJsUndefined(env);
@@ -225,6 +228,7 @@ int32_t JsStartupManager::GetDependencies(napi_env env, napi_value value, std::v
     napi_is_array(env, value, &isArray);
     if (!isArray) {
         TAG_LOGE(AAFwkTag::STARTUP, "value is not array.");
+        ThrowInvalidParamError(env, "Parameter error: StartupTasks must be a Array.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
@@ -239,12 +243,14 @@ int32_t JsStartupManager::GetDependencies(napi_env env, napi_value value, std::v
         napi_typeof(env, napiDep, &valueType);
         if (valueType != napi_string) {
             TAG_LOGE(AAFwkTag::STARTUP, "element is not string.");
+            ThrowInvalidParamError(env, "Parameter error: StartupTasks element must be a string.");
             return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
         }
 
         std::string startupTask;
         if (!ConvertFromJsValue(env, napiDep, startupTask)) {
             TAG_LOGE(AAFwkTag::STARTUP, "convert startupTask name failed.");
+            ThrowInvalidParamError(env, "Parameter error: Convert startupTask name failed. Please check it.");
             return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
         }
         dependencies.push_back(startupTask);
@@ -261,6 +267,7 @@ int32_t JsStartupManager::GetConfig(napi_env env, napi_value value, std::shared_
     }
     if (startupConfig->Init(value) != ERR_OK) {
         TAG_LOGE(AAFwkTag::STARTUP, "failed to init config");
+        ThrowInvalidParamError(env, "Parameter error: Failed to init config, must be a StartupConfig.");
         return ERR_STARTUP_INVALID_VALUE;
     }
     config = startupConfig;

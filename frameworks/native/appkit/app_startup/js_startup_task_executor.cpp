@@ -21,7 +21,9 @@
 #include "js_startup_task_result.h"
 
 #define TMP_NAPI_ANONYMOUS_FUNC "_"
-
+namespace {
+constexpr size_t ARGC_FOUR = 4;
+}
 namespace OHOS {
 namespace AbilityRuntime {
 int32_t JsStartupTaskExecutor::RunOnMainThread(JsRuntime &jsRuntime,
@@ -39,10 +41,43 @@ int32_t JsStartupTaskExecutor::RunOnMainThread(JsRuntime &jsRuntime,
     return HandleReturnVal(env, returnVal, callback);
 }
 
-int32_t JsStartupTaskExecutor::RunOnTaskPool(JsRuntime &jsRuntime,
-    const std::unique_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
-    std::unique_ptr<StartupTaskResultCallback> callback)
+int32_t JsStartupTaskExecutor::RunOnTaskPool(
+    JsRuntime &jsRuntime,
+    const std::unique_ptr<NativeReference> &startup,
+    const std::shared_ptr<NativeReference> &context,
+    const std::unique_ptr<NativeReference> &asyncTaskExcutor,
+    const std::unique_ptr<NativeReference> &asyncTaskCallback,
+    const std::string &startupName)
 {
+    TAG_LOGD(AAFwkTag::STARTUP, "Called.");
+    HandleScope handleScope(jsRuntime);
+    auto env = jsRuntime.GetNapiEnv();
+
+    if (startup == nullptr || context == nullptr || asyncTaskExcutor == nullptr || asyncTaskCallback == nullptr) {
+        TAG_LOGE(AAFwkTag::STARTUP, "AsyncTaskExcutor or startup or context or async task callback is null.");
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+    napi_value asyncTaskExcutorValue = asyncTaskExcutor->GetNapiValue();
+    if (!CheckTypeForNapiValue(env, asyncTaskExcutorValue, napi_object)) {
+        TAG_LOGE(AAFwkTag::STARTUP, "AsyncTaskExcutor is not napi object.");
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+    napi_value asyncPushTask = nullptr;
+    napi_get_named_property(env, asyncTaskExcutorValue, "asyncPushTask", &asyncPushTask);
+    if (asyncPushTask == nullptr) {
+        TAG_LOGE(AAFwkTag::STARTUP, "Failed to get property asyncPushTask from AsyncTaskExcutor.");
+        return ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP;
+    }
+    bool isCallable = false;
+    napi_is_callable(env, asyncPushTask, &isCallable);
+    if (!isCallable) {
+        TAG_LOGE(AAFwkTag::STARTUP, "AsyncPushTask is not callable.");
+        return ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP;
+    }
+    napi_value returnVal = nullptr;
+    napi_value argv[] = { startup->GetNapiValue(), asyncTaskCallback->GetNapiValue(),
+        context->GetNapiValue(), CreateJsValue(env, startupName) };
+    napi_call_function(env, asyncTaskExcutorValue, asyncPushTask, ARGC_FOUR, argv, &returnVal);
     return ERR_OK;
 }
 

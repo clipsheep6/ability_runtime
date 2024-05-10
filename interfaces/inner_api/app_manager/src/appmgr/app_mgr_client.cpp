@@ -26,6 +26,7 @@
 #include "app_service_manager.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "app_mem_info.h"
 
 namespace OHOS {
@@ -508,6 +509,7 @@ void AppMgrClient::PrepareTerminate(const sptr<IRemoteObject> &token)
 
 void AppMgrClient::GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service != nullptr) {
         sptr<IAmsMgr> amsService = service->GetAmsMgr();
@@ -593,6 +595,14 @@ void AppMgrClient::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecF
         return;
     }
     amsService->StartSpecifiedAbility(want, abilityInfo);
+}
+
+void AppMgrClient::SetKeepAliveEnableState(const std::string &bundleName, bool enable)
+{
+    if (!IsAmsServiceReady()) {
+        return;
+    }
+    amsService_->SetKeepAliveEnableState(bundleName, enable);
 }
 
 void AppMgrClient::StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)

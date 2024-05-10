@@ -13,10 +13,13 @@
  * limitations under the License.
  */
 
-class StartupTask {
-  onDependenceCompleted(dependence, result) {
-    console.log('onDependenceCompleted');
-  }
-}
+#ifndef OHOS_ABILITY_RUNTIME_SERVER_CONSTANT_H
+#define OHOS_ABILITY_RUNTIME_SERVER_CONSTANT_H
 
-export default StartupTask;
+namespace OHOS::AbilityRuntime {
+namespace ServerConstant {
+constexpr const char* APP_TWIN_INDEX = "ohos.extra.param.key.appTwinIndex";
+constexpr const char* DLP_INDEX = "ohos.dlp.params.index";
+}  // namespace ServerConstant
+}  // namespace OHOS::AbilityRuntime
+#endif  // OHOS_ABILITY_RUNTIME_SERVER_CONSTANT_H

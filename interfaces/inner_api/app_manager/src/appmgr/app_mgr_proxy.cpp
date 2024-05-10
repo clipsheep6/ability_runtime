@@ -218,6 +218,7 @@ int32_t AppMgrProxy::ClearUpApplicationDataBySelf(int32_t userId)
 
 int32_t AppMgrProxy::GetAllRunningProcesses(std::vector<RunningProcessInfo> &info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
@@ -225,6 +226,31 @@ int32_t AppMgrProxy::GetAllRunningProcesses(std::vector<RunningProcessInfo> &inf
         return ERR_FLATTEN_OBJECT;
     }
     if (!SendTransactCmd(AppMgrInterfaceCode::APP_GET_ALL_RUNNING_PROCESSES, data, reply)) {
+        return ERR_NULL_OBJECT;
+    }
+    auto error = GetParcelableInfos<RunningProcessInfo>(reply, info);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::APPMGR, "GetParcelableInfos fail, error: %{public}d", error);
+        return error;
+    }
+    int result = reply.ReadInt32();
+    return result;
+}
+
+int32_t AppMgrProxy::GetRunningProcessesByBundleType(const BundleType bundleType,
+    std::vector<RunningProcessInfo> &info)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteInt32(static_cast<int32_t>(bundleType))) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Bundle type write failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!SendTransactCmd(AppMgrInterfaceCode::APP_GET_RUNNING_PROCESSES_BY_BUNDLE_TYPE, data, reply)) {
         return ERR_NULL_OBJECT;
     }
     auto error = GetParcelableInfos<RunningProcessInfo>(reply, info);
@@ -545,6 +571,7 @@ int AppMgrProxy::UnregisterApplicationStateObserver(
 int32_t AppMgrProxy::RegisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (observer == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "Observer is null.");
         return ERR_INVALID_VALUE;
@@ -1642,7 +1669,8 @@ int32_t AppMgrProxy::IsApplicationRunning(const std::string &bundleName, bool &i
     return reply.ReadInt32();
 }
 
-int32_t AppMgrProxy::StartChildProcess(const std::string &srcEntry, pid_t &childPid)
+int32_t AppMgrProxy::StartChildProcess(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount,
+    bool isStartWithDebug)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (srcEntry.empty()) {
@@ -1656,6 +1684,14 @@ int32_t AppMgrProxy::StartChildProcess(const std::string &srcEntry, pid_t &child
     }
     if (!data.WriteString(srcEntry)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write param srcEntry failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteInt32(childProcessCount)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write param childProcessCount failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteBool(isStartWithDebug)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write param isStartWithDebug failed.");
         return ERR_FLATTEN_OBJECT;
     }
 

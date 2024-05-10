@@ -156,5 +156,21 @@ HWTEST_F(ExtensionManagerClientTest, ExtensionManagerClientTest_009, TestSize.Le
     auto result = client->DisconnectAbility(connect);
     EXPECT_TRUE(result != ERR_OK);
 }
+
+/*
+ * Feature: ExtensionManagerClient
+ * Function: ConnectEnterpriseAdminExtensionAbility
+ */
+HWTEST_F(ExtensionManagerClientTest, ExtensionManagerClientTest_010, TestSize.Level1)
+{
+    auto client = std::make_shared<ExtensionManagerClient>();
+    
+    Want want;
+    sptr<IRemoteObject> connect;
+    sptr<IRemoteObject> callerToken;
+    int32_t userId = 1;
+    auto result = client->ConnectEnterpriseAdminExtensionAbility(want, connect, callerToken, userId);
+    EXPECT_TRUE(result != ERR_OK);
+}
 }
 }

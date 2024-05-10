@@ -183,6 +183,7 @@ std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
 
 void SourceMap::SplitSourceMap(const std::string& sourceMapData)
 {
+    std::lock_guard<std::mutex> lock(sourceMapMutex_);
     if (!isModular_) {
         if (!nonModularMap_) {
             nonModularMap_ = std::make_shared<SourceMapData>();
@@ -205,7 +206,7 @@ void SourceMap::SplitSourceMap(const std::string& sourceMapData)
         std::string value = sourceMapData.substr(leftBracket, rightBracket);
         std::shared_ptr<SourceMapData> modularMap = std::make_shared<SourceMapData>();
         ExtractSourceMapData(value, modularMap);
-        sourceMaps_.emplace(key, modularMap);
+        sourceMaps_[key] = modularMap;
     }
 }
 
@@ -294,6 +295,8 @@ void SourceMap::ExtractSourceMapData(const std::string& sourceMapData, std::shar
     }
     curMapData->mappings_.clear();
     curMapData->mappings_.shrink_to_fit();
+    sourceKey.clear();
+    sourceKey.shrink_to_fit();
 }
 
 MappingInfo SourceMap::Find(int32_t row, int32_t col, const SourceMapData& targetMap)
@@ -520,7 +523,7 @@ bool SourceMap::TranslateUrlPositionBySourceMap(std::string& url, int& line, int
     if (isModular_) {
         auto iter = sourceMaps_.find(url);
         if (iter != sourceMaps_.end()) {
-            return GetLineAndColumnNumbers(line, column, *(iter->second));
+            return GetLineAndColumnNumbers(line, column, *(iter->second), url);
         }
         JSENV_LOG_E("TranslateUrlPositionBySourceMap: stageMode sourceMaps find fail");
         return false;
@@ -528,7 +531,7 @@ bool SourceMap::TranslateUrlPositionBySourceMap(std::string& url, int& line, int
     return false;
 }
 
-bool SourceMap::GetLineAndColumnNumbers(int& line, int& column, SourceMapData& targetMap)
+bool SourceMap::GetLineAndColumnNumbers(int& line, int& column, SourceMapData& targetMap, std::string& url)
 {
     int32_t offSet = 0;
     MappingInfo mapInfo;
@@ -542,6 +545,7 @@ bool SourceMap::GetLineAndColumnNumbers(int& line, int& column, SourceMapData& t
     } else {
         line = mapInfo.row;
         column = mapInfo.col;
+        url = mapInfo.sources;
         return true;
     }
 }

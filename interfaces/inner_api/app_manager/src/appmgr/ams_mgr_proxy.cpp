@@ -840,6 +840,31 @@ int32_t AmsMgrProxy::DetachAppDebug(const std::string &bundleName)
     return reply.ReadInt32();
 }
 
+void AmsMgrProxy::SetKeepAliveEnableState(const std::string &bundleName, bool enable)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
+        return;
+    }
+    if (bundleName.empty() || !data.WriteString(bundleName)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write bundle name fail.");
+        return;
+    }
+    if (!data.WriteBool(enable)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write flag fail.");
+        return;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::SET_KEEP_ALIVE_ENABLE_STATE),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request failed, err: %{public}d", ret);
+    }
+}
+
 int32_t AmsMgrProxy::SetAppWaitingDebug(const std::string &bundleName, bool isPersist)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");

@@ -904,6 +904,30 @@ HWTEST_F(JsRuntimeTest, StopDebugger_0100, TestSize.Level0)
 }
 
 /**
+ * @tc.name: GetFileBuffer_0100
+ * @tc.desc: JsRuntime test for GetFileBuffer.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, GetFileBuffer_0100, TestSize.Level0)
+{
+    TAG_LOGI(AAFwkTag::TEST, "GetFileBuffer start");
+
+    AbilityRuntime::Runtime::Options options;
+    options.preload = true;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+
+    ASSERT_NE(jsRuntime, nullptr);
+
+    std::string filePath = "";
+    std::string fileFullName = "";
+    std::vector<uint8_t> buffer;
+    jsRuntime->GetFileBuffer(filePath, fileFullName, buffer);
+    jsRuntime.reset();
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    TAG_LOGI(AAFwkTag::TEST, "GetFileBuffer end");
+}
+
+/**
  * @tc.name: GetFileBuffer_0200
  * @tc.desc: JsRuntime test for GetFileBuffer.
  * @tc.type: FUNC
@@ -921,7 +945,7 @@ HWTEST_F(JsRuntimeTest, GetFileBuffer_0200, TestSize.Level0)
     std::string filePath = "";
     std::string fileFullName = "";
     std::vector<uint8_t> buffer;
-    jsRuntime->GetFileBuffer(filePath, fileFullName, buffer);
+    jsRuntime->GetFileBuffer(filePath, fileFullName, buffer, false);
     jsRuntime.reset();
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     TAG_LOGI(AAFwkTag::TEST, "GetFileBuffer end");

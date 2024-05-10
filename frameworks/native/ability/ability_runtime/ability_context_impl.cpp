@@ -395,13 +395,13 @@ ErrCode AbilityContextImpl::ConnectAbilityWithAccount(const AAFwk::Want& want, i
 }
 
 void AbilityContextImpl::DisconnectAbility(const AAFwk::Want& want,
-    const sptr<AbilityConnectCallback>& connectCallback)
+    const sptr<AbilityConnectCallback>& connectCallback, int32_t accountId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::CONTEXT, "DisconnectAbility begin, caller:%{public}s.",
         abilityInfo_ == nullptr ? "" : abilityInfo_->name.c_str());
     ErrCode ret =
-        ConnectionManager::GetInstance().DisconnectAbility(token_, want, connectCallback);
+        ConnectionManager::GetInstance().DisconnectAbility(token_, want, connectCallback, accountId);
     if (ret != ERR_OK) {
         TAG_LOGE(AAFwkTag::CONTEXT, "error, ret=%{public}d", ret);
     }

@@ -258,6 +258,17 @@ public:
      */
     int RequestModalUIExtension(const Want &want) override;
 
+    /**
+     * Preload UIExtension with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param hostBundleName, the caller application bundle name.
+     * @param userId, the extension runs in.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int PreloadUIExtensionAbility(const Want &want, std::string &hostBundleName,
+        int32_t userId = DEFAULT_INVAL_VALUE) override;
+
     int ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow) override;
 
     int ChangeUIAbilityVisibilityBySCB(sptr<SessionInfo> sessionInfo, bool isShow) override;
@@ -619,8 +630,8 @@ public:
     virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
         int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams) override;
 
-    virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
-        const std::string &bundleName, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams) override;
+    virtual int ContinueMission(AAFwk::ContinueMissionInfo continueMissionInfo,
+        const sptr<IRemoteObject> &callback) override;
 
     virtual int ContinueAbility(const std::string &deviceId, int32_t missionId, uint32_t versionCode) override;
 
@@ -1185,6 +1196,15 @@ public:
      * @return Returns true to allow ability to start, or false to reject.
      */
     virtual bool IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken, const std::string &appId) override;
+
+    /**
+     * Set the enable status for starting and stopping resident processes.
+     * The caller application can only set the resident status of the configured process.
+     * @param bundleName The bundle name of the resident process.
+     * @param enable Set resident process enable status.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t SetResidentProcessEnabled(const std::string &bundleName, bool enable) override;
 
     /**
      * @brief Request to display assert fault dialog.

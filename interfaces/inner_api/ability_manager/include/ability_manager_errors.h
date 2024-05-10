@@ -484,6 +484,31 @@ enum {
      * Result(2097245) for size of uri list out of range.
      */
     ERR_URI_LIST_OUT_OF_RANGE,
+
+    /**
+     * Native error(2097246) for not allow preload by rss.
+     */
+    ERR_NOT_ALLOW_PRELOAD_BY_RSS,
+
+    /**
+     * Result(2097247) for get active extension list empty when record exit reason.
+     */
+    ERR_GET_ACTIVE_EXTENSION_LIST_EMPTY,
+
+    /**
+     * Result(2097248) for get ExtensionName by uid fail.
+     */
+    GET_EXTENSION_NAME_BY_UID_FAIL,
+
+    /**
+     * Native error(2097249) no resident process permissions set.
+     */
+    ERR_NO_RESIDENT_PERMISSION,
+
+    /**
+     * Result(2097250) for app twin index does not exist.
+     */
+    ERR_APP_TWIN_INDEX_INVALID,
 };
 
 enum {

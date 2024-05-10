@@ -867,7 +867,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_RegisterAbilityDebugResponse_001, TestSi
     response = new MockAbilityDebugResponseStub();
     EXPECT_NE(response, nullptr);
     resultCode = appMgrClient->RegisterAbilityDebugResponse(response);
-    EXPECT_EQ(resultCode, NO_ERROR);
+    EXPECT_EQ(resultCode, ERR_PERMISSION_DENIED);
 }
 
 /**
@@ -1328,6 +1328,32 @@ HWTEST_F(AppMgrClientTest, GetAppRunningUniqueIdByPid_001, TestSize.Level0)
     pid_t pid = 0;
     std::string appRunningUniqueId = "";
     appMgrClient->GetAppRunningUniqueIdByPid(pid, appRunningUniqueId);
+    EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_NotifyMemorySizeStateChanged_001
+ * @tc.desc: NotifyMemorySizeStateChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, NotifyMemorySizeStateChanged_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    bool isMemorySizeSufficent = false;
+    int32_t ret = appMgrClient->NotifyMemorySizeStateChanged(isMemorySizeSufficent);
+    EXPECT_EQ(ret, 1);
+}
+
+/**
+ * @tc.name: AppMgrClient_SetSupportedProcessCacheSelf_001
+ * @tc.desc: SetSupportedProcessCacheSelf.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, SetSupportedProcessCacheSelf_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    bool isSupport = false;
+    int32_t ret = appMgrClient->SetSupportedProcessCacheSelf(isSupport);
     EXPECT_NE(appMgrClient, nullptr);
 }
 }  // namespace AppExecFwk

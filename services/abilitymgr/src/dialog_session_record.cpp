@@ -22,6 +22,7 @@
 #include "ability_util.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "int_wrapper.h"
 #include "parameters.h"
 #include "string_wrapper.h"
@@ -104,6 +105,7 @@ void DialogSessionRecord::ClearAllDialogContexts()
 bool DialogSessionRecord::GenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
     std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos, bool isSelector)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto dialogSessionInfo = sptr<DialogSessionInfo>::MakeSptr();
     CHECK_POINTER_AND_RETURN(dialogSessionInfo, ERR_INVALID_VALUE);
     sptr<IRemoteObject> callerToken = abilityRequest.callerToken;

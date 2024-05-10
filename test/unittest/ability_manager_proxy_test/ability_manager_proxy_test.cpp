@@ -1284,7 +1284,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ContinueMission_001, TestS
     std::string srcDeviceId = "";
     std::string dstDeviceId = "";
     int32_t missionId = 1;
-    const sptr<IRemoteObject>& callBack = nullptr;
+    const sptr<IRemoteObject> callBack = nullptr;
     AAFwk::WantParams wantParams;
     auto res = proxy_->ContinueMission(srcDeviceId, dstDeviceId, missionId, callBack, wantParams);
     EXPECT_EQ(res, INNER_ERR);
@@ -1302,9 +1302,14 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ContinueMissionBundleName_
 {
     std::string srcDeviceId = "";
     std::string dstDeviceId = "";
-    const sptr<IRemoteObject>& callBack = nullptr;
+    const sptr<IRemoteObject> callback = nullptr;
     AAFwk::WantParams wantParams;
-    auto res = proxy_->ContinueMission(srcDeviceId, dstDeviceId, "bundleName", callBack, wantParams);
+    ContinueMissionInfo continueMissionInfo;
+    continueMissionInfo.dstDeviceId = dstDeviceId;
+    continueMissionInfo.srcDeviceId = srcDeviceId;
+    continueMissionInfo.bundleName = "bundleName";
+    continueMissionInfo.wantParams = wantParams;
+    auto res = proxy_->ContinueMission(continueMissionInfo, callback);
     EXPECT_EQ(res, INNER_ERR);
 }
 
@@ -2705,6 +2710,23 @@ HWTEST_F(AbilityManagerProxyTest, QueryAllAutoStartupApplications_0100, TestSize
 }
 
 /**
+ * @tc.name: AbilityManagerProxy_SetResidentProcessEnable_0100
+ * @tc.desc: RestartApp
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_SetResidentProcessEnable_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+
+    std::string bundleName = "ability.manager.proxy.test";
+    bool enable = true;
+    proxy_->SetResidentProcessEnabled(bundleName, enable);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_RESIDENT_PROCESS_ENABLE), mock_->code_);
+}
+
+/**
  * @tc.name: AbilityManagerProxy_GetUIExtensionRootHostInfo_0100
  * @tc.desc: GetUIExtensionRootHostInfo
  * @tc.type: FUNC
@@ -2740,6 +2762,46 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RestartApp_0100, TestSize.
     AAFwk::Want want;
     proxy_->RestartApp(want);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::RESTART_APP), mock_->code_);
+}
+
+/**
+ * @tc.name: AbilityManagerProxy_ChangeAbilityVisibility_0100
+ * @tc.desc: ChangeAbilityVisibility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ChangeAbilityVisibility_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "begin");
+
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+
+    auto token = sptr<MockAbilityToken>::MakeSptr();
+    proxy_->ChangeAbilityVisibility(token, true);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::CHANGE_ABILITY_VISIBILITY), mock_->code_);
+
+    TAG_LOGI(AAFwkTag::TEST, "end");
+}
+
+/**
+ * @tc.name: AbilityManagerProxy_ChangeUIAbilityVisibilityBySCB_0100
+ * @tc.desc: ChangeUIAbilityVisibilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ChangeUIAbilityVisibilityBySCB_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "begin");
+
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+
+    sptr<SessionInfo> session = new (std::nothrow) SessionInfo();
+    proxy_->ChangeUIAbilityVisibilityBySCB(session, true);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::CHANGE_UI_ABILITY_VISIBILITY_BY_SCB), mock_->code_);
+
+    TAG_LOGI(AAFwkTag::TEST, "end");
 }
 } // namespace AAFwk
 } // namespace OHOS

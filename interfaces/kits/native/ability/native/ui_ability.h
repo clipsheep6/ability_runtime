@@ -331,7 +331,6 @@ protected:
     std::shared_ptr<AppExecFwk::AbilityRecovery> abilityRecovery_ = nullptr;
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_ = nullptr;
     AAFwk::LaunchParam launchParam_;
-    int32_t appIndex_ = 0;
     bool securityFlag_ = false;
 
 private:

@@ -25,6 +25,7 @@ config("appmgr_config") {
     "${ability_runtime_path}/utils/global/time/include",
     "${distributeddatamgr_path}/kv_store/interfaces/innerkits/distributeddatamgr/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
+    "${ability_runtime_utils_path}/global/constant",
   ]
 }
 
@@ -97,6 +98,7 @@ ohos_shared_library("libappms") {
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_path}/utils/global/freeze:freeze_util",
+    "${ability_runtime_path}/utils/server/startup:startup_util",
     "${ability_runtime_services_path}/common:app_util",
     "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",
@@ -124,9 +126,13 @@ ohos_shared_library("libappms") {
     "kv_store:distributeddata_inner",
     "kv_store:distributeddata_mgr",
     "memory_utils:libmeminfo",
+    "os_account:libaccountkits",
+    "resource_schedule_service:ressched_client",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
+
+  defines += [ "OHOS_ACCOUNT_ENABLED" ]
 
   if (product_name != "ohcore") {
     external_deps += [ "netmanager_base:net_conn_manager_if" ]

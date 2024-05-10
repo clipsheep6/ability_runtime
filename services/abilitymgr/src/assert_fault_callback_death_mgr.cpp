@@ -24,7 +24,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 AssertFaultCallbackDeathMgr::~AssertFaultCallbackDeathMgr()
 {
-    for (auto &item : assertFaultSessionDailogs_) {
+    for (auto &item : assertFaultSessionDialogs_) {
         if (item.second.iremote_ == nullptr || item.second.deathObj_ == nullptr) {
             TAG_LOGW(AAFwkTag::ABILITYMGR, "Callback is nullptr.");
             continue;
@@ -32,10 +32,10 @@ AssertFaultCallbackDeathMgr::~AssertFaultCallbackDeathMgr()
         item.second.iremote_->RemoveDeathRecipient(item.second.deathObj_);
     }
 
-    assertFaultSessionDailogs_.clear();
+    assertFaultSessionDialogs_.clear();
 }
 
-void AssertFaultCallbackDeathMgr::AddAssertFaultCallback(sptr<IRemoteObject> &remote)
+void AssertFaultCallbackDeathMgr::AddAssertFaultCallback(sptr<IRemoteObject> &remote, CallbackTask callback)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -52,14 +52,14 @@ void AssertFaultCallbackDeathMgr::AddAssertFaultCallback(sptr<IRemoteObject> &re
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid manager instance.");
                 return;
             }
-            callbackDeathMgr->RemoveAssertFaultCallback(remote);
+            callbackDeathMgr->RemoveAssertFaultCallback(remote, true);
         });
 
     remote->AddDeathRecipient(deathRecipient);
-    auto callerPid = IPCSkeleton::GetCallingPid();
+    auto callerPid = IPCSkeleton::GetCallingRealPid();
     uint64_t assertFaultSessionId = reinterpret_cast<uint64_t>(remote.GetRefPtr());
     std::unique_lock<std::mutex> lock(assertFaultSessionMutex_);
-    assertFaultSessionDailogs_[assertFaultSessionId] = {callerPid, remote, deathRecipient};
+    assertFaultSessionDialogs_[assertFaultSessionId] = {callerPid, remote, deathRecipient, callback};
     auto appScheduler = DelayedSingleton<AAFwk::AppScheduler>::GetInstance();
     if (appScheduler == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Get app scheduler instance is nullptr.");
@@ -68,7 +68,7 @@ void AssertFaultCallbackDeathMgr::AddAssertFaultCallback(sptr<IRemoteObject> &re
     IN_PROCESS_CALL_WITHOUT_RET(appScheduler->SetAppAssertionPauseState(callerPid, true));
 }
 
-void AssertFaultCallbackDeathMgr::RemoveAssertFaultCallback(const wptr<IRemoteObject> &remote)
+void AssertFaultCallbackDeathMgr::RemoveAssertFaultCallback(const wptr<IRemoteObject> &remote, bool isCallbackDeath)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -80,17 +80,22 @@ void AssertFaultCallbackDeathMgr::RemoveAssertFaultCallback(const wptr<IRemoteOb
 
     uint64_t assertFaultSessionId = reinterpret_cast<uint64_t>(callback.GetRefPtr());
     std::unique_lock<std::mutex> lock(assertFaultSessionMutex_);
-    auto iter = assertFaultSessionDailogs_.find(assertFaultSessionId);
-    if (iter == assertFaultSessionDailogs_.end()) {
+    auto iter = assertFaultSessionDialogs_.find(assertFaultSessionId);
+    if (iter == assertFaultSessionDialogs_.end()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Find assert fault session id failed.");
         return;
+    }
+
+    if (isCallbackDeath && iter->second.callbackTask_ != nullptr) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Application Death, close assert fault Dialog.");
+        iter->second.callbackTask_(std::to_string(assertFaultSessionId));
     }
 
     if (iter->second.iremote_ != nullptr && iter->second.deathObj_ != nullptr) {
         iter->second.iremote_->RemoveDeathRecipient(iter->second.deathObj_);
     }
 
-    assertFaultSessionDailogs_.erase(iter);
+    assertFaultSessionDialogs_.erase(iter);
 }
 
 void AssertFaultCallbackDeathMgr::CallAssertFaultCallback(uint64_t assertFaultSessionId, AAFwk::UserStatus status)
@@ -100,8 +105,8 @@ void AssertFaultCallbackDeathMgr::CallAssertFaultCallback(uint64_t assertFaultSe
     DeathItem item;
     {
         std::unique_lock<std::mutex> lock(assertFaultSessionMutex_);
-        auto iter = assertFaultSessionDailogs_.find(assertFaultSessionId);
-        if (iter == assertFaultSessionDailogs_.end()) {
+        auto iter = assertFaultSessionDialogs_.find(assertFaultSessionId);
+        if (iter == assertFaultSessionDialogs_.end()) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Not find assert fault session by id.");
             return;
         }

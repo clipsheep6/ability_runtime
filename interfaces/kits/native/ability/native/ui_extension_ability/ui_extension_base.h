@@ -56,7 +56,8 @@ public:
     {
         Extension::OnStart(want);
         if (impl_ != nullptr) {
-            impl_->OnStart(want);
+            auto launchParam = Extension::GetLaunchParam();
+            impl_->OnStart(want, launchParam);
         }
     }
 
