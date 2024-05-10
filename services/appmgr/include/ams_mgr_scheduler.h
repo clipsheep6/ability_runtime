@@ -164,6 +164,8 @@ public:
     virtual int KillApplicationSelf() override;
 
     int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug) override;
+    
+    virtual int32_t NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg) override;
 
     virtual void AbilityAttachTimeOut(const sptr<IRemoteObject> &token) override;
 
@@ -266,6 +268,13 @@ public:
      * @return Returns true if it is an attach debug application, otherwise it returns false.
      */
     bool IsAttachDebug(const std::string &bundleName) override;
+
+    /**
+     * @brief Set resident process enable status.
+     * @param bundleName The application bundle name.
+     * @param enable The current updated enable status.
+     */
+    void SetKeepAliveEnableState(const std::string &bundleName, bool enable) override;
 
     /**
      * Set application assertion pause state.

@@ -302,11 +302,13 @@ void AppScheduler::OnAppStateChanged(const AppExecFwk::AppProcessData &appData)
     }
     info.processName = appData.processName;
     info.state = static_cast<AppState>(appData.appState);
+    info.pid = appData.pid;
     callback->OnAppStateChanged(info);
 }
 
 void AppScheduler::GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_POINTER(appMgrClient_);
     IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->GetRunningProcessInfoByToken(token, info));
 }
@@ -453,6 +455,17 @@ int AppScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::Appli
         return ret;
     }
 
+    return ERR_OK;
+}
+
+int32_t AppScheduler::NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg)
+{
+    CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
+    auto ret = static_cast<int32_t>(IN_PROCESS_CALL(appMgrClient_->NotifyAppMgrRecordExitReason(pid, reason, exitMsg)));
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyAppMgrRecordExitReason failed.");
+        return ret;
+    }
     return ERR_OK;
 }
 

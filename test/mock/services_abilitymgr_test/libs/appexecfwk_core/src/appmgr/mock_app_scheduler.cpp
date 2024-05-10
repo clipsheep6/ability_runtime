@@ -191,6 +191,11 @@ int AppScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::Appli
     return 0;
 }
 
+int32_t AppScheduler::NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg)
+{
+    return 0;
+}
+
 int AppScheduler::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>>& tokens)
 {
     return 0;

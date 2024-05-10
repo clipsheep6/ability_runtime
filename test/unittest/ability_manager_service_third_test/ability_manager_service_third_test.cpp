@@ -1129,6 +1129,62 @@ HWTEST_F(AbilityManagerServiceThirdTest, RestartApp_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
+ * Function: UnloadUIExtensionAbility
+ * FunctionPoints: AbilityManagerService UnloadUIExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, UnloadUIExtensionAbility_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "start.");
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    AbilityRequest abilityRequest;
+    AppExecFwk::ElementName providerElement("0", "com.ohos.uiextensionprovider", "UIExtensionProvider", "entry");
+    abilityRequest.want.SetElement(providerElement);
+    abilityRequest.abilityInfo.type = AbilityType::EXTENSION;
+    std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+    std::string hostBundleName = "com.ohos.uiextensionuser";
+    auto result = abilityMs->UnloadUIExtensionAbility(abilityRecord, hostBundleName);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    TAG_LOGI(AAFwkTag::TEST, "finish.");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: PreloadUIExtensionAbility
+ * FunctionPoints: AbilityManagerService PreloadUIExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, PreloadUIExtensionAbility_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "start.");
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    Want providerWant;
+    AppExecFwk::ElementName providerElement("0", "com.ohos.uiextensionprovider", "UIExtensionProvider", "entry");
+    providerWant.SetElement(providerElement);
+    std::string hostBundleName = "com.ohos.uiextensionuser";
+    auto result = abilityMs->PreloadUIExtensionAbility(providerWant, hostBundleName, DEFAULT_INVAL_VALUE);
+    EXPECT_EQ(result, ERR_PERMISSION_DENIED);
+    TAG_LOGI(AAFwkTag::TEST, "finish.");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: PreloadUIExtensionAbilityInner
+ * FunctionPoints: AbilityManagerService PreloadUIExtensionAbility
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, PreloadUIExtensionAbilityInner_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "start.");
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    Want providerWant;
+    AppExecFwk::ElementName providerElement("0", "com.ohos.uiextensionprovider", "UIExtensionProvider", "entry");
+    providerWant.SetElement(providerElement);
+    std::string hostBundleName = "com.ohos.uiextensionuser";
+    auto result = abilityMs->PreloadUIExtensionAbilityInner(providerWant, hostBundleName, DEFAULT_INVAL_VALUE);
+    EXPECT_NE(result, ERR_OK);
+    TAG_LOGI(AAFwkTag::TEST, "finish.");
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: CheckRestartAppWant
  * FunctionPoints: AbilityManagerService CheckRestartAppWant
  */

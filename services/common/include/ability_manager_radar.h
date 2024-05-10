@@ -73,9 +73,9 @@ public:
     bool ClickIconContinue(const std::string& func);
     bool ClickIconStartAbility(const std::string& func, int32_t errCode);
     bool ClickIconRecvOver(const std::string& func);
-    bool SaveDataContinue(const std::string& func, int32_t errCode);
+    bool SaveDataContinue(const std::string& func);
     bool SaveDataRes(const std::string& func);
-    bool SaveDataRemoteWant(const std::string& func, int32_t errCode);
+    bool SaveDataRemoteWant(const std::string& func);
 };
 } // namespace AAFWK
 } // namespace OHOS

@@ -334,6 +334,31 @@ HWTEST_F(ContextImplTest, GetResourceDir_0100, TestSize.Level1)
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
+HWTEST_F(ContextImplTest, GetResourceDir_0200, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+    contextImpl->hapModuleInfo_ = std::make_shared<AppExecFwk::HapModuleInfo>();
+    auto resourceDir = contextImpl->GetResourceDir();
+    EXPECT_EQ(resourceDir, "");
+
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
+
+HWTEST_F(ContextImplTest, GetResourceDir_0300, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+    contextImpl->hapModuleInfo_ = std::make_shared<AppExecFwk::HapModuleInfo>();
+    contextImpl->hapModuleInfo_->moduleName = "moduleName";
+    auto resourceDir = contextImpl->GetResourceDir();
+    EXPECT_EQ(resourceDir, "");
+
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
+
 /**
  * @tc.name: GetFilesDir_0100
  * @tc.desc: Get files directory basic test.
@@ -400,7 +425,7 @@ HWTEST_F(ContextImplTest, GetCloudFileDir_0100, TestSize.Level1)
     EXPECT_NE(contextImpl, nullptr);
 
     auto cloudDir = contextImpl->GetCloudFileDir();
-    EXPECT_EQ(cloudDir, "/data/service/el2/0/hmdfs/cloud/data/");
+    EXPECT_EQ(cloudDir, "/data/storage/el2/cloud");
 
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
@@ -1240,6 +1265,129 @@ HWTEST_F(ContextImplTest, GetGroupDir_0100, TestSize.Level1)
     EXPECT_EQ(res, 0);
     res = contextImpl->GetSystemDatabaseDir("", false, systemDatabaseDir);
     EXPECT_EQ(res, 0);
+}
+
+HWTEST_F(ContextImplTest, GetGroupPreferencesDirWithCheck_0100, TestSize.Level1)
+{
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+    std::string groupId = "groupIdtest";
+    std::string preferencesDir;
+    contextImpl->GetGroupPreferencesDirWithCheck(groupId, true, preferencesDir);
+}
+
+HWTEST_F(ContextImplTest, CreateModuleContext_002, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleContext_001 start";
+    EXPECT_EQ(contextImpl_->CreateModuleContext("bundleName", "module_name"), nullptr);
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleContext_001 end";
+}
+
+HWTEST_F(ContextImplTest, CreateModuleContext_003, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleContext_001 start";
+    EXPECT_EQ(contextImpl_->CreateModuleContext("", "module_name"), nullptr);
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleContext_001 end";
+}
+
+HWTEST_F(ContextImplTest, CreateModuleContext_004, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleContext_001 start";
+    EXPECT_EQ(contextImpl_->CreateModuleContext("bundleName", ""), nullptr);
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleContext_001 end";
+}
+
+HWTEST_F(ContextImplTest, CreateModuleContext_005, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleContext_005 start";
+    EXPECT_EQ(contextImpl_->CreateModuleContext(contextImpl_->GetBundleName(), "entry"), nullptr);
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleContext_005 end";
+}
+
+HWTEST_F(ContextImplTest, CreateModuleResourceManager_001, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleResourceManager_001 start";
+    EXPECT_EQ(contextImpl_->CreateModuleResourceManager("", "entry"), nullptr);
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleResourceManager_001 end";
+}
+
+HWTEST_F(ContextImplTest, CreateModuleResourceManager_002, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleResourceManager_002 start";
+    EXPECT_EQ(contextImpl_->CreateModuleResourceManager("bundleName", ""), nullptr);
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleResourceManager_002 end";
+}
+
+HWTEST_F(ContextImplTest, CreateModuleResourceManager_003, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleResourceManager_003 start";
+    EXPECT_EQ(contextImpl_->CreateModuleResourceManager("bundleName", "entry"), nullptr);
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleResourceManager_003 end";
+}
+
+HWTEST_F(ContextImplTest, CreateModuleResourceManager_004, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleResourceManager_004 start";
+    EXPECT_EQ(contextImpl_->CreateModuleResourceManager(contextImpl_->GetBundleName(), "entry"), nullptr);
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleResourceManager_004 end";
+}
+
+HWTEST_F(ContextImplTest, GetBundleInfo_001, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_GetBundleInfo_001 start";
+    std::string bundleName = "bundleName";
+    AppExecFwk::BundleInfo bundleInfo;
+    contextImpl_->GetBundleInfo(bundleName, bundleInfo, false);
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_GetBundleInfo_001 end";
+}
+
+HWTEST_F(ContextImplTest, GetBundleInfo_002, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_GetBundleInfo_002 start";
+    AppExecFwk::BundleInfo bundleInfo;
+    contextImpl_->GetBundleInfo(contextImpl_->GetBundleName(), bundleInfo, false);
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_GetBundleInfo_002 end";
+}
+
+HWTEST_F(ContextImplTest, GetBundleInfo_003, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_GetBundleInfo_003 start";
+    AppExecFwk::BundleInfo bundleInfo;
+    bundleInfo.name = contextImpl_->GetBundleName();
+    contextImpl_->GetBundleInfo(contextImpl_->GetBundleName(), bundleInfo, false);
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_GetBundleInfo_003 end";
+}
+
+HWTEST_F(ContextImplTest, CreateBundleContext_001, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateBundleContext_001 start";
+    EXPECT_EQ(contextImpl_->CreateBundleContext(contextImpl_->GetBundleName()), nullptr);
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateBundleContext_001 end";
+}
+
+HWTEST_F(ContextImplTest, CreateBundleContext_002, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateBundleContext_002 start";
+    auto parentContext = std::make_shared<AbilityRuntime::ContextImpl>();
+    contextImpl_->SetParentContext(parentContext);
+    EXPECT_EQ(contextImpl_->CreateBundleContext(contextImpl_->GetBundleName()), nullptr);
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateBundleContext_002 end";
+}
+
+HWTEST_F(ContextImplTest, CreateBundleContext_003, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateBundleContext_003 start";
+    auto parentContext = std::make_shared<AbilityRuntime::ContextImpl>();
+    contextImpl_->SetParentContext(parentContext);
+    EXPECT_EQ(contextImpl_->CreateBundleContext(""), nullptr);
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateBundleContext_003 end";
+}
+
+HWTEST_F(ContextImplTest, SetSupportedProcessCacheSelf_001, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_SetSupportedProcessCacheSelf_001 start";
+    EXPECT_NE(contextImpl_->SetSupportedProcessCacheSelf(true), 0);
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_SetSupportedProcessCacheSelf_001 end";
 }
 }  // namespace AppExecFwk
 }

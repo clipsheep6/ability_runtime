@@ -22,6 +22,7 @@
 #include "data_ability_result.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "ipc_types.h"
 #include "ishared_result_set.h"
 #include "pac_map.h"
@@ -1113,6 +1114,7 @@ void AbilitySchedulerProxy::OnExecuteIntent(const Want &want)
 
 int32_t AbilitySchedulerProxy::CreateModalUIExtension(const Want &want)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilitySchedulerProxy::CreateModalUIExtension start");
     MessageParcel data;
     MessageParcel reply;

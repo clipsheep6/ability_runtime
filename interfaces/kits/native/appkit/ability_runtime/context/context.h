@@ -23,7 +23,7 @@
 #include "bindable.h"
 #include "configuration.h"
 #include "hap_module_info.h"
-#include "foundation/communication/ipc/interfaces/innerkits/ipc_core/include/iremote_object.h"
+#include "iremote_object.h"
 #include "resource_manager.h"
 
 using IRemoteObject = OHOS::IRemoteObject;

@@ -499,6 +499,16 @@ enum {
      * Result(2097248) for get ExtensionName by uid fail.
      */
     GET_EXTENSION_NAME_BY_UID_FAIL,
+
+    /**
+     * Native error(2097249) no resident process permissions set.
+     */
+    ERR_NO_RESIDENT_PERMISSION,
+
+    /**
+     * Result(2097250) for app twin index does not exist.
+     */
+    ERR_APP_TWIN_INDEX_INVALID,
 };
 
 enum {

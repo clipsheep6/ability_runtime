@@ -237,5 +237,40 @@ HWTEST_F(ResidentProcessManagerTest, CheckMainElement_006, TestSize.Level1)
     EXPECT_FALSE(res);
     manager.reset();
 }
+
+/*
+ * Feature: ResidentProcessManager
+ * Function: SetResidentProcessEnabled
+ * SubFunction: NA
+ * FunctionPoints:ResidentProcessManager SetResidentProcessEnabled
+ * EnvConditions: NA
+ * CaseDescription: Verify SetResidentProcessEnabled
+ */
+HWTEST_F(ResidentProcessManagerTest, SetResidentProcessEnable_001, TestSize.Level1)
+{
+    auto manager = std::make_shared<ResidentProcessManager>();
+    ASSERT_NE(manager, nullptr);
+    std::string bundleName = "com.example.resident.process";
+    std::string callerName;
+    EXPECT_EQ(manager->SetResidentProcessEnabled(bundleName, callerName, false), INVALID_PARAMETERS_ERR);
+}
+
+/*
+ * Feature: ResidentProcessManager
+ * Function: ResidentProcessManager
+ * SubFunction: NA
+ * FunctionPoints:ResidentProcessManager ResidentProcessManager
+ * EnvConditions: NA
+ * CaseDescription: Verify ResidentProcessManager
+ */
+HWTEST_F(ResidentProcessManagerTest, SetResidentProcessEnable_002, TestSize.Level1)
+{
+    auto manager = std::make_shared<ResidentProcessManager>();
+    ASSERT_NE(manager, nullptr);
+
+    std::string bundleName = "com.example.resident.process";
+    std::string callerName = "resident.process.manager.test";
+    EXPECT_EQ(manager->SetResidentProcessEnabled(bundleName, callerName, false), ERR_NO_RESIDENT_PERMISSION);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

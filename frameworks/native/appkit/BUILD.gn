@@ -97,6 +97,7 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_path}/utils/global/time/include",
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_napi_path}/inner/napi_common",
+    "${ability_runtime_utils_path}/global/constant",
   ]
 
   if (ability_runtime_graphics) {
@@ -277,6 +278,7 @@ ohos_shared_library("app_context") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",
@@ -334,6 +336,7 @@ ohos_shared_library("app_context_utils") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "napi:ace_napi",
     "resource_management:global_resmgr",
@@ -423,6 +426,7 @@ ohos_shared_library("appkit_manager_helper") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
     "${ability_runtime_services_path}/common/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_utils_path}/global/constant",
   ]
 
   configs = [ ":appkit_config" ]

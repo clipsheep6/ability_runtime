@@ -306,6 +306,16 @@ public:
     virtual int32_t GetAllRunningProcesses(std::vector<RunningProcessInfo> &info);
 
     /**
+     * GetRunningProcessesByBundleType, Obtains information about application processes by bundle type.
+     *
+     * @param bundleType, the bundle type of the application process
+     * @param info, app name in Application record.
+     *
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t GetRunningProcessesByBundleType(BundleType bundleType, std::vector<RunningProcessInfo> &info);
+
+    /**
      * GetProcessRunningInfosByUserId, Obtains information about application processes that are running on the device.
      *
      * @param info, app name in Application record.
@@ -697,6 +707,9 @@ public:
     void TerminateApplication(const std::shared_ptr<AppRunningRecord> &appRecord);
 
     int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug);
+
+    int32_t NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg);
+
     /**
      * Notify application status.
      *
@@ -955,7 +968,8 @@ public:
      * @param childPid Created child process pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t StartChildProcess(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid);
+    virtual int32_t StartChildProcess(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid,
+        int32_t childProcessCount, bool isStartWithDebug);
 
     /**
      * Get child process record for self.
@@ -1015,6 +1029,8 @@ public:
     int32_t SignRestartAppFlag(const std::string &bundleName);
 
     void SetAppAssertionPauseState(int32_t pid, bool flag);
+
+    void SetKeepAliveEnableState(const std::string &bundleName, bool enable);
 
     int32_t GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId);
 
@@ -1325,7 +1341,6 @@ private:
     bool JudgeSelfCalledByToken(const sptr<IRemoteObject> &token, const PageStateData &pageStateData);
 
     void ParseServiceExtMultiProcessWhiteList();
-    int32_t GetFlag() const;
     void ClearData(std::shared_ptr<AppRunningRecord> appRecord);
 
     /**

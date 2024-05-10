@@ -125,12 +125,13 @@ void AppfreezeInner::SendProcessKillEvent(const std::string& killReason)
     auto applicationInfo = applicationInfo_.lock();
     if (applicationInfo != nullptr) {
         int32_t pid = static_cast<int32_t>(getpid());
+        std::string processName = applicationInfo->process;
         int result = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "PROCESS_KILL",
             HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_PID, pid,
             EVENT_PROCESS_NAME, applicationInfo->process, EVENT_MESSAGE, killReason);
-        TAG_LOGI(AAFwkTag::APPDFR,
-            "hisysevent write result=%{public}d, send event [FRAMEWORK,PROCESS_KILL], msg=%{public}s",
-            result, killReason.c_str());
+        TAG_LOGI(AAFwkTag::APPDFR, "hisysevent write result=%{public}d, send event [FRAMEWORK,PROCESS_KILL],"
+            " pid=%{public}d, processName=%{public}s, msg=%{public}s", result, pid, processName.c_str(),
+            killReason.c_str());
     }
 }
 

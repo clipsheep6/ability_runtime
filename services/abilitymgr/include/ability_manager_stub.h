@@ -112,6 +112,7 @@ private:
     int RequestModalUIExtensionInner(MessageParcel &data, MessageParcel &reply);
     int ChangeAbilityVisibilityInner(MessageParcel &data, MessageParcel &reply);
     int ChangeUIAbilityVisibilityBySCBInner(MessageParcel &data, MessageParcel &reply);
+    int PreloadUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
 
     int GetWantSenderInner(MessageParcel &data, MessageParcel &reply);
     int SendWantSenderInner(MessageParcel &data, MessageParcel &reply);
@@ -243,6 +244,7 @@ private:
     int32_t ForceExitAppInner(MessageParcel &data, MessageParcel &reply);
     int32_t RecordAppExitReasonInner(MessageParcel &data, MessageParcel &reply);
     int32_t RecordProcessExitReasonInner(MessageParcel &data, MessageParcel &reply);
+    int32_t SetResidentProcessEnableInner(MessageParcel &data, MessageParcel &reply);
 
     int SetRootSceneSessionInner(MessageParcel &data, MessageParcel &reply);
     int CallUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);

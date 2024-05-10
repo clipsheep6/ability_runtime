@@ -76,13 +76,14 @@ public:
     MOCK_METHOD2(GetProcessMemoryByPid, int32_t(const int32_t pid, int32_t & memorySize));
     MOCK_METHOD3(GetRunningProcessInformation, int32_t(const std::string & bundleName, int32_t userId,
         std::vector<RunningProcessInfo> &info));
-    MOCK_METHOD2(StartChildProcess, int32_t(const std::string &srcEntry, pid_t &childPid));
+    MOCK_METHOD3(StartChildProcess, int32_t(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount));
     MOCK_METHOD1(GetChildProcessInfoForSelf, int32_t(ChildProcessInfo &info));
     MOCK_METHOD1(AttachChildProcess, void(const sptr<IRemoteObject> &childScheduler));
     MOCK_METHOD0(ExitChildProcessSafely, void());
     MOCK_METHOD1(RegisterRenderStateObserver, int32_t(const sptr<IRenderStateObserver> &observer));
     MOCK_METHOD1(UnregisterRenderStateObserver, int32_t(const sptr<IRenderStateObserver> &observer));
     MOCK_METHOD2(UpdateRenderState, int32_t(pid_t renderPid, int32_t state));
+    MOCK_METHOD1(SetSupportedProcessCacheSelf, int32_t(bool isSupported));
 
     void AttachApplication(const sptr<IRemoteObject>& app)
     {
@@ -143,16 +144,23 @@ public:
     int IsBackgroundRunningRestricted(const std::string& appName)
     {
         return 0;
-    };
+    }
+
     virtual int GetAllRunningProcesses(std::vector<RunningProcessInfo>& info) override
     {
         return 0;
-    };
+    }
+
+    virtual int GetRunningProcessesByBundleType(const BundleType bundleType,
+        std::vector<RunningProcessInfo>& info) override
+    {
+        return 0;
+    }
 
     virtual int GetAllRenderProcesses(std::vector<RenderProcessInfo>& info) override
     {
         return 0;
-    };
+    }
 
     virtual int32_t StartNativeProcessForDebugger(const AAFwk::Want &want) override
     {

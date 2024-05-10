@@ -63,6 +63,7 @@ public:
     static bool permissionAllMedia_;
     static bool permissionProxyAuthorization_;
     static bool permissionAll_;
+    static bool permissionPrivileged_;
 
     static TokenInfoMap tokenInfos;
 };

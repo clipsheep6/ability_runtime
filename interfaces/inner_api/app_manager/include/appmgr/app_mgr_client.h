@@ -613,6 +613,13 @@ public:
     bool IsAttachDebug(const std::string &bundleName);
 
     /**
+     * @brief Set resident process enable status.
+     * @param bundleName The application bundle name.
+     * @param enable The current updated enable status.
+     */
+    void SetKeepAliveEnableState(const std::string &bundleName, bool enable);
+
+    /**
      * Set application assertion pause state.
      *
      * @param pid App process pid.
@@ -720,6 +727,15 @@ public:
      * @return Returns true is sufficent memory size, others return false.
      */
     bool IsMemorySizeSufficent() const;
+
+    /**
+     * Record process exit reason to appRunningRecord
+     * @param pid pid
+     * @param reason reason enum
+     * @param exitMsg exitMsg
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg);
 
     /**
      * Preload application.

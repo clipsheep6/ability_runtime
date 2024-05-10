@@ -47,9 +47,7 @@ constexpr int32_t ERR_OK = 0;
 constexpr uint32_t FLAG_READ_WRITE_URI = Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION;
 constexpr const char* CLOUND_DOCS_URI_MARK = "?networkid=";
 constexpr const char* FOUNDATION_PROCESS_NAME = "foundation";
-constexpr const char* UDMF_PROCESS_NAME = "distributeddata";
-constexpr const char* PASTE_BOARD_SERVICE = "pasterboard_service";
-constexpr const char* BROKER = "broker";
+constexpr const char* LINUX_FUSION_SERVICE = "linux_fusion_service";
 }
 
 bool UriPermissionManagerStubImpl::VerifyUriPermission(const Uri &uri, uint32_t flag, uint32_t tokenId)
@@ -135,7 +133,9 @@ int32_t UriPermissionManagerStubImpl::GrantUriPermissionPrivileged(const std::ve
     auto callerName = GetTokenName(callerTokenId);
     TAG_LOGD(AAFwkTag::URIPERMMGR, "callerTokenId is %{public}u, callerName is %{public}s",
         callerTokenId, callerName.c_str());
-    if (!VerifyPermissionByTokenId(callerTokenId, PermissionConstants::PERMISSION_GRANT_URI_PERMISSION)) {
+    auto permissionName = PermissionConstants::PERMISSION_GRANT_URI_PERMISSION_PRIVILEGED;
+    if (!PermissionVerification::GetInstance()->VerifyPermissionByTokenId(callerTokenId, permissionName) &&
+        !IsLinuxFusionCall()) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "No permission to call.");
         return CHECK_PERMISSION_FAILED;
     }
@@ -217,7 +217,7 @@ int32_t UriPermissionManagerStubImpl::CheckCalledBySandBox()
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Get BundleManager failed!");
         return INNER_ERR;
     }
-    auto callerPid = IPCSkeleton::GetCallingPid();
+    auto callerPid = IPCSkeleton::GetCallingRealPid();
     bool isSandbox = false;
     if (appMgr_->JudgeSandboxByPid(callerPid, isSandbox) != ERR_OK) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "JudgeSandboxByPid failed.");
@@ -414,7 +414,7 @@ int32_t UriPermissionManagerStubImpl::GrantBatchUriPermissionPrivileged(const st
     }
     if (uriStrVec.empty()) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Valid uri list is empty.");
-        return ERR_CODE_INVALID_URI_FLAG;
+        return ERR_CODE_INVALID_URI_TYPE;
     }
     return GrantBatchUriPermissionImpl(uriStrVec, flag, callerTokenId, targetTokenId, autoRemove);
 }
@@ -443,12 +443,12 @@ int32_t UriPermissionManagerStubImpl::GrantBatchUriPermissionFor2In1Privileged(c
         policyInfo.mode = (flag & Want::FLAG_AUTH_WRITE_URI_PERMISSION) == 0 ? READ_MODE : WRITE_MODE;
         docsVec.emplace_back(policyInfo);
     }
-    
+
     if (uriStrVec.empty() && docsVec.empty()) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Valid uri list is empty.");
-        return ERR_CODE_INVALID_URI_FLAG;
+        return ERR_CODE_INVALID_URI_TYPE;
     }
-    
+
     if (!uriStrVec.empty()) {
         auto ret = GrantBatchUriPermissionImpl(uriStrVec, flag, callerTokenId, targetTokenId, autoRemove);
         if (docsVec.empty()) {
@@ -558,7 +558,7 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
     if (ret != ERR_OK) {
         return ret;
     }
-    
+
     auto uriStr = uri.ToString();
     auto uriInner = uri;
     uint32_t authorityTokenId = 0;
@@ -623,6 +623,10 @@ std::vector<bool> UriPermissionManagerStubImpl::CheckUriAuthorization(const std:
     TokenIdPermission tokenIdPermission(tokenId);
     for (size_t i = 0; i < uriVec.size(); i++) {
         Uri uri(uriVec[i]);
+        if (!CheckUriTypeIsValid(uri)) {
+            TAG_LOGW(AAFwkTag::URIPERMMGR, "uri is invalid, uri is %{private}s.", uriVec[i].c_str());
+            continue;
+        }
         result[i] = CheckUriPermission(uri, flag, tokenIdPermission);
         if (!result[i]) {
             TAG_LOGW(AAFwkTag::URIPERMMGR, "Check uri permission failed, uri is %{private}s.", uriVec[i].c_str());
@@ -834,6 +838,25 @@ bool UriPermissionManagerStubImpl::IsFoundationCall()
     return nativeInfo.processName == FOUNDATION_PROCESS_NAME;
 }
 
+bool UriPermissionManagerStubImpl::IsLinuxFusionCall()
+{
+    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "callerTokenId is %{public}u", callerTokenId);
+    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerTokenId);
+    if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "Is not native call");
+        return false;
+    }
+    Security::AccessToken::NativeTokenInfo nativeInfo;
+    auto result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
+    if (result != ERR_OK) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "GetNativeTokenInfo failed, callerTokenId is %{public}u.", callerTokenId);
+        return false;
+    }
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "Caller process name : %{public}s", nativeInfo.processName.c_str());
+    return nativeInfo.processName == LINUX_FUSION_SERVICE;
+}
+
 std::string UriPermissionManagerStubImpl::GetTokenName(uint32_t callerTokenId)
 {
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerTokenId);
@@ -929,6 +952,10 @@ bool UriPermissionManagerStubImpl::CheckUriPermission(Uri uri, uint32_t flag, To
 {
     auto &&authority = uri.GetAuthority();
     TAG_LOGD(AAFwkTag::URIPERMMGR, "Authority of uri is %{public}s", authority.c_str());
+    if (IsLinuxFusionCall()) {
+        TAG_LOGI(AAFwkTag::URIPERMMGR, "Caller is linux_fusion_service.");
+        return true;
+    }
     if (authority == "docs") {
         return AccessDocsUriPermission(tokenIdPermission, uri, flag);
     }
@@ -944,25 +971,6 @@ bool UriPermissionManagerStubImpl::CheckUriPermission(Uri uri, uint32_t flag, To
         return true;
     }
     return CheckProxyUriPermission(tokenIdPermission, uri, flag);
-}
-
-bool UriPermissionManagerStubImpl::VerifyPermissionByTokenId(uint32_t tokenId, const std::string &permissionName)
-{
-    // temporary method.
-    if (permissionName == PermissionConstants::PERMISSION_GRANT_URI_PERMISSION) {
-        Security::AccessToken::NativeTokenInfo nativeInfo;
-        auto result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(tokenId, nativeInfo);
-        if (result != ERR_OK) {
-            TAG_LOGE(AAFwkTag::URIPERMMGR, "GetNativeTokenInfo failed, tokenId is %{public}u.", tokenId);
-            return false;
-        }
-        auto callerName = nativeInfo.processName;
-        TAG_LOGI(AAFwkTag::URIPERMMGR, "Caller process name : %{public}s", callerName.c_str());
-        // waiting accessToken permission request.
-        return callerName == BROKER || callerName == PASTE_BOARD_SERVICE || callerName == UDMF_PROCESS_NAME ||
-            callerName == FOUNDATION_PROCESS_NAME;
-    }
-    return PermissionVerification::GetInstance()->VerifyPermissionByTokenId(tokenId, permissionName);
 }
 
 bool UriPermissionManagerStubImpl::AccessMediaUriPermission(TokenIdPermission &tokenIdPermission,

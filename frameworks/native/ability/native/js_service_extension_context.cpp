@@ -221,7 +221,6 @@ private:
         AAFwk::Want want;
         AAFwk::StartOptions startOptions;
         if (!CheckStartAbilityInputParam(env, info, want, startOptions, unwrapArgc)) {
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
 
@@ -272,22 +271,26 @@ private:
     {
         if (info.argc != ARGC_TWO) {
             TAG_LOGE(AAFwkTag::SERVICE_EXT, "wrong arguments num");
+            ThrowTooFewParametersError(env);
             return false;
         }
 
         if (!CheckTypeForNapiValue(env, info.argv[ARGC_ZERO], napi_string)) {
             TAG_LOGE(AAFwkTag::SERVICE_EXT, "link must be string");
+            ThrowInvalidParamError(env, "Parse param link failed, must be a string");
             return false;
         }
         if (!ConvertFromJsValue(env, info.argv[ARGC_ZERO], linkValue) || !CheckUrl(linkValue)) {
             TAG_LOGE(AAFwkTag::SERVICE_EXT, "link parameter invalid");
+            ThrowInvalidParamError(env, "link parameter invalid");
             return false;
         }
 
         if (CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
             TAG_LOGD(AAFwkTag::SERVICE_EXT, "OpenLinkOptions is used.");
             if (!AppExecFwk::UnwrapOpenLinkOptions(env, info.argv[INDEX_ONE], openLinkOptions, want)) {
-                TAG_LOGE(AAFwkTag::SERVICE_EXT, "openLinkOptions parse failed");
+                TAG_LOGE(AAFwkTag::SERVICE_EXT, "OpenLinkOptions parse failed");
+                ThrowInvalidParamError(env, "Parse param options failed, must be a OpenLinkOptions");
                 return false;
             }
         }
@@ -307,7 +310,6 @@ private:
 
         if (!ParseOpenLinkParams(env, info, linkValue, openLinkOptions, want)) {
             TAG_LOGE(AAFwkTag::SERVICE_EXT, "parse openLink arguments failed");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
 
@@ -361,7 +363,6 @@ private:
         AAFwk::Want want;
         AAFwk::StartOptions startOptions;
         if (!CheckStartAbilityInputParam(env, info, want, startOptions, unwrapArgc)) {
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
 
@@ -396,11 +397,13 @@ private:
         AAFwk::Want& want, AAFwk::StartOptions& startOptions, size_t& unwrapArgc) const
     {
         if (info.argc < ARGC_ONE) {
+            ThrowTooFewParametersError(env);
             return false;
         }
         unwrapArgc = ARGC_ZERO;
         // Check input want
         if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
+            ThrowInvalidParamError(env, "Parse param want failed, must be a Want");
             return false;
         }
         ++unwrapArgc;
@@ -423,7 +426,6 @@ private:
         AAFwk::Want want;
         int32_t accountId = DEFAULT_INVAL_VALUE;
         if (!CheckStartAbilityByCallInputParam(env, info, want, accountId)) {
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
 
@@ -463,6 +465,7 @@ private:
         napi_env env, NapiCallbackInfo& info, AAFwk::Want& want, int32_t& accountId)
     {
         if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
+            ThrowInvalidParamError(env, "Parse param want failed, must be a Want");
             return false;
         }
 
@@ -470,10 +473,12 @@ private:
             if (CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_number)) {
                 if (!ConvertFromJsValue(env, info.argv[1], accountId)) {
                     TAG_LOGE(AAFwkTag::SERVICE_EXT, "check input param accountId failed");
+                    ThrowInvalidParamError(env, "Parse param accountId failed, must be a number");
                     return false;
                 }
             } else {
                 TAG_LOGE(AAFwkTag::SERVICE_EXT, "input parameter type invalid");
+                ThrowInvalidParamError(env, "Parse param accountId failed, must be a number");
                 return false;
             }
         }
@@ -574,7 +579,6 @@ private:
         AAFwk::Want want;
         int32_t accountId = 0;
         if (!CheckStartAbilityWithAccountInputParam(env, info, want, accountId, unwrapArgc)) {
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
 
@@ -612,15 +616,18 @@ private:
         AAFwk::Want& want, int32_t& accountId, size_t& unwrapArgc) const
     {
         if (info.argc < ARGC_TWO) {
+            ThrowTooFewParametersError(env);
             return false;
         }
         unwrapArgc = ARGC_ZERO;
         // Check input want
         if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
+            ThrowInvalidParamError(env, "Parse param want failed, must be a Want");
             return false;
         }
         ++unwrapArgc;
         if (!AppExecFwk::UnwrapInt32FromJS2(env, info.argv[INDEX_ONE], accountId)) {
+            ThrowInvalidParamError(env, "Parse param accountId failed, must be a number");
             return false;
         }
         ++unwrapArgc;
@@ -667,12 +674,14 @@ private:
         // Unwrap want and connection
         AAFwk::Want want;
         sptr<JSServiceExtensionConnection> connection = new JSServiceExtensionConnection(env);
-        if (!AppExecFwk::UnwrapWant(env, info.argv[0], want) ||
-            !CheckConnectionParam(env, info.argv[1], connection, want)) {
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        if (!AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
+            ThrowInvalidParamError(env, "Parse param want failed, must be a Want");
             return CreateJsUndefined(env);
         }
-
+        if (!CheckConnectionParam(env, info.argv[1], connection, want)) {
+            ThrowInvalidParamError(env, "Parse param options failed, must be a ConnectOptions");
+            return CreateJsUndefined(env);
+        }
         int64_t connectId = connection->GetConnectionId();
         auto innerErrorCode = std::make_shared<int>(ERR_OK);
         auto execute = GetConnectAbilityExecFunc(want, connection, connectId, innerErrorCode);
@@ -710,10 +719,12 @@ private:
         AAFwk::Want want;
         int32_t accountId = 0;
         sptr<JSServiceExtensionConnection> connection = new JSServiceExtensionConnection(env);
-        if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want) ||
-            !AppExecFwk::UnwrapInt32FromJS2(env, info.argv[INDEX_ONE], accountId) ||
-            !CheckConnectionParam(env, info.argv[INDEX_TWO], connection, want)) {
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        size_t unwrapArgc = 0;
+        if (!CheckStartAbilityWithAccountInputParam(env, info, want, accountId, unwrapArgc)) {
+            return CreateJsUndefined(env);
+        }
+        if (!CheckConnectionParam(env, info.argv[INDEX_TWO], connection, want, accountId)) {
+            ThrowInvalidParamError(env, "Parse param options failed, must be a ConnectOptions");
             return CreateJsUndefined(env);
         }
         int64_t connectId = connection->GetConnectionId();
@@ -744,7 +755,7 @@ private:
     }
 
     bool CheckConnectionParam(napi_env env, napi_value value,
-        sptr<JSServiceExtensionConnection>& connection, AAFwk::Want& want) const
+        sptr<JSServiceExtensionConnection>& connection, AAFwk::Want& want, int32_t accountId = -1) const
     {
         if (!CheckTypeForNapiValue(env, value, napi_object)) {
             TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get connection object");
@@ -756,6 +767,7 @@ private:
             std::lock_guard guard(g_connectsMutex);
             key.id = g_serialNumber;
             key.want = want;
+            key.accountId = accountId;
             connection->SetConnectionId(key.id);
             g_connects.emplace(key, connection);
             if (g_serialNumber < INT32_MAX) {
@@ -778,16 +790,17 @@ private:
         }
         int64_t connectId = -1;
         if (!AppExecFwk::UnwrapInt64FromJS2(env, info.argv[INDEX_ZERO], connectId)) {
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param connection failed, must be a number");
             return CreateJsUndefined(env);
         }
 
         AAFwk::Want want;
         sptr<JSServiceExtensionConnection> connection = nullptr;
-        FindConnection(want, connection, connectId);
+        int32_t accountId = -1;
+        FindConnection(want, connection, connectId, accountId);
         // begin disconnect
         NapiAsyncTask::CompleteCallback complete =
-            [weak = context_, want, connection](
+            [weak = context_, want, connection, accountId](
                 napi_env env, NapiAsyncTask& task, int32_t status) {
                 auto context = weak.lock();
                 if (!context) {
@@ -801,7 +814,7 @@ private:
                     return;
                 }
                 TAG_LOGD(AAFwkTag::SERVICE_EXT, "context->DisconnectAbility");
-                auto innerErrorCode = context->DisconnectAbility(want, connection);
+                auto innerErrorCode = context->DisconnectAbility(want, connection, accountId);
                 if (innerErrorCode == 0) {
                     task.Resolve(env, CreateJsUndefined(env));
                 } else {
@@ -816,7 +829,8 @@ private:
         return result;
     }
 
-    void FindConnection(AAFwk::Want& want, sptr<JSServiceExtensionConnection>& connection, int64_t& connectId) const
+    void FindConnection(AAFwk::Want& want, sptr<JSServiceExtensionConnection>& connection, int64_t& connectId,
+        int32_t &accountId) const
     {
         TAG_LOGI(AAFwkTag::SERVICE_EXT, "Disconnect ability begin, connection:%{public}d.",
             static_cast<int32_t>(connectId));
@@ -830,6 +844,7 @@ private:
             // match id
             want = item->first.want;
             connection = item->second;
+            accountId = item->first.accountId;
             TAG_LOGD(AAFwkTag::SERVICE_EXT, "find conn ability exist");
         }
         return;
@@ -845,7 +860,7 @@ private:
         }
         AAFwk::Want want;
         if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param want failed, must be a Want");
             return CreateJsUndefined(env);
         }
 
@@ -882,9 +897,8 @@ private:
         }
         AAFwk::Want want;
         int32_t accountId = -1;
-        if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want) ||
-            !AppExecFwk::UnwrapInt32FromJS2(env, info.argv[INDEX_ONE], accountId)) {
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        size_t unwrapArgc = 0;
+        if (!CheckStartAbilityWithAccountInputParam(env, info, want, accountId, unwrapArgc)) {
             return CreateJsUndefined(env);
         }
 
@@ -921,7 +935,7 @@ private:
         }
         AAFwk::Want want;
         if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param want failed, must be a Want");
             return CreateJsUndefined(env);
         }
 
@@ -958,10 +972,8 @@ private:
         }
         AAFwk::Want want;
         int32_t accountId = -1;
-        if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want) ||
-            !AppExecFwk::UnwrapInt32FromJS2(env, info.argv[INDEX_ONE], accountId)) {
-            TAG_LOGD(AAFwkTag::SERVICE_EXT, "Failed, input parameter type invalid");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        size_t unwrapArgc = 0;
+        if (!CheckStartAbilityWithAccountInputParam(env, info, want, accountId, unwrapArgc)) {
             return CreateJsUndefined(env);
         }
 
@@ -1000,7 +1012,7 @@ private:
         AAFwk::Want want;
         if (!AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
             TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to parse want!");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param want failed, must be a Want");
             return CreateJsUndefined(env);
         }
 

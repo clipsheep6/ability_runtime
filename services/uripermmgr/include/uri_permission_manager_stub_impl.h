@@ -126,8 +126,6 @@ private:
 
     int32_t CheckProxyUriPermission(TokenIdPermission &tokenIdPermission, const Uri &uri, uint32_t flag);
 
-    bool VerifyPermissionByTokenId(uint32_t tokenId, const std::string &permissionName);
-    
     bool AccessMediaUriPermission(TokenIdPermission &tokenIdPermission, const Uri &uri, uint32_t flag);
 
     bool AccessDocsUriPermission(TokenIdPermission &tokenIdPermission, const Uri &uri, uint32_t flag);
@@ -135,6 +133,8 @@ private:
     int32_t DeleteShareFile(uint32_t targetTokenId, const std::vector<std::string> &uriVec);
 
     bool IsSAOrSystemAppCall();
+
+    bool IsLinuxFusionCall();
 
     class ProxyDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

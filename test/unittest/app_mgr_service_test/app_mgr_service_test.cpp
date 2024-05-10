@@ -26,6 +26,7 @@
 #include "mock_app_mgr_service_inner.h"
 #include "mock_native_token.h"
 #include "mock_sa_call.h"
+#include "ipc_skeleton.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -41,6 +42,7 @@ public:
     std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
     std::shared_ptr<MockAppMgrServiceInner> mockAppMgrServiceInner_;
     std::shared_ptr<AMSEventHandler> eventHandler_;
+    std::shared_ptr<ApplicationInfo> applicationInfo_;
 };
 
 void AppMgrServiceTest::SetUpTestCase(void)
@@ -1444,11 +1446,11 @@ HWTEST_F(AppMgrServiceTest, StartChildProcess_001, TestSize.Level1)
     appMgrService->taskHandler_ = taskHandler_;
     appMgrService->eventHandler_ = eventHandler_;
 
-    EXPECT_CALL(*mockAppMgrServiceInner_, StartChildProcess(_, _, _))
+    EXPECT_CALL(*mockAppMgrServiceInner_, StartChildProcess(_, _, _, _, _))
         .Times(1)
         .WillOnce(Return(ERR_OK));
     pid_t pid = 0;
-    int32_t res = appMgrService->StartChildProcess("./ets/AProcess.ts", pid);
+    int32_t res = appMgrService->StartChildProcess("./ets/AProcess.ts", pid, 1, false);
     EXPECT_EQ(res, ERR_OK);
 }
 
@@ -1650,6 +1652,84 @@ HWTEST_F(AppMgrServiceTest, PreloadApplication_0100, TestSize.Level1)
 
     int32_t ret = appMgrService->PreloadApplication(bundleName, userId, preloadMode, appIndex);
     EXPECT_EQ(ret, ERR_OK);
+}
+
+/*
+ * Feature: AppMgrService
+ * Function: SetSupportedProcessCacheSelf
+ * SubFunction: NA
+ * FunctionPoints: AppMgrService SetSupportedProcessCacheSelf
+ * EnvConditions: NA
+ * CaseDescription: Verify SetSupportedProcessCacheSelf
+ */
+HWTEST_F(AppMgrServiceTest, SetSupportedProcessCacheSelf_001, TestSize.Level0)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
+    appMgrService->SetInnerService(nullptr);
+
+    bool isSupported = false;
+    int32_t res = appMgrService->SetSupportedProcessCacheSelf(isSupported);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+}
+
+/*
+ * Feature: AppMgrService
+ * Function: SetSupportedProcessCacheSelf
+ * SubFunction: NA
+ * FunctionPoints: AppMgrService SetSupportedProcessCacheSelf
+ * EnvConditions: NA
+ * CaseDescription: Verify SetSupportedProcessCacheSelf
+ */
+HWTEST_F(AppMgrServiceTest, SetSupportedProcessCacheSelf_002, TestSize.Level0)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
+
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
+
+    // permission check failed
+    int32_t res = appMgrService->SetSupportedProcessCacheSelf(false);
+    EXPECT_EQ(res, AAFwk::CHECK_PERMISSION_FAILED);
+
+    // appRecord not in AppRunningManager
+    AAFwk::IsMockSaCall::IsMockProcessCachePermission();
+    res = appMgrService->SetSupportedProcessCacheSelf(false);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+
+    // fake caller app record
+    auto appMgrSerInner = appMgrService->appMgrServiceInner_;
+    ASSERT_NE(appMgrSerInner, nullptr);
+    auto appRunningMgr = appMgrService->appMgrServiceInner_->appRunningManager_;
+    ASSERT_NE(appRunningMgr, nullptr);
+    BundleInfo bundleInfo;
+    std::string processName = "test_processName";
+    applicationInfo_ = std::make_shared<ApplicationInfo>();
+    ASSERT_NE(applicationInfo_, nullptr);
+    applicationInfo_->name = "hiservcie";
+    applicationInfo_->bundleName = "com.ix.hiservcie";
+    std::shared_ptr<AppRunningRecord> appRecord =
+        appRunningMgr->CreateAppRunningRecord(applicationInfo_, processName, bundleInfo);
+    EXPECT_NE(appRecord, nullptr);
+    appRecord->SetCallerTokenId(IPCSkeleton::GetCallingTokenID());
+    appRecord->SetCallerUid(IPCSkeleton::GetCallingUid());
+    appRecord->GetPriorityObject()->pid_ = IPCSkeleton::GetCallingPid();
+    appRecord->SetCallerPid(IPCSkeleton::GetCallingPid());
+    auto &recordMap = appRunningMgr->appRunningRecordMap_;
+    auto iter = recordMap.find(IPCSkeleton::GetCallingPid());
+    if (iter == recordMap.end()) {
+        recordMap.insert({IPCSkeleton::GetCallingPid(), appRecord});
+    } else {
+        recordMap.erase(iter);
+        recordMap.insert({IPCSkeleton::GetCallingPid(), appRecord});
+    }
+    res = appMgrService->SetSupportedProcessCacheSelf(false);
+    EXPECT_EQ(res, ERR_OK);
+
+    res = appMgrService->SetSupportedProcessCacheSelf(false);
+    EXPECT_EQ(res, AAFwk::ERR_SET_SUPPORTED_PROCESS_CACHE_AGAIN);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

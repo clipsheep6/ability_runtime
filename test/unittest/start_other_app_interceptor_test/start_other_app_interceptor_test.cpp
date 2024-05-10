@@ -87,6 +87,20 @@ HWTEST_F(StartOtherAppInterceptorTest, GetApplicationInfo_001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: GetApplicationInfo_002
+ * @tc.desc: test function GetApplicationInfo when callerToken is nullptr
+ * @tc.type: FUNC
+ */
+HWTEST_F(StartOtherAppInterceptorTest, GetApplicationInfo_002, TestSize.Level1)
+{
+    auto interceptor = std::make_shared<StartOtherAppInterceptor>();
+    AppExecFwk::ApplicationInfo applicationInfo;
+    sptr<IRemoteObject> callerToken;
+    bool res = interceptor->GetApplicationInfo(callerToken, applicationInfo);
+    EXPECT_FALSE(res);
+}
+
+/**
  * @tc.name: CheckAncoShellCall_001
  * @tc.desc: test function CheckAncoShellCall when caller is anco shell
  * @tc.type: FUNC
@@ -206,6 +220,47 @@ HWTEST_F(StartOtherAppInterceptorTest, DoProcess_002, TestSize.Level1)
     AbilityInterceptorParam param = AbilityInterceptorParam(want, 0, 0, false, nullptr);
     int32_t res = interceptor->DoProcess(param);
     EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: CheckTargetIsSystemApp_001
+ * @tc.desc: test function CheckTargetIsSystemApp when applicationInfo is true
+ * @tc.type: FUNC
+ */
+HWTEST_F(StartOtherAppInterceptorTest, CheckTargetIsSystemApp_001, TestSize.Level1)
+{
+    std::shared_ptr<StartOtherAppInterceptor> interceptor = std::make_shared<StartOtherAppInterceptor>();
+    AppExecFwk::ApplicationInfo applicationInfo;
+    applicationInfo.isSystemApp = true;
+    bool res = interceptor->CheckTargetIsSystemApp(applicationInfo);
+    EXPECT_EQ(res, true);
+}
+
+/**
+ * @tc.name: CheckTargetIsSystemApp_002
+ * @tc.desc: test function CheckTargetIsSystemApp when applicationInfo is false
+ * @tc.type: FUNC
+ */
+HWTEST_F(StartOtherAppInterceptorTest, CheckTargetIsSystemApp_002, TestSize.Level1)
+{
+    std::shared_ptr<StartOtherAppInterceptor> interceptor = std::make_shared<StartOtherAppInterceptor>();
+    AppExecFwk::ApplicationInfo applicationInfo;
+    applicationInfo.isSystemApp = false;
+    bool res = interceptor->CheckTargetIsSystemApp(applicationInfo);
+    EXPECT_EQ(res, false);
+}
+
+/**
+ * @tc.name: IsDelegatorCall_001
+ * @tc.desc: test function IsDelegatorCall when applicationInfo is true
+ * @tc.type: FUNC
+ */
+HWTEST_F(StartOtherAppInterceptorTest, IsDelegatorCall_001, TestSize.Level1)
+{
+    std::shared_ptr<StartOtherAppInterceptor> interceptor = std::make_shared<StartOtherAppInterceptor>();
+    Want want;
+    bool res = interceptor->IsDelegatorCall(want);
+    EXPECT_EQ(res, false);
 }
 } // namespace AAFwk
 } // namespace OHOS

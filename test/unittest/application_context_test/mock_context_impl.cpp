@@ -76,7 +76,7 @@ std::string MockContextImpl::GetDistributedFilesDir()
 
 std::string MockContextImpl::GetCloudFileDir()
 {
-    return "/data/service/el2/hmdfs/cloud/data/bundleName";
+    return "/cloud";
 }
 
 std::string MockContextImpl::GetGroupDir(std::string groupId)

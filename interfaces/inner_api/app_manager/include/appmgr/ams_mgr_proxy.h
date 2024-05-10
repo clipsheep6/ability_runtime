@@ -153,6 +153,8 @@ public:
     virtual int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application,
         bool &debug) override;
 
+    virtual int32_t NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg) override;
+
     virtual void AbilityAttachTimeOut(const sptr<IRemoteObject> &token) override;
 
     virtual void PrepareTerminate(const sptr<IRemoteObject> &token) override;
@@ -261,6 +263,13 @@ public:
      * @param flag assertion pause state.
      */
     void SetAppAssertionPauseState(int32_t pid, bool flag) override;
+
+    /**
+     * @brief Set resident process enable status.
+     * @param bundleName The application bundle name.
+     * @param enable The current updated enable status.
+     */
+    void SetKeepAliveEnableState(const std::string &bundleName, bool enable) override;
 
     /**
      * To clear the process by ability token.

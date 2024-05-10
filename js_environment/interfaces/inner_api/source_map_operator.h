@@ -83,6 +83,11 @@ public:
         return (initStatus_ == InitStatus::EXECUTED_SUCCESSFULLY);
     }
 
+    std::shared_ptr<SourceMap> GetSourceMapObj() const
+    {
+        return sourceMapObj_;
+    }
+
 private:
     const std::string bundleName_;
     bool isModular_ = false;

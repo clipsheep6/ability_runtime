@@ -48,6 +48,11 @@ public:
         return engine_;
     }
 
+    std::shared_ptr<SourceMapOperator> GetSourceMapOperator() const
+    {
+        return sourceMapOperator_;
+    }
+
     panda::ecmascript::EcmaVM* GetVM() const
     {
         return vm_;

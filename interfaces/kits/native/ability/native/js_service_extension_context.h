@@ -52,6 +52,7 @@ private:
 struct ConnectionKey {
     AAFwk::Want want;
     int64_t id;
+    int32_t accountId;
 };
 
 struct key_compare {

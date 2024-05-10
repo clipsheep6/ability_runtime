@@ -73,6 +73,7 @@ struct AppInfo {
     std::vector<AppData> appData;
     std::string processName;
     AppState state;
+    pid_t pid = 0;
 };
 /**
  * @class AppStateCallback
@@ -326,6 +327,15 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug);
+
+    /**
+     * Record process exit reason to appRunningRecord
+     * @param pid pid
+     * @param reason reason enum
+     * @param exitMsg exitMsg
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg);
 
     /**
      * Set the current userId of appMgr, only used by abilityMgr.

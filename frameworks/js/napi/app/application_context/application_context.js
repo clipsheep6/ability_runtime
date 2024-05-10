@@ -177,6 +177,10 @@ class ApplicationContext {
     return this.__context_impl__.clearUpApplicationData(callback);
   }
 
+  preloadUIExtensionAbility(want) {
+    return this.__context_impl__.preloadUIExtensionAbility(want);
+  }
+
   restartApp(want) {
     return this.__context_impl__.restartApp(want);
   }

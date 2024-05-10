@@ -61,7 +61,7 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject>& connec
     std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
     auto connectionIter = abilityConnections_.begin();
     for (; connectionIter != abilityConnections_.end(); ++connectionIter) {
-        if (MatchConnection(connectCaller, want, *connectionIter)) {
+        if (MatchConnection(connectCaller, want, accountId, *connectionIter)) {
             break;
         }
     }
@@ -89,9 +89,12 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject>& connec
 }
 
 bool ConnectionManager::MatchConnection(
-    const sptr<IRemoteObject>& connectCaller, const AAFwk::Want& connectReceiver,
+    const sptr<IRemoteObject>& connectCaller, const AAFwk::Want& connectReceiver, int32_t accountId,
     const std::map<ConnectionInfo, std::vector<sptr<AbilityConnectCallback>>>::value_type& connection)
 {
+    if (accountId != connection.first.userid) {
+        return false;
+    }
     if (!connectReceiver.GetElement().GetAbilityName().empty()) {
         return connectCaller == connection.first.connectCaller &&
             connectReceiver.GetElement().GetBundleName() == connection.first.connectReceiver.GetBundleName() &&
@@ -120,7 +123,7 @@ ErrCode ConnectionManager::CreateConnection(const sptr<IRemoteObject>& connectCa
         want, abilityConnection, connectCaller, accountId);
     std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
     if (ret == ERR_OK) {
-        ConnectionInfo connectionInfo(connectCaller, want.GetOperation(), abilityConnection);
+        ConnectionInfo connectionInfo(connectCaller, want.GetOperation(), abilityConnection, accountId);
         std::vector<sptr<AbilityConnectCallback>> callbacks;
         callbacks.push_back(connectCallback);
         abilityConnections_[connectionInfo] = callbacks;
@@ -139,7 +142,8 @@ ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject>& connectC
 }
 
 ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject>& connectCaller,
-    const AAFwk::Want& connectReceiver, const sptr<AbilityConnectCallback>& connectCallback)
+    const AAFwk::Want& connectReceiver, const sptr<AbilityConnectCallback>& connectCallback,
+    int32_t accountId)
 {
     if (connectCaller == nullptr || connectCallback == nullptr) {
         TAG_LOGE(AAFwkTag::CONNECTION, "connectCaller or connectCallback is nullptr.");
@@ -151,8 +155,8 @@ ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject>& connectC
         (element.GetBundleName() + ":" + element.GetAbilityName()).c_str());
     std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
     auto item = std::find_if(abilityConnections_.begin(), abilityConnections_.end(),
-        [&connectCaller, &connectReceiver, this](const auto& obj) {
-                return MatchConnection(connectCaller, connectReceiver, obj);
+        [&connectCaller, &connectReceiver, this, accountId](const auto& obj) {
+                return MatchConnection(connectCaller, connectReceiver, accountId, obj);
         });
     if (item != abilityConnections_.end()) {
         TAG_LOGD(AAFwkTag::CONNECTION, "remove callback, Size:%{public}zu.", item->second.size());
@@ -235,6 +239,33 @@ bool ConnectionManager::RemoveConnection(const sptr<AbilityConnection> connectio
         }
     }
     return isDisconnect;
+}
+
+void ConnectionManager::DisconnectNonexistentService(
+    const AppExecFwk::ElementName& element, const sptr<AbilityConnection> connection)
+{
+    bool exit = false;
+    std::map<ConnectionInfo, std::vector<sptr<AbilityConnectCallback>>> abilityConnections;
+    {
+        std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
+        abilityConnections = abilityConnections_;
+    }
+    HILOG_DEBUG("abilityConnectionsSize: %{public}zu", abilityConnections.size());
+
+    for (auto &&abilityConnection : abilityConnections) {
+        ConnectionInfo connectionInfo = abilityConnection.first;
+        if (connectionInfo.abilityConnection == connection &&
+            connectionInfo.connectReceiver.GetBundleName() == element.GetBundleName() &&
+            connectionInfo.connectReceiver.GetAbilityName() == element.GetAbilityName()) {
+            HILOG_DEBUG("find connection.");
+            exit = true;
+            break;
+        }
+    }
+    if (!exit) {
+        HILOG_ERROR("this service need disconnect");
+        AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(connection);
+    }
 }
 
 void ConnectionManager::ReportConnectionLeakEvent(const int pid, const int tid)

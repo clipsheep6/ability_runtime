@@ -32,7 +32,6 @@ config("ability_manager_public_config") {
     "${ability_base_kits_path}/want/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
-    "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
     "${ability_runtime_innerkits_path}/ability_manager/include",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
@@ -72,11 +71,8 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_native_path}/ability/native/task_handler_client.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_auto_startup_client.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_client.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_collaborator_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_proxy.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_running_info.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/acquire_share_data_callback_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/acquire_share_data_callback_stub.cpp",
@@ -91,12 +87,10 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr/src/insight_intent_execute_result.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/lifecycle_state_info.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/mission_listener_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/mission_listener_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/open_link/open_link_options.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/prepare_terminate_callback_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/prepare_terminate_callback_stub.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/remote_on_listener_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/remote_on_listener_stub.cpp",
@@ -112,7 +106,6 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr/src/want_sender_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/want_sender_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/wants_info.cpp",
-    "${ability_runtime_services_path}/common/src/ability_manager_radar.cpp",
     "src/status_bar_delegate/status_bar_delegate_proxy.cpp",
     "src/status_bar_delegate/status_bar_delegate_stub.cpp",
     "src/window_manager_service_handler_proxy.cpp",
@@ -161,6 +154,8 @@ ohos_shared_library("ability_manager") {
     "relational_store:native_rdb",
     "samgr:samgr_proxy",
   ]
+
+  public_external_deps = [ "bundle_framework:appexecfwk_core" ]
 
   if (ability_runtime_graphics) {
     deps += []

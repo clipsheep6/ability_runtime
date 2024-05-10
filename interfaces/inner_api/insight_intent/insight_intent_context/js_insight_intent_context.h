@@ -60,6 +60,17 @@ private:
  */
 napi_value CreateJsInsightIntentContext(napi_env env, const std::shared_ptr<InsightIntentContext>& context);
 
+/**
+ * Function of check startAbiliryParam parammeters.
+ *
+ * @param env, the napi environment.
+ * @param info, Indicates the parameters from js.
+ * @param want, the want of the ability to start.
+ *
+ * @return result of check startAbiliryParam parammeters.
+ */
+bool CheckStartAbilityParam(napi_env env, NapiCallbackInfo& info, AAFwk::Want want);
+
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_JS_INSIGHT_INTENT_CONTEXT_H

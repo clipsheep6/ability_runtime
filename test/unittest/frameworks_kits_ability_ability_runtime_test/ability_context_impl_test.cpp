@@ -932,7 +932,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetCloudFileDir_0100, Func
 {
     context_->SetStageContext(mock_);
     auto ret = context_->GetCloudFileDir();
-    EXPECT_EQ(ret, "/data/service/el2/hmdfs/cloud/data/bundleName");
+    EXPECT_EQ(ret, "/cloud");
 }
 
 /**
@@ -1445,8 +1445,6 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_RequestDialog_0100, Functi
 {
     int status = 1;
     context_->RequestDialogResultJSThreadWorker(nullptr, status);
-    uv_work_t* work = new (std::nothrow) uv_work_t;
-    context_->RequestDialogResultJSThreadWorker(work, status);
     int32_t missionId = -1;
     ErrCode ret = context_->GetMissionId(missionId);
     EXPECT_FALSE(ret == ERR_OK);
@@ -1512,6 +1510,15 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ChangeAbilityVisibility_01
 {
     bool isShow = true;
     context_->ChangeAbilityVisibility(isShow);
+    EXPECT_TRUE(context_ != nullptr);
+}
+
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ChangeAbilityVisibility_0200, Function | MediumTest | Level1)
+{
+    bool isShow = true;
+    std::shared_ptr<OHOS::AbilityRuntime::AbilityContext> abilitContext =
+        std::make_shared<OHOS::AbilityRuntime::AbilityContextImpl>();
+    abilitContext->ChangeAbilityVisibility(isShow);
     EXPECT_TRUE(context_ != nullptr);
 }
 

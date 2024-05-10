@@ -110,7 +110,7 @@ bool StartOtherAppInterceptor::GetApplicationInfo(const sptr<IRemoteObject> &cal
     AppExecFwk::ApplicationInfo &applicationInfo)
 {
     if (callerToken == nullptr) {
-        int32_t callerPid = IPCSkeleton::GetCallingPid();
+        int32_t callerPid = IPCSkeleton::GetCallingRealPid();
         auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
         bool debug;
         if (appScheduler != nullptr &&
@@ -148,7 +148,7 @@ bool StartOtherAppInterceptor::IsDelegatorCall(const Want want)
 {
     AppExecFwk::RunningProcessInfo processInfo;
     DelayedSingleton<AppScheduler>::GetInstance()->
-        GetRunningProcessInfoByPid(IPCSkeleton::GetCallingPid(), processInfo);
+        GetRunningProcessInfoByPid(IPCSkeleton::GetCallingRealPid(), processInfo);
     if (processInfo.isTestProcess && want.GetBoolParam(IS_DELEGATOR_CALL, false)) {
         return true;
     }

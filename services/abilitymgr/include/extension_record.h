@@ -22,6 +22,7 @@
 #include <string>
 
 #include "ability_record.h"
+#include "preload_uiext_state_observer.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -44,14 +45,18 @@ public:
 
     virtual void Update(const AAFwk::AbilityRequest &abilityRequest);
 
+    void UnloadUIExtensionAbility();
+
+    int32_t RegisterStateObserver(const std::string &hostBundleName);
+
     std::shared_ptr<AAFwk::AbilityRecord> abilityRecord_ = nullptr;
     std::string hostBundleName_;
     int32_t extensionRecordId_ = INVALID_EXTENSION_RECORD_ID;
     uint32_t processMode_ = 0;
     bool isHostSpecified_ = false;
-
 private:
     sptr<IRemoteObject> rootCallerToken_ = nullptr;
+    sptr<AAFwk::PreLoadUIExtStateObserver> preLoadUIExtStateObserver_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
