@@ -484,7 +484,7 @@ public:
      * @param debug Whether IsDebugApp.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t StartNativeProcessForDebugger(const AAFwk::Want &want) const;
+    int32_t StartNativeProcessForDebugger(const AAFwk::Want &want);
 
     /**
      * Set the current userId of appMgr.

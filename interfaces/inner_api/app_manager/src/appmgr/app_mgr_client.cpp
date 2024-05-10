@@ -744,7 +744,7 @@ int32_t AppMgrClient::NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, 
     return amsService->NotifyAppMgrRecordExitReason(pid, reason, exitMsg);
 }
 
-int32_t AppMgrClient::StartNativeProcessForDebugger(const AAFwk::Want &want) const
+int32_t AppMgrClient::StartNativeProcessForDebugger(const AAFwk::Want &want)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {

@@ -399,7 +399,7 @@ public:
      */
     int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning);
 
-    int32_t StartNativeProcessForDebugger(const AAFwk::Want &want) const;
+    int32_t StartNativeProcessForDebugger(const AAFwk::Want &want);
 
     std::shared_ptr<AppRunningRecord> CreateAppRunningRecord(
         sptr<IRemoteObject> token,
@@ -1100,7 +1100,7 @@ private:
         const HapModuleInfo &hapModuleInfo, std::shared_ptr<AAFwk::Want> want, int32_t abilityRecordId);
 
     int32_t StartPerfProcess(const std::shared_ptr<AppRunningRecord> &appRecord, const std::string& perfCmd,
-        const std::string& debugCmd, bool isSandboxApp) const;
+        const std::string& debugCmd, bool isSandboxApp);
 
     void StartProcessVerifyPermission(const BundleInfo &bundleInfo, bool &hasAccessBundleDirReq,
         uint8_t &setAllowInternet, uint8_t &allowInternet, std::vector<int32_t> &gids);
@@ -1380,6 +1380,22 @@ private:
         bool isPreload);
 
     int32_t CheckSetProcessCachePermission() const;
+
+    int32_t CreatNewStartMsg(const Want &want, const AbilityInfo &abilityInfo,
+        const std::shared_ptr<ApplicationInfo> &appInfo, const std::string &processName,
+        AppSpawnStartMsg &startMsg);
+    
+    int32_t CreateStartMsg(const std::string &processName, uint32_t startFlags, const int uid,
+        const BundleInfo &bundleInfo, const int32_t bundleIndex, BundleType bundleType,
+        AppSpawnStartMsg &startMsg);
+
+    int32_t StartPerfProcessByStartMsg(AppSpawnStartMsg &startMsg, const std::string& perfCmd,
+        const std::string& debugCmd, bool isSandboxApp);
+    
+    void SetAtomicServiceInfo(BundleType bundleType, AppSpawnStartMsg &startMsg);
+
+    void SetAppInfo(const BundleInfo &bundleInfo, AppSpawnStartMsg &startMsg);
+
 private:
     /**
      * Notify application status.
