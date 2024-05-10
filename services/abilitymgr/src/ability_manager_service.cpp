@@ -1687,8 +1687,11 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     }
 
     if (PermissionVerification::GetInstance()->IsSystemAppCall()) {
-        bool windowFocused = startOptions.GetWindowFocused();
-        abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_FOCUSED, windowFocused);
+        bool focused = abilityRequest.want.GetBoolParam(Want::PARAM_RESV_WINDOW_FOCUSED, true);
+        if (focused) {
+            bool windowfocused = startOptions.GetWindowFocused();
+            abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_FOCUSED, windowfocused);
+        }
     } else {
         abilityRequest.want.RemoveParam(Want::PARAM_RESV_WINDOW_FOCUSED);
     }
