@@ -860,6 +860,29 @@ HWTEST_F(AmsMgrSchedulerTest, GetApplicationInfoByProcessID_001, TestSize.Level0
     EXPECT_NE(res2, ERR_INVALID_OPERATION);
 }
 
+/*
+ * Feature: AmsMgrScheduler
+ * Function: NotifyAppMgrRecordExitReason
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler NotifyAppMgrRecordExitReason
+ * EnvConditions: NA
+ * CaseDescription: Verify NotifyAppMgrRecordExitReason
+ */
+HWTEST_F(AmsMgrSchedulerTest, NotifyAppMgrRecordExitReason_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    int32_t pid = 0;
+    int32_t reason = 1;
+    std::string exitMsg = "JsError";
+    int res1 = amsMgrScheduler->NotifyAppMgrRecordExitReason(pid, reason, exitMsg);
+    EXPECT_EQ(res1, ERR_INVALID_OPERATION);
+
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsTaskHandler();
+    int res2 = amsMgrScheduler->NotifyAppMgrRecordExitReason(pid, reason, exitMsg);
+    EXPECT_NE(res2, ERR_INVALID_OPERATION);
+}
+
 /**
  * @tc.name: SetCurrentUserId_001
  * @tc.desc: set current userId.

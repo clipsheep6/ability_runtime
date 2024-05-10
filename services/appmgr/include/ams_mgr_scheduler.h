@@ -164,6 +164,8 @@ public:
     virtual int KillApplicationSelf() override;
 
     int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug) override;
+    
+    virtual int32_t NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg) override;
 
     virtual void AbilityAttachTimeOut(const sptr<IRemoteObject> &token) override;
 

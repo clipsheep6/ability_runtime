@@ -1609,13 +1609,16 @@ int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid, const std::string&
         return AAFwk::ERR_KILL_PROCESS_NOT_EXIST;
     }
     std::string killReason = KILL_PROCESS_REASON_PREFIX + reason;
+    auto appRecord = GetAppRunningRecordByPid(pid);
+    if (appRecord) {
+        appRecord->SetExitMsg(killReason);
+    }
     int32_t ret = -1;
     if (pid > 0) {
         TAG_LOGI(AAFwkTag::APPMGR, "kill pid %{public}d", pid);
         ret = kill(pid, SIGNAL_KILL);
     }
     AAFwk::EventInfo eventInfo;
-    auto appRecord = GetAppRunningRecordByPid(pid);
     if (!appRecord) {
         return ret;
     }
@@ -4005,6 +4008,25 @@ int AppMgrServiceInner::GetApplicationInfoByProcessID(const int pid, AppExecFwk:
     }
     application = *info;
     debug = appRecord->IsDebugApp();
+    return ERR_OK;
+}
+
+int32_t AppMgrServiceInner::NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "NotifyAppMgrRecordExitReason pid:%{public}d, reason:%{public}d, exitMsg:%{public}s.",
+        pid, reason, exitMsg.c_str());
+    auto callerUid = IPCSkeleton::GetCallingUid();
+    if (callerUid != FOUNDATION_UID) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not foundation call.");
+        return ERR_PERMISSION_DENIED;
+    }
+    auto appRecord = GetAppRunningRecordByPid(pid);
+    if (!appRecord) {
+        TAG_LOGE(AAFwkTag::APPMGR, "no such appRecord for pid:%{public}d", pid);
+        return ERR_NAME_NOT_FOUND;
+    }
+    appRecord->SetExitReason(reason);
+    appRecord->SetExitMsg(exitMsg);
     return ERR_OK;
 }
 

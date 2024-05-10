@@ -2087,6 +2087,26 @@ bool AppRunningRecord::isNativeStart() const
     return isNativeStart_;
 }
 
+void AppRunningRecord::SetExitReason(int32_t reason)
+{
+    exitReason_ = reason;
+}
+
+int32_t AppRunningRecord::GetExitReason() const
+{
+    return exitReason_;
+}
+
+void AppRunningRecord::SetExitMsg(const std::string &exitMsg)
+{
+    exitMsg_ = exitMsg;
+}
+
+std::string AppRunningRecord::GetExitMsg() const
+{
+    return exitMsg_;
+}
+
 int AppRunningRecord::DumpIpcStart(std::string& result)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");

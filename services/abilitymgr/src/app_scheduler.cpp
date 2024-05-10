@@ -458,6 +458,17 @@ int AppScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::Appli
     return ERR_OK;
 }
 
+int32_t AppScheduler::NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg)
+{
+    CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
+    auto ret = static_cast<int32_t>(IN_PROCESS_CALL(appMgrClient_->NotifyAppMgrRecordExitReason(pid, reason, exitMsg)));
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyAppMgrRecordExitReason failed.");
+        return ret;
+    }
+    return ERR_OK;
+}
+
 #ifdef ABILITY_COMMAND_FOR_TEST
 int AppScheduler::BlockAppService()
 {

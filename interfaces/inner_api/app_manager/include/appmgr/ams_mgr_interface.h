@@ -183,6 +183,15 @@ public:
     virtual void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo) = 0;
 
     virtual int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug) = 0;
+    
+    /**
+     * Record process exit reason to appRunningRecord
+     * @param pid pid
+     * @param reason reason enum
+     * @param exitMsg exitMsg
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg) = 0;
 
     /**
      * Set the current userId of appMgr.
@@ -350,6 +359,7 @@ public:
         ATTACH_PID_TO_PARENT,
         IS_MEMORY_SIZE_SUFFICIENT,
         SET_KEEP_ALIVE_ENABLE_STATE,
+        NOTIFY_APP_MGR_RECORD_EXIT_REASON,
     };
 };
 }  // namespace AppExecFwk

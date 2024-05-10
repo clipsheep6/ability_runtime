@@ -695,6 +695,37 @@ int AmsMgrProxy::GetApplicationInfoByProcessID(const int pid, AppExecFwk::Applic
     return NO_ERROR;
 }
 
+int32_t AmsMgrProxy::NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "NotifyAppMgrRecordExitReason called.");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "token write error.");
+        return IPC_PROXY_ERR;
+    }
+    if (!data.WriteInt32(pid)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write pid failed.");
+        return IPC_PROXY_ERR;
+    }
+    if (!data.WriteInt32(reason)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write reason failed.");
+        return IPC_PROXY_ERR;
+    }
+    if (!data.WriteString16(Str8ToStr16(exitMsg))) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write exitMsg failed.");
+        return IPC_PROXY_ERR;
+    }
+    int32_t ret = SendTransactCmd(
+        static_cast<uint32_t>(IAmsMgr::Message::NOTIFY_APP_MGR_RECORD_EXIT_REASON), data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::APPMGR, "NotifyAppMgrRecordExitReason send request fail.");
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
 void AmsMgrProxy::SetCurrentUserId(const int32_t userId)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "start");

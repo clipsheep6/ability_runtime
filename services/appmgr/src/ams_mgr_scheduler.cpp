@@ -406,6 +406,14 @@ int AmsMgrScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::Ap
     return amsMgrServiceInner_->GetApplicationInfoByProcessID(pid, application, debug);
 }
 
+int32_t AmsMgrScheduler::NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return amsMgrServiceInner_->NotifyAppMgrRecordExitReason(pid, reason, exitMsg);
+}
+
 void AmsMgrScheduler::SetCurrentUserId(const int32_t userId)
 {
     if (!IsReady()) {

@@ -2907,6 +2907,26 @@ HWTEST_F(AppMgrServiceInnerTest, GetApplicationInfoByProcessID_001, TestSize.Lev
 }
 
 /**
+ * @tc.name: NotifyAppMgrRecordExitReason_001
+ * @tc.desc: NotifyAppMgrRecordExitReason.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, NotifyAppMgrRecordExitReason_001, TestSize.Level0)
+{
+    TAG_LOGI(AAFwkTag::TEST, "NotifyAppMgrRecordExitReason_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    int32_t reason = 0;
+    int32_t pid = 1;
+    std::string exitMsg = "JsError";
+    auto ret = appMgrServiceInner->NotifyAppMgrRecordExitReason(reason, pid, exitMsg);
+    EXPECT_NE(ret, ERR_OK);
+    TAG_LOGI(AAFwkTag::TEST, "NotifyAppMgrRecordExitReason_001 end");
+}
+
+/**
  * @tc.name: VerifyProcessPermission_001
  * @tc.desc: verify process permission.
  * @tc.type: FUNC

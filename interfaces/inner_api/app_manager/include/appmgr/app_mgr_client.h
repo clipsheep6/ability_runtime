@@ -729,6 +729,15 @@ public:
     bool IsMemorySizeSufficent() const;
 
     /**
+     * Record process exit reason to appRunningRecord
+     * @param pid pid
+     * @param reason reason enum
+     * @param exitMsg exitMsg
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg);
+
+    /**
      * Preload application.
      *
      * @param bundleName The bundle name of the application to preload.

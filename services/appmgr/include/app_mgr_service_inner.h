@@ -707,6 +707,9 @@ public:
     void TerminateApplication(const std::shared_ptr<AppRunningRecord> &appRecord);
 
     int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug);
+
+    int32_t NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg);
+
     /**
      * Notify application status.
      *

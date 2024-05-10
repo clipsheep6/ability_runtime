@@ -761,6 +761,12 @@ public:
     int DumpIpcStop(std::string& result);
     int DumpIpcStat(std::string& result);
 
+    void SetExitReason(int32_t reason);
+    int32_t GetExitReason() const;
+
+    void SetExitMsg(const std::string &exitMsg);
+    std::string GetExitMsg() const;
+
     bool SetSupportedProcessCache(bool isSupport);
     SupportProcessCacheState GetSupportProcessCacheState();
 private:
@@ -876,6 +882,8 @@ private:
     int64_t restartTimeMillis_ = 0; // The time of last trying app restart
     bool jitEnabled_ = false;
     PreloadState preloadState_ = PreloadState::NONE;
+    int32_t exitReason_ = 0;
+    std::string exitMsg_ = "";
 
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
 
