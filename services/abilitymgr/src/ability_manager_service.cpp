@@ -425,12 +425,7 @@ bool AbilityManagerService::Init()
 
 void AbilityManagerService::InitDeepLinkReserve()
 {
-    deepLinkReserveConfig_ = DelayedSingleton<DeepLinkReserveConfig>::GetInstance();
-    if (deepLinkReserveConfig_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get DeepLinkReserveConfig instance is nullptr.");
-        return;
-    }
-    if (!deepLinkReserveConfig_->LoadConfiguration()) {
+    if (!DeepLinkReserveConfig::GetInstance().LoadConfiguration()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "InitDeepLinkReserve failed.");
     }
 }
@@ -885,7 +880,7 @@ void AbilityManagerService::SetReserveInfo(const std::string &linkString)
     }
 
     std::string reservedBundleName = "";
-    if (deepLinkReserveConfig_->isLinkReserved(linkString, reservedBundleName)) {
+    if (DeepLinkReserveConfig::GetInstance().isLinkReserved(linkString, reservedBundleName)) {
         implicitStartProcessor_->SetUriReservedFlag(true);
         implicitStartProcessor_->SetUriReservedBundle(reservedBundleName);
     } else {

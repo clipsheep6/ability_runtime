@@ -44,7 +44,7 @@
 #include "bundle_constants.h"
 #include "bundle_mgr_helper.h"
 #include "data_ability_manager.h"
-#include "deeplink_reserve/deeplink_reserve.h"
+#include "deeplink_reserve/deeplink_reserve_config.h"
 #include "event_report.h"
 #include "free_install_manager.h"
 #include "hilog_wrapper.h"
@@ -2232,7 +2232,6 @@ private:
 #endif
     std::shared_ptr<AbilityInterceptorExecuter> interceptorExecuter_;
     std::shared_ptr<AbilityInterceptorExecuter> afterCheckExecuter_;
-    std::shared_ptr<DeepLinkReserveConfig> deepLinkReserveConfig_;
 
     std::unordered_map<int32_t, int64_t> appRecoveryHistory_; // uid:time
     bool isPrepareTerminateEnable_ = false;
