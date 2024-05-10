@@ -1170,6 +1170,7 @@ bool IsNeedLoadLibrary(const std::string &bundleName)
     std::vector<std::string> needLoadLibraryBundleNames{
         "com.ohos.contactsdataability",
         "com.ohos.medialibrary.medialibrarydata",
+        "com.ohos.ringtonelibrary.ringtonelibrarydata",
         "com.ohos.telephonydataability",
         "com.ohos.FusionSearch",
         "com.ohos.formrenderservice"
