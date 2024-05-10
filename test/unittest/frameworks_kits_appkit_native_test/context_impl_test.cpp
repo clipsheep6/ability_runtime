@@ -425,7 +425,7 @@ HWTEST_F(ContextImplTest, GetCloudFileDir_0100, TestSize.Level1)
     EXPECT_NE(contextImpl, nullptr);
 
     auto cloudDir = contextImpl->GetCloudFileDir();
-    EXPECT_EQ(cloudDir, "/data/service/el2/0/hmdfs/cloud/data/");
+    EXPECT_EQ(cloudDir, "/data/storage/el2/cloud");
 
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
