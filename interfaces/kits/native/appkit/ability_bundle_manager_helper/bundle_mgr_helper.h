@@ -95,6 +95,7 @@ public:
         AbilityInfo &abilityInfo, int32_t userId);
     ErrCode GetCloneBundleInfo(const std::string &bundleName, int32_t flags, int32_t appTwinIndex,
         BundleInfo &bundleInfo, int32_t userId);
+    ErrCode QueryAbilityInfos(const Want &want, int32_t flags, int32_t userId, std::vector<AbilityInfo> &abilityInfos);
 
 private:
     sptr<IBundleMgr> Connect();

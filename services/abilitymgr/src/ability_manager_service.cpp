@@ -929,8 +929,14 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
 
-    StartAbilityInfoWrap threadLocalInfo(want, validUserId,
-        StartAbilityUtils::GetAppIndex(want, callerToken));
+    StartAbilityParam param{requestCode, callerToken, specifyTokenId, isStartAsCaller, false,
+        StartAbilityUtils::GetAppIndex(want, callerToken), validUserId};
+    StartAbilityInfoWrap threadLocalInfo(want, param);
+    if (StartAbilityUtils::startAbilityInfo != nullptr && !StartAbilityUtils::startAbilityInfo->isContinue) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR,
+            "An error occurred while initiating the app clone process through the app selector.");
+        return StartAbilityUtils::startAbilityInfo->status;
+    }
     AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, requestCode, GetUserId(),
         true, nullptr);
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -955,10 +961,10 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
         abilityRequest.Voluation(want, requestCode, callerToken);
         if (specifyTokenId > 0 && callerToken != nullptr) { // for sa specify tokenId and caller token
-            UpdateCallerInfoFromToken(abilityRequest.want, callerToken);
+            StartAbilityUtils::UpdateCallerInfoFromToken(abilityRequest.want, callerToken);
         } else if (!isStartAsCaller) {
             TAG_LOGD(AAFwkTag::ABILITYMGR, "do not start as caller, UpdateCallerInfo");
-            UpdateCallerInfo(abilityRequest.want, callerToken);
+            StartAbilityUtils::UpdateCallerInfo(abilityRequest.want, callerToken);
         }
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
         SetReserveInfo(want.GetUriString());
@@ -984,10 +990,10 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             localWant.SetDeviceId("");
         }
         if (specifyTokenId > 0 && callerToken != nullptr) { // for sa specify tokenId and caller token
-            UpdateCallerInfoFromToken(localWant, callerToken);
+            StartAbilityUtils::UpdateCallerInfoFromToken(localWant, callerToken);
         } else if (!isStartAsCaller) {
             TAG_LOGD(AAFwkTag::ABILITYMGR, "do not start as caller, UpdateCallerInfo");
-            UpdateCallerInfo(localWant, callerToken);
+            StartAbilityUtils::UpdateCallerInfo(localWant, callerToken);
         }
 
         if (isStartFreeInstallByWant) {
@@ -1005,10 +1011,10 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
 
     if (specifyTokenId > 0 && callerToken != nullptr) { // for sa specify tokenId and caller token
-        UpdateCallerInfoFromToken(abilityRequest.want, callerToken);
+        StartAbilityUtils::UpdateCallerInfoFromToken(abilityRequest.want, callerToken);
     } else if (!isStartAsCaller) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "do not start as caller, UpdateCallerInfo");
-        UpdateCallerInfo(abilityRequest.want, callerToken);
+        StartAbilityUtils::UpdateCallerInfo(abilityRequest.want, callerToken);
     } else if (callerBundleName == AMS_DIALOG_BUNDLENAME ||
         (isSendDialogResult && want.GetBoolParam("isSelector", false))) {
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
@@ -1225,8 +1231,15 @@ int AbilityManagerService::StartAbilityDetails(const Want &want, const AbilitySt
 
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
-    StartAbilityInfoWrap threadLocalInfo(want, validUserId,
-        StartAbilityUtils::GetAppIndex(want, callerToken));
+    StartAbilityParam param{requestCode, callerToken, 0, false, false,
+        StartAbilityUtils::GetAppIndex(want, callerToken), validUserId,
+        std::make_shared<AbilityStartSetting>(abilityStartSetting)};
+    StartAbilityInfoWrap threadLocalInfo(want, param);
+    if (StartAbilityUtils::startAbilityInfo != nullptr && !StartAbilityUtils::startAbilityInfo->isContinue) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR,
+            "An error occurred while initiating the app clone process through the app selector.");
+        return StartAbilityUtils::startAbilityInfo->status;
+    }
     AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, requestCode, GetUserId(),
         true, nullptr);
     result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -1245,7 +1258,7 @@ int AbilityManagerService::StartAbilityDetails(const Want &want, const AbilitySt
         }
         (const_cast<Want &>(want)).RemoveParam("send_to_erms_embedded");
         Want localWant = want;
-        UpdateCallerInfo(localWant, callerToken);
+        StartAbilityUtils::UpdateCallerInfo(localWant, callerToken);
         return freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, true);
     }
 
@@ -1346,7 +1359,7 @@ int AbilityManagerService::StartAbilityDetails(const Want &want, const AbilitySt
         return ERR_WOULD_BLOCK;
     }
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        UpdateCallerInfo(abilityRequest.want, callerToken);
+        StartAbilityUtils::UpdateCallerInfo(abilityRequest.want, callerToken);
         abilityRequest.userId = oriValidUserId;
         abilityRequest.want.SetParam(IS_CALL_BY_SCB, false);
         auto uiAbilityManager = GetUIAbilityManagerByUserId(oriValidUserId);
@@ -1360,7 +1373,7 @@ int AbilityManagerService::StartAbilityDetails(const Want &want, const AbilitySt
         SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
-    UpdateCallerInfo(abilityRequest.want, callerToken);
+    StartAbilityUtils::UpdateCallerInfo(abilityRequest.want, callerToken);
     auto ret = missionListManager->StartAbility(abilityRequest);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
@@ -1505,8 +1518,15 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
 
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
-    StartAbilityInfoWrap threadLocalInfo(want, validUserId,
-        StartAbilityUtils::GetAppIndex(want, callerToken));
+    StartAbilityParam param{requestCode, callerToken, 0, isStartAsCaller, false,
+        StartAbilityUtils::GetAppIndex(want, callerToken), validUserId, nullptr,
+        std::make_shared<StartOptions>(startOptions)};
+    StartAbilityInfoWrap threadLocalInfo(want, param);
+    if (StartAbilityUtils::startAbilityInfo != nullptr && !StartAbilityUtils::startAbilityInfo->isContinue) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR,
+            "An error occurred while initiating the app clone process through the app selector.");
+        return StartAbilityUtils::startAbilityInfo->status;
+    }
     AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, requestCode, GetUserId(),
         true, nullptr);
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -1527,7 +1547,7 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         Want localWant = want;
         if (!isStartAsCaller) {
             TAG_LOGD(AAFwkTag::ABILITYMGR, "do not start as caller, UpdateCallerInfo");
-            UpdateCallerInfo(localWant, callerToken);
+            StartAbilityUtils::UpdateCallerInfo(localWant, callerToken);
         }
         return freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, true);
     }
@@ -1548,39 +1568,13 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         } else {
             abilityRequest.want.RemoveParam(Want::PARAM_RESV_WINDOW_FOCUSED);
         }
-        if (startOptions.GetDisplayID() == 0) {
-            abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID,
-                static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId()));
-        } else {
-            abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
-        }
-        if (AppUtils::GetInstance().IsStartOptionsWithAnimation()) {
-            if (startOptions.windowLeftUsed_) {
-                abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_LEFT, startOptions.GetWindowLeft());
-            }
-            if (startOptions.windowTopUsed_) {
-                abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_TOP, startOptions.GetWindowTop());
-            }
-            if (startOptions.windowWidthUsed_) {
-                abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_HEIGHT, startOptions.GetWindowWidth());
-            }
-            if (startOptions.windowHeightUsed_) {
-                abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_WIDTH, startOptions.GetWindowHeight());
-            }
-            bool withAnimation = startOptions.GetWithAnimation();
-            auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-            if (!withAnimation && abilityRecord != nullptr &&
-                abilityRecord->GetAbilityInfo().bundleName == abilityRequest.want.GetBundle()) {
-                abilityRequest.want.SetParam(Want::PARAM_RESV_WITH_ANIMATION, withAnimation);
-            }
-        }
-        abilityRequest.callType = AbilityCallType::START_OPTIONS_TYPE;
+        StartAbilityUtils::EnableStartOptions(startOptions, abilityRequest, callerToken);
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
         if (specifyTokenId > 0 && callerToken) { // for sa specify tokenId and caller token
-            UpdateCallerInfoFromToken(abilityRequest.want, callerToken);
+            StartAbilityUtils::UpdateCallerInfoFromToken(abilityRequest.want, callerToken);
         } else if (!isStartAsCaller) {
             TAG_LOGD(AAFwkTag::ABILITYMGR, "do not start as caller, UpdateCallerInfo");
-            UpdateCallerInfo(abilityRequest.want, callerToken);
+            StartAbilityUtils::UpdateCallerInfo(abilityRequest.want, callerToken);
         }
         result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId,
             startOptions.GetWindowMode());
@@ -1605,7 +1599,7 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
 
     if (!isStartAsCaller) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "do not start as caller, UpdateCallerInfo");
-        UpdateCallerInfo(abilityRequest.want, callerToken);
+        StartAbilityUtils::UpdateCallerInfo(abilityRequest.want, callerToken);
     }
     auto abilityInfo = abilityRequest.abilityInfo;
     validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : validUserId;
@@ -1657,35 +1651,7 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         return ERR_AAFWK_INVALID_WINDOW_MODE;
     }
 #endif
-    if (startOptions.GetDisplayID() == 0) {
-        abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID,
-            static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId()));
-    } else {
-        abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
-    }
-    AbilityUtil::ProcessWindowMode(abilityRequest.want, abilityInfo.applicationInfo.accessTokenId,
-        startOptions.GetWindowMode());
-    if (AppUtils::GetInstance().IsStartOptionsWithAnimation()) {
-        if (startOptions.windowLeftUsed_) {
-            abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_LEFT, startOptions.GetWindowLeft());
-        }
-        if (startOptions.windowTopUsed_) {
-            abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_TOP, startOptions.GetWindowTop());
-        }
-        if (startOptions.windowHeightUsed_) {
-            abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_HEIGHT, startOptions.GetWindowHeight());
-        }
-        if (startOptions.windowWidthUsed_) {
-            abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_WIDTH, startOptions.GetWindowWidth());
-        }
-        bool withAnimation = startOptions.GetWithAnimation();
-        auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-        if (!withAnimation && abilityRecord != nullptr &&
-            abilityRecord->GetAbilityInfo().bundleName == abilityRequest.want.GetBundle()) {
-            abilityRequest.want.SetParam(Want::PARAM_RESV_WITH_ANIMATION, withAnimation);
-        }
-    }
-
+    StartAbilityUtils::EnableStartOptions(startOptions, abilityRequest, callerToken);
     if (PermissionVerification::GetInstance()->IsSystemAppCall()) {
         bool windowFocused = startOptions.GetWindowFocused();
         abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_FOCUSED, windowFocused);
@@ -1826,7 +1792,7 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Generate ability request local error when RequestDialogService.");
         return result;
     }
-    UpdateCallerInfo(abilityRequest.want, callerToken);
+    StartAbilityUtils::UpdateCallerInfo(abilityRequest.want, callerToken);
 
     auto abilityInfo = abilityRequest.abilityInfo;
     validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : validUserId;
@@ -2181,7 +2147,7 @@ int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityReq
         }
     }
 
-    UpdateCallerInfo(abilityRequest.want, abilityRequest.callerToken);
+    StartAbilityUtils::UpdateCallerInfo(abilityRequest.want, abilityRequest.callerToken);
     return ERR_OK;
 }
 
@@ -2619,7 +2585,7 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
         EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
-    UpdateCallerInfo(abilityRequest.want, callerToken);
+    StartAbilityUtils::UpdateCallerInfo(abilityRequest.want, callerToken);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Start extension begin, name is %{public}s.", abilityInfo.name.c_str());
     eventInfo.errCode = connectManager->StartAbility(abilityRequest);
     if (eventInfo.errCode != ERR_OK) {
@@ -2839,7 +2805,7 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
 
     sptr<IRemoteObject> parentToken = extensionSessionInfo->parentToken;
     if (parentToken && parentToken != callerToken) {
-        UpdateCallerInfoFromToken(abilityRequest.want, parentToken);
+        StartAbilityUtils::UpdateCallerInfoFromToken(abilityRequest.want, parentToken);
     }
 
     result = JudgeAbilityVisibleControl(abilityInfo);
@@ -3557,7 +3523,7 @@ int AbilityManagerService::ConnectAbilityCommon(
         }
         return eventInfo.errCode;
     }
-    UpdateCallerInfo(abilityWant, callerToken);
+    StartAbilityUtils::UpdateCallerInfo(abilityWant, callerToken);
 
     if (callerToken != nullptr && callerToken->GetObjectDescriptor() != u"ohos.aafwk.AbilityToken") {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "invalid Token.");
@@ -3644,7 +3610,7 @@ int AbilityManagerService::ConnectUIExtensionAbility(const Want &want, const spt
         abilityWant.SetElementName(extensionInfo.bundleName, extensionInfo.name);
     }
 
-    UpdateCallerInfo(abilityWant, callerToken);
+    StartAbilityUtils::UpdateCallerInfo(abilityWant, callerToken);
 
     if (callerToken != nullptr && callerToken->GetObjectDescriptor() != u"ohos.aafwk.AbilityToken") {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s invalid Token.", __func__);
@@ -4659,7 +4625,7 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     CHECK_POINTER_AND_RETURN(dataAbilityManager, nullptr);
     ReportEventToSuspendManager(abilityRequest.abilityInfo);
     bool isNotHap = isSaCall || isShellCall;
-    UpdateCallerInfo(abilityRequest.want, callerToken);
+    StartAbilityUtils::UpdateCallerInfo(abilityRequest.want, callerToken);
     return dataAbilityManager->Acquire(abilityRequest, tryBind, callerToken, isNotHap);
 }
 
@@ -5634,7 +5600,7 @@ int AbilityManagerService::GenerateAbilityRequest(
     auto abilityInfo = StartAbilityUtils::startAbilityInfo;
     if (abilityInfo == nullptr || abilityInfo->GetAppBundleName() != want.GetElement().GetBundleName()) {
         abilityInfo = StartAbilityInfo::CreateStartAbilityInfo(want, userId,
-            AbilityRuntime::StartupUtil::GetAppTwinIndex(want));
+            AbilityRuntime::StartupUtil::GetAppTwinIndex(want, -1));
     }
     CHECK_POINTER_AND_RETURN(abilityInfo, GET_ABILITY_SERVICE_FAILED);
     if (abilityInfo->status != ERR_OK) {
@@ -5700,7 +5666,7 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
     auto abilityInfo = StartAbilityUtils::startAbilityInfo;
     if (abilityInfo == nullptr || abilityInfo->GetAppBundleName() != want.GetElement().GetBundleName()) {
         abilityInfo = StartAbilityInfo::CreateStartExtensionInfo(want, userId,
-            AbilityRuntime::StartupUtil::GetAppTwinIndex(want));
+            AbilityRuntime::StartupUtil::GetAppTwinIndex(want, -1));
     }
     CHECK_POINTER_AND_RETURN(abilityInfo, GET_ABILITY_SERVICE_FAILED);
     if (abilityInfo->status != ERR_OK) {
@@ -5988,7 +5954,7 @@ void AbilityManagerService::PreLoadAppDataAbilitiesTask(const std::string &bundl
 
     auto begin = system_clock::now();
     AbilityRequest dataAbilityRequest;
-    UpdateCallerInfo(dataAbilityRequest.want, nullptr);
+    StartAbilityUtils::UpdateCallerInfo(dataAbilityRequest.want, nullptr);
     dataAbilityRequest.appInfo = bundleInfo.applicationInfo;
     for (auto it = bundleInfo.abilityInfos.begin(); it != bundleInfo.abilityInfos.end(); ++it) {
         if (it->type != AppExecFwk::AbilityType::DATA) {
@@ -6612,8 +6578,9 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
     }
 
     AbilityUtil::RemoveWantKey(const_cast<Want &>(want));
-    StartAbilityInfoWrap threadLocalInfo(want, GetUserId(),
-        StartAbilityUtils::GetAppIndex(want, callerToken));
+    auto appIndex = StartAbilityUtils::GetAppIndex(want, callerToken);
+    appIndex = appIndex < 0 ? 0 : appIndex;
+    StartAbilityInfoWrap threadLocalInfo(want, GetUserId(), appIndex);
     AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, 0, GetUserId(), true, nullptr);
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
         interceptorExecuter_->DoProcess(interceptorParam);
@@ -6659,7 +6626,7 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
 
     TAG_LOGD(AAFwkTag::ABILITYMGR, "abilityInfo.applicationInfo.singleton is %{public}s",
         abilityRequest.abilityInfo.applicationInfo.singleton ? "true" : "false");
-    UpdateCallerInfo(abilityRequest.want, callerToken);
+    StartAbilityUtils::UpdateCallerInfo(abilityRequest.want, callerToken);
     AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(abilityRequest.want, 0, GetUserId(),
         false, callerToken, std::make_shared<AppExecFwk::AbilityInfo>(abilityRequest.abilityInfo));
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -6691,7 +6658,7 @@ int AbilityManagerService::StartAbilityJust(AbilityRequest &abilityRequest, int3
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
-    UpdateCallerInfo(abilityRequest.want, abilityRequest.callerToken);
+    StartAbilityUtils::UpdateCallerInfo(abilityRequest.want, abilityRequest.callerToken);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         ReportEventToSuspendManager(abilityRequest.abilityInfo);
         auto uiAbilityManager = GetUIAbilityManagerByUserId(validUserId);
@@ -7618,40 +7585,6 @@ int AbilityManagerService::DelegatorMoveMissionToFront(int32_t missionId)
     return missionListManager->MoveMissionToFront(missionId);
 }
 
-void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    int32_t tokenId = static_cast<int32_t>(IPCSkeleton::GetCallingTokenID());
-    int32_t callerUid = IPCSkeleton::GetCallingUid();
-    int32_t callerPid = IPCSkeleton::GetCallingRealPid();
-    want.RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
-    want.SetParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId);
-    want.RemoveParam(Want::PARAM_RESV_CALLER_UID);
-    want.SetParam(Want::PARAM_RESV_CALLER_UID, callerUid);
-    want.RemoveParam(Want::PARAM_RESV_CALLER_PID);
-    want.SetParam(Want::PARAM_RESV_CALLER_PID, callerPid);
-
-    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-    if (!abilityRecord) {
-        std::string bundleName = "";
-        auto bundleMgr = GetBundleManager();
-        if (bundleMgr != nullptr) {
-            IN_PROCESS_CALL(bundleMgr->GetNameForUid(callerUid, bundleName));
-        }
-        want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
-        want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, bundleName);
-        want.RemoveParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
-        want.SetParam(Want::PARAM_RESV_CALLER_ABILITY_NAME, std::string(""));
-    } else {
-        std::string callerBundleName = abilityRecord->GetAbilityInfo().bundleName;
-        want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
-        want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerBundleName);
-        std::string callerAbilityName = abilityRecord->GetAbilityInfo().name;
-        want.RemoveParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
-        want.SetParam(Want::PARAM_RESV_CALLER_ABILITY_NAME, callerAbilityName);
-    }
-}
-
 void AbilityManagerService::UpdateAsCallerSourceInfo(Want& want, sptr<IRemoteObject> asCallerSourceToken)
 {
     AppExecFwk::RunningProcessInfo processInfo = {};
@@ -7670,32 +7603,6 @@ void AbilityManagerService::UpdateAsCallerSourceInfo(Want& want, sptr<IRemoteObj
     want.SetParam(Want::PARAM_RESV_CALLER_UID, processInfo.uid_);
     want.RemoveParam(Want::PARAM_RESV_CALLER_PID);
     want.SetParam(Want::PARAM_RESV_CALLER_PID, processInfo.pid_);
-
-    std::string callerBundleName = abilityRecord->GetAbilityInfo().bundleName;
-    want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
-    want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerBundleName);
-    std::string callerAbilityName = abilityRecord->GetAbilityInfo().name;
-    want.RemoveParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
-    want.SetParam(Want::PARAM_RESV_CALLER_ABILITY_NAME, callerAbilityName);
-}
-
-void AbilityManagerService::UpdateCallerInfoFromToken(Want& want, const sptr<IRemoteObject> &token)
-{
-    auto abilityRecord = Token::GetAbilityRecordByToken(token);
-    if (!abilityRecord) {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "caller abilityRecord is null.");
-        return;
-    }
-
-    int32_t tokenId = abilityRecord->GetApplicationInfo().accessTokenId;
-    int32_t callerUid = abilityRecord->GetUid();
-    int32_t callerPid = abilityRecord->GetPid();
-    want.RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
-    want.SetParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId);
-    want.RemoveParam(Want::PARAM_RESV_CALLER_UID);
-    want.SetParam(Want::PARAM_RESV_CALLER_UID, callerUid);
-    want.RemoveParam(Want::PARAM_RESV_CALLER_PID);
-    want.SetParam(Want::PARAM_RESV_CALLER_PID, callerPid);
 
     std::string callerBundleName = abilityRecord->GetAbilityInfo().bundleName;
     want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
@@ -9687,7 +9594,7 @@ int32_t AbilityManagerService::StartAbilityByCallWithInsightIntent(const Want &w
     auto missionListMgr = GetMissionListManagerByUserId(oriValidUserId);
     if (IsAbilityStarted(abilityRequest, targetRecord, oriValidUserId)) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "ability has already started");
-        UpdateCallerInfo(abilityRequest.want, callerToken);
+        StartAbilityUtils::UpdateCallerInfo(abilityRequest.want, callerToken);
         result = OnExecuteIntent(abilityRequest, targetRecord);
     }  else {
         result = StartAbilityByCall(want, connect, callerToken);

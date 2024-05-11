@@ -133,7 +133,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         }
         if (request.want.GetBoolParam("isCreateAppGallerySelector", false)) {
             request.want.RemoveParam("isCreateAppGallerySelector");
-            NotifyCreateModalDialog(request, request.want, userId, dialogAppInfos);
+            NotifyCreateModalDialog(request, userId, dialogAppInfos);
             return ERR_IMPLICIT_START_ABILITY_FAIL;
         }
         TAG_LOGE(AAFwkTag::ABILITYMGR, "implicit query ability infos failed, show tips dialog.");
@@ -150,7 +150,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         }
         if (request.want.GetBoolParam("isCreateAppGallerySelector", false)) {
             request.want.RemoveParam("isCreateAppGallerySelector");
-            NotifyCreateModalDialog(request, request.want, userId, dialogAppInfos);
+            NotifyCreateModalDialog(request, userId, dialogAppInfos);
             return ERR_IMPLICIT_START_ABILITY_FAIL;
         }
         std::vector<DialogAppInfo> dialogAllAppInfos;
@@ -191,42 +191,54 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         return IN_PROCESS_CALL(startAbilityTask(info.bundleName, info.abilityName));
     }
 
+    return ImplicitStartAbility(dialogAppInfos, request, userId, identity);
+}
+
+int32_t ImplicitStartProcessor::ImplicitStartAbility(std::vector<DialogAppInfo> &dialogAppInfos,
+    AbilityRequest &request, int32_t userId, std::string &identity)
+{
+    auto sysDialogScheduler = DelayedSingleton<SystemDialogScheduler>::GetInstance();
+    CHECK_POINTER_AND_RETURN(sysDialogScheduler, ERR_INVALID_VALUE);
+
+    auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
+    int32_t startupRet = ERR_OK;
+
     if (AppUtils::GetInstance().IsSelectorDialogDefaultPossion()) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "ImplicitQueryInfos success, Multiple apps to choose.");
-        ret = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want, request.callerToken);
-        if (ret != ERR_OK) {
+        startupRet = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want, request.callerToken);
+        if (startupRet != ERR_OK) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "GetSelectorDialogWant failed.");
-            return ret;
+            return startupRet;
         }
         if (request.want.GetBoolParam("isCreateAppGallerySelector", false)) {
             request.want.RemoveParam("isCreateAppGallerySelector");
-            return NotifyCreateModalDialog(request, request.want, userId, dialogAppInfos);
+            return NotifyCreateModalDialog(request, userId, dialogAppInfos);
         }
-        ret = abilityMgr->ImplicitStartAbilityAsCaller(request.want, request.callerToken, nullptr);
+        startupRet = abilityMgr->StartAbilityAsCaller(request.want, request.callerToken, nullptr);
         // reset calling indentity
         IPCSkeleton::SetCallingIdentity(identity);
-        return ret;
+        return startupRet;
     }
 
     TAG_LOGI(AAFwkTag::ABILITYMGR, "ImplicitQueryInfos success, Multiple apps to choose in pc.");
     std::string type = MatchTypeAndUri(request.want);
 
-    ret = sysDialogScheduler->GetPcSelectorDialogWant(dialogAppInfos, request.want, type, userId, request.callerToken);
-    if (ret != ERR_OK) {
+    startupRet = sysDialogScheduler->GetPcSelectorDialogWant(dialogAppInfos, request.want, type, userId, request.callerToken);
+    if (startupRet != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "GetPcSelectorDialogWant failed.");
-        return ret;
+        return startupRet;
     }
     if (request.want.GetBoolParam("isCreateAppGallerySelector", false)) {
         request.want.RemoveParam("isCreateAppGallerySelector");
-        return NotifyCreateModalDialog(request, request.want, userId, dialogAppInfos);
+        return NotifyCreateModalDialog(request, userId, dialogAppInfos);
     }
-    ret = abilityMgr->ImplicitStartAbilityAsCaller(request.want, request.callerToken, nullptr);
+    startupRet = abilityMgr->StartAbilityAsCaller(request.want, request.callerToken, nullptr);
     // reset calling indentity
     IPCSkeleton::SetCallingIdentity(identity);
-    return ret;
+    return startupRet;
 }
 
-int ImplicitStartProcessor::NotifyCreateModalDialog(AbilityRequest &abilityRequest, const Want &want, int32_t userId,
+int ImplicitStartProcessor::NotifyCreateModalDialog(AbilityRequest &abilityRequest, int32_t userId,
     std::vector<DialogAppInfo> &dialogAppInfos)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -234,7 +246,7 @@ int ImplicitStartProcessor::NotifyCreateModalDialog(AbilityRequest &abilityReque
     std::string dialogSessionId;
     if (abilityMgr->GenerateDialogSessionRecord(abilityRequest, userId, dialogSessionId, dialogAppInfos, true)) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "create dialog by ui extension");
-        return abilityMgr->CreateModalDialog(want, abilityRequest.callerToken, dialogSessionId);
+        return abilityMgr->CreateModalDialog(abilityRequest.want, abilityRequest.callerToken, dialogSessionId);
     }
     TAG_LOGE(AAFwkTag::ABILITYMGR, "create dialog by ui extension failed");
     return INNER_ERR;
