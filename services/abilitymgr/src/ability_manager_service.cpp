@@ -1021,6 +1021,9 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     TAG_LOGD(AAFwkTag::ABILITYMGR, "userId is : %{public}d, singleton is : %{public}d",
         validUserId, static_cast<int>(abilityInfo.applicationInfo.singleton));
 
+    if ((isSendDialogResult && want.GetBoolParam("isSelector", false))) {
+        isImplicit = true;
+    }
     result = CheckStaticCfgPermission(abilityRequest, isStartAsCaller,
         abilityRequest.want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, 0), false, false, isImplicit);
     if (result != AppExecFwk::Constants::PERMISSION_GRANTED) {
@@ -1383,7 +1386,7 @@ int AbilityManagerService::ImplicitStartAbility(const Want &want, const StartOpt
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Implicit Start ability with startOptions.");
     AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
-    return StartUIAbilityForOptionWrap(want, startOptions, callerToken, userId, requestCode, true);
+    return StartUIAbilityForOptionWrap(want, startOptions, callerToken, userId, requestCode, 0, true);
 }
 
 int AbilityManagerService::StartUIAbilityForOptionWrap(const Want &want, const StartOptions &options,
@@ -2832,7 +2835,7 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
     TAG_LOGD(AAFwkTag::ABILITYMGR, "userId is : %{public}d, singleton is : %{public}d",
         validUserId, static_cast<int>(abilityInfo.applicationInfo.singleton));
 
-    result = CheckOptExtensionAbility(extensionSessionInfo->want, abilityRequest, validUserId, extensionType);
+    result = CheckOptExtensionAbility(extensionSessionInfo->want, abilityRequest, validUserId, extensionType, true);
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "CheckOptExtensionAbility error.");
         eventInfo.errCode = result;
@@ -7752,6 +7755,60 @@ int AbilityManagerService::ForceTimeoutForTest(const std::string &abilityName, c
 }
 #endif
 
+int AbilityManagerService::CheckStaticCfgPermissionForAbility(const AppExecFwk::AbilityInfo &abilityInfo,
+    uint32_t tokenId)
+{
+    if (abilityInfo.permissions.empty() || AccessTokenKit::VerifyAccessToken(tokenId,
+        PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY, false) == ERR_OK) {
+        return AppExecFwk::Constants::PERMISSION_GRANTED;
+    }
+
+    for (auto permission : abilityInfo.permissions) {
+        if (AccessTokenKit::VerifyAccessToken(tokenId, permission, false) !=
+            AppExecFwk::Constants::PERMISSION_GRANTED) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "verify access token fail, Ability permission: %{public}s",
+                permission.c_str());
+            return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
+        }
+    }
+
+    return AppExecFwk::Constants::PERMISSION_GRANTED;
+}
+
+bool AbilityManagerService::CheckOneSkillPermission(const AppExecFwk::Skill &skill, uint32_t tokenId)
+{
+    for (auto permission : skill.permissions) {
+        if (AccessTokenKit::VerifyAccessToken(tokenId, permission, false) !=
+            AppExecFwk::Constants::PERMISSION_GRANTED) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "verify access token fail, Skill permission: %{public}s",
+                permission.c_str());
+            return false;
+        }
+    }
+
+    return true;
+}
+
+int AbilityManagerService::CheckStaticCfgPermissionForSkill(const AppExecFwk::AbilityRequest &abilityRequest,
+    uint32_t tokenId)
+{
+    auto abilityInfo = abilityRequest.abilityInfo;
+    auto resultAbilityPermission = CheckStaticCfgPermissionForAbility(abilityInfo, tokenId);
+    if (resultAbilityPermission != AppExecFwk::Constants::PERMISSION_GRANTED) {
+        return resultAbilityPermission;
+    }
+
+    if (abilityInfo.skills.empty()) {
+        return AppExecFwk::Constants::PERMISSION_GRANTED;
+    }
+    for (auto skill : abilityInfo.skills) {
+        if (skill.Match(abilityRequest.want) && CheckOneSkillPermission(skill, tokenId)) {
+            return AppExecFwk::Constants::PERMISSION_GRANTED;
+        }
+    }
+    return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
+}
+
 int AbilityManagerService::CheckStaticCfgPermission(const AppExecFwk::AbilityRequest &abilityRequest,
     bool isStartAsCaller, uint32_t callerTokenId, bool isData, bool isSaCall, bool isImplicit)
 {
@@ -7804,49 +7861,10 @@ int AbilityManagerService::CheckStaticCfgPermission(const AppExecFwk::AbilityReq
         }
     }
 
-    // verify permission if 'permission' is not empty
     if (!isImplicit) {
-        if (abilityInfo.permissions.empty() || AccessTokenKit::VerifyAccessToken(tokenId,
-            PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY, false) == ERR_OK) {
-            return AppExecFwk::Constants::PERMISSION_GRANTED;
-        }
-    } else {
-        if (abilityInfo.skills.empty()) {
-            return AppExecFwk::Constants::PERMISSION_GRANTED;
-        }
+        return CheckStaticCfgPermissionForAbility(abilityInfo, tokenId);
     }
-
-    if (isImplicit) {
-        auto myskills = abilityInfo.skills;
-        for (auto skill : myskills) {
-            bool isSkillCheckOK = true;
-            if (skill.Match(abilityRequest.want)) {
-                for (auto permission : skill.permissions) {
-                    if (AccessTokenKit::VerifyAccessToken(tokenId, permission, false) !=
-                        AppExecFwk::Constants::PERMISSION_GRANTED) {
-                        TAG_LOGE(AAFwkTag::ABILITYMGR, "verify access token fail, permission: %{public}s",
-                            permission.c_str());
-                        isSkillCheckOK = false;
-                        break;
-                    }
-                }
-                if (isSkillCheckOK) {
-                    return AppExecFwk::Constants::PERMISSION_GRANTED;
-                }
-            }
-        }
-        return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
-    } else {
-        for (auto permission : abilityInfo.permissions) {
-            if (AccessTokenKit::VerifyAccessToken(tokenId, permission, false) !=
-                AppExecFwk::Constants::PERMISSION_GRANTED) {
-                TAG_LOGE(AAFwkTag::ABILITYMGR, "verify access token fail, permission: %{public}s", permission.c_str());
-                return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
-            }
-        }
-    }
-
-    return AppExecFwk::Constants::PERMISSION_GRANTED;
+    return CheckStaticCfgPermissionForSkill(abilityRequest, tokenId);
 }
 
 bool AbilityManagerService::IsNeedTimeoutForTest(const std::string &abilityName, const std::string &state) const
