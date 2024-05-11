@@ -1354,7 +1354,7 @@ bool AppRunningRecord::IsTerminating()
 
 bool AppRunningRecord::IsKeepAliveApp() const
 {
-    return isKeepAliveApp_;
+    return isKeepAliveApp_ && isSingleton_;
 }
 
 void AppRunningRecord::SetKeepAliveEnableState(bool isKeepAliveEnable)
@@ -1370,6 +1370,11 @@ bool AppRunningRecord::IsEmptyKeepAliveApp() const
 void AppRunningRecord::SetEmptyKeepAliveAppState(bool isEmptyKeepAliveApp)
 {
     isEmptyKeepAliveApp_ = isEmptyKeepAliveApp;
+}
+
+void AppRunningRecord::SetSingleton(bool isSingleton)
+{
+    isSingleton_ = isSingleton;
 }
 
 void AppRunningRecord::SetStageModelState(bool isStageBasedModel)

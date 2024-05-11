@@ -543,6 +543,8 @@ public:
 
     void SetKeepAliveEnableState(bool isKeepAliveEnable);
 
+    void SetSingleton(bool isSingleton);
+
     void SetStageModelState(bool isStageBasedModel);
 
     std::list<std::shared_ptr<ModuleRunningRecord>> GetAllModuleRecord() const;
@@ -832,6 +834,7 @@ private:
 
     bool isKeepAliveApp_ = false;  // Only resident processes can be set to true, please choose carefully
     bool isEmptyKeepAliveApp_ = false;  // Only empty resident processes can be set to true, please choose carefully
+    bool isSingleton_ = false;
     bool isStageBasedModel_ = false;
     ApplicationState curState_ = ApplicationState::APP_STATE_CREATE;  // current state of this process
     ApplicationPendingState pendingState_ = ApplicationPendingState::READY;

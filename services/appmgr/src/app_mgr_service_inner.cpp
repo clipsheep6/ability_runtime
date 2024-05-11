@@ -1743,6 +1743,10 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(spt
     }
 
     appRecord->SetProcessAndExtensionType(abilityInfo);
+    bool isKeepAlive = bundleInfo.isKeepAlive && bundleInfo.singleton;
+    appRecord->SetKeepAliveEnableState(isKeepAlive);
+    appRecord->SetEmptyKeepAliveAppState(false);
+    appRecord->SetSingleton(bundleInfo.singleton);
     appRecord->SetTaskHandler(taskHandler_);
     appRecord->SetEventHandler(eventHandler_);
     appRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, want, abilityRecordId);
