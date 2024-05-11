@@ -67,6 +67,7 @@ struct AppSpawnStartMsg {
     std::string ownerId;
     bool atomicServiceFlag = false;
     std::string atomicAccount = "";
+    bool isGPU;
 };
 
 constexpr auto LEN_PID = sizeof(pid_t);

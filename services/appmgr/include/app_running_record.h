@@ -769,6 +769,11 @@ public:
 
     bool SetSupportedProcessCache(bool isSupport);
     SupportProcessCacheState GetSupportProcessCacheState();
+
+    void SetBrowserHost(sptr<IRemoteObject> browser);
+
+    void SetIsGPU(bool gpu);
+    bool GetIsGPU();
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -920,6 +925,8 @@ private:
     bool isNativeStart_ = false;
     bool isMultiThread_ = false;
     SupportProcessCacheState procCacheSupportState_ = SupportProcessCacheState::UNSPECIFIED;
+    sptr<IRemoteObject> browserHost_;
+    bool isGPU_ = false;
 };
 
 }  // namespace AppExecFwk
