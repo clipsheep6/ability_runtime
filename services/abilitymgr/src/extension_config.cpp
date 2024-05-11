@@ -26,11 +26,11 @@ namespace AAFwk {
 namespace {
 constexpr const char* AMS_EXTENSION_CONFIG = "/system/etc/ams_extension_config.json";
 
-const std::string EXTENSION_AUTO_DISCONNECT_TIME_NAME = "ams_extension_config";
-const std::string EXTENSION_TYPE_NAME = "extension_type_name";
-const std::string EXTENSION_AUTO_DISCONNECT_TIME = "auto_disconnect_time";
+constexpr const char* EXTENSION_AUTO_DISCONNECT_TIME_NAME = "ams_extension_config";
+constexpr const char* EXTENSION_TYPE_NAME = "extension_type_name";
+constexpr const char* EXTENSION_AUTO_DISCONNECT_TIME = "auto_disconnect_time";
 
-const int32_t DEFAULT_EXTENSION_AUTO_DISCONNECT_TIME = -1;
+constexpr int32_t DEFAULT_EXTENSION_AUTO_DISCONNECT_TIME = -1;
 }
 
 void ExtensionConfig::LoadExtensionConfiguration()

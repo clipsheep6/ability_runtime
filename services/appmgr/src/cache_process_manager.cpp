@@ -23,8 +23,8 @@
 #include "cache_process_manager.h"
 
 namespace {
-const std::string MAX_PROC_CACHE_NUM = "persist.sys.abilityms.maxProcessCacheNum";
-const std::string PROCESS_CACHE_API_CHECK_CONFIG = "persist.sys.abilityms.processCacheApiCheck";
+constexpr const char* MAX_PROC_CACHE_NUM = "persist.sys.abilityms.maxProcessCacheNum";
+constexpr const char* PROCESS_CACHE_API_CHECK_CONFIG = "persist.sys.abilityms.processCacheApiCheck";
 constexpr int32_t API12 = 12;
 constexpr int32_t API_VERSION_MOD = 100;
 }

@@ -42,38 +42,35 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-constexpr char EVENT_KEY_UID[] = "UID";
-constexpr char EVENT_KEY_PID[] = "PID";
-constexpr char EVENT_KEY_MESSAGE[] = "MSG";
-constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
-constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
-const std::string DEBUG_APP = "debugApp";
-const std::string FRS_APP_INDEX = "ohos.extra.param.key.frs_index";
-const std::string FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
-const std::string UIEXTENSION_ABILITY_ID = "ability.want.params.uiExtensionAbilityId";
-const std::string UIEXTENSION_ROOT_HOST_PID = "ability.want.params.uiExtensionRootHostPid";
-const std::string MAX_UINT64_VALUE = "18446744073709551615";
-const std::string IS_PRELOAD_UIEXTENSION_ABILITY = "ability.want.params.is_preload_uiextension_ability";
-const std::string SEPARATOR = ":";
+constexpr const char* EVENT_KEY_UID = "UID";
+constexpr const char* EVENT_KEY_PID = "PID";
+constexpr const char* EVENT_KEY_MESSAGE = "MSG";
+constexpr const char* EVENT_KEY_PACKAGE_NAME = "PACKAGE_NAME";
+constexpr const char* EVENT_KEY_PROCESS_NAME = "PROCESS_NAME";
+constexpr const char* DEBUG_APP = "debugApp";
+constexpr const char* FRS_APP_INDEX = "ohos.extra.param.key.frs_index";
+constexpr const char* FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
+constexpr const char* UIEXTENSION_ABILITY_ID = "ability.want.params.uiExtensionAbilityId";
+constexpr const char* UIEXTENSION_ROOT_HOST_PID = "ability.want.params.uiExtensionRootHostPid";
+constexpr const char* MAX_UINT64_VALUE = "18446744073709551615";
+constexpr const char* IS_PRELOAD_UIEXTENSION_ABILITY = "ability.want.params.is_preload_uiextension_ability";
+constexpr const char* SEPARATOR = ":";
 #ifdef SUPPORT_ASAN
-const int LOAD_TIMEOUT_MULTIPLE = 150;
-const int CONNECT_TIMEOUT_MULTIPLE = 45;
-const int COMMAND_TIMEOUT_MULTIPLE = 75;
-const int COMMAND_WINDOW_TIMEOUT_MULTIPLE = 75;
-const int UI_EXTENSION_CONSUME_SESSION_TIMEOUT_MULTIPLE = 150;
+constexpr int LOAD_TIMEOUT_MULTIPLE = 150;
+constexpr int CONNECT_TIMEOUT_MULTIPLE = 45;
+constexpr int COMMAND_TIMEOUT_MULTIPLE = 75;
+constexpr int COMMAND_WINDOW_TIMEOUT_MULTIPLE = 75;
+constexpr int UI_EXTENSION_CONSUME_SESSION_TIMEOUT_MULTIPLE = 150;
 #else
-const int LOAD_TIMEOUT_MULTIPLE = 10;
-const int CONNECT_TIMEOUT_MULTIPLE = 10;
-const int COMMAND_TIMEOUT_MULTIPLE = 5;
-const int COMMAND_WINDOW_TIMEOUT_MULTIPLE = 5;
-const int UI_EXTENSION_CONSUME_SESSION_TIMEOUT_MULTIPLE = 10;
+constexpr int LOAD_TIMEOUT_MULTIPLE = 10;
+constexpr int CONNECT_TIMEOUT_MULTIPLE = 10;
+constexpr int COMMAND_TIMEOUT_MULTIPLE = 5;
+constexpr int COMMAND_WINDOW_TIMEOUT_MULTIPLE = 5;
+constexpr int UI_EXTENSION_CONSUME_SESSION_TIMEOUT_MULTIPLE = 10;
 #endif
-const int32_t AUTO_DISCONNECT_INFINITY = -1;
-const std::unordered_set<std::string> FROZEN_WHITE_LIST {
-    "com.huawei.hmos.huaweicast"
-};
-constexpr char BUNDLE_NAME_DIALOG[] = "com.ohos.amsdialog";
-constexpr char ABILITY_NAME_ASSERT_FAULT_DIALOG[] = "AssertFaultDialog";
+constexpr int32_t AUTO_DISCONNECT_INFINITY = -1;
+constexpr const char* BUNDLE_NAME_DIALOG = "com.ohos.amsdialog";
+constexpr const char* ABILITY_NAME_ASSERT_FAULT_DIALOG = "AssertFaultDialog";
 
 bool IsSpecialAbility(const AppExecFwk::AbilityInfo &abilityInfo)
 {
@@ -2031,8 +2028,9 @@ static bool CheckIsNumString(const std::string &numStr)
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Number parsing error, %{public}s.", numStr.c_str());
         return false;
     }
-    if (MAX_UINT64_VALUE.length() < numStr.length() ||
-        (MAX_UINT64_VALUE.length() == numStr.length() && MAX_UINT64_VALUE.compare(numStr) < 0)) {
+    std::string maxUint64Str(MAX_UINT64_VALUE);
+    if (maxUint64Str.length() < numStr.length() ||
+        (maxUint64Str.length() == numStr.length() && maxUint64Str.compare(numStr) < 0)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Number parsing error, %{public}s.", numStr.c_str());
         return false;
     }
@@ -2687,11 +2685,14 @@ void AbilityConnectManager::HandleProcessFrozen(const std::vector<int32_t> &pidL
     std::unordered_set<int32_t> pidSet(pidList.begin(), pidList.end());
     std::lock_guard lock(serviceMapMutex_);
     auto weakThis = weak_from_this();
+    const std::unordered_set<std::string> frozenWhiteList {
+        "com.huawei.hmos.huaweicast"
+    };
     for (auto [key, abilityRecord] : serviceMap_) {
         if (abilityRecord && abilityRecord->GetUid() == uid &&
             abilityRecord->GetAbilityInfo().extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE &&
             pidSet.count(abilityRecord->GetPid()) > 0 &&
-            FROZEN_WHITE_LIST.count(abilityRecord->GetAbilityInfo().bundleName) == 0 &&
+            frozenWhiteList.count(abilityRecord->GetAbilityInfo().bundleName) == 0 &&
             abilityRecord->IsConnectListEmpty() &&
             !abilityRecord->GetKeepAlive() &&
             abilityRecord->GetStartId() != 0) { // To be honest, this is expected to be true

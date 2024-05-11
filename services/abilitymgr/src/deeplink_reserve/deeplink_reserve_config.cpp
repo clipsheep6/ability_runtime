@@ -26,29 +26,29 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string CONFIG_PATH = "/etc/ability_runtime/deeplink_reserve_config.json";
-const std::string DEFAULT_RESERVE_CONFIG_PATH = "/system/etc/deeplink_reserve_config.json";
-const std::string DEEPLINK_RESERVED_URI_NAME = "deepLinkReservedUri";
-const std::string BUNDLE_NAME = "bundleName";
-const std::string URIS_NAME = "uris";
-const std::string SCHEME_NAME = "scheme";
-const std::string HOST_NAME = "host";
-const std::string PORT_NAME = "port";
-const std::string PATH_NAME = "path";
-const std::string PATH_START_WITH_NAME = "pathStartWith";
-const std::string PATH_REGEX_NAME = "pathRegex";
-const std::string TYPE_NAME = "type";
-const std::string UTD_NAME = "utd";
-const std::string PORT_SEPARATOR = ":";
-const std::string SCHEME_SEPARATOR = "://";
-const std::string PATH_SEPARATOR = "/";
-const std::string PARAM_SEPARATOR = "?";
+constexpr const char* CONFIG_PATH = "/etc/ability_runtime/deeplink_reserve_config.json";
+constexpr const char* DEFAULT_RESERVE_CONFIG_PATH = "/system/etc/deeplink_reserve_config.json";
+constexpr const char* DEEPLINK_RESERVED_URI_NAME = "deepLinkReservedUri";
+constexpr const char* BUNDLE_NAME = "bundleName";
+constexpr const char* URIS_NAME = "uris";
+constexpr const char* SCHEME_NAME = "scheme";
+constexpr const char* HOST_NAME = "host";
+constexpr const char* PORT_NAME = "port";
+constexpr const char* PATH_NAME = "path";
+constexpr const char* PATH_START_WITH_NAME = "pathStartWith";
+constexpr const char* PATH_REGEX_NAME = "pathRegex";
+constexpr const char* TYPE_NAME = "type";
+constexpr const char* UTD_NAME = "utd";
+constexpr const char* PORT_SEPARATOR = ":";
+constexpr const char* SCHEME_SEPARATOR = "://";
+constexpr const char* PATH_SEPARATOR = "/";
+constexpr const char* PARAM_SEPARATOR = "?";
 }
 
 std::string DeepLinkReserveConfig::GetConfigPath()
 {
     char buf[MAX_PATH_LEN] = { 0 };
-    char *configPath = GetOneCfgFile(CONFIG_PATH.c_str(), buf, MAX_PATH_LEN);
+    char *configPath = GetOneCfgFile(CONFIG_PATH, buf, MAX_PATH_LEN);
     if (configPath == nullptr || configPath[0] == '\0' || strlen(configPath) > MAX_PATH_LEN) {
         return DEFAULT_RESERVE_CONFIG_PATH;
     }
@@ -70,7 +70,7 @@ bool DeepLinkReserveConfig::LoadConfiguration()
 
     return true;
 }
-   
+
 bool DeepLinkReserveConfig::isLinkReserved(const std::string &linkString, std::string &bundleName)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call");

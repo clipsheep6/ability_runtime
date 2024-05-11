@@ -29,8 +29,9 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE = "persist.sys.abilityms.support.ecologicalrulemgrservice";
-const std::string BUNDLE_NAME_SCENEBOARD = "com.ohos.sceneboard";
+constexpr const char* ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE =
+    "persist.sys.abilityms.support.ecologicalrulemgrservice";
+constexpr const char* BUNDLE_NAME_SCENEBOARD = "com.ohos.sceneboard";
 }
 ErrCode EcologicalRuleInterceptor::DoProcess(AbilityInterceptorParam param)
 {

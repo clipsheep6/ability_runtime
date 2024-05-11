@@ -20,11 +20,11 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-const std::string MSG_DUMP_IPC_START_STAT = "StartIpcStatistics\t";
-const std::string MSG_DUMP_IPC_STOP_STAT = "StopIpcStatistics\t";
-const std::string MSG_DUMP_IPC_STAT = "IpcStatistics\t";
-const std::string MSG_DUMP_IPC_FAIL = "fail\n";
-const std::string MSG_DUMP_IPC_FAIL_REASON_INTERNAL = "internal error.\n";
+constexpr const char* MSG_DUMP_IPC_START_STAT = "StartIpcStatistics\t";
+constexpr const char* MSG_DUMP_IPC_STOP_STAT = "StopIpcStatistics\t";
+constexpr const char* MSG_DUMP_IPC_STAT = "IpcStatistics\t";
+constexpr const char* MSG_DUMP_IPC_FAIL = "fail\n";
+constexpr const char* MSG_DUMP_IPC_FAIL_REASON_INTERNAL = "internal error.\n";
 
 enum DumpErrorCode {
     // success

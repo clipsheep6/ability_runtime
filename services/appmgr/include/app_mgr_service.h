@@ -641,8 +641,6 @@ private:
     sptr<ISystemAbilityManager> systemAbilityMgr_;
     sptr<IAmsMgr> amsMgrScheduler_;
 
-    const static std::map<std::string, AppMgrService::DumpIpcKey> dumpIpcMap;
-
     using DumpIpcAllFuncType = int (AppMgrService::*)(std::string& result);
     std::map<uint32_t, DumpIpcAllFuncType> dumpIpcAllFuncMap_;
 

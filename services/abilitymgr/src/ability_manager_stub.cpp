@@ -35,7 +35,7 @@ namespace OHOS {
 namespace AAFwk {
 using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
 namespace {
-const std::u16string extensionDescriptor = u"ohos.aafwk.ExtensionManager";
+constexpr const char16_t* EXTENSION_DESCRIPTOR = u"ohos.aafwk.ExtensionManager";
 constexpr int32_t CYCLE_LIMIT = 1000;
 constexpr int32_t MAX_KILL_PROCESS_PID_COUNT = 100;
 } // namespace
@@ -444,7 +444,7 @@ int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Mess
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Received code : %{public}d", code);
     std::u16string abilityDescriptor = AbilityManagerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
-    if (abilityDescriptor != remoteDescriptor && extensionDescriptor != remoteDescriptor) {
+    if (abilityDescriptor != remoteDescriptor && remoteDescriptor != EXTENSION_DESCRIPTOR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "local descriptor is unequal to remote");
         return ERR_INVALID_STATE;
     }

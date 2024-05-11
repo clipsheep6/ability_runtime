@@ -40,9 +40,9 @@
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
-    constexpr int32_t QUICKFIX_UID = 5524;
-    const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
-    constexpr char DEVELOPER_MODE_STATE[] = "const.security.developermode.state";
+constexpr int32_t QUICKFIX_UID = 5524;
+constexpr const char* SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
+constexpr const char* DEVELOPER_MODE_STATE = "const.security.developermode.state";
 }
 using EventFwk::CommonEventSupport;
 

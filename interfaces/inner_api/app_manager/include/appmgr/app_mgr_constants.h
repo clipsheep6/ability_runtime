@@ -19,7 +19,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 namespace Constants {
-const std::string APP_MGR_SERVICE_NAME = "AppMgrService";
+constexpr const char* APP_MGR_SERVICE_NAME = "AppMgrService";
 }  // namespace Constants
 
 enum class ApplicationState {

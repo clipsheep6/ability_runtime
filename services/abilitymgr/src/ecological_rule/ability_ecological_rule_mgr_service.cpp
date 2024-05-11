@@ -27,10 +27,12 @@ namespace EcologicalRuleMgrService {
 
 using namespace std::chrono;
 
-static inline const std::u16string ERMS_INTERFACE_TOKEN =
+namespace {
+constexpr const char16_t* ERMS_INTERFACE_TOKEN =
     u"ohos.cloud.ecologicalrulemgrservice.IEcologicalRuleMgrService";
 constexpr int32_t CYCLE_LIMIT = 1000;
-const int32_t ECOLOGICALRULEMANAGERSERVICE_ID = 6105;
+constexpr int32_t ECOLOGICALRULEMANAGERSERVICE_ID = 6105;
+}
 
 std::mutex AbilityEcologicalRuleMgrServiceClient::instanceLock_;
 std::mutex AbilityEcologicalRuleMgrServiceClient::proxyLock_;

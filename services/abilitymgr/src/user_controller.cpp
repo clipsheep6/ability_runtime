@@ -30,7 +30,7 @@ namespace OHOS {
 namespace AAFwk {
 using namespace OHOS::AppExecFwk;
 namespace {
-const int64_t USER_SWITCH_TIMEOUT = 3 * 1000; // 3s
+constexpr int64_t USER_SWITCH_TIMEOUT = 3 * 1000; // 3s
 }
 
 UserItem::UserItem(int32_t id) : userId_(id)

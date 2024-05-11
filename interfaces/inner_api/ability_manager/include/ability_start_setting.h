@@ -26,7 +26,6 @@ namespace OHOS {
 namespace AAFwk {
 class AbilityStartSetting final : public Parcelable, public std::enable_shared_from_this<AbilityStartSetting> {
 public:
-    static const std::string BOUNDS_KEY;
     static const std::string WINDOW_DISPLAY_ID_KEY;
     static const std::string WINDOW_MODE_KEY;
 

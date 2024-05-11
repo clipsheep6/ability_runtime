@@ -22,22 +22,22 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string KEY_MISSION_NAME = "MissionName";
-const std::string KEY_LAUNCH_MODE = "LaunchMode";
-const std::string KEY_MISSION_ID = "MissionId";
-const std::string KEY_RUNNING_STATE = "RunningState";
-const std::string KEY_LOCKED_STATE = "LockedState";
-const std::string KEY_CONTINUABLE = "Continuable";
-const std::string KEY_TIME = "Time";
-const std::string KEY_LABEL = "Label";
-const std::string KEY_ICON_PATH = "IconPath";
-const std::string KEY_WANT = "Want";
-const std::string KEY_START_METHOD = "StartMethod";
-const std::string KEY_BUNDLE_NAME = "BundleName";
-const std::string KEY_UID = "Uid";
-const std::string KEY_IS_TEMPORARY = "IsTemporary";
-const std::string KEY_SPEC_FLAG = "SpecFlag";
-const std::string KEY_HAS_RECONER_INFO = "hasRecoverInfo";
+constexpr const char* KEY_MISSION_NAME = "MissionName";
+constexpr const char* KEY_LAUNCH_MODE = "LaunchMode";
+constexpr const char* KEY_MISSION_ID = "MissionId";
+constexpr const char* KEY_RUNNING_STATE = "RunningState";
+constexpr const char* KEY_LOCKED_STATE = "LockedState";
+constexpr const char* KEY_CONTINUABLE = "Continuable";
+constexpr const char* KEY_TIME = "Time";
+constexpr const char* KEY_LABEL = "Label";
+constexpr const char* KEY_ICON_PATH = "IconPath";
+constexpr const char* KEY_WANT = "Want";
+constexpr const char* KEY_START_METHOD = "StartMethod";
+constexpr const char* KEY_BUNDLE_NAME = "BundleName";
+constexpr const char* KEY_UID = "Uid";
+constexpr const char* KEY_IS_TEMPORARY = "IsTemporary";
+constexpr const char* KEY_SPEC_FLAG = "SpecFlag";
+constexpr const char* KEY_HAS_RECONER_INFO = "hasRecoverInfo";
 }
 std::string InnerMissionInfo::ToJsonStr() const
 {

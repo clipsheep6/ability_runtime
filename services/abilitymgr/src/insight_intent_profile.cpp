@@ -29,23 +29,18 @@ namespace {
 int32_t g_parseResult = ERR_OK;
 std::mutex g_mutex;
 
-const std::string INSIGHT_INTENTS = "insightIntents";
-const std::string INSIGHT_INTENT_NAME = "intentName";
-const std::string INSIGHT_INTENT_DOMAIN = "domain";
-const std::string INSIGHT_INTENT_VERSION = "intentVersion";
-const std::string INSIGHT_INTENT_SRC_ENTRY = "srcEntry";
-const std::string INSIGHT_INTENT_UI_ABILITY = "uiAbility";
-const std::string INSIGHT_INTENT_UI_EXTENSION = "uiExtension";
-const std::string INSIGHT_INTENT_SERVICE_EXTENSION = "serviceExtension";
-const std::string INSIGHT_INTENT_FORM = "form";
-const std::string INSIGHT_INTENT_ABILITY = "ability";
-const std::string INSIGHT_INTENT_EXECUTE_MODE = "executeMode";
-const std::string INSIGHT_INTENT_FORM_NAME = "formName";
-
-const std::map<std::string, ExecuteMode> executeModeMap = {
-    {"foreground", ExecuteMode::UI_ABILITY_FOREGROUND},
-    {"background", ExecuteMode::UI_ABILITY_BACKGROUND}
-};
+constexpr const char* INSIGHT_INTENTS = "insightIntents";
+constexpr const char* INSIGHT_INTENT_NAME = "intentName";
+constexpr const char* INSIGHT_INTENT_DOMAIN = "domain";
+constexpr const char* INSIGHT_INTENT_VERSION = "intentVersion";
+constexpr const char* INSIGHT_INTENT_SRC_ENTRY = "srcEntry";
+constexpr const char* INSIGHT_INTENT_UI_ABILITY = "uiAbility";
+constexpr const char* INSIGHT_INTENT_UI_EXTENSION = "uiExtension";
+constexpr const char* INSIGHT_INTENT_SERVICE_EXTENSION = "serviceExtension";
+constexpr const char* INSIGHT_INTENT_FORM = "form";
+constexpr const char* INSIGHT_INTENT_ABILITY = "ability";
+constexpr const char* INSIGHT_INTENT_EXECUTE_MODE = "executeMode";
+constexpr const char* INSIGHT_INTENT_FORM_NAME = "formName";
 
 struct UIAbilityProfileInfo {
     std::string abilityName;
@@ -243,6 +238,10 @@ bool TransformToInsightIntentInfo(const InsightIntentProfileInfo &insightIntent,
     info.srcEntry = insightIntent.srcEntry;
 
     info.uiAbilityIntentInfo.abilityName = insightIntent.uiAbilityProfileInfo.abilityName;
+    const std::map<std::string, ExecuteMode> executeModeMap = {
+        {"foreground", ExecuteMode::UI_ABILITY_FOREGROUND},
+        {"background", ExecuteMode::UI_ABILITY_BACKGROUND}
+    };
     for (const auto &executeMode: insightIntent.uiAbilityProfileInfo.supportExecuteMode) {
         auto mode = std::find_if(std::begin(executeModeMap), std::end(executeModeMap),
             [&executeMode](const auto &item) {

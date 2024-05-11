@@ -20,15 +20,15 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-const std::string MSG_DUMP_IPC_START_STAT = "StartIpcStatistics\t";
-const std::string MSG_DUMP_IPC_STOP_STAT = "StopIpcStatistics\t";
-const std::string MSG_DUMP_IPC_STAT = "IpcStatistics\t";
-const std::string MSG_DUMP_IPC_FAIL = "fail\n";
-const std::string MSG_DUMP_IPC_FAIL_REASON_INTERNAL = "internal error.\n";
-const std::string MSG_DUMP_IPC_FAIL_REASON_INVALILD_CMD = "invalid cmd.\n";
-const std::string MSG_DUMP_IPC_FAIL_REASON_INVALILD_PID = "invalid pid.\n";
-const std::string MSG_DUMP_IPC_FAIL_REASON_INVALILD_NUM_ARGS = "invalid number of arguments.\n";
-const std::string MSG_DUMP_IPC_FAIL_REASON_PERMISSION_DENY = "permission deny.\n";
+constexpr const char* MSG_DUMP_IPC_START_STAT = "StartIpcStatistics\t";
+constexpr const char* MSG_DUMP_IPC_STOP_STAT = "StopIpcStatistics\t";
+constexpr const char* MSG_DUMP_IPC_STAT = "IpcStatistics\t";
+constexpr const char* MSG_DUMP_IPC_FAIL = "fail\n";
+constexpr const char* MSG_DUMP_IPC_FAIL_REASON_INTERNAL = "internal error.\n";
+constexpr const char* MSG_DUMP_IPC_FAIL_REASON_INVALILD_CMD = "invalid cmd.\n";
+constexpr const char* MSG_DUMP_IPC_FAIL_REASON_INVALILD_PID = "invalid pid.\n";
+constexpr const char* MSG_DUMP_IPC_FAIL_REASON_INVALILD_NUM_ARGS = "invalid number of arguments.\n";
+constexpr const char* MSG_DUMP_IPC_FAIL_REASON_PERMISSION_DENY = "permission deny.\n";
 }  // namespace AppExecFwk
 }  // namespace OHOS
 

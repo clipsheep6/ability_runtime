@@ -22,7 +22,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-const std::string UIEXTENSION_ABILITY_ID = "ability.want.params.uiExtensionAbilityId";
+constexpr const char* UIEXTENSION_ABILITY_ID = "ability.want.params.uiExtensionAbilityId";
 }
 
 UIExtensionRecordFactory::UIExtensionRecordFactory() = default;

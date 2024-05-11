@@ -23,24 +23,24 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string BUNDLE_NAME_LAUNCHER = "com.ohos.launcher";
-const std::string BUNDLE_NAME_SCENEBOARD = "com.ohos.sceneboard";
-const std::string LAUNCHER_ABILITY_NAME = "com.ohos.launcher.MainAbility";
-const std::string SCENEBOARD_ABILITY_NAME = "com.ohos.sceneboard.MainAbility";
-const std::string INHERIT_WINDOW_SPLIT_SCREEN_MODE = "persist.sys.abilityms.inherit_window_split_screen_mode";
-const std::string SUPPORT_ANCO_APP = "persist.sys.abilityms.support_anco_app";
-const std::string TIMEOUT_UNIT_TIME_RATIO = "persist.sys.abilityms.timeout_unit_time_ratio";
-const std::string SELECTOR_DIALOG_POSSION = "persist.sys.abilityms.selector_dialog_possion";
-const std::string START_SPECIFIED_PROCESS = "persist.sys.abilityms.start_specified_process";
-const std::string USE_MULTI_RENDER_PROCESS = "persist.sys.abilityms.use_multi_render_process";
-const std::string LIMIT_MAXIMUM_OF_RENDER_PROCESS = "persist.sys.abilityms.limit_maximum_of_render_process";
-const std::string GRANT_PERSIST_URI_PERMISSION = "persist.sys.abilityms.grant_persist_uri_permission";
-const std::string START_OPTIONS_WITH_ANIMATION = "persist.sys.abilityms.start_options_with_animation";
-const std::string MULTI_PROCESS_MODEL = "persist.sys.abilityms.multi_process_model";
-const std::string START_OPTIONS_WITH_PROCESS_OPTION = "persist.sys.abilityms.start_options_with_process_option";
-const std::string MOVE_UI_ABILITY_TO_BACKGROUND_API_ENABLE =
+constexpr const char* BUNDLE_NAME_LAUNCHER = "com.ohos.launcher";
+constexpr const char* BUNDLE_NAME_SCENEBOARD = "com.ohos.sceneboard";
+constexpr const char* LAUNCHER_ABILITY_NAME = "com.ohos.launcher.MainAbility";
+constexpr const char* SCENEBOARD_ABILITY_NAME = "com.ohos.sceneboard.MainAbility";
+constexpr const char* INHERIT_WINDOW_SPLIT_SCREEN_MODE = "persist.sys.abilityms.inherit_window_split_screen_mode";
+constexpr const char* SUPPORT_ANCO_APP = "persist.sys.abilityms.support_anco_app";
+constexpr const char* TIMEOUT_UNIT_TIME_RATIO = "persist.sys.abilityms.timeout_unit_time_ratio";
+constexpr const char* SELECTOR_DIALOG_POSSION = "persist.sys.abilityms.selector_dialog_possion";
+constexpr const char* START_SPECIFIED_PROCESS = "persist.sys.abilityms.start_specified_process";
+constexpr const char* USE_MULTI_RENDER_PROCESS = "persist.sys.abilityms.use_multi_render_process";
+constexpr const char* LIMIT_MAXIMUM_OF_RENDER_PROCESS = "persist.sys.abilityms.limit_maximum_of_render_process";
+constexpr const char* GRANT_PERSIST_URI_PERMISSION = "persist.sys.abilityms.grant_persist_uri_permission";
+constexpr const char* START_OPTIONS_WITH_ANIMATION = "persist.sys.abilityms.start_options_with_animation";
+constexpr const char* MULTI_PROCESS_MODEL = "persist.sys.abilityms.multi_process_model";
+constexpr const char* START_OPTIONS_WITH_PROCESS_OPTION = "persist.sys.abilityms.start_options_with_process_option";
+constexpr const char* MOVE_UI_ABILITY_TO_BACKGROUND_API_ENABLE =
     "persist.sys.abilityms.move_ui_ability_to_background_api_enable";
-const std::string LAUNCH_EMBEDED_UI_ABILITY = "const.abilityms.launch_embeded_ui_ability";
+constexpr const char* LAUNCH_EMBEDED_UI_ABILITY = "const.abilityms.launch_embeded_ui_ability";
 }
 AppUtils::~AppUtils() {}
 

@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string UIEXTENSION_MODAL_TYPE = "ability.want.params.modalType";
+constexpr const char* UIEXTENSION_MODAL_TYPE = "ability.want.params.modalType";
 }
 
 DisposedObserver::DisposedObserver(const AppExecFwk::DisposedRule &disposedRule,

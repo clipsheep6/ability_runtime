@@ -28,11 +28,11 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const uint32_t API_VERSION_MOD = 100;
-const uint32_t API_SINCE_VISION = 12;
-const std::string ABILITY_SUPPORT_START_OTHER_APP = "persist.sys.abilityms.support.start_other_app";
-const std::string IS_DELEGATOR_CALL = "isDelegatorCall";
-const std::string OPEN_LINK_SCENE_IDENTIFICATION = "appLinkingOnly";
+constexpr uint32_t API_VERSION_MOD = 100;
+constexpr uint32_t API_SINCE_VISION = 12;
+constexpr const char* ABILITY_SUPPORT_START_OTHER_APP = "persist.sys.abilityms.support.start_other_app";
+constexpr const char* IS_DELEGATOR_CALL = "isDelegatorCall";
+constexpr const char* OPEN_LINK_SCENE_IDENTIFICATION = "appLinkingOnly";
 }
 
 ErrCode StartOtherAppInterceptor::DoProcess(AbilityInterceptorParam param)

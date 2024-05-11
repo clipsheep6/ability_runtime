@@ -27,7 +27,7 @@ namespace {
 constexpr int32_t CHECK_INTERVAL = 100000; // 100ms
 constexpr int32_t MAX_TIMES = 5;
 constexpr const char *APP_CONFIG_STORAGE_DIR = "/data/service/el1/public/database/app_config_data";
-const std::string KEY_WAITING_DEBUG_INFO = "WaitingDebugInfo";
+constexpr const char* KEY_WAITING_DEBUG_INFO = "WaitingDebugInfo";
 } // namespace
 const DistributedKv::AppId AppConfigDataManager::APP_ID = { "app_config_data_storage" };
 const DistributedKv::StoreId AppConfigDataManager::STORE_ID = { "app_config_data_infos" };

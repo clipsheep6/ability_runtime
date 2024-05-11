@@ -38,14 +38,14 @@
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
-constexpr char EVENT_UID[] = "UID";
-constexpr char EVENT_PID[] = "PID";
-constexpr char EVENT_MESSAGE[] = "MSG";
-constexpr char EVENT_PACKAGE_NAME[] = "PACKAGE_NAME";
-constexpr char EVENT_PROCESS_NAME[] = "PROCESS_NAME";
-constexpr char EVENT_STACK[] = "STACK";
-constexpr char BINDER_INFO[] = "BINDER_INFO";
-constexpr char APP_RUNNING_UNIQUE_ID[] = "APP_RUNNING_UNIQUE_ID";
+constexpr const char* EVENT_UID = "UID";
+constexpr const char* EVENT_PID = "PID";
+constexpr const char* EVENT_MESSAGE = "MSG";
+constexpr const char* EVENT_PACKAGE_NAME = "PACKAGE_NAME";
+constexpr const char* EVENT_PROCESS_NAME = "PROCESS_NAME";
+constexpr const char* EVENT_STACK = "STACK";
+constexpr const char* BINDER_INFO = "BINDER_INFO";
+constexpr const char* APP_RUNNING_UNIQUE_ID = "APP_RUNNING_UNIQUE_ID";
 constexpr int MAX_LAYER = 8;
 const std::string LOG_FILE_PATH = "data/log/eventlog";
 }

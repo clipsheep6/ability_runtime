@@ -39,43 +39,37 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-const std::string OPTION_KEY_HELP = "-h";
-const std::string OPTION_KEY_DUMP_IPC = "--ipc";
-const int32_t HIDUMPER_SERVICE_UID = 1212;
+constexpr const char* OPTION_KEY_HELP = "-h";
+constexpr const char* OPTION_KEY_DUMP_IPC = "--ipc";
+constexpr int32_t HIDUMPER_SERVICE_UID = 1212;
 constexpr const int INDEX_PID = 1;
 constexpr const int INDEX_CMD = 2;
 constexpr const size_t VALID_DUMP_IPC_ARG_SIZE = 3;
 namespace {
 using namespace std::chrono_literals;
 #ifdef ABILITY_COMMAND_FOR_TEST
-static const int APP_MS_BLOCK = 65;
+constexpr int APP_MS_BLOCK = 65;
 #endif
-const std::string TASK_INIT_APPMGRSERVICEINNER = "InitAppMgrServiceInnerTask";
-const std::string TASK_ATTACH_APPLICATION = "AttachApplicationTask";
-const std::string TASK_APPLICATION_FOREGROUNDED = "ApplicationForegroundedTask";
-const std::string TASK_APPLICATION_BACKGROUNDED = "ApplicationBackgroundedTask";
-const std::string TASK_APPLICATION_TERMINATED = "ApplicationTerminatedTask";
-const std::string TASK_ABILITY_CLEANED = "AbilityCleanedTask";
-const std::string TASK_ADD_APP_DEATH_RECIPIENT = "AddAppRecipientTask";
-const std::string TASK_CLEAR_UP_APPLICATION_DATA = "ClearUpApplicationDataTask";
-const std::string TASK_STARTUP_RESIDENT_PROCESS = "StartupResidentProcess";
-const std::string TASK_ADD_ABILITY_STAGE_DONE = "AddAbilityStageDone";
-const std::string TASK_START_USER_TEST_PROCESS = "StartUserTestProcess";
-const std::string TASK_FINISH_USER_TEST = "FinishUserTest";
-const std::string TASK_ATTACH_RENDER_PROCESS = "AttachRenderTask";
-const std::string TASK_ATTACH_CHILD_PROCESS = "AttachChildProcessTask";
-const std::string TASK_EXIT_CHILD_PROCESS_SAFELY = "ExitChildProcessSafelyTask";
-const std::string FOUNDATION_PROCESS = "foundation";
+constexpr const char* TASK_INIT_APPMGRSERVICEINNER = "InitAppMgrServiceInnerTask";
+constexpr const char* TASK_ATTACH_APPLICATION = "AttachApplicationTask";
+constexpr const char* TASK_APPLICATION_FOREGROUNDED = "ApplicationForegroundedTask";
+constexpr const char* TASK_APPLICATION_BACKGROUNDED = "ApplicationBackgroundedTask";
+constexpr const char* TASK_APPLICATION_TERMINATED = "ApplicationTerminatedTask";
+constexpr const char* TASK_ABILITY_CLEANED = "AbilityCleanedTask";
+constexpr const char* TASK_ADD_APP_DEATH_RECIPIENT = "AddAppRecipientTask";
+constexpr const char* TASK_CLEAR_UP_APPLICATION_DATA = "ClearUpApplicationDataTask";
+constexpr const char* TASK_STARTUP_RESIDENT_PROCESS = "StartupResidentProcess";
+constexpr const char* TASK_ADD_ABILITY_STAGE_DONE = "AddAbilityStageDone";
+constexpr const char* TASK_START_USER_TEST_PROCESS = "StartUserTestProcess";
+constexpr const char* TASK_FINISH_USER_TEST = "FinishUserTest";
+constexpr const char* TASK_ATTACH_RENDER_PROCESS = "AttachRenderTask";
+constexpr const char* TASK_ATTACH_CHILD_PROCESS = "AttachChildProcessTask";
+constexpr const char* TASK_EXIT_CHILD_PROCESS_SAFELY = "ExitChildProcessSafelyTask";
+constexpr const char* FOUNDATION_PROCESS = "foundation";
 constexpr int32_t USER_UID = 2000;
 }  // namespace
 
 REGISTER_SYSTEM_ABILITY_BY_ID(AppMgrService, APP_MGR_SERVICE_ID, true);
-
-const std::map<std::string, AppMgrService::DumpIpcKey> AppMgrService::dumpIpcMap = {
-    std::map<std::string, AppMgrService::DumpIpcKey>::value_type("--start-stat", KEY_DUMP_IPC_START),
-    std::map<std::string, AppMgrService::DumpIpcKey>::value_type("--stop-stat", KEY_DUMP_IPC_STOP),
-    std::map<std::string, AppMgrService::DumpIpcKey>::value_type("--stat", KEY_DUMP_IPC_STAT),
-};
 
 void AppMgrService::DumpIpcAllFuncInit()
 {
@@ -710,7 +704,11 @@ int AppMgrService::DumpIpc(const std::vector<std::u16string>& args, std::string&
     std::string optionPid = Str16ToStr8(args[INDEX_PID]);
     TAG_LOGD(AAFwkTag::APPMGR, "option pid:%{public}s, option cmd:%{public}s",
         optionPid.c_str(), optionCmd.c_str());
-
+    const std::map<std::string, AppMgrService::DumpIpcKey> dumpIpcMap = {
+        {"--start-stat", KEY_DUMP_IPC_START},
+        {"--stop-stat", KEY_DUMP_IPC_STOP},
+        {"--stat", KEY_DUMP_IPC_STAT},
+    };
     auto itDumpKey = dumpIpcMap.find(optionCmd);
     if (itDumpKey == dumpIpcMap.end()) {
         result.append(MSG_DUMP_IPC_FAIL).append(MSG_DUMP_IPC_FAIL_REASON_INVALILD_CMD);
