@@ -170,5 +170,26 @@ HWTEST_F(ChildMainThreadTest, ScheduleExitProcessSafely_0100, TestSize.Level0)
     auto ret = thread->ScheduleExitProcessSafely();
     EXPECT_TRUE(ret);
 }
+
+/**
+ * @tc.number: ScheduleRunNativeProc_0100
+ * @tc.desc: Test ScheduleRunNativeProc works
+ * @tc.type: FUNC
+ */
+HWTEST_F(ChildMainThreadTest, ScheduleRunNativeProc_0100, TestSize.Level0)
+{
+    TAG_LOGD(AAFwkTag::TEST, "ScheduleRunNativeProc_0100 called.");
+    sptr<ChildMainThread> thread = sptr<ChildMainThread>(new (std::nothrow) ChildMainThread());
+    ASSERT_NE(thread, nullptr);
+
+    std::shared_ptr<EventRunner> runner = EventRunner::GetMainEventRunner();
+    std::shared_ptr<EventHandler> handler = std::make_shared<EventHandler>(runner);
+    thread->mainHandler_ = handler;
+
+    sptr<IRemoteObject> mainPorcessCb = nullptr;
+    auto ret = thread->ScheduleRunNativeProc(mainPorcessCb);
+    EXPECT_FALSE(ret);
+}
+
 } // namespace AppExecFwk
 } // namespace OHOS

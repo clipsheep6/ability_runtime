@@ -29,6 +29,7 @@ public:
 
     bool ScheduleLoadJs() override;
     bool ScheduleExitProcessSafely() override;
+    bool ScheduleRunNativeProc(const sptr<IRemoteObject> &mainProcessCb) override;
 
 private:
     bool WriteInterfaceToken(MessageParcel &data);
