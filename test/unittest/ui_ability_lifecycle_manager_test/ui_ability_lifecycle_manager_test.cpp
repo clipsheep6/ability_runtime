@@ -98,7 +98,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_001, TestSize.Level1)
 {
     auto mgr = std::make_unique<UIAbilityLifecycleManager>();
     AbilityRequest abilityRequest;
-    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, nullptr), ERR_INVALID_VALUE);
+    bool isColdStart = false;
+    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, nullptr, isColdStart), ERR_INVALID_VALUE);
 }
 
 /**
@@ -113,7 +114,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_002, TestSize.Level1)
     Rosen::SessionInfo info;
     sptr<SessionInfo> sessionInfo(new SessionInfo());
     sessionInfo->sessionToken = new Rosen::Session(info);
-    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_OK);
+    bool isColdStart = false;
+    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo, isColdStart), ERR_OK);
 }
 
 /**
@@ -132,7 +134,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_003, TestSize.Level1)
     abilityRequest.sessionInfo = sessionInfo;
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     mgr->sessionAbilityMap_.emplace(sessionInfo->persistentId, abilityRecord);
-    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_OK);
+    bool isColdStart = false;
+    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo, isColdStart), ERR_OK);
 }
 
 /**
@@ -150,7 +153,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_004, TestSize.Level1)
     sessionInfo->startSetting = std::make_shared<AbilityStartSetting>();
     sessionInfo->persistentId = 1;
     abilityRequest.sessionInfo = sessionInfo;
-    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_OK);
+    bool isColdStart = false;
+    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo, isColdStart), ERR_OK);
 }
 
 /**
@@ -170,7 +174,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_005, TestSize.Level1)
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     abilityRecord->SetPendingState(AbilityState::FOREGROUND);
     mgr->sessionAbilityMap_.emplace(sessionInfo->persistentId, abilityRecord);
-    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_OK);
+    bool isColdStart = false;
+    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo, isColdStart), ERR_OK);
 }
 
 /**
@@ -186,7 +191,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_006, TestSize.Level1)
     Rosen::SessionInfo info;
     sptr<SessionInfo> sessionInfo(new SessionInfo());
     sessionInfo->sessionToken = new Rosen::Session(info);
-    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_OK);
+    bool isColdStart = false;
+    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo, isColdStart), ERR_OK);
 }
 
 /**
@@ -203,7 +209,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_007, TestSize.Level1)
     Rosen::SessionInfo info;
     sptr<SessionInfo> sessionInfo(new SessionInfo());
     sessionInfo->sessionToken = new Rosen::Session(info);
-    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_OK);
+    bool isColdStart = false;
+    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo, isColdStart), ERR_OK);
 }
 
 /**
@@ -224,7 +231,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_008, TestSize.Level1)
     abilityRequest.abilityInfo.moduleName = "EntryModule";
     std::shared_ptr<AbilityRecord>  abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     mgr->sessionAbilityMap_.emplace(2, abilityRecord);
-    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_OK);
+    bool isColdStart = false;
+    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo, isColdStart), ERR_OK);
 }
 
 /**

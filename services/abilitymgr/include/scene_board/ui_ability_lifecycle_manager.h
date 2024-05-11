@@ -64,9 +64,10 @@ public:
      *
      * @param abilityRequest the request of the service ability to start.
      * @param sessionInfo the info of scene session
+     * @param isColdStart the session info of the ability is or not cold start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int StartUIAbility(AbilityRequest &abilityRequest, sptr<SessionInfo> sessionInfo);
+    int StartUIAbility(AbilityRequest &abilityRequest, sptr<SessionInfo> sessionInfo, bool &isColdStart);
 
     /**
      * @brief execute after the ability schedule the lifecycle

@@ -758,7 +758,7 @@ int AbilityManagerProxy::StartUIExtensionAbility(const sptr<SessionInfo> &extens
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
+int AbilityManagerProxy::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bool &isColdStart)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -782,6 +782,7 @@ int AbilityManagerProxy::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
+    isColdStart = reply.ReadBool();
     return reply.ReadInt32();
 }
 
