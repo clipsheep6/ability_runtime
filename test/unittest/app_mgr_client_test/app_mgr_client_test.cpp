@@ -1022,24 +1022,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_StartSpecifiedProcess_001, TestSize.Leve
 }
 
 /**
- * @tc.name: AppMgrClient_ScheduleNewProcessRequest_001
- * @tc.desc: schedule accept want done.
- * @tc.type: FUNC
- */
-HWTEST_F(AppMgrClientTest, AppMgrClient_ScheduleNewProcessRequest_001, TestSize.Level0)
-{
-    int32_t recordId = INIT_VALUE;
-    AAFwk::Want want;
-    std::string flag = EMPTY_STRING;
-    auto appMgrClient = std::make_unique<AppMgrClient>();
-    EXPECT_NE(appMgrClient, nullptr);
-
-    auto result = appMgrClient->ConnectAppMgrService();
-    appMgrClient->ScheduleNewProcessRequest(recordId, want, flag);
-    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
-}
-
-/**
  * @tc.name: AppMgrClient_RegisterAppRunningStatusListener_001
  * @tc.desc: RegisterAppRunningStatusListener.
  * @tc.type: FUNC

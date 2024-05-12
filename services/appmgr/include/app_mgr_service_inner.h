@@ -666,9 +666,11 @@ public:
     int FinishUserTest(
         const std::string &msg, const int64_t &resultCode, const std::string &bundleName, const pid_t &pid);
 
-    void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
+    void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0);
 
-    void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
+    void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0);
 
     void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response);
 
@@ -1384,14 +1386,14 @@ private:
     int32_t CreatNewStartMsg(const Want &want, const AbilityInfo &abilityInfo,
         const std::shared_ptr<ApplicationInfo> &appInfo, const std::string &processName,
         AppSpawnStartMsg &startMsg);
-    
+
     int32_t CreateStartMsg(const std::string &processName, uint32_t startFlags, const int uid,
         const BundleInfo &bundleInfo, const int32_t bundleIndex, BundleType bundleType,
         AppSpawnStartMsg &startMsg);
 
     int32_t StartPerfProcessByStartMsg(AppSpawnStartMsg &startMsg, const std::string& perfCmd,
         const std::string& debugCmd, bool isSandboxApp);
-    
+
     void SetAtomicServiceInfo(BundleType bundleType, AppSpawnStartMsg &startMsg);
 
     void SetAppInfo(const BundleInfo &bundleInfo, AppSpawnStartMsg &startMsg);

@@ -172,11 +172,12 @@ public:
     void SetAbilityForegroundingFlagToAppRecord(const pid_t pid) override;
 
     virtual void StartSpecifiedAbility(
-        const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo) override;
+        const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo, int32_t requestId = 0) override;
 
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response) override;
 
-    virtual void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo) override;
+    virtual void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0) override;
 
     virtual void SetCurrentUserId(const int32_t userId) override;
 

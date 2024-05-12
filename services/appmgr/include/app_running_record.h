@@ -581,18 +581,21 @@ public:
     std::shared_ptr<UserTestRecord> GetUserTestInfo();
 
     void SetProcessAndExtensionType(const std::shared_ptr<AbilityInfo> &abilityInfo);
-    void SetSpecifiedAbilityFlagAndWant(const bool flag, const AAFwk::Want &want, const std::string &moduleName);
-    void SetScheduleNewProcessRequestState(const bool isNewProcessRequest, const AAFwk::Want &want,
-        const std::string &moduleName);
+    void SetSpecifiedAbilityFlagAndWant(int requestId, const AAFwk::Want &want, const std::string &moduleName);
+    void SetScheduleNewProcessRequestState(int32_t requestId, const AAFwk::Want &want, const std::string &moduleName);
     bool IsNewProcessRequest() const;
     bool IsStartSpecifiedAbility() const;
+    int32_t GetSpecifiedRequestId() const;
+    void ResetSpecifiedRequestId();
     void ScheduleAcceptWant(const std::string &moduleName);
     void ScheduleAcceptWantDone();
     void ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName);
     void ScheduleNewProcessRequestDone();
     void ApplicationTerminated();
-    const AAFwk::Want &GetSpecifiedWant() const;
-    const AAFwk::Want &GetNewProcessRequestWant() const;
+    AAFwk::Want GetSpecifiedWant() const;
+    AAFwk::Want GetNewProcessRequestWant() const;
+    int32_t GetNewProcessRequestId() const;
+    void ResetNewProcessRequestId();
     void SetDebugApp(bool isDebugApp);
     bool IsDebugApp();
     bool IsDebugging() const;
@@ -872,11 +875,14 @@ private:
     bool isLauncherApp_;
     std::string mainAppName_;
     int restartResidentProcCount_ = 0;
-    bool isSpecifiedAbility_ = false;
-    AAFwk::Want SpecifiedWant_;
+
+    mutable std::mutex specifiedMutex_;
+    int32_t specifiedRequestId_ = -1;
+    AAFwk::Want specifiedWant_;
     std::string moduleName_;
-    bool isNewProcessRequest_;
+    int32_t newProcessRequestId_ = -1;
     AAFwk::Want newProcessRequestWant_;
+
     bool isDebugApp_ = false;
     bool isNativeDebug_ = false;
     bool isAttachDebug_ = false;

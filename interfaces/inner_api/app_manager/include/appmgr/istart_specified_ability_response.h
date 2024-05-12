@@ -26,13 +26,14 @@ class IStartSpecifiedAbilityResponse : public IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.appexecfwk.startSpecifiedAbilityResponse");
 
-    virtual void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag) = 0;
+    virtual void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag, int32_t requestId) = 0;
 
-    virtual void OnTimeoutResponse(const AAFwk::Want &want) = 0;
+    virtual void OnTimeoutResponse(const AAFwk::Want &want, int32_t requestId) = 0;
 
-    virtual void OnNewProcessRequestResponse(const AAFwk::Want &want, const std::string &flag) = 0;
+    virtual void OnNewProcessRequestResponse(const AAFwk::Want &want, const std::string &flag,
+        int32_t requestId) = 0;
 
-    virtual void OnNewProcessRequestTimeoutResponse(const AAFwk::Want &want) = 0;
+    virtual void OnNewProcessRequestTimeoutResponse(const AAFwk::Want &want, int32_t requestId) = 0;
 
     enum class Message {
         ON_ACCEPT_WANT_RESPONSE = 0,

@@ -6816,13 +6816,13 @@ int AbilityManagerService::LogoutUser(int32_t userId)
 }
 
 void AbilityManagerService::OnAcceptWantResponse(
-    const AAFwk::Want &want, const std::string &flag)
+    const AAFwk::Want &want, const std::string &flag, int32_t requestId)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "On accept want response");
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto uiAbilityManager = GetCurrentUIAbilityManager();
         CHECK_POINTER(uiAbilityManager);
-        uiAbilityManager->OnAcceptWantResponse(want, flag);
+        uiAbilityManager->OnAcceptWantResponse(want, flag, requestId);
         return;
     }
     auto missionListManager = GetCurrentMissionListManager();
@@ -6832,13 +6832,13 @@ void AbilityManagerService::OnAcceptWantResponse(
     missionListManager->OnAcceptWantResponse(want, flag);
 }
 
-void AbilityManagerService::OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want)
+void AbilityManagerService::OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want, int32_t requestId)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s.", want.GetElement().GetURI().c_str());
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto uiAbilityManager = GetCurrentUIAbilityManager();
         CHECK_POINTER(uiAbilityManager);
-        uiAbilityManager->OnStartSpecifiedAbilityTimeoutResponse(want);
+        uiAbilityManager->OnStartSpecifiedAbilityTimeoutResponse(want, requestId);
         return;
     }
     auto missionListManager = GetCurrentMissionListManager();
@@ -6848,24 +6848,25 @@ void AbilityManagerService::OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::
     missionListManager->OnStartSpecifiedAbilityTimeoutResponse(want);
 }
 
-void AbilityManagerService::OnStartSpecifiedProcessResponse(const AAFwk::Want &want, const std::string &flag)
+void AbilityManagerService::OnStartSpecifiedProcessResponse(const AAFwk::Want &want, const std::string &flag,
+    int32_t requestId)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "flag = %{public}s", flag.c_str());
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto uiAbilityManager = GetCurrentUIAbilityManager();
         CHECK_POINTER(uiAbilityManager);
-        uiAbilityManager->OnStartSpecifiedProcessResponse(want, flag);
+        uiAbilityManager->OnStartSpecifiedProcessResponse(want, flag, requestId);
         return;
     }
 }
 
-void AbilityManagerService::OnStartSpecifiedProcessTimeoutResponse(const AAFwk::Want &want)
+void AbilityManagerService::OnStartSpecifiedProcessTimeoutResponse(const AAFwk::Want &want, int32_t requestId)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s.", want.GetElement().GetURI().c_str());
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto uiAbilityManager = GetCurrentUIAbilityManager();
         CHECK_POINTER(uiAbilityManager);
-        uiAbilityManager->OnStartSpecifiedAbilityTimeoutResponse(want);
+        uiAbilityManager->OnStartSpecifiedAbilityTimeoutResponse(want, requestId);
         return;
     }
 }

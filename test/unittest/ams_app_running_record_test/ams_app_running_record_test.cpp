@@ -1704,11 +1704,11 @@ HWTEST_F(AmsAppRunningRecordTest, SetSpecifiedAbilityFlagAndWant_001, TestSize.L
     std::string processName = "processName";
     auto record = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
 
-    bool flag = true;
+    int32_t requestId = 1;
     AAFwk::Want want;
     std::string moduleName = "module123";
-    record->SetSpecifiedAbilityFlagAndWant(flag, want, moduleName);
-    EXPECT_TRUE(record->isSpecifiedAbility_ == flag);
+    record->SetSpecifiedAbilityFlagAndWant(requestId, want, moduleName);
+    EXPECT_TRUE(record->GetSpecifiedRequestId() == requestId);
     EXPECT_TRUE(record->moduleName_ == moduleName);
 }
 
@@ -1729,11 +1729,11 @@ HWTEST_F(AmsAppRunningRecordTest, IsStartSpecifiedAbility_001, TestSize.Level1)
     std::string processName = "processName";
     auto record = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
 
-    bool flag = true;
+    int32_t requestId = 1;
     AAFwk::Want want;
     std::string moduleName = "module123";
-    record->SetSpecifiedAbilityFlagAndWant(flag, want, moduleName);
-    EXPECT_TRUE(record->IsStartSpecifiedAbility() == flag);
+    record->SetSpecifiedAbilityFlagAndWant(requestId, want, moduleName);
+    EXPECT_TRUE(record->GetSpecifiedRequestId() == requestId);
 }
 
 /*
@@ -1753,11 +1753,10 @@ HWTEST_F(AmsAppRunningRecordTest, GetSpecifiedWant_001, TestSize.Level1)
     std::string processName = "processName";
     auto record = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
 
-    bool flag = true;
     Want want;
     want.SetElementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
     std::string moduleName = "module123";
-    record->SetSpecifiedAbilityFlagAndWant(flag, want, moduleName);
+    record->SetSpecifiedAbilityFlagAndWant(1, want, moduleName);
     EXPECT_TRUE(record->GetSpecifiedWant().GetBundle() == want.GetBundle());
 }
 
@@ -1871,7 +1870,7 @@ HWTEST_F(AmsAppRunningRecordTest, Specified_LaunchApplication_001, TestSize.Leve
         GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr, 0);
 
     record->SetApplicationClient(GetMockedAppSchedulerClient());
-    record->isSpecifiedAbility_ = true;
+    record->specifiedRequestId_ = 1;
     EXPECT_CALL(*mockAppSchedulerClient_, ScheduleLaunchApplication(_, _)).Times(1);
     service_->LaunchApplication(record);
     auto ability = record->GetAbilityRunningRecordByToken(GetMockToken());
@@ -2437,7 +2436,7 @@ HWTEST_F(AmsAppRunningRecordTest, AddAbilityStageDone_001, TestSize.Level1)
         AAFwk::EventWrap(AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG, 1), 0);
     record->AddAbilityStageDone();
 
-    record->isSpecifiedAbility_ = true;
+    record->specifiedRequestId_ = 1;
     record->AddAbilityStageDone();
 
     TAG_LOGI(AAFwkTag::TEST, "AmsAppRunningRecordTest AddAbilityStageDone_001 end");
