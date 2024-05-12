@@ -106,6 +106,7 @@ declare_args() {
       "com.ohos.textautofill/entry/TextAutoFillAbility"
   ability_runtime_use_memmgr_plugin = false
   ability_runtime_use_memmgr = false
+  cj_frontend = true
 
   if (!defined(global_parts_info) ||
       defined(global_parts_info.account_os_account)) {

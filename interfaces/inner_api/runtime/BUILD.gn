@@ -118,6 +118,15 @@ ohos_shared_library("runtime") {
     "zlib:shared_libz",
   ]
 
+  if (cj_frontend) {
+    sources += [ "${ability_runtime_native_path}/runtime/cj_runtime.cpp" ]
+
+    include_dirs +=
+        [ "${ability_runtime_path}/cj_environment/interfaces/inner_api" ]
+
+    deps += [ "${ability_runtime_path}/cj_environment/frameworks/cj_environment:cj_environment" ]
+  }
+
   defines = []
   if (is_standard_system) {
     defines += [ "ENABLE_HITRACE" ]
