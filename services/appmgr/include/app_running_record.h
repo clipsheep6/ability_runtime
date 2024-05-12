@@ -766,6 +766,8 @@ public:
     int DumpIpcStop(std::string& result);
     int DumpIpcStat(std::string& result);
 
+    int DumpFfrt(std::string &result);
+
     void SetExitReason(int32_t reason);
     int32_t GetExitReason() const;
 

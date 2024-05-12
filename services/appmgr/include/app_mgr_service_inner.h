@@ -1052,6 +1052,8 @@ public:
 
     virtual int DumpIpcStat(const int32_t pid, std::string& result);
 
+    virtual int DumpFfrt(const std::vector<int32_t>& pids, std::string& result);
+
     int32_t SetSupportedProcessCacheSelf(bool isSupport);
 
     void OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord);

@@ -2152,9 +2152,9 @@ int AppRunningRecord::DumpIpcStart(std::string& result)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (appLifeCycleDeal_ == nullptr) {
-        result.append(MSG_DUMP_IPC_START_STAT)
-            .append(MSG_DUMP_IPC_FAIL)
-            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        result.append(MSG_DUMP_IPC_START_STAT, strlen(MSG_DUMP_IPC_START_STAT))
+            .append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));
         TAG_LOGE(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
@@ -2165,9 +2165,9 @@ int AppRunningRecord::DumpIpcStop(std::string& result)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (appLifeCycleDeal_ == nullptr) {
-        result.append(MSG_DUMP_IPC_STOP_STAT)
-            .append(MSG_DUMP_IPC_FAIL)
-            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        result.append(MSG_DUMP_IPC_STOP_STAT, strlen(MSG_DUMP_IPC_STOP_STAT))
+            .append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));
         TAG_LOGE(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
@@ -2178,13 +2178,25 @@ int AppRunningRecord::DumpIpcStat(std::string& result)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (appLifeCycleDeal_ == nullptr) {
-        result.append(MSG_DUMP_IPC_STAT)
-            .append(MSG_DUMP_IPC_FAIL)
-            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        result.append(MSG_DUMP_IPC_STAT, strlen(MSG_DUMP_IPC_STAT))
+            .append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));
         TAG_LOGE(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
     return appLifeCycleDeal_->DumpIpcStat(result);
+}
+
+int AppRunningRecord::DumpFfrt(std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    if (appLifeCycleDeal_ == nullptr) {
+        result.append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));
+        TAG_LOGE(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
+        return DumpErrorCode::ERR_INTERNAL_ERROR;
+    }
+    return appLifeCycleDeal_->DumpFfrt(result);
 }
 
 bool AppRunningRecord::SetSupportedProcessCache(bool isSupport)

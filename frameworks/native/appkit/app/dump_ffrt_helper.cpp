@@ -13,20 +13,26 @@
  * limitations under the License.
  */
 
-#ifndef MOCK_MY_FLAG_H
-#define MOCK_MY_FLAG_H
+#include "dump_ffrt_helper.h"
+
+#include <cstdint>
+#include <cstring>
+#include "ffrt_inner.h"
+
 namespace OHOS {
-namespace AAFwk {
-class MyFlag {
-public:
-    enum FLAG {
-        IS_INVALID_CALL = 0,
-        IS_SA_CALL,
-        IS_SHELL_CALL,
-        IS_SA_AND_SHELL_CALL,
-    };
-    static int flag_;
-};
-} // namespace AAFwk
-} // namespace OHOS
-#endif // MOCK_MY_FLAG_H
+namespace AppExecFwk {
+constexpr const uint32_t MAX_BUF_SIZE = (1U << 19);
+int DumpFfrtHelper::DumpFfrt(std::string& result)
+{
+    result.resize(MAX_BUF_SIZE);
+
+    int printNum = ffrt_dump(static_cast<uint32_t>(ffrt_dump_cmd_t::DUMP_INFO_ALL), &result[0], MAX_BUF_SIZE);
+    if (printNum > 0) {
+        result.resize(printNum);
+        return 0;
+    }
+    result.resize(0);
+    return -1;
+}
+}  // namespace AppExecFwk
+}  // namespace OHOS

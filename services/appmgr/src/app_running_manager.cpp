@@ -1430,9 +1430,9 @@ int AppRunningManager::DumpIpcStart(const int32_t pid, std::string& result)
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     const auto& appRecord = GetAppRunningRecordByPid(pid);
     if (!appRecord) {
-        result.append(MSG_DUMP_IPC_START_STAT)
-            .append(MSG_DUMP_IPC_FAIL)
-            .append(MSG_DUMP_IPC_FAIL_REASON_INVALILD_PID);
+        result.append(MSG_DUMP_IPC_START_STAT, strlen(MSG_DUMP_IPC_START_STAT))
+            .append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INVALILD_PID, strlen(MSG_DUMP_FAIL_REASON_INVALILD_PID));
         TAG_LOGE(AAFwkTag::APPMGR, "pid %{public}d does not exist", pid);
         return DumpErrorCode::ERR_INVALID_PID_ERROR;
     }
@@ -1444,9 +1444,9 @@ int AppRunningManager::DumpIpcStop(const int32_t pid, std::string& result)
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     const auto& appRecord = GetAppRunningRecordByPid(pid);
     if (!appRecord) {
-        result.append(MSG_DUMP_IPC_STOP_STAT)
-            .append(MSG_DUMP_IPC_FAIL)
-            .append(MSG_DUMP_IPC_FAIL_REASON_INVALILD_PID);
+        result.append(MSG_DUMP_IPC_STOP_STAT, strlen(MSG_DUMP_IPC_STOP_STAT))
+            .append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INVALILD_PID, strlen(MSG_DUMP_FAIL_REASON_INVALILD_PID));
         TAG_LOGE(AAFwkTag::APPMGR, "pid %{public}d does not exist", pid);
         return DumpErrorCode::ERR_INVALID_PID_ERROR;
     }
@@ -1458,13 +1458,44 @@ int AppRunningManager::DumpIpcStat(const int32_t pid, std::string& result)
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     const auto& appRecord = GetAppRunningRecordByPid(pid);
     if (!appRecord) {
-        result.append(MSG_DUMP_IPC_STAT)
-            .append(MSG_DUMP_IPC_FAIL)
-            .append(MSG_DUMP_IPC_FAIL_REASON_INVALILD_PID);
+        result.append(MSG_DUMP_IPC_STAT, strlen(MSG_DUMP_IPC_STAT))
+            .append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INVALILD_PID, strlen(MSG_DUMP_FAIL_REASON_INVALILD_PID));
         TAG_LOGE(AAFwkTag::APPMGR, "pid %{public}d does not exist", pid);
         return DumpErrorCode::ERR_INVALID_PID_ERROR;
     }
     return appRecord->DumpIpcStat(result);
+}
+
+int AppRunningManager::DumpFfrt(const std::vector<int32_t>& pids, std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    int errCode = DumpErrorCode::ERR_OK;
+    size_t count = 0;
+    for (const auto& pid : pids) {
+        TAG_LOGD(AAFwkTag::APPMGR, "DumpFfrt current pid:%{public}d", pid);
+        const auto& appRecord = GetAppRunningRecordByPid(pid);
+        if (!appRecord) {
+            TAG_LOGE(AAFwkTag::APPMGR, "pid %{public}d does not exist", pid);
+            ++count;
+            continue;
+        }
+        std::string currentResult;
+        errCode = appRecord->DumpFfrt(currentResult);
+        if (errCode != DumpErrorCode::ERR_OK) {
+            continue;
+        }
+        result += currentResult + "\n";
+    }
+    if (count == pids.size()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "no valid pid");
+        return DumpErrorCode::ERR_INVALID_PID_ERROR;
+    }
+    if (result.empty()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "no ffrt usage is found");
+        return DumpErrorCode::ERR_INTERNAL_ERROR;
+    }
+    return DumpErrorCode::ERR_OK;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

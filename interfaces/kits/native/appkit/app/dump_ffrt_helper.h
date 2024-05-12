@@ -13,30 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_APP_SCHEDULER_CONST_H
-#define OHOS_ABILITY_RUNTIME_APP_SCHEDULER_CONST_H
+#ifndef OHOS_ABILITY_RUNTIME_DUMP_FFRT_HELPER_H
+#define OHOS_ABILITY_RUNTIME_DUMP_FFRT_HELPER_H
 
-#include <cstdint>
-#include <cstring>
+#include <string>
 
 namespace OHOS {
 namespace AppExecFwk {
-constexpr const size_t MAX_CAPACITY = (1U << 20);
 
-constexpr const char* MSG_DUMP_IPC_START_STAT = "StartIpcStatistics\t";
-constexpr const char* MSG_DUMP_IPC_STOP_STAT = "StopIpcStatistics\t";
-constexpr const char* MSG_DUMP_IPC_STAT = "IpcStatistics\t";
-constexpr const char* MSG_DUMP_FAIL = "fail\n";
-constexpr const char* MSG_DUMP_FAIL_REASON_INTERNAL = "internal error.\n";
-
-enum DumpErrorCode {
-    // success
-    ERR_OK = 0,
-
-    // internal error
-    ERR_INTERNAL_ERROR,
+class DumpFfrtHelper {
+public:
+    DumpFfrtHelper();
+    ~DumpFfrtHelper();
+    
+    static int DumpFfrt(std::string& result);
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-
-#endif  // OHOS_ABILITY_RUNTIME_APP_SCHEDULER_CONST_H
+#endif  // OHOS_ABILITY_RUNTIME_DUMP_FFRT_HELPER_H

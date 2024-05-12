@@ -28,10 +28,6 @@ config("appmgr_config") {
   ]
 }
 
-config("appmgr_exception_config") {
-  cflags_cc = [ "-fexceptions" ]
-}
-
 group("appms_target") {
   deps = [ ":libappms" ]
 }
@@ -83,10 +79,7 @@ ohos_shared_library("libappms") {
     defines += [ "ABILITY_FAULT_AND_EXIT_TEST" ]
   }
 
-  configs = [
-    ":appmgr_config",
-    ":appmgr_exception_config",
-  ]
+  configs = [ ":appmgr_config" ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]

@@ -86,6 +86,8 @@ void AppSchedulerHost::InitMemberFuncMap()
         &AppSchedulerHost::HandleScheduleDumpIpcStop;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DUMP_IPC_STAT)] =
         &AppSchedulerHost::HandleScheduleDumpIpcStat;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DUMP_FFRT)] =
+        &AppSchedulerHost::HandleScheduleDumpFfrt;
 }
 
 AppSchedulerHost::~AppSchedulerHost()
@@ -429,6 +431,18 @@ int32_t AppSchedulerHost::HandleScheduleDumpIpcStat(MessageParcel &data, Message
     ScheduleDumpIpcStat(result);
     if (!reply.WriteString(result)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Fail to write string of ScheduleDumpIpcStat result");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppSchedulerHost::HandleScheduleDumpFfrt(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    std::string result;
+    ScheduleDumpFfrt(result);
+    if (!reply.WriteString(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Fail to write string of ScheduleDumpFfrt result");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

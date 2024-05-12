@@ -16,7 +16,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/abilitymgr"
 
-ohos_unittest("app_mgr_service_dump_ipc_test") {
+ohos_unittest("app_mgr_service_dump_ffrt_test") {
   module_out_path = module_output_path
 
   include_dirs = [
@@ -25,7 +25,7 @@ ohos_unittest("app_mgr_service_dump_ipc_test") {
   ]
 
   sources = [
-    "app_mgr_service_dump_ipc_test.cpp",
+    "app_mgr_service_dump_ffrt_test.cpp",
     "mock/src/mock_ipc_skeleton.cpp",
   ]
 
@@ -63,5 +63,5 @@ ohos_unittest("app_mgr_service_dump_ipc_test") {
 group("unittest") {
   testonly = true
 
-  deps = [ ":app_mgr_service_dump_ipc_test" ]
+  deps = [ ":app_mgr_service_dump_ffrt_test" ]
 }
