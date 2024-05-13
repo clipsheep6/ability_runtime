@@ -10436,7 +10436,29 @@ bool AbilityManagerService::ShouldPreventStartAbility(const AbilityRequest &abil
     }
     TAG_LOGE(AAFwkTag::ABILITYMGR, "Do not have permission to start ServiceExtension %{public}s.",
         abilityRecord->GetURI().c_str());
+    ReportPreventStartAbilityResult(callerAbilityInfo, abilityInfo);
     return true;
+}
+
+void AbilityManagerService::ReportPreventStartAbilityResult(const AppExecFwk::AbilityInfo &callerAbilityInfo,
+    const AppExecFwk::AbilityInfo &abilityInfo)
+{
+    int32_t callerUid = IPCSkeleton::GetCallingUid();
+    int32_t callerPid = IPCSkeleton::GetCallingRealPid();
+    int32_t extensionAbilityType = static_cast<int32_t>(abilityInfo.extensionAbilityType);
+    TAG_LOGD(AAFwkTag::ABILITYMGR,
+        "Prevent start ability debug log CALLER_BUNDLE_NAME %{public}s CALLEE_BUNDLE_NAME"
+        "%{public}s ABILITY_NAME %{public}s",
+        callerAbilityInfo.bundleName.c_str(), abilityInfo.name.c_str(), abilityInfo.name.c_str());
+    HiSysEventWrite(HiSysEvent::Domain::AAFWK, "PREVENT_START_ABILITY", HiSysEvent::EventType::BEHAVIOR,
+        "CALLER_UID", callerUid,
+        "CALLER_PID", callerPid,
+        "CALLER_PROCESS_NAME", callerAbilityInfo.process,
+        "CALLER_BUNDLE_NAME", callerAbilityInfo.bundleName,
+        "CALLEE_BUNDLE_NAME", abilityInfo.bundleName,
+        "CALLEE_PROCESS_NAME", abilityInfo.process,
+        "EXTENSION_ABILITY_TYPE", extensionAbilityType,
+        "ABILITY_NAME", abilityInfo.name);
 }
 
 bool AbilityManagerService::IsInWhiteList(const std::string &callerBundleName, const std::string &calleeBundleName,

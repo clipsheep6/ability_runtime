@@ -2222,6 +2222,8 @@ private:
 
     void SetReserveInfo(const std::string &linkString);
 
+    void ReportPreventStartAbilityResult(const AppExecFwk::AbilityInfo &callerAbilityInfo,
+        const AppExecFwk::AbilityInfo &abilityInfo);
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     std::shared_ptr<BackgroundTaskObserver> bgtaskObserver_;
 #endif
