@@ -22,9 +22,6 @@
 
 namespace OHOS {
 namespace AAFwk {
-
-const std::string KEY_UID = "uid";
-
 class AbilityEventUtil {
 public:
 

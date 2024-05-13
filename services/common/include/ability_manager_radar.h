@@ -23,19 +23,6 @@
 
 namespace OHOS {
 namespace AAFWK {
-const std::string ORG_PKG_NAME = "ohos.abilitymanagerservice";
-const std::string APPLICATION_CONTINUE_BEHAVIOR = "APPLICATION_CONTINUE_BEHAVIOR";
-const std::string DMS_PKG_NAME = "ohos.distributedschedule";
-const std::string ORG_PKG = "ORG_PKG";
-const std::string FUNC = "FUNC";
-const std::string BIZ_SCENE = "BIZ_SCENE";
-const std::string BIZ_STAGE = "BIZ_STAGE";
-const std::string STAGE_RES = "STAGE_RES";
-const std::string BIZ_STATE = "BIZ_STATE";
-const std::string TO_CALL_PKG = "TO_CALL_PKG";
-const std::string ERROR_CODE = "ERROR_CODE";
-constexpr char APP_CONTINUE_DOMAIN[] = "APP_CONTINUE";
-
 enum class BizScene : int32_t {
     CLICK_ICON = 10,
     SAVE_DATA = 11,

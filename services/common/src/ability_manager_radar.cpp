@@ -22,7 +22,19 @@
 
 namespace OHOS {
 namespace AAFWK {
-
+namespace {
+constexpr const char* ORG_PKG_NAME = "ohos.abilitymanagerservice";
+constexpr const char* APPLICATION_CONTINUE_BEHAVIOR = "APPLICATION_CONTINUE_BEHAVIOR";
+constexpr const char* DMS_PKG_NAME = "ohos.distributedschedule";
+constexpr const char* ORG_PKG = "ORG_PKG";
+constexpr const char* FUNC = "FUNC";
+constexpr const char* BIZ_SCENE = "BIZ_SCENE";
+constexpr const char* BIZ_STAGE = "BIZ_STAGE";
+constexpr const char* STAGE_RES = "STAGE_RES";
+constexpr const char* TO_CALL_PKG = "TO_CALL_PKG";
+constexpr const char* ERROR_CODE = "ERROR_CODE";
+constexpr char APP_CONTINUE_DOMAIN[] = "APP_CONTINUE";
+}
 ContinueRadar &ContinueRadar::GetInstance()
 {
     static ContinueRadar instance;
