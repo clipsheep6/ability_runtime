@@ -1441,5 +1441,19 @@ int32_t AppMgrService::SetSupportedProcessCacheSelf(bool isSupport)
     }
     return appMgrServiceInner_->SetSupportedProcessCacheSelf(isSupport);
 }
+
+int32_t AppMgrService::StartNativeChildProcess(const std::string &libName, int32_t childProcessCount,
+    const sptr<IRemoteObject> &callback)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "Called");
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    return appMgrServiceInner_->StartNativeChildProcess(
+        IPCSkeleton::GetCallingPid(), libName, childProcessCount, callback);
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

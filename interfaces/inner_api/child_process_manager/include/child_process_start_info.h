@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_CHILD_PROCESS_START_INFO_H
 
 #include <string>
+#include "iremote_object.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -26,6 +27,7 @@ struct ChildProcessStartInfo {
     std::string srcEntry;
     std::string hapPath;
     bool isEsModule = true;
+    sptr<IRemoteObject> ipcObj;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

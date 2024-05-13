@@ -25,6 +25,7 @@
 #include "child_process_manager_error_utils.h"
 #include "hap_module_info.h"
 #include "runtime.h"
+#include "iremote_object.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -41,12 +42,15 @@ public:
     bool IsChildProcess();
     ChildProcessManagerErrorCode StartChildProcessBySelfFork(const std::string &srcEntry, pid_t &pid);
     ChildProcessManagerErrorCode StartChildProcessByAppSpawnFork(const std::string &srcEntry, pid_t &pid);
+    ChildProcessManagerErrorCode StartNativeChildProcessByAppSpawnFork(
+        const std::string &libName, const sptr<IRemoteObject> &callbackStub);
     bool GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo);
     bool GetHapModuleInfo(const AppExecFwk::BundleInfo &bundleInfo, AppExecFwk::HapModuleInfo &hapModuleInfo);
     std::unique_ptr<AbilityRuntime::Runtime> CreateRuntime(const AppExecFwk::BundleInfo &bundleInfo,
         const AppExecFwk::HapModuleInfo &hapModuleInfo, const bool fromAppSpawn, const bool jitEnabled);
     bool LoadJsFile(const std::string &srcEntry, const AppExecFwk::HapModuleInfo &hapModuleInfo,
         std::unique_ptr<AbilityRuntime::Runtime> &runtime);
+    bool LoadNativeLib(const std::string &libPath, const sptr<IRemoteObject> &mainProcessCb);
     void SetForkProcessJITEnabled(bool jitEnabled);
     void SetForkProcessDebugOption(const std::string bundleName, const bool isStartWithDebug, const bool isDebugApp,
         const bool isStartWithNative);
@@ -55,6 +59,7 @@ private:
     ChildProcessManager();
 
     ChildProcessManagerErrorCode PreCheck();
+    ChildProcessManagerErrorCode PreCheckNativeProcess();
     void RegisterSignal();
     void HandleChildProcessBySelfFork(const std::string &srcEntry, const AppExecFwk::BundleInfo &bundleInfo);
     bool hasChildProcessRecord();

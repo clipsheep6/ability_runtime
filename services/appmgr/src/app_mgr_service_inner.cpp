@@ -5896,6 +5896,7 @@ int32_t AppMgrServiceInner::GetChildProcessInfo(const std::shared_ptr<ChildProce
     info.pid = childProcessRecord->GetPid();
     info.hostPid = childProcessRecord->GetHostPid();
     info.uid = childProcessRecord->GetUid();
+    info.processType = childProcessRecord->GetProcessType();
     info.bundleName = appRecord->GetBundleName();
     info.processName = childProcessRecord->GetProcessName();
     info.srcEntry = childProcessRecord->GetSrcEntry();
@@ -5944,7 +5945,12 @@ void AppMgrServiceInner::AttachChildProcess(const pid_t pid, const sptr<IChildSc
     childRecord->SetDeathRecipient(appDeathRecipient);
     childRecord->RegisterDeathRecipient();
 
-    childScheduler->ScheduleLoadJs();
+    if (childRecord->GetProcessType() != CHILD_PROCESS_TYPE_NATIVE) {
+        childScheduler->ScheduleLoadJs();
+    } else {
+        childScheduler->ScheduleRunNativeProc(childRecord->GetMainProcessCallback());
+        childRecord->ClearMainProcessCallback();
+    }
 }
 
 void AppMgrServiceInner::OnChildProcessRemoteDied(const wptr<IRemoteObject> &remote)
@@ -6538,6 +6544,49 @@ void AppMgrServiceInner::OnAppCacheStateChanged(const std::shared_ptr<AppRunning
         appRecord->GetBundleName().c_str(), appRecord->GetPriorityObject()->GetPid());
 
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnAppCacheStateChanged(appRecord);
+}
+
+int32_t AppMgrServiceInner::StartNativeChildProcess(const pid_t hostPid, const std::string &libName,
+    int32_t childProcessCount, const sptr<IRemoteObject> &callback)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "StartNativeChildProcess, hostPid:%{public}d", hostPid);
+    if (hostPid <= 0 || libName.empty() || !callback) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Invalid param: hostPid:%{public}d libName:%{private}s",
+            hostPid, libName.c_str());
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!AAFwk::AppUtils::GetInstance().IsSupportNativeChildProcess()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Unsupport native child process");
+        return ERR_INVALID_OPERATION;
+    }
+
+    int32_t errCode = StartChildProcessPreCheck(hostPid);
+    if (errCode != ERR_OK) {
+        return errCode;
+    }
+
+    auto appRecord = GetAppRunningRecordByPid(hostPid);
+    if (!appRecord) {
+        TAG_LOGI(AAFwkTag::APPMGR, "Get app runnning record(hostPid:%{public}d) failed.", hostPid);
+        return ERR_INVALID_OPERATION;
+    }
+
+    auto childRecordMap = appRecord->GetChildProcessRecordMap();
+    auto itNativeChildInfo = find_if(childRecordMap.begin(), childRecordMap.end(), [] (const auto &pair) -> bool {
+        return pair.second->GetProcessType() == CHILD_PROCESS_TYPE_NATIVE;
+    });
+
+    if (itNativeChildInfo != childRecordMap.end()) {
+        TAG_LOGI(AAFwkTag::APPMGR, "Native child process still alive(hostPid:%{public}d childPid:%{public}d)",
+            hostPid, itNativeChildInfo->second->GetPid());
+        return ERR_OVERFLOW;
+    }
+
+    pid_t dummyChildPid = 0;
+    auto nativeChildRecord = ChildProcessRecord::CreateNativeChildProcessRecord(
+        hostPid, libName, appRecord, callback, childProcessCount, false);
+    return StartChildProcessImpl(nativeChildRecord, appRecord, dummyChildPid);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
