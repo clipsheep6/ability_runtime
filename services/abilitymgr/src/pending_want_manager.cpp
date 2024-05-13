@@ -178,11 +178,21 @@ int32_t PendingWantManager::SendWantSender(sptr<IWantSender> target, const Sende
     TAG_LOGI(AAFwkTag::WANTAGENT, "begin");
 
     if (target == nullptr) {
+        if (senderInfo.finishedReceiver != nullptr) {
+            Want want;
+            WantParams wantParams = {};
+            senderInfo.finishedReceiver->PerformReceive(want, senderInfo.code, "canceled", wantParams, false, false, 0);
+        }
         TAG_LOGE(AAFwkTag::WANTAGENT, "sender is nullptr.");
         return ERR_INVALID_VALUE;
     }
     sptr<IRemoteObject> obj = target->AsObject();
     if (obj == nullptr || obj->IsProxyObject()) {
+        if (senderInfo.finishedReceiver != nullptr) {
+            Want want;
+            WantParams wantParams = {};
+            senderInfo.finishedReceiver->PerformReceive(want, senderInfo.code, "canceled", wantParams, false, false, 0);
+        }
         TAG_LOGE(AAFwkTag::WANTAGENT, "target obj is nullptr or is a proxy object.");
         return ERR_INVALID_VALUE;
     }
