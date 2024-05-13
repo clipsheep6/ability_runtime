@@ -295,12 +295,13 @@ ohos_shared_library("abilitykit_native") {
     ]
     include_dirs += [
       "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_runtime",
-      "//foundation/arkui/napi/interfaces/inner_api/cj/ffi_bind/native",
-      "//foundation/arkui/napi/interfaces/inner_api/cj//ffi_bind/cj_ffi",
-      "//foundation/ability/ability_runtime/frameworks/cj/ffi",
+      "${napi_path}/interfaces/inner_api/cjffi/native",
+      "${napi_path}/interfaces/inner_api/cjffi/cj_ffi",
+      "${ability_runtime_path}/frameworks/cj/ffi",
     ]
     external_deps += [
       "napi:cj_bind_native",
+      "napi:cj_bind_ffi",
     ]
   }
 
@@ -567,13 +568,15 @@ ohos_shared_library("uiabilitykit_native") {
     ]
 
     include_dirs += [
-      "//foundation/arkui/napi/interfaces/inner_api/cj/ffi_bind/native",
-      "//foundation/arkui/napi/interfaces/inner_api/cj//ffi_bind/cj_ffi",
-      "//foundation/ability/ability_runtime/frameworks/cj/ffi",
+      "${napi_path}/interfaces/inner_api/cj/ffi_bind/native",
+      "${napi_path}/interfaces/inner_api/cj/ffi_bind/cj_ffi",
+      "${ability_runtime_path}/frameworks/cj/ffi",
+      "${napi_path}/interfaces/inner_api/cjffi/cj_ffi",
     ]
 
     external_deps += [
       "napi:cj_bind_native",
+      "napi:cj_bind_ffi",
     ]
   }
 

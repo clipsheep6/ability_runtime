@@ -16,29 +16,29 @@
 #include <cstdint>
 
 extern "C" {
-int FFICJWantDelete = 0;
-int FFICJWantGetWantInfo = 0;
-int FFICJWantParamsDelete = 0;
-int FFICJWantCreateWithWantInfo = 0;
-int FFICJWantParseUri = 0;
-int FFICJWantAddEntity = 0;
-int FFICJElementNameCreateWithContent = 0;
-int FFICJElementNameDelete = 0;
-int FFICJElementNameGetElementNameInfo = 0;
-int FFICJElementNameParamsDelete = 0;
-int FFIAbilityGetAbilityContext = 0;
-int FFIAbilityContextGetFilesDir = 0;
-int FFIGetContext = 0;
-int FFICreateNapiValue = 0;
-int FFIGetArea  = 0;
-int FFICJApplicationInfo = 0;
-int FFIAbilityDelegatorRegistryGetAbilityDelegator = 0;
-int FFIAbilityDelegatorStartAbility = 0;
-int FFIAbilityDelegatorExecuteShellCommand = 0;
-int FFIGetExitCode = 0;
-int FFIGetStdResult = 0;
-int FFIDump = 0;
-int FFIAbilityDelegatorApplicationContext = 0;
+int FFICJWantDelete();
+int FFICJWantGetWantInfo();
+int FFICJWantParamsDelete();
+int FFICJWantCreateWithWantInfo();
+int FFICJWantParseUri();
+int FFICJWantAddEntity();
+int FFICJElementNameCreateWithContent();
+int FFICJElementNameDelete();
+int FFICJElementNameGetElementNameInfo();
+int FFICJElementNameParamsDelete();
+int FFIAbilityGetAbilityContext();
+int FFIAbilityContextGetFilesDir();
+int FFIGetContext();
+int FFICreateNapiValue();
+int FFIGetArea ();
+int FFICJApplicationInfo();
+int FFIAbilityDelegatorRegistryGetAbilityDelegator();
+int FFIAbilityDelegatorStartAbility();
+int FFIAbilityDelegatorExecuteShellCommand();
+int FFIGetExitCode();
+int FFIGetStdResult();
+int FFIDump();
+int FFIAbilityDelegatorApplicationContext();
 
 struct AbilityContextBroker {
     int64_t isAbilityContextExisted = 1;

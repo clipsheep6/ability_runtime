@@ -15,7 +15,5 @@ import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 group("cj_ability_packages") {
-    deps = [
-        "$cj_ability_path/ffi:cj_ability_ffi",
-    ]
+  deps = [ "$cj_ability_path/ffi:cj_ability_ffi" ]
 }
