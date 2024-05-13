@@ -28,7 +28,10 @@ void* DynamicLoadLibrary(const char* dlPath, int mode);
 #endif
 void* DynamicFindSymbol(void* so, const char* symbol);
 const char* DynamicGetError();
+<<<<<<< HEAD
 void DynamicFreeLibrary(void* so);
+=======
+>>>>>>> 6cb19bdf4 (all parts)
 #ifdef __OHOS__
 void DynamicInitNamespace(Dl_namespace* ns, void* parent, const char* entries, const char* name);
 #endif

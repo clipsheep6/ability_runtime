@@ -281,6 +281,25 @@ ohos_shared_library("abilitykit_native") {
     "libuv:uv",
   ]
 
+  if (cj_frontend) {
+    sources += [
+      "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ability_connect_callback_proxy.cpp",
+      "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ability_proxy.cpp",
+      "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ability_context.cpp",
+      "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ability_context_proxy.cpp"
+    ]
+    include_dirs += [
+      "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_runtime",
+      "${napi_path}/interfaces/inner_api/cjffi/native",
+      "${napi_path}/interfaces/inner_api/cjffi/cj_ffi",
+      "${ability_runtime_path}/frameworks/cj/ffi",
+    ]
+    external_deps += [
+      "napi:cj_bind_native",
+      "napi:cj_bind_ffi",
+    ]
+  }
+
   defines = []
 
   if (background_task_mgr_continuous_task_enable) {
@@ -533,6 +552,27 @@ ohos_shared_library("uiabilitykit_native") {
     "napi:ace_napi",
     "node:node_header_notice",
   ]
+
+  if (cj_frontend) {
+    sources += [
+      "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ui_ability.cpp",
+      "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ability_proxy.cpp",
+      "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ability_ffi.cpp",
+      "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ability_context_proxy.cpp"
+    ]
+
+    include_dirs += [
+      "${napi_path}/interfaces/inner_api/cj/ffi_bind/native",
+      "${napi_path}/interfaces/inner_api/cj/ffi_bind/cj_ffi",
+      "${ability_runtime_path}/frameworks/cj/ffi",
+      "${napi_path}/interfaces/inner_api/cjffi/cj_ffi",
+    ]
+
+    external_deps += [
+      "napi:cj_bind_native",
+      "napi:cj_bind_ffi",
+    ]
+  }
 
   if (ability_runtime_graphics) {
     external_deps += [
