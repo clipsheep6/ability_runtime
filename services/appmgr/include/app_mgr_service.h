@@ -368,6 +368,15 @@ public:
     virtual int32_t GetBundleNameByPid(const int32_t pid, std::string &bundleName, int32_t &uid) override;
 
     /**
+     * Get processState by pid.
+     *
+     * @param pid process id.
+     * @param processState Output parameters, return processState.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetProcessStateByPid(const int32_t pid, AppExecFwk::AppProcessState &processState) override;
+
+    /**
      * Notify Fault Data
      *
      * @param faultData the fault data.

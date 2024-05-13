@@ -453,6 +453,18 @@ public:
     virtual int32_t GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid) = 0;
 
     /**
+     * Get processState by pid.
+     *
+     * @param pid process id.
+     * @param processState Output parameters, return processState.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetProcessStateByPid(const int32_t pid, AppExecFwk::AppProcessState &processState)
+    {
+        return 0;
+    }
+
+    /**
      * get memorySize by pid.
      *
      * @param pid process id.
