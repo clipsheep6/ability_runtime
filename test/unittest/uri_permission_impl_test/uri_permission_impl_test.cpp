@@ -329,13 +329,13 @@ HWTEST_F(UriPermissionImplTest, Upms_VerifyUriPermission_001, TestSize.Level1)
     auto flagRead = 1;
     auto flagWrite = 2;
     
-    upms->AddTempUriPermission(uri, flagRead, callerTokenId, targetTokenId, false);
+    upms->AddTempUriPermission(uri, flagRead, callerTokenId, targetTokenId, 0);
     auto ret = upms->VerifyUriPermission(Uri(uri), flagRead, targetTokenId);
     ASSERT_EQ(ret, true);
     ret = upms->VerifyUriPermission(Uri(uri), flagWrite, targetTokenId);
     ASSERT_EQ(ret, false);
     
-    upms->AddTempUriPermission(uri, flagWrite, callerTokenId, targetTokenId, false);
+    upms->AddTempUriPermission(uri, flagWrite, callerTokenId, targetTokenId, 0);
     ret = upms->VerifyUriPermission(Uri(uri), flagRead, targetTokenId);
     ASSERT_EQ(ret, true);
     ret = upms->VerifyUriPermission(Uri(uri), flagWrite, targetTokenId);
@@ -411,14 +411,14 @@ HWTEST_F(UriPermissionImplTest, Upms_CheckUriPermission_001, TestSize.Level1)
     ASSERT_EQ(ret, false);
 
     // read
-    upms->AddTempUriPermission(mediaPhotoUri.ToString(), flagRead, callerTokenId, targetTokenId, false);
+    upms->AddTempUriPermission(mediaPhotoUri.ToString(), flagRead, callerTokenId, targetTokenId, 0);
     ret = upms->CheckUriPermission(mediaPhotoUri, flagRead, tokenIdPermission);
     ASSERT_EQ(ret, true);
     ret = upms->CheckUriPermission(mediaPhotoUri, flagWrite, tokenIdPermission);
     ASSERT_EQ(ret, false);
     
     // write
-    upms->AddTempUriPermission(mediaPhotoUri.ToString(), flagWrite, callerTokenId, targetTokenId, false);
+    upms->AddTempUriPermission(mediaPhotoUri.ToString(), flagWrite, callerTokenId, targetTokenId, 0);
     ret = upms->CheckUriPermission(mediaPhotoUri, flagWrite, tokenIdPermission);
     ASSERT_EQ(ret, true);
     MyFlag::permissionProxyAuthorization_ = false;
@@ -473,14 +473,14 @@ HWTEST_F(UriPermissionImplTest, Upms_CheckUriPermission_002, TestSize.Level1)
     ASSERT_EQ(ret, false);
 
     // read
-    upms->AddTempUriPermission(mediaAudioUri.ToString(), flagRead, callerTokenId, targetTokenId, false);
+    upms->AddTempUriPermission(mediaAudioUri.ToString(), flagRead, callerTokenId, targetTokenId, 0);
     ret = upms->CheckUriPermission(mediaAudioUri, flagRead, tokenIdPermission);
     ASSERT_EQ(ret, true);
     ret = upms->CheckUriPermission(mediaAudioUri, flagWrite, tokenIdPermission);
     ASSERT_EQ(ret, false);
     
     // write
-    upms->AddTempUriPermission(mediaAudioUri.ToString(), flagWrite, callerTokenId, targetTokenId, false);
+    upms->AddTempUriPermission(mediaAudioUri.ToString(), flagWrite, callerTokenId, targetTokenId, 0);
     ret = upms->CheckUriPermission(mediaAudioUri, flagWrite, tokenIdPermission);
     ASSERT_EQ(ret, true);
     MyFlag::permissionProxyAuthorization_ = false;
@@ -526,14 +526,14 @@ HWTEST_F(UriPermissionImplTest, Upms_CheckUriPermission_003, TestSize.Level1)
     ASSERT_EQ(ret, false);
 
     // read
-    upms->AddTempUriPermission(docsUri.ToString(), flagRead, callerTokenId, targetTokenId, false);
+    upms->AddTempUriPermission(docsUri.ToString(), flagRead, callerTokenId, targetTokenId, 0);
     ret = upms->CheckUriPermission(docsUri, flagRead, tokenIdPermission);
     ASSERT_EQ(ret, true);
     ret = upms->CheckUriPermission(docsUri, flagWrite, tokenIdPermission);
     ASSERT_EQ(ret, false);
     
     // write
-    upms->AddTempUriPermission(docsUri.ToString(), flagWrite, callerTokenId, targetTokenId, false);
+    upms->AddTempUriPermission(docsUri.ToString(), flagWrite, callerTokenId, targetTokenId, 0);
     ret = upms->CheckUriPermission(docsUri, flagWrite, tokenIdPermission);
     ASSERT_EQ(ret, true);
     MyFlag::permissionProxyAuthorization_ = false;
@@ -578,14 +578,14 @@ HWTEST_F(UriPermissionImplTest, Upms_CheckUriPermission_004, TestSize.Level1)
     ASSERT_EQ(ret, false);
     
     // read
-    upms->AddTempUriPermission(uri1.ToString(), flagRead, callerTokenId, targetTokenId, false);
+    upms->AddTempUriPermission(uri1.ToString(), flagRead, callerTokenId, targetTokenId, 0);
     ret = upms->CheckUriPermission(uri1, flagRead, tokenIdPermission);
     ASSERT_EQ(ret, true);
     ret = upms->CheckUriPermission(uri1, flagWrite, tokenIdPermission);
     ASSERT_EQ(ret, false);
     
     // write
-    upms->AddTempUriPermission(uri1.ToString(), flagWrite, callerTokenId, targetTokenId, false);
+    upms->AddTempUriPermission(uri1.ToString(), flagWrite, callerTokenId, targetTokenId, 0);
     ret = upms->CheckUriPermission(uri1, flagRead, tokenIdPermission);
     ASSERT_EQ(ret, true);
     ret = upms->CheckUriPermission(uri1, flagWrite, tokenIdPermission);

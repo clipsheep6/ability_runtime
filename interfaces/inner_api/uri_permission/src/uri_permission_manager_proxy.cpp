@@ -29,7 +29,7 @@ UriPermissionManagerProxy::UriPermissionManagerProxy(const sptr<IRemoteObject> &
     : IRemoteProxy<IUriPermissionManager>(impl) {}
 
 int UriPermissionManagerProxy::GrantUriPermission(const Uri &uri, unsigned int flag,
-    const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
+    const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId, int32_t abilityId)
 {
     TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::GrantUriPermission is called.");
     MessageParcel data;
@@ -57,6 +57,10 @@ int UriPermissionManagerProxy::GrantUriPermission(const Uri &uri, unsigned int f
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write initiatorTokenId failed.");
         return INNER_ERR;
     }
+    if (!data.WriteInt32(abilityId)) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write abilityId failed.");
+        return INNER_ERR;
+    }
     MessageParcel reply;
     MessageOption option;
     int error = SendTransactCmd(UriPermMgrCmd::ON_GRANT_URI_PERMISSION, data, reply, option);
@@ -68,7 +72,7 @@ int UriPermissionManagerProxy::GrantUriPermission(const Uri &uri, unsigned int f
 }
 
 int UriPermissionManagerProxy::GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
-    const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
+    const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId, int32_t abilityId)
 {
     TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::GrantUriPermission is called.");
     if (uriVec.empty() || uriVec.size() > MAX_URI_COUNT) {
@@ -104,6 +108,10 @@ int UriPermissionManagerProxy::GrantUriPermission(const std::vector<Uri> &uriVec
     }
     if (!data.WriteUint32(initiatorTokenId)) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write initiatorTokenId failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(abilityId)) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write abilityId failed.");
         return INNER_ERR;
     }
     MessageParcel reply;
@@ -210,7 +218,7 @@ int UriPermissionManagerProxy::GrantUriPermissionFor2In1(const std::vector<Uri> 
     return reply.ReadInt32();
 }
 
-void UriPermissionManagerProxy::RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId)
+void UriPermissionManagerProxy::RevokeUriPermission(const uint32_t tokenId, int32_t abilityId)
 {
     TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::RevokeUriPermission is called.");
     MessageParcel data;
@@ -222,6 +230,10 @@ void UriPermissionManagerProxy::RevokeUriPermission(const Security::AccessToken:
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write AccessTokenID failed.");
         return;
     }
+    if (!data.WriteInt32(abilityId)) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write AccessTokenID failed.");
+        return;
+    }
     MessageParcel reply;
     MessageOption option;
     int error = SendTransactCmd(UriPermMgrCmd::ON_REVOKE_URI_PERMISSION, data, reply, option);
@@ -230,7 +242,7 @@ void UriPermissionManagerProxy::RevokeUriPermission(const Security::AccessToken:
     }
 }
 
-int UriPermissionManagerProxy::RevokeAllUriPermissions(const Security::AccessToken::AccessTokenID tokenId)
+int UriPermissionManagerProxy::RevokeAllUriPermissions(const uint32_t tokenId)
 {
     TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::RevokeAllUriPermissions is called.");
     MessageParcel data;

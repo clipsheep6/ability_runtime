@@ -72,7 +72,8 @@ int UriPermissionManagerStub::OnRemoteRequest(
 int UriPermissionManagerStub::HandleRevokeUriPermission(MessageParcel &data, MessageParcel &reply)
 {
     auto tokenId = data.ReadUint32();
-    RevokeUriPermission(tokenId);
+    auto abilityId = data.ReadInt32();
+    RevokeUriPermission(tokenId, abilityId);
     return ERR_OK;
 }
 
@@ -95,7 +96,8 @@ int UriPermissionManagerStub::HandleGrantUriPermission(MessageParcel &data, Mess
     auto targetBundleName = data.ReadString();
     auto appIndex = data.ReadInt32();
     auto initiatorTokenId = data.ReadUint32();
-    int result = GrantUriPermission(*uri, flag, targetBundleName, appIndex, initiatorTokenId);
+    auto abilityId = data.ReadInt32();
+    int result = GrantUriPermission(*uri, flag, targetBundleName, appIndex, initiatorTokenId, abilityId);
     reply.WriteInt32(result);
     return ERR_OK;
 }
@@ -120,7 +122,8 @@ int UriPermissionManagerStub::HandleBatchGrantUriPermission(MessageParcel &data,
     auto targetBundleName = data.ReadString();
     auto appIndex = data.ReadInt32();
     auto initiatorTokenId = data.ReadUint32();
-    int result = GrantUriPermission(uriVec, flag, targetBundleName, appIndex, initiatorTokenId);
+    auto abilityId = data.ReadInt32();
+    int result = GrantUriPermission(uriVec, flag, targetBundleName, appIndex, initiatorTokenId, abilityId);
     reply.WriteInt32(result);
     return ERR_OK;
 }
