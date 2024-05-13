@@ -51,6 +51,18 @@ public:
         const std::shared_ptr<NativeReference> &windowStage) = 0;
 
     /**
+     * Called back when the window stage is created.
+     *
+     * @since 9
+     * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
+     * @param ability: Indicates the ability to register for listening.
+     * @param windowStage: Indicates the window stage to create.
+     * @StageModelOnly
+     */
+    virtual void OnWindowStageDidCreate(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage) {}
+
+    /**
      * Called back when the window stage is destroy.
      *
      * @since 9
@@ -133,6 +145,8 @@ public:
     explicit JsAbilityLifecycleCallback(napi_env env);
     void OnAbilityCreate(const std::shared_ptr<NativeReference> &ability) override;
     void OnWindowStageCreate(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage) override;
+    void OnWindowStageDidCreate(const std::shared_ptr<NativeReference> &ability,
         const std::shared_ptr<NativeReference> &windowStage) override;
     void OnWindowStageDestroy(const std::shared_ptr<NativeReference> &ability,
         const std::shared_ptr<NativeReference> &windowStage) override;

@@ -82,6 +82,7 @@
       *ProcessInfo*;
       *ExtensionModuleLoader*;
       *SysMrgClient*;
+      *UIServiceStub*;
     };
   local:
     *;
