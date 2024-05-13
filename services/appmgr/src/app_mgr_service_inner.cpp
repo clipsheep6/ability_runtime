@@ -2524,6 +2524,7 @@ void AppMgrServiceInner::SetAppInfo(const BundleInfo &bundleInfo, AppSpawnStartM
     startMsg.accessTokenIdEx = bundleInfo.applicationInfo.accessTokenIdEx;
     startMsg.apl = bundleInfo.applicationInfo.appPrivilegeLevel;
     startMsg.ownerId = bundleInfo.signatureInfo.appIdentifier;
+    startMsg.provisionType = bundleInfo.applicationInfo.appProvisionType;
     startMsg.setAllowInternet = setAllowInternet;
     startMsg.allowInternet = allowInternet;
     startMsg.gids = gids;
