@@ -31,7 +31,7 @@ ohos_shared_library("cj_ability_ffi") {
         "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
         "${ability_runtime_path}/tools/aa/include",
         "${cj_ability_path}/ffi",
-        "//foundation/arkui/napi/interfaces/inner_api/cj/ffi_bind/native",
+        "${napi_path}/interfaces/inner_api/cjffi/cj_ffi",
     ]
     
     deps = [
@@ -52,6 +52,7 @@ ohos_shared_library("cj_ability_ffi") {
         "cj_utils_ffi.cpp",
         "cj_want_ffi.cpp",
         "cj_ability_delegator.cpp",
+        "cj_collection_ffi.cpp",
         "cj_application_context.cpp"
     ]
 

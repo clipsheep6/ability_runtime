@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-#include "ffi_remote_data.h"
-#include "iremote_object.h"
-
 #ifndef ABILITY_RUNTIME_CJ_REMOTE_OBJECT_FFI_H
 #define ABILITY_RUNTIME_CJ_REMOTE_OBJECT_FFI_H
+
+#include "ffi_remote_data.h"
+#include "iremote_object.h"
 
 namespace OHOS {
 namespace AppExecFwk {

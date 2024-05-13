@@ -51,9 +51,10 @@ ElementNameParams* FFICJElementNameGetElementNameInfo(ElementNameHandle elementN
 
 void FFICJElementNameParamsDelete(ElementNameParams* elementNameParams)
 {
-    free((void*)elementNameParams->deviceId);
-    free((void*)elementNameParams->bundleName);
-    free((void*)elementNameParams->abilityName);
-    free((void*)elementNameParams->moduleName);
+    free(static_cast<void*>(const_cast<char*>(elementNameParams->deviceId)));
+    free(static_cast<void*>(const_cast<char*>(elementNameParams->bundleName)));        
+    free(static_cast<void*>(const_cast<char*>(elementNameParams->abilityName)));
+    free(static_cast<void*>(const_cast<char*>(elementNameParams->moduleName)));
+    free(static_cast<void*>(const_cast<char*>(elementNameParams->deviceId)));
     free(static_cast<void *>(elementNameParams));
 }
