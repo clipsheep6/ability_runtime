@@ -1428,7 +1428,7 @@ AppExecFwk::ElementName AbilityManagerClient::GetTopAbility(bool isNeedLocalDevi
             (void)sceneSessionManager->GetFocusSessionElement(elementName);
             std::string localDeviceId;
             auto abms = GetAbilityManager();
-            if (isNeedLocalDeviceId && abmd->GetLocalDeviceId(localDeviceId)) {
+            if (isNeedLocalDeviceId && abms->GetLocalDeviceId(localDeviceId)) {
                 elementName.SetDeviceID(localDeviceId);
             }
             return elementName;
