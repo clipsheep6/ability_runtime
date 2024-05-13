@@ -296,6 +296,17 @@ public:
     virtual ErrCode RequestDialogService(napi_env env, AAFwk::Want &want, RequestDialogResultTask &&task) = 0;
 
     /**
+     * @brief Requests dialogService from the system.
+     * This method is called for dialog request. This is an asynchronous method. When it is executed,
+     * the task will be called back.
+     *
+     * @param want Indicates the dialog service to be requested.
+     * @param task The callback or promise fo js interface.
+     * @return Returns ERR_OK if success.
+     */
+    virtual ErrCode RequestDialogService(AAFwk::Want &want, RequestDialogResultTask &&task) = 0;
+
+    /**
      * @brief Report drawn completed.
      *
      * @return Returns ERR_OK on success, others on failure.

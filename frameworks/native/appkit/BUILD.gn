@@ -194,6 +194,17 @@ ohos_shared_library("appkit_native") {
   ]
   public_external_deps = [ "ability_base:configuration" ]
 
+  if (cj_frontend) {
+    sources += [
+      "${ability_runtime_native_path}/appkit/ability_runtime/app/cj_ability_stage.cpp",
+      "${ability_runtime_native_path}/appkit/ability_runtime/app/cj_ability_stage_proxy.cpp",
+    ]
+
+    include_dirs += [
+      "${ability_runtime_path}/cj_environment/interfaces/inner_api"
+    ]
+  }
+
   if (ability_runtime_graphics) {
     external_deps += [
       "ace_engine:ace_forward_compatibility",
@@ -402,7 +413,9 @@ ohos_shared_library("appkit_delegator") {
     "ipc:ipc_core",
     "napi:ace_napi",
   ]
+
   public_external_deps = [ "ability_base:configuration" ]
+
   if (ability_runtime_graphics) {
     external_deps += [ "icu:shared_icuuc" ]
   }

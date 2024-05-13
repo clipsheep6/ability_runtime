@@ -13,34 +13,8 @@
  * limitations under the License.
  */
 
-#include "dynamic_loader.h"
+#include <cstdint>
 
-#include <cstdio>
-#include <libloaderapi.h>
-#include <processenv.h>
-
-constexpr auto ERROR_BUF_SIZE = 255;
-static char g_dlError[ERROR_BUF_SIZE] {0};
-
-void* DynamicLoadLibrary(const char* dlPath, int mode)
-{
-    return LoadLibraryA(dlPath);
-}
-
-void* DynamicFindSymbol(void* so, const char* symbol)
-{
-    return (void*)GetProcAddress((HMODULE)so, symbol);
-}
-
-<<<<<<< HEAD
-void DynamicFreeLibrary(void* so)
-{
-    (void)FreeLibrary((HMODULE)so);
-}
-
-=======
->>>>>>> 6cb19bdf4 (all parts)
-const char* DynamicGetError()
-{
-    return g_dlError;
+extern "C" {
+void RegisterCJTestRunnerFuncs() {}
 }
