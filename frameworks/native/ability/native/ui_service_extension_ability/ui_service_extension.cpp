@@ -21,7 +21,6 @@
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
-#include "ability_delegator_registry.h"
 #include "napi_common_util.h"
 #include "runtime.h"
 #include "js_runtime_utils.h"
@@ -29,10 +28,7 @@
 #include "napi_common_configuration.h"
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
-// #include "js_ability.h"
 #include "ui_service_extension_context.h"
-#include "reverse_continuation_scheduler_primary_stage.h"
-#include "time_util.h"
 
 
 namespace OHOS {
@@ -66,7 +62,6 @@ void UIServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const sptr<IRemoteObject> &token)
 {
     TAG_LOGD(AAFwkTag::UISERVC_EXT, "UIExtension begin init");
-	abilityInfo_ = record->GetAbilityInfo();
     ExtensionBase<UIServiceExtensionContext>::Init(record, application, handler, token);
 }
 
@@ -85,110 +80,9 @@ std::shared_ptr<UIServiceExtensionContext> UIServiceExtension::CreateAndInitCont
     return context;
 }
 
-std::string UIServiceExtension::GetAbilityName()
-{
-    if (abilityInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UISERVC_EXT, "abilityInfo_ is nullptr");
-        return "";
-    }
-    return abilityInfo_->name;
-}
-
-std::string UIServiceExtension::GetModuleName()
-{
-    if (abilityInfo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UISERVC_EXT, "abilityInfo_ is nullptr.");
-        return "";
-    }
-
-    return abilityInfo_->moduleName;
-}
-
-sptr<IRemoteObject> UIServiceExtension::GetSessionToken()
-{
-    return sessionToken_;
-}
-
-AppExecFwk::AbilityLifecycleExecutor::LifecycleState UIServiceExtension::GetState()
-{
-    TAG_LOGD(AAFwkTag::UISERVC_EXT, "Called.");
-    if (abilityLifecycleExecutor_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UISERVC_EXT, "abilityLifecycleExecutor_ is nullptr.");
-        return AppExecFwk::AbilityLifecycleExecutor::LifecycleState::UNINITIALIZED;
-    }
-    return static_cast<AppExecFwk::AbilityLifecycleExecutor::LifecycleState>(abilityLifecycleExecutor_->GetState());
-}
-
 void UIServiceExtension::AttachAbilityContext(const std::shared_ptr<AbilityRuntime::AbilityContext> &abilityContext)
 {
     abilityContext_ = abilityContext;
-}
-
-void UIServiceExtension::SetStartAbilitySetting(std::shared_ptr<AppExecFwk::AbilityStartSetting> setting)
-{
-    TAG_LOGD(AAFwkTag::UISERVC_EXT, "Called.");
-    setting_ = setting;
-}
-
-void UIServiceExtension::SetLaunchParam(const AAFwk::LaunchParam &launchParam)
-{
-    TAG_LOGD(AAFwkTag::UISERVC_EXT, "Called.");
-    launchParam_ = launchParam;
-}
-
-bool UIServiceExtension::IsRestoredInContinuation() const
-{
-    if (abilityContext_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UISERVC_EXT, "abilityContext_ is null.");
-        return false;
-    }
-
-    if (launchParam_.launchReason != AAFwk::LaunchReason::LAUNCHREASON_CONTINUATION) {
-        TAG_LOGD(AAFwkTag::UISERVC_EXT, "LaunchReason is %{public}d.", launchParam_.launchReason);
-        return false;
-    }
-
-    if (abilityContext_->GetContentStorage() == nullptr) {
-        TAG_LOGD(AAFwkTag::UISERVC_EXT, "Get content failed.");
-        return false;
-    }
-    TAG_LOGD(AAFwkTag::UISERVC_EXT, "End.");
-    return true;
-}
-
-
-bool UIServiceExtension::ShouldRecoverState(const AAFwk::Want &want)
-{
-    if (!want.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false)) {
-        TAG_LOGE(AAFwkTag::UISERVC_EXT, "AppRecovery not recovery restart.");
-        return false;
-    }
-
-    if (abilityRecovery_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UISERVC_EXT, "abilityRecovery_ is null.");
-        return false;
-    }
-
-    if (abilityContext_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UISERVC_EXT, "abilityContext_ is null.");
-        return false;
-    }
-
-    if (abilityContext_->GetContentStorage() == nullptr) {
-        TAG_LOGE(AAFwkTag::UISERVC_EXT, "Get content failed.");
-        return false;
-    }
-    return true;
-}
-
-bool UIServiceExtension::CheckIsSilentForeground() const
-{
-    return isSilentForeground_;
-}
-
-void UIServiceExtension::SetIsSilentForeground(bool isSilentForeground)
-{
-    isSilentForeground_ = isSilentForeground;
 }
 
 #ifdef SUPPORT_GRAPHICS

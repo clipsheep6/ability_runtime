@@ -18,12 +18,8 @@
 
 #include "extension_base.h"
 #include "js_runtime.h"
-#include "ability_lifecycle_executor.h"
 #include "ability_context.h"
 #include "context/context.h"
-#include "ability_continuation_interface.h"
-#include "ability_recovery.h"
-#include "continuation_manager_stage.h"
 #ifdef SUPPORT_GRAPHICS
 #include "js_window_stage_config.h"
 #include "window_scene.h"
@@ -89,23 +85,7 @@ public:
      */
     static UIServiceExtension* Create(const std::unique_ptr<Runtime>& runtime);
 
-    /**
-     * @brief Obtains the class name in this ability name, without the prefixed bundle name.
-     * @return Returns the class name of this ability.
-     */
-    std::string GetAbilityName();
-
-    /**
-     * @brief Obtains the module name in this ability name, without the prefixed bundle name.
-     * @return Returns the module name of this ability.
-     */
-    std::string GetModuleName();
-    AppExecFwk::AbilityLifecycleExecutor::LifecycleState GetState();
     void AttachAbilityContext(const std::shared_ptr<AbilityRuntime::AbilityContext> &abilityContext);
-    void SetStartAbilitySetting(std::shared_ptr<AppExecFwk::AbilityStartSetting> setting);
-    void SetLaunchParam(const AAFwk::LaunchParam &launchParam);
-    bool CheckIsSilentForeground() const;
-    void SetIsSilentForeground(bool isSilentForeground);
 #ifdef SUPPORT_GRAPHICS
     /**
      * @brief get the scene belong to the ability.
@@ -120,26 +100,13 @@ public:
     uint32_t sceneFlag_ = 0;
 #endif
 protected:
-    bool IsRestoredInContinuation() const;
-    bool ShouldRecoverState(const AAFwk::Want &want);
-    sptr<IRemoteObject> GetSessionToken();
-
     std::shared_ptr<AbilityRuntime::AbilityContext> abilityContext_ = nullptr;
-    std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_ = nullptr;
-    std::shared_ptr<AppExecFwk::AbilityStartSetting> setting_ = nullptr;
-    std::shared_ptr<AppExecFwk::AbilityRecovery> abilityRecovery_ = nullptr;
-    sptr<IRemoteObject> sessionToken_;
-    AAFwk::LaunchParam launchParam_;
     bool securityFlag_ = false;
     bool showOnLockScreen_ = false;
 #ifdef SUPPORT_GRAPHICS
     std::shared_ptr<Rosen::WindowScene> scene_ = nullptr;
     sptr<Rosen::IWindowLifeCycle> sceneListener_ = nullptr;
 #endif
-private:
-    std::shared_ptr<AppExecFwk::AbilityLifecycleExecutor> abilityLifecycleExecutor_ = nullptr;
-    sptr<IRemoteObject> reverseContinuationSchedulerReplica_ = nullptr;
-    bool isSilentForeground_ = false;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

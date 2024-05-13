@@ -32,11 +32,11 @@ class UIServiceExtensionAbility extends ExtensionAbility {
     console.log('onDisconnect');
   }
 
-  onWindowStageWillCreate(config) {
+  onWindowStageWillCreate(windowStageConfig) {
     console.log('onWindowStageWillCreate');
   }
 
-  onWindowStageDidCreate(window){
+  onWindowStageDidCreate(windowStage){
     console.log('onWindowStageDidCreate');
   }
 
