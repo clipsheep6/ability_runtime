@@ -175,6 +175,7 @@ void ChildProcessManager::HandleChildProcessBySelfFork(const std::string &srcEnt
     TAG_LOGD(AAFwkTag::PROCESSMGR, "StartDebugMode, isStartWithDebug is %{public}d, processName is %{public}s, "
         "isDebugApp is %{public}d, isStartWithNative is %{public}d.", g_debugOption.isStartWithDebug,
         g_debugOption.processName.c_str(), g_debugOption.isDebugApp, g_debugOption.isStartWithNative);
+    runtime->StopHdcRegister();
     runtime->StartDebugMode(g_debugOption);
     LoadJsFile(srcEntry, hapModuleInfo, runtime);
     TAG_LOGD(AAFwkTag::PROCESSMGR, "HandleChildProcessBySelfFork end.");
