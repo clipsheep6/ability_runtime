@@ -4137,7 +4137,8 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
     }
 
     TAG_LOGD(AAFwkTag::ABILITYMGR, "bundleName = %{public}s", wantSenderInfo.bundleName.c_str());
-    return pendingWantManager->GetWantSender(callerUid, appUid, isSystemApp, wantSenderInfo, callerToken);
+    int32_t appIndex = 0;
+    return pendingWantManager->GetWantSender(callerUid, appUid, isSystemApp, wantSenderInfo, callerToken, appIndex);
 }
 
 int AbilityManagerService::SendWantSender(sptr<IWantSender> target, const SenderInfo &senderInfo)
