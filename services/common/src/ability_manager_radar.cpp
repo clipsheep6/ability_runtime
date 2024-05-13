@@ -99,32 +99,17 @@ bool ContinueRadar::ClickIconRecvOver(const std::string& func)
     return true;
 }
 
-bool ContinueRadar::SaveDataContinue(const std::string& func, int32_t errCode)
+bool ContinueRadar::SaveDataContinue(const std::string& func)
 {
-    int32_t res = ERR_OK;
-    StageRes stageRes = (errCode == ERR_OK) ? StageRes::STAGE_SUCC : StageRes::STAGE_FAIL;
-    if (stageRes == StageRes::STAGE_SUCC) {
-        res = HiSysEventWrite(
-            APP_CONTINUE_DOMAIN,
-            APPLICATION_CONTINUE_BEHAVIOR,
-            HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
-            ORG_PKG, ORG_PKG_NAME,
-            FUNC, func,
-            BIZ_SCENE, static_cast<int32_t>(BizScene::SAVE_DATA),
-            BIZ_STAGE, static_cast<int32_t>(SaveData::SAVEDATA_CONTINUE),
-            STAGE_RES, static_cast<int32_t>(StageRes::STAGE_SUCC));
-    } else {
-        res = HiSysEventWrite(
-            APP_CONTINUE_DOMAIN,
-            APPLICATION_CONTINUE_BEHAVIOR,
-            HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
-            ORG_PKG, ORG_PKG_NAME,
-            FUNC, func,
-            BIZ_SCENE, static_cast<int32_t>(BizScene::SAVE_DATA),
-            BIZ_STAGE, static_cast<int32_t>(SaveData::SAVEDATA_CONTINUE),
-            STAGE_RES, static_cast<int32_t>(StageRes::STAGE_FAIL),
-            ERROR_CODE, errCode);
-    }
+    int32_t res = HiSysEventWrite(
+        APP_CONTINUE_DOMAIN,
+        APPLICATION_CONTINUE_BEHAVIOR,
+        HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
+        ORG_PKG, ORG_PKG_NAME,
+        FUNC, func,
+        BIZ_SCENE, static_cast<int32_t>(BizScene::SAVE_DATA),
+        BIZ_STAGE, static_cast<int32_t>(SaveData::SAVEDATA_CONTINUE),
+        STAGE_RES, static_cast<int32_t>(StageRes::STAGE_SUCC));
     if (res != ERR_OK) {
         TAG_LOGE(AAFwkTag::DEFAULT, "SaveDataContinue error, res:%{public}d", res);
         return false;
@@ -150,35 +135,18 @@ bool ContinueRadar::SaveDataRes(const std::string& func)
     return true;
 }
 
-bool ContinueRadar::SaveDataRemoteWant(const std::string& func, int32_t errCode)
+bool ContinueRadar::SaveDataRemoteWant(const std::string& func)
 {
-    int32_t res = ERR_OK;
-    StageRes stageRes = (errCode == ERR_OK) ? StageRes::STAGE_SUCC : StageRes::STAGE_FAIL;
-    if (stageRes == StageRes::STAGE_SUCC) {
-        res = HiSysEventWrite(
-            APP_CONTINUE_DOMAIN,
-            APPLICATION_CONTINUE_BEHAVIOR,
-            HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
-            ORG_PKG, ORG_PKG_NAME,
-            FUNC, func,
-            BIZ_SCENE, static_cast<int32_t>(BizScene::SAVE_DATA),
-            BIZ_STAGE, static_cast<int32_t>(SaveData::SAVEDATA_REMOTE_WANT),
-            STAGE_RES, static_cast<int32_t>(StageRes::STAGE_SUCC),
-            TO_CALL_PKG, DMS_PKG_NAME);
-    } else {
-        res = HiSysEventWrite(
-            APP_CONTINUE_DOMAIN,
-            APPLICATION_CONTINUE_BEHAVIOR,
-            HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
-            ORG_PKG, ORG_PKG_NAME,
-            FUNC, func,
-            BIZ_SCENE, static_cast<int32_t>(BizScene::SAVE_DATA),
-            BIZ_STAGE, static_cast<int32_t>(SaveData::SAVEDATA_REMOTE_WANT),
-            STAGE_RES, static_cast<int32_t>(StageRes::STAGE_FAIL),
-            "BIZ_STATE", static_cast<int32_t>(BizState::BIZ_STATE_END),
-            TO_CALL_PKG, DMS_PKG_NAME,
-            ERROR_CODE, errCode);
-    }
+    int32_t res = HiSysEventWrite(
+        APP_CONTINUE_DOMAIN,
+        APPLICATION_CONTINUE_BEHAVIOR,
+        HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
+        ORG_PKG, ORG_PKG_NAME,
+        FUNC, func,
+        BIZ_SCENE, static_cast<int32_t>(BizScene::SAVE_DATA),
+        BIZ_STAGE, static_cast<int32_t>(SaveData::SAVEDATA_REMOTE_WANT),
+        STAGE_RES, static_cast<int32_t>(StageRes::STAGE_SUCC),
+        TO_CALL_PKG, DMS_PKG_NAME);
     if (res != ERR_OK) {
         TAG_LOGE(AAFwkTag::DEFAULT, "SaveDataRemoteWant error, res:%{public}d", res);
         return false;

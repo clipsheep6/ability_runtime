@@ -57,9 +57,11 @@ ohos_unittest("AppMgrServiceInnerTest") {
     "c_utils:utils",
     "ffrt:libffrt",
     "hilog:libhilog",
+    "image_framework:image_native",
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "kv_store:distributeddata_mgr",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]

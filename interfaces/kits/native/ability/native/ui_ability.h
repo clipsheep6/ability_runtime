@@ -331,7 +331,6 @@ protected:
     std::shared_ptr<AppExecFwk::AbilityRecovery> abilityRecovery_ = nullptr;
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_ = nullptr;
     AAFwk::LaunchParam launchParam_;
-    int32_t appIndex_ = 0;
     bool securityFlag_ = false;
 
 private:
@@ -536,6 +535,9 @@ public:
 
     void EraseUIExtension(int32_t sessionId) override;
 
+    void SetIdentityToken(const std::string &identityToken);
+    std::string GetIdentityToken() const;
+
 protected:
     class UIAbilityDisplayListener : public OHOS::Rosen::DisplayManager::IDisplayListener {
     public:
@@ -606,6 +608,7 @@ private:
     void OnChangeForUpdateConfiguration(const AppExecFwk::Configuration &newConfig);
     void SetSessionToken(sptr<IRemoteObject> sessionToken);
 
+    std::string identityToken_;
     bool showOnLockScreen_ = false;
 #endif
 };

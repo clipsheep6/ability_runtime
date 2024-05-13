@@ -27,8 +27,9 @@
 #include "js_runtime_utils.h"
 #include "napi_common.h"
 #include "start_options.h"
-#include "tokenid_kit.h"
 #include "want_agent_helper.h"
+#include "tokenid_kit.h"
+#include "js_error_utils.h"
 
 using namespace OHOS::AbilityRuntime;
 namespace OHOS {
@@ -318,13 +319,12 @@ napi_value JsWantAgent::OnEqual(napi_env env, napi_callback_info info)
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     TAG_LOGD(AAFwkTag::WANTAGENT, "enter, argc = %{public}d", static_cast<int32_t>(argc));
-    int32_t errCode = BUSINESS_ERROR_CODE_OK;
     WantAgent* pWantAgentFirst = nullptr;
     WantAgent* pWantAgentSecond = nullptr;
     if (argc < ARGC_TWO || argc > ARGC_THREE) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough params");
 #ifdef ENABLE_ERRCODE
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowTooFewParametersError(env);
 #endif
         return CreateJsUndefined(env);
     }
@@ -333,12 +333,10 @@ napi_value JsWantAgent::OnEqual(napi_env env, napi_callback_info info)
     if (!CheckTypeForNapiValue(env, argv[0], napi_object)) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Wrong argument type. Object expected.");
 #ifdef ENABLE_ERRCODE
-        errCode = ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
-        AbilityRuntimeErrorUtil::Throw(env, errCode);
+        ThrowInvalidParamError(env, "Wrong argument type. Agent must be a WantAgent.");
         return CreateJsUndefined(env);
 #else
-        errCode = ERR_NOT_OK;
-        return RetErrMsg(env, lastParam, errCode);
+        return RetErrMsg(env, lastParam, ERR_NOT_OK);
 #endif
     }
 
@@ -346,22 +344,20 @@ napi_value JsWantAgent::OnEqual(napi_env env, napi_callback_info info)
     if (pWantAgentFirst == nullptr) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Parse pWantAgentFirst failed");
 #ifdef ENABLE_ERRCODE
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse pWantAgentFirst failed. Agent must be a WantAgent.");
         return CreateJsUndefined(env);
 #else
-        errCode = ERR_NOT_OK;
-        return RetErrMsg(env, lastParam, errCode);
+        return RetErrMsg(env, lastParam, ERR_NOT_OK);
 #endif
     }
 
     if (!CheckTypeForNapiValue(env, argv[1], napi_object)) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Wrong argument type. Object expected.");
 #ifdef ENABLE_ERRCODE
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Wrong argument type. OtherAgent must be a WantAgent.");
         return CreateJsUndefined(env);
 #else
-        errCode = ERR_NOT_OK;
-        return RetErrMsg(env, lastParam, errCode);
+        return RetErrMsg(env, lastParam, ERR_NOT_OK);
 #endif
     }
 
@@ -369,11 +365,10 @@ napi_value JsWantAgent::OnEqual(napi_env env, napi_callback_info info)
     if (pWantAgentSecond == nullptr) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Parse pWantAgentSceond failed");
 #ifdef ENABLE_ERRCODE
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse pWantAgentSceond failed. OtherAgent must be a WantAgent.");
         return CreateJsUndefined(env);
 #else
-        errCode = ERR_NOT_OK;
-        return RetErrMsg(env, lastParam, errCode);
+        return RetErrMsg(env, lastParam, ERR_NOT_OK);
 #endif
     }
 
@@ -421,12 +416,14 @@ napi_value JsWantAgent::OnGetWant(napi_env env, napi_callback_info info)
     WantAgent* pWantAgent = nullptr;
     if (argc > ARGC_TWO || argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough arguments");
+        ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
 
     napi_value lastParam = (argc >= ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
     if (!CheckTypeForNapiValue(env, argv[0], napi_object)) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Wrong parameter type. Object expected.");
+        ThrowInvalidParamError(env, "Wrong argument type. Agent must be a WantAgent.");
         errCode = ERR_NOT_OK;
         return RetErrMsg(env, lastParam, errCode);
     }
@@ -434,6 +431,7 @@ napi_value JsWantAgent::OnGetWant(napi_env env, napi_callback_info info)
     UnwrapWantAgent(env, argv[0], reinterpret_cast<void **>(&pWantAgent));
     if (pWantAgent == nullptr) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Parse pWantAgent error");
+        ThrowInvalidParamError(env, "Parse pWantAgent error. Agent must be a WantAgent.");
         errCode = ERR_NOT_OK;
         return RetErrMsg(env, lastParam, errCode);
     }
@@ -466,12 +464,14 @@ napi_value JsWantAgent::OnGetOperationType(napi_env env, napi_callback_info info
     WantAgent* pWantAgent = nullptr;
     if (argc > ARGC_TWO || argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough params");
+        ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
 
     napi_value lastParam = (argc >= ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
     if (!CheckTypeForNapiValue(env, argv[0], napi_object)) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Wrong argument type. Object expected.");
+        ThrowInvalidParamError(env, "Wrong argument type. Agent must be a WantAgent.");
         errCode = ERR_NOT_OK;
         return RetErrMsg(env, lastParam, errCode);
     }
@@ -479,6 +479,7 @@ napi_value JsWantAgent::OnGetOperationType(napi_env env, napi_callback_info info
     UnwrapWantAgent(env, argv[0], reinterpret_cast<void **>(&pWantAgent));
     if (pWantAgent == nullptr) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Parse pWantAgent failed");
+        ThrowInvalidParamError(env, "Parse pWantAgent failed. Agent must be a WantAgent.");
         errCode = ERR_NOT_OK;
         return RetErrMsg(env, lastParam, errCode);
     }
@@ -502,12 +503,11 @@ napi_value JsWantAgent::OnGetBundleName(napi_env env, napi_callback_info info)
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    int32_t errCode = BUSINESS_ERROR_CODE_OK;
     WantAgent* pWantAgent = nullptr;
     if (argc > ARGC_TWO || argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough params");
 #ifdef ENABLE_ERRCODE
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowTooFewParametersError(env);
 #endif
         return CreateJsUndefined(env);
     }
@@ -516,11 +516,10 @@ napi_value JsWantAgent::OnGetBundleName(napi_env env, napi_callback_info info)
     if (!CheckTypeForNapiValue(env, argv[0], napi_object)) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Wrong argument type. Object expected.");
 #ifdef ENABLE_ERRCODE
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Wrong argument type. Agent must be a WantAgent.");
         return CreateJsUndefined(env);
 #else
-        errCode = ERR_NOT_OK;
-        return RetErrMsg(env, lastParam, errCode);
+        return RetErrMsg(env, lastParam, ERR_NOT_OK);
 #endif
     }
 
@@ -528,12 +527,10 @@ napi_value JsWantAgent::OnGetBundleName(napi_env env, napi_callback_info info)
     if (pWantAgent == nullptr) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Parse pWantAgent failed");
 #ifdef ENABLE_ERRCODE
-        errCode = ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
-        AbilityRuntimeErrorUtil::Throw(env, errCode);
+        ThrowInvalidParamError(env, "Parse pWantAgent failed. Agent must be a WantAgent.");
         return CreateJsUndefined(env);
 #else
-        errCode = ERR_NOT_OK;
-        return RetErrMsg(env, lastParam, errCode);
+        return RetErrMsg(env, lastParam, ERR_NOT_OK);
 #endif
     }
 
@@ -566,13 +563,11 @@ napi_value JsWantAgent::OnGetUid(napi_env env, napi_callback_info info)
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    int32_t errCode = BUSINESS_ERROR_CODE_OK;
     WantAgent* pWantAgent = nullptr;
     if (argc > ARGC_TWO || argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough params");
 #ifdef ENABLE_ERRCODE
-        errCode = ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
-        AbilityRuntimeErrorUtil::Throw(env, errCode);
+        ThrowTooFewParametersError(env);
 #endif
         return CreateJsUndefined(env);
     }
@@ -581,12 +576,10 @@ napi_value JsWantAgent::OnGetUid(napi_env env, napi_callback_info info)
     if (!CheckTypeForNapiValue(env, argv[0], napi_object)) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Wrong argument type. Object expected.");
 #ifdef ENABLE_ERRCODE
-        errCode = ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
-        AbilityRuntimeErrorUtil::Throw(env, errCode);
+        ThrowInvalidParamError(env, "Wrong argument type. Agent must be a WantAgent.");
         return CreateJsUndefined(env);
 #else
-        errCode = ERR_NOT_OK;
-        return RetErrMsg(env, lastParam, errCode);
+        return RetErrMsg(env, lastParam, ERR_NOT_OK);
 #endif
     }
 
@@ -594,11 +587,10 @@ napi_value JsWantAgent::OnGetUid(napi_env env, napi_callback_info info)
     if (pWantAgent == nullptr) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Parse pWantAgent error");
 #ifdef ENABLE_ERRCODE
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse pWantAgent error. Agent must be a WantAgent.");
         return CreateJsUndefined(env);
 #else
-        errCode = ERR_NOT_OK;
-        return RetErrMsg(env, lastParam, errCode);
+        return RetErrMsg(env, lastParam, ERR_NOT_OK);
 #endif
     }
 
@@ -627,7 +619,6 @@ napi_value JsWantAgent::OnGetUid(napi_env env, napi_callback_info info)
 napi_value JsWantAgent::OnCancel(napi_env env, napi_callback_info info)
 {
     TAG_LOGD(AAFwkTag::WANTAGENT, "%{public}s is called", __FUNCTION__);
-    int32_t errCode = BUSINESS_ERROR_CODE_OK;
     WantAgent* pWantAgent = nullptr;
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
@@ -635,7 +626,7 @@ napi_value JsWantAgent::OnCancel(napi_env env, napi_callback_info info)
     if (argc > ARGC_TWO || argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough params");
 #ifdef ENABLE_ERRCODE
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowTooFewParametersError(env);
 #endif
         return CreateJsUndefined(env);
     }
@@ -644,12 +635,10 @@ napi_value JsWantAgent::OnCancel(napi_env env, napi_callback_info info)
     if (!CheckTypeForNapiValue(env, argv[0], napi_object)) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Wrong argument type. Object expected.");
 #ifdef ENABLE_ERRCODE
-        errCode = ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
-        AbilityRuntimeErrorUtil::Throw(env, errCode);
+        ThrowInvalidParamError(env, "Wrong argument type. Agent must be a WantAgent.");
         return CreateJsUndefined(env);
 #else
-        errCode = ERR_NOT_OK;
-        return RetErrMsg(env, lastParam, errCode);
+        return RetErrMsg(env, lastParam, ERR_NOT_OK);
 #endif
     }
 
@@ -657,11 +646,10 @@ napi_value JsWantAgent::OnCancel(napi_env env, napi_callback_info info)
     if (pWantAgent == nullptr) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Parse pWantAgent failed");
 #ifdef ENABLE_ERRCODE
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse pWantAgent error. Agent must be a WantAgent.");
         return CreateJsUndefined(env);
 #else
-        errCode = ERR_NOT_OK;
-        return RetErrMsg(env, lastParam, errCode);
+        return RetErrMsg(env, lastParam, ERR_NOT_OK);
 #endif
     }
 
@@ -696,6 +684,7 @@ napi_value JsWantAgent::OnTrigger(napi_env env, napi_callback_info info)
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (argc != ARGC_THREE) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough params");
+        ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
 
@@ -720,11 +709,13 @@ int32_t JsWantAgent::UnWrapTriggerInfoParam(napi_env env, napi_callback_info inf
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (argc != ARGC_THREE) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough params");
+        ThrowTooFewParametersError(env);
         return ERR_NOT_OK;
     }
 
     if (!CheckTypeForNapiValue(env, argv[ARGC_ZERO], napi_object)) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Wrong argument type. Object expected.");
+        ThrowInvalidParamError(env, "Wrong argument type. Agent must be a WantAgent.");
         return ERR_NOT_OK;
     }
     WantAgent* pWantAgent = nullptr;
@@ -732,6 +723,7 @@ int32_t JsWantAgent::UnWrapTriggerInfoParam(napi_env env, napi_callback_info inf
 
     if (pWantAgent == nullptr) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Parse pWantAgent failed");
+        ThrowInvalidParamError(env, "Parse pWantAgent failed. Agent must be a WantAgent.");
         return ERR_NOT_OK;
     }
     wantAgent = std::make_shared<WantAgent>(*pWantAgent);
@@ -739,6 +731,7 @@ int32_t JsWantAgent::UnWrapTriggerInfoParam(napi_env env, napi_callback_info inf
     int32_t ret = GetTriggerInfo(env, argv[ARGC_ONE], triggerInfo);
     if (ret != BUSINESS_ERROR_CODE_OK) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Get trigger info error");
+        ThrowInvalidParamError(env, "Get trigger info error. TriggerInfo must be a TriggerInfo.");
         return ret;
     }
 
@@ -1046,6 +1039,7 @@ napi_value JsWantAgent::OnGetWantAgent(napi_env env, napi_callback_info info)
     TAG_LOGD(AAFwkTag::WANTAGENT, "enter, argc = %{public}d", static_cast<int32_t>(argc));
     if (argc > ARGC_TWO || argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough params");
+        ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
 
@@ -1054,6 +1048,7 @@ napi_value JsWantAgent::OnGetWantAgent(napi_env env, napi_callback_info info)
     int32_t ret = GetWantAgentParam(env, info, *spParas);
     if (ret != 0) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Failed to get wantAgent parameter.");
+        ThrowInvalidParamError(env, "Failed to get wantAgent parameter. Agent must be a WantAgent.");
         return RetErrMsg(env, lastParam, ret);
     }
 

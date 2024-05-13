@@ -56,7 +56,7 @@ void AssertFaultCallbackDeathMgr::AddAssertFaultCallback(sptr<IRemoteObject> &re
         });
 
     remote->AddDeathRecipient(deathRecipient);
-    auto callerPid = IPCSkeleton::GetCallingPid();
+    auto callerPid = IPCSkeleton::GetCallingRealPid();
     uint64_t assertFaultSessionId = reinterpret_cast<uint64_t>(remote.GetRefPtr());
     std::unique_lock<std::mutex> lock(assertFaultSessionMutex_);
     assertFaultSessionDialogs_[assertFaultSessionId] = {callerPid, remote, deathRecipient, callback};

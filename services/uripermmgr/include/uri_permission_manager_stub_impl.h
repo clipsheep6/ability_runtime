@@ -134,6 +134,8 @@ private:
 
     bool IsSAOrSystemAppCall();
 
+    bool IsLinuxFusionCall();
+
     class ProxyDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         explicit ProxyDeathRecipient(ClearProxyCallback&& proxy) : proxy_(proxy) {}

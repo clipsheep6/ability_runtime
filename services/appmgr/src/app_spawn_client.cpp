@@ -40,7 +40,7 @@ namespace {
 }
 AppSpawnClient::AppSpawnClient(bool isNWebSpawn)
 {
-    TAG_LOGI(AAFwkTag::APPMGR, "AppspawnCreateClient");
+    TAG_LOGD(AAFwkTag::APPMGR, "AppspawnCreateClient");
     if (isNWebSpawn) {
         serviceName_ = NWEBSPAWN_SERVER_NAME;
     }
@@ -76,7 +76,7 @@ ErrCode AppSpawnClient::OpenConnection()
 
 void AppSpawnClient::CloseConnection()
 {
-    TAG_LOGI(AAFwkTag::APPMGR, "AppspawnDestroyClient");
+    TAG_LOGD(AAFwkTag::APPMGR, "AppspawnDestroyClient");
     if (state_ == SpawnConnectionState::STATE_CONNECTED) {
         AppSpawnClientDestroy(handle_);
     }

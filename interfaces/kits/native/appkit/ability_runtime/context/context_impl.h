@@ -369,8 +369,7 @@ private:
     static const std::string CONTEXT_DISTRIBUTEDFILES_BASE_BEFORE;
     static const std::string CONTEXT_DISTRIBUTEDFILES_BASE_MIDDLE;
     static const std::string CONTEXT_DISTRIBUTEDFILES;
-    static const std::string CONTEXT_CLOUDFILE_DIR_BASE_BEFORE;
-    static const std::string CONTEXT_CLOUDFILE_DIR_BASE_MIDDLE;
+    static const std::string CONTEXT_CLOUDFILE;
     static const std::string CONTEXT_FILE_SEPARATOR;
     static const std::string CONTEXT_DATA;
     static const std::string CONTEXT_DATA_STORAGE;

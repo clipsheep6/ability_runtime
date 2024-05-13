@@ -793,9 +793,10 @@ void JsUIAbility::DoOnForegroundForSceneIsNull(const Want &want)
     auto option = GetWindowOption(want);
     Rosen::WMError ret = Rosen::WMError::WM_OK;
     auto sessionToken = GetSessionToken();
+    auto identityToken = GetIdentityToken();
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionToken != nullptr) {
         abilityContext_->SetWeakSessionToken(sessionToken);
-        ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionToken);
+        ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionToken, identityToken);
     } else {
         ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
     }
@@ -1086,6 +1087,7 @@ int32_t JsUIAbility::OnSaveState(int32_t reason, WantParams &wantParams)
 
 void JsUIAbility::OnConfigurationUpdated(const Configuration &configuration)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     UIAbility::OnConfigurationUpdated(configuration);
     TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
     if (abilityContext_ == nullptr) {
@@ -1278,11 +1280,14 @@ napi_value JsUIAbility::CallObjectMethod(const char *name, napi_value const *arg
         }
         return handleEscape.Escape(result);
     }
+    int64_t timeStart = AbilityRuntime::TimeUtil::SystemTimeMillisecond();
     napi_call_function(env, obj, methodOnCreate, argc, argv, nullptr);
+    int64_t timeEnd = AbilityRuntime::TimeUtil::SystemTimeMillisecond();
     if (tryCatch.HasCaught()) {
         reinterpret_cast<NativeEngine*>(env)->HandleUncaughtException();
     }
-    TAG_LOGD(AAFwkTag::UIABILITY, "Lifecycle: the end of %{public}s", name);
+    TAG_LOGI(AAFwkTag::UIABILITY, "Lifecycle: the end of %{public}s, time: %{public}s",
+        name, std::to_string(timeEnd - timeStart).c_str());
     return nullptr;
 }
 

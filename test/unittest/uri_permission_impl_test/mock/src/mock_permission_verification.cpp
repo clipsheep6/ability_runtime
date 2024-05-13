@@ -24,6 +24,7 @@ constexpr const char* PERMISSION_READ_IMAGEVIDEO = "ohos.permission.READ_IMAGEVI
 constexpr const char* PERMISSION_WRITE_AUDIO = "ohos.permission.WRITE_AUDIO";
 constexpr const char* PERMISSION_READ_AUDIO = "ohos.permission.READ_AUDIO";
 constexpr const char* PERMISSION_PROXY_AUTHORIZATION_URI = "ohos.permission.PROXY_AUTHORIZATION_URI";
+constexpr const char* PERMISSION_GRANT_URI_PERMISSION_PRIVILEGED = "ohos.permission.GRANT_URI_PERMISSION_PRIVILEGED";
 } // namespace
 
 bool PermissionVerification::VerifyPermissionByTokenId(const int &tokenId, const std::string &permissionName) const
@@ -48,6 +49,9 @@ bool PermissionVerification::VerifyPermissionByTokenId(const int &tokenId, const
     }
     if (permissionName == PERMISSION_PROXY_AUTHORIZATION_URI) {
         return MyFlag::permissionProxyAuthorization_;
+    }
+    if (permissionName == PERMISSION_GRANT_URI_PERMISSION_PRIVILEGED) {
+        return MyFlag::permissionPrivileged_;
     }
     return false;
 }

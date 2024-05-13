@@ -26,6 +26,7 @@
 #include "app_service_manager.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "app_mem_info.h"
 
 namespace OHOS {
@@ -508,6 +509,7 @@ void AppMgrClient::PrepareTerminate(const sptr<IRemoteObject> &token)
 
 void AppMgrClient::GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service != nullptr) {
         sptr<IAmsMgr> amsService = service->GetAmsMgr();
@@ -582,7 +584,8 @@ int AppMgrClient::FinishUserTest(const std::string &msg, const int64_t &resultCo
     return service->FinishUserTest(msg, resultCode, bundleName);
 }
 
-void AppMgrClient::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
+void AppMgrClient::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+    int32_t requestId)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
@@ -592,7 +595,7 @@ void AppMgrClient::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecF
     if (amsService == nullptr) {
         return;
     }
-    amsService->StartSpecifiedAbility(want, abilityInfo);
+    amsService->StartSpecifiedAbility(want, abilityInfo, requestId);
 }
 
 void AppMgrClient::SetKeepAliveEnableState(const std::string &bundleName, bool enable)
@@ -603,7 +606,8 @@ void AppMgrClient::SetKeepAliveEnableState(const std::string &bundleName, bool e
     amsService_->SetKeepAliveEnableState(bundleName, enable);
 }
 
-void AppMgrClient::StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
+void AppMgrClient::StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+    int32_t requestId)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "call.");
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
@@ -614,7 +618,7 @@ void AppMgrClient::StartSpecifiedProcess(const AAFwk::Want &want, const AppExecF
     if (amsService == nullptr) {
         return;
     }
-    amsService->StartSpecifiedProcess(want, abilityInfo);
+    amsService->StartSpecifiedProcess(want, abilityInfo, requestId);
 }
 
 void AppMgrClient::RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response)
@@ -639,17 +643,6 @@ void AppMgrClient::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::W
     }
 
     service->ScheduleAcceptWantDone(recordId, want, flag);
-}
-
-void AppMgrClient::ScheduleNewProcessRequest(const int32_t recordId, const AAFwk::Want &want, const std::string &flag)
-{
-    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
-    if (service == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "service is nullptr");
-        return;
-    }
-
-    service->ScheduleNewProcessRequestDone(recordId, want, flag);
 }
 
 AppMgrResultCode AppMgrClient::UpdateConfiguration(const Configuration &config)
@@ -727,7 +720,22 @@ int AppMgrClient::GetApplicationInfoByProcessID(const int pid, AppExecFwk::Appli
     return amsService->GetApplicationInfoByProcessID(pid, application, debug);
 }
 
-int32_t AppMgrClient::StartNativeProcessForDebugger(const AAFwk::Want &want) const
+int32_t AppMgrClient::NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "service is nullptr");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    sptr<IAmsMgr> amsService = service->GetAmsMgr();
+    if (amsService == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "amsService is nullptr");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return amsService->NotifyAppMgrRecordExitReason(pid, reason, exitMsg);
+}
+
+int32_t AppMgrClient::StartNativeProcessForDebugger(const AAFwk::Want &want)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {

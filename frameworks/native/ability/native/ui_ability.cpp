@@ -36,7 +36,6 @@ constexpr int32_t DEFAULT_DMS_SESSION_ID = 0;
 constexpr char LAUNCHER_BUNDLE_NAME[] = "com.ohos.launcher";
 constexpr char LAUNCHER_ABILITY_NAME[] = "com.ohos.launcher.MainAbility";
 constexpr char SHOW_ON_LOCK_SCREEN[] = "ShowOnLockScreen";
-constexpr char DLP_INDEX[] = "ohos.dlp.params.index";
 constexpr char DLP_PARAMS_SECURITY_FLAG[] = "ohos.dlp.params.securityFlag";
 constexpr char COMPONENT_STARTUP_NEW_RULES[] = "component.startup.newRules";
 constexpr int32_t ERR_INVALID_VALUE = -1;
@@ -152,8 +151,6 @@ void UIAbility::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessio
         return;
     }
 
-    appIndex_ = want.GetIntParam(DLP_INDEX, 0);
-    (const_cast<AAFwk::Want &>(want)).RemoveParam(DLP_INDEX);
     securityFlag_ = want.GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false);
     (const_cast<AAFwk::Want &>(want)).RemoveParam(DLP_PARAMS_SECURITY_FLAG);
     SetWant(want);
@@ -161,6 +158,7 @@ void UIAbility::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessio
 #ifdef SUPPORT_GRAPHICS
     if (sessionInfo != nullptr) {
         SetSessionToken(sessionInfo->sessionToken);
+        SetIdentityToken(sessionInfo->identityToken);
     }
     OnStartForSupportGraphics(want);
 #endif
@@ -1094,6 +1092,16 @@ void UIAbility::EraseUIExtension(int32_t sessionId)
         return;
     }
     abilityContextImpl->EraseUIExtension(sessionId);
+}
+
+void UIAbility::SetIdentityToken(const std::string &identityToken)
+{
+    identityToken_ = identityToken;
+}
+
+std::string UIAbility::GetIdentityToken() const
+{
+    return identityToken_;
 }
 #endif
 } // namespace AbilityRuntime

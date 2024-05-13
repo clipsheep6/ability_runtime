@@ -87,6 +87,8 @@ public:
     void SetScheduler(const sptr<IRenderScheduler> &scheduler);
     void SetDeathRecipient(const sptr<AppDeathRecipient> recipient);
     void RegisterDeathRecipient();
+    void SetState(int32_t state);
+    int32_t GetState() const;
 
 private:
     void SetHostUid(const int32_t hostUid);
@@ -103,6 +105,7 @@ private:
     int32_t ipcFd_ = 0;
     int32_t sharedFd_ = 0;
     int32_t crashFd_ = 0;
+    int32_t state_ = 0;
     ProcessType processType_ = ProcessType::RENDER;
     std::weak_ptr<AppRunningRecord> host_; // nweb host
     sptr<IRenderScheduler> renderScheduler_ = nullptr;
@@ -540,6 +543,8 @@ public:
 
     void SetKeepAliveEnableState(bool isKeepAliveEnable);
 
+    void SetSingleton(bool isSingleton);
+
     void SetStageModelState(bool isStageBasedModel);
 
     std::list<std::shared_ptr<ModuleRunningRecord>> GetAllModuleRecord() const;
@@ -576,18 +581,21 @@ public:
     std::shared_ptr<UserTestRecord> GetUserTestInfo();
 
     void SetProcessAndExtensionType(const std::shared_ptr<AbilityInfo> &abilityInfo);
-    void SetSpecifiedAbilityFlagAndWant(const bool flag, const AAFwk::Want &want, const std::string &moduleName);
-    void SetScheduleNewProcessRequestState(const bool isNewProcessRequest, const AAFwk::Want &want,
-        const std::string &moduleName);
+    void SetSpecifiedAbilityFlagAndWant(int requestId, const AAFwk::Want &want, const std::string &moduleName);
+    void SetScheduleNewProcessRequestState(int32_t requestId, const AAFwk::Want &want, const std::string &moduleName);
     bool IsNewProcessRequest() const;
     bool IsStartSpecifiedAbility() const;
+    int32_t GetSpecifiedRequestId() const;
+    void ResetSpecifiedRequestId();
     void ScheduleAcceptWant(const std::string &moduleName);
     void ScheduleAcceptWantDone();
     void ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName);
     void ScheduleNewProcessRequestDone();
     void ApplicationTerminated();
-    const AAFwk::Want &GetSpecifiedWant() const;
-    const AAFwk::Want &GetNewProcessRequestWant() const;
+    AAFwk::Want GetSpecifiedWant() const;
+    AAFwk::Want GetNewProcessRequestWant() const;
+    int32_t GetNewProcessRequestId() const;
+    void ResetNewProcessRequestId();
     void SetDebugApp(bool isDebugApp);
     bool IsDebugApp();
     bool IsDebugging() const;
@@ -758,6 +766,14 @@ public:
     int DumpIpcStop(std::string& result);
     int DumpIpcStat(std::string& result);
 
+    int DumpFfrt(std::string &result);
+
+    void SetExitReason(int32_t reason);
+    int32_t GetExitReason() const;
+
+    void SetExitMsg(const std::string &exitMsg);
+    std::string GetExitMsg() const;
+
     bool SetSupportedProcessCache(bool isSupport);
     SupportProcessCacheState GetSupportProcessCacheState();
 private:
@@ -823,6 +839,7 @@ private:
 
     bool isKeepAliveApp_ = false;  // Only resident processes can be set to true, please choose carefully
     bool isEmptyKeepAliveApp_ = false;  // Only empty resident processes can be set to true, please choose carefully
+    bool isSingleton_ = false;
     bool isStageBasedModel_ = false;
     ApplicationState curState_ = ApplicationState::APP_STATE_CREATE;  // current state of this process
     ApplicationPendingState pendingState_ = ApplicationPendingState::READY;
@@ -860,11 +877,14 @@ private:
     bool isLauncherApp_;
     std::string mainAppName_;
     int restartResidentProcCount_ = 0;
-    bool isSpecifiedAbility_ = false;
-    AAFwk::Want SpecifiedWant_;
+
+    mutable std::mutex specifiedMutex_;
+    int32_t specifiedRequestId_ = -1;
+    AAFwk::Want specifiedWant_;
     std::string moduleName_;
-    bool isNewProcessRequest_;
+    int32_t newProcessRequestId_ = -1;
     AAFwk::Want newProcessRequestWant_;
+
     bool isDebugApp_ = false;
     bool isNativeDebug_ = false;
     bool isAttachDebug_ = false;
@@ -873,6 +893,8 @@ private:
     int64_t restartTimeMillis_ = 0; // The time of last trying app restart
     bool jitEnabled_ = false;
     PreloadState preloadState_ = PreloadState::NONE;
+    int32_t exitReason_ = 0;
+    std::string exitMsg_ = "";
 
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
 

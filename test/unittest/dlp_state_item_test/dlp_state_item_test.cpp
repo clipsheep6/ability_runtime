@@ -61,7 +61,8 @@ HWTEST_F(DlpStateItemTest, dlp_state_item_test_handle_001, TestSize.Level1)
     AppExecFwk::ApplicationInfo applicationInfo;
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
     abilityRecord->Init();
-    abilityRecord->SetAppIndex(1);
+    int32_t dlpIndex = 1001;
+    abilityRecord->SetAppIndex(dlpIndex);
     AbilityRuntime::DlpStateData data;
     EXPECT_FALSE(item->RemoveDlpConnectionState(abilityRecord, data));
     EXPECT_TRUE(item->AddDlpConnectionState(abilityRecord, data));
@@ -90,7 +91,8 @@ HWTEST_F(DlpStateItemTest, dlp_state_item_test_get_size_002, TestSize.Level1)
     AbilityRuntime::DlpStateData data;
     abilityRecord->SetAppIndex(0);
     EXPECT_FALSE(item->AddDlpConnectionState(abilityRecord, data));
-    abilityRecord->SetAppIndex(1);
+    int32_t dlpIndex = 1001;
+    abilityRecord->SetAppIndex(dlpIndex);
     EXPECT_TRUE(item->AddDlpConnectionState(abilityRecord, data));
     auto item2 = std::make_shared<DlpStateItem>(0, 0);
     EXPECT_FALSE(item2->AddDlpConnectionState(abilityRecord, data));
@@ -127,7 +129,8 @@ HWTEST_F(DlpStateItemTest, dlp_state_item_test_get_size_001, TestSize.Level1)
     AppExecFwk::ApplicationInfo applicationInfo;
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
     abilityRecord->Init();
-    abilityRecord->SetAppIndex(1);
+    int32_t dlpIndex = 1001;
+    abilityRecord->SetAppIndex(dlpIndex);
     AbilityRuntime::DlpStateData data;
     EXPECT_EQ(0, item->GetOpenedAbilitySize());
     EXPECT_TRUE(item->AddDlpConnectionState(abilityRecord, data));

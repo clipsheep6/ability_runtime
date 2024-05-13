@@ -250,6 +250,26 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_GetApplicationInfoByProcessID_001, TestS
 }
 
 /**
+ * @tc.name: AppMgrClient_NotifyAppMgrRecordExitReason_001
+ * @tc.desc: test NotifyAppMgrRecordExitReason.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_NotifyAppMgrRecordExitReason_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    int32_t reason = 0;
+    int32_t pid = 1;
+    std::string exitMsg = "JsError";
+    auto ret = appMgrClient->NotifyAppMgrRecordExitReason(reason, pid, exitMsg);
+    EXPECT_NE(ret, ERR_OK);
+}
+
+/**
  * @tc.name: AppMgrClient_GetAllRenderProcesses_001
  * @tc.desc: get all render processes.
  * @tc.type: FUNC
@@ -867,7 +887,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_RegisterAbilityDebugResponse_001, TestSi
     response = new MockAbilityDebugResponseStub();
     EXPECT_NE(response, nullptr);
     resultCode = appMgrClient->RegisterAbilityDebugResponse(response);
-    EXPECT_EQ(resultCode, NO_ERROR);
+    EXPECT_EQ(resultCode, ERR_PERMISSION_DENIED);
 }
 
 /**
@@ -998,24 +1018,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_StartSpecifiedProcess_001, TestSize.Leve
 
     auto result = appMgrClient->ConnectAppMgrService();
     appMgrClient->StartSpecifiedProcess(want, abilityInfo);
-    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
-}
-
-/**
- * @tc.name: AppMgrClient_ScheduleNewProcessRequest_001
- * @tc.desc: schedule accept want done.
- * @tc.type: FUNC
- */
-HWTEST_F(AppMgrClientTest, AppMgrClient_ScheduleNewProcessRequest_001, TestSize.Level0)
-{
-    int32_t recordId = INIT_VALUE;
-    AAFwk::Want want;
-    std::string flag = EMPTY_STRING;
-    auto appMgrClient = std::make_unique<AppMgrClient>();
-    EXPECT_NE(appMgrClient, nullptr);
-
-    auto result = appMgrClient->ConnectAppMgrService();
-    appMgrClient->ScheduleNewProcessRequest(recordId, want, flag);
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 }
 
@@ -1328,6 +1330,32 @@ HWTEST_F(AppMgrClientTest, GetAppRunningUniqueIdByPid_001, TestSize.Level0)
     pid_t pid = 0;
     std::string appRunningUniqueId = "";
     appMgrClient->GetAppRunningUniqueIdByPid(pid, appRunningUniqueId);
+    EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_NotifyMemorySizeStateChanged_001
+ * @tc.desc: NotifyMemorySizeStateChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, NotifyMemorySizeStateChanged_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    bool isMemorySizeSufficent = false;
+    int32_t ret = appMgrClient->NotifyMemorySizeStateChanged(isMemorySizeSufficent);
+    EXPECT_EQ(ret, 1);
+}
+
+/**
+ * @tc.name: AppMgrClient_SetSupportedProcessCacheSelf_001
+ * @tc.desc: SetSupportedProcessCacheSelf.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, SetSupportedProcessCacheSelf_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    bool isSupport = false;
+    int32_t ret = appMgrClient->SetSupportedProcessCacheSelf(isSupport);
     EXPECT_NE(appMgrClient, nullptr);
 }
 }  // namespace AppExecFwk

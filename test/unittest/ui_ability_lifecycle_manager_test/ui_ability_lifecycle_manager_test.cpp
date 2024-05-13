@@ -27,7 +27,9 @@
 #undef private
 #include "app_mgr_client.h"
 #include "mock_ability_info_callback_stub.h"
+#include "process_options.h"
 #include "session/host/include/session.h"
+#include "session_info.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -96,7 +98,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_001, TestSize.Level1)
 {
     auto mgr = std::make_unique<UIAbilityLifecycleManager>();
     AbilityRequest abilityRequest;
-    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, nullptr), ERR_INVALID_VALUE);
+    bool isColdStart = false;
+    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, nullptr, isColdStart), ERR_INVALID_VALUE);
 }
 
 /**
@@ -111,7 +114,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_002, TestSize.Level1)
     Rosen::SessionInfo info;
     sptr<SessionInfo> sessionInfo(new SessionInfo());
     sessionInfo->sessionToken = new Rosen::Session(info);
-    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_OK);
+    bool isColdStart = false;
+    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo, isColdStart), ERR_OK);
 }
 
 /**
@@ -130,7 +134,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_003, TestSize.Level1)
     abilityRequest.sessionInfo = sessionInfo;
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     mgr->sessionAbilityMap_.emplace(sessionInfo->persistentId, abilityRecord);
-    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_OK);
+    bool isColdStart = false;
+    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo, isColdStart), ERR_OK);
 }
 
 /**
@@ -148,7 +153,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_004, TestSize.Level1)
     sessionInfo->startSetting = std::make_shared<AbilityStartSetting>();
     sessionInfo->persistentId = 1;
     abilityRequest.sessionInfo = sessionInfo;
-    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_OK);
+    bool isColdStart = false;
+    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo, isColdStart), ERR_OK);
 }
 
 /**
@@ -168,7 +174,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_005, TestSize.Level1)
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     abilityRecord->SetPendingState(AbilityState::FOREGROUND);
     mgr->sessionAbilityMap_.emplace(sessionInfo->persistentId, abilityRecord);
-    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_OK);
+    bool isColdStart = false;
+    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo, isColdStart), ERR_OK);
 }
 
 /**
@@ -184,7 +191,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_006, TestSize.Level1)
     Rosen::SessionInfo info;
     sptr<SessionInfo> sessionInfo(new SessionInfo());
     sessionInfo->sessionToken = new Rosen::Session(info);
-    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_OK);
+    bool isColdStart = false;
+    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo, isColdStart), ERR_OK);
 }
 
 /**
@@ -201,7 +209,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_007, TestSize.Level1)
     Rosen::SessionInfo info;
     sptr<SessionInfo> sessionInfo(new SessionInfo());
     sessionInfo->sessionToken = new Rosen::Session(info);
-    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_OK);
+    bool isColdStart = false;
+    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo, isColdStart), ERR_OK);
 }
 
 /**
@@ -222,7 +231,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_008, TestSize.Level1)
     abilityRequest.abilityInfo.moduleName = "EntryModule";
     std::shared_ptr<AbilityRecord>  abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     mgr->sessionAbilityMap_.emplace(2, abilityRecord);
-    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_OK);
+    bool isColdStart = false;
+    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo, isColdStart), ERR_OK);
 }
 
 /**
@@ -2268,12 +2278,9 @@ HWTEST_F(UIAbilityLifecycleManagerTest, OnAcceptWantResponse_001, TestSize.Level
     uiAbilityLifecycleManager->OnAcceptWantResponse(want, flag);
 
     AbilityRequest abilityRequest;
-    uiAbilityLifecycleManager->EnqueueAbilityToFront(abilityRequest);
     uiAbilityLifecycleManager->OnAcceptWantResponse(want, flag);
-    uiAbilityLifecycleManager->abilityQueue_.pop();
 
     abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
-    uiAbilityLifecycleManager->EnqueueAbilityToFront(abilityRequest);
     uiAbilityLifecycleManager->OnAcceptWantResponse(want, flag);
 
     uiAbilityLifecycleManager->OnAcceptWantResponse(want, "");
@@ -2300,7 +2307,6 @@ HWTEST_F(UIAbilityLifecycleManagerTest, OnAcceptWantResponse_002, TestSize.Level
     abilityRequest.specifiedFlag = flag;
     want.SetParam(DLP_INDEX, 1);
     abilityRequest.want = want;
-    uiAbilityLifecycleManager->EnqueueAbilityToFront(abilityRequest);
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     abilityRecord->abilityInfo_.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
     abilityRecord->abilityInfo_.moduleName = "entry";
@@ -2318,7 +2324,6 @@ HWTEST_F(UIAbilityLifecycleManagerTest, OnAcceptWantResponse_002, TestSize.Level
 
     std::shared_ptr<AbilityRecord> callerAbility = InitAbilityRecord();
     abilityRequest.callerToken = callerAbility->GetToken()->AsObject();
-    uiAbilityLifecycleManager->EnqueueAbilityToFront(abilityRequest);
     uiAbilityLifecycleManager->OnAcceptWantResponse(want, flag);
     uiAbilityLifecycleManager.reset();
 }
@@ -2512,6 +2517,55 @@ HWTEST_F(UIAbilityLifecycleManagerTest, GetAbilityStateByPersistentId_002, TestS
     bool state;
     int32_t ret = uiAbilityLifecycleManager->GetAbilityStateByPersistentId(persistentId, state);
     EXPECT_EQ(ERR_OK, ret);
+}
+
+/**
+ * @tc.name: UIAbilityLifecycleManager_UpdateProcessName_0100
+ * @tc.desc: UpdateProcessName
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, UpdateProcessName_001, TestSize.Level1)
+{
+    auto uiAbilityLifecycleManager = std::make_shared<UIAbilityLifecycleManager>();
+    EXPECT_NE(uiAbilityLifecycleManager, nullptr);
+    sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
+    sessionInfo->processOptions = std::make_shared<ProcessOptions>();
+    EXPECT_NE(sessionInfo->processOptions, nullptr);
+    sessionInfo->processOptions->processMode = ProcessMode::NEW_PROCESS_ATTACH_TO_PARENT;
+    AbilityRequest abilityRequest;
+    abilityRequest.sessionInfo = sessionInfo;
+    abilityRequest.abilityInfo.bundleName = "com.example.unittest";
+    abilityRequest.abilityInfo.moduleName = "entry";
+    abilityRequest.abilityInfo.name = "MainAbility";
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    uiAbilityLifecycleManager->UpdateProcessName(abilityRequest, abilityRecord);
+    EXPECT_EQ("com.example.unittest:entry:MainAbility:0", abilityRecord->GetProcessName());
+}
+
+/**
+ * @tc.name: UIAbilityLifecycleManager_ChangeAbilityVisibility_0100
+ * @tc.desc: ChangeAbilityVisibility
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, ChangeAbilityVisibility_001, TestSize.Level1)
+{
+    auto uiAbilityLifecycleManager = std::make_shared<UIAbilityLifecycleManager>();
+    EXPECT_NE(uiAbilityLifecycleManager, nullptr);
+    int32_t ret = uiAbilityLifecycleManager->ChangeAbilityVisibility(nullptr, true);
+    EXPECT_EQ(ERR_INVALID_VALUE, ret);
+}
+
+/**
+ * @tc.name: UIAbilityLifecycleManager_ChangeUIAbilityVisibilityBySCB_0100
+ * @tc.desc: ChangeUIAbilityVisibilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, ChangeUIAbilityVisibilityBySCB_001, TestSize.Level1)
+{
+    auto uiAbilityLifecycleManager = std::make_shared<UIAbilityLifecycleManager>();
+    EXPECT_NE(uiAbilityLifecycleManager, nullptr);
+    int32_t ret = uiAbilityLifecycleManager->ChangeUIAbilityVisibilityBySCB(nullptr, true);
+    EXPECT_EQ(ERR_INVALID_VALUE, ret);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

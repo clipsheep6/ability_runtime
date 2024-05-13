@@ -29,7 +29,7 @@ void PreLoadUIExtStateObserver::OnProcessDied(const AppExecFwk::ProcessData &pro
     TAG_LOGD(AAFwkTag::ABILITYMGR, "called.");
     auto extensionRecord = extensionRecord_.lock();
     if (extensionRecord != nullptr) {
-        extensionRecord->UnLoadUIExtension();
+        extensionRecord->UnloadUIExtensionAbility();
     } else {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "extensionRecord null");
     }

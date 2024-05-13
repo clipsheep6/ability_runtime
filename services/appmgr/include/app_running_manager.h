@@ -296,6 +296,8 @@ public:
 
     int DumpIpcStat(const int32_t pid, std::string& result);
 
+    int DumpFfrt(const std::vector<int32_t>& pids, std::string& result);
+
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);
     void AssignRunningProcessInfoByAppRecord(

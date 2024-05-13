@@ -42,13 +42,17 @@
 #include "child_process_manager.h"
 #include "configuration_convertor.h"
 #include "common_event_manager.h"
+#include "global_constant.h"
 #include "context_deal.h"
 #include "context_impl.h"
+#include "dump_ffrt_helper.h"
+#include "dump_ipc_helper.h"
 #include "exit_reason.h"
 #include "extension_ability_info.h"
 #include "extension_module_loader.h"
 #include "extension_plugin_info.h"
 #include "extract_resource_manager.h"
+#include "ffrt.h"
 #include "file_path_utils.h"
 #include "freeze_util.h"
 #include "hilog_tag_wrapper.h"
@@ -80,7 +84,6 @@
 #include "js_runtime_utils.h"
 #include "context/application_context.h"
 #include "os_account_manager_wrapper.h"
-#include "dump_ipc_helper.h"
 
 #if defined(NWEB)
 #include <thread>
@@ -101,7 +104,6 @@ using AbilityRuntime::FreezeUtil;
 namespace AppExecFwk {
 using namespace OHOS::AbilityBase::Constants;
 std::weak_ptr<OHOSApplication> MainThread::applicationForDump_;
-std::shared_ptr<EventHandler> MainThread::signalHandler_ = nullptr;
 std::shared_ptr<MainThread::MainHandler> MainThread::mainHandler_ = nullptr;
 const std::string PERFCMD_PROFILE = "profile";
 const std::string PERFCMD_DUMPHEAP = "dumpheap";
@@ -825,6 +827,7 @@ void MainThread::ScheduleProfileChanged(const Profile &profile)
  */
 void MainThread::ScheduleConfigurationUpdated(const Configuration &config)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPKIT, "called");
     wptr<MainThread> weak = this;
     auto task = [weak, config]() {
@@ -900,11 +903,6 @@ void MainThread::HandleTerminateApplicationLocal()
         return;
     }
     applicationImpl_->PerformTerminateStrong();
-
-    std::shared_ptr<EventRunner> signalRunner = signalHandler_->GetEventRunner();
-    if (signalRunner) {
-        signalRunner->Stop();
-    }
 
     std::shared_ptr<EventRunner> runner = mainHandler_->GetEventRunner();
     if (runner == nullptr) {
@@ -1173,6 +1171,7 @@ bool IsNeedLoadLibrary(const std::string &bundleName)
     std::vector<std::string> needLoadLibraryBundleNames{
         "com.ohos.contactsdataability",
         "com.ohos.medialibrary.medialibrarydata",
+        "com.ohos.ringtonelibrary.ringtonelibrarydata",
         "com.ohos.telephonydataability",
         "com.ohos.FusionSearch",
         "com.ohos.formrenderservice"
@@ -1190,7 +1189,7 @@ bool GetBundleForLaunchApplication(std::shared_ptr<BundleMgrHelper> bundleMgrHel
     int32_t appIndex, BundleInfo &bundleInfo)
 {
     bool queryResult;
-    if (appIndex != 0) {
+    if (appIndex > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
         TAG_LOGD(AAFwkTag::APPKIT, "The bundleName = %{public}s.", bundleName.c_str());
         queryResult = (bundleMgrHelper->GetSandboxBundleInfo(bundleName,
             appIndex, UNSPECIFIED_USERID, bundleInfo) == 0);
@@ -1343,16 +1342,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 
     std::map<std::string, std::string> pkgContextInfoJsonStringMap;
     for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-        std::string pkgContextInfoJsonString;
-        ErrCode errCode = bundleMgrHelper->GetJsonProfile(
-            AppExecFwk::PKG_CONTEXT_PROFILE, appInfo.bundleName, hapModuleInfo.moduleName, pkgContextInfoJsonString,
-            AppExecFwk::OsAccountManagerWrapper::GetCurrentActiveAccountId());
-        if (ret != ERR_OK) {
-            TAG_LOGE(AAFwkTag::APPKIT, "GetJsonProfile failed: %{public}d.", ret);
-        }
-        if (!pkgContextInfoJsonString.empty()) {
-            pkgContextInfoJsonStringMap[hapModuleInfo.moduleName] = pkgContextInfoJsonString;
-        }
+        pkgContextInfoJsonStringMap[hapModuleInfo.moduleName] = hapModuleInfo.hapPath;
     }
 
     AppLibPathMap appLibPaths {};
@@ -2136,11 +2126,6 @@ void MainThread::HandleTerminateApplication(bool isLastProcess)
         TAG_LOGD(AAFwkTag::APPKIT, "PerformTerminate() failed.");
     }
 
-    std::shared_ptr<EventRunner> signalRunner = signalHandler_->GetEventRunner();
-    if (signalRunner) {
-        signalRunner->Stop();
-    }
-
     std::shared_ptr<EventRunner> runner = mainHandler_->GetEventRunner();
     if (runner == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "get manHandler error");
@@ -2247,7 +2232,6 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner)
     TAG_LOGD(AAFwkTag::APPKIT, "Start");
     mainHandler_ = std::make_shared<MainHandler>(runner, this);
     watchdog_ = std::make_shared<Watchdog>();
-    signalHandler_ = std::make_shared<EventHandler>(EventRunner::Create(SIGNAL_HANDLER));
     extensionConfigMgr_ = std::make_unique<AbilityRuntime::ExtensionConfigMgr>();
     wptr<MainThread> weak = this;
     auto task = [weak]() {
@@ -2312,7 +2296,7 @@ void MainThread::HandleSignal(int signal, [[maybe_unused]] siginfo_t *siginfo, v
         }
         case SignalType::SIGNAL_FORCE_FULLGC: {
             auto forceFullGCFunc = std::bind(&MainThread::ForceFullGC);
-            signalHandler_->PostTask(forceFullGCFunc, "MainThread:SIGNAL_FORCE_FULLGC");
+            ffrt::submit(forceFullGCFunc);
             break;
         }
         default:
@@ -2328,8 +2312,12 @@ void MainThread::HandleDumpHeapPrepare()
         return;
     }
     auto app = applicationForDump_.lock();
+    if (app == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "HandleDumpHeapPrepare app is nullptr");
+        return;
+    }
     auto &runtime = app->GetRuntime();
-    if (app == nullptr || runtime == nullptr) {
+    if (runtime == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "HandleDumpHeapPrepare runtime is nullptr");
         return;
     }
@@ -2344,12 +2332,17 @@ void MainThread::HandleDumpHeap(bool isPrivate)
         return;
     }
     auto app = applicationForDump_.lock();
+    if (app == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "HandleDumpHeap app is nullptr");
+        return;
+    }
     auto &runtime = app->GetRuntime();
-    if (app == nullptr || runtime == nullptr) {
+    if (runtime == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "HandleDumpHeap runtime is nullptr");
         return;
     }
     auto taskFork = [&runtime, &isPrivate] {
+        TAG_LOGD(AAFwkTag::APPKIT, "HandleDump Heap taskFork start.");
         time_t startTime = time(nullptr);
         int pid = -1;
         if ((pid = fork()) < 0) {
@@ -2381,10 +2374,8 @@ void MainThread::HandleDumpHeap(bool isPrivate)
             usleep(DEFAULT_SLEEP_TIME);
         }
     };
-    if (!signalHandler_->PostTask(taskFork, "MainThread::HandleDumpHeap",
-                                  0, AppExecFwk::EventQueue::Priority::IMMEDIATE)) {
-        TAG_LOGE(AAFwkTag::APPKIT, "HandleDumpHeap postTask false");
-    }
+
+    ffrt::submit(taskFork, {}, {}, ffrt::task_attr().qos(ffrt::qos_user_initiated));
     runtime->DumpCpuProfile(isPrivate);
 }
 
@@ -2429,7 +2420,7 @@ void MainThread::ForceFullGC()
 void MainThread::Start()
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::APPKIT, "App main thread create, pid:%{public}d.", getpid());
+    TAG_LOGI(AAFwkTag::APPKIT, "App main thread create, pid:%{public}d.", getprocpid());
 
     if (AAFwk::AppUtils::GetInstance().IsMultiProcessModel()) {
         ChildProcessInfo info;
@@ -3187,23 +3178,29 @@ void MainThread::HandleCancelAssertFaultTask()
 
 int32_t MainThread::ScheduleDumpIpcStart(std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ScheduleDumpIpcStart::pid:%{public}d", getpid());
+    TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ScheduleDumpIpcStart::pid:%{public}d", getprocpid());
     DumpIpcHelper::DumpIpcStart(result);
     return ERR_OK;
 }
 
 int32_t MainThread::ScheduleDumpIpcStop(std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ScheduleDumpIpcStop::pid:%{public}d", getpid());
+    TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ScheduleDumpIpcStop::pid:%{public}d", getprocpid());
     DumpIpcHelper::DumpIpcStop(result);
     return ERR_OK;
 }
 
 int32_t MainThread::ScheduleDumpIpcStat(std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ScheduleDumpIpcStat::pid:%{public}d", getpid());
+    TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ScheduleDumpIpcStat::pid:%{public}d", getprocpid());
     DumpIpcHelper::DumpIpcStat(result);
     return ERR_OK;
+}
+
+int32_t MainThread::ScheduleDumpFfrt(std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ScheduleDumpFfrt::pid:%{public}d", getprocpid());
+    return DumpFfrtHelper::DumpFfrt(result);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

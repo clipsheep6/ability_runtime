@@ -22,6 +22,7 @@
 #undef private
 #undef protected
 #include "ability_handler.h"
+#include "ability_context.h"
 #include "ability_local_record.h"
 #include "mock_ability_token.h"
 #include "ohos_application.h"
@@ -37,6 +38,7 @@ static const int32_t STARTID = 0;
 static const std::string DEVICE_ID = "deviceId";
 static const std::string TEST = "test";
 const unsigned int ZEROTAG = 0;
+static const int32_t CODE1 = -1;
 
 class UIAbilityThreadTest : public testing::Test {
 public:
@@ -917,6 +919,400 @@ HWTEST_F(UIAbilityThreadTest, AbilityRuntime_CallRequest_0200, Function | Medium
     EXPECT_EQ(abilitythread->currentAbility_, nullptr);
     abilitythread->CallRequest();
     GTEST_LOG_(INFO) << "AbilityRuntime_CallRequest_0200 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_CreateAndInitContextDeal_0100
+ * @tc.name: CreateAndInitContextDeal
+ * @tc.desc: Test CreateAndInitContextDeal function
+ */
+HWTEST_F(UIAbilityThreadTest, AbilityRuntime_CreateAndInitContextDeal_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_CreateAndInitContextDeal_0100 start";
+    AbilityRuntime::UIAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "MockPageAbility";
+    abilityInfo->type = AbilityType::PAGE;
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+    auto ret = abilitythread->CreateAndInitContextDeal(application, abilityRecord, nullptr);
+    EXPECT_EQ(ret, nullptr);
+    GTEST_LOG_(INFO) << "AbilityRuntime_CreateAndInitContextDeal_0100 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_CreateAndInitContextDeal_0200
+ * @tc.name: CreateAndInitContextDeal
+ * @tc.desc: Test CreateAndInitContextDeal function
+ */
+HWTEST_F(UIAbilityThreadTest, AbilityRuntime_CreateAndInitContextDeal_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_CreateAndInitContextDeal_0200 start";
+    AbilityRuntime::UIAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "MockPageAbility";
+    abilityInfo->type = AbilityType::PAGE;
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+    std::shared_ptr<AppExecFwk::AbilityContext> abilityObject = std::make_shared<AppExecFwk::AbilityContext>();
+    auto ret = abilitythread->CreateAndInitContextDeal(application, abilityRecord, abilityObject);
+    EXPECT_NE(ret, nullptr);
+    GTEST_LOG_(INFO) << "AbilityRuntime_CreateAndInitContextDeal_0200 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_CreateAndInitContextDeal_0300
+ * @tc.name: CreateAndInitContextDeal
+ * @tc.desc: Test CreateAndInitContextDeal function
+ */
+HWTEST_F(UIAbilityThreadTest, AbilityRuntime_CreateAndInitContextDeal_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_CreateAndInitContextDeal_0300 start";
+    AbilityRuntime::UIAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "MockPageAbility";
+    abilityInfo->type = AbilityType::PAGE;
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+    std::shared_ptr<AppExecFwk::AbilityContext> abilityObject = std::make_shared<AppExecFwk::AbilityContext>();
+    auto ret = abilitythread->CreateAndInitContextDeal(nullptr, abilityRecord, abilityObject);
+    EXPECT_EQ(ret, nullptr);
+    GTEST_LOG_(INFO) << "AbilityRuntime_CreateAndInitContextDeal_0300 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_CreateAndInitContextDeal_0400
+ * @tc.name: CreateAndInitContextDeal
+ * @tc.desc: Test CreateAndInitContextDeal function
+ */
+HWTEST_F(UIAbilityThreadTest, AbilityRuntime_CreateAndInitContextDeal_0400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_CreateAndInitContextDeal_0400 start";
+    AbilityRuntime::UIAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "MockPageAbility";
+    abilityInfo->type = AbilityType::PAGE;
+    std::shared_ptr<AppExecFwk::AbilityContext> abilityObject = std::make_shared<AppExecFwk::AbilityContext>();
+    auto ret = abilitythread->CreateAndInitContextDeal(application, nullptr, abilityObject);
+    EXPECT_EQ(ret, nullptr);
+    GTEST_LOG_(INFO) << "AbilityRuntime_CreateAndInitContextDeal_0400 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_Attach_0100
+ * @tc.name: Attach
+ * @tc.desc: Test Attach function
+ */
+HWTEST_F(UIAbilityThreadTest, AbilityRuntime_Attach_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_Attach_0100 start";
+    AbilityRuntime::UIAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "";
+    abilityInfo->type = AbilityType::PAGE;
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+    std::shared_ptr<EventRunner> mainRunner = EventRunner::Create(abilityInfo->name);
+    abilitythread->Attach(application, abilityRecord, mainRunner, nullptr);
+    auto ret = abilitythread->CreateAbilityName(abilityRecord);
+    EXPECT_EQ(ret, "UIAbility");
+    GTEST_LOG_(INFO) << "AbilityRuntime_Attach_0100 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_HandleShareData_0100
+ * @tc.name: HandleShareData
+ * @tc.desc: Test HandleShareData function
+ */
+HWTEST_F(UIAbilityThreadTest, AbilityRuntime_HandleShareData_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_HandleShareData_0100 start";
+    AbilityRuntime::UIAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+    abilitythread->abilityImpl_ = nullptr;
+    auto ret = abilitythread->SchedulePrepareTerminateAbility();
+    int32_t uniqueId = 1;
+    abilitythread->HandleShareData(uniqueId);
+    EXPECT_EQ(ret, true);
+    GTEST_LOG_(INFO) << "AbilityRuntime_HandleShareData_0100 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_AddLifecycleEvent_0100
+ * @tc.name: AddLifecycleEvent
+ * @tc.desc: Test AddLifecycleEvent function
+ */
+HWTEST_F(UIAbilityThreadTest, AbilityRuntime_AddLifecycleEvent_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_AddLifecycleEvent_0100 start";
+    AbilityRuntime::UIAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+    uint32_t state = AAFwk::ABILITY_STATE_FOREGROUND_NEW;
+    std::string methodName = "methodName";
+    abilitythread->AddLifecycleEvent(state, methodName);
+    abilitythread->abilityImpl_ = std::make_shared<AbilityRuntime::UIAbilityImpl>();
+    abilitythread->abilityHandler_ = nullptr;
+    auto ret = abilitythread->SchedulePrepareTerminateAbility();
+    EXPECT_EQ(ret, false);
+    GTEST_LOG_(INFO) << "AbilityRuntime_AddLifecycleEvent_0100 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_AddLifecycleEvent_0200
+ * @tc.name: AddLifecycleEvent
+ * @tc.desc: Test AddLifecycleEvent function
+ */
+HWTEST_F(UIAbilityThreadTest, AbilityRuntime_AddLifecycleEvent_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_AddLifecycleEvent_0200 start";
+    AbilityRuntime::UIAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+    uint32_t state = AAFwk::ABILITY_STATE_BACKGROUND_NEW;
+    std::string methodName = "methodName";
+    abilitythread->AddLifecycleEvent(state, methodName);
+    abilitythread->abilityImpl_ = std::make_shared<AbilityRuntime::UIAbilityImpl>();
+    abilitythread->abilityHandler_ = nullptr;
+    int32_t uniqueId = 1;
+    abilitythread->HandleShareData(uniqueId);
+    auto ret = abilitythread->SchedulePrepareTerminateAbility();
+    EXPECT_EQ(ret, false);
+    GTEST_LOG_(INFO) << "AbilityRuntime_AddLifecycleEvent_0200 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_ScheduleShareData_0100
+ * @tc.name: ScheduleShareData
+ * @tc.desc: Test ScheduleShareData function
+ */
+HWTEST_F(UIAbilityThreadTest, AbilityRuntime_ScheduleShareData_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_ScheduleShareData_0100 start";
+    AbilityRuntime::UIAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+    abilitythread->token_ = nullptr;
+    EXPECT_EQ(abilitythread->token_, nullptr);
+    int32_t uniqueId = 1;
+    abilitythread->ScheduleShareData(uniqueId);
+    abilitythread->abilityImpl_ = std::make_shared<AbilityRuntime::UIAbilityImpl>();
+    abilitythread->abilityHandler_ = std::make_shared<AbilityHandler>(nullptr);
+    EXPECT_NE(abilitythread->abilityHandler_, nullptr);
+    auto ret = abilitythread->SchedulePrepareTerminateAbility();
+    EXPECT_EQ(ret, false);
+    GTEST_LOG_(INFO) << "AbilityRuntime_ScheduleShareData_0100 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_ScheduleShareData_0200
+ * @tc.name: ScheduleShareData
+ * @tc.desc: Test ScheduleShareData function
+ */
+HWTEST_F(UIAbilityThreadTest, AbilityRuntime_ScheduleShareData_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_ScheduleShareData_0200 start";
+    AbilityRuntime::UIAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+    abilitythread->token_ = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    EXPECT_NE(abilitythread->token_, nullptr);
+    abilitythread->abilityImpl_ = std::make_shared<AbilityRuntime::UIAbilityImpl>();
+    abilitythread->abilityHandler_ = nullptr;
+    int32_t uniqueId = 1;
+    abilitythread->ScheduleShareData(uniqueId);
+    auto ret = abilitythread->SchedulePrepareTerminateAbility();
+    EXPECT_EQ(ret, false);
+    GTEST_LOG_(INFO) << "AbilityRuntime_ScheduleShareData_0200 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_SendResult_0400
+ * @tc.name: SendResult
+ * @tc.desc: Test SendResult function
+ */
+HWTEST_F(UIAbilityThreadTest, AbilityRuntime_SendResult_0400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_SendResult_0400 start";
+    AbilityRuntime::UIAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+    abilitythread->abilityHandler_ = nullptr;
+    int requestCode = 0;
+    int resultCode = 1;
+    Want want;
+    EXPECT_EQ(abilitythread->abilityHandler_, nullptr);
+    abilitythread->SendResult(requestCode, resultCode, want);
+    GTEST_LOG_(INFO) << "AbilityRuntime_SendResult_0400 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_SendResult_0500
+ * @tc.name: SendResult
+ * @tc.desc: Test SendResult function
+ */
+HWTEST_F(UIAbilityThreadTest, AbilityRuntime_SendResult_0500, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_SendResult_0500 start";
+    AbilityRuntime::UIAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+    int requestCode = -1;
+    int resultCode = 1;
+    Want want;
+    abilitythread->abilityHandler_ = std::make_shared<AbilityHandler>(nullptr);
+    EXPECT_NE(abilitythread->abilityHandler_, nullptr);
+    abilitythread->SendResult(requestCode, resultCode, want);
+    GTEST_LOG_(INFO) << "AbilityRuntime_SendResult_0500 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_CallRequest_0400
+ * @tc.name: CallRequest
+ * @tc.desc: Test CallRequest function
+ */
+HWTEST_F(UIAbilityThreadTest, AbilityRuntime_CallRequest_0400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_CallRequest_0400 start";
+    AbilityRuntime::UIAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+    abilitythread->currentAbility_ = std::make_shared<AbilityRuntime::UIAbility>();
+    EXPECT_NE(abilitythread->currentAbility_, nullptr);
+    EXPECT_EQ(abilitythread->abilityHandler_, nullptr);
+    abilitythread->CallRequest();
+    GTEST_LOG_(INFO) << "AbilityRuntime_CallRequest_0400 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_OnExecuteIntent_0100
+ * @tc.name: OnExecuteIntent
+ * @tc.desc: Test OnExecuteIntent function
+ */
+HWTEST_F(UIAbilityThreadTest, AbilityRuntime_OnExecuteIntent_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnExecuteIntent_0100 start";
+    AbilityRuntime::UIAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+    Want want;
+    EXPECT_EQ(abilitythread->abilityImpl_, nullptr);
+    EXPECT_EQ(abilitythread->abilityHandler_, nullptr);
+    abilitythread->OnExecuteIntent(want);
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnExecuteIntent_0100 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_OnExecuteIntent_0300
+ * @tc.name: OnExecuteIntent
+ * @tc.desc: Test OnExecuteIntent function
+ */
+HWTEST_F(UIAbilityThreadTest, AbilityRuntime_OnExecuteIntent_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnExecuteIntent_0300 start";
+    AbilityRuntime::UIAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+    Want want;
+    abilitythread->abilityImpl_ = std::make_shared<AbilityRuntime::UIAbilityImpl>();
+    EXPECT_NE(abilitythread->abilityImpl_, nullptr);
+    EXPECT_EQ(abilitythread->abilityHandler_, nullptr);
+    abilitythread->OnExecuteIntent(want);
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnExecuteIntent_0300 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_OnExecuteIntent_0400
+ * @tc.name: OnExecuteIntent
+ * @tc.desc: Test OnExecuteIntent function
+ */
+HWTEST_F(UIAbilityThreadTest, AbilityRuntime_OnExecuteIntent_0400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnExecuteIntent_0400 start";
+    AbilityRuntime::UIAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+    Want want;
+    abilitythread->abilityHandler_ = std::make_shared<AbilityHandler>(nullptr);
+    EXPECT_EQ(abilitythread->abilityImpl_, nullptr);
+    EXPECT_NE(abilitythread->abilityHandler_, nullptr);
+    abilitythread->OnExecuteIntent(want);
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnExecuteIntent_0400 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_HandlePrepareTermianteAbility_0100
+ * @tc.name: HandlePrepareTermianteAbility
+ * @tc.desc: Test HandlePrepareTermianteAbility function
+ */
+HWTEST_F(UIAbilityThreadTest, AbilityRuntime_HandlePrepareTermianteAbility_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_HandlePrepareTermianteAbility_0100 start";
+    AbilityRuntime::UIAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+    EXPECT_EQ(abilitythread->abilityImpl_, nullptr);
+    abilitythread->HandlePrepareTermianteAbility();
+    GTEST_LOG_(INFO) << "AbilityRuntime_HandlePrepareTermianteAbility_0100 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_HandlePrepareTermianteAbility_0200
+ * @tc.name: HandlePrepareTermianteAbility
+ * @tc.desc: Test HandlePrepareTermianteAbility function
+ */
+HWTEST_F(UIAbilityThreadTest, AbilityRuntime_HandlePrepareTermianteAbility_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_HandlePrepareTermianteAbility_0200 start";
+    AbilityRuntime::UIAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+    abilitythread->abilityImpl_ = std::make_shared<AbilityRuntime::UIAbilityImpl>();
+    EXPECT_NE(abilitythread->abilityImpl_, nullptr);
+    abilitythread->HandlePrepareTermianteAbility();
+    GTEST_LOG_(INFO) << "AbilityRuntime_HandlePrepareTermianteAbility_0200 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_CreateModalUIExtension_0100
+ * @tc.name: CreateModalUIExtension
+ * @tc.desc: Test CreateModalUIExtension function
+ */
+HWTEST_F(UIAbilityThreadTest, AbilityRuntime_CreateModalUIExtension_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_CreateModalUIExtension_0100 start";
+    AbilityRuntime::UIAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+    Want want;
+    abilitythread->currentAbility_ = std::make_shared<AbilityRuntime::UIAbility>();
+    EXPECT_NE(abilitythread->currentAbility_, nullptr);
+    int ret = abilitythread->CreateModalUIExtension(want);
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    abilitythread->UpdateSessionToken(token);
+    EXPECT_EQ(ret, CODE1);
+    GTEST_LOG_(INFO) << "AbilityRuntime_CreateModalUIExtension_0100 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_CreateModalUIExtension_0200
+ * @tc.name: CreateModalUIExtension
+ * @tc.desc: Test CreateModalUIExtension function
+ */
+HWTEST_F(UIAbilityThreadTest, AbilityRuntime_CreateModalUIExtension_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_CreateModalUIExtension_0200 start";
+    AbilityRuntime::UIAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+    Want want;
+    EXPECT_EQ(abilitythread->currentAbility_, nullptr);
+    int ret = abilitythread->CreateModalUIExtension(want);
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    abilitythread->UpdateSessionToken(token);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    GTEST_LOG_(INFO) << "AbilityRuntime_CreateModalUIExtension_0200 end";
 }
 } // namespace AppExecFwk
 } // namespace OHOS

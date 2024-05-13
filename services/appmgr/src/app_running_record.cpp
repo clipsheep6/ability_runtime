@@ -178,6 +178,16 @@ void RenderRecord::RegisterDeathRecipient()
     }
 }
 
+void RenderRecord::SetState(int32_t state)
+{
+    state_ = state;
+}
+
+int32_t RenderRecord::GetState() const
+{
+    return state_;
+}
+
 AppRunningRecord::AppRunningRecord(
     const std::shared_ptr<ApplicationInfo> &info, const int32_t recordId, const std::string &processName)
     : appRecordId_(recordId), processName_(processName)
@@ -542,14 +552,14 @@ void AppRunningRecord::AddAbilityStageDone()
     }
     // Should proceed to the next notification
 
-    if (isSpecifiedAbility_) {
+    if (IsStartSpecifiedAbility()) {
         ScheduleAcceptWant(moduleName_);
         return;
     }
 
-    if (isNewProcessRequest_) {
+    if (IsNewProcessRequest()) {
         TAG_LOGD(AAFwkTag::APPMGR, "ScheduleNewProcessRequest.");
-        ScheduleNewProcessRequest(newProcessRequestWant_, moduleName_);
+        ScheduleNewProcessRequest(GetNewProcessRequestWant(), moduleName_);
         return;
     }
 
@@ -1344,7 +1354,7 @@ bool AppRunningRecord::IsTerminating()
 
 bool AppRunningRecord::IsKeepAliveApp() const
 {
-    return isKeepAliveApp_;
+    return isKeepAliveApp_ && isSingleton_;
 }
 
 void AppRunningRecord::SetKeepAliveEnableState(bool isKeepAliveEnable)
@@ -1360,6 +1370,11 @@ bool AppRunningRecord::IsEmptyKeepAliveApp() const
 void AppRunningRecord::SetEmptyKeepAliveAppState(bool isEmptyKeepAliveApp)
 {
     isEmptyKeepAliveApp_ = isEmptyKeepAliveApp;
+}
+
+void AppRunningRecord::SetSingleton(bool isSingleton)
+{
+    isSingleton_ = isSingleton;
 }
 
 void AppRunningRecord::SetStageModelState(bool isStageBasedModel)
@@ -1470,29 +1485,51 @@ void AppRunningRecord::SetProcessAndExtensionType(const std::shared_ptr<AbilityI
 }
 
 void AppRunningRecord::SetSpecifiedAbilityFlagAndWant(
-    const bool flag, const AAFwk::Want &want, const std::string &moduleName)
+    int requestId, const AAFwk::Want &want, const std::string &moduleName)
 {
-    isSpecifiedAbility_ = flag;
-    SpecifiedWant_ = want;
+    std::lock_guard lock(specifiedMutex_);
+    if (specifiedRequestId_ != -1) {
+        TAG_LOGW(AAFwkTag::APPMGR, "specifiedRequestId: %{public}d", specifiedRequestId_);
+    }
+    specifiedRequestId_ = requestId;
+    specifiedWant_ = want;
     moduleName_ = moduleName;
 }
 
-void AppRunningRecord::SetScheduleNewProcessRequestState(
-    const bool isNewProcessRequest, const AAFwk::Want &want, const std::string &moduleName)
+int32_t AppRunningRecord::GetSpecifiedRequestId() const
 {
-    isNewProcessRequest_ = isNewProcessRequest;
+    std::lock_guard lock(specifiedMutex_);
+    return specifiedRequestId_;
+}
+
+void AppRunningRecord::ResetSpecifiedRequestId()
+{
+    std::lock_guard lock(specifiedMutex_);
+    specifiedRequestId_ = -1;
+}
+
+void AppRunningRecord::SetScheduleNewProcessRequestState(int32_t requestId,
+    const AAFwk::Want &want, const std::string &moduleName)
+{
+    std::lock_guard lock(specifiedMutex_);
+    if (newProcessRequestId_ != -1) {
+        TAG_LOGW(AAFwkTag::APPMGR, "newProcessRequestId: %{public}d", newProcessRequestId_);
+    }
+    newProcessRequestId_ = requestId;
     newProcessRequestWant_ = want;
     moduleName_ = moduleName;
 }
 
 bool AppRunningRecord::IsNewProcessRequest() const
 {
-    return isNewProcessRequest_;
+    std::lock_guard lock(specifiedMutex_);
+    return newProcessRequestId_ != -1;
 }
 
 bool AppRunningRecord::IsStartSpecifiedAbility() const
 {
-    return isSpecifiedAbility_;
+    std::lock_guard lock(specifiedMutex_);
+    return specifiedRequestId_ != -1;
 }
 
 void AppRunningRecord::ScheduleAcceptWant(const std::string &moduleName)
@@ -1503,7 +1540,7 @@ void AppRunningRecord::ScheduleAcceptWant(const std::string &moduleName)
         TAG_LOGW(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
         return;
     }
-    appLifeCycleDeal_->ScheduleAcceptWant(SpecifiedWant_, moduleName);
+    appLifeCycleDeal_->ScheduleAcceptWant(GetSpecifiedWant(), moduleName);
 }
 
 void AppRunningRecord::ScheduleAcceptWantDone()
@@ -1556,18 +1593,33 @@ void AppRunningRecord::ApplicationTerminated()
     eventHandler_->RemoveEvent(AMSEventHandler::TERMINATE_APPLICATION_TIMEOUT_MSG, eventId_);
 }
 
-const AAFwk::Want &AppRunningRecord::GetSpecifiedWant() const
+AAFwk::Want AppRunningRecord::GetSpecifiedWant() const
 {
-    return SpecifiedWant_;
+    std::lock_guard lock(specifiedMutex_);
+    return specifiedWant_;
 }
 
-const AAFwk::Want &AppRunningRecord::GetNewProcessRequestWant() const
+AAFwk::Want AppRunningRecord::GetNewProcessRequestWant() const
 {
+    std::lock_guard lock(specifiedMutex_);
     return newProcessRequestWant_;
+}
+
+int32_t AppRunningRecord::GetNewProcessRequestId() const
+{
+    std::lock_guard lock(specifiedMutex_);
+    return newProcessRequestId_;
+}
+
+void AppRunningRecord::ResetNewProcessRequestId()
+{
+    std::lock_guard lock(specifiedMutex_);
+    newProcessRequestId_ = -1;
 }
 
 int32_t AppRunningRecord::UpdateConfiguration(const Configuration &config)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!appLifeCycleDeal_) {
         TAG_LOGI(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
@@ -2076,13 +2128,33 @@ bool AppRunningRecord::isNativeStart() const
     return isNativeStart_;
 }
 
+void AppRunningRecord::SetExitReason(int32_t reason)
+{
+    exitReason_ = reason;
+}
+
+int32_t AppRunningRecord::GetExitReason() const
+{
+    return exitReason_;
+}
+
+void AppRunningRecord::SetExitMsg(const std::string &exitMsg)
+{
+    exitMsg_ = exitMsg;
+}
+
+std::string AppRunningRecord::GetExitMsg() const
+{
+    return exitMsg_;
+}
+
 int AppRunningRecord::DumpIpcStart(std::string& result)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (appLifeCycleDeal_ == nullptr) {
-        result.append(MSG_DUMP_IPC_START_STAT)
-            .append(MSG_DUMP_IPC_FAIL)
-            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        result.append(MSG_DUMP_IPC_START_STAT, strlen(MSG_DUMP_IPC_START_STAT))
+            .append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));
         TAG_LOGE(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
@@ -2093,9 +2165,9 @@ int AppRunningRecord::DumpIpcStop(std::string& result)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (appLifeCycleDeal_ == nullptr) {
-        result.append(MSG_DUMP_IPC_STOP_STAT)
-            .append(MSG_DUMP_IPC_FAIL)
-            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        result.append(MSG_DUMP_IPC_STOP_STAT, strlen(MSG_DUMP_IPC_STOP_STAT))
+            .append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));
         TAG_LOGE(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
@@ -2106,13 +2178,25 @@ int AppRunningRecord::DumpIpcStat(std::string& result)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (appLifeCycleDeal_ == nullptr) {
-        result.append(MSG_DUMP_IPC_STAT)
-            .append(MSG_DUMP_IPC_FAIL)
-            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        result.append(MSG_DUMP_IPC_STAT, strlen(MSG_DUMP_IPC_STAT))
+            .append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));
         TAG_LOGE(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
     return appLifeCycleDeal_->DumpIpcStat(result);
+}
+
+int AppRunningRecord::DumpFfrt(std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    if (appLifeCycleDeal_ == nullptr) {
+        result.append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));
+        TAG_LOGE(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
+        return DumpErrorCode::ERR_INTERNAL_ERROR;
+    }
+    return appLifeCycleDeal_->DumpFfrt(result);
 }
 
 bool AppRunningRecord::SetSupportedProcessCache(bool isSupport)

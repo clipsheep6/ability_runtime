@@ -68,6 +68,7 @@ public:
     MOCK_METHOD4(StartNativeChildProcess, int32_t(const pid_t hostPid, const std::string &libName,
         int32_t childProcessCount, const sptr<IRemoteObject> &callback));
     void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
+    void StartSpecifiedAbility(const AAFwk::Want&, const AppExecFwk::AbilityInfo&, int32_t)
     {}
 
     void Post()

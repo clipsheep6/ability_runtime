@@ -16,6 +16,9 @@
 let UIExtensionAbility = requireNapi('app.ability.UIExtensionAbility');
 
 class DemoUIExtensionAbility extends UIExtensionAbility {
+    onTest(){
+        console.log('DemoUIExtensionAbility onTest');
+    }
 }
 
 export default DemoUIExtensionAbility;
