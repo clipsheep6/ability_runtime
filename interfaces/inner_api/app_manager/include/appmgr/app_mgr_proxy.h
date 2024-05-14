@@ -306,11 +306,12 @@ public:
      * @param sharedFd, shared memory file descriptior.
      * @param crashFd, crash signal file descriptior.
      * @param renderPid, created render pid.
+     * @param isGPU, is or not GPU process
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int StartRenderProcess(const std::string &renderParam,
                                    int32_t ipcFd, int32_t sharedFd,
-                                   int32_t crashFd, pid_t &renderPid) override;
+                                   int32_t crashFd, pid_t &renderPid, bool isGPU = false) override;
 
     /**
      * Render process call this to attach app manager service.
@@ -568,6 +569,8 @@ public:
     virtual int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent) override;
 
     int32_t SetSupportedProcessCacheSelf(bool isSupport) override;
+
+    virtual void SaveBrowserChannel(sptr<IRemoteObject> browser) override;
 private:
     bool SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply);
     bool WriteInterfaceToken(MessageParcel &data);
