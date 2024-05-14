@@ -270,12 +270,11 @@ std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityR
     abilityRecord->collaboratorType_ = abilityRequest.collaboratorType;
     abilityRecord->missionAffinity_ = abilityRequest.want.GetStringParam(PARAM_MISSION_AFFINITY_KEY);
 
-    if (abilityRecord->IsDebug() || abilityRecord->IsSceneBoard()) {
-        abilityRecord->abilityAppStateObserver_ = sptr<AbilityAppStateObserver>(
-            new AbilityAppStateObserver(abilityRecord));
-        DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->RegisterApplicationStateObserver(
-            abilityRecord->abilityAppStateObserver_, {abilityRequest.abilityInfo.bundleName});
-    }
+    // Before the ability attaches
+    abilityRecord->abilityAppStateObserver_ = sptr<AbilityAppStateObserver>(
+        new AbilityAppStateObserver(abilityRecord));
+    DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->RegisterApplicationStateObserver(
+        abilityRecord->abilityAppStateObserver_, {abilityRequest.abilityInfo.bundleName});
     return abilityRecord;
 }
 
@@ -1725,8 +1724,9 @@ void AbilityRecord::SendSandboxSavefileResult(const Want &want, int resultCode, 
             }
             Uri uri(uriStr);
             uint32_t initiatorTokenId = IPCSkeleton::GetCallingTokenID();
+            bool flag = Want::FLAG_AUTH_WRITE_URI_PERMISSION;
             auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(uri,
-                Want::FLAG_AUTH_WRITE_URI_PERMISSION, abilityInfo_.bundleName, appIndex_, initiatorTokenId));
+                flag, abilityInfo_.bundleName, appIndex_, initiatorTokenId, recordId_));
             if (ret != ERR_OK) {
                 TAG_LOGW(AAFwkTag::ABILITYMGR, "GrantUriPermission failed");
             }
@@ -3083,7 +3083,7 @@ void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string>
         return;
     }
     auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(validUriList, flag,
-        targetBundleName, appIndex_, callerTokenId));
+        targetBundleName, appIndex_, callerTokenId, recordId_));
     if (ret != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "grant uri permission failed, Error Code is %{public}d", ret);
         return;
@@ -3108,7 +3108,7 @@ bool AbilityRecord::GrantPermissionToShell(const std::vector<std::string> &strUr
     uint32_t initiatorTokenId = IPCSkeleton::GetCallingTokenID();
     for (auto&& uri : uriVec) {
         auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, flag, targetPkg,
-            appIndex_, initiatorTokenId));
+            appIndex_, initiatorTokenId, recordId_));
         if (ret == ERR_OK) {
             isGrantedUriPermission_ = true;
         }
@@ -3185,7 +3185,7 @@ void AbilityRecord::RevokeUriPermission()
 {
     if (isGrantedUriPermission_) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "To remove uri permission.");
-        UriPermissionManagerClient::GetInstance().RevokeUriPermission(applicationInfo_.accessTokenId);
+        UriPermissionManagerClient::GetInstance().RevokeUriPermission(applicationInfo_.accessTokenId, recordId_);
         isGrantedUriPermission_ = false;
     }
 }

@@ -36,18 +36,18 @@ UriPermissionManagerClient& UriPermissionManagerClient::GetInstance()
 }
 
 int UriPermissionManagerClient::GrantUriPermission(const Uri &uri, unsigned int flag,
-    const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
+    const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId, int32_t abilityId)
 {
     TAG_LOGD(AAFwkTag::URIPERMMGR, "targetBundleName :%{public}s", targetBundleName.c_str());
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
-        return uriPermMgr->GrantUriPermission(uri, flag, targetBundleName, appIndex, initiatorTokenId);
+        return uriPermMgr->GrantUriPermission(uri, flag, targetBundleName, appIndex, initiatorTokenId, abilityId);
     }
     return INNER_ERR;
 }
 
 int UriPermissionManagerClient::GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
-    const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
+    const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId, int32_t abilityId)
 {
     TAG_LOGD(AAFwkTag::URIPERMMGR, "targetBundleName: %{public}s, uriVec size: %{public}zu", targetBundleName.c_str(),
         uriVec.size());
@@ -57,7 +57,7 @@ int UriPermissionManagerClient::GrantUriPermission(const std::vector<Uri> &uriVe
     }
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
-        return uriPermMgr->GrantUriPermission(uriVec, flag, targetBundleName, appIndex, initiatorTokenId);
+        return uriPermMgr->GrantUriPermission(uriVec, flag, targetBundleName, appIndex, initiatorTokenId, abilityId);
     }
     return INNER_ERR;
 }
@@ -94,16 +94,16 @@ int UriPermissionManagerClient::GrantUriPermissionFor2In1(const std::vector<Uri>
     return INNER_ERR;
 }
 
-void UriPermissionManagerClient::RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId)
+void UriPermissionManagerClient::RevokeUriPermission(const uint32_t tokenId, int32_t abilityId)
 {
     TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerClient::RevokeUriPermission is called.");
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
-        return uriPermMgr->RevokeUriPermission(tokenId);
+        return uriPermMgr->RevokeUriPermission(tokenId, abilityId);
     }
 }
 
-int UriPermissionManagerClient::RevokeAllUriPermissions(const Security::AccessToken::AccessTokenID tokenId)
+int UriPermissionManagerClient::RevokeAllUriPermissions(const uint32_t tokenId)
 {
     TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerClient::RevokeAllUriPermissions is called.");
     auto uriPermMgr = ConnectUriPermService();

@@ -34,8 +34,8 @@ public:
      * @param targetBundleName The user of uri.
      * @return Returns true if the authorization is successful, otherwise returns false.
      */
-    virtual int GrantUriPermission(const Uri &uri, unsigned int flag,
-        const std::string targetBundleName, int32_t appIndex = 0, uint32_t initiatorTokenId = 0) = 0;
+    virtual int GrantUriPermission(const Uri &uri, unsigned int flag, const std::string targetBundleName,
+        int32_t appIndex = 0, uint32_t initiatorTokenId = 0, int32_t abilityId = -1) = 0;
 
     /**
      * @brief Authorize the uri permission to targetBundleName.
@@ -46,7 +46,8 @@ public:
      * @return Returns true if the authorization is successful, otherwise returns false.
      */
     virtual int GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
-        const std::string targetBundleName, int32_t appIndex = 0, uint32_t initiatorTokenId = 0) = 0;
+        const std::string targetBundleName, int32_t appIndex = 0, uint32_t initiatorTokenId = 0,
+        int32_t abilityId = -1) = 0;
 
     /**
      * @brief Authorize the uri permission to targetBundleName.
@@ -77,9 +78,10 @@ public:
      * @brief Clear user's uri authorization record with autoremove flag.
      *
      * @param tokenId A tokenId of an application.
+     * @param abilityId The abilityId of an ability record.
      * @return Returns true if the remove is successful, otherwise returns false.
      */
-    virtual void RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId) = 0;
+    virtual void RevokeUriPermission(const uint32_t tokenId, int32_t abilityId = -1) = 0;
 
     /**
      * @brief Clear user's all uri authorization record with autoremove flag.
@@ -87,7 +89,7 @@ public:
      * @param tokenId A tokenId of an application.
      * @return Returns true if the remove is successful, otherwise returns false.
      */
-    virtual int RevokeAllUriPermissions(const Security::AccessToken::AccessTokenID tokenId) = 0;
+    virtual int RevokeAllUriPermissions(const uint32_t tokenId) = 0;
 
     /**
      * @brief Clear user's uri authorization record.

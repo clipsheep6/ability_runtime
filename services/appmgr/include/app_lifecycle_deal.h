@@ -226,6 +226,8 @@ public:
 
     int DumpIpcStat(std::string& result);
 
+    int DumpFfrt(std::string& result);
+
 private:
     mutable std::mutex schedulerMutex_;
     sptr<IAppScheduler> appThread_ = nullptr;

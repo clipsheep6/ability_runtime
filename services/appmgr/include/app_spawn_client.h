@@ -65,6 +65,7 @@ struct AppSpawnStartMsg {
     std::set<std::string> permissions;
     std::map<std::string, std::string> appEnv; // environment variable to be set to the process
     std::string ownerId;
+    std::string provisionType;
     bool atomicServiceFlag = false;
     std::string atomicAccount = "";
 };

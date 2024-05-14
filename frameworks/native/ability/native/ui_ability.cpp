@@ -158,6 +158,7 @@ void UIAbility::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessio
 #ifdef SUPPORT_GRAPHICS
     if (sessionInfo != nullptr) {
         SetSessionToken(sessionInfo->sessionToken);
+        SetIdentityToken(sessionInfo->identityToken);
     }
     OnStartForSupportGraphics(want);
 #endif
@@ -1091,6 +1092,16 @@ void UIAbility::EraseUIExtension(int32_t sessionId)
         return;
     }
     abilityContextImpl->EraseUIExtension(sessionId);
+}
+
+void UIAbility::SetIdentityToken(const std::string &identityToken)
+{
+    identityToken_ = identityToken;
+}
+
+std::string UIAbility::GetIdentityToken() const
+{
+    return identityToken_;
 }
 #endif
 } // namespace AbilityRuntime

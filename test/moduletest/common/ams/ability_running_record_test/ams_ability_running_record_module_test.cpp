@@ -211,6 +211,11 @@ public:
         return 0;
     }
 
+    int32_t ScheduleDumpFfrt(std::string& result) override
+    {
+        return 0;
+    }
+
 private:
     int abilityLaunchTime = 0;
     int appLaunchTime = 0;

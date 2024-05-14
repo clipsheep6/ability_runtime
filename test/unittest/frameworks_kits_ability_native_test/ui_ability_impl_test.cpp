@@ -30,6 +30,7 @@
 #include "mock_ui_ability.h"
 #include "mock_ui_ability_impl.h"
 #include "ohos_application.h"
+#include "mock_ability_lifecycle_callbacks.h"
 #include "process_options.h"
 #include "session_info.h"
 
@@ -1983,6 +1984,301 @@ HWTEST_F(UIAbilityImplTest, AbilityRuntime_ForegroundFailed_0300, TestSize.Level
     impl->ForegroundFailed(wmErrInvalidWindowModeOrSize);
     GTEST_LOG_(INFO) << "AbilityRuntime_ForegroundFailed_0300 end";
 }
+
+/**
+ * @tc.number: AbilityRuntime_ForegroundFailed_0400
+ * @tc.name: ForegroundFailed
+ * @tc.desc: Verify ForegroundFailed succeeded.
+ */
+HWTEST_F(UIAbilityImplTest, AbilityRuntime_ForegroundFailed_0400, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_ForegroundFailed_0400 start";
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    auto abilityImpl = std::make_shared<UIAbilityImpl>();
+    abilityImpl->isStageBasedModel_ = true;
+    sptr<UIAbilityImpl::WindowLifeCycleImpl> impl =
+        new (std::nothrow) UIAbilityImpl::WindowLifeCycleImpl(token, abilityImpl);
+    ASSERT_NE(impl, nullptr);
+    int32_t type = static_cast<int32_t>(OHOS::Rosen::WMError::WM_ERROR_INVALID_OPERATION);
+    impl->ForegroundFailed(type);
+    impl->BackgroundFailed(type);
+    GTEST_LOG_(INFO) << "AbilityRuntime_ForegroundFailed_0400 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_ForegroundFailed_0500
+ * @tc.name: ForegroundFailed
+ * @tc.desc: Verify ForegroundFailed succeeded.
+ */
+HWTEST_F(UIAbilityImplTest, AbilityRuntime_ForegroundFailed_0500, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_ForegroundFailed_0500 start";
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    auto abilityImpl = std::make_shared<UIAbilityImpl>();
+    abilityImpl->isStageBasedModel_ = true;
+    sptr<UIAbilityImpl::WindowLifeCycleImpl> impl =
+        new (std::nothrow) UIAbilityImpl::WindowLifeCycleImpl(token, abilityImpl);
+    ASSERT_NE(impl, nullptr);
+    int32_t type = static_cast<int32_t>(OHOS::Rosen::WMError::WM_DO_NOTHING);
+    impl->ForegroundFailed(type);
+    impl->BackgroundFailed(type);
+    GTEST_LOG_(INFO) << "AbilityRuntime_ForegroundFailed_0500 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_Share_0100
+ * @tc.name: Share
+ * @tc.desc: uiability is nullptr, Verify Share failed.
+ */
+HWTEST_F(UIAbilityImplTest, AbilityRuntime_Share_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_Share_0100 start";
+    ASSERT_NE(abilityImpl_, nullptr);
+    abilityImpl_->ability_ = nullptr;
+    AAFwk::WantParams wantParam;
+    int32_t ret = abilityImpl_->Share(wantParam);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    GTEST_LOG_(INFO) << "AbilityRuntime_Share_0100 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_Share_0200
+ * @tc.name: Share
+ * @tc.desc: uiability is nullptr, Verify Share failed.
+ */
+HWTEST_F(UIAbilityImplTest, AbilityRuntime_Share_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_Share_0200 start";
+    ASSERT_NE(abilityImpl_, nullptr);
+    abilityImpl_->ability_ = std::make_shared<UIAbility>();
+    AAFwk::WantParams wantParam;
+    int32_t ret = abilityImpl_->Share(wantParam);
+    EXPECT_EQ(ret, ERR_OK);
+    GTEST_LOG_(INFO) << "AbilityRuntime_Share_0200 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_PrepareTerminateAbility_0100
+ * @tc.name: PrepareTerminateAbility
+ * @tc.desc: uiability is nullptr, Verify PrepareTerminateAbility failed.
+ */
+HWTEST_F(UIAbilityImplTest, AbilityRuntime_PrepareTerminateAbility_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_PrepareTerminateAbility_0100 start";
+    ASSERT_NE(abilityImpl_, nullptr);
+    int32_t uniqueId = 1;
+    abilityImpl_->HandleShareData(uniqueId);
+    uint64_t intentId = 1;
+    InsightIntentExecuteResult result;
+    abilityImpl_->ExecuteInsightIntentDone(intentId, result);
+    abilityImpl_->ability_ = nullptr;
+    bool ret = abilityImpl_->PrepareTerminateAbility();
+    EXPECT_EQ(ret, false);
+    GTEST_LOG_(INFO) << "AbilityRuntime_PrepareTerminateAbility_0100 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_PrepareTerminateAbility_0200
+ * @tc.name: PrepareTerminateAbility
+ * @tc.desc: uiability is not nullptr, Verify PrepareTerminateAbility failed.
+ */
+HWTEST_F(UIAbilityImplTest, AbilityRuntime_PrepareTerminateAbility_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_PrepareTerminateAbility_0200 start";
+    ASSERT_NE(abilityImpl_, nullptr);
+    abilityImpl_->ability_ = std::make_shared<UIAbility>();
+    bool ret = abilityImpl_->PrepareTerminateAbility();
+    EXPECT_EQ(ret, false);
+    GTEST_LOG_(INFO) << "AbilityRuntime_PrepareTerminateAbility_0200 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_AbilityTransaction_0100
+ * @tc.name: AbilityTransaction
+ * @tc.desc: Verify AbilityTransaction failed.
+ */
+HWTEST_F(UIAbilityImplTest, AbilityRuntime_AbilityTransaction_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_AbilityTransaction_0100 start";
+    ASSERT_NE(abilityImpl_, nullptr);
+    Want want;
+    AAFwk::LifeCycleStateInfo targetState;
+    targetState.state = ABILITY_STATE_INITIAL;
+    bool ret = abilityImpl_->AbilityTransaction(want, targetState);
+    EXPECT_EQ(ret, true);
+    GTEST_LOG_(INFO) << "AbilityRuntime_AbilityTransaction_0100 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_AbilityTransaction_0200
+ * @tc.name: AbilityTransaction
+ * @tc.desc: Verify AbilityTransaction failed.
+ */
+HWTEST_F(UIAbilityImplTest, AbilityRuntime_AbilityTransaction_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_AbilityTransaction_0200 start";
+    ASSERT_NE(abilityImpl_, nullptr);
+    Want want;
+    AAFwk::LifeCycleStateInfo targetState;
+    targetState.state = AAFwk::ABILITY_STATE_FOREGROUND_NEW;
+    bool ret = abilityImpl_->AbilityTransaction(want, targetState);
+    EXPECT_EQ(ret, false);
+    GTEST_LOG_(INFO) << "AbilityRuntime_AbilityTransaction_0200 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_AbilityTransaction_0300
+ * @tc.name: AbilityTransaction
+ * @tc.desc: Verify AbilityTransaction failed.
+ */
+HWTEST_F(UIAbilityImplTest, AbilityRuntime_AbilityTransaction_0300, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_AbilityTransaction_0300 start";
+    ASSERT_NE(abilityImpl_, nullptr);
+    Want want;
+    AAFwk::LifeCycleStateInfo targetState;
+    targetState.state = AAFwk::ABILITY_STATE_BACKGROUND_NEW;
+    bool ret = abilityImpl_->AbilityTransaction(want, targetState);
+    EXPECT_EQ(ret, false);
+    GTEST_LOG_(INFO) << "AbilityRuntime_AbilityTransaction_0300 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_AbilityTransaction_0400
+ * @tc.name: AbilityTransaction
+ * @tc.desc: Verify AbilityTransaction failed.
+ */
+HWTEST_F(UIAbilityImplTest, AbilityRuntime_AbilityTransaction_0400, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_AbilityTransaction_0400 start";
+    ASSERT_NE(abilityImpl_, nullptr);
+    Want want;
+    AAFwk::LifeCycleStateInfo targetState;
+    targetState.state = AAFwk::ABILITY_STATE_INACTIVE;
+    bool ret = abilityImpl_->AbilityTransaction(want, targetState);
+    EXPECT_EQ(ret, false);
+    GTEST_LOG_(INFO) << "AbilityRuntime_AbilityTransaction_0400 end";
+}
+#ifdef SUPPORT_GRAPHICS
+/**
+ * @tc.number: AbilityRuntime_HandleForegroundNewState_0100
+ * @tc.name: HandleForegroundNewState
+ * @tc.desc: Verify HandleForegroundNewState failed.
+ */
+HWTEST_F(UIAbilityImplTest, AbilityRuntime_HandleForegroundNewState_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_HandleForegroundNewState_0100 start";
+    ASSERT_NE(abilityImpl_, nullptr);
+    Want want;
+    abilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_FOREGROUND_NEW;
+    abilityImpl_->ability_ = nullptr;
+    bool bflag = true;
+    abilityImpl_->HandleForegroundNewState(want, bflag);
+    EXPECT_EQ(abilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_FOREGROUND_NEW);
+    GTEST_LOG_(INFO) << "AbilityRuntime_HandleForegroundNewState_0100 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_HandleForegroundNewState_0200
+ * @tc.name: HandleForegroundNewState
+ * @tc.desc: Verify HandleForegroundNewState failed.
+ */
+HWTEST_F(UIAbilityImplTest, AbilityRuntime_HandleForegroundNewState_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_HandleForegroundNewState_0200 start";
+    ASSERT_NE(abilityImpl_, nullptr);
+    Want want;
+    abilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_FOREGROUND_NEW;
+    abilityImpl_->ability_ = std::make_shared<UIAbility>();
+    bool bflag = true;
+    abilityImpl_->HandleForegroundNewState(want, bflag);
+    EXPECT_EQ(abilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_FOREGROUND_NEW);
+    GTEST_LOG_(INFO) << "AbilityRuntime_HandleForegroundNewState_0200 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_HandleForegroundNewState_0300
+ * @tc.name: HandleForegroundNewState
+ * @tc.desc: Verify HandleForegroundNewState failed.
+ */
+HWTEST_F(UIAbilityImplTest, AbilityRuntime_HandleForegroundNewState_0300, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_HandleForegroundNewState_0300 start";
+    ASSERT_NE(abilityImpl_, nullptr);
+    Want want;
+    abilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
+    bool bflag = false;
+    abilityImpl_->HandleForegroundNewState(want, bflag);
+    EXPECT_EQ(abilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_ACTIVE);
+    GTEST_LOG_(INFO) << "AbilityRuntime_HandleForegroundNewState_0300 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_HandleExecuteInsightIntentForeground_0100
+ * @tc.name: HandleExecuteInsightIntentForeground
+ * @tc.desc: Verify HandleExecuteInsightIntentForeground failed.
+ */
+HWTEST_F(UIAbilityImplTest, AbilityRuntime_HandleExecuteInsightIntentForeground_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_HandleExecuteInsightIntentForeground_0100 start";
+    ASSERT_NE(abilityImpl_, nullptr);
+    Want want;
+    abilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_FOREGROUND_NEW;
+    bool bflag = false;
+    abilityImpl_->HandleForegroundNewState(want, bflag);
+    EXPECT_EQ(abilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_FOREGROUND_NEW);
+    GTEST_LOG_(INFO) << "AbilityRuntime_HandleExecuteInsightIntentForeground_0100 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_HandleExecuteInsightIntentForeground_0200
+ * @tc.name: HandleExecuteInsightIntentForeground
+ * @tc.desc: Verify HandleExecuteInsightIntentForeground failed.
+ */
+HWTEST_F(UIAbilityImplTest, AbilityRuntime_HandleExecuteInsightIntentForeground_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_HandleExecuteInsightIntentForeground_0200 start";
+    ASSERT_NE(abilityImpl_, nullptr);
+    Want want;
+    abilityImpl_->lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
+    bool bflag = false;
+    abilityImpl_->HandleForegroundNewState(want, bflag);
+    EXPECT_EQ(abilityImpl_->lifecycleState_, AAFwk::ABILITY_STATE_ACTIVE);
+    GTEST_LOG_(INFO) << "AbilityRuntime_HandleExecuteInsightIntentForeground_0200 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_ExecuteInsightIntentRepeateForeground_0100
+ * @tc.name: ExecuteInsightIntentRepeateForeground
+ * @tc.desc: Verify HandleExecuteInsightIntentForeground failed.
+ */
+HWTEST_F(UIAbilityImplTest, AbilityRuntime_ExecuteInsightIntentRepeateForeground_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_ExecuteInsightIntentRepeateForeground_0100 start";
+    ASSERT_NE(abilityImpl_, nullptr);
+    abilityImpl_->ability_ = std::make_shared<UIAbility>();
+    abilityImpl_->abilityLifecycleCallbacks_ = nullptr;
+    abilityImpl_->PostForegroundInsightIntent();
+    EXPECT_EQ(abilityImpl_->lifecycleState_, 0);
+    GTEST_LOG_(INFO) << "AbilityRuntime_ExecuteInsightIntentRepeateForeground_0100 end";
+}
+
+/**
+ * @tc.number: AbilityRuntime_ExecuteInsightIntentRepeateForeground_0200
+ * @tc.name: ExecuteInsightIntentRepeateForeground
+ * @tc.desc: Verify HandleExecuteInsightIntentForeground failed.
+ */
+HWTEST_F(UIAbilityImplTest, AbilityRuntime_ExecuteInsightIntentRepeateForeground_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityRuntime_ExecuteInsightIntentRepeateForeground_0200 start";
+    ASSERT_NE(abilityImpl_, nullptr);
+    abilityImpl_->ability_ = nullptr;
+    abilityImpl_->abilityLifecycleCallbacks_ = std::make_shared<MockAbilityLifecycleCallbacks>();
+    abilityImpl_->PostForegroundInsightIntent();
+    EXPECT_EQ(abilityImpl_->lifecycleState_, 0);
+    GTEST_LOG_(INFO) << "AbilityRuntime_ExecuteInsightIntentRepeateForeground_0200 end";
+}
+#endif
 
 /**
  * @tc.number: AbilityRuntime_UpdateSilentForeground_0100

@@ -250,6 +250,26 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_GetApplicationInfoByProcessID_001, TestS
 }
 
 /**
+ * @tc.name: AppMgrClient_NotifyAppMgrRecordExitReason_001
+ * @tc.desc: test NotifyAppMgrRecordExitReason.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_NotifyAppMgrRecordExitReason_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    int32_t reason = 0;
+    int32_t pid = 1;
+    std::string exitMsg = "JsError";
+    auto ret = appMgrClient->NotifyAppMgrRecordExitReason(reason, pid, exitMsg);
+    EXPECT_NE(ret, ERR_OK);
+}
+
+/**
  * @tc.name: AppMgrClient_GetAllRenderProcesses_001
  * @tc.desc: get all render processes.
  * @tc.type: FUNC
@@ -998,24 +1018,6 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_StartSpecifiedProcess_001, TestSize.Leve
 
     auto result = appMgrClient->ConnectAppMgrService();
     appMgrClient->StartSpecifiedProcess(want, abilityInfo);
-    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
-}
-
-/**
- * @tc.name: AppMgrClient_ScheduleNewProcessRequest_001
- * @tc.desc: schedule accept want done.
- * @tc.type: FUNC
- */
-HWTEST_F(AppMgrClientTest, AppMgrClient_ScheduleNewProcessRequest_001, TestSize.Level0)
-{
-    int32_t recordId = INIT_VALUE;
-    AAFwk::Want want;
-    std::string flag = EMPTY_STRING;
-    auto appMgrClient = std::make_unique<AppMgrClient>();
-    EXPECT_NE(appMgrClient, nullptr);
-
-    auto result = appMgrClient->ConnectAppMgrService();
-    appMgrClient->ScheduleNewProcessRequest(recordId, want, flag);
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 }
 

@@ -23,7 +23,7 @@
 #include "want.h"
 namespace OHOS {
 namespace AAFwk {
-class OpenLinkOptions final : public Parcelable, public std::enable_shared_from_this<OpenLinkOptions> {
+class OpenLinkOptions final : public Parcelable {
 public:
     OpenLinkOptions() = default;
     virtual ~OpenLinkOptions() = default;

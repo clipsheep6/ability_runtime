@@ -347,9 +347,9 @@ int AppLifeCycleDeal::DumpIpcStart(std::string& result)
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     auto appThread = GetApplicationClient();
     if (appThread == nullptr) {
-        result.append(MSG_DUMP_IPC_START_STAT)
-            .append(MSG_DUMP_IPC_FAIL)
-            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        result.append(MSG_DUMP_IPC_START_STAT, strlen(MSG_DUMP_IPC_START_STAT))
+            .append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));
         TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr.");
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
@@ -361,9 +361,9 @@ int AppLifeCycleDeal::DumpIpcStop(std::string& result)
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     auto appThread = GetApplicationClient();
     if (appThread == nullptr) {
-        result.append(MSG_DUMP_IPC_STOP_STAT)
-            .append(MSG_DUMP_IPC_FAIL)
-            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        result.append(MSG_DUMP_IPC_STOP_STAT, strlen(MSG_DUMP_IPC_STOP_STAT))
+            .append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));
         TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr.");
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
@@ -375,13 +375,26 @@ int AppLifeCycleDeal::DumpIpcStat(std::string& result)
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     auto appThread = GetApplicationClient();
     if (appThread == nullptr) {
-        result.append(MSG_DUMP_IPC_STAT)
-            .append(MSG_DUMP_IPC_FAIL)
-            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        result.append(MSG_DUMP_IPC_STAT, strlen(MSG_DUMP_IPC_STAT))
+            .append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));
         TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr.");
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
     return appThread->ScheduleDumpIpcStat(result);
+}
+
+int AppLifeCycleDeal::DumpFfrt(std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    auto appThread = GetApplicationClient();
+    if (appThread == nullptr) {
+        result.append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr.");
+        return DumpErrorCode::ERR_INTERNAL_ERROR;
+    }
+    return appThread->ScheduleDumpFfrt(result);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

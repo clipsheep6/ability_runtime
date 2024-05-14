@@ -380,7 +380,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
         return ERR_IMPLICIT_START_ABILITY_FAIL;
     }
 
-    if (isOpenLink && !appLinkingOnly) {
+    if (!appLinkingOnly) {
         ProcessLinkType(abilityInfos);
     }
 

@@ -13,10 +13,23 @@
  * limitations under the License.
  */
 
-#include "mock_my_flag.h"
+#ifndef MOCK_OHOS_ABILITY_RUNTIME_MOCK_APP_MGR_SERVICE_INNER_H
+#define MOCK_OHOS_ABILITY_RUNTIME_MOCK_APP_MGR_SERVICE_INNER_H
+
+#include "gmock/gmock.h"
+#include "app_mgr_service_inner.h"
 
 namespace OHOS {
-namespace AAFwk {
-int MyFlag::flag_ = 0;
-} // namespace AAFwk
-} // namespace OHOS
+namespace AppExecFwk {
+class MockAppMgrServiceInner : public AppMgrServiceInner {
+public:
+    MockAppMgrServiceInner()
+    {}
+    virtual ~MockAppMgrServiceInner()
+    {}
+
+    MOCK_METHOD2(DumpFfrt, int(const std::vector<int32_t>& pid, std::string& result));
+};
+}  // namespace AppExecFwk
+}  // namespace OHOS
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_MOCK_APP_MGR_SERVICE_INNER_H

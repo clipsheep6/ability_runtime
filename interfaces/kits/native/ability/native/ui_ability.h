@@ -535,6 +535,9 @@ public:
 
     void EraseUIExtension(int32_t sessionId) override;
 
+    void SetIdentityToken(const std::string &identityToken);
+    std::string GetIdentityToken() const;
+
 protected:
     class UIAbilityDisplayListener : public OHOS::Rosen::DisplayManager::IDisplayListener {
     public:
@@ -605,6 +608,7 @@ private:
     void OnChangeForUpdateConfiguration(const AppExecFwk::Configuration &newConfig);
     void SetSessionToken(sptr<IRemoteObject> sessionToken);
 
+    std::string identityToken_;
     bool showOnLockScreen_ = false;
 #endif
 };

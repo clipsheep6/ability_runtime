@@ -40,7 +40,7 @@ public:
     MOCK_METHOD2(KillApplicationByUid, AppMgrResultCode(const std::string &bundleName, const int uid));
     MOCK_METHOD2(ClearUpApplicationData, AppMgrResultCode(const std::string&, int32_t userId));
     MOCK_METHOD1(StartupResidentProcess, void(const std::vector<AppExecFwk::BundleInfo> &bundleInfos));
-    MOCK_METHOD2(StartSpecifiedAbility, void(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo));
+    MOCK_METHOD3(StartSpecifiedAbility, void(const AAFwk::Want&, const AppExecFwk::AbilityInfo&, int32_t));
     MOCK_METHOD1(GetAllRunningProcesses, AppMgrResultCode(std::vector<RunningProcessInfo> &info));
     MOCK_METHOD1(GetAllRenderProcesses, AppMgrResultCode(std::vector<RenderProcessInfo> &info));
     MOCK_METHOD2(GetProcessRunningInfosByUserId, AppMgrResultCode(

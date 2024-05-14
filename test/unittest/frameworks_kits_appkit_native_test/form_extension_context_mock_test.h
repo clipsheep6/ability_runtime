@@ -281,6 +281,11 @@ public:
     {
         return ERR_OK;
     }
+    ErrCode RequestPublishFormWithSnapshot(Want &want, bool withFormBindingData,
+        std::unique_ptr<FormProviderData> &formBindingData, int64_t &formId) override
+    {
+        return 0;
+    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

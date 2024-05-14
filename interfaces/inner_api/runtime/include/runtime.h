@@ -38,6 +38,7 @@ class Runtime {
 public:
     enum class Language {
         JS = 0,
+        CJ
     };
 
     struct Options {

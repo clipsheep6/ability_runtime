@@ -932,7 +932,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetCloudFileDir_0100, Func
 {
     context_->SetStageContext(mock_);
     auto ret = context_->GetCloudFileDir();
-    EXPECT_EQ(ret, "/data/service/el2/hmdfs/cloud/data/bundleName");
+    EXPECT_EQ(ret, "/cloud");
 }
 
 /**

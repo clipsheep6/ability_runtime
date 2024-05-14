@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "deeplink_reserve/deeplink_reserve.h"
+#include "deeplink_reserve/deeplink_reserve_config.h"
 #include <fstream>
 #include <sstream>
 #include <unistd.h>

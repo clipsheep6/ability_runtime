@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_DEEPLINK_RESERVE_H
-#define OHOS_ABILITY_RUNTIME_DEEPLINK_RESERVE_H
+#ifndef OHOS_ABILITY_RUNTIME_DEEPLINK_RESERVE_CONFIG_H
+#define OHOS_ABILITY_RUNTIME_DEEPLINK_RESERVE_CONFIG_H
 
 #include <nlohmann/json.hpp>
 #include <string>
@@ -36,23 +36,31 @@ struct ReserveUri {
     std::string utd;
 };
 
-class DeepLinkReserveConfig : public DelayedSingleton<DeepLinkReserveConfig> {
+class DeepLinkReserveConfig {
 public:
-    DeepLinkReserveConfig() = default;
-    virtual ~DeepLinkReserveConfig() = default;
+    static DeepLinkReserveConfig &GetInstance()
+    {
+        static DeepLinkReserveConfig instance;
+        return instance;
+    }
+    ~DeepLinkReserveConfig() = default;
     bool LoadConfiguration();
     bool isLinkReserved(const std::string &linkString, std::string &bundleName);
+
 private:
     std::string GetConfigPath();
     bool ReadFileInfoJson(const std::string &filePath, nlohmann::json &jsonBuf);
     bool LoadReservedUriList(const nlohmann::json &object);
     bool isUriMatched(const ReserveUri &reservedUri, const std::string &link);
     void LoadReservedUrilItem(const nlohmann::json &jsonUriObject, std::vector<ReserveUri> &uriList);
+    DeepLinkReserveConfig() = default;
+    DISALLOW_COPY_AND_MOVE(DeepLinkReserveConfig);
 
+private:
     std::map<std::string, std::vector<ReserveUri>> deepLinkReserveUris_;
 };
 } // OHOS
 } // AAFwk
 
-#endif // OHOS_ABILITY_RUNTIME_DEEPLINK_RESERVE_H
+#endif // OHOS_ABILITY_RUNTIME_DEEPLINK_RESERVE_CONFIG_H
 

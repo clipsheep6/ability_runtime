@@ -34,7 +34,7 @@ bool StartSpecifiedAbilityResponseProxy::WriteInterfaceToken(MessageParcel &data
 }
 
 void StartSpecifiedAbilityResponseProxy::OnAcceptWantResponse(
-    const AAFwk::Want &want, const std::string &flag)
+    const AAFwk::Want &want, const std::string &flag, int32_t requestId)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "On accept want by proxy.");
     MessageParcel data;
@@ -43,7 +43,8 @@ void StartSpecifiedAbilityResponseProxy::OnAcceptWantResponse(
     if (!WriteInterfaceToken(data)) {
         return;
     }
-    if (!data.WriteParcelable(&want) || !data.WriteString(flag)) {
+    if (!data.WriteParcelable(&want) || !data.WriteString(flag) ||
+        !data.WriteInt32(requestId)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write data failed.");
         return;
     }
@@ -55,7 +56,7 @@ void StartSpecifiedAbilityResponseProxy::OnAcceptWantResponse(
     }
 }
 
-void StartSpecifiedAbilityResponseProxy::OnTimeoutResponse(const AAFwk::Want &want)
+void StartSpecifiedAbilityResponseProxy::OnTimeoutResponse(const AAFwk::Want &want, int32_t requestId)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "On timeout response by proxy.");
     MessageParcel data;
@@ -64,7 +65,7 @@ void StartSpecifiedAbilityResponseProxy::OnTimeoutResponse(const AAFwk::Want &wa
     if (!WriteInterfaceToken(data)) {
         return;
     }
-    if (!data.WriteParcelable(&want)) {
+    if (!data.WriteParcelable(&want) || !data.WriteInt32(requestId)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write data failed.");
         return;
     }
@@ -88,7 +89,8 @@ int32_t StartSpecifiedAbilityResponseProxy::SendTransactCmd(uint32_t code, Messa
     return remote->SendRequest(code, data, reply, option);
 }
 
-void StartSpecifiedAbilityResponseProxy::OnNewProcessRequestResponse(const AAFwk::Want &want, const std::string &flag)
+void StartSpecifiedAbilityResponseProxy::OnNewProcessRequestResponse(const AAFwk::Want &want, const std::string &flag,
+    int32_t requestId)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "On satrt specified process response by proxy.");
     MessageParcel data;
@@ -97,7 +99,8 @@ void StartSpecifiedAbilityResponseProxy::OnNewProcessRequestResponse(const AAFwk
     if (!WriteInterfaceToken(data)) {
         return;
     }
-    if (!data.WriteParcelable(&want) || !data.WriteString(flag)) {
+    if (!data.WriteParcelable(&want) || !data.WriteString(flag) ||
+        !data.WriteInt32(requestId)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write data failed.");
         return;
     }
@@ -115,7 +118,8 @@ void StartSpecifiedAbilityResponseProxy::OnNewProcessRequestResponse(const AAFwk
     }
 }
 
-void StartSpecifiedAbilityResponseProxy::OnNewProcessRequestTimeoutResponse(const AAFwk::Want &want)
+void StartSpecifiedAbilityResponseProxy::OnNewProcessRequestTimeoutResponse(const AAFwk::Want &want,
+    int32_t requestId)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "On start specified process timeout response by proxy.");
     MessageParcel data;
@@ -124,7 +128,7 @@ void StartSpecifiedAbilityResponseProxy::OnNewProcessRequestTimeoutResponse(cons
     if (!WriteInterfaceToken(data)) {
         return;
     }
-    if (!data.WriteParcelable(&want)) {
+    if (!data.WriteParcelable(&want) || data.WriteInt32(requestId)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write data failed.");
         return;
     }

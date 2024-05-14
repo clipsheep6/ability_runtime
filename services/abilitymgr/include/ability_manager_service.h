@@ -44,7 +44,7 @@
 #include "bundle_constants.h"
 #include "bundle_mgr_helper.h"
 #include "data_ability_manager.h"
-#include "deeplink_reserve/deeplink_reserve.h"
+#include "deeplink_reserve/deeplink_reserve_config.h"
 #include "event_report.h"
 #include "free_install_manager.h"
 #include "hilog_wrapper.h"
@@ -404,9 +404,10 @@ public:
      * Start ui ability with want, send want to ability manager service.
      *
      * @param sessionInfo the session info of the ability to start.
+     * @param isColdStart the session info of the ability is or not cold start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo) override;
+    virtual int StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bool &isColdStart) override;
 
     /**
      * Stop extension ability with want, send want to ability manager service.
@@ -1037,11 +1038,12 @@ public:
         int requestCode = DEFAULT_INVAL_VALUE,
         bool isSendDialogResult = false);
 
-    void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag);
-    void OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want);
+    void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag, int32_t requestId = 0);
+    void OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want, int32_t requestId = 0);
 
-    void OnStartSpecifiedProcessResponse(const AAFwk::Want &want, const std::string &flag);
-    void OnStartSpecifiedProcessTimeoutResponse(const AAFwk::Want &want);
+    void OnStartSpecifiedProcessResponse(const AAFwk::Want &want, const std::string &flag,
+        int32_t requestId = 0);
+    void OnStartSpecifiedProcessTimeoutResponse(const AAFwk::Want &want, int32_t requestId = 0);
 
     virtual int GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info) override;
     virtual int GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info) override;
@@ -1908,6 +1910,12 @@ private:
         const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID);
     std::map<uint32_t, DumpSysFuncType> dumpsysFuncMap_;
 
+    int CheckStaticCfgPermissionForAbility(const AppExecFwk::AbilityInfo &abilityInfo, uint32_t tokenId);
+
+    int CheckStaticCfgPermissionForSkill(const AppExecFwk::AbilityRequest &abilityRequest, uint32_t tokenId);
+
+    bool CheckOneSkillPermission(const AppExecFwk::Skill &skill, uint32_t tokenId);
+
     int CheckStaticCfgPermission(const AppExecFwk::AbilityRequest &abilityRequest, bool isStartAsCaller,
         uint32_t callerTokenId, bool isData = false, bool isSaCall = false, bool isImplicit = false);
 
@@ -2214,6 +2222,8 @@ private:
 
     void SetReserveInfo(const std::string &linkString);
 
+    void ReportPreventStartAbilityResult(const AppExecFwk::AbilityInfo &callerAbilityInfo,
+        const AppExecFwk::AbilityInfo &abilityInfo);
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     std::shared_ptr<BackgroundTaskObserver> bgtaskObserver_;
 #endif
@@ -2232,7 +2242,6 @@ private:
 #endif
     std::shared_ptr<AbilityInterceptorExecuter> interceptorExecuter_;
     std::shared_ptr<AbilityInterceptorExecuter> afterCheckExecuter_;
-    std::shared_ptr<DeepLinkReserveConfig> deepLinkReserveConfig_;
 
     std::unordered_map<int32_t, int64_t> appRecoveryHistory_; // uid:time
     bool isPrepareTerminateEnable_ = false;

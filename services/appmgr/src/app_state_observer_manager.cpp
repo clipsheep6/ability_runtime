@@ -615,8 +615,9 @@ void AppStateObserverManager::HandleOnAppProcessDied(const std::shared_ptr<AppRu
         return;
     }
     ProcessData data = WrapProcessData(appRecord);
-    TAG_LOGD(AAFwkTag::APPMGR, "Process died, bundle:%{public}s, pid:%{public}d, uid:%{public}d, renderUid:%{public}d",
-        data.bundleName.c_str(), data.pid, data.uid, data.renderUid);
+    TAG_LOGD(AAFwkTag::APPMGR, "Process died, bundle:%{public}s, pid:%{public}d, uid:%{public}d, renderUid:%{public}d,"
+        " exitReason:%{public}d, exitMsg:%{public}s",
+        data.bundleName.c_str(), data.pid, data.uid, data.renderUid, data.exitReason, data.exitMsg.c_str());
     HandleOnProcessDied(data);
 }
 
@@ -667,6 +668,8 @@ ProcessData AppStateObserverManager::WrapProcessData(const std::shared_ptr<AppRu
     if (appRecord->GetUserTestInfo() != nullptr && system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
         processData.isTestMode = true;
     }
+    processData.exitReason = appRecord->GetExitReason();
+    processData.exitMsg = appRecord->GetExitMsg();
     return processData;
 }
 

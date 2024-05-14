@@ -43,12 +43,10 @@ constexpr const char* DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
 constexpr const char* DLP_PARAMS_BUNDLE_NAME = "ohos.dlp.params.bundleName";
 constexpr const char* DLP_PARAMS_MODULE_NAME = "ohos.dlp.params.moduleName";
 constexpr const char* DLP_PARAMS_ABILITY_NAME = "ohos.dlp.params.abilityName";
-const std::string MARKET_BUNDLE_NAME = "com.huawei.hmsapp.appgallery";
-const std::string MARKET_CROWD_TEST_BUNDLE_PARAM = "crowd_test_bundle_name";
-const std::string BUNDLE_NAME_SELECTOR_DIALOG = "com.ohos.amsdialog";
-const std::string JUMP_INTERCEPTOR_DIALOG_CALLER_PKG = "interceptor_callerPkg";
-// dlp White list
-const std::unordered_set<std::string> WHITE_LIST_DLP_SET = { BUNDLE_NAME_SELECTOR_DIALOG };
+constexpr const char* MARKET_BUNDLE_NAME = "com.huawei.hmsapp.appgallery";
+constexpr const char* MARKET_CROWD_TEST_BUNDLE_PARAM = "crowd_test_bundle_name";
+constexpr const char* BUNDLE_NAME_SELECTOR_DIALOG = "com.ohos.amsdialog";
+constexpr const char* JUMP_INTERCEPTOR_DIALOG_CALLER_PKG = "interceptor_callerPkg";
 
 #define CHECK_POINTER_CONTINUE(object)                         \
     if (!object) {                                             \
@@ -214,7 +212,8 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
 
 [[maybe_unused]] static bool HandleDlpApp(Want &want)
 {
-    if (WHITE_LIST_DLP_SET.find(want.GetBundle()) != WHITE_LIST_DLP_SET.end()) {
+    const std::unordered_set<std::string> whiteListDlpSet = { BUNDLE_NAME_SELECTOR_DIALOG };
+    if (whiteListDlpSet.find(want.GetBundle()) != whiteListDlpSet.end()) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s, enter special app", __func__);
         return false;
     }
