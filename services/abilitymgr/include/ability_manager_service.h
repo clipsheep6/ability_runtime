@@ -1669,6 +1669,17 @@ public:
      */
     virtual int32_t GetAbilityStateByPersistentId(int32_t persistentId, bool &state) override;
 
+    /**
+     * Transfer resultCode & want to ability manager service.
+     *
+     * @param callerToken Caller ability token.
+     * @param requestCode The resultCode of the ability to start.
+     * @param want Indicates the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t TransferAbilityResultForExtension(const sptr<IRemoteObject> &callerToken, int32_t resultCode,
+        const Want &want) override;
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
