@@ -18,6 +18,7 @@
 
 #include "ability_interceptor_interface.h"
 
+#include "ability_manager_service.h"
 #include "app_mgr_interface.h"
 #include "disposed_observer.h"
 #include "task_utils_wrap.h"
@@ -39,6 +40,8 @@ public:
     };
     void UnregisterObserver(const std::string &bundleName);
 private:
+    ErrCode HandleBlockApplicationWithResult(const AbilityInterceptorParam &param,
+        AppExecFwk::DisposedRule &disposedRule);
     bool CheckControl(const Want &want, int32_t userId, AppExecFwk::DisposedRule &disposedRule);
     bool CheckDisposedRule(const Want &want, AppExecFwk::DisposedRule &disposedRule);
     ErrCode StartNonBlockRule(const Want &want, AppExecFwk::DisposedRule &disposedRule);

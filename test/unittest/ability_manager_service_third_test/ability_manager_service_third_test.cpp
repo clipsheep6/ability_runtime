@@ -1211,5 +1211,19 @@ HWTEST_F(AbilityManagerServiceThirdTest, GetAbilityStateByPersistentId_001, Test
     int32_t res = abilityMs->GetAbilityStateByPersistentId(persistentId, state);
     EXPECT_EQ(res, ERR_PERMISSION_DENIED);
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: GetAbilityRequest
+ * FunctionPoints: AbilityManagerService GetAbilityRequest
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, GetAbilityRequest_001, TestSize.Level1)
+{
+    auto abilityRequest = std::make_shared<AbilityRequest>();
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    abilityMs->SetAbilityRequest(*abilityRequest);
+    auto ret = abilityMs->GetAbilityRequest();
+    EXPECT_TRUE(abilityRequest == ret);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
