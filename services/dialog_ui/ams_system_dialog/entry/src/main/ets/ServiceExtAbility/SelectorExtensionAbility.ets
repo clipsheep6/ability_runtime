@@ -15,12 +15,17 @@
 import UIExtensionAbility from '@ohos.app.ability.UIExtensionAbility'
 import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession'
 import Want from '@ohos.app.ability.Want'
+import systemparameter from '@ohos.systemParameterEnhance';
+import dataPreferences from '@ohos.data.preferences';
 
 const TAG = 'SelectorExtensionAbility';
 
 export default class SelectorExtensionAbility extends UIExtensionAbility {
     onCreate() {
         console.info(TAG, 'SelectorExtensionAbility onCreate');
+        globalThis.currentExtensionContext = this.context;
+        let options = {name:'dialogStore'};
+        globalThis.preferences = dataPreferences.getPreferencesSync(this.context, options);
     }
 
     onSessionCreate(want: Want, session: UIExtensionContentSession) {
@@ -29,8 +34,14 @@ export default class SelectorExtensionAbility extends UIExtensionAbility {
             "extensionAbility": this,
             "callerWant": want
         } as Record<string, object>);
-
-        session.loadContent("pages/PhonePage", storage);
+        globalThis.ExtensionType = 'UIExtension';
+        if (systemparameter.getSync('persist.sys.abilityms.isdialogconfirmpermission', 'false') === 'false' &&
+            globalThis.preferences.getSync('isdialogconfirmpermission', 'false') === 'false') {
+            globalThis.currentURL = 'pages/PhonePage';
+            session.loadContent("pages/permissionConfirmDialog", storage);
+        } else {
+            session.loadContent("pages/PhonePage", storage);
+        }
         try {
             const bgColor: string = '#40FFFFFF';
         } catch (e) {

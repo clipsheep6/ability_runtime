@@ -101,7 +101,6 @@ export default class JumpInterceptorServiceExtAbility extends extension {
         await win.hideNonSystemFloatingWindows(true);
       }
       await win.moveTo(rect.left, rect.top);
-      await win.resetSize(rect.width, rect.height);
       await win.loadContent('pages/jumpInterceptorDialog');
       await win.setBackgroundColor('#00000000');
       await win.show();
