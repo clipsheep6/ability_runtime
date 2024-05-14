@@ -2616,7 +2616,13 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     SetProcessJITState(appRecord);
     PerfProfile::GetInstance().SetAppForkStartTime(GetTickCount());
     pid_t pid = 0;
-    ErrCode errCode = remoteClientManager_->GetSpawnClient()->StartProcess(startMsg, pid);
+    ErrCode errCode = ERR_OK;
+    if (isCJApp) { // if cj application
+        HILOG_WARN("cj app spawn client starting ...");
+        remoteClientManager_->GetCJSpawnClient()->StartProcess(startMsg, pid);
+    } else {
+        remoteClientManager_->GetSpawnClient()->StartProcess(startMsg, pid);
+    }
     if (FAILED(errCode)) {
         TAG_LOGE(AAFwkTag::APPMGR, "failed to spawn new app process, errCode %{public}08x", errCode);
         appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
@@ -6538,6 +6544,15 @@ void AppMgrServiceInner::OnAppCacheStateChanged(const std::shared_ptr<AppRunning
         appRecord->GetBundleName().c_str(), appRecord->GetPriorityObject()->GetPid());
 
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnAppCacheStateChanged(appRecord);
+}
+
+bool isCjAbility(const std::string& info)
+{
+    std::string cjCheckFlag = ".cj";
+    if (info.length() < cjCheckFlag.length()) {
+        return false;
+    }
+    return info.substr(info.length() - cjCheckFlag.length()) == cjCheckFlag;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
