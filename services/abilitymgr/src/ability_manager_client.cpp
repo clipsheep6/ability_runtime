@@ -1439,6 +1439,11 @@ AppExecFwk::ElementName AbilityManagerClient::GetTopAbility(bool isNeedLocalDevi
             }
             TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
             (void)sceneSessionManager->GetFocusSessionElement(elementName);
+            std::string localDeviceId;
+            auto abms = GetAbilityManager();
+            if (isNeedLocalDeviceId && abms->GetLocalDeviceId(localDeviceId)) {
+                elementName.SetDeviceID(localDeviceId);
+            }
             return elementName;
         }
     }
