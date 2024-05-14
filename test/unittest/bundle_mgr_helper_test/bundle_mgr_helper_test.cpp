@@ -25,12 +25,14 @@ using namespace testing::ext;
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
+const int32_t ABILITY_INFO_FLAG = 4;
+const int32_t DEFAULT_USERID = 100;
+const int32_t FIRST_APP_INDEX = 1000;
+const int32_t SECOND_APP_INDEX = 2000;
 const int32_t ERR_COD1 = 8519801;
-const int32_t ERR_COD2 = 8519806;
 const int32_t ERR_COD3 = 8519802;
 const int32_t ERR_COD4 = 8519921;
 const int32_t ERR_COD5 = 8519816;
-const int32_t ERR_COD6 = 8519817;
 const int32_t ERR_COD7 = 8521219;
 } // namespace
 
@@ -68,7 +70,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetBundleInfo_001, TestSize.Le
     std::string bundleName = "ohos.global.systemres";
     int32_t flags = 0;
     BundleInfo bundleInfo;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     auto ret = bundleMgrHelper->GetBundleInfo(bundleName, flags, bundleInfo, userId);
     EXPECT_EQ(ret, true);
 }
@@ -196,7 +198,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryAbilityInfo_001, TestSize
 {
     Want want;
     int32_t flags = 0;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     AbilityInfo abilityInfo;
     const sptr<IRemoteObject> callBack = nullptr;
     auto ret = bundleMgrHelper->QueryAbilityInfo(want, flags, userId, abilityInfo, callBack);
@@ -212,7 +214,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetBundleInfos_001, TestSize.L
 {
     BundleFlag flag = BundleFlag::GET_BUNDLE_WITH_ABILITIES;
     std::vector<BundleInfo> bundleInfos;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     auto ret = bundleMgrHelper->GetBundleInfos(flag, bundleInfos, userId);
     EXPECT_EQ(ret, true);
 }
@@ -226,7 +228,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_ImplicitQueryInfos_001, TestSi
 {
     Want want;
     int32_t flags = 0;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     bool withDefault = false;
     std::vector<AbilityInfo> abilityInfos;
     std::vector<ExtensionAbilityInfo> extensionInfos;
@@ -242,7 +244,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_ImplicitQueryInfos_001, TestSi
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_CleanBundleDataFiles_001, TestSize.Level1)
 {
     std::string bundleName;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     auto ret = bundleMgrHelper->CleanBundleDataFiles(bundleName, userId);
     EXPECT_EQ(ret, false);
 }
@@ -255,7 +257,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_CleanBundleDataFiles_001, Test
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryDataGroupInfos_001, TestSize.Level1)
 {
     std::string bundleName;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     std::vector<DataGroupInfo> infos;
     auto ret = bundleMgrHelper->QueryDataGroupInfos(bundleName, userId, infos);
     EXPECT_EQ(ret, false);
@@ -269,7 +271,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryDataGroupInfos_001, TestS
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetBundleGidsByUid_001, TestSize.Level1)
 {
     std::string bundleName;
-    int32_t uid = 100;
+    int32_t uid = DEFAULT_USERID;
     std::vector<int> gids;
     auto ret = bundleMgrHelper->GetBundleGidsByUid(bundleName, uid, gids);
     EXPECT_EQ(ret, true);
@@ -307,7 +309,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryExtensionAbilityInfos_002
 {
     Want want;
     int32_t flag = 0;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     std::vector<ExtensionAbilityInfo> extensionInfos;
     auto ret = bundleMgrHelper->QueryExtensionAbilityInfos(want, flag, userId, extensionInfos);
     EXPECT_EQ(ret, false);
@@ -333,7 +335,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryExtensionAbilityInfos_001
 {
     Want want;
     int32_t flag = 0;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     std::vector<ExtensionAbilityInfo> extensionInfos;
     auto ret = bundleMgrHelper->QueryExtensionAbilityInfos(want, flag, userId, extensionInfos);
     EXPECT_EQ(ret, false);
@@ -348,7 +350,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetApplicationInfo_001, TestSi
 {
     std::string appName;
     ApplicationFlag flag = ApplicationFlag::GET_ALL_APPLICATION_INFO;
-    int userId = 100;
+    int userId = DEFAULT_USERID;
     ApplicationInfo appInfo;
     auto ret = bundleMgrHelper->GetApplicationInfo(appName, flag, userId, appInfo);
     EXPECT_EQ(ret, false);
@@ -374,7 +376,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_UnregisterBundleEventCallback_
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryExtensionAbilityInfoByUri_001, TestSize.Level1)
 {
     std::string uri;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     ExtensionAbilityInfo extensionAbilityInfo;
     auto ret = bundleMgrHelper->QueryExtensionAbilityInfoByUri(uri, userId, extensionAbilityInfo);
     EXPECT_EQ(ret, false);
@@ -388,7 +390,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryExtensionAbilityInfoByUri
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryAbilityInfoByUri_001, TestSize.Level1)
 {
     std::string abilityUri;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     AbilityInfo abilityInfo;
     auto ret = bundleMgrHelper->QueryAbilityInfoByUri(abilityUri, userId, abilityInfo);
     EXPECT_EQ(ret, false);
@@ -403,7 +405,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_ImplicitQueryInfoByPriority_00
 {
     Want want;
     int32_t flags = 0;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     AbilityInfo abilityInfo;
     ExtensionAbilityInfo extensionInfo;
     auto ret = bundleMgrHelper->ImplicitQueryInfoByPriority(want, flags, userId, abilityInfo, extensionInfo);
@@ -419,7 +421,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetBundleInfos_002, TestSize.L
 {
     int32_t flags = 0;
     std::vector<BundleInfo> bundleInfos;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     auto ret = bundleMgrHelper->GetBundleInfos(flags, bundleInfos, userId);
     EXPECT_EQ(ret, true);
 }
@@ -432,7 +434,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetBundleInfos_002, TestSize.L
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetHapModuleInfo_002, TestSize.Level1)
 {
     AbilityInfo abilityInfo;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     HapModuleInfo hapModuleInfo;
     auto ret = bundleMgrHelper->GetHapModuleInfo(abilityInfo, userId, hapModuleInfo);
     EXPECT_EQ(ret, false);
@@ -446,7 +448,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetHapModuleInfo_002, TestSize
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetUidByBundleName_001, TestSize.Level1)
 {
     std::string bundleName;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     auto ret = bundleMgrHelper->GetUidByBundleName(bundleName, userId);
     EXPECT_EQ(ret, Constants::INVALID_UID);
 }
@@ -460,7 +462,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetApplicationInfo_002, TestSi
 {
     std::string appName;
     int32_t flags = 0;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     ApplicationInfo appInfo;
     auto ret = bundleMgrHelper->GetApplicationInfo(appName, flags, userId, appInfo);
     EXPECT_EQ(ret, false);
@@ -486,7 +488,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_ProcessPreload_001, TestSize.L
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_UpgradeAtomicService_001, TestSize.Level1)
 {
     Want want;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     bundleMgrHelper->UpgradeAtomicService(want, userId);
     EXPECT_NE(bundleMgrHelper->bundleMgr_, nullptr);
 }
@@ -499,8 +501,8 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_UpgradeAtomicService_001, Test
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryAbilityInfo_003, TestSize.Level1)
 {
     Want want;
-    int32_t flags = 100;
-    int32_t userId = 100;
+    int32_t flags = DEFAULT_USERID;
+    int32_t userId = DEFAULT_USERID;
     AbilityInfo abilityInfo;
     auto ret = bundleMgrHelper->QueryAbilityInfo(want, flags, userId, abilityInfo);
     EXPECT_EQ(ret, false);
@@ -569,10 +571,10 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_UninstallSandboxApp_001, TestS
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_UninstallSandboxApp_002, TestSize.Level1)
 {
     std::string bundleName = "bundleName";
-    int32_t userId = 1;
     int32_t appIndex = 1;
-    auto ret = bundleMgrHelper->UninstallSandboxApp(bundleName, userId, appIndex);
-    EXPECT_EQ(ret, ERR_COD2);
+    int32_t userId = 1;
+    auto ret = bundleMgrHelper->UninstallSandboxApp(bundleName, appIndex, userId);
+    EXPECT_EQ(ret, ERR_APPEXECFWK_SANDBOX_INSTALL_PARAM_ERROR);
 }
 
 /**
@@ -656,7 +658,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetSandboxAbilityInfo_001, Tes
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetSandboxAbilityInfo_002, TestSize.Level1)
 {
     Want want;
-    int32_t appIndex = 10000;
+    int32_t appIndex = FIRST_APP_INDEX;
     int32_t flags = 1;
     int32_t userId = 1;
     AbilityInfo abilityInfo;
@@ -672,7 +674,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetSandboxAbilityInfo_002, Tes
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetSandboxAbilityInfo_003, TestSize.Level1)
 {
     Want want;
-    int32_t appIndex = 2;
+    int32_t appIndex = SECOND_APP_INDEX;
     int32_t flags = 1;
     int32_t userId = 1;
     AbilityInfo abilityInfo;
@@ -688,7 +690,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetSandboxAbilityInfo_003, Tes
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetSandboxExtAbilityInfos_001, TestSize.Level1)
 {
     Want want;
-    int32_t appIndex = 2;
+    int32_t appIndex = SECOND_APP_INDEX;
     int32_t flags = 1;
     int32_t userId = 1;
     std::vector<ExtensionAbilityInfo> extensionInfos;
@@ -719,7 +721,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetSandboxHapModuleInfo_001, T
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetSandboxHapModuleInfo_002, TestSize.Level1)
 {
     AbilityInfo abilityInfo;
-    int32_t appIndex = 10000;
+    int32_t appIndex = FIRST_APP_INDEX;
     int32_t userId = 1;
     HapModuleInfo hapModuleInfo;
     auto ret = bundleMgrHelper->GetSandboxHapModuleInfo(abilityInfo, appIndex, userId, hapModuleInfo);
@@ -734,11 +736,11 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetSandboxHapModuleInfo_002, T
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetSandboxHapModuleInfo_003, TestSize.Level1)
 {
     AbilityInfo abilityInfo;
-    int32_t appIndex = 2;
+    int32_t appIndex = SECOND_APP_INDEX;
     int32_t userId = 1;
     HapModuleInfo hapModuleInfo;
     auto ret = bundleMgrHelper->GetSandboxHapModuleInfo(abilityInfo, appIndex, userId, hapModuleInfo);
-    EXPECT_EQ(ret, ERR_COD6);
+    EXPECT_EQ(ret, ERR_COD5);
 }
 
 /**
@@ -809,9 +811,9 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryCloneAbilityInfo_001, Tes
 {
     ElementName element;
     AbilityInfo abilityInfo;
-    int32_t flags = 4;
+    int32_t flags = ABILITY_INFO_FLAG;
     int32_t appTwinIndex = 1;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     auto ret = bundleMgrHelper->QueryCloneAbilityInfo(element, flags, appTwinIndex, abilityInfo, userId);
     EXPECT_NE(ret, ERR_OK);
 }
@@ -827,7 +829,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetCloneBundleInfo_001, TestSi
     BundleInfo bundleInfo;
     int32_t flags = 1;
     int32_t appTwinIndex = 1;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     auto ret = bundleMgrHelper->GetCloneBundleInfo(bundleName, flags, appTwinIndex, bundleInfo, userId);
     EXPECT_NE(ret, ERR_OK);
 }
