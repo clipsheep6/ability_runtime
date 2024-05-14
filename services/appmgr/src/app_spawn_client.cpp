@@ -135,6 +135,11 @@ int32_t AppSpawnClient::SetDacInfo(const AppSpawnStartMsg &startMsg, AppSpawnReq
     AppDacInfo appDacInfo = {0};
     appDacInfo.uid = startMsg.uid;
     appDacInfo.gid = startMsg.gid;
+    if (startMsg.isGPU) {
+        appDacInfo.processType = 1;
+    } else {
+        appDacInfo.processType = 0;
+    }
     appDacInfo.gidCount = startMsg.gids.size() + startMsg.dataGroupInfoList.size();
     for (uint32_t i = 0; i < startMsg.gids.size(); i++) {
         appDacInfo.gidTable[i] = startMsg.gids[i];
