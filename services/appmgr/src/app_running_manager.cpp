@@ -81,7 +81,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CreateAppRunningRecord(
     appRecord->SetStageModelState(isStageBasedModel);
     appRecord->SetSignCode(signCode);
     appRecord->SetJointUserId(bundleInfo.jointUserId);
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(runningRecordMapMutex_);
     appRunningRecordMap_.emplace(recordId, appRecord);
     return appRecord;
 }
@@ -111,13 +111,12 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
             !(pair.second->IsKilling()) && !(pair.second->GetRestartAppFlag());
     };
 
-    // If it is not empty, look for whether it can come in the same process
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    auto appRunningMap = GetAppRunningRecordMap();
     if (!jointUserId.empty()) {
-        auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), FindSameProcess);
-        return ((iter == appRunningRecordMap_.end()) ? nullptr : iter->second);
+        auto iter = std::find_if(appRunningMap.begin(), appRunningMap.end(), FindSameProcess);
+        return ((iter == appRunningMap.end()) ? nullptr : iter->second);
     }
-    for (const auto &item : appRunningRecordMap_) {
+    for (const auto &item : appRunningMap) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetProcessName() == processName &&
             (specifiedProcessFlag.empty() ||
@@ -143,7 +142,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
 
 bool AppRunningManager::CheckAppRunningRecordIsExistByBundleName(const std::string &bundleName)
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(runningRecordMapMutex_);
     if (appRunningRecordMap_.empty()) {
         return false;
     }
@@ -159,7 +158,7 @@ bool AppRunningManager::CheckAppRunningRecordIsExistByBundleName(const std::stri
 int32_t AppRunningManager::GetAllAppRunningRecordCountByBundleName(const std::string &bundleName)
 {
     int32_t count = 0;
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(runningRecordMapMutex_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
@@ -172,12 +171,7 @@ int32_t AppRunningManager::GetAllAppRunningRecordCountByBundleName(const std::st
 
 std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByPid(const pid_t pid)
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
-    return GetAppRunningRecordByPidInner(pid);
-}
-
-std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByPidInner(const pid_t pid)
-{
+    std::lock_guard guard(runningRecordMapMutex_);
     auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
         return pair.second->GetPriorityObject()->GetPid() == pid;
     });
@@ -187,14 +181,8 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByPidInn
 std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByAbilityToken(
     const sptr<IRemoteObject> &abilityToken)
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
-    return GetAppRunningRecordByTokenInner(abilityToken);
-}
-
-std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByTokenInner(
-    const sptr<IRemoteObject> &abilityToken)
-{
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    std::lock_guard guard(runningRecordMapMutex_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetAbilityRunningRecordByToken(abilityToken)) {
@@ -206,8 +194,8 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByTokenI
 
 bool AppRunningManager::ProcessExitByBundleName(const std::string &bundleName, std::list<pid_t> &pids)
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
-    for (const auto &item : appRunningRecordMap_) {
+    auto appRunningMap = GetAppRunningRecordMap();
+    for (const auto &item : appRunningMap) {
         const auto &appRecord = item.second;
         // condition [!appRecord->IsKeepAliveApp()] Is to not kill the resident process.
         // Before using this method, consider whether you need.
@@ -231,8 +219,8 @@ bool AppRunningManager::ProcessExitByBundleName(const std::string &bundleName, s
 
 bool AppRunningManager::GetPidsByUserId(int32_t userId, std::list<pid_t> &pids)
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
-    for (const auto &item : appRunningRecordMap_) {
+    auto appRunningMap = GetAppRunningRecordMap();
+    for (const auto &item : appRunningMap) {
         const auto &appRecord = item.second;
         if (appRecord) {
             int32_t id = -1;
@@ -252,9 +240,9 @@ bool AppRunningManager::GetPidsByUserId(int32_t userId, std::list<pid_t> &pids)
 
 int32_t AppRunningManager::ProcessUpdateApplicationInfoInstalled(const ApplicationInfo &appInfo)
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    auto appRunningMap = GetAppRunningRecordMap();
     int32_t result = ERR_OK;
-    for (const auto &item : appRunningRecordMap_) {
+    for (const auto &item : appRunningMap) {
         const auto &appRecord = item.second;
         if (!appRecord) {
             continue;
@@ -273,8 +261,8 @@ int32_t AppRunningManager::ProcessUpdateApplicationInfoInstalled(const Applicati
 bool AppRunningManager::ProcessExitByBundleNameAndUid(
     const std::string &bundleName, const int uid, std::list<pid_t> &pids)
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
-    for (const auto &item : appRunningRecordMap_) {
+    auto appRunningMap = GetAppRunningRecordMap();
+    for (const auto &item : appRunningMap) {
         const auto &appRecord = item.second;
         if (appRecord) {
             auto appInfoList = appRecord->GetAppInfoList();
@@ -297,19 +285,12 @@ bool AppRunningManager::ProcessExitByBundleNameAndUid(
 
 bool AppRunningManager::ProcessExitByPid(pid_t pid)
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
-    for (const auto &item : appRunningRecordMap_) {
-        const auto &appRecord = item.second;
-        if (appRecord) {
-            pid_t appPid = appRecord->GetPriorityObject()->GetPid();
-            if (appPid == pid) {
-                appRecord->SetKilling();
-                appRecord->ScheduleProcessSecurityExit();
-                return true;
-            }
-        }
+    auto appRecord = GetAppRunningRecordByPid(pid);
+    if (appRecord != nullptr) {
+        appRecord->SetKilling();
+        appRecord->ScheduleProcessSecurityExit();
+        return true;
     }
-
     return false;
 }
 
@@ -328,7 +309,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRe
 
     std::shared_ptr<AppRunningRecord> appRecord = nullptr;
     {
-        std::lock_guard<ffrt::mutex> guard(lock_);
+        std::lock_guard guard(runningRecordMapMutex_);
         const auto &iter =
             std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&object](const auto &pair) {
                 if (pair.second && pair.second->GetApplicationClient() != nullptr) {
@@ -341,18 +322,17 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRe
             return nullptr;
         }
         appRecord = iter->second;
-        if (appRecord != nullptr) {
-            appRecord->RemoveAppDeathRecipient();
-            appRecord->SetApplicationClient(nullptr);
-            TAG_LOGI(AAFwkTag::APPMGR, "processName: %{public}s.", appRecord->GetProcessName().c_str());
-            auto priorityObject = appRecord->GetPriorityObject();
-            if (priorityObject != nullptr) {
-                TAG_LOGI(AAFwkTag::APPMGR, "pid: %{public}d.", priorityObject->GetPid());
-            }
-        }
         appRunningRecordMap_.erase(iter);
     }
-
+    if (appRecord != nullptr) {
+        appRecord->RemoveAppDeathRecipient();
+        appRecord->SetApplicationClient(nullptr);
+        TAG_LOGI(AAFwkTag::APPMGR, "processName: %{public}s.", appRecord->GetProcessName().c_str());
+        auto priorityObject = appRecord->GetPriorityObject();
+        if (priorityObject != nullptr) {
+            TAG_LOGI(AAFwkTag::APPMGR, "pid: %{public}d.", priorityObject->GetPid());
+        }
+    }
     if (appRecord != nullptr && appRecord->GetPriorityObject() != nullptr) {
         RemoveUIExtensionLauncherItem(appRecord->GetPriorityObject()->GetPid());
     }
@@ -362,7 +342,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRe
 
 std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> AppRunningManager::GetAppRunningRecordMap()
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(runningRecordMapMutex_);
     return appRunningRecordMap_;
 }
 
@@ -370,10 +350,11 @@ void AppRunningManager::RemoveAppRunningRecordById(const int32_t recordId)
 {
     std::shared_ptr<AppRunningRecord> appRecord = nullptr;
     {
-        std::lock_guard<ffrt::mutex> guard(lock_);
-        if (appRunningRecordMap_.find(recordId) != appRunningRecordMap_.end()) {
-            appRecord = appRunningRecordMap_.at(recordId);
-            appRunningRecordMap_.erase(recordId);
+        std::lock_guard guard(runningRecordMapMutex_);
+        auto it = appRunningRecordMap_.find(recordId);
+        if (it != appRunningRecordMap_.end()) {
+            appRecord = it->second;
+            appRunningRecordMap_.erase(it);
         }
     }
 
@@ -384,7 +365,7 @@ void AppRunningManager::RemoveAppRunningRecordById(const int32_t recordId)
 
 void AppRunningManager::ClearAppRunningRecordMap()
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(runningRecordMapMutex_);
     appRunningRecordMap_.clear();
 }
 
@@ -408,7 +389,7 @@ void AppRunningManager::HandleTerminateTimeOut(int64_t eventId)
 std::shared_ptr<AppRunningRecord> AppRunningManager::GetTerminatingAppRunningRecord(
     const sptr<IRemoteObject> &abilityToken)
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(runningRecordMapMutex_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetAbilityByTerminateLists(abilityToken)) {
@@ -421,7 +402,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::GetTerminatingAppRunningRec
 std::shared_ptr<AbilityRunningRecord> AppRunningManager::GetAbilityRunningRecord(const int64_t eventId)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called");
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(runningRecordMapMutex_);
     for (auto &item : appRunningRecordMap_) {
         if (item.second) {
             auto abilityRecord = item.second->GetAbilityRunningRecord(eventId);
@@ -436,7 +417,7 @@ std::shared_ptr<AbilityRunningRecord> AppRunningManager::GetAbilityRunningRecord
 std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecord(const int64_t eventId)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called");
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(runningRecordMapMutex_);
     auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&eventId](const auto &pair) {
         return pair.second->GetEventId() == eventId;
     });
@@ -573,17 +554,13 @@ void AppRunningManager::GetRunningProcessInfoByToken(
     const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::lock_guard<ffrt::mutex> guard(lock_);
-    auto appRecord = GetAppRunningRecordByTokenInner(token);
-
+    auto appRecord = GetAppRunningRecordByAbilityToken(token);
     AssignRunningProcessInfoByAppRecord(appRecord, info);
 }
 
 void AppRunningManager::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info)
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
-    auto appRecord = GetAppRunningRecordByPidInner(pid);
-
+    auto appRecord = GetAppRunningRecordByPid(pid);
     AssignRunningProcessInfoByAppRecord(appRecord, info);
 }
 
@@ -618,8 +595,7 @@ void AppRunningManager::AssignRunningProcessInfoByAppRecord(
 
 void AppRunningManager::SetAbilityForegroundingFlagToAppRecord(const pid_t pid)
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
-    auto appRecord = GetAppRunningRecordByPidInner(pid);
+    auto appRecord = GetAppRunningRecordByPid(pid);
     if (appRecord == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr");
         return;
@@ -637,7 +613,7 @@ void AppRunningManager::ClipStringContent(const std::regex &re, const std::strin
 
 void AppRunningManager::GetForegroundApplications(std::vector<AppStateData> &list)
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(runningRecordMapMutex_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (!appRecord) {
@@ -702,10 +678,10 @@ void AppRunningManager::HandleStartSpecifiedAbilityTimeOut(const int64_t eventId
 int32_t AppRunningManager::UpdateConfiguration(const Configuration &config)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::lock_guard<ffrt::mutex> guard(lock_);
-    TAG_LOGD(AAFwkTag::APPMGR, "current app size %{public}zu", appRunningRecordMap_.size());
+    auto appRunningMap = GetAppRunningRecordMap();
+    TAG_LOGD(AAFwkTag::APPMGR, "current app size %{public}zu", appRunningMap.size());
     int32_t result = ERR_OK;
-    for (const auto &item : appRunningRecordMap_) {
+    for (const auto &item : appRunningMap) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetState() == ApplicationState::APP_STATE_CREATE) {
             TAG_LOGD(AAFwkTag::APPMGR, "app not ready, appName is %{public}s", appRecord->GetBundleName().c_str());
@@ -721,9 +697,9 @@ int32_t AppRunningManager::UpdateConfiguration(const Configuration &config)
 
 int32_t AppRunningManager::UpdateConfigurationByBundleName(const Configuration &config, const std::string &name)
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    auto appRunningMap = GetAppRunningRecordMap();
     int32_t result = ERR_OK;
-    for (const auto &item : appRunningRecordMap_) {
+    for (const auto &item : appRunningMap) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetState() == ApplicationState::APP_STATE_CREATE) {
             TAG_LOGD(AAFwkTag::APPMGR, "app not ready, appName is %{public}s", appRecord->GetBundleName().c_str());
@@ -764,8 +740,8 @@ int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
         }
     }
 #endif
-    std::lock_guard<ffrt::mutex> guard(lock_);
-    for (const auto &item : appRunningRecordMap_) {
+    auto appRunningMap = GetAppRunningRecordMap();
+    for (const auto &item : appRunningMap) {
         const auto &appRecord = item.second;
         if (!appRecord) {
             TAG_LOGE(AAFwkTag::APPMGR, "appRecord null");
@@ -804,8 +780,8 @@ int32_t AppRunningManager::NotifyProcMemoryLevel(const std::map<pid_t, MemoryLev
         }
     }
 #endif
-    std::lock_guard<ffrt::mutex> guard(lock_);
-    for (const auto &item : appRunningRecordMap_) {
+    auto appRunningMap = GetAppRunningRecordMap();
+    for (const auto &item : appRunningMap) {
         const auto &appRecord = item.second;
         if (!appRecord) {
             TAG_LOGE(AAFwkTag::APPMGR, "appRecord null");
@@ -836,7 +812,7 @@ int32_t AppRunningManager::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::M
 {
     std::shared_ptr<AppRunningRecord> appRecord;
     {
-        std::lock_guard<ffrt::mutex> guard(lock_);
+        std::lock_guard guard(runningRecordMapMutex_);
         TAG_LOGI(AAFwkTag::APPMGR, "current app size %{public}zu", appRunningRecordMap_.size());
         auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
             auto priorityObject = pair.second->GetPriorityObject();
@@ -858,17 +834,8 @@ int32_t AppRunningManager::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::M
 
 int32_t AppRunningManager::DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
     int32_t pid = static_cast<int32_t>(info.pid);
-    auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
-        auto priorityObject = pair.second->GetPriorityObject();
-        return priorityObject && priorityObject->GetPid() == pid;
-    });
-    if (iter == appRunningRecordMap_.end()) {
-        TAG_LOGE(AAFwkTag::APPMGR, "No matching application was found.");
-        return ERR_INVALID_VALUE;
-    }
-    std::shared_ptr<AppRunningRecord> appRecord = iter->second;
+    auto appRecord = GetAppRunningRecordByPid(pid);
     if (appRecord == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr.");
         return ERR_INVALID_VALUE;
@@ -879,7 +846,7 @@ int32_t AppRunningManager::DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &in
 
 std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByRenderPid(const pid_t pid)
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(runningRecordMapMutex_);
     auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
         auto renderRecordMap = pair.second->GetRenderRecordMap();
         if (renderRecordMap.empty()) {
@@ -908,7 +875,7 @@ std::shared_ptr<RenderRecord> AppRunningManager::OnRemoteRenderDied(const wptr<I
         return nullptr;
     }
 
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(runningRecordMapMutex_);
     std::shared_ptr<RenderRecord> renderRecord;
     const auto &it =
         std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(),
@@ -945,7 +912,7 @@ bool AppRunningManager::GetAppRunningStateByBundleName(const std::string &bundle
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "function called.");
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(runningRecordMapMutex_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
@@ -964,7 +931,6 @@ int32_t AppRunningManager::NotifyLoadRepairPatch(const std::string &bundleName, 
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "function called.");
-    std::lock_guard<ffrt::mutex> guard(lock_);
     int32_t result = ERR_OK;
     bool loadSucceed = false;
     auto callbackByRecord = sptr<QuickFixCallbackWithRecord>::MakeSptr(callback);
@@ -973,7 +939,8 @@ int32_t AppRunningManager::NotifyLoadRepairPatch(const std::string &bundleName, 
         return ERR_INVALID_VALUE;
     }
 
-    for (const auto &item : appRunningRecordMap_) {
+    auto appRunningMap = GetAppRunningRecordMap();
+    for (const auto &item : appRunningMap) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
             auto recordId = appRecord->GetRecordId();
@@ -995,7 +962,6 @@ int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName, co
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "function called.");
-    std::lock_guard<ffrt::mutex> guard(lock_);
     int32_t result = ERR_OK;
     bool reloadPageSucceed = false;
     auto callbackByRecord = sptr<QuickFixCallbackWithRecord>::MakeSptr(callback);
@@ -1004,7 +970,8 @@ int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName, co
         return ERR_INVALID_VALUE;
     }
 
-    for (const auto &item : appRunningRecordMap_) {
+    auto appRunningMap = GetAppRunningRecordMap();
+    for (const auto &item : appRunningMap) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
             auto recordId = appRecord->GetRecordId();
@@ -1027,7 +994,6 @@ int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "function called.");
-    std::lock_guard<ffrt::mutex> guard(lock_);
     int32_t result = ERR_OK;
     bool unLoadSucceed = false;
     auto callbackByRecord = sptr<QuickFixCallbackWithRecord>::MakeSptr(callback);
@@ -1036,7 +1002,8 @@ int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName
         return ERR_INVALID_VALUE;
     }
 
-    for (const auto &item : appRunningRecordMap_) {
+    auto appRunningMap = GetAppRunningRecordMap();
+    for (const auto &item : appRunningMap) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
             auto recordId = appRecord->GetRecordId();
@@ -1057,11 +1024,12 @@ int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName
 bool AppRunningManager::IsApplicationFirstForeground(const AppRunningRecord &foregroundingRecord)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "function called.");
-    std::lock_guard<ffrt::mutex> guard(lock_);
     if (AAFwk::UIExtensionUtils::IsUIExtension(foregroundingRecord.GetExtensionType())
         || AAFwk::UIExtensionUtils::IsWindowExtension(foregroundingRecord.GetExtensionType())) {
         return false;
     }
+
+    std::lock_guard guard(runningRecordMapMutex_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord == nullptr || appRecord->GetBundleName() != foregroundingRecord.GetBundleName()
@@ -1081,7 +1049,7 @@ bool AppRunningManager::IsApplicationFirstForeground(const AppRunningRecord &for
 bool AppRunningManager::IsApplicationBackground(const std::string &bundleName)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "function called.");
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(runningRecordMapMutex_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord == nullptr) {
@@ -1128,7 +1096,7 @@ void AppRunningManager::OnWindowVisibilityChanged(
 bool AppRunningManager::IsApplicationFirstFocused(const AppRunningRecord &focusedRecord)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "check focus function called.");
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(runningRecordMapMutex_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord == nullptr || appRecord->GetBundleName() != focusedRecord.GetBundleName()) {
@@ -1144,7 +1112,7 @@ bool AppRunningManager::IsApplicationFirstFocused(const AppRunningRecord &focuse
 bool AppRunningManager::IsApplicationUnfocused(const std::string &bundleName)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "check is application unfocused.");
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(runningRecordMapMutex_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName && appRecord->GetFocusFlag()) {
@@ -1157,8 +1125,8 @@ bool AppRunningManager::IsApplicationUnfocused(const std::string &bundleName)
 void AppRunningManager::SetAttachAppDebug(const std::string &bundleName, const bool &isAttachDebug)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
-    std::lock_guard<ffrt::mutex> guard(lock_);
-    for (const auto &item : appRunningRecordMap_) {
+    auto appRunningMap = GetAppRunningRecordMap();
+    for (const auto &item : appRunningMap) {
         const auto &appRecord = item.second;
         if (appRecord == nullptr) {
             continue;
@@ -1174,7 +1142,7 @@ std::vector<AppDebugInfo> AppRunningManager::GetAppDebugInfosByBundleName(
     const std::string &bundleName, const bool &isDetachDebug)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(runningRecordMapMutex_);
     std::vector<AppDebugInfo> debugInfos;
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
@@ -1200,7 +1168,7 @@ void AppRunningManager::GetAbilityTokensByBundleName(
     const std::string &bundleName, std::vector<sptr<IRemoteObject>> &abilityTokens)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(runningRecordMapMutex_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord == nullptr || appRecord->GetBundleName() != bundleName) {
@@ -1215,7 +1183,7 @@ void AppRunningManager::GetAbilityTokensByBundleName(
 
 std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByChildProcessPid(const pid_t pid)
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(runningRecordMapMutex_);
     auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
         auto childProcessRecordMap = pair.second->GetChildProcessRecordMap();
         return childProcessRecordMap.find(pid) != childProcessRecordMap.end();
@@ -1239,7 +1207,7 @@ std::shared_ptr<ChildProcessRecord> AppRunningManager::OnChildProcessRemoteDied(
         return nullptr;
     }
 
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(runningRecordMapMutex_);
     std::shared_ptr<ChildProcessRecord> childRecord;
     const auto &it = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(),
         [&object, &childRecord](const auto &pair) {
@@ -1274,7 +1242,7 @@ std::shared_ptr<ChildProcessRecord> AppRunningManager::OnChildProcessRemoteDied(
 int32_t AppRunningManager::SignRestartAppFlag(const std::string &bundleName)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(runningRecordMapMutex_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord == nullptr || appRecord->GetBundleName() != bundleName) {
@@ -1291,16 +1259,7 @@ int32_t AppRunningManager::SignRestartAppFlag(const std::string &bundleName)
 int32_t AppRunningManager::GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
-    std::lock_guard<ffrt::mutex> guard(lock_);
-    auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
-        auto priorityObject = pair.second ? pair.second->GetPriorityObject() : nullptr;
-        return priorityObject && priorityObject->GetPid() == pid;
-    });
-    if (iter == appRunningRecordMap_.end()) {
-        TAG_LOGE(AAFwkTag::APPMGR, "No matching application was found.");
-        return ERR_INVALID_VALUE;
-    }
-    std::shared_ptr<AppRunningRecord> appRecord = iter->second;
+    auto appRecord = GetAppRunningRecordByPid(pid);
     if (appRecord == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr.");
         return ERR_INVALID_VALUE;
@@ -1312,7 +1271,7 @@ int32_t AppRunningManager::GetAppRunningUniqueIdByPid(pid_t pid, std::string &ap
 
 int32_t AppRunningManager::GetAllUIExtensionRootHostPid(pid_t pid, std::vector<pid_t> &hostPids)
 {
-    std::lock_guard<ffrt::mutex> guard(uiExtensionMapLock_);
+    std::lock_guard guard(uiExtensionMapLock_);
     for (auto &item: uiExtensionLauncherMap_) {
         auto temp = item.second.second;
         if (temp == pid) {
@@ -1325,7 +1284,7 @@ int32_t AppRunningManager::GetAllUIExtensionRootHostPid(pid_t pid, std::vector<p
 
 int32_t AppRunningManager::GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid_t> &providerPids)
 {
-    std::lock_guard<ffrt::mutex> guard(uiExtensionMapLock_);
+    std::lock_guard guard(uiExtensionMapLock_);
     for (auto &item: uiExtensionLauncherMap_) {
         auto temp = item.second.first;
         if (temp == hostPid) {
@@ -1338,14 +1297,14 @@ int32_t AppRunningManager::GetAllUIExtensionProviderPid(pid_t hostPid, std::vect
 
 int32_t AppRunningManager::AddUIExtensionLauncherItem(int32_t uiExtensionAbilityId, pid_t hostPid, pid_t providerPid)
 {
-    std::lock_guard<ffrt::mutex> guard(uiExtensionMapLock_);
+    std::lock_guard guard(uiExtensionMapLock_);
     uiExtensionLauncherMap_.emplace(uiExtensionAbilityId, std::pair<pid_t, pid_t>(hostPid, providerPid));
     return ERR_OK;
 }
 
 int32_t AppRunningManager::RemoveUIExtensionLauncherItem(pid_t pid)
 {
-    std::lock_guard<ffrt::mutex> guard(uiExtensionMapLock_);
+    std::lock_guard guard(uiExtensionMapLock_);
     for (auto it = uiExtensionLauncherMap_.begin(); it != uiExtensionLauncherMap_.end();) {
         if (it->second.first == pid || it->second.second == pid) {
             it = uiExtensionLauncherMap_.erase(it);
@@ -1359,7 +1318,7 @@ int32_t AppRunningManager::RemoveUIExtensionLauncherItem(pid_t pid)
 
 int32_t AppRunningManager::RemoveUIExtensionLauncherItemById(int32_t uiExtensionAbilityId)
 {
-    std::lock_guard<ffrt::mutex> guard(uiExtensionMapLock_);
+    std::lock_guard guard(uiExtensionMapLock_);
     for (auto it = uiExtensionLauncherMap_.begin(); it != uiExtensionLauncherMap_.end();) {
         if (it->first == uiExtensionAbilityId) {
             it = uiExtensionLauncherMap_.erase(it);
