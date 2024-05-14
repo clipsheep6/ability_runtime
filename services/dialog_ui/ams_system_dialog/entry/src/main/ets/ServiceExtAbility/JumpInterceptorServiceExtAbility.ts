@@ -17,6 +17,8 @@ import display from '@ohos.display';
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
 import window from '@ohos.window';
 import deviceInfo from '@ohos.deviceInfo';
+import systemparameter from '@ohos.systemParameterEnhance';
+import dataPreferences from '@ohos.data.preferences';
 
 const TAG = 'JumpInterceptorDialog_Service';
 
@@ -27,6 +29,10 @@ export default class JumpInterceptorServiceExtAbility extends extension {
   onCreate(want) {
     console.debug(TAG, 'onCreate, want: ' + JSON.stringify(want));
     globalThis.jumpInterceptorExtensionContext = this.context;
+    globalThis.currentExtensionContext = this.context;
+    globalThis.ExtensionType = 'ServiceExtension';
+    let options = {name:'dialogStore'};
+    globalThis.preferences = dataPreferences.getPreferencesSync(this.context, options);
   }
 
   async onRequest(want, startId) {
@@ -102,7 +108,13 @@ export default class JumpInterceptorServiceExtAbility extends extension {
       }
       await win.moveTo(rect.left, rect.top);
       await win.resetSize(rect.width, rect.height);
-      await win.loadContent('pages/jumpInterceptorDialog');
+      if (systemparameter.getSync('persist.sys.abilityms.isdialogconfirmpermission', 'false') === 'false' &&
+        globalThis.preferences.getSync('isdialogconfirmpermission', 'false') === 'false') {
+        globalThis.currentURL = 'pages/jumpInterceptorDialog';
+        await win.loadContent('pages/permissionConfirmDialog');
+      } else {
+        await win.loadContent('pages/jumpInterceptorDialog');
+      }
       await win.setBackgroundColor('#00000000');
       await win.show();
     } catch {
