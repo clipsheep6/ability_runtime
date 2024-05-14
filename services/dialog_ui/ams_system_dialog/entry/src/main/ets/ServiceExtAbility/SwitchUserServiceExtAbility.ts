@@ -17,6 +17,7 @@ import extension from '@ohos.app.ability.ServiceExtensionAbility';
 import window from '@ohos.window';
 import display from '@ohos.display';
 import deviceInfo from '@ohos.deviceInfo';
+import systemparameter from '@ohos.systemParameterEnhance';
 
 const TAG = 'SwitchUserDialog_Service';
 const LEFT_COEFFICIENT = 0.1;
@@ -31,6 +32,8 @@ let win;
 export default class SwitchUserServiceExtensionAbility extends extension {
   onCreate(want) {
     console.info(TAG, 'onCreate, want: ' + JSON.stringify(want));
+    globalThis.currentExtensionContext = this.context;
+    globalThis.ExtensionType = 'ServiceExtension';
   }
 
   onRequest(want, startId) {
@@ -74,7 +77,12 @@ export default class SwitchUserServiceExtensionAbility extends extension {
       }
       await win.moveWindowTo(rect.left, rect.top);
       await win.resize(rect.width, rect.height);
-      await win.loadContent('pages/switchUserDialog');
+      if (systemparameter.getSync('persist.sys.abilityms.isdialogconfirmpermission', 'false') === 'false') {
+        globalThis.currentURI = 'pages/switchUserDialog';
+        await win.loadContent('pages/permissionConfirmDialog');
+      } else {
+        await win.loadContent('pages/switchUserDialog');
+      }
       await win.setWindowBackgroundColor('#00000000');
       await win.showWindow();
     } catch (err) {
