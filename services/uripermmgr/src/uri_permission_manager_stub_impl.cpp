@@ -30,7 +30,6 @@
 #include "parameter.h"
 #include "permission_constants.h"
 #include "permission_verification.h"
-#include "proxy_authorization_uri_config.h"
 #include "system_ability_definition.h"
 #include "tokenid_kit.h"
 #include "want.h"
@@ -46,6 +45,7 @@ constexpr int32_t DEFAULT_USER_ID = 0;
 constexpr int32_t ERR_OK = 0;
 constexpr uint32_t FLAG_READ_WRITE_URI = Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION;
 constexpr uint32_t FLAG_WRITE_URI = Want::FLAG_AUTH_WRITE_URI_PERMISSION;
+constexpr uint32_t FLAG_READ_URI = Want::FLAG_AUTH_READ_URI_PERMISSION;
 constexpr const char* CLOUND_DOCS_URI_MARK = "?networkid=";
 constexpr const char* FOUNDATION_PROCESS_NAME = "foundation";
 constexpr const char* LINUX_FUSION_SERVICE = "linux_fusion_service";
@@ -61,12 +61,20 @@ bool UriPermissionManagerStubImpl::VerifyUriPermission(const Uri &uri, uint32_t 
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Only support SA and SystemApp called.");
         return false;
     }
+    if ((flag & FLAG_READ_WRITE_URI) == 0) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Flag is invalid.");
+        return false;
+    }
+    uint32_t newFlag = FLAG_READ_URI;
+    if ((flag & FLAG_WRITE_URI) != 0) {
+        newFlag = FLAG_WRITE_URI;
+    }
     std::lock_guard<std::mutex> guard(mutex_);
     auto search = uriMap_.find(uriStr);
     if (search != uriMap_.end()) {
         auto& list = search->second;
         for (auto it = list.begin(); it != list.end(); it++) {
-            if ((it->targetTokenId == tokenId) && ((it->flag | Want::FLAG_AUTH_READ_URI_PERMISSION) & flag) != 0) {
+            if ((it->targetTokenId == tokenId) && ((it->flag | FLAG_READ_URI) & newFlag) != 0) {
                 TAG_LOGI(AAFwkTag::URIPERMMGR, "have uri permission.");
                 return true;
             }
@@ -76,14 +84,6 @@ bool UriPermissionManagerStubImpl::VerifyUriPermission(const Uri &uri, uint32_t 
     return false;
 }
 
-bool UriPermissionManagerStubImpl::IsAuthorizationUriAllowed(uint32_t fromTokenId)
-{
-    if (!IsSAOrSystemAppCall()) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "Only support SA and SystemApp called.");
-        return false;
-    }
-    return DelayedSingleton<ProxyAuthorizationUriConfig>::GetInstance()->IsAuthorizationUriAllowed(fromTokenId);
-}
 
 int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned int flag,
     const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId, int32_t abilityId)
@@ -229,26 +229,6 @@ int32_t UriPermissionManagerStubImpl::CheckCalledBySandBox()
         return ERR_CODE_GRANT_URI_PERMISSION;
     }
     return ERR_OK;
-}
-
-// To be deleted.
-int UriPermissionManagerStubImpl::GrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
-    const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall)
-{
-    TAG_LOGI(AAFwkTag::URIPERMMGR, "Called.");
-    if (!IsFoundationCall()) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "Not foundation call.");
-        return CHECK_PERMISSION_FAILED;
-    }
-    auto checkResult = CheckCalledBySandBox();
-    if (checkResult != ERR_OK) {
-        return checkResult;
-    }
-    if ((flag & FLAG_READ_WRITE_URI) == 0) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "Flag is %{public}u, which is invalid.", flag);
-        return ERR_CODE_INVALID_URI_FLAG;
-    }
-    return GrantUriPermissionFor2In1Inner(uriVec, flag, targetBundleName, appIndex, isSystemAppCall);
 }
 
 int UriPermissionManagerStubImpl::AddTempUriPermission(const std::string &uri, unsigned int flag,

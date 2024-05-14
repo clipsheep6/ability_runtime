@@ -89,16 +89,12 @@ public:
     std::vector<bool> CheckUriAuthorization(const std::vector<std::string> &uriVec, uint32_t flag,
         uint32_t tokenId) override;
 
-    // To be deleted.
-    int GrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
-        const std::string &targetBundleName, int32_t appIndex = 0, bool isSystemAppCall = false) override;
     // only for foundation calling
     void RevokeUriPermission(const TokenId tokenId, int32_t abilityId = -1) override;
     int RevokeAllUriPermissions(uint32_t tokenId) override;
     int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) override;
 
     bool VerifyUriPermission(const Uri &uri, uint32_t flag, uint32_t tokenId) override;
-    bool IsAuthorizationUriAllowed(uint32_t fromTokenId) override;
     int32_t GetTokenIdByBundleName(const std::string &bundleName, int32_t appIndex, uint32_t &tokenId);
 
 private:

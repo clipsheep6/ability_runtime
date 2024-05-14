@@ -54,14 +54,8 @@ int UriPermissionManagerStub::OnRemoteRequest(
         case UriPermMgrCmd::ON_VERIFY_URI_PERMISSION : {
             return HandleVerifyUriPermission(data, reply);
         }
-        case UriPermMgrCmd::ON_BATCH_GRANT_URI_PERMISSION_FOR_2_IN_1 : {
-            return HandleBatchGrantUriPermissionFor2In1(data, reply);
-        }
         case UriPermMgrCmd::ON_CHECK_URI_AUTHORIZATION : {
             return HandleCheckUriAuthorization(data, reply);
-        }
-        case UriPermMgrCmd::ON_IS_Authorization_URI_ALLOWED : {
-            return HandleIsAuthorizationUriAllowed(data, reply);
         }
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
@@ -179,31 +173,6 @@ int UriPermissionManagerStub::HandleVerifyUriPermission(MessageParcel &data, Mes
     return ERR_OK;
 }
 
-int UriPermissionManagerStub::HandleBatchGrantUriPermissionFor2In1(MessageParcel &data, MessageParcel &reply)
-{
-    auto size = data.ReadUint32();
-    if (size == 0 || size > MAX_URI_COUNT) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "size is invalid.");
-        return ERR_DEAD_OBJECT;
-    }
-    std::vector<Uri> uriVec;
-    for (uint32_t i = 0; i < size; i++) {
-        std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
-        if (uri == nullptr) {
-            TAG_LOGE(AAFwkTag::URIPERMMGR, "To read uri failed.");
-            return ERR_DEAD_OBJECT;
-        }
-        uriVec.emplace_back(*uri);
-    }
-    auto flag = data.ReadUint32();
-    auto targetBundleName = data.ReadString();
-    auto appIndex = data.ReadInt32();
-    auto isSystemAppCall = data.ReadBool();
-    int result = GrantUriPermissionFor2In1(uriVec, flag, targetBundleName, appIndex, isSystemAppCall);
-    reply.WriteInt32(result);
-    return ERR_OK;
-}
-
 int32_t UriPermissionManagerStub::HandleCheckUriAuthorization(MessageParcel &data, MessageParcel &reply)
 {
     auto size = data.ReadUint32();
@@ -229,14 +198,6 @@ int32_t UriPermissionManagerStub::HandleCheckUriAuthorization(MessageParcel &dat
             return ERR_DEAD_OBJECT;
         }
     }
-    return ERR_OK;
-}
-
-int UriPermissionManagerStub::HandleIsAuthorizationUriAllowed(MessageParcel &data, MessageParcel &reply)
-{
-    auto fromTokenId = data.ReadUint32();
-    bool result = IsAuthorizationUriAllowed(fromTokenId);
-    reply.WriteBool(result);
     return ERR_OK;
 }
 }  // namespace AAFwk

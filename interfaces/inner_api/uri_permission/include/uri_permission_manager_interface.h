@@ -62,19 +62,6 @@ public:
         const std::string &targetBundleName, int32_t appIndex = 0) = 0;
 
     /**
-     * @brief Authorize the uri permission to targetBundleName for 2in1, only supports foundation process calls.
-     *
-     * @param uriVec The file urilist.
-     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
-     * @param targetBundleName The user of uri.
-     * @param appIndex The index of application in sandbox.
-     * @param isSystemAppCall The flag of system application called.
-     * @return Returns true if the authorization is successful, otherwise returns false.
-     */
-    virtual int GrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
-        const std::string &targetBundleName, int32_t appIndex = 0, bool isSystemAppCall = false) = 0;
-
-    /**
      * @brief Clear user's uri authorization record with autoremove flag.
      *
      * @param tokenId A tokenId of an application.
@@ -119,8 +106,6 @@ public:
     virtual std::vector<bool> CheckUriAuthorization(const std::vector<std::string> &uriVec,
         uint32_t flag, uint32_t tokenId) = 0;
 
-    virtual bool IsAuthorizationUriAllowed(uint32_t fromTokenId) = 0;
-
     enum UriPermMgrCmd {
         // ipc id for GrantUriPermission
         ON_GRANT_URI_PERMISSION = 0,
@@ -138,12 +123,6 @@ public:
 
         // ipc id for BatchGrantUriPermission
         ON_BATCH_GRANT_URI_PERMISSION,
-
-        // ipc id for BatchGrantUriPermissionFor2In1
-        ON_BATCH_GRANT_URI_PERMISSION_FOR_2_IN_1,
-
-        //ipc id for IsAuthorizationUriAllowed
-        ON_IS_Authorization_URI_ALLOWED,
 
         //ipc id for GrantUriPermissionPrivileged
         ON_GRANT_URI_PERMISSION_PRIVILEGED,
