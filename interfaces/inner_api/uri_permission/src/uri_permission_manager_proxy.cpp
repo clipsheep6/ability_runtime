@@ -360,7 +360,7 @@ std::vector<bool> UriPermissionManagerProxy::CheckUriAuthorization(const std::ve
         return result;
     }
     auto size = reply.ReadUint32();
-    for (auto i = 0; i < size; i++) {
+    for (auto i = 0; i < static_cast<int32_t>(size); i++) {
         result[i] = reply.ReadBool();
     }
     return result;
