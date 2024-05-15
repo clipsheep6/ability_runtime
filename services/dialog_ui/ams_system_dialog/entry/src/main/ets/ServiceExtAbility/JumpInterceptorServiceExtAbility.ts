@@ -106,7 +106,7 @@ export default class JumpInterceptorServiceExtAbility extends extension {
       await win.moveTo(rect.left, rect.top);
       await win.resetSize(rect.width, rect.height);
       if (systemparameter.getSync('persist.sys.abilityms.isdialogconfirmpermission', 'false') === 'false') {
-        globalThis.currentURI = 'pages/jumpInterceptorDialog';
+        globalThis.currentURL = 'pages/jumpInterceptorDialog';
         await win.loadContent('pages/permissionConfirmDialog');
       } else {
         await win.loadContent('pages/jumpInterceptorDialog');
