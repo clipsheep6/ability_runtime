@@ -187,9 +187,11 @@ int32_t AppSpawnClient::SetStartFlags(const AppSpawnStartMsg &startMsg, AppSpawn
 int32_t AppSpawnClient::SetAtomicServiceFlag(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle)
 {
     int32_t ret = 0;
-    if (startMsg.atomicServiceFlag &&
-        (ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_ATOMIC_SERVICE))) {
-        HILOG_ERROR("AppSpawnReqMsgSetAppFlag failed, ret: %{public}d", ret);
+    if (startMsg.atomicServiceFlag) {
+        ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_ATOMIC_SERVICE);
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnReqMsgSetAppFlag failed, ret: %{public}d", ret);
+        }
     }
     return ret;
 }
@@ -235,17 +237,22 @@ int32_t AppSpawnClient::AppspawnSetExtMsg(const AppSpawnStartMsg &startMsg, AppS
             return ret;
         }
     }
-    if (!startMsg.atomicAccount.empty() &&
-        (ret = AppSpawnReqMsgAddExtInfo(reqHandle, MSG_EXT_NAME_ACCOUNT_ID,
-            reinterpret_cast<const uint8_t*>(startMsg.atomicAccount.c_str()), startMsg.atomicAccount.size()))) {
-        HILOG_ERROR("AppSpawnReqMsgAddExtInfo failed, ret: %{public}d", ret);
-        return ret;
+
+    if (!startMsg.atomicAccount.empty()) {
+        ret = AppSpawnReqMsgAddExtInfo(reqHandle, MSG_EXT_NAME_ACCOUNT_ID,
+            reinterpret_cast<const uint8_t*>(startMsg.atomicAccount.c_str()), startMsg.atomicAccount.size());
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnReqMsgAddExtInfo failed, ret: %{public}d", ret);
+            return ret;
+        }
     }
 
-    if (!startMsg.provisionType.empty() &&
-        (ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_PROVISION_TYPE, startMsg.provisionType.c_str()))) {
-        HILOG_ERROR("SetExtraProvisionType failed, ret: %{public}d", ret);
-        return ret;
+    if (!startMsg.provisionType.empty()) {
+        ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_PROVISION_TYPE, startMsg.provisionType.c_str());
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "SetExtraProvisionType failed, ret: %{public}d", ret);
+            return ret;
+        }
     }
 
     return ret;
