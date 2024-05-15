@@ -45,6 +45,7 @@ AbilityManagerStub::AbilityManagerStub()
     SecondStepInit();
     ThirdStepInit();
     FourthStepInit();
+    FifthStepInit();
 }
 
 AbilityManagerStub::~AbilityManagerStub()
@@ -437,6 +438,12 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::SetResidentProcessEnableInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ABILITY_STATE_BY_PERSISTENT_ID)] =
         &AbilityManagerStub::GetAbilityStateByPersistentIdInner;
+}
+
+void AbilityManagerStub::FifthStepInit()
+{
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TRANSFER_ABILITY_RESULT)] =
+        &AbilityManagerStub::TransferAbilityResultForExtensionInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -3416,6 +3423,16 @@ int32_t AbilityManagerStub::GetAbilityStateByPersistentIdInner(MessageParcel &da
         }
     }
     return result;
+}
+
+int32_t AbilityManagerStub::TransferAbilityResultForExtensionInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> callerToken = data.ReadRemoteObject();
+    int32_t resultCode = data.ReadInt32();
+    Want *want = data.ReadParcelable<Want>();
+    int32_t result = TransferAbilityResultForExtension(callerToken, resultCode, *want);
+    reply.WriteInt32(result);
+    return NO_ERROR;
 }
 } // namespace AAFwk
 } // namespace OHOS
