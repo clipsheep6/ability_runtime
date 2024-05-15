@@ -38,6 +38,7 @@ class Runtime {
 public:
     enum class Language {
         JS = 0,
+        CJ
     };
 
     struct Options {
@@ -60,6 +61,7 @@ public:
         bool isStageModel = true;
         bool isTestFramework = false;
         bool jitEnabled = false;
+        bool isMultiThread = false;
         int32_t uid = -1;
         // ArkTsCard start
         bool isUnique = false;
@@ -68,6 +70,15 @@ public:
         int32_t apiTargetVersion = 0;
         std::map<std::string, std::string> pkgContextInfoJsonStringMap;
         std::map<std::string, std::string> packageNameList;
+    };
+
+    struct DebugOption {
+        std::string bundleName = "";
+        std::string perfCmd;
+        std::string processName = "";
+        bool isDebugApp = true;
+        bool isStartWithDebug = false;
+        bool isStartWithNative = false;
     };
 
     static std::unique_ptr<Runtime> Create(const Options& options);
@@ -79,8 +90,7 @@ public:
 
     virtual Language GetLanguage() const = 0;
 
-    virtual void StartDebugMode(bool needBreakPoint, const std::string &processName, bool isDebug = true,
-        bool isNativeStart = false) = 0;
+    virtual void StartDebugMode(const DebugOption debugOption) = 0;
     virtual bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) = 0;
     virtual void DumpHeapSnapshot(bool isPrivate) = 0;
     virtual void DumpCpuProfile(bool isPrivate) = 0;
@@ -99,8 +109,7 @@ public:
     virtual bool NotifyHotReloadPage() = 0;
     virtual bool UnLoadRepairPatch(const std::string& patchFile) = 0;
     virtual void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath) = 0;
-    virtual void StartProfiler(const std::string &perfCmd, bool needBreakPoint, const std::string &processName,
-        bool isDebug = true, bool isNativeStart = false) = 0;
+    virtual void StartProfiler(const DebugOption debugOption) = 0;
     virtual void DoCleanWorkAfterStageCleaned() = 0;
     virtual void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate) const {}
     virtual void SetDeviceDisconnectCallback(const std::function<bool()> &cb) = 0;

@@ -169,5 +169,15 @@ bool AbilityRunningRecord::GetFocusFlag() const
 {
     return isFocused_;
 }
+
+void AbilityRunningRecord::SetUIExtensionAbilityId(const int32_t uiExtensionAbilityId)
+{
+    uiExtensionAbilityId_ = uiExtensionAbilityId;
+}
+
+int32_t AbilityRunningRecord::GetUIExtensionAbilityId() const
+{
+    return uiExtensionAbilityId_;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

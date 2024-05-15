@@ -124,7 +124,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityConnectManager->LoadAbility(abilityRecord);
     uint32_t uint32Param = GetU32Data(data);
     abilityConnectManager->PostTimeOutTask(abilityRecord, uint32Param);
-    abilityConnectManager->HandleStartTimeoutTask(abilityRecord, intParam);
+    abilityConnectManager->HandleStartTimeoutTask(abilityRecord);
     abilityConnectManager->HandleCommandTimeoutTask(abilityRecord);
     abilityConnectManager->StartRootLauncher(abilityRecord);
     abilityConnectManager->HandleStopTimeoutTask(abilityRecord);

@@ -846,6 +846,51 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AttachExtension_0200, Function |
 }
 
 /**
+ * @tc.number: AaFwk_AbilityThread_AttachExtension_0201
+ * @tc.name: AttachExtension
+ * @tc.desc: Test AttachExtension function when parameters are application and abilityRecord
+ */
+HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AttachExtension_0201, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_AttachExtension_0201 start";
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "MockPageAbility";
+    abilityInfo->type = AbilityType::PAGE;
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+
+    std::string abilityName = abilitythread->CreateAbilityName(abilityRecord, nullptr);
+    auto extension = AbilityLoader::GetInstance().GetExtensionByName(abilityName);
+    EXPECT_EQ(extension, nullptr);
+
+    abilitythread->AttachExtension(nullptr, abilityRecord);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_AttachExtension_0201 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityThread_AttachExtension_0202
+ * @tc.name: AttachExtension
+ * @tc.desc: Test AttachExtension function when parameters are application and abilityRecord
+ */
+HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AttachExtension_0202, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_AttachExtension_0202 start";
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    std::string abilityName = abilitythread->CreateAbilityName(nullptr, application);
+    auto extension = AbilityLoader::GetInstance().GetExtensionByName(abilityName);
+    EXPECT_EQ(extension, nullptr);
+
+    abilitythread->AttachExtension(application, nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_AttachExtension_0202 end";
+}
+
+/**
  * @tc.number: AaFwk_AbilityThread_HandleAbilityTransaction_0100
  * @tc.name: HandleAbilityTransaction
  * @tc.desc: Test HandleAbilityTransaction function when abilityImpl_ is nullptr
@@ -2272,152 +2317,6 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpAbilityInfoInner_0100, Funct
     EXPECT_NE(abilitythread->abilityImpl_, nullptr);
     abilitythread->DumpAbilityInfoInner(params, info);
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DumpAbilityInfoInner_0100 end";
-}
-
-/**
- * @tc.number: AaFwk_AbilityThread_DumpAbilityInfoInner_0200
- * @tc.name: DumpAbilityInfoInner
- * @tc.desc: Test DumpAbilityInfoInner function when currentAbility_ is nullptr
- */
-HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpAbilityInfoInner_0200, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DumpAbilityInfoInner_0200 start";
-    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
-    EXPECT_NE(abilitythread, nullptr);
-
-    std::vector<std::string> params;
-    std::vector<std::string> info;
-
-    EXPECT_EQ(abilitythread->currentAbility_, nullptr);
-    abilitythread->currentExtension_ = std::make_shared<AbilityRuntime::Extension>();
-    EXPECT_NE(abilitythread->currentExtension_, nullptr);
-    abilitythread->DumpAbilityInfoInner(params, info);
-    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DumpAbilityInfoInner_0200 end";
-}
-
-/**
- * @tc.number: AaFwk_AbilityThread_DumpAbilityInfoInner_0300
- * @tc.name: DumpAbilityInfoInner
- * @tc.desc: Test DumpAbilityInfoInner function when currentExtension_ is nullptr
- */
-HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpAbilityInfoInner_0300, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DumpAbilityInfoInner_0300 start";
-    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
-    EXPECT_NE(abilitythread, nullptr);
-
-    std::vector<std::string> params;
-    std::vector<std::string> info;
-
-    abilitythread->currentAbility_ = std::make_shared<Ability>();
-    EXPECT_NE(abilitythread->currentAbility_, nullptr);
-    abilitythread->abilityImpl_ = std::make_shared<AbilityImpl>();
-    EXPECT_NE(abilitythread->abilityImpl_, nullptr);
-    EXPECT_EQ(abilitythread->currentExtension_, nullptr);
-    abilitythread->DumpAbilityInfoInner(params, info);
-    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DumpAbilityInfoInner_0300 end";
-}
-
-/**
- * @tc.number: AaFwk_AbilityThread_DumpOtherInfo_0100
- * @tc.name: DumpOtherInfo
- * @tc.desc: Test DumpOtherInfo function when abilityHandler_ and currentAbility_ is not nullptr
- */
-HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpOtherInfo_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DumpOtherInfo_0100 start";
-    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
-    EXPECT_NE(abilitythread, nullptr);
-
-    abilitythread->abilityHandler_ = std::make_shared<AbilityHandler>(nullptr);
-    EXPECT_NE(abilitythread->abilityHandler_, nullptr);
-    auto abilityInfo = std::make_shared<AbilityInfo>();
-    abilityInfo->name = "MockPageAbility";
-    abilityInfo->type = AbilityType::PAGE;
-    auto setRunner = EventRunner::Create(abilityInfo->name);
-    abilitythread->abilityHandler_->SetEventRunner(setRunner);
-    auto getRunner = abilitythread->abilityHandler_->GetEventRunner();
-    EXPECT_NE(getRunner, nullptr);
-
-    std::vector<std::string> info;
-    abilitythread->currentAbility_ = std::make_shared<Ability>();
-    EXPECT_NE(abilitythread->currentAbility_, nullptr);
-    abilitythread->DumpOtherInfo(info);
-    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DumpOtherInfo_0100 end";
-}
-
-/**
- * @tc.number: AaFwk_AbilityThread_DumpOtherInfo_0200
- * @tc.name: DumpOtherInfo
- * @tc.desc: Test DumpOtherInfo function when abilityHandler_ is nullptr
- */
-HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpOtherInfo_0200, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DumpOtherInfo_0200 start";
-    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
-    EXPECT_NE(abilitythread, nullptr);
-
-    std::vector<std::string> info;
-    EXPECT_EQ(abilitythread->abilityHandler_, nullptr);
-    abilitythread->DumpOtherInfo(info);
-    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DumpOtherInfo_0200 end";
-}
-
-/**
- * @tc.number: AaFwk_AbilityThread_DumpOtherInfo_0300
- * @tc.name: DumpOtherInfo
- * @tc.desc: Test DumpOtherInfo function when currentAbility_ is nullptr
- */
-HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpOtherInfo_0300, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DumpOtherInfo_0300 start";
-    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
-    EXPECT_NE(abilitythread, nullptr);
-
-    std::vector<std::string> info;
-    abilitythread->abilityHandler_ = std::make_shared<AbilityHandler>(nullptr);
-    EXPECT_NE(abilitythread->abilityHandler_, nullptr);
-    EXPECT_EQ(abilitythread->currentAbility_, nullptr);
-    abilitythread->DumpOtherInfo(info);
-    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DumpOtherInfo_0300 end";
-}
-
-/**
- * @tc.number: AaFwk_AbilityThread_CallRequest_0100
- * @tc.name: CallRequest
- * @tc.desc: Test CallRequest function when abilityHandler_ and currentAbility_ is not nullptr
- */
-HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_CallRequest_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0100 start";
-    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
-    EXPECT_NE(abilitythread, nullptr);
-
-    std::vector<std::string> info;
-    abilitythread->abilityHandler_ = std::make_shared<AbilityHandler>(nullptr);
-    EXPECT_NE(abilitythread->abilityHandler_, nullptr);
-    abilitythread->currentAbility_ = std::make_shared<Ability>();
-    EXPECT_NE(abilitythread->currentAbility_, nullptr);
-    abilitythread->CallRequest();
-    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0100 end";
-}
-
-/**
- * @tc.number: AaFwk_AbilityThread_CallRequest_0200
- * @tc.name: CallRequest
- * @tc.desc: Test CallRequest function when abilityHandler_ and currentAbility_ is not nullptr
- */
-HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_CallRequest_0200, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0200 start";
-    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
-    EXPECT_NE(abilitythread, nullptr);
-
-    std::vector<std::string> info;
-    EXPECT_EQ(abilitythread->abilityHandler_, nullptr);
-    EXPECT_EQ(abilitythread->currentAbility_, nullptr);
-    abilitythread->CallRequest();
-    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0200 end";
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

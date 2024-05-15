@@ -23,6 +23,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr const char *CONTEXT_DISTRIBUTEDFILES("distributedfiles");
+constexpr const char *CONTEXT_CLOUD("cloud");
 constexpr const char *CONTEXT_FILE_SEPARATOR("/");
 constexpr const char *CONTEXT_FILE_OPPOSITE_SEPARATOR("\\");
 constexpr const char *CONTEXT_BASE("base");
@@ -182,6 +183,18 @@ std::string AbilityStageContext::GetDistributedFilesDir()
     }
 
     auto dir = preivewDir + fileSeparator_ + currArea_ + fileSeparator_ + CONTEXT_DISTRIBUTEDFILES;
+    CreateMultiDir(dir);
+    return dir;
+}
+
+std::string AbilityStageContext::GetCloudFileDir()
+{
+    auto preivewDir = GetPreviewPath();
+    if (preivewDir.empty()) {
+        return "";
+    }
+
+    auto dir = GetBaseDir() + fileSeparator_ + CONTEXT_CLOUD;
     CreateMultiDir(dir);
     return dir;
 }

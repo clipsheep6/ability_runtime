@@ -87,6 +87,8 @@ public:
     void SetScheduler(const sptr<IRenderScheduler> &scheduler);
     void SetDeathRecipient(const sptr<AppDeathRecipient> recipient);
     void RegisterDeathRecipient();
+    void SetState(int32_t state);
+    int32_t GetState() const;
 
 private:
     void SetHostUid(const int32_t hostUid);
@@ -103,6 +105,7 @@ private:
     int32_t ipcFd_ = 0;
     int32_t sharedFd_ = 0;
     int32_t crashFd_ = 0;
+    int32_t state_ = 0;
     ProcessType processType_ = ProcessType::RENDER;
     std::weak_ptr<AppRunningRecord> host_; // nweb host
     sptr<IRenderScheduler> renderScheduler_ = nullptr;
@@ -536,9 +539,11 @@ public:
 
     bool IsEmptyKeepAliveApp() const;
 
-    void SetKeepAliveAppState(bool isKeepAlive, bool isEmptyKeepAliveApp);
+    void SetEmptyKeepAliveAppState(bool isEmptyKeepAliveApp);
 
-    void SetEmptyKeepAliveAppState(bool isEmptyKeepAlive);
+    void SetKeepAliveEnableState(bool isKeepAliveEnable);
+
+    void SetSingleton(bool isSingleton);
 
     void SetStageModelState(bool isStageBasedModel);
 
@@ -576,23 +581,27 @@ public:
     std::shared_ptr<UserTestRecord> GetUserTestInfo();
 
     void SetProcessAndExtensionType(const std::shared_ptr<AbilityInfo> &abilityInfo);
-    void SetSpecifiedAbilityFlagAndWant(const bool flag, const AAFwk::Want &want, const std::string &moduleName);
-    void SetScheduleNewProcessRequestState(const bool isNewProcessRequest, const AAFwk::Want &want,
-        const std::string &moduleName);
+    void SetSpecifiedAbilityFlagAndWant(int requestId, const AAFwk::Want &want, const std::string &moduleName);
+    void SetScheduleNewProcessRequestState(int32_t requestId, const AAFwk::Want &want, const std::string &moduleName);
     bool IsNewProcessRequest() const;
     bool IsStartSpecifiedAbility() const;
+    int32_t GetSpecifiedRequestId() const;
+    void ResetSpecifiedRequestId();
     void ScheduleAcceptWant(const std::string &moduleName);
     void ScheduleAcceptWantDone();
     void ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName);
     void ScheduleNewProcessRequestDone();
     void ApplicationTerminated();
-    const AAFwk::Want &GetSpecifiedWant() const;
-    const AAFwk::Want &GetNewProcessRequestWant() const;
+    AAFwk::Want GetSpecifiedWant() const;
+    AAFwk::Want GetNewProcessRequestWant() const;
+    int32_t GetNewProcessRequestId() const;
+    void ResetNewProcessRequestId();
     void SetDebugApp(bool isDebugApp);
     bool IsDebugApp();
     bool IsDebugging() const;
     void SetNativeDebug(bool isNativeDebug);
     void SetPerfCmd(const std::string &perfCmd);
+    void SetMultiThread(const bool multiThread);
     void AddRenderRecord(const std::shared_ptr<RenderRecord> &record);
     void RemoveRenderRecord(const std::shared_ptr<RenderRecord> &record);
     std::shared_ptr<RenderRecord> GetRenderRecordByPid(const pid_t pid);
@@ -712,6 +721,12 @@ public:
     std::shared_ptr<ChildProcessRecord> GetChildProcessRecordByPid(const pid_t pid);
     std::map<pid_t, std::shared_ptr<ChildProcessRecord>> GetChildProcessRecordMap();
 
+    void SetPreloadState(PreloadState state);
+
+    bool IsPreloading() const;
+
+    bool IsPreloaded() const;
+
     /**
      * @brief Obtains the app record assign tokenId.
      *
@@ -743,13 +758,24 @@ public:
 
     void SetAssertionPauseFlag(bool flag);
     bool IsAssertionPause() const;
-    
+
     void SetJITEnabled(const bool jitEnabled);
     bool IsJITEnabled() const;
 
     int DumpIpcStart(std::string& result);
     int DumpIpcStop(std::string& result);
     int DumpIpcStat(std::string& result);
+
+    int DumpFfrt(std::string &result);
+
+    void SetExitReason(int32_t reason);
+    int32_t GetExitReason() const;
+
+    void SetExitMsg(const std::string &exitMsg);
+    std::string GetExitMsg() const;
+
+    bool SetSupportedProcessCache(bool isSupport);
+    SupportProcessCacheState GetSupportProcessCacheState();
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -813,6 +839,7 @@ private:
 
     bool isKeepAliveApp_ = false;  // Only resident processes can be set to true, please choose carefully
     bool isEmptyKeepAliveApp_ = false;  // Only empty resident processes can be set to true, please choose carefully
+    bool isSingleton_ = false;
     bool isStageBasedModel_ = false;
     ApplicationState curState_ = ApplicationState::APP_STATE_CREATE;  // current state of this process
     ApplicationPendingState pendingState_ = ApplicationPendingState::READY;
@@ -850,11 +877,14 @@ private:
     bool isLauncherApp_;
     std::string mainAppName_;
     int restartResidentProcCount_ = 0;
-    bool isSpecifiedAbility_ = false;
-    AAFwk::Want SpecifiedWant_;
+
+    mutable std::mutex specifiedMutex_;
+    int32_t specifiedRequestId_ = -1;
+    AAFwk::Want specifiedWant_;
     std::string moduleName_;
-    bool isNewProcessRequest_;
+    int32_t newProcessRequestId_ = -1;
     AAFwk::Want newProcessRequestWant_;
+
     bool isDebugApp_ = false;
     bool isNativeDebug_ = false;
     bool isAttachDebug_ = false;
@@ -862,6 +892,9 @@ private:
     int64_t startTimeMillis_ = 0;   // The time of app start(CLOCK_MONOTONIC)
     int64_t restartTimeMillis_ = 0; // The time of last trying app restart
     bool jitEnabled_ = false;
+    PreloadState preloadState_ = PreloadState::NONE;
+    int32_t exitReason_ = 0;
+    std::string exitMsg_ = "";
 
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
 
@@ -896,7 +929,10 @@ private:
     bool isRestartApp_ = false; // Only app calling RestartApp can be set to true
     bool isAssertPause_ = false;
     bool isNativeStart_ = false;
+    bool isMultiThread_ = false;
+    SupportProcessCacheState procCacheSupportState_ = SupportProcessCacheState::UNSPECIFIED;
 };
+
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_APP_RUNNING_RECORD_H

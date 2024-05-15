@@ -183,12 +183,12 @@ ErrCode ServiceExtensionContext::ConnectAbilityWithAccount(
     return ret;
 }
 
-ErrCode ServiceExtensionContext::DisconnectAbility(
-    const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const
+ErrCode ServiceExtensionContext::DisconnectAbility(const AAFwk::Want &want,
+    const sptr<AbilityConnectCallback> &connectCallback, int32_t accountId) const
 {
     TAG_LOGD(AAFwkTag::APPKIT, "begin.");
     ErrCode ret =
-        ConnectionManager::GetInstance().DisconnectAbility(token_, want, connectCallback);
+        ConnectionManager::GetInstance().DisconnectAbility(token_, want, connectCallback, accountId);
     if (ret != ERR_OK) {
         TAG_LOGE(AAFwkTag::APPKIT, "%{public}s end DisconnectAbility error, ret=%{public}d", __func__, ret);
     }

@@ -23,7 +23,6 @@ using namespace OHOS;
 using namespace OHOS::AAFwk;
 
 namespace {
-const std::string STRING_SEPERATOR = "\n";
 const std::string STRING_RECORD_ID = "0";
 const size_t SIZE_ONE = 1;
 }  // namespace

@@ -24,6 +24,7 @@
 #include "distributed_client.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 #include "permission_verification.h"
 
@@ -165,7 +166,7 @@ bool PendingWantManager::CheckPendingWantRecordByKey(
         return false;
     }
 
-    if (!inputKey->GetRequestWantRef().IsEquals(key->GetRequestWantRef())) {
+    if (!inputKey->IsEqualsRequestWant(key->GetRequestWantRef())) {
         return false;
     }
 
@@ -177,11 +178,21 @@ int32_t PendingWantManager::SendWantSender(sptr<IWantSender> target, const Sende
     TAG_LOGI(AAFwkTag::WANTAGENT, "begin");
 
     if (target == nullptr) {
+        if (senderInfo.finishedReceiver != nullptr) {
+            Want want;
+            WantParams wantParams = {};
+            senderInfo.finishedReceiver->PerformReceive(want, senderInfo.code, "canceled", wantParams, false, false, 0);
+        }
         TAG_LOGE(AAFwkTag::WANTAGENT, "sender is nullptr.");
         return ERR_INVALID_VALUE;
     }
     sptr<IRemoteObject> obj = target->AsObject();
     if (obj == nullptr || obj->IsProxyObject()) {
+        if (senderInfo.finishedReceiver != nullptr) {
+            Want want;
+            WantParams wantParams = {};
+            senderInfo.finishedReceiver->PerformReceive(want, senderInfo.code, "canceled", wantParams, false, false, 0);
+        }
         TAG_LOGE(AAFwkTag::WANTAGENT, "target obj is nullptr or is a proxy object.");
         return ERR_INVALID_VALUE;
     }
@@ -216,22 +227,35 @@ void PendingWantManager::CancelWantSender(const bool isSystemApp, const sptr<IWa
 
 void PendingWantManager::CancelWantSenderLocked(PendingWantRecord &record, bool cleanAbility)
 {
-    HILOG_DEBUG("begin.");
+    TAG_LOGD(AAFwkTag::WANTAGENT, "begin.");
     std::lock_guard<ffrt::mutex> locker(mutex_);
     MakeWantSenderCanceledLocked(record);
     if (cleanAbility) {
         wantRecords_.erase(record.GetKey());
     }
 }
-int32_t PendingWantManager::DeviceIdDetermine(const Want &want, const sptr<IRemoteObject> &callerToken,
-    int32_t requestCode, const int32_t callerUid, int32_t callerTokenId)
+
+int32_t PendingWantManager::DeviceIdDetermine(const Want &want, const sptr<StartOptions> &startOptions,
+    const sptr<IRemoteObject> &callerToken, int32_t requestCode, const int32_t callerUid, int32_t callerTokenId)
 {
     int32_t result = ERR_OK;
     std::string localDeviceId;
     DelayedSingleton<AbilityManagerService>::GetInstance()->GetLocalDeviceId(localDeviceId);
     if (want.GetElement().GetDeviceID() == "" || want.GetElement().GetDeviceID() == localDeviceId) {
-        result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbilityWithSpecifyTokenIdInner(
-            want, callerToken, callerTokenId, requestCode, callerUid);
+        if (!startOptions) {
+            result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbilityWithSpecifyTokenIdInner(
+                want, callerToken, callerTokenId, requestCode, callerUid);
+        } else {
+            TAG_LOGD(AAFwkTag::WANTAGENT, "StartOptions windowMode:%{public}d displayId:%{public}d \
+                withAnimation:%{public}d windowLeft:%{public}d windowTop:%{public}d windowWidth:%{public}d \
+                windowHeight:%{public}d",
+                startOptions->GetWindowMode(), startOptions->GetDisplayID(), startOptions->GetWithAnimation(),
+                startOptions->GetWindowLeft(), startOptions->GetWindowTop(), startOptions->GetWindowWidth(),
+                startOptions->GetWindowHeight());
+            result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbilityWithSpecifyTokenIdInner(
+                want, *startOptions, callerToken, requestCode, callerUid, callerTokenId);
+        }
+
         if (result != ERR_OK && result != START_ABILITY_WAITING) {
             TAG_LOGE(AAFwkTag::WANTAGENT, "%{public}s:result != ERR_OK && result != START_ABILITY_WAITING.", __func__);
         }
@@ -256,22 +280,23 @@ int32_t PendingWantManager::DeviceIdDetermine(const Want &want, const sptr<IRemo
     return result;
 }
 
-int32_t PendingWantManager::PendingWantStartAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
-    int32_t requestCode, const int32_t callerUid, int32_t callerTokenId)
+int32_t PendingWantManager::PendingWantStartAbility(const Want &want, const sptr<StartOptions> &startOptions,
+    const sptr<IRemoteObject> &callerToken, int32_t requestCode, const int32_t callerUid, int32_t callerTokenId)
 {
     TAG_LOGI(AAFwkTag::WANTAGENT, "begin");
-    int32_t result = DeviceIdDetermine(want, callerToken, requestCode, callerUid, callerTokenId);
+    int32_t result = DeviceIdDetermine(want, startOptions, callerToken, requestCode, callerUid, callerTokenId);
     return result;
 }
 
-int32_t PendingWantManager::PendingWantStartAbilitys(const std::vector<WantsInfo> wantsInfo,
-    const sptr<IRemoteObject> &callerToken, int32_t requestCode, const int32_t callerUid, int32_t callerTokenId)
+int32_t PendingWantManager::PendingWantStartAbilitys(const std::vector<WantsInfo> &wantsInfo,
+    const sptr<StartOptions> &startOptions, const sptr<IRemoteObject> &callerToken, int32_t requestCode,
+    const int32_t callerUid, int32_t callerTokenId)
 {
     TAG_LOGI(AAFwkTag::WANTAGENT, "begin");
 
     int32_t result = ERR_OK;
     for (const auto &item : wantsInfo) {
-        auto res = DeviceIdDetermine(item.want, callerToken, requestCode, callerUid, callerTokenId);
+        auto res = DeviceIdDetermine(item.want, startOptions, callerToken, requestCode, callerUid, callerTokenId);
         if (res != ERR_OK && res != START_ABILITY_WAITING) {
             result = res;
         }
@@ -323,6 +348,7 @@ int32_t PendingWantManager::PendingRecordIdCreate()
 
 sptr<PendingWantRecord> PendingWantManager::GetPendingWantRecordByCode(int32_t code)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::WANTAGENT, "begin. wantRecords_ size = %{public}zu", wantRecords_.size());
 
     std::lock_guard<ffrt::mutex> locker(mutex_);
@@ -483,6 +509,7 @@ void PendingWantManager::UnregisterCancelListener(const sptr<IWantSender> &sende
 
 int32_t PendingWantManager::GetPendingRequestWant(const sptr<IWantSender> &target, std::shared_ptr<Want> &want)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::WANTAGENT, "begin");
     if (target == nullptr) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "%{public}s:target is nullptr.", __func__);

@@ -303,24 +303,7 @@ void UIAbilityThread::ScheduleRestoreAbilityState(const AppExecFwk::PacMap &stat
 void UIAbilityThread::ScheduleUpdateConfiguration(const AppExecFwk::Configuration &config)
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
-    if (abilityHandler_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "abilityHandler_ is nullptr.");
-        return;
-    }
-    wptr<UIAbilityThread> weak = this;
-    auto task = [weak, config]() {
-        auto abilityThread = weak.promote();
-        if (abilityThread == nullptr) {
-            TAG_LOGE(AAFwkTag::UIABILITY, "AbilityThread is nullptr.");
-            return;
-        }
-
-        abilityThread->HandleUpdateConfiguration(config);
-    };
-    bool ret = abilityHandler_->PostTask(task, "UIAbilityThread:UpdateConfiguration");
-    if (!ret) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "PostTask error.");
-    }
+    HandleUpdateConfiguration(config);
     TAG_LOGD(AAFwkTag::UIABILITY, "End.");
 }
 

@@ -172,6 +172,16 @@ public:
         return perfCmd_;
     }
 
+    inline void SetMultiThread(const bool multiThread)
+    {
+        isMultiThread_ = multiThread;
+    }
+
+    inline bool GetMultiThread() const
+    {
+        return isMultiThread_;
+    }
+
     inline void SetJITEnabled(const bool jitEnabled)
     {
         jitEnabled_ = jitEnabled;
@@ -238,6 +248,7 @@ private:
     std::string perfCmd_;
     bool jitEnabled_ = false;
     bool isNativeStart_ = false;
+    bool isMultiThread_ = false;
     std::string appRunningUniqueId_;
 };
 }  // namespace AppExecFwk

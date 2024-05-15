@@ -21,6 +21,7 @@
 #include "configuration_convertor.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "running_process_info.h"
 
 namespace OHOS {
@@ -449,6 +450,11 @@ std::string ApplicationContext::GetDistributedFilesDir()
     return (contextImpl_ != nullptr) ? contextImpl_->GetDistributedFilesDir() : "";
 }
 
+std::string ApplicationContext::GetCloudFileDir()
+{
+    return (contextImpl_ != nullptr) ? contextImpl_->GetCloudFileDir() : "";
+}
+
 sptr<IRemoteObject> ApplicationContext::GetToken()
 {
     return (contextImpl_ != nullptr) ? contextImpl_->GetToken() : nullptr;
@@ -542,6 +548,15 @@ void ApplicationContext::SetAppRunningUniqueId(const std::string &appRunningUniq
 {
     TAG_LOGD(AAFwkTag::APPKIT, "SetAppRunningUniqueId is %{public}s.", appRunningUniqueId.c_str());
     appRunningUniqueId_ = appRunningUniqueId;
+}
+
+int32_t ApplicationContext::SetSupportedProcessCacheSelf(bool isSupport)
+{
+    if (contextImpl_ != nullptr) {
+        return contextImpl_->SetSupportedProcessCacheSelf(isSupport);
+    }
+    TAG_LOGE(AAFwkTag::APPKIT, "contextImpl_ is nullptr.");
+    return ERR_INVALID_VALUE;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

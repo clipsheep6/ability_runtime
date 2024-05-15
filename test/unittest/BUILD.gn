@@ -19,7 +19,6 @@ import(
 config("appmgr_test_config") {
   configs = [
     "${ability_runtime_services_path}/appmgr:appmgr_config",
-    "${ability_runtime_services_path}/appmgr:appmgr_exception_config",
     "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config",
     "${ability_runtime_test_path}/moduletest:services_mock_ams_config",
   ]
@@ -172,9 +171,11 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_services_path}/abilitymgr/src/start_ability_handler.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/start_ability_handler/start_ability_sandbox_savefile.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/start_ability_utils.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/sub_managers_helper.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/task_data_persistence_mgr.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ui_extension_record.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ui_extension_record_factory.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/uri_utils.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/user_controller.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/user_event_handler.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/want_receiver_proxy.cpp",
@@ -192,10 +193,7 @@ ohos_source_set("abilityms_test_source") {
 
   include_dirs = [
     "${ability_runtime_services_path}/appdfr/include",
-    "${ability_base_kits_path}/extractortool/include",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core",
-    "${distributedschedule_path}/safwk/interfaces/innerkits/safwk",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",
@@ -219,6 +217,7 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_innerkits_path}/connectionobs_manager:connection_obs_manager",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_path}/utils/global/freeze:freeze_util",
+    "${ability_runtime_path}/utils/server/startup:startup_util",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${ability_runtime_services_path}/common:task_handler_wrap",
   ]
@@ -226,6 +225,7 @@ ohos_source_set("abilityms_test_source") {
   external_deps = [
     "ability_base:base",
     "ability_base:configuration",
+    "ability_base:extractortool",
     "ability_base:view_data",
     "ability_base:want",
     "ability_runtime:ability_deps_wrapper",
@@ -253,6 +253,7 @@ ohos_source_set("abilityms_test_source") {
     "relational_store:native_rdb",
     "resource_management:global_resmgr",
     "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
     "window_manager:libmodal_system_ui_extension_client",
     "window_manager:libwsutils",
     "window_manager:sms",
@@ -291,12 +292,12 @@ ohos_source_set("abilityms_test_source") {
     ]
     deps += [
       "${ace_engine_path}/interfaces/inner_api/ui_service_manager:ui_service_mgr",
-      "${global_path}/i18n/frameworks/intl:intl_util",
-      "${multimedia_path}/interfaces/innerkits:image_native",
-      "//third_party/icu/icu4c:shared_icuuc",
       "//third_party/libjpeg-turbo:turbojpeg_static",
     ]
     external_deps += [
+      "i18n:intl_util",
+      "icu:shared_icuuc",
+      "image_framework:image_native",
       "input:libmmi-client",
       "window_manager:libdm",
       "window_manager:libmodal_system_ui_extension_client",
@@ -331,6 +332,9 @@ group("unittest") {
     "ability_extension_module_loader_test:unittest",
     "ability_extension_running_info_test:unittest",
     "ability_extension_test:unittest",
+    "ability_first_frame_state_observer_manager_test:unittest",
+    "ability_first_frame_state_observer_proxy_test:unittest",
+    "ability_first_frame_state_observer_stub_test:unittest",
     "ability_foreground_state_observer_proxy_test:unittest",
     "ability_foreground_state_observer_stub_test:unittest",
     "ability_interceptor_test:unittest",
@@ -380,6 +384,7 @@ group("unittest") {
     "app_lifecycle_deal_test:unittest",
     "app_mgr_client_test:unittest",
     "app_mgr_proxy_test:unittest",
+    "app_mgr_service_dump_ffrt_test:unittest",
     "app_mgr_service_dump_ipc_test:unittest",
     "app_mgr_service_dump_test:unittest",
     "app_mgr_service_event_handler_test:unittest",
@@ -387,6 +392,7 @@ group("unittest") {
     "app_mgr_service_inner_test:unittest",
     "app_mgr_service_test:unittest",
     "app_mgr_stub_test:unittest",
+    "app_preloader_test:unittest",
     "app_recovery_test:unittest",
     "app_running_manager_test:unittest",
     "app_running_processes_info_test:unittest",
@@ -409,6 +415,7 @@ group("unittest") {
     "auto_startup_info_test:unittest",
     "background_task_observer_test:unittest",
     "bundle_mgr_helper_test:unittest",
+    "cache_process_manager_test:unittest",
     "call_record_test:unittest",
     "child_process_manager_test:unittest",
     "completed_dispatcher_test:unittest",
@@ -441,7 +448,6 @@ group("unittest") {
     "extension_manager_client_test:unittest",
     "fault_data:unittest",
     "file_path_utils_test:unittest",
-    "form_extension_context_test:unittest",
     "frameworks_kits_ability_ability_runtime_test:unittest",
     "frameworks_kits_ability_native_test:unittest",
     "frameworks_kits_appkit_native_test:unittest",
@@ -481,6 +487,7 @@ group("unittest") {
     "services/ability_util_test:unittest",
     "start_options_test:unittest",
     "start_other_app_interceptor_test:unittest",
+    "startup_util_test:unittest",
     "stop_user_callback_proxy_test:unittest",
     "stop_user_callback_stub_test:unittest",
     "sys_mgr_client_test:unittest",

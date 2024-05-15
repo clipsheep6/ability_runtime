@@ -70,6 +70,18 @@ public:
      */
     virtual void AttachApplication(const sptr<IRemoteObject> &app) override;
 
+    /**
+     * Preload application.
+     *
+     * @param bundleName The bundle name of the application to preload.
+     * @param userId Indicates the user identification.
+     * @param preloadMode Preload application mode.
+     * @param appIndex The index of application clone.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t PreloadApplication(const std::string &bundleName, int32_t userId,
+        AppExecFwk::PreloadMode preloadMode, int32_t appIndex) override;
+
     // notify the ams update the state of an app, when it entered foreground.
 
     /**
@@ -134,6 +146,17 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t GetAllRunningProcesses(std::vector<RunningProcessInfo> &info) override;
+
+    /**
+     * GetRunningProcessesByBundleType, call GetRunningProcessesByBundleType() through proxy project.
+     * Obtains information about application processes by bundle type that are running on the device.
+     *
+     * @param bundleType, bundle type of the processes
+     * @param info, app name in Application record.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int GetRunningProcessesByBundleType(const BundleType bundleType,
+        std::vector<RunningProcessInfo> &info) override;
 
     /**
      * GetAllRenderProcesses, call GetAllRenderProcesses() through proxy project.
@@ -441,7 +464,8 @@ public:
      * @param childPid Created child process pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid) override;
+    int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCoun,
+        bool isStartWithDebug) override;
 
     /**
      * Get child process record for self.
@@ -478,6 +502,7 @@ public:
 
     int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent) override;
 
+    int32_t SetSupportedProcessCacheSelf(bool isSupport) override;
 private:
     /**
      * Init, Initialize application services.
@@ -552,7 +577,7 @@ private:
     virtual int32_t GetForegroundApplications(std::vector<AppStateData> &list) override;
 
     int Dump(const std::vector<std::u16string>& args, std::string& result);
-    void ShowHelp(std::string& result) const;
+    int ShowHelp(const std::vector<std::u16string>& args, std::string& result);
     int DumpIpc(const std::vector<std::u16string>& args, std::string& result);
     int DumpIpcAllStart(std::string& result);
     int DumpIpcAllStop(std::string& result);
@@ -560,6 +585,8 @@ private:
     int DumpIpcStart(const int32_t pid, std::string& result);
     int DumpIpcStop(const int32_t pid, std::string& result);
     int DumpIpcStat(const int32_t pid, std::string& result);
+
+    int DumpFfrt(const std::vector<std::u16string>& args, std::string& result);
 
     bool JudgeAppSelfCalled(int32_t recordId);
 
@@ -608,6 +635,8 @@ private:
     int DumpIpcWithPidInner(const AppMgrService::DumpIpcKey key,
         const std::string& optionPid, std::string& result);
 
+    int DumpFfrtInner(const std::string& pidsRaw, std::string& result);
+
 private:
     std::shared_ptr<AppMgrServiceInner> appMgrServiceInner_;
     AppMgrServiceState appMgrServiceState_;
@@ -615,6 +644,9 @@ private:
     std::shared_ptr<AMSEventHandler> eventHandler_;
     sptr<ISystemAbilityManager> systemAbilityMgr_;
     sptr<IAmsMgr> amsMgrScheduler_;
+
+    using DumpFuncType = int (AppMgrService::*)(const std::vector<std::u16string>& args, std::string& result);
+    const static std::map<std::string, DumpFuncType> dumpFuncMap_;
 
     const static std::map<std::string, AppMgrService::DumpIpcKey> dumpIpcMap;
 

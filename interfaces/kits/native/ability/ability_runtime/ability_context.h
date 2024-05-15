@@ -198,7 +198,8 @@ public:
     * @param connectCallback Indicates the callback object when the target ability is connected.
     * is set up. The IAbilityConnection object uniquely identifies a connection between two abilities.
     */
-    virtual void DisconnectAbility(const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) = 0;
+    virtual void DisconnectAbility(const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback,
+        int32_t accountId = -1) = 0;
 
     /**
      * @brief get ability info of the current ability

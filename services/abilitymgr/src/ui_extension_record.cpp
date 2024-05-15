@@ -48,7 +48,7 @@ void UIExtensionRecord::HandleNotifyUIExtensionTimeout(ErrorCode code)
     CHECK_POINTER(sessionInfo);
     sptr<Rosen::ISession> sessionProxy = iface_cast<Rosen::ISession>(sessionInfo->sessionToken);
     if (sessionProxy == nullptr) {
-        HILOG_DEBUG("Parsing session failed, is nullptr.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Parsing session failed, is nullptr.");
         return;
     }
     sessionProxy->NotifyExtensionTimeout(code);
@@ -56,30 +56,30 @@ void UIExtensionRecord::HandleNotifyUIExtensionTimeout(ErrorCode code)
 
 void UIExtensionRecord::LoadTimeout()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     HandleNotifyUIExtensionTimeout(ErrorCode::LOAD_TIMEOUT);
-    HILOG_DEBUG("Notify wms, the uiextension load time out.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Notify wms, the uiextension load time out.");
 }
 
 void UIExtensionRecord::ForegroundTimeout()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     HandleNotifyUIExtensionTimeout(ErrorCode::FOREGROUND_TIMEOUT);
-    HILOG_DEBUG("Notify wms, the uiextension move foreground time out.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Notify wms, the uiextension move foreground time out.");
 }
 
 void UIExtensionRecord::BackgroundTimeout()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     HandleNotifyUIExtensionTimeout(ErrorCode::BACKGROUND_TIMEOUT);
-    HILOG_DEBUG("Notify wms, the uiextension move background time out.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Notify wms, the uiextension move background time out.");
 }
 
 void UIExtensionRecord::TerminateTimeout()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     HandleNotifyUIExtensionTimeout(ErrorCode::TERMINATE_TIMEOUT);
-    HILOG_DEBUG("Notify wms, the uiextension terminate time out.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Notify wms, the uiextension terminate time out.");
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

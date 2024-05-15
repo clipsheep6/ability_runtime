@@ -65,6 +65,9 @@ struct AppSpawnStartMsg {
     std::set<std::string> permissions;
     std::map<std::string, std::string> appEnv; // environment variable to be set to the process
     std::string ownerId;
+    std::string provisionType;
+    bool atomicServiceFlag = false;
+    std::string atomicAccount = "";
 };
 
 constexpr auto LEN_PID = sizeof(pid_t);
@@ -122,6 +125,11 @@ public:
     SpawnConnectionState QueryConnectionState() const;
 
     /**
+     * Return the clent handle.
+     */
+    AppSpawnClientHandle GetAppSpawnClientHandle() const;
+
+    /**
      * Set dac info.
      *
      * @param startMsg, request message.
@@ -144,6 +152,14 @@ public:
      * @param reqHandle, handle for request message
      */
     int32_t SetStartFlags(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle);
+
+    /**
+     * Set atomic service flags.
+     *
+     * @param startMsg, request message.
+     * @param reqHandle, handle for request message
+     */
+    int32_t SetAtomicServiceFlag(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle);
 
     /**
      * Set extra info: render-cmd, HspList, Overlay, DataGroup, AppEnv.

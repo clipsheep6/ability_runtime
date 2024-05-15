@@ -123,5 +123,10 @@ bool PermissionVerification::IsSystemAppCall() const
 {
     return true;
 }
+
+bool PermissionVerification::VerifySetProcessCachePermission() const
+{
+    return true;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

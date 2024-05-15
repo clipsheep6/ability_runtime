@@ -145,7 +145,7 @@ public:
      * @param The ability token.
      * @return
      */
-    virtual void ScheduleCleanAbility(const sptr<IRemoteObject> &token) override;
+    virtual void ScheduleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess = false) override;
 
     /**
      * ScheduleProfileChanged, call ScheduleProfileChanged() through proxy project,
@@ -221,6 +221,16 @@ public:
      * @return Returns 0 on success, error code on failure.
      */
     virtual int32_t ScheduleDumpIpcStat(std::string& result) override;
+
+    /**
+     * ScheduleDumpFfrt, call ScheduleDumpFfrt(std::string& result) through proxy project,
+     * Start querying the application's ffrt usage.
+     *
+     * @param result, ffrt dump result output.
+     *
+     * @return Returns 0 on success, error code on failure.
+     */
+    virtual int32_t ScheduleDumpFfrt(std::string& result) override;
 
 private:
     bool WriteInterfaceToken(MessageParcel &data);

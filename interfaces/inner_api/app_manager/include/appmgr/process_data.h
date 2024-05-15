@@ -62,6 +62,8 @@ struct ProcessData : public Parcelable {
     ExtensionAbilityType extensionType = ExtensionAbilityType::UNSPECIFIED;
     uint32_t accessTokenId = 0;
     bool isTestMode = false; // Indicates whether the process is started by aa test
+    int32_t exitReason = 0;
+    std::string exitMsg = "";
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

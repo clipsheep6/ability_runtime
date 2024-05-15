@@ -60,7 +60,7 @@ public:
     void ScheduleLaunchAbility(const AbilityInfo&, const sptr<IRemoteObject>&,
         const std::shared_ptr<AAFwk::Want>&, int32_t) override
     {}
-    void ScheduleCleanAbility(const sptr<IRemoteObject>&) override
+    void ScheduleCleanAbility(const sptr<IRemoteObject>&, bool isCacheProcess) override
     {}
     void ScheduleProfileChanged(const Profile&) override
     {}
@@ -120,6 +120,11 @@ public:
     }
 
     int32_t ScheduleDumpIpcStat(std::string& result) override
+    {
+        return 0;
+    }
+
+    int32_t ScheduleDumpFfrt(std::string& result) override
     {
         return 0;
     }

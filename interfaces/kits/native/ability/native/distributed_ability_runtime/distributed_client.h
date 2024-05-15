@@ -19,6 +19,7 @@
 
 #include <string>
 
+#include "dms_continueInfo.h"
 #include "mission_info.h"
 #include "mission_snapshot.h"
 #include "want_params.h"
@@ -35,8 +36,7 @@ public:
         uint32_t accessToken);
     int32_t ContinueMission(const std::string& srcDeviceId, const std::string& dstDeviceId,
         int32_t missionId, const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams);
-    int32_t ContinueMission(const std::string& srcDeviceId, const std::string& dstDeviceId,
-        const std::string&  bundleName, const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams);
+    int32_t ContinueMission(AAFwk::ContinueMissionInfo continueMissionInfo, const sptr<IRemoteObject> &callBack);
     int32_t StartContinuation(const OHOS::AAFwk::Want& want, int32_t missionId, int32_t callerUid,
         int32_t status, uint32_t accessToken);
     int32_t NotifyCompleteContinuation(const std::u16string &devId, int32_t sessionId, bool isSuccess);

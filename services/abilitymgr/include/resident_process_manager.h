@@ -29,11 +29,29 @@ namespace AAFwk {
 class ResidentProcessManager : public std::enable_shared_from_this<ResidentProcessManager> {
     DECLARE_DELAYED_SINGLETON(ResidentProcessManager)
 public:
+
+    /**
+     * Handle tasks such as initializing databases.
+     *
+    */
+    void Init();
+
+    /**
+     * Set the enable flag for resident processes.
+     *
+     * @param bundleName, The bundle name of the resident process.
+     * @param callerName, The name of the caller, usually the system application.
+     * @param updateEnable, Set value, if true, start the resident process, If false, stop the resident process
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t SetResidentProcessEnabled(const std::string &bundleName, const std::string &callerName, bool updateEnable);
     void StartResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos);
     void StartResidentProcessWithMainElement(std::vector<AppExecFwk::BundleInfo> &bundleInfos);
+    void OnAppStateChanged(const AppInfo &info);
 private:
     bool CheckMainElement(const AppExecFwk::HapModuleInfo &hapModuleInfo, const std::string &processName,
         std::string &mainElement, std::set<uint32_t> &needEraseIndexSet, size_t bundleInfoIndex);
+    void UpdateResidentProcessesStatus(const std::string &bundleName, bool localEnable, bool updateEnable);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

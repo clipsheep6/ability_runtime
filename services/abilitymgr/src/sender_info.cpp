@@ -51,6 +51,9 @@ bool SenderInfo::ReadFromParcel(Parcel &parcel)
         }
     }
     requiredPermission = Str16ToStr8(parcel.ReadString16());
+    if (parcel.ReadBool()) {
+        startOptions = parcel.ReadParcelable<StartOptions>();
+    }
     return true;
 }
 
@@ -105,6 +108,16 @@ bool SenderInfo::Marshalling(Parcel &parcel) const
     if (!parcel.WriteString16(Str8ToStr16(requiredPermission))) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write requiredPermission");
         return false;
+    }
+    if (!parcel.WriteBool(startOptions != nullptr)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write the flag which indicate whether startOptions is null");
+        return false;
+    }
+    if (startOptions) {
+        if (!parcel.WriteParcelable(startOptions)) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write startOptions");
+            return false;
+        }
     }
     return true;
 }

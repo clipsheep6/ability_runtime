@@ -176,13 +176,24 @@ public:
 
     virtual void SetAbilityForegroundingFlagToAppRecord(const pid_t pid) = 0;
 
-    virtual void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo) = 0;
+    virtual void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0) = 0;
 
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response) = 0;
 
-    virtual void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo) = 0;
+    virtual void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0) = 0;
 
     virtual int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug) = 0;
+
+    /**
+     * Record process exit reason to appRunningRecord
+     * @param pid pid
+     * @param reason reason enum
+     * @param exitMsg exitMsg
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg) = 0;
 
     /**
      * Set the current userId of appMgr.
@@ -286,6 +297,13 @@ public:
     virtual void SetAppAssertionPauseState(int32_t pid, bool flag) {}
 
     /**
+     * @brief Set resident process enable status.
+     * @param bundleName The application bundle name.
+     * @param enable The current updated enable status.
+     */
+    virtual void SetKeepAliveEnableState(const std::string &bundleName, bool enable) {};
+
+    /**
      * To clear the process by ability token.
      *
      * @param token the unique identification to the ability.
@@ -342,6 +360,8 @@ public:
         KILL_PROCESSES_BY_PIDS,
         ATTACH_PID_TO_PARENT,
         IS_MEMORY_SIZE_SUFFICIENT,
+        SET_KEEP_ALIVE_ENABLE_STATE,
+        NOTIFY_APP_MGR_RECORD_EXIT_REASON,
     };
 };
 }  // namespace AppExecFwk

@@ -19,6 +19,7 @@
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "cj_ability_stage.h"
 #include "js_ability_stage.h"
 #include "runtime.h"
 
@@ -35,7 +36,8 @@ std::shared_ptr<AbilityStage> AbilityStage::Create(
     switch (runtime->GetLanguage()) {
         case Runtime::Language::JS:
             return JsAbilityStage::Create(runtime, hapModuleInfo);
-
+        case Runtime::Language::CJ:
+            return CJAbilityStage::Create(runtime, hapModuleInfo);
         default:
             return std::make_shared<AbilityStage>();
     }
@@ -56,9 +58,11 @@ std::shared_ptr<Context> AbilityStage::GetContext() const
     return context_;
 }
 
-void AbilityStage::Init(const std::shared_ptr<Context>& context)
+void AbilityStage::Init(const std::shared_ptr<Context>& context,
+    const std::weak_ptr<AppExecFwk::OHOSApplication> application)
 {
     context_ = context;
+    application_ = application;
 }
 
 void AbilityStage::AddAbility(const sptr<IRemoteObject> &token,

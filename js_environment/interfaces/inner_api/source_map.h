@@ -80,11 +80,11 @@ public:
     static bool ReadSourceMapData(const std::string& hapPath, const std::string& sourceMapPath, std::string& content);
     static void RegisterGetHapPathCallback(GetHapPathCallback getFunc);
     static void GetHapPath(const std::string &bundleName, std::vector<std::string> &hapList);
-    bool GetLineAndColumnNumbers(int& line, int& column, SourceMapData& targetMap);
+    bool GetLineAndColumnNumbers(int& line, int& column, SourceMapData& targetMap, std::string& url);
     static void ExtractStackInfo(const std::string& stackStr, std::vector<std::string>& res);
-
-private:
     void SplitSourceMap(const std::string& sourceMapData);
+    
+private:
     void ExtractSourceMapData(const std::string& sourceMapData, std::shared_ptr<SourceMapData>& curMapData);
     void ExtractKeyInfo(const std::string& sourceMap, std::vector<std::string>& sourceKeyInfo);
     std::vector<std::string> HandleMappings(const std::string& mapping);

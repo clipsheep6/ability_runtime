@@ -563,5 +563,45 @@ HWTEST_F(AppMgrProxyTest, GetAllUIExtensionProviderPid_0100, TestSize.Level1)
     EXPECT_EQ(mockAppMgrService_->code_,
         static_cast<uint32_t>(AppMgrInterfaceCode::GET_ALL_UI_EXTENSION_PROVIDER_PID));
 }
+
+/**
+ * @tc.name: PreloadApplication_0100
+ * @tc.desc: Preload application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, PreloadApplication_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+
+    std::string bundleName = "com.acts.preloadtest";
+    int32_t userId = 100;
+    PreloadMode preloadMode = PreloadMode::PRE_MAKE;
+    int32_t appIndex = 0;
+    auto ret = appMgrProxy_->PreloadApplication(bundleName, userId, preloadMode, appIndex);
+    EXPECT_EQ(ret, NO_ERROR);
+    EXPECT_EQ(mockAppMgrService_->code_,
+        static_cast<uint32_t>(AppMgrInterfaceCode::PRELOAD_APPLICATION));
+}
+
+/**
+ * @tc.name: SetSupportedProcessCacheSelf_001
+ * @tc.desc: The application sets itself whether or not to support process cache.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, SetSupportedProcessCacheSelf_001, TestSize.Level0)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+    bool isSupported = false;
+    appMgrProxy_->SetSupportedProcessCacheSelf(isSupported);
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::SET_SUPPORTED_PROCESS_CACHE_SELF));
+
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

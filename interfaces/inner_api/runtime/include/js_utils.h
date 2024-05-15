@@ -16,24 +16,25 @@
 #ifndef OHOS_ABILITY_RUNTIME_JS_UTILS_H
 #define OHOS_ABILITY_RUNTIME_JS_UTILS_H
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-#define CHECK_POINTER(object)                   \
-    do {                                        \
-        if ((object) == nullptr) {              \
-            HILOG_ERROR("pointer is nullptr."); \
-            return;                             \
-        }                                       \
+#define CHECK_POINTER(object)                                     \
+    do {                                                          \
+        if ((object) == nullptr) {                                \
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "pointer is nullptr."); \
+            return;                                               \
+        }                                                         \
     } while (0)
 
-#define CHECK_POINTER_AND_RETURN(object, value) \
-    do {                                        \
-        if ((object) == nullptr) {              \
-            HILOG_ERROR("pointer is nullptr."); \
-            return value;                       \
-        }                                       \
+#define CHECK_POINTER_AND_RETURN(object, value)                   \
+    do {                                                          \
+        if ((object) == nullptr) {                                \
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "pointer is nullptr."); \
+            return value;                                         \
+        }                                                         \
     } while (0)
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_JS_STARTUP_TASK_H
 
 #include "js_runtime.h"
+#include "js_runtime_utils.h"
 #include "js_startup_task_executor.h"
 #include "js_startup_task_result.h"
 #include "startup_task.h"
@@ -24,6 +25,16 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+class AsyncTaskCallBack {
+public:
+    AsyncTaskCallBack() = default;
+    ~AsyncTaskCallBack() = default;
+
+    static napi_value AsyncTaskCompleted(napi_env env, napi_callback_info info);
+    static napi_value Constructor(napi_env env, napi_callback_info cbinfo);
+    static std::map<std::string, std::weak_ptr<StartupTask>> jsStartupTaskObjects_;
+};
+
 class JsStartupTask : public StartupTask {
 public:
     JsStartupTask(const std::string &name, JsRuntime &jsRuntime,
@@ -38,10 +49,19 @@ public:
     int32_t RunTaskOnDependencyCompleted(const std::string &dependencyName,
         const std::shared_ptr<StartupTaskResult> &result) override;
 
+    int32_t LoadJsAsyncTaskExcutor();
+
+    void LoadJsAsyncTaskCallback();
+
+    void OnAsyncTaskCompleted() override;
+
 private:
     JsRuntime &jsRuntime_;
     std::unique_ptr<NativeReference> startupJsRef_;
     std::shared_ptr<NativeReference> contextJsRef_;
+    std::unique_ptr<NativeReference> AsyncTaskExcutorJsRef_;
+    std::unique_ptr<NativeReference> AsyncTaskExcutorCallbackJsRef_;
+    std::unique_ptr<StartupTaskResultCallback> startupTaskResultCallback_;
 
     static napi_value GetDependencyResult(napi_env env, const std::string &dependencyName,
         const std::shared_ptr<StartupTaskResult> &result);

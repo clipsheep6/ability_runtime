@@ -23,13 +23,9 @@ config("appmgr_config") {
     "${ability_runtime_services_path}/common/include",
     "${ability_runtime_path}/tools/aa/include",
     "${ability_runtime_path}/utils/global/time/include",
-    "${distributeddatamgr_path}/kv_store/interfaces/innerkits/distributeddatamgr/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
+    "${ability_runtime_utils_path}/global/constant",
   ]
-}
-
-config("appmgr_exception_config") {
-  cflags_cc = [ "-fexceptions" ]
 }
 
 group("appms_target") {
@@ -50,12 +46,14 @@ ohos_shared_library("libappms") {
     "src/app_mgr_service.cpp",
     "src/app_mgr_service_event_handler.cpp",
     "src/app_mgr_service_inner.cpp",
+    "src/app_preloader.cpp",
     "src/app_process_manager.cpp",
     "src/app_running_manager.cpp",
     "src/app_running_record.cpp",
     "src/app_running_status_module.cpp",
     "src/app_spawn_client.cpp",
     "src/app_state_observer_manager.cpp",
+    "src/cache_process_manager.cpp",
     "src/child_process_record.cpp",
     "src/exit_resident_process_manager.cpp",
     "src/module_running_record.cpp",
@@ -81,10 +79,7 @@ ohos_shared_library("libappms") {
     defines += [ "ABILITY_FAULT_AND_EXIT_TEST" ]
   }
 
-  configs = [
-    ":appmgr_config",
-    ":appmgr_exception_config",
-  ]
+  configs = [ ":appmgr_config" ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
@@ -95,6 +90,7 @@ ohos_shared_library("libappms") {
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_path}/utils/global/freeze:freeze_util",
+    "${ability_runtime_path}/utils/server/startup:startup_util",
     "${ability_runtime_services_path}/common:app_util",
     "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",
@@ -122,9 +118,14 @@ ohos_shared_library("libappms") {
     "kv_store:distributeddata_inner",
     "kv_store:distributeddata_mgr",
     "memory_utils:libmeminfo",
+    "os_account:libaccountkits",
+    "resource_schedule_service:ressched_client",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
+  public_external_deps = [ "kv_store:distributeddata_mgr" ]
+
+  defines += [ "OHOS_ACCOUNT_ENABLED" ]
 
   if (product_name != "ohcore") {
     external_deps += [ "netmanager_base:net_conn_manager_if" ]
@@ -146,7 +147,7 @@ ohos_shared_library("libappms") {
   }
 
   if (ability_runtime_use_memmgr_plugin) {
-    external_deps += [ "memmgr_plugin:memmgrclient" ]
+    external_deps += [ "memmgr_override:memmgrclient" ]
   } else if (ability_runtime_use_memmgr) {
     external_deps += [ "memmgr:memmgrclient" ]
   }

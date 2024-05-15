@@ -62,7 +62,8 @@ public:
     MOCK_METHOD0(GetConfiguration, std::shared_ptr<Configuration>());
     MOCK_METHOD2(IsSharedBundleRunning, bool(const std::string &bundleName, uint32_t versionCode));
     MOCK_METHOD3(GetBundleNameByPid, int32_t(const int pid, std::string &bundleName, int32_t &uid));
-    MOCK_METHOD3(StartChildProcess, int32_t(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid));
+    MOCK_METHOD5(StartChildProcess, int32_t(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid,
+        int32_t childProcessCount, bool isStartWithNative));
     MOCK_METHOD1(GetChildProcessInfoForSelf, int32_t(ChildProcessInfo &info));
     MOCK_METHOD2(SetAppWaitingDebug, int32_t(const std::string &bundleName, bool isPersist));
     MOCK_METHOD0(CancelAppWaitingDebug, int32_t());
@@ -70,7 +71,7 @@ public:
     MOCK_METHOD1(IsWaitingDebugApp, bool(const std::string &bundleName));
     MOCK_METHOD0(ClearNonPersistWaitingDebugFlag, void());
     MOCK_METHOD0(IsMemorySizeSufficent, bool());
-    void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
+    void StartSpecifiedAbility(const AAFwk::Want&, const AppExecFwk::AbilityInfo&, int32_t)
     {}
 
     void Post()

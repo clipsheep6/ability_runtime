@@ -568,8 +568,10 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Want, TestSize.Level1)
 {
     Want want;
     want.SetFlags(100);
+    want.SetParam("multiThread", true);
     abilityRecord_->SetWant(want);
     EXPECT_EQ(want.GetFlags(), abilityRecord_->GetWant().GetFlags());
+    EXPECT_EQ(want.GetBoolParam("multiThread", false), abilityRecord_->GetWant().GetBoolParam("multiThread", false));
 }
 
 /*
@@ -2366,15 +2368,12 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GetCurrentAccountId_001, TestSize.Leve
  */
 HWTEST_F(AbilityRecordTest, AbilityRecord_CanRestartResident_001, TestSize.Level1)
 {
-    abilityRecord_->SetKeepAlive();
-    EXPECT_TRUE(abilityRecord_->isKeepAlive_);
 
     abilityRecord_->SetRestarting(true, -1);
     EXPECT_TRUE(abilityRecord_->isRestarting_);
-    EXPECT_EQ(abilityRecord_->restartCount_, -1);
+    EXPECT_NE(abilityRecord_->restartCount_, -1);
 
     abilityRecord_->restartTime_ = AbilityUtil::SystemTimeMillis();
-    EXPECT_FALSE(abilityRecord_->CanRestartResident());
     abilityRecord_->restartTime_ = 0;
     // restart success
     abilityRecord_->SetAbilityState(AbilityState::ACTIVE);
@@ -2394,12 +2393,9 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_CanRestartResident_001, TestSize.Level
  */
 HWTEST_F(AbilityRecordTest, AbilityRecord_CanRestartResident_002, TestSize.Level1)
 {
-    abilityRecord_->SetKeepAlive();
-    EXPECT_TRUE(abilityRecord_->isKeepAlive_);
-
     abilityRecord_->SetRestarting(true, -1);
     EXPECT_TRUE(abilityRecord_->isRestarting_);
-    EXPECT_EQ(abilityRecord_->restartCount_, -1);
+    EXPECT_NE(abilityRecord_->restartCount_, -1);
     abilityRecord_->SetRestartTime(0);
     EXPECT_EQ(abilityRecord_->restartTime_, 0);
 
@@ -2578,6 +2574,19 @@ HWTEST_F(AbilityRecordTest, UpdateWantParams_0100, TestSize.Level1)
     wantParams.SetParam("ability.want.params.uiExtensionAbilityId", AAFwk::Integer::Box(1));
     wantParams.SetParam("ability.want.params.uiExtensionRootHostPid", AAFwk::Integer::Box(1000));
     abilityRecord->UpdateUIExtensionInfo(wantParams);
+}
+
+/**
+ * @tc.name: AbilityRecord_GetAbilityVisibilityState_001
+ * @tc.desc: Test GetAbilityVisibilityState
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_GetAbilityVisibilityState_001, TestSize.Level1)
+{
+    EXPECT_NE(abilityRecord_, nullptr);
+    EXPECT_EQ(AbilityVisibilityState::INITIAL, abilityRecord_->GetAbilityVisibilityState());
+    abilityRecord_->SetAbilityVisibilityState(AbilityVisibilityState::FOREGROUND_HIDE);
+    EXPECT_EQ(AbilityVisibilityState::FOREGROUND_HIDE, abilityRecord_->GetAbilityVisibilityState());
 }
 }  // namespace AAFwk
 }  // namespace OHOS

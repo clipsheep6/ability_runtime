@@ -254,5 +254,111 @@ HWTEST_F(UIExtensionContextTest, GetUIContent_0100, TestSize.Level1)
     TAG_LOGI(AAFwkTag::TEST, "GetUIContent_0100 end");
 }
 
+/**
+ * @tc.number: StartAbilityForResultAsCaller_0100
+ * @tc.name: StartAbilityForResultAsCaller
+ * @tc.desc: StartAbilityForResultAsCaller.
+ */
+HWTEST_F(UIExtensionContextTest, StartAbilityForResultAsCaller_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "StartAbilityForResultAsCaller_0100 start");
+
+    auto context = std::make_shared<UIExtensionContext>();
+    sptr<MockWindow> window(new (std::nothrow) MockWindow());
+    context->SetWindow(window);
+    AAFwk::Want want;
+    int requestCode = 0;
+    RuntimeTask task = [](const int32_t count, const Want& want, bool isInner)
+    { GTEST_LOG_(INFO) << "StartAbilityForResult_0100 task called"; };
+    context->StartAbilityForResultAsCaller(want, requestCode, std::move(task));
+    EXPECT_TRUE(context != nullptr);
+
+    TAG_LOGI(AAFwkTag::TEST, "StartAbilityForResultAsCaller_0100 end");
+}
+
+/**
+ * @tc.number: StartAbilityForResultAsCaller_0200
+ * @tc.name: StartAbilityForResultAsCaller
+ * @tc.desc: StartAbilityForResultAsCaller.
+ */
+HWTEST_F(UIExtensionContextTest, StartAbilityForResultAsCaller_0200, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "StartAbilityForResultAsCaller_0200 start");
+
+    auto context = std::make_shared<UIExtensionContext>();
+    sptr<MockWindow> window(new (std::nothrow) MockWindow());
+    context->SetWindow(window);
+    AAFwk::Want want;
+    AAFwk::StartOptions startOptions;
+    int requestCode = 0;
+    RuntimeTask task = [](const int32_t count, const Want& want, bool isInner)
+    { GTEST_LOG_(INFO) << "StartAbilityForResult_0100 task called"; };
+    context->StartAbilityForResultAsCaller(want, startOptions, requestCode, std::move(task));
+    EXPECT_TRUE(context != nullptr);
+
+    TAG_LOGI(AAFwkTag::TEST, "StartAbilityForResultAsCaller_0200 end");
+}
+
+/**
+ * @tc.number: ReportDrawnCompleted_0100
+ * @tc.name: ReportDrawnCompleted
+ * @tc.desc: ReportDrawnCompleted.
+ */
+HWTEST_F(UIExtensionContextTest, ReportDrawnCompleted_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "ReportDrawnCompleted_0100 start");
+
+    auto context = std::make_shared<UIExtensionContext>();
+    sptr<MockWindow> window(new (std::nothrow) MockWindow());
+    context->SetWindow(window);
+    context->ReportDrawnCompleted();
+    EXPECT_TRUE(context != nullptr);
+
+    TAG_LOGI(AAFwkTag::TEST, "ReportDrawnCompleted_0100 end");
+}
+
+/**
+ * @tc.number: InsertResultCallbackTask_0100
+ * @tc.name: InsertResultCallbackTask
+ * @tc.desc: InsertResultCallbackTask.
+ */
+HWTEST_F(UIExtensionContextTest, InsertResultCallbackTask_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "InsertResultCallbackTask_0100 start");
+
+    auto context = std::make_shared<UIExtensionContext>();
+    sptr<MockWindow> window(new (std::nothrow) MockWindow());
+    context->SetWindow(window);
+    int requestCode = 0;
+    RuntimeTask task = [](const int32_t count, const Want& want, bool isInner)
+    { GTEST_LOG_(INFO) << "StartAbilityForResult_0100 task called"; };
+    context->InsertResultCallbackTask(requestCode, std::move(task));
+    EXPECT_TRUE(context != nullptr);
+
+    TAG_LOGI(AAFwkTag::TEST, "InsertResultCallbackTask_0100 end");
+}
+
+/**
+ * @tc.number: OpenAtomicService_0100
+ * @tc.name: OpenAtomicService
+ * @tc.desc: OpenAtomicService.
+ */
+HWTEST_F(UIExtensionContextTest, OpenAtomicService_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "OpenAtomicService_0100 start");
+
+    auto context = std::make_shared<UIExtensionContext>();
+    sptr<MockWindow> window(new (std::nothrow) MockWindow());
+    context->SetWindow(window);
+    AAFwk::Want want;
+    AAFwk::StartOptions startOptions;
+    int requestCode = 0;
+    RuntimeTask task = [](const int32_t count, const Want& want, bool isInner)
+    { GTEST_LOG_(INFO) << "StartAbilityForResult_0100 task called"; };
+    context->OpenAtomicService(want, startOptions, requestCode, std::move(task));
+    EXPECT_TRUE(context != nullptr);
+
+    TAG_LOGI(AAFwkTag::TEST, "OpenAtomicService_0100 end");
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

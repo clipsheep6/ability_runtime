@@ -38,6 +38,7 @@ struct MissionValidResult;
 class UIAbilityLifecycleManager : public std::enable_shared_from_this<UIAbilityLifecycleManager> {
 public:
     UIAbilityLifecycleManager() = default;
+    explicit UIAbilityLifecycleManager(int32_t userId);
     virtual ~UIAbilityLifecycleManager() = default;
 
     struct SpecifiedInfo {
@@ -63,9 +64,10 @@ public:
      *
      * @param abilityRequest the request of the service ability to start.
      * @param sessionInfo the info of scene session
+     * @param isColdStart the session info of the ability is or not cold start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int StartUIAbility(AbilityRequest &abilityRequest, sptr<SessionInfo> sessionInfo);
+    int StartUIAbility(AbilityRequest &abilityRequest, sptr<SessionInfo> sessionInfo, bool &isColdStart);
 
     /**
      * @brief execute after the ability schedule the lifecycle
@@ -147,7 +149,7 @@ public:
      */
     void SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession);
 
-    int NotifySCBToStartUIAbility(const AbilityRequest &abilityRequest, int32_t userId);
+    int NotifySCBToStartUIAbility(const AbilityRequest &abilityRequest);
 
     /**
      * @brief handle time out event
@@ -170,7 +172,7 @@ public:
      *
      * @param abilityRequest target ability request.
      */
-    int ResolveLocked(const AbilityRequest &abilityRequest, int32_t userId);
+    int ResolveLocked(const AbilityRequest &abilityRequest);
 
     /**
      * Call UIAbility by SCB.
@@ -186,7 +188,7 @@ public:
      * @param abilityRequest the flag of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag);
+    void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag, int32_t requestId = 0);
 
     /**
      * OnStartSpecifiedProcessResponse.
@@ -194,29 +196,28 @@ public:
      * @param want the want of the ability to start.
      * @param abilityRequest target ability request.
      */
-    void OnStartSpecifiedProcessResponse(const AAFwk::Want &want, const std::string &flag);
+    void OnStartSpecifiedProcessResponse(const AAFwk::Want &want, const std::string &flag, int32_t requestId = 0);
 
     /**
      * OnStartSpecifiedAbilityTimeoutResponse.
      *
      * @param want the want of the ability to start.
      */
-    void OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want);
+    void OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want, int32_t requestId = 0);
 
     /**
      * OnStartSpecifiedProcessTimeoutResponse.
      *
      * @param want the want of the ability to start.
      */
-    void OnStartSpecifiedProcessTimeoutResponse(const AAFwk::Want &want);
+    void OnStartSpecifiedProcessTimeoutResponse(const AAFwk::Want &want, int32_t requestId = 0);
 
     /**
      * Start specified ability by SCB.
      *
      * @param want Want information.
-     * @param userId Use id.
      */
-    void StartSpecifiedAbilityBySCB(const Want &want, int32_t userId);
+    void StartSpecifiedAbilityBySCB(const Want &want);
 
     /**
      * CallRequestDone, after invoke callRequest, ability will call this interface to return callee.
@@ -263,14 +264,11 @@ public:
      */
     std::shared_ptr<AbilityRecord> GetAbilityRecordsById(int32_t sessionId) const;
 
-    void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList,
-        int32_t targetUserId, int32_t pid = NO_PID) const;
+    void OnAppStateChanged(const AppInfo &info);
 
-    void OnAppStateChanged(const AppInfo &info, int32_t targetUserId);
+    void UninstallApp(const std::string &bundleName, int32_t uid);
 
-    void UninstallApp(const std::string &bundleName, int32_t uid, int32_t targetUserId);
-
-    void GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info, bool isPerm, int32_t userId) const;
+    void GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info, bool isPerm) const;
 
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
@@ -279,7 +277,7 @@ public:
      * @param abilityRecordId The Ability Record Id.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int BlockAbility(int abilityRecordId, int32_t targetUserId) const;
+    int BlockAbility(int abilityRecordId) const;
     #endif
 
     /**
@@ -294,7 +292,7 @@ public:
      *
      * @param info dump result.
      */
-    void DumpMissionList(std::vector<std::string> &info, bool isClient, int userId, const std::string &args = "");
+    void DumpMissionList(std::vector<std::string> &info, bool isClient, const std::string &args = "");
 
     /**
      * @brief dump mission list by id with params
@@ -303,19 +301,17 @@ public:
      * @param params dump params.
      */
     void DumpMissionListByRecordId(std::vector<std::string>& info, bool isClient, int32_t abilityRecordId,
-        const std::vector<std::string>& params, int userId);
+        const std::vector<std::string>& params);
 
     int MoveMissionToFront(int32_t sessionId, std::shared_ptr<StartOptions> startOptions = nullptr);
 
-    bool IsAbilityStarted(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetRecord,
-        const int32_t oriValidUserId);
+    bool IsAbilityStarted(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetRecord);
 
     /**
      * @brief Update session info.
      * @param sessionInfos The vector of session info.
      */
-    int32_t UpdateSessionInfoBySCB(std::list<SessionInfo> &sessionInfos, int32_t userId,
-        std::vector<int32_t> &sessionIds);
+    int32_t UpdateSessionInfoBySCB(std::list<SessionInfo> &sessionInfos, std::vector<int32_t> &sessionIds);
 
     int32_t RegisterStatusBarDelegate(sptr<AbilityRuntime::IStatusBarDelegate> delegate);
     bool IsCallerInStatusBar();
@@ -334,10 +330,12 @@ public:
 #endif
     void CompleteFirstFrameDrawing(int32_t sessionId) const;
 
+    int32_t GetAbilityStateByPersistentId(int32_t persistentId, bool &state);
+
 private:
-    int32_t GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest, bool &reuse, int32_t userId) const;
-    int32_t GetReusedSpecifiedPersistentId(const AbilityRequest &abilityRequest, bool &reuse, int32_t userId) const;
-    int32_t GetReusedStandardPersistentId(const AbilityRequest &abilityRequest, bool &reuse, int32_t userId) const;
+    int32_t GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest, bool &reuse) const;
+    int32_t GetReusedSpecifiedPersistentId(const AbilityRequest &abilityRequest, bool &reuse) const;
+    int32_t GetReusedStandardPersistentId(const AbilityRequest &abilityRequest, bool &reuse) const;
     int32_t GetReusedCollaboratorPersistentId(const AbilityRequest &abilityRequest, bool &reuse) const;
     void UpdateProcessName(const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &abilityRecord);
     void UpdateAbilityRecordLaunchReason(const AbilityRequest &abilityRequest,
@@ -362,19 +360,18 @@ private:
     void CompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
     bool IsContainsAbilityInner(const sptr<IRemoteObject> &token) const;
     bool CheckProperties(const std::shared_ptr<AbilityRecord> &abilityRecord, const AbilityRequest &abilityRequest,
-        AppExecFwk::LaunchMode launchMode, int32_t userId) const;
+        AppExecFwk::LaunchMode launchMode) const;
     void NotifyAbilityToken(const sptr<IRemoteObject> &token, const AbilityRequest &abilityRequest) const;
     int CloseUIAbilityInner(std::shared_ptr<AbilityRecord> abilityRecord,
         int resultCode, const Want *resultWant, bool isClearSession);
 
     // byCall
-    int CallAbilityLocked(const AbilityRequest &abilityRequest, int32_t userId);
+    int CallAbilityLocked(const AbilityRequest &abilityRequest);
     sptr<SessionInfo> CreateSessionInfo(const AbilityRequest &abilityRequest) const;
     int NotifySCBPendingActivation(sptr<SessionInfo> &sessionInfo, const AbilityRequest &abilityRequest) const;
     int ResolveAbility(const std::shared_ptr<AbilityRecord> &targetAbility, const AbilityRequest &abilityRequest) const;
     std::vector<std::shared_ptr<AbilityRecord>> GetAbilityRecordsByNameInner(const AppExecFwk::ElementName &element);
 
-    void EnqueueAbilityToFront(const AbilityRequest &abilityRequest);
     void NotifyStartSpecifiedAbility(AbilityRequest &request, const AAFwk::Want &want);
     void NotifyRestartSpecifiedAbility(AbilityRequest &request, const sptr<IRemoteObject> &token);
     int MoveAbilityToFront(const AbilityRequest &abilityRequest, const std::shared_ptr<AbilityRecord> &abilityRecord,
@@ -401,14 +398,17 @@ private:
     std::shared_ptr<StatusBarDelegateManager> GetStatusBarDelegateManager();
     int32_t DoProcessAttachment(std::shared_ptr<AbilityRecord> abilityRecord);
     void BatchCloseUIAbility(std::unordered_set<std::shared_ptr<AbilityRecord>>& abilitySet);
+    int StartWithPersistentIdByDistributed(const AbilityRequest &abilityRequest, int32_t persistentId);
 
+    int32_t userId_ = -1;
     mutable ffrt::mutex sessionLock_;
     std::unordered_map<int32_t, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
     std::unordered_map<int64_t, std::shared_ptr<AbilityRecord>> tmpAbilityMap_;
     std::list<std::shared_ptr<AbilityRecord>> terminateAbilityList_;
     sptr<Rosen::ISession> rootSceneSession_;
     std::map<SpecifiedInfo, std::shared_ptr<AbilityRecord>, key_compare> specifiedAbilityMap_;
-    std::queue<AbilityRequest> abilityQueue_;
+    int32_t specifiedRequestId_ = 0;
+    std::map<int32_t, AbilityRequest> specifiedRequestMap_;
     std::queue<SpecifiedInfo> specifiedInfoQueue_;
     sptr<ISessionHandler> handler_;
     ffrt::mutex statusBarDelegateManagerLock_;

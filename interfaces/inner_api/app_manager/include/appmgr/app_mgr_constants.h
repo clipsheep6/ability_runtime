@@ -19,7 +19,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 namespace Constants {
-const std::string APP_MGR_SERVICE_NAME = "AppMgrService";
+constexpr const char* APP_MGR_SERVICE_NAME = "AppMgrService";
 }  // namespace Constants
 
 enum class ApplicationState {
@@ -84,6 +84,23 @@ enum class AppStartType {
     COLD = 0,
     HOT,
     MULTI_INSTANCE,
+};
+
+enum class PreloadMode {
+    PRESS_DOWN = 0,
+    PRE_MAKE = 1,
+};
+
+enum class PreloadState {
+    NONE = 0,
+    PRELOADING = 1,
+    PRELOADED = 2,
+};
+
+enum class SupportProcessCacheState {
+    UNSPECIFIED = 0,
+    SUPPORT,
+    NOT_SUPPORT
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -58,6 +58,21 @@ public:
     virtual void AttachApplication(const sptr<IRemoteObject> &app) = 0;
 
     /**
+     * Preload application.
+     *
+     * @param bundleName The bundle name of the application to preload.
+     * @param userId Indicates the user identification.
+     * @param preloadMode Preload application mode.
+     * @param appIndex The index of application clone.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t PreloadApplication(const std::string &bundleName, int32_t userId,
+        AppExecFwk::PreloadMode preloadMode, int32_t appIndex = 0)
+    {
+        return 0;
+    }
+
+    /**
      * ApplicationForegrounded, call ApplicationForegrounded() through proxy object,
      * set the application to Foreground State.
      *
@@ -127,6 +142,17 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int GetAllRunningProcesses(std::vector<RunningProcessInfo> &info) = 0;
+
+    /**
+     * GetRunningProcessesByBundleType, call GetRunningProcessesByBundleType() through proxy project.
+     * Obtains information about application processes by bundle type that are running on the device.
+     *
+     * @param bundleType, bundle type of the processes
+     * @param info, app name in Application record.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int GetRunningProcessesByBundleType(const BundleType bundleType,
+        std::vector<RunningProcessInfo> &info) = 0;
 
     /**
      * GetAllRenderProcesses, call GetAllRenderProcesses() through proxy project.
@@ -524,7 +550,8 @@ public:
      * @param childPid Created child process pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid) = 0;
+    virtual int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount,
+        bool isStartWithDebug) = 0;
 
     /**
      * Get child process record for self.
@@ -623,6 +650,8 @@ public:
     {
         return 0;
     }
+
+    virtual int32_t SetSupportedProcessCacheSelf(bool isSupport) = 0;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

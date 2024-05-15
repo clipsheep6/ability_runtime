@@ -18,7 +18,8 @@
 using namespace OHOS::AAFwk;
 
 namespace OHOS::AbilityRuntime::WantAgent {
-TriggerInfo::TriggerInfo() : permission_(""), extraInfo_(nullptr), want_(nullptr), resultCode_(0)
+TriggerInfo::TriggerInfo() : permission_(""), extraInfo_(nullptr), want_(nullptr),
+    startOptions_(nullptr), resultCode_(0)
 {}
 
 TriggerInfo::TriggerInfo(const std::string &permission, const std::shared_ptr<WantParams> &extraInfo,
@@ -34,6 +35,13 @@ TriggerInfo::TriggerInfo(const std::string &permission, const std::shared_ptr<Wa
     resultCode_ = resultCode;
 }
 
+TriggerInfo::TriggerInfo(const std::string &permission, const std::shared_ptr<WantParams> &extraInfo,
+    const std::shared_ptr<Want> &want, const std::shared_ptr<StartOptions> &startOptions, int resultCode)
+    : TriggerInfo(permission, extraInfo, want, resultCode)
+{
+    startOptions_ = startOptions;
+}
+
 TriggerInfo::TriggerInfo(const TriggerInfo &paramInfo)
 {
     permission_ = paramInfo.GetPermission();
@@ -43,6 +51,7 @@ TriggerInfo::TriggerInfo(const TriggerInfo &paramInfo)
     if (paramInfo.GetWant() != nullptr) {
         want_ = std::make_shared<Want>(*paramInfo.GetWant());
     }
+    startOptions_ = paramInfo.GetStartOptions();
     resultCode_ = paramInfo.GetResultCode();
 }
 
@@ -54,6 +63,9 @@ const TriggerInfo &TriggerInfo::operator=(const TriggerInfo &paramInfo)
     }
     if (paramInfo.GetWant() != nullptr) {
         want_ = std::make_shared<Want>(*paramInfo.GetWant());
+    }
+    if (paramInfo.GetStartOptions() != nullptr) {
+        startOptions_ = std::make_shared<StartOptions>(*paramInfo.GetStartOptions());
     }
     resultCode_ = paramInfo.GetResultCode();
 
@@ -73,6 +85,11 @@ std::shared_ptr<WantParams> TriggerInfo::GetExtraInfo() const
 std::shared_ptr<Want> TriggerInfo::GetWant() const
 {
     return want_;
+}
+
+std::shared_ptr<StartOptions> TriggerInfo::GetStartOptions() const
+{
+    return startOptions_;
 }
 
 int TriggerInfo::GetResultCode() const
@@ -101,6 +118,13 @@ std::shared_ptr<TriggerInfo::Builder> TriggerInfo::Builder::SetWant(const std::s
     return shared_from_this();
 }
 
+std::shared_ptr<TriggerInfo::Builder> TriggerInfo::Builder::SetStartOptions(
+    const std::shared_ptr<AAFwk::StartOptions> &startOptions)
+{
+    startOptions_ = startOptions;
+    return shared_from_this();
+}
+
 std::shared_ptr<TriggerInfo::Builder> TriggerInfo::Builder::SetResultCode(int resultCode)
 {
     resultCode_ = resultCode;
@@ -109,6 +133,6 @@ std::shared_ptr<TriggerInfo::Builder> TriggerInfo::Builder::SetResultCode(int re
 
 std::shared_ptr<TriggerInfo> TriggerInfo::Builder::Build()
 {
-    return std::make_shared<TriggerInfo>(permission_, params_, want_, resultCode_);
+    return std::make_shared<TriggerInfo>(permission_, params_, want_, startOptions_, resultCode_);
 }
 }  // namespace OHOS::AbilityRuntime::WantAgent

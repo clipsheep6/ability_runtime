@@ -62,10 +62,8 @@ void PendingWantRecord::UnregisterCancelListener(const sptr<IWantReceiver> &rece
 
 int32_t PendingWantRecord::SenderInner(SenderInfo &senderInfo)
 {
-    TAG_LOGI(AAFwkTag::WANTAGENT, "%{public}s:begin.", __func__);
     std::lock_guard<ffrt::mutex> locker(lock_);
     if (canceled_) {
-        TAG_LOGI(AAFwkTag::WANTAGENT, "wantAgent is canceled!");
         if (senderInfo.finishedReceiver != nullptr) {
             Want want;
             WantParams wantParams = {};
@@ -91,18 +89,20 @@ int32_t PendingWantRecord::SenderInner(SenderInfo &senderInfo)
     int res = NO_ERROR;
     switch (key_->GetType()) {
         case static_cast<int32_t>(OperationType::START_ABILITY):
-            res = pendingWantManager->PendingWantStartAbility(want, callerToken_, -1, callerUid_, callerTokenId_);
+            res = pendingWantManager->PendingWantStartAbility(want, senderInfo.startOptions,
+                callerToken_, -1, callerUid_, callerTokenId_);
             break;
         case static_cast<int32_t>(OperationType::START_ABILITIES): {
             std::vector<WantsInfo> allWantsInfos = key_->GetAllWantsInfos();
             allWantsInfos.back().want = want;
             res = pendingWantManager->PendingWantStartAbilitys(
-                allWantsInfos, callerToken_, -1, callerUid_, callerTokenId_);
+                allWantsInfos, senderInfo.startOptions, callerToken_, -1, callerUid_, callerTokenId_);
             break;
         }
         case static_cast<int32_t>(OperationType::START_SERVICE):
         case static_cast<int32_t>(OperationType::START_FOREGROUND_SERVICE):
-            res = pendingWantManager->PendingWantStartAbility(want, callerToken_, -1, callerUid_, callerTokenId_);
+            res = pendingWantManager->PendingWantStartAbility(want, nullptr, callerToken_,
+                -1, callerUid_, callerTokenId_);
             break;
         case static_cast<int32_t>(OperationType::SEND_COMMON_EVENT):
             res = pendingWantManager->PendingWantPublishCommonEvent(want, senderInfo, callerUid_, callerTokenId_);

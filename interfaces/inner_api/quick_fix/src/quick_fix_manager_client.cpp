@@ -78,6 +78,7 @@ int32_t QuickFixManagerClient::GetApplyedQuickFixInfo(const std::string &bundleN
 
 sptr<IQuickFixManager> QuickFixManagerClient::GetQuickFixMgrProxy()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
     auto quickFixMgr = GetQuickFixMgr();
     if (quickFixMgr != nullptr) {
@@ -143,11 +144,13 @@ void QuickFixManagerClient::QfmsDeathRecipient::OnRemoteDied([[maybe_unused]] co
 
 bool QuickFixManagerClient::LoadQuickFixMgrService()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     {
         std::unique_lock<std::mutex> lock(loadSaMutex_);
         loadSaFinished_ = false;
     }
 
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "GetSystemAbilityManager");
     auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemAbilityMgr == nullptr) {
         TAG_LOGE(AAFwkTag::QUICKFIX, "Failed to get SystemAbilityManager.");

@@ -119,6 +119,11 @@ bool UnwrapStartOptions(napi_env env, napi_value param, AAFwk::StartOptions &sta
         startOptions.windowHeightUsed_ = true;
     }
 
+    bool windowFocused = true;
+    if (UnwrapBooleanByPropertyName(env, param, "windowFocused", windowFocused)) {
+        startOptions.SetWindowFocused(windowFocused);
+    }
+
     return true;
 }
 

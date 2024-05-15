@@ -53,6 +53,7 @@ ohos_shared_library("runtime") {
     "${ability_runtime_path}/services/abilitymgr/include",
     "${bundlefwk_path}/interfaces/kits/js/common",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
+    "${ability_runtime_utils_path}/global/constant",
   ]
 
   sources = [
@@ -87,8 +88,6 @@ ohos_shared_library("runtime") {
     "${ability_runtime_native_path}/ability/native:ability_business_error",
     "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_path}/js_environment/frameworks/js_environment:js_environment",
-    "${third_party_path}/jsoncpp:jsoncpp",
-    "${third_party_path}/zlib:shared_libz",
   ]
 
   external_deps = [
@@ -112,10 +111,21 @@ ohos_shared_library("runtime") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "jsoncpp:jsoncpp",
     "napi:ace_napi",
     "resource_management:global_resmgr",
     "samgr:samgr_proxy",
+    "zlib:shared_libz",
   ]
+
+  if (cj_frontend) {
+    sources += [ "${ability_runtime_native_path}/runtime/cj_runtime.cpp" ]
+
+    include_dirs +=
+        [ "${ability_runtime_path}/cj_environment/interfaces/inner_api" ]
+
+    deps += [ "${ability_runtime_path}/cj_environment/frameworks/cj_environment:cj_environment" ]
+  }
 
   defines = []
   if (is_standard_system) {

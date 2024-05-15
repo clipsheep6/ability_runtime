@@ -19,13 +19,10 @@ config("ability_command_config") {
     "include",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${ability_runtime_services_path}/abilitymgr/include",
-    "${bundlefwk_inner_api_path}/appexecfwk_base/include",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
-    "//third_party/jsoncpp/include",
   ]
 }
 
-ohos_source_set("tools_aa_source_set") {
+ohos_static_library("tools_aa_source_set") {
   sources = [
     "src/ability_command.cpp",
     "src/ability_tool_command.cpp",
@@ -60,13 +57,16 @@ ohos_source_set("tools_aa_source_set") {
   external_deps = [
     "ability_base:base",
     "ability_base:want",
-    "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+  ]
+  public_external_deps = [
+    "bundle_framework:appexecfwk_base",
+    "jsoncpp:jsoncpp",
     "samgr:samgr_proxy",
   ]
 

@@ -194,6 +194,8 @@ public:
     bool IsSingleUser() const;
     void UpdateFocusState(bool isFocus);
     bool GetFocusFlag() const;
+    void SetUIExtensionAbilityId(const int32_t uiExtensionAbilityId);
+    int32_t GetUIExtensionAbilityId() const;
 
 private:
     int32_t lastLaunchTime_ = 0;
@@ -208,6 +210,7 @@ private:
     std::shared_ptr<AAFwk::Want> want_ = nullptr;
     sptr<IRemoteObject> token_;
     int32_t abilityRecordId_ = 0;
+    int32_t uiExtensionAbilityId_ = 0;
     sptr<IRemoteObject> preToken_;
     int32_t ownerUserId_ = -1;
     bool isSingleUser_ = false;

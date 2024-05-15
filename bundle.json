@@ -64,16 +64,21 @@
             "hitrace",
             "hiview",
             "i18n",
+            "icu",
             "image_framework",
             "init",
             "input",
             "ipc",
+            "json",
+            "jsoncpp",
             "kv_store",
+            "libuv",
             "memmgr",
-            "memmgr_plugin",
+            "memmgr_override",
             "memory_utils",
             "napi",
             "netmanager_base",
+            "node",
             "os_account",
             "power_manager",
             "relational_store",
@@ -85,16 +90,11 @@
             "storage_service",
             "toolchain",
             "webview",
-            "window_manager"
+            "window_manager",
+            "zlib"
   ],
           "third_party": [
-            "icu",
-            "json",
-            "jsoncpp",
-            "libjpeg-turbo",
-            "libuv",
-            "node",
-            "zlib"
+            "libjpeg-turbo"
           ]
       },
       "build": {
@@ -108,6 +108,7 @@
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:extension_module",
           "//foundation/ability/ability_runtime/frameworks/native/insight_intent:insight_intent_innerkits",
           "//foundation/ability/ability_runtime/frameworks/js/napi:napi_packages",
+          "//foundation/ability/ability_runtime/cj_environment/frameworks/cj_environment:cj_environment",
           "//foundation/ability/ability_runtime/js_environment/frameworks/js_environment:js_environment",
           "//foundation/ability/ability_runtime/services/abilitymgr/etc:appfwk_etc",
           "//foundation/ability/ability_runtime/service_router_framework:srms_target",
@@ -150,7 +151,8 @@
             "header": {
               "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager/include",
               "header_files": [
-                "ability_manager_client.h"
+                "ability_manager_client.h",
+                "launch_param.h"
               ]
             },
             "name": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager:ability_manager"
@@ -173,6 +175,15 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/js_environment/frameworks/js_environment:js_environment"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/cj_environment/interfaces/inner_api",
+              "header_files": [
+                "cj_environment.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/cj_environment/frameworks/cj_environment:cj_environment"
           },
           {
             "header": {
