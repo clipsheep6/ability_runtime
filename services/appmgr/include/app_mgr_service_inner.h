@@ -996,6 +996,17 @@ public:
     virtual void ExitChildProcessSafelyByChildPid(const pid_t pid);
 
     /**
+     * Start native child process, callde by ChildProcessManager.
+     * @param hostPid Host process pid.
+     * @param childProcessCount current started child process count
+     * @param libName lib file name to be load in child process
+     * @param callback callback for notify start result
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t StartNativeChildProcess(const pid_t hostPid,
+        const std::string &libName, int32_t childProcessCount, const sptr<IRemoteObject> &callback);
+
+    /**
      * Whether the current application process is the last surviving process.
      * @param bundleName To query the bundle name of a process.
      * @return Returns true is final application process, others return false.

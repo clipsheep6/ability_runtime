@@ -190,6 +190,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleSetSupportedProcessCacheSelf;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_RUNNING_PROCESSES_BY_BUNDLE_TYPE)] =
         &AppMgrStub::HandleGetRunningProcessesByBundleType;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::START_NATIVE_CHILD_PROCESS)] =
+        &AppMgrStub::HandleStartNativeChildProcess;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -1312,5 +1314,21 @@ int32_t AppMgrStub::HandleSetSupportedProcessCacheSelf(MessageParcel &data, Mess
     }
     return NO_ERROR;
 }
+
+int32_t AppMgrStub::HandleStartNativeChildProcess(MessageParcel &data, MessageParcel &reply)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    std::string libName = data.ReadString();
+    int32_t childCount = data.ReadInt32();
+    sptr<IRemoteObject> callback = data.ReadRemoteObject();
+    int32_t result = StartNativeChildProcess(libName, childCount, callback);
+    if (!reply.WriteInt32(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write ret error.");
+        return IPC_STUB_ERR;
+    }
+
+    return NO_ERROR;
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

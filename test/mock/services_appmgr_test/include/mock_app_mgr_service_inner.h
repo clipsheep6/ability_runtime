@@ -71,6 +71,8 @@ public:
     MOCK_METHOD1(IsWaitingDebugApp, bool(const std::string &bundleName));
     MOCK_METHOD0(ClearNonPersistWaitingDebugFlag, void());
     MOCK_METHOD0(IsMemorySizeSufficent, bool());
+    MOCK_METHOD4(StartNativeChildProcess, int32_t(const pid_t hostPid,
+        const std::string &libName, int32_t childProcessCount, const sptr<IRemoteObject> &callback));
     void StartSpecifiedAbility(const AAFwk::Want&, const AppExecFwk::AbilityInfo&, int32_t)
     {}
 

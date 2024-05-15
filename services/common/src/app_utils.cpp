@@ -41,7 +41,9 @@ const std::string START_OPTIONS_WITH_PROCESS_OPTION = "persist.sys.abilityms.sta
 const std::string MOVE_UI_ABILITY_TO_BACKGROUND_API_ENABLE =
     "persist.sys.abilityms.move_ui_ability_to_background_api_enable";
 const std::string LAUNCH_EMBEDED_UI_ABILITY = "const.abilityms.launch_embeded_ui_ability";
+const std::string SUPPROT_NATIVE_CHILD_PROCESS = "persist.sys.abilityms.start_native_child_process";
 }
+
 AppUtils::~AppUtils() {}
 
 AppUtils::AppUtils()
@@ -207,5 +209,16 @@ bool AppUtils::IsLaunchEmbededUIAbility()
     TAG_LOGI(AAFwkTag::DEFAULT, "isLaunchEmbededUIAbility_ is %{public}d", isLaunchEmbededUIAbility_.value);
     return isLaunchEmbededUIAbility_.value;
 }
+
+bool AppUtils::IsSupportNativeChildProcess()
+{
+    if (!isSupportNativeChildProcess_.isLoaded) {
+        isSupportNativeChildProcess_.value = system::GetBoolParameter(SUPPROT_NATIVE_CHILD_PROCESS, false);
+        isSupportNativeChildProcess_.isLoaded = true;
+    }
+    TAG_LOGI(AAFwkTag::DEFAULT, "isSupportNativeChildProcess_ is %{public}d", isSupportNativeChildProcess_.value);
+    return isSupportNativeChildProcess_.value;
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS

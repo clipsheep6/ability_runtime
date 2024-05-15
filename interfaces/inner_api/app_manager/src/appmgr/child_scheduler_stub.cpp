@@ -27,6 +27,8 @@ ChildSchedulerStub::ChildSchedulerStub()
         &ChildSchedulerStub::HandleScheduleLoadJs;
     memberFuncMap_[static_cast<uint32_t>(IChildScheduler::Message::SCHEDULE_EXIT_PROCESS_SAFELY)] =
         &ChildSchedulerStub::HandleScheduleExitProcessSafely;
+    memberFuncMap_[static_cast<uint32_t>(IChildScheduler::Message::SCHEDULE_RUN_NATIVE_PROC)] =
+        &ChildSchedulerStub::HandleScheduleRunNativeProc;
 }
 
 ChildSchedulerStub::~ChildSchedulerStub()
@@ -68,5 +70,13 @@ int32_t ChildSchedulerStub::HandleScheduleExitProcessSafely(MessageParcel &data,
     ScheduleExitProcessSafely();
     return ERR_NONE;
 }
+
+int32_t ChildSchedulerStub::HandleScheduleRunNativeProc(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> cb = data.ReadRemoteObject();
+    ScheduleRunNativeProc(cb);
+    return ERR_NONE;
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

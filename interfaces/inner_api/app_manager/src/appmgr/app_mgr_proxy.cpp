@@ -1989,5 +1989,46 @@ int32_t AppMgrProxy::SetSupportedProcessCacheSelf(bool isSupport)
     }
     return reply.ReadInt32();
 }
+
+int32_t AppMgrProxy::StartNativeChildProcess(const std::string &libName, int32_t childProcessCount,
+    const sptr<IRemoteObject> &callback)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    if (libName.empty() || !callback) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Invalid params, libName:%{private}s", libName.c_str());
+        return ERR_INVALID_VALUE;
+    }
+
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
+        return IPC_PROXY_ERR;
+    }
+
+    if (!data.WriteString(libName)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write lib name failed.");
+        return IPC_PROXY_ERR;
+    }
+
+    if (!data.WriteInt32(childProcessCount)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write param childProcessCount failed.");
+        return IPC_PROXY_ERR;
+    }
+
+    if (!data.WriteRemoteObject(callback)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write call back ipc object failed.");
+        return IPC_PROXY_ERR;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto error = SendRequest(AppMgrInterfaceCode::START_NATIVE_CHILD_PROCESS, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

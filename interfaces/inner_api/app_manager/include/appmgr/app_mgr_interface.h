@@ -652,6 +652,16 @@ public:
     }
 
     virtual int32_t SetSupportedProcessCacheSelf(bool isSupport) = 0;
+
+    /**
+     * Start native child process, callde by ChildProcessManager.
+     * @param libName lib file name to be load in child process
+     * @param childProcessCount current started child process count
+     * @param callback callback for notify start result
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t StartNativeChildProcess(const std::string &libName, int32_t childProcessCount,
+        const sptr<IRemoteObject> &callback) = 0;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
