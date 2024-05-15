@@ -28,7 +28,6 @@
 #include "app_state_data.h"
 #include "application_info.h"
 #include "bundle_info.h"
-#include "cpp/mutex.h"
 #include "iremote_object.h"
 #include "record_query_result.h"
 #include "refbase.h"
@@ -296,19 +295,19 @@ public:
 
     int DumpIpcStat(const int32_t pid, std::string& result);
 
+    int DumpFfrt(const std::vector<int32_t>& pids, std::string& result);
+
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);
     void AssignRunningProcessInfoByAppRecord(
         std::shared_ptr<AppRunningRecord> appRecord, AppExecFwk::RunningProcessInfo &info) const;
-    std::shared_ptr<AppRunningRecord> GetAppRunningRecordByPidInner(const pid_t pid);
-    std::shared_ptr<AppRunningRecord> GetAppRunningRecordByTokenInner(const sptr<IRemoteObject> &abilityToken);
     bool isCollaboratorReserveType(const std::shared_ptr<AppRunningRecord> &appRecord);
 
 private:
+    std::mutex runningRecordMapMutex_;
     std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> appRunningRecordMap_;
-    std::map<const std::string, int> processRestartRecord_;
-    ffrt::mutex lock_;
-    ffrt::mutex uiExtensionMapLock_;
+
+    std::mutex uiExtensionMapLock_;
     std::map<int32_t, std::pair<pid_t, pid_t>> uiExtensionLauncherMap_;
 };
 }  // namespace AppExecFwk

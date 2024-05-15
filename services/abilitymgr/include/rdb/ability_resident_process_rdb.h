@@ -81,7 +81,6 @@ public:
     int32_t RemoveData(std::string &bundleName);
 
 private:
-    bool ready = false;
     std::unique_ptr<RdbDataManager> rdbMgr_ = nullptr;
 };
 } // namespace AbilityRuntime

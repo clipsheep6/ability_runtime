@@ -46,6 +46,9 @@ bool UnwrapOpenLinkOptions(napi_env env, napi_value param, AAFwk::OpenLinkOption
         openLinkOptions.SetAppLinkingOnly(appLinkingOnly);
         want.SetParam(APP_LINKING_ONLY, appLinkingOnly);
     }
+    if (!want.HasParameter(APP_LINKING_ONLY)) {
+        want.SetParam(APP_LINKING_ONLY, false);
+    }
 
     return true;
 }

@@ -1174,7 +1174,7 @@ napi_value JsAbilityContext::OnConnectAbility(napi_env env, NapiCallbackInfo& in
     // unwrap want
     AAFwk::Want want;
     OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want);
-    TAG_LOGI(AAFwkTag::CONTEXT, "ConnectAbility, callee:%{public}s.%{public}s",
+    TAG_LOGD(AAFwkTag::CONTEXT, "ConnectAbility, callee:%{public}s.%{public}s",
         want.GetBundle().c_str(),
         want.GetElement().GetAbilityName().c_str());
 
@@ -1685,7 +1685,7 @@ void JSAbilityConnection::SetConnectionId(int64_t id)
 void JSAbilityConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
     const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
-    TAG_LOGI(AAFwkTag::CONTEXT, "OnAbilityConnectDone, resultCode:%{public}d", resultCode);
+    TAG_LOGD(AAFwkTag::CONTEXT, "OnAbilityConnectDone, resultCode:%{public}d", resultCode);
     wptr<JSAbilityConnection> connection = this;
     std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
         ([connection, element, remoteObject, resultCode](napi_env env, NapiAsyncTask &task, int32_t status) {
@@ -1706,7 +1706,7 @@ void JSAbilityConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &el
 void JSAbilityConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementName &element,
     const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
-    TAG_LOGI(AAFwkTag::CONTEXT, "HandleOnAbilityConnectDone, resultCode:%{public}d", resultCode);
+    TAG_LOGD(AAFwkTag::CONTEXT, "HandleOnAbilityConnectDone, resultCode:%{public}d", resultCode);
     if (jsConnectionObject_ == nullptr) {
         TAG_LOGE(AAFwkTag::CONTEXT, "jsConnectionObject_ nullptr");
         return;
@@ -1732,7 +1732,7 @@ void JSAbilityConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementNa
 
 void JSAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
 {
-    TAG_LOGI(AAFwkTag::CONTEXT, "OnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
+    TAG_LOGD(AAFwkTag::CONTEXT, "OnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
     wptr<JSAbilityConnection> connection = this;
     std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
         ([connection, element, resultCode](napi_env env, NapiAsyncTask &task, int32_t status) {

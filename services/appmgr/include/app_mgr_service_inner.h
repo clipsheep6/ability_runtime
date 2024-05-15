@@ -407,7 +407,7 @@ public:
      */
     int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning);
 
-    int32_t StartNativeProcessForDebugger(const AAFwk::Want &want) const;
+    int32_t StartNativeProcessForDebugger(const AAFwk::Want &want);
 
     std::shared_ptr<AppRunningRecord> CreateAppRunningRecord(
         sptr<IRemoteObject> token,
@@ -674,9 +674,11 @@ public:
     int FinishUserTest(
         const std::string &msg, const int64_t &resultCode, const std::string &bundleName, const pid_t &pid);
 
-    void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
+    void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0);
 
-    void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
+    void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0);
 
     void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response);
 
@@ -715,6 +717,9 @@ public:
     void TerminateApplication(const std::shared_ptr<AppRunningRecord> &appRecord);
 
     int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug);
+
+    int32_t NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg);
+
     /**
      * Notify application status.
      *
@@ -999,6 +1004,17 @@ public:
     virtual void ExitChildProcessSafelyByChildPid(const pid_t pid);
 
     /**
+     * Start native child process, callde by ChildProcessManager.
+     * @param hostPid Host process pid.
+     * @param childProcessCount current started child process count
+     * @param libName lib file name to be load in child process
+     * @param callback callback for notify start result
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t StartNativeChildProcess(const pid_t hostPid,
+        const std::string &libName, int32_t childProcessCount, const sptr<IRemoteObject> &callback);
+
+    /**
      * Whether the current application process is the last surviving process.
      * @param bundleName To query the bundle name of a process.
      * @return Returns true is final application process, others return false.
@@ -1055,6 +1071,8 @@ public:
 
     virtual int DumpIpcStat(const int32_t pid, std::string& result);
 
+    virtual int DumpFfrt(const std::vector<int32_t>& pids, std::string& result);
+
     int32_t SetSupportedProcessCacheSelf(bool isSupport);
 
     void OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord);
@@ -1105,7 +1123,7 @@ private:
         const HapModuleInfo &hapModuleInfo, std::shared_ptr<AAFwk::Want> want, int32_t abilityRecordId);
 
     int32_t StartPerfProcess(const std::shared_ptr<AppRunningRecord> &appRecord, const std::string& perfCmd,
-        const std::string& debugCmd, bool isSandboxApp) const;
+        const std::string& debugCmd, bool isSandboxApp);
 
     void StartProcessVerifyPermission(const BundleInfo &bundleInfo, bool &hasAccessBundleDirReq,
         uint8_t &setAllowInternet, uint8_t &allowInternet, std::vector<int32_t> &gids);
@@ -1385,6 +1403,22 @@ private:
         bool isPreload);
 
     int32_t CheckSetProcessCachePermission() const;
+
+    int32_t CreatNewStartMsg(const Want &want, const AbilityInfo &abilityInfo,
+        const std::shared_ptr<ApplicationInfo> &appInfo, const std::string &processName,
+        AppSpawnStartMsg &startMsg);
+
+    int32_t CreateStartMsg(const std::string &processName, uint32_t startFlags, const int uid,
+        const BundleInfo &bundleInfo, const int32_t bundleIndex, BundleType bundleType,
+        AppSpawnStartMsg &startMsg);
+
+    int32_t StartPerfProcessByStartMsg(AppSpawnStartMsg &startMsg, const std::string& perfCmd,
+        const std::string& debugCmd, bool isSandboxApp);
+
+    void SetAtomicServiceInfo(BundleType bundleType, AppSpawnStartMsg &startMsg);
+
+    void SetAppInfo(const BundleInfo &bundleInfo, AppSpawnStartMsg &startMsg);
+
 private:
     /**
      * Notify application status.

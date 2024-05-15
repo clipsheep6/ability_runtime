@@ -511,6 +511,17 @@ public:
     int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent) override;
 
     int32_t SetSupportedProcessCacheSelf(bool isSupport) override;
+
+    /**
+     * Start native child process, callde by ChildProcessManager.
+     * @param libName lib file name to be load in child process
+     * @param childProcessCount current started child process count
+     * @param callback callback for notify start result
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t StartNativeChildProcess(const std::string &libName, int32_t childProcessCount,
+        const sptr<IRemoteObject> &callback) override;
+
 private:
     /**
      * Init, Initialize application services.
@@ -585,7 +596,7 @@ private:
     virtual int32_t GetForegroundApplications(std::vector<AppStateData> &list) override;
 
     int Dump(const std::vector<std::u16string>& args, std::string& result);
-    void ShowHelp(std::string& result) const;
+    int ShowHelp(const std::vector<std::u16string>& args, std::string& result);
     int DumpIpc(const std::vector<std::u16string>& args, std::string& result);
     int DumpIpcAllStart(std::string& result);
     int DumpIpcAllStop(std::string& result);
@@ -593,6 +604,8 @@ private:
     int DumpIpcStart(const int32_t pid, std::string& result);
     int DumpIpcStop(const int32_t pid, std::string& result);
     int DumpIpcStat(const int32_t pid, std::string& result);
+
+    int DumpFfrt(const std::vector<std::u16string>& args, std::string& result);
 
     bool JudgeAppSelfCalled(int32_t recordId);
 
@@ -641,6 +654,8 @@ private:
     int DumpIpcWithPidInner(const AppMgrService::DumpIpcKey key,
         const std::string& optionPid, std::string& result);
 
+    int DumpFfrtInner(const std::string& pidsRaw, std::string& result);
+
 private:
     std::shared_ptr<AppMgrServiceInner> appMgrServiceInner_;
     AppMgrServiceState appMgrServiceState_;
@@ -648,6 +663,9 @@ private:
     std::shared_ptr<AMSEventHandler> eventHandler_;
     sptr<ISystemAbilityManager> systemAbilityMgr_;
     sptr<IAmsMgr> amsMgrScheduler_;
+
+    using DumpFuncType = int (AppMgrService::*)(const std::vector<std::u16string>& args, std::string& result);
+    const static std::map<std::string, DumpFuncType> dumpFuncMap_;
 
     const static std::map<std::string, AppMgrService::DumpIpcKey> dumpIpcMap;
 

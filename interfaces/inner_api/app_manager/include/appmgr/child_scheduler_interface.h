@@ -34,9 +34,16 @@ public:
      */
     virtual bool ScheduleExitProcessSafely() = 0;
 
+    /**
+     * Notify child process run main proc from shared lib.
+     * @param mainProcessCb Main process callback ipc object
+     */
+    virtual bool ScheduleRunNativeProc(const sptr<IRemoteObject> &mainProcessCb) = 0;
+
     enum class Message {
         SCHEDULE_LOAD_JS = 0,
         SCHEDULE_EXIT_PROCESS_SAFELY = 1,
+        SCHEDULE_RUN_NATIVE_PROC = 2,
     };
 };
 }  // namespace AppExecFwk

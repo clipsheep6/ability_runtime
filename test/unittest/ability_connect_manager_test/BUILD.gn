@@ -23,6 +23,7 @@ ohos_unittest("ability_connect_manager_test") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
+    "${ability_runtime_test_path}/mock/mock_sa_call",
   ]
 
   sources = [
@@ -59,6 +60,8 @@ ohos_unittest("ability_connect_manager_test") {
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:ability_manager",
     "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",

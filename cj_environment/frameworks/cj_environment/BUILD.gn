@@ -1,0 +1,66 @@
+# Copyright (c) 2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+import("//foundation/ability/ability_runtime/cj_environment/cj_environment.gni")
+
+config("cj_rt_public_config") {
+  include_dirs = [
+    "include",
+    "${ability_runtime_path}/cj_environment/interfaces/inner_api",
+  ]
+  defines = cj_config.common_defines
+}
+
+ohos_shared_library("cj_environment") {
+  cflags_cc = [
+    "-std=c++17",
+    "-fvisibility=hidden",
+    "-fdata-sections",
+    "-ffunction-sections",
+  ]
+
+  public_configs = [ ":cj_rt_public_config" ]
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
+  sources = [ "src/cj_environment.cpp" ]
+
+  defines = []
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+  ]
+
+  if (current_os == "ohos") {
+    sources += [ "src/dynamic_loader_ohos.cpp" ]
+    external_deps += [ "eventhandler:libeventhandler" ]
+    defines += [ "WITH_EVENT_HANDLER" ]
+  } else if (current_os == "linux") {
+    sources += [ "src/dynamic_loader_linux.cpp" ]
+  } else if (current_os == "mingw") {
+    sources += [ "src/dynamic_loader_win.cpp" ]
+  } else {
+    assert("unsupport platform: ${current_os}")
+  }
+
+  innerapi_tags = [ "platformsdk" ]
+  part_name = "ability_runtime"
+  subsystem_name = "ability"
+}

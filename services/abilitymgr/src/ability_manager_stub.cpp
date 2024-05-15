@@ -1774,7 +1774,9 @@ int AbilityManagerStub::StartUIAbilityBySCBInner(MessageParcel &data, MessagePar
     if (data.ReadBool()) {
         sessionInfo = data.ReadParcelable<SessionInfo>();
     }
-    int32_t result = StartUIAbilityBySCB(sessionInfo);
+    bool isColdStart = false;
+    int32_t result = StartUIAbilityBySCB(sessionInfo, isColdStart);
+    reply.WriteBool(isColdStart);
     reply.WriteInt32(result);
     return NO_ERROR;
 }

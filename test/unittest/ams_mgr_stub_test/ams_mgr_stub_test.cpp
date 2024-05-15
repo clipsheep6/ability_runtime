@@ -272,5 +272,33 @@ HWTEST_F(AmsMgrStubTest, HandleRegisterAbilityDebugResponse_0200, TestSize.Level
         static_cast<uint32_t>(IAmsMgr::Message::REGISTER_ABILITY_DEBUG_RESPONSE), data, reply, option);
     EXPECT_EQ(result, ERR_INVALID_VALUE);
 }
+
+/**
+ * @tc.name: NotifyAppMgrRecordExitReason_0100
+ * @tc.desc: NotifyAppMgrRecordExitReason.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrStubTest, NotifyAppMgrRecordExitReason_0100, TestSize.Level1)
+{
+    EXPECT_NE(mockAmsMgrScheduler_, nullptr);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    WriteInterfaceToken(data);
+
+    int32_t reason = 0;
+    int32_t pid = 1;
+    std::string exitMsg = "JsError";
+    data.WriteInt32(reason);
+    data.WriteInt32(pid);
+    data.WriteString16(Str8ToStr16(exitMsg));
+
+    EXPECT_CALL(*mockAmsMgrScheduler_, NotifyAppMgrRecordExitReason(_, _, _))
+        .Times(1)
+        .WillOnce(Return(NO_ERROR));
+    auto result = mockAmsMgrScheduler_->OnRemoteRequest(
+        static_cast<uint32_t>(IAmsMgr::Message::NOTIFY_APP_MGR_RECORD_EXIT_REASON), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

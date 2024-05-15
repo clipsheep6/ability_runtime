@@ -23,7 +23,8 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string KEY_TOKEN = "accessTokenId";
+constexpr const char* KEY_TOKEN = "accessTokenId";
+constexpr const char* KEY_UID = "uid";
 }
 AbilityBundleEventCallback::AbilityBundleEventCallback(
     std::shared_ptr<TaskHandlerWrap> taskHandler, std::shared_ptr<AbilityAutoStartupService> abilityAutoStartupService)

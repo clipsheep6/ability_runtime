@@ -12,18 +12,14 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/ability/ability_base/ability_base.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("appmgr_sdk_config") {
   include_dirs = [
     "include/appmgr",
-    "${ability_base_innerapi_path}/log/include",
     "${ability_base_kits_path}/configuration/include",
-    "${ability_base_kits_path}/want/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_innerkits_path}/ability_manager/include",
-    "${bundlefwk_inner_api_path}/appexecfwk_base/include",
   ]
   defines = []
   if (ability_command_for_test) {
@@ -92,6 +88,8 @@ ohos_shared_library("app_manager") {
     "src/appmgr/configuration_observer_stub.cpp",
     "src/appmgr/fault_data.cpp",
     "src/appmgr/memory_level_info.cpp",
+    "src/appmgr/native_child_notify_proxy.cpp",
+    "src/appmgr/native_child_notify_stub.cpp",
     "src/appmgr/page_state_data.cpp",
     "src/appmgr/priority_object.cpp",
     "src/appmgr/process_data.cpp",
@@ -126,8 +124,6 @@ ohos_shared_library("app_manager") {
 
   external_deps = [
     "ability_base:configuration",
-    "ability_base:want",
-    "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "faultloggerd:libdfx_dumpcatcher",
     "faultloggerd:libfaultloggerd",
@@ -138,6 +134,10 @@ ohos_shared_library("app_manager") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
+  ]
+  public_external_deps = [
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

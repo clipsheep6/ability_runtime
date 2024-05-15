@@ -30,7 +30,6 @@
 #include "parameter.h"
 #include "permission_constants.h"
 #include "permission_verification.h"
-#include "proxy_authorization_uri_config.h"
 #include "system_ability_definition.h"
 #include "tokenid_kit.h"
 #include "want.h"
@@ -45,6 +44,8 @@ namespace {
 constexpr int32_t DEFAULT_USER_ID = 0;
 constexpr int32_t ERR_OK = 0;
 constexpr uint32_t FLAG_READ_WRITE_URI = Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION;
+constexpr uint32_t FLAG_WRITE_URI = Want::FLAG_AUTH_WRITE_URI_PERMISSION;
+constexpr uint32_t FLAG_READ_URI = Want::FLAG_AUTH_READ_URI_PERMISSION;
 constexpr const char* CLOUND_DOCS_URI_MARK = "?networkid=";
 constexpr const char* FOUNDATION_PROCESS_NAME = "foundation";
 constexpr const char* LINUX_FUSION_SERVICE = "linux_fusion_service";
@@ -54,19 +55,27 @@ bool UriPermissionManagerStubImpl::VerifyUriPermission(const Uri &uri, uint32_t 
 {
     // verify if tokenId have uri permission record
     auto uriStr = uri.ToString();
-    TAG_LOGI(AAFwkTag::URIPERMMGR, "uri is %{private}s, flag is %{public}u, tokenId is %{public}u",
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "uri is %{private}s, flag is %{public}u, tokenId is %{public}u",
         uriStr.c_str(), flag, tokenId);
     if (!IsSAOrSystemAppCall()) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Only support SA and SystemApp called.");
         return false;
+    }
+    if ((flag & FLAG_READ_WRITE_URI) == 0) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Flag is invalid.");
+        return false;
+    }
+    uint32_t newFlag = FLAG_READ_URI;
+    if ((flag & FLAG_WRITE_URI) != 0) {
+        newFlag = FLAG_WRITE_URI;
     }
     std::lock_guard<std::mutex> guard(mutex_);
     auto search = uriMap_.find(uriStr);
     if (search != uriMap_.end()) {
         auto& list = search->second;
         for (auto it = list.begin(); it != list.end(); it++) {
-            if ((it->targetTokenId == tokenId) && ((it->flag | Want::FLAG_AUTH_READ_URI_PERMISSION) & flag) != 0) {
-                TAG_LOGI(AAFwkTag::URIPERMMGR, "have uri permission.");
+            if ((it->targetTokenId == tokenId) && ((it->flag | FLAG_READ_URI) & newFlag) != 0) {
+                TAG_LOGD(AAFwkTag::URIPERMMGR, "have uri permission.");
                 return true;
             }
         }
@@ -75,17 +84,9 @@ bool UriPermissionManagerStubImpl::VerifyUriPermission(const Uri &uri, uint32_t 
     return false;
 }
 
-bool UriPermissionManagerStubImpl::IsAuthorizationUriAllowed(uint32_t fromTokenId)
-{
-    if (!IsSAOrSystemAppCall()) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "Only support SA and SystemApp called.");
-        return false;
-    }
-    return DelayedSingleton<ProxyAuthorizationUriConfig>::GetInstance()->IsAuthorizationUriAllowed(fromTokenId);
-}
 
 int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned int flag,
-    const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
+    const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId, int32_t abilityId)
 {
     TAG_LOGI(AAFwkTag::URIPERMMGR, "Uri is %{private}s.", uri.ToString().c_str());
     if (!IsSAOrSystemAppCall()) {
@@ -93,11 +94,11 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned in
         return CHECK_PERMISSION_FAILED;
     }
     std::vector<Uri> uriVec = { uri };
-    return GrantUriPermission(uriVec, flag, targetBundleName, appIndex, initiatorTokenId);
+    return GrantUriPermission(uriVec, flag, targetBundleName, appIndex, initiatorTokenId, abilityId);
 }
 
 int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
-    const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
+    const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId, int32_t abilityId)
 {
     TAG_LOGI(AAFwkTag::URIPERMMGR, "BundleName is %{public}s, appIndex is %{public}d, size of uriVec is %{public}zu.",
         targetBundleName.c_str(), appIndex, uriVec.size());
@@ -119,9 +120,9 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uri
             isSystemAppCall = CheckIsSystemAppByTokenId(initiatorTokenId);
         }
         return GrantUriPermissionFor2In1Inner(
-            uriVec, flag, targetBundleName, appIndex, isSystemAppCall, initiatorTokenId);
+            uriVec, flag, targetBundleName, appIndex, isSystemAppCall, initiatorTokenId, abilityId);
     }
-    return GrantUriPermissionInner(uriVec, flag, targetBundleName, appIndex, initiatorTokenId);
+    return GrantUriPermissionInner(uriVec, flag, targetBundleName, appIndex, initiatorTokenId, abilityId);
 }
 
 int32_t UriPermissionManagerStubImpl::GrantUriPermissionPrivileged(const std::vector<Uri> &uriVec, uint32_t flag,
@@ -144,6 +145,7 @@ int32_t UriPermissionManagerStubImpl::GrantUriPermissionPrivileged(const std::ve
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Flag is invalid, value is %{public}u.", flag);
         return ERR_CODE_INVALID_URI_FLAG;
     }
+    flag &= FLAG_READ_WRITE_URI;
     uint32_t targetTokenId = 0;
     auto ret = GetTokenIdByBundleName(targetBundleName, 0, targetTokenId);
     if (ret != ERR_OK) {
@@ -151,15 +153,14 @@ int32_t UriPermissionManagerStubImpl::GrantUriPermissionPrivileged(const std::ve
         return ret;
     }
 
-    uint32_t autoRemove = IsFoundationCall() ? 1 : 0;
     if (AppUtils::GetInstance().IsGrantPersistUriPermission()) {
-        return GrantBatchUriPermissionFor2In1Privileged(uriVec, flag, callerTokenId, targetTokenId, autoRemove);
+        return GrantBatchUriPermissionFor2In1Privileged(uriVec, flag, callerTokenId, targetTokenId);
     }
-    return GrantBatchUriPermissionPrivileged(uriVec, flag, callerTokenId, targetTokenId, autoRemove);
+    return GrantBatchUriPermissionPrivileged(uriVec, flag, callerTokenId, targetTokenId);
 }
 
 int UriPermissionManagerStubImpl::GrantUriPermissionInner(const std::vector<Uri> &uriVec, unsigned int flag,
-    const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
+    const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId, int32_t abilityId)
 {
     TAG_LOGD(AAFwkTag::URIPERMMGR, "Called.");
     flag &= FLAG_READ_WRITE_URI;
@@ -169,20 +170,20 @@ int UriPermissionManagerStubImpl::GrantUriPermissionInner(const std::vector<Uri>
         TAG_LOGE(AAFwkTag::URIPERMMGR, "get tokenId of target bundle name failed.");
         return ret;
     }
-    // autoRemove will be set to 1 if the process name is foundation.
-    uint32_t autoRemove = 0;
+    // recordId will be set default id if the process name is not foundation.
+    int32_t recordId = -1;
     uint32_t appTokenId = IPCSkeleton::GetCallingTokenID();
     if (IsFoundationCall()) {
-        autoRemove = 1;
+        recordId = abilityId;
         appTokenId = initiatorTokenId;
         auto callerName = GetTokenName(appTokenId);
         TAG_LOGI(AAFwkTag::URIPERMMGR, "RealTokenId is %{public}u, RealCallerName is %{public}s.",
             appTokenId, callerName.c_str());
     }
     if (uriVec.size() == 1) {
-        return GrantSingleUriPermission(uriVec[0], flag, appTokenId, targetTokenId, autoRemove);
+        return GrantSingleUriPermission(uriVec[0], flag, appTokenId, targetTokenId, recordId);
     }
-    return GrantBatchUriPermission(uriVec, flag, appTokenId, targetTokenId, autoRemove);
+    return GrantBatchUriPermission(uriVec, flag, appTokenId, targetTokenId, recordId);
 }
 
 int checkPersistPermission(uint64_t tokenId, const std::vector<PolicyInfo> &policy, std::vector<bool> &result)
@@ -230,34 +231,16 @@ int32_t UriPermissionManagerStubImpl::CheckCalledBySandBox()
     return ERR_OK;
 }
 
-// To be deleted.
-int UriPermissionManagerStubImpl::GrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
-    const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall)
-{
-    TAG_LOGI(AAFwkTag::URIPERMMGR, "Called.");
-    if (!IsFoundationCall()) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "Not foundation call.");
-        return CHECK_PERMISSION_FAILED;
-    }
-    auto checkResult = CheckCalledBySandBox();
-    if (checkResult != ERR_OK) {
-        return checkResult;
-    }
-    if ((flag & FLAG_READ_WRITE_URI) == 0) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "Flag is %{public}u, which is invalid.", flag);
-        return ERR_CODE_INVALID_URI_FLAG;
-    }
-    return GrantUriPermissionFor2In1Inner(uriVec, flag, targetBundleName, appIndex, isSystemAppCall);
-}
-
 int UriPermissionManagerStubImpl::AddTempUriPermission(const std::string &uri, unsigned int flag,
-    TokenId fromTokenId, TokenId targetTokenId, uint32_t autoRemove)
+    TokenId fromTokenId, TokenId targetTokenId, int32_t abilityId)
 {
     std::lock_guard<std::mutex> guard(mutex_);
     auto search = uriMap_.find(uri);
-    GrantInfo info = { flag, fromTokenId, targetTokenId, autoRemove };
+    bool autoRemove = (abilityId != DEFAULT_ABILITY_ID);
+    GrantInfo info = { flag, fromTokenId, targetTokenId, autoRemove, {} };
     if (search == uriMap_.end()) {
         TAG_LOGI(AAFwkTag::URIPERMMGR, "Insert an uri r/w permission.");
+        info.AddAbilityId(abilityId);
         std::list<GrantInfo> infoList = { info };
         uriMap_.emplace(uri, infoList);
         return ERR_OK;
@@ -265,17 +248,25 @@ int UriPermissionManagerStubImpl::AddTempUriPermission(const std::string &uri, u
     auto& infoList = search->second;
     for (auto& item : infoList) {
         if (item.fromTokenId == fromTokenId && item.targetTokenId == targetTokenId) {
-            TAG_LOGD(AAFwkTag::URIPERMMGR, "Item: flag is %{public}u, autoRemove is %{public}u.",
-                item.flag, item.autoRemove);
-            if (item.autoRemove == 1 && info.autoRemove == 0) {
-                TAG_LOGD(AAFwkTag::URIPERMMGR, "Update autoRemove.");
-                item.autoRemove = 1;
-            }
-            if ((flag & (item.flag | Want::FLAG_AUTH_READ_URI_PERMISSION)) == 0) {
+            TAG_LOGI(AAFwkTag::URIPERMMGR,
+                "Item: flag is %{public}u, autoRemove is %{public}u, ability size is %{public}zu.",
+                item.flag, item.autoRemove, item.abilityIds.size());
+            item.AddAbilityId(abilityId);
+            // r-w
+            if ((item.flag & FLAG_WRITE_URI) == 0 && (flag & FLAG_WRITE_URI) != 0) {
                 TAG_LOGI(AAFwkTag::URIPERMMGR, "Update uri r/w permission.");
-                item.flag = flag;
-            } else {
-                TAG_LOGI(AAFwkTag::URIPERMMGR, "Uri has been granted, not to grant again.");
+                item.autoRemove = autoRemove;
+                item.flag |= FLAG_WRITE_URI;
+                return ERR_OK;
+            }
+            // w-r
+            TAG_LOGD(AAFwkTag::URIPERMMGR, "Uri has been granted, not to grant again.");
+            if ((item.flag & FLAG_WRITE_URI) != 0 && (flag & FLAG_WRITE_URI) == 0) {
+                return ERR_OK;
+            }
+            // other
+            if (!autoRemove) {
+                item.autoRemove = autoRemove;
             }
             return ERR_OK;
         }
@@ -286,11 +277,11 @@ int UriPermissionManagerStubImpl::AddTempUriPermission(const std::string &uri, u
 }
 
 int UriPermissionManagerStubImpl::GrantUriPermissionImpl(const Uri &uri, unsigned int flag,
-    TokenId callerTokenId, TokenId targetTokenId, uint32_t autoRemove)
+    TokenId callerTokenId, TokenId targetTokenId, int32_t abilityId)
 {
-    TAG_LOGI(AAFwkTag::URIPERMMGR, "uri = %{private}s, flag = %{public}i, callerTokenId = %{public}i,"
-        "targetTokenId = %{public}i, autoRemove = %{public}i", uri.ToString().c_str(), flag, callerTokenId,
-        targetTokenId, autoRemove);
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "uri = %{private}s, flag = %{public}i, callerTokenId = %{public}i,"
+        "targetTokenId = %{public}i, abilityId = %{public}i", uri.ToString().c_str(), flag, callerTokenId,
+        targetTokenId, abilityId);
     ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
     if (storageManager_ == nullptr) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "ConnectManager failed");
@@ -307,17 +298,17 @@ int UriPermissionManagerStubImpl::GrantUriPermissionImpl(const Uri &uri, unsigne
         TAG_LOGE(AAFwkTag::URIPERMMGR, "failed to CreateShareFile.");
         return INNER_ERR;
     }
-    AddTempUriPermission(uriStr, flag, callerTokenId, targetTokenId, autoRemove);
+    AddTempUriPermission(uriStr, flag, callerTokenId, targetTokenId, abilityId);
     SendEvent(callerTokenId, targetTokenId, uriStr);
     return ERR_OK;
 }
 
 int UriPermissionManagerStubImpl::GrantSingleUriPermission(const Uri &uri, unsigned int flag, uint32_t callerTokenId,
-    uint32_t targetTokenId, uint32_t autoRemove)
+    uint32_t targetTokenId, int32_t abilityId)
 {
     TAG_LOGI(AAFwkTag::URIPERMMGR,
-        "uri is %{private}s, callerTokenId is %{public}u, targetTokenId is %{public}u, autoRemove is %{public}u",
-        uri.ToString().c_str(), callerTokenId, targetTokenId, autoRemove);
+        "uri is %{private}s, callerTokenId is %{public}u, targetTokenId is %{public}u, abilityId is %{public}d",
+        uri.ToString().c_str(), callerTokenId, targetTokenId, abilityId);
     if (!CheckUriTypeIsValid(uri)) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Check uri type failed, uri is %{private}s", uri.ToString().c_str());
         return ERR_CODE_INVALID_URI_TYPE;
@@ -328,13 +319,13 @@ int UriPermissionManagerStubImpl::GrantSingleUriPermission(const Uri &uri, unsig
             uri.ToString().c_str(), callerTokenId);
         return CHECK_PERMISSION_FAILED;
     }
-    return GrantUriPermissionImpl(uri, flag, callerTokenId, targetTokenId, autoRemove);
+    return GrantUriPermissionImpl(uri, flag, callerTokenId, targetTokenId, abilityId);
 }
 
 int UriPermissionManagerStubImpl::GrantBatchUriPermissionImpl(const std::vector<std::string> &uriVec,
-    unsigned int flag, TokenId callerTokenId, TokenId targetTokenId, uint32_t autoRemove)
+    unsigned int flag, TokenId callerTokenId, TokenId targetTokenId, int32_t abilityId)
 {
-    TAG_LOGI(AAFwkTag::URIPERMMGR, "callerTokenId is %{public}u, targetTokenId is %{public}u, flag is %{public}i,"
+    TAG_LOGI(AAFwkTag::URIPERMMGR,"callerTokenId is %{public}u, targetTokenId is %{public}u, flag is %{public}i,"
         "list size is %{public}zu", callerTokenId, targetTokenId, flag, uriVec.size());
     ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
     if (storageManager_ == nullptr) {
@@ -359,7 +350,7 @@ int UriPermissionManagerStubImpl::GrantBatchUriPermissionImpl(const std::vector<
             TAG_LOGE(AAFwkTag::URIPERMMGR, "failed to CreateShareFile.");
             continue;
         }
-        AddTempUriPermission(uriVec[i], flag, callerTokenId, targetTokenId, autoRemove);
+        AddTempUriPermission(uriVec[i], flag, callerTokenId, targetTokenId, abilityId);
         if (needSendEvent) {
             eventInfo.uri = uriVec[i];
             EventReport::SendKeyEvent(EventName::GRANT_URI_PERMISSION, HiSysEventType::BEHAVIOR, eventInfo);
@@ -374,11 +365,11 @@ int UriPermissionManagerStubImpl::GrantBatchUriPermissionImpl(const std::vector<
 }
 
 int UriPermissionManagerStubImpl::GrantBatchUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
-    uint32_t callerTokenId, uint32_t targetTokenId, uint32_t autoRemove)
+    uint32_t callerTokenId, uint32_t targetTokenId, int32_t abilityId)
 {
     TAG_LOGI(AAFwkTag::URIPERMMGR,
-        "callerTokenId is %{public}u, targetTokenId is %{public}u, flag is %{public}u, autoRemove is %{public}u.",
-        callerTokenId, targetTokenId, flag, autoRemove);
+        "callerTokenId is %{public}u, targetTokenId is %{public}u, flag is %{public}u, abilityId is %{public}u.",
+        callerTokenId, targetTokenId, flag, abilityId);
     TokenIdPermission tokenIdPermission(callerTokenId);
     std::vector<std::string> uriStrVec = {};
     for (const auto &uri : uriVec) {
@@ -396,11 +387,11 @@ int UriPermissionManagerStubImpl::GrantBatchUriPermission(const std::vector<Uri>
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Valid uri list is empty.");
         return INNER_ERR;
     }
-    return GrantBatchUriPermissionImpl(uriStrVec, flag, callerTokenId, targetTokenId, autoRemove);
+    return GrantBatchUriPermissionImpl(uriStrVec, flag, callerTokenId, targetTokenId, abilityId);
 }
 
 int32_t UriPermissionManagerStubImpl::GrantBatchUriPermissionPrivileged(const std::vector<Uri> &uriVec, uint32_t flag,
-    uint32_t callerTokenId, uint32_t targetTokenId, uint32_t autoRemove)
+    uint32_t callerTokenId, uint32_t targetTokenId, int32_t abilityId)
 {
     TAG_LOGI(AAFwkTag::URIPERMMGR, "callerTokenId is %{public}u, targetTokenId is %{public}u, flag is %{public}u.",
         callerTokenId, targetTokenId, flag);
@@ -416,11 +407,11 @@ int32_t UriPermissionManagerStubImpl::GrantBatchUriPermissionPrivileged(const st
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Valid uri list is empty.");
         return ERR_CODE_INVALID_URI_TYPE;
     }
-    return GrantBatchUriPermissionImpl(uriStrVec, flag, callerTokenId, targetTokenId, autoRemove);
+    return GrantBatchUriPermissionImpl(uriStrVec, flag, callerTokenId, targetTokenId, abilityId);
 }
 
 int32_t UriPermissionManagerStubImpl::GrantBatchUriPermissionFor2In1Privileged(const std::vector<Uri> &uriVec,
-    uint32_t flag, uint32_t callerTokenId, uint32_t targetTokenId, uint32_t autoRemove)
+    uint32_t flag, uint32_t callerTokenId, uint32_t targetTokenId, int32_t abilityId)
 {
     TAG_LOGI(AAFwkTag::URIPERMMGR, "callerTokenId is %{public}u, targetTokenId is %{public}u, flag is %{public}u.",
         callerTokenId, targetTokenId, flag);
@@ -450,7 +441,7 @@ int32_t UriPermissionManagerStubImpl::GrantBatchUriPermissionFor2In1Privileged(c
     }
 
     if (!uriStrVec.empty()) {
-        auto ret = GrantBatchUriPermissionImpl(uriStrVec, flag, callerTokenId, targetTokenId, autoRemove);
+        auto ret = GrantBatchUriPermissionImpl(uriStrVec, flag, callerTokenId, targetTokenId, abilityId);
         if (docsVec.empty()) {
             return ret;
         }
@@ -461,33 +452,43 @@ int32_t UriPermissionManagerStubImpl::GrantBatchUriPermissionFor2In1Privileged(c
     return ERR_OK;
 }
 
-void UriPermissionManagerStubImpl::RevokeUriPermission(const TokenId tokenId)
+void UriPermissionManagerStubImpl::RemoveUriRecord(std::vector<std::string> &uriList, const TokenId tokenId,
+    int32_t abilityId)
 {
-    TAG_LOGI(AAFwkTag::URIPERMMGR, "Start to remove uri permission, tokenId is %{public}u", tokenId);
+    std::lock_guard<std::mutex> guard(mutex_);
+    for (auto iter = uriMap_.begin(); iter != uriMap_.end();) {
+        auto& list = iter->second;
+        for (auto it = list.begin(); it != list.end(); it++) {
+            if (it->targetTokenId != tokenId || !it->RemoveAbilityId(abilityId) || !it->autoRemove) {
+                continue;
+            }
+            if (!it->IsEmptyAbilityId()) {
+                TAG_LOGD(AAFwkTag::URIPERMMGR, "Remove an abilityId.");
+                return;
+            }
+            TAG_LOGI(AAFwkTag::URIPERMMGR, "Erase an info form list.");
+            list.erase(it);
+            uriList.emplace_back(iter->first);
+            return;
+        }
+        if (list.empty()) {
+            uriMap_.erase(iter++);
+            continue;
+        }
+        ++iter;
+    }
+}
+
+void UriPermissionManagerStubImpl::RevokeUriPermission(const TokenId tokenId, int32_t abilityId)
+{
+    TAG_LOGI(AAFwkTag::URIPERMMGR,
+        "Start to remove uri permission, tokenId is %{public}u, abilityId is %{public}d", tokenId, abilityId);
     if (!IsFoundationCall()) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "No permission to revoke uri permission.");
         return;
     }
     std::vector<std::string> uriList;
-    {
-        std::lock_guard<std::mutex> guard(mutex_);
-        for (auto iter = uriMap_.begin(); iter != uriMap_.end();) {
-            auto& list = iter->second;
-            for (auto it = list.begin(); it != list.end(); it++) {
-                if (it->targetTokenId == tokenId && it->autoRemove) {
-                    TAG_LOGI(AAFwkTag::URIPERMMGR, "Erase an info form list.");
-                    list.erase(it);
-                    uriList.emplace_back(iter->first);
-                    break;
-                }
-            }
-            if (list.empty()) {
-                uriMap_.erase(iter++);
-                continue;
-            }
-            iter++;
-        }
-    }
+    RemoveUriRecord(uriList, tokenId, abilityId);
     if (!uriList.empty()) {
         DeleteShareFile(tokenId, uriList);
     }
@@ -739,7 +740,8 @@ int32_t UriPermissionManagerStubImpl::GetCurrentAccountId() const
 }
 
 int UriPermissionManagerStubImpl::GrantUriPermissionFor2In1Inner(const std::vector<Uri> &uriVec, unsigned int flag,
-    const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall, uint32_t initiatorTokenId)
+    const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall, uint32_t initiatorTokenId,
+    int32_t abilityId)
 {
     TAG_LOGI(AAFwkTag::URIPERMMGR, "UriVec size is %{public}zu, targetBundleName is %{public}s",
         uriVec.size(), targetBundleName.c_str());

@@ -66,6 +66,7 @@ private:
     int32_t HandleStartSpecifiedAbility(MessageParcel &data, MessageParcel &reply);
     int32_t HandleRegisterStartSpecifiedAbilityResponse(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetApplicationInfoByProcessID(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleNotifyAppMgrRecordExitReason(MessageParcel &data, MessageParcel &reply);
     int32_t HandleUpdateApplicationInfoInstalled(MessageParcel &data, MessageParcel &reply);
     int32_t HandleSetCurrentUserId(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetBundleNameByPid(MessageParcel &data, MessageParcel &reply);

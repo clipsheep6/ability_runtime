@@ -14,5 +14,8 @@
 group("unittest") {
   testonly = true
 
-  deps = [ "ui_extension_connect_test:unittest" ]
+  deps = [
+    "ui_extension_connect_test:unittest",
+    "ui_extension_preload_test:unittest",
+  ]
 }

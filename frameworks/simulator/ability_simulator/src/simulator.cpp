@@ -56,6 +56,13 @@ constexpr size_t DEFAULT_GC_THREAD_NUM = 7;
 constexpr size_t DEFAULT_LONG_PAUSE_TIME = 40;
 
 constexpr char BUNDLE_INSTALL_PATH[] = "/data/storage/el1/bundle/";
+const std::string PACKAGE_NAME = "packageName";
+const std::string BUNDLE_NAME = "bundleName";
+const std::string MODULE_NAME = "moduleName";
+const std::string VERSION = "version";
+const std::string ENTRY_PATH = "entryPath";
+const std::string IS_SO = "isSO";
+const std::string DEPENDENCY_ALIAS = "dependencyAlias";
 
 #if defined(WINDOWS_PLATFORM)
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "libark_debugger.dll";
@@ -140,6 +147,11 @@ private:
     std::shared_ptr<AppExecFwk::HapModuleInfo> moduleInfo_;
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_;
     CallbackTypePostTask postTask_ = nullptr;
+    void GetPkgContextInfoListMap(const std::map<std::string, std::string> &contextInfoMap,
+        std::map<std::string, std::vector<std::vector<std::string>>> &pkgContextInfoMap,
+        std::map<std::string, std::string> &pkgAliasMap);
+    void GetPkgContextInfoListInner(nlohmann::json &itemObject, std::vector<std::string> &items,
+        std::map<std::string, std::string> &pkgAliasMap, std::string &pkgName);
 };
 
 void DebuggerTask::HandleTask(const uv_async_t *req)
@@ -719,6 +731,12 @@ bool SimulatorImpl::OnInit()
     panda::JSNApi::SetBundleName(vm_, options_.bundleName);
     panda::JSNApi::SetModuleName(vm_, options_.moduleName);
     panda::JSNApi::SetAssetPath(vm_, options_.modulePath);
+    std::map<std::string, std::vector<std::vector<std::string>>> pkgContextInfoMap;
+    std::map<std::string, std::string> pkgAliasMap;
+    GetPkgContextInfoListMap(options_.pkgContextInfoJsonStringMap, pkgContextInfoMap, pkgAliasMap);
+    panda::JSNApi::SetpkgContextInfoList(vm_, pkgContextInfoMap);
+    panda::JSNApi::SetPkgAliasList(vm_, pkgAliasMap);
+    panda::JSNApi::SetPkgNameList(vm_, options_.packageNameList);
 
     nativeEngine_ = env;
     return true;
@@ -833,6 +851,88 @@ void SimulatorImpl::SetHostResolveBufferTracker(ResolveBufferTrackerCallback cb)
         return;
     }
     panda::JSNApi::SetHostResolveBufferTracker(vm_, cb);
+}
+
+void SimulatorImpl::GetPkgContextInfoListMap(const std::map<std::string, std::string> &contextInfoMap,
+    std::map<std::string, std::vector<std::vector<std::string>>> &pkgContextInfoMap,
+    std::map<std::string, std::string> &pkgAliasMap)
+{
+    for (auto it = contextInfoMap.begin(); it != contextInfoMap.end(); it++) {
+        std::vector<std::vector<std::string>> pkgContextInfoList;
+        auto jsonObject = nlohmann::json::parse(it->second);
+        if (jsonObject.is_discarded()) {
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "moduleName: %{public}s parse json error", it->first.c_str());
+            continue;
+        }
+        for (nlohmann::json::iterator jsonIt = jsonObject.begin(); jsonIt != jsonObject.end(); jsonIt++) {
+            std::vector<std::string> items;
+            items.emplace_back(jsonIt.key());
+            nlohmann::json itemObject = jsonIt.value();
+            std::string pkgName = "";
+            items.emplace_back(PACKAGE_NAME);
+            if (itemObject[PACKAGE_NAME].is_null() || !itemObject[PACKAGE_NAME].is_string()) {
+                items.emplace_back(pkgName);
+            } else {
+                pkgName = itemObject[PACKAGE_NAME].get<std::string>();
+                items.emplace_back(pkgName);
+            }
+
+            items.emplace_back(BUNDLE_NAME);
+            if (itemObject[BUNDLE_NAME].is_null() || !itemObject[BUNDLE_NAME].is_string()) {
+                items.emplace_back("");
+            } else {
+                items.emplace_back(itemObject[BUNDLE_NAME].get<std::string>());
+            }
+
+            items.emplace_back(MODULE_NAME);
+            if (itemObject[MODULE_NAME].is_null() || !itemObject[MODULE_NAME].is_string()) {
+                items.emplace_back("");
+            } else {
+                items.emplace_back(itemObject[MODULE_NAME].get<std::string>());
+            }
+
+            GetPkgContextInfoListInner(itemObject, items, pkgAliasMap, pkgName);
+            pkgContextInfoList.emplace_back(items);
+        }
+        TAG_LOGI(AAFwkTag::JSRUNTIME, "moduleName: %{public}s parse json success", it->first.c_str());
+        pkgContextInfoMap[it->first] = pkgContextInfoList;
+    }
+}
+
+void SimulatorImpl::GetPkgContextInfoListInner(nlohmann::json &itemObject, std::vector<std::string> &items,
+    std::map<std::string, std::string> &pkgAliasMap, std::string &pkgName)
+{
+    items.emplace_back(VERSION);
+    if (itemObject[VERSION].is_null() || !itemObject[VERSION].is_string()) {
+        items.emplace_back("");
+    } else {
+        items.emplace_back(itemObject[VERSION].get<std::string>());
+    }
+
+    items.emplace_back(ENTRY_PATH);
+    if (itemObject[ENTRY_PATH].is_null() || !itemObject[ENTRY_PATH].is_string()) {
+        items.emplace_back("");
+    } else {
+        items.emplace_back(itemObject[ENTRY_PATH].get<std::string>());
+    }
+
+    items.emplace_back(IS_SO);
+    if (itemObject[IS_SO].is_null() || !itemObject[IS_SO].is_boolean()) {
+        items.emplace_back("false");
+    } else {
+        bool isSo = itemObject[IS_SO].get<bool>();
+        if (isSo) {
+            items.emplace_back("true");
+        } else {
+            items.emplace_back("false");
+        }
+    }
+    if (!itemObject[DEPENDENCY_ALIAS].is_null() && itemObject[DEPENDENCY_ALIAS].is_string()) {
+        std::string pkgAlias = itemObject[DEPENDENCY_ALIAS].get<std::string>();
+        if (!pkgAlias.empty()) {
+            pkgAliasMap[pkgAlias] = pkgName;
+        }
+    }
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

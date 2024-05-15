@@ -11,13 +11,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/account/os_account/os_account.gni")
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 import(
     "//foundation/ability/ability_runtime/services/abilitymgr/abilitymgr.gni")
-import("//foundation/distributeddatamgr/relational_store/relational_store.gni")
-import("//foundation/resourceschedule/background_task_mgr/bgtaskmgr.gni")
 
 group("abilityms_target") {
   deps = [
@@ -39,30 +36,21 @@ config("abilityms_config") {
     "${ability_runtime_innerkits_path}/app_manager/include",
     "${ability_runtime_innerkits_path}/connectionobs_manager/include",
     "${ability_runtime_innerkits_path}/deps_wrapper/include",
-    "${ability_base_path}/interfaces/inner_api/base/include",
-    "${ability_base_kits_path}/extractortool/include",
-    "${ability_base_kits_path}/uri/include",
-    "${ability_base_kits_path}/want/include",
     "${ability_runtime_services_path}/common/include",
     "//prebuilts/jdk/jdk8/linux-x86/include",
     "//prebuilts/jdk/jdk8/linux-x86/include/linux",
     "//third_party/json/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${relational_store_innerapi_path}/rdb/include",
-    "${relational_store_innerapi_path}/appdatafwk/include",
     "${relational_store_innerapi_path}/dataability/include",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
     "${ability_runtime_path}/tools/aa/include",
-    "${os_account_path}/frameworks/common/account_error/include",
-    "${os_account_path}/frameworks/common/database/include",
-    "${os_account_path}/interfaces/innerkits/osaccount/native/include",
     "${ability_runtime_innerkits_path}/wantagent/include",
     "${ability_runtime_innerkits_path}/session_handler/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
     "${ability_runtime_utils_path}/global/constant",
     "${ability_runtime_utils_path}/server/constant",
-    "${bgtaskmgr_interfaces_path}/innerkits/include",
     "${bgtaskmgr_frameworks_path}/common/include",
     "${bgtaskmgr_frameworks_path}/include",
     "${init_path}/interfaces/innerkits/include/syspara/",
@@ -145,12 +133,12 @@ ohos_shared_library("abilityms") {
     "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",
     "${ability_runtime_services_path}/common:task_handler_wrap",
-    "//third_party/icu/icu4c:shared_icuuc",
   ]
 
   external_deps = [
     "ability_base:base",
     "ability_base:configuration",
+    "ability_base:extractortool",
     "ability_base:session_info",
     "ability_base:view_data",
     "ability_base:want",
@@ -170,10 +158,13 @@ ohos_shared_library("abilityms") {
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
+    "icu:shared_icuuc",
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
     "kv_store:distributeddata_inner",
+    "os_account:os_account_innerkits",
+    "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
@@ -184,6 +175,7 @@ ohos_shared_library("abilityms") {
     "window_manager:session_manager_lite",
     "window_manager:sms",
   ]
+  public_external_deps = [ "background_task_mgr:bgtaskmgr_innerkits" ]
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
@@ -203,11 +195,10 @@ ohos_shared_library("abilityms") {
   }
 
   if (ability_runtime_graphics) {
-    deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
-
     external_deps += [
       "ability_base:session_info",
       "i18n:intl_util",
+      "icu:shared_icuuc",
       "image_framework:image_native",
       "input:libmmi-client",
       "resource_management:global_resmgr",
@@ -238,12 +229,6 @@ ohos_prebuilt_etc("uiextension_picker_config.json") {
   part_name = "ability_runtime"
 }
 
-ohos_prebuilt_etc("proxy_authorization_uri.json") {
-  source = "resource/proxy_authorization_uri.json"
-  subsystem_name = "ability"
-  part_name = "ability_runtime"
-}
-
 ohos_prebuilt_etc("deeplink_reserve_config.json") {
   source = "resource/deeplink_reserve_config.json"
   subsystem_name = "ability"
@@ -254,7 +239,6 @@ group("ams_service_config") {
   deps = [
     ":ams_service_config.json",
     ":deeplink_reserve_config.json",
-    ":proxy_authorization_uri.json",
     ":uiextension_picker_config.json",
   ]
 }

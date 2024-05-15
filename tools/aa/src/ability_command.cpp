@@ -1799,6 +1799,8 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                 break;
             }
             case 'R': {
+                // 'aa start -R'
+                // app multi thread
                 isMultiThread = true;
                 TAG_LOGD(AAFwkTag::AA_TOOL, "isMultiThread");
             }

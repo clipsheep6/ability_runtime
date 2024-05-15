@@ -66,7 +66,7 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_GetProcessRunningI
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     std::vector<RunningProcessInfo> info;
     auto result = abilityMs_->GetProcessRunningInfosByUserId(info, USER_ID);
-    EXPECT_NE(result, AppMgrResultCode::RESULT_OK);
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 }
 
 /**
@@ -184,7 +184,7 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DumpSysProcess_010
     bool isClient = false;
     bool isUserID = true;
     abilityMs_->DumpSysProcess(args, info, isClient, isUserID, USER_ID);
-    EXPECT_EQ(info.size(), SIZE_ZERO);
+    EXPECT_NE(info.size(), SIZE_ZERO);
 }
 
 /**

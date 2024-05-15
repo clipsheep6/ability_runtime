@@ -592,10 +592,10 @@ HWTEST_F(AppMgrServiceInnerTest, LaunchApplication_001, TestSize.Level0)
     appMgrServiceInner->LaunchApplication(appRecord);
 
     Want want;
-    appRecord->SetSpecifiedAbilityFlagAndWant(false, want, "");
+    appRecord->SetSpecifiedAbilityFlagAndWant(-1, want, "");
     appMgrServiceInner->LaunchApplication(appRecord);
 
-    appRecord->SetSpecifiedAbilityFlagAndWant(true, want, "");
+    appRecord->SetSpecifiedAbilityFlagAndWant(1, want, "");
     appMgrServiceInner->LaunchApplication(appRecord);
 
     appMgrServiceInner->configuration_ = nullptr;
@@ -2033,7 +2033,7 @@ HWTEST_F(AppMgrServiceInnerTest, HandleAddAbilityStageTimeOut_001, TestSize.Leve
     appRecord->eventId_ = 0;
     appMgrServiceInner->HandleAddAbilityStageTimeOut(0);
 
-    appRecord->isSpecifiedAbility_ = true;
+    appRecord->specifiedRequestId_ = 1;
     appMgrServiceInner->HandleAddAbilityStageTimeOut(0);
 
     sptr<IStartSpecifiedAbilityResponse> response;
@@ -2665,14 +2665,14 @@ HWTEST_F(AppMgrServiceInnerTest, HandleStartSpecifiedAbilityTimeOut_001, TestSiz
     appRecord->eventId_ = 0;
     appMgrServiceInner->HandleStartSpecifiedAbilityTimeOut(0);
 
-    appRecord->isSpecifiedAbility_ = true;
+    appRecord->specifiedRequestId_ = 1;
     appMgrServiceInner->HandleStartSpecifiedAbilityTimeOut(0);
 
     sptr<IStartSpecifiedAbilityResponse> response;
     appMgrServiceInner->startSpecifiedAbilityResponse_ = response;
     appMgrServiceInner->HandleStartSpecifiedAbilityTimeOut(0);
 
-    appRecord->isSpecifiedAbility_ = false;
+    appRecord->specifiedRequestId_ = -1;
     appMgrServiceInner->HandleStartSpecifiedAbilityTimeOut(0);
 
     appMgrServiceInner->appRunningManager_ = nullptr;
@@ -2904,6 +2904,26 @@ HWTEST_F(AppMgrServiceInnerTest, GetApplicationInfoByProcessID_001, TestSize.Lev
     appMgrServiceInner->GetApplicationInfoByProcessID(pid, application, debug);
 
     TAG_LOGI(AAFwkTag::TEST, "GetApplicationInfoByProcessID_001 end");
+}
+
+/**
+ * @tc.name: NotifyAppMgrRecordExitReason_001
+ * @tc.desc: NotifyAppMgrRecordExitReason.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, NotifyAppMgrRecordExitReason_001, TestSize.Level0)
+{
+    TAG_LOGI(AAFwkTag::TEST, "NotifyAppMgrRecordExitReason_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    int32_t reason = 0;
+    int32_t pid = 1;
+    std::string exitMsg = "JsError";
+    auto ret = appMgrServiceInner->NotifyAppMgrRecordExitReason(reason, pid, exitMsg);
+    EXPECT_NE(ret, ERR_OK);
+    TAG_LOGI(AAFwkTag::TEST, "NotifyAppMgrRecordExitReason_001 end");
 }
 
 /**
@@ -3902,7 +3922,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendAppLaunchEvent_001, TestSize.Level0)
     appRecord->SetKeepAliveEnableState(false);
     appRecord->SetEmptyKeepAliveAppState(false);
     Want want;
-    appRecord->SetSpecifiedAbilityFlagAndWant(false, want, "");
+    appRecord->SetSpecifiedAbilityFlagAndWant(-1, want, "");
     appMgrServiceInner->SendAppLaunchEvent(appRecord);
     appRecord->SetCallerPid(appRecord2->GetPriorityObject()->GetPid());
     appMgrServiceInner->SendAppLaunchEvent(appRecord);

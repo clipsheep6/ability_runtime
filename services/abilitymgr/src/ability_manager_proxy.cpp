@@ -22,7 +22,6 @@
 #include "ability_connect_callback_proxy.h"
 #include "ability_connect_callback_stub.h"
 #include "ability_manager_errors.h"
-#include "ability_scheduler_proxy.h"
 #include "ability_scheduler_stub.h"
 #include "ability_util.h"
 #include "appexecfwk_errors.h"
@@ -656,12 +655,12 @@ int AbilityManagerProxy::PreloadUIExtensionAbility(const Want &want, std::string
     }
 
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, &want);
-    
+
     if (!data.WriteString16(Str8ToStr16(hostBundleName))) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "hostBundleName write failed.");
         return ERR_INVALID_VALUE;
     }
-    
+
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, userId);
     int error;
     MessageParcel reply;
@@ -759,7 +758,7 @@ int AbilityManagerProxy::StartUIExtensionAbility(const sptr<SessionInfo> &extens
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
+int AbilityManagerProxy::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bool &isColdStart)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -783,6 +782,7 @@ int AbilityManagerProxy::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
+    isColdStart = reply.ReadBool();
     return reply.ReadInt32();
 }
 

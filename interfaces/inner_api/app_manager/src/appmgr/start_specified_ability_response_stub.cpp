@@ -64,7 +64,7 @@ int32_t StartSpecifiedAbilityResponseStub::HandleOnAcceptWantResponse(MessagePar
     }
 
     auto flag = Str16ToStr8(data.ReadString16());
-    OnAcceptWantResponse(*want, flag);
+    OnAcceptWantResponse(*want, flag, data.ReadInt32());
     delete want;
     return NO_ERROR;
 }
@@ -77,7 +77,7 @@ int32_t StartSpecifiedAbilityResponseStub::HandleOnTimeoutResponse(MessageParcel
         return ERR_INVALID_VALUE;
     }
 
-    OnTimeoutResponse(*want);
+    OnTimeoutResponse(*want, data.ReadInt32());
     delete want;
     return NO_ERROR;
 }
@@ -91,7 +91,7 @@ int32_t StartSpecifiedAbilityResponseStub::HandleOnNewProcessRequestResponse(Mes
     }
 
     auto flag = Str16ToStr8(data.ReadString16());
-    OnNewProcessRequestResponse(*want, flag);
+    OnNewProcessRequestResponse(*want, flag, data.ReadInt32());
     delete want;
     return NO_ERROR;
 }
@@ -105,7 +105,7 @@ int32_t StartSpecifiedAbilityResponseStub::HandleOnNewProcessRequestTimeoutRespo
         return ERR_INVALID_VALUE;
     }
 
-    OnNewProcessRequestTimeoutResponse(*want);
+    OnNewProcessRequestTimeoutResponse(*want, data.ReadInt32());
     delete want;
     return NO_ERROR;
 }
