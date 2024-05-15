@@ -24,7 +24,7 @@ let storage = LocalStorage.GetShared();
 @Component
 struct PermissionConfirmDialog {
   @State private btn: TipBtn = { color: '#FFFFFF' }
-  private TAG = 'TipsDialog_Page'
+  private TAG = 'PermissionConfirmDialog_Page'
 
   onCloseApp() {
     console.info(this.TAG, 'click close app');
@@ -36,13 +36,15 @@ struct PermissionConfirmDialog {
   }
 
   onConfirmApp() {
-    console.info(this.TAG, 'click close app');
-    systemparameter.setSync('persist.sys.abilityms.isdialogconfirmpermission', 'true');
+    console.info(this.TAG, 'click confirm app');
+    try {
+        systemparameter.setSync('persist.sys.abilityms.isdialogconfirmpermission', 'true');
+    } catch(e) {
+        console.info("setSync:" + e);
+    }
+    console.info(globalThis.currentURL);
     router.replaceUrl({
       url: globalThis.currentURL,
-      params:{
-        data1:'message'
-      }
     })
   }
 
@@ -50,7 +52,7 @@ struct PermissionConfirmDialog {
     Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
       Flex({ justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
         Text($r('app.string.message_title_permission_confirm'))
-          .fontSize(22)
+          .fontSize(30)
           .fontWeight(FontWeight.Medium)
           .height('29%')
           .textOverflow({overflow: TextOverflow.Ellipsis})
