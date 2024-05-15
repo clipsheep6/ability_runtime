@@ -55,7 +55,7 @@ bool UriPermissionManagerStubImpl::VerifyUriPermission(const Uri &uri, uint32_t 
 {
     // verify if tokenId have uri permission record
     auto uriStr = uri.ToString();
-    TAG_LOGI(AAFwkTag::URIPERMMGR, "uri is %{private}s, flag is %{public}u, tokenId is %{public}u",
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "uri is %{private}s, flag is %{public}u, tokenId is %{public}u",
         uriStr.c_str(), flag, tokenId);
     if (!IsSAOrSystemAppCall()) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Only support SA and SystemApp called.");
@@ -75,7 +75,7 @@ bool UriPermissionManagerStubImpl::VerifyUriPermission(const Uri &uri, uint32_t 
         auto& list = search->second;
         for (auto it = list.begin(); it != list.end(); it++) {
             if ((it->targetTokenId == tokenId) && ((it->flag | FLAG_READ_URI) & newFlag) != 0) {
-                TAG_LOGI(AAFwkTag::URIPERMMGR, "have uri permission.");
+                TAG_LOGD(AAFwkTag::URIPERMMGR, "have uri permission.");
                 return true;
             }
         }
@@ -260,7 +260,7 @@ int UriPermissionManagerStubImpl::AddTempUriPermission(const std::string &uri, u
                 return ERR_OK;
             }
             // w-r
-            TAG_LOGI(AAFwkTag::URIPERMMGR, "Uri has been granted, not to grant again.");
+            TAG_LOGD(AAFwkTag::URIPERMMGR, "Uri has been granted, not to grant again.");
             if ((item.flag & FLAG_WRITE_URI) != 0 && (flag & FLAG_WRITE_URI) == 0) {
                 return ERR_OK;
             }
@@ -279,7 +279,7 @@ int UriPermissionManagerStubImpl::AddTempUriPermission(const std::string &uri, u
 int UriPermissionManagerStubImpl::GrantUriPermissionImpl(const Uri &uri, unsigned int flag,
     TokenId callerTokenId, TokenId targetTokenId, int32_t abilityId)
 {
-    TAG_LOGI(AAFwkTag::URIPERMMGR, "uri = %{private}s, flag = %{public}i, callerTokenId = %{public}i,"
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "uri = %{private}s, flag = %{public}i, callerTokenId = %{public}i,"
         "targetTokenId = %{public}i, abilityId = %{public}i", uri.ToString().c_str(), flag, callerTokenId,
         targetTokenId, abilityId);
     ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);

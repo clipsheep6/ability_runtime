@@ -1626,7 +1626,7 @@ bool AbilityRecord::GrantUriPermissionForServiceExtension()
         std::lock_guard guard(wantLock_);
         auto callerTokenId = want_.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, 0);
         auto callerName = want_.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
-        TAG_LOGI(AAFwkTag::ABILITYMGR,
+        TAG_LOGD(AAFwkTag::ABILITYMGR,
             "CallerName is %{public}s, callerTokenId is %{public}u", callerName.c_str(), callerTokenId);
         GrantUriPermission(want_, applicationInfo_.bundleName, false, callerTokenId);
         return true;
@@ -3039,7 +3039,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     }
 
     if ((want.GetFlags() & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "Do not call uriPermissionMgr.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Do not call uriPermissionMgr.");
         return;
     }
     if (IsDmsCall(want)) {

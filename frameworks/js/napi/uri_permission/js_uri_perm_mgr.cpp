@@ -175,7 +175,7 @@ private:
 
 napi_value CreateJsUriPermMgr(napi_env env, napi_value exportObj)
 {
-    TAG_LOGI(AAFwkTag::URIPERMMGR, "CreateJsUriPermMgr is called");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "CreateJsUriPermMgr is called");
     if (env == nullptr || exportObj == nullptr) {
         TAG_LOGI(AAFwkTag::URIPERMMGR, "Invalid input parameters");
         return nullptr;

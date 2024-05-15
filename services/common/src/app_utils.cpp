@@ -81,7 +81,7 @@ bool AppUtils::IsInheritWindowSplitScreenMode()
         isInheritWindowSplitScreenMode_.value = system::GetBoolParameter(INHERIT_WINDOW_SPLIT_SCREEN_MODE, true);
         isInheritWindowSplitScreenMode_.isLoaded = true;
     }
-    TAG_LOGI(AAFwkTag::DEFAULT, "isInheritWindowSplitScreenMode is %{public}d", isInheritWindowSplitScreenMode_.value);
+    TAG_LOGD(AAFwkTag::DEFAULT, "isInheritWindowSplitScreenMode is %{public}d", isInheritWindowSplitScreenMode_.value);
     return isInheritWindowSplitScreenMode_.value;
 }
 
@@ -101,7 +101,7 @@ int32_t AppUtils::GetTimeoutUnitTimeRatio()
         timeoutUnitTimeRatio_.value = system::GetIntParameter<int32_t>(TIMEOUT_UNIT_TIME_RATIO, 1);
         timeoutUnitTimeRatio_.isLoaded = true;
     }
-    TAG_LOGI(AAFwkTag::DEFAULT, "timeoutUnitTimeRatio is %{public}d", timeoutUnitTimeRatio_.value);
+    TAG_LOGD(AAFwkTag::DEFAULT, "timeoutUnitTimeRatio is %{public}d", timeoutUnitTimeRatio_.value);
     return timeoutUnitTimeRatio_.value;
 }
 
@@ -171,7 +171,7 @@ bool AppUtils::IsMultiProcessModel()
         isMultiProcessModel_.value = system::GetBoolParameter(MULTI_PROCESS_MODEL, false);
         isMultiProcessModel_.isLoaded = true;
     }
-    TAG_LOGI(AAFwkTag::DEFAULT, "isMultiProcessModel_ is %{public}d", isMultiProcessModel_.value);
+    TAG_LOGD(AAFwkTag::DEFAULT, "isMultiProcessModel_ is %{public}d", isMultiProcessModel_.value);
     return isMultiProcessModel_.value;
 }
 

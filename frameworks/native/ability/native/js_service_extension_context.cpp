@@ -210,7 +210,7 @@ private:
     napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info, bool isStartRecent = false)
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-        TAG_LOGI(AAFwkTag::SERVICE_EXT, "StartAbility");
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "StartAbility");
         if (info.argc < ARGC_ONE) {
             TAG_LOGE(AAFwkTag::SERVICE_EXT, "Start ability failed, not enough params.");
             ThrowTooFewParametersError(env);
@@ -782,7 +782,7 @@ private:
 
     napi_value OnDisconnectAbility(napi_env env, NapiCallbackInfo& info)
     {
-        TAG_LOGI(AAFwkTag::SERVICE_EXT, "DisconnectAbility start");
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "DisconnectAbility start");
         if (info.argc < ARGC_ONE) {
             TAG_LOGE(AAFwkTag::SERVICE_EXT, "Disconnect ability error, not enough params.");
             ThrowTooFewParametersError(env);
@@ -1077,7 +1077,7 @@ private:
                 return;
             }
             if (*retCode == 0) {
-                TAG_LOGI(AAFwkTag::SERVICE_EXT, "StartAbility is success");
+                TAG_LOGD(AAFwkTag::SERVICE_EXT, "StartAbility is success");
                 task.Resolve(env, CreateJsUndefined(env));
             } else {
                 task.Reject(env, CreateJsErrorByNativeErr(env, *retCode));
@@ -1277,7 +1277,7 @@ void JSServiceExtensionConnection::OnAbilityDisconnectDone(const AppExecFwk::Ele
 void JSServiceExtensionConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
     int resultCode)
 {
-    TAG_LOGI(AAFwkTag::SERVICE_EXT, "HandleOnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "HandleOnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
     napi_value napiElementName = OHOS::AppExecFwk::WrapElementName(env_, element);
     napi_value argv[] = {napiElementName};
     if (jsConnectionObject_ == nullptr) {

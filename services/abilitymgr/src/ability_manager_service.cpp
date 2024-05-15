@@ -586,7 +586,7 @@ int32_t AbilityManagerService::StartAbilityByFreeInstall(const Want &want, sptr<
         return ERR_INVALID_CONTINUATION_FLAG;
     }
 
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "Start ability come, ability is %{public}s, userId is %{public}d",
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Start ability come, ability is %{public}s, userId is %{public}d",
         want.GetElement().GetAbilityName().c_str(), userId);
 
     int32_t ret = StartAbilityWrap(want, callerToken, requestCode, userId);
@@ -4562,7 +4562,7 @@ int AbilityManagerService::MoveMissionsToBackground(const std::vector<int32_t>& 
 
 int32_t AbilityManagerService::GetMissionIdByToken(const sptr<IRemoteObject> &token)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "request GetMissionIdByToken.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "request GetMissionIdByToken.");
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     if (!abilityRecord) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityRecord is null.");
@@ -5411,7 +5411,7 @@ int AbilityManagerService::ScheduleDisconnectAbilityDone(const sptr<IRemoteObjec
 int AbilityManagerService::ScheduleCommandAbilityDone(const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "Schedule command ability done.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Schedule command ability done.");
     if (!VerificationAllToken(token)) {
         return ERR_INVALID_VALUE;
     }
@@ -5973,7 +5973,7 @@ int AbilityManagerService::PreLoadAppDataAbilities(const std::string &bundleName
 
 void AbilityManagerService::PreLoadAppDataAbilitiesTask(const std::string &bundleName, const int32_t userId)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto dataAbilityManager = GetDataAbilityManagerByUserId(userId);
     if (dataAbilityManager == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid data ability manager when app data abilities preloading.");
