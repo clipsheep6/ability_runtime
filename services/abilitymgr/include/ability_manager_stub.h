@@ -70,6 +70,7 @@ private:
     void SecondStepInit();
     void ThirdStepInit();
     void FourthStepInit();
+    void FifthStepInit();
     int TerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
     int TerminateUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
     int CloseUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
@@ -298,6 +299,7 @@ private:
     int32_t NotifyDebugAssertResultInner(MessageParcel &data, MessageParcel &reply);
     int32_t StartShortcutInner(MessageParcel &data, MessageParcel &reply);
     int32_t GetAbilityStateByPersistentIdInner(MessageParcel &data, MessageParcel &reply);
+    int32_t TransferAbilityResultForExtensionInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS
