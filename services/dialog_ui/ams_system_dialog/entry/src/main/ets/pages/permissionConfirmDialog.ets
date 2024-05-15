@@ -48,7 +48,7 @@ struct PermissionConfirmDialog {
     Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
       Flex({ justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
         Text($r('app.string.message_title_permission_confirm'))
-          .fontSize(22)
+          .fontSize(10)
           .fontWeight(FontWeight.Medium)
           .height('29%')
           .textOverflow({overflow: TextOverflow.Ellipsis})
