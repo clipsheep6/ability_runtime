@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <chrono>
 #include <unistd.h>
+#include <string>
 
 #include "errors.h"
 #include "hilog_tag_wrapper.h"
@@ -105,7 +106,9 @@ int32_t AppExitReasonDataManager::SetAppExitReason(const std::string &bundleName
         }
     }
 
-    DistributedKv::Key key(bundleName);
+    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
+    std::string tokenid = std::to_string(accessToken);
+    DistributedKv::Key key(tokenid);
     DistributedKv::Value value = ConvertAppExitReasonInfoToValue(abilityList, exitReason);
     DistributedKv::Status status;
     {
@@ -135,8 +138,9 @@ int32_t AppExitReasonDataManager::DeleteAppExitReason(const std::string &bundleN
             return ERR_NO_INIT;
         }
     }
-
-    std::string keyUiExten = bundleName + SEPARATOR;
+    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
+    std::string tokenid = std::to_string(accessToken);
+    std::string keyUiExten = tokenid + SEPARATOR;
     std::vector<DistributedKv::Entry> allEntries;
     DistributedKv::Status status = kvStorePtr_->GetEntries(nullptr, allEntries);
     if (status != DistributedKv::Status::SUCCESS) {
@@ -146,7 +150,7 @@ int32_t AppExitReasonDataManager::DeleteAppExitReason(const std::string &bundleN
 
     for (const auto &item : allEntries) {
         const auto &keyValue = item.key.ToString();
-        if (keyValue != bundleName && keyValue.find(keyUiExten) == std::string::npos) {
+        if (keyValue != tokenid && keyValue.find(keyUiExten) == std::string::npos) {
             continue;
         }
 
@@ -189,8 +193,10 @@ int32_t AppExitReasonDataManager::GetAppExitReason(const std::string &bundleName
     std::vector<std::string> abilityList;
     int64_t time_stamp;
     isSetReason = false;
+    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
+    std::string tokenid = std::to_string(accessToken);
     for (const auto &item : allEntries) {
-        if (item.key.ToString() == bundleName) {
+        if (item.key.ToString() == tokenid) {
             ConvertAppExitReasonInfoFromValue(item.value, exitReason, time_stamp, abilityList);
             auto pos = std::find(abilityList.begin(), abilityList.end(), abilityName);
             if (pos != abilityList.end()) {
@@ -219,8 +225,9 @@ void AppExitReasonDataManager::UpdateAppExitReason(const std::string &bundleName
         TAG_LOGE(AAFwkTag::ABILITYMGR, "kvStore is nullptr.");
         return;
     }
-
-    DistributedKv::Key key(bundleName);
+    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
+    std::string tokenid = std::to_string(accessToken);
+    DistributedKv::Key key(tokenid);
     DistributedKv::Status status;
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
@@ -291,8 +298,9 @@ void AppExitReasonDataManager::InnerDeleteAppExitReason(const std::string &bundl
         TAG_LOGE(AAFwkTag::ABILITYMGR, "kvStore is nullptr");
         return;
     }
-
-    DistributedKv::Key key(bundleName);
+    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
+    std::string tokenid = std::to_string(accessToken);
+    DistributedKv::Key key(tokenid);
     DistributedKv::Status status;
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
@@ -318,7 +326,9 @@ int32_t AppExitReasonDataManager::AddAbilityRecoverInfo(const std::string &bundl
         }
     }
 
-    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + bundleName);
+    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
+    std::string tokenid = std::to_string(accessToken);
+    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + tokenid);
     DistributedKv::Value value;
     DistributedKv::Status status = kvStorePtr_->Get(key, value);
     if (status != DistributedKv::Status::SUCCESS && status != DistributedKv::Status::KEY_NOT_FOUND) {
@@ -370,7 +380,9 @@ int32_t AppExitReasonDataManager::DeleteAbilityRecoverInfo(
         }
     }
 
-    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + bundleName);
+    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
+    std::string tokenid = std::to_string(accessToken);
+    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + tokenid);
     DistributedKv::Value value;
     DistributedKv::Status status = kvStorePtr_->Get(key, value);
     if (status != DistributedKv::Status::SUCCESS) {
@@ -414,7 +426,9 @@ int32_t AppExitReasonDataManager::GetAbilityRecoverInfo(
         }
     }
 
-    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + bundleName);
+    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
+    std::string tokenid = std::to_string(accessToken);
+    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + tokenid);
     DistributedKv::Value value;
     DistributedKv::Status status = kvStorePtr_->Get(key, value);
     if (status != DistributedKv::Status::SUCCESS) {
@@ -452,7 +466,9 @@ int32_t AppExitReasonDataManager::GetAbilitySessionId(const std::string &bundleN
         }
     }
 
-    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + bundleName);
+    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
+    std::string tokenid = std::to_string(accessToken);
+    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + tokenid);
     DistributedKv::Value value;
     DistributedKv::Status status = kvStorePtr_->Get(key, value);
     if (status != DistributedKv::Status::SUCCESS) {
@@ -494,8 +510,10 @@ int32_t AppExitReasonDataManager::SetUIExtensionAbilityExitReason(
         }
     }
 
+    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
+    std::string tokenid = std::to_string(accessToken);
     for (const auto &extension : extensionList) {
-        std::string keyEx = bundleName + SEPARATOR + extension;
+        std::string keyEx = tokenid + SEPARATOR + extension;
         DistributedKv::Key key(keyEx);
         DistributedKv::Value value = ConvertAppExitReasonInfoToValueOfExtensionName(extension, exitReason);
         DistributedKv::Status status;
@@ -553,7 +571,9 @@ void AppExitReasonDataManager::UpdateAbilityRecoverInfo(const std::string &bundl
         return;
     }
 
-    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + bundleName);
+    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
+    std::string tokenid = std::to_string(accessToken);
+    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + tokenid);
     DistributedKv::Status status;
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
@@ -623,7 +643,9 @@ void AppExitReasonDataManager::InnerDeleteAbilityRecoverInfo(const std::string &
         return;
     }
 
-    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + bundleName);
+    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
+    std::string tokenid = std::to_string(accessToken);
+    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + tokenid);
     DistributedKv::Status status;
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
