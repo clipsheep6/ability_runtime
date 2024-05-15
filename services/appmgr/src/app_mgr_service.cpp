@@ -1102,6 +1102,15 @@ int32_t AppMgrService::GetBundleNameByPid(const int32_t pid, std::string &bundle
     return appMgrServiceInner_->GetBundleNameByPid(pid, bundleName, uid);
 }
 
+int32_t AppMgrService::GetProcessStateByPid(const int32_t pid, AppExecFwk::AppProcessState &processState)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->GetProcessStateByPid(pid, processState);
+}
+
 int32_t AppMgrService::NotifyAppFault(const FaultData &faultData)
 {
     if (!IsReady()) {
