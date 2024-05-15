@@ -100,6 +100,11 @@ public:
     explicit AppSpawnClient(bool isNWebSpawn = false);
 
     /**
+     * Constructor by service name
+     */
+    explicit AppSpawnClient(const char* serviceName);
+
+    /**
      * Destructor
      */
     virtual ~AppSpawnClient();
