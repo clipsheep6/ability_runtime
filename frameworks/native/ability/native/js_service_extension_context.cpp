@@ -1186,7 +1186,7 @@ napi_value CreateJsServiceExtensionContext(napi_env env, std::shared_ptr<Service
     BindNativeFunction(env, object, "startServiceExtensionAbility", moduleName,
         JsServiceExtensionContext::StartServiceExtensionAbility);
     BindNativeFunction(env, object, "startUIServiceExtension", moduleName,
-        JsServiceExtensionContext::StartUIServiceExtension);
+        JsServiceExtensionContext::StartUIServiceExtensionAbility);
     BindNativeFunction(env, object, "startServiceExtensionAbilityWithAccount", moduleName,
         JsServiceExtensionContext::StartServiceExtensionAbilityWithAccount);
     BindNativeFunction(env, object, "stopServiceExtensionAbility", moduleName,
