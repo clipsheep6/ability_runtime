@@ -34,10 +34,9 @@ class UnlockScreenManager {
 public:
     static UnlockScreenManager &GetInstance();
     ~UnlockScreenManager();
-    bool UnlockScreen();
+    void UnlockScreen();
 private:
     UnlockScreenManager();
-    
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
