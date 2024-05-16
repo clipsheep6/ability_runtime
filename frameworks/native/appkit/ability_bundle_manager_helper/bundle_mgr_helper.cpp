@@ -82,7 +82,7 @@ ErrCode BundleMgrHelper::InstallSandboxApp(const std::string &bundleName, int32_
 ErrCode BundleMgrHelper::UninstallSandboxApp(const std::string &bundleName, int32_t appIndex, int32_t userId)
 {
     TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "Called.");
-    if (bundleName.empty() || appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+    if (bundleName.empty() || appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         TAG_LOGE(AAFwkTag::BUNDLEMGRHELPER, "The params are invalid.");
         return ERR_APPEXECFWK_SANDBOX_INSTALL_PARAM_ERROR;
     }
@@ -113,7 +113,7 @@ ErrCode BundleMgrHelper::GetSandboxBundleInfo(
     const std::string &bundleName, int32_t appIndex, int32_t userId, BundleInfo &info)
 {
     TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "Called.");
-    if (bundleName.empty() || appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+    if (bundleName.empty() || appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         TAG_LOGE(AAFwkTag::BUNDLEMGRHELPER, "The params are invalid.");
         return ERR_APPEXECFWK_SANDBOX_INSTALL_PARAM_ERROR;
     }
@@ -131,7 +131,7 @@ ErrCode BundleMgrHelper::GetSandboxAbilityInfo(const Want &want, int32_t appInde
     AbilityInfo &abilityInfo)
 {
     TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "Called.");
-    if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+    if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         TAG_LOGE(AAFwkTag::BUNDLEMGRHELPER, "The params are invalid.");
         return ERR_APPEXECFWK_SANDBOX_INSTALL_PARAM_ERROR;
     }
@@ -152,7 +152,7 @@ ErrCode BundleMgrHelper::GetSandboxExtAbilityInfos(const Want &want, int32_t app
     int32_t userId, std::vector<ExtensionAbilityInfo> &extensionInfos)
 {
     TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "Called.");
-    if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+    if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         TAG_LOGE(AAFwkTag::BUNDLEMGRHELPER, "The params are invalid.");
         return ERR_APPEXECFWK_SANDBOX_INSTALL_PARAM_ERROR;
     }
@@ -170,7 +170,7 @@ ErrCode BundleMgrHelper::GetSandboxHapModuleInfo(const AbilityInfo &abilityInfo,
     HapModuleInfo &hapModuleInfo)
 {
     TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "Called.");
-    if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+    if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         TAG_LOGE(AAFwkTag::BUNDLEMGRHELPER, "The params are invalid.");
         return ERR_APPEXECFWK_SANDBOX_INSTALL_PARAM_ERROR;
     }
@@ -798,7 +798,7 @@ ErrCode BundleMgrHelper::GetLaunchWantForBundle(const std::string &bundleName, W
     return bundleMgr->GetLaunchWantForBundle(bundleName, want, userId);
 }
 
-ErrCode BundleMgrHelper::QueryCloneAbilityInfo(const ElementName &element, int32_t flags, int32_t appTwinIndex,
+ErrCode BundleMgrHelper::QueryCloneAbilityInfo(const ElementName &element, int32_t flags, int32_t appCloneIndex,
     AbilityInfo &abilityInfo, int32_t userId)
 {
     TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "Called.");
@@ -808,10 +808,10 @@ ErrCode BundleMgrHelper::QueryCloneAbilityInfo(const ElementName &element, int32
         return ERR_APPEXECFWK_SERVICE_INTERNAL_ERROR;
     }
 
-    return bundleMgr->QueryCloneAbilityInfo(element, flags, appTwinIndex, abilityInfo, userId);
+    return bundleMgr->QueryCloneAbilityInfo(element, flags, appCloneIndex, abilityInfo, userId);
 }
 
-ErrCode BundleMgrHelper::GetCloneBundleInfo(const std::string &bundleName, int32_t flags, int32_t appTwinIndex,
+ErrCode BundleMgrHelper::GetCloneBundleInfo(const std::string &bundleName, int32_t flags, int32_t appCloneIndex,
     BundleInfo &bundleInfo, int32_t userId)
 {
     TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "Called.");
@@ -821,7 +821,7 @@ ErrCode BundleMgrHelper::GetCloneBundleInfo(const std::string &bundleName, int32
         return ERR_APPEXECFWK_SERVICE_INTERNAL_ERROR;
     }
 
-    return bundleMgr->GetCloneBundleInfo(bundleName, flags, appTwinIndex, bundleInfo, userId);
+    return bundleMgr->GetCloneBundleInfo(bundleName, flags, appCloneIndex, bundleInfo, userId);
 }
 
 }  // namespace AppExecFwk

@@ -1286,7 +1286,7 @@ bool UIAbilityLifecycleManager::CheckProperties(const std::shared_ptr<AbilityRec
     return abilityInfo.launchMode == launchMode && abilityRequest.abilityInfo.name == abilityInfo.name &&
         abilityRequest.abilityInfo.bundleName == abilityInfo.bundleName &&
         abilityRequest.abilityInfo.moduleName == abilityInfo.moduleName &&
-        AbilityRuntime::StartupUtil::GetAppTwinIndex(abilityRequest.want) == abilityRecord->GetAppIndex();
+        AbilityRuntime::StartupUtil::GetAppIndex(abilityRequest.want) == abilityRecord->GetAppIndex();
 }
 
 void UIAbilityLifecycleManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId, bool isHalf)

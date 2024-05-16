@@ -18,7 +18,7 @@
 
 namespace OHOS::AbilityRuntime {
 namespace GlobalConstant {
-constexpr int32_t MAX_APP_TWIN_INDEX = 1000;
+constexpr int32_t MAX_APP_CLONE_INDEX = 1000;
 }  // namespace GlobalConstant
 }  // namespace OHOS::AbilityRuntime
 #endif  // OHOS_ABILITY_RUNTIME_GLOBAL_CONSTANT_H

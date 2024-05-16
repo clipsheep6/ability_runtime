@@ -415,7 +415,7 @@ int32_t AppMgrService::JudgeSandboxByPid(pid_t pid, bool &isSandbox)
         return ERR_INVALID_OPERATION;
     }
     auto appRunningRecord = appMgrServiceInner_->GetAppRunningRecordByPid(pid);
-    if (appRunningRecord && appRunningRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+    if (appRunningRecord && appRunningRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         isSandbox = true;
         TAG_LOGD(AAFwkTag::APPMGR, "current app is a sandbox.");
         return ERR_OK;

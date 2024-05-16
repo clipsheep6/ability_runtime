@@ -50,8 +50,8 @@ void StartupUtilTest::TearDown()
 HWTEST_F(StartupUtilTest, startup_util_test_001, TestSize.Level1)
 {
     AAFwk::Want want;
-    auto appTwinIndex = StartupUtil::GetAppTwinIndex(want);
-    EXPECT_EQ(appTwinIndex, 0);
+    auto appIndex = StartupUtil::GetAppIndex(want);
+    EXPECT_EQ(appIndex, 0);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

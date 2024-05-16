@@ -546,7 +546,7 @@ bool MissionListManager::HandleReusedMissionAndAbility(const AbilityRequest &abi
 
 std::string MissionListManager::GetMissionName(const AbilityRequest &abilityRequest) const
 {
-    int32_t appIndex = AbilityRuntime::StartupUtil::GetAppTwinIndex(abilityRequest.want);
+    int32_t appIndex = AbilityRuntime::StartupUtil::GetAppIndex(abilityRequest.want);
     return AbilityUtil::ConvertBundleNameSingleton(abilityRequest.abilityInfo.bundleName,
         abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName, appIndex);
 }
@@ -676,7 +676,7 @@ void MissionListManager::BuildInnerMissionInfo(InnerMissionInfo &info, const std
     info.missionInfo.unclearable = abilityRequest.abilityInfo.unclearableMission;
     info.isTemporary = abilityRequest.abilityInfo.removeMissionAfterTerminate;
     auto dlpIndex = abilityRequest.want.GetIntParam(AbilityRuntime::ServerConstant::DLP_INDEX, 0);
-    if (dlpIndex > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+    if (dlpIndex > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         info.isTemporary = true;
     }
     info.specifiedFlag = abilityRequest.specifiedFlag;
@@ -1788,7 +1788,7 @@ void MissionListManager::CompleteTerminateAndUpdateMission(const std::shared_ptr
             terminateAbilityList_.remove(it);
             // update inner mission info time
             bool excludeFromMissions = abilityRecord->GetAbilityInfo().excludeFromMissions;
-            if ((abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) ||
+            if ((abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) ||
                 abilityRecord->GetAbilityInfo().removeMissionAfterTerminate || excludeFromMissions) {
                 RemoveMissionLocked(abilityRecord->GetMissionId(), excludeFromMissions);
                 return;
@@ -2010,7 +2010,7 @@ void MissionListManager::UpdateSnapShot(const sptr<IRemoteObject> &token,
         return;
     }
     int32_t missionId = abilityRecord->GetMissionId();
-    auto isPrivate = abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX;
+    auto isPrivate = abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX;
     DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionSnapshot(missionId, pixelMap, isPrivate);
     if (listenerController_) {
         listenerController_->NotifyMissionSnapshotChanged(missionId);
@@ -2172,7 +2172,7 @@ void MissionListManager::UpdateMissionSnapshot(const std::shared_ptr<AbilityReco
     }
     int32_t missionId = abilityRecord->GetMissionId();
     MissionSnapshot snapshot;
-    snapshot.isPrivate = (abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX);
+    snapshot.isPrivate = (abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX);
     DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionSnapshot(missionId, abilityRecord->GetToken(),
         snapshot);
     if (listenerController_) {
@@ -2697,7 +2697,7 @@ void MissionListManager::HandleAbilityDiedByDefault(std::shared_ptr<AbilityRecor
     // update running state.
     auto missionId = mission->GetMissionId();
     if (!ability->IsUninstallAbility()) {
-        if ((ability->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) ||
+        if ((ability->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) ||
             ability->GetAbilityInfo().removeMissionAfterTerminate || ability->GetAbilityInfo().excludeFromMissions) {
             RemoveMissionLocked(missionId, ability->GetAbilityInfo().excludeFromMissions);
         } else {
@@ -3611,7 +3611,7 @@ bool MissionListManager::GetMissionSnapshot(int32_t missionId, const sptr<IRemot
         if (abilityRecord && abilityRecord->IsAbilityState(FOREGROUND)) {
             forceSnapshot = true;
             missionSnapshot.isPrivate =
-                (abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX);
+                (abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX);
         }
     }
     return DelayedSingleton<MissionInfoMgr>::GetInstance()->GetMissionSnapshot(
