@@ -19,6 +19,7 @@ import UIExtensionAbility from '@ohos.app.ability.UIExtensionAbility';
 import wantConstant from '@ohos.app.ability.wantConstant';
 import type Want from '@ohos.app.ability.Want';
 import type UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession';
+import systemparameter from '@ohos.systemParameterEnhance';
 
 const TAG = 'AssertFaultDialog_UIExtension';
 const TEXT_DETAIL = 'assertFaultDialogDetail';
@@ -47,7 +48,13 @@ export default class UiExtAbility extends UIExtensionAbility {
         'sessionId' : this.sessionId,
         'textDetail' : want.parameters[TEXT_DETAIL]
       });
-    session.loadContent('pages/assertFaultDialog', this.storage);
+    globalThis.ExtensionType = 'UIExtension';
+    if (systemparameter.getSync('persist.sys.abilityms.isdialogconfirmpermission', 'false') === 'false') {
+      globalThis.currentURL = 'pages/assertFaultDialog';
+      session.loadContent('pages/permissionConfirmDialog', this.storage);
+    } else {
+      session.loadContent('pages/assertFaultDialog', this.storage);
+    }
     session.setWindowBackgroundColor('#00000000');
   }
 
