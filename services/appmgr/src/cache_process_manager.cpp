@@ -25,6 +25,7 @@
 namespace {
 const std::string MAX_PROC_CACHE_NUM = "persist.sys.abilityms.maxProcessCacheNum";
 const std::string PROCESS_CACHE_API_CHECK_CONFIG = "persist.sys.abilityms.processCacheApiCheck";
+const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 constexpr int32_t API12 = 12;
 constexpr int32_t API_VERSION_MOD = 100;
 }
@@ -190,6 +191,9 @@ bool CacheProcessManager::IsAppSupportProcessCache(const std::shared_ptr<AppRunn
     if (shouldCheckApi && actualVer < API12) {
         TAG_LOGD(AAFwkTag::APPMGR, "App %{public}s 's apiTargetVersion has %{public}d, smaller than 12",
             appRecord->GetName().c_str(), actualVer);
+        return false;
+    }
+    if (appRecord->GetBundleName() == SHELL_ASSISTANT_BUNDLENAME) {
         return false;
     }
     auto supportState = appRecord->GetSupportProcessCacheState();
