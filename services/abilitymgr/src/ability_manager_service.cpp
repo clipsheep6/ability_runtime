@@ -2744,6 +2744,7 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
             }
             extensionSessionInfo->want.SetElementName(bundleInfo.name, bundleInfo.abilityInfos.begin()->name);
         }
+        extensionSessionInfo->want.SetParam("send_to_erms_embedded", 1);
     }
     std::string extensionTypeStr = extensionSessionInfo->want.GetStringParam(UIEXTENSION_TYPE_KEY);
     AppExecFwk::ExtensionAbilityType extensionType = extensionTypeStr.empty() ?
