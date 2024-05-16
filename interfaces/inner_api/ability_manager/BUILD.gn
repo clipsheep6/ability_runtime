@@ -122,9 +122,11 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr:abilityms_config",
   ]
 
+  #等其他部件改完后需删除public_deps
   public_deps = [ ":ability_connect_callback_stub" ]
 
   deps = [
+    ":ability_connect_callback_stub",
     ":ability_start_setting",
     ":mission_info",
     ":process_options",
