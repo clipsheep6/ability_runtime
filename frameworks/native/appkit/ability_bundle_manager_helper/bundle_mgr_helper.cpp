@@ -824,5 +824,20 @@ ErrCode BundleMgrHelper::GetCloneBundleInfo(const std::string &bundleName, int32
     return bundleMgr->GetCloneBundleInfo(bundleName, flags, appTwinIndex, bundleInfo, userId);
 }
 
+ErrCode BundleMgrHelper::QueryAbilityInfos(const Want &want, int32_t flags, int32_t userId,
+    std::vector<AbilityInfo> &abilityInfos)
+{
+    TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "Called.");
+    auto bundleMgr = Connect();
+    if (bundleMgr == nullptr) {
+        TAG_LOGE(AAFwkTag::BUNDLEMGRHELPER, "Failed to connect.");
+        return ERR_APPEXECFWK_SERVICE_INTERNAL_ERROR;
+    }
+
+    AAFwk::Want newWant = want;
+    newWant.RemoveAllFd();
+    return bundleMgr->QueryAbilityInfos(newWant, flags, userId, abilityInfos);
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

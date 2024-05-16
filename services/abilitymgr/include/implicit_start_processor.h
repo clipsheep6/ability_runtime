@@ -62,8 +62,8 @@ public:
 
     void ResetCallingIdentityAsCaller(int32_t tokenId);
 
-    int NotifyCreateModalDialog(AbilityRequest &abilityRequest, const Want &want, int32_t userId,
-        std::vector<DialogAppInfo> &dialogAppInfos);
+    int32_t ImplicitStartAbility(std::vector<DialogAppInfo> &dialogAppInfos, AbilityRequest &request, int32_t userId,
+        std::string &identity);
 
     void SetUriReservedFlag(const bool flag);
 
@@ -99,6 +99,9 @@ private:
     bool IsExistDefaultApp(int32_t userId, const std::string &typeName);
 
     bool IsCallFromAncoShellOrBroker(const sptr<IRemoteObject> &token);
+
+    int NotifyCreateModalDialog(AbilityRequest &abilityRequest, int32_t userId,
+        std::vector<DialogAppInfo> &dialogAppInfos);
 
     void SetTargetLinkInfo(const std::vector<AppExecFwk::SkillUriForAbilityAndExtension> &skillUri, Want &want);
 

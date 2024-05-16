@@ -1803,8 +1803,6 @@ private:
     int PreLoadAppDataAbilities(const std::string &bundleName, const int32_t userId);
     void PreLoadAppDataAbilitiesTask(const std::string &bundleName, const int32_t userId);
     void UpdateAsCallerSourceInfo(Want& want, sptr<IRemoteObject> asCallerSourceToken);
-    void UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken);
-    void UpdateCallerInfoFromToken(Want& want, const sptr<IRemoteObject> &token);
     int StartAbilityPublicPrechainCheck(StartAbilityParams &params);
     int StartAbilityPrechainInterceptor(StartAbilityParams &params);
     bool StartAbilityInChain(StartAbilityParams &params, int &result);
