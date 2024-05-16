@@ -44,23 +44,18 @@ UnlockScreenManager &UnlockScreenManager::GetInstance()
     return instance;
 }
 
-bool UnlockScreenManager::UnlockScreen()
+void UnlockScreenManager::UnlockScreen()
 {
     bool isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
     bool isDeveloperMode = system::GetBoolParameter(DEVELOPER_MODE_STATE, false);
     if (!isShellCall || !isDeveloperMode) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "not aa start call or not devlop mode, just start ability");
-        return true;
+        return;
     }
     bool isScreenLocked = OHOS::ScreenLock::ScreenLockManager::GetInstance()->IsScreenLocked();
     bool isScreenOn = PowerMgr::PowerMgrClient::GetInstance().IsScreenOn();
-    bool isScreenSecure = OHOS::ScreenLock::ScreenLockManager::GetInstance()->GetSecure();
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "isScreenLocked: %{public}d", isScreenLocked);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "isScreenOn: %{public}d", isScreenOn);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "isScreenSecure: %{public}d", isScreenSecure);
-    if (isScreenLocked && isScreenSecure) {
-        return false;
-    }
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "isScreenLocked: %{public}d, isScreenOn: %{public}d",
+        isScreenLocked, isScreenOn);
     if (!isScreenOn) {
         PowerMgr::PowerMgrClient::GetInstance().WakeupDevice();
     }
@@ -68,7 +63,7 @@ bool UnlockScreenManager::UnlockScreen()
         sptr<UnlockScreenCallback> listener = sptr<UnlockScreenCallback>(new (std::nothrow) UnlockScreenCallback());
         OHOS::ScreenLock::ScreenLockManager::GetInstance()->Unlock(OHOS::ScreenLock::Action::UNLOCKSCREEN, listener);
     }
-    return true;
+    return;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
