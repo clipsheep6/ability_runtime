@@ -5225,5 +5225,35 @@ int32_t AbilityManagerProxy::GetAbilityStateByPersistentId(int32_t persistentId,
     state = reply.ReadBool();
     return NO_ERROR;
 }
+
+
+int32_t AbilityManagerProxy::TransferAbilityResultForExtension(const sptr<IRemoteObject> &callerToken,
+    int32_t resultCode, const Want &want)
+{
+    if (callerToken == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callerToken is nullptr");
+        return INNER_ERR;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return IPC_PROXY_ERR;
+    }
+    if (!data.WriteRemoteObject(callerToken) || !data.WriteInt32(resultCode)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callerToken or resultCode write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
+        return INNER_ERR;
+    }
+    auto error = SendRequest(AbilityManagerInterfaceCode::TRANSFER_ABILITY_RESULT, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        return error;
+    }
+    return NO_ERROR;
+}
 } // namespace AAFwk
 } // namespace OHOS

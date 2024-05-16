@@ -26,7 +26,7 @@ int DumpFfrtHelper::DumpFfrt(std::string& result)
 {
     result.resize(MAX_BUF_SIZE);
 
-    int printNum = ffrt_dump(static_cast<uint32_t>(ffrt_dump_cmd_t::DUMP_INFO_ALL), &result[0], MAX_BUF_SIZE);
+    int printNum = ffrt_dump(ffrt_dump_cmd_t::DUMP_INFO_ALL, &result[0], MAX_BUF_SIZE);
     if (printNum > 0) {
         result.resize(printNum);
         return 0;

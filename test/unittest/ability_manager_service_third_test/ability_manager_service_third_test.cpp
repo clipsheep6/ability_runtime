@@ -2298,5 +2298,21 @@ HWTEST_F(AbilityManagerServiceThirdTest, AnonymizeDeviceId_002, TestSize.Level1)
     auto result = abilityMs->AnonymizeDeviceId(localDeviceId);
     EXPECT_EQ(result, EMPTY_DEVICE_ID);
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: TransferAbilityResultForExtension
+ * FunctionPoints: AbilityManagerService TransferAbilityResultForExtension
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, TransferAbilityResultForExtension_001, TestSize.Level1)
+{
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs, nullptr);
+    sptr<IRemoteObject> token = nullptr;
+    int32_t resultCode = 0;
+    AAFwk::Want want;
+    int32_t res = abilityMs->TransferAbilityResultForExtension(token, resultCode, want);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

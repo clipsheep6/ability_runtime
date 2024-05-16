@@ -39,12 +39,12 @@ thread_local bool StartAbilityUtils::skipErms = false;
 
 int32_t StartAbilityUtils::GetAppIndex(const Want &want, sptr<IRemoteObject> callerToken)
 {
-    int32_t appIndex = want.GetIntParam(AbilityRuntime::ServerConstant::APP_TWIN_INDEX, 0);
-    if (appIndex > 0 && appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+    int32_t appIndex = want.GetIntParam(AbilityRuntime::ServerConstant::APP_CLONE_INDEX, 0);
+    if (appIndex > 0 && appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         return appIndex;
     }
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-    if (abilityRecord && abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX &&
+    if (abilityRecord && abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX &&
         abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
         return abilityRecord->GetAppIndex();
     }
@@ -154,11 +154,11 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartAbilityInfo(const
     auto abilityInfoFlag = AbilityRuntime::StartupUtil::BuildAbilityInfoFlag() |
         AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL;
     auto request = std::make_shared<StartAbilityInfo>();
-    if (appIndex != 0 && appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+    if (appIndex != 0 && appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         IN_PROCESS_CALL_WITHOUT_RET(bms->QueryCloneAbilityInfo(want.GetElement(), abilityInfoFlag, appIndex,
             request->abilityInfo, userId));
         if (request->abilityInfo.name.empty() || request->abilityInfo.bundleName.empty()) {
-            request->status = ERR_APP_TWIN_INDEX_INVALID;
+            request->status = ERR_APP_CLONE_INDEX_INVALID;
         }
         return request;
     }

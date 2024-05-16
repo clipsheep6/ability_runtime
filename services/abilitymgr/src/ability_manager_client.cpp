@@ -1853,5 +1853,13 @@ int32_t AbilityManagerClient::GetAbilityStateByPersistentId(int32_t persistentId
     CHECK_POINTER_RETURN_INVALID_VALUE(abms);
     return abms->GetAbilityStateByPersistentId(persistentId, state);
 }
+
+int32_t AbilityManagerClient::TransferAbilityResultForExtension(const sptr<IRemoteObject> &callerToken,
+    int32_t resultCode, const Want &want)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_INVALID_VALUE(abms);
+    return abms->TransferAbilityResultForExtension(callerToken, resultCode, want);
+}
 } // namespace AAFwk
 } // namespace OHOS
