@@ -3094,15 +3094,15 @@ void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string>
 bool AbilityRecord::GrantPermissionToShell(const std::vector<std::string> &strUriVec, uint32_t flag,
     std::string targetPkg)
 {
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Grant uri permission to shell.");
     std::vector<Uri> uriVec;
     for (auto&& str : strUriVec) {
         Uri uri(str);
         auto&& scheme = uri.GetScheme();
         if (scheme != "content") {
             return false;
-        } else {
-            uriVec.emplace_back(uri);
         }
+        uriVec.emplace_back(uri);
     }
 
     uint32_t initiatorTokenId = IPCSkeleton::GetCallingTokenID();

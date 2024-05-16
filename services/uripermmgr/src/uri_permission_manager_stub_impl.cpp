@@ -130,10 +130,12 @@ int32_t UriPermissionManagerStubImpl::GrantUriPermissionPrivileged(const std::ve
 {
     TAG_LOGI(AAFwkTag::URIPERMMGR, "BundleName is %{public}s, appIndex is %{public}d, size of uriVec is %{public}zu.",
         targetBundleName.c_str(), appIndex, uriVec.size());
+
     uint32_t callerTokenId = IPCSkeleton::GetCallingTokenID();
     auto callerName = GetTokenName(callerTokenId);
     TAG_LOGD(AAFwkTag::URIPERMMGR, "callerTokenId is %{public}u, callerName is %{public}s",
         callerTokenId, callerName.c_str());
+
     auto permissionName = PermissionConstants::PERMISSION_GRANT_URI_PERMISSION_PRIVILEGED;
     if (!PermissionVerification::GetInstance()->VerifyPermissionByTokenId(callerTokenId, permissionName) &&
         !IsLinuxFusionCall()) {
@@ -147,7 +149,7 @@ int32_t UriPermissionManagerStubImpl::GrantUriPermissionPrivileged(const std::ve
     }
     flag &= FLAG_READ_WRITE_URI;
     uint32_t targetTokenId = 0;
-    auto ret = GetTokenIdByBundleName(targetBundleName, 0, targetTokenId);
+    auto ret = GetTokenIdByBundleName(targetBundleName, appIndex, targetTokenId);
     if (ret != ERR_OK) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Get tokenId failed, bundlename is %{public}s.", targetBundleName.c_str());
         return ret;
@@ -238,9 +240,9 @@ int UriPermissionManagerStubImpl::AddTempUriPermission(const std::string &uri, u
     auto search = uriMap_.find(uri);
     bool autoRemove = (abilityId != DEFAULT_ABILITY_ID);
     GrantInfo info = { flag, fromTokenId, targetTokenId, autoRemove, {} };
+    info.AddAbilityId(abilityId);
     if (search == uriMap_.end()) {
         TAG_LOGI(AAFwkTag::URIPERMMGR, "Insert an uri r/w permission.");
-        info.AddAbilityId(abilityId);
         std::list<GrantInfo> infoList = { info };
         uriMap_.emplace(uri, infoList);
         return ERR_OK;
@@ -271,7 +273,7 @@ int UriPermissionManagerStubImpl::AddTempUriPermission(const std::string &uri, u
             return ERR_OK;
         }
     }
-    TAG_LOGI(AAFwkTag::URIPERMMGR, "Insert an new uri permission record.");
+    TAG_LOGI(AAFwkTag::URIPERMMGR, "Insert a new uri permission record.");
     infoList.emplace_back(info);
     return ERR_OK;
 }
@@ -464,12 +466,12 @@ void UriPermissionManagerStubImpl::RemoveUriRecord(std::vector<std::string> &uri
             }
             if (!it->IsEmptyAbilityId()) {
                 TAG_LOGD(AAFwkTag::URIPERMMGR, "Remove an abilityId.");
-                return;
+                break;
             }
             TAG_LOGI(AAFwkTag::URIPERMMGR, "Erase an info form list.");
             list.erase(it);
             uriList.emplace_back(iter->first);
-            return;
+            break;
         }
         if (list.empty()) {
             uriMap_.erase(iter++);
@@ -957,6 +959,10 @@ bool UriPermissionManagerStubImpl::CheckUriPermission(Uri uri, uint32_t flag, To
     if (IsLinuxFusionCall()) {
         TAG_LOGI(AAFwkTag::URIPERMMGR, "Caller is linux_fusion_service.");
         return true;
+    }
+    if (uri.GetScheme() == "content") {
+        TAG_LOGI(AAFwkTag::URIPERMMGR, "uri is content type.");
+        return IsFoundationCall();
     }
     if (authority == "docs") {
         return AccessDocsUriPermission(tokenIdPermission, uri, flag);
