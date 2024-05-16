@@ -540,10 +540,7 @@ int AbilityManagerService::StartAbility(const Want &want, int32_t userId, int re
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Developer Mode is false.");
         return ERR_NOT_DEVELOPER_MODE;
     }
-    if (!UnlockScreenManager::GetInstance().UnlockScreen()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "screen need password to unlock.");
-        return INNER_ERR;
-    }
+    UnlockScreenManager::GetInstance().UnlockScreen();
     TAG_LOGD(AAFwkTag::ABILITYMGR, "coldStart:%{public}d", want.GetBoolParam("coldStart", false));
     bool startWithAccount = want.GetBoolParam(START_ABILITY_TYPE, false);
     if (startWithAccount || IsCrossUserCall(userId)) {
@@ -1196,10 +1193,7 @@ int AbilityManagerService::StartAbilityDetails(const Want &want, const AbilitySt
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Developer Mode is false.");
         return ERR_NOT_DEVELOPER_MODE;
     }
-    if (!UnlockScreenManager::GetInstance().UnlockScreen()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "screen need password to unlock.");
-        return INNER_ERR;
-    }
+    UnlockScreenManager::GetInstance().UnlockScreen();
     AbilityUtil::RemoveWantKey(const_cast<Want &>(want));
     StartAbilityParams startParams(const_cast<Want &>(want));
     startParams.callerToken = callerToken;
