@@ -6626,14 +6626,5 @@ bool isCjAbility(const std::string& info)
     }
     return info.substr(info.length() - cjCheckFlag.length()) == cjCheckFlag;
 }
-
-bool isCjAbility(const std::string& info)
-{
-    std::string cjCheckFlag = ".cj";
-    if (info.length() < cjCheckFlag.length()) {
-        return false;
-    }
-    return info.substr(info.length() - cjCheckFlag.length()) == cjCheckFlag;
-}
 }  // namespace AppExecFwk
 }  // namespace OHOS
