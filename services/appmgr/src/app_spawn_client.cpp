@@ -79,12 +79,14 @@ ErrCode AppSpawnClient::OpenConnection()
     
     AppSpawnClientHandle handle = nullptr;
     ErrCode ret = 0;
+    HILOG_INFO("service name: %{public}s", serviceName_.c_str());
     ret = AppSpawnClientInit(serviceName_.c_str(), &handle);
     if (FAILED(ret)) {
         TAG_LOGE(AAFwkTag::APPMGR, "create appspawn client faild.");
         state_ = SpawnConnectionState::STATE_CONNECT_FAILED;
         return ret;
     }
+    HILOG_INFO("Open Connection Successfully");
     handle_ = handle;
     state_ = SpawnConnectionState::STATE_CONNECTED;
 
@@ -391,6 +393,7 @@ int32_t AppSpawnClient::StartProcess(const AppSpawnStartMsg &startMsg, pid_t &pi
     }
 
     ret = AppSpawnReqMsgCreate(static_cast<AppSpawnMsgType>(startMsg.code), startMsg.procName.c_str(), &reqHandle);
+    HILOG_ERROR("msg process name %{public}s", startMsg.procName.c_str());
     if (ret != 0) {
         TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnReqMsgCreate faild.");
         return ret;
