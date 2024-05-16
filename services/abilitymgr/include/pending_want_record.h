@@ -35,7 +35,8 @@ public:
 
     PendingWantRecord();
     PendingWantRecord(const std::shared_ptr<PendingWantManager> &pendingWantManager, int32_t uid,
-        int32_t callerTokenId, const sptr<IRemoteObject> &callerToken, std::shared_ptr<PendingWantKey> key);
+        int32_t callerTokenId, int32_t appIndex, const sptr<IRemoteObject> &callerToken,
+        std::shared_ptr<PendingWantKey> key);
     virtual ~PendingWantRecord();
 
     virtual void Send(SenderInfo &senderInfo);
@@ -60,6 +61,7 @@ private:
     int32_t uid_ = 0;
     int32_t callerUid_ = 0;
     int32_t callerTokenId_ = 0;
+    int32_t appIndex_ = -1;
     sptr<IRemoteObject> callerToken_ = {};
     bool canceled_ = false;
     std::shared_ptr<PendingWantKey> key_ = {};
