@@ -332,6 +332,7 @@ int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &a
     }
     auto isSpecified = (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED);
     if (isSpecified) {
+        PreCreateProcessName(const_cast<AbilityRequest &>(abilityRequest));
         specifiedRequestMap_.emplace(specifiedRequestId_, abilityRequest);
         DelayedSingleton<AppScheduler>::GetInstance()->StartSpecifiedAbility(
             abilityRequest.want, abilityRequest.abilityInfo, specifiedRequestId_);
@@ -614,6 +615,28 @@ void UIAbilityLifecycleManager::EraseSpecifiedAbilityRecord(const std::shared_pt
     }
 }
 
+std::string UIAbilityLifecycleManager::GenerateProcessNameForNewProcessMode(const AppExecFwk::AbilityInfo& abilityInfo)
+{
+    static uint32_t index = 0;
+    std::string processName = abilityInfo.bundleName + SEPARATOR + abilityInfo.moduleName + SEPARATOR +
+        abilityInfo.name + SEPARATOR + std::to_string(index++);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "processName: %{public}s", processName.c_str());
+    return processName;
+}
+
+void UIAbilityLifecycleManager::PreCreateProcessName(AbilityRequest &abilityRequest)
+{
+    if (abilityRequest.processOptions == nullptr ||
+        !ProcessOptions::IsNewProcessMode(abilityRequest.processOptions->processMode)) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "No need to pre create process name.");
+        return;
+    }
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "create process name in advance.");
+    std::string processName = GenerateProcessNameForNewProcessMode(abilityRequest.abilityInfo);
+    abilityRequest.processOptions->processName = processName;
+    abilityRequest.abilityInfo.process = processName;
+}
+
 void UIAbilityLifecycleManager::UpdateProcessName(const AbilityRequest &abilityRequest,
     std::shared_ptr<AbilityRecord> &abilityRecord)
 {
@@ -623,11 +646,13 @@ void UIAbilityLifecycleManager::UpdateProcessName(const AbilityRequest &abilityR
         TAG_LOGD(AAFwkTag::ABILITYMGR, "No need to update process name.");
         return;
     }
-    static uint32_t index = 0;
-    std::string processName = abilityRequest.abilityInfo.bundleName + SEPARATOR +
-        abilityRequest.abilityInfo.moduleName + SEPARATOR + abilityRequest.abilityInfo.name +
-        SEPARATOR + std::to_string(index++);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "processName: %{public}s", processName.c_str());
+    std::string processName;
+    if (!abilityRequest.sessionInfo->processOptions->processName.empty()) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "The process name has been generated in advance.");
+        processName = abilityRequest.sessionInfo->processOptions->processName;
+    } else {
+        processName = GenerateProcessNameForNewProcessMode(abilityRequest.abilityInfo);
+    }
     abilityRecord->SetProcessName(processName);
 }
 
