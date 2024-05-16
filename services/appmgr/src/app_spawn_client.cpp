@@ -390,7 +390,7 @@ int32_t AppSpawnClient::StartProcess(const AppSpawnStartMsg &startMsg, pid_t &pi
         return ret;
     }
 
-    ret = AppSpawnReqMsgCreate(static_cast<AppSpawnMsgType>(startMsg.code), startMsg.procName.c_str(), &reqHandle);qqqqqqq
+    ret = AppSpawnReqMsgCreate(static_cast<AppSpawnMsgType>(startMsg.code), startMsg.procName.c_str(), &reqHandle);
     if (ret != 0) {
         TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnReqMsgCreate faild.");
         return ret;
