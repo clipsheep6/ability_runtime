@@ -2633,7 +2633,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         if (!entryHapModuleInfo.abilityInfos.empty()) {
             auto abilityName = entryHapModuleInfo.abilityInfos.front().name;
             isCJApp = isCjAbility(entryHapModuleInfo.abilityInfos.front().srcEntrance);
-            HILOG_INFO("HandleLaunchApplication entry ability name is %{public}s", abilityName.c_str());
+            TAG_LOGI("HandleLaunchApplication entry ability name is %{public}s", abilityName.c_str());
         }
     }
 
@@ -6616,15 +6616,6 @@ int32_t AppMgrServiceInner::StartNativeChildProcess(const pid_t hostPid, const s
     auto nativeChildRecord = ChildProcessRecord::CreateNativeChildProcessRecord(
         hostPid, libName, appRecord, callback, childProcessCount, false);
     return StartChildProcessImpl(nativeChildRecord, appRecord, dummyChildPid);
-}
-
-bool isCjAbility(const std::string& info)
-{
-    std::string cjCheckFlag = ".cj";
-    if (info.length() < cjCheckFlag.length()) {
-        return false;
-    }
-    return info.substr(info.length() - cjCheckFlag.length()) == cjCheckFlag;
 }
 
 bool isCjAbility(const std::string& info)
