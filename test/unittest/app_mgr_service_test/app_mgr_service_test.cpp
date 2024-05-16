@@ -402,6 +402,23 @@ HWTEST_F(AppMgrServiceTest, NotifyMemoryLevel_001, TestSize.Level0)
 
 /*
  * Feature: AppMgrService
+ * Function: GetCurrentAppCloneIndex_001
+ * SubFunction: NA
+ * FunctionPoints: AppMgrService GetCurrentAppCloneIndex
+ * EnvConditions: NA
+ * CaseDescription: Verify NotifyMemoryLevel
+ */
+HWTEST_F(AppMgrServiceTest, GetCurrentAppCloneIndex_001, TestSize.Level1)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    int32_t appIndex = 0;
+    appMgrService->SetInnerService(nullptr);
+    int32_t res = appMgrService->GetCurrentAppCloneIndex(appIndex);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+}
+
+/*
+ * Feature: AppMgrService
  * Function: NotifyMemoryLevel
  * SubFunction: NA
  * FunctionPoints: AppMgrService NotifyMemoryLevel

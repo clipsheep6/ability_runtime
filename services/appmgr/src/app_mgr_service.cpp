@@ -440,6 +440,14 @@ int32_t AppMgrService::GetProcessRunningInformation(RunningProcessInfo &info)
     return appMgrServiceInner_->GetProcessRunningInformation(info);
 }
 
+int32_t AppMgrService::GetCurrentAppCloneIndex(int32_t &appIndex)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->GetCurrentAppCloneIndex(appIndex);
+}
+
 int32_t AppMgrService::NotifyMemoryLevel(int32_t level)
 {
     if (!IsReady()) {

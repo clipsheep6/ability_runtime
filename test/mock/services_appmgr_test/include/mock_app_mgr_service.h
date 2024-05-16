@@ -154,6 +154,11 @@ public:
         return 0;
     }
 
+    virtual int GetCurrentAppCloneIndex(int32_t &appIndex)
+    {
+        return 0;
+    }
+
     virtual void RegisterAppStateCallback(const sptr<IAppStateCallback>& callback)
     {
         callback_ = callback;

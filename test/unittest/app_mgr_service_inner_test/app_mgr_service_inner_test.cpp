@@ -4282,5 +4282,20 @@ HWTEST_F(AppMgrServiceInnerTest, OnAppCacheStateChanged_001, TestSize.Level0)
 
     TAG_LOGI(AAFwkTag::TEST, "OnAppCacheStateChanged_001 end");
 }
+
+/**
+ * @tc.name: GetCurrentAppCloneIndex_0100
+ * @tc.desc: GetCurrentAppTwinIndex.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, GetCurrentAppCloneIndex_0100, TestSize.Level1)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    ASSERT_NE(appMgrServiceInner, nullptr);
+
+    int32_t appIndex = 0;
+    int32_t ret = appMgrServiceInner->GetCurrentAppCloneIndex(appIndex);
+    EXPECT_EQ(ret, ERR_OK);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

@@ -678,6 +678,24 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_GetProcessRunningInformation_001, TestSi
 }
 
 /**
+ * @tc.name: AppMgrClient_GetCurrentAppCloneIndex_001
+ * @tc.desc: GetCurrentCloneAppIndex.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_GetCurrentAppCloneIndex_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    int32_t appIndex = 0;
+    auto res = appMgrClient->GetCurrentAppCloneIndex(appIndex);
+    EXPECT_NE(res, AppMgrResultCode::RESULT_OK);
+}
+
+/**
  * @tc.name: AppMgrClient_DumpHeapMemory_001
  * @tc.desc: DumpHeapMemory.
  * @tc.type: FUNC

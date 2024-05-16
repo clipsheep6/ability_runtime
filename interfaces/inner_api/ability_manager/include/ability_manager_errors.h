@@ -509,6 +509,11 @@ enum {
      * Result(2097250) for app clone index does not exist.
      */
     ERR_APP_CLONE_INDEX_INVALID,
+
+    /**
+     * Result(2097251) for app is not Clone.
+     */
+    ERR_NOT_APP_CLONE,
 };
 
 enum {

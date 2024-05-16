@@ -143,6 +143,11 @@ public:
         return 0;
     }
 
+    virtual int GetCurrentAppCloneIndex(int32_t &appIndex)
+    {
+        return 0;
+    }
+
     int IsBackgroundRunningRestricted(const std::string& appName)
     {
         return 0;
