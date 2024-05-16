@@ -59,10 +59,13 @@ public:
 
     std::shared_ptr<AppSpawnClient> GetNWebSpawnClient();
 
+    std::shared_ptr<AppSpawnClient> GetCJSpawnClient();
+
 private:
     std::shared_ptr<AppSpawnClient> appSpawnClient_;
     std::shared_ptr<BundleMgrHelper> bundleManagerHelper_;
     std::shared_ptr<AppSpawnClient> nwebSpawnClient_;
+    std::shared_ptr<AppSpawnClient> cjAppSpawnClient_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
