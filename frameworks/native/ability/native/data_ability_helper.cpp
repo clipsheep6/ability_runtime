@@ -369,7 +369,14 @@ int DataAbilityHelper::Insert(Uri &uri, const NativeRdb::ValuesBucket &value)
         DataShare::DataShareValuesBucket dataShareValue = RdbDataAbilityUtils::ToDataShareValuesBucket(value);
         Uri dataShareUri("");
         if (TransferScheme(uri, dataShareUri)) {
-            index = dataShareHelper->Insert(dataShareUri, dataShareValue);
+            auto [status, errCode] = dataShareHelper->Insert(dataShareUri, dataShareValue);
+            if (errCode == 0) {
+                index = status;
+                TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataShareHelper Insert Success, status = %{public}d.", index);
+            } else {
+                index = errCode;
+                TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataShareHelper Insert Fail, errCode = %{pubilc}d.", index);
+            }
         }
     }
     return index;
@@ -418,7 +425,14 @@ int DataAbilityHelper::Update(
         DataShare::DataSharePredicates dataSharePredicates = RdbDataAbilityUtils::ToDataSharePredicates(predicates);
         Uri dataShareUri("");
         if (TransferScheme(uri, dataShareUri)) {
-            index = dataShareHelper->Update(dataShareUri, dataSharePredicates, dataShareValue);
+            auto [status, errCode] = dataShareHelper->Update(dataShareUri, dataSharePredicates, dataShareValue);
+            if (errCode == 0) {
+                index = status;
+                TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataShareHelper Update Success, status = %{public}d.", index);
+            } else {
+                index = errCode;
+                TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataShareHelper Update Fail, errCode = %{public}d.", index);
+            }
         }
     }
     return index;
@@ -448,7 +462,14 @@ int DataAbilityHelper::Delete(Uri &uri, const NativeRdb::DataAbilityPredicates &
         DataShare::DataSharePredicates dataSharePredicates = RdbDataAbilityUtils::ToDataSharePredicates(predicates);
         Uri dataShareUri("");
         if (TransferScheme(uri, dataShareUri)) {
-            index = dataShareHelper->Delete(dataShareUri, dataSharePredicates);
+            auto [status, errCode] = dataShareHelper->Delete(dataShareUri, dataSharePredicates);
+            if (errCode == 0) {
+                index = status;
+                TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataShareHelper Delete Success, status = %{public}d", index);
+            } else {
+                index = errCode;
+                TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataShareHelper Delete Fail, errCode = %{public}d", index);
+            }
         }
     }
     return index;
