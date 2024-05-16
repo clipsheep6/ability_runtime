@@ -452,6 +452,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
         dialogAppInfo.abilityLabelId = info.labelId;
         dialogAppInfo.bundleIconId = info.applicationInfo.iconId;
         dialogAppInfo.bundleLabelId = info.applicationInfo.labelId;
+        dialogAppInfo.visible = info.visible;
         dialogAppInfos.emplace_back(dialogAppInfo);
     }
 
@@ -725,6 +726,7 @@ void ImplicitStartProcessor::AddAbilityInfoToDialogInfos(const AddInfoParam &par
     dialogAppInfo.abilityLabelId = param.info.labelId;
     dialogAppInfo.bundleIconId = param.info.applicationInfo.iconId;
     dialogAppInfo.bundleLabelId = param.info.applicationInfo.labelId;
+    dialogAppInfo.visible = param.info.visible;
     dialogAppInfos.emplace_back(dialogAppInfo);
 }
 
