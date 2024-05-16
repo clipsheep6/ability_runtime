@@ -257,6 +257,11 @@ bool DeepLinkReserveConfig::ReadFileInfoJson(const std::string &filePath, nlohma
         return false;
     }
 
+    if (filePath.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "File path is empty.");
+        return false;
+    }
+
     std::fstream in;
     char errBuf[256];
     errBuf[0] = '\0';
