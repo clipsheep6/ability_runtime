@@ -68,6 +68,7 @@ struct AppSpawnStartMsg {
     std::string provisionType;
     bool atomicServiceFlag = false;
     std::string atomicAccount = "";
+    std::string processType = "";
 };
 
 constexpr auto LEN_PID = sizeof(pid_t);
