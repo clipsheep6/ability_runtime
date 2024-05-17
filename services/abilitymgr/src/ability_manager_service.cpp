@@ -101,6 +101,7 @@
 #include "system_ability_token_callback.h"
 #include "extension_record_manager.h"
 #include "ui_extension_utils.h"
+#include "unlock_screen_manager.h"
 #include "uri_permission_manager_client.h"
 #include "uri_utils.h"
 #include "view_data.h"
@@ -539,6 +540,7 @@ int AbilityManagerService::StartAbility(const Want &want, int32_t userId, int re
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Developer Mode is false.");
         return ERR_NOT_DEVELOPER_MODE;
     }
+    UnlockScreenManager::GetInstance().UnlockScreen();
     TAG_LOGD(AAFwkTag::ABILITYMGR, "coldStart:%{public}d", want.GetBoolParam("coldStart", false));
     bool startWithAccount = want.GetBoolParam(START_ABILITY_TYPE, false);
     if (startWithAccount || IsCrossUserCall(userId)) {
@@ -1191,6 +1193,7 @@ int AbilityManagerService::StartAbilityDetails(const Want &want, const AbilitySt
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Developer Mode is false.");
         return ERR_NOT_DEVELOPER_MODE;
     }
+    UnlockScreenManager::GetInstance().UnlockScreen();
     AbilityUtil::RemoveWantKey(const_cast<Want &>(want));
     StartAbilityParams startParams(const_cast<Want &>(want));
     startParams.callerToken = callerToken;
