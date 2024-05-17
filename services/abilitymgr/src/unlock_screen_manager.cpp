@@ -30,7 +30,8 @@ UnlockScreenCallback::~UnlockScreenCallback() {}
 
 UnlockScreenCallback::UnlockScreenCallback() {}
 
-void UnlockScreenCallback::OnCallBack(const int32_t screenLockResult) {
+void UnlockScreenCallback::OnCallBack(const int32_t screenLockResult)
+{
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Unlock Screen result is %{public}d", screenLockResult);
 }
 
