@@ -151,8 +151,8 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartAbilityInfo(const
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto bms = AbilityUtil::GetBundleManagerHelper();
     CHECK_POINTER_AND_RETURN(bms, nullptr);
-    auto abilityInfoFlag = AbilityRuntime::StartupUtil::BuildAbilityInfoFlag() |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL;
+    auto abilityInfoFlag = static_cast<uint32_t>(AbilityRuntime::StartupUtil::BuildAbilityInfoFlag()) |
+        static_cast<uint32_t>(AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL);
     auto request = std::make_shared<StartAbilityInfo>();
     if (appIndex != 0 && appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         IN_PROCESS_CALL_WITHOUT_RET(bms->QueryCloneAbilityInfo(want.GetElement(), abilityInfoFlag, appIndex,
@@ -203,8 +203,8 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartExtensionInfo(con
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto bms = AbilityUtil::GetBundleManagerHelper();
     CHECK_POINTER_AND_RETURN(bms, nullptr);
-    auto abilityInfoFlag = AbilityRuntime::StartupUtil::BuildAbilityInfoFlag() |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL;
+    auto abilityInfoFlag = static_cast<uint32_t>(AbilityRuntime::StartupUtil::BuildAbilityInfoFlag()) |
+        static_cast<uint32_t>(AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL);
     auto abilityInfo = std::make_shared<StartAbilityInfo>();
 
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;

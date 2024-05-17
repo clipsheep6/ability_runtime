@@ -359,7 +359,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     }
 
     if (uriReservedFlag_) {
-        abilityInfoFlag = abilityInfoFlag |
+        abilityInfoFlag = static_cast<uint32_t>(abilityInfoFlag) |
             static_cast<uint32_t>(AppExecFwk::GetAbilityInfoFlag::GET_ABILITY_INFO_ONLY_SYSTEM_APP);
     }
 
