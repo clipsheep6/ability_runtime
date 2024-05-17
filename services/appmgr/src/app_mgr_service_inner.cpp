@@ -142,6 +142,7 @@ const std::string TSAN_FLAG_NAME = "tsanEnabled";
 const std::string MEMMGR_PROC_NAME = "memmgrservice";
 const std::string UIEXTENSION_ABILITY_ID = "ability.want.params.uiExtensionAbilityId";
 const std::string UIEXTENSION_ROOT_HOST_PID = "ability.want.params.uiExtensionRootHostPid";
+const std::string STRICT_MODE = "strictMode";
 const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
@@ -644,8 +645,10 @@ void AppMgrServiceInner::LoadAbilityNoAppRecord(const std::shared_ptr<AppRunning
     }
     uint32_t startFlags = (want == nullptr) ? 0 : AppspawnUtil::BuildStartFlags(*want, *abilityInfo);
     int32_t bundleIndex = (want == nullptr) ? 0 : AbilityRuntime::StartupUtil::GetAppIndex(*want);
+    bool strictMode = (want == nullptr) ? false : want->GetBoolParam(STRICT_MODE, false);
     StartProcess(abilityInfo->applicationName, processName, startFlags, appRecord,
-        appInfo->uid, bundleInfo, appInfo->bundleName, bundleIndex, appExistFlag, isPreload);
+        appInfo->uid, bundleInfo, appInfo->bundleName, bundleIndex, appExistFlag, isPreload, abilityInfo->moduleName,
+        abilityInfo->name, strictMode);
     std::string perfCmd = (want == nullptr) ? "" : want->GetStringParam(PERF_CMD);
     bool isSandboxApp = (want == nullptr) ? false : want->GetBoolParam(ENTER_SANDBOX, false);
     (void)StartPerfProcess(appRecord, perfCmd, "", isSandboxApp);
@@ -726,7 +729,9 @@ bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
     int32_t bundleMgrResult;
     if (appIndex == 0) {
         bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetBundleInfoV9(appInfo->bundleName,
-            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION), bundleInfo, userId));
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) |
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) |
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE), bundleInfo, userId));
     } else if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetCloneBundleInfo(appInfo->bundleName,
             static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION), appIndex, bundleInfo, userId));
@@ -734,7 +739,6 @@ bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
         bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetSandboxBundleInfo(appInfo->bundleName,
             appIndex, userId, bundleInfo));
     }
-
     if (bundleMgrResult != ERR_OK) {
         TAG_LOGE(AAFwkTag::APPMGR, "GetBundleInfo is fail.");
         return false;
@@ -749,7 +753,6 @@ bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
         TAG_LOGE(AAFwkTag::APPMGR, "GetHapModuleInfo is fail.");
         return false;
     }
-
     return true;
 }
 
@@ -2533,7 +2536,8 @@ void AppMgrServiceInner::SetAppInfo(const BundleInfo &bundleInfo, AppSpawnStartM
 }
 
 int32_t AppMgrServiceInner::CreateStartMsg(const std::string &processName, uint32_t startFlags, const int uid,
-    const BundleInfo &bundleInfo, const int32_t bundleIndex, BundleType bundleType, AppSpawnStartMsg &startMsg)
+    const BundleInfo &bundleInfo, const int32_t bundleIndex, BundleType bundleType, AppSpawnStartMsg &startMsg,
+    const std::string &moduleName, const std::string &abilityName, bool strictMode)
 {
     if (!remoteClientManager_ || !otherTaskHandler_) {
         TAG_LOGE(AAFwkTag::APPMGR, "remoteClientManager or otherTaskHandler is nullptr.");
@@ -2565,8 +2569,7 @@ int32_t AppMgrServiceInner::CreateStartMsg(const std::string &processName, uint3
     if (!result || dataGroupInfoList.empty()) {
         TAG_LOGD(AAFwkTag::APPMGR, "the bundle has no groupInfos.");
     }
-    startMsg.dataGroupInfoList = dataGroupInfoList;
-
+    QueryExtensionSandBox(moduleName, abilityName, bundleInfo, startMsg, dataGroupInfoList, strictMode);
     startMsg.bundleName = bundleInfo.name;
     startMsg.renderParam = RENDER_PARAM;
     startMsg.flags = startFlags;
@@ -2588,9 +2591,42 @@ int32_t AppMgrServiceInner::CreateStartMsg(const std::string &processName, uint3
     return ERR_OK;
 }
 
+void AppMgrServiceInner::QueryExtensionSandBox(const std::string &moduleName, const std::string &abilityName,
+    const BundleInfo &bundleInfo, AppSpawnStartMsg &startMsg, DataGroupInfoList& dataGroupInfoList, bool strictMode)
+{
+    std::vector<ExtensionAbilityInfo> extensionInfos;
+    for (auto hapModuleInfo: bundleInfo.hapModuleInfos) {
+        extensionInfos.insert(extensionInfos.end(), hapModuleInfo.extensionInfos.begin(),
+            hapModuleInfo.extensionInfos.end());
+    }
+    auto infoExisted = [&moduleName, &abilityName](const ExtensionAbilityInfo& info) {
+        return info.moduleName == moduleName && info.name == abilityName && info.needCreateSandbox;
+    };
+    auto infoIter = std::find_if(extensionInfos.begin(), extensionInfos.end(), infoExisted);
+    DataGroupInfoList extensionDataGroupInfoList;
+    if (infoIter != extensionInfos.end()) {
+        startMsg.isolatedExtension = infoIter->needCreateSandbox;
+        startMsg.extensionSandboxPath = infoIter->moduleName + "/" + infoIter->name;
+        startMsg.strictMode = strictMode;
+        for (auto dataGroupInfo : dataGroupInfoList) {
+            auto groupIdExisted = [&dataGroupInfo](const std::string &dataGroupId) {
+                return dataGroupInfo.dataGroupId == dataGroupId;
+            };
+            if (std::find_if(infoIter->dataGroupIds.begin(), infoIter->dataGroupIds.end(), groupIdExisted) !=
+                infoIter->dataGroupIds.end()) {
+                extensionDataGroupInfoList.emplace_back(dataGroupInfo);
+            }
+        }
+        startMsg.dataGroupInfoList = extensionDataGroupInfoList;
+    } else {
+        startMsg.dataGroupInfoList = dataGroupInfoList;
+    }
+}
+
 void AppMgrServiceInner::StartProcess(const std::string &appName, const std::string &processName, uint32_t startFlags,
     std::shared_ptr<AppRunningRecord> appRecord, const int uid, const BundleInfo &bundleInfo,
-    const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag, bool isPreload)
+    const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag, bool isPreload,
+    const std::string &moduleName, const std::string &abilityName, bool strictMode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "bundleName: %{public}s, isPreload: %{public}d", bundleName.c_str(), isPreload);
@@ -2608,7 +2644,8 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     AppSpawnStartMsg startMsg;
     auto appInfo = appRecord->GetApplicationInfo();
     auto bundleType = appInfo ? appInfo->bundleType : BundleType::APP;
-    if (CreateStartMsg(processName, startFlags, uid, bundleInfo, bundleIndex, bundleType, startMsg) != ERR_OK) {
+    if (CreateStartMsg(processName, startFlags, uid, bundleInfo, bundleIndex, bundleType, startMsg, moduleName,
+        abilityName, strictMode) != ERR_OK) {
         TAG_LOGE(AAFwkTag::APPMGR, "CreateStartMsg failed.");
         appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
         return;

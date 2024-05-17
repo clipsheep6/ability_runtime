@@ -1136,7 +1136,8 @@ private:
     void StartProcess(const std::string &appName, const std::string &processName, uint32_t startFlags,
                       std::shared_ptr<AppRunningRecord> appRecord, const int uid, const BundleInfo &bundleInfo,
                       const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag = true,
-                      bool isPreload = false);
+                      bool isPreload = false, const std::string &moduleName = "", const std::string &abilityName = "",
+                      bool strictMode = false);
 
     /**
      * PushAppFront, Adjust the latest application record to the top level.
@@ -1402,7 +1403,12 @@ private:
 
     int32_t CreateStartMsg(const std::string &processName, uint32_t startFlags, const int uid,
         const BundleInfo &bundleInfo, const int32_t bundleIndex, BundleType bundleType,
-        AppSpawnStartMsg &startMsg);
+        AppSpawnStartMsg &startMsg, const std::string &moduleName = "", const std::string &abilityName = "",
+        bool strictMode = false);
+
+    void QueryExtensionSandBox(const std::string &moduleName, const std::string &abilityName,
+        const BundleInfo &bundleInfo, AppSpawnStartMsg &startMsg, DataGroupInfoList& dataGroupInfoList,
+        bool strictMode);
 
     int32_t StartPerfProcessByStartMsg(AppSpawnStartMsg &startMsg, const std::string& perfCmd,
         const std::string& debugCmd, bool isSandboxApp);
