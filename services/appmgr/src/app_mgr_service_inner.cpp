@@ -2633,7 +2633,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         if (!entryHapModuleInfo.abilityInfos.empty()) {
             auto abilityName = entryHapModuleInfo.abilityInfos.front().name;
             isCJApp = isCjAbility(entryHapModuleInfo.abilityInfos.front().srcEntrance);
-            TAG_LOGI("HandleLaunchApplication entry ability name is %{public}s", abilityName.c_str());
+            TAG_LOGI(AAFwkTag::APPMGR, "HandleLaunchApplication entry ability name is %{public}s", abilityName.c_str());
         }
     }
 
