@@ -2605,6 +2605,12 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         return;
     }
 
+    if (!remoteClientManager_->GetCJSpawnClient()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "cangjie appSpawnClient is null");
+        appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
+        return;
+    }
+
     AppSpawnStartMsg startMsg;
     auto appInfo = appRecord->GetApplicationInfo();
     auto bundleType = appInfo ? appInfo->bundleType : BundleType::APP;
@@ -2633,7 +2639,6 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         if (!entryHapModuleInfo.abilityInfos.empty()) {
             auto abilityName = entryHapModuleInfo.abilityInfos.front().name;
             isCJApp = isCjAbility(entryHapModuleInfo.abilityInfos.front().srcEntrance);
-            TAG_LOGI("HandleLaunchApplication entry ability name is %{public}s", abilityName.c_str());
         }
     }
 
