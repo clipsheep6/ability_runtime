@@ -20,13 +20,13 @@
 #include "want.h"
 
 namespace OHOS::AbilityRuntime {
-int32_t StartupUtil::GetAppTwinIndex(const AAFwk::Want &want)
+int32_t StartupUtil::GetAppIndex(const AAFwk::Want &want)
 {
-    int32_t appTwinIndex = want.GetIntParam(ServerConstant::APP_TWIN_INDEX, 0);
-    if (appTwinIndex == 0) {
-        appTwinIndex = want.GetIntParam(ServerConstant::DLP_INDEX, 0);
+    int32_t appIndex = want.GetIntParam(ServerConstant::APP_CLONE_INDEX, 0);
+    if (appIndex == 0) {
+        appIndex = want.GetIntParam(ServerConstant::DLP_INDEX, 0);
     }
-    return appTwinIndex;
+    return appIndex;
 }
 
 int32_t StartupUtil::BuildAbilityInfoFlag()

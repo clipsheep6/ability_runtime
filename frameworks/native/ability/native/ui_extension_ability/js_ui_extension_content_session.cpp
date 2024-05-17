@@ -564,26 +564,8 @@ napi_value JsUIExtensionContentSession::OnTerminateSelfWithResult(napi_env env, 
         return CreateJsUndefined(env);
     }
 
-    NapiAsyncTask::CompleteCallback complete =
-        [uiWindow = uiWindow_, sessionInfo = sessionInfo_, want, resultCode](napi_env env,
-            NapiAsyncTask& task, int32_t status) {
-            if (uiWindow == nullptr) {
-                TAG_LOGE(AAFwkTag::UI_EXT, "uiWindow is nullptr.");
-                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
-                return;
-            }
-            auto ret = uiWindow->TransferAbilityResult(resultCode, want);
-            if (ret != Rosen::WMError::WM_OK) {
-                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
-                return;
-            }
-            auto errorCode = AAFwk::AbilityManagerClient::GetInstance()->TerminateUIExtensionAbility(sessionInfo);
-            if (errorCode == 0) {
-                task.ResolveWithNoError(env, CreateJsUndefined(env));
-            } else {
-                task.Reject(env, CreateJsErrorByNativeErr(env, errorCode));
-            }
-        };
+    NapiAsyncTask::CompleteCallback complete;
+    SetCallbackForTerminateWithResult(resultCode, want, complete);
 
     napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     napi_value result = nullptr;
@@ -1083,6 +1065,39 @@ void JsUIExtensionContentSession::AddFreeInstallObserver(napi_env env,
         freeInstallObserver_->AddJsObserverObject(
             bundleName, abilityName, startTime, callback, result, isAbilityResult);
     }
+}
+
+void JsUIExtensionContentSession::SetCallbackForTerminateWithResult(int32_t resultCode, AAFwk::Want& want,
+    NapiAsyncTask::CompleteCallback& complete)
+{
+    complete =
+        [weak = context_, uiWindow = uiWindow_, sessionInfo = sessionInfo_, want, resultCode](napi_env env,
+            NapiAsyncTask& task, int32_t status) {
+            auto extensionContext = AbilityRuntime::Context::ConvertTo<AbilityRuntime::UIExtensionContext>(weak.lock());
+            if (!extensionContext) {
+                TAG_LOGE(AAFwkTag::UI_EXT, "extensionContext is nullptr");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                return;
+            }
+            auto token = extensionContext->GetToken();
+            AAFwk::AbilityManagerClient::GetInstance()->TransferAbilityResultForExtension(token, resultCode, want);
+            if (uiWindow == nullptr) {
+                TAG_LOGE(AAFwkTag::UI_EXT, "uiWindow is nullptr.");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            auto ret = uiWindow->TransferAbilityResult(resultCode, want);
+            if (ret != Rosen::WMError::WM_OK) {
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            auto errorCode = AAFwk::AbilityManagerClient::GetInstance()->TerminateUIExtensionAbility(sessionInfo);
+            if (errorCode == 0) {
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, errorCode));
+            }
+        };
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

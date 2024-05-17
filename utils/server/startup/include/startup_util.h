@@ -25,7 +25,7 @@ class Want;
 namespace AbilityRuntime {
 class StartupUtil {
 public:
-    static int32_t GetAppTwinIndex(const AAFwk::Want &want);
+    static int32_t GetAppIndex(const AAFwk::Want &want);
     static int32_t BuildAbilityInfoFlag();
 };
 }  // namespace AbilityRuntime

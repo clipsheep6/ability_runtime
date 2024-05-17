@@ -782,7 +782,7 @@ void JsUIExtension::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
             CallObjectMethod("onSessionDestroy", argv, ARGC_ONE);
         }
     }
-    auto& uiWindow = uiWindowMap_[componentId];
+    auto uiWindow = uiWindowMap_[componentId];
     if (uiWindow) {
         uiWindow->Destroy();
     }

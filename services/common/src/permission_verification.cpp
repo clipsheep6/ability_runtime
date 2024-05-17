@@ -400,7 +400,7 @@ bool PermissionVerification::JudgeAssociatedWakeUp(const uint32_t accessTokenId,
 int PermissionVerification::JudgeInvisibleAndBackground(const VerificationInfo &verificationInfo) const
 {
     uint32_t specifyTokenId = verificationInfo.specifyTokenId;
-    TAG_LOGI(AAFwkTag::DEFAULT, "specifyTokenId = %{public}u", specifyTokenId);
+    TAG_LOGD(AAFwkTag::DEFAULT, "specifyTokenId = %{public}u", specifyTokenId);
     if (specifyTokenId == 0 && IPCSkeleton::GetCallingUid() != BROKER_UID &&
         SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
         TAG_LOGD(AAFwkTag::DEFAULT, "Support SA call");

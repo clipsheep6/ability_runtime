@@ -725,10 +725,10 @@ int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection
                 continue;
             }
 
-            if (force) {
+            result = DisconnectRecordNormal(list, connectRecord);
+            if (result != ERR_OK && force) {
                 DisconnectRecordForce(list, connectRecord);
-            } else {
-                result = DisconnectRecordNormal(list, connectRecord);
+                result = ERR_OK;
             }
 
             if (result != ERR_OK) {

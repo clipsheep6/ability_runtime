@@ -253,7 +253,7 @@ void AppMgrServiceInner::StartSpecifiedProcess(const AAFwk::Want &want, const Ap
     HapModuleInfo hapModuleInfo;
     auto appInfo = std::make_shared<ApplicationInfo>(abilityInfo.applicationInfo);
 
-    int32_t appIndex = AbilityRuntime::StartupUtil::GetAppTwinIndex(want);
+    int32_t appIndex = AbilityRuntime::StartupUtil::GetAppIndex(want);
     if (!GetBundleAndHapInfo(abilityInfo, appInfo, bundleInfo, hapModuleInfo, appIndex)) {
         return;
     }
@@ -403,7 +403,7 @@ void AppMgrServiceInner::LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObje
 
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
-    int32_t appIndex = (want == nullptr) ? 0 : AbilityRuntime::StartupUtil::GetAppTwinIndex(*want);
+    int32_t appIndex = (want == nullptr) ? 0 : AbilityRuntime::StartupUtil::GetAppIndex(*want);
     if (!GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo, appIndex)) {
         TAG_LOGE(AAFwkTag::APPMGR, "GetBundleAndHapInfo failed");
         return;
@@ -647,7 +647,7 @@ void AppMgrServiceInner::LoadAbilityNoAppRecord(const std::shared_ptr<AppRunning
         }
     }
     uint32_t startFlags = (want == nullptr) ? 0 : AppspawnUtil::BuildStartFlags(*want, *abilityInfo);
-    int32_t bundleIndex = (want == nullptr) ? 0 : AbilityRuntime::StartupUtil::GetAppTwinIndex(*want);
+    int32_t bundleIndex = (want == nullptr) ? 0 : AbilityRuntime::StartupUtil::GetAppIndex(*want);
     StartProcess(abilityInfo->applicationName, processName, startFlags, appRecord,
         appInfo->uid, bundleInfo, appInfo->bundleName, bundleIndex, appExistFlag, isPreload);
     std::string perfCmd = (want == nullptr) ? "" : want->GetStringParam(PERF_CMD);
@@ -731,7 +731,7 @@ bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
     if (appIndex == 0) {
         bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetBundleInfoV9(appInfo->bundleName,
             static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION), bundleInfo, userId));
-    } else if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+    } else if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetCloneBundleInfo(appInfo->bundleName,
             static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION), appIndex, bundleInfo, userId));
     } else {
@@ -744,7 +744,7 @@ bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
         return false;
     }
     bool hapQueryResult = false;
-    if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+    if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         hapQueryResult = bundleMgrHelper->GetHapModuleInfo(abilityInfo, userId, hapModuleInfo);
     } else {
         hapQueryResult = (bundleMgrHelper->GetSandboxHapModuleInfo(abilityInfo, appIndex, userId, hapModuleInfo) == 0);
@@ -1763,7 +1763,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(spt
         }
         appRecord->SetPerfCmd(want->GetStringParam(PERF_CMD));
         appRecord->SetMultiThread(want->GetBoolParam(MULTI_THREAD, false));
-        appRecord->SetAppIndex(AbilityRuntime::StartupUtil::GetAppTwinIndex(*want));
+        appRecord->SetAppIndex(AbilityRuntime::StartupUtil::GetAppIndex(*want));
         appRecord->SetSecurityFlag(want->GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false));
         appRecord->SetRequestProcCode(want->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0));
         appRecord->SetCallerPid(want->GetIntParam(Want::PARAM_RESV_CALLER_PID, -1));
@@ -3525,7 +3525,7 @@ int AppMgrServiceInner::StartEmptyProcess(const AAFwk::Want &want, const sptr<IR
     testRecord->userId = userId;
     appRecord->SetUserTestInfo(testRecord);
 
-    int32_t appIndex = AbilityRuntime::StartupUtil::GetAppTwinIndex(want);
+    int32_t appIndex = AbilityRuntime::StartupUtil::GetAppIndex(want);
     uint32_t startFlags = AppspawnUtil::BuildStartFlags(want, info.applicationInfo);
     StartProcess(appInfo->name, processName, startFlags, appRecord, appInfo->uid, info, appInfo->bundleName,
         appIndex, appExistFlag);
@@ -3616,7 +3616,7 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
     HapModuleInfo hapModuleInfo;
     auto appInfo = std::make_shared<ApplicationInfo>(abilityInfo.applicationInfo);
 
-    int32_t appIndex = AbilityRuntime::StartupUtil::GetAppTwinIndex(want);
+    int32_t appIndex = AbilityRuntime::StartupUtil::GetAppIndex(want);
     if (!GetBundleAndHapInfo(abilityInfo, appInfo, bundleInfo, hapModuleInfo, appIndex)) {
         return;
     }
@@ -5931,6 +5931,7 @@ int32_t AppMgrServiceInner::GetChildProcessInfo(const std::shared_ptr<ChildProce
     info.pid = childProcessRecord->GetPid();
     info.hostPid = childProcessRecord->GetHostPid();
     info.uid = childProcessRecord->GetUid();
+    info.processType = childProcessRecord->GetProcessType();
     info.bundleName = appRecord->GetBundleName();
     info.processName = childProcessRecord->GetProcessName();
     info.srcEntry = childProcessRecord->GetSrcEntry();
@@ -5979,7 +5980,12 @@ void AppMgrServiceInner::AttachChildProcess(const pid_t pid, const sptr<IChildSc
     childRecord->SetDeathRecipient(appDeathRecipient);
     childRecord->RegisterDeathRecipient();
 
-    childScheduler->ScheduleLoadJs();
+    if (childRecord->GetProcessType() != CHILD_PROCESS_TYPE_NATIVE) {
+        childScheduler->ScheduleLoadJs();
+    } else {
+        childScheduler->ScheduleRunNativeProc(childRecord->GetMainProcessCallback());
+        childRecord->ClearMainProcessCallback();
+    }
 }
 
 void AppMgrServiceInner::OnChildProcessRemoteDied(const wptr<IRemoteObject> &remote)
@@ -6573,6 +6579,49 @@ void AppMgrServiceInner::OnAppCacheStateChanged(const std::shared_ptr<AppRunning
         appRecord->GetBundleName().c_str(), appRecord->GetPriorityObject()->GetPid());
 
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnAppCacheStateChanged(appRecord);
+}
+
+int32_t AppMgrServiceInner::StartNativeChildProcess(const pid_t hostPid, const std::string &libName,
+    int32_t childProcessCount, const sptr<IRemoteObject> &callback)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "StartNativeChildProcess, hostPid:%{public}d", hostPid);
+    if (hostPid <= 0 || libName.empty() || !callback) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Invalid param: hostPid:%{public}d libName:%{private}s",
+            hostPid, libName.c_str());
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!AAFwk::AppUtils::GetInstance().IsSupportNativeChildProcess()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Unsupport native child process");
+        return ERR_INVALID_OPERATION;
+    }
+
+    int32_t errCode = StartChildProcessPreCheck(hostPid);
+    if (errCode != ERR_OK) {
+        return errCode;
+    }
+
+    auto appRecord = GetAppRunningRecordByPid(hostPid);
+    if (!appRecord) {
+        TAG_LOGI(AAFwkTag::APPMGR, "Get app runnning record(hostPid:%{public}d) failed.", hostPid);
+        return ERR_INVALID_OPERATION;
+    }
+
+    auto childRecordMap = appRecord->GetChildProcessRecordMap();
+    auto itNativeChildInfo = find_if(childRecordMap.begin(), childRecordMap.end(), [] (const auto &pair) -> bool {
+        return pair.second->GetProcessType() == CHILD_PROCESS_TYPE_NATIVE;
+    });
+
+    if (itNativeChildInfo != childRecordMap.end()) {
+        TAG_LOGI(AAFwkTag::APPMGR, "Native child process still alive(hostPid:%{public}d childPid:%{public}d)",
+            hostPid, itNativeChildInfo->second->GetPid());
+        return ERR_OVERFLOW;
+    }
+
+    pid_t dummyChildPid = 0;
+    auto nativeChildRecord = ChildProcessRecord::CreateNativeChildProcessRecord(
+        hostPid, libName, appRecord, callback, childProcessCount, false);
+    return StartChildProcessImpl(nativeChildRecord, appRecord, dummyChildPid);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

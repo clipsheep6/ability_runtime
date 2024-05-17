@@ -252,7 +252,7 @@ std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityR
         abilityRequest.want, abilityRequest.abilityInfo, abilityRequest.appInfo, abilityRequest.requestCode);
     CHECK_POINTER_AND_RETURN(abilityRecord, nullptr);
     abilityRecord->SetUid(abilityRequest.uid);
-    abilityRecord->SetAppIndex(AbilityRuntime::StartupUtil::GetAppTwinIndex(abilityRequest.want));
+    abilityRecord->SetAppIndex(AbilityRuntime::StartupUtil::GetAppIndex(abilityRequest.want));
     abilityRecord->SetCallerAccessTokenId(abilityRequest.callerAccessTokenId);
     abilityRecord->sessionInfo_ = abilityRequest.sessionInfo;
     if (!abilityRecord->Init()) {
@@ -1626,7 +1626,7 @@ bool AbilityRecord::GrantUriPermissionForServiceExtension()
         std::lock_guard guard(wantLock_);
         auto callerTokenId = want_.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, 0);
         auto callerName = want_.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
-        TAG_LOGI(AAFwkTag::ABILITYMGR,
+        TAG_LOGD(AAFwkTag::ABILITYMGR,
             "CallerName is %{public}s, callerTokenId is %{public}u", callerName.c_str(), callerTokenId);
         GrantUriPermission(want_, applicationInfo_.bundleName, false, callerTokenId);
         return true;
@@ -1750,7 +1750,7 @@ void AbilityRecord::SendResultToCallers(bool schedulerdied)
         }
         std::shared_ptr<AbilityRecord> callerAbilityRecord = caller->GetCaller();
         if (callerAbilityRecord != nullptr && callerAbilityRecord->GetResult() != nullptr) {
-            bool isSandboxApp = appIndex_ > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX ? true : false;
+            bool isSandboxApp = appIndex_ > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX ? true : false;
             callerAbilityRecord->SendResult(isSandboxApp, applicationInfo_.accessTokenId);
         } else {
             std::shared_ptr<SystemAbilityCallerRecord> callerSystemAbilityRecord = caller->GetSaCaller();
@@ -3023,7 +3023,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     // reject sandbox to grant uri permission by start ability
     if (!callerList_.empty() && callerList_.back()) {
         auto caller = callerList_.back()->GetCaller();
-        if (caller && caller->appIndex_ > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+        if (caller && caller->appIndex_ > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Sandbox can not grant UriPermission by start ability.");
             return;
         }
@@ -3039,7 +3039,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     }
 
     if ((want.GetFlags() & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "Do not call uriPermissionMgr.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Do not call uriPermissionMgr.");
         return;
     }
     if (IsDmsCall(want)) {
@@ -3094,15 +3094,15 @@ void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string>
 bool AbilityRecord::GrantPermissionToShell(const std::vector<std::string> &strUriVec, uint32_t flag,
     std::string targetPkg)
 {
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Grant uri permission to shell.");
     std::vector<Uri> uriVec;
     for (auto&& str : strUriVec) {
         Uri uri(str);
         auto&& scheme = uri.GetScheme();
         if (scheme != "content") {
             return false;
-        } else {
-            uriVec.emplace_back(uri);
         }
+        uriVec.emplace_back(uri);
     }
 
     uint32_t initiatorTokenId = IPCSkeleton::GetCallingTokenID();
@@ -3114,31 +3114,6 @@ bool AbilityRecord::GrantPermissionToShell(const std::vector<std::string> &strUr
         }
     }
     return true;
-}
-
-void AbilityRecord::GrantUriPermissionFor2In1Inner(Want &want, std::vector<std::string> &uriVec,
-    const std::string &targetBundleName, uint32_t tokenId)
-{
-    std::vector<std::string> uriOtherVec;
-    std::vector<Uri> uri2In1Vec;
-    for (auto &&str : uriVec) {
-        Uri uri(str);
-        auto &&authority = uri.GetAuthority();
-        if (authority == "docs" && str.find("?networkid=") == std::string::npos) {
-            uri2In1Vec.emplace_back(uri);
-        } else {
-            uriOtherVec.emplace_back(str);
-        }
-    }
-    if (!uri2In1Vec.empty()) {
-        uint32_t flag = want.GetFlags();
-        auto isSystemAppCall = PermissionVerification::GetInstance()->IsSystemAppCall();
-        IN_PROCESS_CALL(AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermissionFor2In1(
-            uri2In1Vec, flag, targetBundleName, appIndex_, isSystemAppCall));
-    }
-    if (!uriOtherVec.empty()) {
-        GrantUriPermissionInner(want, uriOtherVec, targetBundleName, tokenId);
-    }
 }
 
 bool AbilityRecord::IsDmsCall(Want &want)

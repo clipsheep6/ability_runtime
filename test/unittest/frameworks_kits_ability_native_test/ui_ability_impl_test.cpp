@@ -2290,6 +2290,9 @@ HWTEST_F(UIAbilityImplTest, AbilityRuntime_UpdateSilentForeground_0100, TestSize
     GTEST_LOG_(INFO) << "AbilityRuntime_UpdateSilentForeground_0100 start";
     auto abilityImpl = std::make_shared<UIAbilityImpl>();
     EXPECT_NE(abilityImpl, nullptr);
+    std::shared_ptr<MockUIAbility> pMocKUIAbility = std::make_shared<MockUIAbility>();
+    std::shared_ptr<UIAbility> uiability = pMocKUIAbility;
+    abilityImpl->ability_ = uiability;
     abilityImpl->lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
     sptr<AAFwk::SessionInfo> sessionInfo = new (std::nothrow) AAFwk::SessionInfo();
     sessionInfo->processOptions = std::make_shared<AAFwk::ProcessOptions>();

@@ -24,6 +24,7 @@ bool ProcessOptions::ReadFromParcel(Parcel &parcel)
 {
     processMode = static_cast<ProcessMode>(parcel.ReadInt32());
     startupVisibility = static_cast<StartupVisibility>(parcel.ReadInt32());
+    processName = parcel.ReadString();
     return true;
 }
 
@@ -50,6 +51,10 @@ bool ProcessOptions::Marshalling(Parcel &parcel) const
     }
     if (!parcel.WriteInt32(static_cast<int32_t>(startupVisibility))) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write startupVisibility");
+        return false;
+    }
+    if (!parcel.WriteString(processName)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write processName");
         return false;
     }
     return true;

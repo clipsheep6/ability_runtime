@@ -65,6 +65,8 @@ public:
         int32_t childProcessCount, bool inStartWithDebug));
     MOCK_METHOD1(GetChildProcessInfoForSelf, int32_t(ChildProcessInfo &info));
     MOCK_METHOD4(PreloadApplication, int32_t(const std::string&, int32_t, AppExecFwk::PreloadMode, int32_t));
+    MOCK_METHOD4(StartNativeChildProcess, int32_t(const pid_t hostPid, const std::string &libName,
+        int32_t childProcessCount, const sptr<IRemoteObject> &callback));
     void StartSpecifiedAbility(const AAFwk::Want&, const AppExecFwk::AbilityInfo&, int32_t)
     {}
 

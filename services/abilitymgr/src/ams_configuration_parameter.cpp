@@ -46,11 +46,12 @@ void AmsConfigurationParameter::Parse()
     if (filePath == nullptr || filePath[0] == '\0' || strlen(filePath) > MAX_PATH_LEN) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Can not get config file");
         LoadUIExtensionPickerConfig(AmsConfig::PICKER_CONFIG_FILE_PATH_DEFAULT);
+        return;
     }
     std::string customConfig = filePath;
     TAG_LOGI(AAFwkTag::ABILITYMGR, "The configuration file path is :%{private}s", customConfig.c_str());
     LoadUIExtensionPickerConfig(customConfig);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "load config ref : %{public}d", ref);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "load config ref : %{private}d", ref);
 }
 
 bool AmsConfigurationParameter::NonConfigFile() const

@@ -37,7 +37,9 @@ namespace AAFwk {
 namespace AbilityUtil {
 constexpr const char* SYSTEM_BASIC = "system_basic";
 constexpr const char* SYSTEM_CORE = "system_core";
+constexpr const char* DEFAULT_DEVICE_ID = "";
 constexpr const char* DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
+constexpr const char* DLP_MODULE_NAME = "entry";
 constexpr const char* DLP_ABILITY_NAME = "ViewAbility";
 constexpr const char* DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
 constexpr const char* DLP_PARAMS_BUNDLE_NAME = "ohos.dlp.params.bundleName";
@@ -221,7 +223,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     AppExecFwk::ElementName element = want.GetElement();
     if (want.GetBoolParam(DLP_PARAMS_SANDBOX, false) && !element.GetBundleName().empty() &&
         !element.GetAbilityName().empty()) {
-        want.SetElementName(DLP_BUNDLE_NAME, DLP_ABILITY_NAME);
+        want.SetElementName(DEFAULT_DEVICE_ID, DLP_BUNDLE_NAME, DLP_ABILITY_NAME, DLP_PARAMS_MODULE_NAME);
         want.SetParam(DLP_PARAMS_BUNDLE_NAME, element.GetBundleName());
         want.SetParam(DLP_PARAMS_MODULE_NAME, element.GetModuleName());
         want.SetParam(DLP_PARAMS_ABILITY_NAME, element.GetAbilityName());

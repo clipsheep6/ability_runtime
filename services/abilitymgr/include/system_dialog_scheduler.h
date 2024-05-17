@@ -58,6 +58,7 @@ struct DialogAppInfo {
     std::string bundleName = {};
     std::string abilityName = {};
     std::string moduleName = {};
+    bool visible = true;
 };
 /**
  * @class SystemDialogScheduler

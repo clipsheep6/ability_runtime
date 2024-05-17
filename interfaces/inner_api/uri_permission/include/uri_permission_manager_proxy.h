@@ -37,16 +37,12 @@ public:
 
     virtual int32_t GrantUriPermissionPrivileged(const std::vector<Uri> &uriVec, uint32_t flag,
         const std::string &targetBundleName, int32_t appIndex = 0) override;
-    
-    virtual int GrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
-        const std::string &targetBundleName, int32_t appIndex = 0, bool isSystemAppCall = false) override;
     virtual void RevokeUriPermission(const uint32_t tokenId, int32_t abilityId) override;
     virtual int RevokeAllUriPermissions(const uint32_t tokenId) override;
     virtual int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) override;
     virtual bool VerifyUriPermission(const Uri &uri, uint32_t flag, uint32_t tokenId) override;
     virtual std::vector<bool> CheckUriAuthorization(const std::vector<std::string> &uriVec,
         uint32_t flag, uint32_t tokenId) override;
-    virtual bool IsAuthorizationUriAllowed(uint32_t fromTokenId) override;
 
 private:
     static inline BrokerDelegator<UriPermissionManagerProxy> delegator_;

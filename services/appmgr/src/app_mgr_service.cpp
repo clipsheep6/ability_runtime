@@ -415,7 +415,7 @@ int32_t AppMgrService::JudgeSandboxByPid(pid_t pid, bool &isSandbox)
         return ERR_INVALID_OPERATION;
     }
     auto appRunningRecord = appMgrServiceInner_->GetAppRunningRecordByPid(pid);
-    if (appRunningRecord && appRunningRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+    if (appRunningRecord && appRunningRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         isSandbox = true;
         TAG_LOGD(AAFwkTag::APPMGR, "current app is a sandbox.");
         return ERR_OK;
@@ -1451,5 +1451,19 @@ int32_t AppMgrService::SetSupportedProcessCacheSelf(bool isSupport)
     }
     return appMgrServiceInner_->SetSupportedProcessCacheSelf(isSupport);
 }
+
+int32_t AppMgrService::StartNativeChildProcess(const std::string &libName, int32_t childProcessCount,
+    const sptr<IRemoteObject> &callback)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "Called");
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    return appMgrServiceInner_->StartNativeChildProcess(
+        IPCSkeleton::GetCallingPid(), libName, childProcessCount, callback);
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

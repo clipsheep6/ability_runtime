@@ -22,10 +22,15 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+
+constexpr int32_t CHILD_PROCESS_TYPE_JS = 0;
+constexpr int32_t CHILD_PROCESS_TYPE_NATIVE = 1;
+
 struct ChildProcessInfo : public Parcelable {
     std::int32_t pid;
     std::int32_t hostPid;
     std::int32_t uid;
+    std::int32_t processType;
     std::string bundleName;
     std::string processName;
     std::string srcEntry;
