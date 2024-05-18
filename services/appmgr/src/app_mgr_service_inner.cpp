@@ -143,6 +143,10 @@ const std::string MEMMGR_PROC_NAME = "memmgrservice";
 const std::string UIEXTENSION_ABILITY_ID = "ability.want.params.uiExtensionAbilityId";
 const std::string UIEXTENSION_ROOT_HOST_PID = "ability.want.params.uiExtensionRootHostPid";
 const std::string STRICT_MODE = "strictMode";
+const std::string RENDER_PROCESS_NAME = ":render";
+const std::string RENDER_PROCESS_TYPE = "render";
+const std::string GPU_PROCESS_NAME = ":gpu";
+const std::string GPU_PROCESS_TYPE = "gpu";
 const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
@@ -4332,7 +4336,7 @@ int AppMgrServiceInner::PreStartNWebSpawnProcess(const pid_t hostPid)
 }
 
 int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::string &renderParam,
-    int32_t ipcFd, int32_t sharedFd, int32_t crashFd, pid_t &renderPid)
+    int32_t ipcFd, int32_t sharedFd, int32_t crashFd, pid_t &renderPid, bool isGPU)
 {
     TAG_LOGI(AAFwkTag::APPMGR, "start render process, hostPid:%{public}d", hostPid);
     if (hostPid <= 0 || renderParam.empty() || ipcFd <= 0 || sharedFd <= 0 ||
@@ -4355,7 +4359,7 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::strin
     }
 
     auto renderRecordMap = appRecord->GetRenderRecordMap();
-    if (!renderRecordMap.empty() && !AAFwk::AppUtils::GetInstance().IsUseMultiRenderProcess()) {
+    if (!isGPU && !renderRecordMap.empty() && !AAFwk::AppUtils::GetInstance().IsUseMultiRenderProcess()) {
         for (auto iter : renderRecordMap) {
             if (iter.second != nullptr) {
                 renderPid = iter.second->GetPid();
@@ -4372,10 +4376,11 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::strin
             }
         }
     }
-
+    appRecord->SetIsGPU(isGPU);
+    int32_t childNumLimit = appRecord->GetIsGPU() ? PHONE_MAX_RENDER_PROCESS_NUM + 1 : PHONE_MAX_RENDER_PROCESS_NUM;
     // The phone device allows a maximum of 40 render processes to be created.
     if (AAFwk::AppUtils::GetInstance().IsLimitMaximumOfRenderProcess() &&
-        renderRecordMap.size() >= PHONE_MAX_RENDER_PROCESS_NUM) {
+        renderRecordMap.size() >= childNumLimit) {
         TAG_LOGE(AAFwkTag::APPMGR, "Reaching the maximum render process limitation, hostPid:%{public}d", hostPid);
         return ERR_REACHING_MAXIMUM_RENDER_PROCESS_LIMITATION;
     }
@@ -4386,7 +4391,7 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::strin
         return ERR_INVALID_VALUE;
     }
 
-    return StartRenderProcessImpl(renderRecord, appRecord, renderPid);
+    return StartRenderProcessImpl(renderRecord, appRecord, renderPid, isGPU);
 }
 
 void AppMgrServiceInner::AttachRenderProcess(const pid_t pid, const sptr<IRenderScheduler> &scheduler)
@@ -4429,9 +4434,26 @@ void AppMgrServiceInner::AttachRenderProcess(const pid_t pid, const sptr<IRender
 
     TAG_LOGI(AAFwkTag::APPMGR, "to NotifyBrowserFd");
     // notify fd to render process
+    if (appRecord->GetBrowserHost() != nullptr) {
+        TAG_LOGD(AAFwkTag::APPMGR, "GPU has host remote object");
+    }
     scheduler->NotifyBrowserFd(renderRecord->GetIpcFd(),
                                renderRecord->GetSharedFd(),
-                               renderRecord->GetCrashFd());
+                               renderRecord->GetCrashFd(),
+                               appRecord->GetBrowserHost());
+}
+
+void AppMgrServiceInner::SaveBrowserChannel(const pid_t hostPid, sptr<IRemoteObject> browser)
+{
+    std::lock_guard<ffrt::mutex> lock(browserHostLock_);
+    TAG_LOGD(AAFwkTag::APPMGR, "save browser channel.");
+    auto appRecord = GetAppRunningRecordByPid(hostPid);
+    if (!appRecord) {
+        TAG_LOGE(AAFwkTag::APPMGR, "save browser host no such appRecord, pid:%{public}d",
+            hostPid);
+        return;
+    }
+    appRecord->SetBrowserHost(browser);
 }
 
 bool AppMgrServiceInner::GenerateRenderUid(int32_t &renderUid)
@@ -4475,7 +4497,7 @@ bool AppMgrServiceInner::GenerateRenderUid(int32_t &renderUid)
 }
 
 int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecord> &renderRecord,
-    const std::shared_ptr<AppRunningRecord> appRecord, pid_t &renderPid)
+    const std::shared_ptr<AppRunningRecord> appRecord, pid_t &renderPid, bool isGPU)
 {
     if (!renderRecord || !appRecord) {
         TAG_LOGE(AAFwkTag::APPMGR, "renderRecord or appRecord is nullptr.");
@@ -4498,6 +4520,13 @@ int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecor
     startMsg.renderParam = renderRecord->GetRenderParam();
     startMsg.uid = renderUid;
     startMsg.gid = renderUid;
+    if (isGPU) {
+        startMsg.procName += GPU_PROCESS_NAME;
+        startMsg.processType = GPU_PROCESS_TYPE;
+    } else {
+        startMsg.procName += RENDER_PROCESS_NAME;
+        startMsg.processType = RENDER_PROCESS_TYPE;
+    }
     startMsg.code = 0; // 0: DEFAULT
     pid_t pid = 0;
     ErrCode errCode = nwebSpawnClient->StartProcess(startMsg, pid);
@@ -4510,6 +4539,9 @@ int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecor
     renderPid = pid;
     renderRecord->SetPid(pid);
     renderRecord->SetUid(renderUid);
+    if (isGPU) {
+        renderRecord->SetProcessType(ProcessType::GPU);
+    }
     appRecord->AddRenderRecord(renderRecord);
     TAG_LOGI(AAFwkTag::APPMGR,
         "start render process success, hostPid:%{public}d, hostUid:%{public}d, pid:%{public}d, uid:%{public}d",

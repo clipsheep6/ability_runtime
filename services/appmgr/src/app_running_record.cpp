@@ -178,6 +178,11 @@ void RenderRecord::RegisterDeathRecipient()
     }
 }
 
+void RenderRecord::SetProcessType(ProcessType type)
+{
+    processType_ = type;
+}
+
 void RenderRecord::SetState(int32_t state)
 {
     state_ = state;
@@ -2213,6 +2218,28 @@ bool AppRunningRecord::SetSupportedProcessCache(bool isSupport)
 SupportProcessCacheState AppRunningRecord::GetSupportProcessCacheState()
 {
     return procCacheSupportState_;
+}
+
+void AppRunningRecord::SetBrowserHost(sptr<IRemoteObject> browser)
+{
+    browserHost_ = browser;
+}
+
+sptr<IRemoteObject> AppRunningRecord::GetBrowserHost()
+{
+    return browserHost_;
+}
+
+void AppRunningRecord::SetIsGPU(bool gpu)
+{
+    if (gpu) {
+        isGPU_ = gpu;
+    }
+}
+
+bool AppRunningRecord::GetIsGPU()
+{
+    return isGPU_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

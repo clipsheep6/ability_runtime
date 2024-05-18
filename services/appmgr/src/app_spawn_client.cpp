@@ -171,6 +171,13 @@ int32_t AppSpawnClient::SetMountPermission(const AppSpawnStartMsg &startMsg, App
         }
     }
 
+    if (!startMsg.processType.empty() &&
+        (ret = AppSpawnReqMsgAddExtInfo(reqHandle, MSG_EXT_NAME_PROCESS_TYPE,
+            reinterpret_cast<const uint8_t*>(startMsg.processType.c_str()), startMsg.processType.size()))) {
+        HILOG_ERROR("AppSpawnReqMsgAddExtInfo failed, ret: %{public}d", ret);
+        return ret;
+    }
+
     return ret;
 }
 
