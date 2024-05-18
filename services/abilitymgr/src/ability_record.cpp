@@ -201,9 +201,12 @@ std::shared_ptr<AbilityRecord> Token::GetAbilityRecordByToken(const sptr<IRemote
     // Double check if token is valid
     sptr<IAbilityToken> theToken = iface_cast<IAbilityToken>(token);
     if (!theToken) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Input token iface_cast error.");
         return nullptr;
     }
-    if (theToken->GetDescriptor() != u"ohos.aafwk.AbilityToken") {
+    std::u16string castDescriptor = theToken->GetDescriptor();
+    if (castDescriptor != u"ohos.aafwk.AbilityToken") {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Input token iface_cast error:%{public}s.", Str16ToStr8(castDescriptor).c_str());
         return nullptr;
     }
 
