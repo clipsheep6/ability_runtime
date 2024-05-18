@@ -5251,6 +5251,26 @@ int32_t AppMgrServiceInner::GetBundleNameByPid(const int32_t pid, std::string &b
     return ERR_OK;
 }
 
+int32_t AppMgrServiceInner::GetProcessStateByPid(const int32_t pid, AppExecFwk::AppProcessState &processState)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    if (pid <= 0) {
+        TAG_LOGE(AAFwkTag::APPMGR, "invalid process pid:%{public}d", pid);
+        return ERR_INVALID_OPERATION;
+    }
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
+        return ERR_PERMISSION_DENIED;
+    }
+    auto appRecord = GetAppRunningRecordByPid(pid);
+    if (appRecord == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr, can not get processState.");
+        return ERR_INVALID_OPERATION;
+    }
+    processState = static_cast<AppExecFwk::AppProcessState>(appRecord->GetState());
+    return ERR_OK;
+}
+
 void AppMgrServiceInner::KillRenderProcess(const std::shared_ptr<AppRunningRecord> &appRecord) {
     if (appRecord == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr.");

@@ -21,6 +21,7 @@
 #include "bundle_info.h"
 #include "iremote_proxy.h"
 #include "memory_level_info.h"
+#include "running_process_info.h"
 #include "want.h"
 #include "app_jsheap_mem_info.h"
 
@@ -395,6 +396,15 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid) override;
+
+    /**
+     * Get processState by pid.
+     *
+     * @param pid process id.
+     * @param processState Output parameters, return processState.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetProcessStateByPid(const int32_t pid, AppExecFwk::AppProcessState &processState) override;
 
     /**
      * get memorySize by pid.

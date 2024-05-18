@@ -1283,6 +1283,31 @@ int32_t AppMgrProxy::GetBundleNameByPid(const int pid, std::string &bundleName, 
     return ERR_NONE;
 }
 
+int32_t AppMgrProxy::GetProcessStateByPid(const int32_t pid, AppExecFwk::AppProcessState &processState)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteInt32(pid)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "pid write failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    auto ret = SendRequest(AppMgrInterfaceCode::GET_PROCESS_STATE_BY_PID, data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGW(AAFwkTag::APPMGR, "Send request failed with error code %{public}d.", ret);
+        return ret;
+    }
+    processState = static_cast<AppExecFwk::AppProcessState>(reply.ReadInt32());
+    return reply.ReadInt32();
+}
+
 int32_t AppMgrProxy::NotifyAppFault(const FaultData &faultData)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called.");

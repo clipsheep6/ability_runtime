@@ -16,6 +16,7 @@
 #include "app_mgr_stub.h"
 
 #include "ability_info.h"
+#include "app_jsheap_mem_info.h"
 #include "app_malloc_info.h"
 #include "app_mgr_proxy.h"
 #include "app_scheduler_interface.h"
@@ -29,8 +30,8 @@
 #include "ipc_types.h"
 #include "iremote_object.h"
 #include "memory_level_info.h"
+#include "running_process_info.h"
 #include "want.h"
-#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -130,6 +131,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleJudgeSandboxByPid;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_BUNDLE_NAME_BY_PID)] =
         &AppMgrStub::HandleGetBundleNameByPid;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_PROCESS_STATE_BY_PID)] =
+        &AppMgrStub::HandleGetProcessStateByPid;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_ALL_RENDER_PROCESSES)] =
         &AppMgrStub::HandleGetAllRenderProcesses;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_PROCESS_MEMORY_BY_PID)] =
@@ -920,6 +923,22 @@ int32_t AppMgrStub::HandleGetBundleNameByPid(MessageParcel &data, MessageParcel 
     }
 
     if (!reply.WriteInt32(uid)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleGetProcessStateByPid(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t pid = data.ReadInt32();
+    AppExecFwk::AppProcessState processState;
+    auto result = GetProcessStateByPid(pid, processState);
+    if (!reply.WriteInt32(static_cast<int>(processState))) {
+        TAG_LOGE(AAFwkTag::APPMGR, "processState write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "fail to write result.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

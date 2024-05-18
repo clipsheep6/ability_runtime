@@ -836,6 +836,16 @@ int32_t AppMgrClient::GetBundleNameByPid(const int pid, std::string &bundleName,
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
 }
 
+int32_t AppMgrClient::GetProcessStateByPid(const int32_t pid, AppExecFwk::AppProcessState &processState)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Service is nullptr.");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->GetProcessStateByPid(pid, processState);
+}
+
 int32_t AppMgrClient::NotifyAppFault(const FaultData &faultData)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
