@@ -71,6 +71,7 @@ struct AppSpawnStartMsg {
     bool isolatedExtension = false; // whether is isolatedExtension
     std::string extensionSandboxPath;
     bool strictMode = false; // whether is strict mode
+    std::string processType = "";
 };
 
 constexpr auto LEN_PID = sizeof(pid_t);
