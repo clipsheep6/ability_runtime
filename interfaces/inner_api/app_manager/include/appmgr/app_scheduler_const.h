@@ -16,15 +16,18 @@
 #ifndef OHOS_ABILITY_RUNTIME_APP_SCHEDULER_CONST_H
 #define OHOS_ABILITY_RUNTIME_APP_SCHEDULER_CONST_H
 
-#include <string>
+#include <cstdint>
+#include <cstring>
 
 namespace OHOS {
 namespace AppExecFwk {
-const std::string MSG_DUMP_IPC_START_STAT = "StartIpcStatistics\t";
-const std::string MSG_DUMP_IPC_STOP_STAT = "StopIpcStatistics\t";
-const std::string MSG_DUMP_IPC_STAT = "IpcStatistics\t";
-const std::string MSG_DUMP_IPC_FAIL = "fail\n";
-const std::string MSG_DUMP_IPC_FAIL_REASON_INTERNAL = "internal error.\n";
+constexpr const size_t MAX_CAPACITY = (1U << 20);
+
+constexpr const char* MSG_DUMP_IPC_START_STAT = "StartIpcStatistics\t";
+constexpr const char* MSG_DUMP_IPC_STOP_STAT = "StopIpcStatistics\t";
+constexpr const char* MSG_DUMP_IPC_STAT = "IpcStatistics\t";
+constexpr const char* MSG_DUMP_FAIL = "fail\n";
+constexpr const char* MSG_DUMP_FAIL_REASON_INTERNAL = "internal error.\n";
 
 enum DumpErrorCode {
     // success

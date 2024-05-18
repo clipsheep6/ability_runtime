@@ -385,7 +385,8 @@ public:
      * @param want Want contains information wish to start.
      * @param abilityInfo Ability information.
      */
-    virtual void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
+    virtual void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0);
 
     /**
      * Register response of start specified ability.
@@ -400,16 +401,8 @@ public:
      * @param want Want contains information wish to start.
      * @param abilityInfo Ability information.
      */
-    virtual void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
-
-    /**
-     * Schedule new process request done.
-     *
-     * @param recordId Application record.
-     * @param want Want.
-     * @param flag flag get from OnNewProcessRequest.
-     */
-    virtual void ScheduleNewProcessRequest(const int32_t recordId, const AAFwk::Want &want, const std::string &flag);
+    virtual void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0);
 
     /**
      * Schedule accept want done.

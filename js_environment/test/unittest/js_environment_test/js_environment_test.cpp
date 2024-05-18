@@ -237,12 +237,10 @@ HWTEST_F(JsEnvironmentTest, StartDebugger_0100, TestSize.Level0)
     ASSERT_NE(jsEnv, nullptr);
 
     std::string option = "ark:1234@Debugger";
-    const char* libraryPath = "LIBRARYPATH";
     uint32_t socketFd = 10;
-    bool needBreakPoint = true;
-    uint32_t instanceId = 10;
-    bool result = jsEnv->StartDebugger(option, libraryPath, socketFd, needBreakPoint, instanceId);
-    EXPECT_EQ(result, false);
+    bool isDebugApp = true;
+    bool result = jsEnv->StartDebugger(option, socketFd, isDebugApp, jsEnv->GetDebuggerPostTask());
+    ASSERT_EQ(result, false);
 }
 
 /**

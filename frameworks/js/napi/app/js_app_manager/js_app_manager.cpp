@@ -694,7 +694,7 @@ private:
                     return;
                 }
                 bool ret = abilityManager->IsRunningInStabilityTest();
-                TAG_LOGI(AAFwkTag::APPMGR, "result:%{public}d", ret);
+                TAG_LOGD(AAFwkTag::APPMGR, "result:%{public}d", ret);
                 task.ResolveWithNoError(env, CreateJsValue(env, ret));
             };
 

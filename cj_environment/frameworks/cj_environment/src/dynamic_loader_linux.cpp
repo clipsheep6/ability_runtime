@@ -13,10 +13,26 @@
  * limitations under the License.
  */
 
-#include "mock_my_flag.h"
+#include "dynamic_loader.h"
 
-namespace OHOS {
-namespace AAFwk {
-int MyFlag::flag_ = 0;
-} // namespace AAFwk
-} // namespace OHOS
+#include <dlfcn.h>
+
+void* DynamicLoadLibrary(const char* dlPath, int mode)
+{
+    return dlopen(dlPath, mode);
+}
+
+void* DynamicFindSymbol(void* so, const char* symbol)
+{
+    return dlsym(so, symbol);
+}
+
+void DynamicFreeLibrary(void* so)
+{
+    (void)dlclose(so);
+}
+
+const char* DynamicGetError()
+{
+    return dlerror();
+}

@@ -29,6 +29,7 @@
 #include "bundle_info.h"
 #include "bundle_mgr_interface.h"
 #include "child_process.h"
+#include "native_child_ipc_process.h"
 #include "child_process_manager_error_utils.h"
 #include "child_process_start_info.h"
 #include "constants.h"
@@ -115,6 +116,37 @@ ChildProcessManagerErrorCode ChildProcessManager::StartChildProcessByAppSpawnFor
     return ChildProcessManagerErrorCode::ERR_OK;
 }
 
+ChildProcessManagerErrorCode ChildProcessManager::StartNativeChildProcessByAppSpawnFork(
+    const std::string &libName, const sptr<IRemoteObject> &callbackStub)
+{
+    TAG_LOGI(AAFwkTag::PROCESSMGR, "called, libName:%{private}s", libName.c_str());
+    ChildProcessManagerErrorCode errorCode = PreCheckNativeProcess();
+    if (errorCode != ChildProcessManagerErrorCode::ERR_OK) {
+        return errorCode;
+    }
+
+    sptr<AppExecFwk::IAppMgr> appMgr = GetAppMgr();
+    if (appMgr == nullptr) {
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "GetAppMgr for native child process failed.");
+        return ChildProcessManagerErrorCode::ERR_GET_APP_MGR_FAILED;
+    }
+
+    auto ret = appMgr->StartNativeChildProcess(libName, childProcessCount_, callbackStub);
+    TAG_LOGD(AAFwkTag::PROCESSMGR, "AppMgr StartNativeChildProcess ret:%{public}d", ret);
+
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "AppMgr StartNativeChildProcess failed, ret:%{public}d", ret);
+        if (ret == ERR_OVERFLOW) {
+            TAG_LOGE(AAFwkTag::PROCESSMGR, "Max native child processes readched");
+            return ChildProcessManagerErrorCode::ERR_MAX_NATIVE_CHILD_PROCESSES;
+        }
+        return ChildProcessManagerErrorCode::ERR_GET_APP_MGR_START_PROCESS_FAILED;
+    }
+
+    ++childProcessCount_;
+    return ChildProcessManagerErrorCode::ERR_OK;
+}
+
 void ChildProcessManager::RegisterSignal()
 {
     if (!signalRegistered_) {
@@ -141,6 +173,21 @@ ChildProcessManagerErrorCode ChildProcessManager::PreCheck()
         TAG_LOGE(AAFwkTag::PROCESSMGR, "Already in child process");
         return ChildProcessManagerErrorCode::ERR_ALREADY_IN_CHILD_PROCESS;
     }
+    return ChildProcessManagerErrorCode::ERR_OK;
+}
+
+ChildProcessManagerErrorCode ChildProcessManager::PreCheckNativeProcess()
+{
+    ChildProcessManagerErrorCode errCode = PreCheck();
+    if (errCode != ChildProcessManagerErrorCode::ERR_OK) {
+        return errCode;
+    }
+
+    if (!AAFwk::AppUtils::GetInstance().IsSupportNativeChildProcess()) {
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Unsupport native child process");
+        return ChildProcessManagerErrorCode::ERR_UNSUPPORT_NATIVE_CHILD_PROCESS;
+    }
+
     return ChildProcessManagerErrorCode::ERR_OK;
 }
 
@@ -204,6 +251,28 @@ bool ChildProcessManager::LoadJsFile(const std::string &srcEntry, const AppExecF
     }
     process->OnStart();
     TAG_LOGD(AAFwkTag::PROCESSMGR, "LoadJsFile end.");
+    return true;
+}
+
+bool ChildProcessManager::LoadNativeLib(const std::string &libPath, const sptr<IRemoteObject> &mainProcessCb)
+{
+    auto childProcess = NativeChildIpcProcess::Create();
+    if (childProcess == nullptr) {
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Failed create NativeChildIpcProcess");
+        return false;
+    }
+    
+    std::shared_ptr<ChildProcessStartInfo> processStartInfo = std::make_shared<ChildProcessStartInfo>();
+    processStartInfo->name = std::filesystem::path(libPath).stem();
+    processStartInfo->srcEntry = libPath;
+    processStartInfo->ipcObj = mainProcessCb;
+    if (!childProcess->Init(processStartInfo)) {
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "NativeChildIpcProcess init failed.");
+        return false;
+    }
+    
+    childProcess->OnStart();
+    TAG_LOGD(AAFwkTag::PROCESSMGR, "LoadNativeLib end.");
     return true;
 }
 

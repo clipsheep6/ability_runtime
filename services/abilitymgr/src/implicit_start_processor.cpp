@@ -359,7 +359,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     }
 
     if (uriReservedFlag_) {
-        abilityInfoFlag = abilityInfoFlag |
+        abilityInfoFlag = static_cast<uint32_t>(abilityInfoFlag) |
             static_cast<uint32_t>(AppExecFwk::GetAbilityInfoFlag::GET_ABILITY_INFO_ONLY_SYSTEM_APP);
     }
 
@@ -452,6 +452,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
         dialogAppInfo.abilityLabelId = info.labelId;
         dialogAppInfo.bundleIconId = info.applicationInfo.iconId;
         dialogAppInfo.bundleLabelId = info.applicationInfo.labelId;
+        dialogAppInfo.visible = info.visible;
         dialogAppInfos.emplace_back(dialogAppInfo);
     }
 
@@ -725,6 +726,7 @@ void ImplicitStartProcessor::AddAbilityInfoToDialogInfos(const AddInfoParam &par
     dialogAppInfo.abilityLabelId = param.info.labelId;
     dialogAppInfo.bundleIconId = param.info.applicationInfo.iconId;
     dialogAppInfo.bundleLabelId = param.info.applicationInfo.labelId;
+    dialogAppInfo.visible = param.info.visible;
     dialogAppInfos.emplace_back(dialogAppInfo);
 }
 

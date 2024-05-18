@@ -100,11 +100,13 @@ public:
     StartSpecifiedAbilityResponse() = default;
     virtual ~StartSpecifiedAbilityResponse() = default;
 
-    virtual void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag) override;
-    virtual void OnTimeoutResponse(const AAFwk::Want &want) override;
+    virtual void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag,
+        int32_t requestId) override;
+    virtual void OnTimeoutResponse(const AAFwk::Want &want, int32_t requestId) override;
 
-    virtual void OnNewProcessRequestResponse(const AAFwk::Want &want, const std::string &flag) override;
-    virtual void OnNewProcessRequestTimeoutResponse(const AAFwk::Want &want) override;
+    virtual void OnNewProcessRequestResponse(const AAFwk::Want &want, const std::string &flag,
+        int32_t requestId) override;
+    virtual void OnNewProcessRequestTimeoutResponse(const AAFwk::Want &want, int32_t requestId) override;
 };
 
 /**
@@ -275,10 +277,12 @@ public:
      */
     void StartupResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos);
 
-    void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
+    void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0);
     int GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info);
 
-    void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
+    void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0);
 
     /**
      * Start a user test

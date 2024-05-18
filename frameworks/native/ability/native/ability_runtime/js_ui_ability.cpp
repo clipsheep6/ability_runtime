@@ -706,7 +706,7 @@ void JsUIAbility::RestorePageStack(const Want &want)
         auto env = jsRuntime_.GetNapiEnv();
         if (abilityContext_->GetContentStorage()) {
             scene_->GetMainWindow()->NapiSetUIContent(pageStack, env,
-                abilityContext_->GetContentStorage()->GetNapiValue(), true);
+                abilityContext_->GetContentStorage()->GetNapiValue(), Rosen::BackupAndRestoreType::CONTINUATION);
         } else {
             TAG_LOGE(AAFwkTag::UIABILITY, "Content storage is nullptr.");
         }
@@ -728,7 +728,8 @@ void JsUIAbility::AbilityContinuationOrRecover(const Want &want)
         auto env = jsRuntime_.GetNapiEnv();
         auto mainWindow = scene_->GetMainWindow();
         if (mainWindow != nullptr) {
-            mainWindow->NapiSetUIContent(pageStack, env, abilityContext_->GetContentStorage()->GetNapiValue(), true);
+            mainWindow->NapiSetUIContent(pageStack, env, abilityContext_->GetContentStorage()->GetNapiValue(),
+                Rosen::BackupAndRestoreType::CONTINUATION);
         } else {
             TAG_LOGE(AAFwkTag::UIABILITY, "MainWindow is nullptr.");
         }
@@ -793,9 +794,10 @@ void JsUIAbility::DoOnForegroundForSceneIsNull(const Want &want)
     auto option = GetWindowOption(want);
     Rosen::WMError ret = Rosen::WMError::WM_OK;
     auto sessionToken = GetSessionToken();
+    auto identityToken = GetIdentityToken();
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionToken != nullptr) {
         abilityContext_->SetWeakSessionToken(sessionToken);
-        ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionToken);
+        ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionToken, identityToken);
     } else {
         ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
     }

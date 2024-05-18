@@ -331,39 +331,40 @@ void AppScheduler::StartupResidentProcess(const std::vector<AppExecFwk::BundleIn
     appMgrClient_->StartupResidentProcess(bundleInfos);
 }
 
-void AppScheduler::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
+void AppScheduler::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+    int32_t requestId)
 {
     CHECK_POINTER(appMgrClient_);
-    IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->StartSpecifiedAbility(want, abilityInfo));
+    IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->StartSpecifiedAbility(want, abilityInfo, requestId));
 }
 
 void StartSpecifiedAbilityResponse::OnAcceptWantResponse(
-    const AAFwk::Want &want, const std::string &flag)
+    const AAFwk::Want &want, const std::string &flag, int32_t requestId)
 {
-    DelayedSingleton<AbilityManagerService>::GetInstance()->OnAcceptWantResponse(want, flag);
+    DelayedSingleton<AbilityManagerService>::GetInstance()->OnAcceptWantResponse(want, flag, requestId);
 }
 
-void StartSpecifiedAbilityResponse::OnTimeoutResponse(const AAFwk::Want &want)
+void StartSpecifiedAbilityResponse::OnTimeoutResponse(const AAFwk::Want &want, int32_t requestId)
 {
-    DelayedSingleton<AbilityManagerService>::GetInstance()->OnStartSpecifiedAbilityTimeoutResponse(want);
+    DelayedSingleton<AbilityManagerService>::GetInstance()->OnStartSpecifiedAbilityTimeoutResponse(want, requestId);
 }
 
 void AppScheduler::StartSpecifiedProcess(
-    const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
+    const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo, int32_t requestId)
 {
     CHECK_POINTER(appMgrClient_);
-    IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->StartSpecifiedProcess(want, abilityInfo));
+    IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->StartSpecifiedProcess(want, abilityInfo, requestId));
 }
 
 void StartSpecifiedAbilityResponse::OnNewProcessRequestResponse(
-    const AAFwk::Want &want, const std::string &flag)
+    const AAFwk::Want &want, const std::string &flag, int32_t requestId)
 {
-    DelayedSingleton<AbilityManagerService>::GetInstance()->OnStartSpecifiedProcessResponse(want, flag);
+    DelayedSingleton<AbilityManagerService>::GetInstance()->OnStartSpecifiedProcessResponse(want, flag, requestId);
 }
 
-void StartSpecifiedAbilityResponse::OnNewProcessRequestTimeoutResponse(const AAFwk::Want &want)
+void StartSpecifiedAbilityResponse::OnNewProcessRequestTimeoutResponse(const AAFwk::Want &want, int32_t requestId)
 {
-    DelayedSingleton<AbilityManagerService>::GetInstance()->OnStartSpecifiedProcessTimeoutResponse(want);
+    DelayedSingleton<AbilityManagerService>::GetInstance()->OnStartSpecifiedProcessTimeoutResponse(want, requestId);
 }
 
 int AppScheduler::GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info)

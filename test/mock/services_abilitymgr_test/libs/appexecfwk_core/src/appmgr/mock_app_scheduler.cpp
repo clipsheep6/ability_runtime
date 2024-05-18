@@ -173,7 +173,7 @@ bool AppScheduler::IsMemorySizeSufficent() const
     return true;
 }
 
-void AppScheduler::StartSpecifiedAbility(const AAFwk::Want& want, const AppExecFwk::AbilityInfo& abilityInfo)
+void AppScheduler::StartSpecifiedAbility(const AAFwk::Want&, const AppExecFwk::AbilityInfo&, int32_t)
 {}
 
 int AppScheduler::StartUserTest(

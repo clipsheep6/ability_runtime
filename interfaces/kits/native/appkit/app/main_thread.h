@@ -329,6 +329,16 @@ public:
      */
     int32_t ScheduleDumpIpcStat(std::string& result) override;
 
+    /**
+     * ScheduleDumpFfrt, call ScheduleDumpFfrt(std::string& result) through proxy project,
+     * Start querying the application's ffrt usage.
+     *
+     * @param result, ffrt dump result output.
+     *
+     * @return Returns 0 on success, error code on failure.
+     */
+    int32_t ScheduleDumpFfrt(std::string& result) override;
+
 private:
     /**
      *

@@ -13,20 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef MOCK_MY_FLAG_H
-#define MOCK_MY_FLAG_H
+#ifndef MOCK_OHOS_ABILITY_RUNTIME_MOCK_APP_MGR_SERVICE_INNER_H
+#define MOCK_OHOS_ABILITY_RUNTIME_MOCK_APP_MGR_SERVICE_INNER_H
+
+#include "gmock/gmock.h"
+#include "app_mgr_service_inner.h"
+
 namespace OHOS {
-namespace AAFwk {
-class MyFlag {
+namespace AppExecFwk {
+class MockAppMgrServiceInner : public AppMgrServiceInner {
 public:
-    enum FLAG {
-        IS_INVALID_CALL = 0,
-        IS_SA_CALL,
-        IS_SHELL_CALL,
-        IS_SA_AND_SHELL_CALL,
-    };
-    static int flag_;
+    MockAppMgrServiceInner()
+    {}
+    virtual ~MockAppMgrServiceInner()
+    {}
+
+    MOCK_METHOD2(DumpFfrt, int(const std::vector<int32_t>& pid, std::string& result));
 };
-} // namespace AAFwk
-} // namespace OHOS
-#endif // MOCK_MY_FLAG_H
+}  // namespace AppExecFwk
+}  // namespace OHOS
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_MOCK_APP_MGR_SERVICE_INNER_H

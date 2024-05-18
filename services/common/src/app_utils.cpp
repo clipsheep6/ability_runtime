@@ -41,7 +41,9 @@ const std::string START_OPTIONS_WITH_PROCESS_OPTION = "persist.sys.abilityms.sta
 const std::string MOVE_UI_ABILITY_TO_BACKGROUND_API_ENABLE =
     "persist.sys.abilityms.move_ui_ability_to_background_api_enable";
 const std::string LAUNCH_EMBEDED_UI_ABILITY = "const.abilityms.launch_embeded_ui_ability";
+const std::string SUPPROT_NATIVE_CHILD_PROCESS = "persist.sys.abilityms.start_native_child_process";
 }
+
 AppUtils::~AppUtils() {}
 
 AppUtils::AppUtils()
@@ -81,7 +83,7 @@ bool AppUtils::IsInheritWindowSplitScreenMode()
         isInheritWindowSplitScreenMode_.value = system::GetBoolParameter(INHERIT_WINDOW_SPLIT_SCREEN_MODE, true);
         isInheritWindowSplitScreenMode_.isLoaded = true;
     }
-    TAG_LOGI(AAFwkTag::DEFAULT, "isInheritWindowSplitScreenMode is %{public}d", isInheritWindowSplitScreenMode_.value);
+    TAG_LOGD(AAFwkTag::DEFAULT, "isInheritWindowSplitScreenMode is %{public}d", isInheritWindowSplitScreenMode_.value);
     return isInheritWindowSplitScreenMode_.value;
 }
 
@@ -101,7 +103,7 @@ int32_t AppUtils::GetTimeoutUnitTimeRatio()
         timeoutUnitTimeRatio_.value = system::GetIntParameter<int32_t>(TIMEOUT_UNIT_TIME_RATIO, 1);
         timeoutUnitTimeRatio_.isLoaded = true;
     }
-    TAG_LOGI(AAFwkTag::DEFAULT, "timeoutUnitTimeRatio is %{public}d", timeoutUnitTimeRatio_.value);
+    TAG_LOGD(AAFwkTag::DEFAULT, "timeoutUnitTimeRatio is %{public}d", timeoutUnitTimeRatio_.value);
     return timeoutUnitTimeRatio_.value;
 }
 
@@ -171,7 +173,7 @@ bool AppUtils::IsMultiProcessModel()
         isMultiProcessModel_.value = system::GetBoolParameter(MULTI_PROCESS_MODEL, false);
         isMultiProcessModel_.isLoaded = true;
     }
-    TAG_LOGI(AAFwkTag::DEFAULT, "isMultiProcessModel_ is %{public}d", isMultiProcessModel_.value);
+    TAG_LOGD(AAFwkTag::DEFAULT, "isMultiProcessModel_ is %{public}d", isMultiProcessModel_.value);
     return isMultiProcessModel_.value;
 }
 
@@ -207,5 +209,16 @@ bool AppUtils::IsLaunchEmbededUIAbility()
     TAG_LOGI(AAFwkTag::DEFAULT, "isLaunchEmbededUIAbility_ is %{public}d", isLaunchEmbededUIAbility_.value);
     return isLaunchEmbededUIAbility_.value;
 }
+
+bool AppUtils::IsSupportNativeChildProcess()
+{
+    if (!isSupportNativeChildProcess_.isLoaded) {
+        isSupportNativeChildProcess_.value = system::GetBoolParameter(SUPPROT_NATIVE_CHILD_PROCESS, false);
+        isSupportNativeChildProcess_.isLoaded = true;
+    }
+    TAG_LOGI(AAFwkTag::DEFAULT, "isSupportNativeChildProcess_ is %{public}d", isSupportNativeChildProcess_.value);
+    return isSupportNativeChildProcess_.value;
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS

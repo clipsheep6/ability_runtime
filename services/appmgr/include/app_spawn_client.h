@@ -65,8 +65,12 @@ struct AppSpawnStartMsg {
     std::set<std::string> permissions;
     std::map<std::string, std::string> appEnv; // environment variable to be set to the process
     std::string ownerId;
+    std::string provisionType;
     bool atomicServiceFlag = false;
     std::string atomicAccount = "";
+    bool isolatedExtension = false; // whether is isolatedExtension
+    std::string extensionSandboxPath;
+    bool strictMode = false; // whether is strict mode
 };
 
 constexpr auto LEN_PID = sizeof(pid_t);
@@ -159,6 +163,22 @@ public:
      * @param reqHandle, handle for request message
      */
     int32_t SetAtomicServiceFlag(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle);
+
+    /**
+     * Set strict mode flags.
+     *
+     * @param startMsg, request message.
+     * @param reqHandle, handle for request message
+     */
+    int32_t SetStrictMode(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle);
+
+    /**
+     * Set app extension flags.
+     *
+     * @param startMsg, request message.
+     * @param reqHandle, handle for request message
+     */
+    int32_t SetAppExtension(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle);
 
     /**
      * Set extra info: render-cmd, HspList, Overlay, DataGroup, AppEnv.

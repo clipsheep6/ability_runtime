@@ -116,7 +116,7 @@ HWTEST_F(UIExtensionInfoModuleTest, QueryUIExtensionAbilityInfos_0100, TestSize.
     TAG_LOGI(AAFwkTag::TEST, "start.");
     ASSERT_NE(bundleMgr_, nullptr);
 
-    for (auto &type : UIExtensionUtils::UI_EXTENSION_SET) {
+    for (auto &type : UIExtensionUtils::GetUiExtensionSet()) {
         std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
         bool queryResult = bundleMgr_->QueryExtensionAbilityInfos(type, AppExecFwk::Constants::ALL_USERID,
             extensionInfos);

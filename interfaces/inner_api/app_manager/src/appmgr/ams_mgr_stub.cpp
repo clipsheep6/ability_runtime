@@ -397,7 +397,7 @@ int32_t AmsMgrStub::HandleStartSpecifiedAbility(MessageParcel &data, MessageParc
         delete want;
         return ERR_INVALID_VALUE;
     }
-    StartSpecifiedAbility(*want, *abilityInfo);
+    StartSpecifiedAbility(*want, *abilityInfo, data.ReadInt32());
     delete want;
     delete abilityInfo;
     return NO_ERROR;

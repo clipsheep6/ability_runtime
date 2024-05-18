@@ -587,8 +587,8 @@ void AmsMgrProxy::SetAbilityForegroundingFlagToAppRecord(const pid_t pid)
     }
 }
 
-void AmsMgrProxy::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
-
+void AmsMgrProxy::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+    int32_t requestId)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -597,7 +597,8 @@ void AmsMgrProxy::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFw
         return;
     }
 
-    if (!data.WriteParcelable(&want) || !data.WriteParcelable(&abilityInfo)) {
+    if (!data.WriteParcelable(&want) || !data.WriteParcelable(&abilityInfo) ||
+        !data.WriteInt32(requestId)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write data failed.");
         return;
     }
@@ -609,7 +610,8 @@ void AmsMgrProxy::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFw
     }
 }
 
-void AmsMgrProxy::StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
+void AmsMgrProxy::StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+    int32_t requestId)
 
 {
     MessageParcel data;
@@ -620,7 +622,8 @@ void AmsMgrProxy::StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFw
         return;
     }
 
-    if (!data.WriteParcelable(&want) || !data.WriteParcelable(&abilityInfo)) {
+    if (!data.WriteParcelable(&want) || !data.WriteParcelable(&abilityInfo) ||
+        data.WriteInt32(requestId)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write data failed.");
         return;
     }

@@ -131,6 +131,7 @@ bool DialogSessionRecord::GenerateDialogSessionRecord(AbilityRequest &abilityReq
         targetDialogAbilityInfo.abilityLabelId = dialogAppInfo.abilityLabelId;
         targetDialogAbilityInfo.bundleIconId = dialogAppInfo.bundleIconId;
         targetDialogAbilityInfo.bundleLabelId = dialogAppInfo.bundleLabelId;
+        targetDialogAbilityInfo.visible = dialogAppInfo.visible;
         dialogSessionInfo->targetAbilityInfos.emplace_back(targetDialogAbilityInfo);
     }
     std::shared_ptr<DialogCallerInfo> dialogCallerInfo = std::make_shared<DialogCallerInfo>();

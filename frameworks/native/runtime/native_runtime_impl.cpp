@@ -147,9 +147,6 @@ napi_status NativeRuntimeImpl::Init(const Options& options, napi_env env)
     }
 
     if (!options.preload) {
-        auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.bundleName, isModular,
-                                                                      options.isDebugVersion);
-        InitSourceMap(operatorObj, jsEnv);
         if (!options.isUnique) {
             InitTimerModule(jsEnv);
         }
@@ -246,16 +243,6 @@ void NativeRuntimeImpl::InitConsoleModule(const std::shared_ptr<JsEnv::JsEnviron
         return;
     }
     jsEnv->InitConsoleModule();
-}
-
-void NativeRuntimeImpl::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorObj,
-    const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv)
-{
-    if (jsEnv == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr.");
-        return;
-    }
-    jsEnv->InitSourceMap(operatorObj);
 }
 
 void NativeRuntimeImpl::InitTimerModule(const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv)

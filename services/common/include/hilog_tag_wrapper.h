@@ -94,72 +94,109 @@ enum class AAFwkLogTag : uint32_t {
     END = 256,               // N.B. never use it
 };
 
-const std::map<AAFwkLogTag, const char*> AAFWK_DOMAIN_MAP = {
-    { AAFwkLogTag::DEFAULT,         "AAFwk" },
-    { AAFwkLogTag::ABILITY,         "AAFwkAbility" },
-    { AAFwkLogTag::TEST,            "AAFwkTest" },
-    { AAFwkLogTag::AA_TOOL,         "AAFwkAATool" },
-    { AAFwkLogTag::ABILITY_SIM,     "AAFwkAbilitySimulator" },
+inline uint32_t GetOffset(AAFwkLogTag tag, AAFwkLogTag base)
+{
+    return static_cast<uint32_t>(tag) - static_cast<uint32_t>(base);
+}
 
-    { AAFwkLogTag::APPDFR,          "AAFwkAppDfr"},
-    { AAFwkLogTag::APPMGR,          "AAFwkAppMgr" },
-    { AAFwkLogTag::DBOBSMGR,        "AAFwkDbObsMgr" },
-    { AAFwkLogTag::DIALOG,          "AAFwkDialog" },
-    { AAFwkLogTag::QUICKFIX,        "AAFwkQuickfix" },
-    { AAFwkLogTag::URIPERMMGR,      "AAFwkUriPermMgr" },
-    { AAFwkLogTag::BUNDLEMGRHELPER, "AAFwkBundleMgrHelper" },
-    { AAFwkLogTag::APPKIT,          "AAFwkAppKit" },
+inline const char* GetDomainName0(AAFwkLogTag tag)
+{
+    const char* tagNames[] = { "AAFwk", "AAFwkAbility", "AAFwkTest", "AAFwkAATool", "AAFwkAbilitySimulator" };
+    uint32_t offset = GetOffset(tag, AAFwkLogTag::DEFAULT);
+    if (offset >= sizeof(tagNames) / sizeof(const char*)) {
+        return "AAFwkUN";
+    }
+    return tagNames[offset];
+}
 
-    { AAFwkLogTag::JSENV,           "AAFwkJsEnv" },
-    { AAFwkLogTag::JSRUNTIME,       "AAFwkJsRuntime" },
-    { AAFwkLogTag::FA,              "AAFwkFA" },
-    { AAFwkLogTag::INTENT,          "AAFwkIntent" },
-    { AAFwkLogTag::JSNAPI,          "AAFwkJsNapi" },
+inline const char* GetDomainName1(AAFwkLogTag tag)
+{
+    const char* tagNames[] = { "AAFwkAppDfr", "AAFwkAppMgr", "AAFwkDbObsMgr", "AAFwkDialog", "AAFwkQuickfix",
+        "AAFwkUriPermMgr", "AAFwkBundleMgrHelper", "AAFwkAppKit" };
+    uint32_t offset = GetOffset(tag, AAFwkLogTag::APPDFR);
+    if (offset >= sizeof(tagNames) / sizeof(const char*)) {
+        return "AAFwkUN";
+    }
+    return tagNames[offset];
+}
 
-    { AAFwkLogTag::DELEGATOR,       "AAFwkDelegator" },
-    { AAFwkLogTag::CONTEXT,         "AAFwkContext" },
-    { AAFwkLogTag::UIABILITY,       "AAFwkUIAbility" },
-    { AAFwkLogTag::WANT,            "AAFwkWant" },
-    { AAFwkLogTag::MISSION,         "AAFwkMission" },
-    { AAFwkLogTag::CONNECTION,      "AAFwkConnection" },
-    { AAFwkLogTag::ATOMIC_SERVICE,  "AAFwkAtomicService" },
-    { AAFwkLogTag::ABILITYMGR,      "AAFwkAbilityMgr" },
-    { AAFwkLogTag::ECOLOGICAL_RULE, "AAFwkEcologicalRule" },
-    { AAFwkLogTag::DATA_ABILITY,    "AAFwkDataAbility" },
+inline const char* GetDomainName2(AAFwkLogTag tag)
+{
+    const char* tagNames[] = { "AAFwkJsEnv", "AAFwkJsRuntime", "AAFwkFA", "AAFwkIntent", "AAFwkJsNapi" };
+    uint32_t offset = GetOffset(tag, AAFwkLogTag::JSENV);
+    if (offset >= sizeof(tagNames) / sizeof(const char*)) {
+        return "AAFwkUN";
+    }
+    return tagNames[offset];
+}
 
-    { AAFwkLogTag::EXT,             "AAFwkExt" },
-    { AAFwkLogTag::AUTOFILL_EXT,    "AAFwkAutoFillExt" },
-    { AAFwkLogTag::SERVICE_EXT,     "AAFwkServiceExt" },
-    { AAFwkLogTag::FORM_EXT,        "AAFwkFormExt" },
-    { AAFwkLogTag::SHARE_EXT,       "AAFwkShareExt" },
-    { AAFwkLogTag::UI_EXT,          "AAFwkUIExt" },
-    { AAFwkLogTag::ACTION_EXT,      "AAFwkActionExt" },
-    { AAFwkLogTag::EMBEDDED_EXT,    "AAFwkEmbeddedExt" },
+inline const char* GetDomainName3(AAFwkLogTag tag)
+{
+    const char* tagNames[] = { "AAFwkDelegator", "AAFwkContext", "AAFwkUIAbility", "AAFwkWant", "AAFwkMission",
+        "AAFwkConnection", "AAFwkAtomicService", "AAFwkAbilityMgr", "AAFwkEcologicalRule", "AAFwkDataAbility" };
+    uint32_t offset = GetOffset(tag, AAFwkLogTag::DELEGATOR);
+    if (offset >= sizeof(tagNames) / sizeof(const char*)) {
+        return "AAFwkUN";
+    }
+    return tagNames[offset];
+}
 
-    { AAFwkLogTag::WANTAGENT,       "AAFwkWantAgent" },
-    { AAFwkLogTag::AUTOFILLMGR,     "AAFwkAutoFillMgr" },
-    { AAFwkLogTag::EXTMGR,          "AAFwkExtMgr" },
-    { AAFwkLogTag::SER_ROUTER,      "AAFwkServiceRouter" },
-    { AAFwkLogTag::AUTO_STARTUP,    "AAFwkAutoStartup" },
-    { AAFwkLogTag::STARTUP,         "AAFwkStartup" },
-    { AAFwkLogTag::RECOVERY,        "AAFwkRecovery" },
-    { AAFwkLogTag::PROCESSMGR,      "AAFwkProcessMgr" },
-    { AAFwkLogTag::CONTINUATION,    "AAFwkContinuation" },
-    { AAFwkLogTag::DISTRIBUTED,     "AAFwkDistributed" },
-    { AAFwkLogTag::FREE_INSTALL,    "AAFwkFreeInstall" },
+inline const char* GetDomainName4(AAFwkLogTag tag)
+{
+    const char* tagNames[] = { "AAFwkExt", "AAFwkAutoFillExt", "AAFwkServiceExt", "AAFwkFormExt", "AAFwkShareExt",
+        "AAFwkUIExt", "AAFwkActionExt", "AAFwkEmbeddedExt" };
+    uint32_t offset = GetOffset(tag, AAFwkLogTag::EXT);
+    if (offset >= sizeof(tagNames) / sizeof(const char*)) {
+        return "AAFwkUN";
+    }
+    return tagNames[offset];
+}
 
-    { AAFwkLogTag::LOCAL_CALL,      "AAFwkLocalCall" },
-};
+inline const char* GetDomainName5(AAFwkLogTag tag)
+{
+    const char* tagNames[] = { "AAFwkWantAgent", "AAFwkAutoFillMgr", "AAFwkExtMgr", "AAFwkServiceRouter",
+        "AAFwkAutoStartup", "AAFwkStartup", "AAFwkRecovery", "AAFwkProcessMgr", "AAFwkContinuation",
+        "AAFwkDistributed", "AAFwkFreeInstall" };
+    uint32_t offset = GetOffset(tag, AAFwkLogTag::WANTAGENT);
+    if (offset >= sizeof(tagNames) / sizeof(const char*)) {
+        return "AAFwkUN";
+    }
+    return tagNames[offset];
+}
+
+inline const char* GetDomainName6(AAFwkLogTag tag)
+{
+    const char* tagNames[] = { "AAFwkLocalCall" };
+    uint32_t offset = GetOffset(tag, AAFwkLogTag::LOCAL_CALL);
+    if (offset >= sizeof(tagNames) / sizeof(const char*)) {
+        return "AAFwkUN";
+    }
+    return tagNames[offset];
+}
+
+constexpr uint32_t BASE_DEFAULT = 0;
+constexpr uint32_t BASE_APPDFR = 1;
+constexpr uint32_t BASE_JSENV = 2;
+constexpr uint32_t BASE_DELEGATOR = 3;
+constexpr uint32_t BASE_EXT = 4;
+constexpr uint32_t BASE_WANTAGENT = 5;
+constexpr uint32_t BASE_LOCAL_CALL = 6;
 
 static inline const char* GetTagInfoFromDomainId(AAFwkLogTag tag)
 {
-    auto iter = AAFWK_DOMAIN_MAP.find(tag);
-    if (iter != AAFWK_DOMAIN_MAP.end() && iter->second) {
-        return iter->second;
+    uint32_t offset = GetOffset(tag, AAFwkLogTag::DEFAULT);
+    uint32_t base = offset >> 4;
+    switch (base) {
+        case BASE_DEFAULT: return GetDomainName0(tag);
+        case BASE_APPDFR: return GetDomainName1(tag);
+        case BASE_JSENV: return GetDomainName2(tag);
+        case BASE_DELEGATOR: return GetDomainName3(tag);
+        case BASE_EXT: return GetDomainName4(tag);
+        case BASE_WANTAGENT: return GetDomainName5(tag);
+        case BASE_LOCAL_CALL: return GetDomainName6(tag);
+        default: return "AAFwkUN";
     }
-    return "AAFwkUN";
 }
-
 } // OHOS::AAFwk
 
 using AAFwkTag = OHOS::AAFwk::AAFwkLogTag;

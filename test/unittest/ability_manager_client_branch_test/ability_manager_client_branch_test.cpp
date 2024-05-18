@@ -1401,7 +1401,8 @@ HWTEST_F(AbilityManagerClientBranchTest, StartAbilityByCall_002, TestSize.Level1
  */
 HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_001, TestSize.Level1)
 {
-    EXPECT_EQ(client_->StartUIAbilityBySCB(nullptr), ERR_INVALID_VALUE);
+    bool isColdStart = false;
+    EXPECT_EQ(client_->StartUIAbilityBySCB(nullptr, isColdStart), ERR_INVALID_VALUE);
 }
 
 /**
@@ -1412,7 +1413,8 @@ HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_001, TestSize.Level
 HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_002, TestSize.Level1)
 {
     sptr<SessionInfo> sessionInfo(new SessionInfo());
-    EXPECT_EQ(client_->StartUIAbilityBySCB(sessionInfo), ERR_OK);
+    bool isColdStart = false;
+    EXPECT_EQ(client_->StartUIAbilityBySCB(sessionInfo, isColdStart), ERR_OK);
 }
 
 /**
@@ -1425,7 +1427,8 @@ HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_003, TestSize.Level
     Rosen::SessionInfo info;
     sptr<SessionInfo> sessionInfo(new SessionInfo());
     sessionInfo->sessionToken = new Rosen::Session(info);
-    EXPECT_EQ(client_->StartUIAbilityBySCB(sessionInfo), ERR_OK);
+    bool isColdStart = false;
+    EXPECT_EQ(client_->StartUIAbilityBySCB(sessionInfo, isColdStart), ERR_OK);
 }
 
 /**
@@ -2601,5 +2604,21 @@ HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_SetMissionLabel_01
     GTEST_LOG_(INFO) << "AbilityManagerClient_SetMissionLabel_0100 end";
 }
 #endif
+
+/**
+ * @tc.name: AbilityManagerClient_TransferAbilityResultForExtension_0100
+ * @tc.desc: TransferAbilityResult
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_TransferAbilityResultForExtension_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityManagerClient_TransferAbilityResultForExtension_0100 start";
+    sptr<IRemoteObject> callerToken = new AbilityManagerStubTestMock();
+    int resultCode = 0;
+    Want resultWant;
+    auto result = client_->TransferAbilityResultForExtension(callerToken, resultCode, resultWant);
+    EXPECT_EQ(result, NO_ERROR);
+    GTEST_LOG_(INFO) << "AbilityManagerClient_TransferAbilityResultForExtension_0100 end";
+}
 }  // namespace AAFwk
 }  // namespace OHOS

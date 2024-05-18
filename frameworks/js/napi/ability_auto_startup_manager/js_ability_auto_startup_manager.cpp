@@ -35,6 +35,7 @@ constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr int32_t INDEX_ZERO = 0;
 constexpr int32_t INDEX_ONE = 1;
+constexpr int32_t INVALID_PARAM = static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
 constexpr const char *ON_OFF_TYPE_SYSTEM = "systemAutoStartup";
 } // namespace
 
@@ -91,7 +92,7 @@ napi_value JsAbilityAutoStartupManager::OnRegisterAutoStartupCallback(napi_env e
     std::string type;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], type) || type != ON_OFF_TYPE_SYSTEM) {
         TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The param is invalid.");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowError(env, INVALID_PARAM, "Parameter error. Convert type fail.");
         return CreateJsUndefined(env);
     }
 
@@ -139,7 +140,7 @@ napi_value JsAbilityAutoStartupManager::OnUnregisterAutoStartupCallback(napi_env
     std::string type;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], type) || type != ON_OFF_TYPE_SYSTEM) {
         TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to parse type.");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowError(env, INVALID_PARAM, "Parameter error. Convert type fail.");
         return CreateJsUndefined(env);
     }
 
@@ -189,7 +190,7 @@ napi_value JsAbilityAutoStartupManager::OnSetApplicationAutoStartup(napi_env env
 
     AutoStartupInfo autoStartupInfo;
     if (!UnwrapAutoStartupInfo(env, info.argv[INDEX_ZERO], autoStartupInfo)) {
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowError(env, INVALID_PARAM, "Parameter error. Convert autoStartupInfo fail.");
         return CreateJsUndefined(env);
     }
 
@@ -239,7 +240,7 @@ napi_value JsAbilityAutoStartupManager::OnCancelApplicationAutoStartup(napi_env 
 
     AutoStartupInfo autoStartupInfo;
     if (!UnwrapAutoStartupInfo(env, info.argv[INDEX_ZERO], autoStartupInfo)) {
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowError(env, INVALID_PARAM, "Parameter error. Convert autoStartupInfo fail.");
         return CreateJsUndefined(env);
     }
 

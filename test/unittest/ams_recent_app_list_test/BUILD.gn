@@ -112,6 +112,4 @@ ohos_unittest("AmsRecentAppListTest") {
 
 group("unittest") {
   testonly = true
-
-  deps = [ ":AmsRecentAppListTest" ]
 }
