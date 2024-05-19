@@ -8803,7 +8803,11 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
             return ERR_OK;
         }
         auto abilityState = callerAbility->GetAbilityState();
-        if (abilityState == AbilityState::BACKGROUND || abilityState == AbilityState::BACKGROUNDING) {
+        if (abilityState == AbilityState::BACKGROUND || abilityState == AbilityState::BACKGROUNDING ||
+            // If uiability or uiextensionability ability state is foreground when terminate,
+            // it will move to background firstly. So if startAbility in onBackground() lifecycle,
+            // the actual ability state may be had changed to terminating from background or backgrounding.
+            abilityState == AbilityState::TERMINATING) {
             return ERR_OK;
         }
     } else {
