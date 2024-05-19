@@ -822,6 +822,8 @@ int AbilityConnectManager::AttachAbilityThreadLocked(
         sceneBoardTokenId_ = abilityRecord->GetAbilityInfo().applicationInfo.accessTokenId;
     }
     abilityRecord->SetScheduler(scheduler);
+    abilityRecord->RemoveSpecifiedWantParam(UIEXTENSION_ABILITY_ID);
+    abilityRecord->RemoveSpecifiedWantParam(UIEXTENSION_ROOT_HOST_PID);
     if (IsUIExtensionAbility(abilityRecord) && !abilityRecord->IsCreateByConnect()
         && !abilityRecord->GetWant().GetBoolParam(IS_PRELOAD_UIEXTENSION_ABILITY, false)) {
         DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);

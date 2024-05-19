@@ -449,6 +449,11 @@ sptr<IRemoteObject> ExtensionRecordManager::GetRootCallerTokenLocked(int32_t ext
             it->second->SetRootCallerToken(callerToken);
             return callerToken;
         }
+        // If caller extension record id is same with current, need terminate, prevent possible stack-overflow.
+        if (callerAbilityRecord->GetUIExtensionAbilityId() == extensionRecordId) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid id: %{public}d, same with caller.", extensionRecordId);
+            return nullptr;
+        }
         rootCallerToken = GetRootCallerTokenLocked(callerAbilityRecord->GetUIExtensionAbilityId());
         TAG_LOGD(AAFwkTag::ABILITYMGR, "update rootCallerToken, id: %{public}d.", extensionRecordId);
         it->second->SetRootCallerToken(rootCallerToken);
