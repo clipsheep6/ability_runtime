@@ -392,7 +392,8 @@ int32_t ExtensionRecordManager::GetOrCreateExtensionRecordInner(const AAFwk::Abi
     std::shared_ptr<AAFwk::AbilityRecord> abilityRecord = extensionRecord->abilityRecord_;
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_NULL_OBJECT);
     isLoaded = false;
-    extensionRecordId = GenerateExtensionRecordId(extensionRecordId);
+    // Reuse id or not has been checked, so alloc a new id here.
+    extensionRecordId = GenerateExtensionRecordId(INVALID_EXTENSION_RECORD_ID);
     extensionRecord->extensionRecordId_ = extensionRecordId;
     extensionRecord->hostBundleName_ = hostBundleName;
     abilityRecord->SetOwnerMissionUserId(userId_);
