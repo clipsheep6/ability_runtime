@@ -351,8 +351,7 @@ bool DataAbilityOperation::Marshalling(Parcel &out) const
     }
     int referenceSize = (int)dataAbilityPredicatesBackReferences_.size();
     if (dataAbilityPredicatesBackReferences_.empty()) {
-        TAG_LOGD(
-            AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling dataAbilityPredicatesBackReferences_ is empty");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling dataAbilityPredicatesBackReferences_:null");
         if (!out.WriteInt32(referenceSize)) {
             TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
             return false;

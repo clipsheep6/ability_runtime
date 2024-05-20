@@ -451,8 +451,7 @@ bool JsServiceExtension::HandleInsightIntent(const AAFwk::Want &want)
             static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
         return false;
     }
-    TAG_LOGD(AAFwkTag::SERVICE_EXT,
-        "Insight intent bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s"
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "Insight bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s"
         "insightIntentName: %{public}s, executeMode: %{public}d, intentId: %{public}" PRIu64 "",
         executeParam->bundleName_.c_str(), executeParam->moduleName_.c_str(), executeParam->abilityName_.c_str(),
         executeParam->insightIntentName_.c_str(), executeParam->executeMode_, executeParam->insightIntentId_);

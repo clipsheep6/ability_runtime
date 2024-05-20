@@ -1224,8 +1224,7 @@ napi_value JsAbilityContext::OnConnectAbilityWithAccount(napi_env env, NapiCallb
     AAFwk::Want want;
     OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want);
     TAG_LOGI(AAFwkTag::CONTEXT, "ConnectAbilityWithAccount, bundlename:%{public}s abilityname:%{public}s",
-        want.GetBundle().c_str(),
-        want.GetElement().GetAbilityName().c_str());
+        want.GetBundle().c_str(), want.GetElement().GetAbilityName().c_str());
 
     int32_t accountId = 0;
     if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(env, info.argv[INDEX_ONE], accountId)) {
