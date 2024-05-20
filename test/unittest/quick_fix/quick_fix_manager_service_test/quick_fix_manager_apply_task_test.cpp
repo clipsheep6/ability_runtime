@@ -624,5 +624,134 @@ HWTEST_F(QuickFixManagerApplyTaskTest, PostRevokeQuickFixNotifyUnloadPatchTask_0
     EXPECT_EQ(applyTask->quickFixMgrService_.promote(), quickFixMs_);
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
+
+/**
+ * @tc.name: PostRevokeQuickFixDeleteTask_0100
+ * @tc.desc: revoke quick fix delete task.
+ * @tc.type: FUNC
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, PostRevokeQuickFixDeleteTask_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(nullptr, appMgr_,
+        quickFixMs_->eventHandler_, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    applyTask->bundleName_ = "testBundleName";
+    applyTask->bundleVersionCode_ = 1;
+    applyTask->patchVersionCode_ = 100;
+    applyTask->isSoContained_ = true;
+    applyTask->taskType_ = QuickFixManagerApplyTask::TaskType::QUICK_FIX_REVOKE;
+    applyTask->PostRevokeQuickFixDeleteTask();
+    EXPECT_EQ(applyTask->quickFixMgrService_.promote(), quickFixMs_);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: PostRevokeQuickFixTask_0100
+ * @tc.desc: post revoke quick fix task
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, PostRevokeQuickFixTask_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
+        quickFixMs_->eventHandler_, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    applyTask->PostRevokeQuickFixTask();
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: PostRevokeQuickFixTask_0200
+ * @tc.desc: post revoke quick fix task.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, PostRevokeQuickFixTask_0200, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
+        nullptr, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    applyTask->PostRevokeQuickFixTask();
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: PostTimeOutTask_0100
+ * @tc.desc: post timeout task
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, PostTimeOutTask_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
+        quickFixMs_->eventHandler_, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    applyTask->PostTimeOutTask();
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: PostTimeOutTask_0200
+ * @tc.desc: post timeout task
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, PostTimeOutTask_0200, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
+        nullptr, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    applyTask->PostTimeOutTask();
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleRevokeQuickFixAppStop_0100
+ * @tc.desc: revoke quick fix stop app.
+ * @tc.type: FUNC
+ * @tc.require: issueI5OD2E
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, HandleRevokeQuickFixAppStop_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
+        quickFixMs_->eventHandler_, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    applyTask->bundleName_ = "testBundleName";
+    applyTask->bundleVersionCode_ = 1;
+    applyTask->patchVersionCode_ = 100;
+    applyTask->isSoContained_ = true;
+    applyTask->taskType_ = QuickFixManagerApplyTask::TaskType::QUICK_FIX_REVOKE;
+    applyTask->HandleRevokeQuickFixAppStop();
+    EXPECT_EQ(applyTask->quickFixMgrService_.promote(), quickFixMs_);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleRevokeQuickFixAppStop_0200
+ * @tc.desc: revoke quick fix stop app.
+ * @tc.type: FUNC
+ * @tc.require: issueI5OD2E
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, HandleRevokeQuickFixAppStop_0200, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(nullptr, appMgr_,
+        quickFixMs_->eventHandler_, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    applyTask->bundleName_ = "testBundleName";
+    applyTask->bundleVersionCode_ = 1;
+    applyTask->patchVersionCode_ = 100;
+    applyTask->isSoContained_ = true;
+    applyTask->taskType_ = QuickFixManagerApplyTask::TaskType::QUICK_FIX_REVOKE;
+    applyTask->HandleRevokeQuickFixAppStop();
+    EXPECT_EQ(applyTask->quickFixMgrService_.promote(), quickFixMs_);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

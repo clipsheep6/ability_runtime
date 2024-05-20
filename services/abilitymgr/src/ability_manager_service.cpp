@@ -1565,10 +1565,10 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
                 abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_TOP, startOptions.GetWindowTop());
             }
             if (startOptions.windowWidthUsed_) {
-                abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_HEIGHT, startOptions.GetWindowWidth());
+                abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_WIDTH, startOptions.GetWindowWidth());
             }
             if (startOptions.windowHeightUsed_) {
-                abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_WIDTH, startOptions.GetWindowHeight());
+                abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_HEIGHT, startOptions.GetWindowHeight());
             }
             bool withAnimation = startOptions.GetWithAnimation();
             auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
@@ -2432,6 +2432,12 @@ int AbilityManagerService::PreloadUIExtensionAbilityInner(const Want &want, std:
         return result;
     }
     abilityRequest.want.SetParam(IS_PRELOAD_UIEXTENSION_ABILITY, true);
+    auto abilityInfo = abilityRequest.abilityInfo;
+    auto res = JudgeAbilityVisibleControl(abilityInfo);
+    if (res != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Target ability is invisible");
+        return res;
+    }
     auto connectManager = GetConnectManagerByUserId(validUserId);
     if (connectManager == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "connectManager is nullptr, userId: %{public}d", validUserId);
@@ -2744,6 +2750,7 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
             }
             extensionSessionInfo->want.SetElementName(bundleInfo.name, bundleInfo.abilityInfos.begin()->name);
         }
+        extensionSessionInfo->want.SetParam("send_to_erms_embedded", 1);
     }
     std::string extensionTypeStr = extensionSessionInfo->want.GetStringParam(UIEXTENSION_TYPE_KEY);
     AppExecFwk::ExtensionAbilityType extensionType = extensionTypeStr.empty() ?
@@ -3237,11 +3244,11 @@ int AbilityManagerService::CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionI
     EventInfo eventInfo;
     eventInfo.bundleName = abilityRecord->GetAbilityInfo().bundleName;
     eventInfo.abilityName = abilityRecord->GetAbilityInfo().name;
-    SendAbilityEvent(EventName::CLOSE_UI_ABILITY_BY_SCB, HiSysEventType::BEHAVIOR, eventInfo);
+    SendAbilityEvent(EventName::CLOSE_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
     eventInfo.errCode = uiAbilityManager->CloseUIAbility(abilityRecord, sessionInfo->resultCode,
         &(sessionInfo->want), sessionInfo->isClearSession);
     if (eventInfo.errCode != ERR_OK) {
-        SendAbilityEvent(EventName::CLOSE_UI_ABILITY_BY_SCB_ERROR, HiSysEventType::FAULT, eventInfo);
+        SendAbilityEvent(EventName::TERMINATE_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
     }
     return eventInfo.errCode;
 }
@@ -5623,7 +5630,7 @@ int AbilityManagerService::GenerateAbilityRequest(
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-    if (abilityRecord && abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX &&
+    if (abilityRecord && abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX &&
         abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
         (const_cast<Want &>(want)).SetParam(AbilityRuntime::ServerConstant::DLP_INDEX, abilityRecord->GetAppIndex());
     }
@@ -5640,7 +5647,7 @@ int AbilityManagerService::GenerateAbilityRequest(
     auto abilityInfo = StartAbilityUtils::startAbilityInfo;
     if (abilityInfo == nullptr || abilityInfo->GetAppBundleName() != want.GetElement().GetBundleName()) {
         abilityInfo = StartAbilityInfo::CreateStartAbilityInfo(want, userId,
-            AbilityRuntime::StartupUtil::GetAppTwinIndex(want));
+            AbilityRuntime::StartupUtil::GetAppIndex(want));
     }
     CHECK_POINTER_AND_RETURN(abilityInfo, GET_ABILITY_SERVICE_FAILED);
     if (abilityInfo->status != ERR_OK) {
@@ -5695,7 +5702,7 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
     const Want &want, AbilityRequest &request, const sptr<IRemoteObject> &callerToken, int32_t userId)
 {
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-    if (abilityRecord && abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX &&
+    if (abilityRecord && abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX &&
         abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
         (const_cast<Want &>(want)).SetParam(AbilityRuntime::ServerConstant::DLP_INDEX, abilityRecord->GetAppIndex());
     }
@@ -5706,7 +5713,7 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
     auto abilityInfo = StartAbilityUtils::startAbilityInfo;
     if (abilityInfo == nullptr || abilityInfo->GetAppBundleName() != want.GetElement().GetBundleName()) {
         abilityInfo = StartAbilityInfo::CreateStartExtensionInfo(want, userId,
-            AbilityRuntime::StartupUtil::GetAppTwinIndex(want));
+            AbilityRuntime::StartupUtil::GetAppIndex(want));
     }
     CHECK_POINTER_AND_RETURN(abilityInfo, GET_ABILITY_SERVICE_FAILED);
     if (abilityInfo->status != ERR_OK) {
@@ -8796,7 +8803,11 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
             return ERR_OK;
         }
         auto abilityState = callerAbility->GetAbilityState();
-        if (abilityState == AbilityState::BACKGROUND || abilityState == AbilityState::BACKGROUNDING) {
+        if (abilityState == AbilityState::BACKGROUND || abilityState == AbilityState::BACKGROUNDING ||
+            // If uiability or uiextensionability ability state is foreground when terminate,
+            // it will move to background firstly. So if startAbility in onBackground() lifecycle,
+            // the actual ability state may be had changed to terminating from background or backgrounding.
+            abilityState == AbilityState::TERMINATING) {
             return ERR_OK;
         }
     } else {
@@ -9855,7 +9866,8 @@ void AbilityManagerService::NotifyStartResidentProcess(std::vector<AppExecFwk::B
 int32_t AbilityManagerService::OpenFile(const Uri& uri, uint32_t flag)
 {
     auto accessTokenId = IPCSkeleton::GetCallingTokenID();
-    if (!AAFwk::UriPermissionManagerClient::GetInstance().VerifyUriPermission(uri, flag, accessTokenId)) {
+    if (!IN_PROCESS_CALL(AAFwk::UriPermissionManagerClient::GetInstance().VerifyUriPermission(
+        uri, flag, accessTokenId))) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "premission check failed");
         return -1;
     }
@@ -10593,6 +10605,26 @@ int32_t AbilityManagerService::GetAbilityStateByPersistentId(int32_t persistentI
     }
     TAG_LOGE(AAFwkTag::ABILITYMGR, "GetAbilityStateByPersistentId, mission not have persistent id.");
     return INNER_ERR;
+}
+
+int32_t AbilityManagerService::TransferAbilityResultForExtension(const sptr<IRemoteObject> &callerToken,
+    int32_t resultCode, const Want &want)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto token = IPCSkeleton::GetCallingTokenID();
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    auto type = abilityRecord->GetAbilityInfo().type;
+    if (type != AppExecFwk::AbilityType::EXTENSION) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "type is not uiextension.");
+        return ERR_INVALID_VALUE;
+    }
+    // save result to caller AbilityRecord.
+    Want* newWant = const_cast<Want*>(&want);
+    newWant->RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
+    abilityRecord->SaveResultToCallers(resultCode, newWant);
+    abilityRecord->SendResultToCallers();
+    return ERR_OK;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

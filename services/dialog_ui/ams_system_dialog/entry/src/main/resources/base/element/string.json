@@ -102,7 +102,7 @@
     },
     {
       "name": "message_cancel_permission",
-      "value": "disallow"
+      "value": "reject"
     }
   ]
 }

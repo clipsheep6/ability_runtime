@@ -240,10 +240,6 @@ bool UIAbility::IsRestoredInContinuation() const
         return false;
     }
 
-    if (abilityContext_->GetContentStorage() == nullptr) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Get content failed.");
-        return false;
-    }
     TAG_LOGD(AAFwkTag::UIABILITY, "End.");
     return true;
 }

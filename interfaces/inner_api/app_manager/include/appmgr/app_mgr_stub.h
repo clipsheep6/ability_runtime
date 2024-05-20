@@ -136,7 +136,7 @@ private:
     int32_t HandleNotifyMemorySizeStateChanged(MessageParcel &data, MessageParcel &reply);
     int32_t HandleSetSupportedProcessCacheSelf(MessageParcel &data, MessageParcel &reply);
     int32_t HandleStartNativeChildProcess(MessageParcel &data, MessageParcel &reply);
-
+    int32_t HandleSaveBrowserChannel(MessageParcel &data, MessageParcel &reply);
     using AppMgrFunc = int32_t (AppMgrStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AppMgrFunc> memberFuncMap_;
 

@@ -1649,7 +1649,7 @@ std::string Ability::GetContentInfo()
     if (scene_ == nullptr) {
         return "";
     }
-    return scene_->GetContentInfo();
+    return scene_->GetContentInfo(Rosen::BackupAndRestoreType::CONTINUATION);
 }
 
 void Ability::OnWindowFocusChanged(bool hasFocus)

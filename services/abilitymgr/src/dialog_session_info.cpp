@@ -25,13 +25,14 @@
 namespace OHOS {
 namespace AAFwk {
 constexpr int32_t CYCLE_LIMIT = 1000;
-constexpr size_t MEMBER_NUM = 7;
+constexpr size_t MEMBER_NUM = 8;
 
 std::string DialogAbilityInfo::GetURI() const
 {
     return bundleName + "/" + moduleName + "/" + abilityName + "/" +
         std::to_string(bundleIconId) + "/" + std::to_string(bundleLabelId) + "/" +
-        std::to_string(abilityIconId) + "/" + std::to_string(abilityLabelId);
+        std::to_string(abilityIconId) + "/" + std::to_string(abilityLabelId) + "/" +
+        std::to_string(visible);
 }
 
 bool DialogAbilityInfo::ParseURI(const std::string &uri)
@@ -53,6 +54,7 @@ bool DialogAbilityInfo::ParseURI(const std::string &uri)
     bundleLabelId = static_cast<int32_t>(std::stoi(uriVec[index++]));
     abilityIconId = static_cast<int32_t>(std::stoi(uriVec[index++]));
     abilityLabelId = static_cast<int32_t>(std::stoi(uriVec[index++]));
+    visible = std::stoi(uriVec[index++]);
     return true;
 }
 

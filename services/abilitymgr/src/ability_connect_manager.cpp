@@ -563,22 +563,21 @@ int AbilityConnectManager::PreloadUIExtensionAbilityInner(const AbilityRequest &
     std::string &hostBundleName)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
-    //get target service ability record, and check whether it has been loaded.
-    std::shared_ptr<AbilityRecord> targetService = AbilityRecord::CreateAbilityRecord(abilityRequest);
-    CHECK_POINTER_AND_RETURN(targetService, ERR_INVALID_VALUE);
-    if (!UIExtensionUtils::IsUIExtension(targetService->GetAbilityInfo().extensionAbilityType)) {
+    if (!UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Can't preload non-uiextension type.");
         return ERR_WRONG_INTERFACE_CALL;
     }
     std::shared_ptr<ExtensionRecord> extensionRecord = nullptr;
     CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, ERR_NULL_OBJECT);
     int32_t extensionRecordId = INVALID_EXTENSION_RECORD_ID;
-    int32_t ret = uiExtensionAbilityRecordMgr_->CreateExtensionRecord(targetService, hostBundleName,
+    int32_t ret = uiExtensionAbilityRecordMgr_->CreateExtensionRecord(abilityRequest, hostBundleName,
         extensionRecord, extensionRecordId);
     if (ret != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "CreateExtensionRecord ERR.");
         return ret;
     }
+    CHECK_POINTER_AND_RETURN(extensionRecord, ERR_NULL_OBJECT);
+    std::shared_ptr<AbilityRecord> targetService = extensionRecord->abilityRecord_;
     AppExecFwk::ElementName element(abilityRequest.abilityInfo.deviceId, abilityRequest.abilityInfo.bundleName,
         abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName);
     std::string extensionRecordKey = element.GetURI() + std::to_string(targetService->GetUIExtensionAbilityId());
@@ -823,6 +822,8 @@ int AbilityConnectManager::AttachAbilityThreadLocked(
         sceneBoardTokenId_ = abilityRecord->GetAbilityInfo().applicationInfo.accessTokenId;
     }
     abilityRecord->SetScheduler(scheduler);
+    abilityRecord->RemoveSpecifiedWantParam(UIEXTENSION_ABILITY_ID);
+    abilityRecord->RemoveSpecifiedWantParam(UIEXTENSION_ROOT_HOST_PID);
     if (IsUIExtensionAbility(abilityRecord) && !abilityRecord->IsCreateByConnect()
         && !abilityRecord->GetWant().GetBoolParam(IS_PRELOAD_UIEXTENSION_ABILITY, false)) {
         DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);
@@ -2914,6 +2915,11 @@ void AbilityConnectManager::UpdateUIExtensionInfo(const std::shared_ptr<AbilityR
     auto rootHostRecord = GetUIExtensionRootHostInfo(abilityRecord->GetToken());
     if (rootHostRecord != nullptr) {
         auto rootHostPid = rootHostRecord->GetPid();
+        wantParams.SetParam(UIEXTENSION_ROOT_HOST_PID, AAFwk::Integer::Box(rootHostPid));
+    }
+    if (abilityRecord->GetWant().GetBoolParam(IS_PRELOAD_UIEXTENSION_ABILITY, false)) {
+        // Applicable only to preloadUIExtension scenarios
+        auto rootHostPid = IPCSkeleton::GetCallingPid();
         wantParams.SetParam(UIEXTENSION_ROOT_HOST_PID, AAFwk::Integer::Box(rootHostPid));
     }
     abilityRecord->UpdateUIExtensionInfo(wantParams);

@@ -201,9 +201,12 @@ std::shared_ptr<AbilityRecord> Token::GetAbilityRecordByToken(const sptr<IRemote
     // Double check if token is valid
     sptr<IAbilityToken> theToken = iface_cast<IAbilityToken>(token);
     if (!theToken) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Input token iface_cast error.");
         return nullptr;
     }
-    if (theToken->GetDescriptor() != u"ohos.aafwk.AbilityToken") {
+    std::u16string castDescriptor = theToken->GetDescriptor();
+    if (castDescriptor != u"ohos.aafwk.AbilityToken") {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Input token iface_cast error:%{public}s.", Str16ToStr8(castDescriptor).c_str());
         return nullptr;
     }
 
@@ -252,7 +255,7 @@ std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityR
         abilityRequest.want, abilityRequest.abilityInfo, abilityRequest.appInfo, abilityRequest.requestCode);
     CHECK_POINTER_AND_RETURN(abilityRecord, nullptr);
     abilityRecord->SetUid(abilityRequest.uid);
-    abilityRecord->SetAppIndex(AbilityRuntime::StartupUtil::GetAppTwinIndex(abilityRequest.want));
+    abilityRecord->SetAppIndex(AbilityRuntime::StartupUtil::GetAppIndex(abilityRequest.want));
     abilityRecord->SetCallerAccessTokenId(abilityRequest.callerAccessTokenId);
     abilityRecord->sessionInfo_ = abilityRequest.sessionInfo;
     if (!abilityRecord->Init()) {
@@ -1750,7 +1753,7 @@ void AbilityRecord::SendResultToCallers(bool schedulerdied)
         }
         std::shared_ptr<AbilityRecord> callerAbilityRecord = caller->GetCaller();
         if (callerAbilityRecord != nullptr && callerAbilityRecord->GetResult() != nullptr) {
-            bool isSandboxApp = appIndex_ > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX ? true : false;
+            bool isSandboxApp = appIndex_ > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX ? true : false;
             callerAbilityRecord->SendResult(isSandboxApp, applicationInfo_.accessTokenId);
         } else {
             std::shared_ptr<SystemAbilityCallerRecord> callerSystemAbilityRecord = caller->GetSaCaller();
@@ -1903,7 +1906,9 @@ void AbilityRecord::RemoveConnectRecordFromList(const std::shared_ptr<Connection
 void AbilityRecord::RemoveSpecifiedWantParam(const std::string &key)
 {
     std::lock_guard guard(wantLock_);
-    want_.RemoveParam(key);
+    if (want_.HasParameter(key)) {
+        want_.RemoveParam(key);
+    }
 }
 
 void AbilityRecord::AddCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode, std::string srcAbilityId,
@@ -3023,7 +3028,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     // reject sandbox to grant uri permission by start ability
     if (!callerList_.empty() && callerList_.back()) {
         auto caller = callerList_.back()->GetCaller();
-        if (caller && caller->appIndex_ > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+        if (caller && caller->appIndex_ > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Sandbox can not grant UriPermission by start ability.");
             return;
         }
@@ -3094,15 +3099,15 @@ void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string>
 bool AbilityRecord::GrantPermissionToShell(const std::vector<std::string> &strUriVec, uint32_t flag,
     std::string targetPkg)
 {
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Grant uri permission to shell.");
     std::vector<Uri> uriVec;
     for (auto&& str : strUriVec) {
         Uri uri(str);
         auto&& scheme = uri.GetScheme();
         if (scheme != "content") {
             return false;
-        } else {
-            uriVec.emplace_back(uri);
         }
+        uriVec.emplace_back(uri);
     }
 
     uint32_t initiatorTokenId = IPCSkeleton::GetCallingTokenID();

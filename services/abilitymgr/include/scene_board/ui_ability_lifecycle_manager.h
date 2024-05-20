@@ -337,6 +337,8 @@ private:
     int32_t GetReusedSpecifiedPersistentId(const AbilityRequest &abilityRequest, bool &reuse) const;
     int32_t GetReusedStandardPersistentId(const AbilityRequest &abilityRequest, bool &reuse) const;
     int32_t GetReusedCollaboratorPersistentId(const AbilityRequest &abilityRequest, bool &reuse) const;
+    std::string GenerateProcessNameForNewProcessMode(const AppExecFwk::AbilityInfo& abilityInfo);
+    void PreCreateProcessName(AbilityRequest &abilityRequest);
     void UpdateProcessName(const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &abilityRecord);
     void UpdateAbilityRecordLaunchReason(const AbilityRequest &abilityRequest,
         std::shared_ptr<AbilityRecord> &abilityRecord) const;
