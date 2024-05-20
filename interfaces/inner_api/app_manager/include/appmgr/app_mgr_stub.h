@@ -111,6 +111,7 @@ private:
     int32_t HandleNotifyFaultBySA(MessageParcel &data, MessageParcel &reply);
     int32_t HandleJudgeSandboxByPid(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetBundleNameByPid(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleGetRunningProcessInfoByPid(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetProcessMemoryByPid(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetRunningProcessInformation(MessageParcel &data, MessageParcel &reply);
     int32_t HandleChangeAppGcState(MessageParcel &data, MessageParcel &reply);
