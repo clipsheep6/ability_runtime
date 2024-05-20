@@ -125,8 +125,6 @@ ohos_shared_library("libappms") {
   ]
   public_external_deps = [ "kv_store:distributeddata_mgr" ]
 
-  defines += [ "OHOS_ACCOUNT_ENABLED" ]
-
   if (product_name != "ohcore") {
     external_deps += [ "netmanager_base:net_conn_manager_if" ]
   }
