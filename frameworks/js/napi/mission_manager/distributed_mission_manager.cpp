@@ -1957,7 +1957,6 @@ napi_value ContinueAbilityWrap(napi_env &env, napi_callback_info info,
     size_t argcAsync = 3;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value ret = nullptr;
-
     napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr);
     TAG_LOGI(AAFwkTag::MISSION, "argcAsync is %{public}zu", argcAsync);
 
@@ -2016,7 +2015,6 @@ napi_value NAPI_ContinueAbility(napi_env env, napi_callback_info info)
         napi_throw(env, GenerateBusinessError(env, SYSTEM_WORK_ABNORMALLY, ErrorMessageReturn(SYSTEM_WORK_ABNORMALLY)));
         return GetUndefined(env);
     }
-
     napi_value ret = ContinueAbilityWrap(env, info, continueAbilityCB, errInfo);
     if (ret == nullptr) {
         TAG_LOGE(AAFwkTag::MISSION, "%{public}s ret == nullptr", __func__);
@@ -2100,18 +2098,15 @@ void NAPIMissionContinue::OnContinueDone(int32_t result)
 {
     TAG_LOGI(AAFwkTag::MISSION, "%{public}s, called. result = %{public}d", __func__, result);
     uv_loop_s *loop = nullptr;
-
     napi_get_uv_event_loop(env_, &loop);
     if (loop == nullptr) {
         TAG_LOGE(AAFwkTag::MISSION, "%{public}s, loop == nullptr.", __func__);
         return;
     }
-
     uv_work_t *work = new uv_work_t;
-
     auto continueAbilityCB = new (std::nothrow) ContinueAbilityCB;
     if (continueAbilityCB == nullptr) {
-        TAG_LOGE(AAFwkTag::MISSION, "%{public}s, continueAbilityCB == nullptr.", __func__);
+        TAG_LOGE(AAFwkTag::MISSION, "%{public}s, continueAbilityCB == nullptr.");
         delete work;
         return;
     }
@@ -2119,12 +2114,15 @@ void NAPIMissionContinue::OnContinueDone(int32_t result)
     continueAbilityCB->hasArgsWithBundleName = onContinueDoneHasBundleName_;
     if (onContinueDoneRef_ != nullptr) {
         continueAbilityCB->cbBase.cbInfo.callback = onContinueDoneRef_;
-    } else {
+    } else if (promiseDeferred_ != nullptr) {
         continueAbilityCB->cbBase.deferred = promiseDeferred_;
+    } else {
+        TAG_LOGE(AAFwkTag::MISSION, "The reference is invalid!", __func__);
+        delete work;
+        return;
     }
     continueAbilityCB->resultCode = result;
     work->data = static_cast<void *>(continueAbilityCB);
-
     int rev = uv_queue_work_with_qos(
         loop, work, [](uv_work_t *work) {}, UvWorkOnContinueDone, uv_qos_user_initiated);
     if (rev != 0) {
