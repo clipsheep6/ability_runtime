@@ -254,5 +254,30 @@ HWTEST_F(DataObsMgrServiceTest, AaFwk_DataObsMgrServiceTest_OnStop_0100, TestSiz
 
     GTEST_LOG_(INFO) << "AaFwk_DataObsMgrServiceTest_OnStop_0100 end";
 }
+
+/*
+ * Feature: DataObsMgrService
+ * Function: Dump
+ * SubFunction: NA
+ * FunctionPoints: DataObsMgrService Dump
+ * EnvConditions: NA
+ * CaseDescription: Verify that the DataObsMgrService Dump is normal.
+ */
+HWTEST_F(DataObsMgrServiceTest, AaFwk_DataObsMgrServiceTest_Dump_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_DataObsMgrServiceTest_Dump_0100 start";
+    const DataObsServiceRunningState testValue = DataObsServiceRunningState::STATE_RUNNING;
+    auto dataObsMgrServer = DelayedSingleton<DataObsMgrService>::GetInstance();
+
+    std::string fileName = "test.txt";
+    std::vector<std::u16string> args;
+    args.push_back(u"-h");
+    FILE *fp = fopen(fileName.c_str(), "w");
+    int ret = dataObsMgrServer->Dump(fileno(fp), args);
+    fclose(fp);
+    EXPECT_EQ(SUCCESS, ret);
+
+    GTEST_LOG_(INFO) << "AaFwk_DataObsMgrServiceTest_Dump_0100 end";
+}
 }  // namespace AAFwk
 }  // namespace OHOS
