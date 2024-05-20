@@ -198,6 +198,7 @@ AppRunningRecord::AppRunningRecord(
         isLauncherApp_ = info->isLauncherApp;
         mainAppName_ = info->name;
     }
+    priorityObject_ = std::make_shared<PriorityObject>();
 
     struct timespec t;
     t.tv_sec = 0;
@@ -1189,10 +1190,6 @@ void AppRunningRecord::SetAppDeathRecipient(const sptr<AppDeathRecipient> &appDe
 
 std::shared_ptr<PriorityObject> AppRunningRecord::GetPriorityObject()
 {
-    if (!priorityObject_) {
-        priorityObject_ = std::make_shared<PriorityObject>();
-    }
-
     return priorityObject_;
 }
 
