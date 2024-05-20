@@ -68,6 +68,7 @@
 #include "window_focus_changed_listener.h"
 #include "window_visibility_changed_listener.h"
 #include "app_jsheap_mem_info.h"
+#include "running_multi_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -304,6 +305,17 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int32_t GetAllRunningProcesses(std::vector<RunningProcessInfo> &info);
+
+    /**
+     * GetRunningMultiAppInfoByBundleName, call GetRunningMultiAppInfoByBundleName through proxy project.
+     * Obtains information about TwinApp that are running on the device.
+     *
+     * @param bundleName, input.
+     * @param info, output multiapp information.
+     * @return void.
+     */
+    virtual int32_t GetRunningMultiAppInfoByBundleName(const std::string &bundleName,
+        RunningMultiAppInfo &info);
 
     /**
      * GetRunningProcessesByBundleType, Obtains information about application processes by bundle type.
@@ -1370,6 +1382,9 @@ private:
      */
     void NotifyAppRunningStatusEvent(
         const std::string &bundle, int32_t uid, AbilityRuntime::RunningStatus runningStatus);
+    
+    void GetRunningCloneAppInfo(const std::shared_ptr<AppRunningRecord> &appRecord,
+        RunningMultiAppInfo &info);
 
     /**
      * To Prevent process being killed when ability is starting in an existing process,

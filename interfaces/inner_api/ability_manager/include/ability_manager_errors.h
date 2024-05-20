@@ -509,6 +509,11 @@ enum {
      * Result(2097250) for app clone index does not exist.
      */
     ERR_APP_CLONE_INDEX_INVALID,
+
+    /**
+     * Result(2097251) not support twin.
+     */
+    ERR_MULTI_APP_NOT_SUPPORTED,
 };
 
 enum {
