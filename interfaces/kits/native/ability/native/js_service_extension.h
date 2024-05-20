@@ -23,6 +23,7 @@
 #ifdef SUPPORT_GRAPHICS
 #include "display_manager.h"
 #include "system_ability_status_change_stub.h"
+#include "window_manager.h"
 #endif
 #include "service_extension.h"
 
@@ -125,7 +126,7 @@ public:
      * value of startId is 6.
      */
     virtual void OnCommand(const AAFwk::Want &want, bool restart, int startId) override;
-    
+
     /**
      * @brief Called back when Service is started by intent driver.
      *
@@ -178,7 +179,7 @@ private:
     bool CallPromise(napi_value result, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo);
 
     void ListenWMS();
-    
+
     bool GetInsightIntentExecutorInfo(const Want &want,
         const std::shared_ptr<AppExecFwk::InsightIntentExecuteParam> &executeParam,
         InsightIntentExecutorInfo &executorInfo);
@@ -192,36 +193,21 @@ private:
 
 #ifdef SUPPORT_GRAPHICS
 protected:
-    class JsServiceExtensionDisplayListener : public Rosen::DisplayManager::IDisplayListener {
+    class JsServiceExtensionDisplayListener : public Rosen::IDisplayInfoChangedListener {
     public:
         explicit JsServiceExtensionDisplayListener(const std::weak_ptr<JsServiceExtension>& jsServiceExtension)
         {
             jsServiceExtension_ = jsServiceExtension;
         }
 
-        void OnCreate(Rosen::DisplayId displayId) override
-        {
-            auto sptr = jsServiceExtension_.lock();
-            if (sptr != nullptr) {
-                sptr->OnCreate(displayId);
+        void OnDisplayInfoChange(const sptr<IRemoteObject>& token, Rosen::DisplayId displayId, float density,
+            Rosen::DisplayOrientation orientation) override
+            {
+                auto sptr = jsServiceExtension_.lock();
+                if (sptr != nullptr) {
+                    sptr->OnDisplayInfoChange(token, displayId, density, orientation);
+                }
             }
-        }
-
-        void OnDestroy(Rosen::DisplayId displayId) override
-        {
-            auto sptr = jsServiceExtension_.lock();
-            if (sptr != nullptr) {
-                sptr->OnDestroy(displayId);
-            }
-        }
-
-        void OnChange(Rosen::DisplayId displayId) override
-        {
-            auto sptr = jsServiceExtension_.lock();
-            if (sptr != nullptr) {
-                sptr->OnChange(displayId);
-            }
-        }
 
     private:
         std::weak_ptr<JsServiceExtension> jsServiceExtension_;
@@ -230,17 +216,20 @@ protected:
     void OnCreate(Rosen::DisplayId displayId);
     void OnDestroy(Rosen::DisplayId displayId);
     void OnChange(Rosen::DisplayId displayId);
+    void OnDisplayInfoChange(const sptr<IRemoteObject>& token, Rosen::DisplayId displayId, float density,
+        Rosen::DisplayOrientation orientation);
 
 private:
     class SystemAbilityStatusChangeListener : public OHOS::SystemAbilityStatusChangeStub {
     public:
-        SystemAbilityStatusChangeListener(sptr<JsServiceExtensionDisplayListener> displayListener)
-            : tmpDisplayListener_(displayListener) {};
+        SystemAbilityStatusChangeListener(sptr<JsServiceExtensionDisplayListener> displayListener,
+            const sptr<IRemoteObject> & token): tmpDisplayListener_(displayListener), token_(token) {};
         virtual void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
         virtual void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override {}
 
     private:
         sptr<JsServiceExtensionDisplayListener> tmpDisplayListener_ = nullptr;
+        sptr<IRemoteObject> token_ = nullptr;
     };
 
     sptr<JsServiceExtensionDisplayListener> displayListener_ = nullptr;

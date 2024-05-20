@@ -733,6 +733,7 @@ ohos_shared_library("service_extension") {
     external_deps += [
       "image_framework:image",
       "window_manager:libdm",
+      "window_manager:libwm",
     ]
   }
 
