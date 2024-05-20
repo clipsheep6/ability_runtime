@@ -867,7 +867,7 @@ private:
     std::unordered_set<sptr<IRemoteObject>, RemoteObjHash> foregroundingAbilityTokens_;
     std::weak_ptr<AppMgrServiceInner> appMgrServiceInner_;
     sptr<AppDeathRecipient> appDeathRecipient_ = nullptr;
-    std::shared_ptr<PriorityObject> priorityObject_ = nullptr;
+    std::shared_ptr<PriorityObject> priorityObject_;
     std::shared_ptr<AppLifeCycleDeal> appLifeCycleDeal_ = nullptr;
     std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
     std::shared_ptr<AMSEventHandler> eventHandler_;
