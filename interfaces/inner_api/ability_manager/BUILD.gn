@@ -92,7 +92,6 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr/src/remote_on_listener_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/remote_on_listener_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/sender_info.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/start_options.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/system_ability_token_callback_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ui_extension_ability_connect_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ui_extension_host_info.cpp",
@@ -283,10 +282,14 @@ ohos_shared_library("ability_connect_callback_stub") {
     "${ability_runtime_services_path}/common/include",
   ]
 
-  sources = [ "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp" ]
+  sources = [
+    "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/start_options.cpp",
+  ]
 
   public_configs = [ ":ability_manager_public_config" ]
 
+  deps = [ ":process_options" ]
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
