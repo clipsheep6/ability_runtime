@@ -427,7 +427,7 @@ int32_t UriPermissionManagerStubImpl::GrantBatchUriPermissionFor2In1Privileged(c
             continue;
         }
         auto &&authority = uriInner.GetAuthority();
-        if (authority != "docs" || uriStr.find(CLOUND_DOCS_URI_MARK) == std::string::npos) {
+        if (authority != "docs" || uriStr.find(CLOUND_DOCS_URI_MARK) != std::string::npos) {
             uriStrVec.emplace_back(uriStr);
             continue;
         }
@@ -436,6 +436,9 @@ int32_t UriPermissionManagerStubImpl::GrantBatchUriPermissionFor2In1Privileged(c
         policyInfo.mode = (flag & Want::FLAG_AUTH_WRITE_URI_PERMISSION) == 0 ? READ_MODE : WRITE_MODE;
         docsVec.emplace_back(policyInfo);
     }
+
+    TAG_LOGI(AAFwkTag::URIPERMMGR, "docsUri size is %{public}zu, otherUri size is %{public}zu",
+        docsVec.size(), uriStrVec.size());
 
     if (uriStrVec.empty() && docsVec.empty()) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Valid uri list is empty.");
