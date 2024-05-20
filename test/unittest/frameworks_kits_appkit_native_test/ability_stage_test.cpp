@@ -343,7 +343,8 @@ HWTEST_F(AbilityStageTest, AppExecFwk_AbilityStage_RunAutoStartupTask_001, Funct
     GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_RunAutoStartupTask_001 start";
     std::function<void()> callback;
     bool isAsyncCallback;
-    EXPECT_TRUE(abilityStage_->RunAutoStartupTask(callback, isAsyncCallback) == ERR_OK);
+    std::shared_ptr<AbilityRuntime::Context> context = abilityStage_->GetContext();
+    EXPECT_TRUE(abilityStage_->RunAutoStartupTask(callback, isAsyncCallback, context) == ERR_OK);
     GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_RunAutoStartupTask_001 end";
 }
 }  // namespace AppExecFwk
