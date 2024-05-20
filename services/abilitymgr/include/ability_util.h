@@ -223,7 +223,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     AppExecFwk::ElementName element = want.GetElement();
     if (want.GetBoolParam(DLP_PARAMS_SANDBOX, false) && !element.GetBundleName().empty() &&
         !element.GetAbilityName().empty()) {
-        want.SetElementName(DEFAULT_DEVICE_ID, DLP_BUNDLE_NAME, DLP_ABILITY_NAME, DLP_PARAMS_MODULE_NAME);
+        want.SetElementName(DEFAULT_DEVICE_ID, DLP_BUNDLE_NAME, DLP_ABILITY_NAME, DLP_MODULE_NAME);
         want.SetParam(DLP_PARAMS_BUNDLE_NAME, element.GetBundleName());
         want.SetParam(DLP_PARAMS_MODULE_NAME, element.GetModuleName());
         want.SetParam(DLP_PARAMS_ABILITY_NAME, element.GetAbilityName());
