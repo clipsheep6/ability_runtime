@@ -1319,6 +1319,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     contextImpl->SetApplicationInfo(std::make_shared<ApplicationInfo>(appInfo));
     std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
         AbilityRuntime::ApplicationContext::GetInstance();
+    int32_t appIndex = appLaunchData.GetAppIndex();
+    applicationContext->SetCurrentAppCloneIndex(appIndex);
+    applicationContext->SetCurrentAppMode(static_cast<int32_t>(appInfo.multiAppMode.multiAppModeType));
     applicationContext->AttachContextImpl(contextImpl);
     auto appRunningId = appLaunchData.GetAppRunningUniqueId();
     applicationContext->SetAppRunningUniqueId(appRunningId);
