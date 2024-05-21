@@ -18,6 +18,8 @@ import window from '@ohos.window';
 import display from '@ohos.display';
 import PositionUtils from '../utils/PositionUtils';
 import deviceInfo from '@ohos.deviceInfo';
+import systemparameter from '@ohos.systemParameterEnhance';
+import dataPreferences from '@ohos.data.preferences';
 
 const TAG = 'TipsDialog_Service';
 
@@ -28,6 +30,10 @@ export default class TipsServiceExtensionAbility extends extension {
   onCreate(want) {
     console.debug(TAG, 'onCreate, want: ' + JSON.stringify(want));
     globalThis.tipsExtensionContext = this.context;
+    globalThis.currentExtensionContext = this.context;
+    globalThis.ExtensionType = 'ServiceExtension';
+    let options = {name:'dialogStore'};
+    globalThis.preferences = dataPreferences.getPreferencesSync(this.context, options);
   }
 
   onRequest(want, startId) {
@@ -96,7 +102,13 @@ export default class TipsServiceExtensionAbility extends extension {
       }
       await win.moveTo(rect.left, rect.top);
       await win.resetSize(rect.width, rect.height);
-      await win.loadContent('pages/tipsDialog');
+      if (systemparameter.getSync('persist.sys.abilityms.isdialogconfirmpermission', 'false') === 'false' &&
+      globalThis.preferences.getSync('isdialogconfirmpermission', 'false') === 'false') {
+        globalThis.currentURL = 'pages/tipsDialog';
+        await win.loadContent('pages/permissionConfirmDialog');
+      } else {
+        await win.loadContent('pages/tipsDialog');
+      }
       await win.setBackgroundColor('#00000000');
       await win.show();
     } catch {
