@@ -78,7 +78,10 @@ constexpr const char* ERROR_MSG_TARGET_BUNDLE_NOT_EXIST = "The target bundle doe
 constexpr const char* ERROR_MSG_SET_SUPPORTED_PROCESS_CACHE_AGAIN = "Can not set process cache state more than once.";
 constexpr const char* ERROR_MSG_NO_RESIDENT_PERMISSION =
     "The caller application can only set the resident status of the configured process.";
-constexpr const char* ERROR_MSG_APP_TWIN_INDEX_INVALID = "The target app twin with the specified index does not exist.";
+constexpr const char* ERROR_MSG_MULTI_APP_NOT_SUPPORTED = "App clone or multi-instance is not supported.";
+constexpr const char* ERROR_MSG_APP_CLONE_INDEX_INVALID =
+    "The target app clone with the specified index does not exist.";
+constexpr const char* ERROR_MSG_NOT_APP_CLONE = "The target app is not Clone.";
 
 // follow ERR_BUNDLE_MANAGER_BUNDLE_NOT_EXIST of appexecfwk_errors.h in bundle_framework
 constexpr int32_t ERR_BUNDLE_MANAGER_BUNDLE_NOT_EXIST = 8521220;
@@ -132,7 +135,9 @@ static std::unordered_map<AbilityErrorCode, const char*> ERR_CODE_MAP = {
     { AbilityErrorCode::ERROR_CODE_TARGET_BUNDLE_NOT_EXIST, ERROR_MSG_TARGET_BUNDLE_NOT_EXIST },
     { AbilityErrorCode::ERROR_CODE_SET_SUPPORTED_PROCESS_CACHE_AGAIN, ERROR_MSG_SET_SUPPORTED_PROCESS_CACHE_AGAIN },
     { AbilityErrorCode::ERROR_CODE_NO_RESIDENT_PERMISSION, ERROR_MSG_NO_RESIDENT_PERMISSION },
-    { AbilityErrorCode::ERROR_APP_TWIN_INDEX_INVALID, ERROR_MSG_APP_TWIN_INDEX_INVALID },
+    { AbilityErrorCode::ERROR_CODE_MULTI_APP_NOT_SUPPORTED, ERROR_MSG_MULTI_APP_NOT_SUPPORTED },
+    { AbilityErrorCode::ERROR_APP_CLONE_INDEX_INVALID, ERROR_MSG_APP_CLONE_INDEX_INVALID },
+    { AbilityErrorCode::ERROR_NOT_APP_CLONE, ERROR_MSG_NOT_APP_CLONE },
 };
 
 static std::unordered_map<int32_t, AbilityErrorCode> INNER_TO_JS_ERROR_CODE_MAP {
@@ -189,7 +194,8 @@ static std::unordered_map<int32_t, AbilityErrorCode> INNER_TO_JS_ERROR_CODE_MAP 
     {ERR_TARGET_BUNDLE_NOT_EXIST, AbilityErrorCode::ERROR_CODE_TARGET_BUNDLE_NOT_EXIST},
     {ERR_SET_SUPPORTED_PROCESS_CACHE_AGAIN, AbilityErrorCode::ERROR_CODE_SET_SUPPORTED_PROCESS_CACHE_AGAIN},
     {ERR_NO_RESIDENT_PERMISSION, AbilityErrorCode::ERROR_CODE_NO_RESIDENT_PERMISSION},
-    {ERR_APP_TWIN_INDEX_INVALID, AbilityErrorCode::ERROR_APP_TWIN_INDEX_INVALID},
+    {ERR_MULTI_APP_NOT_SUPPORTED, AbilityErrorCode::ERROR_CODE_MULTI_APP_NOT_SUPPORTED},
+    {ERR_APP_CLONE_INDEX_INVALID, AbilityErrorCode::ERROR_APP_CLONE_INDEX_INVALID},
 };
 }
 

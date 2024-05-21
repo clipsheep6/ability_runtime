@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -295,13 +295,13 @@ std::unique_ptr<NapiAsyncTask> CreateAsyncTaskWithLastParam(napi_env env, napi_v
     NapiAsyncTask::ExecuteCallback&& execute, NapiAsyncTask::CompleteCallback&& complete, napi_value* result);
 
 std::unique_ptr<NapiAsyncTask> CreateAsyncTaskWithLastParam(napi_env env, napi_value lastParam,
-    NapiAsyncTask::ExecuteCallback&& execute, nullptr_t, napi_value* result);
+    NapiAsyncTask::ExecuteCallback&& execute, std::nullptr_t, napi_value* result);
 
 std::unique_ptr<NapiAsyncTask> CreateAsyncTaskWithLastParam(napi_env env, napi_value lastParam,
-    nullptr_t, NapiAsyncTask::CompleteCallback&& complete, napi_value* result);
+    std::nullptr_t, NapiAsyncTask::CompleteCallback&& complete, napi_value* result);
 
 std::unique_ptr<NapiAsyncTask> CreateAsyncTaskWithLastParam(napi_env env, napi_value lastParam,
-    nullptr_t, nullptr_t, napi_value* result);
+    std::nullptr_t, std::nullptr_t, napi_value* result);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_JS_RUNTIME_UTILS_H

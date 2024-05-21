@@ -441,6 +441,15 @@
           },
           {
             "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager/include",
+              "header_files": [
+                "start_options.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager:ability_start_options"
+          },
+          {
+            "header": {
               "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/",
               "header_files": []
             },

@@ -812,9 +812,9 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryCloneAbilityInfo_001, Tes
     ElementName element;
     AbilityInfo abilityInfo;
     int32_t flags = ABILITY_INFO_FLAG;
-    int32_t appTwinIndex = 1;
+    int32_t appCloneIndex = 1;
     int32_t userId = DEFAULT_USERID;
-    auto ret = bundleMgrHelper->QueryCloneAbilityInfo(element, flags, appTwinIndex, abilityInfo, userId);
+    auto ret = bundleMgrHelper->QueryCloneAbilityInfo(element, flags, appCloneIndex, abilityInfo, userId);
     EXPECT_NE(ret, ERR_OK);
 }
 
@@ -828,9 +828,9 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetCloneBundleInfo_001, TestSi
     std::string bundleName;
     BundleInfo bundleInfo;
     int32_t flags = 1;
-    int32_t appTwinIndex = 1;
+    int32_t appCloneIndex = 1;
     int32_t userId = DEFAULT_USERID;
-    auto ret = bundleMgrHelper->GetCloneBundleInfo(bundleName, flags, appTwinIndex, bundleInfo, userId);
+    auto ret = bundleMgrHelper->GetCloneBundleInfo(bundleName, flags, appCloneIndex, bundleInfo, userId);
     EXPECT_NE(ret, ERR_OK);
 }
 }  // namespace AppExecFwk

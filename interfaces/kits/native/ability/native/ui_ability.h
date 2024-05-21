@@ -32,6 +32,7 @@
 #include "display_manager.h"
 #include "session_info.h"
 #include "window_scene.h"
+#include "window_manager.h"
 #endif
 
 namespace OHOS {
@@ -539,36 +540,21 @@ public:
     std::string GetIdentityToken() const;
 
 protected:
-    class UIAbilityDisplayListener : public OHOS::Rosen::DisplayManager::IDisplayListener {
+    class UIAbilityDisplayListener : public OHOS::Rosen::IDisplayInfoChangedListener {
     public:
         explicit UIAbilityDisplayListener(const std::weak_ptr<UIAbility> &ability)
         {
             ability_ = ability;
         }
 
-        void OnCreate(Rosen::DisplayId displayId) override
-        {
-            auto sptr = ability_.lock();
-            if (sptr != nullptr) {
-                sptr->OnCreate(displayId);
+        void OnDisplayInfoChange(const sptr<IRemoteObject>& token, Rosen::DisplayId displayId, float density,
+            Rosen::DisplayOrientation orientation) override
+            {
+                auto sptr = ability_.lock();
+                if (sptr != nullptr) {
+                    sptr->OnDisplayInfoChange(token, displayId, density, orientation);
+                }
             }
-        }
-
-        void OnDestroy(Rosen::DisplayId displayId) override
-        {
-            auto sptr = ability_.lock();
-            if (sptr != nullptr) {
-                sptr->OnDestroy(displayId);
-            }
-        }
-
-        void OnChange(Rosen::DisplayId displayId) override
-        {
-            auto sptr = ability_.lock();
-            if (sptr != nullptr) {
-                sptr->OnChange(displayId);
-            }
-        }
 
     private:
         std::weak_ptr<UIAbility> ability_;
@@ -577,6 +563,8 @@ protected:
     void OnCreate(Rosen::DisplayId displayId);
     void OnDestroy(Rosen::DisplayId displayId);
     void OnChange(Rosen::DisplayId displayId);
+    void OnDisplayInfoChange(const sptr<IRemoteObject>& token, Rosen::DisplayId displayId, float density,
+        Rosen::DisplayOrientation orientation);
 
     class AbilityDisplayMoveListener : public OHOS::Rosen::IDisplayMoveListener {
     public:

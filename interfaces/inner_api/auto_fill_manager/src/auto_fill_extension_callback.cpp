@@ -276,12 +276,12 @@ void AutoFillExtensionCallback::CloseModalUIExtension()
         return;
     }
 
-    AutoFillManager::GetInstance().RemoveAutoFillExtensionProxy(uiContent_);
     if (autoFillWindowType_ == AutoFill::AutoFillWindowType::POPUP_WINDOW) {
         uiContent_->DestroyCustomPopupUIExtension(sessionId_);
     } else if (autoFillWindowType_ == AutoFill::AutoFillWindowType::MODAL_WINDOW) {
         uiContent_->CloseModalUIExtension(sessionId_);
     }
+    AutoFillManager::GetInstance().RemoveAutoFillExtensionProxy(uiContent_);
     uiContent_ = nullptr;
 }
 } // namespace AbilityRuntime

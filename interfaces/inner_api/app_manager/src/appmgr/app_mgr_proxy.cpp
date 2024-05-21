@@ -237,6 +237,30 @@ int32_t AppMgrProxy::GetAllRunningProcesses(std::vector<RunningProcessInfo> &inf
     return result;
 }
 
+int32_t AppMgrProxy::GetRunningMultiAppInfoByBundleName(const std::string &bundleName,
+    RunningMultiAppInfo &info)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteString(bundleName)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "bundleName write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t ret = SendRequest(AppMgrInterfaceCode::GET_RUNNING_MULTIAPP_INFO_BY_BUNDLENAME, data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    std::unique_ptr<RunningMultiAppInfo> infoReply(reply.ReadParcelable<RunningMultiAppInfo>());
+    info = *infoReply;
+    int result = reply.ReadInt32();
+    return result;
+}
+
 int32_t AppMgrProxy::GetRunningProcessesByBundleType(const BundleType bundleType,
     std::vector<RunningProcessInfo> &info)
 {
@@ -808,7 +832,7 @@ int AppMgrProxy::PreStartNWebSpawnProcess()
 
 int AppMgrProxy::StartRenderProcess(const std::string &renderParam,
                                     int32_t ipcFd, int32_t sharedFd,
-                                    int32_t crashFd, pid_t &renderPid)
+                                    int32_t crashFd, pid_t &renderPid, bool isGPU)
 {
     if (renderParam.empty() || ipcFd <= 0 || sharedFd <= 0 || crashFd <= 0) {
         TAG_LOGE(AAFwkTag::APPMGR, "Invalid params, renderParam:%{private}s, ipcFd:%{public}d, "
@@ -833,6 +857,11 @@ int AppMgrProxy::StartRenderProcess(const std::string &renderParam,
         !data.WriteFileDescriptor(crashFd)) {
         TAG_LOGE(AAFwkTag::APPMGR, "want fd failed, ipcFd:%{public}d, sharedFd:%{public}d, "
             "crashFd:%{public}d", ipcFd, sharedFd, crashFd);
+        return -1;
+    }
+
+    if (!data.WriteBool(isGPU)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "want processType failed.");
         return -1;
     }
 
@@ -873,6 +902,27 @@ void AppMgrProxy::AttachRenderProcess(const sptr<IRemoteObject> &renderScheduler
 
     if (!SendTransactCmd(AppMgrInterfaceCode::ATTACH_RENDER_PROCESS, data, reply)) {
         TAG_LOGE(AAFwkTag::APPMGR, "SendTransactCmd ATTACH_RENDER_PROCESS failed");
+        return;
+    }
+}
+
+void AppMgrProxy::SaveBrowserChannel(sptr<IRemoteObject> browser)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "WriteInterfaceToken failed");
+        return;
+    }
+
+    if (!data.WriteRemoteObject(browser)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "browser write failed.");
+        return;
+    }
+
+    if (!SendTransactCmd(AppMgrInterfaceCode::SAVE_BROWSER_CHANNEL, data, reply)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "SendTransactCmd SAVE_BROWSER_CHANNEL failed");
         return;
     }
 }

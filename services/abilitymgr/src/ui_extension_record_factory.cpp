@@ -39,7 +39,7 @@ bool UIExtensionRecordFactory::NeedReuse(const AAFwk::AbilityRequest &abilityReq
     }
     TAG_LOGI(AAFwkTag::ABILITYMGR, "UIExtensionAbility id: %{public}d.", uiExtensionAbilityId);
     extensionRecordId = uiExtensionAbilityId;
-    return ExtensionRecordFactory::NeedReuse(abilityRequest, extensionRecordId);
+    return true;
 }
 
 int32_t UIExtensionRecordFactory::PreCheck(

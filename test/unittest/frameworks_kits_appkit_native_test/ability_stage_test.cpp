@@ -22,6 +22,7 @@
 #include "context_impl.h"
 #include "iremote_object.h"
 #include "mock_ability_token.h"
+#include "runtime.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -258,6 +259,93 @@ HWTEST_F(AbilityStageTest, AppExecFwk_AbilityStage_OnAcceptWant_001, Function | 
     AAFwk::Want want;
     EXPECT_TRUE(abilityStage_->OnAcceptWant(want) == "");
     GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_OnAcceptWant_001 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_AbilityStage_Create_001
+ * @tc.name: Create
+ * @tc.desc: Test whether Create is called normally.
+ * @tc.type: FUNC
+ * @tc.require: AR000GJ719
+ */
+HWTEST_F(AbilityStageTest, AppExecFwk_AbilityStage_Create_001, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_Create_001 start";
+    std::unique_ptr<AbilityRuntime::Runtime> runtime;
+    AppExecFwk::HapModuleInfo hapModuleInfo;
+    EXPECT_NE(abilityStage_->Create(runtime, hapModuleInfo), nullptr);
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_Create_001 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_AbilityStage_OnNewProcessRequest_001
+ * @tc.name: OnNewProcessRequest
+ * @tc.desc: Test whether OnNewProcessRequest is called normally.
+ * @tc.type: FUNC
+ * @tc.require: AR000GJ719
+ */
+HWTEST_F(AbilityStageTest, AppExecFwk_AbilityStage_OnNewProcessRequest_001, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_OnNewProcessRequest_001 start";
+    AAFwk::Want want;
+    EXPECT_TRUE(abilityStage_->OnNewProcessRequest(want) == "");
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_OnNewProcessRequest_001 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_AbilityStage_OnConfigurationUpdated_001
+ * @tc.name: OnConfigurationUpdated
+ * @tc.desc: Test whether OnConfigurationUpdated is called normally.
+ * @tc.type: FUNC
+ * @tc.require: AR000GJ719
+ */
+HWTEST_F(AbilityStageTest, AppExecFwk_AbilityStage_OnConfigurationUpdated_001, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_OnConfigurationUpdated_001 start";
+    bool boolValue = false;
+    AppExecFwk::Configuration configuration;
+    if (abilityStage_ != nullptr) {
+        abilityStage_->OnConfigurationUpdated(configuration);
+        boolValue = true;
+    }
+    EXPECT_TRUE(boolValue);
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_OnConfigurationUpdated_001 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_AbilityStage_OnMemoryLevel_001
+ * @tc.name: OnMemoryLevel
+ * @tc.desc: Test whether OnMemoryLevel is called normally.
+ * @tc.type: FUNC
+ * @tc.require: AR000GJ719
+ */
+HWTEST_F(AbilityStageTest, AppExecFwk_AbilityStage_OnMemoryLevel_001, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_OnMemoryLevel_001 start";
+    bool boolValue = false;
+    if (abilityStage_ != nullptr) {
+        abilityStage_->OnMemoryLevel(1);
+        boolValue = true;
+    }
+    EXPECT_TRUE(boolValue);
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_OnMemoryLevel_001 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_AbilityStage_RunAutoStartupTask_001
+ * @tc.name: RunAutoStartupTask
+ * @tc.desc: Test whether RunAutoStartupTask is called normally.
+ * @tc.type: FUNC
+ * @tc.require: AR000GJ719
+ */
+HWTEST_F(AbilityStageTest, AppExecFwk_AbilityStage_RunAutoStartupTask_001, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_RunAutoStartupTask_001 start";
+    std::function<void()> callback;
+    bool isAsyncCallback;
+    std::shared_ptr<AbilityRuntime::Context> context = abilityStage_->GetContext();
+    EXPECT_TRUE(abilityStage_->RunAutoStartupTask(callback, isAsyncCallback, context) == ERR_OK);
+    GTEST_LOG_(INFO) << "AppExecFwk_AbilityStage_RunAutoStartupTask_001 end";
 }
 }  // namespace AppExecFwk
 }

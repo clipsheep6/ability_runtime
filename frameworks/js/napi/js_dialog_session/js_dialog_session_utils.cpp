@@ -66,6 +66,8 @@ napi_value WrapDialogAbilityInfo(napi_env env, const AAFwk::DialogAbilityInfo &d
     SetPropertyValueByPropertyName(env, jsObject, "abilityIconId", jsValue);
     jsValue = WrapInt32ToJS(env, dialogAbilityInfo.abilityLabelId);
     SetPropertyValueByPropertyName(env, jsObject, "abilityLabelId", jsValue);
+    jsValue = WrapBoolToJS(env, dialogAbilityInfo.visible);
+    SetPropertyValueByPropertyName(env, jsObject, "visible", jsValue);
 
     return jsObject;
 }

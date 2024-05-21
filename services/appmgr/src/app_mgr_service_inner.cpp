@@ -142,6 +142,11 @@ const std::string TSAN_FLAG_NAME = "tsanEnabled";
 const std::string MEMMGR_PROC_NAME = "memmgrservice";
 const std::string UIEXTENSION_ABILITY_ID = "ability.want.params.uiExtensionAbilityId";
 const std::string UIEXTENSION_ROOT_HOST_PID = "ability.want.params.uiExtensionRootHostPid";
+const std::string STRICT_MODE = "strictMode";
+const std::string RENDER_PROCESS_NAME = ":render";
+const std::string RENDER_PROCESS_TYPE = "render";
+const std::string GPU_PROCESS_NAME = ":gpu";
+const std::string GPU_PROCESS_TYPE = "gpu";
 const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
@@ -249,7 +254,7 @@ void AppMgrServiceInner::StartSpecifiedProcess(const AAFwk::Want &want, const Ap
     HapModuleInfo hapModuleInfo;
     auto appInfo = std::make_shared<ApplicationInfo>(abilityInfo.applicationInfo);
 
-    int32_t appIndex = AbilityRuntime::StartupUtil::GetAppTwinIndex(want);
+    int32_t appIndex = AbilityRuntime::StartupUtil::GetAppIndex(want);
     if (!GetBundleAndHapInfo(abilityInfo, appInfo, bundleInfo, hapModuleInfo, appIndex)) {
         return;
     }
@@ -399,7 +404,7 @@ void AppMgrServiceInner::LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObje
 
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
-    int32_t appIndex = (want == nullptr) ? 0 : AbilityRuntime::StartupUtil::GetAppTwinIndex(*want);
+    int32_t appIndex = (want == nullptr) ? 0 : AbilityRuntime::StartupUtil::GetAppIndex(*want);
     if (!GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo, appIndex)) {
         TAG_LOGE(AAFwkTag::APPMGR, "GetBundleAndHapInfo failed");
         return;
@@ -643,9 +648,11 @@ void AppMgrServiceInner::LoadAbilityNoAppRecord(const std::shared_ptr<AppRunning
         }
     }
     uint32_t startFlags = (want == nullptr) ? 0 : AppspawnUtil::BuildStartFlags(*want, *abilityInfo);
-    int32_t bundleIndex = (want == nullptr) ? 0 : AbilityRuntime::StartupUtil::GetAppTwinIndex(*want);
+    int32_t bundleIndex = (want == nullptr) ? 0 : AbilityRuntime::StartupUtil::GetAppIndex(*want);
+    bool strictMode = (want == nullptr) ? false : want->GetBoolParam(STRICT_MODE, false);
     StartProcess(abilityInfo->applicationName, processName, startFlags, appRecord,
-        appInfo->uid, bundleInfo, appInfo->bundleName, bundleIndex, appExistFlag, isPreload);
+        appInfo->uid, bundleInfo, appInfo->bundleName, bundleIndex, appExistFlag, isPreload, abilityInfo->moduleName,
+        abilityInfo->name, strictMode);
     std::string perfCmd = (want == nullptr) ? "" : want->GetStringParam(PERF_CMD);
     bool isSandboxApp = (want == nullptr) ? false : want->GetBoolParam(ENTER_SANDBOX, false);
     (void)StartPerfProcess(appRecord, perfCmd, "", isSandboxApp);
@@ -726,21 +733,22 @@ bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
     int32_t bundleMgrResult;
     if (appIndex == 0) {
         bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetBundleInfoV9(appInfo->bundleName,
-            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION), bundleInfo, userId));
-    } else if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) |
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) |
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE), bundleInfo, userId));
+    } else if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetCloneBundleInfo(appInfo->bundleName,
             static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION), appIndex, bundleInfo, userId));
     } else {
         bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetSandboxBundleInfo(appInfo->bundleName,
             appIndex, userId, bundleInfo));
     }
-
     if (bundleMgrResult != ERR_OK) {
         TAG_LOGE(AAFwkTag::APPMGR, "GetBundleInfo is fail.");
         return false;
     }
     bool hapQueryResult = false;
-    if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+    if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         hapQueryResult = bundleMgrHelper->GetHapModuleInfo(abilityInfo, userId, hapModuleInfo);
     } else {
         hapQueryResult = (bundleMgrHelper->GetSandboxHapModuleInfo(abilityInfo, appIndex, userId, hapModuleInfo) == 0);
@@ -749,7 +757,6 @@ bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
         TAG_LOGE(AAFwkTag::APPMGR, "GetHapModuleInfo is fail.");
         return false;
     }
-
     return true;
 }
 
@@ -1410,6 +1417,78 @@ int32_t AppMgrServiceInner::GetRunningProcessesByBundleType(BundleType bundleTyp
     return ERR_OK;
 }
 
+int32_t AppMgrServiceInner::GetRunningMultiAppInfoByBundleName(const std::string &bundleName,
+    RunningMultiAppInfo &info)
+{
+    if (bundleName.empty()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "bundlename is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!appRunningManager_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "The appRunningManager is nullptr!");
+        return ERR_INVALID_VALUE;
+    }
+    auto multiAppInfoMap = appRunningManager_->GetAppRunningRecordMap();
+    if (multiAppInfoMap.empty()) {
+        return ERR_INVALID_VALUE;
+    }
+    for (const auto &item : multiAppInfoMap) {
+        const std::shared_ptr<AppRunningRecord> &appRecord = item.second;
+        if (appRecord == nullptr || appRecord->GetBundleName() != bundleName) {
+            continue;
+        }
+        auto appInfo = appRecord->GetApplicationInfo();
+        if (!appInfo) {
+            continue;
+        }
+        info.bundleName = bundleName;
+        info.mode = static_cast<int32_t>(appInfo->multiAppMode.multiAppModeType);
+        if (info.mode == static_cast<int32_t>(MultiAppModeType::UNSPECIFIED)) {
+            return AAFwk::ERR_MULTI_APP_NOT_SUPPORTED;
+        }
+        GetRunningCloneAppInfo(appRecord, info);
+    }
+    return ERR_OK;
+}
+
+void AppMgrServiceInner::GetRunningCloneAppInfo(const std::shared_ptr<AppRunningRecord> &appRecord,
+    RunningMultiAppInfo &info)
+{
+    if (!appRecord) {
+        TAG_LOGE(AAFwkTag::APPMGR, "The appRecord is nullptr!");
+        return;
+    }
+    auto PriorityObject = appRecord->GetPriorityObject();
+    if (!PriorityObject) {
+        TAG_LOGE(AAFwkTag::APPMGR, "The PriorityObject is nullptr!");
+        return;
+    }
+    if (info.mode == static_cast<int32_t>(MultiAppModeType::APP_CLONE)) {
+        size_t index = 0;
+        for (; index < info.runningAppClones.size(); index++) {
+            if (info.runningAppClones[index].appCloneIndex == appRecord->GetAppIndex()) {
+                break;
+            }
+        }
+        auto childProcessRecordMap = appRecord->GetChildProcessRecordMap();
+        if (index < info.runningAppClones.size()) {
+            info.runningAppClones[index].pids.emplace_back(PriorityObject->GetPid());
+            for (auto it : childProcessRecordMap) {
+                info.runningAppClones[index].pids.emplace_back(it.first);
+            }
+        } else {
+            RunningAppClone cloneInfo;
+            cloneInfo.appCloneIndex = appRecord->GetAppIndex();
+            cloneInfo.uid = appRecord->GetUid();
+            cloneInfo.pids.emplace_back(PriorityObject->GetPid());
+            for (auto it : childProcessRecordMap) {
+                cloneInfo.pids.emplace_back(it.first);
+            }
+            info.runningAppClones.emplace_back(cloneInfo);
+        }
+    }
+}
+
 int32_t AppMgrServiceInner::GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId)
 {
     if (VerifyAccountPermission(AAFwk::PermissionConstants::PERMISSION_GET_RUNNING_INFO, userId) ==
@@ -1759,7 +1838,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(spt
         }
         appRecord->SetPerfCmd(want->GetStringParam(PERF_CMD));
         appRecord->SetMultiThread(want->GetBoolParam(MULTI_THREAD, false));
-        appRecord->SetAppIndex(AbilityRuntime::StartupUtil::GetAppTwinIndex(*want));
+        appRecord->SetAppIndex(AbilityRuntime::StartupUtil::GetAppIndex(*want));
         appRecord->SetSecurityFlag(want->GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false));
         appRecord->SetRequestProcCode(want->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0));
         appRecord->SetCallerPid(want->GetIntParam(Want::PARAM_RESV_CALLER_PID, -1));
@@ -2525,6 +2604,7 @@ void AppMgrServiceInner::SetAppInfo(const BundleInfo &bundleInfo, AppSpawnStartM
     startMsg.apl = bundleInfo.applicationInfo.appPrivilegeLevel;
     startMsg.ownerId = bundleInfo.signatureInfo.appIdentifier;
     startMsg.provisionType = bundleInfo.applicationInfo.appProvisionType;
+    startMsg.maxChildProcess = bundleInfo.applicationInfo.maxChildProcess;
     startMsg.setAllowInternet = setAllowInternet;
     startMsg.allowInternet = allowInternet;
     startMsg.gids = gids;
@@ -2533,7 +2613,8 @@ void AppMgrServiceInner::SetAppInfo(const BundleInfo &bundleInfo, AppSpawnStartM
 }
 
 int32_t AppMgrServiceInner::CreateStartMsg(const std::string &processName, uint32_t startFlags, const int uid,
-    const BundleInfo &bundleInfo, const int32_t bundleIndex, BundleType bundleType, AppSpawnStartMsg &startMsg)
+    const BundleInfo &bundleInfo, const int32_t bundleIndex, BundleType bundleType, AppSpawnStartMsg &startMsg,
+    const std::string &moduleName, const std::string &abilityName, bool strictMode)
 {
     if (!remoteClientManager_ || !otherTaskHandler_) {
         TAG_LOGE(AAFwkTag::APPMGR, "remoteClientManager or otherTaskHandler is nullptr.");
@@ -2565,8 +2646,7 @@ int32_t AppMgrServiceInner::CreateStartMsg(const std::string &processName, uint3
     if (!result || dataGroupInfoList.empty()) {
         TAG_LOGD(AAFwkTag::APPMGR, "the bundle has no groupInfos.");
     }
-    startMsg.dataGroupInfoList = dataGroupInfoList;
-
+    QueryExtensionSandBox(moduleName, abilityName, bundleInfo, startMsg, dataGroupInfoList, strictMode);
     startMsg.bundleName = bundleInfo.name;
     startMsg.renderParam = RENDER_PARAM;
     startMsg.flags = startFlags;
@@ -2588,9 +2668,42 @@ int32_t AppMgrServiceInner::CreateStartMsg(const std::string &processName, uint3
     return ERR_OK;
 }
 
+void AppMgrServiceInner::QueryExtensionSandBox(const std::string &moduleName, const std::string &abilityName,
+    const BundleInfo &bundleInfo, AppSpawnStartMsg &startMsg, DataGroupInfoList& dataGroupInfoList, bool strictMode)
+{
+    std::vector<ExtensionAbilityInfo> extensionInfos;
+    for (auto hapModuleInfo: bundleInfo.hapModuleInfos) {
+        extensionInfos.insert(extensionInfos.end(), hapModuleInfo.extensionInfos.begin(),
+            hapModuleInfo.extensionInfos.end());
+    }
+    auto infoExisted = [&moduleName, &abilityName](const ExtensionAbilityInfo& info) {
+        return info.moduleName == moduleName && info.name == abilityName && info.needCreateSandbox;
+    };
+    auto infoIter = std::find_if(extensionInfos.begin(), extensionInfos.end(), infoExisted);
+    DataGroupInfoList extensionDataGroupInfoList;
+    if (infoIter != extensionInfos.end()) {
+        startMsg.isolatedExtension = infoIter->needCreateSandbox;
+        startMsg.extensionSandboxPath = infoIter->moduleName + "/" + infoIter->name;
+        startMsg.strictMode = strictMode;
+        for (auto dataGroupInfo : dataGroupInfoList) {
+            auto groupIdExisted = [&dataGroupInfo](const std::string &dataGroupId) {
+                return dataGroupInfo.dataGroupId == dataGroupId;
+            };
+            if (std::find_if(infoIter->dataGroupIds.begin(), infoIter->dataGroupIds.end(), groupIdExisted) !=
+                infoIter->dataGroupIds.end()) {
+                extensionDataGroupInfoList.emplace_back(dataGroupInfo);
+            }
+        }
+        startMsg.dataGroupInfoList = extensionDataGroupInfoList;
+    } else {
+        startMsg.dataGroupInfoList = dataGroupInfoList;
+    }
+}
+
 void AppMgrServiceInner::StartProcess(const std::string &appName, const std::string &processName, uint32_t startFlags,
     std::shared_ptr<AppRunningRecord> appRecord, const int uid, const BundleInfo &bundleInfo,
-    const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag, bool isPreload)
+    const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag, bool isPreload,
+    const std::string &moduleName, const std::string &abilityName, bool strictMode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "bundleName: %{public}s, isPreload: %{public}d", bundleName.c_str(), isPreload);
@@ -2608,7 +2721,8 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     AppSpawnStartMsg startMsg;
     auto appInfo = appRecord->GetApplicationInfo();
     auto bundleType = appInfo ? appInfo->bundleType : BundleType::APP;
-    if (CreateStartMsg(processName, startFlags, uid, bundleInfo, bundleIndex, bundleType, startMsg) != ERR_OK) {
+    if (CreateStartMsg(processName, startFlags, uid, bundleInfo, bundleIndex, bundleType, startMsg, moduleName,
+        abilityName, strictMode) != ERR_OK) {
         TAG_LOGE(AAFwkTag::APPMGR, "CreateStartMsg failed.");
         appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
         return;
@@ -3521,7 +3635,7 @@ int AppMgrServiceInner::StartEmptyProcess(const AAFwk::Want &want, const sptr<IR
     testRecord->userId = userId;
     appRecord->SetUserTestInfo(testRecord);
 
-    int32_t appIndex = AbilityRuntime::StartupUtil::GetAppTwinIndex(want);
+    int32_t appIndex = AbilityRuntime::StartupUtil::GetAppIndex(want);
     uint32_t startFlags = AppspawnUtil::BuildStartFlags(want, info.applicationInfo);
     StartProcess(appInfo->name, processName, startFlags, appRecord, appInfo->uid, info, appInfo->bundleName,
         appIndex, appExistFlag);
@@ -3612,7 +3726,7 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
     HapModuleInfo hapModuleInfo;
     auto appInfo = std::make_shared<ApplicationInfo>(abilityInfo.applicationInfo);
 
-    int32_t appIndex = AbilityRuntime::StartupUtil::GetAppTwinIndex(want);
+    int32_t appIndex = AbilityRuntime::StartupUtil::GetAppIndex(want);
     if (!GetBundleAndHapInfo(abilityInfo, appInfo, bundleInfo, hapModuleInfo, appIndex)) {
         return;
     }
@@ -4295,7 +4409,7 @@ int AppMgrServiceInner::PreStartNWebSpawnProcess(const pid_t hostPid)
 }
 
 int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::string &renderParam,
-    int32_t ipcFd, int32_t sharedFd, int32_t crashFd, pid_t &renderPid)
+    int32_t ipcFd, int32_t sharedFd, int32_t crashFd, pid_t &renderPid, bool isGPU)
 {
     TAG_LOGI(AAFwkTag::APPMGR, "start render process, hostPid:%{public}d", hostPid);
     if (hostPid <= 0 || renderParam.empty() || ipcFd <= 0 || sharedFd <= 0 ||
@@ -4318,7 +4432,7 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::strin
     }
 
     auto renderRecordMap = appRecord->GetRenderRecordMap();
-    if (!renderRecordMap.empty() && !AAFwk::AppUtils::GetInstance().IsUseMultiRenderProcess()) {
+    if (!isGPU && !renderRecordMap.empty() && !AAFwk::AppUtils::GetInstance().IsUseMultiRenderProcess()) {
         for (auto iter : renderRecordMap) {
             if (iter.second != nullptr) {
                 renderPid = iter.second->GetPid();
@@ -4335,10 +4449,11 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::strin
             }
         }
     }
-
+    appRecord->SetIsGPU(isGPU);
+    int32_t childNumLimit = appRecord->GetIsGPU() ? PHONE_MAX_RENDER_PROCESS_NUM + 1 : PHONE_MAX_RENDER_PROCESS_NUM;
     // The phone device allows a maximum of 40 render processes to be created.
     if (AAFwk::AppUtils::GetInstance().IsLimitMaximumOfRenderProcess() &&
-        renderRecordMap.size() >= PHONE_MAX_RENDER_PROCESS_NUM) {
+        renderRecordMap.size() >= childNumLimit) {
         TAG_LOGE(AAFwkTag::APPMGR, "Reaching the maximum render process limitation, hostPid:%{public}d", hostPid);
         return ERR_REACHING_MAXIMUM_RENDER_PROCESS_LIMITATION;
     }
@@ -4349,7 +4464,7 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::strin
         return ERR_INVALID_VALUE;
     }
 
-    return StartRenderProcessImpl(renderRecord, appRecord, renderPid);
+    return StartRenderProcessImpl(renderRecord, appRecord, renderPid, isGPU);
 }
 
 void AppMgrServiceInner::AttachRenderProcess(const pid_t pid, const sptr<IRenderScheduler> &scheduler)
@@ -4392,9 +4507,26 @@ void AppMgrServiceInner::AttachRenderProcess(const pid_t pid, const sptr<IRender
 
     TAG_LOGI(AAFwkTag::APPMGR, "to NotifyBrowserFd");
     // notify fd to render process
+    if (appRecord->GetBrowserHost() != nullptr) {
+        TAG_LOGD(AAFwkTag::APPMGR, "GPU has host remote object");
+    }
     scheduler->NotifyBrowserFd(renderRecord->GetIpcFd(),
                                renderRecord->GetSharedFd(),
-                               renderRecord->GetCrashFd());
+                               renderRecord->GetCrashFd(),
+                               appRecord->GetBrowserHost());
+}
+
+void AppMgrServiceInner::SaveBrowserChannel(const pid_t hostPid, sptr<IRemoteObject> browser)
+{
+    std::lock_guard<ffrt::mutex> lock(browserHostLock_);
+    TAG_LOGD(AAFwkTag::APPMGR, "save browser channel.");
+    auto appRecord = GetAppRunningRecordByPid(hostPid);
+    if (!appRecord) {
+        TAG_LOGE(AAFwkTag::APPMGR, "save browser host no such appRecord, pid:%{public}d",
+            hostPid);
+        return;
+    }
+    appRecord->SetBrowserHost(browser);
 }
 
 bool AppMgrServiceInner::GenerateRenderUid(int32_t &renderUid)
@@ -4438,7 +4570,7 @@ bool AppMgrServiceInner::GenerateRenderUid(int32_t &renderUid)
 }
 
 int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecord> &renderRecord,
-    const std::shared_ptr<AppRunningRecord> appRecord, pid_t &renderPid)
+    const std::shared_ptr<AppRunningRecord> appRecord, pid_t &renderPid, bool isGPU)
 {
     if (!renderRecord || !appRecord) {
         TAG_LOGE(AAFwkTag::APPMGR, "renderRecord or appRecord is nullptr.");
@@ -4461,6 +4593,13 @@ int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecor
     startMsg.renderParam = renderRecord->GetRenderParam();
     startMsg.uid = renderUid;
     startMsg.gid = renderUid;
+    if (isGPU) {
+        startMsg.procName += GPU_PROCESS_NAME;
+        startMsg.processType = GPU_PROCESS_TYPE;
+    } else {
+        startMsg.procName += RENDER_PROCESS_NAME;
+        startMsg.processType = RENDER_PROCESS_TYPE;
+    }
     startMsg.code = 0; // 0: DEFAULT
     pid_t pid = 0;
     ErrCode errCode = nwebSpawnClient->StartProcess(startMsg, pid);
@@ -4473,6 +4612,9 @@ int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecor
     renderPid = pid;
     renderRecord->SetPid(pid);
     renderRecord->SetUid(renderUid);
+    if (isGPU) {
+        renderRecord->SetProcessType(ProcessType::GPU);
+    }
     appRecord->AddRenderRecord(renderRecord);
     TAG_LOGI(AAFwkTag::APPMGR,
         "start render process success, hostPid:%{public}d, hostUid:%{public}d, pid:%{public}d, uid:%{public}d",

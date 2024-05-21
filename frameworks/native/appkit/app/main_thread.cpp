@@ -1189,7 +1189,7 @@ bool GetBundleForLaunchApplication(std::shared_ptr<BundleMgrHelper> bundleMgrHel
     int32_t appIndex, BundleInfo &bundleInfo)
 {
     bool queryResult;
-    if (appIndex > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+    if (appIndex > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         TAG_LOGD(AAFwkTag::APPKIT, "The bundleName = %{public}s.", bundleName.c_str());
         queryResult = (bundleMgrHelper->GetSandboxBundleInfo(bundleName,
             appIndex, UNSPECIFIED_USERID, bundleInfo) == 0);
@@ -1319,6 +1319,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     contextImpl->SetApplicationInfo(std::make_shared<ApplicationInfo>(appInfo));
     std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
         AbilityRuntime::ApplicationContext::GetInstance();
+    int32_t appIndex = appLaunchData.GetAppIndex();
+    applicationContext->SetCurrentAppCloneIndex(appIndex);
+    applicationContext->SetCurrentAppMode(static_cast<int32_t>(appInfo.multiAppMode.multiAppModeType));
     applicationContext->AttachContextImpl(contextImpl);
     auto appRunningId = appLaunchData.GetAppRunningUniqueId();
     applicationContext->SetAppRunningUniqueId(appRunningId);

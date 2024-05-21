@@ -92,7 +92,6 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr/src/remote_on_listener_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/remote_on_listener_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/sender_info.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/start_options.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/system_ability_token_callback_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ui_extension_ability_connect_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ui_extension_host_info.cpp",
@@ -125,6 +124,7 @@ ohos_shared_library("ability_manager") {
   public_deps = [ ":ability_connect_callback_stub" ]
 
   deps = [
+    ":ability_start_options",
     ":ability_start_setting",
     ":mission_info",
     ":process_options",
@@ -172,6 +172,44 @@ ohos_shared_library("ability_manager") {
     external_deps += [ "dlp_permission_service:libdlpparse" ]
   }
 
+  innerapi_tags = [
+    "platformsdk",
+    "sasdk",
+  ]
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_shared_library("ability_start_options") {
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    cfi_vcall_icall_only = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+
+  include_dirs = [
+    "include/",
+    "${ability_runtime_services_path}/common/include",
+  ]
+
+  sources =
+      [ "${ability_runtime_services_path}/abilitymgr/src/start_options.cpp" ]
+
+  deps = [ ":process_options" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "ipc:ipc_core",
+  ]
+
+  cflags_cc = []
   innerapi_tags = [
     "platformsdk",
     "sasdk",
