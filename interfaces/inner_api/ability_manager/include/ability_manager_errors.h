@@ -666,6 +666,16 @@ enum NativeFreeInstallError {
      */
     CONTINUE_FREE_INSTALL_FAILED = 29360205,
 
+    /*
+     * Result(29360206) for extension blocked by third party app list
+     */
+    EXTENSION_BLOCKED_BY_THIRD_PARTY_APP_LIST = 29360206,
+
+    /*
+     * Result(29360207) for extension blocked by service list
+     */
+    EXTENSION_BLOCKED_BY_SERVICE_LIST = 29360207,
+
     /**
      * Undefine error code.
      */

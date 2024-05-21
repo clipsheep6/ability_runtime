@@ -69,6 +69,7 @@
 #include "interceptor/crowd_test_interceptor.h"
 #include "interceptor/disposed_rule_interceptor.h"
 #include "interceptor/ecological_rule_interceptor.h"
+#include "interceptor/extension_control_interceptor.h"
 #include "interceptor/start_other_app_interceptor.h"
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
@@ -436,6 +437,7 @@ void AbilityManagerService::InitInterceptor()
     interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
     interceptorExecuter_->AddInterceptor(std::make_shared<ControlInterceptor>());
     afterCheckExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
+    afterCheckExecuter_->AddInterceptor(std::make_shared<ExtensionControlInterceptor>());
     afterCheckExecuter_->AddInterceptor(std::make_shared<StartOtherAppInterceptor>());
     afterCheckExecuter_->AddInterceptor(std::make_shared<DisposedRuleInterceptor>());
     afterCheckExecuter_->AddInterceptor(std::make_shared<EcologicalRuleInterceptor>());
@@ -928,7 +930,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     int32_t validUserId = oriValidUserId;
 
     StartAbilityInfoWrap threadLocalInfo(want, validUserId,
-        StartAbilityUtils::GetAppIndex(want, callerToken));
+        StartAbilityUtils::GetAppIndex(want, callerToken), callerToken);
     AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, requestCode, GetUserId(),
         true, nullptr);
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -1227,7 +1229,7 @@ int AbilityManagerService::StartAbilityDetails(const Want &want, const AbilitySt
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
     StartAbilityInfoWrap threadLocalInfo(want, validUserId,
-        StartAbilityUtils::GetAppIndex(want, callerToken));
+        StartAbilityUtils::GetAppIndex(want, callerToken), callerToken);
     AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, requestCode, GetUserId(),
         true, nullptr);
     result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -1507,7 +1509,7 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
     StartAbilityInfoWrap threadLocalInfo(want, validUserId,
-        StartAbilityUtils::GetAppIndex(want, callerToken));
+        StartAbilityUtils::GetAppIndex(want, callerToken), callerToken);
     AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, requestCode, GetUserId(),
         true, nullptr);
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -1915,7 +1917,7 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bo
 
     auto requestCode = sessionInfo->requestCode;
     StartAbilityInfoWrap threadLocalInfo(sessionInfo->want, currentUserId,
-        StartAbilityUtils::GetAppIndex(sessionInfo->want, sessionInfo->callerToken));
+        StartAbilityUtils::GetAppIndex(sessionInfo->want, sessionInfo->callerToken), sessionInfo->callerToken);
     if (sessionInfo->want.GetBoolParam(IS_CALL_BY_SCB, true)) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "interceptorExecuter_ called.");
         AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(sessionInfo->want, requestCode,
@@ -2559,7 +2561,7 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
 
     int32_t validUserId = GetValidUserId(userId);
     StartAbilityInfoWrap threadLocalInfo(want, validUserId,
-        StartAbilityUtils::GetAppIndex(want, callerToken), true);
+        StartAbilityUtils::GetAppIndex(want, callerToken), callerToken, true);
     AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, 0, GetUserId(), false, nullptr);
     result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
         interceptorExecuter_->DoProcess(interceptorParam);
@@ -6630,7 +6632,7 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
 
     AbilityUtil::RemoveWantKey(const_cast<Want &>(want));
     StartAbilityInfoWrap threadLocalInfo(want, GetUserId(),
-        StartAbilityUtils::GetAppIndex(want, callerToken));
+        StartAbilityUtils::GetAppIndex(want, callerToken), callerToken);
     AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, 0, GetUserId(), true, nullptr);
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
         interceptorExecuter_->DoProcess(interceptorParam);
