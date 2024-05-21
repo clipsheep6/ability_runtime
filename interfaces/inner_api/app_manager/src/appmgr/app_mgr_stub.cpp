@@ -1138,6 +1138,9 @@ int32_t AppMgrStub::HandleIsApplicationRunning(MessageParcel &data, MessageParce
     if (!reply.WriteBool(isRunning)) {
         return ERR_INVALID_VALUE;
     }
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 
