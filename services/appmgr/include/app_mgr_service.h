@@ -515,6 +515,7 @@ public:
 
     int32_t SetSupportedProcessCacheSelf(bool isSupport) override;
 
+    void SetAppAssertionPauseState(bool flag) override;
     /**
      * Start native child process, callde by ChildProcessManager.
      * @param libName lib file name to be load in child process

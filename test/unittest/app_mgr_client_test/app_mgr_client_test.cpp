@@ -1241,20 +1241,6 @@ HWTEST_F(AppMgrClientTest, ClearNonPersistWaitingDebugFlag_001, TestSize.Level0)
 }
 
 /**
- * @tc.name: AppMgrClient_SetAppAssertionPauseState_001
- * @tc.desc: SetAppAssertionPauseState.
- * @tc.type: FUNC
- */
-HWTEST_F(AppMgrClientTest, SetAppAssertionPauseState_001, TestSize.Level0)
-{
-    auto appMgrClient = std::make_unique<AppMgrClient>();
-    int32_t pid = 1;
-    bool flag = true;
-    appMgrClient->SetAppAssertionPauseState(pid, flag);
-    EXPECT_NE(appMgrClient, nullptr);
-}
-
-/**
  * @tc.name: AppMgrClient_IsAttachDebug_001
  * @tc.desc: IsAttachDebug.
  * @tc.type: FUNC

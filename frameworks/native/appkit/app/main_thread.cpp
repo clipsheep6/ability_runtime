@@ -3119,12 +3119,22 @@ void MainThread::AssertFaultPauseMainThreadDetection()
 {
     TAG_LOGD(AAFwkTag::APPKIT, "Called.");
     SetAppDebug(AbilityRuntime::AppFreezeState::AppFreezeFlag::ASSERT_DEBUG_MODE, true);
+    if (appMgr_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "appMgr is nullptr.");
+        return;
+    }
+    appMgr_->SetAppAssertionPauseState(true);
 }
 
 void MainThread::AssertFaultResumeMainThreadDetection()
 {
     TAG_LOGD(AAFwkTag::APPKIT, "Called.");
     SetAppDebug(AbilityRuntime::AppFreezeState::AppFreezeFlag::ASSERT_DEBUG_MODE, false);
+    if (appMgr_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "appMgr is nullptr.");
+        return;
+    }
+    appMgr_->SetAppAssertionPauseState(false);
 }
 
 void MainThread::HandleInitAssertFaultTask(bool isDebugModule, bool isDebugApp)

@@ -531,15 +531,6 @@ bool AmsMgrScheduler::IsAttachDebug(const std::string &bundleName)
     return amsMgrServiceInner_->IsAttachDebug(bundleName);
 }
 
-void AmsMgrScheduler::SetAppAssertionPauseState(int32_t pid, bool flag)
-{
-    if (!IsReady()) {
-        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
-        return;
-    }
-    amsMgrServiceInner_->SetAppAssertionPauseState(pid, flag);
-}
-
 void AmsMgrScheduler::SetKeepAliveEnableState(const std::string &bundleName, bool enable)
 {
     if (!IsReady()) {

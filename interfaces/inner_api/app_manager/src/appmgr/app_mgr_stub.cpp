@@ -192,6 +192,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleSetSupportedProcessCacheSelf;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_RUNNING_PROCESSES_BY_BUNDLE_TYPE)] =
         &AppMgrStub::HandleGetRunningProcessesByBundleType;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SET_APP_ASSERT_PAUSE_STATE_SELF)] =
+        &AppMgrStub::HandleSetAppAssertionPauseState;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::START_NATIVE_CHILD_PROCESS)] =
         &AppMgrStub::HandleStartNativeChildProcess;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SAVE_BROWSER_CHANNEL)] =
@@ -1339,6 +1341,14 @@ int32_t AppMgrStub::HandleSetSupportedProcessCacheSelf(MessageParcel &data, Mess
         TAG_LOGE(AAFwkTag::APPMGR, "Write ret error.");
         return IPC_STUB_ERR;
     }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleSetAppAssertionPauseState(MessageParcel &data, MessageParcel &reply)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    bool flag = data.ReadBool();
+    SetAppAssertionPauseState(flag);
     return NO_ERROR;
 }
 

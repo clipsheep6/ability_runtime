@@ -581,6 +581,13 @@ public:
     int32_t SetSupportedProcessCacheSelf(bool isSupport) override;
 
     /**
+     * Set application assertion pause state.
+     *
+     * @param flag assertion pause state.
+     */
+    void SetAppAssertionPauseState(bool flag) override;
+
+    /**
      * Start native child process, callde by ChildProcessManager.
      * @param libName lib file name to be load in child process
      * @param childProcessCount current started child process count

@@ -2040,6 +2040,28 @@ int32_t AppMgrProxy::SetSupportedProcessCacheSelf(bool isSupport)
     return reply.ReadInt32();
 }
 
+void AppMgrProxy::SetAppAssertionPauseState(bool flag)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
+        return;
+    }
+    if (!data.WriteBool(flag)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "flag write failed.");
+        return;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto error = SendRequest(AppMgrInterfaceCode::SET_APP_ASSERT_PAUSE_STATE_SELF, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d", error);
+        return;
+    }
+}
+
 int32_t AppMgrProxy::StartNativeChildProcess(const std::string &libName, int32_t childProcessCount,
     const sptr<IRemoteObject> &callback)
 {

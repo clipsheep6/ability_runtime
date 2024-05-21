@@ -10107,10 +10107,10 @@ int32_t AbilityManagerService::RequestAssertFaultDialog(
     uint64_t assertFaultSessionId = reinterpret_cast<uint64_t>(remoteCallback.GetRefPtr());
     want.SetParam(Want::PARAM_ASSERT_FAULT_SESSION_ID, std::to_string(assertFaultSessionId));
     want.SetParam(ASSERT_FAULT_DETAIL, wantParams.GetStringParam(ASSERT_FAULT_DETAIL));
-    auto connection = std::make_shared<ModalSystemAssertUIExtension>();
+    auto &connection = AbilityRuntime::ModalSystemAssertUIExtension::GetInstance();
     want.SetParam(UIEXTENSION_MODAL_TYPE, 1);
-    if (connection == nullptr || !IN_PROCESS_CALL(connection->CreateModalUIExtension(want))) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Connection is nullptr or create modal ui extension failed.");
+    if (!IN_PROCESS_CALL(connection.CreateModalUIExtension(want))) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Create modal ui extension failed.");
         return ERR_INVALID_VALUE;
     }
     auto callbackDeathMgr = DelayedSingleton<AbilityRuntime::AssertFaultCallbackDeathMgr>::GetInstance();

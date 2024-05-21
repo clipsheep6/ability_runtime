@@ -16,6 +16,8 @@
 #ifndef OHOS_ABILITY_RUNTIME_ASSERT_FAULT_PROXY_H
 #define OHOS_ABILITY_RUNTIME_ASSERT_FAULT_PROXY_H
 
+#include <chrono>
+#include <mutex>
 #include <queue>
 
 #include "iremote_broker.h"
@@ -23,6 +25,7 @@
 #include "iremote_proxy.h"
 #include "ability_connect_callback_stub.h"
 #include "assert_fault_interface.h"
+#include "singleton.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -52,34 +55,39 @@ private:
     RemoteDiedHandler handler_;
 };
 
-class ModalSystemAssertUIExtension : public std::enable_shared_from_this<ModalSystemAssertUIExtension> {
+class ModalSystemAssertUIExtension {
 public:
+    static ModalSystemAssertUIExtension &GetInstance();
     ModalSystemAssertUIExtension() = default;
     virtual ~ModalSystemAssertUIExtension();
 
     bool CreateModalUIExtension(const AAFwk::Want &want);
 
+    friend class AssertFaultProxy;
+
 private:
     class AssertDialogConnection : public OHOS::AAFwk::AbilityConnectionStub {
     public:
         AssertDialogConnection() = default;
-        virtual ~AssertDialogConnection();
+        virtual ~AssertDialogConnection() = default;
 
-        bool RequestShowDialog(const AAFwk::Want &want);
-        void CleanUp();
-
+        void SetReqeustAssertDialogWant(const AAFwk::Want &want);
         void OnAbilityConnectDone(const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject,
             int resultCode) override;
         void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override;
 
     private:
-        std::mutex mutex_;
-        std::atomic_bool isDialogShow_ = false;
-        std::queue<AAFwk::Want> consumptionList_;
-        sptr<IRemoteObject> remoteObject_;
-        sptr<IRemoteObject::DeathRecipient> deathRecipient_;
+        AAFwk::Want want_;
     };
 
+private:
+    bool DisconnectSystemUI();
+    void TryNotifyOneWaitingThread();
+    void TryNotifyOneWaitingThreadInner();
+
+    std::mutex assertResultMutex_;
+    std::condition_variable assertResultCV_;
+    int32_t reqeustCount_ = 0;
     sptr<AssertDialogConnection> GetConnection();
     std::mutex dialogConnectionMutex_;
     sptr<AssertDialogConnection> dialogConnectionCallback_;

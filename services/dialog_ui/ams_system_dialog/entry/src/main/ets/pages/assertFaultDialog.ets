@@ -19,6 +19,7 @@ import type UIExtensionContentSession from '@ohos.app.ability.UIExtensionContent
 
 let storage = LocalStorage.GetShared();
 const TAG: string = 'AssertFaultDialog_Page';
+const DEBUG_ASSERT_RESULT: string = 'assertResult';
 
 @Entry(storage)
 @Component
@@ -33,17 +34,11 @@ struct AssertFaultDialog {
   existApp() {
     console.info(TAG, 'Exist app called');
     try {
-      let status = abilityManager.UserStatus.ASSERT_TERMINATE;
-      abilityManager.notifyDebugAssertResult(storage.get<string>('sessionId'), status).then(() => {
-        console.log(TAG, 'notifyDebugAssertResult termination status success.');
-        AppStorage.setOrCreate('isUserAction', true);
-        storage.get<UIExtensionContentSession>('session').terminateSelf().then(() => {
-          console.log(TAG, 'terminateSelf success.');
-        }).catch((err: BusinessError) => {
-          console.error(TAG, `terminateSelf failed, error: ${JSON.stringify(err)}`);
-        })
+      AppStorage.setOrCreate(DEBUG_ASSERT_RESULT, abilityManager.UserStatus.ASSERT_TERMINATE);
+      storage.get<UIExtensionContentSession>('session').terminateSelf().then(() => {
+        console.log(TAG, 'terminateSelf success.');
       }).catch((err: BusinessError) => {
-        console.error(TAG, `notifyDebugAssertResult failed, error: ${JSON.stringify(err)}`);
+        console.error(TAG, `terminateSelf failed, error: ${JSON.stringify(err)}`);
       })
     } catch (error) {
       console.error(TAG, `try notifyDebugAssertResult failed, error: ${JSON.stringify(error)}`);
@@ -52,18 +47,12 @@ struct AssertFaultDialog {
 
   onContinueCall() {
     console.info(TAG, 'On continue called');
-    let status = abilityManager.UserStatus.ASSERT_CONTINUE;
     try {
-      abilityManager.notifyDebugAssertResult(storage.get<string>('sessionId'), status).then(() => {
-        console.log(TAG, 'notifyDebugAssertResult continue status success.');
-        AppStorage.setOrCreate('isUserAction', true);
-        storage.get<UIExtensionContentSession>('session').terminateSelf().then(() => {
-          console.log(TAG, 'terminateSelf success.');
-        }).catch((err: BusinessError) => {
-          console.error(TAG, `terminateSelf failed, error: ${JSON.stringify(err)}`);
-        })
+      AppStorage.setOrCreate(DEBUG_ASSERT_RESULT, abilityManager.UserStatus.ASSERT_CONTINUE);
+      storage.get<UIExtensionContentSession>('session').terminateSelf().then(() => {
+        console.log(TAG, 'terminateSelf success.');
       }).catch((err: BusinessError) => {
-        console.error(TAG, `notifyDebugAssertResult failed, error: ${JSON.stringify(err)}`);
+        console.error(TAG, `terminateSelf failed, error: ${JSON.stringify(err)}`);
       })
     } catch (error) {
       console.error(TAG, `try notifyDebugAssertResult failed, error: ${JSON.stringify(error)}`);
@@ -72,18 +61,12 @@ struct AssertFaultDialog {
 
   onRetryCall() {
     console.info(TAG, 'On retry called');
-    let status = abilityManager.UserStatus.ASSERT_RETRY;
     try {
-      abilityManager.notifyDebugAssertResult(storage.get<string>('sessionId'), status).then(() => {
-        console.log(TAG, 'notifyDebugAssertResult retry status success.');
-        AppStorage.setOrCreate('isUserAction', true);
-        storage.get<UIExtensionContentSession>('session').terminateSelf().then(() => {
-          console.log(TAG, 'terminateSelf success.');
-        }).catch((err: BusinessError) => {
-          console.error(TAG, `terminateSelf failed, error: ${JSON.stringify(err)}`);
-        })
+      AppStorage.setOrCreate(DEBUG_ASSERT_RESULT, abilityManager.UserStatus.ASSERT_RETRY);
+      storage.get<UIExtensionContentSession>('session').terminateSelf().then(() => {
+        console.log(TAG, 'terminateSelf success.');
       }).catch((err: BusinessError) => {
-        console.error(TAG, `notifyDebugAssertResult failed, error: ${JSON.stringify(err)}`);
+        console.error(TAG, `terminateSelf failed, error: ${JSON.stringify(err)}`);
       })
     } catch (error) {
       console.error(TAG, `try notifyDebugAssertResult failed, error: ${JSON.stringify(error)}`);
@@ -92,18 +75,12 @@ struct AssertFaultDialog {
 
   onTerminationCall() {
     console.info(TAG, 'On termination called');
-    let status = abilityManager.UserStatus.ASSERT_TERMINATE;
     try {
-      abilityManager.notifyDebugAssertResult(storage.get<string>('sessionId'), status).then(() => {
-        console.log(TAG, 'notifyDebugAssertResult termination status success.');
-        AppStorage.setOrCreate('isUserAction', true);
-        storage.get<UIExtensionContentSession>('session').terminateSelf().then(() => {
-          console.log(TAG, 'terminateSelf success.');
-        }).catch((err: BusinessError) => {
-          console.error(TAG, `terminateSelf failed, error: ${JSON.stringify(err)}`);
-        })
+      AppStorage.setOrCreate(DEBUG_ASSERT_RESULT, abilityManager.UserStatus.ASSERT_TERMINATE);
+      storage.get<UIExtensionContentSession>('session').terminateSelf().then(() => {
+        console.log(TAG, 'terminateSelf success.');
       }).catch((err: BusinessError) => {
-        console.error(TAG, `notifyDebugAssertResult failed, error: ${JSON.stringify(err)}`);
+        console.error(TAG, `terminateSelf failed, error: ${JSON.stringify(err)}`);
       })
     } catch (error) {
       console.error(TAG, `try notifyDebugAssertResult failed, error: ${JSON.stringify(error)}`);

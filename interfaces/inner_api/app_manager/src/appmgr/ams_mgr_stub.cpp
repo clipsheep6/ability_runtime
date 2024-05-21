@@ -115,8 +115,6 @@ void AmsMgrStub::CreateMemberFuncMap()
         &AmsMgrStub::HandleRegisterAbilityDebugResponse;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::IS_ATTACH_DEBUG)] =
         &AmsMgrStub::HandleIsAttachDebug;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::SET_APP_ASSERT_PAUSE_STATE)] =
-        &AmsMgrStub::HandleSetAppAssertionPauseState;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::CLEAR_PROCESS_BY_TOKEN)] =
         &AmsMgrStub::HandleClearProcessByToken;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::KILL_PROCESSES_BY_PIDS)] =
@@ -664,15 +662,6 @@ int32_t AmsMgrStub::HandleIsAttachDebug(MessageParcel &data, MessageParcel &repl
         TAG_LOGE(AAFwkTag::APPMGR, "Fail to write result.");
         return ERR_INVALID_VALUE;
     }
-    return NO_ERROR;
-}
-
-int32_t AmsMgrStub::HandleSetAppAssertionPauseState(MessageParcel &data, MessageParcel &reply)
-{
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
-    auto pid = data.ReadInt32();
-    auto flag = data.ReadBool();
-    SetAppAssertionPauseState(pid, flag);
     return NO_ERROR;
 }
 

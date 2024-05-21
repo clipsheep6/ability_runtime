@@ -6419,7 +6419,7 @@ int32_t AppMgrServiceInner::UnregisterRenderStateObserver(const sptr<IRenderStat
     return DelayedSingleton<RenderStateObserverManager>::GetInstance()->UnregisterRenderStateObserver(observer);
 }
 
-void AppMgrServiceInner::SetAppAssertionPauseState(int32_t pid, bool flag)
+void AppMgrServiceInner::SetAppAssertionPauseState(bool flag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
@@ -6432,14 +6432,10 @@ void AppMgrServiceInner::SetAppAssertionPauseState(int32_t pid, bool flag)
         return;
     }
 
-    auto callerUid = IPCSkeleton::GetCallingUid();
-    if (callerUid != FOUNDATION_UID) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Caller is not foundation.");
-        return;
-    }
-    auto appRecord = GetAppRunningRecordByPid(pid);
+    auto callerPid = IPCSkeleton::GetCallingRealPid();
+    auto appRecord = GetAppRunningRecordByPid(callerPid);
     if (appRecord == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "No such appRecord pid is %{public}d.", pid);
+        TAG_LOGE(AAFwkTag::APPMGR, "No such appRecord pid is %{public}d.", callerPid);
         return;
     }
     appRecord->SetAssertionPauseFlag(flag);
