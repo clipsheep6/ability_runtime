@@ -8652,6 +8652,7 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
         return ERR_OK;
     }
     if (extensionType == AppExecFwk::ExtensionAbilityType::WINDOW) {
+        CHECK_CALLER_IS_SYSTEM_APP;
         return ERR_OK;
     }
     if (extensionType == AppExecFwk::ExtensionAbilityType::ADS_SERVICE) {
