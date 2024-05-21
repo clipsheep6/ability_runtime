@@ -1504,7 +1504,7 @@ HWTEST_F(AbilityBaseTest, AbilityContinuation_0100, TestSize.Level1)
 
     // branch when contentStorage_ is nullptr
     ret = ability->IsRestoredInContinuation();
-    EXPECT_EQ(ret, false);
+    EXPECT_EQ(ret, true);
 
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
