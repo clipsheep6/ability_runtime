@@ -1056,7 +1056,7 @@ private:
     napi_value OnIsApplicationRunning(napi_env env, size_t argc, napi_value *argv)
     {
         TAG_LOGD(AAFwkTag::APPMGR, "Called.");
-        if (argc < ARGC_ONE) {
+        if (argc < ARGC_TWO) {
             TAG_LOGE(AAFwkTag::APPMGR, "Params not match.");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
@@ -1068,19 +1068,25 @@ private:
             ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string");
             return CreateJsUndefined(env);
         }
+        int32_t appCloneIndex = 0;
+        if (!ConvertFromJsValue(env, argv[1], appCloneIndex)) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Parse appCloneIndex failed");
+            ThrowInvalidParamError(env, "Parse param appCloneIndex failed, must be a number");
+            return CreateJsUndefined(env);
+        }
 
         auto innerErrorCode = std::make_shared<int32_t>(ERR_OK);
         auto isRunning = std::make_shared<bool>(false);
         wptr<OHOS::AppExecFwk::IAppMgr> appManager = appManager_;
         NapiAsyncTask::ExecuteCallback execute =
-            [bundleName, appManager, innerErrorCode, isRunning]() {
+            [bundleName, appCloneIndex, appManager, innerErrorCode, isRunning]() {
             sptr<OHOS::AppExecFwk::IAppMgr> appMgr = appManager.promote();
             if (appMgr == nullptr) {
                 TAG_LOGE(AAFwkTag::APPMGR, "App manager is nullptr.");
                 *innerErrorCode = static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER);
                 return;
             }
-            *innerErrorCode = appMgr->IsApplicationRunning(bundleName, *isRunning);
+            *innerErrorCode = appMgr->IsApplicationRunning(bundleName, appCloneIndex, *isRunning);
         };
         NapiAsyncTask::CompleteCallback complete =
             [innerErrorCode, isRunning](napi_env env, NapiAsyncTask &task, int32_t status) {

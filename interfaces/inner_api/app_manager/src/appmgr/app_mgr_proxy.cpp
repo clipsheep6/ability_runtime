@@ -1649,7 +1649,7 @@ int32_t AppMgrProxy::UnregisterAppForegroundStateObserver(const sptr<IAppForegro
     return reply.ReadInt32();
 }
 
-int32_t AppMgrProxy::IsApplicationRunning(const std::string &bundleName, bool &isRunning)
+int32_t AppMgrProxy::IsApplicationRunning(const std::string &bundleName, int32_t appCloneIndex, bool &isRunning)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
@@ -1661,6 +1661,10 @@ int32_t AppMgrProxy::IsApplicationRunning(const std::string &bundleName, bool &i
     }
     if (!data.WriteString(bundleName)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+    if (!data.WriteInt32(appCloneIndex)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write appCloneIndex failed.");
         return ERR_INVALID_DATA;
     }
 

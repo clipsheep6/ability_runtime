@@ -4015,12 +4015,14 @@ HWTEST_F(AppMgrServiceInnerTest, IsApplicationRunning_001, TestSize.Level1)
     EXPECT_NE(appMgrServiceInner, nullptr);
     std::string bundleName = "com.is.hiserice";
     std::string processName = "test_processName";
+    int32_t appCloneIndex = 0;
     bool isRunning = false;
     auto appRecord = std::make_shared<AppRunningRecord>(applicationInfo_, ++recordId_, processName);
     EXPECT_NE(appRecord, nullptr);
     appRecord->mainBundleName_ = "com.is.hiserice";
+    AppRecord->GetAppIndex() = 0;
     appMgrServiceInner->appRunningManager_->appRunningRecordMap_.emplace(recordId_, appRecord);
-    int32_t ret = appMgrServiceInner->IsApplicationRunning(bundleName, isRunning);
+    int32_t ret = appMgrServiceInner->IsApplicationRunning(bundleName, appCloneIndex, isRunning);
     EXPECT_EQ(ret, ERR_OK);
     EXPECT_TRUE(isRunning);
 }
@@ -4036,11 +4038,12 @@ HWTEST_F(AppMgrServiceInnerTest, IsApplicationRunning_002, TestSize.Level1)
     EXPECT_NE(appMgrServiceInner, nullptr);
     std::string bundleName = "com.is.hiserice";
     std::string processName = "test_processName";
+    int32_t appCloneIndex = 0;
     bool isRunning = false;
     auto appRecord = std::make_shared<AppRunningRecord>(applicationInfo_, ++recordId_, processName);
     EXPECT_NE(appRecord, nullptr);
     appMgrServiceInner->appRunningManager_->appRunningRecordMap_.emplace(recordId_, appRecord);
-    int32_t ret = appMgrServiceInner->IsApplicationRunning(bundleName, isRunning);
+    int32_t ret = appMgrServiceInner->IsApplicationRunning(bundleName, appCloneIndex, isRunning);
     EXPECT_EQ(ret, ERR_OK);
     EXPECT_FALSE(isRunning);
 }

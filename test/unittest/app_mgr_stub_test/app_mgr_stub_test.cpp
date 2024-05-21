@@ -367,8 +367,10 @@ HWTEST_F(AppMgrStubTest, IsApplicationRunning_0100, TestSize.Level1)
 
     WriteInterfaceToken(data);
     std::string bundleName = "testBundleName";
+    int32_t appCloneIndex = 0;
     bool isRunning = false;
     data.WriteString(bundleName);
+    data.WriteInt32(appCloneIndex);
     data.WriteBool(isRunning);
 
     EXPECT_CALL(*mockAppMgrService_, IsApplicationRunning(_, _)).Times(1);

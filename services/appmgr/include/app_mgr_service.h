@@ -636,7 +636,7 @@ private:
      * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
      * @return Return ERR_OK if success, others fail.
      */
-    int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning) override;
+    int32_t IsApplicationRunning(const std::string &bundleName,int32_t appCloneIndex, bool &isRunning) override;
 
     /**
      * Whether the current application process is the last surviving process.
