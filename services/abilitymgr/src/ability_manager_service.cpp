@@ -454,8 +454,6 @@ void AbilityManagerService::InitPushTask()
         TAG_LOGE(AAFwkTag::ABILITYMGR, "taskHandler_ is nullptr.");
         return;
     }
-    auto startResidentAppsTask = [aams = shared_from_this()]() { aams->StartResidentApps(); };
-    taskHandler_->SubmitTask(startResidentAppsTask, "StartResidentApps");
 
     auto initStartupFlagTask = [aams = shared_from_this()]() { aams->InitStartupFlag(); };
     taskHandler_->SubmitTask(initStartupFlagTask, "InitStartupFlag");
@@ -2263,7 +2261,13 @@ void AbilityManagerService::UnSubscribeBackgroundTask()
 
 void AbilityManagerService::SubscribeBundleEventCallback()
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "SubscribeBundleEventCallback to receive hap updates.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "SubscribeBundleEventCallback begin.");
+    if (taskHandler_) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "submit StartResidentApps task.");
+        auto startResidentAppsTask = [aams = shared_from_this()]() { aams->StartResidentApps(); };
+        taskHandler_->SubmitTask(startResidentAppsTask, "StartResidentApps");
+    }
+
     if (abilityBundleEventCallback_) {
         return;
     }
