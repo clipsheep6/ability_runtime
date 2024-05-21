@@ -182,6 +182,7 @@ void JsStartupTaskExecutor::ReplyFailed(StartupTaskResultCallback *callback,
     std::shared_ptr<StartupTaskResult> result = std::make_shared<JsStartupTaskResult>(resultCode, resultMessage);
     callback->Call(result);
     delete callback;
+    callback = nullptr;
 }
 
 void JsStartupTaskExecutor::ReplyFailed(std::unique_ptr<StartupTaskResultCallback> callback,
@@ -205,6 +206,7 @@ void JsStartupTaskExecutor::ReplySucceeded(StartupTaskResultCallback *callback,
     std::shared_ptr<StartupTaskResult> result = std::make_shared<JsStartupTaskResult>(resultRef);
     callback->Call(result);
     delete callback;
+    callback = nullptr;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

@@ -615,6 +615,7 @@ void PendingWantManager::ClearPendingWantRecordTask(const std::string &bundleNam
 
 void PendingWantManager::Dump(std::vector<std::string> &info)
 {
+    TAG_LOGD(AAFwkTag::WANTAGENT, "dump begin.");
     std::string dumpInfo = "    PendingWantRecords:";
     info.push_back(dumpInfo);
 
@@ -646,6 +647,7 @@ void PendingWantManager::Dump(std::vector<std::string> &info)
 }
 void PendingWantManager::DumpByRecordId(std::vector<std::string> &info, const std::string &args)
 {
+    TAG_LOGD(AAFwkTag::WANTAGENT, "dump by id begin.");
     std::string dumpInfo = "    PendingWantRecords:";
     info.push_back(dumpInfo);
 

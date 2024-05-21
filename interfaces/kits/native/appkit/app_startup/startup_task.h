@@ -38,7 +38,7 @@ public:
 
     virtual ~StartupTask();
 
-    std::string GetName() const;
+    const std::string& GetName() const;
 
     std::vector<std::string> GetDependencies() const;
 
@@ -62,7 +62,7 @@ public:
 
     int32_t RemoveResult();
 
-    std::shared_ptr<StartupTaskResult> GetResult() const;
+    const std::shared_ptr<StartupTaskResult>& GetResult() const;
 
     virtual int32_t RunTaskInit(std::unique_ptr<StartupTaskResultCallback> callback) = 0;
 
