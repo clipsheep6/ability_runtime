@@ -19,6 +19,7 @@
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "pending_want_manager.h"
+#include "int_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -26,8 +27,9 @@ PendingWantRecord::PendingWantRecord()
 {}
 
 PendingWantRecord::PendingWantRecord(const std::shared_ptr<PendingWantManager> &pendingWantManager, int32_t uid,
-    int32_t callerTokenId, const sptr<IRemoteObject> &callerToken, std::shared_ptr<PendingWantKey> key)
-    : pendingWantManager_(pendingWantManager), uid_(uid), callerTokenId_(callerTokenId),
+    int32_t callerTokenId, int32_t appIndex, const sptr<IRemoteObject> &callerToken,
+    std::shared_ptr<PendingWantKey> key)
+    : pendingWantManager_(pendingWantManager), uid_(uid), callerTokenId_(callerTokenId), appIndex_(appIndex),
     callerToken_(callerToken), key_(key)
 {}
 
@@ -138,6 +140,8 @@ void PendingWantRecord::BuildSendWant(SenderInfo &senderInfo, Want &want)
             wantParams.SetParam(sendInfoWantParamKey, mapIter->second);
         }
     }
+    wantParams.SetParam("ohos.extra.param.key.appCloneIndex", Integer::Box(appIndex_));
+
     want.SetParams(wantParams);
 }
 
