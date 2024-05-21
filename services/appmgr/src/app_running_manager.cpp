@@ -79,6 +79,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CreateAppRunningRecord(
         processName.c_str(), isStageBasedModel, recordId);
 
     appRecord->SetStageModelState(isStageBasedModel);
+    appRecord->SetSingleton(bundleInfo.singleton);
     appRecord->SetSignCode(signCode);
     appRecord->SetJointUserId(bundleInfo.jointUserId);
     std::lock_guard guard(runningRecordMapMutex_);
