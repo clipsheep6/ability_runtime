@@ -140,7 +140,8 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
     return nullptr;
 }
 
-bool AppRunningManager::CheckAppRunningRecordIsExistByBundleName(const std::string &bundleName, int32_t appCloneIndex = 0)
+bool AppRunningManager::CheckAppRunningRecordIsExistByBundleName(const std::string &bundleName,
+    int32_t appCloneIndex = 0)
 {
     std::lock_guard guard(runningRecordMapMutex_);
     if (appRunningRecordMap_.empty()) {

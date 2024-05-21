@@ -1288,7 +1288,7 @@ int32_t AppMgrService::UnregisterAppForegroundStateObserver(const sptr<IAppForeg
     return appMgrServiceInner_->UnregisterAppForegroundStateObserver(observer);
 }
 
-int32_t AppMgrService::IsApplicationRunning(const std::string &bundleName,int32_t appCloneIndex, bool &isRunning)
+int32_t AppMgrService::IsApplicationRunning(const std::string &bundleName, int32_t appCloneIndex, bool &isRunning)
 {
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
