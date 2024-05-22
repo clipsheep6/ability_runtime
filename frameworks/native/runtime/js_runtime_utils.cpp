@@ -248,7 +248,7 @@ bool NapiAsyncTask::StartWithDefaultQos(const std::string &name, napi_env env)
 void NapiAsyncTask::Resolve(napi_env env, napi_value value)
 {
     TAG_LOGD(AAFwkTag::JSRUNTIME, "NapiAsyncTask::Resolve is called");
-    if (deferred_) {
+    if (deferred_ != nullptr) {
         napi_resolve_deferred(env, deferred_, value);
         deferred_ = nullptr;
     }
