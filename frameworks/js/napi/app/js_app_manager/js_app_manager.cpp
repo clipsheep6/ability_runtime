@@ -1072,7 +1072,6 @@ private:
                 ThrowInvalidParamError(env, "Parse param appCloneIndex failed, must be a string");
                 return CreateJsUndefined(env);
             }
-            appCloneIndex = argv[1];
         }
         std::string bundleName;
         if (!ConvertFromJsValue(env, argv[0], bundleName)) {
