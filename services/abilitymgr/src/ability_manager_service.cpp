@@ -9478,11 +9478,11 @@ int32_t AbilityManagerService::CheckProcessOptions(const Want &want, const Start
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (startOptions.processOptions == nullptr ||
-        !ProcessOptions::IsNewProcessMode(startOptions.processOptions->processMode)) {
+        !ProcessOptions::IsValidProcessMode(startOptions.processOptions->processMode)) {
         return ERR_OK;
     }
 
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "start ability in new process mode.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "start ability with process options.");
     bool isEnable = AppUtils::GetInstance().IsStartOptionsWithProcessOptions();
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() || !isEnable) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Not support process options.");
@@ -9503,9 +9503,9 @@ int32_t AbilityManagerService::CheckProcessOptions(const Want &want, const Start
     auto uiAbilityManager = GetUIAbilityManagerByUid(IPCSkeleton::GetCallingUid());
     CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
 
-    if (startOptions.processOptions->processMode == ProcessMode::NEW_PROCESS_ATTACH_TO_STATUS_BAR_ITEM &&
+    if (ProcessOptions::IsAttachToStatusBarMode(startOptions.processOptions->processMode) &&
         !uiAbilityManager->IsCallerInStatusBar()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Caller is not in status bar in NEW_PROCESS_ATTACH_TO_STATUS_BAR_ITEM mode.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Caller is not in status bar in attch to status bar mode.");
         return ERR_START_OPTIONS_CHECK_FAILED;
     }
 

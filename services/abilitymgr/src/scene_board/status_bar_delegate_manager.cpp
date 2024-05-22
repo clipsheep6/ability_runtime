@@ -58,41 +58,32 @@ int32_t StatusBarDelegateManager::DoProcessAttachment(std::shared_ptr<AbilityRec
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    auto func = [&]() -> int32_t {
-        auto sessionInfo = abilityRecord->GetSessionInfo();
-        CHECK_POINTER_AND_RETURN(sessionInfo, ERR_INVALID_VALUE);
-        auto processOptions = sessionInfo->processOptions;
-        if (processOptions == nullptr) {
-            TAG_LOGD(AAFwkTag::ABILITYMGR, "no need to attach process.");
-            return ERR_OK;
-        }
-        if (processOptions->processMode == ProcessMode::NEW_PROCESS_ATTACH_TO_PARENT) {
-            auto callerRecord = abilityRecord->GetCallerRecord();
-            CHECK_POINTER_AND_RETURN(callerRecord, ERR_INVALID_VALUE);
-            TAG_LOGI(AAFwkTag::ABILITYMGR, "attach pid to parent.");
-            IN_PROCESS_CALL_WITHOUT_RET(DelayedSingleton<AppScheduler>::GetInstance()->AttachPidToParent(
-                abilityRecord->GetToken(), callerRecord->GetToken()));
-        }
-        if (processOptions->processMode == ProcessMode::NEW_PROCESS_ATTACH_TO_STATUS_BAR_ITEM) {
-            auto statusBarDelegate = GetStatusBarDelegate();
-            CHECK_POINTER_AND_RETURN(statusBarDelegate, ERR_INVALID_VALUE);
-            auto accessTokenId = abilityRecord->GetApplicationInfo().accessTokenId;
-            auto ret = statusBarDelegate->AttachPidToStatusBarItem(accessTokenId, abilityRecord->GetPid());
-            if (ret != ERR_OK) {
-                TAG_LOGE(AAFwkTag::ABILITYMGR, "AttachPidToStatusBarItem failed, ret: %{public}d", ret);
-                return ret;
-            }
-            TAG_LOGI(AAFwkTag::ABILITYMGR, "AttachPidToStatusBarItem success.");
-        }
+    auto sessionInfo = abilityRecord->GetSessionInfo();
+    CHECK_POINTER_AND_RETURN(sessionInfo, ERR_INVALID_VALUE);
+    auto processOptions = sessionInfo->processOptions;
+    if (processOptions == nullptr) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "no need to attach process.");
         return ERR_OK;
-    };
-    auto ret = func();
-    if (ret != ERR_OK) {
-        std::vector<int32_t> pids;
-        pids.push_back(abilityRecord->GetPid());
-        IN_PROCESS_CALL_WITHOUT_RET(DelayedSingleton<AppScheduler>::GetInstance()->KillProcessesByPids(pids));
     }
-    return ret;
+    if (processOptions->processMode == ProcessMode::NEW_PROCESS_ATTACH_TO_PARENT) {
+        auto callerRecord = abilityRecord->GetCallerRecord();
+        CHECK_POINTER_AND_RETURN(callerRecord, ERR_INVALID_VALUE);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "attach pid to parent.");
+        IN_PROCESS_CALL_WITHOUT_RET(DelayedSingleton<AppScheduler>::GetInstance()->AttachPidToParent(
+            abilityRecord->GetToken(), callerRecord->GetToken()));
+    }
+    if (ProcessOptions::IsAttachToStatusBarMode(processOptions->processMode)) {
+        auto statusBarDelegate = GetStatusBarDelegate();
+        CHECK_POINTER_AND_RETURN(statusBarDelegate, ERR_INVALID_VALUE);
+        auto accessTokenId = abilityRecord->GetApplicationInfo().accessTokenId;
+        auto ret = statusBarDelegate->AttachPidToStatusBarItem(accessTokenId, abilityRecord->GetPid());
+        if (ret != ERR_OK) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "AttachPidToStatusBarItem failed, ret: %{public}d", ret);
+            return ret;
+        }
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "AttachPidToStatusBarItem success.");
+    }
+    return ERR_OK;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

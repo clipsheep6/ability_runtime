@@ -398,7 +398,7 @@ private:
     bool CheckPid(const std::shared_ptr<AbilityRecord> abilityRecord, const int32_t pid) const;
     std::shared_ptr<StatusBarDelegateManager> GetStatusBarDelegateManager();
     int32_t DoProcessAttachment(std::shared_ptr<AbilityRecord> abilityRecord);
-    void BatchCloseUIAbility(std::unordered_set<std::shared_ptr<AbilityRecord>>& abilitySet);
+    void BatchCloseUIAbility(const std::unordered_set<std::shared_ptr<AbilityRecord>>& abilitySet);
     int StartWithPersistentIdByDistributed(const AbilityRequest &abilityRequest, int32_t persistentId);
 
     int32_t userId_ = -1;
