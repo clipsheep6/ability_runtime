@@ -2701,6 +2701,34 @@ ohos_unittest("embedded_ui_extension_test") {
   ]
 }
 
+ohos_unittest("app_module_checker_test") {
+  module_out_path = module_output_path
+  include_dirs = [
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+  ]
+
+  sources = [ "app_module_checker_test.cpp" ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+}
+
 ###############################################################################
 
 group("unittest") {
@@ -2728,6 +2756,7 @@ group("unittest") {
     ":abilityruntime_test",
     ":action_extension_module_loader_test",
     ":action_extension_test",
+    ":app_module_checker_test",
     ":auto_fill_extension_module_loader_test",
     ":auto_fill_extension_test",
     ":continuation_test",
