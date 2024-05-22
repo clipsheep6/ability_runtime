@@ -158,5 +158,41 @@ HWTEST_F(DataObsMgrClientTest, DataObsMgrClient_ReregisterObserver_0200, TestSiz
     testing::Mock::AllowLeak(DataObsMgrClient::GetInstance()->dataObsManger_);
 }
 
+/*
+ * Feature: DataObsMgrClient.
+ * Function: re-subscribe when service restart.
+ * SubFunction: NA.
+ * FunctionPoints: NA.
+ * EnvConditions: NA.
+ * CaseDescription: NA.
+ */
+HWTEST_F(DataObsMgrClientTest, DataObsMgrClient_ReregisterObserver_0300, TestSize.Level1)
+{
+    sptr<MockDataObsManagerOnChangeCallBack> callBack1(new (std::nothrow) MockDataObsManagerOnChangeCallBack());
+    sptr<MockDataObsManagerOnChangeCallBack> callBack2(new (std::nothrow) MockDataObsManagerOnChangeCallBack());
+
+    auto client = DataObsMgrClient::GetInstance();
+    client->observers_.Clear();
+    client->observerExts_.Clear();
+
+    sptr<MockDataObsMgrService> service1(new (std::nothrow) MockDataObsMgrService());
+    client->dataObsManger_ = service1;
+    EXPECT_TRUE(client->dataObsManger_ != nullptr);
+    Uri uri1("datashare://device_id/com.domainname.dataability.persondata/person/25");
+    Uri uri2("datashare://device_id/com.domainname.dataability.persondata/person/26");
+
+    EXPECT_EQ(client->RegisterObserver(uri1, callBack1), NO_ERROR);
+    EXPECT_EQ(client->RegisterObserver(uri2, callBack2), NO_ERROR);
+    EXPECT_EQ(service1->onChangeCall_, 2);
+
+    sptr<MockDataObsMgrService> service2(new (std::nothrow) MockDataObsMgrService());
+    client->dataObsManger_ = service2;
+    EXPECT_TRUE(client->dataObsManger_ != nullptr);
+
+    client->OnRemoteDied();
+    EXPECT_EQ(service2->onChangeCall_, 0);
+    testing::Mock::AllowLeak(DataObsMgrClient::GetInstance()->dataObsManger_);
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS
