@@ -4020,7 +4020,6 @@ HWTEST_F(AppMgrServiceInnerTest, IsApplicationRunning_001, TestSize.Level1)
     auto appRecord = std::make_shared<AppRunningRecord>(applicationInfo_, ++recordId_, processName);
     EXPECT_NE(appRecord, nullptr);
     appRecord->mainBundleName_ = "com.is.hiserice";
-    appRecord->GetAppIndex() = 0;
     appMgrServiceInner->appRunningManager_->appRunningRecordMap_.emplace(recordId_, appRecord);
     int32_t ret = appMgrServiceInner->IsApplicationRunning(bundleName, appCloneIndex, isRunning);
     EXPECT_EQ(ret, ERR_OK);
