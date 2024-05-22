@@ -35,6 +35,9 @@
 #include "app_jsheap_mem_info.h"
 
 namespace OHOS {
+namespace Rosen {
+class WindowVisibilityInfo;
+}
 namespace AppExecFwk {
 class AppRunningManager {
 public:

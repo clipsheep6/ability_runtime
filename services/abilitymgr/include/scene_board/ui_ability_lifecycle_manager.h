@@ -26,7 +26,6 @@
 #include "ability_manager_constants.h"
 #include "ability_record.h"
 #include "isession_handler_interface.h"
-#include "session/host/include/zidl/session_interface.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -407,7 +406,7 @@ private:
     std::unordered_map<int32_t, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
     std::unordered_map<int64_t, std::shared_ptr<AbilityRecord>> tmpAbilityMap_;
     std::list<std::shared_ptr<AbilityRecord>> terminateAbilityList_;
-    sptr<Rosen::ISession> rootSceneSession_;
+    sptr<IRemoteObject> rootSceneSession_;
     std::map<SpecifiedInfo, std::shared_ptr<AbilityRecord>, key_compare> specifiedAbilityMap_;
     int32_t specifiedRequestId_ = 0;
     std::map<int32_t, AbilityRequest> specifiedRequestMap_;

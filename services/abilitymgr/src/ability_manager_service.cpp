@@ -111,6 +111,7 @@
 #include "application_anr_listener.h"
 #include "input_manager.h"
 #include "ability_first_frame_state_observer_manager.h"
+#include "window_focus_changed_listener.h"
 #endif
 
 #ifdef EFFICIENCY_MANAGER_ENABLE

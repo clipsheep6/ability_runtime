@@ -23,7 +23,6 @@
 #include "cpp/mutex.h"
 
 #include "ability_running_info.h"
-#include "foundation/distributedhardware/device_manager/interfaces/inner_kits/native_cpp/include/device_manager.h"
 #include "mission_list.h"
 #include "mission_listener_controller.h"
 #include "mission_info.h"
@@ -344,7 +343,7 @@ public:
         int32_t pid = NO_PID);
 
     void CallRequestDone(const std::shared_ptr<AbilityRecord> &abilityRecord, const sptr<IRemoteObject> &callStub);
-  
+
     int SetMissionContinueState(const sptr<IRemoteObject> &token, const int32_t missionId,
         const AAFwk::ContinueState &state);
 
@@ -543,13 +542,6 @@ private:
     std::queue<AbilityRequest> waitingAbilityQueue_;
     std::shared_ptr<MissionListenerController> listenerController_;
     bool isPrepareTerminateEnable_ = false;
-
-    class MissionDmInitCallback : public DistributedHardware::DmInitCallback {
-    public:
-        void OnRemoteDied() override;
-
-        static bool isInit_;
-    };
 };
 }  // namespace AAFwk
 }  // namespace OHOS

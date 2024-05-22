@@ -36,6 +36,7 @@
 #include "suspend_manager_client.h"
 #endif
 #include "app_mgr_service_dump_error_code.h"
+#include "window_visibility_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
