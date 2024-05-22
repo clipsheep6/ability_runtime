@@ -59,8 +59,8 @@ ohos_unittest("appfreeze_state_test") {
   ]
 
   sources = [
-    "${ability_runtime_native_path}/appkit/dfr/appfreeze_state.cpp",
     "${ability_runtime_native_path}/appkit/dfr/appfreeze_inner.cpp",
+    "${ability_runtime_native_path}/appkit/dfr/appfreeze_state.cpp",
     "appfreeze_state_test.cpp",
   ]
 
@@ -81,27 +81,27 @@ ohos_unittest("appfreeze_state_test") {
   ]
 
   external_deps = [
-     "ability_base:configuration",
-     "ability_base:extractresourcemanager",
-     "ability_base:string_utils",
-     "ability_base:want",
-     "bundle_framework:appexecfwk_base",
-     "bundle_framework:appexecfwk_core",
-     "c_utils:utils",
-     "common_event_service:cesfwk_innerkits",
-     "eventhandler:libeventhandler",
-     "faultloggerd:libbacktrace_local",
-     "faultloggerd:libdfx_procinfo",
-     "faultloggerd:libfaultloggerd",
-     "ffrt:libffrt",
-     "graphic_2d:librender_service_client",
-     "hicollie:libhicollie",
-     "hilog:libhilog",
-     "hisysevent:libhisysevent",
-     "hitrace:hitrace_meter",
-     "init:libbegetutil",
-     "ipc:ipc_core",
-     "napi:ace_napi",
+    "ability_base:configuration",
+    "ability_base:extractresourcemanager",
+    "ability_base:string_utils",
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
+    "faultloggerd:libbacktrace_local",
+    "faultloggerd:libdfx_procinfo",
+    "faultloggerd:libfaultloggerd",
+    "ffrt:libffrt",
+    "graphic_2d:librender_service_client",
+    "hicollie:libhicollie",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "hitrace:hitrace_meter",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 
