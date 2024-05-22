@@ -1056,37 +1056,30 @@ private:
     napi_value OnIsApplicationRunning(napi_env env, size_t argc, napi_value *argv)
     {
         TAG_LOGD(AAFwkTag::APPMGR, "Called.");
-        std::string bundleName;
         if (argc < ARGC_ONE) {
-            int32_t appCloneIndex = 0;
             TAG_LOGE(AAFwkTag::APPMGR, "Params not match.");
             ThrowTooFewParametersError(env);
-            return CreateJsUndefined(env);
-
-            if (!ConvertFromJsValue(env, argv[0], bundleName)) {
-                TAG_LOGE(AAFwkTag::APPMGR, "Get bundle name wrong.");
-                ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string");
-                return CreateJsUndefined(env);
-            }
+            return CreateJsUndefined(env);   
         }
-    
+        int32_t appCloneIndex = 0;
         if (argc < ARGC_TWO) {
             TAG_LOGE(AAFwkTag::APPMGR, "Params not match.");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
-
-            if (!ConvertFromJsValue(env, argv[0], bundleName)) {
-                TAG_LOGE(AAFwkTag::APPMGR, "Get bundle name wrong.");
-                ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string");
-                return CreateJsUndefined(env);
-            }
 
             if (!ConvertFromJsValue(env, argv[1], appCloneIndex)) {
                 TAG_LOGE(AAFwkTag::APPMGR, "Get appCloneIndex wrong.");
                 ThrowInvalidParamError(env, "Parse param appCloneIndex failed, must be a string");
                 return CreateJsUndefined(env);
             }
+            appCloneIndex = argv[1];
         }
+        std::string bundleName;
+        if (!ConvertFromJsValue(env, argv[0], bundleName)) {
+                TAG_LOGE(AAFwkTag::APPMGR, "Get bundle name wrong.");
+                ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string");
+                return CreateJsUndefined(env);
+            }
 
         auto innerErrorCode = std::make_shared<int32_t>(ERR_OK);
         auto isRunning = std::make_shared<bool>(false);
