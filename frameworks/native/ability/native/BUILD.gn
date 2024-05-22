@@ -235,6 +235,7 @@ ohos_shared_library("abilitykit_native") {
     ":continuation_ipc",
     ":extension_blocklist_config",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
     "${ability_runtime_innerkits_path}/ability_manager:mission_info",
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
@@ -379,6 +380,7 @@ ohos_shared_library("extensionkit_native") {
 
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability:ability_context_native",
@@ -432,6 +434,7 @@ ohos_shared_library("insight_intent_executor") {
 
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability/native:ability_business_error",
@@ -506,6 +509,7 @@ ohos_shared_library("uiabilitykit_native") {
     ":continuation_ipc",
     ":ui_extension",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
     "${ability_runtime_innerkits_path}/ability_manager:process_options",
     "${ability_runtime_innerkits_path}/runtime:runtime",
@@ -579,6 +583,7 @@ ohos_shared_library("ability_thread") {
     ":extensionkit_native",
     ":uiabilitykit_native",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
     "${ability_runtime_native_path}/ability:ability_context_native",
     "${ability_runtime_native_path}/appkit:app_context",
@@ -710,6 +715,7 @@ ohos_shared_library("service_extension") {
   deps = [
     ":abilitykit_native",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability:ability_context_native",
@@ -739,6 +745,7 @@ ohos_shared_library("service_extension") {
     external_deps += [
       "image_framework:image",
       "window_manager:libdm",
+      "window_manager:libwm",
     ]
   }
 
@@ -934,6 +941,7 @@ ohos_shared_library("continuation_ipc") {
   deps = [
     ":abilitykit_utils",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
   ]
 
   external_deps = [
@@ -1153,6 +1161,7 @@ ohos_shared_library("ui_extension") {
   deps = [
     ":abilitykit_native",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability:ability_context_native",
@@ -1242,6 +1251,7 @@ ohos_shared_library("share_extension") {
     ":abilitykit_native",
     ":ui_extension",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability:ability_context_native",
@@ -1292,6 +1302,7 @@ ohos_shared_library("action_extension") {
     ":abilitykit_native",
     ":ui_extension",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability:ability_context_native",
@@ -1493,6 +1504,7 @@ ohos_shared_library("embedded_ui_extension") {
     ":abilitykit_native",
     ":ui_extension",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability:ability_context_native",
@@ -1586,6 +1598,7 @@ ohos_shared_library("auto_fill_extension") {
     ":insight_intent_executor",
     ":ui_extension",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability:ability_context_native",

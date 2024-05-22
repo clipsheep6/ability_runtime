@@ -39,6 +39,7 @@ public:
     static void Start(const ChildProcessInfo &processInfo);
     bool ScheduleLoadJs() override;
     bool ScheduleExitProcessSafely() override;
+    bool ScheduleRunNativeProc(const sptr<IRemoteObject> &mainProcessCb) override;
 
 private:
     bool Init(const std::shared_ptr<EventRunner> &runner, const ChildProcessInfo &processInfo);
@@ -49,6 +50,8 @@ private:
     void ExitProcessSafely();
     void GetNativeLibPath(const BundleInfo &bundleInfo, AppLibPathMap &appLibPaths);
     void GetHapSoPath(const HapModuleInfo &hapInfo, AppLibPathMap &appLibPaths, bool isPreInstallApp);
+    void HandleRunNativeProc(const sptr<IRemoteObject> &mainProcessCb);
+    void UpdateNativeChildLibPath(const AppLibPathMap &appLibPaths);
     std::string GetLibPath(const std::string &hapPath, bool isPreInstallApp);
 
     sptr<IAppMgr> appMgr_ = nullptr;

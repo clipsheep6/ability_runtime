@@ -1731,5 +1731,73 @@ HWTEST_F(AppMgrServiceTest, SetSupportedProcessCacheSelf_002, TestSize.Level0)
     res = appMgrService->SetSupportedProcessCacheSelf(false);
     EXPECT_EQ(res, AAFwk::ERR_SET_SUPPORTED_PROCESS_CACHE_AGAIN);
 }
+
+/**
+ * @tc.name: StartNativeChildProcess_0100
+ * @tc.desc: Start native child process.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, StartNativeChildProcess_0100, TestSize.Level1)
+{
+    TAG_LOGD(AAFwkTag::TEST, "StartNativeChildProcess_0100 called.");
+    sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
+    ASSERT_NE(appMgrService, nullptr);
+
+    appMgrService->SetInnerService(mockAppMgrServiceInner_);
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = eventHandler_;
+
+    EXPECT_CALL(*mockAppMgrServiceInner_, StartNativeChildProcess(_, _, _, _))
+        .Times(1)
+        .WillOnce(Return(ERR_OK));
+
+    pid_t pid = 0;
+    sptr<IRemoteObject> callback;
+    int32_t res = appMgrService->StartNativeChildProcess("test.so", 1, callback);
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/*
+ * Feature: AppMgrService
+ * Function: GetRunningMultiAppInfoByBundleName
+ * SubFunction: NA
+ * FunctionPoints: AppMgrService GetRunningMultiAppInfoByBundleName
+ * EnvConditions: NA
+ * CaseDescription: Verify GetRunningMultiAppInfoByBundleName
+ */
+HWTEST_F(AppMgrServiceTest, GetRunningMultiAppInfoByBundleName_001, TestSize.Level1)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
+    appMgrService->SetInnerService(nullptr);
+
+    std::string bundleName = "testBundleName";
+    RunningMultiAppInfo info;
+    int32_t res = appMgrService->GetRunningMultiAppInfoByBundleName(bundleName, info);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+}
+
+/*
+ * Feature: AppMgrService
+ * Function: GetRunningMultiAppInfoByBundleName
+ * SubFunction: NA
+ * FunctionPoints: AppMgrService GetRunningMultiAppInfoByBundleName
+ * EnvConditions: NA
+ * CaseDescription: Verify GetRunningMultiAppInfoByBundleName
+ */
+HWTEST_F(AppMgrServiceTest, GetRunningMultiAppInfoByBundleName_002, TestSize.Level1)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
+    appMgrService->SetInnerService(nullptr);
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = eventHandler_;
+
+    std::string bundleName = "testbundlename";
+    RunningMultiAppInfo info;
+
+    int32_t ret = appMgrService->GetRunningMultiAppInfoByBundleName(bundleName, info);
+    EXPECT_NE(ret, ERR_OK);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

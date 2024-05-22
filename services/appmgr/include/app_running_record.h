@@ -89,6 +89,7 @@ public:
     void RegisterDeathRecipient();
     void SetState(int32_t state);
     int32_t GetState() const;
+    void SetProcessType(ProcessType type);
 
 private:
     void SetHostUid(const int32_t hostUid);
@@ -776,6 +777,11 @@ public:
 
     bool SetSupportedProcessCache(bool isSupport);
     SupportProcessCacheState GetSupportProcessCacheState();
+
+    void SetBrowserHost(sptr<IRemoteObject> browser);
+    sptr<IRemoteObject> GetBrowserHost();
+    void SetIsGPU(bool gpu);
+    bool GetIsGPU();
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -861,7 +867,7 @@ private:
     std::unordered_set<sptr<IRemoteObject>, RemoteObjHash> foregroundingAbilityTokens_;
     std::weak_ptr<AppMgrServiceInner> appMgrServiceInner_;
     sptr<AppDeathRecipient> appDeathRecipient_ = nullptr;
-    std::shared_ptr<PriorityObject> priorityObject_ = nullptr;
+    std::shared_ptr<PriorityObject> priorityObject_;
     std::shared_ptr<AppLifeCycleDeal> appLifeCycleDeal_ = nullptr;
     std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
     std::shared_ptr<AMSEventHandler> eventHandler_;
@@ -931,6 +937,8 @@ private:
     bool isNativeStart_ = false;
     bool isMultiThread_ = false;
     SupportProcessCacheState procCacheSupportState_ = SupportProcessCacheState::UNSPECIFIED;
+    sptr<IRemoteObject> browserHost_;
+    bool isGPU_ = false;
 };
 
 }  // namespace AppExecFwk

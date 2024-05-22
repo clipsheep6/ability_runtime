@@ -34,11 +34,11 @@ public:
 
     explicit StartupConfig(const std::shared_ptr<StartupListener> &listener);
 
-    explicit StartupConfig(int32_t awaitTimeoutMs, const std::shared_ptr<StartupListener> &listener);
+    StartupConfig(int32_t awaitTimeoutMs, const std::shared_ptr<StartupListener> &listener);
 
     int32_t GetAwaitTimeoutMs() const;
 
-    int32_t ListenerOnCompleted(const std::shared_ptr<StartupTaskResult> &result);
+    void ListenerOnCompleted(const std::shared_ptr<StartupTaskResult> &result);
 
     static constexpr int32_t DEFAULT_AWAIT_TIMEOUT_MS = 10000; // 10s
 

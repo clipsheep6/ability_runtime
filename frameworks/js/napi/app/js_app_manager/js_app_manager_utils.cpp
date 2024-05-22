@@ -150,6 +150,47 @@ napi_value CreateJsRunningProcessInfo(napi_env env, const RunningProcessInfo &in
     return object;
 }
 
+napi_value CreateJsRunningMultiAppInfo(napi_env env, const RunningMultiAppInfo &info)
+{
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
+    if (object == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "objValue nullptr.");
+        return nullptr;
+    }
+    napi_set_named_property(env, object, "bundleName", CreateJsValue(env, info.bundleName));
+    napi_set_named_property(env, object, "mode", CreateJsValue(env, info.mode));
+    napi_set_named_property(env, object, "runningAppClones", CreateJsRunningAppCloneArray(env, info.runningAppClones));
+
+    return object;
+}
+
+napi_value CreateJsRunningAppCloneArray(napi_env env, const std::vector<RunningAppClone>& data)
+{
+    napi_value arrayValue = nullptr;
+    napi_create_array_with_length(env, data.size(), &arrayValue);
+    uint32_t index = 0;
+    for (const auto &item : data) {
+        napi_set_element(env, arrayValue, index++, CreateJsRunningAppClone(env, item));
+    }
+    return arrayValue;
+}
+
+napi_value CreateJsRunningAppClone(napi_env env, const RunningAppClone &info)
+{
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
+    if (object == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "objValue nullptr.");
+        return nullptr;
+    }
+    napi_set_named_property(env, object, "appCloneIndex", CreateJsValue(env, info.appCloneIndex));
+    napi_set_named_property(env, object, "uid", CreateJsValue(env, info.uid));
+    napi_set_named_property(env, object, "pids", CreateNativeArray(env, info.pids));
+
+    return object;
+}
+
 napi_value ApplicationStateInit(napi_env env)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "ApplicationStateInit enter");

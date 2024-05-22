@@ -19,6 +19,7 @@
 #include "application_state_observer_stub.h"
 #include "native_engine/native_engine.h"
 #include "running_process_info.h"
+#include "running_multi_info.h"
 #ifdef SUPPORT_GRAPHICS
 #include "ability_first_frame_state_data.h"
 #endif
@@ -29,6 +30,8 @@ using OHOS::AppExecFwk::AppStateData;
 using OHOS::AppExecFwk::AbilityStateData;
 using OHOS::AppExecFwk::ProcessData;
 using OHOS::AppExecFwk::RunningProcessInfo;
+using OHOS::AppExecFwk::RunningMultiAppInfo;
+using OHOS::AppExecFwk::RunningAppClone;
 #ifdef SUPPORT_GRAPHICS
 using OHOS::AppExecFwk::AbilityFirstFrameStateData;
 #endif
@@ -63,6 +66,9 @@ bool ConvertPreloadApplicationParam(napi_env env, size_t argc, napi_value *argv,
     std::string &errorMsg);
 JsAppProcessState ConvertToJsAppProcessState(
     const AppExecFwk::AppProcessState &appProcessState, const bool &isFocused);
+napi_value CreateJsRunningMultiAppInfo(napi_env env, const RunningMultiAppInfo &info);
+napi_value CreateJsRunningAppCloneArray(napi_env env, const std::vector<RunningAppClone>& data);
+napi_value CreateJsRunningAppClone(napi_env env, const RunningAppClone &info);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_JS_APP_MANAGER_UTILS_H

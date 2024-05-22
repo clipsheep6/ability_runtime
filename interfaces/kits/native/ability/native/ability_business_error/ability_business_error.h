@@ -141,8 +141,14 @@ enum class AbilityErrorCode {
     // Ability already running.
     ERROR_ABILITY_ALREADY_RUNNING = 16000068,
 
-    // app twin index does not exist.
-    ERROR_APP_TWIN_INDEX_INVALID = 16000073,
+    // not support Clone app.
+    ERROR_CODE_MULTI_APP_NOT_SUPPORTED = 16000072,
+
+    // app is not Clone.
+    ERROR_NOT_APP_CLONE = 16000071,
+
+    // app clone index does not exist.
+    ERROR_APP_CLONE_INDEX_INVALID = 16000073,
 
     // invalid caller.
     ERROR_CODE_INVALID_CALLER = 16200001,

@@ -65,7 +65,6 @@ void AssertFaultCallbackDeathMgr::AddAssertFaultCallback(sptr<IRemoteObject> &re
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Get app scheduler instance is nullptr.");
         return;
     }
-    IN_PROCESS_CALL_WITHOUT_RET(appScheduler->SetAppAssertionPauseState(callerPid, true));
 }
 
 void AssertFaultCallbackDeathMgr::RemoveAssertFaultCallback(const wptr<IRemoteObject> &remote, bool isCallbackDeath)
@@ -126,7 +125,6 @@ void AssertFaultCallbackDeathMgr::CallAssertFaultCallback(uint64_t assertFaultSe
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Get app scheduler instance is nullptr.");
         return;
     }
-    IN_PROCESS_CALL_WITHOUT_RET(appScheduler->SetAppAssertionPauseState(item.pid_, false));
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

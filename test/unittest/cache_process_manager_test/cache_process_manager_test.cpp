@@ -126,6 +126,7 @@ HWTEST_F(CacheProcessManagerTest, CacheProcessManager_PenddingCacheProcess_0100,
     auto appRecord = MockAppRecord();
     EXPECT_NE(appRecord, nullptr);
     appRecord->SetKeepAliveEnableState(true);
+    appRecord->SetSingleton(true);
     appRecord->SetEmptyKeepAliveAppState(true);
     EXPECT_EQ(cacheProcMgr->PenddingCacheProcess(appRecord), false);
     // nullptr not allowed

@@ -22,6 +22,8 @@ import type image from '@ohos.multimedia.image';
 import window from '@ohos.window';
 import PositionUtils from '../utils/PositionUtils';
 import deviceInfo from '@ohos.deviceInfo';
+import systemparameter from '@ohos.systemParameterEnhance';
+import dataPreferences from '@ohos.data.preferences';
 
 const TAG = 'SelectorDialog_Service';
 
@@ -32,8 +34,12 @@ export default class SelectorServiceExtensionAbility extends extension {
   onCreate(want) {
     console.debug(TAG, 'onCreate, want: ' + JSON.stringify(want));
     globalThis.selectExtensionContext = this.context;
+    globalThis.currentExtensionContext = this.context;
+    globalThis.ExtensionType = 'ServiceExtension';
     globalThis.defaultAppManager = defaultAppManager;
     globalThis.bundleManager = bundleManager;
+    let options = {name:'dialogStore'};
+    globalThis.preferences = dataPreferences.getPreferencesSync(this.context, options);
   }
 
   async getPhoneShowHapList() {
@@ -218,10 +224,20 @@ export default class SelectorServiceExtensionAbility extends extension {
       }
       await win.moveTo(rect.left, rect.top);
       await win.resetSize(rect.width, rect.height);
-      if (globalThis.params.isDefaultSelector) {
-        await win.loadContent('pages/selectorPhoneDialog');
+      if (systemparameter.getSync('persist.sys.abilityms.isdialogconfirmpermission', 'false') === 'false' &&
+        globalThis.preferences.getSync('isdialogconfirmpermission', 'false') === 'false') {
+        if (globalThis.params.isDefaultSelector) {
+          globalThis.currentURL = 'pages/selectorPhoneDialog';
+        } else {
+          globalThis.currentURL = 'pages/selectorPcDialog';
+        }
+        await win.loadContent('pages/permissionConfirmDialog');
       } else {
-        await win.loadContent('pages/selectorPcDialog');
+        if (globalThis.params.isDefaultSelector) {
+          await win.loadContent('pages/selectorPhoneDialog');
+        } else {
+          await win.loadContent('pages/selectorPcDialog');
+        }
       }
       await win.setBackgroundColor('#00000000');
       await win.show();

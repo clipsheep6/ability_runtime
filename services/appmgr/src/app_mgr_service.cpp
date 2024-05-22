@@ -391,6 +391,26 @@ int32_t AppMgrService::GetAllRunningProcesses(std::vector<RunningProcessInfo> &i
     return appMgrServiceInner_->GetAllRunningProcesses(info);
 }
 
+int32_t AppMgrService::GetRunningMultiAppInfoByBundleName(const std::string &bundleName,
+    RunningMultiAppInfo &info)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+
+    if (!AAFwk::PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "The caller is not system-app, can not use system-api");
+        return ERR_INVALID_OPERATION;
+    }
+
+    bool isCallingPermission = AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm();
+    if (!isCallingPermission) {
+        TAG_LOGE(AAFwkTag::APPMGR, "GetRunningMultiAppInfoByBundleName, Permission verification failed.");
+        return ERR_PERMISSION_DENIED;
+    }
+    return appMgrServiceInner_->GetRunningMultiAppInfoByBundleName(bundleName, info);
+}
+
 int32_t AppMgrService::GetRunningProcessesByBundleType(BundleType bundleType,
     std::vector<RunningProcessInfo> &info)
 {
@@ -415,7 +435,7 @@ int32_t AppMgrService::JudgeSandboxByPid(pid_t pid, bool &isSandbox)
         return ERR_INVALID_OPERATION;
     }
     auto appRunningRecord = appMgrServiceInner_->GetAppRunningRecordByPid(pid);
-    if (appRunningRecord && appRunningRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+    if (appRunningRecord && appRunningRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         isSandbox = true;
         TAG_LOGD(AAFwkTag::APPMGR, "current app is a sandbox.");
         return ERR_OK;
@@ -899,7 +919,7 @@ int32_t AppMgrService::PreStartNWebSpawnProcess()
 }
 
 int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
-    int32_t sharedFd, int32_t crashFd, pid_t &renderPid)
+    int32_t sharedFd, int32_t crashFd, pid_t &renderPid, bool isGPU)
 {
     if (!IsReady()) {
         TAG_LOGE(AAFwkTag::APPMGR, "StartRenderProcess failed, AppMgrService not ready.");
@@ -907,7 +927,7 @@ int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_
     }
 
     return appMgrServiceInner_->StartRenderProcess(IPCSkeleton::GetCallingRealPid(),
-        renderParam, ipcFd, sharedFd, crashFd, renderPid);
+        renderParam, ipcFd, sharedFd, crashFd, renderPid, isGPU);
 }
 
 void AppMgrService::AttachRenderProcess(const sptr<IRemoteObject> &scheduler)
@@ -925,6 +945,16 @@ void AppMgrService::AttachRenderProcess(const sptr<IRemoteObject> &scheduler)
         .taskName_ = TASK_ATTACH_RENDER_PROCESS,
         .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
     });
+}
+
+void AppMgrService::SaveBrowserChannel(sptr<IRemoteObject> browser)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "SaveBrowserChannel not ready");
+        return;
+    }
+
+    appMgrServiceInner_->SaveBrowserChannel(IPCSkeleton::GetCallingRealPid(), browser);
 }
 
 int32_t AppMgrService::GetRenderProcessTerminationStatus(pid_t renderPid, int &status)
@@ -1441,5 +1471,29 @@ int32_t AppMgrService::SetSupportedProcessCacheSelf(bool isSupport)
     }
     return appMgrServiceInner_->SetSupportedProcessCacheSelf(isSupport);
 }
+
+void AppMgrService::SetAppAssertionPauseState(bool flag)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "Called");
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not ready.");
+        return;
+    }
+    return appMgrServiceInner_->SetAppAssertionPauseState(flag);
+}
+
+int32_t AppMgrService::StartNativeChildProcess(const std::string &libName, int32_t childProcessCount,
+    const sptr<IRemoteObject> &callback)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "Called");
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    return appMgrServiceInner_->StartNativeChildProcess(
+        IPCSkeleton::GetCallingPid(), libName, childProcessCount, callback);
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

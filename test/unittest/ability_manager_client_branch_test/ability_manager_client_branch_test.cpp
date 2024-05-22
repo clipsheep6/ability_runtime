@@ -2604,5 +2604,21 @@ HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_SetMissionLabel_01
     GTEST_LOG_(INFO) << "AbilityManagerClient_SetMissionLabel_0100 end";
 }
 #endif
+
+/**
+ * @tc.name: AbilityManagerClient_TransferAbilityResultForExtension_0100
+ * @tc.desc: TransferAbilityResult
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_TransferAbilityResultForExtension_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityManagerClient_TransferAbilityResultForExtension_0100 start";
+    sptr<IRemoteObject> callerToken = new AbilityManagerStubTestMock();
+    int resultCode = 0;
+    Want resultWant;
+    auto result = client_->TransferAbilityResultForExtension(callerToken, resultCode, resultWant);
+    EXPECT_EQ(result, NO_ERROR);
+    GTEST_LOG_(INFO) << "AbilityManagerClient_TransferAbilityResultForExtension_0100 end";
+}
 }  // namespace AAFwk
 }  // namespace OHOS

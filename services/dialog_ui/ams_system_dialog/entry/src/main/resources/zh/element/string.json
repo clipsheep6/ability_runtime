@@ -111,6 +111,18 @@
     {
         "name": "title_assertFault",
         "value": "AssertFaultDialog"
+    },
+    {
+      "name": "message_title_permission_confirm",
+      "value": "amsdialog应用想要查询应用软件列表信息"
+    },
+    {
+      "name": "message_confirm_permission",
+      "value": "允许"
+    },
+    {
+      "name": "message_cancel_permission",
+      "value": "拒绝"
     }
   ]
 }

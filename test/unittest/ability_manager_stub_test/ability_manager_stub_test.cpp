@@ -2797,5 +2797,47 @@ HWTEST_F(AbilityManagerStubTest, RestartAppInner_0100, TestSize.Level1)
     auto result = stub_->RestartAppInner(data, reply);
     EXPECT_EQ(result, NO_ERROR);
 }
+
+/**
+ * @tc.name: ChangeAbilityVisibility_0100
+ * @tc.desc: ChangeAbilityVisibility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, ChangeAbilityVisibility_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "begin");
+
+    MessageParcel data;
+    MessageParcel reply;
+    auto token = sptr<AppExecFwk::MockAbilityToken>::MakeSptr();
+    data.WriteRemoteObject(token);
+    data.WriteBool(true);
+
+    auto ret = stub_->ChangeAbilityVisibilityInner(data, reply);
+    EXPECT_EQ(ret, NO_ERROR);
+
+    TAG_LOGI(AAFwkTag::TEST, "end");
+}
+
+/**
+ * @tc.name: ChangeUIAbilityVisibilityBySCB_0100
+ * @tc.desc: ChangeUIAbilityVisibilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, ChangeUIAbilityVisibilityBySCB_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "begin");
+
+    MessageParcel data;
+    MessageParcel reply;
+    sptr<SessionInfo> session = new (std::nothrow) SessionInfo();
+    data.WriteParcelable(session);
+    data.WriteBool(true);
+
+    auto ret = stub_->ChangeUIAbilityVisibilityBySCBInner(data, reply);
+    EXPECT_EQ(ret, NO_ERROR);
+
+    TAG_LOGI(AAFwkTag::TEST, "end");
+}
 } // namespace AAFwk
 } // namespace OHOS

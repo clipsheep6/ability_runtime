@@ -809,7 +809,7 @@ AbilityforegroundObserverSet AppStateObserverManager::GetAbilityforegroundObserv
 void AppStateObserverManager::OnObserverDied(const wptr<IRemoteObject> &remote, const ObserverType &type)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::APPMGR, "OnObserverDied");
+    TAG_LOGD(AAFwkTag::APPMGR, "OnObserverDied");
     auto object = remote.promote();
     if (object == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "observer nullptr.");
