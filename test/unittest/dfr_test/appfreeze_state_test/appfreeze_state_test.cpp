@@ -15,10 +15,9 @@
 
 #include <gtest/gtest.h>
 #include <memory>
+#include "appfreeze_state.h"
 
 #define private public
-#define protected public
-#include "appfreeze_state.h"
 #include "appfreeze_inner.h"
 #undef private
 
@@ -42,20 +41,16 @@ public:
 };
 
 void AppFreezeStateTest::SetUpTestCase(void)
-{   
-}
+{}
 
 void AppFreezeStateTest::TearDownTestCase(void)
-{    
-}
+{}
 
 void AppFreezeStateTest::SetUp(void)
-{
-}
+{}
 
 void AppFreezeStateTest::TearDown(void)
-{
-}
+{}
 
 /**
  * @tc.number: AppfreezeStateTest_001
@@ -75,5 +70,5 @@ HWTEST_F(AppFreezeStateTest, AppfreezeStateTest_001, TestSize.Level1)
     EXPECT_TRUE(inner->IsHandleAppfreeze());
     GTEST_LOG_(INFO) << "AppfreezeStateTest_001 end";
 }
-}  // namespace AppExecFwk
+}  // namespace AbilityRuntime
 }  // namespace OHOS
