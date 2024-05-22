@@ -6015,7 +6015,7 @@ int32_t AppMgrServiceInner::NotifyPageShow(const sptr<IRemoteObject> &token, con
     if (!JudgeSelfCalledByToken(token, pageStateData)) {
         return ERR_PERMISSION_DENIED;
     }
-
+    const_cast<PageStateData &>(pageStateData).token = token;
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnPageShow(pageStateData);
     return ERR_OK;
 }

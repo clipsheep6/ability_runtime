@@ -52,6 +52,7 @@ struct PageStateData : public Parcelable {
     std::string pageName;
     std::string targetBundleName;
     std::string targetModuleName;
+    sptr<IRemoteObject> token;
 };
 } // namespace AppExecFwk
 } // namespace OHOS
