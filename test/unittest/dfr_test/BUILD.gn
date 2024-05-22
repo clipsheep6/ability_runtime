@@ -19,5 +19,6 @@ group("unittest") {
     "appfreeze_inner_test:unittest",
     "appfreeze_manager_test:unittest",
     "watchdog_test:unittest",
+    "appfreeze_state_test:unittest",
   ]
 }
