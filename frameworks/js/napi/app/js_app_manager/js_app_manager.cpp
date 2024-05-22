@@ -1056,22 +1056,32 @@ private:
     napi_value OnIsApplicationRunning(napi_env env, size_t argc, napi_value *argv)
     {
         TAG_LOGD(AAFwkTag::APPMGR, "Called.");
-        if (argc < ARGC_TWO) {
+        std::string bundleName;
+        if (argc < ARGC_ONE) {
+            int32_t appCloneIndex = 0;
             TAG_LOGE(AAFwkTag::APPMGR, "Params not match.");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
-        }
 
-        std::string bundleName;
-        if (!ConvertFromJsValue(env, argv[0], bundleName)) {
+            if (!ConvertFromJsValue(env, argv[0], bundleName)) {
             TAG_LOGE(AAFwkTag::APPMGR, "Get bundle name wrong.");
             ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string");
             return CreateJsUndefined(env);
         }
-        int32_t appCloneIndex = 0;
-        if (!ConvertFromJsValue(env, argv[1], appCloneIndex)) {
-            TAG_LOGE(AAFwkTag::APPMGR, "Parse appCloneIndex failed");
-            ThrowInvalidParamError(env, "Parse param appCloneIndex failed, must be a number");
+
+        if (argc < ARGC_TWO) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Params not match.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+
+            if (!ConvertFromJsValue(env, argv[0], bundleName)) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Get bundle name wrong.");
+            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string");
+            return CreateJsUndefined(env);
+
+            if (!ConvertFromJsValue(env, argv[1], appCloneIndex)) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Get appCloneIndex wrong.");
+            ThrowInvalidParamError(env, "Parse param appCloneIndex failed, must be a string");
             return CreateJsUndefined(env);
         }
 
