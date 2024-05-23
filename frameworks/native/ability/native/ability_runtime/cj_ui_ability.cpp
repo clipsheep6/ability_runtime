@@ -37,6 +37,7 @@
 #ifdef SUPPORT_GRAPHICS
 #include "window_stage_impl.h"
 #endif
+#include "cj_ability_context.h"
 #include "time_util.h"
 #include "scene_board_judgement.h"
 #include "string_wrapper.h"
@@ -106,6 +107,7 @@ void CJUIAbility::SetAbilityContext(
     }
 
     cjAbilityObj_ = CJAbilityObject::LoadModule(abilityInfo->name);
+
     if (!cjAbilityObj_) {
         HILOG_ERROR("Failed to get CJAbility object.");
         return;
@@ -224,7 +226,6 @@ void CJUIAbility::OnSceneCreated()
         HILOG_ERROR("CJAbility is not loaded.");
         return;
     }
-
     cjWindowStage_ = OHOS::Rosen::CJWindowStageImpl::CreateCJWindowStage(GetScene());
     if (!cjWindowStage_) {
         HILOG_ERROR("Failed to create CJWindowStage object.");
@@ -265,7 +266,6 @@ void CJUIAbility::OnSceneRestored()
             return;
         }
     }
-
     cjAbilityObj_->OnSceneRestored(cjWindowStage_.get());
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();

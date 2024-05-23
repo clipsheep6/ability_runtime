@@ -69,6 +69,7 @@ public:
     void* LoadCJLibrary(const char* dlName);
     void* LoadCJLibrary(LibraryKind kind, const char* dlName);
     void UnLoadCJLibrary(void* handle);
+
     void* GetUIScheduler()
     {
         if (!isUISchedulerStarted_) {

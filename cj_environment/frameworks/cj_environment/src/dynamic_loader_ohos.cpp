@@ -14,8 +14,8 @@
  */
 
 #include "dynamic_loader.h"
-
 #include "cj_hilog.h"
+
 #include <dlfcn.h>
 #include <cstdio>
 #include <securec.h>
@@ -54,6 +54,7 @@ void DynamicInitNamespace(Dl_namespace* ns, void* parent, const char* entries, c
         LOGE("Invaild args for init namespace.");
         return;
     }
+
     if (HasInited.count(std::string(name))) {
         return;
     }
