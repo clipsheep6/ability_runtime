@@ -2636,7 +2636,6 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
             entryHapModuleInfo = bundleInfo.hapModuleInfos.back();
         }
         if (!entryHapModuleInfo.abilityInfos.empty()) {
-            auto abilityName = entryHapModuleInfo.abilityInfos.front().name;
             isCJApp = isCjAbility(entryHapModuleInfo.abilityInfos.front().srcEntrance);
         }
     }
