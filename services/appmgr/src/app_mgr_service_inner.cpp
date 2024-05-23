@@ -2635,7 +2635,6 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
             TAG_LOGW(AAFwkTag::APPKIT, "HandleLaunchApplication find entry hap module info failed!");
             entryHapModuleInfo = bundleInfo.hapModuleInfos.back();
         }
-
         if (!entryHapModuleInfo.abilityInfos.empty()) {
             auto abilityName = entryHapModuleInfo.abilityInfos.front().name;
             isCJApp = isCjAbility(entryHapModuleInfo.abilityInfos.front().srcEntrance);
