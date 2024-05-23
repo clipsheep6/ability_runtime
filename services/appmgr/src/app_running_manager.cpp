@@ -593,6 +593,7 @@ void AppRunningManager::AssignRunningProcessInfoByAppRecord(
     if (appInfo) {
         info.bundleType = static_cast<int32_t>(appInfo->bundleType);
     }
+    info.appCloneIndex = appRecord->GetAppIndex();
 }
 
 void AppRunningManager::SetAbilityForegroundingFlagToAppRecord(const pid_t pid)

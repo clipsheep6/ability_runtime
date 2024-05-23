@@ -147,6 +147,7 @@ napi_value CreateJsRunningProcessInfo(napi_env env, const RunningProcessInfo &in
     napi_set_named_property(env, object, "state", CreateJsValue(env,
         ConvertToJsAppProcessState(info.state_, info.isFocused)));
     napi_set_named_property(env, object, "bundleType", CreateJsValue(env, info.bundleType));
+    napi_set_named_property(env, object, "appCloneIndex", CreateJsValue(env, info.appCloneIndex));
     return object;
 }
 
