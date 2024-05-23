@@ -65,6 +65,7 @@ HWTEST_F(AppFreezeStateTest, AppfreezeStateTest_001, TestSize.Level1)
     auto inner = AppfreezeInner::GetInstance();
     appFreezeState->SetAppFreezeState(flag);
     EXPECT_FALSE(inner->IsHandleAppfreeze());
+
     flag = -1;
     appFreezeState->CancelAppFreezeState(flag);
     EXPECT_TRUE(inner->IsHandleAppfreeze());
