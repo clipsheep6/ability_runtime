@@ -61,6 +61,7 @@ struct AbilityStateData : public Parcelable {
     std::string callerAbilityName;
     bool isAtomicService = false;
     int32_t abilityRecordId = 0;
+    int32_t appCloneIndex;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

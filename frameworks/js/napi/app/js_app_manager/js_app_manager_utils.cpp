@@ -66,6 +66,7 @@ napi_value CreateJsAbilityStateData(napi_env env, const AbilityStateData &abilit
     napi_set_named_property(env, object, "state", CreateJsValue(env, abilityStateData.abilityState));
     napi_set_named_property(env, object, "abilityType", CreateJsValue(env, abilityStateData.abilityType));
     napi_set_named_property(env, object, "isAtomicService", CreateJsValue(env, abilityStateData.isAtomicService));
+    napi_set_named_property(env, object, "appCloneIndex", CreateJsValue(env, abilityStateData.appCloneIndex));
     TAG_LOGD(AAFwkTag::APPMGR, "end.");
     return object;
 }
@@ -147,6 +148,7 @@ napi_value CreateJsRunningProcessInfo(napi_env env, const RunningProcessInfo &in
     napi_set_named_property(env, object, "state", CreateJsValue(env,
         ConvertToJsAppProcessState(info.state_, info.isFocused)));
     napi_set_named_property(env, object, "bundleType", CreateJsValue(env, info.bundleType));
+    napi_set_named_property(env, object, "appCloneIndex", CreateJsValue(env, info.appCloneIndex));
     return object;
 }
 
