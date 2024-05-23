@@ -376,6 +376,7 @@ group("unittest") {
     "ams_recent_app_list_test:unittest",
     "ams_service_load_ability_process_test:unittest",
     "ams_service_startup_test:unittest",
+    "app_config_data_manager_test:unittest",
     "app_debug_info_test:unittest",
     "app_debug_listener_proxy_test:unittest",
     "app_debug_listener_stub_test:unittest",
