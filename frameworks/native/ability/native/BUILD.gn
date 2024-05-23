@@ -793,6 +793,7 @@ ohos_shared_library("ui_service_extension") {
   deps = [
     ":abilitykit_native",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/ability_manager:process_options",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
@@ -905,6 +906,7 @@ ohos_shared_library("ui_service_extension_module") {
       "window_manager:libwsutils",
       "window_manager:scene_session",
       "window_manager:session_manager_lite",
+      "window_manager:window_native_kit",
       "window_manager:windowstage_kit",
     ]
   }
