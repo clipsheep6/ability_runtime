@@ -435,14 +435,6 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     TAG_LOGI(AAFwkTag::ABILITYMGR, "ForegroundLifecycle: name:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
 
-    if (!IsDebug()) {
-        int foregroundTimeout =
-            AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
-        SendEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, foregroundTimeout / HALF_TIMEOUT);
-        std::string methodName = "ForegroundAbility";
-        g_addLifecycleEventTask(token_, FreezeUtil::TimeoutState::FOREGROUND, methodName);
-    }
-
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions
     SetAbilityStateInner(AbilityState::FOREGROUNDING);
@@ -522,6 +514,9 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t tokenId, uint32_t sceneFla
     }
 
     if (isReady_) {
+        if (!IsDebug()) {
+            PostForegroundTimeoutTask();
+        }
         if (IsAbilityState(AbilityState::FOREGROUND)) {
             TAG_LOGD(AAFwkTag::ABILITYMGR, "Activate %{public}s", element.c_str());
             ForegroundAbility(sceneFlag);
@@ -542,6 +537,15 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t tokenId, uint32_t sceneFla
         lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
         LoadAbility();
     }
+}
+
+void AbilityRecord::PostForegroundTimeoutTask()
+{
+    int foregroundTimeout =
+        AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
+    SendEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, foregroundTimeout / HALF_TIMEOUT);
+    std::string methodName = "ForegroundAbility";
+    g_addLifecycleEventTask(token_, FreezeUtil::TimeoutState::FOREGROUND, methodName);
 }
 
 std::string AbilityRecord::GetLabel()
@@ -584,6 +588,9 @@ void AbilityRecord::ProcessForegroundAbility(const std::shared_ptr<AbilityRecord
     NotifyAnimationFromTerminatingAbility(callerAbility, needExit, flag);
     PostCancelStartingWindowHotTask();
 
+    if (!IsDebug()) {
+        PostForegroundTimeoutTask();
+    }
     if (IsAbilityState(AbilityState::FOREGROUND)) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Activate %{public}s", element.c_str());
         ForegroundAbility(sceneFlag);
@@ -727,6 +734,9 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
             StartingWindowTask(isRecent, true, abilityRequest, startOptions);
             AnimationTask(isRecent, abilityRequest, startOptions, callerAbility);
             PostCancelStartingWindowColdTask();
+        }
+        if (!IsDebug()) {
+            PostForegroundTimeoutTask();
         }
         if (IsAbilityState(AbilityState::FOREGROUND)) {
             TAG_LOGD(AAFwkTag::ABILITYMGR, "Activate %{public}s", element.c_str());

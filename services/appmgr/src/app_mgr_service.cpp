@@ -257,6 +257,7 @@ void AppMgrService::ApplicationBackgrounded(const int32_t recordId)
     if (!JudgeAppSelfCalled(recordId)) {
         return;
     }
+    taskHandler_->CancelTask("appbackground_" + std::to_string(recordId));
     std::function<void()> applicationBackgroundedFunc =
         std::bind(&AppMgrServiceInner::ApplicationBackgrounded, appMgrServiceInner_, recordId);
     taskHandler_->SubmitTask(applicationBackgroundedFunc, AAFwk::TaskAttribute{

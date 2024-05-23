@@ -632,6 +632,19 @@ void AppRunningRecord::ScheduleForegroundRunning()
 
 void AppRunningRecord::ScheduleBackgroundRunning()
 {
+    int32_t recordId = GetRecordId();
+    auto serviceInner = appMgrServiceInner_;
+    auto appbackgroundtask = [recordId, serviceInner]() {
+        auto serviceInnerObj = serviceInner.lock();
+        if (serviceInnerObj == nullptr) {
+            TAG_LOGW(AAFwkTag::APPMGR, "APPManager is invalid");
+            return;
+        }
+        TAG_LOGE(AAFwkTag::APPMGR, "APPManager move to background timeout");
+        serviceInnerObj->ApplicationBackgrounded(recordId);
+    };
+    PostTask("appbackground_" + std::to_string(recordId), AMSEventHandler::BACKGROUND_APPLICATION_TIMEOUT,
+        appbackgroundtask);
     if (appLifeCycleDeal_) {
         appLifeCycleDeal_->ScheduleBackgroundRunning();
     }
