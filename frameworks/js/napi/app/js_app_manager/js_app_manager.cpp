@@ -1056,7 +1056,7 @@ private:
     napi_value OnIsApplicationRunning(napi_env env, size_t argc, napi_value *argv)
     {
         TAG_LOGD(AAFwkTag::APPMGR, "Called.");
-        if (argc < ARGC_TWO) {
+        if (argc < ARGC_ONE) {
             TAG_LOGE(AAFwkTag::APPMGR, "Params not match.");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
