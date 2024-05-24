@@ -1490,6 +1490,14 @@ public:
     int32_t TransferAbilityResultForExtension(const sptr<IRemoteObject> &callerToken, int32_t resultCode,
         const Want &want);
 
+    /**
+     * Get SessionInfo for UIExtension Ability.
+     *
+     * @param token, the UIExtension Ability token.
+     * @return Returns pointer to SessionInfo.
+     */
+    sptr<SessionInfo> GetSessionInfoForUIExtension(const sptr<IRemoteObject>& token);
+
 private:
     AbilityManagerClient();
     DISALLOW_COPY_AND_MOVE(AbilityManagerClient);

@@ -300,6 +300,7 @@ private:
     int32_t StartShortcutInner(MessageParcel &data, MessageParcel &reply);
     int32_t GetAbilityStateByPersistentIdInner(MessageParcel &data, MessageParcel &reply);
     int32_t TransferAbilityResultForExtensionInner(MessageParcel &data, MessageParcel &reply);
+    int32_t GetSessionInfoForUIExtensionInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

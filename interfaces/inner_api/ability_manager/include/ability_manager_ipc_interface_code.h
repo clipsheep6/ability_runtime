@@ -440,6 +440,7 @@ enum class AbilityManagerInterfaceCode {
     // ipc for get ability state by persistent id
     GET_ABILITY_STATE_BY_PERSISTENT_ID = 1128,
     TRANSFER_ABILITY_RESULT = 1129,
+    GET_SESSIONINFO_FOR_UI_EXTENSION_ABILITY = 1130,
 
     // ipc id 2001-3000 for tools
     // ipc id for dumping state (2001)

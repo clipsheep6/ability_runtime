@@ -1861,5 +1861,16 @@ int32_t AbilityManagerClient::TransferAbilityResultForExtension(const sptr<IRemo
     CHECK_POINTER_RETURN_INVALID_VALUE(abms);
     return abms->TransferAbilityResultForExtension(callerToken, resultCode, want);
 }
+
+
+sptr<SessionInfo> AbilityManagerClient::GetSessionInfoForUIExtension(const sptr<IRemoteObject>& token)
+{
+    auto abms = GetAbilityManager();
+    if (!abms) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abms is nullptr.");
+        return nullptr;
+    }
+    return abms->GetSessionInfoForUIExtension(token);
+}
 } // namespace AAFwk
 } // namespace OHOS

@@ -21,6 +21,7 @@
 #include "ui_extension_context.h"
 #include "js_free_install_observer.h"
 #include "native_engine/native_engine.h"
+#include "session_info.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -36,7 +37,8 @@ public:
     static napi_value OpenLink(napi_env env, napi_callback_info info);
     static napi_value TerminateSelf(napi_env env, napi_callback_info info);
     static napi_value TerminateSelfWithResult(napi_env env, napi_callback_info info);
-    static napi_value CreateJsUIExtensionContext(napi_env env, std::shared_ptr<UIExtensionContext> context);
+    static napi_value CreateJsUIExtensionContext(napi_env env, std::shared_ptr<UIExtensionContext> context,
+        const sptr<IRemoteObject> token = nullptr);
     static napi_value StartAbilityForResult(napi_env env, napi_callback_info info);
     static napi_value StartAbilityForResultAsCaller(napi_env env, napi_callback_info info);
     static napi_value ConnectAbility(napi_env env, napi_callback_info info);
@@ -61,6 +63,7 @@ protected:
     std::weak_ptr<UIExtensionContext> context_;
 private:
     sptr<JsFreeInstallObserver> freeInstallObserver_ = nullptr;
+    sptr<AAFwk::SessionInfo> sessionInfo_ = nullptr;
     friend class JsEmbeddableUIAbilityContext;
 
     bool CheckStartAbilityInputParam(napi_env env, NapiCallbackInfo& info, AAFwk::Want& want,
