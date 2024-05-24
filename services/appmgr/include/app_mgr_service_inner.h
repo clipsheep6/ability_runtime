@@ -1156,7 +1156,7 @@ private:
                       std::shared_ptr<AppRunningRecord> appRecord, const int uid, const BundleInfo &bundleInfo,
                       const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag = true,
                       bool isPreload = false, const std::string &moduleName = "", const std::string &abilityName = "",
-                      bool strictMode = false);
+                      bool strictMode = false, int32_t maxChildProcess = 0);
 
     /**
      * PushAppFront, Adjust the latest application record to the top level.
@@ -1318,6 +1318,8 @@ private:
     void KillChildProcess(const std::shared_ptr<AppRunningRecord> &appRecord);
 
     void KillAttachedChildProcess(const std::shared_ptr<AppRunningRecord> &appRecord);
+
+    void PresetMaxChildProcess(const std::shared_ptr<AbilityInfo> &abilityInfo, int32_t &maxChildProcess);
 
 private:
     /**
