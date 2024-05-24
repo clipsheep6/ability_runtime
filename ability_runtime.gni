@@ -127,6 +127,11 @@ declare_args() {
   }
 
   if (defined(global_parts_info) &&
+      !defined(global_parts_info.powermgr_power_manager)) {
+    ability_runtime_power = false
+  }
+
+  if (defined(global_parts_info) &&
       !defined(global_parts_info.resourceschedule_efficiency_manager)) {
     efficiency_manager = false
   }

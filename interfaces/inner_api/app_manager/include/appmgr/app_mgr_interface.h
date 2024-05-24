@@ -466,6 +466,15 @@ public:
     virtual int32_t GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid) = 0;
 
     /**
+     * Get running process information by pid.
+     *
+     * @param pid process id.
+     * @param info Output parameters, return runningProcessInfo.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) = 0;
+
+    /**
      * get memorySize by pid.
      *
      * @param pid process id.

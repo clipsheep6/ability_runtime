@@ -796,26 +796,6 @@ HWTEST_F(AmsMgrSchedulerTest, GetRunningProcessInfoByToken_001, TestSize.Level0)
 
 /*
  * Feature: AmsMgrScheduler
- * Function: GetRunningProcessInfoByPid
- * SubFunction: NA
- * FunctionPoints: AmsMgrScheduler GetRunningProcessInfoByPid
- * EnvConditions: NA
- * CaseDescription: Verify GetRunningProcessInfoByPid
- */
-HWTEST_F(AmsMgrSchedulerTest, GetRunningProcessInfoByPid_001, TestSize.Level0)
-{
-    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
-    ASSERT_NE(amsMgrScheduler, nullptr);
-    pid_t pid = 0;
-    RunningProcessInfo info;
-    amsMgrScheduler->GetRunningProcessInfoByPid(pid, info);
-    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
-    amsMgrScheduler->amsHandler_ = GetAmsTaskHandler();
-    amsMgrScheduler->GetRunningProcessInfoByPid(pid, info);
-}
-
-/*
- * Feature: AmsMgrScheduler
  * Function: IsMemorySizeSufficent
  * SubFunction: NA
  * FunctionPoints: AmsMgrScheduler IsMemorySizeSufficent

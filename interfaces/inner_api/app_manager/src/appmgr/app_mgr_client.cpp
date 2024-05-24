@@ -519,15 +519,14 @@ void AppMgrClient::GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token
     }
 }
 
-void AppMgrClient::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const
+int32_t AppMgrClient::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
-    if (service != nullptr) {
-        sptr<IAmsMgr> amsService = service->GetAmsMgr();
-        if (amsService != nullptr) {
-            amsService->GetRunningProcessInfoByPid(pid, info);
-        }
+    if (service == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Service is nullptr.");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
+    return service->GetProcessStateByPid(pid, info);
 }
 
 void AppMgrClient::SetAbilityForegroundingFlagToAppRecord(const pid_t pid) const
