@@ -172,8 +172,6 @@ public:
     virtual void GetRunningProcessInfoByToken(
         const sptr<IRemoteObject> &token, OHOS::AppExecFwk::RunningProcessInfo &info) = 0;
 
-    virtual void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) = 0;
-
     virtual void SetAbilityForegroundingFlagToAppRecord(const pid_t pid) = 0;
 
     virtual void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
@@ -329,7 +327,6 @@ public:
         GET_CONFIGURATION,
         GET_APPLICATION_INFO_BY_PROCESS_ID,
         KILL_APPLICATION_SELF,
-        GET_RUNNING_PROCESS_INFO_BY_PID,
         UPDATE_APPLICATION_INFO_INSTALLED,
         SET_CURRENT_USER_ID,
         Get_BUNDLE_NAME_BY_PID,
