@@ -105,7 +105,7 @@ napi_value CanIUse(napi_env env, napi_callback_info info)
 void initSyscapModule(napi_env env, napi_value globalObject)
 {
     const char *moduleName = "JsRuntime";
-    BindNativeFunction(env, globalObject, "caniuse", moduleName, CanIUse);
+    BindNativeFunction(env, globalObject, "canIUse", moduleName, CanIUse);
 }
 
 void InitWorkerFunc(NativeEngine* nativeEngine)
