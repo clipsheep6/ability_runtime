@@ -367,11 +367,13 @@ HWTEST_F(AppMgrStubTest, IsApplicationRunning_0100, TestSize.Level1)
 
     WriteInterfaceToken(data);
     std::string bundleName = "testBundleName";
+    int32_t appCloneIndex = 0;
     bool isRunning = false;
     data.WriteString(bundleName);
+    data.WriteInt32(appCloneIndex);
     data.WriteBool(isRunning);
 
-    EXPECT_CALL(*mockAppMgrService_, IsApplicationRunning(_, _)).Times(1);
+    EXPECT_CALL(*mockAppMgrService_, IsApplicationRunning(_, _, _)).Times(1);
 
     auto result = mockAppMgrService_->OnRemoteRequest(
         static_cast<uint32_t>(AppMgrInterfaceCode::IS_APPLICATION_RUNNING), data, reply, option);

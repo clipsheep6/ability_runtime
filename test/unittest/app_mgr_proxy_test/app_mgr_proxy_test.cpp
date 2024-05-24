@@ -362,8 +362,10 @@ HWTEST_F(AppMgrProxyTest, IsApplicationRunning_001, TestSize.Level1)
         .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
 
     std::string bundleName = "testBundleName";
+    int32_t appCloneIndex = 0;
     bool isRunning = false;
-    appMgrProxy_->IsApplicationRunning(bundleName, isRunning);
+
+    appMgrProxy_->IsApplicationRunning(bundleName, appCloneIndex, isRunning);
     EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::IS_APPLICATION_RUNNING));
 }
 

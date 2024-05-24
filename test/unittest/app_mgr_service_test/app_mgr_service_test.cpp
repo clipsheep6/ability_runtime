@@ -1396,8 +1396,9 @@ HWTEST_F(AppMgrServiceTest, IsApplicationRunning_001, TestSize.Level1)
     appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
 
     std::string bundleName = "test_bundleName";
+    int32_t appCloneIndex = 0;
     bool isRunning = false;
-    int32_t res = appMgrService->IsApplicationRunning(bundleName, isRunning);
+    int32_t res = appMgrService->IsApplicationRunning(bundleName, appCloneIndex, isRunning);
     EXPECT_EQ(res, ERR_OK);
 }
 

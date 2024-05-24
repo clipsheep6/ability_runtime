@@ -1289,12 +1289,12 @@ int32_t AppMgrService::UnregisterAppForegroundStateObserver(const sptr<IAppForeg
     return appMgrServiceInner_->UnregisterAppForegroundStateObserver(observer);
 }
 
-int32_t AppMgrService::IsApplicationRunning(const std::string &bundleName, bool &isRunning)
+int32_t AppMgrService::IsApplicationRunning(const std::string &bundleName, int32_t appCloneIndex, bool &isRunning)
 {
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
-    return appMgrServiceInner_->IsApplicationRunning(bundleName, isRunning);
+    return appMgrServiceInner_->IsApplicationRunning(bundleName, appCloneIndex, isRunning);
 }
 
 int32_t AppMgrService::StartChildProcess(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount,

@@ -1135,7 +1135,8 @@ int32_t AppMgrStub::HandleIsApplicationRunning(MessageParcel &data, MessageParce
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     std::string bundleName = data.ReadString();
     bool isRunning = false;
-    int32_t result = IsApplicationRunning(bundleName, isRunning);
+    int32_t appCloneIndex = data.ReadInt32();
+    int32_t result = IsApplicationRunning(bundleName, appCloneIndex, isRunning);
     if (!reply.WriteBool(isRunning)) {
         return ERR_INVALID_VALUE;
     }
