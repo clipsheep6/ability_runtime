@@ -5026,6 +5026,11 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
         TAG_LOGE(AAFwkTag::APPMGR, "no such appRecord");
         return ERR_INVALID_VALUE;
     }
+    if (appRecord->GetState() == ApplicationState::APP_STATE_TERMINATED ||
+        appRecord->GetState() == ApplicationState::APP_STATE_END) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Appfreeze detect end.");
+        return ERR_OK;
+    }
     std::string bundleName = appRecord->GetBundleName();
 
     if (faultData.faultType == FaultDataType::APP_FREEZE) {
@@ -5160,7 +5165,7 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
             transformedFaultData.timeoutMarkers = "notifyFault:" + transformedFaultData.errorObject.name +
                 std::to_string(pid) + "-" + std::to_string(SystemTimeMillisecond());
         }
-        const int64_t timeout = 11000;
+        const int64_t timeout = 1000;
         if (faultData.faultType == FaultDataType::APP_FREEZE) {
             if (!AppExecFwk::AppfreezeManager::GetInstance()->IsHandleAppfreeze(bundleName) || record->IsDebugging()) {
                 return ERR_OK;
