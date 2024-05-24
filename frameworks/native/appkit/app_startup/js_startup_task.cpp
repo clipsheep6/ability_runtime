@@ -20,8 +20,9 @@
 #include "js_runtime_utils.h"
 
 namespace {
-constexpr size_t ARGC_ONE = 1;
+constexpr size_t ARGC_TWO = 2;
 constexpr int32_t INDEX_ZERO = 0;
+constexpr int32_t INDEX_ONE = 1;
 }
 namespace OHOS {
 namespace AbilityRuntime {
@@ -119,14 +120,13 @@ void JsStartupTask::LoadJsAsyncTaskCallback()
         JsRuntime::LoadSystemModuleByEngine(env, "app.appstartup.AsyncTaskCallback", &asyncTaskCallbackClass, 1);
 }
 
-void JsStartupTask::OnAsyncTaskCompleted()
+void JsStartupTask::OnAsyncTaskCompleted(const std::shared_ptr<StartupTaskResult>  &result)
 {
     TAG_LOGD(AAFwkTag::STARTUP, "Called.");
     if (startupTaskResultCallback_ == nullptr) {
         TAG_LOGE(AAFwkTag::STARTUP, "Startup task result callback object is nullptr.");
         return;
     }
-    std::shared_ptr<StartupTaskResult> result = std::make_shared<JsStartupTaskResult>(nullptr);
     startupTaskResultCallback_->Call(result);
 }
 
@@ -189,8 +189,8 @@ napi_value JsStartupTask::GetDependencyResult(napi_env env, const std::string &d
 napi_value AsyncTaskCallBack::AsyncTaskCompleted(napi_env env, napi_callback_info info)
 {
     TAG_LOGD(AAFwkTag::STARTUP, "Called.");
-    size_t argc = ARGC_ONE;
-    napi_value argv[ARGC_ONE] = { nullptr };
+    size_t argc = ARGC_TWO;
+    napi_value argv[ARGC_TWO] = { nullptr };
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
 
@@ -200,6 +200,12 @@ napi_value AsyncTaskCallBack::AsyncTaskCompleted(napi_env env, napi_callback_inf
         return CreateJsUndefined(env);
     }
 
+    napi_value resultJs = argv[INDEX_ONE];
+    napi_ref resultRef = nullptr;
+    napi_create_reference(env, resultJs, INDEX_ONE, &resultRef);
+    std::shared_ptr<NativeReference> result(reinterpret_cast<NativeReference*>(resultRef));
+    std::shared_ptr<StartupTaskResult> callbackResult = std::make_shared<JsStartupTaskResult>(result);
+
     std::shared_ptr<StartupTask> startupTask;
     for (auto iter : AsyncTaskCallBack::jsStartupTaskObjects_) {
         if (iter.first == startupName) {
@@ -208,7 +214,7 @@ napi_value AsyncTaskCallBack::AsyncTaskCompleted(napi_env env, napi_callback_inf
     }
 
     if (startupTask != nullptr) {
-        startupTask->OnAsyncTaskCompleted();
+        startupTask->OnAsyncTaskCompleted(callbackResult);
         AsyncTaskCallBack::jsStartupTaskObjects_.erase(startupName);
     }
 

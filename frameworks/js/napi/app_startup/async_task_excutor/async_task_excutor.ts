@@ -13,26 +13,34 @@
  * limitations under the License.
  */
 
-function concurrentFunc(startup, asyncCallback, context, startupName) {
-  "use concurrent";
+async function concurrentFunc(startup, asyncCallback, context, startupName) {
+  'use concurrent';
   console.log('concurrentFunc start.');
-  let taskPool = requireNapi('taskpool');
-  startup.init(context);
-  taskPool.Task.sendData(asyncCallback, startupName);
+  let startupResult;
+  await startup.init(context).then((result: Object) => {
+    startupResult = result
+    let taskPool = requireNapi('taskpool');
+    taskPool.Task.sendData(asyncCallback, startupName, startupResult);
+  });
   console.log('concurrentFunc end.');
 }
 
-function receiveResult(asyncCallback, startupName) {
+function receiveResult(asyncCallback, startupName, startupResult) {
   console.log('receiveResult called.');
-  asyncCallback.onAsyncTaskCompleted(startupName);
+  asyncCallback.onAsyncTaskCompleted(startupName, startupResult);
+  console.log('receiveResult end.');
 }
 
 function pushTask(startup, asyncCallback, context, startupName) {
   console.log('pushTask start.');
   let taskPool = requireNapi('taskpool');
-  let task = new taskPool.Task(concurrentFunc, startup, asyncCallback, context, startupName);
-  task.onReceiveData(receiveResult);
-  taskPool.execute(task);
+  try {
+    let task = new taskPool.Task(concurrentFunc, startup, asyncCallback, context, startupName);
+    task.onReceiveData(receiveResult);
+    taskPool.execute(task);
+  } catch (error) {
+    console.log('new taskPool failed message:' + error);
+  }
   console.log('pushTask end.');
 }
 
