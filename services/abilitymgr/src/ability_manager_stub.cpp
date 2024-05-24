@@ -3429,7 +3429,7 @@ int32_t AbilityManagerStub::TransferAbilityResultForExtensionInner(MessageParcel
 {
     sptr<IRemoteObject> callerToken = data.ReadRemoteObject();
     int32_t resultCode = data.ReadInt32();
-    Want *want = data.ReadParcelable<Want>();
+    sptr<Want> want = data.ReadParcelable<Want>();
     int32_t result = TransferAbilityResultForExtension(callerToken, resultCode, *want);
     reply.WriteInt32(result);
     return NO_ERROR;
