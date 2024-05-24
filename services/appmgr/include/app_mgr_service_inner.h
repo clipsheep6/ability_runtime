@@ -1507,6 +1507,8 @@ private:
     std::shared_ptr<AAFwk::TaskHandlerWrap> otherTaskHandler_;
     std::shared_ptr<AppPreloader> appPreloader_;
 };
+
+bool isCjAbility(const std::string& info);
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_APP_MGR_SERVICE_INNER_H

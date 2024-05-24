@@ -2721,6 +2721,12 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         return;
     }
 
+    if (!remoteClientManager_->GetCJSpawnClient()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "cj appSpawnClient is null");
+        appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
+        return;
+    }
+
     AppSpawnStartMsg startMsg;
     auto appInfo = appRecord->GetApplicationInfo();
     auto bundleType = appInfo ? appInfo->bundleType : BundleType::APP;
@@ -2731,10 +2737,35 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         return;
     };
 
+    bool findEntryHapModuleInfo = false;
+    bool isCJApp = false;
+    AppExecFwk::HapModuleInfo entryHapModuleInfo;
+    if (!bundleInfo.hapModuleInfos.empty()) {
+        for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+            if (hapModuleInfo.moduleType == AppExecFwk::ModuleType::ENTRY) {
+                findEntryHapModuleInfo = true;
+                entryHapModuleInfo = hapModuleInfo;
+                break;
+            }
+        }
+        if (!findEntryHapModuleInfo) {
+            TAG_LOGW(AAFwkTag::APPKIT, "HandleLaunchApplication find entry hap module info failed!");
+            entryHapModuleInfo = bundleInfo.hapModuleInfos.back();
+        }
+        if (!entryHapModuleInfo.abilityInfos.empty()) {
+            isCJApp = isCjAbility(entryHapModuleInfo.abilityInfos.front().srcEntrance);
+        }
+    }
+
     SetProcessJITState(appRecord);
     PerfProfile::GetInstance().SetAppForkStartTime(GetTickCount());
     pid_t pid = 0;
-    ErrCode errCode = remoteClientManager_->GetSpawnClient()->StartProcess(startMsg, pid);
+    ErrCode errCode = ERR_OK;
+    if (isCJApp) {
+        errCode = remoteClientManager_->GetCJSpawnClient()->StartProcess(startMsg, pid);
+    } else {
+        errCode = remoteClientManager_->GetSpawnClient()->StartProcess(startMsg, pid);
+    }
     if (FAILED(errCode)) {
         TAG_LOGE(AAFwkTag::APPMGR, "failed to spawn new app process, errCode %{public}08x", errCode);
         appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
@@ -6735,6 +6766,15 @@ int32_t AppMgrServiceInner::StartNativeChildProcess(const pid_t hostPid, const s
     auto nativeChildRecord = ChildProcessRecord::CreateNativeChildProcessRecord(
         hostPid, libName, appRecord, callback, childProcessCount, false);
     return StartChildProcessImpl(nativeChildRecord, appRecord, dummyChildPid);
+}
+
+bool isCjAbility(const std::string& info)
+{
+    std::string cjCheckFlag = ".cj";
+    if (info.length() < cjCheckFlag.length()) {
+        return false;
+    }
+    return info.substr(info.length() - cjCheckFlag.length()) == cjCheckFlag;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

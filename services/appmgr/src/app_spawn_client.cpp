@@ -48,6 +48,23 @@ AppSpawnClient::AppSpawnClient(bool isNWebSpawn)
     state_ = SpawnConnectionState::STATE_NOT_CONNECT;
 }
 
+AppSpawnClient::AppSpawnClient(const char* serviceName)
+{
+    HILOG_INFO("AppspawnCreateClient");
+    std::string serviceName__ = serviceName;
+    if (serviceName__ == APPSPAWN_SERVER_NAME) {
+        serviceName_ = APPSPAWN_SERVER_NAME;
+    } else if (serviceName__ == CJAPPSPAWN_SERVER_NAME) {
+        serviceName_ = CJAPPSPAWN_SERVER_NAME;
+    } else if (serviceName__ == NWEBSPAWN_SERVER_NAME) {
+        serviceName_ = NWEBSPAWN_SERVER_NAME;
+    } else {
+        HILOG_ERROR("unknown service name");
+        serviceName_ = NWEBSPAWN_SERVER_NAME;
+    }
+    state_ = SpawnConnectionState::STATE_NOT_CONNECT;
+}
+
 AppSpawnClient::~AppSpawnClient()
 {
     CloseConnection();
