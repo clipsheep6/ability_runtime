@@ -24,6 +24,7 @@ bool AutoStartupInfo::ReadFromParcel(Parcel &parcel)
     abilityName = Str16ToStr8(parcel.ReadString16());
     moduleName = Str16ToStr8(parcel.ReadString16());
     abilityTypeName = Str16ToStr8(parcel.ReadString16());
+    appCloneIndex = parcel.ReadInt32();
     return true;
 }
 
@@ -53,6 +54,9 @@ bool AutoStartupInfo::Marshalling(Parcel &parcel) const
         return false;
     }
     if (!parcel.WriteString16(Str8ToStr16(abilityTypeName))) {
+        return false;
+    }
+    if (!parcel.WriteInt32(appCloneIndex)) {
         return false;
     }
     return true;
