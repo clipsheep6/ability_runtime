@@ -37,6 +37,7 @@ ohos_shared_library("businessabilityrouter") {
 
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${srms_inner_api_path}:srms_fwk",
   ]
 

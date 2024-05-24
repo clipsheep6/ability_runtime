@@ -33,18 +33,19 @@ constexpr const char* SCREENSHOT_BUNDLE_NAME = "com.huawei.ohos.screenshot";
 constexpr const char* SCREENSHOT_ABILITY_NAME = "com.huawei.ohos.screenshot.ServiceExtAbility";
 }
 thread_local std::shared_ptr<StartAbilityInfo> StartAbilityUtils::startAbilityInfo;
+thread_local std::shared_ptr<StartAbilityInfo> StartAbilityUtils::callerAbilityInfo;
 thread_local bool StartAbilityUtils::skipCrowTest = false;
 thread_local bool StartAbilityUtils::skipStartOther = false;
 thread_local bool StartAbilityUtils::skipErms = false;
 
 int32_t StartAbilityUtils::GetAppIndex(const Want &want, sptr<IRemoteObject> callerToken)
 {
-    int32_t appIndex = want.GetIntParam(AbilityRuntime::ServerConstant::APP_TWIN_INDEX, 0);
-    if (appIndex > 0 && appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+    int32_t appIndex = want.GetIntParam(AbilityRuntime::ServerConstant::APP_CLONE_INDEX, 0);
+    if (appIndex > 0 && appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         return appIndex;
     }
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-    if (abilityRecord && abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX &&
+    if (abilityRecord && abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX &&
         abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
         return abilityRecord->GetAppIndex();
     }
@@ -72,8 +73,26 @@ bool StartAbilityUtils::GetApplicationInfo(const std::string &bundleName, int32_
     return true;
 }
 
+bool StartAbilityUtils::GetCallerAbilityInfo(const sptr<IRemoteObject> &callerToken,
+    AppExecFwk::AbilityInfo &abilityInfo)
+{
+    if (StartAbilityUtils::callerAbilityInfo) {
+        abilityInfo = StartAbilityUtils::callerAbilityInfo->abilityInfo;
+    } else {
+        if (callerToken == nullptr) {
+            return false;
+        }
+        auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+        if (abilityRecord == nullptr) {
+            return false;
+        }
+        abilityInfo = abilityRecord->GetAbilityInfo();
+    }
+    return true;
+}
+
 StartAbilityInfoWrap::StartAbilityInfoWrap(const Want &want, int32_t validUserId, int32_t appIndex,
-    bool isExtension)
+    const sptr<IRemoteObject> &callerToken, bool isExtension)
 {
     if (StartAbilityUtils::startAbilityInfo != nullptr) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "startAbilityInfo has been created");
@@ -97,11 +116,17 @@ StartAbilityInfoWrap::StartAbilityInfoWrap(const Want &want, int32_t validUserId
         StartAbilityUtils::skipCrowTest = true;
         StartAbilityUtils::skipStartOther = true;
     }
+
+    if (StartAbilityUtils::callerAbilityInfo != nullptr) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "callerAbilityInfo has been created");
+    }
+    StartAbilityUtils::callerAbilityInfo = StartAbilityInfo::CreateCallerAbilityInfo(callerToken);
 }
 
 StartAbilityInfoWrap::~StartAbilityInfoWrap()
 {
     StartAbilityUtils::startAbilityInfo.reset();
+    StartAbilityUtils::callerAbilityInfo.reset();
     StartAbilityUtils::skipCrowTest = false;
     StartAbilityUtils::skipStartOther = false;
     StartAbilityUtils::skipErms = false;
@@ -151,14 +176,14 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartAbilityInfo(const
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto bms = AbilityUtil::GetBundleManagerHelper();
     CHECK_POINTER_AND_RETURN(bms, nullptr);
-    auto abilityInfoFlag = AbilityRuntime::StartupUtil::BuildAbilityInfoFlag() |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL;
+    auto abilityInfoFlag = static_cast<uint32_t>(AbilityRuntime::StartupUtil::BuildAbilityInfoFlag()) |
+        static_cast<uint32_t>(AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL);
     auto request = std::make_shared<StartAbilityInfo>();
-    if (appIndex != 0 && appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+    if (appIndex != 0 && appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         IN_PROCESS_CALL_WITHOUT_RET(bms->QueryCloneAbilityInfo(want.GetElement(), abilityInfoFlag, appIndex,
             request->abilityInfo, userId));
         if (request->abilityInfo.name.empty() || request->abilityInfo.bundleName.empty()) {
-            request->status = ERR_APP_TWIN_INDEX_INVALID;
+            request->status = ERR_APP_CLONE_INDEX_INVALID;
         }
         return request;
     }
@@ -203,8 +228,8 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartExtensionInfo(con
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto bms = AbilityUtil::GetBundleManagerHelper();
     CHECK_POINTER_AND_RETURN(bms, nullptr);
-    auto abilityInfoFlag = AbilityRuntime::StartupUtil::BuildAbilityInfoFlag() |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL;
+    auto abilityInfoFlag = static_cast<uint32_t>(AbilityRuntime::StartupUtil::BuildAbilityInfoFlag()) |
+        static_cast<uint32_t>(AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL);
     auto abilityInfo = std::make_shared<StartAbilityInfo>();
 
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
@@ -231,6 +256,23 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartExtensionInfo(con
     InitAbilityInfoFromExtension(extensionInfo, abilityInfo->abilityInfo);
 
     return abilityInfo;
+}
+
+std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateCallerAbilityInfo(const sptr<IRemoteObject> &callerToken)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (callerToken == nullptr) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "not call from context.");
+        return nullptr;
+    }
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "can not find abilityRecord");
+        return nullptr;
+    }
+    auto request = std::make_shared<StartAbilityInfo>();
+    request->abilityInfo = abilityRecord->GetAbilityInfo();
+    return request;
 }
 }
 }

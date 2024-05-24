@@ -198,6 +198,11 @@ void AutoFillExtensionCallback::SetUIContent(Ace::UIContent *uiContent)
     uiContent_ = uiContent;
 }
 
+Ace::UIContent *AutoFillExtensionCallback::GetUIContent()
+{
+    return uiContent_;
+}
+
 void AutoFillExtensionCallback::SetEventId(uint32_t eventId)
 {
     eventId_ = eventId;
@@ -276,12 +281,12 @@ void AutoFillExtensionCallback::CloseModalUIExtension()
         return;
     }
 
-    AutoFillManager::GetInstance().RemoveAutoFillExtensionProxy(uiContent_);
     if (autoFillWindowType_ == AutoFill::AutoFillWindowType::POPUP_WINDOW) {
         uiContent_->DestroyCustomPopupUIExtension(sessionId_);
     } else if (autoFillWindowType_ == AutoFill::AutoFillWindowType::MODAL_WINDOW) {
         uiContent_->CloseModalUIExtension(sessionId_);
     }
+    AutoFillManager::GetInstance().RemoveAutoFillExtensionProxy(uiContent_);
     uiContent_ = nullptr;
 }
 } // namespace AbilityRuntime

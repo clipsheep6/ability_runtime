@@ -93,7 +93,8 @@ void UIAbility::Init(std::shared_ptr<AppExecFwk::AbilityLocalRecord> record,
         TAG_LOGE(AAFwkTag::UIABILITY, "abilityDisplayListener_ is nullptr.");
         return;
     }
-    Rosen::DisplayManager::GetInstance().RegisterDisplayListener(abilityDisplayListener_);
+    TAG_LOGI(AAFwkTag::UIABILITY, "RegisterDisplayInfoChangedListener.");
+    Rosen::WindowManager::GetInstance().RegisterDisplayInfoChangedListener(token_, abilityDisplayListener_);
 #endif
     lifecycle_ = std::make_shared<AppExecFwk::LifeCycle>();
     abilityLifecycleExecutor_ = std::make_shared<AppExecFwk::AbilityLifecycleExecutor>();
@@ -185,7 +186,8 @@ void UIAbility::OnStop()
     if (abilityRecovery_ != nullptr) {
         abilityRecovery_->ScheduleSaveAbilityState(AppExecFwk::StateReason::LIFECYCLE);
     }
-    (void)Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(abilityDisplayListener_);
+    TAG_LOGI(AAFwkTag::UIABILITY, "UnregisterDisplayInfoChangedListener.");
+    (void)Rosen::WindowManager::GetInstance().UnregisterDisplayInfoChangedListener(token_, abilityDisplayListener_);
     auto &&window = GetWindow();
     if (window != nullptr) {
         TAG_LOGD(AAFwkTag::UIABILITY, "Call UnregisterDisplayMoveListener.");
@@ -240,10 +242,6 @@ bool UIAbility::IsRestoredInContinuation() const
         return false;
     }
 
-    if (abilityContext_->GetContentStorage() == nullptr) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Get content failed.");
-        return false;
-    }
     TAG_LOGD(AAFwkTag::UIABILITY, "End.");
     return true;
 }
@@ -293,6 +291,7 @@ void UIAbility::OnConfigurationUpdatedNotify(const AppExecFwk::Configuration &co
     std::string colormode;
     std::string hasPointerDevice;
     InitConfigurationProperties(configuration, language, colormode, hasPointerDevice);
+    std::string colorModeIsSetByApp = configuration.GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP);
     // Notify ResourceManager
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     if (resConfig == nullptr) {
@@ -317,6 +316,10 @@ void UIAbility::OnConfigurationUpdatedNotify(const AppExecFwk::Configuration &co
         }
         if (!hasPointerDevice.empty()) {
             resConfig->SetInputDevice(AppExecFwk::ConvertHasPointerDevice(hasPointerDevice));
+        }
+        if (!colorModeIsSetByApp.empty()) {
+            TAG_LOGD(AAFwkTag::UIABILITY, "set app true");
+            resConfig->SetAppColorMode(true);
         }
         resourceManager->UpdateResConfig(*resConfig);
         TAG_LOGD(AAFwkTag::UIABILITY, "Current colorMode: %{public}d, hasPointerDevice: %{public}d.",
@@ -798,6 +801,49 @@ void UIAbility::OnDestroy(Rosen::DisplayId displayId)
     TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
 }
 
+void UIAbility::OnDisplayInfoChange(const sptr<IRemoteObject>& token, Rosen::DisplayId displayId, float density,
+    Rosen::DisplayOrientation orientation)
+{
+    TAG_LOGI(AAFwkTag::UIABILITY, "Begin displayId: %{public}" PRIu64, displayId);
+    // Get display
+    auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
+    if (!display) {
+        TAG_LOGE(AAFwkTag::UIABILITY, "Get display by displayId %{public}" PRIu64 " failed.", displayId);
+        return;
+    }
+
+    // Notify ResourceManager
+    int32_t width = display->GetWidth();
+    int32_t height = display->GetHeight();
+    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+    if (resConfig != nullptr) {
+        auto resourceManager = GetResourceManager();
+        if (resourceManager != nullptr) {
+            resourceManager->GetResConfig(*resConfig);
+            resConfig->SetScreenDensity(density);
+            resConfig->SetDirection(AppExecFwk::ConvertDirection(height, width));
+            resourceManager->UpdateResConfig(*resConfig);
+            TAG_LOGD(AAFwkTag::UIABILITY, "Notify ResourceManager, Density: %{public}f, Direction: %{public}d",
+                resConfig->GetScreenDensity(), resConfig->GetDirection());
+        }
+    }
+
+    // Notify ability
+    Configuration newConfig;
+    newConfig.AddItem(
+        displayId, AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION, AppExecFwk::GetDirectionStr(height, width));
+    newConfig.AddItem(
+        displayId, AppExecFwk::ConfigurationInner::APPLICATION_DENSITYDPI, AppExecFwk::GetDensityStr(density));
+
+    if (application_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UIABILITY, "application_ is nullptr.");
+        return;
+    }
+
+    OnChangeForUpdateConfiguration(newConfig);
+    TAG_LOGD(AAFwkTag::UIABILITY, "End.");
+}
+
 void UIAbility::OnChange(Rosen::DisplayId displayId)
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin displayId: %{public}" PRIu64 "", displayId);
@@ -1021,11 +1067,6 @@ void UIAbility::OnChangeForUpdateConfiguration(const AppExecFwk::Configuration &
             ability->OnConfigurationUpdated(configuration);
         };
         handler_->PostTask(task);
-
-        auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(newConfig);
-        TAG_LOGD(AAFwkTag::UIABILITY, "Update display config %{public}s for all windows.",
-            diffConfiguration->GetName().c_str());
-        Rosen::Window::UpdateConfigurationForAll(diffConfiguration);
     }
 }
 

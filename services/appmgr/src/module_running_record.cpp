@@ -248,7 +248,7 @@ void ModuleRunningRecord::TerminateAbility(const std::shared_ptr<AppRunningRecor
             SendEvent(AMSEventHandler::TERMINATE_ABILITY_TIMEOUT_MSG,
                 AMSEventHandler::TERMINATE_ABILITY_TIMEOUT, abilityRecord);
         }
-        bool isCachedProcess = DelayedSingleton<CacheProcessManager>::GetInstance()->QueryEnableProcessCache();
+        bool isCachedProcess = DelayedSingleton<CacheProcessManager>::GetInstance()->IsAppShouldCache(appRecord);
         appLifeCycleDeal_->ScheduleCleanAbility(token, isCachedProcess);
     } else {
         TAG_LOGW(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");

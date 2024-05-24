@@ -305,10 +305,11 @@ public:
     /**
      * Get running process information by pid.
      *
-     * @param token Process id.
-     * @param info Running process info.
+     * @param pid process id.
+     * @param info Output parameters, return runningProcessInfo.
+     * @return Returns ERR_OK on success, others on failure.
      */
-    virtual void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const;
+    virtual int32_t GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const;
 
     /**
      * Notify that the ability stage has been updated
@@ -441,7 +442,7 @@ public:
      */
     virtual int StartRenderProcess(const std::string &renderParam,
                                    int32_t ipcFd, int32_t sharedFd,
-                                   int32_t crashFd, pid_t &renderPid);
+                                   int32_t crashFd, pid_t &renderPid, bool isGPU = false);
 
     /**
      * Render process call this to attach app manager service.
@@ -613,14 +614,6 @@ public:
     void SetKeepAliveEnableState(const std::string &bundleName, bool enable);
 
     /**
-     * Set application assertion pause state.
-     *
-     * @param pid App process pid.
-     * @param flag assertion pause state.
-     */
-    void SetAppAssertionPauseState(int32_t pid, bool flag);
-
-    /**
      * Register application or process state observer.
      * @param observer, ability token.
      * @param bundleNameList, the list of bundle names.
@@ -743,6 +736,8 @@ public:
         AppExecFwk::PreloadMode preloadMode, int32_t appIndex = 0);
 
     int32_t SetSupportedProcessCacheSelf(bool isSupport);
+
+    void SaveBrowserChannel(sptr<IRemoteObject> browser);
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
     /**

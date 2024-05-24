@@ -106,6 +106,12 @@ config("abilityms_config") {
 }
 
 ohos_shared_library("abilityms") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
   shlib_type = "sa"
   sources = abilityms_files
   cflags_cc = []
@@ -117,6 +123,7 @@ ohos_shared_library("abilityms") {
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_connect_callback_stub",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
     "${ability_runtime_innerkits_path}/ability_manager:mission_info",
     "${ability_runtime_innerkits_path}/ability_manager:process_options",

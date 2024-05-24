@@ -487,7 +487,7 @@ bool ConnectionStateManager::HandleDlpAbilityInner(const std::shared_ptr<Ability
         return false;
     }
 
-    if (dlpAbility->GetAppIndex() <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+    if (dlpAbility->GetAppIndex() <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         TAG_LOGD(AAFwkTag::CONNECTION, "this is not dlp ability, do not report connection stat.");
         return false;
     }

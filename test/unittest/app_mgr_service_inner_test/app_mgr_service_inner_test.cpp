@@ -44,6 +44,19 @@ using namespace testing::ext;
 
 namespace OHOS {
 namespace AppExecFwk {
+class WindowFocusChangedListener : public OHOS::Rosen::IFocusChangedListener {
+public:
+    WindowFocusChangedListener(const std::shared_ptr<AppMgrServiceInner>& owner,
+        const std::shared_ptr<AAFwk::TaskHandlerWrap>& handler);
+    virtual ~WindowFocusChangedListener();
+
+    void OnFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo) override;
+    void OnUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo) override;
+
+private:
+    std::weak_ptr<AppMgrServiceInner> owner_;
+    std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
+};
 namespace {
 constexpr int32_t RECORD_ID = 1;
 constexpr int32_t APP_DEBUG_INFO_PID = 0;
@@ -4281,6 +4294,30 @@ HWTEST_F(AppMgrServiceInnerTest, OnAppCacheStateChanged_001, TestSize.Level0)
 
 
     TAG_LOGI(AAFwkTag::TEST, "OnAppCacheStateChanged_001 end");
+}
+
+/**
+ * @tc.name: GetRunningMultiAppInfoByBundleName_001
+ * @tc.desc: Get multiApp information list by bundleName.
+ * @tc.type: FUNC
+ * @tc.require: issueI9HMAO
+ */
+HWTEST_F(AppMgrServiceInnerTest, GetRunningMultiAppInfoByBundleName_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "GetRunningMultiAppInfoByBundleName_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    std::string bundleName = "testBundleName";
+    RunningMultiAppInfo info;
+    int32_t ret = appMgrServiceInner->GetRunningMultiAppInfoByBundleName(bundleName, info);
+    EXPECT_NE(ret, ERR_OK);
+
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    ret = appMgrServiceInner->GetRunningMultiAppInfoByBundleName(bundleName, info);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+
+    TAG_LOGI(AAFwkTag::TEST, "GetRunningMultiAppInfoByBundleName_001 end");
 }
 } // namespace AppExecFwk
 } // namespace OHOS

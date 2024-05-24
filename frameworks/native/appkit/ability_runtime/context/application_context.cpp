@@ -544,6 +544,19 @@ std::string ApplicationContext::GetAppRunningUniqueId() const
     return appRunningUniqueId_;
 }
 
+int32_t ApplicationContext::GetCurrentAppCloneIndex()
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "getCurrentAppCloneIndex is %{public}d.", appIndex_);
+    return appIndex_;
+}
+
+int32_t ApplicationContext::GetCurrentAppMode()
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "getCurrentMode is %{public}d.", appMode_);
+    return appMode_;
+}
+
+
 void ApplicationContext::SetAppRunningUniqueId(const std::string &appRunningUniqueId)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "SetAppRunningUniqueId is %{public}s.", appRunningUniqueId.c_str());
@@ -557,6 +570,18 @@ int32_t ApplicationContext::SetSupportedProcessCacheSelf(bool isSupport)
     }
     TAG_LOGE(AAFwkTag::APPKIT, "contextImpl_ is nullptr.");
     return ERR_INVALID_VALUE;
+}
+
+void ApplicationContext::SetCurrentAppCloneIndex(int32_t appIndex)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "setCurrentAppCloneIndex is %{public}d.", appIndex);
+    appIndex_ = appIndex;
+}
+
+void ApplicationContext::SetCurrentAppMode(int32_t appMode)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "setCurrentAppMode is %{public}d.", appMode);
+    appMode_ = appMode;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

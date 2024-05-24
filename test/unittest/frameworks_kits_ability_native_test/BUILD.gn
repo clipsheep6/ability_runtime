@@ -2701,6 +2701,75 @@ ohos_unittest("embedded_ui_extension_test") {
   ]
 }
 
+ohos_unittest("app_module_checker_test") {
+  module_out_path = module_output_path
+  include_dirs = [
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+  ]
+
+  sources = [ "app_module_checker_test.cpp" ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+}
+
+ohos_unittest("js_ui_extension_Callback_test") {
+  module_out_path = module_output_path
+  include_dirs = [
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_path}/js_environment/interfaces/inner_api",
+    "${ability_runtime_path}/js_environment/frameworks/utils/include",
+    "${windowmanager_path}/window_scene/interfaces/include",
+  ]
+
+  sources = [
+    "${ability_runtime_native_path}/ability/native/js_ui_extension_callback.cpp",
+    "js_ui_extension_Callback_test.cpp",
+  ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:session_info",
+    "ability_base:want",
+    "ability_runtime:ability_manager",
+    "ability_runtime:app_manager",
+    "ace_engine:ace_uicontent",
+    "c_utils:utils",
+    "ffrt:libffrt",
+    "hilog:libhilog",
+    "input:libmmi-client",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+}
+
 ###############################################################################
 
 group("unittest") {
@@ -2728,6 +2797,7 @@ group("unittest") {
     ":abilityruntime_test",
     ":action_extension_module_loader_test",
     ":action_extension_test",
+    ":app_module_checker_test",
     ":auto_fill_extension_module_loader_test",
     ":auto_fill_extension_test",
     ":continuation_test",
@@ -2747,6 +2817,7 @@ group("unittest") {
     ":extension_test",
     ":fa_ability_thread_test",
     ":form_extension_test",
+    ":js_ui_extension_Callback_test",
     ":new_ability_impl_test",
     ":pac_map_test",
     ":reserse_continuation_scheduler_primary_proxy_test",

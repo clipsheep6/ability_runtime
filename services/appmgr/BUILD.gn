@@ -33,6 +33,12 @@ group("appms_target") {
 }
 
 ohos_shared_library("libappms") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
   shlib_type = "sa"
   include_dirs = [ "${ability_runtime_services_path}/appdfr/include" ]
   sources = [
@@ -124,8 +130,6 @@ ohos_shared_library("libappms") {
     "samgr:samgr_proxy",
   ]
   public_external_deps = [ "kv_store:distributeddata_mgr" ]
-
-  defines += [ "OHOS_ACCOUNT_ENABLED" ]
 
   if (product_name != "ohcore") {
     external_deps += [ "netmanager_base:net_conn_manager_if" ]

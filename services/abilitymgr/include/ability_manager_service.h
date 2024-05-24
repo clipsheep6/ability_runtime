@@ -67,13 +67,16 @@
 #include "dialog_session_record.h"
 #include "implicit_start_processor.h"
 #include "system_dialog_scheduler.h"
-#include "window_focus_changed_listener.h"
 #endif
 
 namespace OHOS {
 namespace AbilityRuntime {
 class IStatusBarDelegate;
 }
+namespace Rosen {
+class FocusChangeInfo;
+}
+
 namespace AAFwk {
 using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
 enum class ServiceRunningState { STATE_NOT_START, STATE_RUNNING };
@@ -83,6 +86,8 @@ constexpr int32_t INVALID_USER_ID = -1;
 using OHOS::AppExecFwk::IAbilityController;
 class PendingWantManager;
 struct StartAbilityInfo;
+class WindowFocusChangedListener;
+
 /**
  * @class AbilityManagerService
  * AbilityManagerService provides a facility for managing ability life cycle.
@@ -1668,6 +1673,17 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t GetAbilityStateByPersistentId(int32_t persistentId, bool &state) override;
+
+    /**
+     * Transfer resultCode & want to ability manager service.
+     *
+     * @param callerToken Caller ability token.
+     * @param requestCode The resultCode of the ability to start.
+     * @param want Indicates the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t TransferAbilityResultForExtension(const sptr<IRemoteObject> &callerToken, int32_t resultCode,
+        const Want &want) override;
 
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;

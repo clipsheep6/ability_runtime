@@ -62,5 +62,54 @@ HWTEST_F(DataAbilityObserverProxyTest, DataAbilityObserverProxy_OnChangeInner_00
         proxy->OnChange();
     }
 }
+
+/*
+ * Feature: DataAbilityObserverProxy.
+ * Function: DataObsManagerProxy::OnChangeExt is called.
+ * SubFunction: NA.
+ * FunctionPoints: NA.
+ * EnvConditions: NA.
+ * CaseDescription: NA.
+ */
+HWTEST_F(DataAbilityObserverProxyTest, DataAbilityObserverProxy_OnChangeExt_001, TestSize.Level1)
+{
+    // 1.stub define
+    sptr<MockDataObsManagerOnChangeCallBack> mockDataAbilityObserverStub(new MockDataObsManagerOnChangeCallBack());
+
+    // 2.obsver1 define
+    sptr<DataAbilityObserverProxy> proxy(new DataAbilityObserverProxy(mockDataAbilityObserverStub));
+
+    ChangeInfo changeInfo;
+
+    EXPECT_CALL(*mockDataAbilityObserverStub, OnChangeExt(testing::_)).Times(1);
+
+    if (proxy != nullptr) {
+        proxy->OnChangeExt(changeInfo);
+    }
+}
+
+/*
+ * Feature: DataAbilityObserverProxy.
+ * Function: DataObsManagerProxy::OnChangePreferences is called.
+ * SubFunction: NA.
+ * FunctionPoints: NA.
+ * EnvConditions: NA.
+ * CaseDescription: NA.
+ */
+HWTEST_F(DataAbilityObserverProxyTest, DataAbilityObserverProxy_OnChangePreferences_001, TestSize.Level1)
+{
+    // 1.stub define
+    sptr<MockDataObsManagerOnChangeCallBack> mockDataAbilityObserverStub(new MockDataObsManagerOnChangeCallBack());
+
+    // 2.obsver1 define
+    sptr<DataAbilityObserverProxy> proxy(new DataAbilityObserverProxy(mockDataAbilityObserverStub));
+
+    std::string key = "test";
+    EXPECT_CALL(*mockDataAbilityObserverStub, OnChangePreferences(key)).Times(1);
+
+    if (proxy != nullptr) {
+        proxy->OnChangePreferences(key);
+    }
+}
 }  // namespace AAFwk
 }  // namespace OHOS

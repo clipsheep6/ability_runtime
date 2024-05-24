@@ -24,15 +24,16 @@
 #include "app_mgr_service_const.h"
 #include "app_mgr_service_dump_error_code.h"
 #include "cache_process_manager.h"
+#include "window_visibility_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
-static constexpr int64_t NANOSECONDS = 1000000000;  // NANOSECONDS mean 10^9 nano second
-static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 millias second
+constexpr int64_t NANOSECONDS = 1000000000;  // NANOSECONDS mean 10^9 nano second
+constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 millias second
 constexpr int32_t MAX_RESTART_COUNT = 3;
 constexpr int32_t RESTART_INTERVAL_TIME = 120000;
-const std::string LAUNCHER_NAME = "com.ohos.sceneboard";
+constexpr const char* LAUNCHER_NAME = "com.ohos.sceneboard";
 }
 
 int64_t AppRunningRecord::appEventId_ = 0;
@@ -178,6 +179,11 @@ void RenderRecord::RegisterDeathRecipient()
     }
 }
 
+void RenderRecord::SetProcessType(ProcessType type)
+{
+    processType_ = type;
+}
+
 void RenderRecord::SetState(int32_t state)
 {
     state_ = state;
@@ -198,6 +204,7 @@ AppRunningRecord::AppRunningRecord(
         isLauncherApp_ = info->isLauncherApp;
         mainAppName_ = info->name;
     }
+    priorityObject_ = std::make_shared<PriorityObject>();
 
     struct timespec t;
     t.tv_sec = 0;
@@ -625,6 +632,19 @@ void AppRunningRecord::ScheduleForegroundRunning()
 
 void AppRunningRecord::ScheduleBackgroundRunning()
 {
+    int32_t recordId = GetRecordId();
+    auto serviceInner = appMgrServiceInner_;
+    auto appbackgroundtask = [recordId, serviceInner]() {
+        auto serviceInnerObj = serviceInner.lock();
+        if (serviceInnerObj == nullptr) {
+            TAG_LOGW(AAFwkTag::APPMGR, "APPManager is invalid");
+            return;
+        }
+        TAG_LOGE(AAFwkTag::APPMGR, "APPManager move to background timeout");
+        serviceInnerObj->ApplicationBackgrounded(recordId);
+    };
+    PostTask("appbackground_" + std::to_string(recordId), AMSEventHandler::BACKGROUND_APPLICATION_TIMEOUT,
+        appbackgroundtask);
     if (appLifeCycleDeal_) {
         appLifeCycleDeal_->ScheduleBackgroundRunning();
     }
@@ -1189,10 +1209,6 @@ void AppRunningRecord::SetAppDeathRecipient(const sptr<AppDeathRecipient> &appDe
 
 std::shared_ptr<PriorityObject> AppRunningRecord::GetPriorityObject()
 {
-    if (!priorityObject_) {
-        priorityObject_ = std::make_shared<PriorityObject>();
-    }
-
     return priorityObject_;
 }
 
@@ -2213,6 +2229,38 @@ bool AppRunningRecord::SetSupportedProcessCache(bool isSupport)
 SupportProcessCacheState AppRunningRecord::GetSupportProcessCacheState()
 {
     return procCacheSupportState_;
+}
+
+void AppRunningRecord::SetBrowserHost(sptr<IRemoteObject> browser)
+{
+    browserHost_ = browser;
+}
+
+sptr<IRemoteObject> AppRunningRecord::GetBrowserHost()
+{
+    return browserHost_;
+}
+
+void AppRunningRecord::SetIsGPU(bool gpu)
+{
+    if (gpu) {
+        isGPU_ = gpu;
+    }
+}
+
+bool AppRunningRecord::GetIsGPU()
+{
+    return isGPU_;
+}
+
+void AppRunningRecord::SetGPUPid(pid_t gpuPid)
+{
+    gpuPid_ = gpuPid;
+}
+
+pid_t AppRunningRecord::GetGPUPid()
+{
+    return gpuPid_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

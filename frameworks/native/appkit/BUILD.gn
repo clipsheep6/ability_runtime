@@ -48,7 +48,6 @@ config("appkit_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_path}/interfaces/kits/native/appkit/dfr",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
-    "//third_party/json/include",
   ]
 }
 
@@ -150,6 +149,7 @@ ohos_shared_library("appkit_native") {
     ":appkit_delegator",
     "${ability_runtime_abilitymgr_path}/:abilityms",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/child_process_manager:child_process_manager",
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
@@ -190,6 +190,7 @@ ohos_shared_library("appkit_native") {
     "i18n:preferred_language",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "napi:ace_napi",
     "resource_management:global_resmgr",
     "safwk:system_ability_fwk",
@@ -270,6 +271,7 @@ ohos_shared_library("app_context") {
   }
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_innerkits_path}/runtime:runtime",
@@ -287,6 +289,7 @@ ohos_shared_library("app_context") {
     "hitrace:hitrace_meter",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "napi:ace_napi",
     "resource_management:global_resmgr",
     "samgr:samgr_proxy",
@@ -328,6 +331,7 @@ ohos_shared_library("app_context_utils") {
   }
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/error_utils:ability_runtime_error_util",
     "${ability_runtime_innerkits_path}/runtime:runtime",
@@ -347,6 +351,7 @@ ohos_shared_library("app_context_utils") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "napi:ace_napi",
     "resource_management:global_resmgr",
     "resource_management:resmgr_napi_core",
@@ -400,6 +405,7 @@ ohos_shared_library("appkit_delegator") {
 
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:delegator_mgmt",
@@ -413,6 +419,7 @@ ohos_shared_library("appkit_delegator") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "napi:ace_napi",
   ]
   public_external_deps = [ "ability_base:configuration" ]
@@ -467,6 +474,7 @@ ohos_shared_library("appkit_manager_helper") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "samgr:samgr_proxy",
   ]
 

@@ -54,7 +54,7 @@ int32_t DlpStateItem::GetOpenedAbilitySize() const
 bool DlpStateItem::HandleDlpConnectionState(const std::shared_ptr<AbilityRecord> &record, bool isAdd,
     AbilityRuntime::DlpStateData &data)
 {
-    if (!record || record->GetAppIndex() <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+    if (!record || record->GetAppIndex() <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "invalid dlp ability.");
         return false;
     }

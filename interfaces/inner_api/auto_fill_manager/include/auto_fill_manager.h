@@ -106,6 +106,7 @@ private:
     void SetTimeOutEvent(uint32_t eventId);
     AutoFill::AutoFillWindowType ConvertAutoFillWindowType(const AutoFill::AutoFillRequest &request,
         bool &isSmartAutoFill);
+    bool IsPreviousRequestFinished(Ace::UIContent *uiContent);
 
     std::mutex extensionCallbacksMutex_;
     std::mutex modalProxyMapMutex_;

@@ -26,7 +26,6 @@
 #include "ability_manager_constants.h"
 #include "ability_record.h"
 #include "isession_handler_interface.h"
-#include "session/host/include/zidl/session_interface.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -337,6 +336,8 @@ private:
     int32_t GetReusedSpecifiedPersistentId(const AbilityRequest &abilityRequest, bool &reuse) const;
     int32_t GetReusedStandardPersistentId(const AbilityRequest &abilityRequest, bool &reuse) const;
     int32_t GetReusedCollaboratorPersistentId(const AbilityRequest &abilityRequest, bool &reuse) const;
+    std::string GenerateProcessNameForNewProcessMode(const AppExecFwk::AbilityInfo& abilityInfo);
+    void PreCreateProcessName(AbilityRequest &abilityRequest);
     void UpdateProcessName(const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &abilityRecord);
     void UpdateAbilityRecordLaunchReason(const AbilityRequest &abilityRequest,
         std::shared_ptr<AbilityRecord> &abilityRecord) const;
@@ -397,7 +398,7 @@ private:
     bool CheckPid(const std::shared_ptr<AbilityRecord> abilityRecord, const int32_t pid) const;
     std::shared_ptr<StatusBarDelegateManager> GetStatusBarDelegateManager();
     int32_t DoProcessAttachment(std::shared_ptr<AbilityRecord> abilityRecord);
-    void BatchCloseUIAbility(std::unordered_set<std::shared_ptr<AbilityRecord>>& abilitySet);
+    void BatchCloseUIAbility(const std::unordered_set<std::shared_ptr<AbilityRecord>>& abilitySet);
     int StartWithPersistentIdByDistributed(const AbilityRequest &abilityRequest, int32_t persistentId);
 
     int32_t userId_ = -1;
@@ -405,7 +406,7 @@ private:
     std::unordered_map<int32_t, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
     std::unordered_map<int64_t, std::shared_ptr<AbilityRecord>> tmpAbilityMap_;
     std::list<std::shared_ptr<AbilityRecord>> terminateAbilityList_;
-    sptr<Rosen::ISession> rootSceneSession_;
+    sptr<IRemoteObject> rootSceneSession_;
     std::map<SpecifiedInfo, std::shared_ptr<AbilityRecord>, key_compare> specifiedAbilityMap_;
     int32_t specifiedRequestId_ = 0;
     std::map<int32_t, AbilityRequest> specifiedRequestMap_;

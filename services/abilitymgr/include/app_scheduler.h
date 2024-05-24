@@ -427,14 +427,6 @@ public:
     void ClearProcessByToken(sptr<IRemoteObject> token) const;
 
     /**
-     * Set application assertion pause state.
-     *
-     * @param pid App process pid.
-     * @param flag assertion pause state.
-     */
-    void SetAppAssertionPauseState(int32_t pid, bool flag);
-
-    /**
      * whether memory size is sufficent.
      * @return Returns true is sufficent memory size, others return false.
      */

@@ -358,6 +358,12 @@ public:
      */
     void ProcessForegroundAbility(uint32_t tokenId, uint32_t sceneFlag = 0);
 
+     /**
+     * post foreground timeout task for ui ability.
+     *
+     */
+    void PostForegroundTimeoutTask();
+
     /**
      * move the ability to back ground.
      *

@@ -579,12 +579,6 @@ bool AppScheduler::IsAttachDebug(const std::string &bundleName)
     return ERR_OK;
 }
 
-void AppScheduler::SetAppAssertionPauseState(int32_t pid, bool flag)
-{
-    CHECK_POINTER(appMgrClient_);
-    appMgrClient_->SetAppAssertionPauseState(pid, flag);
-}
-
 void AppScheduler::ClearProcessByToken(sptr<IRemoteObject> token) const
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);

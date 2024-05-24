@@ -50,7 +50,7 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability has already been destroyed.");
         return true;
     }
-    if (abilityRecord->GetAppIndex() <= AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+    if (abilityRecord->GetAppIndex() <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         return true;
     }
     if (abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
@@ -76,7 +76,7 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
     if (callerToken != nullptr) {
         auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
         if (abilityRecord != nullptr &&
-            abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_TWIN_INDEX) {
+            abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
             return true;
         }
     }

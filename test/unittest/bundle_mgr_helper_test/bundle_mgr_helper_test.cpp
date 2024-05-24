@@ -812,9 +812,9 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryCloneAbilityInfo_001, Tes
     ElementName element;
     AbilityInfo abilityInfo;
     int32_t flags = ABILITY_INFO_FLAG;
-    int32_t appTwinIndex = 1;
+    int32_t appCloneIndex = 1;
     int32_t userId = DEFAULT_USERID;
-    auto ret = bundleMgrHelper->QueryCloneAbilityInfo(element, flags, appTwinIndex, abilityInfo, userId);
+    auto ret = bundleMgrHelper->QueryCloneAbilityInfo(element, flags, appCloneIndex, abilityInfo, userId);
     EXPECT_NE(ret, ERR_OK);
 }
 
@@ -828,9 +828,36 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetCloneBundleInfo_001, TestSi
     std::string bundleName;
     BundleInfo bundleInfo;
     int32_t flags = 1;
-    int32_t appTwinIndex = 1;
+    int32_t appCloneIndex = 1;
     int32_t userId = DEFAULT_USERID;
-    auto ret = bundleMgrHelper->GetCloneBundleInfo(bundleName, flags, appTwinIndex, bundleInfo, userId);
+    auto ret = bundleMgrHelper->GetCloneBundleInfo(bundleName, flags, appCloneIndex, bundleInfo, userId);
+    EXPECT_NE(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_GetNameForUid_001
+ * @tc.desc: GetNameForUid
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetNameForUid_001, TestSize.Level1)
+{
+    std::string name;
+    int32_t uid = 1;
+    auto ret = bundleMgrHelper->GetNameForUid(uid, name);
+    EXPECT_NE(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_GetLaunchWantForBundle_001
+ * @tc.desc: GetLaunchWantForBundle
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetLaunchWantForBundle_001, TestSize.Level1)
+{
+    std::string bundleName;
+    Want want;
+    int32_t userId = DEFAULT_USERID;
+    auto ret = bundleMgrHelper->GetLaunchWantForBundle(bundleName, want, userId);
     EXPECT_NE(ret, ERR_OK);
 }
 }  // namespace AppExecFwk

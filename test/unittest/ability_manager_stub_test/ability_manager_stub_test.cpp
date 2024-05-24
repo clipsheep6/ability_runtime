@@ -530,6 +530,54 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_GetTopAbilityInner_001, Test
 
 /*
  * Feature: AbilityManagerService
+ * Function: GetElementNameByTokenInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService GetElementNameByTokenInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function GetElementNameByTokenInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_GetElementNameByTokenInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->GetElementNameByTokenInner(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: MoveAbilityToBackgroundInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService MoveAbilityToBackgroundInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function MoveAbilityToBackgroundInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_MoveAbilityToBackgroundInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->MoveAbilityToBackgroundInner(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: MoveUIAbilityToBackgroundInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService MoveUIAbilityToBackgroundInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function MoveUIAbilityToBackgroundInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_MoveUIAbilityToBackgroundInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->MoveUIAbilityToBackgroundInner(data, reply);
+    EXPECT_EQ(res, IPC_STUB_ERR);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: TerminateAbilityInner
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService TerminateAbilityInner
@@ -541,6 +589,22 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_TerminateAbilityInner_001, T
     MessageParcel data;
     MessageParcel reply;
     auto res = stub_->TerminateAbilityInner(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: TerminateUIExtensionAbilityInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService TerminateUIExtensionAbilityInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function TerminateUIExtensionAbilityInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_TerminateUIExtensionAbilityInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->TerminateUIExtensionAbilityInner(data, reply);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -573,6 +637,38 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_MinimizeAbilityInner_001, Te
     MessageParcel data;
     MessageParcel reply;
     auto res = stub_->MinimizeAbilityInner(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: MinimizeUIExtensionAbilityInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService MinimizeUIExtensionAbilityInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function MinimizeUIExtensionAbilityInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_MinimizeUIExtensionAbilityInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->MinimizeUIExtensionAbilityInner(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: MinimizeUIAbilityBySCBInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService MinimizeUIAbilityBySCBInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function MinimizeUIAbilityBySCBInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_MinimizeUIAbilityBySCBInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->MinimizeUIAbilityBySCBInner(data, reply);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -754,6 +850,23 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_UninstallAppInner_001, TestS
 
 /*
  * Feature: AbilityManagerService
+ * Function: UpgradeAppInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService UpgradeAppInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function UpgradeAppInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_UpgradeAppInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->UpgradeAppInner(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+
+/*
+ * Feature: AbilityManagerService
  * Function: StartAbilityInner
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService StartAbilityInner
@@ -765,6 +878,54 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartAbilityInner_001, TestS
     MessageParcel data;
     MessageParcel reply;
     auto res = stub_->StartAbilityInner(data, reply);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityInnerSpecifyTokenId
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityInnerSpecifyTokenId
+ * EnvConditions: NA
+ * CaseDescription: Verify the function StartAbilityInnerSpecifyTokenId is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartAbilityInnerSpecifyTokenId_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->StartAbilityInnerSpecifyTokenId(data, reply);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityByUIContentSessionAddCallerInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityByUIContentSessionAddCallerInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function StartAbilityByUIContentSessionAddCallerInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartAbilityByUIContentSessionAddCallerInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->StartAbilityByUIContentSessionAddCallerInner(data, reply);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityByUIContentSessionForOptionsInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityByUIContentSessionForOptionsInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function StartAbilityByUIContentSessionForOptionsInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartAbilityByUIContentSessionForOptionsInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->StartAbilityByUIContentSessionForOptionsInner(data, reply);
     EXPECT_EQ(res, ERR_INVALID_VALUE);
 }
 

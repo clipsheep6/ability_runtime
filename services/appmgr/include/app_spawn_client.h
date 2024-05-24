@@ -68,6 +68,11 @@ struct AppSpawnStartMsg {
     std::string provisionType;
     bool atomicServiceFlag = false;
     std::string atomicAccount = "";
+    bool isolatedExtension = false; // whether is isolatedExtension
+    std::string extensionSandboxPath;
+    bool strictMode = false; // whether is strict mode
+    std::string processType = "";
+    int32_t maxChildProcess = 0;
 };
 
 constexpr auto LEN_PID = sizeof(pid_t);
@@ -162,12 +167,36 @@ public:
     int32_t SetAtomicServiceFlag(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle);
 
     /**
+     * Set strict mode flags.
+     *
+     * @param startMsg, request message.
+     * @param reqHandle, handle for request message
+     */
+    int32_t SetStrictMode(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle);
+
+    /**
+     * Set app extension flags.
+     *
+     * @param startMsg, request message.
+     * @param reqHandle, handle for request message
+     */
+    int32_t SetAppExtension(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle);
+
+    /**
      * Set extra info: render-cmd, HspList, Overlay, DataGroup, AppEnv.
      *
      * @param startMsg, request message.
      * @param reqHandle, handle for request message
      */
     int32_t AppspawnSetExtMsg(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle);
+
+    /**
+     * Set extra info: provision_type, max_child_process.
+     *
+     * @param startMsg, request message.
+     * @param reqHandle, handle for request message
+     */
+    int32_t AppspawnSetExtMsgMore(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle);
 
     /**
      * Create default appspawn msg.

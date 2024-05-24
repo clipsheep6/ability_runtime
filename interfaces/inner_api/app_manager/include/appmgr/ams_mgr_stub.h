@@ -61,7 +61,6 @@ private:
     int32_t HandleKillApplicationByUid(MessageParcel &data, MessageParcel &reply);
     int32_t HandleKillApplicationSelf(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetRunningProcessInfoByToken(MessageParcel &data, MessageParcel &reply);
-    int32_t HandleGetRunningProcessInfoByPid(MessageParcel &data, MessageParcel &reply);
     int32_t HandleSetAbilityForegroundingFlagToAppRecord(MessageParcel &data, MessageParcel &reply);
     int32_t HandleStartSpecifiedAbility(MessageParcel &data, MessageParcel &reply);
     int32_t HandleRegisterStartSpecifiedAbilityResponse(MessageParcel &data, MessageParcel &reply);
@@ -81,7 +80,6 @@ private:
     int32_t HandleClearNonPersistWaitingDebugFlag(MessageParcel &data, MessageParcel &reply);
     int32_t HandleRegisterAbilityDebugResponse(MessageParcel &data, MessageParcel &reply);
     int32_t HandleIsAttachDebug(MessageParcel &data, MessageParcel &reply);
-    int32_t HandleSetAppAssertionPauseState(MessageParcel &data, MessageParcel &reply);
     int32_t HandleClearProcessByToken(MessageParcel &data, MessageParcel &reply);
     int32_t HandleIsMemorySizeSufficent(MessageParcel &data, MessageParcel &reply);
     int32_t HandleSetKeepAliveEnableState(MessageParcel &data, MessageParcel &reply);

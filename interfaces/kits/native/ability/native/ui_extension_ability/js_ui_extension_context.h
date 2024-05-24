@@ -54,6 +54,8 @@ protected:
     virtual napi_value OnDisconnectAbility(napi_env env, NapiCallbackInfo& info);
     virtual napi_value OnReportDrawnCompleted(napi_env env, NapiCallbackInfo& info);
     virtual napi_value OnOpenAtomicService(napi_env env, NapiCallbackInfo& info);
+    void SetCallbackForTerminateWithResult(int32_t resultCode, AAFwk::Want& want,
+        NapiAsyncTask::CompleteCallback& complete);
 
 protected:
     std::weak_ptr<UIExtensionContext> context_;
