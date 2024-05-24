@@ -676,7 +676,7 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
             ohosApplication->AutoStartupDone(abilityRecord, abilityStage, moduleName);
             callback(abilityStage->GetContext());
         };
-        abilityStage->RunAutoStartupTask(autoStartupCallback, isAsyncCallback);
+        abilityStage->RunAutoStartupTask(autoStartupCallback, isAsyncCallback, stageContext);
         if (isAsyncCallback) {
             TAG_LOGI(AAFwkTag::APPKIT, "waiting for startup");
             return nullptr;

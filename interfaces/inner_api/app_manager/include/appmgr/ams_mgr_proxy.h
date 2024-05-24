@@ -161,8 +161,6 @@ public:
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info) override;
 
-    void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) override;
-
     /**
      * Set AbilityForegroundingFlag of an app-record to true.
      *
@@ -256,14 +254,6 @@ public:
      * @return Returns true if it is an attach debug application, otherwise it returns false.
      */
     bool IsAttachDebug(const std::string &bundleName) override;
-
-    /**
-     * Set application assertion pause state.
-     *
-     * @param pid App process pid.
-     * @param flag assertion pause state.
-     */
-    void SetAppAssertionPauseState(int32_t pid, bool flag) override;
 
     /**
      * @brief Set resident process enable status.

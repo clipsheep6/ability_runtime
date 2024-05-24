@@ -352,3 +352,15 @@ START_STANDARD_ABILITIES:
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
+
+PREVENT_START_ABILITY:
+  __BASE: {type: BEHAVIOR, level: MINOR, desc: Process start control, preserve: true}
+  CALLER_UID: {type: INT32, desc: caller uid}
+  CALLER_PID: {type: INT32, desc: caller pid}
+  CALLER_PROCESS_NAME: {type: STRING, desc: caller process name}
+  CALLER_BUNDLE_NAME: {type: STRING, desc: caller bundle name}
+  CALLEE_BUNDLE_NAME: {type: STRING, desc: callee bundle name}
+  CALLEE_PROCESS_NAME: {type: STRING, desc: callee process name}
+  EXTENSION_ABILITY_TYPE: {type: INT32, desc: extension ability type}
+  ABILITY_NAME: {type: STRING, desc: caller ability name}
+  

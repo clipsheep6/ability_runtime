@@ -174,8 +174,6 @@ public:
     virtual void GetRunningProcessInfoByToken(
         const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info) override;
 
-    void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) override;
-
     /**
      * Set AbilityForegroundingFlag of an app-record to true.
      *
@@ -276,14 +274,6 @@ public:
      * @param enable The current updated enable status.
      */
     void SetKeepAliveEnableState(const std::string &bundleName, bool enable) override;
-
-    /**
-     * Set application assertion pause state.
-     *
-     * @param pid App process pid.
-     * @param flag assertion pause state.
-     */
-    void SetAppAssertionPauseState(int32_t pid, bool flag) override;
 
     /**
      * To clear the process by ability token.

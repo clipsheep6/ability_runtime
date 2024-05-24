@@ -18,6 +18,7 @@
 
 #include "ability_manager_client.h"
 #include "ability_state.h"
+#include "appfreeze_manager.h"
 #include "app_recovery.h"
 #include "exit_reason.h"
 #include "ffrt.h"

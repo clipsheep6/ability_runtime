@@ -35,7 +35,7 @@ StartupTaskResult::ResultType JsStartupTaskResult::GetResultType() const
     return ResultType::JS;
 }
 
-std::shared_ptr<NativeReference> JsStartupTaskResult::GetJsStartupResultRef() const
+const std::shared_ptr<NativeReference>& JsStartupTaskResult::GetJsStartupResultRef() const
 {
     return jsStartupResultRef_;
 }

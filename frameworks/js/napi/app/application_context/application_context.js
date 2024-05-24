@@ -189,6 +189,10 @@ class ApplicationContext {
     return this.__context_impl__.setSupportedProcessCache(isSupport);
   }
 
+  getCurrentAppCloneIndex(){
+    return this.__context_impl__.getCurrentAppCloneIndex()
+  }
+  
   set area(mode) {
     return this.__context_impl__.switchArea(mode);
   }

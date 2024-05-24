@@ -1242,6 +1242,17 @@ public:
      */
     virtual int32_t GetAbilityStateByPersistentId(int32_t persistentId, bool &state) override;
 
+    /**
+     * Transfer resultCode & want to ability manager service.
+     *
+     * @param callerToken caller ability token.
+     * @param requestCode the resultCode of the ability to start.
+     * @param want Indicates the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t TransferAbilityResultForExtension(const sptr<IRemoteObject> &callerToken, int32_t resultCode,
+        const Want &want) override;
+
 private:
     template <typename T>
     int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);

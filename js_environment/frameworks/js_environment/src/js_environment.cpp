@@ -349,24 +349,6 @@ void JsEnvironment::SetDeviceDisconnectCallback(const std::function<bool()> &cb)
     panda::JSNApi::SetDeviceDisconnectCallback(vm_, std::move(cb));
 }
 
-void JsEnvironment::StartMonitorJSHeapUsage()
-{
-    if (engine_ == nullptr) {
-        JSENV_LOG_E("Invalid native engine.");
-        return;
-    }
-    engine_->StartMonitorJSHeapUsage();
-}
-
-void JsEnvironment::StopMonitorJSHeapUsage()
-{
-    if (engine_ == nullptr) {
-        JSENV_LOG_E("Invalid native engine.");
-        return;
-    }
-    engine_->StopMonitorJSHeapUsage();
-}
-
 DebuggerPostTask JsEnvironment::GetDebuggerPostTask()
 {
     auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {

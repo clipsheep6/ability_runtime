@@ -148,6 +148,17 @@ public:
     virtual int32_t GetAllRunningProcesses(std::vector<RunningProcessInfo> &info) override;
 
     /**
+     * GetRunningMultiAppInfoByBundleName, call GetRunningMultiAppInfoByBundleName() through proxy project.
+     * Obtains information about multiapp that are running on the device.
+     *
+     * @param bundlename, input.
+     * @param info, output multiapp information.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t GetRunningMultiAppInfoByBundleName(const std::string &bundleName,
+        RunningMultiAppInfo &info) override;
+
+    /**
      * GetRunningProcessesByBundleType, call GetRunningProcessesByBundleType() through proxy project.
      * Obtains information about application processes by bundle type that are running on the device.
      *
@@ -309,7 +320,7 @@ public:
 
     virtual int StartRenderProcess(const std::string &renderParam,
                                    int32_t ipcFd, int32_t sharedFd,
-                                   int32_t crashFd, pid_t &renderPid) override;
+                                   int32_t crashFd, pid_t &renderPid, bool isGPU = false) override;
 
     virtual void AttachRenderProcess(const sptr<IRemoteObject> &shceduler) override;
 
@@ -366,6 +377,15 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t GetBundleNameByPid(const int32_t pid, std::string &bundleName, int32_t &uid) override;
+
+    /**
+     * Get running process information by pid.
+     *
+     * @param pid process id.
+     * @param info Output parameters, return runningProcessInfo.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) override;
 
     /**
      * Notify Fault Data
@@ -504,6 +524,7 @@ public:
 
     int32_t SetSupportedProcessCacheSelf(bool isSupport) override;
 
+    void SetAppAssertionPauseState(bool flag) override;
     /**
      * Start native child process, callde by ChildProcessManager.
      * @param libName lib file name to be load in child process
@@ -514,6 +535,7 @@ public:
     int32_t StartNativeChildProcess(const std::string &libName, int32_t childProcessCount,
         const sptr<IRemoteObject> &callback) override;
 
+    virtual void SaveBrowserChannel(sptr<IRemoteObject> browser) override;
 private:
     /**
      * Init, Initialize application services.

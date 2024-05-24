@@ -706,7 +706,7 @@ void JsUIAbility::RestorePageStack(const Want &want)
         auto env = jsRuntime_.GetNapiEnv();
         if (abilityContext_->GetContentStorage()) {
             scene_->GetMainWindow()->NapiSetUIContent(pageStack, env,
-                abilityContext_->GetContentStorage()->GetNapiValue(), true);
+                abilityContext_->GetContentStorage()->GetNapiValue(), Rosen::BackupAndRestoreType::CONTINUATION);
         } else {
             TAG_LOGE(AAFwkTag::UIABILITY, "Content storage is nullptr.");
         }
@@ -728,7 +728,8 @@ void JsUIAbility::AbilityContinuationOrRecover(const Want &want)
         auto env = jsRuntime_.GetNapiEnv();
         auto mainWindow = scene_->GetMainWindow();
         if (mainWindow != nullptr) {
-            mainWindow->NapiSetUIContent(pageStack, env, abilityContext_->GetContentStorage()->GetNapiValue(), true);
+            mainWindow->NapiSetUIContent(pageStack, env, abilityContext_->GetContentStorage()->GetNapiValue(),
+                Rosen::BackupAndRestoreType::CONTINUATION);
         } else {
             TAG_LOGE(AAFwkTag::UIABILITY, "MainWindow is nullptr.");
         }

@@ -117,7 +117,8 @@ void AbilityStage::OnMemoryLevel(int level)
     TAG_LOGD(AAFwkTag::APPKIT, "%{public}s called.", __func__);
 }
 
-int32_t AbilityStage::RunAutoStartupTask(const std::function<void()> &callback, bool &isAsyncCallback)
+int32_t AbilityStage::RunAutoStartupTask(const std::function<void()> &callback, bool &isAsyncCallback,
+    const std::shared_ptr<Context> &stageContext)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "called");
     isAsyncCallback = false;

@@ -27,6 +27,12 @@ config("srms_config") {
 }
 
 ohos_shared_library("libsrms") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
   sources = [
     "src/inner_service_info.cpp",
     "src/service_router_data_mgr.cpp",
@@ -40,6 +46,7 @@ ohos_shared_library("libsrms") {
 
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${srms_inner_api_path}:srms_fwk",
   ]

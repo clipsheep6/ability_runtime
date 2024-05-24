@@ -24,7 +24,8 @@ namespace OHOS {
 namespace AppExecFwk {
 bool ProcessData::Marshalling(Parcel &parcel) const
 {
-    return (parcel.WriteString(bundleName) && parcel.WriteInt32(pid) && parcel.WriteInt32(uid) &&
+    return (parcel.WriteString(bundleName) && parcel.WriteInt32(pid) &&
+        parcel.WriteInt32(uid) && parcel.WriteInt32(hostPid) && parcel.WriteInt32(gpuPid) &&
         parcel.WriteInt32(static_cast<int32_t>(state)) && parcel.WriteBool(isContinuousTask) &&
         parcel.WriteBool(isKeepAlive) && parcel.WriteBool(isFocused) && parcel.WriteInt32(requestProcCode) &&
         parcel.WriteInt32(processChangeReason) && parcel.WriteString(processName) &&
@@ -38,6 +39,8 @@ bool ProcessData::ReadFromParcel(Parcel &parcel)
     bundleName = parcel.ReadString();
     pid = parcel.ReadInt32();
     uid = parcel.ReadInt32();
+    hostPid = parcel.ReadInt32();
+    gpuPid = parcel.ReadInt32();
     state = static_cast<AppProcessState>(parcel.ReadInt32());
     isContinuousTask = parcel.ReadBool();
     isKeepAlive = parcel.ReadBool();

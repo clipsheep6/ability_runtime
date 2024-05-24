@@ -534,37 +534,6 @@ void AmsMgrProxy::GetRunningProcessInfoByToken(
     info = *processInfo;
 }
 
-void AmsMgrProxy::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info)
-{
-    TAG_LOGD(AAFwkTag::APPMGR, "start");
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
-    if (!WriteInterfaceToken(data)) {
-        return;
-    }
-
-    if (!data.WriteInt32(static_cast<int32_t>(pid))) {
-        TAG_LOGE(AAFwkTag::APPMGR, "parcel WriteInt32 failed.");
-        return;
-    }
-
-    auto ret = SendTransactCmd(
-        static_cast<uint32_t>(IAmsMgr::Message::GET_RUNNING_PROCESS_INFO_BY_PID), data, reply, option);
-    if (ret != NO_ERROR) {
-        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
-        return;
-    }
-
-    std::unique_ptr<AppExecFwk::RunningProcessInfo> processInfo(reply.ReadParcelable<AppExecFwk::RunningProcessInfo>());
-    if (processInfo == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "recv process info failded");
-        return;
-    }
-
-    info = *processInfo;
-}
-
 void AmsMgrProxy::SetAbilityForegroundingFlagToAppRecord(const pid_t pid)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "calling");
@@ -1074,34 +1043,6 @@ bool AmsMgrProxy::IsAttachDebug(const std::string &bundleName)
         return false;
     }
     return reply.ReadBool();
-}
-
-void AmsMgrProxy::SetAppAssertionPauseState(int32_t pid, bool flag)
-{
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
-    MessageParcel data;
-    if (!WriteInterfaceToken(data)) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
-        return;
-    }
-
-    if (!data.WriteInt32(pid)) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Write pid fail.");
-        return;
-    }
-
-    if (!data.WriteBool(flag)) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Write flag fail.");
-        return;
-    }
-
-    MessageParcel reply;
-    MessageOption option;
-    auto ret = SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::SET_APP_ASSERT_PAUSE_STATE),
-        data, reply, option);
-    if (ret != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Send request failed, err: %{public}d", ret);
-    }
 }
 
 void AmsMgrProxy::ClearProcessByToken(sptr<IRemoteObject> token)

@@ -33,7 +33,7 @@ public:
 
     ResultType GetResultType() const override;
 
-    std::shared_ptr<NativeReference> GetJsStartupResultRef() const;
+    const std::shared_ptr<NativeReference>& GetJsStartupResultRef() const;
 
 private:
     std::shared_ptr<NativeReference> jsStartupResultRef_;

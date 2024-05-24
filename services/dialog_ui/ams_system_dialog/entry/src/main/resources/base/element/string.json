@@ -91,6 +91,18 @@
     {
         "name": "title_assertFault",
         "value": "AssertFaultDialog"
+    },
+    {
+      "name": "message_title_permission_confirm",
+      "value": "The amsdialog application wants to query the list of application software information"
+    },
+    {
+      "name": "message_confirm_permission",
+      "value": "allow"
+    },
+    {
+      "name": "message_cancel_permission",
+      "value": "reject"
     }
   ]
 }

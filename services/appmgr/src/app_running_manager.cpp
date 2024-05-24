@@ -36,6 +36,7 @@
 #include "suspend_manager_client.h"
 #endif
 #include "app_mgr_service_dump_error_code.h"
+#include "window_visibility_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -79,6 +80,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CreateAppRunningRecord(
         processName.c_str(), isStageBasedModel, recordId);
 
     appRecord->SetStageModelState(isStageBasedModel);
+    appRecord->SetSingleton(bundleInfo.singleton);
     appRecord->SetSignCode(signCode);
     appRecord->SetJointUserId(bundleInfo.jointUserId);
     std::lock_guard guard(runningRecordMapMutex_);
@@ -558,19 +560,23 @@ void AppRunningManager::GetRunningProcessInfoByToken(
     AssignRunningProcessInfoByAppRecord(appRecord, info);
 }
 
-void AppRunningManager::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info)
+int32_t AppRunningManager::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info)
 {
+    if (pid <= 0) {
+        TAG_LOGE(AAFwkTag::APPMGR, "invalid process pid:%{public}d", pid);
+        return ERR_INVALID_OPERATION;
+    }
     auto appRecord = GetAppRunningRecordByPid(pid);
-    AssignRunningProcessInfoByAppRecord(appRecord, info);
+    return AssignRunningProcessInfoByAppRecord(appRecord, info);
 }
 
-void AppRunningManager::AssignRunningProcessInfoByAppRecord(
+int32_t AppRunningManager::AssignRunningProcessInfoByAppRecord(
     std::shared_ptr<AppRunningRecord> appRecord, AppExecFwk::RunningProcessInfo &info) const
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (!appRecord) {
         TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr");
-        return;
+        return ERR_INVALID_OPERATION;
     }
 
     info.processName_ = appRecord->GetProcessName();
@@ -591,6 +597,7 @@ void AppRunningManager::AssignRunningProcessInfoByAppRecord(
     if (appInfo) {
         info.bundleType = static_cast<int32_t>(appInfo->bundleType);
     }
+    return ERR_OK;
 }
 
 void AppRunningManager::SetAbilityForegroundingFlagToAppRecord(const pid_t pid)

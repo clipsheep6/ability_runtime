@@ -76,8 +76,6 @@ ohos_unittest("watchdog_test") {
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "c_utils:utils",
-    "c_utils:utilsbase",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "image_framework:image_native",
