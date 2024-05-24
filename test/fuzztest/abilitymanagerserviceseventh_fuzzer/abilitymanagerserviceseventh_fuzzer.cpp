@@ -108,7 +108,10 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->ReleaseRemoteAbility(token, element);
     abilityms->StartAbilityByCall(*want, connect, token);
     abilityms->ReleaseCall(connect, element);
-
+    if (want) {
+        delete want;
+        want = nullptr;
+    }
     return true;
 }
 }

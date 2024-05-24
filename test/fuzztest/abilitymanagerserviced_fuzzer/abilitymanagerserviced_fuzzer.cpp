@@ -75,7 +75,10 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     auto abilityms = std::make_shared<AbilityManagerService>();
     abilityms->IsNeedTimeoutForTest(stringParam, stringParam);
     abilityms->GetValidDataAbilityUri(stringParam, stringParam);
-
+    if (want) {
+        delete want;
+        want = nullptr;
+    }
     return true;
 }
 }
