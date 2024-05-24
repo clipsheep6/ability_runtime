@@ -73,7 +73,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     std::shared_ptr<AbilityInfo> abilityInfoptr;
     std::shared_ptr<ApplicationInfo> appInfo;
     std::shared_ptr<AAFwk::Want> wantptr;
-    amsMgrScheduler.LoadAbility(token, preToken, abilityInfoptr, appInfo, wantptr);
+    int32_t abilityRecordId = static_cast<int32_t>(GetU32Data(data));
+    amsMgrScheduler.LoadAbility(token, preToken, abilityInfoptr, appInfo, wantptr, abilityRecordId);
     AppExecFwk::AbilityState state = AppExecFwk::AbilityState::ABILITY_STATE_READY;
     amsMgrScheduler.UpdateAbilityState(token, state);
     AppExecFwk::ExtensionState extensionState = AppExecFwk::ExtensionState::EXTENSION_STATE_READY;
@@ -103,6 +104,9 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     Want* want = nullptr;
     if (wantParcel.WriteBuffer(data, size)) {
         want = Want::Unmarshalling(wantParcel);
+        if (!want) {
+            return false;
+        }
     }
     AbilityInfo abilityInfo;
     amsMgrScheduler.StartSpecifiedAbility(*want, abilityInfo);
@@ -110,6 +114,10 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     AppExecFwk::ApplicationInfo application;
     bool debug;
     amsMgrScheduler.GetApplicationInfoByProcessID(pid, application, debug);
+    if (want) {
+        delete want;
+        want = nullptr;
+    }
     return amsMgrScheduler.IsReady();
 }
 }

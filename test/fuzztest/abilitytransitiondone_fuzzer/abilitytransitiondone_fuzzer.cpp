@@ -105,7 +105,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     if (abilitymgr->AbilityTransitionDone(token, state, saveData) != 0) {
         return false;
     }
-
+    delete connectManager;
+    delete dataManager;
     return true;
 }
 }

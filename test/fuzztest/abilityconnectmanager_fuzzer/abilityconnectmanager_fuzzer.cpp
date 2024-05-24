@@ -139,8 +139,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     std::shared_ptr<ConnectionRecord> connection;
     abilityConnectManager->RemoveConnectionRecordFromMap(connection);
     abilityConnectManager->RemoveServiceAbility(abilityRecord);
-    abilityConnectManager->AddConnectDeathRecipient(connect);
-    abilityConnectManager->RemoveConnectDeathRecipient(connect);
     sptr<IRemoteObject> connectRemoteObject = GetFuzzAbilityToken();
     wptr<IRemoteObject> remote = connectRemoteObject;
     abilityConnectManager->OnCallBackDied(remote);
