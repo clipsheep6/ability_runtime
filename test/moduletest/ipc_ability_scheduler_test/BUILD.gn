@@ -50,7 +50,7 @@ ohos_moduletest("IpcAbilitySchedulerModuleTest") {
     "ability_base:zuri",
     "ability_runtime:ability_manager",
     "bundle_framework:appexecfwk_core",
-    "c_utils:utilsbase",
+    "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
