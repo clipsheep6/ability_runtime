@@ -333,6 +333,16 @@ public:
     int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug);
 
     /**
+     *  Get the accessTokenId by pid.
+     *
+     * @param pid The process id.
+     * @param accessTokenId The accessTokenId.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t GetBundleNameUidAndAccessTokenIdByPid(int32_t pid, std::string &bundleName, uint32_t &accessTokenId,
+        int32_t &uid);
+
+    /**
      * Record process exit reason to appRunningRecord
      * @param pid pid
      * @param reason reason enum

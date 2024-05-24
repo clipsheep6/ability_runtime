@@ -33,13 +33,13 @@ public:
 
     virtual ~AppExitReasonDataManager();
 
-    int32_t SetAppExitReason(const std::string &bundleName, const std::vector<std::string> &abilityList,
-        const AAFwk::ExitReason &exitReason);
+    int32_t SetAppExitReason(const std::string &bundleName, uint32_t accessTokenId,
+        const std::vector<std::string> &abilityList, const AAFwk::ExitReason &exitReason);
 
-    int32_t GetAppExitReason(const std::string &bundleName, const std::string &abilityName, bool &isSetReason,
-        AAFwk::ExitReason &exitReason);
+    int32_t GetAppExitReason(const std::string &bundleName, uint32_t accessTokenId, const std::string &abilityName,
+        bool &isSetReason, AAFwk::ExitReason &exitReason);
 
-    int32_t DeleteAppExitReason(const std::string &bundleName);
+    int32_t DeleteAppExitReason(const std::string &bundleName, int32_t uid);
 
     int32_t AddAbilityRecoverInfo(const std::string &bundleName,
         const std::string &moduleName, const std::string &abilityName, const int &sessionId);
@@ -65,9 +65,9 @@ private:
         const std::vector<std::string> &abilityList, const AAFwk::ExitReason &exitReason);
     void ConvertAppExitReasonInfoFromValue(const DistributedKv::Value &value, AAFwk::ExitReason &exitReason,
         int64_t &time_stamp, std::vector<std::string> &abilityList);
-    void UpdateAppExitReason(const std::string &bundleName, const std::vector<std::string> &abilityList,
+    void UpdateAppExitReason(uint32_t accessTokenId, const std::vector<std::string> &abilityList,
         const AAFwk::ExitReason &exitReason);
-    void InnerDeleteAppExitReason(const std::string &bundleName);
+    void InnerDeleteAppExitReason(const std::string &keyName);
 
     void UpdateAbilityRecoverInfo(const std::string &bundleName,
         const std::vector<std::string> &recoverInfoList, const std::vector<int> &sessionIdList);
