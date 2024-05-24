@@ -103,9 +103,6 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
     constexpr auto flag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION;
     info.want.SetParam(PARAM_FREEINSTALL_UID, IPCSkeleton::GetCallingUid());
 
-    if (isAsync) {
-        PostTimeoutTask(want);
-    }
     if (IN_PROCESS_CALL(bundleMgrHelper->QueryAbilityInfo(info.want, flag, info.userId, abilityInfo, callback))) {
         TAG_LOGI(AAFwkTag::FREE_INSTALL, "The app has installed.");
     }
@@ -134,6 +131,7 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
 int FreeInstallManager::RemoteFreeInstall(const Want &want, int32_t userId, int requestCode,
     const sptr<IRemoteObject> &callerToken)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::FREE_INSTALL, "RemoteFreeInstall called");
     bool isFromRemote = want.GetBoolParam(FROM_REMOTE_KEY, false);
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
@@ -185,6 +183,7 @@ FreeInstallInfo FreeInstallManager::BuildFreeInstallInfo(const Want &want, int32
 int FreeInstallManager::StartRemoteFreeInstall(const Want &want, int requestCode, int32_t validUserId,
     const sptr<IRemoteObject> &callerToken)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::FREE_INSTALL, "%{public}s", __func__);
     if (!want.GetBoolParam(Want::PARAM_RESV_FOR_RESULT, false)) {
         TAG_LOGI(AAFwkTag::FREE_INSTALL, "%{public}s: StartAbility freeInstall", __func__);
@@ -416,13 +415,7 @@ void FreeInstallManager::OnInstallFinished(int resultCode, const Want &want, int
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::FREE_INSTALL, "%{public}s resultCode = %{public}d", __func__, resultCode);
-    if (isAsync) {
-        // remove timeout task
-        std::string bundleName = want.GetElement().GetBundleName();
-        std::string abilityName = want.GetElement().GetAbilityName();
-        std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
-        RemoveTimeoutTask(bundleName, abilityName, startTime);
-    }
+
     NotifyDmsCallback(want, resultCode);
     NotifyFreeInstallResult(want, resultCode, isAsync);
 

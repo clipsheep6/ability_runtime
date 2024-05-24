@@ -84,5 +84,39 @@ bool ChildSchedulerProxy::ScheduleExitProcessSafely()
     TAG_LOGD(AAFwkTag::APPMGR, "ScheduleExitProcessSafely end.");
     return true;
 }
+
+bool ChildSchedulerProxy::ScheduleRunNativeProc(const sptr<IRemoteObject> &mainProcessCb)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "ScheduleRunNativeProc start.");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
+        return false;
+    }
+
+    if (!data.WriteRemoteObject(mainProcessCb)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write main process callback ipc object failed.");
+        return false;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote() is null.");
+        return false;
+    }
+
+    int32_t ret = remote->SendRequest(
+        static_cast<uint32_t>(IChildScheduler::Message::SCHEDULE_RUN_NATIVE_PROC), data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d.", ret);
+        return false;
+    }
+
+    TAG_LOGD(AAFwkTag::APPMGR, "ScheduleRunNativeProc end.");
+    return true;
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

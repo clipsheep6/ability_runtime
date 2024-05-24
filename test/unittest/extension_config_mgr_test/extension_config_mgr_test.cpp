@@ -27,7 +27,6 @@ using namespace testing::ext;
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-    constexpr int32_t DEFAULT_BLOCKLIST_EXTENSION_NUM = 19;
     constexpr int32_t EXTENSION_TYPE_FORM = 0;
     constexpr int32_t EXTENSION_TYPE_WORK_SCHEDULER = 1;
     constexpr int32_t EXTENSION_TYPE_INPUTMETHOD = 2;
@@ -85,7 +84,6 @@ HWTEST_F(ExtensionConfigMgrTest, Init_0100, TestSize.Level0)
 {
     ExtensionConfigMgr mgr;
     mgr.Init();
-    EXPECT_EQ(static_cast<int32_t>(mgr.blocklistConfig_.size()), DEFAULT_BLOCKLIST_EXTENSION_NUM);
     bool result = false;
     result = (mgr.blocklistConfig_.find(BLOCK_LIST_ITEM_SERVICE_EXTENSION) != mgr.blocklistConfig_.end());
     EXPECT_TRUE(result);

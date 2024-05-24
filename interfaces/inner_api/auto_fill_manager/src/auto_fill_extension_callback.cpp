@@ -31,6 +31,7 @@ constexpr static char WANT_PARAMS_AUTO_FILL_CMD_KEY[] = "ohos.ability.params.aut
 constexpr static char WANT_PARAMS_UPDATE_POPUP_WIDTH[] = "ohos.ability.params.popupWidth";
 constexpr static char WANT_PARAMS_UPDATE_POPUP_HEIGHT[] = "ohos.ability.params.popupHeight";
 constexpr static char WANT_PARAMS_UPDATE_POPUP_PLACEMENT[] = "ohos.ability.params.popupPlacement";
+constexpr static char WANT_PARAMS_FILL_CONTENT[] = "ohos.ability.params.fillContent";
 } // namespace
 void AutoFillExtensionCallback::OnResult(int32_t errCode, const AAFwk::Want &want)
 {
@@ -50,7 +51,7 @@ void AutoFillExtensionCallback::OnResult(int32_t errCode, const AAFwk::Want &wan
     } else {
         auto resultCode = (errCode == AutoFill::AUTO_FILL_CANCEL) ?
             AutoFill::AUTO_FILL_CANCEL : AutoFill::AUTO_FILL_FAILED;
-        SendAutoFillFailed(resultCode);
+        SendAutoFillFailed(resultCode, want);
     }
 }
 
@@ -197,6 +198,11 @@ void AutoFillExtensionCallback::SetUIContent(Ace::UIContent *uiContent)
     uiContent_ = uiContent;
 }
 
+Ace::UIContent *AutoFillExtensionCallback::GetUIContent()
+{
+    return uiContent_;
+}
+
 void AutoFillExtensionCallback::SetEventId(uint32_t eventId)
 {
     eventId_ = eventId;
@@ -254,10 +260,11 @@ void AutoFillExtensionCallback::SendAutoFillSucess(const AAFwk::Want &want)
     }
 }
 
-void AutoFillExtensionCallback::SendAutoFillFailed(int32_t errCode)
+void AutoFillExtensionCallback::SendAutoFillFailed(int32_t errCode, const AAFwk::Want &want)
 {
     if (fillCallback_ != nullptr) {
-        fillCallback_->OnFillRequestFailed(errCode);
+        std::string fillContent = want.GetStringParam(WANT_PARAMS_FILL_CONTENT);
+        fillCallback_->OnFillRequestFailed(errCode, fillContent);
         fillCallback_ = nullptr;
     }
 
@@ -274,12 +281,12 @@ void AutoFillExtensionCallback::CloseModalUIExtension()
         return;
     }
 
-    AutoFillManager::GetInstance().RemoveAutoFillExtensionProxy(uiContent_);
     if (autoFillWindowType_ == AutoFill::AutoFillWindowType::POPUP_WINDOW) {
         uiContent_->DestroyCustomPopupUIExtension(sessionId_);
     } else if (autoFillWindowType_ == AutoFill::AutoFillWindowType::MODAL_WINDOW) {
         uiContent_->CloseModalUIExtension(sessionId_);
     }
+    AutoFillManager::GetInstance().RemoveAutoFillExtensionProxy(uiContent_);
     uiContent_ = nullptr;
 }
 } // namespace AbilityRuntime

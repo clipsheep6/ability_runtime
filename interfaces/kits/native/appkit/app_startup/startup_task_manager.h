@@ -37,7 +37,7 @@ public:
 
     int32_t AddTask(const std::shared_ptr<StartupTask> &task);
 
-    int32_t SetConfig(const std::shared_ptr<StartupConfig> &config);
+    void SetConfig(const std::shared_ptr<StartupConfig> &config);
 
     int32_t Prepare();
 

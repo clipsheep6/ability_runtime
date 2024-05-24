@@ -18,6 +18,7 @@
 #include "configuration_convertor.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #ifdef SUPPORT_GRAPHICS
 #include "window.h"
 #endif
@@ -29,6 +30,7 @@ using namespace AppExecFwk;
 void ConfigurationUtils::UpdateGlobalConfig(const Configuration &configuration,
     std::shared_ptr<ResourceManager> resourceManager)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITY, "Enter");
     if (resourceManager == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITY, "Resource manager is invalid.");
@@ -39,6 +41,7 @@ void ConfigurationUtils::UpdateGlobalConfig(const Configuration &configuration,
     std::string colormode;
     std::string hasPointerDevice;
     GetGlobalConfig(configuration, language, colormode, hasPointerDevice);
+    std::string colorModeIsSetByApp = configuration.GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP);
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     if (resConfig == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITY, "Create resource config failed.");
@@ -73,6 +76,12 @@ void ConfigurationUtils::UpdateGlobalConfig(const Configuration &configuration,
         TAG_LOGD(AAFwkTag::ABILITY, "Update config, hasPointerDevice: %{public}d", resConfig->GetInputDevice());
     }
 
+    if (!colorModeIsSetByApp.empty()) {
+        TAG_LOGD(AAFwkTag::ABILITY, "set app true");
+        resConfig->SetAppColorMode(true);
+    }
+
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "resourceManager->UpdateResConfig");
     Global::Resource::RState ret = resourceManager->UpdateResConfig(*resConfig);
     if (ret != Global::Resource::RState::SUCCESS) {
         TAG_LOGE(AAFwkTag::ABILITY, "Update resource config failed with %{public}d.", static_cast<int>(ret));

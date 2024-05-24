@@ -63,6 +63,8 @@ struct VerificationInfo {
 
     int32_t VerifyUpdateConfigurationPerm() const;
 
+    int32_t VerifyUpdateAPPConfigurationPerm() const;
+
     bool VerifyInstallBundlePermission() const;
 
     bool VerifyGetBundleInfoPrivilegedPermission() const;

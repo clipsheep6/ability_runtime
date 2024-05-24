@@ -24,6 +24,7 @@ bool ProcessOptions::ReadFromParcel(Parcel &parcel)
 {
     processMode = static_cast<ProcessMode>(parcel.ReadInt32());
     startupVisibility = static_cast<StartupVisibility>(parcel.ReadInt32());
+    processName = parcel.ReadString();
     return true;
 }
 
@@ -52,6 +53,10 @@ bool ProcessOptions::Marshalling(Parcel &parcel) const
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write startupVisibility");
         return false;
     }
+    if (!parcel.WriteString(processName)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write processName");
+        return false;
+    }
     return true;
 }
 
@@ -77,6 +82,17 @@ bool ProcessOptions::IsNewProcessMode(ProcessMode value)
 {
     return (value == ProcessMode::NEW_PROCESS_ATTACH_TO_PARENT) ||
         (value == ProcessMode::NEW_PROCESS_ATTACH_TO_STATUS_BAR_ITEM);
+}
+
+bool ProcessOptions::IsAttachToStatusBarMode(ProcessMode value)
+{
+    return (value == ProcessMode::NEW_PROCESS_ATTACH_TO_STATUS_BAR_ITEM) ||
+        (value == ProcessMode::ATTACH_TO_STATUS_BAR_ITEM);
+}
+
+bool ProcessOptions::IsValidProcessMode(ProcessMode value)
+{
+    return (value > ProcessMode::UNSPECIFIED) && (value < ProcessMode::END);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

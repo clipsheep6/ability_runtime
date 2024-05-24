@@ -29,6 +29,7 @@
 #include "errors.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 #include "locale_config.h"
 #include "parameters.h"
@@ -133,6 +134,7 @@ const float SETX_WIDTH_MULTIPLE = 0.1;
 
 Want SystemDialogScheduler::GetTipsDialogWant(const sptr<IRemoteObject> &callerToken)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::DIALOG, "GetTipsDialogWant start");
 
     DialogPosition position;
@@ -272,6 +274,7 @@ void SystemDialogScheduler::GetSelectorDialogLandscapePosition(
 void SystemDialogScheduler::GetSelectorDialogPositionAndSize(
     DialogPosition &portraitPosition, DialogPosition &landscapePosition, int lineNums) const
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     portraitPosition.wideScreen = !AppUtils::GetInstance().IsSelectorDialogDefaultPossion();
     portraitPosition.align = AppUtils::GetInstance().IsSelectorDialogDefaultPossion() ?
         DialogAlign::BOTTOM : DialogAlign::CENTER;
@@ -316,6 +319,7 @@ void SystemDialogScheduler::GetSelectorDialogPositionAndSize(
 int SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant,
     const sptr<IRemoteObject> &callerToken)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::DIALOG, "GetSelectorDialogWant start");
     DialogPosition portraitPosition;
     DialogPosition landscapePosition;
@@ -331,6 +335,7 @@ int SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInfo
 
 const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<DialogAppInfo> &infos) const
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (infos.empty()) {
         TAG_LOGW(AAFwkTag::DIALOG, "Invalid abilityInfos.");
         return {};
@@ -357,6 +362,7 @@ const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<Dia
 int SystemDialogScheduler::GetPcSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos,
     Want &targetWant, const std::string &type, int32_t userId, const sptr<IRemoteObject> &callerToken)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::DIALOG, "GetPcSelectorDialogWant start");
     DialogPosition position;
     GetDialogPositionAndSize(DialogType::DIALOG_SELECTOR, position, static_cast<int>(dialogAppInfos.size()));
@@ -406,6 +412,7 @@ const std::string SystemDialogScheduler::GetPcSelectorParams(const std::vector<D
 int SystemDialogScheduler::GetSelectorDialogWantCommon(const std::vector<DialogAppInfo> &dialogAppInfos,
     Want &targetWant, const sptr<IRemoteObject> &callerToken)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::DIALOG, "GetSelectorDialogWantCommon start");
     bool isCallerStageBasedModel = true;
     if (callerToken != nullptr) {
@@ -526,6 +533,7 @@ void SystemDialogScheduler::DialogPositionAdaptive(DialogPosition &position, int
 
 void SystemDialogScheduler::GetDialogPositionAndSize(DialogType type, DialogPosition &position, int lineNums) const
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     InitDialogPosition(type, position);
 
     auto display = Rosen::DisplayManager::GetInstance().GetDefaultDisplay();

@@ -30,6 +30,7 @@
 #include "ability_state_data.h"
 #include "app_debug_listener_interface.h"
 #include "auto_startup_info.h"
+#include "dms_continueInfo.h"
 #include "exit_reason.h"
 #include "extension_running_info.h"
 #include "free_install_observer_interface.h"
@@ -337,6 +338,20 @@ public:
         return 0;
     }
 
+    /**
+     * Preload UIExtension with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param hostBundleName, the caller application bundle name.
+     * @param userId, the extension runs in.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int PreloadUIExtensionAbility(const Want &want, std::string &hostBundleName,
+        int32_t userId = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
     virtual int ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow)
     {
         return 0;
@@ -365,9 +380,10 @@ public:
      * Start ui ability with want, send want to ability manager service.
      *
      * @param sessionInfo the session info of the ability to start.
+     * @param isColdStart the session info of the ability is or not cold start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
+    virtual int StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bool &isColdStart)
     {
         return 0;
     }
@@ -759,8 +775,7 @@ public:
     virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId, int32_t missionId,
         const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams) = 0;
 
-    virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
-        const std::string &bundleName, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
+    virtual int ContinueMission(AAFwk::ContinueMissionInfo continueMissionInfo, const sptr<IRemoteObject> &callback)
     {
         return 0;
     }
@@ -1508,6 +1523,18 @@ public:
         return 0;
     }
 
+    /*
+     * Set the enable status for starting and stopping resident processes.
+     * The caller application can only set the resident status of the configured process.
+     * @param bundleName The bundle name of the resident process.
+     * @param enable Set resident process enable status.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t SetResidentProcessEnabled(const std::string &bundleName, bool enable)
+    {
+        return 0;
+    }
+
     /**
      * @brief Querying whether to allow embedded startup of atomic service.
      *
@@ -1562,6 +1589,19 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t GetAbilityStateByPersistentId(int32_t persistentId, bool &state)
+    {
+        return 0;
+    }
+
+    /**
+     * Transfer resultCode & want to ability manager service.
+     *
+     * @param resultCode, the resultCode of the ability to terminate.
+     * @param resultWant, the Want of the ability to return.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t TransferAbilityResultForExtension(const sptr<IRemoteObject> &callerToken, int32_t resultCode,
+        const Want &want)
     {
         return 0;
     }

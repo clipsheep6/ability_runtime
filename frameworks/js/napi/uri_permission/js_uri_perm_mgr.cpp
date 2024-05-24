@@ -70,19 +70,19 @@ private:
         std::string uriStr;
         if (!OHOS::AppExecFwk::UnwrapStringFromJS2(env, info.argv[0], uriStr)) {
             TAG_LOGE(AAFwkTag::URIPERMMGR, "The uriStr is invalid.");
-            ThrowInvalidParamError(env, "Parameter error: The uriStr is invalid, must be a string.");
+            ThrowInvalidParamError(env, "Parse param uri failed, uri must be string.");
             return CreateJsUndefined(env);
         }
         int flag = 0;
         if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(env, info.argv[1], flag)) {
             TAG_LOGE(AAFwkTag::URIPERMMGR, "The flag is invalid.");
-            ThrowInvalidParamError(env, "Parameter error: The flag is invalid, must be a Flags.");
+            ThrowInvalidParamError(env, "Parse param flag failed, flag must be number.");
             return CreateJsUndefined(env);
         }
         std::string targetBundleName;
         if (!OHOS::AppExecFwk::UnwrapStringFromJS2(env, info.argv[argCountTwo], targetBundleName)) {
             TAG_LOGE(AAFwkTag::URIPERMMGR, "The targetBundleName is invalid.");
-            ThrowInvalidParamError(env, "Parameter error: The targetBundleName is invalid, must be a string.");
+            ThrowInvalidParamError(env, "Parse param targetBundleName failed, targetBundleName must be string.");
             return CreateJsUndefined(env);
         }
         auto selfToken = IPCSkeleton::GetSelfTokenID();
@@ -132,13 +132,13 @@ private:
         std::string uriStr;
         if (!OHOS::AppExecFwk::UnwrapStringFromJS2(env, info.argv[0], uriStr)) {
             TAG_LOGE(AAFwkTag::URIPERMMGR, "invalid of the uriStr.");
-            ThrowInvalidParamError(env, "Parameter error: Invalid of the uriStr, must be a string.");
+            ThrowInvalidParamError(env, "Parse param uri failed, uri must be string.");
             return CreateJsUndefined(env);
         }
         std::string bundleName;
         if (!OHOS::AppExecFwk::UnwrapStringFromJS2(env, info.argv[1], bundleName)) {
             TAG_LOGE(AAFwkTag::URIPERMMGR, "The bundleName is invalid.");
-            ThrowInvalidParamError(env, "Parameter error: Invalid of the uriStr, must be a string.");
+            ThrowInvalidParamError(env, "Parse param bundleName failed, bundleName must be string.");
             return CreateJsUndefined(env);
         }
         auto selfToken = IPCSkeleton::GetSelfTokenID();
@@ -175,7 +175,7 @@ private:
 
 napi_value CreateJsUriPermMgr(napi_env env, napi_value exportObj)
 {
-    TAG_LOGI(AAFwkTag::URIPERMMGR, "CreateJsUriPermMgr is called");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "CreateJsUriPermMgr is called");
     if (env == nullptr || exportObj == nullptr) {
         TAG_LOGI(AAFwkTag::URIPERMMGR, "Invalid input parameters");
         return nullptr;

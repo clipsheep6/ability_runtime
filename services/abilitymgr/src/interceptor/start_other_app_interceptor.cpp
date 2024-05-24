@@ -40,7 +40,7 @@ ErrCode StartOtherAppInterceptor::DoProcess(AbilityInterceptorParam param)
     if (StartAbilityUtils::skipStartOther) {
         return ERR_OK;
     }
-    std::string supportStart = OHOS::system::GetParameter(ABILITY_SUPPORT_START_OTHER_APP, "false");
+    std::string supportStart = OHOS::system::GetParameter(ABILITY_SUPPORT_START_OTHER_APP, "true");
     if (supportStart == "true") {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Abilityms support start other app.");
         return ERR_OK;
@@ -110,7 +110,7 @@ bool StartOtherAppInterceptor::GetApplicationInfo(const sptr<IRemoteObject> &cal
     AppExecFwk::ApplicationInfo &applicationInfo)
 {
     if (callerToken == nullptr) {
-        int32_t callerPid = IPCSkeleton::GetCallingPid();
+        int32_t callerPid = IPCSkeleton::GetCallingRealPid();
         auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
         bool debug;
         if (appScheduler != nullptr &&
@@ -148,7 +148,7 @@ bool StartOtherAppInterceptor::IsDelegatorCall(const Want want)
 {
     AppExecFwk::RunningProcessInfo processInfo;
     DelayedSingleton<AppScheduler>::GetInstance()->
-        GetRunningProcessInfoByPid(IPCSkeleton::GetCallingPid(), processInfo);
+        GetRunningProcessInfoByPid(IPCSkeleton::GetCallingRealPid(), processInfo);
     if (processInfo.isTestProcess && want.GetBoolParam(IS_DELEGATOR_CALL, false)) {
         return true;
     }

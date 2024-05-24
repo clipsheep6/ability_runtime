@@ -385,7 +385,8 @@ public:
      * @param want Want contains information wish to start.
      * @param abilityInfo Ability information.
      */
-    virtual void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
+    virtual void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0);
 
     /**
      * Register response of start specified ability.
@@ -400,16 +401,8 @@ public:
      * @param want Want contains information wish to start.
      * @param abilityInfo Ability information.
      */
-    virtual void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
-
-    /**
-     * Schedule new process request done.
-     *
-     * @param recordId Application record.
-     * @param want Want.
-     * @param flag flag get from OnNewProcessRequest.
-     */
-    virtual void ScheduleNewProcessRequest(const int32_t recordId, const AAFwk::Want &want, const std::string &flag);
+    virtual void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0);
 
     /**
      * Schedule accept want done.
@@ -448,7 +441,7 @@ public:
      */
     virtual int StartRenderProcess(const std::string &renderParam,
                                    int32_t ipcFd, int32_t sharedFd,
-                                   int32_t crashFd, pid_t &renderPid);
+                                   int32_t crashFd, pid_t &renderPid, bool isGPU = false);
 
     /**
      * Render process call this to attach app manager service.
@@ -484,7 +477,7 @@ public:
      * @param debug Whether IsDebugApp.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t StartNativeProcessForDebugger(const AAFwk::Want &want) const;
+    int32_t StartNativeProcessForDebugger(const AAFwk::Want &want);
 
     /**
      * Set the current userId of appMgr.
@@ -613,12 +606,11 @@ public:
     bool IsAttachDebug(const std::string &bundleName);
 
     /**
-     * Set application assertion pause state.
-     *
-     * @param pid App process pid.
-     * @param flag assertion pause state.
+     * @brief Set resident process enable status.
+     * @param bundleName The application bundle name.
+     * @param enable The current updated enable status.
      */
-    void SetAppAssertionPauseState(int32_t pid, bool flag);
+    void SetKeepAliveEnableState(const std::string &bundleName, bool enable);
 
     /**
      * Register application or process state observer.
@@ -722,6 +714,15 @@ public:
     bool IsMemorySizeSufficent() const;
 
     /**
+     * Record process exit reason to appRunningRecord
+     * @param pid pid
+     * @param reason reason enum
+     * @param exitMsg exitMsg
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg);
+
+    /**
      * Preload application.
      *
      * @param bundleName The bundle name of the application to preload.
@@ -734,6 +735,8 @@ public:
         AppExecFwk::PreloadMode preloadMode, int32_t appIndex = 0);
 
     int32_t SetSupportedProcessCacheSelf(bool isSupport);
+
+    void SaveBrowserChannel(sptr<IRemoteObject> browser);
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
     /**

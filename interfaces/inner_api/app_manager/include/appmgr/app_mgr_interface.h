@@ -41,6 +41,7 @@
 #include "system_memory_attr.h"
 #include "want.h"
 #include "app_jsheap_mem_info.h"
+#include "running_multi_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -142,6 +143,28 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int GetAllRunningProcesses(std::vector<RunningProcessInfo> &info) = 0;
+
+    /**
+     * GetRunningMultiAppInfoByBundleName, call GetRunningMultiAppInfoByBundleName() through proxy project.
+     * Obtains information about multiapp that are running on the device.
+     *
+     * @param bundlename, bundle name in Application record.
+     * @param info, output multiapp information.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t GetRunningMultiAppInfoByBundleName(const std::string &bundleName,
+        RunningMultiAppInfo &info) = 0;
+
+    /**
+     * GetRunningProcessesByBundleType, call GetRunningProcessesByBundleType() through proxy project.
+     * Obtains information about application processes by bundle type that are running on the device.
+     *
+     * @param bundleType, bundle type of the processes
+     * @param info, app name in Application record.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int GetRunningProcessesByBundleType(const BundleType bundleType,
+        std::vector<RunningProcessInfo> &info) = 0;
 
     /**
      * GetAllRenderProcesses, call GetAllRenderProcesses() through proxy project.
@@ -323,11 +346,12 @@ public:
      * @param sharedFd, shared memory file descriptior.
      * @param crashFd, crash signal file descriptior.
      * @param renderPid, created render pid.
+     * @param isGPU, is or not gpu process
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int StartRenderProcess(const std::string &renderParam,
                                    int32_t ipcFd, int32_t sharedFd,
-                                   int32_t crashFd, pid_t &renderPid) = 0;
+                                   int32_t crashFd, pid_t &renderPid, bool isGPU = false) = 0;
 
     /**
      * Render process call this to attach app manager service.
@@ -539,7 +563,8 @@ public:
      * @param childPid Created child process pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid) = 0;
+    virtual int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount,
+        bool isStartWithDebug) = 0;
 
     /**
      * Get child process record for self.
@@ -640,6 +665,25 @@ public:
     }
 
     virtual int32_t SetSupportedProcessCacheSelf(bool isSupport) = 0;
+
+    /**
+     * Set application assertion pause state.
+     *
+     * @param flag assertion pause state.
+     */
+    virtual void SetAppAssertionPauseState(bool flag) {}
+
+    /**
+     * Start native child process, callde by ChildProcessManager.
+     * @param libName lib file name to be load in child process
+     * @param childProcessCount current started child process count
+     * @param callback callback for notify start result
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t StartNativeChildProcess(const std::string &libName, int32_t childProcessCount,
+        const sptr<IRemoteObject> &callback) = 0;
+
+    virtual void SaveBrowserChannel(sptr<IRemoteObject> browser) = 0;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

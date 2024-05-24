@@ -27,11 +27,10 @@ ohos_shared_library("dialogsession_napi") {
 
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/appkit:app_context",
-    "//third_party/json:nlohmann_json_static",
-    "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [
@@ -45,6 +44,8 @@ ohos_shared_library("dialogsession_napi") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
+    "jsoncpp:jsoncpp",
     "napi:ace_napi",
     "samgr:samgr_proxy",
   ]

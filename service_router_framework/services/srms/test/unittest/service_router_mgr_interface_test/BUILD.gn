@@ -23,10 +23,12 @@ ohos_unittest("ServiceRouterMgrInterfaceTest") {
   sources = [
     "${srms_services_path}/src/inner_service_info.cpp",
     "${srms_services_path}/src/service_router_data_mgr.cpp",
+    "${srms_services_path}/src/sr_samgr_helper.cpp",
     "srms_interface_test.cpp",
   ]
 
   deps = [
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${bundlefwk_common_path}:libappexecfwk_common",
     "${srms_inner_api_path}:srms_fwk",
   ]

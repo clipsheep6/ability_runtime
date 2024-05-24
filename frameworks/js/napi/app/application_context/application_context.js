@@ -177,6 +177,10 @@ class ApplicationContext {
     return this.__context_impl__.clearUpApplicationData(callback);
   }
 
+  preloadUIExtensionAbility(want) {
+    return this.__context_impl__.preloadUIExtensionAbility(want);
+  }
+
   restartApp(want) {
     return this.__context_impl__.restartApp(want);
   }
@@ -185,6 +189,10 @@ class ApplicationContext {
     return this.__context_impl__.setSupportedProcessCache(isSupport);
   }
 
+  getCurrentAppCloneIndex(){
+    return this.__context_impl__.getCurrentAppCloneIndex()
+  }
+  
   set area(mode) {
     return this.__context_impl__.switchArea(mode);
   }

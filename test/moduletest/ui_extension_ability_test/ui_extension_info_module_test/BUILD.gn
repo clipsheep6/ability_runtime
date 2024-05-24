@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Copyright (c) 2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -46,6 +46,7 @@ ohos_moduletest("ui_extension_info_module_test") {
     "c_utils:utils",
     "ffrt:libffrt",
     "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",

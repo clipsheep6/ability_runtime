@@ -20,6 +20,7 @@
 #include "ability_manager_errors.h"
 #include "distributed_client.h"
 #include "distributed_parcel_helper.h"
+#include "dms_continueInfo.h"
 #include "iservice_registry.h"
 #include "iremote_object.h"
 #include "mock_ability_connect_callback.h"
@@ -212,10 +213,16 @@ HWTEST_F(DistributedClientTest, ContinueMissionBundleName_0100, TestSize.Level3)
 {
     GTEST_LOG_(INFO) << "DistributedClientTest ContinueMissionBundleName_0100 start";
     auto client = std::make_shared<OHOS::AAFwk::DistributedClient>();
-    std::string srcDeviceId = "deviceId";
-    std::string dstDeviceId = "deviceId";
-    OHOS::AAFwk::WantParams wantParams;
-    int32_t result = client->ContinueMission(srcDeviceId, dstDeviceId, "bundleName", nullptr, wantParams);
+    std::string srcDeviceId = "";
+    std::string dstDeviceId = "";
+    const sptr<IRemoteObject> callBack = nullptr;
+    AAFwk::WantParams wantParams;
+    OHOS::AAFwk::ContinueMissionInfo continueMissionInfo;
+    continueMissionInfo.dstDeviceId = dstDeviceId;
+    continueMissionInfo.srcDeviceId = srcDeviceId;
+    continueMissionInfo.bundleName = "bundleName";
+    continueMissionInfo.wantParams = wantParams;
+    int32_t result = client->ContinueMission(continueMissionInfo, callBack);
     EXPECT_EQ(result, ERR_NULL_OBJECT);
     GTEST_LOG_(INFO) << "DistributedClientTest ContinueMissionBundleName_0100 end";
 }
@@ -229,11 +236,16 @@ HWTEST_F(DistributedClientTest, ContinueMissionBundleName_0200, TestSize.Level3)
 {
     GTEST_LOG_(INFO) << "DistributedClientTest ContinueMissionBundleName_0200 start";
     auto client = std::make_shared<OHOS::AAFwk::DistributedClient>();
-    std::string srcDeviceId = "deviceId";
-    std::string dstDeviceId = "deviceId";
-    OHOS::AAFwk::WantParams wantParams;
+    std::string srcDeviceId = "";
+    std::string dstDeviceId = "";
+    AAFwk::WantParams wantParams;
+    OHOS::AAFwk::ContinueMissionInfo continueMissionInfo;
+    continueMissionInfo.dstDeviceId = dstDeviceId;
+    continueMissionInfo.srcDeviceId = srcDeviceId;
+    continueMissionInfo.bundleName = "bundleName";
+    continueMissionInfo.wantParams = wantParams;
     sptr<IRemoteObject> callback = new (std::nothrow) OHOS::AAFwk::AbilityConnectCallback();
-    int32_t result = client->ContinueMission(srcDeviceId, dstDeviceId, "bundleName", callback, wantParams);
+    int32_t result = client->ContinueMission(continueMissionInfo, callback);
     if (client->GetDmsProxy() != nullptr) {
         EXPECT_EQ(result, OHOS::AAFwk::DMS_PERMISSION_DENIED);
     } else {

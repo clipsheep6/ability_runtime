@@ -181,7 +181,7 @@ bool JsEnvironment::LoadScript(const std::string& path, std::vector<uint8_t>* bu
 }
 
 bool JsEnvironment::StartDebugger(
-    std::string& option, const char* libraryPath, uint32_t socketFd, bool needBreakPoint, uint32_t instanceId)
+    std::string& option, uint32_t socketFd, bool isDebugApp, const DebuggerPostTask &debuggerPostTask)
 {
     JSENV_LOG_D("call.");
     if (vm_ == nullptr) {
@@ -193,7 +193,18 @@ bool JsEnvironment::StartDebugger(
         JSENV_LOG_E("Abnormal parsing of tid results.");
         return false;
     }
-    debugMode_ = panda::JSNApi::StartDebuggerForSocketPair(identifierId, socketFd);
+    if (isDebugApp) {
+        debugMode_ = panda::JSNApi::StartDebuggerForSocketPair(identifierId, socketFd);
+    } else {
+        if (debuggerPostTask == nullptr) {
+            JSENV_LOG_E("debuggerPostTask is nullptr.");
+            return false;
+        }
+        auto startDebuggerForSocketPairTask = [identifierId, socketFd, this]() {
+            debugMode_ = panda::JSNApi::StartDebuggerForSocketPair(identifierId, socketFd);
+        };
+        debuggerPostTask(startDebuggerForSocketPairTask);
+    }
     return debugMode_;
 }
 
@@ -336,24 +347,6 @@ void JsEnvironment::SetRequestAotCallback(const RequestAotCallback& cb)
 void JsEnvironment::SetDeviceDisconnectCallback(const std::function<bool()> &cb)
 {
     panda::JSNApi::SetDeviceDisconnectCallback(vm_, std::move(cb));
-}
-
-void JsEnvironment::StartMonitorJSHeapUsage()
-{
-    if (engine_ == nullptr) {
-        JSENV_LOG_E("Invalid native engine.");
-        return;
-    }
-    engine_->StartMonitorJSHeapUsage();
-}
-
-void JsEnvironment::StopMonitorJSHeapUsage()
-{
-    if (engine_ == nullptr) {
-        JSENV_LOG_E("Invalid native engine.");
-        return;
-    }
-    engine_->StopMonitorJSHeapUsage();
 }
 
 DebuggerPostTask JsEnvironment::GetDebuggerPostTask()

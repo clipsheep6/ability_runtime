@@ -16,6 +16,9 @@
 #include "resident_process_manager.h"
 
 #include "ability_manager_service.h"
+#include "ability_resident_process_rdb.h"
+#include "ability_util.h"
+#include "ffrt.h"
 #include "hilog_tag_wrapper.h"
 #include "user_controller.h"
 
@@ -26,6 +29,12 @@ ResidentProcessManager::ResidentProcessManager()
 
 ResidentProcessManager::~ResidentProcessManager()
 {}
+
+void ResidentProcessManager::Init()
+{
+    auto &amsRdb = AmsResidentProcessRdb::GetInstance();
+    amsRdb.Init();
+}
 
 void ResidentProcessManager::StartResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos)
 {
@@ -38,7 +47,10 @@ void ResidentProcessManager::StartResidentProcessWithMainElement(std::vector<App
 
     for (size_t i = 0; i < bundleInfos.size(); i++) {
         std::string processName = bundleInfos[i].applicationInfo.process;
-        if (!bundleInfos[i].isKeepAlive || processName.empty()) {
+        bool keepAliveEnable = bundleInfos[i].isKeepAlive;
+        // Check startup permissions
+        AmsResidentProcessRdb::GetInstance().GetResidentProcessEnable(bundleInfos[i].name, keepAliveEnable);
+        if (!keepAliveEnable || processName.empty()) {
             needEraseIndexSet.insert(i);
             continue;
         }
@@ -127,6 +139,127 @@ bool ResidentProcessManager::CheckMainElement(const AppExecFwk::HapModuleInfo &h
     }
 
     return true;
+}
+
+int32_t ResidentProcessManager::SetResidentProcessEnabled(
+    const std::string &bundleName, const std::string &callerName, bool updateEnable)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called");
+    if (bundleName.empty() || callerName.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Input parameter error");
+        return INVALID_PARAMETERS_ERR;
+    }
+    auto &rdb = AmsResidentProcessRdb::GetInstance();
+    auto rdbResult = rdb.VerifyConfigurationPermissions(bundleName, callerName);
+    if (rdbResult != Rdb_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to obtain permissions. result: %{public}d", rdbResult);
+        return ERR_NO_RESIDENT_PERMISSION;
+    }
+
+    bool localEnable = false;
+    rdbResult = rdb.GetResidentProcessEnable(bundleName, localEnable);
+    if (rdbResult != Rdb_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to obtain resident process properties. result: %{public}d", rdbResult);
+        return INNER_ERR;
+    }
+
+    if (updateEnable == localEnable) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "The setting properties of the resident process have not changed");
+        return ERR_OK;
+    }
+
+    rdbResult = rdb.UpdateResidentProcessEnable(bundleName, updateEnable);
+    if (rdbResult != Rdb_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Resident process attribute update failed");
+        return INNER_ERR;
+    }
+
+    auto appMgrClient = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance();
+    if (appMgrClient != nullptr) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Set keep alive enable state.");
+        IN_PROCESS_CALL_WITHOUT_RET(appMgrClient->SetKeepAliveEnableState(bundleName, updateEnable));
+    }
+
+    ffrt::submit(std::bind(&ResidentProcessManager::UpdateResidentProcessesStatus, shared_from_this(), bundleName,
+        localEnable, updateEnable));
+    return ERR_OK;
+}
+
+void ResidentProcessManager::UpdateResidentProcessesStatus(
+    const std::string &bundleName, bool localEnable, bool updateEnable)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    if (bundleName.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Bundle name is empty!");
+        return;
+    }
+
+    auto bms = AbilityUtil::GetBundleManagerHelper();
+    if (bms == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to obtain bms handle!");
+        return;
+    }
+
+    AppExecFwk::BundleInfo bundleInfo;
+    // user 0
+    int32_t userId = 0;
+    if (!IN_PROCESS_CALL(bms->GetBundleInfo(
+        bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId))) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to get bundle info.");
+        return;
+    }
+
+    // need start
+    if (updateEnable && !localEnable) {
+        std::vector<AppExecFwk::BundleInfo> bundleInfos{ bundleInfo };
+        StartResidentProcessWithMainElement(bundleInfos);
+        if (!bundleInfos.empty()) {
+            StartResidentProcess(bundleInfos);
+        }
+        return;
+    }
+}
+
+void ResidentProcessManager::OnAppStateChanged(const AppInfo &info)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called");
+    if (info.state != AppState::BEGIN) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Not a state of concern. state: %{public}d", info.state);
+        return;
+    }
+
+    if (info.pid <= 0) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "The obtained application pid is incorrect. state: %{public}d", info.pid);
+        return;
+    }
+
+    std::string bundleName;
+    // user 0
+    int32_t uid = 0;
+    auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
+    if (appScheduler == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "App scheduler error.");
+        return;
+    }
+    appScheduler->GetBundleNameByPid(info.pid, bundleName, uid);
+    if (bundleName.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get bundle name by pid failed.");
+        return;
+    }
+
+    bool localEnable = false;
+    auto rdbResult = AmsResidentProcessRdb::GetInstance().GetResidentProcessEnable(bundleName, localEnable);
+    if (rdbResult != Rdb_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to obtain resident process properties. result: %{public}d", rdbResult);
+        return;
+    }
+
+    auto appMgrClient = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance();
+    if (appMgrClient == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Set keep alive enable state error.");
+        return;
+    }
+    IN_PROCESS_CALL_WITHOUT_RET(appMgrClient->SetKeepAliveEnableState(bundleName, localEnable));
 }
 }  // namespace AAFwk
 }  // namespace OHOS

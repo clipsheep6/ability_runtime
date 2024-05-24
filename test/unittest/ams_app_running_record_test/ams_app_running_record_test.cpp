@@ -1704,11 +1704,11 @@ HWTEST_F(AmsAppRunningRecordTest, SetSpecifiedAbilityFlagAndWant_001, TestSize.L
     std::string processName = "processName";
     auto record = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
 
-    bool flag = true;
+    int32_t requestId = 1;
     AAFwk::Want want;
     std::string moduleName = "module123";
-    record->SetSpecifiedAbilityFlagAndWant(flag, want, moduleName);
-    EXPECT_TRUE(record->isSpecifiedAbility_ == flag);
+    record->SetSpecifiedAbilityFlagAndWant(requestId, want, moduleName);
+    EXPECT_TRUE(record->GetSpecifiedRequestId() == requestId);
     EXPECT_TRUE(record->moduleName_ == moduleName);
 }
 
@@ -1729,11 +1729,11 @@ HWTEST_F(AmsAppRunningRecordTest, IsStartSpecifiedAbility_001, TestSize.Level1)
     std::string processName = "processName";
     auto record = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
 
-    bool flag = true;
+    int32_t requestId = 1;
     AAFwk::Want want;
     std::string moduleName = "module123";
-    record->SetSpecifiedAbilityFlagAndWant(flag, want, moduleName);
-    EXPECT_TRUE(record->IsStartSpecifiedAbility() == flag);
+    record->SetSpecifiedAbilityFlagAndWant(requestId, want, moduleName);
+    EXPECT_TRUE(record->GetSpecifiedRequestId() == requestId);
 }
 
 /*
@@ -1753,11 +1753,10 @@ HWTEST_F(AmsAppRunningRecordTest, GetSpecifiedWant_001, TestSize.Level1)
     std::string processName = "processName";
     auto record = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
 
-    bool flag = true;
     Want want;
     want.SetElementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
     std::string moduleName = "module123";
-    record->SetSpecifiedAbilityFlagAndWant(flag, want, moduleName);
+    record->SetSpecifiedAbilityFlagAndWant(1, want, moduleName);
     EXPECT_TRUE(record->GetSpecifiedWant().GetBundle() == want.GetBundle());
 }
 
@@ -1871,7 +1870,7 @@ HWTEST_F(AmsAppRunningRecordTest, Specified_LaunchApplication_001, TestSize.Leve
         GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr, 0);
 
     record->SetApplicationClient(GetMockedAppSchedulerClient());
-    record->isSpecifiedAbility_ = true;
+    record->specifiedRequestId_ = 1;
     EXPECT_CALL(*mockAppSchedulerClient_, ScheduleLaunchApplication(_, _)).Times(1);
     service_->LaunchApplication(record);
     auto ability = record->GetAbilityRunningRecordByToken(GetMockToken());
@@ -2437,7 +2436,7 @@ HWTEST_F(AmsAppRunningRecordTest, AddAbilityStageDone_001, TestSize.Level1)
         AAFwk::EventWrap(AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG, 1), 0);
     record->AddAbilityStageDone();
 
-    record->isSpecifiedAbility_ = true;
+    record->specifiedRequestId_ = 1;
     record->AddAbilityStageDone();
 
     TAG_LOGI(AAFwkTag::TEST, "AmsAppRunningRecordTest AddAbilityStageDone_001 end");
@@ -3021,6 +3020,86 @@ HWTEST_F(AmsAppRunningRecordTest, OnWindowVisibilityChanged_001, TestSize.Level1
     EXPECT_FALSE(record->windowIds_.empty());
     EXPECT_TRUE(record->isUpdateStateFromService_);
     GTEST_LOG_(INFO) << "OnWindowVisibilityChanged_001 end.";
+}
+
+/**
+ * @tc.name: AppRunningRecord_SetState_001
+ * @tc.desc: verify that setState works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsAppRunningRecordTest, SetState_001, TestSize.Level1)
+{
+    std::shared_ptr<ApplicationInfo> appInfo;
+    std::shared_ptr<AppRunningRecord> appRunningRecord =
+        std::make_shared<AppRunningRecord>(appInfo, AppRecordId::Create(), GetTestProcessName());
+    appRunningRecord->SetState(ApplicationState::APP_STATE_SET_COLD_START);
+    EXPECT_NE(appRunningRecord->GetState(), ApplicationState::APP_STATE_CACHED);
+}
+
+/**
+ * @tc.name: AppRunningRecord_UpdateApplicationInfoInstalled_001
+ * @tc.desc: verify that UpdateApplicationInfoInstalled works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsAppRunningRecordTest, UpdateApplicationInfoInstalled_001, TestSize.Level1)
+{
+    std::shared_ptr<ApplicationInfo> appInfo;
+    std::shared_ptr<AppRunningRecord> appRunningRecord =
+        std::make_shared<AppRunningRecord>(appInfo, AppRecordId::Create(), GetTestProcessName());
+    appRunningRecord->UpdateApplicationInfoInstalled(*appInfo);
+    EXPECT_NE(appRunningRecord, nullptr);
+}
+
+/**
+ * @tc.name: AppRunningRecord_AddAbilityStageBySpecifiedProcess_001
+ * @tc.desc: verify that AddAbilityStageBySpecifiedProcess works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsAppRunningRecordTest, AddAbilityStageBySpecifiedProcess_001, TestSize.Level1)
+{
+    std::shared_ptr<ApplicationInfo> appInfo;
+    std::shared_ptr<AppRunningRecord> appRunningRecord =
+        std::make_shared<AppRunningRecord>(appInfo, AppRecordId::Create(), GetTestProcessName());
+
+    appRunningRecord->AddAbilityStageBySpecifiedProcess("com.test");
+    EXPECT_NE(appRunningRecord, nullptr);
+
+    auto runner = AAFwk::TaskHandlerWrap::CreateQueueHandler("AmsAppRunningRecordTest");
+    std::shared_ptr<AppMgrServiceInner> serviceInner = std::make_shared<AppMgrServiceInner>();
+    std::shared_ptr<AMSEventHandler> handler = std::make_shared<AMSEventHandler>(runner, serviceInner);
+    appRunningRecord->eventHandler_ = handler;
+    appRunningRecord->AddAbilityStageBySpecifiedProcess("com.test");
+    EXPECT_NE(handler, nullptr);
+}
+
+/**
+ * @tc.name: AppRunningRecord_SendEventForSpecifiedAbility_001
+ * @tc.desc: verify that SendEventForSpecifiedAbility works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsAppRunningRecordTest, SendEventForSpecifiedAbility_001, TestSize.Level1)
+{
+    std::shared_ptr<ApplicationInfo> appInfo;
+    std::shared_ptr<AppRunningRecord> appRunningRecord =
+        std::make_shared<AppRunningRecord>(appInfo, AppRecordId::Create(), GetTestProcessName());
+    appRunningRecord->SendEventForSpecifiedAbility(1, 100);
+    EXPECT_NE(appRunningRecord, nullptr);
+}
+
+/**
+ * @tc.name: AppRunningRecord_SendAppStartupTypeEvent_001
+ * @tc.desc: verify that SendAppStartupTypeEvent works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsAppRunningRecordTest, AppRunningRecord_SendAppStartupTypeEvent_001, TestSize.Level1)
+{
+    std::shared_ptr<AppRunningRecord> appRunningRecord =
+        std::make_shared<AppRunningRecord>(nullptr, AppRecordId::Create(), GetTestProcessName());
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<AbilityRunningRecord> abilityRecord =
+        std::make_shared<AbilityRunningRecord>(abilityInfo, nullptr, 0);
+    appRunningRecord->SendAppStartupTypeEvent(abilityRecord, AppStartType::COLD);
+    EXPECT_NE(appRunningRecord, nullptr);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

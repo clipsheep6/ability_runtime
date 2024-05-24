@@ -47,6 +47,7 @@ public:
 
     void SetSessionId(int32_t sessionId);
     void SetUIContent(Ace::UIContent *uiContent);
+    Ace::UIContent *GetUIContent();
     void SetEventId(uint32_t eventId);
     void SetWindowType(const AutoFill::AutoFillWindowType &autoFillWindowType);
     void SetExtensionType(bool isSmartAutoFill);
@@ -58,7 +59,7 @@ public:
 
 private:
     void SendAutoFillSucess(const AAFwk::Want &want);
-    void SendAutoFillFailed(int32_t errCode);
+    void SendAutoFillFailed(int32_t errCode, const AAFwk::Want &want = AAFwk::Want());
     void CloseModalUIExtension();
     void HandleReloadInModal(const AAFwk::WantParams &wantParams);
 

@@ -1295,7 +1295,6 @@ protected:
     std::shared_ptr<AbilityStartSetting> setting_ = nullptr;
     std::shared_ptr<AbilityInfo> abilityInfo_ = nullptr;
     LaunchParam launchParam_;
-    int32_t appIndex_ = 0;
     bool securityFlag_ = false;
 
 private:

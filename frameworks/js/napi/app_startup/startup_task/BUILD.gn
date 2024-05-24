@@ -15,15 +15,15 @@ import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
 import("//build/ohos.gni")
 
 es2abc_gen_abc("gen_startup_task_abc") {
-  src_js = rebase_path("startup_task.js")
+  src_js = rebase_path("startup_task.ts")
   dst_file = rebase_path(target_out_dir + "/startup_task.abc")
-  in_puts = [ "startup_task.js" ]
+  in_puts = [ "startup_task.ts" ]
   out_puts = [ target_out_dir + "/startup_task.abc" ]
   extra_args = [ "--module" ]
 }
 
 gen_js_obj("startup_task_js") {
-  input = "startup_task.js"
+  input = "startup_task.ts"
   output = target_out_dir + "/startup_task.o"
 }
 

@@ -37,6 +37,12 @@ bool RenderProcessInfo::ReadFromParcel(Parcel &parcel)
     int32_t hostUidData;
     READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, hostUidData);
     hostUid_ = static_cast<int32_t>(hostUidData);
+    int32_t hostPidData;
+    READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, hostPidData);
+    hostPid_ = static_cast<int32_t>(hostPidData);
+    int32_t stateData;
+    READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, stateData);
+    state_ = static_cast<int32_t>(stateData);
     return true;
 }
 
@@ -58,6 +64,8 @@ bool RenderProcessInfo::Marshalling(Parcel &parcel) const
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, static_cast<int32_t>(pid_));
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, static_cast<int32_t>(uid_));
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, static_cast<int32_t>(hostUid_));
+    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, static_cast<int32_t>(hostPid_));
+    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, static_cast<int32_t>(state_));
     return true;
 }
 }  // namespace AppExecFwk

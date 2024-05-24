@@ -17,11 +17,13 @@
 #define OHOS_ABILITY_RUNTIME_JS_DEMO_UI_EXTENSION_H
 
 #include "demo_ui_extension.h"
+#include "js_ui_extension_base.h"
 #include "runtime.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 class JsDemoUIExtension : public DemoUIExtension,
+                          public JsUIExtensionBase,
                           public std::enable_shared_from_this<JsDemoUIExtension> {
 public:
     explicit JsDemoUIExtension(const std::unique_ptr<Runtime> &runtime);
@@ -34,6 +36,10 @@ public:
      * @return The JsDemoUIExtension instance.
      */
     static JsDemoUIExtension *Create(const std::unique_ptr<Runtime> &runtime);
+
+    void OnForeground(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo) override;
+
+    void BindContext() override;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

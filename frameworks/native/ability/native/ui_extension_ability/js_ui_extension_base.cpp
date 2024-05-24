@@ -27,6 +27,7 @@
 #include "insight_intent_executor_info.h"
 #include "insight_intent_executor_mgr.h"
 #include "int_wrapper.h"
+#include "js_data_struct_converter.h"
 #include "js_extension_common.h"
 #include "js_extension_context.h"
 #include "js_runtime.h"
@@ -140,7 +141,6 @@ std::shared_ptr<ExtensionCommon> JsUIExtensionBase::Init(const std::shared_ptr<A
     std::string moduleName(abilityInfo_->moduleName);
     moduleName.append("::").append(abilityInfo_->name);
     HandleScope handleScope(jsRuntime_);
-    napi_env env = jsRuntime_.GetNapiEnv();
 
     jsObj_ = jsRuntime_.LoadModule(
         moduleName, srcPath, abilityInfo_->hapPath, abilityInfo_->compileMode == CompileMode::ES_MODULE);
@@ -149,25 +149,26 @@ std::shared_ptr<ExtensionCommon> JsUIExtensionBase::Init(const std::shared_ptr<A
         return nullptr;
     }
 
-    napi_value obj = jsObj_->GetNapiValue();
-    if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "obj is not object");
-        return nullptr;
-    }
-
-    BindContext(env, obj);
+    BindContext();
 
     return JsExtensionCommon::Create(jsRuntime_, static_cast<NativeReference&>(*jsObj_), shellContextRef_);
 }
 
-void JsUIExtensionBase::BindContext(napi_env env, napi_value obj)
+void JsUIExtensionBase::BindContext()
 {
-    if (context_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "context_ is nullptr");
+    HandleScope handleScope(jsRuntime_);
+    if (jsObj_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "jsObj_ is nullptr");
         return;
     }
-    if (obj == nullptr) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "obj is nullptr");
+    napi_env env = jsRuntime_.GetNapiEnv();
+    napi_value obj = jsObj_->GetNapiValue();
+    if (!CheckTypeForNapiValue(env, obj, napi_object)) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "obj is not object");
+        return;
+    }
+    if (context_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "context_ is nullptr");
         return;
     }
     TAG_LOGD(AAFwkTag::UI_EXT, "BindContext CreateJsUIExtensionContext.");
@@ -204,12 +205,21 @@ void JsUIExtensionBase::BindContext(napi_env env, napi_value obj)
         nullptr, nullptr);
 }
 
-void JsUIExtensionBase::OnStart(const AAFwk::Want &want)
+void JsUIExtensionBase::OnStart(const AAFwk::Want &want, AAFwk::LaunchParam &launchParam)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::UI_EXT, "called");
     HandleScope handleScope(jsRuntime_);
-    CallObjectMethod("onCreate");
+    napi_env env = jsRuntime_.GetNapiEnv();
+    napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
+    if (InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
+        launchParam.launchReason = AAFwk::LaunchReason::LAUNCHREASON_INSIGHT_INTENT;
+    }
+    napi_value argv[] = {
+        CreateJsLaunchParam(env, launchParam),
+        napiWant
+    };
+    CallObjectMethod("onCreate", argv, ARGC_TWO);
 }
 
 void JsUIExtensionBase::OnStop()

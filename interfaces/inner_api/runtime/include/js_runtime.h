@@ -85,7 +85,8 @@ public:
     void DestroyHeapProfiler() override;
     void ForceFullGC() override;
     void ForceFullGC(uint32_t tid) override;
-    void DumpHeapSnapshot(uint32_t tid, bool isFullGC) override;
+    void DumpHeapSnapshot(uint32_t tid, bool isFullGC, std::vector<uint32_t> fdVec,
+        std::vector<uint32_t> tidVec) override;
     void AllowCrossThreadExecution() override;
     void GetHeapPrepare() override;
     bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) override;
@@ -114,7 +115,8 @@ public:
 
     void UpdateModuleNameAndAssetPath(const std::string& moduleName);
     void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath) override;
-    static bool GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer);
+    static bool GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer,
+                              bool isABC = true);
 
     void InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorImpl);
     void FreeNativeReference(std::unique_ptr<NativeReference> reference);

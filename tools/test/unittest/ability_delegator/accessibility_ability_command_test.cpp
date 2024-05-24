@@ -49,20 +49,34 @@ const std::string ACCESSIBILITY_HELP_MSG =
     "  setAudioBalance             set the value of the audio balance configuration item\n";
 
 const std::string ACCESSIBILITY_SET_SCREEN_MAGNIFICATION_STATE_OK = "set screen magnification state successfully.";
+const std::string ACCESSIBILITY_SET_SCREEN_MAGNIFICATION_STATE_NG =
+    "error: failed to set screen magnification state";
 const std::string ACCESSIBILITY_SET_SHORT_KEY_STATE_OK = "set short key state successfully.";
+const std::string ACCESSIBILITY_SET_SHORT_KEY_STATE_NG = "error: failed to set short key state.";
 const std::string ACCESSIBILITY_SET_MOUSE_KEY_STATE_OK = "set mouse key state successfully.";
+const std::string ACCESSIBILITY_SET_MOUSE_KEY_STATE_NG = "error: failed to set mouse key state.";
 const std::string ACCESSIBILITY_SET_CAPTION_STATE_OK = "set caption state successfully.";
+const std::string ACCESSIBILITY_SET_CAPTION_STATE_NG = "error: failed to set caption state.";
 const std::string ACCESSIBILITY_SET_AUTO_CLICK_TIME_OK = "set mouse auto click time successfully.";
+const std::string ACCESSIBILITY_SET_AUTO_CLICK_TIME_NG = "error: failed to set mouse auto click time.";
 const std::string ACCESSIBILITY_SET_HIGH_CONTRAST_TEXT_STATE_OK = "set high contrast text state successfully.";
+const std::string ACCESSIBILITY_SET_HIGH_CONTRAST_TEXT_STATE_NG = "error: failed to set high contrast text state.";
 const std::string ACCESSIBILITY_SET_INVERT_COLOR_STATE_OK = "set invert color state successfully.";
+const std::string ACCESSIBILITY_SET_INVERT_COLOR_STATE_NG = "error: failed to set invert color state.";
 const std::string ACCESSIBILITY_SET_DALTONIZATIONZATION_COLOR_FILTER_OK =
     "set daltonization color filter successfully.";
+const std::string ACCESSIBILITY_SET_DALTONIZATIONZATION_COLOR_FILTER_NG =
+    "error: failed to set daltonization color filter.";
 const std::string ACCESSIBILITY_SET_CONTENT_TIME_OK = "set content timeout successfully.";
+const std::string ACCESSIBILITY_SET_CONTENT_TIME_NG = "error: failed to set content timeout.";
 const std::string ACCESSIBILITY_SET_ANIMATION_OFF_STATE_OK = "set animation off state successfully.";
+const std::string ACCESSIBILITY_SET_ANIMATION_OFF_STATE_NG = "error: failed to set animation off state.";
 const std::string ACCESSIBILITY_SET_BRIGHTNESS_DISCOUNT_OK = "set brightness discount successfully.";
 const std::string ACCESSIBILITY_SET_BRIGHTNESS_DISCOUNT_NG = "error: failed to set brightness discount.\n";
 const std::string ACCESSIBILITY_SET_AUDIO_MONO_STATE_OK = "set audio mono state successfully.";
+const std::string ACCESSIBILITY_SET_AUDIO_MONO_STATE_NG = "error: failed to set audio mono state.";
 const std::string ACCESSIBILITY_SET_AUDIO_BALANCE_OK = "set audio balance successfully.";
+const std::string ACCESSIBILITY_SET_AUDIO_BALANCE_NG = "error: failed to set audio balance successfully.";
 
 const std::string ACCESSIBILITY_ABILITY_NO_ABILITY_ARGUMENT =
     "argument -a <ability-name> or --ability=<ability-name> is required!";
@@ -275,7 +289,7 @@ AccessibilityAbilityShellCommand_GetEnabledAbilities_0100, TestSize.Level1)
  * @tc.name: GetInstalledAbilities
  * @tc.desc: Test whether GetInstalledAbilities is called normally.
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_GetInstalledAbilities_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_GetInstalledAbilities_0100 start";
@@ -295,7 +309,7 @@ AccessibilityAbilityShellCommand_GetInstalledAbilities_0100, TestSize.Level1)
  * @tc.name: CheckAbilityArgument
  * @tc.desc: Test whether CheckAbilityArgument is called normally.
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckAbilityArgument_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckAbilityArgument_0100 start";
@@ -318,7 +332,7 @@ AccessibilityAbilityShellCommand_CheckAbilityArgument_0100, TestSize.Level1)
  * @tc.name: CheckAbilityArgument
  * @tc.desc: Test whether CheckAbilityArgument is called normally.
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckAbilityArgument_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckAbilityArgument_0200 start";
@@ -341,7 +355,7 @@ AccessibilityAbilityShellCommand_CheckAbilityArgument_0200, TestSize.Level1)
  * @tc.name: CheckAbilityArgument
  * @tc.desc: Test whether CheckAbilityArgument is called normally.
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckAbilityArgument_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckAbilityArgument_0300 start";
@@ -354,7 +368,7 @@ AccessibilityAbilityShellCommand_CheckAbilityArgument_0300, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckAbilityArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckAbilityArgument(argument, resultMessage);
     EXPECT_EQ(result, false);
     EXPECT_EQ(resultMessage, ACCESSIBILITY_ABILITY_NO_ABILITY_ARGUMENT_VALUE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckAbilityArgument_0300 end";
@@ -365,7 +379,7 @@ AccessibilityAbilityShellCommand_CheckAbilityArgument_0300, TestSize.Level1)
  * @tc.name: CheckAbilityArgument
  * @tc.desc: Test whether CheckAbilityArgument is called normally.
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckAbilityArgument_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckAbilityArgument_0400 start";
@@ -378,7 +392,7 @@ AccessibilityAbilityShellCommand_CheckAbilityArgument_0400, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckAbilityArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckAbilityArgument(argument, resultMessage);
     EXPECT_EQ(result, true);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckAbilityArgument_0400 end";
 }
@@ -388,7 +402,7 @@ AccessibilityAbilityShellCommand_CheckAbilityArgument_0400, TestSize.Level1)
  * @tc.name: CheckBundleArgument
  * @tc.desc: Test whether CheckBundleArgument is called normally.
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckBundleArgument_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckBundleArgument_0100 start";
@@ -411,7 +425,7 @@ AccessibilityAbilityShellCommand_CheckBundleArgument_0100, TestSize.Level1)
  * @tc.name: CheckBundleArgument
  * @tc.desc: Test whether CheckAbilityArgument is called normally.
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckBundleArgument_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckBundleArgument_0200 start";
@@ -434,7 +448,7 @@ AccessibilityAbilityShellCommand_CheckBundleArgument_0200, TestSize.Level1)
  * @tc.name: CheckBundleArgument
  * @tc.desc: Test whether CheckBundleArgument is called normally.
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckBundleArgument_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckBundleArgument_0300 start";
@@ -447,7 +461,7 @@ AccessibilityAbilityShellCommand_CheckBundleArgument_0300, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckBundleArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckBundleArgument(argument, resultMessage);
     EXPECT_EQ(result, false);
     EXPECT_EQ(resultMessage, ACCESSIBILITY_ABILITY_NO_BUNDLE_ARGUMENT_VALUE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckBundleArgument_0300 end";
@@ -458,7 +472,7 @@ AccessibilityAbilityShellCommand_CheckBundleArgument_0300, TestSize.Level1)
  * @tc.name: CheckBundleArgument
  * @tc.desc: Test whether CheckBundleArgument is called normally.
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckBundleArgument_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckBundleArgument_0400 start";
@@ -471,7 +485,7 @@ AccessibilityAbilityShellCommand_CheckBundleArgument_0400, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckBundleArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckBundleArgument(argument, resultMessage);
     EXPECT_EQ(result, true);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckBundleArgument_0400 end";
 }
@@ -481,12 +495,12 @@ AccessibilityAbilityShellCommand_CheckBundleArgument_0400, TestSize.Level1)
  * @tc.name: CheckCapabilitiesArgument
  * @tc.desc: Test whether CheckCapabilitiesArgument is called normally.
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0100 start";
     AccessibilityCommandArgument argument;
-    std::vector<Accessibility::AccessibilityAbilityInfo> installedAbilities ;
+    std::vector<Accessibility::AccessibilityAbilityInfo> installedAbilities;
     argument.capabilityNamesArgumentNum = 0;
     std::string resultMessage;
     char* argv[] = {
@@ -494,7 +508,7 @@ AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0100, TestSize.Level1
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckCapabilitiesArgument(argument,installedAbilities,resultMessage);
+    ErrCode result = cmd.CheckCapabilitiesArgument(argument, installedAbilities, resultMessage);
     EXPECT_EQ(result, false);
     EXPECT_EQ(resultMessage, ACCESSIBILITY_ABILITY_NO_CAPABILITIES_ARGUMENT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0100 end";
@@ -505,12 +519,12 @@ AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0100, TestSize.Level1
  * @tc.name: CheckCapabilitiesArgument
  * @tc.desc: Test whether CheckCapabilitiesArgument is called normally.
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0200 start";
     AccessibilityCommandArgument argument;
-    std::vector<Accessibility::AccessibilityAbilityInfo> installedAbilities ;
+    std::vector<Accessibility::AccessibilityAbilityInfo> installedAbilities;
     argument.capabilityNamesArgumentNum = 2;
     std::string resultMessage;
     char* argv[] = {
@@ -529,12 +543,12 @@ AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0200, TestSize.Level1
  * @tc.name: CheckCapabilitiesArgument
  * @tc.desc: Test whether CheckCapabilitiesArgument is called normally.
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0300 start";
     AccessibilityCommandArgument argument;
-    std::vector<Accessibility::AccessibilityAbilityInfo> installedAbilities ;
+    std::vector<Accessibility::AccessibilityAbilityInfo> installedAbilities;
     argument.capabilityNamesArgumentNum = 1;
     argument.capabilityNames[0] = '-';
     std::string resultMessage;
@@ -554,12 +568,12 @@ AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0300, TestSize.Level1
  * @tc.name: CheckCapabilitiesArgument
  * @tc.desc: Test whether CheckCapabilitiesArgument is called normally.
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0400 start";
     AccessibilityCommandArgument argument;
-    std::vector<Accessibility::AccessibilityAbilityInfo> installedAbilities ;
+    std::vector<Accessibility::AccessibilityAbilityInfo> installedAbilities;
     argument.capabilityNamesArgumentNum = 1;
     argument.capabilityNames = "capability";
     std::string resultMessage;
@@ -568,7 +582,7 @@ AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0400, TestSize.Level1
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckCapabilitiesArgument(argument,installedAbilities,resultMessage);
+    ErrCode result = cmd.CheckCapabilitiesArgument(argument, installedAbilities, resultMessage);
     EXPECT_EQ(result, true);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0400 end";
 }
@@ -578,7 +592,7 @@ AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0400, TestSize.Level1
  * @tc.name: CheckSetCommandArgument
  * @tc.desc: Test whether CheckSetCommandArgument is called normally.(totalArgumentNum > 1)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckSetCommandArgument_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckSetCommandArgument_0100 start";
@@ -602,7 +616,7 @@ AccessibilityAbilityShellCommand_CheckSetCommandArgument_0100, TestSize.Level1)
  * @tc.name: CheckSetCommandArgument
  * @tc.desc: Test whether CheckSetCommandArgument is called normally.(unknownArgumentNum > 0)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckSetCommandArgument_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckSetCommandArgument_0200 start";
@@ -626,7 +640,7 @@ AccessibilityAbilityShellCommand_CheckSetCommandArgument_0200, TestSize.Level1)
  * @tc.name: CheckSetCommandArgument
  * @tc.desc: Test whether CheckSetCommandArgument is called normally.(setArgumentNum = 0)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckSetCommandArgument_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckSetCommandArgument_0300 start";
@@ -639,7 +653,7 @@ AccessibilityAbilityShellCommand_CheckSetCommandArgument_0300, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckSetCommandArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckSetCommandArgument(argument, resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(resultMessage, ": " + ACCESSIBILITY_HELP_MSG_NO_OPTION);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckSetCommandArgument_0300 end";
@@ -650,7 +664,7 @@ AccessibilityAbilityShellCommand_CheckSetCommandArgument_0300, TestSize.Level1)
  * @tc.name: CheckSetCommandArgument
  * @tc.desc: Test whether CheckSetCommandArgument is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckSetCommandArgument_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckSetCommandArgument_0400 start";
@@ -663,7 +677,7 @@ AccessibilityAbilityShellCommand_CheckSetCommandArgument_0400, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckSetCommandArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckSetCommandArgument(argument, resultMessage);
     EXPECT_EQ(result, OHOS::ERR_OK);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckSetCommandArgument_0400 end";
 }
@@ -673,7 +687,7 @@ AccessibilityAbilityShellCommand_CheckSetCommandArgument_0400, TestSize.Level1)
  * @tc.name: MakeEnableCommandArgumentFromCmd
  * @tc.desc: Test whether MakeEnableCommandArgumentFromCmd is called normally.(optind < 0)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0100 start";
@@ -694,7 +708,7 @@ AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0100, TestSize
  * @tc.name: MakeEnableCommandArgumentFromCmd
  * @tc.desc: Test whether MakeEnableCommandArgumentFromCmd is called normally.(option = -1)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0200 start";
@@ -717,7 +731,7 @@ AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0200, TestSize
  * @tc.name: MakeEnableCommandArgumentFromCmd
  * @tc.desc: Test whether MakeEnableCommandArgumentFromCmd is called normally.(option -a requires a value)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0300 start";
@@ -741,7 +755,7 @@ AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0300, TestSize
  * @tc.name: MakeEnableCommandArgumentFromCmd
  * @tc.desc: Test whether MakeEnableCommandArgumentFromCmd is called normally.(option -b requires a value)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0400 start";
@@ -767,7 +781,7 @@ AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0400, TestSize
  * @tc.name: MakeEnableCommandArgumentFromCmd
  * @tc.desc: Test whether MakeEnableCommandArgumentFromCmd is called normally.(option -c requires a value)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0500, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0500 start";
@@ -796,7 +810,7 @@ AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0500, TestSize
  * @tc.desc: Test whether MakeEnableCommandArgumentFromCmd is called normally.
  *           (CheckEnableCommandArgument = OHOS::ERR_INVALID_VALUE)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0600, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0600 start";
@@ -818,8 +832,8 @@ AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0600, TestSize
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.MakeEnableCommandArgumentFromCmd(argument);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "enable: " + ACCESSIBILITY_ABILITY_TOO_MANY_ARGUMENT
-    + "and exist unknown arguments.-v ");
+    EXPECT_EQ(cmd.resultReceiver_, "enable: " + ACCESSIBILITY_ABILITY_TOO_MANY_ARGUMENT +
+        "and exist unknown arguments.-v ");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0600 end";
 }
 
@@ -829,7 +843,7 @@ AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0600, TestSize
  * @tc.desc: Test whether MakeEnableCommandArgumentFromCmd is called normally.
  *           (CheckEnableCommandArgument = OHOS::ERR_INVALID_VALUE)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0700, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0700 start";
@@ -849,8 +863,8 @@ AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0700, TestSize
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.MakeEnableCommandArgumentFromCmd(argument);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "enable: the auxiliary application bundle/ability"
-    + ACCESSIBILITY_ABILITY_NOT_FOUND);
+    EXPECT_EQ(cmd.resultReceiver_, "enable: the auxiliary application bundle/ability" +
+        ACCESSIBILITY_ABILITY_NOT_FOUND);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0700 end";
 }
 
@@ -859,15 +873,15 @@ AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0700, TestSize
  * @tc.name: CheckParamValidity
  * @tc.desc: Test whether CheckParamValidity is called normally.(return true)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckParamValidity_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckParamValidity_0100 start";
     Accessibility::AccessibilityAbilityInitParams params;
     params.name = "ability";
     params.bundleName = "bundle";
-    Accessibility::AccessibilityAbilityInfo abilityInfo(params) ;
-    std::vector<Accessibility::AccessibilityAbilityInfo> installedAbilities ;
+    Accessibility::AccessibilityAbilityInfo abilityInfo(params);
+    std::vector<Accessibility::AccessibilityAbilityInfo> installedAbilities;
     installedAbilities.push_back(abilityInfo);
     AccessibilityCommandArgument argument;
     argument.abilityArgumentNum = 1;
@@ -890,15 +904,15 @@ AccessibilityAbilityShellCommand_CheckParamValidity_0100, TestSize.Level1)
  * @tc.name: CheckParamValidity
  * @tc.desc: Test whether CheckParamValidity is called normally.(isExisted = false)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckParamValidity_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckParamValidity_0200 start";
     Accessibility::AccessibilityAbilityInitParams params;
     params.name = "ability";
     params.bundleName = "bundle";
-    Accessibility::AccessibilityAbilityInfo abilityInfo(params) ;
-    std::vector<Accessibility::AccessibilityAbilityInfo> installedAbilities ;
+    Accessibility::AccessibilityAbilityInfo abilityInfo(params);
+    std::vector<Accessibility::AccessibilityAbilityInfo> installedAbilities;
     installedAbilities.push_back(abilityInfo);
     AccessibilityCommandArgument argument;
     std::string resultMessage;
@@ -909,8 +923,8 @@ AccessibilityAbilityShellCommand_CheckParamValidity_0200, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     bool result = cmd.CheckParamValidity(argument, installedAbilities, resultMessage);
     EXPECT_EQ(result, false);
-    EXPECT_EQ(resultMessage, "the auxiliary application " +
-            argument.bundleName + "/" + argument.abilityName + ACCESSIBILITY_ABILITY_NOT_FOUND);
+    EXPECT_EQ(resultMessage, "the auxiliary application " + argument.bundleName + "/" +
+        argument.abilityName + ACCESSIBILITY_ABILITY_NOT_FOUND);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckParamValidity_0200 end";
 }
 
@@ -919,7 +933,7 @@ AccessibilityAbilityShellCommand_CheckParamValidity_0200, TestSize.Level1)
  * @tc.name: CheckParamValidity
  * @tc.desc: Test whether CheckParamValidity is called normally.(invalidCapabilityNames.empty() = false)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckParamValidity_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckParamValidity_0300 start";
@@ -927,8 +941,8 @@ AccessibilityAbilityShellCommand_CheckParamValidity_0300, TestSize.Level1)
     params.name = "ability";
     params.bundleName = "bundle";
     params.staticCapabilities = 1;
-    Accessibility::AccessibilityAbilityInfo abilityInfo(params) ;
-    std::vector<Accessibility::AccessibilityAbilityInfo> installedAbilities ;
+    Accessibility::AccessibilityAbilityInfo abilityInfo(params);
+    std::vector<Accessibility::AccessibilityAbilityInfo> installedAbilities;
     installedAbilities.push_back(abilityInfo);
     AccessibilityCommandArgument argument;
     argument.abilityArgumentNum = 1;
@@ -943,7 +957,7 @@ AccessibilityAbilityShellCommand_CheckParamValidity_0300, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    bool result = cmd.CheckParamValidity(argument,installedAbilities,resultMessage);
+    bool result = cmd.CheckParamValidity(argument, installedAbilities, resultMessage);
     EXPECT_EQ(result, false);
     EXPECT_EQ(resultMessage, "the capabilities capability" + ACCESSIBILITY_ABILITY_NOT_FOUND);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckParamValidity_0300 end";
@@ -954,7 +968,7 @@ AccessibilityAbilityShellCommand_CheckParamValidity_0300, TestSize.Level1)
  * @tc.name: CheckEnableCommandArgument
  * @tc.desc: Test whether CheckEnableCommandArgument is called normally.(totalArgumentNum > 3)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0100 start";
@@ -969,9 +983,9 @@ AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0100, TestSize.Level
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckEnableCommandArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckEnableCommandArgument(argument, resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(resultMessage, ": and exist duplicated arguments and exist unknown arguments.");
+    EXPECT_EQ(resultMessage, ": and exist duplicated argumentsand exist unknown arguments.");
     EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_ABILITY_TOO_MANY_ARGUMENT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0100 end";
 }
@@ -981,7 +995,7 @@ AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0100, TestSize.Level
  * @tc.name: CheckEnableCommandArgument
  * @tc.desc: Test whether CheckEnableCommandArgument is called normally.(unknownArgumentNum > 0)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0200 start";
@@ -993,7 +1007,7 @@ AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0200, TestSize.Level
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckEnableCommandArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckEnableCommandArgument(argument, resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(resultMessage, ": unknown arguments.");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0200 end";
@@ -1004,7 +1018,7 @@ AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0200, TestSize.Level
  * @tc.name: CheckEnableCommandArgument
  * @tc.desc: Test whether CheckEnableCommandArgument is called normally.(CheckAbilityArgument = false)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0300 start";
@@ -1033,7 +1047,7 @@ AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0300, TestSize.Level
  * @tc.name: CheckEnableCommandArgument
  * @tc.desc: Test whether CheckEnableCommandArgument is called normally.(CheckBundleArgument = false)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0400 start";
@@ -1062,7 +1076,7 @@ AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0400, TestSize.Level
  * @tc.name: CheckEnableCommandArgument
  * @tc.desc: Test whether CheckEnableCommandArgument is called normally.(CheckCapabilitiesArgument = false)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0500, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0500 start";
@@ -1080,7 +1094,7 @@ AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0500, TestSize.Level
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckEnableCommandArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckEnableCommandArgument(argument, resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(resultMessage, ": " + ACCESSIBILITY_ABILITY_NO_CAPABILITIES_ARGUMENT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0500 end";
@@ -1091,7 +1105,7 @@ AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0500, TestSize.Level
  * @tc.name: CheckEnableCommandArgument
  * @tc.desc: Test whether CheckEnableCommandArgument is called normally.(CheckParamValidity = false)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0600, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0600 start";
@@ -1109,7 +1123,7 @@ AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0600, TestSize.Level
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckEnableCommandArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckEnableCommandArgument(argument, resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(resultMessage, ": the auxiliary application bundle/ability" + ACCESSIBILITY_ABILITY_NOT_FOUND);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0600 end";
@@ -1121,7 +1135,7 @@ AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0600, TestSize.Level
  * @tc.desc: Test whether RunAsEnableAbility is called normally.
  *           (MakeEnableCommandArgumentFromCmd = false)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsEnableAbility_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsEnableAbility_0100 start";
@@ -1142,7 +1156,7 @@ AccessibilityAbilityShellCommand_RunAsEnableAbility_0100, TestSize.Level1)
  * @tc.desc: Test whether RunAsDisableAbility is called normally.
  *           (MakeDisableCommandArgumentFromCmd = OHOS::ERR_INVALID_VALUE)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsDisableAbility_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsDisableAbility_0100 start";
@@ -1162,7 +1176,7 @@ AccessibilityAbilityShellCommand_RunAsDisableAbility_0100, TestSize.Level1)
  * @tc.name: RunAsGetEnabledAbilities
  * @tc.desc: Test whether RunAsGetEnabledAbilities is called normally.(enabledAbilities is empty)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsGetEnabledAbilities_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsGetEnabledAbilities_0100 start";
@@ -1181,7 +1195,7 @@ AccessibilityAbilityShellCommand_RunAsGetEnabledAbilities_0100, TestSize.Level1)
  * @tc.name: RunAsGetInstalledAbilities
  * @tc.desc: Test whether RunAsGetInstalledAbilities is called normally.(installedAbilities is empty)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsGetInstalledAbilities_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsGetInstalledAbilities_0100 start";
@@ -1202,7 +1216,7 @@ AccessibilityAbilityShellCommand_RunAsGetInstalledAbilities_0100, TestSize.Level
  * @tc.desc: Test whether RunAsSetScreenMagnificationState is called normally.
  *           (MakeSetCommandArgumentFromCmd = OHOS::ERR_INVALID_VALUE)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetScreenMagnificationState_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetScreenMagnificationState_0100 start";
@@ -1222,7 +1236,7 @@ AccessibilityAbilityShellCommand_RunAsSetScreenMagnificationState_0100, TestSize
  * @tc.name: RunAsSetScreenMagnificationState
  * @tc.desc: Test whether RunAsSetScreenMagnificationState is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetScreenMagnificationState_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetScreenMagnificationState_0200 start";
@@ -1237,7 +1251,7 @@ AccessibilityAbilityShellCommand_RunAsSetScreenMagnificationState_0200, TestSize
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetScreenMagnificationState();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_SCREEN_MAGNIFICATION_STATE_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_SCREEN_MAGNIFICATION_STATE_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetScreenMagnificationState_0200 end";
 }
 
@@ -1246,7 +1260,7 @@ AccessibilityAbilityShellCommand_RunAsSetScreenMagnificationState_0200, TestSize
  * @tc.name: RunAsSetScreenMagnificationState
  * @tc.desc: Test whether RunAsSetScreenMagnificationState is called normally.(value is invalid)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetScreenMagnificationState_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetScreenMagnificationState_0200 start";
@@ -1262,7 +1276,7 @@ AccessibilityAbilityShellCommand_RunAsSetScreenMagnificationState_0300, TestSize
     ErrCode result = cmd.RunAsSetScreenMagnificationState();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(cmd.resultReceiver_, "setScreenMagnificationState: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
-    "\n" + ACCESSIBILITY_HELP_MSG_SET_SCREEN_MAGNIFICATION_STATE);
+        "\n" + ACCESSIBILITY_HELP_MSG_SET_SCREEN_MAGNIFICATION_STATE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetScreenMagnificationState_0300 end";
 }
 
@@ -1271,7 +1285,7 @@ AccessibilityAbilityShellCommand_RunAsSetScreenMagnificationState_0300, TestSize
  * @tc.name: RunAsSetShortKeyState
  * @tc.desc: Test whether RunAsSetShortKeyState is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0100 start";
@@ -1286,7 +1300,7 @@ AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0100, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetShortKeyState();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_SHORT_KEY_STATE_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_SHORT_KEY_STATE_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0100 end";
 }
 
@@ -1295,7 +1309,7 @@ AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0100, TestSize.Level1)
  * @tc.name: RunAsSetShortKeyState
  * @tc.desc: Test whether RunAsSetShortKeyState is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0200 start";
@@ -1310,7 +1324,7 @@ AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0200, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetShortKeyState();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_SHORT_KEY_STATE_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_SHORT_KEY_STATE_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0200 end";
 }
 
@@ -1319,7 +1333,7 @@ AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0200, TestSize.Level1)
  * @tc.name: RunAsSetShortKeyState
  * @tc.desc: Test whether RunAsSetShortKeyState is called normally.(value is invalid)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0300 start";
@@ -1335,7 +1349,7 @@ AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0300, TestSize.Level1)
     ErrCode result = cmd.RunAsSetShortKeyState();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(cmd.resultReceiver_, "setShortKeyState: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
-    "\n" + ACCESSIBILITY_HELP_MSG_SET_SHORT_KEY_STATE);
+        "\n" + ACCESSIBILITY_HELP_MSG_SET_SHORT_KEY_STATE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0300 end";
 }
 
@@ -1345,7 +1359,7 @@ AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0300, TestSize.Level1)
  * @tc.desc: Test whether RunAsSetShortKeyState is called normally.
  *           (MakeSetCommandArgumentFromCmd = OHOS::ERR_INVALID_VALUE)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0400 start";
@@ -1356,7 +1370,7 @@ AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0400, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetShortKeyState();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "\n"+ACCESSIBILITY_HELP_MSG_SET_SHORT_KEY_STATE);
+    EXPECT_EQ(cmd.resultReceiver_, "\n" + ACCESSIBILITY_HELP_MSG_SET_SHORT_KEY_STATE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0400 end";
 }
 
@@ -1365,7 +1379,7 @@ AccessibilityAbilityShellCommand_RunAsSetShortKeyState_0400, TestSize.Level1)
  * @tc.name: RunAsSetMouseKeyState
  * @tc.desc: Test whether RunAsSetMouseKeyState is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0100 start";
@@ -1380,7 +1394,7 @@ AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0100, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetMouseKeyState();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_MOUSE_KEY_STATE_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_MOUSE_KEY_STATE_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0100 end";
 }
 
@@ -1389,7 +1403,7 @@ AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0100, TestSize.Level1)
  * @tc.name: RunAsSetMouseKeyState
  * @tc.desc: Test whether RunAsSetMouseKeyState is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0200 start";
@@ -1404,7 +1418,7 @@ AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0200, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetMouseKeyState();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_MOUSE_KEY_STATE_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_MOUSE_KEY_STATE_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0200 end";
 }
 
@@ -1413,7 +1427,7 @@ AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0200, TestSize.Level1)
  * @tc.name: RunAsSetMouseKeyState
  * @tc.desc: Test whether RunAsSetMouseKeyState is called normally.(value is invalid)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0300 start";
@@ -1429,7 +1443,7 @@ AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0300, TestSize.Level1)
     ErrCode result = cmd.RunAsSetMouseKeyState();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(cmd.resultReceiver_, "setMouseKeyState: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
-    "\n" + ACCESSIBILITY_HELP_MSG_SET_MOUSE_KEY_STATE);
+        "\n" + ACCESSIBILITY_HELP_MSG_SET_MOUSE_KEY_STATE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0300 end";
 }
 
@@ -1439,7 +1453,7 @@ AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0300, TestSize.Level1)
  * @tc.desc: Test whether RunAsSetMouseKeyState is called normally.
  *           (MakeSetCommandArgumentFromCmd = OHOS::ERR_INVALID_VALUE)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0400 start";
@@ -1450,7 +1464,7 @@ AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0400, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetMouseKeyState();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "\n"+ACCESSIBILITY_HELP_MSG_SET_MOUSE_KEY_STATE);
+    EXPECT_EQ(cmd.resultReceiver_, "\n" + ACCESSIBILITY_HELP_MSG_SET_MOUSE_KEY_STATE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0400 end";
 }
 
@@ -1459,7 +1473,7 @@ AccessibilityAbilityShellCommand_RunAsSetMouseKeyState_0400, TestSize.Level1)
  * @tc.name: RunAsSetCaptionState
  * @tc.desc: Test whether RunAsSetCaptionState is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetCaptionState_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetCaptionState_0100 start";
@@ -1474,7 +1488,7 @@ AccessibilityAbilityShellCommand_RunAsSetCaptionState_0100, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetCaptionState();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_CAPTION_STATE_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_CAPTION_STATE_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetCaptionState_0100 end";
 }
 
@@ -1483,7 +1497,7 @@ AccessibilityAbilityShellCommand_RunAsSetCaptionState_0100, TestSize.Level1)
  * @tc.name: RunAsSetCaptionState
  * @tc.desc: Test whether RunAsSetCaptionState is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetCaptionState_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetCaptionState_0200 start";
@@ -1499,7 +1513,7 @@ AccessibilityAbilityShellCommand_RunAsSetCaptionState_0200, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetCaptionState();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_CAPTION_STATE_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_CAPTION_STATE_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetCaptionState_0200 end";
 }
 
@@ -1508,7 +1522,7 @@ AccessibilityAbilityShellCommand_RunAsSetCaptionState_0200, TestSize.Level1)
  * @tc.name: RunAsSetCaptionState
  * @tc.desc: Test whether RunAsSetCaptionState is called normally.(value is invalid)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetCaptionState_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetCaptionState_0300 start";
@@ -1524,7 +1538,7 @@ AccessibilityAbilityShellCommand_RunAsSetCaptionState_0300, TestSize.Level1)
     ErrCode result = cmd.RunAsSetCaptionState();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(cmd.resultReceiver_, "setCaptionState: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
-    "\n" + ACCESSIBILITY_HELP_MSG_SET_CAPTION_STATE);
+        "\n" + ACCESSIBILITY_HELP_MSG_SET_CAPTION_STATE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetCaptionState_0300 end";
 }
 
@@ -1554,7 +1568,7 @@ AccessibilityAbilityShellCommand_RunAsSetCaptionState_0400, TestSize.Level1)
  * @tc.name: RunAsSetMouseAutoClick
  * @tc.desc: Test whether RunAsSetMouseAutoClick is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0100 start";
@@ -1569,7 +1583,7 @@ AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0100, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetMouseAutoClick();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_AUTO_CLICK_TIME_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_AUTO_CLICK_TIME_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0100 end";
 }
 
@@ -1578,7 +1592,7 @@ AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0100, TestSize.Level1)
  * @tc.name: RunAsSetMouseAutoClick
  * @tc.desc: Test whether RunAsSetMouseAutoClick is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0200 start";
@@ -1593,7 +1607,7 @@ AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0200, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetMouseAutoClick();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_AUTO_CLICK_TIME_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_AUTO_CLICK_TIME_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0200 end";
 }
 
@@ -1602,7 +1616,7 @@ AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0200, TestSize.Level1)
  * @tc.name: RunAsSetMouseAutoClick
  * @tc.desc: Test whether RunAsSetMouseAutoClick is called normally.(value is invalid)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0300 start";
@@ -1618,7 +1632,7 @@ AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0300, TestSize.Level1)
     ErrCode result = cmd.RunAsSetMouseAutoClick();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(cmd.resultReceiver_, "setMouseAutoClick: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
-    "\n" + ACCESSIBILITY_HELP_MSG_SET_AUTO_CLICK_TIME);
+        "\n" + ACCESSIBILITY_HELP_MSG_SET_AUTO_CLICK_TIME);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0300 end";
 }
 
@@ -1628,7 +1642,7 @@ AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0300, TestSize.Level1)
  * @tc.desc: Test whether RunAsSetMouseAutoClick is called normally.
  *           (MakeSetCommandArgumentFromCmd = OHOS::ERR_INVALID_VALUE)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0400 start";
@@ -1639,7 +1653,7 @@ AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0400, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetMouseAutoClick();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "\n"+ACCESSIBILITY_HELP_MSG_SET_AUTO_CLICK_TIME);
+    EXPECT_EQ(cmd.resultReceiver_, "\n" + ACCESSIBILITY_HELP_MSG_SET_AUTO_CLICK_TIME);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0400 end";
 }
 
@@ -1649,7 +1663,7 @@ AccessibilityAbilityShellCommand_RunAsSetMouseAutoClick_0400, TestSize.Level1)
  * @tc.desc: Test whether RunAsSetShortKeyTarget is called normally.
  *           (MakeSetShortKeyTargetCommandArgumentFromCmd = OHOS::ERR_INVALID_VALUE)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetShortKeyTarget_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetShortKeyTarget_0100 start";
@@ -1660,7 +1674,7 @@ AccessibilityAbilityShellCommand_RunAsSetShortKeyTarget_0100, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetShortKeyTarget();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "\n"+ACCESSIBILITY_HELP_MSG_SET_SHORT_KEY_TARGET);
+    EXPECT_EQ(cmd.resultReceiver_, "\n" + ACCESSIBILITY_HELP_MSG_SET_SHORT_KEY_TARGET);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetShortKeyTarget_0100 end";
 }
 
@@ -1669,7 +1683,7 @@ AccessibilityAbilityShellCommand_RunAsSetShortKeyTarget_0100, TestSize.Level1)
  * @tc.name: RunAsSetHighContrastTextState
  * @tc.desc: Test whether RunAsSetHighContrastTextState is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetHighContrastTextState_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetHighContrastTextState_0100 start";
@@ -1684,7 +1698,7 @@ AccessibilityAbilityShellCommand_RunAsSetHighContrastTextState_0100, TestSize.Le
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetHighContrastTextState();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_HIGH_CONTRAST_TEXT_STATE_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_HIGH_CONTRAST_TEXT_STATE_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetHighContrastTextState_0100 end";
 }
 
@@ -1693,7 +1707,7 @@ AccessibilityAbilityShellCommand_RunAsSetHighContrastTextState_0100, TestSize.Le
  * @tc.name: RunAsSetHighContrastTextState
  * @tc.desc: Test whether RunAsSetHighContrastTextState is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetHighContrastTextState_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetHighContrastTextState_0200 start";
@@ -1708,7 +1722,7 @@ AccessibilityAbilityShellCommand_RunAsSetHighContrastTextState_0200, TestSize.Le
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetHighContrastTextState();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_HIGH_CONTRAST_TEXT_STATE_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_HIGH_CONTRAST_TEXT_STATE_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetHighContrastTextState_0200 end";
 }
 
@@ -1717,7 +1731,7 @@ AccessibilityAbilityShellCommand_RunAsSetHighContrastTextState_0200, TestSize.Le
  * @tc.name: RunAsSetHighContrastTextState
  * @tc.desc: Test whether RunAsSetHighContrastTextState is called normally.(value is invalid)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetHighContrastTextState_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetHighContrastTextState_0300 start";
@@ -1732,8 +1746,8 @@ AccessibilityAbilityShellCommand_RunAsSetHighContrastTextState_0300, TestSize.Le
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetHighContrastTextState();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "setHighContrastTextState: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
-    "\n" + ACCESSIBILITY_HELP_MSG_HIGH_CONTRAST_TEXT_STATE);
+    EXPECT_EQ(cmd.resultReceiver_, "setHighContrastTextState: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
+        "\n" + ACCESSIBILITY_HELP_MSG_HIGH_CONTRAST_TEXT_STATE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetHighContrastTextState_0300 end";
 }
 
@@ -1743,7 +1757,7 @@ AccessibilityAbilityShellCommand_RunAsSetHighContrastTextState_0300, TestSize.Le
  * @tc.desc: Test whether RunAsSetHighContrastTextState is called normally.
  *           (MakeSetCommandArgumentFromCmd = OHOS::ERR_INVALID_VALUE)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetHighContrastTextState_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetHighContrastTextState_0400 start";
@@ -1763,7 +1777,7 @@ AccessibilityAbilityShellCommand_RunAsSetHighContrastTextState_0400, TestSize.Le
  * @tc.name: RunAsSetInvertColorState
  * @tc.desc: Test whether RunAsSetInvertColorState is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0100 start";
@@ -1778,7 +1792,7 @@ AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0100, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetInvertColorState();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_INVERT_COLOR_STATE_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_INVERT_COLOR_STATE_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0100 end";
 }
 
@@ -1787,7 +1801,7 @@ AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0100, TestSize.Level1)
  * @tc.name: RunAsSetInvertColorState
  * @tc.desc: Test whether RunAsSetInvertColorState is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0200 start";
@@ -1802,7 +1816,7 @@ AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0200, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetInvertColorState();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_INVERT_COLOR_STATE_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_INVERT_COLOR_STATE_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0200 end";
 }
 
@@ -1811,7 +1825,7 @@ AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0200, TestSize.Level1)
  * @tc.name: RunAsSetInvertColorState
  * @tc.desc: Test whether RunAsSetInvertColorState is called normally.(value is invalid)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0300 start";
@@ -1827,7 +1841,7 @@ AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0300, TestSize.Level1)
     ErrCode result = cmd.RunAsSetInvertColorState();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(cmd.resultReceiver_, "setInvertColorState: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
-    "\n" + ACCESSIBILITY_HELP_MSG_SET_INVERT_COLOR_STATE);
+        "\n" + ACCESSIBILITY_HELP_MSG_SET_INVERT_COLOR_STATE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0300 end";
 }
 
@@ -1837,7 +1851,7 @@ AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0300, TestSize.Level1)
  * @tc.desc: Test whether RunAsSetInvertColorState is called normally.
  *           (MakeSetCommandArgumentFromCmd = OHOS::ERR_INVALID_VALUE)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0400 start";
@@ -1848,7 +1862,7 @@ AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0400, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetInvertColorState();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "\n"+ACCESSIBILITY_HELP_MSG_SET_INVERT_COLOR_STATE);
+    EXPECT_EQ(cmd.resultReceiver_, "\n" + ACCESSIBILITY_HELP_MSG_SET_INVERT_COLOR_STATE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0400 end";
 }
 
@@ -1857,7 +1871,7 @@ AccessibilityAbilityShellCommand_RunAsSetInvertColorState_0400, TestSize.Level1)
  * @tc.name: RunAsSetDaltonizationColorFilter
  * @tc.desc: Test whether RunAsSetDaltonizationColorFilter is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0100 start";
@@ -1872,7 +1886,7 @@ AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0100, TestSize
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetDaltonizationColorFilter();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_DALTONIZATIONZATION_COLOR_FILTER_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_DALTONIZATIONZATION_COLOR_FILTER_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0100 end";
 }
 
@@ -1881,7 +1895,7 @@ AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0100, TestSize
  * @tc.name: RunAsSetDaltonizationColorFilter
  * @tc.desc: Test whether RunAsSetDaltonizationColorFilter is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0200 start";
@@ -1896,7 +1910,7 @@ AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0200, TestSize
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetDaltonizationColorFilter();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_DALTONIZATIONZATION_COLOR_FILTER_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_DALTONIZATIONZATION_COLOR_FILTER_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0200 end";
 }
 
@@ -1905,7 +1919,7 @@ AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0200, TestSize
  * @tc.name: RunAsSetDaltonizationColorFilter
  * @tc.desc: Test whether RunAsSetDaltonizationColorFilter is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0300 start";
@@ -1920,7 +1934,7 @@ AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0300, TestSize
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetDaltonizationColorFilter();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_DALTONIZATIONZATION_COLOR_FILTER_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_DALTONIZATIONZATION_COLOR_FILTER_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0300 end";
 }
 
@@ -1929,7 +1943,7 @@ AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0300, TestSize
  * @tc.name: RunAsSetDaltonizationColorFilter
  * @tc.desc: Test whether RunAsSetDaltonizationColorFilter is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0400 start";
@@ -1944,7 +1958,7 @@ AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0400, TestSize
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetDaltonizationColorFilter();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_DALTONIZATIONZATION_COLOR_FILTER_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_DALTONIZATIONZATION_COLOR_FILTER_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0400 end";
 }
 
@@ -1953,7 +1967,7 @@ AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0400, TestSize
  * @tc.name: RunAsSetDaltonizationColorFilter
  * @tc.desc: Test whether RunAsSetDaltonizationColorFilter is called normally.(value is invalid)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0500, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0500 start";
@@ -1968,7 +1982,7 @@ AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0500, TestSize
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetDaltonizationColorFilter();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "setDaltonizationColorFilter: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID);
+    EXPECT_EQ(cmd.resultReceiver_, "setDaltonizationColorFilter: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0500 end";
 }
 
@@ -1978,7 +1992,7 @@ AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0500, TestSize
  * @tc.desc: Test whether RunAsSetDaltonizationColorFilter is called normally.
  *           (MakeSetCommandArgumentFromCmd = OHOS::ERR_INVALID_VALUE)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0600, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0600 start";
@@ -1989,7 +2003,7 @@ AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0600, TestSize
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetDaltonizationColorFilter();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "\n"+ACCESSIBILITY_HELP_MSG_SET_DALTONIZATION_COLOR_FILTER);
+    EXPECT_EQ(cmd.resultReceiver_, "\n" + ACCESSIBILITY_HELP_MSG_SET_DALTONIZATION_COLOR_FILTER);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0600 end";
 }
 
@@ -1998,7 +2012,7 @@ AccessibilityAbilityShellCommand_RunAsSetDaltonizationColorFilter_0600, TestSize
  * @tc.name: RunAsSetContentTimeout
  * @tc.desc: Test whether RunAsSetContentTimeout is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetContentTimeout_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetContentTimeout_0100 start";
@@ -2013,7 +2027,7 @@ AccessibilityAbilityShellCommand_RunAsSetContentTimeout_0100, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetContentTimeout();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_CONTENT_TIME_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_CONTENT_TIME_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetContentTimeout_0100 end";
 }
 
@@ -2022,7 +2036,7 @@ AccessibilityAbilityShellCommand_RunAsSetContentTimeout_0100, TestSize.Level1)
  * @tc.name: RunAsSetContentTimeout
  * @tc.desc: Test whether RunAsSetContentTimeout is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetContentTimeout_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetContentTimeout_0200 start";
@@ -2038,7 +2052,7 @@ AccessibilityAbilityShellCommand_RunAsSetContentTimeout_0200, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetContentTimeout();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_CONTENT_TIME_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_CONTENT_TIME_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetContentTimeout_0200 end";
 }
 
@@ -2047,7 +2061,7 @@ AccessibilityAbilityShellCommand_RunAsSetContentTimeout_0200, TestSize.Level1)
  * @tc.name: RunAsSetContentTimeout
  * @tc.desc: Test whether RunAsSetContentTimeout is called normally.(value is invalid)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetContentTimeout_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetContentTimeout_0300 start";
@@ -2062,8 +2076,8 @@ AccessibilityAbilityShellCommand_RunAsSetContentTimeout_0300, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetContentTimeout();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "setContentTimeout: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
-    "\n" + ACCESSIBILITY_HELP_MSG_SET_CONTENT_TIME_OUT);
+    EXPECT_EQ(cmd.resultReceiver_, "setContentTimeout: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
+        "\n" + ACCESSIBILITY_HELP_MSG_SET_CONTENT_TIME_OUT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetContentTimeout_0300 end";
 }
 
@@ -2073,7 +2087,7 @@ AccessibilityAbilityShellCommand_RunAsSetContentTimeout_0300, TestSize.Level1)
  * @tc.desc: Test whether RunAsSetContentTimeout is called normally.
  *           (MakeSetCommandArgumentFromCmd = OHOS::ERR_INVALID_VALUE)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetContentTimeout_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetContentTimeout_0400 start";
@@ -2093,7 +2107,7 @@ AccessibilityAbilityShellCommand_RunAsSetContentTimeout_0400, TestSize.Level1)
  * @tc.name: RunAsSetAnimationOffState
  * @tc.desc: Test whether RunAsSetAnimationOffState is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetAnimationOffState_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAnimationOffState_0100 start";
@@ -2108,7 +2122,7 @@ AccessibilityAbilityShellCommand_RunAsSetAnimationOffState_0100, TestSize.Level1
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetAnimationOffState();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_ANIMATION_OFF_STATE_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_ANIMATION_OFF_STATE_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAnimationOffState_0100 end";
 }
 
@@ -2117,7 +2131,7 @@ AccessibilityAbilityShellCommand_RunAsSetAnimationOffState_0100, TestSize.Level1
  * @tc.name: RunAsSetAnimationOffState
  * @tc.desc: Test whether RunAsSetAnimationOffState is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetAnimationOffState_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAnimationOffState_0200 start";
@@ -2132,7 +2146,7 @@ AccessibilityAbilityShellCommand_RunAsSetAnimationOffState_0200, TestSize.Level1
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetAnimationOffState();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_ANIMATION_OFF_STATE_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_ANIMATION_OFF_STATE_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAnimationOffState_0200 end";
 }
 
@@ -2141,7 +2155,7 @@ AccessibilityAbilityShellCommand_RunAsSetAnimationOffState_0200, TestSize.Level1
  * @tc.name: RunAsSetAnimationOffState
  * @tc.desc: Test whether RunAsSetAnimationOffState is called normally.(value is invalid)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetAnimationOffState_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAnimationOffState_0300 start";
@@ -2156,8 +2170,8 @@ AccessibilityAbilityShellCommand_RunAsSetAnimationOffState_0300, TestSize.Level1
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetAnimationOffState();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "setAnimationOffState: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
-    "\n" + ACCESSIBILITY_HELP_MSG_ANIMATION_OFF_STATE);
+    EXPECT_EQ(cmd.resultReceiver_, "setAnimationOffState: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
+        "\n" + ACCESSIBILITY_HELP_MSG_ANIMATION_OFF_STATE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAnimationOffState_0300 end";
 }
 
@@ -2167,7 +2181,7 @@ AccessibilityAbilityShellCommand_RunAsSetAnimationOffState_0300, TestSize.Level1
  * @tc.desc: Test whether RunAsSetAnimationOffState is called normally.
  *           (MakeSetCommandArgumentFromCmd = OHOS::ERR_INVALID_VALUE)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetAnimationOffState_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAnimationOffState_0400 start";
@@ -2188,7 +2202,7 @@ AccessibilityAbilityShellCommand_RunAsSetAnimationOffState_0400, TestSize.Level1
  * @tc.desc: 1.Test whether RunAsSetBrightnessDiscount is called normally.(OHOS::ERR_OK)
  *           2.ret is not Accessibility::RET_OK
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0100 start";
@@ -2215,7 +2229,7 @@ AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0100, TestSize.Level
  * @tc.desc: 1.Test whether RunAsSetBrightnessDiscount is called normally.(OHOS::ERR_OK)
  *           2.ret is Accessibility::RET_OK
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0200 start";
@@ -2240,7 +2254,7 @@ AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0200, TestSize.Level
  * @tc.name: RunAsSetBrightnessDiscount
  * @tc.desc: Test whether RunAsSetBrightnessDiscount is called normally.(value is invalid)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0300 start";
@@ -2255,8 +2269,8 @@ AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0300, TestSize.Level
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetBrightnessDiscount();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "setSetBrightnessDiscount: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
-    "\n" + ACCESSIBILITY_HELP_MSG_SET_BRIGHTNESS_DISCOUNT);
+    EXPECT_EQ(cmd.resultReceiver_, "setSetBrightnessDiscount: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
+        "\n" + ACCESSIBILITY_HELP_MSG_SET_BRIGHTNESS_DISCOUNT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0300 end";
 }
 
@@ -2266,7 +2280,7 @@ AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0300, TestSize.Level
  * @tc.desc: Test whether RunAsSetBrightnessDiscount is called normally.
  *           (MakeSetCommandArgumentFromCmd = OHOS::ERR_INVALID_VALUE)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0400 start";
@@ -2286,7 +2300,7 @@ AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0400, TestSize.Level
  * @tc.name: RunAsSetAudioMonoState
  * @tc.desc: Test whether RunAsSetAudioMonoState is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetAudioMonoState_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAudioMonoState_0100 start";
@@ -2301,7 +2315,7 @@ AccessibilityAbilityShellCommand_RunAsSetAudioMonoState_0100, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetAudioMonoState();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_AUDIO_MONO_STATE_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_AUDIO_MONO_STATE_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAudioMonoState_0100 end";
 }
 
@@ -2310,7 +2324,7 @@ AccessibilityAbilityShellCommand_RunAsSetAudioMonoState_0100, TestSize.Level1)
  * @tc.name: RunAsSetAudioMonoState
  * @tc.desc: Test whether RunAsSetAudioMonoState is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetAudioMonoState_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAudioMonoState_0200 start";
@@ -2325,7 +2339,7 @@ AccessibilityAbilityShellCommand_RunAsSetAudioMonoState_0200, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetAudioMonoState();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_AUDIO_MONO_STATE_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_AUDIO_MONO_STATE_NG + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAudioMonoState_0200 end";
 }
 
@@ -2334,7 +2348,7 @@ AccessibilityAbilityShellCommand_RunAsSetAudioMonoState_0200, TestSize.Level1)
  * @tc.name: RunAsSetAudioMonoState
  * @tc.desc: Test whether RunAsSetAudioMonoState is called normally.(value is invalid)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetAudioMonoState_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAudioMonoState_0300 start";
@@ -2349,8 +2363,8 @@ AccessibilityAbilityShellCommand_RunAsSetAudioMonoState_0300, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetAudioMonoState();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "setAudioMonoState: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
-    "\n" + ACCESSIBILITY_HELP_MSG_SET_AUDIO_MONO_STATE);
+    EXPECT_EQ(cmd.resultReceiver_, "setAudioMonoState: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
+        "\n" + ACCESSIBILITY_HELP_MSG_SET_AUDIO_MONO_STATE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAudioMonoState_0300 end";
 }
 
@@ -2360,7 +2374,7 @@ AccessibilityAbilityShellCommand_RunAsSetAudioMonoState_0300, TestSize.Level1)
  * @tc.desc: Test whether RunAsSetAudioMonoState is called normally.
  *           (MakeSetCommandArgumentFromCmd = OHOS::ERR_INVALID_VALUE)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetAudioMonoState_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAudioMonoState_0400 start";
@@ -2380,7 +2394,7 @@ AccessibilityAbilityShellCommand_RunAsSetAudioMonoState_0400, TestSize.Level1)
  * @tc.name: RunAsSetAudioBalance
  * @tc.desc: Test whether RunAsSetAudioBalance is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0100 start";
@@ -2395,7 +2409,7 @@ AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0100, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetAudioBalance();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_AUDIO_BALANCE_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_AUDIO_BALANCE_NG);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0100 end";
 }
 
@@ -2404,7 +2418,7 @@ AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0100, TestSize.Level1)
  * @tc.name: RunAsSetAudioBalance
  * @tc.desc: Test whether RunAsSetAudioBalance is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0200 start";
@@ -2419,7 +2433,7 @@ AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0200, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetAudioBalance();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_AUDIO_BALANCE_OK + "\n");
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_AUDIO_BALANCE_NG);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0200 end";
 }
 
@@ -2428,7 +2442,7 @@ AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0200, TestSize.Level1)
  * @tc.name: RunAsSetAudioBalance
  * @tc.desc: Test whether RunAsSetAudioBalance is called normally.(value is invalid)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0300 start";
@@ -2443,8 +2457,8 @@ AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0300, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetAudioBalance();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(cmd.resultReceiver_, "setAudioBalance: "+ ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
-    "\n" + ACCESSIBILITY_HELP_MSG_SET_AUDIO_BALANCE);
+    EXPECT_EQ(cmd.resultReceiver_, "setAudioBalance: " + ACCESSIBILITY_ABILITY_SET_VALUE_INVALID +
+        "\n" + ACCESSIBILITY_HELP_MSG_SET_AUDIO_BALANCE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0300 end";
 }
 
@@ -2454,7 +2468,7 @@ AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0300, TestSize.Level1)
  * @tc.desc: Test whether RunAsSetAudioBalance is called normally.
  *           (MakeSetCommandArgumentFromCmd = OHOS::ERR_INVALID_VALUE)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0400 start";
@@ -2475,7 +2489,7 @@ AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0400, TestSize.Level1)
  * @tc.desc: Test whether MakeSetShortKeyTargetCommandArgumentFromCmd is called normally.
  *           (MakeCommandArgumentFromCmd = OHOS::ERR_OK,MakeCommandArgumentFromCmd = OHOS::ERR_INVALID_VALUE)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_MakeSetShortKeyTargetCommandArgumentFromCmd_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeSetShortKeyTargetCommandArgumentFromCmd_0100 start";
@@ -2504,7 +2518,7 @@ AccessibilityAbilityShellCommand_MakeSetShortKeyTargetCommandArgumentFromCmd_010
  * @tc.name: MakeSetCommandArgumentFromCmd
  * @tc.desc: Test whether MakeSetCommandArgumentFromCmd is called normally.(OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_MakeSetCommandArgumentFromCmd_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeSetCommandArgumentFromCmd_0100 start";
@@ -2530,7 +2544,7 @@ AccessibilityAbilityShellCommand_MakeSetCommandArgumentFromCmd_0100, TestSize.Le
  * @tc.name: MakeSetCommandArgumentFromCmd
  * @tc.desc: Test whether MakeSetCommandArgumentFromCmd is called normally.(optind < 0)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_MakeSetCommandArgumentFromCmd_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeSetCommandArgumentFromCmd_0200 start";
@@ -2551,7 +2565,7 @@ AccessibilityAbilityShellCommand_MakeSetCommandArgumentFromCmd_0200, TestSize.Le
  * @tc.name: MakeSetCommandArgumentFromCmd
  * @tc.desc: Test whether MakeSetCommandArgumentFromCmd is called normally.(option = -1)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_MakeSetCommandArgumentFromCmd_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeSetCommandArgumentFromCmd_0300 start";
@@ -2573,7 +2587,7 @@ AccessibilityAbilityShellCommand_MakeSetCommandArgumentFromCmd_0300, TestSize.Le
  * @tc.name: MakeSetCommandArgumentFromCmd
  * @tc.desc: Test whether MakeSetCommandArgumentFromCmd is called normally.(option = ?)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_MakeSetCommandArgumentFromCmd_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeSetCommandArgumentFromCmd_0400 start";
@@ -2597,7 +2611,7 @@ AccessibilityAbilityShellCommand_MakeSetCommandArgumentFromCmd_0400, TestSize.Le
  * @tc.name: MakeSetCommandArgumentFromCmd
  * @tc.desc: Test whether MakeSetCommandArgumentFromCmd is called normally.(option = default)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_MakeSetCommandArgumentFromCmd_0500, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeSetCommandArgumentFromCmd_0500 start";
@@ -2621,7 +2635,7 @@ AccessibilityAbilityShellCommand_MakeSetCommandArgumentFromCmd_0500, TestSize.Le
  * @tc.name: MakeCommandArgumentFromCmd
  * @tc.desc: Test whether MakeCommandArgumentFromCmd is called normally.(return OHOS::ERR_OK)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_MakeCommandArgumentFromCmd_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeCommandArgumentFromCmd_0100 start";
@@ -2648,7 +2662,7 @@ AccessibilityAbilityShellCommand_MakeCommandArgumentFromCmd_0100, TestSize.Level
  * @tc.name: MakeCommandArgumentFromCmd
  * @tc.desc: Test whether MakeCommandArgumentFromCmd is called normally.(return OHOS::ERR_OK，option a b)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_MakeCommandArgumentFromCmd_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeCommandArgumentFromCmd_0200 start";
@@ -2676,7 +2690,7 @@ AccessibilityAbilityShellCommand_MakeCommandArgumentFromCmd_0200, TestSize.Level
  * @tc.name: MakeCommandArgumentFromCmd
  * @tc.desc: Test whether MakeCommandArgumentFromCmd is called normally.(missing options)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_MakeCommandArgumentFromCmd_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeCommandArgumentFromCmd_0300 start";
@@ -2699,7 +2713,7 @@ AccessibilityAbilityShellCommand_MakeCommandArgumentFromCmd_0300, TestSize.Level
  * @tc.name: MakeCommandArgumentFromCmd
  * @tc.desc: Test whether MakeCommandArgumentFromCmd is called normally.(NO_ABILITY)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_MakeCommandArgumentFromCmd_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeCommandArgumentFromCmd_0400 start";
@@ -2723,7 +2737,7 @@ AccessibilityAbilityShellCommand_MakeCommandArgumentFromCmd_0400, TestSize.Level
  * @tc.name: MakeCommandArgumentFromCmd
  * @tc.desc: Test whether MakeCommandArgumentFromCmd is called normally.(NO_BUNDLE)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_MakeCommandArgumentFromCmd_0500, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeCommandArgumentFromCmd_0500 start";
@@ -2749,7 +2763,7 @@ AccessibilityAbilityShellCommand_MakeCommandArgumentFromCmd_0500, TestSize.Level
  * @tc.name: MakeCommandArgumentFromCmd
  * @tc.desc: Test whether MakeCommandArgumentFromCmd is called normally.(optind = -1)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_MakeCommandArgumentFromCmd_0600, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeCommandArgumentFromCmd_0600 start";
@@ -2771,7 +2785,7 @@ AccessibilityAbilityShellCommand_MakeCommandArgumentFromCmd_0600, TestSize.Level
  * @tc.desc: Test whether MakeDisableCommandArgumentFromCmd is called normally.
  *           (MakeCommandArgumentFromCmd = OHOS::ERR_OK,CheckDisableCommandArgument = OHOS::ERR_INVALID_VALUE)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_MakeDisableCommandArgumentFromCmd_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeDisableCommandArgumentFromCmd_0100 start";
@@ -2804,7 +2818,7 @@ AccessibilityAbilityShellCommand_MakeDisableCommandArgumentFromCmd_0100, TestSiz
  * @tc.desc: Test whether CheckDisableCommandArgument is called normally.
  *           (CheckCommandArgument = OHOS::ERR_INVALID_VALUE)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckDisableCommandArgument_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckDisableCommandArgument_0100 start";
@@ -2832,7 +2846,7 @@ AccessibilityAbilityShellCommand_CheckDisableCommandArgument_0100, TestSize.Leve
  * @tc.name: CheckCommandArgument
  * @tc.desc: Test whether CheckCommandArgument is called normally.(totalArgumentNum > 2)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckCommandArgument_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckCommandArgument_0100 start";
@@ -2861,7 +2875,7 @@ AccessibilityAbilityShellCommand_CheckCommandArgument_0100, TestSize.Level1)
  * @tc.name: CheckCommandArgument
  * @tc.desc: Test whether CheckCommandArgument is called normally.(unknownArgumentNum > 0)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckCommandArgument_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckCommandArgument_0200 start";
@@ -2889,7 +2903,7 @@ AccessibilityAbilityShellCommand_CheckCommandArgument_0200, TestSize.Level1)
  * @tc.name: CheckCommandArgument
  * @tc.desc: Test whether CheckCommandArgument is called normally.(CheckAbilityArgument = false)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckCommandArgument_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckCommandArgument_0300 start";
@@ -2906,7 +2920,7 @@ AccessibilityAbilityShellCommand_CheckCommandArgument_0300, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckCommandArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckCommandArgument(argument, resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(resultMessage, ": " + ACCESSIBILITY_ABILITY_NO_ABILITY_ARGUMENT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckCommandArgument_0300 end";
@@ -2917,7 +2931,7 @@ AccessibilityAbilityShellCommand_CheckCommandArgument_0300, TestSize.Level1)
  * @tc.name: CheckCommandArgument
  * @tc.desc: Test whether CheckCommandArgument is called normally.(CheckBundleArgument = false)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckCommandArgument_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckCommandArgument_0400 start";
@@ -2934,7 +2948,7 @@ AccessibilityAbilityShellCommand_CheckCommandArgument_0400, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckCommandArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckCommandArgument(argument, resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(resultMessage, ": " + ACCESSIBILITY_ABILITY_NO_BUNDLE_ARGUMENT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckCommandArgument_0400 end";
@@ -2945,7 +2959,7 @@ AccessibilityAbilityShellCommand_CheckCommandArgument_0400, TestSize.Level1)
  * @tc.name: CheckCommandArgument
  * @tc.desc: Test whether CheckCommandArgument is called normally.(CheckParamValidity = false)
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_CheckCommandArgument_0500, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckCommandArgument_0500 start";
@@ -2962,10 +2976,10 @@ AccessibilityAbilityShellCommand_CheckCommandArgument_0500, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckCommandArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckCommandArgument(argument, resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(resultMessage, ": the auxiliary application " +
-            argument.bundleName + "/" + argument.abilityName + ACCESSIBILITY_ABILITY_NOT_FOUND);
+    EXPECT_EQ(resultMessage, ": the auxiliary application " + argument.bundleName + "/" +
+        argument.abilityName + ACCESSIBILITY_ABILITY_NOT_FOUND);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckCommandArgument_0500 end";
 }
 }  // namespace AAFwk

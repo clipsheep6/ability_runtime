@@ -238,7 +238,7 @@ napi_value JsUIExtensionContentSession::OnStartAbility(napi_env env, NapiCallbac
     size_t unwrapArgc = 1;
     if (!OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
         TAG_LOGE(AAFwkTag::UI_EXT, "Failed to parse want!");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parameter error: Failed to parse want! Want must be a Want.");
         return CreateJsUndefined(env);
     }
     if (!want.HasParameter(Want::PARAM_BACK_TO_OTHER_MISSION_STACK)) {
@@ -331,7 +331,7 @@ napi_value JsUIExtensionContentSession::OnStartAbilityAsCaller(napi_env env, Nap
     AAFwk::Want want;
     bool unWrapWantFlag = OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want);
     if (!unWrapWantFlag) {
-        ThrowTooFewParametersError(env);
+        ThrowInvalidParamError(env, "Parameter error: Parse want failed! Want must be a Want.");
     }
     decltype(info.argc) unwrapArgc = 1;
     TAG_LOGI(AAFwkTag::UI_EXT, "StartAbilityAsCaller, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
@@ -340,7 +340,7 @@ napi_value JsUIExtensionContentSession::OnStartAbilityAsCaller(napi_env env, Nap
         TAG_LOGD(AAFwkTag::UI_EXT, "OnStartAbilityAsCaller start options is used.");
         bool unWrapStartOptionsFlag = AppExecFwk::UnwrapStartOptions(env, info.argv[INDEX_ONE], startOptions);
         if (!unWrapStartOptionsFlag) {
-            ThrowTooFewParametersError(env);
+            ThrowInvalidParamError(env, "Parameter error: Parse startOptions failed! Options must be a StartOption.");
         }
         unwrapArgc++;
     }
@@ -380,7 +380,10 @@ NapiAsyncTask::ExecuteCallback JsUIExtensionContentSession::StartAbilityExecuteC
     AAFwk::StartOptions startOptions;
     if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[1], napi_object)) {
         TAG_LOGD(AAFwkTag::UI_EXT, "OnStartAbility start options is used.");
-        AppExecFwk::UnwrapStartOptions(env, info.argv[1], startOptions);
+        bool unWrapStartOptionsFlag = AppExecFwk::UnwrapStartOptions(env, info.argv[1], startOptions);
+        if (!unWrapStartOptionsFlag) {
+            ThrowInvalidParamError(env, "Parameter error: Parse startOptions failed! Options must be a StartOption.");
+        }
         unwrapArgc++;
     }
 
@@ -425,7 +428,7 @@ napi_value JsUIExtensionContentSession::OnStartAbilityForResult(napi_env env, Na
     AAFwk::Want want;
     if (!AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
         TAG_LOGE(AAFwkTag::UI_EXT, "Error to parse want!");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Failed to parse want! Want must be a Want.");
         return CreateJsUndefined(env);
     }
     if (!want.HasParameter(Want::PARAM_BACK_TO_OTHER_MISSION_STACK)) {
@@ -435,7 +438,10 @@ napi_value JsUIExtensionContentSession::OnStartAbilityForResult(napi_env env, Na
     AAFwk::StartOptions startOptions;
     if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[1], napi_object)) {
         TAG_LOGD(AAFwkTag::UI_EXT, "OnStartAbilityForResult start options is used.");
-        AppExecFwk::UnwrapStartOptions(env, info.argv[1], startOptions);
+        bool unWrapStartOptionsFlag = AppExecFwk::UnwrapStartOptions(env, info.argv[1], startOptions);
+        if (!unWrapStartOptionsFlag) {
+            ThrowInvalidParamError(env, "Parameter error: Parse startOptions failed! Options must be a StartOption.");
+        }
         unwrapArgc++;
     }
 
@@ -546,38 +552,20 @@ napi_value JsUIExtensionContentSession::OnTerminateSelfWithResult(napi_env env, 
 {
     TAG_LOGI(AAFwkTag::UI_EXT, "called");
     if (info.argc < ARGC_ONE) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "invalid param");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        TAG_LOGE(AAFwkTag::UI_EXT, "Not enough params.");
+        ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
     int resultCode = 0;
     AAFwk::Want want;
     if (!AppExecFwk::UnWrapAbilityResult(env, info.argv[INDEX_ZERO], resultCode, want)) {
         TAG_LOGE(AAFwkTag::UI_EXT, "OnTerminateSelfWithResult Failed to parse ability result!");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parameter error: Failed to parse parameter! Parameter must be a AbilityResult.");
         return CreateJsUndefined(env);
     }
 
-    NapiAsyncTask::CompleteCallback complete =
-        [uiWindow = uiWindow_, sessionInfo = sessionInfo_, want, resultCode](napi_env env,
-            NapiAsyncTask& task, int32_t status) {
-            if (uiWindow == nullptr) {
-                TAG_LOGE(AAFwkTag::UI_EXT, "uiWindow is nullptr.");
-                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
-                return;
-            }
-            auto ret = uiWindow->TransferAbilityResult(resultCode, want);
-            if (ret != Rosen::WMError::WM_OK) {
-                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
-                return;
-            }
-            auto errorCode = AAFwk::AbilityManagerClient::GetInstance()->TerminateUIExtensionAbility(sessionInfo);
-            if (errorCode == 0) {
-                task.ResolveWithNoError(env, CreateJsUndefined(env));
-            } else {
-                task.Reject(env, CreateJsErrorByNativeErr(env, errorCode));
-            }
-        };
+    NapiAsyncTask::CompleteCallback complete;
+    SetCallbackForTerminateWithResult(resultCode, want, complete);
 
     napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     napi_value result = nullptr;
@@ -591,14 +579,14 @@ napi_value JsUIExtensionContentSession::OnSendData(napi_env env, NapiCallbackInf
     TAG_LOGD(AAFwkTag::UI_EXT, "called");
     CHECK_IS_SYSTEM_APP;
     if (info.argc < ARGC_ONE) {
-        TAG_LOGE(AAFwkTag::UI_EXT, "invalid param");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        TAG_LOGE(AAFwkTag::UI_EXT, "Not enough params.");
+        ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
     AAFwk::WantParams params;
     if (!AppExecFwk::UnwrapWantParams(env, info.argv[INDEX_ZERO], params)) {
         TAG_LOGE(AAFwkTag::UI_EXT, "OnSendData Failed to parse param!");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "OnSendData Failed to parse param! Data must be a Record<string, Object>.");
         return CreateJsUndefined(env);
     }
 
@@ -622,9 +610,15 @@ napi_value JsUIExtensionContentSession::OnSetReceiveDataCallback(napi_env env, N
 {
     TAG_LOGD(AAFwkTag::UI_EXT, "called");
     CHECK_IS_SYSTEM_APP;
-    if (info.argc < ARGC_ONE || !CheckTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_function)) {
+    if (info.argc < ARGC_ONE) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Not enough params.");
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    if (!CheckTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_function)) {
         TAG_LOGE(AAFwkTag::UI_EXT, "invalid param");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parameter error: Callback must be a function.");
         return CreateJsUndefined(env);
     }
 
@@ -664,9 +658,15 @@ napi_value JsUIExtensionContentSession::OnSetReceiveDataForResultCallback(napi_e
 {
     TAG_LOGD(AAFwkTag::UI_EXT, "called");
     CHECK_IS_SYSTEM_APP;
-    if (info.argc < ARGC_ONE || !CheckTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_function)) {
+    if (info.argc < ARGC_ONE) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Not enough params.");
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    if (!CheckTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_function)) {
         TAG_LOGE(AAFwkTag::UI_EXT, "invalid param");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parameter error: Callback must be a function.");
         return CreateJsUndefined(env);
     }
 
@@ -710,14 +710,25 @@ napi_value JsUIExtensionContentSession::OnLoadContent(napi_env env, NapiCallback
 {
     TAG_LOGD(AAFwkTag::UI_EXT, "called");
     std::string contextPath;
-    if (info.argc < ARGC_ONE || !ConvertFromJsValue(env, info.argv[INDEX_ZERO], contextPath)) {
+    if (info.argc < ARGC_ONE) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Not enough params.");
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], contextPath)) {
         TAG_LOGE(AAFwkTag::UI_EXT, "invalid param");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parameter error: Path must be a string.");
         return CreateJsUndefined(env);
     }
     TAG_LOGD(AAFwkTag::UI_EXT, "contextPath: %{public}s", contextPath.c_str());
     napi_value storage = nullptr;
-    if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
+    if (info.argc > ARGC_ONE) {
+        if (!CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
+            TAG_LOGE(AAFwkTag::UI_EXT, "invalid param");
+            ThrowInvalidParamError(env, "Parameter error: Storage must be a LocalStorage.");
+            return CreateJsUndefined(env);
+        }
         storage = info.argv[INDEX_ONE];
     }
     if (uiWindow_ == nullptr || sessionInfo_ == nullptr) {
@@ -732,7 +743,8 @@ napi_value JsUIExtensionContentSession::OnLoadContent(napi_env env, NapiCallback
         isFirstTriggerBindModal_ = false;
     }
     sptr<IRemoteObject> parentToken = sessionInfo_->parentToken;
-    Rosen::WMError ret = uiWindow_->NapiSetUIContent(contextPath, env, storage, false, parentToken);
+    Rosen::WMError ret = uiWindow_->NapiSetUIContent(contextPath, env, storage,
+        Rosen::BackupAndRestoreType::NONE, parentToken);
     if (ret == Rosen::WMError::WM_OK) {
         TAG_LOGD(AAFwkTag::UI_EXT, "NapiSetUIContent success");
     } else {
@@ -747,9 +759,15 @@ napi_value JsUIExtensionContentSession::OnSetWindowBackgroundColor(napi_env env,
     TAG_LOGD(AAFwkTag::UI_EXT, "called");
     CHECK_IS_SYSTEM_APP;
     std::string color;
-    if (info.argc < ARGC_ONE || !ConvertFromJsValue(env, info.argv[INDEX_ZERO], color)) {
+    if (info.argc < ARGC_ONE) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Not enough params.");
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], color)) {
         TAG_LOGE(AAFwkTag::UI_EXT, "invalid param");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parameter error: Parse color failed! Color must be a string.");
         return CreateJsUndefined(env);
     }
 
@@ -772,9 +790,15 @@ napi_value JsUIExtensionContentSession::OnSetWindowPrivacyMode(napi_env env, Nap
 {
     TAG_LOGD(AAFwkTag::UI_EXT, "called");
     bool isPrivacyMode = false;
-    if (info.argc < ARGC_ONE || !ConvertFromJsValue(env, info.argv[INDEX_ZERO], isPrivacyMode)) {
+    if (info.argc < ARGC_ONE) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Not enough params.");
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], isPrivacyMode)) {
         TAG_LOGE(AAFwkTag::UI_EXT, "invalid param");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parameter error: Failed to parse isPrivacyMode! IsPrivacyMode must be a boolean.");
         return CreateJsUndefined(env);
     }
     auto selfToken = IPCSkeleton::GetSelfTokenID();
@@ -808,16 +832,13 @@ napi_value JsUIExtensionContentSession::OnSetWindowPrivacyMode(napi_env env, Nap
 napi_value JsUIExtensionContentSession::OnStartAbilityByType(napi_env env, NapiCallbackInfo& info)
 {
     TAG_LOGI(AAFwkTag::UI_EXT, "called");
-    if (info.argc < ARGC_THREE) {
-        ThrowTooFewParametersError(env);
-        return CreateJsUndefined(env);
-    }
 
     std::string type;
     AAFwk::WantParams wantParam;
-    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], type) ||
-        !AppExecFwk::UnwrapWantParams(env, info.argv[INDEX_ONE], wantParam)) {
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+
+    bool checkResult = CheckStartAbilityByTypeParam(env, info, type, wantParam);
+    if (!checkResult) {
+        TAG_LOGI(AAFwkTag::UI_EXT, "check startAbilityByCall param failed.");
         return CreateJsUndefined(env);
     }
 
@@ -858,6 +879,32 @@ napi_value JsUIExtensionContentSession::OnStartAbilityByType(napi_env env, NapiC
     NapiAsyncTask::ScheduleHighQos("JsUIExtensionContentSession::OnStartAbilityByType",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
+}
+
+bool JsUIExtensionContentSession::CheckStartAbilityByTypeParam(napi_env env,
+    NapiCallbackInfo& info, std::string type, AAFwk::WantParams wantParam)
+{
+    TAG_LOGI(AAFwkTag::UI_EXT, "start");
+
+    if (info.argc < ARGC_THREE) {
+        TAG_LOGW(AAFwkTag::UI_EXT, "Not enough params.");
+        ThrowTooFewParametersError(env);
+        return false;
+    }
+
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], type)) {
+        TAG_LOGW(AAFwkTag::UI_EXT, "Failed to parse type!");
+        ThrowInvalidParamError(env, "Parameter error: Failed to parse type! Type must be a string.");
+        return false;
+    }
+
+    if (!AppExecFwk::UnwrapWantParams(env, info.argv[INDEX_ONE], wantParam)) {
+        TAG_LOGW(AAFwkTag::UI_EXT, "Failed to parse wantParam");
+        ThrowInvalidParamError(env, "Parameter error: Failed to parse wantParam, must be a Record<string, Object>.");
+        return false;
+    }
+
+    return true;
 }
 
 napi_value JsUIExtensionContentSession::CreateJsUIExtensionContentSession(napi_env env,
@@ -1019,6 +1066,39 @@ void JsUIExtensionContentSession::AddFreeInstallObserver(napi_env env,
         freeInstallObserver_->AddJsObserverObject(
             bundleName, abilityName, startTime, callback, result, isAbilityResult);
     }
+}
+
+void JsUIExtensionContentSession::SetCallbackForTerminateWithResult(int32_t resultCode, AAFwk::Want& want,
+    NapiAsyncTask::CompleteCallback& complete)
+{
+    complete =
+        [weak = context_, uiWindow = uiWindow_, sessionInfo = sessionInfo_, want, resultCode](napi_env env,
+            NapiAsyncTask& task, int32_t status) {
+            auto extensionContext = AbilityRuntime::Context::ConvertTo<AbilityRuntime::UIExtensionContext>(weak.lock());
+            if (!extensionContext) {
+                TAG_LOGE(AAFwkTag::UI_EXT, "extensionContext is nullptr");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                return;
+            }
+            auto token = extensionContext->GetToken();
+            AAFwk::AbilityManagerClient::GetInstance()->TransferAbilityResultForExtension(token, resultCode, want);
+            if (uiWindow == nullptr) {
+                TAG_LOGE(AAFwkTag::UI_EXT, "uiWindow is nullptr.");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            auto ret = uiWindow->TransferAbilityResult(resultCode, want);
+            if (ret != Rosen::WMError::WM_OK) {
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            auto errorCode = AAFwk::AbilityManagerClient::GetInstance()->TerminateUIExtensionAbility(sessionInfo);
+            if (errorCode == 0) {
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, errorCode));
+            }
+        };
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

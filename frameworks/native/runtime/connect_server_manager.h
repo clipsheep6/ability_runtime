@@ -52,6 +52,7 @@ public:
     bool SendInstanceMessage(int32_t tid, int32_t instanceId, const std::string& instanceName);
     void SendDebuggerInfo(bool needBreakPoint, bool isDebugApp);
     void LoadConnectServerDebuggerSo();
+    DebuggerPostTask GetDebuggerPostTask(int32_t tid);
 
 private:
     ConnectServerManager() = default;

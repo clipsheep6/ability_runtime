@@ -171,16 +171,16 @@ void ConnectServerManager::SendDebuggerInfo(bool needBreakPoint, bool isDebugApp
         auto instanceName = instance.second.first;
         auto tid = instance.second.second;
 
-        panda::EcmaVM* vm = reinterpret_cast<panda::EcmaVM*>(g_debuggerInfo[instanceId].first);
+        panda::EcmaVM* vm = reinterpret_cast<panda::EcmaVM*>(g_debuggerInfo[tid].first);
         std::lock_guard<std::mutex> lock(g_debuggerMutex);
-        const auto &debuggerPoskTask = g_debuggerInfo[instanceId].second;
+        const auto &debuggerPoskTask = g_debuggerInfo[tid].second;
         if (!debuggerPoskTask) {
             continue;
         }
         ConnectServerManager::Get().SendInstanceMessage(tid, instanceId, instanceName);
         auto storeDebugInfoTask = [needBreakPoint, isDebugApp, instanceId, vm, debuggerPoskTask, instanceName]() {
             panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? needBreakPoint : false};
-            panda::JSNApi::StoreDebugInfo(gettid(), vm, debugOption, debuggerPoskTask, isDebugApp);
+            panda::JSNApi::StoreDebugInfo(getproctid(), vm, debugOption, debuggerPoskTask, isDebugApp);
         };
 
         debuggerPoskTask(storeDebugInfoTask);
@@ -407,4 +407,13 @@ void ConnectServerManager::SendArkUIStateProfilerMessage(const std::string &mess
     sendProfilerMessage(message);
 }
 
+DebuggerPostTask ConnectServerManager::GetDebuggerPostTask(int32_t tid)
+{
+    auto it = g_debuggerInfo.find(tid);
+    if (it == g_debuggerInfo.end()) {
+        TAG_LOGW(AAFwkTag::JSRUNTIME, "ConnectServerManager::GetDebuggerPostTask tid %{public}d is not found: ", tid);
+        return nullptr;
+    }
+    return it->second.second;
+}
 } // namespace OHOS::AbilityRuntime

@@ -128,7 +128,7 @@ void StartupManager::SetDefaultConfig(const std::shared_ptr<StartupConfig> &conf
     defaultConfig_ = config;
 }
 
-std::shared_ptr<StartupConfig> StartupManager::GetDefaultConfig() const
+const std::shared_ptr<StartupConfig>& StartupManager::GetDefaultConfig() const
 {
     return defaultConfig_;
 }

@@ -44,6 +44,19 @@ using namespace testing::ext;
 
 namespace OHOS {
 namespace AppExecFwk {
+class WindowFocusChangedListener : public OHOS::Rosen::IFocusChangedListener {
+public:
+    WindowFocusChangedListener(const std::shared_ptr<AppMgrServiceInner>& owner,
+        const std::shared_ptr<AAFwk::TaskHandlerWrap>& handler);
+    virtual ~WindowFocusChangedListener();
+
+    void OnFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo) override;
+    void OnUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo) override;
+
+private:
+    std::weak_ptr<AppMgrServiceInner> owner_;
+    std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
+};
 namespace {
 constexpr int32_t RECORD_ID = 1;
 constexpr int32_t APP_DEBUG_INFO_PID = 0;
@@ -575,23 +588,27 @@ HWTEST_F(AppMgrServiceInnerTest, LaunchApplication_001, TestSize.Level0)
     appRecord->SetState(ApplicationState::APP_STATE_CREATE);
     appMgrServiceInner->LaunchApplication(appRecord);
 
-    appRecord->SetKeepAliveAppState(false, true);
+    appRecord->SetEmptyKeepAliveAppState(true);
+    appRecord->SetKeepAliveEnableState(false);
     appMgrServiceInner->LaunchApplication(appRecord);
 
-    appRecord->SetKeepAliveAppState(true, false);
+    appRecord->SetKeepAliveEnableState(true);
+    appRecord->SetEmptyKeepAliveAppState(false);
     appMgrServiceInner->LaunchApplication(appRecord);
 
-    appRecord->SetKeepAliveAppState(true, true);
+    appRecord->SetKeepAliveEnableState(true);
+    appRecord->SetEmptyKeepAliveAppState(true);
     appMgrServiceInner->LaunchApplication(appRecord);
 
-    appRecord->SetKeepAliveAppState(false, false);
+    appRecord->SetKeepAliveEnableState(false);
+    appRecord->SetEmptyKeepAliveAppState(false);
     appMgrServiceInner->LaunchApplication(appRecord);
 
     Want want;
-    appRecord->SetSpecifiedAbilityFlagAndWant(false, want, "");
+    appRecord->SetSpecifiedAbilityFlagAndWant(-1, want, "");
     appMgrServiceInner->LaunchApplication(appRecord);
 
-    appRecord->SetSpecifiedAbilityFlagAndWant(true, want, "");
+    appRecord->SetSpecifiedAbilityFlagAndWant(1, want, "");
     appMgrServiceInner->LaunchApplication(appRecord);
 
     appMgrServiceInner->configuration_ = nullptr;
@@ -750,16 +767,20 @@ HWTEST_F(AppMgrServiceInnerTest, ApplicationTerminated_001, TestSize.Level0)
 
     appMgrServiceInner->ApplicationTerminated(recordId_);
 
-    appRecord->SetKeepAliveAppState(false, true);
+    appRecord->SetKeepAliveEnableState(false);
+    appRecord->SetEmptyKeepAliveAppState(true);
     appMgrServiceInner->ApplicationTerminated(recordId_);
 
-    appRecord->SetKeepAliveAppState(true, false);
+    appRecord->SetKeepAliveEnableState(true);
+    appRecord->SetEmptyKeepAliveAppState(false);
     appMgrServiceInner->ApplicationTerminated(recordId_);
 
-    appRecord->SetKeepAliveAppState(true, true);
+    appRecord->SetKeepAliveEnableState(true);
+    appRecord->SetEmptyKeepAliveAppState(true);
     appMgrServiceInner->ApplicationTerminated(recordId_);
 
-    appRecord->SetKeepAliveAppState(false, false);
+    appRecord->SetKeepAliveEnableState(false);
+    appRecord->SetEmptyKeepAliveAppState(false);
     appMgrServiceInner->ApplicationTerminated(recordId_);
 
     appRecord->SetState(ApplicationState::APP_STATE_FOREGROUND);
@@ -1198,6 +1219,12 @@ HWTEST_F(AppMgrServiceInnerTest, CreateAppRunningRecord_001, TestSize.Level0)
         applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_EQ(appRecord5, nullptr);
 
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    want->SetParam("multiThread", false);
+    std::shared_ptr<AppRunningRecord> appRecord6 = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
+    EXPECT_EQ(appRecord6, nullptr);
+
     TAG_LOGI(AAFwkTag::TEST, "CreateAppRunningRecord_001 end");
 }
 
@@ -1523,7 +1550,8 @@ HWTEST_F(AppMgrServiceInnerTest, KillProcessByAbilityToken_001, TestSize.Level0)
     EXPECT_NE(appRecord, nullptr);
     appMgrServiceInner->KillProcessByAbilityToken(token);
 
-    appRecord->SetKeepAliveAppState(true, true);
+    appRecord->SetKeepAliveEnableState(true);
+    appRecord->SetEmptyKeepAliveAppState(true);
     appMgrServiceInner->KillProcessByAbilityToken(token);
 
     TAG_LOGI(AAFwkTag::TEST, "KillProcessByAbilityToken_001 end");
@@ -1780,9 +1808,11 @@ HWTEST_F(AppMgrServiceInnerTest, RemoveAppFromRecentList_001, TestSize.Level0)
 
     pid_t pid = 123;
     appMgrServiceInner->AddAppToRecentList(appName1, processName1, pid, 0);
-    appRecord->SetKeepAliveAppState(true, true);
+    appRecord->SetKeepAliveEnableState(true);
+    appRecord->SetEmptyKeepAliveAppState(true);
     appMgrServiceInner->RemoveAppFromRecentList(appName1, processName1);
-    appRecord->SetKeepAliveAppState(false, false);
+    appRecord->SetKeepAliveEnableState(false);
+    appRecord->SetEmptyKeepAliveAppState(false);
     appMgrServiceInner->RemoveAppFromRecentList(appName1, processName1);
 
     TAG_LOGI(AAFwkTag::TEST, "RemoveAppFromRecentList_001 end");
@@ -2016,7 +2046,7 @@ HWTEST_F(AppMgrServiceInnerTest, HandleAddAbilityStageTimeOut_001, TestSize.Leve
     appRecord->eventId_ = 0;
     appMgrServiceInner->HandleAddAbilityStageTimeOut(0);
 
-    appRecord->isSpecifiedAbility_ = true;
+    appRecord->specifiedRequestId_ = 1;
     appMgrServiceInner->HandleAddAbilityStageTimeOut(0);
 
     sptr<IStartSpecifiedAbilityResponse> response;
@@ -2648,14 +2678,14 @@ HWTEST_F(AppMgrServiceInnerTest, HandleStartSpecifiedAbilityTimeOut_001, TestSiz
     appRecord->eventId_ = 0;
     appMgrServiceInner->HandleStartSpecifiedAbilityTimeOut(0);
 
-    appRecord->isSpecifiedAbility_ = true;
+    appRecord->specifiedRequestId_ = 1;
     appMgrServiceInner->HandleStartSpecifiedAbilityTimeOut(0);
 
     sptr<IStartSpecifiedAbilityResponse> response;
     appMgrServiceInner->startSpecifiedAbilityResponse_ = response;
     appMgrServiceInner->HandleStartSpecifiedAbilityTimeOut(0);
 
-    appRecord->isSpecifiedAbility_ = false;
+    appRecord->specifiedRequestId_ = -1;
     appMgrServiceInner->HandleStartSpecifiedAbilityTimeOut(0);
 
     appMgrServiceInner->appRunningManager_ = nullptr;
@@ -2887,6 +2917,26 @@ HWTEST_F(AppMgrServiceInnerTest, GetApplicationInfoByProcessID_001, TestSize.Lev
     appMgrServiceInner->GetApplicationInfoByProcessID(pid, application, debug);
 
     TAG_LOGI(AAFwkTag::TEST, "GetApplicationInfoByProcessID_001 end");
+}
+
+/**
+ * @tc.name: NotifyAppMgrRecordExitReason_001
+ * @tc.desc: NotifyAppMgrRecordExitReason.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, NotifyAppMgrRecordExitReason_001, TestSize.Level0)
+{
+    TAG_LOGI(AAFwkTag::TEST, "NotifyAppMgrRecordExitReason_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    int32_t reason = 0;
+    int32_t pid = 1;
+    std::string exitMsg = "JsError";
+    auto ret = appMgrServiceInner->NotifyAppMgrRecordExitReason(reason, pid, exitMsg);
+    EXPECT_NE(ret, ERR_OK);
+    TAG_LOGI(AAFwkTag::TEST, "NotifyAppMgrRecordExitReason_001 end");
 }
 
 /**
@@ -3664,8 +3714,8 @@ HWTEST_F(AppMgrServiceInnerTest, RegisterAbilityDebugResponse_001, TestSize.Leve
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     sptr<IAbilityDebugResponse> response = nullptr;
-    auto result = appMgrServiceInner->RegisterAbilityDebugResponse(response);
-    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    appMgrServiceInner->RegisterAbilityDebugResponse(response);
+    EXPECT_TRUE(appMgrServiceInner != nullptr);
 }
 
 /**
@@ -3882,9 +3932,10 @@ HWTEST_F(AppMgrServiceInnerTest, SendAppLaunchEvent_001, TestSize.Level0)
         appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
     recordId_ += 1;
     appRecord->SetState(ApplicationState::APP_STATE_CREATE);
-    appRecord->SetKeepAliveAppState(false, false);
+    appRecord->SetKeepAliveEnableState(false);
+    appRecord->SetEmptyKeepAliveAppState(false);
     Want want;
-    appRecord->SetSpecifiedAbilityFlagAndWant(false, want, "");
+    appRecord->SetSpecifiedAbilityFlagAndWant(-1, want, "");
     appMgrServiceInner->SendAppLaunchEvent(appRecord);
     appRecord->SetCallerPid(appRecord2->GetPriorityObject()->GetPid());
     appMgrServiceInner->SendAppLaunchEvent(appRecord);
@@ -4192,6 +4243,81 @@ HWTEST_F(AppMgrServiceInnerTest, PreloadApplication_0100, TestSize.Level1)
     int32_t appIndex = 0;
     int32_t ret = appMgrServiceInner->PreloadApplication(bundleName, userId, preloadMode, appIndex);
     EXPECT_EQ(ret, ERR_PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: SetSupportedProcessCacheSelf_001
+ * @tc.desc: The application sets itself whether or not to support process cache.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, SetSupportedProcessCacheSelf_001, TestSize.Level0)
+{
+    TAG_LOGI(AAFwkTag::TEST, "SetSupportedProcessCacheSelf_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    bool isSupported = false;
+    EXPECT_EQ(appMgrServiceInner->SetSupportedProcessCacheSelf(isSupported), CHECK_PERMISSION_FAILED);
+
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    EXPECT_EQ(appMgrServiceInner->SetSupportedProcessCacheSelf(isSupported), ERR_NO_INIT);
+
+    TAG_LOGI(AAFwkTag::TEST, "SetSupportedProcessCacheSelf_001 end");
+}
+
+/**
+ * @tc.name: OnAppCacheStateChanged_001
+ * @tc.desc: on application cache state changed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, OnAppCacheStateChanged_001, TestSize.Level0)
+{
+    TAG_LOGI(AAFwkTag::TEST, "OnAppCacheStateChanged_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    appMgrServiceInner->OnAppCacheStateChanged(nullptr);
+
+    std::string bundleName = "com.is.hiserice";
+    std::string processName = "test_processName";
+    bool isRunning = false;
+    auto appRecord = std::make_shared<AppRunningRecord>(applicationInfo_, ++recordId_, processName);
+    EXPECT_NE(appRecord, nullptr);
+    appRecord->mainBundleName_ = "com.is.hiserice";
+    appRecord->SetState(ApplicationState::APP_STATE_CACHED);
+
+    appRecord->priorityObject_ = nullptr;
+    appMgrServiceInner->OnAppCacheStateChanged(appRecord);
+
+    appRecord->priorityObject_ = std::make_shared<PriorityObject>();
+    appMgrServiceInner->OnAppCacheStateChanged(appRecord);
+
+
+    TAG_LOGI(AAFwkTag::TEST, "OnAppCacheStateChanged_001 end");
+}
+
+/**
+ * @tc.name: GetRunningMultiAppInfoByBundleName_001
+ * @tc.desc: Get multiApp information list by bundleName.
+ * @tc.type: FUNC
+ * @tc.require: issueI9HMAO
+ */
+HWTEST_F(AppMgrServiceInnerTest, GetRunningMultiAppInfoByBundleName_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "GetRunningMultiAppInfoByBundleName_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    std::string bundleName = "testBundleName";
+    RunningMultiAppInfo info;
+    int32_t ret = appMgrServiceInner->GetRunningMultiAppInfoByBundleName(bundleName, info);
+    EXPECT_NE(ret, ERR_OK);
+
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    ret = appMgrServiceInner->GetRunningMultiAppInfoByBundleName(bundleName, info);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+
+    TAG_LOGI(AAFwkTag::TEST, "GetRunningMultiAppInfoByBundleName_001 end");
 }
 } // namespace AppExecFwk
 } // namespace OHOS

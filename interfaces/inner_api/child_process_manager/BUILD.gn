@@ -32,6 +32,7 @@ ohos_shared_library("child_process_manager") {
     "${ability_runtime_native_path}/ability/native/child_process_manager/child_process_manager.cpp",
     "${ability_runtime_native_path}/ability/native/child_process_manager/child_process_manager_error_utils.cpp",
     "${ability_runtime_native_path}/ability/native/child_process_manager/js_child_process.cpp",
+    "${ability_runtime_native_path}/ability/native/child_process_manager/native_child_ipc_process.cpp",
   ]
 
   deps = [
@@ -50,6 +51,7 @@ ohos_shared_library("child_process_manager") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "init:libbegetutil",
+    "ipc:ipc_capi",
     "ipc:ipc_core",
     "napi:ace_napi",
     "samgr:samgr_proxy",

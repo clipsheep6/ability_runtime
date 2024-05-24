@@ -75,11 +75,13 @@ std::shared_ptr<AbilityRecord> ConnectionRecord::GetAbilityRecord() const
 
 sptr<IAbilityConnection> ConnectionRecord::GetAbilityConnectCallback() const
 {
+    std::lock_guard lock(callbackMutex_);
     return connCallback_;
 }
 
 void ConnectionRecord::ClearConnCallBack()
 {
+    std::lock_guard lock(callbackMutex_);
     if (connCallback_) {
         connCallback_.clear();
     }
@@ -136,7 +138,7 @@ void ConnectionRecord::CompleteConnect(int resultCode)
     AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName,
         abilityInfo.name, abilityInfo.moduleName);
     auto remoteObject = targetService_->GetConnRemoteObject();
-    auto callback = connCallback_;
+    auto callback = GetAbilityConnectCallback();
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (remoteObject == nullptr) {
         TAG_LOGW(AAFwkTag::CONNECTION, "extension returned null object: %{public}s", element.GetURI().c_str());
@@ -170,10 +172,10 @@ void ConnectionRecord::CompleteDisconnect(int resultCode, bool isDied)
     AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName,
         abilityInfo.name, abilityInfo.moduleName);
     auto code = isDied ? (resultCode - 1) : resultCode;
-    auto onDisconnectDoneTask = [connCallback = connCallback_, element, code]() {
+    auto onDisconnectDoneTask = [connCallback = GetAbilityConnectCallback(), element, code]() {
         TAG_LOGD(AAFwkTag::CONNECTION, "OnAbilityDisconnectDone.");
         if (!connCallback) {
-            TAG_LOGD(AAFwkTag::CONNECTION, "connCallback_ is nullptr.");
+            TAG_LOGD(AAFwkTag::CONNECTION, "connCallback is nullptr.");
             return;
         }
         connCallback->OnAbilityDisconnectDone(element, code);
@@ -268,7 +270,7 @@ void ConnectionRecord::AttachCallerInfo()
     }
 
     callerUid_ = static_cast<int32_t>(IPCSkeleton::GetCallingUid());
-    callerPid_ = static_cast<int32_t>(IPCSkeleton::GetCallingPid());
+    callerPid_ = static_cast<int32_t>(IPCSkeleton::GetCallingRealPid());
     callerName_ = ConnectionStateManager::GetProcessNameByPid(callerPid_);
 }
 
@@ -309,7 +311,7 @@ sptr<IRemoteObject> ConnectionRecord::GetTargetToken() const
 
 sptr<IRemoteObject> ConnectionRecord::GetConnection() const
 {
-    auto callback = connCallback_;
+    auto callback = GetAbilityConnectCallback();
     if (!callback) {
         return nullptr;
     }

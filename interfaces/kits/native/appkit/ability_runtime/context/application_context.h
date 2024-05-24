@@ -114,6 +114,10 @@ public:
     std::string GetAppRunningUniqueId() const;
     void SetAppRunningUniqueId(const std::string &appRunningUniqueId);
     int32_t SetSupportedProcessCacheSelf(bool isSupport);
+    int32_t GetCurrentAppCloneIndex();
+    void SetCurrentAppCloneIndex(int32_t appIndex);
+    int32_t GetCurrentAppMode();
+    void SetCurrentAppMode(int32_t appIndex);
 private:
     std::shared_ptr<ContextImpl> contextImpl_;
     static std::vector<std::shared_ptr<AbilityLifecycleCallback>> callbacks_;
@@ -125,6 +129,8 @@ private:
     bool applicationInfoUpdateFlag_ = false;
     AppConfigUpdateCallback appConfigChangeCallback_ = nullptr;
     std::string appRunningUniqueId_;
+    int32_t appIndex_ = 0;
+    int32_t appMode_ = 0;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

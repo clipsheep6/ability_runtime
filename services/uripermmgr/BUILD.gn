@@ -25,7 +25,6 @@ config("upms_config") {
 }
 
 libupms_sources = [
-  "src/proxy_authorization_uri_config.cpp",
   "src/tokenid_permission.cpp",
   "src/uri_permission_manager_service.cpp",
   "src/uri_permission_manager_stub_impl.cpp",
@@ -33,6 +32,12 @@ libupms_sources = [
 
 #build so
 ohos_shared_library("libupms") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
   shlib_type = "sa"
   configs = [
     "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config",
