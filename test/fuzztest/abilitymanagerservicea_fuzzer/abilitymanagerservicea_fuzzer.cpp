@@ -84,7 +84,10 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->GetRemoteMissionSnapshotInfo(stringParam, int32Param, missionSnapshot);
     abilityms->StartFreezingScreen();
     abilityms->StopFreezingScreen();
-
+    if (want) {
+        delete want;
+        want = nullptr;
+    }
     return true;
 }
 }

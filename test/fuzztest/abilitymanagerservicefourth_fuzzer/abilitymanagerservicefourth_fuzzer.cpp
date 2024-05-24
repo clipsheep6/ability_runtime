@@ -71,7 +71,10 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->StopUser(intParam, callback);
     abilityms->OnAcceptWantResponse(*want, stringParam);
     abilityms->OnStartSpecifiedAbilityTimeoutResponse(*want);
-
+    if (want) {
+        delete want;
+        want = nullptr;
+    }
     return true;
 }
 }

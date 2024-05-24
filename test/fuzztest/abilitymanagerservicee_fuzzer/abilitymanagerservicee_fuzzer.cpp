@@ -85,7 +85,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->SetMissionIcon(token, icon);
     sptr<IWindowManagerServiceHandler> windowManagerServiceHandler;
     abilityms->RegisterWindowManagerServiceHandler(windowManagerServiceHandler);
-
     return true;
 }
 }
