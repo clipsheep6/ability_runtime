@@ -4516,13 +4516,14 @@ void AppMgrServiceInner::AttachRenderProcess(const pid_t pid, const sptr<IRender
 
     TAG_LOGI(AAFwkTag::APPMGR, "to NotifyBrowserFd");
     // notify fd to render process
-    if (appRecord->GetBrowserHost() != nullptr) {
+    if (appRecord->GetBrowserHost() != nullptr && appRecord->GetIsGPU()) {
         TAG_LOGD(AAFwkTag::APPMGR, "GPU has host remote object");
+        scheduler->NotifyBrowserFd(renderRecord->GetIpcFd(),
+            renderRecord->GetSharedFd(), renderRecord->GetCrashFd(), appRecord->GetBrowserHost());
+    } else {
+        scheduler->NotifyBrowserFd(renderRecord->GetIpcFd(),
+            renderRecord->GetSharedFd(), renderRecord->GetCrashFd(), nullptr);
     }
-    scheduler->NotifyBrowserFd(renderRecord->GetIpcFd(),
-                               renderRecord->GetSharedFd(),
-                               renderRecord->GetCrashFd(),
-                               appRecord->GetBrowserHost());
 }
 
 void AppMgrServiceInner::SaveBrowserChannel(const pid_t hostPid, sptr<IRemoteObject> browser)
@@ -4623,6 +4624,7 @@ int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecor
     renderRecord->SetUid(renderUid);
     if (isGPU) {
         renderRecord->SetProcessType(ProcessType::GPU);
+        appRecord->SetGPUPid(pid);
     }
     appRecord->AddRenderRecord(renderRecord);
     TAG_LOGI(AAFwkTag::APPMGR,

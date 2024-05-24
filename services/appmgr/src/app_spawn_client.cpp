@@ -171,16 +171,6 @@ int32_t AppSpawnClient::SetMountPermission(const AppSpawnStartMsg &startMsg, App
             return ret;
         }
     }
-
-    if (!startMsg.processType.empty()) {
-        ret = AppSpawnReqMsgAddExtInfo(reqHandle, MSG_EXT_NAME_PROCESS_TYPE,
-            reinterpret_cast<const uint8_t*>(startMsg.processType.c_str()), startMsg.processType.size());
-        if (ret) {
-            TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnReqMsgAddExtInfo failed, ret: %{public}d", ret);
-            return ret;
-        }
-    }
-
     return ret;
 }
 
@@ -310,6 +300,15 @@ int32_t AppSpawnClient::AppspawnSetExtMsgMore(const AppSpawnStartMsg &startMsg, 
             startMsg.extensionSandboxPath.c_str());
         if (ret) {
             TAG_LOGE(AAFwkTag::APPMGR, "SetExtraExtensionSandboxDirs failed, ret: %{public}d", ret);
+            return ret;
+        }
+    }
+
+    if (!startMsg.processType.empty()) {
+        ret = AppSpawnReqMsgAddExtInfo(reqHandle, MSG_EXT_NAME_PROCESS_TYPE,
+            reinterpret_cast<const uint8_t*>(startMsg.processType.c_str()), startMsg.processType.size());
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnReqMsgAddExtInfo failed, ret: %{public}d", ret);
             return ret;
         }
     }

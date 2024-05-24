@@ -2252,5 +2252,15 @@ bool AppRunningRecord::GetIsGPU()
 {
     return isGPU_;
 }
+
+void AppRunningRecord::SetGPUPid(pid_t gpuPid)
+{
+    gpuPid_ = gpuPid;
+}
+
+pid_t AppRunningRecord::GetGPUPid()
+{
+    return gpuPid_;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
