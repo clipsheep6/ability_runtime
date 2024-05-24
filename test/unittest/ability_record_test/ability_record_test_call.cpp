@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -422,6 +422,46 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_IsNeedToCallRequest_002, TestSize.Le
     abilityRecord_->callContainer_->AddCallRecord(abilityRequest.connect, callRecord);
 
     EXPECT_EQ(true, abilityRecord_->IsNeedToCallRequest());
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: DumpUIExtensionPid
+ * SubFunction: DumpUIExtensionPid
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify that the DumpUIExtensionPid is called properly
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_DumpUIExtensionPid_001, TestSize.Level1)
+{
+    std::vector<std::string> info;
+    bool isUIExtension = true;
+    abilityRecord_->DumpUIExtensionPid(info, isUIExtension);
+    std::string processInfo;
+    for (auto item : info) {
+        processInfo += item;
+    }
+    EXPECT_NE(processInfo.npos, processInfo.find("      pid: "));
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: DumpUIExtensionPid
+ * SubFunction: DumpUIExtensionPid
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify that the DumpUIExtensionPid is called properly
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_DumpUIExtensionPid_002, TestSize.Level1)
+{
+    std::vector<std::string> info;
+    bool isUIExtension = false;
+    abilityRecord_->DumpUIExtensionPid(info, isUIExtension);
+    std::string processInfo;
+    for (auto item : info) {
+        processInfo += item;
+    }
+    EXPECT_EQ(processInfo.npos, processInfo.find("      pid: "));
 }
 }  // namespace AAFwk
 }  // namespace OHOS
