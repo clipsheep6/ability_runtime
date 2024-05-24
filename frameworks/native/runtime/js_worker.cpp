@@ -72,7 +72,7 @@ bool g_nativeStart = false;
 std::mutex g_mutex;
 }
 
-napi_value CanIUse(napi_env env, napi_callback_info info) 
+napi_value CanIUse(napi_env env, napi_callback_info info)
 {
     if (env == nullptr || info == nullptr) {
         return nullptr;
@@ -102,7 +102,7 @@ napi_value CanIUse(napi_env env, napi_callback_info info)
     return CreateJsValue(env, ret);
 }
 
-void initSyscapModule(napi_env env, napi_value globalObject) 
+void initSyscapModule(napi_env env, napi_value globalObject)
 {
     const char *moduleName = "JsRuntime";
     BindNativeFunction(env, globalObject, "caniuse", moduleName, CanIUse);
@@ -125,7 +125,7 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
 
     OHOS::JsSysModule::Console::InitConsoleModule(reinterpret_cast<napi_env>(nativeEngine));
     OHOS::Ace::DeclarativeModulePreloader::PreloadWorker(*nativeEngine);
-    initSyscapModule(reinterpret_cast<napi_env>(nativeEngine),globalObj);
+    initSyscapModule(reinterpret_cast<napi_env>(nativeEngine), globalObj);
 
     auto arkNativeEngine = static_cast<ArkNativeEngine*>(nativeEngine);
     // load jsfwk
