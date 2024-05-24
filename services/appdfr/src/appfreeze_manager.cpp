@@ -56,6 +56,7 @@ const std::string LOG_FILE_PATH = "data/log/eventlog";
 std::shared_ptr<AppfreezeManager> AppfreezeManager::instance_ = nullptr;
 ffrt::mutex AppfreezeManager::singletonMutex_;
 ffrt::mutex AppfreezeManager::freezeMutex_;
+ffrt::mutex AppfreezeManager::freezeFilterMutex_;
 
 AppfreezeManager::AppfreezeManager()
 {
@@ -410,17 +411,15 @@ std::string AppfreezeManager::CatcherStacktrace(int pid) const
 
 bool AppfreezeManager::IsProcessDebug(int32_t pid, std::string processName)
 {
-    const int buffSize = 128;
-    char param[buffSize] = {0};
-    std::string filter = "hiviewdfx.freeze.filter." + processName;
-    GetParameter(filter.c_str(), "", param, buffSize - 1);
-    int32_t debugPid = atoi(param);
-    if (debugPid == pid) {
-        TAG_LOGI(AAFwkTag::APPDFR, "appfreeze filtration %{public}s_%{public}d don't exit.",
-            processName.c_str(), debugPid);
+    std::lock_guard<ffrt::mutex> lock(freezeFilterMutex_);
+    auto it = appfreezeFilterMap_.find(processName);
+    if (it != appfreezeFilterMap_.end() && it->second == pid) {
+        TAG_LOGI(AAFwkTag::APPDFR, "appfreeze filtration %{public}s",
+            processName.c_str());
         return true;
     }
 
+    const int buffSize = 128;
     char paramBundle[buffSize] = {0};
     GetParameter("hiviewdfx.appfreeze.filter_bundle_name", "", paramBundle, buffSize - 1);
     std::string debugBundle(paramBundle);
@@ -515,6 +514,67 @@ bool AppfreezeManager::IsNeedIgnoreFreezeEvent(int32_t pid)
         TAG_LOGI(AAFwkTag::APPDFR, "IsNeedIgnoreFreezeEvent durationTime: "
             "%{public}" PRId64 " SetFreezeState: %{public}d", diff, state);
         return false;
+    }
+}
+
+std::string AppfreezeManager::FormatCmdLine(const std::string& cmdLine)
+{
+    std::string::size_type startPos = 0;
+    std::string::size_type endPos = cmdLine.size();
+    for (std::string::size_type i = 0; i < cmdLine.size(); i++) {
+        if (cmdLine[i] == '/') {
+            startPos = i + 1;
+        } else if (cmdLine[i] == '\0') {
+            endPos = i;
+            break;
+        }
+    }
+    return cmdLine.substr(startPos, endPos - startPos);
+}
+
+std::string AppfreezeManager::GetProcessName(int32_t pid)
+{
+    std::ifstream cmdLineFile("/proc/" + std::to_string(pid) + "/cmdline");
+    std::string processName;
+    if (cmdLineFile) {
+        std::getline(cmdLineFile, processName);
+        cmdLineFile.close();
+        processName = FormatCmdLine(processName);
+        return processName;
+    } else {
+        TAG_LOGI(AAFwkTag::APPDFR, "GetProcessName failed, pid: %{public}d", pid);
+        return "";
+    }
+}
+
+std::string AppfreezeManager::GetBundleName(int32_t pid)
+{
+    std::string processName = GetProcessName(pid);
+    if (processName.find(":") != std::string::npos) {
+        return processName.substr(0, processName.find(":"));
+    }
+    return processName;
+}
+
+bool AppfreezeManager::CanCelAppFreezeDetect(int32_t pid)
+{
+    std::string processName = GetBundleName(pid);
+    if (processName.empty()) {
+        return false;
+    }
+    std::lock_guard<ffrt::mutex> lock(freezeFilterMutex_);
+    appfreezeFilterMap_[processName] = pid;
+    return true;
+}
+
+void AppfreezeManager::RemoveDeathProcess(std::string processName)
+{
+    std::lock_guard<ffrt::mutex> lock(freezeFilterMutex_);
+    auto it = appfreezeFilterMap_.find(processName);
+    if (it != appfreezeFilterMap_.end()) {
+        TAG_LOGI(AAFwkTag::APPDFR, "RemoveDeathProcess processName: %{public}s",
+            processName.c_str());
+        appfreezeFilterMap_.erase(it);
     }
 }
 }  // namespace AAFwk

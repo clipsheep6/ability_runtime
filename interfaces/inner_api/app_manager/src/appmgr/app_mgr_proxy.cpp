@@ -1417,6 +1417,28 @@ int32_t AppMgrProxy::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
     return reply.ReadInt32();
 }
 
+bool AppMgrProxy::SetAppFreezeFilter()
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "called.");
+    MessageParcel data;
+
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
+        return false;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AppMgrInterfaceCode::SET_APPFREEZE_FILTER,
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request failed with error code %{public}d.", ret);
+        return false;
+    }
+
+    return reply.ReadBool();
+}
+
 int32_t AppMgrProxy::GetProcessMemoryByPid(const int32_t pid, int32_t &memorySize)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "GetProcessMemoryByPid start");

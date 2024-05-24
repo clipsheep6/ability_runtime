@@ -356,6 +356,13 @@ public:
      */
     virtual int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData) override;
 
+    /**
+     * Set Appfreeze Detect Filter
+     *
+     * @return Returns true on success, others on failure.
+     */
+    virtual bool SetAppFreezeFilter() override;
+
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block app service.
