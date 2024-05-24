@@ -837,6 +837,7 @@ napi_value JsUIExtensionContentSession::OnStartAbilityByType(napi_env env, NapiC
     AAFwk::WantParams wantParam;
 
     bool checkResult = CheckStartAbilityByTypeParam(env, info, type, wantParam);
+    TAG_LOGI(AAFwkTag::UI_EXT, "type is: %{public}s", type.c_str());
     if (!checkResult) {
         TAG_LOGI(AAFwkTag::UI_EXT, "check startAbilityByCall param failed.");
         return CreateJsUndefined(env);
@@ -882,7 +883,7 @@ napi_value JsUIExtensionContentSession::OnStartAbilityByType(napi_env env, NapiC
 }
 
 bool JsUIExtensionContentSession::CheckStartAbilityByTypeParam(napi_env env,
-    NapiCallbackInfo& info, std::string type, AAFwk::WantParams wantParam)
+    NapiCallbackInfo& info, std::string& type, AAFwk::WantParams wantParam)
 {
     TAG_LOGI(AAFwkTag::UI_EXT, "start");
 
