@@ -3239,14 +3239,15 @@ void AppMgrServiceInner::GetRunningProcessInfoByToken(
     appRunningManager_->GetRunningProcessInfoByToken(token, info);
 }
 
-void AppMgrServiceInner::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const
+int32_t AppMgrServiceInner::GetRunningProcessInfoByPid(const pid_t pid,
+    OHOS::AppExecFwk::RunningProcessInfo &info) const
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!CheckGetRunningInfoPermission()) {
-        return;
+        return ERR_PERMISSION_DENIED;
     }
 
-    appRunningManager_->GetRunningProcessInfoByPid(pid, info);
+    return appRunningManager_->GetRunningProcessInfoByPid(pid, info);
 }
 
 void AppMgrServiceInner::SetAbilityForegroundingFlagToAppRecord(const pid_t pid) const

@@ -174,8 +174,6 @@ public:
     virtual void GetRunningProcessInfoByToken(
         const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info) override;
 
-    void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) override;
-
     /**
      * Set AbilityForegroundingFlag of an app-record to true.
      *
