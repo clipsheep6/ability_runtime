@@ -37,6 +37,7 @@
 #include "foundation/communication/ipc/interfaces/innerkits/ipc_core/include/iremote_object.h"
 #include "singleton.h"
 #include "system_ability_definition.h"
+#include "systemcapability.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
@@ -71,6 +72,40 @@ bool g_nativeStart = false;
 std::mutex g_mutex;
 }
 
+napi_value CanIUse(napi_env env, napi_callback_info info) {
+  if (env == nullptr || info == nullptr) {
+    return nullptr;
+  }
+
+  napi_value undefined = CreateJsUndefined(env);
+
+  size_t argc = 1;
+  napi_value argv[1] = {nullptr};
+  napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
+  if (argc != 1) {
+    return undefined;
+  }
+
+  napi_valuetype valueType = napi_undefined;
+  napi_typeof(env, argv[0], &valueType);
+  if (valueType != napi_string) {
+    return undefined;
+  }
+
+  char syscap[100] = {0};
+
+  size_t strLen = 0;
+  napi_get_value_string_utf8(env, argv[0], syscap, sizeof(syscap), &strLen);
+
+  bool ret = HasSystemCapability(syscap);
+  return CreateJsValue(env, ret);
+}
+
+void initSyscapModule(napi_env env, napi_value globalObject) {
+  const char *moduleName = "JsRuntime";
+  BindNativeFunction(env, globalObject, "caniuse", moduleName, CanIUse);
+}
+
 void InitWorkerFunc(NativeEngine* nativeEngine)
 {
     TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
@@ -88,6 +123,7 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
 
     OHOS::JsSysModule::Console::InitConsoleModule(reinterpret_cast<napi_env>(nativeEngine));
     OHOS::Ace::DeclarativeModulePreloader::PreloadWorker(*nativeEngine);
+    initSyscapModule(reinterpret_cast<napi_env>(nativeEngine),globalObj);
 
     auto arkNativeEngine = static_cast<ArkNativeEngine*>(nativeEngine);
     // load jsfwk
