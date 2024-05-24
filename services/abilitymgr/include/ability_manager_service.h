@@ -1746,6 +1746,8 @@ protected:
 
     void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos) override;
 
+    void OnAppRemoteDied(std::vector<sptr<IRemoteObject>> &abilityTokens) override;
+
 private:
     int TerminateAbilityWithFlag(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want *resultWant = nullptr, bool flag = true);

@@ -27,11 +27,6 @@ void AbilityAppStateObserver::OnProcessDied(const AppExecFwk::ProcessData &proce
     auto abilityRecord = abilityRecord_.lock();
     if (abilityRecord) {
         const auto &abilityInfo = abilityRecord->GetAbilityInfo();
-        if (abilityInfo.bundleName == processData.bundleName &&
-            processData.processType == AppExecFwk::ProcessType::NORMAL &&
-            abilityInfo.type == AppExecFwk::AbilityType::PAGE) {
-            abilityRecord->OnProcessDied();
-        }
         if (abilityRecord->IsSceneBoard() && abilityRecord->GetPid() == processData.pid) {
             abilityRecord->OnProcessDied();
         }

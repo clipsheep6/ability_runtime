@@ -9853,6 +9853,18 @@ void AbilityManagerService::NotifyStartResidentProcess(std::vector<AppExecFwk::B
     }
 }
 
+void AbilityManagerService::OnAppRemoteDied(std::vector<sptr<IRemoteObject>> &abilityTokens)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord;
+    for (auto &token : abilityTokens) {
+        abilityRecord = Token::GetAbilityRecordByToken(token);
+        CHECK_POINTER(abilityRecord);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "App OnRemoteDied, ability is %{public}s, app is %{public}s",
+            abilityRecord->GetAbilityInfo().name.c_str(), abilityRecord->GetAbilityInfo().bundleName.c_str());
+        abilityRecord->OnProcessDied();
+    }
+}
+
 int32_t AbilityManagerService::OpenFile(const Uri& uri, uint32_t flag)
 {
     auto accessTokenId = IPCSkeleton::GetCallingTokenID();
