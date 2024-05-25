@@ -120,7 +120,7 @@ protected:
     void SetCallbackForTerminateWithResult(int32_t resultCode, AAFwk::Want& want,
         NapiAsyncTask::CompleteCallback& complete);
     bool CheckStartAbilityByTypeParam(napi_env env, NapiCallbackInfo& info, std::string& type,
-        AAFwk::WantParams wantParam);
+        AAFwk::WantParams& wantParam);
 
 private:
     sptr<AAFwk::SessionInfo> sessionInfo_;
