@@ -97,7 +97,7 @@ public:
 
     /**
      * @brief Provide operating system RestoreAbilityState information to the observer
-     * @param state Indicates resotre ability state used to dispatchRestoreAbilityState.
+     * @param state Indicates restore ability state used to dispatchRestoreAbilityState.
      */
     void ScheduleRestoreAbilityState(const AppExecFwk::PacMap &state) override;
 
@@ -170,7 +170,7 @@ private:
     void HandleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
         sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
     void HandleShareData(const int32_t &requestCode);
-    void HandlePrepareTermianteAbility();
+    void HandlePrepareTerminateAbility();
     void HandleUpdateConfiguration(const AppExecFwk::Configuration &config);
     void AddLifecycleEvent(uint32_t state, std::string &methodName) const;
 

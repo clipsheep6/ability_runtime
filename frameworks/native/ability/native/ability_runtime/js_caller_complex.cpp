@@ -54,7 +54,7 @@ public:
     explicit JsCallerComplex(
         napi_env env, ReleaseCallFunc releaseCallFunc, sptr<IRemoteObject> callee,
         std::shared_ptr<CallerCallBack> callerCallBack) : releaseCallFunc_(releaseCallFunc),
-        callee_(callee), releaseCallBackEngine_(env), remoteStateChanegdEngine_(env),
+        callee_(callee), releaseCallBackEngine_(env), remoteStateChangedEngine_(env),
         callerCallBackObj_(callerCallBack), jsReleaseCallBackObj_(nullptr), jsRemoteStateChangedObj_(nullptr)
     {
         AddJsCallerComplex(this);
@@ -341,8 +341,8 @@ private:
 
         napi_value value = jsRemoteStateChangedObj_->GetNapiValue();
         napi_value callback = jsRemoteStateChangedObj_->GetNapiValue();
-        napi_value args[] = { CreateJsValue(remoteStateChanegdEngine_, str) };
-        napi_call_function(remoteStateChanegdEngine_, value, callback, 1, args, nullptr);
+        napi_value args[] = { CreateJsValue(remoteStateChangedEngine_, str) };
+        napi_call_function(remoteStateChangedEngine_, value, callback, 1, args, nullptr);
         TAG_LOGD(AAFwkTag::DEFAULT, "OnRemoteStateChangedNotifyTask CallFunction call done");
         StateReset();
         TAG_LOGD(AAFwkTag::DEFAULT, "OnRemoteStateChangedNotifyTask end");
@@ -440,7 +440,7 @@ private:
         }
 
         napi_ref ref = nullptr;
-        napi_create_reference(remoteStateChanegdEngine_, param1, 1, &ref);
+        napi_create_reference(remoteStateChangedEngine_, param1, 1, &ref);
         jsRemoteStateChangedObj_.reset(reinterpret_cast<NativeReference*>(ref));
         auto task = [notify = this] (const std::string &str) {
             TAG_LOGI(AAFwkTag::DEFAULT, "state changed");
@@ -459,7 +459,7 @@ private:
     ReleaseCallFunc releaseCallFunc_;
     sptr<IRemoteObject> callee_;
     napi_env releaseCallBackEngine_;
-    napi_env remoteStateChanegdEngine_;
+    napi_env remoteStateChangedEngine_;
     std::shared_ptr<CallerCallBack> callerCallBackObj_;
     std::unique_ptr<NativeReference> jsReleaseCallBackObj_;
     std::unique_ptr<NativeReference> jsRemoteStateChangedObj_;

@@ -203,7 +203,7 @@ private:
         const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
 
     /**
-     * @brief Handle the scheduling update configuration of exabilityInfotension.
+     * @brief Handle the scheduling update configuration of extension abilityInfo.
      * @param config Indicates the updated configuration information
      */
     void HandleExtensionUpdateConfiguration(const AppExecFwk::Configuration &config);

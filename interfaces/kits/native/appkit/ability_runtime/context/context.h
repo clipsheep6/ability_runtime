@@ -192,7 +192,7 @@ public:
     virtual sptr<IRemoteObject> GetToken() = 0;
 
     /**
-     * @brief Attachs ability's token.
+     * @brief Attaches ability's token.
      *
      * @param token The token represents ability.
      */
@@ -272,7 +272,7 @@ public:
     /**
      * @brief Getting derived class
      *
-     * @tparam T template
+     * @.param T template
      * @param context the context object
      * @return std::shared_ptr<T> derived class
      */

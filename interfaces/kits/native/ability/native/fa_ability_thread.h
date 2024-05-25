@@ -124,7 +124,7 @@ public:
 
     /**
      * @brief Provide operating system RestoreAbilityState information to the observer
-     * @param state Indicates resotre ability state used to dispatchRestoreAbilityState.
+     * @param state Indicates restore ability state used to dispatchRestoreAbilityState.
      */
     void ScheduleRestoreAbilityState(const AppExecFwk::PacMap &state) override;
 
@@ -524,7 +524,7 @@ private:
     /**
      * @brief Handle the scheduling prepare terminate ability.
      */
-    void HandlePrepareTermianteAbility();
+    void HandlePrepareTerminateAbility();
 
     /**
      * @brief Provide operating system ShareData information to the observer

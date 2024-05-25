@@ -403,7 +403,7 @@ bool UIAbilityThread::SchedulePrepareTerminateAbility()
             TAG_LOGE(AAFwkTag::UIABILITY, "AbilityThread is nullptr.");
             return;
         }
-        abilityThread->HandlePrepareTermianteAbility();
+        abilityThread->HandlePrepareTerminateAbility();
     };
     bool ret = abilityHandler_->PostTask(task, "UIAbilityThread:PrepareTerminateAbility");
     if (!ret) {
@@ -658,7 +658,7 @@ void UIAbilityThread::OnExecuteIntent(const Want &want)
     abilityHandler_->PostTask(task, "UIAbilityThread:OnExecuteIntent");
 }
 
-void UIAbilityThread::HandlePrepareTermianteAbility()
+void UIAbilityThread::HandlePrepareTerminateAbility()
 {
     std::unique_lock<std::mutex> lock(mutex_);
     if (abilityImpl_ == nullptr) {

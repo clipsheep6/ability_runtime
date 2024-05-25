@@ -321,7 +321,7 @@ public:
     void KillProcessBySelf();
 
     /**
-     * @brief Get running informationfor cuirrent process
+     * @brief Get running information for current process
      *
      * @return error code
      */

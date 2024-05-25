@@ -58,7 +58,7 @@ public:
      * @brief Connect the Extension. and Calling information back to Extension.
      *
      * @param want The Want object to connect to.
-     * @param targetState The terget state.
+     * @param targetState The target state.
      *  @param sessionInfo  Indicates the sessionInfo.
      *
      */

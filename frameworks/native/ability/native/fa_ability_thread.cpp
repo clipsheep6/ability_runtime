@@ -917,7 +917,7 @@ bool FAAbilityThread::SchedulePrepareTerminateAbility()
             TAG_LOGE(AAFwkTag::FA, "abilityThread is nullptr");
             return;
         }
-        abilityThread->HandlePrepareTermianteAbility();
+        abilityThread->HandlePrepareTerminateAbility();
     };
     bool ret = abilityHandler_->PostTask(task, "FAAbilityThread:PrepareTerminateAbility");
     if (!ret) {
@@ -1500,7 +1500,7 @@ void FAAbilityThread::CallRequest()
     TAG_LOGD(AAFwkTag::FA, "end");
 }
 
-void FAAbilityThread::HandlePrepareTermianteAbility()
+void FAAbilityThread::HandlePrepareTerminateAbility()
 {
     std::unique_lock<std::mutex> lock(mutex_);
     if (abilityImpl_ == nullptr) {

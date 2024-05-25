@@ -572,8 +572,8 @@ HWTEST_F(AbilityDelegatorModuleTest, Ability_Delegator_Args_Test_1200, Function 
 
 /**
  * @tc.number: Ability_Delegator_Args_Test_1300
- * @tc.name: PostPerformScenceCreated
- * @tc.desc: Verify the PostPerformScenceCreated is valid.
+ * @tc.name: PostPerformSceneCreated
+ * @tc.desc: Verify the PostPerformSceneCreated is valid.
  */
 HWTEST_F(AbilityDelegatorModuleTest, Ability_Delegator_Args_Test_1300, Function | MediumTest | Level1)
 {
@@ -604,15 +604,15 @@ HWTEST_F(AbilityDelegatorModuleTest, Ability_Delegator_Args_Test_1300, Function 
     ability->token_ = token;
     ability->name_ = ABILITY_NAME;
     ability->lifecycleState_ = AbilityLifecycleExecutor::LifecycleState::STARTED_NEW;
-    abilityDelegator.PostPerformScenceCreated(ability);
+    abilityDelegator.PostPerformSceneCreated(ability);
 
     EXPECT_TRUE(mockMonitor->windowStageCreate_);
 }
 
 /**
  * @tc.number: Ability_Delegator_Args_Test_1400
- * @tc.name: PostPerformScenceRestored
- * @tc.desc: Verify the PostPerformScenceRestored is invalid.
+ * @tc.name: PostPerformSceneRestored
+ * @tc.desc: Verify the PostPerformSceneRestored is invalid.
  */
 HWTEST_F(AbilityDelegatorModuleTest, Ability_Delegator_Args_Test_1400, Function | MediumTest | Level1)
 {
@@ -637,15 +637,15 @@ HWTEST_F(AbilityDelegatorModuleTest, Ability_Delegator_Args_Test_1400, Function 
     AbilityDelegator abilityDelegator(context, std::move(testRunner), iRemoteObj);
     std::shared_ptr<MockIabilityMonitor> mockMonitor = std::make_shared<MockIabilityMonitor>(ABILITY_NAME);
     abilityDelegator.abilityMonitors_.emplace_back(mockMonitor);
-    abilityDelegator.PostPerformScenceRestored(nullptr);
+    abilityDelegator.PostPerformSceneRestored(nullptr);
 
     EXPECT_FALSE(mockMonitor->windowStageRestore_);
 }
 
 /**
  * @tc.number: Ability_Delegator_Args_Test_1500
- * @tc.name: PostPerformScenceRestored
- * @tc.desc: Verify the PostPerformScenceRestored is valid.
+ * @tc.name: PostPerformSceneRestored
+ * @tc.desc: Verify the PostPerformSceneRestored is valid.
  */
 HWTEST_F(AbilityDelegatorModuleTest, Ability_Delegator_Args_Test_1500, Function | MediumTest | Level1)
 {
@@ -676,15 +676,15 @@ HWTEST_F(AbilityDelegatorModuleTest, Ability_Delegator_Args_Test_1500, Function 
     ability->token_ = token;
     ability->name_ = ABILITY_NAME;
     ability->lifecycleState_ = AbilityLifecycleExecutor::LifecycleState::STARTED_NEW;
-    abilityDelegator.PostPerformScenceRestored(ability);
+    abilityDelegator.PostPerformSceneRestored(ability);
 
     EXPECT_TRUE(mockMonitor->windowStageRestore_);
 }
 
 /**
  * @tc.number: Ability_Delegator_Args_Test_1600
- * @tc.name: PostPerformScenceDestroyed
- * @tc.desc: Verify the PostPerformScenceDestroyed is invalid.
+ * @tc.name: PostPerformSceneDestroyed
+ * @tc.desc: Verify the PostPerformSceneDestroyed is invalid.
  */
 HWTEST_F(AbilityDelegatorModuleTest, Ability_Delegator_Args_Test_1600, Function | MediumTest | Level1)
 {
@@ -709,15 +709,15 @@ HWTEST_F(AbilityDelegatorModuleTest, Ability_Delegator_Args_Test_1600, Function 
     AbilityDelegator abilityDelegator(context, std::move(testRunner), iRemoteObj);
     std::shared_ptr<MockIabilityMonitor> mockMonitor = std::make_shared<MockIabilityMonitor>(ABILITY_NAME);
     abilityDelegator.abilityMonitors_.emplace_back(mockMonitor);
-    abilityDelegator.PostPerformScenceDestroyed(nullptr);
+    abilityDelegator.PostPerformSceneDestroyed(nullptr);
 
     EXPECT_FALSE(mockMonitor->windowStageDestroy_);
 }
 
 /**
  * @tc.number: Ability_Delegator_Args_Test_1700
- * @tc.name: PostPerformScenceDestroyed
- * @tc.desc: Verify the PostPerformScenceDestroyed is valid.
+ * @tc.name: PostPerformSceneDestroyed
+ * @tc.desc: Verify the PostPerformSceneDestroyed is valid.
  */
 HWTEST_F(AbilityDelegatorModuleTest, Ability_Delegator_Args_Test_1700, Function | MediumTest | Level1)
 {
@@ -748,7 +748,7 @@ HWTEST_F(AbilityDelegatorModuleTest, Ability_Delegator_Args_Test_1700, Function 
     ability->token_ = token;
     ability->name_ = ABILITY_NAME;
     ability->lifecycleState_ = AbilityLifecycleExecutor::LifecycleState::STARTED_NEW;
-    abilityDelegator.PostPerformScenceDestroyed(ability);
+    abilityDelegator.PostPerformSceneDestroyed(ability);
 
     EXPECT_TRUE(mockMonitor->windowStageDestroy_);
 }
