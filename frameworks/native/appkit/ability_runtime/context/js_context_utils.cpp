@@ -158,7 +158,7 @@ napi_value JsBaseContext::OnCreateModuleContext(napi_env env, NapiCallbackInfo& 
     auto context = context_.lock();
     if (!context) {
         TAG_LOGW(AAFwkTag::APPKIT, "context is already released");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        AbilityRuntimeErrorUtil::ThrowByParamError(env, "Parameter error: Context is already released.");
         return CreateJsUndefined(env);
     }
 
@@ -191,7 +191,7 @@ napi_value JsBaseContext::OnCreateModuleContext(napi_env env, NapiCallbackInfo& 
 
     if (!moduleContext) {
         TAG_LOGE(AAFwkTag::APPKIT, "failed to create module context.");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        AbilityRuntimeErrorUtil::ThrowByParamError(env, "Parameter error: Failed to create module context.");
         return CreateJsUndefined(env);
     }
 
@@ -199,13 +199,13 @@ napi_value JsBaseContext::OnCreateModuleContext(napi_env env, NapiCallbackInfo& 
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.Context", &value, 1);
     if (systemModule == nullptr) {
         TAG_LOGW(AAFwkTag::APPKIT, "invalid systemModule.");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        AbilityRuntimeErrorUtil::ThrowByParamError(env, "Parameter error: Invalid systemModule.");
         return CreateJsUndefined(env);
     }
     napi_value object = systemModule->GetNapiValue();
     if (!CheckTypeForNapiValue(env, object, napi_object)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Failed to get object");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        AbilityRuntimeErrorUtil::ThrowByParamError(env, "Parameter error: Failed to get object.");
         return CreateJsUndefined(env);
     }
     auto workContext = new (std::nothrow) std::weak_ptr<Context>(moduleContext);
@@ -231,7 +231,7 @@ napi_value JsBaseContext::OnCreateSystemHspModuleResourceManager(napi_env env, N
     auto context = context_.lock();
     if (!context) {
         TAG_LOGW(AAFwkTag::APPKIT, "context is already released");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        AbilityRuntimeErrorUtil::ThrowByParamError(env, "Parameter error: Context is already released.");
         return CreateJsUndefined(env);
     }
 
@@ -257,7 +257,7 @@ napi_value JsBaseContext::OnCreateSystemHspModuleResourceManager(napi_env env, N
     }
     if (resourceManager == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "Failed to create resourceManager");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        AbilityRuntimeErrorUtil::ThrowByParamError(env, "Parameter error: Failed to create resourceManager.");
         return CreateJsUndefined(env);
     }
 
@@ -275,7 +275,7 @@ napi_value JsBaseContext::OnCreateModuleResourceManager(napi_env env, NapiCallba
     auto context = context_.lock();
     if (!context) {
         TAG_LOGW(AAFwkTag::APPKIT, "applicationContext is already released");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        AbilityRuntimeErrorUtil::ThrowByParamError(env, "Parameter error: ApplicationContext is already released.");
         return CreateJsUndefined(env);
     }
 
@@ -299,7 +299,7 @@ napi_value JsBaseContext::OnCreateModuleResourceManager(napi_env env, NapiCallba
     auto resourceManager = context->CreateModuleResourceManager(bundleName, moduleName);
     if (resourceManager == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "Failed to create resourceManager");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        AbilityRuntimeErrorUtil::ThrowByParamError(env, "Parameter error: Failed to create resourceManager.");
         return CreateJsUndefined(env);
     }
     auto jsResourceManager = CreateJsResourceManager(env, resourceManager, nullptr);
@@ -452,7 +452,7 @@ napi_value JsBaseContext::OnGetGroupDir(napi_env env, NapiCallbackInfo& info)
 {
     if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        AbilityRuntimeErrorUtil::ThrowByParamError(env, "Parameter error: Not enough params.");
         return CreateJsUndefined(env);
     }
 
@@ -526,14 +526,14 @@ napi_value JsBaseContext::OnCreateBundleContext(napi_env env, NapiCallbackInfo& 
 
     if (info.argc == 0) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        AbilityRuntimeErrorUtil::ThrowByParamError(env, "Parameter error: Not enough params.");
         return CreateJsUndefined(env);
     }
 
     auto context = context_.lock();
     if (!context) {
         TAG_LOGW(AAFwkTag::APPKIT, "context is already released");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        AbilityRuntimeErrorUtil::ThrowByParamError(env, "Parameter error: Context is already released.");
         return CreateJsUndefined(env);
     }
 
@@ -547,7 +547,7 @@ napi_value JsBaseContext::OnCreateBundleContext(napi_env env, NapiCallbackInfo& 
     auto bundleContext = context->CreateBundleContext(bundleName);
     if (!bundleContext) {
         TAG_LOGE(AAFwkTag::APPKIT, "bundleContext is nullptr");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        AbilityRuntimeErrorUtil::ThrowByParamError(env, "Parameter error: BundleContext is nullptr.");
         return CreateJsUndefined(env);
     }
 
@@ -555,13 +555,13 @@ napi_value JsBaseContext::OnCreateBundleContext(napi_env env, NapiCallbackInfo& 
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.Context", &value, 1);
     if (systemModule == nullptr) {
         TAG_LOGW(AAFwkTag::APPKIT, "OnCreateBundleContext, invalid systemModule.");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        AbilityRuntimeErrorUtil::ThrowByParamError(env, "Parameter error: OnCreateBundleContext, invalid systemModule.");
         return CreateJsUndefined(env);
     }
     napi_value object = systemModule->GetNapiValue();
     if (!CheckTypeForNapiValue(env, object, napi_object)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Failed to get object");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        AbilityRuntimeErrorUtil::ThrowByParamError(env, "Parameter error: Failed to get object.");
         return CreateJsUndefined(env);
     }
     auto workContext = new (std::nothrow) std::weak_ptr<Context>(bundleContext);
@@ -581,14 +581,14 @@ napi_value JsBaseContext::OnGetApplicationContext(napi_env env, NapiCallbackInfo
     auto context = context_.lock();
     if (!context) {
         TAG_LOGW(AAFwkTag::APPKIT, "context is already released");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        AbilityRuntimeErrorUtil::ThrowByParamError(env, "Parameter error: Context is already released.");
         return CreateJsUndefined(env);
     }
 
     auto applicationContext = Context::GetApplicationContext();
     if (applicationContext == nullptr) {
         TAG_LOGW(AAFwkTag::APPKIT, "applicationContext is nullptr");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        AbilityRuntimeErrorUtil::ThrowByParamError(env, "Parameter error: ApplicationContext is nullptr.");
         return CreateJsUndefined(env);
     }
 
@@ -605,13 +605,13 @@ napi_value JsBaseContext::OnGetApplicationContext(napi_env env, NapiCallbackInfo
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.ApplicationContext", &value, 1);
     if (systemModule == nullptr) {
         TAG_LOGW(AAFwkTag::APPKIT, "OnGetApplicationContext, invalid systemModule.");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        AbilityRuntimeErrorUtil::ThrowByParamError(env, "Parameter error: OnGetApplicationContext, invalid systemModule.");
         return CreateJsUndefined(env);
     }
     napi_value object = systemModule->GetNapiValue();
     if (!CheckTypeForNapiValue(env, object, napi_object)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Failed to get object");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        AbilityRuntimeErrorUtil::ThrowByParamError(env, "Parameter error: Failed to get object.");
         return CreateJsUndefined(env);
     }
     auto workContext = new (std::nothrow) std::weak_ptr<ApplicationContext>(applicationContext);

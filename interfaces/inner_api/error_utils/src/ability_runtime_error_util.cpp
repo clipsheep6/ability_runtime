@@ -171,6 +171,12 @@ bool AbilityRuntimeErrorUtil::Throw(napi_env env, int32_t errCode, const std::st
     return true;
 }
 
+bool AbilityRuntimeErrorUtil::ThrowByParamError(napi_env env, const std::string &errMessage)
+{
+    std::string eMes = errMessage;
+    return Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER, eMes);
+}
+
 bool AbilityRuntimeErrorUtil::ThrowByInternalErrCode(napi_env env, int32_t errCode)
 {
     if (ERROR_CODE_MAP.find(errCode) == ERROR_CODE_MAP.end()) {

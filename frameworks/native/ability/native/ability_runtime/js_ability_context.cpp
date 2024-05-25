@@ -534,7 +534,7 @@ napi_value JsAbilityContext::OnOpenLink(napi_env env, NapiCallbackInfo& info)
 
     if (!ParseOpenLinkParams(env, info, linkValue, openLinkOptions, want)) {
         TAG_LOGE(AAFwkTag::CONTEXT, "parse openLink arguments failed");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env, "Parameter error: parse openLink arguments failed.");
         return CreateJsUndefined(env);
     }
 
@@ -770,7 +770,7 @@ napi_value JsAbilityContext::OnStartAbilityByCall(napi_env env, NapiCallbackInfo
     auto context = context_.lock();
     if (context == nullptr) {
         TAG_LOGE(AAFwkTag::CONTEXT, "OnStartAbilityByCall context is nullptr");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+        ThrowInvalidParamError(env, "Parameter error: OnStartAbilityByCall context is nullptr.");
         return CreateJsUndefined(env);
     }
 
@@ -778,6 +778,7 @@ napi_value JsAbilityContext::OnStartAbilityByCall(napi_env env, NapiCallbackInfo
     if (ret != 0) {
         TAG_LOGE(AAFwkTag::CONTEXT, "OnStartAbilityByCall StartAbility is failed");
         ThrowErrorByNativeErr(env, ret);
+        ThrowInvalidParamError(env, "Parameter error: OnStartAbilityByCall StartAbility is failed.");
         return CreateJsUndefined(env);
     }
 
@@ -875,7 +876,7 @@ napi_value JsAbilityContext::OnStartAbilityForResultWithAccount(napi_env env, Na
     auto selfToken = IPCSkeleton::GetSelfTokenID();
     if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
         TAG_LOGE(AAFwkTag::CONTEXT, "This application is not system-app, can not use system-api");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
+        ThrowInvalidParamError(env, "Parameter error: This application is not system-app, can not use system-api.");
         return CreateJsUndefined(env);
     }
     if (info.argc < ARGC_TWO) {
@@ -1217,7 +1218,7 @@ napi_value JsAbilityContext::OnConnectAbilityWithAccount(napi_env env, NapiCallb
     auto selfToken = IPCSkeleton::GetSelfTokenID();
     if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
         TAG_LOGE(AAFwkTag::CONTEXT, "This application is not system-app, can not use system-api");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
+        ThrowInvalidParamError(env, "Parameter error: This application is not system-app, can not use system-api.");
         return CreateJsUndefined(env);
     }
     // unwrap want
@@ -1369,7 +1370,7 @@ napi_value JsAbilityContext::OnRestoreWindowStage(napi_env env, NapiCallbackInfo
     }
     auto errcode = context->RestoreWindowStage(env, info.argv[INDEX_ZERO]);
     if (errcode != 0) {
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+        ThrowInvalidParamError(env, "Parameter error: RestoreWindowStage failed.");
         return CreateJsError(env, errcode, "RestoreWindowStage failed.");
     }
     return CreateJsUndefined(env);
