@@ -282,6 +282,16 @@ ErrCode AbilityManagerClient::StartExtensionAbility(const Want &want, sptr<IRemo
         want.GetElement().GetAbilityName().c_str(), want.GetElement().GetBundleName().c_str(), userId);
     return abms->StartExtensionAbility(want, callerToken, userId, extensionType);
 }
+	
+ErrCode AbilityManagerClient::StartUIServiceExtensionAbility(const Want &want, sptr<IRemoteObject> callerToken,
+    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Call StartUIServiceExtensionAbility name:%{public}s %{public}s, userId=%{public}d.",
+        want.GetElement().GetAbilityName().c_str(), want.GetElement().GetBundleName().c_str(), userId);
+    return abms->StartUIServiceExtensionAbility(want, callerToken, userId, extensionType);
+}
 
 ErrCode AbilityManagerClient::RequestModalUIExtension(const Want &want)
 {
