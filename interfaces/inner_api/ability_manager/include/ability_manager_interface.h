@@ -380,9 +380,10 @@ public:
      * Start ui ability with want, send want to ability manager service.
      *
      * @param sessionInfo the session info of the ability to start.
+     * @param isColdStart the session info of the ability is or not cold start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
+    virtual int StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bool &isColdStart)
     {
         return 0;
     }
@@ -1588,6 +1589,19 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t GetAbilityStateByPersistentId(int32_t persistentId, bool &state)
+    {
+        return 0;
+    }
+
+    /**
+     * Transfer resultCode & want to ability manager service.
+     *
+     * @param resultCode, the resultCode of the ability to terminate.
+     * @param resultWant, the Want of the ability to return.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t TransferAbilityResultForExtension(const sptr<IRemoteObject> &callerToken, int32_t resultCode,
+        const Want &want)
     {
         return 0;
     }

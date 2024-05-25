@@ -172,17 +172,26 @@ public:
     virtual void GetRunningProcessInfoByToken(
         const sptr<IRemoteObject> &token, OHOS::AppExecFwk::RunningProcessInfo &info) = 0;
 
-    virtual void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) = 0;
-
     virtual void SetAbilityForegroundingFlagToAppRecord(const pid_t pid) = 0;
 
-    virtual void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo) = 0;
+    virtual void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0) = 0;
 
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response) = 0;
 
-    virtual void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo) = 0;
+    virtual void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0) = 0;
 
     virtual int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug) = 0;
+
+    /**
+     * Record process exit reason to appRunningRecord
+     * @param pid pid
+     * @param reason reason enum
+     * @param exitMsg exitMsg
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg) = 0;
 
     /**
      * Set the current userId of appMgr.
@@ -278,14 +287,6 @@ public:
     virtual bool IsAttachDebug(const std::string &bundleName) = 0;
 
     /**
-     * Set application assertion pause state.
-     *
-     * @param pid App process pid.
-     * @param flag assertion pause state.
-     */
-    virtual void SetAppAssertionPauseState(int32_t pid, bool flag) {}
-
-    /**
      * @brief Set resident process enable status.
      * @param bundleName The application bundle name.
      * @param enable The current updated enable status.
@@ -326,7 +327,6 @@ public:
         GET_CONFIGURATION,
         GET_APPLICATION_INFO_BY_PROCESS_ID,
         KILL_APPLICATION_SELF,
-        GET_RUNNING_PROCESS_INFO_BY_PID,
         UPDATE_APPLICATION_INFO_INSTALLED,
         SET_CURRENT_USER_ID,
         Get_BUNDLE_NAME_BY_PID,
@@ -343,13 +343,13 @@ public:
         REGISTER_ABILITY_DEBUG_RESPONSE,
         IS_ATTACH_DEBUG,
         START_SPECIFIED_PROCESS,
-        SET_APP_ASSERT_PAUSE_STATE,
         CLEAR_PROCESS_BY_TOKEN,
         REGISTER_ABILITY_MS_DELEGATE,
         KILL_PROCESSES_BY_PIDS,
         ATTACH_PID_TO_PARENT,
         IS_MEMORY_SIZE_SUFFICIENT,
         SET_KEEP_ALIVE_ENABLE_STATE,
+        NOTIFY_APP_MGR_RECORD_EXIT_REASON,
     };
 };
 }  // namespace AppExecFwk

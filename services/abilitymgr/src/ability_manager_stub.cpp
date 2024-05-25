@@ -45,6 +45,7 @@ AbilityManagerStub::AbilityManagerStub()
     SecondStepInit();
     ThirdStepInit();
     FourthStepInit();
+    FifthStepInit();
 }
 
 AbilityManagerStub::~AbilityManagerStub()
@@ -437,6 +438,12 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::SetResidentProcessEnableInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ABILITY_STATE_BY_PERSISTENT_ID)] =
         &AbilityManagerStub::GetAbilityStateByPersistentIdInner;
+}
+
+void AbilityManagerStub::FifthStepInit()
+{
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TRANSFER_ABILITY_RESULT)] =
+        &AbilityManagerStub::TransferAbilityResultForExtensionInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -1481,13 +1488,13 @@ int AbilityManagerStub::ContinueMissionOfBundleNameInner(MessageParcel &data, Me
         return ERR_NULL_OBJECT;
     }
     std::unique_ptr<WantParams> wantParams(data.ReadParcelable<WantParams>());
-    continueMissionInfo.wantParams = *wantParams;
-    continueMissionInfo.srcBundleName = data.ReadString();
-    continueMissionInfo.continueType = data.ReadString();
     if (wantParams == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "ContinueMissionInner wantParams readParcelable failed!");
         return ERR_NULL_OBJECT;
     }
+    continueMissionInfo.wantParams = *wantParams;
+    continueMissionInfo.srcBundleName = data.ReadString();
+    continueMissionInfo.continueType = data.ReadString();
     int32_t result = ContinueMission(continueMissionInfo, callback);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "ContinueMissionInner result = %{public}d", result);
     return result;
@@ -1498,8 +1505,8 @@ int AbilityManagerStub::ContinueAbilityInner(MessageParcel &data, MessageParcel 
     std::string deviceId = data.ReadString();
     int32_t missionId = data.ReadInt32();
     uint32_t versionCode = data.ReadUint32();
+    AAFWK::ContinueRadar::GetInstance().SaveDataContinue("ContinueAbility");
     int32_t result = ContinueAbility(deviceId, missionId, versionCode);
-    AAFWK::ContinueRadar::GetInstance().SaveDataContinue("ContinueAbility", result);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "ContinueAbilityInner result = %{public}d", result);
     return result;
 }
@@ -1774,7 +1781,9 @@ int AbilityManagerStub::StartUIAbilityBySCBInner(MessageParcel &data, MessagePar
     if (data.ReadBool()) {
         sessionInfo = data.ReadParcelable<SessionInfo>();
     }
-    int32_t result = StartUIAbilityBySCB(sessionInfo);
+    bool isColdStart = false;
+    int32_t result = StartUIAbilityBySCB(sessionInfo, isColdStart);
+    reply.WriteBool(isColdStart);
     reply.WriteInt32(result);
     return NO_ERROR;
 }
@@ -3414,6 +3423,16 @@ int32_t AbilityManagerStub::GetAbilityStateByPersistentIdInner(MessageParcel &da
         }
     }
     return result;
+}
+
+int32_t AbilityManagerStub::TransferAbilityResultForExtensionInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> callerToken = data.ReadRemoteObject();
+    int32_t resultCode = data.ReadInt32();
+    sptr<Want> want = data.ReadParcelable<Want>();
+    int32_t result = TransferAbilityResultForExtension(callerToken, resultCode, *want);
+    reply.WriteInt32(result);
+    return NO_ERROR;
 }
 } // namespace AAFwk
 } // namespace OHOS

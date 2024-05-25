@@ -11,7 +11,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/security/access_token/access_token.gni")
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
@@ -38,6 +37,7 @@ ohos_unittest("ability_command_test") {
 
   deps = [
     "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -60,6 +60,7 @@ ohos_unittest("test_observer_test") {
 
   deps = [
     "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]

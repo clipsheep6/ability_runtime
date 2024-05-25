@@ -33,6 +33,7 @@ ohos_unittest("app_preloader_test") {
   ]
 
   deps = [
+    "${ability_runtime_path}/utils/server/startup:startup_util",
     "${ability_runtime_services_path}/appmgr:libappms",
     "//third_party/googletest:gtest_main",
   ]

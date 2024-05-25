@@ -64,16 +64,21 @@
             "hitrace",
             "hiview",
             "i18n",
+            "icu",
             "image_framework",
             "init",
             "input",
             "ipc",
+            "json",
+            "jsoncpp",
             "kv_store",
+            "libuv",
             "memmgr",
             "memmgr_override",
             "memory_utils",
             "napi",
             "netmanager_base",
+            "node",
             "os_account",
             "relational_store",
             "resource_management",
@@ -83,16 +88,11 @@
             "storage_service",
             "toolchain",
             "webview",
-            "window_manager"
+            "window_manager",
+            "zlib"
   ],
           "third_party": [
-            "icu",
-            "json",
-            "jsoncpp",
-            "libjpeg-turbo",
-            "libuv",
-            "node",
-            "zlib"
+            "libjpeg-turbo"
           ]
       },
       "build": {
@@ -104,8 +104,10 @@
           "//foundation/ability/ability_runtime/interfaces/inner_api:innerkits_target",
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:ability_thread",
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:extension_module",
+          "//foundation/ability/ability_runtime/frameworks/native/child_process:child_process",
           "//foundation/ability/ability_runtime/frameworks/native/insight_intent:insight_intent_innerkits",
           "//foundation/ability/ability_runtime/frameworks/js/napi:napi_packages",
+          "//foundation/ability/ability_runtime/cj_environment/frameworks/cj_environment:cj_environment",
           "//foundation/ability/ability_runtime/js_environment/frameworks/js_environment:js_environment",
           "//foundation/ability/ability_runtime/services/abilitymgr/etc:appfwk_etc",
           "//foundation/ability/ability_runtime/service_router_framework:srms_target",
@@ -172,6 +174,15 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/js_environment/frameworks/js_environment:js_environment"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/cj_environment/interfaces/inner_api",
+              "header_files": [
+                "cj_environment.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/cj_environment/frameworks/cj_environment:cj_environment"
           },
           {
             "header": {
@@ -304,6 +315,15 @@
           },
           {
             "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/kits/c/ability/ability_runtime/child_process",
+              "header_files": [
+                "native_child_process.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/frameworks/native/child_process:child_process"
+          },
+          {
+            "header": {
               "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/uri_permission/include/",
               "header_files": [
               ]
@@ -418,6 +438,23 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/interfaces/inner_api/auto_fill_manager:auto_fill_manager"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager/include",
+              "header_files": [
+                "start_options.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager:ability_start_options"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/dialog_request_callback",
+              "header_files": [
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:dialog_request_callback"
           }
         ],
         "test": [

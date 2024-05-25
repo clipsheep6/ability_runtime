@@ -18,9 +18,6 @@ ohos_shared_library("abilityconstant_napi") {
   include_dirs = [
     "${ability_runtime_innerkits_path}/ability_manager/include",
     "${ability_runtime_services_path}/common/include",
-    "${ability_base_kits_path}/uri/include",
-    "${ability_base_kits_path}/want/include",
-    "${ability_base_path}/interfaces/inner_api/base/include",
     "//third_party/json/include",
   ]
 
@@ -29,12 +26,13 @@ ohos_shared_library("abilityconstant_napi") {
   deps = []
 
   external_deps = [
+    "ability_base:zuri",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
   ]
-
+  public_external_deps = [ "ability_base:want" ]
   relative_install_dir = "module/application"
   subsystem_name = "ability"
   part_name = "ability_runtime"
@@ -44,9 +42,6 @@ ohos_shared_library("abilityconstant") {
   include_dirs = [
     "${ability_runtime_innerkits_path}/ability_manager/include",
     "${ability_runtime_services_path}/common/include",
-    "${ability_base_kits_path}/uri/include",
-    "${ability_base_kits_path}/want/include",
-    "${ability_base_path}/interfaces/inner_api/base/include",
     "//third_party/json/include",
   ]
 
@@ -55,12 +50,13 @@ ohos_shared_library("abilityconstant") {
   deps = []
 
   external_deps = [
+    "ability_base:zuri",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
   ]
-
+  public_external_deps = [ "ability_base:want" ]
   defines = [ "ENABLE_ERRCODE" ]
 
   relative_install_dir = "module/app/ability"

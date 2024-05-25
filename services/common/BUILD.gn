@@ -30,6 +30,7 @@ config("common_config") {
     "${ability_runtime_innerkits_path}/*",
     "${ability_runtime_napi_path}/*",
     "${ability_runtime_native_path}/ability/native/*",
+    "${ability_runtime_native_path}/child_process/*",
     "${ability_runtime_path}/frameworks/simulator/ability_simulator/*",
     "${ability_runtime_path}/tools/aa/*",
     "${ability_runtime_services_path}/common/*",
@@ -52,6 +53,8 @@ config("common_config") {
 
 #build so
 ohos_shared_library("perm_verification") {
+  include_dirs = [ "${ability_runtime_utils_path}/server/constant" ]
+
   public_configs = [ ":common_config" ]
 
   sources = [ "src/permission_verification.cpp" ]

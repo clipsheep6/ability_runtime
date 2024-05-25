@@ -216,7 +216,7 @@ bool ExtensionRecordManager::IsHostSpecifiedProcessValid(const AAFwk::AbilityReq
     std::shared_ptr<ExtensionRecord> &record, const std::string &process)
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    for (auto &iter: extensionRecords_) {
+    for (const auto &iter: extensionRecords_) {
         if (iter.second == nullptr || iter.second->abilityRecord_ == nullptr) {
             continue;
         }
@@ -275,10 +275,12 @@ int32_t ExtensionRecordManager::AddPreloadUIExtensionRecord(const std::shared_pt
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     std::lock_guard<std::mutex> lock(mutex_);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     std::shared_ptr<ExtensionRecord> extensionRecord = nullptr;
     auto extensionRecordId = abilityRecord->GetUIExtensionAbilityId();
     if (extensionRecords_.find(extensionRecordId) != extensionRecords_.end()) {
         extensionRecord = extensionRecords_[extensionRecordId];
+        CHECK_POINTER_AND_RETURN(extensionRecord, ERR_INVALID_VALUE);
         auto hostBundleName = extensionRecord->hostBundleName_;
         auto preLoadUIExtensionInfo = std::make_tuple(abilityRecord->GetWant().GetElement().GetAbilityName(),
             abilityRecord->GetWant().GetElement().GetBundleName(),
@@ -390,7 +392,8 @@ int32_t ExtensionRecordManager::GetOrCreateExtensionRecordInner(const AAFwk::Abi
     std::shared_ptr<AAFwk::AbilityRecord> abilityRecord = extensionRecord->abilityRecord_;
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_NULL_OBJECT);
     isLoaded = false;
-    extensionRecordId = GenerateExtensionRecordId(extensionRecordId);
+    // Reuse id or not has been checked, so alloc a new id here.
+    extensionRecordId = GenerateExtensionRecordId(INVALID_EXTENSION_RECORD_ID);
     extensionRecord->extensionRecordId_ = extensionRecordId;
     extensionRecord->hostBundleName_ = hostBundleName;
     abilityRecord->SetOwnerMissionUserId(userId_);
@@ -446,6 +449,11 @@ sptr<IRemoteObject> ExtensionRecordManager::GetRootCallerTokenLocked(int32_t ext
             TAG_LOGD(AAFwkTag::ABILITYMGR, "update rootCallerToken, id: %{public}d.", extensionRecordId);
             it->second->SetRootCallerToken(callerToken);
             return callerToken;
+        }
+        // If caller extension record id is same with current, need terminate, prevent possible stack-overflow.
+        if (callerAbilityRecord->GetUIExtensionAbilityId() == extensionRecordId) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid id: %{public}d, same with caller.", extensionRecordId);
+            return nullptr;
         }
         rootCallerToken = GetRootCallerTokenLocked(callerAbilityRecord->GetUIExtensionAbilityId());
         TAG_LOGD(AAFwkTag::ABILITYMGR, "update rootCallerToken, id: %{public}d.", extensionRecordId);

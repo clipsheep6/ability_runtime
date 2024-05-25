@@ -21,13 +21,13 @@
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "permission_constants.h"
+#include "server_constant.h"
 #include "support_system_ability_permission.h"
 #include "tokenid_kit.h"
 #include "hilog_tag_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
-const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
 const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
 namespace {
 const int32_t SHELL_START_EXTENSION_FLOOR = 0; // FORM
@@ -152,7 +152,7 @@ bool PermissionVerification::VerifyControllerPerm() const
 
 bool PermissionVerification::VerifyDlpPermission(Want &want) const
 {
-    if (want.GetIntParam(DLP_PARAMS_INDEX, 0) == 0) {
+    if (want.GetIntParam(AbilityRuntime::ServerConstant::DLP_INDEX, 0) == 0) {
         want.RemoveParam(DLP_PARAMS_SECURITY_FLAG);
         return true;
     }
@@ -400,7 +400,7 @@ bool PermissionVerification::JudgeAssociatedWakeUp(const uint32_t accessTokenId,
 int PermissionVerification::JudgeInvisibleAndBackground(const VerificationInfo &verificationInfo) const
 {
     uint32_t specifyTokenId = verificationInfo.specifyTokenId;
-    TAG_LOGI(AAFwkTag::DEFAULT, "specifyTokenId = %{public}u", specifyTokenId);
+    TAG_LOGD(AAFwkTag::DEFAULT, "specifyTokenId = %{public}u", specifyTokenId);
     if (specifyTokenId == 0 && IPCSkeleton::GetCallingUid() != BROKER_UID &&
         SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
         TAG_LOGD(AAFwkTag::DEFAULT, "Support SA call");

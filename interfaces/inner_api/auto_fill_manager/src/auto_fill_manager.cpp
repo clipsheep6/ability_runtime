@@ -96,6 +96,10 @@ int32_t AutoFillManager::HandleRequestExecuteInner(
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UIContent or fillCallback&saveCallback is nullptr.");
         return AutoFill::AUTO_FILL_OBJECT_IS_NULL;
     }
+    if (!IsPreviousRequestFinished(uiContent)) {
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Previous request is not finished.");
+        return AutoFill::AUTO_FILL_PREVIOUS_REQUEST_NOT_FINISHED;
+    }
     {
         std::lock_guard<std::mutex> lock(extensionCallbacksMutex_);
         SetTimeOutEvent(++eventId_);
@@ -370,6 +374,21 @@ void AutoFillManager::HandleTimeOut(uint32_t eventId)
     }
     extensionCallback->HandleTimeOut();
     extensionCallbacks_.erase(ret);
+}
+
+bool AutoFillManager::IsPreviousRequestFinished(Ace::UIContent *uiContent)
+{
+    std::lock_guard<std::mutex> lock(extensionCallbacksMutex_);
+    for (auto& item: extensionCallbacks_) {
+        auto extensionCallback = item.second.lock();
+        if (extensionCallback == nullptr) {
+            continue;
+        }
+        if (extensionCallback->GetUIContent() == uiContent) {
+            return false;
+        }
+    }
+    return true;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

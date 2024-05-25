@@ -339,19 +339,6 @@ void AmsMgrScheduler::GetRunningProcessInfoByToken(
     amsMgrServiceInner_->GetRunningProcessInfoByToken(token, info);
 }
 
-void AmsMgrScheduler::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info)
-{
-    if (!IsReady()) {
-        return;
-    }
-
-    if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
-        return;
-    }
-    amsMgrServiceInner_->GetRunningProcessInfoByPid(pid, info);
-}
-
 void AmsMgrScheduler::SetAbilityForegroundingFlagToAppRecord(const pid_t pid)
 {
     if (!IsReady()) {
@@ -360,7 +347,8 @@ void AmsMgrScheduler::SetAbilityForegroundingFlagToAppRecord(const pid_t pid)
     amsMgrServiceInner_->SetAbilityForegroundingFlagToAppRecord(pid);
 }
 
-void AmsMgrScheduler::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
+void AmsMgrScheduler::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+    int32_t requestId)
 {
     if (!IsReady()) {
         return;
@@ -370,11 +358,12 @@ void AmsMgrScheduler::StartSpecifiedAbility(const AAFwk::Want &want, const AppEx
         TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
         return;
     }
-    auto task = [=]() { amsMgrServiceInner_->StartSpecifiedAbility(want, abilityInfo); };
+    auto task = [=]() { amsMgrServiceInner_->StartSpecifiedAbility(want, abilityInfo, requestId); };
     amsHandler_->SubmitTask(task, AAFwk::TaskQoS::USER_INTERACTIVE);
 }
 
-void AmsMgrScheduler::StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
+void AmsMgrScheduler::StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+    int32_t requestId)
 {
     if (!IsReady()) {
         TAG_LOGW(AAFwkTag::APPMGR, "not ready.");
@@ -385,7 +374,7 @@ void AmsMgrScheduler::StartSpecifiedProcess(const AAFwk::Want &want, const AppEx
         TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
         return;
     }
-    auto task = [=]() { amsMgrServiceInner_->StartSpecifiedProcess(want, abilityInfo); };
+    auto task = [=]() { amsMgrServiceInner_->StartSpecifiedProcess(want, abilityInfo, requestId); };
     amsHandler_->SubmitTask(task, AAFwk::TaskQoS::USER_INTERACTIVE);
 }
 
@@ -404,6 +393,14 @@ int AmsMgrScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::Ap
         return ERR_INVALID_OPERATION;
     }
     return amsMgrServiceInner_->GetApplicationInfoByProcessID(pid, application, debug);
+}
+
+int32_t AmsMgrScheduler::NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return amsMgrServiceInner_->NotifyAppMgrRecordExitReason(pid, reason, exitMsg);
 }
 
 void AmsMgrScheduler::SetCurrentUserId(const int32_t userId)
@@ -519,15 +516,6 @@ bool AmsMgrScheduler::IsAttachDebug(const std::string &bundleName)
         return false;
     }
     return amsMgrServiceInner_->IsAttachDebug(bundleName);
-}
-
-void AmsMgrScheduler::SetAppAssertionPauseState(int32_t pid, bool flag)
-{
-    if (!IsReady()) {
-        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
-        return;
-    }
-    amsMgrServiceInner_->SetAppAssertionPauseState(pid, flag);
 }
 
 void AmsMgrScheduler::SetKeepAliveEnableState(const std::string &bundleName, bool enable)

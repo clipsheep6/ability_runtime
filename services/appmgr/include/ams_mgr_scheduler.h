@@ -165,14 +165,14 @@ public:
 
     int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug) override;
 
+    virtual int32_t NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg) override;
+
     virtual void AbilityAttachTimeOut(const sptr<IRemoteObject> &token) override;
 
     virtual void PrepareTerminate(const sptr<IRemoteObject> &token) override;
 
     virtual void GetRunningProcessInfoByToken(
         const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info) override;
-
-    void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) override;
 
     /**
      * Set AbilityForegroundingFlag of an app-record to true.
@@ -183,11 +183,12 @@ public:
     void SetAbilityForegroundingFlagToAppRecord(const pid_t pid) override;
 
     virtual void StartSpecifiedAbility(
-        const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo) override;
+        const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo, int32_t requestId = 0) override;
 
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response) override;
 
-    virtual void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo) override;
+    virtual void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0) override;
 
     virtual void SetCurrentUserId(const int32_t userId) override;
 
@@ -273,14 +274,6 @@ public:
      * @param enable The current updated enable status.
      */
     void SetKeepAliveEnableState(const std::string &bundleName, bool enable) override;
-
-    /**
-     * Set application assertion pause state.
-     *
-     * @param pid App process pid.
-     * @param flag assertion pause state.
-     */
-    void SetAppAssertionPauseState(int32_t pid, bool flag) override;
 
     /**
      * To clear the process by ability token.

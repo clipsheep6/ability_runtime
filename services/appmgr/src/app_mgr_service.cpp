@@ -16,6 +16,7 @@
 #include "app_mgr_service.h"
 
 #include <chrono>
+#include <cstdlib>
 #include <nlohmann/json.hpp>
 #include <sys/types.h>
 #include <thread>
@@ -23,6 +24,7 @@
 #include "app_death_recipient.h"
 #include "app_mgr_constants.h"
 #include "datetime_ex.h"
+#include "global_constant.h"
 #include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
@@ -40,10 +42,15 @@ namespace OHOS {
 namespace AppExecFwk {
 const std::string OPTION_KEY_HELP = "-h";
 const std::string OPTION_KEY_DUMP_IPC = "--ipc";
+const std::string OPTION_KEY_DUMP_FFRT = "--ffrt";
 const int32_t HIDUMPER_SERVICE_UID = 1212;
 constexpr const int INDEX_PID = 1;
 constexpr const int INDEX_CMD = 2;
 constexpr const size_t VALID_DUMP_IPC_ARG_SIZE = 3;
+constexpr const size_t VALID_DUMP_FFRT_ARG_SIZE = 2;
+constexpr const int MAX_DUMP_FFRT_PID_NUMBER = 3;
+constexpr const int BASE_TEN = 10;
+constexpr const char SIGN_TERMINAL = '\0';
 namespace {
 using namespace std::chrono_literals;
 #ifdef ABILITY_COMMAND_FOR_TEST
@@ -69,6 +76,12 @@ constexpr int32_t USER_UID = 2000;
 }  // namespace
 
 REGISTER_SYSTEM_ABILITY_BY_ID(AppMgrService, APP_MGR_SERVICE_ID, true);
+
+const std::map<std::string, AppMgrService::DumpFuncType> AppMgrService::dumpFuncMap_ = {
+    std::map<std::string, AppMgrService::DumpFuncType>::value_type(OPTION_KEY_HELP, &AppMgrService::ShowHelp),
+    std::map<std::string, AppMgrService::DumpFuncType>::value_type(OPTION_KEY_DUMP_IPC, &AppMgrService::DumpIpc),
+    std::map<std::string, AppMgrService::DumpFuncType>::value_type(OPTION_KEY_DUMP_FFRT, &AppMgrService::DumpFfrt),
+};
 
 const std::map<std::string, AppMgrService::DumpIpcKey> AppMgrService::dumpIpcMap = {
     std::map<std::string, AppMgrService::DumpIpcKey>::value_type("--start-stat", KEY_DUMP_IPC_START),
@@ -244,6 +257,7 @@ void AppMgrService::ApplicationBackgrounded(const int32_t recordId)
     if (!JudgeAppSelfCalled(recordId)) {
         return;
     }
+    taskHandler_->CancelTask("appbackground_" + std::to_string(recordId));
     std::function<void()> applicationBackgroundedFunc =
         std::bind(&AppMgrServiceInner::ApplicationBackgrounded, appMgrServiceInner_, recordId);
     taskHandler_->SubmitTask(applicationBackgroundedFunc, AAFwk::TaskAttribute{
@@ -378,6 +392,26 @@ int32_t AppMgrService::GetAllRunningProcesses(std::vector<RunningProcessInfo> &i
     return appMgrServiceInner_->GetAllRunningProcesses(info);
 }
 
+int32_t AppMgrService::GetRunningMultiAppInfoByBundleName(const std::string &bundleName,
+    RunningMultiAppInfo &info)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+
+    if (!AAFwk::PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "The caller is not system-app, can not use system-api");
+        return ERR_INVALID_OPERATION;
+    }
+
+    bool isCallingPermission = AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm();
+    if (!isCallingPermission) {
+        TAG_LOGE(AAFwkTag::APPMGR, "GetRunningMultiAppInfoByBundleName, Permission verification failed.");
+        return ERR_PERMISSION_DENIED;
+    }
+    return appMgrServiceInner_->GetRunningMultiAppInfoByBundleName(bundleName, info);
+}
+
 int32_t AppMgrService::GetRunningProcessesByBundleType(BundleType bundleType,
     std::vector<RunningProcessInfo> &info)
 {
@@ -402,7 +436,7 @@ int32_t AppMgrService::JudgeSandboxByPid(pid_t pid, bool &isSandbox)
         return ERR_INVALID_OPERATION;
     }
     auto appRunningRecord = appMgrServiceInner_->GetAppRunningRecordByPid(pid);
-    if (appRunningRecord && appRunningRecord->GetAppIndex() > 0) {
+    if (appRunningRecord && appRunningRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         isSandbox = true;
         TAG_LOGD(AAFwkTag::APPMGR, "current app is a sandbox.");
         return ERR_OK;
@@ -615,42 +649,50 @@ int AppMgrService::Dump(const std::vector<std::u16string>& args, std::string& re
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     auto size = args.size();
     if (size == 0) {
-        ShowHelp(result);
-        return DumpErrorCode::ERR_OK;
+        return ShowHelp(args, result);
     }
 
     std::string optionKey = Str16ToStr8(args[0]);
-    if (optionKey == OPTION_KEY_HELP) {
-        ShowHelp(result);
-        return DumpErrorCode::ERR_OK;
-    }
-    if (optionKey == OPTION_KEY_DUMP_IPC) {
-        return DumpIpc(args, result);
+    auto itDumpFunc = dumpFuncMap_.find(optionKey);
+    if (itDumpFunc == dumpFuncMap_.end()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "option key %{public}s does not exist", optionKey.c_str());
+        result.append("error: unkown option.\n");
+        return DumpErrorCode::ERR_UNKNOWN_OPTION_ERROR;
     }
 
-    result.append("error: unkown option.\n");
-    return DumpErrorCode::ERR_UNKNOWN_OPTION_ERROR;
+    auto dumpFunc = itDumpFunc->second;
+    if (dumpFunc == nullptr) {
+        result.append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));
+        TAG_LOGE(AAFwkTag::APPMGR, "dump ffrt function does not exist");
+        return DumpErrorCode::ERR_INTERNAL_ERROR;
+    }
+    return (this->*dumpFunc)(args, result);
 }
 
-void AppMgrService::ShowHelp(std::string& result) const
+int AppMgrService::ShowHelp(const std::vector<std::u16string>& args, std::string& result)
 {
     result.append("Usage:\n")
         .append("-h                          ")
         .append("help text for the tool\n");
+
+    return ERR_OK;
 }
 
 int AppMgrService::DumpIpcAllInner(const AppMgrService::DumpIpcKey key, std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGI(AAFwkTag::APPMGR, "Called.");
     auto itFunc = dumpIpcAllFuncMap_.find(key);
     if (itFunc == dumpIpcAllFuncMap_.end()) {
-        result.append(MSG_DUMP_IPC_FAIL).append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        result.append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));
         TAG_LOGE(AAFwkTag::APPMGR, "option key %{public}d does not exist", key);
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
     auto dumpFunc = itFunc->second;
     if (dumpFunc == nullptr) {
-        result.append(MSG_DUMP_IPC_FAIL).append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        result.append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));
         TAG_LOGE(AAFwkTag::APPMGR, "dump ipc all function does not exist");
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
@@ -660,47 +702,88 @@ int AppMgrService::DumpIpcAllInner(const AppMgrService::DumpIpcKey key, std::str
 int AppMgrService::DumpIpcWithPidInner(const AppMgrService::DumpIpcKey key,
     const std::string& optionPid, std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGI(AAFwkTag::APPMGR, "Called.");
     int32_t pid = -1;
-    try {
-        pid = static_cast<int32_t>(std::stoi(optionPid));
-    } catch (...) {
-        result.append(MSG_DUMP_IPC_FAIL).append(MSG_DUMP_IPC_FAIL_REASON_INVALILD_PID);
-        TAG_LOGE(AAFwkTag::APPMGR, "stoi(%{public}s) failed", optionPid.c_str());
+    char* end = nullptr;
+    pid = static_cast<int32_t>(std::strtol(optionPid.c_str(), &end, BASE_TEN));
+    if (end && *end != SIGN_TERMINAL) {
+        result.append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INVALILD_PID, strlen(MSG_DUMP_FAIL_REASON_INVALILD_PID));
+        TAG_LOGE(AAFwkTag::APPMGR, "invalid pid: %{public}s", optionPid.c_str());
         return DumpErrorCode::ERR_INVALID_PID_ERROR;
     }
     if (pid < 0) {
-        result.append(MSG_DUMP_IPC_FAIL).append(MSG_DUMP_IPC_FAIL_REASON_INVALILD_PID);
+        result.append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INVALILD_PID, strlen(MSG_DUMP_FAIL_REASON_INVALILD_PID));
         TAG_LOGE(AAFwkTag::APPMGR, "invalid pid: %{public}s", optionPid.c_str());
         return DumpErrorCode::ERR_INVALID_PID_ERROR;
     }
     auto itFunc = dumpIpcFuncMap_.find(key);
     if (itFunc == dumpIpcFuncMap_.end()) {
-        result.append(MSG_DUMP_IPC_FAIL).append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        result.append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));
         TAG_LOGE(AAFwkTag::APPMGR, "option key %{public}d does not exist", key);
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
     auto dumpFunc = itFunc->second;
     if (dumpFunc == nullptr) {
-        result.append(MSG_DUMP_IPC_FAIL).append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        result.append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));
         TAG_LOGE(AAFwkTag::APPMGR, "dump ipc function does not exist");
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
     return (this->*dumpFunc)(pid, result);
 }
 
+int AppMgrService::DumpFfrtInner(const std::string& pidsRaw, std::string& result)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "Called");
+    std::vector<std::string> pidsStr;
+    SplitStr(pidsRaw, ",", pidsStr);
+    if (pidsStr.empty()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "no valid pids are found");
+        return DumpErrorCode::ERR_INVALID_PID_ERROR;
+    }
+    if (pidsStr.size() > MAX_DUMP_FFRT_PID_NUMBER) {
+        pidsStr.resize(MAX_DUMP_FFRT_PID_NUMBER);
+    }
+    std::vector<int32_t> pids;
+    for (const auto& pidStr : pidsStr) {
+        int pid = -1;
+        char* end = nullptr;
+        pid = static_cast<int32_t>(std::strtol(pidStr.c_str(), &end, BASE_TEN));
+        if (end && *end != SIGN_TERMINAL) {
+            TAG_LOGE(AAFwkTag::APPMGR, "invalid pid:%{public}s", pidStr.c_str());
+            continue;
+        }
+        if (pid < 0) {
+            TAG_LOGE(AAFwkTag::APPMGR, "invalid pid: %{public}s", pidStr.c_str());
+            continue;
+        }
+        TAG_LOGD(AAFwkTag::APPMGR, "valid pid:%{public}d", pid);
+        pids.push_back(pid);
+    }
+    TAG_LOGD(AAFwkTag::APPMGR, "number of valid pids:%{public}d", static_cast<int>(pids.size()));
+    if (pids.empty()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "no valid pids are found");
+        return DumpErrorCode::ERR_INVALID_PID_ERROR;
+    }
+    return appMgrServiceInner_->DumpFfrt(pids, result);
+}
+
 int AppMgrService::DumpIpc(const std::vector<std::u16string>& args, std::string& result)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called. AppMgrService::DumpIpc start");
     if (args.size() != VALID_DUMP_IPC_ARG_SIZE) {
-        result.append(MSG_DUMP_IPC_FAIL).append(MSG_DUMP_IPC_FAIL_REASON_INVALILD_NUM_ARGS);
+        result.append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INVALILD_NUM_ARGS, strlen(MSG_DUMP_FAIL_REASON_INVALILD_NUM_ARGS));
         TAG_LOGE(AAFwkTag::APPMGR, "invalid number of arguments");
         return DumpErrorCode::ERR_INVALID_NUM_ARGS_ERROR;
     }
-    auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
     auto isHidumperServiceCall = (IPCSkeleton::GetCallingUid() == HIDUMPER_SERVICE_UID);
-    if (!isShellCall && !isHidumperServiceCall) {
-        result.append(MSG_DUMP_IPC_FAIL).append(MSG_DUMP_IPC_FAIL_REASON_PERMISSION_DENY);
+    if (!isHidumperServiceCall) {
+        result.append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_PERMISSION_DENY, strlen(MSG_DUMP_FAIL_REASON_PERMISSION_DENY));
         TAG_LOGE(AAFwkTag::APPMGR, "Permission deny.");
         return DumpErrorCode::ERR_PERMISSION_DENY_ERROR;
     }
@@ -712,7 +795,8 @@ int AppMgrService::DumpIpc(const std::vector<std::u16string>& args, std::string&
 
     auto itDumpKey = dumpIpcMap.find(optionCmd);
     if (itDumpKey == dumpIpcMap.end()) {
-        result.append(MSG_DUMP_IPC_FAIL).append(MSG_DUMP_IPC_FAIL_REASON_INVALILD_CMD);
+        result.append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INVALILD_CMD, strlen(MSG_DUMP_FAIL_REASON_INVALILD_CMD));
         TAG_LOGE(AAFwkTag::APPMGR, "option command %{public}s does not exist", optionCmd.c_str());
         return DumpErrorCode::ERR_INVALID_CMD_ERROR;
     }
@@ -722,6 +806,29 @@ int AppMgrService::DumpIpc(const std::vector<std::u16string>& args, std::string&
         return DumpIpcAllInner(key, result);
     }
     return DumpIpcWithPidInner(key, optionPid, result);
+}
+
+int AppMgrService::DumpFfrt(const std::vector<std::u16string>& args, std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called. AppMgrService::DumpFfrt start");
+    if (args.size() != VALID_DUMP_FFRT_ARG_SIZE) {
+        result.append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INVALILD_NUM_ARGS, strlen(MSG_DUMP_FAIL_REASON_INVALILD_NUM_ARGS));
+        TAG_LOGE(AAFwkTag::APPMGR, "invalid number of arguments");
+        return DumpErrorCode::ERR_INVALID_NUM_ARGS_ERROR;
+    }
+    auto isHidumperServiceCall = (IPCSkeleton::GetCallingUid() == HIDUMPER_SERVICE_UID);
+    if (!isHidumperServiceCall) {
+        result.append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_PERMISSION_DENY, strlen(MSG_DUMP_FAIL_REASON_PERMISSION_DENY));
+        TAG_LOGE(AAFwkTag::APPMGR, "Permission deny.");
+        return DumpErrorCode::ERR_PERMISSION_DENY_ERROR;
+    }
+
+    std::string pidsRaw = Str16ToStr8(args[INDEX_PID]);
+    TAG_LOGD(AAFwkTag::APPMGR, "pids:%{public}s", pidsRaw.c_str());
+
+    return DumpFfrtInner(pidsRaw, result);
 }
 
 int AppMgrService::DumpIpcAllStart(std::string& result)
@@ -813,7 +920,7 @@ int32_t AppMgrService::PreStartNWebSpawnProcess()
 }
 
 int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
-    int32_t sharedFd, int32_t crashFd, pid_t &renderPid)
+    int32_t sharedFd, int32_t crashFd, pid_t &renderPid, bool isGPU)
 {
     if (!IsReady()) {
         TAG_LOGE(AAFwkTag::APPMGR, "StartRenderProcess failed, AppMgrService not ready.");
@@ -821,7 +928,7 @@ int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_
     }
 
     return appMgrServiceInner_->StartRenderProcess(IPCSkeleton::GetCallingRealPid(),
-        renderParam, ipcFd, sharedFd, crashFd, renderPid);
+        renderParam, ipcFd, sharedFd, crashFd, renderPid, isGPU);
 }
 
 void AppMgrService::AttachRenderProcess(const sptr<IRemoteObject> &scheduler)
@@ -839,6 +946,16 @@ void AppMgrService::AttachRenderProcess(const sptr<IRemoteObject> &scheduler)
         .taskName_ = TASK_ATTACH_RENDER_PROCESS,
         .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
     });
+}
+
+void AppMgrService::SaveBrowserChannel(sptr<IRemoteObject> browser)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "SaveBrowserChannel not ready");
+        return;
+    }
+
+    appMgrServiceInner_->SaveBrowserChannel(IPCSkeleton::GetCallingRealPid(), browser);
 }
 
 int32_t AppMgrService::GetRenderProcessTerminationStatus(pid_t renderPid, int &status)
@@ -1014,6 +1131,15 @@ int32_t AppMgrService::GetBundleNameByPid(const int32_t pid, std::string &bundle
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->GetBundleNameByPid(pid, bundleName, uid);
+}
+
+int32_t AppMgrService::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->GetRunningProcessInfoByPid(pid, info);
 }
 
 int32_t AppMgrService::NotifyAppFault(const FaultData &faultData)
@@ -1355,5 +1481,29 @@ int32_t AppMgrService::SetSupportedProcessCacheSelf(bool isSupport)
     }
     return appMgrServiceInner_->SetSupportedProcessCacheSelf(isSupport);
 }
+
+void AppMgrService::SetAppAssertionPauseState(bool flag)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "Called");
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not ready.");
+        return;
+    }
+    return appMgrServiceInner_->SetAppAssertionPauseState(flag);
+}
+
+int32_t AppMgrService::StartNativeChildProcess(const std::string &libName, int32_t childProcessCount,
+    const sptr<IRemoteObject> &callback)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "Called");
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    return appMgrServiceInner_->StartNativeChildProcess(
+        IPCSkeleton::GetCallingPid(), libName, childProcessCount, callback);
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

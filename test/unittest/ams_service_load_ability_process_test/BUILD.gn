@@ -64,6 +64,7 @@ ohos_unittest("AmsServiceLoadAbilityProcessTest") {
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_path}/utils/global/freeze:freeze_util",
+    "${ability_runtime_path}/utils/server/startup:startup_util",
     "${ability_runtime_services_path}/common:app_util",
     "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",
@@ -92,6 +93,7 @@ ohos_unittest("AmsServiceLoadAbilityProcessTest") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "kv_store:distributeddata_inner",
+    "kv_store:distributeddata_mgr",
     "memory_utils:libmeminfo",
     "resource_schedule_service:ressched_client",
   ]

@@ -170,7 +170,7 @@ void AppSpawnMsgWrapper::BuildExtraInfo(const AppSpawnStartMsg &startMsg)
 
     if (!startMsg.appEnv.empty()) {
         auto appEnvStr = DumpAppEnvToJson(startMsg.appEnv);
-        TAG_LOGI(AAFwkTag::APPMGR, "AppEnv: %{public}s", appEnvStr.c_str());
+        TAG_LOGD(AAFwkTag::APPMGR, "AppEnv: %{public}s", appEnvStr.c_str());
         extraInfoStr_ += APP_ENV_TYPE + appEnvStr + APP_ENV_TYPE;
     }
 

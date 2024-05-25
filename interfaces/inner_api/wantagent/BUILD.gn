@@ -30,24 +30,24 @@ config("wantagent_innerkits_public_config") {
   ]
 
   include_dirs = [
-    "${eventhandler_path}/interfaces/inner_api",
     "${ability_base_kits_path}/configuration/include",
-    "${global_path}/resource_management/interfaces/inner_api/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_innerkits_path}/ability_manager/include",
     "${ability_runtime_innerkits_path}/wantagent/include",
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
-    "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_path}/interfaces/kits/native/appkit",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
-    "//third_party/icu/icu4c/source/common",
   ]
 }
 
 ohos_shared_library("wantagent_innerkits") {
-  include_dirs = [ "${ability_runtime_services_path}/common/include" ]
+  include_dirs = [
+    "${ability_runtime_services_path}/common/include",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
+    "${ability_runtime_path}/interfaces/inner_api/deps_wrapper/include",
+  ]
 
   sources = [
     "${ability_runtime_services_path}/abilitymgr/src/sender_info.cpp",
@@ -71,11 +71,12 @@ ohos_shared_library("wantagent_innerkits") {
   public_configs = [ ":wantagent_innerkits_public_config" ]
 
   deps = [
-    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/error_utils:ability_runtime_error_util",
   ]
 
   external_deps = [
+    "ability_base:session_info",
     "ability_base:want",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
@@ -86,7 +87,14 @@ ohos_shared_library("wantagent_innerkits") {
     "samgr:samgr_proxy",
   ]
 
-  public_external_deps = [ "bundle_framework:appexecfwk_core" ]
+  public_external_deps = [
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "eventhandler:libeventhandler",
+    "icu:shared_icuuc",
+    "image_framework:image_native",
+    "resource_management:global_resmgr",
+  ]
 
   if (is_double_framework) {
     cflags = [ "-DCONFIG_DUAL_FRAMEWORK" ]

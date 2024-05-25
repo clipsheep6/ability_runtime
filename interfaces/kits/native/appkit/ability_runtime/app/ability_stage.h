@@ -59,7 +59,8 @@ public:
     bool ContainsAbility() const;
     virtual void OnConfigurationUpdated(const AppExecFwk::Configuration& configuration);
     virtual void OnMemoryLevel(int level);
-    virtual int32_t RunAutoStartupTask(const std::function<void()> &callback, bool &isAsyncCallback);
+    virtual int32_t RunAutoStartupTask(const std::function<void()> &callback, bool &isAsyncCallback,
+        const std::shared_ptr<Context> &stageContext);
 
 private:
     friend class JsAbilityStage;

@@ -79,6 +79,7 @@
       *WantReceiverProxy*;
       *WantSenderProxy*;
       *WantSenderStub*;
+      *DeepLinkReserveConfig*;
     };
   local:
     *;

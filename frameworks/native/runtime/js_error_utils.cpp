@@ -36,7 +36,7 @@ void ThrowError(napi_env env, const AbilityErrorCode& err)
     napi_throw(env, CreateJsError(env, static_cast<int32_t>(err), GetErrorMsg(err)));
 }
 
-void ThrowInvaildCallerError(napi_env env)
+void ThrowInvalidCallerError(napi_env env)
 {
     napi_throw(env, CreateJsError(env,
         static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_CALLER),

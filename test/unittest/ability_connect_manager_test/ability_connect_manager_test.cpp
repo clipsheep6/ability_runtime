@@ -29,6 +29,7 @@
 #include "bundlemgr/mock_bundle_manager.h"
 #include "hilog_tag_wrapper.h"
 #include "mock_ability_connect_callback.h"
+#include "mock_sa_call.h"
 #include "sa_mgr_client.h"
 #include "system_ability_definition.h"
 
@@ -2367,7 +2368,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_RestartAbility_003, TestSize.Level1)
 
     // HandleTerminate
     ConnectManager()->HandleAbilityDiedTask(service, userId);
-    EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 0);
+    EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 1);
 }
 
 /*
@@ -3107,6 +3108,7 @@ HWTEST_F(AbilityConnectManagerTest, IsUIExtensionFocused_001, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, IsUIExtensionFocused_002, TestSize.Level1)
 {
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
     ASSERT_NE(connectManager, nullptr);
     connectManager->uiExtensionMap_.clear();
@@ -3127,8 +3129,6 @@ HWTEST_F(AbilityConnectManagerTest, IsUIExtensionFocused_002, TestSize.Level1)
     auto request1 = GenerateAbilityRequest(device, abilityName1, appName1, bundleName1, moduleName1);
     auto uiExtension1 = AbilityRecord::CreateAbilityRecord(request1);
     EXPECT_NE(uiExtension1, nullptr);
-    int32_t ret = connectManager->uiExtensionAbilityRecordMgr_->CreateExtensionRecord(uiExtension1, bundleName1,
-        extensionRecord1, extensionId1);
     uiExtension1->abilityInfo_.extensionAbilityType = ExtensionAbilityType::SYS_COMMON_UI;
     sptr<SessionInfo> sessionInfo1 = new (std::nothrow) SessionInfo();
     sessionInfo1->callerToken = uiExtensionUser->GetToken();
@@ -3138,7 +3138,6 @@ HWTEST_F(AbilityConnectManagerTest, IsUIExtensionFocused_002, TestSize.Level1)
     bool isFocused1 = connectManager->IsUIExtensionFocused(
         uiExtension1->GetApplicationInfo().accessTokenId, uiExtensionUser->GetToken());
     EXPECT_EQ(isFocused1, true);
-
     std::string abilityName2 = "uiExtensionAbility2";
     std::string appName2 = "uiExtensionProvider2";
     std::string bundleName2 = "com.ix.uiExtensionProvider2";

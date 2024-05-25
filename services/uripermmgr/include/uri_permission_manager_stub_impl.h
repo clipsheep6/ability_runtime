@@ -19,6 +19,7 @@
 #include <functional>
 #include <map>
 #include <vector>
+#include <unordered_set>
 
 #include "app_mgr_interface.h"
 #include "bundle_mgr_helper.h"
@@ -32,13 +33,37 @@ namespace OHOS::AAFwk {
 namespace {
 using ClearProxyCallback = std::function<void(const wptr<IRemoteObject>&)>;
 using TokenId = Security::AccessToken::AccessTokenID;
+constexpr int32_t DEFAULT_ABILITY_ID = -1;
 }
 
 struct GrantInfo {
     unsigned int flag;
     const uint32_t fromTokenId;
     const uint32_t targetTokenId;
-    uint32_t autoRemove;
+    bool autoRemove;
+    std::unordered_set<int32_t> abilityIds;
+
+    void AddAbilityId(int32_t abilityId)
+    {
+        if (abilityId != DEFAULT_ABILITY_ID) {
+            abilityIds.insert(abilityId);
+        }
+    }
+
+    bool RemoveAbilityId(int32_t abilityId)
+    {
+        return abilityIds.erase(abilityId) > 0;
+    }
+
+    bool IsEmptyAbilityId()
+    {
+        return abilityIds.empty();
+    }
+
+    void ClearAbilityIds()
+    {
+        abilityIds.clear();
+    }
 };
 
 struct PolicyInfo final {
@@ -53,26 +78,23 @@ public:
     UriPermissionManagerStubImpl() = default;
     virtual ~UriPermissionManagerStubImpl() = default;
 
-    int GrantUriPermission(const Uri &uri, unsigned int flag,
-        const std::string targetBundleName, int32_t appIndex = 0, uint32_t initiatorTokenId = 0) override;
+    int GrantUriPermission(const Uri &uri, unsigned int flag, const std::string targetBundleName,
+        int32_t appIndex = 0, uint32_t initiatorTokenId = 0, int32_t abilityId = -1) override;
     int GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
-        const std::string targetBundleName, int32_t appIndex = 0, uint32_t initiatorTokenId = 0) override;
+        const std::string targetBundleName, int32_t appIndex = 0, uint32_t initiatorTokenId = 0,
+        int32_t abilityId = -1) override;
     int32_t GrantUriPermissionPrivileged(const std::vector<Uri> &uriVec, uint32_t flag,
         const std::string &targetBundleName, int32_t appIndex = 0) override;
     
     std::vector<bool> CheckUriAuthorization(const std::vector<std::string> &uriVec, uint32_t flag,
         uint32_t tokenId) override;
 
-    // To be deleted.
-    int GrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
-        const std::string &targetBundleName, int32_t appIndex = 0, bool isSystemAppCall = false) override;
     // only for foundation calling
-    void RevokeUriPermission(const TokenId tokenId) override;
+    void RevokeUriPermission(const TokenId tokenId, int32_t abilityId = -1) override;
     int RevokeAllUriPermissions(uint32_t tokenId) override;
     int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) override;
 
     bool VerifyUriPermission(const Uri &uri, uint32_t flag, uint32_t tokenId) override;
-    bool IsAuthorizationUriAllowed(uint32_t fromTokenId) override;
     int32_t GetTokenIdByBundleName(const std::string &bundleName, int32_t appIndex, uint32_t &tokenId);
 
 private:
@@ -81,23 +103,23 @@ private:
     std::shared_ptr<AppExecFwk::BundleMgrHelper> ConnectManagerHelper();
     int32_t GetCurrentAccountId() const;
     int GrantUriPermissionImpl(const Uri &uri, unsigned int flag,
-        TokenId fromTokenId, TokenId targetTokenId, uint32_t autoRemove);
+        TokenId fromTokenId, TokenId targetTokenId, int32_t abilityId);
     int AddTempUriPermission(const std::string &uri, unsigned int flag, TokenId fromTokenId,
-        TokenId targetTokenId, uint32_t autoRemove);
+        TokenId targetTokenId, int32_t abilityId);
 
     int GrantBatchUriPermissionImpl(const std::vector<std::string> &uriVec, unsigned int flag,
-        TokenId initiatorTokenId, TokenId targetTokenId, uint32_t autoRemove);
+        TokenId initiatorTokenId, TokenId targetTokenId, int32_t abilityId);
     int GrantBatchUriPermission(const std::vector<Uri> &uriVec, unsigned int flag, uint32_t initiatorTokenId,
-        uint32_t targetTokenId, uint32_t autoRemove);
+        uint32_t targetTokenId, int32_t abilityId);
     
     int32_t GrantBatchUriPermissionPrivileged(const std::vector<Uri> &uriVec, uint32_t flag,
-        uint32_t callerTokenId, uint32_t targetTokenId, uint32_t autoRemove);
+        uint32_t callerTokenId, uint32_t targetTokenId, int32_t abilityId = -1);
     
     int32_t GrantBatchUriPermissionFor2In1Privileged(const std::vector<Uri> &uriVec, uint32_t flag,
-        uint32_t callerTokenId, uint32_t targetTokenId, uint32_t autoRemove);
+        uint32_t callerTokenId, uint32_t targetTokenId, int32_t abilityId = -1);
 
     int GrantSingleUriPermission(const Uri &uri, unsigned int flag, uint32_t callerTokenId, uint32_t targetTokenId,
-        uint32_t autoRemove);
+        int32_t abilityId);
 
     bool SendEvent(uint32_t callerTokenId, uint32_t targetTokenId, std::string &uri);
 
@@ -112,10 +134,11 @@ private:
     std::string GetBundleNameByTokenId(uint32_t tokenId);
 
     int GrantUriPermissionInner(const std::vector<Uri> &uriVec, unsigned int flag, const std::string targetBundleName,
-        int32_t appIndex, uint32_t initiatorTokenId);
+        int32_t appIndex, uint32_t initiatorTokenId, int32_t abilityId = -1);
 
     int GrantUriPermissionFor2In1Inner(const std::vector<Uri> &uriVec, unsigned int flag,
-        const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall, uint32_t initiatorTokenId = 0);
+        const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall, uint32_t initiatorTokenId = 0,
+        int32_t abilityId = -1);
 
     void HandleUriPermission(
         uint64_t tokenId, unsigned int flag, std::vector<PolicyInfo> &docsVec, bool isSystemAppCall);
@@ -133,6 +156,10 @@ private:
     int32_t DeleteShareFile(uint32_t targetTokenId, const std::vector<std::string> &uriVec);
 
     bool IsSAOrSystemAppCall();
+
+    bool IsLinuxFusionCall();
+
+    void RemoveUriRecord(std::vector<std::string> &uriList, const TokenId tokenId, int32_t abilityId);
 
     class ProxyDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

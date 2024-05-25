@@ -41,7 +41,7 @@ PendingWantManager::PendingWantManager()
 
 PendingWantManager::~PendingWantManager()
 {
-    TAG_LOGD(AAFwkTag::WANTAGENT, "%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
+    TAG_LOGI(AAFwkTag::WANTAGENT, "%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
 }
 
 sptr<IWantSender> PendingWantManager::GetWantSender(int32_t callingUid, int32_t uid, const bool isSystemApp,
@@ -134,8 +134,8 @@ sptr<PendingWantRecord> PendingWantManager::GetPendingWantRecordByKey(const std:
 {
     TAG_LOGD(AAFwkTag::WANTAGENT, "begin");
     for (const auto &item : wantRecords_) {
-        const auto &pendingKey = item.first;
-        const auto &pendingRecord = item.second;
+        const auto pendingKey = item.first;
+        const auto pendingRecord = item.second;
         if ((pendingRecord != nullptr) && CheckPendingWantRecordByKey(pendingKey, key)) {
             return pendingRecord;
         }
@@ -146,6 +146,10 @@ sptr<PendingWantRecord> PendingWantManager::GetPendingWantRecordByKey(const std:
 bool PendingWantManager::CheckPendingWantRecordByKey(
     const std::shared_ptr<PendingWantKey> &inputKey, const std::shared_ptr<PendingWantKey> &key)
 {
+    if (!inputKey || !key) {
+        TAG_LOGW(AAFwkTag::WANTAGENT, "inputKey or key is nullptr!");
+        return false;
+    }
     if (inputKey->GetBundleName().compare(key->GetBundleName()) != 0) {
         return false;
     }
@@ -178,11 +182,21 @@ int32_t PendingWantManager::SendWantSender(sptr<IWantSender> target, const Sende
     TAG_LOGI(AAFwkTag::WANTAGENT, "begin");
 
     if (target == nullptr) {
+        if (senderInfo.finishedReceiver != nullptr) {
+            Want want;
+            WantParams wantParams = {};
+            senderInfo.finishedReceiver->PerformReceive(want, senderInfo.code, "canceled", wantParams, false, false, 0);
+        }
         TAG_LOGE(AAFwkTag::WANTAGENT, "sender is nullptr.");
         return ERR_INVALID_VALUE;
     }
     sptr<IRemoteObject> obj = target->AsObject();
     if (obj == nullptr || obj->IsProxyObject()) {
+        if (senderInfo.finishedReceiver != nullptr) {
+            Want want;
+            WantParams wantParams = {};
+            senderInfo.finishedReceiver->PerformReceive(want, senderInfo.code, "canceled", wantParams, false, false, 0);
+        }
         TAG_LOGE(AAFwkTag::WANTAGENT, "target obj is nullptr or is a proxy object.");
         return ERR_INVALID_VALUE;
     }
@@ -339,7 +353,6 @@ int32_t PendingWantManager::PendingRecordIdCreate()
 sptr<PendingWantRecord> PendingWantManager::GetPendingWantRecordByCode(int32_t code)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::WANTAGENT, "begin. wantRecords_ size = %{public}zu", wantRecords_.size());
 
     std::lock_guard<ffrt::mutex> locker(mutex_);
     auto iter = std::find_if(wantRecords_.begin(), wantRecords_.end(), [&code](const auto &pair) {
@@ -605,6 +618,7 @@ void PendingWantManager::ClearPendingWantRecordTask(const std::string &bundleNam
 
 void PendingWantManager::Dump(std::vector<std::string> &info)
 {
+    TAG_LOGD(AAFwkTag::WANTAGENT, "dump begin.");
     std::string dumpInfo = "    PendingWantRecords:";
     info.push_back(dumpInfo);
 
@@ -636,6 +650,7 @@ void PendingWantManager::Dump(std::vector<std::string> &info)
 }
 void PendingWantManager::DumpByRecordId(std::vector<std::string> &info, const std::string &args)
 {
+    TAG_LOGD(AAFwkTag::WANTAGENT, "dump by id begin.");
     std::string dumpInfo = "    PendingWantRecords:";
     info.push_back(dumpInfo);
 

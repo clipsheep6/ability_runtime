@@ -282,7 +282,9 @@ void JsRuntime::StartDebugMode(const DebugOption dOption)
             if (isDebugApp) {
                 weak->StopDebugger(option);
             }
-            weak->StartDebugger(option, ARK_DEBUGGER_LIB_PATH, socketFd, isStartWithDebug, instanceId);
+            int32_t tid = weak->ParseHdcRegisterOption(option);
+            const auto &debuggerPostTask = ConnectServerManager::Get().GetDebuggerPostTask(tid);
+            weak->StartDebugger(option, socketFd, isDebugApp, debuggerPostTask);
         }
     });
     if (isDebugApp) {
@@ -293,7 +295,7 @@ void JsRuntime::StartDebugMode(const DebugOption dOption)
     EcmaVM* vm = GetEcmaVm();
     auto dTask = jsEnv_->GetDebuggerPostTask();
     panda::JSNApi::DebugOption option = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? isStartWithDebug : false};
-    ConnectServerManager::Get().StoreDebuggerInfo(instanceId_, reinterpret_cast<void*>(vm), option, dTask, isDebugApp);
+    ConnectServerManager::Get().StoreDebuggerInfo(getproctid(), reinterpret_cast<void*>(vm), option, dTask, isDebugApp);
     jsEnv_->NotifyDebugMode(getproctid(), ARK_DEBUGGER_LIB_PATH, instanceId_, isDebugApp, isStartWithDebug);
 }
 
@@ -408,7 +410,9 @@ void JsRuntime::StartProfiler(const DebugOption dOption)
             if (isDebugApp) {
                 weak->StopDebugger(option);
             }
-            weak->StartDebugger(option, ARK_DEBUGGER_LIB_PATH, socketFd, isStartWithDebug, instanceId);
+            int32_t tid = weak->ParseHdcRegisterOption(option);
+            const auto &debuggerPostTask = ConnectServerManager::Get().GetDebuggerPostTask(tid);
+            weak->StartDebugger(option, socketFd, isDebugApp, debuggerPostTask);
         }
     });
     if (isDebugApp) {
@@ -425,7 +429,7 @@ void JsRuntime::StartProfiler(const DebugOption dOption)
     EcmaVM* vm = GetEcmaVm();
     auto dTask = jsEnv_->GetDebuggerPostTask();
     panda::JSNApi::DebugOption option = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? isStartWithDebug : false};
-    ConnectServerManager::Get().StoreDebuggerInfo(instanceId_, reinterpret_cast<void*>(vm), option, dTask, isDebugApp);
+    ConnectServerManager::Get().StoreDebuggerInfo(getproctid(), reinterpret_cast<void*>(vm), option, dTask, isDebugApp);
     TAG_LOGD(AAFwkTag::JSRUNTIME, "profiler:%{public}d interval:%{public}d.", profiler, interval);
     jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval, getproctid(), isDebugApp);
 }
@@ -622,7 +626,6 @@ void JsRuntime::FinishPreload()
     auto vm = GetEcmaVm();
     CHECK_POINTER(vm);
     panda::JSNApi::PreFork(vm);
-    jsEnv_->StopMonitorJSHeapUsage();
 }
 
 void JsRuntime::PostPreload(const Options& options)
@@ -683,8 +686,6 @@ bool JsRuntime::Initialize(const Options& options)
         }
         NativeCreateEnv::RegCreateNapiEnvCallback(CreateNapiEnv);
         NativeCreateEnv::RegDestroyNapiEnvCallback(DestroyNapiEnv);
-    } else {
-        jsEnv_->StartMonitorJSHeapUsage();
     }
     apiTargetVersion_ = options.apiTargetVersion;
     TAG_LOGD(AAFwkTag::JSRUNTIME, "Initialize: %{public}d.", apiTargetVersion_);
@@ -1191,11 +1192,12 @@ void JsRuntime::DumpHeapSnapshot(bool isPrivate)
     nativeEngine->DumpHeapSnapshot(true, DumpFormat::JSON, isPrivate, false);
 }
 
-void JsRuntime::DumpHeapSnapshot(uint32_t tid, bool isFullGC)
+void JsRuntime::DumpHeapSnapshot(uint32_t tid, bool isFullGC, std::vector<uint32_t> fdVec,
+    std::vector<uint32_t> tidVec)
 {
     auto vm = GetEcmaVm();
     CHECK_POINTER(vm);
-    DFXJSNApi::DumpHeapSnapshot(vm, 0, true, false, false, isFullGC, tid);
+    DFXJSNApi::DumpHeapSnapshot(vm, 0, true, false, false, isFullGC, tid, fdVec, tidVec);
 }
 
 void JsRuntime::ForceFullGC(uint32_t tid)

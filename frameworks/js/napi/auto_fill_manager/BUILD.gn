@@ -13,7 +13,6 @@
 
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
-import("//foundation/arkui/ace_engine/ace_config.gni")
 
 ohos_shared_library("autofillmanager_napi") {
   sources = [

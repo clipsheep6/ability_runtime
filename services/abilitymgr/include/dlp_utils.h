@@ -21,6 +21,7 @@
 #ifdef WITH_DLP
 #include "dlp_permission_kit.h"
 #endif // WITH_DLP
+#include "global_constant.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
@@ -49,7 +50,7 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability has already been destroyed.");
         return true;
     }
-    if (abilityRecord->GetAppIndex() == 0) {
+    if (abilityRecord->GetAppIndex() <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         return true;
     }
     if (abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
@@ -74,7 +75,8 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
 {
     if (callerToken != nullptr) {
         auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-        if (abilityRecord != nullptr && abilityRecord->GetAppIndex() != 0) {
+        if (abilityRecord != nullptr &&
+            abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
             return true;
         }
     }

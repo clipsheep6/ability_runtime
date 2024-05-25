@@ -30,6 +30,7 @@ struct StartAbilityInfo {
         AppExecFwk::AbilityInfo &abilityInfo);
     static std::shared_ptr<StartAbilityInfo> CreateStartAbilityInfo(const Want &want, int32_t userId,
         int32_t appIndex);
+    static std::shared_ptr<StartAbilityInfo> CreateCallerAbilityInfo(const sptr<IRemoteObject> &callerToken);
 
     static std::shared_ptr<StartAbilityInfo> CreateStartExtensionInfo(const Want &want, int32_t userId,
         int32_t appIndex);
@@ -48,15 +49,18 @@ struct StartAbilityUtils {
     static int32_t GetAppIndex(const Want &want, sptr<IRemoteObject> callerToken);
     static bool GetApplicationInfo(const std::string &bundleName, int32_t userId,
         AppExecFwk::ApplicationInfo &appInfo);
+    static bool GetCallerAbilityInfo(const sptr<IRemoteObject> &callerToken,
+        AppExecFwk::AbilityInfo &abilityInfo);
     static thread_local std::shared_ptr<StartAbilityInfo> startAbilityInfo;
-
+    static thread_local std::shared_ptr<StartAbilityInfo> callerAbilityInfo;
     static thread_local bool skipCrowTest;
     static thread_local bool skipStartOther;
     static thread_local bool skipErms;
 };
 
 struct StartAbilityInfoWrap {
-    StartAbilityInfoWrap(const Want &want, int32_t validUserId, int32_t appIndex, bool isExtension = false);
+    StartAbilityInfoWrap(const Want &want, int32_t validUserId, int32_t appIndex,
+        const sptr<IRemoteObject> &callerToken, bool isExtension = false);
     ~StartAbilityInfoWrap();
 };
 }

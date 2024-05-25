@@ -27,6 +27,7 @@
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
+#include "string_ex.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -64,8 +65,6 @@ AmsMgrStub::AmsMgrStub()
         &AmsMgrStub::HandleKillApplicationSelf;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::GET_RUNNING_PROCESS_INFO_BY_TOKEN)] =
         &AmsMgrStub::HandleGetRunningProcessInfoByToken;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::GET_RUNNING_PROCESS_INFO_BY_PID)] =
-        &AmsMgrStub::HandleGetRunningProcessInfoByPid;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::SET_ABILITY_FOREGROUNDING_FLAG)] =
         &AmsMgrStub::HandleSetAbilityForegroundingFlagToAppRecord;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::START_SPECIFIED_ABILITY)] =
@@ -74,6 +73,8 @@ AmsMgrStub::AmsMgrStub()
         &AmsMgrStub::HandleRegisterStartSpecifiedAbilityResponse;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::GET_APPLICATION_INFO_BY_PROCESS_ID)] =
         &AmsMgrStub::HandleGetApplicationInfoByProcessID;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::NOTIFY_APP_MGR_RECORD_EXIT_REASON)] =
+        &AmsMgrStub::HandleNotifyAppMgrRecordExitReason;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::UPDATE_APPLICATION_INFO_INSTALLED)] =
         &AmsMgrStub::HandleUpdateApplicationInfoInstalled;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::SET_CURRENT_USER_ID)] =
@@ -112,8 +113,6 @@ void AmsMgrStub::CreateMemberFuncMap()
         &AmsMgrStub::HandleRegisterAbilityDebugResponse;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::IS_ATTACH_DEBUG)] =
         &AmsMgrStub::HandleIsAttachDebug;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::SET_APP_ASSERT_PAUSE_STATE)] =
-        &AmsMgrStub::HandleSetAppAssertionPauseState;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::CLEAR_PROCESS_BY_TOKEN)] =
         &AmsMgrStub::HandleClearProcessByToken;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::KILL_PROCESSES_BY_PIDS)] =
@@ -360,18 +359,6 @@ int32_t AmsMgrStub::HandleGetRunningProcessInfoByToken(MessageParcel &data, Mess
     return NO_ERROR;
 }
 
-int32_t AmsMgrStub::HandleGetRunningProcessInfoByPid(MessageParcel &data, MessageParcel &reply)
-{
-    RunningProcessInfo processInfo;
-    auto pid = static_cast<pid_t>(data.ReadInt32());
-    GetRunningProcessInfoByPid(pid, processInfo);
-    if (reply.WriteParcelable(&processInfo)) {
-        TAG_LOGE(AAFwkTag::APPMGR, "process info write failed.");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
 int32_t AmsMgrStub::HandleSetAbilityForegroundingFlagToAppRecord(MessageParcel &data, MessageParcel &reply)
 {
     RunningProcessInfo processInfo;
@@ -394,7 +381,7 @@ int32_t AmsMgrStub::HandleStartSpecifiedAbility(MessageParcel &data, MessageParc
         delete want;
         return ERR_INVALID_VALUE;
     }
-    StartSpecifiedAbility(*want, *abilityInfo);
+    StartSpecifiedAbility(*want, *abilityInfo, data.ReadInt32());
     delete want;
     delete abilityInfo;
     return NO_ERROR;
@@ -426,6 +413,20 @@ int32_t AmsMgrStub::HandleGetApplicationInfoByProcessID(MessageParcel &data, Mes
     if (!reply.WriteBool(debug)) {
         TAG_LOGE(AAFwkTag::APPMGR, "write debug info failed");
         return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AmsMgrStub::HandleNotifyAppMgrRecordExitReason(MessageParcel &data, MessageParcel &reply)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "HandleNotifyAppMgrRecordExitReason called.");
+    int32_t pid = data.ReadInt32();
+    int32_t reason = data.ReadInt32();
+    std::string exitMsg = Str16ToStr8(data.ReadString16());
+    int32_t result = NotifyAppMgrRecordExitReason(pid, reason, exitMsg);
+    if (!reply.WriteInt32(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write result failed.");
+        return IPC_PROXY_ERR;
     }
     return NO_ERROR;
 }
@@ -647,15 +648,6 @@ int32_t AmsMgrStub::HandleIsAttachDebug(MessageParcel &data, MessageParcel &repl
         TAG_LOGE(AAFwkTag::APPMGR, "Fail to write result.");
         return ERR_INVALID_VALUE;
     }
-    return NO_ERROR;
-}
-
-int32_t AmsMgrStub::HandleSetAppAssertionPauseState(MessageParcel &data, MessageParcel &reply)
-{
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
-    auto pid = data.ReadInt32();
-    auto flag = data.ReadBool();
-    SetAppAssertionPauseState(pid, flag);
     return NO_ERROR;
 }
 

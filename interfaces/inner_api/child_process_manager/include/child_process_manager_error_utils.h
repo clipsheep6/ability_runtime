@@ -31,6 +31,10 @@ enum class ChildProcessManagerErrorCode {
     ERR_GET_BUNDLE_INFO_FAILED = 5,
     ERR_GET_APP_MGR_FAILED = 6,
     ERR_GET_APP_MGR_START_PROCESS_FAILED = 7,
+    ERR_UNSUPPORT_NATIVE_CHILD_PROCESS = 8,
+    ERR_MAX_NATIVE_CHILD_PROCESSES = 9,
+    ERR_LIB_LOADING_FAILED = 10,
+    ERR_CONNECTION_FAILED = 11,
 };
 
 const std::map<ChildProcessManagerErrorCode, AbilityErrorCode> INTERNAL_ERR_CODE_MAP = {

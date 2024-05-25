@@ -21,7 +21,6 @@
 #include <unordered_map>
 
 #include "constants.h"
-#include "ability_app_state_observer.h"
 #include "ability_event_handler.h"
 #include "ability_manager_service.h"
 #include "ability_resident_process_rdb.h"
@@ -35,6 +34,7 @@
 #include "configuration_convertor.h"
 #include "connection_state_manager.h"
 #include "freeze_util.h"
+#include "global_constant.h"
 #include "hitrace_meter.h"
 #include "image_source.h"
 #include "in_process_call_wrapper.h"
@@ -47,6 +47,8 @@
 #include "parameters.h"
 #include "ui_extension_host_info.h"
 #include "scene_board_judgement.h"
+#include "start_ability_utils.h"
+#include "startup_util.h"
 #include "system_ability_token_callback.h"
 #include "ui_extension_utils.h"
 #include "uri_permission_manager_client.h"
@@ -77,7 +79,6 @@ const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
 const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
 const std::u16string SYSTEM_ABILITY_TOKEN_CALLBACK = u"ohos.aafwk.ISystemAbilityTokenCallback";
 const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
-const std::string DLP_INDEX = "ohos.dlp.params.index";
 const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
 const std::string KEY_MISSION_ID = "ohos.anco.param.missionId";
@@ -199,9 +200,12 @@ std::shared_ptr<AbilityRecord> Token::GetAbilityRecordByToken(const sptr<IRemote
     // Double check if token is valid
     sptr<IAbilityToken> theToken = iface_cast<IAbilityToken>(token);
     if (!theToken) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Input token iface_cast error.");
         return nullptr;
     }
-    if (theToken->GetDescriptor() != u"ohos.aafwk.AbilityToken") {
+    std::u16string castDescriptor = theToken->GetDescriptor();
+    if (castDescriptor != u"ohos.aafwk.AbilityToken") {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Input token iface_cast error:%{public}s.", Str16ToStr8(castDescriptor).c_str());
         return nullptr;
     }
 
@@ -226,7 +230,6 @@ AbilityRecord::AbilityRecord(const Want &want, const AppExecFwk::AbilityInfo &ab
         want_.SetParam(COMPONENT_STARTUP_NEW_RULES, flag);
     }
     restartCount_ = restartMax_;
-    appIndex_ = want.GetIntParam(DLP_INDEX, 0);
     isAppAutoStartup_ = want_.GetBoolParam(Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON, false);
     if (want_.HasParameter(Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON)) {
         want_.RemoveParam(Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON);
@@ -242,7 +245,6 @@ AbilityRecord::~AbilityRecord()
         }
     }
     want_.CloseAllFd();
-    RemoveAppStateObserver(true);
 }
 
 std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityRequest &abilityRequest)
@@ -251,7 +253,7 @@ std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityR
         abilityRequest.want, abilityRequest.abilityInfo, abilityRequest.appInfo, abilityRequest.requestCode);
     CHECK_POINTER_AND_RETURN(abilityRecord, nullptr);
     abilityRecord->SetUid(abilityRequest.uid);
-    abilityRecord->SetAppIndex(abilityRequest.want.GetIntParam(DLP_INDEX, 0));
+    abilityRecord->SetAppIndex(AbilityRuntime::StartupUtil::GetAppIndex(abilityRequest.want));
     abilityRecord->SetCallerAccessTokenId(abilityRequest.callerAccessTokenId);
     abilityRecord->sessionInfo_ = abilityRequest.sessionInfo;
     if (!abilityRecord->Init()) {
@@ -269,29 +271,7 @@ std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityR
     abilityRecord->collaboratorType_ = abilityRequest.collaboratorType;
     abilityRecord->missionAffinity_ = abilityRequest.want.GetStringParam(PARAM_MISSION_AFFINITY_KEY);
 
-    if (abilityRecord->IsDebug() || abilityRecord->IsSceneBoard()) {
-        abilityRecord->abilityAppStateObserver_ = sptr<AbilityAppStateObserver>(
-            new AbilityAppStateObserver(abilityRecord));
-        DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->RegisterApplicationStateObserver(
-            abilityRecord->abilityAppStateObserver_, {abilityRequest.abilityInfo.bundleName});
-    }
     return abilityRecord;
-}
-
-void AbilityRecord::RemoveAppStateObserver(bool force)
-{
-    if (!force && IsSceneBoard()) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "Special ability no need to RemoveAppStateObserver.");
-        return;
-    }
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
-    if (handler && abilityAppStateObserver_) {
-        handler->SubmitTask([appStateObserver = abilityAppStateObserver_]() {
-                DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->UnregisterApplicationStateObserver(
-                    appStateObserver);
-            });
-        abilityAppStateObserver_ = nullptr;
-    }
 }
 
 bool AbilityRecord::Init()
@@ -432,14 +412,6 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     TAG_LOGI(AAFwkTag::ABILITYMGR, "ForegroundLifecycle: name:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
 
-    if (!IsDebug()) {
-        int foregroundTimeout =
-            AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
-        SendEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, foregroundTimeout / HALF_TIMEOUT);
-        std::string methodName = "ForegroundAbility";
-        g_addLifecycleEventTask(token_, FreezeUtil::TimeoutState::FOREGROUND, methodName);
-    }
-
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions
     SetAbilityStateInner(AbilityState::FOREGROUNDING);
@@ -519,6 +491,9 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t tokenId, uint32_t sceneFla
     }
 
     if (isReady_) {
+        if (!IsDebug()) {
+            PostForegroundTimeoutTask();
+        }
         if (IsAbilityState(AbilityState::FOREGROUND)) {
             TAG_LOGD(AAFwkTag::ABILITYMGR, "Activate %{public}s", element.c_str());
             ForegroundAbility(sceneFlag);
@@ -539,6 +514,15 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t tokenId, uint32_t sceneFla
         lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
         LoadAbility();
     }
+}
+
+void AbilityRecord::PostForegroundTimeoutTask()
+{
+    int foregroundTimeout =
+        AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
+    SendEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, foregroundTimeout / HALF_TIMEOUT);
+    std::string methodName = "ForegroundAbility";
+    g_addLifecycleEventTask(token_, FreezeUtil::TimeoutState::FOREGROUND, methodName);
 }
 
 std::string AbilityRecord::GetLabel()
@@ -581,6 +565,9 @@ void AbilityRecord::ProcessForegroundAbility(const std::shared_ptr<AbilityRecord
     NotifyAnimationFromTerminatingAbility(callerAbility, needExit, flag);
     PostCancelStartingWindowHotTask();
 
+    if (!IsDebug()) {
+        PostForegroundTimeoutTask();
+    }
     if (IsAbilityState(AbilityState::FOREGROUND)) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Activate %{public}s", element.c_str());
         ForegroundAbility(sceneFlag);
@@ -724,6 +711,9 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
             StartingWindowTask(isRecent, true, abilityRequest, startOptions);
             AnimationTask(isRecent, abilityRequest, startOptions, callerAbility);
             PostCancelStartingWindowColdTask();
+        }
+        if (!IsDebug()) {
+            PostForegroundTimeoutTask();
         }
         if (IsAbilityState(AbilityState::FOREGROUND)) {
             TAG_LOGD(AAFwkTag::ABILITYMGR, "Activate %{public}s", element.c_str());
@@ -1411,7 +1401,6 @@ void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
                     }
                 });
         }
-        RemoveAppStateObserver();
         isReady_ = true;
         scheduler_ = scheduler;
         lifecycleDeal_->SetScheduler(scheduler);
@@ -1626,7 +1615,7 @@ bool AbilityRecord::GrantUriPermissionForServiceExtension()
         std::lock_guard guard(wantLock_);
         auto callerTokenId = want_.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, 0);
         auto callerName = want_.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
-        TAG_LOGI(AAFwkTag::ABILITYMGR,
+        TAG_LOGD(AAFwkTag::ABILITYMGR,
             "CallerName is %{public}s, callerTokenId is %{public}u", callerName.c_str(), callerTokenId);
         GrantUriPermission(want_, applicationInfo_.bundleName, false, callerTokenId);
         return true;
@@ -1724,8 +1713,9 @@ void AbilityRecord::SendSandboxSavefileResult(const Want &want, int resultCode, 
             }
             Uri uri(uriStr);
             uint32_t initiatorTokenId = IPCSkeleton::GetCallingTokenID();
+            bool flag = Want::FLAG_AUTH_WRITE_URI_PERMISSION;
             auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(uri,
-                Want::FLAG_AUTH_WRITE_URI_PERMISSION, abilityInfo_.bundleName, appIndex_, initiatorTokenId));
+                flag, abilityInfo_.bundleName, appIndex_, initiatorTokenId, recordId_));
             if (ret != ERR_OK) {
                 TAG_LOGW(AAFwkTag::ABILITYMGR, "GrantUriPermission failed");
             }
@@ -1749,7 +1739,7 @@ void AbilityRecord::SendResultToCallers(bool schedulerdied)
         }
         std::shared_ptr<AbilityRecord> callerAbilityRecord = caller->GetCaller();
         if (callerAbilityRecord != nullptr && callerAbilityRecord->GetResult() != nullptr) {
-            bool isSandboxApp = appIndex_ > 0 ? true : false;
+            bool isSandboxApp = appIndex_ > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX ? true : false;
             callerAbilityRecord->SendResult(isSandboxApp, applicationInfo_.accessTokenId);
         } else {
             std::shared_ptr<SystemAbilityCallerRecord> callerSystemAbilityRecord = caller->GetSaCaller();
@@ -1902,7 +1892,9 @@ void AbilityRecord::RemoveConnectRecordFromList(const std::shared_ptr<Connection
 void AbilityRecord::RemoveSpecifiedWantParam(const std::string &key)
 {
     std::lock_guard guard(wantLock_);
-    want_.RemoveParam(key);
+    if (want_.HasParameter(key)) {
+        want_.RemoveParam(key);
+    }
 }
 
 void AbilityRecord::AddCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode, std::string srcAbilityId,
@@ -2374,7 +2366,10 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 void AbilityRecord::OnProcessDied()
 {
     std::lock_guard<ffrt::mutex> guard(lock_);
-    RemoveAppStateObserver(true);
+    if (!IsSceneBoard() && scheduler_ != nullptr) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "OnProcessDied: '%{public}s', attached.", abilityInfo_.name.c_str());
+        return;
+    }
     isWindowAttached_ = false;
 
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
@@ -3022,7 +3017,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     // reject sandbox to grant uri permission by start ability
     if (!callerList_.empty() && callerList_.back()) {
         auto caller = callerList_.back()->GetCaller();
-        if (caller && caller->appIndex_ > 0) {
+        if (caller && caller->appIndex_ > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Sandbox can not grant UriPermission by start ability.");
             return;
         }
@@ -3038,7 +3033,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     }
 
     if ((want.GetFlags() & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "Do not call uriPermissionMgr.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Do not call uriPermissionMgr.");
         return;
     }
     if (IsDmsCall(want)) {
@@ -3082,7 +3077,7 @@ void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string>
         return;
     }
     auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(validUriList, flag,
-        targetBundleName, appIndex_, callerTokenId));
+        targetBundleName, appIndex_, callerTokenId, recordId_));
     if (ret != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "grant uri permission failed, Error Code is %{public}d", ret);
         return;
@@ -3093,51 +3088,26 @@ void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string>
 bool AbilityRecord::GrantPermissionToShell(const std::vector<std::string> &strUriVec, uint32_t flag,
     std::string targetPkg)
 {
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Grant uri permission to shell.");
     std::vector<Uri> uriVec;
     for (auto&& str : strUriVec) {
         Uri uri(str);
         auto&& scheme = uri.GetScheme();
         if (scheme != "content") {
             return false;
-        } else {
-            uriVec.emplace_back(uri);
         }
+        uriVec.emplace_back(uri);
     }
 
     uint32_t initiatorTokenId = IPCSkeleton::GetCallingTokenID();
     for (auto&& uri : uriVec) {
         auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, flag, targetPkg,
-            appIndex_, initiatorTokenId));
+            appIndex_, initiatorTokenId, recordId_));
         if (ret == ERR_OK) {
             isGrantedUriPermission_ = true;
         }
     }
     return true;
-}
-
-void AbilityRecord::GrantUriPermissionFor2In1Inner(Want &want, std::vector<std::string> &uriVec,
-    const std::string &targetBundleName, uint32_t tokenId)
-{
-    std::vector<std::string> uriOtherVec;
-    std::vector<Uri> uri2In1Vec;
-    for (auto &&str : uriVec) {
-        Uri uri(str);
-        auto &&authority = uri.GetAuthority();
-        if (authority == "docs" && str.find("?networkid=") == std::string::npos) {
-            uri2In1Vec.emplace_back(uri);
-        } else {
-            uriOtherVec.emplace_back(str);
-        }
-    }
-    if (!uri2In1Vec.empty()) {
-        uint32_t flag = want.GetFlags();
-        auto isSystemAppCall = PermissionVerification::GetInstance()->IsSystemAppCall();
-        IN_PROCESS_CALL(AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermissionFor2In1(
-            uri2In1Vec, flag, targetBundleName, appIndex_, isSystemAppCall));
-    }
-    if (!uriOtherVec.empty()) {
-        GrantUriPermissionInner(want, uriOtherVec, targetBundleName, tokenId);
-    }
 }
 
 bool AbilityRecord::IsDmsCall(Want &want)
@@ -3184,7 +3154,7 @@ void AbilityRecord::RevokeUriPermission()
 {
     if (isGrantedUriPermission_) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "To remove uri permission.");
-        UriPermissionManagerClient::GetInstance().RevokeUriPermission(applicationInfo_.accessTokenId);
+        UriPermissionManagerClient::GetInstance().RevokeUriPermission(applicationInfo_.accessTokenId, recordId_);
         isGrantedUriPermission_ = false;
     }
 }

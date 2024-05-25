@@ -73,6 +73,13 @@ int32_t AppExitReasonHelper::RecordAppExitReason(const ExitReason &exitReason)
         currentMissionListManager->GetActiveAbilityList(bundleName, abilityList);
     }
 
+    auto pid = IPCSkeleton::GetCallingRealPid();
+    auto ret = DelayedSingleton<AppScheduler>::GetInstance()->NotifyAppMgrRecordExitReason(pid, exitReason.reason,
+        exitReason.exitMsg);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyAppMgrRecordExitReason failed.code: %{public}d", ret);
+    }
+
     if (abilityList.empty()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Active abilityLists empty.");
         return ERR_GET_ACTIVE_ABILITY_LIST_EMPTY;
@@ -116,6 +123,12 @@ int32_t AppExitReasonHelper::RecordProcessExitReason(const int32_t pid, const Ex
         GetActiveAbilityListByU0(bundleName, abilityLists, pid);
     } else {
         GetActiveAbilityListByUser(bundleName, abilityLists, targetUserId, pid);
+    }
+
+    auto ret = DelayedSingleton<AppScheduler>::GetInstance()->NotifyAppMgrRecordExitReason(pid, exitReason.reason,
+        exitReason.exitMsg);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyAppMgrRecordExitReason failed.code: %{public}d", ret);
     }
 
     if (abilityLists.empty()) {

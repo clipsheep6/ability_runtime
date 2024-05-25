@@ -19,8 +19,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "string_ex.h"
 #include "ipc_payload_statistics.h"
+#include "string_ex.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -29,7 +29,7 @@ const std::string DUMP_IPC_CMD_FAIL = "fail";
 
 void DumpIpcHelper::DumpIpcStart(std::string& result)
 {
-    result += "StartIpcStatistics pid: " + std::to_string(getpid()) + "\t";
+    result += "StartIpcStatistics pid: " + std::to_string(getprocpid()) + "\t";
     if (IPCPayloadStatistics::StartStatistics()) {
         result += DUMP_IPC_CMD_SUCCESS;
         return;
@@ -39,7 +39,7 @@ void DumpIpcHelper::DumpIpcStart(std::string& result)
 
 void DumpIpcHelper::DumpIpcStop(std::string& result)
 {
-    result += "StopIpcStatistics pid: " + std::to_string(getpid()) + "\t";
+    result += "StopIpcStatistics pid: " + std::to_string(getprocpid()) + "\t";
     if (IPCPayloadStatistics::StopStatistics()) {
         result += DUMP_IPC_CMD_SUCCESS;
         return;
@@ -51,7 +51,7 @@ void DumpIpcHelper::DumpIpcStat(std::string& result)
 {
     result += "********************************GlobalStatisticsInfo********************************";
     result += "\nCurrentPid:";
-    result += std::to_string(getpid());
+    result += std::to_string(getprocpid());
     result += "\nTotalCount:";
     result += std::to_string(IPCPayloadStatistics::GetTotalCount());
     result += "\nTotalTimeCost:";

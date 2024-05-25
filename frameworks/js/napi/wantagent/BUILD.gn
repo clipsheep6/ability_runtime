@@ -16,9 +16,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 ohos_shared_library("wantagent") {
   include_dirs = [
-    "//third_party/node/src",
     "${ability_runtime_services_path}/common/include",
-    "//third_party/libuv/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
     "${ability_runtime_services_path}/abilitymgr/include",
     "./",
@@ -30,7 +28,7 @@ ohos_shared_library("wantagent") {
   ]
 
   deps = [
-    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/error_utils:ability_runtime_error_util",
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_innerkits_path}/wantagent:wantagent_innerkits",
@@ -46,7 +44,9 @@ ohos_shared_library("wantagent") {
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "libuv:uv",
     "napi:ace_napi",
+    "node:node_header_notice",
   ]
 
   relative_install_dir = "module"

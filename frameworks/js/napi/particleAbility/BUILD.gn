@@ -13,15 +13,11 @@
 
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
-import("//foundation/distributeddatamgr/relational_store/relational_store.gni")
 
 ohos_shared_library("particleability") {
   include_dirs = [
-    "//third_party/node/src",
     "${ability_runtime_napi_path}/featureAbility",
     "${ability_runtime_services_path}/common/include",
-    "//third_party/jsoncpp",
-    "//third_party/jsoncpp/include/json",
   ]
 
   sources = [
@@ -35,6 +31,7 @@ ohos_shared_library("particleability") {
 
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
     "${ability_runtime_innerkits_path}/napi_base_context:napi_base_context",
     "${ability_runtime_innerkits_path}/runtime:runtime",
@@ -44,8 +41,6 @@ ohos_shared_library("particleability") {
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/ability/native:data_ability_helper",
     "${ability_runtime_native_path}/appkit:appkit_native",
-    "//third_party/jsoncpp:jsoncpp",
-    "//third_party/libuv:uv",
   ]
 
   external_deps = [
@@ -58,7 +53,10 @@ ohos_shared_library("particleability") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "jsoncpp:jsoncpp",
+    "libuv:uv",
     "napi:ace_napi",
+    "node:node_header_notice",
   ]
 
   if (ability_runtime_relational) {

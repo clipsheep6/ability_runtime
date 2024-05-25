@@ -596,8 +596,9 @@ void AppStateObserverManager::HandleOnProcessStateChanged(const std::shared_ptr<
     }
     ProcessData data = WrapProcessData(appRecord);
     TAG_LOGD(AAFwkTag::APPMGR,
-        "bundle:%{public}s pid:%{public}d uid:%{public}d state:%{public}d isContinuousTask:%{public}d",
-        data.bundleName.c_str(), data.pid, data.uid, data.state, data.isContinuousTask);
+        "bundle:%{public}s, pid:%{public}d, uid:%{public}d, state:%{public}d, "
+        "isContinuousTask:%{public}d, gpuPid:%{public}d",
+        data.bundleName.c_str(), data.pid, data.uid, data.state, data.isContinuousTask, data.gpuPid);
     auto appStateObserverMapCopy = GetAppStateObserverMapCopy();
     for (auto it = appStateObserverMapCopy.begin(); it != appStateObserverMapCopy.end(); ++it) {
         std::vector<std::string>::iterator iter = std::find(it->second.begin(),
@@ -615,8 +616,9 @@ void AppStateObserverManager::HandleOnAppProcessDied(const std::shared_ptr<AppRu
         return;
     }
     ProcessData data = WrapProcessData(appRecord);
-    TAG_LOGD(AAFwkTag::APPMGR, "Process died, bundle:%{public}s, pid:%{public}d, uid:%{public}d, renderUid:%{public}d",
-        data.bundleName.c_str(), data.pid, data.uid, data.renderUid);
+    TAG_LOGD(AAFwkTag::APPMGR, "Process died, bundle:%{public}s, pid:%{public}d, uid:%{public}d, renderUid:%{public}d,"
+        " exitReason:%{public}d, exitMsg:%{public}s",
+        data.bundleName.c_str(), data.pid, data.uid, data.renderUid, data.exitReason, data.exitMsg.c_str());
     HandleOnProcessDied(data);
 }
 
@@ -667,6 +669,9 @@ ProcessData AppStateObserverManager::WrapProcessData(const std::shared_ptr<AppRu
     if (appRecord->GetUserTestInfo() != nullptr && system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
         processData.isTestMode = true;
     }
+    processData.exitReason = appRecord->GetExitReason();
+    processData.exitMsg = appRecord->GetExitMsg();
+    processData.gpuPid = appRecord->GetGPUPid();
     return processData;
 }
 
@@ -679,6 +684,7 @@ ProcessData AppStateObserverManager::WrapRenderProcessData(const std::shared_ptr
     processData.renderUid = renderRecord->GetUid();
     processData.processName = renderRecord->GetProcessName();
     processData.processType = renderRecord->GetProcessType();
+    processData.hostPid = renderRecord->GetHostPid();
     return processData;
 }
 
@@ -806,7 +812,7 @@ AbilityforegroundObserverSet AppStateObserverManager::GetAbilityforegroundObserv
 void AppStateObserverManager::OnObserverDied(const wptr<IRemoteObject> &remote, const ObserverType &type)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::APPMGR, "OnObserverDied");
+    TAG_LOGD(AAFwkTag::APPMGR, "OnObserverDied");
     auto object = remote.promote();
     if (object == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "observer nullptr.");

@@ -29,7 +29,7 @@ void JSAppForegroundStateObserver::OnAppStateChanged(const AppStateData &appStat
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (!valid_) {
-        TAG_LOGE(AAFwkTag::APPMGR, "The app manager may has destoryed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "The app manager may has destroyed.");
         return;
     }
     wptr<JSAppForegroundStateObserver> self = this;

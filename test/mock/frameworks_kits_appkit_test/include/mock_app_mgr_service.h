@@ -55,10 +55,11 @@ public:
     MOCK_METHOD0(BlockAppService, int());
 #endif
     MOCK_METHOD0(PreStartNWebSpawnProcess, int());
-    MOCK_METHOD5(StartRenderProcess,
+    MOCK_METHOD6(StartRenderProcess,
                  int(const std::string &renderParam, int32_t ipcFd,
-                     int32_t sharedFd, int32_t crashFd, pid_t &renderPid));
+                     int32_t sharedFd, int32_t crashFd, pid_t &renderPid, bool isGPU));
     MOCK_METHOD1(AttachRenderProcess, void(const sptr<IRemoteObject>& renderScheduler));
+    MOCK_METHOD1(SaveBrowserChannel, void(sptr<IRemoteObject> browser));
     MOCK_METHOD2(GetRenderProcessTerminationStatus, int(pid_t renderPid, int& status));
     MOCK_METHOD1(GetConfiguration, int32_t(Configuration& config));
     MOCK_METHOD1(UpdateConfiguration, int32_t(const Configuration& config));
@@ -83,6 +84,11 @@ public:
     MOCK_METHOD1(RegisterRenderStateObserver, int32_t(const sptr<IRenderStateObserver> &observer));
     MOCK_METHOD1(UnregisterRenderStateObserver, int32_t(const sptr<IRenderStateObserver> &observer));
     MOCK_METHOD2(UpdateRenderState, int32_t(pid_t renderPid, int32_t state));
+    MOCK_METHOD1(SetSupportedProcessCacheSelf, int32_t(bool isSupported));
+    MOCK_METHOD2(GetRunningMultiAppInfoByBundleName, int32_t(const std::string &bundleName,
+        RunningMultiAppInfo &info));
+    MOCK_METHOD3(StartNativeChildProcess, int32_t(const std::string &libName, int32_t childProcessCount,
+        const sptr<IRemoteObject> &callback));
 
     void AttachApplication(const sptr<IRemoteObject>& app)
     {

@@ -328,19 +328,38 @@ HWTEST_F(UriPermissionImplTest, Upms_VerifyUriPermission_001, TestSize.Level1)
     std::string uri = "file://com.example.test/data/storage/el2/base/haps/entry/files/test_A.txt";
     auto flagRead = 1;
     auto flagWrite = 2;
-    
-    upms->AddTempUriPermission(uri, flagRead, callerTokenId, targetTokenId, false);
+    auto flagReadWrite = 3;
+    // read
+    upms->uriMap_.clear();
+    upms->AddTempUriPermission(uri, flagRead, callerTokenId, targetTokenId, 0);
     auto ret = upms->VerifyUriPermission(Uri(uri), flagRead, targetTokenId);
     ASSERT_EQ(ret, true);
     ret = upms->VerifyUriPermission(Uri(uri), flagWrite, targetTokenId);
     ASSERT_EQ(ret, false);
+    ret = upms->VerifyUriPermission(Uri(uri), flagReadWrite, targetTokenId);
+    ASSERT_EQ(ret, false);
     
-    upms->AddTempUriPermission(uri, flagWrite, callerTokenId, targetTokenId, false);
+    // write
+    upms->uriMap_.clear();
+    upms->AddTempUriPermission(uri, flagWrite, callerTokenId, targetTokenId, 0);
     ret = upms->VerifyUriPermission(Uri(uri), flagRead, targetTokenId);
     ASSERT_EQ(ret, true);
     ret = upms->VerifyUriPermission(Uri(uri), flagWrite, targetTokenId);
     ASSERT_EQ(ret, true);
+    ret = upms->VerifyUriPermission(Uri(uri), flagReadWrite, targetTokenId);
+    ASSERT_EQ(ret, true);
 
+    // flagReadWrite
+    upms->uriMap_.clear();
+    upms->AddTempUriPermission(uri, flagReadWrite, callerTokenId, targetTokenId, 0);
+    ret = upms->VerifyUriPermission(Uri(uri), flagRead, targetTokenId);
+    ASSERT_EQ(ret, true);
+    ret = upms->VerifyUriPermission(Uri(uri), flagWrite, targetTokenId);
+    ASSERT_EQ(ret, true);
+    ret = upms->VerifyUriPermission(Uri(uri), flagReadWrite, targetTokenId);
+    ASSERT_EQ(ret, true);
+    
+    // no permission record
     ret = upms->VerifyUriPermission(Uri(uri), flagRead, invalidTokenId);
     ASSERT_EQ(ret, false);
 }
@@ -411,14 +430,14 @@ HWTEST_F(UriPermissionImplTest, Upms_CheckUriPermission_001, TestSize.Level1)
     ASSERT_EQ(ret, false);
 
     // read
-    upms->AddTempUriPermission(mediaPhotoUri.ToString(), flagRead, callerTokenId, targetTokenId, false);
+    upms->AddTempUriPermission(mediaPhotoUri.ToString(), flagRead, callerTokenId, targetTokenId, 0);
     ret = upms->CheckUriPermission(mediaPhotoUri, flagRead, tokenIdPermission);
     ASSERT_EQ(ret, true);
     ret = upms->CheckUriPermission(mediaPhotoUri, flagWrite, tokenIdPermission);
     ASSERT_EQ(ret, false);
     
     // write
-    upms->AddTempUriPermission(mediaPhotoUri.ToString(), flagWrite, callerTokenId, targetTokenId, false);
+    upms->AddTempUriPermission(mediaPhotoUri.ToString(), flagWrite, callerTokenId, targetTokenId, 0);
     ret = upms->CheckUriPermission(mediaPhotoUri, flagWrite, tokenIdPermission);
     ASSERT_EQ(ret, true);
     MyFlag::permissionProxyAuthorization_ = false;
@@ -473,14 +492,14 @@ HWTEST_F(UriPermissionImplTest, Upms_CheckUriPermission_002, TestSize.Level1)
     ASSERT_EQ(ret, false);
 
     // read
-    upms->AddTempUriPermission(mediaAudioUri.ToString(), flagRead, callerTokenId, targetTokenId, false);
+    upms->AddTempUriPermission(mediaAudioUri.ToString(), flagRead, callerTokenId, targetTokenId, 0);
     ret = upms->CheckUriPermission(mediaAudioUri, flagRead, tokenIdPermission);
     ASSERT_EQ(ret, true);
     ret = upms->CheckUriPermission(mediaAudioUri, flagWrite, tokenIdPermission);
     ASSERT_EQ(ret, false);
     
     // write
-    upms->AddTempUriPermission(mediaAudioUri.ToString(), flagWrite, callerTokenId, targetTokenId, false);
+    upms->AddTempUriPermission(mediaAudioUri.ToString(), flagWrite, callerTokenId, targetTokenId, 0);
     ret = upms->CheckUriPermission(mediaAudioUri, flagWrite, tokenIdPermission);
     ASSERT_EQ(ret, true);
     MyFlag::permissionProxyAuthorization_ = false;
@@ -526,14 +545,14 @@ HWTEST_F(UriPermissionImplTest, Upms_CheckUriPermission_003, TestSize.Level1)
     ASSERT_EQ(ret, false);
 
     // read
-    upms->AddTempUriPermission(docsUri.ToString(), flagRead, callerTokenId, targetTokenId, false);
+    upms->AddTempUriPermission(docsUri.ToString(), flagRead, callerTokenId, targetTokenId, 0);
     ret = upms->CheckUriPermission(docsUri, flagRead, tokenIdPermission);
     ASSERT_EQ(ret, true);
     ret = upms->CheckUriPermission(docsUri, flagWrite, tokenIdPermission);
     ASSERT_EQ(ret, false);
     
     // write
-    upms->AddTempUriPermission(docsUri.ToString(), flagWrite, callerTokenId, targetTokenId, false);
+    upms->AddTempUriPermission(docsUri.ToString(), flagWrite, callerTokenId, targetTokenId, 0);
     ret = upms->CheckUriPermission(docsUri, flagWrite, tokenIdPermission);
     ASSERT_EQ(ret, true);
     MyFlag::permissionProxyAuthorization_ = false;
@@ -578,19 +597,48 @@ HWTEST_F(UriPermissionImplTest, Upms_CheckUriPermission_004, TestSize.Level1)
     ASSERT_EQ(ret, false);
     
     // read
-    upms->AddTempUriPermission(uri1.ToString(), flagRead, callerTokenId, targetTokenId, false);
+    upms->AddTempUriPermission(uri1.ToString(), flagRead, callerTokenId, targetTokenId, 0);
     ret = upms->CheckUriPermission(uri1, flagRead, tokenIdPermission);
     ASSERT_EQ(ret, true);
     ret = upms->CheckUriPermission(uri1, flagWrite, tokenIdPermission);
     ASSERT_EQ(ret, false);
     
     // write
-    upms->AddTempUriPermission(uri1.ToString(), flagWrite, callerTokenId, targetTokenId, false);
+    upms->AddTempUriPermission(uri1.ToString(), flagWrite, callerTokenId, targetTokenId, 0);
     ret = upms->CheckUriPermission(uri1, flagRead, tokenIdPermission);
     ASSERT_EQ(ret, true);
     ret = upms->CheckUriPermission(uri1, flagWrite, tokenIdPermission);
     ASSERT_EQ(ret, true);
     MyFlag::permissionProxyAuthorization_ = false;
+}
+
+/*
+ * Feature: UriPermissionManagerStubImpl
+ * Function: CheckUriPermission
+ * SubFunction: NA
+ * FunctionPoints: Check content uri.
+*/
+HWTEST_F(UriPermissionImplTest, Upms_CheckUriPermission_005, TestSize.Level1)
+{
+    auto upms = std::make_unique<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
+    MyFlag::flag_ |= MyFlag::IS_SA_CALL;
+    auto uri = Uri("content://com.example.app1001/data/storage/el2/base/haps/entry/files/test_001.txt");
+    uint32_t flagRead = 1;
+    
+    uint32_t callerTokenId1 = 1001;
+    IPCSkeleton::callerTokenId = callerTokenId1;
+    MyFlag::tokenInfos[callerTokenId1] = TokenInfo(callerTokenId1, MyATokenTypeEnum::TOKEN_NATIVE, "foundation");
+    TokenIdPermission tokenIdPermission1(callerTokenId1);
+    auto ret = upms->CheckUriPermission(uri, flagRead, tokenIdPermission1);
+    ASSERT_EQ(ret, true);
+
+    uint32_t callerTokenId2 = 1002;
+    IPCSkeleton::callerTokenId = callerTokenId2;
+    MyFlag::tokenInfos[callerTokenId2] = TokenInfo(callerTokenId2, MyATokenTypeEnum::TOKEN_NATIVE, "testProcess");
+    TokenIdPermission tokenIdPermission2(callerTokenId2);
+    ret = upms->CheckUriPermission(uri, flagRead, tokenIdPermission2);
+    ASSERT_EQ(ret, false);
 }
 
 /*

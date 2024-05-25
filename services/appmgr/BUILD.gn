@@ -23,13 +23,9 @@ config("appmgr_config") {
     "${ability_runtime_services_path}/common/include",
     "${ability_runtime_path}/tools/aa/include",
     "${ability_runtime_path}/utils/global/time/include",
-    "${distributeddatamgr_path}/kv_store/interfaces/innerkits/distributeddatamgr/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
+    "${ability_runtime_utils_path}/global/constant",
   ]
-}
-
-config("appmgr_exception_config") {
-  cflags_cc = [ "-fexceptions" ]
 }
 
 group("appms_target") {
@@ -37,6 +33,12 @@ group("appms_target") {
 }
 
 ohos_shared_library("libappms") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
   shlib_type = "sa"
   include_dirs = [ "${ability_runtime_services_path}/appdfr/include" ]
   sources = [
@@ -83,10 +85,7 @@ ohos_shared_library("libappms") {
     defines += [ "ABILITY_FAULT_AND_EXIT_TEST" ]
   }
 
-  configs = [
-    ":appmgr_config",
-    ":appmgr_exception_config",
-  ]
+  configs = [ ":appmgr_config" ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
@@ -97,6 +96,7 @@ ohos_shared_library("libappms") {
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_path}/utils/global/freeze:freeze_util",
+    "${ability_runtime_path}/utils/server/startup:startup_util",
     "${ability_runtime_services_path}/common:app_util",
     "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",
@@ -129,8 +129,7 @@ ohos_shared_library("libappms") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
-
-  defines += [ "OHOS_ACCOUNT_ENABLED" ]
+  public_external_deps = [ "kv_store:distributeddata_mgr" ]
 
   if (product_name != "ohcore") {
     external_deps += [ "netmanager_base:net_conn_manager_if" ]

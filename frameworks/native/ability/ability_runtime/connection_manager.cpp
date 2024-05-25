@@ -255,8 +255,7 @@ void ConnectionManager::DisconnectNonexistentService(
     for (auto &&abilityConnection : abilityConnections) {
         ConnectionInfo connectionInfo = abilityConnection.first;
         if (connectionInfo.abilityConnection == connection &&
-            connectionInfo.connectReceiver.GetBundleName() == element.GetBundleName() &&
-            connectionInfo.connectReceiver.GetAbilityName() == element.GetAbilityName()) {
+            connectionInfo.connectReceiver.GetBundleName() == element.GetBundleName()) {
             HILOG_DEBUG("find connection.");
             exit = true;
             break;

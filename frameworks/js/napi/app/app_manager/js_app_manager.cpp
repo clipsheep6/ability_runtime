@@ -94,7 +94,7 @@ public:
     static napi_value KillProcessesByBundleName(napi_env env, napi_callback_info info)
     {
         TAG_LOGD(AAFwkTag::APPMGR, "KillProcessesByBundleName start.");
-        GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnkillProcessByBundleName);
+        GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnKillProcessByBundleName);
     }
 
     static napi_value ClearUpApplicationData(napi_env env, napi_callback_info info)
@@ -130,7 +130,7 @@ private:
         }
         static int64_t serialNumber = 0;
         std::vector<std::string> bundleNameList;
-        // unwarp observer
+        // unwrap observer
         if (observer_ == nullptr) {
             observer_ = new JSAppStateObserver(env);
         }
@@ -310,9 +310,9 @@ private:
         return result;
     }
 
-    napi_value OnkillProcessByBundleName(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnKillProcessByBundleName(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGD(AAFwkTag::APPMGR, "OnkillProcessByBundleName called");
+        TAG_LOGD(AAFwkTag::APPMGR, "called");
         int32_t errCode = 0;
         std::string bundleName;
 
@@ -350,7 +350,7 @@ private:
 
         napi_value lastParam = (argc == ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnkillProcessByBundleName",
+        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnKillProcessByBundleName",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }

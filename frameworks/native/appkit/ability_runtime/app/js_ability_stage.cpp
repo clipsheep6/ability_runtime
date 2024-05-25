@@ -49,7 +49,7 @@ constexpr const char* RUN_ON_THREAD = "runOnThread";
 constexpr const char* WAIT_ON_MAIN_THREAD = "waitOnMainThread";
 constexpr const char* CONFIG_ENTRY = "configEntry";
 constexpr const char *MAIN_THREAD = "mainThread";
-constexpr const char *TASKPOOL = "taskpool";
+constexpr const char *TASKPOOL = "taskPool";
     
 napi_value AttachAbilityStageContext(napi_env env, void *value, void *)
 {
@@ -169,39 +169,8 @@ void JsAbilityStage::Init(const std::shared_ptr<Context> &context,
         TAG_LOGE(AAFwkTag::APPKIT, "stage is nullptr");
         return;
     }
-
-    HandleScope handleScope(jsRuntime_);
-    auto env = jsRuntime_.GetNapiEnv();
-
-    napi_value obj = jsAbilityStageObj_->GetNapiValue();
-    if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::APPKIT, "Failed to get AbilityStage object");
-        return;
-    }
-
-    napi_value contextObj = CreateJsAbilityStageContext(env, context, nullptr, nullptr);
-    shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.AbilityStageContext", &contextObj, 1);
-    if (shellContextRef_ == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "Failed to get LoadSystemModuleByEngine");
-        return;
-    }
-    contextObj = shellContextRef_->GetNapiValue();
-    if (!CheckTypeForNapiValue(env, contextObj, napi_object)) {
-        TAG_LOGE(AAFwkTag::APPKIT, "Failed to get context native object");
-        return;
-    }
-    auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::Context>(context);
-    napi_coerce_to_native_binding_object(
-        env, contextObj, DetachCallbackFunc, AttachAbilityStageContext, workContext, nullptr);
-    context->Bind(jsRuntime_, shellContextRef_.get());
-    napi_set_named_property(env, obj, "context", contextObj);
-    TAG_LOGD(AAFwkTag::APPKIT, "Set ability stage context");
-    napi_wrap(env, contextObj, workContext,
-        [](napi_env, void* data, void*) {
-            TAG_LOGD(AAFwkTag::APPKIT, "Finalizer for weak_ptr ability stage context is called");
-            delete static_cast<std::weak_ptr<AbilityRuntime::Context>*>(data);
-        },
-        nullptr, nullptr);
+    
+    SetJsAbilityStage(context);
 }
 
 void JsAbilityStage::OnCreate(const AAFwk::Want &want) const
@@ -383,7 +352,8 @@ void JsAbilityStage::OnMemoryLevel(int32_t level)
     TAG_LOGD(AAFwkTag::APPKIT, "end");
 }
 
-int32_t JsAbilityStage::RunAutoStartupTask(const std::function<void()> &callback, bool &isAsyncCallback)
+int32_t JsAbilityStage::RunAutoStartupTask(const std::function<void()> &callback, bool &isAsyncCallback,
+    const std::shared_ptr<Context> &stageContext)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "called");
     isAsyncCallback = false;
@@ -397,12 +367,13 @@ int32_t JsAbilityStage::RunAutoStartupTask(const std::function<void()> &callback
         TAG_LOGE(AAFwkTag::APPKIT, "hapModuleInfo invalid.");
         return ERR_INVALID_VALUE;
     }
-    if (hapModuleInfo->moduleType != AppExecFwk::ModuleType::ENTRY ||
-    hapModuleInfo->appStartup.empty()) {
+    if (hapModuleInfo->moduleType != AppExecFwk::ModuleType::ENTRY || hapModuleInfo->appStartup.empty()) {
         TAG_LOGD(AAFwkTag::APPKIT, "not entry module or appStartup not exist.");
         return ERR_INVALID_VALUE;
     }
-
+    if (!shellContextRef_) {
+        SetJsAbilityStage(stageContext);
+    }
     std::vector<JsStartupTask> jsStartupTasks;
     int32_t result = RegisterStartupTaskFromProfile(jsStartupTasks);
     if (result != ERR_OK) {
@@ -802,6 +773,53 @@ bool JsAbilityStage::GetResFromResMgr(
     }
     profileInfo.emplace_back(profile);
     return true;
+}
+
+void JsAbilityStage::SetJsAbilityStage(const std::shared_ptr<Context> &context)
+{
+    if (!context) {
+        TAG_LOGE(AAFwkTag::APPKIT, "context is nullptr");
+        return;
+    }
+    
+    HandleScope handleScope(jsRuntime_);
+    auto env = jsRuntime_.GetNapiEnv();
+    
+    napi_value obj = nullptr;
+    if (jsAbilityStageObj_) {
+        obj = jsAbilityStageObj_->GetNapiValue();
+        if (!CheckTypeForNapiValue(env, obj, napi_object)) {
+            TAG_LOGE(AAFwkTag::APPKIT, "Failed to get AbilityStage object");
+            return;
+        }
+    }
+    
+    napi_value contextObj = CreateJsAbilityStageContext(env, context, nullptr, nullptr);
+    shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.AbilityStageContext", &contextObj, 1);
+    if (shellContextRef_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Failed to get LoadSystemModuleByEngine");
+        return;
+    }
+    contextObj = shellContextRef_->GetNapiValue();
+    if (!CheckTypeForNapiValue(env, contextObj, napi_object)) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Failed to get context native object");
+        return;
+    }
+    auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::Context>(context);
+    napi_coerce_to_native_binding_object(
+        env, contextObj, DetachCallbackFunc, AttachAbilityStageContext, workContext, nullptr);
+    context->Bind(jsRuntime_, shellContextRef_.get());
+    
+    if (obj != nullptr) {
+        napi_set_named_property(env, obj, "context", contextObj);
+    }
+    TAG_LOGD(AAFwkTag::APPKIT, "Set ability stage context");
+    napi_wrap(env, contextObj, workContext,
+        [](napi_env, void* data, void*) {
+            TAG_LOGD(AAFwkTag::APPKIT, "Finalizer for weak_ptr ability stage context is called");
+            delete static_cast<std::weak_ptr<AbilityRuntime::Context>*>(data);
+        },
+        nullptr, nullptr);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

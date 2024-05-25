@@ -49,7 +49,7 @@ private:
 
     napi_env env_;
     std::vector<std::shared_ptr<NativeReference>> callbacks_;
-    std::mutex mutexlock;
+    std::mutex mutexlock_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

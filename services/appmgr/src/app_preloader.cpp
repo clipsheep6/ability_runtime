@@ -23,6 +23,7 @@
 #include "hitrace_meter.h"
 #include "res_sched_client.h"
 #include "res_type.h"
+#include "startup_util.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -114,9 +115,7 @@ bool AppPreloader::GetLaunchAbilityInfo(const AAFwk::Want &want, int32_t userId,
         return false;
     }
 
-    auto abilityInfoFlag = (AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA);
+    auto abilityInfoFlag = AbilityRuntime::StartupUtil::BuildAbilityInfoFlag();
     if (!IN_PROCESS_CALL(bundleMgrHelper->QueryAbilityInfo(want, abilityInfoFlag, userId, abilityInfo))) {
         TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication GetLaunchAbilityInfo failed.");
         return false;

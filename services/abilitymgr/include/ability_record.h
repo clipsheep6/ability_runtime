@@ -57,7 +57,6 @@ class ConnectionRecord;
 class Mission;
 class MissionList;
 class CallContainer;
-class AbilityAppStateObserver;
 
 constexpr const char* ABILITY_TOKEN_NAME = "AbilityToken";
 constexpr const char* LAUNCHER_BUNDLE_NAME = "com.ohos.launcher";
@@ -357,6 +356,12 @@ public:
      *
      */
     void ProcessForegroundAbility(uint32_t tokenId, uint32_t sceneFlag = 0);
+
+     /**
+     * post foreground timeout task for ui ability.
+     *
+     */
+    void PostForegroundTimeoutTask();
 
     /**
      * move the ability to back ground.
@@ -995,7 +1000,6 @@ private:
      */
     void GetAbilityTypeString(std::string &typeStr);
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
-    void RemoveAppStateObserver(bool force = false);
     void GrantUriPermission(Want &want, std::string targetBundleName, bool isSandboxApp, uint32_t tokenId);
     void GrantDmsUriPermission(Want &want, std::string targetBundleName);
     bool IsDmsCall(Want &want);
@@ -1171,7 +1175,6 @@ private:
     // scene session
     sptr<SessionInfo> sessionInfo_ = nullptr;
     mutable ffrt::mutex sessionLock_;
-    sptr<AbilityAppStateObserver> abilityAppStateObserver_;
     std::map<uint64_t, AbilityWindowState> abilityWindowStateMap_;
     sptr<SessionInfo> uiExtRequestSessionInfo_ = nullptr;
 

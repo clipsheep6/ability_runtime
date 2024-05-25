@@ -16,6 +16,7 @@
 #include "parser_util.h"
 
 #include <fstream>
+#include <unistd.h>
 
 #include "config_policy_utils.h"
 #include "hilog_tag_wrapper.h"
@@ -145,6 +146,11 @@ void ParserUtil::GetPreInstallRootDirList(std::vector<std::string> &rootDirList)
 
 bool ParserUtil::ReadFileIntoJson(const std::string &filePath, nlohmann::json &jsonBuf)
 {
+    if (access(filePath.c_str(), F_OK) != 0) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "File path is not exist.");
+        return false;
+    }
+
     if (filePath.empty()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "File path empty.");
         return false;

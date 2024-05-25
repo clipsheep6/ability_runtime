@@ -16,13 +16,14 @@
 #ifndef OHOS_ABILITY_RUNTIME_APP_MGR_PROXY_H
 #define OHOS_ABILITY_RUNTIME_APP_MGR_PROXY_H
 
+#include "app_jsheap_mem_info.h"
 #include "app_malloc_info.h"
 #include "app_mgr_interface.h"
 #include "bundle_info.h"
 #include "iremote_proxy.h"
 #include "memory_level_info.h"
+#include "running_process_info.h"
 #include "want.h"
-#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -121,6 +122,16 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int32_t GetAllRunningProcesses(std::vector<RunningProcessInfo> &info) override;
+
+    /**
+     * GetALLRunningMultiAppInfo, call GetALLRunningMultiAppInfo() through proxy project.
+     * Obtains information about multiapp that are running on the device.
+     *
+     * @param info, app name in multiappinfo.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t GetRunningMultiAppInfoByBundleName(const std::string &bundleName,
+        RunningMultiAppInfo &info) override;
 
     /**
      * GetRunningProcessesByBundleType, call GetRunningProcessesByBundleType() through proxy project.
@@ -306,11 +317,12 @@ public:
      * @param sharedFd, shared memory file descriptior.
      * @param crashFd, crash signal file descriptior.
      * @param renderPid, created render pid.
+     * @param isGPU, is or not GPU process
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int StartRenderProcess(const std::string &renderParam,
                                    int32_t ipcFd, int32_t sharedFd,
-                                   int32_t crashFd, pid_t &renderPid) override;
+                                   int32_t crashFd, pid_t &renderPid, bool isGPU = false) override;
 
     /**
      * Render process call this to attach app manager service.
@@ -395,6 +407,15 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid) override;
+
+    /**
+     * Get running process information by pid.
+     *
+     * @param pid process id.
+     * @param info Output parameters, return runningProcessInfo.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) override;
 
     /**
      * get memorySize by pid.
@@ -568,6 +589,26 @@ public:
     virtual int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent) override;
 
     int32_t SetSupportedProcessCacheSelf(bool isSupport) override;
+
+    /**
+     * Set application assertion pause state.
+     *
+     * @param flag assertion pause state.
+     */
+    void SetAppAssertionPauseState(bool flag) override;
+
+    /**
+     * Start native child process, callde by ChildProcessManager.
+     * @param libName lib file name to be load in child process
+     * @param childProcessCount current started child process count
+     * @param callback callback for notify start result
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t StartNativeChildProcess(const std::string &libName, int32_t childProcessCount,
+        const sptr<IRemoteObject> &callback) override;
+
+    virtual void SaveBrowserChannel(sptr<IRemoteObject> browser) override;
+
 private:
     bool SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply);
     bool WriteInterfaceToken(MessageParcel &data);
