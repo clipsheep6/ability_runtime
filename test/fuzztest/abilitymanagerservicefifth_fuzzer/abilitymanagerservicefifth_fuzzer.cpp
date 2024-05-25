@@ -97,7 +97,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     if (want) {
         delete want;
         want = nullptr;
-    } 
+    }
     return true;
 }
 }
