@@ -118,7 +118,7 @@ protected:
     void StartAbilityForResultRuntimeTask(napi_env env, AAFwk::Want &want,
         std::shared_ptr<NapiAsyncTask> asyncTask, size_t& unwrapArgc, AAFwk::StartOptions startOptions);
     bool CheckStartAbilityByTypeParam(napi_env env, NapiCallbackInfo& info, std::string type,
-        AAFwk::WantParams wantParam);
+        AAFwk::WantParams& wantParam);
 
 private:
     sptr<AAFwk::SessionInfo> sessionInfo_;
