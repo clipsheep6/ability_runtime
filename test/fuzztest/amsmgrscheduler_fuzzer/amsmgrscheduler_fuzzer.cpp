@@ -61,20 +61,23 @@ sptr<Token> GetFuzzAbilityToken()
 
     return token;
 }
-bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
+void DoSomethingInterestingWithMyAPI1(sptr<IRemoteObject> token, sptr<IRemoteObject> preToken)
 {
     std::shared_ptr<AppMgrServiceInner> mgrServiceInner;
     std::shared_ptr<AAFwk::TaskHandlerWrap> handler;
     AmsMgrScheduler amsMgrScheduler(mgrServiceInner, handler);
     sptr<IStartSpecifiedAbilityResponse> response;
     amsMgrScheduler.RegisterStartSpecifiedAbilityResponse(response);
-    sptr<IRemoteObject> token = GetFuzzAbilityToken();
-    sptr<IRemoteObject> preToken = nullptr;
     std::shared_ptr<AbilityInfo> abilityInfoptr;
     std::shared_ptr<ApplicationInfo> appInfo;
     std::shared_ptr<AAFwk::Want> wantptr;
     int32_t abilityRecordId = static_cast<int32_t>(GetU32Data(data));
     amsMgrScheduler.LoadAbility(token, preToken, abilityInfoptr, appInfo, wantptr, abilityRecordId);
+}
+bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
+{
+    sptr<IRemoteObject> token = GetFuzzAbilityToken();
+    sptr<IRemoteObject> preToken = nullptr;
     AppExecFwk::AbilityState state = AppExecFwk::AbilityState::ABILITY_STATE_READY;
     amsMgrScheduler.UpdateAbilityState(token, state);
     AppExecFwk::ExtensionState extensionState = AppExecFwk::ExtensionState::EXTENSION_STATE_READY;
