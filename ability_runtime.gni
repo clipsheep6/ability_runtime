@@ -28,6 +28,10 @@ ace_engine_path = "//foundation/arkui/ace_engine"
 arkui_path = "//foundation/arkui"
 previewer_path = "//ide/tools/previewer"
 simulator_path = "//foundation/ability/ability_runtime/frameworks/simulator"
+cj_napi_path = "//foundation//arkui/napi"
+
+napi_path = "//foundation//arkui/napi"
+
 
 bundlefwk_path = "//foundation/bundlemanager/bundle_framework"
 bundlefwk_inner_api_path = "${bundlefwk_path}/interfaces/inner_api"
@@ -88,6 +92,7 @@ bgtaskmgr_interfaces_path = "${bgtaskmgr_root_path}/interfaces"
 bgtaskmgr_frameworks_path = "${bgtaskmgr_root_path}/frameworks"
 os_account_path = "//base/account/os_account"
 access_token_path = "//base/security/access_token"
+cj_ability_path = "${ability_runtime_path}/frameworks/cj"
 
 declare_args() {
   background_task_mgr_continuous_task_enable = true

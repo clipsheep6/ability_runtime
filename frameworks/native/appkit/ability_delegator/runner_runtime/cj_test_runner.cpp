@@ -1,4 +1,5 @@
 /*
+
  * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +14,7 @@
  * limitations under the License.
  */
 
+
 #include "runner_runtime/cj_test_runner.h"
 
 #include <regex>
@@ -24,6 +26,7 @@
 namespace OHOS {
 namespace RunnerRuntime {
 
+
 std::unique_ptr<TestRunner> CJTestRunner::Create(const std::unique_ptr<Runtime> &runtime,
     const std::shared_ptr<AbilityDelegatorArgs> &args, const AppExecFwk::BundleInfo &bundleInfo)
 {
@@ -32,12 +35,12 @@ std::unique_ptr<TestRunner> CJTestRunner::Create(const std::unique_ptr<Runtime> 
         HILOG_ERROR("Invalid runtime");
         return nullptr;
     }
-
     auto cjRuntime = static_cast<CJRuntime*>(runtime.get());
     if (cjRuntime->IsAppLibLoaded()) {
         HILOG_ERROR("CJTestRunner: AppLib Not Loaded");
         return nullptr;
     }
+
 
     if (!args) {
         HILOG_ERROR("Invalid ability delegator args");
@@ -45,6 +48,7 @@ std::unique_ptr<TestRunner> CJTestRunner::Create(const std::unique_ptr<Runtime> 
     }
 
     auto pTestRunner = new (std::nothrow) CJTestRunner(*cjRuntime, args, bundleInfo);
+
     if (!pTestRunner) {
         HILOG_ERROR("Failed to create test runner");
         return nullptr;
