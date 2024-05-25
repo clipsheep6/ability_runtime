@@ -217,7 +217,6 @@ group("fuzztest") {
     "killprocessbyabilitytoken_fuzzer:fuzztest",
     "killprocessesbybundlename_fuzzer:fuzztest",
     "killprocessesbyuserid_fuzzer:fuzztest",
-    "killprocesswithaccount_fuzzer:fuzztest",
     "loadability_fuzzer:fuzztest",
     "registerconfigurationobserver_fuzzer:fuzztest",
     "registerenvironmentcallback_fuzzer:fuzztest",
