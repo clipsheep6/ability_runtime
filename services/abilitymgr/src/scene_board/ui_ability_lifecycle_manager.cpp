@@ -1507,9 +1507,8 @@ void UIAbilityLifecycleManager::OnStartSpecifiedProcessResponse(const AAFwk::Wan
         return;
     }
     TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s.", want.GetElement().GetURI().c_str());
+    it->second.want.SetParam(PARAM_SPECIFIED_PROCESS_FLAG, flag);
     AbilityRequest abilityRequest = it->second;
-    std::string specifiedProcessFlag = flag;
-    abilityRequest.want.SetParam(PARAM_SPECIFIED_PROCESS_FLAG, specifiedProcessFlag);
     auto isSpecified = (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED);
     if (isSpecified) {
         DelayedSingleton<AppScheduler>::GetInstance()->StartSpecifiedAbility(

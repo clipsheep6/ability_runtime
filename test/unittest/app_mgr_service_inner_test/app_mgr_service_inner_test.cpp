@@ -464,10 +464,10 @@ HWTEST_F(AppMgrServiceInnerTest, MakeProcessName_001, TestSize.Level0)
     HapModuleInfo hapModuleInfo;
     hapModuleInfo.moduleName = "module789";
     std::string processName = "test_processName";
-    appMgrServiceInner->MakeProcessName(nullptr, nullptr, hapModuleInfo, 1, processName);
-    appMgrServiceInner->MakeProcessName(nullptr, applicationInfo_, hapModuleInfo, 1, processName);
-    appMgrServiceInner->MakeProcessName(abilityInfo_, nullptr, hapModuleInfo, 1, processName);
-    appMgrServiceInner->MakeProcessName(abilityInfo_, applicationInfo_, hapModuleInfo, 1, processName);
+    appMgrServiceInner->MakeProcessName(nullptr, nullptr, hapModuleInfo, 1, "", processName);
+    appMgrServiceInner->MakeProcessName(nullptr, applicationInfo_, hapModuleInfo, 1, "", processName);
+    appMgrServiceInner->MakeProcessName(abilityInfo_, nullptr, hapModuleInfo, 1, "", processName);
+    appMgrServiceInner->MakeProcessName(abilityInfo_, applicationInfo_, hapModuleInfo, 1, "", processName);
 
     EXPECT_NE(appMgrServiceInner, nullptr);
     TAG_LOGI(AAFwkTag::TEST, "MakeProcessName_001 end");

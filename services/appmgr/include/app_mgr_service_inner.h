@@ -1109,8 +1109,8 @@ private:
         const std::shared_ptr<ApplicationInfo> &appInfo, std::string &processName) const;
 
     void MakeProcessName(const std::shared_ptr<AbilityInfo> &abilityInfo,
-        const std::shared_ptr<ApplicationInfo> &appInfo,
-        const HapModuleInfo &hapModuleInfo, int32_t appIndex, std::string &processName) const;
+        const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo, int32_t appIndex,
+        const std::string &specifiedProcessFlag, std::string &processName) const;
 
     void MakeProcessName(const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo,
         std::string &processName) const;

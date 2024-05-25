@@ -211,6 +211,8 @@ constexpr int32_t NETSYS_SOCKET_GROUPID = 1097;
 constexpr int32_t DEFAULT_INVAL_VALUE = -1;
 constexpr int32_t NO_ABILITY_RECORD_ID = -1;
 
+constexpr int32_t MAX_SPECIFIED_PROCESS_NAME_LENGTH = 255;
+
 int32_t GetUserIdByUid(int32_t uid)
 {
     return uid / BASE_USER_RANGE;
@@ -274,7 +276,7 @@ void AppMgrServiceInner::StartSpecifiedProcess(const AAFwk::Want &want, const Ap
 
     std::string processName;
     auto abilityInfoPtr = std::make_shared<AbilityInfo>(abilityInfo);
-    MakeProcessName(abilityInfoPtr, appInfo, hapModuleInfo, appIndex, processName);
+    MakeProcessName(abilityInfoPtr, appInfo, hapModuleInfo, appIndex, "", processName);
     TAG_LOGD(AAFwkTag::APPMGR, "processName = %{public}s", processName.c_str());
     auto mainAppRecord =
         appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name, processName, appInfo->uid, bundleInfo);
@@ -364,12 +366,14 @@ void AppMgrServiceInner::HandlePreloadApplication(const PreloadRequest &request)
 
     auto appInfo = request.appInfo;
     auto hapModuleInfo = request.hapModuleInfo;
-    std::string processName;
-    MakeProcessName(abilityInfo, appInfo, hapModuleInfo, request.appIndex, processName);
-    TAG_LOGD(AAFwkTag::APPMGR, "HandlePreloadApplication processName = %{public}s", processName.c_str());
 
     auto want = request.want;
     std::string specifiedProcessFlag = GetSpecifiedProcessFlag(abilityInfo, want);
+
+    std::string processName;
+    MakeProcessName(abilityInfo, appInfo, hapModuleInfo, request.appIndex, specifiedProcessFlag, processName);
+    TAG_LOGD(AAFwkTag::APPMGR, "HandlePreloadApplication processName = %{public}s", processName.c_str());
+
     std::shared_ptr<AppRunningRecord> appRecord = appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name,
         processName, appInfo->uid, bundleInfo, specifiedProcessFlag);
     if (appRecord) {
@@ -423,17 +427,16 @@ void AppMgrServiceInner::LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObje
         return;
     }
 
+    // for isolation process
+    std::string specifiedProcessFlag = GetSpecifiedProcessFlag(abilityInfo, want);
     std::string processName;
-    MakeProcessName(abilityInfo, appInfo, hapModuleInfo, appIndex, processName);
+    MakeProcessName(abilityInfo, appInfo, hapModuleInfo, appIndex, specifiedProcessFlag, processName);
     TAG_LOGD(AAFwkTag::APPMGR, "processName = %{public}s", processName.c_str());
 
     std::shared_ptr<AppRunningRecord> appRecord;
-    // for isolation process
-    std::string specifiedProcessFlag = GetSpecifiedProcessFlag(abilityInfo, want);
-    bool isUIAbility = (abilityInfo->type == AppExecFwk::AbilityType::PAGE && abilityInfo->isStageBasedModel);
     appRecord = appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name,
         processName, appInfo->uid, bundleInfo, specifiedProcessFlag);
-    if (appRecord && isUIAbility) {
+    if (appRecord && abilityInfo->type == AppExecFwk::AbilityType::PAGE) {
         NotifyMemMgrPriorityChanged(appRecord);
     }
 
@@ -579,7 +582,7 @@ void AppMgrServiceInner::MakeServiceExtProcessName(const std::shared_ptr<Ability
 
 void AppMgrServiceInner::MakeProcessName(const std::shared_ptr<AbilityInfo> &abilityInfo,
     const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo, int32_t appIndex,
-    std::string &processName) const
+    const std::string &specifiedProcessFlag, std::string &processName) const
 {
     if (!abilityInfo || !appInfo) {
         TAG_LOGE(AAFwkTag::APPMGR, "param error");
@@ -594,6 +597,12 @@ void AppMgrServiceInner::MakeProcessName(const std::shared_ptr<AbilityInfo> &abi
     MakeServiceExtProcessName(abilityInfo, appInfo, processName);
     if (appIndex != 0) {
         processName += std::to_string(appIndex);
+    }
+        
+    if (!specifiedProcessFlag.empty()) {
+        processName = (processName + ":" + specifiedProcessFlag).substr(0, MAX_SPECIFIED_PROCESS_NAME_LENGTH);
+        TAG_LOGI(AAFwkTag::APPMGR, "specifiedProcessFlag = %{public}s, processName = %{public}s",
+            specifiedProcessFlag.c_str(), processName.c_str());
     }
 }
 
@@ -3803,7 +3812,7 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
 
     std::string processName;
     auto abilityInfoPtr = std::make_shared<AbilityInfo>(abilityInfo);
-    MakeProcessName(abilityInfoPtr, appInfo, hapModuleInfo, appIndex, processName);
+    MakeProcessName(abilityInfoPtr, appInfo, hapModuleInfo, appIndex, "", processName);
 
     std::vector<HapModuleInfo> hapModules;
     hapModules.emplace_back(hapModuleInfo);
@@ -5356,7 +5365,7 @@ int32_t AppMgrServiceInner::StartNativeProcessForDebugger(const AAFwk::Want &wan
 
     std::string processName;
     auto abilityInfoPtr = std::make_shared<AbilityInfo>(abilityInfo);
-    MakeProcessName(abilityInfoPtr, appInfo, hapModuleInfo, 0, processName);
+    MakeProcessName(abilityInfoPtr, appInfo, hapModuleInfo, 0, "", processName);
 
     auto&& appRecord =
         appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name, processName, appInfo->uid, bundleInfo);
