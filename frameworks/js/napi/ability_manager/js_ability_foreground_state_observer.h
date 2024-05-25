@@ -47,7 +47,7 @@ public:
 private:
     napi_env env_;
     volatile bool valid_ = true;
-    std::mutex mutexlock;
+    std::mutex mutexlock_;
     std::set<std::shared_ptr<NativeReference>> jsObserverObjectSet_;
 };
 } // namespace AbilityRuntime

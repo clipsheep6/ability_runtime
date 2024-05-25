@@ -48,14 +48,6 @@ CallbackInfo g_aceCallbackInfo;
 const int PARA_SIZE_IS_ONE = 1;
 const int PARA_SIZE_IS_TWO = 2;
 
-/**
- * @brief FeatureAbility NAPI module registration.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param exports An empty object via the exports parameter as a convenience.
- *
- * @return The return value from Init is treated as the exports object for the module.
- */
 napi_value FeatureAbilityInit(napi_env env, napi_value exports)
 {
     TAG_LOGD(AAFwkTag::FA, "called");
@@ -441,14 +433,6 @@ napi_value JsFeatureAbility::OnGetWindow(napi_env env, napi_callback_info info)
 }
 #endif
 
-/**
- * @brief FeatureAbility NAPI method : setResult.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
 napi_value NAPI_SetResult(napi_env env, napi_callback_info info)
 {
     TAG_LOGI(AAFwkTag::FA, "%{public}s,called", __func__);
@@ -471,14 +455,6 @@ napi_value NAPI_SetResult(napi_env env, napi_callback_info info)
     return ret;
 }
 
-/**
- * @brief SetResult processing function.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param asyncCallbackInfo Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
- */
 napi_value SetResultWrap(napi_env env, napi_callback_info info, AsyncCallbackInfo *asyncCallbackInfo)
 {
     TAG_LOGI(AAFwkTag::FA, "%{public}s,called", __func__);
@@ -633,16 +609,6 @@ napi_value SetResultPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
 }
 
 EXTERN_C_START
-/**
- * @brief The interface of onAbilityResult provided for ACE to call back to JS.
- *
- * @param requestCode Indicates the request code returned after the ability is started.
- * @param resultCode Indicates the result code returned after the ability is started.
- * @param resultData Indicates the data returned after the ability is started.
- * @param cb The environment and call back info that the Node-API call is invoked under.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
 void CallOnAbilityResult(int requestCode, int resultCode, const Want &resultData, CallbackInfo callbackInfo)
 {
     TAG_LOGI(AAFwkTag::FA, "%{public}s,called", __func__);
@@ -758,15 +724,6 @@ bool InnerUnwrapWant(napi_env env, napi_value args, Want &want)
     return UnwrapWant(env, jsWant, want);
 }
 
-/**
- * @brief Parse the parameters.
- *
- * @param param Indicates the parameters saved the parse result.
- * @param env The environment that the Node-API call is invoked under.
- * @param args Indicates the arguments passed into the callback.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
 napi_value UnwrapForResultParam(CallAbilityParam &param, napi_env env, napi_value args)
 {
     TAG_LOGI(AAFwkTag::FA, "%{public}s,called", __func__);
@@ -804,15 +761,6 @@ napi_value UnwrapForResultParam(CallAbilityParam &param, napi_env env, napi_valu
     return result;
 }
 
-/**
- * @brief Parse the abilityResult parameters.
- *
- * @param param Indicates the want parameters saved the parse result.
- * @param env The environment that the Node-API call is invoked under.
- * @param args Indicates the arguments passed into the callback.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
 napi_value UnwrapAbilityResult(CallAbilityParam &param, napi_env env, napi_value args)
 {
     TAG_LOGI(AAFwkTag::FA, "%{public}s,called", __func__);

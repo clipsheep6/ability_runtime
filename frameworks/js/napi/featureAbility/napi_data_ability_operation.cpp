@@ -103,7 +103,7 @@ napi_value BuildDataAbilityOperation(
     UnwrapDataAbilityPredicates(*predicates, env, jsPredicates);
     builder->WithPredicates(predicates);
 
-    // get expectedcount property
+    // get expectedCount property
     int expectedCount = 0;
     UnwrapInt32ByPropertyName(env, param, "expectedCount", expectedCount);
     TAG_LOGI(AAFwkTag::FA, "%{public}s, expectedCount:%{public}d", __func__, expectedCount);

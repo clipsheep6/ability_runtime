@@ -47,8 +47,7 @@ void JSAppStateObserver::OnForegroundApplicationChanged(const AppStateData &appS
 
 void JSAppStateObserver::HandleOnForegroundApplicationChanged(const AppStateData &appStateData)
 {
-    TAG_LOGI(AAFwkTag::APPMGR,
-        "HandleOnForegroundApplicationChanged bundleName:%{public}s, uid:%{public}d, state:%{public}d.",
+    TAG_LOGI(AAFwkTag::APPMGR, "bundleName:%{public}s, uid:%{public}d, state:%{public}d.",
         appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
