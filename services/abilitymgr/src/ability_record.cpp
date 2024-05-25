@@ -21,7 +21,6 @@
 #include <unordered_map>
 
 #include "constants.h"
-#include "ability_app_state_observer.h"
 #include "ability_event_handler.h"
 #include "ability_manager_service.h"
 #include "ability_resident_process_rdb.h"
@@ -246,7 +245,6 @@ AbilityRecord::~AbilityRecord()
         }
     }
     want_.CloseAllFd();
-    RemoveAppStateObserver(true);
 }
 
 std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityRequest &abilityRequest)
@@ -273,28 +271,7 @@ std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityR
     abilityRecord->collaboratorType_ = abilityRequest.collaboratorType;
     abilityRecord->missionAffinity_ = abilityRequest.want.GetStringParam(PARAM_MISSION_AFFINITY_KEY);
 
-    // Before the ability attaches
-    abilityRecord->abilityAppStateObserver_ = sptr<AbilityAppStateObserver>(
-        new AbilityAppStateObserver(abilityRecord));
-    DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->RegisterApplicationStateObserver(
-        abilityRecord->abilityAppStateObserver_, {abilityRequest.abilityInfo.bundleName});
     return abilityRecord;
-}
-
-void AbilityRecord::RemoveAppStateObserver(bool force)
-{
-    if (!force && IsSceneBoard()) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "Special ability no need to RemoveAppStateObserver.");
-        return;
-    }
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
-    if (handler && abilityAppStateObserver_) {
-        handler->SubmitTask([appStateObserver = abilityAppStateObserver_]() {
-                DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->UnregisterApplicationStateObserver(
-                    appStateObserver);
-            });
-        abilityAppStateObserver_ = nullptr;
-    }
 }
 
 bool AbilityRecord::Init()
@@ -1424,7 +1401,6 @@ void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
                     }
                 });
         }
-        RemoveAppStateObserver();
         isReady_ = true;
         scheduler_ = scheduler;
         lifecycleDeal_->SetScheduler(scheduler);
@@ -2390,7 +2366,10 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 void AbilityRecord::OnProcessDied()
 {
     std::lock_guard<ffrt::mutex> guard(lock_);
-    RemoveAppStateObserver(true);
+    if (!IsSceneBoard() && scheduler_ != nullptr) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "OnProcessDied: '%{public}s', attached.", abilityInfo_.name.c_str());
+        return;
+    }
     isWindowAttached_ = false;
 
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();

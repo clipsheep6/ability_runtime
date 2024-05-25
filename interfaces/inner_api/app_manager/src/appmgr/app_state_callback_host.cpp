@@ -38,6 +38,8 @@ AppStateCallbackHost::AppStateCallbackHost()
         &AppStateCallbackHost::HandleNotifyConfigurationChange;
     memberFuncMap_[static_cast<uint32_t>(IAppStateCallback::Message::TRANSACT_ON_NOTIFY_START_RESIDENT_PROCESS)] =
         &AppStateCallbackHost::HandleNotifyStartResidentProcess;
+    memberFuncMap_[static_cast<uint32_t>(IAppStateCallback::Message::TRANSACT_ON_APP_REMOTE_DIED)] =
+        &AppStateCallbackHost::HandleOnAppRemoteDied;
 }
 
 AppStateCallbackHost::~AppStateCallbackHost()
@@ -83,6 +85,11 @@ void AppStateCallbackHost::NotifyConfigurationChange(const AppExecFwk::Configura
 }
 
 void AppStateCallbackHost::NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
+}
+
+void AppStateCallbackHost::OnAppRemoteDied(const std::vector<sptr<IRemoteObject>> &abilityTokens)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called");
 }
@@ -141,6 +148,26 @@ int32_t AppStateCallbackHost::HandleNotifyStartResidentProcess(MessageParcel &da
         bundleInfos.emplace_back(*bundleInfo);
     }
     NotifyStartResidentProcess(bundleInfos);
+    return NO_ERROR;
+}
+
+int32_t AppStateCallbackHost::HandleOnAppRemoteDied(MessageParcel &data, MessageParcel &reply)
+{
+    std::vector<sptr<IRemoteObject>> abilityTokens;
+    int32_t infoSize = data.ReadInt32();
+    if (infoSize > CYCLE_LIMIT) {
+        TAG_LOGE(AAFwkTag::APPMGR, "infoSize is too large");
+        return ERR_INVALID_VALUE;
+    }
+    for (int32_t i = 0; i < infoSize; i++) {
+        sptr<IRemoteObject> obj = data.ReadRemoteObject();
+        if (!obj) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Read token failed.");
+            return ERR_INVALID_VALUE;
+        }
+        abilityTokens.emplace_back(obj);
+    }
+    OnAppRemoteDied(abilityTokens);
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

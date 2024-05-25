@@ -63,11 +63,18 @@ public:
      */
     virtual void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos) {}
 
+    /**
+     * @brief Notify abilityms app process OnRemoteDied
+     * @param abilityTokens abilities in died process.
+     */
+    virtual void OnAppRemoteDied(const std::vector<sptr<IRemoteObject>> &abilityTokens) {}
+
     enum class Message {
         TRANSACT_ON_APP_STATE_CHANGED = 0,
         TRANSACT_ON_ABILITY_REQUEST_DONE,
         TRANSACT_ON_NOTIFY_CONFIG_CHANGE,
-        TRANSACT_ON_NOTIFY_START_RESIDENT_PROCESS
+        TRANSACT_ON_NOTIFY_START_RESIDENT_PROCESS,
+        TRANSACT_ON_APP_REMOTE_DIED
     };
 };
 }  // namespace AppExecFwk
