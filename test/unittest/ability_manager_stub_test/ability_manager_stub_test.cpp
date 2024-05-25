@@ -1427,6 +1427,24 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_ContinueMissionOfBundleNameI
 
 /*
  * Feature: AbilityManagerService
+ * Function: ContinueMissionOfBundleNameInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService ContinueMissionOfBundleNameInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function ContinueMissionOfBundleNameInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_ContinueMissionOfBundleNameInner_002, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    Want want;
+    data.WriteParcelable(&want);
+    auto res = stub_->ContinueMissionOfBundleNameInner(data, reply);
+    EXPECT_EQ(res, ERR_NULL_OBJECT);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: ContinueAbilityInner
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService ContinueAbilityInner

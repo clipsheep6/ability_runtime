@@ -1488,13 +1488,13 @@ int AbilityManagerStub::ContinueMissionOfBundleNameInner(MessageParcel &data, Me
         return ERR_NULL_OBJECT;
     }
     std::unique_ptr<WantParams> wantParams(data.ReadParcelable<WantParams>());
-    continueMissionInfo.wantParams = *wantParams;
-    continueMissionInfo.srcBundleName = data.ReadString();
-    continueMissionInfo.continueType = data.ReadString();
     if (wantParams == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "ContinueMissionInner wantParams readParcelable failed!");
         return ERR_NULL_OBJECT;
     }
+    continueMissionInfo.wantParams = *wantParams;
+    continueMissionInfo.srcBundleName = data.ReadString();
+    continueMissionInfo.continueType = data.ReadString();
     int32_t result = ContinueMission(continueMissionInfo, callback);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "ContinueMissionInner result = %{public}d", result);
     return result;
