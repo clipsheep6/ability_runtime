@@ -91,5 +91,6 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/wantConstant:wantconstant_napi",
     "${ability_runtime_napi_path}/wantagent:napi_wantAgent",
     "${ability_runtime_napi_path}/wantagent:wantagent",
+    "${ability_runtime_napi_path}/ui_service_extension_context:uiserviceextensioncontext_napi",
   ]
 }
