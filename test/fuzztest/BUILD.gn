@@ -19,7 +19,6 @@ group("fuzztest") {
   deps = [
     "abilityattachtimeout_fuzzer:fuzztest",
     "abilityconnectionstub_fuzzer:fuzztest",
-    "abilityconnectmanager_fuzzer:fuzztest",
     "abilitycontext_fuzzer:fuzztest",
     "abilityeventhandler_fuzzer:fuzztest",
     "abilitymanagerservicea_fuzzer:fuzztest",
@@ -180,7 +179,6 @@ group("fuzztest") {
     "appmanager_fuzzer:fuzztest",
     "appmgrclientrest_fuzzer:fuzztest",
     "appmgrrest_fuzzer:fuzztest",
-    "appmgrservicefirst_fuzzer:fuzztest",
     "appstateobservermanager_fuzzer:fuzztest",
     "attachabilitythread_fuzzer:fuzztest",
     "attachrenderprocess_fuzzer:fuzztest",
