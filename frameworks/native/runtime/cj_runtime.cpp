@@ -95,7 +95,7 @@ bool CJRuntime::LoadCJAppLibrary(const AppLibPathVec& appLibPaths)
     void* handle = nullptr;
     for (const auto& libPath : appLibPaths) {
         for (auto& itor : std::filesystem::directory_iterator(libPath)) {
-            // According to the convention, the names of Cangjie generated products must contain the following keywords
+            // According to the convention, the names of cj generated products must contain the following keywords
             if (itor.path().string().find("ohos_app_cangjie") == std::string::npos) {
                 continue;
             }
