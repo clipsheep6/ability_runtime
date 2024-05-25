@@ -177,6 +177,7 @@ ErrCode ServiceExtensionContext::StopServiceExtensionAbility(const AAFwk::Want& 
     return err;
 }
 
+
 ErrCode ServiceExtensionContext::ConnectAbilityWithAccount(
     const AAFwk::Want &want, int32_t accountId, const sptr<AbilityConnectCallback> &connectCallback) const
 {
