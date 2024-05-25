@@ -298,6 +298,10 @@ ErrCode AbilityManagerShellCommand::CreateMessageMap()
             KILL_PROCESS_KEEP_ALIVE,
             "error: keep alive process can not be killed.",
         },
+        {
+            ERR_UNLOCK_SCREEN_FAILED_IN_DEVELOPER_MODE,
+            "error: unlock screen failed in developer mode."
+        }
     };
 
     return OHOS::ERR_OK;

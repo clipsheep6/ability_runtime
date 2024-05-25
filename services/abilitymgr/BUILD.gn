@@ -31,6 +31,7 @@ config("abilityms_config") {
   include_dirs = [
     "include/",
     "include/rdb/",
+    "include/screen_lock/",
     "${ability_runtime_innerkits_path}/ability_manager/include",
     "${ability_runtime_services_path}/appdfr/include",
     "${ability_runtime_innerkits_path}/app_manager/include",
@@ -201,7 +202,10 @@ ohos_shared_library("abilityms") {
     external_deps += [ "dlp_permission_service:libdlp_permission_sdk" ]
   }
 
+  defines = []
+
   if (ability_runtime_graphics) {
+    defines += [ "SUPPORT_GRAPHICS" ]
     external_deps += [
       "ability_base:session_info",
       "i18n:intl_util",
@@ -209,6 +213,7 @@ ohos_shared_library("abilityms") {
       "image_framework:image_native",
       "input:libmmi-client",
       "resource_management:global_resmgr",
+      "screenlock_mgr:screenlock_client",
       "window_manager:libdm",
       "window_manager:libmodal_system_ui_extension_client",
       "window_manager:libwm",
@@ -216,6 +221,11 @@ ohos_shared_library("abilityms") {
       "window_manager:scene_session",
       "window_manager:sms",
     ]
+  }
+
+  if (ability_runtime_power) {
+    defines += [ "SUPPORT_POWER" ]
+    external_deps += [ "power_manager:powermgr_client" ]
   }
 
   version_script = "libabilityms.map"

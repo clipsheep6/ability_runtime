@@ -79,6 +79,7 @@ abilityms_files = [
   "src/extension_record_factory.cpp",
   "src/ui_extension_record.cpp",
   "src/ui_extension_record_factory.cpp",
+  "src/screen_lock/unlock_screen_manager.cpp",
   "src/start_options.cpp",
   "src/user_callback_proxy.cpp",
   "src/call_container.cpp",
@@ -139,6 +140,7 @@ if (ability_runtime_graphics) {
     "src/implicit_start_processor.cpp",
     "src/system_dialog_scheduler.cpp",
     "src/ability_first_frame_state_observer_manager.cpp",
+    "src/screen_lock/unlock_screen_callback.cpp",
   ]
 }
 
