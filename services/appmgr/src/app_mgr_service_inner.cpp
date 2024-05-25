@@ -634,6 +634,7 @@ void AppMgrServiceInner::LoadAbilityNoAppRecord(const std::shared_ptr<AppRunning
     }
     if (hapModuleInfo.isStageBasedModel && !IsMainProcess(appInfo, hapModuleInfo)) {
         appRecord->SetEmptyKeepAliveAppState(false);
+        appRecord->SetMainProcess(false);
         TAG_LOGI(AAFwkTag::APPMGR, "The process %{public}s will not keepalive", hapModuleInfo.process.c_str());
     }
     // As taskHandler_ is busy now, the task should be submit to other task queue.
@@ -3784,6 +3785,7 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
         }
         if (hapModuleInfo.isStageBasedModel && !IsMainProcess(appInfo, hapModuleInfo)) {
             appRecord->SetEmptyKeepAliveAppState(false);
+            appRecord->SetMainProcess(false);
             TAG_LOGD(AAFwkTag::APPMGR, "The process %{public}s will not keepalive", hapModuleInfo.process.c_str());
         }
         auto wantPtr = std::make_shared<AAFwk::Want>(want);

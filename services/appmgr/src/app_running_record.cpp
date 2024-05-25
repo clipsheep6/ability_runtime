@@ -1370,7 +1370,7 @@ bool AppRunningRecord::IsTerminating()
 
 bool AppRunningRecord::IsKeepAliveApp() const
 {
-    return isKeepAliveApp_ && isSingleton_;
+    return isKeepAliveApp_ && isSingleton_ && isMainProcess_;
 }
 
 void AppRunningRecord::SetKeepAliveEnableState(bool isKeepAliveEnable)
@@ -1386,6 +1386,16 @@ bool AppRunningRecord::IsEmptyKeepAliveApp() const
 void AppRunningRecord::SetEmptyKeepAliveAppState(bool isEmptyKeepAliveApp)
 {
     isEmptyKeepAliveApp_ = isEmptyKeepAliveApp;
+}
+
+bool AppRunningRecord::IsMainProcess() const
+{
+    return isMainProcess_;
+}
+
+void AppRunningRecord::SetMainProcess(bool isMainProcess)
+{
+    isMainProcess_ = isMainProcess;
 }
 
 void AppRunningRecord::SetSingleton(bool isSingleton)

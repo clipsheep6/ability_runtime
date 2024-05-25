@@ -542,11 +542,15 @@ public:
 
     bool IsEmptyKeepAliveApp() const;
 
+    bool IsMainProcess() const;
+
     void SetEmptyKeepAliveAppState(bool isEmptyKeepAliveApp);
 
     void SetKeepAliveEnableState(bool isKeepAliveEnable);
 
     void SetSingleton(bool isSingleton);
+
+    void SetMainProcess(bool isMainProcess);
 
     void SetStageModelState(bool isStageBasedModel);
 
@@ -849,6 +853,7 @@ private:
 
     bool isKeepAliveApp_ = false;  // Only resident processes can be set to true, please choose carefully
     bool isEmptyKeepAliveApp_ = false;  // Only empty resident processes can be set to true, please choose carefully
+    bool isMainProcess_ = true; // Only MainProcess can be keepalive
     bool isSingleton_ = false;
     bool isStageBasedModel_ = false;
     ApplicationState curState_ = ApplicationState::APP_STATE_CREATE;  // current state of this process
