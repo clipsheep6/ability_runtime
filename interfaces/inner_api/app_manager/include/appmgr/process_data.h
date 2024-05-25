@@ -49,7 +49,9 @@ struct ProcessData : public Parcelable {
 
     std::string bundleName;
     int32_t pid = 0;
-    int32_t uid = 0;
+    int32_t uid = 0; // host uid
+    int32_t hostPid = 0;
+    int32_t gpuPid = 0;
     int32_t renderUid = -1;
     AppProcessState state;
     bool isContinuousTask = false;

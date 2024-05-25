@@ -447,6 +447,14 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager:ability_start_options"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/dialog_request_callback",
+              "header_files": [
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:dialog_request_callback"
           }
         ],
         "test": [

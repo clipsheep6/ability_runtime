@@ -47,6 +47,17 @@ public:
         CRITICAL_TIMEOUT = 1,
     };
 
+    enum AppFreezeState {
+        APPFREEZE_STATE_IDLE = 0,
+        APPFREEZE_STATE_FREEZE = 1,
+    };
+
+    struct AppFreezeInfo {
+        int32_t pid = 0;
+        int state = 0;
+        int64_t occurTime = 0;
+    };
+
     struct ParamInfo {
         int typeId = TypeAttribute::NORMAL_TIMEOUT;
         int32_t pid = 0;
@@ -66,6 +77,7 @@ public:
     std::string WriteToFile(const std::string& fileName, std::string& content);
     bool IsHandleAppfreeze(const std::string& bundleName);
     bool IsProcessDebug(int32_t pid, std::string processName);
+    bool IsNeedIgnoreFreezeEvent(int32_t pid);
 
 private:
     AppfreezeManager& operator=(const AppfreezeManager&) = delete;
@@ -78,11 +90,18 @@ private:
     std::string CatcherStacktrace(int pid) const;
     int AcquireStack(const FaultData& faultData, const AppInfo& appInfo);
     int NotifyANR(const FaultData& faultData, const AppfreezeManager::AppInfo& appInfo, const std::string& binderInfo);
+    int64_t GetFreezeCurrentTime();
+    void SetFreezeState(int32_t pid, int state);
+    int GetFreezeState(int32_t pid);
+    int64_t GetFreezeTime(int32_t pid);
+    void ClearOldInfo();
 
     static const inline std::string LOGGER_DEBUG_PROC_PATH = "/proc/transaction_proc";
     std::string name_;
     static ffrt::mutex singletonMutex_;
     static std::shared_ptr<AppfreezeManager> instance_;
+    static ffrt::mutex freezeMutex_;
+    std::map<int32_t, AppFreezeInfo> appfreezeInfo_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

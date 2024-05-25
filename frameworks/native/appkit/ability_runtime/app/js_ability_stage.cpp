@@ -49,7 +49,7 @@ constexpr const char* RUN_ON_THREAD = "runOnThread";
 constexpr const char* WAIT_ON_MAIN_THREAD = "waitOnMainThread";
 constexpr const char* CONFIG_ENTRY = "configEntry";
 constexpr const char *MAIN_THREAD = "mainThread";
-constexpr const char *TASKPOOL = "taskpool";
+constexpr const char *TASKPOOL = "taskPool";
     
 napi_value AttachAbilityStageContext(napi_env env, void *value, void *)
 {

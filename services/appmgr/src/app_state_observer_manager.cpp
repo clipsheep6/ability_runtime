@@ -596,8 +596,9 @@ void AppStateObserverManager::HandleOnProcessStateChanged(const std::shared_ptr<
     }
     ProcessData data = WrapProcessData(appRecord);
     TAG_LOGD(AAFwkTag::APPMGR,
-        "bundle:%{public}s pid:%{public}d uid:%{public}d state:%{public}d isContinuousTask:%{public}d",
-        data.bundleName.c_str(), data.pid, data.uid, data.state, data.isContinuousTask);
+        "bundle:%{public}s, pid:%{public}d, uid:%{public}d, state:%{public}d, "
+        "isContinuousTask:%{public}d, gpuPid:%{public}d",
+        data.bundleName.c_str(), data.pid, data.uid, data.state, data.isContinuousTask, data.gpuPid);
     auto appStateObserverMapCopy = GetAppStateObserverMapCopy();
     for (auto it = appStateObserverMapCopy.begin(); it != appStateObserverMapCopy.end(); ++it) {
         std::vector<std::string>::iterator iter = std::find(it->second.begin(),
@@ -670,6 +671,7 @@ ProcessData AppStateObserverManager::WrapProcessData(const std::shared_ptr<AppRu
     }
     processData.exitReason = appRecord->GetExitReason();
     processData.exitMsg = appRecord->GetExitMsg();
+    processData.gpuPid = appRecord->GetGPUPid();
     return processData;
 }
 
@@ -682,6 +684,7 @@ ProcessData AppStateObserverManager::WrapRenderProcessData(const std::shared_ptr
     processData.renderUid = renderRecord->GetUid();
     processData.processName = renderRecord->GetProcessName();
     processData.processType = renderRecord->GetProcessType();
+    processData.hostPid = renderRecord->GetHostPid();
     return processData;
 }
 

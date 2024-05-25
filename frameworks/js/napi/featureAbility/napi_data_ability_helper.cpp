@@ -263,7 +263,7 @@ void AnalysisValuesBucket(NativeRdb::ValuesBucket &valuesBucket, const napi_env 
     uint32_t arrLen = 0;
     napi_status status = napi_get_array_length(env, keys, &arrLen);
     if (status != napi_ok) {
-        TAG_LOGE(AAFwkTag::FA, "ValuesBucket errr");
+        TAG_LOGE(AAFwkTag::FA, "ValuesBucket error");
         return;
     }
     TAG_LOGI(AAFwkTag::FA, "ValuesBucket num:%{public}d ", arrLen);
@@ -419,7 +419,7 @@ void InsertAsyncCompleteCB(napi_env env, napi_status status, void *data)
 
 void InsertPromiseCompleteCB(napi_env env, napi_status status, void *data)
 {
-    TAG_LOGI(AAFwkTag::FA, "NAPI_Insert,  main event thread complete.");
+    TAG_LOGI(AAFwkTag::FA, "NAPI_Insert, main event thread complete.");
     DAHelperInsertCB *insertCB = static_cast<DAHelperInsertCB *>(data);
     napi_value result = nullptr;
     napi_create_int32(env, insertCB->result, &result);

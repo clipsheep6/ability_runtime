@@ -127,7 +127,7 @@ public:
     napi_value CreateAbilityInfos(napi_env env, const std::vector<AbilityInfo> &abilityInfos);
     napi_value CreateAppVersionInfo(napi_env env, const std::shared_ptr<JsApplicationInfo> &appInfo);
     napi_value CreateWant(napi_env env, const std::shared_ptr<JsWant> &want);
-    bool UnwarpVerifyPermissionParams(napi_env env, napi_callback_info info, JsPermissionOptions &options);
+    bool UnwrapVerifyPermissionParams(napi_env env, napi_callback_info info, JsPermissionOptions &options);
     bool GetStringsValue(napi_env env, napi_value object, std::vector<std::string> &strList);
     bool GetPermissionOptions(napi_env env, napi_value object, JsPermissionOptions &options);
     void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback, napi_value* result);

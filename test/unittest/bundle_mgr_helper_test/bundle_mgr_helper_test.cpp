@@ -833,5 +833,32 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetCloneBundleInfo_001, TestSi
     auto ret = bundleMgrHelper->GetCloneBundleInfo(bundleName, flags, appCloneIndex, bundleInfo, userId);
     EXPECT_NE(ret, ERR_OK);
 }
+
+/**
+ * @tc.name: BundleMgrHelperTest_GetNameForUid_001
+ * @tc.desc: GetNameForUid
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetNameForUid_001, TestSize.Level1)
+{
+    std::string name;
+    int32_t uid = 1;
+    auto ret = bundleMgrHelper->GetNameForUid(uid, name);
+    EXPECT_NE(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_GetLaunchWantForBundle_001
+ * @tc.desc: GetLaunchWantForBundle
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetLaunchWantForBundle_001, TestSize.Level1)
+{
+    std::string bundleName;
+    Want want;
+    int32_t userId = DEFAULT_USERID;
+    auto ret = bundleMgrHelper->GetLaunchWantForBundle(bundleName, want, userId);
+    EXPECT_NE(ret, ERR_OK);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

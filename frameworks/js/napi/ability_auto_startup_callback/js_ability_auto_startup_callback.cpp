@@ -46,7 +46,7 @@ void JsAbilityAutoStartupCallBack::OnAutoStartupOff(const AutoStartupInfo &info)
 void JsAbilityAutoStartupCallBack::Register(napi_value value)
 {
     TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
-    std::lock_guard<std::mutex> lock(mutexlock);
+    std::lock_guard<std::mutex> lock(mutexlock_);
     for (const auto &callback : callbacks_) {
         if (IsJsCallbackEquals(callback, value)) {
             TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The current callback already exists.");
@@ -64,7 +64,7 @@ void JsAbilityAutoStartupCallBack::UnRegister(napi_value value)
     TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
     napi_valuetype type = napi_undefined;
     napi_typeof(env_, value, &type);
-    std::lock_guard<std::mutex> lock(mutexlock);
+    std::lock_guard<std::mutex> lock(mutexlock_);
     if (type == napi_undefined || type == napi_null) {
         TAG_LOGD(AAFwkTag::AUTO_STARTUP, "jsCallback is nullptr, delete all callback.");
         callbacks_.clear();
@@ -105,7 +105,7 @@ void JsAbilityAutoStartupCallBack::JSCallFunction(const AutoStartupInfo &info, c
 
 void JsAbilityAutoStartupCallBack::JSCallFunctionWorker(const AutoStartupInfo &info, const std::string &methodName)
 {
-    std::lock_guard<std::mutex> lock(mutexlock);
+    std::lock_guard<std::mutex> lock(mutexlock_);
     for (auto callback : callbacks_) {
         if (callback == nullptr) {
             TAG_LOGE(AAFwkTag::AUTO_STARTUP, "callback is nullptr.");

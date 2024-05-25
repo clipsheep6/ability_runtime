@@ -41,6 +41,7 @@ void ConfigurationUtils::UpdateGlobalConfig(const Configuration &configuration,
     std::string colormode;
     std::string hasPointerDevice;
     GetGlobalConfig(configuration, language, colormode, hasPointerDevice);
+    std::string colorModeIsSetByApp = configuration.GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP);
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     if (resConfig == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITY, "Create resource config failed.");
@@ -73,6 +74,11 @@ void ConfigurationUtils::UpdateGlobalConfig(const Configuration &configuration,
     if (!hasPointerDevice.empty()) {
         resConfig->SetInputDevice(AppExecFwk::ConvertHasPointerDevice(hasPointerDevice));
         TAG_LOGD(AAFwkTag::ABILITY, "Update config, hasPointerDevice: %{public}d", resConfig->GetInputDevice());
+    }
+
+    if (!colorModeIsSetByApp.empty()) {
+        TAG_LOGD(AAFwkTag::ABILITY, "set app true");
+        resConfig->SetAppColorMode(true);
     }
 
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "resourceManager->UpdateResConfig");

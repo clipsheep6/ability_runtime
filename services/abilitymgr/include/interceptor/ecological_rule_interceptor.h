@@ -40,7 +40,8 @@ public:
     };
 
 private:
-    void GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId);
+    void GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId,
+        const sptr<IRemoteObject> &callerToken = nullptr);
     void InitErmsCallerInfo(Want &want, ErmsCallerInfo &callerInfo) const;
 };
 } // namespace AAFwk

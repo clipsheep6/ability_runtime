@@ -43,10 +43,12 @@
 #include "module_running_record.h"
 #include "app_spawn_client.h"
 #include "app_malloc_info.h"
-#include "window_visibility_changed_listener.h"
 #include "app_jsheap_mem_info.h"
 
 namespace OHOS {
+namespace Rosen {
+class WindowVisibilityInfo;
+}
 namespace AppExecFwk {
 class AbilityRunningRecord;
 class AppMgrServiceInner;
@@ -782,6 +784,8 @@ public:
     sptr<IRemoteObject> GetBrowserHost();
     void SetIsGPU(bool gpu);
     bool GetIsGPU();
+    void SetGPUPid(pid_t gpuPid);
+    pid_t GetGPUPid();
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -939,6 +943,7 @@ private:
     SupportProcessCacheState procCacheSupportState_ = SupportProcessCacheState::UNSPECIFIED;
     sptr<IRemoteObject> browserHost_;
     bool isGPU_ = false;
+    pid_t gpuPid_ = 0;
 };
 
 }  // namespace AppExecFwk

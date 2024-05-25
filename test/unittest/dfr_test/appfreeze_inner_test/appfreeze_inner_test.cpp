@@ -17,6 +17,7 @@
 
 #define private public
 #include "appfreeze_inner.h"
+#include "application_anr_listener.h"
 #undef private
 
 using namespace testing;
@@ -113,6 +114,28 @@ HWTEST_F(AppfreezeInnerTest, AppfreezeInner__ThreadBlock_002, TestSize.Level1)
     appfreezeInner->ThreadBlock(isSixSecondEvent);
     EXPECT_TRUE(isSixSecondEvent);
     GTEST_LOG_(INFO) << "AppfreezeInner__ThreadBlock_002 end";
+}
+
+/**
+ * @tc.number: AppfreezeInner_IsNeedIgnoreFreezeEvent_001
+ * @tc.name: IsNeedIgnoreFreezeEvent
+ * @tc.desc: Verify that function IsNeedIgnoreFreezeEvent.
+ */
+HWTEST_F(AppfreezeInnerTest, AppfreezeInner_IsNeedIgnoreFreezeEvent_001, TestSize.Level1)
+{
+    std::atomic_bool isSixSecondEvent = true;
+    appfreezeInner->isAppDebug_ = false;
+    appfreezeInner->ThreadBlock(isSixSecondEvent);
+    EXPECT_TRUE(isSixSecondEvent);
+    int32_t pid = static_cast<int32_t>(getprocpid());
+    std::shared_ptr<AAFwk::ApplicationAnrListener> listener =
+        std::make_shared<AAFwk::ApplicationAnrListener>();
+    listener->OnAnr(pid);
+    int left = 61; // over 1min
+    while (left > 0) {
+        left = sleep(left);
+    }
+    listener->OnAnr(pid);
 }
 
 /**
