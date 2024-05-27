@@ -108,6 +108,7 @@
 #include "view_data.h"
 #include "xcollie/watchdog.h"
 #include "config_policy_utils.h"
+#include "running_multi_info.h"
 #ifdef SUPPORT_GRAPHICS
 #include "dialog_session_record.h"
 #include "application_anr_listener.h"
@@ -4139,6 +4140,7 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
     }
 
     int32_t appUid = 0;
+    int32_t appIndex = 0;
     if (!wantSenderInfo.allWants.empty()) {
         AppExecFwk::BundleInfo bundleInfo;
         std::string bundleName = wantSenderInfo.allWants.back().want.GetElement().GetBundleName();
@@ -4147,6 +4149,7 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
         if (bundleMgrResult) {
             appUid = bundleInfo.uid;
         }
+        GetRunningMultiAppIndex(bundleName, callerUid, appIndex);
         TAG_LOGD(AAFwkTag::ABILITYMGR, "App bundleName: %{public}s, uid: %{public}d", bundleName.c_str(), appUid);
     }
     if (!CheckSenderWantInfo(callerUid, wantSenderInfo)) {
@@ -4164,8 +4167,9 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
         }
     }
 
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "bundleName = %{public}s", wantSenderInfo.bundleName.c_str());
-    return pendingWantManager->GetWantSender(callerUid, appUid, isSystemApp, wantSenderInfo, callerToken);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "bundleName = %{public}s, appIndex:%{public}d",
+        wantSenderInfo.bundleName.c_str(), appIndex);
+    return pendingWantManager->GetWantSender(callerUid, appUid, isSystemApp, wantSenderInfo, callerToken, appIndex);
 }
 
 int AbilityManagerService::SendWantSender(sptr<IWantSender> target, const SenderInfo &senderInfo)
@@ -10667,6 +10671,27 @@ int32_t AbilityManagerService::TransferAbilityResultForExtension(const sptr<IRem
     abilityRecord->SaveResultToCallers(resultCode, newWant);
     abilityRecord->SendResultToCallers();
     return ERR_OK;
+}
+
+void AbilityManagerService::GetRunningMultiAppIndex(const std::string &bundleName, int32_t uid, int32_t &appIndex)
+{
+    AppExecFwk::RunningMultiAppInfo runningMultiAppInfo;
+    auto appMgr = GetAppMgr();
+    if (appMgr == nullptr) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "GetAppMgr failed");
+        return;
+    }
+    auto ret = appMgr->GetRunningMultiAppInfoByBundleName(bundleName, runningMultiAppInfo);
+    if (ret != ERR_OK) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "GetRunningMultiAppInfo failed bundleName = %{public}s",
+            bundleName.c_str());
+    }
+    for (auto &item : runningMultiAppInfo.runningAppClones) {
+        if (item.uid == uid) {
+            appIndex = item.appCloneIndex;
+            break;
+        }
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS

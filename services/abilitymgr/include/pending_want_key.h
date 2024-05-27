@@ -41,6 +41,7 @@ public:
     void SetFlags(int32_t flags);
     void SetCode(int32_t code);
     void SetUserId(int32_t userId);
+    void SetAppIndex(int32_t appIndex);
 
     int32_t GetType();
     std::string GetBundleName();
@@ -54,6 +55,7 @@ public:
     int32_t GetCode();
     int32_t GetUserId();
     bool IsEqualsRequestWant(const Want &otherWant);
+    int32_t GetAppIndex();
 
 private:
     int32_t type_ = {};
@@ -66,6 +68,7 @@ private:
     int32_t flags_ = {};
     int32_t code_ = {};
     int32_t userId_ = {};
+    int32_t appIndex_ = 0;
     std::mutex wantsInfosMutex_;
     std::mutex requestWantMutex_;
 };
