@@ -96,7 +96,6 @@ config("ability_public_config") {
     include_dirs += [
       "${form_fwk_path}/interfaces/kits/native/include",
       "${form_fwk_path}/interfaces/inner_api/include",
-      "${windowmanager_path}/interfaces/innerkits/wm",
       "${windowmanager_path}/interfaces/innerkits/dm",
       "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_stage_napi",
       "${windowmanager_path}/utils/include",
@@ -114,7 +113,6 @@ config("abilitykit_utils_public_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
-    "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "//third_party/json/include",
   ]
 
@@ -349,7 +347,6 @@ config("extensionkit_public_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
-    "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "//third_party/json/include",
   ]
 
@@ -476,7 +473,6 @@ config("uiability_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/app",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_services_path}/abilitymgr/include",
-    "${bundlefwk_inner_api_path}/appexecfwk_base/include",
   ]
 
   if (ability_runtime_graphics) {
@@ -711,6 +707,7 @@ ohos_shared_library("form_extension_module") {
     "c_utils:utils",
     "hilog:libhilog",
     "napi:ace_napi",
+    "window_manager:libwm",
   ]
 
   relative_install_dir = "extensionability"
@@ -814,6 +811,7 @@ ohos_shared_library("continuation_ipc") {
     "ipc:ipc_core",
     "node:node_header_notice",
     "resource_management:global_resmgr",
+    "window_manager:libwm",
   ]
   public_external_deps = [
     "accessibility:accessibility_common",
@@ -858,6 +856,7 @@ ohos_shared_library("data_ability_helper") {
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "relational_store:rdb_data_ability_adapter",
+    "window_manager:libwm",
   ]
 
   innerapi_tags = [ "platformsdk" ]

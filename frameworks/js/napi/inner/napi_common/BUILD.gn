@@ -61,7 +61,10 @@ ohos_shared_library("napi_common") {
     "napi:ace_napi",
   ]
 
-  public_external_deps = [ "bundle_framework:appexecfwk_core" ]
+  public_external_deps = [
+    "bundle_framework:appexecfwk_core",
+    "window_manager:libwm_lite",
+  ]
 
   if (ability_runtime_graphics) {
     defines = [ "SUPPORT_GRAPHICS" ]
