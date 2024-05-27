@@ -117,8 +117,10 @@ napi_value CreateJsAutoStartupInfo(napi_env env, const AutoStartupInfo &info)
         TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Convert ability type name failed.");
         return nullptr;
     }
-
-    napi_value appCloneIndex = AppExecFwk::WrapInt32ToJS(env, info.appCloneIndex);
+    
+    if (info.appCloneIndex != -1) {
+        napi_value appCloneIndex = AppExecFwk::WrapInt32ToJS(env, info.appCloneIndex);
+    }
     if (appCloneIndex == nullptr) {
         TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Convert ability type name failed.");
         return nullptr;

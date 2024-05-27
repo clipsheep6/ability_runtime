@@ -1663,7 +1663,10 @@ void AppMgrServiceInner::GetRunningProcess(const std::shared_ptr<AppRunningRecor
     if (appInfo) {
         info.bundleType = static_cast<int32_t>(appInfo->bundleType);
     }
-    info.appCloneIndex = appRecord->GetAppIndex();
+    auto appIndex = appRecord->GetAppIndex();
+    if (appIndex != -1) {
+        info.appCloneIndex = appRecord->GetAppIndex();
+    }
 }
 
 void AppMgrServiceInner::GetRenderProcesses(const std::shared_ptr<AppRunningRecord> &appRecord,

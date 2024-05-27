@@ -67,7 +67,6 @@ bool AbilityStateData::Marshalling(Parcel &parcel) const
     if (!parcel.WriteBool(isAtomicService) || !parcel.WriteInt32(abilityRecordId)) {
         return false;
     }
-
     return true;
 }
 

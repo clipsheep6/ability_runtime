@@ -35,7 +35,7 @@ public:
     std::string processName;
     int64_t startTime;
     int abilityState;
-    int32_t appCloneIndex = 0;
+    int32_t appCloneIndex = -1;
 
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;
