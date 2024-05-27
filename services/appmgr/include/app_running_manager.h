@@ -19,6 +19,7 @@
 #include <map>
 #include <mutex>
 #include <regex>
+#include <set>
 
 #include "ability_info.h"
 #include "app_debug_listener_interface.h"
@@ -299,6 +300,9 @@ public:
     int DumpIpcStat(const int32_t pid, std::string& result);
 
     int DumpFfrt(const std::vector<int32_t>& pids, std::string& result);
+
+    bool IsAppProcessesAllCached(const std::string &bundleName, int32_t uid,
+        const std::set<std::shared_ptr<AppRunningRecord>> &cachedSet);
 
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);

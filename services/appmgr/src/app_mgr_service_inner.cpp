@@ -6759,7 +6759,8 @@ int32_t AppMgrServiceInner::CheckSetProcessCachePermission() const
     return isCallingPerm ? ERR_OK : AAFwk::CHECK_PERMISSION_FAILED;
 }
 
-void AppMgrServiceInner::OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord)
+void AppMgrServiceInner::OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord,
+    ApplicationState state)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!appRecord) {
@@ -6775,7 +6776,7 @@ void AppMgrServiceInner::OnAppCacheStateChanged(const std::shared_ptr<AppRunning
     TAG_LOGD(AAFwkTag::APPMGR, "OnAppCacheStateChanged begin, bundleName is %{public}s, pid:%{public}d",
         appRecord->GetBundleName().c_str(), appRecord->GetPriorityObject()->GetPid());
 
-    DelayedSingleton<AppStateObserverManager>::GetInstance()->OnAppCacheStateChanged(appRecord);
+    DelayedSingleton<AppStateObserverManager>::GetInstance()->OnAppCacheStateChanged(appRecord, state);
 }
 
 int32_t AppMgrServiceInner::StartNativeChildProcess(const pid_t hostPid, const std::string &libName,
@@ -6819,6 +6820,16 @@ int32_t AppMgrServiceInner::StartNativeChildProcess(const pid_t hostPid, const s
     auto nativeChildRecord = ChildProcessRecord::CreateNativeChildProcessRecord(
         hostPid, libName, appRecord, callback, childProcessCount, false);
     return StartChildProcessImpl(nativeChildRecord, appRecord, dummyChildPid);
+}
+
+bool AppMgrServiceInner::IsAppProcessesAllCached(const std::string &bundleName, int32_t uid,
+    const std::set<std::shared_ptr<AppRunningRecord>> &cachedSet)
+{
+    if (!appRunningManager_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is nullptr");
+        return false;
+    }
+    return appRunningManager_->IsAppProcessesAllCached(bundleName, uid, cachedSet);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

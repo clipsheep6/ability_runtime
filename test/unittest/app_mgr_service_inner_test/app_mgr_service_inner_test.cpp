@@ -4276,7 +4276,7 @@ HWTEST_F(AppMgrServiceInnerTest, OnAppCacheStateChanged_001, TestSize.Level0)
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
-    appMgrServiceInner->OnAppCacheStateChanged(nullptr);
+    appMgrServiceInner->OnAppCacheStateChanged(nullptr, ApplicationState::APP_STATE_CACHED);
 
     std::string bundleName = "com.is.hiserice";
     std::string processName = "test_processName";
@@ -4287,10 +4287,10 @@ HWTEST_F(AppMgrServiceInnerTest, OnAppCacheStateChanged_001, TestSize.Level0)
     appRecord->SetState(ApplicationState::APP_STATE_CACHED);
 
     appRecord->priorityObject_ = nullptr;
-    appMgrServiceInner->OnAppCacheStateChanged(appRecord);
+    appMgrServiceInner->OnAppCacheStateChanged(appRecord, ApplicationState::APP_STATE_CACHED);
 
     appRecord->priorityObject_ = std::make_shared<PriorityObject>();
-    appMgrServiceInner->OnAppCacheStateChanged(appRecord);
+    appMgrServiceInner->OnAppCacheStateChanged(appRecord, ApplicationState::APP_STATE_CACHED);
 
 
     TAG_LOGI(AAFwkTag::TEST, "OnAppCacheStateChanged_001 end");

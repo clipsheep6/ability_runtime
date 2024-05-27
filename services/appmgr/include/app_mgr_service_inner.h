@@ -1084,9 +1084,12 @@ public:
 
     int32_t SetSupportedProcessCacheSelf(bool isSupport);
 
-    void OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, ApplicationState state);
 
     virtual void SaveBrowserChannel(const pid_t hostPid, sptr<IRemoteObject> browser);
+
+    bool IsAppProcessesAllCached(const std::string &bundleName, int32_t uid,
+        const std::set<std::shared_ptr<AppRunningRecord>> &cachedSet);
 private:
 
     std::string FaultTypeToString(FaultDataType type);
