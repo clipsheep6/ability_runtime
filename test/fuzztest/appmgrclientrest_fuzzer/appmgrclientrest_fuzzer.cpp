@@ -47,7 +47,7 @@ uint32_t GetU32Data(const char* ptr)
 }
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    AppMgrClient* appMgrClient = new AppMgrClient();
+    std::shared_ptr<AppMgrClient> appMgrClient = std::shared_ptr<AppMgrClient>();
     if (!appMgrClient) {
         return false;
     }

@@ -98,7 +98,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     // fuzz for AbilityInterceptorExecuter
     auto abilityInterceptorExecuter = std::make_shared<AbilityInterceptorExecuter>();
-    std::shared_ptr<AbilityInterceptor> interceptor;
+    std::shared_ptr<IAbilityInterceptor> interceptor;
     abilityInterceptorExecuter->AddInterceptor(interceptor);
     Parcel wantParcel;
     Want* want = nullptr;
@@ -170,13 +170,13 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     AmsConfigurationParameter::GetInstance().GetANRTimeOutTime();
     AmsConfigurationParameter::GetInstance().GetAMSTimeOutTime();
     AmsConfigurationParameter::GetInstance().GetMaxRestartNum(true);
-    AmsConfigurationParameter::GetInstance().GetDeviceType();
     AmsConfigurationParameter::GetInstance().GetBootAnimationTimeoutTime();
     nlohmann::json Object;
     AmsConfigurationParameter::GetInstance().LoadAppConfigurationForStartUpService(Object);
     AmsConfigurationParameter::GetInstance().LoadAppConfigurationForMemoryThreshold(Object);
     AmsConfigurationParameter::GetInstance().LoadSystemConfiguration(Object);
-
+    delete want;
+    want = nullptr;
     return true;
 }
 }

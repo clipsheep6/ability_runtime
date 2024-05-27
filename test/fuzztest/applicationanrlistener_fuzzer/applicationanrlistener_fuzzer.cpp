@@ -185,7 +185,10 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     callContainer->IsNeedToCallRequest();
     callContainer->AddConnectDeathRecipient(connect);
     callContainer->RemoveConnectDeathRecipient(connect);
-
+    if (want) {
+        delete want;
+        want = nullptr;
+    }
     return true;
 }
 }

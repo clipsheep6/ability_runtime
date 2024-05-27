@@ -90,7 +90,10 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->CheckCallServiceExtensionPermission(abilityRequest);
     abilityms->CheckCallOtherExtensionPermission(abilityRequest);
     abilityms->CheckCallServiceAbilityPermission(abilityRequest);
-
+    if (want) {
+        delete want;
+        want = nullptr;
+    }
     return true;
 }
 }
