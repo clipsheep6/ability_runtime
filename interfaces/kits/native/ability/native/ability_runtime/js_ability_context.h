@@ -67,6 +67,7 @@ public:
     static napi_value HideAbility(napi_env env, napi_callback_info info);
     static napi_value OpenAtomicService(napi_env env, napi_callback_info info);
     static napi_value MoveAbilityToBackground(napi_env env, napi_callback_info info);
+    static napi_value StartUIServiceExtension(napi_env env, napi_callback_info info);
 
     static void ConfigurationUpdated(napi_env env, std::shared_ptr<NativeReference> &jsContext,
         const std::shared_ptr<AppExecFwk::Configuration> &config);
@@ -122,6 +123,7 @@ private:
     napi_value OnMoveAbilityToBackground(napi_env env, NapiCallbackInfo& info);
     bool CreateOpenLinkTask(const napi_env &env, const napi_value &lastParam, AAFwk::Want &want,
         int &requestCode);
+    napi_value OnStartUIServiceExtension(napi_env env, NapiCallbackInfo& info);
 
     static bool UnWrapWant(napi_env env, napi_value argv, AAFwk::Want& want);
     static napi_value WrapWant(napi_env env, const AAFwk::Want& want);

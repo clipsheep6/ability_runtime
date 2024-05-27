@@ -43,6 +43,7 @@ public:
     static napi_value DisconnectAbility(napi_env env, napi_callback_info info);
     static napi_value ReportDrawnCompleted(napi_env env, napi_callback_info info);
     static napi_value OpenAtomicService(napi_env env, napi_callback_info info);
+    static napi_value StartUIServiceExtension(napi_env env, napi_callback_info info);
 
 protected:
     virtual napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info);
@@ -54,6 +55,7 @@ protected:
     virtual napi_value OnDisconnectAbility(napi_env env, NapiCallbackInfo& info);
     virtual napi_value OnReportDrawnCompleted(napi_env env, NapiCallbackInfo& info);
     virtual napi_value OnOpenAtomicService(napi_env env, NapiCallbackInfo& info);
+    virtual napi_value OnStartUIServiceExtension(napi_env env, NapiCallbackInfo& info);
     void SetCallbackForTerminateWithResult(int32_t resultCode, AAFwk::Want& want,
         NapiAsyncTask::CompleteCallback& complete);
 
