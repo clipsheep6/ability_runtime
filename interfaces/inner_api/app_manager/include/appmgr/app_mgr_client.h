@@ -305,10 +305,11 @@ public:
     /**
      * Get running process information by pid.
      *
-     * @param token Process id.
-     * @param info Running process info.
+     * @param pid process id.
+     * @param info Output parameters, return runningProcessInfo.
+     * @return Returns ERR_OK on success, others on failure.
      */
-    virtual void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const;
+    virtual int32_t GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const;
 
     /**
      * Notify that the ability stage has been updated

@@ -65,14 +65,19 @@
 #include "shared/base_shared_bundle_info.h"
 #include "task_handler_wrap.h"
 #include "want.h"
-#include "window_focus_changed_listener.h"
-#include "window_visibility_changed_listener.h"
 #include "app_jsheap_mem_info.h"
 #include "running_multi_info.h"
 
 namespace OHOS {
+namespace Rosen {
+class WindowVisibilityInfo;
+class FocusChangeInfo;
+}
 namespace AppExecFwk {
 using OHOS::AAFwk::Want;
+class WindowFocusChangedListener;
+class WindowVisibilityChangedListener;
+
 class AppMgrServiceInner : public std::enable_shared_from_this<AppMgrServiceInner> {
 public:
     AppMgrServiceInner();
@@ -584,7 +589,7 @@ public:
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
 
-    void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const;
+    int32_t GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const;
 
     /**
      * Set AbilityForegroundingFlag of an app-record to true.
@@ -1104,8 +1109,8 @@ private:
         const std::shared_ptr<ApplicationInfo> &appInfo, std::string &processName) const;
 
     void MakeProcessName(const std::shared_ptr<AbilityInfo> &abilityInfo,
-        const std::shared_ptr<ApplicationInfo> &appInfo,
-        const HapModuleInfo &hapModuleInfo, int32_t appIndex, std::string &processName) const;
+        const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo, int32_t appIndex,
+        const std::string &specifiedProcessFlag, std::string &processName) const;
 
     void MakeProcessName(const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo,
         std::string &processName) const;
@@ -1151,7 +1156,7 @@ private:
                       std::shared_ptr<AppRunningRecord> appRecord, const int uid, const BundleInfo &bundleInfo,
                       const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag = true,
                       bool isPreload = false, const std::string &moduleName = "", const std::string &abilityName = "",
-                      bool strictMode = false);
+                      bool strictMode = false, int32_t maxChildProcess = 0);
 
     /**
      * PushAppFront, Adjust the latest application record to the top level.
@@ -1314,6 +1319,8 @@ private:
 
     void KillAttachedChildProcess(const std::shared_ptr<AppRunningRecord> &appRecord);
 
+    void PresetMaxChildProcess(const std::shared_ptr<AbilityInfo> &abilityInfo, int32_t &maxChildProcess);
+
 private:
     /**
      * ClearUpApplicationData, clear the application data.
@@ -1382,7 +1389,7 @@ private:
      */
     void NotifyAppRunningStatusEvent(
         const std::string &bundle, int32_t uid, AbilityRuntime::RunningStatus runningStatus);
-    
+
     void GetRunningCloneAppInfo(const std::shared_ptr<AppRunningRecord> &appRecord,
         RunningMultiAppInfo &info);
 

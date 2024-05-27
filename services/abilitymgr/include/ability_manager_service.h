@@ -67,13 +67,16 @@
 #include "dialog_session_record.h"
 #include "implicit_start_processor.h"
 #include "system_dialog_scheduler.h"
-#include "window_focus_changed_listener.h"
 #endif
 
 namespace OHOS {
 namespace AbilityRuntime {
 class IStatusBarDelegate;
 }
+namespace Rosen {
+class FocusChangeInfo;
+}
+
 namespace AAFwk {
 using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
 enum class ServiceRunningState { STATE_NOT_START, STATE_RUNNING };
@@ -83,6 +86,8 @@ constexpr int32_t INVALID_USER_ID = -1;
 using OHOS::AppExecFwk::IAbilityController;
 class PendingWantManager;
 struct StartAbilityInfo;
+class WindowFocusChangedListener;
+
 /**
  * @class AbilityManagerService
  * AbilityManagerService provides a facility for managing ability life cycle.
@@ -1746,6 +1751,8 @@ protected:
 
     void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos) override;
 
+    void OnAppRemoteDied(const std::vector<sptr<IRemoteObject>> &abilityTokens) override;
+
 private:
     int TerminateAbilityWithFlag(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want *resultWant = nullptr, bool flag = true);
@@ -1911,6 +1918,7 @@ private:
     void SubscribeScreenUnlockedEvent();
     void UnSubscribeScreenUnlockedEvent();
     void RetrySubscribeScreenUnlockedEvent(int32_t retryCount);
+    void RemoveScreenUnlockInterceptor();
 
     int VerifyAccountPermission(int32_t userId);
 

@@ -122,7 +122,7 @@ public:
 
     static napi_value KillProcessesByBundleName(napi_env env, napi_callback_info info)
     {
-        GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnkillProcessesByBundleName);
+        GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnKillProcessesByBundleName);
     }
 
     static napi_value ClearUpApplicationData(napi_env env, napi_callback_info info)
@@ -183,8 +183,8 @@ public:
         }
         napi_ref ref = nullptr;
         napi_create_reference(env, para, 1, &ref);
-        NativeReference* nativeReferece = reinterpret_cast<NativeReference *>(ref);
-        auto object = nativeReferece->GetNapiValue();
+        NativeReference* nativeReference = reinterpret_cast<NativeReference *>(ref);
+        auto object = nativeReference->GetNapiValue();
         napi_value method = nullptr;
         napi_get_named_property(env, object, methodName.c_str(), &method);
         if (method == nullptr) {
@@ -483,7 +483,7 @@ private:
         int64_t observerId = -1;
         napi_get_value_int64(env, argv[INDEX_ONE], &observerId);
         if (observer_ == nullptr) {
-            TAG_LOGE(AAFwkTag::APPMGR, "observer_ is nullptr, please register first");
+            TAG_LOGE(AAFwkTag::APPMGR, "observer is nullptr, please register first");
             ThrowInvalidParamError(env, "observer is nullptr, please register first");
             return CreateJsUndefined(env);
         }
@@ -756,9 +756,9 @@ private:
         return result;
     }
 
-    napi_value OnkillProcessesByBundleName(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnKillProcessesByBundleName(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGD(AAFwkTag::APPMGR, "OnkillProcessesByBundleName called");
+        TAG_LOGD(AAFwkTag::APPMGR, "OnKillProcessesByBundleName called");
         if (argc < ARGC_ONE) {
             TAG_LOGE(AAFwkTag::APPMGR, "Params not match");
             ThrowTooFewParametersError(env);
@@ -790,7 +790,7 @@ private:
 
         napi_value lastParam = (argc == ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnkillProcessesByBundleName",
+        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnKillProcessesByBundleName",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }

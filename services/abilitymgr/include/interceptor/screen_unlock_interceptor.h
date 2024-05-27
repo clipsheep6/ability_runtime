@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,24 +13,24 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_ABILITY_APP_STATE_OBSERVER_H
-#define OHOS_ABILITY_RUNTIME_ABILITY_APP_STATE_OBSERVER_H
+#ifndef OHOS_ABILITY_RUNTIME_SCREEN_UNLOCK_INTERCEPTOR
+#define OHOS_ABILITY_RUNTIME_SCREEN_UNLOCK_INTERCEPTOR
 
-#include <memory>
-
-#include "application_state_observer_stub.h"
+#include "ability_interceptor_interface.h"
 
 namespace OHOS {
 namespace AAFwk {
-class AbilityRecord;
-class AbilityAppStateObserver : public AppExecFwk::ApplicationStateObserverStub {
+class ScreenUnlockInterceptor : public IAbilityInterceptor {
 public:
-    AbilityAppStateObserver(std::shared_ptr<AbilityRecord> abilityRecord);
-    virtual void OnProcessDied(const AppExecFwk::ProcessData &processData) override;
-
-private:
-    std::weak_ptr<AbilityRecord> abilityRecord_;
+    ScreenUnlockInterceptor() = default;
+    ~ScreenUnlockInterceptor() = default;
+    ErrCode DoProcess(AbilityInterceptorParam param) override;
+    virtual void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) override
+    {
+        return;
+    };
 };
 } // namespace AAFwk
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_ABILITY_APP_STATE_OBSERVER_H
+
+#endif // OHOS_ABILITY_RUNTIME_SCREEN_UNLOCK_INTERCEPTOR

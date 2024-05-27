@@ -102,6 +102,7 @@ ohos_unittest("appfreeze_inner_test") {
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
     "init:libbegetutil",
+    "input:libmmi-client",
     "ipc:ipc_core",
     "napi:ace_napi",
     "resource_management:global_resmgr",

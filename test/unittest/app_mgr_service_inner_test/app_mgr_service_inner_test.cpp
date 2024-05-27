@@ -44,6 +44,19 @@ using namespace testing::ext;
 
 namespace OHOS {
 namespace AppExecFwk {
+class WindowFocusChangedListener : public OHOS::Rosen::IFocusChangedListener {
+public:
+    WindowFocusChangedListener(const std::shared_ptr<AppMgrServiceInner>& owner,
+        const std::shared_ptr<AAFwk::TaskHandlerWrap>& handler);
+    virtual ~WindowFocusChangedListener();
+
+    void OnFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo) override;
+    void OnUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo) override;
+
+private:
+    std::weak_ptr<AppMgrServiceInner> owner_;
+    std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
+};
 namespace {
 constexpr int32_t RECORD_ID = 1;
 constexpr int32_t APP_DEBUG_INFO_PID = 0;
@@ -451,10 +464,10 @@ HWTEST_F(AppMgrServiceInnerTest, MakeProcessName_001, TestSize.Level0)
     HapModuleInfo hapModuleInfo;
     hapModuleInfo.moduleName = "module789";
     std::string processName = "test_processName";
-    appMgrServiceInner->MakeProcessName(nullptr, nullptr, hapModuleInfo, 1, processName);
-    appMgrServiceInner->MakeProcessName(nullptr, applicationInfo_, hapModuleInfo, 1, processName);
-    appMgrServiceInner->MakeProcessName(abilityInfo_, nullptr, hapModuleInfo, 1, processName);
-    appMgrServiceInner->MakeProcessName(abilityInfo_, applicationInfo_, hapModuleInfo, 1, processName);
+    appMgrServiceInner->MakeProcessName(nullptr, nullptr, hapModuleInfo, 1, "", processName);
+    appMgrServiceInner->MakeProcessName(nullptr, applicationInfo_, hapModuleInfo, 1, "", processName);
+    appMgrServiceInner->MakeProcessName(abilityInfo_, nullptr, hapModuleInfo, 1, "", processName);
+    appMgrServiceInner->MakeProcessName(abilityInfo_, applicationInfo_, hapModuleInfo, 1, "", processName);
 
     EXPECT_NE(appMgrServiceInner, nullptr);
     TAG_LOGI(AAFwkTag::TEST, "MakeProcessName_001 end");

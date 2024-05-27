@@ -35,6 +35,9 @@
 #include "app_jsheap_mem_info.h"
 
 namespace OHOS {
+namespace Rosen {
+class WindowVisibilityInfo;
+}
 namespace AppExecFwk {
 class AppRunningManager {
 public:
@@ -221,7 +224,7 @@ public:
     std::shared_ptr<AppRunningRecord> GetTerminatingAppRunningRecord(const sptr<IRemoteObject> &abilityToken);
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
-    void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info);
+    int32_t GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info);
 
     void ClipStringContent(const std::regex &re, const std::string &source, std::string &afterCutStr);
     void HandleAddAbilityStageTimeOut(const int64_t eventId);
@@ -299,7 +302,7 @@ public:
 
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);
-    void AssignRunningProcessInfoByAppRecord(
+    int32_t AssignRunningProcessInfoByAppRecord(
         std::shared_ptr<AppRunningRecord> appRecord, AppExecFwk::RunningProcessInfo &info) const;
     bool isCollaboratorReserveType(const std::shared_ptr<AppRunningRecord> &appRecord);
 

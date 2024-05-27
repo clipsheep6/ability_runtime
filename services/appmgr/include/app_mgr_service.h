@@ -379,6 +379,15 @@ public:
     virtual int32_t GetBundleNameByPid(const int32_t pid, std::string &bundleName, int32_t &uid) override;
 
     /**
+     * Get running process information by pid.
+     *
+     * @param pid process id.
+     * @param info Output parameters, return runningProcessInfo.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) override;
+
+    /**
      * Notify Fault Data
      *
      * @param faultData the fault data.

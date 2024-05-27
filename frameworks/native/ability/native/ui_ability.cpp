@@ -23,6 +23,7 @@
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_ui_ability.h"
+#include "cj_ui_ability.h"
 #include "ohos_application.h"
 #include "reverse_continuation_scheduler_primary_stage.h"
 #include "runtime.h"
@@ -49,6 +50,8 @@ UIAbility *UIAbility::Create(const std::unique_ptr<Runtime> &runtime)
     switch (runtime->GetLanguage()) {
         case Runtime::Language::JS:
             return JsUIAbility::Create(runtime);
+        case Runtime::Language::CJ:
+            return CJUIAbility::Create(runtime);
         default:
             return new (std::nothrow) UIAbility();
     }
@@ -291,6 +294,7 @@ void UIAbility::OnConfigurationUpdatedNotify(const AppExecFwk::Configuration &co
     std::string colormode;
     std::string hasPointerDevice;
     InitConfigurationProperties(configuration, language, colormode, hasPointerDevice);
+    std::string colorModeIsSetByApp = configuration.GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP);
     // Notify ResourceManager
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     if (resConfig == nullptr) {
@@ -315,6 +319,10 @@ void UIAbility::OnConfigurationUpdatedNotify(const AppExecFwk::Configuration &co
         }
         if (!hasPointerDevice.empty()) {
             resConfig->SetInputDevice(AppExecFwk::ConvertHasPointerDevice(hasPointerDevice));
+        }
+        if (!colorModeIsSetByApp.empty()) {
+            TAG_LOGD(AAFwkTag::UIABILITY, "set app true");
+            resConfig->SetAppColorMode(true);
         }
         resourceManager->UpdateResConfig(*resConfig);
         TAG_LOGD(AAFwkTag::UIABILITY, "Current colorMode: %{public}d, hasPointerDevice: %{public}d.",

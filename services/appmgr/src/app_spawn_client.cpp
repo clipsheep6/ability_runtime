@@ -48,6 +48,23 @@ AppSpawnClient::AppSpawnClient(bool isNWebSpawn)
     state_ = SpawnConnectionState::STATE_NOT_CONNECT;
 }
 
+AppSpawnClient::AppSpawnClient(const char* serviceName)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "AppspawnCreateClient");
+    std::string serviceName__ = serviceName;
+    if (serviceName__ == APPSPAWN_SERVER_NAME) {
+        serviceName_ = APPSPAWN_SERVER_NAME;
+    } else if (serviceName__ == CJAPPSPAWN_SERVER_NAME) {
+        serviceName_ = CJAPPSPAWN_SERVER_NAME;
+    } else if (serviceName__ == NWEBSPAWN_SERVER_NAME) {
+        serviceName_ = NWEBSPAWN_SERVER_NAME;
+    } else {
+        TAG_LOGE(AAFwkTag::APPMGR, "unknown service name");
+        serviceName_ = NWEBSPAWN_SERVER_NAME;
+    }
+    state_ = SpawnConnectionState::STATE_NOT_CONNECT;
+}
+
 AppSpawnClient::~AppSpawnClient()
 {
     CloseConnection();
@@ -171,14 +188,6 @@ int32_t AppSpawnClient::SetMountPermission(const AppSpawnStartMsg &startMsg, App
             return ret;
         }
     }
-
-    if (!startMsg.processType.empty() &&
-        (ret = AppSpawnReqMsgAddExtInfo(reqHandle, MSG_EXT_NAME_PROCESS_TYPE,
-            reinterpret_cast<const uint8_t*>(startMsg.processType.c_str()), startMsg.processType.size()))) {
-        HILOG_ERROR("AppSpawnReqMsgAddExtInfo failed, ret: %{public}d", ret);
-        return ret;
-    }
-
     return ret;
 }
 
@@ -216,9 +225,11 @@ int32_t AppSpawnClient::SetAtomicServiceFlag(const AppSpawnStartMsg &startMsg, A
 int32_t AppSpawnClient::SetStrictMode(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle)
 {
     int32_t ret = 0;
-    if (startMsg.strictMode &&
-        (ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_ISOLATED_SANDBOX))) {
-        HILOG_ERROR("AppSpawnReqMsgSetAppFlag failed, ret: %{public}d", ret);
+    if (startMsg.strictMode) {
+        ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_ISOLATED_SANDBOX);
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnReqMsgSetAppFlag failed, ret: %{public}d", ret);
+        }
     }
     return ret;
 }
@@ -226,9 +237,11 @@ int32_t AppSpawnClient::SetStrictMode(const AppSpawnStartMsg &startMsg, AppSpawn
 int32_t AppSpawnClient::SetAppExtension(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle)
 {
     int32_t ret = 0;
-    if (startMsg.isolatedExtension &&
-        (ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_EXTENSION_SANDBOX))) {
-        HILOG_ERROR("AppSpawnReqMsgSetAppFlag failed, ret: %{public}d", ret);
+    if (startMsg.isolatedExtension) {
+        ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_EXTENSION_SANDBOX);
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnReqMsgSetAppFlag failed, ret: %{public}d", ret);
+        }
     }
     return ret;
 }
@@ -304,6 +317,15 @@ int32_t AppSpawnClient::AppspawnSetExtMsgMore(const AppSpawnStartMsg &startMsg, 
             startMsg.extensionSandboxPath.c_str());
         if (ret) {
             TAG_LOGE(AAFwkTag::APPMGR, "SetExtraExtensionSandboxDirs failed, ret: %{public}d", ret);
+            return ret;
+        }
+    }
+
+    if (!startMsg.processType.empty()) {
+        ret = AppSpawnReqMsgAddExtInfo(reqHandle, MSG_EXT_NAME_PROCESS_TYPE,
+            reinterpret_cast<const uint8_t*>(startMsg.processType.c_str()), startMsg.processType.size());
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnReqMsgAddExtInfo failed, ret: %{public}d", ret);
             return ret;
         }
     }

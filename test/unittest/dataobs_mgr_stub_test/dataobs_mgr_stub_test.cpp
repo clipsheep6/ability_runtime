@@ -206,5 +206,123 @@ HWTEST_F(DataObsManagerStubTest, AaFwk_DataObsManagerStubTest_NotifyChange_0100,
     EXPECT_EQ(testVal2, retval2);
     GTEST_LOG_(INFO) << "AaFwk_DataObsManagerStubTest_NotifyChange_0100 end";
 }
+
+/*
+ * Feature: DataObsManagerStub
+ * Function: RegisterObserverExtInner
+ * SubFunction: NA
+ * FunctionPoints: DataObsManagerStub RegisterObserverExtInner
+ * EnvConditions: NA
+ * CaseDescription: Verify that the DataObsManagerStub RegisterObserverExtInner is normal.
+ */
+HWTEST_F(DataObsManagerStubTest, AaFwk_DataObsManagerStubTest_RegisterObserverExtInner_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_DataObsManagerStubTest_RegisterObserverExtInner_0100 start";
+    std::shared_ptr<MockDataObsMgrStub> dataobs = std::make_shared<MockDataObsMgrStub>();
+    Uri uri("dataability://device_id/com.domainname.dataability.persondata/person/10");
+    const int testVal1 = static_cast<int>(NO_ERROR);
+    const Status testVal2 = SUCCESS;
+    uint32_t code = IDataObsMgr::REGISTER_OBSERVER_EXT;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!data.WriteInterfaceToken(DataObsManagerProxy::GetDescriptor())) {
+        GTEST_LOG_(ERROR) << "---------- WriteInterfaceToken(data) retval is false end";
+        return;
+    }
+    if (!data.WriteString(uri.ToString())) {
+        GTEST_LOG_(ERROR) << "---------- data.WriteParcelable(uri) retval is false end";
+        return;
+    }
+
+    EXPECT_CALL(*dataobs, RegisterObserverExt(testing::_, testing::_, testing::_)).Times(1)
+        .WillOnce(testing::Return(testVal2));
+
+    const int retval1 = dataobs->OnRemoteRequest(code, data, reply, option);
+    const int retval2 = reply.ReadInt32();
+
+    EXPECT_EQ(testVal1, retval1);
+    EXPECT_EQ(testVal2, retval2);
+    GTEST_LOG_(INFO) << "AaFwk_DataObsManagerStubTest_RegisterObserverExtInner_0100 end";
+}
+
+/*
+ * Feature: DataObsManagerStub
+ * Function: UnregisterObserverExtInner
+ * SubFunction: NA
+ * FunctionPoints: DataObsManagerStub UnregisterObserverExtInner
+ * EnvConditions: NA
+ * CaseDescription: Verify that the DataObsManagerStub UnregisterObserverExtInner is normal.
+ */
+HWTEST_F(DataObsManagerStubTest, AaFwk_DataObsManagerStubTest_UnregisterObserverExtInner_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_DataObsManagerStubTest_UnregisterObserverExtInner_0100 start";
+    std::shared_ptr<MockDataObsMgrStub> dataobs = std::make_shared<MockDataObsMgrStub>();
+    Uri uri("dataability://device_id/com.domainname.dataability.persondata/person/10");
+    const int testVal1 = static_cast<int>(NO_ERROR);
+    const Status testVal2 = SUCCESS;
+    uint32_t code = IDataObsMgr::UNREGISTER_OBSERVER_EXT;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!data.WriteInterfaceToken(DataObsManagerProxy::GetDescriptor())) {
+        GTEST_LOG_(ERROR) << "---------- WriteInterfaceToken(data) retval is false end";
+        return;
+    }
+    if (!data.WriteString(uri.ToString())) {
+        GTEST_LOG_(ERROR) << "---------- data.WriteParcelable(uri) retval is false end";
+        return;
+    }
+
+    EXPECT_CALL(*dataobs, UnregisterObserverExt(testing::_, testing::_)).Times(1).WillOnce(testing::Return(testVal2));
+
+    const int retval1 = dataobs->OnRemoteRequest(code, data, reply, option);
+    const int retval2 = reply.ReadInt32();
+
+    EXPECT_EQ(testVal1, retval1);
+    EXPECT_EQ(testVal2, retval2);
+    GTEST_LOG_(INFO) << "AaFwk_DataObsManagerStubTest_UnregisterObserverExtInner_0100 end";
+}
+
+/*
+ * Feature: DataObsManagerStub
+ * Function: UnregisterObserverExtALLInner
+ * SubFunction: NA
+ * FunctionPoints: DataObsManagerStub UnregisterObserverExtALLInner
+ * EnvConditions: NA
+ * CaseDescription: Verify that the DataObsManagerStub UnregisterObserverExtALLInner is normal.
+ */
+HWTEST_F(DataObsManagerStubTest, AaFwk_DataObsManagerStubTest_UnregisterObserverExtALLInner_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_DataObsManagerStubTest_UnregisterObserverExtALLInner_0100 start";
+    std::shared_ptr<MockDataObsMgrStub> dataobs = std::make_shared<MockDataObsMgrStub>();
+    Uri uri("dataability://device_id/com.domainname.dataability.persondata/person/10");
+    const int testVal1 = static_cast<int>(NO_ERROR);
+    const Status testVal2 = SUCCESS;
+    uint32_t code = IDataObsMgr::UNREGISTER_OBSERVER_ALL_EXT;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!data.WriteInterfaceToken(DataObsManagerProxy::GetDescriptor())) {
+        GTEST_LOG_(ERROR) << "---------- WriteInterfaceToken(data) retval is false end";
+        return;
+    }
+    if (!data.WriteString(uri.ToString())) {
+        GTEST_LOG_(ERROR) << "---------- data.WriteParcelable(uri) retval is false end";
+        return;
+    }
+
+    EXPECT_CALL(*dataobs, UnregisterObserverExt(testing::_)).Times(1).WillOnce(testing::Return(testVal2));
+
+    const int retval1 = dataobs->OnRemoteRequest(code, data, reply, option);
+    const int retval2 = reply.ReadInt32();
+
+    EXPECT_EQ(testVal1, retval1);
+    EXPECT_EQ(testVal2, retval2);
+    GTEST_LOG_(INFO) << "AaFwk_DataObsManagerStubTest_UnregisterObserverExtALLInner_0100 end";
+}
 }  // namespace AAFwk
 }  // namespace OHOS

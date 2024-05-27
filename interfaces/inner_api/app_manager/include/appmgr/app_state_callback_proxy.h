@@ -57,6 +57,12 @@ public:
      */
     virtual void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos) override;
 
+    /**
+     * @brief Notify abilityms app process OnRemoteDied
+     * @param abilityTokens abilities in died process.
+     */
+    virtual void OnAppRemoteDied(const std::vector<sptr<IRemoteObject>> &abilityTokens) override;
+    
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     static inline BrokerDelegator<AppStateCallbackProxy> delegator_;

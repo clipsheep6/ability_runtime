@@ -14,7 +14,6 @@
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 abilityms_files = [
-  "src/ability_app_state_observer.cpp",
   "src/preload_uiext_state_observer.cpp",
   "src/ability_background_connection.cpp",
   "src/ability_connect_manager.cpp",
@@ -64,6 +63,7 @@ abilityms_files = [
   "src/interceptor/crowd_test_interceptor.cpp",
   "src/interceptor/disposed_rule_interceptor.cpp",
   "src/interceptor/ecological_rule_interceptor.cpp",
+  "src/interceptor/screen_unlock_interceptor.cpp",
   "src/interceptor/start_other_app_interceptor.cpp",
   "src/uri_utils.cpp",
   "src/window_focus_changed_listener.cpp",
@@ -80,6 +80,7 @@ abilityms_files = [
   "src/extension_record_factory.cpp",
   "src/ui_extension_record.cpp",
   "src/ui_extension_record_factory.cpp",
+  "src/screen_lock/unlock_screen_manager.cpp",
   "src/start_options.cpp",
   "src/user_callback_proxy.cpp",
   "src/call_container.cpp",
@@ -140,6 +141,7 @@ if (ability_runtime_graphics) {
     "src/implicit_start_processor.cpp",
     "src/system_dialog_scheduler.cpp",
     "src/ability_first_frame_state_observer_manager.cpp",
+    "src/screen_lock/unlock_screen_callback.cpp",
   ]
 }
 

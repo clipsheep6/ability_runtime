@@ -69,6 +69,7 @@
 #include "interceptor/crowd_test_interceptor.h"
 #include "interceptor/disposed_rule_interceptor.h"
 #include "interceptor/ecological_rule_interceptor.h"
+#include "interceptor/screen_unlock_interceptor.h"
 #include "interceptor/start_other_app_interceptor.h"
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
@@ -101,6 +102,7 @@
 #include "system_ability_token_callback.h"
 #include "extension_record_manager.h"
 #include "ui_extension_utils.h"
+#include "unlock_screen_manager.h"
 #include "uri_permission_manager_client.h"
 #include "uri_utils.h"
 #include "view_data.h"
@@ -111,6 +113,7 @@
 #include "application_anr_listener.h"
 #include "input_manager.h"
 #include "ability_first_frame_state_observer_manager.h"
+#include "window_focus_changed_listener.h"
 #endif
 
 #ifdef EFFICIENCY_MANAGER_ENABLE
@@ -197,6 +200,7 @@ const std::string FOUNDATION_PROCESS_NAME = "foundation";
 const std::string IS_PRELOAD_UIEXTENSION_ABILITY = "ability.want.params.is_preload_uiextension_ability";
 const std::string UIEXTENSION_MODAL_TYPE = "ability.want.params.modalType";
 const std::string ATOMIC_SERVICE_PREFIX = "com.atomicservice.";
+constexpr const char* PARAM_SPECIFIED_PROCESS_FLAG = "ohosSpecifiedProcessFlag";
 
 constexpr char ASSERT_FAULT_DETAIL[] = "assertFaultDialogDetail";
 constexpr char PRODUCT_ASSERT_FAULT_DIALOG_ENABLED[] = "persisit.sys.abilityms.support_assert_fault_dialog";
@@ -433,18 +437,19 @@ void AbilityManagerService::InitDeepLinkReserve()
 void AbilityManagerService::InitInterceptor()
 {
     interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
-    interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
-    interceptorExecuter_->AddInterceptor(std::make_shared<ControlInterceptor>());
+    interceptorExecuter_->AddInterceptor("ScreenUnlock", std::make_shared<ScreenUnlockInterceptor>());
+    interceptorExecuter_->AddInterceptor("CrowdTest", std::make_shared<CrowdTestInterceptor>());
+    interceptorExecuter_->AddInterceptor("Control", std::make_shared<ControlInterceptor>());
     afterCheckExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
-    afterCheckExecuter_->AddInterceptor(std::make_shared<StartOtherAppInterceptor>());
-    afterCheckExecuter_->AddInterceptor(std::make_shared<DisposedRuleInterceptor>());
-    afterCheckExecuter_->AddInterceptor(std::make_shared<EcologicalRuleInterceptor>());
+    afterCheckExecuter_->AddInterceptor("StartOtherApp", std::make_shared<StartOtherAppInterceptor>());
+    afterCheckExecuter_->AddInterceptor("DisposedRule", std::make_shared<DisposedRuleInterceptor>());
+    afterCheckExecuter_->AddInterceptor("EcologicalRule", std::make_shared<EcologicalRuleInterceptor>());
     afterCheckExecuter_->SetTaskHandler(taskHandler_);
     bool isAppJumpEnabled = OHOS::system::GetBoolParameter(
         OHOS::AppExecFwk::PARAMETER_APP_JUMP_INTERCEPTOR_ENABLE, false);
     if (isAppJumpEnabled) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "App jump intercetor enabled, add AbilityJumpInterceptor to Executer");
-        interceptorExecuter_->AddInterceptor(std::make_shared<AbilityJumpInterceptor>());
+        interceptorExecuter_->AddInterceptor("AbilityJump", std::make_shared<AbilityJumpInterceptor>());
     }
 }
 
@@ -536,6 +541,10 @@ int AbilityManagerService::StartAbility(const Want &want, int32_t userId, int re
     if (want.GetBoolParam(DEBUG_APP, false) && !system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Developer Mode is false.");
         return ERR_NOT_DEVELOPER_MODE;
+    }
+    if (!UnlockScreenManager::GetInstance().UnlockScreen()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Screen need passord to unlock");
+        return ERR_UNLOCK_SCREEN_FAILED_IN_DEVELOPER_MODE;
     }
     TAG_LOGD(AAFwkTag::ABILITYMGR, "coldStart:%{public}d", want.GetBoolParam("coldStart", false));
     bool startWithAccount = want.GetBoolParam(START_ABILITY_TYPE, false);
@@ -928,7 +937,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     int32_t validUserId = oriValidUserId;
 
     StartAbilityInfoWrap threadLocalInfo(want, validUserId,
-        StartAbilityUtils::GetAppIndex(want, callerToken));
+        StartAbilityUtils::GetAppIndex(want, callerToken), callerToken);
     AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, requestCode, GetUserId(),
         true, nullptr);
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -1142,6 +1151,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         abilityRequest.want.SetParam(SPECIFY_TOKEN_ID, static_cast<int32_t>(specifyTokenId));
         abilityRequest.specifyTokenId = specifyTokenId;
     }
+    abilityRequest.want.RemoveParam(PARAM_SPECIFIED_PROCESS_FLAG);
     // sceneboard
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         ReportEventToSuspendManager(abilityInfo);
@@ -1189,6 +1199,10 @@ int AbilityManagerService::StartAbilityDetails(const Want &want, const AbilitySt
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Developer Mode is false.");
         return ERR_NOT_DEVELOPER_MODE;
     }
+    if (!UnlockScreenManager::GetInstance().UnlockScreen()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Screen need passord to unlock");
+        return ERR_UNLOCK_SCREEN_FAILED_IN_DEVELOPER_MODE;
+    }
     AbilityUtil::RemoveWantKey(const_cast<Want &>(want));
     StartAbilityParams startParams(const_cast<Want &>(want));
     startParams.callerToken = callerToken;
@@ -1227,7 +1241,7 @@ int AbilityManagerService::StartAbilityDetails(const Want &want, const AbilitySt
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
     StartAbilityInfoWrap threadLocalInfo(want, validUserId,
-        StartAbilityUtils::GetAppIndex(want, callerToken));
+        StartAbilityUtils::GetAppIndex(want, callerToken), callerToken);
     AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, requestCode, GetUserId(),
         true, nullptr);
     result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -1283,6 +1297,7 @@ int AbilityManagerService::StartAbilityDetails(const Want &want, const AbilitySt
         SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return result;
     }
+    abilityRequest.want.RemoveParam(PARAM_SPECIFIED_PROCESS_FLAG);
 
     auto abilityInfo = abilityRequest.abilityInfo;
     validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : validUserId;
@@ -1507,7 +1522,7 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
     StartAbilityInfoWrap threadLocalInfo(want, validUserId,
-        StartAbilityUtils::GetAppIndex(want, callerToken));
+        StartAbilityUtils::GetAppIndex(want, callerToken), callerToken);
     AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, requestCode, GetUserId(),
         true, nullptr);
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -1724,6 +1739,7 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         abilityRequest.want.SetParam(SPECIFY_TOKEN_ID, static_cast<int32_t>(specifyTokenId));
         abilityRequest.specifyTokenId = specifyTokenId;
     }
+    abilityRequest.want.RemoveParam(PARAM_SPECIFIED_PROCESS_FLAG);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         abilityRequest.userId = oriValidUserId;
         abilityRequest.want.SetParam(IS_CALL_BY_SCB, false);
@@ -1915,7 +1931,7 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bo
 
     auto requestCode = sessionInfo->requestCode;
     StartAbilityInfoWrap threadLocalInfo(sessionInfo->want, currentUserId,
-        StartAbilityUtils::GetAppIndex(sessionInfo->want, sessionInfo->callerToken));
+        StartAbilityUtils::GetAppIndex(sessionInfo->want, sessionInfo->callerToken), sessionInfo->callerToken);
     if (sessionInfo->want.GetBoolParam(IS_CALL_BY_SCB, true)) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "interceptorExecuter_ called.");
         AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(sessionInfo->want, requestCode,
@@ -2559,7 +2575,7 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
 
     int32_t validUserId = GetValidUserId(userId);
     StartAbilityInfoWrap threadLocalInfo(want, validUserId,
-        StartAbilityUtils::GetAppIndex(want, callerToken), true);
+        StartAbilityUtils::GetAppIndex(want, callerToken), callerToken, true);
     AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, 0, GetUserId(), false, nullptr);
     result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
         interceptorExecuter_->DoProcess(interceptorParam);
@@ -6406,6 +6422,7 @@ void AbilityManagerService::SubscribeScreenUnlockedEvent()
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid abilityMgr pointer.");
                 return;
             }
+            abilityMgr->RemoveScreenUnlockInterceptor();
             abilityMgr->StartAutoStartupApps();
             abilityMgr->UnSubscribeScreenUnlockedEvent();
         };
@@ -6443,6 +6460,11 @@ void AbilityManagerService::RetrySubscribeScreenUnlockedEvent(int32_t retryCount
     };
     constexpr int delaytime = 200;
     taskHandler_->SubmitTask(retrySubscribeScreenUnlockedEventTask, "RetrySubscribeScreenUnlockedEvent", delaytime);
+}
+
+void AbilityManagerService::RemoveScreenUnlockInterceptor()
+{
+    interceptorExecuter_->RemoveInterceptor("ScreenUnlock");
 }
 
 void AbilityManagerService::ConnectBmsService()
@@ -6630,7 +6652,7 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
 
     AbilityUtil::RemoveWantKey(const_cast<Want &>(want));
     StartAbilityInfoWrap threadLocalInfo(want, GetUserId(),
-        StartAbilityUtils::GetAppIndex(want, callerToken));
+        StartAbilityUtils::GetAppIndex(want, callerToken), callerToken);
     AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, 0, GetUserId(), true, nullptr);
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
         interceptorExecuter_->DoProcess(interceptorParam);
@@ -9477,11 +9499,11 @@ int32_t AbilityManagerService::CheckProcessOptions(const Want &want, const Start
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (startOptions.processOptions == nullptr ||
-        !ProcessOptions::IsNewProcessMode(startOptions.processOptions->processMode)) {
+        !ProcessOptions::IsValidProcessMode(startOptions.processOptions->processMode)) {
         return ERR_OK;
     }
 
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "start ability in new process mode.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "start ability with process options.");
     bool isEnable = AppUtils::GetInstance().IsStartOptionsWithProcessOptions();
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() || !isEnable) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Not support process options.");
@@ -9502,9 +9524,9 @@ int32_t AbilityManagerService::CheckProcessOptions(const Want &want, const Start
     auto uiAbilityManager = GetUIAbilityManagerByUid(IPCSkeleton::GetCallingUid());
     CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
 
-    if (startOptions.processOptions->processMode == ProcessMode::NEW_PROCESS_ATTACH_TO_STATUS_BAR_ITEM &&
+    if (ProcessOptions::IsAttachToStatusBarMode(startOptions.processOptions->processMode) &&
         !uiAbilityManager->IsCallerInStatusBar()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Caller is not in status bar in NEW_PROCESS_ATTACH_TO_STATUS_BAR_ITEM mode.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Caller is not in status bar in attch to status bar mode.");
         return ERR_START_OPTIONS_CHECK_FAILED;
     }
 
@@ -9865,6 +9887,20 @@ void AbilityManagerService::NotifyStartResidentProcess(std::vector<AppExecFwk::B
     DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcessWithMainElement(bundleInfos);
     if (!bundleInfos.empty()) {
         DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcess(bundleInfos);
+    }
+}
+
+void AbilityManagerService::OnAppRemoteDied(const std::vector<sptr<IRemoteObject>> &abilityTokens)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord;
+    for (auto &token : abilityTokens) {
+        abilityRecord = Token::GetAbilityRecordByToken(token);
+        if (abilityRecord == nullptr) {
+            continue;
+        }
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "App OnRemoteDied, ability is %{public}s, app is %{public}s",
+            abilityRecord->GetAbilityInfo().name.c_str(), abilityRecord->GetAbilityInfo().bundleName.c_str());
+        abilityRecord->OnProcessDied();
     }
 }
 

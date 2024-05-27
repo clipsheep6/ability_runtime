@@ -21,7 +21,6 @@
 #include <unordered_map>
 
 #include "constants.h"
-#include "ability_app_state_observer.h"
 #include "ability_event_handler.h"
 #include "ability_manager_service.h"
 #include "ability_resident_process_rdb.h"
@@ -246,7 +245,6 @@ AbilityRecord::~AbilityRecord()
         }
     }
     want_.CloseAllFd();
-    RemoveAppStateObserver(true);
 }
 
 std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityRequest &abilityRequest)
@@ -273,28 +271,7 @@ std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityR
     abilityRecord->collaboratorType_ = abilityRequest.collaboratorType;
     abilityRecord->missionAffinity_ = abilityRequest.want.GetStringParam(PARAM_MISSION_AFFINITY_KEY);
 
-    // Before the ability attaches
-    abilityRecord->abilityAppStateObserver_ = sptr<AbilityAppStateObserver>(
-        new AbilityAppStateObserver(abilityRecord));
-    DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->RegisterApplicationStateObserver(
-        abilityRecord->abilityAppStateObserver_, {abilityRequest.abilityInfo.bundleName});
     return abilityRecord;
-}
-
-void AbilityRecord::RemoveAppStateObserver(bool force)
-{
-    if (!force && IsSceneBoard()) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "Special ability no need to RemoveAppStateObserver.");
-        return;
-    }
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
-    if (handler && abilityAppStateObserver_) {
-        handler->SubmitTask([appStateObserver = abilityAppStateObserver_]() {
-                DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->UnregisterApplicationStateObserver(
-                    appStateObserver);
-            });
-        abilityAppStateObserver_ = nullptr;
-    }
 }
 
 bool AbilityRecord::Init()
@@ -435,14 +412,6 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     TAG_LOGI(AAFwkTag::ABILITYMGR, "ForegroundLifecycle: name:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
 
-    if (!IsDebug()) {
-        int foregroundTimeout =
-            AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
-        SendEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, foregroundTimeout / HALF_TIMEOUT);
-        std::string methodName = "ForegroundAbility";
-        g_addLifecycleEventTask(token_, FreezeUtil::TimeoutState::FOREGROUND, methodName);
-    }
-
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions
     SetAbilityStateInner(AbilityState::FOREGROUNDING);
@@ -522,6 +491,9 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t tokenId, uint32_t sceneFla
     }
 
     if (isReady_) {
+        if (!IsDebug()) {
+            PostForegroundTimeoutTask();
+        }
         if (IsAbilityState(AbilityState::FOREGROUND)) {
             TAG_LOGD(AAFwkTag::ABILITYMGR, "Activate %{public}s", element.c_str());
             ForegroundAbility(sceneFlag);
@@ -542,6 +514,15 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t tokenId, uint32_t sceneFla
         lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
         LoadAbility();
     }
+}
+
+void AbilityRecord::PostForegroundTimeoutTask()
+{
+    int foregroundTimeout =
+        AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
+    SendEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, foregroundTimeout / HALF_TIMEOUT);
+    std::string methodName = "ForegroundAbility";
+    g_addLifecycleEventTask(token_, FreezeUtil::TimeoutState::FOREGROUND, methodName);
 }
 
 std::string AbilityRecord::GetLabel()
@@ -584,6 +565,9 @@ void AbilityRecord::ProcessForegroundAbility(const std::shared_ptr<AbilityRecord
     NotifyAnimationFromTerminatingAbility(callerAbility, needExit, flag);
     PostCancelStartingWindowHotTask();
 
+    if (!IsDebug()) {
+        PostForegroundTimeoutTask();
+    }
     if (IsAbilityState(AbilityState::FOREGROUND)) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Activate %{public}s", element.c_str());
         ForegroundAbility(sceneFlag);
@@ -727,6 +711,9 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
             StartingWindowTask(isRecent, true, abilityRequest, startOptions);
             AnimationTask(isRecent, abilityRequest, startOptions, callerAbility);
             PostCancelStartingWindowColdTask();
+        }
+        if (!IsDebug()) {
+            PostForegroundTimeoutTask();
         }
         if (IsAbilityState(AbilityState::FOREGROUND)) {
             TAG_LOGD(AAFwkTag::ABILITYMGR, "Activate %{public}s", element.c_str());
@@ -1414,7 +1401,6 @@ void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
                     }
                 });
         }
-        RemoveAppStateObserver();
         isReady_ = true;
         scheduler_ = scheduler;
         lifecycleDeal_->SetScheduler(scheduler);
@@ -2380,7 +2366,10 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 void AbilityRecord::OnProcessDied()
 {
     std::lock_guard<ffrt::mutex> guard(lock_);
-    RemoveAppStateObserver(true);
+    if (!IsSceneBoard() && scheduler_ != nullptr) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "OnProcessDied: '%{public}s', attached.", abilityInfo_.name.c_str());
+        return;
+    }
     isWindowAttached_ = false;
 
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();

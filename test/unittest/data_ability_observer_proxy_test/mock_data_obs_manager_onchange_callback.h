@@ -27,6 +27,8 @@ namespace AAFwk {
 class MockDataObsManagerOnChangeCallBack : public DataAbilityObserverStub {
 public:
     MOCK_METHOD0(OnChange, void());
+    MOCK_METHOD1(OnChangeExt, void(const ChangeInfo&));
+    MOCK_METHOD1(OnChangePreferences, void(const std::string&));
 
     void Wait()
     {

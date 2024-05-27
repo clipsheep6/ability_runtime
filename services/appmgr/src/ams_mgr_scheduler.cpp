@@ -339,19 +339,6 @@ void AmsMgrScheduler::GetRunningProcessInfoByToken(
     amsMgrServiceInner_->GetRunningProcessInfoByToken(token, info);
 }
 
-void AmsMgrScheduler::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info)
-{
-    if (!IsReady()) {
-        return;
-    }
-
-    if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
-        return;
-    }
-    amsMgrServiceInner_->GetRunningProcessInfoByPid(pid, info);
-}
-
 void AmsMgrScheduler::SetAbilityForegroundingFlagToAppRecord(const pid_t pid)
 {
     if (!IsReady()) {

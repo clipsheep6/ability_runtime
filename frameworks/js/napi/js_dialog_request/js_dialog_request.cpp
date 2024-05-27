@@ -105,8 +105,8 @@ private:
         auto requestInfo = new RequestInfo(callerToken, left, top, width, height);
         auto jsRequestInfo = RequestInfo::WrapRequestInfo(env, requestInfo);
         if (jsRequestInfo == nullptr) {
-            TAG_LOGE(AAFwkTag::DIALOG, "Can not wrap requestinfo from target request.");
-            ThrowInvalidParamError(env, "Parameter error: Can not wrap requestinfo from target request.");
+            TAG_LOGE(AAFwkTag::DIALOG, "Can not wrap request info from target request.");
+            ThrowInvalidParamError(env, "Parameter error: Can not wrap request info from target request.");
             return CreateJsUndefined(env);
         }
 

@@ -284,6 +284,18 @@ ohos_shared_library("abilitykit_native") {
 
   defines = []
 
+  if (cj_frontend) {
+    sources += [ "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ability_object.cpp" ]
+    include_dirs += [
+      "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_runtime",
+      "${ability_runtime_path}/frameworks/cj/ffi",
+    ]
+    external_deps += [
+      "napi:cj_bind_ffi",
+      "napi:cj_bind_native",
+    ]
+  }
+
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
     defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
@@ -537,6 +549,21 @@ ohos_shared_library("uiabilitykit_native") {
     "napi:ace_napi",
     "node:node_header_notice",
   ]
+
+  if (cj_frontend) {
+    sources += [
+      "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ability_object.cpp",
+      "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ui_ability.cpp",
+    ]
+
+    include_dirs += [ "${ability_runtime_path}/frameworks/cj/ffi" ]
+
+    external_deps += [
+      "napi:cj_bind_ffi",
+      "napi:cj_bind_native",
+      "window_manager:cj_window_ffi",
+    ]
+  }
 
   if (ability_runtime_graphics) {
     external_deps += [

@@ -26,20 +26,20 @@ using namespace OHOS::AbilityRuntime;
 
 namespace {
 
-std::mutex g_MutexCallBackObj;
+std::mutex g_mutexCallBackObj;
 sptr<IRemoteObject> g_CallbackStub;
 OH_Ability_OnNativeChildProcessStarted g_Callback = nullptr;
 
 const std::map<ChildProcessManagerErrorCode, Ability_NativeChildProcess_ErrCode> CPM_ERRCODE_MAP = {
-    { ChildProcessManagerErrorCode::ERR_OK, NCP_NOERROR },
+    { ChildProcessManagerErrorCode::ERR_OK, NCP_NO_ERROR },
     { ChildProcessManagerErrorCode::ERR_MULTI_PROCESS_MODEL_DISABLED, NCP_ERR_MULTI_PROCESS_DISABLED },
     { ChildProcessManagerErrorCode::ERR_ALREADY_IN_CHILD_PROCESS, NCP_ERR_ALREADY_IN_CHILD },
-    { ChildProcessManagerErrorCode::ERR_GET_APP_MGR_FAILED, NCP_ERR_SERVICE },
-    { ChildProcessManagerErrorCode::ERR_GET_APP_MGR_START_PROCESS_FAILED, NCP_ERR_SERVICE },
+    { ChildProcessManagerErrorCode::ERR_GET_APP_MGR_FAILED, NCP_ERR_SERVICE_ERROR },
+    { ChildProcessManagerErrorCode::ERR_GET_APP_MGR_START_PROCESS_FAILED, NCP_ERR_SERVICE_ERROR },
     { ChildProcessManagerErrorCode::ERR_UNSUPPORT_NATIVE_CHILD_PROCESS, NCP_ERR_NOT_SUPPORTED },
     { ChildProcessManagerErrorCode::ERR_MAX_NATIVE_CHILD_PROCESSES, NCP_ERR_MAX_CHILD_PROCESSES_REACHED },
-    { ChildProcessManagerErrorCode::ERR_NATIVE_CHILD_PROCESS_LOAD_LIB, NCP_ERR_CHILD_PROCESS_LOAD_LIB },
-    { ChildProcessManagerErrorCode::ERR_NATIVE_CHILD_PROCESS_CONNECT, NCP_ERR_CHILD_PROCESS_CONNECT },
+    { ChildProcessManagerErrorCode::ERR_LIB_LOADING_FAILED, NCP_ERR_LIB_LOADING_FAILED },
+    { ChildProcessManagerErrorCode::ERR_CONNECTION_FAILED, NCP_ERR_CONNECTION_FAILED },
 };
 
 int CvtChildProcessManagerErrCode(ChildProcessManagerErrorCode cpmErr)
@@ -54,7 +54,7 @@ int CvtChildProcessManagerErrCode(ChildProcessManagerErrorCode cpmErr)
 
 void OnNativeChildProcessStartedWapper(int errCode, OHIPCRemoteProxy *ipcProxy)
 {
-    std::unique_lock autoLock(g_MutexCallBackObj);
+    std::unique_lock autoLock(g_mutexCallBackObj);
     if (g_Callback != nullptr) {
         g_Callback(CvtChildProcessManagerErrCode(static_cast<ChildProcessManagerErrorCode>(errCode)), ipcProxy);
         g_Callback = nullptr;
@@ -80,7 +80,7 @@ int OH_Ability_CreateNativeChildProcess(const char* libName, OH_Ability_OnNative
         return NCP_ERR_INVALID_PARAM;
     }
     
-    std::unique_lock autoLock(g_MutexCallBackObj);
+    std::unique_lock autoLock(g_mutexCallBackObj);
     if (g_Callback != nullptr || g_CallbackStub != nullptr) {
         TAG_LOGW(AAFwkTag::PROCESSMGR, "Another native process process starting, try again later");
         return NCP_ERR_BUSY;
@@ -100,5 +100,5 @@ int OH_Ability_CreateNativeChildProcess(const char* libName, OH_Ability_OnNative
 
     g_Callback = onProcessStarted;
     g_CallbackStub = callbackStub;
-    return NCP_NOERROR;
+    return NCP_NO_ERROR;
 }

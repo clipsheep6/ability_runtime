@@ -43,10 +43,12 @@
 #include "module_running_record.h"
 #include "app_spawn_client.h"
 #include "app_malloc_info.h"
-#include "window_visibility_changed_listener.h"
 #include "app_jsheap_mem_info.h"
 
 namespace OHOS {
+namespace Rosen {
+class WindowVisibilityInfo;
+}
 namespace AppExecFwk {
 class AbilityRunningRecord;
 class AppMgrServiceInner;
@@ -540,11 +542,15 @@ public:
 
     bool IsEmptyKeepAliveApp() const;
 
+    bool IsMainProcess() const;
+
     void SetEmptyKeepAliveAppState(bool isEmptyKeepAliveApp);
 
     void SetKeepAliveEnableState(bool isKeepAliveEnable);
 
     void SetSingleton(bool isSingleton);
+
+    void SetMainProcess(bool isMainProcess);
 
     void SetStageModelState(bool isStageBasedModel);
 
@@ -782,6 +788,8 @@ public:
     sptr<IRemoteObject> GetBrowserHost();
     void SetIsGPU(bool gpu);
     bool GetIsGPU();
+    void SetGPUPid(pid_t gpuPid);
+    pid_t GetGPUPid();
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -845,6 +853,7 @@ private:
 
     bool isKeepAliveApp_ = false;  // Only resident processes can be set to true, please choose carefully
     bool isEmptyKeepAliveApp_ = false;  // Only empty resident processes can be set to true, please choose carefully
+    bool isMainProcess_ = true; // Only MainProcess can be keepalive
     bool isSingleton_ = false;
     bool isStageBasedModel_ = false;
     ApplicationState curState_ = ApplicationState::APP_STATE_CREATE;  // current state of this process
@@ -939,6 +948,7 @@ private:
     SupportProcessCacheState procCacheSupportState_ = SupportProcessCacheState::UNSPECIFIED;
     sptr<IRemoteObject> browserHost_;
     bool isGPU_ = false;
+    pid_t gpuPid_ = 0;
 };
 
 }  // namespace AppExecFwk

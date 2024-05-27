@@ -47,6 +47,7 @@ public:
 
     void SetSessionId(int32_t sessionId);
     void SetUIContent(Ace::UIContent *uiContent);
+    Ace::UIContent *GetUIContent();
     void SetEventId(uint32_t eventId);
     void SetWindowType(const AutoFill::AutoFillWindowType &autoFillWindowType);
     void SetExtensionType(bool isSmartAutoFill);

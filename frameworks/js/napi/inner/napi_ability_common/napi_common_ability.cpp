@@ -2991,20 +2991,20 @@ napi_value GetAbilityNameWrap(napi_env env, napi_callback_info info, AbilityName
 napi_value NAPI_GetAbilityNameCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
     TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
-    AbilityNameCB *ablityNameCB = CreateAbilityNameCBInfo(env);
-    if (ablityNameCB == nullptr) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s ablityNameCB == nullptr", __func__);
+    AbilityNameCB *abilityNameCB = CreateAbilityNameCBInfo(env);
+    if (abilityNameCB == nullptr) {
+        TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s abilityNameCB == nullptr", __func__);
         return WrapVoidToJS(env);
     }
 
-    ablityNameCB->cbBase.errCode = NAPI_ERR_NO_ERROR;
-    ablityNameCB->cbBase.abilityType = abilityType;
-    napi_value ret = GetAbilityNameWrap(env, info, ablityNameCB);
+    abilityNameCB->cbBase.errCode = NAPI_ERR_NO_ERROR;
+    abilityNameCB->cbBase.abilityType = abilityType;
+    napi_value ret = GetAbilityNameWrap(env, info, abilityNameCB);
     if (ret == nullptr) {
         TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s ret == nullptr", __func__);
-        if (ablityNameCB != nullptr) {
-            delete ablityNameCB;
-            ablityNameCB = nullptr;
+        if (abilityNameCB != nullptr) {
+            delete abilityNameCB;
+            abilityNameCB = nullptr;
         }
         ret = WrapVoidToJS(env);
     }
@@ -3131,7 +3131,7 @@ bool UnwrapParamForWant(napi_env env, napi_value args, AbilityType, CallAbilityP
     if (jsSettingObj != nullptr) {
         param.setting = AbilityStartSetting::GetEmptySetting();
         if (!UnwrapAbilityStartSetting(env, jsSettingObj, *(param.setting))) {
-            TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s, unwrap abilityStartSetting falied.", __func__);
+            TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s, unwrap abilityStartSetting failed.", __func__);
         }
         TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s abilityStartSetting", __func__);
     }
@@ -3743,7 +3743,7 @@ void StartBackgroundRunningExecuteCB(napi_env env, void *data)
     }
     const std::shared_ptr<AbilityInfo> info = asyncCallbackInfo->ability->GetAbilityInfo();
     if (info == nullptr) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "abilityinfo is null");
+        TAG_LOGE(AAFwkTag::JSNAPI, "ability info is null");
         asyncCallbackInfo->errCode = NAPI_ERR_ACE_ABILITY;
         return;
     }
@@ -3900,7 +3900,7 @@ napi_value NAPI_StartBackgroundRunningCommon(napi_env env, napi_callback_info in
     TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
     AsyncCallbackInfo *asyncCallbackInfo = CreateAsyncCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s asyncCallbackInfo == nullpter", __func__);
+        TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s asyncCallbackInfo == nullptr", __func__);
         return WrapVoidToJS(env);
     }
 
@@ -4018,14 +4018,14 @@ napi_value NAPI_CancelBackgroundRunningCommon(napi_env env, napi_callback_info i
     TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
     AsyncCallbackInfo *asyncCallbackInfo = CreateAsyncCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s asyncCallbackInfo == nullpter", __func__);
+        TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s asyncCallbackInfo == nullptr", __func__);
         return WrapVoidToJS(env);
     }
 
     asyncCallbackInfo->errCode = NAPI_ERR_NO_ERROR;
     napi_value ret = CancelBackgroundRunningWrap(env, info, asyncCallbackInfo);
     if (ret == nullptr) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s ret == nullpter", __func__);
+        TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s ret == nullptr", __func__);
         if (asyncCallbackInfo != nullptr) {
             delete asyncCallbackInfo;
             asyncCallbackInfo = nullptr;
@@ -4119,7 +4119,7 @@ napi_value JsNapiCommon::JsConnectAbility(napi_env env, napi_callback_info info,
         connectionCallback->Reset();
         RemoveConnectionLocked(want);
     }
-    // free failedcallback here, avoid possible multi-threading problems when disconnect success
+    // free failed callback here, avoid possible multi-threading problems when disconnect success
     napi_delete_reference(env, connectionCallback->failedCallbackRef);
     connectionCallback->failedCallbackRef = nullptr;
     return CreateJsValue(env, id);
@@ -4454,7 +4454,7 @@ napi_value JsNapiCommon::JsGetCacheDir(napi_env env, napi_callback_info info, co
         auto context = obj->ability_->GetAbilityContext();
         if (context == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID);
-            TAG_LOGE(AAFwkTag::JSNAPI, "JsGetCacheDir task execute error, the abilitycontext is nullptr");
+            TAG_LOGE(AAFwkTag::JSNAPI, "JsGetCacheDir task execute error, the ability context is nullptr");
             return;
         }
         dir->name = context->GetCacheDir();
@@ -4706,7 +4706,7 @@ napi_value JsNapiCommon::JsGetOrCreateDistributedDir(
         auto context = obj->ability_->GetAbilityContext();
         if (context == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
-            TAG_LOGE(AAFwkTag::JSNAPI, "task execute error, the abilitycontext is nullptr");
+            TAG_LOGE(AAFwkTag::JSNAPI, "task execute error, the ability context is nullptr");
             return;
         }
         dir->name = context->GetDistributedFilesDir();
@@ -5041,7 +5041,7 @@ napi_value JsNapiCommon::CreateAppVersionInfo(napi_env env, const std::shared_pt
     return objContext;
 }
 
-bool JsNapiCommon::UnwarpVerifyPermissionParams(napi_env env, napi_callback_info info, JsPermissionOptions &options)
+bool JsNapiCommon::UnwrapVerifyPermissionParams(napi_env env, napi_callback_info info, JsPermissionOptions &options)
 {
     bool flagCall = true;
     size_t argc = ARGS_MAX_COUNT;

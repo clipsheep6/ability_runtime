@@ -32,6 +32,12 @@ libupms_sources = [
 
 #build so
 ohos_shared_library("libupms") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
   shlib_type = "sa"
   configs = [
     "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config",
