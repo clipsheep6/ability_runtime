@@ -210,6 +210,7 @@ constexpr int32_t NETSYS_SOCKET_GROUPID = 1097;
 
 constexpr int32_t DEFAULT_INVAL_VALUE = -1;
 constexpr int32_t NO_ABILITY_RECORD_ID = -1;
+constexpr int32_t EXIT_REASON_UNKNOWN = 0;
 
 constexpr int32_t MAX_SPECIFIED_PROCESS_NAME_LENGTH = 255;
 
@@ -1715,7 +1716,7 @@ int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid, const std::string&
     }
     std::string killReason = KILL_PROCESS_REASON_PREFIX + reason;
     auto appRecord = GetAppRunningRecordByPid(pid);
-    if (appRecord) {
+    if (appRecord && appRecord->GetExitReason() == EXIT_REASON_UNKNOWN) {
         appRecord->SetExitMsg(killReason);
     }
     int32_t ret = -1;

@@ -4022,8 +4022,10 @@ void MissionListManager::SetLastExitReason(std::shared_ptr<AbilityRecord> &abili
 
     ExitReason exitReason;
     bool isSetReason;
+    auto accessTokenId = abilityRecord->GetAbilityInfo().applicationInfo.accessTokenId;
     DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->GetAppExitReason(
-        abilityRecord->GetAbilityInfo().bundleName, abilityRecord->GetAbilityInfo().name, isSetReason, exitReason);
+        abilityRecord->GetAbilityInfo().bundleName, accessTokenId, abilityRecord->GetAbilityInfo().name,
+        isSetReason, exitReason);
 
     if (isSetReason) {
         abilityRecord->SetLastExitReason(exitReason);

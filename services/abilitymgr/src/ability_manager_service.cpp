@@ -2134,7 +2134,7 @@ int32_t AbilityManagerService::ForceExitApp(const int32_t pid, const ExitReason 
     }
 
     CHECK_POINTER_AND_RETURN(appExitReasonHelper_, ERR_NULL_OBJECT);
-    appExitReasonHelper_->RecordProcessExitReason(NO_PID, exitReason, bundleName, uid);
+    appExitReasonHelper_->RecordProcessExitReason(bundleName, uid, exitReason);
 
     return DelayedSingleton<AppScheduler>::GetInstance()->KillApplication(bundleName);
 }
@@ -3258,7 +3258,8 @@ int AbilityManagerService::CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionI
     if (sessionInfo->isClearSession) {
         const auto &abilityInfo = abilityRecord->GetAbilityInfo();
         (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
-            DeleteAbilityRecoverInfo(abilityInfo.bundleName, abilityInfo.moduleName, abilityInfo.name);
+            DeleteAbilityRecoverInfo(abilityInfo.applicationInfo.accessTokenId, abilityInfo.moduleName,
+            abilityInfo.name);
     }
 
     EventInfo eventInfo;
@@ -5951,7 +5952,7 @@ int32_t AbilityManagerService::UninstallAppInner(const std::string &bundleName, 
     if (isUpgrade) {
         CHECK_POINTER_AND_RETURN(appExitReasonHelper_, ERR_NULL_OBJECT);
         AAFwk::ExitReason exitReason = { REASON_UPGRADE, exitMsg };
-        appExitReasonHelper_->RecordProcessExitReason(NO_PID, exitReason, bundleName, uid);
+        appExitReasonHelper_->RecordProcessExitReason(bundleName, uid, exitReason);
     }
 
     CHECK_POINTER_AND_RETURN(subManagersHelper_, ERR_NULL_OBJECT);
@@ -5961,7 +5962,7 @@ int32_t AbilityManagerService::UninstallAppInner(const std::string &bundleName, 
         return UNINSTALL_APP_FAILED;
     }
     if (!isUpgrade) {
-        DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->DeleteAppExitReason(bundleName);
+        DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->DeleteAppExitReason(bundleName, uid);
     }
     return ERR_OK;
 }
@@ -7067,7 +7068,7 @@ void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& toke
         CHECK_POINTER(uiAbilityManager);
         const auto& abilityInfo = record->GetAbilityInfo();
         (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->AddAbilityRecoverInfo(
-            abilityInfo.bundleName, abilityInfo.moduleName, abilityInfo.name,
+            abilityInfo.applicationInfo.accessTokenId, abilityInfo.moduleName, abilityInfo.name,
             uiAbilityManager->GetSessionIdByAbilityToken(token));
     } else {
         auto missionListMgr = GetMissionListManagerByUserId(userId);
