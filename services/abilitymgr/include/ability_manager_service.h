@@ -1918,6 +1918,7 @@ private:
     void SubscribeScreenUnlockedEvent();
     void UnSubscribeScreenUnlockedEvent();
     void RetrySubscribeScreenUnlockedEvent(int32_t retryCount);
+    void RemoveScreenUnlockInterceptor();
 
     int VerifyAccountPermission(int32_t userId);
 

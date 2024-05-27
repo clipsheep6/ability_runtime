@@ -96,7 +96,7 @@ HWTEST_F(AbilityInterceptorTest, CrowdTestInterceptor_001, TestSize.Level1)
     want.SetElement(element);
     int requestCode = 0;
     int userId = 100;
-    executer->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
+    executer->AddInterceptor("CrowdTest", std::make_shared<CrowdTestInterceptor>());
     AbilityInterceptorParam param = AbilityInterceptorParam(want, requestCode, userId, true, nullptr);
     int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
@@ -115,7 +115,7 @@ HWTEST_F(AbilityInterceptorTest, CrowdTestInterceptor_002, TestSize.Level1)
     ElementName element("", "com.test.crowdtest", "CrowdtestExpired");
     want.SetElement(element);
     int userId = 100;
-    executer->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
+    executer->AddInterceptor("CrowdTest", std::make_shared<CrowdTestInterceptor>());
     AbilityInterceptorParam param = AbilityInterceptorParam(want, 0, userId, false, nullptr);
     int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
@@ -135,7 +135,7 @@ HWTEST_F(AbilityInterceptorTest, ControlInterceptor_001, TestSize.Level1)
     want.SetElement(element);
     int requestCode = 0;
     int userId = 100;
-    executer->AddInterceptor(std::make_shared<ControlInterceptor>());
+    executer->AddInterceptor("Control", std::make_shared<ControlInterceptor>());
     AbilityInterceptorParam param = AbilityInterceptorParam(want, requestCode, userId, true, nullptr);
     int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
@@ -154,7 +154,7 @@ HWTEST_F(AbilityInterceptorTest, ControlInterceptor_002, TestSize.Level1)
     ElementName element("", "com.test.control", "MainAbility");
     want.SetElement(element);
     int userId = 100;
-    executer->AddInterceptor(std::make_shared<ControlInterceptor>());
+    executer->AddInterceptor("Control", std::make_shared<ControlInterceptor>());
     AbilityInterceptorParam param = AbilityInterceptorParam(want, 0, userId, false, nullptr);
     int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
@@ -173,7 +173,7 @@ HWTEST_F(AbilityInterceptorTest, ControlInterceptor_003, TestSize.Level1)
     ElementName element("", "com.test.control2", "MainAbility");
     want.SetElement(element);
     int userId = 100;
-    executer->AddInterceptor(std::make_shared<ControlInterceptor>());
+    executer->AddInterceptor("Control", std::make_shared<ControlInterceptor>());
     AbilityInterceptorParam param = AbilityInterceptorParam(want, 0, userId, false, nullptr);
     int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
@@ -192,7 +192,7 @@ HWTEST_F(AbilityInterceptorTest, ControlInterceptor_004, TestSize.Level1)
     ElementName element("", "com.test.control3", "MainAbility");
     want.SetElement(element);
     int userId = 100;
-    executer->AddInterceptor(std::make_shared<ControlInterceptor>());
+    executer->AddInterceptor("Control", std::make_shared<ControlInterceptor>());
     AbilityInterceptorParam param = AbilityInterceptorParam(want, 0, userId, false, nullptr);
     int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
@@ -213,8 +213,8 @@ HWTEST_F(AbilityInterceptorTest, ControlInterceptor_005, TestSize.Level1)
     int userId = 100;
     auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
     // make appControlRule become nullptr by crowdtest interceptor
-    executer->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
-    executer->AddInterceptor(std::make_shared<ControlInterceptor>());
+    executer->AddInterceptor("CrowdTest", std::make_shared<CrowdTestInterceptor>());
+    executer->AddInterceptor("Control", std::make_shared<ControlInterceptor>());
     AbilityInterceptorParam param = AbilityInterceptorParam(want, 0, userId, false, nullptr);
     int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
@@ -234,7 +234,7 @@ HWTEST_F(AbilityInterceptorTest, DisposedRuleInterceptor_001, TestSize.Level1)
     want.SetElement(element);
     int requestCode = 0;
     int userId = 100;
-    executer->AddInterceptor(std::make_shared<DisposedRuleInterceptor>());
+    executer->AddInterceptor("DisposedRule", std::make_shared<DisposedRuleInterceptor>());
     AbilityInterceptorParam param = AbilityInterceptorParam(want, requestCode, userId, false, nullptr);
     int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
@@ -254,7 +254,7 @@ HWTEST_F(AbilityInterceptorTest, DisposedRuleInterceptor_002, TestSize.Level1)
     want.SetElement(element);
     int requestCode = 0;
     int userId = 100;
-    executer->AddInterceptor(std::make_shared<DisposedRuleInterceptor>());
+    executer->AddInterceptor("Disposed", std::make_shared<DisposedRuleInterceptor>());
     AbilityInterceptorParam param = AbilityInterceptorParam(want, requestCode, userId, true, nullptr);
     int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
@@ -274,7 +274,7 @@ HWTEST_F(AbilityInterceptorTest, DisposedRuleInterceptor_003, TestSize.Level1)
     want.SetElement(element);
     int requestCode = 0;
     int userId = 100;
-    executer->AddInterceptor(std::make_shared<DisposedRuleInterceptor>());
+    executer->AddInterceptor("DisposedRule", std::make_shared<DisposedRuleInterceptor>());
     AbilityInterceptorParam param = AbilityInterceptorParam(want, requestCode, userId, true, nullptr);
     int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
@@ -294,7 +294,7 @@ HWTEST_F(AbilityInterceptorTest, DisposedRuleInterceptor_004, TestSize.Level1)
     want.SetElement(element);
     int requestCode = 0;
     int userId = 100;
-    executer->AddInterceptor(std::make_shared<DisposedRuleInterceptor>());
+    executer->AddInterceptor("DisposedRule", std::make_shared<DisposedRuleInterceptor>());
     AbilityInterceptorParam param = AbilityInterceptorParam(want, requestCode, userId, true, nullptr);
     int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
@@ -314,7 +314,7 @@ HWTEST_F(AbilityInterceptorTest, DisposedRuleInterceptor_005, TestSize.Level1)
     want.SetElement(element);
     int requestCode = 0;
     int userId = 100;
-    executer->AddInterceptor(std::make_shared<DisposedRuleInterceptor>());
+    executer->AddInterceptor("DisposedRule", std::make_shared<DisposedRuleInterceptor>());
     AbilityInterceptorParam param = AbilityInterceptorParam(want, requestCode, userId, true, nullptr);
     int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);

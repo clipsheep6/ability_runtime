@@ -69,6 +69,7 @@
 #include "interceptor/crowd_test_interceptor.h"
 #include "interceptor/disposed_rule_interceptor.h"
 #include "interceptor/ecological_rule_interceptor.h"
+#include "interceptor/screen_unlock_interceptor.h"
 #include "interceptor/start_other_app_interceptor.h"
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
@@ -436,18 +437,19 @@ void AbilityManagerService::InitDeepLinkReserve()
 void AbilityManagerService::InitInterceptor()
 {
     interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
-    interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
-    interceptorExecuter_->AddInterceptor(std::make_shared<ControlInterceptor>());
+    interceptorExecuter_->AddInterceptor("ScreenUnlock", std::make_shared<ScreenUnlockInterceptor>());
+    interceptorExecuter_->AddInterceptor("CrowdTest", std::make_shared<CrowdTestInterceptor>());
+    interceptorExecuter_->AddInterceptor("Control", std::make_shared<ControlInterceptor>());
     afterCheckExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
-    afterCheckExecuter_->AddInterceptor(std::make_shared<StartOtherAppInterceptor>());
-    afterCheckExecuter_->AddInterceptor(std::make_shared<DisposedRuleInterceptor>());
-    afterCheckExecuter_->AddInterceptor(std::make_shared<EcologicalRuleInterceptor>());
+    afterCheckExecuter_->AddInterceptor("StartOtherApp", std::make_shared<StartOtherAppInterceptor>());
+    afterCheckExecuter_->AddInterceptor("DisposedRule", std::make_shared<DisposedRuleInterceptor>());
+    afterCheckExecuter_->AddInterceptor("EcologicalRule", std::make_shared<EcologicalRuleInterceptor>());
     afterCheckExecuter_->SetTaskHandler(taskHandler_);
     bool isAppJumpEnabled = OHOS::system::GetBoolParameter(
         OHOS::AppExecFwk::PARAMETER_APP_JUMP_INTERCEPTOR_ENABLE, false);
     if (isAppJumpEnabled) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "App jump intercetor enabled, add AbilityJumpInterceptor to Executer");
-        interceptorExecuter_->AddInterceptor(std::make_shared<AbilityJumpInterceptor>());
+        interceptorExecuter_->AddInterceptor("AbilityJump", std::make_shared<AbilityJumpInterceptor>());
     }
 }
 
@@ -6420,6 +6422,7 @@ void AbilityManagerService::SubscribeScreenUnlockedEvent()
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid abilityMgr pointer.");
                 return;
             }
+            abilityMgr->RemoveScreenUnlockInterceptor();
             abilityMgr->StartAutoStartupApps();
             abilityMgr->UnSubscribeScreenUnlockedEvent();
         };
@@ -6457,6 +6460,11 @@ void AbilityManagerService::RetrySubscribeScreenUnlockedEvent(int32_t retryCount
     };
     constexpr int delaytime = 200;
     taskHandler_->SubmitTask(retrySubscribeScreenUnlockedEventTask, "RetrySubscribeScreenUnlockedEvent", delaytime);
+}
+
+void AbilityManagerService::RemoveScreenUnlockInterceptor()
+{
+    interceptorExecuter_->RemoveInterceptor("ScreenUnlock");
 }
 
 void AbilityManagerService::ConnectBmsService()
