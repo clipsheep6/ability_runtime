@@ -157,6 +157,21 @@ bool AppRunningManager::CheckAppRunningRecordIsExistByBundleName(const std::stri
     return false;
 }
 
+int32_t AppRunningManager::CheckAppCloneRunningRecordIsExistByBundleName(const std::string &bundleName,
+    int32_t appCloneIndex, bool &isRunning)
+{
+    std::lock_guard guard(runningRecordMapMutex_);
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetBundleName() == bundleName && !(appRecord->GetRestartAppFlag()) &&
+            appRecord->GetAppIndex() == appCloneIndex) {
+            isRunning = true;
+            break;
+        }
+    }
+    return ERR_OK;
+}
+
 int32_t AppRunningManager::GetAllAppRunningRecordCountByBundleName(const std::string &bundleName)
 {
     int32_t count = 0;

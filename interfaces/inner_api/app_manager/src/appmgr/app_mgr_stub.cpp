@@ -201,6 +201,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleStartNativeChildProcess;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SAVE_BROWSER_CHANNEL)] =
         &AppMgrStub::HandleSaveBrowserChannel;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::IS_APP_RUNNING)] =
+        &AppMgrStub::HandleIsAppRunning;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -1155,6 +1157,23 @@ int32_t AppMgrStub::HandleIsApplicationRunning(MessageParcel &data, MessageParce
     std::string bundleName = data.ReadString();
     bool isRunning = false;
     int32_t result = IsApplicationRunning(bundleName, isRunning);
+    if (!reply.WriteBool(isRunning)) {
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleIsAppRunning(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    std::string bundleName = data.ReadString();
+    bool isRunning = false;
+    int32_t appCloneIndex = data.ReadInt32();
+    int32_t result = IsAppRunning(bundleName, appCloneIndex, isRunning);
     if (!reply.WriteBool(isRunning)) {
         return ERR_INVALID_VALUE;
     }

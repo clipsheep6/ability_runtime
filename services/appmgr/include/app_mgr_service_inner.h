@@ -416,6 +416,15 @@ public:
      */
     int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning);
 
+    /**
+     * Check whether the bundle is running.
+     *
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return Return ERR_OK if success, others fail.
+     */
+    int32_t IsAppRunning(const std::string &bundleName, int32_t appCloneIndex, bool &isRunning);
+
     int32_t StartNativeProcessForDebugger(const AAFwk::Want &want);
 
     std::shared_ptr<AppRunningRecord> CreateAppRunningRecord(
