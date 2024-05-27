@@ -779,6 +779,9 @@ napi_value JsApplicationContextUtils::OnGetRunningProcessInformation(napi_env en
             napi_set_named_property(env, object, "bundleNames", CreateNativeArray(env, processInfo.bundleNames));
             napi_set_named_property(env, object,
                 "state", CreateJsValue(env, ConvertToJsAppProcessState(processInfo.state_, processInfo.isFocused)));
+            if (processInfo.appCloneIndex != -1) {
+                napi_set_named_property(env, object, "appCloneIndex", CreateJsValue(env, processInfo.appCloneIndex));
+            }
             napi_value array = nullptr;
             napi_create_array_with_length(env, 1, &array);
             if (array == nullptr) {

@@ -794,6 +794,9 @@ void AppRunningRecord::StateChangedNotifyObserver(
     abilityStateData.abilityType = static_cast<int32_t>(ability->GetAbilityInfo()->type);
     abilityStateData.isFocused = ability->GetFocusFlag();
     abilityStateData.abilityRecordId = ability->GetAbilityRecordId();
+    if (appIndex_ != -1) {
+        abilityStateData.appCloneIndex = appIndex_;
+    }
     if (ability->GetWant() != nullptr) {
         abilityStateData.callerAbilityName = ability->GetWant()->GetStringParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
         abilityStateData.callerBundleName = ability->GetWant()->GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);

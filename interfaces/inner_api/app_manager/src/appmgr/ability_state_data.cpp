@@ -55,7 +55,7 @@ bool AbilityStateData::Marshalling(Parcel &parcel) const
     if (!parcel.WriteInt32(abilityType)) {
         return false;
     }
-    if (!parcel.WriteBool(isFocused)) {
+    if (!parcel.WriteBool(isFocused) || !parcel.WriteInt32(appCloneIndex)) {
         return false;
     }
     if (!parcel.WriteString(callerBundleName)) {
@@ -97,6 +97,7 @@ bool AbilityStateData::ReadFromParcel(Parcel &parcel)
     callerAbilityName = parcel.ReadString();
     isAtomicService = parcel.ReadBool();
     abilityRecordId = parcel.ReadInt32();
+    appCloneIndex = parcel.ReadInt32();
     return true;
 }
 
