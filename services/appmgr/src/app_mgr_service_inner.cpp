@@ -1662,10 +1662,10 @@ void AppMgrServiceInner::GetRunningProcess(const std::shared_ptr<AppRunningRecor
     auto appInfo = appRecord->GetApplicationInfo();
     if (appInfo) {
         info.bundleType = static_cast<int32_t>(appInfo->bundleType);
-    }
-    auto appIndex = appRecord->GetAppIndex();
-    if (appIndex != -1) {
-        info.appCloneIndex = appRecord->GetAppIndex();
+        if (static_cast<int32_t>(appInfo->multiAppMode.multiAppModeType) ==
+            static_cast<int32_t>(MultiAppModeType::APP_CLONE)) {
+            info.appCloneIndex = appRecord->GetAppIndex();
+        }
     }
 }
 
@@ -5287,6 +5287,45 @@ int32_t AppMgrServiceInner::IsApplicationRunning(const std::string &bundleName, 
 
     isRunning = appRunningManager_->CheckAppRunningRecordIsExistByBundleName(bundleName);
     return ERR_OK;
+}
+
+int32_t AppMgrServiceInner::IsAppRunning(const std::string &bundleName, int32_t appCloneIndex,
+    bool &isRunning)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called, bundleName: %{public}s", bundleName.c_str());
+    CHECK_CALLER_IS_SYSTEM_APP;
+    if (!CheckGetRunningInfoPermission()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
+        return ERR_PERMISSION_DENIED;
+    }
+    if (remoteClientManager_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "The remoteClientManager is nullptr.");
+        return ERR_INVALID_OPERATION;
+    }
+    auto bundleMgrHelper = remoteClientManager_->GetBundleManagerHelper();
+    if (bundleMgrHelper == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "The bundleMgrHelper is nullptr.");
+        return ERR_INVALID_OPERATION;
+    }
+    BundleInfo bundleInfo;
+    auto userId = GetCurrentAccountId();
+    int32_t bundleMgrResult;
+    if (appCloneIndex == 0) {
+        bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetBundleInfoV9(bundleName,
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) |
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) |
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE), bundleInfo, userId));
+    } else {
+        bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetCloneBundleInfo(bundleName,
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION),
+            appCloneIndex, bundleInfo, userId));
+    }
+
+    if (bundleMgrResult != ERR_OK) {
+        return AAFwk::ERR_APP_CLONE_INDEX_INVALID;
+    }
+
+    return appRunningManager_->CheckAppCloneRunningRecordIsExistByBundleName(bundleName, appCloneIndex, isRunning);
 }
 
 int32_t AppMgrServiceInner::StartNativeProcessForDebugger(const AAFwk::Want &want)

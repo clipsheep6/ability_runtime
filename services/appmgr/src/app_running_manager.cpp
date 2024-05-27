@@ -596,10 +596,9 @@ int32_t AppRunningManager::AssignRunningProcessInfoByAppRecord(
     auto appInfo = appRecord->GetApplicationInfo();
     if (appInfo) {
         info.bundleType = static_cast<int32_t>(appInfo->bundleType);
-    }
-    auto appIndex = appRecord->GetAppIndex();
-    if (appIndex != -1) {
-        info.appCloneIndex = appRecord->GetAppIndex();
+        if (static_cast<int32_t>(appInfo->multiAppMode.multiAppModeType) ==
+            static_cast<int32_t>(MultiAppModeType::APP_CLONE)) {
+            info.appCloneIndex = appRecord->GetAppIndex();
     }
     return ERR_OK;
 }

@@ -7943,9 +7943,7 @@ void AbilityManagerService::GetAbilityRunningInfo(std::vector<AbilityRunningInfo
     runningInfo.pid = processInfo.pid_;
     runningInfo.uid = processInfo.uid_;
     runningInfo.processName = processInfo.processName_;
-    if (processInfo.appCloneIndex != -1) {
-        runningInfo.appCloneIndex = processInfo.appCloneIndex;
-    }
+    runningInfo.appCloneIndex = processInfo.appCloneIndex;
     info.emplace_back(runningInfo);
 }
 

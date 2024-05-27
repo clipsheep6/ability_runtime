@@ -36,11 +36,12 @@ bool UnwrapAutoStartupInfo(napi_env env, napi_value param, AutoStartupInfo &info
         return false;
     }
 
-    if (!AppExecFwk::UnwrapInt32ByPropertyName(env, param, "appCloneIndex", info.appCloneIndex)) {
+    if (info.appCloneIndex != -1) {
+        if (!AppExecFwk::UnwrapInt32ByPropertyName(env, param, "appCloneIndex", info.appCloneIndex)) {
         TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Convert appCloneIndex failed.");
         return false;
+        }
     }
-
     AppExecFwk::UnwrapStringByPropertyName(env, param, "moduleName", info.moduleName);
     return true;
 }
@@ -117,22 +118,24 @@ napi_value CreateJsAutoStartupInfo(napi_env env, const AutoStartupInfo &info)
         TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Convert ability type name failed.");
         return nullptr;
     }
-    
-    if (info.appCloneIndex != -1) {
-        napi_value appCloneIndex = AppExecFwk::WrapInt32ToJS(env, info.appCloneIndex);
-    }
-    if (appCloneIndex == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Convert ability type name failed.");
-        return nullptr;
-    }
 
     if (!(AppExecFwk::SetPropertyValueByPropertyName(env, object, "bundleName", bundleName) &&
         AppExecFwk::SetPropertyValueByPropertyName(env, object, "abilityName", abilityName) &&
         AppExecFwk::SetPropertyValueByPropertyName(env, object, "moduleName", moduleName) &&
-        AppExecFwk::SetPropertyValueByPropertyName(env, object, "abilityTypeName", abilityTypeName) &&
-        AppExecFwk::SetPropertyValueByPropertyName(env, object, "appCloneIndex", appCloneIndex))) {
+        AppExecFwk::SetPropertyValueByPropertyName(env, object, "abilityTypeName", abilityTypeName))) {
         TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Create js AutoStartupInfo failed.");
         return nullptr;
+    }
+    if (info.appCloneIndex != -1) {
+        napi_value appCloneIndex = AppExecFwk::WrapInt32ToJS(env, info.appCloneIndex);
+        if (appCloneIndex == nullptr) {
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Convert ability type name failed.");
+            return nullptr;
+        }
+        if (!AppExecFwk::SetPropertyValueByPropertyName(env, object, "appCloneIndex", appCloneIndex)) {
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Create js AutoStartupInfo failed.");
+            return nullptr;
+        }
     }
     return object;
 }
