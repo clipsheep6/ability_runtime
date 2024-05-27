@@ -82,6 +82,41 @@ HWTEST_F(ServiceExtensionContextTest, service_extension_context_startAbility_002
  * Feature: ServiceExtensionContext
  * Function: startAbility
  * SubFunction: NA
+ * FunctionPoints: ServiceExtensionContextTest StartAbilityAsCaller
+ * EnvConditions: NA
+ * CaseDescription: Verify startAbility
+ */
+HWTEST_F(ServiceExtensionContextTest, service_extension_context_StartAbilityAsCaller_001, TestSize.Level1)
+{
+    ServiceExtensionContext serviceExtensionContextTest;
+    Want want;
+    ErrCode result = serviceExtensionContextTest.StartAbilityAsCaller(want);
+    GTEST_LOG_(INFO) <<result;
+    EXPECT_EQ(ERR_IMPLICIT_START_ABILITY_FAIL, result);
+}
+
+/*
+ * Feature: ServiceExtensionContext
+ * Function: startAbility
+ * SubFunction: NA
+ * FunctionPoints: ServiceExtensionContextTest StartAbilityAsCaller
+ * EnvConditions: NA
+ * CaseDescription: Verify startAbility
+ */
+HWTEST_F(ServiceExtensionContextTest, service_extension_context_StartAbilityAsCaller_002, TestSize.Level1)
+{
+    ServiceExtensionContext serviceExtensionContextTest;
+    Want want;
+    StartOptions startOptions;
+    ErrCode result = serviceExtensionContextTest.StartAbilityAsCaller(want, startOptions);
+    GTEST_LOG_(INFO) <<result;
+    EXPECT_EQ(ERR_IMPLICIT_START_ABILITY_FAIL, result);
+}
+
+/*
+ * Feature: ServiceExtensionContext
+ * Function: startAbility
+ * SubFunction: NA
  * FunctionPoints: ServiceExtensionContextTest startAbility
  * EnvConditions: NA
  * CaseDescription: Verify startAbility
@@ -221,6 +256,25 @@ HWTEST_F(ServiceExtensionContextTest, service_extension_context_ConnectAbilityWi
  * Feature: ServiceExtensionContext
  * Function: startAbility
  * SubFunction: NA
+ * FunctionPoints: ServiceExtensionContextTest ConnectAbilityWithAccount
+ * EnvConditions: NA
+ * CaseDescription: Verify startAbility
+ */
+HWTEST_F(ServiceExtensionContextTest, service_extension_context_DisconnectAbility_001, TestSize.Level1)
+{
+    ServiceExtensionContext serviceExtensionContextTest;
+    Want want;
+    int32_t accountId = 1;
+    sptr<AbilityConnectCallback> connectCallback;
+    ErrCode result = serviceExtensionContextTest.DisconnectAbility(want, connectCallback, accountId);
+    GTEST_LOG_(INFO) <<result;
+    EXPECT_EQ(AAFwk::ERR_INVALID_CALLER, result);
+}
+
+/*
+ * Feature: ServiceExtensionContext
+ * Function: startAbility
+ * SubFunction: NA
  * FunctionPoints: ServiceExtensionContextTest TerminateAbility
  * EnvConditions: NA
  * CaseDescription: Verify startAbility
@@ -230,6 +284,23 @@ HWTEST_F(ServiceExtensionContextTest, service_extension_context_TerminateAbility
     ServiceExtensionContext serviceExtensionContextTest;
     ErrCode result = serviceExtensionContextTest.TerminateAbility();
     EXPECT_EQ(ERR_INVALID_VALUE, result);
+}
+
+/*
+ * Feature: ServiceExtensionContext
+ * Function: startAbility
+ * SubFunction: NA
+ * FunctionPoints: ServiceExtensionContextTest RequestModalUIExtension
+ * EnvConditions: NA
+ * CaseDescription: Verify startAbility
+ */
+HWTEST_F(ServiceExtensionContextTest, service_extension_context_RequestModalUIExtension_001, TestSize.Level1)
+{
+    ServiceExtensionContext serviceExtensionContextTest;
+    Want want;
+    ErrCode result = serviceExtensionContextTest.RequestModalUIExtension(want);
+    GTEST_LOG_(INFO) <<result;
+    EXPECT_EQ(AAFwk::INNER_ERR, result);
 }
 
 /*

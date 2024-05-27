@@ -21,9 +21,13 @@
 
 #include "form_extension_context_mock_test.h"
 #include "form_mgr_errors.h"
+#include "errors.h"
+#include "hilog_tag_wrapper.h"
+#include "ability_manager_errors.h"
 
 namespace OHOS {
 namespace AppExecFwk {
+using namespace testing;
 using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AppExecFwk;
@@ -241,6 +245,37 @@ HWTEST_F(FormExtensionContextTest, formExtensionContext_GetAbilityInfoType_0200,
     formextension_->SetAbilityInfo(abilityInfo);
     EXPECT_EQ(abilityInfo->type, formextension_->GetAbilityInfoType());
     GTEST_LOG_(INFO) << "formExtensionContext_GetAbilityInfoType_0200 end";
+}
+
+
+/**
+ * @tc.number: formExtensionContext_ConnectAbility_001
+ * @tc.name: GetAbilityInfoType
+ * @tc.desc: ConnectAbility
+ */
+HWTEST_F(FormExtensionContextTest, formExtensionContext_ConnectAbility_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "formExtensionContext_ConnectAbility_001 start";
+    Want want;
+    sptr<AbilityRuntime::AbilityConnectCallback> connectCallback;
+    ErrCode result = formextension_->ConnectAbility(want, connectCallback);
+    EXPECT_EQ(AAFwk::ERR_INVALID_CALLER, result);
+    GTEST_LOG_(INFO) << "formExtensionContext_ConnectAbility_001 end";
+}
+
+/**
+ * @tc.number: formExtensionContext_DisconnectAbility_001
+ * @tc.name: GetAbilityInfoType
+ * @tc.desc: DisconnectAbility
+ */
+HWTEST_F(FormExtensionContextTest, formExtensionContext_DisconnectAbility_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "formExtensionContext_DisconnectAbility_001 start";
+    Want want;
+    sptr<AbilityRuntime::AbilityConnectCallback> connectCallback;
+    ErrCode result = formextension_->DisconnectAbility(want, connectCallback);
+    EXPECT_EQ(AAFwk::ERR_INVALID_CALLER, result);
+    GTEST_LOG_(INFO) << "formExtensionContext_DisconnectAbility_001 end";
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
