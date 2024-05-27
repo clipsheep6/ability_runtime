@@ -129,6 +129,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleNotifyFault;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_APP_FAULT_BY_SA)] =
         &AppMgrStub::HandleNotifyFaultBySA;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SET_APPFREEZE_FILTER)] =
+        &AppMgrStub::HandleSetAppFreezeFilter;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::JUDGE_SANDBOX_BY_PID)] =
         &AppMgrStub::HandleJudgeSandboxByPid;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_BUNDLE_NAME_BY_PID)] =
@@ -999,6 +1001,16 @@ int32_t AppMgrStub::HandleNotifyFaultBySA(MessageParcel &data, MessageParcel &re
 
     int32_t result = NotifyAppFaultBySA(*faultData);
     if (!reply.WriteInt32(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleSetAppFreezeFilter(MessageParcel &data, MessageParcel &reply)
+{
+    bool result = SetAppFreezeFilter();
+    if (!reply.WriteBool(result)) {
         TAG_LOGE(AAFwkTag::APPMGR, "reply write failed.");
         return ERR_INVALID_VALUE;
     }
