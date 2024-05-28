@@ -35,18 +35,19 @@ export struct TargetComponent {
     @StorageProp('currentColorMode') currentColorMode: number = ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT;
     @StorageProp('currentLanguage') @Watch('refreshLabel') currentLang: string = '';
     @State targetIcon: DrawableDescriptor | ResourceStr | PixelMap | null = null;
-    @State targetLabel: ResourceStr = "";
+    @State targetLabel: ResourceStr = '';
     private targetInfo?: TargetInfo;
     private storage: LocalStorage | null = null;
 
-    aboutToAppear() {
+    aboutToAppear(){
         this.getIconAndLabel();
     }
 
-    refreshLabel() {
+    refreshLabel(){
         if (this.targetInfo && this.targetInfo.filterAbilityInfo) {
             try {
-                AbilityInfoUtils.getAbilityLabelAndIcon(this.storage?.get<UIExtensionAbility>(LocalStorageKeyConstants.EXTENSION_ABILITY)?.context, {
+                AbilityInfoUtils.getAbilityLabelAndIcon(this.storage?.get<UIExtensionAbility>(
+                    LocalStorageKeyConstants.EXTENSION_ABILITY)?.context, {
                     bundleName: this.targetInfo.filterAbilityInfo.bundleName,
                     moduleName: this.targetInfo.filterAbilityInfo.moduleName,
                     abilityName: this.targetInfo.filterAbilityInfo.name,
@@ -67,10 +68,11 @@ export struct TargetComponent {
         }
     }
 
-    getIconAndLabel() {
+    getIconAndLabel(){
         if (this.targetInfo && this.targetInfo.filterAbilityInfo) {
             try {
-                AbilityInfoUtils.getAbilityLabelAndIcon(this.storage?.get<UIExtensionAbility>(LocalStorageKeyConstants.EXTENSION_ABILITY)?.context,
+                AbilityInfoUtils.getAbilityLabelAndIcon(this.storage?.get<UIExtensionAbility>(
+                    LocalStorageKeyConstants.EXTENSION_ABILITY)?.context,
                     {
                         bundleName: this.targetInfo.filterAbilityInfo.bundleName,
                         moduleName: this.targetInfo.filterAbilityInfo.moduleName,
@@ -92,17 +94,19 @@ export struct TargetComponent {
         }
     }
 
-    build() {
+    build(){
         Column() {
             Button({ type: ButtonType.Normal, stateEffect: true }) {
                 Stack() {
                     Column() {
                         Stack() {
-                            Image(this.targetInfo?.targetAction?.type === TargetType.SHOW_ALL_TARGET ? "" : this.targetIcon)
+                            Image(this.targetInfo?.targetAction?.type === TargetType.SHOW_ALL_TARGET ? '' :
+                                this.targetIcon)
                                 .alt($r('sys.color.ohos_id_color_component_normal'))
                                 .objectFit(ImageFit.Auto)
-                                .backgroundColor(this.targetInfo?.targetAction?.type === TargetType.SHOW_ALL_TARGET || this.targetIcon
-                                    ? $r('sys.color.ohos_id_color_card_bg') : $r('sys.color.ohos_id_color_component_normal'))
+                                .backgroundColor(this.targetInfo?.targetAction?.type === TargetType.SHOW_ALL_TARGET ||
+                                    this.targetIcon ? $r('sys.color.ohos_id_color_card_bg') :
+                                    $r('sys.color.ohos_id_color_component_normal'))
                                 .height(48)
                                 .width(48)
                                 .borderRadius(10)

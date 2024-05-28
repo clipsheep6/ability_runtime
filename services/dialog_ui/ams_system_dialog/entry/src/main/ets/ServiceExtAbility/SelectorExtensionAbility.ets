@@ -19,18 +19,18 @@ import Want from '@ohos.app.ability.Want'
 const TAG = 'SelectorExtensionAbility';
 
 export default class SelectorExtensionAbility extends UIExtensionAbility {
-    onCreate() {
+    onCreate(){
         console.info(TAG, 'SelectorExtensionAbility onCreate');
     }
 
-    onSessionCreate(want: Want, session: UIExtensionContentSession) {
+    onSessionCreate(want: Want, session: UIExtensionContentSession){
         const storage: LocalStorage = new LocalStorage({
-            "session": session,
-            "extensionAbility": this,
-            "callerWant": want
+            'session': session,
+            'extensionAbility': this,
+            'callerWant': want
         } as Record<string, object>);
 
-        session.loadContent("pages/PhonePage", storage);
+        session.loadContent('pages/PhonePage', storage);
         try {
             const bgColor: string = '#40FFFFFF';
         } catch (e) {
@@ -38,19 +38,19 @@ export default class SelectorExtensionAbility extends UIExtensionAbility {
         }
     }
 
-    onSessionDestroy(session: UIExtensionContentSession) {
+    onSessionDestroy(session: UIExtensionContentSession){
         console.info(TAG, 'SelectorExtensionAbility onSessionDestroy');
     }
 
-    onForeground() {
+    onForeground(){
         console.info(TAG, 'SelectorExtensionAbility onForeground');
     }
 
-    onBackground() {
+    onBackground(){
         console.info(TAG, 'SelectorExtensionAbility onBackground');
     }
 
-    onDestroy() {
+    onDestroy(){
         console.info(TAG, 'SelectorExtensionAbility onDestroy');
     }
 }

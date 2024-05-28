@@ -32,19 +32,19 @@ export namespace TargetManager {
 
     const availableTargetsWithCallWant: HashMap<Want, Array<TargetInfo>> = new HashMap();
 
-    export function getAvailableTargets(callerWant: Want): Array<TargetInfo> {
+    export function getAvailableTargets(callerWant: Want): Array<TargetInfo>{
         if (availableTargetsWithCallWant.hasKey(callerWant)) {
             console.info(TAG, `Get targets from cache.`)
             return availableTargetsWithCallWant.get(callerWant);
         }
         let extensionInfos: Array<bundleManager.ExtensionAbilityInfo> = [];
-        if (!(callerWant?.parameters?.['ability.want.params.uiExtensionTargetType'])){
+        if (!(callerWant?.parameters?.['ability.want.params.uiExtensionTargetType'])) {
             return [];
         }
         try {
-            extensionInfos = bundleManager.queryExtensionAbilityInfoSync
-            (callerWant.parameters['ability.want.params.uiExtensionTargetType'] as string,
-                    bundleManager.ExtensionAbilityFlag.GET_EXTENSION_ABILITY_INFO_DEFAULT);
+            extensionInfos = bundleManager.queryExtensionAbilityInfoSync(
+                callerWant.parameters['ability.want.params.uiExtensionTargetType'] as string,
+                bundleManager.ExtensionAbilityFlag.GET_EXTENSION_ABILITY_INFO_DEFAULT);
         } catch (e) {
             console.info(TAG, `there are no target uiextension: ${e}`)
         }
@@ -58,9 +58,10 @@ export namespace TargetManager {
         })
     }
 
-    function buildUIExtensionTargetAction(callerWant: Want, params: TargetActionBuilderParam): TargetAction {
-        if (callerWant.parameters){
-            callerWant.parameters['ability.want.params.uiExtensionType'] = callerWant.parameters['ability.want.params.uiExtensionTargetType'];
+    function buildUIExtensionTargetAction(callerWant: Want, params: TargetActionBuilderParam): TargetAction{
+        if (callerWant.parameters) {
+            callerWant.parameters['ability.want.params.uiExtensionType'] =
+                callerWant.parameters['ability.want.params.uiExtensionTargetType'];
             callerWant.parameters['ability.want.params.uiExtensionTargetType'] = '';
         }
         return new TargetAction(TargetType.UI_EXTENSION, (storage?: LocalStorage) => {
@@ -68,7 +69,8 @@ export namespace TargetManager {
         })
     }
 
-    export function removePartialTargetListIfExceedsMax(targetInfoArray: Array<TargetInfo>, maxSize: number): Array<TargetInfo> {
+    export function removePartialTargetListIfExceedsMax(
+        targetInfoArray: Array<TargetInfo>, maxSize: number): Array<TargetInfo>{
         if (targetInfoArray.length <= maxSize) {
             return targetInfoArray;
         }

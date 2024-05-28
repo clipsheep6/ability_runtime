@@ -24,7 +24,7 @@ struct JumpInterceptorDialog {
   @State private btn: TipBtn = { color: '#FFFFFF' }
   private TAG = 'JumpInterceptorDialog_Page'
 
-  aboutToAppear() {
+  aboutToAppear(){
     console.log(this.TAG, 'dialog page appears');
     this.isDefaultSelector = globalThis.params.isDefaultSelector
     if (this.isDefaultSelector == false) {
@@ -32,11 +32,11 @@ struct JumpInterceptorDialog {
     }
   }
 
-  onCloseApp() {
+  onCloseApp(){
     globalThis.jumpInterceptorExtensionContext.terminateSelf();
   }
 
-  onJumpApp() {
+  onJumpApp(){
     globalThis.abilityWant.bundleName = globalThis.params.bundleName;
     globalThis.abilityWant.abilityName = globalThis.params.abilityName;
     globalThis.abilityWant.moduleName = globalThis.params.moduleName;
@@ -50,7 +50,7 @@ struct JumpInterceptorDialog {
     });
   }
 
-  build() {
+  build(){
     Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
       Flex({ justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
         Text($r('app.string.message_title_jump_interceptor', globalThis.callerAppName, globalThis.targetAppName))

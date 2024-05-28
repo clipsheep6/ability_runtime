@@ -27,11 +27,11 @@ export namespace AbilityInfoUtils {
     }
 
     export function getAbilityLabelAndIcon(context: common.UIExtensionContext, abilityInfoParam: AbilityInfoParam,
-                                           callback: (data: Object[] | null) => void) {
+        callback: (data: Object[] | null) => void){
         let moduleContext: Context | undefined =
         context?.createModuleContext(abilityInfoParam.bundleName, abilityInfoParam.moduleName);
         if (!moduleContext) {
-            throw { code: 1000, data: "Get module context error." } as BusinessError<string> as Error;
+            throw { code: 1000, data: 'Get module context error.' } as BusinessError<string> as Error;
         }
 
         const resourceManager = moduleContext.resourceManager;
@@ -42,12 +42,11 @@ export namespace AbilityInfoUtils {
     }
 
     export function getAbilityLabelAndIconSync(context: common.UIExtensionContext, abilityInfoParam: AbilityInfoParam,
-                                               callback: (data: Object[] | null) => void) {
-
+        callback: (data: Object[] | null) => void){
         let moduleContext: Context | undefined = context.createModuleContext(abilityInfoParam.bundleName,
             abilityInfoParam.moduleName);
         if (!moduleContext) {
-            throw { code: 1000, data: "Get module context error." } as BusinessError<string> as Error;
+            throw { code: 1000, data: 'Get module context error.' } as BusinessError<string> as Error;
         }
         const resourceManager = moduleContext.resourceManager;
         let icon = resourceManager.getDrawableDescriptor(abilityInfoParam.abilityIconId);

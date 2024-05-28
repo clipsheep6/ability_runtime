@@ -22,7 +22,8 @@ const TAG = 'SelectorExtensionAbility.ContentDisplayComponent';
 @Component
 @Preview
 export struct ContentDisplayComponent {
-    @StorageProp('currentColorMode') @Watch('onColorModeChange') currentMode: number = ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT;
+    @StorageProp('currentColorMode') @Watch('onColorModeChange') currentMode: number =
+        ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT;
     @Link @Watch('onTargetInfoChanged') targetInfoArray: Array<TargetInfo>;
     @StorageProp('currentLanguage') currentLang: string = '';
     @State targetInfoArraySplit: Array<Array<TargetInfo>> = [];
@@ -37,33 +38,33 @@ export struct ContentDisplayComponent {
     @Prop @Watch('onTargetInfoChanged') maxLengthOneLine: number;
     @Provide isChange: boolean = false;
 
-    onColorModeChange() {
+    onColorModeChange(){
         let darkMode = this.currentMode === ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT ? false : true;
     }
 
-    aboutToAppear() {
+    aboutToAppear(){
         const context: Context = getContext(this);
         this.titleHeight = 56;
         this.getTargetsToDisplay();
     }
 
-    onTargetInfoChanged() {
+    onTargetInfoChanged(){
         this.isChange = true;
         this.getTargetsToDisplay();
     }
 
-    getTargetsToDisplay() {
+    getTargetsToDisplay(){
         const targetInfoArraySplit: Array<Array<TargetInfo>> = this.splitArray(this.targetInfoArray)
         this.targetInfoArraySplit = this.fillUpTheGapsForOneLine(targetInfoArraySplit);
         if (this.isChange) {
             this.scrollerHeight = (this.panelHeight - this.titleHeight < this
                 .singleRowHeight * this.targetInfoArraySplit.length ? this
-                                                                          .panelHeight - this.titleHeight : this.singleRowHeight * this.targetInfoArraySplit.length) + 16;
+                .panelHeight - this.titleHeight : this.singleRowHeight * this.targetInfoArraySplit.length) + 16;
             this.realHeight = this.titleHeight + this.scrollerHeight;
         }
     }
 
-    splitArray(arr: Array<TargetInfo>): Array<Array<TargetInfo>> {
+    splitArray(arr: Array<TargetInfo>): Array<Array<TargetInfo>>{
         let arraySplit: Array<Array<TargetInfo>> = [];
         if (this.maxLengthOneLine === 0) {
             arraySplit.push(arr);
@@ -80,12 +81,13 @@ export struct ContentDisplayComponent {
         }
         let subArrayListRemainder = arr.length % this.maxLengthOneLine;
         if (subArrayListRemainder !== 0) {
-            arraySplit.push(arr.slice(index * this.maxLengthOneLine, index * this.maxLengthOneLine + subArrayListRemainder))
+            arraySplit.push(
+                arr.slice(index * this.maxLengthOneLine, index * this.maxLengthOneLine + subArrayListRemainder))
         }
         return arraySplit;
     }
 
-    fillUpTheGapsForOneLine(targetInfoArraySplit: Array<Array<TargetInfo>>): Array<Array<TargetInfo>> {
+    fillUpTheGapsForOneLine(targetInfoArraySplit: Array<Array<TargetInfo>>): Array<Array<TargetInfo>>{
         const targetInfoArray: Array<TargetInfo> | undefined = targetInfoArraySplit.pop();
         if (targetInfoArray === undefined) {
             return targetInfoArraySplit;
@@ -103,7 +105,7 @@ export struct ContentDisplayComponent {
         return targetInfoArraySplit;
     }
 
-    build() {
+    build(){
         Column() {
             Row() {
                 TitleComponent({ storage: this.storage })
@@ -137,8 +139,9 @@ export struct ContentDisplayComponent {
         .alignItems(HorizontalAlign.Start)
         .onAreaChange((oldValue: Area, newValue: Area) => {
             if (oldValue.height !== newValue.height) {
-                this.scrollerHeight = (this.panelHeight - this.titleHeight < this.singleRowHeight * this.targetInfoArraySplit.length
-                    ? this.panelHeight - this.titleHeight : this.singleRowHeight * this.targetInfoArraySplit.length) + 16;
+                this.scrollerHeight = (this.panelHeight - this.titleHeight < this.singleRowHeight *
+                    this.targetInfoArraySplit.length ? this.panelHeight - this.titleHeight : this.singleRowHeight *
+                    this.targetInfoArraySplit.length) + 16;
                 this.realHeight = this.titleHeight + this.scrollerHeight;
             }
         })

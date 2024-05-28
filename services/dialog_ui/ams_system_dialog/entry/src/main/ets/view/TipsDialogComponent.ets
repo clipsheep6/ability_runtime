@@ -23,7 +23,7 @@ export struct TipsDialogComponent {
     private storage?: LocalStorage;
     private controller?: CustomDialogController;
 
-    build() {
+    build(){
         Column() {
             Row() {
                 Text('No available applications targets')
@@ -52,7 +52,8 @@ export struct TipsDialogComponent {
                 .backgroundColor(Color.Transparent)
                 .onClick(() => {
                     this.controller?.close();
-                    const session: UIExtensionContentSession = this.storage?.get(LocalStorageKeyConstants.SESSION) as UIExtensionContentSession;
+                    const session: UIExtensionContentSession =
+                        this.storage?.get(LocalStorageKeyConstants.SESSION) as UIExtensionContentSession;
                     session?.terminateSelf();
                     this.storage?.clear();
                 })

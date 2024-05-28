@@ -24,7 +24,7 @@ struct TipsDialog {
   @State private btn: TipBtn = { color: '#FFFFFF' }
   private TAG = 'TipsDialog_Page'
 
-  aboutToAppear() {
+  aboutToAppear(){
     console.log(this.TAG, 'dialog page appears');
     this.isDefaultSelector = globalThis.params.isDefaultSelector
     if (this.isDefaultSelector == false) {
@@ -32,12 +32,12 @@ struct TipsDialog {
     }
   }
 
-  onCloseApp() {
+  onCloseApp(){
     console.info(this.TAG, 'click close app');
     globalThis.tipsExtensionContext.terminateSelf();
   }
 
-  build() {
+  build(){
     Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
       Flex({ justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
         Text($r('app.string.message_title_tips'))

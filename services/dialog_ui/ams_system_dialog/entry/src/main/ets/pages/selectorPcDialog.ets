@@ -53,7 +53,7 @@ struct SelectorPcDialog {
   @State public isCheck: boolean = false;
   private selectItem;
 
-  aboutToAppear(): void {
+  aboutToAppear(): void{
     console.log(this.TAG, 'dialog page appears');
     this.hapList = globalThis.params.hapList;
     this.action = globalThis.params.action;
@@ -61,21 +61,21 @@ struct SelectorPcDialog {
     this.cleanFirstListColorAndVisibility()
   }
 
-  cleanFirstListColorAndVisibility() {
+  cleanFirstListColorAndVisibility(){
     for (let n = 0; n <= globalThis.pcShowHapList.length; n++) {
       this.hapListBackGround[n] = 0xffffff;
       this.hapListPngVisibility[n] = 1;
     }
   }
 
-  cleanSecondListColorAndVisibility() {
+  cleanSecondListColorAndVisibility(){
     for (let n = 0; n <= this.pcShowMoreHapList.length; n++) {
       this.moreHapListBackGround[n] = 0xffffff;
       this.moreHapListPngVisibility[n] = 1;
     }
   }
 
-  onSelectApp(item) {
+  onSelectApp(item){
     globalThis.abilityWant.bundleName = item.split('#')[0];
     globalThis.abilityWant.abilityName = item.split('#')[1];
     globalThis.abilityWant.moduleName = item.split('#')[4];
@@ -100,7 +100,7 @@ struct SelectorPcDialog {
     globalThis.selectExtensionContext.terminateSelf();
   }
 
-  onClickMoreApp() {
+  onClickMoreApp(){
     try {
       globalThis.bundleManager.queryAbilityInfo({
           action: this.action,
@@ -121,7 +121,7 @@ struct SelectorPcDialog {
     }
   }
 
-  getHapResource(hap, showHapList, n) {
+  getHapResource(hap, showHapList, n){
     this.moreHapListBackGround[n] = 0xffffff;
     this.moreHapListPngVisibility[n] = 1
     let bundleName = hap.bundleName;
@@ -174,7 +174,7 @@ struct SelectorPcDialog {
       });
     }
 
-    getMoreHapListStyle() {
+    getMoreHapListStyle(){
       let heightTotalVp = 200;
       let heightVal = 64;
       let recommendAppAreaHigh = 48;
@@ -213,7 +213,7 @@ struct SelectorPcDialog {
       };
     }
 
-  getHapListStyle() {
+  getHapListStyle(){
     let heightTotalVp = 0;
     let heightVal = 64;
     let recommendAppAreaHigh = 48;
@@ -250,7 +250,7 @@ struct SelectorPcDialog {
     };
   }
 
-  build() {
+  build(){
     Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
       Column() {
           Text($r('app.string.message_title_pc_selector'))

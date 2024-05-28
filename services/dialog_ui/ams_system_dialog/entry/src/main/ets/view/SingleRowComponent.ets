@@ -26,7 +26,7 @@ export struct SingleRowComponent {
     private storage?: LocalStorage;
     @Consume singleRowHeight: number;
 
-    build() {
+    build(){
         Row() {
             ForEach(this.targetInfoArray, (item: TargetInfo, index?: number) => {
                 TargetComponent({ targetInfo: item, storage: this.storage })

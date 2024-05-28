@@ -25,12 +25,12 @@ const TAG: string = 'AssertFaultDialog_Page';
 struct AssertFaultDialog {
   @State private textDetail: string = '';
 
-  aboutToAppear() {
+  aboutToAppear(){
     console.info(TAG, 'dialog page appears');
     this.textDetail = storage.get<string>('textDetail');
   }
 
-  existApp() {
+  existApp(){
     console.info(TAG, 'Exist app called');
     try {
       let status = abilityManager.UserStatus.ASSERT_TERMINATE;
@@ -50,7 +50,7 @@ struct AssertFaultDialog {
     }
   }
 
-  onContinueCall() {
+  onContinueCall(){
     console.info(TAG, 'On continue called');
     let status = abilityManager.UserStatus.ASSERT_CONTINUE;
     try {
@@ -70,7 +70,7 @@ struct AssertFaultDialog {
     }
   }
 
-  onRetryCall() {
+  onRetryCall(){
     console.info(TAG, 'On retry called');
     let status = abilityManager.UserStatus.ASSERT_RETRY;
     try {
@@ -90,7 +90,7 @@ struct AssertFaultDialog {
     }
   }
 
-  onTerminationCall() {
+  onTerminationCall(){
     console.info(TAG, 'On termination called');
     let status = abilityManager.UserStatus.ASSERT_TERMINATE;
     try {
@@ -110,7 +110,7 @@ struct AssertFaultDialog {
     }
   }
 
-  build() {
+  build(){
     Column(
       AlertDialog.show(
         {
