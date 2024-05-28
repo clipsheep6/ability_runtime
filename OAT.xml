@@ -64,6 +64,24 @@ Note:If the text contains special characters, please escape them according to th
                 <filteritem type="filename" name="*.hap|*.rpk" desc="valid and invalid bundle files for tests"/>
                 <filteritem type="filepath" name="figures/.*" desc="Self-developed image"/>
             </filefilter>
+            <filefilter name="binaryFileTypePolicyFilter" desc="Filters for binary file policies" >
+                <filteritem type="filepath" name="test/resource/benchmark/form_test_bundle/src/main/js/widget/common/widget.png" desc="icon"/>
+                <filteritem type="filepath" name="tools/test/resource/aa/pageAbilityBundleForStart/src/main/resources/base/media/icon.png" desc="icon"/>
+                <filteritem type="filepath" name="tools/test/resource/aa/serviceAbilityBundleForStart/src/main/resources/base/media/icon.png" desc="icon"/>
+                <filteritem type="filepath" name="tools/test/resource/aa/serviceAbilityBundleForStop/src/main/resources/base/media/icon.png" desc="icon"/>
+                <filteritem type="filepath" name="test/resource/benchmark/form_test_bundle/src/main/resources/base/media/icon.png" desc="icon"/>
+                <filteritem type="filepath" name="test/moduletest/ui_extension_ability_test/ui_extension_user_bundle/entry/src/main/resources/base/media/icon.png" desc="icon"/>
+                <filteritem type="filepath" name="tools/test/resource/aa/pageAbilityBundleForDump/src/main/resources/base/media/icon.png" desc="icon"/>
+                <filteritem type="filepath" name="tools/test/resource/aa/dataAbilityBundleForDump/src/main/resources/base/media/icon.png" desc="icon"/>
+                <filteritem type="filepath" name="test/moduletest/ui_extension_ability_test/ui_extension_provider_bundle/entry/src/main/resources/base/media/icon.png" desc="icon"/>
+                <filteritem type="filepath" name="services/dialog_ui/ams_system_dialog/entry/src/main/resources/base/media/icon.png" desc="icon"/>
+                <filteritem type="filepath" name="services/dialog_ui/ams_system_dialog/AppScope/resources/base/media/app_icon.png" desc="app_icon"/>
+                <filteritem type="filepath" name="test/moduletest/ui_extension_ability_test/ui_extension_provider_bundle/AppScope/resources/base/media/app_icon.png" desc="app_icon"/>
+                <filteritem type="filepath" name="test/moduletest/ui_extension_ability_test/ui_extension_user_bundle/AppScope/resources/base/media/app_icon.png" desc="app_icon"/>
+                <filteritem type="filepath" name="services/dialog_ui/ams_system_dialog/AppScope/resources/base/media/selectedMark.png" desc="icon"/>
+                <filteritem type="filepath" name="test/moduletest/ui_extension_ability_test/ui_extension_user_bundle/entry/src/main/resources/base/media/startIcon.png" desc="icon"/>
+                <filteritem type="filepath" name="test/moduletest/ui_extension_ability_test/ui_extension_provider_bundle/entry/src/main/resources/base/media/startIcon.png" desc="icon"/>
+            </filefilter>
         </filefilterlist>
     </oatconfig>
 </configuration>
