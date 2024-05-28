@@ -299,7 +299,8 @@ napi_value JsUIExtensionContext::OnOpenLink(napi_env env, NapiCallbackInfo& info
 
     if (!ParseOpenLinkParams(env, info, linkValue, openLinkOptions, want)) {
         TAG_LOGE(AAFwkTag::UI_EXT, "parse openLink arguments failed");
-        ThrowInvalidParamError(env, "Parse param openLink arguments failed");
+        ThrowInvalidParamError(env,
+            "Parse param link or openLinkOptions failed, link must be string, openLinkOptions must be options.");
         return CreateJsUndefined(env);
     }
 
