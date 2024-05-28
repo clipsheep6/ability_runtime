@@ -416,6 +416,15 @@ public:
      */
     int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning);
 
+    /**
+     * Check whether the bundle is running.
+     *
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return Return ERR_OK if success, others fail.
+     */
+    int32_t IsAppRunning(const std::string &bundleName, int32_t appCloneIndex, bool &isRunning);
+
     int32_t StartNativeProcessForDebugger(const AAFwk::Want &want);
 
     std::shared_ptr<AppRunningRecord> CreateAppRunningRecord(
@@ -1084,9 +1093,12 @@ public:
 
     int32_t SetSupportedProcessCacheSelf(bool isSupport);
 
-    void OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, ApplicationState state);
 
     virtual void SaveBrowserChannel(const pid_t hostPid, sptr<IRemoteObject> browser);
+
+    bool IsAppProcessesAllCached(const std::string &bundleName, int32_t uid,
+        const std::set<std::shared_ptr<AppRunningRecord>> &cachedSet);
 private:
 
     std::string FaultTypeToString(FaultDataType type);
@@ -1109,8 +1121,8 @@ private:
         const std::shared_ptr<ApplicationInfo> &appInfo, std::string &processName) const;
 
     void MakeProcessName(const std::shared_ptr<AbilityInfo> &abilityInfo,
-        const std::shared_ptr<ApplicationInfo> &appInfo,
-        const HapModuleInfo &hapModuleInfo, int32_t appIndex, std::string &processName) const;
+        const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo, int32_t appIndex,
+        const std::string &specifiedProcessFlag, std::string &processName) const;
 
     void MakeProcessName(const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo,
         std::string &processName) const;

@@ -19,10 +19,12 @@
 #include <chrono>
 #include <unistd.h>
 
+#include "accesstoken_kit.h"
 #include "errors.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "nlohmann/json.hpp"
+#include "os_account_manager_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -88,15 +90,16 @@ bool AppExitReasonDataManager::CheckKvStore()
     return kvStorePtr_ != nullptr;
 }
 
-int32_t AppExitReasonDataManager::SetAppExitReason(const std::string &bundleName,
+int32_t AppExitReasonDataManager::SetAppExitReason(const std::string &bundleName, uint32_t accessTokenId,
     const std::vector<std::string> &abilityList, const AAFwk::ExitReason &exitReason)
 {
-    if (bundleName.empty()) {
+    auto accessTokenIdStr = std::to_string(accessTokenId);
+    if (bundleName.empty() || accessTokenIdStr.empty()) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "invalid value");
         return ERR_INVALID_VALUE;
     }
 
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "bundleName: %{public}s", bundleName.c_str());
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "bundleName: %{public}s, tokenId: %{private}u", bundleName.c_str(), accessTokenId);
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
@@ -105,7 +108,7 @@ int32_t AppExitReasonDataManager::SetAppExitReason(const std::string &bundleName
         }
     }
 
-    DistributedKv::Key key(bundleName);
+    DistributedKv::Key key(accessTokenIdStr);
     DistributedKv::Value value = ConvertAppExitReasonInfoToValue(abilityList, exitReason);
     DistributedKv::Status status;
     {
@@ -120,14 +123,22 @@ int32_t AppExitReasonDataManager::SetAppExitReason(const std::string &bundleName
     return ERR_OK;
 }
 
-int32_t AppExitReasonDataManager::DeleteAppExitReason(const std::string &bundleName)
+int32_t AppExitReasonDataManager::DeleteAppExitReason(const std::string &bundleName, int32_t uid)
 {
-    if (bundleName.empty()) {
+    int32_t userId;
+    if (DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
+        GetOsAccountLocalIdFromUid(uid, userId) != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get GetOsAccountLocalIdFromUid failed.");
+        return ERR_INVALID_VALUE;
+    }
+    uint32_t accessTokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(userId, bundleName, 0);
+    auto accessTokenIdStr = std::to_string(accessTokenId);
+    if (bundleName.empty() || accessTokenIdStr.empty()) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "invalid value.");
         return ERR_INVALID_VALUE;
     }
 
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "bundleName: %{public}s.", bundleName.c_str());
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "bundleName: %{public}s, tokenId: %{private}u", bundleName.c_str(), accessTokenId);
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
@@ -146,7 +157,7 @@ int32_t AppExitReasonDataManager::DeleteAppExitReason(const std::string &bundleN
 
     for (const auto &item : allEntries) {
         const auto &keyValue = item.key.ToString();
-        if (keyValue != bundleName && keyValue.find(keyUiExten) == std::string::npos) {
+        if (keyValue != accessTokenIdStr && keyValue.find(keyUiExten) == std::string::npos) {
             continue;
         }
 
@@ -162,15 +173,15 @@ int32_t AppExitReasonDataManager::DeleteAppExitReason(const std::string &bundleN
     return ERR_OK;
 }
 
-int32_t AppExitReasonDataManager::GetAppExitReason(const std::string &bundleName, const std::string &abilityName,
-    bool &isSetReason, AAFwk::ExitReason &exitReason)
+int32_t AppExitReasonDataManager::GetAppExitReason(const std::string &bundleName, uint32_t accessTokenId,
+    const std::string &abilityName, bool &isSetReason, AAFwk::ExitReason &exitReason)
 {
-    if (bundleName.empty()) {
+    auto accessTokenIdStr = std::to_string(accessTokenId);
+    if (bundleName.empty() || accessTokenIdStr.empty()) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "invalid value!");
         return ERR_INVALID_VALUE;
     }
-
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "bundleName: %{public}s!", bundleName.c_str());
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "bundleName: %{public}s, tokenId: %{private}u", bundleName.c_str(), accessTokenId);
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
@@ -190,20 +201,20 @@ int32_t AppExitReasonDataManager::GetAppExitReason(const std::string &bundleName
     int64_t time_stamp;
     isSetReason = false;
     for (const auto &item : allEntries) {
-        if (item.key.ToString() == bundleName) {
+        if (item.key.ToString() == accessTokenIdStr) {
             ConvertAppExitReasonInfoFromValue(item.value, exitReason, time_stamp, abilityList);
             auto pos = std::find(abilityList.begin(), abilityList.end(), abilityName);
             if (pos != abilityList.end()) {
                 isSetReason = true;
                 abilityList.erase(std::remove(abilityList.begin(), abilityList.end(), abilityName), abilityList.end());
-                UpdateAppExitReason(bundleName, abilityList, exitReason);
+                UpdateAppExitReason(accessTokenId, abilityList, exitReason);
             }
-            TAG_LOGI(AAFwkTag::ABILITYMGR, "current bundle name: %{public}s reason: %{public}d exitMsg: %{public}s \
-                abilityName:%{public}s isSetReason:%{public}d",
-                item.key.ToString().c_str(), exitReason.reason, exitReason.exitMsg.c_str(), abilityName.c_str(),
-                isSetReason);
+            TAG_LOGI(AAFwkTag::ABILITYMGR, "current bundle name: %{public}s, tokenId:%{private}u, reason: %{public}d,"
+                "  exitMsg: %{public}s, abilityName:%{public}s isSetReason:%{public}d",
+                bundleName.c_str(), accessTokenId, exitReason.reason, exitReason.exitMsg.c_str(),
+                abilityName.c_str(), isSetReason);
             if (abilityList.empty()) {
-                InnerDeleteAppExitReason(bundleName);
+                InnerDeleteAppExitReason(accessTokenIdStr);
             }
             break;
         }
@@ -212,15 +223,15 @@ int32_t AppExitReasonDataManager::GetAppExitReason(const std::string &bundleName
     return ERR_OK;
 }
 
-void AppExitReasonDataManager::UpdateAppExitReason(const std::string &bundleName,
-    const std::vector<std::string> &abilityList, const AAFwk::ExitReason &exitReason)
+void AppExitReasonDataManager::UpdateAppExitReason(uint32_t accessTokenId, const std::vector<std::string> &abilityList,
+    const AAFwk::ExitReason &exitReason)
 {
     if (kvStorePtr_ == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "kvStore is nullptr.");
         return;
     }
 
-    DistributedKv::Key key(bundleName);
+    DistributedKv::Key key(std::to_string(accessTokenId));
     DistributedKv::Status status;
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
@@ -285,14 +296,14 @@ void AppExitReasonDataManager::ConvertAppExitReasonInfoFromValue(const Distribut
     }
 }
 
-void AppExitReasonDataManager::InnerDeleteAppExitReason(const std::string &bundleName)
+void AppExitReasonDataManager::InnerDeleteAppExitReason(const std::string &keyName)
 {
     if (kvStorePtr_ == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "kvStore is nullptr");
         return;
     }
 
-    DistributedKv::Key key(bundleName);
+    DistributedKv::Key key(keyName);
     DistributedKv::Status status;
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
@@ -304,12 +315,12 @@ void AppExitReasonDataManager::InnerDeleteAppExitReason(const std::string &bundl
     }
 }
 
-int32_t AppExitReasonDataManager::AddAbilityRecoverInfo(const std::string &bundleName,
+int32_t AppExitReasonDataManager::AddAbilityRecoverInfo(uint32_t accessTokenId,
     const std::string &moduleName, const std::string &abilityName, const int &sessionId)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR,
-        "AddAbilityRecoverInfo bundle %{public}s module %{public}s ability %{public}s id %{public}d ",
-        bundleName.c_str(), moduleName.c_str(), abilityName.c_str(), sessionId);
+        "AddAbilityRecoverInfo tokenId %{private}u module %{public}s ability %{public}s id %{public}d ",
+        accessTokenId, moduleName.c_str(), abilityName.c_str(), sessionId);
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
@@ -318,7 +329,7 @@ int32_t AppExitReasonDataManager::AddAbilityRecoverInfo(const std::string &bundl
         }
     }
 
-    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + bundleName);
+    DistributedKv::Key key = GetAbilityRecoverInfoKey(accessTokenId);
     DistributedKv::Value value;
     DistributedKv::Status status = kvStorePtr_->Get(key, value);
     if (status != DistributedKv::Status::SUCCESS && status != DistributedKv::Status::KEY_NOT_FOUND) {
@@ -358,10 +369,10 @@ int32_t AppExitReasonDataManager::AddAbilityRecoverInfo(const std::string &bundl
 }
 
 int32_t AppExitReasonDataManager::DeleteAbilityRecoverInfo(
-    const std::string &bundleName, const std::string &moduleName, const std::string &abilityName)
+    uint32_t accessTokenId, const std::string &moduleName, const std::string &abilityName)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "DeleteAbilityRecoverInfo bundle %{public}s module %{public}s ability %{public}s ",
-        bundleName.c_str(), moduleName.c_str(), abilityName.c_str());
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "DeleteAbilityRecoverInfo tokenId %{private}u module %{public}s ability %{public}s ",
+        accessTokenId, moduleName.c_str(), abilityName.c_str());
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
@@ -370,7 +381,7 @@ int32_t AppExitReasonDataManager::DeleteAbilityRecoverInfo(
         }
     }
 
-    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + bundleName);
+    DistributedKv::Key key = GetAbilityRecoverInfoKey(accessTokenId);
     DistributedKv::Value value;
     DistributedKv::Status status = kvStorePtr_->Get(key, value);
     if (status != DistributedKv::Status::SUCCESS) {
@@ -389,11 +400,11 @@ int32_t AppExitReasonDataManager::DeleteAbilityRecoverInfo(
         int index = std::distance(recoverInfoList.begin(), pos);
         sessionIdList.erase(std::remove(sessionIdList.begin(), sessionIdList.end(), sessionIdList[index]),
             sessionIdList.end());
-        UpdateAbilityRecoverInfo(bundleName, recoverInfoList, sessionIdList);
+        UpdateAbilityRecoverInfo(accessTokenId, recoverInfoList, sessionIdList);
         TAG_LOGI(AAFwkTag::ABILITYMGR, "DeleteAbilityRecoverInfo remove recoverInfo succeed");
     }
     if (recoverInfoList.empty()) {
-        InnerDeleteAbilityRecoverInfo(bundleName);
+        InnerDeleteAbilityRecoverInfo(accessTokenId);
     }
 
     TAG_LOGI(AAFwkTag::ABILITYMGR, "DeleteAbilityRecoverInfo finished");
@@ -401,10 +412,10 @@ int32_t AppExitReasonDataManager::DeleteAbilityRecoverInfo(
 }
 
 int32_t AppExitReasonDataManager::GetAbilityRecoverInfo(
-    const std::string &bundleName, const std::string &moduleName, const std::string &abilityName, bool &hasRecoverInfo)
+    uint32_t accessTokenId, const std::string &moduleName, const std::string &abilityName, bool &hasRecoverInfo)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "GetAbilityRecoverInfo bundle %{public}s module %{public}s abillity %{public}s ",
-        bundleName.c_str(), moduleName.c_str(), abilityName.c_str());
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "GetAbilityRecoverInfo tokenId %{private}u module %{public}s abillity %{public}s ",
+        accessTokenId, moduleName.c_str(), abilityName.c_str());
     hasRecoverInfo = false;
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
@@ -414,7 +425,7 @@ int32_t AppExitReasonDataManager::GetAbilityRecoverInfo(
         }
     }
 
-    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + bundleName);
+    DistributedKv::Key key = GetAbilityRecoverInfoKey(accessTokenId);
     DistributedKv::Value value;
     DistributedKv::Status status = kvStorePtr_->Get(key, value);
     if (status != DistributedKv::Status::SUCCESS) {
@@ -438,11 +449,11 @@ int32_t AppExitReasonDataManager::GetAbilityRecoverInfo(
     return ERR_OK;
 }
 
-int32_t AppExitReasonDataManager::GetAbilitySessionId(const std::string &bundleName,
+int32_t AppExitReasonDataManager::GetAbilitySessionId(uint32_t accessTokenId,
     const std::string &moduleName, const std::string &abilityName, int &sessionId)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "GetAbilityRecoverInfo bundle %{public}s bundle %{public}s bundle %{public}s  ",
-        bundleName.c_str(), moduleName.c_str(), abilityName.c_str());
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "GetAbilityRecoverInfo tokenId %{private}u bundle %{public}s bundle %{public}s  ",
+        accessTokenId, moduleName.c_str(), abilityName.c_str());
     sessionId = 0;
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
@@ -452,7 +463,7 @@ int32_t AppExitReasonDataManager::GetAbilitySessionId(const std::string &bundleN
         }
     }
 
-    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + bundleName);
+    DistributedKv::Key key = GetAbilityRecoverInfoKey(accessTokenId);
     DistributedKv::Value value;
     DistributedKv::Status status = kvStorePtr_->Get(key, value);
     if (status != DistributedKv::Status::SUCCESS) {
@@ -545,7 +556,7 @@ bool AppExitReasonDataManager::GetUIExtensionAbilityExitReason(const std::string
     return isHaveReason;
 }
 
-void AppExitReasonDataManager::UpdateAbilityRecoverInfo(const std::string &bundleName,
+void AppExitReasonDataManager::UpdateAbilityRecoverInfo(uint32_t accessTokenId,
     const std::vector<std::string> &recoverInfoList, const std::vector<int> &sessionIdList)
 {
     if (kvStorePtr_ == nullptr) {
@@ -553,7 +564,7 @@ void AppExitReasonDataManager::UpdateAbilityRecoverInfo(const std::string &bundl
         return;
     }
 
-    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + bundleName);
+    DistributedKv::Key key = GetAbilityRecoverInfoKey(accessTokenId);
     DistributedKv::Status status;
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
@@ -616,14 +627,14 @@ void AppExitReasonDataManager::ConvertAbilityRecoverInfoFromValue(const Distribu
     }
 }
 
-void AppExitReasonDataManager::InnerDeleteAbilityRecoverInfo(const std::string &bundleName)
+void AppExitReasonDataManager::InnerDeleteAbilityRecoverInfo(uint32_t accessTokenId)
 {
     if (kvStorePtr_ == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "kvStore is nullptr");
         return;
     }
 
-    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + bundleName);
+    DistributedKv::Key key = GetAbilityRecoverInfoKey(accessTokenId);
     DistributedKv::Status status;
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
@@ -633,6 +644,11 @@ void AppExitReasonDataManager::InnerDeleteAbilityRecoverInfo(const std::string &
     if (status != DistributedKv::Status::SUCCESS) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "delete data from kvStore error: %{public}d", status);
     }
+}
+
+DistributedKv::Key AppExitReasonDataManager::GetAbilityRecoverInfoKey(uint32_t accessTokenId)
+{
+    return DistributedKv::Key(KEY_RECOVER_INFO_PREFIX + std::to_string(accessTokenId));
 }
 
 DistributedKv::Value AppExitReasonDataManager::ConvertAppExitReasonInfoToValueOfExtensionName(

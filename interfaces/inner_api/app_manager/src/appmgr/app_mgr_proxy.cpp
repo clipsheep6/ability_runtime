@@ -1707,6 +1707,37 @@ int32_t AppMgrProxy::IsApplicationRunning(const std::string &bundleName, bool &i
     return reply.ReadInt32();
 }
 
+int32_t AppMgrProxy::IsAppRunning(const std::string &bundleName, int32_t appCloneIndex, bool &isRunning)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+    if (!data.WriteString(bundleName)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+    if (!data.WriteInt32(appCloneIndex)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write appCloneIndex failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AppMgrInterfaceCode::IS_APP_RUNNING,
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request is failed, error code: %{public}d", ret);
+        return ret;
+    }
+
+    isRunning = reply.ReadBool();
+    return reply.ReadInt32();
+}
+
 int32_t AppMgrProxy::StartChildProcess(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount,
     bool isStartWithDebug)
 {

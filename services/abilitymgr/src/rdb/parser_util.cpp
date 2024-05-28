@@ -156,7 +156,13 @@ bool ParserUtil::ReadFileIntoJson(const std::string &filePath, nlohmann::json &j
         return false;
     }
 
-    std::ifstream fin(filePath);
+    char path[PATH_MAX] = {0};
+    if (realpath(filePath.c_str(), path) == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "realpath error, errno is %{public}d.", errno);
+        return false;
+    }
+
+    std::ifstream fin(path);
     if (!fin.is_open()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "File path exception.");
         return false;

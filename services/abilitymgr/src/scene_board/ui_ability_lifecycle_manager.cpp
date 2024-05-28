@@ -103,6 +103,7 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
         uiAbilityRecord->SetIsNewWant(sessionInfo->isNewWant);
         if (sessionInfo->isNewWant) {
             uiAbilityRecord->SetWant(abilityRequest.want);
+            uiAbilityRecord->GetSessionInfo()->want.CloseAllFd();
         }
     } else {
         uiAbilityRecord = CreateAbilityRecord(abilityRequest, sessionInfo);
@@ -948,7 +949,8 @@ int UIAbilityLifecycleManager::NotifySCBPendingActivation(sptr<SessionInfo> &ses
         auto isStandard = abilityInfo.launchMode == AppExecFwk::LaunchMode::STANDARD && !abilityRequest.startRecent;
         if (!isStandard) {
             (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->GetAbilitySessionId(
-                abilityInfo.bundleName, abilityInfo.moduleName, abilityInfo.name, sessionInfo->persistentId);
+                abilityInfo.applicationInfo.accessTokenId, abilityInfo.moduleName, abilityInfo.name,
+                sessionInfo->persistentId);
             TAG_LOGI(AAFwkTag::ABILITYMGR, "session id: %{public}d.", sessionInfo->persistentId);
         }
     }
@@ -1507,9 +1509,8 @@ void UIAbilityLifecycleManager::OnStartSpecifiedProcessResponse(const AAFwk::Wan
         return;
     }
     TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s.", want.GetElement().GetURI().c_str());
+    it->second.want.SetParam(PARAM_SPECIFIED_PROCESS_FLAG, flag);
     AbilityRequest abilityRequest = it->second;
-    std::string specifiedProcessFlag = flag;
-    abilityRequest.want.SetParam(PARAM_SPECIFIED_PROCESS_FLAG, specifiedProcessFlag);
     auto isSpecified = (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED);
     if (isSpecified) {
         DelayedSingleton<AppScheduler>::GetInstance()->StartSpecifiedAbility(
@@ -1782,10 +1783,12 @@ void UIAbilityLifecycleManager::SetRevicerInfo(const AbilityRequest &abilityRequ
     if (!isStandard) {
         bool hasRecoverInfo = false;
         (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
-            GetAbilityRecoverInfo(abilityInfo.bundleName, abilityInfo.moduleName, abilityInfo.name, hasRecoverInfo);
+            GetAbilityRecoverInfo(abilityInfo.applicationInfo.accessTokenId, abilityInfo.moduleName, abilityInfo.name,
+            hasRecoverInfo);
         abilityRecord->UpdateRecoveryInfo(hasRecoverInfo);
         (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
-            DeleteAbilityRecoverInfo(abilityInfo.bundleName, abilityInfo.moduleName, abilityInfo.name);
+            DeleteAbilityRecoverInfo(abilityInfo.applicationInfo.accessTokenId, abilityInfo.moduleName,
+            abilityInfo.name);
     }
 }
 
@@ -1804,8 +1807,10 @@ void UIAbilityLifecycleManager::SetLastExitReason(std::shared_ptr<AbilityRecord>
 
     ExitReason exitReason;
     bool isSetReason;
+    auto accessTokenId = abilityRecord->GetAbilityInfo().applicationInfo.accessTokenId;
     DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->GetAppExitReason(
-        abilityRecord->GetAbilityInfo().bundleName, abilityRecord->GetAbilityInfo().name, isSetReason, exitReason);
+        abilityRecord->GetAbilityInfo().bundleName, accessTokenId, abilityRecord->GetAbilityInfo().name,
+        isSetReason, exitReason);
 
     if (isSetReason) {
         abilityRecord->SetLastExitReason(exitReason);
@@ -1973,7 +1978,8 @@ void UIAbilityLifecycleManager::UninstallApp(const std::string &bundleName, int3
         auto &abilityInfo = it->second->GetAbilityInfo();
         if (abilityInfo.bundleName == bundleName && it->second->GetUid() == uid) {
             (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
-                DeleteAbilityRecoverInfo(abilityInfo.bundleName, abilityInfo.moduleName, abilityInfo.name);
+                DeleteAbilityRecoverInfo(abilityInfo.applicationInfo.accessTokenId, abilityInfo.moduleName,
+                abilityInfo.name);
         }
         it++;
     }

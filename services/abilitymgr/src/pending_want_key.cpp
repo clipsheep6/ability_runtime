@@ -70,6 +70,11 @@ void PendingWantKey::SetUserId(int32_t userId)
     userId_ = userId;
 }
 
+void PendingWantKey::SetAppIndex(int32_t appIndex)
+{
+    appIndex_ = appIndex;
+}
+
 int32_t PendingWantKey::GetType()
 {
     return type_;
@@ -126,6 +131,11 @@ int32_t PendingWantKey::GetCode()
 int32_t PendingWantKey::GetUserId()
 {
     return userId_;
+}
+
+int32_t PendingWantKey::GetAppIndex()
+{
+    return appIndex_;
 }
 
 bool PendingWantKey::IsEqualsRequestWant(const Want &otherWant)

@@ -1862,27 +1862,30 @@ napi_value JsAbilityContext::OnSetMissionContinueState(napi_env env, NapiCallbac
         return CreateJsUndefined(env);
     }
 
-    NapiAsyncTask::CompleteCallback complete =
-        [weak = context_, state](napi_env env, NapiAsyncTask& task, int32_t status) {
-            auto context = weak.lock();
-            if (!context) {
-                TAG_LOGW(AAFwkTag::CONTEXT, "context is released");
-                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
-                return;
-            }
+    auto innerErrorCode = std::make_shared<int32_t>(ERR_OK);
+    NapiAsyncTask::ExecuteCallback execute = [weak = context_, state, innerErrorCode]() {
+        auto context = weak.lock();
+        if (!context) {
+            TAG_LOGW(AAFwkTag::CONTEXT, "context is released");
+            *innerErrorCode = static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+            return;
+        }
 
-            auto errcode = context->SetMissionContinueState(state);
-            if (errcode == 0) {
-                task.Resolve(env, CreateJsUndefined(env));
-            } else {
-                task.Reject(env, CreateJsErrorByNativeErr(env, errcode));
-            }
-        };
+        *innerErrorCode = context->SetMissionContinueState(state);
+    };
+
+    NapiAsyncTask::CompleteCallback complete = [innerErrorCode](napi_env env, NapiAsyncTask& task, int32_t status) {
+        if (*innerErrorCode == ERR_OK) {
+            task.Resolve(env, CreateJsUndefined(env));
+        } else {
+            task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
+        }
+    };
 
     napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     napi_value result = nullptr;
-    NapiAsyncTask::ScheduleHighQos("JsAbilityContext::SetMissionContinueState",
-        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnSetMissionContinueState",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
     return result;
 }
 

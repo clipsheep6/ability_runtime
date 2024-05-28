@@ -93,6 +93,8 @@ public:
     MOCK_METHOD2(GetRunningMultiAppInfoByBundleName, int32_t(const std::string &bundleName,
         RunningMultiAppInfo &info));
     MOCK_METHOD2(IsApplicationRunning, int32_t(const std::string &bundleName, bool &isRunning));
+    MOCK_METHOD3(IsAppRunning, int32_t(const std::string &bundleName,
+        int32_t appCloneIndex, bool &isRunning));
     MOCK_METHOD4(StartChildProcess, int32_t(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount,
         bool isStartWithNative));
     MOCK_METHOD1(GetChildProcessInfoForSelf, int32_t(ChildProcessInfo &info));
