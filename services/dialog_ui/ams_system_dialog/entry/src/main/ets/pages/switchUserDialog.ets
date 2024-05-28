@@ -18,11 +18,11 @@
 struct SwitchUserDialog {
   private TAG = 'SwitchUserDialog_Page'
 
-  aboutToAppear() {
+  aboutToAppear(){
     console.info(this.TAG, 'dialog page appears');
   }
 
-  build() {
+  build(){
     Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
       Flex({ justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
         Text($r('app.string.message_title_switchUser'))

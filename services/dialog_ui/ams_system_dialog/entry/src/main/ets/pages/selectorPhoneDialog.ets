@@ -42,23 +42,23 @@ class SelectorDataSource implements IDataSource {
   private list: string[] = []
   private listener: DataChangeListener
 
-  constructor(list: string[]) {
+  constructor(list: string[]){
     this.list = list
   }
 
-  totalCount(): number {
+  totalCount(): number{
     return this.list.length
   }
 
-  getData(index: number): string {
+  getData(index: number): string{
     return this.list[index]
   }
 
-  registerDataChangeListener(listener: DataChangeListener): void {
+  registerDataChangeListener(listener: DataChangeListener): void{
     this.listener = listener
   }
 
-  unregisterDataChangeListener() {
+  unregisterDataChangeListener(){
   }
 }
 
@@ -83,18 +83,18 @@ struct SelectorPhoneDialog {
   @State private hapList: HapInfo[] = [];
   private TAG = 'SelectorDialog_Phone_Page';
 
-  aboutToAppear(): void {
+  aboutToAppear(): void{
     console.log(this.TAG, 'dialog page appears');
     this.hapList = globalThis.params.hapList;
     this.getHapListStyle();
   }
 
-  onPageShow() {
+  onPageShow(){
     console.info(this.TAG, 'onPageShow called');
     this.getHapListStyle();
   }
 
-  onSelectApp(item) {
+  onSelectApp(item){
     console.log(this.TAG, 'onSelectApp - start ');
     globalThis.abilityWant.bundleName = item.split('#')[0];
     globalThis.abilityWant.abilityName = item.split('#')[1];
@@ -109,7 +109,7 @@ struct SelectorPhoneDialog {
     });
   }
 
-  getHapListStyle() {
+  getHapListStyle(){
     if (this.oversizeHeight === 'false') {
       if (this.hapList.length > 8) {
         this.selector.swiper.height = '220vp';
@@ -138,7 +138,7 @@ struct SelectorPhoneDialog {
     }
   }
 
-  build() {
+  build(){
     Flex({ direction: FlexDirection.Column }) {
       Flex({ direction: FlexDirection.Column }) {
         Text($r('app.string.message_title_selector'))

@@ -41,7 +41,7 @@ const FOUR_COLUMN_WIDTH: number = 600;
 struct PhonePage {
     @Provide openUIExtension: boolean = false;
     @Provide uiExtensionInfo: UIExtensionInfo | null = null;
-    @Provide @Watch("onLevel2PageChanged") level2Page: boolean = false;
+    @Provide @Watch('onLevel2PageChanged') level2Page: boolean = false;
     @Provide realHeight: number | PanelHeight = PanelHeight.WRAP_CONTENT;
     @State displayException: boolean = false;
     @State targetInfoArray: Array<TargetInfo> = [];
@@ -62,7 +62,7 @@ struct PhonePage {
     private tipsDialogBottomOffset: number = 0;
     private listener = mediaquery.matchMediaSync('(orientation: landscape)');
 
-    aboutToAppear() {
+    aboutToAppear(){
         console.info(TAG, `aboutToAppear`);
         if (!storage || !storage.get(LocalStorageKeyConstants.CALLER_WANT)) {
             console.error(TAG, `storage or callerWant is null`);
@@ -90,15 +90,15 @@ struct PhonePage {
         this.getTargetsToDisplay();
     }
 
-    refreshTarget() {
-        this.targetInfoArraylevel2 = TargetManager.getAvailableTargets(storage.get(LocalStorageKeyConstants.CALLER_WANT)??{
-        });
+    refreshTarget(){
+        this.targetInfoArraylevel2 = TargetManager.getAvailableTargets(
+            storage.get(LocalStorageKeyConstants.CALLER_WANT) ?? {});
         this.getTargetsToDisplay();
     }
 
-    registerBreakpointSystem() {
+    registerBreakpointSystem(){
         const context: Context = getContext(this);
-        (MediaSyncFacade["BREAK_POINT_SYSTEM"] as BreakpointSystem).register((columnType: ColumnType) => {
+        (MediaSyncFacade['BREAK_POINT_SYSTEM'] as BreakpointSystem).register((columnType: ColumnType) => {
             if (columnType === ColumnType.BREAKPOINT_8_COLUMN || columnType === ColumnType.BREAKPOINT_12_COLUMN) {
                 this.maxLengthOneLine = TargetsUpperLimitOneLine.BREAKPOINT_8_12_COLUMN;
                 const displayData: display.Display = display.getDefaultDisplaySync();
@@ -106,21 +106,23 @@ struct PhonePage {
                     this.panelTopPadding = (displayData.height / displayData.densityPixels - this.statusBarHeight) *
                     (this.isLandscape ? 0.1 : 0.2) + this.statusBarHeight;
                 }
-                this.panelHeight = displayData.height / displayData.densityPixels - this.statusBarHeight - this.panelTopPadding;
+                this.panelHeight = displayData.height / displayData.densityPixels -
+                    this.statusBarHeight - this.panelTopPadding;
             } else {
                 this.maxLengthOneLine = TargetsUpperLimitOneLine.BREAKPOINT_4_COLUMN;
                 const displayData: display.Display = display.getDefaultDisplaySync();
                 this.panelTopPadding = 8;
-                this.panelHeight = displayData.height / displayData.densityPixels - this.statusBarHeight - this.panelTopPadding;
+                this.panelHeight = displayData.height / displayData.densityPixels -
+                    this.statusBarHeight - this.panelTopPadding;
             }
             if (!this.level2Page) {
-                this.targetInfoArray = TargetManager.removePartialTargetListIfExceedsMax
-                (this.targetInfoArraylevel2, 2 * this.maxLengthOneLine);
+                this.targetInfoArray = TargetManager.removePartialTargetListIfExceedsMax(
+                    this.targetInfoArraylevel2, 2 * this.maxLengthOneLine);
             }
         })
     }
 
-    onBackPress() {
+    onBackPress(){
         console.info(TAG, `onBackPress.this.level2Page: ${this.level2Page}`);
         if (this.level2Page) {
             this.level2Page = false;
@@ -128,7 +130,7 @@ struct PhonePage {
         }
     }
 
-    onPortrait(mediaQueryResult: mediaquery.MediaQueryResult) {
+    onPortrait(mediaQueryResult: mediaquery.MediaQueryResult){
         if (DeviceInfoUtil.isTable() && mediaQueryResult.matches) {
             this.isLandscape = true;
         } else {
@@ -136,11 +138,11 @@ struct PhonePage {
         }
     }
 
-    onLevel2PageChanged() {
+    onLevel2PageChanged(){
         this.getTargetsToDisplay();
     }
 
-    getTargetsToDisplay() {
+    getTargetsToDisplay(){
         if (this.targetInfoArraylevel2.length === 0) {
             this.displayException = true;
             this.openTipsDialogAndReport();
@@ -150,15 +152,15 @@ struct PhonePage {
             this.targetInfoArray = this.targetInfoArraylevel2;
             return;
         }
-        this.targetInfoArray = TargetManager.removePartialTargetListIfExceedsMax
-        (this.targetInfoArraylevel2, this.maxLengthOneLine * 2);
+        this.targetInfoArray = TargetManager.removePartialTargetListIfExceedsMax(
+            this.targetInfoArraylevel2, this.maxLengthOneLine * 2);
     }
 
-    openTipsDialogAndReport(): void {
+    openTipsDialogAndReport(): void{
         this.dialogController?.open();
     }
 
-    initTipsDialogController() {
+    initTipsDialogController(){
         this.dialogController = new CustomDialogController({
             builder: TipsDialogComponent({
                 storage: storage,
@@ -166,12 +168,13 @@ struct PhonePage {
             autoCancel: false,
             backgroundColor: $r('sys.color.ohos_id_color_dialog_bg'),
             maskColor: $r('sys.color.ohos_id_color_mask_thin'),
-            alignment: DeviceInfoUtil.isTable() ||
-                       (display.isFoldable() && display.getFoldDisplayMode() === display.FoldDisplayMode.FOLD_DISPLAY_MODE_FULL)
-                ? DialogAlignment.Center : DialogAlignment.Bottom,
+            alignment: DeviceInfoUtil.isTable() || (display.isFoldable() &&
+                display.getFoldDisplayMode() === display.FoldDisplayMode.FOLD_DISPLAY_MODE_FULL) ?
+                DialogAlignment.Center : DialogAlignment.Bottom,
             offset: { dx: 0, dy: DeviceInfoUtil.isTable() ? 0 : this.tipsDialogBottomOffset },
             cancel: () => {
-                const session: UIExtensionContentSession = storage.get(LocalStorageKeyConstants.SESSION) as UIExtensionContentSession;
+                const session: UIExtensionContentSession =
+                    storage.get(LocalStorageKeyConstants.SESSION) as UIExtensionContentSession;
                 session.terminateSelf();
                 storage.clear();
             }
@@ -179,7 +182,7 @@ struct PhonePage {
     }
 
     @Builder
-    displayPanel() {
+    displayPanel(){
         Column() {
             Panel(true) {
                 ContentDisplayComponent({
@@ -191,7 +194,8 @@ struct PhonePage {
             }
             .type(PanelType.CUSTOM)
             .customHeight(this.level2Page ? this.realHeight > this.panelHeight ? this.panelHeight : this.realHeight :
-                this.titleHeight + this.rowHeight * (this.targetInfoArray.length > this.maxLengthOneLine ? 2 : 1) + this.rowTopPadding)
+                this.titleHeight + this.rowHeight * (this.targetInfoArray.length > this.maxLengthOneLine ? 2 : 1) +
+                this.rowTopPadding)
             .backgroundColor($r('sys.color.ohos_id_color_panel_bg'))
             .dragBar(false)
             .width(this.maxLengthOneLine === TargetsUpperLimitOneLine.BREAKPOINT_4_COLUMN ? '100%' : 480)
@@ -201,7 +205,7 @@ struct PhonePage {
     }
 
     @Builder
-    displayUIExtension(uiExtension: UIExtensionInfo | null) {
+    displayUIExtension(uiExtension: UIExtensionInfo | null){
         UIExtensionComponent({
             bundleName: uiExtension?.bundleName,
             abilityName: uiExtension?.abilityName,
@@ -225,7 +229,7 @@ struct PhonePage {
             })
     }
 
-    build() {
+    build(){
         Row() {
             if (!this.displayException) {
                 if (this.openUIExtension) {

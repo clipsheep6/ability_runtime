@@ -26,7 +26,7 @@ export struct TitleComponent {
     private storage: LocalStorage | null = null;
     @StorageProp('currentColorMode') currentColorMode: number = ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT;
 
-    onLevel2PageChanged() {
+    onLevel2PageChanged(){
         this.isChange = true;
         animateTo({ duration: 300 }, () => {
             this.notDisplayLevel1 = this.level2Page;
@@ -34,13 +34,13 @@ export struct TitleComponent {
         })
     }
 
-    onBackPress() {
+    onBackPress(){
         if (this.level2Page) {
             this.level2Page = false;
         }
     }
 
-    build() {
+    build(){
         Row() {
             Stack() {
                 Row() {

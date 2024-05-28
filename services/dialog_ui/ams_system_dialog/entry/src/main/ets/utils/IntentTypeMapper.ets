@@ -23,7 +23,7 @@ export class IntentTypeMapper {
 
   private intentTypeMapperHash: HashMap<PickerType, IntentTypeMapperFunction> = new HashMap();
 
-  private constructor() {
+  private constructor(){
     this.intentTypeMapperHash.set(PickerType.PHOTO_EDIT, (want: Want, pickerType: PickerType) => {
       return IntentType.PHOTO_EDIT;
     });
@@ -32,14 +32,14 @@ export class IntentTypeMapper {
     });
   }
 
-  public static getInstance(): IntentTypeMapper {
+  public static getInstance(): IntentTypeMapper{
     if (!IntentTypeMapper.instance) {
       IntentTypeMapper.instance = new IntentTypeMapper();
     }
     return IntentTypeMapper.instance;
   }
 
-  public getIntentTypeWithWantAndPickerType(want: Want, pickerType: PickerType): IntentType {
+  public getIntentTypeWithWantAndPickerType(want: Want, pickerType: PickerType): IntentType{
     return this.intentTypeMapperHash.get(pickerType)(want, pickerType);
   }
 }
