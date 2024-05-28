@@ -224,6 +224,29 @@ bool IsCjAbility(const std::string& info)
     }
     return info.substr(info.length() - cjCheckFlag.length()) == cjCheckFlag;
 }
+
+bool IsCjApplication(const BundleInfo &bundleInfo)
+{
+    bool findEntryHapModuleInfo = false;
+    AppExecFwk::HapModuleInfo entryHapModuleInfo;
+    if (!bundleInfo.hapModuleInfos.empty()) {
+        for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+            if (hapModuleInfo.moduleType == AppExecFwk::ModuleType::ENTRY) {
+                findEntryHapModuleInfo = true;
+                entryHapModuleInfo = hapModuleInfo;
+                break;
+            }
+        }
+        if (!findEntryHapModuleInfo) {
+            TAG_LOGW(AAFwkTag::APPKIT, "HandleLaunchApplication find entry hap module info failed!");
+            entryHapModuleInfo = bundleInfo.hapModuleInfos.back();
+        }
+        if (!entryHapModuleInfo.abilityInfos.empty()) {
+            return IsCjAbility(entryHapModuleInfo.abilityInfos.front().srcEntrance);
+        }
+    }
+    return false;
+}
 }  // namespace
 
 using OHOS::AppExecFwk::Constants::PERMISSION_GRANTED;
@@ -2740,26 +2763,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         return;
     };
 
-    bool findEntryHapModuleInfo = false;
-    bool isCJApp = false;
-    AppExecFwk::HapModuleInfo entryHapModuleInfo;
-    if (!bundleInfo.hapModuleInfos.empty()) {
-        for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-            if (hapModuleInfo.moduleType == AppExecFwk::ModuleType::ENTRY) {
-                findEntryHapModuleInfo = true;
-                entryHapModuleInfo = hapModuleInfo;
-                break;
-            }
-        }
-        if (!findEntryHapModuleInfo) {
-            TAG_LOGW(AAFwkTag::APPKIT, "HandleLaunchApplication find entry hap module info failed!");
-            entryHapModuleInfo = bundleInfo.hapModuleInfos.back();
-        }
-        if (!entryHapModuleInfo.abilityInfos.empty()) {
-            isCJApp = IsCjAbility(entryHapModuleInfo.abilityInfos.front().srcEntrance);
-        }
-    }
-
+    bool isCJApp = IsCjApplication(bundleInfo);
     SetProcessJITState(appRecord);
     PerfProfile::GetInstance().SetAppForkStartTime(GetTickCount());
     pid_t pid = 0;
