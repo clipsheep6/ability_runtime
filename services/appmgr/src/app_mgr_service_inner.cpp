@@ -2889,6 +2889,15 @@ void AppMgrServiceInner::OnRemoteDied(const wptr<IRemoteObject> &remote, bool is
         return;
     }
 
+    std::vector<sptr<IRemoteObject>> abilityTokens;
+    for (const auto &token : appRecord->GetAbilities()) {
+        abilityTokens.emplace_back(token.first);
+    }
+    for (const auto &callback : appStateCallbacks_) {
+        if (callback != nullptr) {
+            callback->OnAppRemoteDied(abilityTokens);
+        }
+    }
     ClearData(appRecord);
 }
 

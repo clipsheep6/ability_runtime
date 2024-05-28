@@ -239,6 +239,13 @@ void AppScheduler::NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo
     callback->NotifyStartResidentProcess(bundleInfos);
 }
 
+void AppScheduler::OnAppRemoteDied(const std::vector<sptr<IRemoteObject>> &abilityTokens)
+{
+    auto callback = callback_.lock();
+    CHECK_POINTER(callback);
+    callback->OnAppRemoteDied(abilityTokens);
+}
+
 int AppScheduler::KillApplication(const std::string &bundleName)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);

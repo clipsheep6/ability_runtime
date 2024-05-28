@@ -93,6 +93,8 @@ public:
     virtual void NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId) {}
 
     virtual void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos) {}
+
+    virtual void OnAppRemoteDied(const std::vector<sptr<IRemoteObject>> &abilityTokens) {}
 };
 
 class StartSpecifiedAbilityResponse : public AppExecFwk::StartSpecifiedAbilityResponseStub {
@@ -468,6 +470,8 @@ protected:
      * @param bundleInfos resident process bundle infos.
      */
     virtual void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos) override;
+
+    virtual void OnAppRemoteDied(const std::vector<sptr<IRemoteObject>> &abilityTokens) override;
 
 private:
     std::mutex lock_;
