@@ -216,7 +216,7 @@ int32_t GetUserIdByUid(int32_t uid)
     return uid / BASE_USER_RANGE;
 }
 
-bool isCjAbility(const std::string& info)
+bool IsCjAbility(const std::string& info)
 {
     std::string cjCheckFlag = ".cj";
     if (info.length() < cjCheckFlag.length()) {
@@ -2756,7 +2756,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
             entryHapModuleInfo = bundleInfo.hapModuleInfos.back();
         }
         if (!entryHapModuleInfo.abilityInfos.empty()) {
-            isCJApp = isCjAbility(entryHapModuleInfo.abilityInfos.front().srcEntrance);
+            isCJApp = IsCjAbility(entryHapModuleInfo.abilityInfos.front().srcEntrance);
         }
     }
 
