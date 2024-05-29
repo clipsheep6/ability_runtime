@@ -28,6 +28,7 @@ namespace OHOS {
 namespace {
 constexpr int INPUT_ZERO = 0;
 constexpr int INPUT_ONE = 1;
+constexpr int ENABLE = 2;
 constexpr int INPUT_THREE = 3;
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;

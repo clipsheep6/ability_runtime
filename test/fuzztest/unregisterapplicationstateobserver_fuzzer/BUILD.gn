@@ -11,8 +11,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/startup/appspawn/appspawn.gni")
-
 #####################hydra-fuzz###################
 import("//build/config/features.gni")
 import("//build/ohos.gni")
@@ -27,7 +25,7 @@ ohos_fuzztest("UnregisterApplicationStateObserverFuzzTest") {
   fuzz_config_file = "${ability_runtime_test_path}/fuzztest/unregisterapplicationstateobserver_fuzzer"
   include_dirs = [
     "${ability_runtime_innerkits_path}/ability_manager/include",
-    "${appspawn_innerkits_path}/include",
+    "${appspawn_path}/interfaces/innerkits_new/include",
   ]
   cflags = [
     "-g",
