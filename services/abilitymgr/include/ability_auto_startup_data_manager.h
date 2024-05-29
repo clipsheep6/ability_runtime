@@ -37,7 +37,7 @@ public:
 
     int32_t DeleteAutoStartupData(const AutoStartupInfo &info);
 
-    int32_t DeleteAutoStartupData(const std::string &bundleName);
+    int32_t DeleteAutoStartupData(const std::string &bundleName, int32_t uid);
 
     AutoStartupStatus QueryAutoStartupData(const AutoStartupInfo &info);
 
@@ -55,7 +55,7 @@ private:
     AutoStartupInfo ConvertAutoStartupInfoFromKeyAndValue(
         const DistributedKv::Key &key, const DistributedKv::Value &value);
     bool IsEqual(const DistributedKv::Key &key, const AutoStartupInfo &info);
-    bool IsEqual(const DistributedKv::Key &key, const std::string &bundleName);
+    bool IsEqual(const DistributedKv::Key &key, const std::string &accessTokenId);
 
     static const DistributedKv::AppId APP_ID;
     static const DistributedKv::StoreId STORE_ID;
