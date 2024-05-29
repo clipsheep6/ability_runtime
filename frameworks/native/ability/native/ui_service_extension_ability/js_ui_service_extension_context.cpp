@@ -107,8 +107,7 @@ private:
     napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info, bool isStartRecent = false)
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-        TAG_LOGD(AAFwkTag::UISERVC_EXT, "%{public}s, %{public}d", __func__,__LINE__);
-        TAG_LOGI(AAFwkTag::UISERVC_EXT, "StartAbility");
+        TAG_LOGI(AAFwkTag::UISERVC_EXT, "JSUIServiceExtensionContext::StartAbility");
         if (info.argc < ARGC_ONE) {
             TAG_LOGE(AAFwkTag::UISERVC_EXT, "Start ability failed, not enough params.");
             ThrowTooFewParametersError(env);
@@ -119,38 +118,35 @@ private:
         AAFwk::Want want;
         AAFwk::StartOptions startOptions;
         if (!CheckStartAbilityInputParam(env, info, want, startOptions, unwrapArgc)) {
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param want failed, want must be Want.");
             return CreateJsUndefined(env);
         }
 
-        if (isStartRecent) {
-            TAG_LOGD(AAFwkTag::UISERVC_EXT, "OnStartRecentAbility is called");
-            want.SetParam(Want::PARAM_RESV_START_RECENT, true);
-        }
+        NapiAsyncTask::CompleteCallback complete =
+        [weak = context_, want, startOptions, unwrapArgc](napi_env env, NapiAsyncTask& task, int32_t status) {
+            TAG_LOGD(AAFwkTag::UI_EXT, "JSUIServiceExtensionContext startAbility begin");
+            auto context = weak.lock();
+            if (!context) {
+                TAG_LOGE(AAFwkTag::UI_EXT, "JSUIServiceExtensionContext context is released");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                return;
+            }
 
-        if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
-            std::string startTime = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
-                system_clock::now().time_since_epoch()).count());
-            want.SetParam(Want::PARAM_RESV_START_TIME, startTime);
-        }
+            ErrCode innerErrorCode = ERR_OK;
+            innerErrorCode = context->StartAbility(want, startOptions);
+            if (innerErrorCode == 0) {
+                task.Resolve(env, CreateJsUndefined(env));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, innerErrorCode));
+            }
+        };
 
-        auto innerErrorCode = std::make_shared<int>(ERR_OK);
-        TAG_LOGD(AAFwkTag::UISERVC_EXT, "%{public}s, %{public}d", __func__,__LINE__);
-        auto execute = GetStartAbilityExecFunc(want, startOptions, DEFAULT_INVAL_VALUE, unwrapArgc != 1, innerErrorCode);
-        auto complete = GetSimpleCompleteFunc(innerErrorCode);
-
-        napi_value lastParam = (info.argc == unwrapArgc) ? nullptr : info.argv[unwrapArgc];
-        napi_value result = nullptr;
-        if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
-            AddFreeInstallObserver(env, want, lastParam, &result);
-            NapiAsyncTask::ScheduleHighQos("JSServiceExtensionContext::OnStartAbility", env,
-                CreateAsyncTaskWithLastParam(env, nullptr, std::move(execute), nullptr, nullptr));
-        } else {
-            NapiAsyncTask::ScheduleHighQos("JSServiceExtensionContext::OnStartAbility", env,
-                CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
-        }
-        return result;
-    }
+    napi_value lastParam = (info.argc == unwrapArgc) ? nullptr : info.argv[unwrapArgc];
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JSUIServiceExtensionContext OnStartAbility",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
 
     bool CheckStartAbilityInputParam(napi_env env, NapiCallbackInfo& info,
         AAFwk::Want& want, AAFwk::StartOptions& startOptions, size_t& unwrapArgc) const
@@ -251,53 +247,6 @@ private:
         NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnStartAbilityByType",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
-    }
-    
-    NapiAsyncTask::ExecuteCallback GetStartAbilityExecFunc(const AAFwk::Want &want,
-        const AAFwk::StartOptions &startOptions, int32_t userId, bool useOption, std::shared_ptr<int> retCode)
-        {
-            return [weak = context_, want, startOptions, useOption, userId, retCode,
-                &observer = freeInstallObserver_]() {
-                TAG_LOGD(AAFwkTag::UISERVC_EXT, "startAbility exec begin");
-                if (!retCode) {
-                    TAG_LOGE(AAFwkTag::UISERVC_EXT, "retCode null");
-                    return;
-                }
-                auto context = weak.lock();
-                if (!context) {
-                    TAG_LOGW(AAFwkTag::UISERVC_EXT, "context is released");
-                    *retCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
-                    return;
-                }
-
-                TAG_LOGD(AAFwkTag::UISERVC_EXT, "%{public}s, %{public}d", __func__,__LINE__);
-                useOption ? *retCode = context->StartAbilityWithAccount(want, userId, startOptions) :
-                    *retCode = context->StartAbilityWithAccount(want, userId);
-                if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND &&
-                *retCode != 0 && observer != nullptr) {
-                std::string bundleName = want.GetElement().GetBundleName();
-                std::string abilityName = want.GetElement().GetAbilityName();
-                std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
-                observer->OnInstallFinished(bundleName, abilityName, startTime, *retCode);
-                }
-            };
-        }
-
-    NapiAsyncTask::CompleteCallback GetSimpleCompleteFunc(std::shared_ptr<int> retCode)
-    {
-        return [retCode](napi_env env, NapiAsyncTask& task, int32_t) {
-            if (!retCode) {
-                TAG_LOGE(AAFwkTag::UISERVC_EXT, "StartAbility is success");
-                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
-                return;
-            }
-            if (*retCode == 0) {
-                TAG_LOGI(AAFwkTag::UISERVC_EXT, "StartAbility is success");
-                task.Resolve(env, CreateJsUndefined(env));
-            } else {
-                task.Reject(env, CreateJsErrorByNativeErr(env, *retCode));
-            }
-        };
     }
 };
 } // namespace

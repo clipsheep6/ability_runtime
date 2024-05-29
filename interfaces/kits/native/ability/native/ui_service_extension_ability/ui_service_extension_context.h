@@ -49,10 +49,6 @@ public:
      * @return errCode ERR_OK on success, others on failure.
      */
     ErrCode StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions) const;
-
-    ErrCode StartAbilityWithAccount(const AAFwk::Want &want, int accountId) const;
-    ErrCode StartAbilityWithAccount(
-        const AAFwk::Want &want, int accountId, const AAFwk::StartOptions &startOptions) const;
     
     /**
      * @brief Destroys the current ability.
