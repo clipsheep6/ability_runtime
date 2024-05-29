@@ -47,6 +47,7 @@ ohos_shared_library("dataobs_manager") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "samgr:samgr_proxy",
   ]
   public_external_deps = [ "ability_base:zuri" ]

@@ -61,6 +61,7 @@ ohos_shared_library("napi_ability_common") {
     "form_fwk:fmskit_native",
     "form_fwk:form_manager",
     "window_manager:libdm",
+    "window_manager:libwm_lite",
     "window_manager:libwmutil",
   ]
 

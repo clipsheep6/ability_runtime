@@ -33,6 +33,7 @@ ohos_unittest("AmsServiceStartupTest") {
     "${ability_runtime_services_path}/appmgr/src/app_config_data_manager.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_death_recipient.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_debug_manager.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_mgr_event.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_mgr_service.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_mgr_service_event_handler.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_mgr_service_inner.cpp",

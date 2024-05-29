@@ -3806,7 +3806,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_001, TestSize.Level1)
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     AAFwk::EventInfo eventInfo;
-    appMgrServiceInner->SendReStartProcessEvent(eventInfo, nullptr);
+    appMgrServiceInner->SendReStartProcessEvent(eventInfo, 0);
     TAG_LOGI(AAFwkTag::TEST, "SendReStartProcessEvent_001 end");
 }
 
@@ -3829,7 +3829,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_002, TestSize.Level1)
         system_clock::now().time_since_epoch()).count();
     int64_t killedTime = restartTime - 3000;
     appMgrServiceInner->killedPorcessMap_.emplace(killedTime, processName);
-    appMgrServiceInner->SendReStartProcessEvent(eventInfo, record);
+    appMgrServiceInner->SendReStartProcessEvent(eventInfo, record->GetUid());
     TAG_LOGI(AAFwkTag::TEST, "SendReStartProcessEvent_002 end");
 }
 
@@ -3854,7 +3854,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_003, TestSize.Level1)
         system_clock::now().time_since_epoch()).count();
     int64_t killedTime = restartTime - 1000;
     appMgrServiceInner->killedPorcessMap_.emplace(killedTime, processName);
-    appMgrServiceInner->SendReStartProcessEvent(eventInfo, record);
+    appMgrServiceInner->SendReStartProcessEvent(eventInfo, record->GetUid());
     TAG_LOGI(AAFwkTag::TEST, "SendReStartProcessEvent_003 end");
 }
 
@@ -3880,7 +3880,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_004, TestSize.Level1)
         system_clock::now().time_since_epoch()).count();
     int64_t killedTime = restartTime - 1000;
     appMgrServiceInner->killedPorcessMap_.emplace(killedTime, processName);
-    appMgrServiceInner->SendReStartProcessEvent(eventInfo, record);
+    appMgrServiceInner->SendReStartProcessEvent(eventInfo, record->GetUid());
     TAG_LOGI(AAFwkTag::TEST, "SendReStartProcessEvent_004 end");
 }
 
@@ -3906,7 +3906,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_005, TestSize.Level1)
         system_clock::now().time_since_epoch()).count();
     int64_t killedTime = restartTime - 1000;
     appMgrServiceInner->killedPorcessMap_.emplace(killedTime, processName);
-    appMgrServiceInner->SendReStartProcessEvent(eventInfo, record);
+    appMgrServiceInner->SendReStartProcessEvent(eventInfo, record->GetUid());
     TAG_LOGI(AAFwkTag::TEST, "SendReStartProcessEvent_005 end");
 }
 
@@ -4362,6 +4362,29 @@ HWTEST_F(AppMgrServiceInnerTest, GetRunningMultiAppInfoByBundleName_001, TestSiz
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
 
     TAG_LOGI(AAFwkTag::TEST, "GetRunningMultiAppInfoByBundleName_001 end");
+}
+
+/**
+ * @tc.name: SendCreateAtomicServiceProcessEvent_001
+ * @tc.desc: Report event of create atomic service process.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, SendCreateAtomicServiceProcessEvent_001, TestSize.Level1)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::string processName = "test_processName";
+    std::string moduleName = "test_modulenName";
+    std::string abilityName = "test_abilityName";
+    auto appRecord = std::make_shared<AppRunningRecord>(applicationInfo_, ++recordId_, processName);
+    auto bundleType = BundleType::ATOMIC_SERVICE;
+    auto ret = appMgrServiceInner->SendCreateAtomicServiceProcessEvent(nullptr, bundleType, moduleName, abilityName);
+    EXPECT_EQ(ret, false);
+    ret = appMgrServiceInner->SendCreateAtomicServiceProcessEvent(appRecord, bundleType, moduleName, abilityName);
+    EXPECT_EQ(ret, true);
+    bundleType = BundleType::APP;
+    ret = appMgrServiceInner->SendCreateAtomicServiceProcessEvent(appRecord, bundleType, moduleName, abilityName);
+    EXPECT_EQ(ret, false);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

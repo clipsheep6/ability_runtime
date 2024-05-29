@@ -60,9 +60,9 @@ ohos_shared_library("napi_common") {
   public_external_deps = [
     "ability_base:configuration",
     "bundle_framework:appexecfwk_core",
-    "form_fwk:fmskit_native",
     "form_fwk:form_manager",
     "window_manager:libdm",
+    "window_manager:libwm_lite",
     "window_manager:libwmutil",
   ]
 

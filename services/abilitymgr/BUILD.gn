@@ -40,10 +40,7 @@ config("abilityms_config") {
     "${ability_runtime_services_path}/common/include",
     "//prebuilts/jdk/jdk8/linux-x86/include",
     "//prebuilts/jdk/jdk8/linux-x86/include/linux",
-    "//third_party/json/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
-    "${relational_store_innerapi_path}/rdb/include",
-    "${relational_store_innerapi_path}/dataability/include",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
     "${ability_runtime_path}/tools/aa/include",
     "${ability_runtime_innerkits_path}/wantagent/include",
@@ -52,8 +49,6 @@ config("abilityms_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
     "${ability_runtime_utils_path}/global/constant",
     "${ability_runtime_utils_path}/server/constant",
-    "${init_path}/interfaces/innerkits/include/syspara/",
-    "${bundlefwk_inner_api_path}/appexecfwk_core/include",
   ]
 
   defines = []
@@ -67,11 +62,6 @@ config("abilityms_config") {
   }
 
   if (ability_runtime_graphics) {
-    include_dirs += [
-      "${graphic_path}/utils/color_manager/export",
-      "${multimedia_path}/interfaces/innerkits/include",
-    ]
-
     defines += [ "SUPPORT_GRAPHICS" ]
   }
 
@@ -157,6 +147,7 @@ ohos_shared_library("abilityms") {
     "config_policy:configpolicy_util",
     "dsoftbus:softbus_client",
     "ffrt:libffrt",
+    "graphic_2d:color_manager",
     "hicollie:libhicollie",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
@@ -165,6 +156,7 @@ ohos_shared_library("abilityms") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "kv_store:distributeddata_inner",
     "os_account:os_account_innerkits",
     "relational_store:native_appdatafwk",

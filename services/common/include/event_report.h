@@ -56,7 +56,7 @@ struct EventInfo {
 
 enum class EventName {
     // fault event
-    START_ABILITY_ERROR,
+    START_ABILITY_ERROR = 0,
     TERMINATE_ABILITY_ERROR,
     START_EXTENSION_ERROR,
     STOP_EXTENSION_ERROR,
@@ -94,13 +94,18 @@ enum class EventName {
     FA_SHOW_ON_LOCK,
     START_PRIVATE_ABILITY,
     RESTART_PROCESS_BY_SAME_APP,
-    START_STANDARD_ABILITIES
+    START_STANDARD_ABILITIES,
+
+    // atomic service event
+    CREATE_ATOMIC_SERVICE_PROCESS,
+    ATOMIC_SERVICE_DRAWN_COMPLETE
 };
 
 class EventReport {
 public:
     static void SendAppEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
     static void SendAbilityEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
+    static void SendAtomicServiceEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
     static void SendExtensionEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
     static void SendKeyEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
     static void SendAppLaunchEvent(const EventName &eventName, const EventInfo &eventInfo);

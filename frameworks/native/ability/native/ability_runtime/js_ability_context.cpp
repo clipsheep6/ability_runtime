@@ -375,7 +375,10 @@ napi_value JsAbilityContext::OnStartAbility(napi_env env, NapiCallbackInfo& info
     }
 
     AAFwk::Want want;
-    OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want);
+    if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
+        ThrowInvalidParamError(env, "Parse param want failed, must be a Want");
+        return CreateJsUndefined(env);
+    }
     InheritWindowMode(want);
     decltype(info.argc) unwrapArgc = ARGC_ONE;
     TAG_LOGD(AAFwkTag::CONTEXT, "ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
@@ -534,7 +537,8 @@ napi_value JsAbilityContext::OnOpenLink(napi_env env, NapiCallbackInfo& info)
 
     if (!ParseOpenLinkParams(env, info, linkValue, openLinkOptions, want)) {
         TAG_LOGE(AAFwkTag::CONTEXT, "parse openLink arguments failed");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env,
+            "Parse param link or openLinkOptions failed, link must be string, openLinkOptions must be options.");
         return CreateJsUndefined(env);
     }
 

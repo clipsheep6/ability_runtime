@@ -57,7 +57,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     // fuzz for AbilityManagerService
     auto abilityms = std::make_shared<AbilityManagerService>();
     abilityms->UserStarted(int32Param);
-    abilityms->SwitchToUser(int32Param, int32Param);
     abilityms->SwitchManagers(int32Param, boolParam);
     abilityms->PauseOldUser(int32Param);
     abilityms->PauseOldMissionListManager(int32Param);

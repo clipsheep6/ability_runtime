@@ -60,6 +60,7 @@ ohos_moduletest("mission_dump_test") {
     "dsoftbus:softbus_client",
     "ffrt:libffrt",
     "hilog:libhilog",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",
   ]

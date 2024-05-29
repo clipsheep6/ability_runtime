@@ -363,4 +363,19 @@ PREVENT_START_ABILITY:
   CALLEE_PROCESS_NAME: {type: STRING, desc: callee process name}
   EXTENSION_ABILITY_TYPE: {type: INT32, desc: extension ability type}
   ABILITY_NAME: {type: STRING, desc: caller ability name}
+
+CREATE_ATOMIC_SERVICE_PROCESS:
+  __BASE: {type: BEHAVIOR, level: MINOR, desc: start atomic service process}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  CALLER_BUNDLE_NAME: {type: STRING, desc: caller bundle name}
+  CALLER_PROCESS_NAME: {type: STRING, desc: caller process name}
+  CALLER_UID: {type: INT32, desc: caller uid}
+
+ATOMIC_SERVICE_DRAWN_COMPLETE:
+  __BASE: {type: BEHAVIOR, level: MINOR, desc: atomic service first frame drawn complete}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
   
