@@ -1317,10 +1317,12 @@ bool UIAbilityLifecycleManager::CheckProperties(const std::shared_ptr<AbilityRec
     const AbilityRequest &abilityRequest, AppExecFwk::LaunchMode launchMode) const
 {
     const auto& abilityInfo = abilityRecord->GetAbilityInfo();
+    int32_t appIndex = 0;
+    (void)AbilityRuntime::StartupUtil::GetAppIndex(abilityRequest.want, appIndex);
     return abilityInfo.launchMode == launchMode && abilityRequest.abilityInfo.name == abilityInfo.name &&
         abilityRequest.abilityInfo.bundleName == abilityInfo.bundleName &&
         abilityRequest.abilityInfo.moduleName == abilityInfo.moduleName &&
-        AbilityRuntime::StartupUtil::GetAppIndex(abilityRequest.want) == abilityRecord->GetAppIndex();
+        appIndex == abilityRecord->GetAppIndex();
 }
 
 void UIAbilityLifecycleManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId, bool isHalf)

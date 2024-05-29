@@ -253,7 +253,9 @@ std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityR
         abilityRequest.want, abilityRequest.abilityInfo, abilityRequest.appInfo, abilityRequest.requestCode);
     CHECK_POINTER_AND_RETURN(abilityRecord, nullptr);
     abilityRecord->SetUid(abilityRequest.uid);
-    abilityRecord->SetAppIndex(AbilityRuntime::StartupUtil::GetAppIndex(abilityRequest.want));
+    int32_t appIndex = 0;
+    (void)AbilityRuntime::StartupUtil::GetAppIndex(abilityRequest.want, appIndex);
+    abilityRecord->SetAppIndex(appIndex);
     abilityRecord->SetCallerAccessTokenId(abilityRequest.callerAccessTokenId);
     abilityRecord->sessionInfo_ = abilityRequest.sessionInfo;
     if (!abilityRecord->Init()) {
@@ -3388,7 +3390,13 @@ void AbilityRecord::SetURI(const std::string &uri)
 std::string AbilityRecord::GetURI() const
 {
     if (uri_.empty()) {
-        return AppExecFwk::ElementName(abilityInfo_.deviceId, abilityInfo_.bundleName,
+        auto bundleName = abilityInfo_.bundleName;
+        if (AbilityRuntime::StartupUtil::IsSupportAppClone(abilityInfo_.extensionAbilityType)) {
+            if (appIndex_ > 0) {
+                bundleName = std::to_string(appIndex_) + bundleName;
+            }
+        }
+        return AppExecFwk::ElementName(abilityInfo_.deviceId, bundleName,
             abilityInfo_.name, abilityInfo_.moduleName).GetURI();
     }
     return uri_;

@@ -937,8 +937,11 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
 
-    StartAbilityInfoWrap threadLocalInfo(want, validUserId,
-        StartAbilityUtils::GetAppIndex(want, callerToken), callerToken);
+    int32_t appIndex = 0;
+    if (!StartAbilityUtils::GetAppIndex(want, callerToken, appIndex)) {
+        return ERR_APP_CLONE_INDEX_INVALID;
+    }
+    StartAbilityInfoWrap threadLocalInfo(want, validUserId, appIndex, callerToken);
     AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, requestCode, GetUserId(),
         true, nullptr);
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -1241,8 +1244,11 @@ int AbilityManagerService::StartAbilityDetails(const Want &want, const AbilitySt
 
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
-    StartAbilityInfoWrap threadLocalInfo(want, validUserId,
-        StartAbilityUtils::GetAppIndex(want, callerToken), callerToken);
+    int32_t appIndex = 0;
+    if (!StartAbilityUtils::GetAppIndex(want, callerToken, appIndex)) {
+        return ERR_APP_CLONE_INDEX_INVALID;
+    }
+    StartAbilityInfoWrap threadLocalInfo(want, validUserId, appIndex, callerToken);
     AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, requestCode, GetUserId(),
         true, nullptr);
     result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -1522,8 +1528,11 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
 
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
-    StartAbilityInfoWrap threadLocalInfo(want, validUserId,
-        StartAbilityUtils::GetAppIndex(want, callerToken), callerToken);
+    int32_t appIndex = 0;
+    if (!StartAbilityUtils::GetAppIndex(want, callerToken, appIndex)) {
+        return ERR_APP_CLONE_INDEX_INVALID;
+    }
+    StartAbilityInfoWrap threadLocalInfo(want, validUserId, appIndex, callerToken);
     AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, requestCode, GetUserId(),
         true, nullptr);
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -1931,8 +1940,11 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bo
     SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
 
     auto requestCode = sessionInfo->requestCode;
-    StartAbilityInfoWrap threadLocalInfo(sessionInfo->want, currentUserId,
-        StartAbilityUtils::GetAppIndex(sessionInfo->want, sessionInfo->callerToken), sessionInfo->callerToken);
+    int32_t appIndex = 0;
+    if (!StartAbilityUtils::GetAppIndex(sessionInfo->want, sessionInfo->callerToken, appIndex)) {
+        return ERR_APP_CLONE_INDEX_INVALID;
+    }
+    StartAbilityInfoWrap threadLocalInfo(sessionInfo->want, currentUserId, appIndex, sessionInfo->callerToken);
     if (sessionInfo->want.GetBoolParam(IS_CALL_BY_SCB, true)) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "interceptorExecuter_ called.");
         AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(sessionInfo->want, requestCode,
@@ -2575,8 +2587,11 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
     }
 
     int32_t validUserId = GetValidUserId(userId);
-    StartAbilityInfoWrap threadLocalInfo(want, validUserId,
-        StartAbilityUtils::GetAppIndex(want, callerToken), callerToken, true);
+    int32_t appIndex = 0;
+    if (!StartAbilityUtils::GetAppIndex(want, callerToken, appIndex)) {
+        return ERR_APP_CLONE_INDEX_INVALID;
+    }
+    StartAbilityInfoWrap threadLocalInfo(want, validUserId, appIndex, callerToken, true);
     AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, 0, GetUserId(), false, nullptr);
     result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
         interceptorExecuter_->DoProcess(interceptorParam);
@@ -4629,13 +4644,6 @@ bool AbilityManagerService::IsAbilityControllerStartById(int32_t missionId)
     return true;
 }
 
-std::shared_ptr<AbilityRecord> AbilityManagerService::GetServiceRecordByElementName(const std::string &element)
-{
-    auto connectManager = GetCurrentConnectManager();
-    CHECK_POINTER_AND_RETURN(connectManager, nullptr);
-    return connectManager->GetServiceRecordByElementName(element);
-}
-
 std::list<std::shared_ptr<ConnectionRecord>> AbilityManagerService::GetConnectRecordListByCallback(
     sptr<IAbilityConnection> callback)
 {
@@ -5674,8 +5682,11 @@ int AbilityManagerService::GenerateAbilityRequest(
 
     auto abilityInfo = StartAbilityUtils::startAbilityInfo;
     if (abilityInfo == nullptr || abilityInfo->GetAppBundleName() != want.GetElement().GetBundleName()) {
-        abilityInfo = StartAbilityInfo::CreateStartAbilityInfo(want, userId,
-            AbilityRuntime::StartupUtil::GetAppIndex(want));
+        int32_t appIndex = 0;
+        if (!AbilityRuntime::StartupUtil::GetAppIndex(want, appIndex)) {
+            return ERR_APP_CLONE_INDEX_INVALID;
+        }
+        abilityInfo = StartAbilityInfo::CreateStartAbilityInfo(want, userId, appIndex);
     }
     CHECK_POINTER_AND_RETURN(abilityInfo, GET_ABILITY_SERVICE_FAILED);
     if (abilityInfo->status != ERR_OK) {
@@ -5740,8 +5751,11 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
 
     auto abilityInfo = StartAbilityUtils::startAbilityInfo;
     if (abilityInfo == nullptr || abilityInfo->GetAppBundleName() != want.GetElement().GetBundleName()) {
-        abilityInfo = StartAbilityInfo::CreateStartExtensionInfo(want, userId,
-            AbilityRuntime::StartupUtil::GetAppIndex(want));
+        int32_t appIndex = 0;
+        if (!AbilityRuntime::StartupUtil::GetAppIndex(want, appIndex)) {
+            return ERR_APP_CLONE_INDEX_INVALID;
+        }
+        abilityInfo = StartAbilityInfo::CreateStartExtensionInfo(want, userId, appIndex);
     }
     CHECK_POINTER_AND_RETURN(abilityInfo, GET_ABILITY_SERVICE_FAILED);
     if (abilityInfo->status != ERR_OK) {
@@ -6659,8 +6673,11 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
     }
 
     AbilityUtil::RemoveWantKey(const_cast<Want &>(want));
-    StartAbilityInfoWrap threadLocalInfo(want, GetUserId(),
-        StartAbilityUtils::GetAppIndex(want, callerToken), callerToken);
+    int32_t appIndex = 0;
+    if (!StartAbilityUtils::GetAppIndex(want, callerToken, appIndex)) {
+        return ERR_APP_CLONE_INDEX_INVALID;
+    }
+    StartAbilityInfoWrap threadLocalInfo(want, GetUserId(), appIndex, callerToken);
     AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, 0, GetUserId(), true, nullptr);
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
         interceptorExecuter_->DoProcess(interceptorParam);
