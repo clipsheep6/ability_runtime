@@ -1167,6 +1167,21 @@ void AbilityRecord::InitColdStartingWindowResource(
     }
 }
 
+bool AbilityRecord::ReportAtomicServiceDrawnCompleteEvent()
+{
+    if (applicationInfo_.bundleType != AppExecFwk::BundleType::ATOMIC_SERVICE) {
+        return false;
+    }
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Report atomic service first frame complete event.");
+    AAFwk::EventInfo eventInfo;
+    eventInfo.abilityName = abilityInfo_.name;
+    eventInfo.moduleName = abilityInfo_.moduleName;
+    eventInfo.bundleName = abilityInfo_.bundleName;
+    auto eventName = AAFwk::EventName::ATOMIC_SERVICE_DRAWN_COMPLETE;
+    AAFwk::EventReport::SendAtomicServiceEvent(eventName, HiSysEventType::BEHAVIOR, eventInfo);
+    return true;
+}
+
 void AbilityRecord::SetCompleteFirstFrameDrawing(const bool flag)
 {
     isCompleteFirstFrameDrawing_ = flag;

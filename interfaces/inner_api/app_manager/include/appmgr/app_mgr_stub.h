@@ -95,6 +95,7 @@ private:
     int32_t HandleDumpHeapMemory(MessageParcel &data, MessageParcel &reply);
     int32_t HandleDumpJsHeapMemory(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetRunningMultiAppInfoByBundleName(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleIsAppRunning(MessageParcel &data, MessageParcel &reply);
 #ifdef ABILITY_COMMAND_FOR_TEST
     int32_t HandleBlockAppServiceDone(MessageParcel &data, MessageParcel &reply);
 #endif

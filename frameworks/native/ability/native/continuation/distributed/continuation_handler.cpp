@@ -25,6 +25,7 @@ namespace OHOS {
 namespace AppExecFwk {
 const std::string ContinuationHandler::ORIGINAL_DEVICE_ID("deviceId");
 const std::string VERSION_CODE_KEY = "version";
+const std::string FEATURE_ABILITY_FLAG_KEY = "ohos.dms.faFlag";
 ContinuationHandler::ContinuationHandler(
     std::weak_ptr<ContinuationManager> &continuationManager, std::weak_ptr<Ability> &ability)
 {
@@ -124,6 +125,7 @@ bool ContinuationHandler::HandleStartContinuation(const sptr<IRemoteObject> &tok
 
     Want want = SetWantParams(wantParams);
     want.SetElementName(deviceId, abilityInfo_->bundleName, abilityInfo_->name, abilityInfo_->moduleName);
+    want.SetParam(FEATURE_ABILITY_FLAG_KEY, true);
 
     int result = AAFwk::AbilityManagerClient::GetInstance()->StartContinuation(want, token, 0);
     if (result != 0) {

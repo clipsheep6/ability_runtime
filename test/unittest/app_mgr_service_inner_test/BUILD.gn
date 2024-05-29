@@ -17,6 +17,11 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 module_output_path = "ability_runtime/appmgrservice"
 
 ohos_unittest("AppMgrServiceInnerTest") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
   module_out_path = module_output_path
 
   include_dirs = [

@@ -65,6 +65,7 @@ ohos_unittest("ui_ability_lifecycle_manager_test") {
     "ability_base:session_info",
     "ability_base:want",
     "ability_base:zuri",
+    "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",

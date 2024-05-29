@@ -157,6 +157,21 @@ bool AppRunningManager::CheckAppRunningRecordIsExistByBundleName(const std::stri
     return false;
 }
 
+int32_t AppRunningManager::CheckAppCloneRunningRecordIsExistByBundleName(const std::string &bundleName,
+    int32_t appCloneIndex, bool &isRunning)
+{
+    std::lock_guard guard(runningRecordMapMutex_);
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetBundleName() == bundleName && !(appRecord->GetRestartAppFlag()) &&
+            appRecord->GetAppIndex() == appCloneIndex) {
+            isRunning = true;
+            break;
+        }
+    }
+    return ERR_OK;
+}
+
 int32_t AppRunningManager::GetAllAppRunningRecordCountByBundleName(const std::string &bundleName)
 {
     int32_t count = 0;
@@ -479,6 +494,7 @@ void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token)
     if (appRecord->IsLastAbilityRecord(token) && (!appRecord->IsKeepAliveApp() ||
         !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent())) {
         auto cacheProcMgr = DelayedSingleton<CacheProcessManager>::GetInstance();
+        cacheProcMgr->UpdateTypeByAbility(abilityRecord, appRecord);
         if (cacheProcMgr != nullptr && cacheProcMgr->IsAppShouldCache(appRecord)) {
             cacheProcMgr->PenddingCacheProcess(appRecord);
             TAG_LOGI(AAFwkTag::APPMGR, "App %{public}s supports process cache, not terminate record.",
@@ -539,6 +555,7 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
     if (isLastAbility && (!appRecord->IsKeepAliveApp() ||
         !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent()) && !isLauncherApp) {
         auto cacheProcMgr = DelayedSingleton<CacheProcessManager>::GetInstance();
+        cacheProcMgr->UpdateTypeByToken(token, appRecord);
         if (cacheProcMgr != nullptr && cacheProcMgr->IsAppShouldCache(appRecord)) {
             TAG_LOGI(AAFwkTag::APPMGR, "App %{public}s is cached, not terminate app.",
                 appRecord->GetBundleName().c_str());
@@ -1462,6 +1479,28 @@ int AppRunningManager::DumpFfrt(const std::vector<int32_t>& pids, std::string& r
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
     return DumpErrorCode::ERR_OK;
+}
+
+bool AppRunningManager::IsAppProcessesAllCached(const std::string &bundleName, int32_t uid,
+    const std::set<std::shared_ptr<AppRunningRecord>> &cachedSet)
+{
+    if (cachedSet.size() == 0) {
+        TAG_LOGI(AAFwkTag::APPMGR, "empty cache set.");
+        return false;
+    }
+    std::lock_guard guard(runningRecordMapMutex_);
+    for (const auto &item : appRunningRecordMap_) {
+        auto &itemRecord = item.second;
+        if (itemRecord == nullptr) {
+            continue;
+        }
+        if (itemRecord->GetBundleName() == bundleName && itemRecord->GetUid() == uid &&
+            cachedSet.find(itemRecord) == cachedSet.end() &&
+            DelayedSingleton<CacheProcessManager>::GetInstance()->IsAppSupportProcessCache(itemRecord)) {
+            return false;
+        }
+    }
+    return true;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

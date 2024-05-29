@@ -936,33 +936,35 @@ void AppStateObserverManager::HandleOnPageHide(const PageStateData pageStateData
     }
 }
 
-void AppStateObserverManager::OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord)
+void AppStateObserverManager::OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord,
+    ApplicationState state)
 {
     if (handler_ == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "handler is nullptr, OnAppCacheStateChanged failed.");
         return;
     }
 
-    auto task = [weak = weak_from_this(), appRecord]() {
+    auto task = [weak = weak_from_this(), appRecord, state]() {
         auto self = weak.lock();
         if (self == nullptr) {
             TAG_LOGE(AAFwkTag::APPMGR, "self is nullptr, OnAppCacheStateChanged failed.");
             return;
         }
         TAG_LOGD(AAFwkTag::APPMGR, "OnAppCacheStateChanged come.");
-        self->HandleOnAppCacheStateChanged(appRecord);
+        self->HandleOnAppCacheStateChanged(appRecord, state);
     };
     handler_->SubmitTask(task);
 }
 
-void AppStateObserverManager::HandleOnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord)
+void AppStateObserverManager::HandleOnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord,
+    ApplicationState state)
 {
     if (appRecord == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "app record is null");
         return;
     }
 
-    AppStateData data = WrapAppStateData(appRecord, appRecord->GetState());
+    AppStateData data = WrapAppStateData(appRecord, state);
     data.isSpecifyTokenId = appRecord->GetAssignTokenId() > 0 ? true : false;
     TAG_LOGD(AAFwkTag::APPMGR, "HandleOnAppCacheStateChanged, bundle:%{public}s, uid:%{public}d, state:%{public}d",
         data.bundleName.c_str(), data.uid, data.state);

@@ -310,6 +310,8 @@ private:
 
         if (!ParseOpenLinkParams(env, info, linkValue, openLinkOptions, want)) {
             TAG_LOGE(AAFwkTag::SERVICE_EXT, "parse openLink arguments failed");
+            ThrowInvalidParamError(env,
+                "Parse param link or openLinkOptions failed, link must be string, openLinkOptions must be options.");
             return CreateJsUndefined(env);
         }
 

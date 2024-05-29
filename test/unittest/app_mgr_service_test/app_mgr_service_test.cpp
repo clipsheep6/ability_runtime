@@ -1402,6 +1402,29 @@ HWTEST_F(AppMgrServiceTest, IsApplicationRunning_001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: IsAppRunning_001
+ * @tc.desc: Determine that the application is running by returning a value.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, IsAppRunning_001, TestSize.Level1)
+{
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
+    sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
+    ASSERT_NE(appMgrService, nullptr);
+    appMgrService->SetInnerService(nullptr);
+
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
+
+    std::string bundleName = "test_bundleName";
+    int32_t appCloneIndex = 0;
+    bool isRunning = false;
+    int32_t res = appMgrService->IsAppRunning(bundleName, appCloneIndex, isRunning);
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
  * @tc.name: RegisterAbilityForegroundStateObserver_0100
  * @tc.desc: Verify it when judgments is ready and observer is nullptr.
  * @tc.type: FUNC

@@ -20,6 +20,7 @@
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "napi_common_util.h"
+#include "js_error_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -104,6 +105,7 @@ napi_value JsFeatureAbility::OnStartAbility(napi_env env, NapiCallbackInfo& info
     DistributeReqParam requestParam;
     if (!UnWrapRequestParams(env, info.argv[0], requestParam)) {
         TAG_LOGE(AAFwkTag::FA, "unwrap request arguments failed");
+        ThrowInvalidParamError(env, "Parse param want failed, want must be Want.");
         return CreateJsUndefined(env);
     }
 
