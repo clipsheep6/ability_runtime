@@ -221,13 +221,36 @@ int32_t GetUserIdByUid(int32_t uid)
     return uid / BASE_USER_RANGE;
 }
 
-bool isCjAbility(const std::string& info)
+bool IsCjAbility(const std::string& info)
 {
     std::string cjCheckFlag = ".cj";
     if (info.length() < cjCheckFlag.length()) {
         return false;
     }
     return info.substr(info.length() - cjCheckFlag.length()) == cjCheckFlag;
+}
+
+bool IsCjApplication(const BundleInfo &bundleInfo)
+{
+    bool findEntryHapModuleInfo = false;
+    AppExecFwk::HapModuleInfo entryHapModuleInfo;
+    if (!bundleInfo.hapModuleInfos.empty()) {
+        for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+            if (hapModuleInfo.moduleType == AppExecFwk::ModuleType::ENTRY) {
+                findEntryHapModuleInfo = true;
+                entryHapModuleInfo = hapModuleInfo;
+                break;
+            }
+        }
+        if (!findEntryHapModuleInfo) {
+            TAG_LOGW(AAFwkTag::APPMGR, "HandleLaunchApplication find entry hap module info failed!");
+            entryHapModuleInfo = bundleInfo.hapModuleInfos.back();
+        }
+        if (!entryHapModuleInfo.abilityInfos.empty()) {
+            return IsCjAbility(entryHapModuleInfo.abilityInfos.front().srcEntrance);
+        }
+    }
+    return false;
 }
 }  // namespace
 
@@ -2770,26 +2793,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         return;
     };
 
-    bool findEntryHapModuleInfo = false;
-    bool isCJApp = false;
-    AppExecFwk::HapModuleInfo entryHapModuleInfo;
-    if (!bundleInfo.hapModuleInfos.empty()) {
-        for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-            if (hapModuleInfo.moduleType == AppExecFwk::ModuleType::ENTRY) {
-                findEntryHapModuleInfo = true;
-                entryHapModuleInfo = hapModuleInfo;
-                break;
-            }
-        }
-        if (!findEntryHapModuleInfo) {
-            TAG_LOGW(AAFwkTag::APPKIT, "HandleLaunchApplication find entry hap module info failed!");
-            entryHapModuleInfo = bundleInfo.hapModuleInfos.back();
-        }
-        if (!entryHapModuleInfo.abilityInfos.empty()) {
-            isCJApp = isCjAbility(entryHapModuleInfo.abilityInfos.front().srcEntrance);
-        }
-    }
-
+    bool isCJApp = IsCjApplication(bundleInfo);
     SetProcessJITState(appRecord);
     PerfProfile::GetInstance().SetAppForkStartTime(GetTickCount());
     pid_t pid = 0;
