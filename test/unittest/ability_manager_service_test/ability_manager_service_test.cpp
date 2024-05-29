@@ -1078,11 +1078,11 @@ HWTEST_F(AbilityManagerServiceTest, GetWantSender_001, TestSize.Level1)
 
     abilityMs_->pendingWantManager_ = temp;
     wantSenderInfo.userId = -1;
-    EXPECT_NE(abilityMs_->GetWantSender(wantSenderInfo, nullptr), nullptr);
+    EXPECT_EQ(abilityMs_->GetWantSender(wantSenderInfo, nullptr), nullptr);
 
     wantSenderInfo.userId = 0;
     wantSenderInfo.bundleName = "test";
-    EXPECT_NE(abilityMs_->GetWantSender(wantSenderInfo, nullptr), nullptr);
+    EXPECT_EQ(abilityMs_->GetWantSender(wantSenderInfo, nullptr), nullptr);
     HILOG_INFO("AbilityManagerServiceTest GetWantSender_001 end");
 }
 
