@@ -22,13 +22,12 @@ config("js_environment_config") {
 config("public_js_environment_config") {
   include_dirs = [
     "${inner_api_path}",
-    "${utils_path}/include",
+    "${ability_runtime_services_path}/common/include",
   ]
 }
 
 ohos_shared_library("js_environment") {
   sources = [
-    "${utils_path}/src/js_env_logger.cpp",
     "src/js_environment.cpp",
     "src/source_map.cpp",
     "src/uncaught_exception_callback.cpp",
@@ -47,6 +46,7 @@ ohos_shared_library("js_environment") {
     "eventhandler:libeventhandler",
     "faultloggerd:libunwinder",
     "ffrt:libffrt",
+    "hilog:libhilog",
     "napi:ace_napi",
   ]
 

@@ -22,8 +22,6 @@
 
 #include "ecmascript/napi/include/jsnapi.h"
 #include "hilog_wrapper.h"
-#include "js_env_logger.h"
-#include "ohos_js_env_logger.h"
 #include "ohos_js_environment_impl.h"
 
 using namespace testing;
@@ -46,7 +44,6 @@ public:
 
 void JsEnvironmentTest::SetUpTestCase()
 {
-    AbilityRuntime::OHOSJsEnvLogger::RegisterJsEnvLogger();
 }
 
 void JsEnvironmentTest::TearDownTestCase()
@@ -97,9 +94,6 @@ HWTEST_F(JsEnvironmentTest, JsEnvInitialize_0100, TestSize.Level0)
  */
 HWTEST_F(JsEnvironmentTest, JsEnvInitialize_0200, TestSize.Level0)
 {
-    JSENV_LOG_I("Running in multi-thread, using default thread number.");
-
-    JSENV_LOG_I("Running in thread %{public}" PRIu64 "", gettid());
     auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
     ASSERT_NE(jsEnv, nullptr);
 
@@ -384,7 +378,6 @@ HWTEST_F(JsEnvironmentTest, PostSyncTask_0100, TestSize.Level0)
     std::string taskName = "syncTask001";
     bool taskExecuted = false;
     auto task = [taskName, &taskExecuted]() {
-        JSENV_LOG_I("%{public}s called.", taskName.c_str());
         taskExecuted = true;
     };
     jsEnv->PostSyncTask(task, taskName);
@@ -403,7 +396,6 @@ HWTEST_F(JsEnvironmentTest, SetRequestAotCallback_0100, TestSize.Level0)
     ASSERT_NE(jsEnv, nullptr);
 
     auto callback = [](const std::string& bundleName, const std::string& moduleName, int32_t triggerMode) -> int32_t {
-        JSENV_LOG_I("set request aot callback.");
         return 0;
     };
     jsEnv->SetRequestAotCallback(callback);

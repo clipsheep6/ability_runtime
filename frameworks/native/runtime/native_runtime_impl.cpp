@@ -24,7 +24,6 @@
 #include "js_environment.h"
 #include "js_module_reader.h"
 #include "js_worker.h"
-#include "ohos_js_env_logger.h"
 #include "ohos_js_environment_impl.h"
 #include "parameters.h"
 #include "system_ability_definition.h"
@@ -98,7 +97,6 @@ napi_status NativeRuntimeImpl::CreateJsEnv(const Options& options, std::shared_p
         pandaOption.SetProfileDir(SANDBOX_ARK_PROIFILE_PATH);
     }
 
-    OHOSJsEnvLogger::RegisterJsEnvLogger();
     // options eventRunner is nullptr
     jsEnv = std::make_shared<JsEnv::JsEnvironment>(std::make_unique<OHOSJsEnvironmentImpl>(options.eventRunner));
     if (jsEnv == nullptr || !jsEnv->Initialize(pandaOption, static_cast<void*>(this))
