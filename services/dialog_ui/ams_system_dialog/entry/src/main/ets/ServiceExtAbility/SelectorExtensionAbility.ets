@@ -25,12 +25,12 @@ export default class SelectorExtensionAbility extends UIExtensionAbility {
 
     onSessionCreate(want: Want, session: UIExtensionContentSession) {
         const storage: LocalStorage = new LocalStorage({
-            "session": session,
-            "extensionAbility": this,
-            "callerWant": want
+            'session': session,
+            'extensionAbility': this,
+            'callerWant': want
         } as Record<string, object>);
 
-        session.loadContent("pages/PhonePage", storage);
+        session.loadContent('pages/PhonePage', storage);
         try {
             const bgColor: string = '#40FFFFFF';
         } catch (e) {

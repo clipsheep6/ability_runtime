@@ -12,10 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export const  LocalStorageKeyConstants: Record<string, string> = {
-  "SESSION": 'session',
-  "EXTENSION_ABILITY": 'extensionAbility',
-  "CALLER_WANT": 'callerWant'
+export const localStorageKeyConstants: Record<string, string> = {
+  'SESSION': 'session',
+  'EXTENSION_ABILITY': 'extensionAbility',
+  'CALLER_WANT': 'callerWant'
 }
 
 export enum TargetsUpperLimitOneLine {

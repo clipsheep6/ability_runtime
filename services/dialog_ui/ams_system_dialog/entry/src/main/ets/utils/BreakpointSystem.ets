@@ -20,9 +20,9 @@ const TAG = 'BreakpointSystem';
 type triggerFunc = (columnType: ColumnType) => void;
 
 export enum ColumnType {
-    BREAKPOINT_4_COLUMN = "sm",
-    BREAKPOINT_8_COLUMN = "md",
-    BREAKPOINT_12_COLUMN = "lg"
+    BREAKPOINT_4_COLUMN = 'sm',
+    BREAKPOINT_8_COLUMN = 'md',
+    BREAKPOINT_12_COLUMN = 'lg'
 }
 
 export const BREAKPOINT_VALUE = [0, 520, 840]
