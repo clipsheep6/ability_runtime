@@ -528,6 +528,7 @@ public:
     void NotifyAnimationFromTerminatingAbility() const;
     void NotifyAnimationFromMinimizeAbility(bool& animaEnabled);
 
+    bool ReportAtomicServiceDrawnCompleteEvent();
     void SetCompleteFirstFrameDrawing(const bool flag);
     bool IsCompleteFirstFrameDrawing() const;
     bool GetColdStartFlag();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -2724,6 +2724,25 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_PrepareTerminateAbility_002, TestSize.
     bool result = abilityRecord_->lifecycleDeal_->PrepareTerminateAbility();
     EXPECT_EQ(result, false);
     EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/**
+ * @tc.name: AbilityRecord_ReportAtomicServiceDrawnCompleteEvent_001
+ * @tc.desc: Test ReportAtomicServiceDrawnCompleteEvent
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_ReportAtomicServiceDrawnCompleteEvent_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    ASSERT_NE(abilityRecord, nullptr);
+
+    abilityRecord->applicationInfo_.bundleType = AppExecFwk::BundleType::ATOMIC_SERVICE;
+    auto ret = abilityRecord->ReportAtomicServiceDrawnCompleteEvent();
+    EXPECT_EQ(ret, true);
+
+    abilityRecord->applicationInfo_.bundleType = AppExecFwk::BundleType::APP;
+    ret = abilityRecord->ReportAtomicServiceDrawnCompleteEvent();
+    EXPECT_EQ(ret, false);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

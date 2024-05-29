@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-#include <map>
-
 #include "event_report.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
@@ -57,40 +55,6 @@ constexpr const char *EVENT_KEY_PROCESS_TYPE = "PROCESS_TYPE";
 constexpr const char *EVENT_KEY_TIME = "TIME";
 constexpr const char *EVENT_KEY_PID = "PID";
 constexpr const char *INVALID_EVENT_NAME = "INVALIDEVENTNAME";
-const std::map<EventName, std::string> eventNameToStrMap_ = {
-    std::map<EventName, std::string>::value_type(EventName::START_ABILITY_ERROR, "START_ABILITY_ERROR"),
-    std::map<EventName, std::string>::value_type(EventName::TERMINATE_ABILITY_ERROR, "TERMINATE_ABILITY_ERROR"),
-    std::map<EventName, std::string>::value_type(EventName::START_EXTENSION_ERROR, "START_EXTENSION_ERROR"),
-    std::map<EventName, std::string>::value_type(EventName::STOP_EXTENSION_ERROR, "STOP_EXTENSION_ERROR"),
-    std::map<EventName, std::string>::value_type(EventName::CONNECT_SERVICE_ERROR, "CONNECT_SERVICE_ERROR"),
-    std::map<EventName, std::string>::value_type(EventName::DISCONNECT_SERVICE_ERROR, "DISCONNECT_SERVICE_ERROR"),
-    std::map<EventName, std::string>::value_type(EventName::START_ABILITY, "START_ABILITY"),
-    std::map<EventName, std::string>::value_type(EventName::TERMINATE_ABILITY, "TERMINATE_ABILITY"),
-    std::map<EventName, std::string>::value_type(EventName::CLOSE_ABILITY, "CLOSE_ABILITY"),
-    std::map<EventName, std::string>::value_type(EventName::ABILITY_ONFOREGROUND, "ABILITY_ONFOREGROUND"),
-    std::map<EventName, std::string>::value_type(EventName::ABILITY_ONBACKGROUND, "ABILITY_ONBACKGROUND"),
-    std::map<EventName, std::string>::value_type(EventName::ABILITY_ONACTIVE, "ABILITY_ONACTIVE"),
-    std::map<EventName, std::string>::value_type(EventName::ABILITY_ONINACTIVE, "ABILITY_ONINACTIVE"),
-    std::map<EventName, std::string>::value_type(EventName::START_SERVICE, "START_SERVICE"),
-    std::map<EventName, std::string>::value_type(EventName::STOP_SERVICE, "STOP_SERVICE"),
-    std::map<EventName, std::string>::value_type(EventName::CONNECT_SERVICE, "CONNECT_SERVICE"),
-    std::map<EventName, std::string>::value_type(EventName::DISCONNECT_SERVICE, "DISCONNECT_SERVICE"),
-    std::map<EventName, std::string>::value_type(EventName::APP_ATTACH, "APP_ATTACH"),
-    std::map<EventName, std::string>::value_type(EventName::APP_LAUNCH, "APP_LAUNCH"),
-    std::map<EventName, std::string>::value_type(EventName::APP_FOREGROUND, "APP_FOREGROUND"),
-    std::map<EventName, std::string>::value_type(EventName::APP_BACKGROUND, "APP_BACKGROUND"),
-    std::map<EventName, std::string>::value_type(EventName::APP_TERMINATE, "APP_TERMINATE"),
-    std::map<EventName, std::string>::value_type(EventName::PROCESS_START, "PROCESS_START"),
-    std::map<EventName, std::string>::value_type(EventName::PROCESS_EXIT, "PROCESS_EXIT"),
-    std::map<EventName, std::string>::value_type(EventName::DRAWN_COMPLETED, "DRAWN_COMPLETED"),
-    std::map<EventName, std::string>::value_type(EventName::APP_STARTUP_TYPE, "APP_STARTUP_TYPE"),
-    std::map<EventName, std::string>::value_type(EventName::GRANT_URI_PERMISSION, "GRANT_URI_PERMISSION"),
-    std::map<EventName, std::string>::value_type(EventName::FA_SHOW_ON_LOCK, "FA_SHOW_ON_LOCK"),
-    std::map<EventName, std::string>::value_type(EventName::START_PRIVATE_ABILITY, "START_PRIVATE_ABILITY"),
-    std::map<EventName, std::string>::value_type(EventName::RESTART_PROCESS_BY_SAME_APP,
-        "RESTART_PROCESS_BY_SAME_APP"),
-    std::map<EventName, std::string>::value_type(EventName::START_STANDARD_ABILITIES, "START_STANDARD_ABILITIES"),
-};
 }
 
 void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo)
@@ -227,6 +191,40 @@ void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType ty
                 EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
                 EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
                 EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
+            break;
+        default:
+            break;
+    }
+}
+
+void EventReport::SendAtomicServiceEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo)
+{
+    std::string name = ConvertEventName(eventName);
+    if (name == INVALID_EVENT_NAME) {
+        TAG_LOGE(AAFwkTag::DEFAULT, "invalid eventName");
+        return;
+    }
+    switch (eventName) {
+        case EventName::ATOMIC_SERVICE_DRAWN_COMPLETE:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                type,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
+            break;
+        case EventName::CREATE_ATOMIC_SERVICE_PROCESS:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                type,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
+                EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName,
+                EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.callerProcessName,
+                EVENT_KEY_CALLER_UID, eventInfo.callerUid);
             break;
         default:
             break;
@@ -522,11 +520,34 @@ void EventReport::SendDisconnectServiceEvent(const EventName &eventName, const E
 
 std::string EventReport::ConvertEventName(const EventName &eventName)
 {
-    auto it = eventNameToStrMap_.find(eventName);
-    if (it != eventNameToStrMap_.end()) {
-        return it->second;
+    const char* eventNames[] = {
+        // fault event
+        "START_ABILITY_ERROR", "TERMINATE_ABILITY_ERROR", "START_EXTENSION_ERROR",
+        "STOP_EXTENSION_ERROR", "CONNECT_SERVICE_ERROR", "DISCONNECT_SERVICE_ERROR",
+
+        // ability behavior event
+        "START_ABILITY", "TERMINATE_ABILITY", "CLOSE_ABILITY",
+        "ABILITY_ONFOREGROUND", "ABILITY_ONBACKGROUND", "ABILITY_ONACTIVE", "ABILITY_ONINACTIVE",
+
+        // serviceExtensionAbility behavior event
+        "START_SERVICE", "STOP_SERVICE", "CONNECT_SERVICE", "DISCONNECT_SERVICE",
+
+        // app behavior event
+        "APP_ATTACH", "APP_LAUNCH", "APP_FOREGROUND", "APP_BACKGROUND", "APP_TERMINATE",
+        "PROCESS_START", "PROCESS_EXIT", "DRAWN_COMPLETED", "APP_STARTUP_TYPE",
+
+        // key behavior event
+        "GRANT_URI_PERMISSION", "FA_SHOW_ON_LOCK", "START_PRIVATE_ABILITY",
+        "RESTART_PROCESS_BY_SAME_APP", "START_STANDARD_ABILITIES",
+
+        // atomic service event
+        "CREATE_ATOMIC_SERVICE_PROCESS", "ATOMIC_SERVICE_DRAWN_COMPLETE"
+    };
+    uint32_t eventIndex = static_cast<uint32_t> (eventName);
+    if (eventIndex >= sizeof(eventNames) / sizeof(const char*)) {
+        return INVALID_EVENT_NAME;
     }
-    return INVALID_EVENT_NAME;
+    return eventNames[eventIndex];
 }
 }  // namespace AAFwk
 }  // namespace OHOS

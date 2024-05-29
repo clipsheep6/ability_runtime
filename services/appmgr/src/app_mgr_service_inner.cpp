@@ -29,6 +29,7 @@
 #include "app_config_data_manager.h"
 #include "app_mem_info.h"
 #include "app_mgr_service.h"
+#include "app_mgr_event.h"
 #include "app_process_data.h"
 #include "app_state_observer_manager.h"
 #include "app_utils.h"
@@ -120,6 +121,7 @@ constexpr int REGISTER_FOCUS_DELAY = 5000;
 constexpr int REGISTER_VISIBILITY_DELAY = 5000;
 // Max render process number limitation for phone device.
 constexpr int PHONE_MAX_RENDER_PROCESS_NUM = 40;
+constexpr int PROCESS_RESTART_MARGIN_MICRO_SECONDS = 2000;
 const std::string CLASS_NAME = "ohos.app.MainThread";
 const std::string FUNC_NAME = "main";
 const std::string RENDER_PARAM = "invalidparam";
@@ -2798,8 +2800,10 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
             appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
             return;
         }
+        SendCreateAtomicServiceProcessEvent(appRecord, bundleType, moduleName, abilityName);
         errCode = remoteClientManager_->GetCJSpawnClient()->StartProcess(startMsg, pid);
     } else {
+        SendCreateAtomicServiceProcessEvent(appRecord, bundleType, moduleName, abilityName);
         errCode = remoteClientManager_->GetSpawnClient()->StartProcess(startMsg, pid);
     }
     if (FAILED(errCode)) {
@@ -2893,21 +2897,20 @@ void AppMgrServiceInner::ProcessAppDebug(const std::shared_ptr<AppRunningRecord>
     }
 }
 
-void AppMgrServiceInner::UpDateStartupType(
-    const std::shared_ptr<AbilityInfo> &info, int32_t &abilityType, int32_t &extensionType)
+bool AppMgrServiceInner::SendCreateAtomicServiceProcessEvent(const std::shared_ptr<AppRunningRecord> &appRecord,
+    const BundleType &bundleType, const std::string &moduleName, const std::string &abilityName)
 {
-    if (info == nullptr) {
-        return;
+    if (bundleType != BundleType::ATOMIC_SERVICE) {
+        return false;
     }
-
-    TAG_LOGD(AAFwkTag::APPMGR, "bundleName:%{public}s, abilityName:%{public}s", info->bundleName.c_str(),
-        info->name.c_str());
-    abilityType = static_cast<int32_t>(info->type);
-    if (info->type != AbilityType::EXTENSION) {
-        return;
+    if (!appRecord) {
+        TAG_LOGI(AAFwkTag::APPMGR, "appRecord is nullptr");
+        return false;
     }
-
-    extensionType = static_cast<int32_t>(info->extensionAbilityType);
+    TAG_LOGI(AAFwkTag::APPMGR, "to report create atomic service process event.");
+    auto callerPid = appRecord->GetCallerPid() == -1 ? IPCSkeleton::GetCallingRealPid() : appRecord->GetCallerPid();
+    auto callerAppRecord = GetAppRunningRecordByPid(callerPid);
+    return AppMgrEventUtil::SendCreateAtomicServiceProcessEvent(callerAppRecord, appRecord, moduleName, abilityName);
 }
 
 bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningRecord> &appRecord)
@@ -2916,50 +2919,34 @@ bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningR
         TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr");
         return false;
     }
-
     AAFwk::EventInfo eventInfo;
-    time_t currentTime;
-    time(&currentTime);
-    eventInfo.time = currentTime;
-    eventInfo.callerUid = appRecord->GetCallerUid() == -1 ? IPCSkeleton::GetCallingUid() : appRecord->GetCallerUid();
-    if (!appRecord->GetAbilities().empty()) {
-        auto abilityinfo = appRecord->GetAbilities().begin()->second->GetAbilityInfo();
-        UpDateStartupType(abilityinfo, eventInfo.abilityType, eventInfo.extensionType);
-    } else {
-        TAG_LOGI(AAFwkTag::APPMGR, "Abilities nullptr!");
-    }
-
-    eventInfo.callerPid = appRecord->GetCallerPid() == -1 ?
-        IPCSkeleton::GetCallingRealPid() : appRecord->GetCallerPid();
-    auto callerAppRecord = GetAppRunningRecordByPid(eventInfo.callerPid);
-    if (callerAppRecord == nullptr) {
-        Security::AccessToken::NativeTokenInfo nativeTokenInfo = {};
-        auto token = appRecord->GetCallerTokenId() == -1 ?
-            static_cast<int>(IPCSkeleton::GetCallingTokenID()) : appRecord->GetCallerTokenId();
-        Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(token, nativeTokenInfo);
-        eventInfo.callerBundleName = "";
-        eventInfo.callerProcessName = nativeTokenInfo.processName;
-    } else {
-        if (callerAppRecord->GetBundleName().empty()) {
-            eventInfo.callerBundleName = callerAppRecord->GetName();
-        } else {
-            eventInfo.callerBundleName = callerAppRecord->GetBundleName();
-        }
-        eventInfo.callerProcessName = callerAppRecord->GetProcessName();
-    }
-    if (!appRecord->GetBundleName().empty()) {
-        eventInfo.bundleName = appRecord->GetBundleName();
-    }
-    eventInfo.processName = appRecord->GetProcessName();
-    if (appRecord->GetPriorityObject() == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "appRecord's priorityObject is null");
-    } else {
-        eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
-    }
-    AAFwk::EventReport::SendProcessStartEvent(AAFwk::EventName::PROCESS_START, eventInfo);
-    SendReStartProcessEvent(eventInfo, appRecord);
-
+    auto callerPid = appRecord->GetCallerPid() == -1 ? IPCSkeleton::GetCallingRealPid() : appRecord->GetCallerPid();
+    auto callerAppRecord = GetAppRunningRecordByPid(callerPid);
+    AppMgrEventUtil::SendProcessStartEvent(callerAppRecord, appRecord, eventInfo);
+    SendReStartProcessEvent(eventInfo, appRecord->GetUid());
     return true;
+}
+
+void AppMgrServiceInner::SendReStartProcessEvent(AAFwk::EventInfo &eventInfo, int32_t appUid)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    std::lock_guard<ffrt::mutex> lock(killpedProcessMapLock_);
+    int64_t restartTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count();
+    for (auto iter = killedPorcessMap_.begin(); iter != killedPorcessMap_.end();) {
+        int64_t killTime = iter->first;
+        if (restartTime - killTime > PROCESS_RESTART_MARGIN_MICRO_SECONDS) {
+            killedPorcessMap_.erase(iter++);
+            continue;
+        }
+        if (eventInfo.bundleName == eventInfo.callerBundleName &&
+            eventInfo.processName != eventInfo.callerProcessName) {
+            AppMgrEventUtil::SendReStartProcessEvent(eventInfo, appUid, restartTime);
+            killedPorcessMap_.erase(iter++);
+            continue;
+        }
+        iter++;
+    }
 }
 
 void AppMgrServiceInner::SendAppStartupTypeEvent(const std::shared_ptr<AppRunningRecord> &appRecord,
@@ -5999,40 +5986,6 @@ bool AppMgrServiceInner::JudgeSelfCalledByToken(const sptr<IRemoteObject> &token
         return false;
     }
     return true;
-}
-
-void AppMgrServiceInner::SendReStartProcessEvent(const AAFwk::EventInfo &eventInfo,
-    const std::shared_ptr<AppRunningRecord> &appRecord)
-{
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
-    if (!appRecord) {
-        TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr");
-        return;
-    }
-    std::lock_guard<ffrt::mutex> lock(killpedProcessMapLock_);
-    int64_t restartTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
-        system_clock::now().time_since_epoch()).count();
-    for (auto iter = killedPorcessMap_.begin(); iter != killedPorcessMap_.end();) {
-        int64_t killTime = iter->first;
-        if (restartTime - killTime > 2000) {
-            killedPorcessMap_.erase(iter++);
-            continue;
-        }
-        AAFwk::EventInfo currentEventInfo;
-        currentEventInfo = eventInfo;
-        currentEventInfo.time = restartTime;
-        std::string processName = appRecord->GetProcessName();
-        currentEventInfo.appUid = appRecord->GetUid();
-        if (currentEventInfo.bundleName == currentEventInfo.callerBundleName &&
-            processName != currentEventInfo.callerProcessName) {
-            currentEventInfo.processName = processName;
-            AAFwk::EventReport::SendKeyEvent(AAFwk::EventName::RESTART_PROCESS_BY_SAME_APP,
-                HiSysEventType::BEHAVIOR, eventInfo);
-            killedPorcessMap_.erase(iter++);
-            continue;
-        }
-        iter++;
-    }
 }
 
 int32_t AppMgrServiceInner::RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
