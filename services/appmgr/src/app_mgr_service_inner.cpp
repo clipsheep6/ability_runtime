@@ -601,7 +601,7 @@ void AppMgrServiceInner::MakeProcessName(const std::shared_ptr<AbilityInfo> &abi
     if (appIndex != 0) {
         processName += std::to_string(appIndex);
     }
-        
+
     if (!specifiedProcessFlag.empty()) {
         processName = (processName + ":" + specifiedProcessFlag).substr(0, MAX_SPECIFIED_PROCESS_NAME_LENGTH);
         TAG_LOGI(AAFwkTag::APPMGR, "specifiedProcessFlag = %{public}s, processName = %{public}s",
@@ -1080,7 +1080,7 @@ int32_t AppMgrServiceInner::UpdateApplicationInfoInstalled(const std::string &bu
     return result;
 }
 
-int32_t AppMgrServiceInner::KillApplication(const std::string &bundleName)
+int32_t AppMgrServiceInner::KillApplication(const std::string &bundleName, const bool clearPageStack)
 {
     if (!appRunningManager_) {
         TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is nullptr");
@@ -1088,7 +1088,7 @@ int32_t AppMgrServiceInner::KillApplication(const std::string &bundleName)
     }
 
     if (CheckCallerIsAppGallery()) {
-        return KillApplicationByBundleName(bundleName);
+        return KillApplicationByBundleName(bundleName, clearPageStack);
     }
 
     auto result = VerifyProcessPermission(bundleName);
@@ -1097,7 +1097,7 @@ int32_t AppMgrServiceInner::KillApplication(const std::string &bundleName)
         return result;
     }
 
-    return KillApplicationByBundleName(bundleName);
+    return KillApplicationByBundleName(bundleName, clearPageStack);
 }
 
 int32_t AppMgrServiceInner::KillApplicationByUid(const std::string &bundleName, const int uid)
@@ -1200,7 +1200,7 @@ void AppMgrServiceInner::SendProcessExitEvent(const std::shared_ptr<AppRunningRe
     return;
 }
 
-int32_t AppMgrServiceInner::KillApplicationSelf()
+int32_t AppMgrServiceInner::KillApplicationSelf(const bool clearPageStack)
 {
     if (!appRunningManager_) {
         TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is nullptr");
@@ -1214,16 +1214,17 @@ int32_t AppMgrServiceInner::KillApplicationSelf()
         return ERR_INVALID_VALUE;
     }
     auto bundleName = appRecord->GetBundleName();
-    return KillApplicationByBundleName(bundleName);
+    return KillApplicationByBundleName(bundleName, clearPageStack);
 }
 
-int32_t AppMgrServiceInner::KillApplicationByBundleName(const std::string &bundleName)
+int32_t AppMgrServiceInner::KillApplicationByBundleName(
+    const std::string &bundleName, const bool clearPageStack)
 {
     int result = ERR_OK;
     int64_t startTime = SystemTimeMillisecond();
     std::list<pid_t> pids;
 
-    if (!appRunningManager_->ProcessExitByBundleName(bundleName, pids)) {
+    if (!appRunningManager_->ProcessExitByBundleName(bundleName, pids, clearPageStack)) {
         TAG_LOGE(AAFwkTag::APPMGR, "The process corresponding to the package name did not start");
         return result;
     }
@@ -1244,7 +1245,8 @@ int32_t AppMgrServiceInner::KillApplicationByBundleName(const std::string &bundl
     return result;
 }
 
-int32_t AppMgrServiceInner::KillApplicationByUserId(const std::string &bundleName, const int userId)
+int32_t AppMgrServiceInner::KillApplicationByUserId(
+    const std::string &bundleName, const int userId, const bool clearPageStack)
 {
     if (!appRunningManager_) {
         TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is nullptr");
@@ -1267,10 +1269,11 @@ int32_t AppMgrServiceInner::KillApplicationByUserId(const std::string &bundleNam
         return ERR_NO_INIT;
     }
 
-    return KillApplicationByUserIdLocked(bundleName, userId);
+    return KillApplicationByUserIdLocked(bundleName, userId, clearPageStack);
 }
 
-int32_t AppMgrServiceInner::KillApplicationByUserIdLocked(const std::string &bundleName, const int userId)
+int32_t AppMgrServiceInner::KillApplicationByUserIdLocked(
+    const std::string &bundleName, const int userId, const bool clearPageStack)
 {
     if (!appRunningManager_) {
         TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is nullptr");
@@ -1293,7 +1296,7 @@ int32_t AppMgrServiceInner::KillApplicationByUserIdLocked(const std::string &bun
     TAG_LOGI(AAFwkTag::APPMGR, "userId value is %{public}d", userId);
     int uid = IN_PROCESS_CALL(bundleMgrHelper->GetUidByBundleName(bundleName, userId));
     TAG_LOGI(AAFwkTag::APPMGR, "uid value is %{public}d", uid);
-    if (!appRunningManager_->ProcessExitByBundleNameAndUid(bundleName, uid, pids)) {
+    if (!appRunningManager_->ProcessExitByBundleNameAndUid(bundleName, uid, pids, clearPageStack)) {
         TAG_LOGI(AAFwkTag::APPMGR, "The process corresponding to the package name did not start.");
         return result;
     }

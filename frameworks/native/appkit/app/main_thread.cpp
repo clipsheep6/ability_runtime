@@ -23,6 +23,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "ability_manager_client.h"
 #include "constants.h"
 #include "ability_delegator.h"
 #include "ability_delegator_registry.h"
@@ -682,6 +683,23 @@ void MainThread::ScheduleProcessSecurityExit()
 
 /**
  *
+ * @brief Schedule the application clear recovery page stack.
+ *
+ */
+void MainThread::ScheduleClearPageStack()
+{
+    TAG_LOGI(AAFwkTag::APPKIT, "ScheduleClearPageStack called");
+    wptr<MainThread> weak = this;
+    auto appThread = weak.promote();
+    if (appThread == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "appThread is nullptr");
+        return;
+    }
+    appThread->HandleClearPageStack();
+}
+
+/**
+ *
  * @brief Low the memory which used by application.
  *
  */
@@ -955,6 +973,20 @@ void MainThread::HandleProcessSecurityExit()
     }
 
     HandleTerminateApplicationLocal();
+}
+
+void MainThread::HandleClearPageStack()
+{
+    TAG_LOGI(AAFwkTag::APPKIT, "HandleClearPageStack");
+    AppRecovery::GetInstance().DeleteInValidMissionFiles();
+
+    if (applicationInfo_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "applicationInfo_ is nullptr");
+        return;
+    }
+
+    auto bundleName = applicationInfo_->bundleName;
+    AbilityManagerClient::GetInstance()->ScheduleClearRecoveryPageStack(bundleName);
 }
 
 bool MainThread::InitCreate(

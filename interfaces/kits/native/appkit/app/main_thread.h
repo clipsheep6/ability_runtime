@@ -262,6 +262,8 @@ public:
      */
     void ScheduleProcessSecurityExit() override;
 
+    void ScheduleClearPageStack() override;
+
     void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) override;
 
     void ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName) override;
@@ -357,6 +359,8 @@ private:
      *
      */
     void HandleProcessSecurityExit();
+
+    void HandleClearPageStack();
 
     /**
      *

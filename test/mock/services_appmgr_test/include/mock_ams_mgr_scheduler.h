@@ -35,9 +35,9 @@ public:
     MOCK_METHOD0(Reset, void());
     MOCK_METHOD1(KillProcessByAbilityToken, void(const sptr<IRemoteObject>& token));
     MOCK_METHOD1(KillProcessesByUserId, void(int32_t userId));
-    MOCK_METHOD2(KillProcessWithAccount, int(const std::string&, const int));
+    MOCK_METHOD2(KillProcessWithAccount, int(const std::string&, const int), true);
     MOCK_METHOD2(UpdateApplicationInfoInstalled, int(const std::string&, const int uid));
-    MOCK_METHOD1(KillApplication, int32_t(const std::string& bundleName));
+    MOCK_METHOD1(KillApplication, int32_t(const std::string& bundleName), true);
     MOCK_METHOD2(KillApplicationByUid, int(const std::string&, const int uid));
     MOCK_METHOD0(IsReady, bool());
     MOCK_METHOD1(AbilityAttachTimeOut, void(const sptr<IRemoteObject>& token));

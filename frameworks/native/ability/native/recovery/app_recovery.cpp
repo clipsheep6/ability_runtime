@@ -411,7 +411,7 @@ void AppRecovery::DeleteInValidMissionFiles()
     }
 
     std::string fileDir = context->GetFilesDir();
-    TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery DeleteInValidMissionFiles fileDir: %{public}s", fileDir.c_str());
+    TAG_LOGI(AAFwkTag::RECOVERY, "AppRecovery DeleteInValidMissionFiles fileDir: %{public}s", fileDir.c_str());
     if (fileDir.empty() || !OHOS::FileExists(fileDir)) {
         TAG_LOGD(AAFwkTag::RECOVERY,
             "AppRecovery DeleteInValidMissionFiles fileDir is empty or fileDir is not exists.");
