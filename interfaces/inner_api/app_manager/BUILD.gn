@@ -139,6 +139,8 @@ ohos_shared_library("app_manager") {
   public_external_deps = [
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
+    "image_framework:image_native",
+    "relational_store:native_rdb",
   ]
 
   if (background_task_mgr_continuous_task_enable) {
