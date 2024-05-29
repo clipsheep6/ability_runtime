@@ -364,6 +364,8 @@ void AbilityManagerStub::ThirdStepInit()
         = &AbilityManagerStub::UnregisterAbilityFirstFrameStateObserverInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::COMPLETE_FIRST_FRAME_DRAWING_BY_SCB)] =
         &AbilityManagerStub::CompleteFirstFrameDrawingBySCBInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY_NON_MODAL)] =
+        &AbilityManagerStub::StartUIExtensionAbilityNonModalInner;
 #endif
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUEST_DIALOG_SERVICE)] =
         &AbilityManagerStub::HandleRequestDialogService;
@@ -942,6 +944,22 @@ int AbilityManagerStub::StartUIExtensionAbilityInner(MessageParcel &data, Messag
     sptr<SessionInfo> extensionSessionInfo = nullptr;
     if (data.ReadBool()) {
         extensionSessionInfo = data.ReadParcelable<SessionInfo>();
+        extensionSessionInfo->isModal = true; // To ensure security, this attribute must be rewritten.
+    }
+
+    int32_t userId = data.ReadInt32();
+
+    int32_t result = StartUIExtensionAbility(extensionSessionInfo, userId);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartUIExtensionAbilityNonModalInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<SessionInfo> extensionSessionInfo = nullptr;
+    if (data.ReadBool()) {
+        extensionSessionInfo = data.ReadParcelable<SessionInfo>();
+        extensionSessionInfo->isModal = false; // To ensure security, this attribute must be rewritten.
     }
 
     int32_t userId = data.ReadInt32();

@@ -2743,6 +2743,9 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Start ui extension ability come");
     CHECK_POINTER_AND_RETURN(extensionSessionInfo, ERR_INVALID_VALUE);
+    if (!extensionSessionInfo->isModal) {
+        CHECK_CALLER_IS_SYSTEM_APP;
+    }
     SetPickerElementName(extensionSessionInfo, userId);
     SetAutoFillElementName(extensionSessionInfo);
 
