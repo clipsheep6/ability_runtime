@@ -126,6 +126,7 @@ const int DUMP_TIMEOUT_MULTIPLE = 1000;
 const int SHAREDATA_TIMEOUT_MULTIPLE = 5;
 const int32_t TYPE_RESERVE = 1;
 const int32_t TYPE_OTHERS = 2;
+constexpr uint32_t FLAG_READ_WRITE_URI = Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION;
 #endif
 const std::map<AbilityState, std::string> AbilityRecord::stateToStrMap = {
     std::map<AbilityState, std::string>::value_type(INITIAL, "INITIAL"),
@@ -3047,7 +3048,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         return;
     }
 
-    if ((want.GetFlags() & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
+    if ((want.GetFlags() & FLAG_READ_WRITE_URI) == 0) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Do not call uriPermissionMgr.");
         return;
     }
