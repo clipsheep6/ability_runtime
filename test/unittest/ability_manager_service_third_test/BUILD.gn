@@ -73,6 +73,7 @@ ohos_unittest("ability_manager_service_third_test") {
     "config_policy:configpolicy_util",
     "ffrt:libffrt",
     "hilog:libhilog",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "kv_store:distributeddata_inner",
     "samgr:samgr_proxy",

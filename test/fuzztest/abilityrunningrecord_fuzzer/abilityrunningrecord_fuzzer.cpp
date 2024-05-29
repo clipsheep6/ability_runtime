@@ -63,7 +63,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     std::shared_ptr<AbilityInfo> info;
     sptr<IRemoteObject> token = GetFuzzAbilityToken();
-    AbilityRunningRecord abilityRecord(info, token);
+    int32_t abilityRecordId = static_cast<int32_t>(GetU32Data(data));
+    AbilityRunningRecord abilityRecord(info, token, abilityRecordId);
     Parcel wantParcel;
     std::shared_ptr<Want> want = nullptr;
     abilityRecord.SetWant(want);

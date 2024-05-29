@@ -2861,6 +2861,7 @@ void MissionListManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &ab
         TAG_LOGD(AAFwkTag::ABILITYMGR, "First frame drawing has completed.");
         return;
     }
+    abilityRecord->ReportAtomicServiceDrawnCompleteEvent();
     abilityRecord->SetCompleteFirstFrameDrawing(true);
     DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
         HandleOnFirstFrameState(abilityRecord);

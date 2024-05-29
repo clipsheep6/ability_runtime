@@ -70,6 +70,9 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     Want* want = nullptr;
     if (wantParcel.WriteBuffer(data, size)) {
         want = Want::Unmarshalling(wantParcel);
+        if (!want) {
+            return false;
+        }
     }
     int requestCode = static_cast<int>(GetU32Data(data));
     abilityContext.StartAbility(*want, requestCode);
@@ -118,6 +121,10 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityContext.SetColorMode(mode);
     std::vector<AAFwk::Want> wants;
     abilityContext.StartAbilities(wants);
+    if (want) {
+        delete want;
+        want = nullptr;
+    }
     return (abilityContext.DisconnectAbility(conn) == 0);
 }
 }

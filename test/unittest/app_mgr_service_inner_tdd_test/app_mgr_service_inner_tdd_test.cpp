@@ -451,64 +451,6 @@ HWTEST_F(AppMgrServiceInnerTest, StartRenderProcessImpl_001, TestSize.Level0)
 }
 
 /**
- * @tc.name: UpDateStartupType_001
- * @tc.desc: Verify that the UpDateStartupType interface calls abnormal parameter
- * @tc.type: FUNC
- */
-HWTEST_F(AppMgrServiceInnerTest, UpDateStartupType_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "UpDateStartupType_001 start");
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
-    int32_t abilityType = -1;
-    int32_t extensionType = -1;
-    appMgrServiceInner->UpDateStartupType(nullptr, abilityType, extensionType);
-    TAG_LOGI(AAFwkTag::TEST, "UpDateStartupType_001 end");
-}
-
-/**
- * @tc.name: UpDateStartupType_002
- * @tc.desc: Verify that the UpDateStartupType interface calls normally
- * @tc.type: FUNC
- */
-HWTEST_F(AppMgrServiceInnerTest, UpDateStartupType_002, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "UpDateStartupType_002 start");
-    constexpr int32_t expectedVal = 3;
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
-    auto info = std::make_shared<AbilityInfo>();
-    info->type = static_cast<AbilityType>(expectedVal);
-    int32_t abilityType = -1;
-    int32_t extensionType = -1;
-    appMgrServiceInner->UpDateStartupType(info, abilityType, extensionType);
-    EXPECT_EQ(expectedVal, abilityType);
-    TAG_LOGI(AAFwkTag::TEST, "UpDateStartupType_002 end");
-}
-
-/**
- * @tc.name: UpDateStartupType_003
- * @tc.desc: Verify that the UpDateStartupType interface calls normally
- * @tc.type: FUNC
- */
-HWTEST_F(AppMgrServiceInnerTest, UpDateStartupType_003, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "UpDateStartupType_003 start");
-    constexpr int32_t expectedVal = 5;
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
-    auto info = std::make_shared<AbilityInfo>();
-    info->type = static_cast<AbilityType>(expectedVal);
-    info->extensionAbilityType = static_cast<ExtensionAbilityType>(expectedVal);
-    int32_t abilityType = -1;
-    int32_t extensionType = -1;
-    appMgrServiceInner->UpDateStartupType(info, abilityType, extensionType);
-    EXPECT_EQ(expectedVal, abilityType);
-    EXPECT_EQ(expectedVal, extensionType);
-    TAG_LOGI(AAFwkTag::TEST, "UpDateStartupType_003 end");
-}
-
-/**
  * @tc.name: NotifyAppFault_001
  * @tc.desc: Verify that the NotifyAppFault interface calls normally
  * @tc.type: FUNC

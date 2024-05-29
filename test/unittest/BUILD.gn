@@ -389,6 +389,7 @@ group("unittest") {
     "app_launch_data_test:unittest",
     "app_lifecycle_deal_test:unittest",
     "app_mgr_client_test:unittest",
+    "app_mgr_event_test:unittest",
     "app_mgr_proxy_test:unittest",
     "app_mgr_service_dump_ffrt_test:unittest",
     "app_mgr_service_dump_ipc_test:unittest",

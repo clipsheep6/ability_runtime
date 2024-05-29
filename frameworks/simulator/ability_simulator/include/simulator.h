@@ -35,7 +35,8 @@ class ABILITY_EXPORT Simulator {
 public:
     using TerminateCallback = std::function<void(int64_t)>;
     using FormUpdateCallback = std::function<void(int64_t, const std::string&)>;
-    using ResolveBufferTrackerCallback = std::function<bool(const std::string&, uint8_t **, size_t *)>;
+    using ResolveBufferTrackerCallback = std::function<bool(
+        const std::string&, uint8_t **, size_t *, std::string& errorMsg)>;
 
     /**
      * Create a simulator instance.
