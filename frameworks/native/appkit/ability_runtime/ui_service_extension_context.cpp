@@ -48,35 +48,6 @@ ErrCode UIServiceExtensionContext::StartAbility(const AAFwk::Want &want, const A
     return err;
 }
 
-ErrCode UIServiceExtensionContext::StartAbilityWithAccount(const AAFwk::Want &want, int32_t accountId) const
-{
-    TAG_LOGD(AAFwkTag::APPKIT, "%{public}s begin.", __func__);
-    TAG_LOGI(AAFwkTag::APPKIT, "%{public}d accountId:", accountId);
-    (const_cast<Want &>(want)).SetParam(START_ABILITY_TYPE, true);
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(
-        want, token_, ILLEGAL_REQUEST_CODE, accountId);
-    TAG_LOGD(AAFwkTag::APPKIT, "%{public}s. End calling StartAbilityWithAccount. ret=%{public}d", __func__, err);
-    if (err != ERR_OK) {
-        TAG_LOGE(AAFwkTag::APPKIT, "ServiceContext::StartAbilityWithAccount is failed %{public}d", err);
-    }
-    return err;
-}
-
-
-ErrCode UIServiceExtensionContext::StartAbilityWithAccount(
-    const AAFwk::Want &want, int accountId, const AAFwk::StartOptions &startOptions) const
-{
-    TAG_LOGD(AAFwkTag::APPKIT, "%{public}s begin.", __func__);
-    (const_cast<Want &>(want)).SetParam(START_ABILITY_TYPE, true);
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, startOptions, token_,
-        ILLEGAL_REQUEST_CODE, accountId);
-    TAG_LOGD(AAFwkTag::APPKIT, "%{public}s. End calling StartAbilityWithAccount. ret=%{public}d", __func__, err);
-    if (err != ERR_OK) {
-        TAG_LOGE(AAFwkTag::APPKIT, "UIServiceExtensionContext::StartAbilityWithAccount is failed %{public}d", err);
-    }
-    return err;
-}
-
 ErrCode UIServiceExtensionContext::TerminateSelf()
 {
     TAG_LOGI(AAFwkTag::APPKIT, "begin.");
