@@ -23,7 +23,9 @@
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_ui_ability.h"
+#ifdef CJ_FRONTEND
 #include "cj_ui_ability.h"
+#endif
 #include "ohos_application.h"
 #include "reverse_continuation_scheduler_primary_stage.h"
 #include "runtime.h"
@@ -50,8 +52,10 @@ UIAbility *UIAbility::Create(const std::unique_ptr<Runtime> &runtime)
     switch (runtime->GetLanguage()) {
         case Runtime::Language::JS:
             return JsUIAbility::Create(runtime);
+#ifdef CJ_FRONTEND
         case Runtime::Language::CJ:
             return CJUIAbility::Create(runtime);
+#endif
         default:
             return new (std::nothrow) UIAbility();
     }

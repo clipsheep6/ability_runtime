@@ -70,6 +70,9 @@
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "js_runtime.h"
+#ifdef CJ_FRONTEND
+#include "cj_runtime.h"
+#endif
 #include "ohos_application.h"
 #include "overlay_module_info.h"
 #include "parameters.h"
@@ -1218,7 +1221,60 @@ bool GetBundleForLaunchApplication(std::shared_ptr<BundleMgrHelper> bundleMgrHel
     }
     return queryResult;
 }
-
+#ifdef CJ_FRONTEND
+CJUncaughtExceptionInfo MainThread::CreateCjExceptionInfo(const std::string &bundleName,
+    uint32_t versionCode, const std::string &hapPath)
+{
+    CJUncaughtExceptionInfo uncaughtExceptionInfo;
+    wptr<MainThread> weak_this = this;
+    uncaughtExceptionInfo.hapPath = hapPath.c_str();
+    uncaughtExceptionInfo.uncaughtTask = [weak_this, bundleName, versionCode]
+        (std::string summary, const CJErrorObject errorObj) {
+            auto appThread = weak_this.promote();
+            if (appThread == nullptr) {
+                TAG_LOGE(AAFwkTag::APPKIT, "appThread is nullptr.");
+                return;
+            }
+            time_t timet;
+            time(&timet);
+            std::string errName = errorObj.name ? errorObj.name : "[none]";
+            std::string errMsg = errorObj.name ? errorObj.message : "[none]";
+            std::string errStack = errorObj.name ? errorObj.stack : "[none]";
+            HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, "CJ_ERROR",
+                OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+                EVENT_KEY_PACKAGE_NAME, bundleName,
+                EVENT_KEY_VERSION, std::to_string(versionCode),
+                EVENT_KEY_TYPE, JSCRASH_TYPE,
+                EVENT_KEY_HAPPEN_TIME, timet,
+                EVENT_KEY_REASON, errName,
+                EVENT_KEY_JSVM, JSVM_TYPE,
+                EVENT_KEY_SUMMARY, summary);
+            ErrorObject appExecErrorObj = {
+                .name = errName,
+                .message = errMsg,
+                .stack = errStack
+            };
+            FaultData faultData;
+            faultData.faultType = FaultDataType::CJ_ERROR;
+            faultData.errorObject = appExecErrorObj;
+            DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFault(faultData);
+            if (ApplicationDataManager::GetInstance().NotifyCJUnhandledException(summary) &&
+                ApplicationDataManager::GetInstance().NotifyCJExceptionObject(appExecErrorObj)) {
+                return;
+            }
+            // if app's callback has been registered, let app decide whether exit or not.
+            TAG_LOGE(AAFwkTag::APPKIT,
+                "\n%{public}s is about to exit due to RuntimeError\nError type:%{public}s\n%{public}s\n"
+                "message: %{public}s\n"
+                "stack: %{public}s",
+                bundleName.c_str(), errName.c_str(), summary.c_str(), errMsg.c_str(), errStack.c_str());
+            AAFwk::ExitReason exitReason = { REASON_CJ_ERROR, errName };
+            AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
+            appThread->ScheduleProcessSecurityExit();
+        };
+    return uncaughtExceptionInfo;
+}
+#endif
 /**
  *
  * @brief Launch the application.
@@ -1266,6 +1322,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     bool moduelJson = false;
     bool isStageBased = false;
     bool findEntryHapModuleInfo = false;
+#ifdef CJ_FRONTEND
+    bool isCJApp = false;
+#endif
     AppExecFwk::HapModuleInfo entryHapModuleInfo;
     if (!bundleInfo.hapModuleInfos.empty()) {
         for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
@@ -1279,6 +1338,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             TAG_LOGW(AAFwkTag::APPKIT, "HandleLaunchApplication find entry hap module info failed!");
             entryHapModuleInfo = bundleInfo.hapModuleInfos.back();
         }
+#ifdef CJ_FRONTEND
+        if (!entryHapModuleInfo.abilityInfos.empty()) {
+            isCJApp = IsCJAbility(entryHapModuleInfo.abilityInfos.front().srcEntrance);
+        }
+#endif
         moduelJson = entryHapModuleInfo.isModuleJson;
         isStageBased = entryHapModuleInfo.isStageBasedModel;
     }
@@ -1361,7 +1425,15 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     GetNativeLibPath(bundleInfo, hspList, appLibPaths);
     bool isSystemApp = bundleInfo.applicationInfo.isSystemApp;
     TAG_LOGD(AAFwkTag::APPKIT, "the application isSystemApp: %{public}d", isSystemApp);
-    AbilityRuntime::JsRuntime::SetAppLibPath(appLibPaths, isSystemApp);
+#ifdef CJ_FRONTEND
+    if (isCJApp) {
+        AbilityRuntime::CJRuntime::SetAppLibPath(appLibPaths);
+    } else {
+#endif
+        AbilityRuntime::JsRuntime::SetAppLibPath(appLibPaths, isSystemApp);
+#ifdef CJ_FRONTEND
+    }
+#endif
 
     if (isStageBased) {
         // Create runtime
@@ -1380,6 +1452,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         options.uid = bundleInfo.applicationInfo.uid;
         options.apiTargetVersion = appInfo.apiTargetVersion;
         options.pkgContextInfoJsonStringMap = pkgContextInfoJsonStringMap;
+#ifdef CJ_FRONTEND
+        options.lang = isCJApp ? AbilityRuntime::Runtime::Language::CJ : AbilityRuntime::Runtime::Language::JS;
+#endif
         if (applicationInfo_->appProvisionType == Constants::APP_PROVISION_TYPE_DEBUG) {
             TAG_LOGD(AAFwkTag::JSRUNTIME, "Start Multi-Thread Mode: %{public}d.", appLaunchData.GetMultiThread());
             options.isMultiThread = appLaunchData.GetMultiThread();
@@ -1449,60 +1524,69 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             runtime->RegisterQuickFixQueryFunc(modulePaths);
         }
 
-        auto& jsEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
         auto bundleName = appInfo.bundleName;
         auto versionCode = appInfo.versionCode;
-        JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo;
-        uncaughtExceptionInfo.hapPath = hapPath;
-        wptr<MainThread> weak = this;
-        uncaughtExceptionInfo.uncaughtTask = [weak, bundleName, versionCode, appRunningId = std::move(appRunningId),
-            pid, processName] (std::string summary, const JsEnv::ErrorObject errorObj) {
-            auto appThread = weak.promote();
-            if (appThread == nullptr) {
-                TAG_LOGE(AAFwkTag::APPKIT, "appThread is nullptr.");
-                return;
-            }
-            time_t timet;
-            time(&timet);
-            HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, "JS_ERROR",
-                OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
-                EVENT_KEY_PACKAGE_NAME, bundleName,
-                EVENT_KEY_VERSION, std::to_string(versionCode),
-                EVENT_KEY_TYPE, JSCRASH_TYPE,
-                EVENT_KEY_HAPPEN_TIME, timet,
-                EVENT_KEY_REASON, errorObj.name,
-                EVENT_KEY_JSVM, JSVM_TYPE,
-                EVENT_KEY_SUMMARY, summary,
-                EVENT_KEY_APP_RUNING_UNIQUE_ID, appRunningId);
-            ErrorObject appExecErrorObj = {
-                .name = errorObj.name,
-                .message = errorObj.message,
-                .stack = errorObj.stack
+#ifdef CJ_FRONTEND
+        if (!isCJApp) {
+#endif
+            JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo;
+            uncaughtExceptionInfo.hapPath = hapPath;
+            wptr<MainThread> weak = this;
+            uncaughtExceptionInfo.uncaughtTask = [weak, bundleName, versionCode, appRunningId = std::move(appRunningId),
+                pid, processName] (std::string summary, const JsEnv::ErrorObject errorObj) {
+                auto appThread = weak.promote();
+                if (appThread == nullptr) {
+                    TAG_LOGE(AAFwkTag::APPKIT, "appThread is nullptr.");
+                    return;
+                }
+                time_t timet;
+                time(&timet);
+                HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, "JS_ERROR",
+                    OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+                    EVENT_KEY_PACKAGE_NAME, bundleName,
+                    EVENT_KEY_VERSION, std::to_string(versionCode),
+                    EVENT_KEY_TYPE, JSCRASH_TYPE,
+                    EVENT_KEY_HAPPEN_TIME, timet,
+                    EVENT_KEY_REASON, errorObj.name,
+                    EVENT_KEY_JSVM, JSVM_TYPE,
+                    EVENT_KEY_SUMMARY, summary,
+                    EVENT_KEY_APP_RUNING_UNIQUE_ID, appRunningId);
+                ErrorObject appExecErrorObj = {
+                    .name = errorObj.name,
+                    .message = errorObj.message,
+                    .stack = errorObj.stack
+                };
+                FaultData faultData;
+                faultData.faultType = FaultDataType::JS_ERROR;
+                faultData.errorObject = appExecErrorObj;
+                DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFault(faultData);
+                int result = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "PROCESS_KILL",
+                    HiviewDFX::HiSysEvent::EventType::FAULT, "PID", pid, "PROCESS_NAME", processName,
+                    "MSG", KILL_REASON);
+                TAG_LOGI(AAFwkTag::APPKIT, "hisysevent write result=%{public}d, send event [FRAMEWORK,PROCESS_KILL],"
+                    " pid=%{public}d, processName=%{public}s, msg=%{public}s", result, pid, processName.c_str(),
+                    KILL_REASON);
+    
+                if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary) &&
+                    ApplicationDataManager::GetInstance().NotifyExceptionObject(appExecErrorObj)) {
+                    return;
+                }
+                // if app's callback has been registered, let app decide whether exit or not.
+                TAG_LOGE(AAFwkTag::APPKIT,
+                    "\n%{public}s is about to exit due to RuntimeError\nError type:%{public}s\n%{public}s",
+                    bundleName.c_str(), errorObj.name.c_str(), summary.c_str());
+                AAFwk::ExitReason exitReason = { REASON_JS_ERROR, errorObj.name };
+                AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
+                appThread->ScheduleProcessSecurityExit();
             };
-            FaultData faultData;
-            faultData.faultType = FaultDataType::JS_ERROR;
-            faultData.errorObject = appExecErrorObj;
-            DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFault(faultData);
-            int result = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "PROCESS_KILL",
-                HiviewDFX::HiSysEvent::EventType::FAULT, "PID", pid, "PROCESS_NAME", processName,
-                "MSG", KILL_REASON);
-            TAG_LOGI(AAFwkTag::APPKIT, "hisysevent write result=%{public}d, send event [FRAMEWORK,PROCESS_KILL],"
-                " pid=%{public}d, processName=%{public}s, msg=%{public}s", result, pid, processName.c_str(),
-                KILL_REASON);
+            (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).RegisterUncaughtExceptionHandler(uncaughtExceptionInfo);
+#ifdef CJ_FRONTEND
+        } else {
+            auto expectionInfo = CreateCjExceptionInfo(bundleName, versionCode, hapPath);
+            (static_cast<AbilityRuntime::CJRuntime&>(*runtime)).RegisterUncaughtExceptionHandler(expectionInfo);
+        }
+#endif
 
-            if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary) &&
-                ApplicationDataManager::GetInstance().NotifyExceptionObject(appExecErrorObj)) {
-                return;
-            }
-            // if app's callback has been registered, let app decide whether exit or not.
-            TAG_LOGE(AAFwkTag::APPKIT,
-                "\n%{public}s is about to exit due to RuntimeError\nError type:%{public}s\n%{public}s",
-                bundleName.c_str(), errorObj.name.c_str(), summary.c_str());
-            AAFwk::ExitReason exitReason = { REASON_JS_ERROR, errorObj.name };
-            AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
-            appThread->ScheduleProcessSecurityExit();
-        };
-        (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).RegisterUncaughtExceptionHandler(uncaughtExceptionInfo);
         application_->SetRuntime(std::move(runtime));
 
         std::weak_ptr<OHOSApplication> wpApplication = application_;
@@ -1515,30 +1599,37 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             TAG_LOGE(AAFwkTag::APPKIT, "failed.");
             return nullptr;
         });
-        if (application_ != nullptr) {
-            LoadAllExtensions(jsEngine);
+#ifdef CJ_FRONTEND
+        if (!isCJApp) {
+#endif
+            auto& jsEngine = (static_cast<AbilityRuntime::JsRuntime&>(*application_->GetRuntime())).GetNativeEngine();
+            if (application_ != nullptr) {
+                LoadAllExtensions(jsEngine);
+            }
+
+            IdleTimeCallback callback = [wpApplication](int32_t idleTime) {
+                auto app = wpApplication.lock();
+                if (app == nullptr) {
+                    TAG_LOGE(AAFwkTag::APPKIT, "app is nullptr.");
+                    return;
+                }
+                auto &runtime = app->GetRuntime();
+                if (runtime == nullptr) {
+                    TAG_LOGE(AAFwkTag::APPKIT, "runtime is nullptr.");
+                    return;
+                }
+                auto& nativeEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
+                nativeEngine.NotifyIdleTime(idleTime);
+            };
+            idleTime_ = std::make_shared<IdleTime>(mainHandler_, callback);
+            idleTime_->Start();
+
+            IdleNotifyStatusCallback cb = idleTime_->GetIdleNotifyFunc();
+            jsEngine.NotifyIdleStatusControl(cb);
         }
-
-        IdleTimeCallback callback = [wpApplication](int32_t idleTime) {
-            auto app = wpApplication.lock();
-            if (app == nullptr) {
-                TAG_LOGE(AAFwkTag::APPKIT, "app is nullptr.");
-                return;
-            }
-            auto &runtime = app->GetRuntime();
-            if (runtime == nullptr) {
-                TAG_LOGE(AAFwkTag::APPKIT, "runtime is nullptr.");
-                return;
-            }
-            auto& nativeEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
-            nativeEngine.NotifyIdleTime(idleTime);
-        };
-        idleTime_ = std::make_shared<IdleTime>(mainHandler_, callback);
-        idleTime_->Start();
-
-        IdleNotifyStatusCallback cb = idleTime_->GetIdleNotifyFunc();
-        jsEngine.NotifyIdleStatusControl(cb);
+#ifdef CJ_FRONTEND
     }
+#endif
 
     auto usertestInfo = appLaunchData.GetUserTestInfo();
     if (usertestInfo) {

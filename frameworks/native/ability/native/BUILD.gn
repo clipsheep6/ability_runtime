@@ -283,7 +283,11 @@ ohos_shared_library("abilitykit_native") {
   defines = []
 
   if (cj_frontend) {
-    sources += [ "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ability_object.cpp" ]
+    sources += [
+      "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ability_connect_callback_object.cpp",
+      "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ability_context.cpp",
+      "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ability_context_object.cpp",
+    ]
     include_dirs += [
       "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_runtime",
       "${ability_runtime_path}/frameworks/cj/ffi",
@@ -292,6 +296,7 @@ ohos_shared_library("abilitykit_native") {
       "napi:cj_bind_ffi",
       "napi:cj_bind_native",
     ]
+    defines += [ "CJ_FRONTEND" ]
   }
 
   if (background_task_mgr_continuous_task_enable) {
@@ -548,12 +553,13 @@ ohos_shared_library("uiabilitykit_native") {
 
   if (cj_frontend) {
     sources += [
+      "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ability_ffi.cpp",
       "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ability_object.cpp",
       "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ui_ability.cpp",
     ]
 
     include_dirs += [ "${ability_runtime_path}/frameworks/cj/ffi" ]
-
+    defines = [ "CJ_FRONTEND" ]
     external_deps += [
       "napi:cj_bind_ffi",
       "napi:cj_bind_native",

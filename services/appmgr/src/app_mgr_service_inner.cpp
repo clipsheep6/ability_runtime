@@ -223,11 +223,9 @@ int32_t GetUserIdByUid(int32_t uid)
 
 bool IsCjAbility(const std::string& info)
 {
-    std::string cjCheckFlag = ".cj";
-    if (info.length() < cjCheckFlag.length()) {
-        return false;
-    }
-    return info.substr(info.length() - cjCheckFlag.length()) == cjCheckFlag;
+    // in cj application, the srcEntry format should be packageName.AbilityClassName.
+    std::string pattern = "^([a-zA-Z0-9_]+\\.)+[a-zA-Z0-9_]+$";
+    return std::regex_match(info, std::regex(pattern));
 }
 
 bool IsCjApplication(const BundleInfo &bundleInfo)

@@ -26,6 +26,7 @@ namespace {
 constexpr auto ERROR_BUF_SIZE = 255;
 static char g_dlError[ERROR_BUF_SIZE];
 static std::unordered_set<std::string> HasInited;
+static char* g_sharedLibsSonames = nullptr;
 }
 
 enum ErrorCode {
@@ -46,6 +47,76 @@ static void ReadDlError()
     } else {
         g_dlError[ends] = '\0';
     }
+}
+
+static void InitSharedLibsSonames()
+{
+    if (g_sharedLibsSonames != nullptr) {
+        return;
+    }
+    const char* allowList[] = {
+        "libc.so",
+        "libdl.so",
+        "libm.so",
+        "libz.so",
+        "libclang_rt.asan.so",
+        "libclang_rt.tsan.so",
+        // z library
+        "libace_napi.z.so",
+        "libace_ndk.z.so",
+        "libbundle_ndk.z.so",
+        "libdeviceinfo_ndk.z.so",
+        "libEGL.so",
+        "libGLESv3.so",
+        "libhiappevent_ndk.z.so",
+        "libhuks_ndk.z.so",
+        "libhukssdk.z.so",
+        "libnative_drawing.so",
+        "libnative_window.so",
+        "libnative_buffer.so",
+        "libnative_vsync.so",
+        "libOpenSLES.so",
+        "libpixelmap_ndk.z.so",
+        "libimage_ndk.z.so",
+        "libimage_receiver_ndk.z.so",
+        "libimage_source_ndk.z.so",
+        "librawfile.z.so",
+        "libuv.so",
+        "libhilog.so",
+        "libnative_image.so",
+        "libnative_media_adec.so",
+        "libnative_media_aenc.so",
+        "libnative_media_codecbase.so",
+        "libnative_media_core.so",
+        "libnative_media_vdec.so",
+        "libnative_media_venc.so",
+        "libnative_media_avmuxer.so",
+        "libnative_media_avdemuxer.so",
+        "libnative_media_avsource.so",
+        "libnative_avscreen_capture.so",
+        "libavplayer.so",
+        // adaptor library
+        "libohosadaptor.so",
+        "libusb_ndk.z.so",
+        "libvulkan.so",
+    };
+
+    size_t allowListLength = sizeof(allowList) / sizeof(char*);
+    int32_t sharedLibsSonamesLength = 1;
+    for (size_t i = 0; i < allowListLength; i++) {
+        sharedLibsSonamesLength += strlen(allowList[i]) + 1;
+    }
+    g_sharedLibsSonames = new char[sharedLibsSonamesLength];
+    int32_t cursor = 0;
+    for (size_t i = 0; i < allowListLength; i++) {
+        if (sprintf_s(g_sharedLibsSonames + cursor, sharedLibsSonamesLength - cursor, "%s:", allowList[i]) == -1) {
+            delete[] g_sharedLibsSonames;
+            g_sharedLibsSonames = nullptr;
+            return;
+        }
+        cursor += strlen(allowList[i]) + 1;
+    }
+    g_sharedLibsSonames[cursor] = '\0';
 }
 
 void DynamicInitNamespace(Dl_namespace* ns, void* parent, const char* entries, const char* name)
@@ -74,16 +145,26 @@ void DynamicInitNamespace(Dl_namespace* ns, void* parent, const char* entries, c
             default:
                 errMsg = "dlns_create failed, status: " + std::to_string(status);
         }
-        (void)sprintf_s(g_dlError, sizeof(g_dlError), errMsg.c_str());
+        if (sprintf_s(g_dlError, sizeof(g_dlError), errMsg.c_str()) == -1) {
+            LOGE("Fail to generate error msg.");
+            return;
+        }
         return;
     }
     if (parent) {
         dlns_inherit((Dl_namespace*)parent, ns, "allow_all_shared_libs");
     }
+    Dl_namespace current;
+    dlns_get(nullptr, &current);
     if (strcmp(name, "cj_app") != 0) {
-        Dl_namespace current;
-        dlns_get(nullptr, &current);
         dlns_inherit(ns, &current, "allow_all_shared_libs");
+    } else {
+        InitSharedLibsSonames();
+        dlns_inherit(ns, &current, g_sharedLibsSonames);
+        if (g_sharedLibsSonames != nullptr) {
+            delete[] g_sharedLibsSonames;
+            g_sharedLibsSonames = nullptr;
+        }
     }
     HasInited.insert(std::string(name));
 }

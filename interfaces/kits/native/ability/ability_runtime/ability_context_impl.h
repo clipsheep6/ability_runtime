@@ -200,6 +200,8 @@ public:
 
     ErrCode RequestDialogService(napi_env env, AAFwk::Want &want, RequestDialogResultTask &&task) override;
 
+    ErrCode RequestDialogService(AAFwk::Want &want, RequestDialogResultTask &&task) override;
+
     ErrCode ReportDrawnCompleted() override;
 
     ErrCode GetMissionId(int32_t &missionId) override;

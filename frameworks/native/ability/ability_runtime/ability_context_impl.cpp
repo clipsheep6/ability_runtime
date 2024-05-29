@@ -674,6 +674,27 @@ ErrCode AbilityContextImpl::RequestDialogService(napi_env env, AAFwk::Want &want
     return err;
 }
 
+ErrCode AbilityContextImpl::RequestDialogService(AAFwk::Want &want, RequestDialogResultTask &&task)
+{
+    want.SetParam(RequestConstants::REQUEST_TOKEN_KEY, token_);
+    int32_t left;
+    int32_t top;
+    int32_t width;
+    int32_t height;
+    GetWindowRect(left, top, width, height);
+    want.SetParam(RequestConstants::WINDOW_RECTANGLE_LEFT_KEY, left);
+    want.SetParam(RequestConstants::WINDOW_RECTANGLE_TOP_KEY, top);
+    want.SetParam(RequestConstants::WINDOW_RECTANGLE_WIDTH_KEY, width);
+    want.SetParam(RequestConstants::WINDOW_RECTANGLE_HEIGHT_KEY, height);
+
+    sptr<IRemoteObject> remoteObject = new DialogRequestCallbackImpl(std::move(task));
+    want.SetParam(RequestConstants::REQUEST_CALLBACK_KEY, remoteObject);
+
+    auto err = AAFwk::AbilityManagerClient::GetInstance()->RequestDialogService(want, token_);
+    TAG_LOGD(AAFwkTag::CONTEXT, "RequestDialogService ret=%{public}d", static_cast<int32_t>(err));
+    return err;
+}
+
 ErrCode AbilityContextImpl::ReportDrawnCompleted()
 {
     TAG_LOGD(AAFwkTag::CONTEXT, "called.");
