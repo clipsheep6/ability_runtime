@@ -138,7 +138,8 @@ private:
     std::string GetSelfApplicationBundleName();
     bool CheckSelfApplication(const std::string &bundleName);
     bool GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, int32_t uid = -1);
-    bool GetAbilityData(const AutoStartupInfo &info, bool &isVisible, std::string &abilityTypeName, std::string &accessTokenId);
+    bool GetAbilityData(const AutoStartupInfo &info, bool &isVisible,
+        std::string &abilityTypeName, std::string &accessTokenId);
     std::string GetAbilityTypeName(AppExecFwk::AbilityInfo abilityInfo);
     std::string GetExtensionTypeName(AppExecFwk::ExtensionAbilityInfo extensionInfo);
     std::shared_ptr<AppExecFwk::BundleMgrClient> GetBundleMgrClient();

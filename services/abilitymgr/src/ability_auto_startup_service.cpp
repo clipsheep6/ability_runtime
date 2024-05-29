@@ -103,7 +103,8 @@ int32_t AbilityAutoStartupService::UnregisterAutoStartupSystemCallback(const spt
 
 int32_t AbilityAutoStartupService::SetApplicationAutoStartup(const AutoStartupInfo &info)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId: %{public}s.",
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP,
+        "Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId: %{public}s.",
         info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str(), info.accessTokenId.c_str());
     int32_t code = CheckPermissionForSystem();
     if (code != ERR_OK) {
@@ -166,7 +167,8 @@ int32_t AbilityAutoStartupService::InnerSetApplicationAutoStartup(const AutoStar
 
 int32_t AbilityAutoStartupService::CancelApplicationAutoStartup(const AutoStartupInfo &info)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId: %{public}s.",
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP,
+        "Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId: %{public}s.",
         info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str(), info.accessTokenId.c_str());
     int32_t code = CheckPermissionForSystem();
     if (code != ERR_OK) {
@@ -287,7 +289,8 @@ int32_t AbilityAutoStartupService::CheckAutoStartupData(const std::string &bundl
 
 void AbilityAutoStartupService::ExecuteCallbacks(bool isCallOn, const AutoStartupInfo &info)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId: %{public}s.",
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP,
+        "bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId: %{public}s.",
         info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str(), info.accessTokenId.c_str());
     for (auto item : callbackVector_) {
         auto remoteSystemCallback = iface_cast<IAutoStartupCallBack>(item);
@@ -451,7 +454,8 @@ bool AbilityAutoStartupService::GetBundleInfo(
 bool AbilityAutoStartupService::GetAbilityData(
     const AutoStartupInfo &info, bool &isVisible, std::string &abilityTypeName, std::string &accessTokenId)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId:  %{public}s.",
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP,
+        "Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId:  %{public}s.",
         info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str(), info.accessTokenId.c_str());
     AppExecFwk::BundleInfo bundleInfo;
     if (!GetBundleInfo(info.bundleName, bundleInfo)) {
@@ -546,7 +550,8 @@ int32_t AbilityAutoStartupService::CheckPermissionForSelf(const std::string &bun
     return ERR_OK;
 }
 
-int32_t AbilityAutoStartupService::GetAbilityInfo(const AutoStartupInfo &info, std::string &abilityTypeName, std::string &accessTokenId)
+int32_t AbilityAutoStartupService::GetAbilityInfo(const AutoStartupInfo &info, std::string &abilityTypeName, 
+    std::string &accessTokenId)
 {
     bool isVisible = false;
     if (!GetAbilityData(info, isVisible, abilityTypeName, accessTokenId)) {
@@ -601,8 +606,8 @@ int32_t AbilityAutoStartupService::CancelApplicationAutoStartupByEDM(const AutoS
 int32_t AbilityAutoStartupService::InnerApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool isSet, bool flag)
 {
     TAG_LOGD(AAFwkTag::AUTO_STARTUP,
-        "Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId: %{public}s, isSet: %{public}d.,"
-        "flag: %{public}d.", info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str(), info.accessTokenId.c_str(), isSet, flag);
+        "Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId: %{public}s, isSet: %{public}d.,""flag: %{public}d.",
+        info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str(), info.accessTokenId.c_str(), isSet, flag);
     AutoStartupStatus status =
         DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->QueryAutoStartupData(info);
     if (status.code != ERR_OK && status.code != ERR_NAME_NOT_FOUND) {

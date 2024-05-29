@@ -98,7 +98,8 @@ int32_t AbilityAutoStartupDataManager::InsertAutoStartupData(
         return ERR_INVALID_VALUE;
     }
 
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId: %{public}s.",
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP,
+        "bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId: %{public}s.",
         info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str(), info.accessTokenId.c_str());
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
@@ -131,7 +132,8 @@ int32_t AbilityAutoStartupDataManager::UpdateAutoStartupData(
         return ERR_INVALID_VALUE;
     }
 
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId: %{public}s.",
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, 
+        "bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId: %{public}s.",
         info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str(), info.accessTokenId.c_str());
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
@@ -171,7 +173,8 @@ int32_t AbilityAutoStartupDataManager::DeleteAutoStartupData(const AutoStartupIn
         return ERR_INVALID_VALUE;
     }
 
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId: %{public}s.",
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP,
+        "bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId: %{public}s.",
         info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str(), info.accessTokenId.c_str());
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
@@ -205,13 +208,13 @@ int32_t AbilityAutoStartupDataManager::DeleteAutoStartupData(const std::string &
     }
     uint32_t accessTokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(userId, bundleName, 0);
     auto accessTokenIdStr = std::to_string(accessTokenId);
-
     if (bundleName.empty() || accessTokenIdStr.empty()) {
         TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Invalid value!");
         return ERR_INVALID_VALUE;
     }
 
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "bundleName: %{public}s, accessTokenId: %{public}s.", bundleName.c_str(), accessTokenIdStr.c_str());
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "bundleName: %{public}s, accessTokenId: %{public}s.",
+        bundleName.c_str(), accessTokenIdStr.c_str());
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
@@ -252,7 +255,8 @@ AutoStartupStatus AbilityAutoStartupDataManager::QueryAutoStartupData(const Auto
         return asustatus;
     }
 
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId: %{public}s.",
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP,
+        "bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId: %{public}s.",
         info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str(), info.accessTokenId.c_str());
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);

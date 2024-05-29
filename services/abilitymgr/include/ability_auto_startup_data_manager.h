@@ -43,7 +43,8 @@ public:
 
     int32_t QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList);
 
-    int32_t GetCurrentAppAutoStartupData(const std::string &bundleName, std::vector<AutoStartupInfo> &infoList, const std::string &accessTokenId);
+    int32_t GetCurrentAppAutoStartupData(const std::string &bundleName,
+        std::vector<AutoStartupInfo> &infoList, const std::string &accessTokenId);
 
 private:
     DistributedKv::Status GetKvStore();
