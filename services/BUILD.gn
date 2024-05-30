@@ -14,7 +14,10 @@
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 group("ams_target") {
   deps = [
-    "abilitymgr:abilityms_target",
+    "abilitymgr:abilityms",
+    "abilitymgr:ams_service_config.json",
+    "abilitymgr:deeplink_reserve_config.json",
+    "abilitymgr:uiextension_picker_config.json",
     "appmgr:appms_target",
     "common:ams_common_target",
     "dataobsmgr:dataobsms",

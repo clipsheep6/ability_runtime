@@ -16,13 +16,6 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 import(
     "//foundation/ability/ability_runtime/services/abilitymgr/abilitymgr.gni")
 
-group("abilityms_target") {
-  deps = [
-    ":abilityms",
-    ":ams_service_config",
-  ]
-}
-
 config("abilityms_exception_config") {
   cflags_cc = [ "-fexceptions" ]
 }
@@ -245,12 +238,4 @@ ohos_prebuilt_etc("deeplink_reserve_config.json") {
   source = "resource/deeplink_reserve_config.json"
   subsystem_name = "ability"
   part_name = "ability_runtime"
-}
-
-group("ams_service_config") {
-  deps = [
-    ":ams_service_config.json",
-    ":deeplink_reserve_config.json",
-    ":uiextension_picker_config.json",
-  ]
 }
