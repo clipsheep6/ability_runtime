@@ -61,11 +61,9 @@ ohos_shared_library("particleability") {
 
   if (ability_runtime_relational) {
     include_dirs += [
-      "${common_tool_path}",
       "${relational_store_napi_path}/common/include",
       "${relational_store_napi_path}/dataability/include",
       "${relational_store_napi_path}/rdb/include",
-      "${relational_store_common_path}/include",
     ]
     sources += [
       "${relational_store_napi_path}/common/src/js_utils.cpp",
@@ -74,6 +72,7 @@ ohos_shared_library("particleability") {
       "${relational_store_napi_path}/rdb/src/napi_result_set.cpp",
     ]
     external_deps += [
+      "kv_store:distributeddata_mgr",
       "relational_store:native_dataability",
       "relational_store:native_rdb",
       "relational_store:rdb_data_share_adapter",
