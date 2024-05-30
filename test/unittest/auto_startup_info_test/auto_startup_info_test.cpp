@@ -93,6 +93,7 @@ HWTEST_F(AutoStartupInfoTest, Marshalling_100, TestSize.Level1)
     autoStartupInfo->abilityName = "test.app.Ability";
     autoStartupInfo->moduleName = "test.app.Moudle";
     autoStartupInfo->abilityTypeName = "test.app.mainAbility";
+    autoStartupInfo->appCloneIndex = 0;
     Parcel parcel;
     bool result = autoStartupInfo->Marshalling(parcel);
     EXPECT_TRUE(result);

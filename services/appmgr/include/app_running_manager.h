@@ -84,9 +84,10 @@ public:
     /**
      * CheckAppRunningRecordIsExistByBundleName, Check whether the process of the application exists.
      *
-     * @param bundleName, the bundle name.
-     *
-     * @return, Return true if exist.
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param appCloneIndex the appindex of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return, Return ERR_OK if success, others fail.
      */
     int32_t CheckAppCloneRunningRecordIsExistByBundleName(const std::string &bundleName,
         int32_t appCloneIndex, bool &isRunning);

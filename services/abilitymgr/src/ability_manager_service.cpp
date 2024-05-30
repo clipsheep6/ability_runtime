@@ -6426,6 +6426,9 @@ void AbilityManagerService::RetryStartAutoStartupApps(
         Want want;
         want.SetElement(element);
         want.SetParam(Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON, true);
+        if (info.appCloneIndex > 0 && info.appCloneIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
+            want.SetParam(Want::PARAM_APP_CLONE_INDEX_KEY, info.appCloneIndex);
+        }
         if (StartAbility(want) != ERR_OK) {
             failedList.push_back(info);
         }
@@ -8019,6 +8022,7 @@ void AbilityManagerService::GetAbilityRunningInfo(std::vector<AbilityRunningInfo
     runningInfo.pid = processInfo.pid_;
     runningInfo.uid = processInfo.uid_;
     runningInfo.processName = processInfo.processName_;
+    runningInfo.appCloneIndex = processInfo.appCloneIndex;
     info.emplace_back(runningInfo);
 }
 
@@ -9904,6 +9908,7 @@ int32_t AbilityManagerService::GetForegroundUIAbilities(std::vector<AppExecFwk::
         abilityData.pid = info.pid;
         abilityData.uid = info.uid;
         abilityData.abilityType = static_cast<int32_t>(AppExecFwk::AbilityType::PAGE);
+        abilityData.appCloneIndex = info.appCloneIndex;
         AppExecFwk::ApplicationInfo appInfo;
         if (!StartAbilityUtils::GetApplicationInfo(abilityData.bundleName, GetUserId(), appInfo)) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "can not get applicationInfo through bundleName");
