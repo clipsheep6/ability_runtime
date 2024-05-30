@@ -1064,7 +1064,8 @@ public:
         int requestCode,
         AbilityRequest &request,
         const sptr<IRemoteObject> &callerToken,
-        int32_t userId);
+        int32_t userId,
+        bool isNeedSetDebugApp = true);
 
     /**
      * Get mission id by target ability token.
