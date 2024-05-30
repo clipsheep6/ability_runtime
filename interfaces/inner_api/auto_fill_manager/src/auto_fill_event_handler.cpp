@@ -32,7 +32,9 @@ void AutoFillEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &e
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Event is nullptr.");
         return;
     }
+#ifdef SUPPORT_GRAPHICS
     AutoFillManager::GetInstance().HandleTimeOut(event->GetInnerEventId());
+#endif // SUPPORT_GRAPHICS
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

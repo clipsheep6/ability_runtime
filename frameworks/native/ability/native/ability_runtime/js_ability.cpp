@@ -30,12 +30,12 @@
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "napi_common_configuration.h"
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 #include "js_window_stage.h"
+#include "scene_board_judgement.h"
 #endif
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
-#include "scene_board_judgement.h"
 #include "string_wrapper.h"
 #include "time_util.h"
 #include "context/context.h"
@@ -45,7 +45,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 const std::string METHOD_NAME = "WindowScene::GoForeground";
 #endif
 napi_value PromiseCallback(napi_env env, napi_callback_info info)
@@ -107,7 +107,7 @@ JsAbility::~JsAbility()
 
     jsRuntime_.FreeNativeReference(std::move(jsAbilityObj_));
     jsRuntime_.FreeNativeReference(std::move(shellContextRef_));
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     jsRuntime_.FreeNativeReference(std::move(jsWindowStageObj_));
 #endif
 }
@@ -378,7 +378,7 @@ void JsAbility::OnStopCallback()
     }
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 const std::string PAGE_STACK_PROPERTY_NAME = "pageStack";
 const std::string SUPPORT_CONTINUE_PAGE_STACK_PROPERTY_NAME = "ohos.extra.param.key.supportContinuePageStack";
 
@@ -889,7 +889,7 @@ void JsAbility::OnNewWant(const Want &want)
     TAG_LOGD(AAFwkTag::ABILITY, "%{public}s begin.", __func__);
     Ability::OnNewWant(want);
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     if (scene_) {
         scene_->OnNewWant(want);
     }

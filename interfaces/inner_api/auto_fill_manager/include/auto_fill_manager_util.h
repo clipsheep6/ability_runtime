@@ -17,19 +17,21 @@
 #define OHOS_ABILITY_RUNTIME_AUTO_FILL_MANAGER_UTIL_H
 
 #include "auto_fill_custom_config.h"
+#ifdef SUPPORT_GRAPHICS
 #include "popup_ui_extension_config.h"
-
+#endif // SUPPORT_GRAPHICS
 namespace OHOS {
 namespace AbilityRuntime {
 class AutoFillManagerUtil {
 public:
     AutoFillManagerUtil() = default;
     ~AutoFillManagerUtil() = default;
-
+#ifdef SUPPORT_GRAPHICS
     static void ConvertToPopupUIExtensionConfig(const AutoFill::AutoFillCustomConfig &config,
         Ace::CustomPopupUIExtensionConfig &popupConfig);
     static Ace::PopupDimensionUnit ConvertPopupUnit(const AutoFill::PopupDimensionUnit &unit);
     static Ace::PopupPlacement ConvertPopupPlacement(const AutoFill::PopupPlacement &placement);
+#endif // SUPPORT_GRAPHICS
 };
 } // AbilityRuntime
 } // OHOS

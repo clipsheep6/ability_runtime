@@ -20,6 +20,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+#ifdef SUPPORT_GRAPHICS
 void AutoFillManagerUtil::ConvertToPopupUIExtensionConfig(const AutoFill::AutoFillCustomConfig &config,
     Ace::CustomPopupUIExtensionConfig &popupConfig)
 {
@@ -138,5 +139,6 @@ Ace::PopupPlacement AutoFillManagerUtil::ConvertPopupPlacement(const AutoFill::P
     }
     return popupPlacement;
 }
+#endif // SUPPORT_GRAPHICS
 } // namespace AbilityRuntime
 } // namespace OHOS

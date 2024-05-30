@@ -127,6 +127,7 @@ ohos_shared_library("app_util") {
   ]
 
   if (ability_runtime_graphics) {
+    defines = [ "SUPPORT_GRAPHICS" ]
     external_deps += [ "window_manager:libwsutils" ]
   }
 

@@ -24,8 +24,9 @@
 #include "app_mgr_service_const.h"
 #include "app_mgr_service_dump_error_code.h"
 #include "cache_process_manager.h"
+#ifdef SUPPORT_SCREEN
 #include "window_visibility_info.h"
-
+#endif //SUPPORT_SCREEN
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
@@ -1861,7 +1862,7 @@ bool AppRunningRecord::IsAbilitytiesBackground()
     }
     return true;
 }
-
+#ifdef SUPPORT_SCREEN
 void AppRunningRecord::OnWindowVisibilityChanged(
     const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos)
 {
@@ -1911,6 +1912,7 @@ void AppRunningRecord::OnWindowVisibilityChanged(
         ScheduleBackgroundRunning();
     }
 }
+#endif //SUPPORT_SCREEN
 
 bool AppRunningRecord::IsContinuousTask()
 {

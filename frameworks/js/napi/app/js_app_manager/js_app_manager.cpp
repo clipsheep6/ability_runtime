@@ -34,6 +34,9 @@
 #include "js_app_state_observer.h"
 #ifdef SUPPORT_GRAPHICS
 #include "js_ability_first_frame_state_observer.h"
+#ifdef SUPPORT_SCREEN
+#include "tokenid_kit.h"
+#endif
 #endif
 #include "js_error_utils.h"
 #include "js_runtime.h"
@@ -41,7 +44,7 @@
 #include "napi/native_api.h"
 #include "napi_common_util.h"
 #include "system_ability_definition.h"
-#include "tokenid_kit.h"
+
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -164,7 +167,7 @@ public:
     {
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnIsAppRunning);
     }
-
+#ifdef SUPPORT_SCREEN
     static bool CheckCallerIsSystemApp()
     {
         auto selfToken = IPCSkeleton::GetSelfTokenID();
@@ -173,6 +176,7 @@ public:
         }
         return true;
     }
+#endif
 
     static bool IsParasNullOrUndefined(napi_env env, const napi_value& para)
     {
@@ -228,9 +232,9 @@ private:
         } else if (type == ON_OFF_TYPE_APP_FOREGROUND_STATE) {
             return OnOnForeground(env, argc, argv);
         } else if (type == ON_OFF_TYPE_ABILITY_FIRST_FRAME_STATE) {
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
             return OnOnAbilityFirstFrameState(env, argc, argv);
-#elif
+#else
             TAG_LOGE(AAFwkTag::APPMGR, "Not Supported.");
             return CreateJsUndefined(env);
 #endif
@@ -373,9 +377,9 @@ private:
         } else if (type == ON_OFF_TYPE_APP_FOREGROUND_STATE) {
             return OnOffForeground(env, argc, argv);
         } else if (type == ON_OFF_TYPE_ABILITY_FIRST_FRAME_STATE) {
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
             return OnOffAbilityFirstFrameState(env, argc, argv);
-#elif
+#else
             TAG_LOGE(AAFwkTag::APPMGR, "Not Supported.");
             return CreateJsUndefined(env);
 #endif
@@ -384,7 +388,7 @@ private:
         return OnOffOld(env, argc, argv);
     }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     napi_value OnOnAbilityFirstFrameState(napi_env env, size_t argc, napi_value *argv)
     {
         if (!CheckCallerIsSystemApp()) {
@@ -653,11 +657,13 @@ private:
     napi_value OnGetRunningMultiAppInfo(napi_env env, size_t argc, napi_value* argv)
     {
         TAG_LOGD(AAFwkTag::APPMGR, "called");
+#ifdef SUPPORT_SCREEN
         if (!CheckCallerIsSystemApp()) {
             TAG_LOGE(AAFwkTag::APPMGR, "Current app is not system app");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
             return CreateJsUndefined(env);
         }
+#endif
         // only support 1 params
         if (argc < ARGC_ONE) {
             TAG_LOGE(AAFwkTag::APPMGR, "Not enough arguments");
