@@ -2744,7 +2744,7 @@ void AppMgrServiceInner::QueryExtensionSandBox(const std::string &moduleName, co
     DataGroupInfoList extensionDataGroupInfoList;
     if (infoIter != extensionInfos.end()) {
         startMsg.isolatedExtension = infoIter->needCreateSandbox;
-        startMsg.extensionSandboxPath = infoIter->moduleName + "/" + infoIter->name;
+        startMsg.extensionSandboxPath = infoIter->moduleName + "-" + infoIter->name;
         startMsg.strictMode = strictMode;
         for (auto dataGroupInfo : dataGroupInfoList) {
             auto groupIdExisted = [&dataGroupInfo](const std::string &dataGroupId) {
