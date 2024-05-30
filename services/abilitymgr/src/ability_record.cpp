@@ -33,6 +33,9 @@
 #include "bundle_mgr_client.h"
 #include "configuration_convertor.h"
 #include "connection_state_manager.h"
+#include "common_event_data.h"
+#include "common_event_manager.h"
+#include "common_event_support.h"
 #include "freeze_util.h"
 #include "global_constant.h"
 #include "hitrace_meter.h"
@@ -3069,6 +3072,21 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         return;
     }
     GrantUriPermissionInner(want, uriVec, targetBundleName, tokenId);
+    std::string uriStr = want.GetUri().ToString();
+        TAG_LOGI(AAFwkTag::ABILITYMGR, " ability record, file uri: %{public}s", uriStr.c_str());
+        TAG_LOGI(AAFwkTag::ABILITYMGR, " ability record, isGrantedUriPermission_: %{public}d", isGrantedUriPermission_);
+        if (!uriStr.empty()) {
+            Want msgWant;
+            msgWant.SetAction("file.event.OPEN_BY_AMS");
+            msgWant.SetParam("uri", uriStr);
+            std::string currentTime = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+            msgWant.SetParam("viewTime", currentTime);
+            EventFwk::CommonEventData commonData {msgWant};
+            EventFwk::CommonEventPublishInfo commonEventPublishInfo;
+            std::vector<std::string> subscriberPermissions = {"ohos.permission.MANAGE_LOCAL_ACCOUNTS"};
+            commonEventPublishInfo.SetSubscriberPermissions(subscriberPermissions);
+            EventFwk::CommonEventManager::PublishCommonEvent(commonData, commonEventPublishInfo);
+        }
 }
 
 void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string> &uriVec,
