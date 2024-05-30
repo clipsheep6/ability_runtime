@@ -2613,7 +2613,8 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
 
     AbilityRequest abilityRequest;
 #ifdef SUPPORT_GRAPHICS
-    if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
+    if (extensionType != AppExecFwk::ExtensionAbilityType::SERVICE &&
+        ImplicitStartProcessor::IsImplicitStartAction(want)) {
         abilityRequest.Voluation(want, DEFAULT_INVAL_VALUE, callerToken);
         abilityRequest.callType = AbilityCallType::START_EXTENSION_TYPE;
         abilityRequest.extensionType = extensionType;
