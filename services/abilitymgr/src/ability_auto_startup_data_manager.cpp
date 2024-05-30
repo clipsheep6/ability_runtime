@@ -132,7 +132,7 @@ int32_t AbilityAutoStartupDataManager::UpdateAutoStartupData(
         return ERR_INVALID_VALUE;
     }
 
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, 
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP,
         "bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId: %{public}s.",
         info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str(), info.accessTokenId.c_str());
     {

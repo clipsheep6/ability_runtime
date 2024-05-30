@@ -550,8 +550,8 @@ int32_t AbilityAutoStartupService::CheckPermissionForSelf(const std::string &bun
     return ERR_OK;
 }
 
-int32_t AbilityAutoStartupService::GetAbilityInfo(const AutoStartupInfo &info, std::string &abilityTypeName, 
-    std::string &accessTokenId)
+int32_t AbilityAutoStartupService::GetAbilityInfo(
+    const AutoStartupInfo &info, std::string &abilityTypeName, std::string &accessTokenId)
 {
     bool isVisible = false;
     if (!GetAbilityData(info, isVisible, abilityTypeName, accessTokenId)) {
@@ -606,7 +606,8 @@ int32_t AbilityAutoStartupService::CancelApplicationAutoStartupByEDM(const AutoS
 int32_t AbilityAutoStartupService::InnerApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool isSet, bool flag)
 {
     TAG_LOGD(AAFwkTag::AUTO_STARTUP,
-        "Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId: %{public}s, isSet: %{public}d.,""flag: %{public}d.",
+        "Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId: %{public}s,"
+        " isSet: %{public}d.,""flag: %{public}d.",
         info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str(), info.accessTokenId.c_str(), isSet, flag);
     AutoStartupStatus status =
         DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->QueryAutoStartupData(info);
