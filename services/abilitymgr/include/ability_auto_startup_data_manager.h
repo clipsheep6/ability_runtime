@@ -37,13 +37,14 @@ public:
 
     int32_t DeleteAutoStartupData(const AutoStartupInfo &info);
 
-    int32_t DeleteAutoStartupData(const std::string &bundleName);
+    int32_t DeleteAutoStartupData(const std::string &bundleName, int32_t uid);
 
     AutoStartupStatus QueryAutoStartupData(const AutoStartupInfo &info);
 
     int32_t QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList);
 
-    int32_t GetCurrentAppAutoStartupData(const std::string &bundleName, std::vector<AutoStartupInfo> &infoList);
+    int32_t GetCurrentAppAutoStartupData(const std::string &bundleName,
+        std::vector<AutoStartupInfo> &infoList, const std::string &accessTokenId);
 
 private:
     DistributedKv::Status GetKvStore();
@@ -55,7 +56,7 @@ private:
     AutoStartupInfo ConvertAutoStartupInfoFromKeyAndValue(
         const DistributedKv::Key &key, const DistributedKv::Value &value);
     bool IsEqual(const DistributedKv::Key &key, const AutoStartupInfo &info);
-    bool IsEqual(const DistributedKv::Key &key, const std::string &bundleName);
+    bool IsEqual(const DistributedKv::Key &key, const std::string &accessTokenId);
 
     static const DistributedKv::AppId APP_ID;
     static const DistributedKv::StoreId STORE_ID;
