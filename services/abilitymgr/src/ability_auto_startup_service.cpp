@@ -256,11 +256,11 @@ int32_t AbilityAutoStartupService::CheckAutoStartupData(const std::string &bundl
     if (!GetBundleInfo(bundleName, bundleInfo, uid)) {
         return INNER_ERR;
     }
-    auto accessTokenIdStr = bundleInfo.applicationInfo.accessTokenId;
-    std::string accessTokenId = std::to_string(accessTokenIdStr);
+    auto tokenId = bundleInfo.applicationInfo.accessTokenId;
+    std::string accessTokenIdStr = std::to_string(tokenId);
     std::vector<AutoStartupInfo> infoList;
     int32_t result = DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->GetCurrentAppAutoStartupData(
-        bundleName, infoList, accessTokenId);
+        bundleName, infoList, accessTokenIdStr);
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to get auto startup data.");
         return result;

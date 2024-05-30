@@ -378,7 +378,7 @@ DistributedKv::Key AbilityAutoStartupDataManager::ConvertAutoStartupDataToKey(co
         { JSON_KEY_BUNDLE_NAME, info.bundleName },
         { JSON_KEY_MODULE_NAME, info.moduleName },
         { JSON_KEY_ABILITY_NAME, info.abilityName },
-        { JSON_KEY_ABILITY_NAME, info.accessTokenId },
+        { JSON_KEY_ACCESS_TOKENID, info.accessTokenId },
     };
     DistributedKv::Key key(jsonObject.dump());
     TAG_LOGD(AAFwkTag::AUTO_STARTUP, "key: %{public}s.", key.ToString().c_str());
