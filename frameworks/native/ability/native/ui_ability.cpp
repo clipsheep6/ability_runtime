@@ -36,12 +36,17 @@ namespace {
 constexpr char DMS_SESSION_ID[] = "sessionId";
 constexpr char DMS_ORIGIN_DEVICE_ID[] = "deviceId";
 constexpr int32_t DEFAULT_DMS_SESSION_ID = 0;
+#ifdef SUPPORT_SCREEN
 constexpr char LAUNCHER_BUNDLE_NAME[] = "com.ohos.launcher";
 constexpr char LAUNCHER_ABILITY_NAME[] = "com.ohos.launcher.MainAbility";
 constexpr char SHOW_ON_LOCK_SCREEN[] = "ShowOnLockScreen";
+#endif
+
 constexpr char DLP_PARAMS_SECURITY_FLAG[] = "ohos.dlp.params.securityFlag";
 constexpr char COMPONENT_STARTUP_NEW_RULES[] = "component.startup.newRules";
+#ifdef SUPPORT_SCREEN
 constexpr int32_t ERR_INVALID_VALUE = -1;
+#endif
 }
 UIAbility *UIAbility::Create(const std::unique_ptr<Runtime> &runtime)
 {
@@ -75,7 +80,7 @@ void UIAbility::Init(std::shared_ptr<AppExecFwk::AbilityLocalRecord> record,
     abilityInfo_ = record->GetAbilityInfo();
     handler_ = handler;
     token_ = token;
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     continuationManager_ = std::make_shared<AppExecFwk::ContinuationManagerStage>();
     std::weak_ptr<AppExecFwk::ContinuationManagerStage> continuationManager = continuationManager_;
     continuationHandler_ =
@@ -163,7 +168,7 @@ void UIAbility::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessio
     (const_cast<AAFwk::Want &>(want)).RemoveParam(DLP_PARAMS_SECURITY_FLAG);
     SetWant(want);
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin ability is %{public}s.", abilityInfo_->name.c_str());
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     if (sessionInfo != nullptr) {
         SetSessionToken(sessionInfo->sessionToken);
         SetIdentityToken(sessionInfo->identityToken);
@@ -189,7 +194,7 @@ void UIAbility::OnStop()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     if (abilityRecovery_ != nullptr) {
         abilityRecovery_->ScheduleSaveAbilityState(AppExecFwk::StateReason::LIFECYCLE);
     }
@@ -366,11 +371,13 @@ void UIAbility::InitConfigurationProperties(const AppExecFwk::Configuration &cha
 void UIAbility::OnMemoryLevel(int level)
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+#ifdef SUPPORT_SCREEN
     if (scene_ == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "WindowScene is null.");
         return;
     }
     scene_->NotifyMemoryLevel(level);
+#endif
 }
 
 std::string UIAbility::GetAbilityName()
@@ -576,7 +583,7 @@ void UIAbility::SetIsSilentForeground(bool isSilentForeground)
     isSilentForeground_ = isSilentForeground;
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 void UIAbility::OnSceneCreated()
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Called.");

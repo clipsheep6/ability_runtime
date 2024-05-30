@@ -112,7 +112,7 @@ void MissionListManager::Init()
         listenerController_ = std::make_shared<MissionListenerController>();
         listenerController_->Init();
     }
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     InitPrepareTerminateConfig();
 #endif
     DelayedSingleton<MissionInfoMgr>::GetInstance()->Init(userId_);
@@ -305,7 +305,7 @@ int MissionListManager::MoveMissionToFrontInner(int32_t missionId, bool isCaller
         targetAbilityRecord->SetWindowMode(startOptions->GetWindowMode());
     }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     AbilityRequest abilityRequest;
     targetAbilityRecord->ProcessForegroundAbility(isRecent, abilityRequest, startOptions, callerAbility);
 #else
@@ -471,7 +471,7 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
     targetAbilityRecord->SetSpecifyTokenId(abilityRequest.specifyTokenId);
     targetAbilityRecord->SetAbilityForegroundingFlag();
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     std::shared_ptr<StartOptions> startOptions = nullptr;
     targetAbilityRecord->ProcessForegroundAbility(false, abilityRequest, startOptions, callerAbility);
 #else
@@ -1028,7 +1028,7 @@ int MissionListManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sched
     CHECK_POINTER_AND_RETURN_LOG(taskHandler, ERR_INVALID_VALUE, "Fail to get AbilityTaskHandler.");
     auto taskName = std::to_string(abilityRecord->GetMissionId()) + "_cold";
     taskHandler->CancelTask(taskName);
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     abilityRecord->PostCancelStartingWindowHotTask();
 #endif
     DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);
@@ -1066,7 +1066,9 @@ void MissionListManager::OnAppStateChanged(const AppInfo &info)
             }
         }
     } else if (info.state == AppState::COLD_START) {
+#ifdef SUPPORT_SCREEN
         UpdateAbilityRecordColdStartFlag(info, true);
+#endif // SUPPORT_SCREEN
     } else {
         for (const auto& missionList : currentMissionLists_) {
             auto missions = missionList->GetAllMissions();
@@ -1245,7 +1247,7 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
     auto taskHandler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     CHECK_POINTER_AND_RETURN_LOG(taskHandler, ERR_INVALID_VALUE, "Fail to get AbilityTaskHandler.");
     if (success) {
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
         TAG_LOGI(AAFwkTag::ABILITYMGR, "ok");
         abilityRecord->SetStartingWindow(false);
         auto taskName = std::to_string(abilityRecord->GetMissionId()) + "_hot";
@@ -1453,7 +1455,7 @@ int MissionListManager::MoveAbilityToBackgroundLocked(const std::shared_ptr<Abil
         auto nextAbilityRecord = abilityRecord->GetNextAbilityRecord();
         if (nextAbilityRecord) {
             nextAbilityRecord->SetPreAbilityRecord(abilityRecord);
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
             nextAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
             nextAbilityRecord->ProcessForegroundAbility(abilityRecord, false);
         } else {
@@ -1596,7 +1598,7 @@ int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityReco
         auto nextAbilityRecord = abilityRecord->GetNextAbilityRecord();
         if (nextAbilityRecord) {
             nextAbilityRecord->SetPreAbilityRecord(abilityRecord);
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
             nextAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
             nextAbilityRecord->ProcessForegroundAbility(abilityRecord);
         } else {
@@ -2004,7 +2006,7 @@ int MissionListManager::SetMissionLockedState(int missionId, bool lockedState)
     DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionInfo(innerMissionInfo);
     return ERR_OK;
 }
-
+#ifdef SUPPORT_SCREEN
 void MissionListManager::UpdateSnapShot(const sptr<IRemoteObject> &token,
     const std::shared_ptr<Media::PixelMap> &pixelMap)
 {
@@ -2024,7 +2026,7 @@ void MissionListManager::UpdateSnapShot(const sptr<IRemoteObject> &token,
         listenerController_->NotifyMissionSnapshotChanged(missionId);
     }
 }
-
+#endif // SUPPORT_SCREEN
 void MissionListManager::MoveToBackgroundTask(const std::shared_ptr<AbilityRecord> &abilityRecord, bool isClose)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -2059,12 +2061,14 @@ void  MissionListManager::NotifyMissionCreated(const std::shared_ptr<AbilityReco
         mission->SetNotifyLabel(false);
 
         if (mission->NeedNotifyUpdateLabel()) {
+#ifdef SUPPORT_SCREEN
             PostMissionLabelUpdateTask(missionId);
+#endif // SUPPORT_SCREEN
             mission->SetNeedNotifyUpdateLabel(false);
         }
     }
 }
-
+#ifdef SUPPORT_SCREEN
 void MissionListManager::PostMissionLabelUpdateTask(int missionId) const
 {
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
@@ -2084,7 +2088,7 @@ void MissionListManager::PostMissionLabelUpdateTask(int missionId) const
     };
     handler->SubmitTask(task, "NotifyMissionLabelUpdated.", DELAY_NOTIFY_LABEL_TIME);
 }
-
+#endif // SUPPORT_SCREEN
 void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId, bool isHalf)
 {
     if (ability == nullptr) {
@@ -2196,7 +2200,7 @@ void MissionListManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId, bool
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Ability timeout, name:%{public}s", abilityRecord->GetAbilityInfo().name.c_str());
     abilityRecord->RevokeUriPermission();
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     if (abilityRecord->IsStartingWindow()) {
         PostCancelStartingWindowTask(abilityRecord);
     }
@@ -2292,7 +2296,7 @@ void MissionListManager::CompleteForegroundFailed(const std::shared_ptr<AbilityR
         MoveToBackgroundTask(abilityRecord);
         return;
     }
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     if (state == AbilityState::FOREGROUND_INVALID_MODE) {
         abilityRecord->SetStartingWindow(false);
     }
@@ -2471,7 +2475,7 @@ void MissionListManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRec
     }
 
     std::lock_guard guard(managerLock_);
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     if (abilityRecord->IsStartingWindow()) {
         PostCancelStartingWindowTask(abilityRecord);
     }
@@ -2786,7 +2790,7 @@ int MissionListManager::SetMissionContinueState(const sptr<IRemoteObject> &token
     return DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionContinueState(missionId, state);
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 int MissionListManager::SetMissionLabel(const sptr<IRemoteObject> &token, const std::string &label)
 {
     if (!token) {

@@ -65,6 +65,7 @@ config("appkit_public_config") {
   if (ability_runtime_graphics) {
     defines = [
       "SUPPORT_GRAPHICS",
+      "SUPPORT_SCREEN",
       "SUPPORT_APP_PREFERRED_LANGUAGE",
     ]
   }
@@ -279,6 +280,7 @@ ohos_shared_library("app_context") {
 
   external_deps = [
     "ability_base:extractortool",
+    "ability_base:session_info",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -342,6 +344,7 @@ ohos_shared_library("app_context_utils") {
   ]
 
   external_deps = [
+    "ability_base:session_info",
     "ability_base:want",
     "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",
@@ -411,6 +414,7 @@ ohos_shared_library("appkit_delegator") {
   ]
 
   external_deps = [
+    "ability_base:session_info",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",

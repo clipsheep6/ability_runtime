@@ -32,7 +32,9 @@
 #include "want.h"
 
 #ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 #include "pixel_map.h"
+#endif
 #endif
 
 namespace OHOS {
@@ -339,6 +341,7 @@ public:
         const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer) = 0;
 
 #ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     /**
      * @brief Set mission label of this ability.
      *
@@ -377,6 +380,7 @@ public:
         const std::shared_ptr<JsUIExtensionCallback> &uiExtensionCallbacks) = 0;
     virtual ErrCode CreateModalUIExtensionWithApp(const AAFwk::Want &want) = 0;
     virtual void EraseUIExtension(int32_t sessionId) = 0;
+#endif
 #endif
     virtual bool IsTerminating() = 0;
     virtual void SetTerminating(bool state) = 0;

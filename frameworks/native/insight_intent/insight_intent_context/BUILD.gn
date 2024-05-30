@@ -41,6 +41,7 @@ ohos_shared_library("insightintentcontext") {
   ]
 
   external_deps = [
+    "ability_base:session_info",
     "ability_base:want",
     "c_utils:utils",
     "hilog:libhilog",

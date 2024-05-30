@@ -38,7 +38,6 @@
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
-#include "hot_reloader.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "js_environment.h"
@@ -63,10 +62,12 @@
 #include "source_map.h"
 #include "source_map_operator.h"
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
+#include "hot_reloader.h"
 #include "ace_forward_compatibility.h"
 #include "declarative_module_preloader.h"
-#endif
+#endif //SUPPORT_SCREEN
+
 
 using namespace OHOS::AbilityBase;
 using Extractor = OHOS::AbilityBase::Extractor;
@@ -223,7 +224,7 @@ std::unique_ptr<JsRuntime> JsRuntime::Create(const Options& options)
     SetChildOptions(options);
     if (!options.preload && options.isStageModel) {
         auto preloadedInstance = Runtime::GetPreloaded();
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
         // reload ace if compatible mode changes
         if (Ace::AceForwardCompatibility::PipelineChanged() && preloadedInstance) {
             preloadedInstance.reset();
@@ -562,7 +563,9 @@ bool JsRuntime::UnLoadRepairPatch(const std::string& hqfFile)
 bool JsRuntime::NotifyHotReloadPage()
 {
     TAG_LOGD(AAFwkTag::JSRUNTIME, "function called.");
+#ifdef SUPPORT_SCREEN
     Ace::HotReloader::HotReload();
+#endif // SUPPORT_SCREEN
     return true;
 }
 
@@ -674,7 +677,7 @@ void JsRuntime::LoadAotFile(const Options& options)
 bool JsRuntime::Initialize(const Options& options)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     if (Ace::AceForwardCompatibility::PipelineChanged()) {
         preloaded_ = false;
     }
@@ -843,7 +846,7 @@ void JsRuntime::PreloadAce(const Options& options)
 {
     auto nativeEngine = GetNativeEnginePointer();
     CHECK_POINTER(nativeEngine);
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     if (options.loadAce) {
         // ArkTsCard start
         if (options.isUnique) {
@@ -862,7 +865,9 @@ void JsRuntime::ReloadFormComponent()
     auto nativeEngine = GetNativeEnginePointer();
     CHECK_POINTER(nativeEngine);
     // ArkTsCard update condition, need to reload new component
+#ifdef SUPPORT_SCREEN
     OHOS::Ace::DeclarativeModulePreloader::ReloadCard(*nativeEngine, bundleName_);
+#endif
 }
 
 void JsRuntime::DoCleanWorkAfterStageCleaned()

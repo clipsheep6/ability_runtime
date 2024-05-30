@@ -56,8 +56,10 @@
 #include "process_options.h"
 #ifdef SUPPORT_GRAPHICS
 #include "image_source.h"
-#include "locale_config.h"
 #include "mission_info_mgr.h"
+#endif
+#ifdef SUPPORT_SCREEN
+#include "locale_config.h"
 #endif
 #ifdef EFFICIENCY_MANAGER_ENABLE
 #include "suspend_manager_client.h"
@@ -416,7 +418,9 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions
+#ifdef SUPPORT_SCREEN
     SetAbilityStateInner(AbilityState::FOREGROUNDING);
+#endif // SUPPORT_SCREEN
     lifeCycleStateInfo_.sceneFlag = sceneFlag;
     lifecycleDeal_->ForegroundNew(GetWant(), lifeCycleStateInfo_, GetSessionInfo());
     lifeCycleStateInfo_.sceneFlag = 0;
@@ -462,7 +466,9 @@ void AbilityRecord::ForegroundAbility(const Closure &task, sptr<SessionInfo> ses
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
+#ifdef SUPPORT_SCREEN
     SetAbilityStateInner(AbilityState::FOREGROUNDING);
+#endif // SUPPORT_SCREEN
     lifeCycleStateInfo_.sceneFlag = sceneFlag;
     lifecycleDeal_->ForegroundNew(GetWant(), lifeCycleStateInfo_, GetSessionInfo());
     lifeCycleStateInfo_.sceneFlag = 0;
@@ -537,7 +543,7 @@ std::string AbilityRecord::GetLabel()
         return strLabel;
     }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     auto resourceMgr = CreateResourceManager();
     if (!resourceMgr) {
         return strLabel;
@@ -554,7 +560,7 @@ std::string AbilityRecord::GetLabel()
     return strLabel;
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 void AbilityRecord::ProcessForegroundAbility(const std::shared_ptr<AbilityRecord> &callerAbility, bool needExit,
     uint32_t sceneFlag)
 {
@@ -1237,7 +1243,9 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
 
     // schedule background after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
+#ifdef SUPPORT_SCREEN
     SetAbilityStateInner(AbilityState::BACKGROUNDING);
+#endif // SUPPORT_SCREEN
     lifecycleDeal_->BackgroundNew(GetWant(), lifeCycleStateInfo_, GetSessionInfo());
 }
 
@@ -1315,7 +1323,7 @@ void AbilityRecord::UpdateAbilityVisibilityState()
         SetAbilityVisibilityState(state);
     }
 }
-
+#ifdef SUPPORT_SCREEN
 void AbilityRecord::SetAbilityStateInner(AbilityState state)
 {
     currentState_ = state;
@@ -1376,7 +1384,7 @@ void AbilityRecord::SetAbilityStateInner(AbilityState state)
 
     DelayedSingleton<MissionInfoMgr>::GetInstance()->SetMissionAbilityState(missionId_, currentState_);
 }
-
+#endif // SUPPORT_SCREEN
 bool AbilityRecord::GetAbilityForegroundingFlag() const
 {
     return isAbilityForegrounding_;
@@ -1387,7 +1395,7 @@ void AbilityRecord::SetAbilityForegroundingFlag()
     isAbilityForegrounding_ = true;
     DelayedSingleton<AppScheduler>::GetInstance()->SetAbilityForegroundingFlagToAppRecord(pid_);
 }
-
+#ifdef SUPPORT_SCREEN
 void AbilityRecord::SetAbilityState(AbilityState state)
 {
     SetAbilityStateInner(state);
@@ -1395,7 +1403,7 @@ void AbilityRecord::SetAbilityState(AbilityState state)
         SetRestarting(false);
     }
 }
-
+#endif // SUPPORT_SCREEN
 void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "bundle:%{public}s, ability: %{public}s", applicationInfo_.bundleName.c_str(),
@@ -1479,7 +1487,7 @@ bool AbilityRecord::IsReady() const
     return isReady_;
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 bool AbilityRecord::IsWindowAttached() const
 {
     return isWindowAttached_;
@@ -1533,7 +1541,9 @@ void AbilityRecord::Activate()
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
+#ifdef SUPPORT_SCREEN
     SetAbilityStateInner(AbilityState::ACTIVATING);
+#endif // SUPPORT_SCREEN
     lifecycleDeal_->Activate(GetWant(), lifeCycleStateInfo_);
 
     // update ability state to appMgr service when restart
@@ -1560,7 +1570,9 @@ void AbilityRecord::Inactivate()
 
     // schedule inactive after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
+#ifdef SUPPORT_SCREEN
     SetAbilityStateInner(AbilityState::INACTIVATING);
+#endif // SUPPORT_SCREEN
     lifecycleDeal_->Inactivate(GetWant(), lifeCycleStateInfo_, GetSessionInfo());
 }
 
@@ -1588,7 +1600,9 @@ void AbilityRecord::Terminate(const Closure &task)
     HandleDlpClosed();
     // schedule background after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
+#ifdef SUPPORT_SCREEN
     SetAbilityStateInner(AbilityState::TERMINATING);
+#endif // SUPPORT_SCREEN
     lifecycleDeal_->Terminate(GetWant(), lifeCycleStateInfo_, GetSessionInfo());
 }
 
@@ -1612,7 +1626,9 @@ void AbilityRecord::ConnectAbility()
     if (isConnected) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "connect state error.");
     }
+#ifdef SUPPORT_SCREEN
     GrantUriPermissionForServiceExtension();
+#endif // SUPPORT_SCREEN
     lifecycleDeal_->ConnectAbility(GetWant());
     isConnected = true;
 }
@@ -1625,7 +1641,7 @@ void AbilityRecord::DisconnectAbility()
     lifecycleDeal_->DisconnectAbility(GetWant());
     isConnected = false;
 }
-
+#ifdef SUPPORT_SCREEN
 bool AbilityRecord::GrantUriPermissionForServiceExtension()
 {
     if (abilityInfo_.extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE) {
@@ -1639,12 +1655,14 @@ bool AbilityRecord::GrantUriPermissionForServiceExtension()
     }
     return false;
 }
-
+#endif // SUPPORT_SCREEN
 void AbilityRecord::CommandAbility()
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "startId_:%{public}d.", startId_);
     CHECK_POINTER(lifecycleDeal_);
+#ifdef SUPPORT_SCREEN
     GrantUriPermissionForServiceExtension();
+#endif // SUPPORT_SCREEN
     lifecycleDeal_->CommandAbility(GetWant(), false, startId_);
 }
 
@@ -2421,12 +2439,14 @@ void AbilityRecord::NotifyAnimationAbilityDied()
     }
     // notify winddow manager service the ability died
     if (missionId_ != -1) {
+#ifdef SUPPORT_SCREEN
         if (GetWMSHandler()) {
             sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
             SetAbilityTransitionInfo(info);
             TAG_LOGI(AAFwkTag::ABILITYMGR, "Notification window manager UIAbiltiy abnormal death.");
             GetWMSHandler()->NotifyAnimationAbilityDied(info);
         }
+#endif // SUPPORT_SCREEN
     }
 }
 

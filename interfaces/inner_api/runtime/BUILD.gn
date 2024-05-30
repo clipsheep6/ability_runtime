@@ -146,7 +146,10 @@ ohos_shared_library("runtime") {
       "ace_engine:ace_uicontent",
       "napi:ace_container_scope",
     ]
-    defines += [ "SUPPORT_GRAPHICS" ]
+    defines += [
+      "SUPPORT_GRAPHICS",
+      "SUPPORT_SCREEN",
+    ]
   }
 
   innerapi_tags = [ "platformsdk" ]

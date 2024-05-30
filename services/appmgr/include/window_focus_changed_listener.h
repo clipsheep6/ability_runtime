@@ -16,13 +16,15 @@
 #ifndef OHOS_ABILITY_RUNTIME_WINDOW_FOCUS_CHANGE_LISTENER_H
 #define OHOS_ABILITY_RUNTIME_WINDOW_FOCUS_CHANGE_LISTENER_H
 
-
+#ifdef SUPPORT_SCREEN
 #include "window_manager.h"
+#endif // SUPPORT_SCREEN
 #include "task_handler_wrap.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 class AppMgrServiceInner;
+#ifdef SUPPORT_SCREEN
 class WindowFocusChangedListener : public OHOS::Rosen::IFocusChangedListener {
 public:
     WindowFocusChangedListener(const std::shared_ptr<AppMgrServiceInner>& owner,
@@ -36,6 +38,7 @@ private:
     std::weak_ptr<AppMgrServiceInner> owner_;
     std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
 };
+#endif // SUPPORT_SCREEN
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_WINDOW_FOCUS_CHANGE_LISTENER_H

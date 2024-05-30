@@ -37,7 +37,9 @@
 #include "cj_ability_object.h"
 #include "cj_ability_context.h"
 #include "time_util.h"
+#ifdef SUPPORT_SCREEN
 #include "scene_board_judgement.h"
+#endif
 #include "string_wrapper.h"
 #include "system_ability_definition.h"
 
@@ -49,8 +51,10 @@ const std::string PAGE_STACK_PROPERTY_NAME = "pageStack";
 const std::string METHOD_NAME = "WindowScene::GoForeground";
 const std::string SUPPORT_CONTINUE_PAGE_STACK_PROPERTY_NAME = "ohos.extra.param.key.supportContinuePageStack";
 #endif
+#ifdef SUPPORT_SCREEN
 // Numerical base (radix) that determines the valid characters and their interpretation.
 const int32_t BASE_DISPLAY_ID_NUM (10);
+#endif
 }
 
 UIAbility *CJUIAbility::Create(const std::unique_ptr<Runtime> &runtime)
@@ -212,6 +216,7 @@ void CJUIAbility::OnStopCallback()
 }
 
 #ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 void CJUIAbility::OnSceneCreated()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -625,7 +630,7 @@ bool CJUIAbility::GetInsightIntentExecutorInfo(const Want &want,
     return true;
 }
 #endif
-
+#endif
 int32_t CJUIAbility::OnContinue(WantParams &wantParams)
 {
     if (!cjAbilityObj_) {
@@ -679,9 +684,11 @@ void CJUIAbility::OnNewWant(const Want &want)
     UIAbility::OnNewWant(want);
 
 #ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     if (scene_) {
         scene_->OnNewWant(want);
     }
+#endif
 #endif
     if (!cjAbilityObj_) {
         TAG_LOGE(AAFwkTag::UIABILITY, "CJAbility is not loaded.");

@@ -1631,7 +1631,7 @@ int AbilityManagerProxy::GetMissionSnapshot(const std::string& deviceId, int32_t
     snapshot = *info;
     return reply.ReadInt32();
 }
-
+#ifdef SUPPORT_SCREEN
 void AbilityManagerProxy::UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
     const std::shared_ptr<Media::PixelMap> &pixelMap)
 {
@@ -1656,7 +1656,7 @@ void AbilityManagerProxy::UpdateMissionSnapShot(const sptr<IRemoteObject> &token
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
     }
 }
-
+#endif // SUPPORT_SCREEN
 void AbilityManagerProxy::EnableRecoverAbility(const sptr<IRemoteObject>& token)
 {
     int error;
@@ -2900,7 +2900,7 @@ int AbilityManagerProxy::LogoutUser(int32_t userId)
     return reply.ReadInt32();
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 int AbilityManagerProxy::SetMissionLabel(const sptr<IRemoteObject> &token, const std::string &label)
 {
     MessageParcel data;
