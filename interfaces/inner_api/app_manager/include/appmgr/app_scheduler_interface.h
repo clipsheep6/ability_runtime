@@ -172,6 +172,8 @@ public:
      */
     virtual void ScheduleProcessSecurityExit() = 0;
 
+    virtual void ScheduleClearPageStack() = 0;
+
     virtual void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) = 0;
 
     virtual void ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName) = 0;
@@ -302,6 +304,7 @@ public:
         SCHEDULE_DUMP_IPC_STOP,
         SCHEDULE_DUMP_IPC_STAT,
         SCHEDULE_DUMP_FFRT,
+        SCHEDULE_CLEAR_PAGE_STACK,
     };
 };
 }  // namespace AppExecFwk

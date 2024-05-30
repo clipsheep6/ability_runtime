@@ -39,11 +39,13 @@ namespace {
 constexpr int32_t INDEX_ZERO = 0;
 constexpr int32_t INDEX_ONE = 1;
 constexpr int32_t INDEX_TWO = 2;
+constexpr int32_t INDEX_THREE = 3;
 constexpr int32_t ERROR_CODE_ONE = 1;
 constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
+constexpr size_t ARGC_FOUR = 4;
 constexpr int32_t ERR_NOT_OK = -1;
 
 class JsAppManager final {
@@ -315,9 +317,10 @@ private:
         TAG_LOGD(AAFwkTag::APPMGR, "called");
         int32_t errCode = 0;
         std::string bundleName;
+        bool clearPageStack = false;
 
-        // only support 1 or 2 params
-        if (argc != ARGC_ONE && argc != ARGC_TWO) {
+        // only support 2 or 3 params
+        if (argc != ARGC_TWO && argc != ARGC_THREE) {
             TAG_LOGE(AAFwkTag::APPMGR, "Not enough arguments");
             errCode = ERR_NOT_OK;
         } else {
@@ -325,11 +328,16 @@ private:
                 TAG_LOGE(AAFwkTag::APPMGR, "get bundleName failed!");
                 errCode = ERR_NOT_OK;
             }
+            if (!ConvertFromJsValue(env, argv[1], clearPageStack)) {
+                TAG_LOGE(AAFwkTag::APPMGR, "get clearPageStack failed!");
+                errCode = ERR_NOT_OK;
+            }
         }
 
-        TAG_LOGI(AAFwkTag::APPMGR, "kill process [%{public}s]", bundleName.c_str());
+        TAG_LOGI(AAFwkTag::APPMGR, "kill process [%{public}s], clearPageStack [%{public}d]",
+            bundleName.c_str(), clearPageStack);
         NapiAsyncTask::CompleteCallback complete =
-            [bundleName, abilityManager = abilityManager_, errCode](napi_env env, NapiAsyncTask& task,
+            [bundleName, clearPageStack, abilityManager = abilityManager_, errCode](napi_env env, NapiAsyncTask& task,
                 int32_t status) {
             if (errCode != 0) {
                 task.Reject(env, CreateJsError(env, errCode, "Invalidate params."));
@@ -340,7 +348,7 @@ private:
                 task.Reject(env, CreateJsError(env, ERROR_CODE_ONE, "abilityManager nullptr"));
                 return;
             }
-            auto ret = abilityManager->KillProcess(bundleName);
+            auto ret = abilityManager->KillProcess(bundleName, clearPageStack);
             if (ret == 0) {
                 task.Resolve(env, CreateJsValue(env, ret));
             } else {
@@ -348,7 +356,7 @@ private:
             }
         };
 
-        napi_value lastParam = (argc == ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
+        napi_value lastParam = (argc == ARGC_THREE) ? argv[INDEX_TWO] : nullptr;
         napi_value result = nullptr;
         NapiAsyncTask::ScheduleHighQos("JSAppManager::OnKillProcessByBundleName",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
@@ -407,30 +415,35 @@ private:
         int32_t errCode = 0;
         int32_t accountId = -1;
         std::string bundleName;
+        bool clearPageStack = false;
 
         // only support 2 or 3 params
-        if (argc != ARGC_TWO && argc != ARGC_THREE) {
+        if (argc != ARGC_THREE && argc != ARGC_FOUR) {
             TAG_LOGE(AAFwkTag::APPMGR, "Not enough params");
             errCode = ERR_NOT_OK;
         } else {
-            if (!ConvertFromJsValue(env, argv[0], bundleName)) {
+            if (!ConvertFromJsValue(env, argv[ARGC_ZERO], bundleName)) {
                 TAG_LOGE(AAFwkTag::APPMGR, "Parse bundleName failed");
                 errCode = ERR_NOT_OK;
             }
-            if (!ConvertFromJsValue(env, argv[1], accountId)) {
+            if (!ConvertFromJsValue(env, argv[ARGC_ONE], accountId)) {
                 TAG_LOGE(AAFwkTag::APPMGR, "Parse userId failed");
+                errCode = ERR_NOT_OK;
+            }
+            if (!ConvertFromJsValue(env, argv[ARGC_TWO], clearPageStack)) {
+                TAG_LOGE(AAFwkTag::APPMGR, "Parse clearPageStack failed");
                 errCode = ERR_NOT_OK;
             }
         }
 
         NapiAsyncTask::CompleteCallback complete =
-            [appManager = appManager_, bundleName, accountId, errCode](napi_env env, NapiAsyncTask &task,
-                int32_t status) {
+            [appManager = appManager_, bundleName, accountId, clearPageStack, errCode](
+                napi_env env, NapiAsyncTask &task, int32_t status) {
                 if (errCode != 0) {
                     task.Reject(env, CreateJsError(env, errCode, "Invalidate params."));
                     return;
                 }
-                auto ret = appManager->GetAmsMgr()->KillProcessWithAccount(bundleName, accountId);
+                auto ret = appManager->GetAmsMgr()->KillProcessWithAccount(bundleName, accountId, clearPageStack);
                 if (ret == 0) {
                     task.Resolve(env, CreateJsUndefined(env));
                 } else {
@@ -439,7 +452,7 @@ private:
                 }
             };
 
-        napi_value lastParam = (argc == ARGC_THREE) ? argv[INDEX_TWO] : nullptr;
+        napi_value lastParam = (argc == ARGC_FOUR) ? argv[INDEX_THREE] : nullptr;
         napi_value result = nullptr;
         NapiAsyncTask::ScheduleHighQos("JSAppManager::OnKillProcessWithAccount",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));

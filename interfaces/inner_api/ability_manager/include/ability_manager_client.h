@@ -565,9 +565,10 @@ public:
      * Kill the process immediately.
      *
      * @param bundleName.
+     * @param clearPageStack.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode KillProcess(const std::string &bundleName);
+    ErrCode KillProcess(const std::string &bundleName, const bool clearPageStack = true);
 
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
@@ -1177,6 +1178,13 @@ public:
      * @param want Want information.
      */
     void ScheduleRecoverAbility(sptr<IRemoteObject> token, int32_t reason, const Want *want = nullptr);
+
+    /**
+     * @brief Schedule clear recovery page stack.
+     *
+     * @param bundleName application bundleName.
+     */
+    void ScheduleClearRecoveryPageStack(const std::string& bundleName);
 
     /**
      * @brief Add free install observer.

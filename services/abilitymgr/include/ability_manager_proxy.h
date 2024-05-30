@@ -557,7 +557,7 @@ public:
      * @param bundleName.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int KillProcess(const std::string &bundleName) override;
+    virtual int KillProcess(const std::string &bundleName, const bool clearPageStack = true) override;
 
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
@@ -905,6 +905,8 @@ public:
     virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) override;
     virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason,
         const Want *want = nullptr) override;
+
+    virtual void ScheduleClearRecoveryPageStack(const std::string& bundleName) override;
 
     /**
      * Called to verify that the MissionId is valid.

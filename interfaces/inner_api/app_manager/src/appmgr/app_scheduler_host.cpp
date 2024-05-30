@@ -49,6 +49,8 @@ AppSchedulerHost::AppSchedulerHost()
         &AppSchedulerHost::HandleScheduleConfigurationUpdated;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_PROCESS_SECURITY_EXIT_TRANSACTION)] =
         &AppSchedulerHost::HandleScheduleProcessSecurityExit;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_CLEAR_PAGE_STACK)] =
+        &AppSchedulerHost::HandleScheduleClearPageStack;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ABILITY_STAGE_INFO)] =
         &AppSchedulerHost::HandleScheduleAbilityStage;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ACCEPT_WANT)] =
@@ -286,6 +288,13 @@ int32_t AppSchedulerHost::HandleScheduleProcessSecurityExit(MessageParcel &data,
 {
     HITRACE_METER(HITRACE_TAG_APP);
     ScheduleProcessSecurityExit();
+    return NO_ERROR;
+}
+
+int32_t AppSchedulerHost::HandleScheduleClearPageStack(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    ScheduleClearPageStack();
     return NO_ERROR;
 }
 

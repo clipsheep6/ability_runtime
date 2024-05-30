@@ -96,7 +96,7 @@ public:
     std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() const override;
     std::string GetBaseDir() const override;
     Global::Resource::DeviceType GetDeviceType() const override;
-    void KillProcessBySelf();
+    void KillProcessBySelf(const bool clearPageStack = true);
     int32_t GetProcessRunningInformation(AppExecFwk::RunningProcessInfo &info);
     int32_t RestartApp(const AAFwk::Want& want);
 

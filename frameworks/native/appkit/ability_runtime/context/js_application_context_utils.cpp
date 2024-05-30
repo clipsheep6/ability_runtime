@@ -583,25 +583,32 @@ napi_value JsApplicationContextUtils::KillProcessBySelf(napi_env env, napi_callb
 
 napi_value JsApplicationContextUtils::OnKillProcessBySelf(napi_env env, NapiCallbackInfo& info)
 {
-    // only support 0 or 1 params
-    if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
+    // only support 1 or 2 params
+    if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
         ThrowInvalidParamError(env, "Not enough params.");
         return CreateJsUndefined(env);
     }
+
+    bool clearPageStack = false;
+    if (!ConvertFromJsValue(env, info.argv[0], clearPageStack)) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Parse clearPageStack failed");
+        ThrowInvalidParamError(env, "Parse param clearPageStack failed, clearPageStack must be boolean.");
+    }
+
     TAG_LOGD(AAFwkTag::APPKIT, "kill self process");
     NapiAsyncTask::CompleteCallback complete =
-        [applicationContext = applicationContext_](napi_env env, NapiAsyncTask& task, int32_t status) {
+        [applicationContext = applicationContext_, clearPageStack](napi_env env, NapiAsyncTask& task, int32_t status) {
             auto context = applicationContext.lock();
             if (!context) {
                 task.Reject(env, CreateJsError(env, ERR_ABILITY_RUNTIME_EXTERNAL_CONTEXT_NOT_EXIST,
                     "applicationContext if already released."));
                 return;
             }
-            context->KillProcessBySelf();
+            context->KillProcessBySelf(clearPageStack);
             task.ResolveWithNoError(env, CreateJsUndefined(env));
         };
-    napi_value lastParam = (info.argc = ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
+    napi_value lastParam = (info.argc = ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsApplicationContextUtils::OnkillProcessBySelf",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));

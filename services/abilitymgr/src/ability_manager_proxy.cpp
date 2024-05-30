@@ -1714,7 +1714,7 @@ void AbilityManagerProxy::ScheduleRecoverAbility(const sptr<IRemoteObject>& toke
     return;
 }
 
-int AbilityManagerProxy::KillProcess(const std::string &bundleName)
+int AbilityManagerProxy::KillProcess(const std::string &bundleName, const bool clearPageStack)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -1727,12 +1727,38 @@ int AbilityManagerProxy::KillProcess(const std::string &bundleName)
         TAG_LOGE(AAFwkTag::ABILITYMGR, "bundleName write failed.");
         return ERR_INVALID_VALUE;
     }
+    if (!data.WriteBool(clearPageStack)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "clearPageStack write failed.");
+        return ERR_INVALID_VALUE;
+    }
     int error = SendRequest(AbilityManagerInterfaceCode::KILL_PROCESS, data, reply, option);
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
+}
+
+void AbilityManagerProxy::ScheduleClearRecoveryPageStack(const std::string &bundleName)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ScheduleClearRecoveryPageStack WriteInterfaceToken failed.");
+        return;
+    }
+    if (!data.WriteString16(Str8ToStr16(bundleName))) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "bundleName write failed.");
+        return;
+    }
+    int error = SendRequest(AbilityManagerInterfaceCode::CLEAR_RECOVERY_PAGE_STACK, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        return;
+    }
+    return;
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST

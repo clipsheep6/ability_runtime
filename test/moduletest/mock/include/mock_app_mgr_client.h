@@ -29,7 +29,7 @@ public:
         const AbilityInfo&, const ApplicationInfo&, const AAFwk::Want&, int32_t));
     MOCK_METHOD2(TerminateAbility, AppMgrResultCode(const sptr<IRemoteObject>&, bool));
     MOCK_METHOD2(UpdateAbilityState, AppMgrResultCode(const sptr<IRemoteObject>& token, const AbilityState state));
-    MOCK_METHOD1(KillApplication, AppMgrResultCode(const std::string&));
+    MOCK_METHOD2(KillApplication, AppMgrResultCode(const std::string&, const bool clearPageStack));
     MOCK_METHOD1(KillProcessByAbilityToken, AppMgrResultCode(const sptr<IRemoteObject>& token));
     MOCK_METHOD1(KillProcessesByUserId, AppMgrResultCode(int32_t userId));
     MOCK_METHOD1(AbilityAttachTimeOut, void(const sptr<IRemoteObject>& token));
