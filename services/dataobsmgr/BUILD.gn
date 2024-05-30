@@ -23,7 +23,6 @@ config("dataobsms_config") {
   include_dirs = [
     "include/",
     "${ability_runtime_services_path}/common/include",
-    "//third_party/json/include",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -48,6 +47,7 @@ ohos_shared_library("dataobsms") {
     "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
@@ -70,6 +70,7 @@ ohos_static_library("dataobsms_static") {
     "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]

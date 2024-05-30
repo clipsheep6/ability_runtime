@@ -40,7 +40,6 @@ config("runtime_public_config") {
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_business_error",
     "include",
-    "//third_party/json/include",
   ]
 }
 
@@ -111,6 +110,7 @@ ohos_shared_library("runtime") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "jsoncpp:jsoncpp",
     "napi:ace_napi",
     "resource_management:global_resmgr",

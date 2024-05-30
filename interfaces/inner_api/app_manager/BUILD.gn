@@ -37,7 +37,6 @@ config("appmgr_core_config") {
 
 ohos_shared_library("app_manager") {
   include_dirs = [
-    "//third_party/json/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/dfr",
     "${ability_runtime_services_path}/appdfr/include",
     "${ability_runtime_services_path}/appmgr/include",
@@ -134,6 +133,7 @@ ohos_shared_library("app_manager") {
     "hitrace:hitrace_meter",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "samgr:samgr_proxy",
   ]
   public_external_deps = [

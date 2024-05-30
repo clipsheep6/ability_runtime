@@ -18,7 +18,6 @@ config("appmgr_config") {
   include_dirs = [
     "include",
     "include/utils",
-    "//third_party/json/include",
     "${ability_runtime_innerkits_path}/ability_manager/include",
     "${ability_runtime_services_path}/common/include",
     "${ability_runtime_path}/tools/aa/include",
@@ -122,6 +121,7 @@ ohos_shared_library("libappms") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "kv_store:distributeddata_inner",
     "kv_store:distributeddata_mgr",
     "memory_utils:libmeminfo",
