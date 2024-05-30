@@ -608,7 +608,8 @@ int32_t AbilityAutoStartupService::InnerApplicationAutoStartupByEDM(const AutoSt
     TAG_LOGD(AAFwkTag::AUTO_STARTUP,
         "Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId: %{public}s,"
         " isSet: %{public}d.,""flag: %{public}d.",
-        info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str(), info.accessTokenId.c_str(), isSet, flag);
+        info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str(),
+        info.accessTokenId.c_str(), isSet, flag);
     AutoStartupStatus status =
         DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->QueryAutoStartupData(info);
     if (status.code != ERR_OK && status.code != ERR_NAME_NOT_FOUND) {
