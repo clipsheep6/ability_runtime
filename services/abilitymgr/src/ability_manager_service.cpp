@@ -10696,27 +10696,6 @@ int32_t AbilityManagerService::TransferAbilityResultForExtension(const sptr<IRem
     return ERR_OK;
 }
 
-void AbilityManagerService::GetRunningMultiAppIndex(const std::string &bundleName, int32_t uid, int32_t &appIndex)
-{
-    AppExecFwk::RunningMultiAppInfo runningMultiAppInfo;
-    auto appMgr = GetAppMgr();
-    if (appMgr == nullptr) {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "GetAppMgr failed");
-        return;
-    }
-    auto ret = appMgr->GetRunningMultiAppInfoByBundleName(bundleName, runningMultiAppInfo);
-    if (ret != ERR_OK) {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "GetRunningMultiAppInfo failed bundleName = %{public}s",
-            bundleName.c_str());
-    }
-    for (auto &item : runningMultiAppInfo.runningAppClones) {
-        if (item.uid == uid) {
-            appIndex = item.appCloneIndex;
-            break;
-        }
-    }
-}
-
 sptr<SessionInfo> AbilityManagerService::GetSessionInfoForUIExtension(const sptr<IRemoteObject>& token)
 {
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
