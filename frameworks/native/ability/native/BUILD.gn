@@ -63,7 +63,6 @@ config("ability_config") {
   }
 
   if (ability_runtime_graphics) {
-    include_dirs += [ "${form_fwk_path}/interfaces/inner_api/include" ]
     defines += [ "SUPPORT_GRAPHICS" ]
   }
 }
@@ -93,13 +92,7 @@ config("ability_public_config") {
   ]
 
   if (ability_runtime_graphics) {
-    include_dirs += [
-      "${form_fwk_path}/interfaces/kits/native/include",
-      "${form_fwk_path}/interfaces/inner_api/include",
-      "${windowmanager_path}/interfaces/innerkits/dm",
-      "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_stage_napi",
-      "${windowmanager_path}/utils/include",
-    ]
+    include_dirs += [ "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_stage_napi" ]
     defines = [ "SUPPORT_GRAPHICS" ]
   }
 }
@@ -147,8 +140,10 @@ ohos_shared_library("abilitykit_utils") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "eventhandler:libeventhandler",
+    "graphic_2d:2d_graphics",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "ipc:ipc_core",
     "ipc:ipc_napi",
     "napi:ace_napi",
     "resource_management:global_resmgr",
@@ -248,7 +243,6 @@ ohos_shared_library("abilitykit_native") {
 
   external_deps = [
     "ability_base:base",
-    "ability_base:configuration",
     "ability_base:extractortool",
     "ability_base:session_info",
     "ability_base:want",
@@ -274,10 +268,15 @@ ohos_shared_library("abilitykit_native") {
   ]
 
   public_external_deps = [
+    "ability_base:configuration",
     "accessibility:accessibility_common",
     "bundle_framework:appexecfwk_core",
+    "form_fwk:fmskit_native",
+    "form_fwk:form_manager",
     "jsoncpp:jsoncpp",
     "libuv:uv",
+    "window_manager:libdm",
+    "window_manager:libwmutil",
   ]
 
   defines = []
@@ -356,10 +355,6 @@ config("extensionkit_public_config") {
   ]
 
   if (ability_runtime_graphics) {
-    include_dirs += [
-      "${windowmanager_path}/interfaces/innerkits/wm",
-      "${windowmanager_path}/utils/include",
-    ]
     defines = [ "SUPPORT_GRAPHICS" ]
   }
 }
@@ -418,6 +413,8 @@ ohos_shared_library("extensionkit_native") {
       "graphic_2d:color_manager",
       "image_framework:image_native",
       "window_manager:libdm",
+      "window_manager:libwm",
+      "window_manager:libwmutil_static",
     ]
   }
 
@@ -481,10 +478,6 @@ config("uiability_config") {
   ]
 
   if (ability_runtime_graphics) {
-    include_dirs += [
-      "${windowmanager_path}/interfaces/innerkits/wm",
-      "${windowmanager_path}/utils/include",
-    ]
     defines = [ "SUPPORT_GRAPHICS" ]
   }
 }
@@ -549,6 +542,7 @@ ohos_shared_library("uiabilitykit_native") {
     "libuv:uv",
     "napi:ace_napi",
     "node:node_header_notice",
+    "window_manager:libwm",
   ]
 
   if (cj_frontend) {
@@ -580,6 +574,7 @@ ohos_shared_library("uiabilitykit_native") {
       "graphic_2d:color_manager",
       "image_framework:image_native",
       "window_manager:libdm",
+      "window_manager:libwmutil_static",
     ]
   }
 
@@ -715,6 +710,12 @@ ohos_shared_library("form_extension_module") {
     "napi:ace_napi",
     "window_manager:libwm",
   ]
+  public_external_deps = [
+    "form_fwk:fmskit_native",
+    "form_fwk:form_manager",
+    "window_manager:libdm",
+    "window_manager:libwmutil",
+  ]
 
   relative_install_dir = "extensionability"
   subsystem_name = "ability"
@@ -821,7 +822,11 @@ ohos_shared_library("continuation_ipc") {
   ]
   public_external_deps = [
     "accessibility:accessibility_common",
+    "form_fwk:fmskit_native",
+    "form_fwk:form_manager",
     "libuv:uv",
+    "window_manager:libdm",
+    "window_manager:libwmutil",
   ]
 
   defines = []
@@ -864,6 +869,12 @@ ohos_shared_library("data_ability_helper") {
     "relational_store:rdb_data_ability_adapter",
     "window_manager:libwm",
   ]
+  public_external_deps = [
+    "form_fwk:fmskit_native",
+    "form_fwk:form_manager",
+    "window_manager:libdm",
+    "window_manager:libwmutil",
+  ]
 
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
@@ -891,6 +902,12 @@ ohos_shared_library("service_extension_module") {
     "c_utils:utils",
     "hilog:libhilog",
     "napi:ace_napi",
+  ]
+  public_external_deps = [
+    "form_fwk:fmskit_native",
+    "form_fwk:form_manager",
+    "window_manager:libdm",
+    "window_manager:libwmutil",
   ]
 
   if (ability_runtime_graphics) {
@@ -1001,7 +1018,6 @@ config("ui_extension_public_config") {
     "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_extension_ability",
     "${windowmanager_path}/interfaces/kits/napi/embeddable_window_stage",
     "${windowmanager_path}/interfaces/kits/napi/extension_window",
-    "${windowmanager_path}/wm/include",
   ]
 }
 
@@ -1047,7 +1063,7 @@ ohos_shared_library("ui_extension") {
     "window_manager:embeddablewindowstage_kit",
     "window_manager:extensionwindow_napi",
   ]
-
+  public_external_deps = [ "window_manager:scene_session_manager" ]
   if (ability_runtime_graphics) {
     external_deps += [
       "ace_engine:ace_uicontent",

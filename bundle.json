@@ -51,6 +51,7 @@
             "dsoftbus",
             "efficiency_manager",
             "eventhandler",
+            "ets_frontend",
             "ets_runtime",
             "ets_utils",
             "faultloggerd",

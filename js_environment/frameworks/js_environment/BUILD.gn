@@ -34,10 +34,7 @@ ohos_shared_library("js_environment") {
     "src/uncaught_exception_callback.cpp",
   ]
 
-  configs = [
-    ":js_environment_config",
-    "${ark_compile_path}/ets_runtime:ark_jsruntime_public_config",
-  ]
+  configs = [ ":js_environment_config" ]
 
   public_configs = [ ":public_js_environment_config" ]
 

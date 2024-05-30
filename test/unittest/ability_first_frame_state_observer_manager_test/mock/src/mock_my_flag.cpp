@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "../include/mock_my_flag.h"
+#include "mock_my_flag.h"
 
 namespace OHOS {
 namespace AAFwk {
