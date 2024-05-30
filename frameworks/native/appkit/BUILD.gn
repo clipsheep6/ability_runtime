@@ -14,7 +14,6 @@
 import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
 import("//build/ohos.gni")
 import("//build/templates/abc/ohos_abc.gni")
-import("//commonlibrary/memory_utils/purgeable_mem_config.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 ohos_abc("delegator_mgmt") {
@@ -495,7 +494,10 @@ ohos_shared_library("application_context_manager") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
 
-  external_deps = [ "napi:ace_napi" ]
+  external_deps = [
+    "ets_runtime:libark_jsruntime",
+    "napi:ace_napi",
+  ]
 
   public_configs = [ ":application_context_manager_config" ]
 

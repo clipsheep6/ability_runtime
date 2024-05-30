@@ -91,7 +91,8 @@
             "toolchain",
             "webview",
             "window_manager",
-            "zlib"
+            "zlib",
+	    "ets_frontend"
   ],
           "third_party": [
             "libjpeg-turbo"
