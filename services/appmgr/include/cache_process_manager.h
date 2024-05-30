@@ -41,17 +41,27 @@ public:
     bool IsAppShouldCache(const std::shared_ptr<AppRunningRecord> &appRecord);
     void RefreshCacheNum();
     std::string PrintCacheQueue();
+    void UpdateTypeByToken(const sptr<IRemoteObject> &token, const std::shared_ptr<AppRunningRecord> &appRecord);
+    void UpdateTypeByAbility(const std::shared_ptr<AbilityRunningRecord> &abilityRecord,
+        const std::shared_ptr<AppRunningRecord> &appRecord);
 private:
     bool IsAppAbilitiesEmpty(const std::shared_ptr<AppRunningRecord> &appRecord);
     int GetCurrentCachedProcNum();
     void RemoveCacheRecord(const std::shared_ptr<AppRunningRecord> &appRecord);
     void ShrinkAndKillCache();
     bool KillProcessByRecord(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void AddToApplicationSet(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void RemoveFromApplicationSet(const std::shared_ptr<AppRunningRecord> &appRecord);
+    bool CheckAndNotifyCachedState(const std::shared_ptr<AppRunningRecord> &appRecord);
     int32_t maxProcCacheNum_ = 0;
     std::deque<std::shared_ptr<AppRunningRecord>> cachedAppRecordQueue_;
     ffrt::recursive_mutex cacheQueueMtx;
     std::weak_ptr<AppMgrServiceInner> appMgr_;
     bool shouldCheckApi = true;
+    // bundleName->uid->record
+    std::map<std::string, std::map<int32_t, std::set<std::shared_ptr<AppRunningRecord>>>> sameAppSet;
+    // stores records that are servcie extension
+    std::set<std::shared_ptr<AppRunningRecord>> srvExtRecords;
 };
 } // namespace OHOS
 } // namespace AppExecFwk

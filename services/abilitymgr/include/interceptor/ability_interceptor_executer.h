@@ -16,8 +16,9 @@
 #ifndef OHOS_ABILITY_RUNTIME_ABILITY_INTERCEPTOR_EXECUTER_H
 #define OHOS_ABILITY_RUNTIME_ABILITY_INTERCEPTOR_EXECUTER_H
 
-#include <vector>
+#include <unordered_map>
 #include "ability_interceptor_interface.h"
+#include "cpp/mutex.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -30,9 +31,15 @@ public:
     /**
      * Add Interceptor to Executer.
      *
+     * @param interceptorName, interceptor name.
      * @param interceptor, interceptor handle the interception processing.
      */
-    void AddInterceptor(const std::shared_ptr<IAbilityInterceptor> &interceptor);
+    void AddInterceptor(std::string interceptorName, const std::shared_ptr<IAbilityInterceptor> &interceptor);
+
+    /**
+     * @param interceptorName, interceptor name.
+     */
+    void RemoveInterceptor(std::string interceptorName);
 
     /**
      * Excute the DoProcess of the interceptors.
@@ -41,7 +48,8 @@ public:
 
     void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler);
 private:
-    std::vector<std::shared_ptr<IAbilityInterceptor>> interceptorList_;
+    std::mutex interceptorMapLock_;
+    std::unordered_map<std::string, std::shared_ptr<IAbilityInterceptor>> interceptorMap_;
 };
 } // namespace AAFwk
 } // namespace OHOS

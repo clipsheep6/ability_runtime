@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -2587,6 +2587,162 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GetAbilityVisibilityState_001, TestSiz
     EXPECT_EQ(AbilityVisibilityState::INITIAL, abilityRecord_->GetAbilityVisibilityState());
     abilityRecord_->SetAbilityVisibilityState(AbilityVisibilityState::FOREGROUND_HIDE);
     EXPECT_EQ(AbilityVisibilityState::FOREGROUND_HIDE, abilityRecord_->GetAbilityVisibilityState());
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: LoadAbility
+ * SubFunction: LoadAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord LoadAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_LoadAbility_005, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->abilityInfo_.type = AbilityType::UNKNOWN;
+    abilityRecord->applicationInfo_.name = "app";
+    abilityRecord->isLauncherRoot_ = true;
+    abilityRecord->isRestarting_ = true;
+    abilityRecord->isLauncherAbility_ = true;
+    abilityRecord->restartCount_ = 0;
+    abilityRecord->applicationInfo_.asanEnabled = true;
+    abilityRecord->applicationInfo_.tsanEnabled = true;
+    int res = abilityRecord->LoadAbility();
+    EXPECT_NE(abilityRecord_, nullptr);
+    EXPECT_EQ(abilityRecord->abilityInfo_.type, AbilityType::UNKNOWN);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AbilityRecord_LoadUIAbility_001
+ * @tc.desc: Test LoadUIAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_LoadUIAbility_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->abilityInfo_.type = AbilityType::DATA;
+    abilityRecord->applicationInfo_.name = "app";
+    abilityRecord->applicationInfo_.asanEnabled = true;
+    abilityRecord->applicationInfo_.tsanEnabled = true;
+    abilityRecord->LoadUIAbility();
+    EXPECT_NE(abilityRecord_, nullptr);
+    EXPECT_EQ(abilityRecord->abilityInfo_.type, AbilityType::DATA);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: ForegroundAbility
+ * SubFunction: ForegroundAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord ForegroundAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_ForegroundAbility_005, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    uint32_t sceneFlag = 0;
+    abilityRecord->SetAbilityVisibilityState(AbilityVisibilityState::FOREGROUND_HIDE);
+    abilityRecord->ForegroundAbility(sceneFlag);
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: ForegroundAbility
+ * SubFunction: ForegroundAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord ForegroundAbility
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_ForegroundAbility_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    uint32_t sceneFlag = 0;
+    Closure task;
+    sptr<SessionInfo> sessionInfo = nullptr;
+    abilityRecord->abilityInfo_.type = AbilityType::DATA;
+    abilityRecord->applicationInfo_.name = "app";
+    abilityRecord->isAttachDebug_ = false;
+    abilityRecord->isAssertDebug_ = false;
+    abilityRecord->ForegroundAbility(task, sessionInfo, sceneFlag);
+    EXPECT_EQ(abilityRecord->abilityInfo_.type, AbilityType::DATA);
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: ForegroundAbility
+ * SubFunction: ForegroundAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord ForegroundAbility
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_ForegroundAbility_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    uint32_t sceneFlag = 0;
+    Closure task;
+    sptr<SessionInfo> sessionInfo = nullptr;
+    bool isNewWant = true;
+    abilityRecord->SetIsNewWant(isNewWant);
+    abilityRecord->ForegroundAbility(task, sessionInfo, sceneFlag);
+    EXPECT_EQ(sessionInfo, nullptr);
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: PrepareTerminateAbility
+ * SubFunction: PrepareTerminateAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord PrepareTerminateAbility
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_PrepareTerminateAbility_001, TestSize.Level1)
+{
+    abilityRecord_->lifecycleDeal_ = nullptr;
+    abilityRecord_->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
+    bool result = abilityRecord_->lifecycleDeal_->PrepareTerminateAbility();
+    EXPECT_EQ(result, false);
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: PrepareTerminateAbility
+ * SubFunction: PrepareTerminateAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord PrepareTerminateAbility
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_PrepareTerminateAbility_002, TestSize.Level1)
+{
+    abilityRecord_->lifecycleDeal_ = nullptr;
+    abilityRecord_->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
+    bool result = abilityRecord_->lifecycleDeal_->PrepareTerminateAbility();
+    EXPECT_EQ(result, false);
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/**
+ * @tc.name: AbilityRecord_ReportAtomicServiceDrawnCompleteEvent_001
+ * @tc.desc: Test ReportAtomicServiceDrawnCompleteEvent
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_ReportAtomicServiceDrawnCompleteEvent_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    ASSERT_NE(abilityRecord, nullptr);
+
+    abilityRecord->applicationInfo_.bundleType = AppExecFwk::BundleType::ATOMIC_SERVICE;
+    auto ret = abilityRecord->ReportAtomicServiceDrawnCompleteEvent();
+    EXPECT_EQ(ret, true);
+
+    abilityRecord->applicationInfo_.bundleType = AppExecFwk::BundleType::APP;
+    ret = abilityRecord->ReportAtomicServiceDrawnCompleteEvent();
+    EXPECT_EQ(ret, false);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

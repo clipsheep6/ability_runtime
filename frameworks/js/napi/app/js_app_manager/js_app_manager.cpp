@@ -122,7 +122,7 @@ public:
 
     static napi_value KillProcessesByBundleName(napi_env env, napi_callback_info info)
     {
-        GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnkillProcessesByBundleName);
+        GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnKillProcessesByBundleName);
     }
 
     static napi_value ClearUpApplicationData(napi_env env, napi_callback_info info)
@@ -160,6 +160,11 @@ public:
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnIsApplicationRunning);
     }
 
+    static napi_value IsAppRunning(napi_env env, napi_callback_info info)
+    {
+        GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnIsAppRunning);
+    }
+
     static bool CheckCallerIsSystemApp()
     {
         auto selfToken = IPCSkeleton::GetSelfTokenID();
@@ -183,8 +188,8 @@ public:
         }
         napi_ref ref = nullptr;
         napi_create_reference(env, para, 1, &ref);
-        NativeReference* nativeReferece = reinterpret_cast<NativeReference *>(ref);
-        auto object = nativeReferece->GetNapiValue();
+        NativeReference* nativeReference = reinterpret_cast<NativeReference *>(ref);
+        auto object = nativeReference->GetNapiValue();
         napi_value method = nullptr;
         napi_get_named_property(env, object, methodName.c_str(), &method);
         if (method == nullptr) {
@@ -483,7 +488,7 @@ private:
         int64_t observerId = -1;
         napi_get_value_int64(env, argv[INDEX_ONE], &observerId);
         if (observer_ == nullptr) {
-            TAG_LOGE(AAFwkTag::APPMGR, "observer_ is nullptr, please register first");
+            TAG_LOGE(AAFwkTag::APPMGR, "observer is nullptr, please register first");
             ThrowInvalidParamError(env, "observer is nullptr, please register first");
             return CreateJsUndefined(env);
         }
@@ -756,9 +761,9 @@ private:
         return result;
     }
 
-    napi_value OnkillProcessesByBundleName(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnKillProcessesByBundleName(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGD(AAFwkTag::APPMGR, "OnkillProcessesByBundleName called");
+        TAG_LOGD(AAFwkTag::APPMGR, "OnKillProcessesByBundleName called");
         if (argc < ARGC_ONE) {
             TAG_LOGE(AAFwkTag::APPMGR, "Params not match");
             ThrowTooFewParametersError(env);
@@ -790,7 +795,7 @@ private:
 
         napi_value lastParam = (argc == ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnkillProcessesByBundleName",
+        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnKillProcessesByBundleName",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -1098,6 +1103,57 @@ private:
         return result;
     }
 
+    napi_value OnIsAppRunning(napi_env env, size_t argc, napi_value *argv)
+    {
+        TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+        if (argc < ARGC_ONE) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Params not match.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+
+        std::string bundleName;
+        if (!ConvertFromJsValue(env, argv[0], bundleName)) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Get bundle name wrong.");
+            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string");
+            return CreateJsUndefined(env);
+        }
+        int32_t appCloneIndex = 0;
+        if (argc > ARGC_ONE && !ConvertFromJsValue(env, argv[1], appCloneIndex)) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Get appCloneIndex wrong.");
+            ThrowInvalidParamError(env, "Parse param appCloneIndex failed, must be a string");
+            return CreateJsUndefined(env);
+        }
+
+        auto innerErrorCode = std::make_shared<int32_t>(ERR_OK);
+        auto isRunning = std::make_shared<bool>(false);
+        wptr<OHOS::AppExecFwk::IAppMgr> appManager = appManager_;
+        NapiAsyncTask::ExecuteCallback execute =
+            [bundleName, appCloneIndex, appManager, innerErrorCode, isRunning]() {
+            sptr<OHOS::AppExecFwk::IAppMgr> appMgr = appManager.promote();
+            if (appMgr == nullptr) {
+                TAG_LOGE(AAFwkTag::APPMGR, "App manager is nullptr.");
+                *innerErrorCode = static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER);
+                return;
+            }
+            *innerErrorCode = appMgr->IsAppRunning(bundleName, appCloneIndex, *isRunning);
+        };
+        NapiAsyncTask::CompleteCallback complete =
+            [innerErrorCode, isRunning](napi_env env, NapiAsyncTask &task, int32_t status) {
+            if (*innerErrorCode == ERR_OK) {
+                task.ResolveWithNoError(env, CreateJsValue(env, *isRunning));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
+            }
+        };
+
+        napi_value lastParam = (argc == ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
+        napi_value result = nullptr;
+        NapiAsyncTask::ScheduleHighQos("JSAppManager::IsAppRunning",
+            env, CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
+        return result;
+    }
+
     napi_value OnPreloadApplication(napi_env env, size_t argc, napi_value *argv)
     {
         TAG_LOGD(AAFwkTag::APPMGR, "OnPreloadApplication called.");
@@ -1221,12 +1277,10 @@ napi_value JsAppManagerInit(napi_env env, napi_value exportObj)
         JsAppManager::GetRunningProcessInformation);
     BindNativeFunction(env, exportObj, "isRunningInStabilityTest", moduleName,
         JsAppManager::IsRunningInStabilityTest);
-    BindNativeFunction(env, exportObj, "killProcessWithAccount", moduleName,
-        JsAppManager::KillProcessWithAccount);
+    BindNativeFunction(env, exportObj, "killProcessWithAccount", moduleName, JsAppManager::KillProcessWithAccount);
     BindNativeFunction(env, exportObj, "killProcessesByBundleName", moduleName,
         JsAppManager::KillProcessesByBundleName);
-    BindNativeFunction(env, exportObj, "clearUpApplicationData", moduleName,
-        JsAppManager::ClearUpApplicationData);
+    BindNativeFunction(env, exportObj, "clearUpApplicationData", moduleName, JsAppManager::ClearUpApplicationData);
     BindNativeFunction(env, exportObj, "getAppMemorySize", moduleName, JsAppManager::GetAppMemorySize);
     BindNativeFunction(env, exportObj, "isRamConstrainedDevice", moduleName, JsAppManager::IsRamConstrainedDevice);
     BindNativeFunction(env, exportObj, "isSharedBundleRunning", moduleName, JsAppManager::IsSharedBundleRunning);
@@ -1235,6 +1289,8 @@ napi_value JsAppManagerInit(napi_env env, napi_value exportObj)
         JsAppManager::GetRunningProcessInfoByBundleName);
     BindNativeFunction(env, exportObj, "getRunningMultiAppInfo", moduleName, JsAppManager::GetRunningMultiAppInfo);
     BindNativeFunction(env, exportObj, "isApplicationRunning", moduleName, JsAppManager::IsApplicationRunning);
+    BindNativeFunction(env, exportObj, "isAppRunning", moduleName,
+        JsAppManager::IsAppRunning);
     BindNativeFunction(env, exportObj, "preloadApplication", moduleName, JsAppManager::PreloadApplication);
     BindNativeFunction(env, exportObj, "getRunningProcessInformationByBundleType", moduleName,
         JsAppManager::GetRunningProcessInformationByBundleType);

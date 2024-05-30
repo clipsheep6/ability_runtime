@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -39,6 +39,59 @@ void EventReportTest::SetUp()
 {}
 void EventReportTest::TearDown()
 {}
+
+/**
+ * @tc.name: ConvertEventName_0100
+ * @tc.desc: Check ConvertEventName Test
+ * @tc.type: FUNC
+ * @tc.require: issueI67H0J
+ */
+HWTEST_F(EventReportTest, ConvertEventName_0100, TestSize.Level0)
+{
+    EventName eventName = static_cast<EventName>(-1);
+    EXPECT_EQ(EventReport::ConvertEventName(eventName), "INVALIDEVENTNAME");
+    // fault event
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::START_ABILITY_ERROR), "START_ABILITY_ERROR");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::TERMINATE_ABILITY_ERROR), "TERMINATE_ABILITY_ERROR");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::START_EXTENSION_ERROR), "START_EXTENSION_ERROR");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::STOP_EXTENSION_ERROR), "STOP_EXTENSION_ERROR");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::CONNECT_SERVICE_ERROR), "CONNECT_SERVICE_ERROR");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::DISCONNECT_SERVICE_ERROR), "DISCONNECT_SERVICE_ERROR");
+    // ability behavior event
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::START_ABILITY), "START_ABILITY");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::TERMINATE_ABILITY), "TERMINATE_ABILITY");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::CLOSE_ABILITY), "CLOSE_ABILITY");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::ABILITY_ONFOREGROUND), "ABILITY_ONFOREGROUND");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::ABILITY_ONBACKGROUND), "ABILITY_ONBACKGROUND");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::ABILITY_ONACTIVE), "ABILITY_ONACTIVE");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::ABILITY_ONINACTIVE), "ABILITY_ONINACTIVE");
+    // serviceExtensionAbility behavior event
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::START_SERVICE), "START_SERVICE");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::STOP_SERVICE), "STOP_SERVICE");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::CONNECT_SERVICE), "CONNECT_SERVICE");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::DISCONNECT_SERVICE), "DISCONNECT_SERVICE");
+    // app behavior event
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::APP_ATTACH), "APP_ATTACH");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::APP_LAUNCH), "APP_LAUNCH");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::APP_FOREGROUND), "APP_FOREGROUND");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::APP_BACKGROUND), "APP_BACKGROUND");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::APP_TERMINATE), "APP_TERMINATE");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::PROCESS_START), "PROCESS_START");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::PROCESS_EXIT), "PROCESS_EXIT");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::DRAWN_COMPLETED), "DRAWN_COMPLETED");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::APP_STARTUP_TYPE), "APP_STARTUP_TYPE");
+    // key behavior event
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::GRANT_URI_PERMISSION), "GRANT_URI_PERMISSION");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::FA_SHOW_ON_LOCK), "FA_SHOW_ON_LOCK");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::START_PRIVATE_ABILITY), "START_PRIVATE_ABILITY");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::RESTART_PROCESS_BY_SAME_APP), "RESTART_PROCESS_BY_SAME_APP");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::START_STANDARD_ABILITIES), "START_STANDARD_ABILITIES");
+    // atomic service event
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::CREATE_ATOMIC_SERVICE_PROCESS),
+        "CREATE_ATOMIC_SERVICE_PROCESS");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::ATOMIC_SERVICE_DRAWN_COMPLETE),
+        "ATOMIC_SERVICE_DRAWN_COMPLETE");
+}
 
 /**
  * @tc.name: SendAppEvent_0100
@@ -602,6 +655,28 @@ HWTEST_F(EventReportTest, SendDisconnectServiceEvent_0100, TestSize.Level0)
     eventName = EventName::DISCONNECT_SERVICE;
     EXPECT_EQ(EventReport::ConvertEventName(eventName), "DISCONNECT_SERVICE");
     EventReport::SendDisconnectServiceEvent(eventName, eventInfo);
+}
+
+/**
+ * @tc.name: SendAtomicServiceEvent_0100
+ * @tc.desc: Check SendAtomicServiceEvent Test
+ * @tc.type: FUNC
+ */
+HWTEST_F(EventReportTest, SendAtomicServiceEvent_0100, TestSize.Level0)
+{
+    EventName eventName = static_cast<EventName>(-1);
+    EXPECT_EQ(EventReport::ConvertEventName(eventName), "INVALIDEVENTNAME");
+    EventInfo eventInfo;
+    HiSysEventType type = HiSysEventType::BEHAVIOR;
+    EventReport::SendAtomicServiceEvent(eventName, type, eventInfo);
+
+    eventName = EventName::CREATE_ATOMIC_SERVICE_PROCESS;
+    EXPECT_EQ(EventReport::ConvertEventName(eventName), "CREATE_ATOMIC_SERVICE_PROCESS");
+    EventReport::SendAtomicServiceEvent(eventName, type, eventInfo);
+
+    eventName = EventName::ATOMIC_SERVICE_DRAWN_COMPLETE;
+    EXPECT_EQ(EventReport::ConvertEventName(eventName), "ATOMIC_SERVICE_DRAWN_COMPLETE");
+    EventReport::SendAtomicServiceEvent(eventName, type, eventInfo);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

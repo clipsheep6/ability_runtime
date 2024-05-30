@@ -464,10 +464,10 @@ HWTEST_F(AppMgrServiceInnerTest, MakeProcessName_001, TestSize.Level0)
     HapModuleInfo hapModuleInfo;
     hapModuleInfo.moduleName = "module789";
     std::string processName = "test_processName";
-    appMgrServiceInner->MakeProcessName(nullptr, nullptr, hapModuleInfo, 1, processName);
-    appMgrServiceInner->MakeProcessName(nullptr, applicationInfo_, hapModuleInfo, 1, processName);
-    appMgrServiceInner->MakeProcessName(abilityInfo_, nullptr, hapModuleInfo, 1, processName);
-    appMgrServiceInner->MakeProcessName(abilityInfo_, applicationInfo_, hapModuleInfo, 1, processName);
+    appMgrServiceInner->MakeProcessName(nullptr, nullptr, hapModuleInfo, 1, "", processName);
+    appMgrServiceInner->MakeProcessName(nullptr, applicationInfo_, hapModuleInfo, 1, "", processName);
+    appMgrServiceInner->MakeProcessName(abilityInfo_, nullptr, hapModuleInfo, 1, "", processName);
+    appMgrServiceInner->MakeProcessName(abilityInfo_, applicationInfo_, hapModuleInfo, 1, "", processName);
 
     EXPECT_NE(appMgrServiceInner, nullptr);
     TAG_LOGI(AAFwkTag::TEST, "MakeProcessName_001 end");
@@ -3806,7 +3806,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_001, TestSize.Level1)
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     AAFwk::EventInfo eventInfo;
-    appMgrServiceInner->SendReStartProcessEvent(eventInfo, nullptr);
+    appMgrServiceInner->SendReStartProcessEvent(eventInfo, 0);
     TAG_LOGI(AAFwkTag::TEST, "SendReStartProcessEvent_001 end");
 }
 
@@ -3829,7 +3829,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_002, TestSize.Level1)
         system_clock::now().time_since_epoch()).count();
     int64_t killedTime = restartTime - 3000;
     appMgrServiceInner->killedPorcessMap_.emplace(killedTime, processName);
-    appMgrServiceInner->SendReStartProcessEvent(eventInfo, record);
+    appMgrServiceInner->SendReStartProcessEvent(eventInfo, record->GetUid());
     TAG_LOGI(AAFwkTag::TEST, "SendReStartProcessEvent_002 end");
 }
 
@@ -3854,7 +3854,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_003, TestSize.Level1)
         system_clock::now().time_since_epoch()).count();
     int64_t killedTime = restartTime - 1000;
     appMgrServiceInner->killedPorcessMap_.emplace(killedTime, processName);
-    appMgrServiceInner->SendReStartProcessEvent(eventInfo, record);
+    appMgrServiceInner->SendReStartProcessEvent(eventInfo, record->GetUid());
     TAG_LOGI(AAFwkTag::TEST, "SendReStartProcessEvent_003 end");
 }
 
@@ -3880,7 +3880,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_004, TestSize.Level1)
         system_clock::now().time_since_epoch()).count();
     int64_t killedTime = restartTime - 1000;
     appMgrServiceInner->killedPorcessMap_.emplace(killedTime, processName);
-    appMgrServiceInner->SendReStartProcessEvent(eventInfo, record);
+    appMgrServiceInner->SendReStartProcessEvent(eventInfo, record->GetUid());
     TAG_LOGI(AAFwkTag::TEST, "SendReStartProcessEvent_004 end");
 }
 
@@ -3906,7 +3906,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_005, TestSize.Level1)
         system_clock::now().time_since_epoch()).count();
     int64_t killedTime = restartTime - 1000;
     appMgrServiceInner->killedPorcessMap_.emplace(killedTime, processName);
-    appMgrServiceInner->SendReStartProcessEvent(eventInfo, record);
+    appMgrServiceInner->SendReStartProcessEvent(eventInfo, record->GetUid());
     TAG_LOGI(AAFwkTag::TEST, "SendReStartProcessEvent_005 end");
 }
 
@@ -4057,6 +4057,50 @@ HWTEST_F(AppMgrServiceInnerTest, IsApplicationRunning_002, TestSize.Level1)
     EXPECT_EQ(ret, ERR_OK);
     EXPECT_FALSE(isRunning);
 }
+
+/**
+ * @tc.name: IsAppRunning_001
+ * @tc.desc: Obtain application running status through bundleName.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, IsAppRunning_001, TestSize.Level1)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::string bundleName = "com.is.hiserice";
+    std::string processName = "test_processName";
+    int32_t appCloneIndex = 0;
+    bool isRunning = false;
+    auto appRecord = std::make_shared<AppRunningRecord>(applicationInfo_, ++recordId_, processName);
+    EXPECT_NE(appRecord, nullptr);
+    appRecord->mainBundleName_ = "com.is.hiserice";
+    appMgrServiceInner->appRunningManager_->appRunningRecordMap_.emplace(recordId_, appRecord);
+    int32_t ret = appMgrServiceInner->IsAppRunning(bundleName, appCloneIndex, isRunning);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_TRUE(isRunning);
+}
+
+/**
+ * @tc.name: IsAppRunning_002
+ * @tc.desc: Not passing in bundleName, unable to obtain application running status.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, IsAppRunning_002, TestSize.Level1)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::string bundleName = "com.is.hiserice";
+    std::string processName = "test_processName";
+    int32_t appCloneIndex = 0;
+    bool isRunning = false;
+    auto appRecord = std::make_shared<AppRunningRecord>(applicationInfo_, ++recordId_, processName);
+    EXPECT_NE(appRecord, nullptr);
+    appMgrServiceInner->appRunningManager_->appRunningRecordMap_.emplace(recordId_, appRecord);
+    int32_t ret = appMgrServiceInner->IsAppRunning(bundleName, appCloneIndex, isRunning);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_FALSE(isRunning);
+}
+
 
 /**
  * @tc.name: RegisterAbilityForegroundStateObserver_0100
@@ -4276,7 +4320,7 @@ HWTEST_F(AppMgrServiceInnerTest, OnAppCacheStateChanged_001, TestSize.Level0)
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
-    appMgrServiceInner->OnAppCacheStateChanged(nullptr);
+    appMgrServiceInner->OnAppCacheStateChanged(nullptr, ApplicationState::APP_STATE_CACHED);
 
     std::string bundleName = "com.is.hiserice";
     std::string processName = "test_processName";
@@ -4287,10 +4331,10 @@ HWTEST_F(AppMgrServiceInnerTest, OnAppCacheStateChanged_001, TestSize.Level0)
     appRecord->SetState(ApplicationState::APP_STATE_CACHED);
 
     appRecord->priorityObject_ = nullptr;
-    appMgrServiceInner->OnAppCacheStateChanged(appRecord);
+    appMgrServiceInner->OnAppCacheStateChanged(appRecord, ApplicationState::APP_STATE_CACHED);
 
     appRecord->priorityObject_ = std::make_shared<PriorityObject>();
-    appMgrServiceInner->OnAppCacheStateChanged(appRecord);
+    appMgrServiceInner->OnAppCacheStateChanged(appRecord, ApplicationState::APP_STATE_CACHED);
 
 
     TAG_LOGI(AAFwkTag::TEST, "OnAppCacheStateChanged_001 end");
@@ -4318,6 +4362,29 @@ HWTEST_F(AppMgrServiceInnerTest, GetRunningMultiAppInfoByBundleName_001, TestSiz
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
 
     TAG_LOGI(AAFwkTag::TEST, "GetRunningMultiAppInfoByBundleName_001 end");
+}
+
+/**
+ * @tc.name: SendCreateAtomicServiceProcessEvent_001
+ * @tc.desc: Report event of create atomic service process.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, SendCreateAtomicServiceProcessEvent_001, TestSize.Level1)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::string processName = "test_processName";
+    std::string moduleName = "test_modulenName";
+    std::string abilityName = "test_abilityName";
+    auto appRecord = std::make_shared<AppRunningRecord>(applicationInfo_, ++recordId_, processName);
+    auto bundleType = BundleType::ATOMIC_SERVICE;
+    auto ret = appMgrServiceInner->SendCreateAtomicServiceProcessEvent(nullptr, bundleType, moduleName, abilityName);
+    EXPECT_EQ(ret, false);
+    ret = appMgrServiceInner->SendCreateAtomicServiceProcessEvent(appRecord, bundleType, moduleName, abilityName);
+    EXPECT_EQ(ret, true);
+    bundleType = BundleType::APP;
+    ret = appMgrServiceInner->SendCreateAtomicServiceProcessEvent(appRecord, bundleType, moduleName, abilityName);
+    EXPECT_EQ(ret, false);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

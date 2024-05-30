@@ -75,7 +75,7 @@ public:
 
     void CallExtraCallback(const std::shared_ptr<StartupTaskResult> &result);
 
-    virtual void OnAsyncTaskCompleted() = 0;
+    virtual void OnAsyncTaskCompleted(const std::shared_ptr<StartupTaskResult> &result) = 0;
 
 protected:
     std::string name_;

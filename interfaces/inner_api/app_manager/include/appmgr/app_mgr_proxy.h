@@ -16,13 +16,14 @@
 #ifndef OHOS_ABILITY_RUNTIME_APP_MGR_PROXY_H
 #define OHOS_ABILITY_RUNTIME_APP_MGR_PROXY_H
 
+#include "app_jsheap_mem_info.h"
 #include "app_malloc_info.h"
 #include "app_mgr_interface.h"
 #include "bundle_info.h"
 #include "iremote_proxy.h"
 #include "memory_level_info.h"
+#include "running_process_info.h"
 #include "want.h"
-#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -408,6 +409,15 @@ public:
     virtual int32_t GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid) override;
 
     /**
+     * Get running process information by pid.
+     *
+     * @param pid process id.
+     * @param info Output parameters, return runningProcessInfo.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) override;
+
+    /**
      * get memorySize by pid.
      *
      * @param pid process id.
@@ -490,6 +500,15 @@ public:
      * @return Return ERR_OK if success, others fail.
      */
     int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning) override;
+
+    /**
+     * Check whether the bundle is running.
+     *
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return Return ERR_OK if success, others fail.
+     */
+    int32_t IsAppRunning(const std::string &bundleName, int32_t appCloneIndex, bool &isRunning) override;
 
     /**
      * Start child process, called by ChildProcessManager.

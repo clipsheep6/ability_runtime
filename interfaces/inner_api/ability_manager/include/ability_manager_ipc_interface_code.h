@@ -397,6 +397,9 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for preload UIExtension ability by want
     PRELOAD_UIEXTENSION_ABILITY = 1062,
 
+    // ipc id for start UIExtension ability non—modal
+    START_UI_EXTENSION_ABILITY_NON_MODAL = 1063,
+
     // ipc id for continue ability(1101)
     START_CONTINUATION = 1101,
 

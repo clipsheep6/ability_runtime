@@ -1134,6 +1134,7 @@ void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
     auto appRecord = shared_from_this();
     auto cacheProcMgr = DelayedSingleton<CacheProcessManager>::GetInstance();
     bool needCache = false;
+    cacheProcMgr->UpdateTypeByAbility(abilityRecord, appRecord);
     if (cacheProcMgr != nullptr && cacheProcMgr->IsAppShouldCache(appRecord)) {
         cacheProcMgr->CheckAndCacheProcess(appRecord);
         TAG_LOGI(AAFwkTag::APPMGR, "App %{public}s should cache, not remove module and terminate app.",
@@ -1370,7 +1371,7 @@ bool AppRunningRecord::IsTerminating()
 
 bool AppRunningRecord::IsKeepAliveApp() const
 {
-    return isKeepAliveApp_ && isSingleton_;
+    return isKeepAliveApp_ && isSingleton_ && isMainProcess_;
 }
 
 void AppRunningRecord::SetKeepAliveEnableState(bool isKeepAliveEnable)
@@ -1386,6 +1387,16 @@ bool AppRunningRecord::IsEmptyKeepAliveApp() const
 void AppRunningRecord::SetEmptyKeepAliveAppState(bool isEmptyKeepAliveApp)
 {
     isEmptyKeepAliveApp_ = isEmptyKeepAliveApp;
+}
+
+bool AppRunningRecord::IsMainProcess() const
+{
+    return isMainProcess_;
+}
+
+void AppRunningRecord::SetMainProcess(bool isMainProcess)
+{
+    isMainProcess_ = isMainProcess;
 }
 
 void AppRunningRecord::SetSingleton(bool isSingleton)
@@ -2251,6 +2262,16 @@ void AppRunningRecord::SetIsGPU(bool gpu)
 bool AppRunningRecord::GetIsGPU()
 {
     return isGPU_;
+}
+
+void AppRunningRecord::SetGPUPid(pid_t gpuPid)
+{
+    gpuPid_ = gpuPid;
+}
+
+pid_t AppRunningRecord::GetGPUPid()
+{
+    return gpuPid_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

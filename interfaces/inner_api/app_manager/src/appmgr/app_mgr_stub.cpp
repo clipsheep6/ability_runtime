@@ -16,6 +16,7 @@
 #include "app_mgr_stub.h"
 
 #include "ability_info.h"
+#include "app_jsheap_mem_info.h"
 #include "app_malloc_info.h"
 #include "app_mgr_proxy.h"
 #include "app_scheduler_interface.h"
@@ -29,8 +30,8 @@
 #include "ipc_types.h"
 #include "iremote_object.h"
 #include "memory_level_info.h"
+#include "running_process_info.h"
 #include "want.h"
-#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -132,6 +133,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleJudgeSandboxByPid;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_BUNDLE_NAME_BY_PID)] =
         &AppMgrStub::HandleGetBundleNameByPid;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_RUNNING_PROCESS_INFO_BY_PID)] =
+        &AppMgrStub::HandleGetRunningProcessInfoByPid;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_ALL_RENDER_PROCESSES)] =
         &AppMgrStub::HandleGetAllRenderProcesses;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_PROCESS_MEMORY_BY_PID)] =
@@ -198,6 +201,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleStartNativeChildProcess;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SAVE_BROWSER_CHANNEL)] =
         &AppMgrStub::HandleSaveBrowserChannel;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::IS_APP_RUNNING)] =
+        &AppMgrStub::HandleIsAppRunning;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -954,6 +959,22 @@ int32_t AppMgrStub::HandleGetBundleNameByPid(MessageParcel &data, MessageParcel 
     return NO_ERROR;
 }
 
+int32_t AppMgrStub::HandleGetRunningProcessInfoByPid(MessageParcel &data, MessageParcel &reply)
+{
+    RunningProcessInfo processInfo;
+    auto pid = static_cast<pid_t>(data.ReadInt32());
+    auto result = GetRunningProcessInfoByPid(pid, processInfo);
+    if (reply.WriteParcelable(&processInfo)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "process info write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
 int32_t AppMgrStub::HandleNotifyFault(MessageParcel &data, MessageParcel &reply)
 {
     std::unique_ptr<FaultData> faultData(data.ReadParcelable<FaultData>());
@@ -1136,6 +1157,23 @@ int32_t AppMgrStub::HandleIsApplicationRunning(MessageParcel &data, MessageParce
     std::string bundleName = data.ReadString();
     bool isRunning = false;
     int32_t result = IsApplicationRunning(bundleName, isRunning);
+    if (!reply.WriteBool(isRunning)) {
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleIsAppRunning(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    std::string bundleName = data.ReadString();
+    bool isRunning = false;
+    int32_t appCloneIndex = data.ReadInt32();
+    int32_t result = IsAppRunning(bundleName, appCloneIndex, isRunning);
     if (!reply.WriteBool(isRunning)) {
         return ERR_INVALID_VALUE;
     }

@@ -514,6 +514,16 @@ enum {
      * Result(2097251) not support twin.
      */
     ERR_MULTI_APP_NOT_SUPPORTED,
+
+    /**
+     * Result(2097252) for unlock screen failed in developer mode.
+     */
+    ERR_UNLOCK_SCREEN_FAILED_IN_DEVELOPER_MODE,
+
+    /*
+     * Result(2097253) for block startup in lock screen.
+     */
+    ERR_BLOCK_START_FIRST_BOOT_SCREEN_UNLOCK = 2097253,
 };
 
 enum {

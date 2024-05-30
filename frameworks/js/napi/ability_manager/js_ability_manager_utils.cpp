@@ -39,8 +39,8 @@ napi_value CreateJSToken(napi_env env, const sptr<IRemoteObject> target)
         env, "TokenClass", NAPI_AUTO_LENGTH, constructorcb, nullptr, 0, nullptr, &tokenClass);
     napi_value jsToken = nullptr;
     napi_new_instance(env, tokenClass, 0, nullptr, &jsToken);
-    auto finalizecb = [](napi_env env, void *data, void *hint) {};
-    napi_wrap(env, jsToken, static_cast<void *>(target.GetRefPtr()), finalizecb, nullptr, nullptr);
+    auto finalizercb = [](napi_env env, void *data, void *hint) {};
+    napi_wrap(env, jsToken, static_cast<void *>(target.GetRefPtr()), finalizercb, nullptr, nullptr);
     return jsToken;
 }
 

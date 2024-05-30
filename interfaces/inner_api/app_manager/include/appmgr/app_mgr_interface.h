@@ -466,6 +466,18 @@ public:
     virtual int32_t GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid) = 0;
 
     /**
+     * Get running process information by pid.
+     *
+     * @param pid process id.
+     * @param info Output parameters, return runningProcessInfo.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info)
+    {
+        return 0;
+    }
+
+    /**
      * get memorySize by pid.
      *
      * @param pid process id.
@@ -555,6 +567,16 @@ public:
      * @return Return ERR_OK if success, others fail.
      */
     virtual int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning) = 0;
+
+    /**
+     * Check whether the bundle is running.
+     *
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return Return ERR_OK if success, others fail.
+     */
+    virtual int32_t IsAppRunning(const std::string &bundleName, int32_t appCloneIndex,
+        bool &isRunning) = 0;
 
     /**
      * Start child process, called by ChildProcessManager.

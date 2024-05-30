@@ -596,8 +596,9 @@ void AppStateObserverManager::HandleOnProcessStateChanged(const std::shared_ptr<
     }
     ProcessData data = WrapProcessData(appRecord);
     TAG_LOGD(AAFwkTag::APPMGR,
-        "bundle:%{public}s pid:%{public}d uid:%{public}d state:%{public}d isContinuousTask:%{public}d",
-        data.bundleName.c_str(), data.pid, data.uid, data.state, data.isContinuousTask);
+        "bundle:%{public}s, pid:%{public}d, uid:%{public}d, state:%{public}d, "
+        "isContinuousTask:%{public}d, gpuPid:%{public}d",
+        data.bundleName.c_str(), data.pid, data.uid, data.state, data.isContinuousTask, data.gpuPid);
     auto appStateObserverMapCopy = GetAppStateObserverMapCopy();
     for (auto it = appStateObserverMapCopy.begin(); it != appStateObserverMapCopy.end(); ++it) {
         std::vector<std::string>::iterator iter = std::find(it->second.begin(),
@@ -670,6 +671,7 @@ ProcessData AppStateObserverManager::WrapProcessData(const std::shared_ptr<AppRu
     }
     processData.exitReason = appRecord->GetExitReason();
     processData.exitMsg = appRecord->GetExitMsg();
+    processData.gpuPid = appRecord->GetGPUPid();
     return processData;
 }
 
@@ -682,6 +684,7 @@ ProcessData AppStateObserverManager::WrapRenderProcessData(const std::shared_ptr
     processData.renderUid = renderRecord->GetUid();
     processData.processName = renderRecord->GetProcessName();
     processData.processType = renderRecord->GetProcessType();
+    processData.hostPid = renderRecord->GetHostPid();
     return processData;
 }
 
@@ -933,33 +936,35 @@ void AppStateObserverManager::HandleOnPageHide(const PageStateData pageStateData
     }
 }
 
-void AppStateObserverManager::OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord)
+void AppStateObserverManager::OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord,
+    ApplicationState state)
 {
     if (handler_ == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "handler is nullptr, OnAppCacheStateChanged failed.");
         return;
     }
 
-    auto task = [weak = weak_from_this(), appRecord]() {
+    auto task = [weak = weak_from_this(), appRecord, state]() {
         auto self = weak.lock();
         if (self == nullptr) {
             TAG_LOGE(AAFwkTag::APPMGR, "self is nullptr, OnAppCacheStateChanged failed.");
             return;
         }
         TAG_LOGD(AAFwkTag::APPMGR, "OnAppCacheStateChanged come.");
-        self->HandleOnAppCacheStateChanged(appRecord);
+        self->HandleOnAppCacheStateChanged(appRecord, state);
     };
     handler_->SubmitTask(task);
 }
 
-void AppStateObserverManager::HandleOnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord)
+void AppStateObserverManager::HandleOnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord,
+    ApplicationState state)
 {
     if (appRecord == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "app record is null");
         return;
     }
 
-    AppStateData data = WrapAppStateData(appRecord, appRecord->GetState());
+    AppStateData data = WrapAppStateData(appRecord, state);
     data.isSpecifyTokenId = appRecord->GetAssignTokenId() > 0 ? true : false;
     TAG_LOGD(AAFwkTag::APPMGR, "HandleOnAppCacheStateChanged, bundle:%{public}s, uid:%{public}d, state:%{public}d",
         data.bundleName.c_str(), data.uid, data.state);

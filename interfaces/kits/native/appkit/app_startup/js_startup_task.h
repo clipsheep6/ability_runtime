@@ -53,7 +53,7 @@ public:
 
     void LoadJsAsyncTaskCallback();
 
-    void OnAsyncTaskCompleted() override;
+    void OnAsyncTaskCompleted(const std::shared_ptr<StartupTaskResult> &result) override;
 
 private:
     JsRuntime &jsRuntime_;

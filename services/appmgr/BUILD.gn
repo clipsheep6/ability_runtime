@@ -49,6 +49,7 @@ ohos_shared_library("libappms") {
     "src/app_death_recipient.cpp",
     "src/app_debug_manager.cpp",
     "src/app_lifecycle_deal.cpp",
+    "src/app_mgr_event.cpp",
     "src/app_mgr_service.cpp",
     "src/app_mgr_service_event_handler.cpp",
     "src/app_mgr_service_inner.cpp",

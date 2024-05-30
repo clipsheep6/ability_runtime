@@ -13,15 +13,27 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_C_ABILITY_RUNTIME_NATIVE_CHILD_PROCESS_H
-#define OHOS_C_ABILITY_RUNTIME_NATIVE_CHILD_PROCESS_H
+#ifndef OHOS_ABILITY_RUNTIME_C_NATIVE_CHILD_PROCESS_H
+#define OHOS_ABILITY_RUNTIME_C_NATIVE_CHILD_PROCESS_H
 
 #include "ipc_cparcel.h"
 
 /**
+ * @addtogroup ChildProcess
+ * @{
+ *
+ * @brief Provides the APIs to manage child processes.
+ *
+ * @syscap SystemCapability.Ability.AbilityRuntime.Core
+ * @since 12
+ */
+
+/**
  * @file native_child_process.h
  *
- * @brief Defines the functions for native child process management.
+ * @brief Declares the APIs used to create a native child process and establish an IPC channel between the parent and
+ * child processes.
+ *
  * @library libchild_process.so
  * @syscap SystemCapability.Ability.AbilityRuntime.Core
  * @since 12
@@ -32,104 +44,128 @@ extern "C" {
 #endif
 
 /**
- * @brief native child process error code
+ * @brief Enumerates the error codes used by the native child process module.
  * @since 12
  */
-enum Ability_NativeChildProcess_ErrCode {
+typedef enum Ability_NativeChildProcess_ErrCode {
     /**
-     * @error The operation completed successfully
+     * @error Operation successful.
      */
-    NCP_NOERROR = 0,
+    NCP_NO_ERROR = 0,
 
     /**
-     * @error Invalid param
+     * @error Invalid parameter.
      */
     NCP_ERR_INVALID_PARAM = 401,
 
     /**
-     * @error Unsupport start native process
+     * @error Creating a native child process is not supported.
      */
     NCP_ERR_NOT_SUPPORTED = 801,
 
     /**
-     * @error Internal error
+     * @error Internal error.
      */
     NCP_ERR_INTERNAL = 16000050,
 
     /**
-     * @error Can not start another during child process startup, try again after current child process started
+     * @error A new child process cannot be created during the startup of another native child process.
+     * You can try again after the child process is started.
      */
     NCP_ERR_BUSY = 16010001,
 
     /**
-     * @error Start native child time out
+     * @error Starting the native child process times out.
      */
     NCP_ERR_TIMEOUT = 16010002,
 
     /**
-     * @error Service process error
+     * @error Server error.
      */
-    NCP_ERR_SERVICE = 16010003,
+    NCP_ERR_SERVICE_ERROR = 16010003,
 
     /**
-     * @error Multi process disabled, can not start child process
+     * @error The multi-process mode is disabled. A child process cannot be started.
      */
     NCP_ERR_MULTI_PROCESS_DISABLED = 16010004,
 
     /**
-     * @error Already in child process, only main process can start child
+     * @error A process cannot be created in a child process.
      */
     NCP_ERR_ALREADY_IN_CHILD = 16010005,
 
     /**
-     * @error Max native child processes reached, can not start another
+     * @error The number of native child processes reaches the maximum.
      */
     NCP_ERR_MAX_CHILD_PROCESSES_REACHED = 16010006,
 
     /**
-     * @error Child process load library failed
+     * @error The child process fails to load the dynamic library because the file does not exist
+     * or the corresponding method is not implemented or exported.
      */
-    NCP_ERR_CHILD_PROCESS_LOAD_LIB = 16010007,
+    NCP_ERR_LIB_LOADING_FAILED = 16010007,
 
     /**
-     * @error Faild to invoke OnConnect method in library
+     * @error The child process fails to call the OnConnect method of the dynamic library.
+     * An invalid IPC object pointer may be returned.
      */
-    NCP_ERR_CHILD_PROCESS_CONNECT = 16010008,
-};
+    NCP_ERR_CONNECTION_FAILED = 16010008,
+} Ability_NativeChildProcess_ErrCode;
 
 
 /**
- * @brief callback function for notify the child process start result, see <b>OH_Ability_CreateNativeChildProcess</b>
+ * @brief Defines a callback function for notifying the child process startup result.
  *
- * @param errCode Zero if successful, an error otherwise, see <v>Ability_NativeChildProcess_ErrCode</b> for detail
- * @param remoteProxy IPC object implemented in the sharded lib loaded by child process; will be nullptr when failed
+ * @param errCode Error code corresponding to the callback function. The following values are available:
+ * {@link NCP_NO_ERROR} if the child process is created successfully.\n
+ * {@link NCP_ERR_LIB_LOADING_FAILED} if loading the dynamic library file fails or the necessary export function
+ * is not implemented in the dynamic library.\n
+ * {@link NCP_ERR_CONNECTION_FAILED} if the OnConnect method implemented in the dynamic library does not return
+ * a valid IPC stub pointer.\n
+ * For details, see {@link Ability_NativeChildProcess_ErrCode}.
+ * @param remoteProxy Pointer to the IPC object of the child process. If an exception occurs, the value may be nullptr.
+ * The object must be released by calling {@link OH_IPCRemoteProxy_Destory} when it is no longer needed.
+ * @see OH_Ability_CreateNativeChildProcess
+ * @see OH_IPCRemoteProxy_Destory
  * @since 12
  */
 typedef void (*OH_Ability_OnNativeChildProcessStarted)(int errCode, OHIPCRemoteProxy *remoteProxy);
 
 /**
- * @brief Create native child process for app and load shared library specified by param,
- * process startup result is asynchronously notified via callback
- * Lib file must be implemented and exported follow functions:
- *   1. OHIPCRemoteStub* NativeChildProcess_OnConnect()
- *   2. void NativeChildProcess_MainProc()
+ * @brief Creates a child process, loads the specified dynamic library file, and returns the startup result
+ * asynchronously through a callback parameter.
+ * The callback notification is an independent thread. When implementing the callback function,
+ * pay attention to thread synchronization and do not perform time-consuming operations to avoid long-time blocking.
  *
- * Processing logic be like follows:
- *   Main Process:
- *     1. Call OH_Ability_CreateNativeChildProcess(libName, onProcessStartedCallback)
- *   Child Process:
- *     2. dlopen(libName)
- *     3. dlsym("NativeChildProcess_OnConnect") & dlsym("NativeChildProcess_MainProc")
- *     4. ipcRemote = NativeChildProcess_OnConnect()
- *     5. NativeChildProcess_MainProc()
- *   Main Process:
- *     6. onProcessStartedCallback(ipcRemote, errCode)
- *   Child Process:
- *     7. Process exit after NativeChildProcess_MainProc() method returned
+ * The dynamic library specified must implement and export the following functions:\n
+ *   1. OHIPCRemoteStub* NativeChildProcess_OnConnect()\n
+ *   2. void NativeChildProcess_MainProc()\n
  *
- * @param libName Name of the library file loaded by child process, can not be nullptr
- * @param onProcessStarted Callback for notify the child process start result
- * @return Zero if successful, an error otherwise, see <b>Ability_NativeChildProcess_ErrCode</b> for detail
+ * The processing logic sequence is shown in the following pseudocode: \n
+ *   Main process: \n
+ *     1. OH_Ability_CreateNativeChildProcess(libName, onProcessStartedCallback)\n
+ *   Child process: \n
+ *     2. dlopen(libName)\n
+ *     3. dlsym("NativeChildProcess_OnConnect")\n
+ *     4. dlsym("NativeChildProcess_MainProc")\n
+ *     5. ipcRemote = NativeChildProcess_OnConnect()\n
+ *     6. NativeChildProcess_MainProc()\n
+ * Main process: \n
+ *     7. onProcessStartedCallback(ipcRemote, errCode)\n
+ * Child process: \n
+ *     8. The child process exits after the NativeChildProcess_MainProc() function is returned. \n
+ *
+ * @param libName Name of the dynamic library file loaded in the child process. The value cannot be nullptr.
+ * @param onProcessStarted Pointer to the callback function for notifying the child process startup result.
+ * The value cannot be nullptr. For details, see {@link OH_Ability_OnNativeChildProcessStarted}.
+ * @return Returns {@link NCP_NO_ERROR} if the call is successful, but the actual startup result is notified by the
+ * callback function.\n
+ * Returns {@link NCP_ERR_INVALID_PARAM} if the dynamic library name or callback function pointer is invalid.\n
+ * Returns {@link NCP_ERR_NOT_SUPPORTED} if the device does not support the creation of native child processes.\n
+ * Returns {@link NCP_ERR_MULTI_PROCESS_DISABLED} if the multi-process mode is disabled on the device.\n
+ * Returns {@link NCP_ERR_ALREADY_IN_CHILD} if it is not allowed to create another child process in the child process.\n
+ * Returns {@link NCP_ERR_MAX_CHILD_PROCESSES_REACHED} if the maximum number of native child processes is reached.\n
+ * For details, see {@link Ability_NativeChildProcess_ErrCode}.
  * @see OH_Ability_OnNativeChildProcessStarted
  * @since 12
  */
@@ -141,4 +177,5 @@ int OH_Ability_CreateNativeChildProcess(const char* libName,
 } // extern "C"
 #endif
 
-#endif // OHOS_C_ABILITY_RUNTIME_NATIVE_CHILD_PROCESS_H
+/** @} */
+#endif // OHOS_ABILITY_RUNTIME_C_NATIVE_CHILD_PROCESS_H

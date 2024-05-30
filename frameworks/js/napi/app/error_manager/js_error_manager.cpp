@@ -211,17 +211,12 @@ private:
         if (type == ON_OFF_TYPE_SYNC_LOOP) {
             if (!AppExecFwk::EventRunner::IsAppMainThread()) {
                 TAG_LOGE(AAFwkTag::JSNAPI, "LoopObserver can only be set from main thread.");
-                ThrowInvaildCallerError(env);
+                ThrowInvalidCallerError(env);
                 return CreateJsUndefined(env);
             }
             return OnSetLoopWatch(env, argc, argv);
         }
         if (type == ON_OFF_TYPE_UNHANDLED_REJECTION) {
-            if (!AppExecFwk::EventRunner::IsAppMainThread()) {
-                TAG_LOGE(AAFwkTag::JSNAPI, "UnhandledRejectionObserver can only be set from main thread.");
-                ThrowInvaildCallerError(env);
-                return CreateJsUndefined(env);
-            }
             if (argc != ARGC_TWO) {
                 TAG_LOGE(AAFwkTag::JSNAPI, "The number of params is invalid.");
                 ThrowInvalidNumParametersError(env);
@@ -327,17 +322,12 @@ private:
         if (type == ON_OFF_TYPE_SYNC_LOOP) {
             if (!AppExecFwk::EventRunner::IsAppMainThread()) {
                 TAG_LOGE(AAFwkTag::JSNAPI, "LoopObserver can only be set from main thread.");
-                ThrowInvaildCallerError(env);
+                ThrowInvalidCallerError(env);
                 return CreateJsUndefined(env);
             }
             return OnRemoveLoopWatch(env, argc, argv);
         }
         if (type == ON_OFF_TYPE_UNHANDLED_REJECTION) {
-            if (!AppExecFwk::EventRunner::IsAppMainThread()) {
-                TAG_LOGE(AAFwkTag::JSNAPI, "UnhandledRejectionObserver can only be unset from main thread.");
-                ThrowInvaildCallerError(env);
-                return CreateJsUndefined(env);
-            }
             if (argc != ARGC_TWO && argc != ARGC_ONE) {
                 TAG_LOGE(AAFwkTag::JSNAPI, "The number of params is invalid.");
                 ThrowInvalidNumParametersError(env);
@@ -418,7 +408,7 @@ private:
                 return res;
             }
         }
-        TAG_LOGE(AAFwkTag::JSNAPI, "Remove UnhandledRjectionObserver failed");
+        TAG_LOGE(AAFwkTag::JSNAPI, "Remove UnhandledRejectionObserver failed");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_OBSERVER_NOT_FOUND);
         return res;
     }
@@ -479,15 +469,15 @@ private:
         std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
             ([number](napi_env env, NapiAsyncTask &task, int32_t status) {
                 if (loopObserver_ == nullptr) {
-                    TAG_LOGE(AAFwkTag::JSNAPI, "CallbackTimeout: loopObserver_ is null.");
+                    TAG_LOGE(AAFwkTag::JSNAPI, "loopObserver_ is null.");
                     return;
                 }
                 if (loopObserver_->env == nullptr) {
-                    TAG_LOGE(AAFwkTag::JSNAPI, "CallbackTimeout: env is null.");
+                    TAG_LOGE(AAFwkTag::JSNAPI, "env is null.");
                     return;
                 }
                 if (loopObserver_->observerObject == nullptr) {
-                    TAG_LOGE(AAFwkTag::JSNAPI, "CallbackTimeout: observerObject is null.");
+                    TAG_LOGE(AAFwkTag::JSNAPI, "observerObject is null.");
                     return;
                 }
                 napi_value jsValue[] = { CreateJsValue(loopObserver_->env, number) };

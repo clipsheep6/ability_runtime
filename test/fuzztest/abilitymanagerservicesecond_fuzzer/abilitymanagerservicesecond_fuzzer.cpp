@@ -108,7 +108,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->MoveMissionToFront(int32Param, startOptions);
     abilityms->GetMissionIdByToken(token);
     abilityms->IsAbilityControllerStartById(int32Param);
-    abilityms->GetServiceRecordByElementName(stringParam);
     sptr<IAbilityConnection> callback;
     abilityms->GetConnectRecordListByCallback(callback);
     Uri uri("myFuzzTest");

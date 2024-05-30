@@ -19,6 +19,7 @@
 #include <map>
 #include <mutex>
 #include <regex>
+#include <set>
 
 #include "ability_info.h"
 #include "app_debug_listener_interface.h"
@@ -79,6 +80,16 @@ public:
      * @return, Return true if exist.
      */
     bool CheckAppRunningRecordIsExistByBundleName(const std::string &bundleName);
+
+    /**
+     * CheckAppRunningRecordIsExistByBundleName, Check whether the process of the application exists.
+     *
+     * @param bundleName, the bundle name.
+     *
+     * @return, Return true if exist.
+     */
+    int32_t CheckAppCloneRunningRecordIsExistByBundleName(const std::string &bundleName,
+        int32_t appCloneIndex, bool &isRunning);
 
     /**
      * GetAppRunningRecordByPid, Get process record by application pid.
@@ -224,7 +235,7 @@ public:
     std::shared_ptr<AppRunningRecord> GetTerminatingAppRunningRecord(const sptr<IRemoteObject> &abilityToken);
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
-    void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info);
+    int32_t GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info);
 
     void ClipStringContent(const std::regex &re, const std::string &source, std::string &afterCutStr);
     void HandleAddAbilityStageTimeOut(const int64_t eventId);
@@ -300,9 +311,12 @@ public:
 
     int DumpFfrt(const std::vector<int32_t>& pids, std::string& result);
 
+    bool IsAppProcessesAllCached(const std::string &bundleName, int32_t uid,
+        const std::set<std::shared_ptr<AppRunningRecord>> &cachedSet);
+
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);
-    void AssignRunningProcessInfoByAppRecord(
+    int32_t AssignRunningProcessInfoByAppRecord(
         std::shared_ptr<AppRunningRecord> appRecord, AppExecFwk::RunningProcessInfo &info) const;
     bool isCollaboratorReserveType(const std::shared_ptr<AppRunningRecord> &appRecord);
 

@@ -1333,6 +1333,36 @@ int32_t AppMgrProxy::GetBundleNameByPid(const int pid, std::string &bundleName, 
     return ERR_NONE;
 }
 
+int32_t AppMgrProxy::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "start");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteInt32(static_cast<int32_t>(pid))) {
+        TAG_LOGE(AAFwkTag::APPMGR, "parcel WriteInt32 failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    auto ret = SendRequest(AppMgrInterfaceCode::GET_RUNNING_PROCESS_INFO_BY_PID, data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
+        return ret;
+    }
+
+    std::unique_ptr<AppExecFwk::RunningProcessInfo> processInfo(reply.ReadParcelable<AppExecFwk::RunningProcessInfo>());
+    if (processInfo == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "recv process info failded");
+        return ERR_INVALID_DATA;
+    }
+    info = *processInfo;
+    return reply.ReadInt32();
+}
+
 int32_t AppMgrProxy::NotifyAppFault(const FaultData &faultData)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called.");
@@ -1667,6 +1697,37 @@ int32_t AppMgrProxy::IsApplicationRunning(const std::string &bundleName, bool &i
     MessageParcel reply;
     MessageOption option;
     auto ret = SendRequest(AppMgrInterfaceCode::IS_APPLICATION_RUNNING,
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request is failed, error code: %{public}d", ret);
+        return ret;
+    }
+
+    isRunning = reply.ReadBool();
+    return reply.ReadInt32();
+}
+
+int32_t AppMgrProxy::IsAppRunning(const std::string &bundleName, int32_t appCloneIndex, bool &isRunning)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+    if (!data.WriteString(bundleName)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+    if (!data.WriteInt32(appCloneIndex)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write appCloneIndex failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AppMgrInterfaceCode::IS_APP_RUNNING,
         data, reply, option);
     if (ret != NO_ERROR) {
         TAG_LOGE(AAFwkTag::APPMGR, "Send request is failed, error code: %{public}d", ret);

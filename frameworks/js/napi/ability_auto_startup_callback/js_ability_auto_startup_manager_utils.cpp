@@ -72,7 +72,7 @@ napi_value CreateJsAutoStartupInfoArray(napi_env env, const std::vector<AutoStar
         }
 
         if (napi_set_element(env, arrayObj, i, object) != napi_ok) {
-            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Inster object to array failed.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Insert object to array failed.");
             return nullptr;
         }
     }

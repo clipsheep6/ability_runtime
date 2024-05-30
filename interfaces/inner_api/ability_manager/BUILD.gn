@@ -152,7 +152,10 @@ ohos_shared_library("ability_manager") {
     "ability_base:want",
     "ability_base:zuri",
     "bundle_framework:appexecfwk_core",
+    "init:libbegetutil",
     "jsoncpp:jsoncpp",
+    "relational_store:native_dataability",
+    "relational_store:native_rdb",
   ]
 
   if (ability_runtime_graphics) {

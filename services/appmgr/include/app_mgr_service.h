@@ -379,6 +379,15 @@ public:
     virtual int32_t GetBundleNameByPid(const int32_t pid, std::string &bundleName, int32_t &uid) override;
 
     /**
+     * Get running process information by pid.
+     *
+     * @param pid process id.
+     * @param info Output parameters, return runningProcessInfo.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) override;
+
+    /**
      * Notify Fault Data
      *
      * @param faultData the fault data.
@@ -638,6 +647,15 @@ private:
      * @return Return ERR_OK if success, others fail.
      */
     int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning) override;
+
+    /**
+     * Check whether the bundle is running.
+     *
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return Return ERR_OK if success, others fail.
+     */
+    int32_t IsAppRunning(const std::string &bundleName, int32_t appCloneIndex, bool &isRunning) override;
 
     /**
      * Whether the current application process is the last surviving process.

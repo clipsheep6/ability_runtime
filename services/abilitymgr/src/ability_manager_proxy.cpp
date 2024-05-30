@@ -750,7 +750,12 @@ int AbilityManagerProxy::StartUIExtensionAbility(const sptr<SessionInfo> &extens
         return INNER_ERR;
     }
 
-    error = SendRequest(AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY, data, reply, option);
+    if (!extensionSessionInfo->isModal) {
+        error = SendRequest(AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY_NON_MODAL, data, reply, option);
+    } else {
+        error = SendRequest(AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY, data, reply, option);
+    }
+
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "StartExtensionAbility, Send request error: %{public}d", error);
         return error;

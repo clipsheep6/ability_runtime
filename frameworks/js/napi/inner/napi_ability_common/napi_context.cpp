@@ -2879,12 +2879,12 @@ static napi_value ConstructNapiJSContext(napi_env env)
         TAG_LOGE(AAFwkTag::JSNAPI, "CreateObject failed");
         return nullptr;
     }
-    auto jsCalss = std::make_unique<NapiJsContext>();
-    if (!jsCalss->DataInit(env)) {
+    auto jsClass = std::make_unique<NapiJsContext>();
+    if (!jsClass->DataInit(env)) {
         TAG_LOGE(AAFwkTag::JSNAPI, "NapiJsContext init failed");
         return nullptr;
     }
-    napi_wrap(env, objContext, jsCalss.release(), NapiJsContext::Finalizer, nullptr, nullptr);
+    napi_wrap(env, objContext, jsClass.release(), NapiJsContext::Finalizer, nullptr, nullptr);
     napi_set_named_property(env, objContext, "stageMode", CreateJsValue(env, false));
     if (!BindNapiJSContextFunction(env, objContext)) {
         TAG_LOGE(AAFwkTag::JSNAPI, "bind func failed");
@@ -3318,7 +3318,7 @@ napi_value NapiJsContext::OnVerifyPermission(napi_env env, napi_callback_info in
         return CreateJsNull(env);
     }
     JsPermissionOptions options;
-    bool flagCall = UnwarpVerifyPermissionParams(env, info, options);
+    bool flagCall = UnwrapVerifyPermissionParams(env, info, options);
     auto execute = [obj = this, permission, options, value = errorVal] () {
         if (obj->ability_ == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
@@ -3599,7 +3599,7 @@ napi_value NapiJsContext::OnGetOrCreateLocalDir(napi_env env, napi_callback_info
         auto context = obj->ability_->GetAbilityContext();
         if (context == nullptr || dir == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID);
-            TAG_LOGE(AAFwkTag::JSNAPI, "task execute error, the abilitycontext is nullptr");
+            TAG_LOGE(AAFwkTag::JSNAPI, "task execute error, the ability context is nullptr");
             return;
         }
         dir->name = context->GetBaseDir();
