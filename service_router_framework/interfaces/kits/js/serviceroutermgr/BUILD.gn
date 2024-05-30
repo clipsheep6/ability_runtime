@@ -26,8 +26,6 @@ ohos_shared_library("businessabilityrouter") {
   }
   branch_protector_ret = "pac_ret"
 
-  include_dirs = [ "${bundlefwk_kits_path}/js/common" ]
-
   sources = [
     "native_module.cpp",
     "service_router_mgr.cpp",
