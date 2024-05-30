@@ -52,6 +52,9 @@ public:
     MOCK_METHOD1(DetachAppDebug, int32_t(const std::string &bundleName));
     MOCK_METHOD1(RegisterAbilityDebugResponse, int32_t(const sptr<AppExecFwk::IAbilityDebugResponse> &response));
     MOCK_METHOD1(ScheduleJsHeapMemory, void(OHOS::AppExecFwk::JsHeapDumpInfo &info));
+    MOCK_METHOD5(ScheduleNotifyLoadPatch, int32_t(const std::string &bundleName, const std::string &moduleName,
+                                                  const sptr<IQuickFixCallback> &callback,
+                                                  const int32_t recordId, const int &patchVersion));
 };
 }  // namespace AAFwk
 }  // namespace OHOS

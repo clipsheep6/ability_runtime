@@ -183,8 +183,11 @@ public:
     int32_t ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &callback, const int32_t recordId) override;
 
     int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName,
-        const sptr<IQuickFixCallback> &callback, const int32_t recordId) override;
+                                            const sptr<IQuickFixCallback> &callback, const int32_t recordId) override;
 
+    int32_t ScheduleNotifyLoadPatch(const std::string &bundleName, const std::string &moduleName,
+                                    const sptr<IQuickFixCallback> &callback,
+                                    const int32_t recordId, const int &patchVersion) override;
     int32_t ScheduleNotifyAppFault(const FaultData &faultData) override;
 
     virtual int32_t ScheduleChangeAppGcState(int32_t state) override;

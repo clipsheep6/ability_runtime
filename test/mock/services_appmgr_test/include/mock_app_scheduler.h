@@ -66,6 +66,9 @@ public:
     MOCK_METHOD1(ScheduleDumpIpcStop, int32_t(std::string &result));
     MOCK_METHOD1(ScheduleDumpIpcStat, int32_t(std::string &result));
     MOCK_METHOD0(IsMemorySizeSufficent, bool());
+    MOCK_METHOD5(ScheduleNotifyLoadPatch, int32_t(const std::string &bundleName, const std::string &moduleName,
+                                                  const sptr<IQuickFixCallback> &callback,
+                                                  const int32_t recordId, const int &patchVersion));
     MOCK_METHOD1(ScheduleDumpFfrt, int32_t(std::string& result));
 };
 }  // namespace AppExecFwk

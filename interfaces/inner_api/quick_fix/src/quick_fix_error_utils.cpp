@@ -41,6 +41,7 @@ const std::map<int32_t, int32_t> INTERNAL_ERR_CODE_MAP = {
     { QUICK_FIX_BUNDLEMGR_INVALID,          ERR_QUICKFIX_INTERNAL_ERROR },
     { QUICK_FIX_SET_INFO_FAILED,            ERR_QUICKFIX_INTERNAL_ERROR },
     { QUICK_FIX_PROCESS_TIMEOUT,            ERR_QUICKFIX_INTERNAL_ERROR },
+    {QUICK_FIX_NOTIFY_HOTLOAD_FORM_FAILED, ERR_QUICKFIX_INTERNAL_ERROR},
     { QUICK_FIX_NOTIFY_UNLOAD_PATCH_FAILED, ERR_QUICKFIX_UNLOAD_PATCH_FAILED },
     { QUICK_FIX_DEPLOYING_TASK,             ERR_QUICKFIX_DEPLOYING_TASK },
 };
@@ -56,6 +57,7 @@ const std::map<int32_t, std::string> INTERNAL_ERR_MSG_MAP = {
     { QUICK_FIX_BUNDLEMGR_INVALID,         "BundleMgr invalid." },
     { QUICK_FIX_SET_INFO_FAILED,           "Set quickfix info failed." },
     { QUICK_FIX_PROCESS_TIMEOUT,           "Process timeout." },
+    {QUICK_FIX_NOTIFY_HOTLOAD_FORM_FAILED, "Hotload form failed."},
 };
 
 const std::map<int32_t, std::string> EXTERNAL_ERR_MSG_MAP = {

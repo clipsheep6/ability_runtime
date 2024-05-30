@@ -809,7 +809,7 @@ HWTEST_F(JsRuntimeTest, RegisterQuickFixQueryFunc_0100, TestSize.Level0)
     std::string hqfFile = "<hqfFile>";
     std::map<std::string, std::string> moduleAndPath;
     moduleAndPath.insert(std::make_pair(moudel, hqfFile));
-    jsRuntime->RegisterQuickFixQueryFunc(moduleAndPath);
+    jsRuntime->RegisterQuickFixQueryFunc(moduleAndPath, AbilityRuntime::RuntimeType::RUNTIME_APP);
     jsRuntime.reset();
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     TAG_LOGI(AAFwkTag::TEST, "RegisterQuickFixQueryFunc end");
@@ -1548,7 +1548,7 @@ HWTEST_F(JsRuntimeTest, RegisterQuickFixQueryFunc_0200, TestSize.Level1)
 {
     auto jsRuntime = std::make_unique<JsRuntime>();
     std::map<std::string, std::string> moduleAndPath;
-    jsRuntime->RegisterQuickFixQueryFunc(moduleAndPath);
+    jsRuntime->RegisterQuickFixQueryFunc(moduleAndPath, AbilityRuntime::RuntimeType::RUNTIME_APP);
     EXPECT_TRUE(jsRuntime != nullptr);
 }
 } // namespace AbilityRuntime

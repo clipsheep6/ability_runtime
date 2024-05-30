@@ -19,7 +19,7 @@
 #include <map>
 #include <string>
 #include <vector>
-
+#include "../../../../frameworks/native/runtime/js_quickfix_callback.h"
 struct JsFrames {
     std::string functionName;
     std::string fileName;
@@ -107,9 +107,12 @@ public:
     virtual void PreloadSystemModule(const std::string& moduleName) = 0;
     virtual void FinishPreload() = 0;
     virtual bool LoadRepairPatch(const std::string& patchFile, const std::string& baseFile) = 0;
+    virtual bool LoadRepairFormPatch(const std::string& patchFile, const std::string& baseFile,
+                                     const std::string &bundleName, const std::string &moduleName) = 0;
     virtual bool NotifyHotReloadPage() = 0;
     virtual bool UnLoadRepairPatch(const std::string& patchFile) = 0;
-    virtual void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath) = 0;
+    virtual void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath,
+                                           AbilityRuntime::RuntimeType type, const std::string &bundleName = "") = 0;
     virtual void StartProfiler(const DebugOption debugOption) = 0;
     virtual void DoCleanWorkAfterStageCleaned() = 0;
     virtual void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate) const {}

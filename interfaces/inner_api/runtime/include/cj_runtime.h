@@ -51,7 +51,10 @@ public:
     bool LoadRepairPatch(const std::string& patchFile, const std::string& baseFile) override { return false; }
     bool NotifyHotReloadPage() override { return false; }
     bool UnLoadRepairPatch(const std::string& patchFile) override { return false; }
-    void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath) override {};
+    void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath,
+                                   AbilityRuntime::RuntimeType type, const std::string &bundleName = "") override {};
+    bool LoadRepairFormPatch(const std::string& patchFile, const std::string& baseFile,
+                             const std::string &bundleName, const std::string &moduleName) override { return true;};
     void StartProfiler(const DebugOption debugOption) override {};
     void DoCleanWorkAfterStageCleaned() override {};
     void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate) const override {}

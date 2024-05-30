@@ -69,6 +69,8 @@ public:
     MOCK_METHOD2(NotifyLoadRepairPatch, int32_t(const std::string& bundleName,
         const sptr<IQuickFixCallback>& callback));
     MOCK_METHOD2(NotifyHotReloadPage, int32_t(const std::string& bundleName, const sptr<IQuickFixCallback>& callback));
+    MOCK_METHOD4(NotifyLoadPatch, int32_t(const std::string &bundleName, const std::string &moduleName,
+                                          const sptr<IQuickFixCallback> &callback, const int &patchVersion));
     MOCK_METHOD2(NotifyUnLoadRepairPatch, int32_t(const std::string& bundleName,
         const sptr<IQuickFixCallback>& callback));
     MOCK_METHOD2(IsSharedBundleRunning, bool(const std::string &bundleName, uint32_t versionCode));

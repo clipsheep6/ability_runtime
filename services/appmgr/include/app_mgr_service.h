@@ -520,6 +520,9 @@ public:
 
     int32_t GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid_t> &providerPids) override;
 
+    int32_t NotifyLoadPatch(const std::string &bundleName, const std::string &moduleName,
+                            const sptr<IQuickFixCallback> &callback, const int &patchVersion) override;
+                            
     int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent) override;
 
     int32_t SetSupportedProcessCacheSelf(bool isSupport) override;
