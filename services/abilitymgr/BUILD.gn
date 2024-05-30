@@ -247,6 +247,12 @@ ohos_prebuilt_etc("deeplink_reserve_config.json") {
   part_name = "ability_runtime"
 }
 
+ohos_prebuilt_etc("ams_extension_config.json") {
+  source = "resource/ams_extension_config.json"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
 group("ams_service_config") {
   deps = [
     ":ams_service_config.json",
