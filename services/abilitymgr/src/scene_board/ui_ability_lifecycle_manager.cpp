@@ -104,6 +104,8 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
         if (sessionInfo->isNewWant) {
             uiAbilityRecord->SetWant(abilityRequest.want);
             uiAbilityRecord->GetSessionInfo()->want.CloseAllFd();
+        } else {
+            sessionInfo->want.CloseAllFd();
         }
     } else {
         uiAbilityRecord = CreateAbilityRecord(abilityRequest, sessionInfo);
@@ -356,7 +358,9 @@ int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &a
     sessionInfo->processOptions = abilityRequest.processOptions;
     TAG_LOGI(
         AAFwkTag::ABILITYMGR, "Reused sessionId: %{public}d, userId: %{public}d.", sessionInfo->persistentId, userId_);
-    return NotifySCBPendingActivation(sessionInfo, abilityRequest);
+    int ret = NotifySCBPendingActivation(sessionInfo, abilityRequest);
+    sessionInfo->want.CloseAllFd();
+    return ret;
 }
 
 int UIAbilityLifecycleManager::DispatchState(const std::shared_ptr<AbilityRecord> &abilityRecord, int state)
