@@ -2009,11 +2009,11 @@ void AbilityConnectManager::HandleAbilityDiedTask(
         if ((IsLauncher(abilityRecord) || abilityRecord->IsSceneBoard()) && token != nullptr) {
             IN_PROCESS_CALL_WITHOUT_RET(DelayedSingleton<AppScheduler>::GetInstance()->ClearProcessByToken(
                 token->AsObject()));
-            if (abilityRecord->IsSceneBoard() && currentUserId != userId_) {
-                TAG_LOGD(AAFwkTag::ABILITYMGR, "Not the current user's SCB, clear the user and do not restart");
-                KillProcessesByUserId();
-                return;
-            }
+        }
+        if (abilityRecord->IsSceneBoard() && currentUserId != userId_) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Not the current user's SCB, clear the user and do not restart");
+            KillProcessesByUserId();
+            return;
         }
         if (DelayedSingleton<AppScheduler>::GetInstance()->IsMemorySizeSufficent() ||
             IsLauncher(abilityRecord) || abilityRecord->IsSceneBoard()) {

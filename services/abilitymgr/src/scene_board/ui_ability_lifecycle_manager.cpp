@@ -261,7 +261,7 @@ int UIAbilityLifecycleManager::AttachAbilityThread(const sptr<IAbilityScheduler>
     abilityRecord->SetScheduler(scheduler);
     if (DoProcessAttachment(abilityRecord) != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "do process attachment failed, close the ability.");
-        BatchCloseUIAbility({abilityRecord});
+        TerminateSession(abilityRecord);
         return ERR_INVALID_VALUE;
     }
     if (abilityRecord->IsStartedByCall()) {
@@ -2224,8 +2224,10 @@ int32_t UIAbilityLifecycleManager::KillProcessWithPrepareTerminate(const std::ve
         }
         if (needKillProcess) {
             pidsToKill.push_back(pid);
-        } else if (!abilitysToTerminate.empty()) {
-            BatchCloseUIAbility(abilitysToTerminate);
+            continue;
+        }
+        for (const auto& abilityRecord: abilitysToTerminate) {
+            TerminateSession(abilityRecord);
         }
     }
     if (!pidsToKill.empty()) {
@@ -2253,6 +2255,18 @@ void UIAbilityLifecycleManager::BatchCloseUIAbility(
     if (taskHandler != nullptr) {
         taskHandler->SubmitTask(closeTask, TaskQoS::USER_INTERACTIVE);
     }
+}
+
+void UIAbilityLifecycleManager::TerminateSession(std::shared_ptr<AbilityRecord> abilityRecord)
+{
+    CHECK_POINTER(abilityRecord);
+    auto sessionInfo = abilityRecord->GetSessionInfo();
+    CHECK_POINTER(sessionInfo);
+    CHECK_POINTER(sessionInfo->sessionToken);
+    auto session = iface_cast<Rosen::ISession>(sessionInfo->sessionToken);
+    CHECK_POINTER(session);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call TerminateSession, session id: %{public}d", sessionInfo->persistentId);
+    session->TerminateSession(sessionInfo);
 }
 
 int UIAbilityLifecycleManager::ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow)
