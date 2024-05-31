@@ -28,6 +28,7 @@
 #include "foundation/ability/ability_runtime/interfaces/kits/native/ability/ability_runtime/ability_context.h"
 #include "iability_callback.h"
 #include "want.h"
+#include "resource_config_helper.h"
 #ifdef SUPPORT_SCREEN
 #include "display_manager.h"
 #include "session_info.h"
@@ -340,8 +341,8 @@ private:
     void HandleCreateAsRecovery(const AAFwk::Want &want);
     void SetStartAbilitySetting(std::shared_ptr<AppExecFwk::AbilityStartSetting> setting);
     void SetLaunchParam(const AAFwk::LaunchParam &launchParam);
-    void InitConfigurationProperties(const AppExecFwk::Configuration &changeConfiguration, std::string &language,
-        std::string &colormode, std::string &hasPointerDevice);
+    void InitConfigurationProperties(const AppExecFwk::Configuration &changeConfiguration,
+        ResourceConfigHelper &resourceConfig);
 
     std::shared_ptr<AppExecFwk::ContinuationHandlerStage> continuationHandler_ = nullptr;
     std::shared_ptr<AppExecFwk::ContinuationManagerStage> continuationManager_ = nullptr;

@@ -57,6 +57,7 @@
 #include "freeze_util.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "resource_config_helper.h"
 #ifdef SUPPORT_SCREEN
 #include "locale_config.h"
 #include "ace_forward_compatibility.h"
@@ -1110,6 +1111,21 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     TAG_LOGD(AAFwkTag::APPKIT, "deviceType is %{public}s <---->  %{public}d.", deviceType.c_str(),
         ConvertDeviceType(deviceType));
     resConfig->SetDeviceType(ConvertDeviceType(deviceType));
+
+    std::string mcc = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MCC);
+    TAG_LOGD(AAFwkTag::APPKIT, "mcc is %{public}s.", mcc.c_str());
+    uint32_t mccNum = 0;
+    if (AbilityRuntime::ResourceConfigHelper::ConvertStringToUint32(mcc, mccNum)) {
+        resConfig->SetMcc(mccNum);
+    }
+
+    std::string mnc = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MNC);
+    TAG_LOGD(AAFwkTag::APPKIT, "mnc is %{public}s.", mnc.c_str());
+    uint32_t mncNum = 0;
+    if (AbilityRuntime::ResourceConfigHelper::ConvertStringToUint32(mnc, mncNum)) {
+        resConfig->SetMnc(mncNum);
+    }
+
     resourceManager->UpdateResConfig(*resConfig);
     return true;
 }
