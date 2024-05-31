@@ -17,6 +17,6 @@
 
 import BreakpointSystem from './BreakpointSystem'
 
-export const MediaSyncFacade: Record<string, Object> = {
-    "BREAK_POINT_SYSTEM": new BreakpointSystem()
+export const mediaSyncFacade: Record<string, Object> = {
+    'BREAK_POINT_SYSTEM': new BreakpointSystem()
 }

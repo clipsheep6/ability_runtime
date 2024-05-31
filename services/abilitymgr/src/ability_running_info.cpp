@@ -32,6 +32,7 @@ bool AbilityRunningInfo::ReadFromParcel(Parcel &parcel)
     processName = Str16ToStr8(parcel.ReadString16());
     startTime = parcel.ReadInt64();
     abilityState = parcel.ReadInt32();
+    appCloneIndex = parcel.ReadInt32();
     return true;
 }
 
@@ -67,6 +68,9 @@ bool AbilityRunningInfo::Marshalling(Parcel &parcel) const
         return false;
     }
     if (!parcel.WriteInt32(abilityState)) {
+        return false;
+    }
+    if (!parcel.WriteInt32(appCloneIndex)) {
         return false;
     }
     return true;

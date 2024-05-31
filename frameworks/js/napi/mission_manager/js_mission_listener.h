@@ -42,7 +42,7 @@ public:
     bool RemoveJsListenerObject(int32_t listenerId);
     bool IsEmpty();
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 public:
     void OnMissionIconUpdated(int32_t missionId, const std::shared_ptr<Media::PixelMap> &icon) override;
 

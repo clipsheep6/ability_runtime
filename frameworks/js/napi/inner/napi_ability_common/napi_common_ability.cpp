@@ -5247,7 +5247,7 @@ napi_value JsNapiCommon::JsStartAbility(napi_env env, napi_callback_info info, A
             TAG_LOGE(AAFwkTag::JSNAPI, "task execute error, the abilityType is error");
             return;
         }
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
         // inherit split mode
         auto windowMode = obj->ability_->GetCurrentWindowMode();
         if (windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY ||

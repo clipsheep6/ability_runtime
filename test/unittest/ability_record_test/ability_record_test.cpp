@@ -2368,7 +2368,6 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GetCurrentAccountId_001, TestSize.Leve
  */
 HWTEST_F(AbilityRecordTest, AbilityRecord_CanRestartResident_001, TestSize.Level1)
 {
-
     abilityRecord_->SetRestarting(true, -1);
     EXPECT_TRUE(abilityRecord_->isRestarting_);
     EXPECT_NE(abilityRecord_->restartCount_, -1);

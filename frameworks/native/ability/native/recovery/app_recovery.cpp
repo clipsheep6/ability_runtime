@@ -190,10 +190,12 @@ bool AppRecovery::ScheduleSaveAppState(StateReason reason, uintptr_t ability)
             TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery Failed to block main thread, skip save state when appfreeze");
             return false;
         }
+#ifdef SUPPORT_SCREEN
         OHOS::AbilityRuntime::JsUIAbility& jsAbility = static_cast<AbilityRuntime::JsUIAbility&>(*abilityPtr);
         AbilityRuntime::JsRuntime& runtime = const_cast<AbilityRuntime::JsRuntime&>(jsAbility.GetJsRuntime());
         auto& nativeEngine = runtime.GetNativeEngine();
         nativeEngine.AllowCrossThreadExecution();
+#endif
         AppRecovery::GetInstance().DoSaveAppState(reason, ability);
         return true;
     }

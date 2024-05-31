@@ -58,7 +58,10 @@ ohos_shared_library("featureability") {
       "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_napi",
     ]
     external_deps += [ "window_manager:window_native_kit" ]
-    defines = [ "SUPPORT_GRAPHICS" ]
+    defines = [
+      "SUPPORT_GRAPHICS",
+      "SUPPORT_SCREEN",
+    ]
   }
 
   if (ability_runtime_relational) {

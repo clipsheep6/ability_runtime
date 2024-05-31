@@ -70,7 +70,10 @@ config("abilityms_config") {
       "${global_path}/i18n/frameworks/intl/include",
     ]
 
-    defines += [ "SUPPORT_GRAPHICS" ]
+    defines += [
+      "SUPPORT_GRAPHICS",
+      "SUPPORT_SCREEN",
+    ]
   }
 
   if (background_task_mgr_continuous_task_enable) {
