@@ -53,7 +53,6 @@
 #include "native_engine/native_create_env.h"
 #include "native_engine/native_engine.h"
 #include "native_runtime_impl.h"
-#include "ohos_js_env_logger.h"
 #include "ohos_js_environment_impl.h"
 #include "parameters.h"
 #include "extractor.h"
@@ -832,7 +831,6 @@ bool JsRuntime::CreateJsEnv(const Options& options)
         pandaOption.SetProfileDir(SANDBOX_ARK_PROIFILE_PATH);
     }
 
-    OHOSJsEnvLogger::RegisterJsEnvLogger();
     jsEnv_ = std::make_shared<JsEnv::JsEnvironment>(std::make_unique<OHOSJsEnvironmentImpl>(options.eventRunner));
     if (jsEnv_ == nullptr || !jsEnv_->Initialize(pandaOption, static_cast<void*>(this))) {
         TAG_LOGE(AAFwkTag::JSRUNTIME, "Initialize js environment failed.");
