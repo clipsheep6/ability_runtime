@@ -33,12 +33,6 @@ public:
         return static_cast<Runtime::Language>(DEFAULT_LANGUAGE);
     }
 
-    bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) override
-    {
-        GTEST_LOG_(INFO) << "MockRuntime::BuildJsStackInfoList called";
-        return true;
-    }
-
     void StartDebugMode(const DebugOption debugOption) override {}
 
     void FinishPreload() override {}
@@ -120,7 +114,7 @@ public:
     {
         return;
     }
-    
+
     void StartProfiler(const DebugOption debugOption) override {}
 
     void DoCleanWorkAfterStageCleaned() override {}

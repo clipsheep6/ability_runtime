@@ -2368,7 +2368,6 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GetCurrentAccountId_001, TestSize.Leve
  */
 HWTEST_F(AbilityRecordTest, AbilityRecord_CanRestartResident_001, TestSize.Level1)
 {
-
     abilityRecord_->SetRestarting(true, -1);
     EXPECT_TRUE(abilityRecord_->isRestarting_);
     EXPECT_NE(abilityRecord_->restartCount_, -1);
@@ -2743,6 +2742,286 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_ReportAtomicServiceDrawnCompleteEvent_
     abilityRecord->applicationInfo_.bundleType = AppExecFwk::BundleType::APP;
     ret = abilityRecord->ReportAtomicServiceDrawnCompleteEvent();
     EXPECT_EQ(ret, false);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: Activate
+ * SubFunction: Activate
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord Activate
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_Activate_003, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->SetIsNewWant(true);
+    abilityRecord->SetPreAbilityRecord(abilityRecord);
+    abilityRecord->Activate();
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: Terminate
+ * SubFunction: Terminate
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord Terminate
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_Terminate_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    Closure task = []() {};
+    abilityRecord->want_.SetParam(DEBUG_APP, true);
+    abilityRecord->applicationInfo_.asanEnabled = true;
+    abilityRecord->Terminate(task);
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: ShareData
+ * SubFunction: ShareData
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord ShareData
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_ShareData_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->abilityInfo_.type = AbilityType::DATA;
+    abilityRecord->applicationInfo_.name = "app";
+    abilityRecord->isAttachDebug_ = false;
+    abilityRecord->isAssertDebug_ = false;
+    abilityRecord->want_.SetParam(DEBUG_APP, true);
+    abilityRecord->applicationInfo_.asanEnabled = true;
+    int32_t uniqueId = 1;
+    abilityRecord->ShareData(uniqueId);
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: ConnectAbility
+ * SubFunction: ConnectAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord ConnectAbility
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_ConnectAbility_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->lifecycleDeal_ = nullptr;
+    abilityRecord->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
+    bool isConnected = true;
+    abilityRecord->ConnectAbility();
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: CommandAbility
+ * SubFunction: CommandAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord CommandAbility
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_CommandAbility_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->lifecycleDeal_ = nullptr;
+    abilityRecord->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
+    abilityRecord->want_.SetParam(DEBUG_APP, true);
+    abilityRecord->CommandAbility();
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: CommandAbilityWindow
+ * SubFunction: CommandAbilityWindow
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord CommandAbilityWindow
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_CommandAbilityWindow_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->lifecycleDeal_ = nullptr;
+    abilityRecord->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
+    abilityRecord->want_.SetParam(DEBUG_APP, true);
+    sptr<SessionInfo> sessionInfo = nullptr;
+    abilityRecord->CommandAbilityWindow(sessionInfo, WIN_CMD_FOREGROUND);
+    EXPECT_NE(abilityRecord_, nullptr);
+    EXPECT_EQ(sessionInfo, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: CommandAbilityWindow
+ * SubFunction: CommandAbilityWindow
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord CommandAbilityWindow
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_CommandAbilityWindow_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->lifecycleDeal_ = nullptr;
+    abilityRecord->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
+    abilityRecord->want_.SetParam(DEBUG_APP, true);
+    sptr<SessionInfo> sessionInfo = nullptr;
+    abilityRecord->CommandAbilityWindow(sessionInfo, WIN_CMD_BACKGROUND);
+    EXPECT_NE(abilityRecord_, nullptr);
+    EXPECT_EQ(sessionInfo, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: CommandAbilityWindow
+ * SubFunction: CommandAbilityWindow
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord CommandAbilityWindow
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_CommandAbilityWindow_003, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->lifecycleDeal_ = nullptr;
+    abilityRecord->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
+    abilityRecord->want_.SetParam(DEBUG_APP, true);
+    sptr<SessionInfo> sessionInfo = nullptr;
+    abilityRecord->CommandAbilityWindow(sessionInfo, WIN_CMD_DESTROY);
+    EXPECT_NE(abilityRecord_, nullptr);
+    EXPECT_EQ(sessionInfo, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: RestoreAbilityState
+ * SubFunction: RestoreAbilityState
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord RestoreAbilityState
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_RestoreAbilityState_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->lifecycleDeal_ = nullptr;
+    abilityRecord->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
+    PacMap stateDatas_;
+    abilityRecord->RestoreAbilityState();
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SendSandboxSavefileResult
+ * SubFunction: SendSandboxSavefileResult
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SendSandboxSavefileResult
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SendSandboxSavefileResult_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    Want want;
+    const std::string PARAMS_FILE_SAVING_URL_KEY = "pick_path_return";
+    abilityRecord->want_.SetParam(PARAMS_FILE_SAVING_URL_KEY, true);
+    int resultCode = 0;
+    int requestCode = -1;
+    abilityRecord->SendSandboxSavefileResult(want, resultCode, requestCode);
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: RemoveAbilityDeathRecipient
+ * SubFunction: RemoveAbilityDeathRecipient
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord RemoveAbilityDeathRecipient
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_RemoveAbilityDeathRecipient_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->schedulerDeathRecipient_ = nullptr;
+    sptr<IAbilityScheduler> scheduler = new AbilityScheduler();
+    abilityRecord->scheduler_ = scheduler;
+    abilityRecord->RemoveAbilityDeathRecipient();
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: RemoveAbilityDeathRecipient
+ * SubFunction: RemoveAbilityDeathRecipient
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord RemoveAbilityDeathRecipient
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_RemoveAbilityDeathRecipient_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->schedulerDeathRecipient_ =
+        new AbilitySchedulerRecipient([abilityRecord](const wptr<IRemoteObject> &remote) {});
+    sptr<IAbilityScheduler> scheduler = new AbilityScheduler();
+    abilityRecord->scheduler_ = scheduler;
+    abilityRecord->RemoveAbilityDeathRecipient();
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: RemoveAbilityDeathRecipient
+ * SubFunction: RemoveAbilityDeathRecipient
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord RemoveAbilityDeathRecipient
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_RemoveAbilityDeathRecipient_003, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->schedulerDeathRecipient_ =
+        new AbilitySchedulerRecipient([abilityRecord](const wptr<IRemoteObject> &remote) {});
+    sptr<IAbilityScheduler> scheduler = nullptr;
+    abilityRecord->scheduler_ = scheduler;
+    abilityRecord->RemoveAbilityDeathRecipient();
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SetRestartCount
+ * SubFunction: SetRestartCount
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SetRestartCount
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SetRestartCount_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    int32_t restartCount = 1;
+    abilityRecord->SetRestartCount(restartCount);
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: GetRestartCount
+ * SubFunction: GetRestartCount
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord GetRestartCount
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_GetRestartCount_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    int32_t restartCount = 1;
+    abilityRecord->SetRestartCount(restartCount);
+    int32_t result = abilityRecord->GetRestartCount();
+    EXPECT_EQ(result, restartCount);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

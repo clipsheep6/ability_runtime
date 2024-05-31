@@ -16,7 +16,6 @@ import("//build/config/features.gni")
 import("//build/ohos.gni")
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
-import("//foundation/bundlemanager/bundle_framework/appexecfwk.gni")
 module_output_path = "ability_runtime/app_context"
 
 ##############################fuzztest##########################################
@@ -36,15 +35,13 @@ ohos_fuzztest("UnregisterEnvironmentCallbackFuzzTest") {
 
   sources = [ "unregisterenvironmentcallback_fuzzer.cpp" ]
 
-  configs = [
-    "${ability_runtime_innerkits_path}/ability_manager:ability_manager_public_config",
-    "${inner_api_path}/appexecfwk_core:bundlemgr_sdk_config",
-  ]
+  configs = [ "${ability_runtime_innerkits_path}/ability_manager:ability_manager_public_config" ]
 
   deps = [ "${ability_runtime_native_path}/appkit:app_context" ]
 
   external_deps = [
     "ability_base:want",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
   ]

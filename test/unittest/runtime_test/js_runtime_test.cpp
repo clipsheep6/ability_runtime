@@ -193,23 +193,6 @@ HWTEST_F(JsRuntimeTest, JsRuntimeGetLanguageTest_0100, TestSize.Level0)
 }
 
 /**
- * @tc.name: JsRuntimeBuildJsStackInfoListTest_0100
- * @tc.desc: JsRuntime test for BuildJsStackInfoList.
- * @tc.type: FUNC
- */
-HWTEST_F(JsRuntimeTest, JsRuntimeBuildJsStackInfoListTest_0100, TestSize.Level0)
-{
-    TAG_LOGI(AAFwkTag::TEST, "Test BuildJsStackInfoList start");
-    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
-    EXPECT_TRUE(jsRuntime != nullptr);
-
-    std::vector<JsFrames> frames;
-    bool ret = jsRuntime->BuildJsStackInfoList(gettid(), frames);
-    EXPECT_FALSE(ret);
-    TAG_LOGI(AAFwkTag::TEST, "Test BuildJsStackInfoList end");
-}
-
-/**
  * @tc.name: JsRuntimeNotifyApplicationStateTest_0100
  * @tc.desc: JsRuntime test for NotifyApplicationState when nativeEngine is nullptr.
  * @tc.type: FUNC

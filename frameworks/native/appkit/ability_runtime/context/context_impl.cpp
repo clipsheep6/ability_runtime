@@ -33,7 +33,7 @@
 #include "hitrace_meter.h"
 #include "ipc_singleton.h"
 #include "js_runtime_utils.h"
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 #include "locale_config.h"
 #endif
 #include "os_account_manager_wrapper.h"
@@ -859,7 +859,7 @@ void ContextImpl::UpdateResConfig(std::shared_ptr<Global::Resource::ResourceMana
             }
         }
     }
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     UErrorCode status = U_ZERO_ERROR;
     icu::Locale locale = icu::Locale::forLanguageTag(Global::I18n::LocaleConfig::GetSystemLanguage(), status);
     resConfig->SetLocaleInfo(locale);

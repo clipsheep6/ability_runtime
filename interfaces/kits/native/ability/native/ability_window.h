@@ -25,7 +25,7 @@
 #include "window_scene.h"
 #include "foundation/ability/ability_runtime/interfaces/kits/native/ability/ability_runtime/ability_context.h"
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 #include "pixel_map.h"
 #endif
 
@@ -76,7 +76,7 @@ public:
      */
     const sptr<Rosen::Window> GetWindow();
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     /**
      * @brief Set mission label of this ability.
      *
@@ -96,7 +96,7 @@ public:
 #endif
 
 private:
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     sptr<IRemoteObject> GetSessionToken();
 #endif
 

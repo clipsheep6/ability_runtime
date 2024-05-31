@@ -18,7 +18,7 @@
 
 #include <iremote_broker.h>
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 #include "pixel_map.h"
 #endif
 
@@ -32,7 +32,7 @@ class Snapshot {
 public:
     Snapshot() = default;
     ~Snapshot() = default;
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     const std::shared_ptr<OHOS::Media::PixelMap>& GetPixelMap() const
     {
         return pixelMap_;

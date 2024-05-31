@@ -52,6 +52,14 @@ bool AbilityStateData::Marshalling(Parcel &parcel) const
             return false;
         }
     }
+    if (!MarshallingOne(parcel)) {
+        return false;
+    }
+    return true;
+}
+
+bool AbilityStateData::MarshallingOne(Parcel &parcel) const
+{
     if (!parcel.WriteInt32(abilityType)) {
         return false;
     }
@@ -65,6 +73,9 @@ bool AbilityStateData::Marshalling(Parcel &parcel) const
         return false;
     }
     if (!parcel.WriteBool(isAtomicService) || !parcel.WriteInt32(abilityRecordId)) {
+        return false;
+    }
+    if (!parcel.WriteInt32(appCloneIndex)) {
         return false;
     }
     return true;
@@ -97,6 +108,7 @@ bool AbilityStateData::ReadFromParcel(Parcel &parcel)
     callerAbilityName = parcel.ReadString();
     isAtomicService = parcel.ReadBool();
     abilityRecordId = parcel.ReadInt32();
+    appCloneIndex = parcel.ReadInt32();
     return true;
 }
 

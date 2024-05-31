@@ -661,6 +661,7 @@ void JsUIExtensionContext::SetCallbackForTerminateWithResult(int32_t resultCode,
             }
             auto token = extensionContext->GetToken();
             AAFwk::AbilityManagerClient::GetInstance()->TransferAbilityResultForExtension(token, resultCode, want);
+#ifdef SUPPORT_SCREEN
             sptr<Rosen::Window> uiWindow = context->GetWindow();
             if (!uiWindow) {
                 TAG_LOGE(AAFwkTag::UI_EXT, "uiWindow is nullptr");
@@ -672,6 +673,7 @@ void JsUIExtensionContext::SetCallbackForTerminateWithResult(int32_t resultCode,
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
                 return;
             }
+#endif // SUPPORT_SCREEN
             auto errorCode = context->TerminateSelf();
             if (errorCode == 0) {
                 task.ResolveWithNoError(env, CreateJsUndefined(env));
