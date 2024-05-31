@@ -32,6 +32,9 @@
 #include "resource_manager.h"
 #include "foundation/ability/ability_runtime/interfaces/inner_api/runtime/include/runtime.h"
 #include "ipc_singleton.h"
+#ifdef CJ_FRONTEND
+#include "cj_environment.h"
+#endif
 #include "js_runtime.h"
 #include "native_engine/native_engine.h"
 #include "overlay_event_subscriber.h"
@@ -282,7 +285,10 @@ public:
         const sptr<IQuickFixCallback> &callback, const int32_t recordId) override;
 
     int32_t ScheduleNotifyAppFault(const FaultData &faultData) override;
-
+#ifdef CJ_FRONTEND
+    CJUncaughtExceptionInfo CreateCjExceptionInfo(const std::string &bundleName, uint32_t versionCode,
+        const std::string &hapPath);
+#endif
     /**
      * @brief Notify NativeEngine GC of status change.
      *

@@ -165,9 +165,9 @@ public:
      * @param pixelMap The snapshot.
      * @param isPrivate Indicates whether the window is private window.
      */
+#ifdef SUPPORT_SCREEN
     void UpdateMissionSnapshot(int32_t missionId, const std::shared_ptr<Media::PixelMap> &pixelMap, bool isPrivate);
 
-#ifdef SUPPORT_GRAPHICS
     /**
      * @brief Get the Snapshot object
      * @param missionId Indicates this mission id.
@@ -205,7 +205,7 @@ private:
     bool LoadAllMissionInfo();
     bool AddMissionInfoInner(const InnerMissionInfo &missionInfo);
     void GetMatchedMission(const std::string &bundleName, int32_t uid, std::list<int32_t> &missions);
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     void CreateWhitePixelMap(Snapshot &snapshot) const;
 #endif
 

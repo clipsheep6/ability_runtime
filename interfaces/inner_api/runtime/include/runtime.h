@@ -20,13 +20,6 @@
 #include <string>
 #include <vector>
 
-struct JsFrames {
-    std::string functionName;
-    std::string fileName;
-    std::string pos;
-    uintptr_t *nativePointer = nullptr;
-};
-
 class ModuleCheckerDelegate;
 
 namespace OHOS {
@@ -91,7 +84,6 @@ public:
     virtual Language GetLanguage() const = 0;
 
     virtual void StartDebugMode(const DebugOption debugOption) = 0;
-    virtual bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) = 0;
     virtual void DumpHeapSnapshot(bool isPrivate) = 0;
     virtual void DumpCpuProfile(bool isPrivate) = 0;
     virtual void DestroyHeapProfiler() = 0;

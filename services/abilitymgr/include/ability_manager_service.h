@@ -922,11 +922,6 @@ public:
     virtual int ReleaseCall(
         const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element) override;
 
-    /**
-     * get service record by element name.
-     *
-     */
-    std::shared_ptr<AbilityRecord> GetServiceRecordByElementName(const std::string &element);
     std::list<std::shared_ptr<ConnectionRecord>> GetConnectRecordListByCallback(sptr<IAbilityConnection> callback);
 
     void OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord);
@@ -1069,7 +1064,8 @@ public:
         int requestCode,
         AbilityRequest &request,
         const sptr<IRemoteObject> &callerToken,
-        int32_t userId);
+        int32_t userId,
+        bool isNeedSetDebugApp = true);
 
     /**
      * Get mission id by target ability token.
@@ -1105,7 +1101,7 @@ public:
     virtual int SetMissionContinueState(const sptr<IRemoteObject> &abilityToken,
         const AAFwk::ContinueState &state) override;
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     virtual int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label) override;
 
     virtual int SetMissionIcon(const sptr<IRemoteObject> &token,
@@ -1315,9 +1311,10 @@ public:
      * @param token The target ability.
      * @param pixelMap The snapshot.
      */
+#ifdef SUPPORT_SCREEN
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
         const std::shared_ptr<Media::PixelMap> &pixelMap) override;
-
+#endif // SUPPORT_SCREEN
     virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) override;
     virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason,
         const Want *want = nullptr) override;
@@ -2194,7 +2191,9 @@ private:
     std::map<int32_t, std::pair<int64_t, const sptr<IAcquireShareDataCallback>>> iAcquireShareDataMap_;
     // first is callstub, second is ability token
     std::map<sptr<IRemoteObject>, sptr<IRemoteObject>> callStubTokenMap_;
+#ifdef SUPPORT_GRAPHICS
     sptr<WindowFocusChangedListener> focusListener_;
+#endif // SUPPORT_GRAPHICS
     // Component StartUp rule switch
     bool startUpNewRule_ = true;
     /** It only takes effect when startUpNewRule_ is TRUE
@@ -2251,7 +2250,7 @@ private:
 
     sptr<AbilityBundleEventCallback> abilityBundleEventCallback_;
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     int32_t ShowPickerDialog(const Want& want, int32_t userId, const sptr<IRemoteObject> &token);
     bool CheckWindowMode(int32_t windowMode, const std::vector<AppExecFwk::SupportWindowMode>& windowModes) const;
     void InitFocusListener();

@@ -52,7 +52,10 @@ ohos_shared_library("missionmanager") {
       "icu:shared_icuuc",
       "image_framework:image",
     ]
-    defines = [ "SUPPORT_GRAPHICS" ]
+    defines = [
+      "SUPPORT_GRAPHICS",
+      "SUPPORT_SCREEN",
+    ]
   }
 
   relative_install_dir = "module/app/ability"

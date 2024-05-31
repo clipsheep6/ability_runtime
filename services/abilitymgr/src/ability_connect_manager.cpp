@@ -36,6 +36,7 @@
 #include "int_wrapper.h"
 #include "parameter.h"
 #include "session/host/include/zidl/session_interface.h"
+#include "startup_util.h"
 #include "extension_record.h"
 #include "ui_extension_utils.h"
 
@@ -420,7 +421,7 @@ int AbilityConnectManager::StopServiceAbilityLocked(const AbilityRequest &abilit
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
-    AppExecFwk::ElementName element(abilityRequest.abilityInfo.deviceId, abilityRequest.abilityInfo.bundleName,
+    AppExecFwk::ElementName element(abilityRequest.abilityInfo.deviceId, GenerateBundleName(abilityRequest),
         abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName);
     auto abilityRecord = GetServiceRecordByElementName(element.GetURI());
     if (FRS_BUNDLE_NAME == abilityRequest.abilityInfo.bundleName) {
@@ -480,7 +481,7 @@ void AbilityConnectManager::GetOrCreateServiceRecord(const AbilityRequest &abili
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     // lifecycle is not complete when window extension is reused
     bool noReuse = UIExtensionUtils::IsWindowExtension(abilityRequest.abilityInfo.extensionAbilityType);
-    AppExecFwk::ElementName element(abilityRequest.abilityInfo.deviceId, abilityRequest.abilityInfo.bundleName,
+    AppExecFwk::ElementName element(abilityRequest.abilityInfo.deviceId, GenerateBundleName(abilityRequest),
         abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName);
     std::string serviceKey = element.GetURI();
     if (FRS_BUNDLE_NAME == abilityRequest.abilityInfo.bundleName) {
@@ -597,6 +598,7 @@ int AbilityConnectManager::UnloadUIExtensionAbility(const std::shared_ptr<AAFwk:
         abilityRecord->GetWant().GetElement().GetBundleName(),
         abilityRecord->GetWant().GetElement().GetModuleName(), hostBundleName);
     //delete preLoadUIExtensionMap
+    CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, ERR_NULL_OBJECT);
     uiExtensionAbilityRecordMgr_->RemoveAllPreloadUIExtensionRecord(preLoadUIExtensionInfo);
     //terminate preload uiextension
     auto token = abilityRecord->GetToken();
@@ -2923,6 +2925,18 @@ void AbilityConnectManager::UpdateUIExtensionInfo(const std::shared_ptr<AbilityR
         wantParams.SetParam(UIEXTENSION_ROOT_HOST_PID, AAFwk::Integer::Box(rootHostPid));
     }
     abilityRecord->UpdateUIExtensionInfo(wantParams);
+}
+
+std::string AbilityConnectManager::GenerateBundleName(const AbilityRequest &abilityRequest) const
+{
+    auto bundleName = abilityRequest.abilityInfo.bundleName;
+    if (AbilityRuntime::StartupUtil::IsSupportAppClone(abilityRequest.abilityInfo.extensionAbilityType)) {
+        auto appCloneIndex = abilityRequest.want.GetIntParam(Want::PARAM_APP_CLONE_INDEX_KEY, 0);
+        if (appCloneIndex > 0) {
+            bundleName = std::to_string(appCloneIndex) + bundleName;
+        }
+    }
+    return bundleName;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

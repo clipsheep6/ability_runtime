@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -141,11 +141,17 @@ enum class AbilityErrorCode {
     // Ability already running.
     ERROR_ABILITY_ALREADY_RUNNING = 16000068,
 
-    // not support Clone app.
-    ERROR_CODE_MULTI_APP_NOT_SUPPORTED = 16000072,
+    // extension start third party app has been controlled.
+    ERROR_CODE_EXTENSION_START_THIRD_PARTY_APP_CONTROLLED = 16000069,
 
+    // extension start service has been controlled.
+    ERROR_CODE_EXTENSION_START_SERVICE_CONTROLLED = 16000070,
+    
     // app is not Clone.
     ERROR_NOT_APP_CLONE = 16000071,
+
+    // not support Clone app.
+    ERROR_CODE_MULTI_APP_NOT_SUPPORTED = 16000072,
 
     // app clone index does not exist.
     ERROR_APP_CLONE_INDEX_INVALID = 16000073,

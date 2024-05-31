@@ -63,7 +63,11 @@ config("ability_config") {
   }
 
   if (ability_runtime_graphics) {
-    defines += [ "SUPPORT_GRAPHICS" ]
+    include_dirs += [ "${form_fwk_path}/interfaces/inner_api/include" ]
+    defines += [
+      "SUPPORT_GRAPHICS",
+      "SUPPORT_SCREEN",
+    ]
   }
 }
 
@@ -88,11 +92,16 @@ config("ability_public_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_innerkits_path}/ability_manager/include/continuation",
     "${ability_runtime_services_path}/common/include",
-    "//third_party/json/include",
   ]
 
   if (ability_runtime_graphics) {
-    include_dirs += [ "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_stage_napi" ]
+    include_dirs += [
+      "${form_fwk_path}/interfaces/kits/native/include",
+      "${form_fwk_path}/interfaces/inner_api/include",
+      "${windowmanager_path}/interfaces/innerkits/dm",
+      "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_stage_napi",
+      "${windowmanager_path}/utils/include",
+    ]
     defines = [ "SUPPORT_GRAPHICS" ]
   }
 }
@@ -106,7 +115,6 @@ config("abilitykit_utils_public_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
-    "//third_party/json/include",
   ]
 
   if (ability_runtime_graphics) {
@@ -143,6 +151,7 @@ ohos_shared_library("abilitykit_utils") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_napi",
+    "json:nlohmann_json_static",
     "napi:ace_napi",
     "resource_management:global_resmgr",
   ]
@@ -241,6 +250,7 @@ ohos_shared_library("abilitykit_native") {
 
   external_deps = [
     "ability_base:base",
+    "ability_base:configuration",
     "ability_base:extractortool",
     "ability_base:session_info",
     "ability_base:want",
@@ -258,6 +268,7 @@ ohos_shared_library("abilitykit_native") {
     "ipc:ipc_core",
     "ipc:ipc_napi",
     "ipc:rpc",
+    "json:nlohmann_json_static",
     "napi:ace_napi",
     "node:node_header_notice",
     "relational_store:native_rdb",
@@ -266,20 +277,20 @@ ohos_shared_library("abilitykit_native") {
   ]
 
   public_external_deps = [
-    "ability_base:configuration",
     "accessibility:accessibility_common",
     "bundle_framework:appexecfwk_core",
-    "form_fwk:form_manager",
     "jsoncpp:jsoncpp",
     "libuv:uv",
-    "window_manager:libdm",
-    "window_manager:libwmutil",
   ]
 
   defines = []
 
   if (cj_frontend) {
-    sources += [ "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ability_object.cpp" ]
+    sources += [
+      "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ability_connect_callback_object.cpp",
+      "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ability_context.cpp",
+      "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ability_context_object.cpp",
+    ]
     include_dirs += [
       "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_runtime",
       "${ability_runtime_path}/frameworks/cj/ffi",
@@ -288,6 +299,7 @@ ohos_shared_library("abilitykit_native") {
       "napi:cj_bind_ffi",
       "napi:cj_bind_native",
     ]
+    defines += [ "CJ_FRONTEND" ]
   }
 
   if (background_task_mgr_continuous_task_enable) {
@@ -343,10 +355,13 @@ config("extensionkit_public_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
-    "//third_party/json/include",
   ]
 
   if (ability_runtime_graphics) {
+    include_dirs += [
+      "${windowmanager_path}/interfaces/innerkits/wm",
+      "${windowmanager_path}/utils/include",
+    ]
     defines = [ "SUPPORT_GRAPHICS" ]
   }
 }
@@ -388,6 +403,7 @@ ohos_shared_library("extensionkit_native") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "json:nlohmann_json_static",
     "napi:ace_napi",
   ]
 
@@ -396,7 +412,6 @@ ohos_shared_library("extensionkit_native") {
   public_external_deps = [
     "bundle_framework:appexecfwk_core",
     "jsoncpp:jsoncpp",
-    "window_manager:libwm",
   ]
 
   if (ability_runtime_graphics) {
@@ -406,7 +421,6 @@ ohos_shared_library("extensionkit_native") {
       "graphic_2d:color_manager",
       "image_framework:image_native",
       "window_manager:libdm",
-      "window_manager:libwmutil_static",
     ]
   }
 
@@ -439,6 +453,7 @@ ohos_shared_library("insight_intent_executor") {
   ]
 
   external_deps = [
+    "ability_base:session_info",
     "ability_base:want",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
@@ -470,7 +485,14 @@ config("uiability_config") {
   ]
 
   if (ability_runtime_graphics) {
-    defines = [ "SUPPORT_GRAPHICS" ]
+    include_dirs += [
+      "${windowmanager_path}/interfaces/innerkits/wm",
+      "${windowmanager_path}/utils/include",
+    ]
+    defines = [
+      "SUPPORT_GRAPHICS",
+      "SUPPORT_SCREEN",
+    ]
   }
 }
 
@@ -534,17 +556,17 @@ ohos_shared_library("uiabilitykit_native") {
     "libuv:uv",
     "napi:ace_napi",
     "node:node_header_notice",
-    "window_manager:libwm",
   ]
 
   if (cj_frontend) {
     sources += [
+      "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ability_ffi.cpp",
       "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ability_object.cpp",
       "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ui_ability.cpp",
     ]
 
     include_dirs += [ "${ability_runtime_path}/frameworks/cj/ffi" ]
-
+    defines = [ "CJ_FRONTEND" ]
     external_deps += [
       "napi:cj_bind_ffi",
       "napi:cj_bind_native",
@@ -565,7 +587,6 @@ ohos_shared_library("uiabilitykit_native") {
       "graphic_2d:color_manager",
       "image_framework:image_native",
       "window_manager:libdm",
-      "window_manager:libwmutil_static",
     ]
   }
 
@@ -613,6 +634,7 @@ ohos_shared_library("ability_thread") {
   ]
 
   if (ability_runtime_graphics) {
+    defines = [ "SUPPORT_SCREEN" ]
     external_deps += [ "window_manager:libwm" ]
   }
 
@@ -698,14 +720,9 @@ ohos_shared_library("form_extension_module") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hilog:libhilog",
+    "json:nlohmann_json_static",
     "napi:ace_napi",
     "window_manager:libwm",
-  ]
-  public_external_deps = [
-    "form_fwk:fmskit_native",
-    "form_fwk:form_manager",
-    "window_manager:libdm",
-    "window_manager:libwmutil",
   ]
 
   relative_install_dir = "extensionability"
@@ -807,16 +824,14 @@ ohos_shared_library("continuation_ipc") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "node:node_header_notice",
     "resource_management:global_resmgr",
     "window_manager:libwm",
   ]
   public_external_deps = [
     "accessibility:accessibility_common",
-    "form_fwk:form_manager",
     "libuv:uv",
-    "window_manager:libdm",
-    "window_manager:libwmutil",
   ]
 
   defines = []
@@ -854,16 +869,11 @@ ohos_shared_library("data_ability_helper") {
     "data_share:datashare_consumer",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "json:nlohmann_json_static",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "relational_store:rdb_data_ability_adapter",
     "window_manager:libwm",
-  ]
-  public_external_deps = [
-    "form_fwk:fmskit_native",
-    "form_fwk:form_manager",
-    "window_manager:libdm",
-    "window_manager:libwmutil",
   ]
 
   innerapi_tags = [ "platformsdk" ]
@@ -891,13 +901,8 @@ ohos_shared_library("service_extension_module") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hilog:libhilog",
+    "json:nlohmann_json_static",
     "napi:ace_napi",
-  ]
-  public_external_deps = [
-    "form_fwk:fmskit_native",
-    "form_fwk:form_manager",
-    "window_manager:libdm",
-    "window_manager:libwmutil",
   ]
 
   if (ability_runtime_graphics) {
@@ -968,7 +973,12 @@ ohos_shared_library("dialog_request_callback") {
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
-
+  if (ability_runtime_graphics) {
+    defines = [
+      "SUPPORT_SCREEN",
+      "SUPPORT_GRAPHICS",
+    ]
+  }
   innerapi_tags = [ "platformsdk_indirect" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
@@ -1008,6 +1018,7 @@ config("ui_extension_public_config") {
     "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_extension_ability",
     "${windowmanager_path}/interfaces/kits/napi/embeddable_window_stage",
     "${windowmanager_path}/interfaces/kits/napi/extension_window",
+    "${windowmanager_path}/wm/include",
   ]
 }
 
@@ -1053,8 +1064,9 @@ ohos_shared_library("ui_extension") {
     "window_manager:embeddablewindowstage_kit",
     "window_manager:extensionwindow_napi",
   ]
-  public_external_deps = [ "window_manager:scene_session_manager" ]
+
   if (ability_runtime_graphics) {
+    defines = [ "SUPPORT_SCREEN" ]
     external_deps += [
       "ace_engine:ace_uicontent",
       "window_manager:libdm",

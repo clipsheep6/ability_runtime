@@ -90,6 +90,7 @@ struct StartFlags {
     static const int GWP_ENABLED_FORCE = 10;
     static const int GWP_ENABLED_NORMAL = 11;
     static const int TSANENABLED = 12;
+    static const int EXTENSION_CONTROLLED = 13;
 };
 
 union AppSpawnPidMsg {

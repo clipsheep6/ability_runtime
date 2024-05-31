@@ -66,6 +66,7 @@ ohos_unittest("AmsAppRunningRecordTest") {
 
   if (ability_runtime_graphics) {
     external_deps += [ "window_manager:libwm" ]
+    defines = [ "SUPPORT_SCREEN" ]
   }
 }
 

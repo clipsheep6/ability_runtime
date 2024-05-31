@@ -40,7 +40,6 @@ config("abilityms_config") {
     "${ability_runtime_services_path}/common/include",
     "//prebuilts/jdk/jdk8/linux-x86/include",
     "//prebuilts/jdk/jdk8/linux-x86/include/linux",
-    "//third_party/json/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
     "${ability_runtime_path}/tools/aa/include",
@@ -65,7 +64,10 @@ config("abilityms_config") {
   if (ability_runtime_graphics) {
     include_dirs += []
 
-    defines += [ "SUPPORT_GRAPHICS" ]
+    defines += [
+      "SUPPORT_GRAPHICS",
+      "SUPPORT_SCREEN",
+    ]
   }
 
   if (background_task_mgr_continuous_task_enable) {
@@ -141,6 +143,7 @@ ohos_shared_library("abilityms") {
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
+    "background_task_mgr:bgtaskmgr_innerkits",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "bundle_framework:libappexecfwk_common",
@@ -159,6 +162,7 @@ ohos_shared_library("abilityms") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "kv_store:distributeddata_inner",
     "os_account:os_account_innerkits",
     "relational_store:native_appdatafwk",
@@ -237,6 +241,12 @@ ohos_prebuilt_etc("uiextension_picker_config.json") {
 
 ohos_prebuilt_etc("deeplink_reserve_config.json") {
   source = "resource/deeplink_reserve_config.json"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_prebuilt_etc("ams_extension_config.json") {
+  source = "resource/ams_extension_config.json"
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

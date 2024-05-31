@@ -15,7 +15,7 @@
  *
  */
 import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession';
-import { LocalStorageKeyConstants } from '../utils/Constants';
+import { localStorageKeyConstants } from '../utils/Constants';
 
 @Preview
 @CustomDialog
@@ -52,7 +52,8 @@ export struct TipsDialogComponent {
                 .backgroundColor(Color.Transparent)
                 .onClick(() => {
                     this.controller?.close();
-                    const session: UIExtensionContentSession = this.storage?.get(LocalStorageKeyConstants.SESSION) as UIExtensionContentSession;
+                    const session: UIExtensionContentSession =
+                        this.storage?.get(localStorageKeyConstants.SESSION) as UIExtensionContentSession;
                     session?.terminateSelf();
                     this.storage?.clear();
                 })

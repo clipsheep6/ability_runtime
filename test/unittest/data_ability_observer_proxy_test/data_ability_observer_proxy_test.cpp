@@ -80,11 +80,18 @@ HWTEST_F(DataAbilityObserverProxyTest, DataAbilityObserverProxy_OnChangeExt_001,
     sptr<DataAbilityObserverProxy> proxy(new DataAbilityObserverProxy(mockDataAbilityObserverStub));
 
     ChangeInfo changeInfo;
+    changeInfo.data_ = new int(0);
+    changeInfo.size_ = sizeof(int);
 
     EXPECT_CALL(*mockDataAbilityObserverStub, OnChangeExt(testing::_)).Times(1);
 
     if (proxy != nullptr) {
         proxy->OnChangeExt(changeInfo);
+    }
+    if (changeInfo.data_ != nullptr)
+    {
+        free(changeInfo.data_);
+        changeInfo.data_ = nullptr;
     }
 }
 

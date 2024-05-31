@@ -102,4 +102,4 @@ private:
 } // namespace AbilityRuntime
 } // namespace OHOS
 
-#endif // FOUNDATION_APPEXECFWK_OHOS_CJ_ABILITY_PROXY_H
+#endif // OHOS_ABILITY_RUNTIME_CJ_ABILITY_OBJECT_H

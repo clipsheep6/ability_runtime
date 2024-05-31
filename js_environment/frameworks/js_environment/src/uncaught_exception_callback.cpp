@@ -19,7 +19,9 @@
 
 #include "js_env_logger.h"
 #include "native_engine/native_engine.h"
+#ifdef SUPPORT_GRAPHICS
 #include "ui_content.h"
+#endif // SUPPORT_GRAPHICS
 #include "unwinder.h"
 
 namespace OHOS {
@@ -92,10 +94,12 @@ void NapiUncaughtExceptionCallback::operator()(napi_value obj)
     } else {
         summary += error + "Stacktrace:\n" + errorStack;
     }
+#ifdef SUPPORT_GRAPHICS
     std::string str = Ace::UIContent::GetCurrentUIStackInfo();
     if (!str.empty()) {
         summary.append(str);
     }
+#endif // SUPPORT_GRAPHICS
     if (uncaughtTask_) {
         uncaughtTask_(summary, errorObj);
     }

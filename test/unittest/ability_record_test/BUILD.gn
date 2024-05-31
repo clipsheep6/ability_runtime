@@ -147,6 +147,7 @@ ohos_unittest("ability_record_test_call") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "config_policy:configpolicy_util",
     "ffrt:libffrt",
     "hilog:libhilog",
     "init:libbegetutil",
