@@ -17,9 +17,9 @@
 #define OHOS_ABILITY_RUNTIME_MISSION_LISTENER_INTERFACE_H
 
 #include "iremote_broker.h"
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 #include "pixel_map.h"
-#endif
+#endif //SUPPORT_SCREEN
 
 namespace OHOS {
 namespace AAFwk {
@@ -73,7 +73,7 @@ public:
      */
     virtual void OnMissionUnfocused(int32_t missionId) {};
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     /**
      * @brief Called when a mission has changed it's icon.
      *
@@ -81,7 +81,7 @@ public:
      * @param icon, mission icon.
      */
     virtual void OnMissionIconUpdated(int32_t missionId, const std::shared_ptr<OHOS::Media::PixelMap> &icon) = 0;
-#endif
+#endif //SUPPORT_SCREEN
 
     /**
      * @brief When a mission is closed, AbilityMs notifies the listener of the mission id

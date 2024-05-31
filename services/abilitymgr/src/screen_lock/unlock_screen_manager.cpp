@@ -50,6 +50,7 @@ bool UnlockScreenManager::UnlockScreen()
     }
 
 #ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     bool isScreenLocked = OHOS::ScreenLock::ScreenLockManager::GetInstance()->IsScreenLocked();
     bool isScreenSecured = OHOS::ScreenLock::ScreenLockManager::GetInstance()->GetSecure();
     TAG_LOGD(AAFwkTag::ABILITYMGR, "isScreenLocked: %{public}d, isScreenSecured: %{public}d",
@@ -62,6 +63,7 @@ bool UnlockScreenManager::UnlockScreen()
         IN_PROCESS_CALL(OHOS::ScreenLock::ScreenLockManager::GetInstance()->Unlock(
             OHOS::ScreenLock::Action::UNLOCKSCREEN, listener));
     }
+#endif
 #endif
 
 #ifdef SUPPORT_POWER

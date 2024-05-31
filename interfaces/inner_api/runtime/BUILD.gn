@@ -40,7 +40,6 @@ config("runtime_public_config") {
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_business_error",
     "include",
-    "//third_party/json/include",
   ]
 }
 
@@ -110,6 +109,7 @@ ohos_shared_library("runtime") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "jsoncpp:jsoncpp",
     "napi:ace_napi",
     "resource_management:global_resmgr",
@@ -145,7 +145,10 @@ ohos_shared_library("runtime") {
       "ace_engine:ace_uicontent",
       "napi:ace_container_scope",
     ]
-    defines += [ "SUPPORT_GRAPHICS" ]
+    defines += [
+      "SUPPORT_GRAPHICS",
+      "SUPPORT_SCREEN",
+    ]
   }
 
   innerapi_tags = [ "platformsdk" ]

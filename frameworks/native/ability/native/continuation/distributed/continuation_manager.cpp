@@ -213,7 +213,7 @@ int32_t ContinuationManager::OnContinue(WantParams &wantParams)
     }
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 bool ContinuationManager::GetContentInfo(WantParams &wantParams)
 {
     TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);

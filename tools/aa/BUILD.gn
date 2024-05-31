@@ -57,6 +57,7 @@ ohos_static_library("tools_aa_source_set") {
 
   external_deps = [
     "ability_base:base",
+    "ability_base:session_info",
     "ability_base:want",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
@@ -93,6 +94,7 @@ ohos_executable("aa") {
   external_deps = [
     "ability_base:base",
     "ability_base:configuration",
+    "ability_base:session_info",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]

@@ -137,7 +137,7 @@ bool TaskDataPersistenceMgr::SaveMissionSnapshot(int missionId, const MissionSna
     return true;
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 std::shared_ptr<Media::PixelMap> TaskDataPersistenceMgr::GetSnapshot(int missionId) const
 {
     if (!currentMissionDataStorage_) {

@@ -26,7 +26,7 @@
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_runtime_utils.h"
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 #include "js_window.h"
 #endif
 #include "napi_common_util.h"
@@ -90,7 +90,7 @@ private:
     napi_value OnStartAbilityForResult(napi_env env, NapiCallbackInfo& info);
     napi_value OnFinishWithResult(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetWindow(napi_env env, napi_callback_info info);
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     napi_value OnHasWindowFocus(napi_env env, const NapiCallbackInfo& info);
 #endif
     std::shared_ptr<NativeReference> context_;
@@ -164,7 +164,7 @@ napi_value JsFeatureAbility::GetWant(napi_env env, napi_callback_info info)
 
 napi_value JsFeatureAbility::HasWindowFocus(napi_env env, napi_callback_info info)
 {
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     GET_NAPI_INFO_AND_CALL(env, info, JsFeatureAbility, OnHasWindowFocus);
 #else
     return nullptr;
@@ -217,7 +217,7 @@ napi_value JsFeatureAbility::TerminateAbility(napi_env env, napi_callback_info i
     GET_NAPI_INFO_AND_CALL(env, info, JsFeatureAbility, JsTerminateAbility);
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 napi_value JsFeatureAbility::OnHasWindowFocus(napi_env env, const NapiCallbackInfo& info)
 {
     TAG_LOGD(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
@@ -374,7 +374,7 @@ napi_value JsFeatureAbility::OnFinishWithResult(napi_env env, NapiCallbackInfo& 
     return result;
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 napi_value JsFeatureAbility::GetWindow(napi_env env, napi_callback_info info)
 {
     if (env == nullptr || info == nullptr) {

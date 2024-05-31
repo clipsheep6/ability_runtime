@@ -556,7 +556,7 @@ std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetAbilityRecordByToke
     return nullptr;
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 void UIAbilityLifecycleManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -1317,10 +1317,12 @@ bool UIAbilityLifecycleManager::CheckProperties(const std::shared_ptr<AbilityRec
     const AbilityRequest &abilityRequest, AppExecFwk::LaunchMode launchMode) const
 {
     const auto& abilityInfo = abilityRecord->GetAbilityInfo();
+    int32_t appIndex = 0;
+    (void)AbilityRuntime::StartupUtil::GetAppIndex(abilityRequest.want, appIndex);
     return abilityInfo.launchMode == launchMode && abilityRequest.abilityInfo.name == abilityInfo.name &&
         abilityRequest.abilityInfo.bundleName == abilityInfo.bundleName &&
         abilityRequest.abilityInfo.moduleName == abilityInfo.moduleName &&
-        AbilityRuntime::StartupUtil::GetAppIndex(abilityRequest.want) == abilityRecord->GetAppIndex();
+        appIndex == abilityRecord->GetAppIndex();
 }
 
 void UIAbilityLifecycleManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId, bool isHalf)
@@ -1948,7 +1950,9 @@ void UIAbilityLifecycleManager::OnAppStateChanged(const AppInfo &info)
             }
             if (info.processName == abilityRecord->GetAbilityInfo().process ||
                 info.processName == abilityRecord->GetApplicationInfo().bundleName) {
+#ifdef SUPPORT_SCREEN
                 abilityRecord->SetColdStartFlag(true);
+#endif // SUPPORT_SCREEN
                 break;
             }
         }
@@ -2293,7 +2297,9 @@ int UIAbilityLifecycleManager::ChangeUIAbilityVisibilityBySCB(sptr<SessionInfo> 
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Change ability visibility state to: %{public}d", isShow);
     if (isShow) {
         uiAbilityRecord->SetAbilityVisibilityState(AbilityVisibilityState::FOREGROUND_SHOW);
+#ifdef SUPPORT_SCREEN
         uiAbilityRecord->ProcessForegroundAbility(sessionInfo->callingTokenId);
+#endif // SUPPORT_SCREEN
     } else {
         uiAbilityRecord->SetAbilityVisibilityState(AbilityVisibilityState::FOREGROUND_HIDE);
     }
@@ -2353,9 +2359,11 @@ void UIAbilityLifecycleManager::CompleteFirstFrameDrawing(int32_t sessionId) con
         return;
     }
     abilityRecord->ReportAtomicServiceDrawnCompleteEvent();
+#ifdef SUPPORT_SCREEN
     abilityRecord->SetCompleteFirstFrameDrawing(true);
     DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
         HandleOnFirstFrameState(abilityRecord);
+#endif // SUPPORT_SCREEN
 }
 
 int UIAbilityLifecycleManager::StartWithPersistentIdByDistributed(const AbilityRequest &abilityRequest,

@@ -44,7 +44,11 @@ config("ability_manager_public_config") {
   }
 
   if (ability_runtime_graphics) {
-    defines += [ "SUPPORT_GRAPHICS" ]
+    include_dirs += [ "${multimedia_path}/interfaces/innerkits/include" ]
+    defines += [
+      "SUPPORT_GRAPHICS",
+      "SUPPORT_SCREEN",
+    ]
   }
 
   cflags = []
@@ -126,6 +130,9 @@ ohos_shared_library("ability_manager") {
   ]
 
   external_deps = [
+    "ability_base:base",
+    "ability_base:session_info",
+    "bundle_framework:appexecfwk_base",
     "bundle_framework:libappexecfwk_common",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
@@ -140,13 +147,12 @@ ohos_shared_library("ability_manager") {
   ]
 
   public_external_deps = [
-    "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
+    "background_task_mgr:bgtaskmgr_innerkits",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "graphic_2d:color_manager",
     "init:libbegetutil",
     "jsoncpp:jsoncpp",
     "relational_store:native_dataability",
@@ -157,11 +163,12 @@ ohos_shared_library("ability_manager") {
     deps += []
     external_deps += [
       "ability_base:session_info",
+      "graphic_2d:color_manager",
       "image_framework:image_native",
       "window_manager:libwsutils",
       "window_manager:session_manager_lite",
     ]
-    public_external_deps += [ "image_framework:image_native" ]
+    public_external_deps += [ "graphic_2d:color_manager" ]
   }
 
   cflags_cc = []
@@ -234,12 +241,11 @@ ohos_shared_library("mission_info") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "graphic_2d:color_manager",
-    "image_framework:image_native",
     "jsoncpp:jsoncpp",
   ]
   if (ability_runtime_graphics) {
     external_deps += [ "image_framework:image_native" ]
+    public_external_deps += [ "graphic_2d:color_manager" ]
   }
 
   cflags_cc = []
@@ -254,7 +260,10 @@ ohos_shared_library("ability_manager_c") {
   libs = []
   ldflags = [ "-Wl,--exclude-libs=ALL" ]
   deps = [ ":ability_manager" ]
-  external_deps = [ "c_utils:utils" ]
+  external_deps = [
+    "ability_base:session_info",
+    "c_utils:utils",
+  ]
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
@@ -274,9 +283,11 @@ ohos_shared_library("ability_start_setting") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "graphic_2d:color_manager",
     "jsoncpp:jsoncpp",
   ]
+  if (ability_runtime_graphics) {
+    public_external_deps += [ "graphic_2d:color_manager" ]
+  }
   cflags_cc = []
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
@@ -339,9 +350,11 @@ ohos_shared_library("ability_connect_callback_stub") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "graphic_2d:color_manager",
     "jsoncpp:jsoncpp",
   ]
+  if (ability_runtime_graphics) {
+    public_external_deps += [ "graphic_2d:color_manager" ]
+  }
 
   cflags_cc = []
   innerapi_tags = [

@@ -510,7 +510,7 @@ private:
 private:
     void AfterFocusedCommon(bool isFocused);
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 private:
 class WindowLifeCycleImpl : public Rosen::IWindowLifeCycle {
 public:

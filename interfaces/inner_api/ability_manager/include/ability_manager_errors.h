@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -524,6 +524,16 @@ enum {
      * Result(2097253) for block startup in lock screen.
      */
     ERR_BLOCK_START_FIRST_BOOT_SCREEN_UNLOCK = 2097253,
+
+    /*
+     * Result(2097254) for extension blocked by third party app flag
+     */
+    EXTENSION_BLOCKED_BY_THIRD_PARTY_APP_FLAG = 2097254,
+
+    /*
+     * Result(2097255) for extension blocked by service list
+     */
+    EXTENSION_BLOCKED_BY_SERVICE_LIST = 2097255,
 };
 
 enum {

@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include "extension_ability_info.h"
 #include "startup_util.h"
 #include "want.h"
 
@@ -43,15 +44,68 @@ void StartupUtilTest::TearDown()
 {}
 
 /**
- * @tc.name: startup_util_test_001
+ * @tc.name: GetAppIndex_001
  * @tc.desc: test class StartupUtil number function
  * @tc.type: FUNC
  */
-HWTEST_F(StartupUtilTest, startup_util_test_001, TestSize.Level1)
+HWTEST_F(StartupUtilTest, GetAppIndex_001, TestSize.Level1)
 {
     AAFwk::Want want;
-    auto appIndex = StartupUtil::GetAppIndex(want);
-    EXPECT_EQ(appIndex, 0);
+    int32_t appIndex = 0;
+    auto queryRet = StartupUtil::GetAppIndex(want, appIndex);
+    EXPECT_TRUE(queryRet);
+}
+
+/**
+ * @tc.name: GetAppIndex_002
+ * @tc.desc: test class StartupUtil number function
+ * @tc.type: FUNC
+ */
+HWTEST_F(StartupUtilTest, GetAppIndex_002, TestSize.Level1)
+{
+    AAFwk::Want want;
+    want.SetParam(AAFwk::Want::PARAM_APP_CLONE_INDEX_KEY, -1);
+    int32_t appIndex = 0;
+    auto queryRet = StartupUtil::GetAppIndex(want, appIndex);
+    EXPECT_FALSE(queryRet);
+}
+
+/**
+ * @tc.name: GetAppIndex_003
+ * @tc.desc: test class StartupUtil number function
+ * @tc.type: FUNC
+ */
+HWTEST_F(StartupUtilTest, GetAppIndex_003, TestSize.Level1)
+{
+    AAFwk::Want want;
+    int32_t appIndex = 1001;
+    want.SetParam(AAFwk::Want::PARAM_APP_CLONE_INDEX_KEY, appIndex);
+    auto queryRet = StartupUtil::GetAppIndex(want, appIndex);
+    EXPECT_FALSE(queryRet);
+}
+
+/**
+ * @tc.name: IsSupportAppClone_001
+ * @tc.desc: test class StartupUtil number function
+ * @tc.type: FUNC
+ */
+HWTEST_F(StartupUtilTest, IsSupportAppClone_001, TestSize.Level1)
+{
+    AppExecFwk::ExtensionAbilityType type = AppExecFwk::ExtensionAbilityType::WORK_SCHEDULER;
+    auto queryRet = StartupUtil::IsSupportAppClone(type);
+    EXPECT_TRUE(queryRet);
+}
+
+/**
+ * @tc.name: IsSupportAppClone_002
+ * @tc.desc: test class StartupUtil number function
+ * @tc.type: FUNC
+ */
+HWTEST_F(StartupUtilTest, IsSupportAppClone_002, TestSize.Level1)
+{
+    AppExecFwk::ExtensionAbilityType type = AppExecFwk::ExtensionAbilityType::FORM;
+    auto queryRet = StartupUtil::IsSupportAppClone(type);
+    EXPECT_FALSE(queryRet);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

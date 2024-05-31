@@ -750,7 +750,12 @@ int AbilityManagerProxy::StartUIExtensionAbility(const sptr<SessionInfo> &extens
         return INNER_ERR;
     }
 
-    error = SendRequest(AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY, data, reply, option);
+    if (!extensionSessionInfo->isModal) {
+        error = SendRequest(AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY_NON_MODAL, data, reply, option);
+    } else {
+        error = SendRequest(AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY, data, reply, option);
+    }
+
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "StartExtensionAbility, Send request error: %{public}d", error);
         return error;
@@ -1626,7 +1631,7 @@ int AbilityManagerProxy::GetMissionSnapshot(const std::string& deviceId, int32_t
     snapshot = *info;
     return reply.ReadInt32();
 }
-
+#ifdef SUPPORT_SCREEN
 void AbilityManagerProxy::UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
     const std::shared_ptr<Media::PixelMap> &pixelMap)
 {
@@ -1651,7 +1656,7 @@ void AbilityManagerProxy::UpdateMissionSnapShot(const sptr<IRemoteObject> &token
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
     }
 }
-
+#endif // SUPPORT_SCREEN
 void AbilityManagerProxy::EnableRecoverAbility(const sptr<IRemoteObject>& token)
 {
     int error;
@@ -2895,7 +2900,7 @@ int AbilityManagerProxy::LogoutUser(int32_t userId)
     return reply.ReadInt32();
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 int AbilityManagerProxy::SetMissionLabel(const sptr<IRemoteObject> &token, const std::string &label)
 {
     MessageParcel data;

@@ -54,6 +54,9 @@ static uint32_t BuildStartFlags(const AAFwk::Want &want, const ApplicationInfo &
     if (applicationInfo.tsanEnabled) {
         startFlags = startFlags | (START_FLAG_BASE << StartFlags::TSANENABLED);
     }
+    if (want.GetBoolParam("ohos.ability.params.extensionControl", false)) {
+        startFlags = startFlags | (START_FLAG_BASE << StartFlags::EXTENSION_CONTROLLED);
+    }
 
     return startFlags;
 }

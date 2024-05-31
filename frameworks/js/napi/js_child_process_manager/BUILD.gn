@@ -32,6 +32,7 @@ ohos_shared_library("childprocessmanager_napi") {
   ]
 
   external_deps = [
+    "ability_base:session_info",
     "hilog:libhilog",
     "napi:ace_napi",
   ]
