@@ -47,4 +47,43 @@ bool StartupUtil::IsSupportAppClone(AppExecFwk::ExtensionAbilityType type)
         type == AppExecFwk::ExtensionAbilityType::BACKUP ||
         type == AppExecFwk::ExtensionAbilityType::SHARE;
 }
+
+void StartupUtil::InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo &extensionInfo,
+    AppExecFwk::AbilityInfo &abilityInfo)
+{
+    abilityInfo.applicationName = extensionInfo.applicationInfo.name;
+    abilityInfo.applicationInfo = extensionInfo.applicationInfo;
+    abilityInfo.bundleName = extensionInfo.bundleName;
+    abilityInfo.package = extensionInfo.moduleName;
+    abilityInfo.moduleName = extensionInfo.moduleName;
+    abilityInfo.name = extensionInfo.name;
+    abilityInfo.srcEntrance = extensionInfo.srcEntrance;
+    abilityInfo.srcPath = extensionInfo.srcEntrance;
+    abilityInfo.iconPath = extensionInfo.icon;
+    abilityInfo.iconId = extensionInfo.iconId;
+    abilityInfo.label = extensionInfo.label;
+    abilityInfo.labelId = extensionInfo.labelId;
+    abilityInfo.description = extensionInfo.description;
+    abilityInfo.descriptionId = extensionInfo.descriptionId;
+    abilityInfo.priority = extensionInfo.priority;
+    abilityInfo.permissions = extensionInfo.permissions;
+    abilityInfo.readPermission = extensionInfo.readPermission;
+    abilityInfo.writePermission = extensionInfo.writePermission;
+    abilityInfo.uri = extensionInfo.uri;
+    abilityInfo.extensionAbilityType = extensionInfo.type;
+    abilityInfo.visible = extensionInfo.visible;
+    abilityInfo.resourcePath = extensionInfo.resourcePath;
+    abilityInfo.enabled = extensionInfo.enabled;
+    abilityInfo.isModuleJson = true;
+    abilityInfo.isStageBasedModel = true;
+    abilityInfo.process = extensionInfo.process;
+    abilityInfo.metadata = extensionInfo.metadata;
+    abilityInfo.compileMode = extensionInfo.compileMode;
+    abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
+    abilityInfo.extensionTypeName = extensionInfo.extensionTypeName;
+    if (!extensionInfo.hapPath.empty()) {
+        abilityInfo.hapPath = extensionInfo.hapPath;
+    }
+}
+
 }  // namespace OHOS::AbilityRuntime

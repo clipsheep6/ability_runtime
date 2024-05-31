@@ -5393,15 +5393,47 @@ int32_t AppMgrServiceInner::IsAppRunning(const std::string &bundleName, int32_t 
     return appRunningManager_->CheckAppCloneRunningRecordIsExistByBundleName(bundleName, appCloneIndex, isRunning);
 }
 
+bool AppMgrServiceInner::CreateAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo)
+{
+    auto&& bundleMgrHelper = remoteClientManager_->GetBundleManagerHelper();
+    if (!bundleMgrHelper) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Get bundle manager helper error.");
+        return false;
+    }
+    auto userId = GetCurrentAccountId();
+    auto abilityInfoFlag = AbilityRuntime::StartupUtil::BuildAbilityInfoFlag();
+    if (IN_PROCESS_CALL(bundleMgrHelper->QueryAbilityInfo(want, abilityInfoFlag, userId, abilityInfo))) {
+        TAG_LOGE(AAFwkTag::APPMGR, "QueryAbilityInfo failed.");
+        return true;
+    }
+    std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
+    int32_t appIndex = want.GetIntParam(AppspawnUtil::DLP_PARAMS_INDEX, 0);
+    if (appIndex == 0) {
+        if (!IN_PROCESS_CALL(bundleMgrHelper->QueryExtensionAbilityInfos(want, abilityInfoFlag,
+            userId, extensionInfos))) {
+            TAG_LOGE(AAFwkTag::APPMGR, "QueryExtensionAbilityInfos failed.");
+            return false;
+        }
+    } else {
+        if (!IN_PROCESS_CALL(bundleMgrHelper->GetSandboxExtAbilityInfos(want, appIndex,
+            abilityInfoFlag, userId, extensionInfos))) {
+            TAG_LOGE(AAFwkTag::APPMGR, "GetSandboxExtAbilityInfos failed.");
+            return false;
+        }
+    }
+    if (extensionInfos.size() <= 0) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get extension info failed.");
+        return ERR_INVALID_OPERATION;
+    }
+    AppExecFwk::ExtensionAbilityInfo extensionInfo = extensionInfos.front();
+    AbilityRuntime::StartupUtil::InitAbilityInfoFromExtension(extensionInfo, abilityInfo);
+    return true;
+}
+
 int32_t AppMgrServiceInner::StartNativeProcessForDebugger(const AAFwk::Want &want)
 {
     if (!remoteClientManager_ || !appRunningManager_) {
         TAG_LOGE(AAFwkTag::APPMGR, "remoteClientManager or appRunningManager is nullptr!");
-        return ERR_INVALID_OPERATION;
-    }
-    auto&& bundleMgrHelper = remoteClientManager_->GetBundleManagerHelper();
-    if (!bundleMgrHelper) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Get bundle manager helper error.");
         return ERR_INVALID_OPERATION;
     }
 
@@ -5410,9 +5442,11 @@ int32_t AppMgrServiceInner::StartNativeProcessForDebugger(const AAFwk::Want &wan
     TAG_LOGI(AAFwkTag::APPMGR, "debuggablePipe abilityName:%{public}s", want.GetElement().GetAbilityName().c_str());
 
     AbilityInfo abilityInfo;
-    auto userId = GetCurrentAccountId();
-    auto abilityInfoFlag = AbilityRuntime::StartupUtil::BuildAbilityInfoFlag();
-    IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->QueryAbilityInfo(want, abilityInfoFlag, userId, abilityInfo));
+    if (!CreateAbilityInfo(want, abilityInfo)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "CreateAbilityInfo failed!");
+        return ERR_INVALID_OPERATION;
+    }
+
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
     auto appInfo = std::make_shared<ApplicationInfo>(abilityInfo.applicationInfo);
