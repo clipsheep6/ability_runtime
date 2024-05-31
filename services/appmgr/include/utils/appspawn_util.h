@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_APPSPAWN_UTIL_H
 
 #include "ability_info.h"
+#include "application_info.h"
 #include "app_spawn_client.h"
 #include "want.h"
 
@@ -56,6 +57,9 @@ static uint32_t BuildStartFlags(const AAFwk::Want &want, const ApplicationInfo &
     }
     if (want.GetBoolParam("ohos.ability.params.extensionControl", false)) {
         startFlags = startFlags | (START_FLAG_BASE << StartFlags::EXTENSION_CONTROLLED);
+    }
+    if (applicationInfo.multiAppMode.multiAppModeType == MultiAppModeType::APP_CLONE) {
+        startFlags = startFlags | (START_FLAG_BASE << APP_FLAGS_CLONE_ENABLE);
     }
 
     return startFlags;

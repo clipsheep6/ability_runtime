@@ -246,6 +246,19 @@ int32_t AppSpawnClient::SetAppExtension(const AppSpawnStartMsg &startMsg, AppSpa
     return ret;
 }
 
+int32_t AppSpawnClient::SetCloneFlag(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle) const
+{
+    int32_t ret = 0;
+    if (startMsg.flags & APP_FLAGS_CLONE_ENABLE) {
+        ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_CLONE_ENABLE);
+        if (ret != 0) {
+            TAG_LOGE(AAFwkTag::APPMGR, "SetCloneFlag failed, ret: %{public}d", ret);
+            return ret;
+        }
+    }
+    return ret;
+}
+
 int32_t AppSpawnClient::AppspawnSetExtMsg(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle)
 {
     int32_t ret = 0;
@@ -398,6 +411,10 @@ int32_t AppSpawnClient::AppspawnCreateDefaultMsg(const AppSpawnStartMsg &startMs
         }
         if ((ret = SetAppExtension(startMsg, reqHandle))) {
             TAG_LOGE(AAFwkTag::APPMGR,  "SetAppExtension failed, ret: %{public}d", ret);
+            break;
+        }
+        if ((ret = SetCloneFlag(startMsg, reqHandle))) {
+            TAG_LOGE(AAFwkTag::APPMGR,  "SetCloneFlag failed, ret: %{public}d", ret);
             break;
         }
         return ret;
