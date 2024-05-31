@@ -1344,5 +1344,43 @@ HWTEST_F(AppMgrClientTest, SetSupportedProcessCacheSelf_001, TestSize.Level0)
     int32_t ret = appMgrClient->SetSupportedProcessCacheSelf(isSupport);
     EXPECT_NE(appMgrClient, nullptr);
 }
+
+/**
+ * @tc.name: AppMgrClient_AttachRenderProcess_001
+ * @tc.desc: AttachRenderProcess.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AttachRenderProcess_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    appMgrClient->AttachRenderProcess(nullptr);
+    EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_SetKeepAliveEnableState_001
+ * @tc.desc: SetKeepAliveEnableState.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, SetKeepAliveEnableState_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    std::string bundleName = "com.ix.First.Test";
+    bool enable = false;
+    appMgrClient->SetKeepAliveEnableState(bundleName, enable);
+    EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_SaveBrowserChannel_001
+ * @tc.desc: SaveBrowserChannel.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, SaveBrowserChannel_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    appMgrClient->SaveBrowserChannel(nullptr);
+    EXPECT_NE(appMgrClient, nullptr);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

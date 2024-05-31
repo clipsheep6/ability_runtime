@@ -538,5 +538,17 @@ HWTEST_F(JsEnvironmentTest, GetHeapPrepare_0200, TestSize.Level0)
     jsEnv->GetHeapPrepare();
     ASSERT_NE(jsEnv, nullptr);
 }
+
+/**
+ * @tc.name: GetSourceMapOperator_0100
+ * @tc.desc: Js environment GetSourceMapOperator.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsEnvironmentTest, GetSourceMapOperator_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    jsEnv->GetSourceMapOperator();
+    ASSERT_NE(jsEnv, nullptr);
+}
 } // namespace JsEnv
 } // namespace OHOS
