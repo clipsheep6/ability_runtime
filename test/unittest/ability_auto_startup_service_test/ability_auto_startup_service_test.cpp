@@ -252,7 +252,8 @@ HWTEST_F(AbilityAutoStartupServiceTest, DeleteAutoStartupData_001, TestSize.Leve
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest DeleteAutoStartupData_001 start";
     auto abilityAutoStartupService = std::make_shared<AbilityAutoStartupService>();
     std::string bundleName = AUTO_STARTUP_SERVICE_BUNDLENAME;
-    auto result = abilityAutoStartupService->DeleteAutoStartupData(bundleName);
+    int32_t uid = 0;
+    auto result = abilityAutoStartupService->DeleteAutoStartupData(bundleName, uid);
     EXPECT_EQ(result, ERR_OK);
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest DeleteAutoStartupData_001 end";
 }
@@ -418,7 +419,8 @@ HWTEST_F(AbilityAutoStartupServiceTest, GetAbilityData_001, TestSize.Level1)
     AutoStartupInfo info;
     std::string abilityTypeName;
     bool isVisible = AUTO_STARTUP_SERVICE_FALSE;
-    auto result = abilityAutoStartupService->GetAbilityData(info, isVisible, abilityTypeName);
+    std::string accessTokenId = "0";
+    auto result = abilityAutoStartupService->GetAbilityData(info, isVisible, abilityTypeName, accessTokenId);
     EXPECT_FALSE(result);
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest GetAbilityData_001 end";
 }
@@ -515,7 +517,8 @@ HWTEST_F(AbilityAutoStartupServiceTest, GetAbilityInfo_001, TestSize.Level1)
     auto abilityAutoStartupService = std::make_shared<AbilityAutoStartupService>();
     AutoStartupInfo info;
     std::string abilityTypeName = AUTO_STARTUP_SERVICE_ABILITYNAME;
-    auto result = abilityAutoStartupService->GetAbilityInfo(info, abilityTypeName);
+    std::string accessTokenId = "0";
+    auto result = abilityAutoStartupService->GetAbilityInfo(info, abilityTypeName, accessTokenId);
     EXPECT_EQ(result, INNER_ERR);
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest GetAbilityInfo_001 end";
 }

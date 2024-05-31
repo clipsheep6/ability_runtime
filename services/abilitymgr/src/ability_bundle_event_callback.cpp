@@ -58,7 +58,7 @@ void AbilityBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData 
             TAG_LOGE(AAFwkTag::ABILITYMGR, "OnReceiveEvent failed, abilityAutoStartupService is nullptr");
             return;
         }
-        abilityAutoStartupService_->DeleteAutoStartupData(bundleName);
+        abilityAutoStartupService_->DeleteAutoStartupData(bundleName, uid);
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED) {
         // install or uninstall module/bundle
         HandleUpdatedModuleInfo(bundleName, uid);
