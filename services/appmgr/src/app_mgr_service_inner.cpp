@@ -5167,6 +5167,11 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
     }
 
     dfxTaskHandler_->SubmitTask(notifyAppTask, "NotifyAppFaultTask");
+    constexpr int delayTime = 15 * 1000; // 15s
+    auto task = [pid, innerService = shared_from_this()]() {
+        AppExecFwk::AppfreezeManager::GetInstance()->DeleteStack(pid);
+    };
+    dfxTaskHandler_->SubmitTask(task, "DeleteStack", delayTime);
 
     if (appRecord->GetApplicationInfo()->asanEnabled) {
         TAG_LOGI(AAFwkTag::APPMGR,
