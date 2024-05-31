@@ -21,9 +21,9 @@ export type UIExtensionActionFunction = (storage?: LocalStorage) => UIExtensionI
 export type CustomActionFunction = () => void
 
 export class UIExtensionInfo {
-    readonly bundleName: string;
-    readonly abilityName: string;
-    readonly parameters?: Record<string, Object>;
+    public readonly bundleName: string;
+    public readonly abilityName: string;
+    public readonly parameters?: Record<string, Object>;
 
     constructor(bundleName: string, abilityName: string, parameters?: Record<string, Object>) {
         this.bundleName = bundleName;
@@ -50,19 +50,20 @@ export enum IntentType {
 }
 
 export class TargetAction {
-    readonly type: TargetType;
-    readonly actionExecution: UIAbilityActionExecution | UIExtensionActionFunction | CustomActionFunction | null;
+    public readonly type: TargetType;
+    public readonly actionExecution: UIAbilityActionExecution | UIExtensionActionFunction | CustomActionFunction | null;
 
-    constructor(type: TargetType, actionExecution: UIAbilityActionExecution | UIExtensionActionFunction | CustomActionFunction | null) {
+    constructor(type: TargetType, actionExecution: UIAbilityActionExecution | UIExtensionActionFunction |
+        CustomActionFunction | null) {
         this.type = type;
         this.actionExecution = actionExecution;
     }
 }
 
 export class TargetInfo {
-    readonly filterAbilityInfo: bundleManager.ExtensionAbilityInfo | null;
-    readonly targetAction: TargetAction | null;
-    readonly visible: boolean;
+    public readonly filterAbilityInfo: bundleManager.ExtensionAbilityInfo | null;
+    public readonly targetAction: TargetAction | null;
+    public readonly visible: boolean;
 
     constructor(filterAbilityInfo: bundleManager.ExtensionAbilityInfo | null, targetAction: TargetAction | null,
                 visible: boolean=true) {
@@ -73,11 +74,11 @@ export class TargetInfo {
 }
 
 export class AbilityInfoParam {
-    bundleName: string;
-    moduleName: string;
-    abilityName: string | null;
-    abilityIconId: number;
-    abilityLabelId: number;
+    public bundleName: string;
+    public moduleName: string;
+    public abilityName: string | null;
+    public abilityIconId: number;
+    public abilityLabelId: number;
 
     constructor(bundleName: string, moduleName: string,
                 abilityName: string, abilityIconId: number, abilityLabelId: number) {

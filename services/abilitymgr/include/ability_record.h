@@ -493,7 +493,7 @@ public:
 
     bool GetRecoveryInfo();
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     /**
      * check whether the ability 's window is attached.
      *
@@ -1041,7 +1041,7 @@ private:
 
     bool GetUriListFromWant(Want &want, std::vector<std::string> &uriVec);
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     std::shared_ptr<Want> GetWantFromMission() const;
     void SetShowWhenLocked(const AppExecFwk::AbilityInfo &abilityInfo, sptr<AbilityTransitionInfo> &info) const;
     void SetAbilityTransitionInfo(const AppExecFwk::AbilityInfo &abilityInfo,
@@ -1179,7 +1179,7 @@ private:
     std::map<uint64_t, AbilityWindowState> abilityWindowStateMap_;
     sptr<SessionInfo> uiExtRequestSessionInfo_ = nullptr;
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     bool isStartingWindow_ = false;
     uint32_t bgColor_ = 0;
     std::shared_ptr<Media::PixelMap> startingWindowBg_ = nullptr;

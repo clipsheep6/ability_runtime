@@ -234,7 +234,7 @@ void MissionListenerController::NotifyMissionUnfocused(int32_t missionId)
     handler_->SubmitTask(task);
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 void MissionListenerController::NotifyMissionIconChanged(int32_t missionId,
     const std::shared_ptr<OHOS::Media::PixelMap> &icon)
 {

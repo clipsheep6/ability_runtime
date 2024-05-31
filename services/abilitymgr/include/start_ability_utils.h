@@ -35,6 +35,9 @@ struct StartAbilityInfo {
     static std::shared_ptr<StartAbilityInfo> CreateStartExtensionInfo(const Want &want, int32_t userId,
         int32_t appIndex);
 
+    static void FindExtensionInfo(const Want &want, int32_t flags, int32_t userId,
+        int32_t appIndex, std::shared_ptr<StartAbilityInfo> abilityInfo);
+
     std::string GetAppBundleName() const
     {
         return abilityInfo.applicationInfo.bundleName;
@@ -46,7 +49,7 @@ struct StartAbilityInfo {
 };
 
 struct StartAbilityUtils {
-    static int32_t GetAppIndex(const Want &want, sptr<IRemoteObject> callerToken);
+    static bool GetAppIndex(const Want &want, sptr<IRemoteObject> callerToken, int32_t &appIndex);
     static bool GetApplicationInfo(const std::string &bundleName, int32_t userId,
         AppExecFwk::ApplicationInfo &appInfo);
     static bool GetCallerAbilityInfo(const sptr<IRemoteObject> &callerToken,

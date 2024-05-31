@@ -70,7 +70,7 @@ public:
     std::shared_ptr<NativeReference> GetJsAbility();
     int32_t OnShare(WantParams &wantParams) override;
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 public:
     void OnSceneCreated() override;
     void onSceneDestroyed() override;

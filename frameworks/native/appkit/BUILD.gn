@@ -65,6 +65,7 @@ config("appkit_public_config") {
   if (ability_runtime_graphics) {
     defines = [
       "SUPPORT_GRAPHICS",
+      "SUPPORT_SCREEN",
       "SUPPORT_APP_PREFERRED_LANGUAGE",
     ]
   }
@@ -203,6 +204,8 @@ ohos_shared_library("appkit_native") {
 
     include_dirs +=
         [ "${ability_runtime_path}/cj_environment/interfaces/inner_api" ]
+
+    deps += [ "${ability_runtime_path}/cj_environment/frameworks/cj_environment:cj_environment" ]
   }
 
   if (ability_runtime_graphics) {
@@ -277,6 +280,7 @@ ohos_shared_library("app_context") {
 
   external_deps = [
     "ability_base:extractortool",
+    "ability_base:session_info",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -340,6 +344,7 @@ ohos_shared_library("app_context_utils") {
   ]
 
   external_deps = [
+    "ability_base:session_info",
     "ability_base:want",
     "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",
@@ -409,6 +414,7 @@ ohos_shared_library("appkit_delegator") {
   ]
 
   external_deps = [
+    "ability_base:session_info",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
@@ -419,14 +425,15 @@ ohos_shared_library("appkit_delegator") {
     "json:nlohmann_json_static",
     "napi:ace_napi",
   ]
+
   public_external_deps = [ "ability_base:configuration" ]
+
   if (cj_frontend) {
     sources += [
       "${ability_runtime_native_path}/appkit/ability_delegator/runner_runtime/cj_test_runner.cpp",
       "${ability_runtime_native_path}/appkit/ability_delegator/runner_runtime/cj_test_runner_object.cpp",
     ]
   }
-
   if (ability_runtime_graphics) {
     external_deps += [ "icu:shared_icuuc" ]
   }

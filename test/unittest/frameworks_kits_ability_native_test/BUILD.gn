@@ -2798,6 +2798,12 @@ ohos_unittest("dialog_request_callback_test") {
     "ipc:ipc_core",
     "napi:ace_napi",
   ]
+  if (ability_runtime_graphics) {
+    defines += [
+      "SUPPORT_SCREEN",
+      "SUPPORT_GRAPHICS",
+    ]
+  }
 }
 
 ###############################################################################

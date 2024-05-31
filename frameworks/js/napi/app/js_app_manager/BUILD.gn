@@ -57,6 +57,7 @@ ohos_shared_library("appmanager") {
 
   if (ability_runtime_graphics) {
     external_deps += [ "access_token:libtokenid_sdk" ]
+    defines = [ "SUPPORT_SCREEN" ]
   }
 
   relative_install_dir = "module/app/ability"

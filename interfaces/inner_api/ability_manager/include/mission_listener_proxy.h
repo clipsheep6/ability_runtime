@@ -72,7 +72,7 @@ public:
      */
     virtual void OnMissionUnfocused(int32_t missionId) override;
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     /**
      * @brief Called when a mission has changed it's icon.
      *

@@ -22,11 +22,15 @@ namespace OHOS {
 namespace AAFwk {
 class Want;
 }  // namespace AAFwk
+namespace AppExecFwk {
+enum class ExtensionAbilityType;
+}  // namespace AppExecFwk
 namespace AbilityRuntime {
 class StartupUtil {
 public:
-    static int32_t GetAppIndex(const AAFwk::Want &want);
+    static bool GetAppIndex(const AAFwk::Want &want, int32_t &appIndex);
     static int32_t BuildAbilityInfoFlag();
+    static bool IsSupportAppClone(AppExecFwk::ExtensionAbilityType type);
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

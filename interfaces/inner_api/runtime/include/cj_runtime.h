@@ -41,7 +41,6 @@ public:
     }
 
     void StartDebugMode(const DebugOption debugOption) override;
-    bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) override { return false; };
     void DumpHeapSnapshot(bool isPrivate) override {}
     void NotifyApplicationState(bool isBackground) override {}
     bool SuspendVM(uint32_t tid) override { return false; }

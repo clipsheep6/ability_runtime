@@ -36,6 +36,7 @@ const std::string JSON_KEY_MODULE_NAME = "moduleName";
 const std::string JSON_KEY_IS_AUTO_STARTUP = "isAutoStartup";
 const std::string JSON_KEY_IS_EDM_FORCE = "isEdmForce";
 const std::string JSON_KEY_TYPE_NAME = "abilityTypeName";
+const std::string JSON_KEY_APP_CLONE_INDEX = "appCloneIndex";
 } // namespace
 const DistributedKv::AppId AbilityAutoStartupDataManager::APP_ID = { "auto_startup_storage" };
 const DistributedKv::StoreId AbilityAutoStartupDataManager::STORE_ID = { "auto_startup_infos" };
@@ -362,6 +363,7 @@ DistributedKv::Key AbilityAutoStartupDataManager::ConvertAutoStartupDataToKey(co
         { JSON_KEY_BUNDLE_NAME, info.bundleName },
         { JSON_KEY_MODULE_NAME, info.moduleName },
         { JSON_KEY_ABILITY_NAME, info.abilityName },
+        { JSON_KEY_APP_CLONE_INDEX, info.appCloneIndex },
     };
     DistributedKv::Key key(jsonObject.dump());
     TAG_LOGD(AAFwkTag::AUTO_STARTUP, "key: %{public}s.", key.ToString().c_str());
@@ -388,6 +390,10 @@ AutoStartupInfo AbilityAutoStartupDataManager::ConvertAutoStartupInfoFromKeyAndV
 
     if (jsonObject.contains(JSON_KEY_ABILITY_NAME) && jsonObject[JSON_KEY_ABILITY_NAME].is_string()) {
         info.abilityName = jsonObject.at(JSON_KEY_ABILITY_NAME).get<std::string>();
+    }
+
+    if (jsonObject.contains(JSON_KEY_APP_CLONE_INDEX) && jsonObject[JSON_KEY_APP_CLONE_INDEX].is_string()) {
+        info.appCloneIndex = jsonObject.at(JSON_KEY_APP_CLONE_INDEX).get<std::int32_t>();
     }
 
     nlohmann::json jsonValueObject = nlohmann::json::parse(value.ToString(), nullptr, false);

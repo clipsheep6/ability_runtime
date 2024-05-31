@@ -83,6 +83,10 @@
       *ExtensionModuleLoader*;
       *SysMrgClient*;
     };
+    extern "C" {
+      Ffi*;
+      FFI*;
+    };
   local:
     *;
 };

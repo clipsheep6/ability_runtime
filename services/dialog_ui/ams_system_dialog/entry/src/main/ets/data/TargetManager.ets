@@ -60,7 +60,8 @@ export namespace TargetManager {
 
     function buildUIExtensionTargetAction(callerWant: Want, params: TargetActionBuilderParam): TargetAction {
         if (callerWant.parameters){
-            callerWant.parameters['ability.want.params.uiExtensionType'] = callerWant.parameters['ability.want.params.uiExtensionTargetType'];
+            callerWant.parameters['ability.want.params.uiExtensionType'] =
+                callerWant.parameters['ability.want.params.uiExtensionTargetType'];
             callerWant.parameters['ability.want.params.uiExtensionTargetType'] = '';
         }
         return new TargetAction(TargetType.UI_EXTENSION, (storage?: LocalStorage) => {
@@ -68,7 +69,8 @@ export namespace TargetManager {
         })
     }
 
-    export function removePartialTargetListIfExceedsMax(targetInfoArray: Array<TargetInfo>, maxSize: number): Array<TargetInfo> {
+    export function removePartialTargetListIfExceedsMax(
+        targetInfoArray: Array<TargetInfo>, maxSize: number): Array<TargetInfo> {
         if (targetInfoArray.length <= maxSize) {
             return targetInfoArray;
         }

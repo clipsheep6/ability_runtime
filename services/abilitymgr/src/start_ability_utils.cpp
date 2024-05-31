@@ -38,18 +38,15 @@ thread_local bool StartAbilityUtils::skipCrowTest = false;
 thread_local bool StartAbilityUtils::skipStartOther = false;
 thread_local bool StartAbilityUtils::skipErms = false;
 
-int32_t StartAbilityUtils::GetAppIndex(const Want &want, sptr<IRemoteObject> callerToken)
+bool StartAbilityUtils::GetAppIndex(const Want &want, sptr<IRemoteObject> callerToken, int32_t &appIndex)
 {
-    int32_t appIndex = want.GetIntParam(AbilityRuntime::ServerConstant::APP_CLONE_INDEX, 0);
-    if (appIndex > 0 && appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
-        return appIndex;
-    }
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     if (abilityRecord && abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX &&
         abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
-        return abilityRecord->GetAppIndex();
+        appIndex = abilityRecord->GetAppIndex();
+        return true;
     }
-    return want.GetIntParam(AbilityRuntime::ServerConstant::DLP_INDEX, 0);
+    return AbilityRuntime::StartupUtil::GetAppIndex(want, appIndex);
 }
 
 bool StartAbilityUtils::GetApplicationInfo(const std::string &bundleName, int32_t userId,
@@ -179,11 +176,11 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartAbilityInfo(const
     auto abilityInfoFlag = static_cast<uint32_t>(AbilityRuntime::StartupUtil::BuildAbilityInfoFlag()) |
         static_cast<uint32_t>(AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL);
     auto request = std::make_shared<StartAbilityInfo>();
-    if (appIndex != 0 && appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
+    if (appIndex > 0 && appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         IN_PROCESS_CALL_WITHOUT_RET(bms->QueryCloneAbilityInfo(want.GetElement(), abilityInfoFlag, appIndex,
             request->abilityInfo, userId));
         if (request->abilityInfo.name.empty() || request->abilityInfo.bundleName.empty()) {
-            request->status = ERR_APP_CLONE_INDEX_INVALID;
+            FindExtensionInfo(want, abilityInfoFlag, userId, appIndex, request);
         }
         return request;
     }
@@ -231,6 +228,10 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartExtensionInfo(con
     auto abilityInfoFlag = static_cast<uint32_t>(AbilityRuntime::StartupUtil::BuildAbilityInfoFlag()) |
         static_cast<uint32_t>(AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL);
     auto abilityInfo = std::make_shared<StartAbilityInfo>();
+    if (appIndex > 0 && appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
+        FindExtensionInfo(want, abilityInfoFlag, userId, appIndex, abilityInfo);
+        return abilityInfo;
+    }
 
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
     if (appIndex == 0) {
@@ -256,6 +257,30 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartExtensionInfo(con
     InitAbilityInfoFromExtension(extensionInfo, abilityInfo->abilityInfo);
 
     return abilityInfo;
+}
+
+void StartAbilityInfo::FindExtensionInfo(const Want &want, int32_t flags, int32_t userId,
+    int32_t appIndex, std::shared_ptr<StartAbilityInfo> abilityInfo)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    CHECK_POINTER_LOG(abilityInfo, "abilityInfo is invalid.");
+    auto bms = AbilityUtil::GetBundleManagerHelper();
+    CHECK_POINTER_LOG(bms, "bms is invalid.");
+    AppExecFwk::ExtensionAbilityInfo extensionInfo;
+    IN_PROCESS_CALL_WITHOUT_RET(bms->QueryCloneExtensionAbilityInfoWithAppIndex(want.GetElement(),
+        flags, appIndex, extensionInfo, userId));
+    if (extensionInfo.bundleName.empty() || extensionInfo.name.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "extensionInfo empty.");
+        abilityInfo->status = RESOLVE_ABILITY_ERR;
+        return;
+    }
+    if (AbilityRuntime::StartupUtil::IsSupportAppClone(extensionInfo.type)) {
+        abilityInfo->extensionProcessMode = extensionInfo.extensionProcessMode;
+        // For compatibility translates to AbilityInfo
+        InitAbilityInfoFromExtension(extensionInfo, abilityInfo->abilityInfo);
+    } else {
+        abilityInfo->status = ERR_APP_CLONE_INDEX_INVALID;
+    }
 }
 
 std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateCallerAbilityInfo(const sptr<IRemoteObject> &callerToken)
