@@ -23,6 +23,7 @@ ohos_unittest("ability_first_frame_state_observer_manager_test") {
   include_dirs = [
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_services_path}/common/include",
+    "mock/include",
   ]
 
   sources = [
