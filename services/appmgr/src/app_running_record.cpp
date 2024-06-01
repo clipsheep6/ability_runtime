@@ -1344,6 +1344,22 @@ bool AppRunningRecord::IsLastAbilityRecord(const sptr<IRemoteObject> &token)
     return false;
 }
 
+bool AppRunningRecord::ExtensionAbilityRecordExists(const sptr<IRemoteObject> &token)
+{
+    auto moduleRecord = GetModuleRunningRecordByToken(token);
+    if (!moduleRecord) {
+        TAG_LOGE(AAFwkTag::APPMGR, "can not find module record");
+        return false;
+    }
+    auto moduleRecordList = GetAllModuleRecord();
+    for (auto moduleRecord : moduleRecordList) {
+        if (moduleRecord && moduleRecord->ExtensionAbilityRecordExists()) {
+            return true;
+    }
+    }
+    return false;
+}
+
 bool AppRunningRecord::IsLastPageAbilityRecord(const sptr<IRemoteObject> &token)
 {
     auto moduleRecord = GetModuleRunningRecordByToken(token);
@@ -1355,7 +1371,9 @@ bool AppRunningRecord::IsLastPageAbilityRecord(const sptr<IRemoteObject> &token)
     int32_t pageAbilitySize = 0;
     auto moduleRecordList = GetAllModuleRecord();
     for (auto moduleRecord : moduleRecordList) {
-        pageAbilitySize += moduleRecord->GetPageAbilitySize() ;
+        if (moduleRecord) {
+            pageAbilitySize += moduleRecord->GetPageAbilitySize();
+        }
         if (pageAbilitySize > 1) {
             return false;
         }

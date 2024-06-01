@@ -569,7 +569,9 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
         TAG_LOGD(AAFwkTag::APPMGR, "The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
         if (clearMissionFlag && appMgrServiceInner != nullptr) {
-            appRecord->PostTask("DELAY_KILL_PROCESS", AMSEventHandler::DELAY_KILL_PROCESS_TIMEOUT, killProcess);
+            auto delayTime = appRecord->ExtensionAbilityRecordExists(token) ?
+                AMSEventHandler::DELAY_KILL_EXTENSION_PROCESS_TIMEOUT : AMSEventHandler::DELAY_KILL_PROCESS_TIMEOUT;
+            appRecord->PostTask("DELAY_KILL_PROCESS", delayTime, killProcess);
         }
     }
 }
