@@ -124,37 +124,37 @@ constexpr int REGISTER_VISIBILITY_DELAY = 5000;
 // Max render process number limitation for phone device.
 constexpr int PHONE_MAX_RENDER_PROCESS_NUM = 40;
 constexpr int PROCESS_RESTART_MARGIN_MICRO_SECONDS = 2000;
-const std::string CLASS_NAME = "ohos.app.MainThread";
-const std::string FUNC_NAME = "main";
-const std::string RENDER_PARAM = "invalidparam";
-const std::string COLD_START = "coldStart";
-const std::string PERF_CMD = "perfCmd";
-const std::string MULTI_THREAD = "multiThread";
-const std::string DEBUG_CMD = "debugCmd";
-const std::string ENTER_SANDBOX = "sandboxApp";
-const std::string PERMISSION_INTERNET = "ohos.permission.INTERNET";
-const std::string PERMISSION_MANAGE_VPN = "ohos.permission.MANAGE_VPN";
-const std::string PERMISSION_ACCESS_BUNDLE_DIR = "ohos.permission.ACCESS_BUNDLE_DIR";
-const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
-const std::string SUPPORT_ISOLATION_MODE = "persist.bms.supportIsolationMode";
-const std::string SUPPORT_SERVICE_EXT_MULTI_PROCESS = "component.startup.extension.multiprocess.enable";
-const std::string SERVICE_EXT_MULTI_PROCESS_WHITE_LIST = "component.startup.extension.multiprocess.whitelist";
-const std::string SCENE_BOARD_BUNDLE_NAME = "com.ohos.sceneboard";
-const std::string DEBUG_APP = "debugApp";
-const std::string SERVICE_EXTENSION = ":ServiceExtension";
-const std::string KEEP_ALIVE = ":KeepAlive";
-const std::string PARAM_SPECIFIED_PROCESS_FLAG = "ohoSpecifiedProcessFlag";
-const std::string TSAN_FLAG_NAME = "tsanEnabled";
-const std::string MEMMGR_PROC_NAME = "memmgrservice";
-const std::string UIEXTENSION_ABILITY_ID = "ability.want.params.uiExtensionAbilityId";
-const std::string UIEXTENSION_ROOT_HOST_PID = "ability.want.params.uiExtensionRootHostPid";
-const std::string STRICT_MODE = "strictMode";
-const std::string RENDER_PROCESS_NAME = ":render";
-const std::string RENDER_PROCESS_TYPE = "render";
-const std::string GPU_PROCESS_NAME = ":gpu";
-const std::string GPU_PROCESS_TYPE = "gpu";
-const std::string FONT_WGHT_SCALE = "persist.sys.font_wght_scale_for_user0";
-const std::string FONT_SCALE = "persist.sys.font_scale_for_user0";
+constexpr const char* CLASS_NAME = "ohos.app.MainThread";
+constexpr const char* FUNC_NAME = "main";
+constexpr const char* RENDER_PARAM = "invalidparam";
+constexpr const char* COLD_START = "coldStart";
+constexpr const char* PERF_CMD = "perfCmd";
+constexpr const char* MULTI_THREAD = "multiThread";
+constexpr const char* DEBUG_CMD = "debugCmd";
+constexpr const char* ENTER_SANDBOX = "sandboxApp";
+constexpr const char* PERMISSION_INTERNET = "ohos.permission.INTERNET";
+constexpr const char* PERMISSION_MANAGE_VPN = "ohos.permission.MANAGE_VPN";
+constexpr const char* PERMISSION_ACCESS_BUNDLE_DIR = "ohos.permission.ACCESS_BUNDLE_DIR";
+constexpr const char* DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
+constexpr const char* SUPPORT_ISOLATION_MODE = "persist.bms.supportIsolationMode";
+constexpr const char* SUPPORT_SERVICE_EXT_MULTI_PROCESS = "component.startup.extension.multiprocess.enable";
+constexpr const char* SERVICE_EXT_MULTI_PROCESS_WHITE_LIST = "component.startup.extension.multiprocess.whitelist";
+constexpr const char* SCENE_BOARD_BUNDLE_NAME = "com.ohos.sceneboard";
+constexpr const char* DEBUG_APP = "debugApp";
+constexpr const char* SERVICE_EXTENSION = ":ServiceExtension";
+constexpr const char* KEEP_ALIVE = ":KeepAlive";
+constexpr const char* PARAM_SPECIFIED_PROCESS_FLAG = "ohoSpecifiedProcessFlag";
+constexpr const char* TSAN_FLAG_NAME = "tsanEnabled";
+constexpr const char* MEMMGR_PROC_NAME = "memmgrservice";
+constexpr const char* UIEXTENSION_ABILITY_ID = "ability.want.params.uiExtensionAbilityId";
+constexpr const char* UIEXTENSION_ROOT_HOST_PID = "ability.want.params.uiExtensionRootHostPid";
+constexpr const char* STRICT_MODE = "strictMode";
+constexpr const char* RENDER_PROCESS_NAME = ":render";
+constexpr const char* RENDER_PROCESS_TYPE = "render";
+constexpr const char* GPU_PROCESS_NAME = ":gpu";
+constexpr const char* GPU_PROCESS_TYPE = "gpu";
+constexpr const char* FONT_WGHT_SCALE = "persist.sys.font_wght_scale_for_user0";
+constexpr const char* FONT_SCALE = "persist.sys.font_scale_for_user0";
 const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
@@ -172,35 +172,36 @@ constexpr ErrCode APPMGR_ERR_OFFSET = ErrCodeOffset(SUBSYS_APPEXECFWK, 0x01);
 constexpr ErrCode ERR_ALREADY_EXIST_RENDER = APPMGR_ERR_OFFSET + 100;
  // Error code for reaching render process number limitation.
 constexpr ErrCode ERR_REACHING_MAXIMUM_RENDER_PROCESS_LIMITATION = APPMGR_ERR_OFFSET + 101;
-constexpr char EVENT_KEY_UID[] = "UID";
-constexpr char EVENT_KEY_PID[] = "PID";
-constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
-constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
-constexpr char EVENT_KEY_MESSAGE[] = "MSG";
+constexpr const char* EVENT_KEY_UID = "UID";
+constexpr const char* EVENT_KEY_PID = "PID";
+constexpr const char* EVENT_KEY_PACKAGE_NAME = "PACKAGE_NAME";
+constexpr const char* EVENT_KEY_PROCESS_NAME = "PROCESS_NAME";
+constexpr const char* EVENT_KEY_MESSAGE = "MSG";
 
 // Developer mode param
-constexpr char DEVELOPER_MODE_STATE[] = "const.security.developermode.state";
-constexpr char PRODUCT_ASSERT_FAULT_DIALOG_ENABLED[] = "persisit.sys.abilityms.support_assert_fault_dialog";
+constexpr const char* DEVELOPER_MODE_STATE = "const.security.developermode.state";
+constexpr const char* PRODUCT_ASSERT_FAULT_DIALOG_ENABLED = "persisit.sys.abilityms.support_assert_fault_dialog";
 
 constexpr char BUNDLE_NAME_SAMPLE_MANAGEMENT[] = "com.huawei.hmsapp.samplemanagement";
 
 // Msg length is less than 48 characters
-const std::string EVENT_MESSAGE_TERMINATE_ABILITY_TIMEOUT = "Terminate Ability TimeOut!";
-const std::string EVENT_MESSAGE_TERMINATE_APPLICATION_TIMEOUT = "Terminate Application TimeOut!";
-const std::string EVENT_MESSAGE_ADD_ABILITY_STAGE_INFO_TIMEOUT = "Add Ability Stage TimeOut!";
-const std::string EVENT_MESSAGE_START_SPECIFIED_PROCESS_TIMEOUT = "Start Specified Process Timeout!";
-const std::string EVENT_MESSAGE_START_SPECIFIED_ABILITY_TIMEOUT = "Start Specified Ability TimeOut!";
-const std::string EVENT_MESSAGE_START_PROCESS_SPECIFIED_ABILITY_TIMEOUT = "Start Process Specified Ability TimeOut!";
-const std::string EVENT_MESSAGE_DEFAULT = "AppMgrServiceInner HandleTimeOut!";
-const std::string SUPPORT_CALL_NOTIFY_MEMORY_CHANGED =
+constexpr const char* EVENT_MESSAGE_TERMINATE_ABILITY_TIMEOUT = "Terminate Ability TimeOut!";
+constexpr const char* EVENT_MESSAGE_TERMINATE_APPLICATION_TIMEOUT = "Terminate Application TimeOut!";
+constexpr const char* EVENT_MESSAGE_ADD_ABILITY_STAGE_INFO_TIMEOUT = "Add Ability Stage TimeOut!";
+constexpr const char* EVENT_MESSAGE_START_SPECIFIED_PROCESS_TIMEOUT = "Start Specified Process Timeout!";
+constexpr const char* EVENT_MESSAGE_START_SPECIFIED_ABILITY_TIMEOUT = "Start Specified Ability TimeOut!";
+constexpr const char* EVENT_MESSAGE_START_PROCESS_SPECIFIED_ABILITY_TIMEOUT =
+    "Start Process Specified Ability TimeOut!";
+constexpr const char* EVENT_MESSAGE_DEFAULT = "AppMgrServiceInner HandleTimeOut!";
+constexpr const char* SUPPORT_CALL_NOTIFY_MEMORY_CHANGED =
     "persist.sys.abilityms.support_call_notify_memory_changed";
 
-const std::string SYSTEM_BASIC = "system_basic";
-const std::string SYSTEM_CORE = "system_core";
-const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
-const std::string PROCESS_EXIT_EVENT_TASK = "Send Process Exit Event Task";
-const std::string KILL_PROCESS_REASON_PREFIX = "Kill Reason:";
-const std::string PRELOAD_APPLIATION_TASK = "PreloadApplicactionTask";
+constexpr const char* SYSTEM_BASIC = "system_basic";
+constexpr const char* SYSTEM_CORE = "system_core";
+constexpr const char* ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
+constexpr const char* PROCESS_EXIT_EVENT_TASK = "Send Process Exit Event Task";
+constexpr const char* KILL_PROCESS_REASON_PREFIX = "Kill Reason:";
+constexpr const char* PRELOAD_APPLIATION_TASK = "PreloadApplicactionTask";
 
 constexpr int32_t ROOT_UID = 0;
 constexpr int32_t FOUNDATION_UID = 5523;
@@ -1616,7 +1617,7 @@ int32_t AppMgrServiceInner::NotifyMemoryLevel(int32_t level)
     bool isMemmgrCall = AAFwk::PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission(
         MEMMGR_PROC_NAME);
     if (!isMemmgrCall) {
-        TAG_LOGE(AAFwkTag::APPMGR, "callerToken not %{public}s. %{public}s", MEMMGR_PROC_NAME.c_str(), __func__);
+        TAG_LOGE(AAFwkTag::APPMGR, "callerToken not %{public}s. %{public}s", MEMMGR_PROC_NAME, __func__);
         return ERR_INVALID_VALUE;
     }
     if (!(level == OHOS::AppExecFwk::MemoryLevel::MEMORY_LEVEL_MODERATE ||
@@ -1640,7 +1641,7 @@ int32_t AppMgrServiceInner::NotifyProcMemoryLevel(const std::map<pid_t, MemoryLe
     bool isMemmgrCall = AAFwk::PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission(
         MEMMGR_PROC_NAME);
     if (!isMemmgrCall) {
-        TAG_LOGE(AAFwkTag::APPMGR, "callerToken not %{public}s. %{public}s", MEMMGR_PROC_NAME.c_str(), __func__);
+        TAG_LOGE(AAFwkTag::APPMGR, "callerToken not %{public}s. %{public}s", MEMMGR_PROC_NAME, __func__);
         return ERR_INVALID_VALUE;
     }
     if (!appRunningManager_) {
@@ -6713,7 +6714,7 @@ int32_t AppMgrServiceInner::NotifyMemorySizeStateChanged(bool isMemorySizeSuffic
         MEMMGR_PROC_NAME);
     bool isSupportCall = OHOS::system::GetBoolParameter(SUPPORT_CALL_NOTIFY_MEMORY_CHANGED, false);
     if (!isMemmgrCall && !isSupportCall) {
-        TAG_LOGE(AAFwkTag::APPMGR, "callerToken not %{public}s. %{public}s", MEMMGR_PROC_NAME.c_str(), __func__);
+        TAG_LOGE(AAFwkTag::APPMGR, "callerToken not %{public}s. %{public}s", MEMMGR_PROC_NAME, __func__);
         return ERR_PERMISSION_DENIED;
     }
 
