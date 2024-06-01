@@ -3331,5 +3331,52 @@ int32_t MainThread::ScheduleDumpFfrt(std::string& result)
     TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ScheduleDumpFfrt::pid:%{public}d", getprocpid());
     return DumpFfrtHelper::DumpFfrt(result);
 }
+
+/**
+ *
+ * @brief Notify application to prepare for process caching.
+ *
+ */
+void MainThread::ScheduleCacheProcess()
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "ScheduleCacheProcess");
+    wptr<MainThread> weak = this;
+    auto task = [weak]() {
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            TAG_LOGE(AAFwkTag::APPKIT, "appThread is nullptr");
+            return;
+        }
+        appThread->HandleCacheProcess();
+    };
+    if (mainHandler_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "handler nullptr");
+        return;
+    }
+    if (!mainHandler_->PostTask(task, "MainThread:ScheduleCacheProcess")) {
+        TAG_LOGE(AAFwkTag::APPKIT, "PostTask task failed");
+    }
+}
+
+/**
+ *
+ * @brief Notify application to prepare for process caching.
+ *
+ */
+void MainThread::HandleCacheProcess()
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::APPKIT, "start.");
+
+    // force gc
+    if (application_ != nullptr) {
+        auto &runtime = application_->GetRuntime();
+        if (runtime == nullptr) {
+            TAG_LOGE(AAFwkTag::APPKIT, "runtime nullptr");
+            return;
+        }
+        runtime->ForceFullGC();
+    }
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

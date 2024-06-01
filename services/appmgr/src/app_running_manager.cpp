@@ -1503,10 +1503,13 @@ bool AppRunningManager::IsAppProcessesAllCached(const std::string &bundleName, i
         if (itemRecord == nullptr) {
             continue;
         }
-        if (itemRecord->GetBundleName() == bundleName && itemRecord->GetUid() == uid &&
-            cachedSet.find(itemRecord) == cachedSet.end() &&
-            DelayedSingleton<CacheProcessManager>::GetInstance()->IsAppSupportProcessCache(itemRecord)) {
-            return false;
+        if (itemRecord->GetBundleName() == bundleName && itemRecord->GetUid() == uid) {
+            auto supportCache =
+                DelayedSingleton<CacheProcessManager>::GetInstance()->IsAppSupportProcessCache(itemRecord);
+            // need wait for unsupported processes
+            if ((cachedSet.find(itemRecord) == cachedSet.end() && supportCache) || !supportCache) {
+                return false;
+            }
         }
     }
     return true;

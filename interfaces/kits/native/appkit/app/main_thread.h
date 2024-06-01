@@ -345,6 +345,7 @@ public:
      */
     int32_t ScheduleDumpFfrt(std::string& result) override;
 
+    void ScheduleCacheProcess() override;
 private:
     /**
      *
@@ -605,6 +606,8 @@ private:
     std::vector<std::string> GetRemoveOverlayPaths(const std::vector<OverlayModuleInfo> &overlayModuleInfos);
 
     int32_t ChangeAppGcState(int32_t state);
+
+    void HandleCacheProcess();
 
     class MainHandler : public EventHandler {
     public:
