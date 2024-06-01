@@ -71,7 +71,7 @@ const std::string ContextImpl::CONTEXT_DATABASE("database");
 const std::string ContextImpl::CONTEXT_TEMP("/temp");
 const std::string ContextImpl::CONTEXT_FILES("/files");
 const std::string ContextImpl::CONTEXT_HAPS("/haps");
-const std::string ContextImpl::CONTEXT_ELS[] = {"el1", "el2", "el3", "el4"};
+const std::string ContextImpl::CONTEXT_ELS[] = {"el1", "el2", "el3", "el4", "el5"};
 const std::string ContextImpl::CONTEXT_RESOURCE_END = "/resources/resfile";
 Global::Resource::DeviceType ContextImpl::deviceType_ = Global::Resource::DeviceType::DEVICE_NOT_SET;
 const std::string OVERLAY_STATE_CHANGED = "usual.event.OVERLAY_STATE_CHANGED";
@@ -82,6 +82,7 @@ const int32_t API_VERSION_MOD = 100;
 const int32_t ERR_ABILITY_RUNTIME_EXTERNAL_NOT_SYSTEM_HSP = 16400001;
 const int AREA2 = 2;
 const int AREA3 = 3;
+const int AREA4 = 4;
 
 std::string ContextImpl::GetBundleName() const
 {
@@ -328,8 +329,10 @@ std::string ContextImpl::GetDistributedFilesDir()
         dir = CONTEXT_DISTRIBUTEDFILES_BASE_BEFORE + std::to_string(GetCurrentAccountId()) +
             CONTEXT_DISTRIBUTEDFILES_BASE_MIDDLE + GetBundleName();
     } else {
-        if (currArea_ == CONTEXT_ELS[1] || currArea_ == CONTEXT_ELS[AREA2] || currArea_ == CONTEXT_ELS[AREA3]) {
-            //when areamode swith to el3/el4, the distributedfiles dir should be always el2's distributedfilesdir dir
+        if (currArea_ == CONTEXT_ELS[1] || currArea_ == CONTEXT_ELS[AREA2] || currArea_ == CONTEXT_ELS[AREA3] ||
+	    currArea_ == CONTEXT_ELS[AREA4]) {
+            // when areamode swith to el3/el4/el5, the distributedfiles dir should be always el2's
+            // distributedfilesdir dir
             dir = CONTEXT_DATA_STORAGE + CONTEXT_ELS[1] + CONTEXT_FILE_SEPARATOR + CONTEXT_DISTRIBUTEDFILES;
         } else {
             dir = CONTEXT_DATA_STORAGE + currArea_ + CONTEXT_FILE_SEPARATOR + CONTEXT_DISTRIBUTEDFILES;
