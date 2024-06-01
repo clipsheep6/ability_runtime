@@ -26,12 +26,10 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-    std::shared_ptr<AppExecFwk::EventHandler> g_eventHandler = nullptr;
-}
-void OHOSJsEnvironmentImpl::PostTaskToHandler(void* handler, uv_io_cb func, void* work, int status, int priority)
+void PostTaskToHandler(void* handler, uv_io_cb func, void* work, int status, int priority)
 {
     TAG_LOGD(AAFwkTag::JSRUNTIME, "Enter.");
-    if (!func || !work) {
+    if (!handler || !func || !work) {
         TAG_LOGE(AAFwkTag::JSRUNTIME, "Invalid parameters!");
         return;
     }
@@ -42,6 +40,7 @@ void OHOSJsEnvironmentImpl::PostTaskToHandler(void* handler, uv_io_cb func, void
         TAG_LOGD(AAFwkTag::JSRUNTIME, "Do uv work end.");
     };
 
+    auto eventHandler = static_cast<AppExecFwk::EventHandler*>(handler);
     AppExecFwk::EventQueue::Priority prio = AppExecFwk::EventQueue::Priority::IMMEDIATE;
     switch (priority) {
         case uv_qos_t::uv_qos_user_initiated:
@@ -57,14 +56,9 @@ void OHOSJsEnvironmentImpl::PostTaskToHandler(void* handler, uv_io_cb func, void
             prio = AppExecFwk::EventQueue::Priority::HIGH;
             break;
     }
-
-    if (g_eventHandler == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "Invalid parameters!");
-        return;
-    }
-    g_eventHandler->PostTask(task, prio);
-
+    eventHandler->PostTask(task, prio);
     TAG_LOGD(AAFwkTag::JSRUNTIME, "PostTask end.");
+}
 }
 OHOSJsEnvironmentImpl::OHOSJsEnvironmentImpl()
 {
@@ -77,7 +71,6 @@ OHOSJsEnvironmentImpl::OHOSJsEnvironmentImpl(const std::shared_ptr<AppExecFwk::E
     if (eventRunner != nullptr) {
         TAG_LOGD(AAFwkTag::JSRUNTIME, "Create event handler.");
         eventHandler_ = std::make_shared<AppExecFwk::EventHandler>(eventRunner);
-        g_eventHandler = std::make_shared<AppExecFwk::EventHandler>(eventRunner);
     }
 }
 
@@ -143,7 +136,7 @@ bool OHOSJsEnvironmentImpl::InitLoop(NativeEngine* engine, bool isStage)
         eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<OHOSLoopHandler>(uvLoop), "uvLoopTask");
         TAG_LOGD(AAFwkTag::JSRUNTIME, "uv_register_task_to_event, isStage: %{public}d", isStage);
         if (isStage) {
-            uv_register_task_to_event(uvLoop, PostTaskToHandler, nullptr);
+            uv_register_task_to_event(uvLoop, PostTaskToHandler, eventHandler_.get());
         }
     }
 
