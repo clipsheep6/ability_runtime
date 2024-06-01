@@ -9619,14 +9619,26 @@ bool AbilityManagerService::IsAbilityStarted(AbilityRequest &abilityRequest,
     return missionListMgr->IsAbilityStarted(abilityRequest, targetRecord);
 }
 
-int32_t AbilityManagerService::OnExecuteIntent(AbilityRequest &abilityRequest,
-    std::shared_ptr<AbilityRecord> &targetRecord)
+int32_t AbilityManagerService::OnExecuteIntent(const Want &want)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "OnExecuteIntent");
-    if (targetRecord == nullptr || targetRecord->GetScheduler() == nullptr) {
+
+    std::string abilityName = want.GetElement().GetAbilityName();
+    std::string bundleName = want.GetElement().GetBundleName();
+    std::string moduleName = want.GetElement().GetModuleName();
+    std::string intentKey = bundleName + moduleName + abilityName;
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "zhuhan intentKey %{public}s", intentKey.c_str());
+    auto intentList = intentRequest_.find(intentKey);
+    if (intentList == intentRequest_.end()) {
         return ERR_INVALID_VALUE;
     }
-    targetRecord->GetScheduler()->OnExecuteIntent(abilityRequest.want);
+
+    for(auto intent : intentList->second) {
+        auto targetRecord = intent.second;
+        if (targetRecord != nullptr && targetRecord->GetScheduler() != nullptr) {
+            targetRecord->GetScheduler()->OnExecuteIntent(intent.first);
+        }
+    }
 
     return ERR_OK;
 }
@@ -9686,7 +9698,22 @@ int32_t AbilityManagerService::StartAbilityByCallWithInsightIntent(const Want &w
     if (IsAbilityStarted(abilityRequest, targetRecord, oriValidUserId)) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "ability has already started");
         UpdateCallerInfo(abilityRequest.want, callerToken);
-        result = OnExecuteIntent(abilityRequest, targetRecord);
+
+        //in
+        std::string abilityName = want.GetElement().GetAbilityName();
+        std::string bundleName = want.GetElement().GetBundleName();
+        std::string moduleName = want.GetElement().GetModuleName();
+        std::string intentKey = bundleName + moduleName + abilityName;
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "zhuhan intentKey %{public}s", intentKey.c_str());
+        auto intentReq = intentRequest_.find(intentKey);
+        if (intentReq != intentRequest_.end()) {
+            intentReq->second.push_back(std::make_pair(want, targetRecord));
+        } else {
+            std::list<std::pair<Want, std::shared_ptr<AbilityRecord>>> list;
+            list.push_back(std::make_pair(want, targetRecord));
+            intentRequest_.emplace(intentKey, list);
+        }
+        return ERR_OK;
     }  else {
         result = StartAbilityByCall(want, connect, callerToken);
     }

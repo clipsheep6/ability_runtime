@@ -76,6 +76,8 @@ class IStatusBarDelegate;
 }
 namespace AAFwk {
 using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
+using OnExecuteIntentCallback = std::function<int(AbilityRequest &abilityRequest, 
+    std::shared_ptr<AbilityRecord> &targetRecord)>;
 enum class ServiceRunningState { STATE_NOT_START, STATE_RUNNING };
 constexpr int32_t BASE_USER_RANGE = 200000;
 constexpr int32_t U0_USER_ID = 0;
@@ -1537,7 +1539,7 @@ public:
      * @brief Execute intent.
      * @param abilityRequest The abilityRequest.
      */
-    int32_t OnExecuteIntent(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetRecord);
+    int32_t OnExecuteIntent(const Want &want);
 
     int32_t StartAbilityWithInsightIntent(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE);
@@ -2244,6 +2246,8 @@ private:
     ffrt::mutex abilityDebugDealLock_;
     std::shared_ptr<AbilityDebugDeal> abilityDebugDeal_;
     std::shared_ptr<AppExitReasonHelper> appExitReasonHelper_;
+    std::vector<OnExecuteIntentCallback> intentCallbacks_;
+    std::unordered_map<std::string, std::list<std::pair<Want, std::shared_ptr<AbilityRecord>>>> intentRequest_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
