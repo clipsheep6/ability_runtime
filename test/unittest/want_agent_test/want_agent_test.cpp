@@ -197,4 +197,45 @@ HWTEST_F(WantAgentTest, ProcessOptionsTest_0500, TestSize.Level1)
     option->IsNewProcessMode(value);
     EXPECT_NE(option, nullptr);
 }
+
+/*
+ * @tc.number    : ProcessOptionsTest_0600
+ * @tc.name      : IsAttachToStatusBarMode
+ * @tc.desc      : IsAttachToStatusBarMode
+ */
+HWTEST_F(WantAgentTest, ProcessOptionsTest_0600, TestSize.Level1)
+{
+    auto option = std::make_shared<ProcessOptions>();
+    ProcessMode value = ProcessMode::NEW_PROCESS_ATTACH_TO_STATUS_BAR_ITEM;
+    bool ret = option->IsAttachToStatusBarMode(value);
+    EXPECT_EQ(ret, true);
+}
+
+
+/*
+ * @tc.number    : ProcessOptionsTest_0700
+ * @tc.name      : IsAttachToStatusBarMode
+ * @tc.desc      : IsAttachToStatusBarMode
+ */
+HWTEST_F(WantAgentTest, ProcessOptionsTest_0700, TestSize.Level1)
+{
+    auto option = std::make_shared<ProcessOptions>();
+    ProcessMode value = ProcessMode::ATTACH_TO_STATUS_BAR_ITEM;
+    bool ret = option->IsAttachToStatusBarMode(value);
+    EXPECT_EQ(ret, true);
+}
+
+
+/*
+ * @tc.number    : ProcessOptionsTest_0800
+ * @tc.name      : IsAttachToStatusBarMode
+ * @tc.desc      : IsAttachToStatusBarMode
+ */
+HWTEST_F(WantAgentTest, ProcessOptionsTest_0800, TestSize.Level1)
+{
+    auto option = std::make_shared<ProcessOptions>();
+    ProcessMode value = ProcessMode::UNSPECIFIED;
+    bool ret = option->IsAttachToStatusBarMode(value);
+    EXPECT_EQ(ret, false);
+}
 }  // namespace OHOS::AbilityRuntime::WantAgent

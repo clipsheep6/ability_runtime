@@ -108,5 +108,19 @@ HWTEST_F(StartOptionsTest, start_options_test_002, TestSize.Level1)
     ret = startOptions.GetWindowFocused();
     EXPECT_FALSE(ret);
 }
+
+/**
+ * @tc.name: start_options_test_003
+ * @tc.desc: test class StartOptions &operator= function
+ * @tc.type: FUNC
+ */
+HWTEST_F(StartOptionsTest, start_options_test_003, TestSize.Level1)
+{
+    StartOptions firstStartOptions;
+    int32_t windowMode = 10;
+    firstStartOptions.SetWindowMode(windowMode);
+    StartOptions secondStartOptions = firstStartOptions;
+    EXPECT_EQ(secondStartOptions.GetWindowMode(), firstStartOptions.windowMode_);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
