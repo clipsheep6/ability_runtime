@@ -23,7 +23,8 @@
 #include <sstream>
 #include <unistd.h>
 
-#include "js_env_logger.h"
+#include "hilog_tag_wrapper.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace JsEnv {
@@ -146,7 +147,7 @@ std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
         std::string column;
         GetPosInfo(temp, closeBracePos, line, column);
         if (line.empty() || column.empty()) {
-            JSENV_LOG_W("the stack without line info");
+            TAG_LOGW(AAFwkTag::JSENV, "the stack without line info");
             break;
         }
         std::string sourceInfo;
@@ -162,7 +163,7 @@ std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
             std::string url = key + ".js.map";
             std::string curSourceMap;
             if (!ReadSourceMapData(hapPath_, url, curSourceMap)) {
-                JSENV_LOG_W("ReadSourceMapData fail");
+                TAG_LOGW(AAFwkTag::JSENV, "ReadSourceMapData fail");
                 continue;
             }
             ExtractSourceMapData(curSourceMap, nonModularMap_);
@@ -265,11 +266,11 @@ void SourceMap::ExtractSourceMapData(const std::string& sourceMapData, std::shar
         std::vector<int32_t> ans;
 
         if (!VlqRevCode(mapping, ans)) {
-            JSENV_LOG_E("decode code fail");
+            TAG_LOGE(AAFwkTag::JSENV, "decode code fail");
             return;
         }
         if (ans.empty()) {
-            JSENV_LOG_E("decode sourcemap fail, mapping: %{public}s", mapping.c_str());
+            TAG_LOGE(AAFwkTag::JSENV, "decode sourcemap fail, mapping: %{public}s", mapping.c_str());
             break;
         }
         if (ans.size() == 1) {
@@ -525,7 +526,7 @@ bool SourceMap::TranslateUrlPositionBySourceMap(std::string& url, int& line, int
         if (iter != sourceMaps_.end()) {
             return GetLineAndColumnNumbers(line, column, *(iter->second), url);
         }
-        JSENV_LOG_E("TranslateUrlPositionBySourceMap: stageMode sourceMaps find fail");
+        TAG_LOGE(AAFwkTag::JSENV, "TranslateUrlPositionBySourceMap: stageMode sourceMaps find fail");
         return false;
     }
     return false;

@@ -262,11 +262,14 @@ void JsUIExtension::OnStart(const AAFwk::Want &want)
     if (InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
         launchParam.launchReason = AAFwk::LaunchReason::LAUNCHREASON_INSIGHT_INTENT;
     }
-    napi_value argv[] = {
-        CreateJsLaunchParam(env, launchParam),
-        napiWant
-    };
-    CallObjectMethod("onCreate", argv, ARGC_TWO);
+    int32_t screenMode = want.GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::IDLE_SCREEN_MODE);
+    if (screenMode == AAFwk::EMBEDDED_FULL_SCREEN_MODE) {
+        napi_value argv[] = {napiWant, CreateJsLaunchParam(env, launchParam) };
+        CallObjectMethod("onCreate", argv, ARGC_TWO);
+    } else {
+        napi_value argv[] = {CreateJsLaunchParam(env, launchParam) };
+        CallObjectMethod("onCreate", argv, ARGC_ONE);
+    }
     TAG_LOGD(AAFwkTag::UI_EXT, "JsUIExtension OnStart end.");
 }
 

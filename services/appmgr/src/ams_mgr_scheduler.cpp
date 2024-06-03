@@ -31,19 +31,19 @@
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
-const std::string TASK_TERMINATE_ABILITY = "TerminateAbilityTask";
-const std::string TASK_UPDATE_ABILITY_STATE = "UpdateAbilityStateTask";
-const std::string TASK_UPDATE_EXTENSION_STATE = "UpdateExtensionStateTask";
-const std::string TASK_REGISTER_APP_STATE_CALLBACK = "RegisterAppStateCallbackTask";
-const std::string TASK_STOP_ALL_PROCESS = "StopAllProcessTask";
-const std::string TASK_ABILITY_BEHAVIOR_ANALYSIS = "AbilityBehaviorAnalysisTask";
-const std::string TASK_KILL_PROCESS_BY_ABILITY_TOKEN = "KillProcessByAbilityTokenTask";
-const std::string TASK_KILL_PROCESSES_BY_USERID = "KillProcessesByUserIdTask";
-const std::string TASK_KILL_PROCESSES_BY_PIDS = "KillProcessesByPids";
-const std::string TASK_ATTACH_PID_TO_PARENT = "AttachPidToParent";
-const std::string TASK_KILL_APPLICATION = "KillApplicationTask";
-const std::string TASK_CLEAR_PROCESS_BY_ABILITY_TOKEN = "ClearProcessByAbilityTokenTask";
-const std::string FOUNDATION_NAME = "foundation";
+constexpr const char* TASK_TERMINATE_ABILITY = "TerminateAbilityTask";
+constexpr const char* TASK_UPDATE_ABILITY_STATE = "UpdateAbilityStateTask";
+constexpr const char* TASK_UPDATE_EXTENSION_STATE = "UpdateExtensionStateTask";
+constexpr const char* TASK_REGISTER_APP_STATE_CALLBACK = "RegisterAppStateCallbackTask";
+constexpr const char* TASK_STOP_ALL_PROCESS = "StopAllProcessTask";
+constexpr const char* TASK_ABILITY_BEHAVIOR_ANALYSIS = "AbilityBehaviorAnalysisTask";
+constexpr const char* TASK_KILL_PROCESS_BY_ABILITY_TOKEN = "KillProcessByAbilityTokenTask";
+constexpr const char* TASK_KILL_PROCESSES_BY_USERID = "KillProcessesByUserIdTask";
+constexpr const char* TASK_KILL_PROCESSES_BY_PIDS = "KillProcessesByPids";
+constexpr const char* TASK_ATTACH_PID_TO_PARENT = "AttachPidToParent";
+constexpr const char* TASK_KILL_APPLICATION = "KillApplicationTask";
+constexpr const char* TASK_CLEAR_PROCESS_BY_ABILITY_TOKEN = "ClearProcessByAbilityTokenTask";
+constexpr const char* FOUNDATION_NAME = "foundation";
 };  // namespace
 
 AmsMgrScheduler::AmsMgrScheduler(

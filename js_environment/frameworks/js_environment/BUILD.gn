@@ -23,6 +23,7 @@ config("public_js_environment_config") {
   include_dirs = [
     "${inner_api_path}",
     "${utils_path}/include",
+    "${ability_runtime_services_path}/common/include",
   ]
 }
 
@@ -47,6 +48,7 @@ ohos_shared_library("js_environment") {
     "eventhandler:libeventhandler",
     "faultloggerd:libunwinder",
     "ffrt:libffrt",
+    "hilog:libhilog",
     "napi:ace_napi",
   ]
 

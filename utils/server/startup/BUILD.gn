@@ -48,6 +48,7 @@ ohos_shared_library("startup_util") {
   external_deps = [
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
   ]
 
   innerapi_tags = [ "platformsdk" ]

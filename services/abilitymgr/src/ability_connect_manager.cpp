@@ -75,6 +75,8 @@ const std::unordered_set<std::string> FROZEN_WHITE_LIST {
 };
 constexpr char BUNDLE_NAME_DIALOG[] = "com.ohos.amsdialog";
 constexpr char ABILITY_NAME_ASSERT_FAULT_DIALOG[] = "AssertFaultDialog";
+constexpr char BUNDLE_NAME_SAMPLE_MANAGEMENT[] = "com.huawei.hmsapp.samplemanagement";
+constexpr char ABILITY_NAME_SAMPLE_MANAGEMENT[] = "MspesService";
 
 bool IsSpecialAbility(const AppExecFwk::AbilityInfo &abilityInfo)
 {
@@ -2009,14 +2011,14 @@ void AbilityConnectManager::HandleAbilityDiedTask(
         if ((IsLauncher(abilityRecord) || abilityRecord->IsSceneBoard()) && token != nullptr) {
             IN_PROCESS_CALL_WITHOUT_RET(DelayedSingleton<AppScheduler>::GetInstance()->ClearProcessByToken(
                 token->AsObject()));
-            if (abilityRecord->IsSceneBoard() && currentUserId != userId_) {
-                TAG_LOGD(AAFwkTag::ABILITYMGR, "Not the current user's SCB, clear the user and do not restart");
-                KillProcessesByUserId();
-                return;
-            }
+        }
+        if (abilityRecord->IsSceneBoard() && currentUserId != userId_) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Not the current user's SCB, clear the user and do not restart");
+            KillProcessesByUserId();
+            return;
         }
         if (DelayedSingleton<AppScheduler>::GetInstance()->IsMemorySizeSufficent() ||
-            IsLauncher(abilityRecord) || abilityRecord->IsSceneBoard()) {
+            IsLauncher(abilityRecord) || abilityRecord->IsSceneBoard() || IsSampleManagement(abilityRecord)) {
             RestartAbility(abilityRecord, currentUserId);
         }
     } else {
@@ -2343,6 +2345,16 @@ bool AbilityConnectManager::IsLauncher(std::shared_ptr<AbilityRecord> serviceExt
     }
     return serviceExtension->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME &&
         serviceExtension->GetAbilityInfo().bundleName == AbilityConfig::LAUNCHER_BUNDLE_NAME;
+}
+
+bool AbilityConnectManager::IsSampleManagement(std::shared_ptr<AbilityRecord> serviceExtension) const
+{
+    if (serviceExtension == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "param is nullptr");
+        return false;
+    }
+    return serviceExtension->GetAbilityInfo().name == ABILITY_NAME_SAMPLE_MANAGEMENT &&
+        serviceExtension->GetAbilityInfo().bundleName == BUNDLE_NAME_SAMPLE_MANAGEMENT;
 }
 
 void AbilityConnectManager::KillProcessesByUserId() const

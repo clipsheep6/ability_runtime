@@ -1455,6 +1455,8 @@ private:
 
     void SetAppInfo(const BundleInfo &bundleInfo, AppSpawnStartMsg &startMsg);
 
+    bool CreateAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo);
+
 private:
     /**
      * Notify application status.

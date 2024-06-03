@@ -26,8 +26,6 @@
 namespace OHOS {
 namespace AAFwk {
 struct StartAbilityInfo {
-    static void InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo &extensionInfo,
-        AppExecFwk::AbilityInfo &abilityInfo);
     static std::shared_ptr<StartAbilityInfo> CreateStartAbilityInfo(const Want &want, int32_t userId,
         int32_t appIndex);
     static std::shared_ptr<StartAbilityInfo> CreateCallerAbilityInfo(const sptr<IRemoteObject> &callerToken);

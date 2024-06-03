@@ -748,21 +748,19 @@ HWTEST_F(UIAbilityBaseTest, InitConfigurationProperties_0100, TestSize.Level1)
     config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, "en");
     config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, "dark");
     config.AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, "true");
-    std::string language;
-    std::string colormode;
-    std::string hasPointerDevice;
-    ability->InitConfigurationProperties(config, language, colormode, hasPointerDevice);
-    EXPECT_EQ(language, "en");
-    EXPECT_EQ(colormode, "dark");
-    EXPECT_EQ(hasPointerDevice, "true");
+    AbilityRuntime::ResourceConfigHelper resourceConfig;
+    ability->InitConfigurationProperties(config, resourceConfig);
+    EXPECT_EQ(resourceConfig.GetLanguage(), "en");
+    EXPECT_EQ(resourceConfig.GetColormode(), "dark");
+    EXPECT_EQ(resourceConfig.GetHasPointerDevice(), "true");
 
     // branch when setting is not nullptr
     auto setting = std::make_shared<AbilityStartSetting>();
     ability->SetStartAbilitySetting(setting);
-    ability->InitConfigurationProperties(config, language, colormode, hasPointerDevice);
-    EXPECT_EQ(language, "en");
-    EXPECT_EQ(colormode, "dark");
-    EXPECT_EQ(hasPointerDevice, "true");
+    ability->InitConfigurationProperties(config, resourceConfig);
+    EXPECT_EQ(resourceConfig.GetLanguage(), "en");
+    EXPECT_EQ(resourceConfig.GetColormode(), "dark");
+    EXPECT_EQ(resourceConfig.GetHasPointerDevice(), "true");
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 

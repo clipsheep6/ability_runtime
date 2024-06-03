@@ -157,6 +157,10 @@ class ApplicationContext {
     return this.__context_impl__.setLanguage(language);
   }
 
+  setFont(font) {
+    return this.__context_impl__.setFont(font);
+  }
+
   setAutoStartup(info, callback) {
     return this.__context_impl__.setAutoStartup(info, callback);
   }

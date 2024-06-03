@@ -209,6 +209,9 @@ public:
         return 0;
     }
 
+    void ScheduleCacheProcess() override
+    {}
+
 private:
     int abilityLaunchTime = 0;
     int appLaunchTime = 0;

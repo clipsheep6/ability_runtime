@@ -136,6 +136,7 @@ ohos_shared_library("abilitykit_utils") {
     "${ability_runtime_native_path}/ability/native/ability_handler.cpp",
     "${ability_runtime_native_path}/ability/native/ability_local_record.cpp",
     "${ability_runtime_native_path}/ability/native/configuration_utils.cpp",
+    "${ability_runtime_native_path}/ability/native/resource_config_helper.cpp",
   ]
 
   deps = []

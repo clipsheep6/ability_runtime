@@ -200,9 +200,18 @@ void OHOSApplication::SetApplicationContext(
     abilityRuntimeContext_->RegisterAppConfigUpdateObserver([applicationWptr](const Configuration &config) {
         std::shared_ptr<OHOSApplication> applicationSptr = applicationWptr.lock();
         if (applicationSptr == nullptr) {
+            TAG_LOGE(AAFwkTag::APPKIT, "application is nullptr.");
             return;
         }
         applicationSptr->OnConfigurationUpdated(config);
+    });
+    abilityRuntimeContext_->RegisterAppFontObserver([applicationWptr](const Configuration &config) {
+        std::shared_ptr<OHOSApplication> applicationSptr = applicationWptr.lock();
+        if (applicationSptr == nullptr) {
+            TAG_LOGE(AAFwkTag::APPKIT, "application is nullptr.");
+            return;
+        }
+        applicationSptr->OnFontUpdated(config);
     });
 }
 
@@ -535,6 +544,22 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
         || (globalColorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) == 0 && colorModeIsSetByApp.empty())) {
         configuration_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, ConfigurationInner::COLOR_MODE_AUTO);
     }
+}
+
+/**
+ *
+ * @brief Will be Called when the application font of the device changes.
+ *
+ * @param config Indicates the new Configuration object.
+ */
+void OHOSApplication::OnFontUpdated(Configuration config)
+{
+    #ifdef SUPPORT_GRAPHICS
+    // Notify Window
+    TAG_LOGD(AAFwkTag::APPKIT, "Update configuration for all window.");
+    auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(config);
+    Rosen::Window::UpdateConfigurationForAll(diffConfiguration);
+    #endif
 }
 
 /**

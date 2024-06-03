@@ -18,6 +18,7 @@
 
 #include "ability_info.h"
 #include "app_spawn_client.h"
+#include "global_constant.h"
 #include "want.h"
 
 namespace OHOS {
@@ -56,6 +57,10 @@ static uint32_t BuildStartFlags(const AAFwk::Want &want, const ApplicationInfo &
     }
     if (want.GetBoolParam("ohos.ability.params.extensionControl", false)) {
         startFlags = startFlags | (START_FLAG_BASE << StartFlags::EXTENSION_CONTROLLED);
+    }
+    if (applicationInfo.multiAppMode.multiAppModeType == MultiAppModeType::APP_CLONE && applicationInfo.appIndex > 0 &&
+        applicationInfo.appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
+        startFlags = startFlags | (START_FLAG_BASE << APP_FLAGS_CLONE_ENABLE);
     }
 
     return startFlags;

@@ -241,6 +241,8 @@ public:
     virtual int32_t GetRenderProcessTerminationStatus(const AppSpawnStartMsg &startMsg, int &status);
 
 private:
+    int32_t SetCloneFlag(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle) const;
+
     std::string serviceName_ = APPSPAWN_SERVER_NAME;
     AppSpawnClientHandle handle_ = nullptr;
     SpawnConnectionState state_ = SpawnConnectionState::STATE_NOT_CONNECT;
