@@ -1102,6 +1102,7 @@ HWTEST_F(MissionListManagerTest, GetReusedMission_001, TestSize.Level1)
 {
     int userId = 0;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
+    missionListManager->Init();
     AbilityRequest abilityRequest;
     abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
     auto res = missionListManager->GetReusedMission(abilityRequest);
