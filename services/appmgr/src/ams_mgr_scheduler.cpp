@@ -211,7 +211,7 @@ void AmsMgrScheduler::KillProcessesByPids(std::vector<int32_t> &pids)
         return;
     }
 
-    pid_t callingPid = IPCSkeleton::GetCallingRealPid();
+    pid_t callingPid = IPCSkeleton::GetCallingPid();
     pid_t pid = getprocpid();
     if (callingPid != pid) {
         TAG_LOGE(AAFwkTag::APPMGR, "Not allow other process to call.");
@@ -229,7 +229,7 @@ void AmsMgrScheduler::AttachPidToParent(const sptr<IRemoteObject> &token, const 
         return;
     }
 
-    pid_t callingPid = IPCSkeleton::GetCallingRealPid();
+    pid_t callingPid = IPCSkeleton::GetCallingPid();
     pid_t pid = getprocpid();
     if (callingPid != pid) {
         TAG_LOGE(AAFwkTag::APPMGR, "Not allow other process to call.");

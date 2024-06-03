@@ -270,7 +270,7 @@ void ConnectionRecord::AttachCallerInfo()
     }
 
     callerUid_ = static_cast<int32_t>(IPCSkeleton::GetCallingUid());
-    callerPid_ = static_cast<int32_t>(IPCSkeleton::GetCallingRealPid());
+    callerPid_ = static_cast<int32_t>(IPCSkeleton::GetCallingPid());
     callerName_ = ConnectionStateManager::GetProcessNameByPid(callerPid_);
 }
 

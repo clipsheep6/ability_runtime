@@ -2901,7 +2901,7 @@ EventInfo AbilityConnectManager::BuildEventInfo(const std::shared_ptr<AbilityRec
     eventInfo.time = std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::system_clock::now().time_since_epoch()).count();
     auto callerPid = abilityRecord->GetWant().GetIntParam(Want::PARAM_RESV_CALLER_PID, -1);
-    eventInfo.callerPid = callerPid == -1 ? IPCSkeleton::GetCallingRealPid() : callerPid;
+    eventInfo.callerPid = callerPid == -1 ? IPCSkeleton::GetCallingPid() : callerPid;
     DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(eventInfo.callerPid, processInfo);
     eventInfo.callerPid = processInfo.pid_;
     eventInfo.callerProcessName = processInfo.processName_;
