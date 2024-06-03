@@ -110,6 +110,12 @@ namespace {
         return ERR_PERMISSION_DENIED;                                                                           \
     }
 
+#define CHECK_POINTER_AND_RETURN_LOG(object, log)      \
+    if (!object) {                                     \
+        TAG_LOGE(AAFwkTag::APPMGR, "%{public}s", log); \
+        return;                                        \
+    }
+
 // NANOSECONDS mean 10^9 nano second
 constexpr int64_t NANOSECONDS = 1000000000;
 // MICROSECONDS mean 10^6 milli second
@@ -829,10 +835,7 @@ void AppMgrServiceInner::AttachApplication(const pid_t pid, const sptr<IAppSched
         return;
     }
     auto appRecord = GetAppRunningRecordByPid(pid);
-    if (!appRecord) {
-        TAG_LOGE(AAFwkTag::APPMGR, "no such appRecord");
-        return;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(appRecord, "no such appRecord");
     auto applicationInfo = appRecord->GetApplicationInfo();
     AAFwk::EventInfo eventInfo;
     if (!applicationInfo) {
@@ -845,16 +848,10 @@ void AppMgrServiceInner::AttachApplication(const pid_t pid, const sptr<IAppSched
     std::string connector = "##";
     std::string traceName = __PRETTY_FUNCTION__ + connector + eventInfo.bundleName;
     HITRACE_METER_NAME(HITRACE_TAG_APP, traceName);
-    if (!appScheduler) {
-        TAG_LOGE(AAFwkTag::APPMGR, "app client is null");
-        return;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(appScheduler, "app client is null");
     TAG_LOGI(AAFwkTag::APPMGR, "attach, pid:%{public}d.", pid);
     sptr<AppDeathRecipient> appDeathRecipient = new (std::nothrow) AppDeathRecipient();
-    if (appDeathRecipient == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Failed to create death recipient.");
-        return;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(appDeathRecipient, "Failed to create death recipient.");
     appDeathRecipient->SetTaskHandler(taskHandler_);
     appDeathRecipient->SetAppMgrServiceInner(shared_from_this());
     auto object = appScheduler->AsObject();
@@ -867,6 +864,12 @@ void AppMgrServiceInner::AttachApplication(const pid_t pid, const sptr<IAppSched
     appRecord->SetApplicationClient(appScheduler);
     if (appRecord->GetState() == ApplicationState::APP_STATE_CREATE) {
         LaunchApplication(appRecord);
+    }
+
+    // submit cached load ability task after scene board attach
+    if (appRecord->GetBundleName() == SCENE_BOARD_BUNDLE_NAME) {
+        sceneBoardAttachFlag_ = true;
+        SubmitCacheLoabAbilityTask();
     }
     eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
     eventInfo.processName = appRecord->GetProcessName();
@@ -6892,6 +6895,34 @@ bool AppMgrServiceInner::IsAppProcessesAllCached(const std::string &bundleName, 
         return false;
     }
     return appRunningManager_->IsAppProcessesAllCached(bundleName, uid, cachedSet);
+}
+
+void AppMgrServiceInner::CacheLoabAbilityTask(const LoabAbilityTaskFunc& func)
+{
+    loadAbilityTaskFuncList_.emplace_back(func);
+}
+
+void AppMgrServiceInner::SubmitCacheLoabAbilityTask()
+{
+    std::weak_ptr<AAFwk::TaskHandlerWrap> taskHandler = taskHandler_;
+    for_each(loadAbilityTaskFuncList_.begin(), loadAbilityTaskFuncList_.end(),
+        [taskHandler](LoabAbilityTaskFunc loadAbilityFunc) {
+            auto LoadAbilityhandler = taskHandler.lock();
+            if (LoadAbilityhandler != nullptr && loadAbilityFunc) {
+                LoadAbilityhandler->SubmitTask(loadAbilityFunc);
+            }
+        });
+    loadAbilityTaskFuncList_.clear();
+}
+
+bool AppMgrServiceInner::GetSceneBoardAttachFlag() const
+{
+    return sceneBoardAttachFlag_;
+}
+
+void AppMgrServiceInner::SetSceneBoardAttachFlag(bool flag)
+{
+    sceneBoardAttachFlag_ = flag;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

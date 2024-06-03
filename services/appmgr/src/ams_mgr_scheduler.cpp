@@ -44,6 +44,10 @@ constexpr const char* TASK_ATTACH_PID_TO_PARENT = "AttachPidToParent";
 constexpr const char* TASK_KILL_APPLICATION = "KillApplicationTask";
 constexpr const char* TASK_CLEAR_PROCESS_BY_ABILITY_TOKEN = "ClearProcessByAbilityTokenTask";
 constexpr const char* FOUNDATION_NAME = "foundation";
+constexpr const char* SCENE_BOARD_BUNDLE_NAME = "com.ohos.sceneboard";
+constexpr const char* SCENEBOARD_ABILITY_NAME = "com.ohos.sceneboard.MainAbility";
+constexpr const char* TASK_SCENE_BOARD_ATTACH_TIMEOUT = "sceneBoardAttachTimeoutTask";
+constexpr int32_t SCENE_BOARD_ATTACH_TIMEOUT_TASK_TIME = 1000;
 };  // namespace
 
 AmsMgrScheduler::AmsMgrScheduler(
@@ -80,6 +84,24 @@ void AmsMgrScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<I
     std::function<void()> loadAbilityFunc =
         std::bind(&AppMgrServiceInner::LoadAbility, amsMgrServiceInner_, token, preToken, abilityInfo,
             appInfo, want, abilityRecordId);
+
+    // cache other application load ability task before scene board attach
+    if (!amsMgrServiceInner_->GetSceneBoardAttachFlag() && abilityInfo->bundleName != SCENE_BOARD_BUNDLE_NAME) {
+        amsMgrServiceInner_->CacheLoabAbilityTask(loadAbilityFunc);
+        return;
+    }
+    if (abilityInfo->bundleName == SCENE_BOARD_BUNDLE_NAME && abilityInfo->name == SCENEBOARD_ABILITY_NAME) {
+        amsMgrServiceInner_->SetSceneBoardAttachFlag(false);
+        // set scene board attach timeout task
+        std::weak_ptr<AppMgrServiceInner> amsMgrServiceInner = amsMgrServiceInner_;
+        auto timeoutTask = [amsMgrServiceInner]() {
+            auto inner = amsMgrServiceInner.lock();
+            if (inner != nullptr) {
+                inner->SetSceneBoardAttachFlag(true);
+            }
+        };
+        amsHandler_->SubmitTask(timeoutTask, TASK_SCENE_BOARD_ATTACH_TIMEOUT, SCENE_BOARD_ATTACH_TIMEOUT_TASK_TIME);
+    }
 
     amsHandler_->SubmitTask(loadAbilityFunc);
 }
