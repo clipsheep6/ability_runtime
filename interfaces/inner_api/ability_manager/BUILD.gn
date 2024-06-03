@@ -17,6 +17,8 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 config("ability_manager_public_config") {
   visibility = [ ":*" ]
   visibility += [
+    "${ability_runtime_innerkits_path}/*",
+    "${ability_runtime_native_path}/*",
     "${ability_runtime_test_path}/fuzztest/*",
     "${ability_runtime_test_path}/moduletest/*",
     "${ability_runtime_test_path}/unittest/*",
@@ -119,6 +121,11 @@ ohos_shared_library("ability_manager") {
   public_configs = [
     ":ability_manager_public_config",
     "${ability_runtime_services_path}/abilitymgr:abilityms_config",
+    "${ability_runtime_native_path}/ability/native:extensionkit_public_config",
+    "${ability_runtime_native_path}/ability/native:abilitykit_utils_public_config",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common_public_config",
+    "${ability_runtime_native_path}/ability/native:ability_public_config",
+    "${ability_runtime_innerkits_path}/wantagent:wantagent_innerkits_public_config",
   ]
 
   deps = [
