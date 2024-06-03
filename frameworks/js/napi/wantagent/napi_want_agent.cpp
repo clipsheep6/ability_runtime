@@ -827,6 +827,160 @@ int32_t JsWantAgent::GetTriggerInfo(napi_env env, napi_value param, TriggerInfo 
     return BUSINESS_ERROR_CODE_OK;
 }
 
+int32_t JsWantAgent::GetWantAgentParamHasActionFlags(napi_env env, napi_callback_info info,
+    WantAgentWantsParas &paras, bool hasActionFlags)
+{
+    TAG_LOGD(AAFwkTag::WANTAGENT, "GetWantAgentParamHasActionFlags called.");
+    size_t argc = ARGS_MAX_COUNT;
+    napi_value argv[ARGS_MAX_COUNT] = {nullptr};
+    napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
+
+    napi_has_named_property(env, argv[0], "actionFlags", &hasActionFlags);
+    if (hasActionFlags) {
+        napi_value jsActionFlags = nullptr;
+        napi_get_named_property(env, argv[0], "actionFlags", &jsActionFlags);
+        bool jsActionFlagsIsArray = false;
+        napi_is_array(env, jsActionFlags, &jsActionFlagsIsArray);
+        if (!jsActionFlagsIsArray) {
+            TAG_LOGE(AAFwkTag::WANTAGENT, "actionFlags is not array!");
+            return PARAMETER_ERROR;
+        }
+
+        uint32_t jsActionFlagsLen = 0;
+        napi_get_array_length(env, jsActionFlags, &jsActionFlagsLen);
+        for (uint32_t i = 0; i < jsActionFlagsLen; i++) {
+            napi_value jsActionFlag = nullptr;
+            napi_get_element(env, jsActionFlags, i, &jsActionFlag);
+            if (!CheckTypeForNapiValue(env, jsActionFlag, napi_number)) {
+                TAG_LOGE(AAFwkTag::WANTAGENT, "ActionFlag type error!");
+                return PARAMETER_ERROR;
+            }
+            int32_t actionFlag = 0;
+            if (!ConvertFromJsValue(env, jsActionFlag, actionFlag)) {
+                TAG_LOGE(AAFwkTag::WANTAGENT, "Convert actionFlag failed!");
+                return PARAMETER_ERROR;
+            }
+            paras.wantAgentFlags.emplace_back(static_cast<WantAgentConstant::Flags>(actionFlag));
+        }
+    }
+    return BUSINESS_ERROR_CODE_OK;
+}
+
+int32_t JsWantAgent::GetWantAgentParamHasWantAgentFlags(napi_env env, napi_callback_info info,
+    WantAgentWantsParas &paras, bool hasActionFlags)
+{
+    TAG_LOGD(AAFwkTag::WANTAGENT, "GetWantAgentParamHasWantAgentFlags called.");
+    size_t argc = ARGS_MAX_COUNT;
+    napi_value argv[ARGS_MAX_COUNT] = {nullptr};
+    napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
+
+    bool hasWantAgentFlags = false;
+    napi_has_named_property(env, argv[0], "wantAgentFlags", &hasWantAgentFlags);
+    if (!hasActionFlags && hasWantAgentFlags) {
+        napi_value jsWantAgentFlags = nullptr;
+        napi_get_named_property(env, argv[0], "wantAgentFlags", &jsWantAgentFlags);
+        bool jsWantAgentFlagsIsArray = false;
+        napi_is_array(env, jsWantAgentFlags, &jsWantAgentFlagsIsArray);
+        if (!jsWantAgentFlagsIsArray) {
+            TAG_LOGE(AAFwkTag::WANTAGENT, "wantAgentFlags is not array!");
+            return PARAMETER_ERROR;
+        }
+
+        uint32_t jsWantAgentFlagsLen = 0;
+        napi_get_array_length(env, jsWantAgentFlags, &jsWantAgentFlagsLen);
+        for (uint32_t i = 0; i < jsWantAgentFlagsLen; i++) {
+            napi_value jsWantAgentFlag = nullptr;
+            napi_get_element(env, jsWantAgentFlags, i, &jsWantAgentFlag);
+            if (!CheckTypeForNapiValue(env, jsWantAgentFlag, napi_number)) {
+                TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentFlag type failed!");
+                return PARAMETER_ERROR;
+            }
+            int32_t wantAgentFlag = 0;
+            if (!ConvertFromJsValue(env, jsWantAgentFlag, wantAgentFlag)) {
+                TAG_LOGE(AAFwkTag::WANTAGENT, "Convert WantAgentFlag failed!");
+                return PARAMETER_ERROR;
+            }
+            paras.wantAgentFlags.emplace_back(static_cast<WantAgentConstant::Flags>(wantAgentFlag));
+        }
+    }
+    return BUSINESS_ERROR_CODE_OK;
+}
+
+
+int32_t JsWantAgent::GetWantAgentParamHasExtraInfo(napi_env env, napi_callback_info info,
+    WantAgentWantsParas &paras)
+{
+    TAG_LOGD(AAFwkTag::WANTAGENT, "GetWantAgentParamHasExtraInfo called.");
+    size_t argc = ARGS_MAX_COUNT;
+    napi_value argv[ARGS_MAX_COUNT] = {nullptr};
+    napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
+
+    bool hasExtraInfo = false;
+    napi_value jsExtraInfo = nullptr;
+    napi_has_named_property(env, argv[0], "extraInfos", &hasExtraInfo);
+    if (hasExtraInfo) {
+        napi_get_named_property(env, argv[0], "extraInfos", &jsExtraInfo);
+    } else {
+        napi_has_named_property(env, argv[0], "extraInfo", &hasExtraInfo);
+        if (hasExtraInfo) {
+            napi_get_named_property(env, argv[0], "extraInfo", &jsExtraInfo);
+        }
+    }
+    if (hasExtraInfo) {
+        if (!CheckTypeForNapiValue(env, jsExtraInfo, napi_object)) {
+            TAG_LOGE(AAFwkTag::WANTAGENT, "ExtraInfo type error!");
+            return PARAMETER_ERROR;
+        }
+        if (!UnwrapWantParams(env, (jsExtraInfo),
+            paras.extraInfo)) {
+            TAG_LOGE(AAFwkTag::WANTAGENT, "Convert extraInfo failed!");
+            return PARAMETER_ERROR;
+        }
+    }
+    return BUSINESS_ERROR_CODE_OK;
+}
+
+int32_t JsWantAgent::GetWantAgentParamOperationType(napi_env env, napi_callback_info info, WantAgentWantsParas &paras)
+{
+    TAG_LOGD(AAFwkTag::WANTAGENT, "GetWantAgentParamOperationType called.");
+    size_t argc = ARGS_MAX_COUNT;
+    napi_value argv[ARGS_MAX_COUNT] = {nullptr};
+    napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
+    if (!CheckTypeForNapiValue(env, argv[0], napi_object)) {
+        TAG_LOGE(AAFwkTag::WANTAGENT, "param type mismatch!");
+        return PARAMETER_ERROR;
+    }
+    bool hasActionType = false;
+    napi_has_named_property(env, argv[0], "actionType", &hasActionType);
+    if (hasActionType) {
+        napi_value jsActionType = nullptr;
+        napi_get_named_property(env, argv[0], "actionType", &jsActionType);
+        if (!ConvertFromJsValue(env, jsActionType, paras.operationType)) {
+            TAG_LOGE(AAFwkTag::WANTAGENT, "Convert actionType failed!");
+            return PARAMETER_ERROR;
+        }
+    }
+
+    bool hasOperationType = false;
+    napi_has_named_property(env, argv[0], "operationType", &hasOperationType);
+    if (!hasActionType && hasOperationType) {
+        napi_value jsOperationType = nullptr;
+        napi_get_named_property(env, argv[0], "operationType", &jsOperationType);
+        if (!ConvertFromJsValue(env, jsOperationType, paras.operationType)) {
+            TAG_LOGE(AAFwkTag::WANTAGENT, "Convert operationType failed!");
+            return PARAMETER_ERROR;
+        }
+    }
+
+    napi_value jsRequestCode = nullptr;
+    napi_get_named_property(env, argv[0], "requestCode", &jsRequestCode);
+    if (!ConvertFromJsValue(env, jsRequestCode, paras.requestCode)) {
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Convert requestCode failed!");
+        return PARAMETER_ERROR;
+    }
+    return BUSINESS_ERROR_CODE_OK;
+}
+
 int32_t JsWantAgent::GetWantAgentParam(napi_env env, napi_callback_info info, WantAgentWantsParas &paras)
 {
     TAG_LOGD(AAFwkTag::WANTAGENT, "GetWantAgentParam called.");
@@ -861,116 +1015,19 @@ int32_t JsWantAgent::GetWantAgentParam(napi_env env, napi_callback_info info, Wa
         paras.wants.emplace_back(want);
     }
 
-    bool hasActionType = false;
-    napi_has_named_property(env, argv[0], "actionType", &hasActionType);
-    if (hasActionType) {
-        napi_value jsActionType = nullptr;
-        napi_get_named_property(env, argv[0], "actionType", &jsActionType);
-        if (!ConvertFromJsValue(env, jsActionType, paras.operationType)) {
-            TAG_LOGE(AAFwkTag::WANTAGENT, "Convert actionType failed!");
-            return PARAMETER_ERROR;
-        }
+    if (GetWantAgentParamOperationType(env, info, paras) != BUSINESS_ERROR_CODE_OK) {
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Call GetWantAgentParamOperationType failed!");
     }
-
-    bool hasOperationType = false;
-    napi_has_named_property(env, argv[0], "operationType", &hasOperationType);
-    if (!hasActionType && hasOperationType) {
-        napi_value jsOperationType = nullptr;
-        napi_get_named_property(env, argv[0], "operationType", &jsOperationType);
-        if (!ConvertFromJsValue(env, jsOperationType, paras.operationType)) {
-            TAG_LOGE(AAFwkTag::WANTAGENT, "Convert operationType failed!");
-            return PARAMETER_ERROR;
-        }
-    }
-
-    napi_value jsRequestCode = nullptr;
-    napi_get_named_property(env, argv[0], "requestCode", &jsRequestCode);
-    if (!ConvertFromJsValue(env, jsRequestCode, paras.requestCode)) {
-        TAG_LOGE(AAFwkTag::WANTAGENT, "Convert requestCode failed!");
-        return PARAMETER_ERROR;
-    }
-
     bool hasActionFlags = false;
-    napi_has_named_property(env, argv[0], "actionFlags", &hasActionFlags);
-    if (hasActionFlags) {
-        napi_value jsActionFlags = nullptr;
-        napi_get_named_property(env, argv[0], "actionFlags", &jsActionFlags);
-        bool jsActionFlagsIsArray = false;
-        napi_is_array(env, jsActionFlags, &jsActionFlagsIsArray);
-        if (!jsActionFlagsIsArray) {
-            TAG_LOGE(AAFwkTag::WANTAGENT, "actionFlags is not array!");
-            return PARAMETER_ERROR;
-        }
-
-        uint32_t jsActionFlagsLen = 0;
-        napi_get_array_length(env, jsActionFlags, &jsActionFlagsLen);
-        for (uint32_t i = 0; i < jsActionFlagsLen; i++) {
-            napi_value jsActionFlag = nullptr;
-            napi_get_element(env, jsActionFlags, i, &jsActionFlag);
-            if (!CheckTypeForNapiValue(env, jsActionFlag, napi_number)) {
-                TAG_LOGE(AAFwkTag::WANTAGENT, "ActionFlag type error!");
-                return PARAMETER_ERROR;
-            }
-            int32_t actionFlag = 0;
-            if (!ConvertFromJsValue(env, jsActionFlag, actionFlag)) {
-                TAG_LOGE(AAFwkTag::WANTAGENT, "Convert actionFlag failed!");
-                return PARAMETER_ERROR;
-            }
-            paras.wantAgentFlags.emplace_back(static_cast<WantAgentConstant::Flags>(actionFlag));
-        }
+    if (GetWantAgentParamHasActionFlags(env, info, paras, hasActionFlags) != BUSINESS_ERROR_CODE_OK) {
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Call GetWantAgentParamHasActionFlags failed!");
     }
 
-    bool hasWantAgentFlags = false;
-    napi_has_named_property(env, argv[0], "wantAgentFlags", &hasWantAgentFlags);
-    if (!hasActionFlags && hasWantAgentFlags) {
-        napi_value jsWantAgentFlags = nullptr;
-        napi_get_named_property(env, argv[0], "wantAgentFlags", &jsWantAgentFlags);
-        bool jsWantAgentFlagsIsArray = false;
-        napi_is_array(env, jsWantAgentFlags, &jsWantAgentFlagsIsArray);
-        if (!jsWantAgentFlagsIsArray) {
-            TAG_LOGE(AAFwkTag::WANTAGENT, "wantAgentFlags is not array!");
-            return PARAMETER_ERROR;
-        }
-
-        uint32_t jsWantAgentFlagsLen = 0;
-        napi_get_array_length(env, jsWantAgentFlags, &jsWantAgentFlagsLen);
-        for (uint32_t i = 0; i < jsWantAgentFlagsLen; i++) {
-            napi_value jsWantAgentFlag = nullptr;
-            napi_get_element(env, jsWantAgentFlags, i, &jsWantAgentFlag);
-            if (!CheckTypeForNapiValue(env, jsWantAgentFlag, napi_number)) {
-                TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentFlag type failed!");
-                return PARAMETER_ERROR;
-            }
-            int32_t wantAgentFlag = 0;
-            if (!ConvertFromJsValue(env, jsWantAgentFlag, wantAgentFlag)) {
-                TAG_LOGE(AAFwkTag::WANTAGENT, "Convert WantAgentFlag failed!");
-                return PARAMETER_ERROR;
-            }
-            paras.wantAgentFlags.emplace_back(static_cast<WantAgentConstant::Flags>(wantAgentFlag));
-        }
+    if (GetWantAgentParamHasWantAgentFlags(env, info, paras, hasActionFlags) != BUSINESS_ERROR_CODE_OK) {
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Call GetWantAgentParamHasWantAgentFlags failed!");
     }
-
-    bool hasExtraInfo = false;
-    napi_value jsExtraInfo = nullptr;
-    napi_has_named_property(env, argv[0], "extraInfos", &hasExtraInfo);
-    if (hasExtraInfo) {
-        napi_get_named_property(env, argv[0], "extraInfos", &jsExtraInfo);
-    } else {
-        napi_has_named_property(env, argv[0], "extraInfo", &hasExtraInfo);
-        if (hasExtraInfo) {
-            napi_get_named_property(env, argv[0], "extraInfo", &jsExtraInfo);
-        }
-    }
-    if (hasExtraInfo) {
-        if (!CheckTypeForNapiValue(env, jsExtraInfo, napi_object)) {
-            TAG_LOGE(AAFwkTag::WANTAGENT, "ExtraInfo type error!");
-            return PARAMETER_ERROR;
-        }
-        if (!UnwrapWantParams(env, (jsExtraInfo),
-            paras.extraInfo)) {
-            TAG_LOGE(AAFwkTag::WANTAGENT, "Convert extraInfo failed!");
-            return PARAMETER_ERROR;
-        }
+    if (GetWantAgentParamHasExtraInfo(env, info, paras) != BUSINESS_ERROR_CODE_OK) {
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Call GetWantAgentParamInfos failed!");
     }
     return BUSINESS_ERROR_CODE_OK;
 }
