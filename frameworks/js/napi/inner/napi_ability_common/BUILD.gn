@@ -57,6 +57,7 @@ ohos_shared_library("napi_ability_common") {
   ]
 
   public_external_deps = [
+    "ability_base:configuration",
     "bundle_framework:appexecfwk_core",
     "window_manager:libwm_lite",
   ]
