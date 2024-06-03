@@ -80,6 +80,12 @@ ohos_shared_library("runtime") {
   public_configs = [
     ":runtime_public_config",
     "${ability_runtime_services_path}/common:common_config",
+    "${ability_runtime_native_path}/ability/native:extensionkit_public_config",
+    "${ability_runtime_native_path}/ability/native:abilitykit_utils_public_config",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager_public_config",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common_public_config",
+    "${ability_runtime_native_path}/ability/native:ability_public_config",
+    "${ability_runtime_innerkits_path}/wantagent:wantagent_innerkits_public_config",
   ]
 
   all_dependent_configs = [ ":runtime_all_deps_config" ]
