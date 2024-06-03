@@ -116,6 +116,7 @@ ohos_shared_library("runtime") {
     "resource_management:global_resmgr",
     "samgr:samgr_proxy",
     "zlib:shared_libz",
+    "init:syscap_ts",
   ]
 
   if (cj_frontend) {
