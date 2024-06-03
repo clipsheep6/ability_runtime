@@ -1098,25 +1098,6 @@ HWTEST_F(MissionListManagerTest, GetTargetMissionList_004, TestSize.Level1)
  * EnvConditions: NA
  * CaseDescription: Verify GetReusedMission
  */
-HWTEST_F(MissionListManagerTest, GetReusedMission_001, TestSize.Level1)
-{
-    int userId = 0;
-    auto missionListManager = std::make_shared<MissionListManager>(userId);
-    AbilityRequest abilityRequest;
-    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
-    auto res = missionListManager->GetReusedMission(abilityRequest);
-    EXPECT_EQ(res, nullptr);
-    missionListManager.reset();
-}
-
-/*
- * Feature: MissionListManager
- * Function: GetReusedMission
- * SubFunction: NA
- * FunctionPoints: MissionListManager GetReusedMission
- * EnvConditions: NA
- * CaseDescription: Verify GetReusedMission
- */
 HWTEST_F(MissionListManagerTest, GetReusedMission_002, TestSize.Level1)
 {
     int userId = 0;

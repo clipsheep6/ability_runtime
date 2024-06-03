@@ -656,7 +656,7 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityContinuation_0100, TestSize.Level1)
     // branch when launchReason is not LAUNCHREASON_CONTINUATION
     ret = ability->IsRestoredInContinuation();
     EXPECT_EQ(ret, false);
-    launchParam.launchReason = LaunchReason::LAUNCHREASON_CONTINUATION;
+    launchParam.launchReason = LaunchReason::LAUNCHREASON_APP_RECOVERY;
     ability->SetLaunchParam(launchParam);
 
     // branch when contentStorage_ is nullptr
