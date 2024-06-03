@@ -133,6 +133,7 @@ public:
     std::unique_ptr<NativeReference> LoadSystemModule(
         const std::string& moduleName, const napi_value* argv = nullptr, size_t argc = 0);
     void SetDeviceDisconnectCallback(const std::function<bool()> &cb) override;
+    void UpdatePkgContextInfoJson(std::string moduleName, std::string hapPath, std::string packageName) override;
 
 private:
     void FinishPreload() override;
@@ -156,6 +157,8 @@ private:
     uint32_t instanceId_ = 0;
     std::string bundleName_;
     int32_t apiTargetVersion_ = 0;
+    std::map<std::string, std::string> pkgContextInfoJsonStringMap_;
+    std::map<std::string, std::string> packageNameList_;
 
     static std::atomic<bool> hasInstance;
 

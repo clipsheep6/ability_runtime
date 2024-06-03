@@ -121,6 +121,8 @@ public:
     void DumpHeapSnapshot(uint32_t tid, bool isFullGC, std::vector<uint32_t> fdVec,
         std::vector<uint32_t> tidVec) override {}
     void ForceFullGC(uint32_t tid) override {}
+
+    void UpdatePkgContextInfoJson(std::string moduleName, std::string hapPath, std::string packageName) override {};
 public:
     Language language;
 };

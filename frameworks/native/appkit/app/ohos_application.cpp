@@ -679,6 +679,10 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
             TAG_LOGE(AAFwkTag::APPKIT, "hapModuleInfo is nullptr");
             return nullptr;
         }
+        if (runtime_) {
+            runtime_->UpdatePkgContextInfoJson(
+                hapModuleInfo->moduleName, hapModuleInfo->hapPath, hapModuleInfo->packageName);
+        }
         SetAppEnv(hapModuleInfo->appEnvironments);
 
         if (abilityInfo->applicationInfo.multiProjects) {
