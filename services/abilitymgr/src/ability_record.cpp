@@ -26,6 +26,7 @@
 #include "ability_resident_process_rdb.h"
 #include "ability_scheduler_stub.h"
 #include "ability_util.h"
+#include "app_exit_reason_data_manager.h"
 #include "app_utils.h"
 #include "appfreeze_manager.h"
 #include "array_wrapper.h"
@@ -1270,6 +1271,12 @@ int AbilityRecord::TerminateAbility()
     AAFwk::EventInfo eventInfo;
     eventInfo.bundleName = GetAbilityInfo().bundleName;
     eventInfo.abilityName = GetAbilityInfo().name;
+    if (clearMissionFlag_) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "deleteAbilityRecoverInfo before clearMission.");
+        (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
+            DeleteAbilityRecoverInfo(GetAbilityInfo().applicationInfo.accessTokenId, GetAbilityInfo().moduleName,
+            GetAbilityInfo().name);
+    }
     AAFwk::EventReport::SendAbilityEvent(AAFwk::EventName::TERMINATE_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
     eventInfo.errCode = DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(token_, clearMissionFlag_);
     if (eventInfo.errCode != ERR_OK) {
