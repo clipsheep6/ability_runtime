@@ -36,6 +36,13 @@ bool UnwrapAutoStartupInfo(napi_env env, napi_value param, AutoStartupInfo &info
         return false;
     }
 
+    if (AppExecFwk::IsExistsByPropertyName(env, param, "appCloneIndex")) {
+        if (!AppExecFwk::UnwrapInt32ByPropertyName(env, param, "appCloneIndex", info.appCloneIndex)) {
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Convert appCloneIndex failed.");
+            return false;
+        }
+    }
+    
     AppExecFwk::UnwrapStringByPropertyName(env, param, "moduleName", info.moduleName);
     return true;
 }
@@ -72,7 +79,7 @@ napi_value CreateJsAutoStartupInfoArray(napi_env env, const std::vector<AutoStar
         }
 
         if (napi_set_element(env, arrayObj, i, object) != napi_ok) {
-            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Inster object to array failed.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Insert object to array failed.");
             return nullptr;
         }
     }
@@ -119,6 +126,17 @@ napi_value CreateJsAutoStartupInfo(napi_env env, const AutoStartupInfo &info)
         AppExecFwk::SetPropertyValueByPropertyName(env, object, "abilityTypeName", abilityTypeName))) {
         TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Create js AutoStartupInfo failed.");
         return nullptr;
+    }
+    if (info.appCloneIndex != -1) {
+        napi_value appCloneIndex = AppExecFwk::WrapInt32ToJS(env, info.appCloneIndex);
+        if (appCloneIndex == nullptr) {
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Convert ability type name failed.");
+            return nullptr;
+        }
+        if (!AppExecFwk::SetPropertyValueByPropertyName(env, object, "appCloneIndex", appCloneIndex)) {
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Create js AutoStartupInfo failed.");
+            return nullptr;
+        }
     }
     return object;
 }

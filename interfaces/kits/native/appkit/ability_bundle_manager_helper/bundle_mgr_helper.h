@@ -95,6 +95,8 @@ public:
         AbilityInfo &abilityInfo, int32_t userId);
     ErrCode GetCloneBundleInfo(const std::string &bundleName, int32_t flags, int32_t appCloneIndex,
         BundleInfo &bundleInfo, int32_t userId);
+    ErrCode QueryCloneExtensionAbilityInfoWithAppIndex(const ElementName &element, int32_t flags, int32_t appCloneIndex,
+        ExtensionAbilityInfo &extensionInfo, int32_t userId);
 
 private:
     sptr<IBundleMgr> Connect();

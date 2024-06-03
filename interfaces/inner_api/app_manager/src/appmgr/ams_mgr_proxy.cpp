@@ -534,37 +534,6 @@ void AmsMgrProxy::GetRunningProcessInfoByToken(
     info = *processInfo;
 }
 
-void AmsMgrProxy::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info)
-{
-    TAG_LOGD(AAFwkTag::APPMGR, "start");
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
-    if (!WriteInterfaceToken(data)) {
-        return;
-    }
-
-    if (!data.WriteInt32(static_cast<int32_t>(pid))) {
-        TAG_LOGE(AAFwkTag::APPMGR, "parcel WriteInt32 failed.");
-        return;
-    }
-
-    auto ret = SendTransactCmd(
-        static_cast<uint32_t>(IAmsMgr::Message::GET_RUNNING_PROCESS_INFO_BY_PID), data, reply, option);
-    if (ret != NO_ERROR) {
-        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
-        return;
-    }
-
-    std::unique_ptr<AppExecFwk::RunningProcessInfo> processInfo(reply.ReadParcelable<AppExecFwk::RunningProcessInfo>());
-    if (processInfo == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "recv process info failded");
-        return;
-    }
-
-    info = *processInfo;
-}
-
 void AmsMgrProxy::SetAbilityForegroundingFlagToAppRecord(const pid_t pid)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "calling");

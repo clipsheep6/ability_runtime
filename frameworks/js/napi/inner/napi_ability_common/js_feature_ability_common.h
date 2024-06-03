@@ -15,6 +15,7 @@
 
 #ifndef OHOS_ABILITY_RUNTIME_JS_FEATURE_ABILITY_COMMON_H
 #define OHOS_ABILITY_RUNTIME_JS_FEATURE_ABILITY_COMMON_H
+
 #include "ability.h"
 #include "ability_info.h"
 #include "abs_shared_result_set.h"

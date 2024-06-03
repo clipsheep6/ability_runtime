@@ -42,7 +42,7 @@ public:
 
     int32_t GetResultCode() const;
 
-    std::string GetResultMessage() const;
+    const std::string& GetResultMessage() const;
 
     virtual ResultType GetResultType() const;
 

@@ -43,7 +43,7 @@ public:
 
     void SetDefaultConfig(const std::shared_ptr<StartupConfig> &config);
 
-    std::shared_ptr<StartupConfig> GetDefaultConfig() const;
+    const std::shared_ptr<StartupConfig>& GetDefaultConfig() const;
 
     int32_t RemoveAllResult();
 

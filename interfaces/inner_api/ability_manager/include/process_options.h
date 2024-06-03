@@ -24,6 +24,7 @@ enum class ProcessMode {
     UNSPECIFIED = 0,
     NEW_PROCESS_ATTACH_TO_PARENT = 1,
     NEW_PROCESS_ATTACH_TO_STATUS_BAR_ITEM = 2,
+    ATTACH_TO_STATUS_BAR_ITEM = 3,
     END
 };
 
@@ -46,6 +47,8 @@ public:
     static ProcessMode ConvertInt32ToProcessMode(int32_t value);
     static StartupVisibility ConvertInt32ToStartupVisibility(int32_t value);
     static bool IsNewProcessMode(ProcessMode value);
+    static bool IsAttachToStatusBarMode(ProcessMode value);
+    static bool IsValidProcessMode(ProcessMode value);
 
     ProcessMode processMode = ProcessMode::UNSPECIFIED;
     StartupVisibility startupVisibility = StartupVisibility::UNSPECIFIED;

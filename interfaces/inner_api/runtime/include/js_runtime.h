@@ -85,10 +85,10 @@ public:
     void DestroyHeapProfiler() override;
     void ForceFullGC() override;
     void ForceFullGC(uint32_t tid) override;
-    void DumpHeapSnapshot(uint32_t tid, bool isFullGC) override;
+    void DumpHeapSnapshot(uint32_t tid, bool isFullGC, std::vector<uint32_t> fdVec,
+        std::vector<uint32_t> tidVec) override;
     void AllowCrossThreadExecution() override;
     void GetHeapPrepare() override;
-    bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) override;
     void NotifyApplicationState(bool isBackground) override;
     bool SuspendVM(uint32_t tid) override;
     void ResumeVM(uint32_t tid) override;
@@ -160,7 +160,7 @@ private:
     static std::atomic<bool> hasInstance;
 
     static std::shared_ptr<Options> childOptions_;
-    
+
 private:
     bool CreateJsEnv(const Options& options);
     void PreloadAce(const Options& options);

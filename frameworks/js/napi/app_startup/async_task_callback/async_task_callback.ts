@@ -16,13 +16,13 @@
 class AsyncTaskCallback {
   private __impl__: AsyncTaskCallback;
   constructor(object) {
-    "use sendable"
+    'use sendable';
     this.__impl__ = object;
   }
 
-  onAsyncTaskCompleted(startupName) {
+  onAsyncTaskCompleted(startupName, startupResult) {
     console.log('AsyncTaskCallback onAsyncTaskCompleted called, startupName: ' + startupName);
-    this.__impl__.onAsyncTaskCompleted(startupName);
+    this.__impl__.onAsyncTaskCompleted(startupName, startupResult);
   }
 }
 

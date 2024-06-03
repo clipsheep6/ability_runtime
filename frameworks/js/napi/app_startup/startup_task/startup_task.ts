@@ -14,8 +14,8 @@
  */
 
 class StartupTask {
-  constructor () {
-    "use sendable"
+  constructor() {
+    'use sendable';
   }
 
   onDependenceCompleted(dependence, result) {

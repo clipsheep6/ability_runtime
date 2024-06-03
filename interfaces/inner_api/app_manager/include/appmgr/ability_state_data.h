@@ -40,6 +40,7 @@ struct AbilityStateData : public Parcelable {
      * @param outParcel Indicates the Parcel object to which the Sequenceable object will be marshaled.
      */
     virtual bool Marshalling(Parcel &parcel) const override;
+    bool MarshallingOne(Parcel &parcel) const;
 
     /**
      * @brief Unmarshals this Sequenceable object from a Parcel.
@@ -61,6 +62,7 @@ struct AbilityStateData : public Parcelable {
     std::string callerAbilityName;
     bool isAtomicService = false;
     int32_t abilityRecordId = 0;
+    int32_t appCloneIndex = -1;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

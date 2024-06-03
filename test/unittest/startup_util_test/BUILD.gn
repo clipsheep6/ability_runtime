@@ -31,7 +31,10 @@ ohos_unittest("startup_util_test") {
     "//third_party/googletest:gtest_main",
   ]
 
-  external_deps = [ "ability_base:want" ]
+  external_deps = [
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
+  ]
 }
 
 group("unittest") {

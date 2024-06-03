@@ -25,24 +25,41 @@
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
-    const std::string HSPLIST_BUNDLES = "bundles";
-    const std::string HSPLIST_MODULES = "modules";
-    const std::string HSPLIST_VERSIONS = "versions";
-    const std::string DATAGROUPINFOLIST_DATAGROUPID = "dataGroupId";
-    const std::string DATAGROUPINFOLIST_GID = "gid";
-    const std::string DATAGROUPINFOLIST_DIR = "dir";
-    const std::string JSON_DATA_APP = "/data/app/el2/";
-    const std::string JSON_GROUP = "/group/";
-    const std::string VERSION_PREFIX = "v";
-    const std::string APPSPAWN_CLIENT_USER_NAME = "APP_MANAGER_SERVICE";
-    constexpr int32_t RIGHT_SHIFT_STEP = 1;
-    constexpr int32_t START_FLAG_TEST_NUM = 1;
-    const std::string MAX_CHILD_PROCESS = "MaxChildProcess";
+constexpr const char* HSPLIST_BUNDLES = "bundles";
+constexpr const char* HSPLIST_MODULES = "modules";
+constexpr const char* HSPLIST_VERSIONS = "versions";
+constexpr const char* DATAGROUPINFOLIST_DATAGROUPID = "dataGroupId";
+constexpr const char* DATAGROUPINFOLIST_GID = "gid";
+constexpr const char* DATAGROUPINFOLIST_DIR = "dir";
+constexpr const char* JSON_DATA_APP = "/data/app/el2/";
+constexpr const char* JSON_GROUP = "/group/";
+constexpr const char* VERSION_PREFIX = "v";
+constexpr const char* APPSPAWN_CLIENT_USER_NAME = "APP_MANAGER_SERVICE";
+constexpr int32_t RIGHT_SHIFT_STEP = 1;
+constexpr int32_t START_FLAG_TEST_NUM = 1;
+constexpr const char* MAX_CHILD_PROCESS = "MaxChildProcess";
 }
 AppSpawnClient::AppSpawnClient(bool isNWebSpawn)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "AppspawnCreateClient");
     if (isNWebSpawn) {
+        serviceName_ = NWEBSPAWN_SERVER_NAME;
+    }
+    state_ = SpawnConnectionState::STATE_NOT_CONNECT;
+}
+
+AppSpawnClient::AppSpawnClient(const char* serviceName)
+{
+    HILOG_DEBUG("AppspawnCreateClient");
+    std::string serviceName__ = serviceName;
+    if (serviceName__ == APPSPAWN_SERVER_NAME) {
+        serviceName_ = APPSPAWN_SERVER_NAME;
+    } else if (serviceName__ == CJAPPSPAWN_SERVER_NAME) {
+        serviceName_ = CJAPPSPAWN_SERVER_NAME;
+    } else if (serviceName__ == NWEBSPAWN_SERVER_NAME) {
+        serviceName_ = NWEBSPAWN_SERVER_NAME;
+    } else {
+        HILOG_ERROR("unknown service name");
         serviceName_ = NWEBSPAWN_SERVER_NAME;
     }
     state_ = SpawnConnectionState::STATE_NOT_CONNECT;
@@ -152,7 +169,7 @@ int32_t AppSpawnClient::SetDacInfo(const AppSpawnStartMsg &startMsg, AppSpawnReq
     for (uint32_t i = startMsg.gids.size(); i < appDacInfo.gidCount; i++) {
         appDacInfo.gidTable[i] = startMsg.dataGroupInfoList[i - startMsg.gids.size()].gid;
     }
-    ret = strcpy_s(appDacInfo.userName, sizeof(appDacInfo.userName), APPSPAWN_CLIENT_USER_NAME.c_str());
+    ret = strcpy_s(appDacInfo.userName, sizeof(appDacInfo.userName), APPSPAWN_CLIENT_USER_NAME);
     if (ret) {
         TAG_LOGE(AAFwkTag::APPMGR, "failed to set dac userName!");
         return ret;
@@ -171,14 +188,6 @@ int32_t AppSpawnClient::SetMountPermission(const AppSpawnStartMsg &startMsg, App
             return ret;
         }
     }
-
-    if (!startMsg.processType.empty() &&
-        (ret = AppSpawnReqMsgAddExtInfo(reqHandle, MSG_EXT_NAME_PROCESS_TYPE,
-            reinterpret_cast<const uint8_t*>(startMsg.processType.c_str()), startMsg.processType.size()))) {
-        HILOG_ERROR("AppSpawnReqMsgAddExtInfo failed, ret: %{public}d", ret);
-        return ret;
-    }
-
     return ret;
 }
 
@@ -216,9 +225,11 @@ int32_t AppSpawnClient::SetAtomicServiceFlag(const AppSpawnStartMsg &startMsg, A
 int32_t AppSpawnClient::SetStrictMode(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle)
 {
     int32_t ret = 0;
-    if (startMsg.strictMode &&
-        (ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_ISOLATED_SANDBOX))) {
-        HILOG_ERROR("AppSpawnReqMsgSetAppFlag failed, ret: %{public}d", ret);
+    if (startMsg.strictMode) {
+        ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_ISOLATED_SANDBOX);
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnReqMsgSetAppFlag failed, ret: %{public}d", ret);
+        }
     }
     return ret;
 }
@@ -226,9 +237,24 @@ int32_t AppSpawnClient::SetStrictMode(const AppSpawnStartMsg &startMsg, AppSpawn
 int32_t AppSpawnClient::SetAppExtension(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle)
 {
     int32_t ret = 0;
-    if (startMsg.isolatedExtension &&
-        (ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_EXTENSION_SANDBOX))) {
-        HILOG_ERROR("AppSpawnReqMsgSetAppFlag failed, ret: %{public}d", ret);
+    if (startMsg.isolatedExtension) {
+        ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_EXTENSION_SANDBOX);
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnReqMsgSetAppFlag failed, ret: %{public}d", ret);
+        }
+    }
+    return ret;
+}
+
+int32_t AppSpawnClient::SetCloneFlag(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle) const
+{
+    int32_t ret = 0;
+    if (startMsg.flags & APP_FLAGS_CLONE_ENABLE) {
+        ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_CLONE_ENABLE);
+        if (ret != 0) {
+            TAG_LOGE(AAFwkTag::APPMGR, "SetCloneFlag failed, ret: %{public}d", ret);
+            return ret;
+        }
     }
     return ret;
 }
@@ -308,8 +334,17 @@ int32_t AppSpawnClient::AppspawnSetExtMsgMore(const AppSpawnStartMsg &startMsg, 
         }
     }
 
+    if (!startMsg.processType.empty()) {
+        ret = AppSpawnReqMsgAddExtInfo(reqHandle, MSG_EXT_NAME_PROCESS_TYPE,
+            reinterpret_cast<const uint8_t*>(startMsg.processType.c_str()), startMsg.processType.size());
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnReqMsgAddExtInfo failed, ret: %{public}d", ret);
+            return ret;
+        }
+    }
+
     std::string maxChildProcessStr = std::to_string(startMsg.maxChildProcess);
-    if ((ret = AppSpawnReqMsgAddExtInfo(reqHandle, MAX_CHILD_PROCESS.c_str(),
+    if ((ret = AppSpawnReqMsgAddExtInfo(reqHandle, MAX_CHILD_PROCESS,
         reinterpret_cast<const uint8_t*>(maxChildProcessStr.c_str()), maxChildProcessStr.size()))) {
         TAG_LOGE(AAFwkTag::APPMGR, "Send maxChildProcess failed, ret: %{public}d", ret);
         return ret;
@@ -376,6 +411,10 @@ int32_t AppSpawnClient::AppspawnCreateDefaultMsg(const AppSpawnStartMsg &startMs
         }
         if ((ret = SetAppExtension(startMsg, reqHandle))) {
             TAG_LOGE(AAFwkTag::APPMGR,  "SetAppExtension failed, ret: %{public}d", ret);
+            break;
+        }
+        if ((ret = SetCloneFlag(startMsg, reqHandle))) {
+            TAG_LOGE(AAFwkTag::APPMGR,  "SetCloneFlag failed, ret: %{public}d", ret);
             break;
         }
         return ret;

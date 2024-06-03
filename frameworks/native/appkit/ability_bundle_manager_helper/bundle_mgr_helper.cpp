@@ -643,7 +643,11 @@ bool BundleMgrHelper::ImplicitQueryInfos(const Want &want, int32_t flags, int32_
     AAFwk::Want newWant = want;
     newWant.RemoveAllFd();
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    return bundleMgr->ImplicitQueryInfos(newWant, flags, userId, withDefault, abilityInfos, extensionInfos);
+    bool findDefaultApp = false;
+    bool ret = bundleMgr->ImplicitQueryInfos(newWant, flags, userId, withDefault, abilityInfos,
+        extensionInfos, findDefaultApp);
+    TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "findDefaultApp is %{public}d.", findDefaultApp);
+    return ret;
 }
 
 bool BundleMgrHelper::CleanBundleDataFiles(const std::string &bundleName, const int32_t userId)
@@ -808,6 +812,7 @@ ErrCode BundleMgrHelper::QueryCloneAbilityInfo(const ElementName &element, int32
         return ERR_APPEXECFWK_SERVICE_INTERNAL_ERROR;
     }
 
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     return bundleMgr->QueryCloneAbilityInfo(element, flags, appCloneIndex, abilityInfo, userId);
 }
 
@@ -821,7 +826,22 @@ ErrCode BundleMgrHelper::GetCloneBundleInfo(const std::string &bundleName, int32
         return ERR_APPEXECFWK_SERVICE_INTERNAL_ERROR;
     }
 
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     return bundleMgr->GetCloneBundleInfo(bundleName, flags, appCloneIndex, bundleInfo, userId);
+}
+
+ErrCode BundleMgrHelper::QueryCloneExtensionAbilityInfoWithAppIndex(const ElementName &element, int32_t flags,
+    int32_t appCloneIndex, ExtensionAbilityInfo &extensionInfo, int32_t userId)
+{
+    TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "Called.");
+    auto bundleMgr = Connect();
+    if (bundleMgr == nullptr) {
+        TAG_LOGE(AAFwkTag::BUNDLEMGRHELPER, "Failed to connect.");
+        return ERR_APPEXECFWK_SERVICE_INTERNAL_ERROR;
+    }
+
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    return bundleMgr->QueryCloneExtensionAbilityInfoWithAppIndex(element, flags, appCloneIndex, extensionInfo, userId);
 }
 
 }  // namespace AppExecFwk

@@ -31,6 +31,7 @@ config("abilityms_config") {
   include_dirs = [
     "include/",
     "include/rdb/",
+    "include/screen_lock/",
     "${ability_runtime_innerkits_path}/ability_manager/include",
     "${ability_runtime_services_path}/appdfr/include",
     "${ability_runtime_innerkits_path}/app_manager/include",
@@ -39,10 +40,7 @@ config("abilityms_config") {
     "${ability_runtime_services_path}/common/include",
     "//prebuilts/jdk/jdk8/linux-x86/include",
     "//prebuilts/jdk/jdk8/linux-x86/include/linux",
-    "//third_party/json/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
-    "${relational_store_innerapi_path}/rdb/include",
-    "${relational_store_innerapi_path}/dataability/include",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
     "${ability_runtime_path}/tools/aa/include",
     "${ability_runtime_innerkits_path}/wantagent/include",
@@ -53,8 +51,6 @@ config("abilityms_config") {
     "${ability_runtime_utils_path}/server/constant",
     "${bgtaskmgr_frameworks_path}/common/include",
     "${bgtaskmgr_frameworks_path}/include",
-    "${init_path}/interfaces/innerkits/include/syspara/",
-    "${bundlefwk_inner_api_path}/appexecfwk_core/include",
   ]
 
   defines = []
@@ -70,13 +66,14 @@ config("abilityms_config") {
   if (ability_runtime_graphics) {
     include_dirs += [
       "${graphic_path}/interfaces/inner_api",
-      "${graphic_path}/utils/color_manager/export",
-      "${multimedia_path}/interfaces/innerkits/include",
       "${graphic_path}/interfaces/inner_api/wmservice",
       "${global_path}/i18n/frameworks/intl/include",
     ]
 
-    defines += [ "SUPPORT_GRAPHICS" ]
+    defines += [
+      "SUPPORT_GRAPHICS",
+      "SUPPORT_SCREEN",
+    ]
   }
 
   if (background_task_mgr_continuous_task_enable) {
@@ -106,6 +103,12 @@ config("abilityms_config") {
 }
 
 ohos_shared_library("abilityms") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
   shlib_type = "sa"
   sources = abilityms_files
   cflags_cc = []
@@ -155,6 +158,7 @@ ohos_shared_library("abilityms") {
     "config_policy:configpolicy_util",
     "dsoftbus:softbus_client",
     "ffrt:libffrt",
+    "graphic_2d:color_manager",
     "hicollie:libhicollie",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
@@ -163,6 +167,7 @@ ohos_shared_library("abilityms") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "kv_store:distributeddata_inner",
     "os_account:os_account_innerkits",
     "relational_store:native_appdatafwk",
@@ -195,7 +200,10 @@ ohos_shared_library("abilityms") {
     external_deps += [ "dlp_permission_service:libdlp_permission_sdk" ]
   }
 
+  defines = []
+
   if (ability_runtime_graphics) {
+    defines += [ "SUPPORT_GRAPHICS" ]
     external_deps += [
       "ability_base:session_info",
       "i18n:intl_util",
@@ -203,6 +211,7 @@ ohos_shared_library("abilityms") {
       "image_framework:image_native",
       "input:libmmi-client",
       "resource_management:global_resmgr",
+      "screenlock_mgr:screenlock_client",
       "window_manager:libdm",
       "window_manager:libmodal_system_ui_extension_client",
       "window_manager:libwm",
@@ -210,6 +219,11 @@ ohos_shared_library("abilityms") {
       "window_manager:scene_session",
       "window_manager:sms",
     ]
+  }
+
+  if (ability_runtime_power) {
+    defines += [ "SUPPORT_POWER" ]
+    external_deps += [ "power_manager:powermgr_client" ]
   }
 
   version_script = "libabilityms.map"
@@ -232,6 +246,12 @@ ohos_prebuilt_etc("uiextension_picker_config.json") {
 
 ohos_prebuilt_etc("deeplink_reserve_config.json") {
   source = "resource/deeplink_reserve_config.json"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_prebuilt_etc("ams_extension_config.json") {
+  source = "resource/ams_extension_config.json"
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

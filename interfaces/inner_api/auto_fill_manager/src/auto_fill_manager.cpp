@@ -30,6 +30,7 @@ namespace {
 const std::string WANT_PARAMS_EXTENSION_TYPE = "autoFill/password";
 const std::string WANT_PARAMS_SMART_EXTENSION_TYPE = "autoFill/smart";
 const std::string AUTO_FILL_START_POPUP_WINDOW = "persist.sys.abilityms.autofill.is_passwd_popup_window";
+#ifdef SUPPORT_GRAPHICS
 constexpr static char WANT_PARAMS_VIEW_DATA_KEY[] = "ohos.ability.params.viewData";
 constexpr static char WANT_PARAMS_CUSTOM_DATA_KEY[] = "ohos.ability.params.customData";
 constexpr static char WANT_PARAMS_AUTO_FILL_CMD_KEY[] = "ohos.ability.params.autoFillCmd";
@@ -39,7 +40,9 @@ constexpr static char WANT_PARAMS_AUTO_FILL_TYPE_KEY[] = "ability.want.params.Au
 constexpr static char AUTO_FILL_MANAGER_THREAD[] = "AutoFillManager";
 constexpr static uint32_t AUTO_FILL_REQUEST_TIME_OUT_VALUE = 1000;
 constexpr static uint32_t AUTO_FILL_UI_EXTENSION_SESSION_ID_INVALID = 0;
+#endif //SUPPORT_GRAPHICS
 } // namespace
+#ifdef SUPPORT_GRAPHICS
 AutoFillManager &AutoFillManager::GetInstance()
 {
     static AutoFillManager instance;
@@ -95,6 +98,10 @@ int32_t AutoFillManager::HandleRequestExecuteInner(
     if (uiContent == nullptr || (fillCallback == nullptr && saveCallback == nullptr)) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UIContent or fillCallback&saveCallback is nullptr.");
         return AutoFill::AUTO_FILL_OBJECT_IS_NULL;
+    }
+    if (!IsPreviousRequestFinished(uiContent)) {
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Previous request is not finished.");
+        return AutoFill::AUTO_FILL_PREVIOUS_REQUEST_NOT_FINISHED;
     }
     {
         std::lock_guard<std::mutex> lock(extensionCallbacksMutex_);
@@ -371,5 +378,21 @@ void AutoFillManager::HandleTimeOut(uint32_t eventId)
     extensionCallback->HandleTimeOut();
     extensionCallbacks_.erase(ret);
 }
+
+bool AutoFillManager::IsPreviousRequestFinished(Ace::UIContent *uiContent)
+{
+    std::lock_guard<std::mutex> lock(extensionCallbacksMutex_);
+    for (auto& item: extensionCallbacks_) {
+        auto extensionCallback = item.second.lock();
+        if (extensionCallback == nullptr) {
+            continue;
+        }
+        if (extensionCallback->GetUIContent() == uiContent) {
+            return false;
+        }
+    }
+    return true;
+}
+#endif // SUPPORT_GRAPHICS
 } // namespace AbilityRuntime
 } // namespace OHOS

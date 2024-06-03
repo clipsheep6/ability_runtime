@@ -42,7 +42,7 @@ public:
     JsModuleReader& operator=(const JsModuleReader&) = default;
     JsModuleReader& operator=(JsModuleReader&&) = default;
 
-    bool operator()(const std::string& inputPath, uint8_t **buff, size_t *buffSize) const;
+    bool operator()(const std::string& inputPath, uint8_t **buff, size_t *buffSize, std::string& errorMsg) const;
     static std::string GetPresetAppHapPath(const std::string& inputPath, const std::string& bundleName);
     static void GetHapPathList(const std::string &bundleName, std::vector<std::string> &hapList);
 

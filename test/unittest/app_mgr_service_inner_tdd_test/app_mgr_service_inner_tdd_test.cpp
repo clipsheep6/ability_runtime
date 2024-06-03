@@ -451,64 +451,6 @@ HWTEST_F(AppMgrServiceInnerTest, StartRenderProcessImpl_001, TestSize.Level0)
 }
 
 /**
- * @tc.name: UpDateStartupType_001
- * @tc.desc: Verify that the UpDateStartupType interface calls abnormal parameter
- * @tc.type: FUNC
- */
-HWTEST_F(AppMgrServiceInnerTest, UpDateStartupType_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "UpDateStartupType_001 start");
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
-    int32_t abilityType = -1;
-    int32_t extensionType = -1;
-    appMgrServiceInner->UpDateStartupType(nullptr, abilityType, extensionType);
-    TAG_LOGI(AAFwkTag::TEST, "UpDateStartupType_001 end");
-}
-
-/**
- * @tc.name: UpDateStartupType_002
- * @tc.desc: Verify that the UpDateStartupType interface calls normally
- * @tc.type: FUNC
- */
-HWTEST_F(AppMgrServiceInnerTest, UpDateStartupType_002, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "UpDateStartupType_002 start");
-    constexpr int32_t expectedVal = 3;
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
-    auto info = std::make_shared<AbilityInfo>();
-    info->type = static_cast<AbilityType>(expectedVal);
-    int32_t abilityType = -1;
-    int32_t extensionType = -1;
-    appMgrServiceInner->UpDateStartupType(info, abilityType, extensionType);
-    EXPECT_EQ(expectedVal, abilityType);
-    TAG_LOGI(AAFwkTag::TEST, "UpDateStartupType_002 end");
-}
-
-/**
- * @tc.name: UpDateStartupType_003
- * @tc.desc: Verify that the UpDateStartupType interface calls normally
- * @tc.type: FUNC
- */
-HWTEST_F(AppMgrServiceInnerTest, UpDateStartupType_003, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "UpDateStartupType_003 start");
-    constexpr int32_t expectedVal = 5;
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
-    auto info = std::make_shared<AbilityInfo>();
-    info->type = static_cast<AbilityType>(expectedVal);
-    info->extensionAbilityType = static_cast<ExtensionAbilityType>(expectedVal);
-    int32_t abilityType = -1;
-    int32_t extensionType = -1;
-    appMgrServiceInner->UpDateStartupType(info, abilityType, extensionType);
-    EXPECT_EQ(expectedVal, abilityType);
-    EXPECT_EQ(expectedVal, extensionType);
-    TAG_LOGI(AAFwkTag::TEST, "UpDateStartupType_003 end");
-}
-
-/**
  * @tc.name: NotifyAppFault_001
  * @tc.desc: Verify that the NotifyAppFault interface calls normally
  * @tc.type: FUNC
@@ -573,6 +515,126 @@ HWTEST_F(AppMgrServiceInnerTest, ChangeAppGcState_001, TestSize.Level1)
     int32_t ret = appMgrServiceInner->ChangeAppGcState(pid, state);
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
     TAG_LOGI(AAFwkTag::TEST, "ChangeAppGcState_001 end");
+}
+
+/**
+ * @tc.name: QueryExtensionSandBox_001
+ * @tc.desc: query extension sandBox.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, QueryExtensionSandBox_001, TestSize.Level0)
+{
+    TAG_LOGI(AAFwkTag::TEST, "QueryExtensionSandBox_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    const string moduleName = "entry";
+    const string extensionName = "inputMethod";
+    BundleInfo bundleInfo;
+    HapModuleInfo hapModuleInfo;
+    ExtensionAbilityInfo extensionAbilityInfo;
+    extensionAbilityInfo.name = "inputMethod";
+    extensionAbilityInfo.moduleName = "entry";
+    extensionAbilityInfo.needCreateSandbox = true;
+    extensionAbilityInfo.dataGroupIds = {"test1"};
+    hapModuleInfo.extensionInfos.emplace_back(extensionAbilityInfo);
+    bundleInfo.hapModuleInfos.emplace_back(hapModuleInfo);
+    AppSpawnStartMsg startMsg;
+    DataGroupInfoList dataGroupInfoList;
+    DataGroupInfo dataGroupInfo;
+    dataGroupInfo.dataGroupId = "test1";
+    dataGroupInfoList.emplace_back(dataGroupInfo);
+    bool strictMode = false;
+    appMgrServiceInner->QueryExtensionSandBox(moduleName, extensionName, bundleInfo, startMsg, dataGroupInfoList,
+        strictMode);
+    EXPECT_EQ(startMsg.dataGroupInfoList.size(), 1);
+    TAG_LOGI(AAFwkTag::TEST, "QueryExtensionSandBox_001 end");
+}
+
+/**
+ * @tc.name: QueryExtensionSandBox_002
+ * @tc.desc: query extension sandBox.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, QueryExtensionSandBox_002, TestSize.Level0)
+{
+    TAG_LOGI(AAFwkTag::TEST, "QueryExtensionSandBox_002 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    const string moduleName = "entry";
+    const string extensionName = "inputMethod";
+    BundleInfo bundleInfo;
+    HapModuleInfo hapModuleInfo;
+    ExtensionAbilityInfo extensionAbilityInfo;
+    extensionAbilityInfo.name = "inputMethod";
+    extensionAbilityInfo.moduleName = "entry";
+    extensionAbilityInfo.needCreateSandbox = true;
+    extensionAbilityInfo.dataGroupIds = {"test2"};
+    hapModuleInfo.extensionInfos.emplace_back(extensionAbilityInfo);
+    bundleInfo.hapModuleInfos.emplace_back(hapModuleInfo);
+    AppSpawnStartMsg startMsg;
+    DataGroupInfoList dataGroupInfoList;
+    DataGroupInfo dataGroupInfo;
+    dataGroupInfo.dataGroupId = "test3";
+    dataGroupInfoList.emplace_back(dataGroupInfo);
+    bool strictMode = false;
+    appMgrServiceInner->QueryExtensionSandBox(moduleName, extensionName, bundleInfo, startMsg, dataGroupInfoList,
+        strictMode);
+    EXPECT_EQ(startMsg.dataGroupInfoList.size(), 0);
+    TAG_LOGI(AAFwkTag::TEST, "QueryExtensionSandBox_002 end");
+}
+
+/**
+ * @tc.name: QueryExtensionSandBox_003
+ * @tc.desc: query extension sandBox.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, QueryExtensionSandBox_003, TestSize.Level0)
+{
+    TAG_LOGI(AAFwkTag::TEST, "QueryExtensionSandBox_003 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    const string moduleName = "entry";
+    const string extensionName = "inputMethod";
+    BundleInfo bundleInfo;
+    HapModuleInfo hapModuleInfo;
+    ExtensionAbilityInfo extensionAbilityInfo;
+    extensionAbilityInfo.name = "inputMethod";
+    extensionAbilityInfo.moduleName = "entry";
+    extensionAbilityInfo.needCreateSandbox = false;
+    AppSpawnStartMsg startMsg;
+    DataGroupInfoList dataGroupInfoList;
+    bool strictMode = false;
+    appMgrServiceInner->QueryExtensionSandBox(moduleName, extensionName, bundleInfo, startMsg, dataGroupInfoList,
+        strictMode);
+    EXPECT_EQ(startMsg.dataGroupInfoList.size(), 0);
+    TAG_LOGI(AAFwkTag::TEST, "QueryExtensionSandBox_003 end");
+}
+
+/**
+ * @tc.name: QueryExtensionSandBox_004
+ * @tc.desc: query extension sandBox.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, QueryExtensionSandBox_004, TestSize.Level0)
+{
+    TAG_LOGI(AAFwkTag::TEST, "QueryExtensionSandBox_004 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    const string moduleName = "entry";
+    const string extensionName = "inputMethod";
+    BundleInfo bundleInfo;
+    HapModuleInfo hapModuleInfo;
+    ExtensionAbilityInfo extensionAbilityInfo;
+    extensionAbilityInfo.name = "inputMethod1";
+    extensionAbilityInfo.moduleName = "entry";
+    extensionAbilityInfo.needCreateSandbox = true;
+    AppSpawnStartMsg startMsg;
+    DataGroupInfoList dataGroupInfoList;
+    bool strictMode = false;
+    appMgrServiceInner->QueryExtensionSandBox(moduleName, extensionName, bundleInfo, startMsg, dataGroupInfoList,
+        strictMode);
+    EXPECT_EQ(startMsg.dataGroupInfoList.size(), 0);
+    TAG_LOGI(AAFwkTag::TEST, "QueryExtensionSandBox_004 end");
 }
 } // namespace AppExecFwk
 } // namespace OHOS

@@ -36,7 +36,7 @@ bool UnwrapExecuteResult(napi_env env, napi_value param, InsightIntentExecuteRes
     }
     int32_t code = 0;
     if (!UnwrapInt32ByPropertyName(env, param, "code", code)) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "Intent result must contian a code.");
+        TAG_LOGE(AAFwkTag::JSNAPI, "Intent result must contain a code.");
         return false;
     }
     executeResult.code = code;

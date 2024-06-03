@@ -30,6 +30,8 @@
 #include "mock_ability_token.h"
 #include "recovery_param.h"
 #include "ui_ability.h"
+#define private public
+#include "context/application_context.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -682,6 +684,19 @@ HWTEST_F(AppRecoveryUnitTest, GetMissionIds_002, TestSize.Level1)
     std::vector<int32_t> missionIds;
     std::string invalid_path = "data/apps/ohos.samples.recovery/files/";
     EXPECT_FALSE(AppRecovery::GetInstance().GetMissionIds(invalid_path, missionIds));
+}
+
+/**
+ * @tc.name:  DeleteInValidMissionFiles_001
+ * @tc.desc:  Test delete invalid mission files.
+ * @tc.type: FUNC
+ * @tc.require: I5Z7LE
+ */
+HWTEST_F(AppRecoveryUnitTest, DeleteInValidMissionFiles_001, TestSize.Level1)
+{
+    AbilityRuntime::ApplicationContext::GetInstance()->contextImpl_ = std::make_shared<AbilityRuntime::ContextImpl>();
+    AppRecovery::GetInstance().DeleteInValidMissionFiles();
+    EXPECT_NE(AbilityRuntime::Context::GetApplicationContext(), nullptr);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

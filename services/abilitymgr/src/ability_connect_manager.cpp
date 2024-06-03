@@ -36,6 +36,7 @@
 #include "int_wrapper.h"
 #include "parameter.h"
 #include "session/host/include/zidl/session_interface.h"
+#include "startup_util.h"
 #include "extension_record.h"
 #include "ui_extension_utils.h"
 
@@ -74,6 +75,8 @@ const std::unordered_set<std::string> FROZEN_WHITE_LIST {
 };
 constexpr char BUNDLE_NAME_DIALOG[] = "com.ohos.amsdialog";
 constexpr char ABILITY_NAME_ASSERT_FAULT_DIALOG[] = "AssertFaultDialog";
+constexpr char BUNDLE_NAME_SAMPLE_MANAGEMENT[] = "com.huawei.hmsapp.samplemanagement";
+constexpr char ABILITY_NAME_SAMPLE_MANAGEMENT[] = "MspesService";
 
 bool IsSpecialAbility(const AppExecFwk::AbilityInfo &abilityInfo)
 {
@@ -420,7 +423,7 @@ int AbilityConnectManager::StopServiceAbilityLocked(const AbilityRequest &abilit
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
-    AppExecFwk::ElementName element(abilityRequest.abilityInfo.deviceId, abilityRequest.abilityInfo.bundleName,
+    AppExecFwk::ElementName element(abilityRequest.abilityInfo.deviceId, GenerateBundleName(abilityRequest),
         abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName);
     auto abilityRecord = GetServiceRecordByElementName(element.GetURI());
     if (FRS_BUNDLE_NAME == abilityRequest.abilityInfo.bundleName) {
@@ -480,7 +483,7 @@ void AbilityConnectManager::GetOrCreateServiceRecord(const AbilityRequest &abili
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     // lifecycle is not complete when window extension is reused
     bool noReuse = UIExtensionUtils::IsWindowExtension(abilityRequest.abilityInfo.extensionAbilityType);
-    AppExecFwk::ElementName element(abilityRequest.abilityInfo.deviceId, abilityRequest.abilityInfo.bundleName,
+    AppExecFwk::ElementName element(abilityRequest.abilityInfo.deviceId, GenerateBundleName(abilityRequest),
         abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName);
     std::string serviceKey = element.GetURI();
     if (FRS_BUNDLE_NAME == abilityRequest.abilityInfo.bundleName) {
@@ -597,6 +600,7 @@ int AbilityConnectManager::UnloadUIExtensionAbility(const std::shared_ptr<AAFwk:
         abilityRecord->GetWant().GetElement().GetBundleName(),
         abilityRecord->GetWant().GetElement().GetModuleName(), hostBundleName);
     //delete preLoadUIExtensionMap
+    CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, ERR_NULL_OBJECT);
     uiExtensionAbilityRecordMgr_->RemoveAllPreloadUIExtensionRecord(preLoadUIExtensionInfo);
     //terminate preload uiextension
     auto token = abilityRecord->GetToken();
@@ -2007,14 +2011,14 @@ void AbilityConnectManager::HandleAbilityDiedTask(
         if ((IsLauncher(abilityRecord) || abilityRecord->IsSceneBoard()) && token != nullptr) {
             IN_PROCESS_CALL_WITHOUT_RET(DelayedSingleton<AppScheduler>::GetInstance()->ClearProcessByToken(
                 token->AsObject()));
-            if (abilityRecord->IsSceneBoard() && currentUserId != userId_) {
-                TAG_LOGD(AAFwkTag::ABILITYMGR, "Not the current user's SCB, clear the user and do not restart");
-                KillProcessesByUserId();
-                return;
-            }
+        }
+        if (abilityRecord->IsSceneBoard() && currentUserId != userId_) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Not the current user's SCB, clear the user and do not restart");
+            KillProcessesByUserId();
+            return;
         }
         if (DelayedSingleton<AppScheduler>::GetInstance()->IsMemorySizeSufficent() ||
-            IsLauncher(abilityRecord) || abilityRecord->IsSceneBoard()) {
+            IsLauncher(abilityRecord) || abilityRecord->IsSceneBoard() || IsSampleManagement(abilityRecord)) {
             RestartAbility(abilityRecord, currentUserId);
         }
     } else {
@@ -2341,6 +2345,16 @@ bool AbilityConnectManager::IsLauncher(std::shared_ptr<AbilityRecord> serviceExt
     }
     return serviceExtension->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME &&
         serviceExtension->GetAbilityInfo().bundleName == AbilityConfig::LAUNCHER_BUNDLE_NAME;
+}
+
+bool AbilityConnectManager::IsSampleManagement(std::shared_ptr<AbilityRecord> serviceExtension) const
+{
+    if (serviceExtension == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "param is nullptr");
+        return false;
+    }
+    return serviceExtension->GetAbilityInfo().name == ABILITY_NAME_SAMPLE_MANAGEMENT &&
+        serviceExtension->GetAbilityInfo().bundleName == BUNDLE_NAME_SAMPLE_MANAGEMENT;
 }
 
 void AbilityConnectManager::KillProcessesByUserId() const
@@ -2923,6 +2937,18 @@ void AbilityConnectManager::UpdateUIExtensionInfo(const std::shared_ptr<AbilityR
         wantParams.SetParam(UIEXTENSION_ROOT_HOST_PID, AAFwk::Integer::Box(rootHostPid));
     }
     abilityRecord->UpdateUIExtensionInfo(wantParams);
+}
+
+std::string AbilityConnectManager::GenerateBundleName(const AbilityRequest &abilityRequest) const
+{
+    auto bundleName = abilityRequest.abilityInfo.bundleName;
+    if (AbilityRuntime::StartupUtil::IsSupportAppClone(abilityRequest.abilityInfo.extensionAbilityType)) {
+        auto appCloneIndex = abilityRequest.want.GetIntParam(Want::PARAM_APP_CLONE_INDEX_KEY, 0);
+        if (appCloneIndex > 0) {
+            bundleName = std::to_string(appCloneIndex) + bundleName;
+        }
+    }
+    return bundleName;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

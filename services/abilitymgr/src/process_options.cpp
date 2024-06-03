@@ -83,5 +83,16 @@ bool ProcessOptions::IsNewProcessMode(ProcessMode value)
     return (value == ProcessMode::NEW_PROCESS_ATTACH_TO_PARENT) ||
         (value == ProcessMode::NEW_PROCESS_ATTACH_TO_STATUS_BAR_ITEM);
 }
+
+bool ProcessOptions::IsAttachToStatusBarMode(ProcessMode value)
+{
+    return (value == ProcessMode::NEW_PROCESS_ATTACH_TO_STATUS_BAR_ITEM) ||
+        (value == ProcessMode::ATTACH_TO_STATUS_BAR_ITEM);
+}
+
+bool ProcessOptions::IsValidProcessMode(ProcessMode value)
+{
+    return (value > ProcessMode::UNSPECIFIED) && (value < ProcessMode::END);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

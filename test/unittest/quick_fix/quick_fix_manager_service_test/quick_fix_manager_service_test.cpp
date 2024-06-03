@@ -245,5 +245,108 @@ HWTEST_F(QuickFixManagerServiceTest, GetQuickFixInfo_0100, TestSize.Level1)
 
     TAG_LOGI(AAFwkTag::TEST, "GetQuickFixInfo_0100 end.");
 }
+
+/**
+ * @tc.name: GetApplyedQuickFixInfo_0200
+ * @tc.desc: get Apply Quick Fix info.
+ * @tc.type: FUNC
+ * @tc.require: issueI5ODCD
+ */
+HWTEST_F(QuickFixManagerServiceTest, GetApplyedQuickFixInfo_0200, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+    auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
+    auto mockGetSystemAbility = [bms = mockBundleMgr, saMgr = iSystemAbilityMgr_](int32_t systemAbilityId) {
+        if (systemAbilityId == BUNDLE_MGR_SERVICE_SYS_ABILITY_ID) {
+            return bms->AsObject();
+        } else {
+            return saMgr->GetSystemAbility(systemAbilityId);
+        }
+    };
+    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
+    std::string bundleName = "";
+    ApplicationQuickFixInfo quickFixInfo;
+    auto ret = quickFixMs_->GetApplyedQuickFixInfo(bundleName, quickFixInfo);
+    EXPECT_EQ(ret, QUICK_FIX_OK);
+    EXPECT_EQ(quickFixInfo.bundleName, "");
+    EXPECT_EQ(quickFixInfo.bundleVersionCode, static_cast<uint32_t>(0));
+    EXPECT_EQ(quickFixInfo.bundleVersionName, "");
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: ApplyAndRemoveTask_0200
+ * @tc.desc: AddApplyTask and RemoveApplyTask
+ * @tc.type: FUNC
+ * @tc.require: issueI5OD2E
+ */
+HWTEST_F(QuickFixManagerServiceTest, ApplyAndRemoveTask_0200, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+    EXPECT_NE(quickFixMs_, nullptr);
+    quickFixMs_->RemoveApplyTask(nullptr);
+    quickFixMs_->AddApplyTask(nullptr);
+    sptr<AppExecFwk::IQuickFixManager> bundleQfMgr = nullptr;
+    sptr<AppExecFwk::IAppMgr> appMgr = nullptr;
+    std::shared_ptr<AppExecFwk::EventHandler> handler = nullptr;
+    wptr<QuickFixManagerService> service = nullptr;
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr, appMgr, handler, service);
+    EXPECT_NE(applyTask, nullptr);
+    quickFixMs_->RemoveApplyTask(applyTask);
+    quickFixMs_->AddApplyTask(applyTask);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: CheckTaskRunningState_0100
+ * @tc.desc: check task running state
+ * @tc.type: FUNC
+ * @tc.require: issueI5OD2E
+ */
+HWTEST_F(QuickFixManagerServiceTest, CheckTaskRunningState_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+    EXPECT_NE(quickFixMs_, nullptr);
+    std::string bundleName = "testbundlename";
+    bool result = quickFixMs_->CheckTaskRunningState(bundleName);
+    EXPECT_EQ(result, false);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: CheckTaskRunningState_0200
+ * @tc.desc: check task running state
+ * @tc.type: FUNC
+ * @tc.require: issueI5OD2E
+ */
+HWTEST_F(QuickFixManagerServiceTest, CheckTaskRunningState_0200, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+    EXPECT_NE(quickFixMs_, nullptr);
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(nullptr, nullptr, nullptr, nullptr);
+    quickFixMs_->AddApplyTask(applyTask);
+    std::string bundleName = "testbundlename";
+    bool result = quickFixMs_->CheckTaskRunningState(bundleName);
+    EXPECT_EQ(result, false);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: CheckTaskRunningState_0300
+ * @tc.desc: check task running state
+ * @tc.type: FUNC
+ * @tc.require: issueI5OD2E
+ */
+HWTEST_F(QuickFixManagerServiceTest, CheckTaskRunningState_0300, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+    EXPECT_NE(quickFixMs_, nullptr);
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(nullptr, nullptr, nullptr, nullptr);
+    quickFixMs_->AddApplyTask(applyTask);
+    std::string bundleName = "";
+    bool result = quickFixMs_->CheckTaskRunningState(bundleName);
+    EXPECT_EQ(result, true);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

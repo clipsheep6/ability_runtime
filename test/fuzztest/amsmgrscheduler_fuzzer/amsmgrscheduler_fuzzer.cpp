@@ -61,56 +61,73 @@ sptr<Token> GetFuzzAbilityToken()
 
     return token;
 }
-bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
+std::shared_ptr<AmsMgrScheduler> DoSomethingInterestingWithMyAPI1(sptr<IRemoteObject> token,
+    sptr<IRemoteObject> preToken, const char* data)
 {
     std::shared_ptr<AppMgrServiceInner> mgrServiceInner;
     std::shared_ptr<AAFwk::TaskHandlerWrap> handler;
-    AmsMgrScheduler amsMgrScheduler(mgrServiceInner, handler);
+    std::shared_ptr<AmsMgrScheduler> amsMgrScheduler = std::make_shared<AmsMgrScheduler>(mgrServiceInner, handler);
     sptr<IStartSpecifiedAbilityResponse> response;
-    amsMgrScheduler.RegisterStartSpecifiedAbilityResponse(response);
-    sptr<IRemoteObject> token = GetFuzzAbilityToken();
-    sptr<IRemoteObject> preToken = nullptr;
+    amsMgrScheduler->RegisterStartSpecifiedAbilityResponse(response);
     std::shared_ptr<AbilityInfo> abilityInfoptr;
     std::shared_ptr<ApplicationInfo> appInfo;
     std::shared_ptr<AAFwk::Want> wantptr;
-    amsMgrScheduler.LoadAbility(token, preToken, abilityInfoptr, appInfo, wantptr);
-    AppExecFwk::AbilityState state = AppExecFwk::AbilityState::ABILITY_STATE_READY;
-    amsMgrScheduler.UpdateAbilityState(token, state);
-    AppExecFwk::ExtensionState extensionState = AppExecFwk::ExtensionState::EXTENSION_STATE_READY;
-    amsMgrScheduler.UpdateExtensionState(token, extensionState);
+    int32_t abilityRecordId = static_cast<int32_t>(GetU32Data(data));
+    amsMgrScheduler->LoadAbility(token, preToken, abilityInfoptr, appInfo, wantptr, abilityRecordId);
     bool clearMissionFlag = *data % ENABLE;
-    amsMgrScheduler.TerminateAbility(token, clearMissionFlag);
+    amsMgrScheduler->TerminateAbility(token, clearMissionFlag);
+    return amsMgrScheduler;
+}
+
+bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
+{
+    sptr<IRemoteObject> token = GetFuzzAbilityToken();
+    sptr<IRemoteObject> preToken = nullptr;
+    auto amsMgrScheduler = DoSomethingInterestingWithMyAPI1(token, preToken, data);
+    AppExecFwk::AbilityState state = AppExecFwk::AbilityState::ABILITY_STATE_READY;
+    amsMgrScheduler->UpdateAbilityState(token, state);
+    AppExecFwk::ExtensionState extensionState = AppExecFwk::ExtensionState::EXTENSION_STATE_READY;
+    amsMgrScheduler->UpdateExtensionState(token, extensionState);
+    bool clearMissionFlag = *data % ENABLE;
+    amsMgrScheduler->TerminateAbility(token, clearMissionFlag);
     sptr<IAppStateCallback> callback;
-    amsMgrScheduler.RegisterAppStateCallback(callback);
+    amsMgrScheduler->RegisterAppStateCallback(callback);
     int32_t visibility = static_cast<int32_t>(GetU32Data(data));
     int32_t perceptibility = static_cast<int32_t>(GetU32Data(data));
     int32_t connectionState = static_cast<int32_t>(GetU32Data(data));
-    amsMgrScheduler.AbilityBehaviorAnalysis(token, preToken, visibility, perceptibility, connectionState);
+    amsMgrScheduler->AbilityBehaviorAnalysis(token, preToken, visibility, perceptibility, connectionState);
     int32_t userId = static_cast<int32_t>(GetU32Data(data));
-    amsMgrScheduler.KillProcessesByUserId(userId);
+    amsMgrScheduler->KillProcessesByUserId(userId);
     std::string bundleName(data, size);
     int accountId = static_cast<int>(GetU32Data(data));
-    amsMgrScheduler.KillProcessWithAccount(bundleName, accountId);
-    amsMgrScheduler.AbilityAttachTimeOut(token);
-    amsMgrScheduler.PrepareTerminate(token);
-    amsMgrScheduler.KillApplication(bundleName);
+    amsMgrScheduler->KillProcessWithAccount(bundleName, accountId);
+    amsMgrScheduler->AbilityAttachTimeOut(token);
+    amsMgrScheduler->PrepareTerminate(token);
+    amsMgrScheduler->KillApplication(bundleName);
     int uid = static_cast<int>(GetU32Data(data));
-    amsMgrScheduler.KillApplicationByUid(bundleName, uid);
-    amsMgrScheduler.KillApplicationSelf();
+    amsMgrScheduler->KillApplicationByUid(bundleName, uid);
+    amsMgrScheduler->KillApplicationSelf();
     AppExecFwk::RunningProcessInfo info;
-    amsMgrScheduler.GetRunningProcessInfoByToken(token, info);
+    amsMgrScheduler->GetRunningProcessInfoByToken(token, info);
     Parcel wantParcel;
     Want* want = nullptr;
     if (wantParcel.WriteBuffer(data, size)) {
         want = Want::Unmarshalling(wantParcel);
+        if (!want) {
+            return false;
+        }
     }
     AbilityInfo abilityInfo;
-    amsMgrScheduler.StartSpecifiedAbility(*want, abilityInfo);
+    amsMgrScheduler->StartSpecifiedAbility(*want, abilityInfo);
     int pid = static_cast<int>(GetU32Data(data));
     AppExecFwk::ApplicationInfo application;
     bool debug;
-    amsMgrScheduler.GetApplicationInfoByProcessID(pid, application, debug);
-    return amsMgrScheduler.IsReady();
+    amsMgrScheduler->GetApplicationInfoByProcessID(pid, application, debug);
+    if (want) {
+        delete want;
+        want = nullptr;
+    }
+    return amsMgrScheduler->IsReady();
 }
 }
 

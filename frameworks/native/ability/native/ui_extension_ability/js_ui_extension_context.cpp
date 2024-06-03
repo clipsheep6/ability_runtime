@@ -299,7 +299,8 @@ napi_value JsUIExtensionContext::OnOpenLink(napi_env env, NapiCallbackInfo& info
 
     if (!ParseOpenLinkParams(env, info, linkValue, openLinkOptions, want)) {
         TAG_LOGE(AAFwkTag::UI_EXT, "parse openLink arguments failed");
-        ThrowInvalidParamError(env, "Parse param openLink arguments failed");
+        ThrowInvalidParamError(env,
+            "Parse param link or openLinkOptions failed, link must be string, openLinkOptions must be options.");
         return CreateJsUndefined(env);
     }
 
@@ -660,6 +661,7 @@ void JsUIExtensionContext::SetCallbackForTerminateWithResult(int32_t resultCode,
             }
             auto token = extensionContext->GetToken();
             AAFwk::AbilityManagerClient::GetInstance()->TransferAbilityResultForExtension(token, resultCode, want);
+#ifdef SUPPORT_SCREEN
             sptr<Rosen::Window> uiWindow = context->GetWindow();
             if (!uiWindow) {
                 TAG_LOGE(AAFwkTag::UI_EXT, "uiWindow is nullptr");
@@ -671,6 +673,7 @@ void JsUIExtensionContext::SetCallbackForTerminateWithResult(int32_t resultCode,
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
                 return;
             }
+#endif // SUPPORT_SCREEN
             auto errorCode = context->TerminateSelf();
             if (errorCode == 0) {
                 task.ResolveWithNoError(env, CreateJsUndefined(env));

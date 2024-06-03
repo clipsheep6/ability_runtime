@@ -19,7 +19,7 @@ namespace OHOS {
 namespace AAFwk {
 bool MissionSnapshot::ReadFromParcel(Parcel &parcel)
 {
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     std::unique_ptr<AppExecFwk::ElementName> ability(parcel.ReadParcelable<AppExecFwk::ElementName>());
     if (ability == nullptr) {
         return false;
@@ -50,7 +50,7 @@ bool MissionSnapshot::Marshalling(Parcel &parcel) const
     if (!parcel.WriteParcelable(&topAbility)) {
         return false;
     }
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     if (!parcel.WriteParcelable(snapshot.get())) {
         return false;
     }

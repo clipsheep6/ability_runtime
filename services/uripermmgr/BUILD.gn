@@ -32,6 +32,12 @@ libupms_sources = [
 
 #build so
 ohos_shared_library("libupms") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
   shlib_type = "sa"
   configs = [
     "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config",
@@ -64,11 +70,16 @@ ohos_shared_library("libupms") {
     "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
+    "graphic_2d:color_manager",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
+    "image_framework:image_native",
     "init:libbeget_proxy",
     "init:libbegetutil",
+    "init:libbegetutil",
     "ipc:ipc_core",
+    "relational_store:native_dataability",
+    "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "storage_service:storage_manager_sa_proxy",

@@ -44,7 +44,7 @@ int32_t StartupTaskResult::GetResultCode() const
     return resultCode_;
 }
 
-std::string StartupTaskResult::GetResultMessage() const
+const std::string& StartupTaskResult::GetResultMessage() const
 {
     return resultMessage_;
 }

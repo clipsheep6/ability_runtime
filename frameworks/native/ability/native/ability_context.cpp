@@ -28,7 +28,9 @@
 #include "system_ability_definition.h"
 #include "hitrace_meter.h"
 #include "remote_object_wrapper.h"
+#ifdef SUPPORT_SCREEN
 #include "scene_board_judgement.h"
+#endif // SUPPORT_SCREEN
 #include "session/host/include/zidl/session_interface.h"
 #include "session_info.h"
 #include "string_wrapper.h"
@@ -87,6 +89,7 @@ ErrCode AbilityContext::TerminateAbility()
         case AppExecFwk::AbilityType::PAGE:
             TAG_LOGD(AAFwkTag::CONTEXT, "Terminate ability begin, type is page, ability is %{public}s.",
                 info->name.c_str());
+#ifdef SUPPORT_SCREEN
             if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
                 auto sessionToken = GetSessionToken();
                 if (sessionToken == nullptr) {
@@ -104,6 +107,7 @@ ErrCode AbilityContext::TerminateAbility()
             } else {
                 err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, resultCode_, &resultWant_);
             }
+#endif // SUPPORT_SCREEN
             break;
         case AppExecFwk::AbilityType::SERVICE:
             TAG_LOGD(AAFwkTag::CONTEXT, "Terminate ability begin, type is service, ability is %{public}s.",

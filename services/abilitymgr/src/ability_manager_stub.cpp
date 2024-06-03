@@ -364,6 +364,8 @@ void AbilityManagerStub::ThirdStepInit()
         = &AbilityManagerStub::UnregisterAbilityFirstFrameStateObserverInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::COMPLETE_FIRST_FRAME_DRAWING_BY_SCB)] =
         &AbilityManagerStub::CompleteFirstFrameDrawingBySCBInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY_NON_MODAL)] =
+        &AbilityManagerStub::StartUIExtensionAbilityNonModalInner;
 #endif
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUEST_DIALOG_SERVICE)] =
         &AbilityManagerStub::HandleRequestDialogService;
@@ -942,6 +944,22 @@ int AbilityManagerStub::StartUIExtensionAbilityInner(MessageParcel &data, Messag
     sptr<SessionInfo> extensionSessionInfo = nullptr;
     if (data.ReadBool()) {
         extensionSessionInfo = data.ReadParcelable<SessionInfo>();
+        extensionSessionInfo->isModal = true; // To ensure security, this attribute must be rewritten.
+    }
+
+    int32_t userId = data.ReadInt32();
+
+    int32_t result = StartUIExtensionAbility(extensionSessionInfo, userId);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartUIExtensionAbilityNonModalInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<SessionInfo> extensionSessionInfo = nullptr;
+    if (data.ReadBool()) {
+        extensionSessionInfo = data.ReadParcelable<SessionInfo>();
+        extensionSessionInfo->isModal = false; // To ensure security, this attribute must be rewritten.
     }
 
     int32_t userId = data.ReadInt32();
@@ -1488,13 +1506,13 @@ int AbilityManagerStub::ContinueMissionOfBundleNameInner(MessageParcel &data, Me
         return ERR_NULL_OBJECT;
     }
     std::unique_ptr<WantParams> wantParams(data.ReadParcelable<WantParams>());
-    continueMissionInfo.wantParams = *wantParams;
-    continueMissionInfo.srcBundleName = data.ReadString();
-    continueMissionInfo.continueType = data.ReadString();
     if (wantParams == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "ContinueMissionInner wantParams readParcelable failed!");
         return ERR_NULL_OBJECT;
     }
+    continueMissionInfo.wantParams = *wantParams;
+    continueMissionInfo.srcBundleName = data.ReadString();
+    continueMissionInfo.continueType = data.ReadString();
     int32_t result = ContinueMission(continueMissionInfo, callback);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "ContinueMissionInner result = %{public}d", result);
     return result;
@@ -2296,13 +2314,14 @@ int AbilityManagerStub::UpdateMissionSnapShotFromWMSInner(MessageParcel &data, M
         TAG_LOGE(AAFwkTag::ABILITYMGR, "read ability token failed.");
         return ERR_NULL_OBJECT;
     }
-
+#ifdef SUPPORT_SCREEN
     std::shared_ptr<Media::PixelMap> pixelMap(data.ReadParcelable<Media::PixelMap>());
     if (pixelMap == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "read pixelMap failed.");
         return ERR_NULL_OBJECT;
     }
     UpdateMissionSnapShot(token, pixelMap);
+#endif // SUPPORT_SCREEN
     return NO_ERROR;
 }
 
@@ -2513,7 +2532,7 @@ int AbilityManagerStub::SetMissionContinueStateInner(MessageParcel &data, Messag
     return NO_ERROR;
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 int AbilityManagerStub::SetMissionLabelInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> token = data.ReadRemoteObject();
@@ -3429,7 +3448,7 @@ int32_t AbilityManagerStub::TransferAbilityResultForExtensionInner(MessageParcel
 {
     sptr<IRemoteObject> callerToken = data.ReadRemoteObject();
     int32_t resultCode = data.ReadInt32();
-    Want *want = data.ReadParcelable<Want>();
+    sptr<Want> want = data.ReadParcelable<Want>();
     int32_t result = TransferAbilityResultForExtension(callerToken, resultCode, *want);
     reply.WriteInt32(result);
     return NO_ERROR;

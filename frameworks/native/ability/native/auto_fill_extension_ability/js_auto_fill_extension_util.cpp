@@ -27,6 +27,8 @@ constexpr const char *VIEW_DATA_BUNDLE_NAME = "bundleName";
 constexpr const char *VIEW_DATA_MODULE_NAME = "moduleName";
 constexpr const char *VIEW_DATA_ABILITY_NAME = "abilityName";
 constexpr const char *VIEW_DATA_PAGEURL = "pageUrl";
+constexpr const char *VIEW_DATA_USER_SELECTED = "isUserSelected";
+constexpr const char *VIEW_DATA_OTHER_ACCOUNT = "isOtherAccount";
 constexpr const char *VIEW_DATA_PAGE_NODE_INFOS = "pageNodeInfos";
 constexpr const char *VIEW_DATA_VIEW_DATA = "viewData";
 constexpr const char *VIEW_DATA_TYPE = "type";
@@ -72,6 +74,12 @@ napi_value JsAutoFillExtensionUtil::WrapViewData(const napi_env env, const Abili
 
     jsValue = WrapStringToJS(env, viewData.pageUrl);
     SetPropertyValueByPropertyName(env, jsObject, VIEW_DATA_PAGEURL, jsValue);
+
+    jsValue = WrapBoolToJS(env, viewData.isUserSelected);
+    SetPropertyValueByPropertyName(env, jsObject, VIEW_DATA_USER_SELECTED, jsValue);
+
+    jsValue = WrapBoolToJS(env, viewData.isOtherAccount);
+    SetPropertyValueByPropertyName(env, jsObject, VIEW_DATA_OTHER_ACCOUNT, jsValue);
 
     napi_value jsArray = nullptr;
     NAPI_CALL(env, napi_create_array(env, &jsArray));
@@ -183,6 +191,8 @@ void JsAutoFillExtensionUtil::UnwrapViewData(
     viewData.abilityName = UnwrapStringFromJS(env, jsValue, "");
     jsValue = GetPropertyValueByPropertyName(env, jsViewData, VIEW_DATA_PAGEURL, napi_string);
     viewData.pageUrl = UnwrapStringFromJS(env, jsValue, "");
+    UnwrapBooleanByPropertyName(env, jsViewData, VIEW_DATA_USER_SELECTED, viewData.isUserSelected);
+    UnwrapBooleanByPropertyName(env, jsViewData, VIEW_DATA_OTHER_ACCOUNT, viewData.isOtherAccount);
     jsValue = GetPropertyValueByPropertyName(env, jsViewData, VIEW_DATA_PAGE_NODE_INFOS, napi_object);
     if (jsValue != nullptr) {
         uint32_t jsProCount = 0;

@@ -27,6 +27,7 @@
 #include "in_process_call_wrapper.h"
 #include "iremote_object.h"
 #include "permission_verification.h"
+#include "server_constant.h"
 #include "want.h"
 
 namespace OHOS {
@@ -73,6 +74,11 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
 
 [[maybe_unused]]static bool OtherAppsAccessDlpCheck(const sptr<IRemoteObject> &callerToken, const Want &want)
 {
+    int32_t dlpIndex = want.GetIntParam(AbilityRuntime::ServerConstant::DLP_INDEX, 0);
+    if (dlpIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX && dlpIndex != 0) {
+        return false;
+    }
+
     if (callerToken != nullptr) {
         auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
         if (abilityRecord != nullptr &&

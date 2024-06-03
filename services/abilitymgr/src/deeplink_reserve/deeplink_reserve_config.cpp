@@ -262,10 +262,16 @@ bool DeepLinkReserveConfig::ReadFileInfoJson(const std::string &filePath, nlohma
         return false;
     }
 
+    char path[PATH_MAX] = {0};
+    if (realpath(filePath.c_str(), path) == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "realpath error, errno is %{public}d.", errno);
+        return false;
+    }
+
     std::fstream in;
     char errBuf[256];
     errBuf[0] = '\0';
-    in.open(filePath, std::ios_base::in);
+    in.open(path, std::ios_base::in);
     if (!in.is_open()) {
         strerror_r(errno, errBuf, sizeof(errBuf));
         TAG_LOGE(AAFwkTag::ABILITYMGR, "the file cannot be open due to  %{public}s", errBuf);

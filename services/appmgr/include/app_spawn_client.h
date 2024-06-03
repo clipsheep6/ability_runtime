@@ -90,6 +90,7 @@ struct StartFlags {
     static const int GWP_ENABLED_FORCE = 10;
     static const int GWP_ENABLED_NORMAL = 11;
     static const int TSANENABLED = 12;
+    static const int EXTENSION_CONTROLLED = 13;
 };
 
 union AppSpawnPidMsg {
@@ -103,6 +104,11 @@ public:
      * Constructor.
      */
     explicit AppSpawnClient(bool isNWebSpawn = false);
+
+    /**
+     * Constructor by service name
+     */
+    explicit AppSpawnClient(const char* serviceName);
 
     /**
      * Destructor
@@ -235,6 +241,8 @@ public:
     virtual int32_t GetRenderProcessTerminationStatus(const AppSpawnStartMsg &startMsg, int &status);
 
 private:
+    int32_t SetCloneFlag(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle) const;
+
     std::string serviceName_ = APPSPAWN_SERVER_NAME;
     AppSpawnClientHandle handle_ = nullptr;
     SpawnConnectionState state_ = SpawnConnectionState::STATE_NOT_CONNECT;

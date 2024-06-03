@@ -14,10 +14,10 @@
  */
 
 #include "ui_extension_record_factory.h"
-#include "ui_extension_record.h"
 #include "ability_util.h"
 #include "extension_record_manager.h"
 #include "hilog_tag_wrapper.h"
+#include "ui_extension_record.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -51,7 +51,7 @@ int32_t UIExtensionRecordFactory::PreCheck(
 int32_t UIExtensionRecordFactory::CreateRecord(
     const AAFwk::AbilityRequest &abilityRequest, std::shared_ptr<ExtensionRecord> &extensionRecord)
 {
-    std::shared_ptr<AAFwk::AbilityRecord> abilityRecord = AAFwk::AbilityRecord::CreateAbilityRecord(abilityRequest);
+    auto abilityRecord = AAFwk::AbilityRecord::CreateAbilityRecord(abilityRequest);
     if (abilityRecord == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to create ability record");
         return ERR_NULL_OBJECT;

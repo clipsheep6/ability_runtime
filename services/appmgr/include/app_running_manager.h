@@ -19,6 +19,7 @@
 #include <map>
 #include <mutex>
 #include <regex>
+#include <set>
 
 #include "ability_info.h"
 #include "app_debug_listener_interface.h"
@@ -35,6 +36,9 @@
 #include "app_jsheap_mem_info.h"
 
 namespace OHOS {
+namespace Rosen {
+class WindowVisibilityInfo;
+}
 namespace AppExecFwk {
 class AppRunningManager {
 public:
@@ -76,6 +80,17 @@ public:
      * @return, Return true if exist.
      */
     bool CheckAppRunningRecordIsExistByBundleName(const std::string &bundleName);
+
+    /**
+     * CheckAppRunningRecordIsExistByBundleName, Check whether the process of the application exists.
+     *
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param appCloneIndex the appindex of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return, Return ERR_OK if success, others fail.
+     */
+    int32_t CheckAppCloneRunningRecordIsExistByBundleName(const std::string &bundleName,
+        int32_t appCloneIndex, bool &isRunning);
 
     /**
      * GetAppRunningRecordByPid, Get process record by application pid.
@@ -221,7 +236,7 @@ public:
     std::shared_ptr<AppRunningRecord> GetTerminatingAppRunningRecord(const sptr<IRemoteObject> &abilityToken);
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
-    void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info);
+    int32_t GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info);
 
     void ClipStringContent(const std::regex &re, const std::string &source, std::string &afterCutStr);
     void HandleAddAbilityStageTimeOut(const int64_t eventId);
@@ -237,8 +252,9 @@ public:
     bool IsApplicationBackground(const std::string &bundleName);
     bool IsApplicationFirstFocused(const AppRunningRecord &foregroundingRecord);
     bool IsApplicationUnfocused(const std::string &bundleName);
+#ifdef SUPPORT_SCREEN
     void OnWindowVisibilityChanged(const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos);
-
+#endif //SUPPORT_SCREEN
     /**
      * @brief Set attach app debug mode.
      * @param bundleName The application bundle name.
@@ -297,9 +313,12 @@ public:
 
     int DumpFfrt(const std::vector<int32_t>& pids, std::string& result);
 
+    bool IsAppProcessesAllCached(const std::string &bundleName, int32_t uid,
+        const std::set<std::shared_ptr<AppRunningRecord>> &cachedSet);
+
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);
-    void AssignRunningProcessInfoByAppRecord(
+    int32_t AssignRunningProcessInfoByAppRecord(
         std::shared_ptr<AppRunningRecord> appRecord, AppExecFwk::RunningProcessInfo &info) const;
     bool isCollaboratorReserveType(const std::shared_ptr<AppRunningRecord> &appRecord);
 

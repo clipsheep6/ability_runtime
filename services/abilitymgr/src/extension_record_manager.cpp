@@ -216,7 +216,7 @@ bool ExtensionRecordManager::IsHostSpecifiedProcessValid(const AAFwk::AbilityReq
     std::shared_ptr<ExtensionRecord> &record, const std::string &process)
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    for (auto &iter: extensionRecords_) {
+    for (const auto &iter: extensionRecords_) {
         if (iter.second == nullptr || iter.second->abilityRecord_ == nullptr) {
             continue;
         }

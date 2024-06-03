@@ -86,7 +86,10 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->CheckNewRuleSwitchState(stringParam);
     abilityms->GetStartUpNewRuleFlag();
     abilityms->AddStartControlParam(*want, token);
-
+    if (want) {
+        delete want;
+        want = nullptr;
+    }
     return true;
 }
 }

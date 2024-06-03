@@ -78,9 +78,10 @@ public:
     /**
      * @brief Delete current bundleName auto start up data.
      * @param bundleName The current bundleName.
+     * @param uid The uid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t DeleteAutoStartupData(const std::string &bundleName);
+    int32_t DeleteAutoStartupData(const std::string &bundleName, int32_t uid);
 
     /**
      * @brief Check current bundleName auto start up data.
@@ -137,7 +138,8 @@ private:
     std::string GetSelfApplicationBundleName();
     bool CheckSelfApplication(const std::string &bundleName);
     bool GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, int32_t uid = -1);
-    bool GetAbilityData(const AutoStartupInfo &info, bool &isVisible, std::string &abilityTypeName);
+    bool GetAbilityData(const AutoStartupInfo &info, bool &isVisible,
+        std::string &abilityTypeName, std::string &accessTokenId);
     std::string GetAbilityTypeName(AppExecFwk::AbilityInfo abilityInfo);
     std::string GetExtensionTypeName(AppExecFwk::ExtensionAbilityInfo extensionInfo);
     std::shared_ptr<AppExecFwk::BundleMgrClient> GetBundleMgrClient();
@@ -145,7 +147,7 @@ private:
     int32_t CheckPermissionForSelf(const std::string &bundleName);
     int32_t CheckPermissionForEDM();
     int32_t InnerApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool isSet, bool flag);
-    int32_t GetAbilityInfo(const AutoStartupInfo &info, std::string &abilityTypeName);
+    int32_t GetAbilityInfo(const AutoStartupInfo &info, std::string &abilityTypeName,  std::string &accessTokenId);
 
     mutable std::mutex autoStartUpMutex_;
     mutable std::mutex deathRecipientsMutex_;

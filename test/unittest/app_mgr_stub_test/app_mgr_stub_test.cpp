@@ -355,6 +355,32 @@ HWTEST_F(AppMgrStubTest, HandleChangeAppGcState_001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: IsAppRunning_001
+ * @tc.desc: On remote request to query the running status of the application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrStubTest, IsAppRunning_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    WriteInterfaceToken(data);
+    std::string bundleName = "testBundleName";
+    int32_t appCloneIndex = 0;
+    bool isRunning = false;
+    data.WriteString(bundleName);
+    data.WriteInt32(appCloneIndex);
+    data.WriteBool(isRunning);
+
+    EXPECT_CALL(*mockAppMgrService_, IsAppRunning(_, _, _)).Times(1);
+
+    auto result = mockAppMgrService_->OnRemoteRequest(
+        static_cast<uint32_t>(AppMgrInterfaceCode::IS_APP_RUNNING), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
  * @tc.name: IsApplicationRunning_001
  * @tc.desc: On remote request to query the running status of the application.
  * @tc.type: FUNC
