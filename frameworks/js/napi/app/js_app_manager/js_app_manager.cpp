@@ -254,7 +254,7 @@ private:
 
         if (!CheckOnOffType(env, argc, argv)) {
             ThrowInvalidParamError(env, "Parse param type failed, must be a string,"
-                "value must be applicationState, appForegroundState or abilityFirstFrameState");
+                "value must be applicationState, appForegroundState or abilityFirstFrameState.");
             return CreateJsUndefined(env);
         }
 
@@ -300,7 +300,7 @@ private:
         }
         if (!AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
             TAG_LOGE(AAFwkTag::APPMGR, "Invalid param");
-            ThrowInvalidParamError(env, "Parse param observer failed, must be a ApplicationStateObserver");
+            ThrowInvalidParamError(env, "Parse param observer failed, must be a ApplicationStateObserver.");
             return CreateJsUndefined(env);
         }
         std::vector<std::string> bundleNameList;
@@ -343,7 +343,7 @@ private:
         }
         if (!AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
             TAG_LOGE(AAFwkTag::APPMGR, "Invalid param.");
-            ThrowInvalidParamError(env, "Parse param observer failed, must be a AppForegroundStateObserver");
+            ThrowInvalidParamError(env, "Parse param observer failed, must be a AppForegroundStateObserver.");
             return CreateJsUndefined(env);
         }
         if (observerForeground_ == nullptr) {
@@ -406,7 +406,7 @@ private:
         if (!AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object) ||
             !IsJSFunctionExist(env, argv[INDEX_ONE], "onAbilityFirstFrameDrawn")) {
             TAG_LOGE(AAFwkTag::APPMGR, "Invalid param.");
-            ThrowInvalidParamError(env, "Parse param observer failed, must be a AbilityFirstFrameStateObserver");
+            ThrowInvalidParamError(env, "Parse param observer failed, must be a AbilityFirstFrameStateObserver.");
             return CreateJsUndefined(env);
         }
         std::string bundleName;
@@ -414,7 +414,7 @@ private:
             if (!IsParasNullOrUndefined(env, argv[INDEX_TWO]) &&
                 (!ConvertFromJsValue(env, argv[INDEX_TWO], bundleName) || bundleName.empty())) {
                 TAG_LOGE(AAFwkTag::APPMGR, "Get bundleName error or bundleName empty!");
-                ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string");
+                ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string.");
                 return CreateJsUndefined(env);
             }
         }
@@ -460,7 +460,7 @@ private:
                 (!AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object) ||
                 !IsJSFunctionExist(env, argv[INDEX_ONE], "onAbilityFirstFrameDrawn"))) {
                 TAG_LOGE(AAFwkTag::APPMGR, "Invalid param.");
-                ThrowInvalidParamError(env, "Parse param observer failed, must be a AbilityFirstFrameStateObserver");
+                ThrowInvalidParamError(env, "Parse param observer failed, must be a AbilityFirstFrameStateObserver.");
                 return CreateJsUndefined(env);
             }
         }
@@ -485,20 +485,20 @@ private:
         }
         if (!CheckOnOffType(env, argc, argv)) {
             ThrowInvalidParamError(env, "Parse param type failed, must be a string,"
-                "value must be applicationState, appForegroundState or abilityFirstFrameState");
+                "value must be applicationState, appForegroundState or abilityFirstFrameState.");
             return CreateJsUndefined(env);
         }
 
         int64_t observerId = -1;
         napi_get_value_int64(env, argv[INDEX_ONE], &observerId);
         if (observer_ == nullptr) {
-            TAG_LOGE(AAFwkTag::APPMGR, "observer is nullptr, please register first");
-            ThrowInvalidParamError(env, "observer is nullptr, please register first");
+            TAG_LOGE(AAFwkTag::APPMGR, "observer is nullptr, please register first.");
+            ThrowInvalidParamError(env, "observer is nullptr, please register first.");
             return CreateJsUndefined(env);
         }
         if (!observer_->FindObserverByObserverId(observerId)) {
             TAG_LOGE(AAFwkTag::APPMGR, "not find observer, observer:%{public}d", static_cast<int32_t>(observerId));
-            ThrowInvalidParamError(env, "not find observerId");
+            ThrowInvalidParamError(env, "not find observerId.");
             return CreateJsUndefined(env);
         }
         TAG_LOGD(AAFwkTag::APPMGR, "find observer exist observer:%{public}d", static_cast<int32_t>(observerId));
@@ -540,7 +540,7 @@ private:
         int32_t observerId = -1;
         if (!ConvertFromJsValue(env, argv[INDEX_ONE], observerId)) {
             TAG_LOGE(AAFwkTag::APPMGR, "Parse observerId failed");
-            ThrowInvalidParamError(env, "Parse param observerId failed, must be a number");
+            ThrowInvalidParamError(env, "Parse param observerId failed, must be a number.");
             return CreateJsUndefined(env);
         }
 
@@ -551,7 +551,7 @@ private:
         }
         if (!observerSync_->FindObserverByObserverId(observerId)) {
             TAG_LOGE(AAFwkTag::APPMGR, "not find observer, observer:%{public}d", static_cast<int32_t>(observerId));
-            ThrowInvalidParamError(env, "not find observerId");
+            ThrowInvalidParamError(env, "not find observerId.");
             return CreateJsUndefined(env);
         }
         int32_t ret = appManager_->UnregisterApplicationStateObserver(observerSync_);
@@ -575,7 +575,7 @@ private:
         }
         if (argc == ARGC_TWO && !AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
             TAG_LOGE(AAFwkTag::APPMGR, "Invalid param.");
-            ThrowInvalidParamError(env, "Parse param observer failed, must be a AppForegroundStateObserver");
+            ThrowInvalidParamError(env, "Parse param observer failed, must be a AppForegroundStateObserver.");
             return CreateJsUndefined(env);
         }
         if (observerForeground_ == nullptr || appManager_ == nullptr) {
@@ -673,7 +673,7 @@ private:
         std::string bundleName;
         if (!ConvertFromJsValue(env, argv[0], bundleName)) {
             TAG_LOGE(AAFwkTag::APPMGR, "get bundleName failed!");
-            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string");
+            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string.");
             return CreateJsUndefined(env);
         }
         auto info = std::make_shared<RunningMultiAppInfo>();
@@ -713,12 +713,12 @@ private:
         int32_t bundleType = -1;
         if (!ConvertFromJsValue(env, argv[INDEX_ZERO], bundleType)) {
             TAG_LOGE(AAFwkTag::APPMGR, "get bundleType error!");
-            ThrowInvalidParamError(env, "failed to get bundleType");
+            ThrowInvalidParamError(env, "Parse param bundleType failed, must be a BundleType.");
             return CreateJsUndefined(env);
         }
         if (bundleType < 0) {
             TAG_LOGE(AAFwkTag::APPMGR, "Invalid bundle type:%{public}d", bundleType);
-            ThrowInvalidParamError(env, "invalid bundle type");
+            ThrowInvalidParamError(env, "Parse param bundleType failed, must not be less then zero.");
             return CreateJsUndefined(env);
         }
         NapiAsyncTask::CompleteCallback complete =
@@ -779,7 +779,7 @@ private:
         std::string bundleName;
         if (!ConvertFromJsValue(env, argv[0], bundleName)) {
             TAG_LOGE(AAFwkTag::APPMGR, "get bundleName error!");
-            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string");
+            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string.");
             return CreateJsUndefined(env);
         }
 
@@ -818,7 +818,7 @@ private:
         std::string bundleName;
         if (!ConvertFromJsValue(env, argv[0], bundleName)) {
             TAG_LOGE(AAFwkTag::APPMGR, "get bundleName failed!");
-            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string");
+            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string.");
             return CreateJsUndefined(env);
         }
 
@@ -856,14 +856,14 @@ private:
         std::string bundleName;
         if (!ConvertFromJsValue(env, argv[0], bundleName)) {
             TAG_LOGE(AAFwkTag::APPMGR, "get bundleName wrong!");
-            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string");
+            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string.");
             return CreateJsUndefined(env);
         }
 
         uint32_t versionCode = 0;
         if (!ConvertFromJsValue(env, argv[1], versionCode)) {
             TAG_LOGE(AAFwkTag::APPMGR, "get versionCode failed!");
-            ThrowInvalidParamError(env, "Parse param versionCode failed, must be a number");
+            ThrowInvalidParamError(env, "Parse param versionCode failed, must be a number.");
             return CreateJsUndefined(env);
         }
 
@@ -898,13 +898,13 @@ private:
         std::string bundleName;
         if (!ConvertFromJsValue(env, argv[0], bundleName)) {
             TAG_LOGE(AAFwkTag::APPMGR, "Parse bundleName failed");
-            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string");
+            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string.");
             return CreateJsUndefined(env);
         }
         int32_t accountId = -1;
         if (!ConvertFromJsValue(env, argv[1], accountId)) {
             TAG_LOGE(AAFwkTag::APPMGR, "Parse userId failed");
-            ThrowInvalidParamError(env, "Parse param accountId failed, must be a number");
+            ThrowInvalidParamError(env, "Parse param accountId failed, must be a number.");
             return CreateJsUndefined(env);
         }
 
@@ -984,7 +984,7 @@ private:
         int32_t pid;
         if (!ConvertFromJsValue(env, argv[0], pid)) {
             TAG_LOGE(AAFwkTag::APPMGR, "get pid failed");
-            ThrowInvalidParamError(env, "Parse param pid failed, must be a number");
+            ThrowInvalidParamError(env, "Parse param pid failed, must be a number.");
             return CreateJsUndefined(env);
         }
 
@@ -1023,7 +1023,7 @@ private:
         bool isPromiseType = false;
         if (!ConvertFromJsValue(env, argv[0], bundleName)) {
             TAG_LOGE(AAFwkTag::APPMGR, "First parameter must be string");
-            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string");
+            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string.");
             return CreateJsUndefined(env);
         }
         if (argc == ARGC_ONE) {
@@ -1035,11 +1035,11 @@ private:
         } else if (argc == ARGC_THREE) {
             if (!ConvertFromJsValue(env, argv[1], userId)) {
                 TAG_LOGW(AAFwkTag::APPMGR, "Must input userid and use callback when argc is three.");
-                ThrowInvalidParamError(env, "Parse param userId failed, must be a number");
+                ThrowInvalidParamError(env, "Parse param userId failed, must be a number.");
                 return CreateJsUndefined(env);
             }
         } else {
-            ThrowInvalidParamError(env, "The number of param exceeded");
+            ThrowInvalidParamError(env, "The number of param exceeded.");
             return CreateJsUndefined(env);
         }
 
@@ -1076,7 +1076,7 @@ private:
         std::string bundleName;
         if (!ConvertFromJsValue(env, argv[0], bundleName)) {
             TAG_LOGE(AAFwkTag::APPMGR, "Get bundle name wrong.");
-            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string");
+            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string.");
             return CreateJsUndefined(env);
         }
 
@@ -1121,13 +1121,13 @@ private:
         std::string bundleName;
         if (!ConvertFromJsValue(env, argv[0], bundleName)) {
             TAG_LOGE(AAFwkTag::APPMGR, "Get bundle name wrong.");
-            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string");
+            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string.");
             return CreateJsUndefined(env);
         }
         int32_t appCloneIndex = 0;
         if (argc > ARGC_ONE && !ConvertFromJsValue(env, argv[1], appCloneIndex)) {
             TAG_LOGE(AAFwkTag::APPMGR, "Get appCloneIndex wrong.");
-            ThrowInvalidParamError(env, "Parse param appCloneIndex failed, must be a string");
+            ThrowInvalidParamError(env, "Parse param appCloneIndex failed, must be a string.");
             return CreateJsUndefined(env);
         }
 
