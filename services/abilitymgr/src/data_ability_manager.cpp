@@ -19,6 +19,7 @@
 #include <thread>
 
 #include "ability_manager_service.h"
+#include "ability_resident_process_rdb.h"
 #include "ability_util.h"
 #include "connection_state_manager.h"
 #include "hilog_tag_wrapper.h"
@@ -647,7 +648,9 @@ void DataAbilityManager::RestartDataAbility(const std::shared_ptr<AbilityRecord>
     }
 
     for (size_t i = 0; i < bundleInfos.size(); i++) {
-        if (!bundleInfos[i].isKeepAlive || bundleInfos[i].applicationInfo.process.empty()) {
+        bool keepAliveEnable = bundleInfos[i].isKeepAlive;
+        AmsResidentProcessRdb::GetInstance().GetResidentProcessEnable(bundleInfos[i].name, keepAliveEnable);
+        if (!keepAliveEnable || bundleInfos[i].applicationInfo.process.empty()) {
             continue;
         }
         for (auto hapModuleInfo : bundleInfos[i].hapModuleInfos) {
@@ -680,7 +683,7 @@ void DataAbilityManager::ReportDataAbilityAcquired(const sptr<IRemoteObject> &cl
 {
     DataAbilityCaller caller;
     caller.isNotHap = isNotHap;
-    caller.callerPid = IPCSkeleton::GetCallingPid();
+    caller.callerPid = IPCSkeleton::GetCallingRealPid();
     caller.callerUid = IPCSkeleton::GetCallingUid();
     caller.callerToken = client;
     if (client && !isNotHap) {
@@ -700,7 +703,7 @@ void DataAbilityManager::ReportDataAbilityReleased(const sptr<IRemoteObject> &cl
 {
     DataAbilityCaller caller;
     caller.isNotHap = isNotHap;
-    caller.callerPid = IPCSkeleton::GetCallingPid();
+    caller.callerPid = IPCSkeleton::GetCallingRealPid();
     caller.callerUid = IPCSkeleton::GetCallingUid();
     caller.callerToken = client;
     DelayedSingleton<ConnectionStateManager>::GetInstance()->RemoveDataAbilityConnection(caller, record);

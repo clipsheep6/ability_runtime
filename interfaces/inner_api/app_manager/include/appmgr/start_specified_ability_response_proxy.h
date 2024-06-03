@@ -25,13 +25,15 @@ public:
     explicit StartSpecifiedAbilityResponseProxy(const sptr<IRemoteObject> &impl);
     virtual ~StartSpecifiedAbilityResponseProxy() = default;
 
-    virtual void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag) override;
+    virtual void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag,
+        int32_t requestId) override;
 
-    virtual void OnTimeoutResponse(const AAFwk::Want &want) override;
+    virtual void OnTimeoutResponse(const AAFwk::Want &want, int32_t requestId) override;
 
-    virtual void OnNewProcessRequestResponse(const AAFwk::Want &want, const std::string &flag) override;
-    
-    virtual void OnNewProcessRequestTimeoutResponse(const AAFwk::Want &want) override;
+    virtual void OnNewProcessRequestResponse(const AAFwk::Want &want, const std::string &flag,
+        int32_t requestId = 0) override;
+
+    virtual void OnNewProcessRequestTimeoutResponse(const AAFwk::Want &want, int32_t requestId) override;
 
 private:
     bool WriteInterfaceToken(MessageParcel &data);

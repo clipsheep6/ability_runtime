@@ -22,7 +22,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 DemoUIExtension *DemoUIExtension::Create(const std::unique_ptr<Runtime> &runtime)
 {
-    HILOG_DEBUG("Create demo extension.");
+    TAG_LOGD(AAFwkTag::TEST, "Create demo extension.");
     if (runtime == nullptr) {
         return new DemoUIExtension();
     }

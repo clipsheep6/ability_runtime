@@ -72,7 +72,7 @@ void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::Li
         TAG_LOGE(AAFwkTag::EXT, "Org lifeCycleState equals to Dst lifeCycleState.");
         return;
     }
-
+    SetLaunchParam(targetState.launchParam);
     bool ret = true;
 
     switch (targetState.state) {
@@ -440,6 +440,17 @@ void ExtensionImpl::SendResult(int requestCode, int resultCode, const Want &resu
 
     extension_->OnAbilityResult(requestCode, resultCode, resultData);
     TAG_LOGD(AAFwkTag::EXT, "end.");
+}
+
+void ExtensionImpl::SetLaunchParam(const AAFwk::LaunchParam &launchParam)
+{
+    HILOG_DEBUG("Called.");
+    if (extension_ == nullptr) {
+        HILOG_ERROR("Extension is nullptr.");
+        return;
+    }
+
+    extension_->SetLaunchParam(launchParam);
 }
 
 void ExtensionImpl::Foreground(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)

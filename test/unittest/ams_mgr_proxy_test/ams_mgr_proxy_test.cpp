@@ -162,5 +162,25 @@ HWTEST_F(AmsMgrProxyTest, RegisterAbilityDebugResponse_0100, TestSize.Level1)
     result = amsMgrProxy_->RegisterAbilityDebugResponse(response_);
     EXPECT_EQ(result, ERR_INVALID_DATA);
 }
+
+/**
+ * @tc.name: NotifyAppMgrRecordExitReason_0100
+ * @tc.desc: NotifyAppMgrRecordExitReason.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrProxyTest, NotifyAppMgrRecordExitReason_0100, TestSize.Level1)
+{
+    EXPECT_NE(amsMgrProxy_, nullptr);
+    EXPECT_NE(response_, nullptr);
+    EXPECT_CALL(*mockAmsMgrScheduler_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Return(NO_ERROR));
+
+    int32_t reason = 0;
+    int32_t pid = 1;
+    std::string exitMsg = "JsError";
+    auto result = amsMgrProxy_->NotifyAppMgrRecordExitReason(reason, pid, exitMsg);
+    EXPECT_EQ(result, NO_ERROR);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

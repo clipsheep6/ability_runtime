@@ -37,7 +37,7 @@ public:
      * @param targetBundleName The user of uri.
      */
     int GrantUriPermission(const Uri &uri, unsigned int flag, const std::string targetBundleName, int32_t appIndex = 0,
-        uint32_t initiatorTokenId = 0);
+        uint32_t initiatorTokenId = 0, int32_t abilityId = -1);
 
     /**
      * @brief Authorize the uri permission of to targetBundleName.
@@ -46,35 +46,35 @@ public:
      * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
      * @param targetBundleName The user of uri.
      */
-    int GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
-        const std::string targetBundleName, int32_t appIndex = 0, uint32_t initiatorTokenId = 0);
+    int GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag, const std::string targetBundleName,
+        int32_t appIndex = 0, uint32_t initiatorTokenId = 0, int32_t abilityId = -1);
 
     /**
-     * @brief Authorize the uri permission to targetBundleName for 2in1, only supports AbilityManagerService calls.
+     * @brief Authorize the uri permission to targetBundleName.
      *
      * @param uriVec The file urilist.
      * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
      * @param targetBundleName The user of uri.
      * @param appIndex The index of application in sandbox.
-     * @param isSystemAppCall The flag of system application called.
-     * @return Returns true if the authorization is successful, otherwise returns false.
+     * @return Returns ERR_OK if the authorization is successful, otherwise returns error code.
      */
-    int GrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
-        const std::string &targetBundleName, int32_t appIndex = 0, bool isSystemAppCall = false);
+    int32_t GrantUriPermissionPrivileged(const std::vector<Uri> &uriVec, uint32_t flag,
+        const std::string &targetBundleName, int32_t appIndex = 0);
 
     /**
      * @brief Clear user's uri authorization record with auto remove flag.
      *
      * @param tokenId A tokenId of an application.
+     * @param abilityId The abilityId of an ability record.
      */
-    void RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId);
+    void RevokeUriPermission(const uint32_t tokenId, int32_t abilityId = -1);
 
     /**
      * @brief Clear user's all uri authorization record with auto remove flag.
      *
      * @param tokenId A tokenId of an application.
      */
-    int RevokeAllUriPermissions(const Security::AccessToken::AccessTokenID tokenId);
+    int RevokeAllUriPermissions(const uint32_t tokenId);
 
     /**
      * @brief Clear user's uri authorization record.
@@ -93,7 +93,14 @@ public:
      */
     bool VerifyUriPermission(const Uri& uri, uint32_t flag, uint32_t tokenId);
 
-    bool IsAuthorizationUriAllowed(uint32_t fromTokenId);
+    /**
+     * @brief verify if tokenId have uri permission of flag.
+     *
+     * @param uri The file uri.
+     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
+     * @param tokenId A tokenId of an application.
+     */
+    std::vector<bool> CheckUriAuthorization(const std::vector<std::string> &uriVec, uint32_t flag, uint32_t tokenId);
 
     void OnLoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject);
     void OnLoadSystemAbilityFail();

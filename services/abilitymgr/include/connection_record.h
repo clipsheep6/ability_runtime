@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_CONNECTION_RECORD_H
 #define OHOS_ABILITY_RUNTIME_CONNECTION_RECORD_H
 
+#include <mutex>
 #include "ability_connect_callback_interface.h"
 #include "ability_record.h"
 #include "extension_config.h"
@@ -145,6 +146,8 @@ private:
     ConnectionState state_;                         // service connection state
     sptr<IRemoteObject> callerToken_ = nullptr;               // from:caller token
     std::shared_ptr<AbilityRecord> targetService_ = nullptr;  // target:service need to be connected
+
+    mutable std::mutex callbackMutex_;
     sptr<IAbilityConnection> connCallback_ = nullptr;         // service connect callback
     int32_t callerUid_ = 0;                             // caller uid
     int32_t callerPid_ = 0;                             // caller pid

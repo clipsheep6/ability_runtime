@@ -168,7 +168,12 @@ void AppScheduler::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk:
     TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::GetRunningProcessInfoByPid()");
 }
 
-void AppScheduler::StartSpecifiedAbility(const AAFwk::Want& want, const AppExecFwk::AbilityInfo& abilityInfo)
+bool AppScheduler::IsMemorySizeSufficent() const
+{
+    return true;
+}
+
+void AppScheduler::StartSpecifiedAbility(const AAFwk::Want&, const AppExecFwk::AbilityInfo&, int32_t)
 {}
 
 int AppScheduler::StartUserTest(
@@ -183,6 +188,11 @@ int AppScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::Appli
         return -1;
     }
 
+    return 0;
+}
+
+int32_t AppScheduler::NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg)
+{
     return 0;
 }
 

@@ -24,6 +24,18 @@ using namespace testing::ext;
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+const int32_t ABILITY_INFO_FLAG = 4;
+const int32_t DEFAULT_USERID = 100;
+const int32_t FIRST_APP_INDEX = 1000;
+const int32_t SECOND_APP_INDEX = 2000;
+const int32_t ERR_COD1 = 8519801;
+const int32_t ERR_COD3 = 8519802;
+const int32_t ERR_COD4 = 8519921;
+const int32_t ERR_COD5 = 8519816;
+const int32_t ERR_COD7 = 8521219;
+} // namespace
+
 class BundleMgrHelperTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -58,7 +70,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetBundleInfo_001, TestSize.Le
     std::string bundleName = "ohos.global.systemres";
     int32_t flags = 0;
     BundleInfo bundleInfo;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     auto ret = bundleMgrHelper->GetBundleInfo(bundleName, flags, bundleInfo, userId);
     EXPECT_EQ(ret, true);
 }
@@ -186,7 +198,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryAbilityInfo_001, TestSize
 {
     Want want;
     int32_t flags = 0;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     AbilityInfo abilityInfo;
     const sptr<IRemoteObject> callBack = nullptr;
     auto ret = bundleMgrHelper->QueryAbilityInfo(want, flags, userId, abilityInfo, callBack);
@@ -202,7 +214,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetBundleInfos_001, TestSize.L
 {
     BundleFlag flag = BundleFlag::GET_BUNDLE_WITH_ABILITIES;
     std::vector<BundleInfo> bundleInfos;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     auto ret = bundleMgrHelper->GetBundleInfos(flag, bundleInfos, userId);
     EXPECT_EQ(ret, true);
 }
@@ -216,7 +228,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_ImplicitQueryInfos_001, TestSi
 {
     Want want;
     int32_t flags = 0;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     bool withDefault = false;
     std::vector<AbilityInfo> abilityInfos;
     std::vector<ExtensionAbilityInfo> extensionInfos;
@@ -232,7 +244,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_ImplicitQueryInfos_001, TestSi
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_CleanBundleDataFiles_001, TestSize.Level1)
 {
     std::string bundleName;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     auto ret = bundleMgrHelper->CleanBundleDataFiles(bundleName, userId);
     EXPECT_EQ(ret, false);
 }
@@ -245,7 +257,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_CleanBundleDataFiles_001, Test
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryDataGroupInfos_001, TestSize.Level1)
 {
     std::string bundleName;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     std::vector<DataGroupInfo> infos;
     auto ret = bundleMgrHelper->QueryDataGroupInfos(bundleName, userId, infos);
     EXPECT_EQ(ret, false);
@@ -259,7 +271,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryDataGroupInfos_001, TestS
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetBundleGidsByUid_001, TestSize.Level1)
 {
     std::string bundleName;
-    int32_t uid = 100;
+    int32_t uid = DEFAULT_USERID;
     std::vector<int> gids;
     auto ret = bundleMgrHelper->GetBundleGidsByUid(bundleName, uid, gids);
     EXPECT_EQ(ret, true);
@@ -297,7 +309,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryExtensionAbilityInfos_002
 {
     Want want;
     int32_t flag = 0;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     std::vector<ExtensionAbilityInfo> extensionInfos;
     auto ret = bundleMgrHelper->QueryExtensionAbilityInfos(want, flag, userId, extensionInfos);
     EXPECT_EQ(ret, false);
@@ -323,7 +335,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryExtensionAbilityInfos_001
 {
     Want want;
     int32_t flag = 0;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     std::vector<ExtensionAbilityInfo> extensionInfos;
     auto ret = bundleMgrHelper->QueryExtensionAbilityInfos(want, flag, userId, extensionInfos);
     EXPECT_EQ(ret, false);
@@ -338,7 +350,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetApplicationInfo_001, TestSi
 {
     std::string appName;
     ApplicationFlag flag = ApplicationFlag::GET_ALL_APPLICATION_INFO;
-    int userId = 100;
+    int userId = DEFAULT_USERID;
     ApplicationInfo appInfo;
     auto ret = bundleMgrHelper->GetApplicationInfo(appName, flag, userId, appInfo);
     EXPECT_EQ(ret, false);
@@ -364,7 +376,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_UnregisterBundleEventCallback_
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryExtensionAbilityInfoByUri_001, TestSize.Level1)
 {
     std::string uri;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     ExtensionAbilityInfo extensionAbilityInfo;
     auto ret = bundleMgrHelper->QueryExtensionAbilityInfoByUri(uri, userId, extensionAbilityInfo);
     EXPECT_EQ(ret, false);
@@ -378,7 +390,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryExtensionAbilityInfoByUri
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryAbilityInfoByUri_001, TestSize.Level1)
 {
     std::string abilityUri;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     AbilityInfo abilityInfo;
     auto ret = bundleMgrHelper->QueryAbilityInfoByUri(abilityUri, userId, abilityInfo);
     EXPECT_EQ(ret, false);
@@ -393,7 +405,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_ImplicitQueryInfoByPriority_00
 {
     Want want;
     int32_t flags = 0;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     AbilityInfo abilityInfo;
     ExtensionAbilityInfo extensionInfo;
     auto ret = bundleMgrHelper->ImplicitQueryInfoByPriority(want, flags, userId, abilityInfo, extensionInfo);
@@ -409,7 +421,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetBundleInfos_002, TestSize.L
 {
     int32_t flags = 0;
     std::vector<BundleInfo> bundleInfos;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     auto ret = bundleMgrHelper->GetBundleInfos(flags, bundleInfos, userId);
     EXPECT_EQ(ret, true);
 }
@@ -422,7 +434,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetBundleInfos_002, TestSize.L
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetHapModuleInfo_002, TestSize.Level1)
 {
     AbilityInfo abilityInfo;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     HapModuleInfo hapModuleInfo;
     auto ret = bundleMgrHelper->GetHapModuleInfo(abilityInfo, userId, hapModuleInfo);
     EXPECT_EQ(ret, false);
@@ -436,7 +448,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetHapModuleInfo_002, TestSize
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetUidByBundleName_001, TestSize.Level1)
 {
     std::string bundleName;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     auto ret = bundleMgrHelper->GetUidByBundleName(bundleName, userId);
     EXPECT_EQ(ret, Constants::INVALID_UID);
 }
@@ -450,7 +462,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetApplicationInfo_002, TestSi
 {
     std::string appName;
     int32_t flags = 0;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     ApplicationInfo appInfo;
     auto ret = bundleMgrHelper->GetApplicationInfo(appName, flags, userId, appInfo);
     EXPECT_EQ(ret, false);
@@ -476,7 +488,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_ProcessPreload_001, TestSize.L
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_UpgradeAtomicService_001, TestSize.Level1)
 {
     Want want;
-    int32_t userId = 100;
+    int32_t userId = DEFAULT_USERID;
     bundleMgrHelper->UpgradeAtomicService(want, userId);
     EXPECT_NE(bundleMgrHelper->bundleMgr_, nullptr);
 }
@@ -489,8 +501,8 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_UpgradeAtomicService_001, Test
 HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryAbilityInfo_003, TestSize.Level1)
 {
     Want want;
-    int32_t flags = 100;
-    int32_t userId = 100;
+    int32_t flags = DEFAULT_USERID;
+    int32_t userId = DEFAULT_USERID;
     AbilityInfo abilityInfo;
     auto ret = bundleMgrHelper->QueryAbilityInfo(want, flags, userId, abilityInfo);
     EXPECT_EQ(ret, false);
@@ -505,6 +517,321 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetDefaultAppProxy_001, TestSi
 {
     auto ret = bundleMgrHelper->GetDefaultAppProxy();
     EXPECT_NE(ret, nullptr);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_InstallSandboxApp_001
+ * @tc.desc: InstallSandboxApp
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_InstallSandboxApp_001, TestSize.Level1)
+{
+    std::string bundleName = "";
+    int32_t dlpType = 1;
+    int32_t userId = 1;
+    int32_t appIndex = 1;
+    auto ret = bundleMgrHelper->InstallSandboxApp(bundleName, dlpType, userId, appIndex);
+    EXPECT_EQ(ret, ERR_APPEXECFWK_SANDBOX_INSTALL_PARAM_ERROR);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_InstallSandboxApp_002
+ * @tc.desc: InstallSandboxApp
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_InstallSandboxApp_002, TestSize.Level1)
+{
+    std::string bundleName = "bundleName";
+    int32_t dlpType = 1;
+    int32_t userId = 1;
+    int32_t appIndex = 1;
+    auto ret = bundleMgrHelper->InstallSandboxApp(bundleName, dlpType, userId, appIndex);
+    EXPECT_EQ(ret, ERR_COD1);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_UninstallSandboxApp_001
+ * @tc.desc: UninstallSandboxApp
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_UninstallSandboxApp_001, TestSize.Level1)
+{
+    std::string bundleName = "";
+    int32_t userId = 1;
+    int32_t appIndex = 1;
+    auto ret = bundleMgrHelper->UninstallSandboxApp(bundleName, userId, appIndex);
+    EXPECT_EQ(ret, ERR_APPEXECFWK_SANDBOX_INSTALL_PARAM_ERROR);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_UninstallSandboxApp_002
+ * @tc.desc: UninstallSandboxApp
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_UninstallSandboxApp_002, TestSize.Level1)
+{
+    std::string bundleName = "bundleName";
+    int32_t appIndex = 1;
+    int32_t userId = 1;
+    auto ret = bundleMgrHelper->UninstallSandboxApp(bundleName, appIndex, userId);
+    EXPECT_EQ(ret, ERR_APPEXECFWK_SANDBOX_INSTALL_PARAM_ERROR);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_UninstallSandboxApp_003
+ * @tc.desc: UninstallSandboxApp
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_UninstallSandboxApp_003, TestSize.Level1)
+{
+    std::string bundleName = "bundleName";
+    int32_t userId = 1;
+    int32_t appIndex = -1;
+    auto ret = bundleMgrHelper->UninstallSandboxApp(bundleName, userId, appIndex);
+    EXPECT_EQ(ret, ERR_COD3);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_GetUninstalledBundleInfo_001
+ * @tc.desc: GetUninstalledBundleInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetUninstalledBundleInfo_001, TestSize.Level1)
+{
+    std::string bundleName = "bundleName";
+    BundleInfo bundleInfo;
+    auto ret = bundleMgrHelper->GetUninstalledBundleInfo(bundleName, bundleInfo);
+    EXPECT_EQ(ret, ERR_COD4);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_GetSandboxBundleInfo_001
+ * @tc.desc: GetSandboxBundleInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetSandboxBundleInfo_001, TestSize.Level1)
+{
+    std::string bundleName = "bundleName";
+    int32_t appIndex = -1;
+    int32_t userId = 1;
+    BundleInfo bundleInfo;
+    auto ret = bundleMgrHelper->GetSandboxBundleInfo(bundleName, appIndex, userId, bundleInfo);
+    EXPECT_EQ(ret, ERR_APPEXECFWK_SANDBOX_INSTALL_PARAM_ERROR);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_GetSandboxBundleInfo_002
+ * @tc.desc: GetSandboxBundleInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetSandboxBundleInfo_002, TestSize.Level1)
+{
+    std::string bundleName = "";
+    int32_t appIndex = 10;
+    int32_t userId = 1;
+    BundleInfo bundleInfo;
+    auto ret = bundleMgrHelper->GetSandboxBundleInfo(bundleName, appIndex, userId, bundleInfo);
+    EXPECT_EQ(ret, ERR_APPEXECFWK_SANDBOX_INSTALL_PARAM_ERROR);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_GetSandboxAbilityInfo_001
+ * @tc.desc: GetSandboxAbilityInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetSandboxAbilityInfo_001, TestSize.Level1)
+{
+    Want want;
+    int32_t appIndex = 0;
+    int32_t flags = 1;
+    int32_t userId = 1;
+    AbilityInfo abilityInfo;
+    auto ret = bundleMgrHelper->GetSandboxAbilityInfo(want, appIndex, flags, userId, abilityInfo);
+    EXPECT_EQ(ret, ERR_APPEXECFWK_SANDBOX_INSTALL_PARAM_ERROR);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_GetSandboxAbilityInfo_002
+ * @tc.desc: GetSandboxAbilityInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetSandboxAbilityInfo_002, TestSize.Level1)
+{
+    Want want;
+    int32_t appIndex = FIRST_APP_INDEX;
+    int32_t flags = 1;
+    int32_t userId = 1;
+    AbilityInfo abilityInfo;
+    auto ret = bundleMgrHelper->GetSandboxAbilityInfo(want, appIndex, flags, userId, abilityInfo);
+    EXPECT_EQ(ret, ERR_APPEXECFWK_SANDBOX_INSTALL_PARAM_ERROR);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_GetSandboxAbilityInfo_003
+ * @tc.desc: GetSandboxAbilityInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetSandboxAbilityInfo_003, TestSize.Level1)
+{
+    Want want;
+    int32_t appIndex = SECOND_APP_INDEX;
+    int32_t flags = 1;
+    int32_t userId = 1;
+    AbilityInfo abilityInfo;
+    auto ret = bundleMgrHelper->GetSandboxAbilityInfo(want, appIndex, flags, userId, abilityInfo);
+    EXPECT_EQ(ret, ERR_COD5);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_GetSandboxExtAbilityInfos_001
+ * @tc.desc: GetSandboxExtAbilityInfos
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetSandboxExtAbilityInfos_001, TestSize.Level1)
+{
+    Want want;
+    int32_t appIndex = SECOND_APP_INDEX;
+    int32_t flags = 1;
+    int32_t userId = 1;
+    std::vector<ExtensionAbilityInfo> extensionInfos;
+    auto ret = bundleMgrHelper->GetSandboxExtAbilityInfos(want, appIndex, flags, userId, extensionInfos);
+    EXPECT_EQ(ret, ERR_COD5);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_GetSandboxHapModuleInfo_001
+ * @tc.desc: GetSandboxHapModuleInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetSandboxHapModuleInfo_001, TestSize.Level1)
+{
+    AbilityInfo abilityInfo;
+    int32_t appIndex = 0;
+    int32_t userId = 1;
+    HapModuleInfo hapModuleInfo;
+    auto ret = bundleMgrHelper->GetSandboxHapModuleInfo(abilityInfo, appIndex, userId, hapModuleInfo);
+    EXPECT_EQ(ret, ERR_APPEXECFWK_SANDBOX_INSTALL_PARAM_ERROR);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_GetSandboxHapModuleInfo_002
+ * @tc.desc: GetSandboxHapModuleInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetSandboxHapModuleInfo_002, TestSize.Level1)
+{
+    AbilityInfo abilityInfo;
+    int32_t appIndex = FIRST_APP_INDEX;
+    int32_t userId = 1;
+    HapModuleInfo hapModuleInfo;
+    auto ret = bundleMgrHelper->GetSandboxHapModuleInfo(abilityInfo, appIndex, userId, hapModuleInfo);
+    EXPECT_EQ(ret, ERR_APPEXECFWK_SANDBOX_INSTALL_PARAM_ERROR);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_GetSandboxHapModuleInfo_003
+ * @tc.desc: GetSandboxHapModuleInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetSandboxHapModuleInfo_003, TestSize.Level1)
+{
+    AbilityInfo abilityInfo;
+    int32_t appIndex = SECOND_APP_INDEX;
+    int32_t userId = 1;
+    HapModuleInfo hapModuleInfo;
+    auto ret = bundleMgrHelper->GetSandboxHapModuleInfo(abilityInfo, appIndex, userId, hapModuleInfo);
+    EXPECT_EQ(ret, ERR_COD5);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_ConnectBundleInstaller_001
+ * @tc.desc: ConnectBundleInstaller
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_ConnectBundleInstaller_001, TestSize.Level1)
+{
+    bundleMgrHelper->OnDeath();
+    auto ret = bundleMgrHelper->ConnectBundleInstaller();
+    EXPECT_NE(ret, nullptr);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_GetBundleInfoV9_001
+ * @tc.desc: GetBundleInfoV9
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetBundleInfoV9_001, TestSize.Level1)
+{
+    std::string bundleName = "bundleName";
+    int32_t flags = 1;
+    BundleInfo bundleInfo;
+    int32_t userId = 1;
+    auto ret = bundleMgrHelper->GetBundleInfoV9(bundleName, flags, bundleInfo, userId);
+    EXPECT_EQ(ret, ERR_COD7);
+}
+
+/**
+ * @tc.name: QueryExtensionAbilityInfosOnlyWithTypeName_001
+ * @tc.desc: QueryExtensionAbilityInfosOnlyWithTypeName
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, QueryExtensionAbilityInfosOnlyWithTypeName_001, TestSize.Level1)
+{
+    std::string extensionTypeName = "extensionTypeName";
+    uint32_t flag = 1;
+    int32_t userId = 1;
+    std::vector<ExtensionAbilityInfo> extensionInfos;
+    auto ret = bundleMgrHelper->QueryExtensionAbilityInfosOnlyWithTypeName(extensionTypeName,
+        flag, userId, extensionInfos);
+    EXPECT_EQ(ret, ERR_COD7);
+}
+
+/**
+ * @tc.name: GetJsonProfile_001
+ * @tc.desc: GetJsonProfile
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, GetJsonProfile_001, TestSize.Level1)
+{
+    ProfileType profileType = AppExecFwk::PKG_CONTEXT_PROFILE;
+    std::string bundleName = "bundleName";
+    std::string moduleName = "moduleName";
+    std::string profile = "profile";
+    int32_t userId = 1;
+    auto ret = bundleMgrHelper->GetJsonProfile(profileType, bundleName, moduleName, profile, userId);
+    EXPECT_EQ(ret, ERR_COD7);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_QueryCloneAbilityInfo_001
+ * @tc.desc: QueryCloneAbilityInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryCloneAbilityInfo_001, TestSize.Level1)
+{
+    ElementName element;
+    AbilityInfo abilityInfo;
+    int32_t flags = ABILITY_INFO_FLAG;
+    int32_t appCloneIndex = 1;
+    int32_t userId = DEFAULT_USERID;
+    auto ret = bundleMgrHelper->QueryCloneAbilityInfo(element, flags, appCloneIndex, abilityInfo, userId);
+    EXPECT_NE(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: BundleMgrHelperTest_GetCloneBundleInfo_001
+ * @tc.desc: GetCloneBundleInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetCloneBundleInfo_001, TestSize.Level1)
+{
+    std::string bundleName;
+    BundleInfo bundleInfo;
+    int32_t flags = 1;
+    int32_t appCloneIndex = 1;
+    int32_t userId = DEFAULT_USERID;
+    auto ret = bundleMgrHelper->GetCloneBundleInfo(bundleName, flags, appCloneIndex, bundleInfo, userId);
+    EXPECT_NE(ret, ERR_OK);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

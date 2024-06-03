@@ -35,7 +35,7 @@ public:
         std::shared_ptr<AppExecFwk::AbilityHandler> &handler,
         const sptr<IRemoteObject> &token) = 0;
 
-    virtual void OnStart(const AAFwk::Want &want) = 0;
+    virtual void OnStart(const AAFwk::Want &want, AAFwk::LaunchParam &launchParam) = 0;
 
     virtual void OnCommand(const AAFwk::Want &want, bool restart, int startId) = 0;
 
@@ -57,6 +57,8 @@ public:
     virtual void SetAbilityInfo(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo) = 0;
 
     virtual void SetContext(const std::shared_ptr<UIExtensionContext> &context) = 0;
+
+    virtual void BindContext() = 0;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

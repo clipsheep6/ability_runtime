@@ -110,6 +110,14 @@ napi_value CreateJsConfiguration(napi_env env, const AppExecFwk::Configuration& 
     std::string hasPointerDevice = configuration.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
     napi_set_named_property(env, object, "hasPointerDevice",
         CreateJsValue(env, hasPointerDevice == "true" ? true : false));
+
+    std::string fontSizeScale = configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_SIZE_SCALE);
+    napi_set_named_property(env, object, "fontSizeScale",
+        CreateJsValue(env, fontSizeScale == "" ? 1.0 : std::stod(fontSizeScale)));
+
+    std::string fontWeightScale = configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_WEIGHT_SCALE);
+    napi_set_named_property(env, object, "fontWeightScale",
+        CreateJsValue(env, fontWeightScale == "" ? 1.0 : std::stod(fontWeightScale)));
     return object;
 }
 

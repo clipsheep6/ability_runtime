@@ -55,10 +55,11 @@ public:
     MOCK_METHOD0(BlockAppService, int());
 #endif
     MOCK_METHOD0(PreStartNWebSpawnProcess, int());
-    MOCK_METHOD5(StartRenderProcess,
+    MOCK_METHOD6(StartRenderProcess,
                  int(const std::string &renderParam, int32_t ipcFd,
-                     int32_t sharedFd, int32_t crashFd, pid_t &renderPid));
+                     int32_t sharedFd, int32_t crashFd, pid_t &renderPid, bool isGPU));
     MOCK_METHOD1(AttachRenderProcess, void(const sptr<IRemoteObject>& renderScheduler));
+    MOCK_METHOD1(SaveBrowserChannel, void(sptr<IRemoteObject> browser));
     MOCK_METHOD2(GetRenderProcessTerminationStatus, int(pid_t renderPid, int& status));
     MOCK_METHOD1(GetConfiguration, int32_t(Configuration& config));
     MOCK_METHOD1(UpdateConfiguration, int32_t(const Configuration& config));
@@ -76,13 +77,18 @@ public:
     MOCK_METHOD2(GetProcessMemoryByPid, int32_t(const int32_t pid, int32_t & memorySize));
     MOCK_METHOD3(GetRunningProcessInformation, int32_t(const std::string & bundleName, int32_t userId,
         std::vector<RunningProcessInfo> &info));
-    MOCK_METHOD2(StartChildProcess, int32_t(const std::string &srcEntry, pid_t &childPid));
+    MOCK_METHOD3(StartChildProcess, int32_t(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount));
     MOCK_METHOD1(GetChildProcessInfoForSelf, int32_t(ChildProcessInfo &info));
     MOCK_METHOD1(AttachChildProcess, void(const sptr<IRemoteObject> &childScheduler));
     MOCK_METHOD0(ExitChildProcessSafely, void());
     MOCK_METHOD1(RegisterRenderStateObserver, int32_t(const sptr<IRenderStateObserver> &observer));
     MOCK_METHOD1(UnregisterRenderStateObserver, int32_t(const sptr<IRenderStateObserver> &observer));
     MOCK_METHOD2(UpdateRenderState, int32_t(pid_t renderPid, int32_t state));
+    MOCK_METHOD1(SetSupportedProcessCacheSelf, int32_t(bool isSupported));
+    MOCK_METHOD2(GetRunningMultiAppInfoByBundleName, int32_t(const std::string &bundleName,
+        RunningMultiAppInfo &info));
+    MOCK_METHOD3(StartNativeChildProcess, int32_t(const std::string &libName, int32_t childProcessCount,
+        const sptr<IRemoteObject> &callback));
 
     void AttachApplication(const sptr<IRemoteObject>& app)
     {
@@ -143,16 +149,23 @@ public:
     int IsBackgroundRunningRestricted(const std::string& appName)
     {
         return 0;
-    };
+    }
+
     virtual int GetAllRunningProcesses(std::vector<RunningProcessInfo>& info) override
     {
         return 0;
-    };
+    }
+
+    virtual int GetRunningProcessesByBundleType(const BundleType bundleType,
+        std::vector<RunningProcessInfo>& info) override
+    {
+        return 0;
+    }
 
     virtual int GetAllRenderProcesses(std::vector<RenderProcessInfo>& info) override
     {
         return 0;
-    };
+    }
 
     virtual int32_t StartNativeProcessForDebugger(const AAFwk::Want &want) override
     {

@@ -144,7 +144,7 @@ public:
      * @param The ability token.
      * @return
      */
-    virtual void ScheduleCleanAbility(const sptr<IRemoteObject> &) = 0;
+    virtual void ScheduleCleanAbility(const sptr<IRemoteObject> &, bool isCacheProcess = false) = 0;
 
     /**
      * ScheduleProfileChanged, call ScheduleProfileChanged() through proxy project,
@@ -269,6 +269,16 @@ public:
      */
     virtual int32_t ScheduleDumpIpcStat(std::string& result) = 0;
 
+    /**
+     * ScheduleDumpFfrt, call ScheduleDumpFfrt(std::string& result) through proxy project,
+     * Start querying the application's ffrt usage.
+     *
+     * @param result, ffrt dump result output.
+     *
+     * @return Returns 0 on success, error code on failure.
+     */
+    virtual int32_t ScheduleDumpFfrt(std::string& result) = 0;
+
     enum class Message {
         SCHEDULE_FOREGROUND_APPLICATION_TRANSACTION = 0,
         SCHEDULE_BACKGROUND_APPLICATION_TRANSACTION,
@@ -299,6 +309,7 @@ public:
         SCHEDULE_DUMP_IPC_START,
         SCHEDULE_DUMP_IPC_STOP,
         SCHEDULE_DUMP_IPC_STAT,
+        SCHEDULE_DUMP_FFRT,
     };
 };
 }  // namespace AppExecFwk

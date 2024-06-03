@@ -18,6 +18,7 @@
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "parcel_macro_base.h"
+#include "string_ex.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -29,7 +30,7 @@ bool ProcessData::Marshalling(Parcel &parcel) const
         parcel.WriteInt32(processChangeReason) && parcel.WriteString(processName) &&
         parcel.WriteInt32(static_cast<int32_t>(processType)) && parcel.WriteInt32(static_cast<int32_t>(extensionType))
         && parcel.WriteInt32(renderUid) && parcel.WriteUint32(accessTokenId) &&
-        parcel.WriteBool(isTestMode));
+        parcel.WriteBool(isTestMode) && parcel.WriteInt32(exitReason) && parcel.WriteString16(Str8ToStr16(exitMsg)));
 }
 
 bool ProcessData::ReadFromParcel(Parcel &parcel)
@@ -49,6 +50,8 @@ bool ProcessData::ReadFromParcel(Parcel &parcel)
     renderUid = parcel.ReadInt32();
     accessTokenId = parcel.ReadUint32();
     isTestMode = parcel.ReadBool();
+    exitReason = parcel.ReadInt32();
+    exitMsg = Str16ToStr8(parcel.ReadString16());
     return true;
 }
 

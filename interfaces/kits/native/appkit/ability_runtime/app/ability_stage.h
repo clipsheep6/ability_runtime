@@ -27,6 +27,9 @@
 #include "want.h"
 
 namespace OHOS {
+namespace AppExecFwk {
+class OHOSApplication;
+}
 namespace AbilityRuntime {
 class Context;
 class Runtime;
@@ -47,7 +50,8 @@ public:
     virtual void OnDestroy() const;
     virtual std::string OnAcceptWant(const AAFwk::Want &want);
     virtual std::string OnNewProcessRequest(const AAFwk::Want &want);
-    virtual void Init(const std::shared_ptr<Context> &context);
+    virtual void Init(const std::shared_ptr<Context> &context,
+        const std::weak_ptr<AppExecFwk::OHOSApplication> application);
     std::shared_ptr<Context> GetContext() const;
     void AddAbility(const sptr<IRemoteObject> &token,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord);
@@ -55,11 +59,14 @@ public:
     bool ContainsAbility() const;
     virtual void OnConfigurationUpdated(const AppExecFwk::Configuration& configuration);
     virtual void OnMemoryLevel(int level);
-    virtual int32_t RunAutoStartupTask(const std::function<void()> &callback, bool &isAsyncCallback);
+    virtual int32_t RunAutoStartupTask(const std::function<void()> &callback, bool &isAsyncCallback,
+        const std::shared_ptr<Context> &stageContext);
 
 private:
+    friend class JsAbilityStage;
     std::shared_ptr<Context> context_;
     std::map<sptr<IRemoteObject>, std::shared_ptr<AppExecFwk::AbilityLocalRecord>> abilityRecords_;
+    std::weak_ptr<AppExecFwk::OHOSApplication> application_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

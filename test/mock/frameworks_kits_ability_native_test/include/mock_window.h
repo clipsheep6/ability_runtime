@@ -151,9 +151,9 @@ public:
     virtual void NotifyTouchDialogTarget(int32_t posX = 0, int32_t posY = 0) {}
     virtual void SetAceAbilityHandler(const sptr<IAceAbilityHandler>& handler) {}
     virtual WMError NapiSetUIContent(const std::string& contentInfo, napi_env env, napi_value storage,
-        bool isDistributed = false, sptr<IRemoteObject> token = nullptr,
+        BackupAndRestoreType type = BackupAndRestoreType::NONE, sptr<IRemoteObject> token = nullptr,
         AppExecFwk::Ability* ability = nullptr) {return WMError::WM_OK;}
-    virtual std::string GetContentInfo() {return "";}
+    virtual std::string GetContentInfo(BackupAndRestoreType type = BackupAndRestoreType::CONTINUATION) {return "";}
     virtual Ace::UIContent* GetUIContent() const {return nullptr;}
     virtual void OnNewWant(const AAFwk::Want& want) {}
     virtual void SetRequestedOrientation(Orientation) {}

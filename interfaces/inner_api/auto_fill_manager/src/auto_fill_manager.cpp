@@ -126,6 +126,7 @@ int32_t AutoFillManager::HandleRequestExecuteInner(
     extensionCallback->SetWindowType(autoFillWindowType);
     extensionCallback->SetExtensionType(isSmartAutoFill);
     extensionCallback->SetAutoFillType(request.autoFillType);
+    extensionCallback->SetAutoFillRequestConfig(request.config);
     std::lock_guard<std::mutex> lock(extensionCallbacksMutex_);
     extensionCallbacks_.emplace(eventId_, extensionCallback);
     return AutoFill::AUTO_FILL_SUCCESS;
@@ -205,7 +206,7 @@ void AutoFillManager::RemoveAutoFillExtensionProxy(Ace::UIContent *uiContent)
 void AutoFillManager::BindModalUIExtensionCallback(
     const std::shared_ptr<AutoFillExtensionCallback> &extensionCallback, Ace::ModalUIExtensionCallbacks &callback)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     callback.onResult = std::bind(
         &AutoFillExtensionCallback::OnResult, extensionCallback, std::placeholders::_1, std::placeholders::_2);
     callback.onRelease = std::bind(
@@ -220,19 +221,19 @@ void AutoFillManager::BindModalUIExtensionCallback(
 
 int32_t AutoFillManager::ReloadInModal(const AutoFill::ReloadInModalRequest &request)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     if (request.uiContent == nullptr) {
-        HILOG_ERROR("Content is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Content is nullptr.");
         return AutoFill::AUTO_FILL_OBJECT_IS_NULL;
     }
 
     if (request.extensionCallback == nullptr) {
-        HILOG_ERROR("Extension callback is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Extension callback is nullptr.");
         return AutoFill::AUTO_FILL_OBJECT_IS_NULL;
     }
 
     if (request.autoFillType == AbilityBase::AutoFillType::UNSPECIFIED) {
-        HILOG_ERROR("Auto fill type is invalid.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Auto fill type is invalid.");
         return AutoFill::AUTO_FILL_TYPE_INVALID;
     }
 
@@ -256,7 +257,7 @@ int32_t AutoFillManager::ReloadInModal(const AutoFill::ReloadInModalRequest &req
     int32_t sessionId = AUTO_FILL_UI_EXTENSION_SESSION_ID_INVALID;
     sessionId = request.uiContent->CreateModalUIExtension(want, callback, config);
     if (sessionId == AUTO_FILL_UI_EXTENSION_SESSION_ID_INVALID) {
-        HILOG_ERROR("Create ui extension is failed.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Create ui extension is failed.");
         RemoveEvent(eventId_);
         return AutoFill::AUTO_FILL_CREATE_MODULE_UI_EXTENSION_FAILED;
     }

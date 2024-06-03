@@ -18,6 +18,7 @@
 #include "ability_runtime_error_util.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "want_agent_client.h"
 #include "want_agent_log_wrapper.h"
 #include "want_sender_info.h"
@@ -237,45 +238,47 @@ ErrCode PendingWant::Cancel(const sptr<AAFwk::IWantSender> &target)
 
 void PendingWant::Send(const sptr<AAFwk::IWantSender> &target)
 {
-    Send(0, nullptr, nullptr, "", nullptr, target);
+    Send(0, nullptr, nullptr, "", nullptr, nullptr, target);
 }
 
 void PendingWant::Send(int resultCode, const sptr<AAFwk::IWantSender> &target)
 {
-    Send(resultCode, nullptr, nullptr, "", nullptr, target);
+    Send(resultCode, nullptr, nullptr, "", nullptr, nullptr, target);
 }
 
 void PendingWant::Send(int resultCode, const std::shared_ptr<Want> &want,
     const sptr<AAFwk::IWantSender> &target)
 {
-    Send(resultCode, want, nullptr, "", nullptr, target);
+    Send(resultCode, want, nullptr, "", nullptr, nullptr, target);
 }
 
 void PendingWant::Send(
     int resultCode, const sptr<CompletedDispatcher> &onCompleted, const sptr<AAFwk::IWantSender> &target)
 {
-    Send(resultCode, nullptr, onCompleted, "", nullptr, target);
+    Send(resultCode, nullptr, onCompleted, "", nullptr, nullptr, target);
 }
 
 void PendingWant::Send(int resultCode, const std::shared_ptr<Want> &want,
     const sptr<CompletedDispatcher> &onCompleted, const sptr<AAFwk::IWantSender> &target)
 {
-    Send(resultCode, want, onCompleted, "", nullptr, target);
+    Send(resultCode, want, onCompleted, "", nullptr, nullptr, target);
 }
 
 void PendingWant::Send(int resultCode, const std::shared_ptr<Want> &want,
     const sptr<CompletedDispatcher> &onCompleted, const std::string &requiredPermission,
     const sptr<AAFwk::IWantSender> &target)
 {
-    Send(resultCode, want, onCompleted, requiredPermission, nullptr, target);
+    Send(resultCode, want, onCompleted, requiredPermission, nullptr, nullptr, target);
 }
 
 ErrCode PendingWant::Send(int resultCode, const std::shared_ptr<Want> &want,
     const sptr<CompletedDispatcher> &onCompleted, const std::string &requiredPermission,
-    const std::shared_ptr<WantParams> &options, const sptr<AAFwk::IWantSender> &target)
+    const std::shared_ptr<WantParams> &options, const std::shared_ptr<StartOptions> &startOptions,
+    const sptr<AAFwk::IWantSender> &target)
 {
     TAG_LOGI(AAFwkTag::WANTAGENT, "call");
-    int result = SendAndReturnResult(resultCode, want, onCompleted, requiredPermission, options, target);
+    int result =
+        SendAndReturnResult(resultCode, want, onCompleted, requiredPermission, options, startOptions, target);
     if (result != 0) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "PendingWant::SendAndReturnResult failed.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_BUSY;
@@ -285,7 +288,8 @@ ErrCode PendingWant::Send(int resultCode, const std::shared_ptr<Want> &want,
 
 int PendingWant::SendAndReturnResult(int resultCode, const std::shared_ptr<Want> &want,
     const sptr<CompletedDispatcher> &onCompleted, const std::string &requiredPermission,
-    const std::shared_ptr<WantParams> &options, const sptr<AAFwk::IWantSender> &target)
+    const std::shared_ptr<WantParams> &options, const std::shared_ptr<StartOptions> &startOptions,
+    const sptr<AAFwk::IWantSender> &target)
 {
     TAG_LOGI(AAFwkTag::WANTAGENT, "call");
     SenderInfo senderInfo;
@@ -295,6 +299,9 @@ int PendingWant::SendAndReturnResult(int resultCode, const std::shared_ptr<Want>
     }
     if (options != nullptr) {
         senderInfo.want.SetParams(*options);
+    }
+    if (startOptions != nullptr) {
+        senderInfo.startOptions = new (std::nothrow) StartOptions(*startOptions);
     }
     senderInfo.requiredPermission = requiredPermission;
     senderInfo.code = resultCode;
@@ -425,6 +432,7 @@ ErrCode PendingWant::GetBundleName(const sptr<AAFwk::IWantSender> &target, std::
 
 std::shared_ptr<Want> PendingWant::GetWant(const sptr<AAFwk::IWantSender> &target)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::shared_ptr<Want> want = std::make_shared<Want>();
     int ret = WantAgentClient::GetInstance().GetPendingRequestWant(target, want);
     return ret ? nullptr : want;

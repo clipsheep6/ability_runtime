@@ -22,6 +22,7 @@
 
 #include "app_death_recipient.h"
 #include "child_scheduler_interface.h"
+#include "child_process_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -29,11 +30,17 @@ class AppRunningRecord;
 
 class ChildProcessRecord {
 public:
-    ChildProcessRecord(pid_t hostPid, const std::string &srcEntry, const std::shared_ptr<AppRunningRecord> hostRecord);
+    ChildProcessRecord(pid_t hostPid, const std::string &srcEntry, const std::shared_ptr<AppRunningRecord> hostRecord,
+        int32_t childProcessCount, bool isStartWithDebug);
+    ChildProcessRecord(pid_t hostPid, const std::string &libName, const std::shared_ptr<AppRunningRecord> hostRecord,
+        const sptr<IRemoteObject> &mainProcessCb, int32_t childProcessCount, bool isStartWithDebug);
     virtual ~ChildProcessRecord();
 
     static std::shared_ptr<ChildProcessRecord> CreateChildProcessRecord(pid_t hostPid, const std::string &srcEntry,
-        const std::shared_ptr<AppRunningRecord> hostRecord);
+        const std::shared_ptr<AppRunningRecord> hostRecord, int32_t childProcessCount, bool isStartWithDebug);
+    static std::shared_ptr<ChildProcessRecord> CreateNativeChildProcessRecord(pid_t hostPid, const std::string &libName,
+        const std::shared_ptr<AppRunningRecord> hostRecord, const sptr<IRemoteObject> &mainProcessCb,
+        int32_t childProcessCount, bool isStartWithDebug);
 
     void SetPid(pid_t pid);
     pid_t GetPid() const;
@@ -49,18 +56,25 @@ public:
     void RegisterDeathRecipient();
     void RemoveDeathRecipient();
     void ScheduleExitProcessSafely();
-
+    bool isStartWithDebug();
+    int32_t GetProcessType() const;
+    sptr<IRemoteObject> GetMainProcessCallback() const;
+    void ClearMainProcessCallback();
 private:
     void MakeProcessName(const std::shared_ptr<AppRunningRecord> hostRecord);
 
     pid_t pid_ = 0;
     pid_t hostPid_ = 0;
     int32_t uid_ = 0;
+    int32_t childProcessCount_ = 0;
+    int32_t childProcessType_ = CHILD_PROCESS_TYPE_JS;
     std::string processName_;
     std::string srcEntry_;
     std::weak_ptr<AppRunningRecord> hostRecord_;
     sptr<IChildScheduler> scheduler_ = nullptr;
     sptr<AppDeathRecipient> deathRecipient_ = nullptr;
+    sptr<IRemoteObject> mainProcessCb_ = nullptr;
+    bool isStartWithDebug_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

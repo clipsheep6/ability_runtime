@@ -102,6 +102,8 @@ struct Options {
     std::shared_ptr<AppExecFwk::Configuration> configuration;
     std::vector<uint8_t> moduleJsonBuffer;
     CallbackTypePostTask postTask;
+    std::map<std::string, std::string> pkgContextInfoJsonStringMap;
+    std::map<std::string, std::string> packageNameList;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

@@ -16,6 +16,7 @@
 
 #include "auto_fill_error.h"
 #include "auto_fill_manager.h"
+#include "auto_fill_manager_util.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "view_data.h"
@@ -30,16 +31,28 @@ constexpr static char WANT_PARAMS_AUTO_FILL_CMD_KEY[] = "ohos.ability.params.aut
 constexpr static char WANT_PARAMS_UPDATE_POPUP_WIDTH[] = "ohos.ability.params.popupWidth";
 constexpr static char WANT_PARAMS_UPDATE_POPUP_HEIGHT[] = "ohos.ability.params.popupHeight";
 constexpr static char WANT_PARAMS_UPDATE_POPUP_PLACEMENT[] = "ohos.ability.params.popupPlacement";
+constexpr static char WANT_PARAMS_FILL_CONTENT[] = "ohos.ability.params.fillContent";
 } // namespace
 void AutoFillExtensionCallback::OnResult(int32_t errCode, const AAFwk::Want &want)
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called, result code is %{public}d.", errCode);
     AutoFillManager::GetInstance().RemoveEvent(eventId_);
     CloseModalUIExtension();
-    
-    isOnResult_ = true;
-    want_ = want;
-    errCode_ = errCode;
+
+    if (autoFillWindowType_ == AutoFill::AutoFillWindowType::POPUP_WINDOW) {
+        isOnResult_ = true;
+        want_ = want;
+        errCode_ = errCode;
+        return;
+    }
+
+    if (errCode == AutoFill::AUTO_FILL_SUCCESS) {
+        SendAutoFillSucess(want);
+    } else {
+        auto resultCode = (errCode == AutoFill::AUTO_FILL_CANCEL) ?
+            AutoFill::AUTO_FILL_CANCEL : AutoFill::AUTO_FILL_FAILED;
+        SendAutoFillFailed(resultCode, want);
+    }
 }
 
 void AutoFillExtensionCallback::OnRelease(int32_t errCode)
@@ -67,7 +80,7 @@ void AutoFillExtensionCallback::OnError(int32_t errCode, const std::string &name
 
 void AutoFillExtensionCallback::HandleReloadInModal(const AAFwk::WantParams &wantParams)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     isReloadInModal_ = true;
     AutoFillManager::GetInstance().RemoveAutoFillExtensionProxy(uiContent_);
     auto customDataString(wantParams.GetStringParam(WANT_PARAMS_CUSTOM_DATA_KEY));
@@ -86,14 +99,14 @@ void AutoFillExtensionCallback::HandleReloadInModal(const AAFwk::WantParams &wan
     }
 
     if (uiContent_ == nullptr) {
-        HILOG_ERROR("UI content is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UI content is nullptr.");
         return;
     }
 
     if (request.autoFillWindowType == AutoFill::AutoFillWindowType::POPUP_WINDOW) {
         uiContent_->DestroyCustomPopupUIExtension(request.nodeId);
     } else {
-        HILOG_WARN("Window type is not popup, the window can not be destroyed.");
+        TAG_LOGW(AAFwkTag::AUTOFILLMGR, "Window type is not popup, the window can not be destroyed.");
     }
 }
 
@@ -117,7 +130,12 @@ void AutoFillExtensionCallback::OnReceive(const AAFwk::WantParams &wantParams)
             popupConfig.placement =
                 static_cast<Ace::PopupPlacement>(wantParams.GetIntParam(WANT_PARAMS_UPDATE_POPUP_PLACEMENT, 0));
         }
+        Ace::CustomPopupUIExtensionConfig popupConfigToConvert;
+        AutoFillManagerUtil::ConvertToPopupUIExtensionConfig(autoFillCustomConfig_, popupConfigToConvert);
         popupConfig.nodeId = sessionId_;
+        popupConfig.isFocusable = popupConfigToConvert.isFocusable;
+        popupConfig.isShowInSubWindow = popupConfigToConvert.isShowInSubWindow;
+        popupConfig.isEnableArrow = popupConfigToConvert.isEnableArrow;
         auto updateResult = AutoFillManager::GetInstance().UpdateCustomPopupConfig(uiContent_, popupConfig);
         if (updateResult != AutoFill::AUTO_FILL_SUCCESS) {
             TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Update custom popup config failed.");
@@ -145,7 +163,7 @@ void AutoFillExtensionCallback::onDestroy()
         isReloadInModal_ = false;
         return;
     }
-    if (isOnResult_) {
+    if (isOnResult_ && autoFillWindowType_ == AutoFill::AutoFillWindowType::POPUP_WINDOW) {
         isOnResult_ = false;
         if (errCode_ == AutoFill::AUTO_FILL_SUCCESS) {
             SendAutoFillSucess(want_);
@@ -195,6 +213,11 @@ void AutoFillExtensionCallback::SetViewData(const AbilityBase::ViewData &viewDat
     viewData_ = viewData;
 }
 
+void AutoFillExtensionCallback::SetAutoFillRequestConfig(const AutoFill::AutoFillCustomConfig &config)
+{
+    autoFillCustomConfig_ = config;
+}
+
 void AutoFillExtensionCallback::SetExtensionType(bool isSmartAutoFill)
 {
     isSmartAutoFill_ = isSmartAutoFill;
@@ -232,10 +255,11 @@ void AutoFillExtensionCallback::SendAutoFillSucess(const AAFwk::Want &want)
     }
 }
 
-void AutoFillExtensionCallback::SendAutoFillFailed(int32_t errCode)
+void AutoFillExtensionCallback::SendAutoFillFailed(int32_t errCode, const AAFwk::Want &want)
 {
     if (fillCallback_ != nullptr) {
-        fillCallback_->OnFillRequestFailed(errCode);
+        std::string fillContent = want.GetStringParam(WANT_PARAMS_FILL_CONTENT);
+        fillCallback_->OnFillRequestFailed(errCode, fillContent);
         fillCallback_ = nullptr;
     }
 
@@ -252,12 +276,12 @@ void AutoFillExtensionCallback::CloseModalUIExtension()
         return;
     }
 
-    AutoFillManager::GetInstance().RemoveAutoFillExtensionProxy(uiContent_);
     if (autoFillWindowType_ == AutoFill::AutoFillWindowType::POPUP_WINDOW) {
         uiContent_->DestroyCustomPopupUIExtension(sessionId_);
     } else if (autoFillWindowType_ == AutoFill::AutoFillWindowType::MODAL_WINDOW) {
         uiContent_->CloseModalUIExtension(sessionId_);
     }
+    AutoFillManager::GetInstance().RemoveAutoFillExtensionProxy(uiContent_);
     uiContent_ = nullptr;
 }
 } // namespace AbilityRuntime

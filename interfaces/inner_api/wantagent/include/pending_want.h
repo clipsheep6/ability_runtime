@@ -222,11 +222,13 @@ public:
 
     ErrCode Send(int resultCode, const std::shared_ptr<AAFwk::Want> &want,
         const sptr<CompletedDispatcher> &onCompleted, const std::string &requiredPermission,
-        const std::shared_ptr<AAFwk::WantParams> &options, const sptr<AAFwk::IWantSender> &target);
+        const std::shared_ptr<AAFwk::WantParams> &options, const std::shared_ptr<AAFwk::StartOptions> &startOptions,
+        const sptr<AAFwk::IWantSender> &target);
 
     int SendAndReturnResult(int resultCode, const std::shared_ptr<AAFwk::Want> &want,
         const sptr<CompletedDispatcher> &onCompleted, const std::string &requiredPermission,
-        const std::shared_ptr<AAFwk::WantParams> &options, const sptr<AAFwk::IWantSender> &target);
+        const std::shared_ptr<AAFwk::WantParams> &options, const std::shared_ptr<AAFwk::StartOptions> &startOptions,
+        const sptr<AAFwk::IWantSender> &target);
 
     ErrCode GetBundleName(const sptr<AAFwk::IWantSender> &target, std::string &bundleName);
 
@@ -256,9 +258,9 @@ public:
 
 private:
     std::mutex lock_object;
-    sptr<AAFwk::IWantSender> target_;
-    sptr<AAFwk::IWantReceiver> cancelReceiver_;
-    sptr<IRemoteObject> whitelistToken_;
+    sptr<AAFwk::IWantSender> target_ = nullptr;
+    sptr<AAFwk::IWantReceiver> cancelReceiver_ = nullptr;
+    sptr<IRemoteObject> whitelistToken_ = nullptr;
     std::vector<std::shared_ptr<CancelListener>> cancelListeners_;
 
     class CancelReceiver : public AAFwk::WantReceiverStub {

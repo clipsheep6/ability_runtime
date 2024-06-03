@@ -54,6 +54,7 @@ constexpr int32_t API8 = 8;
 constexpr int32_t API12 = 12;
 const std::string BUNDLE_NAME_FLAG = "@bundle:";
 const std::string CACHE_DIRECTORY = "el2";
+const std::string RESTRICTED_PREFIX_PATH = "abcs/";
 const int PATH_THREE = 3;
 #ifdef APP_USE_ARM
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/platformsdk/libark_debugger.z.so";
@@ -95,7 +96,7 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
     }
 
     if (g_debugMode) {
-        auto instanceId = gettid();
+        auto instanceId = getproctid();
         std::string instanceName = "workerThread_" + std::to_string(instanceId);
         bool needBreakPoint = ConnectServerManager::Get().AddInstance(instanceId, instanceId, instanceName);
         if (g_nativeStart) {
@@ -123,7 +124,7 @@ void OffWorkerFunc(NativeEngine* nativeEngine)
     }
 
     if (g_debugMode) {
-        auto instanceId = gettid();
+        auto instanceId = getproctid();
         ConnectServerManager::Get().RemoveInstance(instanceId);
         auto arkNativeEngine = static_cast<ArkNativeEngine*>(nativeEngine);
         auto vm = const_cast<EcmaVM*>(arkNativeEngine->GetEcmaVm());
@@ -246,6 +247,10 @@ void AssetHelper::operator()(const std::string& uri, uint8_t** buff, size_t* buf
         }
 
         filePath = NormalizedFileName(realPath);
+        // for safe reason, filePath must starts with 'abcs/' in restricted env
+        if (isRestricted && filePath.find(RESTRICTED_PREFIX_PATH) && workerInfo_->apiTargetVersion >= API12) {
+            filePath = RESTRICTED_PREFIX_PATH + filePath;
+        }
         ami = workerInfo_->codePath + filePath;
         TAG_LOGD(AAFwkTag::JSRUNTIME, "Get asset, ami: %{private}s", ami.c_str());
         if (ami.find(CACHE_DIRECTORY) != std::string::npos) {

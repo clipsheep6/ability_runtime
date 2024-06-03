@@ -17,6 +17,7 @@
 
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "js_data_struct_converter.h"
 #include "js_runtime_utils.h"
 

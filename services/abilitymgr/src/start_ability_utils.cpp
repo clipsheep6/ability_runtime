@@ -17,25 +17,38 @@
 
 #include "ability_record.h"
 #include "ability_util.h"
+#include "bundle_constants.h"
+#include "bundle_mgr_helper.h"
+#include "global_constant.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "server_constant.h"
+#include "startup_util.h"
 
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const char* DLP_INDEX = "ohos.dlp.params.index";
+constexpr const char* SCREENSHOT_BUNDLE_NAME = "com.huawei.ohos.screenshot";
+constexpr const char* SCREENSHOT_ABILITY_NAME = "com.huawei.ohos.screenshot.ServiceExtAbility";
 }
 thread_local std::shared_ptr<StartAbilityInfo> StartAbilityUtils::startAbilityInfo;
+thread_local bool StartAbilityUtils::skipCrowTest = false;
+thread_local bool StartAbilityUtils::skipStartOther = false;
+thread_local bool StartAbilityUtils::skipErms = false;
 
 int32_t StartAbilityUtils::GetAppIndex(const Want &want, sptr<IRemoteObject> callerToken)
 {
+    int32_t appIndex = want.GetIntParam(AbilityRuntime::ServerConstant::APP_CLONE_INDEX, 0);
+    if (appIndex > 0 && appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
+        return appIndex;
+    }
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-    if (abilityRecord && abilityRecord->GetAppIndex() != 0 &&
+    if (abilityRecord && abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX &&
         abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
         return abilityRecord->GetAppIndex();
     }
-    return want.GetIntParam(DLP_INDEX, 0);
+    return want.GetIntParam(AbilityRuntime::ServerConstant::DLP_INDEX, 0);
 }
 
 bool StartAbilityUtils::GetApplicationInfo(const std::string &bundleName, int32_t userId,
@@ -59,18 +72,39 @@ bool StartAbilityUtils::GetApplicationInfo(const std::string &bundleName, int32_
     return true;
 }
 
-StartAbilityInfoWrap::StartAbilityInfoWrap(const Want &want, int32_t validUserId, int32_t appIndex)
+StartAbilityInfoWrap::StartAbilityInfoWrap(const Want &want, int32_t validUserId, int32_t appIndex,
+    bool isExtension)
 {
     if (StartAbilityUtils::startAbilityInfo != nullptr) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "startAbilityInfo has been created");
     }
-    StartAbilityUtils::startAbilityInfo = StartAbilityInfo::CreateStartAbilityInfo(want,
-        validUserId, appIndex);
+    // This is for special goal and could be removed later.
+    auto element = want.GetElement();
+    if (element.GetAbilityName() == SCREENSHOT_ABILITY_NAME &&
+        element.GetBundleName() == SCREENSHOT_BUNDLE_NAME) {
+        isExtension = true;
+        StartAbilityUtils::skipErms = true;
+    }
+    if (isExtension) {
+        StartAbilityUtils::startAbilityInfo = StartAbilityInfo::CreateStartExtensionInfo(want,
+            validUserId, appIndex);
+    } else {
+        StartAbilityUtils::startAbilityInfo = StartAbilityInfo::CreateStartAbilityInfo(want,
+            validUserId, appIndex);
+    }
+    if (StartAbilityUtils::startAbilityInfo != nullptr &&
+        StartAbilityUtils::startAbilityInfo->abilityInfo.type == AppExecFwk::AbilityType::EXTENSION) {
+        StartAbilityUtils::skipCrowTest = true;
+        StartAbilityUtils::skipStartOther = true;
+    }
 }
 
 StartAbilityInfoWrap::~StartAbilityInfoWrap()
 {
     StartAbilityUtils::startAbilityInfo.reset();
+    StartAbilityUtils::skipCrowTest = false;
+    StartAbilityUtils::skipStartOther = false;
+    StartAbilityUtils::skipErms = false;
 }
 
 void StartAbilityInfo::InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo &extensionInfo,
@@ -117,10 +151,17 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartAbilityInfo(const
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto bms = AbilityUtil::GetBundleManagerHelper();
     CHECK_POINTER_AND_RETURN(bms, nullptr);
-    auto abilityInfoFlag = (AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA);
+    auto abilityInfoFlag = static_cast<uint32_t>(AbilityRuntime::StartupUtil::BuildAbilityInfoFlag()) |
+        static_cast<uint32_t>(AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL);
     auto request = std::make_shared<StartAbilityInfo>();
+    if (appIndex != 0 && appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
+        IN_PROCESS_CALL_WITHOUT_RET(bms->QueryCloneAbilityInfo(want.GetElement(), abilityInfoFlag, appIndex,
+            request->abilityInfo, userId));
+        if (request->abilityInfo.name.empty() || request->abilityInfo.bundleName.empty()) {
+            request->status = ERR_APP_CLONE_INDEX_INVALID;
+        }
+        return request;
+    }
     if (appIndex == 0) {
         IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(want, abilityInfoFlag, userId, request->abilityInfo));
     } else {
@@ -154,6 +195,42 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartAbilityInfo(const
         InitAbilityInfoFromExtension(extensionInfo, request->abilityInfo);
     }
     return request;
+}
+
+std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartExtensionInfo(const Want &want, int32_t userId,
+    int32_t appIndex)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto bms = AbilityUtil::GetBundleManagerHelper();
+    CHECK_POINTER_AND_RETURN(bms, nullptr);
+    auto abilityInfoFlag = static_cast<uint32_t>(AbilityRuntime::StartupUtil::BuildAbilityInfoFlag()) |
+        static_cast<uint32_t>(AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL);
+    auto abilityInfo = std::make_shared<StartAbilityInfo>();
+
+    std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
+    if (appIndex == 0) {
+        IN_PROCESS_CALL_WITHOUT_RET(bms->QueryExtensionAbilityInfos(want, abilityInfoFlag, userId, extensionInfos));
+    } else {
+        IN_PROCESS_CALL_WITHOUT_RET(bms->GetSandboxExtAbilityInfos(want, appIndex,
+            abilityInfoFlag, userId, extensionInfos));
+    }
+    if (extensionInfos.size() <= 0) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "CreateStartExtensionInfo error. Get extension info failed.");
+        abilityInfo->status = RESOLVE_ABILITY_ERR;
+        return abilityInfo;
+    }
+
+    AppExecFwk::ExtensionAbilityInfo extensionInfo = extensionInfos.front();
+    if (extensionInfo.bundleName.empty() || extensionInfo.name.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "extensionInfo empty.");
+        abilityInfo->status = RESOLVE_ABILITY_ERR;
+        return abilityInfo;
+    }
+    abilityInfo->extensionProcessMode = extensionInfo.extensionProcessMode;
+    // For compatibility translates to AbilityInfo
+    InitAbilityInfoFromExtension(extensionInfo, abilityInfo->abilityInfo);
+
+    return abilityInfo;
 }
 }
 }

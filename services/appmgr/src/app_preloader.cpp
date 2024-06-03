@@ -21,12 +21,32 @@
 #include "in_process_call_wrapper.h"
 #include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
+#include "res_sched_client.h"
+#include "res_type.h"
+#include "startup_util.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 AppPreloader::AppPreloader(std::shared_ptr<RemoteClientManager> remoteClientManager)
 {
     remoteClientManager_ = remoteClientManager;
+}
+
+bool AppPreloader::PreCheck(const std::string &bundleName, PreloadMode preloadMode)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::APPMGR, "PreloadApplication PreCheck, bundleName: %{public}s, preloadMode:%{public}d",
+        bundleName.c_str(), preloadMode);
+    if (preloadMode == PreloadMode::PRE_MAKE) {
+        return true;
+    }
+    int32_t mode = static_cast<int32_t>(preloadMode);
+    auto allow = ResourceSchedule::ResSchedClient::GetInstance().IsAllowedAppPreload(bundleName, mode);
+    if (!allow) {
+        TAG_LOGE(AAFwkTag::APPMGR, "BundleName: %{public}s not allow preload by RSS", bundleName.c_str());
+        return false;
+    }
+    return true;
 }
 
 int32_t AppPreloader::GeneratePreloadRequest(const std::string &bundleName, int32_t userId, int32_t appIndex,
@@ -95,9 +115,7 @@ bool AppPreloader::GetLaunchAbilityInfo(const AAFwk::Want &want, int32_t userId,
         return false;
     }
 
-    auto abilityInfoFlag = (AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA);
+    auto abilityInfoFlag = AbilityRuntime::StartupUtil::BuildAbilityInfoFlag();
     if (!IN_PROCESS_CALL(bundleMgrHelper->QueryAbilityInfo(want, abilityInfoFlag, userId, abilityInfo))) {
         TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication GetLaunchAbilityInfo failed.");
         return false;

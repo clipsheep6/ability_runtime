@@ -29,8 +29,8 @@ JsActionExtension *JsActionExtension::Create(const std::unique_ptr<Runtime> &run
 
 JsActionExtension::JsActionExtension(const std::unique_ptr<Runtime> &runtime)
 {
-    auto uiExtensionBaseImpl = std::make_unique<JsUIExtensionBase>(runtime);
-    SetUIExtensionBaseImpl(std::move(uiExtensionBaseImpl));
+    std::shared_ptr<UIExtensionBaseImpl> uiExtensionBaseImpl = std::make_shared<JsUIExtensionBase>(runtime);
+    SetUIExtensionBaseImpl(uiExtensionBaseImpl);
 }
 
 JsActionExtension::~JsActionExtension()

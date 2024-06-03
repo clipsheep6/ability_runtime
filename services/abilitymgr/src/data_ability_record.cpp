@@ -228,7 +228,7 @@ int DataAbilityRecord::AddClient(const sptr<IRemoteObject> &client, bool tryBind
     clientInfo.client = client;
     clientInfo.tryBind = tryBind;
     clientInfo.isNotHap = isNotHap;
-    clientInfo.clientPid = IPCSkeleton::GetCallingPid();
+    clientInfo.clientPid = IPCSkeleton::GetCallingRealPid();
 
     return ERR_OK;
 }

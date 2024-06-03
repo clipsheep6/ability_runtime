@@ -23,6 +23,7 @@
 #include "ui_extension_utils.h"
 #include "app_mgr_service_const.h"
 #include "app_mgr_service_dump_error_code.h"
+#include "cache_process_manager.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -177,6 +178,21 @@ void RenderRecord::RegisterDeathRecipient()
     }
 }
 
+void RenderRecord::SetProcessType(ProcessType type)
+{
+    processType_ = type;
+}
+
+void RenderRecord::SetState(int32_t state)
+{
+    state_ = state;
+}
+
+int32_t RenderRecord::GetState() const
+{
+    return state_;
+}
+
 AppRunningRecord::AppRunningRecord(
     const std::shared_ptr<ApplicationInfo> &info, const int32_t recordId, const std::string &processName)
     : appRecordId_(recordId), processName_(processName)
@@ -187,6 +203,7 @@ AppRunningRecord::AppRunningRecord(
         isLauncherApp_ = info->isLauncherApp;
         mainAppName_ = info->name;
     }
+    priorityObject_ = std::make_shared<PriorityObject>();
 
     struct timespec t;
     t.tv_sec = 0;
@@ -314,7 +331,7 @@ ApplicationState AppRunningRecord::GetState() const
 
 void AppRunningRecord::SetState(const ApplicationState state)
 {
-    if (state >= ApplicationState::APP_STATE_END) {
+    if (state >= ApplicationState::APP_STATE_END && state != ApplicationState::APP_STATE_CACHED) {
         TAG_LOGE(AAFwkTag::APPMGR, "Invalid application state");
         return;
     }
@@ -434,6 +451,7 @@ void AppRunningRecord::LaunchApplication(const Configuration &config)
     launchData.SetAppIndex(appIndex_);
     launchData.SetDebugApp(isDebugApp_);
     launchData.SetPerfCmd(perfCmd_);
+    launchData.SetMultiThread(isMultiThread_);
     launchData.SetJITEnabled(jitEnabled_);
     launchData.SetNativeStart(isNativeStart_);
     launchData.SetAppRunningUniqueId(std::to_string(startTimeMillis_));
@@ -540,14 +558,14 @@ void AppRunningRecord::AddAbilityStageDone()
     }
     // Should proceed to the next notification
 
-    if (isSpecifiedAbility_) {
+    if (IsStartSpecifiedAbility()) {
         ScheduleAcceptWant(moduleName_);
         return;
     }
 
-    if (isNewProcessRequest_) {
+    if (IsNewProcessRequest()) {
         TAG_LOGD(AAFwkTag::APPMGR, "ScheduleNewProcessRequest.");
-        ScheduleNewProcessRequest(newProcessRequestWant_, moduleName_);
+        ScheduleNewProcessRequest(GetNewProcessRequestWant(), moduleName_);
         return;
     }
 
@@ -958,7 +976,7 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
     }
     moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_BACKGROUND);
     StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_BACKGROUND), true, false);
-    if (curState_ == ApplicationState::APP_STATE_FOREGROUND) {
+    if (curState_ == ApplicationState::APP_STATE_FOREGROUND || curState_ == ApplicationState::APP_STATE_CACHED) {
         int32_t foregroundSize = 0;
         auto abilitiesMap = GetAbilities();
         for (const auto &item : abilitiesMap) {
@@ -1099,16 +1117,26 @@ void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
 
     moduleRecord->AbilityTerminated(token);
 
+    auto appRecord = shared_from_this();
+    auto cacheProcMgr = DelayedSingleton<CacheProcessManager>::GetInstance();
+    bool needCache = false;
+    if (cacheProcMgr != nullptr && cacheProcMgr->IsAppShouldCache(appRecord)) {
+        cacheProcMgr->CheckAndCacheProcess(appRecord);
+        TAG_LOGI(AAFwkTag::APPMGR, "App %{public}s should cache, not remove module and terminate app.",
+            appRecord->GetBundleName().c_str());
+        needCache = true;
+    }
     if (moduleRecord->GetAbilities().empty() && (!IsKeepAliveApp()
         || AAFwk::UIExtensionUtils::IsUIExtension(GetExtensionType())
-        || !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent())) {
+        || !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent()) && !needCache) {
         RemoveModuleRecord(moduleRecord, isExtensionDebug);
     }
 
     auto moduleRecordList = GetAllModuleRecord();
     if (moduleRecordList.empty() && (!IsKeepAliveApp()
         || AAFwk::UIExtensionUtils::IsUIExtension(GetExtensionType())
-        || !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent()) && !isExtensionDebug) {
+        || !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent()) && !isExtensionDebug
+        && !needCache) {
         ScheduleTerminate();
     }
 }
@@ -1167,10 +1195,6 @@ void AppRunningRecord::SetAppDeathRecipient(const sptr<AppDeathRecipient> &appDe
 
 std::shared_ptr<PriorityObject> AppRunningRecord::GetPriorityObject()
 {
-    if (!priorityObject_) {
-        priorityObject_ = std::make_shared<PriorityObject>();
-    }
-
     return priorityObject_;
 }
 
@@ -1332,7 +1356,12 @@ bool AppRunningRecord::IsTerminating()
 
 bool AppRunningRecord::IsKeepAliveApp() const
 {
-    return isKeepAliveApp_;
+    return isKeepAliveApp_ && isSingleton_;
+}
+
+void AppRunningRecord::SetKeepAliveEnableState(bool isKeepAliveEnable)
+{
+    isKeepAliveApp_ = isKeepAliveEnable;
 }
 
 bool AppRunningRecord::IsEmptyKeepAliveApp() const
@@ -1340,10 +1369,14 @@ bool AppRunningRecord::IsEmptyKeepAliveApp() const
     return isEmptyKeepAliveApp_;
 }
 
-void AppRunningRecord::SetKeepAliveAppState(bool isKeepAlive, bool isEmptyKeepAliveApp)
+void AppRunningRecord::SetEmptyKeepAliveAppState(bool isEmptyKeepAliveApp)
 {
-    isKeepAliveApp_ = isKeepAlive;
     isEmptyKeepAliveApp_ = isEmptyKeepAliveApp;
+}
+
+void AppRunningRecord::SetSingleton(bool isSingleton)
+{
+    isSingleton_ = isSingleton;
 }
 
 void AppRunningRecord::SetStageModelState(bool isStageBasedModel)
@@ -1454,29 +1487,51 @@ void AppRunningRecord::SetProcessAndExtensionType(const std::shared_ptr<AbilityI
 }
 
 void AppRunningRecord::SetSpecifiedAbilityFlagAndWant(
-    const bool flag, const AAFwk::Want &want, const std::string &moduleName)
+    int requestId, const AAFwk::Want &want, const std::string &moduleName)
 {
-    isSpecifiedAbility_ = flag;
-    SpecifiedWant_ = want;
+    std::lock_guard lock(specifiedMutex_);
+    if (specifiedRequestId_ != -1) {
+        TAG_LOGW(AAFwkTag::APPMGR, "specifiedRequestId: %{public}d", specifiedRequestId_);
+    }
+    specifiedRequestId_ = requestId;
+    specifiedWant_ = want;
     moduleName_ = moduleName;
 }
 
-void AppRunningRecord::SetScheduleNewProcessRequestState(
-    const bool isNewProcessRequest, const AAFwk::Want &want, const std::string &moduleName)
+int32_t AppRunningRecord::GetSpecifiedRequestId() const
 {
-    isNewProcessRequest_ = isNewProcessRequest;
+    std::lock_guard lock(specifiedMutex_);
+    return specifiedRequestId_;
+}
+
+void AppRunningRecord::ResetSpecifiedRequestId()
+{
+    std::lock_guard lock(specifiedMutex_);
+    specifiedRequestId_ = -1;
+}
+
+void AppRunningRecord::SetScheduleNewProcessRequestState(int32_t requestId,
+    const AAFwk::Want &want, const std::string &moduleName)
+{
+    std::lock_guard lock(specifiedMutex_);
+    if (newProcessRequestId_ != -1) {
+        TAG_LOGW(AAFwkTag::APPMGR, "newProcessRequestId: %{public}d", newProcessRequestId_);
+    }
+    newProcessRequestId_ = requestId;
     newProcessRequestWant_ = want;
     moduleName_ = moduleName;
 }
 
 bool AppRunningRecord::IsNewProcessRequest() const
 {
-    return isNewProcessRequest_;
+    std::lock_guard lock(specifiedMutex_);
+    return newProcessRequestId_ != -1;
 }
 
 bool AppRunningRecord::IsStartSpecifiedAbility() const
 {
-    return isSpecifiedAbility_;
+    std::lock_guard lock(specifiedMutex_);
+    return specifiedRequestId_ != -1;
 }
 
 void AppRunningRecord::ScheduleAcceptWant(const std::string &moduleName)
@@ -1487,7 +1542,7 @@ void AppRunningRecord::ScheduleAcceptWant(const std::string &moduleName)
         TAG_LOGW(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
         return;
     }
-    appLifeCycleDeal_->ScheduleAcceptWant(SpecifiedWant_, moduleName);
+    appLifeCycleDeal_->ScheduleAcceptWant(GetSpecifiedWant(), moduleName);
 }
 
 void AppRunningRecord::ScheduleAcceptWantDone()
@@ -1540,18 +1595,33 @@ void AppRunningRecord::ApplicationTerminated()
     eventHandler_->RemoveEvent(AMSEventHandler::TERMINATE_APPLICATION_TIMEOUT_MSG, eventId_);
 }
 
-const AAFwk::Want &AppRunningRecord::GetSpecifiedWant() const
+AAFwk::Want AppRunningRecord::GetSpecifiedWant() const
 {
-    return SpecifiedWant_;
+    std::lock_guard lock(specifiedMutex_);
+    return specifiedWant_;
 }
 
-const AAFwk::Want &AppRunningRecord::GetNewProcessRequestWant() const
+AAFwk::Want AppRunningRecord::GetNewProcessRequestWant() const
 {
+    std::lock_guard lock(specifiedMutex_);
     return newProcessRequestWant_;
+}
+
+int32_t AppRunningRecord::GetNewProcessRequestId() const
+{
+    std::lock_guard lock(specifiedMutex_);
+    return newProcessRequestId_;
+}
+
+void AppRunningRecord::ResetNewProcessRequestId()
+{
+    std::lock_guard lock(specifiedMutex_);
+    newProcessRequestId_ = -1;
 }
 
 int32_t AppRunningRecord::UpdateConfiguration(const Configuration &config)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!appLifeCycleDeal_) {
         TAG_LOGI(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
@@ -1631,6 +1701,11 @@ void AppRunningRecord::SetNativeDebug(bool isNativeDebug)
 void AppRunningRecord::SetPerfCmd(const std::string &perfCmd)
 {
     perfCmd_ = perfCmd;
+}
+
+void AppRunningRecord::SetMultiThread(bool multiThread)
+{
+    isMultiThread_ = multiThread;
 }
 
 void AppRunningRecord::SetAppIndex(const int32_t appIndex)
@@ -2064,13 +2139,33 @@ bool AppRunningRecord::isNativeStart() const
     return isNativeStart_;
 }
 
+void AppRunningRecord::SetExitReason(int32_t reason)
+{
+    exitReason_ = reason;
+}
+
+int32_t AppRunningRecord::GetExitReason() const
+{
+    return exitReason_;
+}
+
+void AppRunningRecord::SetExitMsg(const std::string &exitMsg)
+{
+    exitMsg_ = exitMsg;
+}
+
+std::string AppRunningRecord::GetExitMsg() const
+{
+    return exitMsg_;
+}
+
 int AppRunningRecord::DumpIpcStart(std::string& result)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (appLifeCycleDeal_ == nullptr) {
-        result.append(MSG_DUMP_IPC_START_STAT)
-            .append(MSG_DUMP_IPC_FAIL)
-            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        result.append(MSG_DUMP_IPC_START_STAT, strlen(MSG_DUMP_IPC_START_STAT))
+            .append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));
         TAG_LOGE(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
@@ -2081,9 +2176,9 @@ int AppRunningRecord::DumpIpcStop(std::string& result)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (appLifeCycleDeal_ == nullptr) {
-        result.append(MSG_DUMP_IPC_STOP_STAT)
-            .append(MSG_DUMP_IPC_FAIL)
-            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        result.append(MSG_DUMP_IPC_STOP_STAT, strlen(MSG_DUMP_IPC_STOP_STAT))
+            .append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));
         TAG_LOGE(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
@@ -2094,13 +2189,63 @@ int AppRunningRecord::DumpIpcStat(std::string& result)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (appLifeCycleDeal_ == nullptr) {
-        result.append(MSG_DUMP_IPC_STAT)
-            .append(MSG_DUMP_IPC_FAIL)
-            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        result.append(MSG_DUMP_IPC_STAT, strlen(MSG_DUMP_IPC_STAT))
+            .append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));
         TAG_LOGE(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
     return appLifeCycleDeal_->DumpIpcStat(result);
+}
+
+int AppRunningRecord::DumpFfrt(std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    if (appLifeCycleDeal_ == nullptr) {
+        result.append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
+            .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));
+        TAG_LOGE(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
+        return DumpErrorCode::ERR_INTERNAL_ERROR;
+    }
+    return appLifeCycleDeal_->DumpFfrt(result);
+}
+
+bool AppRunningRecord::SetSupportedProcessCache(bool isSupport)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "Called");
+    if (procCacheSupportState_ != SupportProcessCacheState::UNSPECIFIED) {
+        TAG_LOGI(AAFwkTag::APPMGR, "Process cache not support set more than once.");
+        return false;
+    }
+    procCacheSupportState_ = isSupport ? SupportProcessCacheState::SUPPORT : SupportProcessCacheState::NOT_SUPPORT;
+    return true;
+}
+
+SupportProcessCacheState AppRunningRecord::GetSupportProcessCacheState()
+{
+    return procCacheSupportState_;
+}
+
+void AppRunningRecord::SetBrowserHost(sptr<IRemoteObject> browser)
+{
+    browserHost_ = browser;
+}
+
+sptr<IRemoteObject> AppRunningRecord::GetBrowserHost()
+{
+    return browserHost_;
+}
+
+void AppRunningRecord::SetIsGPU(bool gpu)
+{
+    if (gpu) {
+        isGPU_ = gpu;
+    }
+}
+
+bool AppRunningRecord::GetIsGPU()
+{
+    return isGPU_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

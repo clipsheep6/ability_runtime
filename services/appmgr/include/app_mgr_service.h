@@ -148,6 +148,28 @@ public:
     virtual int32_t GetAllRunningProcesses(std::vector<RunningProcessInfo> &info) override;
 
     /**
+     * GetRunningMultiAppInfoByBundleName, call GetRunningMultiAppInfoByBundleName() through proxy project.
+     * Obtains information about multiapp that are running on the device.
+     *
+     * @param bundlename, input.
+     * @param info, output multiapp information.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t GetRunningMultiAppInfoByBundleName(const std::string &bundleName,
+        RunningMultiAppInfo &info) override;
+
+    /**
+     * GetRunningProcessesByBundleType, call GetRunningProcessesByBundleType() through proxy project.
+     * Obtains information about application processes by bundle type that are running on the device.
+     *
+     * @param bundleType, bundle type of the processes
+     * @param info, app name in Application record.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int GetRunningProcessesByBundleType(const BundleType bundleType,
+        std::vector<RunningProcessInfo> &info) override;
+
+    /**
      * GetAllRenderProcesses, call GetAllRenderProcesses() through proxy project.
      * Obtains information about render processes that are running on the device.
      *
@@ -298,7 +320,7 @@ public:
 
     virtual int StartRenderProcess(const std::string &renderParam,
                                    int32_t ipcFd, int32_t sharedFd,
-                                   int32_t crashFd, pid_t &renderPid) override;
+                                   int32_t crashFd, pid_t &renderPid, bool isGPU = false) override;
 
     virtual void AttachRenderProcess(const sptr<IRemoteObject> &shceduler) override;
 
@@ -453,7 +475,8 @@ public:
      * @param childPid Created child process pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid) override;
+    int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCoun,
+        bool isStartWithDebug) override;
 
     /**
      * Get child process record for self.
@@ -504,8 +527,22 @@ public:
 
     int32_t GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid_t> &providerPids) override;
 
-    int32_t NotifyMemonySizeStateChanged(bool isMemorySizeSufficent) override;
+    int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent) override;
 
+    int32_t SetSupportedProcessCacheSelf(bool isSupport) override;
+
+    void SetAppAssertionPauseState(bool flag) override;
+    /**
+     * Start native child process, callde by ChildProcessManager.
+     * @param libName lib file name to be load in child process
+     * @param childProcessCount current started child process count
+     * @param callback callback for notify start result
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t StartNativeChildProcess(const std::string &libName, int32_t childProcessCount,
+        const sptr<IRemoteObject> &callback) override;
+
+    virtual void SaveBrowserChannel(sptr<IRemoteObject> browser) override;
 private:
     /**
      * Init, Initialize application services.
@@ -580,7 +617,7 @@ private:
     virtual int32_t GetForegroundApplications(std::vector<AppStateData> &list) override;
 
     int Dump(const std::vector<std::u16string>& args, std::string& result);
-    void ShowHelp(std::string& result) const;
+    int ShowHelp(const std::vector<std::u16string>& args, std::string& result);
     int DumpIpc(const std::vector<std::u16string>& args, std::string& result);
     int DumpIpcAllStart(std::string& result);
     int DumpIpcAllStop(std::string& result);
@@ -588,6 +625,8 @@ private:
     int DumpIpcStart(const int32_t pid, std::string& result);
     int DumpIpcStop(const int32_t pid, std::string& result);
     int DumpIpcStat(const int32_t pid, std::string& result);
+
+    int DumpFfrt(const std::vector<std::u16string>& args, std::string& result);
 
     bool JudgeAppSelfCalled(int32_t recordId);
 
@@ -636,6 +675,8 @@ private:
     int DumpIpcWithPidInner(const AppMgrService::DumpIpcKey key,
         const std::string& optionPid, std::string& result);
 
+    int DumpFfrtInner(const std::string& pidsRaw, std::string& result);
+
 private:
     std::shared_ptr<AppMgrServiceInner> appMgrServiceInner_;
     AppMgrServiceState appMgrServiceState_;
@@ -643,6 +684,9 @@ private:
     std::shared_ptr<AMSEventHandler> eventHandler_;
     sptr<ISystemAbilityManager> systemAbilityMgr_;
     sptr<IAmsMgr> amsMgrScheduler_;
+
+    using DumpFuncType = int (AppMgrService::*)(const std::vector<std::u16string>& args, std::string& result);
+    const static std::map<std::string, DumpFuncType> dumpFuncMap_;
 
     const static std::map<std::string, AppMgrService::DumpIpcKey> dumpIpcMap;
 

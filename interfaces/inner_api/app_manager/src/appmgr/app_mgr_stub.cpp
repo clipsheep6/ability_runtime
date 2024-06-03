@@ -102,6 +102,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleDumpHeapMemory;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::DUMP_JSHEAP_MEMORY_PROCESS)] =
         &AppMgrStub::HandleDumpJsHeapMemory;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_RUNNING_MULTIAPP_INFO_BY_BUNDLENAME)] =
+        &AppMgrStub::HandleGetRunningMultiAppInfoByBundleName;
 #ifdef ABILITY_COMMAND_FOR_TEST
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::BLOCK_APP_SERVICE)] =
         &AppMgrStub::HandleBlockAppServiceDone;
@@ -189,7 +191,17 @@ AppMgrStub::AppMgrStub()
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UPDATE_CONFIGURATION_BY_BUNDLE_NAME)] =
         &AppMgrStub::HandleUpdateConfigurationByBundleName;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_MEMORY_SIZE_STATE_CHANGED)] =
-        &AppMgrStub::HandleNotifyMemonySizeStateChanged;
+        &AppMgrStub::HandleNotifyMemorySizeStateChanged;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SET_SUPPORTED_PROCESS_CACHE_SELF)] =
+        &AppMgrStub::HandleSetSupportedProcessCacheSelf;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_RUNNING_PROCESSES_BY_BUNDLE_TYPE)] =
+        &AppMgrStub::HandleGetRunningProcessesByBundleType;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SET_APP_ASSERT_PAUSE_STATE_SELF)] =
+        &AppMgrStub::HandleSetAppAssertionPauseState;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::START_NATIVE_CHILD_PROCESS)] =
+        &AppMgrStub::HandleStartNativeChildProcess;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SAVE_BROWSER_CHANNEL)] =
+        &AppMgrStub::HandleSaveBrowserChannel;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -314,6 +326,39 @@ int32_t AppMgrStub::HandleGetAllRunningProcesses(MessageParcel &data, MessagePar
     HITRACE_METER(HITRACE_TAG_APP);
     std::vector<RunningProcessInfo> info;
     auto result = GetAllRunningProcesses(info);
+    reply.WriteInt32(info.size());
+    for (auto &it : info) {
+        if (!reply.WriteParcelable(&it)) {
+            return ERR_INVALID_VALUE;
+        }
+    }
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleGetRunningMultiAppInfoByBundleName(MessageParcel &data, MessageParcel &reply)
+{
+    std::string bundleName = data.ReadString();
+    RunningMultiAppInfo info;
+    int32_t result = GetRunningMultiAppInfoByBundleName(bundleName, info);
+    if (!reply.WriteParcelable(&info)) {
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleGetRunningProcessesByBundleType(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    int32_t bundleType = data.ReadInt32();
+    std::vector<RunningProcessInfo> info;
+    auto result = GetRunningProcessesByBundleType(static_cast<BundleType>(bundleType), info);
     reply.WriteInt32(info.size());
     for (auto &it : info) {
         if (!reply.WriteParcelable(&it)) {
@@ -503,6 +548,7 @@ int32_t AppMgrStub::HandleUnregisterApplicationStateObserver(MessageParcel &data
 
 int32_t AppMgrStub::HandleRegisterAbilityForegroundStateObserver(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto callback = iface_cast<AppExecFwk::IAbilityForegroundStateObserver>(data.ReadRemoteObject());
     if (callback == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "Callback is null.");
@@ -655,8 +701,9 @@ int32_t AppMgrStub::HandleStartRenderProcess(MessageParcel &data, MessageParcel 
     int32_t sharedFd = data.ReadFileDescriptor();
     int32_t crashFd = data.ReadFileDescriptor();
     int32_t renderPid = 0;
+    bool isGPU = data.ReadBool();
     int32_t result =
-        StartRenderProcess(renderParam, ipcFd, sharedFd, crashFd, renderPid);
+        StartRenderProcess(renderParam, ipcFd, sharedFd, crashFd, renderPid, isGPU);
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::APPMGR, "write result error.");
         return ERR_INVALID_VALUE;
@@ -672,6 +719,13 @@ int32_t AppMgrStub::HandleAttachRenderProcess(MessageParcel &data, MessageParcel
 {
     sptr<IRemoteObject> scheduler = data.ReadRemoteObject();
     AttachRenderProcess(scheduler);
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleSaveBrowserChannel(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> browser = data.ReadRemoteObject();
+    SaveBrowserChannel(browser);
     return NO_ERROR;
 }
 
@@ -1100,7 +1154,9 @@ int32_t AppMgrStub::HandleStartChildProcess(MessageParcel &data, MessageParcel &
     TAG_LOGD(AAFwkTag::APPMGR, "called.");
     std::string srcEntry = data.ReadString();
     int32_t childPid = 0;
-    int32_t result = StartChildProcess(srcEntry, childPid);
+    int32_t childProcessCount = data.ReadInt32();
+    int32_t isStartWithDebug = data.ReadBool();
+    int32_t result = StartChildProcess(srcEntry, childPid, childProcessCount, isStartWithDebug);
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write result error.");
         return ERR_INVALID_VALUE;
@@ -1291,15 +1347,51 @@ int32_t AppMgrStub::HandleGetAllUIExtensionProviderPid(MessageParcel &data, Mess
     return NO_ERROR;
 }
 
-int32_t AppMgrStub::HandleNotifyMemonySizeStateChanged(MessageParcel &data, MessageParcel &reply)
+int32_t AppMgrStub::HandleNotifyMemorySizeStateChanged(MessageParcel &data, MessageParcel &reply)
 {
     bool isMemorySizeSufficent = data.ReadBool();
-    int result = NotifyMemonySizeStateChanged(isMemorySizeSufficent);
+    int result = NotifyMemorySizeStateChanged(isMemorySizeSufficent);
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write result error.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
 }
+
+int32_t AppMgrStub::HandleSetSupportedProcessCacheSelf(MessageParcel &data, MessageParcel &reply)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    bool isSupport = data.ReadBool();
+    auto ret = SetSupportedProcessCacheSelf(isSupport);
+    if (!reply.WriteInt32(ret)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write ret error.");
+        return IPC_STUB_ERR;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleSetAppAssertionPauseState(MessageParcel &data, MessageParcel &reply)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    bool flag = data.ReadBool();
+    SetAppAssertionPauseState(flag);
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleStartNativeChildProcess(MessageParcel &data, MessageParcel &reply)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    std::string libName = data.ReadString();
+    int32_t childCount = data.ReadInt32();
+    sptr<IRemoteObject> callback = data.ReadRemoteObject();
+    int32_t result = StartNativeChildProcess(libName, childCount, callback);
+    if (!reply.WriteInt32(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write ret error.");
+        return IPC_STUB_ERR;
+    }
+
+    return NO_ERROR;
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

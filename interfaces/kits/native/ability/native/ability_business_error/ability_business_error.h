@@ -141,8 +141,20 @@ enum class AbilityErrorCode {
     // Ability already running.
     ERROR_ABILITY_ALREADY_RUNNING = 16000068,
 
+    // not support Clone app.
+    ERROR_CODE_MULTI_APP_NOT_SUPPORTED = 16000072,
+
+    // app is not Clone.
+    ERROR_NOT_APP_CLONE = 16000071,
+
+    // app clone index does not exist.
+    ERROR_APP_CLONE_INDEX_INVALID = 16000073,
+
     // invalid caller.
     ERROR_CODE_INVALID_CALLER = 16200001,
+
+    // Setting permissions for resident processes
+    ERROR_CODE_NO_RESIDENT_PERMISSION = 16200006,
 
     // no such mission id.
     ERROR_CODE_NO_MISSION_ID = 16300001,
@@ -158,6 +170,8 @@ enum class AbilityErrorCode {
 
     // target bundle not exist.
     ERROR_CODE_TARGET_BUNDLE_NOT_EXIST = 16300005,
+
+    ERROR_CODE_SET_SUPPORTED_PROCESS_CACHE_AGAIN = 16300006,
 };
 
 std::string GetErrorMsg(const AbilityErrorCode& errCode);

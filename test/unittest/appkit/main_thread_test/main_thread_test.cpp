@@ -198,7 +198,7 @@ class MockAppMgrStub : public AppMgrStub {
     }
 
     int StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
-        int32_t sharedFd, int32_t crashFd, pid_t &renderPid) override
+        int32_t sharedFd, int32_t crashFd, pid_t &renderPid, bool isGPU = false) override
     {
         return 0;
     }
@@ -724,7 +724,6 @@ HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0200, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
-    mainThread_->signalHandler_->SetEventRunner(nullptr);
     mainThread_->HandleTerminateApplicationLocal();
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
@@ -1170,7 +1169,6 @@ HWTEST_F(MainThreadTest, HandleTerminateApplication_0400, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
-    mainThread_->signalHandler_->SetEventRunner(nullptr);
     mainThread_->HandleTerminateApplication();
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }

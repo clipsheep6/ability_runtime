@@ -16,7 +16,6 @@
 #include <gtest/gtest.h>
 
 #include "mock_ipc_skeleton.h"
-#include "mock_permission_verification.h"
 
 #define private public
 #include "app_mgr_service.h"
@@ -89,10 +88,6 @@ HWTEST_F(AppMgrServiceDumpIPCTest, AppMgrServiceDumpIPC_0100, TestSize.Level1)
     IPCSkeleton::SetCallingUid(HIDUMPER_SERVICE_UID);
     EXPECT_TRUE((IPCSkeleton::GetCallingUid() == HIDUMPER_SERVICE_UID));
 
-    // IsShellCall
-    AAFwk::MyFlag::flag_ = AAFwk::MyFlag::FLAG::IS_SHELL_CALL;
-    EXPECT_TRUE(AAFwk::PermissionVerification::GetInstance()->IsShellCall());
-
     constexpr int fd(1);
     std::vector<std::u16string> args;
     auto arg0 = Str8ToStr16(STRING_OPTION_IPC);
@@ -134,10 +129,6 @@ HWTEST_F(AppMgrServiceDumpIPCTest, AppMgrServiceDumpIPC_0200, TestSize.Level1)
     IPCSkeleton::SetCallingUid(HIDUMPER_SERVICE_UID);
     EXPECT_TRUE((IPCSkeleton::GetCallingUid() == HIDUMPER_SERVICE_UID));
 
-    // IsShellCall
-    AAFwk::MyFlag::flag_ = AAFwk::MyFlag::FLAG::IS_SHELL_CALL;
-    EXPECT_TRUE(AAFwk::PermissionVerification::GetInstance()->IsShellCall());
-
     constexpr int fd(1);
     std::vector<std::u16string> args;
     auto arg0 = Str8ToStr16(STRING_OPTION_IPC);
@@ -177,10 +168,6 @@ HWTEST_F(AppMgrServiceDumpIPCTest, AppMgrServiceDumpIPC_0300, TestSize.Level1)
     // IsHidumperServiceCall
     IPCSkeleton::SetCallingUid(HIDUMPER_SERVICE_UID);
     EXPECT_TRUE((IPCSkeleton::GetCallingUid() == HIDUMPER_SERVICE_UID));
-
-    // IsShellCall
-    AAFwk::MyFlag::flag_ = AAFwk::MyFlag::FLAG::IS_SHELL_CALL;
-    EXPECT_TRUE(AAFwk::PermissionVerification::GetInstance()->IsShellCall());
 
     constexpr int fd(1);
     std::vector<std::u16string> args;
@@ -223,10 +210,6 @@ HWTEST_F(AppMgrServiceDumpIPCTest, AppMgrServiceDumpIPC_0400, TestSize.Level1)
     IPCSkeleton::SetCallingUid(HIDUMPER_SERVICE_UID);
     EXPECT_TRUE((IPCSkeleton::GetCallingUid() == HIDUMPER_SERVICE_UID));
 
-    // IsShellCall
-    AAFwk::MyFlag::flag_ = AAFwk::MyFlag::FLAG::IS_SHELL_CALL;
-    EXPECT_TRUE(AAFwk::PermissionVerification::GetInstance()->IsShellCall());
-
     constexpr int fd(1);
     std::vector<std::u16string> args;
     auto arg0 = Str8ToStr16(STRING_OPTION_IPC);
@@ -268,10 +251,6 @@ HWTEST_F(AppMgrServiceDumpIPCTest, AppMgrServiceDumpIPC_0500, TestSize.Level1)
     IPCSkeleton::SetCallingUid(HIDUMPER_SERVICE_UID);
     EXPECT_TRUE((IPCSkeleton::GetCallingUid() == HIDUMPER_SERVICE_UID));
 
-    // IsShellCall
-    AAFwk::MyFlag::flag_ = AAFwk::MyFlag::FLAG::IS_SHELL_CALL;
-    EXPECT_TRUE(AAFwk::PermissionVerification::GetInstance()->IsShellCall());
-
     constexpr int fd(1);
     std::vector<std::u16string> args;
     auto arg0 = Str8ToStr16(STRING_OPTION_IPC);
@@ -311,10 +290,6 @@ HWTEST_F(AppMgrServiceDumpIPCTest, AppMgrServiceDumpIPC_0600, TestSize.Level1)
     // IsHidumperServiceCall
     IPCSkeleton::SetCallingUid(HIDUMPER_SERVICE_UID);
     EXPECT_TRUE((IPCSkeleton::GetCallingUid() == HIDUMPER_SERVICE_UID));
-
-    // IsShellCall
-    AAFwk::MyFlag::flag_ = AAFwk::MyFlag::FLAG::IS_SHELL_CALL;
-    EXPECT_TRUE(AAFwk::PermissionVerification::GetInstance()->IsShellCall());
 
     constexpr int fd(1);
     std::vector<std::u16string> args;
@@ -357,10 +332,6 @@ HWTEST_F(AppMgrServiceDumpIPCTest, AppMgrServiceDumpIPC_0700, TestSize.Level1)
     IPCSkeleton::SetCallingUid(HIDUMPER_SERVICE_UID);
     EXPECT_TRUE((IPCSkeleton::GetCallingUid() == HIDUMPER_SERVICE_UID));
 
-    // IsShellCall
-    AAFwk::MyFlag::flag_ = AAFwk::MyFlag::FLAG::IS_SHELL_CALL;
-    EXPECT_TRUE(AAFwk::PermissionVerification::GetInstance()->IsShellCall());
-
     constexpr int fd(1);
     std::vector<std::u16string> args;
     auto arg0 = Str8ToStr16(STRING_OPTION_IPC);
@@ -401,10 +372,6 @@ HWTEST_F(AppMgrServiceDumpIPCTest, AppMgrServiceDumpIPC_0800, TestSize.Level1)
     // IsHidumperServiceCall
     IPCSkeleton::SetCallingUid(HIDUMPER_SERVICE_UID);
     EXPECT_TRUE((IPCSkeleton::GetCallingUid() == HIDUMPER_SERVICE_UID));
-
-    // IsShellCall
-    AAFwk::MyFlag::flag_ = AAFwk::MyFlag::FLAG::IS_SHELL_CALL;
-    EXPECT_TRUE(AAFwk::PermissionVerification::GetInstance()->IsShellCall());
 
     constexpr int fd(1);
     std::vector<std::u16string> args;
@@ -447,10 +414,6 @@ HWTEST_F(AppMgrServiceDumpIPCTest, AppMgrServiceDumpIPC_0900, TestSize.Level1)
     IPCSkeleton::SetCallingUid(HIDUMPER_SERVICE_UID);
     EXPECT_TRUE((IPCSkeleton::GetCallingUid() == HIDUMPER_SERVICE_UID));
 
-    // IsShellCall
-    AAFwk::MyFlag::flag_ = AAFwk::MyFlag::FLAG::IS_SHELL_CALL;
-    EXPECT_TRUE(AAFwk::PermissionVerification::GetInstance()->IsShellCall());
-
     constexpr int fd(1);
     std::vector<std::u16string> args;
     auto arg0 = Str8ToStr16(STRING_OPTION_IPC);
@@ -492,10 +455,6 @@ HWTEST_F(AppMgrServiceDumpIPCTest, AppMgrServiceDumpIPC_1000, TestSize.Level1)
     IPCSkeleton::SetCallingUid(HIDUMPER_SERVICE_UID);
     EXPECT_TRUE((IPCSkeleton::GetCallingUid() == HIDUMPER_SERVICE_UID));
 
-    // IsShellCall
-    AAFwk::MyFlag::flag_ = AAFwk::MyFlag::FLAG::IS_SHELL_CALL;
-    EXPECT_TRUE(AAFwk::PermissionVerification::GetInstance()->IsShellCall());
-
     constexpr int fd(1);
     std::vector<std::u16string> args;
     auto arg0 = Str8ToStr16(STRING_OPTION_IPC);
@@ -534,10 +493,6 @@ HWTEST_F(AppMgrServiceDumpIPCTest, AppMgrServiceDumpIPC_1100, TestSize.Level1)
     // IsHidumperServiceCall
     IPCSkeleton::SetCallingUid(HIDUMPER_SERVICE_UID);
     EXPECT_TRUE((IPCSkeleton::GetCallingUid() == HIDUMPER_SERVICE_UID));
-
-    // IsShellCall
-    AAFwk::MyFlag::flag_ = AAFwk::MyFlag::FLAG::IS_SHELL_CALL;
-    EXPECT_TRUE(AAFwk::PermissionVerification::GetInstance()->IsShellCall());
 
     constexpr int fd(1);
     std::vector<std::u16string> args;
@@ -578,10 +533,6 @@ HWTEST_F(AppMgrServiceDumpIPCTest, AppMgrServiceDumpIPC_1200, TestSize.Level1)
     IPCSkeleton::SetCallingUid(HIDUMPER_SERVICE_UID);
     EXPECT_TRUE((IPCSkeleton::GetCallingUid() == HIDUMPER_SERVICE_UID));
 
-    // IsShellCall
-    AAFwk::MyFlag::flag_ = AAFwk::MyFlag::FLAG::IS_SHELL_CALL;
-    EXPECT_TRUE(AAFwk::PermissionVerification::GetInstance()->IsShellCall());
-
     constexpr int fd(1);
     std::vector<std::u16string> args;
     auto arg0 = Str8ToStr16(STRING_OPTION_IPC);
@@ -620,10 +571,6 @@ HWTEST_F(AppMgrServiceDumpIPCTest, AppMgrServiceDumpIPC_1300, TestSize.Level1)
     // IsHidumperServiceCall
     IPCSkeleton::SetCallingUid(HIDUMPER_SERVICE_UID);
     EXPECT_TRUE((IPCSkeleton::GetCallingUid() == HIDUMPER_SERVICE_UID));
-
-    // IsShellCall
-    AAFwk::MyFlag::flag_ = AAFwk::MyFlag::FLAG::IS_SHELL_CALL;
-    EXPECT_TRUE(AAFwk::PermissionVerification::GetInstance()->IsShellCall());
 
     constexpr int fd(1);
     std::vector<std::u16string> args;
@@ -664,10 +611,6 @@ HWTEST_F(AppMgrServiceDumpIPCTest, AppMgrServiceDumpIPC_1400, TestSize.Level1)
     IPCSkeleton::SetCallingUid(HIDUMPER_SERVICE_UID);
     EXPECT_TRUE((IPCSkeleton::GetCallingUid() == HIDUMPER_SERVICE_UID));
 
-    // IsShellCall
-    AAFwk::MyFlag::flag_ = AAFwk::MyFlag::FLAG::IS_SHELL_CALL;
-    EXPECT_TRUE(AAFwk::PermissionVerification::GetInstance()->IsShellCall());
-
     constexpr int fd(1);
     std::vector<std::u16string> args;
     auto arg0 = Str8ToStr16(STRING_OPTION_IPC);
@@ -704,10 +647,6 @@ HWTEST_F(AppMgrServiceDumpIPCTest, AppMgrServiceDumpIPC_1500, TestSize.Level1)
     // Not HidumperServiceCall
     IPCSkeleton::SetCallingUid(RANDOM_SERVICE_UID);
     EXPECT_FALSE((IPCSkeleton::GetCallingUid() == HIDUMPER_SERVICE_UID));
-
-    // Not ShellCall
-    AAFwk::MyFlag::flag_ = AAFwk::MyFlag::FLAG::IS_INVALID_CALL;
-    EXPECT_FALSE(AAFwk::PermissionVerification::GetInstance()->IsShellCall());
 
     constexpr int fd(1);
     std::vector<std::u16string> args;

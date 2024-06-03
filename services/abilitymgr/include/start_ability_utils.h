@@ -19,8 +19,9 @@
 #include <memory>
 #include <string>
 
-#include "bundle_constants.h"
-#include "bundle_mgr_helper.h"
+#include "ability_info.h"
+#include "extension_ability_info.h"
+#include "want.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -28,6 +29,9 @@ struct StartAbilityInfo {
     static void InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo &extensionInfo,
         AppExecFwk::AbilityInfo &abilityInfo);
     static std::shared_ptr<StartAbilityInfo> CreateStartAbilityInfo(const Want &want, int32_t userId,
+        int32_t appIndex);
+
+    static std::shared_ptr<StartAbilityInfo> CreateStartExtensionInfo(const Want &want, int32_t userId,
         int32_t appIndex);
 
     std::string GetAppBundleName() const
@@ -45,10 +49,14 @@ struct StartAbilityUtils {
     static bool GetApplicationInfo(const std::string &bundleName, int32_t userId,
         AppExecFwk::ApplicationInfo &appInfo);
     static thread_local std::shared_ptr<StartAbilityInfo> startAbilityInfo;
+
+    static thread_local bool skipCrowTest;
+    static thread_local bool skipStartOther;
+    static thread_local bool skipErms;
 };
 
 struct StartAbilityInfoWrap {
-    StartAbilityInfoWrap(const Want &want, int32_t validUserId, int32_t appIndex);
+    StartAbilityInfoWrap(const Want &want, int32_t validUserId, int32_t appIndex, bool isExtension = false);
     ~StartAbilityInfoWrap();
 };
 }

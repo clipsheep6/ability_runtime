@@ -63,6 +63,8 @@ struct VerificationInfo {
 
     int32_t VerifyUpdateConfigurationPerm() const;
 
+    int32_t VerifyUpdateAPPConfigurationPerm() const;
+
     bool VerifyInstallBundlePermission() const;
 
     bool VerifyGetBundleInfoPrivilegedPermission() const;
@@ -96,6 +98,8 @@ struct VerificationInfo {
     bool VerifyShellStartExtensionType(int32_t type) const;
 
     bool VerifyPreloadApplicationPermission() const;
+
+    bool VerifySetProcessCachePermission() const;
 
 private:
     DISALLOW_COPY_AND_MOVE(PermissionVerification);

@@ -297,14 +297,24 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE,
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
 
-     /**
+    /**
      * Create UIExtension with want, send want to ability manager service.
      *
      * @param want, the want of the ability to start.
-     * @param userId, Designation User ID.
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode RequestModalUIExtension(const Want &want);
+
+    /**
+     * Preload UIExtension with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param hostBundleName, the caller application bundle name.
+     * @param userId, the extension runs in.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode PreloadUIExtensionAbility(const Want &want, std::string &hostBundleName,
+        int32_t userId = DEFAULT_INVAL_VALUE);
 
     ErrCode ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow);
 
@@ -325,9 +335,10 @@ public:
      * Start ui ability with want, send want to ability manager service.
      *
      * @param sessionInfo the session info of the ability to start.
+     * @param isColdStart the session info of the ability is or not cold start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo);
+    ErrCode StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bool &isColdStart);
 
     /**
      * Stop extension ability with want, send want to ability manager service.
@@ -602,8 +613,7 @@ public:
      * @param wantParams, extended params.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
-        const std::string &bundleName, sptr<IRemoteObject> callback, AAFwk::WantParams &wantParams);
+    ErrCode ContinueMission(AAFwk::ContinueMissionInfo continueMissionInfo, const sptr<IRemoteObject> &callback);
 
     /**
      * start continuation.
@@ -1443,6 +1453,15 @@ public:
     int32_t NotifyDebugAssertResult(uint64_t assertFaultSessionId, AAFwk::UserStatus userStatus);
 
     /**
+     * Set the enable status for starting and stopping resident processes.
+     * The caller application can only set the resident status of the configured process.
+     * @param bundleName The bundle name of the resident process.
+     * @param enable Set resident process enable status.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t SetResidentProcessEnabled(const std::string &bundleName, bool enable);
+
+    /**
      * Starts a new ability with specific start options.
      *
      * @param want, the want of the ability to start.
@@ -1450,6 +1469,26 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t StartShortcut(const Want &want, const StartOptions &startOptions);
+
+    /**
+     * Get ability state by persistent id.
+     *
+     * @param persistentId, the persistentId of the session.
+     * @param state Indicates the ability state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t GetAbilityStateByPersistentId(int32_t persistentId, bool &state);
+
+    /**
+     * Transfer resultCode & want to abms.
+     *
+     * @param callerToken caller ability token.
+     * @param requestCode the resultCode of the ability to start.
+     * @param want Indicates the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t TransferAbilityResultForExtension(const sptr<IRemoteObject> &callerToken, int32_t resultCode,
+        const Want &want);
 
 private:
     AbilityManagerClient();

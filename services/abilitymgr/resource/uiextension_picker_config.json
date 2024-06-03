@@ -19,6 +19,10 @@
         {
             "type": "finance",
             "typePicker": "sysPicker/appSelector"
+        },
+        {
+            "type": "filePicker",
+            "typePicker": "sysPicker/filePicker"
         }
     ]
 }

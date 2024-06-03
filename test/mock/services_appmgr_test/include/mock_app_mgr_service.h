@@ -44,6 +44,8 @@ public:
     MOCK_METHOD2(KillApplicationByUid, int(const std::string&, const int uid));
     MOCK_METHOD1(IsBackgroundRunningRestricted, int(const std::string& bundleName));
     MOCK_METHOD1(GetAllRunningProcesses, int(std::vector<RunningProcessInfo>& info));
+    MOCK_METHOD2(GetRunningProcessesByBundleType, int(const BundleType bundleType,
+        std::vector<RunningProcessInfo>& info));
     MOCK_METHOD2(GetProcessRunningInfosByUserId, int(std::vector<RunningProcessInfo>& info, int32_t userId));
     MOCK_METHOD1(GetAllRenderProcesses, int(std::vector<RenderProcessInfo>& info));
     MOCK_METHOD0(GetAmsMgr, sptr<IAmsMgr>());
@@ -54,8 +56,9 @@ public:
     MOCK_METHOD1(StartupResidentProcess, void(const std::vector<AppExecFwk::BundleInfo>& bundleInfos));
     MOCK_METHOD1(AddAbilityStageDone, void(const int32_t recordId));
     MOCK_METHOD0(PreStartNWebSpawnProcess, int());
-    MOCK_METHOD5(StartRenderProcess, int(const std::string&, int32_t, int32_t, int32_t, pid_t&));
+    MOCK_METHOD6(StartRenderProcess, int(const std::string&, int32_t, int32_t, int32_t, pid_t&, bool));
     MOCK_METHOD1(AttachRenderProcess, void(const sptr<IRemoteObject>& renderScheduler));
+    MOCK_METHOD1(SaveBrowserChannel, void(sptr<IRemoteObject> browser));
     MOCK_METHOD2(GetRenderProcessTerminationStatus, int(pid_t renderPid, int& status));
     MOCK_METHOD2(RegisterApplicationStateObserver, int32_t(const sptr<IApplicationStateObserver>& observer,
         const std::vector<std::string>& bundleNameList));
@@ -87,8 +90,11 @@ public:
     MOCK_METHOD2(GetProcessMemoryByPid, int32_t(const int32_t pid, int32_t & memorySize));
     MOCK_METHOD3(GetRunningProcessInformation, int32_t(const std::string & bundleName, int32_t userId,
         std::vector<RunningProcessInfo> &info));
+    MOCK_METHOD2(GetRunningMultiAppInfoByBundleName, int32_t(const std::string &bundleName,
+        RunningMultiAppInfo &info));
     MOCK_METHOD2(IsApplicationRunning, int32_t(const std::string &bundleName, bool &isRunning));
-    MOCK_METHOD2(StartChildProcess, int32_t(const std::string &srcEntry, pid_t &childPid));
+    MOCK_METHOD4(StartChildProcess, int32_t(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount,
+        bool isStartWithNative));
     MOCK_METHOD1(GetChildProcessInfoForSelf, int32_t(ChildProcessInfo &info));
     MOCK_METHOD1(AttachChildProcess, void(const sptr<IRemoteObject> &childScheduler));
     MOCK_METHOD0(ExitChildProcessSafely, void());
@@ -98,6 +104,9 @@ public:
     MOCK_METHOD0(RequestTerminateProcess, int32_t());
     MOCK_METHOD0(RequestTerminateApplication, int32_t());
     MOCK_METHOD0(IsFinalAppProcess, bool());
+    MOCK_METHOD1(SetSupportedProcessCacheSelf, int32_t(bool isSupport));
+    MOCK_METHOD3(StartNativeChildProcess, int32_t(const std::string &libName, int32_t childProcessCount,
+        const sptr<IRemoteObject> &callback));
     virtual int StartUserTestProcess(
         const AAFwk::Want &want, const sptr<IRemoteObject> &observer, const BundleInfo &bundleInfo, int32_t userId)
     {

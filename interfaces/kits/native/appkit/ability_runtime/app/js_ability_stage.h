@@ -41,7 +41,8 @@ public:
     JsAbilityStage(JsRuntime& jsRuntime, std::unique_ptr<NativeReference>&& jsAbilityStageObj);
     ~JsAbilityStage() override;
 
-    void Init(const std::shared_ptr<Context> &context) override;
+    void Init(const std::shared_ptr<Context> &context,
+        const std::weak_ptr<AppExecFwk::OHOSApplication> application) override;
 
     void OnCreate(const AAFwk::Want &want) const override;
 
@@ -55,7 +56,8 @@ public:
 
     void OnMemoryLevel(int32_t level) override;
 
-    int32_t RunAutoStartupTask(const std::function<void()> &callback, bool &isAsyncCallback) override;
+    int32_t RunAutoStartupTask(const std::function<void()> &callback, bool &isAsyncCallback,
+        const std::shared_ptr<Context> &stageContext) override;
 
 private:
     napi_value CallObjectMethod(const char* name, napi_value const * argv = nullptr, size_t argc = 0);
@@ -86,6 +88,8 @@ private:
     bool IsFileExisted(const std::string &filePath);
     
     bool TransformFileToJsonString(const std::string &resPath, std::string &profile);
+    
+    void SetJsAbilityStage(const std::shared_ptr<Context> &context);
 
     JsRuntime& jsRuntime_;
     std::shared_ptr<NativeReference> jsAbilityStageObj_;

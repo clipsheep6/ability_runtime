@@ -123,6 +123,27 @@ public:
     virtual int32_t GetAllRunningProcesses(std::vector<RunningProcessInfo> &info) override;
 
     /**
+     * GetALLRunningMultiAppInfo, call GetALLRunningMultiAppInfo() through proxy project.
+     * Obtains information about multiapp that are running on the device.
+     *
+     * @param info, app name in multiappinfo.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t GetRunningMultiAppInfoByBundleName(const std::string &bundleName,
+        RunningMultiAppInfo &info) override;
+
+    /**
+     * GetRunningProcessesByBundleType, call GetRunningProcessesByBundleType() through proxy project.
+     * Obtains information about application processes by bundle type that are running on the device.
+     *
+     * @param bundleType, bundle type of the processes
+     * @param info, app name in Application record.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int GetRunningProcessesByBundleType(const BundleType bundleType,
+        std::vector<RunningProcessInfo> &info) override;
+
+    /**
      * GetAllRenderProcesses, call GetAllRenderProcesses() through proxy project.
      * Obtains information about render processes that are running on the device.
      *
@@ -295,11 +316,12 @@ public:
      * @param sharedFd, shared memory file descriptior.
      * @param crashFd, crash signal file descriptior.
      * @param renderPid, created render pid.
+     * @param isGPU, is or not GPU process
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int StartRenderProcess(const std::string &renderParam,
                                    int32_t ipcFd, int32_t sharedFd,
-                                   int32_t crashFd, pid_t &renderPid) override;
+                                   int32_t crashFd, pid_t &renderPid, bool isGPU = false) override;
 
     /**
      * Render process call this to attach app manager service.
@@ -476,7 +498,8 @@ public:
      * @param childPid Created child process pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid) override;
+    int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount,
+        bool isStartWithDebug) override;
 
     /**
      * Get child process record for self.
@@ -567,7 +590,28 @@ public:
      * @param isMemorySizeSufficent Indicates the memory size state.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t NotifyMemonySizeStateChanged(bool isMemorySizeSufficent) override;
+    virtual int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent) override;
+
+    int32_t SetSupportedProcessCacheSelf(bool isSupport) override;
+
+    /**
+     * Set application assertion pause state.
+     *
+     * @param flag assertion pause state.
+     */
+    void SetAppAssertionPauseState(bool flag) override;
+
+    /**
+     * Start native child process, callde by ChildProcessManager.
+     * @param libName lib file name to be load in child process
+     * @param childProcessCount current started child process count
+     * @param callback callback for notify start result
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t StartNativeChildProcess(const std::string &libName, int32_t childProcessCount,
+        const sptr<IRemoteObject> &callback) override;
+
+    virtual void SaveBrowserChannel(sptr<IRemoteObject> browser) override;
 
 private:
     bool SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply);

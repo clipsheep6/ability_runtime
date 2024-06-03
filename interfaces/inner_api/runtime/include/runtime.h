@@ -38,6 +38,7 @@ class Runtime {
 public:
     enum class Language {
         JS = 0,
+        CJ
     };
 
     struct Options {
@@ -60,6 +61,7 @@ public:
         bool isStageModel = true;
         bool isTestFramework = false;
         bool jitEnabled = false;
+        bool isMultiThread = false;
         int32_t uid = -1;
         // ArkTsCard start
         bool isUnique = false;
@@ -71,10 +73,11 @@ public:
     };
 
     struct DebugOption {
+        std::string bundleName = "";
         std::string perfCmd;
-        bool isStartWithDebug = false;
         std::string processName = "";
         bool isDebugApp = true;
+        bool isStartWithDebug = false;
         bool isStartWithNative = false;
     };
 

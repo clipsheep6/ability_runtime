@@ -22,6 +22,8 @@ import type image from '@ohos.multimedia.image';
 import window from '@ohos.window';
 import PositionUtils from '../utils/PositionUtils';
 import deviceInfo from '@ohos.deviceInfo';
+import systemparameter from '@ohos.systemParameterEnhance';
+import dataPreferences from '@ohos.data.preferences';
 
 const TAG = 'SelectorDialog_Service';
 
@@ -32,8 +34,12 @@ export default class SelectorServiceExtensionAbility extends extension {
   onCreate(want) {
     console.debug(TAG, 'onCreate, want: ' + JSON.stringify(want));
     globalThis.selectExtensionContext = this.context;
+    globalThis.currentExtensionContext = this.context;
+    globalThis.ExtensionType = 'ServiceExtension';
     globalThis.defaultAppManager = defaultAppManager;
     globalThis.bundleManager = bundleManager;
+    let options = {name:'dialogStore'};
+    globalThis.preferences = dataPreferences.getPreferencesSync(this.context, options);
   }
 
   async getPhoneShowHapList() {
@@ -93,7 +99,7 @@ export default class SelectorServiceExtensionAbility extends extension {
     let appIcon = '';
     let type = '';
     let userId = Number('0');
-    if (globalThis.params.deviceType !== 'phone' && globalThis.params.deviceType !== 'default') {
+    if (!globalThis.params.isDefaultSelector) {
       type = hap.type;
       userId = Number(hap.userId);
     }
@@ -163,11 +169,11 @@ export default class SelectorServiceExtensionAbility extends extension {
     console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
     globalThis.callerToken = want.parameters.callerToken;
     console.debug(TAG, 'onRequest, position: ' + JSON.stringify(globalThis.position));
-    if (globalThis.params.deviceType !== 'phone' && globalThis.params.deviceType !== 'default') {
+    if (!globalThis.params.isDefaultSelector) {
       globalThis.modelFlag = Boolean(globalThis.params.modelFlag);
       globalThis.action = Boolean(globalThis.params.action);
     }
-    if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
+    if (globalThis.params.isDefaultSelector) {
       await this.getPhoneShowHapList();
     } else {
       await this.getPcShowHapList();
@@ -218,10 +224,20 @@ export default class SelectorServiceExtensionAbility extends extension {
       }
       await win.moveTo(rect.left, rect.top);
       await win.resetSize(rect.width, rect.height);
-      if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
-        await win.loadContent('pages/selectorPhoneDialog');
+      if (systemparameter.getSync('persist.sys.abilityms.isdialogconfirmpermission', 'false') === 'false' &&
+        globalThis.preferences.getSync('isdialogconfirmpermission', 'false') === 'false') {
+        if (globalThis.params.isDefaultSelector) {
+          globalThis.currentURL = 'pages/selectorPhoneDialog';
+        } else {
+          globalThis.currentURL = 'pages/selectorPcDialog';
+        }
+        await win.loadContent('pages/permissionConfirmDialog');
       } else {
-        await win.loadContent('pages/selectorPcDialog');
+        if (globalThis.params.isDefaultSelector) {
+          await win.loadContent('pages/selectorPhoneDialog');
+        } else {
+          await win.loadContent('pages/selectorPcDialog');
+        }
       }
       await win.setBackgroundColor('#00000000');
       await win.show();
@@ -234,7 +250,7 @@ export default class SelectorServiceExtensionAbility extends extension {
     try {
       await win.moveTo(rect.left, rect.top);
       await win.resetSize(rect.width, rect.height);
-      if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
+      if (globalThis.params.isDefaultSelector) {
         try {
           await win.loadContent('pages/selectorPhoneDialog');
           await win.setBackgroundColor('#00000000');
@@ -250,7 +266,7 @@ export default class SelectorServiceExtensionAbility extends extension {
 
   onConfigurationUpdate(config): void {
     console.debug(TAG, 'configuration is : ' + JSON.stringify(config));
-    if (globalThis.params.deviceType !== 'phone' && globalThis.params.deviceType !== 'default') {
+    if (!globalThis.params.isDefaultSelector) {
       console.debug(TAG, 'device is not phone');
       return;
     }

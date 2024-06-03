@@ -47,6 +47,7 @@ public:
     bool IsStartOptionsWithProcessOptions();
     bool EnableMoveUIAbilityToBackgroundApi();
     bool IsLaunchEmbededUIAbility();
+    bool IsSupportNativeChildProcess();
 
 private:
     AppUtils();
@@ -65,6 +66,7 @@ private:
     volatile DeviceConfiguration<bool> isStartOptionsWithProcessOptions_ = {false, false};
     volatile DeviceConfiguration<bool> enableMoveUIAbilityToBackgroundApi_ = {false, true};
     volatile DeviceConfiguration<bool> isLaunchEmbededUIAbility_ = {false, false};
+    volatile DeviceConfiguration<bool> isSupportNativeChildProcess_ = {false, false};
     DISALLOW_COPY_AND_MOVE(AppUtils);
 };
 }  // namespace AAFwk

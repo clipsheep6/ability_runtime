@@ -49,6 +49,7 @@ public:
 
     ProcessMode processMode = ProcessMode::UNSPECIFIED;
     StartupVisibility startupVisibility = StartupVisibility::UNSPECIFIED;
+    std::string processName;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -22,8 +22,9 @@ ohos_unittest("app_preloader_test") {
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
 
   include_dirs = [
-    "${ability_runtime_services_path}/appmgr/include",
     "include",
+    "${ability_runtime_services_path}/appmgr/include",
+    "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
   ]
 
   sources = [
@@ -32,6 +33,7 @@ ohos_unittest("app_preloader_test") {
   ]
 
   deps = [
+    "${ability_runtime_path}/utils/server/startup:startup_util",
     "${ability_runtime_services_path}/appmgr:libappms",
     "//third_party/googletest:gtest_main",
   ]
@@ -45,6 +47,7 @@ ohos_unittest("app_preloader_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "resource_schedule_service:ressched_client",
   ]
 }
 

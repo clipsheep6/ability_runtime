@@ -185,10 +185,22 @@ class ApplicationContext {
     return this.__context_impl__.terminateApplication();
   }
 
+  preloadUIExtensionAbility(want) {
+    return this.__context_impl__.preloadUIExtensionAbility(want);
+  }
+
   restartApp(want) {
     return this.__context_impl__.restartApp(want);
   }
 
+  setSupportedProcessCache(isSupport) {
+    return this.__context_impl__.setSupportedProcessCache(isSupport);
+  }
+
+  getCurrentAppCloneIndex(){
+    return this.__context_impl__.getCurrentAppCloneIndex()
+  }
+  
   set area(mode) {
     return this.__context_impl__.switchArea(mode);
   }
@@ -235,6 +247,10 @@ class ApplicationContext {
 
   get bundleCodeDir() {
     return this.__context_impl__.bundleCodeDir;
+  }
+
+  get cloudFileDir() {
+    return this.__context_impl__.cloudFileDir;
   }
 
   get eventHub() {

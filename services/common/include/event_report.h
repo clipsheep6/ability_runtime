@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -62,13 +62,11 @@ enum class EventName {
     STOP_EXTENSION_ERROR,
     CONNECT_SERVICE_ERROR,
     DISCONNECT_SERVICE_ERROR,
-    CLOSE_UI_ABILITY_BY_SCB_ERROR,
 
     // ability behavior event
     START_ABILITY,
     TERMINATE_ABILITY,
     CLOSE_ABILITY,
-    CLOSE_UI_ABILITY_BY_SCB,
     ABILITY_ONFOREGROUND,
     ABILITY_ONBACKGROUND,
     ABILITY_ONACTIVE,
@@ -96,6 +94,7 @@ enum class EventName {
     FA_SHOW_ON_LOCK,
     START_PRIVATE_ABILITY,
     RESTART_PROCESS_BY_SAME_APP,
+    START_STANDARD_ABILITIES
 };
 
 class EventReport {

@@ -776,6 +776,26 @@ HWTEST_F(AmsMgrSchedulerTest, GetRunningProcessInfoByPid_001, TestSize.Level0)
 
 /*
  * Feature: AmsMgrScheduler
+ * Function: IsMemorySizeSufficent
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler IsMemorySizeSufficent
+ * EnvConditions: NA
+ * CaseDescription: Verify IsMemorySizeSufficent
+ */
+HWTEST_F(AmsMgrSchedulerTest, IsMemorySizeSufficent_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    ASSERT_NE(amsMgrScheduler, nullptr);
+    bool res = amsMgrScheduler->IsMemorySizeSufficent();
+    EXPECT_EQ(res, true);
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsTaskHandler();
+    res = amsMgrScheduler->IsMemorySizeSufficent();
+    EXPECT_EQ(res, true);
+}
+
+/*
+ * Feature: AmsMgrScheduler
  * Function: StartSpecifiedAbility
  * SubFunction: NA
  * FunctionPoints: AmsMgrScheduler StartSpecifiedAbility
@@ -837,6 +857,29 @@ HWTEST_F(AmsMgrSchedulerTest, GetApplicationInfoByProcessID_001, TestSize.Level0
     amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
     amsMgrScheduler->amsHandler_ = GetAmsTaskHandler();
     int res2 = amsMgrScheduler->GetApplicationInfoByProcessID(pid, application, debug);
+    EXPECT_NE(res2, ERR_INVALID_OPERATION);
+}
+
+/*
+ * Feature: AmsMgrScheduler
+ * Function: NotifyAppMgrRecordExitReason
+ * SubFunction: NA
+ * FunctionPoints: AmsMgrScheduler NotifyAppMgrRecordExitReason
+ * EnvConditions: NA
+ * CaseDescription: Verify NotifyAppMgrRecordExitReason
+ */
+HWTEST_F(AmsMgrSchedulerTest, NotifyAppMgrRecordExitReason_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    int32_t pid = 0;
+    int32_t reason = 1;
+    std::string exitMsg = "JsError";
+    int res1 = amsMgrScheduler->NotifyAppMgrRecordExitReason(pid, reason, exitMsg);
+    EXPECT_EQ(res1, ERR_INVALID_OPERATION);
+
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsTaskHandler();
+    int res2 = amsMgrScheduler->NotifyAppMgrRecordExitReason(pid, reason, exitMsg);
     EXPECT_NE(res2, ERR_INVALID_OPERATION);
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -318,7 +318,7 @@ public:
 
     void EnableRecoverAbility(int32_t missionId);
 
-    #ifdef ABILITY_COMMAND_FOR_TEST
+#ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block ability.
      *
@@ -326,7 +326,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int BlockAbility(int abilityRecordId);
-    #endif
+#endif
 
     void UninstallApp(const std::string &bundleName, int32_t uid);
 
@@ -474,6 +474,8 @@ private:
     void CompleteForegroundFailed(const std::shared_ptr<AbilityRecord> &abilityRecord, AbilityState state);
     int ResolveAbility(const std::shared_ptr<AbilityRecord> &targetAbility, const AbilityRequest &abilityRequest);
     std::shared_ptr<AbilityRecord> GetAbilityRecordByName(const AppExecFwk::ElementName &element);
+    std::shared_ptr<AbilityRecord> GetAbilityRecordByNameFromCurrentMissionLists(
+        const AppExecFwk::ElementName &element) const;
     std::vector<std::shared_ptr<AbilityRecord>> GetAbilityRecordsByName(const AppExecFwk::ElementName &element);
     int CallAbilityLocked(const AbilityRequest &abilityRequest);
     void UpdateMissionSnapshot(const std::shared_ptr<AbilityRecord> &abilityRecord) const;

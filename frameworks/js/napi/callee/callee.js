@@ -49,6 +49,14 @@ class BusinessError extends Error {
   }
 }
 
+class ThrowInvalidParamError extends Error {
+  constructor(msg) {
+    let message = ERROR_MSG_INVALID_PARAM + msg;
+    super(message);
+    this.code = ERROR_CODE_INVALID_PARAM;
+  }
+}
+
 class Callee extends rpc.RemoteObject {
   constructor(des) {
     if (typeof des === 'string') {
@@ -118,7 +126,8 @@ class Callee extends rpc.RemoteObject {
     if (typeof method !== 'string' || method === '' || typeof callback !== 'function') {
       console.log(
         'Callee on error, method is [' + typeof method + '], typeof callback [' + typeof callback + ']');
-      throw new BusinessError(ERROR_CODE_INVALID_PARAM);
+      throw new ThrowInvalidParamError('Parameter error: Failed to get method or callback.' +
+        'method must be a non-empty string, callback must be a function.');
     }
 
     if (this.callList == null) {
@@ -138,7 +147,7 @@ class Callee extends rpc.RemoteObject {
   off(method) {
     if (typeof method !== 'string' || method === '') {
       console.log('Callee off error, method is [' + typeof method + ']');
-      throw new BusinessError(ERROR_CODE_INVALID_PARAM);
+      throw new ThrowInvalidParamError('Parameter error: Failed to get method, must be a string.');
     }
 
     if (this.callList == null) {

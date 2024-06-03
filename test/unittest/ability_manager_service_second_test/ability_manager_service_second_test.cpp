@@ -329,7 +329,7 @@ HWTEST_F(AbilityManagerServiceSecondTest, CheckCallOtherExtensionPermission_003,
     abilityRequest_.abilityInfo.extensionAbilityType = AppExecFwk::ExtensionAbilityType::SYS_COMMON_UI;
     abilityRequest_.appInfo.isSystemApp = false;
     abilityRequest_.appInfo.bundleName = "test.bundleName";
-    EXPECT_EQ(abilityMs_->CheckCallOtherExtensionPermission(abilityRequest_), CHECK_PERMISSION_FAILED);
+    EXPECT_EQ(abilityMs_->CheckCallOtherExtensionPermission(abilityRequest_), NO_FOUND_ABILITY_BY_CALLER);
     TAG_LOGI(AAFwkTag::TEST, "testcase end.");
 }
 
@@ -346,7 +346,7 @@ HWTEST_F(AbilityManagerServiceSecondTest, CheckCallOtherExtensionPermission_004,
     abilityRequest_.abilityInfo.extensionAbilityType = AppExecFwk::ExtensionAbilityType::SYS_COMMON_UI;
     abilityRequest_.appInfo.isSystemApp = true;
     abilityRequest_.appInfo.bundleName = "test.bundleName";
-    EXPECT_EQ(abilityMs_->CheckCallOtherExtensionPermission(abilityRequest_), ERR_OK);
+    EXPECT_EQ(abilityMs_->CheckCallOtherExtensionPermission(abilityRequest_), NO_FOUND_ABILITY_BY_CALLER);
     TAG_LOGI(AAFwkTag::TEST, "testcase end.");
 }
 
@@ -395,6 +395,42 @@ HWTEST_F(AbilityManagerServiceSecondTest, StartAbility_002, TestSize.Level1)
     int requestCode = 0;
     EXPECT_EQ(abilityMs_->StartAbility(want, abilityStartSetting, callerToken, 0, requestCode),
         CHECK_PERMISSION_FAILED);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityDetails
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityDetails
+ */
+HWTEST_F(AbilityManagerServiceSecondTest, StartAbility_003, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    Want want;
+    AbilityStartSetting abilityStartSetting;
+    sptr<IRemoteObject> callerToken = nullptr;
+    int requestCode = 0;
+    EXPECT_EQ(abilityMs_->StartAbilityDetails(want, abilityStartSetting, callerToken, 0, requestCode),
+        CHECK_PERMISSION_FAILED);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityWithSpecifyTokenIdInner
+ */
+HWTEST_F(AbilityManagerServiceSecondTest, StartAbility_004, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    Want want;
+    ElementName element("", "com.ix.hiMusic", "MusicAbility");
+    want.SetElement(element);
+    StartOptions startOptions;
+    sptr<IRemoteObject> callerToken = nullptr;
+    int requestCode = 0;
+    EXPECT_EQ(abilityMs_->StartAbilityWithSpecifyTokenIdInner(want, startOptions, callerToken,
+        USER_ID_U100, requestCode), CHECK_PERMISSION_FAILED);
 }
 
 /*
@@ -686,12 +722,40 @@ HWTEST_F(AbilityManagerServiceSecondTest, ContinueMissionBundleName_001, TestSiz
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest ContinueMissionBundleName_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    std::string srcDeviceId = "test";
-    std::string dstDeviceId = "test";
+    std::string srcDeviceId = "";
+    std::string dstDeviceId = "";
+    const sptr<IRemoteObject> callback = nullptr;
     AAFwk::WantParams wantParams;
-    EXPECT_EQ(abilityMs_->ContinueMission(srcDeviceId, dstDeviceId, "bundleName", nullptr, wantParams),
-        CHECK_PERMISSION_FAILED);
+    ContinueMissionInfo continueMissionInfo;
+    continueMissionInfo.dstDeviceId = dstDeviceId;
+    continueMissionInfo.srcDeviceId = srcDeviceId;
+    continueMissionInfo.bundleName = "bundleName";
+    continueMissionInfo.wantParams = wantParams;
+    EXPECT_EQ(abilityMs_->ContinueMission(continueMissionInfo, callback), CHECK_PERMISSION_FAILED);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest ContinueMissionBundleName_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: ContinueMissionBundleName
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService ContinueMissionBundleName
+ */
+HWTEST_F(AbilityManagerServiceSecondTest, ContinueMissionBundleName_002, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest ContinueMissionBundleName_002 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    std::string srcDeviceId = "";
+    std::string dstDeviceId = "";
+    const sptr<IRemoteObject> callback = nullptr;
+    AAFwk::WantParams wantParams;
+    ContinueMissionInfo continueMissionInfo;
+    continueMissionInfo.dstDeviceId = dstDeviceId;
+    continueMissionInfo.srcDeviceId = srcDeviceId;
+    continueMissionInfo.bundleName = "";
+    continueMissionInfo.wantParams = wantParams;
+    EXPECT_EQ(abilityMs_->ContinueMission(continueMissionInfo, callback), CHECK_PERMISSION_FAILED);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest ContinueMissionBundleName_002 end");
 }
 
 /*
@@ -1382,6 +1446,21 @@ HWTEST_F(AbilityManagerServiceSecondTest, DumpMissionInfosInner_001, TestSize.Le
     ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->DumpMissionInfosInner("", info);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest DumpMissionInfosInner_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: SetResidentProcessEnabled
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService SetResidentProcessEnabled
+ */
+HWTEST_F(AbilityManagerServiceSecondTest, SetResidentProcessEnable_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    ASSERT_NE(abilityMs_, nullptr);
+    std::string bundleName = "ability.manager.service.test";
+    bool enable = false;
+    EXPECT_EQ(abilityMs_->SetResidentProcessEnabled(bundleName, enable), ERR_NOT_SYSTEM_APP);
 }
 
 /*

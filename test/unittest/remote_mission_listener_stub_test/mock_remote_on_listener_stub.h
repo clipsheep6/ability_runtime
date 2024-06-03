@@ -29,8 +29,8 @@ public:
     MockRemoteOnListenerStub() = default;
     virtual ~MockRemoteOnListenerStub() = default;
 
-    MOCK_METHOD3(OnCallback, void(const uint32_t ContinueState, const std::string &srcDeviceId,
-        const std::string &bundleName));
+    MOCK_METHOD5(OnCallback, void(const uint32_t ContinueState, const std::string &srcDeviceId,
+        const std::string &bundleName, const std::string &continueType, const std::string &srcBundleName));
 };
 }  // namespace AAFwk
 }  // namespace OHOS

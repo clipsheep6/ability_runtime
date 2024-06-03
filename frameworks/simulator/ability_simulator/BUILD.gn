@@ -105,10 +105,7 @@ ohos_shared_library("ability_simulator_inner") {
 
     configs = [ "${windowmanager_path}/previewer:previewer_window_config" ]
 
-    deps = [
-      ":gen_obj_src_js_mock_abc",
-      "//third_party/jsoncpp:jsoncpp_static",
-    ]
+    deps = [ ":gen_obj_src_js_mock_abc" ]
 
     external_deps = [
       "ability_base:string_utils",
@@ -116,6 +113,7 @@ ohos_shared_library("ability_simulator_inner") {
       "ets_utils:console",
       "ets_utils:timer",
       "hilog:libhilog",
+      "jsoncpp:jsoncpp_static",
       "napi:ace_napi",
     ]
 

@@ -26,6 +26,7 @@
 #include "app_mgr_client_mock.h"
 #include "app_process_data.h"
 #include "app_state_call_back_mock.h"
+#include "bundle_info.h"
 #include "element_name.h"
 #include "mock_sa_call.h"
 
@@ -644,6 +645,22 @@ HWTEST_F(AppSchedulerTest, AppScheduler_OnAbilityRequestDone_001, TestSize.Level
 
 /*
  * Feature: AppScheduler
+ * Function: NotifyStartResidentProcess
+ * SubFunction: NA
+ * FunctionPoints: AppScheduler NotifyStartResidentProcess
+ * EnvConditions: NA
+ * CaseDescription: Verify NotifyStartResidentProcess
+ */
+HWTEST_F(AppSchedulerTest, AppScheduler_NotifyStartResidentProcess_001, TestSize.Level1)
+{
+    std::vector<AppExecFwk::BundleInfo> bundleInfos;
+    ASSERT_NE(appStateMock_, nullptr);
+    DelayedSingleton<AppScheduler>::GetInstance()->callback_ = appStateMock_;
+    DelayedSingleton<AppScheduler>::GetInstance()->NotifyStartResidentProcess(bundleInfos);
+}
+
+/*
+ * Feature: AppScheduler
  * Function: KillApplication
  * SubFunction: NA
  * FunctionPoints: AppScheduler KillApplication
@@ -842,7 +859,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_StartupResidentProcess_001, TestSize.Lev
  */
 HWTEST_F(AppSchedulerTest, AppScheduler_StartSpecifiedAbility_001, TestSize.Level1)
 {
-    EXPECT_CALL(*clientMock_, StartSpecifiedAbility(_, _)).Times(1);
+    EXPECT_CALL(*clientMock_, StartSpecifiedAbility(_, _, _)).Times(1);
     DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::move(clientMock_);
     ASSERT_NE(DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_, nullptr);
     AAFwk::Want want;

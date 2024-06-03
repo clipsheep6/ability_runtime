@@ -34,6 +34,7 @@ struct DialogAbilityInfo {
     int32_t bundleLabelId = 0;
     int32_t abilityIconId = 0;
     int32_t abilityLabelId = 0;
+    bool visible = true;
 
     std::string GetURI() const;
     bool ParseURI(const std::string &uri);
