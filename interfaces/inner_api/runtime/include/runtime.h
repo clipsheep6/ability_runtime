@@ -110,6 +110,7 @@ public:
     Runtime(Runtime&&) = delete;
     Runtime& operator=(const Runtime&) = delete;
     Runtime& operator=(Runtime&&) = delete;
+    virtual void StopHdcRegister() {};
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

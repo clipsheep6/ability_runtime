@@ -28,12 +28,11 @@ public:
     static HdcRegister& Get();
     void StartHdcRegister(const std::string& bundleName, const std::string& processName, bool debugApp,
         HdcRegisterCallback callback);
+    void StopHdcRegister();
 
 private:
     HdcRegister() = default;
     ~HdcRegister();
-
-    void StopHdcRegister();
 
     void* registerHandler_ = nullptr;
 

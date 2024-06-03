@@ -1695,5 +1695,10 @@ std::shared_ptr<Runtime::Options> JsRuntime::GetChildOptions()
     TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     return childOptions_;
 }
+
+void JsRuntime::StopHdcRegister()
+{
+    HdcRegister::Get().StopHdcRegister();
+}
 } // namespace AbilityRuntime
 } // namespace OHOS
