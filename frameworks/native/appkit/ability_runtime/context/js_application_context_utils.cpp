@@ -684,7 +684,7 @@ napi_value JsApplicationContextUtils::OnPreloadUIExtensionAbility(napi_env env, 
     AAFwk::Want want;
     if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
         TAG_LOGW(AAFwkTag::APPKIT, "Parse want failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param want failed, want must be Want.");
         return CreateJsUndefined(env);
     }
 
@@ -1033,7 +1033,7 @@ napi_value JsApplicationContextUtils::OnOn(napi_env env, NapiCallbackInfo& info)
     std::string type;
     if (!ConvertFromJsValue(env, info.argv[0], type)) {
         TAG_LOGE(AAFwkTag::APPKIT, "convert type failed!");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param type failed, type must be string.");
         return CreateJsUndefined(env);
     }
 
@@ -1053,7 +1053,7 @@ napi_value JsApplicationContextUtils::OnOn(napi_env env, NapiCallbackInfo& info)
         return OnOnApplicationStateChange(env, info);
     }
     TAG_LOGE(AAFwkTag::APPKIT, "on function type not match.");
-    AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    ThrowInvalidParamError(env, "Parse param callback failed, callback must be function.");
     return CreateJsUndefined(env);
 }
 
@@ -1074,7 +1074,7 @@ napi_value JsApplicationContextUtils::OnOff(napi_env env, NapiCallbackInfo& info
     std::string type;
     if (!ConvertFromJsValue(env, info.argv[0], type)) {
         TAG_LOGE(AAFwkTag::APPKIT, "convert type failed!");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param type failed, type must be string.");
         return CreateJsUndefined(env);
     }
 
@@ -1107,7 +1107,7 @@ napi_value JsApplicationContextUtils::OnOff(napi_env env, NapiCallbackInfo& info
         return OnOffEnvironmentEventSync(env, info, callbackId);
     }
     TAG_LOGE(AAFwkTag::APPKIT, "off function type not match.");
-    AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    ThrowInvalidParamError(env, "Parse param callback failed, callback must be funcation.");
     return CreateJsUndefined(env);
 }
 
@@ -1331,7 +1331,7 @@ napi_value JsApplicationContextUtils::OnOffApplicationStateChange(
         applicationStateCallback_->UnRegister();
     } else if (!applicationStateCallback_->UnRegister(info.argv[INDEX_ONE])) {
         TAG_LOGE(AAFwkTag::APPKIT, "call UnRegister failed!");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param call UnRegister failed, call UnRegister must be funcation.");
         return CreateJsUndefined(env);
     }
 
@@ -1456,7 +1456,7 @@ napi_value JsApplicationContextUtils::OnSetSupportedProcessCacheSelf(napi_env en
     bool isSupport = false;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], isSupport)) {
         TAG_LOGE(AAFwkTag::APPKIT, "Parse isSupport failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param moduleName failed, moduleName must be string.");
         return CreateJsUndefined(env);
     }
 
