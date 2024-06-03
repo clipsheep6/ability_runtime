@@ -557,6 +557,8 @@ void OHOSApplication::OnFontUpdated(Configuration config)
     #ifdef SUPPORT_GRAPHICS
     // Notify Window
     TAG_LOGD(AAFwkTag::APPKIT, "Update configuration for all window.");
+    TAG_LOGE(AAFwkTag::APPKIT, "lzz font:%{public}s.",
+        config.GetItem(AppExecFwk::ConfigurationInner::APPLICATION_FONT).c_str());
     auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(config);
     Rosen::Window::UpdateConfigurationForAll(diffConfiguration);
     #endif
