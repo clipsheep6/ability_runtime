@@ -47,7 +47,15 @@ config("ability_context_public_config") {
 }
 
 ohos_shared_library("ability_context_native") {
-  public_configs = [ ":ability_context_public_config" ]
+  public_configs = [
+    ":ability_context_public_config",
+    "${ability_runtime_native_path}/ability/native:extensionkit_public_config",
+    "${ability_runtime_native_path}/ability/native:abilitykit_utils_public_config",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager_public_config",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common_public_config",
+    "${ability_runtime_native_path}/ability/native:ability_public_config",
+    "${ability_runtime_innerkits_path}/wantagent:wantagent_innerkits_public_config",
+  ]
 
   sources = [
     "ability_runtime/ability_connection.cpp",
@@ -63,6 +71,7 @@ ohos_shared_library("ability_context_native") {
   ]
 
   deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_connect_callback_stub",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
