@@ -849,6 +849,51 @@ napi_value NAPI_UnRegister(napi_env env, napi_callback_info info)
     return ret;
 }
 
+napi_status ParseParamAsString(napi_env env, napi_value &value, std::string& retValue, int &result)
+{
+    napi_valuetype valuetype = napi_undefined;
+    result = NO_ERROR;
+    NAPI_CALL_BASE(env, napi_typeof(env, value, &valuetype), napi_status::napi_invalid_arg);
+    if (valuetype == napi_string) {
+        retValue = NapiValueToStringUtf8(env, value);
+    } else {
+        TAG_LOGE(AAFwkTag::FA, "%{public}s, Wrong argument type.", __func__);
+        result = INVALID_PARAMETER;
+    }
+    return napi_status::napi_ok;
+}
+
+napi_status ParseParamAsFunction(napi_env env, napi_value &value, napi_ref &callback, int &result)
+{
+    napi_valuetype valuetype = napi_undefined;
+    result = NO_ERROR;
+    NAPI_CALL_BASE(env, napi_typeof(env, value, &valuetype), napi_status::napi_invalid_arg);
+    if (valuetype == napi_function) {
+        NAPI_CALL_BASE(env, napi_create_reference(env, value, 1, &callback), napi_status::napi_invalid_arg);
+    } else {
+        TAG_LOGE(AAFwkTag::FA, "%{public}s, Wrong argument type.", __func__);
+        result = INVALID_PARAMETER;
+    }
+    return napi_status::napi_ok;
+}
+
+napi_status ParseParamStringAndFunction(napi_env env, napi_value &value, std::string& retValue, napi_ref &callback,
+    int &result)
+{
+    napi_valuetype valuetype = napi_undefined;
+    result = NO_ERROR;
+    NAPI_CALL_BASE(env, napi_typeof(env, value, &valuetype), napi_status::napi_invalid_arg);
+    if (valuetype == napi_string) {
+        retValue = NapiValueToStringUtf8(env, value);
+    } else if (valuetype == napi_function) {
+        NAPI_CALL_BASE(env, napi_create_reference(env, value, 1, &callback), napi_status::napi_invalid_arg);
+    } else {
+        TAG_LOGE(AAFwkTag::FA, "%{public}s, Wrong argument type.", __func__);
+        result = INVALID_PARAMETER;
+    }
+    return napi_status::napi_ok;
+}
+
 /**
  * @brief Off processing function.
  *
@@ -872,51 +917,40 @@ napi_value UnRegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB
         return nullptr;
     }
 
-    offCB->result = NO_ERROR;
-    napi_valuetype valuetype = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, args[PARAM0], &valuetype));
-    if (valuetype == napi_string) {
-        std::string type = NapiValueToStringUtf8(env, args[PARAM0]);
+    std::string type;
+    napi_status status = ParseParamAsString(env, args[PARAM0], type, offCB->result);
+    if (status != napi_ok) {
+        return nullptr;
+    }
+    if (offCB->result == NO_ERROR) {
         if (type == "dataChange") {
             TAG_LOGI(AAFwkTag::FA, "%{public}s, Wrong type=%{public}s", __func__, type.c_str());
-        } else {
+        } else if (offCB->result== NO_ERROR) {
             TAG_LOGE(AAFwkTag::FA, "%{public}s, Wrong argument type %{public}s.", __func__, type.c_str());
             offCB->result = INVALID_PARAMETER;
         }
-    } else {
-        TAG_LOGE(AAFwkTag::FA, "%{public}s, Wrong argument type.", __func__);
-        offCB->result = INVALID_PARAMETER;
     }
 
     offCB->uri = "";
     if (argcAsync > ARGS_TWO) {
         // parse uri and callback
-        NAPI_CALL(env, napi_typeof(env, args[PARAM1], &valuetype));
-        if (valuetype == napi_string) {
-            offCB->uri = NapiValueToStringUtf8(env, args[PARAM1]);
-            TAG_LOGI(AAFwkTag::FA, "%{public}s,uri=%{public}s", __func__, offCB->uri.c_str());
-        } else {
-            TAG_LOGE(AAFwkTag::FA, "%{public}s, Wrong argument type.", __func__);
-            offCB->result = INVALID_PARAMETER;
+        status = ParseParamAsString(env, args[PARAM1], offCB->uri, offCB->result);
+        if (status != napi_ok) {
+            return nullptr;
         }
-        NAPI_CALL(env, napi_typeof(env, args[PARAM2], &valuetype));
-        if (valuetype == napi_function) {
-            NAPI_CALL(env, napi_create_reference(env, args[PARAM2], 1, &offCB->cbBase.cbInfo.callback));
-        } else {
-            TAG_LOGE(AAFwkTag::FA, "%{public}s, Wrong argument type.", __func__);
-            offCB->result = INVALID_PARAMETER;
+        if (offCB->result == NO_ERROR) {
+            TAG_LOGI(AAFwkTag::FA, "%{public}s,uri=%{public}s", __func__, offCB->uri.c_str());
+        }
+        status = ParseParamAsFunction(env, args[PARAM2], offCB->cbBase.cbInfo.callback, offCB->result);
+        if (status != napi_ok) {
+            return nullptr;
         }
     } else {
         // parse uri or callback
-        NAPI_CALL(env, napi_typeof(env, args[PARAM1], &valuetype));
-        if (valuetype == napi_string) {
-            offCB->uri = NapiValueToStringUtf8(env, args[PARAM1]);
-            TAG_LOGI(AAFwkTag::FA, "%{public}s,uri=%{public}s", __func__, offCB->uri.c_str());
-        } else if (valuetype == napi_function) {
-            NAPI_CALL(env, napi_create_reference(env, args[PARAM1], 1, &offCB->cbBase.cbInfo.callback));
-        } else {
-            TAG_LOGE(AAFwkTag::FA, "%{public}s, Wrong argument type.", __func__);
-            offCB->result = INVALID_PARAMETER;
+        status = ParseParamStringAndFunction(env, args[PARAM1], offCB->uri, offCB->cbBase.cbInfo.callback,
+            offCB->result);
+        if (status != napi_ok) {
+            return nullptr;
         }
     }
     GetDataAbilityHelper(env, thisVar, offCB->dataAbilityHelper);
