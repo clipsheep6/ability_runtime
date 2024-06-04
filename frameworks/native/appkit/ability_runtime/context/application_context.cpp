@@ -117,6 +117,37 @@ void ApplicationContext::DispatchOnAbilityCreate(const std::shared_ptr<NativeRef
     }
 }
 
+
+void ApplicationContext::DispatchOnWillNewWant(const std::shared_ptr<NativeReference> &ability)
+{
+    TAG_LOGE(AAFwkTag::APPKIT, "LMZ DispatchOnWillNewWant");
+    if (!ability) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
+        return;
+    }
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnWillNewWant(ability);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnNewWant(const std::shared_ptr<NativeReference> &ability)
+{
+    TAG_LOGE(AAFwkTag::APPKIT, "LMZ DispatchOnNewWant");
+    if (!ability) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
+        return;
+    }
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnNewWant(ability);
+        }
+    }
+}
+
 void ApplicationContext::DispatchOnWindowStageCreate(const std::shared_ptr<NativeReference> &ability,
     const std::shared_ptr<NativeReference> &windowStage)
 {

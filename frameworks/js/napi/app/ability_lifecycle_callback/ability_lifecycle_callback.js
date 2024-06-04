@@ -16,6 +16,14 @@
 class AbilityLifecycleCallback {
   constructor() {}
 
+  onNewWant(ability) {
+    console.log('onNewWant');
+  }
+
+  onWillNewWant(ability) {
+    console.log('onWillNewWant');
+  }
+
   onAbilityCreate(ability) {
     console.log('onAbilityCreate');
   }

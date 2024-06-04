@@ -1179,6 +1179,13 @@ void JsUIAbility::OnNewWant(const Want &want)
     if (InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
         launchParam.launchReason = AAFwk::LaunchReason::LAUNCHREASON_INSIGHT_INTENT;
     }
+
+    TAG_LOGE(AAFwkTag::UIABILITY, "lmz Failed to get want.");
+
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnWillNewWant(jsAbilityObj_);
+    }
+
     napi_value argv[] = {
         jsWant,
         CreateJsLaunchParam(env, launchParam),
@@ -1187,6 +1194,12 @@ void JsUIAbility::OnNewWant(const Want &want)
     AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
     CallObjectMethod("onNewWant", argv, ArraySize(argv));
     AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
+
+    TAG_LOGE(AAFwkTag::UIABILITY, "lmz Failed to get want.");
+
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnWillNewWant(jsAbilityObj_);
+    }
     TAG_LOGD(AAFwkTag::UIABILITY, "End.");
 }
 

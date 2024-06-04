@@ -105,6 +105,18 @@ void JsAbilityLifecycleCallback::OnAbilityCreate(const std::shared_ptr<NativeRef
     CallJsMethod("onAbilityCreate", ability);
 }
 
+void JsAbilityLifecycleCallback::OnNewWant(const std::shared_ptr<NativeReference> &ability)
+{
+    TAG_LOGE(AAFwkTag::APPKIT, "LMZ JsAbilityLifecycleCallback::OnNewWant enter");
+    CallJsMethod("onNewWant", ability);
+}
+
+void JsAbilityLifecycleCallback::OnWillNewWant(const std::shared_ptr<NativeReference> &ability)
+{
+    TAG_LOGE(AAFwkTag::APPKIT, "LMZ JsAbilityLifecycleCallback::OnWillNewWant enter");
+    CallJsMethod("onWillNewWant", ability);
+}
+
 void JsAbilityLifecycleCallback::OnWindowStageCreate(const std::shared_ptr<NativeReference> &ability,
     const std::shared_ptr<NativeReference> &windowStage)
 {
