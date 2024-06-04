@@ -626,7 +626,6 @@ void JsRuntime::FinishPreload()
     auto vm = GetEcmaVm();
     CHECK_POINTER(vm);
     panda::JSNApi::PreFork(vm);
-    jsEnv_->StopMonitorJSHeapUsage();
 }
 
 void JsRuntime::PostPreload(const Options& options)
@@ -687,8 +686,6 @@ bool JsRuntime::Initialize(const Options& options)
         }
         NativeCreateEnv::RegCreateNapiEnvCallback(CreateNapiEnv);
         NativeCreateEnv::RegDestroyNapiEnvCallback(DestroyNapiEnv);
-    } else {
-        jsEnv_->StartMonitorJSHeapUsage();
     }
     apiTargetVersion_ = options.apiTargetVersion;
     TAG_LOGD(AAFwkTag::JSRUNTIME, "Initialize: %{public}d.", apiTargetVersion_);
