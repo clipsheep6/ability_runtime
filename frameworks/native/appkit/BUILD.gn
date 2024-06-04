@@ -102,7 +102,14 @@ ohos_shared_library("appkit_native") {
     ":appkit_exception_config",
   ]
 
-  public_configs = [ ":appkit_public_config" ]
+  public_configs = [
+    ":appkit_public_config",
+    "${ability_runtime_native_path}/ability/native:extensionkit_public_config",
+    "${ability_runtime_native_path}/ability/native:abilitykit_utils_public_config",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common_public_config",
+    "${ability_runtime_native_path}/ability/native:ability_public_config",
+    "${ability_runtime_innerkits_path}/wantagent:wantagent_innerkits_public_config",
+  ]
 
   sources = [
     "${ability_runtime_native_path}/appkit/ability_runtime/app/ability_stage.cpp",
@@ -156,8 +163,11 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:abilitykit_utils",
+    "${ability_runtime_native_path}/ability/native:extensionkit_native",
     "${ability_runtime_native_path}/ability/native:uiabilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:app_context_utils",
@@ -254,7 +264,15 @@ ohos_shared_library("app_context") {
 
   configs = [ ":appkit_config" ]
 
-  public_configs = [ ":appkit_public_config" ]
+  public_configs = [
+    ":appkit_public_config",
+    "${ability_runtime_native_path}/ability/native:extensionkit_public_config",
+    "${ability_runtime_native_path}/ability/native:abilitykit_utils_public_config",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager_public_config",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common_public_config",
+    "${ability_runtime_native_path}/ability/native:ability_public_config",
+    "${ability_runtime_innerkits_path}/wantagent:wantagent_innerkits_public_config",
+  ]
 
   sources = [
     "${ability_runtime_native_path}/appkit/ability_runtime/context/ability_lifecycle_callback.cpp",

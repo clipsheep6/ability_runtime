@@ -74,7 +74,9 @@ config("ability_config") {
 config("ability_public_config") {
   visibility = [ ":*" ]
   visibility += [
+    "${ability_runtime_innerkits_path}/*",
     "${ability_runtime_napi_path}/inner/*",
+    "${ability_runtime_native_path}/*",
     "${ability_runtime_test_path}/fuzztest/*",
   ]
   include_dirs = [
@@ -108,6 +110,10 @@ config("ability_public_config") {
 
 config("abilitykit_utils_public_config") {
   visibility = [ ":*" ]
+  visibility += [
+    "${ability_runtime_innerkits_path}/*",
+    "${ability_runtime_native_path}/*",
+  ]
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/distributed",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/kits",
@@ -224,11 +230,17 @@ ohos_shared_library("abilitykit_native") {
     ":ability_public_config",
     "${ability_runtime_native_path}/ability:ability_context_public_config",
     "${ability_runtime_innerkits_path}/wantagent:wantagent_innerkits_public_config",
+    ":abilitykit_utils_public_config",
+    ":extensionkit_public_config",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager_public_config",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common_public_config",
   ]
 
   deps = [
+    ":abilitykit_utils",
     ":continuation_ipc",
     ":extension_blocklist_config",
+    ":extensionkit_native",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
@@ -238,6 +250,7 @@ ohos_shared_library("abilitykit_native") {
     "${ability_runtime_innerkits_path}/napi_base_context:napi_base_context",
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_innerkits_path}/wantagent:wantagent_innerkits",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability:ability_context_native",
     "${ability_runtime_native_path}/ability/native:ability_business_error",
     "${ability_runtime_native_path}/appkit:app_context",
@@ -313,12 +326,6 @@ ohos_shared_library("abilitykit_native") {
     defines += [ "EFFICIENCY_MANAGER_ENABLE" ]
   }
 
-  public_deps = [
-    ":abilitykit_utils",
-    ":extensionkit_native",
-    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
-  ]
-
   if (ability_runtime_graphics) {
     include_dirs += []
     sources += [
@@ -349,6 +356,10 @@ ohos_shared_library("abilitykit_native") {
 
 config("extensionkit_public_config") {
   visibility = [ ":*" ]
+  visibility += [
+    "${ability_runtime_innerkits_path}/*",
+    "${ability_runtime_native_path}/*",
+  ]
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/distributed",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/kits",
@@ -387,9 +398,13 @@ ohos_shared_library("extensionkit_native") {
     "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
   ]
 
-  public_configs = [ ":extensionkit_public_config" ]
+  public_configs = [
+    ":extensionkit_public_config",
+    ":abilitykit_utils_public_config",
+  ]
 
   deps = [
+    ":abilitykit_utils",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/runtime:runtime",
@@ -407,8 +422,6 @@ ohos_shared_library("extensionkit_native") {
     "json:nlohmann_json_static",
     "napi:ace_napi",
   ]
-
-  public_deps = [ ":abilitykit_utils" ]
 
   public_external_deps = [
     "bundle_framework:appexecfwk_core",
@@ -521,13 +534,16 @@ ohos_shared_library("uiabilitykit_native") {
 
   deps = [
     ":abilitykit_native",
+    ":abilitykit_utils",
     ":continuation_ipc",
+    ":extensionkit_native",
     ":ui_extension",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
     "${ability_runtime_innerkits_path}/ability_manager:process_options",
     "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability:ability_context_native",
     "${ability_runtime_native_path}/ability/native:insight_intent_executor",
     "${ability_runtime_native_path}/appkit:app_context",
@@ -611,8 +627,10 @@ ohos_shared_library("ability_thread") {
 
   deps = [
     ":abilitykit_native",
+    ":abilitykit_utils",
     ":extensionkit_native",
     ":uiabilitykit_native",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_connect_callback_stub",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
@@ -669,6 +687,8 @@ ohos_shared_library("form_extension") {
 
     deps = [
       ":abilitykit_native",
+      ":abilitykit_utils",
+      ":extensionkit_native",
       "${ability_runtime_innerkits_path}/runtime:runtime",
       "${ability_runtime_napi_path}/inner/napi_common:napi_common",
       "${ability_runtime_native_path}/ability:ability_context_native",
@@ -748,6 +768,9 @@ ohos_shared_library("service_extension") {
 
   deps = [
     ":abilitykit_native",
+    ":abilitykit_utils",
+    ":extensionkit_native",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_connect_callback_stub",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/runtime:runtime",
@@ -814,6 +837,7 @@ ohos_shared_library("continuation_ipc") {
 
   deps = [
     ":abilitykit_utils",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_connect_callback_stub",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
   ]
@@ -860,7 +884,11 @@ ohos_shared_library("data_ability_helper") {
   configs = [ ":ability_config" ]
   public_configs = [ ":ability_public_config" ]
 
-  deps = [ ":abilitykit_native" ]
+  deps = [
+    ":abilitykit_native",
+    ":abilitykit_utils",
+    ":extensionkit_native",
+  ]
 
   external_deps = [
     "ability_base:zuri",
@@ -1038,6 +1066,8 @@ ohos_shared_library("ui_extension") {
 
   deps = [
     ":abilitykit_native",
+    ":abilitykit_utils",
+    ":extensionkit_native",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/runtime:runtime",
@@ -1128,6 +1158,8 @@ ohos_shared_library("share_extension") {
 
   deps = [
     ":abilitykit_native",
+    ":abilitykit_utils",
+    ":extensionkit_native",
     ":ui_extension",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
@@ -1179,6 +1211,8 @@ ohos_shared_library("action_extension") {
 
   deps = [
     ":abilitykit_native",
+    ":abilitykit_utils",
+    ":extensionkit_native",
     ":ui_extension",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
@@ -1381,6 +1415,8 @@ ohos_shared_library("embedded_ui_extension") {
 
   deps = [
     ":abilitykit_native",
+    ":abilitykit_utils",
+    ":extensionkit_native",
     ":ui_extension",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
@@ -1474,6 +1510,8 @@ ohos_shared_library("auto_fill_extension") {
 
   deps = [
     ":abilitykit_native",
+    ":abilitykit_utils",
+    ":extensionkit_native",
     ":insight_intent_executor",
     ":ui_extension",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
