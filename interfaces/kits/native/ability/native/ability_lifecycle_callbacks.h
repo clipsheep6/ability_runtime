@@ -44,7 +44,7 @@ public:
      * @param ability: Indicates the ability to register for listening.
      * @StageModelOnly
      */
-    virtual void OnNewWant(const std::shared_ptr<NativeReference> &ability) = 0;
+    virtual void OnNewWant(const std::shared_ptr<AbilityRuntime::UIAbility> &ability) = 0;
 
     /**
      * Called back before the want is create.
@@ -54,7 +54,7 @@ public:
      * @param ability: Indicates the ability to register for listening.
      * @StageModelOnly
      */
-    virtual void OnWillNewWant(const std::shared_ptr<NativeReference> &ability) = 0;
+    virtual void OnWillNewWant(const std::shared_ptr<AbilityRuntime::UIAbility> &ability) = 0;
 
     /**
      *
