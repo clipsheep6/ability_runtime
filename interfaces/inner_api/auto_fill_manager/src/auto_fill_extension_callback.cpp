@@ -179,7 +179,7 @@ void AutoFillExtensionCallback::onDestroy()
         }
         return;
     }
-    SendAutoFillFailed(AutoFill::AUTO_FILL_CANCEL);
+    SendAutoFillFailed(AutoFill::AUTO_FILL_FAILED);
 #ifdef SUPPORT_GRAPHICS
     CloseModalUIExtension();
 #endif
