@@ -644,16 +644,7 @@ void MainThread::ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
         return;
     }
     if (info.needSnapshot == true) {
-        std::vector<uint32_t> fdVec;
-        for (auto &fd : info.fdVec) {
-            uint32_t newFd = dup(fd);
-            if (newFd == -1) {
-                TAG_LOGE(AAFwkTag::APPKIT, "dup failed.");
-                return;
-            }
-            fdVec.push_back(newFd);
-        }
-        runtime->DumpHeapSnapshot(info.tid, info.needGc, fdVec, info.tidVec);
+        runtime->DumpHeapSnapshot(info.tid, info.needGc);
     } else {
         if (info.needGc == true) {
             runtime->ForceFullGC(info.tid);

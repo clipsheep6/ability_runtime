@@ -1199,12 +1199,11 @@ void JsRuntime::DumpHeapSnapshot(bool isPrivate)
     nativeEngine->DumpHeapSnapshot(true, DumpFormat::JSON, isPrivate, false);
 }
 
-void JsRuntime::DumpHeapSnapshot(uint32_t tid, bool isFullGC, std::vector<uint32_t> fdVec,
-    std::vector<uint32_t> tidVec)
+void JsRuntime::DumpHeapSnapshot(uint32_t tid, bool isFullGC)
 {
     auto vm = GetEcmaVm();
     CHECK_POINTER(vm);
-    DFXJSNApi::DumpHeapSnapshot(vm, 0, true, false, false, isFullGC, tid, fdVec, tidVec);
+    DFXJSNApi::DumpHeapSnapshot(vm, 0, true, false, false, isFullGC, tid);
 }
 
 void JsRuntime::ForceFullGC(uint32_t tid)

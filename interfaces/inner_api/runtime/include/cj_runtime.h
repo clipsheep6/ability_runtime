@@ -60,8 +60,7 @@ public:
     void DestroyHeapProfiler() override {};
     void ForceFullGC() override {};
     void ForceFullGC(uint32_t tid) override {};
-    void DumpHeapSnapshot(uint32_t tid, bool isFullGC, std::vector<uint32_t> fdVec,
-        std::vector<uint32_t> tidVec) override {};
+    void DumpHeapSnapshot(uint32_t tid, bool isFullGC) override {};
     void DumpCpuProfile(bool isPrivate) override {};
     void AllowCrossThreadExecution() override {};
     void GetHeapPrepare() override {};
