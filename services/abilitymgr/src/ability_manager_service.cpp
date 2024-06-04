@@ -4168,7 +4168,7 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
 
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     int32_t userId = wantSenderInfo.userId;
-    bool bundleMgrResult = false;
+    int32_t bundleMgrResult = 0;
     if (userId < 0) {
         if (DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
             GetOsAccountLocalIdFromUid(callerUid, userId) != 0) {
@@ -4182,12 +4182,13 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
     if (!wantSenderInfo.allWants.empty()) {
         AppExecFwk::BundleInfo bundleInfo;
         std::string bundleName = wantSenderInfo.allWants.back().want.GetElement().GetBundleName();
-        bundleMgrResult = IN_PROCESS_CALL(bms->GetBundleInfo(bundleName,
-            AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
-        if (bundleMgrResult) {
+        GetRunningMultiAppIndex(bundleName, callerUid, appIndex);
+        bundleMgrResult = IN_PROCESS_CALL(bms->GetCloneBundleInfo(bundleName,
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION),
+            appIndex, bundleInfo, userId));
+        if (bundleMgrResult == ERR_OK) {
             appUid = bundleInfo.uid;
         }
-        GetRunningMultiAppIndex(bundleName, callerUid, appIndex);
         TAG_LOGD(AAFwkTag::ABILITYMGR, "App bundleName: %{public}s, uid: %{public}d", bundleName.c_str(), appUid);
     }
     if (!CheckSenderWantInfo(callerUid, wantSenderInfo)) {
@@ -10741,7 +10742,7 @@ void AbilityManagerService::GetRunningMultiAppIndex(const std::string &bundleNam
         TAG_LOGW(AAFwkTag::ABILITYMGR, "GetAppMgr failed");
         return;
     }
-    auto ret = appMgr->GetRunningMultiAppInfoByBundleName(bundleName, runningMultiAppInfo);
+    auto ret = IN_PROCESS_CALL(appMgr->GetRunningMultiAppInfoByBundleName(bundleName, runningMultiAppInfo));
     if (ret != ERR_OK) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "GetRunningMultiAppInfo failed bundleName = %{public}s",
             bundleName.c_str());
