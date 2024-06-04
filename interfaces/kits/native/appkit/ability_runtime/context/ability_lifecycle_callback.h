@@ -152,6 +152,8 @@ class JsAbilityLifecycleCallback : public AbilityLifecycleCallback,
 public:
     explicit JsAbilityLifecycleCallback(napi_env env);
     void OnAbilityCreate(const std::shared_ptr<NativeReference> &ability) override;
+    void OnNewWant(const std::shared_ptr<NativeReference> &ability) override;
+    void OnWillNewWant(const std::shared_ptr<NativeReference> &ability) override;
     void OnWindowStageCreate(const std::shared_ptr<NativeReference> &ability,
         const std::shared_ptr<NativeReference> &windowStage) override;
     void OnWindowStageDestroy(const std::shared_ptr<NativeReference> &ability,

@@ -156,7 +156,7 @@ void JsAbilityLifecycleCallback::OnAbilityBackground(const std::shared_ptr<Nativ
     CallJsMethod("onAbilityBackground", ability);
 }
 
-void JsAbilityLifecycleCallback::OnAbilityContinue(const std::shared_ptr<NativeReference> &ability)
+void JsAbilityLifecycleCallback::(const std::shared_ptr<NativeReference> &ability)
 {
     CallJsMethod("onAbilityContinue", ability);
 }
