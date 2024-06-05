@@ -143,30 +143,33 @@ namespace {
         return ERR_NOT_SYSTEM_APP;                                                             \
     }
 
-const std::string ARGS_USER_ID = "-u";
-const std::string ARGS_CLIENT = "-c";
-const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can enter '-h' for help.";
+constexpr const char* ARGS_USER_ID = "-u";
+constexpr const char* ARGS_CLIENT = "-c";
+constexpr const char* ILLEGAL_INFOMATION = "The arguments are illegal and you can enter '-h' for help.";
+
 
 constexpr int32_t NEW_RULE_VALUE_SIZE = 6;
-constexpr int64_t APP_ALIVE_TIME_MS = 1000;  // Allow background startup within 1 second after application startup
+constexpr int32_t APP_ALIVE_TIME_MS = 1000;  // Allow background startup within 1 second after application startup
 constexpr int32_t REGISTER_FOCUS_DELAY = 5000;
 constexpr size_t OFFSET = 32;
-const std::string IS_DELEGATOR_CALL = "isDelegatorCall";
+constexpr const char* IS_DELEGATOR_CALL = "isDelegatorCall";
+
 // Startup rule switch
-const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
-const std::string NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI = "component.startup.newRules.except.LauncherSystemUI";
-const std::string BACKGROUND_JUDGE_FLAG = "component.startup.backgroundJudge.flag";
-const std::string WHITE_LIST_ASS_WAKEUP_FLAG = "component.startup.whitelist.associatedWakeUp";
+constexpr const char* COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
+constexpr const char* NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI = "component.startup.newRules.except.LauncherSystemUI";
+constexpr const char* BACKGROUND_JUDGE_FLAG = "component.startup.backgroundJudge.flag";
+constexpr const char* WHITE_LIST_ASS_WAKEUP_FLAG = "component.startup.whitelist.associatedWakeUp";
+
 // White list app
-const std::string BUNDLE_NAME_SETTINGSDATA = "com.ohos.settingsdata";
+constexpr const char* BUNDLE_NAME_SETTINGSDATA = "com.ohos.settingsdata";
 // Support prepare terminate
 constexpr int32_t PREPARE_TERMINATE_ENABLE_SIZE = 6;
-const char* PREPARE_TERMINATE_ENABLE_PARAMETER = "persist.sys.prepare_terminate";
+constexpr const char* PREPARE_TERMINATE_ENABLE_PARAMETER = "persist.sys.prepare_terminate";
 // UIExtension type
-const std::string UIEXTENSION_TYPE_KEY = "ability.want.params.uiExtensionType";
-const std::string UIEXTENSION_TARGET_TYPE_KEY = "ability.want.params.uiExtensionTargetType";
-const std::string SYSTEM_SHARE = "share";
-const std::string SYSTEM_SHARE_TYPE = "sysPicker/share";
+constexpr const char* UIEXTENSION_TYPE_KEY = "ability.want.params.uiExtensionType";
+constexpr const char* UIEXTENSION_TARGET_TYPE_KEY = "ability.want.params.uiExtensionTargetType";
+constexpr const char* SYSTEM_SHARE = "share";
+constexpr const char* SYSTEM_SHARE_TYPE = "sysPicker/share";
 // Share picker params
 constexpr char SHARE_PICKER_DIALOG_BUNDLE_NAME_KEY[] = "const.system.sharePicker.bundleName";
 constexpr char SHARE_PICKER_DIALOG_ABILITY_NAME_KEY[] = "const.system.sharePicker.abilityName";
@@ -177,19 +180,19 @@ constexpr char TOKEN_KEY[] = "ohos.ability.params.token";
 // Developer mode param
 constexpr char DEVELOPER_MODE_STATE[] = "const.security.developermode.state";
 // Broker params key
-const std::string KEY_VISIBLE_ID = "ohos.anco.param.visible";
-const std::string START_ABILITY_TYPE = "ABILITY_INNER_START_WITH_ACCOUNT";
-const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
-const std::string SHELL_ASSISTANT_ABILITYNAME = "MainAbility";
-const std::string AMS_DIALOG_BUNDLENAME = "com.ohos.amsdialog";
-const std::string STR_PHONE = "phone";
+constexpr const char* KEY_VISIBLE_ID = "ohos.anco.param.visible";
+constexpr const char* START_ABILITY_TYPE = "ABILITY_INNER_START_WITH_ACCOUNT";
+constexpr const char* SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
+constexpr const char* SHELL_ASSISTANT_ABILITYNAME = "MainAbility";
+constexpr const char* AMS_DIALOG_BUNDLENAME = "com.ohos.amsdialog";
+constexpr const char* STR_PHONE = "phone";
 // Distributed continued session Id
-const std::string DMS_CONTINUED_SESSION_ID = "ohos.dms.continueSessionId";
-const std::string DMS_PERSISTENT_ID = "ohos.dms.persistentId";
+constexpr const char* DMS_CONTINUED_SESSION_ID = "ohos.dms.continueSessionId";
+constexpr const char* DMS_PERSISTENT_ID = "ohos.dms.persistentId";
 
-const std::string DEBUG_APP = "debugApp";
-const std::string AUTO_FILL_PASSWORD_TPYE = "autoFill/password";
-const std::string AUTO_FILL_SMART_TPYE = "autoFill/smart";
+constexpr const char* DEBUG_APP = "debugApp";
+constexpr const char* AUTO_FILL_PASSWORD_TPYE = "autoFill/password";
+constexpr const char* AUTO_FILL_SMART_TPYE = "autoFill/smart";
 constexpr size_t INDEX_ZERO = 0;
 constexpr size_t INDEX_ONE = 1;
 constexpr size_t INDEX_TWO = 2;
@@ -197,11 +200,11 @@ constexpr size_t ARGC_THREE = 3;
 constexpr static char WANT_PARAMS_VIEW_DATA_KEY[] = "ohos.ability.params.viewData";
 
 constexpr int32_t FOUNDATION_UID = 5523;
-const std::string FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
-const std::string FOUNDATION_PROCESS_NAME = "foundation";
-const std::string IS_PRELOAD_UIEXTENSION_ABILITY = "ability.want.params.is_preload_uiextension_ability";
-const std::string UIEXTENSION_MODAL_TYPE = "ability.want.params.modalType";
-const std::string ATOMIC_SERVICE_PREFIX = "com.atomicservice.";
+constexpr const char* FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
+constexpr const char* FOUNDATION_PROCESS_NAME = "foundation";
+constexpr const char* IS_PRELOAD_UIEXTENSION_ABILITY = "ability.want.params.is_preload_uiextension_ability";
+constexpr const char* UIEXTENSION_MODAL_TYPE = "ability.want.params.modalType";
+constexpr const char* ATOMIC_SERVICE_PREFIX = "com.atomicservice.";
 constexpr const char* PARAM_SPECIFIED_PROCESS_FLAG = "ohosSpecifiedProcessFlag";
 
 constexpr char ASSERT_FAULT_DETAIL[] = "assertFaultDialogDetail";
@@ -231,54 +234,54 @@ using namespace std::chrono_literals;
 using namespace BackgroundTaskMgr;
 #endif
 const bool CONCURRENCY_MODE_FALSE = false;
-const int32_t MAIN_USER_ID = 100;
+constexpr int32_t MAIN_USER_ID = 100;
 constexpr auto DATA_ABILITY_START_TIMEOUT = 5s;
 constexpr int32_t NON_ANONYMIZE_LENGTH = 6;
 constexpr uint32_t SCENE_FLAG_NORMAL = 0;
-const int32_t MAX_NUMBER_OF_DISTRIBUTED_MISSIONS = 20;
-const int32_t SWITCH_ACCOUNT_TRY = 3;
+constexpr int32_t MAX_NUMBER_OF_DISTRIBUTED_MISSIONS = 20;
+constexpr int32_t SWITCH_ACCOUNT_TRY = 3;
 #ifdef ABILITY_COMMAND_FOR_TEST
-const int32_t BLOCK_AMS_SERVICE_TIME = 65;
+constexpr int32_t BLOCK_AMS_SERVICE_TIME = 65;
 #endif
-const std::string EMPTY_DEVICE_ID = "";
-const int32_t APP_MEMORY_SIZE = 512;
-const int32_t GET_PARAMETER_INCORRECT = -9;
-const int32_t GET_PARAMETER_OTHER = -1;
-const int32_t SIZE_10 = 10;
-const int32_t HIDUMPER_SERVICE_UID = 1212;
-const int32_t ACCOUNT_MGR_SERVICE_UID = 3058;
-const int32_t BROKER_UID = 5557;
-const int32_t BROKER_RESERVE_UID = 5005;
-const int32_t DMS_UID = 5522;
-const int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
-const int32_t BOOTEVENT_COMPLETED_DELAY_TIME = 1000;
+constexpr const char* EMPTY_DEVICE_ID = "";
+constexpr int32_t APP_MEMORY_SIZE = 512;
+constexpr int32_t GET_PARAMETER_INCORRECT = -9;
+constexpr int32_t GET_PARAMETER_OTHER = -1;
+constexpr int32_t SIZE_10 = 10;
+constexpr int32_t HIDUMPER_SERVICE_UID = 1212;
+constexpr int32_t ACCOUNT_MGR_SERVICE_UID = 3058;
+constexpr int32_t BROKER_UID = 5557;
+constexpr int32_t BROKER_RESERVE_UID = 5005;
+constexpr int32_t DMS_UID = 5522;
+constexpr int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
+constexpr int32_t BOOTEVENT_COMPLETED_DELAY_TIME = 1000;
 constexpr int32_t BOOTEVENT_BOOT_ANIMATION_READY_SIZE = 6;
-const std::string BUNDLE_NAME_KEY = "bundleName";
-const std::string DM_PKG_NAME = "ohos.distributedhardware.devicemanager";
-const std::string ACTION_CHOOSE = "ohos.want.action.select";
-const std::string HIGHEST_PRIORITY_ABILITY_ENTITY = "flag.home.intent.from.system";
-const std::string DMS_API_VERSION = "dmsApiVersion";
-const std::string DMS_IS_CALLER_BACKGROUND = "dmsIsCallerBackGround";
-const std::string DMS_PROCESS_NAME = "distributedsched";
-const std::string DMS_MISSION_ID = "dmsMissionId";
-const std::string BOOTEVENT_APPFWK_READY = "bootevent.appfwk.ready";
-const std::string BOOTEVENT_BOOT_COMPLETED = "bootevent.boot.completed";
-const std::string BOOTEVENT_BOOT_ANIMATION_STARTED = "bootevent.bootanimation.started";
-const std::string BOOTEVENT_BOOT_ANIMATION_READY = "bootevent.bootanimation.ready";
-const std::string NEED_STARTINGWINDOW = "ohos.ability.NeedStartingWindow";
-const std::string PERMISSIONMGR_BUNDLE_NAME = "com.ohos.permissionmanager";
-const std::string PERMISSIONMGR_ABILITY_NAME = "com.ohos.permissionmanager.GrantAbility";
-const std::string IS_CALL_BY_SCB = "isCallBySCB";
-const std::string SPECIFY_TOKEN_ID = "specifyTokenId";
-const std::string PROCESS_SUFFIX = "embeddable";
-const int DEFAULT_DMS_MISSION_ID = -1;
-const char* PARAM_PREVENT_STARTABILITY = "persist.sys.abilityms.prevent_startability";
-const std::string SUSPEND_SERVICE_CONFIG_FILE = "/etc/efficiency_manager/prevent_startability_whitelist.json";
-const int32_t MAX_BUFFER = 2048;
+constexpr const char* BUNDLE_NAME_KEY = "bundleName";
+constexpr const char* DM_PKG_NAME = "ohos.distributedhardware.devicemanager";
+constexpr const char* ACTION_CHOOSE = "ohos.want.action.select";
+constexpr const char* HIGHEST_PRIORITY_ABILITY_ENTITY = "flag.home.intent.from.system";
+constexpr const char* DMS_API_VERSION = "dmsApiVersion";
+constexpr const char* DMS_IS_CALLER_BACKGROUND = "dmsIsCallerBackGround";
+constexpr const char* DMS_PROCESS_NAME = "distributedsched";
+constexpr const char* DMS_MISSION_ID = "dmsMissionId";
+constexpr const char* BOOTEVENT_APPFWK_READY = "bootevent.appfwk.ready";
+constexpr const char* BOOTEVENT_BOOT_COMPLETED = "bootevent.boot.completed";
+constexpr const char* BOOTEVENT_BOOT_ANIMATION_STARTED = "bootevent.bootanimation.started";
+constexpr const char* BOOTEVENT_BOOT_ANIMATION_READY = "bootevent.bootanimation.ready";
+constexpr const char* NEED_STARTINGWINDOW = "ohos.ability.NeedStartingWindow";
+constexpr const char* PERMISSIONMGR_BUNDLE_NAME = "com.ohos.permissionmanager";
+constexpr const char* PERMISSIONMGR_ABILITY_NAME = "com.ohos.permissionmanager.GrantAbility";
+constexpr const char* IS_CALL_BY_SCB = "isCallBySCB";
+constexpr const char* SPECIFY_TOKEN_ID = "specifyTokenId";
+constexpr const char* PROCESS_SUFFIX = "embeddable";
+constexpr int32_t DEFAULT_DMS_MISSION_ID = -1;
+constexpr const char* PARAM_PREVENT_STARTABILITY = "persist.sys.abilityms.prevent_startability";
+constexpr const char* SUSPEND_SERVICE_CONFIG_FILE = "/etc/efficiency_manager/prevent_startability_whitelist.json";
+constexpr int32_t MAX_BUFFER = 2048;
 nlohmann::json whiteListJsonObj;
-const int32_t API12 = 12;
-const int32_t API_VERSION_MOD = 100;
-const std::string WHITE_LIST = "white_list";
+constexpr int32_t API12 = 12;
+constexpr int32_t API_VERSION_MOD = 100;
+constexpr const char* WHITE_LIST = "white_list";
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("--all", KEY_DUMP_ALL),
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("-a", KEY_DUMP_ALL),
@@ -375,7 +378,7 @@ void AbilityManagerService::OnStart()
         return;
     }
 
-    SetParameter(BOOTEVENT_APPFWK_READY.c_str(), "true");
+    SetParameter(BOOTEVENT_APPFWK_READY, "true");
     AddSystemAbilityListener(BACKGROUND_TASK_MANAGER_SERVICE_ID);
     AddSystemAbilityListener(DISTRIBUTED_SCHED_SA_ID);
     AddSystemAbilityListener(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
@@ -479,11 +482,11 @@ void AbilityManagerService::InitPushTask()
     auto bootCompletedTask = [handler = taskHandler_]() {
         if (ApplicationUtil::IsBootCompleted()) {
             auto task = []() {
-                ApplicationUtil::AppFwkBootEventCallback(BOOTEVENT_BOOT_COMPLETED.c_str(), "true", nullptr);
+                ApplicationUtil::AppFwkBootEventCallback(BOOTEVENT_BOOT_COMPLETED, "true", nullptr);
             };
             handler->SubmitTask(task, "BootCompletedDelayTask", BOOTEVENT_COMPLETED_DELAY_TIME);
         } else {
-            WatchParameter(BOOTEVENT_BOOT_COMPLETED.c_str(), ApplicationUtil::AppFwkBootEventCallback, nullptr);
+            WatchParameter(BOOTEVENT_BOOT_COMPLETED, ApplicationUtil::AppFwkBootEventCallback, nullptr);
         }
     };
     if (!ParseJsonFromBoot(whiteListJsonObj, SUSPEND_SERVICE_CONFIG_FILE, WHITE_LIST)) {
@@ -3422,7 +3425,7 @@ bool AbilityManagerService::GetLocalDeviceId(std::string& localDeviceId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto localNode = std::make_unique<NodeBasicInfo>();
-    int32_t errCode = GetLocalNodeDeviceInfo(DM_PKG_NAME.c_str(), localNode.get());
+    int32_t errCode = GetLocalNodeDeviceInfo(DM_PKG_NAME, localNode.get());
     if (errCode != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerService::GetLocalNodeDeviceInfo errCode = %{public}d", errCode);
         return false;
@@ -10309,15 +10312,15 @@ bool AbilityManagerService::CheckCallerIsDmsProcess()
 void AbilityManagerService::WaitBootAnimationStart()
 {
     char value[BOOTEVENT_BOOT_ANIMATION_READY_SIZE] = "";
-    int32_t ret = GetParameter(BOOTEVENT_BOOT_ANIMATION_READY.c_str(), "", value,
+    int32_t ret = GetParameter(BOOTEVENT_BOOT_ANIMATION_READY, "", value,
         BOOTEVENT_BOOT_ANIMATION_READY_SIZE);
     if (ret > 0 && !std::strcmp(value, "false")) {
         // Get new param success and new param is not ready, wait the new param.
-        WaitParameter(BOOTEVENT_BOOT_ANIMATION_READY.c_str(), "true",
+        WaitParameter(BOOTEVENT_BOOT_ANIMATION_READY, "true",
             AmsConfigurationParameter::GetInstance().GetBootAnimationTimeoutTime());
     } else if (ret <= 0 || !std::strcmp(value, "")) {
         // Get new param failed or new param is not set, wait the old param.
-        WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true",
+        WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED, "true",
             AmsConfigurationParameter::GetInstance().GetBootAnimationTimeoutTime());
     }
     // other, the animation is ready, not wait.
