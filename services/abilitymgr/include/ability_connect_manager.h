@@ -127,6 +127,13 @@ public:
     int UnloadUIExtensionAbility(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord, std::string &bundleName);
 
     /**
+     * ClearPreloadUIExtensionRecord, clear preload uiextension record.
+     *
+     * @param abilityRecord, uiextension ability record.
+     */
+    void ClearPreloadUIExtensionRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    
+    /**
      * DisconnectAbilityLocked, disconnect session with callback.
      *
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
