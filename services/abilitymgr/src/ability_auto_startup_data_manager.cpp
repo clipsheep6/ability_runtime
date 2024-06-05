@@ -409,8 +409,8 @@ AutoStartupInfo AbilityAutoStartupDataManager::ConvertAutoStartupInfoFromKeyAndV
         info.abilityName = jsonObject.at(JSON_KEY_ABILITY_NAME).get<std::string>();
     }
 
-    if (jsonObject.contains(JSON_KEY_APP_CLONE_INDEX) && jsonObject[JSON_KEY_APP_CLONE_INDEX].is_string()) {
-        info.appCloneIndex = jsonObject.at(JSON_KEY_APP_CLONE_INDEX).get<std::int32_t>();
+    if (jsonObject.contains(JSON_KEY_APP_CLONE_INDEX) && jsonObject[JSON_KEY_APP_CLONE_INDEX].is_number()) {
+        info.appCloneIndex = jsonObject.at(JSON_KEY_APP_CLONE_INDEX).get<int32_t>();
     }
 
     if (jsonObject.contains(JSON_KEY_ACCESS_TOKENID) && jsonObject[JSON_KEY_ACCESS_TOKENID].is_string()) {
@@ -462,8 +462,8 @@ bool AbilityAutoStartupDataManager::IsEqual(const DistributedKv::Key &key, const
         }
     }
 
-    if (jsonObject.contains(JSON_KEY_APP_CLONE_INDEX) && jsonObject[JSON_KEY_APP_CLONE_INDEX].is_string()) {
-        if (info.appCloneIndex != jsonObject.at(JSON_KEY_APP_CLONE_INDEX).get<std::int32_t>()) {
+    if (jsonObject.contains(JSON_KEY_APP_CLONE_INDEX) && jsonObject[JSON_KEY_APP_CLONE_INDEX].is_number()) {
+        if (info.appCloneIndex != jsonObject.at(JSON_KEY_APP_CLONE_INDEX).get<int32_t>()) {
             return false;
         }
     }
