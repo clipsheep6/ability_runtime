@@ -1098,6 +1098,7 @@ ohos_shared_library("ui_extension_module") {
     "bundle_framework:appexecfwk_core",
     "hilog:libhilog",
     "napi:ace_napi",
+    "window_manager:libwm",
   ]
 
   relative_install_dir = "extensionability/"
@@ -1529,6 +1530,7 @@ ohos_shared_library("auto_fill_extension_module") {
     "bundle_framework:appexecfwk_core",
     "hilog:libhilog",
     "napi:ace_napi",
+    "window_manager:libwm",
   ]
 
   relative_install_dir = "extensionability/"
