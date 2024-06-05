@@ -4303,7 +4303,7 @@ HWTEST_F(AppMgrServiceInnerTest, SetSupportedProcessCacheSelf_001, TestSize.Leve
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     bool isSupported = false;
-    EXPECT_EQ(appMgrServiceInner->SetSupportedProcessCacheSelf(isSupported), CHECK_PERMISSION_FAILED);
+    EXPECT_EQ(appMgrServiceInner->SetSupportedProcessCacheSelf(isSupported), AAFwk::CHECK_PERMISSION_FAILED);
 
     appMgrServiceInner->appRunningManager_ = nullptr;
     EXPECT_EQ(appMgrServiceInner->SetSupportedProcessCacheSelf(isSupported), ERR_NO_INIT);

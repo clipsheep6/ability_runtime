@@ -145,7 +145,7 @@ ohos_shared_library("libappms") {
     deps += []
     external_deps += [
       "i18n:intl_util",
-      "window_manager:libwm",
+      "window_manager:libwm_lite",
       "window_manager:libwsutils",
     ]
   }

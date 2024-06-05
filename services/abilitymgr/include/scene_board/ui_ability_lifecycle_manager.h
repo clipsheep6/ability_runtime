@@ -28,6 +28,9 @@
 #include "isession_handler_interface.h"
 
 namespace OHOS {
+namespace AbilityRuntime {
+class IStatusBarDelegate;
+}
 namespace AAFwk {
 class SessionInfo;
 class StatusBarDelegateManager;
