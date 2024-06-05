@@ -89,8 +89,25 @@ inline bool IsSystemUIExtension(const AppExecFwk::ExtensionAbilityType type)
         AppExecFwk::ExtensionAbilityType::SYSPICKER_APPSELECTOR,
         AppExecFwk::ExtensionAbilityType::UI,
         AppExecFwk::ExtensionAbilityType::SYS_COMMON_UI,
+        AppExecFwk::ExtensionAbilityType::ADS,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_AUDIOPICKER,
+        AppExecFwk::ExtensionAbilityType::AUTO_FILL_PASSWORD,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_CAMERA,
+        AppExecFwk::ExtensionAbilityType::AUTO_FILL_SMART,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_FILEPICKER,
+        AppExecFwk::ExtensionAbilityType::SYSDIALOG_USERAUTH
     };
     return systemUiExtensionSet.find(type) != systemUiExtensionSet.end();
+}
+
+// In this collection, extension can be embedded by public app, which requires vertical businesses to ensure security.
+inline bool IsPublicCallerForNonModal(const AppExecFwk::ExtensionAbilityType type)
+{
+    const std::unordered_set<AppExecFwk::ExtensionAbilityType> callerPublicForNonModalSet = {
+        AppExecFwk::ExtensionAbilityType::EMBEDDED_UI, // EMBEDDED_UI usage within the app
+        AppExecFwk::ExtensionAbilityType::ADS
+    };
+    return callerPublicForNonModalSet.find(type) != callerPublicForNonModalSet.end();
 }
 
 inline bool IsEnterpriseAdmin(const AppExecFwk::ExtensionAbilityType type)

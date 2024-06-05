@@ -944,6 +944,10 @@ int AbilityManagerStub::StartUIExtensionAbilityInner(MessageParcel &data, Messag
     sptr<SessionInfo> extensionSessionInfo = nullptr;
     if (data.ReadBool()) {
         extensionSessionInfo = data.ReadParcelable<SessionInfo>();
+        if (extensionSessionInfo == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "read extensionSessionInfo failed.");
+            return ERR_NULL_OBJECT;
+        }
         extensionSessionInfo->isModal = true; // To ensure security, this attribute must be rewritten.
     }
 
@@ -959,6 +963,10 @@ int AbilityManagerStub::StartUIExtensionAbilityNonModalInner(MessageParcel &data
     sptr<SessionInfo> extensionSessionInfo = nullptr;
     if (data.ReadBool()) {
         extensionSessionInfo = data.ReadParcelable<SessionInfo>();
+        if (extensionSessionInfo == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "read extensionSessionInfo failed.");
+            return ERR_NULL_OBJECT;
+        }
         extensionSessionInfo->isModal = false; // To ensure security, this attribute must be rewritten.
     }
 
