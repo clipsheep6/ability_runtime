@@ -1086,7 +1086,7 @@ napi_value JsApplicationContextUtils::OnOn(napi_env env, NapiCallbackInfo& info)
         return OnOnApplicationStateChange(env, info);
     }
     TAG_LOGE(AAFwkTag::APPKIT, "on function type not match.");
-    AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    ThrowInvalidParamError(env, "Parse param callback failed, callback must be function.");
     return CreateJsUndefined(env);
 }
 
@@ -1141,7 +1141,7 @@ napi_value JsApplicationContextUtils::OnOff(napi_env env, NapiCallbackInfo& info
         return OnOffEnvironmentEventSync(env, info, callbackId);
     }
     TAG_LOGE(AAFwkTag::APPKIT, "off function type not match.");
-    AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    ThrowInvalidParamError(env, "Parse param callback failed, callback must be function.");
     return CreateJsUndefined(env);
 }
 
@@ -1357,7 +1357,8 @@ napi_value JsApplicationContextUtils::OnOffApplicationStateChange(
     std::lock_guard<std::mutex> lock(applicationStateCallbackLock_);
     if (applicationStateCallback_ == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "ApplicationStateCallback_ is nullptr.");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env,
+            "Parse applicationStateCallback failed, applicationStateCallback must be function.");
         return CreateJsUndefined(env);
     }
 
@@ -1365,7 +1366,7 @@ napi_value JsApplicationContextUtils::OnOffApplicationStateChange(
         applicationStateCallback_->UnRegister();
     } else if (!applicationStateCallback_->UnRegister(info.argv[INDEX_ONE])) {
         TAG_LOGE(AAFwkTag::APPKIT, "call UnRegister failed!");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param call UnRegister failed, call UnRegister must be function.");
         return CreateJsUndefined(env);
     }
 
