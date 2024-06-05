@@ -292,10 +292,7 @@ ohos_source_set("abilityms_test_source") {
       "${ability_runtime_services_path}/abilitymgr/src/system_dialog_scheduler.cpp",
       "${ability_runtime_services_path}/appdfr/src/application_anr_listener.cpp",
     ]
-    deps += [
-      "${ace_engine_path}/interfaces/inner_api/ui_service_manager:ui_service_mgr",
-      "//third_party/libjpeg-turbo:turbojpeg_static",
-    ]
+    deps += [ "//third_party/libjpeg-turbo:turbojpeg_static" ]
     external_deps += [
       "i18n:intl_util",
       "icu:shared_icuuc",
