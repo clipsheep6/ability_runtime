@@ -362,23 +362,7 @@ void ExtensionAbilityThread::HandleCommandExtensionWindow(
 void ExtensionAbilityThread::ScheduleUpdateConfiguration(const AppExecFwk::Configuration &config)
 {
     TAG_LOGD(AAFwkTag::EXT, "Begin.");
-    if (abilityHandler_ == nullptr) {
-        TAG_LOGE(AAFwkTag::EXT, "abilityHandler_ is nullptr.");
-        return;
-    }
-    wptr<ExtensionAbilityThread> weak = this;
-    auto task = [weak, config]() {
-        auto abilityThread = weak.promote();
-        if (abilityThread == nullptr) {
-            TAG_LOGE(AAFwkTag::EXT, "Ability thread is nullptr.");
-            return;
-        }
-        abilityThread->HandleExtensionUpdateConfiguration(config);
-    };
-    bool ret = abilityHandler_->PostTask(task);
-    if (!ret) {
-        TAG_LOGE(AAFwkTag::EXT, "PostTask error");
-    }
+    HandleExtensionUpdateConfiguration(config);
     TAG_LOGD(AAFwkTag::EXT, "End.");
 }
 
