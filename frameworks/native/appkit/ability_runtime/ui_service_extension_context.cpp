@@ -61,9 +61,9 @@ ErrCode UIServiceExtensionContext::TerminateSelf()
 
 sptr<Rosen::Window> UIServiceExtensionContext::GetWindow()
 {
-    std::shared_ptr<UIServiceExtension> uiServiceExtension_ = std::make_shared<UIServiceExtension>();
-    auto scence = uiServiceExtension_->GetScene();
-    window_ = scence->GetMainWindow();
+    // std::shared_ptr<UIServiceExtension> uiServiceExtension_ = std::make_shared<UIServiceExtension>();
+    // auto scence = uiServiceExtension_->GetScene();
+    // window_ = scence->GetMainWindow();
     return window_;
 }
 
