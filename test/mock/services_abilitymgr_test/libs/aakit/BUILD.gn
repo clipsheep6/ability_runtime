@@ -27,6 +27,13 @@ config("aakit_mock_config") {
 }
 
 ohos_static_library("aakit_mock") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+
   sources = [
     "src/ability_scheduler.cpp",
     "src/mock_ability_connect_callback.cpp",

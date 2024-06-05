@@ -310,7 +310,7 @@ napi_value JSAbilityDelegator::OnAddAbilityStageMonitor(napi_env env, NapiCallba
     if (!ParseAbilityStageMonitorPara(env, info, monitor, isExisted, false)) {
         TAG_LOGE(AAFwkTag::DELEGATOR, "Parse addAbilityStageMonitor parameters failed");
         return ThrowJsError(env, INCORRECT_PARAMETERS,
-            "Parse param parameters, failed, monitor must be Monitor and isExited must be boolean.");
+            "Parse parameters failed, monitor must be Monitor and isExited must be boolean.");
     }
 
     NapiAsyncTask::CompleteCallback complete = [monitor](napi_env env, NapiAsyncTask &task, int32_t status) {
@@ -344,7 +344,7 @@ napi_value JSAbilityDelegator::OnAddAbilityStageMonitorSync(napi_env env, NapiCa
     if (!ParseAbilityStageMonitorPara(env, info, monitor, isExisted, true)) {
         TAG_LOGE(AAFwkTag::DELEGATOR, "Parse addAbilityStageMonitorSync parameters failed");
         return ThrowJsError(env, INCORRECT_PARAMETERS,
-            "Parse param monitor, failed, monitor must be Monitor.");
+            "Parse param monitor failed, monitor must be Monitor.");
     }
     auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
     if (!delegator) {
@@ -774,7 +774,7 @@ napi_value JSAbilityDelegator::OnGetCurrentTopAbility(napi_env env, NapiCallback
 
     if (info.argc >= ARGC_ONE && !AppExecFwk::IsTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_function)) {
         TAG_LOGE(AAFwkTag::DELEGATOR, "Parse getCurrentTopAbility parameter failed");
-        return ThrowJsError(env, INCORRECT_PARAMETERS, "Parse callback failed, callback must be funcation");
+        return ThrowJsError(env, INCORRECT_PARAMETERS, "Parse callback failed, callback must be function");
     }
 
     NapiAsyncTask::CompleteCallback complete = [this](napi_env env, NapiAsyncTask &task, int32_t status) {

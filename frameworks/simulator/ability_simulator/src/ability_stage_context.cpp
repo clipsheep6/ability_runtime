@@ -34,7 +34,7 @@ constexpr const char *CONTEXT_TEMP("temp");
 constexpr const char *CONTEXT_FILES("files");
 constexpr const char *CONTEXT_HAPS("haps");
 constexpr const char *CONTEXT_ASSET("asset");
-constexpr const char *CONTEXT_ELS[] = {"el1", "el2", "el3", "el4"};
+constexpr const char *CONTEXT_ELS[] = {"el1", "el2", "el3", "el4", "el5"};
 constexpr const char *CONTEXT_RESOURCE_BASE("/data/storage/el1/bundle");
 constexpr const char *CONTEXT_RESOURCE_END("/resources/resfile");
 constexpr int DIR_DEFAULT_PERM = 0770;

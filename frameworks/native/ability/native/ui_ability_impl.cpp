@@ -324,10 +324,9 @@ void UIAbilityImpl::ScheduleUpdateConfiguration(const AppExecFwk::Configuration 
         return;
     }
 
-    if (lifecycleState_ != AAFwk::ABILITY_STATE_INITIAL) {
-        TAG_LOGD(AAFwkTag::UIABILITY, "Ability name: [%{public}s].", ability_->GetAbilityName().c_str());
-        ability_->OnConfigurationUpdatedNotify(config);
-    }
+    TAG_LOGD(AAFwkTag::UIABILITY, "Ability name: [%{public}s].", ability_->GetAbilityName().c_str());
+    ability_->OnConfigurationUpdatedNotify(config);
+
     TAG_LOGD(AAFwkTag::UIABILITY, "End.");
 }
 

@@ -281,6 +281,47 @@ HWTEST_F(ContextImplTest, GetDatabaseDir_0200, TestSize.Level1)
 }
 
 /**
+ * @tc.name: GetDatabaseDir_0300
+ * @tc.desc: Get el5 base directory basic test.
+ * @tc.type: FUNC
+ * @tc.require: issuesI9SXYW
+ */
+HWTEST_F(ContextImplTest, GetDatabaseDir_0300, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    // not create by system app and parent context is nullptr
+    contextImpl->SwitchArea(4);
+    auto databaseDir = contextImpl->GetDatabaseDir();
+    EXPECT_EQ(databaseDir, "/data/storage/el5/database");
+
+    // create by system app and parent context is not nullptr
+    contextImpl->SetFlags(CONTEXT_CREATE_BY_SYSTEM_APP);
+    auto parentContext = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(parentContext, nullptr);
+    auto applicationInfo = std::make_shared<AppExecFwk::ApplicationInfo>();
+    EXPECT_NE(applicationInfo, nullptr);
+    applicationInfo->bundleName = "com.test.database";
+    parentContext->SetApplicationInfo(applicationInfo);
+    contextImpl->SetParentContext(parentContext);
+    contextImpl->SwitchArea(4);
+    databaseDir = contextImpl->GetDatabaseDir();
+    EXPECT_EQ(databaseDir, "/data/app/el5/0/database/com.test.database/");
+
+    // create by system app and hap module info of parent context is not nullptr
+    AppExecFwk::HapModuleInfo hapModuleInfo;
+    hapModuleInfo.moduleName = "test_moduleName";
+    contextImpl->InitHapModuleInfo(hapModuleInfo);
+    contextImpl->SwitchArea(4);
+    databaseDir = contextImpl->GetDatabaseDir();
+    EXPECT_EQ(databaseDir, "/data/app/el5/0/database/com.test.database/test_moduleName");
+
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
+
+/**
  * @tc.name: GetPreferencesDir_0100
  * @tc.desc: Get preference directory basic test.
  * @tc.type: FUNC
@@ -404,6 +445,11 @@ HWTEST_F(ContextImplTest, GetDistributedFilesDir_0100, TestSize.Level1)
     distributedDir = contextImpl->GetDistributedFilesDir();
     EXPECT_EQ(distributedDir, "/data/storage/el2/distributedfiles");
 
+    //for areamode is el5, the distributedfiles dir is also el2's distributedfiles dir
+    contextImpl->SwitchArea(4);
+    distributedDir = contextImpl->GetDistributedFilesDir();
+    EXPECT_EQ(distributedDir, "/data/storage/el2/distributedfiles");
+
     // create by system app and bundleName is empty
     contextImpl->SetFlags(CONTEXT_CREATE_BY_SYSTEM_APP);
     distributedDir = contextImpl->GetDistributedFilesDir();
@@ -482,7 +528,7 @@ HWTEST_F(ContextImplTest, SwitchArea_0100, TestSize.Level1)
 
     // invalid mode
     contextImpl->SwitchArea(-1);
-    contextImpl->SwitchArea(4);
+    contextImpl->SwitchArea(5);
 
     // valid mode
     contextImpl->SwitchArea(0);
@@ -518,6 +564,10 @@ HWTEST_F(ContextImplTest, GetAreaArea_0100, TestSize.Level1)
     contextImpl->SwitchArea(3);
     mode = contextImpl->GetArea();
     EXPECT_EQ(mode, 3);
+
+    contextImpl->SwitchArea(4);
+    mode = contextImpl->GetArea();
+    EXPECT_EQ(mode, 4);
 
     // invalid area_
     contextImpl->currArea_ = "invalid";

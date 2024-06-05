@@ -503,7 +503,7 @@ bool DistributedClient::WriteInfosToParcel(MessageParcel& data, const OHOS::AAFw
     const sptr<IRemoteObject>& connect)
 {
     int32_t callerUid = IPCSkeleton::GetCallingUid();
-    int32_t callerPid = IPCSkeleton::GetCallingRealPid();
+    int32_t callerPid = IPCSkeleton::GetCallingPid();
     uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
     if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
         return false;

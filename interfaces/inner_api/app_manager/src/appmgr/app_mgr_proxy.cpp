@@ -256,6 +256,10 @@ int32_t AppMgrProxy::GetRunningMultiAppInfoByBundleName(const std::string &bundl
         return ret;
     }
     std::unique_ptr<RunningMultiAppInfo> infoReply(reply.ReadParcelable<RunningMultiAppInfo>());
+    if (infoReply == nullptr) {
+        TAG_LOGW(AAFwkTag::APPMGR, "reply ReadParcelable is nullptr");
+        return ERR_NULL_OBJECT;
+    }
     info = *infoReply;
     int result = reply.ReadInt32();
     return result;
@@ -362,6 +366,10 @@ int32_t AppMgrProxy::GetProcessRunningInformation(RunningProcessInfo &info)
         return ERR_NULL_OBJECT;
     }
     std::unique_ptr<RunningProcessInfo> infoReply(reply.ReadParcelable<RunningProcessInfo>());
+    if (infoReply == nullptr) {
+        TAG_LOGW(AAFwkTag::APPMGR, "reply ReadParcelable is nullptr");
+        return ERR_NULL_OBJECT;
+    }
     info = *infoReply;
     return reply.ReadInt32();
 }

@@ -23,17 +23,12 @@
 #include <sstream>
 #include <unistd.h>
 
-#include "js_env_logger.h"
+#include "hilog_tag_wrapper.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace JsEnv {
 namespace {
-constexpr char SOURCES[] = "sources";
-constexpr char NAMES[] = "names";
-constexpr char MAPPINGS[] = "mappings";
-constexpr char FILE[] = "file";
-constexpr char SOURCE_CONTENT[] = "sourceContent";
-constexpr char SOURCE_ROOT[] = "sourceRoot";
 constexpr char DELIMITER_COMMA = ',';
 constexpr char DELIMITER_SEMICOLON = ';';
 constexpr char DOUBLE_SLASH = '\\';
@@ -48,6 +43,13 @@ constexpr int32_t NUM_TWENTY = 20;
 constexpr int32_t NUM_TWENTYSIX = 26;
 constexpr int32_t DIGIT_NUM = 64;
 const std::string MEGER_SOURCE_MAP_PATH = "ets/sourceMaps.map";
+const std::string FLAG_SOURCES = "    \"sources\":";
+const std::string FLAG_MAPPINGS = "    \"mappings\": \"";
+const std::string FLAG_END = "  }";
+static constexpr size_t FLAG_MAPPINGS_LEN = 17;
+static constexpr size_t REAL_SOURCE_SIZE = 7;
+static constexpr size_t REAL_URL_INDEX = 3;
+static constexpr size_t REAL_SOURCE_INDEX = 7;
 } // namespace
 ReadSourceMapCallback SourceMap::readSourceMapFunc_ = nullptr;
 GetHapPathCallback SourceMap::getHapPathFunc_ = nullptr;
@@ -85,6 +87,12 @@ uint32_t Base64CharToInt(char charCode)
     }
     return DIGIT_NUM;
 };
+
+bool StringStartWith(const std::string& str, const std::string& startStr)
+{
+    size_t startStrLen = startStr.length();
+    return ((str.length() >= startStrLen) && (str.compare(0, startStrLen, startStr) == 0));
+}
 
 void SourceMap::Init(bool isModular, const std::string& hapPath)
 {
@@ -146,7 +154,7 @@ std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
         std::string column;
         GetPosInfo(temp, closeBracePos, line, column);
         if (line.empty() || column.empty()) {
-            JSENV_LOG_W("the stack without line info");
+            TAG_LOGW(AAFwkTag::JSENV, "the stack without line info");
             break;
         }
         std::string sourceInfo;
@@ -162,7 +170,7 @@ std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
             std::string url = key + ".js.map";
             std::string curSourceMap;
             if (!ReadSourceMapData(hapPath_, url, curSourceMap)) {
-                JSENV_LOG_W("ReadSourceMapData fail");
+                TAG_LOGW(AAFwkTag::JSENV, "ReadSourceMapData fail");
                 continue;
             }
             ExtractSourceMapData(curSourceMap, nonModularMap_);
@@ -191,23 +199,48 @@ void SourceMap::SplitSourceMap(const std::string& sourceMapData)
         return ExtractSourceMapData(sourceMapData, nonModularMap_);
     }
 
-    size_t leftBracket = 0;
-    size_t rightBracket = 0;
-    size_t urlLeft = 0;
-    size_t urlRight = 0;
-    while ((leftBracket = sourceMapData.find(": {", rightBracket)) != std::string::npos) {
-        urlLeft = leftBracket;
-        urlRight = sourceMapData.find("  \"", rightBracket) + INDEX_THREE;
-        if (urlRight == std::string::npos) {
+    std::stringstream ss(sourceMapData);
+    std::string tmp;
+    std::string url;
+
+    std::getline(ss, tmp);
+    bool isUrl = true;
+    while (std::getline(ss, tmp)) {
+        if (isUrl && tmp.size() > REAL_SOURCE_SIZE) {
+            url = tmp.substr(REAL_URL_INDEX, tmp.size() - REAL_SOURCE_SIZE);
+            isUrl = false;
             continue;
         }
-        std::string key = sourceMapData.substr(urlRight, urlLeft - urlRight - INDEX_ONE);
-        rightBracket = sourceMapData.find("},", leftBracket);
-        std::string value = sourceMapData.substr(leftBracket, rightBracket);
-        std::shared_ptr<SourceMapData> modularMap = std::make_shared<SourceMapData>();
-        ExtractSourceMapData(value, modularMap);
-        sourceMaps_[key] = modularMap;
+        if (StringStartWith(tmp.c_str(), FLAG_SOURCES)) {
+            std::getline(ss, tmp);
+            sources_.emplace(url, tmp);
+            continue;
+        }
+        if (StringStartWith(tmp.c_str(), FLAG_MAPPINGS)) {
+            mappings_.emplace(url, tmp);
+            continue;
+        }
+        if (StringStartWith(tmp.c_str(), FLAG_END)) {
+            isUrl = true;
+        }
     }
+    std::shared_ptr<SourceMapData> modularMap = std::make_shared<SourceMapData>();
+    for (auto it = sources_.begin(); it != sources_.end(); ++it) {
+        std::string mappings = mappings_[it->first];
+        if (mappings.size() < FLAG_MAPPINGS_LEN + 1) {
+            TAG_LOGE(AAFwkTag::JSENV, "Translate failed, url: %{public}s", it->first.c_str());
+            continue;
+        }
+        ExtractSourceMapData(mappings.substr(FLAG_MAPPINGS_LEN, mappings.size() - FLAG_MAPPINGS_LEN - 1), modularMap);
+        if (modularMap == nullptr) {
+            TAG_LOGE(AAFwkTag::JSENV, "Extract mappings failed, url: %{public}s", it->first.c_str());
+            continue;
+        }
+        modularMap->sources_.push_back(it->second);
+        sourceMaps_[it->first] = modularMap;
+    }
+    mappings_.clear();
+    sources_.clear();
 }
 
 void SourceMap::ExtractStackInfo(const std::string& stackStr, std::vector<std::string>& res)
@@ -219,37 +252,9 @@ void SourceMap::ExtractStackInfo(const std::string& stackStr, std::vector<std::s
     }
 }
 
-void SourceMap::ExtractSourceMapData(const std::string& sourceMapData, std::shared_ptr<SourceMapData>& curMapData)
+void SourceMap::ExtractSourceMapData(const std::string& allmappings, std::shared_ptr<SourceMapData>& curMapData)
 {
-    std::vector<std::string> sourceKey;
-    ExtractKeyInfo(sourceMapData, sourceKey);
-
-    std::string mark = "";
-    for (auto sourceKeyInfo : sourceKey) {
-        if (sourceKeyInfo == SOURCES || sourceKeyInfo == NAMES ||
-            sourceKeyInfo == MAPPINGS || sourceKeyInfo == FILE ||
-            sourceKeyInfo == SOURCE_CONTENT ||  sourceKeyInfo == SOURCE_ROOT) {
-            mark = sourceKeyInfo;
-        } else if (mark == SOURCES) {
-            curMapData->sources_.push_back(sourceKeyInfo);
-        } else if (mark == NAMES) {
-            curMapData->names_.push_back(sourceKeyInfo);
-        } else if (mark == MAPPINGS) {
-            curMapData->mappings_.push_back(sourceKeyInfo);
-        } else if (mark == FILE) {
-            curMapData->files_.push_back(sourceKeyInfo);
-        } else {
-            continue;
-        }
-    }
-
-    if (curMapData->mappings_.empty()) {
-        return;
-    }
-
-    // transform to vector for mapping easily
-    curMapData->mappings_ = HandleMappings(curMapData->mappings_[0]);
-
+    curMapData->mappings_ = HandleMappings(allmappings);
     // the first bit: the column after transferring.
     // the second bit: the source file.
     // the third bit: the row before transferring.
@@ -265,11 +270,11 @@ void SourceMap::ExtractSourceMapData(const std::string& sourceMapData, std::shar
         std::vector<int32_t> ans;
 
         if (!VlqRevCode(mapping, ans)) {
-            JSENV_LOG_E("decode code fail");
+            TAG_LOGE(AAFwkTag::JSENV, "decode code fail");
             return;
         }
         if (ans.empty()) {
-            JSENV_LOG_E("decode sourcemap fail, mapping: %{public}s", mapping.c_str());
+            TAG_LOGE(AAFwkTag::JSENV, "decode sourcemap fail, mapping: %{public}s", mapping.c_str());
             break;
         }
         if (ans.size() == 1) {
@@ -295,8 +300,6 @@ void SourceMap::ExtractSourceMapData(const std::string& sourceMapData, std::shar
     }
     curMapData->mappings_.clear();
     curMapData->mappings_.shrink_to_fit();
-    sourceKey.clear();
-    sourceKey.shrink_to_fit();
 }
 
 MappingInfo SourceMap::Find(int32_t row, int32_t col, const SourceMapData& targetMap)
@@ -310,8 +313,10 @@ MappingInfo SourceMap::Find(int32_t row, int32_t col, const SourceMapData& targe
     int32_t left = 0;
     int32_t right = static_cast<int32_t>(targetMap.afterPos_.size()) - 1;
     int32_t res = 0;
+    std::string sources = targetMap.sources_[0].substr(REAL_SOURCE_INDEX,
+                                                       targetMap.sources_[0].size() - REAL_SOURCE_SIZE - 1);
     if (row > targetMap.afterPos_[targetMap.afterPos_.size() - 1].afterRow) {
-        return MappingInfo { row + 1, col + 1, targetMap.sources_[0] };
+        return MappingInfo { row + 1, col + 1, sources };
     }
     while (right - left >= 0) {
         int32_t mid = (right + left) / 2;
@@ -323,7 +328,6 @@ MappingInfo SourceMap::Find(int32_t row, int32_t col, const SourceMapData& targe
             left = mid + 1;
         }
     }
-    std::string sources = targetMap.sources_[0];
     auto pos = sources.find(WEBPACK);
     if (pos != std::string::npos) {
         sources.replace(pos, sizeof(WEBPACK) - 1, "");
@@ -525,7 +529,7 @@ bool SourceMap::TranslateUrlPositionBySourceMap(std::string& url, int& line, int
         if (iter != sourceMaps_.end()) {
             return GetLineAndColumnNumbers(line, column, *(iter->second), url);
         }
-        JSENV_LOG_E("TranslateUrlPositionBySourceMap: stageMode sourceMaps find fail");
+        TAG_LOGE(AAFwkTag::JSENV, "TranslateUrlPositionBySourceMap: stageMode sourceMaps find fail");
         return false;
     }
     return false;

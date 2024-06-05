@@ -57,6 +57,7 @@
 #include "freeze_util.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "resource_config_helper.h"
 #ifdef SUPPORT_SCREEN
 #include "locale_config.h"
 #include "ace_forward_compatibility.h"
@@ -643,16 +644,7 @@ void MainThread::ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
         return;
     }
     if (info.needSnapshot == true) {
-        std::vector<uint32_t> fdVec;
-        for (auto &fd : info.fdVec) {
-            uint32_t newFd = dup(fd);
-            if (newFd == -1) {
-                TAG_LOGE(AAFwkTag::APPKIT, "dup failed.");
-                return;
-            }
-            fdVec.push_back(newFd);
-        }
-        runtime->DumpHeapSnapshot(info.tid, info.needGc, fdVec, info.tidVec);
+        runtime->DumpHeapSnapshot(info.tid, info.needGc);
     } else {
         if (info.needGc == true) {
             runtime->ForceFullGC(info.tid);
@@ -1110,6 +1102,21 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     TAG_LOGD(AAFwkTag::APPKIT, "deviceType is %{public}s <---->  %{public}d.", deviceType.c_str(),
         ConvertDeviceType(deviceType));
     resConfig->SetDeviceType(ConvertDeviceType(deviceType));
+
+    std::string mcc = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MCC);
+    TAG_LOGD(AAFwkTag::APPKIT, "mcc is %{public}s.", mcc.c_str());
+    uint32_t mccNum = 0;
+    if (AbilityRuntime::ResourceConfigHelper::ConvertStringToUint32(mcc, mccNum)) {
+        resConfig->SetMcc(mccNum);
+    }
+
+    std::string mnc = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MNC);
+    TAG_LOGD(AAFwkTag::APPKIT, "mnc is %{public}s.", mnc.c_str());
+    uint32_t mncNum = 0;
+    if (AbilityRuntime::ResourceConfigHelper::ConvertStringToUint32(mnc, mncNum)) {
+        resConfig->SetMnc(mncNum);
+    }
+
     resourceManager->UpdateResConfig(*resConfig);
     return true;
 }
@@ -3314,6 +3321,53 @@ int32_t MainThread::ScheduleDumpFfrt(std::string& result)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ScheduleDumpFfrt::pid:%{public}d", getprocpid());
     return DumpFfrtHelper::DumpFfrt(result);
+}
+
+/**
+ *
+ * @brief Notify application to prepare for process caching.
+ *
+ */
+void MainThread::ScheduleCacheProcess()
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "ScheduleCacheProcess");
+    wptr<MainThread> weak = this;
+    auto task = [weak]() {
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            TAG_LOGE(AAFwkTag::APPKIT, "appThread is nullptr");
+            return;
+        }
+        appThread->HandleCacheProcess();
+    };
+    if (mainHandler_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "handler nullptr");
+        return;
+    }
+    if (!mainHandler_->PostTask(task, "MainThread:ScheduleCacheProcess")) {
+        TAG_LOGE(AAFwkTag::APPKIT, "PostTask task failed");
+    }
+}
+
+/**
+ *
+ * @brief Notify application to prepare for process caching.
+ *
+ */
+void MainThread::HandleCacheProcess()
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::APPKIT, "start.");
+
+    // force gc
+    if (application_ != nullptr) {
+        auto &runtime = application_->GetRuntime();
+        if (runtime == nullptr) {
+            TAG_LOGE(AAFwkTag::APPKIT, "runtime nullptr");
+            return;
+        }
+        runtime->ForceFullGC();
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

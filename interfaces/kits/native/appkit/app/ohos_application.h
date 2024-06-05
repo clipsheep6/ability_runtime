@@ -176,6 +176,14 @@ public:
      * @param config Indicates the new Configuration object.
      */
     virtual void OnConfigurationUpdated(Configuration config);
+    
+    /**
+     *
+     * @brief Will be Called when the application font of the device changes.
+     *
+     * @param config Indicates the new Configuration object.
+     */
+    virtual void OnFontUpdated(Configuration config);
 
     /**
      *

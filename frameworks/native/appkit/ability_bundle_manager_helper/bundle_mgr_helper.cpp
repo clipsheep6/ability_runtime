@@ -644,8 +644,10 @@ bool BundleMgrHelper::ImplicitQueryInfos(const Want &want, int32_t flags, int32_
     newWant.RemoveAllFd();
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     bool findDefaultApp = false;
-    return bundleMgr->ImplicitQueryInfos(newWant, flags, userId, withDefault, abilityInfos, extensionInfos,
-        findDefaultApp);
+    bool ret = bundleMgr->ImplicitQueryInfos(newWant, flags, userId, withDefault, abilityInfos,
+        extensionInfos, findDefaultApp);
+    TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "findDefaultApp is %{public}d.", findDefaultApp);
+    return ret;
 }
 
 bool BundleMgrHelper::CleanBundleDataFiles(const std::string &bundleName, const int32_t userId)

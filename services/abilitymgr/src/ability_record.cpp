@@ -26,6 +26,7 @@
 #include "ability_resident_process_rdb.h"
 #include "ability_scheduler_stub.h"
 #include "ability_util.h"
+#include "app_exit_reason_data_manager.h"
 #include "app_utils.h"
 #include "appfreeze_manager.h"
 #include "array_wrapper.h"
@@ -33,6 +34,9 @@
 #include "bundle_mgr_client.h"
 #include "configuration_convertor.h"
 #include "connection_state_manager.h"
+#include "common_event_data.h"
+#include "common_event_manager.h"
+#include "common_event_support.h"
 #include "freeze_util.h"
 #include "global_constant.h"
 #include "hitrace_meter.h"
@@ -1267,6 +1271,12 @@ int AbilityRecord::TerminateAbility()
     AAFwk::EventInfo eventInfo;
     eventInfo.bundleName = GetAbilityInfo().bundleName;
     eventInfo.abilityName = GetAbilityInfo().name;
+    if (clearMissionFlag_) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "deleteAbilityRecoverInfo before clearMission.");
+        (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
+            DeleteAbilityRecoverInfo(GetAbilityInfo().applicationInfo.accessTokenId, GetAbilityInfo().moduleName,
+            GetAbilityInfo().name);
+    }
     AAFwk::EventReport::SendAbilityEvent(AAFwk::EventName::TERMINATE_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
     eventInfo.errCode = DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(token_, clearMissionFlag_);
     if (eventInfo.errCode != ERR_OK) {
@@ -1436,7 +1446,7 @@ void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
         if (IsSceneBoard()) {
             TAG_LOGI(AAFwkTag::ABILITYMGR, "Sceneboard DeathRecipient Added");
         }
-        pid_ = static_cast<int32_t>(IPCSkeleton::GetCallingRealPid()); // set pid when ability attach to service.
+        pid_ = static_cast<int32_t>(IPCSkeleton::GetCallingPid()); // set pid when ability attach to service.
         // add collaborator mission bind pid
         NotifyMissionBindPid();
         HandleDlpAttached();
@@ -3049,6 +3059,28 @@ bool AbilityRecord::GetUriListFromWant(Want &want, std::vector<std::string> &uri
     return true;
 }
 
+void AbilityRecord::PublishFileOpenEvent(const Want &want)
+{
+    auto wangUri = want.GetUri();
+    std::string uriStr = wangUri.ToString();
+    if (!uriStr.empty() && wangUri.GetScheme() == "file") {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "ability record, file uri: %{private}s, isGranted: %{public}d",
+            uriStr.c_str(), isGrantedUriPermission_);
+        Want msgWant;
+        msgWant.SetAction("file.event.OPEN_TIME");
+        msgWant.SetParam("uri", uriStr);
+        auto timeNow = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count();
+        std::string currentTime = std::to_string(timeNow);
+        msgWant.SetParam("viewTime", currentTime);
+        EventFwk::CommonEventData commonData{msgWant};
+        EventFwk::CommonEventPublishInfo commonEventPublishInfo;
+        std::vector<std::string> subscriberPermissions = {"ohos.permission.MANAGE_LOCAL_ACCOUNTS"};
+        commonEventPublishInfo.SetSubscriberPermissions(subscriberPermissions);
+        EventFwk::CommonEventManager::PublishCommonEvent(commonData, commonEventPublishInfo);
+    }
+}
+
 void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName, bool isSandboxApp, uint32_t tokenId)
 {
     // reject sandbox to grant uri permission by start ability
@@ -3089,6 +3121,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         return;
     }
     GrantUriPermissionInner(want, uriVec, targetBundleName, tokenId);
+    PublishFileOpenEvent(want);
 }
 
 void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string> &uriVec,

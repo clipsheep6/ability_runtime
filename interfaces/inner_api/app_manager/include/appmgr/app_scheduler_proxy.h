@@ -232,6 +232,8 @@ public:
      */
     virtual int32_t ScheduleDumpFfrt(std::string& result) override;
 
+    virtual void ScheduleCacheProcess() override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     void ScheduleMemoryCommon(const int32_t level, const uint32_t operation);

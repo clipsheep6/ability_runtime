@@ -77,6 +77,7 @@ namespace AppExecFwk {
 using OHOS::AAFwk::Want;
 class WindowFocusChangedListener;
 class WindowVisibilityChangedListener;
+using LoabAbilityTaskFunc = std::function<void()>;
 
 class AppMgrServiceInner : public std::enable_shared_from_this<AppMgrServiceInner> {
 public:
@@ -1100,6 +1101,14 @@ public:
 
     bool IsAppProcessesAllCached(const std::string &bundleName, int32_t uid,
         const std::set<std::shared_ptr<AppRunningRecord>> &cachedSet);
+
+    bool GetSceneBoardAttachFlag() const;
+
+    void SetSceneBoardAttachFlag(bool flag);
+
+    void CacheLoabAbilityTask(const LoabAbilityTaskFunc& func);
+
+    void SubmitCacheLoabAbilityTask();
 private:
 
     std::string FaultTypeToString(FaultDataType type);
@@ -1455,6 +1464,8 @@ private:
 
     void SetAppInfo(const BundleInfo &bundleInfo, AppSpawnStartMsg &startMsg);
 
+    bool CreateAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo);
+
 private:
     /**
      * Notify application status.
@@ -1523,6 +1534,8 @@ private:
     std::shared_ptr<AAFwk::TaskHandlerWrap> dfxTaskHandler_;
     std::shared_ptr<AAFwk::TaskHandlerWrap> otherTaskHandler_;
     std::shared_ptr<AppPreloader> appPreloader_;
+    std::atomic<bool> sceneBoardAttachFlag_ = true;
+    std::vector<LoabAbilityTaskFunc> loadAbilityTaskFuncList_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

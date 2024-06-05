@@ -499,7 +499,10 @@ ohos_shared_library("application_context_manager") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
 
-  external_deps = [ "napi:ace_napi" ]
+  external_deps = [
+    "ets_runtime:libark_jsruntime",
+    "napi:ace_napi",
+  ]
 
   public_configs = [ ":application_context_manager_config" ]
 

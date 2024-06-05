@@ -220,7 +220,7 @@ int32_t UriPermissionManagerStubImpl::CheckCalledBySandBox()
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Get BundleManager failed!");
         return INNER_ERR;
     }
-    auto callerPid = IPCSkeleton::GetCallingRealPid();
+    auto callerPid = IPCSkeleton::GetCallingPid();
     bool isSandbox = false;
     if (appMgr_->JudgeSandboxByPid(callerPid, isSandbox) != ERR_OK) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "JudgeSandboxByPid failed.");

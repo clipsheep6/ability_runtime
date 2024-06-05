@@ -86,6 +86,7 @@ napi_value JsFillRequestCallback::OnFillRequestSuccess(napi_env env, NapiCallbac
     TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     if (info.argc < ARGC_ONE || !IsTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_object)) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to parse viewData JsonString!");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         SendResultCodeAndViewData(
             JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED_INVALID_PARAM, "");
         return CreateJsUndefined(env);
@@ -96,6 +97,7 @@ napi_value JsFillRequestCallback::OnFillRequestSuccess(napi_env env, NapiCallbac
     std::string jsonString = response.viewData.ToJsonString();
     if (jsonString.empty()) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "JsonString is empty");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         SendResultCodeAndViewData(
             JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED_INVALID_PARAM, "");
         return CreateJsUndefined(env);
@@ -129,6 +131,7 @@ napi_value JsFillRequestCallback::OnFillRequestCanceled(napi_env env, NapiCallba
     std::string jsonString = UnwrapStringFromJS(env, info.argv[INDEX_ZERO], "");
     if (jsonString.empty()) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "JsonString is empty");
+        ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM), ERROR_MSG_INVALID_PARAM);
         SendResultCodeAndViewData(
             JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED_INVALID_PARAM, "");
         return CreateJsUndefined(env);

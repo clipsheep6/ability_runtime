@@ -107,6 +107,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendProcessStartEvent_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "SendProcessStartEvent_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->Init();
     EXPECT_NE(appMgrServiceInner, nullptr);
     EXPECT_FALSE(appMgrServiceInner->SendProcessStartEvent(nullptr));
     TAG_LOGI(AAFwkTag::TEST, "SendProcessStartEvent_001 end");
@@ -121,6 +122,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendProcessStartEvent_002, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "SendProcessStartEvent_002 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->Init();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     BundleInfo bundleInfo;
@@ -142,6 +144,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendProcessStartEvent_003, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "SendProcessStartEvent_003 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->Init();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     BundleInfo bundleInfo;
@@ -169,6 +172,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendProcessStartEvent_004, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "SendProcessStartEvent_004 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->Init();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     BundleInfo bundleInfo;
@@ -199,6 +203,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendProcessStartEvent_005, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "SendProcessStartEvent_005 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->Init();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     BundleInfo bundleInfo;
@@ -230,6 +235,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendProcessStartEvent_006, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "SendProcessStartEvent_006 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->Init();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     BundleInfo bundleInfo;
@@ -262,6 +268,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendProcessStartEvent_007, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "SendProcessStartEvent_007 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->Init();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     BundleInfo bundleInfo;
@@ -304,6 +311,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendProcessStartEvent_008, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "SendProcessStartEvent_008 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->Init();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     BundleInfo bundleInfo;
@@ -347,6 +355,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendProcessExitEvent_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "SendProcessExitEvent_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->Init();
     EXPECT_NE(appMgrServiceInner, nullptr);
     std::shared_ptr<AppRunningRecord> appRecord;
     appMgrServiceInner->SendProcessExitEvent(appRecord);
@@ -362,6 +371,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendProcessExitEvent_002, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "SendProcessExitEvent_002 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->Init();
     EXPECT_NE(appMgrServiceInner, nullptr);
     appMgrServiceInner->SendProcessExitEvent(nullptr);
     TAG_LOGI(AAFwkTag::TEST, "SendProcessExitEvent_002 end");
@@ -376,6 +386,7 @@ HWTEST_F(AppMgrServiceInnerTest, CheckIsolationMode_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "CheckIsolationMode_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->Init();
     EXPECT_NE(appMgrServiceInner, nullptr);
     HapModuleInfo hapModuleInfo;
     string supportIsolationMode = OHOS::system::GetParameter("persist.bms.supportIsolationMode", "false");
@@ -410,6 +421,7 @@ HWTEST_F(AppMgrServiceInnerTest, GenerateRenderUid_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "GenerateRenderUid_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->Init();
     EXPECT_NE(appMgrServiceInner, nullptr);
     int32_t renderUid = Constants::INVALID_UID;
     EXPECT_TRUE(appMgrServiceInner->GenerateRenderUid(renderUid));
@@ -427,6 +439,7 @@ HWTEST_F(AppMgrServiceInnerTest, StartRenderProcessImpl_001, TestSize.Level0)
 {
     TAG_LOGI(AAFwkTag::TEST, "StartRenderProcessImpl_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->Init();
     EXPECT_NE(appMgrServiceInner, nullptr);
     BundleInfo bundleInfo;
     std::string appName = "test_appName";
@@ -459,6 +472,7 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyAppFault_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "NotifyAppFault_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->Init();
     EXPECT_NE(appMgrServiceInner, nullptr);
     FaultData faultData;
     EXPECT_EQ(ERR_INVALID_VALUE, appMgrServiceInner->NotifyAppFault(faultData));
@@ -474,6 +488,7 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyAppFaultBySA_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "NotifyAppFaultBySA_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->Init();
     EXPECT_NE(appMgrServiceInner, nullptr);
     AppFaultDataBySA faultData;
     appMgrServiceInner->appRunningManager_ = nullptr;
@@ -490,6 +505,7 @@ HWTEST_F(AppMgrServiceInnerTest, FaultTypeToString_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "FaultTypeToString_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->Init();
     EXPECT_NE(appMgrServiceInner, nullptr);
     EXPECT_EQ("CPP_CRASH", appMgrServiceInner->FaultTypeToString(AppExecFwk::FaultDataType::CPP_CRASH));
     EXPECT_EQ("JS_ERROR", appMgrServiceInner->FaultTypeToString(AppExecFwk::FaultDataType::JS_ERROR));
@@ -509,6 +525,7 @@ HWTEST_F(AppMgrServiceInnerTest, ChangeAppGcState_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "ChangeAppGcState_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->Init();
     EXPECT_NE(appMgrServiceInner, nullptr);
     int32_t pid = 0;
     int32_t state = 0;
@@ -526,6 +543,7 @@ HWTEST_F(AppMgrServiceInnerTest, QueryExtensionSandBox_001, TestSize.Level0)
 {
     TAG_LOGI(AAFwkTag::TEST, "QueryExtensionSandBox_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->Init();
     EXPECT_NE(appMgrServiceInner, nullptr);
     const string moduleName = "entry";
     const string extensionName = "inputMethod";
@@ -559,6 +577,7 @@ HWTEST_F(AppMgrServiceInnerTest, QueryExtensionSandBox_002, TestSize.Level0)
 {
     TAG_LOGI(AAFwkTag::TEST, "QueryExtensionSandBox_002 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->Init();
     EXPECT_NE(appMgrServiceInner, nullptr);
     const string moduleName = "entry";
     const string extensionName = "inputMethod";
@@ -592,6 +611,7 @@ HWTEST_F(AppMgrServiceInnerTest, QueryExtensionSandBox_003, TestSize.Level0)
 {
     TAG_LOGI(AAFwkTag::TEST, "QueryExtensionSandBox_003 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->Init();
     EXPECT_NE(appMgrServiceInner, nullptr);
     const string moduleName = "entry";
     const string extensionName = "inputMethod";
@@ -619,6 +639,7 @@ HWTEST_F(AppMgrServiceInnerTest, QueryExtensionSandBox_004, TestSize.Level0)
 {
     TAG_LOGI(AAFwkTag::TEST, "QueryExtensionSandBox_004 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->Init();
     EXPECT_NE(appMgrServiceInner, nullptr);
     const string moduleName = "entry";
     const string extensionName = "inputMethod";

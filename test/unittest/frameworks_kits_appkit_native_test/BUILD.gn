@@ -585,6 +585,87 @@ ohos_unittest("assert_fault_test") {
   }
 }
 
+ohos_unittest("dump_ipc_helper_test") {
+  include_dirs = []
+  module_out_path = module_output_path
+  sources = [
+    "${ability_runtime_native_path}/appkit/app/dump_ipc_helper.cpp",
+    "dump_ipc_helper_test.cpp",
+  ]
+
+  configs = [ ":module_context_config" ]
+
+  deps = [
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_runtime:runtime",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+}
+
+config("appkit_exception_config") {
+  cflags_cc = [ "-fexceptions" ]
+}
+
+ohos_unittest("extension_plugin_info_test") {
+  module_out_path = module_output_path
+  sources = [
+    "${ability_runtime_native_path}/appkit/app/extension_plugin_info.cpp",
+    "extension_plugin_info_test.cpp",
+  ]
+
+  configs = [
+    ":module_context_config",
+    ":appkit_exception_config",
+  ]
+
+  deps = [
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:string_utils",
+    "ability_runtime:runtime",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+}
+
+ohos_unittest("idle_time_test") {
+  module_out_path = module_output_path
+  sources = [
+    "${ability_runtime_native_path}/appkit/app/idle_time.cpp",
+    "idle_time_test.cpp",
+  ]
+
+  configs = [ ":module_context_config" ]
+
+  deps = [
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_runtime:runtime",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "graphic_2d:librender_service_client",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+}
+
 ###############################################################################
 
 group("unittest") {
@@ -601,7 +682,10 @@ group("unittest") {
     ":context_container_by_mock_bms_test",
     ":context_container_test",
     ":context_deal_test",
+    ":dump_ipc_helper_test",
+    ":extension_plugin_info_test",
     ":form_extension_context_test",
+    ":idle_time_test",
   ]
 
   deps += [ "ability_delegator:unittest" ]

@@ -1492,9 +1492,7 @@ HWTEST_F(JsRuntimeTest, DumpHeapSnapshot_0200, TestSize.Level1)
     auto jsRuntime = std::make_unique<JsRuntime>();
     uint32_t tid = 1;
     bool isFullGC = true;
-    std::vector<uint32_t> fdVec;
-    std::vector<uint32_t> tidVec;
-    jsRuntime->DumpHeapSnapshot(tid, isFullGC, fdVec, tidVec);
+    jsRuntime->DumpHeapSnapshot(tid, isFullGC);
     EXPECT_TRUE(jsRuntime != nullptr);
 }
 

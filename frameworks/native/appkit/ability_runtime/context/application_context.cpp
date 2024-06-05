@@ -502,6 +502,19 @@ void ApplicationContext::SetLanguage(const std::string &language)
     }
 }
 
+void ApplicationContext::SetFont(const std::string &font)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "font:%{public}s.", font.c_str());
+    #ifdef SUPPORT_GRAPHICS
+    // Notify Window
+    AppExecFwk::Configuration config;
+    config.AddItem(AppExecFwk::ConfigurationInner::APPLICATION_FONT, font);
+    if (appFontCallback_ != nullptr) {
+        appFontCallback_(config);
+    }
+    #endif
+}
+
 void ApplicationContext::ClearUpApplicationData()
 {
     if (contextImpl_ != nullptr) {
@@ -536,6 +549,11 @@ Global::Resource::DeviceType ApplicationContext::GetDeviceType() const
 void ApplicationContext::RegisterAppConfigUpdateObserver(AppConfigUpdateCallback appConfigChangeCallback)
 {
     appConfigChangeCallback_ = appConfigChangeCallback;
+}
+
+void ApplicationContext::RegisterAppFontObserver(AppConfigUpdateCallback appFontCallback)
+{
+    appFontCallback_ = appFontCallback;
 }
 
 std::string ApplicationContext::GetAppRunningUniqueId() const

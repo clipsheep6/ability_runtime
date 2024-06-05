@@ -757,6 +757,8 @@ bool JsRuntime::Initialize(const Options& options)
             panda::JSNApi::SetHmsModuleList(vm, systemKitsMap);
             std::map<std::string, std::vector<std::vector<std::string>>> pkgContextInfoMap;
             std::map<std::string, std::string> pkgAliasMap;
+            pkgContextInfoJsonStringMap_ = options.pkgContextInfoJsonStringMap;
+            packageNameList_ = options.packageNameList;
             GetPkgContextInfoListMap(options.pkgContextInfoJsonStringMap, pkgContextInfoMap, pkgAliasMap);
             panda::JSNApi::SetpkgContextInfoList(vm, pkgContextInfoMap);
             panda::JSNApi::SetPkgAliasList(vm, pkgAliasMap);
@@ -1197,12 +1199,11 @@ void JsRuntime::DumpHeapSnapshot(bool isPrivate)
     nativeEngine->DumpHeapSnapshot(true, DumpFormat::JSON, isPrivate, false);
 }
 
-void JsRuntime::DumpHeapSnapshot(uint32_t tid, bool isFullGC, std::vector<uint32_t> fdVec,
-    std::vector<uint32_t> tidVec)
+void JsRuntime::DumpHeapSnapshot(uint32_t tid, bool isFullGC)
 {
     auto vm = GetEcmaVm();
     CHECK_POINTER(vm);
-    DFXJSNApi::DumpHeapSnapshot(vm, 0, true, false, false, isFullGC, tid, fdVec, tidVec);
+    DFXJSNApi::DumpHeapSnapshot(vm, 0, true, false, false, isFullGC, tid);
 }
 
 void JsRuntime::ForceFullGC(uint32_t tid)
@@ -1694,6 +1695,22 @@ std::shared_ptr<Runtime::Options> JsRuntime::GetChildOptions()
     std::lock_guard<std::mutex> lock(childOptionsMutex_);
     TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     return childOptions_;
+}
+
+void JsRuntime::UpdatePkgContextInfoJson(std::string moduleName, std::string hapPath, std::string packageName)
+{
+    auto iterator = pkgContextInfoJsonStringMap_.find(moduleName);
+    if (iterator == pkgContextInfoJsonStringMap_.end()) {
+        pkgContextInfoJsonStringMap_[moduleName] = hapPath;
+        packageNameList_[moduleName] = packageName;
+        auto vm = GetEcmaVm();
+        std::map<std::string, std::vector<std::vector<std::string>>> pkgContextInfoMap;
+        std::map<std::string, std::string> pkgAliasMap;
+        GetPkgContextInfoListMap(pkgContextInfoJsonStringMap_, pkgContextInfoMap, pkgAliasMap);
+        panda::JSNApi::SetpkgContextInfoList(vm, pkgContextInfoMap);
+        panda::JSNApi::SetPkgAliasList(vm, pkgAliasMap);
+        panda::JSNApi::SetPkgNameList(vm, packageNameList_);
+    }
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
