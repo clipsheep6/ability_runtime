@@ -2853,7 +2853,8 @@ void AbilityConnectManager::DeleteInvalidServiceRecord(const std::string &bundle
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Delete invalid record by %{public}s.", bundleName.c_str());
     std::lock_guard lock(serviceMapMutex_);
     for (auto it = serviceMap_.begin(); it != serviceMap_.end();) {
-        if (it->second != nullptr && it->second->GetApplicationInfo().bundleName == bundleName) {
+        if (it->second != nullptr && it->second->GetApplicationInfo().bundleName == bundleName &&
+            !IsUIExtensionAbility(it->second)) {
             it = serviceMap_.erase(it);
         } else {
             ++it;
