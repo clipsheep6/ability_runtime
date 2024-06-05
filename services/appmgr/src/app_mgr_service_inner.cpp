@@ -1349,15 +1349,15 @@ int32_t AppMgrServiceInner::KillApplicationByUserIdLocked(const std::string &bun
 }
 
 int32_t AppMgrServiceInner::ClearUpApplicationData(const std::string &bundleName,
-    int32_t callerUid, pid_t callerPid, const int32_t userId)
+    int32_t callerUid, pid_t callerPid, const int32_t userId, const int32_t appIndex)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     int32_t newUserId = userId;
     if (userId == DEFAULT_INVAL_VALUE) {
         newUserId = GetUserIdByUid(callerUid);
     }
-    TAG_LOGI(AAFwkTag::APPMGR, "userId:%{public}d", userId);
-    return ClearUpApplicationDataByUserId(bundleName, callerUid, callerPid, newUserId);
+    TAG_LOGI(AAFwkTag::APPMGR, "userId:%{public}d, appIndex:%{public}d", userId, appIndex);
+    return ClearUpApplicationDataByUserId(bundleName, callerUid, callerPid, newUserId, appIndex);
 }
 
 int32_t AppMgrServiceInner::ClearUpApplicationDataBySelf(int32_t callerUid, pid_t callerPid, int32_t userId)
@@ -1381,7 +1381,7 @@ int32_t AppMgrServiceInner::ClearUpApplicationDataBySelf(int32_t callerUid, pid_
 }
 
 int32_t AppMgrServiceInner::ClearUpApplicationDataByUserId(
-    const std::string &bundleName, int32_t callerUid, pid_t callerPid, const int userId, bool isBySelf)
+    const std::string &bundleName, int32_t callerUid, pid_t callerPid, const int userId, bool isBySelf, const int appIndex)
 {
     if (callerPid <= 0) {
         TAG_LOGE(AAFwkTag::APPMGR, "invalid callerPid:%{public}d", callerPid);
@@ -1405,7 +1405,7 @@ int32_t AppMgrServiceInner::ClearUpApplicationDataByUserId(
         return ERR_PERMISSION_DENIED;
     }
     // 2.delete bundle side user data
-    if (!IN_PROCESS_CALL(bundleMgrHelper->CleanBundleDataFiles(bundleName, userId))) {
+    if (!IN_PROCESS_CALL(bundleMgrHelper->CleanBundleDataFiles(bundleName, userId, appIndex))) {
         TAG_LOGE(AAFwkTag::APPMGR, "Delete bundle side user data is fail");
         return ERR_INVALID_OPERATION;
     }

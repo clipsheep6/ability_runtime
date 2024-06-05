@@ -103,7 +103,7 @@ public:
      * @return
      */
     virtual int32_t ClearUpApplicationData(const std::string &bundleName,
-        const int32_t userId = -1) override;
+        const int32_t userId = -1, const int32_t appIndex = 0) override;
 
     /**
      * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,

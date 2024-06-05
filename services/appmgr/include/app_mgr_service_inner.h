@@ -286,11 +286,13 @@ public:
      * @param bundleName, bundle name in Application record.
      * @param callerUid, app uid in Application record.
      * @param callerPid, app pid in Application record.
+     * @param userId, user id.
+     * @param appIndex, app index.
      *
      * @return ERR_OK, return back success, others fail.
      */
     virtual int32_t ClearUpApplicationData(const std::string &bundleName,
-        const int32_t callerUid, const pid_t callerPid,  const int32_t userId = -1);
+        const int32_t callerUid, const pid_t callerPid, const int32_t userId = -1, const int32_t appIndex = 0);
 
     /**
      * ClearUpApplicationDataBySelf, clear the application data.
@@ -1352,11 +1354,12 @@ private:
      * @param pid, app pid in Application record.
      * @param userId, userId.
      * @param isBySelf, clear data by application self.
+     * @param appIndex, appIndex.
      *
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t ClearUpApplicationDataByUserId(const std::string &bundleName,
-        int32_t callerUid, pid_t callerPid, const int userId, bool isBySelf = false);
+        int32_t callerUid, pid_t callerPid, const int userId, bool isBySelf = false, const int appIndex = 0);
 
     bool CheckGetRunningInfoPermission() const;
 

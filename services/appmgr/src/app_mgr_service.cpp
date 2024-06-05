@@ -308,7 +308,7 @@ sptr<IAmsMgr> AppMgrService::GetAmsMgr()
     return amsMgrScheduler_;
 }
 
-int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
+int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, const int32_t userId, const int32_t appIndex)
 {
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
@@ -324,7 +324,8 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, con
         return ERR_INVALID_OPERATION;
     }
     int32_t callingUid = IPCSkeleton::GetCallingUid();
-    if ((callingUid != 0 && callingUid != USER_UID) || userId < 0) {
+    if ((callingUid != 0 && callingUid != USER_UID) || userId < 0 || appIndex < Constants::INITIAL_APP_INDEX ||
+        appIndex > Constants::LAST_APP_INDEX) {
         std::string callerBundleName;
         auto result = IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callingUid, callerBundleName));
         if (result != ERR_OK) {
@@ -340,7 +341,7 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, con
     }
     int32_t uid = IPCSkeleton::GetCallingUid();
     pid_t pid = IPCSkeleton::GetCallingPid();
-    appMgrServiceInner_->ClearUpApplicationData(bundleName, uid, pid, userId);
+    appMgrServiceInner_->ClearUpApplicationData(bundleName, uid, pid, userId, appIndex);
     return ERR_OK;
 }
 

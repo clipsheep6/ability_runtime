@@ -650,7 +650,7 @@ bool BundleMgrHelper::ImplicitQueryInfos(const Want &want, int32_t flags, int32_
     return ret;
 }
 
-bool BundleMgrHelper::CleanBundleDataFiles(const std::string &bundleName, const int32_t userId)
+bool BundleMgrHelper::CleanBundleDataFiles(const std::string &bundleName, const int32_t userId, const int32_t appIndex)
 {
     TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "Called.");
     auto bundleMgr = Connect();
@@ -660,7 +660,7 @@ bool BundleMgrHelper::CleanBundleDataFiles(const std::string &bundleName, const 
     }
 
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    return bundleMgr->CleanBundleDataFiles(bundleName, userId);
+    return bundleMgr->CleanBundleDataFiles(bundleName, userId, appIndex);
 }
 
 bool BundleMgrHelper::QueryDataGroupInfos(

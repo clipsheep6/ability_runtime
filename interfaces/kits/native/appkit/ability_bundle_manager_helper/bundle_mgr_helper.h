@@ -78,7 +78,8 @@ public:
     void UpgradeAtomicService(const Want &want, int32_t userId);
     bool ImplicitQueryInfos(const Want &want, int32_t flags, int32_t userId, bool withDefault,
         std::vector<AbilityInfo> &abilityInfos, std::vector<ExtensionAbilityInfo> &extensionInfos);
-    bool CleanBundleDataFiles(const std::string &bundleName, const int32_t userId = Constants::DEFAULT_USERID);
+    bool CleanBundleDataFiles(const std::string &bundleName, const int32_t userId = Constants::DEFAULT_USERID,
+        const int32_t appIndex = 0);
     bool QueryDataGroupInfos(const std::string &bundleName, int32_t userId, std::vector<DataGroupInfo> &infos);
     bool GetBundleGidsByUid(const std::string &bundleName, const int32_t &uid, std::vector<int32_t> &gids);
     bool RegisterBundleEventCallback(const sptr<IBundleEventCallback> &bundleEventCallback);

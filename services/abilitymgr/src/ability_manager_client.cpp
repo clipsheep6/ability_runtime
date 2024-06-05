@@ -666,12 +666,13 @@ ErrCode AbilityManagerClient::ForceTimeoutForTest(const std::string &abilityName
 }
 #endif
 
-ErrCode AbilityManagerClient::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
+ErrCode AbilityManagerClient::ClearUpApplicationData(const std::string &bundleName, const int32_t userId,
+    const int32_t appIndex)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->ClearUpApplicationData(bundleName, userId);
+    return abms->ClearUpApplicationData(bundleName, userId, appIndex);
 }
 
 ErrCode AbilityManagerClient::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,

@@ -44,6 +44,7 @@ constexpr const char* BUNDLE_NAME = "bundleName";
 constexpr const char* MODULE_NAME = "moduleName";
 constexpr const char* HAP_PATH = "hapPath";
 constexpr int32_t INITIAL_APP_INDEX = 0;
+constexpr int32_t LAST_APP_INDEX = 1000;
 constexpr const char* RELATIVE_PATH = "../";
 constexpr const char* APP_DETAIL_ABILITY = "AppDetailAbility";
 } // namespace Constants
