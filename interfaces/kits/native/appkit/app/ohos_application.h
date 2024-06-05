@@ -137,6 +137,22 @@ public:
 
     /**
      *
+     * @brief Will be called when the given ability calls Ability->onStop
+     *
+     * @param Ability Indicates the Ability object that calls the onStop() method.
+     */
+    void OnNewWant(const std::shared_ptr<AbilityRuntime::UIAbility> &ability);
+
+    /**
+     *
+     * @brief Will be called when the given ability calls Ability->onStop
+     *
+     * @param Ability Indicates the Ability object that calls the onStop() method.
+     */
+    void OnWillNewWant(const std::shared_ptr<AbilityRuntime::UIAbility> &ability);
+
+    /**
+     *
      * Called when Ability#onSaveAbilityState(PacMap) was called on an ability.
      *
      * @param outState Indicates the PacMap object passed to Ability#onSaveAbilityState(PacMap)

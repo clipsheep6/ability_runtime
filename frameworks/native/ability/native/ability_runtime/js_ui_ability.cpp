@@ -1182,6 +1182,8 @@ void JsUIAbility::OnNewWant(const Want &want)
 
     TAG_LOGE(AAFwkTag::UIABILITY, "lmz Failed to get want.");
 
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnWillNewWant(jsAbilityObj_);
     }
