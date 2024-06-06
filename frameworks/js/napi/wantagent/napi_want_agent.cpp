@@ -696,7 +696,14 @@ napi_value JsWantAgent::OnTrigger(napi_env env, napi_callback_info info)
         return RetErrMsg(env, argv[ARGC_TWO], errCode);
     }
 
-    WantAgentHelper::TriggerWantAgent(wantAgent, triggerObj, triggerInfo);
+    auto execute = [wantAgent, triggerObj, triggerInfo] () {
+        TAG_LOGD(AAFwkTag::WANTAGENT, "OnTrigger NapiAsyncTask is called");
+        WantAgentHelper::TriggerWantAgent(wantAgent, triggerObj, triggerInfo);
+    };
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsWantAgent::OnTrigger",
+        env, CreateAsyncTaskWithLastParam(env, nullptr, std::move(execute), nullptr, &result));
+
     return CreateJsNull(env);
 }
 
@@ -1155,10 +1162,14 @@ napi_value JsWantAgent::OnNapiTrigger(napi_env env, napi_callback_info info)
         ThrowInvalidParamError(env, "Parameter error!");
         return CreateJsUndefined(env);
     }
-    ErrCode result = WantAgentHelper::TriggerWantAgent(wantAgent, triggerObj, triggerInfo);
-    if (result != ERR_OK) {
-        return CreateJsError(env, result, AbilityRuntimeErrorUtil::GetErrMessage(result));
-    }
+    auto execute = [wantAgent, triggerObj, triggerInfo] () {
+        TAG_LOGD(AAFwkTag::WANTAGENT, "OnNapiTrigger NapiAsyncTask is called");
+        WantAgentHelper::TriggerWantAgent(wantAgent, triggerObj, triggerInfo);
+    };
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsWantAgent::OnNapiTrigger",
+        env, CreateAsyncTaskWithLastParam(env, nullptr, std::move(execute), nullptr, &result));
+
     return CreateJsNull(env);
 }
 
