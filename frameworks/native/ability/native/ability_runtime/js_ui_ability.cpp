@@ -312,12 +312,13 @@ void JsUIAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo
     };
     std::string methodName = "OnStart";
 
+    AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
+
     auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityWillCreate(jsAbilityObj_);
     }
 
-    AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
     CallObjectMethod("onCreate", argv, ArraySize(argv));
     AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
 
@@ -407,6 +408,11 @@ void JsUIAbility::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackI
 
     UIAbility::OnStop();
 
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnAbilityWillDestroy(jsAbilityObj_);
+    }
+
     HandleScope handleScope(jsRuntime_);
     napi_value result = CallObjectMethod("onDestroy", nullptr, 0, true);
     if (!CheckPromise(result)) {
@@ -435,11 +441,6 @@ void JsUIAbility::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackI
 
 void JsUIAbility::OnStopCallback()
 {
-    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
-    if (applicationContext != nullptr) {
-        applicationContext->DispatchOnAbilityWillDestroy(jsAbilityObj_);
-    }
-
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
         TAG_LOGD(AAFwkTag::UIABILITY, "Call PostPerformStop.");
@@ -452,7 +453,7 @@ void JsUIAbility::OnStopCallback()
         TAG_LOGD(AAFwkTag::UIABILITY, "The service connection is not disconnected.");
     }
 
-    applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityDestroy(jsAbilityObj_);
     }
@@ -470,6 +471,11 @@ void JsUIAbility::OnSceneCreated()
         return;
     }
 
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnWindowStageWillCreate(jsAbilityObj_, jsWindowStageObj_);
+    }
+
     HandleScope handleScope(jsRuntime_);
     UpdateJsWindowStage(jsAppWindowStage->GetNapiValue());
     napi_value argv[] = {jsAppWindowStage->GetNapiValue()};
@@ -482,10 +488,6 @@ void JsUIAbility::OnSceneCreated()
     }
 
     jsWindowStageObj_ = std::shared_ptr<NativeReference>(jsAppWindowStage.release());
-    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
-    if (applicationContext != nullptr) {
-        applicationContext->DispatchOnWindowStageWillCreate(jsAbilityObj_, jsWindowStageObj_);
-    }
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
@@ -546,6 +548,12 @@ void JsUIAbility::onSceneDestroyed()
     UIAbility::onSceneDestroyed();
     HandleScope handleScope(jsRuntime_);
     UpdateJsWindowStage(nullptr);
+
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnWindowStageWillDestroy(jsAbilityObj_, jsWindowStageObj_);
+    }
+
     CallObjectMethod("onWindowStageDestroy");
 
     if (scene_ != nullptr) {
@@ -554,11 +562,6 @@ void JsUIAbility::onSceneDestroyed()
             TAG_LOGD(AAFwkTag::UIABILITY, "Call UnregisterDisplayMoveListener.");
             window->UnregisterDisplayMoveListener(abilityDisplayMoveListener_);
         }
-    }
-
-    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
-    if (applicationContext != nullptr) {
-        applicationContext->DispatchOnWindowStageWillDestroy(jsAbilityObj_, jsWindowStageObj_);
     }
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
@@ -638,6 +641,10 @@ void JsUIAbility::OnBackground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin ability is %{public}s.", GetAbilityName().c_str());
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnAbilityWillBackground(jsAbilityObj_);
+    }
     std::string methodName = "OnBackground";
     HandleScope handleScope(jsRuntime_);
     AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::BACKGROUND, methodName);
@@ -645,11 +652,6 @@ void JsUIAbility::OnBackground()
     AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState::BACKGROUND, methodName);
 
     UIAbility::OnBackground();
-
-    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
-    if (applicationContext != nullptr) {
-        applicationContext->DispatchOnAbilityWillBackground(jsAbilityObj_);
-    }
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
