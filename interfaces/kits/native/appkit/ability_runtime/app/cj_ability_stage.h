@@ -20,6 +20,32 @@
 
 #include "ability_stage.h"
 #include "cj_ability_stage_object.h"
+#include "ffi_remote_data.h"
+
+#ifdef WINDOWS_PLATFORM
+#define CJ_EXPORT __declspec(dllexport)
+#else
+#define CJ_EXPORT __attribute__((visibility("default")))
+#endif
+
+extern "C" {
+struct CurrentHapModuleInfo {
+    const char* name;
+    const char* icon;
+    int32_t iconId;
+    const char* label;
+    int32_t labelId;
+    const char* description;
+    int32_t descriptionId;
+    const char* mainElementName;
+    bool installationFree;
+    const char* hashValue;
+};
+
+CJ_EXPORT CurrentHapModuleInfo* FFICJCurrentHapMoudleInfo(int64_t id);
+CJ_EXPORT int64_t FFIAbilityGetAbilityStageContext(AbilityStageHandle abilityStageHandle);
+}
+
 
 namespace OHOS {
 namespace AbilityRuntime {

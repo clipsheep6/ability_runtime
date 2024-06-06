@@ -109,6 +109,7 @@ ohos_shared_library("runtime") {
     "ffrt:libffrt",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "init:syscap_ts",
     "ipc:ipc_core",
     "json:nlohmann_json_static",
     "jsoncpp:jsoncpp",
@@ -116,8 +117,9 @@ ohos_shared_library("runtime") {
     "resource_management:global_resmgr",
     "samgr:samgr_proxy",
     "zlib:shared_libz",
-    "init:syscap_ts",
   ]
+
+  defines = []
 
   if (cj_frontend) {
     sources += [ "${ability_runtime_native_path}/runtime/cj_runtime.cpp" ]
@@ -125,10 +127,11 @@ ohos_shared_library("runtime") {
     include_dirs +=
         [ "${ability_runtime_path}/cj_environment/interfaces/inner_api" ]
 
+    defines += [ "CJ_FRONTEND" ]
+
     deps += [ "${ability_runtime_path}/cj_environment/frameworks/cj_environment:cj_environment" ]
   }
 
-  defines = []
   if (is_standard_system) {
     defines += [ "ENABLE_HITRACE" ]
     external_deps += [

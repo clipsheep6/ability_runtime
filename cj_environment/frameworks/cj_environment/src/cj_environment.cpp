@@ -310,7 +310,7 @@ bool CJEnvironment::StartRuntime()
     RuntimeParam rtParams {
         .heapParam = {
             .regionSize = 64,
-            .heapSize = 64 * 1024,
+            .heapSize = 256 * 1024,
             .exemptionThreshold= 0.8,
             .heapUtilization = 0.8,
             .heapGrowth = 0.15,

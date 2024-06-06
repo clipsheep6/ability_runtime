@@ -196,18 +196,6 @@ ohos_shared_library("appkit_native") {
   ]
   public_external_deps = [ "ability_base:configuration" ]
 
-  if (cj_frontend) {
-    sources += [
-      "${ability_runtime_native_path}/appkit/ability_runtime/app/cj_ability_stage.cpp",
-      "${ability_runtime_native_path}/appkit/ability_runtime/app/cj_ability_stage_object.cpp",
-    ]
-
-    include_dirs +=
-        [ "${ability_runtime_path}/cj_environment/interfaces/inner_api" ]
-
-    deps += [ "${ability_runtime_path}/cj_environment/frameworks/cj_environment:cj_environment" ]
-  }
-
   if (ability_runtime_graphics) {
     external_deps += [
       "ace_engine:ace_forward_compatibility",
@@ -236,6 +224,29 @@ ohos_shared_library("appkit_native") {
       defined(global_parts_info.resourceschedule_memmgr_override)) {
     defines += [ "IMAGE_PURGEABLE_PIXELMAP" ]
     external_deps += [ "memmgr_override:libpurgeablemem_plugin" ]
+  }
+
+  if (cj_frontend) {
+    sources += [
+      "${ability_runtime_native_path}/appkit/ability_runtime/app/cj_ability_stage.cpp",
+      "${ability_runtime_native_path}/appkit/ability_runtime/app/cj_ability_stage_context.cpp",
+      "${ability_runtime_native_path}/appkit/ability_runtime/app/cj_ability_stage_object.cpp",
+    ]
+
+    include_dirs += [
+      "${ability_runtime_path}/cj_environment/interfaces/inner_api",
+      "${ability_runtime_path}/frameworks/cj/ffi",
+    ]
+
+    defines += [ "CJ_FRONTEND" ]
+
+    deps += [ "${ability_runtime_path}/cj_environment/frameworks/cj_environment:cj_environment" ]
+
+    external_deps += [
+      "bundle_framework:appexecfwk_base",
+      "napi:cj_bind_ffi",
+      "napi:cj_bind_native",
+    ]
   }
 
   innerapi_tags = [ "platformsdk" ]
@@ -433,6 +444,8 @@ ohos_shared_library("appkit_delegator") {
       "${ability_runtime_native_path}/appkit/ability_delegator/runner_runtime/cj_test_runner.cpp",
       "${ability_runtime_native_path}/appkit/ability_delegator/runner_runtime/cj_test_runner_object.cpp",
     ]
+
+    defines = [ "CJ_FRONTEND" ]
   }
   if (ability_runtime_graphics) {
     external_deps += [ "icu:shared_icuuc" ]

@@ -14,12 +14,67 @@
  */
 
 #include "cj_ability_stage.h"
-
+#include "cj_ability_stage_context.h"
 #include "cj_runtime.h"
+#include "cj_utils_ffi.h"
 #include "context_impl.h"
 #include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
+
 
 using namespace OHOS::AbilityRuntime;
+extern "C" {
+CJ_EXPORT CurrentHapModuleInfo* FFICJCurrentHapMoudleInfo(int64_t id)
+{
+    auto abilityStageContext = OHOS::FFI::FFIData::GetData<CJAbilityStageContext>(id);
+    if (abilityStageContext == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Get abilityStageContext failed. ");
+        return nullptr;
+    }
+
+    auto hapInfo = abilityStageContext->GetHapModuleInfo();
+    if (hapInfo == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "CurrentHapMoudleInfo is nullptr.");
+        return nullptr;
+    }
+
+    CurrentHapModuleInfo* buffer = static_cast<CurrentHapModuleInfo*>(malloc(sizeof(CurrentHapModuleInfo)));
+ 
+    if (buffer == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Create CurrentHapMoudleInfo failed, CurrentHapMoudleInfo is nullptr.");
+        return nullptr;
+    }
+
+    buffer->name = CreateCStringFromString(hapInfo->name);
+    buffer->icon = CreateCStringFromString(hapInfo->iconPath);
+    buffer->iconId = buffer->iconId;
+    buffer->label = CreateCStringFromString(hapInfo->label);
+    buffer->labelId = buffer->labelId;
+    buffer->description = CreateCStringFromString(hapInfo->description);
+    buffer->descriptionId = buffer->descriptionId;
+    buffer->mainElementName = CreateCStringFromString(hapInfo->mainElementName);
+    buffer->installationFree = buffer->installationFree;
+    buffer->hashValue = CreateCStringFromString(hapInfo->hashValue);
+
+    return buffer;
+}
+
+CJ_EXPORT int64_t FFIAbilityGetAbilityStageContext(AbilityStageHandle abilityStageHandle)
+{
+    auto ability = static_cast<CJAbilityStage*>(abilityStageHandle);
+    auto context = ability->GetContext();
+    if (context == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "GetAbilityStageContext failed, abilityContext is nullptr.");
+        return ERR_INVALID_INSTANCE_CODE;
+    }
+    auto cjStageContext = OHOS::FFI::FFIData::Create<CJAbilityStageContext>(context);
+    if (cjStageContext == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "GetAbilityStageContext failed, abilityContext is nullptr.");
+        return ERR_INVALID_INSTANCE_CODE;
+    }
+    return cjStageContext->GetID();
+}
+}
 
 std::shared_ptr<CJAbilityStage> CJAbilityStage::Create(
     const std::unique_ptr<Runtime>& runtime, const AppExecFwk::HapModuleInfo& hapModuleInfo)
