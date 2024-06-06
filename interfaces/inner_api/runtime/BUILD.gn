@@ -132,12 +132,14 @@ ohos_shared_library("runtime") {
   }
 
   if (is_standard_system) {
-    defines += [ "ENABLE_HITRACE",
-                 "ENABLE_FFRT_INTERFACES" ]
+    defines += [
+      "ENABLE_HITRACE",
+      "ENABLE_FFRT_INTERFACES",
+    ]
     external_deps += [
+      "ffrt:libffrt",
       "hitrace:libhitracechain",
       "init:libbegetutil",
-      "ffrt:libffrt"
     ]
   }
 
