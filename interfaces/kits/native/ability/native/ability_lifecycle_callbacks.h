@@ -37,26 +37,6 @@ public:
     virtual void OnAbilityStart(const std::shared_ptr<AbilityRuntime::UIAbility> &ability) = 0;
 
     /**
-     * Called back when the want is create.
-     *
-     * @since 12
-     * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
-     * @param ability: Indicates the ability to register for listening.
-     * @StageModelOnly
-     */
-    virtual void OnNewWant(const std::shared_ptr<AbilityRuntime::UIAbility> &ability) = 0;
-
-    /**
-     * Called back before the want is create.
-     *
-     * @since 12
-     * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
-     * @param ability: Indicates the ability to register for listening.
-     * @StageModelOnly
-     */
-    virtual void OnWillNewWant(const std::shared_ptr<AbilityRuntime::UIAbility> &ability) = 0;
-
-    /**
      *
      * Will be called when the given ability calls Ability->onInactive
      *
