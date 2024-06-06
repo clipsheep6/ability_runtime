@@ -260,6 +260,7 @@ ohos_shared_library("ability_manager") {
     "jsoncpp:jsoncpp",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
+    "bundle_framework:appexecfwk_base",
   ]
 
   if (ability_runtime_graphics) {
@@ -343,6 +344,7 @@ ohos_shared_library("mission_info") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_core",
     "jsoncpp:jsoncpp",
+    "bundle_framework:appexecfwk_base",
   ]
   if (ability_runtime_graphics) {
     external_deps += [ "image_framework:image_native" ]
@@ -383,6 +385,7 @@ ohos_shared_library("ability_start_setting") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_core",
     "jsoncpp:jsoncpp",
+    "bundle_framework:appexecfwk_base"
   ]
   cflags_cc = []
   innerapi_tags = [ "platformsdk" ]
@@ -446,8 +449,8 @@ ohos_shared_library("ability_connect_callback_stub") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_core",
     "jsoncpp:jsoncpp",
+    "bundle_framework:appexecfwk_base"
   ]
-
   cflags_cc = []
   innerapi_tags = [
     "platformsdk",
