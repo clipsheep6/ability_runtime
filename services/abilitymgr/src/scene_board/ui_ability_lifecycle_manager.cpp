@@ -863,15 +863,13 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
     return NotifySCBPendingActivation(sessionInfo, abilityRequest);
 }
 
-void UIAbilityLifecycleManager::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
+void UIAbilityLifecycleManager::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isColdStart)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Call.");
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
-    if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "sessionInfo is invalid.");
-        return;
-    }
+    CHECK_POINTER_LOG(sessionInfo, "sessionInfo is invalid.");
+    CHECK_POINTER_LOG(sessionInfo->sessionToken, "sessionToken is nullptr.");
     auto sessionToken = iface_cast<Rosen::ISession>(sessionInfo->sessionToken);
     auto descriptor = Str16ToStr8(sessionToken->GetDescriptor());
     if (descriptor != "OHOS.ISession") {
@@ -886,15 +884,13 @@ void UIAbilityLifecycleManager::CallUIAbilityBySCB(const sptr<SessionInfo> &sess
         return;
     }
     auto uiAbilityRecord = search->second;
-    if (uiAbilityRecord == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "UIAbility not exist.");
-        return;
-    }
+    CHECK_POINTER_LOG(uiAbilityRecord, "UIAbility not exist.");
     auto sessionSearch = sessionAbilityMap_.find(sessionInfo->persistentId);
     if (sessionSearch != sessionAbilityMap_.end()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Session already exist.");
         return;
     }
+    isColdStart = true;
 
     for (auto [persistentId, record] : sessionAbilityMap_) {
         auto recordAbilityInfo = record->GetAbilityInfo();

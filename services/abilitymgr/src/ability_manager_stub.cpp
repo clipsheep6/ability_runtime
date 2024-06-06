@@ -2807,7 +2807,9 @@ int AbilityManagerStub::CallUIAbilityBySCBInner(MessageParcel &data, MessageParc
     if (data.ReadBool()) {
         sessionInfo = data.ReadParcelable<SessionInfo>();
     }
-    CallUIAbilityBySCB(sessionInfo);
+    bool isColdStart = false;
+    CallUIAbilityBySCB(sessionInfo, isColdStart);
+    reply.WriteBool(isColdStart);
     return NO_ERROR;
 }
 
