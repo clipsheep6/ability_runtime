@@ -127,6 +127,13 @@ public:
     int UnloadUIExtensionAbility(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord, std::string &bundleName);
 
     /**
+     * ClearPreloadUIExtensionRecord, clear preload uiextension record.
+     *
+     * @param abilityRecord, uiextension ability record.
+     */
+    void ClearPreloadUIExtensionRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    
+    /**
      * DisconnectAbilityLocked, disconnect session with callback.
      *
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
@@ -188,14 +195,6 @@ public:
         AbilityCommand abilityCmd);
 
     /**
-     * GetServiceRecordByElementName.
-     *
-     * @param element, service ability's element.
-     * @return Returns AbilityRecord shared_ptr.
-     */
-    std::shared_ptr<AbilityRecord> GetServiceRecordByElementName(const std::string &element);
-
-    /**
      * GetUIExtensioBySessionInfo.
      *
      * @param sessionToken, service ability's session token.
@@ -230,16 +229,6 @@ public:
     inline void SetEventHandler(const std::shared_ptr<EventHandlerWrap> &handler)
     {
         eventHandler_ = handler;
-    }
-
-    /**
-     * GetServiceMap.
-     *
-     * @return Returns service ability record map.
-     */
-    inline const ServiceMapType &GetServiceMap() const
-    {
-        return serviceMap_;
     }
 
     uint32_t GetSceneBoardTokenId() const
@@ -391,6 +380,14 @@ private:
      * @param abilityRecord, the ptr of the ability to terminate.
      */
     void TerminateDone(const std::shared_ptr<AbilityRecord> &abilityRecord);
+
+    /**
+     * GetServiceRecordByElementName.
+     *
+     * @param element, service ability's element.
+     * @return Returns AbilityRecord shared_ptr.
+     */
+    std::shared_ptr<AbilityRecord> GetServiceRecordByElementName(const std::string &element);
 
     /**
      * dispatch service ability life cycle .
@@ -563,6 +560,7 @@ private:
     std::shared_ptr<AbilityRecord> GetExtensionByIdFromServiceMap(int32_t abilityRecordId);
     int TerminateAbilityInner(const sptr<IRemoteObject> &token);
     bool IsLauncher(std::shared_ptr<AbilityRecord> serviceExtension) const;
+    bool IsSampleManagement(std::shared_ptr<AbilityRecord> serviceExtension) const;
     void KillProcessesByUserId() const;
     void SetLastExitReason(const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetService);
     inline bool IsUIExtensionAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
@@ -579,6 +577,7 @@ private:
     void HandleNotifyAssertFaultDialogDied(const std::shared_ptr<AbilityRecord> &abilityRecord);
     EventInfo BuildEventInfo(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void UpdateUIExtensionInfo(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    std::string GenerateBundleName(const AbilityRequest &abilityRequest) const;
 
     bool AddToServiceMap(const std::string &key, std::shared_ptr<AbilityRecord> abilityRecord);
     ServiceMapType GetServiceMap();

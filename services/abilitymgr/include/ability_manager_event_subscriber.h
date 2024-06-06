@@ -25,7 +25,8 @@ namespace AbilityRuntime {
 class AbilityManagerEventSubscriber : public EventFwk::CommonEventSubscriber {
 public:
     explicit AbilityManagerEventSubscriber(
-        const EventFwk::CommonEventSubscribeInfo &subscribeInfo, const std::function<void()> &callback);
+        const EventFwk::CommonEventSubscribeInfo &subscribeInfo, const std::function<void()> &callback,
+        const std::function<void()> &userScreenUnlockCallback);
 
     ~AbilityManagerEventSubscriber() override = default;
 
@@ -33,6 +34,7 @@ public:
 
 private:
     std::function<void()> callback_;
+    std::function<void()> userScreenUnlockCallback_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

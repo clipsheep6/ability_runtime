@@ -109,12 +109,25 @@ int32_t ModuleRunningRecord::GetPageAbilitySize()
     for (auto it : abilities_) {
         std::shared_ptr<AbilityRunningRecord> abilityRunningRecord = it.second;
         std::shared_ptr<AbilityInfo> abilityInfo = abilityRunningRecord->GetAbilityInfo();
-        if (abilityInfo->type == AbilityType::PAGE) {
+        if (abilityInfo && abilityInfo->type == AbilityType::PAGE) {
             pageAbilitySize++;
         }
     }
 
     return pageAbilitySize;
+}
+
+bool ModuleRunningRecord::ExtensionAbilityRecordExists()
+{
+    std::lock_guard<ffrt::mutex> lock(abilitiesMutex_);
+    for (auto it : abilities_) {
+        std::shared_ptr<AbilityRunningRecord> abilityRunningRecord = it.second;
+        std::shared_ptr<AbilityInfo> abilityInfo = abilityRunningRecord->GetAbilityInfo();
+        if (abilityInfo && abilityInfo->type != AbilityType::PAGE) {
+            return true;
+        }
+    }
+    return false;
 }
 
 const std::map<const sptr<IRemoteObject>, std::shared_ptr<AbilityRunningRecord>> ModuleRunningRecord::GetAbilities()

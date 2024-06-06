@@ -225,6 +225,14 @@ public:
 
     int DumpFfrt(std::string& result);
 
+    /**
+     * Notifies the application of process caching.
+     *
+     *
+     * @return
+     */
+    void ScheduleCacheProcess();
+
 private:
     mutable std::mutex schedulerMutex_;
     sptr<IAppScheduler> appThread_ = nullptr;

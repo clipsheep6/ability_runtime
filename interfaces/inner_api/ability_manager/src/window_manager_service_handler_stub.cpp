@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 #include "window_manager_service_handler_stub.h"
 
 #include "ability_manager_errors.h"

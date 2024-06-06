@@ -117,7 +117,7 @@ bool AbilityRecovery::SaveAbilityState()
         return false;
     }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     std::string pageStack = ability->GetContentInfo();
     if (!pageStack.empty()) {
         wantParams.SetParam("pageStack", AAFwk::String::Box(pageStack));
@@ -400,6 +400,7 @@ bool AbilityRecovery::IsSaveAbilityState(StateReason reason)
 
         case StateReason::CPP_CRASH:
         case StateReason::JS_ERROR:
+        case StateReason::CJ_ERROR:
         case StateReason::APP_FREEZE:
             if ((saveOccasion_ & SaveOccasionFlag::SAVE_WHEN_ERROR) != 0) {
                 ret = true;

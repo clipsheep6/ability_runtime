@@ -85,11 +85,9 @@ public:
     void DestroyHeapProfiler() override;
     void ForceFullGC() override;
     void ForceFullGC(uint32_t tid) override;
-    void DumpHeapSnapshot(uint32_t tid, bool isFullGC, std::vector<uint32_t> fdVec,
-        std::vector<uint32_t> tidVec) override;
+    void DumpHeapSnapshot(uint32_t tid, bool isFullGC) override;
     void AllowCrossThreadExecution() override;
     void GetHeapPrepare() override;
-    bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) override;
     void NotifyApplicationState(bool isBackground) override;
     bool SuspendVM(uint32_t tid) override;
     void ResumeVM(uint32_t tid) override;
@@ -134,6 +132,7 @@ public:
     std::unique_ptr<NativeReference> LoadSystemModule(
         const std::string& moduleName, const napi_value* argv = nullptr, size_t argc = 0);
     void SetDeviceDisconnectCallback(const std::function<bool()> &cb) override;
+    void UpdatePkgContextInfoJson(std::string moduleName, std::string hapPath, std::string packageName) override;
 
 private:
     void FinishPreload() override;
@@ -157,11 +156,13 @@ private:
     uint32_t instanceId_ = 0;
     std::string bundleName_;
     int32_t apiTargetVersion_ = 0;
+    std::map<std::string, std::string> pkgContextInfoJsonStringMap_;
+    std::map<std::string, std::string> packageNameList_;
 
     static std::atomic<bool> hasInstance;
 
     static std::shared_ptr<Options> childOptions_;
-    
+
 private:
     bool CreateJsEnv(const Options& options);
     void PreloadAce(const Options& options);

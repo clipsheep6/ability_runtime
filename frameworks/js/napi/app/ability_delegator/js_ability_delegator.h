@@ -46,7 +46,7 @@ public:
     ~JSAbilityDelegator() = default;
 
     /**
-     * Destory object.
+     * Destroy object.
      *
      * @param env Indicates the native engine.
      * @param data Indicates the object to be destroyed.

@@ -21,6 +21,7 @@
 #define private public
 #include "ability_manager_service.h"
 #undef private
+#include "app_exit_reason_data_manager.h"
 #include "message_parcel.h"
 #include "securec.h"
 
@@ -48,7 +49,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     DelayedSingleton<AbilityManagerService>::GetInstance()->subManagersHelper_->currentUIAbilityManager_ =
         std::make_shared<UIAbilityLifecycleManager>();
     DelayedSingleton<AbilityManagerService>::GetInstance()->OnRemoteRequest(code, parcel, reply, option);
-
+    DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::DestroyInstance();
     return true;
 }
 }

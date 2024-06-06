@@ -81,6 +81,8 @@ public:
 
     int32_t GetPageAbilitySize();
 
+    bool ExtensionAbilityRecordExists();
+
     // Get abilities_ for this process
     /**
      * @brief Obtains the abilities info for the application record.

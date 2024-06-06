@@ -534,6 +534,8 @@ public:
 
     bool IsLastPageAbilityRecord(const sptr<IRemoteObject> &token);
 
+    bool ExtensionAbilityRecordExists(const sptr<IRemoteObject> &token);
+
     void SetTerminating();
 
     bool IsTerminating();
@@ -542,11 +544,15 @@ public:
 
     bool IsEmptyKeepAliveApp() const;
 
+    bool IsMainProcess() const;
+
     void SetEmptyKeepAliveAppState(bool isEmptyKeepAliveApp);
 
     void SetKeepAliveEnableState(bool isKeepAliveEnable);
 
     void SetSingleton(bool isSingleton);
+
+    void SetMainProcess(bool isMainProcess);
 
     void SetStageModelState(bool isStageBasedModel);
 
@@ -624,6 +630,7 @@ public:
 
     using Closure = std::function<void()>;
     void PostTask(std::string msg, int64_t timeOut, const Closure &task);
+    bool CancelTask(std::string msg);
     void RemoveTerminateAbilityTimeoutTask(const sptr<IRemoteObject>& token) const;
 
     int32_t NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
@@ -669,9 +676,9 @@ public:
     ProcessType GetProcessType() const;
 
     int32_t NotifyAppFault(const FaultData &faultData);
-
+#ifdef SUPPORT_SCREEN
     void OnWindowVisibilityChanged(const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos);
-
+#endif //SUPPORT_SCREEN
     bool IsAbilitytiesBackground();
 
     inline void SetAbilityForegroundingFlag()
@@ -786,6 +793,8 @@ public:
     bool GetIsGPU();
     void SetGPUPid(pid_t gpuPid);
     pid_t GetGPUPid();
+
+    void ScheduleCacheProcess();
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -849,6 +858,7 @@ private:
 
     bool isKeepAliveApp_ = false;  // Only resident processes can be set to true, please choose carefully
     bool isEmptyKeepAliveApp_ = false;  // Only empty resident processes can be set to true, please choose carefully
+    bool isMainProcess_ = true; // Only MainProcess can be keepalive
     bool isSingleton_ = false;
     bool isStageBasedModel_ = false;
     ApplicationState curState_ = ApplicationState::APP_STATE_CREATE;  // current state of this process

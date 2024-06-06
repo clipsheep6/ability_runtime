@@ -15,7 +15,9 @@
 
 #include "runtime.h"
 
+#ifdef CJ_FRONTEND
 #include "cj_runtime.h"
+#endif
 #include "js_runtime.h"
 
 namespace OHOS {
@@ -29,8 +31,10 @@ std::unique_ptr<Runtime> Runtime::Create(const Runtime::Options& options)
     switch (options.lang) {
         case Runtime::Language::JS:
             return JsRuntime::Create(options);
+#ifdef CJ_FRONTEND
         case Runtime::Language::CJ:
             return CJRuntime::Create(options);
+#endif
         default:
             return std::unique_ptr<Runtime>();
     }

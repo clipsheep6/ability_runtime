@@ -25,20 +25,23 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr static char WANT_PARAMS_VIEW_DATA_KEY[] = "ohos.ability.params.viewData";
+#ifdef SUPPORT_GRAPHICS
 constexpr static char WANT_PARAMS_CUSTOM_DATA_KEY[] = "ohos.ability.params.customData";
 constexpr static char WANT_PARAMS_AUTO_FILL_EVENT_KEY[] = "ability.want.params.AutoFillEvent";
 constexpr static char WANT_PARAMS_AUTO_FILL_CMD_KEY[] = "ohos.ability.params.autoFillCmd";
 constexpr static char WANT_PARAMS_UPDATE_POPUP_WIDTH[] = "ohos.ability.params.popupWidth";
 constexpr static char WANT_PARAMS_UPDATE_POPUP_HEIGHT[] = "ohos.ability.params.popupHeight";
 constexpr static char WANT_PARAMS_UPDATE_POPUP_PLACEMENT[] = "ohos.ability.params.popupPlacement";
+#endif // SUPPORT_GRAPHICS
 constexpr static char WANT_PARAMS_FILL_CONTENT[] = "ohos.ability.params.fillContent";
 } // namespace
 void AutoFillExtensionCallback::OnResult(int32_t errCode, const AAFwk::Want &want)
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called, result code is %{public}d.", errCode);
+#ifdef SUPPORT_GRAPHICS
     AutoFillManager::GetInstance().RemoveEvent(eventId_);
     CloseModalUIExtension();
-
+#endif // SUPPORT_GRAPHICS
     if (autoFillWindowType_ == AutoFill::AutoFillWindowType::POPUP_WINDOW) {
         isOnResult_ = true;
         want_ = want;
@@ -58,9 +61,10 @@ void AutoFillExtensionCallback::OnResult(int32_t errCode, const AAFwk::Want &wan
 void AutoFillExtensionCallback::OnRelease(int32_t errCode)
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called, result code is %{public}d.", errCode);
+#ifdef SUPPORT_GRAPHICS
     AutoFillManager::GetInstance().RemoveEvent(eventId_);
     CloseModalUIExtension();
-
+#endif // SUPPORT_GRAPHICS
     if (errCode != 0) {
         SendAutoFillFailed(AutoFill::AUTO_FILL_RELEASE_FAILED);
     }
@@ -70,14 +74,15 @@ void AutoFillExtensionCallback::OnError(int32_t errCode, const std::string &name
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called, errcode is %{public}d, name is %{public}s, message is %{public}s",
         errCode, name.c_str(), message.c_str());
+#ifdef SUPPORT_GRAPHICS
     AutoFillManager::GetInstance().RemoveEvent(eventId_);
     CloseModalUIExtension();
-
+#endif // SUPPORT_GRAPHICS
     if (errCode != 0) {
         SendAutoFillFailed(AutoFill::AUTO_FILL_ON_ERROR);
     }
 }
-
+#ifdef SUPPORT_GRAPHICS
 void AutoFillExtensionCallback::HandleReloadInModal(const AAFwk::WantParams &wantParams)
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
@@ -155,7 +160,7 @@ void AutoFillExtensionCallback::onRemoteReady(const std::shared_ptr<Ace::ModalUI
     }
     AutoFillManager::GetInstance().SetAutoFillExtensionProxy(uiContent_, modalUIExtensionProxy);
 }
-
+#endif // SUPPORT_GRAPHICS
 void AutoFillExtensionCallback::onDestroy()
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
@@ -174,8 +179,10 @@ void AutoFillExtensionCallback::onDestroy()
         }
         return;
     }
-    SendAutoFillFailed(AutoFill::AUTO_FILL_CANCEL);
+    SendAutoFillFailed(AutoFill::AUTO_FILL_FAILED);
+#ifdef SUPPORT_GRAPHICS
     CloseModalUIExtension();
+#endif
 }
 
 void AutoFillExtensionCallback::SetFillRequestCallback(const std::shared_ptr<IFillRequestCallback> &callback)
@@ -192,7 +199,7 @@ void AutoFillExtensionCallback::SetSessionId(int32_t sessionId)
 {
     sessionId_= sessionId;
 }
-
+#ifdef SUPPORT_GRAPHICS
 void AutoFillExtensionCallback::SetUIContent(Ace::UIContent *uiContent)
 {
     uiContent_ = uiContent;
@@ -202,7 +209,7 @@ Ace::UIContent *AutoFillExtensionCallback::GetUIContent()
 {
     return uiContent_;
 }
-
+#endif // SUPPORT_GRAPHICS
 void AutoFillExtensionCallback::SetEventId(uint32_t eventId)
 {
     eventId_ = eventId;
@@ -240,7 +247,9 @@ AbilityBase::ViewData AutoFillExtensionCallback::GetViewData()
 
 void AutoFillExtensionCallback::HandleTimeOut()
 {
+#ifdef SUPPORT_GRAPHICS
     CloseModalUIExtension();
+#endif
     SendAutoFillFailed(AutoFill::AUTO_FILL_REQUEST_TIME_OUT);
 }
 
@@ -273,7 +282,7 @@ void AutoFillExtensionCallback::SendAutoFillFailed(int32_t errCode, const AAFwk:
         saveCallback_ = nullptr;
     }
 }
-
+#ifdef SUPPORT_GRAPHICS
 void AutoFillExtensionCallback::CloseModalUIExtension()
 {
     if (uiContent_ == nullptr) {
@@ -289,5 +298,6 @@ void AutoFillExtensionCallback::CloseModalUIExtension()
     AutoFillManager::GetInstance().RemoveAutoFillExtensionProxy(uiContent_);
     uiContent_ = nullptr;
 }
+#endif // SUPPORT_GRAPHICS
 } // namespace AbilityRuntime
 } // namespace OHOS

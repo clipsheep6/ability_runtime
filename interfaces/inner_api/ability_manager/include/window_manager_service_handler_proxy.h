@@ -16,7 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_WINDOW_MANAGER_SERVICE_HANDLER_PROXY_H
 #define OHOS_ABILITY_RUNTIME_WINDOW_MANAGER_SERVICE_HANDLER_PROXY_H
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 #include "iremote_proxy.h"
 #include "window_manager_service_handler.h"
 

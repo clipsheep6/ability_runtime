@@ -23,9 +23,13 @@
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_ui_ability.h"
+#ifdef CJ_FRONTEND
+#include "cj_ui_ability.h"
+#endif
 #include "ohos_application.h"
 #include "reverse_continuation_scheduler_primary_stage.h"
 #include "runtime.h"
+#include "resource_config_helper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -33,12 +37,17 @@ namespace {
 constexpr char DMS_SESSION_ID[] = "sessionId";
 constexpr char DMS_ORIGIN_DEVICE_ID[] = "deviceId";
 constexpr int32_t DEFAULT_DMS_SESSION_ID = 0;
+#ifdef SUPPORT_SCREEN
 constexpr char LAUNCHER_BUNDLE_NAME[] = "com.ohos.launcher";
 constexpr char LAUNCHER_ABILITY_NAME[] = "com.ohos.launcher.MainAbility";
 constexpr char SHOW_ON_LOCK_SCREEN[] = "ShowOnLockScreen";
+#endif
+
 constexpr char DLP_PARAMS_SECURITY_FLAG[] = "ohos.dlp.params.securityFlag";
 constexpr char COMPONENT_STARTUP_NEW_RULES[] = "component.startup.newRules";
+#ifdef SUPPORT_SCREEN
 constexpr int32_t ERR_INVALID_VALUE = -1;
+#endif
 }
 UIAbility *UIAbility::Create(const std::unique_ptr<Runtime> &runtime)
 {
@@ -49,6 +58,10 @@ UIAbility *UIAbility::Create(const std::unique_ptr<Runtime> &runtime)
     switch (runtime->GetLanguage()) {
         case Runtime::Language::JS:
             return JsUIAbility::Create(runtime);
+#ifdef CJ_FRONTEND
+        case Runtime::Language::CJ:
+            return CJUIAbility::Create(runtime);
+#endif
         default:
             return new (std::nothrow) UIAbility();
     }
@@ -68,7 +81,7 @@ void UIAbility::Init(std::shared_ptr<AppExecFwk::AbilityLocalRecord> record,
     abilityInfo_ = record->GetAbilityInfo();
     handler_ = handler;
     token_ = token;
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     continuationManager_ = std::make_shared<AppExecFwk::ContinuationManagerStage>();
     std::weak_ptr<AppExecFwk::ContinuationManagerStage> continuationManager = continuationManager_;
     continuationHandler_ =
@@ -156,7 +169,7 @@ void UIAbility::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessio
     (const_cast<AAFwk::Want &>(want)).RemoveParam(DLP_PARAMS_SECURITY_FLAG);
     SetWant(want);
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin ability is %{public}s.", abilityInfo_->name.c_str());
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     if (sessionInfo != nullptr) {
         SetSessionToken(sessionInfo->sessionToken);
         SetIdentityToken(sessionInfo->identityToken);
@@ -182,7 +195,7 @@ void UIAbility::OnStop()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     if (abilityRecovery_ != nullptr) {
         abilityRecovery_->ScheduleSaveAbilityState(AppExecFwk::StateReason::LIFECYCLE);
     }
@@ -287,44 +300,10 @@ void UIAbility::NotifyContinuationResult(const AAFwk::Want &want, bool success)
 void UIAbility::OnConfigurationUpdatedNotify(const AppExecFwk::Configuration &configuration)
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "begin");
-    std::string language;
-    std::string colormode;
-    std::string hasPointerDevice;
-    InitConfigurationProperties(configuration, language, colormode, hasPointerDevice);
-    std::string colorModeIsSetByApp = configuration.GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP);
-    // Notify ResourceManager
-    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
-    if (resConfig == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Create res config failed.");
-        return;
-    }
+    ResourceConfigHelper resourceConfig;
+    InitConfigurationProperties(configuration, resourceConfig);
     auto resourceManager = GetResourceManager();
-    if (resourceManager != nullptr) {
-        resourceManager->GetResConfig(*resConfig);
-#ifdef SUPPORT_GRAPHICS
-        if (!language.empty()) {
-            UErrorCode status = U_ZERO_ERROR;
-            icu::Locale locale = icu::Locale::forLanguageTag(language, status);
-            TAG_LOGD(AAFwkTag::UIABILITY, "Get forLanguageTag return[%{public}d].", static_cast<int>(status));
-            if (status == U_ZERO_ERROR) {
-                resConfig->SetLocaleInfo(locale);
-            }
-        }
-#endif
-        if (!colormode.empty()) {
-            resConfig->SetColorMode(AppExecFwk::ConvertColorMode(colormode));
-        }
-        if (!hasPointerDevice.empty()) {
-            resConfig->SetInputDevice(AppExecFwk::ConvertHasPointerDevice(hasPointerDevice));
-        }
-        if (!colorModeIsSetByApp.empty()) {
-            TAG_LOGD(AAFwkTag::UIABILITY, "set app true");
-            resConfig->SetAppColorMode(true);
-        }
-        resourceManager->UpdateResConfig(*resConfig);
-        TAG_LOGD(AAFwkTag::UIABILITY, "Current colorMode: %{public}d, hasPointerDevice: %{public}d.",
-            resConfig->GetColorMode(), resConfig->GetInputDevice());
-    }
+    resourceConfig.UpdateResConfig(configuration, resourceManager);
 
     if (abilityContext_ != nullptr && application_ != nullptr) {
         abilityContext_->SetConfiguration(application_->GetConfiguration());
@@ -334,36 +313,51 @@ void UIAbility::OnConfigurationUpdatedNotify(const AppExecFwk::Configuration &co
     TAG_LOGD(AAFwkTag::UIABILITY, "End.");
 }
 
-void UIAbility::InitConfigurationProperties(const AppExecFwk::Configuration &changeConfiguration, std::string &language,
-    std::string &colormode, std::string &hasPointerDevice)
+void UIAbility::InitConfigurationProperties(const AppExecFwk::Configuration &changeConfiguration,
+    ResourceConfigHelper &resourceConfig)
 {
+    resourceConfig.SetMcc(changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MCC));
+    resourceConfig.SetMnc(changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MNC));
+    resourceConfig.SetColorModeIsSetByApp(
+        changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP));
     if (setting_) {
         auto displayId =
             std::atoi(setting_->GetProperty(AppExecFwk::AbilityStartSetting::WINDOW_DISPLAY_ID_KEY).c_str());
-        language = changeConfiguration.GetItem(displayId, AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
-        colormode = changeConfiguration.GetItem(displayId, AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
-        hasPointerDevice = changeConfiguration.GetItem(displayId, AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
+        resourceConfig.SetLanguage(changeConfiguration.GetItem(displayId,
+            AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE));
+        resourceConfig.SetColormode(changeConfiguration.GetItem(displayId,
+            AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE));
+        resourceConfig.SetHasPointerDevice(changeConfiguration.GetItem(displayId,
+            AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE));
         TAG_LOGD(AAFwkTag::UIABILITY, "displayId: [%{public}d], language: [%{public}s], colormode: [%{public}s], "
-                    "hasPointerDevice: [%{public}s].",
-            displayId, language.c_str(), colormode.c_str(), hasPointerDevice.c_str());
+            "hasPointerDevice: [%{public}s] mcc: [%{public}s], mnc: [%{public}s].", displayId,
+            resourceConfig.GetLanguage().c_str(), resourceConfig.GetColormode().c_str(),
+            resourceConfig.GetHasPointerDevice().c_str(), resourceConfig.GetMcc().c_str(),
+            resourceConfig.GetMnc().c_str());
     } else {
-        language = changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
-        colormode = changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
-        hasPointerDevice = changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
+        resourceConfig.SetLanguage(changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE));
+        resourceConfig.SetColormode(changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE));
+        resourceConfig.SetHasPointerDevice(changeConfiguration.GetItem(
+            AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE));
         TAG_LOGD(AAFwkTag::UIABILITY,
-            "Language: [%{public}s], colormode: [%{public}s], hasPointerDevice: [%{public}s].",
-            language.c_str(), colormode.c_str(), hasPointerDevice.c_str());
+            "Language: [%{public}s], colormode: [%{public}s], hasPointerDevice: [%{public}s] "
+            "mcc: [%{public}s], mnc: [%{public}s].",
+            resourceConfig.GetLanguage().c_str(), resourceConfig.GetColormode().c_str(),
+            resourceConfig.GetHasPointerDevice().c_str(), resourceConfig.GetMcc().c_str(),
+            resourceConfig.GetMnc().c_str());
     }
 }
 
 void UIAbility::OnMemoryLevel(int level)
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+#ifdef SUPPORT_SCREEN
     if (scene_ == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "WindowScene is null.");
         return;
     }
     scene_->NotifyMemoryLevel(level);
+#endif
 }
 
 std::string UIAbility::GetAbilityName()
@@ -569,7 +563,7 @@ void UIAbility::SetIsSilentForeground(bool isSilentForeground)
     isSilentForeground_ = isSilentForeground;
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 void UIAbility::OnSceneCreated()
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Called.");

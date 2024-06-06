@@ -63,14 +63,14 @@ constexpr int32_t CALLER_TIME_OUT = 10; // 10s
 
 namespace {
 static std::map<ConnectionKey, sptr<JSAbilityConnection>, KeyCompare> g_connects;
-std::mutex gConnectsLock_;
+std::recursive_mutex gConnectsLock_;
 int64_t g_serialNumber = 0;
 const std::string ATOMIC_SERVICE_PREFIX = "com.atomicservice.";
 
 // This function has to be called from engine thread
 void RemoveConnection(int64_t connectId)
 {
-    std::lock_guard<std::mutex> lock(gConnectsLock_);
+    std::lock_guard<std::recursive_mutex> lock(gConnectsLock_);
     auto item = std::find_if(g_connects.begin(), g_connects.end(),
     [&connectId](const auto &obj) {
         return connectId == obj.first.id;
@@ -88,7 +88,7 @@ void RemoveConnection(int64_t connectId)
 
 int64_t InsertConnection(sptr<JSAbilityConnection> connection, const AAFwk::Want &want, int32_t accountId = -1)
 {
-    std::lock_guard<std::mutex> lock(gConnectsLock_);
+    std::lock_guard<std::recursive_mutex> lock(gConnectsLock_);
     if (connection == nullptr) {
         TAG_LOGE(AAFwkTag::CONTEXT, "connection null");
         return -1;
@@ -375,7 +375,10 @@ napi_value JsAbilityContext::OnStartAbility(napi_env env, NapiCallbackInfo& info
     }
 
     AAFwk::Want want;
-    OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want);
+    if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
+        ThrowInvalidParamError(env, "Parse param want failed, must be a Want");
+        return CreateJsUndefined(env);
+    }
     InheritWindowMode(want);
     decltype(info.argc) unwrapArgc = ARGC_ONE;
     TAG_LOGD(AAFwkTag::CONTEXT, "ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
@@ -534,7 +537,8 @@ napi_value JsAbilityContext::OnOpenLink(napi_env env, NapiCallbackInfo& info)
 
     if (!ParseOpenLinkParams(env, info, linkValue, openLinkOptions, want)) {
         TAG_LOGE(AAFwkTag::CONTEXT, "parse openLink arguments failed");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env,
+            "Parse param link or openLinkOptions failed, link must be string, openLinkOptions must be options.");
         return CreateJsUndefined(env);
     }
 
@@ -1265,7 +1269,7 @@ napi_value JsAbilityContext::OnConnectAbilityWithAccount(napi_env env, NapiCallb
 
 napi_value JsAbilityContext::OnDisconnectAbility(napi_env env, NapiCallbackInfo& info)
 {
-    std::lock_guard<std::mutex> lock(gConnectsLock_);
+    std::lock_guard<std::recursive_mutex> lock(gConnectsLock_);
     if (info.argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::CONTEXT, "Not enough params");
         ThrowTooFewParametersError(env);
@@ -1478,7 +1482,7 @@ napi_value JsAbilityContext::WrapRequestDialogResult(napi_env env,
 void JsAbilityContext::InheritWindowMode(AAFwk::Want &want)
 {
     TAG_LOGD(AAFwkTag::CONTEXT, "called");
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     // only split mode need inherit
     auto context = context_.lock();
     if (!context) {
@@ -1751,7 +1755,7 @@ void JSAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName 
 void JSAbilityConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
     int resultCode)
 {
-    std::lock_guard<std::mutex> lock(gConnectsLock_);
+    std::lock_guard<std::recursive_mutex> lock(gConnectsLock_);
     TAG_LOGD(AAFwkTag::CONTEXT, "resultCode:%{public}d", resultCode);
     if (jsConnectionObject_ == nullptr) {
         TAG_LOGE(AAFwkTag::CONTEXT, "jsConnectionObject_ nullptr");
@@ -1862,31 +1866,34 @@ napi_value JsAbilityContext::OnSetMissionContinueState(napi_env env, NapiCallbac
         return CreateJsUndefined(env);
     }
 
-    NapiAsyncTask::CompleteCallback complete =
-        [weak = context_, state](napi_env env, NapiAsyncTask& task, int32_t status) {
-            auto context = weak.lock();
-            if (!context) {
-                TAG_LOGW(AAFwkTag::CONTEXT, "context is released");
-                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
-                return;
-            }
+    auto innerErrorCode = std::make_shared<int32_t>(ERR_OK);
+    NapiAsyncTask::ExecuteCallback execute = [weak = context_, state, innerErrorCode]() {
+        auto context = weak.lock();
+        if (!context) {
+            TAG_LOGW(AAFwkTag::CONTEXT, "context is released");
+            *innerErrorCode = static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+            return;
+        }
 
-            auto errcode = context->SetMissionContinueState(state);
-            if (errcode == 0) {
-                task.Resolve(env, CreateJsUndefined(env));
-            } else {
-                task.Reject(env, CreateJsErrorByNativeErr(env, errcode));
-            }
-        };
+        *innerErrorCode = context->SetMissionContinueState(state);
+    };
+
+    NapiAsyncTask::CompleteCallback complete = [innerErrorCode](napi_env env, NapiAsyncTask& task, int32_t status) {
+        if (*innerErrorCode == ERR_OK) {
+            task.Resolve(env, CreateJsUndefined(env));
+        } else {
+            task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
+        }
+    };
 
     napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     napi_value result = nullptr;
-    NapiAsyncTask::ScheduleHighQos("JsAbilityContext::SetMissionContinueState",
-        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnSetMissionContinueState",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
     return result;
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 napi_value JsAbilityContext::SetMissionLabel(napi_env env, napi_callback_info info)
 {
     GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnSetMissionLabel);
@@ -2011,13 +2018,14 @@ napi_value JsAbilityContext::OnStartAbilityByType(napi_env env, NapiCallbackInfo
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                 return;
             }
-
+#ifdef SUPPORT_SCREEN
             auto errcode = context->StartAbilityByType(type, wantParam, callback);
             if (errcode != 0) {
                 task.Reject(env, CreateJsErrorByNativeErr(env, errcode));
             } else {
                 task.ResolveWithNoError(env, CreateJsUndefined(env));
             }
+#endif
         };
 
     napi_value lastParam = (info.argc > ARGC_THREE) ? info.argv[INDEX_THREE] : nullptr;

@@ -533,7 +533,7 @@ void UIAbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, st
     abilityHandler_->PostTask(task, "UIAbilityThread:DumpAbilityInfo");
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 void UIAbilityThread::DumpAbilityInfoInner(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
@@ -670,7 +670,7 @@ void UIAbilityThread::HandlePrepareTermianteAbility()
     isPrepareTerminateAbilityDone_.store(true);
     cv_.notify_all();
 }
-
+#ifdef SUPPORT_SCREEN
 int UIAbilityThread::CreateModalUIExtension(const Want &want)
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Call");
@@ -680,14 +680,16 @@ int UIAbilityThread::CreateModalUIExtension(const Want &want)
     }
     return currentAbility_->CreateModalUIExtension(want);
 }
-
+#endif //SUPPORT_SCREEN
 void UIAbilityThread::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
 {
     if (currentAbility_ == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "current ability is nullptr");
         return;
     }
+#ifdef SUPPORT_SCREEN
     currentAbility_->UpdateSessionToken(sessionToken);
+#endif //SUPPORT_SCREEN
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

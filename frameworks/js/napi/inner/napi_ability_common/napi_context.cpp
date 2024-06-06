@@ -84,7 +84,9 @@ static void SetShowOnLockScreenAsyncCompleteCB(napi_env env, napi_status status,
         TAG_LOGE(AAFwkTag::JSNAPI, "input param is nullptr");
         showOnLockScreenCB->cbBase.errCode = NAPI_ERR_ACE_ABILITY;
     } else {
+#ifdef SUPPORT_SCREEN
         showOnLockScreenCB->cbBase.ability->SetShowOnLockScreen(showOnLockScreenCB->isShow);
+#endif
     }
 
     napi_value callback = nullptr, undefined = nullptr, callResult = nullptr;
@@ -169,7 +171,9 @@ napi_value SetShowOnLockScreenPromise(napi_env env, ShowOnLockScreenCB *cbData)
                 TAG_LOGE(AAFwkTag::JSNAPI, "input param is nullptr");
                 showOnLockScreenCB->cbBase.errCode = NAPI_ERR_ACE_ABILITY;
             } else {
+#ifdef SUPPORT_SCREEN
                 showOnLockScreenCB->cbBase.ability->SetShowOnLockScreen(showOnLockScreenCB->isShow);
+#endif
             }
 
             napi_value result = GetCallbackErrorValue(env, showOnLockScreenCB->cbBase.errCode);
@@ -237,9 +241,10 @@ void SetDisplayOrientationExecuteCallbackWork(napi_env env, void *data)
         asyncCallbackInfo->error_code = NAPI_ERR_ACE_ABILITY;
         return;
     }
-
+#ifdef SUPPORT_SCREEN
     int orientation = asyncCallbackInfo->param.paramArgs.GetIntValue("orientation");
     asyncCallbackInfo->ability->SetDisplayOrientation(orientation);
+#endif
     asyncCallbackInfo->native_data.data_type = NVT_UNDEFINED;
 }
 
@@ -292,8 +297,9 @@ static void SetWakeUpScreenAsyncCompleteCB(napi_env env, napi_status status, voi
             setWakeUpScreenCB->cbBase.errCode = NAPI_ERR_ACE_ABILITY;
             break;
         }
-
+#ifdef SUPPORT_SCREEN
         setWakeUpScreenCB->cbBase.ability->SetWakeUpScreen(setWakeUpScreenCB->wakeUp);
+#endif
     } while (false);
 
     napi_value callback = nullptr;
@@ -381,7 +387,9 @@ napi_value SetWakeUpScreenPromise(napi_env env, SetWakeUpScreenCB *cbData)
                 TAG_LOGE(AAFwkTag::JSNAPI, "input param is nullptr");
                 setWakeUpScreenCB->cbBase.errCode = NAPI_ERR_ACE_ABILITY;
             } else {
+#ifdef SUPPORT_SCREEN
                 setWakeUpScreenCB->cbBase.ability->SetWakeUpScreen(setWakeUpScreenCB->wakeUp);
+#endif
             }
             napi_value result = GetCallbackErrorValue(env, setWakeUpScreenCB->cbBase.errCode);
             if (setWakeUpScreenCB->cbBase.errCode == NO_ERROR) {
@@ -2879,12 +2887,12 @@ static napi_value ConstructNapiJSContext(napi_env env)
         TAG_LOGE(AAFwkTag::JSNAPI, "CreateObject failed");
         return nullptr;
     }
-    auto jsCalss = std::make_unique<NapiJsContext>();
-    if (!jsCalss->DataInit(env)) {
+    auto jsClass = std::make_unique<NapiJsContext>();
+    if (!jsClass->DataInit(env)) {
         TAG_LOGE(AAFwkTag::JSNAPI, "NapiJsContext init failed");
         return nullptr;
     }
-    napi_wrap(env, objContext, jsCalss.release(), NapiJsContext::Finalizer, nullptr, nullptr);
+    napi_wrap(env, objContext, jsClass.release(), NapiJsContext::Finalizer, nullptr, nullptr);
     napi_set_named_property(env, objContext, "stageMode", CreateJsValue(env, false));
     if (!BindNapiJSContextFunction(env, objContext)) {
         TAG_LOGE(AAFwkTag::JSNAPI, "bind func failed");
@@ -3318,7 +3326,7 @@ napi_value NapiJsContext::OnVerifyPermission(napi_env env, napi_callback_info in
         return CreateJsNull(env);
     }
     JsPermissionOptions options;
-    bool flagCall = UnwarpVerifyPermissionParams(env, info, options);
+    bool flagCall = UnwrapVerifyPermissionParams(env, info, options);
     auto execute = [obj = this, permission, options, value = errorVal] () {
         if (obj->ability_ == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
@@ -3599,7 +3607,7 @@ napi_value NapiJsContext::OnGetOrCreateLocalDir(napi_env env, napi_callback_info
         auto context = obj->ability_->GetAbilityContext();
         if (context == nullptr || dir == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID);
-            TAG_LOGE(AAFwkTag::JSNAPI, "task execute error, the abilitycontext is nullptr");
+            TAG_LOGE(AAFwkTag::JSNAPI, "task execute error, the ability context is nullptr");
             return;
         }
         dir->name = context->GetBaseDir();
@@ -3650,7 +3658,9 @@ napi_value NapiJsContext::OnSetShowOnLockScreen(napi_env env, napi_callback_info
             task.Reject(env, CreateJsError(env, static_cast<int32_t>(NAPI_ERR_ACE_ABILITY), "get ability error"));
             return;
         }
+#ifdef SUPPORT_SCREEN
         obj->ability_->SetShowOnLockScreen(isShow);
+#endif
         task.Resolve(env, CreateJsUndefined(env));
     };
 
@@ -3684,7 +3694,9 @@ napi_value NapiJsContext::OnSetWakeUpScreen(napi_env env, napi_callback_info inf
             task.Reject(env, CreateJsError(env, static_cast<int32_t>(NAPI_ERR_ACE_ABILITY), "get ability error"));
             return;
         }
+#ifdef SUPPORT_SCREEN
         obj->ability_->SetWakeUpScreen(wakeUp);
+#endif
         task.Resolve(env, CreateJsUndefined(env));
     };
 
@@ -3724,7 +3736,9 @@ napi_value NapiJsContext::OnSetDisplayOrientation(napi_env env, napi_callback_in
             task.Reject(env, CreateJsError(env, static_cast<int32_t>(NAPI_ERR_ACE_ABILITY), "get ability error"));
             return;
         }
+#ifdef SUPPORT_SCREEN
         obj->ability_->SetDisplayOrientation(orientationData);
+#endif
         task.Resolve(env, CreateJsUndefined(env));
     };
 

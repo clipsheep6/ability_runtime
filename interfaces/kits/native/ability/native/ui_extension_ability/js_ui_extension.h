@@ -17,7 +17,9 @@
 #define OHOS_ABILITY_RUNTIME_JS_UI_EXTENSION_H
 
 #include "configuration.h"
+#ifdef SUPPORT_GRAPHICS
 #include "display_manager.h"
+#endif // SUPPORT_GRAPHICS
 #include "js_ui_extension_content_session.h"
 #include "ui_extension.h"
 #include <mutex>

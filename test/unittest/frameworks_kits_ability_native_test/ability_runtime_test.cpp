@@ -114,5 +114,20 @@ HWTEST_F(RuntimeTest, GetPreloaded_0100, TestSize.Level0)
     EXPECT_TRUE(runtime->GetPreloaded() != nullptr);
     GTEST_LOG_(INFO) << "RuntimeTest GetPreloaded_0100 end";
 }
+
+/**
+ * @tc.number: SetModuleLoadChecker_0100
+ * @tc.name: SetModuleLoadChecker
+ * @tc.desc: Runtime test for SetModuleLoadChecker, runtime is not nullptr.
+ */
+HWTEST_F(RuntimeTest, SetModuleLoadChecker_0100, TestSize.Level0)
+{
+    GTEST_LOG_(INFO) << "RuntimeTest SetModuleLoadChecker_0100 start";
+    Runtime::Options options;
+    std::unique_ptr<Runtime> runtime = std::make_unique<MockRuntime>();
+    runtime->SetModuleLoadChecker(nullptr);
+    EXPECT_TRUE(runtime != nullptr);
+    GTEST_LOG_(INFO) << "RuntimeTest SetModuleLoadChecker_0100 end";
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

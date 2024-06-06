@@ -19,6 +19,7 @@
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "pending_want_manager.h"
+#include "int_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -138,6 +139,7 @@ void PendingWantRecord::BuildSendWant(SenderInfo &senderInfo, Want &want)
             wantParams.SetParam(sendInfoWantParamKey, mapIter->second);
         }
     }
+    wantParams.SetParam("ohos.extra.param.key.appCloneIndex", Integer::Box(key_->GetAppIndex()));
     want.SetParams(wantParams);
 }
 

@@ -21,6 +21,7 @@ ohos_shared_library("apprecovery_napi") {
 
   if (ability_runtime_graphics) {
     include_dirs += [ "./" ]
+    defines = [ "SUPPORT_SCREEN" ]
   }
 
   sources = [

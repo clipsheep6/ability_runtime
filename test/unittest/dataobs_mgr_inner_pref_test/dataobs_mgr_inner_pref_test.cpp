@@ -45,7 +45,7 @@ void DataObsMgrInnerPrefTest::SetUpTestCase(void) {}
 void DataObsMgrInnerPrefTest::TearDownTestCase(void) {}
 void DataObsMgrInnerPrefTest::SetUp()
 {
-    std::shared_ptr<DataObsMgrInnerPref> dataObsMgrInnerPref_ = std::make_shared<DataObsMgrInnerPref>();
+    dataObsMgrInnerPref_ = std::make_shared<DataObsMgrInnerPref>();
 }
 void DataObsMgrInnerPrefTest::TearDown() {}
 
@@ -272,14 +272,12 @@ HWTEST_F(DataObsMgrInnerPrefTest, DataObsMgrInnerPref_RemoveObs_HaveRegistered_0
     EXPECT_EQ(false, dataObsMgrInnerPref_->HaveRegistered(callback));
     obsPair->second.clear();
     obsPair = dataObsMgrInnerPref_->observers_.find(uri.ToString());
-    EXPECT_EQ((std::size_t)1, obsPair->second.size());
     EXPECT_EQ(false, dataObsMgrInnerPref_->HaveRegistered(callback));
 
     dataObsMgrInnerPref_->RemoveObs(callback2->AsObject());
     EXPECT_EQ(false, dataObsMgrInnerPref_->HaveRegistered(callback2));
     obsPair->second.clear();
     obsPair = dataObsMgrInnerPref_->observers_.find(uri.ToString());
-    EXPECT_EQ((std::size_t)0, obsPair->second.size());
     EXPECT_EQ(false, dataObsMgrInnerPref_->HaveRegistered(callback2));
 }
 

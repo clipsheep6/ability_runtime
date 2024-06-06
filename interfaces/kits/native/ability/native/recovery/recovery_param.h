@@ -44,6 +44,7 @@ enum RestartFlag {
     ALWAYS_RESTART = 0x0000,
     RESTART_WHEN_JS_CRASH = 0x0001,
     RESTART_WHEN_APP_FREEZE = 0x0002,
+    RESTART_WHEN_CJ_CRASH = 0x0004,
     NO_RESTART = 0xFFFF,
 };
 
@@ -65,6 +66,7 @@ enum StateReason {
     CPP_CRASH,
     JS_ERROR,
     APP_FREEZE,
+    CJ_ERROR,
 };
 
 }  // namespace AAFwk

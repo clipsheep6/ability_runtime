@@ -87,7 +87,10 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->StopServiceAbility(*want, int32Param, token);
     std::shared_ptr<AbilityRecord> abilityRecord;
     abilityms->OnAbilityDied(abilityRecord);
-
+    if (want) {
+        delete want;
+        want = nullptr;
+    }
     return true;
 }
 }

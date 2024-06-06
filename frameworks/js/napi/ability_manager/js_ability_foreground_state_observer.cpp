@@ -30,7 +30,7 @@ void JSAbilityForegroundStateObserver::OnAbilityStateChanged(const AbilityStateD
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     if (!valid_) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "The app manager may has destoryed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "The app manager may has destroyed.");
         return;
     }
     wptr<JSAbilityForegroundStateObserver> jsObserver = this;
@@ -51,7 +51,6 @@ void JSAbilityForegroundStateObserver::OnAbilityStateChanged(const AbilityStateD
 void JSAbilityForegroundStateObserver::HandleOnAbilityStateChanged(const AbilityStateData &abilityStateData)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
-    std::lock_guard<std::mutex> lock(mutexlock);
     for (auto &item : jsObserverObjectSet_) {
         if (item == nullptr) {
             continue;
@@ -112,7 +111,6 @@ void JSAbilityForegroundStateObserver::AddJsObserverObject(const napi_value &jsO
     }
     napi_ref ref = nullptr;
     napi_create_reference(env_, jsObserverObject, 1, &ref);
-    std::lock_guard<std::mutex> lock(mutexlock);
     jsObserverObjectSet_.emplace(std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference *>(ref)));
 }
 
@@ -124,7 +122,6 @@ void JSAbilityForegroundStateObserver::RemoveJsObserverObject(const napi_value &
     }
 
     auto observer = GetObserverObject(jsObserverObject);
-    std::lock_guard<std::mutex> lock(mutexlock);
     if (observer != nullptr) {
         jsObserverObjectSet_.erase(observer);
     }
@@ -132,7 +129,6 @@ void JSAbilityForegroundStateObserver::RemoveJsObserverObject(const napi_value &
 
 void JSAbilityForegroundStateObserver::RemoveAllJsObserverObject()
 {
-    std::lock_guard<std::mutex> lock(mutexlock);
     if (!jsObserverObjectSet_.empty()) {
         jsObserverObjectSet_.clear();
     }
@@ -144,7 +140,6 @@ std::shared_ptr<NativeReference> JSAbilityForegroundStateObserver::GetObserverOb
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Observer is null.");
         return nullptr;
     }
-    std::lock_guard<std::mutex> lock(mutexlock);
     for (auto &observer : jsObserverObjectSet_) {
         if (observer == nullptr) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid observer.");

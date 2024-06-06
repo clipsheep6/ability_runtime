@@ -45,6 +45,8 @@ public:
     void InitSyscapModule() override;
 
 private:
+    static void PostTaskToHandler(void* handler, uv_io_cb func, void* work, int status, int priority);
+
     std::shared_ptr<AppExecFwk::EventHandler> eventHandler_;
 };
 } // namespace AbilityRuntime

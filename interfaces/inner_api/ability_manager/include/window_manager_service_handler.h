@@ -16,7 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_WINDOW_MANAGER_SERVICE_HANDLER_H
 #define OHOS_ABILITY_RUNTIME_WINDOW_MANAGER_SERVICE_HANDLER_H
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 #include "iremote_broker.h"
 #include "pixel_map.h"
 #include "window_info.h"

@@ -238,7 +238,7 @@ napi_value QueryBusinessAbilityInfos(napi_env env, napi_callback_info info)
     if (args.GetMaxArgc() >= ARGS_SIZE_ONE) {
         if (!ParseBusinessAbilityInfo(env, args[ARGS_POS_ZERO], asyncCallbackInfo->filter)) {
             BusinessError::ThrowParameterTypeError(env, ERROR_PARAM_CHECK_ERROR, TYPE_BUSINESS_AIBILITY_FILTER,
-                TYPE_STRING);
+                "BusinessAbilityFilter");
             return nullptr;
         }
         if (args.GetMaxArgc() == ARGS_SIZE_TWO) {

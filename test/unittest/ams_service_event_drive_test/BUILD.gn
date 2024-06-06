@@ -103,7 +103,7 @@ ohos_unittest("AmsServiceEventDriveTest") {
   }
 
   if (ability_runtime_graphics) {
-    external_deps += [ "window_manager:libwm" ]
+    external_deps += [ "window_manager:libwm_lite" ]
   }
 }
 

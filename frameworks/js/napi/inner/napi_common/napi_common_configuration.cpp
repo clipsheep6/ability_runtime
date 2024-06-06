@@ -85,6 +85,12 @@ napi_value WrapConfiguration(napi_env env, const AppExecFwk::Configuration &conf
     jsValue = WrapDoubleToJS(env, fontWeightScale != "" ? std::stod(fontWeightScale) : 1.0);
     SetPropertyValueByPropertyName(env, jsObject, "fontWeightScale", jsValue);
 
+    jsValue = WrapStringToJS(env, configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MCC));
+    SetPropertyValueByPropertyName(env, jsObject, "mcc", jsValue);
+
+    jsValue = WrapStringToJS(env, configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MNC));
+    SetPropertyValueByPropertyName(env, jsObject, "mnc", jsValue);
+
     return jsObject;
 }
 

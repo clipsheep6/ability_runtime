@@ -21,6 +21,7 @@ const int32_t CREATE_VALUE_ZERO = 0;
 const int32_t CREATE_VALUE_ONE = 1;
 const int32_t CREATE_VALUE_TWO = 2;
 const int32_t CREATE_VALUE_THREE = 3;
+const int32_t CREATE_VALUE_FOUR = 4;
 static napi_status SetEnumItem(napi_env env, napi_value object, const char* name, int32_t value)
 {
     napi_status status;
@@ -45,6 +46,7 @@ static napi_value InitAreaModeObject(napi_env env)
     NAPI_CALL(env, SetEnumItem(env, object, "EL2", CREATE_VALUE_ONE));
     NAPI_CALL(env, SetEnumItem(env, object, "EL3", CREATE_VALUE_TWO));
     NAPI_CALL(env, SetEnumItem(env, object, "EL4", CREATE_VALUE_THREE));
+    NAPI_CALL(env, SetEnumItem(env, object, "EL5", CREATE_VALUE_FOUR));
 
     return object;
 }

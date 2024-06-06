@@ -71,7 +71,7 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
         TAG_LOGE(AAFwkTag::ABILITY, "ability is nullptr");
         return ERR_NULL_OBJECT;
     }
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     // inherit split mode
     auto windowMode = ability->GetCurrentWindowMode();
     if (windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY ||

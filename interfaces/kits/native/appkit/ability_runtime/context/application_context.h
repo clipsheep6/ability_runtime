@@ -91,6 +91,7 @@ public:
     void SwitchArea(int mode) override;
     void SetColorMode(int32_t colorMode);
     void SetLanguage(const std::string &language);
+    void SetFont(const std::string &font);
     void ClearUpApplicationData();
     int GetArea() override;
     std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() const override;
@@ -110,6 +111,7 @@ public:
     bool GetApplicationInfoUpdateFlag() const;
     void SetApplicationInfoUpdateFlag(bool flag);
     void RegisterAppConfigUpdateObserver(AppConfigUpdateCallback appConfigChangeCallback);
+    void RegisterAppFontObserver(AppConfigUpdateCallback appFontCallback);
 
     std::string GetAppRunningUniqueId() const;
     void SetAppRunningUniqueId(const std::string &appRunningUniqueId);
@@ -128,6 +130,7 @@ private:
     std::recursive_mutex applicationStateCallbackLock_;
     bool applicationInfoUpdateFlag_ = false;
     AppConfigUpdateCallback appConfigChangeCallback_ = nullptr;
+    AppConfigUpdateCallback appFontCallback_ = nullptr;
     std::string appRunningUniqueId_;
     int32_t appIndex_ = 0;
     int32_t appMode_ = 0;

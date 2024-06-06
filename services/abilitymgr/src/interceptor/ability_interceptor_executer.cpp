@@ -19,10 +19,21 @@
 
 namespace OHOS {
 namespace AAFwk {
-void AbilityInterceptorExecuter::AddInterceptor(const std::shared_ptr<IAbilityInterceptor> &interceptor)
+void AbilityInterceptorExecuter::AddInterceptor(std::string interceptorName,
+    const std::shared_ptr<IAbilityInterceptor> &interceptor)
 {
+    std::lock_guard lock(interceptorMapLock_);
     if (interceptor != nullptr) {
-        interceptorList_.push_back(interceptor);
+        interceptorMap_[interceptorName] = interceptor;
+    }
+}
+
+void AbilityInterceptorExecuter::RemoveInterceptor(std::string interceptorName)
+{
+    std::lock_guard lock(interceptorMapLock_);
+    auto iter = interceptorMap_.find(interceptorName);
+    if (iter != interceptorMap_.end()) {
+        interceptorMap_.erase(interceptorName);
     }
 }
 
@@ -30,9 +41,10 @@ ErrCode AbilityInterceptorExecuter::DoProcess(AbilityInterceptorParam param)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int32_t result = ERR_OK;
-    auto item = interceptorList_.begin();
-    while (item != interceptorList_.end()) {
-        result = (*item)->DoProcess(param);
+    auto interceptorMap = GetInterceptorMapCopy();
+    auto item = interceptorMap.begin();
+    while (item != interceptorMap.end()) {
+        result = (*item).second->DoProcess(param);
         if (result != ERR_OK) {
             break;
         } else {
@@ -45,12 +57,20 @@ ErrCode AbilityInterceptorExecuter::DoProcess(AbilityInterceptorParam param)
 void AbilityInterceptorExecuter::SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    for (auto &interceptor : interceptorList_) {
-        if (interceptor == nullptr) {
+    
+    std::lock_guard lock(interceptorMapLock_);
+    for (auto &item : interceptorMap_) {
+        if (item.second == nullptr) {
             continue;
         }
-        interceptor->SetTaskHandler(taskHandler);
+        (item.second)->SetTaskHandler(taskHandler);
     }
+}
+
+InterceptorMap AbilityInterceptorExecuter::GetInterceptorMapCopy()
+{
+    std::lock_guard lock(interceptorMapLock_);
+    return interceptorMap_;
 }
 } // namespace AAFwk
 } // namespace OHOS

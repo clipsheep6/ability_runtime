@@ -383,5 +383,16 @@ int AppLifeCycleDeal::DumpFfrt(std::string& result)
     }
     return appThread->ScheduleDumpFfrt(result);
 }
+
+void AppLifeCycleDeal::ScheduleCacheProcess()
+{
+    auto appThread = GetApplicationClient();
+    if (!appThread) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
+        return;
+    }
+
+    appThread->ScheduleCacheProcess();
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

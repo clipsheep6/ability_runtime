@@ -1385,9 +1385,9 @@ HWTEST_F(AppSpawnSocketTest, OnAppCacheStateChanged_001, TestSize.Level0)
     auto manager = std::make_shared<AppStateObserverManager>();
     ASSERT_NE(manager, nullptr);
     std::shared_ptr<AppRunningRecord> appRecord;
-    manager->OnAppCacheStateChanged(appRecord);
+    manager->OnAppCacheStateChanged(appRecord, ApplicationState::APP_STATE_CACHED);
     manager->Init();
-    manager->OnAppCacheStateChanged(appRecord);
+    manager->OnAppCacheStateChanged(appRecord, ApplicationState::APP_STATE_CACHED);
 }
 
 /*
@@ -1402,14 +1402,14 @@ HWTEST_F(AppSpawnSocketTest, HandleOnAppCacheStateChanged_001, TestSize.Level0)
 {
     auto manager = std::make_shared<AppStateObserverManager>();
     ASSERT_NE(manager, nullptr);
-    manager->HandleOnAppCacheStateChanged(nullptr);
+    manager->HandleOnAppCacheStateChanged(nullptr, ApplicationState::APP_STATE_CREATE);
     std::vector<std::string> bundleNameList;
     std::shared_ptr<AppRunningRecord> appRecord = MockAppRecord();
     std::string bundleName = "com.ohos.unittest";
     appRecord->mainBundleName_ = bundleName;
     bundleNameList.push_back(bundleName);
     manager->appStateObserverMap_.emplace(observer_, bundleNameList);
-    manager->HandleOnAppCacheStateChanged(appRecord);
+    manager->HandleOnAppCacheStateChanged(appRecord, ApplicationState::APP_STATE_CREATE);
 }
 
 /*
@@ -1429,7 +1429,7 @@ HWTEST_F(AppSpawnSocketTest, HandleOnAppCacheStateChanged_002, TestSize.Level0)
     std::string bundleName = "com.ohos.unittest";
     appRecord->mainBundleName_ = bundleName;
     manager->appStateObserverMap_.emplace(observer_, bundleNameList);
-    manager->HandleOnAppCacheStateChanged(appRecord);
+    manager->HandleOnAppCacheStateChanged(appRecord, ApplicationState::APP_STATE_CREATE);
 }
 
 /*
@@ -1451,7 +1451,7 @@ HWTEST_F(AppSpawnSocketTest, HandleOnAppCacheStateChanged_003, TestSize.Level0)
     appRecord->mainBundleName_ = bundleName1;
     bundleNameList.push_back(bundleName2);
     manager->appStateObserverMap_.emplace(observer_, bundleNameList);
-    manager->HandleOnAppCacheStateChanged(appRecord);
+    manager->HandleOnAppCacheStateChanged(appRecord, ApplicationState::APP_STATE_CREATE);
 }
 
 /*
@@ -1472,7 +1472,7 @@ HWTEST_F(AppSpawnSocketTest, HandleOnAppCacheStateChanged_004, TestSize.Level0)
     appRecord->mainBundleName_ = bundleName;
     bundleNameList.push_back(bundleName);
     manager->appStateObserverMap_.emplace(nullptr, bundleNameList);
-    manager->HandleOnAppCacheStateChanged(appRecord);
+    manager->HandleOnAppCacheStateChanged(appRecord, ApplicationState::APP_STATE_CREATE);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

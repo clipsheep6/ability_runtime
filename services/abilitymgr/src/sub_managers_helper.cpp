@@ -269,6 +269,20 @@ std::shared_ptr<MissionListManager> SubManagersHelper::GetMissionListManagerByUs
     return nullptr;
 }
 
+std::shared_ptr<MissionListManager> SubManagersHelper::GetMissionListManagerByUid(int32_t uid)
+{
+    int32_t userId = INVALID_USER_ID;
+    if (DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->GetOsAccountLocalIdFromUid(
+        uid, userId) != 0) {
+        return nullptr;
+    }
+    if (userId == U0_USER_ID) {
+        std::lock_guard<ffrt::mutex> lock(managersMutex_);
+        return currentMissionListManager_;
+    }
+    return GetMissionListManagerByUserId(userId);
+}
+
 std::unordered_map<int, std::shared_ptr<UIAbilityLifecycleManager>> SubManagersHelper::GetUIAbilityManagers()
 {
     std::lock_guard<ffrt::mutex> lock(managersMutex_);

@@ -50,6 +50,7 @@ ohos_shared_library("napi_common") {
   external_deps = [
     "ability_base:base",
     "ability_base:configuration",
+    "ability_base:session_info",
     "ability_base:want",
     "access_token:libtokenid_sdk",
     "c_utils:utils",
@@ -61,10 +62,16 @@ ohos_shared_library("napi_common") {
     "napi:ace_napi",
   ]
 
-  public_external_deps = [ "bundle_framework:appexecfwk_core" ]
+  public_external_deps = [
+    "bundle_framework:appexecfwk_core",
+    "window_manager:libwm_lite",
+  ]
 
   if (ability_runtime_graphics) {
-    defines = [ "SUPPORT_GRAPHICS" ]
+    defines = [
+      "SUPPORT_GRAPHICS",
+      "SUPPORT_SCREEN",
+    ]
   }
 
   innerapi_tags = [ "platformsdk" ]

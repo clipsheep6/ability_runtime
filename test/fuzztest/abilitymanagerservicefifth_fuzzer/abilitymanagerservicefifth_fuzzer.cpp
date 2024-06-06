@@ -94,7 +94,10 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 #endif
     AppExecFwk::AbilityRequest abilityRequest;
     abilityms->CheckStaticCfgPermission(abilityRequest, false, -1);
-
+    if (want) {
+        delete want;
+        want = nullptr;
+    }
     return true;
 }
 }
