@@ -6888,7 +6888,8 @@ int32_t AppMgrServiceInner::StartNativeChildProcess(const pid_t hostPid, const s
 }
 
 bool AppMgrServiceInner::IsAppProcessesAllCached(const std::string &bundleName, int32_t uid,
-    const std::set<std::shared_ptr<AppRunningRecord>> &cachedSet) {
+    const std::set<std::shared_ptr<AppRunningRecord>> &cachedSet)
+{
     if (!appRunningManager_) {
         TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is nullptr");
         return false;
@@ -6919,7 +6920,8 @@ bool AppMgrServiceInner::GetSceneBoardAttachFlag() const
     return sceneBoardAttachFlag_;
 }
 
-void AppMgrServiceInner::SetSceneBoardAttachFlag(bool flag) {
+void AppMgrServiceInner::SetSceneBoardAttachFlag(bool flag)
+{
     sceneBoardAttachFlag_ = flag;
 }
 
