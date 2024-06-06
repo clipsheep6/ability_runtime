@@ -279,7 +279,7 @@ void ApplicationContext::DispatchOnAbilityWillBackground(const std::shared_ptr<N
     std::lock_guard<std::recursive_mutex> lock(callbackLock_);
     for (auto callback : callbacks_) {
         if (callback != nullptr) {
-            callback->OnWindowStageActive(ability);
+            callback->OnAbilityWillBackground(ability);
         }
     }
 }

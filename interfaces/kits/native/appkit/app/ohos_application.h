@@ -137,24 +137,6 @@ public:
 
     /**
      *
-     * @brief Called back after the UIAbility called onNewWant.
-     *
-     * @param Ability Indicates the Ability object that calls the onNewWant() method.
-     */
-    void OnNewWant(const std::shared_ptr<AbilityRuntime::UIAbility> &ability);
-
-    /**
-     *
-     * @brief Called back before the UIAbility will called onNewWant.
-     *
-     * @param Ability Indicates the Ability object that calls the OnWillNewWant() method.
-     */
-    void OnWillNewWant(const std::shared_ptr<AbilityRuntime::UIAbility> &ability);
-
-
-
-    /**
-     *
      * Called when Ability#onSaveAbilityState(PacMap) was called on an ability.
      *
      * @param outState Indicates the PacMap object passed to Ability#onSaveAbilityState(PacMap)
