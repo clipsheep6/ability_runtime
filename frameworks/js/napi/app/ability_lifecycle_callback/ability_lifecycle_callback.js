@@ -16,8 +16,24 @@
 class AbilityLifecycleCallback {
   constructor() {}
 
+  onNewWant(ability) {
+    console.log('onNewWant');
+  }
+
+  onWillNewWant(ability) {
+    console.log('onWillNewWant');
+  }
+
   onAbilityCreate(ability) {
     console.log('onAbilityCreate');
+  }
+
+  onAbilityWillCreate(ability) {
+    console.log('onAbilityWillCreate');
+  }
+
+  onWindowStageWillCreate(ability, windowStage) {
+    console.log('onWindowStageWillCreate');
   }
 
   onWindowStageCreate(ability, windowStage) {
@@ -32,16 +48,32 @@ class AbilityLifecycleCallback {
     console.log('onWindowStageInactive');
   }
 
+  onWindowStageWillDestroy(ability, windowStage) {
+    console.log('onWindowStageWillDestroy');
+  }
+
   onWindowStageDestroy(ability, windowStage) {
     console.log('onWindowStageDestroy');
+  }
+
+  onAbilityWillDestroy(ability) {
+    console.log('onAbilityWillDestroy');
   }
 
   onAbilityDestroy(ability) {
     console.log('onAbilityDestroy');
   }
 
+  onAbilityWillForeground(ability) {
+    console.log('onAbilityWillForeground');
+  }
+
   onAbilityForeground(ability) {
     console.log('onAbilityForeground');
+  }
+
+  onAbilityWillBackground(ability) {
+    console.log('onAbilityWillBackground');
   }
 
   onAbilityBackground(ability) {

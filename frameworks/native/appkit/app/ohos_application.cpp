@@ -395,6 +395,48 @@ void OHOSApplication::OnAbilityStop(const std::shared_ptr<AbilityRuntime::UIAbil
 
 /**
  *
+ * Called back after the UIAbility called onNewWant.
+ *
+ * @param Ability Indicates the Ability object that calls the onStop() method.
+ */
+void OHOSApplication::OnNewWant(const std::shared_ptr<AbilityRuntime::UIAbility> &ability)
+{
+    if (ability == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
+        return;
+    }
+
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
+    for (auto callback : abilityLifecycleCallbacks_) {
+        if (callback != nullptr) {
+            callback->OnNewWant(ability);
+        }
+    }
+}
+
+/**
+ *
+ * Called back before the UIAbility will called onNewWant.
+ *
+ * @param Ability Indicates the Ability object that calls the onStop() method.
+ */
+void OHOSApplication::OnWillNewWant(const std::shared_ptr<AbilityRuntime::UIAbility> &ability)
+{
+    if (ability == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
+        return;
+    }
+
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
+    for (auto callback : abilityLifecycleCallbacks_) {
+        if (callback != nullptr) {
+            callback->OnWillNewWant(ability);
+        }
+    }
+}
+
+/**
+ *
  * @brief Register ElementsCallback with OHOSApplication
  *
  * @param callBack callBack when the system configuration of the device changes.
