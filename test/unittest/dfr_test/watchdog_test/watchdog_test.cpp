@@ -460,6 +460,7 @@ HWTEST_F(WatchdogTest, WatchdogTest_ReportEvent_009, TestSize.Level1)
     watchdog_->ReportEvent();
     EXPECT_EQ(watchdog_->backgroundReportCount_, 1);
     watchdog_->SetBundleInfo("test", "1.1.0");
+    watchdog_->SetBgWorkingThreadStatus(false);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

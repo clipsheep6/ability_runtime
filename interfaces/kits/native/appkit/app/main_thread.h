@@ -609,6 +609,8 @@ private:
 
     void HandleCacheProcess();
 
+    bool IsBgWorkingThread(const AbilityInfo &info);
+
     class MainHandler : public EventHandler {
     public:
         MainHandler(const std::shared_ptr<EventRunner> &runner, const sptr<MainThread> &thread);

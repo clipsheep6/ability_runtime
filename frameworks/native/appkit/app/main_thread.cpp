@@ -752,6 +752,11 @@ void MainThread::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
     }
 }
 
+bool MainThread::IsBgWorkingThread(const AbilityInfo &info)
+{
+    return info.extensionAbilityType == ExtensionAbilityType::BACKUP;
+}
+
 void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemoteObject> &token,
     const std::shared_ptr<AAFwk::Want> &want, int32_t abilityRecordId)
 {
@@ -766,7 +771,9 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
     auto abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     abilityRecord->SetWant(want);
     abilityRecord->SetAbilityRecordId(abilityRecordId);
-
+    if (watchdog_ != nullptr) {
+        watchdog_->SetBgWorkingThreadStatus(IsBgWorkingThread(info));
+    }
     FreezeUtil::LifecycleFlow flow = { token, FreezeUtil::TimeoutState::LOAD };
     std::string entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
         "; MainThread::ScheduleLaunchAbility; the load lifecycle.";
