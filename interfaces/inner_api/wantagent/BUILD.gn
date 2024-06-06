@@ -30,7 +30,6 @@ config("wantagent_innerkits_public_config") {
   ]
 
   include_dirs = [
-    "${ability_base_kits_path}/configuration/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_innerkits_path}/ability_manager/include",
     "${ability_runtime_innerkits_path}/wantagent/include",
@@ -86,6 +85,7 @@ ohos_shared_library("wantagent_innerkits") {
   ]
 
   public_external_deps = [
+    "ability_base:configuration",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "eventhandler:libeventhandler",

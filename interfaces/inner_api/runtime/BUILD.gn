@@ -50,7 +50,6 @@ config("runtime_all_deps_config") {
 ohos_shared_library("runtime") {
   include_dirs = [
     "${ability_runtime_path}/services/abilitymgr/include",
-    "${bundlefwk_path}/interfaces/kits/js/common",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
     "${ability_runtime_utils_path}/global/constant",
   ]
@@ -109,6 +108,7 @@ ohos_shared_library("runtime") {
     "ffrt:libffrt",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "init:syscap_ts",
     "ipc:ipc_core",
     "json:nlohmann_json_static",
     "jsoncpp:jsoncpp",
@@ -116,7 +116,6 @@ ohos_shared_library("runtime") {
     "resource_management:global_resmgr",
     "samgr:samgr_proxy",
     "zlib:shared_libz",
-    "init:syscap_ts",
   ]
 
   if (cj_frontend) {
