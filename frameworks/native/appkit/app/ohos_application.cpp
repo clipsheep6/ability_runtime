@@ -667,6 +667,7 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
         return nullptr;
     }
     std::string moduleName = abilityInfo->moduleName;
+    TAG_LOGD(AAFwkTag::APPKIT, "moduleName: %{public}s", moduleName.c_str());
     std::shared_ptr<AbilityRuntime::AbilityStage> abilityStage;
     auto iterator = abilityStages_.find(moduleName);
     if (iterator == abilityStages_.end()) {
