@@ -60,10 +60,12 @@ ohos_shared_library("libupms") {
   ]
 
   external_deps = [
+    "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
+    "background_task_mgr:bgtaskmgr_innerkits",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
@@ -75,7 +77,6 @@ ohos_shared_library("libupms") {
     "image_framework:image_native",
     "init:libbeget_proxy",
     "init:libbegetutil",
-    "init:libbegetutil",
     "ipc:ipc_core",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -83,6 +84,9 @@ ohos_shared_library("libupms") {
     "samgr:samgr_proxy",
     "storage_service:storage_manager_sa_proxy",
   ]
+  if (ability_runtime_graphics) {
+    external_deps += [ "i18n:intl_util" ]
+  }
 
   subsystem_name = "ability"
   part_name = "ability_runtime"
@@ -107,6 +111,7 @@ ohos_static_library("libupms_static") {
   ]
 
   external_deps = [
+    "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_deps_wrapper",

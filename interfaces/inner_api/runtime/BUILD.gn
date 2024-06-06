@@ -50,7 +50,6 @@ config("runtime_all_deps_config") {
 ohos_shared_library("runtime") {
   include_dirs = [
     "${ability_runtime_path}/services/abilitymgr/include",
-    "${bundlefwk_path}/interfaces/kits/js/common",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
     "${ability_runtime_utils_path}/global/constant",
   ]
