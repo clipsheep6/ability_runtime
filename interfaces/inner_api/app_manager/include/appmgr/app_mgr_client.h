@@ -738,6 +738,14 @@ public:
     int32_t SetSupportedProcessCacheSelf(bool isSupport);
 
     void SaveBrowserChannel(sptr<IRemoteObject> browser);
+
+    /**
+     * Check caller is test ability
+     *
+     * @param pid, the pid of ability.
+     * @return Returns ERR_OK is test ability, others is not test ability.
+     */
+    int32_t CheckCallingIsUserTestMode(const pid_t pid, bool &isUserTest);
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
     /**

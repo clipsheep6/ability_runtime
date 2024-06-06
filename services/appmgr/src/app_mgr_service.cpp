@@ -1535,5 +1535,14 @@ int32_t AppMgrService::StartNativeChildProcess(const std::string &libName, int32
         IPCSkeleton::GetCallingPid(), libName, childProcessCount, callback);
 }
 
+int32_t AppMgrService::CheckCallingIsUserTestMode(const pid_t pid, bool &isUserTest)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "called.");
+    if (!appMgrServiceInner_) {
+        return ERR_INVALID_VALUE;
+    }
+    return appMgrServiceInner_->CheckCallingIsUserTestModeInner(pid, isUserTest);
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

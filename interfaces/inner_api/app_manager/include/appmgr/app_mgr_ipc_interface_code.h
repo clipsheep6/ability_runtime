@@ -105,6 +105,7 @@ enum class AppMgrInterfaceCode {
     SET_APP_ASSERT_PAUSE_STATE_SELF = 79,
     GET_RUNNING_PROCESS_INFO_BY_PID = 80,
     IS_APP_RUNNING = 81,
+    CHECK_CALLING_IS_USER_TEST_MODE = 82,
 };
 } // AppExecFwk
 } // OHOS

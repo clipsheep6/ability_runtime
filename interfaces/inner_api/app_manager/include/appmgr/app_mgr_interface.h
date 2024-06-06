@@ -707,6 +707,17 @@ public:
         const sptr<IRemoteObject> &callback) = 0;
 
     virtual void SaveBrowserChannel(sptr<IRemoteObject> browser) = 0;
+
+    /**
+     * Check caller is test ability
+     *
+     * @param pid, the pid of ability.
+     * @return Returns ERR_OK is test ability, others is not test ability.
+     */
+    virtual int32_t CheckCallingIsUserTestMode(const pid_t pid, bool &isUserTest)
+    {
+        return 0;
+    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
