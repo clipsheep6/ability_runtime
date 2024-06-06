@@ -752,6 +752,9 @@ int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection
 
 void AbilityConnectManager::TerminateRecord(std::shared_ptr<AbilityRecord> abilityRecord)
 {
+    if (!GetAbilityRecordById(abilityRecord->GetRecordId())) {
+        return;
+    }
     auto timeoutTask = [abilityRecord, connectManager = shared_from_this()]() {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "Disconnect ability terminate timeout.");
         connectManager->HandleStopTimeoutTask(abilityRecord);
