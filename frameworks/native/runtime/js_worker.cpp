@@ -47,6 +47,9 @@
 #ifdef SUPPORT_SCREEN
 using OHOS::Ace::ContainerScope;
 #endif
+#if defined(ENABLE_FFRT_INTERFACES)
+#include "ffrt.h"
+#endif
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -100,7 +103,15 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
     }
 
     if (g_debugMode) {
-        auto instanceId = getproctid();
+        // If ENABLE_FFRT_INTERFACES is defined and FFRT is enabled, we will use the taskId as tid and instanceId.
+        #if defined(ENABLE_FFRT_INTERFACES)
+            auto instanceId = ffrt_this_task_get_id();
+            if (instanceId == 0) {
+                instanceId = getproctid();
+            }
+        #else
+            auto instanceId = getproctid();
+        #endif
         std::string instanceName = "workerThread_" + std::to_string(instanceId);
         bool needBreakPoint = ConnectServerManager::Get().AddInstance(instanceId, instanceId, instanceName);
         if (g_nativeStart) {
@@ -128,7 +139,15 @@ void OffWorkerFunc(NativeEngine* nativeEngine)
     }
 
     if (g_debugMode) {
-        auto instanceId = getproctid();
+        // If ENABLE_FFRT_INTERFACES is defined and FFRT is enabled, we will use the taskId as tid and instanceId.
+        #if defined(ENABLE_FFRT_INTERFACES)
+            auto instanceId = ffrt_this_task_get_id();
+            if (instanceId == 0) {
+                instanceId = getproctid();
+            }
+        #else
+            auto instanceId = getproctid();
+        #endif
         ConnectServerManager::Get().RemoveInstance(instanceId);
         auto arkNativeEngine = static_cast<ArkNativeEngine*>(nativeEngine);
         auto vm = const_cast<EcmaVM*>(arkNativeEngine->GetEcmaVm());
