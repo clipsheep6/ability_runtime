@@ -19,7 +19,6 @@
 #include <list>
 #include <mutex>
 #include <queue>
-#include "cpp/mutex.h"
 
 #include "inner_mission_info.h"
 #include "mission_snapshot.h"
@@ -132,7 +131,7 @@ private:
 #endif
 
     int userId_ = 0;
-    ffrt::mutex cachedPixelMapMutex_;
+    std::mutex cachedPixelMapMutex_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

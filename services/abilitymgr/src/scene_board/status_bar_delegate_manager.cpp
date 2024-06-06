@@ -27,14 +27,14 @@ namespace OHOS {
 namespace AAFwk {
 int32_t StatusBarDelegateManager::RegisterStatusBarDelegate(sptr<AbilityRuntime::IStatusBarDelegate> delegate)
 {
-    std::lock_guard<ffrt::mutex> lock(statusBarDelegateMutex_);
+    std::lock_guard lock(statusBarDelegateMutex_);
     statusBarDelegate_ = delegate;
     return ERR_OK;
 }
 
 sptr<AbilityRuntime::IStatusBarDelegate> StatusBarDelegateManager::GetStatusBarDelegate()
 {
-    std::lock_guard<ffrt::mutex> lock(statusBarDelegateMutex_);
+    std::lock_guard lock(statusBarDelegateMutex_);
     return statusBarDelegate_;
 }
 

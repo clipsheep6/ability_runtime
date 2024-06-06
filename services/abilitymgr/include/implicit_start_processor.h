@@ -16,6 +16,7 @@
 #define OHOS_ABILITY_RUNTIME_IMPLICIT_START_PROCESSOR_H
 
 #include <list>
+#include <mutex>
 #include <vector>
 #include <string>
 #include <unordered_set>
@@ -109,7 +110,7 @@ private:
     const static std::vector<std::string> blackList;
     const static std::unordered_set<AppExecFwk::ExtensionAbilityType> extensionWhiteList;
     std::shared_ptr<AppExecFwk::BundleMgrHelper> iBundleManagerHelper_;
-    ffrt::mutex identityListLock_;
+    std::mutex identityListLock_;
     std::list<IdentityNode> identityList_;
     bool uriReservedFlag_ = false;
     std::string reservedBundleName_;

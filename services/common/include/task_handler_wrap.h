@@ -16,10 +16,11 @@
 #ifndef OHOS_ABILITY_RUNTIME_TASK_HANDLER_WRAP_H
 #define OHOS_ABILITY_RUNTIME_TASK_HANDLER_WRAP_H
 
-#include <string>
-#include <memory>
-#include <unordered_map>
 #include <functional>
+#include <memory>
+#include <mutex>
+#include <string>
+#include <unordered_map>
 
 #include "task_utils_wrap.h"
 
@@ -93,7 +94,7 @@ protected:
 protected:
     // this is used only for compatibility
     std::unordered_map<std::string, TaskHandle> tasks_;
-    std::unique_ptr<ffrt::mutex> tasksMutex_;
+    std::mutex tasksMutex_;
 };
 
 class AutoSyncTaskHandle {

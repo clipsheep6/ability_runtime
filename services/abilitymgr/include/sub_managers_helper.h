@@ -22,7 +22,6 @@
 
 #include "ability_connect_manager.h"
 #include "ability_event_handler.h"
-#include "cpp/mutex.h"
 #include "data_ability_manager.h"
 #include "mission_list_manager.h"
 #include "nocopyable.h"
@@ -80,7 +79,7 @@ private:
     std::shared_ptr<TaskHandlerWrap> taskHandler_;
     std::shared_ptr<AbilityEventHandler> eventHandler_;
 
-    ffrt::mutex managersMutex_;
+    std::mutex managersMutex_;
     std::unordered_map<int, std::shared_ptr<AbilityConnectManager>> connectManagers_;
     std::shared_ptr<AbilityConnectManager> currentConnectManager_;
     std::unordered_map<int, std::shared_ptr<DataAbilityManager>> dataAbilityManagers_;

@@ -357,7 +357,7 @@ void AppRunningRecord::SetRestartTimeMillis(const int64_t restartTimeMillis)
 const std::list<std::shared_ptr<ApplicationInfo>> AppRunningRecord::GetAppInfoList()
 {
     std::list<std::shared_ptr<ApplicationInfo>> appInfoList;
-    std::lock_guard<ffrt::mutex> appInfosLock(appInfosLock_);
+    std::lock_guard appInfosLock(appInfosLock_);
     for (const auto &item : appInfos_) {
         appInfoList.push_back(item.second);
     }
@@ -399,7 +399,7 @@ void AppRunningRecord::RemoveModuleRecord(
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called");
 
-    std::lock_guard<ffrt::mutex> hapModulesLock(hapModulesLock_);
+    std::lock_guard hapModulesLock(hapModulesLock_);
     for (auto &item : hapModules_) {
         auto iter = std::find_if(item.second.begin(),
             item.second.end(),
@@ -409,7 +409,7 @@ void AppRunningRecord::RemoveModuleRecord(
             iter = item.second.erase(iter);
             if (item.second.empty() && !isExtensionDebug) {
                 {
-                    std::lock_guard<ffrt::mutex> appInfosLock(appInfosLock_);
+                    std::lock_guard appInfosLock(appInfosLock_);
                     TAG_LOGD(AAFwkTag::APPMGR, "Removed an appInfo.");
                     appInfos_.erase(item.first);
                 }
@@ -439,7 +439,7 @@ void AppRunningRecord::LaunchApplication(const Configuration &config)
     }
     AppLaunchData launchData;
     {
-        std::lock_guard<ffrt::mutex> appInfosLock(appInfosLock_);
+        std::lock_guard appInfosLock(appInfosLock_);
         auto moduleRecords = appInfos_.find(mainBundleName_);
         if (moduleRecords != appInfos_.end()) {
             launchData.SetApplicationInfo(*(moduleRecords->second));
@@ -728,7 +728,7 @@ void AppRunningRecord::AddModule(std::shared_ptr<ApplicationInfo> appInfo,
         moduleRecord->SetApplicationClient(appLifeCycleDeal_);
     };
 
-    std::lock_guard<ffrt::mutex> hapModulesLock(hapModulesLock_);
+    std::lock_guard hapModulesLock(hapModulesLock_);
     const auto &iter = hapModules_.find(appInfo->bundleName);
     if (iter != hapModules_.end()) {
         moduleRecord = GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
@@ -743,7 +743,7 @@ void AppRunningRecord::AddModule(std::shared_ptr<ApplicationInfo> appInfo,
         moduleList.push_back(moduleRecord);
         hapModules_.emplace(appInfo->bundleName, moduleList);
         {
-            std::lock_guard<ffrt::mutex> appInfosLock(appInfosLock_);
+            std::lock_guard appInfosLock(appInfosLock_);
             appInfos_.emplace(appInfo->bundleName, appInfo);
         }
         initModuleRecord(moduleRecord);
@@ -1164,7 +1164,7 @@ void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
 std::list<std::shared_ptr<ModuleRunningRecord>> AppRunningRecord::GetAllModuleRecord() const
 {
     std::list<std::shared_ptr<ModuleRunningRecord>> moduleRecordList;
-    std::lock_guard<ffrt::mutex> hapModulesLock(hapModulesLock_);
+    std::lock_guard hapModulesLock(hapModulesLock_);
     TAG_LOGD(AAFwkTag::APPMGR, "Begin.");
     for (const auto &item : hapModules_) {
         for (const auto &list : item.second) {
@@ -1435,7 +1435,7 @@ void AppRunningRecord::SetStageModelState(bool isStageBasedModel)
 bool AppRunningRecord::GetTheModuleInfoNeedToUpdated(const std::string bundleName, HapModuleInfo &info)
 {
     bool result = false;
-    std::lock_guard<ffrt::mutex> hapModulesLock(hapModulesLock_);
+    std::lock_guard hapModulesLock(hapModulesLock_);
     auto moduleInfoVectorIter = hapModules_.find(bundleName);
     if (moduleInfoVectorIter == hapModules_.end() || moduleInfoVectorIter->second.empty()) {
         return result;
@@ -1489,7 +1489,7 @@ bool AppRunningRecord::CanRestartResidentProc()
 
 void AppRunningRecord::GetBundleNames(std::vector<std::string> &bundleNames)
 {
-    std::lock_guard<ffrt::mutex> appInfosLock(appInfosLock_);
+    std::lock_guard appInfosLock(appInfosLock_);
     TAG_LOGD(AAFwkTag::APPMGR, "Begin.");
     for (auto &app : appInfos_) {
         bundleNames.emplace_back(app.first);
@@ -1870,7 +1870,7 @@ int32_t AppRunningRecord::NotifyAppFault(const FaultData &faultData)
 
 bool AppRunningRecord::IsAbilitytiesBackground()
 {
-    std::lock_guard<ffrt::mutex> hapModulesLock(hapModulesLock_);
+    std::lock_guard hapModulesLock(hapModulesLock_);
     for (const auto &iter : hapModules_) {
         for (const auto &moduleRecord : iter.second) {
             if (moduleRecord == nullptr) {

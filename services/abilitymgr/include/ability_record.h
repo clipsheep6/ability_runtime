@@ -16,13 +16,13 @@
 #ifndef OHOS_ABILITY_RUNTIME_ABILITY_RECORD_H
 #define OHOS_ABILITY_RUNTIME_ABILITY_RECORD_H
 
+#include <condition_variable>
 #include <ctime>
 #include <functional>
 #include <list>
 #include <memory>
+#include <mutex>
 #include <vector>
-#include "cpp/mutex.h"
-#include "cpp/condition_variable.h"
 
 #include "ability_connect_callback_interface.h"
 #include "ability_info.h"
@@ -656,7 +656,7 @@ public:
      *
      */
     void RemoveSpecifiedWantParam(const std::string &key);
-    
+
     /**
      * get request code of the ability to start.
      *
@@ -1122,7 +1122,7 @@ private:
     bool isAbilityForegrounding_ = false;
 
     // service(ability) can be connected by multi-pages(abilites), so need to store this service's connections
-    mutable ffrt::mutex connRecordListMutex_;
+    mutable std::mutex connRecordListMutex_;
     std::list<std::shared_ptr<ConnectionRecord>> connRecordList_ = {};
     // service(ability) onConnect() return proxy of service ability
     sptr<IRemoteObject> connRemoteObject_ = {};
@@ -1164,12 +1164,12 @@ private:
     int32_t restartMax_ = -1;
     std::string specifiedFlag_;
     std::string uri_;
-    ffrt::mutex lock_;
-    mutable ffrt::mutex dumpInfoLock_;
-    mutable ffrt::mutex dumpLock_;
-    mutable ffrt::mutex resultLock_;
-    mutable ffrt::mutex wantLock_;
-    mutable ffrt::condition_variable dumpCondition_;
+    std::mutex lock_;
+    mutable std::mutex dumpInfoLock_;
+    mutable std::mutex dumpLock_;
+    mutable std::mutex resultLock_;
+    mutable std::mutex wantLock_;
+    mutable std::condition_variable dumpCondition_;
     mutable bool isDumpTimeout_ = false;
     std::vector<std::string> dumpInfos_;
     std::atomic<AbilityState> pendingState_ = AbilityState::INITIAL;    // pending life state
@@ -1177,7 +1177,7 @@ private:
 
     // scene session
     sptr<SessionInfo> sessionInfo_ = nullptr;
-    mutable ffrt::mutex sessionLock_;
+    mutable std::mutex sessionLock_;
     std::map<uint64_t, AbilityWindowState> abilityWindowStateMap_;
     sptr<SessionInfo> uiExtRequestSessionInfo_ = nullptr;
 

@@ -19,7 +19,7 @@
 #include <future>
 #include <map>
 #include <memory>
-#include <shared_mutex>
+#include <mutex>
 #include <singleton.h>
 #include <thread_ex.h>
 #include <unordered_map>
@@ -2181,9 +2181,9 @@ private:
     std::shared_ptr<UserController> userController_;
     sptr<AppExecFwk::IAbilityController> abilityController_ = nullptr;
     bool controllerIsAStabilityTest_ = false;
-    ffrt::mutex globalLock_;
-    ffrt::mutex bgtaskObserverMutex_;
-    ffrt::mutex abilityTokenLock_;
+    std::mutex globalLock_;
+    std::mutex bgtaskObserverMutex_;
+    std::mutex abilityTokenLock_;
 
     std::multimap<std::string, std::string> timeoutMap_;
 
@@ -2268,10 +2268,10 @@ private:
     bool isPrepareTerminateEnable_ = false;
     std::multimap<int, std::shared_ptr<StartAbilityHandler>, std::greater<int>> startAbilityChain_;
 
-    ffrt::mutex collaboratorMapLock_;
+    std::mutex collaboratorMapLock_;
     std::unordered_map<int32_t, sptr<IAbilityManagerCollaborator>> collaboratorMap_;
 
-    ffrt::mutex abilityDebugDealLock_;
+    std::mutex abilityDebugDealLock_;
     std::shared_ptr<AbilityDebugDeal> abilityDebugDeal_;
     std::shared_ptr<AppExitReasonHelper> appExitReasonHelper_;
 };

@@ -21,7 +21,6 @@
 #include <map>
 #include <vector>
 #include <string>
-#include "cpp/mutex.h"
 
 #include "ability_manager_errors.h"
 #include "ability_record.h"
@@ -175,7 +174,7 @@ private:
 
 private:
     std::map<std::shared_ptr<PendingWantKey>, sptr<PendingWantRecord>> wantRecords_;
-    ffrt::mutex mutex_;
+    std::mutex mutex_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

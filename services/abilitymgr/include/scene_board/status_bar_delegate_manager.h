@@ -16,7 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_STATUS_BAR_DELEGATE_MANAGER_H
 #define OHOS_ABILITY_RUNTIME_STATUS_BAR_DELEGATE_MANAGER_H
 
-#include "cpp/mutex.h"
+#include <mutex>
 
 #include "ability_record.h"
 #include "status_bar_delegate_interface.h"
@@ -37,7 +37,7 @@ private:
 
     sptr<AbilityRuntime::IStatusBarDelegate> GetStatusBarDelegate();
 
-    mutable ffrt::mutex statusBarDelegateMutex_;
+    mutable std::mutex statusBarDelegateMutex_;
     sptr<AbilityRuntime::IStatusBarDelegate> statusBarDelegate_;
 };
 }  // namespace AAFwk

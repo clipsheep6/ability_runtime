@@ -18,7 +18,6 @@
 
 #include <mutex>
 #include <unordered_map>
-#include "cpp/mutex.h"
 
 #include "task_handler_wrap.h"
 #include "application_state_observer_stub.h"
@@ -208,10 +207,10 @@ private:
 private:
     std::shared_ptr<ConnectionObserverController> observerController_;
 
-    ffrt::mutex stateLock_;
+    std::mutex stateLock_;
     std::unordered_map<int32_t, std::shared_ptr<ConnectionStateItem>> connectionStates_;
 
-    ffrt::mutex dlpLock_;
+    std::mutex dlpLock_;
     std::unordered_map<int32_t, std::shared_ptr<DlpStateItem>> dlpItems_;
 
     sptr<InnerAppStateObserver> appStateObserver_;

@@ -31,7 +31,7 @@ RestartAppManager &RestartAppManager::GetInstance()
 
 bool RestartAppManager::IsRestartAppFrequent(const RestartAppKeyType &key, time_t time)
 {
-    std::lock_guard<ffrt::mutex> lock(restartAppMapLock_);
+    std::lock_guard lock(restartAppMapLock_);
     constexpr int64_t MIN_RESTART_TIME = 10;
     auto it = restartAppHistory_.find(key);
     if ((it != restartAppHistory_.end()) && (it->second + MIN_RESTART_TIME > time)) {
@@ -43,7 +43,7 @@ bool RestartAppManager::IsRestartAppFrequent(const RestartAppKeyType &key, time_
 
 void RestartAppManager::AddRestartAppHistory(const RestartAppKeyType &key, time_t time)
 {
-    std::lock_guard<ffrt::mutex> lock(restartAppMapLock_);
+    std::lock_guard lock(restartAppMapLock_);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Refresh history, bundleName=%{public}s, userId=%{public}d", key.bundleName.c_str(),
         key.userId);
     restartAppHistory_[key] = time;

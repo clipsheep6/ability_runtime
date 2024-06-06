@@ -19,7 +19,6 @@
 #include <mutex>
 #include <vector>
 #include <list>
-#include "cpp/mutex.h"
 
 #include "task_handler_wrap.h"
 #include "mission_listener_interface.h"
@@ -130,7 +129,7 @@ private:
     template<typename F, typename... Args>
     void CallListeners(F func, Args&&... args)
     {
-        std::lock_guard<ffrt::mutex> guard(listenerLock_);
+        std::lock_guard guard(listenerLock_);
         for (auto listener : missionListeners_) {
             if (listener) {
                 (listener->*func)(std::forward<Args>(args)...);
@@ -150,7 +149,7 @@ private:
     };
 
 private:
-    ffrt::mutex listenerLock_;
+    std::mutex listenerLock_;
     std::shared_ptr<TaskHandlerWrap> handler_;
     std::vector<sptr<IMissionListener>> missionListeners_;
     sptr<IRemoteObject::DeathRecipient> listenerDeathRecipient_;

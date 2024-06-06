@@ -16,13 +16,12 @@
 #ifndef OHOS_ABILITY_RUNTIME_DATA_ABILITY_RECORD_H
 #define OHOS_ABILITY_RUNTIME_DATA_ABILITY_RECORD_H
 
+#include <condition_variable>
 #include <list>
 #include <string>
 #include <memory>
 #include <mutex>
 #include <chrono>
-#include "cpp/mutex.h"
-#include "cpp/condition_variable.h"
 
 #include "ability_record.h"
 #include "data_ability_caller_recipient.h"
@@ -36,7 +35,7 @@ public:
 
 public:
     int StartLoading();
-    int WaitForLoaded(ffrt::mutex &mutex, const std::chrono::system_clock::duration &timeout);
+    int WaitForLoaded(std::mutex &mutex, const std::chrono::system_clock::duration &timeout);
     sptr<IAbilityScheduler> GetScheduler();
     int Attach(const sptr<IAbilityScheduler> &scheduler);
     int OnTransitionDone(int state);
@@ -65,7 +64,7 @@ private:
     int32_t GetDiedCallerPid(const sptr<IRemoteObject> &remote);
 
 private:
-    ffrt::condition_variable loadedCond_ {};
+    std::condition_variable loadedCond_ {};
     AbilityRequest request_ {};
     AbilityRecordPtr ability_ {};
     sptr<IAbilityScheduler> scheduler_ {};

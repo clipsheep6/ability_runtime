@@ -18,7 +18,6 @@
 
 #include <list>
 #include <mutex>
-#include "cpp/mutex.h"
 
 #include "iremote_object.h"
 #include "pending_want_key.h"
@@ -64,7 +63,7 @@ private:
     bool canceled_ = false;
     std::shared_ptr<PendingWantKey> key_ = {};
     std::list<sptr<IWantReceiver>> mCancelCallbacks_ = {};
-    ffrt::mutex lock_ = {};
+    std::mutex lock_ = {};
 };
 }  // namespace AAFwk
 }  // namespace OHOS

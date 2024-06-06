@@ -16,10 +16,10 @@
 #ifndef OHOS_ABILITY_RUNTIME_DISPOSED_OBSERVER_H
 #define OHOS_ABILITY_RUNTIME_DISPOSED_OBSERVER_H
 
+#include <mutex>
 #include "ability_util.h"
 #include "application_state_observer_stub.h"
 #include "app_mgr_interface.h"
-#include "cpp/mutex.h"
 #include "want.h"
 
 namespace OHOS {
@@ -35,7 +35,7 @@ private:
     void OnAbilityStateChanged(const AppExecFwk::AbilityStateData &abilityStateData) override;
     void OnPageShow(const AppExecFwk::PageStateData &pageStateData) override;
 private:
-    ffrt::mutex observerLock_;
+    std::mutex observerLock_;
     AppExecFwk::DisposedRule disposedRule_;
     sptr<IRemoteObject> token_ = nullptr;
     std::shared_ptr<DisposedRuleInterceptor> interceptor_ = nullptr;

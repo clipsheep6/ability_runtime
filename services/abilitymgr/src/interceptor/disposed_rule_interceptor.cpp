@@ -161,7 +161,7 @@ ErrCode DisposedRuleInterceptor::StartNonBlockRule(const Want &want, AppExecFwk:
     }
     std::string bundleName = want.GetBundle();
     {
-        std::lock_guard<ffrt::mutex> guard(observerLock_);
+        std::lock_guard guard(observerLock_);
         if (disposedObserverMap_.find(bundleName) != disposedObserverMap_.end()) {
             TAG_LOGD(AAFwkTag::ABILITYMGR, "start same disposed app, do not need to register again");
             return ERR_OK;
@@ -180,11 +180,11 @@ ErrCode DisposedRuleInterceptor::StartNonBlockRule(const Want &want, AppExecFwk:
         return ret;
     }
     {
-        std::lock_guard<ffrt::mutex> guard(observerLock_);
+        std::lock_guard guard(observerLock_);
         disposedObserverMap_.emplace(bundleName, disposedObserver);
     }
     auto unregisterTask = [appManager, bundleName, interceptor = shared_from_this()] () {
-        std::lock_guard<ffrt::mutex> guard{interceptor->observerLock_};
+        std::lock_guard guard{interceptor->observerLock_};
         auto iter = interceptor->disposedObserverMap_.find(bundleName);
         if (iter != interceptor->disposedObserverMap_.end()) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "start disposed app time out, need to unregister observer");
@@ -221,7 +221,7 @@ void DisposedRuleInterceptor::UnregisterObserver(const std::string &bundleName)
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Call");
     taskHandler_->CancelTask(UNREGISTER_TIMEOUT_OBSERVER_TASK);
     auto unregisterTask = [bundleName, interceptor = shared_from_this()] () {
-        std::lock_guard<ffrt::mutex> guard{interceptor->observerLock_};
+        std::lock_guard guard{interceptor->observerLock_};
         auto iter = interceptor->disposedObserverMap_.find(bundleName);
         if (iter == interceptor->disposedObserverMap_.end()) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Can not find observer");

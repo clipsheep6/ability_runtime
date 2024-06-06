@@ -16,10 +16,10 @@
 #ifndef OHOS_ABILITY_RUNTIME_DIALOG_SESSION_RECORD_H
 #define OHOS_ABILITY_RUNTIME_DIALOG_SESSION_RECORD_H
 #include <list>
+#include <mutex>
 #include <unordered_map>
 #include <string>
 #include "ability_record.h"
-#include "cpp/mutex.h"
 #include "dialog_session_info.h"
 #include "json_serializer.h"
 #include "parcel.h"
@@ -56,7 +56,7 @@ public:
         std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos, bool isSelector);
 
 private:
-    mutable ffrt::mutex dialogSessionRecordLock_;
+    mutable std::mutex dialogSessionRecordLock_;
     std::unordered_map<std::string, sptr<DialogSessionInfo>> dialogSessionInfoMap_;
     std::unordered_map<std::string, std::shared_ptr<DialogCallerInfo>> dialogCallerInfoMap_;
 };

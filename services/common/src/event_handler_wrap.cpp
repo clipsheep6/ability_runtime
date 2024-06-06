@@ -20,16 +20,10 @@
 
 namespace OHOS {
 namespace AAFwk {
-EventHandlerWrap::EventHandlerWrap() : taskHandler_(TaskHandlerWrap::GetFfrtHandler())
-{
-    eventMutex_ = std::make_unique<ffrt::mutex>();
-}
+EventHandlerWrap::EventHandlerWrap() : taskHandler_(TaskHandlerWrap::GetFfrtHandler()) {}
 
 EventHandlerWrap::EventHandlerWrap(std::shared_ptr<TaskHandlerWrap> taskHandler)
-    : taskHandler_(taskHandler)
-{
-    eventMutex_ = std::make_unique<ffrt::mutex>();
-}
+    : taskHandler_(taskHandler) {}
 
 EventHandlerWrap::~EventHandlerWrap() = default;
 
@@ -57,7 +51,7 @@ bool EventHandlerWrap::SendEvent(EventWrap event, int64_t delayMillis, bool forc
         return false;
     }
     auto eventStr = event.GetEventString();
-    std::lock_guard<ffrt::mutex> guard(*eventMutex_);
+    std::lock_guard guard(eventMutex_);
     auto it  = eventMap_.find(eventStr);
     if (it != eventMap_.end() && !forceInsert) {
         return false;
@@ -87,7 +81,7 @@ bool EventHandlerWrap::RemoveEvent(uint32_t eventId, int64_t param)
 
 bool EventHandlerWrap::RemoveEvent(EventWrap event, bool force)
 {
-    std::lock_guard<ffrt::mutex> guard(*eventMutex_);
+    std::lock_guard guard(eventMutex_);
     auto it = eventMap_.find(event.GetEventString());
     if (it == eventMap_.end()) {
         return false;

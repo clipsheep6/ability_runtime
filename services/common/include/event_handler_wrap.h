@@ -16,10 +16,11 @@
 #ifndef OHOS_ABILITY_RUNTIME_EVENT_HANDLER_WRAP_H
 #define OHOS_ABILITY_RUNTIME_EVENT_HANDLER_WRAP_H
 
-#include <string>
-#include <memory>
-#include <unordered_map>
 #include <functional>
+#include <memory>
+#include <mutex>
+#include <string>
+#include <unordered_map>
 
 #include "task_handler_wrap.h"
 
@@ -119,7 +120,7 @@ protected:
     std::shared_ptr<TaskHandlerWrap> taskHandler_;
     std::function<void(const EventWrap&)> eventCallback_;
 
-    std::unique_ptr<ffrt::mutex> eventMutex_;
+    std::mutex eventMutex_;
     std::unordered_map<std::string, EventWrap> eventMap_;
 };
 }  // namespace AAFWK

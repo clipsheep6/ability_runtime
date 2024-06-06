@@ -70,10 +70,7 @@ std::shared_ptr<TaskHandlerWrap> TaskHandlerWrap::GetFfrtHandler()
     return ffrtHandler;
 }
 
-TaskHandlerWrap::TaskHandlerWrap()
-{
-    tasksMutex_ = std::make_unique<ffrt::mutex>();
-}
+TaskHandlerWrap::TaskHandlerWrap() {}
 
 TaskHandlerWrap::~TaskHandlerWrap() = default;
 
@@ -102,7 +99,7 @@ TaskHandle TaskHandlerWrap::SubmitTask(const std::function<void()> &task,
     const std::string &name, int64_t delayMillis, bool forceSubmit)
 {
     TaskAttribute atskAttr{name, delayMillis};
-    std::lock_guard<ffrt::mutex> guard(*tasksMutex_);
+    std::lock_guard guard(tasksMutex_);
     auto it = tasks_.find(name);
     if (it != tasks_.end()) {
         TAG_LOGD(AAFwkTag::DEFAULT, "SubmitTask repeated task: %{public}s", name.c_str());
@@ -145,7 +142,7 @@ TaskHandle TaskHandlerWrap::SubmitTask(const std::function<void()> &task, const 
 bool TaskHandlerWrap::CancelTask(const std::string &name)
 {
     TAG_LOGD(AAFwkTag::DEFAULT, "CancelTask task: %{public}s", name.c_str());
-    std::lock_guard<ffrt::mutex> guard(*tasksMutex_);
+    std::lock_guard guard(tasksMutex_);
     auto it = tasks_.find(name);
     if (it == tasks_.end()) {
         return false;
@@ -158,7 +155,7 @@ bool TaskHandlerWrap::CancelTask(const std::string &name)
 
 bool TaskHandlerWrap::RemoveTask(const std::string &name, const TaskHandle &taskHandle)
 {
-    std::lock_guard<ffrt::mutex> guard(*tasksMutex_);
+    std::lock_guard guard(tasksMutex_);
     auto it = tasks_.find(name);
     if (it == tasks_.end() || !it->second.IsSame(taskHandle)) {
         return false;

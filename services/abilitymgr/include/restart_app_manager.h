@@ -19,7 +19,6 @@
 #include <mutex>
 #include <string>
 #include <unordered_map>
-#include "cpp/mutex.h"
 #include "nocopyable.h"
 
 namespace OHOS {
@@ -65,7 +64,7 @@ private:
     RestartAppManager() = default;
     DISALLOW_COPY_AND_MOVE(RestartAppManager);
 
-    ffrt::mutex restartAppMapLock_;
+    std::mutex restartAppMapLock_;
     RestartAppMapType restartAppHistory_; // RestartAppKey:time
 };
 }  // namespace AAFwk

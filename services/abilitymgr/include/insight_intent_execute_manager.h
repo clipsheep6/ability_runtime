@@ -17,8 +17,8 @@
 #define OHOS_ABILITY_RUNTIME_INSIGHT_INTENT_EXECUTE_MANAGER_H
 
 #include <map>
+#include <mutex>
 #include "ability_connect_callback_stub.h"
-#include "cpp/mutex.h"
 #include "insight_intent_execute_param.h"
 #include "insight_intent_execute_result.h"
 #include "iremote_object.h"
@@ -88,7 +88,7 @@ public:
     static int32_t GenerateWant(const std::shared_ptr<AppExecFwk::InsightIntentExecuteParam> &param, Want &want);
 
 private:
-    mutable ffrt::mutex mutex_;
+    mutable std::mutex mutex_;
     uint64_t intentIdCount_ = 0;
     std::map<uint64_t, std::shared_ptr<InsightIntentExecuteRecord>> records_;
 

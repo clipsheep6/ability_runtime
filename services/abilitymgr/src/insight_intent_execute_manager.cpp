@@ -106,7 +106,7 @@ int32_t InsightIntentExecuteManager::CheckAndUpdateWant(Want &want, ExecuteMode 
 int32_t InsightIntentExecuteManager::AddRecord(uint64_t key, const sptr<IRemoteObject> &callerToken,
     const std::string &bundleName, uint64_t &intentId)
 {
-    std::lock_guard<ffrt::mutex> lock(mutex_);
+    std::lock_guard lock(mutex_);
     intentId = ++intentIdCount_;
     auto record = std::make_shared<InsightIntentExecuteRecord>();
     record->key = key;
@@ -130,7 +130,7 @@ int32_t InsightIntentExecuteManager::AddRecord(uint64_t key, const sptr<IRemoteO
 
 int32_t InsightIntentExecuteManager::RemoveExecuteIntent(uint64_t intentId)
 {
-    std::lock_guard<ffrt::mutex> lock(mutex_);
+    std::lock_guard lock(mutex_);
     records_.erase(intentId);
     return ERR_OK;
 }
@@ -138,7 +138,7 @@ int32_t InsightIntentExecuteManager::RemoveExecuteIntent(uint64_t intentId)
 int32_t InsightIntentExecuteManager::ExecuteIntentDone(uint64_t intentId, int32_t resultCode,
     const AppExecFwk::InsightIntentExecuteResult &result)
 {
-    std::lock_guard<ffrt::mutex> lock(mutex_);
+    std::lock_guard lock(mutex_);
     auto findResult = records_.find(intentId);
     if (findResult == records_.end()) {
         TAG_LOGE(AAFwkTag::INTENT, "intent not found, id: %{public}" PRIu64, intentId);
@@ -173,7 +173,7 @@ int32_t InsightIntentExecuteManager::ExecuteIntentDone(uint64_t intentId, int32_
 
 int32_t InsightIntentExecuteManager::RemoteDied(uint64_t intentId)
 {
-    std::lock_guard<ffrt::mutex> lock(mutex_);
+    std::lock_guard lock(mutex_);
     auto result = records_.find(intentId);
     if (result == records_.end()) {
         TAG_LOGE(AAFwkTag::INTENT, "intent not found, id: %{public}" PRIu64, intentId);
@@ -190,7 +190,7 @@ int32_t InsightIntentExecuteManager::RemoteDied(uint64_t intentId)
 
 int32_t InsightIntentExecuteManager::GetBundleName(uint64_t intentId, std::string &bundleName) const
 {
-    std::lock_guard<ffrt::mutex> lock(mutex_);
+    std::lock_guard lock(mutex_);
     auto result = records_.find(intentId);
     if (result == records_.end()) {
         TAG_LOGE(AAFwkTag::INTENT, "intent not found, id: %{public}" PRIu64, intentId);

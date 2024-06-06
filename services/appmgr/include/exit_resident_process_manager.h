@@ -20,7 +20,6 @@
 #include <vector>
 
 #include "bundle_info.h"
-#include "cpp/mutex.h"
 #include "nocopyable.h"
 #include "refbase.h"
 
@@ -47,7 +46,7 @@ private:
     ExitResidentProcessManager();
     MemorySizeState currentMemorySizeState_ = MemorySizeState::MEMORY_SIZE_SUFFICENT;
     std::vector<std::string> exitResidentBundleNames_;
-    mutable ffrt::mutex mutexLock_;
+    mutable std::mutex mutexLock_;
     DISALLOW_COPY_AND_MOVE(ExitResidentProcessManager);
 };
 }  // namespace AppExecFwk

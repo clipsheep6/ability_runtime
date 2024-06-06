@@ -25,7 +25,6 @@
 #include "app_foreground_state_observer_interface.h"
 #include "app_running_record.h"
 #include "app_state_data.h"
-#include "cpp/mutex.h"
 #include "iapp_state_callback.h"
 #include "iapplication_state_observer.h"
 #include "page_state_data.h"
@@ -107,12 +106,12 @@ private:
 private:
     std::shared_ptr<AAFwk::TaskHandlerWrap> handler_;
     int32_t dummyCode_ = 0;
-    ffrt::mutex observerLock_;
+    std::mutex observerLock_;
     std::map<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>> recipientMap_;
     AppStateObserverMap appStateObserverMap_;
-    ffrt::mutex appForegroundObserverLock_;
+    std::mutex appForegroundObserverLock_;
     AppForegroundStateObserverSet appForegroundStateObserverSet_;
-    ffrt::mutex abilityforegroundObserverLock_;
+    std::mutex abilityforegroundObserverLock_;
     AbilityforegroundObserverSet abilityforegroundObserverSet_;
 };
 }  // namespace AppExecFwk

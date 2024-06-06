@@ -19,10 +19,10 @@
 #include <list>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <unordered_set>
 
-#include "cpp/mutex.h"
 #include "iremote_object.h"
 #include "irender_scheduler.h"
 #include "ability_running_record.h"
@@ -889,9 +889,9 @@ private:
     std::string signCode_;  // the sign of this hap
     std::string jointUserId_;
     std::map<std::string, std::shared_ptr<ApplicationInfo>> appInfos_;
-    ffrt::mutex appInfosLock_;
+    std::mutex appInfosLock_;
     std::map<std::string, std::vector<std::shared_ptr<ModuleRunningRecord>>> hapModules_;
-    mutable ffrt::mutex hapModulesLock_;
+    mutable std::mutex hapModulesLock_;
     int32_t mainUid_;
     std::string mainBundleName_;
     bool isLauncherApp_;
@@ -927,7 +927,7 @@ private:
 
     // render record
     std::map<int32_t, std::shared_ptr<RenderRecord>> renderRecordMap_;
-    ffrt::mutex renderRecordMapLock_;
+    std::mutex renderRecordMapLock_;
     AppSpawnStartMsg startMsg_;
     int32_t appIndex_ = 0;
     bool securityFlag_ = false;
@@ -944,7 +944,7 @@ private:
 
     std::set<uint32_t> windowIds_;
     std::map<pid_t, std::shared_ptr<ChildProcessRecord>> childProcessRecordMap_;
-    ffrt::mutex childProcessRecordMapLock_;
+    std::mutex childProcessRecordMapLock_;
 
     bool isRestartApp_ = false; // Only app calling RestartApp can be set to true
     bool isAssertPause_ = false;

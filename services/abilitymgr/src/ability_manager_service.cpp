@@ -514,7 +514,7 @@ void AbilityManagerService::OnStop()
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Stop ability manager service.");
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
-    std::unique_lock<ffrt::mutex> lock(bgtaskObserverMutex_);
+    std::unique_lock lock(bgtaskObserverMutex_);
     if (bgtaskObserver_) {
         int ret = BackgroundTaskMgrHelper::UnsubscribeBackgroundTask(*bgtaskObserver_);
         if (ret != ERR_OK) {
@@ -2073,7 +2073,7 @@ bool AbilityManagerService::IsCallerSceneBoard()
 bool AbilityManagerService::IsBackgroundTaskUid(const int uid)
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
-    std::lock_guard<ffrt::mutex> lock(bgtaskObserverMutex_);
+    std::lock_guard lock(bgtaskObserverMutex_);
     if (bgtaskObserver_) {
         return bgtaskObserver_->IsBackgroundTaskUid(uid);
     }
@@ -2285,7 +2285,7 @@ void AbilityManagerService::OnRemoveSystemAbility(int32_t systemAbilityId, const
 void AbilityManagerService::SubscribeBackgroundTask()
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
-    std::unique_lock<ffrt::mutex> lock(bgtaskObserverMutex_);
+    std::unique_lock lock(bgtaskObserverMutex_);
     if (!bgtaskObserver_) {
         bgtaskObserver_ = std::make_shared<BackgroundTaskObserver>();
     }
@@ -2302,7 +2302,7 @@ void AbilityManagerService::SubscribeBackgroundTask()
 void AbilityManagerService::UnSubscribeBackgroundTask()
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
-    std::unique_lock<ffrt::mutex> lock(bgtaskObserverMutex_);
+    std::unique_lock lock(bgtaskObserverMutex_);
     if (!bgtaskObserver_) {
         return;
     }
@@ -5929,7 +5929,7 @@ void AbilityManagerService::OnCallConnectDied(std::shared_ptr<CallRecord> callRe
 
 void AbilityManagerService::ReleaseAbilityTokenMap(const sptr<IRemoteObject> &token)
 {
-    std::lock_guard<ffrt::mutex> autoLock(abilityTokenLock_);
+    std::lock_guard autoLock(abilityTokenLock_);
     for (auto iter = callStubTokenMap_.begin(); iter != callStubTokenMap_.end(); iter++) {
         if (iter->second == token) {
             callStubTokenMap_.erase(iter);
@@ -6548,7 +6548,7 @@ void AbilityManagerService::ConnectBmsService()
 
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Waiting BundleMgr Service run completed.");
     /* wait until connected to bundle manager service */
-    std::lock_guard<ffrt::mutex> guard(globalLock_);
+    std::lock_guard guard(globalLock_);
     while (iBundleManager_ == nullptr) {
         sptr<IRemoteObject> bundle_obj =
             OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
@@ -7128,7 +7128,7 @@ void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& toke
         return;
     }
     {
-        std::lock_guard<ffrt::mutex> guard(globalLock_);
+        std::lock_guard guard(globalLock_);
         auto it = appRecoveryHistory_.find(record->GetUid());
         if (it == appRecoveryHistory_.end()) {
             appRecoveryHistory_.emplace(record->GetUid(), 0);
@@ -7211,7 +7211,7 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
 
     AAFwk::Want curWant;
     {
-        std::lock_guard<ffrt::mutex> guard(globalLock_);
+        std::lock_guard guard(globalLock_);
         auto type = record->GetAbilityInfo().type;
         if (type != AppExecFwk::AbilityType::PAGE) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s AppRecovery::only do recover for page ability.", __func__);
@@ -7492,7 +7492,7 @@ int AbilityManagerService::SetAbilityController(const sptr<IAbilityController> &
         return CHECK_PERMISSION_FAILED;
     }
 
-    std::lock_guard<ffrt::mutex> guard(globalLock_);
+    std::lock_guard guard(globalLock_);
     abilityController_ = abilityController;
     controllerIsAStabilityTest_ = imAStabilityTest;
     TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s, end", __func__);
@@ -7501,7 +7501,7 @@ int AbilityManagerService::SetAbilityController(const sptr<IAbilityController> &
 
 bool AbilityManagerService::IsRunningInStabilityTest()
 {
-    std::lock_guard<ffrt::mutex> guard(globalLock_);
+    std::lock_guard guard(globalLock_);
     bool ret = abilityController_ != nullptr && controllerIsAStabilityTest_;
     TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s, IsRunningInStabilityTest: %{public}d", __func__, ret);
     return ret;
@@ -7681,7 +7681,7 @@ int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token,
         return ERR_INVALID_VALUE;
     }
 
-    std::lock_guard<ffrt::mutex> guard(globalLock_);
+    std::lock_guard guard(globalLock_);
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     if (!JudgeSelfCalled(abilityRecord)) {
@@ -9004,7 +9004,7 @@ bool AbilityManagerService::GetStartUpNewRuleFlag() const
 void AbilityManagerService::CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub)
 {
     {
-        std::lock_guard<ffrt::mutex> autoLock(abilityTokenLock_);
+        std::lock_guard autoLock(abilityTokenLock_);
         callStubTokenMap_[callStub] = token;
     }
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
@@ -9027,7 +9027,7 @@ void AbilityManagerService::CallRequestDone(const sptr<IRemoteObject> &token, co
 
 void AbilityManagerService::GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token)
 {
-    std::lock_guard<ffrt::mutex> autoLock(abilityTokenLock_);
+    std::lock_guard autoLock(abilityTokenLock_);
     auto it = callStubTokenMap_.find(callStub);
     if (it == callStubTokenMap_.end()) {
         token = nullptr;
@@ -9376,7 +9376,7 @@ int32_t AbilityManagerService::RegisterIAbilityManagerCollaborator(
         return ERR_INVALID_VALUE;
     }
     {
-        std::lock_guard<ffrt::mutex> autoLock(collaboratorMapLock_);
+        std::lock_guard autoLock(collaboratorMapLock_);
         collaboratorMap_[type] = impl;
     }
     return ERR_OK;
@@ -9395,7 +9395,7 @@ int32_t AbilityManagerService::UnregisterIAbilityManagerCollaborator(int32_t typ
         return ERR_INVALID_VALUE;
     }
     {
-        std::lock_guard<ffrt::mutex> autoLock(collaboratorMapLock_);
+        std::lock_guard autoLock(collaboratorMapLock_);
         collaboratorMap_.erase(type);
     }
     return ERR_OK;
@@ -9407,7 +9407,7 @@ sptr<IAbilityManagerCollaborator> AbilityManagerService::GetCollaborator(int32_t
         return nullptr;
     }
     {
-        std::lock_guard<ffrt::mutex> autoLock(collaboratorMapLock_);
+        std::lock_guard autoLock(collaboratorMapLock_);
         auto it = collaboratorMap_.find(type);
         if (it != collaboratorMap_.end()) {
             return it->second;
@@ -9641,7 +9641,7 @@ std::shared_ptr<AbilityDebugDeal> AbilityManagerService::ConnectInitAbilityDebug
         return abilityDebugDeal_;
     }
 
-    std::unique_lock<ffrt::mutex> lock(abilityDebugDealLock_);
+    std::unique_lock lock(abilityDebugDealLock_);
     if (abilityDebugDeal_ != nullptr) {
         return abilityDebugDeal_;
     }
