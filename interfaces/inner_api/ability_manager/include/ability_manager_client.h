@@ -588,7 +588,8 @@ public:
      * @param userId User ID.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode ClearUpApplicationData(const std::string &bundleName, const int32_t userId = DEFAULT_INVAL_VALUE);
+    ErrCode ClearUpApplicationData(const std::string &bundleName, const int32_t userId = DEFAULT_INVAL_VALUE,
+        const int32_t appIndex = 0);
 
     /**
      * ContinueMission, continue ability from mission center.

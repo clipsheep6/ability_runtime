@@ -187,7 +187,7 @@ public:
      * @return
      */
     virtual AppMgrResultCode ClearUpApplicationData(const std::string &bundleName,
-        const int32_t userId = -1);
+        const int32_t userId = -1, const int32_t appIndex = 0);
 
     /**
      * ClearUpApplicationDataBySelf, call ClearUpApplicationDataBySelf() through proxy project,

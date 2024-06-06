@@ -127,7 +127,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t ClearUpApplicationData(const std::string &bundleName,
-        const int32_t userId = -1) override;
+        const int32_t userId = -1, const int32_t appIndex = 0) override;
 
     /**
      * ClearUpApplicationDataBySelf, call ClearUpApplicationDataBySelf() through proxy project,
