@@ -89,7 +89,7 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
     }
 
     OHOS::JsSysModule::Console::InitConsoleModule(reinterpret_cast<napi_env>(nativeEngine));
-    InitSyscapModule(reinterpret_cast<napi_env>(nativeEngine), globalObj);
+    InitSyscapModule(reinterpret_cast<napi_env>(nativeEngine));
 #ifdef SUPPORT_SCREEN
     OHOS::Ace::DeclarativeModulePreloader::PreloadWorker(*nativeEngine);
 #endif
