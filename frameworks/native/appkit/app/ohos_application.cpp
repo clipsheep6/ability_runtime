@@ -386,7 +386,7 @@ void OHOSApplication::OnAbilityStop(const std::shared_ptr<AbilityRuntime::UIAbil
 
 /**
  *
- * Will be called when the given ability calls Ability->onStop
+ * Called back after the UIAbility called onNewWant.
  *
  * @param Ability Indicates the Ability object that calls the onStop() method.
  */
@@ -407,7 +407,7 @@ void OHOSApplication::OnNewWant(const std::shared_ptr<AbilityRuntime::UIAbility>
 
 /**
  *
- * Will be called when the given ability calls Ability->onStop
+ * Called back before the UIAbility will called onNewWant.
  *
  * @param Ability Indicates the Ability object that calls the onStop() method.
  */

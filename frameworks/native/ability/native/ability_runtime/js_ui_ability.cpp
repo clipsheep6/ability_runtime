@@ -285,6 +285,11 @@ void JsUIAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo
         return;
     }
 
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnAbilityWillCreate(jsAbilityObj_);
+    }
+
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
 
@@ -320,7 +325,7 @@ void JsUIAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo
         TAG_LOGD(AAFwkTag::UIABILITY, "Call PostPerformStart.");
         delegator->PostPerformStart(CreateADelegatorAbilityProperty());
     }
-    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityCreate(jsAbilityObj_);
     }
@@ -428,6 +433,11 @@ void JsUIAbility::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackI
 
 void JsUIAbility::OnStopCallback()
 {
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnAbilityWillDestroy(jsAbilityObj_);
+    }
+
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
         TAG_LOGD(AAFwkTag::UIABILITY, "Call PostPerformStop.");
@@ -440,7 +450,7 @@ void JsUIAbility::OnStopCallback()
         TAG_LOGD(AAFwkTag::UIABILITY, "The service connection is not disconnected.");
     }
 
-    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityDestroy(jsAbilityObj_);
     }
@@ -469,6 +479,11 @@ void JsUIAbility::OnSceneCreated()
         AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
     }
 
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnWindowStageWillCreate(jsAbilityObj_, jsWindowStageObj_);
+    }
+
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
         TAG_LOGD(AAFwkTag::UIABILITY, "Call PostPerformScenceCreated.");
@@ -476,7 +491,7 @@ void JsUIAbility::OnSceneCreated()
     }
 
     jsWindowStageObj_ = std::shared_ptr<NativeReference>(jsAppWindowStage.release());
-    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnWindowStageCreate(jsAbilityObj_, jsWindowStageObj_);
     }
@@ -539,13 +554,18 @@ void JsUIAbility::onSceneDestroyed()
         }
     }
 
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnWindowStageWillDestroy(jsAbilityObj_, jsWindowStageObj_);
+    }
+
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
         TAG_LOGD(AAFwkTag::UIABILITY, "Call PostPerformScenceDestroyed.");
         delegator->PostPerformScenceDestroyed(CreateADelegatorAbilityProperty());
     }
 
-    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnWindowStageDestroy(jsAbilityObj_, jsWindowStageObj_);
     }
@@ -588,6 +608,11 @@ void JsUIAbility::CallOnForegroundFunc(const Want &want)
         return;
     }
 
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnAbilityWillForeground(jsAbilityObj_);
+    }
+
     napi_set_named_property(env, obj, "lastRequestWant", jsWant);
     std::string methodName = "OnForeground";
     AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
@@ -600,7 +625,7 @@ void JsUIAbility::CallOnForegroundFunc(const Want &want)
         delegator->PostPerformForeground(CreateADelegatorAbilityProperty());
     }
 
-    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityForeground(jsAbilityObj_);
     }
@@ -619,13 +644,18 @@ void JsUIAbility::OnBackground()
 
     UIAbility::OnBackground();
 
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnAbilityBackground(jsAbilityObj_);
+    }
+
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
         TAG_LOGD(AAFwkTag::UIABILITY, "Call PostPerformBackground.");
         delegator->PostPerformBackground(CreateADelegatorAbilityProperty());
     }
 
-    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityBackground(jsAbilityObj_);
     }
@@ -1180,10 +1210,7 @@ void JsUIAbility::OnNewWant(const Want &want)
         launchParam.launchReason = AAFwk::LaunchReason::LAUNCHREASON_INSIGHT_INTENT;
     }
 
-    TAG_LOGE(AAFwkTag::UIABILITY, "lmz Failed to get want.");
-
     auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
-
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnWillNewWant(jsAbilityObj_);
     }
@@ -1197,10 +1224,8 @@ void JsUIAbility::OnNewWant(const Want &want)
     CallObjectMethod("onNewWant", argv, ArraySize(argv));
     AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
 
-    TAG_LOGE(AAFwkTag::UIABILITY, "lmz Failed to get want.");
-
     if (applicationContext != nullptr) {
-        applicationContext->DispatchOnWillNewWant(jsAbilityObj_);
+        applicationContext->DispatchOnNewWant(jsAbilityObj_);
     }
     TAG_LOGD(AAFwkTag::UIABILITY, "End.");
 }

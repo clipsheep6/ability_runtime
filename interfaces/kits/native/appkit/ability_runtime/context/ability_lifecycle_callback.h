@@ -63,24 +63,91 @@ public:
         const std::shared_ptr<NativeReference> &windowStage) = 0;
 
     /**
-     * Called back when the want is create.
+     * Called back after the UIAbility called onNewWant.
      *
      * @since 12
      * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
      * @param ability: Indicates the ability to register for listening.
      * @StageModelOnly
      */
-    virtual void OnNewWant(const std::shared_ptr<NativeReference> &ability) = 0;
+    virtual void OnNewWant(const std::shared_ptr<NativeReference> &ability)
+    {}
 
     /**
-     * Called back before the want is create.
+     * Called back before the UIAbility will called onNewWant.
      *
      * @since 12
      * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
      * @param ability: Indicates the ability to register for listening.
      * @StageModelOnly
      */
-    virtual void OnWillNewWant(const std::shared_ptr<NativeReference> &ability) = 0;
+    virtual void OnWillNewWant(const std::shared_ptr<NativeReference> &ability)
+    {}
+
+    /**
+     * Called back before an ability is started for initialization.
+     *
+     * @since 12
+     * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
+     * @param ability: Indicates the ability to register for listening.
+     * @StageModelOnly
+     */
+    virtual void OnAbilityWillCreate(const std::shared_ptr<NativeReference> &ability)
+    {}
+
+    /**
+     * Called back before a window stage is created.
+     *
+     * @since 12
+     * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
+     * @param ability: Indicates the ability to register for listening.
+     * @param windowStage: Indicates the window stage to active.
+     * @StageModelOnly
+     */
+    virtual void OnWindowStageWillCreate(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage) {}
+
+    /**
+     * Called back before a window stage is destroyed.
+     *
+     * @since 12
+     * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
+     * @param ability: Indicates the ability to register for listening.
+     * @param windowStage: Indicates the window stage to active.
+     * @StageModelOnly
+     */
+    virtual void OnWindowStageWillDestroy(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage) {}
+
+    /**
+     * Called back before an ability is destroyed.
+     *
+     * @since 12
+     * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
+     * @param ability: Indicates the ability to register for listening.
+     * @StageModelOnly
+     */
+    virtual void OnAbilityWillDestroy(const std::shared_ptr<NativeReference> &ability) {}
+
+    /**
+     * Called back before the state of an ability changes to foreground.
+     *
+     * @since 12
+     * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
+     * @param ability: Indicates the ability to register for listening.
+     * @StageModelOnly
+     */
+    virtual void OnAbilityWillForeground(const std::shared_ptr<NativeReference> &ability) {}
+
+    /**
+     * Called back before the state of an ability changes to background.
+     *
+     * @since 12
+     * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
+     * @param ability: Indicates the ability to register for listening.
+     * @StageModelOnly
+     */
+    virtual void OnAbilityWillBackground(const std::shared_ptr<NativeReference> &ability) {}
 
     /**
      * Called back when the window stage is active.
@@ -156,6 +223,14 @@ public:
     void OnWillNewWant(const std::shared_ptr<NativeReference> &ability) override;
     void OnWindowStageCreate(const std::shared_ptr<NativeReference> &ability,
         const std::shared_ptr<NativeReference> &windowStage) override;
+    void OnAbilityWillCreate(const std::shared_ptr<NativeReference> &ability) override;
+    void OnWindowStageWillCreate(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage) override;
+    void OnWindowStageWillDestroy(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage) override;
+    void OnAbilityWillDestroy(const std::shared_ptr<NativeReference> &ability) override;
+    void OnAbilityWillForeground(const std::shared_ptr<NativeReference> &ability) override;
+    void OnAbilityWillBackground(const std::shared_ptr<NativeReference> &ability) override;
     void OnWindowStageDestroy(const std::shared_ptr<NativeReference> &ability,
         const std::shared_ptr<NativeReference> &windowStage) override;
     void OnWindowStageActive(const std::shared_ptr<NativeReference> &ability,

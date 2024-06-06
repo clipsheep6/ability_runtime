@@ -107,13 +107,11 @@ void JsAbilityLifecycleCallback::OnAbilityCreate(const std::shared_ptr<NativeRef
 
 void JsAbilityLifecycleCallback::OnNewWant(const std::shared_ptr<NativeReference> &ability)
 {
-    TAG_LOGE(AAFwkTag::APPKIT, "LMZ JsAbilityLifecycleCallback::OnNewWant enter");
     CallJsMethod("onNewWant", ability);
 }
 
 void JsAbilityLifecycleCallback::OnWillNewWant(const std::shared_ptr<NativeReference> &ability)
 {
-    TAG_LOGE(AAFwkTag::APPKIT, "LMZ JsAbilityLifecycleCallback::OnWillNewWant enter");
     CallJsMethod("onWillNewWant", ability);
 }
 
@@ -127,6 +125,39 @@ void JsAbilityLifecycleCallback::OnWindowStageDestroy(const std::shared_ptr<Nati
     const std::shared_ptr<NativeReference> &windowStage)
 {
     CallWindowStageJsMethod("onWindowStageDestroy", ability, windowStage);
+}
+
+void JsAbilityLifecycleCallback::OnAbilityWillCreate(const std::shared_ptr<NativeReference> &ability)
+{
+    CallWindowStageJsMethod("onAbilityWillCreate", ability);
+}
+
+void JsAbilityLifecycleCallback::OnWindowStageWillCreate(const std::shared_ptr<NativeReference> &ability,
+    const std::shared_ptr<NativeReference> &windowStage)
+{
+    CallWindowStageJsMethod("onWindowStageWillCreate", ability, windowStage);
+}
+
+void JsAbilityLifecycleCallback::OnWindowStageWillDestroy(const std::shared_ptr<NativeReference> &ability,
+    const std::shared_ptr<NativeReference> &windowStage)
+{
+    CallWindowStageJsMethod("onWindowStageWillDestroy", ability, windowStage);
+}
+
+void JsAbilityLifecycleCallback::OnAbilityWillDestroy(const std::shared_ptr<NativeReference> &ability)
+{
+    CallWindowStageJsMethod("onAbilityWillDestroy", ability);
+}
+
+void JsAbilityLifecycleCallback::OnAbilityWillForeground(const std::shared_ptr<NativeReference> &ability)
+{
+    CallWindowStageJsMethod("onAbilityWillForeground", ability);
+}
+
+void JsAbilityLifecycleCallback::OnAbilityWillBackground(const std::shared_ptr<NativeReference> &ability,
+    const std::shared_ptr<NativeReference> &windowStage)
+{
+    CallWindowStageJsMethod("onAbilityWillBackground", ability, windowStage);
 }
 
 void JsAbilityLifecycleCallback::OnWindowStageActive(const std::shared_ptr<NativeReference> &ability,

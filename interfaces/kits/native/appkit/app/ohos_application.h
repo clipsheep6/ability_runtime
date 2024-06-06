@@ -137,19 +137,21 @@ public:
 
     /**
      *
-     * @brief Will be called when the given ability calls Ability->onStop
+     * @brief Called back after the UIAbility called onNewWant.
      *
-     * @param Ability Indicates the Ability object that calls the onStop() method.
+     * @param Ability Indicates the Ability object that calls the onNewWant() method.
      */
     void OnNewWant(const std::shared_ptr<AbilityRuntime::UIAbility> &ability);
 
     /**
      *
-     * @brief Will be called when the given ability calls Ability->onStop
+     * @brief Called back before the UIAbility will called onNewWant.
      *
-     * @param Ability Indicates the Ability object that calls the onStop() method.
+     * @param Ability Indicates the Ability object that calls the OnWillNewWant() method.
      */
     void OnWillNewWant(const std::shared_ptr<AbilityRuntime::UIAbility> &ability);
+
+
 
     /**
      *

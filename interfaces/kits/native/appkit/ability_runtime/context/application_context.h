@@ -50,6 +50,14 @@ public:
         const std::shared_ptr<NativeReference> &windowStage);
     void DispatchWindowStageFocus(const std::shared_ptr<NativeReference> &ability,
         const std::shared_ptr<NativeReference> &windowStage);
+    void DispatchOnAbilityWillCreate(const std::shared_ptr<NativeReference> &ability);
+    void DispatchOnWindowStageWillCreate(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage);
+    void DispatchOnWindowStageWillDestroy(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage);
+    void DispatchOnAbilityWillDestroy(const std::shared_ptr<NativeReference> &ability);
+    void DispatchOnAbilityWillForeground(const std::shared_ptr<NativeReference> &ability);
+    void DispatchOnAbilityWillBackground(const std::shared_ptr<NativeReference> &ability);
     void DispatchWindowStageUnfocus(const std::shared_ptr<NativeReference> &ability,
         const std::shared_ptr<NativeReference> &windowStage);
     void DispatchOnAbilityDestroy(const std::shared_ptr<NativeReference> &ability);

@@ -120,7 +120,6 @@ void ApplicationContext::DispatchOnAbilityCreate(const std::shared_ptr<NativeRef
 
 void ApplicationContext::DispatchOnWillNewWant(const std::shared_ptr<NativeReference> &ability)
 {
-    TAG_LOGE(AAFwkTag::APPKIT, "LMZ DispatchOnWillNewWant");
     if (!ability) {
         TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
         return;
@@ -135,7 +134,6 @@ void ApplicationContext::DispatchOnWillNewWant(const std::shared_ptr<NativeRefer
 
 void ApplicationContext::DispatchOnNewWant(const std::shared_ptr<NativeReference> &ability)
 {
-    TAG_LOGE(AAFwkTag::APPKIT, "LMZ DispatchOnNewWant");
     if (!ability) {
         TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
         return;
@@ -190,6 +188,98 @@ void ApplicationContext::DispatchWindowStageFocus(const std::shared_ptr<NativeRe
     for (auto callback : callbacks_) {
         if (callback != nullptr) {
             callback->OnWindowStageActive(ability, windowStage);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnAbilityWillCreate(const std::shared_ptr<NativeReference> &ability)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "%{public}s start.", __func__);
+    if (!ability) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ability is null");
+        return;
+    }
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnAbilityWillCreate(ability);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnWindowStageWillCreate(const std::shared_ptr<NativeReference> &ability,
+    const std::shared_ptr<NativeReference> &windowStage)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "%{public}s start.", __func__);
+    if (!ability || !windowStage) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ability or windowStage is null");
+        return;
+    }
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnWindowStageWillCreate(ability, windowStage);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnWindowStageWillDestroy(const std::shared_ptr<NativeReference> &ability,
+    const std::shared_ptr<NativeReference> &windowStage)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "%{public}s start.", __func__);
+    if (!ability || !windowStage) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ability or windowStage is null");
+        return;
+    }
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnWindowStageWillDestroy(ability, windowStage);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnAbilityWillDestroy(const std::shared_ptr<NativeReference> &ability)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "%{public}s start.", __func__);
+    if (!ability) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ability is null");
+        return;
+    }
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnAbilityWillDestroy(ability);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnAbilityWillForeground(const std::shared_ptr<NativeReference> &ability)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "%{public}s start.", __func__);
+    if (!ability) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ability is null");
+        return;
+    }
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnAbilityWillForeground(ability);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnAbilityWillBackground(const std::shared_ptr<NativeReference> &ability)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "%{public}s start.", __func__);
+    if (!ability) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ability is null");
+        return;
+    }
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnWindowStageActive(ability);
         }
     }
 }
