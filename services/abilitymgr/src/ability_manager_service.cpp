@@ -10538,18 +10538,18 @@ bool AbilityManagerService::ShouldPreventStartAbility(const AbilityRequest &abil
     }
     auto abilityInfo = abilityRequest.abilityInfo;
     auto callerAbilityInfo = abilityRecord->GetAbilityInfo();
-    bool isUIAbility = false;
     bool continuousFlag = false;
     continuousFlag = IsBackgroundTaskUid(IPCSkeleton::GetCallingUid());
-    if (callerAbilityInfo.type == AppExecFwk::AbilityType::PAGE) {
-        isUIAbility = true;
-    }
     if (abilityInfo.extensionAbilityType != AppExecFwk::ExtensionAbilityType::DATASHARE &&
         abilityInfo.extensionAbilityType != AppExecFwk::ExtensionAbilityType::SERVICE) {
-            TAG_LOGD(AAFwkTag::ABILITYMGR, "Process did not call service or datashare extension Pass");
-            return false;
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Process did not call service or datashare extension Pass");
+        return false;
     }
-    if (!isUIAbility) {
+    if (abilityInfo.applicationInfo.uid == IPCSkeleton::GetCallingUid()) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Process is in same bundle Pass");
+        return false;
+    }
+    if (callerAbilityInfo.type != AppExecFwk::AbilityType::PAGE) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Is not UI Ability Pass");
         return false;
     }
