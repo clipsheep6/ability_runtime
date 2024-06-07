@@ -45,7 +45,10 @@ void AbilityConnection::OnAbilityConnectDone(
     std::vector<sptr<AbilityConnectCallback>> callbacks = GetCallbackList();
     mutex_.unlock();
     sptr<AbilityConnection> connection(this);
-    ConnectionManager::GetInstance().DisconnectNonexistentService(element, connection);
+    if (ConnectionManager::GetInstance().DisconnectNonexistentService(element, connection)) {
+        TAG_LOGW(AAFwkTag::CONNECTION, "No need to call onConnect callback.");
+        return;
+    }
 
     auto item = callbacks.begin();
     while (item != callbacks.end()) {
@@ -69,7 +72,7 @@ void AbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName& e
 
     std::vector<sptr<AbilityConnectCallback>> callbacks = GetCallbackList();
     mutex_.unlock();
-    
+
     // if resultCode < 0 that means the service is dead
     if (resultCode == DIED) {
         sptr<AbilityConnection> connection(this);
