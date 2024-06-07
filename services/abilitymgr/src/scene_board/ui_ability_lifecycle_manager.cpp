@@ -131,20 +131,8 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
 
     if (iter == sessionAbilityMap_.end()) {
         auto abilityInfo = abilityRequest.abilityInfo;
-        for (auto [persistentId, record] : sessionAbilityMap_) {
-            auto recordAbilityInfo = record->GetAbilityInfo();
-            if (abilityInfo.bundleName == recordAbilityInfo.bundleName && abilityInfo.name == recordAbilityInfo.name &&
-                abilityInfo.moduleName == recordAbilityInfo.moduleName) {
-                EventInfo eventInfo;
-                eventInfo.userId = abilityRequest.userId;
-                eventInfo.abilityName = abilityInfo.name;
-                eventInfo.bundleName = abilityInfo.bundleName;
-                eventInfo.moduleName = abilityInfo.moduleName;
-                EventReport::SendAbilityEvent(
-                    EventName::START_STANDARD_ABILITIES, HiSysEventType::BEHAVIOR, eventInfo);
-                break;
-            }
-        }
+        MoreAbilityNumbersSendEventInfo(
+            abilityRequest.userId, abilityInfo.bundleName, abilityInfo.name, abilityInfo.moduleName);
         sessionAbilityMap_.emplace(sessionInfo->persistentId, uiAbilityRecord);
     }
 
@@ -892,21 +880,8 @@ void UIAbilityLifecycleManager::CallUIAbilityBySCB(const sptr<SessionInfo> &sess
     }
     isColdStart = true;
 
-    for (auto [persistentId, record] : sessionAbilityMap_) {
-        auto recordAbilityInfo = record->GetAbilityInfo();
-        if (sessionInfo->want.GetElement().GetBundleName() == recordAbilityInfo.bundleName &&
-            sessionInfo->want.GetElement().GetAbilityName() == recordAbilityInfo.name &&
-            sessionInfo->want.GetElement().GetModuleName() == recordAbilityInfo.moduleName) {
-            EventInfo eventInfo;
-            eventInfo.userId = sessionInfo->userId;
-            eventInfo.abilityName = sessionInfo->want.GetElement().GetAbilityName();
-            eventInfo.bundleName = sessionInfo->want.GetElement().GetBundleName();
-            eventInfo.moduleName = sessionInfo->want.GetElement().GetModuleName();
-            EventReport::SendAbilityEvent(
-                EventName::START_STANDARD_ABILITIES, HiSysEventType::BEHAVIOR, eventInfo);
-            break;
-        }
-    }
+    MoreAbilityNumbersSendEventInfo(sessionInfo->userId, sessionInfo->want.GetElement().GetBundleName(),
+        sessionInfo->want.GetElement().GetAbilityName(), sessionInfo->want.GetElement().GetModuleName());
 
     sessionAbilityMap_.emplace(sessionInfo->persistentId, uiAbilityRecord);
     tmpAbilityMap_.erase(search);
@@ -1922,6 +1897,42 @@ bool UIAbilityLifecycleManager::CheckPid(const std::shared_ptr<AbilityRecord> ab
 {
     CHECK_POINTER_RETURN_BOOL(abilityRecord);
     return pid == NO_PID || abilityRecord->GetPid() == pid;
+}
+
+int32_t UIAbilityLifecycleManager::CheckAbilityNumber(
+    const std::string &bundleName, const std::string &abilityName, const std::string &moduleName) const
+{
+    int32_t checkAbilityNumber = 0;
+
+    for (auto [persistentId, record] : sessionAbilityMap_) {
+        auto recordAbilityInfo = record->GetAbilityInfo();
+        if (bundleName == recordAbilityInfo.bundleName && abilityName == recordAbilityInfo.name &&
+            moduleName == recordAbilityInfo.moduleName) {
+            // check ability number created previously and add new one.
+            checkAbilityNumber += 1;
+        }
+    }
+
+    return checkAbilityNumber;
+}
+
+void UIAbilityLifecycleManager::MoreAbilityNumbersSendEventInfo(
+    int32_t userId, const std::string &bundleName, const std::string &abilityName, const std::string &moduleName)
+{
+    int32_t checkAbilityNumber = 0;
+    checkAbilityNumber = CheckAbilityNumber(bundleName, abilityName, moduleName);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Check ability number:%{public}d", checkAbilityNumber);
+
+    if (checkAbilityNumber >= 1) {
+        EventInfo eventInfo;
+        eventInfo.userId = userId;
+        eventInfo.abilityName = abilityName;
+        eventInfo.bundleName = bundleName;
+        eventInfo.moduleName = moduleName;
+        // get ability number created previously and add new one.
+        eventInfo.abilityNumber = checkAbilityNumber + 1;
+        EventReport::SendAbilityEvent(EventName::START_STANDARD_ABILITIES, HiSysEventType::BEHAVIOR, eventInfo);
+    }
 }
 
 void UIAbilityLifecycleManager::OnAppStateChanged(const AppInfo &info)

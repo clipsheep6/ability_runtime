@@ -352,6 +352,7 @@ START_STANDARD_ABILITIES:
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
+  ABILITY_NUMBER: {type: INT32, desc: ability number}
 
 PREVENT_START_ABILITY:
   __BASE: {type: BEHAVIOR, level: MINOR, desc: Process start control, preserve: true}

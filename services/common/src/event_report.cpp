@@ -28,6 +28,7 @@ constexpr const char *EVENT_KEY_ERROR_CODE = "ERROR_CODE";
 constexpr const char *EVENT_KEY_BUNDLE_NAME = "BUNDLE_NAME";
 constexpr const char *EVENT_KEY_MODULE_NAME = "MODULE_NAME";
 constexpr const char *EVENT_KEY_ABILITY_NAME = "ABILITY_NAME";
+constexpr const char *EVENT_KEY_ABILITY_NUMBER = "ABILITY_NUMBER";
 constexpr const char *EVENT_KEY_ABILITY_TYPE = "ABILITY_TYPE";
 constexpr const char *EVENT_KEY_VERSION_NAME = "VERSION_NAME";
 constexpr const char *EVENT_KEY_VERSION_CODE = "VERSION_CODE";
@@ -190,7 +191,8 @@ void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType ty
                 EVENT_KEY_USERID, eventInfo.userId,
                 EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
                 EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
-                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
+                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
+                EVENT_KEY_ABILITY_NUMBER, eventInfo.abilityNumber);
             break;
         default:
             break;

@@ -38,6 +38,7 @@ struct EventInfo {
     std::string processName;
     std::string callerProcessName;
     std::string callerBundleName;
+    int32_t abilityNumber = 0;
     int32_t abilityType = -1;
     int64_t time = 0;
     int32_t callerUid = -1;
