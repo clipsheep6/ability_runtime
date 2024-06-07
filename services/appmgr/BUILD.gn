@@ -41,6 +41,8 @@ ohos_shared_library("libappms") {
   shlib_type = "sa"
   include_dirs = [ "${ability_runtime_services_path}/appdfr/include" ]
   sources = [
+    "${ability_runtime_path}/tools/aa/src/shell_command_result.cpp",
+    "${ability_runtime_path}/tools/aa/src/test_observer_proxy.cpp",
     "src/ability_running_record.cpp",
     "src/advanced_security_mode_manager.cpp",
     "src/ams_mgr_scheduler.cpp",
