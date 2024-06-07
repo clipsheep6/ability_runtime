@@ -124,6 +124,7 @@ public:
 
     ErrCode StopServiceExtensionAbility(const AAFwk::Want& want, int32_t accountId = -1) const;
 
+    ErrCode StartUIServiceExtension(const AAFwk::Want& want, int32_t accountId = -1) const;
     /**
      * @brief Connects the current ability to an ability using the AbilityInfo.AbilityType.SERVICE template.
      *
