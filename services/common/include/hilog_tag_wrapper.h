@@ -22,8 +22,6 @@
 #include <string>
 #include <chrono>
 #include <algorithm>
-#include <stdarg.h>
-#include <regex>
 
 #include "hilog/log.h"
 
@@ -209,12 +207,12 @@ typedef struct LogItem {
     std::string fileName;
     std::string funcName;
     uint32_t line;
-    std::string logContent;
+    std::string logFormat;
     uint64_t timestamp;
     bool operator==(const LogItem& item)
     {
-        return (tag == item.tag && fileName.compare(item.fileName) == 0 && line == item.line &&
-                logContent.compare(item.logContent) == 0);
+        return (tag == item.tag && fileName.compare(item.fileName) == 0 && funcName.compare(item.funcName) == 0 &&
+                line == item.line && logFormat.compare(item.logFormat) == 0);
     }
 } LogItem;
 
@@ -223,19 +221,10 @@ constexpr uint32_t MAX_LOG_BUFFER_SIZE = 1024;
 constexpr uint32_t INTERVAL = 5000;
 constexpr uint32_t LOG_LIFE_TIME = 10000;
 
-static inline bool NeedShowPrintLog(
-    uint32_t eTag, const char* file, const char* func, uint32_t line, const char* fmt, ...)
+static inline bool NeedShowPrintLog(uint32_t eTag, const char* file, const char* func, uint32_t line, const char* fmt)
 {
     bool needShowLog = false;
-    char content[MAX_LOG_BUFFER_SIZE] = {};
-    std::string strFmt = fmt;
-    strFmt = std::regex_replace(fmt, std::regex("\\{public\\}"), "");
-    strFmt = std::regex_replace(fmt, std::regex("\\{private\\}"), "");
-    va_list p;
-    va_start(p, fmt);
-    std::vsnprintf(content, sizeof(content), strFmt.c_str(), p);
-    va_end(p);
-    LogItem item = {eTag, std::string(file), std::string(func), line, std::string(content), 0};
+    LogItem item = {eTag, std::string(file), std::string(func), line, std::string(fmt), 0};
     auto logItr = std::find(m_logArray.begin(), m_logArray.end(), item);
     auto tiemNow = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
     if (logItr != m_logArray.end()) {
@@ -270,22 +259,22 @@ static inline void FlushLogBuffer()
 } // OHOS::AAFwk
 
 using AAFwkTag = OHOS::AAFwk::AAFwkLogTag;
-#define AAFWK_PRINT_LOG(level, tag, fmt, ...)                                                     \
-    do {                                                                                          \
-        AAFwkTag logTag = tag;                                                                    \
-        bool needShowLog = OHOS::AAFwk::NeedShowPrintLog(                                         \
-            static_cast<uint32_t>(logTag), __FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__); \
-        OHOS::AAFwk::FlushLogBuffer();                                                            \
-        if (!needShowLog) {                                                                       \
-            break;                                                                                \
-        }                                                                                         \
-        ((void)HILOG_IMPL(LOG_CORE,                                                               \
-            level,                                                                                \
-            static_cast<uint32_t>(logTag),                                                        \
-            OHOS::AAFwk::GetTagInfoFromDomainId(logTag),                                          \
-            AAFWK_FUNC_FMT fmt,                                                                   \
-            AAFWK_FUNC_INFO,                                                                      \
-            ##__VA_ARGS__));                                                                      \
+#define AAFWK_PRINT_LOG(level, tag, fmt, ...)                                                                    \
+    do {                                                                                                         \
+        AAFwkTag logTag = tag;                                                                                   \
+        bool needShowLog =                                                                                       \
+            OHOS::AAFwk::NeedShowPrintLog(static_cast<uint32_t>(logTag), __FILE__, __FUNCTION__, __LINE__, fmt); \
+        OHOS::AAFwk::FlushLogBuffer();                                                                           \
+        if (!needShowLog) {                                                                                      \
+            break;                                                                                               \
+        }                                                                                                        \
+        ((void)HILOG_IMPL(LOG_CORE,                                                                              \
+            level,                                                                                               \
+            static_cast<uint32_t>(logTag),                                                                       \
+            OHOS::AAFwk::GetTagInfoFromDomainId(logTag),                                                         \
+            AAFWK_FUNC_FMT fmt,                                                                                  \
+            AAFWK_FUNC_INFO,                                                                                     \
+            ##__VA_ARGS__));                                                                                     \
     } while (0)
 
 #define TAG_LOGD(tag, fmt, ...) AAFWK_PRINT_LOG(LOG_DEBUG, tag, fmt, ##__VA_ARGS__)
