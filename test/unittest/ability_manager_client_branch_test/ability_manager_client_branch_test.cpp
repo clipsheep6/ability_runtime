@@ -1838,6 +1838,18 @@ HWTEST_F(AbilityManagerClientBranchTest, StartSpecifiedAbilityBySCB_0100, TestSi
 }
 
 /**
+ * @tc.name: AbilityManagerClient_StartSpecifiedProcessBySCB_0100
+ * @tc.desc: StartSpecifiedProcessBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, StartSpecifiedProcessBySCB_0100, TestSize.Level1)
+{
+    EXPECT_TRUE(client_ != nullptr);
+    Want want;
+    client_->StartSpecifiedProcessBySCB(want);
+}
+
+/**
  * @tc.name: AbilityManagerClient_IsAbilityControllerStart_0100
  * @tc.desc: IsAbilityControllerStart
  * @tc.type: FUNC

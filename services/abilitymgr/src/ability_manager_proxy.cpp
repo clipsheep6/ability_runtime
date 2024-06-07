@@ -4276,6 +4276,27 @@ void AbilityManagerProxy::StartSpecifiedAbilityBySCB(const Want &want)
     }
 }
 
+void AbilityManagerProxy::StartSpecifiedProcessBySCB(const Want &want)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteInterfaceToken failed.");
+        return;
+    }
+
+    if (!data.WriteParcelable(&want)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
+        return;
+    }
+
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    auto error = SendRequest(AbilityManagerInterfaceCode::START_SPECIFIED_PROCESS_BY_SCB, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+    }
+}
+
 int32_t AbilityManagerProxy::NotifySaveAsResult(const Want &want, int resultCode, int requestCode)
 {
     MessageParcel data;

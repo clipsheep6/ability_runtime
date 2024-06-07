@@ -1558,6 +1558,33 @@ void UIAbilityLifecycleManager::StartSpecifiedAbilityBySCB(const Want &want)
         abilityRequest.want, abilityRequest.abilityInfo, requestId);
 }
 
+void UIAbilityLifecycleManager::StartSpecifiedProcessBySCB(const Want &want)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
+    AbilityRequest abilityRequest;
+    int result = DelayedSingleton<AbilityManagerService>::GetInstance()->GenerateAbilityRequest(
+        want, DEFAULT_INVAL_VALUE, abilityRequest, nullptr, userId_);
+    if (result != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "cannot find generate ability request");
+        return;
+    }
+
+    if (!abilityRequest.abilityInfo.isolationProcess) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ability is not isolation process module.");
+        return;
+    }
+
+    int32_t requestId = 0;
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+        std::lock_guard<ffrt::mutex> guard(sessionLock_);
+        requestId = specifiedRequestId_++;
+        specifiedRequestMap_.emplace(requestId, abilityRequest);
+    }
+    DelayedSingleton<AppScheduler>::GetInstance()->StartSpecifiedProcess(
+        abilityRequest.want, abilityRequest.abilityInfo, requestId);
+}
+
 std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetReusedSpecifiedAbility(const AAFwk::Want &want,
     const std::string &flag)
 {
