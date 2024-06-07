@@ -1569,11 +1569,11 @@ HWTEST_F(AbilityManagerServiceThirdTest, ImplicitStartAbilityAsCaller_001, TestS
     auto abilityMs = std::make_shared<AbilityManagerService>();
     Want want;
     sptr<IRemoteObject> callerToken;
-    sptr<IRemoteObject> asCallerSoureToken;
+    sptr<IRemoteObject> asCallerSourceToken;
     int32_t userId = 0;
     int requestCode = 0;
     bool isSendDialogResult = true;
-    auto result = abilityMs->ImplicitStartAbilityAsCaller(want, callerToken, asCallerSoureToken, userId,
+    auto result = abilityMs->ImplicitStartAbilityAsCaller(want, callerToken, asCallerSourceToken, userId,
         requestCode, isSendDialogResult);
     EXPECT_EQ(result, ERR_INVALID_VALUE);
 }
@@ -1588,12 +1588,12 @@ HWTEST_F(AbilityManagerServiceThirdTest, StartAbilityAsCallerDetails_001, TestSi
     auto abilityMs = std::make_shared<AbilityManagerService>();
     Want want;
     sptr<IRemoteObject> callerToken;
-    sptr<IRemoteObject> asCallerSoureToken;
+    sptr<IRemoteObject> asCallerSourceToken;
     int32_t userId = 0;
     int requestCode = 0;
     bool isSendDialogResult = true;
     bool isImplicit = true;
-    auto result = abilityMs->StartAbilityAsCallerDetails(want, callerToken, asCallerSoureToken, userId,
+    auto result = abilityMs->StartAbilityAsCallerDetails(want, callerToken, asCallerSourceToken, userId,
         requestCode, isSendDialogResult, isImplicit);
     EXPECT_EQ(result, ERR_INVALID_VALUE);
 }
@@ -1609,12 +1609,12 @@ HWTEST_F(AbilityManagerServiceThirdTest, StartAbilityAsCallerDetails_002, TestSi
     Want want;
     want.SetFlags(Want::FLAG_ABILITY_CONTINUATION);
     sptr<IRemoteObject> callerToken;
-    sptr<IRemoteObject> asCallerSoureToken;
+    sptr<IRemoteObject> asCallerSourceToken;
     int32_t userId = 0;
     int requestCode = 0;
     bool isSendDialogResult = true;
     bool isImplicit = true;
-    auto result = abilityMs->StartAbilityAsCallerDetails(want, callerToken, asCallerSoureToken, userId,
+    auto result = abilityMs->StartAbilityAsCallerDetails(want, callerToken, asCallerSourceToken, userId,
         requestCode, isSendDialogResult, isImplicit);
     EXPECT_EQ(result, ERR_INVALID_CONTINUATION_FLAG);
 }
@@ -1629,12 +1629,12 @@ HWTEST_F(AbilityManagerServiceThirdTest, StartAbilityAsCallerDetails_003, TestSi
     auto abilityMs = std::make_shared<AbilityManagerService>();
     Want want;
     sptr<IRemoteObject> callerToken;
-    sptr<IRemoteObject> asCallerSoureToken = new AbilityManagerStubTestMock();;
+    sptr<IRemoteObject> asCallerSourceToken = new AbilityManagerStubTestMock();;
     int32_t userId = 0;
     int requestCode = 0;
     bool isSendDialogResult = true;
     bool isImplicit = true;
-    auto result = abilityMs->StartAbilityAsCallerDetails(want, callerToken, asCallerSoureToken, userId,
+    auto result = abilityMs->StartAbilityAsCallerDetails(want, callerToken, asCallerSourceToken, userId,
         requestCode, isSendDialogResult, isImplicit);
     EXPECT_EQ(result, ERR_INVALID_VALUE);
 }

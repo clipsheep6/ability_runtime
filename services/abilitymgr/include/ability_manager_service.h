@@ -241,7 +241,7 @@ public:
      *
      * @param want the want of the ability to start.
      * @param callerToken current caller ability token.
-     * @param asCallerSoureToken source caller ability token
+     * @param asCallerSourceToken source caller ability token
      * @param userId Designation User ID.
      * @param requestCode the resultCode of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
@@ -249,7 +249,7 @@ public:
     virtual int StartAbilityAsCaller(
             const Want &want,
             const sptr<IRemoteObject> &callerToken,
-            sptr<IRemoteObject> asCallerSoureToken,
+            sptr<IRemoteObject> asCallerSourceToken,
             int32_t userId = DEFAULT_INVAL_VALUE,
             int requestCode = DEFAULT_INVAL_VALUE,
             bool isSendDialogResult = false) override;
@@ -260,7 +260,7 @@ public:
      * @param want the want of the ability to start.
      * @param startOptions Indicates the options used to start.
      * @param callerToken current caller ability token.
-     * @param asCallerSoureToken source caller ability token
+     * @param asCallerSourceToken source caller ability token
      * @param userId Designation User ID.
      * @param requestCode the resultCode of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
@@ -269,7 +269,7 @@ public:
         const Want &want,
         const StartOptions &startOptions,
         const sptr<IRemoteObject> &callerToken,
-        sptr<IRemoteObject> asCallerSoureToken,
+        sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE) override;
 
@@ -1024,7 +1024,7 @@ public:
     int StartAbilityAsCallerDetails(
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
-        sptr<IRemoteObject> asCallerSoureToken,
+        sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE,
         bool isSendDialogResult = false,
@@ -1033,7 +1033,7 @@ public:
     int ImplicitStartAbilityAsCaller(
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
-        sptr<IRemoteObject> asCallerSoureToken,
+        sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE,
         bool isSendDialogResult = false);
@@ -1807,7 +1807,9 @@ private:
     int DisconnectRemoteAbility(const sptr<IRemoteObject> &connect);
     int PreLoadAppDataAbilities(const std::string &bundleName, const int32_t userId);
     void PreLoadAppDataAbilitiesTask(const std::string &bundleName, const int32_t userId);
-    void UpdateAsCallerSourceInfo(Want& want, sptr<IRemoteObject> asCallerSourceToken);
+    void UpdateAsCallerSourceInfo(Want& want, sptr<IRemoteObject> asCallerSourceToken, sptr<IRemoteObject> callerToken);
+    void UpdateAsCallerInfoFromToken(Want& want, sptr<IRemoteObject> asCallerSourceToken);
+    void UpdateAsCallerInfoFromCallerRecord(Want& want, sptr<IRemoteObject> callerToken);
     void UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken);
     void UpdateCallerInfoFromToken(Want& want, const sptr<IRemoteObject> &token);
     int StartAbilityPublicPrechainCheck(StartAbilityParams &params);

@@ -221,6 +221,20 @@ std::shared_ptr<AbilityRecord> Token::GetAbilityRecord() const
     return abilityRecord_.lock();
 }
 
+CallerRecord::CallerRecord(int requestCode, std::weak_ptr<AbilityRecord> caller)
+    : requestCode_(requestCode), caller_(caller)
+{
+    auto callerAbilityRecord = caller.lock();
+    if  (callerAbilityRecord != nullptr) {
+        callerInfo_ = std::make_shared<CallerAbilityInfo>();
+        callerInfo_->callerBundleName = callerAbilityRecord->GetAbilityInfo().bundleName;
+        callerInfo_->callerAbilityName = callerAbilityRecord->GetAbilityInfo().name;
+        callerInfo_->callerTokenId = callerAbilityRecord->GetApplicationInfo().accessTokenId;
+        callerInfo_->callerUid =  callerAbilityRecord->GetUid();
+        callerInfo_->callerPid =  callerAbilityRecord->GetPid();
+    }
+}
+
 AbilityRecord::AbilityRecord(const Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
     const AppExecFwk::ApplicationInfo &applicationInfo, int requestCode)
     : want_(want), abilityInfo_(abilityInfo), applicationInfo_(applicationInfo), requestCode_(requestCode)
@@ -2031,7 +2045,21 @@ std::shared_ptr<AbilityRecord> AbilityRecord::GetCallerRecord() const
     if (callerList_.empty()) {
         return nullptr;
     }
+    if (callerList_.back() == nullptr) {
+        return nullptr;
+    }
     return callerList_.back()->GetCaller();
+}
+
+std::shared_ptr<CallerAbilityInfo> AbilityRecord::GetCallerInfo() const
+{
+    if (callerList_.empty()) {
+        return nullptr;
+    }
+    if (callerList_.back() == nullptr) {
+        return nullptr;
+    }
+    return callerList_.back()->GetCallerInfo();
 }
 
 bool AbilityRecord::IsConnectListEmpty()
