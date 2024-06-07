@@ -18,6 +18,7 @@
 
 #include "ability_interceptor_interface.h"
 
+#include "ability_manager_service.h"
 #include "app_mgr_interface.h"
 #include "disposed_observer.h"
 #include "task_utils_wrap.h"
@@ -44,6 +45,8 @@ private:
     ErrCode StartNonBlockRule(const Want &want, AppExecFwk::DisposedRule &disposedRule);
     sptr<AppExecFwk::IAppMgr> GetAppMgr();
     ErrCode CreateModalUIExtension(const Want &want, const sptr<IRemoteObject> &callerToken);
+    ErrCode HandleBlockApplicationWithResult(const AbilityInterceptorParam &param,
+        AppExecFwk::DisposedRule &disposedRule);
 private:
     std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
     std::map<std::string, sptr<DisposedObserver>> disposedObserverMap_;
