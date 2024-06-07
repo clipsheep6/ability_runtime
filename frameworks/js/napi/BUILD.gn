@@ -79,6 +79,8 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/mission_manager:distributedmissionmanager",
     "${ability_runtime_napi_path}/mission_manager:missionmanager_napi",
     "${ability_runtime_napi_path}/particleAbility:particleability",
+    "${ability_runtime_napi_path}/photo_editor_extension_ability:photoeditorextensionability_napi",
+    "${ability_runtime_napi_path}/photo_editor_extension_context:photoeditorextensioncontext_napi",
     "${ability_runtime_napi_path}/quick_fix:quickfixmanager_napi",
     "${ability_runtime_napi_path}/service_extension_ability:serviceextensionability",
     "${ability_runtime_napi_path}/service_extension_ability:serviceextensionability_napi",
