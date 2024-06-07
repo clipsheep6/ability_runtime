@@ -6871,6 +6871,8 @@ int AbilityManagerService::StartUser(int userId, sptr<IUserCallback> callback)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "StartUser in service:%{public}d.", userId);
     if (IPCSkeleton::GetCallingUid() != ACCOUNT_MGR_SERVICE_UID) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "StartUser, IPC_Single_Uid:%{public}d.", IPCSkeleton::GetCallingUid());
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "StartUser, IPC_Single_Pid:%{public}d.", IPCSkeleton::GetCallingPid());
         TAG_LOGE(AAFwkTag::ABILITYMGR, "StartUser permission verification failed, not account process.");
         if (callback != nullptr) {
             callback->OnStartUserDone(userId, CHECK_PERMISSION_FAILED);
@@ -6909,6 +6911,8 @@ int AbilityManagerService::StopUser(int userId, const sptr<IUserCallback> &callb
 int AbilityManagerService::LogoutUser(int32_t userId)
 {
     if (IPCSkeleton::GetCallingUid() != ACCOUNT_MGR_SERVICE_UID) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "LogoutUser, IPC_Single_Uid:%{public}d.", IPCSkeleton::GetCallingUid());
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "LogoutUser, IPC_Single_Pid:%{public}d.", IPCSkeleton::GetCallingPid());
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Permission verification failed, not account process");
         return CHECK_PERMISSION_FAILED;
     }
