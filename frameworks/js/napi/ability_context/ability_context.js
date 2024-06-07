@@ -129,10 +129,6 @@ class AbilityContext extends Context {
     return this.__context_impl__.stopServiceExtensionAbilityWithAccount(want, accountId, callback);
   }
 
-  connectAbility(want, options) {
-    return this.__context_impl__.connectAbility(want, options);
-  }
-
   connectServiceExtensionAbility(want, options) {
     return this.__context_impl__.connectServiceExtensionAbility(want, options);
   }

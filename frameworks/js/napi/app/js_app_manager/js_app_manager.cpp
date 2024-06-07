@@ -671,7 +671,7 @@ private:
             return CreateJsUndefined(env);
         }
         std::string bundleName;
-        if (!ConvertFromJsValue(env, argv[0], bundleName)) {
+        if (!ConvertFromJsValue(env, argv[0], bundleName) || bundleName.empty()) {
             TAG_LOGE(AAFwkTag::APPMGR, "get bundleName failed!");
             ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string.");
             return CreateJsUndefined(env);
@@ -1276,8 +1276,6 @@ napi_value JsAppManagerInit(napi_env env, napi_value exportObj)
     BindNativeFunction(env, exportObj, "getForegroundApplications", moduleName,
         JsAppManager::GetForegroundApplications);
     BindNativeFunction(env, exportObj, "getProcessRunningInfos", moduleName,
-        JsAppManager::GetRunningProcessInformation);
-    BindNativeFunction(env, exportObj, "getProcessRunningInformation", moduleName,
         JsAppManager::GetRunningProcessInformation);
     BindNativeFunction(env, exportObj, "getRunningProcessInformation", moduleName,
         JsAppManager::GetRunningProcessInformation);
