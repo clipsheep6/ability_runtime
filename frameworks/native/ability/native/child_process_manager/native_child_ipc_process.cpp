@@ -100,7 +100,21 @@ bool NativeChildIpcProcess::LoadNativeLib(const std::shared_ptr<ChildProcessStar
         return false;
     }
 
-    void *libHandle = dlopen(info->srcEntry.c_str(), RTLD_LAZY);
+    if (info->moduleName.empty()) {
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Module name is empty");
+        return false;
+    }
+
+    Dl_namespace dlnsApp;
+    std::string appDlNameSpace = "moduleNs_" + info->moduleName;
+    int ret = dlns_get(appDlNameSpace.c_str(), &dlnsApp);
+    if (ret != 0) {
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Get app dlNamespace(%{private}s) failed, err:%{public}d",
+            appDlNameSpace.c_str(), ret);
+        return false;
+    }
+
+    void *libHandle = dlopen_ns(&dlnsApp, info->srcEntry.c_str(), RTLD_LAZY);
     if (libHandle == nullptr) {
         TAG_LOGE(AAFwkTag::PROCESSMGR, "Load lib file %{private}s failed, err %{public}s",
             info->srcEntry.c_str(), dlerror());

@@ -51,7 +51,7 @@ private:
     void GetNativeLibPath(const BundleInfo &bundleInfo, AppLibPathMap &appLibPaths);
     void GetHapSoPath(const HapModuleInfo &hapInfo, AppLibPathMap &appLibPaths, bool isPreInstallApp);
     void HandleRunNativeProc(const sptr<IRemoteObject> &mainProcessCb);
-    void UpdateNativeChildLibPath(const AppLibPathMap &appLibPaths);
+    void UpdateNativeChildLibModuleName(const AppLibPathMap &appLibPaths, bool isSystemApp);
     std::string GetLibPath(const std::string &hapPath, bool isPreInstallApp);
 
     sptr<IAppMgr> appMgr_ = nullptr;
@@ -59,6 +59,7 @@ private:
     std::shared_ptr<BundleInfo> bundleInfo_ = nullptr;
     std::shared_ptr<ChildProcessInfo> processInfo_ = nullptr;
     std::unique_ptr<AbilityRuntime::Runtime> runtime_ = nullptr;
+    std::string nativeLibModuleName_;
 
     DISALLOW_COPY_AND_MOVE(ChildMainThread);
 };
