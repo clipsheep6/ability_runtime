@@ -79,6 +79,10 @@ const std::string HELP_MSG_START =
     "  [-U <URI>] "
     "  [-e <entity>] "
     "  [-t <mime-type>] "
+    "  [--wl <window-left>] "
+    "  [--wt <window-top>] "
+    "  [--wh <window-height>] "
+    "  [--ww <window-width>] "
     "  start ability with an element name\n";
 
 const std::string HELP_MSG_STOP_SERVICE =

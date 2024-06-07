@@ -110,6 +110,7 @@
 #include "xcollie/watchdog.h"
 #include "config_policy_utils.h"
 #include "running_multi_info.h"
+#include "utils/window_options_utils.h"
 #ifdef SUPPORT_GRAPHICS
 #include "dialog_session_record.h"
 #include "application_anr_listener.h"
@@ -544,7 +545,15 @@ ServiceRunningState AbilityManagerService::QueryServiceState() const
 int AbilityManagerService::StartAbility(const Want &want, int32_t userId, int requestCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    if (want.GetBoolParam(DEBUG_APP, false) && !system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
+    bool isDebugApp = want.GetBoolParam(DEBUG_APP, false);
+    bool hasWindowOptions = (want.GetIntParam(Want::PARAM_RESV_WINDOW_LEFT, 0) > 0 ||
+        want.GetIntParam(Want::PARAM_RESV_WINDOW_TOP, 0) > 0 ||
+        want.GetIntParam(Want::PARAM_RESV_WINDOW_HEIGHT, 0) > 0 ||
+        want.GetIntParam(Want::PARAM_RESV_WINDOW_WIDTH, 0) > 0);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "isDebugApp=%{public}d, hasWindowOptions=%{public}d",
+        static_cast<int>(isDebugApp), static_cast<int>(hasWindowOptions));
+    bool checkDeveloperModeFlag = (isDebugApp || hasWindowOptions);
+    if (checkDeveloperModeFlag && !system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Developer Mode is false.");
         return ERR_NOT_DEVELOPER_MODE;
     }
@@ -557,6 +566,20 @@ int AbilityManagerService::StartAbility(const Want &want, int32_t userId, int re
     if (startWithAccount || IsCrossUserCall(userId)) {
         (const_cast<Want &>(want)).RemoveParam(START_ABILITY_TYPE);
         CHECK_CALLER_IS_SYSTEM_APP;
+    }
+    if (hasWindowOptions) {
+        if (!AppUtils::GetInstance().IsStartOptionsWithAnimation()) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "window options are not supported in the current product type.");
+            return ERR_NOT_SUPPORTED_PRODUCT_TYPE;
+        }
+        int32_t err = ERR_OK;
+        if (userId == DEFAULT_INVAL_VALUE) {
+            userId = GetValidUserId(userId);
+        }
+        if ((err = StartAbilityUtils::CheckAppProvisionMode(want, userId)) != ERR_OK) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "CheckAppProvisionMode returns errcode=%{public}d", err);
+            return err;
+        }
     }
     InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
     AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
@@ -1584,26 +1607,7 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         } else {
             abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
         }
-        if (AppUtils::GetInstance().IsStartOptionsWithAnimation()) {
-            if (startOptions.windowLeftUsed_) {
-                abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_LEFT, startOptions.GetWindowLeft());
-            }
-            if (startOptions.windowTopUsed_) {
-                abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_TOP, startOptions.GetWindowTop());
-            }
-            if (startOptions.windowWidthUsed_) {
-                abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_WIDTH, startOptions.GetWindowWidth());
-            }
-            if (startOptions.windowHeightUsed_) {
-                abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_HEIGHT, startOptions.GetWindowHeight());
-            }
-            bool withAnimation = startOptions.GetWithAnimation();
-            auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-            if (!withAnimation && abilityRecord != nullptr &&
-                abilityRecord->GetAbilityInfo().bundleName == abilityRequest.want.GetBundle()) {
-                abilityRequest.want.SetParam(Want::PARAM_RESV_WITH_ANIMATION, withAnimation);
-            }
-        }
+        WindowOptionsUtils::SetWindowPositionAndSize(abilityRequest.want, callerToken, startOptions);
         abilityRequest.callType = AbilityCallType::START_OPTIONS_TYPE;
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
         if (specifyTokenId > 0 && callerToken) { // for sa specify tokenId and caller token
@@ -1695,26 +1699,8 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     }
     AbilityUtil::ProcessWindowMode(abilityRequest.want, abilityInfo.applicationInfo.accessTokenId,
         startOptions.GetWindowMode());
-    if (AppUtils::GetInstance().IsStartOptionsWithAnimation()) {
-        if (startOptions.windowLeftUsed_) {
-            abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_LEFT, startOptions.GetWindowLeft());
-        }
-        if (startOptions.windowTopUsed_) {
-            abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_TOP, startOptions.GetWindowTop());
-        }
-        if (startOptions.windowHeightUsed_) {
-            abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_HEIGHT, startOptions.GetWindowHeight());
-        }
-        if (startOptions.windowWidthUsed_) {
-            abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_WIDTH, startOptions.GetWindowWidth());
-        }
-        bool withAnimation = startOptions.GetWithAnimation();
-        auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-        if (!withAnimation && abilityRecord != nullptr &&
-            abilityRecord->GetAbilityInfo().bundleName == abilityRequest.want.GetBundle()) {
-            abilityRequest.want.SetParam(Want::PARAM_RESV_WITH_ANIMATION, withAnimation);
-        }
-    }
+
+    WindowOptionsUtils::SetWindowPositionAndSize(abilityRequest.want, callerToken, startOptions);
 
     if (PermissionVerification::GetInstance()->IsSystemAppCall()) {
         bool focused = abilityRequest.want.GetBoolParam(Want::PARAM_RESV_WINDOW_FOCUSED, true);
