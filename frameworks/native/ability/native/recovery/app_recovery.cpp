@@ -116,20 +116,20 @@ bool AppRecovery::InitApplicationInfo(const std::shared_ptr<EventHandler>& mainH
 bool AppRecovery::AddAbility(std::shared_ptr<AbilityRuntime::UIAbility> ability,
     const std::shared_ptr<AbilityInfo>& abilityInfo, const sptr<IRemoteObject>& token)
 {
-    if (!isEnable_) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery not enabled.");
+    if (abilityInfo == nullptr) {
+        TAG_LOGE(AAFwkTag::RECOVERY, "Ability info invalid.");
         return false;
     }
 
-    if (!abilityRecoverys_.empty() && !abilityInfo->recoverable) {
+    if (isEnable_ && !abilityRecoverys_.empty() && !abilityInfo->recoverable) {
         TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery abilityRecoverys is not empty but ability recoverable is false.");
         return false;
     }
     ability_ = ability;
     std::shared_ptr<AbilityRecovery> abilityRecovery = std::make_shared<AbilityRecovery>();
     abilityRecovery->InitAbilityInfo(ability, abilityInfo, token);
-    abilityRecovery->EnableAbilityRecovery(restartFlag_, saveOccasion_, saveMode_);
-    ability->EnableAbilityRecovery(abilityRecovery);
+    abilityRecovery->EnableAbilityRecovery(useAppSettedValue_.load(), restartFlag_, saveOccasion_, saveMode_);
+    ability->EnableAbilityRecovery(abilityRecovery, useAppSettedValue_.load());
     abilityRecoverys_.push_back(abilityRecovery);
     auto handler = mainHandler_.lock();
     if (handler != nullptr) {
@@ -145,11 +145,6 @@ bool AppRecovery::AddAbility(std::shared_ptr<AbilityRuntime::UIAbility> ability,
 
 bool AppRecovery::RemoveAbility(const sptr<IRemoteObject>& tokenId)
 {
-    if (!isEnable_) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery not enabled. not removeAbility");
-        return false;
-    }
-
     if (!tokenId) {
         TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery removeAbility tokenId is null.");
         return false;
@@ -339,6 +334,7 @@ void AppRecovery::EnableAppRecovery(uint16_t restartFlag, uint16_t saveFlag, uin
     restartFlag_ = restartFlag;
     saveOccasion_ = saveFlag;
     saveMode_ = saveMode;
+    useAppSettedValue_.store(true);
 }
 
 bool AppRecovery::ShouldSaveAppState(StateReason reason)

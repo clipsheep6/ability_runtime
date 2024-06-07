@@ -208,6 +208,10 @@ class AbilityContext extends Context {
   moveAbilityToBackground(callback) {
     return this.__context_impl__.moveAbilityToBackground(callback);
   }
+
+  setRestoreEnabled(enabled) {
+    this.__context_impl__.setRestoreEnabled(enabled);
+  }
 }
 
 export default AbilityContext;

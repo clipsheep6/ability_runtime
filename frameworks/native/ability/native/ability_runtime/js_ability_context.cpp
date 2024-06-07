@@ -350,6 +350,11 @@ napi_value JsAbilityContext::MoveAbilityToBackground(napi_env env, napi_callback
     GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnMoveAbilityToBackground);
 }
 
+napi_value JsAbilityContext::SetRestoreEnabled(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnSetRestoreEnabled);
+}
+
 void JsAbilityContext::ClearFailedCallConnection(
     const std::weak_ptr<AbilityContext>& abilityContext, const std::shared_ptr<CallerCallBack> &callback)
 {
@@ -1615,6 +1620,7 @@ napi_value CreateJsAbilityContext(napi_env env, std::shared_ptr<AbilityContext> 
     BindNativeFunction(env, object, "openAtomicService", moduleName,
         JsAbilityContext::OpenAtomicService);
     BindNativeFunction(env, object, "moveAbilityToBackground", moduleName, JsAbilityContext::MoveAbilityToBackground);
+    BindNativeFunction(env, object, "setRestoreEnabled", moduleName, JsAbilityContext::SetRestoreEnabled);
 
 #ifdef SUPPORT_GRAPHICS
     BindNativeFunction(env, object, "setMissionLabel", moduleName, JsAbilityContext::SetMissionLabel);
@@ -2213,6 +2219,33 @@ napi_value JsAbilityContext::OnMoveAbilityToBackground(napi_env env, NapiCallbac
     NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnMoveAbilityToBackground",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
+}
+
+napi_value JsAbilityContext::OnSetRestoreEnabled(napi_env env, NapiCallbackInfo& info)
+{
+    TAG_LOGD(AAFwkTag::CONTEXT, "Set if support restore.");
+    if (info.argc == ARGC_ZERO) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Not enough params.");
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    auto abilityContext = context_.lock();
+    if (abilityContext == nullptr) {
+        TAG_LOGW(AAFwkTag::CONTEXT, "Context has already released.");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+        return CreateJsUndefined(env);
+    }
+
+    bool enabled = true;
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], enabled)) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Parse param failed.");
+        ThrowInvalidParamError(env, "Parse param enabled failed.");
+        return CreateJsUndefined(env);
+    }
+
+    abilityContext->SetRestoreEnabled(enabled);
+    return CreateJsUndefined(env);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

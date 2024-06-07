@@ -368,7 +368,7 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnStop_0300, TestSize.Level1)
     ASSERT_NE(ability, nullptr);
     auto abilityRecovery = std::make_shared<AbilityRecovery>();
     EXPECT_NE(abilityRecovery, nullptr);
-    ability->EnableAbilityRecovery(abilityRecovery);
+    ability->EnableAbilityRecovery(abilityRecovery, false);
     ability->OnStop();
 
     // window is not nullptr
@@ -683,7 +683,7 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityContinuation_0200, TestSize.Level1)
     EXPECT_EQ(ret, false);
     ability->HandleCreateAsRecovery(want);
     auto abilityRecovery = std::make_shared<AbilityRecovery>();
-    ability->EnableAbilityRecovery(abilityRecovery);
+    ability->EnableAbilityRecovery(abilityRecovery, false);
 
     // branch when abilityContext_ is nullptr
     want.SetParam(Want::PARAM_ABILITY_RECOVERY_RESTART, true);
@@ -877,7 +877,7 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityFuncList_0100, TestSize.Level1)
     bool isNewRule = ability->IsUseNewStartUpRule();
     EXPECT_EQ(isNewRule, true);
     auto abilityRecovery = std::make_shared<AbilityRecovery>();
-    ability->EnableAbilityRecovery(abilityRecovery);
+    ability->EnableAbilityRecovery(abilityRecovery, false);
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 

@@ -36,6 +36,7 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 constexpr size_t PARAM_LENGTH = 1024;
+constexpr int INDEX_OFFSET = 3;
 constexpr int EXTRA_ARGUMENTS_FOR_KEY_VALUE_PAIR = 1;
 constexpr int EXTRA_ARGUMENTS_FOR_NULL_STRING = 0;
 constexpr int OPTION_PARAMETER_VALUE_OFFSET = 1;
@@ -726,14 +727,47 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
 
 ErrCode AbilityManagerShellCommand::RunAsForceStop()
 {
-    TAG_LOGI(AAFwkTag::AA_TOOL, "[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    TAG_LOGI(AAFwkTag::AA_TOOL, "enter");
     if (argList_.empty()) {
-        resultReceiver_.append(HELP_MSG_FORCE_STOP + "\n");
+        resultReceiver_.append(HELP_MSG_FORCE_STOP);
         return OHOS::ERR_INVALID_VALUE;
     }
-    TAG_LOGI(AAFwkTag::AA_TOOL, "Bundle name : %{public}s", argList_[0].c_str());
+    std::string bundleName = argList_[0];
+    TAG_LOGI(AAFwkTag::AA_TOOL, "Bundle name %{public}s", bundleName.c_str());
+
+    auto killReason = Reason::REASON_UNKNOWN;
+    pid_t pid = 0;
+    for (auto index = INDEX_OFFSET; index < argc_; ++index) {
+        TAG_LOGD(AAFwkTag::AA_TOOL, "argv_[%{public}d]: %{public}s.", index, argv_[index]);
+        std::string opt = argv_[index];
+        if (opt == "-p") {
+            index++;
+            if (index <= argc_) {
+                TAG_LOGD(AAFwkTag::AA_TOOL, "argv_[%{public}d]: %{public}s.", index, argv_[index]);
+                std::string inputPid = argv_[index];
+                pid = ConvertPid(inputPid);
+            }
+        } else if (opt == "-r") {
+            index++;
+            if (index <= argc_) {
+                TAG_LOGD(AAFwkTag::AA_TOOL, "argv_[%{public}d]: %{public}s.", index, argv_[index]);
+                std::string inputReason = argv_[index];
+                killReason = CovertExitReason(inputReason);
+            }
+        }
+    }
+
+    TAG_LOGI(AAFwkTag::AA_TOOL, "pid %{public}d, reason %{public}d.", pid, killReason);
+    if (pid != 0 && killReason != Reason::REASON_UNKNOWN) {
+        ExitReason exitReason = {killReason, "aa force-stop"};
+        if (AbilityManagerClient::GetInstance()->RecordProcessExitReason(pid, exitReason) != ERR_OK) {
+            TAG_LOGE(AAFwkTag::AA_TOOL, "bundle %{public}s record reason %{public}d failed.",
+                bundleName.c_str(), killReason);
+        }
+    }
+
     ErrCode result = OHOS::ERR_OK;
-    result = AbilityManagerClient::GetInstance()->KillProcess(argList_[0]);
+    result = AbilityManagerClient::GetInstance()->KillProcess(bundleName);
     if (result == OHOS::ERR_OK) {
         TAG_LOGI(AAFwkTag::AA_TOOL, "%{public}s", STRING_FORCE_STOP_OK.c_str());
         resultReceiver_ = STRING_FORCE_STOP_OK + "\n";
@@ -743,6 +777,44 @@ ErrCode AbilityManagerShellCommand::RunAsForceStop()
         resultReceiver_.append(GetMessageFromCode(result));
     }
     return result;
+}
+
+Reason AbilityManagerShellCommand::CovertExitReason(std::string& reasonStr)
+{
+    if (reasonStr.empty()) {
+        return Reason::REASON_UNKNOWN;
+    }
+
+    if (reasonStr.compare("UNKNOWN") == 0) {
+        return Reason::REASON_UNKNOWN;
+    } else if (reasonStr.compare("NORMAL") == 0) {
+        return Reason::REASON_NORMAL;
+    } else if (reasonStr.compare("CPP_CRASH") == 0) {
+        return Reason::REASON_CPP_CRASH;
+    } else if (reasonStr.compare("JS_ERROR") == 0) {
+        return Reason::REASON_JS_ERROR;
+    } else if (reasonStr.compare("APP_FREEZE") == 0) {
+        return Reason::REASON_APP_FREEZE;
+    } else if (reasonStr.compare("PERFORMANCE_CONTROL") == 0) {
+        return Reason::REASON_PERFORMANCE_CONTROL;
+    } else if (reasonStr.compare("RESOURCE_CONTROL") == 0) {
+        return Reason::REASON_RESOURCE_CONTROL;
+    } else if (reasonStr.compare("UPGRADE") == 0) {
+        return Reason::REASON_UPGRADE;
+    }
+
+    return Reason::REASON_UNKNOWN;
+}
+
+pid_t AbilityManagerShellCommand::ConvertPid(std::string& inputPid)
+{
+    pid_t pid = 0;
+    try {
+        pid = static_cast<pid_t>(std::stoi(inputPid));
+    } catch (...) {
+        TAG_LOGW(AAFwkTag::AA_TOOL, "pid stoi(%{public}s) failed.", inputPid.c_str());
+    }
+    return pid;
 }
 
 ErrCode AbilityManagerShellCommand::RunAsAttachDebugCommand()

@@ -181,7 +181,8 @@ int32_t AppExitReasonDataManager::GetAppExitReason(const std::string &bundleName
         TAG_LOGW(AAFwkTag::ABILITYMGR, "invalid value!");
         return ERR_INVALID_VALUE;
     }
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "bundleName: %{public}s, tokenId: %{private}u", bundleName.c_str(), accessTokenId);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "bundleName: %{public}s, tokenId: %{private}u, abilityName: %{public}s.",
+        bundleName.c_str(), accessTokenId, abilityName.c_str());
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {

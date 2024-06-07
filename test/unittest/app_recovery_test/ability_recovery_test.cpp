@@ -118,7 +118,7 @@ HWTEST_F(AbilityRecoveryUnitTest, GetSaveModeFlag_001, TestSize.Level1)
 HWTEST_F(AbilityRecoveryUnitTest, EnableAbilityRecovery_001, TestSize.Level1)
 {
     EXPECT_FALSE(abilityRecovery_->isEnable_);
-    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+    abilityRecovery_->EnableAbilityRecovery(true, RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_FILE);
     EXPECT_TRUE(abilityRecovery_->isEnable_);
 }
@@ -131,7 +131,7 @@ HWTEST_F(AbilityRecoveryUnitTest, EnableAbilityRecovery_001, TestSize.Level1)
  */
 HWTEST_F(AbilityRecoveryUnitTest, EnableAbilityRecovery_002, TestSize.Level1)
 {
-    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+    abilityRecovery_->EnableAbilityRecovery(true, RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_FILE);
     EXPECT_EQ(RestartFlag::ALWAYS_RESTART, abilityRecovery_->GetRestartFlag());
     EXPECT_EQ(SaveOccasionFlag::SAVE_WHEN_ERROR, abilityRecovery_->GetSaveOccasionFlag());
@@ -146,7 +146,7 @@ HWTEST_F(AbilityRecoveryUnitTest, EnableAbilityRecovery_002, TestSize.Level1)
  */
 HWTEST_F(AbilityRecoveryUnitTest, EnableAbilityRecovery_003, TestSize.Level1)
 {
-    abilityRecovery_->EnableAbilityRecovery(RestartFlag::NO_RESTART, SaveOccasionFlag::SAVE_ALL,
+    abilityRecovery_->EnableAbilityRecovery(true, RestartFlag::NO_RESTART, SaveOccasionFlag::SAVE_ALL,
         SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
     EXPECT_EQ(RestartFlag::NO_RESTART, abilityRecovery_->GetRestartFlag());
     EXPECT_EQ(SaveOccasionFlag::SAVE_ALL, abilityRecovery_->GetSaveOccasionFlag());
@@ -172,7 +172,7 @@ HWTEST_F(AbilityRecoveryUnitTest, InitAbilityInfo_001, TestSize.Level1)
  */
 HWTEST_F(AbilityRecoveryUnitTest, IsSaveAbilityState_001, TestSize.Level1)
 {
-    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+    abilityRecovery_->EnableAbilityRecovery(true, RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_FILE);
     EXPECT_FALSE(abilityRecovery_->IsSaveAbilityState(StateReason::LIFECYCLE));
 }
@@ -185,7 +185,7 @@ HWTEST_F(AbilityRecoveryUnitTest, IsSaveAbilityState_001, TestSize.Level1)
  */
 HWTEST_F(AbilityRecoveryUnitTest, IsSaveAbilityState_002, TestSize.Level1)
 {
-    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_BACKGROUND,
+    abilityRecovery_->EnableAbilityRecovery(true, RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_BACKGROUND,
         SaveModeFlag::SAVE_WITH_FILE);
     EXPECT_FALSE(abilityRecovery_->IsSaveAbilityState(StateReason::CPP_CRASH));
     EXPECT_FALSE(abilityRecovery_->IsSaveAbilityState(StateReason::JS_ERROR));
@@ -200,7 +200,7 @@ HWTEST_F(AbilityRecoveryUnitTest, IsSaveAbilityState_002, TestSize.Level1)
  */
 HWTEST_F(AbilityRecoveryUnitTest, IsSaveAbilityState_003, TestSize.Level1)
 {
-    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_BACKGROUND,
+    abilityRecovery_->EnableAbilityRecovery(true, RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_BACKGROUND,
         SaveModeFlag::SAVE_WITH_FILE);
     EXPECT_TRUE(abilityRecovery_->IsSaveAbilityState(StateReason::DEVELOPER_REQUEST));
     EXPECT_TRUE(abilityRecovery_->IsSaveAbilityState(StateReason::LIFECYCLE));
@@ -214,7 +214,7 @@ HWTEST_F(AbilityRecoveryUnitTest, IsSaveAbilityState_003, TestSize.Level1)
  */
 HWTEST_F(AbilityRecoveryUnitTest, IsSaveAbilityState_004, TestSize.Level1)
 {
-    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+    abilityRecovery_->EnableAbilityRecovery(true, RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_FILE);
     EXPECT_TRUE(abilityRecovery_->IsSaveAbilityState(StateReason::CPP_CRASH));
     EXPECT_TRUE(abilityRecovery_->IsSaveAbilityState(StateReason::JS_ERROR));
@@ -240,7 +240,7 @@ HWTEST_F(AbilityRecoveryUnitTest, ScheduleSaveAbilityState_001, TestSize.Level1)
  */
 HWTEST_F(AbilityRecoveryUnitTest, ScheduleSaveAbilityState_002, TestSize.Level1)
 {
-    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+    abilityRecovery_->EnableAbilityRecovery(true, RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_FILE);
     EXPECT_FALSE(abilityRecovery_->ScheduleSaveAbilityState(StateReason::LIFECYCLE));
 }
@@ -291,11 +291,11 @@ HWTEST_F(AbilityRecoveryUnitTest, SaveAbilityState_003, TestSize.Level1)
  */
 HWTEST_F(AbilityRecoveryUnitTest, SaveAbilityState_004, TestSize.Level1)
 {
-    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+    abilityRecovery_->EnableAbilityRecovery(true, RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_FILE);
     abilityRecovery_->ability_ = mockAbility_;
     EXPECT_TRUE(abilityRecovery_->SaveAbilityState());
-    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+    abilityRecovery_->EnableAbilityRecovery(true, RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
     EXPECT_TRUE(abilityRecovery_->SaveAbilityState());
 }
@@ -319,7 +319,7 @@ HWTEST_F(AbilityRecoveryUnitTest, ScheduleRecoverAbility_001, TestSize.Level1)
  */
 HWTEST_F(AbilityRecoveryUnitTest, ScheduleRecoverAbility_002, TestSize.Level1)
 {
-    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+    abilityRecovery_->EnableAbilityRecovery(true, RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_FILE);
     token_ = nullptr;
     EXPECT_FALSE(abilityRecovery_->ScheduleRecoverAbility(StateReason::DEVELOPER_REQUEST));
@@ -333,7 +333,7 @@ HWTEST_F(AbilityRecoveryUnitTest, ScheduleRecoverAbility_002, TestSize.Level1)
  */
 HWTEST_F(AbilityRecoveryUnitTest, ScheduleRecoverAbility_003, TestSize.Level1)
 {
-    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+    abilityRecovery_->EnableAbilityRecovery(true, RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_FILE);
     token_ = new MockAbilityToken();
     abilityRecovery_->token_ = token_;
@@ -359,7 +359,7 @@ HWTEST_F(AbilityRecoveryUnitTest, ScheduleRestoreAbilityState_001, TestSize.Leve
  */
 HWTEST_F(AbilityRecoveryUnitTest, ScheduleRestoreAbilityState_002, TestSize.Level1)
 {
-    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+    abilityRecovery_->EnableAbilityRecovery(true, RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_FILE);
     EXPECT_FALSE(abilityRecovery_->ScheduleRestoreAbilityState(StateReason::LIFECYCLE, want_));
 }
@@ -372,7 +372,7 @@ HWTEST_F(AbilityRecoveryUnitTest, ScheduleRestoreAbilityState_002, TestSize.Leve
  */
 HWTEST_F(AbilityRecoveryUnitTest, ScheduleRestoreAbilityState_003, TestSize.Level1)
 {
-    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+    abilityRecovery_->EnableAbilityRecovery(true, RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_FILE);
     abilityRecovery_->abilityInfo_.reset();
     EXPECT_FALSE(abilityRecovery_->ScheduleRestoreAbilityState(StateReason::CPP_CRASH, want_));
@@ -385,7 +385,7 @@ HWTEST_F(AbilityRecoveryUnitTest, ScheduleRestoreAbilityState_003, TestSize.Leve
  */
 HWTEST_F(AbilityRecoveryUnitTest, ScheduleRestoreAbilityState_004, TestSize.Level1)
 {
-    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+    abilityRecovery_->EnableAbilityRecovery(true, RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
     abilityRecovery_->hasTryLoad_ = true;
     abilityRecovery_->hasLoaded_ = true;
@@ -437,7 +437,7 @@ HWTEST_F(AbilityRecoveryUnitTest, LoadSavedState_003, TestSize.Level1)
 HWTEST_F(AbilityRecoveryUnitTest, GetSavedPageStack_001, TestSize.Level1)
 {
     abilityRecovery_->hasTryLoad_ = true;
-    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+    abilityRecovery_->EnableAbilityRecovery(true, RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
     EXPECT_EQ(abilityRecovery_->GetSavedPageStack(StateReason::DEVELOPER_REQUEST), "");
 }
@@ -452,7 +452,7 @@ HWTEST_F(AbilityRecoveryUnitTest, GetSavedPageStack_002, TestSize.Level1)
 {
     abilityRecovery_->hasTryLoad_ = true;
     abilityRecovery_->hasLoaded_ = true;
-    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+    abilityRecovery_->EnableAbilityRecovery(true, RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
     EXPECT_EQ(abilityRecovery_->GetSavedPageStack(StateReason::DEVELOPER_REQUEST), "");
 }
@@ -468,7 +468,7 @@ HWTEST_F(AbilityRecoveryUnitTest, GetSavedPageStack_003, TestSize.Level1)
     abilityRecovery_->hasTryLoad_ = true;
     abilityRecovery_->hasLoaded_ = true;
     abilityRecovery_->pageStack_ = "test";
-    abilityRecovery_->EnableAbilityRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
+    abilityRecovery_->EnableAbilityRecovery(true, RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
     EXPECT_EQ(abilityRecovery_->GetSavedPageStack(StateReason::DEVELOPER_REQUEST), "test");
 }

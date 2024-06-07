@@ -445,6 +445,7 @@ group("unittest") {
     "dataobs_mgr_service_test:unittest",
     "dataobs_mgr_stub_test:unittest",
     "deeplink_reserve_config_test:unittest",
+    "default_recovery_config_test:unittest",
     "dfr_test:unittest",
     "dlp_state_item_test:unittest",
     "dlp_utils_test:unittest",

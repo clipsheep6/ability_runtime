@@ -507,6 +507,7 @@ void JsUIAbility::OnSceneCreated()
 
 void JsUIAbility::OnSceneRestored()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     UIAbility::OnSceneRestored();
     TAG_LOGD(AAFwkTag::UIABILITY, "called.");
     HandleScope handleScope(jsRuntime_);
@@ -752,7 +753,8 @@ void JsUIAbility::AbilityContinuationOrRecover(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     // multi-instance ability continuation
-    TAG_LOGD(AAFwkTag::UIABILITY, "Launch reason is %{public}d.", launchParam_.launchReason);
+    TAG_LOGD(AAFwkTag::UIABILITY, "Launch reason is %{public}d, last exit reasion is %{public}d.",
+        launchParam_.launchReason, launchParam_.lastExitReason);
     if (IsRestoredInContinuation()) {
         RestorePageStack(want);
         OnSceneRestored();
@@ -764,12 +766,20 @@ void JsUIAbility::AbilityContinuationOrRecover(const Want &want)
         auto mainWindow = scene_->GetMainWindow();
         if (mainWindow != nullptr) {
             mainWindow->NapiSetUIContent(pageStack, env, abilityContext_->GetContentStorage()->GetNapiValue(),
-                Rosen::BackupAndRestoreType::CONTINUATION);
+                Rosen::BackupAndRestoreType::APP_RECOVERY);
         } else {
             TAG_LOGE(AAFwkTag::UIABILITY, "MainWindow is nullptr.");
         }
         OnSceneRestored();
     } else {
+        if (ShouldDefaultRecoverState(want) && abilityRecovery_ != nullptr && scene_ != nullptr) {
+            TAG_LOGD(AAFwkTag::UIABILITY, "Need restore.");
+            std::string pageStack = abilityRecovery_->GetSavedPageStack(AppExecFwk::StateReason::DEVELOPER_REQUEST);
+            auto mainWindow = scene_->GetMainWindow();
+            if (!pageStack.empty() && mainWindow != nullptr) {
+                mainWindow->SetRestoredRouterStack(pageStack);
+            }
+        }
         OnSceneCreated();
     }
 }

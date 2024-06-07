@@ -41,6 +41,7 @@
 #include "accesstoken_kit.h"
 #include "app_utils.h"
 #include "app_exit_reason_data_manager.h"
+#include "app_recovery/default_recovery_config.h"
 #include "application_util.h"
 #include "assert_fault_callback_death_mgr.h"
 #include "assert_fault_proxy.h"
@@ -420,6 +421,7 @@ bool AbilityManagerService::Init()
     InitInterceptor();
     InitStartAbilityChain();
     InitDeepLinkReserve();
+    InitDefaultRecoveryList();
 
     abilityAutoStartupService_ = std::make_shared<AbilityRuntime::AbilityAutoStartupService>();
 #ifdef SUPPORT_SCREEN
@@ -437,6 +439,13 @@ void AbilityManagerService::InitDeepLinkReserve()
 {
     if (!DeepLinkReserveConfig::GetInstance().LoadConfiguration()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "InitDeepLinkReserve failed.");
+    }
+}
+
+void AbilityManagerService::InitDefaultRecoveryList()
+{
+    if (!DefaultRecoveryConfig::GetInstance().LoadConfiguration()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Load default recovery list failed.");
     }
 }
 
@@ -1958,6 +1967,19 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bo
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Generate ability request local error.");
         return result;
     }
+
+    if (sessionInfo->want.GetBoolParam(IS_CALL_BY_SCB, true)) {
+        if (sessionInfo->startSetting != nullptr) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Start by scb, last not.");
+            sessionInfo->startSetting->AddProperty(AbilityStartSetting::IS_START_BY_SCB_KEY, "true");
+        }
+
+        if (abilityRequest.startSetting != nullptr) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Start by scb.");
+            abilityRequest.startSetting->AddProperty(AbilityStartSetting::IS_START_BY_SCB_KEY, "true");
+        }
+    }
+
     abilityRequest.collaboratorType = sessionInfo->collaboratorType;
     uint32_t specifyTokenId = static_cast<uint32_t>(sessionInfo->want.GetIntParam(SPECIFY_TOKEN_ID, 0));
     (sessionInfo->want).RemoveParam(SPECIFY_TOKEN_ID);
@@ -2005,6 +2027,8 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bo
         ResourceSchedule::ResType::AssociatedStartType::SCB_START_ABILITY), sessionInfo->callerToken);
     auto uiAbilityManager = GetUIAbilityManagerByUid(IPCSkeleton::GetCallingUid());
     CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
+    // here we don't need want param "IS_CALL_BY_SCB" any more, remove it.
+    (sessionInfo->want).RemoveParam(IS_CALL_BY_SCB);
     return uiAbilityManager->StartUIAbility(abilityRequest, sessionInfo, isColdStart);
 }
 
@@ -2110,7 +2134,8 @@ int32_t AbilityManagerService::RecordProcessExitReason(const int32_t pid, const 
     TAG_LOGI(AAFwkTag::ABILITYMGR, "RecordProcessExitReason pid:%{public}d, reason:%{public}d, exitMsg: %{public}s",
         pid, exitReason.reason, exitReason.exitMsg.c_str());
 
-    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall() &&
+        !AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Not sa call");
         return ERR_PERMISSION_DENIED;
     }
@@ -3271,9 +3296,12 @@ int AbilityManagerService::CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionI
 
     if (sessionInfo->isClearSession) {
         const auto &abilityInfo = abilityRecord->GetAbilityInfo();
+        std::string abilityName = abilityInfo.name;
+        if (abilityInfo.launchMode == AppExecFwk::LaunchMode::STANDARD) {
+            abilityName += std::to_string(sessionInfo->persistentId);
+        }
         (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
-            DeleteAbilityRecoverInfo(abilityInfo.applicationInfo.accessTokenId, abilityInfo.moduleName,
-            abilityInfo.name);
+            DeleteAbilityRecoverInfo(abilityInfo.applicationInfo.accessTokenId, abilityInfo.moduleName, abilityName);
     }
 
     EventInfo eventInfo;
@@ -5682,7 +5710,16 @@ int AbilityManagerService::GenerateAbilityRequest(const Want &want, int requestC
     request.want = want;
     request.requestCode = requestCode;
     request.callerToken = callerToken;
-    request.startSetting = nullptr;
+    auto setting = AbilityStartSetting::GetEmptySetting();
+    if (setting != nullptr) {
+        auto bundleName = want.GetElement().GetBundleName();
+        auto defaultRecovery = DefaultRecoveryConfig::GetInstance().IsBundleDefaultRecoveryEnabled(bundleName);
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "bundleName: %{public}s, defaultRecovery: %{public}d.", bundleName.c_str(),
+            defaultRecovery);
+        setting->AddProperty(AbilityStartSetting::DEFAULT_RECOVERY_KEY, defaultRecovery ? "true" : "false");
+        setting->AddProperty(AbilityStartSetting::IS_START_BY_SCB_KEY, "false"); // default is false
+        request.startSetting = std::make_shared<AbilityStartSetting>(*(setting.get()));
+    }
 
     auto abilityInfo = StartAbilityUtils::startAbilityInfo;
     if (abilityInfo == nullptr || abilityInfo->GetAppBundleName() != want.GetElement().GetBundleName()) {
@@ -5734,6 +5771,7 @@ int AbilityManagerService::GenerateAbilityRequest(const Want &want, int requestC
 
     if (want.GetBoolParam(Want::PARAM_RESV_START_RECENT, false) &&
         AAFwk::PermissionVerification::GetInstance()->VerifyStartRecentAbilityPermission()) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Set start recent.");
         request.startRecent = true;
     }
     if (isNeedSetDebugApp) {
@@ -7082,6 +7120,7 @@ void AbilityManagerService::UpdateMissionSnapShot(const sptr<IRemoteObject> &tok
 #endif // SUPPORT_SCREEN
 void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& token)
 {
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Enable recovery ability.");
     if (token == nullptr) {
         return;
     }
@@ -7109,9 +7148,13 @@ void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& toke
         auto uiAbilityManager = GetUIAbilityManagerByUserId(userId);
         CHECK_POINTER(uiAbilityManager);
         const auto& abilityInfo = record->GetAbilityInfo();
+        std::string abilityName = abilityInfo.name;
+        auto sessionId = uiAbilityManager->GetSessionIdByAbilityToken(token);
+        if (abilityInfo.launchMode == AppExecFwk::LaunchMode::STANDARD) {
+            abilityName += std::to_string(sessionId);
+        }
         (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->AddAbilityRecoverInfo(
-            abilityInfo.applicationInfo.accessTokenId, abilityInfo.moduleName, abilityInfo.name,
-            uiAbilityManager->GetSessionIdByAbilityToken(token));
+            abilityInfo.applicationInfo.accessTokenId, abilityInfo.moduleName, abilityName, sessionId);
     } else {
         auto missionListMgr = GetMissionListManagerByUserId(userId);
         if (missionListMgr == nullptr) {
