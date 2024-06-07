@@ -111,6 +111,13 @@ void JsAbilityLifecycleCallback::OnWindowStageCreate(const std::shared_ptr<Nativ
     CallWindowStageJsMethod("onWindowStageCreate", ability, windowStage);
 }
 
+void JsAbilityLifecycleCallback::OnWindowStageDidCreate(const std::shared_ptr<NativeReference> &ability,
+    const std::shared_ptr<NativeReference> &windowStage)
+{
+    TAG_LOGI(AAFwkTag::APPKIT, "OnWindowStageDidCreate");
+    CallWindowStageJsMethod("onWindowStageDidCreate", ability, windowStage);
+}
+
 void JsAbilityLifecycleCallback::OnWindowStageDestroy(const std::shared_ptr<NativeReference> &ability,
     const std::shared_ptr<NativeReference> &windowStage)
 {

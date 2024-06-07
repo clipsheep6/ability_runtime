@@ -65,6 +65,11 @@ class ServiceExtensionContext extends ExtensionContext {
     return this.__context_impl__.startServiceExtensionAbility(want, callback);
   }
 
+  startUIServiceExtension(want,callback) {
+    console.log('startUIServiceExtension');
+    return this.__context_impl__.startUIServiceExtension(want,callback);
+  }
+
   startServiceExtensionAbilityWithAccount(want, accountId, callback) {
     console.log('startServiceExtensionAbilityWithAccount');
     return this.__context_impl__.startServiceExtensionAbilityWithAccount(want, accountId, callback);

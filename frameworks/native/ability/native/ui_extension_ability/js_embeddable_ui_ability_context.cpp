@@ -111,6 +111,11 @@ napi_value JsEmbeddableUIAbilityContext::StartAbilityForResultWithAccount(napi_e
     GET_NAPI_INFO_AND_CALL(env, info, JsEmbeddableUIAbilityContext, OnStartAbilityForResultWithAccount);
 }
 
+napi_value JsEmbeddableUIAbilityContext::StartUIServiceExtensionAbility(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsEmbeddableUIAbilityContext, OnStartUIServiceExtensionAbility);
+}
+
 napi_value JsEmbeddableUIAbilityContext::StartServiceExtensionAbility(napi_env env, napi_callback_info info)
 {
     GET_NAPI_INFO_AND_CALL(env, info, JsEmbeddableUIAbilityContext, OnStartExtensionAbility);
@@ -284,6 +289,17 @@ napi_value JsEmbeddableUIAbilityContext::OnStartAbilityForResultWithAccount(napi
     }
     CHECK_POINTER_RETURN(env, jsAbilityContext_);
     return jsAbilityContext_->OnStartAbilityForResultWithAccount(env, info);
+}
+
+napi_value JsEmbeddableUIAbilityContext::OnStartUIServiceExtensionAbility(napi_env env, NapiCallbackInfo& info)
+{
+    if (screenMode_ == AAFwk::EMBEDDED_FULL_SCREEN_MODE) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Start extension in embedded screen mode.");
+        ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER), ERR_MSG_NOT_SUPPORT);
+        return CreateJsUndefined(env);
+    }
+    CHECK_POINTER_RETURN(env, jsAbilityContext_);
+    return jsAbilityContext_->OnStartUIServiceExtension(env, info);
 }
 
 napi_value JsEmbeddableUIAbilityContext::OnStartExtensionAbility(napi_env env, NapiCallbackInfo& info)
@@ -525,6 +541,7 @@ napi_value JsEmbeddableUIAbilityContext::CreateJsEmbeddableUIAbilityContext(napi
     const char* moduleName = "JsEmbeddableUIAbilityContext";
     BindNativeFunction(env, objValue, "startAbility", moduleName, StartAbility);
     BindNativeFunction(env, objValue, "startAbilityForResult", moduleName, StartAbilityForResult);
+	BindNativeFunction(env, objValue, "startUIServiceExtension", moduleName, StartUIServiceExtensionAbility);
     BindNativeFunction(env, objValue, "connectServiceExtensionAbility", moduleName, ConnectAbility);
     BindNativeFunction(env, objValue, "disconnectServiceExtensionAbility", moduleName, DisconnectAbility);
     BindNativeFunction(env, objValue, "terminateSelf", moduleName, TerminateSelf);

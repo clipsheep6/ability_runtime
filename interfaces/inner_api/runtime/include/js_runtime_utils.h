@@ -204,7 +204,8 @@ napi_value CreateNativeArray(napi_env env, const std::vector<T>& data)
 napi_value CreateJsError(napi_env env, int32_t errCode, const std::string& message = std::string());
 void BindNativeFunction(napi_env env, napi_value object, const char* name,
     const char* moduleName, napi_callback func);
-void BindNativeProperty(napi_env env, napi_value object, const char* name, napi_callback getter);
+void BindNativeProperty(napi_env env, napi_value object, const char* name, napi_callback getter,
+    napi_callback setter = nullptr);
 void* GetNativePointerFromCallbackInfo(napi_env env, napi_callback_info info, const char* name);
 void* GetCbInfoFromCallbackInfo(napi_env env, napi_callback_info info, size_t* argc, napi_value* argv);
 

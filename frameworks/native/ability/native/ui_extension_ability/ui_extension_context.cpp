@@ -60,6 +60,18 @@ ErrCode UIExtensionContext::StartAbility(const AAFwk::Want &want, const AAFwk::S
     return err;
 }
 
+ErrCode UIExtensionContext::StartUIServiceExtension(const AAFwk::Want &want) const
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::UI_EXT, "Start UIServiceExtension begin, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
+//    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, ILLEGAL_REQUEST_CODE);
+	ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartExtensionAbility(want, token_);
+    if (err != ERR_OK) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "StartUIServiceExtension is failed %{public}d", err);
+    }
+    return err;
+}
+
 ErrCode UIExtensionContext::TerminateSelf()
 {
     TAG_LOGD(AAFwkTag::UI_EXT, "TerminateSelf begin.");

@@ -62,14 +62,14 @@ void BindNativeFunction(napi_env env, napi_value object, const char* name,
     napi_set_named_property(env, object, name, result);
 }
 
-void BindNativeProperty(napi_env env, napi_value object, const char* name, napi_callback getter)
+void BindNativeProperty(napi_env env, napi_value object, const char* name, napi_callback getter, napi_callback setter)
 {
     napi_property_descriptor properties[1];
     properties[0].utf8name = name;
     properties[0].name = nullptr;
     properties[0].method = nullptr;
     properties[0].getter = getter;
-    properties[0].setter = nullptr;
+    properties[0].setter = setter;
     properties[0].value = nullptr;
     properties[0].attributes = napi_default;
     properties[0].data = nullptr;
