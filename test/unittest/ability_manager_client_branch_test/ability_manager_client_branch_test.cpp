@@ -1522,7 +1522,8 @@ HWTEST_F(AbilityManagerClientBranchTest, SetRootSceneSession_001, TestSize.Level
 HWTEST_F(AbilityManagerClientBranchTest, CallUIAbilityBySCB_001, TestSize.Level1)
 {
     sptr<SessionInfo> sessionInfo = new SessionInfo();
-    AbilityManagerClient::GetInstance()->CallUIAbilityBySCB(sessionInfo);
+    bool isColdStart = false;
+    AbilityManagerClient::GetInstance()->CallUIAbilityBySCB(sessionInfo, isColdStart);
     EXPECT_NE(sessionInfo, nullptr);
 }
 
@@ -1535,7 +1536,8 @@ HWTEST_F(AbilityManagerClientBranchTest, CallUIAbilityBySCB_002, TestSize.Level1
 {
     sptr<SessionInfo> sessionInfo = new SessionInfo();
     EXPECT_NE(sessionInfo, nullptr);
-    AbilityManagerClient::GetInstance()->CallUIAbilityBySCB(sessionInfo);
+    bool isColdStart = false;
+    AbilityManagerClient::GetInstance()->CallUIAbilityBySCB(sessionInfo, isColdStart);
     EXPECT_NE(sessionInfo, nullptr);
 }
 
