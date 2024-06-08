@@ -224,13 +224,13 @@ void SourceMap::SplitSourceMap(const std::string& sourceMapData)
             isUrl = true;
         }
     }
-    std::shared_ptr<SourceMapData> modularMap = std::make_shared<SourceMapData>();
     for (auto it = sources_.begin(); it != sources_.end(); ++it) {
         std::string mappings = mappings_[it->first];
         if (mappings.size() < FLAG_MAPPINGS_LEN + 1) {
             TAG_LOGE(AAFwkTag::JSENV, "Translate failed, url: %{public}s", it->first.c_str());
             continue;
         }
+        std::shared_ptr<SourceMapData> modularMap = std::make_shared<SourceMapData>();
         ExtractSourceMapData(mappings.substr(FLAG_MAPPINGS_LEN, mappings.size() - FLAG_MAPPINGS_LEN - 1), modularMap);
         if (modularMap == nullptr) {
             TAG_LOGE(AAFwkTag::JSENV, "Extract mappings failed, url: %{public}s", it->first.c_str());
