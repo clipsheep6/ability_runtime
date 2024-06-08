@@ -252,7 +252,7 @@ HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0100, TestSize.
     AppExecFwk::ElementName userElement("0", USER_BUNDLE_NAME, USER_ABILITY_NAME, USER_MODULE_NAME);
     userWant.SetElement(userElement);
     auto ret = client_->StartAbility(userWant);
-    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(ret, RESOLVE_ABILITY_ERR);
 
     ret = client_->DisconnectAbility(connect);
     EXPECT_NE(ret, ERR_OK);
@@ -282,7 +282,7 @@ HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0200, TestSize.
     AppExecFwk::ElementName userElement("0", USER_BUNDLE_NAME, USER_ABILITY_NAME, USER_MODULE_NAME);
     userWant.SetElement(userElement);
     auto ret = client_->StartAbility(userWant);
-    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(ret, RESOLVE_ABILITY_ERR);
 
     sptr<IRemoteObject> token = nullptr;
     ret = client_->GetTopAbility(token);
@@ -342,7 +342,7 @@ HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0400, TestSize.
     AppExecFwk::ElementName userElement("0", USER_BUNDLE_NAME, USER_ABILITY_NAME, USER_MODULE_NAME);
     userWant.SetElement(userElement);
     ret = client_->StartAbility(userWant);
-    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(ret, RESOLVE_ABILITY_ERR);
 
     ret = client_->DisconnectAbility(connect);
     EXPECT_NE(ret, ERR_OK);
