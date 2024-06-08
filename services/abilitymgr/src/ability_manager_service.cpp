@@ -10448,8 +10448,7 @@ int32_t AbilityManagerService::RestartApp(const AAFwk::Want &want)
     bool isForegroundToRestartApp = RestartAppManager::GetInstance().IsForegroundToRestartApp();
     if (!isForegroundToRestartApp) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "RestartApp, IsForegroundToRestartApp failed.");
-        // temporary use, need add new errorcode here, only allow to call when app is foreground
-        return INNER_ERR;
+        return AAFwk::NOT_TOP_ABILITY;
     }
 
     result = SignRestartAppFlag(userId, bundleName);
