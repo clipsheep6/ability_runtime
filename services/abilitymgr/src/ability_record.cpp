@@ -3147,6 +3147,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         TAG_LOGI(AAFwkTag::ABILITYMGR, "permission to shell");
         return;
     }
+    TAG_LOGW(AAFwkTag::ABILITYMGR, "Sharing the file uri to specific bundlename will be denied in sdk 13.");
     GrantUriPermissionInner(want, uriVec, targetBundleName, tokenId);
     PublishFileOpenEvent(want);
 }
