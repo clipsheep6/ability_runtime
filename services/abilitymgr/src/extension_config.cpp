@@ -36,6 +36,7 @@ constexpr const char* EXTENSION_AUTO_DISCONNECT_TIME = "auto_disconnect_time";
 
 constexpr const char* EXTENSION_THIRD_PARTY_APP_BLOCKED_FLAG_NAME = "third_party_app_blocked_flag";
 constexpr const char* EXTENSION_SERVICE_BLOCKED_LIST_NAME = "service_blocked_list";
+constexpr const char* EXTENSION_SERVICE_STARTUP_ENABLE_FLAG = "service_startup_enable_flag";
 
 const int32_t DEFAULT_EXTENSION_AUTO_DISCONNECT_TIME = -1;
 }
@@ -72,8 +73,8 @@ int32_t ExtensionConfig::GetExtensionAutoDisconnectTime(std::string extensionTyp
 
 bool ExtensionConfig::IsExtensionStartThirdPartyAppEnable(std::string extensionTypeName)
 {
-    if (thirdPartyAppBlockedFlags_.find(extensionTypeName) != thirdPartyAppBlockedFlags_.end()) {
-        return thirdPartyAppBlockedFlags_[extensionTypeName];
+    if (thirdPartyAppEnableFlags_.find(extensionTypeName) != thirdPartyAppEnableFlags_.end()) {
+        return thirdPartyAppEnableFlags_[extensionTypeName];
     }
     return true;
 }
@@ -81,6 +82,10 @@ bool ExtensionConfig::IsExtensionStartThirdPartyAppEnable(std::string extensionT
 bool ExtensionConfig::IsExtensionStartServiceEnable(std::string extensionTypeName, std::string targetUri)
 {
     AppExecFwk::ElementName targetElementName;
+    if (serviceEnableFlags_.find(extensionTypeName) != serviceEnableFlags_.end() &&
+        !serviceEnableFlags_[extensionTypeName]) {
+        return false;
+    }
     if (!targetElementName.ParseURI(targetUri) ||
         serviceBlockedLists_.find(extensionTypeName) == serviceBlockedLists_.end()) {
         return true;
@@ -135,14 +140,25 @@ void ExtensionConfig::LoadExtensionThirdPartyAppBlockedList(const nlohmann::json
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Third party config not existed.");
         return;
     }
-    thirdPartyAppBlockedFlags_[extensionTypeName] = object.at(EXTENSION_THIRD_PARTY_APP_BLOCKED_FLAG_NAME).get<bool>();
+    thirdPartyAppEnableFlags_[extensionTypeName] = object.at(EXTENSION_THIRD_PARTY_APP_BLOCKED_FLAG_NAME).get<bool>();
     TAG_LOGD(AAFwkTag::ABILITYMGR, "The %{public}s extension's third party app blocked flag is %{public}d",
-        extensionTypeName.c_str(), thirdPartyAppBlockedFlags_[extensionTypeName]);
+        extensionTypeName.c_str(), thirdPartyAppEnableFlags_[extensionTypeName]);
 }
 
 void ExtensionConfig::LoadExtensionServiceBlockedList(const nlohmann::json &object, std::string extensionTypeName)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call.");
+    if (!object.contains(EXTENSION_SERVICE_STARTUP_ENABLE_FLAG) ||
+        !object.at(EXTENSION_SERVICE_STARTUP_ENABLE_FLAG).is_boolean()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Service enable config not existed.");
+        return;
+    }
+    bool serviceEnableFlag = object.at(EXTENSION_SERVICE_STARTUP_ENABLE_FLAG).get<bool>();
+    if (!serviceEnableFlag) {
+        serviceEnableFlags_[extensionTypeName] = serviceEnableFlag;
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s Service startup is blocked.", extensionTypeName.c_str());
+        return;
+    }
     if (!object.contains(EXTENSION_SERVICE_BLOCKED_LIST_NAME) ||
         !object.at(EXTENSION_SERVICE_BLOCKED_LIST_NAME).is_array()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Service config not existed.");
