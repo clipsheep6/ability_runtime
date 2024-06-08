@@ -130,6 +130,8 @@ abilityms_files = [
   "src/ability_manager_event_subscriber.cpp",
 
   #utils
+  "src/utils/ability_request_utils.cpp",
+  "src/utils/debug_app_utils.cpp",
   "src/utils/window_options_utils.cpp",
 ]
 

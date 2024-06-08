@@ -53,6 +53,10 @@ struct StartAbilityUtils {
     static bool GetCallerAbilityInfo(const sptr<IRemoteObject> &callerToken,
         AppExecFwk::AbilityInfo &abilityInfo);
     static int32_t CheckAppProvisionMode(const Want& want, int32_t userId);
+    static int32_t GenerateStartAbilityInfo(const Want& want, int32_t userId,
+        std::shared_ptr<StartAbilityInfo>& abilityInfo);
+    static int32_t GenerateStartExtensionInfo(const Want& want, int32_t userId,
+        std::shared_ptr<StartAbilityInfo>& abilityInfo);
 
     static thread_local std::shared_ptr<StartAbilityInfo> startAbilityInfo;
     static thread_local std::shared_ptr<StartAbilityInfo> callerAbilityInfo;

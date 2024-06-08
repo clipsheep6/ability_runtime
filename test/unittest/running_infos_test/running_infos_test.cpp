@@ -20,6 +20,7 @@
 #undef private
 #undef protected
 #include "ability_manager_errors.h"
+#include "ability_request_utils.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -577,7 +578,7 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_001, TestSize.Level1)
 
     AbilityRequest abilityRequest;
     int userId = 100;
-    abilityMs_->GenerateAbilityRequest(want, -1, abilityRequest, nullptr, userId);
+    AbilityRequestUtils::GenerateAbilityRequest(want, -1, abilityRequest, nullptr, userId);
     DataAbilityManager::DataAbilityRecordPtr dataAbilityRecord;
     dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest);
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(abilityRequest.want,
@@ -617,7 +618,7 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_002, TestSize.Level1)
 
     AbilityRequest abilityRequest;
     int userId = 100;
-    abilityMs_->GenerateAbilityRequest(want, -1, abilityRequest, nullptr, userId);
+    AbilityRequestUtils::GenerateAbilityRequest(want, -1, abilityRequest, nullptr, userId);
     DataAbilityManager::DataAbilityRecordPtr dataAbilityRecord;
     dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest);
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(abilityRequest.want,
@@ -657,7 +658,7 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_003, TestSize.Level1)
 
     AbilityRequest abilityRequest;
     int userId = 100;
-    abilityMs_->GenerateAbilityRequest(want, -1, abilityRequest, nullptr, userId);
+    AbilityRequestUtils::GenerateAbilityRequest(want, -1, abilityRequest, nullptr, userId);
     DataAbilityManager::DataAbilityRecordPtr dataAbilityRecord;
     dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest);
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(abilityRequest.want,
@@ -672,7 +673,7 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_003, TestSize.Level1)
     ElementName element2("device", "com.ix.hiMusic", "MusicAbilityOther");
     want.SetElement(element2);
     AbilityRequest abilityRequest2;
-    abilityMs_->GenerateAbilityRequest(want, -1, abilityRequest2, nullptr, userId);
+    AbilityRequestUtils::GenerateAbilityRequest(want, -1, abilityRequest2, nullptr, userId);
     DataAbilityManager::DataAbilityRecordPtr dataAbilityRecord2;
     dataAbilityRecord2 = std::make_shared<DataAbilityRecord>(abilityRequest2);
     std::shared_ptr<AbilityRecord> abilityRecord2 = std::make_shared<AbilityRecord>(abilityRequest2.want,

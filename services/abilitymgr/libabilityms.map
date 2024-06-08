@@ -23,6 +23,7 @@
       *AbilityManagerService*;
       *AbilityManagerStub*;
       *AbilityRecord*;
+      *AbilityRequestUtils*;
       *AbilityRunningInfo*;
       *AbilitySchedulerProxy*;
       *AbilitySchedulerStub*;
@@ -41,6 +42,7 @@
       *ConnectionManagerClient*;
       *ControlInterceptor*;
       *CrowdTestInterceptor*;
+      *DebugAppUtils*;
       *DisposedRuleInterceptor*;
       *EcologicalRuleInterceptor*;
       *AbilityJumpInterceptor*;
@@ -80,6 +82,7 @@
       *WantReceiverProxy*;
       *WantSenderProxy*;
       *WantSenderStub*;
+      *WindowOptionsUtils*;
       *DeepLinkReserveConfig*;
     };
   local:
