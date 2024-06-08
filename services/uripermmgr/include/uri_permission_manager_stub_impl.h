@@ -92,7 +92,8 @@ public:
     // only for foundation calling
     void RevokeUriPermission(const TokenId tokenId, int32_t abilityId = -1) override;
     int RevokeAllUriPermissions(uint32_t tokenId) override;
-    int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) override;
+    int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName,
+        int32_t appIndex = 0) override;
 
     bool VerifyUriPermission(const Uri &uri, uint32_t flag, uint32_t tokenId) override;
     int32_t GetTokenIdByBundleName(const std::string &bundleName, int32_t appIndex, uint32_t &tokenId);

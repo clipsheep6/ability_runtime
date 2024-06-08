@@ -547,10 +547,12 @@ int UriPermissionManagerStubImpl::RevokeAllUriPermissions(uint32_t tokenId)
     return ERR_OK;
 }
 
-int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, const std::string bundleName)
+int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, const std::string bundleName,
+    int32_t appIndex)
 {
-    TAG_LOGI(AAFwkTag::URIPERMMGR, "Revoke uri permission manually, uri is %{private}s, bundleName is %{public}s",
-        uri.ToString().c_str(), bundleName.c_str());
+    TAG_LOGI(AAFwkTag::URIPERMMGR,
+        "Revoke uri permission manually, uri is %{private}s, bundleName is %{public}s, appIndex is %{public}d",
+        uri.ToString().c_str(), bundleName.c_str(), appIndex);
     if (!IsSAOrSystemAppCall()) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Only support SA and SystemApp called.");
         return CHECK_PERMISSION_FAILED;
@@ -560,8 +562,9 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
         return ERR_CODE_INVALID_URI_TYPE;
     }
     uint32_t targetTokenId = 0;
-    auto ret = GetTokenIdByBundleName(bundleName, 0, targetTokenId);
+    auto ret = GetTokenIdByBundleName(bundleName, appIndex, targetTokenId);
     if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "get tokenId by bundle name failed.");
         return ret;
     }
 
