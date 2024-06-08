@@ -97,6 +97,8 @@ const std::string PARAM_MISSION_AFFINITY_KEY = "ohos.anco.param.missionAffinity"
 const std::string DISTRIBUTED_FILES_PATH = "/data/storage/el2/distributedfiles/";
 const std::string UIEXTENSION_ABILITY_ID = "ability.want.params.uiExtensionAbilityId";
 const std::string UIEXTENSION_ROOT_HOST_PID = "ability.want.params.uiExtensionRootHostPid";
+constexpr const char* PARAM_SEND_RESULT_CALLER_BUNDLENAME = "ohos.anco.param.sendResultCallderBundleName";
+constexpr const char* PARAM_SEND_RESULT_CALLER_TOKENID = "ohos.anco.param.sendResultCallerTokenId";
 const int32_t SHELL_ASSISTANT_DIETYPE = 0;
 int64_t AbilityRecord::abilityRecordId = 0;
 const int32_t DEFAULT_USER_ID = 0;
@@ -1837,8 +1839,14 @@ void AbilityRecord::SaveResult(int resultCode, const Want *resultWant, std::shar
     std::lock_guard<ffrt::mutex> guard(lock_);
     std::shared_ptr<AbilityRecord> callerAbilityRecord = caller->GetCaller();
     if (callerAbilityRecord != nullptr) {
+        Want* newWant = const_cast<Want*>(resultWant);
+        if (callerAbilityRecord->GetApplicationInfo().name == SHELL_ASSISTANT_BUNDLENAME) {
+            newWant->SetParam(std::string(PARAM_SEND_RESULT_CALLER_BUNDLENAME), applicationInfo_.name);
+            newWant->SetParam(std::string(PARAM_SEND_RESULT_CALLER_TOKENID), static_cast<int32_t>(
+                applicationInfo_.accessTokenId));
+        }
         callerAbilityRecord->SetResult(
-            std::make_shared<AbilityResult>(caller->GetRequestCode(), resultCode, *resultWant));
+            std::make_shared<AbilityResult>(caller->GetRequestCode(), resultCode, *newWant));
     } else {
         std::shared_ptr<SystemAbilityCallerRecord> callerSystemAbilityRecord = caller->GetSaCaller();
         if (callerSystemAbilityRecord != nullptr) {
