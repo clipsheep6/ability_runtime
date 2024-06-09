@@ -74,7 +74,7 @@ private:
     bool appLibLoaded_ = false;
     bool debugModel_ = false;
     std::string bundleName_;
-    int instanceId_ {0};
+    uint32_t instanceId_ = 0;
     static AppLibPathVec appLibPaths_;
 };
 } // namespace AbilityRuntime
