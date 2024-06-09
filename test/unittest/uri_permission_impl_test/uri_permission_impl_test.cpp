@@ -277,6 +277,86 @@ HWTEST_F(UriPermissionImplTest, Upms_RevokeUriPermission_002, TestSize.Level1)
 
 /*
  * Feature: URIPermissionManagerService
+ * Function: RevokeUriPermissionManually
+ * SubFunction: NA
+ * FunctionPoints: URIPermissionManagerService RevokeUriPermissionManually
+ */
+HWTEST_F(UriPermissionImplTest, Upms_RevokeUriPermissionManually_001, TestSize.Level1)
+{
+    auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
+    MyFlag::flag_ |= MyFlag::IS_SA_CALL;
+    uint32_t flagRead = 1;
+    uint32_t fromTokenId = 1001;
+    uint32_t targetTokenId = 1002;
+    int32_t appIndex = 0;
+    std::string targetBundleName = "com.example.testB1002";
+    GrantInfo info = { flagRead, fromTokenId, targetTokenId };
+    std::list<GrantInfo> infoList = { info };
+    auto uriStr = "file://com.example.testA/data/storage/el2/base/haps/entry/files/test_A.txt";
+    auto uri = Uri(uriStr);
+    upms->uriMap_.emplace(uriStr, infoList);
+    upms->RevokeUriPermissionManually(uri, targetBundleName, appIndex);
+    auto ret = upms->VerifyUriPermission(uri, flagRead, targetTokenId);
+    ASSERT_EQ(ret, false);
+}
+
+/*
+ * Feature: URIPermissionManagerService
+ * Function: RevokeUriPermissionManually
+ * SubFunction: NA
+ * FunctionPoints: URIPermissionManagerService RevokeUriPermissionManually
+ */
+HWTEST_F(UriPermissionImplTest, Upms_RevokeUriPermissionManually_002, TestSize.Level1)
+{
+    auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
+    MyFlag::flag_ |= MyFlag::IS_SA_CALL;
+    uint32_t flagRead = 1;
+    uint32_t fromTokenId = 1001;
+    uint32_t targetTokenId = 1002;
+    // sandbox application appIndex
+    int32_t appIndex = 1001;
+    std::string targetBundleName = "com.example.testB1003";
+    GrantInfo info = { flagRead, fromTokenId, targetTokenId };
+    std::list<GrantInfo> infoList = { info };
+    auto uriStr = "file://com.example.testA/data/storage/el2/base/haps/entry/files/test_A.txt";
+    auto uri = Uri(uriStr);
+    upms->uriMap_.emplace(uriStr, infoList);
+    upms->RevokeUriPermissionManually(uri, targetBundleName, appIndex);
+    auto ret = upms->VerifyUriPermission(uri, flagRead, targetTokenId);
+    ASSERT_EQ(ret, true);
+}
+
+/*
+ * Feature: URIPermissionManagerService
+ * Function: RevokeUriPermissionManually
+ * SubFunction: NA
+ * FunctionPoints: URIPermissionManagerService RevokeUriPermissionManually
+ */
+HWTEST_F(UriPermissionImplTest, Upms_RevokeUriPermissionManually_003, TestSize.Level1)
+{
+    auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
+    MyFlag::flag_ |= MyFlag::IS_SA_CALL;
+    uint32_t flagRead = 1;
+    uint32_t fromTokenId = 1001;
+    uint32_t targetTokenId = 1002;
+    // clone application appIndex
+    int32_t appIndex = 1;
+    std::string targetBundleName = "com.example.testB1003";
+    GrantInfo info = { flagRead, fromTokenId, targetTokenId };
+    std::list<GrantInfo> infoList = { info };
+    auto uriStr = "file://com.example.testA/data/storage/el2/base/haps/entry/files/test_A.txt";
+    auto uri = Uri(uriStr);
+    upms->uriMap_.emplace(uriStr, infoList);
+    upms->RevokeUriPermissionManually(uri, targetBundleName, appIndex);
+    auto ret = upms->VerifyUriPermission(uri, flagRead, targetTokenId);
+    ASSERT_EQ(ret, true);
+}
+
+/*
+ * Feature: URIPermissionManagerService
  * Function: ConnectManager
  * SubFunction: NA
  * FunctionPoints: URIPermissionManagerService ConnectManager

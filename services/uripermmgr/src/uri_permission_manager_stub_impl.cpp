@@ -20,6 +20,7 @@
 #include "ability_manager_errors.h"
 #include "accesstoken_kit.h"
 #include "app_utils.h"
+#include "global_constant.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
@@ -697,24 +698,33 @@ int32_t UriPermissionManagerStubImpl::GetTokenIdByBundleName(const std::string &
     uint32_t &tokenId)
 {
     TAG_LOGD(AAFwkTag::URIPERMMGR, "BundleName is %{public}s, appIndex is %{public}d.", bundleName.c_str(), appIndex);
-    auto bundleMgrHelper = ConnectManagerHelper();
-    if (bundleMgrHelper == nullptr) {
+    auto bms = ConnectManagerHelper();
+    if (bms == nullptr) {
         TAG_LOGW(AAFwkTag::URIPERMMGR, "The bundleMgrHelper is nullptr.");
         return GET_BUNDLE_MANAGER_SERVICE_FAILED;
     }
-    auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
     AppExecFwk::BundleInfo bundleInfo;
     auto userId = GetCurrentAccountId();
     if (appIndex == 0) {
-        if (!IN_PROCESS_CALL(bundleMgrHelper->GetBundleInfo(bundleName, bundleFlag, bundleInfo, userId))) {
-            TAG_LOGW(AAFwkTag::URIPERMMGR, "Failed to get bundle info according to uri.");
+        auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
+        if (!IN_PROCESS_CALL(bms->GetBundleInfo(bundleName, bundleFlag, bundleInfo, userId))) {
+            TAG_LOGW(AAFwkTag::URIPERMMGR, "Failed to get bundle info.");
             return GET_BUNDLE_INFO_FAILED;
         }
         tokenId = bundleInfo.applicationInfo.accessTokenId;
         return ERR_OK;
     }
-    if (IN_PROCESS_CALL(bundleMgrHelper->GetSandboxBundleInfo(bundleName, appIndex, userId, bundleInfo) != ERR_OK)) {
-        TAG_LOGW(AAFwkTag::URIPERMMGR, "Failed to get sandbox bundle info according to appIndex.");
+    if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
+        auto bundleFlag = static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION);
+        if (IN_PROCESS_CALL(bms->GetCloneBundleInfo(bundleName, bundleFlag, appIndex, bundleInfo, userId)) != ERR_OK) {
+            TAG_LOGW(AAFwkTag::URIPERMMGR, "Failed to get clone bundle info.");
+            return GET_BUNDLE_INFO_FAILED;
+        }
+        tokenId = bundleInfo.applicationInfo.accessTokenId;
+        return ERR_OK;
+    }
+    if (IN_PROCESS_CALL(bms->GetSandboxBundleInfo(bundleName, appIndex, userId, bundleInfo) != ERR_OK)) {
+        TAG_LOGW(AAFwkTag::URIPERMMGR, "Failed to get sandbox bundle info.");
         return GET_BUNDLE_INFO_FAILED;
     }
     tokenId = bundleInfo.applicationInfo.accessTokenId;

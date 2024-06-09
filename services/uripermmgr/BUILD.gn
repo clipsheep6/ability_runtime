@@ -17,7 +17,10 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 config("upms_config") {
   visibility = [ ":*" ]
   visibility += [ "${ability_runtime_test_path}/unittest/*" ]
-  include_dirs = [ "include" ]
+  include_dirs = [
+    "include",
+    "${ability_runtime_utils_path}/global/constant",
+  ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
