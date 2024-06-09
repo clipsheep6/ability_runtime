@@ -52,6 +52,7 @@ ohos_shared_library("libappms") {
     "src/app_mgr_service.cpp",
     "src/app_mgr_service_event_handler.cpp",
     "src/app_mgr_service_inner.cpp",
+    "src/app_no_response_dialog.cpp",
     "src/app_preloader.cpp",
     "src/app_process_manager.cpp",
     "src/app_running_manager.cpp",
@@ -91,6 +92,7 @@ ohos_shared_library("libappms") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
@@ -167,6 +169,10 @@ ohos_shared_library("libappms") {
 
   if (is_asan || asan_detector) {
     defines += [ "SUPPORT_ASAN" ]
+  }
+
+  if (ability_runtime_app_no_response_dialog) {
+    defines += [ "APP_NO_RESPONSE" ]
   }
 
   version_script = "libappms.map"
