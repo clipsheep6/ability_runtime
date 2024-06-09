@@ -158,9 +158,9 @@ private:
 
     bool IsSAOrSystemAppCall();
 
-    bool IsLinuxFusionCall();
-
     void RemoveUriRecord(std::vector<std::string> &uriList, const TokenId tokenId, int32_t abilityId);
+
+    bool IsCloudUri(const std::string &uri);
 
     class ProxyDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
