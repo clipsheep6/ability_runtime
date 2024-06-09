@@ -31,6 +31,7 @@ libupms_sources = [
   "src/tokenid_permission.cpp",
   "src/uri_permission_manager_service.cpp",
   "src/uri_permission_manager_stub_impl.cpp",
+  "src/uri_permission_utils.cpp",
 ]
 
 #build so

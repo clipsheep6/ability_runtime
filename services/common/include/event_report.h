@@ -99,7 +99,10 @@ enum class EventName {
 
     // atomic service event
     CREATE_ATOMIC_SERVICE_PROCESS,
-    ATOMIC_SERVICE_DRAWN_COMPLETE
+    ATOMIC_SERVICE_DRAWN_COMPLETE,
+    
+    // uri permission
+    SHARE_UNPRIVILEGED_FILE_URI
 };
 
 class EventReport {
@@ -118,6 +121,7 @@ public:
     static void SendStopServiceEvent(const EventName &eventName, const EventInfo &eventInfo);
     static void SendConnectServiceEvent(const EventName &eventName, const EventInfo &eventInfo);
     static void SendDisconnectServiceEvent(const EventName &eventName, const EventInfo &eventInfo);
+    static void SendGrantUriPermissionEvent(const EventName &eventName, const EventInfo &eventInfo);
 
 private:
     static std::string ConvertEventName(const EventName &eventName);

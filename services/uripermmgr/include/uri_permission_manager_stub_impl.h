@@ -22,8 +22,6 @@
 #include <unordered_set>
 
 #include "app_mgr_interface.h"
-#include "bundle_mgr_helper.h"
-#include "event_report.h"
 #include "istorage_manager.h"
 #include "tokenid_permission.h"
 #include "uri.h"
@@ -96,13 +94,10 @@ public:
         int32_t appIndex = 0) override;
 
     bool VerifyUriPermission(const Uri &uri, uint32_t flag, uint32_t tokenId) override;
-    int32_t GetTokenIdByBundleName(const std::string &bundleName, int32_t appIndex, uint32_t &tokenId);
 
 private:
     template<typename T>
     void ConnectManager(sptr<T> &mgr, int32_t serviceId);
-    std::shared_ptr<AppExecFwk::BundleMgrHelper> ConnectManagerHelper();
-    int32_t GetCurrentAccountId() const;
     int GrantUriPermissionImpl(const Uri &uri, unsigned int flag,
         TokenId fromTokenId, TokenId targetTokenId, int32_t abilityId);
     int AddTempUriPermission(const std::string &uri, unsigned int flag, TokenId fromTokenId,
@@ -122,17 +117,11 @@ private:
     int GrantSingleUriPermission(const Uri &uri, unsigned int flag, uint32_t callerTokenId, uint32_t targetTokenId,
         int32_t abilityId);
 
-    bool SendEvent(uint32_t callerTokenId, uint32_t targetTokenId, std::string &uri);
-
     int32_t CheckCalledBySandBox();
 
     bool CheckUriPermission(Uri uri, uint32_t flag, TokenIdPermission &tokenIdPermission);
 
     bool CheckUriTypeIsValid(Uri uri);
-    bool CheckAndCreateEventInfo(uint32_t callerTokenId, uint32_t targetTokenId, EventInfo &eventInfo);
-    bool CheckIsSystemAppByBundleName(std::string &bundleName);
-    bool CheckIsSystemAppByTokenId(uint32_t tokenId);
-    std::string GetBundleNameByTokenId(uint32_t tokenId);
 
     int GrantUriPermissionInner(const std::vector<Uri> &uriVec, unsigned int flag, const std::string targetBundleName,
         int32_t appIndex, uint32_t initiatorTokenId, int32_t abilityId = -1);
@@ -144,10 +133,6 @@ private:
     void HandleUriPermission(
         uint64_t tokenId, unsigned int flag, std::vector<PolicyInfo> &docsVec, bool isSystemAppCall);
 
-    bool IsFoundationCall();
-
-    std::string GetTokenName(uint32_t callerTokenId);
-
     int32_t CheckProxyUriPermission(TokenIdPermission &tokenIdPermission, const Uri &uri, uint32_t flag);
 
     bool AccessMediaUriPermission(TokenIdPermission &tokenIdPermission, const Uri &uri, uint32_t flag);
@@ -155,10 +140,6 @@ private:
     bool AccessDocsUriPermission(TokenIdPermission &tokenIdPermission, const Uri &uri, uint32_t flag);
     
     int32_t DeleteShareFile(uint32_t targetTokenId, const std::vector<std::string> &uriVec);
-
-    bool IsSAOrSystemAppCall();
-
-    bool IsLinuxFusionCall();
 
     void RemoveUriRecord(std::vector<std::string> &uriList, const TokenId tokenId, int32_t abilityId);
 
@@ -177,7 +158,6 @@ private:
     std::mutex mutex_;
     std::mutex mgrMutex_;
     sptr<AppExecFwk::IAppMgr> appMgr_ = nullptr;
-    std::shared_ptr<AppExecFwk::BundleMgrHelper> bundleMgrHelper_ = nullptr;
     sptr<StorageManager::IStorageManager> storageManager_ = nullptr;
 };
 }  // namespace OHOS::AAFwk
