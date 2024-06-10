@@ -42,7 +42,7 @@ struct CurrentHapModuleInfo {
     const char* hashValue;
 };
 
-CJ_EXPORT CurrentHapModuleInfo* FFICJCurrentHapMoudleInfo(int64_t id);
+CJ_EXPORT CurrentHapModuleInfo* FFICJCurrentHapModuleInfo(int64_t id);
 CJ_EXPORT int64_t FFIAbilityGetAbilityStageContext(AbilityStageHandle abilityStageHandle);
 }
 

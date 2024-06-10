@@ -24,7 +24,7 @@
 
 using namespace OHOS::AbilityRuntime;
 extern "C" {
-CJ_EXPORT CurrentHapModuleInfo* FFICJCurrentHapMoudleInfo(int64_t id)
+CJ_EXPORT CurrentHapModuleInfo* FFICJCurrentHapModuleInfo(int64_t id)
 {
     auto abilityStageContext = OHOS::FFI::FFIData::GetData<CJAbilityStageContext>(id);
     if (abilityStageContext == nullptr) {
@@ -47,13 +47,13 @@ CJ_EXPORT CurrentHapModuleInfo* FFICJCurrentHapMoudleInfo(int64_t id)
 
     buffer->name = CreateCStringFromString(hapInfo->name);
     buffer->icon = CreateCStringFromString(hapInfo->iconPath);
-    buffer->iconId = buffer->iconId;
+    buffer->iconId = hapInfo->iconId;
     buffer->label = CreateCStringFromString(hapInfo->label);
-    buffer->labelId = buffer->labelId;
+    buffer->labelId = hapInfo->labelId;
     buffer->description = CreateCStringFromString(hapInfo->description);
-    buffer->descriptionId = buffer->descriptionId;
+    buffer->descriptionId = hapInfo->descriptionId;
     buffer->mainElementName = CreateCStringFromString(hapInfo->mainElementName);
-    buffer->installationFree = buffer->installationFree;
+    buffer->installationFree = hapInfo->installationFree;
     buffer->hashValue = CreateCStringFromString(hapInfo->hashValue);
 
     return buffer;
