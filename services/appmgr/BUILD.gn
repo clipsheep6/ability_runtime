@@ -126,6 +126,7 @@ ohos_shared_library("libappms") {
     "json:nlohmann_json_static",
     "kv_store:distributeddata_inner",
     "kv_store:distributeddata_mgr",
+    "memmgr:memmgrclient",
     "memory_utils:libmeminfo",
     "os_account:libaccountkits",
     "resource_schedule_service:ressched_client",
@@ -155,12 +156,6 @@ ohos_shared_library("libappms") {
   if (efficiency_manager) {
     defines += [ "EFFICIENCY_MANAGER_ENABLE" ]
     external_deps += [ "efficiency_manager:suspend_manager_client" ]
-  }
-
-  if (ability_runtime_use_memmgr_plugin) {
-    external_deps += [ "memmgr_override:memmgrclient" ]
-  } else if (ability_runtime_use_memmgr) {
-    external_deps += [ "memmgr:memmgrclient" ]
   }
 
   if (background_task_mgr_continuous_task_enable) {

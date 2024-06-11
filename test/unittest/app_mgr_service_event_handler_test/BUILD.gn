@@ -90,6 +90,7 @@ ohos_unittest("AMSEventHandlerTest") {
     "ipc:ipc_core",
     "kv_store:distributeddata_inner",
     "kv_store:distributeddata_mgr",
+    "memmgr:memmgrclient",
     "memory_utils:libmeminfo",
     "resource_schedule_service:ressched_client",
   ]
@@ -99,12 +100,6 @@ ohos_unittest("AMSEventHandlerTest") {
       "window_manager:libwm_lite",
       "window_manager:libwsutils",
     ]
-  }
-
-  if (ability_runtime_use_memmgr_plugin) {
-    external_deps += [ "memmgr_override:memmgrclient" ]
-  } else if (ability_runtime_use_memmgr) {
-    external_deps += [ "memmgr:memmgrclient" ]
   }
 }
 
