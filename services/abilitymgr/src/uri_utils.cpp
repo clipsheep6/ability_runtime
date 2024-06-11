@@ -15,6 +15,7 @@
 
 #include "uri_utils.h"
 
+#include "ability_config.h"
 #include "hilog_tag_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "uri_permission_manager_client.h"
@@ -25,6 +26,8 @@ namespace {
 const std::string PARAMS_URI = "ability.verify.uri";
 const std::string DISTRIBUTED_FILES_PATH = "/data/storage/el2/distributedfiles/";
 const int32_t MAX_URI_COUNT = 500;
+constexpr int32_t API12 = 12;
+constexpr int32_t API_VERSION_MOD = 100;
 }
 
 UriUtils::UriUtils() {}
@@ -105,6 +108,26 @@ void UriUtils::FilterUriWithPermissionDms(Want &want, uint32_t tokenId)
     }
     TAG_LOGI(AAFwkTag::ABILITYMGR, "size of authorized uri is %{public}zu", validUriVec.size());
     want.SetParam(PARAMS_URI, validUriVec);
+}
+
+bool UriUtils::CheckNonImplicitShareFileUri(const AbilityRequest &abilityRequest)
+{
+    if (abilityRequest.appInfo.apiTargetVersion % API_VERSION_MOD <= API12) {
+        return true;
+    }
+    if (abilityRequest.want.GetElement().GetBundleName().empty()) {
+        return true;
+    }
+    bool isFileUri = !abilityRequest.want.GetUriString().empty() && abilityRequest.want.GetUri().GetScheme() == "file";
+    if (!isFileUri && abilityRequest.want.GetStringArrayParam(AbilityConfig::PARAMS_STREAM).empty()) {
+        return true;
+    }
+    auto flagReadWrite = Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION;
+    if ((abilityRequest.want.GetFlags() & flagReadWrite) == 0) {
+        return true;
+    }
+    TAG_LOGE(AAFwkTag::ABILITYMGR, "No permission to share file uri non-implicitly.");
+    return false;
 }
 } // AAFwk
 } // OHOS

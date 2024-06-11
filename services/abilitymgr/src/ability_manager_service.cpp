@@ -1054,6 +1054,9 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Generate ability request local error.");
         return result;
     }
+    if (!UriUtils::GetInstance().CheckNonImplicitShareFileUri(abilityRequest)) {
+        return ERR_SHARE_FILE_URI_NON_IMPLICITLY;
+    }
 
     if (specifyTokenId > 0 && callerToken != nullptr) { // for sa specify tokenId and caller token
         UpdateCallerInfoFromToken(abilityRequest.want, callerToken);
@@ -1644,6 +1647,9 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         eventInfo.errCode = result;
         SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return result;
+    }
+    if (!UriUtils::GetInstance().CheckNonImplicitShareFileUri(abilityRequest)) {
+        return ERR_SHARE_FILE_URI_NON_IMPLICITLY;
     }
 
     if (!isStartAsCaller) {
@@ -2649,18 +2655,18 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
         EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
         return result;
     }
+    if (!UriUtils::GetInstance().CheckNonImplicitShareFileUri(abilityRequest)) {
+        return ERR_SHARE_FILE_URI_NON_IMPLICITLY;
+    }
 
     auto abilityInfo = abilityRequest.abilityInfo;
     validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : validUserId;
     TAG_LOGD(AAFwkTag::ABILITYMGR, "userId is : %{public}d, singleton is : %{public}d",
         validUserId, static_cast<int>(abilityInfo.applicationInfo.singleton));
 
-    if (isDlp) {
-        result = IN_PROCESS_CALL(
-            CheckOptExtensionAbility(want, abilityRequest, validUserId, extensionType, isImplicit));
-    } else {
-        result = CheckOptExtensionAbility(want, abilityRequest, validUserId, extensionType, isImplicit);
-    }
+    result = isDlp ? IN_PROCESS_CALL(
+        CheckOptExtensionAbility(want, abilityRequest, validUserId, extensionType, isImplicit)) :
+        CheckOptExtensionAbility(want, abilityRequest, validUserId, extensionType, isImplicit);
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "CheckOptExtensionAbility error.");
         eventInfo.errCode = result;
@@ -2892,6 +2898,9 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
         eventInfo.errCode = result;
         EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
         return result;
+    }
+    if (!UriUtils::GetInstance().CheckNonImplicitShareFileUri(abilityRequest)) {
+        return ERR_SHARE_FILE_URI_NON_IMPLICITLY;
     }
     abilityRequest.extensionType = abilityRequest.abilityInfo.extensionAbilityType;
 
@@ -3798,6 +3807,9 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Generate ability request error.");
         return result;
+    }
+    if (!UriUtils::GetInstance().CheckNonImplicitShareFileUri(abilityRequest)) {
+        return ERR_SHARE_FILE_URI_NON_IMPLICITLY;
     }
 
     if (abilityRequest.abilityInfo.isStageBasedModel) {
