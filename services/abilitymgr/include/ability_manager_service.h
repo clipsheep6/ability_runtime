@@ -1969,6 +1969,9 @@ private:
     int32_t GenerateEmbeddableUIAbilityRequest(const Want &want, AbilityRequest &request,
         const sptr<IRemoteObject> &callerToken, int32_t userId);
 
+    bool GenerateDataAbilityRequestByUri(const std::string& dataAbilityUri,
+        AbilityRequest &abilityRequest, sptr<IRemoteObject> callerToken, int32_t userId);
+
     /**
      * Check if Caller is allowed to start ServiceAbility(FA) or ServiceExtension(Stage) or DataShareExtension(Stage).
      *

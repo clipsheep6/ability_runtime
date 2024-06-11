@@ -4680,12 +4680,24 @@ std::list<std::shared_ptr<ConnectionRecord>> AbilityManagerService::GetConnectRe
     return connectManager->GetConnectRecordListByCallback(callback);
 }
 
+bool AbilityManagerService::GenerateDataAbilityRequestByUri(const std::string& dataAbilityUri,
+    AbilityRequest &abilityRequest, sptr<IRemoteObject> callerToken, int32_t userId)
+{
+    auto bms = GetBundleManager();
+    CHECK_POINTER_AND_RETURN(bms, false);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called. userId %{public}d", userId);
+    bool queryResult = IN_PROCESS_CALL(bms->QueryAbilityInfoByUri(dataAbilityUri, userId, abilityRequest.abilityInfo));
+    if (!queryResult || abilityRequest.abilityInfo.name.empty() || abilityRequest.abilityInfo.bundleName.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid ability info for data ability acquiring.");
+        return false;
+    }
+    abilityRequest.callerToken = callerToken;
+    return true;
+}
+
 sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     const Uri &uri, bool tryBind, const sptr<IRemoteObject> &callerToken)
 {
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, nullptr);
-
     auto localUri(uri);
     if (localUri.GetScheme() != AbilityConfig::SCHEME_DATA_ABILITY) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Acquire data ability with invalid uri scheme.");
@@ -4700,15 +4712,11 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
 
     auto userId = GetValidUserId(INVALID_USER_ID);
     AbilityRequest abilityRequest;
-    std::string dataAbilityUri = localUri.ToString();
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "called. userId %{public}d", userId);
-    bool queryResult = IN_PROCESS_CALL(bms->QueryAbilityInfoByUri(dataAbilityUri, userId, abilityRequest.abilityInfo));
-    if (!queryResult || abilityRequest.abilityInfo.name.empty() || abilityRequest.abilityInfo.bundleName.empty()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid ability info for data ability acquiring.");
+    if (!GenerateDataAbilityRequestByUri(localUri.ToString(), abilityRequest, callerToken, userId)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Generate data ability request by uri failed.");
         return nullptr;
     }
 
-    abilityRequest.callerToken = callerToken;
     auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (!isSaCall && CheckCallDataAbilityPermission(abilityRequest, isShellCall, isSaCall) != ERR_OK) {
@@ -4722,10 +4730,13 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
 
     if (CheckStaticCfgPermission(abilityRequest, false, -1, true, isSaCall) !=
         AppExecFwk::Constants::PERMISSION_GRANTED) {
-        if (!VerificationAllToken(callerToken)) {
-            TAG_LOGI(AAFwkTag::ABILITYMGR, "VerificationAllToken fail");
-            return nullptr;
-        }
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "CheckStaticCfgPermission fail");
+        return nullptr;
+    }
+
+    if (!VerificationAllToken(callerToken)) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "VerificationAllToken fail");
+        return nullptr;
     }
 
     if (abilityRequest.abilityInfo.applicationInfo.singleton) {
