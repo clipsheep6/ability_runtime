@@ -61,6 +61,8 @@ inline std::unordered_set<AppExecFwk::ExtensionAbilityType> GetUiExtensionSet()
         AppExecFwk::ExtensionAbilityType::SYSPICKER_FILEPICKER,
         AppExecFwk::ExtensionAbilityType::AUTO_FILL_SMART,
         AppExecFwk::ExtensionAbilityType::LIVEVIEW_LOCKSCREEN,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOEDITOR,
+        AppExecFwk::ExtensionAbilityType::PHOTO_EDITOR,
         AppExecFwk::ExtensionAbilityType::SYSPICKER_AUDIOPICKER
     };
 }
@@ -89,6 +91,7 @@ inline bool IsSystemUIExtension(const AppExecFwk::ExtensionAbilityType type)
         AppExecFwk::ExtensionAbilityType::SYSPICKER_APPSELECTOR,
         AppExecFwk::ExtensionAbilityType::UI,
         AppExecFwk::ExtensionAbilityType::SYS_COMMON_UI,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOEDITOR,
         AppExecFwk::ExtensionAbilityType::ADS,
         AppExecFwk::ExtensionAbilityType::SYSPICKER_AUDIOPICKER,
         AppExecFwk::ExtensionAbilityType::AUTO_FILL_PASSWORD,
@@ -120,6 +123,14 @@ inline bool IsEnterpriseAdmin(const AppExecFwk::ExtensionAbilityType type)
 inline bool IsWindowExtension(const AppExecFwk::ExtensionAbilityType type)
 {
     return type == AppExecFwk::ExtensionAbilityType::WINDOW;
+}
+
+// In this case, extension which be starting needs that caller should be the system app, otherwise not supported.
+inline bool IsSystemCallerNeeded(const AppExecFwk::ExtensionAbilityType type)
+{
+    const std::unordered_set<AppExecFwk::ExtensionAbilityType> uiExtensionStartingSet = {
+        AppExecFwk::ExtensionAbilityType::PHOTO_EDITOR};
+    return uiExtensionStartingSet.find(type) != uiExtensionStartingSet.end();
 }
 } // namespace UIExtensionUtils
 } // namespace AAFwk

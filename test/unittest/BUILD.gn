@@ -481,6 +481,7 @@ group("unittest") {
     "pending_want_record_test:unittest",
     "pending_want_test:unittest",
     "permission_verification_test:unittest",
+    "photo_editor_extension_test:unittest",
     "quick_fix:unittest",
     "remote_mission_listener_proxy_test:unittest",
     "remote_mission_listener_stub_test:unittest",
