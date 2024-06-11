@@ -14,7 +14,7 @@
  */
 
 #ifdef APP_NO_RESPONSE
-#include "app_no_response_dialog.h"
+#include "modal_system_app_freeze_uiextension.h"
 
 #include <mutex>
 

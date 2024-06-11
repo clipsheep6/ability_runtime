@@ -85,7 +85,7 @@
 #include "window_focus_changed_listener.h"
 #include "window_visibility_changed_listener.h"
 #ifdef APP_NO_RESPONSE
-#include "app_no_response_dialog.h"
+#include "modal_system_app_freeze_uiextension.h"
 #endif
 
 namespace OHOS {
