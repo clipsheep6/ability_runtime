@@ -352,6 +352,7 @@ START_STANDARD_ABILITIES:
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
+  ABILITY_NUMBER: {type: INT32, desc: ability number}
 
 PREVENT_START_ABILITY:
   __BASE: {type: BEHAVIOR, level: MINOR, desc: Process start control, preserve: true}
@@ -378,4 +379,8 @@ ATOMIC_SERVICE_DRAWN_COMPLETE:
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
-  
+
+SHARE_UNPRIVILEGED_FILE_URI:
+  __BASE: {type: BEHAVIOR, level: MINOR, desc: share unprivileged file uri}
+  CALLER_BUNDLE_NAME: {type: STRING, desc: caller bundle name}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}

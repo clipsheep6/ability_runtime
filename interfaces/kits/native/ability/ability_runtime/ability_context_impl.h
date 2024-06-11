@@ -230,6 +230,9 @@ public:
 
     void InsertResultCallbackTask(int requestCode, RuntimeTask&& task) override;
 
+    void SetRestoreEnabled(bool enabled) override;
+    bool GetRestoreEnabled() override;
+
 #ifdef SUPPORT_SCREEN
     /**
      * @brief Set mission label of this ability.
@@ -296,6 +299,7 @@ private:
     wptr<IRemoteObject> sessionToken_;
     std::mutex uiExtensionMutex_;
     std::map<int32_t, Want> uiExtensionMap_;
+    std::atomic<bool> restoreEnabled_ = true;
 
     static void RequestDialogResultJSThreadWorker(uv_work_t* work, int status);
     void OnAbilityResultInner(int requestCode, int resultCode, const AAFwk::Want &resultData);

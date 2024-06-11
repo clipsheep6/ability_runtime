@@ -91,6 +91,8 @@ HWTEST_F(EventReportTest, ConvertEventName_0100, TestSize.Level0)
         "CREATE_ATOMIC_SERVICE_PROCESS");
     EXPECT_EQ(EventReport::ConvertEventName(EventName::ATOMIC_SERVICE_DRAWN_COMPLETE),
         "ATOMIC_SERVICE_DRAWN_COMPLETE");
+    EXPECT_EQ(EventReport::ConvertEventName(EventName::SHARE_UNPRIVILEGED_FILE_URI),
+        "SHARE_UNPRIVILEGED_FILE_URI");
 }
 
 /**

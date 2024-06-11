@@ -36,6 +36,7 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 constexpr size_t PARAM_LENGTH = 1024;
+constexpr int INDEX_OFFSET = 3;
 constexpr int EXTRA_ARGUMENTS_FOR_KEY_VALUE_PAIR = 1;
 constexpr int EXTRA_ARGUMENTS_FOR_NULL_STRING = 0;
 constexpr int OPTION_PARAMETER_VALUE_OFFSET = 1;
@@ -44,6 +45,10 @@ constexpr int OPTION_PARAMETER_INTEGER = 257;
 constexpr int OPTION_PARAMETER_STRING = 258;
 constexpr int OPTION_PARAMETER_BOOL = 259;
 constexpr int OPTION_PARAMETER_NULL_STRING = 260;
+constexpr int OPTION_WINDOW_LEFT = 261;
+constexpr int OPTION_WINDOW_TOP = 262;
+constexpr int OPTION_WINDOW_HEIGHT = 263;
+constexpr int OPTION_WINDOW_WIDTH = 264;
 
 const std::string DEVELOPERMODE_STATE = "const.security.developermode.state";
 
@@ -68,6 +73,10 @@ constexpr struct option LONG_OPTIONS[] = {
     {"ps", required_argument, nullptr, OPTION_PARAMETER_STRING},
     {"pb", required_argument, nullptr, OPTION_PARAMETER_BOOL},
     {"psn", required_argument, nullptr, OPTION_PARAMETER_NULL_STRING},
+    {"wl", required_argument, nullptr, OPTION_WINDOW_LEFT},
+    {"wt", required_argument, nullptr, OPTION_WINDOW_TOP},
+    {"wh", required_argument, nullptr, OPTION_WINDOW_HEIGHT},
+    {"ww", required_argument, nullptr, OPTION_WINDOW_WIDTH},
     {nullptr, 0, nullptr, 0},
 };
 const std::string SHORT_OPTIONS_APPLICATION_NOT_RESPONDING = "hp:";
@@ -301,6 +310,14 @@ ErrCode AbilityManagerShellCommand::CreateMessageMap()
         {
             ERR_UNLOCK_SCREEN_FAILED_IN_DEVELOPER_MODE,
             "error: unlock screen failed in developer mode."
+        },
+        {
+            ERR_NOT_SUPPORTED_PRODUCT_TYPE,
+            "error: not supported in the current product type."
+        },
+        {
+            ERR_NOT_IN_APP_PROVISION_MODE,
+            "error: not supported in non-app-provision mode."
         }
     };
 
@@ -710,14 +727,47 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
 
 ErrCode AbilityManagerShellCommand::RunAsForceStop()
 {
-    TAG_LOGI(AAFwkTag::AA_TOOL, "[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    TAG_LOGI(AAFwkTag::AA_TOOL, "enter");
     if (argList_.empty()) {
-        resultReceiver_.append(HELP_MSG_FORCE_STOP + "\n");
+        resultReceiver_.append(HELP_MSG_FORCE_STOP);
         return OHOS::ERR_INVALID_VALUE;
     }
-    TAG_LOGI(AAFwkTag::AA_TOOL, "Bundle name : %{public}s", argList_[0].c_str());
+    std::string bundleName = argList_[0];
+    TAG_LOGI(AAFwkTag::AA_TOOL, "Bundle name %{public}s", bundleName.c_str());
+
+    auto killReason = Reason::REASON_UNKNOWN;
+    pid_t pid = 0;
+    for (auto index = INDEX_OFFSET; index < argc_; ++index) {
+        TAG_LOGD(AAFwkTag::AA_TOOL, "argv_[%{public}d]: %{public}s.", index, argv_[index]);
+        std::string opt = argv_[index];
+        if (opt == "-p") {
+            index++;
+            if (index <= argc_) {
+                TAG_LOGD(AAFwkTag::AA_TOOL, "argv_[%{public}d]: %{public}s.", index, argv_[index]);
+                std::string inputPid = argv_[index];
+                pid = ConvertPid(inputPid);
+            }
+        } else if (opt == "-r") {
+            index++;
+            if (index <= argc_) {
+                TAG_LOGD(AAFwkTag::AA_TOOL, "argv_[%{public}d]: %{public}s.", index, argv_[index]);
+                std::string inputReason = argv_[index];
+                killReason = CovertExitReason(inputReason);
+            }
+        }
+    }
+
+    TAG_LOGI(AAFwkTag::AA_TOOL, "pid %{public}d, reason %{public}d.", pid, killReason);
+    if (pid != 0 && killReason != Reason::REASON_UNKNOWN) {
+        ExitReason exitReason = {killReason, "aa force-stop"};
+        if (AbilityManagerClient::GetInstance()->RecordProcessExitReason(pid, exitReason) != ERR_OK) {
+            TAG_LOGE(AAFwkTag::AA_TOOL, "bundle %{public}s record reason %{public}d failed.",
+                bundleName.c_str(), killReason);
+        }
+    }
+
     ErrCode result = OHOS::ERR_OK;
-    result = AbilityManagerClient::GetInstance()->KillProcess(argList_[0]);
+    result = AbilityManagerClient::GetInstance()->KillProcess(bundleName);
     if (result == OHOS::ERR_OK) {
         TAG_LOGI(AAFwkTag::AA_TOOL, "%{public}s", STRING_FORCE_STOP_OK.c_str());
         resultReceiver_ = STRING_FORCE_STOP_OK + "\n";
@@ -727,6 +777,44 @@ ErrCode AbilityManagerShellCommand::RunAsForceStop()
         resultReceiver_.append(GetMessageFromCode(result));
     }
     return result;
+}
+
+Reason AbilityManagerShellCommand::CovertExitReason(std::string& reasonStr)
+{
+    if (reasonStr.empty()) {
+        return Reason::REASON_UNKNOWN;
+    }
+
+    if (reasonStr.compare("UNKNOWN") == 0) {
+        return Reason::REASON_UNKNOWN;
+    } else if (reasonStr.compare("NORMAL") == 0) {
+        return Reason::REASON_NORMAL;
+    } else if (reasonStr.compare("CPP_CRASH") == 0) {
+        return Reason::REASON_CPP_CRASH;
+    } else if (reasonStr.compare("JS_ERROR") == 0) {
+        return Reason::REASON_JS_ERROR;
+    } else if (reasonStr.compare("APP_FREEZE") == 0) {
+        return Reason::REASON_APP_FREEZE;
+    } else if (reasonStr.compare("PERFORMANCE_CONTROL") == 0) {
+        return Reason::REASON_PERFORMANCE_CONTROL;
+    } else if (reasonStr.compare("RESOURCE_CONTROL") == 0) {
+        return Reason::REASON_RESOURCE_CONTROL;
+    } else if (reasonStr.compare("UPGRADE") == 0) {
+        return Reason::REASON_UPGRADE;
+    }
+
+    return Reason::REASON_UNKNOWN;
+}
+
+pid_t AbilityManagerShellCommand::ConvertPid(std::string& inputPid)
+{
+    pid_t pid = 0;
+    try {
+        pid = static_cast<pid_t>(std::stoi(inputPid));
+    } catch (...) {
+        TAG_LOGW(AAFwkTag::AA_TOOL, "pid stoi(%{public}s) failed.", inputPid.c_str());
+    }
+    return pid;
 }
 
 ErrCode AbilityManagerShellCommand::RunAsAttachDebugCommand()
@@ -1404,6 +1492,10 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
     bool isSandboxApp = false;
     bool isNativeDebug = false;
     bool isMultiThread = false;
+    int windowLeft = 0;
+    int windowTop = 0;
+    int windowHeight = 0;
+    int windowWidth = 0;
 
     while (true) {
         counter++;
@@ -1563,6 +1655,50 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                 case OPTION_PARAMETER_NULL_STRING: {
                     // 'aa start --psn' with no argument
                     TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s --psn' with no argument.", cmd_.c_str());
+
+                    resultReceiver_.append("error: option ");
+                    resultReceiver_.append("requires a value.\n");
+
+                    result = OHOS::ERR_INVALID_VALUE;
+
+                    break;
+                }
+                case OPTION_WINDOW_LEFT: {
+                    // 'aa start --wl' with no argument
+                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s --wl' with no argument.", cmd_.c_str());
+
+                    resultReceiver_.append("error: option ");
+                    resultReceiver_.append("requires a value.\n");
+
+                    result = OHOS::ERR_INVALID_VALUE;
+
+                    break;
+                }
+                case OPTION_WINDOW_TOP: {
+                    // 'aa start --wt' with no argument
+                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s --wt' with no argument.", cmd_.c_str());
+
+                    resultReceiver_.append("error: option ");
+                    resultReceiver_.append("requires a value.\n");
+
+                    result = OHOS::ERR_INVALID_VALUE;
+
+                    break;
+                }
+                case OPTION_WINDOW_HEIGHT: {
+                    // 'aa start --wh' with no argument
+                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s --wh' with no argument.", cmd_.c_str());
+
+                    resultReceiver_.append("error: option ");
+                    resultReceiver_.append("requires a value.\n");
+
+                    result = OHOS::ERR_INVALID_VALUE;
+
+                    break;
+                }
+                case OPTION_WINDOW_WIDTH: {
+                    // 'aa start --ww' with no argument
+                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s --ww' with no argument.", cmd_.c_str());
 
                     resultReceiver_.append("error: option ");
                     resultReceiver_.append("requires a value.\n");
@@ -1758,6 +1894,70 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
 
                 break;
             }
+            case OPTION_WINDOW_LEFT: {
+                // 'aa start --wl xxx'
+                if (!IsNum(optarg)) {
+                    resultReceiver_.append("invalid argument for option --wl\n");
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
+                windowLeft = atoi(optarg);
+                if (windowLeft < 0) {
+                    resultReceiver_.append("window left cannot be less than 0\n");
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
+
+                break;
+            }
+            case OPTION_WINDOW_TOP: {
+                // 'aa start --wt xxx'
+                if (!IsNum(optarg)) {
+                    resultReceiver_.append("invalid argument for option --wt\n");
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
+                if (windowTop < 0) {
+                    resultReceiver_.append("window top cannot be less than 0\n");
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
+                windowTop = atoi(optarg);
+
+                break;
+            }
+            case OPTION_WINDOW_HEIGHT: {
+                // 'aa start --wh xxx'
+                if (!IsNum(optarg)) {
+                    resultReceiver_.append("invalid argument for option --wh\n");
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
+                if (windowHeight < 0) {
+                    resultReceiver_.append("window height cannot be less than 0\n");
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
+                windowHeight = atoi(optarg);
+
+                break;
+            }
+            case OPTION_WINDOW_WIDTH: {
+                // 'aa start --ww xxx'
+                if (!IsNum(optarg)) {
+                    resultReceiver_.append("invalid argument for option --ww\n");
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
+                if (windowWidth < 0) {
+                    resultReceiver_.append("window width cannot be less than 0\n");
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
+                windowWidth = atoi(optarg);
+
+                break;
+            }
             case 'U': {
                 // 'aa start -U xxx'
 
@@ -1874,6 +2074,18 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
             }
             if (isMultiThread) {
                 want.SetParam("multiThread", isMultiThread);
+            }
+            if (windowLeft > 0) {
+                want.SetParam(Want::PARAM_RESV_WINDOW_LEFT, windowLeft);
+            }
+            if (windowTop > 0) {
+                want.SetParam(Want::PARAM_RESV_WINDOW_TOP, windowTop);
+            }
+            if (windowHeight > 0) {
+                want.SetParam(Want::PARAM_RESV_WINDOW_HEIGHT, windowHeight);
+            }
+            if (windowWidth > 0) {
+                want.SetParam(Want::PARAM_RESV_WINDOW_WIDTH, windowWidth);
             }
         }
     }

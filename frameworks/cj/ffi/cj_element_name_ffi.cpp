@@ -63,7 +63,6 @@ void FFICJElementNameParamsDelete(ElementNameParams* elementNameParams)
     free(static_cast<void*>(elementNameParams->bundleName));
     free(static_cast<void*>(elementNameParams->abilityName));
     free(static_cast<void*>(elementNameParams->moduleName));
-    free(static_cast<void*>(elementNameParams->deviceId));
     free(static_cast<void*>(elementNameParams));
 }
 }

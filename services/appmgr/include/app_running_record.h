@@ -795,6 +795,16 @@ public:
     pid_t GetGPUPid();
 
     void ScheduleCacheProcess();
+    
+    inline void SetStrictMode(bool strictMode)
+    {
+        isStrictMode_ = strictMode;
+    }
+
+    inline bool IsStrictMode()
+    {
+        return isStrictMode_;
+    }
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -954,6 +964,7 @@ private:
     sptr<IRemoteObject> browserHost_;
     bool isGPU_ = false;
     pid_t gpuPid_ = 0;
+    bool isStrictMode_ = false;
 };
 
 }  // namespace AppExecFwk

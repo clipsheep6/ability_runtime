@@ -160,7 +160,7 @@ public:
      */
     void ReportConnectionLeakEvent(const int pid, const int tid);
 
-    void DisconnectNonexistentService(const AppExecFwk::ElementName& element,
+    bool DisconnectNonexistentService(const AppExecFwk::ElementName& element,
         const sptr<AbilityConnection> connection);
 private:
     ConnectionManager() = default;

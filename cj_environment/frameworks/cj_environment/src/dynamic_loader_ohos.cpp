@@ -27,7 +27,6 @@ constexpr auto ERROR_BUF_SIZE = 255;
 static char g_dlError[ERROR_BUF_SIZE];
 static std::unordered_set<std::string> HasInited;
 static char* g_sharedLibsSonames = nullptr;
-}
 
 enum ErrorCode {
     OUT_OF_MEMORY = 12,
@@ -118,7 +117,9 @@ static void InitSharedLibsSonames()
     }
     g_sharedLibsSonames[cursor] = '\0';
 }
+}
 
+extern "C" {
 void DynamicInitNamespace(Dl_namespace* ns, void* parent, const char* entries, const char* name)
 {
     if (!ns || !entries || !name) {
@@ -169,7 +170,7 @@ void DynamicInitNamespace(Dl_namespace* ns, void* parent, const char* entries, c
     HasInited.insert(std::string(name));
 }
 
-void* DynamicLoadLibrary(Dl_namespace *ns, const char* dlPath, int mode)
+void* DynamicLoadLibrary(Dl_namespace *ns, const char* dlPath, unsigned int mode)
 {
     if (ns == nullptr) {
         dlns_get("cj_app", ns);
@@ -195,4 +196,5 @@ void DynamicFreeLibrary(void* so)
 const char* DynamicGetError()
 {
     return g_dlError;
+}
 }

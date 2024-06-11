@@ -659,7 +659,9 @@ int AppMgrService::ShowHelp(const std::vector<std::u16string>& args, std::string
 {
     result.append("Usage:\n")
         .append("-h                          ")
-        .append("help text for the tool\n");
+        .append("help text for the tool\n")
+        .append("--ffrt pid1[,pid2,pid3]     ")
+        .append("dump ffrt info\n");
 
     return ERR_OK;
 }

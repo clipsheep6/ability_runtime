@@ -1125,7 +1125,6 @@ napi_value CreateJsServiceExtensionContext(napi_env env, std::shared_ptr<Service
     BindNativeFunction(env, object, "startAbilityAsCaller",
         moduleName, JsServiceExtensionContext::StartAbilityAsCaller);
     BindNativeFunction(env, object, "terminateSelf", moduleName, JsServiceExtensionContext::TerminateAbility);
-    BindNativeFunction(env, object, "connectAbility", moduleName, JsServiceExtensionContext::ConnectAbility);
     BindNativeFunction(
         env, object, "connectServiceExtensionAbility", moduleName, JsServiceExtensionContext::ConnectAbility);
     BindNativeFunction(env, object, "disconnectAbility",

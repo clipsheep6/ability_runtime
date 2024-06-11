@@ -150,14 +150,26 @@ private:
 };
 
 /**
+ * @struct CallerAbilityInfo
+ * caller ability info.
+ */
+struct CallerAbilityInfo {
+public:
+    std::string callerBundleName;
+    std::string callerAbilityName;
+    int32_t callerTokenId = 0;
+    int32_t callerUid = 0;
+    int32_t callerPid = 0;
+};
+
+/**
  * @class CallerRecord
  * Record caller ability of for-result start mode and result.
  */
 class CallerRecord {
 public:
     CallerRecord() = default;
-    CallerRecord(int requestCode, std::weak_ptr<AbilityRecord> caller) : requestCode_(requestCode), caller_(caller)
-    {}
+    CallerRecord(int requestCode, std::weak_ptr<AbilityRecord> caller);
     CallerRecord(int requestCode, std::shared_ptr<SystemAbilityCallerRecord> saCaller) : requestCode_(requestCode),
         saCaller_(saCaller)
     {}
@@ -176,11 +188,16 @@ public:
     {
         return saCaller_;
     }
+    std::shared_ptr<CallerAbilityInfo> GetCallerInfo()
+    {
+        return callerInfo_;
+    }
 
 private:
     int requestCode_ = -1;  // requestCode of for-result start mode
     std::weak_ptr<AbilityRecord> caller_;
     std::shared_ptr<SystemAbilityCallerRecord> saCaller_ = nullptr;
+    std::shared_ptr<CallerAbilityInfo> callerInfo_ = nullptr;
 };
 
 /**
@@ -217,7 +234,7 @@ struct AbilityRequest {
     int callerUid = -1;
     AbilityCallType callType = AbilityCallType::INVALID_TYPE;
     sptr<IRemoteObject> callerToken = nullptr;
-    sptr<IRemoteObject> asCallerSoureToken = nullptr;
+    sptr<IRemoteObject> asCallerSourceToken = nullptr;
     uint32_t callerAccessTokenId = -1;
     sptr<IAbilityConnection> connect = nullptr;
 
@@ -749,6 +766,8 @@ public:
      */
     std::list<std::shared_ptr<CallerRecord>> GetCallerRecordList() const;
     std::shared_ptr<AbilityRecord> GetCallerRecord() const;
+
+    std::shared_ptr<CallerAbilityInfo> GetCallerInfo() const;
 
     /**
      * get connecting record from list.

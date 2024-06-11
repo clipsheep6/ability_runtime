@@ -50,7 +50,8 @@ public:
         const AppExecFwk::HapModuleInfo &hapModuleInfo, const bool fromAppSpawn, const bool jitEnabled);
     bool LoadJsFile(const std::string &srcEntry, const AppExecFwk::HapModuleInfo &hapModuleInfo,
         std::unique_ptr<AbilityRuntime::Runtime> &runtime);
-    bool LoadNativeLib(const std::string &libPath, const sptr<IRemoteObject> &mainProcessCb);
+    bool LoadNativeLib(const std::string &moduleName, const std::string &libPath,
+        const sptr<IRemoteObject> &mainProcessCb);
     void SetForkProcessJITEnabled(bool jitEnabled);
     void SetForkProcessDebugOption(const std::string bundleName, const bool isStartWithDebug, const bool isDebugApp,
         const bool isStartWithNative);

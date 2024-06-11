@@ -550,6 +550,8 @@ napi_value JsApplicationContextUtils::OnRestartApp(napi_env env, NapiCallbackInf
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_RESTART_APP_INCORRECT_ABILITY);
     } else if (errCode == AAFwk::ERR_RESTART_APP_FREQUENT) {
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_RESTART_APP_FREQUENT);
+    } else if (errCode == AAFwk::NOT_TOP_ABILITY) {
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_NOT_TOP_ABILITY);
     } else {
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR);
     }

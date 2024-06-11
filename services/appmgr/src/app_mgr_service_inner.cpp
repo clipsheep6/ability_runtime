@@ -718,6 +718,7 @@ void AppMgrServiceInner::LoadAbilityNoAppRecord(const std::shared_ptr<AppRunning
         (void)AbilityRuntime::StartupUtil::GetAppIndex(*want, bundleIndex);
     }
     bool strictMode = (want == nullptr) ? false : want->GetBoolParam(STRICT_MODE, false);
+    appRecord->SetStrictMode(strictMode);
     int32_t maxChildProcess = 0;
     PresetMaxChildProcess(abilityInfo, maxChildProcess);
     StartProcess(abilityInfo->applicationName, processName, startFlags, appRecord,
@@ -1445,6 +1446,9 @@ int32_t AppMgrServiceInner::GetAllRunningProcesses(std::vector<RunningProcessInf
         if (!appRecord || !appRecord->GetSpawned()) {
             continue;
         }
+        if (GetUserIdByUid(appRecord->GetUid()) != currentUserId_) {
+            continue;
+        }
         if (isPerm) {
             GetRunningProcesses(appRecord, info);
         } else {
@@ -1476,6 +1480,9 @@ int32_t AppMgrServiceInner::GetRunningProcessesByBundleType(BundleType bundleTyp
         if (!appRecord || !appRecord->GetSpawned()) {
             continue;
         }
+        if (GetUserIdByUid(appRecord->GetUid()) != currentUserId_) {
+            continue;
+        }
         auto appInfo = appRecord->GetApplicationInfo();
         if (appInfo && appInfo->bundleType == bundleType) {
             GetRunningProcesses(appRecord, info);
@@ -1489,7 +1496,7 @@ int32_t AppMgrServiceInner::GetRunningMultiAppInfoByBundleName(const std::string
 {
     if (bundleName.empty()) {
         TAG_LOGE(AAFwkTag::APPMGR, "bundlename is nullptr.");
-        return ERR_INVALID_VALUE;
+        return AAFwk::INVALID_PARAMETERS_ERR;
     }
     if (!appRunningManager_) {
         TAG_LOGE(AAFwkTag::APPMGR, "The appRunningManager is nullptr!");
@@ -1723,8 +1730,7 @@ void AppMgrServiceInner::GetRunningProcess(const std::shared_ptr<AppRunningRecor
     auto appInfo = appRecord->GetApplicationInfo();
     if (appInfo) {
         info.bundleType = static_cast<int32_t>(appInfo->bundleType);
-        if (static_cast<int32_t>(appInfo->multiAppMode.multiAppModeType) ==
-            static_cast<int32_t>(MultiAppModeType::APP_CLONE)) {
+        if (appInfo->multiAppMode.multiAppModeType == MultiAppModeType::APP_CLONE) {
             info.appCloneIndex = appRecord->GetAppIndex();
         }
     }
@@ -5389,6 +5395,10 @@ int32_t AppMgrServiceInner::IsAppRunning(const std::string &bundleName, int32_t 
         TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
         return ERR_PERMISSION_DENIED;
     }
+    if (appCloneIndex < 0 || appCloneIndex > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appCloneIndex is invalid.");
+        return AAFwk::ERR_APP_CLONE_INDEX_INVALID;
+    }
     if (remoteClientManager_ == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "The remoteClientManager is nullptr.");
         return ERR_INVALID_OPERATION;
@@ -5413,6 +5423,7 @@ int32_t AppMgrServiceInner::IsAppRunning(const std::string &bundleName, int32_t 
     }
 
     if (bundleMgrResult != ERR_OK) {
+        TAG_LOGE(AAFwkTag::APPMGR, "query bundleInfo failed from bms.");
         return AAFwk::ERR_APP_CLONE_INDEX_INVALID;
     }
 
@@ -5616,12 +5627,13 @@ int32_t AppMgrServiceInner::GetRunningProcessInformation(
         return ERR_NO_INIT;
     }
     TAG_LOGI(AAFwkTag::APPMGR, "userid value is %{public}d", userId);
-    int uid = IN_PROCESS_CALL(bundleMgrHelper->GetUidByBundleName(bundleName, userId));
-    TAG_LOGI(AAFwkTag::APPMGR, "uid value is %{public}d", uid);
     const auto &appRunningRecordMap = appRunningManager_->GetAppRunningRecordMap();
     for (const auto &item : appRunningRecordMap) {
         const auto &appRecord = item.second;
         if (appRecord == nullptr) {
+            continue;
+        }
+        if (GetUserIdByUid(appRecord->GetUid()) != userId) {
             continue;
         }
         auto appInfoList = appRecord->GetAppInfoList();
@@ -5629,7 +5641,7 @@ int32_t AppMgrServiceInner::GetRunningProcessInformation(
             if (appInfo == nullptr) {
                 continue;
             }
-            if (appInfo->bundleName == bundleName && appInfo->uid == uid) {
+            if (appInfo->bundleName == bundleName) {
                 GetRunningProcesses(appRecord, info);
                 break;
             }

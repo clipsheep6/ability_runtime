@@ -81,8 +81,9 @@ public:
      *
      * @param uri The file uri.
      * @param BundleName A BundleName of an application.
+     * @param appIndex The index of application in sandbox.
      */
-    int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName);
+    int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName, int32_t appIndex = 0);
 
     /**
      * @brief verify if tokenId have uri permission of flag, including temporary permission and persistable permission

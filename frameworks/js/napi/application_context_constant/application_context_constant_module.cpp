@@ -58,6 +58,7 @@ static napi_value InitProcessModeObject(napi_env env)
 
     NAPI_CALL(env, SetEnumItem(env, object, "NEW_PROCESS_ATTACH_TO_PARENT", CREATE_VALUE_ONE));
     NAPI_CALL(env, SetEnumItem(env, object, "NEW_PROCESS_ATTACH_TO_STATUS_BAR_ITEM", CREATE_VALUE_TWO));
+    NAPI_CALL(env, SetEnumItem(env, object, "ATTACH_TO_STATUS_BAR_ITEM", CREATE_VALUE_THREE));
 
     return object;
 }

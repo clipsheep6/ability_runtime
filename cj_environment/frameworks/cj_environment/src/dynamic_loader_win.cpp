@@ -19,10 +19,13 @@
 #include <libloaderapi.h>
 #include <processenv.h>
 
+namespace {
 constexpr auto ERROR_BUF_SIZE = 255;
 static char g_dlError[ERROR_BUF_SIZE] {0};
+}
 
-void* DynamicLoadLibrary(const char* dlPath, int mode)
+extern "C" {
+void* DynamicLoadLibrary(const char* dlPath, unsigned int mode)
 {
     return LoadLibraryA(dlPath);
 }
@@ -40,4 +43,5 @@ void DynamicFreeLibrary(void* so)
 const char* DynamicGetError()
 {
     return g_dlError;
+}
 }
