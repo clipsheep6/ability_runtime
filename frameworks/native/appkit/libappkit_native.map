@@ -33,6 +33,10 @@
       *StartupUtils*;
       *Watchdog*;
     };
+    extern "C" {
+      Ffi*;
+      FFI*;
+    };
   local:
     *;
 };

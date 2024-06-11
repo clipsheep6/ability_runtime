@@ -61,6 +61,10 @@ void ErrorObserver::HandleOnUnhandledException(const std::string &errMsg)
     for (auto &item : tmpMap) {
         auto obj = item.second;
         char* cstr = MallocCString(errMsg);
+        if (cstr == nullptr) {
+            TAG_LOGE(AAFwkTag::APPKIT, "HandleOnUnhandledException failed.");
+            continue;
+        }
         obj.callbackOnUnhandledException(cstr);
     }
 }
