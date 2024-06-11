@@ -28,6 +28,9 @@
 #include "isession_handler_interface.h"
 
 namespace OHOS {
+namespace AbilityRuntime {
+class IStatusBarDelegate;
+}
 namespace AAFwk {
 class SessionInfo;
 class StatusBarDelegateManager;
@@ -177,8 +180,9 @@ public:
      * Call UIAbility by SCB.
      *
      * @param sessionInfo the session info of the ability to be called.
+     * @param isColdStart the session of the ability is or not cold start.
      */
-    void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo);
+    void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isColdStart);
 
     /**
      * OnAcceptWantResponse.
@@ -262,6 +266,28 @@ public:
      * @return Returns abilityRecord on success, nullptr on failure.
      */
     std::shared_ptr<AbilityRecord> GetAbilityRecordsById(int32_t sessionId) const;
+
+    /**
+     * Get check ability number.
+     *
+     * @param bundleName record ability info bundle name.
+     * @param abilityName record ability info ability name.
+     * @param moduleName recode ability info module name.
+     * @return Return find ability number.
+     */
+    int32_t CheckAbilityNumber(
+        const std::string &bundleName, const std::string &abilityName, const std::string &moduleName) const;
+
+    /**
+     * If ability number more then one, send event info.
+     *
+     * @param userId record ability info user id.
+     * @param bundleName record ability info bundle name.
+     * @param abilityName record ability info ability name.
+     * @param moduleName recode ability info module name.
+     */
+    void MoreAbilityNumbersSendEventInfo(
+        int32_t userId, const std::string &bundleName, const std::string &abilityName, const std::string &moduleName);
 
     void OnAppStateChanged(const AppInfo &info);
 
@@ -399,6 +425,7 @@ private:
     std::shared_ptr<StatusBarDelegateManager> GetStatusBarDelegateManager();
     int32_t DoProcessAttachment(std::shared_ptr<AbilityRecord> abilityRecord);
     void BatchCloseUIAbility(const std::unordered_set<std::shared_ptr<AbilityRecord>>& abilitySet);
+    void TerminateSession(std::shared_ptr<AbilityRecord> abilityRecord);
     int StartWithPersistentIdByDistributed(const AbilityRequest &abilityRequest, int32_t persistentId);
 
     int32_t userId_ = -1;

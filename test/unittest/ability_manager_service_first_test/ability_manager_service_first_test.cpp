@@ -1329,6 +1329,7 @@ HWTEST_F(AbilityManagerServiceFirstTest, AppRecoverKill_001, TestSize.Level1)
     abilityMs_->AppRecoverKill(pid, StateReason::JS_ERROR);
     abilityMs_->AppRecoverKill(pid, StateReason::LIFECYCLE);
     abilityMs_->AppRecoverKill(pid, StateReason::APP_FREEZE);
+    EXPECT_TRUE(abilityMs_ != nullptr);
 }
 
 /*

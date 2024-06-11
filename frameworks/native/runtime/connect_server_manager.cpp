@@ -231,10 +231,29 @@ bool ConnectServerManager::SendInstanceMessage(int32_t tid, int32_t instanceId, 
         return false;
     }
 
-    setSwitchCallBack([this](bool status) { setStatus_(status); },
-        [this](int32_t containerId) { createLayoutInfo_(containerId); }, instanceId);
+    setSwitchCallBack(
+        [this](bool status) {
+            if (setStatus_ != nullptr) {
+                setStatus_(status);
+            } else {
+                TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::setStatus_ is nullptr");
+            }
+        },
+        [this](int32_t containerId) {
+            if (createLayoutInfo_ != nullptr) {
+                createLayoutInfo_(containerId);
+            } else {
+                TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::createLayoutInfo_ is nullptr");
+            }
+        }, instanceId);
     
-    setProfilerCallback([this](bool status) { setArkUIStateProfilerStatus_(status); });
+    setProfilerCallback([this](bool status) {
+        if (setArkUIStateProfilerStatus_ != nullptr) {
+            setArkUIStateProfilerStatus_(status);
+        } else {
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::setArkUIStateProfilerStatus_ is nullptr");
+        }
+    });
 
     std::string message = GetInstanceMapMessage("addInstance", instanceId, instanceName, tid);
     storeMessage(instanceId, message);
@@ -269,8 +288,21 @@ bool ConnectServerManager::AddInstance(int32_t tid, int32_t instanceId, const st
         TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::AddInstance failed to find symbol 'setSwitchCallBack'");
         return false;
     }
-    setSwitchCallBack([this](bool status) { setStatus_(status); },
-        [this](int32_t containerId) { createLayoutInfo_(containerId); }, instanceId);
+    setSwitchCallBack(
+        [this](bool status) {
+            if (setStatus_ != nullptr) {
+                setStatus_(status);
+            } else {
+                TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::setStatus_ is nullptr");
+            }
+        },
+        [this](int32_t containerId) {
+            if (createLayoutInfo_ != nullptr) {
+                createLayoutInfo_(containerId);
+            } else {
+                TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::createLayoutInfo_ is nullptr");
+            }
+        }, instanceId);
 
     auto setProfilerCallback = reinterpret_cast<SetProfilerCallback>(
         dlsym(handlerConnectServerSo_, "SetProfilerCallback"));
@@ -280,7 +312,13 @@ bool ConnectServerManager::AddInstance(int32_t tid, int32_t instanceId, const st
         return false;
     }
 
-    setProfilerCallback([this](bool status) { setArkUIStateProfilerStatus_(status); });
+    setProfilerCallback([this](bool status) {
+        if (setArkUIStateProfilerStatus_ != nullptr) {
+            setArkUIStateProfilerStatus_(status);
+        } else {
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::setArkUIStateProfilerStatus_ is nullptr");
+        }
+    });
 
     // Get the message including information of new instance, which will be send to IDE.
     std::string message = GetInstanceMapMessage("addInstance", instanceId, instanceName, tid);

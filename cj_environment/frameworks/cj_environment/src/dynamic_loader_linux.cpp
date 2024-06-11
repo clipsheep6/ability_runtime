@@ -17,7 +17,8 @@
 
 #include <dlfcn.h>
 
-void* DynamicLoadLibrary(const char* dlPath, int mode)
+extern "C" {
+void* DynamicLoadLibrary(const char* dlPath, unsigned int mode)
 {
     return dlopen(dlPath, mode);
 }
@@ -35,4 +36,5 @@ void DynamicFreeLibrary(void* so)
 const char* DynamicGetError()
 {
     return dlerror();
+}
 }

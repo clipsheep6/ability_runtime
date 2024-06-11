@@ -27,6 +27,8 @@
 #define CJ_EXPORT __attribute__((visibility("default")))
 #endif
 
+using AbilityStageHandle = void*;
+
 extern "C" {
 struct CJConfiguration {
     int32_t colorMode;

@@ -128,6 +128,9 @@ public:
     {
         return 0;
     }
+
+    void ScheduleCacheProcess() override
+    {}
 };
 class AppMgrServiceModuleTest : public testing::Test {
 public:

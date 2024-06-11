@@ -1522,7 +1522,8 @@ HWTEST_F(AbilityManagerClientBranchTest, SetRootSceneSession_001, TestSize.Level
 HWTEST_F(AbilityManagerClientBranchTest, CallUIAbilityBySCB_001, TestSize.Level1)
 {
     sptr<SessionInfo> sessionInfo = new SessionInfo();
-    AbilityManagerClient::GetInstance()->CallUIAbilityBySCB(sessionInfo);
+    bool isColdStart = false;
+    AbilityManagerClient::GetInstance()->CallUIAbilityBySCB(sessionInfo, isColdStart);
     EXPECT_NE(sessionInfo, nullptr);
 }
 
@@ -1535,7 +1536,8 @@ HWTEST_F(AbilityManagerClientBranchTest, CallUIAbilityBySCB_002, TestSize.Level1
 {
     sptr<SessionInfo> sessionInfo = new SessionInfo();
     EXPECT_NE(sessionInfo, nullptr);
-    AbilityManagerClient::GetInstance()->CallUIAbilityBySCB(sessionInfo);
+    bool isColdStart = false;
+    AbilityManagerClient::GetInstance()->CallUIAbilityBySCB(sessionInfo, isColdStart);
     EXPECT_NE(sessionInfo, nullptr);
 }
 
@@ -2619,6 +2621,20 @@ HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_TransferAbilityRes
     auto result = client_->TransferAbilityResultForExtension(callerToken, resultCode, resultWant);
     EXPECT_EQ(result, NO_ERROR);
     GTEST_LOG_(INFO) << "AbilityManagerClient_TransferAbilityResultForExtension_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_SetResidentProcessEnabled_0100
+ * @tc.desc: SetResidentProcessEnabled
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_SetResidentProcessEnabled_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityManagerClient_SetResidentProcessEnabled_0100 start";
+    bool enable = false;
+    auto result = client_->SetResidentProcessEnabled(BUNDLE_NAME, enable);
+    EXPECT_TRUE(client_ != nullptr);
+    GTEST_LOG_(INFO) << "AbilityManagerClient_SetResidentProcessEnabled_0100 end";
 }
 }  // namespace AAFwk
 }  // namespace OHOS

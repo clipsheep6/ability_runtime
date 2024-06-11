@@ -272,6 +272,8 @@ public:
      */
     virtual int32_t ScheduleDumpFfrt(std::string& result) = 0;
 
+    virtual void ScheduleCacheProcess() = 0;
+
     enum class Message {
         SCHEDULE_FOREGROUND_APPLICATION_TRANSACTION = 0,
         SCHEDULE_BACKGROUND_APPLICATION_TRANSACTION,
@@ -302,6 +304,7 @@ public:
         SCHEDULE_DUMP_IPC_STOP,
         SCHEDULE_DUMP_IPC_STAT,
         SCHEDULE_DUMP_FFRT,
+        SCHEDULE_CACHE_PROCESS,
     };
 };
 }  // namespace AppExecFwk

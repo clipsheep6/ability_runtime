@@ -86,15 +86,15 @@ private:
 
         OHOS::AAFwk::Want want;
         if (!OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
-            TAG_LOGE(AAFwkTag::DIALOG, "The input want is invalid.");
-            ThrowInvalidParamError(env, "Parameter error: The input want is invalid.");
+            TAG_LOGE(AAFwkTag::DIALOG, "Parse param want failed, must be a Want.");
+            ThrowInvalidParamError(env, "Parse param want failed, must be a Want.");
             return CreateJsUndefined(env);
         }
 
         sptr<IRemoteObject> callerToken = want.GetRemoteObject(RequestConstants::REQUEST_TOKEN_KEY);
         if (!callerToken) {
-            TAG_LOGE(AAFwkTag::DIALOG, "Can not get token from target want.");
-            ThrowInvalidParamError(env, "Parameter error: Can not get token from target want.");
+            TAG_LOGE(AAFwkTag::DIALOG, "get token from target want failed.");
+            ThrowInvalidParamError(env, "Parameter error: get token from target want failed.");
             return CreateJsUndefined(env);
         }
         int32_t left = want.GetIntParam(RequestConstants::WINDOW_RECTANGLE_LEFT_KEY, 0);
@@ -105,8 +105,8 @@ private:
         auto requestInfo = new RequestInfo(callerToken, left, top, width, height);
         auto jsRequestInfo = RequestInfo::WrapRequestInfo(env, requestInfo);
         if (jsRequestInfo == nullptr) {
-            TAG_LOGE(AAFwkTag::DIALOG, "Can not wrap request info from target request.");
-            ThrowInvalidParamError(env, "Parameter error: Can not wrap request info from target request.");
+            TAG_LOGE(AAFwkTag::DIALOG, "Wrap Param requestInfo failed, must be a RequestInfo.");
+            ThrowInvalidParamError(env, "Wrap Param requestInfo failed, must be a RequestInfo.");
             return CreateJsUndefined(env);
         }
 
@@ -125,14 +125,14 @@ private:
         OHOS::AAFwk::Want want;
         if (!OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
             TAG_LOGE(AAFwkTag::DIALOG, "The input want is invalid.");
-            ThrowInvalidParamError(env, "Parameter error: The input want is invalid.");
+            ThrowInvalidParamError(env, "Parse param want failed, must be a Want.");
             return CreateJsUndefined(env);
         }
 
         sptr<IRemoteObject> remoteObj = want.GetRemoteObject(RequestConstants::REQUEST_CALLBACK_KEY);
         if (!remoteObj) {
-            TAG_LOGE(AAFwkTag::DIALOG, "Can not get callback from target want.");
-            ThrowInvalidParamError(env, "Parameter error: Can not get callback from target want.");
+            TAG_LOGE(AAFwkTag::DIALOG, "Wrap Param requestCallback failed, must be a RequestCallback.");
+            ThrowInvalidParamError(env, "Wrap Param requestCallback failed, must be a RequestCallback.");
             return CreateJsUndefined(env);
         }
 

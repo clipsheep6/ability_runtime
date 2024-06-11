@@ -220,7 +220,7 @@ void JsServiceExtension::ListenWMS()
     }
 
     auto context = GetContext();
-    if (context == nullptr || context->GetToken()) {
+    if (context == nullptr || context->GetToken() == nullptr) {
         TAG_LOGE(AAFwkTag::SERVICE_EXT, "Param invalid.");
         return;
     }
@@ -326,7 +326,7 @@ void JsServiceExtension::OnStop()
     }
     TAG_LOGI(AAFwkTag::SERVICE_EXT, "UnregisterDisplayInfoChangedListener");
     auto context = GetContext();
-    if (context == nullptr || context->GetToken()) {
+    if (context == nullptr || context->GetToken() == nullptr) {
         TAG_LOGE(AAFwkTag::SERVICE_EXT, "Param invalid.");
         return;
     }

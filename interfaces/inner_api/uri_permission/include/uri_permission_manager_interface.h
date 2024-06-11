@@ -83,9 +83,11 @@ public:
      *
      * @param uri The file uri.
      * @param bundleName bundleName of an application.
+     * @param appIndex The index of application in sandbox.
      * @return Returns true if the remove is successful, otherwise returns false.
      */
-    virtual int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) = 0;
+    virtual int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName,
+        int32_t appIndex = 0) = 0;
 
     /**
      * @brief verify if tokenId have uri permission of flag.

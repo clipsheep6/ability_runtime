@@ -17,6 +17,7 @@
 
 #include "ability_info.h"
 #include "ability_util.h"
+#include "app_scheduler.h"
 #include "extension_config.h"
 #include "hilog_tag_wrapper.h"
 #include "start_ability_utils.h"
@@ -29,45 +30,56 @@ constexpr char STRICT_MODE[] = "strictMode";
 
 ErrCode ExtensionControlInterceptor::DoProcess(AbilityInterceptorParam param)
 {
-    TAG_LOGE(AAFwkTag::ABILITYMGR, "call.");
-    if (!param.want.GetBoolParam(STRICT_MODE, false)) {
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call.");
+    if (param.callerToken == nullptr) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "callerToken is nullptr.");
         return ERR_OK;
     }
+    // get caller ability info
     AppExecFwk::AbilityInfo callerAbilityInfo;
     if (StartAbilityUtils::GetCallerAbilityInfo(param.callerToken, callerAbilityInfo)) {
         if (callerAbilityInfo.type != AppExecFwk::AbilityType::EXTENSION ||
             callerAbilityInfo.extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE ||
             callerAbilityInfo.bundleName == param.want.GetElement().GetBundleName()) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "not other extension.");
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "not other extension.");
             return ERR_OK;
         }
-        // get target application info
-        AppExecFwk::AbilityInfo targetAbilityInfo;
-        if (StartAbilityUtils::startAbilityInfo != nullptr) {
-            targetAbilityInfo = StartAbilityUtils::startAbilityInfo->abilityInfo;
-        } else {
-            auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
-            if (bundleMgrHelper == nullptr) {
-                TAG_LOGE(AAFwkTag::ABILITYMGR, "The bundleMgrHelper is nullptr.");
+        auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
+        AppExecFwk::RunningProcessInfo processInfo;
+        if (appScheduler != nullptr) {
+            appScheduler->GetRunningProcessInfoByToken(param.callerToken, processInfo);
+            if (!processInfo.isStrictMode && !param.want.GetBoolParam(STRICT_MODE, false)) {
                 return ERR_OK;
             }
-            IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->QueryAbilityInfo(param.want,
-                AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, param.userId, targetAbilityInfo));
-        }
-        // check blocked list
-        if (!targetAbilityInfo.applicationInfo.isSystemApp &&
-            !DelayedSingleton<ExtensionConfig>::GetInstance()->IsExtensionStartThirdPartyAppEnable(
-                callerAbilityInfo.extensionTypeName)) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "The extension start has been blocked by third party app flag.");
-            return EXTENSION_BLOCKED_BY_THIRD_PARTY_APP_FLAG;
-        }
-        if (targetAbilityInfo.extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE &&
-            !DelayedSingleton<ExtensionConfig>::GetInstance()->IsExtensionStartServiceEnable(
-                callerAbilityInfo.extensionTypeName, param.want.GetElement().GetURI())) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "The extension start has been blocked by service list.");
-            return EXTENSION_BLOCKED_BY_SERVICE_LIST;
         }
     }
+    // get target ability info
+    AppExecFwk::AbilityInfo targetAbilityInfo;
+    if (StartAbilityUtils::startAbilityInfo != nullptr) {
+        targetAbilityInfo = StartAbilityUtils::startAbilityInfo->abilityInfo;
+    } else {
+        auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+        if (bundleMgrHelper == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "The bundleMgrHelper is nullptr.");
+            return ERR_OK;
+        }
+        IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->QueryAbilityInfo(param.want,
+            AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, param.userId, targetAbilityInfo));
+    }
+    // check blocked list
+    if (!targetAbilityInfo.applicationInfo.isSystemApp &&
+        !DelayedSingleton<ExtensionConfig>::GetInstance()->IsExtensionStartThirdPartyAppEnable(
+            callerAbilityInfo.extensionTypeName)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "The extension start has been blocked by third party app flag.");
+        return EXTENSION_BLOCKED_BY_THIRD_PARTY_APP_FLAG;
+    }
+    if (targetAbilityInfo.extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE &&
+        !DelayedSingleton<ExtensionConfig>::GetInstance()->IsExtensionStartServiceEnable(
+            callerAbilityInfo.extensionTypeName, param.want.GetElement().GetURI())) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "The extension start has been blocked by service list.");
+        return EXTENSION_BLOCKED_BY_SERVICE_LIST;
+    }
+
     TAG_LOGI(AAFwkTag::ABILITYMGR, "other ok.");
     return ERR_OK;
 }

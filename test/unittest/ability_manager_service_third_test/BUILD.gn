@@ -18,6 +18,12 @@ module_output_path = "ability_runtime/abilitymgr"
 
 ohos_unittest("ability_manager_service_third_test") {
   module_out_path = module_output_path
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
 
   include_dirs = [
     "${ability_runtime_innerkits_path}/uri_permission/include",
@@ -49,6 +55,7 @@ ohos_unittest("ability_manager_service_third_test") {
   configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
 
   deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
     "${ability_runtime_innerkits_path}/ability_manager:mission_info",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",

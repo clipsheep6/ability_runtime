@@ -12,10 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include "cj_ability_delegator.h"
+
 #include "ability_delegator_registry.h"
+#include "application_context.h"
 #include "cj_application_context.h"
+#include "cj_utils_ffi.h"
 #include "application_context.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
@@ -113,7 +116,8 @@ const char* FFIGetStdResult(int64_t id)
         TAG_LOGE(AAFwkTag::CONTEXT, "cj shell command result is null.");
         return nullptr;
     }
-    return cjShellCmdResult->GetStdResult().c_str();
+    const char* res = CreateCStringFromString(cjShellCmdResult->GetStdResult());
+    return res;
 }
 
 const char* FFIDump(int64_t id)
@@ -123,7 +127,8 @@ const char* FFIDump(int64_t id)
         TAG_LOGE(AAFwkTag::CONTEXT, "cj shell command result is null.");
         return nullptr;
     }
-    return cjShellCmdResult->Dump().c_str();
+    const char* dump = CreateCStringFromString(cjShellCmdResult->Dump());
+    return dump;
 }
 
 int32_t FFIAbilityDelegatorApplicationContext(int64_t id)

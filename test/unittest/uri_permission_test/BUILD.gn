@@ -35,6 +35,7 @@ ohos_unittest("uri_permission_test") {
   ]
 
   external_deps = [
+    "ability_base:configuration",
     "ability_base:zuri",
     "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",
@@ -42,8 +43,6 @@ ohos_unittest("uri_permission_test") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "relational_store:native_rdb",
-
-    # "ipc:ipc_core",
     "storage_service:storage_manager_sa_proxy",
   ]
 }

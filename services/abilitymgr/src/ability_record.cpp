@@ -20,12 +20,12 @@
 #include <vector>
 #include <unordered_map>
 
-#include "constants.h"
 #include "ability_event_handler.h"
 #include "ability_manager_service.h"
 #include "ability_resident_process_rdb.h"
 #include "ability_scheduler_stub.h"
 #include "ability_util.h"
+#include "app_exit_reason_data_manager.h"
 #include "app_utils.h"
 #include "appfreeze_manager.h"
 #include "array_wrapper.h"
@@ -33,6 +33,9 @@
 #include "bundle_mgr_client.h"
 #include "configuration_convertor.h"
 #include "connection_state_manager.h"
+#include "common_event_data.h"
+#include "common_event_manager.h"
+#include "common_event_support.h"
 #include "freeze_util.h"
 #include "global_constant.h"
 #include "hitrace_meter.h"
@@ -42,7 +45,6 @@
 #include "errors.h"
 #include "event_report.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
 #include "ui_extension_host_info.h"
@@ -95,6 +97,8 @@ const std::string PARAM_MISSION_AFFINITY_KEY = "ohos.anco.param.missionAffinity"
 const std::string DISTRIBUTED_FILES_PATH = "/data/storage/el2/distributedfiles/";
 const std::string UIEXTENSION_ABILITY_ID = "ability.want.params.uiExtensionAbilityId";
 const std::string UIEXTENSION_ROOT_HOST_PID = "ability.want.params.uiExtensionRootHostPid";
+constexpr const char* PARAM_SEND_RESULT_CALLER_BUNDLENAME = "ohos.anco.param.sendResultCallderBundleName";
+constexpr const char* PARAM_SEND_RESULT_CALLER_TOKENID = "ohos.anco.param.sendResultCallerTokenId";
 const int32_t SHELL_ASSISTANT_DIETYPE = 0;
 int64_t AbilityRecord::abilityRecordId = 0;
 const int32_t DEFAULT_USER_ID = 0;
@@ -217,6 +221,20 @@ std::shared_ptr<AbilityRecord> Token::GetAbilityRecordByToken(const sptr<IRemote
 std::shared_ptr<AbilityRecord> Token::GetAbilityRecord() const
 {
     return abilityRecord_.lock();
+}
+
+CallerRecord::CallerRecord(int requestCode, std::weak_ptr<AbilityRecord> caller)
+    : requestCode_(requestCode), caller_(caller)
+{
+    auto callerAbilityRecord = caller.lock();
+    if  (callerAbilityRecord != nullptr) {
+        callerInfo_ = std::make_shared<CallerAbilityInfo>();
+        callerInfo_->callerBundleName = callerAbilityRecord->GetAbilityInfo().bundleName;
+        callerInfo_->callerAbilityName = callerAbilityRecord->GetAbilityInfo().name;
+        callerInfo_->callerTokenId = callerAbilityRecord->GetApplicationInfo().accessTokenId;
+        callerInfo_->callerUid =  callerAbilityRecord->GetUid();
+        callerInfo_->callerPid =  callerAbilityRecord->GetPid();
+    }
 }
 
 AbilityRecord::AbilityRecord(const Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
@@ -1267,6 +1285,12 @@ int AbilityRecord::TerminateAbility()
     AAFwk::EventInfo eventInfo;
     eventInfo.bundleName = GetAbilityInfo().bundleName;
     eventInfo.abilityName = GetAbilityInfo().name;
+    if (clearMissionFlag_) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "deleteAbilityRecoverInfo before clearMission.");
+        (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
+            DeleteAbilityRecoverInfo(GetAbilityInfo().applicationInfo.accessTokenId, GetAbilityInfo().moduleName,
+            GetAbilityInfo().name);
+    }
     AAFwk::EventReport::SendAbilityEvent(AAFwk::EventName::TERMINATE_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
     eventInfo.errCode = DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(token_, clearMissionFlag_);
     if (eventInfo.errCode != ERR_OK) {
@@ -1436,7 +1460,7 @@ void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
         if (IsSceneBoard()) {
             TAG_LOGI(AAFwkTag::ABILITYMGR, "Sceneboard DeathRecipient Added");
         }
-        pid_ = static_cast<int32_t>(IPCSkeleton::GetCallingRealPid()); // set pid when ability attach to service.
+        pid_ = static_cast<int32_t>(IPCSkeleton::GetCallingPid()); // set pid when ability attach to service.
         // add collaborator mission bind pid
         NotifyMissionBindPid();
         HandleDlpAttached();
@@ -1815,8 +1839,14 @@ void AbilityRecord::SaveResult(int resultCode, const Want *resultWant, std::shar
     std::lock_guard<ffrt::mutex> guard(lock_);
     std::shared_ptr<AbilityRecord> callerAbilityRecord = caller->GetCaller();
     if (callerAbilityRecord != nullptr) {
+        Want* newWant = const_cast<Want*>(resultWant);
+        if (callerAbilityRecord->GetApplicationInfo().name == SHELL_ASSISTANT_BUNDLENAME) {
+            newWant->SetParam(std::string(PARAM_SEND_RESULT_CALLER_BUNDLENAME), applicationInfo_.name);
+            newWant->SetParam(std::string(PARAM_SEND_RESULT_CALLER_TOKENID), static_cast<int32_t>(
+                applicationInfo_.accessTokenId));
+        }
         callerAbilityRecord->SetResult(
-            std::make_shared<AbilityResult>(caller->GetRequestCode(), resultCode, *resultWant));
+            std::make_shared<AbilityResult>(caller->GetRequestCode(), resultCode, *newWant));
     } else {
         std::shared_ptr<SystemAbilityCallerRecord> callerSystemAbilityRecord = caller->GetSaCaller();
         if (callerSystemAbilityRecord != nullptr) {
@@ -2023,7 +2053,21 @@ std::shared_ptr<AbilityRecord> AbilityRecord::GetCallerRecord() const
     if (callerList_.empty()) {
         return nullptr;
     }
+    if (callerList_.back() == nullptr) {
+        return nullptr;
+    }
     return callerList_.back()->GetCaller();
+}
+
+std::shared_ptr<CallerAbilityInfo> AbilityRecord::GetCallerInfo() const
+{
+    if (callerList_.empty()) {
+        return nullptr;
+    }
+    if (callerList_.back() == nullptr) {
+        return nullptr;
+    }
+    return callerList_.back()->GetCallerInfo();
 }
 
 bool AbilityRecord::IsConnectListEmpty()
@@ -2189,7 +2233,8 @@ void AbilityRecord::DumpUIExtensionRootHostInfo(std::vector<std::string> &info) 
     }
 
     UIExtensionHostInfo hostInfo;
-    auto ret = IN_PROCESS_CALL(AAFwk::AbilityManagerClient::GetInstance()->GetUIExtensionRootHostInfo(token, hostInfo));
+    auto ret = IN_PROCESS_CALL(DelayedSingleton<AbilityManagerService>::GetInstance()->GetUIExtensionRootHostInfo(
+        token, hostInfo));
     if (ret != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Get ui extension host info failed with %{public}d.", ret);
         return;
@@ -3049,6 +3094,28 @@ bool AbilityRecord::GetUriListFromWant(Want &want, std::vector<std::string> &uri
     return true;
 }
 
+void AbilityRecord::PublishFileOpenEvent(const Want &want)
+{
+    auto wangUri = want.GetUri();
+    std::string uriStr = wangUri.ToString();
+    if (!uriStr.empty() && wangUri.GetScheme() == "file") {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "ability record, file uri: %{private}s, isGranted: %{public}d",
+            uriStr.c_str(), isGrantedUriPermission_);
+        Want msgWant;
+        msgWant.SetAction("file.event.OPEN_TIME");
+        msgWant.SetParam("uri", uriStr);
+        auto timeNow = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count();
+        std::string currentTime = std::to_string(timeNow);
+        msgWant.SetParam("viewTime", currentTime);
+        EventFwk::CommonEventData commonData{msgWant};
+        EventFwk::CommonEventPublishInfo commonEventPublishInfo;
+        std::vector<std::string> subscriberPermissions = {"ohos.permission.MANAGE_LOCAL_ACCOUNTS"};
+        commonEventPublishInfo.SetSubscriberPermissions(subscriberPermissions);
+        EventFwk::CommonEventManager::PublishCommonEvent(commonData, commonEventPublishInfo);
+    }
+}
+
 void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName, bool isSandboxApp, uint32_t tokenId)
 {
     // reject sandbox to grant uri permission by start ability
@@ -3088,7 +3155,9 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         TAG_LOGI(AAFwkTag::ABILITYMGR, "permission to shell");
         return;
     }
+    TAG_LOGW(AAFwkTag::ABILITYMGR, "Sharing the file uri to specific bundlename will be denied in sdk 13.");
     GrantUriPermissionInner(want, uriVec, targetBundleName, tokenId);
+    PublishFileOpenEvent(want);
 }
 
 void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string> &uriVec,

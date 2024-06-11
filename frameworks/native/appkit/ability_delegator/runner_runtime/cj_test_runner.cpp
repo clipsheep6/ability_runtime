@@ -34,7 +34,7 @@ std::unique_ptr<TestRunner> CJTestRunner::Create(const std::unique_ptr<Runtime> 
     }
 
     auto cjRuntime = static_cast<CJRuntime*>(runtime.get());
-    if (cjRuntime->IsAppLibLoaded()) {
+    if (!cjRuntime->IsAppLibLoaded()) {
         HILOG_ERROR("CJTestRunner: AppLib Not Loaded");
         return nullptr;
     }

@@ -49,7 +49,7 @@ int32_t AppExitReasonHelper::RecordAppExitReason(const ExitReason &exitReason)
         return ERR_INVALID_VALUE;
     }
 
-    auto pid = IPCSkeleton::GetCallingRealPid();
+    auto pid = IPCSkeleton::GetCallingPid();
     AppExecFwk::ApplicationInfo application;
     bool debug = false;
     auto ret = IN_PROCESS_CALL(DelayedSingleton<AppScheduler>::GetInstance()->GetApplicationInfoByProcessID(pid,

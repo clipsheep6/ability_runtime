@@ -18,6 +18,9 @@
 
 #include <cstdint>
 
+#include "ability_info.h"
+#include "extension_ability_info.h"
+
 namespace OHOS {
 namespace AAFwk {
 class Want;
@@ -31,6 +34,8 @@ public:
     static bool GetAppIndex(const AAFwk::Want &want, int32_t &appIndex);
     static int32_t BuildAbilityInfoFlag();
     static bool IsSupportAppClone(AppExecFwk::ExtensionAbilityType type);
+    static void InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo &extensionInfo,
+        AppExecFwk::AbilityInfo &abilityInfo);
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -25,6 +25,7 @@
 namespace {
 const std::string MAX_PROC_CACHE_NUM = "persist.sys.abilityms.maxProcessCacheNum";
 const std::string PROCESS_CACHE_API_CHECK_CONFIG = "persist.sys.abilityms.processCacheApiCheck";
+const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 constexpr int32_t API12 = 12;
 constexpr int32_t API_VERSION_MOD = 100;
 }
@@ -105,9 +106,16 @@ bool CacheProcessManager::CheckAndCacheProcess(const std::shared_ptr<AppRunningR
             appRecord->GetName().c_str());
         return true;
     }
-    TAG_LOGI(AAFwkTag::APPMGR, "%{public}s is cached, %{public}s", appRecord->GetName().c_str(),
-        PrintCacheQueue().c_str());
-    CheckAndNotifyCachedState(appRecord);
+    appRecord->ScheduleCacheProcess();
+    auto notifyCached = [appRecord]() {
+        DelayedSingleton<CacheProcessManager>::GetInstance()->CheckAndNotifyCachedState(appRecord);
+    };
+    std::string taskName = "DELAY_CACHED_STATE_NOTIFY";
+    auto res = appRecord->CancelTask(taskName);
+    if (res) {
+        TAG_LOGD(AAFwkTag::APPMGR, "Early delay task canceled.");
+    }
+    appRecord->PostTask(taskName, AMSEventHandler::DELAY_NOTIFY_PROCESS_CACHED_STATE, notifyCached);
     return true;
 }
 
@@ -232,6 +240,13 @@ bool CacheProcessManager::IsAppSupportProcessCache(const std::shared_ptr<AppRunn
     }
     if (appRecord->IsKeepAliveApp()) {
         TAG_LOGD(AAFwkTag::APPMGR, "Keepalive app.");
+        return false;
+    }
+    if (appRecord->GetParentAppRecord() != nullptr) {
+        TAG_LOGD(AAFwkTag::APPMGR, "Child App, not support.");
+        return false;
+    }
+    if (appRecord->GetBundleName() == SHELL_ASSISTANT_BUNDLENAME) {
         return false;
     }
     auto supportState = appRecord->GetSupportProcessCacheState();

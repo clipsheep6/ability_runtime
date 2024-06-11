@@ -15,5 +15,8 @@ import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 group("cj_ability_packages") {
-  deps = [ "${ability_runtime_path}/frameworks/cj/ffi:cj_ability_ffi" ]
+  deps = [
+    "${ability_runtime_path}/frameworks/cj/ffi:cj_ability_ffi",
+    "${ability_runtime_path}/frameworks/cj/ffi/app/errormanager:cj_errormanager_ffi",
+  ]
 }

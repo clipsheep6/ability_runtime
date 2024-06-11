@@ -38,22 +38,6 @@ constexpr int64_t NOT_SUPPORT = 1;
 CJAbilityCallbacks* g_cjAbilityCallbacks = nullptr;
 }
 
-void RegisterCJAbilityCallbacks(void (*registerFunc)(CJAbilityCallbacks*))
-{
-    if (g_cjAbilityCallbacks != nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "Repeated registration for cj functions of CJAbility.");
-        return;
-    }
-
-    if (registerFunc == nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "RegisterCJAbilityCallbacks failed, registerFunc is nullptr.");
-        return;
-    }
-
-    g_cjAbilityCallbacks = new CJAbilityCallbacks();
-    registerFunc(g_cjAbilityCallbacks);
-}
-
 void UnWrapStartOption(CJStartOptions* source, AAFwk::StartOptions& target)
 {
     if (source == nullptr) {
@@ -86,6 +70,23 @@ RuntimeTask WrapRuntimeTask(std::function<void(int32_t, CJAbilityResult*)> cjTas
         TAG_LOGD(AAFwkTag::CONTEXT, "WrapRuntimeTask: error is %{public}d", error);
     };
     return task;
+}
+
+extern "C" {
+void RegisterCJAbilityCallbacks(void (*registerFunc)(CJAbilityCallbacks*))
+{
+    if (g_cjAbilityCallbacks != nullptr) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Repeated registration for cj functions of CJAbility.");
+        return;
+    }
+
+    if (registerFunc == nullptr) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "RegisterCJAbilityCallbacks failed, registerFunc is nullptr.");
+        return;
+    }
+
+    g_cjAbilityCallbacks = new CJAbilityCallbacks();
+    registerFunc(g_cjAbilityCallbacks);
 }
 
 bool FFIAbilityContextIsAbilityContextExisted(int64_t id)
@@ -522,5 +523,6 @@ EXPORT napi_value FFICreateNapiValue(void *env, void *context)
 }
 
 #undef EXPORT
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

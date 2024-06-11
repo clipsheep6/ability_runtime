@@ -15,10 +15,10 @@
 
 #include "disposed_observer.h"
 
+#include "ability_manager_service.h"
 #include "interceptor/disposed_rule_interceptor.h"
 #include "ability_record.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "modal_system_ui_extension.h"
 #include "want.h"
 namespace OHOS {
@@ -56,7 +56,8 @@ void DisposedObserver::OnPageShow(const AppExecFwk::PageStateData &pageStateData
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Call");
     if (disposedRule_.componentType == AppExecFwk::ComponentType::UI_ABILITY) {
-        int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*disposedRule_.want));
+        int ret = IN_PROCESS_CALL(DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(
+            *disposedRule_.want));
         if (ret != ERR_OK) {
             interceptor_->UnregisterObserver(pageStateData.bundleName);
             TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start disposed ability");

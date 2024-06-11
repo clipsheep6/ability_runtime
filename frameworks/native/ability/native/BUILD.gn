@@ -136,6 +136,7 @@ ohos_shared_library("abilitykit_utils") {
     "${ability_runtime_native_path}/ability/native/ability_handler.cpp",
     "${ability_runtime_native_path}/ability/native/ability_local_record.cpp",
     "${ability_runtime_native_path}/ability/native/configuration_utils.cpp",
+    "${ability_runtime_native_path}/ability/native/resource_config_helper.cpp",
   ]
 
   deps = []
@@ -148,8 +149,10 @@ ohos_shared_library("abilitykit_utils") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "eventhandler:libeventhandler",
+    "graphic_2d:2d_graphics",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "ipc:ipc_core",
     "ipc:ipc_napi",
     "json:nlohmann_json_static",
     "napi:ace_napi",
@@ -205,7 +208,6 @@ ohos_shared_library("abilitykit_native") {
     "${ability_runtime_native_path}/ability/native/data_ability_helper_impl.cpp",
     "${ability_runtime_native_path}/ability/native/data_ability_impl.cpp",
     "${ability_runtime_native_path}/ability/native/data_uri_utils.cpp",
-    "${ability_runtime_native_path}/ability/native/distributed_ability_runtime/distributed_client.cpp",
     "${ability_runtime_native_path}/ability/native/free_install_observer_proxy.cpp",
     "${ability_runtime_native_path}/ability/native/free_install_observer_stub.cpp",
     "${ability_runtime_native_path}/ability/native/insight_intent_host_client.cpp",
@@ -1097,6 +1099,7 @@ ohos_shared_library("ui_extension_module") {
     "bundle_framework:appexecfwk_core",
     "hilog:libhilog",
     "napi:ace_napi",
+    "window_manager:libwm",
   ]
 
   relative_install_dir = "extensionability/"
@@ -1528,6 +1531,7 @@ ohos_shared_library("auto_fill_extension_module") {
     "bundle_framework:appexecfwk_core",
     "hilog:libhilog",
     "napi:ace_napi",
+    "window_manager:libwm",
   ]
 
   relative_install_dir = "extensionability/"

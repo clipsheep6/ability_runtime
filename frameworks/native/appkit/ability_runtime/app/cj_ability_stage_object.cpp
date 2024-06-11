@@ -16,6 +16,7 @@
 #include "cj_ability_stage_object.h"
 
 #include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 
 using namespace OHOS::AbilityRuntime;
 
@@ -29,12 +30,12 @@ CJAbilityStageFuncs* g_cjAbilityStageFuncs = nullptr;
 void RegisterCJAbilityStageFuncs(void (*registerFunc)(CJAbilityStageFuncs* result))
 {
     if (g_cjAbilityStageFuncs != nullptr) {
-        HILOG_ERROR("Repeated registration for cj functions of CJAbilityStage.");
+        TAG_LOGE(AAFwkTag::APPKIT, "Repeated registration for cj functions of CJAbilityStage.");
         return;
     }
 
     if (registerFunc == nullptr) {
-        HILOG_ERROR("RegisterCJAbilityStageFuncs failed, registerFunc is nullptr.");
+        TAG_LOGE(AAFwkTag::APPKIT, "RegisterCJAbilityStageFuncs failed, registerFunc is nullptr.");
         return;
     }
 
@@ -45,15 +46,15 @@ void RegisterCJAbilityStageFuncs(void (*registerFunc)(CJAbilityStageFuncs* resul
 std::shared_ptr<CJAbilityStageObject> CJAbilityStageObject::LoadModule(const std::string& moduleName)
 {
     if (g_cjAbilityStageFuncs == nullptr) {
-        HILOG_ERROR("cj functions for CJAbilityStage are not registered");
+        TAG_LOGE(AAFwkTag::APPKIT, "cj functions for CJAbilityStage are not registered");
         return nullptr;
     }
 
-    HILOG_DEBUG("CJAbilityStageObject::LoadModule");
+    TAG_LOGI(AAFwkTag::APPKIT, "CJAbilityStageObject::LoadModule");
     auto handle = g_cjAbilityStageFuncs->LoadAbilityStage(moduleName.c_str());
     if (!handle) {
-        HILOG_ERROR("Failed to invoke CJAbilityStageObject::LoadModule. AbilityStage is not registered: %{public}s.",
-            moduleName.c_str());
+        TAG_LOGE(AAFwkTag::APPKIT, "Failed to invoke CJAbilityStageObject::LoadModule. AbilityStage"
+            " is not registered: %{public}s.", moduleName.c_str());
         return nullptr;
     }
 
@@ -69,7 +70,7 @@ CJAbilityStageObject::~CJAbilityStageObject()
 void CJAbilityStageObject::OnCreate() const
 {
     if (g_cjAbilityStageFuncs == nullptr) {
-        HILOG_ERROR("cj functions for CJAbilityStage are not registered");
+        TAG_LOGE(AAFwkTag::APPKIT, "cj functions for CJAbilityStage are not registered");
         return;
     }
     g_cjAbilityStageFuncs->AbilityStageOnCreate(id_);
@@ -78,7 +79,7 @@ void CJAbilityStageObject::OnCreate() const
 std::string CJAbilityStageObject::OnAcceptWant(const AAFwk::Want& want) const
 {
     if (g_cjAbilityStageFuncs == nullptr) {
-        HILOG_ERROR("cj functions for CJAbilityStage are not registered");
+        TAG_LOGE(AAFwkTag::APPKIT, "cj functions for CJAbilityStage are not registered");
         return "";
     }
 
@@ -94,7 +95,7 @@ std::string CJAbilityStageObject::OnAcceptWant(const AAFwk::Want& want) const
 void CJAbilityStageObject::OnConfigurationUpdated(const std::shared_ptr<AppExecFwk::Configuration>& configuration) const
 {
     if (g_cjAbilityStageFuncs == nullptr) {
-        HILOG_ERROR("cj functions for CJAbilityStage are not registered");
+        TAG_LOGE(AAFwkTag::APPKIT, "cj functions for CJAbilityStage are not registered");
         return;
     }
 }
@@ -102,7 +103,7 @@ void CJAbilityStageObject::OnConfigurationUpdated(const std::shared_ptr<AppExecF
 void CJAbilityStageObject::OnMemoryLevel(int32_t level) const
 {
     if (g_cjAbilityStageFuncs == nullptr) {
-        HILOG_ERROR("cj functions for CJAbilityStage are not registered");
+        TAG_LOGE(AAFwkTag::APPKIT, "cj functions for CJAbilityStage are not registered");
         return;
     }
     g_cjAbilityStageFuncs->AbilityStageOnMemoryLevel(id_, level);

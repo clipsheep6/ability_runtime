@@ -536,6 +536,14 @@ public:
         const sptr<IRemoteObject> &callback) override;
 
     virtual void SaveBrowserChannel(sptr<IRemoteObject> browser) override;
+
+    /**
+     * Check caller is test ability
+     *
+     * @param pid, the pid of ability.
+     * @return Returns ERR_OK is test ability, others is not test ability.
+     */
+    int32_t CheckCallingIsUserTestMode(const pid_t pid, bool &isUserTest) override;
 private:
     /**
      * Init, Initialize application services.
@@ -672,8 +680,6 @@ private:
     };
 
 private:
-    void DumpIpcAllFuncInit();
-    void DumpIpcFuncInit();
     int DumpIpcAllInner(const AppMgrService::DumpIpcKey key, std::string& result);
     int DumpIpcWithPidInner(const AppMgrService::DumpIpcKey key,
         const std::string& optionPid, std::string& result);
@@ -688,16 +694,16 @@ private:
     sptr<ISystemAbilityManager> systemAbilityMgr_;
     sptr<IAmsMgr> amsMgrScheduler_;
 
-    using DumpFuncType = int (AppMgrService::*)(const std::vector<std::u16string>& args, std::string& result);
-    const static std::map<std::string, DumpFuncType> dumpFuncMap_;
+    bool GetDumpIpcKeyByOption(const std::string &option, DumpIpcKey &key);
 
-    const static std::map<std::string, AppMgrService::DumpIpcKey> dumpIpcMap;
+    using DumpFuncType = int (AppMgrService::*)(const std::vector<std::u16string>& args, std::string& result);
+    bool GetDumpFunc(const std::string &optionKey, DumpFuncType &func);
 
     using DumpIpcAllFuncType = int (AppMgrService::*)(std::string& result);
-    std::map<uint32_t, DumpIpcAllFuncType> dumpIpcAllFuncMap_;
+    DumpIpcAllFuncType GetDumpIpcAllFuncByKey(uint32_t key);
 
     using DumpIpcFuncType = int (AppMgrService::*)(const int32_t pid, std::string& result);
-    std::map<uint32_t, DumpIpcFuncType> dumpIpcFuncMap_;
+    DumpIpcFuncType GetDumpIpcFuncByKey(uint32_t key);
 
     DISALLOW_COPY_AND_MOVE(AppMgrService);
 };

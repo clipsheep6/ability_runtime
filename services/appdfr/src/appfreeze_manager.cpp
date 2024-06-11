@@ -24,6 +24,7 @@
 
 #include "faultloggerd_client.h"
 #include "file_ex.h"
+#include "ffrt.h"
 #include "dfx_dump_catcher.h"
 #include "directory_ex.h"
 #include "hisysevent.h"
@@ -56,6 +57,8 @@ const std::string LOG_FILE_PATH = "data/log/eventlog";
 std::shared_ptr<AppfreezeManager> AppfreezeManager::instance_ = nullptr;
 ffrt::mutex AppfreezeManager::singletonMutex_;
 ffrt::mutex AppfreezeManager::freezeMutex_;
+ffrt::mutex AppfreezeManager::catchStackMutex_;
+std::map<int, std::string> AppfreezeManager::catchStackMap_;
 
 AppfreezeManager::AppfreezeManager()
 {
@@ -153,7 +156,7 @@ int AppfreezeManager::AppfreezeHandleWithStack(const FaultData& faultData, const
         fullStackPath = WriteToFile(fileName, catcherStack);
         faultNotifyData.errorObject.stack = fullStackPath;
     } else {
-        catchJsonStack += CatchJsonStacktrace(appInfo.pid);
+        catchJsonStack += CatchJsonStacktrace(appInfo.pid, faultData.errorObject.name);
         fullStackPath = WriteToFile(fileName, catchJsonStack);
         faultNotifyData.errorObject.stack = fullStackPath;
     }
@@ -379,7 +382,27 @@ void AppfreezeManager::ParseBinderPids(const std::map<int, std::set<int>>& binde
     }
 }
 
-std::string AppfreezeManager::CatchJsonStacktrace(int pid) const
+void AppfreezeManager::DeleteStack(int pid)
+{
+    std::lock_guard<ffrt::mutex> lock(catchStackMutex_);
+    auto it = catchStackMap_.find(pid);
+    if (it != catchStackMap_.end()) {
+        catchStackMap_.erase(it);
+    }
+}
+
+void AppfreezeManager::FindStackByPid(std::string& ret, int pid, const std::string& msg) const
+{
+    std::lock_guard<ffrt::mutex> lock(catchStackMutex_);
+    auto it = catchStackMap_.find(pid);
+    if (it != catchStackMap_.end()) {
+        ret = it->second;
+    } else {
+        ret = "Failed to dump stacktrace for " + std::to_string(pid) + "\n" + msg;
+    }
+}
+
+std::string AppfreezeManager::CatchJsonStacktrace(int pid, const std::string& faultType) const
 {
     HITRACE_METER_FMT(HITRACE_TAG_APP, "CatchJsonStacktrace pid:%d", pid);
     HiviewDFX::DfxDumpCatcher dumplog;
@@ -387,9 +410,13 @@ std::string AppfreezeManager::CatchJsonStacktrace(int pid) const
     std::string msg;
     size_t defaultMaxFaultNum = 256;
     if (!dumplog.DumpCatch(pid, 0, msg, defaultMaxFaultNum, true)) {
-        ret = "Failed to dump stacktrace for " + std::to_string(pid) + "\n" + msg;
+        FindStackByPid(ret, pid, msg);
     } else {
         ret = msg;
+        if (faultType == AppFreezeType::THREAD_BLOCK_3S) {
+            std::lock_guard<ffrt::mutex> lock(catchStackMutex_);
+            catchStackMap_[pid] = msg;
+        }
     }
     return ret;
 }

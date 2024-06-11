@@ -534,6 +534,8 @@ public:
 
     bool IsLastPageAbilityRecord(const sptr<IRemoteObject> &token);
 
+    bool ExtensionAbilityRecordExists(const sptr<IRemoteObject> &token);
+
     void SetTerminating();
 
     bool IsTerminating();
@@ -628,6 +630,7 @@ public:
 
     using Closure = std::function<void()>;
     void PostTask(std::string msg, int64_t timeOut, const Closure &task);
+    bool CancelTask(std::string msg);
     void RemoveTerminateAbilityTimeoutTask(const sptr<IRemoteObject>& token) const;
 
     int32_t NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
@@ -790,6 +793,18 @@ public:
     bool GetIsGPU();
     void SetGPUPid(pid_t gpuPid);
     pid_t GetGPUPid();
+
+    void ScheduleCacheProcess();
+    
+    inline void SetStrictMode(bool strictMode)
+    {
+        isStrictMode_ = strictMode;
+    }
+
+    inline bool IsStrictMode()
+    {
+        return isStrictMode_;
+    }
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -949,6 +964,7 @@ private:
     sptr<IRemoteObject> browserHost_;
     bool isGPU_ = false;
     pid_t gpuPid_ = 0;
+    bool isStrictMode_ = false;
 };
 
 }  // namespace AppExecFwk

@@ -292,10 +292,7 @@ ohos_source_set("abilityms_test_source") {
       "${ability_runtime_services_path}/abilitymgr/src/system_dialog_scheduler.cpp",
       "${ability_runtime_services_path}/appdfr/src/application_anr_listener.cpp",
     ]
-    deps += [
-      "${ace_engine_path}/interfaces/inner_api/ui_service_manager:ui_service_mgr",
-      "//third_party/libjpeg-turbo:turbojpeg_static",
-    ]
+    deps += [ "//third_party/libjpeg-turbo:turbojpeg_static" ]
     external_deps += [
       "i18n:intl_util",
       "icu:shared_icuuc",
@@ -448,6 +445,7 @@ group("unittest") {
     "dataobs_mgr_service_test:unittest",
     "dataobs_mgr_stub_test:unittest",
     "deeplink_reserve_config_test:unittest",
+    "default_recovery_config_test:unittest",
     "dfr_test:unittest",
     "dlp_state_item_test:unittest",
     "dlp_utils_test:unittest",
@@ -509,6 +507,7 @@ group("unittest") {
     "ui_extension_ability_test:unittest",
     "ui_extension_context_test:unittest",
     "ui_extension_utils_test:unittest",
+    "unlock_screen_test:unittest",
     "uri_permission_impl_test:unittest",
     "uri_permission_manager_test:unittest",
     "uri_permission_test:unittest",

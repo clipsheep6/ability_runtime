@@ -22,6 +22,9 @@
 
 char* CreateCStringFromString(const std::string& source)
 {
+    if (source.size() == 0) {
+        return nullptr;
+    }
     size_t length = source.size() + 1;
     auto res = static_cast<char*>(malloc(length));
     if (res == nullptr) {

@@ -18,6 +18,7 @@
 
 #include "ability_first_frame_state_data.h"
 #include "ability_first_frame_state_observer_stub.h"
+#include "ability_manager_errors.h"
 #include "application_info.h"
 #include "hilog_tag_wrapper.h"
 #include "permission_verification.h"

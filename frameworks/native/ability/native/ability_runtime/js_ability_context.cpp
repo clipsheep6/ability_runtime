@@ -63,14 +63,14 @@ constexpr int32_t CALLER_TIME_OUT = 10; // 10s
 
 namespace {
 static std::map<ConnectionKey, sptr<JSAbilityConnection>, KeyCompare> g_connects;
-std::mutex gConnectsLock_;
+std::recursive_mutex gConnectsLock_;
 int64_t g_serialNumber = 0;
 const std::string ATOMIC_SERVICE_PREFIX = "com.atomicservice.";
 
 // This function has to be called from engine thread
 void RemoveConnection(int64_t connectId)
 {
-    std::lock_guard<std::mutex> lock(gConnectsLock_);
+    std::lock_guard<std::recursive_mutex> lock(gConnectsLock_);
     auto item = std::find_if(g_connects.begin(), g_connects.end(),
     [&connectId](const auto &obj) {
         return connectId == obj.first.id;
@@ -88,7 +88,7 @@ void RemoveConnection(int64_t connectId)
 
 int64_t InsertConnection(sptr<JSAbilityConnection> connection, const AAFwk::Want &want, int32_t accountId = -1)
 {
-    std::lock_guard<std::mutex> lock(gConnectsLock_);
+    std::lock_guard<std::recursive_mutex> lock(gConnectsLock_);
     if (connection == nullptr) {
         TAG_LOGE(AAFwkTag::CONTEXT, "connection null");
         return -1;
@@ -348,6 +348,11 @@ napi_value JsAbilityContext::OpenAtomicService(napi_env env, napi_callback_info 
 napi_value JsAbilityContext::MoveAbilityToBackground(napi_env env, napi_callback_info info)
 {
     GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnMoveAbilityToBackground);
+}
+
+napi_value JsAbilityContext::SetRestoreEnabled(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnSetRestoreEnabled);
 }
 
 void JsAbilityContext::ClearFailedCallConnection(
@@ -1269,7 +1274,7 @@ napi_value JsAbilityContext::OnConnectAbilityWithAccount(napi_env env, NapiCallb
 
 napi_value JsAbilityContext::OnDisconnectAbility(napi_env env, NapiCallbackInfo& info)
 {
-    std::lock_guard<std::mutex> lock(gConnectsLock_);
+    std::lock_guard<std::recursive_mutex> lock(gConnectsLock_);
     if (info.argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::CONTEXT, "Not enough params");
         ThrowTooFewParametersError(env);
@@ -1583,7 +1588,6 @@ napi_value CreateJsAbilityContext(napi_env env, std::shared_ptr<AbilityContext> 
         JsAbilityContext::StopServiceExtensionAbility);
     BindNativeFunction(env, object, "stopServiceExtensionAbilityWithAccount", moduleName,
         JsAbilityContext::StopServiceExtensionAbilityWithAccount);
-    BindNativeFunction(env, object, "connectAbility", moduleName, JsAbilityContext::ConnectAbility);
     BindNativeFunction(env, object, "connectServiceExtensionAbility", moduleName, JsAbilityContext::ConnectAbility);
     BindNativeFunction(env, object, "connectAbilityWithAccount", moduleName,
         JsAbilityContext::ConnectAbilityWithAccount);
@@ -1616,6 +1620,7 @@ napi_value CreateJsAbilityContext(napi_env env, std::shared_ptr<AbilityContext> 
     BindNativeFunction(env, object, "openAtomicService", moduleName,
         JsAbilityContext::OpenAtomicService);
     BindNativeFunction(env, object, "moveAbilityToBackground", moduleName, JsAbilityContext::MoveAbilityToBackground);
+    BindNativeFunction(env, object, "setRestoreEnabled", moduleName, JsAbilityContext::SetRestoreEnabled);
 
 #ifdef SUPPORT_GRAPHICS
     BindNativeFunction(env, object, "setMissionLabel", moduleName, JsAbilityContext::SetMissionLabel);
@@ -1755,7 +1760,7 @@ void JSAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName 
 void JSAbilityConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
     int resultCode)
 {
-    std::lock_guard<std::mutex> lock(gConnectsLock_);
+    std::lock_guard<std::recursive_mutex> lock(gConnectsLock_);
     TAG_LOGD(AAFwkTag::CONTEXT, "resultCode:%{public}d", resultCode);
     if (jsConnectionObject_ == nullptr) {
         TAG_LOGE(AAFwkTag::CONTEXT, "jsConnectionObject_ nullptr");
@@ -2214,6 +2219,33 @@ napi_value JsAbilityContext::OnMoveAbilityToBackground(napi_env env, NapiCallbac
     NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnMoveAbilityToBackground",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
+}
+
+napi_value JsAbilityContext::OnSetRestoreEnabled(napi_env env, NapiCallbackInfo& info)
+{
+    TAG_LOGD(AAFwkTag::CONTEXT, "Set if support restore.");
+    if (info.argc == ARGC_ZERO) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Not enough params.");
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    auto abilityContext = context_.lock();
+    if (abilityContext == nullptr) {
+        TAG_LOGW(AAFwkTag::CONTEXT, "Context has already released.");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+        return CreateJsUndefined(env);
+    }
+
+    bool enabled = true;
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], enabled)) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Parse param failed.");
+        ThrowInvalidParamError(env, "Parse param enabled failed.");
+        return CreateJsUndefined(env);
+    }
+
+    abilityContext->SetRestoreEnabled(enabled);
+    return CreateJsUndefined(env);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

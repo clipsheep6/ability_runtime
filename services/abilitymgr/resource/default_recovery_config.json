@@ -1,0 +1,7 @@
+{
+    "default_recovery": {
+        "support_bundle_name_list": [],
+        "reserve_number_when_timeout": 5,
+        "recovery_data_timeout_delete_time": 168
+    }
+}

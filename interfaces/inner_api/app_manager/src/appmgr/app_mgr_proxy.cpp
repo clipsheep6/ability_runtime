@@ -256,6 +256,10 @@ int32_t AppMgrProxy::GetRunningMultiAppInfoByBundleName(const std::string &bundl
         return ret;
     }
     std::unique_ptr<RunningMultiAppInfo> infoReply(reply.ReadParcelable<RunningMultiAppInfo>());
+    if (infoReply == nullptr) {
+        TAG_LOGW(AAFwkTag::APPMGR, "reply ReadParcelable is nullptr");
+        return ERR_NULL_OBJECT;
+    }
     info = *infoReply;
     int result = reply.ReadInt32();
     return result;
@@ -362,6 +366,10 @@ int32_t AppMgrProxy::GetProcessRunningInformation(RunningProcessInfo &info)
         return ERR_NULL_OBJECT;
     }
     std::unique_ptr<RunningProcessInfo> infoReply(reply.ReadParcelable<RunningProcessInfo>());
+    if (infoReply == nullptr) {
+        TAG_LOGW(AAFwkTag::APPMGR, "reply ReadParcelable is nullptr");
+        return ERR_NULL_OBJECT;
+    }
     info = *infoReply;
     return reply.ReadInt32();
 }
@@ -2160,6 +2168,28 @@ int32_t AppMgrProxy::StartNativeChildProcess(const std::string &libName, int32_t
         TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d", error);
         return error;
     }
+    return reply.ReadInt32();
+}
+
+int32_t AppMgrProxy::CheckCallingIsUserTestMode(const pid_t pid, bool &isUserTest)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteInt32(pid)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "pid write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t ret = SendRequest(AppMgrInterfaceCode::CHECK_CALLING_IS_USER_TEST_MODE, data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
+        isUserTest = false;
+        return ret;
+    }
+    isUserTest = reply.ReadBool();
     return reply.ReadInt32();
 }
 

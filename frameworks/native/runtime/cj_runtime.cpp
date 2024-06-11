@@ -81,7 +81,7 @@ bool CJRuntime::Initialize(const Options& options)
         return false;
     }
     bundleName_ = options.bundleName;
-    instanceId_ = static_cast<uint32_t>(getproctid());
+    instanceId_ = getproctid();
     return true;
 }
 

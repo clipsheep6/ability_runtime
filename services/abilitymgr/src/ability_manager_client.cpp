@@ -198,7 +198,7 @@ ErrCode AbilityManagerClient::StartAbility(const Want &want, const StartOptions 
 
 ErrCode AbilityManagerClient::StartAbilityAsCaller(
     const Want &want, sptr<IRemoteObject> callerToken,
-    sptr<IRemoteObject> asCallerSoureToken, int requestCode, int32_t userId)
+    sptr<IRemoteObject> asCallerSourceToken, int requestCode, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
@@ -206,7 +206,7 @@ ErrCode AbilityManagerClient::StartAbilityAsCaller(
     TAG_LOGI(AAFwkTag::ABILITYMGR,
         "ability:%{public}s, userId:%{public}d.", want.GetElement().GetAbilityName().c_str(), userId);
     HandleDlpApp(const_cast<Want &>(want));
-    return abms->StartAbilityAsCaller(want, callerToken, asCallerSoureToken, userId, requestCode);
+    return abms->StartAbilityAsCaller(want, callerToken, asCallerSourceToken, userId, requestCode);
 }
 
 ErrCode AbilityManagerClient::StartAbilityAsCaller(const Want &want, const StartOptions &startOptions,
@@ -1607,12 +1607,12 @@ void AbilityManagerClient::SetRootSceneSession(sptr<IRemoteObject> rootSceneSess
     abms->SetRootSceneSession(rootSceneSession);
 }
 
-void AbilityManagerClient::CallUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
+void AbilityManagerClient::CallUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bool &isColdStart)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN(abms);
-    abms->CallUIAbilityBySCB(sessionInfo);
+    abms->CallUIAbilityBySCB(sessionInfo, isColdStart);
 }
 
 void AbilityManagerClient::StartSpecifiedAbilityBySCB(const Want &want)

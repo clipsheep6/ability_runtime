@@ -60,12 +60,12 @@ public:
     void DestroyHeapProfiler() override {};
     void ForceFullGC() override {};
     void ForceFullGC(uint32_t tid) override {};
-    void DumpHeapSnapshot(uint32_t tid, bool isFullGC, std::vector<uint32_t> fdVec,
-        std::vector<uint32_t> tidVec) override {};
+    void DumpHeapSnapshot(uint32_t tid, bool isFullGC) override {};
     void DumpCpuProfile(bool isPrivate) override {};
     void AllowCrossThreadExecution() override {};
     void GetHeapPrepare() override {};
     void RegisterUncaughtExceptionHandler(const CJUncaughtExceptionInfo& uncaughtExceptionInfo);
+    void UpdatePkgContextInfoJson(std::string moduleName, std::string hapPath, std::string packageName) override {};
 private:
     bool StartDebugger();
     bool LoadCJAppLibrary(const AppLibPathVec& appLibPaths);
@@ -74,7 +74,7 @@ private:
     bool appLibLoaded_ = false;
     bool debugModel_ = false;
     std::string bundleName_;
-    int instanceId_ {0};
+    uint32_t instanceId_ = 0;
     static AppLibPathVec appLibPaths_;
 };
 } // namespace AbilityRuntime

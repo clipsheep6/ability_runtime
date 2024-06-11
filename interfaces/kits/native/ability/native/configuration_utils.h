@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_CONFIGURATION_UTILS_H
 
 #include "configuration.h"
+#include "resource_config_helper.h"
 #ifdef SUPPORT_GRAPHICS
 #include "display_manager.h"
 #endif
@@ -40,8 +41,8 @@ public:
     void UpdateGlobalConfig(const Configuration &configuration, std::shared_ptr<ResourceManager> resourceManager);
 
 private:
-    void GetGlobalConfig(const Configuration &configuration, std::string &language, std::string &colormode,
-        std::string &hasPointerDevice);
+    void GetGlobalConfig(const Configuration &configuration,
+        OHOS::AbilityRuntime::ResourceConfigHelper &resourceConfig);
 
 #ifdef SUPPORT_GRAPHICS
 public:

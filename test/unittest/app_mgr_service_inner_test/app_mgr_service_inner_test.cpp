@@ -4065,6 +4065,7 @@ HWTEST_F(AppMgrServiceInnerTest, IsApplicationRunning_002, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceInnerTest, IsAppRunning_001, TestSize.Level1)
 {
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     std::string bundleName = "com.is.hiserice";
@@ -4076,8 +4077,8 @@ HWTEST_F(AppMgrServiceInnerTest, IsAppRunning_001, TestSize.Level1)
     appRecord->mainBundleName_ = "com.is.hiserice";
     appMgrServiceInner->appRunningManager_->appRunningRecordMap_.emplace(recordId_, appRecord);
     int32_t ret = appMgrServiceInner->IsAppRunning(bundleName, appCloneIndex, isRunning);
-    EXPECT_EQ(ret, ERR_OK);
-    EXPECT_TRUE(isRunning);
+    EXPECT_EQ(ret, AAFwk::ERR_APP_CLONE_INDEX_INVALID);
+    EXPECT_FALSE(isRunning);
 }
 
 /**
@@ -4087,6 +4088,7 @@ HWTEST_F(AppMgrServiceInnerTest, IsAppRunning_001, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceInnerTest, IsAppRunning_002, TestSize.Level1)
 {
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     std::string bundleName = "com.is.hiserice";
@@ -4097,7 +4099,7 @@ HWTEST_F(AppMgrServiceInnerTest, IsAppRunning_002, TestSize.Level1)
     EXPECT_NE(appRecord, nullptr);
     appMgrServiceInner->appRunningManager_->appRunningRecordMap_.emplace(recordId_, appRecord);
     int32_t ret = appMgrServiceInner->IsAppRunning(bundleName, appCloneIndex, isRunning);
-    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(ret, AAFwk::ERR_APP_CLONE_INDEX_INVALID);
     EXPECT_FALSE(isRunning);
 }
 
@@ -4301,7 +4303,7 @@ HWTEST_F(AppMgrServiceInnerTest, SetSupportedProcessCacheSelf_001, TestSize.Leve
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     bool isSupported = false;
-    EXPECT_EQ(appMgrServiceInner->SetSupportedProcessCacheSelf(isSupported), CHECK_PERMISSION_FAILED);
+    EXPECT_EQ(appMgrServiceInner->SetSupportedProcessCacheSelf(isSupported), AAFwk::CHECK_PERMISSION_FAILED);
 
     appMgrServiceInner->appRunningManager_ = nullptr;
     EXPECT_EQ(appMgrServiceInner->SetSupportedProcessCacheSelf(isSupported), ERR_NO_INIT);

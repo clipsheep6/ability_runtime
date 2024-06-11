@@ -43,6 +43,7 @@
 #include "js_runtime_utils.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 #include "commonlibrary/ets_utils/js_sys_module/console/console.h"
+#include "syscap_ts.h"
 #ifdef SUPPORT_SCREEN
 using OHOS::Ace::ContainerScope;
 #endif
@@ -88,6 +89,7 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
     }
 
     OHOS::JsSysModule::Console::InitConsoleModule(reinterpret_cast<napi_env>(nativeEngine));
+    InitSyscapModule(reinterpret_cast<napi_env>(nativeEngine));
 #ifdef SUPPORT_SCREEN
     OHOS::Ace::DeclarativeModulePreloader::PreloadWorker(*nativeEngine);
 #endif

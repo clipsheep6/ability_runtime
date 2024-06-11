@@ -30,6 +30,7 @@
 #include "ability_thread.h"
 #include "ability_util.h"
 #include "app_loader.h"
+#include "ability_manager_client.h"
 #include "app_recovery.h"
 #include "app_utils.h"
 #include "appfreeze_inner.h"
@@ -56,7 +57,7 @@
 #include "file_path_utils.h"
 #include "freeze_util.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
+#include "resource_config_helper.h"
 #ifdef SUPPORT_SCREEN
 #include "locale_config.h"
 #include "ace_forward_compatibility.h"
@@ -643,16 +644,7 @@ void MainThread::ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
         return;
     }
     if (info.needSnapshot == true) {
-        std::vector<uint32_t> fdVec;
-        for (auto &fd : info.fdVec) {
-            uint32_t newFd = dup(fd);
-            if (newFd == -1) {
-                TAG_LOGE(AAFwkTag::APPKIT, "dup failed.");
-                return;
-            }
-            fdVec.push_back(newFd);
-        }
-        runtime->DumpHeapSnapshot(info.tid, info.needGc, fdVec, info.tidVec);
+        runtime->DumpHeapSnapshot(info.tid, info.needGc);
     } else {
         if (info.needGc == true) {
             runtime->ForceFullGC(info.tid);
@@ -760,6 +752,11 @@ void MainThread::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
     }
 }
 
+bool MainThread::IsBgWorkingThread(const AbilityInfo &info)
+{
+    return info.extensionAbilityType == ExtensionAbilityType::BACKUP;
+}
+
 void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemoteObject> &token,
     const std::shared_ptr<AAFwk::Want> &want, int32_t abilityRecordId)
 {
@@ -774,7 +771,9 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
     auto abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     abilityRecord->SetWant(want);
     abilityRecord->SetAbilityRecordId(abilityRecordId);
-
+    if (watchdog_ != nullptr) {
+        watchdog_->SetBgWorkingThreadStatus(IsBgWorkingThread(info));
+    }
     FreezeUtil::LifecycleFlow flow = { token, FreezeUtil::TimeoutState::LOAD };
     std::string entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
         "; MainThread::ScheduleLaunchAbility; the load lifecycle.";
@@ -1110,6 +1109,21 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     TAG_LOGD(AAFwkTag::APPKIT, "deviceType is %{public}s <---->  %{public}d.", deviceType.c_str(),
         ConvertDeviceType(deviceType));
     resConfig->SetDeviceType(ConvertDeviceType(deviceType));
+
+    std::string mcc = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MCC);
+    TAG_LOGD(AAFwkTag::APPKIT, "mcc is %{public}s.", mcc.c_str());
+    uint32_t mccNum = 0;
+    if (AbilityRuntime::ResourceConfigHelper::ConvertStringToUint32(mcc, mccNum)) {
+        resConfig->SetMcc(mccNum);
+    }
+
+    std::string mnc = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MNC);
+    TAG_LOGD(AAFwkTag::APPKIT, "mnc is %{public}s.", mnc.c_str());
+    uint32_t mncNum = 0;
+    if (AbilityRuntime::ResourceConfigHelper::ConvertStringToUint32(mnc, mncNum)) {
+        resConfig->SetMnc(mncNum);
+    }
+
     resourceManager->UpdateResConfig(*resConfig);
     return true;
 }
@@ -1566,7 +1580,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                 TAG_LOGI(AAFwkTag::APPKIT, "hisysevent write result=%{public}d, send event [FRAMEWORK,PROCESS_KILL],"
                     " pid=%{public}d, processName=%{public}s, msg=%{public}s", result, pid, processName.c_str(),
                     KILL_REASON);
-    
+
                 if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary) &&
                     ApplicationDataManager::GetInstance().NotifyExceptionObject(appExecErrorObj)) {
                     return;
@@ -3190,6 +3204,9 @@ int32_t MainThread::ChangeAppGcState(int32_t state)
         TAG_LOGE(AAFwkTag::APPKIT, "runtime is nullptr.");
         return ERR_INVALID_VALUE;
     }
+    if (runtime->GetLanguage() == AbilityRuntime::Runtime::Language::CJ) {
+        return NO_ERROR;
+    }
     auto& nativeEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
     nativeEngine.NotifyForceExpandState(state);
     return NO_ERROR;
@@ -3314,6 +3331,53 @@ int32_t MainThread::ScheduleDumpFfrt(std::string& result)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ScheduleDumpFfrt::pid:%{public}d", getprocpid());
     return DumpFfrtHelper::DumpFfrt(result);
+}
+
+/**
+ *
+ * @brief Notify application to prepare for process caching.
+ *
+ */
+void MainThread::ScheduleCacheProcess()
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "ScheduleCacheProcess");
+    wptr<MainThread> weak = this;
+    auto task = [weak]() {
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            TAG_LOGE(AAFwkTag::APPKIT, "appThread is nullptr");
+            return;
+        }
+        appThread->HandleCacheProcess();
+    };
+    if (mainHandler_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "handler nullptr");
+        return;
+    }
+    if (!mainHandler_->PostTask(task, "MainThread:ScheduleCacheProcess")) {
+        TAG_LOGE(AAFwkTag::APPKIT, "PostTask task failed");
+    }
+}
+
+/**
+ *
+ * @brief Notify application to prepare for process caching.
+ *
+ */
+void MainThread::HandleCacheProcess()
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::APPKIT, "start.");
+
+    // force gc
+    if (application_ != nullptr) {
+        auto &runtime = application_->GetRuntime();
+        if (runtime == nullptr) {
+            TAG_LOGE(AAFwkTag::APPKIT, "runtime nullptr");
+            return;
+        }
+        runtime->ForceFullGC();
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

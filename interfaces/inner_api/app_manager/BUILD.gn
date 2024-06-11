@@ -17,7 +17,6 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 config("appmgr_sdk_config") {
   include_dirs = [
     "include/appmgr",
-    "${ability_base_kits_path}/configuration/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_innerkits_path}/ability_manager/include",
   ]
@@ -137,6 +136,7 @@ ohos_shared_library("app_manager") {
     "samgr:samgr_proxy",
   ]
   public_external_deps = [
+    "ability_base:configuration",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "image_framework:image_native",

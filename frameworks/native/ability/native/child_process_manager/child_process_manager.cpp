@@ -254,7 +254,8 @@ bool ChildProcessManager::LoadJsFile(const std::string &srcEntry, const AppExecF
     return true;
 }
 
-bool ChildProcessManager::LoadNativeLib(const std::string &libPath, const sptr<IRemoteObject> &mainProcessCb)
+bool ChildProcessManager::LoadNativeLib(const std::string &moduleName,
+    const std::string &libPath, const sptr<IRemoteObject> &mainProcessCb)
 {
     auto childProcess = NativeChildIpcProcess::Create();
     if (childProcess == nullptr) {
@@ -263,6 +264,7 @@ bool ChildProcessManager::LoadNativeLib(const std::string &libPath, const sptr<I
     }
     
     std::shared_ptr<ChildProcessStartInfo> processStartInfo = std::make_shared<ChildProcessStartInfo>();
+    processStartInfo->moduleName = moduleName;
     processStartInfo->name = std::filesystem::path(libPath).stem();
     processStartInfo->srcEntry = libPath;
     processStartInfo->ipcObj = mainProcessCb;

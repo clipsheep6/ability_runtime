@@ -988,5 +988,15 @@ ErrCode AbilityContextImpl::OpenAtomicService(AAFwk::Want& want, const AAFwk::St
     }
     return err;
 }
+
+void AbilityContextImpl::SetRestoreEnabled(bool enabled)
+{
+    restoreEnabled_.store(enabled);
+}
+
+bool AbilityContextImpl::GetRestoreEnabled()
+{
+    return restoreEnabled_.load();
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

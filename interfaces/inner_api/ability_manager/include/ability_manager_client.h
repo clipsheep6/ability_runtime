@@ -1266,8 +1266,9 @@ public:
      * Call UIAbility by SCB.
      *
      * @param sessionInfo the session info of the ability to be called.
+     * @param isColdStart the session of the ability is or not cold start.
      */
-    void CallUIAbilityBySCB(sptr<SessionInfo> sessionInfo);
+    void CallUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bool &isColdStart);
 
     /**
      * Start specified ability by SCB.

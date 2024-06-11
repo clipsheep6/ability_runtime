@@ -277,6 +277,126 @@ void ApplicationContext::NotifyApplicationBackground()
     }
 }
 
+void ApplicationContext::DispatchOnWillNewWant(const std::shared_ptr<NativeReference> &ability)
+{
+    if (!ability) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
+        return;
+    }
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnWillNewWant(ability);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnNewWant(const std::shared_ptr<NativeReference> &ability)
+{
+    if (!ability) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
+        return;
+    }
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnNewWant(ability);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnAbilityWillCreate(const std::shared_ptr<NativeReference> &ability)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "%{public}s start.", __func__);
+    if (!ability) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ability is null");
+        return;
+    }
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnAbilityWillCreate(ability);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnWindowStageWillCreate(const std::shared_ptr<NativeReference> &ability,
+    const std::shared_ptr<NativeReference> &windowStage)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "%{public}s start.", __func__);
+    if (!ability || !windowStage) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ability or windowStage is null");
+        return;
+    }
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnWindowStageWillCreate(ability, windowStage);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnWindowStageWillDestroy(const std::shared_ptr<NativeReference> &ability,
+    const std::shared_ptr<NativeReference> &windowStage)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "%{public}s start.", __func__);
+    if (!ability || !windowStage) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ability or windowStage is null");
+        return;
+    }
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnWindowStageWillDestroy(ability, windowStage);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnAbilityWillDestroy(const std::shared_ptr<NativeReference> &ability)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "%{public}s start.", __func__);
+    if (!ability) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ability is null");
+        return;
+    }
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnAbilityWillDestroy(ability);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnAbilityWillForeground(const std::shared_ptr<NativeReference> &ability)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "%{public}s start.", __func__);
+    if (!ability) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ability is null");
+        return;
+    }
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnAbilityWillForeground(ability);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnAbilityWillBackground(const std::shared_ptr<NativeReference> &ability)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "%{public}s start.", __func__);
+    if (!ability) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ability is null");
+        return;
+    }
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnAbilityWillBackground(ability);
+        }
+    }
+}
+
 std::string ApplicationContext::GetBundleName() const
 {
     return (contextImpl_ != nullptr) ? contextImpl_->GetBundleName() : "";
@@ -502,6 +622,19 @@ void ApplicationContext::SetLanguage(const std::string &language)
     }
 }
 
+void ApplicationContext::SetFont(const std::string &font)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "font:%{public}s.", font.c_str());
+    #ifdef SUPPORT_GRAPHICS
+    // Notify Window
+    AppExecFwk::Configuration config;
+    config.AddItem(AppExecFwk::ConfigurationInner::APPLICATION_FONT, font);
+    if (appFontCallback_ != nullptr) {
+        appFontCallback_(config);
+    }
+    #endif
+}
+
 void ApplicationContext::ClearUpApplicationData()
 {
     if (contextImpl_ != nullptr) {
@@ -536,6 +669,11 @@ Global::Resource::DeviceType ApplicationContext::GetDeviceType() const
 void ApplicationContext::RegisterAppConfigUpdateObserver(AppConfigUpdateCallback appConfigChangeCallback)
 {
     appConfigChangeCallback_ = appConfigChangeCallback;
+}
+
+void ApplicationContext::RegisterAppFontObserver(AppConfigUpdateCallback appFontCallback)
+{
+    appFontCallback_ = appFontCallback;
 }
 
 std::string ApplicationContext::GetAppRunningUniqueId() const

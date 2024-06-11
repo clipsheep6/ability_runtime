@@ -21,7 +21,6 @@
 
 #include "ability_debug_response_interface.h"
 #include "ability_info.h"
-#include "ability_manager_client.h"
 #include "app_debug_listener_interface.h"
 #include "application_info.h"
 #include "appmgr/app_mgr_client.h"

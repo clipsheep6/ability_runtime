@@ -197,7 +197,7 @@ private:
         const sptr<AAFwk::SessionInfo> &sessionInfo);
 
     JsRuntime& jsRuntime_;
-    std::unique_ptr<NativeReference> jsObj_;
+    std::shared_ptr<NativeReference> jsObj_ = nullptr;
     std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
     std::mutex uiWindowMutex_;
     std::map<uint64_t, sptr<Rosen::Window>> uiWindowMap_;

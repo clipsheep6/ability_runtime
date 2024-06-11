@@ -21,8 +21,8 @@
 #include <uv.h>
 
 #include "ability_util.h"
+#include "ability_manager_client.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_napi_common_ability.h"
 #include "js_runtime_utils.h"
 #include "napi_common_util.h"

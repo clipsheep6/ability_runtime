@@ -582,13 +582,21 @@ bool MissionListManager::CreateOrReusedMissionInfo(const AbilityRequest &ability
     BuildInnerMissionInfo(info, missionName, abilityRequest);
     auto abilityRecord = GetAbilityRecordByNameFromCurrentMissionLists(abilityRequest.want.GetElement());
     if (reUsedMissionInfo == false && abilityRecord != nullptr) {
-        auto abilityInfo = abilityRequest.abilityInfo;
-        EventInfo eventInfo;
-        eventInfo.userId = abilityRequest.userId;
-        eventInfo.abilityName = abilityInfo.name;
-        eventInfo.bundleName = abilityInfo.bundleName;
-        eventInfo.moduleName = abilityInfo.moduleName;
-        EventReport::SendAbilityEvent(EventName::START_STANDARD_ABILITIES, HiSysEventType::BEHAVIOR, eventInfo);
+        int32_t getAbilityNumber = 0;
+        getAbilityNumber = GetAbilityNumber(abilityRequest.want.GetElement());
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "GetAbilityNumber:%{public}d.", getAbilityNumber);
+
+        if (getAbilityNumber >= 1) {
+            auto abilityInfo = abilityRequest.abilityInfo;
+            EventInfo eventInfo;
+            eventInfo.userId = abilityRequest.userId;
+            eventInfo.abilityName = abilityInfo.name;
+            eventInfo.bundleName = abilityInfo.bundleName;
+            eventInfo.moduleName = abilityInfo.moduleName;
+            // get ability number created previously and add new one.
+            eventInfo.abilityNumber = getAbilityNumber + 1;
+            EventReport::SendAbilityEvent(EventName::START_STANDARD_ABILITIES, HiSysEventType::BEHAVIOR, eventInfo);
+        }
     }
 
     return reUsedMissionInfo;
@@ -2027,6 +2035,32 @@ void MissionListManager::UpdateSnapShot(const sptr<IRemoteObject> &token,
     }
 }
 #endif // SUPPORT_SCREEN
+
+int32_t MissionListManager::GetAbilityNumber(const AppExecFwk::ElementName &element) const
+{
+    int32_t getAbilityNumber = 0;
+
+    // find in currentMissionLists_
+    for (auto const &missionList : currentMissionLists_) {
+        if (missionList != nullptr) {
+            auto ability = missionList->GetAbilityRecordByName(element);
+            if (ability != nullptr) {
+                getAbilityNumber++;
+            }
+        }
+    }
+
+    // find in defaultStandardList_
+    if (defaultStandardList_ != nullptr) {
+        auto defaultStandardAbility = defaultStandardList_->GetAbilityRecordByName(element);
+        if (defaultStandardAbility != nullptr) {
+            getAbilityNumber++;
+        }
+    }
+
+    return getAbilityNumber;
+}
+
 void MissionListManager::MoveToBackgroundTask(const std::shared_ptr<AbilityRecord> &abilityRecord, bool isClose)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);

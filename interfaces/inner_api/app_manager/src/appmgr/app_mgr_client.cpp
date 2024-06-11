@@ -1183,5 +1183,15 @@ void AppMgrClient::SaveBrowserChannel(sptr<IRemoteObject> browser)
     }
     service->SaveBrowserChannel(browser);
 }
+
+int32_t AppMgrClient::CheckCallingIsUserTestMode(const pid_t pid, bool &isUserTest)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service != nullptr) {
+        return service->CheckCallingIsUserTestMode(pid, isUserTest);
+    }
+    return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

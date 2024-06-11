@@ -88,6 +88,30 @@ bool StartAbilityUtils::GetCallerAbilityInfo(const sptr<IRemoteObject> &callerTo
     return true;
 }
 
+int32_t StartAbilityUtils::CheckAppProvisionMode(const Want& want, int32_t userId)
+{
+    auto abilityInfo = StartAbilityUtils::startAbilityInfo;
+    if (!abilityInfo || abilityInfo->GetAppBundleName() != want.GetElement().GetBundleName()) {
+        int32_t appIndex = 0;
+        if (!AbilityRuntime::StartupUtil::GetAppIndex(want, appIndex)) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "invalid app clone index");
+            return ERR_APP_CLONE_INDEX_INVALID;
+        }
+        abilityInfo = StartAbilityInfo::CreateStartAbilityInfo(want, userId, appIndex);
+    }
+    CHECK_POINTER_AND_RETURN(abilityInfo, GET_ABILITY_SERVICE_FAILED);
+    if (abilityInfo->status != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "unexpected abilityInfo status=%{public}d", abilityInfo->status);
+        return abilityInfo->status;
+    }
+    if ((abilityInfo->abilityInfo).applicationInfo.appProvisionType !=
+        AppExecFwk::Constants::APP_PROVISION_TYPE_DEBUG) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "window options are not supported in non-app-provision mode.");
+        return ERR_NOT_IN_APP_PROVISION_MODE;
+    }
+    return ERR_OK;
+}
+
 StartAbilityInfoWrap::StartAbilityInfoWrap(const Want &want, int32_t validUserId, int32_t appIndex,
     const sptr<IRemoteObject> &callerToken, bool isExtension)
 {
@@ -127,44 +151,6 @@ StartAbilityInfoWrap::~StartAbilityInfoWrap()
     StartAbilityUtils::skipCrowTest = false;
     StartAbilityUtils::skipStartOther = false;
     StartAbilityUtils::skipErms = false;
-}
-
-void StartAbilityInfo::InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo &extensionInfo,
-    AppExecFwk::AbilityInfo &abilityInfo)
-{
-    abilityInfo.applicationName = extensionInfo.applicationInfo.name;
-    abilityInfo.applicationInfo = extensionInfo.applicationInfo;
-    abilityInfo.bundleName = extensionInfo.bundleName;
-    abilityInfo.package = extensionInfo.moduleName;
-    abilityInfo.moduleName = extensionInfo.moduleName;
-    abilityInfo.name = extensionInfo.name;
-    abilityInfo.srcEntrance = extensionInfo.srcEntrance;
-    abilityInfo.srcPath = extensionInfo.srcEntrance;
-    abilityInfo.iconPath = extensionInfo.icon;
-    abilityInfo.iconId = extensionInfo.iconId;
-    abilityInfo.label = extensionInfo.label;
-    abilityInfo.labelId = extensionInfo.labelId;
-    abilityInfo.description = extensionInfo.description;
-    abilityInfo.descriptionId = extensionInfo.descriptionId;
-    abilityInfo.priority = extensionInfo.priority;
-    abilityInfo.permissions = extensionInfo.permissions;
-    abilityInfo.readPermission = extensionInfo.readPermission;
-    abilityInfo.writePermission = extensionInfo.writePermission;
-    abilityInfo.uri = extensionInfo.uri;
-    abilityInfo.extensionAbilityType = extensionInfo.type;
-    abilityInfo.visible = extensionInfo.visible;
-    abilityInfo.resourcePath = extensionInfo.resourcePath;
-    abilityInfo.enabled = extensionInfo.enabled;
-    abilityInfo.isModuleJson = true;
-    abilityInfo.isStageBasedModel = true;
-    abilityInfo.process = extensionInfo.process;
-    abilityInfo.metadata = extensionInfo.metadata;
-    abilityInfo.compileMode = extensionInfo.compileMode;
-    abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
-    abilityInfo.extensionTypeName = extensionInfo.extensionTypeName;
-    if (!extensionInfo.hapPath.empty()) {
-        abilityInfo.hapPath = extensionInfo.hapPath;
-    }
 }
 
 std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartAbilityInfo(const Want &want, int32_t userId,
@@ -214,7 +200,7 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartAbilityInfo(const
         }
         request->extensionProcessMode = extensionInfo.extensionProcessMode;
         // For compatibility translates to AbilityInfo
-        InitAbilityInfoFromExtension(extensionInfo, request->abilityInfo);
+        AbilityRuntime::StartupUtil::InitAbilityInfoFromExtension(extensionInfo, request->abilityInfo);
     }
     return request;
 }
@@ -254,7 +240,7 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartExtensionInfo(con
     }
     abilityInfo->extensionProcessMode = extensionInfo.extensionProcessMode;
     // For compatibility translates to AbilityInfo
-    InitAbilityInfoFromExtension(extensionInfo, abilityInfo->abilityInfo);
+    AbilityRuntime::StartupUtil::InitAbilityInfoFromExtension(extensionInfo, abilityInfo->abilityInfo);
 
     return abilityInfo;
 }
@@ -277,7 +263,7 @@ void StartAbilityInfo::FindExtensionInfo(const Want &want, int32_t flags, int32_
     if (AbilityRuntime::StartupUtil::IsSupportAppClone(extensionInfo.type)) {
         abilityInfo->extensionProcessMode = extensionInfo.extensionProcessMode;
         // For compatibility translates to AbilityInfo
-        InitAbilityInfoFromExtension(extensionInfo, abilityInfo->abilityInfo);
+        AbilityRuntime::StartupUtil::InitAbilityInfoFromExtension(extensionInfo, abilityInfo->abilityInfo);
     } else {
         abilityInfo->status = ERR_APP_CLONE_INDEX_INVALID;
     }

@@ -1421,7 +1421,7 @@ HWTEST_F(AppMgrServiceTest, IsAppRunning_001, TestSize.Level1)
     int32_t appCloneIndex = 0;
     bool isRunning = false;
     int32_t res = appMgrService->IsAppRunning(bundleName, appCloneIndex, isRunning);
-    EXPECT_EQ(res, ERR_OK);
+    EXPECT_EQ(res, AAFwk::ERR_APP_CLONE_INDEX_INVALID);
 }
 
 /**
