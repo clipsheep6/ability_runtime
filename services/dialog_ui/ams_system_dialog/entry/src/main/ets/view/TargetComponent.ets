@@ -26,7 +26,7 @@ import { localStorageKeyConstants } from '../utils/Constants'
 
 const TAG = 'SelectorExtensionAbility.TargetComponent';
 
-@Entry
+@Preview
 @Component
 export struct TargetComponent {
     @Consume level2Page: boolean;
