@@ -2875,7 +2875,7 @@ void AbilityConnectManager::DeleteInvalidServiceRecord(const std::string &bundle
     std::lock_guard lock(serviceMapMutex_);
     for (auto it = serviceMap_.begin(); it != serviceMap_.end();) {
         if (it->second != nullptr && it->second->GetApplicationInfo().bundleName == bundleName &&
-            !IsUIExtensionAbility(it->second)) {
+            !IsUIExtensionAbility(it->second) && !IsAbilityNeedKeepAlive(it->second)) {
             it = serviceMap_.erase(it);
         } else {
             ++it;
