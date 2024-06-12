@@ -630,6 +630,8 @@ void ApplicationContext::SetFont(const std::string &font)
     AppExecFwk::Configuration config;
     config.AddItem(AppExecFwk::ConfigurationInner::APPLICATION_FONT, font);
     if (appFontCallback_ != nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "lzz font:%{public}s.",
+            config.GetItem(AppExecFwk::ConfigurationInner::APPLICATION_FONT).c_str());
         appFontCallback_(config);
     }
     #endif
