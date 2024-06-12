@@ -74,6 +74,7 @@ ohos_shared_library("libappms") {
 
   defines = [ "AMS_LOG_TAG = \"AppMgrService\"" ]
   defines += [ "AMS_LOG_DOMAIN = 0xD001303" ]
+  defines += [ "OHOS_ACCOUNT_ENABLED" ]
 
   if (product_name != "ohcore") {
     defines += [ "APP_MGR_SERVICE_APPMS" ]
