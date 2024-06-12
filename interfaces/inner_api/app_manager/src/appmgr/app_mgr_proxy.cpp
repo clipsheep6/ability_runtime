@@ -916,6 +916,10 @@ void AppMgrProxy::AttachRenderProcess(const sptr<IRemoteObject> &renderScheduler
 
 void AppMgrProxy::SaveBrowserChannel(sptr<IRemoteObject> browser)
 {
+    if (!browser) {
+        TAG_LOGE(AAFwkTag::APPMGR, "browser is null");
+        return;
+    }
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
