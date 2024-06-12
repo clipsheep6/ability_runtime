@@ -37,7 +37,7 @@ void AbilityManagerEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventDa
         if (callback_ != nullptr) {
             callback_();
         }
-    } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED) {
+    } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_USER_UNLOCKED) {
         if (userScreenUnlockCallback_ != nullptr) {
             userScreenUnlockCallback_();
         }
