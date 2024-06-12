@@ -28,6 +28,7 @@
 #include "perf_profile.h"
 #include "parameters.h"
 #include "quick_fix_callback_with_record.h"
+#include <cstddef>
 #ifdef SUPPORT_SCREEN
 #include "scene_board_judgement.h"
 #include "window_visibility_info.h"
@@ -314,7 +315,8 @@ bool AppRunningManager::ProcessExitByPid(pid_t pid)
     return false;
 }
 
-std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRemoteObject> &remote)
+std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRemoteObject> &remote,
+    std::shared_ptr<AppMgrServiceInner> appMgrServiceInner)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (remote == nullptr) {
@@ -351,6 +353,9 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRe
         auto priorityObject = appRecord->GetPriorityObject();
         if (priorityObject != nullptr) {
             TAG_LOGI(AAFwkTag::APPMGR, "pid: %{public}d.", priorityObject->GetPid());
+            if (appMgrServiceInner != nullptr) {
+                appMgrServiceInner->KillProcessByPid(priorityObject->GetPid(), "OnRemoteDied");
+            }
         }
     }
     if (appRecord != nullptr && appRecord->GetPriorityObject() != nullptr) {

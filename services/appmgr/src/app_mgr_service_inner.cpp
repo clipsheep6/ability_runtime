@@ -3083,7 +3083,7 @@ void AppMgrServiceInner::OnRemoteDied(const wptr<IRemoteObject> &remote, bool is
     std::shared_ptr<AppRunningRecord> appRecord = nullptr;
     {
         std::lock_guard lock(exceptionLock_);
-        appRecord = appRunningManager_->OnRemoteDied(remote);
+        appRecord = appRunningManager_->OnRemoteDied(remote, shared_from_this());
     }
     if (appRecord == nullptr) {
         TAG_LOGI(AAFwkTag::APPMGR, "app record is not exist.");
