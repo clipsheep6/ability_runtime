@@ -255,6 +255,7 @@ void AutoFillExtensionCallback::HandleTimeOut()
 
 void AutoFillExtensionCallback::SendAutoFillSucess(const AAFwk::Want &want)
 {
+    TAG_LOGI(AAFwkTag::AUTOFILLMGR, "Called.");
     if (fillCallback_ != nullptr) {
         std::string dataStr = want.GetStringParam(WANT_PARAMS_VIEW_DATA_KEY);
         AbilityBase::ViewData viewData;
@@ -271,6 +272,7 @@ void AutoFillExtensionCallback::SendAutoFillSucess(const AAFwk::Want &want)
 
 void AutoFillExtensionCallback::SendAutoFillFailed(int32_t errCode, const AAFwk::Want &want)
 {
+    TAG_LOGI(AAFwkTag::AUTOFILLMGR, "Called.");
     if (fillCallback_ != nullptr) {
         std::string fillContent = want.GetStringParam(WANT_PARAMS_FILL_CONTENT);
         fillCallback_->OnFillRequestFailed(errCode, fillContent);

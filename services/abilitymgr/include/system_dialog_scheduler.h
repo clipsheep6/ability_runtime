@@ -70,11 +70,11 @@ public:
     explicit SystemDialogScheduler() = default;
     virtual ~SystemDialogScheduler() = default;
 
-    int GetSelectorDialogWantCommon(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant,
-        const sptr<IRemoteObject> &callerToken);
-    int GetPcSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant,
+    int GetSelectorDialogWantCommon(const std::vector<DialogAppInfo> &dialogAppInfos, Want &requestWant,
+        Want &targetWant, const sptr<IRemoteObject> &callerToken);
+    int GetPcSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &requestWant, Want &targetWant,
         const std::string &type, int32_t userId, const sptr<IRemoteObject> &callerToken);
-    int GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant,
+    int GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &requestWant, Want &targetWant,
         const sptr<IRemoteObject> &callerToken);
     Want GetTipsDialogWant(const sptr<IRemoteObject> &callerToken);
     Want GetJumpInterceptorDialogWant(Want &targetWant);

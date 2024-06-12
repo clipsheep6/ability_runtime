@@ -347,7 +347,7 @@ void AutoFillManager::SetTimeOutEvent(uint32_t eventId)
 
 void AutoFillManager::RemoveEvent(uint32_t eventId)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    TAG_LOGI(AAFwkTag::AUTOFILLMGR, "Called.");
     if (eventHandler_ == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Eventhandler is nullptr.");
         return;
@@ -363,7 +363,7 @@ void AutoFillManager::RemoveEvent(uint32_t eventId)
 
 void AutoFillManager::HandleTimeOut(uint32_t eventId)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    TAG_LOGI(AAFwkTag::AUTOFILLMGR, "Called.");
     std::lock_guard<std::mutex> lock(extensionCallbacksMutex_);
     auto ret = extensionCallbacks_.find(eventId);
     if (ret == extensionCallbacks_.end()) {

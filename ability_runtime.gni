@@ -105,8 +105,6 @@ declare_args() {
       "com.ohos.passwordbox/entry/AutoFillAbility"
   ability_runtime_smart_auto_fill_ability =
       "com.ohos.textautofill/entry/TextAutoFillAbility"
-  ability_runtime_use_memmgr_plugin = false
-  ability_runtime_use_memmgr = false
   cj_frontend = true
 
   if (!defined(global_parts_info) ||
@@ -134,16 +132,6 @@ declare_args() {
   if (defined(global_parts_info) &&
       !defined(global_parts_info.resourceschedule_efficiency_manager)) {
     efficiency_manager = false
-  }
-
-  if (defined(global_parts_info) &&
-      defined(global_parts_info.resourceschedule_memmgr_override)) {
-    ability_runtime_use_memmgr_plugin = true
-  }
-
-  if (defined(global_parts_info) &&
-      defined(global_parts_info.resourceschedule_memmgr)) {
-    ability_runtime_use_memmgr = true
   }
 
   if (defined(global_parts_info) &&
