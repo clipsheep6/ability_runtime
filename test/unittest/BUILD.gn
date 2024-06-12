@@ -509,6 +509,7 @@ group("unittest") {
     "ui_extension_context_test:unittest",
     "ui_extension_utils_test:unittest",
     "unlock_screen_test:unittest",
+    "uri_perm_mgr_test:unittest",
     "uri_permission_impl_test:unittest",
     "uri_permission_manager_test:unittest",
     "uri_permission_test:unittest",
