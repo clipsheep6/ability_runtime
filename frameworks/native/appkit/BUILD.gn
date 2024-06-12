@@ -240,6 +240,10 @@ ohos_shared_library("appkit_native") {
 
     defines += [ "CJ_FRONTEND" ]
 
+    if (ability_runtime_app_no_response_dialog) {
+      defines += [ "APP_NO_RESPONSE" ]
+    }
+
     deps += [
       "${ability_runtime_path}/cj_environment/frameworks/cj_environment:cj_environment",
       "${ability_runtime_path}/frameworks/cj/ffi:cj_ability_ffi",

@@ -181,4 +181,10 @@ declare_args() {
   } else {
     form_fwk_enable = false
   }
+
+  if (root_out_dir == "//out/generic_generic_arm_64only/hisi_all_pc_standard") {
+    ability_runtime_app_no_response_dialog = true
+  } else {
+    ability_runtime_app_no_response_dialog = false
+  }
 }

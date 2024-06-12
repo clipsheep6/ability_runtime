@@ -84,6 +84,9 @@
 #include "cache_process_manager.h"
 #include "window_focus_changed_listener.h"
 #include "window_visibility_changed_listener.h"
+#ifdef APP_NO_RESPONSE
+#include "modal_system_app_freeze_uiextension.h"
+#endif
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -5114,7 +5117,9 @@ void AppMgrServiceInner::AppRecoveryNotifyApp(int32_t pid, const std::string& bu
             TAG_LOGI(AAFwkTag::APPMGR,
                 "waitSaveTask timeout %{public}s,pid == %{public}d is going to exit due to AppRecovery.",
                 bundleName.c_str(), pid);
+#ifndef APP_NO_RESPONSE
             innerService->KillProcessByPid(pid, "AppRecoveryNotifyApp");
+#endif
         }
     };
     constexpr int32_t timeOut = 2000;
@@ -5191,7 +5196,22 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
         return ERR_OK;
     }
 
+#ifdef APP_NO_RESPONSE
+    // A dialog box is displayed when the PC appfreeze
+    if (appRecord->GetFocusFlag()) {
+        std::string startAbilityName = "AppAbnormalAbility";
+        std::string startBundleName = "com.ohos.sceneboard";
+        AAFwk::Want want;
+        want.SetElementName(startBundleName, startAbilityName);
+        want.SetParam(UIEXTENSION_TYPE_KEY, UIEXTENSION_SYS_COMMON_UI);
+        want.SetParam(APP_FREEZE_PID, std::to_string(pid));
+        want.SetParam(START_BUNDLE_NAME, bundleName);
+        auto &connection = ModalSystemAppFreezeUIExtension::GetInstance();
+        connection.CreateModalUIExtension(want);
+    }
+#else
     KillFaultApp(pid, bundleName, faultData);
+#endif
 
     return ERR_OK;
 }
