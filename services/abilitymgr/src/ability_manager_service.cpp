@@ -186,7 +186,7 @@ constexpr const char* KEY_VISIBLE_ID = "ohos.anco.param.visible";
 constexpr const char* START_ABILITY_TYPE = "ABILITY_INNER_START_WITH_ACCOUNT";
 constexpr const char* SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 constexpr const char* SHELL_ASSISTANT_ABILITYNAME = "MainAbility";
-constexpr const char* AMS_DIALOG_BUNDLENAME = "com.ohos.amsdialog";
+constexpr const char* BUNDLE_NAME_DIALOG = "com.ohos.amsdialog";
 constexpr const char* STR_PHONE = "phone";
 // Distributed continued session Id
 constexpr const char* DMS_CONTINUED_SESSION_ID = "ohos.dms.continueSessionId";
@@ -1063,7 +1063,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     } else if (!isStartAsCaller) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "do not start as caller, UpdateCallerInfo");
         UpdateCallerInfo(abilityRequest.want, callerToken);
-    } else if (callerBundleName == AMS_DIALOG_BUNDLENAME ||
+    } else if (callerBundleName == BUNDLE_NAME_DIALOG ||
         (isSendDialogResult && want.GetBoolParam("isSelector", false))) {
 #ifdef SUPPORT_SCREEN
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
@@ -1155,7 +1155,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         return result;
     }
     if (result != ERR_OK && isReplaceWantExist && !isSendDialogResult &&
-        callerBundleName != AMS_DIALOG_BUNDLENAME) {
+        callerBundleName != BUNDLE_NAME_DIALOG) {
         std::string dialogSessionId;
 #ifdef SUPPORT_SCREEN
         std::vector<DialogAppInfo> dialogAppInfos(1);
@@ -7816,6 +7816,11 @@ void AbilityManagerService::UpdateAsCallerSourceInfo(Want& want, sptr<IRemoteObj
 
 void AbilityManagerService::UpdateAsCallerInfoFromToken(Want& want, sptr<IRemoteObject> asCallerSourceToken)
 {
+    want.RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_UID);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_PID);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
     AppExecFwk::RunningProcessInfo processInfo = {};
     DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(asCallerSourceToken, processInfo);
 
@@ -7825,38 +7830,31 @@ void AbilityManagerService::UpdateAsCallerInfoFromToken(Want& want, sptr<IRemote
         return;
     }
     int32_t tokenId = abilityRecord->GetApplicationInfo().accessTokenId;
-
-    want.RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
     want.SetParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId);
-    want.RemoveParam(Want::PARAM_RESV_CALLER_UID);
     want.SetParam(Want::PARAM_RESV_CALLER_UID, processInfo.uid_);
-
-    want.RemoveParam(Want::PARAM_RESV_CALLER_PID);
     want.SetParam(Want::PARAM_RESV_CALLER_PID, processInfo.pid_);
 
     std::string callerBundleName = abilityRecord->GetAbilityInfo().bundleName;
-    want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
     want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerBundleName);
     std::string callerAbilityName = abilityRecord->GetAbilityInfo().name;
-    want.RemoveParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
     want.SetParam(Want::PARAM_RESV_CALLER_ABILITY_NAME, callerAbilityName);
 }
 
 void AbilityManagerService::UpdateAsCallerInfoFromCallerRecord(Want& want, sptr<IRemoteObject> callerToken)
 {
+    want.RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_UID);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_PID);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
     auto callerRecord = Token::GetAbilityRecordByToken(callerToken);
     CHECK_POINTER(callerRecord);
     auto sourceInfo = callerRecord->GetCallerInfo();
     CHECK_POINTER(sourceInfo);
-    want.RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
     want.SetParam(Want::PARAM_RESV_CALLER_TOKEN, sourceInfo->callerTokenId);
-    want.RemoveParam(Want::PARAM_RESV_CALLER_UID);
     want.SetParam(Want::PARAM_RESV_CALLER_UID, sourceInfo->callerUid);
-    want.RemoveParam(Want::PARAM_RESV_CALLER_PID);
     want.SetParam(Want::PARAM_RESV_CALLER_PID, sourceInfo->callerPid);
-    want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
     want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, sourceInfo->callerBundleName);
-    want.RemoveParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
     want.SetParam(Want::PARAM_RESV_CALLER_ABILITY_NAME, sourceInfo->callerAbilityName);
 }
 
@@ -8976,6 +8974,9 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
 
     AppExecFwk::RunningProcessInfo processInfo;
     std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+    if (callerAbility && callerAbility->GetAbilityInfo().bundleName == BUNDLE_NAME_DIALOG) {
+        callerAbility = callerAbility->GetCallerRecord();
+    }
     if (callerAbility) {
         if (callerAbility->IsForeground() || callerAbility->GetAbilityForegroundingFlag()) {
             isBackgroundCall = false;

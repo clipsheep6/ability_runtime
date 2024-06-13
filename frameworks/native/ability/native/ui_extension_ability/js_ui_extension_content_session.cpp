@@ -334,16 +334,14 @@ napi_value JsUIExtensionContentSession::OnStartAbilityAsCaller(napi_env env, Nap
     bool unWrapWantFlag = OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want);
     if (!unWrapWantFlag) {
         ThrowInvalidParamError(env, "Parameter error: Parse want failed! Want must be a Want.");
+        return CreateJsUndefined(env);
     }
     decltype(info.argc) unwrapArgc = 1;
     TAG_LOGI(AAFwkTag::UI_EXT, "StartAbilityAsCaller, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
     AAFwk::StartOptions startOptions;
     if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
         TAG_LOGD(AAFwkTag::UI_EXT, "OnStartAbilityAsCaller start options is used.");
-        bool unWrapStartOptionsFlag = AppExecFwk::UnwrapStartOptions(env, info.argv[INDEX_ONE], startOptions);
-        if (!unWrapStartOptionsFlag) {
-            ThrowInvalidParamError(env, "Parameter error: Parse startOptions failed! Options must be a StartOption.");
-        }
+        AppExecFwk::UnwrapStartOptions(env, info.argv[INDEX_ONE], startOptions);
         unwrapArgc++;
     }
     NapiAsyncTask::CompleteCallback complete =

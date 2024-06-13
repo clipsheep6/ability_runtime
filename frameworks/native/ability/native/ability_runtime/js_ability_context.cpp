@@ -595,7 +595,11 @@ napi_value JsAbilityContext::OnStartAbilityAsCaller(napi_env env, NapiCallbackIn
     }
 
     AAFwk::Want want;
-    OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want);
+    bool unWrapWantFlag = OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want);
+    if (!unWrapWantFlag) {
+        ThrowInvalidParamError(env, "Parameter error: Parse want failed! Want must be a Want.");
+        return CreateJsUndefined(env);
+    }
     InheritWindowMode(want);
     decltype(info.argc) unwrapArgc = ARGC_ONE;
     TAG_LOGI(AAFwkTag::CONTEXT, "StartAbilityAsCaller, ability:%{public}s.",
