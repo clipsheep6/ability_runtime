@@ -1200,36 +1200,30 @@ ErrCode AccessibilityAbilityShellCommand::MakeCommandArgumentFromCmd(Accessibili
         if (option == '?') {
             option = optopt;
             switch (option) {
-                case 'a': {
+                case 'a':
                     resultReceiver_.append(argument.command + ": " + ACCESSIBILITY_ABILITY_NO_ABILITY_ARGUMENT_VALUE);
                     return OHOS::ERR_INVALID_VALUE;
-                }
-                case 'b': {
+                case 'b':
                     resultReceiver_.append(argument.command + ": " + ACCESSIBILITY_ABILITY_NO_BUNDLE_ARGUMENT_VALUE);
                     return OHOS::ERR_INVALID_VALUE;
-                }
-                default: {
+                default:
                     break;
-                }
             }
         }
 
         switch (option) {
-            case 'a': {
+            case 'a':
                 argument.abilityName = optarg;
                 argument.abilityArgumentNum++;
                 break;
-            }
-            case 'b': {
+            case 'b':
                 argument.bundleName = optarg;
                 argument.bundleArgumentNum++;
                 break;
-            }
-            default: {
+            default:
                 argument.unknownArgumentNum++;
                 argument.unknownArguments.push_back(argv_[optind - 1]);
                 break;
-            }
         }
     }
     return OHOS::ERR_OK;
