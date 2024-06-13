@@ -249,6 +249,7 @@ ohos_source_set("abilityms_test_source") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "jsoncpp:jsoncpp",
     "kv_store:distributeddata_inner",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
@@ -294,10 +295,12 @@ ohos_source_set("abilityms_test_source") {
     ]
     deps += [ "//third_party/libjpeg-turbo:turbojpeg_static" ]
     external_deps += [
+      "graphic_2d:2d_graphics",
       "i18n:intl_util",
       "icu:shared_icuuc",
       "image_framework:image_native",
       "input:libmmi-client",
+      "skia:skia_canvaskit",
       "window_manager:libdm",
       "window_manager:libmodal_system_ui_extension_client",
       "window_manager:libwm",
@@ -509,6 +512,7 @@ group("unittest") {
     "ui_extension_context_test:unittest",
     "ui_extension_utils_test:unittest",
     "unlock_screen_test:unittest",
+    "uri_perm_mgr_test:unittest",
     "uri_permission_impl_test:unittest",
     "uri_permission_manager_test:unittest",
     "uri_permission_test:unittest",

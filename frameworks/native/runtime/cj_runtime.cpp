@@ -122,7 +122,7 @@ void CJRuntime::StartDebugMode(const DebugOption dOption)
     bool isStartWithDebug = dOption.isStartWithDebug;
     bool isDebugApp = dOption.isDebugApp;
     const std::string bundleName = bundleName_;
-    uint32_t instanceId = instanceId_;
+    // uint32_t instanceId = instanceId_;
     std::string inputProcessName = bundleName_ != dOption.processName ? dOption.processName : "";
 
     HILOG_INFO("StartDebugMode %{public}s", bundleName_.c_str());

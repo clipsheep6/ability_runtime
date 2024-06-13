@@ -27,7 +27,7 @@
 
 namespace OHOS {
 namespace JsEnv {
-constexpr int32_t INDEX_EIGHT = 8;
+// constexpr int32_t INDEX_EIGHT = 8;
 constexpr char BACKTRACE[] = "=====================Backtrace========================";
 
 std::string NapiUncaughtExceptionCallback::GetNativeStrFromJsTaggedObj(napi_value obj, const char* key)

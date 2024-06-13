@@ -114,6 +114,7 @@ ohos_shared_library("runtime") {
     "jsoncpp:jsoncpp",
     "napi:ace_napi",
     "resource_management:global_resmgr",
+    "runtime_core:libarkbase_static",
     "samgr:samgr_proxy",
     "zlib:shared_libz",
   ]

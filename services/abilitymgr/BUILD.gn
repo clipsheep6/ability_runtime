@@ -166,6 +166,7 @@ ohos_shared_library("abilityms") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "window_manager:session_manager_lite",
+    "resource_management:global_resmgr",
   ]
   public_external_deps = [ "background_task_mgr:bgtaskmgr_innerkits" ]
 

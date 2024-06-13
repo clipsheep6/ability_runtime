@@ -114,9 +114,11 @@ public:
      * OnRemoteDied, Equipment death notification.
      *
      * @param remote, Death client.
+     * @param appMgrServiceInner, Application manager service inner instance.
      * @return
      */
-    std::shared_ptr<AppRunningRecord> OnRemoteDied(const wptr<IRemoteObject> &remote);
+    std::shared_ptr<AppRunningRecord> OnRemoteDied(const wptr<IRemoteObject> &remote,
+        std::shared_ptr<AppMgrServiceInner> appMgrServiceInner);
 
     /**
      * GetAppRunningRecordMap, Get application record list.

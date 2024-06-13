@@ -22,6 +22,8 @@ ohos_shared_library("particleability") {
 
   sources = [
     "${ability_runtime_napi_path}/featureAbility/napi_data_ability_helper.cpp",
+    "${ability_runtime_napi_path}/featureAbility/napi_data_ability_helper_utils.cpp",
+    "${ability_runtime_napi_path}/featureAbility/napi_data_ability_observer.cpp",
     "${ability_runtime_napi_path}/featureAbility/napi_data_ability_operation.cpp",
     "native_module.cpp",
     "particle_ability.cpp",

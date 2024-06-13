@@ -68,6 +68,9 @@ ohos_shared_library("libsrms") {
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "image_framework:image_native",
+    "graphic_2d:2d_graphics",
+    "skia:skia_canvaskit",
   ]
 
   defines = [ "ACCOUNT_ENABLE" ]

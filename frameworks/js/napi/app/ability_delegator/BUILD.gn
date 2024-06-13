@@ -55,6 +55,7 @@ template("delegator") {
       "hilog:libhilog",
       "hitrace:hitrace_meter",
       "napi:ace_napi",
+      "resource_management:global_resmgr",
     ]
 
     subsystem_name = "ability"

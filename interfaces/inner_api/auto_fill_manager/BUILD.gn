@@ -46,6 +46,7 @@ ohos_shared_library("auto_fill_manager") {
     "ability_base:base",
     "ability_base:view_data",
     "ability_base:want",
+    "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog:libhilog",

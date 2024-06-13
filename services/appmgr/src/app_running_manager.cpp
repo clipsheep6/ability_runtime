@@ -28,6 +28,7 @@
 #include "perf_profile.h"
 #include "parameters.h"
 #include "quick_fix_callback_with_record.h"
+#include <cstddef>
 #ifdef SUPPORT_SCREEN
 #include "scene_board_judgement.h"
 #include "window_visibility_info.h"
@@ -314,7 +315,8 @@ bool AppRunningManager::ProcessExitByPid(pid_t pid)
     return false;
 }
 
-std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRemoteObject> &remote)
+std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRemoteObject> &remote,
+    std::shared_ptr<AppMgrServiceInner> appMgrServiceInner)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (remote == nullptr) {
@@ -351,6 +353,9 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRe
         auto priorityObject = appRecord->GetPriorityObject();
         if (priorityObject != nullptr) {
             TAG_LOGI(AAFwkTag::APPMGR, "pid: %{public}d.", priorityObject->GetPid());
+            if (appMgrServiceInner != nullptr) {
+                appMgrServiceInner->KillProcessByPid(priorityObject->GetPid(), "OnRemoteDied");
+            }
         }
     }
     if (appRecord != nullptr && appRecord->GetPriorityObject() != nullptr) {
@@ -1014,7 +1019,7 @@ int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName, co
             TAG_LOGD(AAFwkTag::APPMGR, "Notify application [%{public}s] reload page, record id %{public}d.",
                 appRecord->GetProcessName().c_str(), recordId);
             callbackByRecord->AddRecordId(recordId);
-            result = appRecord->NotifyHotReloadPage(callback, recordId);
+            result = appRecord->NotifyHotReloadPage(callbackByRecord, recordId);
             if (result == ERR_OK) {
                 reloadPageSucceed = true;
             } else {
@@ -1046,7 +1051,7 @@ int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName
             TAG_LOGD(AAFwkTag::APPMGR, "Notify application [%{public}s] unload patch, record id %{public}d.",
                 appRecord->GetProcessName().c_str(), recordId);
             callbackByRecord->AddRecordId(recordId);
-            result = appRecord->NotifyUnLoadRepairPatch(bundleName, callback, recordId);
+            result = appRecord->NotifyUnLoadRepairPatch(bundleName, callbackByRecord, recordId);
             if (result == ERR_OK) {
                 unLoadSucceed = true;
             } else {

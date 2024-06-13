@@ -809,11 +809,11 @@ Reason AbilityManagerShellCommand::CovertExitReason(std::string& reasonStr)
 pid_t AbilityManagerShellCommand::ConvertPid(std::string& inputPid)
 {
     pid_t pid = 0;
-    try {
-        pid = static_cast<pid_t>(std::stoi(inputPid));
-    } catch (...) {
-        TAG_LOGW(AAFwkTag::AA_TOOL, "pid stoi(%{public}s) failed.", inputPid.c_str());
-    }
+    // try {
+    pid = static_cast<pid_t>(std::stoi(inputPid));
+    // } catch (...) {
+    //     TAG_LOGW(AAFwkTag::AA_TOOL, "pid stoi(%{public}s) failed.", inputPid.c_str());
+    // }
     return pid;
 }
 

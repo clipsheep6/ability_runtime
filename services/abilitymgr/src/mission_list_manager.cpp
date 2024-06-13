@@ -1020,6 +1020,7 @@ int MissionListManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sched
     if (abilityRecord->IsStartedByCall()) {
         if (abilityRecord->GetWant().GetBoolParam(Want::PARAM_RESV_CALL_TO_FOREGROUND, false)) {
             abilityRecord->SetStartToForeground(true);
+            abilityRecord->PostForegroundTimeoutTask();
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);
         } else {
             abilityRecord->SetStartToBackground(true);
@@ -1039,6 +1040,7 @@ int MissionListManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sched
 #ifdef SUPPORT_SCREEN
     abilityRecord->PostCancelStartingWindowHotTask();
 #endif
+    abilityRecord->PostForegroundTimeoutTask();
     DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);
 
     return ERR_OK;
@@ -1408,6 +1410,7 @@ void MissionListManager::CompleteBackground(const std::shared_ptr<AbilityRecord>
     // notify AppMS to update application state.
     DelayedSingleton<AppScheduler>::GetInstance()->MoveToBackground(abilityRecord->GetToken());
     if (abilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
+        abilityRecord->PostForegroundTimeoutTask();
         DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(abilityRecord->GetToken());
     } else if (abilityRecord->GetPendingState() == AbilityState::BACKGROUND) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "not continuous startup.");
@@ -3259,6 +3262,7 @@ int MissionListManager::CallAbilityLocked(const AbilityRequest &abilityRequest)
         TAG_LOGD(AAFwkTag::ABILITYMGR, "target ability has been resolved.");
         if (targetAbilityRecord->GetWant().GetBoolParam(Want::PARAM_RESV_CALL_TO_FOREGROUND, false)) {
             TAG_LOGD(AAFwkTag::ABILITYMGR, "target ability needs to be switched to foreground.");
+            targetAbilityRecord->PostForegroundTimeoutTask();
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(targetAbilityRecord->GetToken());
         }
         return ERR_OK;

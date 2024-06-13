@@ -44,10 +44,16 @@ ohos_shared_library("insightintentcontext") {
     "ability_base:session_info",
     "ability_base:want",
     "c_utils:utils",
+    "ets_runtime:libark_jsruntime",
+    "graphic_2d:2d_graphics",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "image_framework:image_native",
+    "ipc:ipc_core",
     "ipc:ipc_single",
     "napi:ace_napi",
+    "resource_management:global_resmgr",
+    "skia:skia_canvaskit",
   ]
 
   subsystem_name = "ability"

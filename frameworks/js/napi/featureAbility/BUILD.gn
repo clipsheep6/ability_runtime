@@ -21,6 +21,8 @@ ohos_shared_library("featureability") {
     "feature_ability.cpp",
     "feature_ability_constant.cpp",
     "napi_data_ability_helper.cpp",
+    "napi_data_ability_helper_utils.cpp",
+    "napi_data_ability_observer.cpp",
     "napi_data_ability_operation.cpp",
     "native_module.cpp",
   ]

@@ -237,14 +237,23 @@ ohos_shared_library("ability_manager") {
     "bundle_framework:libappexecfwk_common",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "ets_runtime:libark_jsruntime",
     "eventhandler:libeventhandler",
+    "form_fwk:form_manager",
+    "graphic_2d:2d_graphics",
+    "graphic_3d:3dWidgetAdapterInterface",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
+    "image_framework:image_native",
     "ipc:ipc_core",
+    "ipc:ipc_napi",
+    "jsoncpp:jsoncpp",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
+    "resource_management:global_resmgr",
     "samgr:samgr_proxy",
+    "skia:skia_canvaskit",
   ]
 
   public_external_deps = [
@@ -334,7 +343,9 @@ ohos_shared_library("mission_info") {
 
   external_deps = [
     "c_utils:utils",
+    "graphic_2d:2d_graphics",
     "ipc:ipc_core",
+    "skia:skia_canvaskit",
   ]
   public_external_deps = [
     "ability_base:configuration",
@@ -364,6 +375,14 @@ ohos_shared_library("ability_manager_c") {
   external_deps = [
     "ability_base:session_info",
     "c_utils:utils",
+    "ipc:ipc_napi",
+    "ipc:ipc_core",
+    "ets_runtime:libark_jsruntime",
+    "resource_management:global_resmgr",
+    "graphic_2d:2d_graphics",
+    "skia:skia_canvaskit",
+    "image_framework:image_native",
+    "form_fwk:form_manager"
   ]
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"

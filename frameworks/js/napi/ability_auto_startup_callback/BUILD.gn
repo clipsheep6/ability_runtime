@@ -39,9 +39,15 @@ ohos_shared_library("autostartupcallback") {
   external_deps = [
     "ability_base:session_info",
     "c_utils:utils",
+    "ets_runtime:libark_jsruntime",
+    "eventhandler:libeventhandler",
+    "form_fwk:form_manager",
+    "graphic_2d:2d_graphics",
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "resource_management:global_resmgr",
+    "skia:skia_canvaskit",
   ]
 
   if (ability_runtime_graphics) {
