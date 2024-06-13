@@ -122,6 +122,7 @@ public:
     void StartProfiler(const DebugOption debugOption) override;
 
     void ReloadFormComponent(); // Reload ArkTS-Card component
+    void ReloadFormComponent(const std::map<std::string, std::string>& pkgContextInfoJsonStringMap);
     void DoCleanWorkAfterStageCleaned() override;
     void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate) const override;
 
