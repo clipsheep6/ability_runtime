@@ -261,6 +261,7 @@ int UIAbilityLifecycleManager::AttachAbilityThread(const sptr<IAbilityScheduler>
         } else {
             abilityRecord->SetStartToBackground(true);
             MoveToBackground(abilityRecord);
+            DelayedSingleton<AbilityManagerService>::GetInstance()->OnExecuteIntent(abilityRecord->GetWant());
         }
         return ERR_OK;
     }
@@ -782,7 +783,19 @@ bool UIAbilityLifecycleManager::IsAbilityStarted(AbilityRequest &abilityRequest,
     std::shared_ptr<AbilityRecord> &targetRecord)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Call.");
+    std::string abilityName = abilityRequest.want.GetElement().GetAbilityName();
+    std::string bundleName = abilityRequest.want.GetElement().GetBundleName();
+    std::string moduleName = abilityRequest.want.GetElement().GetModuleName();
+    std::string intentKey = bundleName + moduleName + abilityName;
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "zhuhan intentKey %{public}s", intentKey.c_str());
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
+
+    auto intent = insightIntentMap_.find(intentKey);
+    if (intent != insightIntentMap_.end()) {
+        targetRecord = intent->second;
+        return true;
+    }
+
     bool reuse = false;
     auto persistentId = GetPersistentIdByAbilityRequest(abilityRequest, reuse);
     if (persistentId == 0) {
@@ -849,6 +862,12 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
         sessionInfo->state = CallToState::BACKGROUND;
     }
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Notify scb's abilityId is %{public}" PRIu64 ".", sessionInfo->uiAbilityId);
+    std::string abilityName = abilityRequest.want.GetElement().GetAbilityName();
+    std::string bundleName = abilityRequest.want.GetElement().GetBundleName();
+    std::string moduleName = abilityRequest.want.GetElement().GetModuleName();
+    std::string intentKey = bundleName + moduleName + abilityName;
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "zhuhan intentKey %{public}s", intentKey.c_str());
+    insightIntentMap_.emplace(intentKey, uiAbilityRecord);
     tmpAbilityMap_.emplace(uiAbilityRecord->GetAbilityRecordId(), uiAbilityRecord);
     return NotifySCBPendingActivation(sessionInfo, abilityRequest);
 }
@@ -886,6 +905,12 @@ void UIAbilityLifecycleManager::CallUIAbilityBySCB(const sptr<SessionInfo> &sess
         sessionInfo->want.GetElement().GetAbilityName(), sessionInfo->want.GetElement().GetModuleName());
 
     sessionAbilityMap_.emplace(sessionInfo->persistentId, uiAbilityRecord);
+    std::string intentKey = sessionInfo->want.GetElement().GetBundleName()
+                    + sessionInfo->want.GetElement().GetModuleName()  
+                    + sessionInfo->want.GetElement().GetAbilityName();
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "zhuhan intentKey %{public}s", intentKey.c_str());
+    auto intent = insightIntentMap_.find(intentKey);
+    insightIntentMap_.erase(intent);
     tmpAbilityMap_.erase(search);
     uiAbilityRecord->SetSessionInfo(sessionInfo);
 
