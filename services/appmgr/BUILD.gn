@@ -64,6 +64,7 @@ ohos_shared_library("libappms") {
     "src/cache_process_manager.cpp",
     "src/child_process_record.cpp",
     "src/exit_resident_process_manager.cpp",
+    "src/modal_system_app_freeze_uiextension.cpp",
     "src/module_running_record.cpp",
     "src/quick_fix_callback_with_record.cpp",
     "src/remote_client_manager.cpp",
@@ -94,6 +95,7 @@ ohos_shared_library("libappms") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
@@ -165,6 +167,10 @@ ohos_shared_library("libappms") {
 
   if (is_asan || asan_detector) {
     defines += [ "SUPPORT_ASAN" ]
+  }
+
+  if (ability_runtime_app_no_response_dialog) {
+    defines += [ "APP_NO_RESPONSE_DIALOG" ]
   }
 
   version_script = "libappms.map"
