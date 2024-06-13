@@ -252,6 +252,10 @@ ohos_shared_library("appkit_native") {
     ]
   }
 
+  if (ability_runtime_app_no_response_dialog) {
+    defines += [ "APP_NO_RESPONSE_DIALOG" ]
+  }
+
   innerapi_tags = [ "platformsdk" ]
   version_script = "libappkit_native.map"
   subsystem_name = "ability"

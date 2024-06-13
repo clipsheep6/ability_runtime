@@ -198,6 +198,9 @@ void AppfreezeInner::ThreadBlock(std::atomic_bool& isSixSecondEvent)
     if (isSixSecondEvent) {
         faultData.errorObject.name = AppFreezeType::THREAD_BLOCK_6S;
         onlyMainThread = true;
+#ifdef APP_NO_RESPONSE_DIALOG
+        isSixSecondEvent.store(false);
+#endif
     } else {
         faultData.errorObject.name = AppFreezeType::THREAD_BLOCK_3S;
         isSixSecondEvent.store(true);
