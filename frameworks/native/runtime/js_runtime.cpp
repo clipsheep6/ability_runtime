@@ -852,7 +852,8 @@ void JsRuntime::PreloadAce(const Options& options)
     if (options.loadAce) {
         // ArkTsCard start
         if (options.isUnique) {
-            OHOS::Ace::DeclarativeModulePreloader::PreloadCard(*nativeEngine, options.bundleName);
+            OHOS::Ace::DeclarativeModulePreloader::PreloadCard(
+                *nativeEngine, options.bundleName, options.pkgContextInfoJsonStringMap);
         } else {
             OHOS::Ace::DeclarativeModulePreloader::Preload(*nativeEngine);
         }
@@ -863,12 +864,18 @@ void JsRuntime::PreloadAce(const Options& options)
 
 void JsRuntime::ReloadFormComponent()
 {
+    // reload components of existed forms
+    ReloadFormComponent(pkgContextInfoJsonStringMap_);
+}
+
+void JsRuntime::ReloadFormComponent(const std::map<std::string, std::string>& pkgContextInfoJsonStringMap)
+{
     TAG_LOGD(AAFwkTag::JSRUNTIME, "Call.");
     auto nativeEngine = GetNativeEnginePointer();
     CHECK_POINTER(nativeEngine);
     // ArkTsCard update condition, need to reload new component
 #ifdef SUPPORT_SCREEN
-    OHOS::Ace::DeclarativeModulePreloader::ReloadCard(*nativeEngine, bundleName_);
+    OHOS::Ace::DeclarativeModulePreloader::ReloadCard(*nativeEngine, bundleName_, pkgContextInfoJsonStringMap);
 #endif
 }
 
