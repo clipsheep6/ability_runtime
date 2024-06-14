@@ -29,7 +29,7 @@ void JSAbilityForegroundStateObserver::OnAbilityStateChanged(const AbilityStateD
 {
     HILOG_DEBUG("Called.");
     if (!valid_) {
-        HILOG_ERROR("The app manager may has destoryed.");
+        HILOG_ERROR("The app manager may has destroyed.");
         return;
     }
     wptr<JSAbilityForegroundStateObserver> jsObserver = this;

@@ -31,7 +31,7 @@ void JSAppStateObserver::OnForegroundApplicationChanged(const AppStateData &appS
     HILOG_DEBUG("onForegroundApplicationChanged bundleName:%{public}s, uid:%{public}d, state:%{public}d",
         appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
     if (!valid_) {
-        HILOG_ERROR("the app manager may has destoryed");
+        HILOG_ERROR("the app manager may has destroyed");
         return;
     }
     wptr<JSAppStateObserver> jsObserver = this;
@@ -100,7 +100,7 @@ void JSAppStateObserver::OnExtensionStateChanged(const AbilityStateData &ability
 {
     HILOG_DEBUG("called");
     if (!valid_) {
-        HILOG_ERROR("the app manager may has destoryed");
+        HILOG_ERROR("the app manager may has destroyed");
         return;
     }
     wptr<JSAppStateObserver> jsObserver = this;
@@ -168,7 +168,7 @@ void JSAppStateObserver::OnProcessStateChanged(const ProcessData &processData)
 {
     HILOG_DEBUG("called");
     if (!valid_) {
-        HILOG_ERROR("the app manager may has destoryed");
+        HILOG_ERROR("the app manager may has destroyed");
         return;
     }
     wptr<JSAppStateObserver> jsObserver = this;
@@ -202,7 +202,7 @@ void JSAppStateObserver::OnProcessDied(const ProcessData &processData)
 {
     HILOG_DEBUG("called");
     if (!valid_) {
-        HILOG_ERROR("the app manager may has destoryed");
+        HILOG_ERROR("the app manager may has destroyed");
         return;
     }
     wptr<JSAppStateObserver> jsObserver = this;
