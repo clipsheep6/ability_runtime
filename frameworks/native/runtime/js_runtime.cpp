@@ -852,7 +852,8 @@ void JsRuntime::PreloadAce(const Options& options)
     if (options.loadAce) {
         // ArkTsCard start
         if (options.isUnique) {
-            OHOS::Ace::DeclarativeModulePreloader::PreloadCard(*nativeEngine, options.bundleName);
+            OHOS::Ace::DeclarativeModulePreloader::PreloadCard(
+                *nativeEngine, options.bundleName, options.pkgContextInfoJsonStringMap);
         } else {
             OHOS::Ace::DeclarativeModulePreloader::Preload(*nativeEngine);
         }
@@ -868,7 +869,7 @@ void JsRuntime::ReloadFormComponent()
     CHECK_POINTER(nativeEngine);
     // ArkTsCard update condition, need to reload new component
 #ifdef SUPPORT_SCREEN
-    OHOS::Ace::DeclarativeModulePreloader::ReloadCard(*nativeEngine, bundleName_);
+    OHOS::Ace::DeclarativeModulePreloader::ReloadCard(*nativeEngine, bundleName_, pkgContextInfoJsonStringMap_);
 #endif
 }
 
