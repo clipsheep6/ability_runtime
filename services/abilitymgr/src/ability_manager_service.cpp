@@ -10836,6 +10836,13 @@ int32_t AbilityManagerService::TransferAbilityResultForExtension(const sptr<IRem
     return ERR_OK;
 }
 
+sptr<SessionInfo> AbilityManagerService::GetSessionInfoForUIExtension(const sptr<IRemoteObject>& token)
+{
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    CHECK_POINTER_AND_RETURN(abilityRecord, nullptr);
+    return abilityRecord->GetSessionInfo();
+}
+
 void AbilityManagerService::GetRunningMultiAppIndex(const std::string &bundleName, int32_t uid, int32_t &appIndex)
 {
     AppExecFwk::RunningMultiAppInfo runningMultiAppInfo;

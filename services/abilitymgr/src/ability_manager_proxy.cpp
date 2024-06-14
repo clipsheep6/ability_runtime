@@ -5262,5 +5262,30 @@ int32_t AbilityManagerProxy::TransferAbilityResultForExtension(const sptr<IRemot
     }
     return NO_ERROR;
 }
+
+sptr<SessionInfo> AbilityManagerProxy::GetSessionInfoForUIExtension(const sptr<IRemoteObject>& token)
+{
+    if (token == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "token is nullptr");
+        return nullptr;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        return nullptr;
+    }
+    if (!data.WriteRemoteObject(token)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "token or sessionInfo write failed.");
+        return nullptr;
+    }
+    auto error =
+        SendRequest(AbilityManagerInterfaceCode::GET_SESSIONINFO_FOR_UI_EXTENSION_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        return nullptr;
+    }
+    sptr<SessionInfo> sessionInfo = reply.ReadParcelable<SessionInfo>();
+    return sessionInfo;
+}
 } // namespace AAFwk
 } // namespace OHOS

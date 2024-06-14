@@ -1683,6 +1683,13 @@ public:
     virtual int32_t TransferAbilityResultForExtension(const sptr<IRemoteObject> &callerToken, int32_t resultCode,
         const Want &want) override;
 
+    /**
+     * Get SessionInfo for UIExtension Ability.
+     *
+     * @param token, the UIExtension Ability token.
+     * @return Returns pointer to SessionInfo.
+     */
+    sptr<SessionInfo> GetSessionInfoForUIExtension(const sptr<IRemoteObject>& token) override;
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;

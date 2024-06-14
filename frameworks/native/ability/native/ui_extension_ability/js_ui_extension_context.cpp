@@ -646,7 +646,8 @@ void JsUIExtensionContext::SetCallbackForTerminateWithResult(int32_t resultCode,
     NapiAsyncTask::CompleteCallback& complete)
 {
     complete =
-        [weak = context_, want, resultCode](napi_env env, NapiAsyncTask& task, int32_t status) {
+        [weak = context_, want, resultCode, sessionInfo = sessionInfo_](napi_env env, NapiAsyncTask& task,
+            int32_t status) {
             auto context = weak.lock();
             if (!context) {
                 TAG_LOGE(AAFwkTag::UI_EXT, "context is released");
@@ -674,7 +675,7 @@ void JsUIExtensionContext::SetCallbackForTerminateWithResult(int32_t resultCode,
                 return;
             }
 #endif // SUPPORT_SCREEN
-            auto errorCode = context->TerminateSelf();
+            auto errorCode = AAFwk::AbilityManagerClient::GetInstance()->TerminateUIExtensionAbility(sessionInfo);
             if (errorCode == 0) {
                 task.ResolveWithNoError(env, CreateJsUndefined(env));
             } else {
@@ -752,7 +753,7 @@ void JsUIExtensionContext::AddFreeInstallObserver(napi_env env, const AAFwk::Wan
 }
 
 napi_value JsUIExtensionContext::CreateJsUIExtensionContext(napi_env env,
-    std::shared_ptr<UIExtensionContext> context)
+    std::shared_ptr<UIExtensionContext> context, const sptr<IRemoteObject> token)
 {
     TAG_LOGD(AAFwkTag::UI_EXT, "CreateJsUIExtensionContext begin");
     std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr;
@@ -760,8 +761,10 @@ napi_value JsUIExtensionContext::CreateJsUIExtensionContext(napi_env env,
         abilityInfo = context->GetAbilityInfo();
     }
     napi_value objValue = CreateJsExtensionContext(env, context, abilityInfo);
-
+    sptr<AAFwk::SessionInfo> sessionInfo =
+        AAFwk::AbilityManagerClient::GetInstance()->GetSessionInfoForUIExtension(token);
     std::unique_ptr<JsUIExtensionContext> jsContext = std::make_unique<JsUIExtensionContext>(context);
+    jsContext->sessionInfo_ = sessionInfo;
     napi_wrap(env, objValue, jsContext.release(), Finalizer, nullptr, nullptr);
 
     const char *moduleName = "JsUIExtensionContext";

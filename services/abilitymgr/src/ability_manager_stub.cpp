@@ -446,6 +446,8 @@ void AbilityManagerStub::FifthStepInit()
 {
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TRANSFER_ABILITY_RESULT)] =
         &AbilityManagerStub::TransferAbilityResultForExtensionInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_SESSIONINFO_FOR_UI_EXTENSION_ABILITY)] =
+        &AbilityManagerStub::GetSessionInfoForUIExtensionInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -3461,6 +3463,21 @@ int32_t AbilityManagerStub::TransferAbilityResultForExtensionInner(MessageParcel
     sptr<Want> want = data.ReadParcelable<Want>();
     int32_t result = TransferAbilityResultForExtension(callerToken, resultCode, *want);
     reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::GetSessionInfoForUIExtensionInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    if (token == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "token is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    sptr<SessionInfo> sessionInfo = GetSessionInfoForUIExtension(token);
+    if (!reply.WriteParcelable(sessionInfo)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write sessionInfo parcel failed.");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 } // namespace AAFwk

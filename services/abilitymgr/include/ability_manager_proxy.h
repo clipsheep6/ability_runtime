@@ -1255,6 +1255,14 @@ public:
     virtual int32_t TransferAbilityResultForExtension(const sptr<IRemoteObject> &callerToken, int32_t resultCode,
         const Want &want) override;
 
+    /**
+     * Get SessionInfo for UIExtension Ability.
+     *
+     * @param token, the UIExtension Ability token.
+     * @return Returns pointer to SessionInfo.
+     */
+    sptr<SessionInfo> GetSessionInfoForUIExtension(const sptr<IRemoteObject>& token) override;
+
 private:
     template <typename T>
     int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);

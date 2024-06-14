@@ -1606,6 +1606,17 @@ public:
     {
         return 0;
     }
+
+    /**
+     * Get SessionInfo for UIExtension Ability.
+     *
+     * @param token, the UIExtention Ability token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual sptr<SessionInfo> GetSessionInfoForUIExtension(const sptr<IRemoteObject>& token)
+    {
+        return nullptr;
+    }
 };
 }  // namespace AAFwk
 }  // namespace OHOS

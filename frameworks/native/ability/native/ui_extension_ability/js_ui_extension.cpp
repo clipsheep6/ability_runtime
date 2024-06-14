@@ -180,7 +180,7 @@ void JsUIExtension::CreateJSContext(napi_env env, napi_value &contextObj,
     std::shared_ptr<UIExtensionContext> context, int32_t screenMode)
 {
     if (screenMode == AAFwk::IDLE_SCREEN_MODE) {
-        contextObj = JsUIExtensionContext::CreateJsUIExtensionContext(env, context);
+        contextObj = JsUIExtensionContext::CreateJsUIExtensionContext(env, context, token_);
         CHECK_POINTER(contextObj);
         shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.UIExtensionContext",
             &contextObj, ARGC_ONE);
