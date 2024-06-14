@@ -61,7 +61,14 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
                 return ret;
             }
         }
-        if (disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
+        if (disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION &&
+            disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION_WITH_RESULT) {
+            int ret = HandleBlockApplicationWithResult(param, disposedRule);
+            if (ret != ERR_OK) {
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start disposed UIExtension.");
+                return ret;
+            }
+        } else if (disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
             int ret = CreateModalUIExtension(*disposedRule.want, param.callerToken);
             if (ret != ERR_OK) {
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start disposed UIExtension");
@@ -130,8 +137,17 @@ bool DisposedRuleInterceptor::CheckDisposedRule(const Want &want, AppExecFwk::Di
     if (disposedRule.disposedType == AppExecFwk::DisposedType::NON_BLOCK) {
         return false;
     }
+
+    bool isVerified = want.GetBoolParam("verified", false);
+    if (isVerified == true && disposedRule.disposedType ==
+    AppExecFwk::DisposedType::BLOCK_APPLICATION_WITH_RESULT) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "the app lock is unlocked");
+        return false;
+    }
+
     bool isAllowed = disposedRule.controlType == AppExecFwk::ControlType::ALLOWED_LIST;
-    if (disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION) {
+    if (disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION ||
+    disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION_WITH_RESULT) {
         return !isAllowed;
     }
 
@@ -248,6 +264,21 @@ ErrCode DisposedRuleInterceptor::CreateModalUIExtension(const Want &want, const 
     } else {
         return abilityRecord->CreateModalUIExtension(want);
     }
+}
+
+ErrCode DisposedRuleInterceptor::HandleBlockApplicationWithResult(
+    const AbilityInterceptorParam &param, AppExecFwk::DisposedRule &disposedRule)
+{
+    auto abilityRequest = DelayedSingleton<AbilityManagerService>::GetInstance()->GetAbilityRequest();
+    std::string dialogSessionId;
+    std::vector<DialogAppInfo> dialogAppInfos(1);
+    if (DelayedSingleton<AbilityManagerService>::GetInstance()->GenerateDialogSessionRecord(*abilityRequest,
+        param.userId, dialogSessionId, dialogAppInfos, false)) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "generate dialogSessionId success");
+    }
+    disposedRule.want->SetParam("dialogSessionId", dialogSessionId);
+    disposedRule.want->SetParam("reservedDialogSessionId", true);
+    return CreateModalUIExtension(*disposedRule.want, param.callerToken);
 }
 } // namespace AAFwk
 } // namespace OHOS

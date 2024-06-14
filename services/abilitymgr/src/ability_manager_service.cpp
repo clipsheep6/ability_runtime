@@ -960,7 +960,8 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     std::string dialogSessionId = want.GetStringParam("dialogSessionId");
     isSendDialogResult = false;
 #ifdef SUPPORT_SCREEN
-    if (!dialogSessionId.empty() && dialogSessionRecord_->GetDialogCallerInfo(dialogSessionId) != nullptr) {
+    if (!dialogSessionId.empty() && dialogSessionRecord_->GetDialogCallerInfo(dialogSessionId) != nullptr &&
+     !want.GetBoolParam("reservedDialogSessionId", false)) {
         isSendDialogResult = true;
     }
 #endif // SUPPORT_SCREEN
@@ -1146,6 +1147,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
 
     Want newWant = abilityRequest.want;
+    SetAbilityRequest(abilityRequest);
     AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(newWant, requestCode, GetUserId(),
         true, callerToken, std::make_shared<AppExecFwk::AbilityInfo>(abilityInfo), isStartAsCaller);
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -10168,6 +10170,7 @@ int AbilityManagerService::SendDialogResult(const Want &want, const std::string 
     targetWant.SetElement(want.GetElement());
     targetWant.SetParam("isSelector", dialogCallerInfo->isSelector);
     targetWant.SetParam("dialogSessionId", dialogSessionId);
+    targetWant.SetParam("verified", true);
     sptr<IRemoteObject> callerToken = dialogCallerInfo->callerToken;
     int ret = StartAbilityAsCaller(targetWant, callerToken, nullptr, dialogCallerInfo->userId,
         dialogCallerInfo->requestCode, true);
@@ -10855,6 +10858,17 @@ void AbilityManagerService::GetRunningMultiAppIndex(const std::string &bundleNam
             break;
         }
     }
+}
+
+std::shared_ptr<AbilityRequest> AbilityManagerService::GetAbilityRequest() const
+{
+    return abilityRequest_;
+}
+
+void AbilityManagerService::SetAbilityRequest(const AbilityRequest &abilityRequest)
+{
+    std::lock_guard<ffrt::mutex> lock(abilityRequestMutex_);
+    abilityRequest_ = std::make_shared<AbilityRequest>(abilityRequest);
 }
 }  // namespace AAFwk
 }  // namespace OHOS
