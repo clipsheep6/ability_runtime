@@ -874,27 +874,10 @@ ohos_shared_library("ui_service_extension_module") {
   }
   branch_protector_ret = "pac_ret"
 
-  include_dirs =
-      [ "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_service_extension_ability",
-        "${ability_runtime_napi_path}/inner/napi_ability_common",
-        "${ability_runtime_path}/interfaces/kits/native/ability/native",
-        "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/distributed",
-        "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/kits",
-        "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/remote_register_service",
-        "${ability_runtime_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",        
-        "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/app",
-        "${ability_runtime_path}/interfaces/kits/native/appkit/app",
-        "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
-        "${ability_runtime_path}/interfaces/kits/native/ability/native/recovery/",
-        "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
-        "${ability_runtime_innerkits_path}/uri/include",
-        "${ability_runtime_services_path}/abilitymgr/include",
-        "${ability_runtime_innerkits_path}/ability_manager/include/continuation",
-        "${ability_runtime_innerkits_path}/ability_manager/include",
-        "${ability_runtime_path}/interfaces/kits/native/appkit/app/task",
-        "${ability_runtime_napi_path}/inner/napi_common",
-        "${ability_runtime_napi_path}/featureAbility",
-      ]
+  include_dirs = [
+    "${ability_runtime_path}/interfaces/inner_api/ability_manager/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+  ]
 
   sources = [ "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/ui_service_extension_module_loader.cpp" ]
 
