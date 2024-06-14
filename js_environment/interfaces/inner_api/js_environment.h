@@ -102,7 +102,7 @@ public:
 
     void ReInitJsEnvImpl(std::unique_ptr<JsEnvironmentImpl> impl);
 
-    void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate);
+    void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate> moduleCheckerDelegate);
 
     void SetRequestAotCallback(const RequestAotCallback& cb);
 

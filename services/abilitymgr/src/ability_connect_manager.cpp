@@ -1451,7 +1451,7 @@ void AbilityConnectManager::HandleStartTimeoutTask(const std::shared_ptr<Ability
             TAG_LOGW(AAFwkTag::ABILITYMGR, "ConnectRecord is nullptr.");
             continue;
         }
-        connectRecord->CompleteDisconnect(ERR_OK, true);
+        connectRecord->CompleteDisconnect(ERR_OK, false, true);
         abilityRecord->RemoveConnectRecordFromList(connectRecord);
         RemoveConnectionRecordFromMap(connectRecord);
     }
@@ -1496,7 +1496,7 @@ void AbilityConnectManager::HandleConnectTimeoutTask(std::shared_ptr<AbilityReco
     std::lock_guard guard(serialMutex_);
     for (const auto &connectRecord : connectList) {
         RemoveExtensionDelayDisconnectTask(connectRecord);
-        connectRecord->CompleteDisconnect(ERR_OK, true);
+        connectRecord->CompleteDisconnect(ERR_OK, false, true);
         abilityRecord->RemoveConnectRecordFromList(connectRecord);
         RemoveConnectionRecordFromMap(connectRecord);
     }
@@ -1562,7 +1562,7 @@ void AbilityConnectManager::HandleTerminateDisconnectTask(const ConnectListType&
         if (targetService) {
             TAG_LOGW(AAFwkTag::ABILITYMGR, "This record complete disconnect directly. recordId:%{public}d",
                 connectRecord->GetRecordId());
-            connectRecord->CompleteDisconnect(ERR_OK, true);
+            connectRecord->CompleteDisconnect(ERR_OK, false, true);
             targetService->RemoveConnectRecordFromList(connectRecord);
             RemoveConnectionRecordFromMap(connectRecord);
         };
@@ -2005,7 +2005,7 @@ void AbilityConnectManager::HandleAbilityDiedTask(
         TAG_LOGW(AAFwkTag::ABILITYMGR, "This record complete disconnect directly. recordId:%{public}d",
             connectRecord->GetRecordId());
         RemoveExtensionDelayDisconnectTask(connectRecord);
-        connectRecord->CompleteDisconnect(ERR_OK, true);
+        connectRecord->CompleteDisconnect(ERR_OK, false, true);
         abilityRecord->RemoveConnectRecordFromList(connectRecord);
         RemoveConnectionRecordFromMap(connectRecord);
     }

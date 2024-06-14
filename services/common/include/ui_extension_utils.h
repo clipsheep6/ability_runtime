@@ -98,9 +98,25 @@ inline bool IsSystemUIExtension(const AppExecFwk::ExtensionAbilityType type)
         AppExecFwk::ExtensionAbilityType::SYSPICKER_CAMERA,
         AppExecFwk::ExtensionAbilityType::AUTO_FILL_SMART,
         AppExecFwk::ExtensionAbilityType::SYSPICKER_FILEPICKER,
-        AppExecFwk::ExtensionAbilityType::SYSDIALOG_USERAUTH
+        AppExecFwk::ExtensionAbilityType::SYSDIALOG_USERAUTH,
+        AppExecFwk::ExtensionAbilityType::HMS_ACCOUNT
     };
     return systemUiExtensionSet.find(type) != systemUiExtensionSet.end();
+}
+
+// In this case, extension which be starting needs that caller should be the system app, otherwise not supported.
+inline bool IsSystemCallerNeeded(const AppExecFwk::ExtensionAbilityType type)
+{
+    const std::unordered_set<AppExecFwk::ExtensionAbilityType> uiExtensionStartingSet = {
+        AppExecFwk::ExtensionAbilityType::PHOTO_EDITOR,
+        AppExecFwk::ExtensionAbilityType::INSIGHT_INTENT_UI,
+        AppExecFwk::ExtensionAbilityType::LIVEVIEW_LOCKSCREEN,
+        AppExecFwk::ExtensionAbilityType::SHARE,
+        AppExecFwk::ExtensionAbilityType::ACTION,
+        AppExecFwk::ExtensionAbilityType::STATUS_BAR_VIEW,
+        AppExecFwk::ExtensionAbilityType::VOIP
+    };
+    return uiExtensionStartingSet.find(type) != uiExtensionStartingSet.end();
 }
 
 // In this collection, extension can be embedded by public app, which requires vertical businesses to ensure security.
@@ -123,14 +139,6 @@ inline bool IsEnterpriseAdmin(const AppExecFwk::ExtensionAbilityType type)
 inline bool IsWindowExtension(const AppExecFwk::ExtensionAbilityType type)
 {
     return type == AppExecFwk::ExtensionAbilityType::WINDOW;
-}
-
-// In this case, extension which be starting needs that caller should be the system app, otherwise not supported.
-inline bool IsSystemCallerNeeded(const AppExecFwk::ExtensionAbilityType type)
-{
-    const std::unordered_set<AppExecFwk::ExtensionAbilityType> uiExtensionStartingSet = {
-        AppExecFwk::ExtensionAbilityType::PHOTO_EDITOR};
-    return uiExtensionStartingSet.find(type) != uiExtensionStartingSet.end();
 }
 } // namespace UIExtensionUtils
 } // namespace AAFwk

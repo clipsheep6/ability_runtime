@@ -1019,7 +1019,7 @@ int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName, co
             TAG_LOGD(AAFwkTag::APPMGR, "Notify application [%{public}s] reload page, record id %{public}d.",
                 appRecord->GetProcessName().c_str(), recordId);
             callbackByRecord->AddRecordId(recordId);
-            result = appRecord->NotifyHotReloadPage(callback, recordId);
+            result = appRecord->NotifyHotReloadPage(callbackByRecord, recordId);
             if (result == ERR_OK) {
                 reloadPageSucceed = true;
             } else {
@@ -1051,7 +1051,7 @@ int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName
             TAG_LOGD(AAFwkTag::APPMGR, "Notify application [%{public}s] unload patch, record id %{public}d.",
                 appRecord->GetProcessName().c_str(), recordId);
             callbackByRecord->AddRecordId(recordId);
-            result = appRecord->NotifyUnLoadRepairPatch(bundleName, callback, recordId);
+            result = appRecord->NotifyUnLoadRepairPatch(bundleName, callbackByRecord, recordId);
             if (result == ERR_OK) {
                 unLoadSucceed = true;
             } else {

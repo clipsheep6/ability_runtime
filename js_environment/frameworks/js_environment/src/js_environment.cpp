@@ -325,7 +325,7 @@ void JsEnvironment::ReInitJsEnvImpl(std::unique_ptr<JsEnvironmentImpl> impl)
     impl_ = std::move(impl);
 }
 
-void JsEnvironment::SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate)
+void JsEnvironment::SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate> moduleCheckerDelegate)
 {
     if (engine_ == nullptr) {
         TAG_LOGE(AAFwkTag::JSENV, "Invalid native engine.");

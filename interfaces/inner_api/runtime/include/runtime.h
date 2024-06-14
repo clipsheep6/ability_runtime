@@ -44,7 +44,7 @@ public:
         std::string arkNativeFilePath;
         std::string packagePathStr;
         std::vector<std::string> assetBasePathStr;
-        std::shared_ptr<AppExecFwk::EventRunner> eventRunner;
+        std::shared_ptr<AppExecFwk::EventRunner> eventRunner = nullptr;
         std::map<std::string, std::string> hapModulePath;
         bool loadAce = true;
         bool preload = false;
@@ -59,7 +59,7 @@ public:
         // ArkTsCard start
         bool isUnique = false;
         // ArkTsCard end
-        std::shared_ptr<ModuleCheckerDelegate> moduleCheckerDelegate;
+        std::shared_ptr<ModuleCheckerDelegate> moduleCheckerDelegate = nullptr;
         int32_t apiTargetVersion = 0;
         std::map<std::string, std::string> pkgContextInfoJsonStringMap;
         std::map<std::string, std::string> packageNameList;
@@ -103,7 +103,7 @@ public:
     virtual void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath) = 0;
     virtual void StartProfiler(const DebugOption debugOption) = 0;
     virtual void DoCleanWorkAfterStageCleaned() = 0;
-    virtual void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate) const {}
+    virtual void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate> moduleCheckerDelegate) const {}
     virtual void SetDeviceDisconnectCallback(const std::function<bool()> &cb) = 0;
     virtual void UpdatePkgContextInfoJson(std::string moduleName, std::string hapPath, std::string packageName) = 0;
     Runtime(const Runtime&) = delete;

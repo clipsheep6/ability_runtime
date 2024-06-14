@@ -106,6 +106,10 @@ config("ability_public_config") {
   }
 }
 
+config("abilitykit_utils_exceptions") {
+  cflags_cc = [ "-fexceptions" ]
+}
+
 config("abilitykit_utils_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
@@ -140,6 +144,8 @@ ohos_shared_library("abilitykit_utils") {
   ]
 
   deps = []
+
+  configs = [ ":abilitykit_utils_exceptions" ]
 
   public_configs = [ ":abilitykit_utils_public_config" ]
 

@@ -103,7 +103,7 @@ public:
      * complete disconnect ability and invoke callback.
      *
      */
-    void CompleteDisconnect(int resultCode, bool isDied);
+    void CompleteDisconnect(int resultCode, bool isCallerDied, bool isTargetDied = false);
 
     /**
      * scheduler target service disconnect done.
