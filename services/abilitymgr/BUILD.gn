@@ -157,7 +157,6 @@ ohos_shared_library("abilityms") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "json:nlohmann_json_static",
     "kv_store:distributeddata_inner",
     "os_account:os_account_innerkits",
     "relational_store:native_appdatafwk",
