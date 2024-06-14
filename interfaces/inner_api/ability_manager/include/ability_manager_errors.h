@@ -544,6 +544,11 @@ enum {
      * Result(2097257) for share file uri non-implicitly
      */
     ERR_SHARE_FILE_URI_NON_IMPLICITLY = 2097257,
+
+    /**
+     * Native error(2097258) for target bundle not exist.
+     */
+    ERR_BUNDLE_NOT_EXIST,
 };
 
 enum {
