@@ -88,6 +88,7 @@ bgtaskmgr_interfaces_path = "${bgtaskmgr_root_path}/interfaces"
 bgtaskmgr_frameworks_path = "${bgtaskmgr_root_path}/frameworks"
 os_account_path = "//base/account/os_account"
 access_token_path = "//base/security/access_token"
+ability_runtime_app_no_response_dialog = true
 
 declare_args() {
   background_task_mgr_continuous_task_enable = true
