@@ -1904,5 +1904,12 @@ int32_t AbilityManagerClient::TransferAbilityResultForExtension(const sptr<IRemo
     CHECK_POINTER_RETURN_INVALID_VALUE(abms);
     return abms->TransferAbilityResultForExtension(callerToken, resultCode, want);
 }
+
+void AbilityManagerClient::NotifyFrozenProcessByRSS(const std::vector<int32_t> &pidList, int32_t uid)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN(abms);
+    return abms->NotifyFrozenProcessByRSS(pidList, uid);
+}
 } // namespace AAFwk
 } // namespace OHOS
