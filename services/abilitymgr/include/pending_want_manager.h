@@ -161,6 +161,8 @@ public:
     void DumpByRecordId(std::vector<std::string> &info, const std::string &args);
 
 private:
+    std::shared_ptr<PendingWantKey> CreateOrUpdatePendingWantKey(const WantSenderInfo &wantSenderInfo,
+	    int32_t appIndex);
     sptr<IWantSender> GetWantSenderLocked(const int32_t callingUid, const int32_t uid, const int32_t userId,
         WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken, int32_t appIndex = 0);
     void MakeWantSenderCanceledLocked(PendingWantRecord &record);

@@ -693,6 +693,15 @@ public:
      */
     int FinishUserTest(
         const std::string &msg, const int64_t &resultCode, const std::string &bundleName, const pid_t &pid);
+    void StartSpecifiedAbilityModuleRecord(const std::shared_ptr<AppRunningRecord> &appRecord,
+	    HapModuleInfo &hapModuleInfo, const std::vector<HapModuleInfo> &hapModules, 
+		const std::shared_ptr<ApplicationInfo> &appInfo);
+    void StartSpecifiedAbilityAppRecords(const std::shared_ptr<AppRunningRecord> &appRecord,
+        const AAFwk::Want &want, int32_t requestId, HapModuleInfo &hapModuleInfo);
+    void StartSpecifiedAbilityWantPtr(const std::shared_ptr<AppRunningRecord> &appRecord,
+        const AAFwk::Want &want, HapModuleInfo &hapModuleInfo, const std::shared_ptr<ApplicationInfo> &appInfo);
+    void StartSpecifiedAbilityAppExistFlag(bool appExistFlag, BundleInfo &bundleInfo,
+        const std::shared_ptr<ApplicationInfo> &appInfo);
 
     void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
         int32_t requestId = 0);
@@ -800,6 +809,8 @@ public:
      */
     int32_t GetBundleNameByPid(const int32_t pid, std::string &bundleName, int32_t &uid);
 
+    std::function<void()> NotifyAppFaultInfo(std::shared_ptr<AppRunningRecord> &appRecord,
+        const FaultData &faultData, int32_t pid, const std::string& bundleName, int32_t callerUid);
     /**
      * Notify Fault Data
      *
@@ -808,6 +819,7 @@ public:
      */
     int32_t NotifyAppFault(const FaultData &faultData);
 
+    int32_t NotifyAppFaultBySAIfdef(const AppFaultDataBySA &faultData, std::string &callerBundleName);
     /**
      * Notify Fault Data By SA
      *
@@ -1487,6 +1499,7 @@ private:
     void NotifyAppStatusByCallerUid(const std::string &bundleName, const int32_t userId, const int32_t callerUid,
         const std::string &eventData);
     void KillApplicationByRecord(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void SendHiSysEventInnerEventId(const int32_t innerEventId, int typeId, std::string &msg);
     void SendHiSysEvent(const int32_t innerEventId, const int64_t eventId);
     int FinishUserTestLocked(
         const std::string &msg, const int64_t &resultCode, const std::shared_ptr<AppRunningRecord> &appRecord);
