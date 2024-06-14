@@ -110,7 +110,6 @@ ohos_shared_library("runtime") {
     "hitrace:hitrace_meter",
     "init:syscap_ts",
     "ipc:ipc_core",
-    "json:nlohmann_json_static",
     "jsoncpp:jsoncpp",
     "napi:ace_napi",
     "resource_management:global_resmgr",

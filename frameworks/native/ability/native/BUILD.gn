@@ -160,7 +160,6 @@ ohos_shared_library("abilitykit_utils") {
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "ipc:ipc_napi",
-    "json:nlohmann_json_static",
     "napi:ace_napi",
     "resource_management:global_resmgr",
   ]
@@ -169,6 +168,7 @@ ohos_shared_library("abilitykit_utils") {
     "bundle_framework:appexecfwk_core",
     "jsoncpp:jsoncpp",
     "window_manager:libwm",
+    "json:nlohmann_json_static",
   ]
 
   if (ability_runtime_graphics) {
@@ -276,7 +276,6 @@ ohos_shared_library("abilitykit_native") {
     "ipc:ipc_core",
     "ipc:ipc_napi",
     "ipc:rpc",
-    "json:nlohmann_json_static",
     "napi:ace_napi",
     "node:node_header_notice",
     "relational_store:native_rdb",
@@ -289,6 +288,7 @@ ohos_shared_library("abilitykit_native") {
     "bundle_framework:appexecfwk_core",
     "jsoncpp:jsoncpp",
     "libuv:uv",
+    "json:nlohmann_json_static",
   ]
 
   defines = []
@@ -411,7 +411,6 @@ ohos_shared_library("extensionkit_native") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
-    "json:nlohmann_json_static",
     "napi:ace_napi",
   ]
 
@@ -420,6 +419,7 @@ ohos_shared_library("extensionkit_native") {
   public_external_deps = [
     "bundle_framework:appexecfwk_core",
     "jsoncpp:jsoncpp",
+    "json:nlohmann_json_static",
   ]
 
   if (ability_runtime_graphics) {
@@ -728,10 +728,11 @@ ohos_shared_library("form_extension_module") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hilog:libhilog",
-    "json:nlohmann_json_static",
     "napi:ace_napi",
     "window_manager:libwm",
   ]
+
+  public_external_deps = [ "json:nlohmann_json_static" ]
 
   relative_install_dir = "extensionability"
   subsystem_name = "ability"
@@ -832,7 +833,6 @@ ohos_shared_library("continuation_ipc") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
-    "json:nlohmann_json_static",
     "node:node_header_notice",
     "resource_management:global_resmgr",
     "window_manager:libwm",
@@ -840,6 +840,7 @@ ohos_shared_library("continuation_ipc") {
   public_external_deps = [
     "accessibility:accessibility_common",
     "libuv:uv",
+    "json:nlohmann_json_static",
   ]
 
   defines = []
@@ -877,12 +878,13 @@ ohos_shared_library("data_ability_helper") {
     "data_share:datashare_consumer",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
-    "json:nlohmann_json_static",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "relational_store:rdb_data_ability_adapter",
     "window_manager:libwm",
   ]
+
+  public_external_deps = [ "json:nlohmann_json_static" ]
 
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
@@ -909,9 +911,10 @@ ohos_shared_library("service_extension_module") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hilog:libhilog",
-    "json:nlohmann_json_static",
     "napi:ace_napi",
   ]
+
+  public_external_deps = [ "json:nlohmann_json_static" ]
 
   if (ability_runtime_graphics) {
     external_deps += [

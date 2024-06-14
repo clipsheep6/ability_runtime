@@ -188,7 +188,6 @@ ohos_shared_library("appkit_native") {
     "i18n:preferred_language",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "json:nlohmann_json_static",
     "napi:ace_napi",
     "resource_management:global_resmgr",
     "safwk:system_ability_fwk",
@@ -307,7 +306,6 @@ ohos_shared_library("app_context") {
     "hitrace:hitrace_meter",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "json:nlohmann_json_static",
     "napi:ace_napi",
     "resource_management:global_resmgr",
     "samgr:samgr_proxy",
@@ -373,7 +371,6 @@ ohos_shared_library("app_context_utils") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
-    "json:nlohmann_json_static",
     "napi:ace_napi",
     "resource_management:global_resmgr",
     "resource_management:resmgr_napi_core",
@@ -442,7 +439,6 @@ ohos_shared_library("appkit_delegator") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
-    "json:nlohmann_json_static",
     "napi:ace_napi",
   ]
 
@@ -500,7 +496,6 @@ ohos_shared_library("appkit_manager_helper") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
-    "json:nlohmann_json_static",
     "samgr:samgr_proxy",
   ]
 
