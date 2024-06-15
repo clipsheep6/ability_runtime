@@ -32,7 +32,9 @@ using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
  * @class AbilityManagerStub
  * AbilityManagerStub.
  */
+class AbilityManagerStubBuilder;
 class AbilityManagerStub : public IRemoteStub<IAbilityManager> {
+    friend AbilityManagerStubBuilder;
 public:
     AbilityManagerStub();
     ~AbilityManagerStub();
@@ -66,11 +68,6 @@ public:
     virtual int GetConnectionData(std::vector<AbilityRuntime::ConnectionData> &connectionData);
 
 private:
-    void FirstStepInit();
-    void SecondStepInit();
-    void ThirdStepInit();
-    void FourthStepInit();
-    void FifthStepInit();
     int TerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
     int TerminateUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
     int CloseUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
