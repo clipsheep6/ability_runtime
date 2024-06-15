@@ -188,6 +188,11 @@ void JsUIServiceExtension::OnStart(const AAFwk::Want &want)
         windowStageConfig->rect.width_);
     TAG_LOGI(AAFwkTag::UISERVC_EXT, "windowStageConfig.rect.height_: %{public}d",
             windowStageConfig->rect.height_);
+    abilityInfo_->windowStageAttribute = (int32_t)windowStageConfig->windowStageAttribute;
+    abilityInfo_->posx = windowStageConfig->rect.posX_;
+    abilityInfo_->posy = windowStageConfig->rect.posY_;
+    abilityInfo_->width = windowStageConfig->rect.width_;
+    abilityInfo_->height = windowStageConfig->rect.height_;
     scene_ = std::make_shared<Rosen::WindowScene>();
     int32_t displayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
     auto option = GetWindowOption(want, windowStageConfig);
