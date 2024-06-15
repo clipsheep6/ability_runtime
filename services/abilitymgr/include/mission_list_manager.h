@@ -31,6 +31,7 @@
 #include "start_options.h"
 #include "want.h"
 #include "iability_info_callback.h"
+#include "window_config.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -155,6 +156,16 @@ public:
      * @return execute error code
      */
     int AbilityTransactionDone(const sptr<IRemoteObject> &token, int state, const PacMap &saveData);
+
+    /**
+     * @brief execute after the ability schedule the lifecycle
+     *
+     * @param token the ability token
+     * @param state the ability state
+     * @param saveData the saved data
+     * @return execute error code
+     */
+    int AbilityWindowConfigTransactionDone(const sptr<IRemoteObject> &token, int state, const WindowConfig &saveData);
 
     /**
      * @brief search the ability from terminating list

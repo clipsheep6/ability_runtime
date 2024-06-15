@@ -1312,6 +1312,11 @@ AbilityState AbilityRecord::GetAbilityState() const
     return currentState_;
 }
 
+WindowConfig AbilityRecord::GetAbilityWindowConfig() const
+{
+    return windowconfigDatas_;
+}
+
 bool AbilityRecord::IsForeground() const
 {
     return currentState_ == AbilityState::FOREGROUND || currentState_ == AbilityState::FOREGROUNDING;
@@ -1704,6 +1709,12 @@ void AbilityRecord::SaveAbilityState(const PacMap &inState)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     stateDatas_ = inState;
+}
+
+void AbilityRecord::SaveAbilityState(const WindowConfig &inState)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
+    windowconfigDatas_ = inState;
 }
 
 void AbilityRecord::RestoreAbilityState()
@@ -2323,7 +2334,16 @@ void AbilityRecord::DumpService(std::vector<std::string> &info, std::vector<std:
     if (isUIExtension) {
         info.emplace_back("      ability type [UIEXTENSION]");
     } else {
-        info.emplace_back("      ability type [SERVICE]");
+        if (GetAbilityInfo().extensionAbilityType == AppExecFwk::ExtensionAbilityType::UI_SERVICE) {
+            info.emplace_back("      ability type [UI_SERVICE]");
+            info.emplace_back("      windowStageConfig windowStageAttribute [" + std::to_string(GetAbilityWindowConfig().windowStageAttribute) + "]");
+            info.emplace_back("      windowStageConfig posX_ [" + std::to_string(GetAbilityWindowConfig().posx) + "]");
+            info.emplace_back("      windowStageConfig posY_ [" + std::to_string(GetAbilityWindowConfig().posy) + "]");
+            info.emplace_back("      windowStageConfig width_ [" + std::to_string(GetAbilityWindowConfig().width) + "]");
+            info.emplace_back("      windowStageConfig height_ [" + std::to_string(GetAbilityWindowConfig().height) + "]");
+        } else {
+            info.emplace_back("      ability type [SERVICE]");
+        }
     }
     info.emplace_back("      app state #" + AbilityRecord::ConvertAppState(appState_));
 

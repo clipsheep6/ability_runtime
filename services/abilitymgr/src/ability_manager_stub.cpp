@@ -30,6 +30,7 @@
 #include "hitrace_meter.h"
 #include "session_info.h"
 #include "status_bar_delegate_interface.h"
+#include "window_config.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -63,6 +64,8 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::AttachAbilityThreadInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ABILITY_TRANSITION_DONE)] =
         &AbilityManagerStub::AbilityTransitionDoneInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ABILITY_WINDOW_CONFIG_TRANSITION_DONE)] =
+        &AbilityManagerStub::AbilityWindowConfigTransitionDoneInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_ABILITY_DONE)] =
         &AbilityManagerStub::ScheduleConnectAbilityDoneInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DISCONNECT_ABILITY_DONE)] =
@@ -634,6 +637,20 @@ int AbilityManagerStub::AbilityTransitionDoneInner(MessageParcel &data, MessageP
         return ERR_INVALID_VALUE;
     }
     int32_t result = AbilityTransitionDone(token, targetState, *saveData);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::AbilityWindowConfigTransitionDoneInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto token = data.ReadRemoteObject();
+    int targetState = data.ReadInt32();
+    std::unique_ptr<WindowConfig> saveData(data.ReadParcelable<WindowConfig>());
+    if (!saveData) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "save data is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = AbilityWindowConfigTransitionDone(token, targetState, *saveData);
     reply.WriteInt32(result);
     return NO_ERROR;
 }
