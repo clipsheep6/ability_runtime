@@ -34,6 +34,7 @@ public:
     std::string abilityTypeName;
     std::string accessTokenId;
     int32_t appCloneIndex = -1;
+    int32_t userId = -1;
 
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;

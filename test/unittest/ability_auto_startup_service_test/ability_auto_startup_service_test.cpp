@@ -222,7 +222,8 @@ HWTEST_F(AbilityAutoStartupServiceTest, QueryAllAutoStartupApplications_001, Tes
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest QueryAllAutoStartupApplications_001 start";
     auto abilityAutoStartupService = std::make_shared<AbilityAutoStartupService>();
     std::vector<AutoStartupInfo> infoList;
-    auto result = abilityAutoStartupService->QueryAllAutoStartupApplications(infoList);
+    int32_t userId = 100;
+    auto result = abilityAutoStartupService->QueryAllAutoStartupApplications(infoList, userId);
     EXPECT_EQ(result, ERR_NOT_SUPPORTED_PRODUCT_TYPE);
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest QueryAllAutoStartupApplications_001 end";
 }
@@ -238,7 +239,8 @@ HWTEST_F(AbilityAutoStartupServiceTest, QueryAllAutoStartupApplicationsWithoutPe
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest QueryAllAutoStartupApplicationsWithoutPermission_001 start";
     auto abilityAutoStartupService = std::make_shared<AbilityAutoStartupService>();
     std::vector<AutoStartupInfo> infoList;
-    auto result = abilityAutoStartupService->QueryAllAutoStartupApplicationsWithoutPermission(infoList);
+    int32_t userId = 100;
+    auto result = abilityAutoStartupService->QueryAllAutoStartupApplicationsWithoutPermission(infoList, userId);
     EXPECT_EQ(result, ERR_NOT_SUPPORTED_PRODUCT_TYPE);
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest QueryAllAutoStartupApplicationsWithoutPermission_001 end";
 }
@@ -402,8 +404,9 @@ HWTEST_F(AbilityAutoStartupServiceTest, GetBundleInfo_001, TestSize.Level1)
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest GetBundleInfo_001 start";
     auto abilityAutoStartupService = std::make_shared<AbilityAutoStartupService>();
     std::string bundleName;
+    int32_t userId = 100;
     AppExecFwk::BundleInfo bundleInfo;
-    auto result = abilityAutoStartupService->GetBundleInfo(bundleName, bundleInfo, -1);
+    auto result = abilityAutoStartupService->GetBundleInfo(bundleName, bundleInfo, -1, userId);
     EXPECT_FALSE(result);
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest GetBundleInfo_001 end";
 }
@@ -422,7 +425,8 @@ HWTEST_F(AbilityAutoStartupServiceTest, GetAbilityData_001, TestSize.Level1)
     std::string abilityTypeName;
     bool isVisible = AUTO_STARTUP_SERVICE_FALSE;
     std::string accessTokenId = "0";
-    auto result = abilityAutoStartupService->GetAbilityData(info, isVisible, abilityTypeName, accessTokenId);
+    int32_t userId = 100;
+    auto result = abilityAutoStartupService->GetAbilityData(info, isVisible, abilityTypeName, accessTokenId, userId);
     EXPECT_FALSE(result);
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest GetAbilityData_001 end";
 }
@@ -520,7 +524,8 @@ HWTEST_F(AbilityAutoStartupServiceTest, GetAbilityInfo_001, TestSize.Level1)
     AutoStartupInfo info;
     std::string abilityTypeName = AUTO_STARTUP_SERVICE_ABILITYNAME;
     std::string accessTokenId = "0";
-    auto result = abilityAutoStartupService->GetAbilityInfo(info, abilityTypeName, accessTokenId);
+    int32_t userId = 100;
+    auto result = abilityAutoStartupService->GetAbilityInfo(info, abilityTypeName, accessTokenId, userId);
     EXPECT_EQ(result, INNER_ERR);
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest GetAbilityInfo_001 end";
 }
