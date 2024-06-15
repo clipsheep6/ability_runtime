@@ -26,7 +26,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-    void* g_eventHandler = nullptr;
+    std::shared_ptr<AppExecFwk::EventHandler> g_eventHandler = nullptr;
 }
 void OHOSJsEnvironmentImpl::PostTaskToHandler(void* handler, uv_io_cb func, void* work, int status, int priority)
 {
@@ -58,14 +58,11 @@ void OHOSJsEnvironmentImpl::PostTaskToHandler(void* handler, uv_io_cb func, void
             break;
     }
 
-    std::shared_ptr<AppExecFwk::EventHandler> eventHandler =
-        *(reinterpret_cast<std::shared_ptr<AppExecFwk::EventHandler>*>(handler));
-
-    if (eventHandler == nullptr) {
+    if (g_eventHandler == nullptr) {
         TAG_LOGE(AAFwkTag::JSRUNTIME, "Invalid parameters!");
         return;
     }
-    eventHandler->PostTask(task, prio);
+    g_eventHandler->PostTask(task, prio);
 
     TAG_LOGD(AAFwkTag::JSRUNTIME, "PostTask end.");
 }
@@ -80,7 +77,7 @@ OHOSJsEnvironmentImpl::OHOSJsEnvironmentImpl(const std::shared_ptr<AppExecFwk::E
     if (eventRunner != nullptr) {
         TAG_LOGD(AAFwkTag::JSRUNTIME, "Create event handler.");
         eventHandler_ = std::make_shared<AppExecFwk::EventHandler>(eventRunner);
-        g_eventHandler = new (std::nothrow) std::shared_ptr<AppExecFwk::EventHandler>(eventHandler_);
+        g_eventHandler = std::make_shared<AppExecFwk::EventHandler>(eventRunner);
     }
 }
 
@@ -146,7 +143,7 @@ bool OHOSJsEnvironmentImpl::InitLoop(NativeEngine* engine, bool isStage)
         eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<OHOSLoopHandler>(uvLoop), "uvLoopTask");
         TAG_LOGD(AAFwkTag::JSRUNTIME, "uv_register_task_to_event, isStage: %{public}d", isStage);
         if (isStage) {
-            uv_register_task_to_event(uvLoop, PostTaskToHandler, g_eventHandler);
+            uv_register_task_to_event(uvLoop, PostTaskToHandler, nullptr);
         }
     }
 
