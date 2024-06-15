@@ -28,10 +28,10 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string UNREGISTER_EVENT_TASK = "unregister event task";
-const std::string UNREGISTER_TIMEOUT_OBSERVER_TASK = "unregister timeout observer task";
+constexpr const char* UNREGISTER_EVENT_TASK = "unregister event task";
+constexpr const char* UNREGISTER_TIMEOUT_OBSERVER_TASK = "unregister timeout observer task";
 constexpr int UNREGISTER_OBSERVER_MICRO_SECONDS = 5000;
-const std::string UIEXTENSION_MODAL_TYPE = "ability.want.params.modalType";
+constexpr const char* UIEXTENSION_MODAL_TYPE = "ability.want.params.modalType";
 }
 
 ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
