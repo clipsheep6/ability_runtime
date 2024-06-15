@@ -123,13 +123,6 @@ public:
      */
     virtual void OnPageHide(const PageStateData &pageStateData) override;
 
-    /**
-     * Will be called when application cache state change.
-     *
-     * @param appStateData Application state data.
-     */
-    virtual void OnAppCacheStateChanged(const AppStateData &appStateData) override;
-
 private:
     int32_t HandleOnForegroundApplicationChanged(MessageParcel &data, MessageParcel &reply);
 
@@ -157,8 +150,6 @@ private:
 
     int32_t HandleOnPageHide(MessageParcel &data, MessageParcel &reply);
 
-    int32_t HandleOnAppCacheStateChanged(MessageParcel &data, MessageParcel &reply);
-
     using ApplicationStateObserverFunc = int32_t (ApplicationStateObserverStub::*)(MessageParcel &data,
         MessageParcel &reply);
     const std::map<uint32_t, ApplicationStateObserverFunc> memberFuncMap_ = {
@@ -184,8 +175,6 @@ private:
         { static_cast<uint32_t>(Message::TRANSACT_ON_APP_STOPPED), &ApplicationStateObserverStub::HandleOnAppStopped },
         { static_cast<uint32_t>(Message::TRANSACT_ON_PAGE_SHOW), &ApplicationStateObserverStub::HandleOnPageShow },
         { static_cast<uint32_t>(Message::TRANSACT_ON_PAGE_HIDE), &ApplicationStateObserverStub::HandleOnPageHide },
-        { static_cast<uint32_t>(Message::TRANSACT_ON_APP_CACHE_STATE_CHANGED),
-            &ApplicationStateObserverStub::HandleOnAppCacheStateChanged },
     };
     static std::mutex callbackMutex_;
 

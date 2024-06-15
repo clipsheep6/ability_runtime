@@ -1052,9 +1052,6 @@ public:
 
     virtual int DumpIpcStat(const int32_t pid, std::string& result);
 
-    int32_t SetSupportedProcessCacheSelf(bool isSupport);
-
-    void OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord);
 private:
 
     std::string FaultTypeToString(FaultDataType type);
@@ -1380,8 +1377,6 @@ private:
         std::shared_ptr<AAFwk::Want> want,
         bool appExistFlag,
         bool isPreload);
-
-    int32_t CheckSetProcessCachePermission() const;
 
     int32_t CreatNewStartMsg(const Want &want, const AbilityInfo &abilityInfo,
         const std::shared_ptr<ApplicationInfo> &appInfo, const std::string &processName,

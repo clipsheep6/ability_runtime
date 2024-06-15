@@ -53,7 +53,6 @@ public:
     static napi_value KillProcessBySelf(napi_env env, napi_callback_info info);
     static napi_value GetRunningProcessInformation(napi_env env, napi_callback_info info);
     static napi_value CreateJsApplicationContext(napi_env env, const std::shared_ptr<Context> &context);
-    static napi_value SetSupportedProcessCacheSelf(napi_env env, napi_callback_info info);
 
     napi_value OnGetCacheDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetTempDir(napi_env env, NapiCallbackInfo& info);
@@ -65,7 +64,6 @@ public:
     napi_value OnGetBundleCodeDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetCloudFileDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetArea(napi_env env, NapiCallbackInfo& info);
-    napi_value OnSetSupportedProcessCacheSelf(napi_env env, NapiCallbackInfo& info);
 
 private:
     napi_value OnSwitchArea(napi_env env, NapiCallbackInfo& info);

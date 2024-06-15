@@ -280,7 +280,7 @@ void AmsAppLifeCycleModuleTest::ChangeAppToTerminate(const sptr<MockAppScheduler
 void AmsAppLifeCycleModuleTest::ChangeAbilityStateToTerminate(
     const sptr<MockAppScheduler>& mockAppScheduler, const sptr<IRemoteObject>& token) const
 {
-    EXPECT_CALL(*mockAppScheduler, ScheduleCleanAbility(_, _)).Times(1);
+    EXPECT_CALL(*mockAppScheduler, ScheduleCleanAbility(_)).Times(1);
     serviceInner_->TerminateAbility(token, false);
 }
 

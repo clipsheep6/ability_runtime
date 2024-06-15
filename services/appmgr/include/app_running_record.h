@@ -772,8 +772,6 @@ public:
     void SetExitMsg(const std::string &exitMsg);
     std::string GetExitMsg() const;
 
-    bool SetSupportedProcessCache(bool isSupport);
-    SupportProcessCacheState GetSupportProcessCacheState();
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -928,9 +926,7 @@ private:
     bool isAssertPause_ = false;
     bool isNativeStart_ = false;
     bool isMultiThread_ = false;
-    SupportProcessCacheState procCacheSupportState_ = SupportProcessCacheState::UNSPECIFIED;
 };
-
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_APP_RUNNING_RECORD_H

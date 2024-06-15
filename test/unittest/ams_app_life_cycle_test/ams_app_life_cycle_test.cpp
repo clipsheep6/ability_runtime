@@ -999,7 +999,7 @@ HWTEST_F(AmsAppLifeCycleTest, Schedule_042, TestSize.Level1)
     auto newAbilityRecord = AddNewAbility(testAppRecord.appRecord_, "1", -1);
     newAbilityRecord->SetState(AbilityState::ABILITY_STATE_BACKGROUND);
 
-    EXPECT_CALL(*(testAppRecord.mockAppScheduler_), ScheduleCleanAbility(_, _)).Times(1);
+    EXPECT_CALL(*(testAppRecord.mockAppScheduler_), ScheduleCleanAbility(_)).Times(1);
     serviceInner_->TerminateAbility(newAbilityRecord->GetToken());
     serviceInner_->AbilityTerminated(newAbilityRecord->GetToken());
     auto abilityRecord = testAppRecord.appRecord_->GetAbilityRunningRecordByToken(newAbilityRecord->GetToken());
@@ -1019,7 +1019,7 @@ HWTEST_F(AmsAppLifeCycleTest, Schedule_043, TestSize.Level1)
     auto testAppRecord =
         CreateTestApplicationRecord(AbilityState::ABILITY_STATE_BACKGROUND, ApplicationState::APP_STATE_BACKGROUND);
     testAppRecord.appRecord_->LaunchPendingAbilities();
-    EXPECT_CALL(*(testAppRecord.mockAppScheduler_), ScheduleCleanAbility(_, _)).Times(1);
+    EXPECT_CALL(*(testAppRecord.mockAppScheduler_), ScheduleCleanAbility(_)).Times(1);
     serviceInner_->TerminateAbility(GetMockToken());
     EXPECT_CALL(*(testAppRecord.mockAppScheduler_), ScheduleTerminateApplication(_)).Times(1);
     serviceInner_->AbilityTerminated(GetMockToken());
@@ -1051,7 +1051,7 @@ HWTEST_F(AmsAppLifeCycleTest, Schedule_044, TestSize.Level1)
     auto newAbilityRecord = AddNewAbility(testAppRecord.appRecord_, "1", -1);
     newAbilityRecord->SetState(AbilityState::ABILITY_STATE_BACKGROUND);
 
-    EXPECT_CALL(*(testAppRecord.mockAppScheduler_), ScheduleCleanAbility(_, _)).Times(1);
+    EXPECT_CALL(*(testAppRecord.mockAppScheduler_), ScheduleCleanAbility(_)).Times(1);
     serviceInner_->TerminateAbility(GetMockToken());
     serviceInner_->AbilityTerminated(GetMockToken());
     auto abilityRecord = testAppRecord.appRecord_->GetAbilityRunningRecordByToken(GetMockToken());

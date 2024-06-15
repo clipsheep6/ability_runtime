@@ -4231,56 +4231,5 @@ HWTEST_F(AppMgrServiceInnerTest, PreloadApplication_0100, TestSize.Level1)
     int32_t ret = appMgrServiceInner->PreloadApplication(bundleName, userId, preloadMode, appIndex);
     EXPECT_EQ(ret, ERR_PERMISSION_DENIED);
 }
-
-/**
- * @tc.name: SetSupportedProcessCacheSelf_001
- * @tc.desc: The application sets itself whether or not to support process cache.
- * @tc.type: FUNC
- */
-HWTEST_F(AppMgrServiceInnerTest, SetSupportedProcessCacheSelf_001, TestSize.Level0)
-{
-    TAG_LOGI(AAFwkTag::TEST, "SetSupportedProcessCacheSelf_001 start");
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
-
-    bool isSupported = false;
-    EXPECT_EQ(appMgrServiceInner->SetSupportedProcessCacheSelf(isSupported), CHECK_PERMISSION_FAILED);
-
-    appMgrServiceInner->appRunningManager_ = nullptr;
-    EXPECT_EQ(appMgrServiceInner->SetSupportedProcessCacheSelf(isSupported), ERR_NO_INIT);
-
-    TAG_LOGI(AAFwkTag::TEST, "SetSupportedProcessCacheSelf_001 end");
-}
-
-/**
- * @tc.name: OnAppCacheStateChanged_001
- * @tc.desc: on application cache state changed.
- * @tc.type: FUNC
- */
-HWTEST_F(AppMgrServiceInnerTest, OnAppCacheStateChanged_001, TestSize.Level0)
-{
-    TAG_LOGI(AAFwkTag::TEST, "OnAppCacheStateChanged_001 start");
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
-
-    appMgrServiceInner->OnAppCacheStateChanged(nullptr);
-
-    std::string bundleName = "com.is.hiserice";
-    std::string processName = "test_processName";
-    bool isRunning = false;
-    auto appRecord = std::make_shared<AppRunningRecord>(applicationInfo_, ++recordId_, processName);
-    EXPECT_NE(appRecord, nullptr);
-    appRecord->mainBundleName_ = "com.is.hiserice";
-    appRecord->SetState(ApplicationState::APP_STATE_CACHED);
-
-    appRecord->priorityObject_ = nullptr;
-    appMgrServiceInner->OnAppCacheStateChanged(appRecord);
-
-    appRecord->priorityObject_ = std::make_shared<PriorityObject>();
-    appMgrServiceInner->OnAppCacheStateChanged(appRecord);
-
-
-    TAG_LOGI(AAFwkTag::TEST, "OnAppCacheStateChanged_001 end");
-}
 } // namespace AppExecFwk
 } // namespace OHOS

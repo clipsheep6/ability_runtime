@@ -164,8 +164,6 @@ enum class AbilityErrorCode {
 
     // target bundle not exist.
     ERROR_CODE_TARGET_BUNDLE_NOT_EXIST = 16300005,
-
-    ERROR_CODE_SET_SUPPORTED_PROCESS_CACHE_AGAIN = 16300006,
 };
 
 std::string GetErrorMsg(const AbilityErrorCode& errCode);

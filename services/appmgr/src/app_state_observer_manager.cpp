@@ -932,45 +932,5 @@ void AppStateObserverManager::HandleOnPageHide(const PageStateData pageStateData
         }
     }
 }
-
-void AppStateObserverManager::OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord)
-{
-    if (handler_ == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "handler is nullptr, OnAppCacheStateChanged failed.");
-        return;
-    }
-
-    auto task = [weak = weak_from_this(), appRecord]() {
-        auto self = weak.lock();
-        if (self == nullptr) {
-            TAG_LOGE(AAFwkTag::APPMGR, "self is nullptr, OnAppCacheStateChanged failed.");
-            return;
-        }
-        TAG_LOGD(AAFwkTag::APPMGR, "OnAppCacheStateChanged come.");
-        self->HandleOnAppCacheStateChanged(appRecord);
-    };
-    handler_->SubmitTask(task);
-}
-
-void AppStateObserverManager::HandleOnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord)
-{
-    if (appRecord == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "app record is null");
-        return;
-    }
-
-    AppStateData data = WrapAppStateData(appRecord, appRecord->GetState());
-    data.isSpecifyTokenId = appRecord->GetAssignTokenId() > 0 ? true : false;
-    TAG_LOGD(AAFwkTag::APPMGR, "HandleOnAppCacheStateChanged, bundle:%{public}s, uid:%{public}d, state:%{public}d",
-        data.bundleName.c_str(), data.uid, data.state);
-    auto appStateObserverMapCopy = GetAppStateObserverMapCopy();
-    for (auto it = appStateObserverMapCopy.begin(); it != appStateObserverMapCopy.end(); ++it) {
-        std::vector<std::string>::iterator iter = std::find(it->second.begin(),
-            it->second.end(), data.bundleName);
-        if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
-            it->first->OnAppCacheStateChanged(data);
-        }
-    }
-}
 }  // namespace AppExecFwk
 }  // namespace OHOS

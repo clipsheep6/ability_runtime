@@ -1382,12 +1382,5 @@ HWTEST_F(ContextImplTest, CreateBundleContext_003, Function | MediumTest | Level
     EXPECT_EQ(contextImpl_->CreateBundleContext(""), nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateBundleContext_003 end";
 }
-
-HWTEST_F(ContextImplTest, SetSupportedProcessCacheSelf_001, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_SetSupportedProcessCacheSelf_001 start";
-    EXPECT_NE(contextImpl_->SetSupportedProcessCacheSelf(true), 0);
-    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_SetSupportedProcessCacheSelf_001 end";
-}
 }  // namespace AppExecFwk
 }

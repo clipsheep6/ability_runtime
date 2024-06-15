@@ -787,7 +787,7 @@ bool OHOSApplication::AddAbilityStage(const AppExecFwk::HapModuleInfo &hapModule
 }
 
 void OHOSApplication::CleanAbilityStage(const sptr<IRemoteObject> &token,
-    const std::shared_ptr<AbilityInfo> &abilityInfo, bool isCacheProcess)
+    const std::shared_ptr<AbilityInfo> &abilityInfo)
 {
     if (abilityInfo == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "abilityInfo is nullptr");
@@ -802,7 +802,7 @@ void OHOSApplication::CleanAbilityStage(const sptr<IRemoteObject> &token,
     if (iterator != abilityStages_.end()) {
         auto abilityStage = iterator->second;
         abilityStage->RemoveAbility(token);
-        if (!abilityStage->ContainsAbility() && !isCacheProcess) {
+        if (!abilityStage->ContainsAbility()) {
             abilityStage->OnDestroy();
             abilityStages_.erase(moduleName);
         }

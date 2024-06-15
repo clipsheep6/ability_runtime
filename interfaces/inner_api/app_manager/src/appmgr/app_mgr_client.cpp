@@ -1171,16 +1171,5 @@ int32_t AppMgrClient::PreloadApplication(const std::string &bundleName, int32_t 
     }
     return service->PreloadApplication(bundleName, userId, preloadMode, appIndex);
 }
-
-int32_t AppMgrClient::SetSupportedProcessCacheSelf(bool isSupport)
-{
-    TAG_LOGI(AAFwkTag::APPMGR, "Called");
-    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
-    if (service == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Service is nullptr.");
-        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
-    }
-    return service->SetSupportedProcessCacheSelf(isSupport);
-}
 }  // namespace AppExecFwk
 }  // namespace OHOS

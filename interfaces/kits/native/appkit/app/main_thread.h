@@ -221,7 +221,7 @@ public:
      * @param token The token belong to the ability which want to be cleaned.
      *
      */
-    void ScheduleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess = false) override;
+    void ScheduleCleanAbility(const sptr<IRemoteObject> &token) override;
 
     /**
      *
@@ -400,7 +400,7 @@ private:
      * @param token The token which belongs to the ability launched.
      *
      */
-    void HandleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess = false);
+    void HandleCleanAbility(const sptr<IRemoteObject> &token);
 
     /**
      *

@@ -99,8 +99,6 @@ struct VerificationInfo {
 
     bool VerifyPreloadApplicationPermission() const;
 
-    bool VerifySetProcessCachePermission() const;
-
 private:
     DISALLOW_COPY_AND_MOVE(PermissionVerification);
 

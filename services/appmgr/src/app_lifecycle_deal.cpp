@@ -177,14 +177,14 @@ void AppLifeCycleDeal::LowMemoryWarning()
     appThread->ScheduleLowMemory();
 }
 
-void AppLifeCycleDeal::ScheduleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess)
+void AppLifeCycleDeal::ScheduleCleanAbility(const sptr<IRemoteObject> &token)
 {
     auto appThread = GetApplicationClient();
     if (!appThread) {
         TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
         return;
     }
-    appThread->ScheduleCleanAbility(token, isCacheProcess);
+    appThread->ScheduleCleanAbility(token);
 }
 
 void AppLifeCycleDeal::ScheduleProcessSecurityExit()

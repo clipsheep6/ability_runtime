@@ -23,9 +23,7 @@
 #include "running_process_info.h"
 #include "want.h"
 #include "configuration_convertor.h"
-#include "ability_manager_errors.h"
 using namespace testing::ext;
-
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -1255,18 +1253,6 @@ HWTEST_F(ApplicationContextTest, SetAppRunningUniqueId_0100, TestSize.Level1)
     std::string appRunningUniqueId;
     context_->SetAppRunningUniqueId(appRunningUniqueId);
     EXPECT_NE(context_, nullptr);
-}
-
-/**
- * @tc.number: SetSupportedProcessCacheSelf_0100
- * @tc.name: SetSupportedProcessCacheSelf
- * @tc.desc: SetSupportedProcessCacheSelf fail with no permission
- */
-HWTEST_F(ApplicationContextTest, SetSupportedProcessCacheSelf_0100, TestSize.Level1)
-{
-    bool isSupport = false;
-    int32_t res = context_->SetSupportedProcessCacheSelf(isSupport);
-    EXPECT_EQ(res, OHOS::ERR_INVALID_VALUE);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

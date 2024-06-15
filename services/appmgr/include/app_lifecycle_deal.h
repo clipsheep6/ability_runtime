@@ -152,7 +152,7 @@ public:
      * @param token, The ability token.
      * @return
      */
-    void ScheduleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess = false);
+    void ScheduleCleanAbility(const sptr<IRemoteObject> &token);
 
     /**
      * ScheduleProcessSecurityExit, call ScheduleTerminateApplication() through proxy project,

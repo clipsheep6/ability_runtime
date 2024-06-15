@@ -218,7 +218,7 @@ void AppSchedulerProxy::ScheduleLaunchAbility(const AbilityInfo &info, const spt
     }
 }
 
-void AppSchedulerProxy::ScheduleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess)
+void AppSchedulerProxy::ScheduleCleanAbility(const sptr<IRemoteObject> &token)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -228,10 +228,6 @@ void AppSchedulerProxy::ScheduleCleanAbility(const sptr<IRemoteObject> &token, b
     }
     if (!data.WriteRemoteObject(token.GetRefPtr())) {
         TAG_LOGE(AAFwkTag::APPMGR, "Failed to write token");
-        return;
-    }
-    if (!data.WriteBool(isCacheProcess)) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write bool");
         return;
     }
     int32_t ret = SendTransactCmd(

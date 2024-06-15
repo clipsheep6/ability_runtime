@@ -83,7 +83,6 @@ public:
     MOCK_METHOD1(RegisterRenderStateObserver, int32_t(const sptr<IRenderStateObserver> &observer));
     MOCK_METHOD1(UnregisterRenderStateObserver, int32_t(const sptr<IRenderStateObserver> &observer));
     MOCK_METHOD2(UpdateRenderState, int32_t(pid_t renderPid, int32_t state));
-    MOCK_METHOD1(SetSupportedProcessCacheSelf, int32_t(bool isSupported));
 
     void AttachApplication(const sptr<IRemoteObject>& app)
     {

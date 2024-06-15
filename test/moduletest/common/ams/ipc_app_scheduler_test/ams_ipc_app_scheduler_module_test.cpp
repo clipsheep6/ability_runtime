@@ -252,7 +252,7 @@ HWTEST_F(AmsIpcAppSchedulerModuleTest, ExcuteApplicationIPCInterface_009, TestSi
     for (int i = 0; i < COUNT; i++) {
         sptr<MockApplication> mockApplication(new MockApplication());
         sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockApplication);
-        EXPECT_CALL(*mockApplication, ScheduleCleanAbility(_, _))
+        EXPECT_CALL(*mockApplication, ScheduleCleanAbility(_))
             .Times(1)
             .WillOnce(InvokeWithoutArgs(mockApplication.GetRefPtr(), &MockApplication::Post));
         client->ScheduleCleanAbility(GetMockToken());

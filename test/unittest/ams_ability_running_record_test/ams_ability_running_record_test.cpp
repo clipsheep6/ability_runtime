@@ -487,7 +487,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_007, TestSize.L
     abilityRunningRecord->SetState(AbilityState::ABILITY_STATE_BACKGROUND);
 
     EXPECT_CALL(*mockedAppClient_, ScheduleTerminateApplication(_)).Times(1);
-    EXPECT_CALL(*mockedAppClient_, ScheduleCleanAbility(_, _)).Times(2);
+    EXPECT_CALL(*mockedAppClient_, ScheduleCleanAbility(_)).Times(2);
     auto abilities = appRunningRecord->GetAbilities();
     for (auto iter = abilities.begin(); iter != abilities.end(); iter++) {
         appRunningRecord->TerminateAbility(iter->second->GetToken(), false);

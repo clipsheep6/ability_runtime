@@ -23,7 +23,6 @@
 #include "ui_extension_utils.h"
 #include "app_mgr_service_const.h"
 #include "app_mgr_service_dump_error_code.h"
-#include "cache_process_manager.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -326,7 +325,7 @@ ApplicationState AppRunningRecord::GetState() const
 
 void AppRunningRecord::SetState(const ApplicationState state)
 {
-    if (state >= ApplicationState::APP_STATE_END && state != ApplicationState::APP_STATE_CACHED) {
+    if (state >= ApplicationState::APP_STATE_END) {
         TAG_LOGE(AAFwkTag::APPMGR, "Invalid application state");
         return;
     }
@@ -971,7 +970,7 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
     }
     moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_BACKGROUND);
     StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_BACKGROUND), true, false);
-    if (curState_ == ApplicationState::APP_STATE_FOREGROUND || curState_ == ApplicationState::APP_STATE_CACHED) {
+    if (curState_ == ApplicationState::APP_STATE_FOREGROUND) {
         int32_t foregroundSize = 0;
         auto abilitiesMap = GetAbilities();
         for (const auto &item : abilitiesMap) {
@@ -1112,26 +1111,16 @@ void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
 
     moduleRecord->AbilityTerminated(token);
 
-    auto appRecord = shared_from_this();
-    auto cacheProcMgr = DelayedSingleton<CacheProcessManager>::GetInstance();
-    bool needCache = false;
-    if (cacheProcMgr != nullptr && cacheProcMgr->IsAppShouldCache(appRecord)) {
-        cacheProcMgr->CheckAndCacheProcess(appRecord);
-        TAG_LOGI(AAFwkTag::APPMGR, "App %{public}s should cache, not remove module and terminate app.",
-            appRecord->GetBundleName().c_str());
-        needCache = true;
-    }
     if (moduleRecord->GetAbilities().empty() && (!IsKeepAliveApp()
         || AAFwk::UIExtensionUtils::IsUIExtension(GetExtensionType())
-        || !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent()) && !needCache) {
+        || !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent())) {
         RemoveModuleRecord(moduleRecord, isExtensionDebug);
     }
 
     auto moduleRecordList = GetAllModuleRecord();
     if (moduleRecordList.empty() && (!IsKeepAliveApp()
         || AAFwk::UIExtensionUtils::IsUIExtension(GetExtensionType())
-        || !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent()) && !isExtensionDebug
-        && !needCache) {
+        || !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent()) && !isExtensionDebug) {
         ScheduleTerminate();
     }
 }
@@ -2182,22 +2171,6 @@ int AppRunningRecord::DumpIpcStat(std::string& result)
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
     return appLifeCycleDeal_->DumpIpcStat(result);
-}
-
-bool AppRunningRecord::SetSupportedProcessCache(bool isSupport)
-{
-    TAG_LOGI(AAFwkTag::APPMGR, "Called");
-    if (procCacheSupportState_ != SupportProcessCacheState::UNSPECIFIED) {
-        TAG_LOGI(AAFwkTag::APPMGR, "Process cache not support set more than once.");
-        return false;
-    }
-    procCacheSupportState_ = isSupport ? SupportProcessCacheState::SUPPORT : SupportProcessCacheState::NOT_SUPPORT;
-    return true;
-}
-
-SupportProcessCacheState AppRunningRecord::GetSupportProcessCacheState()
-{
-    return procCacheSupportState_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -1345,18 +1345,5 @@ HWTEST_F(AppMgrClientTest, NotifyMemorySizeStateChanged_001, TestSize.Level0)
     int32_t ret = appMgrClient->NotifyMemorySizeStateChanged(isMemorySizeSufficent);
     EXPECT_EQ(ret, 1);
 }
-
-/**
- * @tc.name: AppMgrClient_SetSupportedProcessCacheSelf_001
- * @tc.desc: SetSupportedProcessCacheSelf.
- * @tc.type: FUNC
- */
-HWTEST_F(AppMgrClientTest, SetSupportedProcessCacheSelf_001, TestSize.Level0)
-{
-    auto appMgrClient = std::make_unique<AppMgrClient>();
-    bool isSupport = false;
-    int32_t ret = appMgrClient->SetSupportedProcessCacheSelf(isSupport);
-    EXPECT_NE(appMgrClient, nullptr);
-}
 }  // namespace AppExecFwk
 }  // namespace OHOS

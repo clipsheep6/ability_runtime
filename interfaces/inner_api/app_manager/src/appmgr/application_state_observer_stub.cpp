@@ -83,9 +83,6 @@ void ApplicationStateObserverStub::OnPageShow(const PageStateData &pageStateData
 void ApplicationStateObserverStub::OnPageHide(const PageStateData &pageStateData)
 {}
 
-void ApplicationStateObserverStub::OnAppCacheStateChanged(const AppStateData &appStateData)
-{}
-
 int32_t ApplicationStateObserverStub::HandleOnForegroundApplicationChanged(MessageParcel &data, MessageParcel &reply)
 {
     std::unique_ptr<AppStateData> processData(data.ReadParcelable<AppStateData>());
@@ -263,18 +260,6 @@ int32_t ApplicationStateObserverStub::HandleOnPageHide(MessageParcel &data, Mess
     }
 
     OnPageHide(*pageStateData);
-    return NO_ERROR;
-}
-
-int32_t ApplicationStateObserverStub::HandleOnAppCacheStateChanged(MessageParcel &data, MessageParcel &reply)
-{
-    std::unique_ptr<AppStateData> processData(data.ReadParcelable<AppStateData>());
-    if (!processData) {
-        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<AppStateData> failed");
-        return ERR_APPEXECFWK_PARCEL_ERROR;
-    }
-
-    OnAppCacheStateChanged(*processData);
     return NO_ERROR;
 }
 

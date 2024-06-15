@@ -567,7 +567,6 @@ public:
      */
     virtual int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent) override;
 
-    int32_t SetSupportedProcessCacheSelf(bool isSupport) override;
 private:
     bool SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply);
     bool WriteInterfaceToken(MessageParcel &data);
