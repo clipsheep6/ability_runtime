@@ -117,6 +117,7 @@ public:
                               bool isABC = true);
 
     void InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorImpl);
+    void InitSourceMap(const std::string hqfFilePath);
     void FreeNativeReference(std::unique_ptr<NativeReference> reference);
     void FreeNativeReference(std::shared_ptr<NativeReference>&& reference);
     void StartProfiler(const DebugOption debugOption) override;

@@ -475,20 +475,7 @@ bool JsRuntime::LoadRepairPatch(const std::string& hqfFile, const std::string& h
     auto vm = GetEcmaVm();
     CHECK_POINTER_AND_RETURN(vm, false);
 
-    std::string patchSoureMapFile;
-    std::vector<uint8_t> soureMapBuffer;
-    if (!GetFileBuffer(hqfFile, patchSoureMapFile, soureMapBuffer, false)) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "LoadRepairPatch, get patchSoureMap file buffer failed.");
-        return false;
-    }
-    std::string str(soureMapBuffer.begin(), soureMapBuffer.end());
-    auto sourceMapOperator = jsEnv_->GetSourceMapOperator();
-    if (sourceMapOperator != nullptr) {
-        auto sourceMapObj = sourceMapOperator->GetSourceMapObj();
-        if (sourceMapObj != nullptr) {
-            sourceMapObj->SplitSourceMap(str);
-        }
-    }
+    InitSourceMap(hqfFile);
 
     std::string patchFile;
     std::vector<uint8_t> patchBuffer;
@@ -918,6 +905,24 @@ void JsRuntime::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> op
     JsEnv::SourceMap::RegisterGetHapPathCallback(JsModuleReader::GetHapPathList);
 }
 
+void JsRuntime::InitSourceMap(const std::string hqfFilePath)
+{
+    std::string patchSoureMapFile;
+    std::vector<uint8_t> soureMapBuffer;
+    if (!GetFileBuffer(hqfFilePath, patchSoureMapFile, soureMapBuffer, false)) {
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "InitSourceMap, get patchSoureMap file buffer failed.");
+        return;
+    }
+    std::string str(soureMapBuffer.begin(), soureMapBuffer.end());
+    auto sourceMapOperator = jsEnv_->GetSourceMapOperator();
+    if (sourceMapOperator != nullptr) {
+        auto sourceMapObj = sourceMapOperator->GetSourceMapObj();
+        if (sourceMapObj != nullptr) {
+            sourceMapObj->SplitSourceMap(str);
+        }
+    }
+}
+
 void JsRuntime::Deinitialize()
 {
     TAG_LOGD(AAFwkTag::JSRUNTIME, "JsRuntime deinitialize.");
@@ -1331,6 +1336,10 @@ void JsRuntime::RegisterQuickFixQueryFunc(const std::map<std::string, std::strin
 {
     auto vm = GetEcmaVm();
     CHECK_POINTER(vm);
+    for (auto it = moduleAndPath.begin(); it != moduleAndPath.end(); it++) {
+        std::string hqfFile(AbilityBase::GetLoadPath(it->second));
+        InitSourceMap(hqfFile);
+    }
     panda::JSNApi::RegisterQuickFixQueryFunc(vm, JsQuickfixCallback(moduleAndPath));
 }
 
