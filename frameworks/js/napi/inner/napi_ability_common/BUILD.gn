@@ -26,7 +26,10 @@ ohos_shared_library("napi_ability_common") {
   ]
 
   sources = [
+    "js_napi_common.cpp",
     "napi_common_ability.cpp",
+    "napi_common_ability_execute_utils.cpp",
+    "napi_common_ability_wrap_utils.cpp",
     "napi_context.cpp",
   ]
 
