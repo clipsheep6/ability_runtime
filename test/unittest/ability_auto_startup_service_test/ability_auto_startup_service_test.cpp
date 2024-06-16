@@ -153,7 +153,8 @@ HWTEST_F(AbilityAutoStartupServiceTest, InnerSetApplicationAutoStartup_002, Test
     AutoStartupInfo info;
     info.abilityName = AUTO_STARTUP_SERVICE_ABILITYNAME;
     info.bundleName = AUTO_STARTUP_SERVICE_BUNDLENAME;
-    info.accessTokenId = 1;
+    info.accessTokenId = "123";
+    info.userId = 100;
     auto result = abilityAutoStartupService->InnerSetApplicationAutoStartup(info);
     EXPECT_EQ(result, ERR_OK);
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest InnerSetApplicationAutoStartup_002 end";
@@ -205,7 +206,8 @@ HWTEST_F(AbilityAutoStartupServiceTest, InnerCancelApplicationAutoStartup_002, T
     AutoStartupInfo info;
     info.abilityName = AUTO_STARTUP_SERVICE_ABILITYNAME;
     info.bundleName = AUTO_STARTUP_SERVICE_BUNDLENAME;
-    info.accessTokenId = 1;
+    info.accessTokenId = "123";
+    info.userId = 100;
     auto result = abilityAutoStartupService->InnerCancelApplicationAutoStartup(info);
     EXPECT_EQ(result, ERR_OK);
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest InnerCancelApplicationAutoStartup_002 end";
@@ -603,7 +605,8 @@ HWTEST_F(AbilityAutoStartupServiceTest, InnerApplicationAutoStartupByEDM_002, Te
     AutoStartupInfo info;
     info.abilityName = AUTO_STARTUP_SERVICE_ABILITYNAME;
     info.bundleName = AUTO_STARTUP_SERVICE_BUNDLENAME;
-    info.accessTokenId = 1;
+    info.accessTokenId = "123";
+    info.userId = 100;
     bool isSet = AUTO_STARTUP_SERVICE_FALSE;
     bool flag = AUTO_STARTUP_SERVICE_FALSE;
     auto result = abilityAutoStartupService->InnerApplicationAutoStartupByEDM(info, isSet, flag);
