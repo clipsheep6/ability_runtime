@@ -327,6 +327,7 @@ inline ErrCode EdmErrorType(bool isEdm)
     }
     return ERR_APP_CONTROLLED;
 }
+
 }  // namespace AbilityUtil
 }  // namespace AAFwk
 }  // namespace OHOS

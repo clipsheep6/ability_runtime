@@ -20,19 +20,22 @@
 
 namespace OHOS {
 namespace AAFwk {
-class AbilityManagerStubBuilder {
-    friend AbilityManagerStubBuilder;
+class AbilityManagerStubMsgMapBuilder {
 public:
-    AbilityManagerStubBuilder() = default;
-    ~AbilityManagerStubBuilder() = default;
+    AbilityManagerStubMsgMapBuilder() = default;
+    ~AbilityManagerStubMsgMapBuilder() = default;
     static void BuildMessageMap(sptr<AbilityManagerStub> stub);
 
 protected:
     static void FirstStepInit(sptr<AbilityManagerStub> &stub);
     static void SecondStepInit(sptr<AbilityManagerStub> &stub);
     static void ThirdStepInit(sptr<AbilityManagerStub> &stub);
-    static void FourthStepInit(sptr<AbilityManagerStub> &stub);
+    static void ForthStepInit(sptr<AbilityManagerStub> &stub);
     static void FifthStepInit(sptr<AbilityManagerStub> &stub);
+    static void SixthStepInit(sptr<AbilityManagerStub> &stub);
+    static void SeventhStepInit(sptr<AbilityManagerStub> &stub);
+    static void EighthStepInit(sptr<AbilityManagerStub> &stub);
+    static void NinthStepInit(sptr<AbilityManagerStub> &stub);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

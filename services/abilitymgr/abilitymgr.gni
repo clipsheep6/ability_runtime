@@ -22,7 +22,7 @@ abilityms_files = [
   "src/disposed_observer.cpp",
   "src/ability_manager_service.cpp",
   "src/ability_manager_stub.cpp",
-  "src/ability_manager_stub_builder.cpp",
+  "src/ability_manager_stub_msg_map_builder.cpp",
   "src/ability_record.cpp",
   "src/ability_manager_collaborator_proxy.cpp",
   "src/ability_scheduler_proxy.cpp",

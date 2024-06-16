@@ -23,7 +23,7 @@
 #include "ability_manager_collaborator_proxy.h"
 #include "ability_manager_errors.h"
 #include "ability_manager_radar.h"
-#include "ability_manager_stub_builder.h"
+#include "ability_manager_stub_msg_map_builder.h"
 #include "ability_scheduler_proxy.h"
 #include "ability_scheduler_stub.h"
 #include "ability_util.h"
@@ -43,7 +43,7 @@ constexpr int32_t MAX_KILL_PROCESS_PID_COUNT = 100;
 } // namespace
 AbilityManagerStub::AbilityManagerStub()
 {
-    AbilityManagerStubBuilder::BuildMessageMap(this);
+    AbilityManagerStubMsgMapBuilder::BuildMessageMap(this);
 }
 
 AbilityManagerStub::~AbilityManagerStub()
@@ -56,10 +56,8 @@ int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Mess
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Received code : %{public}d", code);
     std::u16string abilityDescriptor = AbilityManagerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
-    if (abilityDescriptor != remoteDescriptor && extensionDescriptor != remoteDescriptor) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "local descriptor is unequal to remote");
-        return ERR_INVALID_STATE;
-    }
+    CHECK_TRUE_RETURN_RET(abilityDescriptor != remoteDescriptor && extensionDescriptor != remoteDescriptor,
+        ERR_INVALID_STATE, "local descriptor is unequal to remote");
 
     auto itFunc = requestFuncMap_.find(code);
     if (itFunc != requestFuncMap_.end()) {
@@ -102,10 +100,8 @@ int AbilityManagerStub::MoveAbilityToBackgroundInner(MessageParcel &data, Messag
         token = data.ReadRemoteObject();
     }
     int32_t result = MoveAbilityToBackground(token);
-    if (!reply.WriteInt32(result)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write result failed");
-        return ERR_INVALID_VALUE;
-    }
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
+
     return NO_ERROR;
 }
 
@@ -127,7 +123,7 @@ int AbilityManagerStub::TerminateAbilityInner(MessageParcel &data, MessageParcel
         token = data.ReadRemoteObject();
     }
     int resultCode = data.ReadInt32();
-    Want *resultWant = data.ReadParcelable<Want>();
+    sptr<Want> resultWant = data.ReadParcelable<Want>();
     bool flag = data.ReadBool();
     int32_t result;
     if (flag) {
@@ -136,9 +132,7 @@ int AbilityManagerStub::TerminateAbilityInner(MessageParcel &data, MessageParcel
         result = CloseAbility(token, resultCode, resultWant);
     }
     reply.WriteInt32(result);
-    if (resultWant != nullptr) {
-        delete resultWant;
-    }
+
     return NO_ERROR;
 }
 
@@ -149,12 +143,10 @@ int AbilityManagerStub::TerminateUIExtensionAbilityInner(MessageParcel &data, Me
         extensionSessionInfo = data.ReadParcelable<SessionInfo>();
     }
     int resultCode = data.ReadInt32();
-    Want *resultWant = data.ReadParcelable<Want>();
+    sptr<Want> resultWant = data.ReadParcelable<Want>();
     int32_t result = TerminateUIExtensionAbility(extensionSessionInfo, resultCode, resultWant);
     reply.WriteInt32(result);
-    if (resultWant != nullptr) {
-        delete resultWant;
-    }
+
     return NO_ERROR;
 }
 
@@ -162,14 +154,12 @@ int AbilityManagerStub::SendResultToAbilityInner(MessageParcel &data, MessagePar
 {
     int requestCode = data.ReadInt32();
     int resultCode = data.ReadInt32();
-    Want *resultWant = data.ReadParcelable<Want>();
+    sptr<Want> resultWant = data.ReadParcelable<Want>();
     CHECK_POINTER_AND_RETURN_LOG(resultWant, ERR_INVALID_VALUE, "resultWant is nullptr");
 
     int32_t result = SendResultToAbility(requestCode, resultCode, *resultWant);
     reply.WriteInt32(result);
-    if (resultWant != nullptr) {
-        delete resultWant;
-    }
+
     return NO_ERROR;
 }
 
@@ -313,7 +303,7 @@ int AbilityManagerStub::ClearUpApplicationDataInner(MessageParcel &data, Message
     std::string bundleName = Str16ToStr8(data.ReadString16());
     int32_t userId = data.ReadInt32();
     int result = ClearUpApplicationData(bundleName, userId);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "ClearUpApplicationData error");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -323,7 +313,7 @@ int AbilityManagerStub::UninstallAppInner(MessageParcel &data, MessageParcel &re
     std::string bundleName = Str16ToStr8(data.ReadString16());
     int32_t uid = data.ReadInt32();
     int result = UninstallApp(bundleName, uid);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "remove stack error");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -334,7 +324,7 @@ int32_t AbilityManagerStub::UpgradeAppInner(MessageParcel &data, MessageParcel &
     int32_t uid = data.ReadInt32();
     std::string exitMsg = Str16ToStr8(data.ReadString16());
     int result = UpgradeApp(bundleName, uid, exitMsg);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "UpgradeAppInner error");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -575,7 +565,7 @@ int AbilityManagerStub::StartAbilityAsCallerForOptionInner(MessageParcel &data, 
     std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     CHECK_POINTER_AND_RETURN_LOG(want, ERR_INVALID_VALUE, "want is nullptr.");
 
-    StartOptions *startOptions = data.ReadParcelable<StartOptions>();
+    std::shared_ptr<StartOptions> startOptions(data.ReadParcelable<StartOptions>());
     CHECK_POINTER_AND_RETURN_LOG(startOptions, ERR_INVALID_VALUE, "startOptions is nullptr");
 
     startOptions->processOptions = nullptr;
@@ -591,7 +581,7 @@ int AbilityManagerStub::StartAbilityAsCallerForOptionInner(MessageParcel &data, 
     int requestCode = data.ReadInt32();
     int32_t result = StartAbilityAsCaller(*want, *startOptions, callerToken, asCallerSourceToken, userId, requestCode);
     reply.WriteInt32(result);
-    delete startOptions;
+
     return NO_ERROR;
 }
 
@@ -704,10 +694,7 @@ int AbilityManagerStub::DumpSysStateInner(MessageParcel &data, MessageParcel &re
         return ERR_INVALID_VALUE;
     }
     DumpSysState(args, result, isClient, isUserID, UserID);
-    reply.WriteInt32(result.size());
-    for (auto stack : result) {
-        reply.WriteString16(Str8ToStr16(stack));
-    }
+    WriteString16Vector(result, reply);
     return NO_ERROR;
 }
 
@@ -721,10 +708,7 @@ int AbilityManagerStub::DumpStateInner(MessageParcel &data, MessageParcel &reply
         return ERR_INVALID_VALUE;
     }
     DumpState(args, result);
-    reply.WriteInt32(result.size());
-    for (auto stack : result) {
-        reply.WriteString16(Str8ToStr16(stack));
-    }
+    WriteString16Vector(result, reply);
     return NO_ERROR;
 }
 
@@ -733,7 +717,7 @@ int AbilityManagerStub::StartAbilityForSettingsInner(MessageParcel &data, Messag
     std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     CHECK_POINTER_AND_RETURN_LOG(want, ERR_INVALID_VALUE, "want is nullptr");
 
-    AbilityStartSetting *abilityStartSetting = data.ReadParcelable<AbilityStartSetting>();
+    std::shared_ptr<AbilityStartSetting> abilityStartSetting(data.ReadParcelable<AbilityStartSetting>());
     CHECK_POINTER_AND_RETURN_LOG(abilityStartSetting, ERR_INVALID_VALUE, "abilityStartSetting is nullptr");
 
     sptr<IRemoteObject> callerToken = nullptr;
@@ -744,7 +728,7 @@ int AbilityManagerStub::StartAbilityForSettingsInner(MessageParcel &data, Messag
     int requestCode = data.ReadInt32();
     int32_t result = StartAbility(*want, *abilityStartSetting, callerToken, userId, requestCode);
     reply.WriteInt32(result);
-    delete abilityStartSetting;
+
     return NO_ERROR;
 }
 
@@ -753,7 +737,7 @@ int AbilityManagerStub::StartAbilityForOptionsInner(MessageParcel &data, Message
     std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     CHECK_POINTER_AND_RETURN_LOG(want, ERR_INVALID_VALUE, "want is nullptr");
 
-    StartOptions *startOptions = data.ReadParcelable<StartOptions>();
+    std::shared_ptr<StartOptions> startOptions(data.ReadParcelable<StartOptions>());
     CHECK_POINTER_AND_RETURN_LOG(startOptions, ERR_INVALID_VALUE, "startOptions is nullptr.");
 
     sptr<IRemoteObject> callerToken = nullptr;
@@ -764,7 +748,7 @@ int AbilityManagerStub::StartAbilityForOptionsInner(MessageParcel &data, Message
     int requestCode = data.ReadInt32();
     int32_t result = StartAbility(*want, *startOptions, callerToken, userId, requestCode);
     reply.WriteInt32(result);
-    delete startOptions;
+
     return NO_ERROR;
 }
 
@@ -946,10 +930,10 @@ int AbilityManagerStub::ContinueMissionInner(MessageParcel &data, MessageParcel 
     std::string dstDeviceId = data.ReadString();
     int32_t missionId = data.ReadInt32();
     sptr<IRemoteObject> callback = data.ReadRemoteObject();
-    CHECK_POINTER_AND_RETURN_LOG(callback, ERR_NULL_OBJECT, "ContinueMissionInner callback readParcelable failed.");
+    CHECK_POINTER_AND_RETURN_LOG(callback, ERR_NULL_OBJECT, "callback readParcelable failed.");
 
     std::unique_ptr<WantParams> wantParams(data.ReadParcelable<WantParams>());
-    CHECK_POINTER_AND_RETURN_LOG(wantParams, ERR_NULL_OBJECT, "ContinueMissionInner wantParams readParcelable failed.");
+    CHECK_POINTER_AND_RETURN_LOG(wantParams, ERR_NULL_OBJECT, "wantParams readParcelable failed.");
 
     int32_t result = ContinueMission(srcDeviceId, dstDeviceId, missionId, callback, *wantParams);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "ContinueMissionInner result = %{public}d.", result);
@@ -964,10 +948,10 @@ int AbilityManagerStub::ContinueMissionOfBundleNameInner(MessageParcel &data, Me
     continueMissionInfo.dstDeviceId = data.ReadString();
     continueMissionInfo.bundleName = data.ReadString();
     sptr<IRemoteObject> callback = data.ReadRemoteObject();
-    CHECK_POINTER_AND_RETURN_LOG(callback, ERR_NULL_OBJECT, "ContinueMissionInner callback readParcelable failed!");
+    CHECK_POINTER_AND_RETURN_LOG(callback, ERR_NULL_OBJECT, "callback readParcelable failed!");
 
     std::unique_ptr<WantParams> wantParams(data.ReadParcelable<WantParams>());
-    CHECK_POINTER_AND_RETURN_LOG(wantParams, ERR_NULL_OBJECT, "ContinueMissionInner wantParams readParcelable failed!");
+    CHECK_POINTER_AND_RETURN_LOG(wantParams, ERR_NULL_OBJECT, "wantParams readParcelable failed!");
 
     continueMissionInfo.wantParams = *wantParams;
     continueMissionInfo.srcBundleName = data.ReadString();
@@ -992,7 +976,7 @@ int AbilityManagerStub::StartContinuationInner(MessageParcel &data, MessageParce
 {
     AAFWK::ContinueRadar::GetInstance().SaveDataRes("GetContentInfo");
     std::unique_ptr<Want> want(data.ReadParcelable<Want>());
-    CHECK_POINTER_AND_RETURN_LOG(want, ERR_NULL_OBJECT, "StartContinuationInner want readParcelable failed!");
+    CHECK_POINTER_AND_RETURN_LOG(want, ERR_NULL_OBJECT, "want readParcelable failed!");
 
     sptr<IRemoteObject> abilityToken = data.ReadRemoteObject();
     CHECK_POINTER_AND_RETURN_LOG(abilityToken, ERR_NULL_OBJECT, "Get abilityToken failed!");
@@ -1039,7 +1023,7 @@ int AbilityManagerStub::UnlockMissionForCleanupInner(MessageParcel &data, Messag
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int32_t id = data.ReadInt32();
     int result = UnlockMissionForCleanup(id);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "AbilityManagerStub: unlock mission failed.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -1079,15 +1063,11 @@ int AbilityManagerStub::GetMissionInfosInner(MessageParcel &data, MessageParcel 
     int numMax = data.ReadInt32();
     std::vector<MissionInfo> missionInfos;
     int32_t result = GetMissionInfos(deviceId, numMax, missionInfos);
-    reply.WriteInt32(missionInfos.size());
-    for (auto &it : missionInfos) {
-        if (!reply.WriteParcelable(&it)) {
-            return ERR_INVALID_VALUE;
-        }
-    }
-    if (!reply.WriteInt32(result)) {
-        return ERR_INVALID_VALUE;
-    }
+
+    CHECK_TRUE_RETURN_RET(WriteParcelableVector(missionInfos, reply) != NO_ERROR, ERR_INVALID_VALUE, "write failed.");
+
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
+
     return result;
 }
 
@@ -1100,7 +1080,7 @@ int AbilityManagerStub::GetMissionInfoInner(MessageParcel &data, MessageParcel &
     int result = GetMissionInfo(deviceId, missionId, info);
     CHECK_TRUE_RETURN_RET(!reply.WriteParcelable(&info), ERR_INVALID_VALUE, "GetMissionInfo error");
 
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "GetMissionInfo result error");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -1119,7 +1099,7 @@ int AbilityManagerStub::CleanAllMissionsInner(MessageParcel &data, MessageParcel
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int result = CleanAllMissions();
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "CleanAllMissions failed.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -1129,7 +1109,7 @@ int AbilityManagerStub::MoveMissionToFrontInner(MessageParcel &data, MessageParc
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int32_t missionId = data.ReadInt32();
     int result = MoveMissionToFront(missionId);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "MoveMissionToFront failed.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -1138,8 +1118,7 @@ int AbilityManagerStub::GetMissionIdByTokenInner(MessageParcel &data, MessagePar
 {
     sptr<IRemoteObject> token = data.ReadRemoteObject();
     int32_t missionId = GetMissionIdByToken(token);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(missionId), ERR_INVALID_VALUE,
-        "GetMissionIdByToken write missionId failed.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(missionId), ERR_INVALID_VALUE, "write missionId failed.");
 
     return NO_ERROR;
 }
@@ -1153,7 +1132,7 @@ int AbilityManagerStub::MoveMissionToFrontByOptionsInner(MessageParcel &data, Me
 
     startOptions->processOptions = nullptr;
     int result = MoveMissionToFront(missionId, *startOptions);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "MoveMissionToFront failed.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -1165,9 +1144,8 @@ int AbilityManagerStub::MoveMissionsToForegroundInner(MessageParcel &data, Messa
     data.ReadInt32Vector(&missionIds);
     int32_t topMissionId = data.ReadInt32();
     int32_t errCode = MoveMissionsToForeground(missionIds, topMissionId);
-    if (!reply.WriteInt32(errCode)) {
-        return ERR_INVALID_VALUE;
-    }
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(errCode), ERR_INVALID_VALUE, "write errCode failed.");
+
     return errCode;
 }
 
@@ -1182,9 +1160,8 @@ int AbilityManagerStub::MoveMissionsToBackgroundInner(MessageParcel &data, Messa
     TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called. resultSize: %{public}zu", __func__, result.size());
     CHECK_TRUE_RETURN_RET(!reply.WriteInt32Vector(result), ERR_INVALID_VALUE, "WriteInt32Vector Failed.");
 
-    if (!reply.WriteInt32(errCode)) {
-        return ERR_INVALID_VALUE;
-    }
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(errCode), ERR_INVALID_VALUE, "write errCode failed.");
+
     return NO_ERROR;
 }
 
@@ -1260,7 +1237,7 @@ int AbilityManagerStub::StartUserInner(MessageParcel &data, MessageParcel &reply
 
     callback = iface_cast<IUserCallback>(data.ReadRemoteObject());
     int result = StartUser(userId, callback);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "StartUser failed.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -1273,7 +1250,7 @@ int AbilityManagerStub::StopUserInner(MessageParcel &data, MessageParcel &reply)
         callback = iface_cast<IUserCallback>(data.ReadRemoteObject());
     }
     int result = StopUser(userId, callback);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "StopUser failed.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -1282,7 +1259,7 @@ int AbilityManagerStub::LogoutUserInner(MessageParcel &data, MessageParcel &repl
 {
     int32_t userId = data.ReadInt32();
     int result = LogoutUser(userId);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "LogoutUser failed.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -1291,15 +1268,12 @@ int AbilityManagerStub::GetAbilityRunningInfosInner(MessageParcel &data, Message
 {
     std::vector<AbilityRunningInfo> abilityRunningInfos;
     auto result = GetAbilityRunningInfos(abilityRunningInfos);
-    reply.WriteInt32(abilityRunningInfos.size());
-    for (auto &it : abilityRunningInfos) {
-        if (!reply.WriteParcelable(&it)) {
-            return ERR_INVALID_VALUE;
-        }
-    }
-    if (!reply.WriteInt32(result)) {
-        return ERR_INVALID_VALUE;
-    }
+
+    CHECK_TRUE_RETURN_RET(WriteParcelableVector(abilityRunningInfos, reply) != NO_ERROR,
+        ERR_INVALID_VALUE, "write failed.");
+
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
+
     return result;
 }
 
@@ -1308,15 +1282,10 @@ int AbilityManagerStub::GetExtensionRunningInfosInner(MessageParcel &data, Messa
     auto upperLimit = data.ReadInt32();
     std::vector<ExtensionRunningInfo> infos;
     auto result = GetExtensionRunningInfos(upperLimit, infos);
-    reply.WriteInt32(infos.size());
-    for (auto &it : infos) {
-        if (!reply.WriteParcelable(&it)) {
-            return ERR_INVALID_VALUE;
-        }
-    }
-    if (!reply.WriteInt32(result)) {
-        return ERR_INVALID_VALUE;
-    }
+    CHECK_TRUE_RETURN_RET(WriteParcelableVector(infos, reply) != NO_ERROR, ERR_INVALID_VALUE, "write failed.");
+
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
+
     return result;
 }
 
@@ -1324,15 +1293,10 @@ int AbilityManagerStub::GetProcessRunningInfosInner(MessageParcel &data, Message
 {
     std::vector<AppExecFwk::RunningProcessInfo> infos;
     auto result = GetProcessRunningInfos(infos);
-    reply.WriteInt32(infos.size());
-    for (auto &it : infos) {
-        if (!reply.WriteParcelable(&it)) {
-            return ERR_INVALID_VALUE;
-        }
-    }
-    if (!reply.WriteInt32(result)) {
-        return ERR_INVALID_VALUE;
-    }
+    CHECK_TRUE_RETURN_RET(WriteParcelableVector(infos, reply) != NO_ERROR, ERR_INVALID_VALUE, "write failed.");
+
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
+
     return NO_ERROR;
 }
 
@@ -1342,7 +1306,7 @@ int AbilityManagerStub::StartSyncRemoteMissionsInner(MessageParcel &data, Messag
     bool fixConflict = data.ReadBool();
     int64_t tag = data.ReadInt64();
     int result = StartSyncRemoteMissions(deviceId, fixConflict, tag);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "StartSyncRemoteMissionsInner failed.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -1350,7 +1314,7 @@ int AbilityManagerStub::StartSyncRemoteMissionsInner(MessageParcel &data, Messag
 int AbilityManagerStub::StopSyncRemoteMissionsInner(MessageParcel &data, MessageParcel &reply)
 {
     int result = StopSyncRemoteMissions(data.ReadString());
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "StopSyncRemoteMissionsInner failed.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -1358,28 +1322,23 @@ int AbilityManagerStub::StopSyncRemoteMissionsInner(MessageParcel &data, Message
 int AbilityManagerStub::RegisterRemoteMissionListenerInner(MessageParcel &data, MessageParcel &reply)
 {
     std::string deviceId = data.ReadString();
-    CHECK_TRUE_RETURN_RET(deviceId.empty(), INVALID_PARAMETERS_ERR,
-        "AbilityManagerStub: RegisterRemoteMissionListenerInner deviceId empty!");
+    CHECK_TRUE_RETURN_RET(deviceId.empty(), INVALID_PARAMETERS_ERR, "deviceId empty!");
 
     sptr<IRemoteMissionListener> listener = iface_cast<IRemoteMissionListener>(data.ReadRemoteObject());
-    CHECK_POINTER_AND_RETURN_LOG(listener, ERR_NULL_OBJECT, 
-        "AbilityManagerStub: RegisterRemoteMissionListenerInner listener readParcelable failed!");
+    CHECK_POINTER_AND_RETURN_LOG(listener, ERR_NULL_OBJECT, "listener readParcelable failed!");
 
     int32_t result = RegisterMissionListener(deviceId, listener);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerStub: RegisterRemoteMissionListenerInner result = %{public}d",
-        result);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "result = %{public}d", result);
     return result;
 }
 
 int AbilityManagerStub::RegisterRemoteOnListenerInner(MessageParcel &data, MessageParcel &reply)
 {
     std::string type = data.ReadString();
-    CHECK_TRUE_RETURN_RET(type.empty(), ERR_NULL_OBJECT,
-        "AbilityManagerStub: RegisterRemoteOnListenerInner type empty!");
+    CHECK_TRUE_RETURN_RET(type.empty(), ERR_NULL_OBJECT, "type empty!");
 
     sptr<IRemoteOnListener> listener = iface_cast<IRemoteOnListener>(data.ReadRemoteObject());
-    CHECK_POINTER_AND_RETURN_LOG(listener, ERR_NULL_OBJECT, 
-        "AbilityManagerStub: RegisterRemoteMissionListenerInner listener readParcelable failed!");
+    CHECK_POINTER_AND_RETURN_LOG(listener, ERR_NULL_OBJECT, "listener readParcelable failed!");
 
     int32_t result = RegisterOnListener(type, listener);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerStub: RegisterRemoteOnListenerInner result = %{public}d", result);
@@ -1389,12 +1348,10 @@ int AbilityManagerStub::RegisterRemoteOnListenerInner(MessageParcel &data, Messa
 int AbilityManagerStub::RegisterRemoteOffListenerInner(MessageParcel &data, MessageParcel &reply)
 {
     std::string type = data.ReadString();
-    CHECK_TRUE_RETURN_RET(type.empty(), ERR_NULL_OBJECT,
-        "AbilityManagerStub: RegisterRemoteOffListenerInner type empty!");
+    CHECK_TRUE_RETURN_RET(type.empty(), ERR_NULL_OBJECT, "type empty!");
 
     sptr<IRemoteOnListener> listener = iface_cast<IRemoteOnListener>(data.ReadRemoteObject());
-    CHECK_POINTER_AND_RETURN_LOG(listener, ERR_NULL_OBJECT, 
-        "AbilityManagerStub: RegisterRemoteMissionListenerInner listener readParcelable failed!");
+    CHECK_POINTER_AND_RETURN_LOG(listener, ERR_NULL_OBJECT, "listener readParcelable failed!");
 
     int32_t result = RegisterOffListener(type, listener);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerStub: RegisterRemoteOffListenerInner result = %{public}d", result);
@@ -1404,16 +1361,13 @@ int AbilityManagerStub::RegisterRemoteOffListenerInner(MessageParcel &data, Mess
 int AbilityManagerStub::UnRegisterRemoteMissionListenerInner(MessageParcel &data, MessageParcel &reply)
 {
     std::string deviceId = data.ReadString();
-    CHECK_TRUE_RETURN_RET(deviceId.empty(), INVALID_PARAMETERS_ERR,
-        "AbilityManagerStub: UnRegisterRemoteMissionListenerInner deviceId empty!");
+    CHECK_TRUE_RETURN_RET(deviceId.empty(), INVALID_PARAMETERS_ERR, "deviceId empty!");
 
     sptr<IRemoteMissionListener> listener = iface_cast<IRemoteMissionListener>(data.ReadRemoteObject());
-    CHECK_POINTER_AND_RETURN_LOG(listener, ERR_NULL_OBJECT, 
-        "AbilityManagerStub: RegisterRemoteMissionListenerInner listener readParcelable failed!");
+    CHECK_POINTER_AND_RETURN_LOG(listener, ERR_NULL_OBJECT, "listener readParcelable failed!");
 
     int32_t result = UnRegisterMissionListener(deviceId, listener);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerStub: UnRegisterRemoteMissionListenerInner result = %{public}d",
-        result);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "result = %{public}d", result);
     return result;
 }
 
@@ -1439,7 +1393,7 @@ int AbilityManagerStub::GetMissionSnapshotInfoInner(MessageParcel &data, Message
     TAG_LOGI(AAFwkTag::ABILITYMGR, "snapshot: AbilityManagerStub get snapshot result = %{public}d", result);
     CHECK_TRUE_RETURN_RET(!reply.WriteParcelable(&missionSnapshot), ERR_INVALID_VALUE, "GetMissionSnapshot error");
 
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "GetMissionSnapshot result error");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -1448,13 +1402,12 @@ int AbilityManagerStub::SetAbilityControllerInner(MessageParcel &data, MessagePa
 {
     sptr<AppExecFwk::IAbilityController> controller =
         iface_cast<AppExecFwk::IAbilityController>(data.ReadRemoteObject());
-    CHECK_POINTER_AND_RETURN_LOG(controller, ERR_NULL_OBJECT,
-        "AbilityManagerStub: setAbilityControllerInner controller readParcelable failed!");
+    CHECK_POINTER_AND_RETURN_LOG(controller, ERR_NULL_OBJECT, "controller readParcelable failed!");
 
     bool imAStabilityTest = data.ReadBool();
     int32_t result = SetAbilityController(controller, imAStabilityTest);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerStub: setAbilityControllerInner result = %{public}d", result);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "setAbilityControllerInner failed.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -1463,7 +1416,7 @@ int AbilityManagerStub::IsRunningInStabilityTestInner(MessageParcel &data, Messa
 {
     bool result = IsRunningInStabilityTest();
     TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerStub: IsRunningInStabilityTest result = %{public}d", result);
-    CHECK_TRUE_RETURN_RET(!reply.WriteBool(result), ERR_INVALID_VALUE, "IsRunningInStabilityTest failed.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteBool(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -1527,16 +1480,6 @@ int AbilityManagerStub::DelegatorDoAbilityBackgroundInner(MessageParcel &data, M
     return NO_ERROR;
 }
 
-int AbilityManagerStub::DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag)
-{
-    return 0;
-}
-
-int AbilityManagerStub::DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag)
-{
-    return 0;
-}
-
 int AbilityManagerStub::DoAbilityForegroundInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> token = data.ReadRemoteObject();
@@ -1553,30 +1496,6 @@ int AbilityManagerStub::DoAbilityBackgroundInner(MessageParcel &data, MessagePar
     uint32_t flag = data.ReadUint32();
     auto result = DoAbilityBackground(token, flag);
     reply.WriteInt32(result);
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::RegisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer)
-{
-    // should implement in child.
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::UnregisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer)
-{
-    // should implement in child
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::GetDlpConnectionInfos(std::vector<AbilityRuntime::DlpConnectionInfo> &infos)
-{
-    // should implement in child
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::GetConnectionData(std::vector<AbilityRuntime::ConnectionData> &infos)
-{
-    // should implement in child
     return NO_ERROR;
 }
 
@@ -1711,6 +1630,7 @@ int AbilityManagerStub::AcquireShareDataInner(MessageParcel &data, MessageParcel
     int32_t missionId = data.ReadInt32();
     sptr<IAcquireShareDataCallback> shareData = iface_cast<IAcquireShareDataCallback>(data.ReadRemoteObject());
     CHECK_POINTER_AND_RETURN_LOG(shareData, ERR_INVALID_VALUE, "shareData read failed.");
+
     int32_t result = AcquireShareData(missionId, shareData);
     CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
@@ -1750,11 +1670,9 @@ int AbilityManagerStub::ScheduleRecoverAbilityInner(MessageParcel &data, Message
     CHECK_POINTER_AND_RETURN_LOG(token, ERR_NULL_OBJECT, "ScheduleRecoverAbility read ability token failed.");
 
     int reason = data.ReadInt32();
-    Want *want = data.ReadParcelable<Want>();
+    sptr<Want> want = data.ReadParcelable<Want>();
     ScheduleRecoverAbility(token, reason, want);
-    if (want != nullptr) {
-        delete want;
-    }
+
     return NO_ERROR;
 }
 
@@ -1893,13 +1811,10 @@ int AbilityManagerStub::GetDialogSessionInfoInner(MessageParcel &data, MessagePa
     std::string dialogSessionId = data.ReadString();
     sptr<DialogSessionInfo> info;
     int result = GetDialogSessionInfo(dialogSessionId, info);
-    if (result != ERR_OK || info == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "not find dialogSessionInfo");
-        return ERR_INVALID_VALUE;
-    }
-    if (!reply.WriteParcelable(info)) {
-        return ERR_INVALID_VALUE;
-    }
+    CHECK_TRUE_RETURN_RET(result != ERR_OK || info == nullptr, ERR_INVALID_VALUE, "not find dialogSessionInfo");
+
+    CHECK_TRUE_RETURN_RET(!reply.WriteParcelable(info), ERR_INVALID_VALUE, "Write info error.");
+
     CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "Write ret error.");
     return NO_ERROR;
 }
@@ -1959,9 +1874,7 @@ int32_t AbilityManagerStub::IsValidMissionIdsInner(MessageParcel &data, MessageP
 
     reply.WriteInt32(static_cast<int32_t>(results.size()));
     for (auto &item : results) {
-        if (!reply.WriteParcelable(&item)) {
-            return ERR_INVALID_VALUE;
-        }
+        CHECK_TRUE_RETURN_RET(!reply.WriteParcelable(&item), ERR_INVALID_VALUE, "Write item error.");
     }
     return NO_ERROR;
 }
@@ -1974,7 +1887,7 @@ int AbilityManagerStub::VerifyPermissionInner(MessageParcel &data, MessageParcel
     int32_t uid = data.ReadInt32();
 
     auto result = VerifyPermission(permission, pid, uid);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), IPC_STUB_ERR, "VerifyPermission failed.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "VerifyPermission failed.");
 
     return NO_ERROR;
 }
@@ -1986,7 +1899,7 @@ int32_t AbilityManagerStub::ForceExitAppInner(MessageParcel &data, MessageParcel
     CHECK_POINTER_AND_RETURN_LOG(exitReason, ERR_INVALID_VALUE, "exitReason is nullptr.");
 
     int32_t result = ForceExitApp(pid, *exitReason);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "write result failed.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -1997,7 +1910,7 @@ int32_t AbilityManagerStub::RecordAppExitReasonInner(MessageParcel &data, Messag
     CHECK_POINTER_AND_RETURN_LOG(exitReason, ERR_INVALID_VALUE, "exitReason is nullptr.");
 
     int32_t result = RecordAppExitReason(*exitReason);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "write result failed.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -2009,7 +1922,7 @@ int32_t AbilityManagerStub::RecordProcessExitReasonInner(MessageParcel &data, Me
     CHECK_POINTER_AND_RETURN_LOG(exitReason, ERR_INVALID_VALUE, "exitReason is nullptr.");
 
     int32_t result = RecordProcessExitReason(pid, *exitReason);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "write result failed.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -2062,8 +1975,7 @@ int AbilityManagerStub::NotifySaveAsResultInner(MessageParcel &data, MessageParc
 int AbilityManagerStub::SetSessionManagerServiceInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> sessionManagerService = data.ReadRemoteObject();
-    CHECK_POINTER_AND_RETURN_LOG(sessionManagerService, ERR_NULL_OBJECT,
-        "SetSessionManagerServiceInner read ability token failed.");
+    CHECK_POINTER_AND_RETURN_LOG(sessionManagerService, ERR_NULL_OBJECT, "read ability token failed.");
 
     SetSessionManagerService(sessionManagerService);
     return NO_ERROR;
@@ -2116,10 +2028,8 @@ int32_t AbilityManagerStub::RegisterStatusBarDelegateInner(MessageParcel &data, 
 int32_t AbilityManagerStub::KillProcessWithPrepareTerminateInner(MessageParcel &data, MessageParcel &reply)
 {
     auto size = data.ReadUint32();
-    if (size == 0 || size > MAX_KILL_PROCESS_PID_COUNT) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid size.");
-        return ERR_INVALID_VALUE;
-    }
+    CHECK_TRUE_RETURN_RET(size == 0 || size > MAX_KILL_PROCESS_PID_COUNT, ERR_INVALID_VALUE, "Invalid size.");
+
     std::vector<int32_t> pids;
     for (uint32_t i = 0; i < size; i++) {
         pids.emplace_back(data.ReadInt32());
@@ -2179,9 +2089,7 @@ int32_t AbilityManagerStub::QueryAllAutoStartupApplicationsInner(MessageParcel &
 
     reply.WriteInt32(static_cast<int32_t>(infoList.size()));
     for (auto &info : infoList) {
-        if (!reply.WriteParcelable(&info)) {
-            return ERR_INVALID_VALUE;
-        }
+        CHECK_TRUE_RETURN_RET(!reply.WriteParcelable(&info), ERR_INVALID_VALUE, "Write info error.");
     }
     return NO_ERROR;
 }
@@ -2216,6 +2124,7 @@ int32_t AbilityManagerStub::UnregisterAppDebugListenerInner(MessageParcel &data,
 
     auto result = UnregisterAppDebugListener(appDebugLister);
     CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "Failed to write result.");
+
     return NO_ERROR;
 }
 
@@ -2347,7 +2256,7 @@ int32_t AbilityManagerStub::SetApplicationAutoStartupByEDMInner(MessageParcel &d
 int32_t AbilityManagerStub::CancelApplicationAutoStartupByEDMInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<AutoStartupInfo> info = data.ReadParcelable<AutoStartupInfo>();
-    CHECK_POINTER_AND_RETURN_LOG(info, ERR_INVALID_VALUE, "Info is nullptr.");
+    CHECK_POINTER_AND_RETURN_LOG(info, ERR_INVALID_VALUE, "info is nullptr.");
 
     auto flag = data.ReadBool();
     int32_t result = CancelApplicationAutoStartupByEDM(*info, flag);
@@ -2370,11 +2279,10 @@ int32_t AbilityManagerStub::RequestAssertFaultDialogInner(MessageParcel &data, M
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Request to display assert fault dialog.");
     sptr<IRemoteObject> callback = data.ReadRemoteObject();
     std::unique_ptr<WantParams> wantParams(data.ReadParcelable<WantParams>());
-    CHECK_POINTER_AND_RETURN_LOG(wantParams, ERR_DEAD_OBJECT,
-        "ContinueMissionInner wantParams readParcelable failed.");
+    CHECK_POINTER_AND_RETURN_LOG(wantParams, ERR_DEAD_OBJECT, "wantParams readParcelable failed.");
 
     auto result = RequestAssertFaultDialog(callback, *wantParams);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "Failed to write result.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -2385,7 +2293,7 @@ int32_t AbilityManagerStub::NotifyDebugAssertResultInner(MessageParcel &data, Me
     uint64_t assertSessionId = data.ReadUint64();
     int32_t status = data.ReadInt32();
     auto result = NotifyDebugAssertResult(assertSessionId, static_cast<AAFwk::UserStatus>(status));
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "Failed to write result.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -2395,19 +2303,17 @@ int32_t AbilityManagerStub::GetForegroundUIAbilitiesInner(MessageParcel &data, M
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     std::vector<AppExecFwk::AbilityStateData> abilityStateDatas;
     int32_t result = GetForegroundUIAbilities(abilityStateDatas);
-    CHECK_RET_RETURN_RET(result, "Get foreground uI abilities is failed.");
+    CHECK_TRUE_RETURN_RET(result != ERR_OK, result, "Get foreground uI abilities is failed.");
 
     auto infoSize = abilityStateDatas.size();
     CHECK_TRUE_RETURN_RET(infoSize > CYCLE_LIMIT, ERR_INVALID_VALUE, "Info size exceeds the limit.");
 
-    if (!reply.WriteInt32(infoSize)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write data size failed.");
-        return ERR_INVALID_VALUE;
-    }
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(infoSize), ERR_INVALID_VALUE, "Write data size failed.");
+
     for (auto &it : abilityStateDatas) {
         CHECK_TRUE_RETURN_RET(!reply.WriteParcelable(&it), ERR_INVALID_VALUE, "Write parcelable failed.");
     }
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "Failed to write result.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return result;
 }
@@ -2453,7 +2359,7 @@ int32_t AbilityManagerStub::GetUIExtensionRootHostInfoInner(MessageParcel &data,
     auto result = GetUIExtensionRootHostInfo(callerToken, hostInfo, userId);
     CHECK_TRUE_RETURN_RET(!reply.WriteParcelable(&hostInfo), ERR_INVALID_VALUE, "Write host info failed.");
 
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "Failed to write result.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -2465,7 +2371,7 @@ int32_t AbilityManagerStub::RestartAppInner(MessageParcel &data, MessageParcel &
     CHECK_POINTER_AND_RETURN_LOG(want, IPC_STUB_ERR, "want is nullptr");
 
     auto result = RestartApp(*want);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "Failed to write result.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return ERR_OK;
 }
@@ -2485,7 +2391,7 @@ int32_t AbilityManagerStub::OpenAtomicServiceInner(MessageParcel &data, MessageP
     int32_t requestCode = data.ReadInt32();
     int32_t userId = data.ReadInt32();
     int32_t openRet = OpenAtomicService(*want, *options, callerToken, requestCode, userId);
-    CHECK_RET_RETURN_RET(openRet, "Open atomic service to be failed.");
+    CHECK_TRUE_RETURN_RET(openRet != ERR_OK, openRet, "Open atomic service to be failed.");
 
     CHECK_TRUE_RETURN_RET(!reply.WriteInt32(openRet), ERR_INVALID_VALUE, "Write openRet failed.");
     return ERR_OK;
@@ -2496,7 +2402,7 @@ int32_t AbilityManagerStub::SetResidentProcessEnableInner(MessageParcel &data, M
     std::string bundleName = data.ReadString();
     bool enable = data.ReadBool();
     auto result = SetResidentProcessEnabled(bundleName, enable);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "Write result failed.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -2511,7 +2417,7 @@ int32_t AbilityManagerStub::IsEmbeddedOpenAllowedInner(MessageParcel &data, Mess
 
     std::string appId = data.ReadString();
     auto result = IsEmbeddedOpenAllowed(callerToken, appId);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "Write result failed.");
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "reply write failed.");
 
     return NO_ERROR;
 }
@@ -2521,14 +2427,14 @@ int32_t AbilityManagerStub::StartShortcutInner(MessageParcel &data, MessageParce
     std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     CHECK_POINTER_AND_RETURN_LOG(want, ERR_INVALID_VALUE, "want is nullptr");
 
-    StartOptions *startOptions = data.ReadParcelable<StartOptions>();
+    std::shared_ptr<StartOptions> startOptions(data.ReadParcelable<StartOptions>());
     CHECK_POINTER_AND_RETURN_LOG(startOptions, ERR_INVALID_VALUE, "startOptions is nullptr");
 
     startOptions->processOptions = nullptr;
 
     int32_t result = StartShortcut(*want, *startOptions);
     reply.WriteInt32(result);
-    delete startOptions;
+
     return NO_ERROR;
 }
 

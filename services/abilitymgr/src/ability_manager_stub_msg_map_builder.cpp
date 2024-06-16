@@ -13,21 +13,25 @@
  * limitations under the License.
  */
 
-#include "ability_manager_stub_builder.h"
+#include "ability_manager_stub_msg_map_builder.h"
 
 namespace OHOS {
 namespace AAFwk {
 
-void AbilityManagerStubBuilder::BuildMessageMap(sptr<AbilityManagerStub> stub)
+void AbilityManagerStubMsgMapBuilder::BuildMessageMap(sptr<AbilityManagerStub> stub)
 {
     FirstStepInit(stub);
     SecondStepInit(stub);
     ThirdStepInit(stub);
-    FourthStepInit(stub);
+    ForthStepInit(stub);
     FifthStepInit(stub);
+    SixthStepInit(stub);
+    SeventhStepInit(stub);
+    EighthStepInit(stub);
+    NinthStepInit(stub);
 }
 
-void AbilityManagerStubBuilder::FirstStepInit(sptr<AbilityManagerStub> &stub)
+void AbilityManagerStubMsgMapBuilder::FirstStepInit(sptr<AbilityManagerStub> &stub)
 {
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_ABILITY)] =
         &AbilityManagerStub::TerminateAbilityInner;
@@ -75,6 +79,10 @@ void AbilityManagerStubBuilder::FirstStepInit(sptr<AbilityManagerStub> &stub)
         &AbilityManagerStub::ConnectAbilityInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DISCONNECT_ABILITY)] =
         &AbilityManagerStub::DisconnectAbilityInner;
+}
+
+void AbilityManagerStubMsgMapBuilder::SecondStepInit(sptr<AbilityManagerStub> &stub)
+{
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_SERVICE_ABILITY)] =
         &AbilityManagerStub::StopServiceAbilityInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DUMP_STATE)] =
@@ -121,6 +129,10 @@ void AbilityManagerStubBuilder::FirstStepInit(sptr<AbilityManagerStub> &stub)
         &AbilityManagerStub::AddFreeInstallObserverInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_ABILITY_WITH_TYPE)] =
         &AbilityManagerStub::ConnectAbilityWithTypeInner;
+}
+
+void AbilityManagerStubMsgMapBuilder::ThirdStepInit(sptr<AbilityManagerStub> &stub)
+{
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ABILITY_RECOVERY)] =
         &AbilityManagerStub::ScheduleRecoverAbilityInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ABILITY_RECOVERY_ENABLE)] =
@@ -149,10 +161,6 @@ void AbilityManagerStubBuilder::FirstStepInit(sptr<AbilityManagerStub> &stub)
         &AbilityManagerStub::ExecuteInsightIntentDoneInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::OPEN_FILE)] =
         &AbilityManagerStub::OpenFileInner;
-}
-
-void AbilityManagerStubBuilder::SecondStepInit(sptr<AbilityManagerStub> &stub)
-{
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_SENDER)] =
         &AbilityManagerStub::GetWantSenderInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_PENDING_WANT_SENDER)] =
@@ -169,6 +177,10 @@ void AbilityManagerStubBuilder::SecondStepInit(sptr<AbilityManagerStub> &stub)
         &AbilityManagerStub::GetPendingWantCodeInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_TYPE)] =
         &AbilityManagerStub::GetPendingWantTypeInner;
+}
+
+void AbilityManagerStubMsgMapBuilder::ForthStepInit(sptr<AbilityManagerStub> &stub)
+{
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_CANCEL_LISTENER)] =
         &AbilityManagerStub::RegisterCancelListenerInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_CANCEL_LISTENER)] =
@@ -215,6 +227,10 @@ void AbilityManagerStubBuilder::SecondStepInit(sptr<AbilityManagerStub> &stub)
         &AbilityManagerStub::CallRequestDoneInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RELEASE_CALL_ABILITY)] =
         &AbilityManagerStub::ReleaseCallInner;
+}
+
+void AbilityManagerStubMsgMapBuilder::FifthStepInit(sptr<AbilityManagerStub> &stub)
+{
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_USER)] =
         &AbilityManagerStub::StartUserInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_USER)] =
@@ -255,16 +271,16 @@ void AbilityManagerStubBuilder::SecondStepInit(sptr<AbilityManagerStub> &stub)
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::BLOCK_APP_SERVICE)] =
         &AbilityManagerStub::BlockAppServiceInner;
 #endif
-}
-
-void AbilityManagerStubBuilder::ThirdStepInit(sptr<AbilityManagerStub> &stub)
-{
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_USER_TEST)] =
         &AbilityManagerStub::StartUserTestInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::FINISH_USER_TEST)] =
         &AbilityManagerStub::FinishUserTestInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_TOP_ABILITY_TOKEN)] =
         &AbilityManagerStub::GetTopAbilityTokenInner;
+}
+
+void AbilityManagerStubMsgMapBuilder::SixthStepInit(sptr<AbilityManagerStub> &stub)
+{
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CHECK_UI_EXTENSION_IS_FOCUSED)] =
         &AbilityManagerStub::CheckUIExtensionIsFocusedInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_FOREGROUND)] =
@@ -309,6 +325,10 @@ void AbilityManagerStubBuilder::ThirdStepInit(sptr<AbilityManagerStub> &stub)
         &AbilityManagerStub::GetUIExtensionRootHostInfoInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::PRELOAD_UIEXTENSION_ABILITY)] =
         &AbilityManagerStub::PreloadUIExtensionAbilityInner;
+}
+
+void AbilityManagerStubMsgMapBuilder::SeventhStepInit(sptr<AbilityManagerStub> &stub)
+{
 #ifdef SUPPORT_GRAPHICS
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_LABEL)] =
         &AbilityManagerStub::SetMissionLabelInner;
@@ -355,6 +375,10 @@ void AbilityManagerStubBuilder::ThirdStepInit(sptr<AbilityManagerStub> &stub)
         &AbilityManagerStub::StartUIAbilityBySCBInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_ROOT_SCENE_SESSION)] =
         &AbilityManagerStub::SetRootSceneSessionInner;
+}
+
+void AbilityManagerStubMsgMapBuilder::EighthStepInit(sptr<AbilityManagerStub> &stub)
+{
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CALL_ABILITY_BY_SCB)] =
         &AbilityManagerStub::CallUIAbilityBySCBInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_SPECIFIED_ABILITY_BY_SCB)] =
@@ -365,10 +389,6 @@ void AbilityManagerStubBuilder::ThirdStepInit(sptr<AbilityManagerStub> &stub)
         &AbilityManagerStub::SetSessionManagerServiceInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UPDATE_SESSION_INFO)] =
         &AbilityManagerStub::UpdateSessionInfoBySCBInner;
-}
-
-void AbilityManagerStubBuilder::FourthStepInit(sptr<AbilityManagerStub> &stub)
-{
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_STATUS_BAR_DELEGATE)] =
         &AbilityManagerStub::RegisterStatusBarDelegateInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::KILL_PROCESS_WITH_PREPARE_TERMINATE)] =
@@ -403,6 +423,10 @@ void AbilityManagerStubBuilder::FourthStepInit(sptr<AbilityManagerStub> &stub)
         &AbilityManagerStub::OpenAtomicServiceInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_EMBEDDED_OPEN_ALLOWED)] =
         &AbilityManagerStub::IsEmbeddedOpenAllowedInner;
+}
+
+void AbilityManagerStubMsgMapBuilder::NinthStepInit(sptr<AbilityManagerStub> &stub)
+{
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUEST_ASSERT_FAULT_DIALOG)] =
         &AbilityManagerStub::RequestAssertFaultDialogInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_DEBUG_ASSERT_RESULT)] =
@@ -417,10 +441,6 @@ void AbilityManagerStubBuilder::FourthStepInit(sptr<AbilityManagerStub> &stub)
         &AbilityManagerStub::SetResidentProcessEnableInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ABILITY_STATE_BY_PERSISTENT_ID)] =
         &AbilityManagerStub::GetAbilityStateByPersistentIdInner;
-}
-
-void AbilityManagerStubBuilder::FifthStepInit(sptr<AbilityManagerStub> &stub)
-{
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TRANSFER_ABILITY_RESULT)] =
         &AbilityManagerStub::TransferAbilityResultForExtensionInner;
     stub->requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_FROZEN_PROCESS_BY_RSS)] =
