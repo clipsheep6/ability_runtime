@@ -30,8 +30,8 @@ constexpr const char *INSTALL_LIST_CAPABILITY_CONFIG = "/install_list_capability
 constexpr const char *INSTALL_LIST = "install_list";
 constexpr const char *BUNDLE_NAME = "bundleName";
 constexpr const char *KEEP_ALIVE = "keepAlive";
-constexpr const char *KEEP_ALIVE_ENABLE = "KeepAliveEnable";
-constexpr const char *KEEP_ALIVE_CONFIGURED_LIST = "KeepAliveConfiguredList";
+constexpr const char *KEEP_ALIVE_ENABLE = "keepAliveEnable";
+constexpr const char *KEEP_ALIVE_CONFIGURED_LIST = "keepAliveConfiguredList";
 
 } // namespace
 ParserUtil &ParserUtil::GetInstance()
