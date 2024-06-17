@@ -2182,6 +2182,11 @@ void MainThread::HandleForegroundApplication()
         return;
     }
 
+#ifdef IMAGE_PURGEABLE_PIXELMAP
+    HILOG_DEBUG("[PurgeableResourceManager] Ability OnForeground ExecBeginVisitPurgeableMem.");
+    PurgeableMem::PurgeableResourceManager::GetInstance().ExecBeginVisitPurgeableMem();
+#endif
+
     if (!applicationImpl_->PerformForeground()) {
         TAG_LOGE(AAFwkTag::APPKIT, "applicationImpl_->PerformForeground() failed");
         return;
