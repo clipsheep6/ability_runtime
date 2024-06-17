@@ -364,7 +364,7 @@ int32_t AppMgrServiceInner::PreloadApplication(const std::string &bundleName, in
     }
     auto allowPreload = appPreloader_->PreCheck(bundleName, preloadMode);
     if (!allowPreload) {
-        HILOG_ERROR("BundleName: %{public}s preload preCheck failed.", bundleName.c_str());
+        TAG_LOGI(AAFwkTag::APPMGR, "BundleName: %{public}s preload preCheck: not allow.", bundleName.c_str());
         return AAFwk::ERR_NOT_ALLOW_PRELOAD_BY_RSS;
     }
 
