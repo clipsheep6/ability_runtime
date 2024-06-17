@@ -462,7 +462,7 @@ public:
      *
      * @return
      */
-    void UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state);
+    int32_t UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state);
 
     /**
      * PopForegroundingAbilityTokens, Extract the token record from the foreground tokens list.
@@ -795,7 +795,7 @@ public:
     pid_t GetGPUPid();
 
     void ScheduleCacheProcess();
-    
+
     inline void SetStrictMode(bool strictMode)
     {
         isStrictMode_ = strictMode;
@@ -835,7 +835,7 @@ private:
      *
      * @return
      */
-    void AbilityForeground(const std::shared_ptr<AbilityRunningRecord> &ability);
+    int32_t AbilityForeground(const std::shared_ptr<AbilityRunningRecord> &ability);
 
     /**
      * AbilityBackground, Handling the ability process when switching to the background.
@@ -844,7 +844,7 @@ private:
      *
      * @return
      */
-    void AbilityBackground(const std::shared_ptr<AbilityRunningRecord> &ability);
+    int32_t AbilityBackground(const std::shared_ptr<AbilityRunningRecord> &ability);
     // drive application state changes when ability state changes.
 
     bool AbilityFocused(const std::shared_ptr<AbilityRunningRecord> &ability);

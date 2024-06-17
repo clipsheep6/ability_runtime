@@ -181,7 +181,7 @@ HWTEST_F(AmsMgrSchedulerTest, AmsMgrScheduler_003, TestSize.Level1)
     AbilityState abilityState = AbilityState::ABILITY_STATE_CREATE;
 
     EXPECT_CALL(*mockAppMgrServiceInner, UpdateAbilityState(_, _))
-        .WillOnce(InvokeWithoutArgs(mockAppMgrServiceInner.get(), &MockAppMgrServiceInner::Post));
+        .WillOnce(InvokeWithoutArgs(mockAppMgrServiceInner.get(), &MockAppMgrServiceInner::Post4Int));
     amsMgrScheduler->UpdateAbilityState(token, abilityState);
     mockAppMgrServiceInner->Wait();
 

@@ -126,21 +126,22 @@ int AppScheduler::UpdateApplicationInfoInstalled(const std::string &bundleName, 
     return ERR_OK;
 }
 
-void AppScheduler::MoveToForeground(const sptr<IRemoteObject> &token)
+int32_t AppScheduler::MoveToForeground(const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Start to move the ability to foreground.");
-    CHECK_POINTER(appMgrClient_);
-    IN_PROCESS_CALL_WITHOUT_RET(
+    CHECK_POINTER_AND_RETURN(appMgrClient_, -1);
+    return IN_PROCESS_CALL(
         appMgrClient_->UpdateAbilityState(token, AppExecFwk::AbilityState::ABILITY_STATE_FOREGROUND));
+    return ERR_OK;
 }
 
-void AppScheduler::MoveToBackground(const sptr<IRemoteObject> &token)
+int32_t AppScheduler::MoveToBackground(const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Move the app to background.");
-    CHECK_POINTER(appMgrClient_);
-    IN_PROCESS_CALL_WITHOUT_RET(
+    CHECK_POINTER_AND_RETURN(appMgrClient_, -1);
+    return IN_PROCESS_CALL(
         appMgrClient_->UpdateAbilityState(token, AppExecFwk::AbilityState::ABILITY_STATE_BACKGROUND));
 }
 

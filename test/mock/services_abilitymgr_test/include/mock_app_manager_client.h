@@ -33,7 +33,7 @@ public:
         int32_t abilityRecordId));
 
     MOCK_METHOD1(TerminateAbility, AppMgrResultCode(const sptr<IRemoteObject>&));
-    MOCK_METHOD2(UpdateAbilityState, AppMgrResultCode(const sptr<IRemoteObject>& token, const AbilityState state));
+    MOCK_METHOD2(UpdateAbilityState, int32_t(const sptr<IRemoteObject>& token, const AbilityState state));
     MOCK_METHOD1(RegisterAppStateCallback, AppMgrResultCode(const sptr<IAppStateCallback>& callback));
     MOCK_METHOD0(ConnectAppMgrService, AppMgrResultCode());
     MOCK_METHOD1(KillApplication, AppMgrResultCode(const std::string&));

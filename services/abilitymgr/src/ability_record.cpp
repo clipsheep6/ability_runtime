@@ -531,7 +531,11 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t tokenId, uint32_t sceneFla
             SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
                 uid, bundleName, "THAW_BY_FOREGROUND_ABILITY");
 #endif // EFFICIENCY_MANAGER_ENABLE
-            DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token_);
+            if (DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token_) != ERR_OK) {
+                auto eventHandler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+                CHECK_POINTER(eventHandler);
+                eventHandler->RemoveEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, GetAbilityRecordId());
+            }
         }
     } else {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "To load ability.");

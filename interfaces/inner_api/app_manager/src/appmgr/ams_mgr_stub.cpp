@@ -196,7 +196,8 @@ ErrCode AmsMgrStub::HandleUpdateAbilityState(MessageParcel &data, MessageParcel 
     HITRACE_METER(HITRACE_TAG_APP);
     sptr<IRemoteObject> token = data.ReadRemoteObject();
     int32_t state = data.ReadInt32();
-    UpdateAbilityState(token, static_cast<AbilityState>(state));
+    auto result = UpdateAbilityState(token, static_cast<AbilityState>(state));
+    reply.WriteInt32(result);
     return NO_ERROR;
 }
 
