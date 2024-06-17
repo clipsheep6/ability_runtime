@@ -10822,7 +10822,6 @@ int32_t AbilityManagerService::TransferAbilityResultForExtension(const sptr<IRem
     int32_t resultCode, const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    auto token = IPCSkeleton::GetCallingTokenID();
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     auto type = abilityRecord->GetAbilityInfo().type;
