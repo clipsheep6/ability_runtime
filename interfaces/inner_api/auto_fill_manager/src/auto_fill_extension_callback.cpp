@@ -256,6 +256,7 @@ void AutoFillExtensionCallback::HandleTimeOut()
 void AutoFillExtensionCallback::SendAutoFillSucess(const AAFwk::Want &want)
 {
     TAG_LOGI(AAFwkTag::AUTOFILLMGR, "Called.");
+    std::lock_guard<std::mutex> lock(sendAutoFillMutex_);
     if (fillCallback_ != nullptr) {
         std::string dataStr = want.GetStringParam(WANT_PARAMS_VIEW_DATA_KEY);
         AbilityBase::ViewData viewData;
@@ -273,6 +274,7 @@ void AutoFillExtensionCallback::SendAutoFillSucess(const AAFwk::Want &want)
 void AutoFillExtensionCallback::SendAutoFillFailed(int32_t errCode, const AAFwk::Want &want)
 {
     TAG_LOGI(AAFwkTag::AUTOFILLMGR, "Called.");
+    std::lock_guard<std::mutex> lock(sendAutoFillMutex_);
     if (fillCallback_ != nullptr) {
         std::string fillContent = want.GetStringParam(WANT_PARAMS_FILL_CONTENT);
         bool isPopup = (autoFillWindowType_ == AutoFill::AutoFillWindowType::POPUP_WINDOW);
@@ -288,6 +290,7 @@ void AutoFillExtensionCallback::SendAutoFillFailed(int32_t errCode, const AAFwk:
 #ifdef SUPPORT_GRAPHICS
 void AutoFillExtensionCallback::CloseModalUIExtension()
 {
+    std::lock_guard<std::mutex> lock(sendAutoFillMutex_);
     if (uiContent_ == nullptr) {
         TAG_LOGD(AAFwkTag::AUTOFILLMGR, "uiContent_ is nullptr.");
         return;
