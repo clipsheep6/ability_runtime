@@ -51,8 +51,8 @@ public:
 
     void SetSessionId(int32_t sessionId);
 #ifdef SUPPORT_GRAPHICS
-    void SetUIContent(Ace::UIContent *uiContent);
-    Ace::UIContent *GetUIContent();
+    void SetInstanceId(int32_t instanceId);
+    int32_t GetInstanceId();
 #endif // SUPPORT_GRAPHICS
     void SetEventId(uint32_t eventId);
     void SetWindowType(const AutoFill::AutoFillWindowType &autoFillWindowType);
@@ -73,7 +73,7 @@ private:
     std::shared_ptr<ISaveRequestCallback> saveCallback_;
     int32_t sessionId_;
 #ifdef SUPPORT_GRAPHICS
-    Ace::UIContent *uiContent_ = nullptr;
+    int32_t instanceId_ = -1;
 #endif // SUPPORT_GRAPHICS
     uint32_t eventId_ = 0;
     AutoFill::AutoFillWindowType autoFillWindowType_ = AutoFill::AutoFillWindowType::MODAL_WINDOW;

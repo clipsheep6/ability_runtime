@@ -126,7 +126,7 @@ int32_t AutoFillManager::HandleRequestExecuteInner(
         RemoveEvent(eventId_);
         return AutoFill::AUTO_FILL_CREATE_MODULE_UI_EXTENSION_FAILED;
     }
-    extensionCallback->SetUIContent(uiContent);
+    extensionCallback->SetInstanceId(uiContent->GetInstanceId());
     extensionCallback->SetSessionId(sessionId);
     extensionCallback->SetEventId(eventId_);
     extensionCallback->SetViewData(request.viewData);
@@ -150,7 +150,7 @@ void AutoFillManager::UpdateCustomPopupUIExtension(Ace::UIContent *uiContent, co
     std::shared_ptr<Ace::ModalUIExtensionProxy> modalUIExtensionProxy;
     {
         std::lock_guard<std::mutex> lock(modalProxyMapMutex_);
-        auto it = modalUIExtensionProxyMap_.find(uiContent);
+        auto it = modalUIExtensionProxyMap_.find(uiContent->GetInstanceId());
         if (it == modalUIExtensionProxyMap_.end()) {
             TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Content is not in map.");
             return;
@@ -167,10 +167,11 @@ void AutoFillManager::UpdateCustomPopupUIExtension(Ace::UIContent *uiContent, co
     }
 }
 
-int32_t AutoFillManager::UpdateCustomPopupConfig(Ace::UIContent *uiContent,
+int32_t AutoFillManager::UpdateCustomPopupConfig(int32_t instanceId,
     const Ace::CustomPopupUIExtensionConfig &popupConfig)
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    auto uiContent = Ace::UIContent::GetUIContent(instanceId);
     if (uiContent == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UIContent is nullptr.");
         return AutoFill::AUTO_FILL_OBJECT_IS_NULL;
@@ -179,32 +180,28 @@ int32_t AutoFillManager::UpdateCustomPopupConfig(Ace::UIContent *uiContent,
     return AutoFill::AUTO_FILL_SUCCESS;
 }
 
-void AutoFillManager::SetAutoFillExtensionProxy(Ace::UIContent *uiContent,
+void AutoFillManager::SetAutoFillExtensionProxy(int32_t instanceId,
     const std::shared_ptr<Ace::ModalUIExtensionProxy> &modalUIExtensionProxy)
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
-    if (uiContent == nullptr || modalUIExtensionProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UIContent or proxy is nullptr.");
+    if (modalUIExtensionProxy == nullptr) {
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "proxy is nullptr.");
         return;
     }
 
     std::lock_guard<std::mutex> lock(modalProxyMapMutex_);
-    auto it = modalUIExtensionProxyMap_.find(uiContent);
+    auto it = modalUIExtensionProxyMap_.find(instanceId);
     if (it != modalUIExtensionProxyMap_.end()) {
         modalUIExtensionProxyMap_.erase(it);
     }
-    modalUIExtensionProxyMap_.emplace(uiContent, modalUIExtensionProxy);
+    modalUIExtensionProxyMap_.emplace(instanceId, modalUIExtensionProxy);
 }
 
-void AutoFillManager::RemoveAutoFillExtensionProxy(Ace::UIContent *uiContent)
+void AutoFillManager::RemoveAutoFillExtensionProxy(int32_t instanceId)
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
-    if (uiContent == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Content is nullptr.");
-        return;
-    }
     std::lock_guard<std::mutex> lock(modalProxyMapMutex_);
-    auto it = modalUIExtensionProxyMap_.find(uiContent);
+    auto it = modalUIExtensionProxyMap_.find(instanceId);
     if (it != modalUIExtensionProxyMap_.end()) {
         modalUIExtensionProxyMap_.erase(it);
     }
@@ -229,7 +226,8 @@ void AutoFillManager::BindModalUIExtensionCallback(
 int32_t AutoFillManager::ReloadInModal(const AutoFill::ReloadInModalRequest &request)
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
-    if (request.uiContent == nullptr) {
+    auto uiContent = Ace::UIContent::GetUIContent(request.instanceId);
+    if (uiContent == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Content is nullptr.");
         return AutoFill::AUTO_FILL_OBJECT_IS_NULL;
     }
@@ -262,7 +260,7 @@ int32_t AutoFillManager::ReloadInModal(const AutoFill::ReloadInModalRequest &req
     Ace::ModalUIExtensionConfig config;
     config.isAsyncModalBinding = true;
     int32_t sessionId = AUTO_FILL_UI_EXTENSION_SESSION_ID_INVALID;
-    sessionId = request.uiContent->CreateModalUIExtension(want, callback, config);
+    sessionId = uiContent->CreateModalUIExtension(want, callback, config);
     if (sessionId == AUTO_FILL_UI_EXTENSION_SESSION_ID_INVALID) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Create ui extension is failed.");
         RemoveEvent(eventId_);
@@ -381,13 +379,16 @@ void AutoFillManager::HandleTimeOut(uint32_t eventId)
 
 bool AutoFillManager::IsPreviousRequestFinished(Ace::UIContent *uiContent)
 {
+    if (uiContent == nullptr) {
+        return false;
+    }
     std::lock_guard<std::mutex> lock(extensionCallbacksMutex_);
     for (auto& item: extensionCallbacks_) {
         auto extensionCallback = item.second.lock();
         if (extensionCallback == nullptr) {
             continue;
         }
-        if (extensionCallback->GetUIContent() == uiContent) {
+        if (extensionCallback->GetInstanceId() == uiContent->GetInstanceId()) {
             return false;
         }
     }
