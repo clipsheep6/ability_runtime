@@ -800,6 +800,9 @@ public:
      */
     int32_t GetBundleNameByPid(const int32_t pid, std::string &bundleName, int32_t &uid);
 
+    std::function<void()> NotifyAppFaultInfo(std::shared_ptr<AppRunningRecord> &appRecord,
+        const FaultData &faultData, int32_t pid, const std::string& bundleName,
+        int32_t callerUid);
     /**
      * Notify Fault Data
      *
@@ -808,6 +811,7 @@ public:
      */
     int32_t NotifyAppFault(const FaultData &faultData);
 
+    void NotifyAppFaultBySAIfdef(std::string &callerBundleName);
     /**
      * Notify Fault Data By SA
      *
@@ -1487,6 +1491,7 @@ private:
     void NotifyAppStatusByCallerUid(const std::string &bundleName, const int32_t userId, const int32_t callerUid,
         const std::string &eventData);
     void KillApplicationByRecord(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void SendHiSysEventInnerEventId(const int32_t innerEventId, int typeId, std::string &msg);
     void SendHiSysEvent(const int32_t innerEventId, const int64_t eventId);
     int FinishUserTestLocked(
         const std::string &msg, const int64_t &resultCode, const std::shared_ptr<AppRunningRecord> &appRecord);

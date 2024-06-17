@@ -112,6 +112,14 @@ private:
         std::shared_ptr<TriggerCompleteCallBack> &triggerObj);
     int32_t GetTriggerInfo(napi_env env, napi_value param, TriggerInfo &triggerInfo);
     int32_t GetWantAgentParam(napi_env env, napi_callback_info info, WantAgentWantsParas &paras);
+    int32_t GetWantAgentParamHasExtraInfo(napi_env env, napi_callback_info info,
+        WantAgentWantsParas &paras);
+    int32_t GetWantAgentParamHasWantAgentFlags(napi_env env, napi_callback_info info,
+        WantAgentWantsParas &paras, bool hasActionFlags);
+    int32_t GetWantAgentParamHasActionFlags(napi_env env, napi_callback_info info,
+        WantAgentWantsParas &paras, bool hasActionFlags);
+    int32_t GetWantAgentParamOperationType(napi_env env, napi_callback_info info,
+        WantAgentWantsParas &paras);
 };
 
 class TriggerCompleteCallBack : public CompletedCallback {
