@@ -1972,32 +1972,32 @@ void AppMgrServiceInner::TerminateAbility(const sptr<IRemoteObject> &token, bool
     }
 }
 
-void AppMgrServiceInner::UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state)
+int32_t AppMgrServiceInner::UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "state %{public}d.", static_cast<int32_t>(state));
     if (!token) {
         TAG_LOGE(AAFwkTag::APPMGR, "token is null!");
-        return;
+        return -1;
     }
 
     auto appRecord = GetAppRunningRecordByAbilityToken(token);
     if (!appRecord) {
         TAG_LOGE(AAFwkTag::APPMGR, "app is not exist!");
-        return;
+        return -1;
     }
     auto abilityRecord = appRecord->GetAbilityRunningRecordByToken(token);
     if (!abilityRecord) {
         TAG_LOGE(AAFwkTag::APPMGR, "can not find ability record!");
-        return;
+        return -1;
     }
     if (state == abilityRecord->GetState()) {
         TAG_LOGE(AAFwkTag::APPMGR, "current state is already, no need update!");
-        return;
+        return -1;
     }
     if (abilityRecord->GetAbilityInfo() == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "ability info nullptr!");
-        return;
+        return -1;
     }
     auto type = abilityRecord->GetAbilityInfo()->type;
     if (type == AppExecFwk::AbilityType::SERVICE &&
@@ -2008,15 +2008,15 @@ void AppMgrServiceInner::UpdateAbilityState(const sptr<IRemoteObject> &token, co
         TAG_LOGI(
             AAFwkTag::APPMGR, "StateChangedNotifyObserver service type, state:%{public}d", static_cast<int32_t>(state));
         appRecord->StateChangedNotifyObserver(abilityRecord, static_cast<int32_t>(state), true, false);
-        return;
+        return -1;
     }
     if (state > AbilityState::ABILITY_STATE_BACKGROUND || state < AbilityState::ABILITY_STATE_FOREGROUND) {
         TAG_LOGE(AAFwkTag::APPMGR, "state is not foreground or background!");
-        return;
+        return -1;
     }
 
     appRecord->SetUpdateStateFromService(true);
-    appRecord->UpdateAbilityState(token, state);
+    return appRecord->UpdateAbilityState(token, state);
 }
 
 void AppMgrServiceInner::UpdateExtensionState(const sptr<IRemoteObject> &token, const ExtensionState state)

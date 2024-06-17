@@ -30,7 +30,7 @@ public:
             const std::shared_ptr<AbilityInfo>& abilityInfo, const std::shared_ptr<ApplicationInfo>& appInfo,
             const std::shared_ptr<AAFwk::Want>& want, int32_t abilityRecordId));
     MOCK_METHOD2(TerminateAbility, void(const sptr<IRemoteObject>& token, bool clearMissionFlag));
-    MOCK_METHOD2(UpdateAbilityState, void(const sptr<IRemoteObject>& token, const AbilityState state));
+    MOCK_METHOD2(UpdateAbilityState, int32_t(const sptr<IRemoteObject>& token, const AbilityState state));
     MOCK_METHOD1(AttachApplication, void(const sptr<IRemoteObject>& app));
     MOCK_METHOD1(NotifyMemoryLevel, int(int32_t level));
     MOCK_METHOD1(NotifyProcMemoryLevel, int32_t(const std::map<pid_t, MemoryLevel> &procLevelMap));

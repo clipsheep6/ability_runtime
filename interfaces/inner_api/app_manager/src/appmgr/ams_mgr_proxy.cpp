@@ -122,26 +122,28 @@ void AmsMgrProxy::TerminateAbility(const sptr<IRemoteObject> &token, bool clearM
     TAG_LOGD(AAFwkTag::APPMGR, "end");
 }
 
-void AmsMgrProxy::UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state)
+int32_t AmsMgrProxy::UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "start");
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
+    MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        return;
+        return -1;
     }
     if (!data.WriteRemoteObject(token.GetRefPtr())) {
         TAG_LOGE(AAFwkTag::APPMGR, "Failed to write token");
-        return;
+        return -1;
     }
     data.WriteInt32(static_cast<int32_t>(state));
     int32_t ret =
         SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::UPDATE_ABILITY_STATE), data, reply, option);
     if (ret != NO_ERROR) {
         TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
+        return -1;
     }
     TAG_LOGD(AAFwkTag::APPMGR, "end");
+    return reply.ReadInt32();
 }
 
 void AmsMgrProxy::UpdateExtensionState(const sptr<IRemoteObject> &token, const ExtensionState state)

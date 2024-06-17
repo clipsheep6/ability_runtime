@@ -161,14 +161,13 @@ AppMgrResultCode AppMgrClient::TerminateAbility(const sptr<IRemoteObject> &token
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
 }
 
-AppMgrResultCode AppMgrClient::UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state)
+int32_t AppMgrClient::UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service != nullptr) {
         sptr<IAmsMgr> amsService = service->GetAmsMgr();
         if (amsService != nullptr) {
-            amsService->UpdateAbilityState(token, state);
-            return AppMgrResultCode::RESULT_OK;
+            return amsService->UpdateAbilityState(token, state);
         }
     }
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;

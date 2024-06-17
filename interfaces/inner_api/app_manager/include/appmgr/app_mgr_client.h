@@ -81,7 +81,7 @@ public:
      * @param state Ability running state.
      * @return Returns RESULT_OK on success, others on failure.
      */
-    virtual AppMgrResultCode UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state);
+    virtual int32_t UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state);
 
     /**
      * UpdateExtensionState, call UpdateExtensionState() through the proxy object, update the extension status.

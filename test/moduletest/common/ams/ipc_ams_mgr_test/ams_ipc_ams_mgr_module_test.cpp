@@ -202,7 +202,7 @@ HWTEST_F(AmsIpcAmsmgrModuleTest, ExcuteAmsmgrIPCInterface_003, TestSize.Level3)
 
     for (int i = 0; i < COUNT; i++) {
         EXPECT_CALL(*mockAppMgrServiceInner, UpdateAbilityState(_, _))
-            .WillOnce(InvokeWithoutArgs(mockAppMgrServiceInner.get(), &MockAppMgrServiceInner::Post));
+            .WillOnce(InvokeWithoutArgs(mockAppMgrServiceInner.get(), &MockAppMgrServiceInner::Post4Int));
         amsMgrScheduler_->UpdateAbilityState(token, abilityState);
         mockAppMgrServiceInner->Wait();
     }

@@ -106,22 +106,25 @@ void AmsMgrScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<I
     amsHandler_->SubmitTask(loadAbilityFunc);
 }
 
-void AmsMgrScheduler::UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state)
+int32_t AmsMgrScheduler::UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state)
 {
     if (!IsReady()) {
-        return;
+        return -1;
     }
 
     if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
         TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
-        return;
+        return -1;
     }
-    std::function<void()> updateAbilityStateFunc =
-        std::bind(&AppMgrServiceInner::UpdateAbilityState, amsMgrServiceInner_, token, state);
-    amsHandler_->SubmitTask(updateAbilityStateFunc, AAFwk::TaskAttribute{
+    auto result = std::make_shared<int32_t>(0);
+    auto task = amsHandler_->SubmitTask([appServiceInner = amsMgrServiceInner_, token, state, result]() {
+        *result = appServiceInner->UpdateAbilityState(token, state);
+    }, AAFwk::TaskAttribute{
         .taskName_ = TASK_UPDATE_ABILITY_STATE,
         .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
     });
+    task.Sync();
+    return *result;
 }
 
 void AmsMgrScheduler::UpdateExtensionState(const sptr<IRemoteObject> &token, const ExtensionState state)

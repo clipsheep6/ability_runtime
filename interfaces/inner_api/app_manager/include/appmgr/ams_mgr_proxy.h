@@ -56,7 +56,7 @@ public:
      * @param state, ability status that needs to be updated.
      * @return
      */
-    virtual void UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state) override;
+    virtual int32_t UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state) override;
 
     /**
      * UpdateExtensionState, call UpdateExtensionState() through the proxy object, update the extension status.

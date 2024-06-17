@@ -895,45 +895,46 @@ bool AppRunningRecord::UpdateAbilityFocusState(const sptr<IRemoteObject> &token,
     }
 }
 
-void AppRunningRecord::UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state)
+int32_t AppRunningRecord::UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "state is :%{public}d", static_cast<int32_t>(state));
     auto abilityRecord = GetAbilityRunningRecordByToken(token);
     if (!abilityRecord) {
         TAG_LOGE(AAFwkTag::APPMGR, "can not find ability record");
-        return;
+        return -1;
     }
     if (state == AbilityState::ABILITY_STATE_CREATE) {
         StateChangedNotifyObserver(
             abilityRecord, static_cast<int32_t>(AbilityState::ABILITY_STATE_CREATE), true, false);
-        return;
+        return -1;
     }
     if (state == abilityRecord->GetState()) {
         TAG_LOGE(AAFwkTag::APPMGR, "current state is already, no need update");
-        return;
+        return -1;
     }
 
     if (state == AbilityState::ABILITY_STATE_FOREGROUND) {
-        AbilityForeground(abilityRecord);
+        return AbilityForeground(abilityRecord);
     } else if (state == AbilityState::ABILITY_STATE_BACKGROUND) {
-        AbilityBackground(abilityRecord);
+        return AbilityBackground(abilityRecord);
     } else {
         TAG_LOGW(AAFwkTag::APPMGR, "wrong state");
     }
+    return -1;
 }
 
-void AppRunningRecord::AbilityForeground(const std::shared_ptr<AbilityRunningRecord> &ability)
+int32_t AppRunningRecord::AbilityForeground(const std::shared_ptr<AbilityRunningRecord> &ability)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!ability) {
         TAG_LOGE(AAFwkTag::APPMGR, "ability is null");
-        return;
+        return -1;
     }
     AbilityState curAbilityState = ability->GetState();
     if (curAbilityState != AbilityState::ABILITY_STATE_READY &&
         curAbilityState != AbilityState::ABILITY_STATE_BACKGROUND) {
         TAG_LOGE(AAFwkTag::APPMGR, "ability state(%{public}d) error", static_cast<int32_t>(curAbilityState));
-        return;
+        return -1;
     }
 
     TAG_LOGI(AAFwkTag::APPMGR, "appState: %{public}d, bundle: %{public}s, ability: %{public}s",
@@ -945,7 +946,7 @@ void AppRunningRecord::AbilityForeground(const std::shared_ptr<AbilityRunningRec
         auto moduleRecord = GetModuleRunningRecordByToken(ability->GetToken());
         if (moduleRecord == nullptr) {
             TAG_LOGE(AAFwkTag::APPMGR, "moduleRecord is nullptr");
-            return;
+            return -1;
         }
         moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_FOREGROUND);
         StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND), true, false);
@@ -953,45 +954,46 @@ void AppRunningRecord::AbilityForeground(const std::shared_ptr<AbilityRunningRec
         if (serviceInner) {
             serviceInner->OnAppStateChanged(shared_from_this(), curState_, false, false);
         }
-        return;
+        return -1;
     }
     if (curState_ == ApplicationState::APP_STATE_READY || curState_ == ApplicationState::APP_STATE_BACKGROUND
         || curState_ == ApplicationState::APP_STATE_FOREGROUND) {
+        int32_t result = -1;
+        TAG_LOGD(AAFwkTag::APPMGR, "foregroundingAbility size: %{public}d, pendingState: %{public}d",
+            static_cast<int32_t>(foregroundingAbilityTokens_.size()), pendingState_);
         if (foregroundingAbilityTokens_.empty() || pendingState_ == ApplicationPendingState::BACKGROUNDING) {
-            TAG_LOGD(AAFwkTag::APPMGR, "application foregrounding.");
             SetApplicationPendingState(ApplicationPendingState::FOREGROUNDING);
             ScheduleForegroundRunning();
+            result = 0;
         }
         foregroundingAbilityTokens_.insert(ability->GetToken());
-        TAG_LOGD(AAFwkTag::APPMGR, "foregroundingAbility size: %{public}d",
-            static_cast<int32_t>(foregroundingAbilityTokens_.size()));
         if (curState_ == ApplicationState::APP_STATE_BACKGROUND) {
             SendAppStartupTypeEvent(ability, AppStartType::HOT);
         }
-    } else {
-        TAG_LOGW(AAFwkTag::APPMGR, "wrong application state");
+        return result;
     }
+    return -1;
 }
 
-void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRecord> &ability)
+int32_t AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRecord> &ability)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!ability) {
         TAG_LOGE(AAFwkTag::APPMGR, "ability is null");
-        return;
+        return -1;
     }
     TAG_LOGD(AAFwkTag::APPMGR, "ability is %{public}s", mainBundleName_.c_str());
     if (ability->GetState() != AbilityState::ABILITY_STATE_FOREGROUND &&
         ability->GetState() != AbilityState::ABILITY_STATE_READY) {
         TAG_LOGE(AAFwkTag::APPMGR, "ability state is not foreground or focus");
-        return;
+        return -1;
     }
 
     // First change ability to background.
     auto moduleRecord = GetModuleRunningRecordByToken(ability->GetToken());
     if (moduleRecord == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "moduleRecord is nullptr");
-        return;
+        return -1;
     }
     moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_BACKGROUND);
     StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_BACKGROUND), true, false);
@@ -1013,10 +1015,12 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
         if (foregroundSize == 0 && mainBundleName_ != LAUNCHER_NAME && windowIds_.empty()) {
             SetApplicationPendingState(ApplicationPendingState::BACKGROUNDING);
             ScheduleBackgroundRunning();
+            return 0;
         }
     } else {
         TAG_LOGW(AAFwkTag::APPMGR, "wrong application state");
     }
+    return -1;
 }
 
 bool AppRunningRecord::AbilityFocused(const std::shared_ptr<AbilityRunningRecord> &ability)

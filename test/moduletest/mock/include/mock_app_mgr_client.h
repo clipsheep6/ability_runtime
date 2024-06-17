@@ -28,7 +28,7 @@ public:
     MOCK_METHOD6(LoadAbility, AppMgrResultCode(sptr<IRemoteObject>, sptr<IRemoteObject>,
         const AbilityInfo&, const ApplicationInfo&, const AAFwk::Want&, int32_t));
     MOCK_METHOD2(TerminateAbility, AppMgrResultCode(const sptr<IRemoteObject>&, bool));
-    MOCK_METHOD2(UpdateAbilityState, AppMgrResultCode(const sptr<IRemoteObject>& token, const AbilityState state));
+    MOCK_METHOD2(UpdateAbilityState, int32_t(const sptr<IRemoteObject>& token, const AbilityState state));
     MOCK_METHOD1(KillApplication, AppMgrResultCode(const std::string&));
     MOCK_METHOD1(KillProcessByAbilityToken, AppMgrResultCode(const sptr<IRemoteObject>& token));
     MOCK_METHOD1(KillProcessesByUserId, AppMgrResultCode(int32_t userId));

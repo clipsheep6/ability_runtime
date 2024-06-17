@@ -152,14 +152,14 @@ public:
      *
      * @param token, the token of ability.
      */
-    void MoveToForeground(const sptr<IRemoteObject> &token);
+    int32_t MoveToForeground(const sptr<IRemoteObject> &token);
 
     /**
      * move ability to background.
      *
      * @param token, the token of ability.
      */
-    void MoveToBackground(const sptr<IRemoteObject> &token);
+    int32_t MoveToBackground(const sptr<IRemoteObject> &token);
 
     /**
      * Update ability state.
