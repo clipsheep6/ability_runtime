@@ -24,7 +24,8 @@
       "features": [
         "ability_runtime_auto_fill_ability",
         "ability_runtime_graphics",
-        "ability_runtime_power"
+        "ability_runtime_power",
+        "ability_runtime_app_no_response_dialog"
       ],
       "adapted_system_type": [
           "standard"
