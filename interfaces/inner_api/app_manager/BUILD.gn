@@ -138,8 +138,10 @@ ohos_shared_library("app_manager") {
   public_external_deps = [
     "ability_base:configuration",
     "ability_base:want",
+    "background_task_mgr:bgtaskmgr_innerkits",
     "bundle_framework:appexecfwk_base",
     "image_framework:image_native",
+    "os_account:os_account_innerkits",
     "relational_store:native_rdb",
   ]
 
