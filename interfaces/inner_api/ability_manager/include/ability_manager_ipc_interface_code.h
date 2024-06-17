@@ -443,6 +443,8 @@ enum class AbilityManagerInterfaceCode {
     // ipc for get ability state by persistent id
     GET_ABILITY_STATE_BY_PERSISTENT_ID = 1128,
     TRANSFER_ABILITY_RESULT = 1129,
+    // ipc for notify frozen process by RSS
+    NOTIFY_FROZEN_PROCESS_BY_RSS = 1130,
 
     // ipc id 2001-3000 for tools
     // ipc id for dumping state (2001)

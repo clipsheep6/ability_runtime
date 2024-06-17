@@ -2196,6 +2196,5 @@ int32_t AppMgrProxy::CheckCallingIsUserTestMode(const pid_t pid, bool &isUserTes
     isUserTest = reply.ReadBool();
     return reply.ReadInt32();
 }
-
 }  // namespace AppExecFwk
 }  // namespace OHOS

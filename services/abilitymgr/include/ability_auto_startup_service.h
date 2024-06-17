@@ -64,16 +64,18 @@ public:
     /**
      * @brief Query auto startup state all application.
      * @param infoList Output parameters, return auto startup info list.
+     * @param infoList Input parameters, return userid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList);
+    int32_t QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList, int32_t userId);
 
     /**
      * @brief Query auto startup state all application without permission.
      * @param infoList Output parameters, return auto startup info list.
+     * @param infoList Input parameters, return userid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t QueryAllAutoStartupApplicationsWithoutPermission(std::vector<AutoStartupInfo> &infoList);
+    int32_t QueryAllAutoStartupApplicationsWithoutPermission(std::vector<AutoStartupInfo> &infoList, int32_t userId);
 
     /**
      * @brief Delete current bundleName auto start up data.
@@ -137,9 +139,9 @@ private:
     void CleanResource(const wptr<IRemoteObject> &remote);
     std::string GetSelfApplicationBundleName();
     bool CheckSelfApplication(const std::string &bundleName);
-    bool GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, int32_t uid = -1);
+    bool GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, int32_t uid, int32_t &userId);
     bool GetAbilityData(const AutoStartupInfo &info, bool &isVisible,
-        std::string &abilityTypeName, std::string &accessTokenId);
+        std::string &abilityTypeName, std::string &accessTokenId, int32_t &userId);
     std::string GetAbilityTypeName(AppExecFwk::AbilityInfo abilityInfo);
     std::string GetExtensionTypeName(AppExecFwk::ExtensionAbilityInfo extensionInfo);
     std::shared_ptr<AppExecFwk::BundleMgrClient> GetBundleMgrClient();
@@ -147,7 +149,8 @@ private:
     int32_t CheckPermissionForSelf(const std::string &bundleName);
     int32_t CheckPermissionForEDM();
     int32_t InnerApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool isSet, bool flag);
-    int32_t GetAbilityInfo(const AutoStartupInfo &info, std::string &abilityTypeName,  std::string &accessTokenId);
+    int32_t GetAbilityInfo(const AutoStartupInfo &info, std::string &abilityTypeName,
+        std::string &accessTokenId, int32_t &userId);
 
     mutable std::mutex autoStartUpMutex_;
     mutable std::mutex deathRecipientsMutex_;

@@ -275,7 +275,8 @@ void AutoFillExtensionCallback::SendAutoFillFailed(int32_t errCode, const AAFwk:
     TAG_LOGI(AAFwkTag::AUTOFILLMGR, "Called.");
     if (fillCallback_ != nullptr) {
         std::string fillContent = want.GetStringParam(WANT_PARAMS_FILL_CONTENT);
-        fillCallback_->OnFillRequestFailed(errCode, fillContent);
+        bool isPopup = (autoFillWindowType_ == AutoFill::AutoFillWindowType::POPUP_WINDOW);
+        fillCallback_->OnFillRequestFailed(errCode, fillContent, isPopup);
         fillCallback_ = nullptr;
     }
 

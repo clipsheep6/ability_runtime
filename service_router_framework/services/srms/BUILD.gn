@@ -63,13 +63,13 @@ ohos_shared_library("libsrms") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
+    "graphic_2d:2d_graphics",
     "hilog:libhilog",
+    "image_framework:image_native",
     "ipc:ipc_single",
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "image_framework:image_native",
-    "graphic_2d:2d_graphics",
     "skia:skia_canvaskit",
   ]
 

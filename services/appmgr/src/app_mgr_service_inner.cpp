@@ -84,6 +84,10 @@
 #include "cache_process_manager.h"
 #include "window_focus_changed_listener.h"
 #include "window_visibility_changed_listener.h"
+#ifdef APP_NO_RESPONSE_DIALOG
+#include "fault_data.h"
+#include "modal_system_app_freeze_uiextension.h"
+#endif
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -1495,27 +1499,40 @@ int32_t AppMgrServiceInner::GetRunningMultiAppInfoByBundleName(const std::string
         TAG_LOGE(AAFwkTag::APPMGR, "bundlename is nullptr.");
         return AAFwk::INVALID_PARAMETERS_ERR;
     }
+    if (remoteClientManager_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "remoteClientManager_ is null");
+        return ERR_INVALID_VALUE;
+    }
+    auto bundleMgrHelper = remoteClientManager_->GetBundleManagerHelper();
+    if (bundleMgrHelper == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "The bundleMgrHelper is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    ApplicationInfo appInfo;
+    auto queryRet = IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(bundleName,
+        ApplicationFlag::GET_BASIC_APPLICATION_INFO, currentUserId_, appInfo));
+    if (!queryRet) {
+        TAG_LOGE(AAFwkTag::APPMGR, "The bundle does not exist.");
+        return AAFwk::ERR_BUNDLE_NOT_EXIST;
+    }
+    if (appInfo.multiAppMode.multiAppModeType == MultiAppModeType::UNSPECIFIED) {
+        TAG_LOGE(AAFwkTag::APPMGR, "The bundle does not support multi-app.");
+        return AAFwk::ERR_MULTI_APP_NOT_SUPPORTED;
+    }
+    info.bundleName = bundleName;
+    info.mode = static_cast<int32_t>(appInfo.multiAppMode.multiAppModeType);
     if (!appRunningManager_) {
         TAG_LOGE(AAFwkTag::APPMGR, "The appRunningManager is nullptr!");
         return ERR_INVALID_VALUE;
     }
     auto multiAppInfoMap = appRunningManager_->GetAppRunningRecordMap();
-    if (multiAppInfoMap.empty()) {
-        return ERR_INVALID_VALUE;
-    }
     for (const auto &item : multiAppInfoMap) {
         const std::shared_ptr<AppRunningRecord> &appRecord = item.second;
         if (appRecord == nullptr || appRecord->GetBundleName() != bundleName) {
             continue;
         }
-        auto appInfo = appRecord->GetApplicationInfo();
-        if (!appInfo) {
+        if (GetUserIdByUid(appRecord->GetUid()) != currentUserId_) {
             continue;
-        }
-        info.bundleName = bundleName;
-        info.mode = static_cast<int32_t>(appInfo->multiAppMode.multiAppModeType);
-        if (info.mode == static_cast<int32_t>(MultiAppModeType::UNSPECIFIED)) {
-            return AAFwk::ERR_MULTI_APP_NOT_SUPPORTED;
         }
         GetRunningCloneAppInfo(appRecord, info);
     }
@@ -5191,7 +5208,16 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
         return ERR_OK;
     }
 
+#ifdef APP_NO_RESPONSE_DIALOG
+    // A dialog box is displayed when the PC appfreeze
+    if (appRecord->GetFocusFlag() && (faultData.errorObject.name == AppFreezeType::THREAD_BLOCK_6S ||
+        faultData.errorObject.name == AppFreezeType::APP_INPUT_BLOCK)) {
+        auto &connection = ModalSystemAppFreezeUIExtension::GetInstance();
+        connection.CreateModalUIExtension(std::to_string(pid), bundleName);
+    }
+#else
     KillFaultApp(pid, bundleName, faultData);
+#endif
 
     return ERR_OK;
 }

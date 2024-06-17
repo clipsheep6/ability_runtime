@@ -5262,5 +5262,30 @@ int32_t AbilityManagerProxy::TransferAbilityResultForExtension(const sptr<IRemot
     }
     return NO_ERROR;
 }
+
+void AbilityManagerProxy::NotifyFrozenProcessByRSS(const std::vector<int32_t> &pidList, int32_t uid)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
+        return;
+    }
+    if (!data.WriteInt32Vector(pidList)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "pid list write failed.");
+        return;
+    }
+    if (!data.WriteInt32(uid)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "uid write failed.");
+        return;
+    }
+
+    int error = SendRequest(AbilityManagerInterfaceCode::NOTIFY_FROZEN_PROCESS_BY_RSS, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerProxy: SendRequest err %{public}d", error);
+    }
+}
 } // namespace AAFwk
 } // namespace OHOS

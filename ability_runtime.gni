@@ -106,6 +106,7 @@ declare_args() {
   ability_runtime_smart_auto_fill_ability =
       "com.ohos.textautofill/entry/TextAutoFillAbility"
   cj_frontend = true
+  ability_runtime_app_no_response_dialog = false
 
   if (!defined(global_parts_info) ||
       defined(global_parts_info.account_os_account)) {

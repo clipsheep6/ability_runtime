@@ -1606,6 +1606,17 @@ public:
     {
         return 0;
     }
+
+    /**
+     * Notify ability manager service frozen process.
+     *
+     * @param pidList, the pid list of the frozen process.
+     * @param uid, the uid of the frozen process.
+     */
+    virtual void NotifyFrozenProcessByRSS(const std::vector<int32_t> &pidList, int32_t uid)
+    {
+        return;
+    }
 };
 }  // namespace AAFwk
 }  // namespace OHOS

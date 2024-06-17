@@ -43,11 +43,6 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-// constexpr char EVENT_KEY_UID[] = "UID";
-// constexpr char EVENT_KEY_PID[] = "PID";
-// constexpr char EVENT_KEY_MESSAGE[] = "MSG";
-// constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
-// constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
 const std::string DEBUG_APP = "debugApp";
 const std::string FRS_APP_INDEX = "ohos.extra.param.key.frs_index";
 const std::string FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
@@ -1451,7 +1446,7 @@ void AbilityConnectManager::HandleStartTimeoutTask(const std::shared_ptr<Ability
             TAG_LOGW(AAFwkTag::ABILITYMGR, "ConnectRecord is nullptr.");
             continue;
         }
-        connectRecord->CompleteDisconnect(ERR_OK, true);
+        connectRecord->CompleteDisconnect(ERR_OK, false, true);
         abilityRecord->RemoveConnectRecordFromList(connectRecord);
         RemoveConnectionRecordFromMap(connectRecord);
     }
@@ -1496,7 +1491,7 @@ void AbilityConnectManager::HandleConnectTimeoutTask(std::shared_ptr<AbilityReco
     std::lock_guard guard(serialMutex_);
     for (const auto &connectRecord : connectList) {
         RemoveExtensionDelayDisconnectTask(connectRecord);
-        connectRecord->CompleteDisconnect(ERR_OK, true);
+        connectRecord->CompleteDisconnect(ERR_OK, false, true);
         abilityRecord->RemoveConnectRecordFromList(connectRecord);
         RemoveConnectionRecordFromMap(connectRecord);
     }
@@ -1562,7 +1557,7 @@ void AbilityConnectManager::HandleTerminateDisconnectTask(const ConnectListType&
         if (targetService) {
             TAG_LOGW(AAFwkTag::ABILITYMGR, "This record complete disconnect directly. recordId:%{public}d",
                 connectRecord->GetRecordId());
-            connectRecord->CompleteDisconnect(ERR_OK, true);
+            connectRecord->CompleteDisconnect(ERR_OK, false, true);
             targetService->RemoveConnectRecordFromList(connectRecord);
             RemoveConnectionRecordFromMap(connectRecord);
         };
@@ -2005,7 +2000,7 @@ void AbilityConnectManager::HandleAbilityDiedTask(
         TAG_LOGW(AAFwkTag::ABILITYMGR, "This record complete disconnect directly. recordId:%{public}d",
             connectRecord->GetRecordId());
         RemoveExtensionDelayDisconnectTask(connectRecord);
-        connectRecord->CompleteDisconnect(ERR_OK, true);
+        connectRecord->CompleteDisconnect(ERR_OK, false, true);
         abilityRecord->RemoveConnectRecordFromList(connectRecord);
         RemoveConnectionRecordFromMap(connectRecord);
     }

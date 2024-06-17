@@ -192,9 +192,11 @@ void Watchdog::ReportEvent()
         return;
     }
 
+#ifndef APP_NO_RESPONSE_DIALOG
     if (isSixSecondEvent_) {
         needReport_.store(false);
     }
+#endif
     AppExecFwk::AppfreezeInner::GetInstance()->ThreadBlock(isSixSecondEvent_);
 }
 }  // namespace AppExecFwk

@@ -446,6 +446,8 @@ void AbilityManagerStub::FifthStepInit()
 {
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TRANSFER_ABILITY_RESULT)] =
         &AbilityManagerStub::TransferAbilityResultForExtensionInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_FROZEN_PROCESS_BY_RSS)] =
+        &AbilityManagerStub::NotifyFrozenProcessByRSSInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -3461,6 +3463,15 @@ int32_t AbilityManagerStub::TransferAbilityResultForExtensionInner(MessageParcel
     sptr<Want> want = data.ReadParcelable<Want>();
     int32_t result = TransferAbilityResultForExtension(callerToken, resultCode, *want);
     reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::NotifyFrozenProcessByRSSInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::vector<int32_t> pidList;
+    data.ReadInt32Vector(&pidList);
+    int32_t uid = data.ReadInt32();
+    NotifyFrozenProcessByRSS(pidList, uid);
     return NO_ERROR;
 }
 } // namespace AAFwk

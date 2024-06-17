@@ -375,14 +375,14 @@ ohos_shared_library("ability_manager_c") {
   external_deps = [
     "ability_base:session_info",
     "c_utils:utils",
-    "ipc:ipc_napi",
-    "ipc:ipc_core",
     "ets_runtime:libark_jsruntime",
-    "resource_management:global_resmgr",
+    "form_fwk:form_manager",
     "graphic_2d:2d_graphics",
-    "skia:skia_canvaskit",
     "image_framework:image_native",
-    "form_fwk:form_manager"
+    "ipc:ipc_core",
+    "ipc:ipc_napi",
+    "resource_management:global_resmgr",
+    "skia:skia_canvaskit",
   ]
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
