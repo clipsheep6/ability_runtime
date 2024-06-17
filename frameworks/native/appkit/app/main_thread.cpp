@@ -2184,7 +2184,6 @@ void MainThread::HandleForegroundApplication()
 
     if (!applicationImpl_->PerformForeground()) {
         TAG_LOGE(AAFwkTag::APPKIT, "applicationImpl_->PerformForeground() failed");
-        return;
     }
 
     // Start accessing PurgeableMem if the event of foreground is successful.
@@ -2213,7 +2212,6 @@ void MainThread::HandleBackgroundApplication()
 
     if (!applicationImpl_->PerformBackground()) {
         TAG_LOGE(AAFwkTag::APPKIT, "applicationImpl_->PerformBackground() failed");
-        return;
     }
 
     // End accessing PurgeableMem if the event of background is successful.
