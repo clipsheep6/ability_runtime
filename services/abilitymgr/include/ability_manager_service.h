@@ -1557,8 +1557,6 @@ public:
      */
     virtual bool IsAbilityControllerStart(const Want &want) override;
 
-    void HandleProcessFrozen(const std::vector<int32_t> &pidList, int32_t uid);
-
     /**
      * @brief Called when insight intent execute finished.
      *
@@ -1963,11 +1961,11 @@ private:
     void UnsubscribeBundleEventCallback();
 
     void ReportAbilitStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo);
+
     void ReportAbilitAssociatedStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo, int64_t type,
         const sptr<IRemoteObject> &callerToken);
 
-    void ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo);
-    void RegisterSuspendObserver();
+    void ReportEventToRSS(const AppExecFwk::AbilityInfo &abilityInfo);
 
     void ReportAppRecoverResult(const int32_t appId, const AppExecFwk::ApplicationInfo &appInfo,
         const std::string& abilityName, const std::string& result);
