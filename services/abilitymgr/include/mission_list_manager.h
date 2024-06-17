@@ -87,6 +87,8 @@ public:
      */
     void OnAbilityRequestDone(const sptr<IRemoteObject> &token, const int32_t state);
 
+    void UpdateAbilityRecordTerminatedOrEndFlag(const AppInfo &info);
+
     void OnAppStateChanged(const AppInfo &info);
 
     /**
@@ -243,6 +245,8 @@ public:
      */
     void Dump(std::vector<std::string>& info);
 
+    void DumpList(const std::unique_ptr<MissionList> &missionList, const std::string &header,
+         std::vector<std::string> &info, bool isClient);
     /**
      * @brief dump mission list
      *
@@ -427,6 +431,7 @@ private:
         AbilityState state = AbilityState::INITIAL);
     int DispatchTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
     int DispatchBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void UpdateMissionInfo(std::shared_ptr<Mission> &mission);
     void CompleteForegroundSuccess(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void DelayCompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
@@ -439,6 +444,8 @@ private:
     int MoveAbilityToBackgroundLocked(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void RemoveBackgroundingAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
     int TerminateAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord, bool flag);
+    void UpdateAbilityStateAndPrepareNext(const std::shared_ptr<AbilityRecord> &abilityRecord,
+        std::shared_ptr<MissionList> &missionList, bool flag);
     /**
      * @brief remove the mission from the mission list
      *
@@ -449,6 +456,8 @@ private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordById(int64_t abilityRecordId) const;
     std::shared_ptr<AbilityRecord> GetAbilityRecordByCaller(
         const std::shared_ptr<AbilityRecord> &caller, int requestCode);
+    std::shared_ptr<MissionList> HandleMissionNotFound(int missionId, std::shared_ptr<Mission> &mission,
+        bool &isReachToLimit);
     std::shared_ptr<MissionList> GetTargetMissionList(int missionId, std::shared_ptr<Mission> &mission,
         bool &isReachToLimit);
     void PostStartWaitingAbility();
@@ -485,6 +494,8 @@ private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByNameFromCurrentMissionLists(
         const AppExecFwk::ElementName &element) const;
     std::vector<std::shared_ptr<AbilityRecord>> GetAbilityRecordsByName(const AppExecFwk::ElementName &element);
+    int ResolveAndLoadAbility(const AbilityRequest &abilityRequest,
+    std::shared_ptr<AbilityRecord> &targetAbilityRecord);
     int CallAbilityLocked(const AbilityRequest &abilityRequest);
     void UpdateMissionSnapshot(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
     void AddUninstallTags(const std::string &bundleName, int32_t uid);
