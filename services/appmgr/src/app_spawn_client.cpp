@@ -207,48 +207,27 @@ int32_t AppSpawnClient::SetStartFlags(const AppSpawnStartMsg &startMsg, AppSpawn
         startFlagTmp = startFlagTmp >> RIGHT_SHIFT_STEP;
         flagIndex++;
     }
-    return ret;
-}
-
-int32_t AppSpawnClient::SetAtomicServiceFlag(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle)
-{
-    int32_t ret = 0;
     if (startMsg.atomicServiceFlag) {
         ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_ATOMIC_SERVICE);
-        if (ret) {
-            TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnReqMsgSetAppFlag failed, ret: %{public}d", ret);
+        if (ret != 0) {
+            TAG_LOGE(AAFwkTag::APPMGR, "SetAtomicServiceFlag failed, ret: %{public}d", ret);
+            return ret;
         }
     }
-    return ret;
-}
-
-int32_t AppSpawnClient::SetStrictMode(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle)
-{
-    int32_t ret = 0;
     if (startMsg.strictMode) {
         ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_ISOLATED_SANDBOX);
-        if (ret) {
-            TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnReqMsgSetAppFlag failed, ret: %{public}d", ret);
+        if (ret != 0) {
+            TAG_LOGE(AAFwkTag::APPMGR, "SetStrictMode failed, ret: %{public}d", ret);
+            return ret;
         }
     }
-    return ret;
-}
-
-int32_t AppSpawnClient::SetAppExtension(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle)
-{
-    int32_t ret = 0;
     if (startMsg.isolatedExtension) {
         ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_EXTENSION_SANDBOX);
-        if (ret) {
-            TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnReqMsgSetAppFlag failed, ret: %{public}d", ret);
+        if (ret != 0) {
+            TAG_LOGE(AAFwkTag::APPMGR, "SetAppExtension failed, ret: %{public}d", ret);
+            return ret;
         }
     }
-    return ret;
-}
-
-int32_t AppSpawnClient::SetCloneFlag(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle) const
-{
-    int32_t ret = 0;
     if (startMsg.flags & APP_FLAGS_CLONE_ENABLE) {
         ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_CLONE_ENABLE);
         if (ret != 0) {
@@ -256,13 +235,15 @@ int32_t AppSpawnClient::SetCloneFlag(const AppSpawnStartMsg &startMsg, AppSpawnR
             return ret;
         }
     }
+
     return ret;
 }
 
 int32_t AppSpawnClient::AppspawnSetExtMsg(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle)
 {
     int32_t ret = 0;
-    if ((ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_RENDER_CMD, startMsg.renderParam.c_str()))) {
+    ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_RENDER_CMD, startMsg.renderParam.c_str());
+    if (ret) {
         TAG_LOGE(AAFwkTag::APPMGR, "SetRenderCmd failed, ret: %{public}d", ret);
         return ret;
     }
@@ -344,8 +325,9 @@ int32_t AppSpawnClient::AppspawnSetExtMsgMore(const AppSpawnStartMsg &startMsg, 
     }
 
     std::string maxChildProcessStr = std::to_string(startMsg.maxChildProcess);
-    if ((ret = AppSpawnReqMsgAddExtInfo(reqHandle, MAX_CHILD_PROCESS,
-        reinterpret_cast<const uint8_t*>(maxChildProcessStr.c_str()), maxChildProcessStr.size()))) {
+    ret = AppSpawnReqMsgAddExtInfo(reqHandle, MAX_CHILD_PROCESS,
+        reinterpret_cast<const uint8_t*>(maxChildProcessStr.c_str()), maxChildProcessStr.size());
+    if (ret) {
         TAG_LOGE(AAFwkTag::APPMGR, "Send maxChildProcess failed, ret: %{public}d", ret);
         return ret;
     }
@@ -359,16 +341,19 @@ int32_t AppSpawnClient::AppspawnCreateDefaultMsg(const AppSpawnStartMsg &startMs
     TAG_LOGI(AAFwkTag::APPMGR, "AppspawnCreateDefaultMsg");
     int32_t ret = 0;
     do {
-        if ((ret = SetDacInfo(startMsg, reqHandle))) {
+        ret = SetDacInfo(startMsg, reqHandle);
+        if (ret) {
             TAG_LOGE(AAFwkTag::APPMGR, "SetDacInfo failed, ret: %{public}d", ret);
             break;
         }
-        if ((ret = AppSpawnReqMsgSetBundleInfo(reqHandle, startMsg.bundleIndex, startMsg.bundleName.c_str()))) {
+        ret = AppSpawnReqMsgSetBundleInfo(reqHandle, startMsg.bundleIndex, startMsg.bundleName.c_str());
+        if (ret) {
             TAG_LOGE(AAFwkTag::APPMGR, "SetBundleInfo failed, ret: %{public}d", ret);
             break;
         }
-        if ((ret = AppSpawnReqMsgSetAppInternetPermissionInfo(reqHandle, startMsg.allowInternet,
-            startMsg.setAllowInternet))) {
+        ret = AppSpawnReqMsgSetAppInternetPermissionInfo(reqHandle, startMsg.allowInternet,
+            startMsg.setAllowInternet);
+        if (ret) {
             TAG_LOGE(AAFwkTag::APPMGR, "SetInternetPermissionInfo failed, ret: %{public}d", ret);
             break;
         }
@@ -380,41 +365,29 @@ int32_t AppSpawnClient::AppspawnCreateDefaultMsg(const AppSpawnStartMsg &startMs
                 break;
             }
         }
-        if ((ret = AppSpawnReqMsgSetAppAccessToken(reqHandle, startMsg.accessTokenIdEx))) {
+        ret = AppSpawnReqMsgSetAppAccessToken(reqHandle, startMsg.accessTokenIdEx);
+        if (ret) {
             TAG_LOGE(AAFwkTag::APPMGR, "ret: %{public}d", ret);
             break;
         }
-        if ((ret = AppSpawnReqMsgSetAppDomainInfo(reqHandle, startMsg.hapFlags, startMsg.apl.c_str()))) {
+        ret = AppSpawnReqMsgSetAppDomainInfo(reqHandle, startMsg.hapFlags, startMsg.apl.c_str());
+        if (ret) {
             TAG_LOGE(AAFwkTag::APPMGR,
                 "SetDomainInfo failed, hapFlags is %{public}d, apl is %{public}s, ret: %{public}d",
                 startMsg.hapFlags, startMsg.apl.c_str(), ret);
             break;
         }
-        if ((ret = SetStartFlags(startMsg, reqHandle))) {
+        ret = SetStartFlags(startMsg, reqHandle);
+        if (ret) {
             TAG_LOGE(AAFwkTag::APPMGR, "SetStartFlags failed, ret: %{public}d", ret);
             break;
         }
-        if ((ret = SetAtomicServiceFlag(startMsg, reqHandle))) {
-            HILOG_ERROR("SetAtomicServiceFlag failed, ret: %{public}d", ret);
-            break;
-        }
-        if ((ret = SetMountPermission(startMsg, reqHandle))) {
+        ret = SetMountPermission(startMsg, reqHandle);
+        if (ret) {
             TAG_LOGE(AAFwkTag::APPMGR, "SetMountPermission failed, ret: %{public}d", ret);
             break;
         }
         if (AppspawnSetExtMsg(startMsg, reqHandle)) {
-            break;
-        }
-        if ((ret = SetStrictMode(startMsg, reqHandle))) {
-            TAG_LOGE(AAFwkTag::APPMGR,  "SetStrictMode failed, ret: %{public}d", ret);
-            break;
-        }
-        if ((ret = SetAppExtension(startMsg, reqHandle))) {
-            TAG_LOGE(AAFwkTag::APPMGR,  "SetAppExtension failed, ret: %{public}d", ret);
-            break;
-        }
-        if ((ret = SetCloneFlag(startMsg, reqHandle))) {
-            TAG_LOGE(AAFwkTag::APPMGR,  "SetCloneFlag failed, ret: %{public}d", ret);
             break;
         }
         return ret;
