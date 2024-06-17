@@ -32,7 +32,9 @@ using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
  * @class AbilityManagerStub
  * AbilityManagerStub.
  */
+class AbilityManagerStubMsgMapBuilder;
 class AbilityManagerStub : public IRemoteStub<IAbilityManager> {
+    friend AbilityManagerStubMsgMapBuilder;
 public:
     AbilityManagerStub();
     ~AbilityManagerStub();
@@ -46,7 +48,10 @@ public:
      * @param flag, use for lock or unlock flag and so on.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag) override;
+    virtual int DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag) override
+    {
+        return 0;
+    }
 
     /**
      * Calls this interface to move the ability to the background.
@@ -55,22 +60,36 @@ public:
      * @param flag, use for lock or unlock flag and so on.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag) override;
+    virtual int DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag) override
+    {
+        return 0;
+    }
 
-    virtual int RegisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer);
+    virtual int RegisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer)
+    {
+        // should implement in child.
+        return NO_ERROR;
+    }
 
-    virtual int UnregisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer);
+    virtual int UnregisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer)
+    {
+        // should implement in child
+        return NO_ERROR;
+    }
 
-    virtual int GetDlpConnectionInfos(std::vector<AbilityRuntime::DlpConnectionInfo> &infos);
+    virtual int GetDlpConnectionInfos(std::vector<AbilityRuntime::DlpConnectionInfo> &infos)
+    {
+        // should implement in child
+        return NO_ERROR;
+    }
 
-    virtual int GetConnectionData(std::vector<AbilityRuntime::ConnectionData> &connectionData);
+    virtual int GetConnectionData(std::vector<AbilityRuntime::ConnectionData> &connectionData)
+    {
+        // should implement in child
+        return NO_ERROR;
+    }
 
 private:
-    void FirstStepInit();
-    void SecondStepInit();
-    void ThirdStepInit();
-    void FourthStepInit();
-    void FifthStepInit();
     int TerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
     int TerminateUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
     int CloseUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
@@ -302,6 +321,24 @@ private:
     int32_t GetAbilityStateByPersistentIdInner(MessageParcel &data, MessageParcel &reply);
     int32_t TransferAbilityResultForExtensionInner(MessageParcel &data, MessageParcel &reply);
     int32_t NotifyFrozenProcessByRSSInner(MessageParcel &data, MessageParcel &reply);
+    void WriteString16Vector(std::vector<std::string> &result, MessageParcel &reply)
+    {
+        reply.WriteInt32(result.size());
+        for (auto entry : result) {
+            reply.WriteString16(Str8ToStr16(entry));
+        }
+    }
+    template<typename T>
+    int32_t WriteParcelableVector(std::vector<T> &vec, MessageParcel &reply)
+    {
+        reply.WriteInt32(vec.size());
+        for (auto &entry : vec) {
+            if (!reply.WriteParcelable(&entry)) {
+                return ERR_INVALID_VALUE;
+            }
+        }
+        return NO_ERROR;
+    }
 };
 }  // namespace AAFwk
 }  // namespace OHOS
