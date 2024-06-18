@@ -226,6 +226,11 @@ public:
 
     int code_;
 
+    virtual bool SetAppFreezeFilter(int32_t pid)
+    {
+        return false;
+    }
+
     virtual int32_t ChangeAppGcState(pid_t pid, int32_t state)
     {
         return 0;
