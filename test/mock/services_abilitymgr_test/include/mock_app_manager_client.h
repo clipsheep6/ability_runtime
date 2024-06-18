@@ -36,7 +36,7 @@ public:
     MOCK_METHOD2(UpdateAbilityState, AppMgrResultCode(const sptr<IRemoteObject>& token, const AbilityState state));
     MOCK_METHOD1(RegisterAppStateCallback, AppMgrResultCode(const sptr<IAppStateCallback>& callback));
     MOCK_METHOD0(ConnectAppMgrService, AppMgrResultCode());
-    MOCK_METHOD1(KillApplication, AppMgrResultCode(const std::string&));
+    MOCK_METHOD2(KillApplication, AppMgrResultCode(const std::string&, const bool clearPageStack));
     MOCK_METHOD5(AbilityBehaviorAnalysis,
         AppMgrResultCode(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken,
             const int32_t visibility, const int32_t perceptibility, const int32_t connectionState));

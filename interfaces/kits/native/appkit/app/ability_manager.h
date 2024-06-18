@@ -62,7 +62,7 @@ public:
      * @param bundleName.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int KillProcessesByBundleName(const std::string &bundleName);
+    int KillProcessesByBundleName(const std::string &bundleName, const bool clearPageStack = true);
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
