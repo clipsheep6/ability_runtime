@@ -25,23 +25,41 @@
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
-    const std::string HSPLIST_BUNDLES = "bundles";
-    const std::string HSPLIST_MODULES = "modules";
-    const std::string HSPLIST_VERSIONS = "versions";
-    const std::string DATAGROUPINFOLIST_DATAGROUPID = "dataGroupId";
-    const std::string DATAGROUPINFOLIST_GID = "gid";
-    const std::string DATAGROUPINFOLIST_DIR = "dir";
-    const std::string JSON_DATA_APP = "/data/app/el2/";
-    const std::string JSON_GROUP = "/group/";
-    const std::string VERSION_PREFIX = "v";
-    const std::string APPSPAWN_CLIENT_USER_NAME = "APP_MANAGER_SERVICE";
-    constexpr int32_t RIGHT_SHIFT_STEP = 1;
-    constexpr int32_t START_FLAG_TEST_NUM = 1;
+constexpr const char* HSPLIST_BUNDLES = "bundles";
+constexpr const char* HSPLIST_MODULES = "modules";
+constexpr const char* HSPLIST_VERSIONS = "versions";
+constexpr const char* DATAGROUPINFOLIST_DATAGROUPID = "dataGroupId";
+constexpr const char* DATAGROUPINFOLIST_GID = "gid";
+constexpr const char* DATAGROUPINFOLIST_DIR = "dir";
+constexpr const char* JSON_DATA_APP = "/data/app/el2/";
+constexpr const char* JSON_GROUP = "/group/";
+constexpr const char* VERSION_PREFIX = "v";
+constexpr const char* APPSPAWN_CLIENT_USER_NAME = "APP_MANAGER_SERVICE";
+constexpr int32_t RIGHT_SHIFT_STEP = 1;
+constexpr int32_t START_FLAG_TEST_NUM = 1;
+constexpr const char* MAX_CHILD_PROCESS = "MaxChildProcess";
 }
 AppSpawnClient::AppSpawnClient(bool isNWebSpawn)
 {
-    TAG_LOGI(AAFwkTag::APPMGR, "AppspawnCreateClient");
+    TAG_LOGD(AAFwkTag::APPMGR, "AppspawnCreateClient");
     if (isNWebSpawn) {
+        serviceName_ = NWEBSPAWN_SERVER_NAME;
+    }
+    state_ = SpawnConnectionState::STATE_NOT_CONNECT;
+}
+
+AppSpawnClient::AppSpawnClient(const char* serviceName)
+{
+    HILOG_DEBUG("AppspawnCreateClient");
+    std::string serviceName__ = serviceName;
+    if (serviceName__ == APPSPAWN_SERVER_NAME) {
+        serviceName_ = APPSPAWN_SERVER_NAME;
+    } else if (serviceName__ == CJAPPSPAWN_SERVER_NAME) {
+        serviceName_ = CJAPPSPAWN_SERVER_NAME;
+    } else if (serviceName__ == NWEBSPAWN_SERVER_NAME) {
+        serviceName_ = NWEBSPAWN_SERVER_NAME;
+    } else {
+        HILOG_ERROR("unknown service name");
         serviceName_ = NWEBSPAWN_SERVER_NAME;
     }
     state_ = SpawnConnectionState::STATE_NOT_CONNECT;
@@ -76,7 +94,7 @@ ErrCode AppSpawnClient::OpenConnection()
 
 void AppSpawnClient::CloseConnection()
 {
-    TAG_LOGI(AAFwkTag::APPMGR, "AppspawnDestroyClient");
+    TAG_LOGD(AAFwkTag::APPMGR, "AppspawnDestroyClient");
     if (state_ == SpawnConnectionState::STATE_CONNECTED) {
         AppSpawnClientDestroy(handle_);
     }
@@ -129,6 +147,15 @@ static std::string DumpAppEnvToJson(const std::map<std::string, std::string> &ap
     return appEnvJson.dump();
 }
 
+static std::string DumpExtensionSandboxDirsToJson(const std::map<std::string, std::string> &extensionSandboxDirs)
+{
+    nlohmann::json extensionSandboxDirsJson;
+    for (auto &[userId, sandboxDir] : extensionSandboxDirs) {
+        extensionSandboxDirsJson[userId] = sandboxDir;
+    }
+    return extensionSandboxDirsJson.dump();
+}
+
 int32_t AppSpawnClient::SetDacInfo(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle)
 {
     int32_t ret = 0;
@@ -142,7 +169,7 @@ int32_t AppSpawnClient::SetDacInfo(const AppSpawnStartMsg &startMsg, AppSpawnReq
     for (uint32_t i = startMsg.gids.size(); i < appDacInfo.gidCount; i++) {
         appDacInfo.gidTable[i] = startMsg.dataGroupInfoList[i - startMsg.gids.size()].gid;
     }
-    ret = strcpy_s(appDacInfo.userName, sizeof(appDacInfo.userName), APPSPAWN_CLIENT_USER_NAME.c_str());
+    ret = strcpy_s(appDacInfo.userName, sizeof(appDacInfo.userName), APPSPAWN_CLIENT_USER_NAME);
     if (ret) {
         TAG_LOGE(AAFwkTag::APPMGR, "failed to set dac userName!");
         return ret;
@@ -161,7 +188,6 @@ int32_t AppSpawnClient::SetMountPermission(const AppSpawnStartMsg &startMsg, App
             return ret;
         }
     }
-
     return ret;
 }
 
@@ -181,13 +207,43 @@ int32_t AppSpawnClient::SetStartFlags(const AppSpawnStartMsg &startMsg, AppSpawn
         startFlagTmp = startFlagTmp >> RIGHT_SHIFT_STEP;
         flagIndex++;
     }
+    if (startMsg.atomicServiceFlag) {
+        ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_ATOMIC_SERVICE);
+        if (ret != 0) {
+            TAG_LOGE(AAFwkTag::APPMGR, "SetAtomicServiceFlag failed, ret: %{public}d", ret);
+            return ret;
+        }
+    }
+    if (startMsg.strictMode) {
+        ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_ISOLATED_SANDBOX);
+        if (ret != 0) {
+            TAG_LOGE(AAFwkTag::APPMGR, "SetStrictMode failed, ret: %{public}d", ret);
+            return ret;
+        }
+    }
+    if (startMsg.isolatedExtension) {
+        ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_EXTENSION_SANDBOX);
+        if (ret != 0) {
+            TAG_LOGE(AAFwkTag::APPMGR, "SetAppExtension failed, ret: %{public}d", ret);
+            return ret;
+        }
+    }
+    if (startMsg.flags & APP_FLAGS_CLONE_ENABLE) {
+        ret = AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_CLONE_ENABLE);
+        if (ret != 0) {
+            TAG_LOGE(AAFwkTag::APPMGR, "SetCloneFlag failed, ret: %{public}d", ret);
+            return ret;
+        }
+    }
+
     return ret;
 }
 
 int32_t AppSpawnClient::AppspawnSetExtMsg(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle)
 {
     int32_t ret = 0;
-    if ((ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_RENDER_CMD, startMsg.renderParam.c_str()))) {
+    ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_RENDER_CMD, startMsg.renderParam.c_str());
+    if (ret) {
         TAG_LOGE(AAFwkTag::APPMGR, "SetRenderCmd failed, ret: %{public}d", ret);
         return ret;
     }
@@ -226,6 +282,57 @@ int32_t AppSpawnClient::AppspawnSetExtMsg(const AppSpawnStartMsg &startMsg, AppS
         }
     }
 
+    if (!startMsg.atomicAccount.empty()) {
+        ret = AppSpawnReqMsgAddExtInfo(reqHandle, MSG_EXT_NAME_ACCOUNT_ID,
+            reinterpret_cast<const uint8_t*>(startMsg.atomicAccount.c_str()), startMsg.atomicAccount.size());
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnReqMsgAddExtInfo failed, ret: %{public}d", ret);
+            return ret;
+        }
+    }
+
+    return AppspawnSetExtMsgMore(startMsg, reqHandle);
+}
+
+int32_t AppSpawnClient::AppspawnSetExtMsgMore(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle)
+{
+    int32_t ret = 0;
+
+    if (!startMsg.provisionType.empty()) {
+        ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_PROVISION_TYPE, startMsg.provisionType.c_str());
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "SetExtraProvisionType failed, ret: %{public}d", ret);
+            return ret;
+        }
+    }
+
+    if (!startMsg.extensionSandboxPath.empty()) {
+        ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_APP_EXTENSION,
+            startMsg.extensionSandboxPath.c_str());
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "SetExtraExtensionSandboxDirs failed, ret: %{public}d", ret);
+            return ret;
+        }
+    }
+
+    if (!startMsg.processType.empty()) {
+        ret = AppSpawnReqMsgAddExtInfo(reqHandle, MSG_EXT_NAME_PROCESS_TYPE,
+            reinterpret_cast<const uint8_t*>(startMsg.processType.c_str()), startMsg.processType.size());
+        if (ret) {
+            TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnReqMsgAddExtInfo failed, ret: %{public}d", ret);
+            return ret;
+        }
+    }
+
+    std::string maxChildProcessStr = std::to_string(startMsg.maxChildProcess);
+    ret = AppSpawnReqMsgAddExtInfo(reqHandle, MAX_CHILD_PROCESS,
+        reinterpret_cast<const uint8_t*>(maxChildProcessStr.c_str()), maxChildProcessStr.size());
+    if (ret) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Send maxChildProcess failed, ret: %{public}d", ret);
+        return ret;
+    }
+    TAG_LOGI(AAFwkTag::APPMGR, "Send maxChildProcess %{public}s success.", maxChildProcessStr.c_str());
+
     return ret;
 }
 
@@ -234,16 +341,19 @@ int32_t AppSpawnClient::AppspawnCreateDefaultMsg(const AppSpawnStartMsg &startMs
     TAG_LOGI(AAFwkTag::APPMGR, "AppspawnCreateDefaultMsg");
     int32_t ret = 0;
     do {
-        if ((ret = SetDacInfo(startMsg, reqHandle))) {
+        ret = SetDacInfo(startMsg, reqHandle);
+        if (ret) {
             TAG_LOGE(AAFwkTag::APPMGR, "SetDacInfo failed, ret: %{public}d", ret);
             break;
         }
-        if ((ret = AppSpawnReqMsgSetBundleInfo(reqHandle, startMsg.bundleIndex, startMsg.bundleName.c_str()))) {
+        ret = AppSpawnReqMsgSetBundleInfo(reqHandle, startMsg.bundleIndex, startMsg.bundleName.c_str());
+        if (ret) {
             TAG_LOGE(AAFwkTag::APPMGR, "SetBundleInfo failed, ret: %{public}d", ret);
             break;
         }
-        if ((ret = AppSpawnReqMsgSetAppInternetPermissionInfo(reqHandle, startMsg.allowInternet,
-            startMsg.setAllowInternet))) {
+        ret = AppSpawnReqMsgSetAppInternetPermissionInfo(reqHandle, startMsg.allowInternet,
+            startMsg.setAllowInternet);
+        if (ret) {
             TAG_LOGE(AAFwkTag::APPMGR, "SetInternetPermissionInfo failed, ret: %{public}d", ret);
             break;
         }
@@ -255,28 +365,31 @@ int32_t AppSpawnClient::AppspawnCreateDefaultMsg(const AppSpawnStartMsg &startMs
                 break;
             }
         }
-        if ((ret = AppSpawnReqMsgSetAppAccessToken(reqHandle, startMsg.accessTokenIdEx))) {
+        ret = AppSpawnReqMsgSetAppAccessToken(reqHandle, startMsg.accessTokenIdEx);
+        if (ret) {
             TAG_LOGE(AAFwkTag::APPMGR, "ret: %{public}d", ret);
             break;
         }
-        if ((ret = AppSpawnReqMsgSetAppDomainInfo(reqHandle, startMsg.hapFlags, startMsg.apl.c_str()))) {
+        ret = AppSpawnReqMsgSetAppDomainInfo(reqHandle, startMsg.hapFlags, startMsg.apl.c_str());
+        if (ret) {
             TAG_LOGE(AAFwkTag::APPMGR,
                 "SetDomainInfo failed, hapFlags is %{public}d, apl is %{public}s, ret: %{public}d",
                 startMsg.hapFlags, startMsg.apl.c_str(), ret);
             break;
         }
-        if ((ret = SetStartFlags(startMsg, reqHandle))) {
+        ret = SetStartFlags(startMsg, reqHandle);
+        if (ret) {
             TAG_LOGE(AAFwkTag::APPMGR, "SetStartFlags failed, ret: %{public}d", ret);
             break;
         }
-        if ((ret = SetMountPermission(startMsg, reqHandle))) {
+        ret = SetMountPermission(startMsg, reqHandle);
+        if (ret) {
             TAG_LOGE(AAFwkTag::APPMGR, "SetMountPermission failed, ret: %{public}d", ret);
             break;
         }
         if (AppspawnSetExtMsg(startMsg, reqHandle)) {
             break;
         }
-
         return ret;
     } while (0);
 

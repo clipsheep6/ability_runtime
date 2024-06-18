@@ -131,6 +131,8 @@ HWTEST_F(AbilityAutoStartupDataManagerTest, InsertAutoStartupData_300, TestSize.
     AutoStartupInfo info;
     info.bundleName = "com.example.testbundle";
     info.abilityName = "testDemoAbility";
+    info.accessTokenId = "123";
+    info.userId = 100;
     struct AutoStartupStatus AutoStartupStatus;
     AutoStartupStatus.isAutoStartup = false;
     AutoStartupStatus.isEdmForce = false;
@@ -158,6 +160,8 @@ HWTEST_F(AbilityAutoStartupDataManagerTest, InsertAutoStartupData_400, TestSize.
     AutoStartupInfo info;
     info.bundleName = "com.example.testbundle";
     info.abilityName = "testDemoAbility";
+    info.accessTokenId = "123";
+    info.userId = 100;
     struct AutoStartupStatus AutoStartupStatus;
     AutoStartupStatus.isAutoStartup = false;
     AutoStartupStatus.isEdmForce = false;
@@ -199,6 +203,8 @@ HWTEST_F(AbilityAutoStartupDataManagerTest, UpdateAutoStartupData_200, TestSize.
     AutoStartupInfo info;
     info.bundleName = "com.example.testbundle";
     info.abilityName = "testDemoAbility";
+    info.accessTokenId = "123";
+    info.userId = 100;
     bool isAutoStartup = false;
     bool isEdmForce = false;
     auto result = abilityAutoStartupDataManager.UpdateAutoStartupData(info, isAutoStartup, isEdmForce);
@@ -242,6 +248,8 @@ HWTEST_F(AbilityAutoStartupDataManagerTest, UpdateAutoStartupData_400, TestSize.
     AutoStartupInfo info;
     info.bundleName = "com.example.testbundle";
     info.abilityName = "testDemoAbility";
+    info.accessTokenId = "123";
+    info.userId = 100;
     bool isAutoStartup = false;
     bool isEdmForce = false;
     auto result = abilityAutoStartupDataManager.UpdateAutoStartupData(info, isAutoStartup, isEdmForce);
@@ -296,6 +304,8 @@ HWTEST_F(AbilityAutoStartupDataManagerTest, DeleteAutoStartupData_300, TestSize.
     AutoStartupInfo info;
     info.bundleName = "com.example.testbundle";
     info.abilityName = "testDemoAbility";
+    info.accessTokenId = "123";
+    info.userId = 100;
     auto result = abilityAutoStartupDataManager.DeleteAutoStartupData(info);
     EXPECT_EQ(result, ERR_OK);
     GTEST_LOG_(INFO) << "DeleteAutoStartupData_300 end";
@@ -318,6 +328,8 @@ HWTEST_F(AbilityAutoStartupDataManagerTest, DeleteAutoStartupData_400, TestSize.
     AutoStartupInfo info;
     info.bundleName = "com.example.testbundle";
     info.abilityName = "testDemoAbility";
+    info.accessTokenId = "123";
+    info.userId = 100;
     auto result = abilityAutoStartupDataManager.DeleteAutoStartupData(info);
     EXPECT_EQ(result, ERR_OK);
     GTEST_LOG_(INFO) << "DeleteAutoStartupData_400 end";
@@ -334,7 +346,8 @@ HWTEST_F(AbilityAutoStartupDataManagerTest, DeleteAutoStartupData_bundleName_100
     GTEST_LOG_(INFO) << "DeleteAutoStartupData_bundleName_100 start";
     AbilityAutoStartupDataManager abilityAutoStartupDataManager;
     std::string bundleName = "";
-    auto result = abilityAutoStartupDataManager.DeleteAutoStartupData(bundleName);
+    int32_t uid = 0;
+    auto result = abilityAutoStartupDataManager.DeleteAutoStartupData(bundleName, uid);
     EXPECT_EQ(result, ERR_INVALID_VALUE);
     GTEST_LOG_(INFO) << "DeleteAutoStartupData_bundleName_100 end";
 }
@@ -350,7 +363,8 @@ HWTEST_F(AbilityAutoStartupDataManagerTest, DeleteAutoStartupData_bundleName_200
     GTEST_LOG_(INFO) << "DeleteAutoStartupData_bundleName_200 start";
     AbilityAutoStartupDataManager abilityAutoStartupDataManager;
     std::string bundleName = "com.example.testbundle";
-    auto result = abilityAutoStartupDataManager.DeleteAutoStartupData(bundleName);
+    int32_t uid = 0;
+    auto result = abilityAutoStartupDataManager.DeleteAutoStartupData(bundleName, uid);
     EXPECT_EQ(result, ERR_OK);
     GTEST_LOG_(INFO) << "DeleteAutoStartupData_bundleName_200 end";
 }
@@ -370,7 +384,8 @@ HWTEST_F(AbilityAutoStartupDataManagerTest, DeleteAutoStartupData_bundleName_300
     EXPECT_EQ(true, abilityAutoStartupDataManager.CheckKvStore());
 
     std::string bundleName = "com.example.testbundle";
-    auto result = abilityAutoStartupDataManager.DeleteAutoStartupData(bundleName);
+    int32_t uid = 0;
+    auto result = abilityAutoStartupDataManager.DeleteAutoStartupData(bundleName, uid);
     EXPECT_EQ(result, ERR_OK);
     GTEST_LOG_(INFO) << "DeleteAutoStartupData_bundleName_300 end";
 }
@@ -422,6 +437,8 @@ HWTEST_F(AbilityAutoStartupDataManagerTest, QueryAutoStartupData_300, TestSize.L
     AutoStartupInfo info;
     info.bundleName = "com.example.testbundle";
     info.abilityName = "testDemoAbility";
+    info.accessTokenId = "123";
+    info.userId = 100;
     auto result = abilityAutoStartupDataManager.QueryAutoStartupData(info);
     EXPECT_EQ(result.code, ERR_NAME_NOT_FOUND);
     GTEST_LOG_(INFO) << "QueryAutoStartupData_300 end";
@@ -444,6 +461,8 @@ HWTEST_F(AbilityAutoStartupDataManagerTest, QueryAutoStartupData_400, TestSize.L
     AutoStartupInfo info;
     info.bundleName = "com.example.testbundle";
     info.abilityName = "testDemoAbility";
+    info.accessTokenId = "123";
+    info.userId = 100;
     auto result = abilityAutoStartupDataManager.QueryAutoStartupData(info);
     EXPECT_EQ(result.code, ERR_NAME_NOT_FOUND);
     GTEST_LOG_(INFO) << "QueryAutoStartupData_400 end";
@@ -460,7 +479,8 @@ HWTEST_F(AbilityAutoStartupDataManagerTest, QueryAllAutoStartupApplications_100,
     GTEST_LOG_(INFO) << "QueryAllAutoStartupApplications_100 start";
     AbilityAutoStartupDataManager abilityAutoStartupDataManager;
     std::vector<AutoStartupInfo> infoList;
-    auto result = abilityAutoStartupDataManager.QueryAllAutoStartupApplications(infoList);
+    int32_t userID = 100;
+    auto result = abilityAutoStartupDataManager.QueryAllAutoStartupApplications(infoList, userID);
     EXPECT_EQ(result, ERR_OK);
     GTEST_LOG_(INFO) << "QueryAllAutoStartupApplications_100 end";
 }
@@ -480,7 +500,8 @@ HWTEST_F(AbilityAutoStartupDataManagerTest, QueryAllAutoStartupApplications_200,
     EXPECT_EQ(true, abilityAutoStartupDataManager.CheckKvStore());
 
     std::vector<AutoStartupInfo> infoList;
-    auto result = abilityAutoStartupDataManager.QueryAllAutoStartupApplications(infoList);
+    int32_t userID = 100;
+    auto result = abilityAutoStartupDataManager.QueryAllAutoStartupApplications(infoList, userID);
     EXPECT_EQ(result, ERR_OK);
     GTEST_LOG_(INFO) << "QueryAllAutoStartupApplications_200 end";
 }
@@ -498,7 +519,8 @@ HWTEST_F(AbilityAutoStartupDataManagerTest, GetCurrentAppAutoStartupData_100, Te
     AutoStartupInfo info;
     info.bundleName = "com.example.testbundle";
     std::vector<AutoStartupInfo> infoList;
-    auto result = abilityAutoStartupDataManager.GetCurrentAppAutoStartupData(info.bundleName, infoList);
+    std::string accessTokenId = "0";
+    auto result = abilityAutoStartupDataManager.GetCurrentAppAutoStartupData(info.bundleName, infoList, accessTokenId);
     EXPECT_EQ(result, ERR_OK);
     GTEST_LOG_(INFO) << "GetCurrentAppAutoStartupData_100 end";
 }
@@ -520,7 +542,8 @@ HWTEST_F(AbilityAutoStartupDataManagerTest, GetCurrentAppAutoStartupData_200, Te
     AutoStartupInfo info;
     info.bundleName = "com.example.testbundle";
     std::vector<AutoStartupInfo> infoList;
-    auto result = abilityAutoStartupDataManager.GetCurrentAppAutoStartupData(info.bundleName, infoList);
+    std::string accessTokenId = "0";
+    auto result = abilityAutoStartupDataManager.GetCurrentAppAutoStartupData(info.bundleName, infoList, accessTokenId);
     EXPECT_EQ(result, ERR_OK);
     GTEST_LOG_(INFO) << "GetCurrentAppAutoStartupData_200 end";
 }

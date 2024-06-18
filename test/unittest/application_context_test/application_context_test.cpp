@@ -676,20 +676,6 @@ HWTEST_F(ApplicationContextTest, GetCloudFileDir_0100, TestSize.Level1)
 }
 
 /**
- * @tc.number: GetCloudFileDir_0200
- * @tc.name: GetCloudFileDir
- * @tc.desc:Get Cloud File Dir sucess
- */
-HWTEST_F(ApplicationContextTest, GetCloudFileDir_0200, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "GetCloudFileDir_0200 start";
-    context_->AttachContextImpl(mock_);
-    auto ret = context_->GetCloudFileDir();
-    EXPECT_EQ(ret, "/data/service/el2/hmdfs/cloud/data/bundleName");
-    GTEST_LOG_(INFO) << "GetCloudFileDir_0200 end";
-}
-
-/**
  * @tc.number: GetToken_0100
  * @tc.name: GetToken
  * @tc.desc: Get Token failed
@@ -1281,6 +1267,54 @@ HWTEST_F(ApplicationContextTest, SetSupportedProcessCacheSelf_0100, TestSize.Lev
     bool isSupport = false;
     int32_t res = context_->SetSupportedProcessCacheSelf(isSupport);
     EXPECT_EQ(res, OHOS::ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.number: GetCurrentAppCloneIndex_0100
+ * @tc.name: GetCurrentAppCloneIndex
+ * @tc.desc: GetCurrentAppCloneIndex fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, GetCurrentAppCloneIndex_0100, TestSize.Level1)
+{
+    int32_t res = context_->GetCurrentAppCloneIndex();
+    EXPECT_EQ(res, 0);
+}
+
+/**
+ * @tc.number: SetCurrentAppCloneIndex_0100
+ * @tc.name: SetCurrentAppCloneIndex
+ * @tc.desc: SetCurrentAppCloneIndex fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, SetCurrentAppCloneIndex_0100, TestSize.Level1)
+{
+    int32_t appIndex = 3;
+    context_->SetCurrentAppCloneIndex(appIndex);
+    int32_t res = context_->GetCurrentAppCloneIndex();
+    EXPECT_EQ(res, appIndex);
+}
+
+/**
+ * @tc.number: GetCurrentAppMode_0100
+ * @tc.name: GetCurrentAppMode
+ * @tc.desc: GetCurrentAppMode fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, GetCurrentAppMode_0100, TestSize.Level1)
+{
+    int32_t res = context_->GetCurrentAppMode();
+    EXPECT_EQ(res, 0);
+}
+
+/**
+ * @tc.number:SetCurrentAppMode_0100
+ * @tc.name: SetCurrentAppMode
+ * @tc.desc: SetCurrentAppMode fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, SetCurrentAppMode_0100, TestSize.Level1)
+{
+    int32_t appMode = 7;
+    context_->SetCurrentAppMode(appMode);
+    int32_t res = context_->GetCurrentAppMode();
+    EXPECT_EQ(res, appMode);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

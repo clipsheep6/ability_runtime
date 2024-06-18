@@ -26,8 +26,6 @@ ohos_shared_library("businessabilityrouter") {
   }
   branch_protector_ret = "pac_ret"
 
-  include_dirs = [ "${bundlefwk_kits_path}/js/common" ]
-
   sources = [
     "native_module.cpp",
     "service_router_mgr.cpp",
@@ -37,6 +35,7 @@ ohos_shared_library("businessabilityrouter") {
 
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${srms_inner_api_path}:srms_fwk",
   ]
 

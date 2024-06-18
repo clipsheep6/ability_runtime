@@ -24,6 +24,8 @@ namespace AAFwk {
 const std::string AbilityStartSetting::BOUNDS_KEY = "bounds";
 const std::string AbilityStartSetting::WINDOW_DISPLAY_ID_KEY = "windowId";
 const std::string AbilityStartSetting::WINDOW_MODE_KEY = "windowMode";
+const std::string AbilityStartSetting::DEFAULT_RECOVERY_KEY = "defaultRecovery";
+const std::string AbilityStartSetting::IS_START_BY_SCB_KEY = "isStartByScb";
 constexpr uint32_t CYCLE_LIMIT = 1000;
 
 /**

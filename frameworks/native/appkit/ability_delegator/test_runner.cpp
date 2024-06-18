@@ -17,6 +17,9 @@
 #include "bundle_mgr_helper.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#ifdef CJ_FRONTEND
+#include "runner_runtime/cj_test_runner.h"
+#endif
 #include "runner_runtime/js_test_runner.h"
 #include "runtime.h"
 #include "sys_mgr_client.h"
@@ -58,6 +61,10 @@ std::unique_ptr<TestRunner> TestRunner::Create(const std::unique_ptr<AbilityRunt
     switch (runtime->GetLanguage()) {
         case AbilityRuntime::Runtime::Language::JS:
             return RunnerRuntime::JsTestRunner::Create(runtime, args, bundleInfo, isFaJsModel);
+#ifdef CJ_FRONTEND
+        case AbilityRuntime::Runtime::Language::CJ:
+            return RunnerRuntime::CJTestRunner::Create(runtime, args, bundleInfo);
+#endif
         default:
             return std::make_unique<TestRunner>();
     }

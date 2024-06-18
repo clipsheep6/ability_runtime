@@ -62,6 +62,9 @@ struct RunningProcessInfo : public Parcelable {
     bool isTestProcess = false;
     bool isAbilityForegrounding = false;
     bool isTestMode = false;
+    bool isStrictMode = false;
+    std::int32_t bundleType = 0;
+    std::int32_t appCloneIndex = -1;
 
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;

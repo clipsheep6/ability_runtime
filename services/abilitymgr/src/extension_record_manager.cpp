@@ -26,6 +26,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr const char *SEPARATOR = ":";
+const std::string IS_PRELOAD_UIEXTENSION_ABILITY = "ability.want.params.is_preload_uiextension_ability";
 }
 std::atomic_int32_t ExtensionRecordManager::extensionRecordId_ = INVALID_EXTENSION_RECORD_ID;
 
@@ -166,7 +167,11 @@ int32_t ExtensionRecordManager::GetOrCreateExtensionRecord(const AAFwk::AbilityR
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Check Preload Extension Record.");
     auto result = IsPreloadExtensionRecord(abilityRequest, hostBundleName, extensionRecord, isLoaded);
     if (result) {
-        RemovePreloadUIExtensionRecord(abilityRequest, hostBundleName, extensionRecord, isLoaded);
+        std::string abilityName = abilityRequest.want.GetElement().GetAbilityName();
+        std::string bundleName = abilityRequest.want.GetElement().GetBundleName();
+        std::string moduleName = abilityRequest.want.GetElement().GetModuleName();
+        auto extensionRecordMapKey = std::make_tuple(abilityName, bundleName, moduleName, hostBundleName);
+        RemovePreloadUIExtensionRecord(extensionRecordMapKey);
     } else {
         int32_t ret = GetOrCreateExtensionRecordInner(abilityRequest, hostBundleName, extensionRecord, isLoaded);
         if (ret != ERR_OK) {
@@ -215,7 +220,7 @@ bool ExtensionRecordManager::IsHostSpecifiedProcessValid(const AAFwk::AbilityReq
     std::shared_ptr<ExtensionRecord> &record, const std::string &process)
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    for (auto &iter: extensionRecords_) {
+    for (const auto &iter: extensionRecords_) {
         if (iter.second == nullptr || iter.second->abilityRecord_ == nullptr) {
             continue;
         }
@@ -270,14 +275,30 @@ int32_t ExtensionRecordManager::UpdateProcessName(const AAFwk::AbilityRequest &a
     return ERR_OK;
 }
 
-int32_t ExtensionRecordManager::AddPreloadUIExtensionRecord(const std::shared_ptr<AAFwk::AbilityRecord> abilityRecord)
+int32_t ExtensionRecordManager::GetHostBundleNameForExtensionId(int32_t extensionRecordId, std::string &hostBundleName)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     std::lock_guard<std::mutex> lock(mutex_);
     std::shared_ptr<ExtensionRecord> extensionRecord = nullptr;
+    if (extensionRecords_.find(extensionRecordId) != extensionRecords_.end()) {
+        extensionRecord = extensionRecords_[extensionRecordId];
+        CHECK_POINTER_AND_RETURN(extensionRecord, ERR_INVALID_VALUE);
+        hostBundleName = extensionRecord->hostBundleName_;
+        return ERR_OK;
+    }
+    return ERR_INVALID_VALUE;
+}
+
+int32_t ExtensionRecordManager::AddPreloadUIExtensionRecord(const std::shared_ptr<AAFwk::AbilityRecord> abilityRecord)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
+    std::lock_guard<std::mutex> lock(mutex_);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    std::shared_ptr<ExtensionRecord> extensionRecord = nullptr;
     auto extensionRecordId = abilityRecord->GetUIExtensionAbilityId();
     if (extensionRecords_.find(extensionRecordId) != extensionRecords_.end()) {
         extensionRecord = extensionRecords_[extensionRecordId];
+        CHECK_POINTER_AND_RETURN(extensionRecord, ERR_INVALID_VALUE);
         auto hostBundleName = extensionRecord->hostBundleName_;
         auto preLoadUIExtensionInfo = std::make_tuple(abilityRecord->GetWant().GetElement().GetAbilityName(),
             abilityRecord->GetWant().GetElement().GetBundleName(),
@@ -333,14 +354,41 @@ bool ExtensionRecordManager::IsPreloadExtensionRecord(const AAFwk::AbilityReques
     return false;
 }
 
-bool ExtensionRecordManager::RemovePreloadUIExtensionRecord(const AAFwk::AbilityRequest &abilityRequest,
-    const std::string &hostBundleName, std::shared_ptr<ExtensionRecord> &extensionRecord, bool &isLoaded)
+bool ExtensionRecordManager::RemovePreloadUIExtensionRecordById(
+    const std::tuple<std::string, std::string, std::string, std::string> extensionRecordMapKey,
+    int32_t extensionRecordId)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call.");
-    std::string abilityName = abilityRequest.want.GetElement().GetAbilityName();
-    std::string bundleName = abilityRequest.want.GetElement().GetBundleName();
-    std::string moduleName = abilityRequest.want.GetElement().GetModuleName();
-    auto extensionRecordMapKey = std::make_tuple(abilityName, bundleName, moduleName, hostBundleName);
+    std::lock_guard<std::mutex> lock(preloadUIExtensionMapMutex_);
+    auto item = preloadUIExtensionMap_.find(extensionRecordMapKey);
+    if (item == preloadUIExtensionMap_.end()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Cannot find ExtensionRecords!");
+        return false;
+    }
+    if (item->second.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Extension record vector is empty! Clean the map key");
+        preloadUIExtensionMap_.erase(extensionRecordMapKey);
+        return false;
+    }
+    for (auto it = item->second.begin(); it != item->second.end(); ++it) {
+        if ((*it)->extensionRecordId_ == extensionRecordId) {
+            item->second.erase(it);
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Remove extension record by id: %{public}d success.", extensionRecordId);
+            if (item->second.empty()) {
+                TAG_LOGD(AAFwkTag::ABILITYMGR, "Clean extensionRecord by map key");
+                preloadUIExtensionMap_.erase(extensionRecordMapKey);
+            }
+            return true;
+        }
+    }
+    TAG_LOGE(AAFwkTag::ABILITYMGR, "Cannot find extension records by id: %{public}d.", extensionRecordId);
+    return false;
+}
+
+bool ExtensionRecordManager::RemovePreloadUIExtensionRecord(
+    const std::tuple<std::string, std::string, std::string, std::string> extensionRecordMapKey)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call.");
     std::lock_guard<std::mutex> lock(preloadUIExtensionMapMutex_);
     auto item = preloadUIExtensionMap_.find(extensionRecordMapKey);
     if (item != preloadUIExtensionMap_.end()) {
@@ -389,7 +437,8 @@ int32_t ExtensionRecordManager::GetOrCreateExtensionRecordInner(const AAFwk::Abi
     std::shared_ptr<AAFwk::AbilityRecord> abilityRecord = extensionRecord->abilityRecord_;
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_NULL_OBJECT);
     isLoaded = false;
-    extensionRecordId = GenerateExtensionRecordId(extensionRecordId);
+    // Reuse id or not has been checked, so alloc a new id here.
+    extensionRecordId = GenerateExtensionRecordId(INVALID_EXTENSION_RECORD_ID);
     extensionRecord->extensionRecordId_ = extensionRecordId;
     extensionRecord->hostBundleName_ = hostBundleName;
     abilityRecord->SetOwnerMissionUserId(userId_);
@@ -446,6 +495,11 @@ sptr<IRemoteObject> ExtensionRecordManager::GetRootCallerTokenLocked(int32_t ext
             it->second->SetRootCallerToken(callerToken);
             return callerToken;
         }
+        // If caller extension record id is same with current, need terminate, prevent possible stack-overflow.
+        if (callerAbilityRecord->GetUIExtensionAbilityId() == extensionRecordId) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid id: %{public}d, same with caller.", extensionRecordId);
+            return nullptr;
+        }
         rootCallerToken = GetRootCallerTokenLocked(callerAbilityRecord->GetUIExtensionAbilityId());
         TAG_LOGD(AAFwkTag::ABILITYMGR, "update rootCallerToken, id: %{public}d.", extensionRecordId);
         it->second->SetRootCallerToken(rootCallerToken);
@@ -455,32 +509,50 @@ sptr<IRemoteObject> ExtensionRecordManager::GetRootCallerTokenLocked(int32_t ext
     return nullptr;
 }
 
-int32_t ExtensionRecordManager::CreateExtensionRecord(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord,
+int32_t ExtensionRecordManager::CreateExtensionRecord(const AAFwk::AbilityRequest &abilityRequest,
     const std::string &hostBundleName, std::shared_ptr<ExtensionRecord> &extensionRecord, int32_t &extensionRecordId)
 {
-    // factory pattern with ability request
-    if (abilityRecord == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityRecord is null");
-        return ERR_NULL_OBJECT;
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
+    std::shared_ptr<ExtensionRecordFactory> factory = nullptr;
+    if (AAFwk::UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType)) {
+        factory = DelayedSingleton<UIExtensionRecordFactory>::GetInstance();
     }
+    if (factory == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid extensionAbilityType");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = factory->CreateRecord(abilityRequest, extensionRecord);
+    if (result != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "createRecord error");
+        return result;
+    }
+    CHECK_POINTER_AND_RETURN(extensionRecord, ERR_NULL_OBJECT);
+    std::shared_ptr<AAFwk::AbilityRecord> abilityRecord = extensionRecord->abilityRecord_;
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_NULL_OBJECT);
     extensionRecordId = GenerateExtensionRecordId(extensionRecordId);
-    if (AAFwk::UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
-        extensionRecord = std::make_shared<UIExtensionRecord>(abilityRecord);
-        extensionRecord->hostBundleName_ = hostBundleName;
-        extensionRecord->extensionRecordId_ = extensionRecordId;
-        std::lock_guard<std::mutex> lock(mutex_);
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "add UIExtension, id %{public}d.", extensionRecordId);
-        extensionRecords_[extensionRecordId] = extensionRecord;
-        abilityRecord->SetUIExtensionAbilityId(extensionRecordId);
-        //add uiextension record register state observer object.
+    extensionRecord->extensionRecordId_ = extensionRecordId;
+    extensionRecord->hostBundleName_ = hostBundleName;
+    abilityRecord->SetOwnerMissionUserId(userId_);
+    abilityRecord->SetUIExtensionAbilityId(extensionRecordId);
+    //add uiextension record register state observer object.
+    if (abilityRecord->GetWant().GetBoolParam(IS_PRELOAD_UIEXTENSION_ABILITY, false)) {
         auto ret = extensionRecord->RegisterStateObserver(hostBundleName);
         if (ret != ERR_OK) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Register extensionRecord state observer failed, err: %{public}d.", ret);
             return ERR_INVALID_VALUE;
         }
-        return ERR_OK;
     }
-    return ERR_INVALID_VALUE;
+    result = UpdateProcessName(abilityRequest, extensionRecord);
+    if (result != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "update processname error!");
+        return result;
+    }
+    TAG_LOGI(AAFwkTag::ABILITYMGR,
+        "extensionRecordId: %{public}d, extensionProcessMode:%{public}d, process: %{public}s",
+        extensionRecordId, abilityRequest.extensionProcessMode, abilityRecord->GetAbilityInfo().process.c_str());
+    std::lock_guard<std::mutex> lock(mutex_);
+    extensionRecords_[extensionRecordId] = extensionRecord;
+    return ERR_OK;
 }
 
 std::shared_ptr<AAFwk::AbilityRecord> ExtensionRecordManager::GetUIExtensionRootHostInfo(

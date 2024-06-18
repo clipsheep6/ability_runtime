@@ -22,6 +22,7 @@
 #include "ability_manager_interface.h"
 #include "ability_runtime_error_util.h"
 #include "app_mgr_interface.h"
+#include "application_info.h"
 #include "event_runner.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
@@ -33,6 +34,9 @@
 #include "js_app_state_observer.h"
 #ifdef SUPPORT_GRAPHICS
 #include "js_ability_first_frame_state_observer.h"
+#ifdef SUPPORT_SCREEN
+#include "tokenid_kit.h"
+#endif
 #endif
 #include "js_error_utils.h"
 #include "js_runtime.h"
@@ -40,7 +44,7 @@
 #include "napi/native_api.h"
 #include "napi_common_util.h"
 #include "system_ability_definition.h"
-#include "tokenid_kit.h"
+
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -99,9 +103,19 @@ public:
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnGetRunningProcessInformation);
     }
 
+    static napi_value GetRunningProcessInformationByBundleType(napi_env env, napi_callback_info info)
+    {
+        GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnGetRunningProcessInformationByBundleType);
+    }
+
     static napi_value IsRunningInStabilityTest(napi_env env, napi_callback_info info)
     {
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnIsRunningInStabilityTest);
+    }
+
+    static napi_value GetRunningMultiAppInfo(napi_env env, napi_callback_info info)
+    {
+        GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnGetRunningMultiAppInfo);
     }
 
     static napi_value KillProcessWithAccount(napi_env env, napi_callback_info info)
@@ -111,7 +125,7 @@ public:
 
     static napi_value KillProcessesByBundleName(napi_env env, napi_callback_info info)
     {
-        GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnkillProcessesByBundleName);
+        GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnKillProcessesByBundleName);
     }
 
     static napi_value ClearUpApplicationData(napi_env env, napi_callback_info info)
@@ -149,6 +163,11 @@ public:
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnIsApplicationRunning);
     }
 
+    static napi_value IsAppRunning(napi_env env, napi_callback_info info)
+    {
+        GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnIsAppRunning);
+    }
+#ifdef SUPPORT_SCREEN
     static bool CheckCallerIsSystemApp()
     {
         auto selfToken = IPCSkeleton::GetSelfTokenID();
@@ -157,6 +176,7 @@ public:
         }
         return true;
     }
+#endif
 
     static bool IsParasNullOrUndefined(napi_env env, const napi_value& para)
     {
@@ -172,8 +192,8 @@ public:
         }
         napi_ref ref = nullptr;
         napi_create_reference(env, para, 1, &ref);
-        NativeReference* nativeReferece = reinterpret_cast<NativeReference *>(ref);
-        auto object = nativeReferece->GetNapiValue();
+        NativeReference* nativeReference = reinterpret_cast<NativeReference *>(ref);
+        auto object = nativeReference->GetNapiValue();
         napi_value method = nullptr;
         napi_get_named_property(env, object, methodName.c_str(), &method);
         if (method == nullptr) {
@@ -212,9 +232,9 @@ private:
         } else if (type == ON_OFF_TYPE_APP_FOREGROUND_STATE) {
             return OnOnForeground(env, argc, argv);
         } else if (type == ON_OFF_TYPE_ABILITY_FIRST_FRAME_STATE) {
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
             return OnOnAbilityFirstFrameState(env, argc, argv);
-#elif
+#else
             TAG_LOGE(AAFwkTag::APPMGR, "Not Supported.");
             return CreateJsUndefined(env);
 #endif
@@ -233,7 +253,8 @@ private:
         }
 
         if (!CheckOnOffType(env, argc, argv)) {
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param type failed, must be a string,"
+                "value must be applicationState, appForegroundState or abilityFirstFrameState.");
             return CreateJsUndefined(env);
         }
 
@@ -279,7 +300,7 @@ private:
         }
         if (!AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
             TAG_LOGE(AAFwkTag::APPMGR, "Invalid param");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param observer failed, must be a ApplicationStateObserver.");
             return CreateJsUndefined(env);
         }
         std::vector<std::string> bundleNameList;
@@ -322,7 +343,7 @@ private:
         }
         if (!AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
             TAG_LOGE(AAFwkTag::APPMGR, "Invalid param.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param observer failed, must be a AppForegroundStateObserver.");
             return CreateJsUndefined(env);
         }
         if (observerForeground_ == nullptr) {
@@ -356,9 +377,9 @@ private:
         } else if (type == ON_OFF_TYPE_APP_FOREGROUND_STATE) {
             return OnOffForeground(env, argc, argv);
         } else if (type == ON_OFF_TYPE_ABILITY_FIRST_FRAME_STATE) {
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
             return OnOffAbilityFirstFrameState(env, argc, argv);
-#elif
+#else
             TAG_LOGE(AAFwkTag::APPMGR, "Not Supported.");
             return CreateJsUndefined(env);
 #endif
@@ -367,7 +388,7 @@ private:
         return OnOffOld(env, argc, argv);
     }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     napi_value OnOnAbilityFirstFrameState(napi_env env, size_t argc, napi_value *argv)
     {
         if (!CheckCallerIsSystemApp()) {
@@ -385,7 +406,7 @@ private:
         if (!AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object) ||
             !IsJSFunctionExist(env, argv[INDEX_ONE], "onAbilityFirstFrameDrawn")) {
             TAG_LOGE(AAFwkTag::APPMGR, "Invalid param.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param observer failed, must be a AbilityFirstFrameStateObserver.");
             return CreateJsUndefined(env);
         }
         std::string bundleName;
@@ -393,7 +414,7 @@ private:
             if (!IsParasNullOrUndefined(env, argv[INDEX_TWO]) &&
                 (!ConvertFromJsValue(env, argv[INDEX_TWO], bundleName) || bundleName.empty())) {
                 TAG_LOGE(AAFwkTag::APPMGR, "Get bundleName error or bundleName empty!");
-                ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+                ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string.");
                 return CreateJsUndefined(env);
             }
         }
@@ -439,7 +460,7 @@ private:
                 (!AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object) ||
                 !IsJSFunctionExist(env, argv[INDEX_ONE], "onAbilityFirstFrameDrawn"))) {
                 TAG_LOGE(AAFwkTag::APPMGR, "Invalid param.");
-                ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+                ThrowInvalidParamError(env, "Parse param observer failed, must be a AbilityFirstFrameStateObserver.");
                 return CreateJsUndefined(env);
             }
         }
@@ -463,20 +484,21 @@ private:
             return CreateJsUndefined(env);
         }
         if (!CheckOnOffType(env, argc, argv)) {
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param type failed, must be a string,"
+                "value must be applicationState, appForegroundState or abilityFirstFrameState.");
             return CreateJsUndefined(env);
         }
 
         int64_t observerId = -1;
         napi_get_value_int64(env, argv[INDEX_ONE], &observerId);
         if (observer_ == nullptr) {
-            TAG_LOGE(AAFwkTag::APPMGR, "observer_ is nullpter, please register first");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            TAG_LOGE(AAFwkTag::APPMGR, "observer is nullptr, please register first.");
+            ThrowInvalidParamError(env, "observer is nullptr, please register first.");
             return CreateJsUndefined(env);
         }
         if (!observer_->FindObserverByObserverId(observerId)) {
             TAG_LOGE(AAFwkTag::APPMGR, "not find observer, observer:%{public}d", static_cast<int32_t>(observerId));
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "not find observerId.");
             return CreateJsUndefined(env);
         }
         TAG_LOGD(AAFwkTag::APPMGR, "find observer exist observer:%{public}d", static_cast<int32_t>(observerId));
@@ -518,7 +540,7 @@ private:
         int32_t observerId = -1;
         if (!ConvertFromJsValue(env, argv[INDEX_ONE], observerId)) {
             TAG_LOGE(AAFwkTag::APPMGR, "Parse observerId failed");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param observerId failed, must be a number.");
             return CreateJsUndefined(env);
         }
 
@@ -529,7 +551,7 @@ private:
         }
         if (!observerSync_->FindObserverByObserverId(observerId)) {
             TAG_LOGE(AAFwkTag::APPMGR, "not find observer, observer:%{public}d", static_cast<int32_t>(observerId));
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "not find observerId.");
             return CreateJsUndefined(env);
         }
         int32_t ret = appManager_->UnregisterApplicationStateObserver(observerSync_);
@@ -553,7 +575,7 @@ private:
         }
         if (argc == ARGC_TWO && !AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
             TAG_LOGE(AAFwkTag::APPMGR, "Invalid param.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param observer failed, must be a AppForegroundStateObserver.");
             return CreateJsUndefined(env);
         }
         if (observerForeground_ == nullptr || appManager_ == nullptr) {
@@ -632,6 +654,97 @@ private:
         return result;
     }
 
+    napi_value OnGetRunningMultiAppInfo(napi_env env, size_t argc, napi_value* argv)
+    {
+        TAG_LOGD(AAFwkTag::APPMGR, "called");
+#ifdef SUPPORT_SCREEN
+        if (!CheckCallerIsSystemApp()) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Current app is not system app");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
+            return CreateJsUndefined(env);
+        }
+#endif
+        // only support 1 params
+        if (argc < ARGC_ONE) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Not enough arguments");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+        std::string bundleName;
+        if (!ConvertFromJsValue(env, argv[0], bundleName) || bundleName.empty()) {
+            TAG_LOGE(AAFwkTag::APPMGR, "get bundleName failed!");
+            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string.");
+            return CreateJsUndefined(env);
+        }
+        auto info = std::make_shared<RunningMultiAppInfo>();
+        auto innerErrorCode = std::make_shared<int32_t>(ERR_OK);
+        NapiAsyncTask::ExecuteCallback execute =
+            [appManager = appManager_, bundleName, innerErrorCode, info]() {
+                if (appManager == nullptr) {
+                    TAG_LOGW(AAFwkTag::APPMGR, "appManager nullptr");
+                    *innerErrorCode = static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER);
+                    return;
+                }
+                *innerErrorCode = appManager->GetRunningMultiAppInfoByBundleName(bundleName, *info);
+            };
+        NapiAsyncTask::CompleteCallback complete =
+            [innerErrorCode, info](napi_env env, NapiAsyncTask &task, int32_t status) {
+                if (*innerErrorCode == ERR_OK) {
+                    task.ResolveWithNoError(env, CreateJsRunningMultiAppInfo(env, *info));
+                } else {
+                    task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
+                }
+            };
+        napi_value lastParam = nullptr;
+        napi_value result = nullptr;
+        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnGetRunningMultiAppInfo",
+            env, CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
+        return result;
+    }
+
+    napi_value OnGetRunningProcessInformationByBundleType(napi_env env, size_t argc, napi_value* argv)
+    {
+        TAG_LOGD(AAFwkTag::APPMGR, "called");
+        if (argc < ARGC_ONE) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Not enough params.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+        int32_t bundleType = -1;
+        if (!ConvertFromJsValue(env, argv[INDEX_ZERO], bundleType)) {
+            TAG_LOGE(AAFwkTag::APPMGR, "get bundleType error!");
+            ThrowInvalidParamError(env, "Parse param bundleType failed, must be a BundleType.");
+            return CreateJsUndefined(env);
+        }
+        if (bundleType < 0) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Invalid bundle type:%{public}d", bundleType);
+            ThrowInvalidParamError(env, "Parse param bundleType failed, must not be less then zero.");
+            return CreateJsUndefined(env);
+        }
+        NapiAsyncTask::CompleteCallback complete =
+            [appManager = appManager_, bundleType](napi_env env, NapiAsyncTask &task, int32_t status) {
+                if (appManager == nullptr) {
+                    TAG_LOGW(AAFwkTag::APPMGR, "appManager nullptr");
+                    task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                    return;
+                }
+                std::vector<AppExecFwk::RunningProcessInfo> infos;
+                auto ret = appManager->GetRunningProcessesByBundleType(
+                    static_cast<AppExecFwk::BundleType>(bundleType), infos);
+                if (ret == 0) {
+                    task.ResolveWithNoError(env, CreateJsRunningProcessInfoArray(env, infos));
+                } else {
+                    task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(ret)));
+                }
+            };
+
+        napi_value lastParam = (argc > ARGC_ONE) ? argv[INDEX_ONE] : nullptr;
+        napi_value result = nullptr;
+        NapiAsyncTask::Schedule("JSAppManager::OnGetRunningProcessInformationByBundleType",
+            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+        return result;
+    }
+
     napi_value OnIsRunningInStabilityTest(napi_env env, size_t argc, napi_value* argv)
     {
         TAG_LOGD(AAFwkTag::APPMGR, "called");
@@ -643,7 +756,7 @@ private:
                     return;
                 }
                 bool ret = abilityManager->IsRunningInStabilityTest();
-                TAG_LOGI(AAFwkTag::APPMGR, "result:%{public}d", ret);
+                TAG_LOGD(AAFwkTag::APPMGR, "result:%{public}d", ret);
                 task.ResolveWithNoError(env, CreateJsValue(env, ret));
             };
 
@@ -654,9 +767,9 @@ private:
         return result;
     }
 
-    napi_value OnkillProcessesByBundleName(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnKillProcessesByBundleName(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGD(AAFwkTag::APPMGR, "OnkillProcessesByBundleName called");
+        TAG_LOGD(AAFwkTag::APPMGR, "OnKillProcessesByBundleName called");
         if (argc < ARGC_ONE) {
             TAG_LOGE(AAFwkTag::APPMGR, "Params not match");
             ThrowTooFewParametersError(env);
@@ -666,7 +779,7 @@ private:
         std::string bundleName;
         if (!ConvertFromJsValue(env, argv[0], bundleName)) {
             TAG_LOGE(AAFwkTag::APPMGR, "get bundleName error!");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string.");
             return CreateJsUndefined(env);
         }
 
@@ -688,7 +801,7 @@ private:
 
         napi_value lastParam = (argc == ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnkillProcessesByBundleName",
+        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnKillProcessesByBundleName",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -705,7 +818,7 @@ private:
         std::string bundleName;
         if (!ConvertFromJsValue(env, argv[0], bundleName)) {
             TAG_LOGE(AAFwkTag::APPMGR, "get bundleName failed!");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string.");
             return CreateJsUndefined(env);
         }
 
@@ -743,14 +856,14 @@ private:
         std::string bundleName;
         if (!ConvertFromJsValue(env, argv[0], bundleName)) {
             TAG_LOGE(AAFwkTag::APPMGR, "get bundleName wrong!");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string.");
             return CreateJsUndefined(env);
         }
 
         uint32_t versionCode = 0;
         if (!ConvertFromJsValue(env, argv[1], versionCode)) {
             TAG_LOGE(AAFwkTag::APPMGR, "get versionCode failed!");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param versionCode failed, must be a number.");
             return CreateJsUndefined(env);
         }
 
@@ -785,13 +898,13 @@ private:
         std::string bundleName;
         if (!ConvertFromJsValue(env, argv[0], bundleName)) {
             TAG_LOGE(AAFwkTag::APPMGR, "Parse bundleName failed");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string.");
             return CreateJsUndefined(env);
         }
         int32_t accountId = -1;
         if (!ConvertFromJsValue(env, argv[1], accountId)) {
             TAG_LOGE(AAFwkTag::APPMGR, "Parse userId failed");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param accountId failed, must be a number.");
             return CreateJsUndefined(env);
         }
 
@@ -871,7 +984,7 @@ private:
         int32_t pid;
         if (!ConvertFromJsValue(env, argv[0], pid)) {
             TAG_LOGE(AAFwkTag::APPMGR, "get pid failed");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param pid failed, must be a number.");
             return CreateJsUndefined(env);
         }
 
@@ -910,7 +1023,7 @@ private:
         bool isPromiseType = false;
         if (!ConvertFromJsValue(env, argv[0], bundleName)) {
             TAG_LOGE(AAFwkTag::APPMGR, "First parameter must be string");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string.");
             return CreateJsUndefined(env);
         }
         if (argc == ARGC_ONE) {
@@ -922,11 +1035,11 @@ private:
         } else if (argc == ARGC_THREE) {
             if (!ConvertFromJsValue(env, argv[1], userId)) {
                 TAG_LOGW(AAFwkTag::APPMGR, "Must input userid and use callback when argc is three.");
-                ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+                ThrowInvalidParamError(env, "Parse param userId failed, must be a number.");
                 return CreateJsUndefined(env);
             }
         } else {
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "The number of param exceeded.");
             return CreateJsUndefined(env);
         }
 
@@ -963,7 +1076,7 @@ private:
         std::string bundleName;
         if (!ConvertFromJsValue(env, argv[0], bundleName)) {
             TAG_LOGE(AAFwkTag::APPMGR, "Get bundle name wrong.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string.");
             return CreateJsUndefined(env);
         }
 
@@ -992,6 +1105,57 @@ private:
         napi_value lastParam = (argc == ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
         napi_value result = nullptr;
         NapiAsyncTask::ScheduleHighQos("JSAppManager::OnIsApplicationRunning",
+            env, CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
+        return result;
+    }
+
+    napi_value OnIsAppRunning(napi_env env, size_t argc, napi_value *argv)
+    {
+        TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+        if (argc < ARGC_ONE) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Params not match.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+
+        std::string bundleName;
+        if (!ConvertFromJsValue(env, argv[0], bundleName)) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Get bundle name wrong.");
+            ThrowInvalidParamError(env, "Parse param bundleName failed, must be a string.");
+            return CreateJsUndefined(env);
+        }
+        int32_t appCloneIndex = 0;
+        if (argc > ARGC_ONE && !ConvertFromJsValue(env, argv[1], appCloneIndex)) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Get appCloneIndex wrong.");
+            ThrowInvalidParamError(env, "Parse param appCloneIndex failed, must be a string.");
+            return CreateJsUndefined(env);
+        }
+
+        auto innerErrorCode = std::make_shared<int32_t>(ERR_OK);
+        auto isRunning = std::make_shared<bool>(false);
+        wptr<OHOS::AppExecFwk::IAppMgr> appManager = appManager_;
+        NapiAsyncTask::ExecuteCallback execute =
+            [bundleName, appCloneIndex, appManager, innerErrorCode, isRunning]() {
+            sptr<OHOS::AppExecFwk::IAppMgr> appMgr = appManager.promote();
+            if (appMgr == nullptr) {
+                TAG_LOGE(AAFwkTag::APPMGR, "App manager is nullptr.");
+                *innerErrorCode = static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER);
+                return;
+            }
+            *innerErrorCode = appMgr->IsAppRunning(bundleName, appCloneIndex, *isRunning);
+        };
+        NapiAsyncTask::CompleteCallback complete =
+            [innerErrorCode, isRunning](napi_env env, NapiAsyncTask &task, int32_t status) {
+            if (*innerErrorCode == ERR_OK) {
+                task.ResolveWithNoError(env, CreateJsValue(env, *isRunning));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
+            }
+        };
+
+        napi_value lastParam = (argc == ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
+        napi_value result = nullptr;
+        NapiAsyncTask::ScheduleHighQos("JSAppManager::IsAppRunning",
             env, CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
         return result;
     }
@@ -1113,32 +1277,27 @@ napi_value JsAppManagerInit(napi_env env, napi_value exportObj)
         JsAppManager::GetForegroundApplications);
     BindNativeFunction(env, exportObj, "getProcessRunningInfos", moduleName,
         JsAppManager::GetRunningProcessInformation);
-    BindNativeFunction(env, exportObj, "getProcessRunningInformation", moduleName,
-        JsAppManager::GetRunningProcessInformation);
     BindNativeFunction(env, exportObj, "getRunningProcessInformation", moduleName,
         JsAppManager::GetRunningProcessInformation);
     BindNativeFunction(env, exportObj, "isRunningInStabilityTest", moduleName,
         JsAppManager::IsRunningInStabilityTest);
-    BindNativeFunction(env, exportObj, "killProcessWithAccount", moduleName,
-        JsAppManager::KillProcessWithAccount);
+    BindNativeFunction(env, exportObj, "killProcessWithAccount", moduleName, JsAppManager::KillProcessWithAccount);
     BindNativeFunction(env, exportObj, "killProcessesByBundleName", moduleName,
         JsAppManager::KillProcessesByBundleName);
-    BindNativeFunction(env, exportObj, "clearUpApplicationData", moduleName,
-        JsAppManager::ClearUpApplicationData);
-    BindNativeFunction(env, exportObj, "getAppMemorySize", moduleName,
-        JsAppManager::GetAppMemorySize);
-    BindNativeFunction(env, exportObj, "isRamConstrainedDevice", moduleName,
-        JsAppManager::IsRamConstrainedDevice);
-    BindNativeFunction(env, exportObj, "isSharedBundleRunning", moduleName,
-        JsAppManager::IsSharedBundleRunning);
-    BindNativeFunction(env, exportObj, "getProcessMemoryByPid", moduleName,
-        JsAppManager::GetProcessMemoryByPid);
+    BindNativeFunction(env, exportObj, "clearUpApplicationData", moduleName, JsAppManager::ClearUpApplicationData);
+    BindNativeFunction(env, exportObj, "getAppMemorySize", moduleName, JsAppManager::GetAppMemorySize);
+    BindNativeFunction(env, exportObj, "isRamConstrainedDevice", moduleName, JsAppManager::IsRamConstrainedDevice);
+    BindNativeFunction(env, exportObj, "isSharedBundleRunning", moduleName, JsAppManager::IsSharedBundleRunning);
+    BindNativeFunction(env, exportObj, "getProcessMemoryByPid", moduleName, JsAppManager::GetProcessMemoryByPid);
     BindNativeFunction(env, exportObj, "getRunningProcessInfoByBundleName", moduleName,
         JsAppManager::GetRunningProcessInfoByBundleName);
-    BindNativeFunction(env, exportObj, "isApplicationRunning", moduleName,
-        JsAppManager::IsApplicationRunning);
-    BindNativeFunction(env, exportObj, "preloadApplication", moduleName,
-        JsAppManager::PreloadApplication);
+    BindNativeFunction(env, exportObj, "getRunningMultiAppInfo", moduleName, JsAppManager::GetRunningMultiAppInfo);
+    BindNativeFunction(env, exportObj, "isApplicationRunning", moduleName, JsAppManager::IsApplicationRunning);
+    BindNativeFunction(env, exportObj, "isAppRunning", moduleName,
+        JsAppManager::IsAppRunning);
+    BindNativeFunction(env, exportObj, "preloadApplication", moduleName, JsAppManager::PreloadApplication);
+    BindNativeFunction(env, exportObj, "getRunningProcessInformationByBundleType", moduleName,
+        JsAppManager::GetRunningProcessInformationByBundleType);
     TAG_LOGD(AAFwkTag::APPMGR, "end");
     return CreateJsUndefined(env);
 }

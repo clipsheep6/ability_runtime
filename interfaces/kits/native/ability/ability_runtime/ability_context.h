@@ -32,7 +32,9 @@
 #include "want.h"
 
 #ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 #include "pixel_map.h"
+#endif
 #endif
 
 namespace OHOS {
@@ -198,7 +200,8 @@ public:
     * @param connectCallback Indicates the callback object when the target ability is connected.
     * is set up. The IAbilityConnection object uniquely identifies a connection between two abilities.
     */
-    virtual void DisconnectAbility(const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) = 0;
+    virtual void DisconnectAbility(const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback,
+        int32_t accountId = -1) = 0;
 
     /**
      * @brief get ability info of the current ability
@@ -295,6 +298,17 @@ public:
     virtual ErrCode RequestDialogService(napi_env env, AAFwk::Want &want, RequestDialogResultTask &&task) = 0;
 
     /**
+     * @brief Requests dialogService from the system.
+     * This method is called for dialog request. This is an asynchronous method. When it is executed,
+     * the task will be called back.
+     *
+     * @param want Indicates the dialog service to be requested.
+     * @param task The callback or promise fo js interface.
+     * @return Returns ERR_OK if success.
+     */
+    virtual ErrCode RequestDialogService(AAFwk::Want &want, RequestDialogResultTask &&task) = 0;
+
+    /**
      * @brief Report drawn completed.
      *
      * @return Returns ERR_OK on success, others on failure.
@@ -326,7 +340,11 @@ public:
     virtual void UnregisterAbilityLifecycleObserver(
         const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer) = 0;
 
+    virtual void SetRestoreEnabled(bool enabled) = 0;
+    virtual bool GetRestoreEnabled() = 0;
+
 #ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     /**
      * @brief Set mission label of this ability.
      *
@@ -365,6 +383,7 @@ public:
         const std::shared_ptr<JsUIExtensionCallback> &uiExtensionCallbacks) = 0;
     virtual ErrCode CreateModalUIExtensionWithApp(const AAFwk::Want &want) = 0;
     virtual void EraseUIExtension(int32_t sessionId) = 0;
+#endif
 #endif
     virtual bool IsTerminating() = 0;
     virtual void SetTerminating(bool state) = 0;

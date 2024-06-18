@@ -57,6 +57,8 @@ public:
     virtual void SetAbilityInfo(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo) = 0;
 
     virtual void SetContext(const std::shared_ptr<UIExtensionContext> &context) = 0;
+
+    virtual void BindContext() = 0;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

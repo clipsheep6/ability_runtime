@@ -90,6 +90,13 @@ public:
      */
     void SetBundleInfo(const std::string& bundleName, const std::string& bundleVersion);
 
+    /**
+     *
+     * @brief Set whether thread is working in the background or not.
+     *
+     */
+    void SetBgWorkingThreadStatus(const bool isBgWorkingThread);
+
 private:
     void Timer();
     void ReportEvent();
@@ -99,6 +106,7 @@ private:
     std::atomic_bool needReport_ = true;
     std::atomic_bool isSixSecondEvent_ = false;
     std::atomic_bool isInBackground_ = true;
+    std::atomic_bool isBgWorkingThread_ = false;
     std::atomic_int backgroundReportCount_ = 0;
     std::mutex cvMutex_;
     std::condition_variable cvWatchdog_;

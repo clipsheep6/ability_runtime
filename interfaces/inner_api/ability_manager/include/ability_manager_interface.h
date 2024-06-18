@@ -60,7 +60,7 @@
 #include "want_sender_info.h"
 #include "want_sender_interface.h"
 #include "dialog_session_info.h"
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 #include "window_manager_service_handler.h"
 #include "ability_first_frame_state_observer_interface.h"
 #endif
@@ -76,7 +76,7 @@ using InsightIntentExecuteParam = AppExecFwk::InsightIntentExecuteParam;
 using InsightIntentExecuteResult = AppExecFwk::InsightIntentExecuteResult;
 using UIExtensionAbilityConnectInfo = AbilityRuntime::UIExtensionAbilityConnectInfo;
 using UIExtensionHostInfo = AbilityRuntime::UIExtensionHostInfo;
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 using IAbilityFirstFrameStateObserver = AppExecFwk::IAbilityFirstFrameStateObserver;
 #endif
 
@@ -380,9 +380,10 @@ public:
      * Start ui ability with want, send want to ability manager service.
      *
      * @param sessionInfo the session info of the ability to start.
+     * @param isColdStart the session info of the ability is or not cold start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
+    virtual int StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bool &isColdStart)
     {
         return 0;
     }
@@ -872,7 +873,7 @@ public:
         return 0;
     };
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     virtual int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label) = 0;
 
     virtual int SetMissionIcon(const sptr<IRemoteObject> &token,
@@ -1255,8 +1256,9 @@ public:
      * Call UIAbility by SCB.
      *
      * @param sessionInfo the session info of the ability to be called.
+     * @param isColdStart the session of the ability is or not cold start.
      */
-    virtual void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo) {}
+    virtual void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isColdStart) {}
 
     /**
      * Start specified ability by SCB.
@@ -1522,6 +1524,18 @@ public:
         return 0;
     }
 
+    /*
+     * Set the enable status for starting and stopping resident processes.
+     * The caller application can only set the resident status of the configured process.
+     * @param bundleName The bundle name of the resident process.
+     * @param enable Set resident process enable status.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t SetResidentProcessEnabled(const std::string &bundleName, bool enable)
+    {
+        return 0;
+    }
+
     /**
      * @brief Querying whether to allow embedded startup of atomic service.
      *
@@ -1578,6 +1592,30 @@ public:
     virtual int32_t GetAbilityStateByPersistentId(int32_t persistentId, bool &state)
     {
         return 0;
+    }
+
+    /**
+     * Transfer resultCode & want to ability manager service.
+     *
+     * @param resultCode, the resultCode of the ability to terminate.
+     * @param resultWant, the Want of the ability to return.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t TransferAbilityResultForExtension(const sptr<IRemoteObject> &callerToken, int32_t resultCode,
+        const Want &want)
+    {
+        return 0;
+    }
+
+    /**
+     * Notify ability manager service frozen process.
+     *
+     * @param pidList, the pid list of the frozen process.
+     * @param uid, the uid of the frozen process.
+     */
+    virtual void NotifyFrozenProcessByRSS(const std::vector<int32_t> &pidList, int32_t uid)
+    {
+        return;
     }
 };
 }  // namespace AAFwk

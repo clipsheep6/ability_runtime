@@ -17,8 +17,14 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 module_output_path = "ability_runtime/appmgrservice"
 
 ohos_unittest("app_mgr_service_inner_tdd_test") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
   module_out_path = module_output_path
-
   include_dirs = [
     "${ability_runtime_test_path}/mock/common/include",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
@@ -53,9 +59,11 @@ ohos_unittest("app_mgr_service_inner_tdd_test") {
     "c_utils:utils",
     "ffrt:libffrt",
     "hilog:libhilog",
+    "image_framework:image_native",
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "kv_store:distributeddata_mgr",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]

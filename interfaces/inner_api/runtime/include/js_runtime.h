@@ -88,7 +88,6 @@ public:
     void DumpHeapSnapshot(uint32_t tid, bool isFullGC) override;
     void AllowCrossThreadExecution() override;
     void GetHeapPrepare() override;
-    bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) override;
     void NotifyApplicationState(bool isBackground) override;
     bool SuspendVM(uint32_t tid) override;
     void ResumeVM(uint32_t tid) override;
@@ -114,16 +113,18 @@ public:
 
     void UpdateModuleNameAndAssetPath(const std::string& moduleName);
     void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath) override;
-    static bool GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer);
+    static bool GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer,
+                              bool isABC = true);
 
     void InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorImpl);
+    void InitSourceMap(const std::string hqfFilePath);
     void FreeNativeReference(std::unique_ptr<NativeReference> reference);
     void FreeNativeReference(std::shared_ptr<NativeReference>&& reference);
     void StartProfiler(const DebugOption debugOption) override;
 
     void ReloadFormComponent(); // Reload ArkTS-Card component
     void DoCleanWorkAfterStageCleaned() override;
-    void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate) const override;
+    void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate> moduleCheckerDelegate) const override;
 
     static std::unique_ptr<NativeReference> LoadSystemModuleByEngine(napi_env env,
         const std::string& moduleName, const napi_value* argv, size_t argc);
@@ -132,6 +133,7 @@ public:
     std::unique_ptr<NativeReference> LoadSystemModule(
         const std::string& moduleName, const napi_value* argv = nullptr, size_t argc = 0);
     void SetDeviceDisconnectCallback(const std::function<bool()> &cb) override;
+    void UpdatePkgContextInfoJson(std::string moduleName, std::string hapPath, std::string packageName) override;
 
 private:
     void FinishPreload() override;
@@ -155,11 +157,13 @@ private:
     uint32_t instanceId_ = 0;
     std::string bundleName_;
     int32_t apiTargetVersion_ = 0;
+    std::map<std::string, std::string> pkgContextInfoJsonStringMap_;
+    std::map<std::string, std::string> packageNameList_;
 
     static std::atomic<bool> hasInstance;
 
     static std::shared_ptr<Options> childOptions_;
-    
+
 private:
     bool CreateJsEnv(const Options& options);
     void PreloadAce(const Options& options);

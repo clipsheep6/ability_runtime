@@ -148,6 +148,7 @@ ohos_moduletest("iability_monitor_moduletest") {
   deps = [
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:appkit_delegator",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -223,6 +224,7 @@ ohos_moduletest("js_test_runner_moduletest") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:extractortool",
     "ability_base:want",
     "ability_runtime:ability_manager",
     "ability_runtime:runtime",

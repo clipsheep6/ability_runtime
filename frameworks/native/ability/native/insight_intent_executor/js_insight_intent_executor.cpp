@@ -269,6 +269,7 @@ napi_value JsInsightIntentExecutor::ResolveCbCpp(napi_env env, napi_callback_inf
 
 napi_value JsInsightIntentExecutor::RejectCbCpp(napi_env env, napi_callback_info info)
 {
+    TAG_LOGW(AAFwkTag::INTENT, "Error or reject caught.");
     void* data = nullptr;
     napi_get_cb_info(env, info, nullptr, nullptr, nullptr, &data);
     auto* callback = static_cast<InsightIntentExecutorAsyncCallback*>(data);

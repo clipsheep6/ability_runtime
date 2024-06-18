@@ -241,6 +241,9 @@ enum class AbilityManagerInterfaceCode {
     // Starts a new ability by shortcut.
     START_SHORTCUT = 79,
 
+    // Set resident process enable status.
+    SET_RESIDENT_PROCESS_ENABLE = 80,
+
     // ipc id 1001-2000 for DMS
     // ipc id for starting ability (1001)
     START_ABILITY = 1001,
@@ -394,6 +397,9 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for preload UIExtension ability by want
     PRELOAD_UIEXTENSION_ABILITY = 1062,
 
+    // ipc id for start UIExtension ability non—modal
+    START_UI_EXTENSION_ABILITY_NON_MODAL = 1063,
+
     // ipc id for continue ability(1101)
     START_CONTINUATION = 1101,
 
@@ -436,6 +442,9 @@ enum class AbilityManagerInterfaceCode {
     UNREGISTER_ABILITY_FIRST_FRAME_STATE_OBSERVER = 1127,
     // ipc for get ability state by persistent id
     GET_ABILITY_STATE_BY_PERSISTENT_ID = 1128,
+    TRANSFER_ABILITY_RESULT = 1129,
+    // ipc for notify frozen process by RSS
+    NOTIFY_FROZEN_PROCESS_BY_RSS = 1130,
 
     // ipc id 2001-3000 for tools
     // ipc id for dumping state (2001)

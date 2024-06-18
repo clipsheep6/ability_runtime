@@ -20,7 +20,6 @@
 #include <string>
 
 #include "ffrt.h"
-#include "js_env_logger.h"
 #include "source_map.h"
 
 namespace OHOS {
@@ -59,7 +58,6 @@ public:
     std::string TranslateBySourceMap(const std::string& stackStr)
     {
         if (sourceMapObj_ == nullptr) {
-            JSENV_LOG_E("sourceMapObj_ is nullptr");
             return "";
         }
         if (isDebugVersion_) {
@@ -72,7 +70,6 @@ public:
     bool TranslateUrlPositionBySourceMap(std::string& url, int& line, int& column)
     {
         if (sourceMapObj_ == nullptr) {
-            JSENV_LOG_E("sourceMapObj_ is nullptr");
             return false;
         }
         return sourceMapObj_->TranslateUrlPositionBySourceMap(url, line, column);
@@ -81,6 +78,11 @@ public:
     bool GetInitStatus() const
     {
         return (initStatus_ == InitStatus::EXECUTED_SUCCESSFULLY);
+    }
+
+    std::shared_ptr<SourceMap> GetSourceMapObj() const
+    {
+        return sourceMapObj_;
     }
 
 private:

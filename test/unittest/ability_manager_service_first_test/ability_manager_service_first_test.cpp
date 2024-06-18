@@ -593,25 +593,6 @@ HWTEST_F(AbilityManagerServiceFirstTest, GetMissionIdByToken_001, TestSize.Level
 
 /*
  * Feature: AbilityManagerService
- * Function: GetServiceRecordByElementName
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService GetServiceRecordByElementName
- */
-HWTEST_F(AbilityManagerServiceFirstTest, GetServiceRecordByElementName_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest GetServiceRecordByElementName_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    EXPECT_EQ(abilityMs_->GetServiceRecordByElementName(""), nullptr);
-    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
-    abilityMs_->subManagersHelper_->currentConnectManager_ = std::make_shared<AbilityConnectManager>(100);
-    abilityMs_->subManagersHelper_->currentConnectManager_->serviceMap_.insert(
-        {"test", MockAbilityRecord(AbilityType::PAGE)});
-    EXPECT_NE(abilityMs_->GetServiceRecordByElementName("test"), nullptr);
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest GetServiceRecordByElementName_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: ScheduleConnectAbilityDone
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService ScheduleConnectAbilityDone
@@ -1016,7 +997,7 @@ HWTEST_F(AbilityManagerServiceFirstTest, StopExtensionAbility_002, TestSize.Leve
     abilityRecord->appIndex_ = -1;
     abilityRecord->applicationInfo_.bundleName = "com.ix.hiservcie";
     EXPECT_EQ(abilityMs_->StopExtensionAbility(want, abilityRecord->GetToken(), -1, ExtensionAbilityType::SERVICE),
-        ERR_INVALID_CALLER);
+        CHECK_PERMISSION_FAILED);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest StopExtensionAbility_002 end");
 }
 
@@ -1348,6 +1329,7 @@ HWTEST_F(AbilityManagerServiceFirstTest, AppRecoverKill_001, TestSize.Level1)
     abilityMs_->AppRecoverKill(pid, StateReason::JS_ERROR);
     abilityMs_->AppRecoverKill(pid, StateReason::LIFECYCLE);
     abilityMs_->AppRecoverKill(pid, StateReason::APP_FREEZE);
+    EXPECT_TRUE(abilityMs_ != nullptr);
 }
 
 /*

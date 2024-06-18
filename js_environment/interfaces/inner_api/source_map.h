@@ -80,12 +80,12 @@ public:
     static bool ReadSourceMapData(const std::string& hapPath, const std::string& sourceMapPath, std::string& content);
     static void RegisterGetHapPathCallback(GetHapPathCallback getFunc);
     static void GetHapPath(const std::string &bundleName, std::vector<std::string> &hapList);
-    bool GetLineAndColumnNumbers(int& line, int& column, SourceMapData& targetMap);
+    bool GetLineAndColumnNumbers(int& line, int& column, SourceMapData& targetMap, std::string& url);
     static void ExtractStackInfo(const std::string& stackStr, std::vector<std::string>& res);
-
-private:
     void SplitSourceMap(const std::string& sourceMapData);
-    void ExtractSourceMapData(const std::string& sourceMapData, std::shared_ptr<SourceMapData>& curMapData);
+    
+private:
+    void ExtractSourceMapData(const std::string& allmappings, std::shared_ptr<SourceMapData>& curMapData);
     void ExtractKeyInfo(const std::string& sourceMap, std::vector<std::string>& sourceKeyInfo);
     std::vector<std::string> HandleMappings(const std::string& mapping);
     bool VlqRevCode(const std::string& vStr, std::vector<int32_t>& ans);
@@ -102,6 +102,8 @@ private:
     static ReadSourceMapCallback readSourceMapFunc_;
     static std::mutex sourceMapMutex_;
     static GetHapPathCallback getHapPathFunc_;
+    std::unordered_map<std::string, std::string> sources_;
+    std::unordered_map<std::string, std::string> mappings_;
 };
 } // namespace JsEnv
 } // namespace OHOS

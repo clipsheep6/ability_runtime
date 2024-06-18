@@ -368,7 +368,7 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnStop_0300, TestSize.Level1)
     ASSERT_NE(ability, nullptr);
     auto abilityRecovery = std::make_shared<AbilityRecovery>();
     EXPECT_NE(abilityRecovery, nullptr);
-    ability->EnableAbilityRecovery(abilityRecovery);
+    ability->EnableAbilityRecovery(abilityRecovery, false);
     ability->OnStop();
 
     // window is not nullptr
@@ -656,7 +656,7 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityContinuation_0100, TestSize.Level1)
     // branch when launchReason is not LAUNCHREASON_CONTINUATION
     ret = ability->IsRestoredInContinuation();
     EXPECT_EQ(ret, false);
-    launchParam.launchReason = LaunchReason::LAUNCHREASON_CONTINUATION;
+    launchParam.launchReason = LaunchReason::LAUNCHREASON_APP_RECOVERY;
     ability->SetLaunchParam(launchParam);
 
     // branch when contentStorage_ is nullptr
@@ -683,7 +683,7 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityContinuation_0200, TestSize.Level1)
     EXPECT_EQ(ret, false);
     ability->HandleCreateAsRecovery(want);
     auto abilityRecovery = std::make_shared<AbilityRecovery>();
-    ability->EnableAbilityRecovery(abilityRecovery);
+    ability->EnableAbilityRecovery(abilityRecovery, false);
 
     // branch when abilityContext_ is nullptr
     want.SetParam(Want::PARAM_ABILITY_RECOVERY_RESTART, true);
@@ -748,21 +748,19 @@ HWTEST_F(UIAbilityBaseTest, InitConfigurationProperties_0100, TestSize.Level1)
     config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, "en");
     config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, "dark");
     config.AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, "true");
-    std::string language;
-    std::string colormode;
-    std::string hasPointerDevice;
-    ability->InitConfigurationProperties(config, language, colormode, hasPointerDevice);
-    EXPECT_EQ(language, "en");
-    EXPECT_EQ(colormode, "dark");
-    EXPECT_EQ(hasPointerDevice, "true");
+    AbilityRuntime::ResourceConfigHelper resourceConfig;
+    ability->InitConfigurationProperties(config, resourceConfig);
+    EXPECT_EQ(resourceConfig.GetLanguage(), "en");
+    EXPECT_EQ(resourceConfig.GetColormode(), "dark");
+    EXPECT_EQ(resourceConfig.GetHasPointerDevice(), "true");
 
     // branch when setting is not nullptr
     auto setting = std::make_shared<AbilityStartSetting>();
     ability->SetStartAbilitySetting(setting);
-    ability->InitConfigurationProperties(config, language, colormode, hasPointerDevice);
-    EXPECT_EQ(language, "en");
-    EXPECT_EQ(colormode, "dark");
-    EXPECT_EQ(hasPointerDevice, "true");
+    ability->InitConfigurationProperties(config, resourceConfig);
+    EXPECT_EQ(resourceConfig.GetLanguage(), "en");
+    EXPECT_EQ(resourceConfig.GetColormode(), "dark");
+    EXPECT_EQ(resourceConfig.GetHasPointerDevice(), "true");
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
@@ -879,7 +877,7 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityFuncList_0100, TestSize.Level1)
     bool isNewRule = ability->IsUseNewStartUpRule();
     EXPECT_EQ(isNewRule, true);
     auto abilityRecovery = std::make_shared<AbilityRecovery>();
-    ability->EnableAbilityRecovery(abilityRecovery);
+    ability->EnableAbilityRecovery(abilityRecovery, false);
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
@@ -1341,6 +1339,22 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_RegisterAbilityLifecycleObserver_0100, Fun
     ability->OnStop();
     EXPECT_EQ(LifeCycle::Event::ON_STOP, lifeCycle->GetLifecycleState());
     EXPECT_EQ(finalObservedState, observer->GetLifecycleState());
+}
+
+/**
+ * @tc.name: UIAbility_CheckIsSilentForeground_0100
+ * @tc.desc: CheckIsSilentForeground test
+ * @tc.desc: Verify function CheckIsSilentForeground.
+ */
+HWTEST_F(UIAbilityBaseTest, UIAbility_CheckIsSilentForeground_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "start.");
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
+    EXPECT_NE(ability, nullptr);
+    EXPECT_EQ(false, ability->CheckIsSilentForeground());
+    ability->SetIsSilentForeground(true);
+    EXPECT_EQ(true, ability->CheckIsSilentForeground());
+    TAG_LOGI(AAFwkTag::TEST, "end.");
 }
 } // namespace AppExecFwk
 } // namespace OHOS

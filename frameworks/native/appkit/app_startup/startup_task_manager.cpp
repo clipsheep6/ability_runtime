@@ -47,10 +47,9 @@ int32_t StartupTaskManager::AddTask(const std::shared_ptr<StartupTask> &task)
     return ERR_OK;
 }
 
-int32_t StartupTaskManager::SetConfig(const std::shared_ptr<StartupConfig> &config)
+void StartupTaskManager::SetConfig(const std::shared_ptr<StartupConfig> &config)
 {
     config_ = config;
-    return ERR_OK;
 }
 
 int32_t StartupTaskManager::Prepare()

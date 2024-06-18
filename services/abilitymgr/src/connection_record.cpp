@@ -75,11 +75,13 @@ std::shared_ptr<AbilityRecord> ConnectionRecord::GetAbilityRecord() const
 
 sptr<IAbilityConnection> ConnectionRecord::GetAbilityConnectCallback() const
 {
+    std::lock_guard lock(callbackMutex_);
     return connCallback_;
 }
 
 void ConnectionRecord::ClearConnCallBack()
 {
+    std::lock_guard lock(callbackMutex_);
     if (connCallback_) {
         connCallback_.clear();
     }
@@ -136,7 +138,7 @@ void ConnectionRecord::CompleteConnect(int resultCode)
     AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName,
         abilityInfo.name, abilityInfo.moduleName);
     auto remoteObject = targetService_->GetConnRemoteObject();
-    auto callback = connCallback_;
+    auto callback = GetAbilityConnectCallback();
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (remoteObject == nullptr) {
         TAG_LOGW(AAFwkTag::CONNECTION, "extension returned null object: %{public}s", element.GetURI().c_str());
@@ -160,7 +162,7 @@ void ConnectionRecord::CompleteConnect(int resultCode)
     TAG_LOGI(AAFwkTag::CONNECTION, "result: %{public}d. connectState:%{public}d.", resultCode, state_);
 }
 
-void ConnectionRecord::CompleteDisconnect(int resultCode, bool isDied)
+void ConnectionRecord::CompleteDisconnect(int resultCode, bool isCallerDied, bool isTargetDied)
 {
     if (resultCode == ERR_OK) {
         SetConnectState(ConnectionState::DISCONNECTED);
@@ -169,11 +171,11 @@ void ConnectionRecord::CompleteDisconnect(int resultCode, bool isDied)
     const AppExecFwk::AbilityInfo &abilityInfo = targetService_->GetAbilityInfo();
     AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName,
         abilityInfo.name, abilityInfo.moduleName);
-    auto code = isDied ? (resultCode - 1) : resultCode;
-    auto onDisconnectDoneTask = [connCallback = connCallback_, element, code]() {
+    auto code = isTargetDied ? (resultCode - 1) : resultCode;
+    auto onDisconnectDoneTask = [connCallback = GetAbilityConnectCallback(), element, code]() {
         TAG_LOGD(AAFwkTag::CONNECTION, "OnAbilityDisconnectDone.");
         if (!connCallback) {
-            TAG_LOGD(AAFwkTag::CONNECTION, "connCallback_ is nullptr.");
+            TAG_LOGD(AAFwkTag::CONNECTION, "connCallback is nullptr.");
             return;
         }
         connCallback->OnAbilityDisconnectDone(element, code);
@@ -184,7 +186,7 @@ void ConnectionRecord::CompleteDisconnect(int resultCode, bool isDied)
         return;
     }
     handler->SubmitTask(onDisconnectDoneTask);
-    DelayedSingleton<ConnectionStateManager>::GetInstance()->RemoveConnection(shared_from_this(), isDied);
+    DelayedSingleton<ConnectionStateManager>::GetInstance()->RemoveConnection(shared_from_this(), isCallerDied);
     TAG_LOGD(AAFwkTag::CONNECTION, "result: %{public}d. connectState:%{public}d.", resultCode, state_);
 }
 
@@ -309,7 +311,7 @@ sptr<IRemoteObject> ConnectionRecord::GetTargetToken() const
 
 sptr<IRemoteObject> ConnectionRecord::GetConnection() const
 {
-    auto callback = connCallback_;
+    auto callback = GetAbilityConnectCallback();
     if (!callback) {
         return nullptr;
     }

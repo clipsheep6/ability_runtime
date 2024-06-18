@@ -29,6 +29,15 @@ ChildProcessRecord::ChildProcessRecord(pid_t hostPid, const std::string &srcEntr
     MakeProcessName(hostRecord);
 }
 
+ChildProcessRecord::ChildProcessRecord(pid_t hostPid, const std::string &libName,
+    const std::shared_ptr<AppRunningRecord> hostRecord, const sptr<IRemoteObject> &mainProcessCb,
+    int32_t childProcessCount, bool isStartWithDebug)
+    : hostPid_(hostPid), childProcessCount_(childProcessCount), childProcessType_(CHILD_PROCESS_TYPE_NATIVE),
+    srcEntry_(libName), hostRecord_(hostRecord), mainProcessCb_(mainProcessCb), isStartWithDebug_(isStartWithDebug)
+{
+    MakeProcessName(hostRecord);
+}
+
 ChildProcessRecord::~ChildProcessRecord()
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
@@ -44,6 +53,19 @@ std::shared_ptr<ChildProcessRecord> ChildProcessRecord::CreateChildProcessRecord
         return nullptr;
     }
     return std::make_shared<ChildProcessRecord>(hostPid, srcEntry, hostRecord, childProcessCount, isStartWithDebug);
+}
+
+std::shared_ptr<ChildProcessRecord> ChildProcessRecord::CreateNativeChildProcessRecord(
+    pid_t hostPid, const std::string &libName, const std::shared_ptr<AppRunningRecord> hostRecord,
+    const sptr<IRemoteObject> &mainProcessCb, int32_t childProcessCount, bool isStartWithDebug)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "hostPid: %{public}d, libName: %{public}s", hostPid, libName.c_str());
+    if (hostPid <= 0 || libName.empty() || !hostRecord || !mainProcessCb) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Invalid parameter.");
+        return nullptr;
+    }
+    return std::make_shared<ChildProcessRecord>(hostPid, libName, hostRecord, mainProcessCb,
+        childProcessCount, isStartWithDebug);
 }
 
 void ChildProcessRecord::SetPid(pid_t pid)
@@ -148,6 +170,10 @@ void ChildProcessRecord::MakeProcessName(const std::shared_ptr<AppRunningRecord>
     std::string filename = std::filesystem::path(srcEntry_).stem();
     if (!filename.empty()) {
         processName_.append(":");
+        if (childProcessType_ == CHILD_PROCESS_TYPE_NATIVE) {
+            processName_.append("Native_");
+        }
+        
         processName_.append(filename);
     }
     processName_.append(std::to_string(childProcessCount_));
@@ -158,5 +184,21 @@ bool ChildProcessRecord::isStartWithDebug()
 {
     return isStartWithDebug_;
 }
+
+int32_t ChildProcessRecord::GetProcessType() const
+{
+    return childProcessType_;
+}
+
+sptr<IRemoteObject> ChildProcessRecord::GetMainProcessCallback() const
+{
+    return mainProcessCb_;
+}
+
+void ChildProcessRecord::ClearMainProcessCallback()
+{
+    mainProcessCb_.clear();
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

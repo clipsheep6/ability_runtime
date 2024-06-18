@@ -68,6 +68,7 @@
       *TaskDataPersistenceMgr*;
       *Token*;
       *UserController*;
+      *UnlockScreenManager*;
       *WantSenderInfo*;
       *SenderInfo*;
       *AbilityManagerProxy*;
@@ -79,6 +80,7 @@
       *WantReceiverProxy*;
       *WantSenderProxy*;
       *WantSenderStub*;
+      *DeepLinkReserveConfig*;
     };
   local:
     *;

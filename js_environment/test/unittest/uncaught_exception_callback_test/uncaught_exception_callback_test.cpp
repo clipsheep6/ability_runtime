@@ -95,6 +95,36 @@ HWTEST_F(NapiUncaughtExceptionCallbackTest, NapiUncaughtExceptionCallbackTest_01
 }
 
 /**
+ * @tc.name: NapiUncaughtExceptionCallbackTest_0101
+ * @tc.type: FUNC
+ * @tc.desc: Test NapiNapiUncaughtExceptionCallback GetNativeStrFromJsTaggedObj.
+ * @tc.require: #I6T4K1
+ */
+HWTEST_F(NapiUncaughtExceptionCallbackTest, NapiUncaughtExceptionCallbackTest_0101, TestSize.Level1)
+{
+    AbilityRuntime::Runtime::Options options;
+    options.preload = false;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+    ASSERT_NE(jsRuntime, nullptr);
+    auto env = jsRuntime->GetNapiEnv();
+    EXPECT_NE(env, nullptr);
+
+    // Test with null object
+    auto task = [](std::string summary, const JsEnv::ErrorObject errorObj) {
+        summary += "test";
+    };
+
+    // Test with invalid object
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
+    napi_value valueUint32 = nullptr;
+    napi_create_uint32(env, 0x11, &valueUint32);
+    napi_set_named_property(env, object, "key", valueUint32);
+    NapiUncaughtExceptionCallback callback(task, nullptr, env);
+    ASSERT_EQ(callback.GetNativeStrFromJsTaggedObj(object, "key"), "");
+}
+
+/**
  * @tc.name: NapiUncaughtExceptionCallbackTest_0200
  * @tc.type: FUNC
  * @tc.desc: Test NapiUncaughtExceptionCallback operator().

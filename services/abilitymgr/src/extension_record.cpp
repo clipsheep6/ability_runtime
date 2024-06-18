@@ -46,14 +46,14 @@ void ExtensionRecord::SetRootCallerToken(sptr<IRemoteObject> &rootCallerToken)
     rootCallerToken_ = rootCallerToken;
 }
 
-void ExtensionRecord::UnLoadUIExtension()
+void ExtensionRecord::UnloadUIExtensionAbility()
 {
     auto ret = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->UnregisterApplicationStateObserver(
         preLoadUIExtStateObserver_);
     if (ret != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Unregister application state observer error.");
     }
-    auto result = DelayedSingleton<AAFwk::AbilityManagerService>::GetInstance()->UnloadUIExtension(
+    auto result = DelayedSingleton<AAFwk::AbilityManagerService>::GetInstance()->UnloadUIExtensionAbility(
         abilityRecord_, hostBundleName_);
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Unload UIExtension error.");
@@ -62,8 +62,7 @@ void ExtensionRecord::UnLoadUIExtension()
 
 int32_t ExtensionRecord::RegisterStateObserver(const std::string &hostBundleName)
 {
-    preLoadUIExtStateObserver_ = sptr<AAFwk::PreLoadUIExtStateObserver>(
-        new AAFwk::PreLoadUIExtStateObserver(weak_from_this()));
+    preLoadUIExtStateObserver_ = sptr<AAFwk::PreLoadUIExtStateObserver>::MakeSptr(weak_from_this());
     auto ret = IN_PROCESS_CALL(
         DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->RegisterApplicationStateObserver(
             preLoadUIExtStateObserver_, {hostBundleName}));

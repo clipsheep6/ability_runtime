@@ -335,9 +335,10 @@ public:
      * Start ui ability with want, send want to ability manager service.
      *
      * @param sessionInfo the session info of the ability to start.
+     * @param isColdStart the session info of the ability is or not cold start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo);
+    ErrCode StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bool &isColdStart);
 
     /**
      * Stop extension ability with want, send want to ability manager service.
@@ -990,7 +991,7 @@ public:
      */
     ErrCode SetMissionContinueState(sptr<IRemoteObject> token, const AAFwk::ContinueState &state);
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     /**
      * Set mission label of this ability.
      *
@@ -1265,8 +1266,9 @@ public:
      * Call UIAbility by SCB.
      *
      * @param sessionInfo the session info of the ability to be called.
+     * @param isColdStart the session of the ability is or not cold start.
      */
-    void CallUIAbilityBySCB(sptr<SessionInfo> sessionInfo);
+    void CallUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bool &isColdStart);
 
     /**
      * Start specified ability by SCB.
@@ -1452,6 +1454,15 @@ public:
     int32_t NotifyDebugAssertResult(uint64_t assertFaultSessionId, AAFwk::UserStatus userStatus);
 
     /**
+     * Set the enable status for starting and stopping resident processes.
+     * The caller application can only set the resident status of the configured process.
+     * @param bundleName The bundle name of the resident process.
+     * @param enable Set resident process enable status.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t SetResidentProcessEnabled(const std::string &bundleName, bool enable);
+
+    /**
      * Starts a new ability with specific start options.
      *
      * @param want, the want of the ability to start.
@@ -1468,6 +1479,25 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t GetAbilityStateByPersistentId(int32_t persistentId, bool &state);
+
+    /**
+     * Transfer resultCode & want to abms.
+     *
+     * @param callerToken caller ability token.
+     * @param requestCode the resultCode of the ability to start.
+     * @param want Indicates the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t TransferAbilityResultForExtension(const sptr<IRemoteObject> &callerToken, int32_t resultCode,
+        const Want &want);
+
+    /**
+     * Notify ability manager service frozen process.
+     *
+     * @param pidList, the pid list of the frozen process.
+     * @param uid, the uid of the frozen process.
+     */
+    void NotifyFrozenProcessByRSS(const std::vector<int32_t> &pidList, int32_t uid);
 
 private:
     AbilityManagerClient();

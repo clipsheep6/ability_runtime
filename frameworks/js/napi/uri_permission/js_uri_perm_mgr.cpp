@@ -151,7 +151,7 @@ private:
         [uriStr, bundleName](napi_env env, NapiAsyncTask& task, int32_t status) {
             Uri uri(uriStr);
             auto errCode = AAFwk::UriPermissionManagerClient::GetInstance().RevokeUriPermissionManually(uri,
-                bundleName);
+                bundleName, 0);
             if (errCode == ERR_OK) {
                 task.ResolveWithNoError(env, CreateJsUndefined(env));
             } else if (errCode == AAFwk::CHECK_PERMISSION_FAILED) {
@@ -175,7 +175,7 @@ private:
 
 napi_value CreateJsUriPermMgr(napi_env env, napi_value exportObj)
 {
-    TAG_LOGI(AAFwkTag::URIPERMMGR, "CreateJsUriPermMgr is called");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "CreateJsUriPermMgr is called");
     if (env == nullptr || exportObj == nullptr) {
         TAG_LOGI(AAFwkTag::URIPERMMGR, "Invalid input parameters");
         return nullptr;

@@ -54,6 +54,7 @@ Watchdog::~Watchdog()
 
 void Watchdog::Init(const std::shared_ptr<EventHandler> mainHandler)
 {
+    std::unique_lock<std::mutex> lock(cvMutex_);
     Watchdog::appMainHandler_ = mainHandler;
     if (appMainHandler_ != nullptr) {
         TAG_LOGD(AAFwkTag::APPDFR, "Watchdog init send event");
@@ -85,6 +86,7 @@ void Watchdog::Stop()
 
 void Watchdog::SetAppMainThreadState(const bool appMainThreadState)
 {
+    std::unique_lock<std::mutex> lock(cvMutex_);
     appMainThreadIsAlive_.store(appMainThreadState);
 }
 
@@ -95,12 +97,14 @@ void Watchdog::SetBundleInfo(const std::string& bundleName, const std::string& b
 
 void Watchdog::SetBackgroundStatus(const bool isInBackground)
 {
+    std::unique_lock<std::mutex> lock(cvMutex_);
     isInBackground_.store(isInBackground);
     OHOS::HiviewDFX::Watchdog::GetInstance().SetForeground(!isInBackground);
 }
 
 void Watchdog::AllowReportEvent()
 {
+    std::unique_lock<std::mutex> lock(cvMutex_);
     needReport_.store(true);
     isSixSecondEvent_.store(false);
     backgroundReportCount_.store(0);
@@ -118,7 +122,14 @@ bool Watchdog::IsReportEvent()
 
 bool Watchdog::IsStopWatchdog()
 {
+    std::unique_lock<std::mutex> lock(cvMutex_);
     return stopWatchdog_;
+}
+
+void Watchdog::SetBgWorkingThreadStatus(const bool isBgWorkingThread)
+{
+    std::unique_lock<std::mutex> lock(cvMutex_);
+    isBgWorkingThread_.store(isBgWorkingThread);
 }
 
 void Watchdog::Timer()
@@ -154,6 +165,10 @@ void Watchdog::Timer()
 
 void Watchdog::ReportEvent()
 {
+    if (isBgWorkingThread_) {
+        TAG_LOGD(AAFwkTag::APPDFR, "Thread is working in the background, do not report this time");
+        return;
+    }
     int64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
         system_clock::now().time_since_epoch()).count();
     if ((now - lastWatchTime_) > (RESET_RATIO * CHECK_INTERVAL_TIME) ||
@@ -177,9 +192,11 @@ void Watchdog::ReportEvent()
         return;
     }
 
+#ifndef APP_NO_RESPONSE_DIALOG
     if (isSixSecondEvent_) {
         needReport_.store(false);
     }
+#endif
     AppExecFwk::AppfreezeInner::GetInstance()->ThreadBlock(isSixSecondEvent_);
 }
 }  // namespace AppExecFwk

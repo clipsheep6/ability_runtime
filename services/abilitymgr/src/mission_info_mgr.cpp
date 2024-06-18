@@ -90,6 +90,7 @@ bool MissionInfoMgr::AddMissionInfo(const InnerMissionInfo &missionInfo)
 
 bool MissionInfoMgr::AddMissionInfoInner(const InnerMissionInfo &missionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto id = missionInfo.missionInfo.id;
     if (missionIdMap_.find(id) != missionIdMap_.end() && missionIdMap_[id]) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "add mission info failed, missionId %{public}d already exists", id);
@@ -115,6 +116,7 @@ bool MissionInfoMgr::AddMissionInfoInner(const InnerMissionInfo &missionInfo)
 
 bool MissionInfoMgr::UpdateMissionInfo(const InnerMissionInfo &missionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> lock(mutex_);
     auto id = missionInfo.missionInfo.id;
     if (missionIdMap_.find(id) == missionIdMap_.end() || !missionIdMap_[id]) {
@@ -151,6 +153,7 @@ bool MissionInfoMgr::UpdateMissionInfo(const InnerMissionInfo &missionInfo)
 
 bool MissionInfoMgr::DeleteMissionInfo(int missionId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> lock(mutex_);
     if (missionIdMap_.find(missionId) == missionIdMap_.end()) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "missionId %{public}d not exists, no need delete", missionId);
@@ -186,6 +189,7 @@ bool MissionInfoMgr::DeleteMissionInfo(int missionId)
 
 bool MissionInfoMgr::DeleteAllMissionInfos(const std::shared_ptr<MissionListenerController> &listenerController)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> lock(mutex_);
     if (!taskDataPersistenceMgr_) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "taskDataPersistenceMgr_ is nullptr");
@@ -213,6 +217,7 @@ bool MissionInfoMgr::DeleteAllMissionInfos(const std::shared_ptr<MissionListener
 
 static bool DoesNotShowInTheMissionList(const InnerMissionInfo &mission)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     bool isStartByCall = false;
     switch (static_cast<StartMethod>(mission.startMethod)) {
         case StartMethod::START_CALL:
@@ -226,6 +231,7 @@ static bool DoesNotShowInTheMissionList(const InnerMissionInfo &mission)
 
 int MissionInfoMgr::GetMissionInfos(int32_t numMax, std::vector<MissionInfo> &missionInfos)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "numMax:%{public}d", numMax);
     if (numMax < 0) {
         return -1;
@@ -250,6 +256,7 @@ int MissionInfoMgr::GetMissionInfos(int32_t numMax, std::vector<MissionInfo> &mi
 
 int MissionInfoMgr::GetMissionInfoById(int32_t missionId, MissionInfo &missionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "missionId:%{public}d", missionId);
     std::lock_guard<ffrt::mutex> lock(mutex_);
     if (missionIdMap_.find(missionId) == missionIdMap_.end()) {
@@ -459,7 +466,7 @@ void MissionInfoMgr::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handl
     std::lock_guard<ffrt::mutex> lock(mutex_);
     snapshotHandler_ = handler;
 }
-
+#ifdef SUPPORT_SCREEN
 void MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const std::shared_ptr<Media::PixelMap> &pixelMap,
     bool isPrivate)
 {
@@ -487,18 +494,18 @@ void MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const std::shared_
     Snapshot snapshot;
     snapshot.SetPixelMap(pixelMap);
 
-#ifdef SUPPORT_GRAPHICS
+
     if (isPrivate) {
         CreateWhitePixelMap(snapshot);
     }
     savedSnapshot.snapshot = snapshot.GetPixelMap();
-#endif
+
 
     if (!taskDataPersistenceMgr_->SaveMissionSnapshot(missionId, savedSnapshot)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: save mission snapshot failed");
     }
 }
-
+#endif
 bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
     MissionSnapshot& missionSnapshot, bool isLowResolution)
 {
@@ -531,7 +538,7 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
         return false;
     }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     if (missionSnapshot.isPrivate) {
         CreateWhitePixelMap(snapshot);
     }
@@ -540,7 +547,7 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
 #endif
 
     MissionSnapshot savedSnapshot = missionSnapshot;
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     savedSnapshot.snapshot = snapshot.GetPixelMap();
 #endif
     {
@@ -564,6 +571,7 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
 
 void MissionInfoMgr::CompleteSaveSnapshot(int32_t missionId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::unique_lock<ffrt::mutex> lock(savingSnapshotLock_);
     auto search = savingSnapshot_.find(missionId);
     if (search != savingSnapshot_.end()) {
@@ -577,7 +585,7 @@ void MissionInfoMgr::CompleteSaveSnapshot(int32_t missionId)
     }
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 std::shared_ptr<Media::PixelMap> MissionInfoMgr::GetSnapshot(int32_t missionId) const
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "missionId:%{public}d", missionId);
@@ -653,7 +661,7 @@ bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObj
     return UpdateMissionSnapshot(missionId, abilityToken, missionSnapshot, isLowResolution);
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 void MissionInfoMgr::CreateWhitePixelMap(Snapshot &snapshot) const
 {
     if (snapshot.GetPixelMap() == nullptr) {

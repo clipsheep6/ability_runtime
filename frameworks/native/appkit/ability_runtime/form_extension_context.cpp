@@ -22,6 +22,7 @@
 #include "form_mgr_errors.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -48,6 +49,7 @@ int FormExtensionContext::UpdateForm(const int64_t formId, const AppExecFwk::For
     }
 
     // update form request to fms
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "AppExecFwk::FormMgr::GetInstance().UpdateForm");
     return AppExecFwk::FormMgr::GetInstance().UpdateForm(formId, formProviderData);
 }
 

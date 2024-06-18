@@ -23,7 +23,6 @@ config("dataobsms_config") {
   include_dirs = [
     "include/",
     "${ability_runtime_services_path}/common/include",
-    "//third_party/json/include",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -32,6 +31,12 @@ config("dataobsms_config") {
 }
 
 ohos_shared_library("dataobsms") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
   shlib_type = "sa"
   sources = dataobsms_files
 
@@ -48,6 +53,7 @@ ohos_shared_library("dataobsms") {
     "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
@@ -58,6 +64,12 @@ ohos_shared_library("dataobsms") {
 
 # Note: Just for test
 ohos_static_library("dataobsms_static") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
   sources = dataobsms_files
 
   configs = [ ":dataobsms_config" ]
@@ -70,6 +82,7 @@ ohos_static_library("dataobsms_static") {
     "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]

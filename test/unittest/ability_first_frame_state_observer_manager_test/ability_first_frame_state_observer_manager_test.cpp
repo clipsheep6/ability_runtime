@@ -20,6 +20,7 @@
 #undef protected
 #include <gtest/gtest.h>
 #include "ability_first_frame_state_observer_stub.h"
+#include "ability_manager_errors.h"
 #include "iremote_broker.h"
 #include "mock/include/mock_permission_verification.h"
 #include "mock/include/mock_my_flag.h"

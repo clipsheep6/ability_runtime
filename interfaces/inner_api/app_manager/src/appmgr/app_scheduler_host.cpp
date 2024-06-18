@@ -86,6 +86,10 @@ void AppSchedulerHost::InitMemberFuncMap()
         &AppSchedulerHost::HandleScheduleDumpIpcStop;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DUMP_IPC_STAT)] =
         &AppSchedulerHost::HandleScheduleDumpIpcStat;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DUMP_FFRT)] =
+        &AppSchedulerHost::HandleScheduleDumpFfrt;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_CACHE_PROCESS)] =
+        &AppSchedulerHost::HandleScheduleCacheProcess;
 }
 
 AppSchedulerHost::~AppSchedulerHost()
@@ -268,6 +272,7 @@ int32_t AppSchedulerHost::HandleScheduleProfileChanged(MessageParcel &data, Mess
 
 int32_t AppSchedulerHost::HandleScheduleConfigurationUpdated(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HITRACE_METER(HITRACE_TAG_APP);
     std::unique_ptr<Configuration> configuration(data.ReadParcelable<Configuration>());
     if (!configuration) {
@@ -430,6 +435,25 @@ int32_t AppSchedulerHost::HandleScheduleDumpIpcStat(MessageParcel &data, Message
         TAG_LOGE(AAFwkTag::APPMGR, "Fail to write string of ScheduleDumpIpcStat result");
         return ERR_INVALID_VALUE;
     }
+    return NO_ERROR;
+}
+
+int32_t AppSchedulerHost::HandleScheduleDumpFfrt(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    std::string result;
+    ScheduleDumpFfrt(result);
+    if (!reply.WriteString(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Fail to write string of ScheduleDumpFfrt result");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppSchedulerHost::HandleScheduleCacheProcess(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    ScheduleCacheProcess();
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

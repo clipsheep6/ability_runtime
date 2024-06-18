@@ -25,10 +25,11 @@
 #include "bundle_mgr_helper.h"
 #include "connect_server_manager.h"
 #include "commonlibrary/c_utils/base/include/refbase.h"
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 #include "core/common/container_scope.h"
-#endif
 #include "declarative_module_preloader.h"
+#endif
+
 #include "extractor.h"
 #include "file_mapper.h"
 #include "foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_base/include/bundle_info.h"
@@ -42,7 +43,8 @@
 #include "js_runtime_utils.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 #include "commonlibrary/ets_utils/js_sys_module/console/console.h"
-#ifdef SUPPORT_GRAPHICS
+#include "syscap_ts.h"
+#ifdef SUPPORT_SCREEN
 using OHOS::Ace::ContainerScope;
 #endif
 
@@ -87,8 +89,10 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
     }
 
     OHOS::JsSysModule::Console::InitConsoleModule(reinterpret_cast<napi_env>(nativeEngine));
+    InitSyscapModule(reinterpret_cast<napi_env>(nativeEngine));
+#ifdef SUPPORT_SCREEN
     OHOS::Ace::DeclarativeModulePreloader::PreloadWorker(*nativeEngine);
-
+#endif
     auto arkNativeEngine = static_cast<ArkNativeEngine*>(nativeEngine);
     // load jsfwk
     if (g_jsFramework && !arkNativeEngine->ExecuteJsBin("/system/etc/strip.native.min.abc")) {
@@ -513,7 +517,7 @@ void AssetHelper::GetAmi(std::string& ami, const std::string& filePath)
 
 int32_t GetContainerId()
 {
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     int32_t scopeId = ContainerScope::CurrentId();
     return scopeId;
 #else
@@ -523,13 +527,13 @@ int32_t GetContainerId()
 }
 void UpdateContainerScope(int32_t id)
 {
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 ContainerScope::UpdateCurrent(id);
 #endif
 }
 void RestoreContainerScope(int32_t id)
 {
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 ContainerScope::UpdateCurrent(-1);
 #endif
 }

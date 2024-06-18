@@ -46,6 +46,13 @@ constexpr const char *WANT_PARAMS_UPDATE_POPUP_HEIGHT = "ohos.ability.params.pop
 constexpr const char *WANT_PARAMS_UPDATE_POPUP_PLACEMENT = "ohos.ability.params.popupPlacement";
 constexpr const char *CONFIG_POPUP_SIZE = "popupSize";
 constexpr const char *CONFIG_POPUP_PLACEMENT = "placement";
+constexpr const char *WANT_PARAMS_FILL_CONTENT = "ohos.ability.params.fillContent";
+constexpr const char *ERROR_MSG_INVALID_EMPTY = "JsonString is empty.";
+constexpr const char *ERROR_MSG_VIEWDATA_INVALID = "The type of storeld, must be ViewData.";
+constexpr const char *ERROR_MSG_AUTOFILLPOPUPCONFIG_INVALID =
+    "The type of storeld, must be AutoFillPopupConfig.";
+constexpr const char *ERROR_MSG_PARAMETER_INVALID =
+    "The storeld can consist of only letters, digits, and underscores(_), and cannot exceed 128 characters.";
 } // namespace
 
 JsFillRequestCallback::JsFillRequestCallback(
@@ -84,6 +91,7 @@ napi_value JsFillRequestCallback::OnFillRequestSuccess(napi_env env, NapiCallbac
     TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     if (info.argc < ARGC_ONE || !IsTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_object)) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to parse viewData JsonString!");
+        ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM), ERROR_MSG_VIEWDATA_INVALID);
         SendResultCodeAndViewData(
             JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED_INVALID_PARAM, "");
         return CreateJsUndefined(env);
@@ -94,11 +102,12 @@ napi_value JsFillRequestCallback::OnFillRequestSuccess(napi_env env, NapiCallbac
     std::string jsonString = response.viewData.ToJsonString();
     if (jsonString.empty()) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "JsonString is empty");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         SendResultCodeAndViewData(
             JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED_INVALID_PARAM, "");
         return CreateJsUndefined(env);
     }
-
+    
     SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_SUCESS, jsonString);
     return CreateJsUndefined(env);
 }
@@ -113,7 +122,26 @@ napi_value JsFillRequestCallback::OnFillRequestFailed(napi_env env, NapiCallback
 napi_value JsFillRequestCallback::OnFillRequestCanceled(napi_env env, NapiCallbackInfo &info)
 {
     TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
-    SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_CANCEL, "");
+    if (info.argc < ARGC_ONE) {
+        SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_CANCEL, "");
+        return CreateJsUndefined(env);
+    }
+    if (!IsTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_string)) {
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to parse fillContent JsonString!");
+        ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM), ERROR_MSG_PARAMETER_INVALID);
+        SendResultCodeAndViewData(
+            JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED_INVALID_PARAM, "");
+        return CreateJsUndefined(env);
+    }
+    std::string jsonString = UnwrapStringFromJS(env, info.argv[INDEX_ZERO], "");
+    if (jsonString.empty()) {
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "JsonString is empty");
+        ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM), ERROR_MSG_INVALID_EMPTY);
+        SendResultCodeAndViewData(
+            JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED_INVALID_PARAM, "");
+        return CreateJsUndefined(env);
+    }
+    SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_CANCEL, jsonString);
     return CreateJsUndefined(env);
 }
 
@@ -134,7 +162,8 @@ napi_value JsFillRequestCallback::OnFillRequestAutoFillPopupConfig(napi_env env,
 
     if (info.argc < ARGC_ONE || !IsTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_object)) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to parse resize data!");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM),
+            ERROR_MSG_AUTOFILLPOPUPCONFIG_INVALID);
         return CreateJsUndefined(env);
     }
     AAFwk::WantParams wantParams;
@@ -188,6 +217,10 @@ void JsFillRequestCallback::SendResultCodeAndViewData(
     if (resultCode == JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_SUCESS) {
         want.SetParam(WANT_PARAMS_VIEW_DATA, jsString);
         want.SetParam(WANT_PARAMS_AUTO_FILL_CMD, WANT_PARAMS_AUTO_FILL_CMD_AUTOFILL);
+    }
+
+    if (resultCode == JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_CANCEL) {
+        want.SetParam(WANT_PARAMS_FILL_CONTENT, jsString);
     }
 
     auto ret = uiWindow_->TransferAbilityResult(resultCode, want);

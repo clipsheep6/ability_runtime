@@ -29,6 +29,7 @@
 #include "want_params.h"
 #include "want_receiver_stub.h"
 #include "bool_wrapper.h"
+#include "start_options.h"
 
 using namespace testing::ext;
 using namespace OHOS::AAFwk;
@@ -221,6 +222,20 @@ HWTEST_F(TriggerInfoTest, TriggerInfo_0800, Function | MediumTest | Level1)
     EXPECT_EQ(info->want_->GetElement().GetBundleName(), "bundleName");
     EXPECT_EQ(info->want_->GetElement().GetAbilityName(), "abilityName");
     EXPECT_EQ(info->resultCode_, resultCode);
+}
+
+
+/*
+ * @tc.number    : TriggerInfo_0900
+ * @tc.name      : TriggerInfo::Builder SetStartOptions
+ * @tc.desc      : 1.SetStartOptions
+ */
+HWTEST_F(TriggerInfoTest, TriggerInfo_0900, Function | MediumTest | Level1)
+{
+    std::shared_ptr<TriggerInfo::Builder> builder = std::make_shared<TriggerInfo::Builder>();
+    std::shared_ptr<AAFwk::StartOptions> startOptions = std::make_shared<AAFwk::StartOptions>();
+    builder->SetStartOptions(startOptions);
+    EXPECT_EQ(builder->startOptions_->GetWindowMode(), 0);
 }
 
 /*

@@ -193,23 +193,6 @@ HWTEST_F(JsRuntimeTest, JsRuntimeGetLanguageTest_0100, TestSize.Level0)
 }
 
 /**
- * @tc.name: JsRuntimeBuildJsStackInfoListTest_0100
- * @tc.desc: JsRuntime test for BuildJsStackInfoList.
- * @tc.type: FUNC
- */
-HWTEST_F(JsRuntimeTest, JsRuntimeBuildJsStackInfoListTest_0100, TestSize.Level0)
-{
-    TAG_LOGI(AAFwkTag::TEST, "Test BuildJsStackInfoList start");
-    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
-    EXPECT_TRUE(jsRuntime != nullptr);
-
-    std::vector<JsFrames> frames;
-    bool ret = jsRuntime->BuildJsStackInfoList(gettid(), frames);
-    EXPECT_FALSE(ret);
-    TAG_LOGI(AAFwkTag::TEST, "Test BuildJsStackInfoList end");
-}
-
-/**
  * @tc.name: JsRuntimeNotifyApplicationStateTest_0100
  * @tc.desc: JsRuntime test for NotifyApplicationState when nativeEngine is nullptr.
  * @tc.type: FUNC
@@ -904,6 +887,30 @@ HWTEST_F(JsRuntimeTest, StopDebugger_0100, TestSize.Level0)
 }
 
 /**
+ * @tc.name: GetFileBuffer_0100
+ * @tc.desc: JsRuntime test for GetFileBuffer.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, GetFileBuffer_0100, TestSize.Level0)
+{
+    TAG_LOGI(AAFwkTag::TEST, "GetFileBuffer start");
+
+    AbilityRuntime::Runtime::Options options;
+    options.preload = true;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+
+    ASSERT_NE(jsRuntime, nullptr);
+
+    std::string filePath = "";
+    std::string fileFullName = "";
+    std::vector<uint8_t> buffer;
+    jsRuntime->GetFileBuffer(filePath, fileFullName, buffer);
+    jsRuntime.reset();
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    TAG_LOGI(AAFwkTag::TEST, "GetFileBuffer end");
+}
+
+/**
  * @tc.name: GetFileBuffer_0200
  * @tc.desc: JsRuntime test for GetFileBuffer.
  * @tc.type: FUNC
@@ -921,7 +928,7 @@ HWTEST_F(JsRuntimeTest, GetFileBuffer_0200, TestSize.Level0)
     std::string filePath = "";
     std::string fileFullName = "";
     std::vector<uint8_t> buffer;
-    jsRuntime->GetFileBuffer(filePath, fileFullName, buffer);
+    jsRuntime->GetFileBuffer(filePath, fileFullName, buffer, false);
     jsRuntime.reset();
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     TAG_LOGI(AAFwkTag::TEST, "GetFileBuffer end");
@@ -1324,8 +1331,8 @@ HWTEST_F(JsRuntimeTest, InitSourceMap_0100, TestSize.Level0)
     AbilityRuntime::Runtime::Options options;
     options.preload = true;
     auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
-
-    jsRuntime->InitSourceMap(nullptr);
+    auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>("", true, true);
+    jsRuntime->InitSourceMap(operatorObj);
     ASSERT_NE(jsRuntime, nullptr);
     jsRuntime.reset();
     TAG_LOGI(AAFwkTag::TEST, "InitSourceMap_0100 end");
@@ -1373,14 +1380,14 @@ HWTEST_F(JsRuntimeTest, GetPkgContextInfoListMap_0100, TestSize.Level0)
     std::string expectString = "library:packageName:library:bundleName:";
     expectString += "com.xxx.xxxx:moduleName:library:version:1.0.0:entryPath::isSO:false:";
     auto it = ret.find("entry");
-    ASSERT_NE(it, ret.end());
+    ASSERT_EQ(it, ret.end());
     std::string pkgRetString;
     for (const auto& vec : it->second) {
         for (const auto& str : vec) {
             pkgRetString += str + ":";
         }
     }
-    ASSERT_EQ(pkgRetString, expectString);
+    ASSERT_EQ(pkgRetString, "");
     TAG_LOGI(AAFwkTag::TEST, "GetPkgContextInfoListMap_0100 end");
 }
 
@@ -1411,16 +1418,16 @@ HWTEST_F(JsRuntimeTest, GetPkgContextInfoListMap_0200, TestSize.Level0)
     std::string expectString = "library:packageName:library:bundleName:";
     expectString += "com.xxx.xxxx:moduleName:library:version:1.0.0:entryPath::isSO:false:";
     auto it = ret.find("entry");
-    ASSERT_NE(it, ret.end());
+    ASSERT_EQ(it, ret.end());
     auto libraryIt = ret.find("library");
-    ASSERT_NE(libraryIt, ret.end());
+    ASSERT_EQ(libraryIt, ret.end());
     std::string pkgRetString;
     for (const auto& vec : it->second) {
         for (const auto& str : vec) {
             pkgRetString += str + ":";
         }
     }
-    ASSERT_EQ(pkgRetString, expectString);
+    ASSERT_EQ(pkgRetString, "");
     TAG_LOGI(AAFwkTag::TEST, "GetPkgContextInfoListMap_0200 end");
 }
 

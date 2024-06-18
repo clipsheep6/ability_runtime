@@ -54,7 +54,7 @@ ErrCode EcologicalRuleInterceptor::DoProcess(AbilityInterceptorParam param)
     }
     AAFwk::Want newWant = param.want;
     newWant.RemoveAllFd();
-    GetEcologicalCallerInfo(newWant, callerInfo, param.userId);
+    GetEcologicalCallerInfo(newWant, callerInfo, param.userId, param.callerToken);
     std::string supportErms = OHOS::system::GetParameter(ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE, "true");
     if (supportErms == "false") {
         TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "Abilityms not support Erms between applications.");
@@ -128,30 +128,39 @@ bool EcologicalRuleInterceptor::DoProcess(Want &want, int32_t userId)
     return rule.isAllow;
 }
 
-void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId)
+void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId,
+    const sptr<IRemoteObject> &callerToken)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     InitErmsCallerInfo(const_cast<Want &>(want), callerInfo);
 
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
-    if (bundleMgrHelper == nullptr) {
-        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "The bundleMgrHelper is nullptr.");
-        return;
-    }
-
-    std::string callerBundleName;
-    ErrCode err = IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callerInfo.uid, callerBundleName));
-    if (err != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "Get callerBundleName failed,uid: %{public}d.", callerInfo.uid);
-        return;
-    }
     AppExecFwk::ApplicationInfo callerAppInfo;
-    bool getCallerResult = IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(callerBundleName,
-        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
-    if (!getCallerResult) {
-        TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE, "Get callerAppInfo failed.");
-        return;
+    AppExecFwk::AbilityInfo callerAbilityInfo;
+    if (StartAbilityUtils::GetCallerAbilityInfo(callerToken, callerAbilityInfo)) {
+        callerAppInfo = callerAbilityInfo.applicationInfo;
+        callerInfo.callerAbilityType = callerAbilityInfo.type;
+        callerInfo.callerExtensionAbilityType = callerAbilityInfo.extensionAbilityType;
+    } else {
+        auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+        if (bundleMgrHelper == nullptr) {
+            TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "The bundleMgrHelper is nullptr.");
+            return;
+        }
+
+        std::string callerBundleName;
+        ErrCode err = IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callerInfo.uid, callerBundleName));
+        if (err != ERR_OK) {
+            TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "Get callerBundleName failed,uid: %{public}d.", callerInfo.uid);
+            return;
+        }
+        bool getCallerResult = IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(callerBundleName,
+            AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
+        if (!getCallerResult) {
+            TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE, "Get callerAppInfo failed.");
+            return;
+        }
     }
+    
     callerInfo.callerAppProvisionType = callerAppInfo.appProvisionType;
     if (callerAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
         TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE, "the caller type  is atomic service");

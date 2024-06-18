@@ -219,7 +219,13 @@ void JsServiceExtension::ListenWMS()
         return;
     }
 
-    auto listener = sptr<SystemAbilityStatusChangeListener>::MakeSptr(displayListener_);
+    auto context = GetContext();
+    if (context == nullptr || context->GetToken() == nullptr) {
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Param invalid.");
+        return;
+    }
+
+    auto listener = sptr<SystemAbilityStatusChangeListener>::MakeSptr(displayListener_, context->GetToken());
     if (listener == nullptr) {
         TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to create status change listener.");
         return;
@@ -231,16 +237,17 @@ void JsServiceExtension::ListenWMS()
     }
 #endif
 }
-
+#ifdef SUPPORT_GRAPHICS
 void JsServiceExtension::SystemAbilityStatusChangeListener::OnAddSystemAbility(int32_t systemAbilityId,
     const std::string& deviceId)
 {
     TAG_LOGD(AAFwkTag::SERVICE_EXT, "systemAbilityId: %{public}d add", systemAbilityId);
     if (systemAbilityId == WINDOW_MANAGER_SERVICE_ID) {
-        Rosen::DisplayManager::GetInstance().RegisterDisplayListener(tmpDisplayListener_);
+        TAG_LOGI(AAFwkTag::SERVICE_EXT, "RegisterDisplayInfoChangedListener");
+        Rosen::WindowManager::GetInstance().RegisterDisplayInfoChangedListener(token_, tmpDisplayListener_);
     }
 }
-
+#endif //SUPPORT_GRAPHICS
 void JsServiceExtension::BindContext(napi_env env, napi_value obj)
 {
     auto context = GetContext();
@@ -284,11 +291,13 @@ void JsServiceExtension::OnStart(const AAFwk::Want &want)
 
     auto context = GetContext();
     if (context != nullptr) {
+#ifdef SUPPORT_GRAPHICS
         int32_t  displayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
         displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, displayId);
         TAG_LOGD(AAFwkTag::SERVICE_EXT, "displayId %{public}d", displayId);
         auto configUtils = std::make_shared<ConfigurationUtils>();
         configUtils->InitDisplayConfig(displayId, context->GetConfiguration(), context->GetResourceManager());
+#endif //SUPPORT_GRAPHICS
     }
 
     HandleScope handleScope(jsRuntime_);
@@ -315,7 +324,16 @@ void JsServiceExtension::OnStop()
         ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
         TAG_LOGD(AAFwkTag::SERVICE_EXT, "The service extension connection is not disconnected.");
     }
-    Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(displayListener_);
+    TAG_LOGI(AAFwkTag::SERVICE_EXT, "UnregisterDisplayInfoChangedListener");
+    auto context = GetContext();
+    if (context == nullptr || context->GetToken() == nullptr) {
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Param invalid.");
+        return;
+    }
+#ifdef SUPPORT_GRAPHICS
+    Rosen::WindowManager::GetInstance()
+        .UnregisterDisplayInfoChangedListener(context->GetToken(), displayListener_);
+#endif //SUPPORT_GRAPHICS
     TAG_LOGD(AAFwkTag::SERVICE_EXT, "ok");
 }
 
@@ -451,8 +469,7 @@ bool JsServiceExtension::HandleInsightIntent(const AAFwk::Want &want)
             static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
         return false;
     }
-    TAG_LOGD(AAFwkTag::SERVICE_EXT,
-        "Insight intent bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s"
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "Insight bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s"
         "insightIntentName: %{public}s, executeMode: %{public}d, intentId: %{public}" PRIu64 "",
         executeParam->bundleName_.c_str(), executeParam->moduleName_.c_str(), executeParam->abilityName_.c_str(),
         executeParam->insightIntentName_.c_str(), executeParam->executeMode_, executeParam->insightIntentId_);
@@ -797,6 +814,43 @@ void JsServiceExtension::OnCreate(Rosen::DisplayId displayId)
 void JsServiceExtension::OnDestroy(Rosen::DisplayId displayId)
 {
     TAG_LOGD(AAFwkTag::SERVICE_EXT, "exit.");
+}
+
+void JsServiceExtension::OnDisplayInfoChange(const sptr<IRemoteObject>& token, Rosen::DisplayId displayId,
+    float density, Rosen::DisplayOrientation orientation)
+{
+    TAG_LOGI(AAFwkTag::SERVICE_EXT, "displayId: %{public}" PRIu64, displayId);
+    auto context = GetContext();
+    if (context == nullptr) {
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Context is invalid.");
+        return;
+    }
+
+    auto contextConfig = context->GetConfiguration();
+    if (contextConfig == nullptr) {
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Configuration is invalid.");
+        return;
+    }
+
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "Config dump: %{public}s", contextConfig->GetName().c_str());
+    bool configChanged = false;
+    auto configUtils = std::make_shared<ConfigurationUtils>();
+    configUtils->UpdateDisplayConfig(displayId, contextConfig, context->GetResourceManager(), configChanged);
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "Config dump after update: %{public}s", contextConfig->GetName().c_str());
+
+    if (configChanged) {
+        auto jsServiceExtension = std::static_pointer_cast<JsServiceExtension>(shared_from_this());
+        auto task = [jsServiceExtension]() {
+            if (jsServiceExtension) {
+                jsServiceExtension->ConfigurationUpdated();
+            }
+        };
+        if (handler_ != nullptr) {
+            handler_->PostTask(task, "JsServiceExtension:OnChange");
+        }
+    }
+
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "finished.");
 }
 
 void JsServiceExtension::OnChange(Rosen::DisplayId displayId)

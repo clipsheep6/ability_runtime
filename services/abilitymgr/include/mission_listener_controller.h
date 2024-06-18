@@ -98,7 +98,7 @@ public:
      */
     void NotifyMissionUnfocused(int32_t missionId);
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     /**
      * notify listeners that mission icon has changed.
      *

@@ -18,6 +18,7 @@
 #include "configuration_convertor.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #ifdef SUPPORT_GRAPHICS
 #include "window.h"
 #endif
@@ -29,65 +30,28 @@ using namespace AppExecFwk;
 void ConfigurationUtils::UpdateGlobalConfig(const Configuration &configuration,
     std::shared_ptr<ResourceManager> resourceManager)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITY, "Enter");
     if (resourceManager == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITY, "Resource manager is invalid.");
         return;
     }
 
-    std::string language;
-    std::string colormode;
-    std::string hasPointerDevice;
-    GetGlobalConfig(configuration, language, colormode, hasPointerDevice);
-    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
-    if (resConfig == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Create resource config failed.");
-        return;
-    }
-    resourceManager->GetResConfig(*resConfig);
-
-#ifdef SUPPORT_GRAPHICS
-    if (!language.empty()) {
-        UErrorCode status = U_ZERO_ERROR;
-        icu::Locale locale = icu::Locale::forLanguageTag(language, status);
-        TAG_LOGD(AAFwkTag::ABILITY, "get Locale::forLanguageTag return[%{public}d].", static_cast<int>(status));
-        if (status == U_ZERO_ERROR) {
-            resConfig->SetLocaleInfo(locale);
-        }
-
-        const icu::Locale *localeInfo = resConfig->GetLocaleInfo();
-        if (localeInfo != nullptr) {
-            TAG_LOGD(AAFwkTag::ABILITY, "Update config, language: %{public}s, script: %{public}s, region: %{public}s",
-                localeInfo->getLanguage(), localeInfo->getScript(), localeInfo->getCountry());
-        }
-    }
-#endif
-
-    if (!colormode.empty()) {
-        resConfig->SetColorMode(AppExecFwk::ConvertColorMode(colormode));
-        TAG_LOGD(AAFwkTag::ABILITY, "Update config, colorMode: %{public}d", resConfig->GetColorMode());
-    }
-
-    if (!hasPointerDevice.empty()) {
-        resConfig->SetInputDevice(AppExecFwk::ConvertHasPointerDevice(hasPointerDevice));
-        TAG_LOGD(AAFwkTag::ABILITY, "Update config, hasPointerDevice: %{public}d", resConfig->GetInputDevice());
-    }
-
-    Global::Resource::RState ret = resourceManager->UpdateResConfig(*resConfig);
-    if (ret != Global::Resource::RState::SUCCESS) {
-        TAG_LOGE(AAFwkTag::ABILITY, "Update resource config failed with %{public}d.", static_cast<int>(ret));
-        return;
-    }
-
-    TAG_LOGD(AAFwkTag::ABILITY, "Update resource config succeed.");
+    ResourceConfigHelper resourceConfig;
+    GetGlobalConfig(configuration, resourceConfig);
+    resourceConfig.UpdateResConfig(configuration, resourceManager);
 }
 
 void ConfigurationUtils::GetGlobalConfig(const Configuration &configuration,
-    std::string &language, std::string &colormode, std::string &hasPointerDevice)
+    OHOS::AbilityRuntime::ResourceConfigHelper &resourceConfig)
 {
-    language = configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
-    colormode = configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
-    hasPointerDevice = configuration.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
+    resourceConfig.SetLanguage(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE));
+    resourceConfig.SetColormode(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE));
+    resourceConfig.SetHasPointerDevice(configuration.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE));
+    resourceConfig.SetMcc(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MCC));
+    resourceConfig.SetMnc(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MNC));
+    resourceConfig.SetColorModeIsSetByApp(
+        configuration.GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP));
 }
 
 #ifdef SUPPORT_GRAPHICS

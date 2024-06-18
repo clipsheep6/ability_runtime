@@ -737,6 +737,29 @@ HWTEST_F(AbilityManagerServiceSecondTest, ContinueMissionBundleName_001, TestSiz
 
 /*
  * Feature: AbilityManagerService
+ * Function: ContinueMissionBundleName
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService ContinueMissionBundleName
+ */
+HWTEST_F(AbilityManagerServiceSecondTest, ContinueMissionBundleName_002, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest ContinueMissionBundleName_002 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    std::string srcDeviceId = "";
+    std::string dstDeviceId = "";
+    const sptr<IRemoteObject> callback = nullptr;
+    AAFwk::WantParams wantParams;
+    ContinueMissionInfo continueMissionInfo;
+    continueMissionInfo.dstDeviceId = dstDeviceId;
+    continueMissionInfo.srcDeviceId = srcDeviceId;
+    continueMissionInfo.bundleName = "";
+    continueMissionInfo.wantParams = wantParams;
+    EXPECT_EQ(abilityMs_->ContinueMission(continueMissionInfo, callback), CHECK_PERMISSION_FAILED);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest ContinueMissionBundleName_002 end");
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: ContinueAbility
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService ContinueAbility
@@ -1423,6 +1446,21 @@ HWTEST_F(AbilityManagerServiceSecondTest, DumpMissionInfosInner_001, TestSize.Le
     ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->DumpMissionInfosInner("", info);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest DumpMissionInfosInner_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: SetResidentProcessEnabled
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService SetResidentProcessEnabled
+ */
+HWTEST_F(AbilityManagerServiceSecondTest, SetResidentProcessEnable_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    ASSERT_NE(abilityMs_, nullptr);
+    std::string bundleName = "ability.manager.service.test";
+    bool enable = false;
+    EXPECT_EQ(abilityMs_->SetResidentProcessEnabled(bundleName, enable), ERR_NOT_SYSTEM_APP);
 }
 
 /*

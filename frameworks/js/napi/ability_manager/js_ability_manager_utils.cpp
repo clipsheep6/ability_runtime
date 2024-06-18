@@ -39,8 +39,8 @@ napi_value CreateJSToken(napi_env env, const sptr<IRemoteObject> target)
         env, "TokenClass", NAPI_AUTO_LENGTH, constructorcb, nullptr, 0, nullptr, &tokenClass);
     napi_value jsToken = nullptr;
     napi_new_instance(env, tokenClass, 0, nullptr, &jsToken);
-    auto finalizecb = [](napi_env env, void *data, void *hint) {};
-    napi_wrap(env, jsToken, static_cast<void *>(target.GetRefPtr()), finalizecb, nullptr, nullptr);
+    auto finalizercb = [](napi_env env, void *data, void *hint) {};
+    napi_wrap(env, jsToken, static_cast<void *>(target.GetRefPtr()), finalizercb, nullptr, nullptr);
     return jsToken;
 }
 
@@ -147,6 +147,9 @@ napi_value CreateJsAbilityStateData(napi_env env, const AbilityStateData &abilit
     napi_set_named_property(env, object, "state", CreateJsValue(env, abilityStateData.abilityState));
     napi_set_named_property(env, object, "abilityType", CreateJsValue(env, abilityStateData.abilityType));
     napi_set_named_property(env, object, "isAtomicService", CreateJsValue(env, abilityStateData.isAtomicService));
+    if (abilityStateData.appCloneIndex != -1) {
+        napi_set_named_property(env, object, "appCloneIndex", CreateJsValue(env, abilityStateData.appCloneIndex));
+    }
     return object;
 }
 

@@ -34,8 +34,8 @@ public:
      * @param targetBundleName The user of uri.
      * @return Returns true if the authorization is successful, otherwise returns false.
      */
-    virtual int GrantUriPermission(const Uri &uri, unsigned int flag,
-        const std::string targetBundleName, int32_t appIndex = 0, uint32_t initiatorTokenId = 0) = 0;
+    virtual int GrantUriPermission(const Uri &uri, unsigned int flag, const std::string targetBundleName,
+        int32_t appIndex = 0, uint32_t initiatorTokenId = 0, int32_t abilityId = -1) = 0;
 
     /**
      * @brief Authorize the uri permission to targetBundleName.
@@ -46,7 +46,8 @@ public:
      * @return Returns true if the authorization is successful, otherwise returns false.
      */
     virtual int GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
-        const std::string targetBundleName, int32_t appIndex = 0, uint32_t initiatorTokenId = 0) = 0;
+        const std::string targetBundleName, int32_t appIndex = 0, uint32_t initiatorTokenId = 0,
+        int32_t abilityId = -1) = 0;
 
     /**
      * @brief Authorize the uri permission to targetBundleName.
@@ -61,25 +62,13 @@ public:
         const std::string &targetBundleName, int32_t appIndex = 0) = 0;
 
     /**
-     * @brief Authorize the uri permission to targetBundleName for 2in1, only supports foundation process calls.
-     *
-     * @param uriVec The file urilist.
-     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
-     * @param targetBundleName The user of uri.
-     * @param appIndex The index of application in sandbox.
-     * @param isSystemAppCall The flag of system application called.
-     * @return Returns true if the authorization is successful, otherwise returns false.
-     */
-    virtual int GrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
-        const std::string &targetBundleName, int32_t appIndex = 0, bool isSystemAppCall = false) = 0;
-
-    /**
      * @brief Clear user's uri authorization record with autoremove flag.
      *
      * @param tokenId A tokenId of an application.
+     * @param abilityId The abilityId of an ability record.
      * @return Returns true if the remove is successful, otherwise returns false.
      */
-    virtual void RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId) = 0;
+    virtual void RevokeUriPermission(const uint32_t tokenId, int32_t abilityId = -1) = 0;
 
     /**
      * @brief Clear user's all uri authorization record with autoremove flag.
@@ -87,16 +76,18 @@ public:
      * @param tokenId A tokenId of an application.
      * @return Returns true if the remove is successful, otherwise returns false.
      */
-    virtual int RevokeAllUriPermissions(const Security::AccessToken::AccessTokenID tokenId) = 0;
+    virtual int RevokeAllUriPermissions(const uint32_t tokenId) = 0;
 
     /**
      * @brief Clear user's uri authorization record.
      *
      * @param uri The file uri.
      * @param bundleName bundleName of an application.
+     * @param appIndex The index of application in sandbox.
      * @return Returns true if the remove is successful, otherwise returns false.
      */
-    virtual int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) = 0;
+    virtual int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName,
+        int32_t appIndex = 0) = 0;
 
     /**
      * @brief verify if tokenId have uri permission of flag.
@@ -117,8 +108,6 @@ public:
     virtual std::vector<bool> CheckUriAuthorization(const std::vector<std::string> &uriVec,
         uint32_t flag, uint32_t tokenId) = 0;
 
-    virtual bool IsAuthorizationUriAllowed(uint32_t fromTokenId) = 0;
-
     enum UriPermMgrCmd {
         // ipc id for GrantUriPermission
         ON_GRANT_URI_PERMISSION = 0,
@@ -136,12 +125,6 @@ public:
 
         // ipc id for BatchGrantUriPermission
         ON_BATCH_GRANT_URI_PERMISSION,
-
-        // ipc id for BatchGrantUriPermissionFor2In1
-        ON_BATCH_GRANT_URI_PERMISSION_FOR_2_IN_1,
-
-        //ipc id for IsAuthorizationUriAllowed
-        ON_IS_Authorization_URI_ALLOWED,
 
         //ipc id for GrantUriPermissionPrivileged
         ON_GRANT_URI_PERMISSION_PRIVILEGED,

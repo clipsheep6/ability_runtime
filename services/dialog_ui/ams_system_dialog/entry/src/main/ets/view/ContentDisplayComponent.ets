@@ -58,7 +58,7 @@ export struct ContentDisplayComponent {
         if (this.isChange) {
             this.scrollerHeight = (this.panelHeight - this.titleHeight < this
                 .singleRowHeight * this.targetInfoArraySplit.length ? this
-                                                                          .panelHeight - this.titleHeight : this.singleRowHeight * this.targetInfoArraySplit.length) + 16;
+                .panelHeight - this.titleHeight : this.singleRowHeight * this.targetInfoArraySplit.length) + 16;
             this.realHeight = this.titleHeight + this.scrollerHeight;
         }
     }
@@ -80,7 +80,8 @@ export struct ContentDisplayComponent {
         }
         let subArrayListRemainder = arr.length % this.maxLengthOneLine;
         if (subArrayListRemainder !== 0) {
-            arraySplit.push(arr.slice(index * this.maxLengthOneLine, index * this.maxLengthOneLine + subArrayListRemainder))
+            arraySplit.push(arr.slice(index * this.maxLengthOneLine, index * this.maxLengthOneLine +
+                subArrayListRemainder))
         }
         return arraySplit;
     }
@@ -137,8 +138,9 @@ export struct ContentDisplayComponent {
         .alignItems(HorizontalAlign.Start)
         .onAreaChange((oldValue: Area, newValue: Area) => {
             if (oldValue.height !== newValue.height) {
-                this.scrollerHeight = (this.panelHeight - this.titleHeight < this.singleRowHeight * this.targetInfoArraySplit.length
-                    ? this.panelHeight - this.titleHeight : this.singleRowHeight * this.targetInfoArraySplit.length) + 16;
+                this.scrollerHeight = (this.panelHeight - this.titleHeight < this.singleRowHeight *
+                    this.targetInfoArraySplit.length ? this.panelHeight - this.titleHeight : this.singleRowHeight *
+                    this.targetInfoArraySplit.length) + 16;
                 this.realHeight = this.titleHeight + this.scrollerHeight;
             }
         })

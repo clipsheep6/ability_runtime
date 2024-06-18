@@ -17,6 +17,13 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 module_output_path = "ability_runtime/appmgr"
 
 ohos_unittest("ams_mgr_scheduler_test") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
   module_out_path = module_output_path
   cflags_cc = []
   include_dirs = [
@@ -24,12 +31,15 @@ ohos_unittest("ams_mgr_scheduler_test") {
     "${ability_runtime_services_path}/appmgr/include",
     "${ability_runtime_test_path}/mock/mock_sa_call",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
+    "mock/include",
   ]
 
   sources = [
     "${ability_runtime_services_path}/appmgr/src/ams_mgr_scheduler.cpp",
     "${ability_runtime_test_path}/mock/services_appmgr_test/src/mock_bundle_manager.cpp",
     "${ability_runtime_test_path}/mock/services_appmgr_test/src/mock_overlay_manager.cpp",
+    "mock/src/mock_my_flag.cpp",
+    "mock/src/mock_permission_verification.cpp",
   ]
 
   sources += [ "ams_mgr_scheduler_test.cpp" ]

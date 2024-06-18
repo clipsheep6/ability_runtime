@@ -45,8 +45,6 @@ private:
     std::shared_ptr<JsEnv::JsEnvironment> GetJsEnv(napi_env env);
     void LoadAotFile(const Options& options, const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv);
     void InitConsoleModule(const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv);
-    void InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorObj,
-        const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv);
     void InitTimerModule(const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv);
     void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate,
         const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv);

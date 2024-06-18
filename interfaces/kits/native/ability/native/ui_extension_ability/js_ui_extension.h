@@ -17,7 +17,9 @@
 #define OHOS_ABILITY_RUNTIME_JS_UI_EXTENSION_H
 
 #include "configuration.h"
+#ifdef SUPPORT_GRAPHICS
 #include "display_manager.h"
+#endif // SUPPORT_GRAPHICS
 #include "js_ui_extension_content_session.h"
 #include "ui_extension.h"
 #include <mutex>
@@ -195,7 +197,7 @@ private:
         const sptr<AAFwk::SessionInfo> &sessionInfo);
 
     JsRuntime& jsRuntime_;
-    std::unique_ptr<NativeReference> jsObj_;
+    std::shared_ptr<NativeReference> jsObj_ = nullptr;
     std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
     std::mutex uiWindowMutex_;
     std::map<uint64_t, sptr<Rosen::Window>> uiWindowMap_;

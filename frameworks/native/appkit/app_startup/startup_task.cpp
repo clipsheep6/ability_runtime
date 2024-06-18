@@ -13,22 +13,18 @@
  * limitations under the License.
  */
 
-
 #include "startup_task.h"
-
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-StartupTask::StartupTask(const std::string &name) : name_(name)
-{
-    state_ = State::CREATED;
-}
+StartupTask::StartupTask(const std::string &name) : name_(name), state_(State::CREATED)
+{}
 
 StartupTask::~StartupTask() = default;
 
-std::string StartupTask::GetName() const
+const std::string& StartupTask::GetName() const
 {
     return name_;
 }
@@ -100,7 +96,7 @@ int32_t StartupTask::RemoveResult()
     return ERR_OK;
 }
 
-std::shared_ptr<StartupTaskResult> StartupTask::GetResult() const
+const std::shared_ptr<StartupTaskResult>& StartupTask::GetResult() const
 {
     return result_;
 }
@@ -117,7 +113,7 @@ std::string StartupTask::DumpDependencies() const
     }
     bool isFirst = true;
     std::string dumpResult;
-    for (auto &iter : dependencies_) {
+    for (const auto &iter : dependencies_) {
         if (isFirst) {
             dumpResult = iter;
             isFirst = false;

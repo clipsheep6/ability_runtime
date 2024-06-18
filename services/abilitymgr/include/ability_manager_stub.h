@@ -70,6 +70,7 @@ private:
     void SecondStepInit();
     void ThirdStepInit();
     void FourthStepInit();
+    void FifthStepInit();
     int TerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
     int TerminateUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
     int CloseUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
@@ -97,6 +98,7 @@ private:
     int StartAbilityAsCallerForOptionInner(MessageParcel &data, MessageParcel &reply);
     int StartExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
     int StartUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
+    int StartUIExtensionAbilityNonModalInner(MessageParcel &data, MessageParcel &reply);
     int StartUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
     int StopExtensionAbilityInner(MessageParcel& data, MessageParcel& reply);
     int StartAbilityAddCallerInner(MessageParcel &data, MessageParcel &reply);
@@ -244,6 +246,7 @@ private:
     int32_t ForceExitAppInner(MessageParcel &data, MessageParcel &reply);
     int32_t RecordAppExitReasonInner(MessageParcel &data, MessageParcel &reply);
     int32_t RecordProcessExitReasonInner(MessageParcel &data, MessageParcel &reply);
+    int32_t SetResidentProcessEnableInner(MessageParcel &data, MessageParcel &reply);
 
     int SetRootSceneSessionInner(MessageParcel &data, MessageParcel &reply);
     int CallUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
@@ -297,6 +300,8 @@ private:
     int32_t NotifyDebugAssertResultInner(MessageParcel &data, MessageParcel &reply);
     int32_t StartShortcutInner(MessageParcel &data, MessageParcel &reply);
     int32_t GetAbilityStateByPersistentIdInner(MessageParcel &data, MessageParcel &reply);
+    int32_t TransferAbilityResultForExtensionInner(MessageParcel &data, MessageParcel &reply);
+    int32_t NotifyFrozenProcessByRSSInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

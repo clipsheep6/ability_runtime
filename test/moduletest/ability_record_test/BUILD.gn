@@ -38,6 +38,7 @@ ohos_moduletest("AbilityRecordModuleTest") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
@@ -52,7 +53,6 @@ ohos_moduletest("AbilityRecordModuleTest") {
 
   if (ability_runtime_graphics) {
     deps += [
-      "${ace_engine_path}/interfaces/inner_api/ui_service_manager:ui_service_mgr",
       "${global_path}/i18n/frameworks/intl:intl_util",
       "${multimedia_path}/interfaces/innerkits:image_native",
       "//third_party/icu/icu4c:shared_icuuc",
@@ -69,7 +69,7 @@ ohos_moduletest("AbilityRecordModuleTest") {
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "c_utils:utilsbase",
+    "c_utils:utils",
     "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
     "dsoftbus:softbus_client",
@@ -85,11 +85,6 @@ ohos_moduletest("AbilityRecordModuleTest") {
     "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
-
-  if (efficiency_manager) {
-    cflags_cc += [ "-DEFFICIENCY_MANAGER_ENABLE" ]
-    external_deps += [ "efficiency_manager:suspend_manager_client" ]
-  }
 
   if (resource_schedule_service_enable) {
     cflags_cc += [ "-RESOURCE_SCHEDULE_SERVICE_ENABLE" ]

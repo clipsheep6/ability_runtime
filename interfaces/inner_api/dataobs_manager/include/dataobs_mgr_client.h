@@ -106,6 +106,7 @@ public:
     Status NotifyChangeExt(const ChangeInfo &changeInfo);
 
 private:
+    class SystemAbilityStatusChangeListener;
     /**
      * Connect dataobs manager service.
      *

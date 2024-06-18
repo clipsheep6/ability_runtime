@@ -131,9 +131,7 @@ void ExtensionImpl::ScheduleUpdateConfiguration(const AppExecFwk::Configuration 
         return;
     }
 
-    if (lifecycleState_ != AAFwk::ABILITY_STATE_INITIAL) {
-        extension_->OnConfigurationUpdated(config);
-    }
+    extension_->OnConfigurationUpdated(config);
 }
 
 void ExtensionImpl::NotifyMemoryLevel(int level)

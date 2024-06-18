@@ -262,6 +262,18 @@ public:
      */
     virtual int32_t ScheduleDumpIpcStat(std::string& result) = 0;
 
+    /**
+     * ScheduleDumpFfrt, call ScheduleDumpFfrt(std::string& result) through proxy project,
+     * Start querying the application's ffrt usage.
+     *
+     * @param result, ffrt dump result output.
+     *
+     * @return Returns 0 on success, error code on failure.
+     */
+    virtual int32_t ScheduleDumpFfrt(std::string& result) = 0;
+
+    virtual void ScheduleCacheProcess() = 0;
+
     enum class Message {
         SCHEDULE_FOREGROUND_APPLICATION_TRANSACTION = 0,
         SCHEDULE_BACKGROUND_APPLICATION_TRANSACTION,
@@ -291,6 +303,8 @@ public:
         SCHEDULE_DUMP_IPC_START,
         SCHEDULE_DUMP_IPC_STOP,
         SCHEDULE_DUMP_IPC_STAT,
+        SCHEDULE_DUMP_FFRT,
+        SCHEDULE_CACHE_PROCESS,
     };
 };
 }  // namespace AppExecFwk

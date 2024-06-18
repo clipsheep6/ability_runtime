@@ -48,6 +48,11 @@ public:
         return engine_;
     }
 
+    std::shared_ptr<SourceMapOperator> GetSourceMapOperator() const
+    {
+        return sourceMapOperator_;
+    }
+
     panda::ecmascript::EcmaVM* GetVM() const
     {
         return vm_;
@@ -72,7 +77,7 @@ public:
     bool LoadScript(const std::string& path, std::vector<uint8_t>* buffer = nullptr, bool isBundle = false);
 
     bool StartDebugger(
-        std::string& option, const char* libraryPath, uint32_t socketFd, bool needBreakPoint, uint32_t instanceId);
+        std::string& option, uint32_t socketFd, bool isDebugApp, const DebuggerPostTask &debuggerPostTask);
 
     void StopDebugger();
 
@@ -97,15 +102,11 @@ public:
 
     void ReInitJsEnvImpl(std::unique_ptr<JsEnvironmentImpl> impl);
 
-    void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate);
+    void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate> moduleCheckerDelegate);
 
     void SetRequestAotCallback(const RequestAotCallback& cb);
 
     void SetDeviceDisconnectCallback(const std::function<bool()> &cb);
-
-    void StartMonitorJSHeapUsage();
-
-    void StopMonitorJSHeapUsage();
 
     void NotifyDebugMode(int tid, const char* libraryPath, uint32_t instanceId, bool isDebugApp, bool debugMode);
 

@@ -36,30 +36,32 @@ bool UnwrapExecuteResult(napi_env env, napi_value param, InsightIntentExecuteRes
     }
     int32_t code = 0;
     if (!UnwrapInt32ByPropertyName(env, param, "code", code)) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "Intent result must contian a code.");
+        TAG_LOGE(AAFwkTag::JSNAPI, "Intent result must contain a code.");
         return false;
     }
     executeResult.code = code;
 
-    napi_value result = nullptr;
-    napi_get_named_property(env, param, "result", &result);
-    if (result != nullptr) {
-        napi_valuetype valueType = napi_undefined;
-        napi_typeof(env, result, &valueType);
-        if (valueType != napi_object) {
-            TAG_LOGE(AAFwkTag::JSNAPI, "Wrong argument type result.");
-            return false;
+    if (IsExistsByPropertyName(env, param, "result")) {
+        napi_value result = nullptr;
+        napi_get_named_property(env, param, "result", &result);
+        if (result != nullptr) {
+            napi_valuetype valueType = napi_undefined;
+            napi_typeof(env, result, &valueType);
+            if (valueType != napi_object) {
+                TAG_LOGE(AAFwkTag::JSNAPI, "Wrong argument type result.");
+                return false;
+            }
+            auto wp = std::make_shared<AAFwk::WantParams>();
+            if (!AppExecFwk::UnwrapWantParams(env, result, *wp)) {
+                TAG_LOGE(AAFwkTag::JSNAPI, "Wrong argument type result.");
+                return false;
+            }
+            if (!executeResult.CheckResult(wp)) {
+                TAG_LOGE(AAFwkTag::JSNAPI, "Invalid intent result.");
+                return false;
+            }
+            executeResult.result = wp;
         }
-        auto wp = std::make_shared<AAFwk::WantParams>();
-        if (!AppExecFwk::UnwrapWantParams(env, result, *wp)) {
-            TAG_LOGE(AAFwkTag::JSNAPI, "Wrong argument type result.");
-            return false;
-        }
-        if (!executeResult.CheckResult(wp)) {
-            TAG_LOGE(AAFwkTag::JSNAPI, "Invalid intent result.");
-            return false;
-        }
-        executeResult.result = wp;
     }
 
     return true;

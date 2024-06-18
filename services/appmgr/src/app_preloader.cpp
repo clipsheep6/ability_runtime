@@ -23,6 +23,7 @@
 #include "hitrace_meter.h"
 #include "res_sched_client.h"
 #include "res_type.h"
+#include "startup_util.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -42,7 +43,7 @@ bool AppPreloader::PreCheck(const std::string &bundleName, PreloadMode preloadMo
     int32_t mode = static_cast<int32_t>(preloadMode);
     auto allow = ResourceSchedule::ResSchedClient::GetInstance().IsAllowedAppPreload(bundleName, mode);
     if (!allow) {
-        TAG_LOGE(AAFwkTag::APPMGR, "BundleName: %{public}s not allow preload by RSS", bundleName.c_str());
+        TAG_LOGI(AAFwkTag::APPMGR, "BundleName: %{public}s not allow preload by RSS", bundleName.c_str());
         return false;
     }
     return true;
@@ -114,9 +115,7 @@ bool AppPreloader::GetLaunchAbilityInfo(const AAFwk::Want &want, int32_t userId,
         return false;
     }
 
-    auto abilityInfoFlag = (AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA);
+    auto abilityInfoFlag = AbilityRuntime::StartupUtil::BuildAbilityInfoFlag();
     if (!IN_PROCESS_CALL(bundleMgrHelper->QueryAbilityInfo(want, abilityInfoFlag, userId, abilityInfo))) {
         TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication GetLaunchAbilityInfo failed.");
         return false;

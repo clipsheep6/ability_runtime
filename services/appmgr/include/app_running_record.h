@@ -43,10 +43,12 @@
 #include "module_running_record.h"
 #include "app_spawn_client.h"
 #include "app_malloc_info.h"
-#include "window_visibility_changed_listener.h"
 #include "app_jsheap_mem_info.h"
 
 namespace OHOS {
+namespace Rosen {
+class WindowVisibilityInfo;
+}
 namespace AppExecFwk {
 class AbilityRunningRecord;
 class AppMgrServiceInner;
@@ -87,6 +89,9 @@ public:
     void SetScheduler(const sptr<IRenderScheduler> &scheduler);
     void SetDeathRecipient(const sptr<AppDeathRecipient> recipient);
     void RegisterDeathRecipient();
+    void SetState(int32_t state);
+    int32_t GetState() const;
+    void SetProcessType(ProcessType type);
 
 private:
     void SetHostUid(const int32_t hostUid);
@@ -103,6 +108,7 @@ private:
     int32_t ipcFd_ = 0;
     int32_t sharedFd_ = 0;
     int32_t crashFd_ = 0;
+    int32_t state_ = 0;
     ProcessType processType_ = ProcessType::RENDER;
     std::weak_ptr<AppRunningRecord> host_; // nweb host
     sptr<IRenderScheduler> renderScheduler_ = nullptr;
@@ -528,6 +534,8 @@ public:
 
     bool IsLastPageAbilityRecord(const sptr<IRemoteObject> &token);
 
+    bool ExtensionAbilityRecordExists(const sptr<IRemoteObject> &token);
+
     void SetTerminating();
 
     bool IsTerminating();
@@ -536,9 +544,15 @@ public:
 
     bool IsEmptyKeepAliveApp() const;
 
-    void SetKeepAliveAppState(bool isKeepAlive, bool isEmptyKeepAliveApp);
+    bool IsMainProcess() const;
 
-    void SetEmptyKeepAliveAppState(bool isEmptyKeepAlive);
+    void SetEmptyKeepAliveAppState(bool isEmptyKeepAliveApp);
+
+    void SetKeepAliveEnableState(bool isKeepAliveEnable);
+
+    void SetSingleton(bool isSingleton);
+
+    void SetMainProcess(bool isMainProcess);
 
     void SetStageModelState(bool isStageBasedModel);
 
@@ -576,23 +590,27 @@ public:
     std::shared_ptr<UserTestRecord> GetUserTestInfo();
 
     void SetProcessAndExtensionType(const std::shared_ptr<AbilityInfo> &abilityInfo);
-    void SetSpecifiedAbilityFlagAndWant(const bool flag, const AAFwk::Want &want, const std::string &moduleName);
-    void SetScheduleNewProcessRequestState(const bool isNewProcessRequest, const AAFwk::Want &want,
-        const std::string &moduleName);
+    void SetSpecifiedAbilityFlagAndWant(int requestId, const AAFwk::Want &want, const std::string &moduleName);
+    void SetScheduleNewProcessRequestState(int32_t requestId, const AAFwk::Want &want, const std::string &moduleName);
     bool IsNewProcessRequest() const;
     bool IsStartSpecifiedAbility() const;
+    int32_t GetSpecifiedRequestId() const;
+    void ResetSpecifiedRequestId();
     void ScheduleAcceptWant(const std::string &moduleName);
     void ScheduleAcceptWantDone();
     void ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName);
     void ScheduleNewProcessRequestDone();
     void ApplicationTerminated();
-    const AAFwk::Want &GetSpecifiedWant() const;
-    const AAFwk::Want &GetNewProcessRequestWant() const;
+    AAFwk::Want GetSpecifiedWant() const;
+    AAFwk::Want GetNewProcessRequestWant() const;
+    int32_t GetNewProcessRequestId() const;
+    void ResetNewProcessRequestId();
     void SetDebugApp(bool isDebugApp);
     bool IsDebugApp();
     bool IsDebugging() const;
     void SetNativeDebug(bool isNativeDebug);
     void SetPerfCmd(const std::string &perfCmd);
+    void SetMultiThread(const bool multiThread);
     void AddRenderRecord(const std::shared_ptr<RenderRecord> &record);
     void RemoveRenderRecord(const std::shared_ptr<RenderRecord> &record);
     std::shared_ptr<RenderRecord> GetRenderRecordByPid(const pid_t pid);
@@ -612,6 +630,7 @@ public:
 
     using Closure = std::function<void()>;
     void PostTask(std::string msg, int64_t timeOut, const Closure &task);
+    bool CancelTask(std::string msg);
     void RemoveTerminateAbilityTimeoutTask(const sptr<IRemoteObject>& token) const;
 
     int32_t NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
@@ -657,9 +676,9 @@ public:
     ProcessType GetProcessType() const;
 
     int32_t NotifyAppFault(const FaultData &faultData);
-
+#ifdef SUPPORT_SCREEN
     void OnWindowVisibilityChanged(const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos);
-
+#endif //SUPPORT_SCREEN
     bool IsAbilitytiesBackground();
 
     inline void SetAbilityForegroundingFlag()
@@ -749,7 +768,7 @@ public:
 
     void SetAssertionPauseFlag(bool flag);
     bool IsAssertionPause() const;
-    
+
     void SetJITEnabled(const bool jitEnabled);
     bool IsJITEnabled() const;
 
@@ -757,8 +776,35 @@ public:
     int DumpIpcStop(std::string& result);
     int DumpIpcStat(std::string& result);
 
+    int DumpFfrt(std::string &result);
+
+    void SetExitReason(int32_t reason);
+    int32_t GetExitReason() const;
+
+    void SetExitMsg(const std::string &exitMsg);
+    std::string GetExitMsg() const;
+
     bool SetSupportedProcessCache(bool isSupport);
     SupportProcessCacheState GetSupportProcessCacheState();
+
+    void SetBrowserHost(sptr<IRemoteObject> browser);
+    sptr<IRemoteObject> GetBrowserHost();
+    void SetIsGPU(bool gpu);
+    bool GetIsGPU();
+    void SetGPUPid(pid_t gpuPid);
+    pid_t GetGPUPid();
+
+    void ScheduleCacheProcess();
+    
+    inline void SetStrictMode(bool strictMode)
+    {
+        isStrictMode_ = strictMode;
+    }
+
+    inline bool IsStrictMode()
+    {
+        return isStrictMode_;
+    }
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -822,6 +868,8 @@ private:
 
     bool isKeepAliveApp_ = false;  // Only resident processes can be set to true, please choose carefully
     bool isEmptyKeepAliveApp_ = false;  // Only empty resident processes can be set to true, please choose carefully
+    bool isMainProcess_ = true; // Only MainProcess can be keepalive
+    bool isSingleton_ = false;
     bool isStageBasedModel_ = false;
     ApplicationState curState_ = ApplicationState::APP_STATE_CREATE;  // current state of this process
     ApplicationPendingState pendingState_ = ApplicationPendingState::READY;
@@ -843,7 +891,7 @@ private:
     std::unordered_set<sptr<IRemoteObject>, RemoteObjHash> foregroundingAbilityTokens_;
     std::weak_ptr<AppMgrServiceInner> appMgrServiceInner_;
     sptr<AppDeathRecipient> appDeathRecipient_ = nullptr;
-    std::shared_ptr<PriorityObject> priorityObject_ = nullptr;
+    std::shared_ptr<PriorityObject> priorityObject_;
     std::shared_ptr<AppLifeCycleDeal> appLifeCycleDeal_ = nullptr;
     std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
     std::shared_ptr<AMSEventHandler> eventHandler_;
@@ -859,11 +907,14 @@ private:
     bool isLauncherApp_;
     std::string mainAppName_;
     int restartResidentProcCount_ = 0;
-    bool isSpecifiedAbility_ = false;
-    AAFwk::Want SpecifiedWant_;
+
+    mutable std::mutex specifiedMutex_;
+    int32_t specifiedRequestId_ = -1;
+    AAFwk::Want specifiedWant_;
     std::string moduleName_;
-    bool isNewProcessRequest_;
+    int32_t newProcessRequestId_ = -1;
     AAFwk::Want newProcessRequestWant_;
+
     bool isDebugApp_ = false;
     bool isNativeDebug_ = false;
     bool isAttachDebug_ = false;
@@ -872,6 +923,8 @@ private:
     int64_t restartTimeMillis_ = 0; // The time of last trying app restart
     bool jitEnabled_ = false;
     PreloadState preloadState_ = PreloadState::NONE;
+    int32_t exitReason_ = 0;
+    std::string exitMsg_ = "";
 
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
 
@@ -906,7 +959,12 @@ private:
     bool isRestartApp_ = false; // Only app calling RestartApp can be set to true
     bool isAssertPause_ = false;
     bool isNativeStart_ = false;
+    bool isMultiThread_ = false;
     SupportProcessCacheState procCacheSupportState_ = SupportProcessCacheState::UNSPECIFIED;
+    sptr<IRemoteObject> browserHost_;
+    bool isGPU_ = false;
+    pid_t gpuPid_ = 0;
+    bool isStrictMode_ = false;
 };
 
 }  // namespace AppExecFwk

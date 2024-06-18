@@ -14,7 +14,7 @@
  */
 
 #include "child_main_thread.h"
-
+#include <unistd.h>
 #include "bundle_mgr_proxy.h"
 #include "child_process_manager.h"
 #include "constants.h"
@@ -172,7 +172,12 @@ void ChildMainThread::InitNativeLib(const BundleInfo &bundleInfo)
     GetNativeLibPath(bundleInfo, appLibPaths);
     bool isSystemApp = bundleInfo.applicationInfo.isSystemApp;
     TAG_LOGD(AAFwkTag::APPKIT, "the application isSystemApp: %{public}d", isSystemApp);
-    AbilityRuntime::JsRuntime::SetAppLibPath(appLibPaths, isSystemApp);
+
+    if (processInfo_->processType != CHILD_PROCESS_TYPE_NATIVE) {
+        AbilityRuntime::JsRuntime::SetAppLibPath(appLibPaths, isSystemApp);
+    } else {
+        UpdateNativeChildLibModuleName(appLibPaths, isSystemApp);
+    }
 }
 
 void ChildMainThread::ExitProcessSafely()
@@ -220,6 +225,79 @@ void ChildMainThread::HandleExitProcessSafely()
     if (ret != ERR_OK) {
         TAG_LOGE(AAFwkTag::APPKIT, "HandleExitProcessSafely failed. runner->Run failed ret = %{public}d", ret);
     }
+}
+
+bool ChildMainThread::ScheduleRunNativeProc(const sptr<IRemoteObject> &mainProcessCb)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "ScheduleRunNativeProc");
+    if (mainProcessCb == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Main process callback is null");
+        return false;
+    }
+
+    if (mainHandler_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "mainHandler_ is null");
+        return false;
+    }
+
+    auto task = [weak = wptr<ChildMainThread>(this), callback = sptr<IRemoteObject>(mainProcessCb)]() {
+        auto childMainThread = weak.promote();
+        if (childMainThread == nullptr) {
+            TAG_LOGE(AAFwkTag::APPKIT, "childMainThread is nullptr, ScheduleRunNativeProc failed.");
+            return;
+        }
+        childMainThread->HandleRunNativeProc(callback);
+    };
+    if (!mainHandler_->PostTask(task, "ChildMainThread::HandleRunNativeProc")) {
+        TAG_LOGE(AAFwkTag::APPKIT, "HandleRunNativeProc PostTask task failed.");
+        return false;
+    }
+    return true;
+}
+
+void ChildMainThread::HandleRunNativeProc(const sptr<IRemoteObject> &mainProcessCb)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "HandleRunNativeProc called start.");
+    if (!processInfo_) {
+        TAG_LOGE(AAFwkTag::APPKIT, "processInfo is null.");
+        return;
+    }
+
+    ChildProcessManager &childProcessMgr = ChildProcessManager::GetInstance();
+    childProcessMgr.LoadNativeLib(nativeLibModuleName_, processInfo_->srcEntry, mainProcessCb);
+    TAG_LOGD(AAFwkTag::APPKIT, "HandleRunNativeProc end.");
+    ExitProcessSafely();
+}
+
+void ChildMainThread::UpdateNativeChildLibModuleName(const AppLibPathMap &appLibPaths, bool isSystemApp)
+{
+    nativeLibModuleName_.clear();
+    NativeModuleManager *nativeModuleMgr = NativeModuleManager::GetInstance();
+    if (nativeModuleMgr == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Get native module manager for native child failed");
+        return;
+    }
+
+    std::string nativeLibPath;
+    for (const auto &libPathPair : appLibPaths) {
+        for (const auto &libDir : libPathPair.second) {
+            nativeLibPath = libDir;
+            if (!nativeLibPath.empty() && nativeLibPath.back() != '/') {
+                nativeLibPath += '/';
+            }
+            
+            nativeLibPath += processInfo_->srcEntry;
+            if (access(nativeLibPath.c_str(), F_OK) == 0) {
+                nativeLibModuleName_ = libPathPair.first;
+                nativeModuleMgr->SetAppLibPath(libPathPair.first, libPathPair.second, isSystemApp);
+                TAG_LOGI(AAFwkTag::APPKIT, "Find native lib in app module: %{public}s", libPathPair.first.c_str());
+                return;
+            }
+        }
+    }
+
+    TAG_LOGE(AAFwkTag::APPKIT, "Can not find native lib(%{private}s) in any app module",
+        processInfo_->srcEntry.c_str());
 }
 
 void ChildMainThread::GetNativeLibPath(const BundleInfo &bundleInfo, AppLibPathMap &appLibPaths)

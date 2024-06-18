@@ -43,20 +43,7 @@ constexpr const char* EMPTY_STRING = "";
 constexpr const char* APPLICATION_DIRECTION = "ohos.application.direction";
 constexpr const char* APPLICATION_DENSITYDPI = "ohos.application.densitydpi";
 constexpr const char* APPLICATION_DISPLAYID = "ohos.application.displayid";
-
-/*
- * This must be synchronized with the value in GlobalConfigurationKey
- */
-const std::vector<std::string> SystemConfigurationKeyStore {
-    OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE,
-    OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_HOUR,
-    OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE,
-    OHOS::AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE,
-    OHOS::AAFwk::GlobalConfigurationKey::DEVICE_TYPE,
-    OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION,
-    OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DENSITYDPI,
-    OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID,
-};
+constexpr const char* APPLICATION_FONT = "ohos.application.font";
 
 constexpr const char* COLOR_MODE_LIGHT = "light";
 constexpr const char* COLOR_MODE_DARK = "dark";

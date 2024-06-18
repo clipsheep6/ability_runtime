@@ -50,6 +50,19 @@ bool ApplicationDataManager::NotifyUnhandledException(const std::string &errMsg)
     return AppRecovery::GetInstance().TryRecoverApp(StateReason::JS_ERROR);
 }
 
+bool ApplicationDataManager::NotifyCJUnhandledException(const std::string &errMsg)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "Notify error observer come.");
+    if (errorObserver_) {
+        errorObserver_->OnUnhandledException(errMsg);
+        return true;
+    }
+
+    // if apprecovery is enabled, we could callback to save current state
+    // and restart as developer wants
+    return AppRecovery::GetInstance().TryRecoverApp(StateReason::CJ_ERROR);
+}
+
 void ApplicationDataManager::RemoveErrorObserver()
 {
     TAG_LOGD(AAFwkTag::APPKIT, "Remove error observer come.");
@@ -67,6 +80,19 @@ bool ApplicationDataManager::NotifyExceptionObject(const AppExecFwk::ErrorObject
     // if apprecovery is enabled, we could callback to save current state
     // and restart as developer wants
     return AppRecovery::GetInstance().TryRecoverApp(StateReason::JS_ERROR);
+}
+
+bool ApplicationDataManager::NotifyCJExceptionObject(const AppExecFwk::ErrorObject &errorObj)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "Notify Exception error observer come.");
+    if (errorObserver_) {
+        errorObserver_->OnExceptionObject(errorObj);
+        return true;
+    }
+
+    // if apprecovery is enabled, we could callback to save current state
+    // and restart as developer wants
+    return AppRecovery::GetInstance().TryRecoverApp(StateReason::CJ_ERROR);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

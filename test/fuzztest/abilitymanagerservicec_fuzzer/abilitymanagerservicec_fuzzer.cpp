@@ -82,15 +82,12 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     // fuzz for AbilityManagerService
     auto abilityms = std::make_shared<AbilityManagerService>();
-    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityms->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
     abilityms->PauseOldConnectManager(int32Param);
-    abilityms->subManagersHelper_->InitConnectManager(int32Param, boolParam);
     abilityms->subManagersHelper_->InitDataAbilityManager(int32Param, boolParam);
-    abilityms->subManagersHelper_->InitPendWantManager(int32Param, boolParam);
     abilityms->GetValidUserId(int32Param);
     sptr<IAbilityController> abilityController;
     abilityms->SetAbilityController(abilityController, boolParam);
-    abilityms->SendANRProcessID(intParam);
     abilityms->IsRunningInStabilityTest();
     abilityms->IsAbilityControllerStart(*want, stringParam);
     abilityms->IsAbilityControllerForeground(stringParam);

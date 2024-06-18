@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 let Callee = requireNapi('application.Callee');
+let AbilityConstant = requireNapi('app.ability.AbilityConstant');
 
 class Ability {
   constructor() {
@@ -41,7 +42,9 @@ class Ability {
   dump(params) { }
   onDump(params) { }
 
-  onSaveState(state, wantParams) { }
+  onSaveState(state, wantParams) {
+    return AbilityConstant.OnSaveResult.RECOVERY_AGREE;
+  }
   onShare(wantParams) { }
 }
 

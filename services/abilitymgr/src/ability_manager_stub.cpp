@@ -27,6 +27,7 @@
 #include "ability_scheduler_stub.h"
 #include "configuration.h"
 #include "hilog_tag_wrapper.h"
+#include "hitrace_meter.h"
 #include "session_info.h"
 #include "status_bar_delegate_interface.h"
 
@@ -44,6 +45,7 @@ AbilityManagerStub::AbilityManagerStub()
     SecondStepInit();
     ThirdStepInit();
     FourthStepInit();
+    FifthStepInit();
 }
 
 AbilityManagerStub::~AbilityManagerStub()
@@ -362,6 +364,8 @@ void AbilityManagerStub::ThirdStepInit()
         = &AbilityManagerStub::UnregisterAbilityFirstFrameStateObserverInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::COMPLETE_FIRST_FRAME_DRAWING_BY_SCB)] =
         &AbilityManagerStub::CompleteFirstFrameDrawingBySCBInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY_NON_MODAL)] =
+        &AbilityManagerStub::StartUIExtensionAbilityNonModalInner;
 #endif
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUEST_DIALOG_SERVICE)] =
         &AbilityManagerStub::HandleRequestDialogService;
@@ -432,8 +436,18 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::ChangeUIAbilityVisibilityBySCBInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_SHORTCUT)] =
         &AbilityManagerStub::StartShortcutInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_RESIDENT_PROCESS_ENABLE)] =
+        &AbilityManagerStub::SetResidentProcessEnableInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ABILITY_STATE_BY_PERSISTENT_ID)] =
         &AbilityManagerStub::GetAbilityStateByPersistentIdInner;
+}
+
+void AbilityManagerStub::FifthStepInit()
+{
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TRANSFER_ABILITY_RESULT)] =
+        &AbilityManagerStub::TransferAbilityResultForExtensionInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_FROZEN_PROCESS_BY_RSS)] =
+        &AbilityManagerStub::NotifyFrozenProcessByRSSInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -932,6 +946,30 @@ int AbilityManagerStub::StartUIExtensionAbilityInner(MessageParcel &data, Messag
     sptr<SessionInfo> extensionSessionInfo = nullptr;
     if (data.ReadBool()) {
         extensionSessionInfo = data.ReadParcelable<SessionInfo>();
+        if (extensionSessionInfo == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "read extensionSessionInfo failed.");
+            return ERR_NULL_OBJECT;
+        }
+        extensionSessionInfo->isModal = true; // To ensure security, this attribute must be rewritten.
+    }
+
+    int32_t userId = data.ReadInt32();
+
+    int32_t result = StartUIExtensionAbility(extensionSessionInfo, userId);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartUIExtensionAbilityNonModalInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<SessionInfo> extensionSessionInfo = nullptr;
+    if (data.ReadBool()) {
+        extensionSessionInfo = data.ReadParcelable<SessionInfo>();
+        if (extensionSessionInfo == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "read extensionSessionInfo failed.");
+            return ERR_NULL_OBJECT;
+        }
+        extensionSessionInfo->isModal = false; // To ensure security, this attribute must be rewritten.
     }
 
     int32_t userId = data.ReadInt32();
@@ -1388,6 +1426,7 @@ int AbilityManagerStub::UnregisterCancelListenerInner(MessageParcel &data, Messa
 
 int AbilityManagerStub::GetPendingRequestWantInner(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     sptr<IWantSender> wantSender = iface_cast<IWantSender>(data.ReadRemoteObject());
     if (wantSender == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "wantSender is nullptr");
@@ -1477,13 +1516,13 @@ int AbilityManagerStub::ContinueMissionOfBundleNameInner(MessageParcel &data, Me
         return ERR_NULL_OBJECT;
     }
     std::unique_ptr<WantParams> wantParams(data.ReadParcelable<WantParams>());
-    continueMissionInfo.wantParams = *wantParams;
-    continueMissionInfo.srcBundleName = data.ReadString();
-    continueMissionInfo.continueType = data.ReadString();
     if (wantParams == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "ContinueMissionInner wantParams readParcelable failed!");
         return ERR_NULL_OBJECT;
     }
+    continueMissionInfo.wantParams = *wantParams;
+    continueMissionInfo.srcBundleName = data.ReadString();
+    continueMissionInfo.continueType = data.ReadString();
     int32_t result = ContinueMission(continueMissionInfo, callback);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "ContinueMissionInner result = %{public}d", result);
     return result;
@@ -1494,8 +1533,8 @@ int AbilityManagerStub::ContinueAbilityInner(MessageParcel &data, MessageParcel 
     std::string deviceId = data.ReadString();
     int32_t missionId = data.ReadInt32();
     uint32_t versionCode = data.ReadUint32();
+    AAFWK::ContinueRadar::GetInstance().SaveDataContinue("ContinueAbility");
     int32_t result = ContinueAbility(deviceId, missionId, versionCode);
-    AAFWK::ContinueRadar::GetInstance().SaveDataContinue("ContinueAbility", result);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "ContinueAbilityInner result = %{public}d", result);
     return result;
 }
@@ -1555,6 +1594,7 @@ int AbilityManagerStub::LockMissionForCleanupInner(MessageParcel &data, MessageP
 
 int AbilityManagerStub::UnlockMissionForCleanupInner(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int32_t id = data.ReadInt32();
     int result = UnlockMissionForCleanup(id);
     if (!reply.WriteInt32(result)) {
@@ -1600,6 +1640,7 @@ int AbilityManagerStub::UnRegisterMissionListenerInner(MessageParcel &data, Mess
 
 int AbilityManagerStub::GetMissionInfosInner(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::string deviceId = Str16ToStr8(data.ReadString16());
     int numMax = data.ReadInt32();
     std::vector<MissionInfo> missionInfos;
@@ -1618,6 +1659,7 @@ int AbilityManagerStub::GetMissionInfosInner(MessageParcel &data, MessageParcel 
 
 int AbilityManagerStub::GetMissionInfoInner(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     MissionInfo info;
     std::string deviceId = Str16ToStr8(data.ReadString16());
     int32_t missionId = data.ReadInt32();
@@ -1636,6 +1678,7 @@ int AbilityManagerStub::GetMissionInfoInner(MessageParcel &data, MessageParcel &
 
 int AbilityManagerStub::CleanMissionInner(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int32_t missionId = data.ReadInt32();
     int result = CleanMission(missionId);
     if (!reply.WriteInt32(result)) {
@@ -1647,6 +1690,7 @@ int AbilityManagerStub::CleanMissionInner(MessageParcel &data, MessageParcel &re
 
 int AbilityManagerStub::CleanAllMissionsInner(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int result = CleanAllMissions();
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "CleanAllMissions failed.");
@@ -1657,6 +1701,7 @@ int AbilityManagerStub::CleanAllMissionsInner(MessageParcel &data, MessageParcel
 
 int AbilityManagerStub::MoveMissionToFrontInner(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int32_t missionId = data.ReadInt32();
     int result = MoveMissionToFront(missionId);
     if (!reply.WriteInt32(result)) {
@@ -1679,6 +1724,7 @@ int AbilityManagerStub::GetMissionIdByTokenInner(MessageParcel &data, MessagePar
 
 int AbilityManagerStub::MoveMissionToFrontByOptionsInner(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int32_t missionId = data.ReadInt32();
     std::unique_ptr<StartOptions> startOptions(data.ReadParcelable<StartOptions>());
     if (startOptions == nullptr) {
@@ -1763,7 +1809,9 @@ int AbilityManagerStub::StartUIAbilityBySCBInner(MessageParcel &data, MessagePar
     if (data.ReadBool()) {
         sessionInfo = data.ReadParcelable<SessionInfo>();
     }
-    int32_t result = StartUIAbilityBySCB(sessionInfo);
+    bool isColdStart = false;
+    int32_t result = StartUIAbilityBySCB(sessionInfo, isColdStart);
+    reply.WriteBool(isColdStart);
     reply.WriteInt32(result);
     return NO_ERROR;
 }
@@ -2276,13 +2324,14 @@ int AbilityManagerStub::UpdateMissionSnapShotFromWMSInner(MessageParcel &data, M
         TAG_LOGE(AAFwkTag::ABILITYMGR, "read ability token failed.");
         return ERR_NULL_OBJECT;
     }
-
+#ifdef SUPPORT_SCREEN
     std::shared_ptr<Media::PixelMap> pixelMap(data.ReadParcelable<Media::PixelMap>());
     if (pixelMap == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "read pixelMap failed.");
         return ERR_NULL_OBJECT;
     }
     UpdateMissionSnapShot(token, pixelMap);
+#endif // SUPPORT_SCREEN
     return NO_ERROR;
 }
 
@@ -2493,7 +2542,7 @@ int AbilityManagerStub::SetMissionContinueStateInner(MessageParcel &data, Messag
     return NO_ERROR;
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 int AbilityManagerStub::SetMissionLabelInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> token = data.ReadRemoteObject();
@@ -2760,7 +2809,9 @@ int AbilityManagerStub::CallUIAbilityBySCBInner(MessageParcel &data, MessageParc
     if (data.ReadBool()) {
         sessionInfo = data.ReadParcelable<SessionInfo>();
     }
-    CallUIAbilityBySCB(sessionInfo);
+    bool isColdStart = false;
+    CallUIAbilityBySCB(sessionInfo, isColdStart);
+    reply.WriteBool(isColdStart);
     return NO_ERROR;
 }
 
@@ -3337,6 +3388,18 @@ int32_t AbilityManagerStub::OpenAtomicServiceInner(MessageParcel &data, MessageP
     return ERR_OK;
 }
 
+int32_t AbilityManagerStub::SetResidentProcessEnableInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::string bundleName = data.ReadString();
+    bool enable = data.ReadBool();
+    auto result = SetResidentProcessEnabled(bundleName, enable);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
 int32_t AbilityManagerStub::IsEmbeddedOpenAllowedInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> callerToken = nullptr;
@@ -3391,6 +3454,25 @@ int32_t AbilityManagerStub::GetAbilityStateByPersistentIdInner(MessageParcel &da
         }
     }
     return result;
+}
+
+int32_t AbilityManagerStub::TransferAbilityResultForExtensionInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> callerToken = data.ReadRemoteObject();
+    int32_t resultCode = data.ReadInt32();
+    sptr<Want> want = data.ReadParcelable<Want>();
+    int32_t result = TransferAbilityResultForExtension(callerToken, resultCode, *want);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::NotifyFrozenProcessByRSSInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::vector<int32_t> pidList;
+    data.ReadInt32Vector(&pidList);
+    int32_t uid = data.ReadInt32();
+    NotifyFrozenProcessByRSS(pidList, uid);
+    return NO_ERROR;
 }
 } // namespace AAFwk
 } // namespace OHOS

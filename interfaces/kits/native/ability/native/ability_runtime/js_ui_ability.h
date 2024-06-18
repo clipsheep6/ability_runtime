@@ -168,7 +168,7 @@ public:
      */
     int32_t OnShare(WantParams &wantParams) override;
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 public:
     /**
      * @brief Called after instantiating WindowScene.

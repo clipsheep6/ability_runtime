@@ -57,7 +57,6 @@ class ConnectionRecord;
 class Mission;
 class MissionList;
 class CallContainer;
-class AbilityAppStateObserver;
 
 constexpr const char* ABILITY_TOKEN_NAME = "AbilityToken";
 constexpr const char* LAUNCHER_BUNDLE_NAME = "com.ohos.launcher";
@@ -151,14 +150,26 @@ private:
 };
 
 /**
+ * @struct CallerAbilityInfo
+ * caller ability info.
+ */
+struct CallerAbilityInfo {
+public:
+    std::string callerBundleName;
+    std::string callerAbilityName;
+    int32_t callerTokenId = 0;
+    int32_t callerUid = 0;
+    int32_t callerPid = 0;
+};
+
+/**
  * @class CallerRecord
  * Record caller ability of for-result start mode and result.
  */
 class CallerRecord {
 public:
     CallerRecord() = default;
-    CallerRecord(int requestCode, std::weak_ptr<AbilityRecord> caller) : requestCode_(requestCode), caller_(caller)
-    {}
+    CallerRecord(int requestCode, std::weak_ptr<AbilityRecord> caller);
     CallerRecord(int requestCode, std::shared_ptr<SystemAbilityCallerRecord> saCaller) : requestCode_(requestCode),
         saCaller_(saCaller)
     {}
@@ -177,11 +188,16 @@ public:
     {
         return saCaller_;
     }
+    std::shared_ptr<CallerAbilityInfo> GetCallerInfo()
+    {
+        return callerInfo_;
+    }
 
 private:
     int requestCode_ = -1;  // requestCode of for-result start mode
     std::weak_ptr<AbilityRecord> caller_;
     std::shared_ptr<SystemAbilityCallerRecord> saCaller_ = nullptr;
+    std::shared_ptr<CallerAbilityInfo> callerInfo_ = nullptr;
 };
 
 /**
@@ -218,7 +234,7 @@ struct AbilityRequest {
     int callerUid = -1;
     AbilityCallType callType = AbilityCallType::INVALID_TYPE;
     sptr<IRemoteObject> callerToken = nullptr;
-    sptr<IRemoteObject> asCallerSoureToken = nullptr;
+    sptr<IRemoteObject> asCallerSourceToken = nullptr;
     uint32_t callerAccessTokenId = -1;
     sptr<IAbilityConnection> connect = nullptr;
 
@@ -358,6 +374,12 @@ public:
      */
     void ProcessForegroundAbility(uint32_t tokenId, uint32_t sceneFlag = 0);
 
+     /**
+     * post foreground timeout task for ui ability.
+     *
+     */
+    void PostForegroundTimeoutTask();
+
     /**
      * move the ability to back ground.
      *
@@ -488,7 +510,7 @@ public:
 
     bool GetRecoveryInfo();
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     /**
      * check whether the ability 's window is attached.
      *
@@ -523,6 +545,7 @@ public:
     void NotifyAnimationFromTerminatingAbility() const;
     void NotifyAnimationFromMinimizeAbility(bool& animaEnabled);
 
+    bool ReportAtomicServiceDrawnCompleteEvent();
     void SetCompleteFirstFrameDrawing(const bool flag);
     bool IsCompleteFirstFrameDrawing() const;
     bool GetColdStartFlag();
@@ -744,6 +767,8 @@ public:
     std::list<std::shared_ptr<CallerRecord>> GetCallerRecordList() const;
     std::shared_ptr<AbilityRecord> GetCallerRecord() const;
 
+    std::shared_ptr<CallerAbilityInfo> GetCallerInfo() const;
+
     /**
      * get connecting record from list.
      *
@@ -852,7 +877,6 @@ public:
     void SetRestarting(const bool isRestart, int32_t canReStartCount);
     int32_t GetRestartCount() const;
     void SetRestartCount(int32_t restartCount);
-    void SetKeepAlive();
     bool GetKeepAlive() const;
     void SetLoading(bool status);
     bool IsLoading() const;
@@ -996,7 +1020,6 @@ private:
      */
     void GetAbilityTypeString(std::string &typeStr);
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
-    void RemoveAppStateObserver(bool force = false);
     void GrantUriPermission(Want &want, std::string targetBundleName, bool isSandboxApp, uint32_t tokenId);
     void GrantDmsUriPermission(Want &want, std::string targetBundleName);
     bool IsDmsCall(Want &want);
@@ -1037,7 +1060,9 @@ private:
 
     bool GetUriListFromWant(Want &want, std::vector<std::string> &uriVec);
 
-#ifdef SUPPORT_GRAPHICS
+    void PublishFileOpenEvent(const Want &want);
+
+#ifdef SUPPORT_SCREEN
     std::shared_ptr<Want> GetWantFromMission() const;
     void SetShowWhenLocked(const AppExecFwk::AbilityInfo &abilityInfo, sptr<AbilityTransitionInfo> &info) const;
     void SetAbilityTransitionInfo(const AppExecFwk::AbilityInfo &abilityInfo,
@@ -1092,7 +1117,6 @@ private:
     bool isWindowStarted_ = false;                     // is window hotstart or coldstart?
     bool isWindowAttached_ = false;                   // Is window of this ability attached?
     bool isLauncherAbility_ = false;                  // is launcher?
-    bool isKeepAlive_ = false;                 // is keep alive or resident ability?
 
     sptr<IAbilityScheduler> scheduler_ = {};       // kit scheduler
     bool isLoading_ = false;        // is loading?
@@ -1173,11 +1197,10 @@ private:
     // scene session
     sptr<SessionInfo> sessionInfo_ = nullptr;
     mutable ffrt::mutex sessionLock_;
-    sptr<AbilityAppStateObserver> abilityAppStateObserver_;
     std::map<uint64_t, AbilityWindowState> abilityWindowStateMap_;
     sptr<SessionInfo> uiExtRequestSessionInfo_ = nullptr;
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     bool isStartingWindow_ = false;
     uint32_t bgColor_ = 0;
     std::shared_ptr<Media::PixelMap> startingWindowBg_ = nullptr;

@@ -29,10 +29,10 @@ JSAppStateObserver::~JSAppStateObserver() = default;
 
 void JSAppStateObserver::OnForegroundApplicationChanged(const AppStateData &appStateData)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "onForegroundApplicationChanged bundleName:%{public}s, uid:%{public}d, state:%{public}d",
+    TAG_LOGD(AAFwkTag::APPMGR, "bundleName:%{public}s, uid:%{public}d, state:%{public}d",
         appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
     if (!valid_) {
-        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has destoryed");
+        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has destroyed");
         return;
     }
     wptr<JSAppStateObserver> jsObserver = this;
@@ -53,8 +53,7 @@ void JSAppStateObserver::OnForegroundApplicationChanged(const AppStateData &appS
 
 void JSAppStateObserver::HandleOnForegroundApplicationChanged(const AppStateData &appStateData)
 {
-    TAG_LOGD(AAFwkTag::APPMGR,
-        "HandleOnForegroundApplicationChanged bundleName:%{public}s, uid:%{public}d, state:%{public}d",
+    TAG_LOGD(AAFwkTag::APPMGR, "bundleName:%{public}s, uid:%{public}d, state:%{public}d",
         appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
@@ -102,7 +101,7 @@ void JSAppStateObserver::OnExtensionStateChanged(const AbilityStateData &ability
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!valid_) {
-        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has destoryed");
+        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has destroyed");
         return;
     }
     wptr<JSAppStateObserver> jsObserver = this;
@@ -170,7 +169,7 @@ void JSAppStateObserver::OnProcessStateChanged(const ProcessData &processData)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!valid_) {
-        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has destoryed");
+        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has destroyed");
         return;
     }
     wptr<JSAppStateObserver> jsObserver = this;
@@ -204,7 +203,7 @@ void JSAppStateObserver::OnProcessDied(const ProcessData &processData)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!valid_) {
-        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has destoryed");
+        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has destroyed");
         return;
     }
     wptr<JSAppStateObserver> jsObserver = this;
@@ -239,7 +238,7 @@ void JSAppStateObserver::OnAppStarted(const AppStateData &appStateData)
     TAG_LOGD(AAFwkTag::APPMGR, "onAppStarted bundleName:%{public}s, uid:%{public}d, state:%{public}d",
         appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
     if (!valid_) {
-        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has destoryed");
+        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has destroyed");
         return;
     }
     wptr<JSAppStateObserver> jsObserver = this;
@@ -279,7 +278,7 @@ void JSAppStateObserver::OnAppStopped(const AppStateData &appStateData)
     TAG_LOGD(AAFwkTag::APPMGR, "OnAppStopped bundleName:%{public}s, uid:%{public}d, state:%{public}d",
         appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
     if (!valid_) {
-        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has destoryed");
+        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has destroyed");
         return;
     }
     wptr<JSAppStateObserver> jsObserver = this;

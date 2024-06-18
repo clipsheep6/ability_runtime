@@ -299,7 +299,8 @@ napi_value JsUIExtensionContext::OnOpenLink(napi_env env, NapiCallbackInfo& info
 
     if (!ParseOpenLinkParams(env, info, linkValue, openLinkOptions, want)) {
         TAG_LOGE(AAFwkTag::UI_EXT, "parse openLink arguments failed");
-        ThrowInvalidParamError(env, "Parse param openLink arguments failed");
+        ThrowInvalidParamError(env,
+            "Parse param link or openLinkOptions failed, link must be string, openLinkOptions must be options.");
         return CreateJsUndefined(env);
     }
 
@@ -428,33 +429,8 @@ napi_value JsUIExtensionContext::OnTerminateSelfWithResult(napi_env env, NapiCal
         return CreateJsUndefined(env);
     }
 
-    NapiAsyncTask::CompleteCallback complete =
-        [weak = context_, want, resultCode](napi_env env, NapiAsyncTask& task, int32_t status) {
-            auto context = weak.lock();
-            if (!context) {
-                TAG_LOGW(AAFwkTag::UI_EXT, "context is released");
-                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
-                return;
-            }
-            sptr<Rosen::Window> uiWindow = context->GetWindow();
-            if (uiWindow == nullptr) {
-                TAG_LOGE(AAFwkTag::UI_EXT, "uiWindow is nullptr");
-                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
-                return;
-            }
-            auto ret = uiWindow->TransferAbilityResult(resultCode, want);
-            if (ret != Rosen::WMError::WM_OK) {
-                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
-                return;
-            }
-            auto errorCode = context->TerminateSelf();
-            if (errorCode == 0) {
-                task.ResolveWithNoError(env, CreateJsUndefined(env));
-            } else {
-                task.Reject(env, CreateJsErrorByNativeErr(env, errorCode));
-            }
-        };
-
+    NapiAsyncTask::CompleteCallback complete;
+    SetCallbackForTerminateWithResult(resultCode, want, complete);
     napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsUIExtensionContext::OnTerminateSelfWithResult",
@@ -664,6 +640,47 @@ napi_value JsUIExtensionContext::OnOpenAtomicService(napi_env env, NapiCallbackI
     TAG_LOGD(AAFwkTag::UI_EXT, "bundleName: %{public}s.", bundleName.c_str());
     want.SetBundle(bundleName);
     return OpenAtomicServiceInner(env, info, want, startOptions, unwrapArgc);
+}
+
+void JsUIExtensionContext::SetCallbackForTerminateWithResult(int32_t resultCode, AAFwk::Want& want,
+    NapiAsyncTask::CompleteCallback& complete)
+{
+    complete =
+        [weak = context_, want, resultCode](napi_env env, NapiAsyncTask& task, int32_t status) {
+            auto context = weak.lock();
+            if (!context) {
+                TAG_LOGE(AAFwkTag::UI_EXT, "context is released");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                return;
+            }
+            auto extensionContext = AbilityRuntime::Context::ConvertTo<AbilityRuntime::UIExtensionContext>(context);
+            if (!extensionContext) {
+                TAG_LOGE(AAFwkTag::UI_EXT, "extensionContext is nullptr");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
+                return;
+            }
+            auto token = extensionContext->GetToken();
+            AAFwk::AbilityManagerClient::GetInstance()->TransferAbilityResultForExtension(token, resultCode, want);
+#ifdef SUPPORT_SCREEN
+            sptr<Rosen::Window> uiWindow = context->GetWindow();
+            if (!uiWindow) {
+                TAG_LOGE(AAFwkTag::UI_EXT, "uiWindow is nullptr");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
+                return;
+            }
+            auto ret = uiWindow->TransferAbilityResult(resultCode, want);
+            if (ret != Rosen::WMError::WM_OK) {
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
+                return;
+            }
+#endif // SUPPORT_SCREEN
+            auto errorCode = context->TerminateSelf();
+            if (errorCode == 0) {
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, errorCode));
+            }
+        };
 }
 
 napi_value JsUIExtensionContext::OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, Want &want,

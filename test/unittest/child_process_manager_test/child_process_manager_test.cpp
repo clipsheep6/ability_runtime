@@ -45,6 +45,8 @@ void ChildProcessManagerTest::SetUpTestCase()
 {
     AAFwk::AppUtils::GetInstance().isMultiProcessModel_.isLoaded = true;
     AAFwk::AppUtils::GetInstance().isMultiProcessModel_.value = true;
+    AAFwk::AppUtils::GetInstance().isSupportNativeChildProcess_.isLoaded = true;
+    AAFwk::AppUtils::GetInstance().isSupportNativeChildProcess_.value = true;
 
     sptr<IRemoteObject> bundleMgrService =  sptr<IRemoteObject>(new (std::nothrow) AppExecFwk::BundleMgrService());
     sptr<IRemoteObject> mockAppMgrService = sptr<IRemoteObject>(new (std::nothrow) AppExecFwk::MockAppMgrService());
@@ -61,6 +63,8 @@ void ChildProcessManagerTest::TearDownTestCase()
 {
     AAFwk::AppUtils::GetInstance().isMultiProcessModel_.isLoaded = false;
     AAFwk::AppUtils::GetInstance().isMultiProcessModel_.value = false;
+    AAFwk::AppUtils::GetInstance().isSupportNativeChildProcess_.isLoaded = false;
+    AAFwk::AppUtils::GetInstance().isSupportNativeChildProcess_.value = false;
 }
 
 void ChildProcessManagerTest::SetUp()
@@ -77,6 +81,21 @@ void ChildProcessManagerTest::TearDown()
 HWTEST_F(ChildProcessManagerTest, StartChildProcessBySelfFork_0100, TestSize.Level0)
 {
     TAG_LOGD(AAFwkTag::TEST, "StartChildProcessBySelfFork_0100 called.");
+    pid_t pid;
+    auto ret = ChildProcessManager::GetInstance().StartChildProcessBySelfFork("./ets/process/DemoProcess.ts", pid);
+    EXPECT_NE(ret, ChildProcessManagerErrorCode::ERR_FORK_FAILED);
+}
+
+/**
+ * @tc.number: StartChildProcessBySelfFork_0200
+ * @tc.desc: Test StartChildProcessBySelfFork works
+ * @tc.type: FUNC
+ */
+HWTEST_F(ChildProcessManagerTest, StartChildProcessBySelfFork_0200, TestSize.Level0)
+{
+    TAG_LOGD(AAFwkTag::TEST, "StartChildProcessBySelfFork_0200 called.");
+    AAFwk::AppUtils::GetInstance().isMultiProcessModel_.isLoaded = true;
+    AAFwk::AppUtils::GetInstance().isMultiProcessModel_.value = true;
     pid_t pid;
     auto ret = ChildProcessManager::GetInstance().StartChildProcessBySelfFork("./ets/process/DemoProcess.ts", pid);
     EXPECT_NE(ret, ChildProcessManagerErrorCode::ERR_FORK_FAILED);
@@ -161,6 +180,31 @@ HWTEST_F(ChildProcessManagerTest, CreateRuntime_0100, TestSize.Level0)
 }
 
 /**
+ * @tc.number: ChildProcessErrorUtils_0100
+ * @tc.desc: Test ChildProcessErrorUtils.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ChildProcessManagerTest, ChildProcessErrorUtils_0100, TestSize.Level0)
+{
+    TAG_LOGD(AAFwkTag::TEST, "ChildProcessErrorUtils_0100 called.");
+    auto err = ChildProcessManagerErrorUtil::GetAbilityErrorCode(ChildProcessManagerErrorCode::ERR_OK);
+    EXPECT_EQ(err, AbilityErrorCode::ERROR_OK);
+}
+
+/**
+ * @tc.number: HandleChildProcessBySelfFork_0100
+ * @tc.desc: Test HandleChildProcessBySelfFork works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ChildProcessManagerTest, HandleChildProcessBySelfFork, TestSize.Level0)
+{
+    TAG_LOGD(AAFwkTag::TEST, "HandleChildProcessBySelfFork_0100 called.");
+    AppExecFwk::BundleInfo bundleInfo;
+    ChildProcessManager::GetInstance().HandleChildProcessBySelfFork("./ets/process/DemoProcess.ts", bundleInfo);
+    EXPECT_EQ(ChildProcessManager::GetInstance().isChildProcessBySelfFork_, true);
+}
+
+/**
  * @tc.number: LoadJsFile_0100
  * @tc.desc: Test LoadJsFile works.
  * @tc.type: FUNC
@@ -186,5 +230,19 @@ AbilityRuntime::Runtime::DebugOption debugOption;
 ChildProcessManager::GetInstance().SetForkProcessDebugOption("test", false, false, false);
 EXPECT_TRUE(true);
 }
+
+/**
+ * @tc.number: StartNativeChildProcessByAppSpawnFork_0100
+ * @tc.desc: Test StartNativeChildProcessByAppSpawnFork works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ChildProcessManagerTest, StartNativeChildProcessByAppSpawnFork_0100, TestSize.Level0)
+{
+    TAG_LOGD(AAFwkTag::TEST, "StartNativeChildProcessByAppSpawnFork_0100 called.");
+    sptr<IRemoteObject> callback;
+    auto ret = ChildProcessManager::GetInstance().StartNativeChildProcessByAppSpawnFork("test.so", callback);
+    EXPECT_NE(ret, ChildProcessManagerErrorCode::ERR_FORK_FAILED);
+}
+
 }  // namespace AbilityRuntime
 }  // namespace OHOS

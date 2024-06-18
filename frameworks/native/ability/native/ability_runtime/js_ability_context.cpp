@@ -63,14 +63,14 @@ constexpr int32_t CALLER_TIME_OUT = 10; // 10s
 
 namespace {
 static std::map<ConnectionKey, sptr<JSAbilityConnection>, KeyCompare> g_connects;
-std::mutex gConnectsLock_;
+std::recursive_mutex gConnectsLock_;
 int64_t g_serialNumber = 0;
 const std::string ATOMIC_SERVICE_PREFIX = "com.atomicservice.";
 
 // This function has to be called from engine thread
 void RemoveConnection(int64_t connectId)
 {
-    std::lock_guard<std::mutex> lock(gConnectsLock_);
+    std::lock_guard<std::recursive_mutex> lock(gConnectsLock_);
     auto item = std::find_if(g_connects.begin(), g_connects.end(),
     [&connectId](const auto &obj) {
         return connectId == obj.first.id;
@@ -86,9 +86,9 @@ void RemoveConnection(int64_t connectId)
     }
 }
 
-int64_t InsertConnection(sptr<JSAbilityConnection> connection, const AAFwk::Want &want)
+int64_t InsertConnection(sptr<JSAbilityConnection> connection, const AAFwk::Want &want, int32_t accountId = -1)
 {
-    std::lock_guard<std::mutex> lock(gConnectsLock_);
+    std::lock_guard<std::recursive_mutex> lock(gConnectsLock_);
     if (connection == nullptr) {
         TAG_LOGE(AAFwkTag::CONTEXT, "connection null");
         return -1;
@@ -97,6 +97,7 @@ int64_t InsertConnection(sptr<JSAbilityConnection> connection, const AAFwk::Want
     ConnectionKey key;
     key.id = g_serialNumber;
     key.want = want;
+    key.accountId = accountId;
     connection->SetConnectionId(key.id);
     g_connects.emplace(key, connection);
     if (g_serialNumber < INT32_MAX) {
@@ -349,6 +350,11 @@ napi_value JsAbilityContext::MoveAbilityToBackground(napi_env env, napi_callback
     GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnMoveAbilityToBackground);
 }
 
+napi_value JsAbilityContext::SetRestoreEnabled(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnSetRestoreEnabled);
+}
+
 void JsAbilityContext::ClearFailedCallConnection(
     const std::weak_ptr<AbilityContext>& abilityContext, const std::shared_ptr<CallerCallBack> &callback)
 {
@@ -374,7 +380,10 @@ napi_value JsAbilityContext::OnStartAbility(napi_env env, NapiCallbackInfo& info
     }
 
     AAFwk::Want want;
-    OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want);
+    if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
+        ThrowInvalidParamError(env, "Parse param want failed, must be a Want");
+        return CreateJsUndefined(env);
+    }
     InheritWindowMode(want);
     decltype(info.argc) unwrapArgc = ARGC_ONE;
     TAG_LOGD(AAFwkTag::CONTEXT, "ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
@@ -533,7 +542,8 @@ napi_value JsAbilityContext::OnOpenLink(napi_env env, NapiCallbackInfo& info)
 
     if (!ParseOpenLinkParams(env, info, linkValue, openLinkOptions, want)) {
         TAG_LOGE(AAFwkTag::CONTEXT, "parse openLink arguments failed");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        ThrowInvalidParamError(env,
+            "Parse param link or openLinkOptions failed, link must be string, openLinkOptions must be options.");
         return CreateJsUndefined(env);
     }
 
@@ -585,7 +595,11 @@ napi_value JsAbilityContext::OnStartAbilityAsCaller(napi_env env, NapiCallbackIn
     }
 
     AAFwk::Want want;
-    OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want);
+    bool unWrapWantFlag = OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want);
+    if (!unWrapWantFlag) {
+        ThrowInvalidParamError(env, "Parameter error: Parse want failed! Want must be a Want.");
+        return CreateJsUndefined(env);
+    }
     InheritWindowMode(want);
     decltype(info.argc) unwrapArgc = ARGC_ONE;
     TAG_LOGI(AAFwkTag::CONTEXT, "StartAbilityAsCaller, ability:%{public}s.",
@@ -1173,7 +1187,7 @@ napi_value JsAbilityContext::OnConnectAbility(napi_env env, NapiCallbackInfo& in
     // unwrap want
     AAFwk::Want want;
     OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want);
-    TAG_LOGI(AAFwkTag::CONTEXT, "ConnectAbility, callee:%{public}s.%{public}s",
+    TAG_LOGD(AAFwkTag::CONTEXT, "ConnectAbility, callee:%{public}s.%{public}s",
         want.GetBundle().c_str(),
         want.GetElement().GetAbilityName().c_str());
 
@@ -1223,8 +1237,7 @@ napi_value JsAbilityContext::OnConnectAbilityWithAccount(napi_env env, NapiCallb
     AAFwk::Want want;
     OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want);
     TAG_LOGI(AAFwkTag::CONTEXT, "ConnectAbilityWithAccount, bundlename:%{public}s abilityname:%{public}s",
-        want.GetBundle().c_str(),
-        want.GetElement().GetAbilityName().c_str());
+        want.GetBundle().c_str(), want.GetElement().GetAbilityName().c_str());
 
     int32_t accountId = 0;
     if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(env, info.argv[INDEX_ONE], accountId)) {
@@ -1236,7 +1249,7 @@ napi_value JsAbilityContext::OnConnectAbilityWithAccount(napi_env env, NapiCallb
     // unwarp connection
     sptr<JSAbilityConnection> connection = new JSAbilityConnection(env);
     connection->SetJsConnectionObject(info.argv[INDEX_TWO]);
-    int64_t connectId = InsertConnection(connection, want);
+    int64_t connectId = InsertConnection(connection, want, accountId);
     NapiAsyncTask::CompleteCallback complete =
         [weak = context_, want, accountId, connection, connectId](
             napi_env env, NapiAsyncTask& task, int32_t status) {
@@ -1265,7 +1278,7 @@ napi_value JsAbilityContext::OnConnectAbilityWithAccount(napi_env env, NapiCallb
 
 napi_value JsAbilityContext::OnDisconnectAbility(napi_env env, NapiCallbackInfo& info)
 {
-    std::lock_guard<std::mutex> lock(gConnectsLock_);
+    std::lock_guard<std::recursive_mutex> lock(gConnectsLock_);
     if (info.argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::CONTEXT, "Not enough params");
         ThrowTooFewParametersError(env);
@@ -1277,6 +1290,7 @@ napi_value JsAbilityContext::OnDisconnectAbility(napi_env env, NapiCallbackInfo&
     // unwrap connectId
     int64_t connectId = -1;
     sptr<JSAbilityConnection> connection = nullptr;
+    int32_t accountId = -1;
     napi_get_value_int64(env, info.argv[INDEX_ZERO], &connectId);
     TAG_LOGI(AAFwkTag::CONTEXT, "DisconnectAbility, connection:%{public}d.", static_cast<int32_t>(connectId));
     auto item = std::find_if(g_connects.begin(),
@@ -1288,12 +1302,13 @@ napi_value JsAbilityContext::OnDisconnectAbility(napi_env env, NapiCallbackInfo&
         // match id
         want = item->first.want;
         connection = item->second;
+        accountId = item->first.accountId;
     } else {
         TAG_LOGI(AAFwkTag::CONTEXT, "not find conn exist.");
     }
     // begin disconnect
     NapiAsyncTask::CompleteCallback complete =
-        [weak = context_, want, connection](
+        [weak = context_, want, connection, accountId](
             napi_env env, NapiAsyncTask& task, int32_t status) {
             auto context = weak.lock();
             if (!context) {
@@ -1307,7 +1322,7 @@ napi_value JsAbilityContext::OnDisconnectAbility(napi_env env, NapiCallbackInfo&
                 return;
             }
             TAG_LOGD(AAFwkTag::CONTEXT, "context->DisconnectAbility");
-            context->DisconnectAbility(want, connection);
+            context->DisconnectAbility(want, connection, accountId);
             task.Resolve(env, CreateJsUndefined(env));
         };
 
@@ -1476,7 +1491,7 @@ napi_value JsAbilityContext::WrapRequestDialogResult(napi_env env,
 void JsAbilityContext::InheritWindowMode(AAFwk::Want &want)
 {
     TAG_LOGD(AAFwkTag::CONTEXT, "called");
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     // only split mode need inherit
     auto context = context_.lock();
     if (!context) {
@@ -1577,7 +1592,6 @@ napi_value CreateJsAbilityContext(napi_env env, std::shared_ptr<AbilityContext> 
         JsAbilityContext::StopServiceExtensionAbility);
     BindNativeFunction(env, object, "stopServiceExtensionAbilityWithAccount", moduleName,
         JsAbilityContext::StopServiceExtensionAbilityWithAccount);
-    BindNativeFunction(env, object, "connectAbility", moduleName, JsAbilityContext::ConnectAbility);
     BindNativeFunction(env, object, "connectServiceExtensionAbility", moduleName, JsAbilityContext::ConnectAbility);
     BindNativeFunction(env, object, "connectAbilityWithAccount", moduleName,
         JsAbilityContext::ConnectAbilityWithAccount);
@@ -1610,6 +1624,7 @@ napi_value CreateJsAbilityContext(napi_env env, std::shared_ptr<AbilityContext> 
     BindNativeFunction(env, object, "openAtomicService", moduleName,
         JsAbilityContext::OpenAtomicService);
     BindNativeFunction(env, object, "moveAbilityToBackground", moduleName, JsAbilityContext::MoveAbilityToBackground);
+    BindNativeFunction(env, object, "setRestoreEnabled", moduleName, JsAbilityContext::SetRestoreEnabled);
 
 #ifdef SUPPORT_GRAPHICS
     BindNativeFunction(env, object, "setMissionLabel", moduleName, JsAbilityContext::SetMissionLabel);
@@ -1682,7 +1697,7 @@ void JSAbilityConnection::SetConnectionId(int64_t id)
 void JSAbilityConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
     const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
-    TAG_LOGI(AAFwkTag::CONTEXT, "OnAbilityConnectDone, resultCode:%{public}d", resultCode);
+    TAG_LOGD(AAFwkTag::CONTEXT, "OnAbilityConnectDone, resultCode:%{public}d", resultCode);
     wptr<JSAbilityConnection> connection = this;
     std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
         ([connection, element, remoteObject, resultCode](napi_env env, NapiAsyncTask &task, int32_t status) {
@@ -1703,7 +1718,7 @@ void JSAbilityConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &el
 void JSAbilityConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementName &element,
     const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
-    TAG_LOGI(AAFwkTag::CONTEXT, "HandleOnAbilityConnectDone, resultCode:%{public}d", resultCode);
+    TAG_LOGD(AAFwkTag::CONTEXT, "HandleOnAbilityConnectDone, resultCode:%{public}d", resultCode);
     if (jsConnectionObject_ == nullptr) {
         TAG_LOGE(AAFwkTag::CONTEXT, "jsConnectionObject_ nullptr");
         return;
@@ -1729,7 +1744,7 @@ void JSAbilityConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementNa
 
 void JSAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
 {
-    TAG_LOGI(AAFwkTag::CONTEXT, "OnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
+    TAG_LOGD(AAFwkTag::CONTEXT, "OnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
     wptr<JSAbilityConnection> connection = this;
     std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
         ([connection, element, resultCode](napi_env env, NapiAsyncTask &task, int32_t status) {
@@ -1749,7 +1764,7 @@ void JSAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName 
 void JSAbilityConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
     int resultCode)
 {
-    std::lock_guard<std::mutex> lock(gConnectsLock_);
+    std::lock_guard<std::recursive_mutex> lock(gConnectsLock_);
     TAG_LOGD(AAFwkTag::CONTEXT, "resultCode:%{public}d", resultCode);
     if (jsConnectionObject_ == nullptr) {
         TAG_LOGE(AAFwkTag::CONTEXT, "jsConnectionObject_ nullptr");
@@ -1860,31 +1875,34 @@ napi_value JsAbilityContext::OnSetMissionContinueState(napi_env env, NapiCallbac
         return CreateJsUndefined(env);
     }
 
-    NapiAsyncTask::CompleteCallback complete =
-        [weak = context_, state](napi_env env, NapiAsyncTask& task, int32_t status) {
-            auto context = weak.lock();
-            if (!context) {
-                TAG_LOGW(AAFwkTag::CONTEXT, "context is released");
-                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
-                return;
-            }
+    auto innerErrorCode = std::make_shared<int32_t>(ERR_OK);
+    NapiAsyncTask::ExecuteCallback execute = [weak = context_, state, innerErrorCode]() {
+        auto context = weak.lock();
+        if (!context) {
+            TAG_LOGW(AAFwkTag::CONTEXT, "context is released");
+            *innerErrorCode = static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+            return;
+        }
 
-            auto errcode = context->SetMissionContinueState(state);
-            if (errcode == 0) {
-                task.Resolve(env, CreateJsUndefined(env));
-            } else {
-                task.Reject(env, CreateJsErrorByNativeErr(env, errcode));
-            }
-        };
+        *innerErrorCode = context->SetMissionContinueState(state);
+    };
+
+    NapiAsyncTask::CompleteCallback complete = [innerErrorCode](napi_env env, NapiAsyncTask& task, int32_t status) {
+        if (*innerErrorCode == ERR_OK) {
+            task.Resolve(env, CreateJsUndefined(env));
+        } else {
+            task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
+        }
+    };
 
     napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     napi_value result = nullptr;
-    NapiAsyncTask::ScheduleHighQos("JsAbilityContext::SetMissionContinueState",
-        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnSetMissionContinueState",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
     return result;
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 napi_value JsAbilityContext::SetMissionLabel(napi_env env, napi_callback_info info)
 {
     GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnSetMissionLabel);
@@ -2009,13 +2027,14 @@ napi_value JsAbilityContext::OnStartAbilityByType(napi_env env, NapiCallbackInfo
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                 return;
             }
-
+#ifdef SUPPORT_SCREEN
             auto errcode = context->StartAbilityByType(type, wantParam, callback);
             if (errcode != 0) {
                 task.Reject(env, CreateJsErrorByNativeErr(env, errcode));
             } else {
                 task.ResolveWithNoError(env, CreateJsUndefined(env));
             }
+#endif
         };
 
     napi_value lastParam = (info.argc > ARGC_THREE) ? info.argv[INDEX_THREE] : nullptr;
@@ -2204,6 +2223,33 @@ napi_value JsAbilityContext::OnMoveAbilityToBackground(napi_env env, NapiCallbac
     NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnMoveAbilityToBackground",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
+}
+
+napi_value JsAbilityContext::OnSetRestoreEnabled(napi_env env, NapiCallbackInfo& info)
+{
+    TAG_LOGD(AAFwkTag::CONTEXT, "Set if support restore.");
+    if (info.argc == ARGC_ZERO) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Not enough params.");
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    auto abilityContext = context_.lock();
+    if (abilityContext == nullptr) {
+        TAG_LOGW(AAFwkTag::CONTEXT, "Context has already released.");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+        return CreateJsUndefined(env);
+    }
+
+    bool enabled = true;
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], enabled)) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Parse param failed.");
+        ThrowInvalidParamError(env, "Parse param enabled failed.");
+        return CreateJsUndefined(env);
+    }
+
+    abilityContext->SetRestoreEnabled(enabled);
+    return CreateJsUndefined(env);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

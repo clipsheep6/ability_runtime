@@ -19,30 +19,34 @@
 #include "ability_util.h"
 #include "bundle_constants.h"
 #include "bundle_mgr_helper.h"
+#include "global_constant.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "server_constant.h"
+#include "startup_util.h"
 
 namespace OHOS {
 namespace AAFwk {
 namespace {
-constexpr const char* DLP_INDEX = "ohos.dlp.params.index";
 constexpr const char* SCREENSHOT_BUNDLE_NAME = "com.huawei.ohos.screenshot";
 constexpr const char* SCREENSHOT_ABILITY_NAME = "com.huawei.ohos.screenshot.ServiceExtAbility";
 }
 thread_local std::shared_ptr<StartAbilityInfo> StartAbilityUtils::startAbilityInfo;
+thread_local std::shared_ptr<StartAbilityInfo> StartAbilityUtils::callerAbilityInfo;
 thread_local bool StartAbilityUtils::skipCrowTest = false;
 thread_local bool StartAbilityUtils::skipStartOther = false;
 thread_local bool StartAbilityUtils::skipErms = false;
 
-int32_t StartAbilityUtils::GetAppIndex(const Want &want, sptr<IRemoteObject> callerToken)
+bool StartAbilityUtils::GetAppIndex(const Want &want, sptr<IRemoteObject> callerToken, int32_t &appIndex)
 {
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-    if (abilityRecord && abilityRecord->GetAppIndex() != 0 &&
+    if (abilityRecord && abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX &&
         abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
-        return abilityRecord->GetAppIndex();
+        appIndex = abilityRecord->GetAppIndex();
+        return true;
     }
-    return want.GetIntParam(DLP_INDEX, 0);
+    return AbilityRuntime::StartupUtil::GetAppIndex(want, appIndex);
 }
 
 bool StartAbilityUtils::GetApplicationInfo(const std::string &bundleName, int32_t userId,
@@ -66,8 +70,50 @@ bool StartAbilityUtils::GetApplicationInfo(const std::string &bundleName, int32_
     return true;
 }
 
+bool StartAbilityUtils::GetCallerAbilityInfo(const sptr<IRemoteObject> &callerToken,
+    AppExecFwk::AbilityInfo &abilityInfo)
+{
+    if (StartAbilityUtils::callerAbilityInfo) {
+        abilityInfo = StartAbilityUtils::callerAbilityInfo->abilityInfo;
+    } else {
+        if (callerToken == nullptr) {
+            return false;
+        }
+        auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+        if (abilityRecord == nullptr) {
+            return false;
+        }
+        abilityInfo = abilityRecord->GetAbilityInfo();
+    }
+    return true;
+}
+
+int32_t StartAbilityUtils::CheckAppProvisionMode(const Want& want, int32_t userId)
+{
+    auto abilityInfo = StartAbilityUtils::startAbilityInfo;
+    if (!abilityInfo || abilityInfo->GetAppBundleName() != want.GetElement().GetBundleName()) {
+        int32_t appIndex = 0;
+        if (!AbilityRuntime::StartupUtil::GetAppIndex(want, appIndex)) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "invalid app clone index");
+            return ERR_APP_CLONE_INDEX_INVALID;
+        }
+        abilityInfo = StartAbilityInfo::CreateStartAbilityInfo(want, userId, appIndex);
+    }
+    CHECK_POINTER_AND_RETURN(abilityInfo, GET_ABILITY_SERVICE_FAILED);
+    if (abilityInfo->status != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "unexpected abilityInfo status=%{public}d", abilityInfo->status);
+        return abilityInfo->status;
+    }
+    if ((abilityInfo->abilityInfo).applicationInfo.appProvisionType !=
+        AppExecFwk::Constants::APP_PROVISION_TYPE_DEBUG) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "window options are not supported in non-app-provision mode.");
+        return ERR_NOT_IN_APP_PROVISION_MODE;
+    }
+    return ERR_OK;
+}
+
 StartAbilityInfoWrap::StartAbilityInfoWrap(const Want &want, int32_t validUserId, int32_t appIndex,
-    bool isExtension)
+    const sptr<IRemoteObject> &callerToken, bool isExtension)
 {
     if (StartAbilityUtils::startAbilityInfo != nullptr) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "startAbilityInfo has been created");
@@ -91,52 +137,20 @@ StartAbilityInfoWrap::StartAbilityInfoWrap(const Want &want, int32_t validUserId
         StartAbilityUtils::skipCrowTest = true;
         StartAbilityUtils::skipStartOther = true;
     }
+
+    if (StartAbilityUtils::callerAbilityInfo != nullptr) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "callerAbilityInfo has been created");
+    }
+    StartAbilityUtils::callerAbilityInfo = StartAbilityInfo::CreateCallerAbilityInfo(callerToken);
 }
 
 StartAbilityInfoWrap::~StartAbilityInfoWrap()
 {
     StartAbilityUtils::startAbilityInfo.reset();
+    StartAbilityUtils::callerAbilityInfo.reset();
     StartAbilityUtils::skipCrowTest = false;
     StartAbilityUtils::skipStartOther = false;
     StartAbilityUtils::skipErms = false;
-}
-
-void StartAbilityInfo::InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo &extensionInfo,
-    AppExecFwk::AbilityInfo &abilityInfo)
-{
-    abilityInfo.applicationName = extensionInfo.applicationInfo.name;
-    abilityInfo.applicationInfo = extensionInfo.applicationInfo;
-    abilityInfo.bundleName = extensionInfo.bundleName;
-    abilityInfo.package = extensionInfo.moduleName;
-    abilityInfo.moduleName = extensionInfo.moduleName;
-    abilityInfo.name = extensionInfo.name;
-    abilityInfo.srcEntrance = extensionInfo.srcEntrance;
-    abilityInfo.srcPath = extensionInfo.srcEntrance;
-    abilityInfo.iconPath = extensionInfo.icon;
-    abilityInfo.iconId = extensionInfo.iconId;
-    abilityInfo.label = extensionInfo.label;
-    abilityInfo.labelId = extensionInfo.labelId;
-    abilityInfo.description = extensionInfo.description;
-    abilityInfo.descriptionId = extensionInfo.descriptionId;
-    abilityInfo.priority = extensionInfo.priority;
-    abilityInfo.permissions = extensionInfo.permissions;
-    abilityInfo.readPermission = extensionInfo.readPermission;
-    abilityInfo.writePermission = extensionInfo.writePermission;
-    abilityInfo.uri = extensionInfo.uri;
-    abilityInfo.extensionAbilityType = extensionInfo.type;
-    abilityInfo.visible = extensionInfo.visible;
-    abilityInfo.resourcePath = extensionInfo.resourcePath;
-    abilityInfo.enabled = extensionInfo.enabled;
-    abilityInfo.isModuleJson = true;
-    abilityInfo.isStageBasedModel = true;
-    abilityInfo.process = extensionInfo.process;
-    abilityInfo.metadata = extensionInfo.metadata;
-    abilityInfo.compileMode = extensionInfo.compileMode;
-    abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
-    abilityInfo.extensionTypeName = extensionInfo.extensionTypeName;
-    if (!extensionInfo.hapPath.empty()) {
-        abilityInfo.hapPath = extensionInfo.hapPath;
-    }
 }
 
 std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartAbilityInfo(const Want &want, int32_t userId,
@@ -145,11 +159,17 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartAbilityInfo(const
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto bms = AbilityUtil::GetBundleManagerHelper();
     CHECK_POINTER_AND_RETURN(bms, nullptr);
-    auto abilityInfoFlag = (AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL);
+    auto abilityInfoFlag = static_cast<uint32_t>(AbilityRuntime::StartupUtil::BuildAbilityInfoFlag()) |
+        static_cast<uint32_t>(AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL);
     auto request = std::make_shared<StartAbilityInfo>();
+    if (appIndex > 0 && appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
+        IN_PROCESS_CALL_WITHOUT_RET(bms->QueryCloneAbilityInfo(want.GetElement(), abilityInfoFlag, appIndex,
+            request->abilityInfo, userId));
+        if (request->abilityInfo.name.empty() || request->abilityInfo.bundleName.empty()) {
+            FindExtensionInfo(want, abilityInfoFlag, userId, appIndex, request);
+        }
+        return request;
+    }
     if (appIndex == 0) {
         IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(want, abilityInfoFlag, userId, request->abilityInfo));
     } else {
@@ -180,7 +200,7 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartAbilityInfo(const
         }
         request->extensionProcessMode = extensionInfo.extensionProcessMode;
         // For compatibility translates to AbilityInfo
-        InitAbilityInfoFromExtension(extensionInfo, request->abilityInfo);
+        AbilityRuntime::StartupUtil::InitAbilityInfoFromExtension(extensionInfo, request->abilityInfo);
     }
     return request;
 }
@@ -191,11 +211,13 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartExtensionInfo(con
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto bms = AbilityUtil::GetBundleManagerHelper();
     CHECK_POINTER_AND_RETURN(bms, nullptr);
-    auto abilityInfoFlag = (AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL);
+    auto abilityInfoFlag = static_cast<uint32_t>(AbilityRuntime::StartupUtil::BuildAbilityInfoFlag()) |
+        static_cast<uint32_t>(AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL);
     auto abilityInfo = std::make_shared<StartAbilityInfo>();
+    if (appIndex > 0 && appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
+        FindExtensionInfo(want, abilityInfoFlag, userId, appIndex, abilityInfo);
+        return abilityInfo;
+    }
 
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
     if (appIndex == 0) {
@@ -218,9 +240,50 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartExtensionInfo(con
     }
     abilityInfo->extensionProcessMode = extensionInfo.extensionProcessMode;
     // For compatibility translates to AbilityInfo
-    InitAbilityInfoFromExtension(extensionInfo, abilityInfo->abilityInfo);
+    AbilityRuntime::StartupUtil::InitAbilityInfoFromExtension(extensionInfo, abilityInfo->abilityInfo);
 
     return abilityInfo;
+}
+
+void StartAbilityInfo::FindExtensionInfo(const Want &want, int32_t flags, int32_t userId,
+    int32_t appIndex, std::shared_ptr<StartAbilityInfo> abilityInfo)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    CHECK_POINTER_LOG(abilityInfo, "abilityInfo is invalid.");
+    auto bms = AbilityUtil::GetBundleManagerHelper();
+    CHECK_POINTER_LOG(bms, "bms is invalid.");
+    AppExecFwk::ExtensionAbilityInfo extensionInfo;
+    IN_PROCESS_CALL_WITHOUT_RET(bms->QueryCloneExtensionAbilityInfoWithAppIndex(want.GetElement(),
+        flags, appIndex, extensionInfo, userId));
+    if (extensionInfo.bundleName.empty() || extensionInfo.name.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "extensionInfo empty.");
+        abilityInfo->status = RESOLVE_ABILITY_ERR;
+        return;
+    }
+    if (AbilityRuntime::StartupUtil::IsSupportAppClone(extensionInfo.type)) {
+        abilityInfo->extensionProcessMode = extensionInfo.extensionProcessMode;
+        // For compatibility translates to AbilityInfo
+        AbilityRuntime::StartupUtil::InitAbilityInfoFromExtension(extensionInfo, abilityInfo->abilityInfo);
+    } else {
+        abilityInfo->status = ERR_APP_CLONE_INDEX_INVALID;
+    }
+}
+
+std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateCallerAbilityInfo(const sptr<IRemoteObject> &callerToken)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (callerToken == nullptr) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "not call from context.");
+        return nullptr;
+    }
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "can not find abilityRecord");
+        return nullptr;
+    }
+    auto request = std::make_shared<StartAbilityInfo>();
+    request->abilityInfo = abilityRecord->GetAbilityInfo();
+    return request;
 }
 }
 }

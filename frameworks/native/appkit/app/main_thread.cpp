@@ -30,6 +30,7 @@
 #include "ability_thread.h"
 #include "ability_util.h"
 #include "app_loader.h"
+#include "ability_manager_client.h"
 #include "app_recovery.h"
 #include "app_utils.h"
 #include "appfreeze_inner.h"
@@ -42,18 +43,22 @@
 #include "child_process_manager.h"
 #include "configuration_convertor.h"
 #include "common_event_manager.h"
+#include "global_constant.h"
 #include "context_deal.h"
 #include "context_impl.h"
+#include "dump_ffrt_helper.h"
+#include "dump_ipc_helper.h"
 #include "exit_reason.h"
 #include "extension_ability_info.h"
 #include "extension_module_loader.h"
 #include "extension_plugin_info.h"
 #include "extract_resource_manager.h"
+#include "ffrt.h"
 #include "file_path_utils.h"
 #include "freeze_util.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
-#ifdef SUPPORT_GRAPHICS
+#include "resource_config_helper.h"
+#ifdef SUPPORT_SCREEN
 #include "locale_config.h"
 #include "ace_forward_compatibility.h"
 #include "form_constants.h"
@@ -66,6 +71,9 @@
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "js_runtime.h"
+#ifdef CJ_FRONTEND
+#include "cj_runtime.h"
+#endif
 #include "ohos_application.h"
 #include "overlay_module_info.h"
 #include "parameters.h"
@@ -80,7 +88,6 @@
 #include "js_runtime_utils.h"
 #include "context/application_context.h"
 #include "os_account_manager_wrapper.h"
-#include "dump_ipc_helper.h"
 
 #if defined(NWEB)
 #include <thread>
@@ -101,7 +108,6 @@ using AbilityRuntime::FreezeUtil;
 namespace AppExecFwk {
 using namespace OHOS::AbilityBase::Constants;
 std::weak_ptr<OHOSApplication> MainThread::applicationForDump_;
-std::shared_ptr<EventHandler> MainThread::signalHandler_ = nullptr;
 std::shared_ptr<MainThread::MainHandler> MainThread::mainHandler_ = nullptr;
 const std::string PERFCMD_PROFILE = "profile";
 const std::string PERFCMD_DUMPHEAP = "dumpheap";
@@ -746,6 +752,11 @@ void MainThread::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
     }
 }
 
+bool MainThread::IsBgWorkingThread(const AbilityInfo &info)
+{
+    return info.extensionAbilityType == ExtensionAbilityType::BACKUP;
+}
+
 void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemoteObject> &token,
     const std::shared_ptr<AAFwk::Want> &want, int32_t abilityRecordId)
 {
@@ -760,7 +771,9 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
     auto abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     abilityRecord->SetWant(want);
     abilityRecord->SetAbilityRecordId(abilityRecordId);
-
+    if (watchdog_ != nullptr) {
+        watchdog_->SetBgWorkingThreadStatus(IsBgWorkingThread(info));
+    }
     FreezeUtil::LifecycleFlow flow = { token, FreezeUtil::TimeoutState::LOAD };
     std::string entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
         "; MainThread::ScheduleLaunchAbility; the load lifecycle.";
@@ -825,6 +838,7 @@ void MainThread::ScheduleProfileChanged(const Profile &profile)
  */
 void MainThread::ScheduleConfigurationUpdated(const Configuration &config)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPKIT, "called");
     wptr<MainThread> weak = this;
     auto task = [weak, config]() {
@@ -900,11 +914,6 @@ void MainThread::HandleTerminateApplicationLocal()
         return;
     }
     applicationImpl_->PerformTerminateStrong();
-
-    std::shared_ptr<EventRunner> signalRunner = signalHandler_->GetEventRunner();
-    if (signalRunner) {
-        signalRunner->Stop();
-    }
 
     std::shared_ptr<EventRunner> runner = mainHandler_->GetEventRunner();
     if (runner == nullptr) {
@@ -1100,6 +1109,21 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     TAG_LOGD(AAFwkTag::APPKIT, "deviceType is %{public}s <---->  %{public}d.", deviceType.c_str(),
         ConvertDeviceType(deviceType));
     resConfig->SetDeviceType(ConvertDeviceType(deviceType));
+
+    std::string mcc = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MCC);
+    TAG_LOGD(AAFwkTag::APPKIT, "mcc is %{public}s.", mcc.c_str());
+    uint32_t mccNum = 0;
+    if (AbilityRuntime::ResourceConfigHelper::ConvertStringToUint32(mcc, mccNum)) {
+        resConfig->SetMcc(mccNum);
+    }
+
+    std::string mnc = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MNC);
+    TAG_LOGD(AAFwkTag::APPKIT, "mnc is %{public}s.", mnc.c_str());
+    uint32_t mncNum = 0;
+    if (AbilityRuntime::ResourceConfigHelper::ConvertStringToUint32(mnc, mncNum)) {
+        resConfig->SetMnc(mncNum);
+    }
+
     resourceManager->UpdateResConfig(*resConfig);
     return true;
 }
@@ -1173,6 +1197,7 @@ bool IsNeedLoadLibrary(const std::string &bundleName)
     std::vector<std::string> needLoadLibraryBundleNames{
         "com.ohos.contactsdataability",
         "com.ohos.medialibrary.medialibrarydata",
+        "com.ohos.ringtonelibrary.ringtonelibrarydata",
         "com.ohos.telephonydataability",
         "com.ohos.FusionSearch",
         "com.ohos.formrenderservice"
@@ -1190,7 +1215,7 @@ bool GetBundleForLaunchApplication(std::shared_ptr<BundleMgrHelper> bundleMgrHel
     int32_t appIndex, BundleInfo &bundleInfo)
 {
     bool queryResult;
-    if (appIndex != 0) {
+    if (appIndex > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         TAG_LOGD(AAFwkTag::APPKIT, "The bundleName = %{public}s.", bundleName.c_str());
         queryResult = (bundleMgrHelper->GetSandboxBundleInfo(bundleName,
             appIndex, UNSPECIFIED_USERID, bundleInfo) == 0);
@@ -1210,7 +1235,60 @@ bool GetBundleForLaunchApplication(std::shared_ptr<BundleMgrHelper> bundleMgrHel
     }
     return queryResult;
 }
-
+#ifdef CJ_FRONTEND
+CJUncaughtExceptionInfo MainThread::CreateCjExceptionInfo(const std::string &bundleName,
+    uint32_t versionCode, const std::string &hapPath)
+{
+    CJUncaughtExceptionInfo uncaughtExceptionInfo;
+    wptr<MainThread> weak_this = this;
+    uncaughtExceptionInfo.hapPath = hapPath.c_str();
+    uncaughtExceptionInfo.uncaughtTask = [weak_this, bundleName, versionCode]
+        (std::string summary, const CJErrorObject errorObj) {
+            auto appThread = weak_this.promote();
+            if (appThread == nullptr) {
+                TAG_LOGE(AAFwkTag::APPKIT, "appThread is nullptr.");
+                return;
+            }
+            time_t timet;
+            time(&timet);
+            std::string errName = errorObj.name ? errorObj.name : "[none]";
+            std::string errMsg = errorObj.name ? errorObj.message : "[none]";
+            std::string errStack = errorObj.name ? errorObj.stack : "[none]";
+            HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, "CJ_ERROR",
+                OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+                EVENT_KEY_PACKAGE_NAME, bundleName,
+                EVENT_KEY_VERSION, std::to_string(versionCode),
+                EVENT_KEY_TYPE, JSCRASH_TYPE,
+                EVENT_KEY_HAPPEN_TIME, timet,
+                EVENT_KEY_REASON, errName,
+                EVENT_KEY_JSVM, JSVM_TYPE,
+                EVENT_KEY_SUMMARY, summary);
+            ErrorObject appExecErrorObj = {
+                .name = errName,
+                .message = errMsg,
+                .stack = errStack
+            };
+            FaultData faultData;
+            faultData.faultType = FaultDataType::CJ_ERROR;
+            faultData.errorObject = appExecErrorObj;
+            DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFault(faultData);
+            if (ApplicationDataManager::GetInstance().NotifyCJUnhandledException(summary) &&
+                ApplicationDataManager::GetInstance().NotifyCJExceptionObject(appExecErrorObj)) {
+                return;
+            }
+            // if app's callback has been registered, let app decide whether exit or not.
+            TAG_LOGE(AAFwkTag::APPKIT,
+                "\n%{public}s is about to exit due to RuntimeError\nError type:%{public}s\n%{public}s\n"
+                "message: %{public}s\n"
+                "stack: %{public}s",
+                bundleName.c_str(), errName.c_str(), summary.c_str(), errMsg.c_str(), errStack.c_str());
+            AAFwk::ExitReason exitReason = { REASON_CJ_ERROR, errName };
+            AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
+            appThread->ScheduleProcessSecurityExit();
+        };
+    return uncaughtExceptionInfo;
+}
+#endif
 /**
  *
  * @brief Launch the application.
@@ -1258,6 +1336,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     bool moduelJson = false;
     bool isStageBased = false;
     bool findEntryHapModuleInfo = false;
+#ifdef CJ_FRONTEND
+    bool isCJApp = false;
+#endif
     AppExecFwk::HapModuleInfo entryHapModuleInfo;
     if (!bundleInfo.hapModuleInfos.empty()) {
         for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
@@ -1271,11 +1352,16 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             TAG_LOGW(AAFwkTag::APPKIT, "HandleLaunchApplication find entry hap module info failed!");
             entryHapModuleInfo = bundleInfo.hapModuleInfos.back();
         }
+#ifdef CJ_FRONTEND
+        if (!entryHapModuleInfo.abilityInfos.empty()) {
+            isCJApp = IsCJAbility(entryHapModuleInfo.abilityInfos.front().srcEntrance);
+        }
+#endif
         moduelJson = entryHapModuleInfo.isModuleJson;
         isStageBased = entryHapModuleInfo.isStageBasedModel;
     }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     std::vector<OHOS::AppExecFwk::Metadata> metaData = entryHapModuleInfo.metadata;
     bool isFullUpdate = std::any_of(metaData.begin(), metaData.end(), [](const auto &metaDataItem) {
         return metaDataItem.name == "ArkTSPartialUpdate" && metaDataItem.value == "false";
@@ -1292,7 +1378,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         ChangeToLocalPath(bundleName, appInfo.moduleSourceDirs, localPaths);
         LoadAbilityLibrary(localPaths);
         LoadNativeLiabrary(bundleInfo, appInfo.nativeLibraryPath);
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     } else if (Ace::AceForwardCompatibility::PipelineChanged()) {
         std::vector<std::string> localPaths;
         ChangeToLocalPath(bundleName, appInfo.moduleSourceDirs, localPaths);
@@ -1320,6 +1406,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     contextImpl->SetApplicationInfo(std::make_shared<ApplicationInfo>(appInfo));
     std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
         AbilityRuntime::ApplicationContext::GetInstance();
+    int32_t appIndex = appLaunchData.GetAppIndex();
+    applicationContext->SetCurrentAppCloneIndex(appIndex);
+    applicationContext->SetCurrentAppMode(static_cast<int32_t>(appInfo.multiAppMode.multiAppModeType));
     applicationContext->AttachContextImpl(contextImpl);
     auto appRunningId = appLaunchData.GetAppRunningUniqueId();
     applicationContext->SetAppRunningUniqueId(appRunningId);
@@ -1328,7 +1417,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
     application_->SetApplicationContext(applicationContext);
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     TAG_LOGI(
         AAFwkTag::APPKIT, "HandleLaunchApplication cacheDir: %{public}s", applicationContext->GetCacheDir().c_str());
     OHOS::EglSetCacheDir(applicationContext->GetCacheDir());
@@ -1343,23 +1432,22 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 
     std::map<std::string, std::string> pkgContextInfoJsonStringMap;
     for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-        std::string pkgContextInfoJsonString;
-        ErrCode errCode = bundleMgrHelper->GetJsonProfile(
-            AppExecFwk::PKG_CONTEXT_PROFILE, appInfo.bundleName, hapModuleInfo.moduleName, pkgContextInfoJsonString,
-            AppExecFwk::OsAccountManagerWrapper::GetCurrentActiveAccountId());
-        if (ret != ERR_OK) {
-            TAG_LOGE(AAFwkTag::APPKIT, "GetJsonProfile failed: %{public}d.", ret);
-        }
-        if (!pkgContextInfoJsonString.empty()) {
-            pkgContextInfoJsonStringMap[hapModuleInfo.moduleName] = pkgContextInfoJsonString;
-        }
+        pkgContextInfoJsonStringMap[hapModuleInfo.moduleName] = hapModuleInfo.hapPath;
     }
 
     AppLibPathMap appLibPaths {};
     GetNativeLibPath(bundleInfo, hspList, appLibPaths);
     bool isSystemApp = bundleInfo.applicationInfo.isSystemApp;
     TAG_LOGD(AAFwkTag::APPKIT, "the application isSystemApp: %{public}d", isSystemApp);
-    AbilityRuntime::JsRuntime::SetAppLibPath(appLibPaths, isSystemApp);
+#ifdef CJ_FRONTEND
+    if (isCJApp) {
+        AbilityRuntime::CJRuntime::SetAppLibPath(appLibPaths);
+    } else {
+#endif
+        AbilityRuntime::JsRuntime::SetAppLibPath(appLibPaths, isSystemApp);
+#ifdef CJ_FRONTEND
+    }
+#endif
 
     if (isStageBased) {
         // Create runtime
@@ -1378,6 +1466,13 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         options.uid = bundleInfo.applicationInfo.uid;
         options.apiTargetVersion = appInfo.apiTargetVersion;
         options.pkgContextInfoJsonStringMap = pkgContextInfoJsonStringMap;
+#ifdef CJ_FRONTEND
+        options.lang = isCJApp ? AbilityRuntime::Runtime::Language::CJ : AbilityRuntime::Runtime::Language::JS;
+#endif
+        if (applicationInfo_->appProvisionType == Constants::APP_PROVISION_TYPE_DEBUG) {
+            TAG_LOGD(AAFwkTag::JSRUNTIME, "Start Multi-Thread Mode: %{public}d.", appLaunchData.GetMultiThread());
+            options.isMultiThread = appLaunchData.GetMultiThread();
+        }
         options.jitEnabled = appLaunchData.IsJITEnabled();
         AbilityRuntime::ChildProcessManager::GetInstance().SetForkProcessJITEnabled(appLaunchData.IsJITEnabled());
         TAG_LOGD(AAFwkTag::APPKIT, "isStartWithDebug:%{public}d, debug:%{public}d, isNativeStart:%{public}d",
@@ -1443,60 +1538,69 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             runtime->RegisterQuickFixQueryFunc(modulePaths);
         }
 
-        auto& jsEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
         auto bundleName = appInfo.bundleName;
         auto versionCode = appInfo.versionCode;
-        JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo;
-        uncaughtExceptionInfo.hapPath = hapPath;
-        wptr<MainThread> weak = this;
-        uncaughtExceptionInfo.uncaughtTask = [weak, bundleName, versionCode, appRunningId = std::move(appRunningId),
-            pid, processName] (std::string summary, const JsEnv::ErrorObject errorObj) {
-            auto appThread = weak.promote();
-            if (appThread == nullptr) {
-                TAG_LOGE(AAFwkTag::APPKIT, "appThread is nullptr.");
-                return;
-            }
-            time_t timet;
-            time(&timet);
-            HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, "JS_ERROR",
-                OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
-                EVENT_KEY_PACKAGE_NAME, bundleName,
-                EVENT_KEY_VERSION, std::to_string(versionCode),
-                EVENT_KEY_TYPE, JSCRASH_TYPE,
-                EVENT_KEY_HAPPEN_TIME, timet,
-                EVENT_KEY_REASON, errorObj.name,
-                EVENT_KEY_JSVM, JSVM_TYPE,
-                EVENT_KEY_SUMMARY, summary,
-                EVENT_KEY_APP_RUNING_UNIQUE_ID, appRunningId);
-            ErrorObject appExecErrorObj = {
-                .name = errorObj.name,
-                .message = errorObj.message,
-                .stack = errorObj.stack
-            };
-            FaultData faultData;
-            faultData.faultType = FaultDataType::JS_ERROR;
-            faultData.errorObject = appExecErrorObj;
-            DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFault(faultData);
-            int result = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "PROCESS_KILL",
-                HiviewDFX::HiSysEvent::EventType::FAULT, "PID", pid, "PROCESS_NAME", processName,
-                "MSG", KILL_REASON);
-            TAG_LOGI(AAFwkTag::APPKIT, "hisysevent write result=%{public}d, send event [FRAMEWORK,PROCESS_KILL],"
-                " pid=%{public}d, processName=%{public}s, msg=%{public}s", result, pid, processName.c_str(),
-                KILL_REASON);
+#ifdef CJ_FRONTEND
+        if (!isCJApp) {
+#endif
+            JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo;
+            uncaughtExceptionInfo.hapPath = hapPath;
+            wptr<MainThread> weak = this;
+            uncaughtExceptionInfo.uncaughtTask = [weak, bundleName, versionCode, appRunningId = std::move(appRunningId),
+                pid, processName] (std::string summary, const JsEnv::ErrorObject errorObj) {
+                auto appThread = weak.promote();
+                if (appThread == nullptr) {
+                    TAG_LOGE(AAFwkTag::APPKIT, "appThread is nullptr.");
+                    return;
+                }
+                time_t timet;
+                time(&timet);
+                HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, "JS_ERROR",
+                    OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+                    EVENT_KEY_PACKAGE_NAME, bundleName,
+                    EVENT_KEY_VERSION, std::to_string(versionCode),
+                    EVENT_KEY_TYPE, JSCRASH_TYPE,
+                    EVENT_KEY_HAPPEN_TIME, timet,
+                    EVENT_KEY_REASON, errorObj.name,
+                    EVENT_KEY_JSVM, JSVM_TYPE,
+                    EVENT_KEY_SUMMARY, summary,
+                    EVENT_KEY_APP_RUNING_UNIQUE_ID, appRunningId);
+                ErrorObject appExecErrorObj = {
+                    .name = errorObj.name,
+                    .message = errorObj.message,
+                    .stack = errorObj.stack
+                };
+                FaultData faultData;
+                faultData.faultType = FaultDataType::JS_ERROR;
+                faultData.errorObject = appExecErrorObj;
+                DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFault(faultData);
+                int result = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "PROCESS_KILL",
+                    HiviewDFX::HiSysEvent::EventType::FAULT, "PID", pid, "PROCESS_NAME", processName,
+                    "MSG", KILL_REASON);
+                TAG_LOGI(AAFwkTag::APPKIT, "hisysevent write result=%{public}d, send event [FRAMEWORK,PROCESS_KILL],"
+                    " pid=%{public}d, processName=%{public}s, msg=%{public}s", result, pid, processName.c_str(),
+                    KILL_REASON);
 
-            if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary) &&
-                ApplicationDataManager::GetInstance().NotifyExceptionObject(appExecErrorObj)) {
-                return;
-            }
-            // if app's callback has been registered, let app decide whether exit or not.
-            TAG_LOGE(AAFwkTag::APPKIT,
-                "\n%{public}s is about to exit due to RuntimeError\nError type:%{public}s\n%{public}s",
-                bundleName.c_str(), errorObj.name.c_str(), summary.c_str());
-            AAFwk::ExitReason exitReason = { REASON_JS_ERROR, errorObj.name };
-            AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
-            appThread->ScheduleProcessSecurityExit();
-        };
-        (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).RegisterUncaughtExceptionHandler(uncaughtExceptionInfo);
+                if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary) &&
+                    ApplicationDataManager::GetInstance().NotifyExceptionObject(appExecErrorObj)) {
+                    return;
+                }
+                // if app's callback has been registered, let app decide whether exit or not.
+                TAG_LOGE(AAFwkTag::APPKIT,
+                    "\n%{public}s is about to exit due to RuntimeError\nError type:%{public}s\n%{public}s",
+                    bundleName.c_str(), errorObj.name.c_str(), summary.c_str());
+                AAFwk::ExitReason exitReason = { REASON_JS_ERROR, errorObj.name };
+                AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
+                appThread->ScheduleProcessSecurityExit();
+            };
+            (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).RegisterUncaughtExceptionHandler(uncaughtExceptionInfo);
+#ifdef CJ_FRONTEND
+        } else {
+            auto expectionInfo = CreateCjExceptionInfo(bundleName, versionCode, hapPath);
+            (static_cast<AbilityRuntime::CJRuntime&>(*runtime)).RegisterUncaughtExceptionHandler(expectionInfo);
+        }
+#endif
+
         application_->SetRuntime(std::move(runtime));
 
         std::weak_ptr<OHOSApplication> wpApplication = application_;
@@ -1509,30 +1613,37 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             TAG_LOGE(AAFwkTag::APPKIT, "failed.");
             return nullptr;
         });
-        if (application_ != nullptr) {
-            LoadAllExtensions(jsEngine);
+#ifdef CJ_FRONTEND
+        if (!isCJApp) {
+#endif
+            auto& jsEngine = (static_cast<AbilityRuntime::JsRuntime&>(*application_->GetRuntime())).GetNativeEngine();
+            if (application_ != nullptr) {
+                LoadAllExtensions(jsEngine);
+            }
+
+            IdleTimeCallback callback = [wpApplication](int32_t idleTime) {
+                auto app = wpApplication.lock();
+                if (app == nullptr) {
+                    TAG_LOGE(AAFwkTag::APPKIT, "app is nullptr.");
+                    return;
+                }
+                auto &runtime = app->GetRuntime();
+                if (runtime == nullptr) {
+                    TAG_LOGE(AAFwkTag::APPKIT, "runtime is nullptr.");
+                    return;
+                }
+                auto& nativeEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
+                nativeEngine.NotifyIdleTime(idleTime);
+            };
+            idleTime_ = std::make_shared<IdleTime>(mainHandler_, callback);
+            idleTime_->Start();
+
+            IdleNotifyStatusCallback cb = idleTime_->GetIdleNotifyFunc();
+            jsEngine.NotifyIdleStatusControl(cb);
         }
-
-        IdleTimeCallback callback = [wpApplication](int32_t idleTime) {
-            auto app = wpApplication.lock();
-            if (app == nullptr) {
-                TAG_LOGE(AAFwkTag::APPKIT, "app is nullptr.");
-                return;
-            }
-            auto &runtime = app->GetRuntime();
-            if (runtime == nullptr) {
-                TAG_LOGE(AAFwkTag::APPKIT, "runtime is nullptr.");
-                return;
-            }
-            auto& nativeEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
-            nativeEngine.NotifyIdleTime(idleTime);
-        };
-        idleTime_ = std::make_shared<IdleTime>(mainHandler_, callback);
-        idleTime_->Start();
-
-        IdleNotifyStatusCallback cb = idleTime_->GetIdleNotifyFunc();
-        jsEngine.NotifyIdleStatusControl(cb);
+#ifdef CJ_FRONTEND
     }
+#endif
 
     auto usertestInfo = appLaunchData.GetUserTestInfo();
     if (usertestInfo) {
@@ -2073,7 +2184,6 @@ void MainThread::HandleForegroundApplication()
 
     if (!applicationImpl_->PerformForeground()) {
         TAG_LOGE(AAFwkTag::APPKIT, "applicationImpl_->PerformForeground() failed");
-        return;
     }
 
     // Start accessing PurgeableMem if the event of foreground is successful.
@@ -2102,7 +2212,6 @@ void MainThread::HandleBackgroundApplication()
 
     if (!applicationImpl_->PerformBackground()) {
         TAG_LOGE(AAFwkTag::APPKIT, "applicationImpl_->PerformBackground() failed");
-        return;
     }
 
     // End accessing PurgeableMem if the event of background is successful.
@@ -2130,11 +2239,6 @@ void MainThread::HandleTerminateApplication(bool isLastProcess)
 
     if (!applicationImpl_->PerformTerminate(isLastProcess)) {
         TAG_LOGD(AAFwkTag::APPKIT, "PerformTerminate() failed.");
-    }
-
-    std::shared_ptr<EventRunner> signalRunner = signalHandler_->GetEventRunner();
-    if (signalRunner) {
-        signalRunner->Stop();
     }
 
     std::shared_ptr<EventRunner> runner = mainHandler_->GetEventRunner();
@@ -2243,7 +2347,6 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner)
     TAG_LOGD(AAFwkTag::APPKIT, "Start");
     mainHandler_ = std::make_shared<MainHandler>(runner, this);
     watchdog_ = std::make_shared<Watchdog>();
-    signalHandler_ = std::make_shared<EventHandler>(EventRunner::Create(SIGNAL_HANDLER));
     extensionConfigMgr_ = std::make_unique<AbilityRuntime::ExtensionConfigMgr>();
     wptr<MainThread> weak = this;
     auto task = [weak]() {
@@ -2308,7 +2411,7 @@ void MainThread::HandleSignal(int signal, [[maybe_unused]] siginfo_t *siginfo, v
         }
         case SignalType::SIGNAL_FORCE_FULLGC: {
             auto forceFullGCFunc = std::bind(&MainThread::ForceFullGC);
-            signalHandler_->PostTask(forceFullGCFunc, "MainThread:SIGNAL_FORCE_FULLGC");
+            ffrt::submit(forceFullGCFunc);
             break;
         }
         default:
@@ -2324,8 +2427,12 @@ void MainThread::HandleDumpHeapPrepare()
         return;
     }
     auto app = applicationForDump_.lock();
+    if (app == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "HandleDumpHeapPrepare app is nullptr");
+        return;
+    }
     auto &runtime = app->GetRuntime();
-    if (app == nullptr || runtime == nullptr) {
+    if (runtime == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "HandleDumpHeapPrepare runtime is nullptr");
         return;
     }
@@ -2340,12 +2447,17 @@ void MainThread::HandleDumpHeap(bool isPrivate)
         return;
     }
     auto app = applicationForDump_.lock();
+    if (app == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "HandleDumpHeap app is nullptr");
+        return;
+    }
     auto &runtime = app->GetRuntime();
-    if (app == nullptr || runtime == nullptr) {
+    if (runtime == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "HandleDumpHeap runtime is nullptr");
         return;
     }
     auto taskFork = [&runtime, &isPrivate] {
+        TAG_LOGD(AAFwkTag::APPKIT, "HandleDump Heap taskFork start.");
         time_t startTime = time(nullptr);
         int pid = -1;
         if ((pid = fork()) < 0) {
@@ -2377,10 +2489,8 @@ void MainThread::HandleDumpHeap(bool isPrivate)
             usleep(DEFAULT_SLEEP_TIME);
         }
     };
-    if (!signalHandler_->PostTask(taskFork, "MainThread::HandleDumpHeap",
-                                  0, AppExecFwk::EventQueue::Priority::IMMEDIATE)) {
-        TAG_LOGE(AAFwkTag::APPKIT, "HandleDumpHeap postTask false");
-    }
+
+    ffrt::submit(taskFork, {}, {}, ffrt::task_attr().qos(ffrt::qos_user_initiated));
     runtime->DumpCpuProfile(isPrivate);
 }
 
@@ -2425,7 +2535,7 @@ void MainThread::ForceFullGC()
 void MainThread::Start()
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::APPKIT, "App main thread create, pid:%{public}d.", getpid());
+    TAG_LOGI(AAFwkTag::APPKIT, "App main thread create, pid:%{public}d.", getprocpid());
 
     if (AAFwk::AppUtils::GetInstance().IsMultiProcessModel()) {
         ChildProcessInfo info;
@@ -2539,7 +2649,7 @@ void MainThread::LoadAbilityLibrary(const std::vector<std::string> &libraryPaths
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
 #ifdef ABILITY_LIBRARY_LOADER
     TAG_LOGD(AAFwkTag::APPKIT, "start.");
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     void *AceAbilityLib = nullptr;
     const char *path = Ace::AceForwardCompatibility::GetAceLibName();
     AceAbilityLib = dlopen(path, RTLD_NOW | RTLD_LOCAL);
@@ -3092,6 +3202,9 @@ int32_t MainThread::ChangeAppGcState(int32_t state)
         TAG_LOGE(AAFwkTag::APPKIT, "runtime is nullptr.");
         return ERR_INVALID_VALUE;
     }
+    if (runtime->GetLanguage() == AbilityRuntime::Runtime::Language::CJ) {
+        return NO_ERROR;
+    }
     auto& nativeEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
     nativeEngine.NotifyForceExpandState(state);
     return NO_ERROR;
@@ -3121,12 +3234,22 @@ void MainThread::AssertFaultPauseMainThreadDetection()
 {
     TAG_LOGD(AAFwkTag::APPKIT, "Called.");
     SetAppDebug(AbilityRuntime::AppFreezeState::AppFreezeFlag::ASSERT_DEBUG_MODE, true);
+    if (appMgr_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "appMgr is nullptr.");
+        return;
+    }
+    appMgr_->SetAppAssertionPauseState(true);
 }
 
 void MainThread::AssertFaultResumeMainThreadDetection()
 {
     TAG_LOGD(AAFwkTag::APPKIT, "Called.");
     SetAppDebug(AbilityRuntime::AppFreezeState::AppFreezeFlag::ASSERT_DEBUG_MODE, false);
+    if (appMgr_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "appMgr is nullptr.");
+        return;
+    }
+    appMgr_->SetAppAssertionPauseState(false);
 }
 
 void MainThread::HandleInitAssertFaultTask(bool isDebugModule, bool isDebugApp)
@@ -3183,23 +3306,76 @@ void MainThread::HandleCancelAssertFaultTask()
 
 int32_t MainThread::ScheduleDumpIpcStart(std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ScheduleDumpIpcStart::pid:%{public}d", getpid());
+    TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ScheduleDumpIpcStart::pid:%{public}d", getprocpid());
     DumpIpcHelper::DumpIpcStart(result);
     return ERR_OK;
 }
 
 int32_t MainThread::ScheduleDumpIpcStop(std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ScheduleDumpIpcStop::pid:%{public}d", getpid());
+    TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ScheduleDumpIpcStop::pid:%{public}d", getprocpid());
     DumpIpcHelper::DumpIpcStop(result);
     return ERR_OK;
 }
 
 int32_t MainThread::ScheduleDumpIpcStat(std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ScheduleDumpIpcStat::pid:%{public}d", getpid());
+    TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ScheduleDumpIpcStat::pid:%{public}d", getprocpid());
     DumpIpcHelper::DumpIpcStat(result);
     return ERR_OK;
+}
+
+int32_t MainThread::ScheduleDumpFfrt(std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ScheduleDumpFfrt::pid:%{public}d", getprocpid());
+    return DumpFfrtHelper::DumpFfrt(result);
+}
+
+/**
+ *
+ * @brief Notify application to prepare for process caching.
+ *
+ */
+void MainThread::ScheduleCacheProcess()
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "ScheduleCacheProcess");
+    wptr<MainThread> weak = this;
+    auto task = [weak]() {
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            TAG_LOGE(AAFwkTag::APPKIT, "appThread is nullptr");
+            return;
+        }
+        appThread->HandleCacheProcess();
+    };
+    if (mainHandler_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "handler nullptr");
+        return;
+    }
+    if (!mainHandler_->PostTask(task, "MainThread:ScheduleCacheProcess")) {
+        TAG_LOGE(AAFwkTag::APPKIT, "PostTask task failed");
+    }
+}
+
+/**
+ *
+ * @brief Notify application to prepare for process caching.
+ *
+ */
+void MainThread::HandleCacheProcess()
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::APPKIT, "start.");
+
+    // force gc
+    if (application_ != nullptr) {
+        auto &runtime = application_->GetRuntime();
+        if (runtime == nullptr) {
+            TAG_LOGE(AAFwkTag::APPKIT, "runtime nullptr");
+            return;
+        }
+        runtime->ForceFullGC();
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -29,7 +29,7 @@ using OHOS::AppExecFwk::ProcessData;
 class JSAppStateObserver : public ApplicationStateObserverStub {
 public:
     explicit JSAppStateObserver(napi_env engine);
-    ~JSAppStateObserver();
+    virtual ~JSAppStateObserver();
     void OnForegroundApplicationChanged(const AppStateData &appStateData) override;
     void OnAbilityStateChanged(const AbilityStateData &abilityStateData) override;
     void OnExtensionStateChanged(const AbilityStateData &abilityStateData) override;

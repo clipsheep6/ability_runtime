@@ -17,6 +17,13 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 module_output_path = "ability_runtime/appmgrservice"
 
 ohos_unittest("AppRunningProcessesInfoTest") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
   module_out_path = module_output_path
   cflags_cc = []
   include_dirs = [
@@ -31,7 +38,6 @@ ohos_unittest("AppRunningProcessesInfoTest") {
     "${ability_runtime_services_path}/appmgr/src/advanced_security_mode_manager.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_config_data_manager.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_debug_manager.cpp",
-    "${ability_runtime_services_path}/appmgr/src/app_mgr_service_inner.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_preloader.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_running_record.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_running_status_module.cpp",
@@ -59,6 +65,7 @@ ohos_unittest("AppRunningProcessesInfoTest") {
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_path}/utils/global/freeze:freeze_util",
+    "${ability_runtime_path}/utils/server/startup:startup_util",
     "${ability_runtime_services_path}/appmgr:libappms",
     "${ability_runtime_services_path}/common:app_util",
     "${ability_runtime_services_path}/common:event_report",
@@ -83,18 +90,13 @@ ohos_unittest("AppRunningProcessesInfoTest") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "kv_store:distributeddata_inner",
+    "memmgr:memmgrclient",
     "memory_utils:libmeminfo",
     "resource_schedule_service:ressched_client",
   ]
 
   if (ability_runtime_graphics) {
     external_deps += [ "window_manager:libwm" ]
-  }
-
-  if (ability_runtime_use_memmgr_plugin) {
-    external_deps += [ "memmgr_override:memmgrclient" ]
-  } else if (ability_runtime_use_memmgr) {
-    external_deps += [ "memmgr:memmgrclient" ]
   }
 }
 

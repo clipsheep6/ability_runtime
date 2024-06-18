@@ -50,10 +50,12 @@ ohos_shared_library("auto_fill_manager") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "init:libbegetutil",
+    "ipc:ipc_core",
   ]
 
   if (ability_runtime_graphics) {
     external_deps += [ "ace_engine:ace_uicontent" ]
+    defines = [ "SUPPORT_GRAPHICS" ]
   }
 
   innerapi_tags = [ "platformsdk" ]

@@ -20,13 +20,6 @@
 #include <string>
 #include <vector>
 
-struct JsFrames {
-    std::string functionName;
-    std::string fileName;
-    std::string pos;
-    uintptr_t *nativePointer = nullptr;
-};
-
 class ModuleCheckerDelegate;
 
 namespace OHOS {
@@ -38,6 +31,7 @@ class Runtime {
 public:
     enum class Language {
         JS = 0,
+        CJ
     };
 
     struct Options {
@@ -50,7 +44,7 @@ public:
         std::string arkNativeFilePath;
         std::string packagePathStr;
         std::vector<std::string> assetBasePathStr;
-        std::shared_ptr<AppExecFwk::EventRunner> eventRunner;
+        std::shared_ptr<AppExecFwk::EventRunner> eventRunner = nullptr;
         std::map<std::string, std::string> hapModulePath;
         bool loadAce = true;
         bool preload = false;
@@ -60,11 +54,12 @@ public:
         bool isStageModel = true;
         bool isTestFramework = false;
         bool jitEnabled = false;
+        bool isMultiThread = false;
         int32_t uid = -1;
         // ArkTsCard start
         bool isUnique = false;
         // ArkTsCard end
-        std::shared_ptr<ModuleCheckerDelegate> moduleCheckerDelegate;
+        std::shared_ptr<ModuleCheckerDelegate> moduleCheckerDelegate = nullptr;
         int32_t apiTargetVersion = 0;
         std::map<std::string, std::string> pkgContextInfoJsonStringMap;
         std::map<std::string, std::string> packageNameList;
@@ -89,7 +84,6 @@ public:
     virtual Language GetLanguage() const = 0;
 
     virtual void StartDebugMode(const DebugOption debugOption) = 0;
-    virtual bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) = 0;
     virtual void DumpHeapSnapshot(bool isPrivate) = 0;
     virtual void DumpCpuProfile(bool isPrivate) = 0;
     virtual void DestroyHeapProfiler() = 0;
@@ -109,8 +103,9 @@ public:
     virtual void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath) = 0;
     virtual void StartProfiler(const DebugOption debugOption) = 0;
     virtual void DoCleanWorkAfterStageCleaned() = 0;
-    virtual void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate) const {}
+    virtual void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate> moduleCheckerDelegate) const {}
     virtual void SetDeviceDisconnectCallback(const std::function<bool()> &cb) = 0;
+    virtual void UpdatePkgContextInfoJson(std::string moduleName, std::string hapPath, std::string packageName) = 0;
     Runtime(const Runtime&) = delete;
     Runtime(Runtime&&) = delete;
     Runtime& operator=(const Runtime&) = delete;

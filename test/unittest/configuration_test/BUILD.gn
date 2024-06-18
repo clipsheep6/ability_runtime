@@ -62,6 +62,8 @@ ohos_unittest("configuration_test") {
     "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",
     "hilog:libhilog",
+    "i18n:intl_util",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",
     "resource_management:global_resmgr",

@@ -21,11 +21,13 @@
 #ifdef WITH_DLP
 #include "dlp_permission_kit.h"
 #endif // WITH_DLP
+#include "global_constant.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "iremote_object.h"
 #include "permission_verification.h"
+#include "server_constant.h"
 #include "want.h"
 
 namespace OHOS {
@@ -49,7 +51,7 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability has already been destroyed.");
         return true;
     }
-    if (abilityRecord->GetAppIndex() == 0) {
+    if (abilityRecord->GetAppIndex() <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         return true;
     }
     if (abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
@@ -72,9 +74,15 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
 
 [[maybe_unused]]static bool OtherAppsAccessDlpCheck(const sptr<IRemoteObject> &callerToken, const Want &want)
 {
+    int32_t dlpIndex = want.GetIntParam(AbilityRuntime::ServerConstant::DLP_INDEX, 0);
+    if (dlpIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX && dlpIndex != 0) {
+        return false;
+    }
+
     if (callerToken != nullptr) {
         auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-        if (abilityRecord != nullptr && abilityRecord->GetAppIndex() != 0) {
+        if (abilityRecord != nullptr &&
+            abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
             return true;
         }
     }

@@ -28,7 +28,7 @@
 #include "napi_common_start_options.h"
 #include "napi_common_util.h"
 #include "permission_constants.h"
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 #include "pixel_map_napi.h"
 #endif
 #include "start_options.h"
@@ -182,7 +182,7 @@ private:
 
         napi_value lastParam = (argc <= 1) ? nullptr : argv[1];
         napi_value result = nullptr;
-        NapiAsyncTask::Schedule("MissioManager::OnUnregisterMissionListener",
+        NapiAsyncTask::Schedule("MissionManager::OnUnregisterMissionListener",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -222,7 +222,7 @@ private:
 
         napi_value lastParam = (argc <= 2) ? nullptr : argv[2];
         napi_value result = nullptr;
-        NapiAsyncTask::Schedule("MissioManager::OnGetMissionInfos",
+        NapiAsyncTask::Schedule("MissionManager::OnGetMissionInfos",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -262,7 +262,7 @@ private:
 
         napi_value lastParam = (argc <= 2) ? nullptr : argv[2];
         napi_value result = nullptr;
-        NapiAsyncTask::Schedule("MissioManager::OnGetMissionInfo",
+        NapiAsyncTask::Schedule("MissionManager::OnGetMissionInfo",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -310,7 +310,7 @@ private:
                 napi_set_named_property(env, abilityObj, "abilityName",
                     CreateJsValue(env, snapshotWrap->missionSnapshot.topAbility.GetAbilityName()));
                 napi_set_named_property(env, object, "ability", abilityObj);
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
                 auto snapshotValue = Media::PixelMapNapi::CreatePixelMap(
                     env, snapshotWrap->missionSnapshot.snapshot);
                 napi_set_named_property(env, object, "snapshot", snapshotValue);
@@ -323,7 +323,7 @@ private:
         };
         napi_value lastParam = (argc > ARG_COUNT_TWO) ? argv[ARG_COUNT_TWO] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::Schedule("MissioManager::GetMissionSnapShot",
+        NapiAsyncTask::Schedule("MissionManager::GetMissionSnapShot",
             env, CreateAsyncTaskWithLastParam(env, lastParam, std::move(excute), std::move(complete), &result));
         return result;
     }
@@ -379,7 +379,7 @@ private:
 
         napi_value lastParam = (argc > 1) ?  argv[1] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::ScheduleHighQos("MissioManager::OnLockMission",
+        NapiAsyncTask::ScheduleHighQos("MissionManager::OnLockMission",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -412,7 +412,7 @@ private:
 
         napi_value lastParam = (argc > 1) ? argv[1] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::ScheduleHighQos("MissioManager::OnUnlockMission",
+        NapiAsyncTask::ScheduleHighQos("MissionManager::OnUnlockMission",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -445,7 +445,7 @@ private:
 
         napi_value lastParam = (argc > 1) ? argv[1] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::ScheduleHighQos("MissioManager::OnClearMission",
+        NapiAsyncTask::ScheduleHighQos("MissionManager::OnClearMission",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -466,7 +466,7 @@ private:
 
         napi_value lastParam = (argc > 0) ? argv[0] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::ScheduleHighQos("MissioManager::OnMoveMissionToFront",
+        NapiAsyncTask::ScheduleHighQos("MissionManager::OnMoveMissionToFront",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -507,7 +507,7 @@ private:
 
         napi_value lastParam = (argc > unwrapArgc) ? argv[unwrapArgc] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::ScheduleHighQos("MissioManager::OnMoveMissionToFront",
+        NapiAsyncTask::ScheduleHighQos("MissionManager::OnMoveMissionToFront",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }

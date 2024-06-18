@@ -203,6 +203,22 @@ HWTEST_F(UriPermissionManagerTest, UriPermissionManager_RevokeUriPermissionManua
 
 /*
  * Feature: UriPermissionManagerClient
+ * Function: RevokeUriPermissionManually
+ * SubFunction: RevokeUriPermissionManually
+ * FunctionPoints: Uri is valid.
+ * CaseDescription: Verify UriPermissionManagerClient RevokeUriPermissionManually
+ */
+HWTEST_F(UriPermissionManagerTest, UriPermissionManager_RevokeUriPermissionManually_003, TestSize.Level1)
+{
+    auto& upmc = AAFwk::UriPermissionManagerClient::GetInstance();
+    auto uri = Uri("file://com.example.test1001/data/storage/el2/base/haps/entry/files/test_A.txt");
+    std::string bundleName = "com.example.test1001";
+    auto ret = upmc.RevokeUriPermissionManually(uri, bundleName, 1001);
+    EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
+}
+
+/*
+ * Feature: UriPermissionManagerClient
  * Function: RevokeUriPermission
  * SubFunction: RevokeUriPermission
  * FunctionPoints: NA

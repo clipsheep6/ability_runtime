@@ -25,10 +25,10 @@ namespace AbilityRuntime {
 class ExtensionRecord;
 }
 namespace AAFwk {
-class PreLoadUIExtStateObserver : public AppExecFwk::ApplicationStateObserverStub {
+class PreLoadUIExtStateObserver final : public AppExecFwk::ApplicationStateObserverStub {
 public:
     PreLoadUIExtStateObserver(std::weak_ptr<AbilityRuntime::ExtensionRecord> extensionRecord);
-    virtual void OnProcessDied(const AppExecFwk::ProcessData &processData) override;
+    void OnProcessDied(const AppExecFwk::ProcessData &processData) override;
 
 private:
     std::weak_ptr<AbilityRuntime::ExtensionRecord> extensionRecord_ = std::weak_ptr<AbilityRuntime::ExtensionRecord>();

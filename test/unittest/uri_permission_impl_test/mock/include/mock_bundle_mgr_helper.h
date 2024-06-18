@@ -33,6 +33,9 @@ public:
     bool GetBundleInfo(const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId);
         
     bool GetApplicationInfo(const std::string &appName, uint32_t flags, int32_t userId, ApplicationInfo &appInfo);
+
+    ErrCode GetCloneBundleInfo(const std::string &bundleName, int32_t flags, int32_t appCloneIndex,
+        BundleInfo &bundleInfo, int32_t userId);
     
 private:
     void OnDeath();

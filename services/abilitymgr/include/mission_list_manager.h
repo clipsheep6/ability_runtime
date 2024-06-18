@@ -23,7 +23,6 @@
 #include "cpp/mutex.h"
 
 #include "ability_running_info.h"
-#include "foundation/distributedhardware/device_manager/interfaces/inner_kits/native_cpp/include/device_manager.h"
 #include "mission_list.h"
 #include "mission_listener_controller.h"
 #include "mission_info.h"
@@ -314,11 +313,20 @@ public:
      * @param token The target ability.
      * @param pixelMap The snapshot.
      */
+#ifdef SUPPORT_SCREEN
     void UpdateSnapShot(const sptr<IRemoteObject> &token, const std::shared_ptr<Media::PixelMap> &pixelMap);
+#endif // SUPPORT_SCREEN
+
+    /**
+     * Get ability number.
+     * @param element type of ElementName.
+     * @return ability number.
+     */
+    int32_t GetAbilityNumber(const AppExecFwk::ElementName &element) const;
 
     void EnableRecoverAbility(int32_t missionId);
 
-    #ifdef ABILITY_COMMAND_FOR_TEST
+#ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block ability.
      *
@@ -326,7 +334,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int BlockAbility(int abilityRecordId);
-    #endif
+#endif
 
     void UninstallApp(const std::string &bundleName, int32_t uid);
 
@@ -344,14 +352,14 @@ public:
         int32_t pid = NO_PID);
 
     void CallRequestDone(const std::shared_ptr<AbilityRecord> &abilityRecord, const sptr<IRemoteObject> &callStub);
-  
+
     int SetMissionContinueState(const sptr<IRemoteObject> &token, const int32_t missionId,
         const AAFwk::ContinueState &state);
 
     bool IsAbilityStarted(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetRecord);
 
     void SignRestartAppFlag(const std::string &bundleName);
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 public:
     /**
      * Set mission label of this ability.
@@ -526,9 +534,6 @@ private:
 
     void SendKeyEvent(const AbilityRequest &abilityRequest);
 
-    void ReportAbilitAssociatedStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo, int64_t type,
-        const std::shared_ptr<AbilityRecord> &callerAbility);
-
     int userId_;
     mutable ffrt::mutex managerLock_;
     // launcher list is also in currentMissionLists_
@@ -543,13 +548,6 @@ private:
     std::queue<AbilityRequest> waitingAbilityQueue_;
     std::shared_ptr<MissionListenerController> listenerController_;
     bool isPrepareTerminateEnable_ = false;
-
-    class MissionDmInitCallback : public DistributedHardware::DmInitCallback {
-    public:
-        void OnRemoteDied() override;
-
-        static bool isInit_;
-    };
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -36,12 +36,11 @@ int32_t StartupConfig::GetAwaitTimeoutMs() const
     return awaitTimeoutMs_;
 }
 
-int32_t StartupConfig::ListenerOnCompleted(const std::shared_ptr<StartupTaskResult> &result)
+void StartupConfig::ListenerOnCompleted(const std::shared_ptr<StartupTaskResult> &result)
 {
     if (listener_ != nullptr) {
         listener_->OnCompleted(result);
     }
-    return ERR_OK;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

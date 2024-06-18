@@ -19,6 +19,7 @@
 #include "file_ex.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "image_packer.h"
 #include "image_source.h"
 #include "media_errors.h"
@@ -95,7 +96,9 @@ void MissionDataStorage::SaveMissionInfo(const InnerMissionInfo &missionInfo)
             TAG_LOGE(AAFwkTag::ABILITYMGR, "create dir %{public}s failed.", dirPath.c_str());
             return;
         }
+#ifdef SUPPORT_GRAPHICS
         chmod(dirPath.c_str(), MODE);
+#endif // SUPPORT_GRAPHICS
     }
 
     std::string jsonStr = missionInfo.ToJsonStr();
@@ -118,7 +121,7 @@ void MissionDataStorage::DeleteMissionInfo(int missionId)
 
 void MissionDataStorage::SaveMissionSnapshot(int32_t missionId, const MissionSnapshot& missionSnapshot)
 {
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     TAG_LOGI(AAFwkTag::ABILITYMGR, "snapshot: save snapshot from cache, missionId = %{public}d", missionId);
     SaveCachedSnapshot(missionId, missionSnapshot);
     SaveSnapshotFile(missionId, missionSnapshot);
@@ -129,7 +132,7 @@ void MissionDataStorage::SaveMissionSnapshot(int32_t missionId, const MissionSna
 
 void MissionDataStorage::DeleteMissionSnapshot(int32_t missionId)
 {
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     DeleteMissionSnapshot(missionId, false);
     DeleteMissionSnapshot(missionId, true);
 #endif
@@ -137,7 +140,8 @@ void MissionDataStorage::DeleteMissionSnapshot(int32_t missionId)
 
 bool MissionDataStorage::GetMissionSnapshot(int32_t missionId, MissionSnapshot& missionSnapshot, bool isLowResolution)
 {
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (GetCachedSnapshot(missionId, missionSnapshot)) {
         if (isLowResolution) {
             missionSnapshot.snapshot = GetReducedPixelMap(missionSnapshot.snapshot);
@@ -206,7 +210,7 @@ bool MissionDataStorage::CheckFileNameValid(const std::string &fileName)
     return true;
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 void MissionDataStorage::SaveSnapshotFile(int32_t missionId, const MissionSnapshot& missionSnapshot)
 {
     SaveSnapshotFile(missionId, missionSnapshot.snapshot, missionSnapshot.isPrivate, false);

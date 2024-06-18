@@ -17,14 +17,28 @@ class InsightIntentExecutor {
   constructor() {}
 
   onExecuteInUIAbilityForegroundMode(name, param, pageLoader) {
-    console.log(`onExecuteInUIAbilityForegroundMode $name$`);
+    console.log(`onExecuteInUIAbilityForegroundMode ${name}`);
     return {
       'code': 0
     };
   }
 
   onExecuteInUIAbilityBackgroundMode(name, param) {
-    console.log(`onExecuteInUIAbilityForegroundMode $name$`);
+    console.log(`onExecuteInUIAbilityForegroundMode ${name}`);
+    return {
+      'code': 0
+    };
+  }
+
+  onExecuteInUIExtensionAbility(name, param, pageLoader) {
+    console.log(`onExecuteInUIExtensionAbility ${name}`);
+    return {
+      'code': 0
+    };
+  }
+
+  onExecuteInServiceExtensionAbility(name, param) {
+    console.log(`onExecuteInServiceExtensionAbility ${name}`);
     return {
       'code': 0
     };

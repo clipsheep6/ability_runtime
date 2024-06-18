@@ -91,7 +91,7 @@ HWTEST_F(AaCommandForceStopTest, Aa_Command_Force_Stop_0100, Function | MediumTe
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
     AbilityManagerShellCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), HELP_MSG_FORCE_STOP + "\n");
+    EXPECT_EQ(cmd.ExecCommand(), HELP_MSG_FORCE_STOP);
 }
 
 /**

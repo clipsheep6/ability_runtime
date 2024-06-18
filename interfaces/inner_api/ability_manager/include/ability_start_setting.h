@@ -29,6 +29,8 @@ public:
     static const std::string BOUNDS_KEY;
     static const std::string WINDOW_DISPLAY_ID_KEY;
     static const std::string WINDOW_MODE_KEY;
+    static const std::string DEFAULT_RECOVERY_KEY;
+    static const std::string IS_START_BY_SCB_KEY;
 
     /**
      * @brief Construct copy function.

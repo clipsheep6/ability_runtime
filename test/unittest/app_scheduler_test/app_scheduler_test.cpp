@@ -859,7 +859,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_StartupResidentProcess_001, TestSize.Lev
  */
 HWTEST_F(AppSchedulerTest, AppScheduler_StartSpecifiedAbility_001, TestSize.Level1)
 {
-    EXPECT_CALL(*clientMock_, StartSpecifiedAbility(_, _)).Times(1);
+    EXPECT_CALL(*clientMock_, StartSpecifiedAbility(_, _, _)).Times(1);
     DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::move(clientMock_);
     ASSERT_NE(DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_, nullptr);
     AAFwk::Want want;

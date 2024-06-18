@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -368,6 +368,25 @@ HWTEST_F(AppMgrProxyTest, IsApplicationRunning_001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: IsAppRunning_001
+ * @tc.desc: Send request to query the running status of the application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, IsAppRunning_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+
+    std::string bundleName = "testBundleName";
+    int32_t appCloneIndex = 0;
+    bool isRunning = false;
+
+    appMgrProxy_->IsAppRunning(bundleName, appCloneIndex, isRunning);
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::IS_APP_RUNNING));
+}
+
+/**
  * @tc.number: RegisterAbilityForegroundStateObserver_0100
  * @tc.desc: Verify that the RegisterAbilityForegroundStateObserver function is called normally.
  * @tc.type: FUNC
@@ -583,6 +602,52 @@ HWTEST_F(AppMgrProxyTest, PreloadApplication_0100, TestSize.Level1)
     EXPECT_EQ(ret, NO_ERROR);
     EXPECT_EQ(mockAppMgrService_->code_,
         static_cast<uint32_t>(AppMgrInterfaceCode::PRELOAD_APPLICATION));
+}
+
+/**
+ * @tc.name: SetSupportedProcessCacheSelf_001
+ * @tc.desc: The application sets itself whether or not to support process cache.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, SetSupportedProcessCacheSelf_001, TestSize.Level0)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+    bool isSupported = false;
+    appMgrProxy_->SetSupportedProcessCacheSelf(isSupported);
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::SET_SUPPORTED_PROCESS_CACHE_SELF));
+
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: GetRunningMultiAppInfoByBundleName_001
+ * @tc.desc: Get multiApp information by bundleName.
+ * @tc.type: FUNC
+ * @tc.require: issueI9HMAO
+ */
+HWTEST_F(AppMgrProxyTest, GetRunningMultiAppInfoByBundleName_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    data.WriteInterfaceToken(AppMgrStub::GetDescriptor());
+    std::string bundleName = "testBundleName";
+    data.WriteString(bundleName);
+
+    EXPECT_CALL(*mockAppMgrService_, GetRunningMultiAppInfoByBundleName(_, _)).Times(1);
+
+    auto result = mockAppMgrService_->OnRemoteRequest(
+        static_cast<uint32_t>(AppMgrInterfaceCode::GET_RUNNING_MULTIAPP_INFO_BY_BUNDLENAME), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

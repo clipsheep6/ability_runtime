@@ -19,6 +19,9 @@
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#ifdef CJ_FRONTEND
+#include "cj_ability_stage.h"
+#endif
 #include "js_ability_stage.h"
 #include "runtime.h"
 
@@ -35,7 +38,10 @@ std::shared_ptr<AbilityStage> AbilityStage::Create(
     switch (runtime->GetLanguage()) {
         case Runtime::Language::JS:
             return JsAbilityStage::Create(runtime, hapModuleInfo);
-
+#ifdef CJ_FRONTEND
+        case Runtime::Language::CJ:
+            return CJAbilityStage::Create(runtime, hapModuleInfo);
+#endif
         default:
             return std::make_shared<AbilityStage>();
     }
@@ -115,7 +121,8 @@ void AbilityStage::OnMemoryLevel(int level)
     TAG_LOGD(AAFwkTag::APPKIT, "%{public}s called.", __func__);
 }
 
-int32_t AbilityStage::RunAutoStartupTask(const std::function<void()> &callback, bool &isAsyncCallback)
+int32_t AbilityStage::RunAutoStartupTask(const std::function<void()> &callback, bool &isAsyncCallback,
+    const std::shared_ptr<Context> &stageContext)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "called");
     isAsyncCallback = false;

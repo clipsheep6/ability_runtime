@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -499,6 +499,56 @@ enum {
      * Result(2097248) for get ExtensionName by uid fail.
      */
     GET_EXTENSION_NAME_BY_UID_FAIL,
+
+    /**
+     * Native error(2097249) no resident process permissions set.
+     */
+    ERR_NO_RESIDENT_PERMISSION,
+
+    /**
+     * Result(2097250) for app clone index does not exist.
+     */
+    ERR_APP_CLONE_INDEX_INVALID,
+
+    /**
+     * Result(2097251) not support twin.
+     */
+    ERR_MULTI_APP_NOT_SUPPORTED,
+
+    /**
+     * Result(2097252) for unlock screen failed in developer mode.
+     */
+    ERR_UNLOCK_SCREEN_FAILED_IN_DEVELOPER_MODE,
+
+    /*
+     * Result(2097253) for block startup in lock screen.
+     */
+    ERR_BLOCK_START_FIRST_BOOT_SCREEN_UNLOCK = 2097253,
+
+    /*
+     * Result(2097254) for extension blocked by third party app flag
+     */
+    EXTENSION_BLOCKED_BY_THIRD_PARTY_APP_FLAG = 2097254,
+
+    /*
+     * Result(2097255) for extension blocked by service list
+     */
+    EXTENSION_BLOCKED_BY_SERVICE_LIST = 2097255,
+
+    /*
+     * Result(2097256) for non-app-provision mode
+     */
+    ERR_NOT_IN_APP_PROVISION_MODE = 2097256,
+    
+    /*
+     * Result(2097257) for share file uri non-implicitly
+     */
+    ERR_SHARE_FILE_URI_NON_IMPLICITLY = 2097257,
+
+    /**
+     * Native error(2097258) for target bundle not exist.
+     */
+    ERR_BUNDLE_NOT_EXIST,
 };
 
 enum {
