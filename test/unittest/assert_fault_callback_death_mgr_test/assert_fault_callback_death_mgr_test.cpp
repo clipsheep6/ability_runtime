@@ -42,6 +42,23 @@ void AssertFaultCallbackDeathMgrTest::TearDown()
 
 /*
  * Feature: AssertFaultCallbackDeathMgrTest
+ * Function: AddAssertFaultCallback
+ * SubFunction: NA
+ * FunctionPoints: AssertFaultCallbackDeathMgrTest AddAssertFaultCallback
+ * EnvConditions: NA
+ * CaseDescription: Verify AddAssertFaultCallback
+ */
+HWTEST_F(AssertFaultCallbackDeathMgrTest, AddAssertFaultCallback_0100, TestSize.Level1)
+{
+    auto assertFaultCallbackDeathMgr = DelayedSingleton<AbilityRuntime::AssertFaultCallbackDeathMgr>::GetInstance();
+    AssertFaultCallbackDeathMgr::CallbackTask callback;
+    sptr<IRemoteObject> remote;
+    assertFaultCallbackDeathMgr->AddAssertFaultCallback(remote, callback);
+    EXPECT_NE(assertFaultCallbackDeathMgr, nullptr);
+}
+
+/*
+ * Feature: AssertFaultCallbackDeathMgrTest
  * Function: RemoveAssertFaultCallback
  * SubFunction: NA
  * FunctionPoints: AssertFaultCallbackDeathMgrTest RemoveAssertFaultCallback
@@ -54,6 +71,7 @@ HWTEST_F(AssertFaultCallbackDeathMgrTest, RemoveAssertFaultCallback_0100, TestSi
     sptr<IRemoteObject> remoteObject;
     wptr<IRemoteObject> remote(remoteObject);
     assertFaultCallbackDeathMgr->RemoveAssertFaultCallback(remote);
+    EXPECT_NE(assertFaultCallbackDeathMgr, nullptr);
 }
 
 /*
@@ -69,6 +87,7 @@ HWTEST_F(AssertFaultCallbackDeathMgrTest, CallAssertFaultCallback_0100, TestSize
     auto assertFaultCallbackDeathMgr = DelayedSingleton<AbilityRuntime::AssertFaultCallbackDeathMgr>::GetInstance();
     uint64_t assertFaultSessionId = 1;
     assertFaultCallbackDeathMgr->CallAssertFaultCallback(assertFaultSessionId, AAFwk::UserStatus::ASSERT_TERMINATE);
+    EXPECT_NE(assertFaultCallbackDeathMgr, nullptr);
 }
 }
 }

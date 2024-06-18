@@ -4095,7 +4095,7 @@ HWTEST_F(AppMgrServiceInnerTest, RegisterRenderStateObserver_0200, TestSize.Leve
 HWTEST_F(AppMgrServiceInnerTest, SetAppAssertionPauseState_0100, TestSize.Level1)
 {
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    appMgrServiceInner->SetAppAssertionPauseState(0, false);
+    appMgrServiceInner->SetAppAssertionPauseState(false);
     EXPECT_NE(appMgrServiceInner, nullptr);
 }
 
