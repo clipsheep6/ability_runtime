@@ -63,6 +63,7 @@
 #include "task_handler_wrap.h"
 #include "uri.h"
 #include "user_controller.h"
+#include "window_config.h"
 #ifdef SUPPORT_GRAPHICS
 #include "dialog_session_record.h"
 #include "implicit_start_processor.h"
@@ -700,6 +701,15 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int AbilityTransitionDone(const sptr<IRemoteObject> &token, int state, const PacMap &saveData) override;
+
+    /**
+     * AbilityWindowConfigTransitionDone, ability call this interface after lift cycle was changed.
+     *
+     * @param token,.ability's token.
+     * @param state,.the state of ability lift cycle.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int AbilityWindowConfigTransitionDone(const sptr<IRemoteObject> &token, int state, const WindowConfig &saveData) override;
 
     /**
      * ScheduleConnectAbilityDone, service ability call this interface while session was connected.

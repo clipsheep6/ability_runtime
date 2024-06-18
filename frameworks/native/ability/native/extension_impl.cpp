@@ -115,6 +115,17 @@ void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::Li
         AAFwk::PacMap restoreData;
         AAFwk::AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, restoreData);
     }
+
+    if (extensionType_ == AppExecFwk::ExtensionAbilityType::UI_SERVICE) {
+        TAG_LOGD(AAFwkTag::EXT, "call abilityms");
+        AAFwk::WindowConfig restoreData;
+        restoreData.windowStageAttribute = extension_->abilityInfo_->windowStageAttribute;
+        restoreData.posx = extension_->abilityInfo_->posx;
+        restoreData.posy = extension_->abilityInfo_->posy;
+        restoreData.width = extension_->abilityInfo_->width;
+        restoreData.height = extension_->abilityInfo_->height;
+        AAFwk::AbilityManagerClient::GetInstance()->AbilityWindowConfigTransitionDone(token_, targetState.state, restoreData);
+    }
 }
 
 bool ExtensionImpl::UIExtensionAbilityExecuteInsightIntent(const Want &want)

@@ -30,6 +30,7 @@
 #include "hitrace_meter.h"
 #include "session_info.h"
 #include "status_bar_delegate_interface.h"
+#include "window_config.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -1241,6 +1242,34 @@ int AbilityManagerProxy::AbilityTransitionDone(const sptr<IRemoteObject> &token,
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::ABILITY_TRANSITION_DONE, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::AbilityWindowConfigTransitionDone(const sptr<IRemoteObject> &token, int state, const WindowConfig &saveData)
+{
+    TAG_LOGI(AAFwkTag::EXT, "call abilityms whm");
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteRemoteObject(token) || !data.WriteInt32(state)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "token or state write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteParcelable(&saveData)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "saveData write failed.");
+        return INNER_ERR;
+    }
+    
+    error = SendRequest(AbilityManagerInterfaceCode::ABILITY_WINDOW_CONFIG_TRANSITION_DONE, data, reply, option);
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
