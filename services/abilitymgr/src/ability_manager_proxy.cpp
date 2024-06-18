@@ -17,7 +17,6 @@
 
 #include "errors.h"
 #include "string_ex.h"
-
 #include "hilog_tag_wrapper.h"
 #include "ability_connect_callback_proxy.h"
 #include "ability_connect_callback_stub.h"
