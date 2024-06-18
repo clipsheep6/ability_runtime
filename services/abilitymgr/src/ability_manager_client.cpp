@@ -648,12 +648,12 @@ ErrCode AbilityManagerClient::StopServiceAbility(const Want &want, sptr<IRemoteO
     return abms->StopServiceAbility(want, -1, token);
 }
 
-ErrCode AbilityManagerClient::KillProcess(const std::string &bundleName)
+ErrCode AbilityManagerClient::KillProcess(const std::string &bundleName, const bool clearPageStack)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "enter");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->KillProcess(bundleName);
+    return abms->KillProcess(bundleName, clearPageStack);
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST
@@ -1395,6 +1395,13 @@ void AbilityManagerClient::ScheduleRecoverAbility(sptr<IRemoteObject> token, int
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN(abms);
     return abms->ScheduleRecoverAbility(token, reason, want);
+}
+
+void AbilityManagerClient::ScheduleClearRecoveryPageStack()
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN(abms);
+    return abms->ScheduleClearRecoveryPageStack();
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST

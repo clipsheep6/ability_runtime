@@ -126,7 +126,8 @@ public:
      * @param accountId, account ID.
      * @return ERR_OK, return back success, others fail.
      */
-    virtual int KillProcessWithAccount(const std::string &bundleName, const int accountId) = 0;
+    virtual int KillProcessWithAccount(
+        const std::string &bundleName, const int accountId, const bool clearPageStack = true) = 0;
 
     /**
      * UpdateApplicationInfoInstalled, call UpdateApplicationInfoInstalled() through proxy object,
@@ -144,7 +145,7 @@ public:
      * @param  bundleName, bundle name in Application record.
      * @return ERR_OK, return back success, others fail.
      */
-    virtual int KillApplication(const std::string &bundleName) = 0;
+    virtual int KillApplication(const std::string &bundleName, const bool clearPageStack = true) = 0;
 
     /**
      * KillApplicationByUid, call KillApplicationByUid() through proxy object, kill the application.
@@ -160,7 +161,7 @@ public:
      *
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int KillApplicationSelf()
+    virtual int KillApplicationSelf(const bool clearPageStack = true)
     {
         return ERR_OK;
     }

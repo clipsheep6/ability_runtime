@@ -27,6 +27,7 @@
 #include "hitrace_meter.h"
 #include "session_info.h"
 #include "status_bar_delegate_interface.h"
+#include <iterator>
 
 namespace OHOS {
 namespace AAFwk {
@@ -148,6 +149,8 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::ScheduleRecoverAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ABILITY_RECOVERY_ENABLE)] =
         &AbilityManagerStub::EnableRecoverAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CLEAR_RECOVERY_PAGE_STACK)] =
+        &AbilityManagerStub::ScheduleClearRecoveryPageStackInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MINIMIZE_UI_ABILITY_BY_SCB)] =
         &AbilityManagerStub::MinimizeUIAbilityBySCBInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CLOSE_UI_ABILITY_BY_SCB)] =
@@ -688,9 +691,10 @@ int AbilityManagerStub::ReleaseDataAbilityInner(MessageParcel &data, MessageParc
 int AbilityManagerStub::KillProcessInner(MessageParcel &data, MessageParcel &reply)
 {
     std::string bundleName = Str16ToStr8(data.ReadString16());
-    int result = KillProcess(bundleName);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "remove stack error");
+    bool clearPageStack = data.ReadBool();
+    int result = KillProcess(bundleName, clearPageStack);
 
+    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "remove stack error");
     return NO_ERROR;
 }
 
@@ -1993,6 +1997,12 @@ int AbilityManagerStub::EnableRecoverAbilityInner(MessageParcel &data, MessagePa
     CHECK_POINTER_AND_RETURN_LOG(token, ERR_NULL_OBJECT, "EnableRecoverAbilityInner read ability token failed.");
 
     EnableRecoverAbility(token);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::ScheduleClearRecoveryPageStackInner(MessageParcel &data, MessageParcel &reply)
+{
+    ScheduleClearRecoveryPageStack();
     return NO_ERROR;
 }
 

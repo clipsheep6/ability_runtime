@@ -662,6 +662,13 @@ void AppRunningRecord::ScheduleProcessSecurityExit()
     }
 }
 
+void AppRunningRecord::ScheduleClearPageStack()
+{
+    if (appLifeCycleDeal_) {
+        appLifeCycleDeal_->ScheduleClearPageStack();
+    }
+}
+
 void AppRunningRecord::ScheduleTrimMemory()
 {
     if (appLifeCycleDeal_ && priorityObject_) {

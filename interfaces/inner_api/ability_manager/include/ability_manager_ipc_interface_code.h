@@ -473,6 +473,8 @@ enum class AbilityManagerInterfaceCode {
 
     VERIFY_PERMISSION = 3013,
 
+    CLEAR_RECOVERY_PAGE_STACK = 3014,
+
     ACQUIRE_SHARE_DATA = 4001,
     SHARE_DATA_DONE = 4002,
 
