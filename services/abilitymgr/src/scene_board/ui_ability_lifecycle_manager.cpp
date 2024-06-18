@@ -737,7 +737,8 @@ int UIAbilityLifecycleManager::MinimizeUIAbility(const std::shared_ptr<AbilityRe
     abilityRecord->SetMinimizeReason(fromUser);
     abilityRecord->SetPendingState(AbilityState::BACKGROUND);
     if (!abilityRecord->IsAbilityState(AbilityState::FOREGROUND)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "ability state is not foreground");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ability state is not foreground: %{public}d",
+            abilityRecord->GetAbilityState());
         return ERR_OK;
     }
     MoveToBackground(abilityRecord);
@@ -1061,7 +1062,6 @@ void UIAbilityLifecycleManager::CompleteBackground(const std::shared_ptr<Ability
     DelayedSingleton<AppScheduler>::GetInstance()->MoveToBackground(abilityRecord->GetToken());
 
     if (abilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
-        abilityRecord->PostForegroundTimeoutTask();
         DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(abilityRecord->GetToken());
     } else if (abilityRecord->GetPendingState() == AbilityState::BACKGROUND) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "not continuous startup.");

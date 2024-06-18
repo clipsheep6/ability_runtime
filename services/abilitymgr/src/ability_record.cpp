@@ -47,6 +47,7 @@
 #include "hilog_tag_wrapper.h"
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
+#include "res_sched_util.h"
 #include "ui_extension_host_info.h"
 #include "scene_board_judgement.h"
 #include "start_ability_utils.h"
@@ -63,10 +64,6 @@
 #ifdef SUPPORT_SCREEN
 #include "locale_config.h"
 #endif
-#ifdef EFFICIENCY_MANAGER_ENABLE
-#include "suspend_manager_client.h"
-#endif // EFFICIENCY_MANAGER_ENABLE
-
 
 namespace OHOS {
 using AbilityRuntime::FreezeUtil;
@@ -525,12 +522,9 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t tokenId, uint32_t sceneFla
             // background to active state
             TAG_LOGD(AAFwkTag::ABILITYMGR, "MoveToForeground, %{public}s", element.c_str());
             lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
-#ifdef EFFICIENCY_MANAGER_ENABLE
             std::string bundleName = GetAbilityInfo().bundleName;
             int32_t uid = GetUid();
-            SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
-                uid, bundleName, "THAW_BY_FOREGROUND_ABILITY");
-#endif // EFFICIENCY_MANAGER_ENABLE
+            ResSchedUtil::GetInstance().ReportEventToRSS(uid, bundleName, "THAW_BY_FOREGROUND_ABILITY");
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token_);
         }
     } else {
@@ -2550,7 +2544,9 @@ void AbilityRecord::SendEvent(uint32_t msg, uint32_t timeOut, int32_t param)
     param = (param == -1) ? recordId_ : param;
     auto eventWrap = EventWrap(msg, param);
     eventWrap.SetTimeout(timeOut);
-    handler->SendEvent(eventWrap, timeOut);
+    if (!handler->SendEvent(eventWrap, timeOut, false)) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "SendTimeOut event failed: %{public}u, %{public}d.", msg, param);
+    }
 }
 
 void AbilityRecord::SetWant(const Want &want)

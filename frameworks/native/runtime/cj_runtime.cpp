@@ -56,10 +56,10 @@ void CJRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths)
             appPath += appPath.empty() ? libPath : ":" + libPath;
         }
     }
+    CJEnvironment::GetInstance()->InitCJChipSDKNS(CJ_CHIPSDK_PATH);
     CJEnvironment::GetInstance()->InitCJAppNS(appPath);
     CJEnvironment::GetInstance()->InitCJSDKNS(CJ_RT_PATH + ":" + CJ_LIB_PATH);
     CJEnvironment::GetInstance()->InitCJSysNS(CJ_SYSLIB_PATH);
-    CJEnvironment::GetInstance()->InitCJChipSDKNS(CJ_CHIPSDK_PATH);
 }
 
 bool CJRuntime::Initialize(const Options& options)
@@ -81,7 +81,7 @@ bool CJRuntime::Initialize(const Options& options)
         return false;
     }
     bundleName_ = options.bundleName;
-    instanceId_ = getproctid();
+    instanceId_ = static_cast<uint32_t>(getproctid());
     return true;
 }
 
@@ -122,7 +122,6 @@ void CJRuntime::StartDebugMode(const DebugOption dOption)
     bool isStartWithDebug = dOption.isStartWithDebug;
     bool isDebugApp = dOption.isDebugApp;
     const std::string bundleName = bundleName_;
-    uint32_t instanceId = instanceId_;
     std::string inputProcessName = bundleName_ != dOption.processName ? dOption.processName : "";
 
     HILOG_INFO("StartDebugMode %{public}s", bundleName_.c_str());

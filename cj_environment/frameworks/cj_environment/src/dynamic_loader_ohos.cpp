@@ -167,6 +167,9 @@ void DynamicInitNamespace(Dl_namespace* ns, void* parent, const char* entries, c
             g_sharedLibsSonames = nullptr;
         }
     }
+    Dl_namespace chip_sdk;
+    dlns_get("cj_chipsdk", &chip_sdk);
+    dlns_inherit(ns, &chip_sdk, "allow_all_shared_libs");
     HasInited.insert(std::string(name));
 }
 

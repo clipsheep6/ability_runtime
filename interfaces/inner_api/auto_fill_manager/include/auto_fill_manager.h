@@ -59,7 +59,7 @@ struct AutoFillRequest {
  */
 #ifdef SUPPORT_GRAPHICS
 struct ReloadInModalRequest {
-    Ace::UIContent *uiContent = nullptr;
+    int32_t instanceId = -1;
     bool isSmartAutoFill = false;
     int32_t nodeId;
     std::string customData;
@@ -86,10 +86,10 @@ public:
         const AutoFill::AutoFillRequest &request,
         const std::shared_ptr<ISaveRequestCallback> &saveCallback);
     void UpdateCustomPopupUIExtension(Ace::UIContent *uiContent, const AbilityBase::ViewData &viewData);
-    int32_t UpdateCustomPopupConfig(Ace::UIContent *uiContent, const Ace::CustomPopupUIExtensionConfig &popupConfig);
-    void SetAutoFillExtensionProxy(Ace::UIContent *uiContent,
+    int32_t UpdateCustomPopupConfig(int32_t instanceId, const Ace::CustomPopupUIExtensionConfig &popupConfig);
+    void SetAutoFillExtensionProxy(int32_t instanceId,
         const std::shared_ptr<Ace::ModalUIExtensionProxy> &modalUIExtensionProxy);
-    void RemoveAutoFillExtensionProxy(Ace::UIContent *uiContent);
+    void RemoveAutoFillExtensionProxy(int32_t instanceId);
     int32_t ReloadInModal(const AutoFill::ReloadInModalRequest &request);
 
     void HandleTimeOut(uint32_t eventId);
@@ -118,7 +118,7 @@ private:
     std::mutex modalProxyMapMutex_;
     std::map<uint32_t, std::weak_ptr<AutoFillExtensionCallback>> extensionCallbacks_;
 
-    std::map<Ace::UIContent *, std::shared_ptr<Ace::ModalUIExtensionProxy>> modalUIExtensionProxyMap_;
+    std::map<int32_t, std::shared_ptr<Ace::ModalUIExtensionProxy>> modalUIExtensionProxyMap_;
     uint32_t eventId_ = 0;
     std::shared_ptr<AutoFillEventHandler> eventHandler_;
 #endif // SUPPORT_GRAPHICS

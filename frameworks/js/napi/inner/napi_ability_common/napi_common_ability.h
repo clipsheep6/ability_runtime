@@ -25,22 +25,16 @@
 #include "ability_manager_errors.h"
 #include "application_info.h"
 #include "feature_ability_common.h"
+#include "napi_common_ability_wrap_utils.h"
 
 namespace OHOS {
 namespace AppExecFwk {
-const std::int32_t STR_MAX_SIZE = 128;
 napi_status SetGlobalClassContext(napi_env env, napi_value constructor);
 napi_value GetGlobalClassContext(napi_env env);
 
 napi_status SaveGlobalDataAbilityHelper(napi_env env, napi_value constructor);
 napi_value GetGlobalDataAbilityHelper(napi_env env);
 bool& GetDataAbilityHelperStatus();
-
-napi_value WrapAppInfo(napi_env env, const ApplicationInfo &appInfo);
-napi_value WrapProperties(napi_env env, const std::vector<std::string> properties, const std::string &proName,
-    napi_value &result);
-napi_value WrapModuleInfos(napi_env env, const ApplicationInfo &appInfo, napi_value &result);
-int32_t GetStartAbilityErrorCode(ErrCode innerErrorCode);
 
 /**
  * @brief Get Files Dir.
@@ -173,44 +167,6 @@ napi_value NAPI_GetAbilityNameCommon(napi_env env, napi_callback_info info, Abil
  */
 napi_value NAPI_StopAbilityCommon(napi_env env, napi_callback_info info, AbilityType abilityType);
 
-/**
- * @brief Obtains the continue ability Info this application.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param value The value passed into the info.
- * @param info The continue ability options info
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value GetContinueAbilityOptionsInfoCommon(
-    const napi_env &env, const napi_value &value, ContinueAbilityOptionsInfo &info);
-
-/**
- * @brief Obtains the continue ability can reversible or not
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param value The value passed into the info.
- * @param info The continue ability options info
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value GetContinueAbilityOptionsReversible(
-    const napi_env &env, const napi_value &value, ContinueAbilityOptionsInfo &info);
-
-/**
- * @brief Obtains the continue ability Info this application.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param value The value passed into the info.
- * @param info The continue ability options info
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value GetContinueAbilityOptionsDeviceID(
-    const napi_env &env, const napi_value &value, ContinueAbilityOptionsInfo &info);
-
-bool UnwrapAbilityStartSetting(napi_env env, napi_value param, AAFwk::AbilityStartSetting &setting);
-
 enum {
     CONNECTION_STATE_DISCONNECTED = -1,
 
@@ -338,12 +294,11 @@ napi_value NAPI_StartBackgroundRunningCommon(napi_env env, napi_callback_info in
  */
 napi_value NAPI_CancelBackgroundRunningCommon(napi_env env, napi_callback_info info);
 
-bool CheckAbilityType(const CBBase *cbBase);
-
 struct ConnectionKey {
     Want want;
     int64_t id;
 };
+
 struct key_compare {
     bool operator()(const ConnectionKey &key1, const ConnectionKey &key2) const
     {
