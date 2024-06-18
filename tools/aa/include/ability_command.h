@@ -236,6 +236,24 @@ private:
     ErrCode RunAsScreenCommand();
     ErrCode RunAsStartAbility();
     ErrCode RunAsStopService();
+
+    ErrCode RunAsDumpsysCommandProcessingParametersc(ErrCode& result, bool& isClient);
+    ErrCode RunAsDumpsysCommandProcessingParametersu(ErrCode& result,
+    const std::vector<std::string>::iterator& it, int &userID, bool& isUserID);
+    ErrCode RunAsDumpsysCommandProcessingParameters(ErrCode& result, bool& isUserID, bool& isClient, int& userID,
+        std::string& args);
+    bool RunAsDumpsysCommandOptionHandlerh(ErrCode& result);
+    bool RunAsDumpsysCommandOptionHandlera(ErrCode& result, bool& isfirstCommand);
+    bool RunAsDumpsysCommandOptionHandlerl(ErrCode& result, bool& isfirstCommand);
+    bool RunAsDumpsysCommandOptionHandleri(ErrCode& result, bool& isfirstCommand);
+    bool RunAsDumpsysCommandOptionHandlere(ErrCode& result, bool& isfirstCommand);
+    bool RunAsDumpsysCommandOptionHandlerp(ErrCode& result, bool& isfirstCommand);
+    bool RunAsDumpsysCommandOptionHandlerr(ErrCode& result, bool& isfirstCommand);
+    bool RunAsDumpsysCommandOptionHandlerd(ErrCode& result, bool& isfirstCommand);
+    bool RunAsDumpsysCommandOptionHandlerQury(ErrCode& result, bool isfirstCommand);
+    bool RunAsDumpsysCommandOptionHandlerDefault(ErrCode& result);
+    void RunAsDumpsysCommandDealResult(ErrCode& result, std::vector<bool> dealResultVec,
+        const std::string& args, int userID);
     ErrCode RunAsDumpsysCommand();
     ErrCode RunAsForceStop();
     bool SwitchOptionForAppDebug(int32_t option, std::string &bundleName, bool &isPersist, bool &isCancel, bool &isGet);
@@ -269,7 +287,42 @@ private:
 #endif
     sptr<IAbilityManager> GetAbilityManagerService();
 
+    void MakeWantFromCmdHandleOptopt(int &result, std::string str);
+    void InitOptoptHandlers(int& result, std::unordered_map<int, std::function<void()>>& optoptHandlers);
+    ErrCode MakeWantFromCmdGetOption(int& option);
+    void MakeWantFromCmdScanningFirstArgument(int counter, int& result);
+    void MakeWantFromCmdOptionQuery (
+        const std::unordered_map<int, std::function<void()>>& optoptHandlers, int& result);
+    void MakeWantFromCmdCheckPerfCmd(int& result, std::string& perfCmd);
+    void MakeWantFromCmdCheckPi(int& result, ParametersInteger &parametersInteger);
+    void MakeWantFromCmdCheckPs(int& result, ParametersString &parametersString);
+    void MakeWantFromCmdCheckPb(int& result, ParametersBool &parametersBool);
+    void MakeWantFromCmdCheckPsn(int& result, ParametersString &parametersString);
+    void MakeWantFromCmdCheckPwl(int& result, int& windowLeft);
+    void MakeWantFromCmdCheckPwt(int& result, int& windowTop);
+    void MakeWantFromCmdCheckPwh(int& result, int& windowHeight);
+    void MakeWantFromCmdCheckPww(int& result, int& windowWidth);
+    void MakeWantFromCmdSetParamsOne(Want& want, bool isColdStart, bool isDebugApp, bool isContinuation,
+        const std::string& perfCmd);
+    void MakeWantFromCmdSetParamsTwo(Want& want, bool isSandboxApp, bool isNativeDebug,
+        const ParametersInteger& parametersInteger, const ParametersBool& parametersBool);
+    void MakeWantFromCmdSetParamsThree(Want& want, const ParametersString& parametersString,
+        const std::string& action, const std::string& uri, const std::vector<std::string>& entities);
+    void MakeWantFromCmdSetParamsFour(Want& want, const std::string& typeVal, bool isMultiThread,
+        std::vector<int> windowLTHW);
     ErrCode MakeWantFromCmd(Want& want, std::string& windowMode);
+
+    void MakeWantForProcessInnerWantSetParam(Want &want, std::string perfCmd, std::string debugCmd, bool isSandboxApp);
+    ErrCode MakeWantForProcessInner(Want &want, const std::vector<std::string>& parameters, bool isSandboxApp,
+        int& result);
+    void MakeWantForProcessScanningFirstArgument(int counter, int& result);
+    void MakeWantForProcessHandleOptopt(int& result, std::string str);
+    void MakeWantForProcessHandleOptopt(int& result);
+    void InitMakeWantForProcessOptoptHandlers(
+        int& result, std::unordered_map<int, std::function<void()>>& optoptHandlers);
+    void MakeWantForProcessHandleOptionHandlersp(std::string& perfCmd, bool& isPerf);
+    void MakeWantForProcessHandleOptionHandlersD(std::string& debugCmd, bool isPerf);
+    ErrCode MakeWantForProcessInitOption(int &option);
     ErrCode MakeWantForProcess(Want& want);
     ErrCode RunAsTestCommand();
     ErrCode TestCommandError(const std::string& info);

@@ -16,7 +16,6 @@
 
 #include <cstdio>
 #include <cstring>
-#include <getopt.h>
 #include <iostream>
 #include <regex>
 
@@ -240,6 +239,84 @@ ErrCode AbilityToolCommand::RunAsTestCommand()
     return aaShellCmd_.get()->StartUserTest(params);
 }
 
+bool AbilityToolCommand::ParseStartAbilityArgsOtherOption(int optind, std::string& paramName, std::string& paramValue,
+    std::smatch& sm, int32_t& windowMode)
+{
+    if (!GetKeyAndValueByOpt(optind, paramName, paramValue)) {
+        return false;
+    }
+    TAG_LOGD(AAFwkTag::AA_TOOL, "paramName: %{public}s, paramValue: %{public}s", paramName.c_str(),
+        paramValue.c_str());
+    if (paramName == "windowMode" &&
+        std::regex_match(paramValue, sm, std::regex(STRING_TEST_REGEX_INTEGER_NUMBERS))) {
+        windowMode = std::stoi(paramValue);
+    }
+    return true;
+}
+
+bool AbilityToolCommand::ParseStartAbilityArgsFlags(std::string& paramValue, std::smatch& sm, int& flags)
+{
+    if (std::regex_match(paramValue, sm, std::regex(STRING_TEST_REGEX_INTEGER_NUMBERS))) {
+        flags = std::stoi(paramValue);
+    }
+
+    return true;
+}
+
+ErrCode AbilityToolCommand::ParseStartAbilityArgsParameterCheck(const std::string& abilityName,
+    const std::string& bundleName)
+{
+    // Parameter check
+    if (abilityName.size() == 0 || bundleName.size() == 0) {
+        TAG_LOGD(AAFwkTag::AA_TOOL, "'ability_tool %{public}s' without enough options.", cmd_.c_str());
+        if (abilityName.size() == 0) {
+            resultReceiver_.append(ABILITY_TOOL_HELP_MSG_NO_ABILITY_NAME_OPTION + "\n");
+        }
+
+        if (bundleName.size() == 0) {
+            resultReceiver_.append(ABILITY_TOOL_HELP_MSG_NO_BUNDLE_NAME_OPTION + "\n");
+        }
+
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
+    return OHOS::ERR_OK;
+}
+
+void AbilityToolCommand::ParseStartAbilityArgsSetWant(bool isColdStart, bool isDebugApp, int flags, Want& want)
+{
+    WantParams wantParams;
+    if (isColdStart) {
+        wantParams.SetParam("coldStart", Boolean::Box(isColdStart));
+    }
+    if (isDebugApp) {
+        wantParams.SetParam("debugApp", Boolean::Box(isDebugApp));
+    }
+    want.SetParams(wantParams);
+
+    if (flags != 0) {
+        want.AddFlags(flags);
+    }
+}
+
+ErrCode AbilityToolCommand::ParseStartAbilityArgsSetStartOptions(StartOptions& startOptions, int32_t windowMode)
+{
+    if (windowMode != AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED) {
+        if (windowMode != AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FULLSCREEN &&
+            windowMode != AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY &&
+            windowMode != AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY &&
+            windowMode != AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING) {
+            TAG_LOGD(AAFwkTag::AA_TOOL, "'ability_tool %{public}s' %{public}s", cmd_.c_str(),
+                ABILITY_TOOL_HELP_MSG_WINDOW_MODE_INVALID.c_str());
+            resultReceiver_.append(ABILITY_TOOL_HELP_MSG_WINDOW_MODE_INVALID + "\n");
+            return OHOS::ERR_INVALID_VALUE;
+        }
+        startOptions.SetWindowMode(windowMode);
+    }
+
+    return OHOS::ERR_OK;
+}
+
 ErrCode AbilityToolCommand::ParseStartAbilityArgsFromCmd(Want& want, StartOptions& startOptions)
 {
     std::string deviceId = "";
@@ -255,107 +332,47 @@ ErrCode AbilityToolCommand::ParseStartAbilityArgsFromCmd(Want& want, StartOption
     int option = -1;
     int index = 0;
     const std::string shortOptions = "hd:a:b:o:f:CD";
-    const struct option longOptions[] = {
-        {"help", no_argument, nullptr, 'h'},
-        {"device", required_argument, nullptr, 'd'},
-        {"ability", required_argument, nullptr, 'a'},
-        {"bundle", required_argument, nullptr, 'b'},
-        {"options", required_argument, nullptr, 'o'},
-        {"flags", required_argument, nullptr, 'f'},
-        {"cold-start", no_argument, nullptr, 'C'},
-        {"debug", no_argument, nullptr, 'D'},
-        {nullptr, 0, nullptr, 0},
+
+    auto HandleOtherOption = [&]() {
+        return ParseStartAbilityArgsOtherOption(optind, paramName, paramValue, sm, windowMode);
+    };
+    auto HandleFlags = [&]() {
+        paramValue = optarg;
+        return ParseStartAbilityArgsFlags(paramValue, sm, flags);
+    };
+    const std::unordered_map<char, std::function<bool()>> optionHandlers = {
+        { 'h', [&]() {return true; }},
+        { 'd', [&]() {deviceId = optarg;
+                    return true; }},
+        { 'a', [&]() {abilityName = optarg;
+                    return true; }},
+        { 'b', [&]() {bundleName = optarg;
+                    return true; }},
+        { 'o', HandleOtherOption},
+        { 'f', HandleFlags},
+        { 'C', [&]() {isColdStart = true;
+                    return true; }},
+        { 'D', [&]() {isDebugApp = true;
+                    return true; }}
     };
 
-    while ((option = getopt_long(argc_, argv_, shortOptions.c_str(), longOptions, &index)) != EOF) {
-        TAG_LOGI(
-            AAFwkTag::AA_TOOL, "option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
-        switch (option) {
-            case 'h':
-                break;
-            case 'd':
-                deviceId = optarg;
-                break;
-            case 'a':
-                abilityName = optarg;
-                break;
-            case 'b':
-                bundleName = optarg;
-                break;
-            case 'o':
-                if (!GetKeyAndValueByOpt(optind, paramName, paramValue)) {
-                    return OHOS::ERR_INVALID_VALUE;
-                }
-                TAG_LOGD(AAFwkTag::AA_TOOL, "paramName: %{public}s, paramValue: %{public}s", paramName.c_str(),
-                    paramValue.c_str());
-                if (paramName == "windowMode" &&
-                    std::regex_match(paramValue, sm, std::regex(STRING_TEST_REGEX_INTEGER_NUMBERS))) {
-                    windowMode = std::stoi(paramValue);
-                }
-                break;
-            case 'f':
-                paramValue = optarg;
-                if (std::regex_match(paramValue, sm, std::regex(STRING_TEST_REGEX_INTEGER_NUMBERS))) {
-                    flags = std::stoi(paramValue);
-                }
-                break;
-            case 'C':
-                isColdStart = true;
-                break;
-            case 'D':
-                isDebugApp = true;
-                break;
-            default:
-                break;
+    while ((option = getopt_long(argc_, argv_, shortOptions.c_str(), startAbilityLongOptions, &index)) != EOF) {
+        auto handlerIt = optionHandlers.find(char(option));
+        if (handlerIt != optionHandlers.end() && !handlerIt->second()) {
+            return OHOS::ERR_INVALID_VALUE;
         }
     }
 
-    // Parameter check
-    if (abilityName.size() == 0 || bundleName.size() == 0) {
-        TAG_LOGD(AAFwkTag::AA_TOOL, "'ability_tool %{public}s' without enough options.", cmd_.c_str());
-        if (abilityName.size() == 0) {
-            resultReceiver_.append(ABILITY_TOOL_HELP_MSG_NO_ABILITY_NAME_OPTION + "\n");
-        }
-
-        if (bundleName.size() == 0) {
-            resultReceiver_.append(ABILITY_TOOL_HELP_MSG_NO_BUNDLE_NAME_OPTION + "\n");
-        }
-
+    if (ParseStartAbilityArgsParameterCheck(abilityName, bundleName) == OHOS::ERR_INVALID_VALUE) {
         return OHOS::ERR_INVALID_VALUE;
     }
 
     // Get Want
-    ElementName element(deviceId, bundleName, abilityName);
-    want.SetElement(element);
-
-    WantParams wantParams;
-    if (isColdStart) {
-        wantParams.SetParam("coldStart", Boolean::Box(isColdStart));
-    }
-    if (isDebugApp) {
-        wantParams.SetParam("debugApp", Boolean::Box(isDebugApp));
-    }
-    want.SetParams(wantParams);
-
-    if (flags != 0) {
-        want.AddFlags(flags);
-    }
+    want.SetElement(ElementName(deviceId, bundleName, abilityName));
+    ParseStartAbilityArgsSetWant(isColdStart, isDebugApp, flags, want);
 
     // Get StartOptions
-    if (windowMode != AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED) {
-        if (windowMode != AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FULLSCREEN &&
-            windowMode != AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY &&
-            windowMode != AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY &&
-            windowMode != AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING) {
-            TAG_LOGD(AAFwkTag::AA_TOOL, "'ability_tool %{public}s' %{public}s", cmd_.c_str(),
-                ABILITY_TOOL_HELP_MSG_WINDOW_MODE_INVALID.c_str());
-            resultReceiver_.append(ABILITY_TOOL_HELP_MSG_WINDOW_MODE_INVALID + "\n");
-            return OHOS::ERR_INVALID_VALUE;
-        }
-        startOptions.SetWindowMode(windowMode);
-    }
-
-    return OHOS::ERR_OK;
+    return ParseStartAbilityArgsSetStartOptions(startOptions, windowMode);
 }
 
 ErrCode AbilityToolCommand::ParseStopServiceArgsFromCmd(Want& want)
