@@ -220,8 +220,6 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr:abilityms_config",
   ]
 
-  public_deps = [ ":ability_connect_callback_stub" ]
-
   deps = [
     ":ability_start_options",
     ":ability_start_setting",
@@ -251,6 +249,7 @@ ohos_shared_library("ability_manager") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_connect_callback_stub",
     "background_task_mgr:bgtaskmgr_innerkits",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",

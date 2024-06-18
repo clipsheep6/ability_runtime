@@ -234,6 +234,7 @@ ohos_shared_library("abilitykit_native") {
   ]
 
   deps = [
+    ":abilitykit_utils",
     ":continuation_ipc",
     ":extension_blocklist_config",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
@@ -285,6 +286,8 @@ ohos_shared_library("abilitykit_native") {
   ]
 
   public_external_deps = [
+    "ability_runtime:extensionkit_native",
+    "ability_runtime:napi_common",
     "accessibility:accessibility_common",
     "bundle_framework:appexecfwk_core",
     "jsoncpp:jsoncpp",
@@ -315,6 +318,10 @@ ohos_shared_library("abilitykit_native") {
     defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
   }
 
+  if (efficiency_manager) {
+    external_deps += [ "efficiency_manager:suspend_manager_client" ]
+    defines += [ "EFFICIENCY_MANAGER_ENABLE" ]
+  }
   public_deps = [
     ":abilitykit_utils",
     ":extensionkit_native",
