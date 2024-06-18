@@ -1881,6 +1881,16 @@ int AbilityManagerStub::DelegatorDoAbilityBackgroundInner(MessageParcel &data, M
     return NO_ERROR;
 }
 
+int AbilityManagerStub::DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag)
+{
+    return 0;
+}
+
+int AbilityManagerStub::DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag)
+{
+    return 0;
+}
+
 int AbilityManagerStub::DoAbilityForegroundInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> token = data.ReadRemoteObject();
@@ -1897,6 +1907,30 @@ int AbilityManagerStub::DoAbilityBackgroundInner(MessageParcel &data, MessagePar
     uint32_t flag = data.ReadUint32();
     auto result = DoAbilityBackground(token, flag);
     reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::RegisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer)
+{
+    // should implement in child.
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::UnregisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer)
+{
+    // should implement in child
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::GetDlpConnectionInfos(std::vector<AbilityRuntime::DlpConnectionInfo> &infos)
+{
+    // should implement in child
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::GetConnectionData(std::vector<AbilityRuntime::ConnectionData> &infos)
+{
+    // should implement in child
     return NO_ERROR;
 }
 

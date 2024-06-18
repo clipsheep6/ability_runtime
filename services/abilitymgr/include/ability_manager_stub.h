@@ -45,10 +45,7 @@ public:
      * @param flag, use for lock or unlock flag and so on.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag) override
-    {
-        return 0;
-    }
+    virtual int DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag) override;
 
     /**
      * Calls this interface to move the ability to the background.
@@ -57,34 +54,15 @@ public:
      * @param flag, use for lock or unlock flag and so on.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag) override
-    {
-        return 0;
-    }
+    virtual int DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag) override;
 
-    virtual int RegisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer)
-    {
-        // should implement in child.
-        return NO_ERROR;
-    }
+    virtual int RegisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer);
 
-    virtual int UnregisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer)
-    {
-        // should implement in child
-        return NO_ERROR;
-    }
+    virtual int UnregisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer);
 
-    virtual int GetDlpConnectionInfos(std::vector<AbilityRuntime::DlpConnectionInfo> &infos)
-    {
-        // should implement in child
-        return NO_ERROR;
-    }
+    virtual int GetDlpConnectionInfos(std::vector<AbilityRuntime::DlpConnectionInfo> &infos);
 
-    virtual int GetConnectionData(std::vector<AbilityRuntime::ConnectionData> &connectionData)
-    {
-        // should implement in child
-        return NO_ERROR;
-    }
+    virtual int GetConnectionData(std::vector<AbilityRuntime::ConnectionData> &connectionData);
 
 private:
     void FirstStepInit();
