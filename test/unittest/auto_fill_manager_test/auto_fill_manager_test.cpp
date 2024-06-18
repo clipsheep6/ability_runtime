@@ -317,12 +317,14 @@ HWTEST_F(AutoFillManagerTest, ConvertAutoFillWindowType_0100, TestSize.Level1)
     autoFillRequest.autoFillType = AbilityBase::AutoFillType::PASSWORD;
     auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
     bool isSmartAutoFill = false;
-    auto autoFillWindowType = manager.ConvertAutoFillWindowType(autoFillRequest, isSmartAutoFill);
+    AbilityRuntime::AutoFill::AutoFillWindowType autoFillWindowType
+        = AbilityRuntime::AutoFill::AutoFillWindowType::MODAL_WINDOW;
+    manager.ConvertAutoFillWindowType(autoFillRequest, isSmartAutoFill, autoFillWindowType);
     EXPECT_EQ(isSmartAutoFill, false);
 
     autoFillRequest.autoFillCommand = AbilityRuntime::AutoFill::AutoFillCommand::SAVE;
     autoFillRequest.autoFillType = AbilityBase::AutoFillType::PERSON_FULL_NAME;
-    autoFillWindowType = manager.ConvertAutoFillWindowType(autoFillRequest, isSmartAutoFill);
+    manager.ConvertAutoFillWindowType(autoFillRequest, isSmartAutoFill, autoFillWindowType);
     EXPECT_EQ(isSmartAutoFill, true);
     EXPECT_EQ(autoFillWindowType, AbilityRuntime::AutoFill::AutoFillWindowType::MODAL_WINDOW);
 }

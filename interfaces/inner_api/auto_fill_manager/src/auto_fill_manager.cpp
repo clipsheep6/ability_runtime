@@ -118,7 +118,13 @@ int32_t AutoFillManager::HandleRequestExecuteInner(
     BindModalUIExtensionCallback(extensionCallback, callback);
 
     bool isSmartAutoFill = false;
-    auto autoFillWindowType = ConvertAutoFillWindowType(request, isSmartAutoFill);
+    AutoFill::AutoFillWindowType autoFillWindowType = AutoFill::AutoFillWindowType::MODAL_WINDOW;
+    if (!ConvertAutoFillWindowType(request, isSmartAutoFill, autoFillWindowType)) {
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Convert auto fill type failed.");
+        RemoveEvent(eventId_);
+        return AutoFill::AUTO_FILL_CREATE_MODULE_UI_EXTENSION_FAILED;
+    }
+
     isPopup = autoFillWindowType == AutoFill::AutoFillWindowType::POPUP_WINDOW ? true : false;
     auto sessionId = CreateAutoFillExtension(uiContent, request, callback, autoFillWindowType, isSmartAutoFill);
     if (sessionId == AUTO_FILL_UI_EXTENSION_SESSION_ID_INVALID) {
@@ -307,10 +313,32 @@ int32_t AutoFillManager::CreateAutoFillExtension(Ace::UIContent *uiContent,
     return sessionId;
 }
 
-AutoFill::AutoFillWindowType AutoFillManager::ConvertAutoFillWindowType(const AutoFill::AutoFillRequest &request,
-    bool &isSmartAutoFill)
+bool AutoFillManager::IsNeed2SaveRequest(const AbilityBase::ViewData& viewData, bool& isSmartAutoFill)
 {
-    AutoFill::AutoFillWindowType autoFillWindowType = AutoFill::AutoFillWindowType::MODAL_WINDOW;
+    bool ret = false;
+    for (auto it = viewData.nodes.begin(); it != viewData.nodes.end(); ++it) {
+        if ((it->autoFillType == AbilityBase::AutoFillType::PASSWORD ||
+            it->autoFillType == AbilityBase::AutoFillType::USER_NAME ||
+            it->autoFillType == AbilityBase::AutoFillType::NEW_PASSWORD) &&
+            it->enableAutoFill && !it->value.empty()) {
+            isSmartAutoFill = false;
+            return true;
+        }
+        if (AbilityBase::AutoFillType::FULL_STREET_ADDRESS <= it->autoFillType &&
+            it->autoFillType <= AbilityBase::AutoFillType::FORMAT_ADDRESS &&
+            it->enableAutoFill && !it->value.empty()) {
+            isSmartAutoFill = true;
+            ret = true;
+        }
+    }
+    return ret;
+}
+
+bool AutoFillManager::ConvertAutoFillWindowType(const AutoFill::AutoFillRequest &request,
+    bool &isSmartAutoFill, AutoFill::AutoFillWindowType &autoFillWindowType)
+{
+    bool ret = true;
+    autoFillWindowType = AutoFill::AutoFillWindowType::MODAL_WINDOW;
     AbilityBase::AutoFillType autoFillType = request.autoFillType;
     if (autoFillType >= AbilityBase::AutoFillType::FULL_STREET_ADDRESS &&
         autoFillType <= AbilityBase::AutoFillType::FORMAT_ADDRESS) {
@@ -327,9 +355,11 @@ AutoFill::AutoFillWindowType AutoFillManager::ConvertAutoFillWindowType(const Au
         isSmartAutoFill = false;
     }
 
-    autoFillWindowType = request.autoFillCommand == AutoFill::AutoFillCommand::SAVE ?
-        AutoFill::AutoFillWindowType::MODAL_WINDOW : autoFillWindowType;
-    return autoFillWindowType;
+    if (request.autoFillCommand == AutoFill::AutoFillCommand::SAVE) {
+        ret = IsNeed2SaveRequest(request.viewData, isSmartAutoFill);
+        autoFillWindowType = AutoFill::AutoFillWindowType::MODAL_WINDOW;
+    }
+    return ret;
 }
 
 void AutoFillManager::SetTimeOutEvent(uint32_t eventId)

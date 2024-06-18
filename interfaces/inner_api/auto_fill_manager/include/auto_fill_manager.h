@@ -110,9 +110,10 @@ private:
         const std::shared_ptr<AutoFillExtensionCallback> &extensionCallback, Ace::ModalUIExtensionCallbacks &callback);
 
     void SetTimeOutEvent(uint32_t eventId);
-    AutoFill::AutoFillWindowType ConvertAutoFillWindowType(const AutoFill::AutoFillRequest &request,
-        bool &isSmartAutoFill);
+    bool ConvertAutoFillWindowType(const AutoFill::AutoFillRequest &request,
+        bool &isSmartAutoFill, AutoFill::AutoFillWindowType &autoFillWindowType);
     bool IsPreviousRequestFinished(Ace::UIContent *uiContent);
+    bool IsNeed2SaveRequest(const AbilityBase::ViewData &viewData, bool &isSmartAutoFill);
 
     std::mutex extensionCallbacksMutex_;
     std::mutex modalProxyMapMutex_;
