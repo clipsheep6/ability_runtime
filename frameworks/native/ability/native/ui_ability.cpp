@@ -943,7 +943,11 @@ void UIAbility::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
                 "Density: %{public}f, Direction: %{public}d", resConfig->GetScreenDensity(), resConfig->GetDirection());
         }
     }
+        UpdateConfiguration(to, density, width, height);
+}
 
+void UIAbility::UpdateConfiguration(Rosen::DisplayId to, float density, int32_t width, int32_t height)
+{
     AppExecFwk::Configuration newConfig;
     newConfig.AddItem(AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID, std::to_string(to));
     newConfig.AddItem(
