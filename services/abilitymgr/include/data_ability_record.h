@@ -42,6 +42,8 @@ public:
     int OnTransitionDone(int state);
     int AddClient(const sptr<IRemoteObject> &client, bool tryBind, bool isNotHap);
     int RemoveClient(const sptr<IRemoteObject> &client, bool isNotHap);
+    void RemoveClientsIfClient(const std::shared_ptr<AbilityRecord> &client,
+        std::shared_ptr<AppScheduler> appScheduler);
     int RemoveClients(const std::shared_ptr<AbilityRecord> &client = nullptr);
     size_t GetClientCount(const sptr<IRemoteObject> &client = nullptr) const;
     int KillBoundClientProcesses();

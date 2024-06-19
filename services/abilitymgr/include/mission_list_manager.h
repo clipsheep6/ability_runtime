@@ -409,6 +409,7 @@ private:
     std::shared_ptr<Mission> GetReusedMission(const AbilityRequest &abilityRequest);
     std::shared_ptr<Mission> GetReusedSpecifiedMission(const AbilityRequest &abilityRequest);
     std::shared_ptr<Mission> GetReusedStandardMission(const AbilityRequest &abilityRequest);
+    void UpdateInnerMissionInfo(bool findReusedMissionInfo, InnerMissionInfo info);
     void GetTargetMissionAndAbility(const AbilityRequest &abilityRequest, std::shared_ptr<Mission> &targetMission,
         std::shared_ptr<AbilityRecord> &targetRecord, bool &isReachToLimit);
     bool HandleReusedMissionAndAbility(const AbilityRequest &abilityRequest, std::shared_ptr<Mission> &targetMission,
