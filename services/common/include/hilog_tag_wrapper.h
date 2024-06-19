@@ -18,6 +18,10 @@
 
 #include <cinttypes>
 #include <map>
+#include <vector>
+#include <string>
+#include <chrono>
+#include <algorithm>
 
 #include "hilog/log.h"
 
@@ -197,20 +201,85 @@ static inline const char* GetTagInfoFromDomainId(AAFwkLogTag tag)
         default: return "AAFwkUN";
     }
 }
+
+typedef struct LogItem {
+    uint32_t tag;
+    std::string fileName;
+    std::string funcName;
+    uint32_t line;
+    std::string logFormat;
+    uint64_t timestamp;
+    bool operator==(const LogItem& item)
+    {
+        return (tag == item.tag && fileName.compare(item.fileName) == 0 && funcName.compare(item.funcName) == 0 &&
+                line == item.line && logFormat.compare(item.logFormat) == 0);
+    }
+} LogItem;
+
+static std::vector<LogItem> m_logArray = {};
+constexpr uint32_t MAX_LOG_BUFFER_SIZE = 1024;
+constexpr uint32_t INTERVAL = 5000;
+constexpr uint32_t LOG_LIFE_TIME = 10000;
+
+static inline bool NeedShowPrintLog(uint32_t eTag, const char* file, const char* func, uint32_t line, const char* fmt)
+{
+    bool needShowLog = false;
+    LogItem item = {eTag, std::string(file), std::string(func), line, std::string(fmt), 0};
+    auto logItr = std::find(m_logArray.begin(), m_logArray.end(), item);
+    auto tiemNow = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
+    if (logItr != m_logArray.end()) {
+        auto timeLast = std::chrono::system_clock::time_point(std::chrono::microseconds(logItr->timestamp));
+        auto timePassed = tiemNow.time_since_epoch().count() - timeLast.time_since_epoch().count();
+        if (timePassed >= INTERVAL) {
+            needShowLog = true;
+            logItr->timestamp = tiemNow.time_since_epoch().count();
+        }
+    } else {
+        needShowLog = true;
+        item.timestamp = tiemNow.time_since_epoch().count();
+        m_logArray.push_back(item);
+    }
+    return needShowLog;
+}
+
+static inline void FlushLogBuffer()
+{
+    auto timeNow = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
+    auto itr = m_logArray.begin();
+    while (itr != m_logArray.end()) {
+        auto timeItem = std::chrono::system_clock::time_point(std::chrono::microseconds(itr->timestamp));
+        auto timePassed = timeNow.time_since_epoch().count() - timeItem.time_since_epoch().count();
+        if (timePassed > LOG_LIFE_TIME) {
+            itr = m_logArray.erase(itr);
+        } else {
+            itr++;
+        }
+    }
+}
 } // OHOS::AAFwk
 
 using AAFwkTag = OHOS::AAFwk::AAFwkLogTag;
-
-#define AAFWK_PRINT_LOG(level, tag, fmt, ...)                                                           \
-    do {                                                                                                \
-        AAFwkTag logTag = tag;                                                                          \
-        ((void)HILOG_IMPL(LOG_CORE, level, static_cast<uint32_t>(logTag),                                  \
-        OHOS::AAFwk::GetTagInfoFromDomainId(logTag), AAFWK_FUNC_FMT fmt, AAFWK_FUNC_INFO, ##__VA_ARGS__)); \
+#define AAFWK_PRINT_LOG(level, tag, fmt, ...)                                                                    \
+    do {                                                                                                         \
+        AAFwkTag logTag = tag;                                                                                   \
+        bool needShowLog =                                                                                       \
+            OHOS::AAFwk::NeedShowPrintLog(static_cast<uint32_t>(logTag), __FILE__, __FUNCTION__, __LINE__, fmt); \
+        OHOS::AAFwk::FlushLogBuffer();                                                                           \
+        if (!needShowLog) {                                                                                      \
+            break;                                                                                               \
+        }                                                                                                        \
+        ((void)HILOG_IMPL(LOG_CORE,                                                                              \
+            level,                                                                                               \
+            static_cast<uint32_t>(logTag),                                                                       \
+            OHOS::AAFwk::GetTagInfoFromDomainId(logTag),                                                         \
+            AAFWK_FUNC_FMT fmt,                                                                                  \
+            AAFWK_FUNC_INFO,                                                                                     \
+            ##__VA_ARGS__));                                                                                     \
     } while (0)
 
 #define TAG_LOGD(tag, fmt, ...) AAFWK_PRINT_LOG(LOG_DEBUG, tag, fmt, ##__VA_ARGS__)
-#define TAG_LOGI(tag, fmt, ...) AAFWK_PRINT_LOG(LOG_INFO,  tag, fmt, ##__VA_ARGS__)
-#define TAG_LOGW(tag, fmt, ...) AAFWK_PRINT_LOG(LOG_WARN,  tag, fmt, ##__VA_ARGS__)
+#define TAG_LOGI(tag, fmt, ...) AAFWK_PRINT_LOG(LOG_INFO, tag, fmt, ##__VA_ARGS__)
+#define TAG_LOGW(tag, fmt, ...) AAFWK_PRINT_LOG(LOG_WARN, tag, fmt, ##__VA_ARGS__)
 #define TAG_LOGE(tag, fmt, ...) AAFWK_PRINT_LOG(LOG_ERROR, tag, fmt, ##__VA_ARGS__)
 #define TAG_LOGF(tag, fmt, ...) AAFWK_PRINT_LOG(LOG_FATAL, tag, fmt, ##__VA_ARGS__)
 
