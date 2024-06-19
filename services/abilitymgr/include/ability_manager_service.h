@@ -405,6 +405,25 @@ public:
         const sptr<SessionInfo> &extensionSessionInfo,
         int32_t userId = DEFAULT_INVAL_VALUE) override;
 
+    int VerifyBeforeLaunchExtension(
+        const sptr<SessionInfo> &extensionSessionInfo,
+        int32_t &userId,
+        EventInfo &eventInfo,
+        AppExecFwk::ExtensionAbilityType &extensionType);
+
+    int PrepareBeforeLaunchExtension(
+        const sptr<SessionInfo> &extensionSessionInfo,
+        int32_t &validUserId,
+        EventInfo &eventInfo,
+        AppExecFwk::ExtensionAbilityType &extensionType);
+
+    int StartExtensionAbilityWithCheck(
+        AbilityRequest &abilityRequest,
+        const sptr<IRemoteObject> &callerToken,
+        AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t &validUserId,
+        EventInfo &eventInfo);
+
     /**
      * Start ui ability with want, send want to ability manager service.
      *
@@ -413,6 +432,11 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bool &isColdStart) override;
+
+    void MarkStartBySCB(sptr<SessionInfo> &sessionInfo, AbilityRequest &abilityRequest);
+
+    int AbilityRequestPreprocessor(AbilityRequest &abilityRequest, int &requestCode,
+        sptr<SessionInfo> sessionInfo, bool &isColdStart, pid_t currentUserId);
 
     /**
      * Stop extension ability with want, send want to ability manager service.
@@ -428,6 +452,13 @@ public:
         const sptr<IRemoteObject>& callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED) override;
+
+    int ProcessExtensionAbilityStopRequest(
+        const Want &want,
+        int32_t &validUserId,
+        const sptr<IRemoteObject> &callerToken,
+        EventInfo &eventInfo,
+        AppExecFwk::ExtensionAbilityType &extensionType);
 
     /**
      * TerminateAbility, terminate the special ability.
@@ -700,6 +731,11 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int AbilityTransitionDone(const sptr<IRemoteObject> &token, int state, const PacMap &saveData) override;
+   
+    void CheckTargetState(int &targetState, const sptr<IRemoteObject> &token);
+
+    int DispatchAbilityTransactionDone(std::shared_ptr<AbilityRecord> &abilityRecord,
+    const sptr<IRemoteObject> &token, int &state, const PacMap &saveData);
 
     /**
      * ScheduleConnectAbilityDone, service ability call this interface while session was connected.
@@ -1066,6 +1102,9 @@ public:
         const sptr<IRemoteObject> &callerToken,
         int32_t userId,
         bool isNeedSetDebugApp = true);
+
+    int ConfigureAndVerifyAbilityRequest(const Want &want, AbilityRequest &request,
+        bool &isNeedSetDebugApp);
 
     /**
      * Get mission id by target ability token.
@@ -2082,6 +2121,9 @@ private:
 
     int32_t RequestDialogServiceInner(const Want &want, const sptr<IRemoteObject> &callerToken,
         int requestCode, int32_t userId);
+
+    int32_t AbilityPermissionChecker(AbilityRequest &abilityRequest,
+        const sptr<IRemoteObject> &callerToken, int requestCode, int32_t validUserId);
 
     bool CheckCallingTokenId(const std::string &bundleName, int32_t userId = INVALID_USER_ID);
     bool IsCallerSceneBoard();
