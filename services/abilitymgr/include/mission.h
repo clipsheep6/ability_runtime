@@ -225,6 +225,8 @@ public:
         missionAffinity_ = missionAffinity;
     }
 
+    // bool isRestartApp_ = false;
+
 private:
     int32_t missionId_;
     int32_t startMethod_;
