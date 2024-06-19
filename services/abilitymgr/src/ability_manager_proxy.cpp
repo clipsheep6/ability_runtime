@@ -625,6 +625,48 @@ int AbilityManagerProxy::StartExtensionAbility(const Want &want, const sptr<IRem
     return reply.ReadInt32();
 }
 
+	int AbilityManagerProxy::StartUIServiceExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
+    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
+        return INNER_ERR;
+    }
+    if (callerToken) {
+        if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag and callerToken write failed.");
+            return INNER_ERR;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
+            return INNER_ERR;
+        }
+    }
+    if (!data.WriteInt32(userId)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "StartUIServiceExtensionAbility, userId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(static_cast<int32_t>(extensionType))) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "StartUIServiceExtensionAbility, extensionType write failed.");
+        return INNER_ERR;
+    }
+    error = SendRequest(AbilityManagerInterfaceCode::START_UI_SERVICE_EXTENSION_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "StartUIServiceExtensionAbility, Send request error: %{public}d", error);
+        return error;
+    }
+	TAG_LOGD(AAFwkTag::ABILITYMGR, "call AbilityManagerProxy::StartUIServiceExtensionAbility");
+    return reply.ReadInt32();
+}
+
 int AbilityManagerProxy::RequestModalUIExtension(const Want &want)
 {
     MessageParcel data;

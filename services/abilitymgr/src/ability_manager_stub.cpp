@@ -316,6 +316,8 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::StartExtensionAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_EXTENSION_ABILITY)] =
         &AbilityManagerStub::StopExtensionAbilityInner;
+	requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_SERVICE_EXTENSION_ABILITY)] =
+        &AbilityManagerStub::StartUIServiceExtensionAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UPDATE_MISSION_SNAPSHOT_FROM_WMS)] =
         &AbilityManagerStub::UpdateMissionSnapShotFromWMSInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_CONNECTION_OBSERVER)] =
@@ -880,6 +882,25 @@ int AbilityManagerStub::StartExtensionAbilityInner(MessageParcel &data, MessageP
     int32_t userId = data.ReadInt32();
     int32_t extensionType = data.ReadInt32();
     int32_t result = StartExtensionAbility(*want, callerToken, userId,
+        static_cast<AppExecFwk::ExtensionAbilityType>(extensionType));
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartUIServiceExtensionAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
+    if (want == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+    }
+    int32_t userId = data.ReadInt32();
+    int32_t extensionType = data.ReadInt32();
+    int32_t result = StartUIServiceExtensionAbility(*want, callerToken, userId,
         static_cast<AppExecFwk::ExtensionAbilityType>(extensionType));
     reply.WriteInt32(result);
     return NO_ERROR;
