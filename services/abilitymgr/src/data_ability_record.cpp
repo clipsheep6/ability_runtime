@@ -73,7 +73,7 @@ int DataAbilityRecord::StartLoading()
     return ERR_OK;
 }
 
-int DataAbilityRecord::WaitForLoaded(ffrt::mutex &mutex, const std::chrono::system_clock::duration &timeout)
+int DataAbilityRecord::WaitForLoaded(std::mutex &mutex, const std::chrono::system_clock::duration &timeout)
 {
     CHECK_POINTER_AND_RETURN(ability_, ERR_INVALID_STATE);
 
@@ -82,7 +82,7 @@ int DataAbilityRecord::WaitForLoaded(ffrt::mutex &mutex, const std::chrono::syst
         return ERR_OK;
     }
 
-    std::unique_lock<ffrt::mutex> lock(mutex, std::adopt_lock);
+    std::unique_lock lock(mutex, std::adopt_lock);
     auto ret = loadedCond_.wait_for(lock, timeout, [this] { return ability_->GetAbilityState() == ACTIVE; });
     if (!ret) {
         return ERR_TIMED_OUT;

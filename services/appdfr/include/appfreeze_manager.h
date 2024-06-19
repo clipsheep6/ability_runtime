@@ -21,12 +21,11 @@
 #include <fstream>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <set>
 #include <string>
 #include <vector>
 
-#include "cpp/mutex.h"
-#include "cpp/condition_variable.h"
 #include "fault_data.h"
 #include "freeze_util.h"
 
@@ -100,11 +99,11 @@ private:
 
     static const inline std::string LOGGER_DEBUG_PROC_PATH = "/proc/transaction_proc";
     std::string name_;
-    static ffrt::mutex singletonMutex_;
+    static std::mutex singletonMutex_;
     static std::shared_ptr<AppfreezeManager> instance_;
-    static ffrt::mutex freezeMutex_;
+    static std::mutex freezeMutex_;
     std::map<int32_t, AppFreezeInfo> appfreezeInfo_;
-    static ffrt::mutex catchStackMutex_;
+    static std::mutex catchStackMutex_;
     static std::map<int, std::string> catchStackMap_;
 };
 }  // namespace AppExecFwk

@@ -38,7 +38,7 @@ int32_t FreeInstallObserverManager::AddObserver(const sptr<IFreeInstallObserver>
         TAG_LOGE(AAFwkTag::FREE_INSTALL, "the observer is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    std::lock_guard<ffrt::mutex> lock(observerLock_);
+    std::lock_guard lock(observerLock_);
     if (ObserverExistLocked(observer)) {
         TAG_LOGE(AAFwkTag::FREE_INSTALL, "Observer exist.");
         return ERR_INVALID_VALUE;
@@ -57,7 +57,7 @@ int32_t FreeInstallObserverManager::AddObserver(const sptr<IFreeInstallObserver>
                 }
             });
     }
-    
+
     auto observerObj = observer->AsObject();
     if (!observerObj || !observerObj->AddDeathRecipient(deathRecipient_)) {
         TAG_LOGE(AAFwkTag::FREE_INSTALL, "AddDeathRecipient failed.");
@@ -73,7 +73,7 @@ int32_t FreeInstallObserverManager::RemoveObserver(const sptr<IFreeInstallObserv
         TAG_LOGE(AAFwkTag::FREE_INSTALL, "the observer is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    std::lock_guard<ffrt::mutex> lock(observerLock_);
+    std::lock_guard lock(observerLock_);
     auto it = std::find_if(observerList_.begin(), observerList_.end(),
         [&observer](const sptr<IFreeInstallObserver> &item) {
         return (item && item->AsObject() == observer->AsObject());
@@ -141,7 +141,7 @@ void FreeInstallObserverManager::OnObserverDied(const wptr<IRemoteObject> &remot
     }
     remoteObj->RemoveDeathRecipient(deathRecipient_);
 
-    std::lock_guard<ffrt::mutex> lock(observerLock_);
+    std::lock_guard lock(observerLock_);
     auto it = std::find_if(observerList_.begin(), observerList_.end(), [&remoteObj]
         (const sptr<IFreeInstallObserver> item) {
         return (item && item->AsObject() == remoteObj);

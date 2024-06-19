@@ -18,7 +18,6 @@
 
 #include <unordered_map>
 #include <memory>
-#include "cpp/mutex.h"
 
 #include "user_event_handler.h"
 #include "refbase.h"
@@ -83,7 +82,7 @@ public:
      * @return 0 if the user has been successfully started.
      */
     int32_t StopUser(int32_t userId);
-    
+
     /**
      * Logout user, if it is running..
      *
@@ -138,7 +137,7 @@ private:
     void HandleUserSwitchDone(int32_t userId);
 
 private:
-    ffrt::mutex userLock_;
+    std::mutex userLock_;
     int32_t currentUserId_ = USER_ID_NO_HEAD;
     std::unordered_map<int32_t, std::shared_ptr<UserItem>> userItems_;
     std::shared_ptr<UserEventHandler> eventHandler_;

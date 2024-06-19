@@ -39,7 +39,7 @@ bool TaskDataPersistenceMgr::Init(int userId)
         CHECK_POINTER_RETURN_BOOL(handler_);
     }
 
-    std::lock_guard<ffrt::mutex> lock(mutex_);
+    std::lock_guard lock(mutex_);
     if (missionDataStorageMgr_.find(userId) == missionDataStorageMgr_.end()) {
         currentMissionDataStorage_ = std::make_shared<MissionDataStorage>(userId);
         missionDataStorageMgr_.insert(std::make_pair(userId, currentMissionDataStorage_));
@@ -55,7 +55,7 @@ bool TaskDataPersistenceMgr::Init(int userId)
 
 bool TaskDataPersistenceMgr::LoadAllMissionInfo(std::list<InnerMissionInfo> &missionInfoList)
 {
-    std::lock_guard<ffrt::mutex> lock(mutex_);
+    std::lock_guard lock(mutex_);
     if (!currentMissionDataStorage_) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "currentMissionDataStorage_ is nullptr");
         return false;
@@ -66,7 +66,7 @@ bool TaskDataPersistenceMgr::LoadAllMissionInfo(std::list<InnerMissionInfo> &mis
 
 bool TaskDataPersistenceMgr::SaveMissionInfo(const InnerMissionInfo &missionInfo)
 {
-    std::lock_guard<ffrt::mutex> lock(mutex_);
+    std::lock_guard lock(mutex_);
     if (!handler_ || !currentMissionDataStorage_) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "handler_ or currentMissionDataStorage_ is nullptr");
         return false;
@@ -85,7 +85,7 @@ bool TaskDataPersistenceMgr::SaveMissionInfo(const InnerMissionInfo &missionInfo
 
 bool TaskDataPersistenceMgr::DeleteMissionInfo(int missionId)
 {
-    std::lock_guard<ffrt::mutex> lock(mutex_);
+    std::lock_guard lock(mutex_);
     if (!handler_ || !currentMissionDataStorage_) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "handler_ or currentMissionDataStorage_ is nullptr");
         return false;
@@ -104,7 +104,7 @@ bool TaskDataPersistenceMgr::DeleteMissionInfo(int missionId)
 
 bool TaskDataPersistenceMgr::RemoveUserDir(int32_t userId)
 {
-    std::lock_guard<ffrt::mutex> lock(mutex_);
+    std::lock_guard lock(mutex_);
     if (currentUserId_ == userId) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "can not removed current user dir");
         return false;
@@ -120,7 +120,7 @@ bool TaskDataPersistenceMgr::RemoveUserDir(int32_t userId)
 
 bool TaskDataPersistenceMgr::SaveMissionSnapshot(int missionId, const MissionSnapshot& snapshot)
 {
-    std::lock_guard<ffrt::mutex> lock(mutex_);
+    std::lock_guard lock(mutex_);
     if (!handler_ || !currentMissionDataStorage_) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: handler_ or currentMissionDataStorage_ is nullptr");
         return false;
@@ -151,7 +151,7 @@ std::shared_ptr<Media::PixelMap> TaskDataPersistenceMgr::GetSnapshot(int mission
 bool TaskDataPersistenceMgr::GetMissionSnapshot(int missionId, MissionSnapshot& snapshot, bool isLowResolution)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::lock_guard<ffrt::mutex> lock(mutex_);
+    std::lock_guard lock(mutex_);
     if (!currentMissionDataStorage_) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: currentMissionDataStorage_ is nullptr");
         return false;

@@ -75,7 +75,7 @@ sptr<IAbilityScheduler> DataAbilityManager::Acquire(
         TAG_LOGI(AAFwkTag::DATA_ABILITY, "Loading data ability '%{public}s'...", dataAbilityName.c_str());
     }
 
-    std::lock_guard<ffrt::mutex> locker(mutex_);
+    std::lock_guard locker(mutex_);
 
     if (DEBUG_ENABLED) {
         DumpLocked(__func__, __LINE__);
@@ -131,7 +131,7 @@ int DataAbilityManager::Release(
     CHECK_POINTER_AND_RETURN(scheduler, ERR_NULL_OBJECT);
     CHECK_POINTER_AND_RETURN(client, ERR_NULL_OBJECT);
 
-    std::lock_guard<ffrt::mutex> locker(mutex_);
+    std::lock_guard locker(mutex_);
 
     if (DEBUG_ENABLED) {
         DumpLocked(__func__, __LINE__);
@@ -185,7 +185,7 @@ bool DataAbilityManager::ContainsDataAbility(const sptr<IAbilityScheduler> &sche
 
     CHECK_POINTER_AND_RETURN(scheduler, ERR_NULL_OBJECT);
 
-    std::lock_guard<ffrt::mutex> locker(mutex_);
+    std::lock_guard locker(mutex_);
     for (auto it = dataAbilityRecordsLoaded_.begin(); it != dataAbilityRecordsLoaded_.end(); ++it) {
         if (it->second && it->second->GetScheduler() &&
             it->second->GetScheduler()->AsObject() == scheduler->AsObject()) {
@@ -203,7 +203,7 @@ int DataAbilityManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sched
     CHECK_POINTER_AND_RETURN(scheduler, ERR_NULL_OBJECT);
     CHECK_POINTER_AND_RETURN(token, ERR_NULL_OBJECT);
 
-    std::lock_guard<ffrt::mutex> locker(mutex_);
+    std::lock_guard locker(mutex_);
 
     if (DEBUG_ENABLED) {
         DumpLocked(__func__, __LINE__);
@@ -254,7 +254,7 @@ int DataAbilityManager::AbilityTransitionDone(const sptr<IRemoteObject> &token, 
 
     CHECK_POINTER_AND_RETURN(token, ERR_NULL_OBJECT);
 
-    std::lock_guard<ffrt::mutex> locker(mutex_);
+    std::lock_guard locker(mutex_);
 
     if (DEBUG_ENABLED) {
         DumpLocked(__func__, __LINE__);
@@ -300,7 +300,7 @@ void DataAbilityManager::OnAbilityDied(const std::shared_ptr<AbilityRecord> &abi
     CHECK_POINTER(abilityRecord);
 
     {
-        std::lock_guard<ffrt::mutex> locker(mutex_);
+        std::lock_guard locker(mutex_);
         if (DEBUG_ENABLED) {
             DumpLocked(__func__, __LINE__);
         }
@@ -337,7 +337,7 @@ void DataAbilityManager::OnAbilityDied(const std::shared_ptr<AbilityRecord> &abi
 
 void DataAbilityManager::OnAppStateChanged(const AppInfo &info)
 {
-    std::lock_guard<ffrt::mutex> locker(mutex_);
+    std::lock_guard locker(mutex_);
 
     for (auto it = dataAbilityRecordsLoaded_.begin(); it != dataAbilityRecordsLoaded_.end(); ++it) {
         if (!it->second) {
@@ -380,7 +380,7 @@ std::shared_ptr<AbilityRecord> DataAbilityManager::GetAbilityRecordById(int64_t 
 {
     TAG_LOGD(AAFwkTag::DATA_ABILITY, "Call.");
 
-    std::lock_guard<ffrt::mutex> locker(mutex_);
+    std::lock_guard locker(mutex_);
 
     for (auto it = dataAbilityRecordsLoaded_.begin(); it != dataAbilityRecordsLoaded_.end(); ++it) {
         if (!it->second) {
@@ -401,7 +401,7 @@ std::shared_ptr<AbilityRecord> DataAbilityManager::GetAbilityRecordByToken(const
 
     CHECK_POINTER_AND_RETURN(token, nullptr);
 
-    std::lock_guard<ffrt::mutex> locker(mutex_);
+    std::lock_guard locker(mutex_);
     for (auto it = dataAbilityRecordsLoaded_.begin(); it != dataAbilityRecordsLoaded_.end(); ++it) {
         if (!it->second) {
             continue;
@@ -429,7 +429,7 @@ std::shared_ptr<AbilityRecord> DataAbilityManager::GetAbilityRecordByScheduler(c
 
     CHECK_POINTER_AND_RETURN(scheduler, nullptr);
 
-    std::lock_guard<ffrt::mutex> locker(mutex_);
+    std::lock_guard locker(mutex_);
 
     for (auto it = dataAbilityRecordsLoaded_.begin(); it != dataAbilityRecordsLoaded_.end(); ++it) {
         if (it->second && it->second->GetScheduler() &&
@@ -445,7 +445,7 @@ void DataAbilityManager::Dump(const char *func, int line)
 {
     TAG_LOGD(AAFwkTag::DATA_ABILITY, "Call.");
 
-    std::lock_guard<ffrt::mutex> locker(mutex_);
+    std::lock_guard locker(mutex_);
 
     DumpLocked(func, line);
 }
@@ -532,7 +532,7 @@ void DataAbilityManager::DumpState(std::vector<std::string> &info, const std::st
 {
     DataAbilityRecordPtrMap dataAbilityRecordMap;
     {
-        std::lock_guard<ffrt::mutex> locker(mutex_);
+        std::lock_guard locker(mutex_);
         dataAbilityRecordMap = dataAbilityRecordsLoaded_;
     }
     if (!args.empty()) {
@@ -580,7 +580,7 @@ void DataAbilityManager::DumpSysState(std::vector<std::string> &info, bool isCli
 {
     DataAbilityRecordPtrMap dataAbilityRecordMap;
     {
-        std::lock_guard<ffrt::mutex> locker(mutex_);
+        std::lock_guard locker(mutex_);
         dataAbilityRecordMap = dataAbilityRecordsLoaded_;
     }
     if (args.empty()) {
@@ -606,7 +606,7 @@ void DataAbilityManager::DumpSysState(std::vector<std::string> &info, bool isCli
 void DataAbilityManager::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info, bool isPerm)
 {
     TAG_LOGI(AAFwkTag::DATA_ABILITY, "Get ability running infos");
-    std::lock_guard<ffrt::mutex> locker(mutex_);
+    std::lock_guard locker(mutex_);
 
     auto queryInfo = [&info, isPerm](DataAbilityRecordPtrMap::reference data) {
         auto dataAbilityRecord = data.second;

@@ -42,7 +42,7 @@ std::string DialogSessionRecord::GenerateDialogSessionId()
     return std::to_string(time) + "_" + std::to_string(randomDigit);
     std::string dialogSessionId = std::to_string(time) + "_" + std::to_string(randomDigit);
 
-    std::lock_guard<ffrt::mutex> guard(dialogSessionRecordLock_);
+    std::lock_guard guard(dialogSessionRecordLock_);
     auto iter = dialogSessionInfoMap_.find(dialogSessionId);
     while (iter != dialogSessionInfoMap_.end()) {
         dialogSessionId += "_1";
@@ -54,14 +54,14 @@ std::string DialogSessionRecord::GenerateDialogSessionId()
 void DialogSessionRecord::SetDialogSessionInfo(const std::string dialogSessionId,
     sptr<DialogSessionInfo> &dilogSessionInfo, std::shared_ptr<DialogCallerInfo> &dialogCallerInfo)
 {
-    std::lock_guard<ffrt::mutex> guard(dialogSessionRecordLock_);
+    std::lock_guard guard(dialogSessionRecordLock_);
     dialogSessionInfoMap_[dialogSessionId] = dilogSessionInfo;
     dialogCallerInfoMap_[dialogSessionId] = dialogCallerInfo;
 }
 
 sptr<DialogSessionInfo> DialogSessionRecord::GetDialogSessionInfo(const std::string dialogSessionId) const
 {
-    std::lock_guard<ffrt::mutex> guard(dialogSessionRecordLock_);
+    std::lock_guard guard(dialogSessionRecordLock_);
     auto it = dialogSessionInfoMap_.find(dialogSessionId);
     if (it != dialogSessionInfoMap_.end()) {
         return it->second;
@@ -72,7 +72,7 @@ sptr<DialogSessionInfo> DialogSessionRecord::GetDialogSessionInfo(const std::str
 
 std::shared_ptr<DialogCallerInfo> DialogSessionRecord::GetDialogCallerInfo(const std::string dialogSessionId) const
 {
-    std::lock_guard<ffrt::mutex> guard(dialogSessionRecordLock_);
+    std::lock_guard guard(dialogSessionRecordLock_);
     auto it = dialogCallerInfoMap_.find(dialogSessionId);
     if (it != dialogCallerInfoMap_.end()) {
         return it->second;
@@ -83,7 +83,7 @@ std::shared_ptr<DialogCallerInfo> DialogSessionRecord::GetDialogCallerInfo(const
 
 void DialogSessionRecord::ClearDialogContext(const std::string dialogSessionId)
 {
-    std::lock_guard<ffrt::mutex> guard(dialogSessionRecordLock_);
+    std::lock_guard guard(dialogSessionRecordLock_);
     auto it = dialogSessionInfoMap_.find(dialogSessionId);
     if (it != dialogSessionInfoMap_.end()) {
         dialogSessionInfoMap_.erase(it);
@@ -97,7 +97,7 @@ void DialogSessionRecord::ClearDialogContext(const std::string dialogSessionId)
 
 void DialogSessionRecord::ClearAllDialogContexts()
 {
-    std::lock_guard<ffrt::mutex> guard(dialogSessionRecordLock_);
+    std::lock_guard guard(dialogSessionRecordLock_);
     dialogSessionInfoMap_.clear();
     dialogCallerInfoMap_.clear();
 }

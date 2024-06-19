@@ -69,7 +69,7 @@ int32_t AppStateObserverManager::RegisterApplicationStateObserver(
         TAG_LOGE(AAFwkTag::APPMGR, "Observer exist.");
         return ERR_INVALID_VALUE;
     }
-    std::lock_guard<ffrt::mutex> lockRegister(observerLock_);
+    std::lock_guard lockRegister(observerLock_);
     appStateObserverMap_.emplace(observer, bundleNameList);
     TAG_LOGD(AAFwkTag::APPMGR, "appStateObserverMap_ size:%{public}zu", appStateObserverMap_.size());
     AddObserverDeathRecipient(observer, ObserverType::APPLICATION_STATE_OBSERVER);
@@ -84,7 +84,7 @@ int32_t AppStateObserverManager::UnregisterApplicationStateObserver(const sptr<I
         TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed");
         return ERR_PERMISSION_DENIED;
     }
-    std::lock_guard<ffrt::mutex> lockUnregister(observerLock_);
+    std::lock_guard lockUnregister(observerLock_);
     if (observer == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "Observer nullptr");
         return ERR_INVALID_VALUE;
@@ -118,7 +118,7 @@ int32_t AppStateObserverManager::RegisterAppForegroundStateObserver(const sptr<I
         return ERR_INVALID_VALUE;
     }
 
-    std::lock_guard<ffrt::mutex> lockRegister(appForegroundObserverLock_);
+    std::lock_guard lockRegister(appForegroundObserverLock_);
     appForegroundStateObserverSet_.emplace(observer);
     AddObserverDeathRecipient(observer, ObserverType::APP_FOREGROUND_STATE_OBSERVER);
     return ERR_OK;
@@ -136,7 +136,7 @@ int32_t AppStateObserverManager::UnregisterAppForegroundStateObserver(const sptr
         TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
         return ERR_PERMISSION_DENIED;
     }
-    std::lock_guard<ffrt::mutex> lockUnregister(appForegroundObserverLock_);
+    std::lock_guard lockUnregister(appForegroundObserverLock_);
     for (auto &it : appForegroundStateObserverSet_) {
         if (it != nullptr && it->AsObject() == observer->AsObject()) {
             appForegroundStateObserverSet_.erase(it);
@@ -165,7 +165,7 @@ int32_t AppStateObserverManager::RegisterAbilityForegroundStateObserver(
         return ERR_OK;
     }
 
-    std::lock_guard<ffrt::mutex> lockRegister(abilityforegroundObserverLock_);
+    std::lock_guard lockRegister(abilityforegroundObserverLock_);
     abilityforegroundObserverSet_.emplace(observer);
     AddObserverDeathRecipient(observer, ObserverType::ABILITY_FOREGROUND_STATE_OBSERVER);
     return ERR_OK;
@@ -184,7 +184,7 @@ int32_t AppStateObserverManager::UnregisterAbilityForegroundStateObserver(
         TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
         return ERR_PERMISSION_DENIED;
     }
-    std::lock_guard<ffrt::mutex> lockUnregister(abilityforegroundObserverLock_);
+    std::lock_guard lockUnregister(abilityforegroundObserverLock_);
     for (auto &it : abilityforegroundObserverSet_) {
         if (it != nullptr && it->AsObject() == observer->AsObject()) {
             abilityforegroundObserverSet_.erase(it);
@@ -694,7 +694,7 @@ bool AppStateObserverManager::ObserverExist(const sptr<IRemoteBroker> &observer)
         TAG_LOGE(AAFwkTag::APPMGR, "The param observer is nullptr.");
         return false;
     }
-    std::lock_guard<ffrt::mutex> lockRegister(observerLock_);
+    std::lock_guard lockRegister(observerLock_);
     for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
         if (it->first->AsObject() == observer->AsObject()) {
             return true;
@@ -709,7 +709,7 @@ bool AppStateObserverManager::IsAbilityForegroundObserverExist(const sptr<IRemot
         TAG_LOGE(AAFwkTag::APPMGR, "The param observer is nullptr.");
         return false;
     }
-    std::lock_guard<ffrt::mutex> lockRegister(abilityforegroundObserverLock_);
+    std::lock_guard lockRegister(abilityforegroundObserverLock_);
     for (auto &it : abilityforegroundObserverSet_) {
         if (it != nullptr && it->AsObject() == observer->AsObject()) {
             return true;
@@ -724,7 +724,7 @@ bool AppStateObserverManager::IsAppForegroundObserverExist(const sptr<IRemoteBro
         TAG_LOGE(AAFwkTag::APPMGR, "The param observer is nullptr.");
         return false;
     }
-    std::lock_guard<ffrt::mutex> lockRegister(appForegroundObserverLock_);
+    std::lock_guard lockRegister(appForegroundObserverLock_);
     for (auto &it : appForegroundStateObserverSet_) {
         if (it != nullptr && it->AsObject() == observer->AsObject()) {
             return true;
@@ -793,19 +793,19 @@ void AppStateObserverManager::RemoveObserverDeathRecipient(const sptr<IRemoteBro
 
 AppStateObserverMap AppStateObserverManager::GetAppStateObserverMapCopy()
 {
-    std::lock_guard<ffrt::mutex> lock(observerLock_);
+    std::lock_guard lock(observerLock_);
     return appStateObserverMap_;
 }
 
 AppForegroundStateObserverSet AppStateObserverManager::GetAppForegroundStateObserverSetCopy()
 {
-    std::lock_guard<ffrt::mutex> lock(appForegroundObserverLock_);
+    std::lock_guard lock(appForegroundObserverLock_);
     return appForegroundStateObserverSet_;
 }
 
 AbilityforegroundObserverSet AppStateObserverManager::GetAbilityforegroundObserverSetCopy()
 {
-    std::lock_guard<ffrt::mutex> lock(abilityforegroundObserverLock_);
+    std::lock_guard lock(abilityforegroundObserverLock_);
     return abilityforegroundObserverSet_;
 }
 

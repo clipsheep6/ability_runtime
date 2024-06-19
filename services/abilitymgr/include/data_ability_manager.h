@@ -20,7 +20,6 @@
 #include <memory>
 #include <mutex>
 #include <string>
-#include "cpp/mutex.h"
 
 #include "ability_record.h"
 #include "ability_running_info.h"
@@ -67,7 +66,7 @@ private:
     void DumpClientInfo(std::vector<std::string> &info, bool isClient,
         std::shared_ptr<DataAbilityRecord> dataAbilityRecord) const;
 private:
-    mutable ffrt::mutex mutex_;
+    mutable std::mutex mutex_;
     DataAbilityRecordPtrMap dataAbilityRecordsLoaded_;
     DataAbilityRecordPtrMap dataAbilityRecordsLoading_;
 };

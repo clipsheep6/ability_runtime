@@ -63,7 +63,7 @@ void PendingWantRecord::UnregisterCancelListener(const sptr<IWantReceiver> &rece
 
 int32_t PendingWantRecord::SenderInner(SenderInfo &senderInfo)
 {
-    std::lock_guard<ffrt::mutex> locker(lock_);
+    std::lock_guard locker(lock_);
     if (canceled_) {
         if (senderInfo.finishedReceiver != nullptr) {
             Want want;

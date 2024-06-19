@@ -16,11 +16,10 @@
 #ifndef OHOS_ABILITY_RUNTIME_MISSION_INFO_MGR_H
 #define OHOS_ABILITY_RUNTIME_MISSION_INFO_MGR_H
 
+#include <condition_variable>
 #include <list>
 #include <mutex>
 #include <string>
-#include "cpp/mutex.h"
-#include "cpp/condition_variable.h"
 
 #include "ability_state.h"
 #include "inner_mission_info.h"
@@ -215,10 +214,10 @@ private:
     std::list<InnerMissionInfo> missionInfoList_;
     std::shared_ptr<TaskDataPersistenceMgr> taskDataPersistenceMgr_;
     sptr<ISnapshotHandler> snapshotHandler_;
-    mutable ffrt::mutex mutex_;
+    mutable std::mutex mutex_;
     std::unordered_map<int32_t, uint32_t> savingSnapshot_;
-    ffrt::mutex savingSnapshotLock_;
-    ffrt::condition_variable waitSavingCondition_;
+    std::mutex savingSnapshotLock_;
+    std::condition_variable waitSavingCondition_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

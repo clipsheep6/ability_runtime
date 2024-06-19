@@ -87,7 +87,7 @@ sptr<IWantSender> PendingWantManager::GetWantSenderLocked(const int32_t callingU
         pendingKey->SetRequestResolvedType(wantSenderInfo.allWants.back().resolvedTypes);
         pendingKey->SetAllWantsInfos(wantSenderInfo.allWants);
     }
-    std::lock_guard<ffrt::mutex> locker(mutex_);
+    std::lock_guard locker(mutex_);
     auto ref = GetPendingWantRecordByKey(pendingKey);
     if (ref != nullptr) {
         if (!needCancel) {
@@ -237,7 +237,7 @@ void PendingWantManager::CancelWantSender(const bool isSystemApp, const sptr<IWa
 void PendingWantManager::CancelWantSenderLocked(PendingWantRecord &record, bool cleanAbility)
 {
     TAG_LOGD(AAFwkTag::WANTAGENT, "begin.");
-    std::lock_guard<ffrt::mutex> locker(mutex_);
+    std::lock_guard locker(mutex_);
     MakeWantSenderCanceledLocked(record);
     if (cleanAbility) {
         wantRecords_.erase(record.GetKey());
@@ -359,7 +359,7 @@ sptr<PendingWantRecord> PendingWantManager::GetPendingWantRecordByCode(int32_t c
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
 
-    std::lock_guard<ffrt::mutex> locker(mutex_);
+    std::lock_guard locker(mutex_);
     auto iter = std::find_if(wantRecords_.begin(), wantRecords_.end(), [&code](const auto &pair) {
         return pair.second->GetKey()->GetCode() == code;
     });
@@ -485,7 +485,7 @@ void PendingWantManager::RegisterCancelListener(const sptr<IWantSender> &sender,
         return;
     }
     bool cancel = record->GetCanceled();
-    std::lock_guard<ffrt::mutex> locker(mutex_);
+    std::lock_guard locker(mutex_);
     if (!cancel) {
         record->RegisterCancelListener(recevier);
     }
@@ -511,7 +511,7 @@ void PendingWantManager::UnregisterCancelListener(const sptr<IWantSender> &sende
         TAG_LOGE(AAFwkTag::WANTAGENT, "%{public}s:record is nullptr.", __func__);
         return;
     }
-    std::lock_guard<ffrt::mutex> locker(mutex_);
+    std::lock_guard locker(mutex_);
     record->UnregisterCancelListener(recevier);
 }
 
@@ -596,7 +596,7 @@ void PendingWantManager::ClearPendingWantRecord(const std::string &bundleName, i
 void PendingWantManager::ClearPendingWantRecordTask(const std::string &bundleName, int32_t uid)
 {
     TAG_LOGI(AAFwkTag::WANTAGENT, "bundleName: %{public}s", bundleName.c_str());
-    std::lock_guard<ffrt::mutex> locker(mutex_);
+    std::lock_guard locker(mutex_);
     auto iter = wantRecords_.begin();
     while (iter != wantRecords_.end()) {
         bool hasBundle = false;

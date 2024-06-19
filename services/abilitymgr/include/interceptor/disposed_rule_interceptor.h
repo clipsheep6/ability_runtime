@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_DISPOSED_RULE_INTERCEPTOR_H
 #define OHOS_ABILITY_RUNTIME_DISPOSED_RULE_INTERCEPTOR_H
 
+#include <mutex>
 #include "ability_interceptor_interface.h"
 
 #include "app_mgr_interface.h"
@@ -47,7 +48,7 @@ private:
 private:
     std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
     std::map<std::string, sptr<DisposedObserver>> disposedObserverMap_;
-    ffrt::mutex observerLock_;
+    std::mutex observerLock_;
 };
 } // namespace AAFwk
 } // namespace OHOS

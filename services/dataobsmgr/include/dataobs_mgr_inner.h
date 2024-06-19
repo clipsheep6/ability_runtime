@@ -22,7 +22,6 @@
 #include <memory>
 #include <mutex>
 #include <string>
-#include "cpp/mutex.h"
 
 #include "data_ability_observer_interface.h"
 
@@ -48,7 +47,7 @@ private:
     bool HaveRegistered(sptr<IDataAbilityObserver> dataObserver);
 
     static constexpr uint32_t OBS_NUM_MAX = 50;
-    ffrt::mutex innerMutex_;
+    std::mutex innerMutex_;
     ObsMapType observers_;
     ObsRecipientMapType obsRecipient_;
 };

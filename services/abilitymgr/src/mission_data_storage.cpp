@@ -272,7 +272,7 @@ std::shared_ptr<OHOS::Media::PixelMap> MissionDataStorage::GetReducedPixelMap(
 
 bool MissionDataStorage::GetCachedSnapshot(int32_t missionId, MissionSnapshot& missionSnapshot)
 {
-    std::lock_guard<ffrt::mutex> lock(cachedPixelMapMutex_);
+    std::lock_guard lock(cachedPixelMapMutex_);
     auto pixelMap = cachedPixelMap_.find(missionId);
     if (pixelMap != cachedPixelMap_.end()) {
         missionSnapshot.snapshot = pixelMap->second;
@@ -283,7 +283,7 @@ bool MissionDataStorage::GetCachedSnapshot(int32_t missionId, MissionSnapshot& m
 
 bool MissionDataStorage::SaveCachedSnapshot(int32_t missionId, const MissionSnapshot& missionSnapshot)
 {
-    std::lock_guard<ffrt::mutex> lock(cachedPixelMapMutex_);
+    std::lock_guard lock(cachedPixelMapMutex_);
     auto result = cachedPixelMap_.insert_or_assign(missionId, missionSnapshot.snapshot);
     if (!result.second) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: save snapshot cache failed, missionId = %{public}d", missionId);
@@ -294,7 +294,7 @@ bool MissionDataStorage::SaveCachedSnapshot(int32_t missionId, const MissionSnap
 
 bool MissionDataStorage::DeleteCachedSnapshot(int32_t missionId)
 {
-    std::lock_guard<ffrt::mutex> lock(cachedPixelMapMutex_);
+    std::lock_guard lock(cachedPixelMapMutex_);
     auto result = cachedPixelMap_.erase(missionId);
     if (result != 1) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: delete snapshot cache failed, missionId = %{public}d", missionId);
@@ -383,7 +383,7 @@ std::unique_ptr<Media::PixelMap> MissionDataStorage::GetPixelMap(int missionId, 
         return nullptr;
     }
     uint32_t errCode = 0;
-    
+
     size_t bufferSize = 0;
     const std::string fileName = filePath;
     std::unique_ptr<uint8_t[]> buffer = MissionDataStorage::ReadFileToBuffer(fileName, bufferSize);

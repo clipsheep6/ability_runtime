@@ -35,7 +35,7 @@ DisposedObserver::DisposedObserver(const AppExecFwk::DisposedRule &disposedRule,
 void DisposedObserver::OnAbilityStateChanged(const AppExecFwk::AbilityStateData &abilityStateData)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Call");
-    std::lock_guard<ffrt::mutex> guard(observerLock_);
+    std::lock_guard guard(observerLock_);
     if (abilityStateData.abilityState == static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_FOREGROUND)) {
         token_ = abilityStateData.token;
         auto abilityRecord = Token::GetAbilityRecordByToken(token_);

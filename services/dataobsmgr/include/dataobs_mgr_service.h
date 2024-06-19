@@ -17,10 +17,10 @@
 #define OHOS_ABILITY_RUNTIME_DATAOBS_MGR_SERVICE_H
 
 #include <memory>
+#include <mutex>
 #include <singleton.h>
 #include <thread_ex.h>
 #include <unordered_map>
-#include "cpp/mutex.h"
 
 #include "dataobs_mgr_inner.h"
 #include "dataobs_mgr_inner_ext.h"
@@ -74,7 +74,7 @@ private:
     Status DeepCopyChangeInfo(const ChangeInfo &src, ChangeInfo &dst) const;
 private:
     static constexpr std::uint32_t TASK_COUNT_MAX = 50;
-    ffrt::mutex taskCountMutex_;
+    std::mutex taskCountMutex_;
     std::uint32_t taskCount_ = 0;
     std::shared_ptr<TaskHandlerWrap> handler_;
 

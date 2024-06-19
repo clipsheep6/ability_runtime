@@ -18,7 +18,6 @@
 
 #include <memory>
 #include <unordered_map>
-#include "cpp/mutex.h"
 
 #include "singleton.h"
 #include "task_handler_wrap.h"
@@ -100,7 +99,7 @@ private:
     std::shared_ptr<MissionDataStorage> currentMissionDataStorage_;
     std::shared_ptr<TaskHandlerWrap> handler_;
     int32_t currentUserId_ = -1;
-    ffrt::mutex mutex_;
+    std::mutex mutex_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

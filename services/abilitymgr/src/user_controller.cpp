@@ -80,7 +80,7 @@ void UserController::Init()
 
 void UserController::ClearAbilityUserItems(int32_t userId)
 {
-    std::lock_guard<ffrt::mutex> guard(userLock_);
+    std::lock_guard guard(userLock_);
     if (userItems_.count(userId)) {
         userItems_.erase(userId);
     }
@@ -231,13 +231,13 @@ int32_t UserController::LogoutUser(int32_t userId)
 
 int32_t UserController::GetCurrentUserId()
 {
-    std::lock_guard<ffrt::mutex> guard(userLock_);
+    std::lock_guard guard(userLock_);
     return currentUserId_;
 }
 
 std::shared_ptr<UserItem> UserController::GetUserItem(int32_t userId)
 {
-    std::lock_guard<ffrt::mutex> guard(userLock_);
+    std::lock_guard guard(userLock_);
     auto it = userItems_.find(userId);
     if (it != userItems_.end()) {
         return it->second;
@@ -268,7 +268,7 @@ bool UserController::IsExistOsAccount(int32_t userId)
 
 std::shared_ptr<UserItem> UserController::GetOrCreateUserItem(int32_t userId)
 {
-    std::lock_guard<ffrt::mutex> guard(userLock_);
+    std::lock_guard guard(userLock_);
     auto it = userItems_.find(userId);
     if (it != userItems_.end()) {
         return it->second;
@@ -281,7 +281,7 @@ std::shared_ptr<UserItem> UserController::GetOrCreateUserItem(int32_t userId)
 
 void UserController::SetCurrentUserId(int32_t userId)
 {
-    std::lock_guard<ffrt::mutex> guard(userLock_);
+    std::lock_guard guard(userLock_);
     currentUserId_ = userId;
     TAG_LOGD(AAFwkTag::ABILITYMGR, "set current userId: %{public}d", userId);
     DelayedSingleton<AppScheduler>::GetInstance()->SetCurrentUserId(userId);
@@ -305,7 +305,7 @@ void UserController::UserBootDone(std::shared_ptr<UserItem> &item)
     }
     int32_t userId = item->GetUserId();
 
-    std::lock_guard<ffrt::mutex> guard(userLock_);
+    std::lock_guard guard(userLock_);
     auto it = userItems_.find(userId);
     if (it != userItems_.end()) {
         return;

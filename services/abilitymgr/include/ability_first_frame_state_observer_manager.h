@@ -18,11 +18,11 @@
 #ifdef SUPPORT_GRAPHICS
 
 #include <map>
+#include <mutex>
 #include <string>
 
 #include "ability_first_frame_state_observer_interface.h"
 #include "ability_record.h"
-#include "cpp/mutex.h"
 #include "singleton.h"
 
 namespace OHOS {
@@ -45,7 +45,7 @@ protected:
     void RemoveObserverDeathRecipient(const sptr<IRemoteBroker> &observer);
 
 private:
-    ffrt::mutex observerLock_;
+    std::mutex observerLock_;
     AbilityFirstFrameStateObserverMap observerMap_;
     std::map<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>> recipientMap_;
     std::weak_ptr<AbilityFirstFrameStateObserverManager> abilityFirstFrameStateObserverManager_;

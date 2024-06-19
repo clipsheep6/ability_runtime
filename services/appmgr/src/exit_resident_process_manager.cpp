@@ -39,13 +39,13 @@ ExitResidentProcessManager &ExitResidentProcessManager::GetInstance()
 
 bool ExitResidentProcessManager::IsMemorySizeSufficent() const
 {
-    std::lock_guard<ffrt::mutex> lock(mutexLock_);
+    std::lock_guard lock(mutexLock_);
     return currentMemorySizeState_ == MemorySizeState::MEMORY_SIZE_SUFFICENT;
 }
 
 bool ExitResidentProcessManager::RecordExitResidentBundleName(const std::string &bundleName)
 {
-    std::lock_guard<ffrt::mutex> lock(mutexLock_);
+    std::lock_guard lock(mutexLock_);
     if (currentMemorySizeState_ == MemorySizeState::MEMORY_SIZE_SUFFICENT) {
         return false;
     }
@@ -55,7 +55,7 @@ bool ExitResidentProcessManager::RecordExitResidentBundleName(const std::string 
 
 int32_t ExitResidentProcessManager::HandleMemorySizeInSufficent()
 {
-    std::lock_guard<ffrt::mutex> lock(mutexLock_);
+    std::lock_guard lock(mutexLock_);
     if (currentMemorySizeState_ != MemorySizeState::MEMORY_SIZE_SUFFICENT) {
         TAG_LOGE(AAFwkTag::APPMGR, "memory size is insufficent");
         return AAFwk::ERR_NATIVE_MEMORY_SIZE_STATE_UNCHANGED;
@@ -66,7 +66,7 @@ int32_t ExitResidentProcessManager::HandleMemorySizeInSufficent()
 
 int32_t ExitResidentProcessManager::HandleMemorySizeSufficent(std::vector<std::string>& bundleNames)
 {
-    std::lock_guard<ffrt::mutex> lock(mutexLock_);
+    std::lock_guard lock(mutexLock_);
     if (currentMemorySizeState_ == MemorySizeState::MEMORY_SIZE_SUFFICENT) {
         TAG_LOGE(AAFwkTag::APPMGR, "memory size is sufficent");
         return AAFwk::ERR_NATIVE_MEMORY_SIZE_STATE_UNCHANGED;

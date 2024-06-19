@@ -19,7 +19,6 @@
 #include <map>
 #include <mutex>
 #include <vector>
-#include "cpp/mutex.h"
 
 #include "free_install_observer_interface.h"
 #include "singleton.h"
@@ -45,7 +44,7 @@ private:
     void HandleOnInstallFinished(const std::string &bundleName, const std::string &abilityName,
         const std::string &startTime, const int &resultCode);
 
-    ffrt::mutex observerLock_;
+    std::mutex observerLock_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_;
     std::vector<sptr<IFreeInstallObserver>> observerList_;
 };

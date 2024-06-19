@@ -19,9 +19,9 @@
 #include <list>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <queue>
 #include <unordered_map>
-#include "cpp/mutex.h"
 
 #include "ability_manager_constants.h"
 #include "ability_record.h"
@@ -429,7 +429,7 @@ private:
     int StartWithPersistentIdByDistributed(const AbilityRequest &abilityRequest, int32_t persistentId);
 
     int32_t userId_ = -1;
-    mutable ffrt::mutex sessionLock_;
+    mutable std::mutex sessionLock_;
     std::unordered_map<int32_t, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
     std::unordered_map<int64_t, std::shared_ptr<AbilityRecord>> tmpAbilityMap_;
     std::list<std::shared_ptr<AbilityRecord>> terminateAbilityList_;
@@ -439,7 +439,7 @@ private:
     std::map<int32_t, AbilityRequest> specifiedRequestMap_;
     std::queue<SpecifiedInfo> specifiedInfoQueue_;
     sptr<ISessionHandler> handler_;
-    ffrt::mutex statusBarDelegateManagerLock_;
+    std::mutex statusBarDelegateManagerLock_;
     std::shared_ptr<StatusBarDelegateManager> statusBarDelegateManager_;
 };
 }  // namespace AAFwk

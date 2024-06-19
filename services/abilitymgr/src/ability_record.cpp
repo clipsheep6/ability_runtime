@@ -1729,7 +1729,7 @@ std::shared_ptr<AbilityResult> AbilityRecord::GetResult() const
 void AbilityRecord::SendResult(bool isSandboxApp, uint32_t tokeId)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "ability:%{public}s.", abilityInfo_.name.c_str());
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(lock_);
     CHECK_POINTER(scheduler_);
     auto result = GetResult();
     CHECK_POINTER(result);
@@ -1827,7 +1827,7 @@ void AbilityRecord::SaveResultToCallers(const int resultCode, const Want *result
 
 void AbilityRecord::SaveResult(int resultCode, const Want *resultWant, std::shared_ptr<CallerRecord> caller)
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(lock_);
     std::shared_ptr<AbilityRecord> callerAbilityRecord = caller->GetCaller();
     if (callerAbilityRecord != nullptr) {
         Want* newWant = const_cast<Want*>(resultWant);
@@ -2390,7 +2390,7 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
                 mission->IsANRState());
         }
     }
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(lock_);
     CHECK_POINTER(scheduler_);
 
     auto object = remote.promote();
@@ -2436,7 +2436,7 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 
 void AbilityRecord::OnProcessDied()
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard guard(lock_);
     if (!IsSceneBoard() && scheduler_ != nullptr) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "OnProcessDied: '%{public}s', attached.", abilityInfo_.name.c_str());
         return;
@@ -3024,18 +3024,18 @@ void AbilityRecord::DumpClientInfo(std::vector<std::string> &info, const std::ve
     if (!isClient) {
         return;
     }
-    std::unique_lock<ffrt::mutex> lock(dumpLock_);
+    std::unique_lock lock(dumpLock_);
     scheduler_->DumpAbilityInfo(params, info);
 
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Dump begin wait.");
     isDumpTimeout_ = false;
     std::chrono::milliseconds timeout { DUMP_TIMEOUT_MULTIPLE };
-    if (dumpCondition_.wait_for(lock, timeout) == ffrt::cv_status::timeout) {
+    if (dumpCondition_.wait_for(lock, timeout) == std::cv_status::timeout) {
         isDumpTimeout_ = true;
     }
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Dump done and begin parse.");
     if (!isDumpTimeout_) {
-        std::lock_guard<ffrt::mutex> infoLock(dumpInfoLock_);
+        std::lock_guard infoLock(dumpInfoLock_);
         for (auto one : dumpInfos_) {
             info.emplace_back(one);
         }
@@ -3059,7 +3059,7 @@ void AbilityRecord::DumpAbilityInfoDone(std::vector<std::string> &infos)
         return;
     }
     {
-        std::lock_guard<ffrt::mutex> infoLock(dumpInfoLock_);
+        std::lock_guard infoLock(dumpInfoLock_);
         dumpInfos_.clear();
         for (auto info : infos) {
             dumpInfos_.emplace_back(info);

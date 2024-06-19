@@ -93,7 +93,7 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
     }
     FreeInstallInfo info = BuildFreeInstallInfo(want, userId, requestCode, callerToken, isAsync);
     {
-        std::lock_guard<ffrt::mutex> lock(freeInstallListLock_);
+        std::lock_guard lock(freeInstallListLock_);
         freeInstallList_.push_back(info);
     }
     sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this(), isAsync);
@@ -140,7 +140,7 @@ int FreeInstallManager::RemoteFreeInstall(const Want &want, int32_t userId, int 
     }
     FreeInstallInfo info = BuildFreeInstallInfo(want, userId, requestCode, callerToken, false);
     {
-        std::lock_guard<ffrt::mutex> lock(freeInstallListLock_);
+        std::lock_guard lock(freeInstallListLock_);
         freeInstallList_.push_back(info);
     }
     sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this(), false);
@@ -203,7 +203,7 @@ int FreeInstallManager::StartRemoteFreeInstall(const Want &want, int requestCode
 int FreeInstallManager::NotifyDmsCallback(const Want &want, int resultCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::lock_guard<ffrt::mutex> autoLock(distributedFreeInstallLock_);
+    std::lock_guard autoLock(distributedFreeInstallLock_);
     if (dmsFreeInstallCbs_.empty()) {
         TAG_LOGE(AAFwkTag::FREE_INSTALL, "Has no dms callback.");
         return ERR_INVALID_VALUE;
@@ -250,7 +250,7 @@ int FreeInstallManager::NotifyDmsCallback(const Want &want, int resultCode)
 void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCode, bool isAsync)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::lock_guard<ffrt::mutex> lock(freeInstallListLock_);
+    std::lock_guard lock(freeInstallListLock_);
     if (freeInstallList_.empty()) {
         TAG_LOGI(AAFwkTag::FREE_INSTALL, "Has no app callback.");
         return;
@@ -346,7 +346,7 @@ int FreeInstallManager::FreeInstallAbilityFromRemote(const Want &want, const spt
     };
 
     {
-        std::lock_guard<ffrt::mutex> autoLock(distributedFreeInstallLock_);
+        std::lock_guard autoLock(distributedFreeInstallLock_);
         dmsFreeInstallCbs_.push_back(info);
     }
 
@@ -517,7 +517,7 @@ void FreeInstallManager::OnRemoveTimeoutTask(const Want &want)
 void FreeInstallManager::RemoveFreeInstallInfo(const std::string &bundleName, const std::string &abilityName,
     const std::string &startTime)
 {
-    std::lock_guard<ffrt::mutex> lock(freeInstallListLock_);
+    std::lock_guard lock(freeInstallListLock_);
     for (auto it = freeInstallList_.begin(); it != freeInstallList_.end();) {
         if ((*it).want.GetElement().GetBundleName() == bundleName &&
             (*it).want.GetElement().GetAbilityName() == abilityName &&

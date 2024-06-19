@@ -2979,7 +2979,7 @@ bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningR
 void AppMgrServiceInner::SendReStartProcessEvent(AAFwk::EventInfo &eventInfo, int32_t appUid)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
-    std::lock_guard<ffrt::mutex> lock(killpedProcessMapLock_);
+    std::lock_guard lock(killpedProcessMapLock_);
     int64_t restartTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
         system_clock::now().time_since_epoch()).count();
     for (auto iter = killedPorcessMap_.begin(); iter != killedPorcessMap_.end();) {
@@ -3811,7 +3811,7 @@ int AppMgrServiceInner::FinishUserTestLocked(
         return ERR_INVALID_VALUE;
     }
 
-    std::lock_guard<ffrt::mutex> lock(userTestLock_);
+    std::lock_guard lock(userTestLock_);
     auto userTestRecord = appRecord->GetUserTestInfo();
     if (!userTestRecord) {
         TAG_LOGD(AAFwkTag::APPMGR, "not start user test");
@@ -4056,7 +4056,7 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
         return result;
     }
     // notify
-    std::lock_guard<ffrt::mutex> notifyLock(configurationObserverLock_);
+    std::lock_guard notifyLock(configurationObserverLock_);
     for (auto &observer : configurationObservers_) {
         if (observer != nullptr) {
             observer->OnConfigurationUpdated(config);
@@ -4104,7 +4104,7 @@ int32_t AppMgrServiceInner::RegisterConfigurationObserver(const sptr<IConfigurat
         TAG_LOGE(AAFwkTag::APPMGR, "AppMgrServiceInner::Register error: observer is null");
         return ERR_INVALID_VALUE;
     }
-    std::lock_guard<ffrt::mutex> registerLock(configurationObserverLock_);
+    std::lock_guard registerLock(configurationObserverLock_);
     auto it = std::find_if(configurationObservers_.begin(), configurationObservers_.end(),
         [&observer](const sptr<IConfigurationObserver> &item) {
             return (item && item->AsObject() == observer->AsObject());
@@ -4124,7 +4124,7 @@ int32_t AppMgrServiceInner::UnregisterConfigurationObserver(const sptr<IConfigur
         TAG_LOGE(AAFwkTag::APPMGR, "AppMgrServiceInner::Register error: observer is null");
         return ERR_INVALID_VALUE;
     }
-    std::lock_guard<ffrt::mutex> unregisterLock(configurationObserverLock_);
+    std::lock_guard unregisterLock(configurationObserverLock_);
     auto it = std::find_if(configurationObservers_.begin(), configurationObservers_.end(),
         [&observer](const sptr<IConfigurationObserver> &item) {
             return (item && item->AsObject() == observer->AsObject());
@@ -4644,7 +4644,7 @@ void AppMgrServiceInner::AttachRenderProcess(const pid_t pid, const sptr<IRender
 
 void AppMgrServiceInner::SaveBrowserChannel(const pid_t hostPid, sptr<IRemoteObject> browser)
 {
-    std::lock_guard<ffrt::mutex> lock(browserHostLock_);
+    std::lock_guard lock(browserHostLock_);
     TAG_LOGD(AAFwkTag::APPMGR, "save browser channel.");
     auto appRecord = GetAppRunningRecordByPid(hostPid);
     if (!appRecord) {
@@ -4657,7 +4657,7 @@ void AppMgrServiceInner::SaveBrowserChannel(const pid_t hostPid, sptr<IRemoteObj
 
 bool AppMgrServiceInner::GenerateRenderUid(int32_t &renderUid)
 {
-    std::lock_guard<ffrt::mutex> lock(renderUidSetLock_);
+    std::lock_guard lock(renderUidSetLock_);
     int32_t uid = lastRenderUid_ + 1;
     bool needSecondScan = true;
     if (uid > Constants::END_UID_FOR_RENDER_PROCESS) {
@@ -4731,7 +4731,7 @@ int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecor
     ErrCode errCode = nwebSpawnClient->StartProcess(startMsg, pid);
     if (FAILED(errCode)) {
         TAG_LOGE(AAFwkTag::APPMGR, "failed to spawn new render process, errCode %{public}08x", errCode);
-        std::lock_guard<ffrt::mutex> lock(renderUidSetLock_);
+        std::lock_guard lock(renderUidSetLock_);
         renderUidSet_.erase(renderUid);
         return ERR_INVALID_VALUE;
     }
@@ -4782,7 +4782,7 @@ void AppMgrServiceInner::OnRenderRemoteDied(const wptr<IRemoteObject> &remote)
         auto renderRecord = appRunningManager_->OnRemoteRenderDied(remote);
         if (renderRecord) {
             {
-                std::lock_guard<ffrt::mutex> lock(renderUidSetLock_);
+                std::lock_guard lock(renderUidSetLock_);
                 renderUidSet_.erase(renderRecord->GetUid());
             }
             DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessDied(renderRecord);
@@ -5778,7 +5778,7 @@ int32_t AppMgrServiceInner::SetAppWaitingDebug(const std::string &bundleName, bo
 
     bool isClear = false;
     {
-        std::lock_guard<ffrt::mutex> lock(waitingDebugLock_);
+        std::lock_guard lock(waitingDebugLock_);
         if (!waitingDebugBundleList_.empty()) {
             waitingDebugBundleList_.clear();
             isClear = true;
@@ -5789,7 +5789,7 @@ int32_t AppMgrServiceInner::SetAppWaitingDebug(const std::string &bundleName, bo
     }
 
     {
-        std::lock_guard<ffrt::mutex> lock(waitingDebugLock_);
+        std::lock_guard lock(waitingDebugLock_);
         waitingDebugBundleList_.try_emplace(bundleName, isPersist);
     }
     if (isPersist) {
@@ -5808,7 +5808,7 @@ int32_t AppMgrServiceInner::CancelAppWaitingDebug()
     }
 
     {
-        std::lock_guard<ffrt::mutex> lock(waitingDebugLock_);
+        std::lock_guard lock(waitingDebugLock_);
         waitingDebugBundleList_.clear();
     }
     return DelayedSingleton<AbilityRuntime::AppConfigDataManager>::GetInstance()->ClearAppWaitingDebugInfo();
@@ -5824,7 +5824,7 @@ int32_t AppMgrServiceInner::GetWaitingDebugApp(std::vector<std::string> &debugIn
 
     InitAppWaitingDebugList();
 
-    std::lock_guard<ffrt::mutex> lock(waitingDebugLock_);
+    std::lock_guard lock(waitingDebugLock_);
     if (waitingDebugBundleList_.empty()) {
         TAG_LOGD(AAFwkTag::APPMGR, "The waiting debug bundle list is empty.");
         return ERR_OK;
@@ -5843,7 +5843,7 @@ void AppMgrServiceInner::InitAppWaitingDebugList()
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     {
-        std::lock_guard<ffrt::mutex> lock(waitingDebugLock_);
+        std::lock_guard lock(waitingDebugLock_);
         if (isInitAppWaitingDebugListExecuted_) {
             TAG_LOGD(AAFwkTag::APPMGR, "No need to initialize again.");
             return;
@@ -5854,7 +5854,7 @@ void AppMgrServiceInner::InitAppWaitingDebugList()
     std::vector<std::string> bundleNameList;
     DelayedSingleton<AbilityRuntime::AppConfigDataManager>::GetInstance()->GetAppWaitingDebugList(bundleNameList);
     if (!bundleNameList.empty()) {
-        std::lock_guard<ffrt::mutex> lock(waitingDebugLock_);
+        std::lock_guard lock(waitingDebugLock_);
         for (const auto &item : bundleNameList) {
             waitingDebugBundleList_.try_emplace(item, true);
         }
@@ -5872,7 +5872,7 @@ bool AppMgrServiceInner::IsWaitingDebugApp(const std::string &bundleName)
 
     InitAppWaitingDebugList();
 
-    std::lock_guard<ffrt::mutex> lock(waitingDebugLock_);
+    std::lock_guard lock(waitingDebugLock_);
     if (waitingDebugBundleList_.empty()) {
         TAG_LOGD(AAFwkTag::APPMGR, "The waiting debug bundle list is empty.");
         return false;
@@ -5897,7 +5897,7 @@ void AppMgrServiceInner::ClearNonPersistWaitingDebugFlag()
 
     bool isClear = false;
     {
-        std::lock_guard<ffrt::mutex> lock(waitingDebugLock_);
+        std::lock_guard lock(waitingDebugLock_);
         for (const auto &item : waitingDebugBundleList_) {
             if (!item.second) {
                 isClear = true;
@@ -6179,7 +6179,7 @@ int32_t AppMgrServiceInner::StartChildProcessImpl(const std::shared_ptr<ChildPro
     startMsg.procName = childProcessRecord->GetProcessName();
     pid_t pid = 0;
     {
-        std::lock_guard<ffrt::mutex> lock(startChildProcessLock_);
+        std::lock_guard lock(startChildProcessLock_);
         ErrCode errCode = spawnClient->StartProcess(startMsg, pid);
         if (FAILED(errCode)) {
             TAG_LOGE(AAFwkTag::APPMGR, "failed to spawn new child process, errCode %{public}08x", errCode);
@@ -6208,7 +6208,7 @@ int32_t AppMgrServiceInner::GetChildProcessInfoForSelf(ChildProcessInfo &info)
         TAG_LOGD(AAFwkTag::APPMGR, "record of callingPid is not child record.");
         return ERR_NAME_NOT_FOUND;
     }
-    std::lock_guard<ffrt::mutex> lock(startChildProcessLock_);
+    std::lock_guard lock(startChildProcessLock_);
     auto appRecord = appRunningManager_->GetAppRunningRecordByChildProcessPid(callingPid);
     if (!appRecord) {
         TAG_LOGW(AAFwkTag::APPMGR, "No such appRecord, childPid:%{public}d", callingPid);

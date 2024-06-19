@@ -535,7 +535,7 @@ private:
     void SendKeyEvent(const AbilityRequest &abilityRequest);
 
     int userId_;
-    mutable ffrt::mutex managerLock_;
+    mutable std::mutex managerLock_;
     // launcher list is also in currentMissionLists_
     std::list<std::shared_ptr<MissionList>> currentMissionLists_;
     // only manager the ability of standard in the default list

@@ -46,7 +46,7 @@ void SubManagersHelper::InitSubManagers(int userId, bool switchUser)
 
 void SubManagersHelper::InitConnectManager(int32_t userId, bool switchUser)
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     auto it = connectManagers_.find(userId);
     if (it != connectManagers_.end()) {
         if (switchUser) {
@@ -65,7 +65,7 @@ void SubManagersHelper::InitConnectManager(int32_t userId, bool switchUser)
 
 void SubManagersHelper::InitDataAbilityManager(int32_t userId, bool switchUser)
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     auto it = dataAbilityManagers_.find(userId);
     if (it != dataAbilityManagers_.end()) {
         if (switchUser) {
@@ -82,7 +82,7 @@ void SubManagersHelper::InitDataAbilityManager(int32_t userId, bool switchUser)
 
 void SubManagersHelper::InitPendWantManager(int32_t userId, bool switchUser)
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     auto it = pendingWantManagers_.find(userId);
     if (it != pendingWantManagers_.end()) {
         if (switchUser) {
@@ -99,7 +99,7 @@ void SubManagersHelper::InitPendWantManager(int32_t userId, bool switchUser)
 
 void SubManagersHelper::InitMissionListManager(int userId, bool switchUser)
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     auto it = missionListManagers_.find(userId);
     if (it != missionListManagers_.end()) {
         if (switchUser) {
@@ -118,7 +118,7 @@ void SubManagersHelper::InitMissionListManager(int userId, bool switchUser)
 
 void SubManagersHelper::InitUIAbilityManager(int userId, bool switchUser)
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     auto it = uiAbilityManagers_.find(userId);
     if (it != uiAbilityManagers_.end()) {
         if (switchUser) {
@@ -135,7 +135,7 @@ void SubManagersHelper::InitUIAbilityManager(int userId, bool switchUser)
 
 void SubManagersHelper::ClearSubManagers(int userId)
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         uiAbilityManagers_.erase(userId);
     } else {
@@ -148,7 +148,7 @@ void SubManagersHelper::ClearSubManagers(int userId)
 
 std::shared_ptr<DataAbilityManager> SubManagersHelper::GetCurrentDataAbilityManager()
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     return currentDataAbilityManager_;
 }
 
@@ -159,7 +159,7 @@ std::shared_ptr<DataAbilityManager> SubManagersHelper::GetDataAbilityManager(con
         return nullptr;
     }
 
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     for (auto& item: dataAbilityManagers_) {
         if (item.second && item.second->ContainsDataAbility(scheduler)) {
             return item.second;
@@ -170,7 +170,7 @@ std::shared_ptr<DataAbilityManager> SubManagersHelper::GetDataAbilityManager(con
 }
 std::shared_ptr<DataAbilityManager> SubManagersHelper::GetDataAbilityManagerByUserId(int32_t userId)
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     auto it = dataAbilityManagers_.find(userId);
     if (it != dataAbilityManagers_.end()) {
         return it->second;
@@ -181,7 +181,7 @@ std::shared_ptr<DataAbilityManager> SubManagersHelper::GetDataAbilityManagerByUs
 
 std::shared_ptr<DataAbilityManager> SubManagersHelper::GetDataAbilityManagerByToken(const sptr<IRemoteObject> &token)
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     for (auto& item: dataAbilityManagers_) {
         if (item.second && item.second->GetAbilityRecordByToken(token)) {
             return item.second;
@@ -193,19 +193,19 @@ std::shared_ptr<DataAbilityManager> SubManagersHelper::GetDataAbilityManagerByTo
 
 std::unordered_map<int, std::shared_ptr<AbilityConnectManager>> SubManagersHelper::GetConnectManagers()
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     return connectManagers_;
 }
 
 std::shared_ptr<AbilityConnectManager> SubManagersHelper::GetCurrentConnectManager()
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     return currentConnectManager_;
 }
 
 std::shared_ptr<AbilityConnectManager> SubManagersHelper::GetConnectManagerByUserId(int32_t userId)
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     auto it = connectManagers_.find(userId);
     if (it != connectManagers_.end()) {
         return it->second;
@@ -216,7 +216,7 @@ std::shared_ptr<AbilityConnectManager> SubManagersHelper::GetConnectManagerByUse
 
 std::shared_ptr<AbilityConnectManager> SubManagersHelper::GetConnectManagerByToken(const sptr<IRemoteObject> &token)
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     for (auto& item: connectManagers_) {
         if (item.second && item.second->GetExtensionByTokenFromServiceMap(token)) {
             return item.second;
@@ -231,13 +231,13 @@ std::shared_ptr<AbilityConnectManager> SubManagersHelper::GetConnectManagerByTok
 
 std::shared_ptr<PendingWantManager> SubManagersHelper::GetCurrentPendingWantManager()
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     return currentPendingWantManager_;
 }
 
 std::shared_ptr<PendingWantManager> SubManagersHelper::GetPendingWantManagerByUserId(int32_t userId)
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     auto it = pendingWantManagers_.find(userId);
     if (it != pendingWantManagers_.end()) {
         return it->second;
@@ -248,19 +248,19 @@ std::shared_ptr<PendingWantManager> SubManagersHelper::GetPendingWantManagerByUs
 
 std::unordered_map<int, std::shared_ptr<MissionListManager>> SubManagersHelper::GetMissionListManagers()
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     return missionListManagers_;
 }
 
 std::shared_ptr<MissionListManager> SubManagersHelper::GetCurrentMissionListManager()
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     return currentMissionListManager_;
 }
 
 std::shared_ptr<MissionListManager> SubManagersHelper::GetMissionListManagerByUserId(int32_t userId)
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     auto it = missionListManagers_.find(userId);
     if (it != missionListManagers_.end()) {
         return it->second;
@@ -277,7 +277,7 @@ std::shared_ptr<MissionListManager> SubManagersHelper::GetMissionListManagerByUi
         return nullptr;
     }
     if (userId == U0_USER_ID) {
-        std::lock_guard<ffrt::mutex> lock(managersMutex_);
+        std::lock_guard lock(managersMutex_);
         return currentMissionListManager_;
     }
     return GetMissionListManagerByUserId(userId);
@@ -285,19 +285,19 @@ std::shared_ptr<MissionListManager> SubManagersHelper::GetMissionListManagerByUi
 
 std::unordered_map<int, std::shared_ptr<UIAbilityLifecycleManager>> SubManagersHelper::GetUIAbilityManagers()
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     return uiAbilityManagers_;
 }
 
 std::shared_ptr<UIAbilityLifecycleManager> SubManagersHelper::GetCurrentUIAbilityManager()
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     return currentUIAbilityManager_;
 }
 
 std::shared_ptr<UIAbilityLifecycleManager> SubManagersHelper::GetUIAbilityManagerByUserId(int32_t userId)
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     auto it = uiAbilityManagers_.find(userId);
     if (it != uiAbilityManagers_.end()) {
         return it->second;
@@ -314,7 +314,7 @@ std::shared_ptr<UIAbilityLifecycleManager> SubManagersHelper::GetUIAbilityManage
         return nullptr;
     }
     if (userId == U0_USER_ID) {
-        std::lock_guard<ffrt::mutex> lock(managersMutex_);
+        std::lock_guard lock(managersMutex_);
         return currentUIAbilityManager_;
     }
     return GetUIAbilityManagerByUserId(userId);
@@ -377,7 +377,7 @@ bool SubManagersHelper::VerificationAllToken(const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "VerificationAllToken.");
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    std::lock_guard lock(managersMutex_);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         for (auto& item: uiAbilityManagers_) {
             if (item.second && item.second->IsContainsAbility(token)) {

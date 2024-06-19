@@ -37,7 +37,7 @@ int32_t AbilityFirstFrameStateObserverSet::AddAbilityFirstFrameStateObserver(
         return ERR_INVALID_VALUE;
     }
     {
-        std::lock_guard<ffrt::mutex> lockRegister(observerLock_);
+        std::lock_guard lockRegister(observerLock_);
         for (auto it : observerMap_) {
             if (it.first->AsObject() == observer->AsObject()) {
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "Observer exist.");
@@ -89,7 +89,7 @@ void AbilityFirstFrameStateObserverSet::AddObserverDeathRecipient(const sptr<IRe
 int32_t AbilityFirstFrameStateObserverSet::RemoveAbilityFirstFrameStateObserver(
     const sptr<IAbilityFirstFrameStateObserver> &observer)
 {
-    std::lock_guard<ffrt::mutex> lockRegister(observerLock_);
+    std::lock_guard lockRegister(observerLock_);
     for (auto it = observerMap_.begin(); it != observerMap_.end(); ++it) {
         if (it->first->AsObject() == observer->AsObject()) {
             observerMap_.erase(it);
@@ -129,7 +129,7 @@ void AbilityFirstFrameStateObserverSet::OnAbilityFirstFrameState(const std::shar
     abilityFirstFrameStateData.abilityName = abilityInfo.name;
     abilityFirstFrameStateData.appIndex = abilityRecord->GetAppIndex();
     abilityFirstFrameStateData.coldStart = abilityRecord->GetColdStartFlag();
-    std::lock_guard<ffrt::mutex> lockRegister(observerLock_);
+    std::lock_guard lockRegister(observerLock_);
     for (auto it : observerMap_) {
         if (!isNotifyAllBundles_) {
             if (it.second == abilityInfo.bundleName) {

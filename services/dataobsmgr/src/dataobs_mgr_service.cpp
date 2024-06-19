@@ -159,7 +159,7 @@ int DataObsMgrService::NotifyChange(const Uri &uri)
     }
 
     {
-        std::lock_guard<ffrt::mutex> lck(taskCountMutex_);
+        std::lock_guard lck(taskCountMutex_);
         if (taskCount_ >= TASK_COUNT_MAX) {
             TAG_LOGE(AAFwkTag::DBOBSMGR, "The number of task has reached the upper limit, uri:%{public}s",
                 CommonUtils::Anonymous(uri.ToString()).c_str());
@@ -176,7 +176,7 @@ int DataObsMgrService::NotifyChange(const Uri &uri)
             dataObsMgrInner_->HandleNotifyChange(uri);
             dataObsMgrInnerExt_->HandleNotifyChange(changeInfo);
         }
-        std::lock_guard<ffrt::mutex> lck(taskCountMutex_);
+        std::lock_guard lck(taskCountMutex_);
         --taskCount_;
     });
 
@@ -278,7 +278,7 @@ Status DataObsMgrService::NotifyChangeExt(const ChangeInfo &changeInfo)
     }
 
     {
-        std::lock_guard<ffrt::mutex> lck(taskCountMutex_);
+        std::lock_guard lck(taskCountMutex_);
         if (taskCount_ >= TASK_COUNT_MAX) {
             TAG_LOGE(AAFwkTag::DBOBSMGR,
                 "The number of task has reached the upper limit, changeType:%{public}ud, num of "
@@ -295,7 +295,7 @@ Status DataObsMgrService::NotifyChangeExt(const ChangeInfo &changeInfo)
             dataObsMgrInner_->HandleNotifyChange(uri);
         }
         delete [] static_cast<uint8_t *>(changes.data_);
-        std::lock_guard<ffrt::mutex> lck(taskCountMutex_);
+        std::lock_guard lck(taskCountMutex_);
         --taskCount_;
     });
     return SUCCESS;

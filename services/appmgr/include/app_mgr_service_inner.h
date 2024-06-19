@@ -18,6 +18,7 @@
 
 #include <list>
 #include <map>
+#include <mutex>
 #include <regex>
 #include <unordered_map>
 #include <unordered_set>
@@ -47,7 +48,6 @@
 #include "bundle_info.h"
 #include "bundle_mgr_helper.h"
 #include "child_process_info.h"
-#include "cpp/mutex.h"
 #include "event_report.h"
 #include "fault_data.h"
 #include "hisysevent.h"
@@ -1513,13 +1513,13 @@ private:
     std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
     std::shared_ptr<AMSEventHandler> eventHandler_;
     std::shared_ptr<Configuration> configuration_;
-    ffrt::mutex userTestLock_;
-    ffrt::mutex appStateCallbacksLock_;
-    ffrt::mutex renderUidSetLock_;
-    ffrt::mutex exceptionLock_;
-    ffrt::mutex browserHostLock_;
+    std::mutex userTestLock_;
+    std::mutex appStateCallbacksLock_;
+    std::mutex renderUidSetLock_;
+    std::mutex exceptionLock_;
+    std::mutex browserHostLock_;
     sptr<IStartSpecifiedAbilityResponse> startSpecifiedAbilityResponse_;
-    ffrt::mutex configurationObserverLock_;
+    std::mutex configurationObserverLock_;
     std::vector<sptr<IConfigurationObserver>> configurationObservers_;
 #ifdef SUPPORT_SCREEN
     sptr<WindowFocusChangedListener> focusListener_;
@@ -1528,7 +1528,7 @@ private:
     std::vector<std::shared_ptr<AppRunningRecord>> restartResedentTaskList_;
     std::map<std::string, std::vector<BaseSharedBundleInfo>> runningSharedBundleList_;
     std::map<std::string, bool> waitingDebugBundleList_;
-    ffrt::mutex waitingDebugLock_;
+    std::mutex waitingDebugLock_;
     bool isInitAppWaitingDebugListExecuted_ = false;
     std::unordered_set<int32_t> renderUidSet_;
     std::string supportIsolationMode_ {"false"};
@@ -1537,9 +1537,9 @@ private:
     int32_t lastRenderUid_ = Constants::START_UID_FOR_RENDER_PROCESS;
     sptr<IAbilityDebugResponse> abilityDebugResponse_;
     std::shared_ptr<AppDebugManager> appDebugManager_;
-    ffrt::mutex killpedProcessMapLock_;
+    std::mutex killpedProcessMapLock_;
     mutable std::map<int64_t, std::string> killedPorcessMap_;
-    ffrt::mutex startChildProcessLock_;
+    std::mutex startChildProcessLock_;
     std::shared_ptr<AbilityRuntime::AppRunningStatusModule> appRunningStatusModule_;
     std::vector<std::string> serviceExtensionWhiteList_;
     std::shared_ptr<AdvancedSecurityModeManager> securityModeManager_;

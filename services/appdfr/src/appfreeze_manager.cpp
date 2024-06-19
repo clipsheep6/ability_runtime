@@ -55,9 +55,9 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
 const std::string LOG_FILE_PATH = "data/log/eventlog";
 }
 std::shared_ptr<AppfreezeManager> AppfreezeManager::instance_ = nullptr;
-ffrt::mutex AppfreezeManager::singletonMutex_;
-ffrt::mutex AppfreezeManager::freezeMutex_;
-ffrt::mutex AppfreezeManager::catchStackMutex_;
+std::mutex AppfreezeManager::singletonMutex_;
+std::mutex AppfreezeManager::freezeMutex_;
+std::mutex AppfreezeManager::catchStackMutex_;
 std::map<int, std::string> AppfreezeManager::catchStackMap_;
 
 AppfreezeManager::AppfreezeManager()
@@ -72,7 +72,7 @@ AppfreezeManager::~AppfreezeManager()
 std::shared_ptr<AppfreezeManager> AppfreezeManager::GetInstance()
 {
     if (instance_ == nullptr) {
-        std::lock_guard<ffrt::mutex> lock(singletonMutex_);
+        std::lock_guard lock(singletonMutex_);
         if (instance_ == nullptr) {
             instance_ = std::make_shared<AppfreezeManager>();
         }
@@ -82,7 +82,7 @@ std::shared_ptr<AppfreezeManager> AppfreezeManager::GetInstance()
 
 void AppfreezeManager::DestroyInstance()
 {
-    std::lock_guard<ffrt::mutex> lock(singletonMutex_);
+    std::lock_guard lock(singletonMutex_);
     if (instance_ != nullptr) {
         instance_.reset();
         instance_ = nullptr;
@@ -384,7 +384,7 @@ void AppfreezeManager::ParseBinderPids(const std::map<int, std::set<int>>& binde
 
 void AppfreezeManager::DeleteStack(int pid)
 {
-    std::lock_guard<ffrt::mutex> lock(catchStackMutex_);
+    std::lock_guard lock(catchStackMutex_);
     auto it = catchStackMap_.find(pid);
     if (it != catchStackMap_.end()) {
         catchStackMap_.erase(it);
@@ -393,7 +393,7 @@ void AppfreezeManager::DeleteStack(int pid)
 
 void AppfreezeManager::FindStackByPid(std::string& ret, int pid, const std::string& msg) const
 {
-    std::lock_guard<ffrt::mutex> lock(catchStackMutex_);
+    std::lock_guard lock(catchStackMutex_);
     auto it = catchStackMap_.find(pid);
     if (it != catchStackMap_.end()) {
         ret = it->second;
@@ -414,7 +414,7 @@ std::string AppfreezeManager::CatchJsonStacktrace(int pid, const std::string& fa
     } else {
         ret = msg;
         if (faultType == AppFreezeType::THREAD_BLOCK_3S) {
-            std::lock_guard<ffrt::mutex> lock(catchStackMutex_);
+            std::lock_guard lock(catchStackMutex_);
             catchStackMap_[pid] = msg;
         }
     }
@@ -471,7 +471,7 @@ int64_t AppfreezeManager::GetFreezeCurrentTime()
 
 void AppfreezeManager::SetFreezeState(int32_t pid, int state)
 {
-    std::lock_guard<ffrt::mutex> lock(freezeMutex_);
+    std::lock_guard lock(freezeMutex_);
     if (appfreezeInfo_.find(pid) != appfreezeInfo_.end()) {
         appfreezeInfo_[pid].state = state;
         appfreezeInfo_[pid].occurTime = GetFreezeCurrentTime();
@@ -486,7 +486,7 @@ void AppfreezeManager::SetFreezeState(int32_t pid, int state)
 
 int AppfreezeManager::GetFreezeState(int32_t pid)
 {
-    std::lock_guard<ffrt::mutex> lock(freezeMutex_);
+    std::lock_guard lock(freezeMutex_);
     auto it = appfreezeInfo_.find(pid);
     if (it != appfreezeInfo_.end()) {
         return it->second.state;
@@ -496,7 +496,7 @@ int AppfreezeManager::GetFreezeState(int32_t pid)
 
 int64_t AppfreezeManager::GetFreezeTime(int32_t pid)
 {
-    std::lock_guard<ffrt::mutex> lock(freezeMutex_);
+    std::lock_guard lock(freezeMutex_);
     auto it = appfreezeInfo_.find(pid);
     if (it != appfreezeInfo_.end()) {
         return it->second.occurTime;
@@ -506,7 +506,7 @@ int64_t AppfreezeManager::GetFreezeTime(int32_t pid)
 
 void AppfreezeManager::ClearOldInfo()
 {
-    std::lock_guard<ffrt::mutex> lock(freezeMutex_);
+    std::lock_guard lock(freezeMutex_);
     int64_t currentTime = GetFreezeCurrentTime();
     for (auto it = appfreezeInfo_.begin(); it != appfreezeInfo_.end();) {
         auto diff = currentTime - it->second.occurTime;
