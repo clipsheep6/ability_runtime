@@ -94,8 +94,9 @@ config("ability_public_config") {
     "${ability_runtime_services_path}/common/include",
   ]
 
+  external_deps = []
   if (ability_runtime_graphics) {
-    external_deps = [
+    external_deps += [
       "form_fwk:form_manager",
       "form_fwk:fmskit_native",
       "form_fwk:fmskit_provider_client",
