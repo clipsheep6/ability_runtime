@@ -1143,17 +1143,17 @@ void UIAbility::SetSessionToken(sptr<IRemoteObject> sessionToken)
 {
     std::lock_guard lock(sessionTokenMutex_);
     sessionToken_ = sessionToken;
-}
-
-void UIAbility::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
-{
-    SetSessionToken(sessionToken);
     auto abilityContextImpl = GetAbilityContext();
     if (abilityContextImpl == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "abilityContext is nullptr");
         return;
     }
     abilityContextImpl->SetWeakSessionToken(sessionToken);
+}
+
+void UIAbility::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
+{
+    SetSessionToken(sessionToken);
 }
 
 void UIAbility::EraseUIExtension(int32_t sessionId)

@@ -990,7 +990,8 @@ public:
      * @param state the mission continuation state of this ability.
      * @return Returns ERR_OK if success.
      */
-    ErrCode SetMissionContinueState(sptr<IRemoteObject> token, const AAFwk::ContinueState &state);
+    ErrCode SetMissionContinueState(sptr<IRemoteObject> token, const AAFwk::ContinueState &state,
+        sptr<IRemoteObject> sessionToken);
 
 #ifdef SUPPORT_SCREEN
     /**

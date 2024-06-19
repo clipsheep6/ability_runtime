@@ -1248,7 +1248,7 @@ ErrCode AbilityManagerClient::DelegatorDoAbilityBackground(sptr<IRemoteObject> t
 }
 
 ErrCode AbilityManagerClient::SetMissionContinueState(sptr<IRemoteObject> token,
-    const AAFwk::ContinueState &state)
+    const AAFwk::ContinueState &state, sptr<IRemoteObject> sessionToken)
 {
 #ifdef SUPPORT_SCREEN
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -1257,7 +1257,7 @@ ErrCode AbilityManagerClient::SetMissionContinueState(sptr<IRemoteObject> token,
         TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
         uint32_t value = static_cast<uint32_t>(state);
         Rosen::ContinueState continueState = static_cast<Rosen::ContinueState>(value);
-        auto err = sceneSessionManager->SetSessionContinueState(token, continueState);
+        auto err = sceneSessionManager->SetSessionContinueState(sessionToken, continueState);
         return static_cast<int>(err);
     }
 #endif //SUPPORT_SCREEN
