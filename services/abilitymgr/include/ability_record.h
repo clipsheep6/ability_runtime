@@ -41,6 +41,7 @@
 #include "ui_extension_window_command.h"
 #include "uri.h"
 #include "want.h"
+#include "iability_manager_collaborator.h"
 #ifdef SUPPORT_GRAPHICS
 #include "ability_window_configuration.h"
 #include "resource_manager.h"
@@ -673,7 +674,7 @@ public:
      *
      */
     void RemoveSpecifiedWantParam(const std::string &key);
-    
+
     /**
      * get request code of the ability to start.
      *
@@ -1101,6 +1102,7 @@ private:
         const AbilityRequest &abilityRequest);
     void InitColdStartingWindowResource(const std::shared_ptr<Global::Resource::ResourceManager> &resourceMgr);
     void GetColdStartingWindowResource(std::shared_ptr<Media::PixelMap> &bg, uint32_t &bgColor);
+    void NotifyCollaboratorByState(sptr<IAbilityManagerCollaborator> collaborator, AbilityState state, int &ret);
     void SetAbilityStateInner(AbilityState state);
 #endif
 

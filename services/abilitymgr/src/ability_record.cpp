@@ -1338,7 +1338,29 @@ void AbilityRecord::UpdateAbilityVisibilityState()
         SetAbilityVisibilityState(state);
     }
 }
+
 #ifdef SUPPORT_SCREEN
+void AbilityRecord::NotifyCollaboratorByState(sptr<IAbilityManagerCollaborator> collaborator,
+    AbilityState state, int &ret)
+{
+    switch (state) {
+        case AbilityState::FOREGROUNDING: {
+            ret = collaborator->NotifyMoveMissionToForeground(missionId_);
+            break;
+        }
+        case AbilityState::BACKGROUNDING: {
+            ret = collaborator->NotifyMoveMissionToBackground(missionId_);
+            break;
+        }
+        case AbilityState::TERMINATING: {
+            ret = collaborator->NotifyTerminateMission(missionId_);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
 void AbilityRecord::SetAbilityStateInner(AbilityState state)
 {
     currentState_ = state;
@@ -1346,11 +1368,10 @@ void AbilityRecord::SetAbilityStateInner(AbilityState state)
         isAbilityForegrounding_ = false;
     }
 
-    auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
-        collaboratorType_);
+    auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(collaboratorType_);
     if (collaborator != nullptr) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "start notify collaborator, missionId:%{public}d, state:%{public}d", missionId_,
-            static_cast<int32_t>(state));
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "start notify collaborator, missionId:%{public}d, state:%{public}d",
+            missionId_, static_cast<int32_t>(state));
         int ret = ERR_OK;
         if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
             auto sessionInfo = GetSessionInfo();
@@ -1376,22 +1397,7 @@ void AbilityRecord::SetAbilityStateInner(AbilityState state)
             }
             return;
         }
-        switch (state) {
-            case AbilityState::FOREGROUNDING: {
-                ret = collaborator->NotifyMoveMissionToForeground(missionId_);
-                break;
-            }
-            case AbilityState::BACKGROUNDING: {
-                ret = collaborator->NotifyMoveMissionToBackground(missionId_);
-                break;
-            }
-            case AbilityState::TERMINATING: {
-                ret = collaborator->NotifyTerminateMission(missionId_);
-                break;
-            }
-            default:
-                break;
-        }
+        NotifyCollaboratorByState(collaborator, state, ret);
         if (ret != ERR_OK) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "notify broker move mission to background failed, err: %{public}d", ret);
         }
@@ -2155,58 +2161,47 @@ int AbilityRecord::ConvertLifeCycleToAbilityState(const AbilityLifeCycleState &s
 
 void AbilityRecord::Dump(std::vector<std::string> &info)
 {
-    std::string dumpInfo = "      AbilityRecord ID #" + std::to_string(recordId_);
-    info.push_back(dumpInfo);
-    dumpInfo = "        app name [" + GetAbilityInfo().applicationName + "]";
-    info.push_back(dumpInfo);
-    dumpInfo = "        main name [" + GetAbilityInfo().name + "]";
-    info.push_back(dumpInfo);
-    dumpInfo = "        bundle name [" + GetAbilityInfo().bundleName + "]";
-    info.push_back(dumpInfo);
+    info.push_back("      AbilityRecord ID #" + std::to_string(recordId_));
+    info.push_back("        app name [" + GetAbilityInfo().applicationName + "]");
+    info.push_back("        main name [" + GetAbilityInfo().name + "]");
+    info.push_back("        bundle name [" + GetAbilityInfo().bundleName + "]");
     std::string isKeepAlive = GetKeepAlive() ? "true" : "false";
-    dumpInfo = "        isKeepAlive: " + isKeepAlive;
-    info.push_back(dumpInfo);
+    info.push_back("        isKeepAlive: " + isKeepAlive);
+
     // get ability type(unknown/page/service/provider)
     std::string typeStr;
     GetAbilityTypeString(typeStr);
-    dumpInfo = "        ability type [" + typeStr + "]";
-    info.push_back(dumpInfo);
+    info.push_back("        ability type [" + typeStr + "]");
+
+    std::string dumpInfo;
     std::shared_ptr<AbilityRecord> preAbility = GetPreAbilityRecord();
     if (preAbility == nullptr) {
-        dumpInfo = "        previous ability app name [NULL]";
-        dumpInfo.append("\n");
+        dumpInfo = "        previous ability app name [NULL]\n";
         dumpInfo += "        previous ability file name [NULL]";
     } else {
-        dumpInfo =
-            "        previous ability app name [" + preAbility->GetAbilityInfo().applicationName + "]";
-        dumpInfo.append("\n");
+        dumpInfo = "        previous ability app name [" + preAbility->GetAbilityInfo().applicationName + "]\n";
         dumpInfo += "        previous ability file name [" + preAbility->GetAbilityInfo().name + "]";
     }
     info.push_back(dumpInfo);
+
     std::shared_ptr<AbilityRecord> nextAbility = GetNextAbilityRecord();
     if (nextAbility == nullptr) {
-        dumpInfo = "        next ability app name [NULL]";
-        dumpInfo.append("\n");
+        dumpInfo = "        next ability app name [NULL]\n";
         dumpInfo += "        next ability file name [NULL]";
     } else {
-        dumpInfo =
-            "        next ability app name [" + nextAbility->GetAbilityInfo().applicationName + "]";
-        dumpInfo.append("\n");
+        dumpInfo = "        next ability app name [" + nextAbility->GetAbilityInfo().applicationName + "]\n";
         dumpInfo += "        next ability main name [" + nextAbility->GetAbilityInfo().name + "]";
     }
     info.push_back(dumpInfo);
-    dumpInfo = "        state #" + AbilityRecord::ConvertAbilityState(GetAbilityState()) + "  start time [" +
-               std::to_string(startTime_) + "]";
-    info.push_back(dumpInfo);
-    dumpInfo = "        app state #" + AbilityRecord::ConvertAppState(appState_);
-    info.push_back(dumpInfo);
-    dumpInfo = "        ready #" + std::to_string(isReady_) + "  window attached #" +
-               std::to_string(isWindowAttached_) + "  launcher #" + std::to_string(isLauncherAbility_);
-    info.push_back(dumpInfo);
+
+    info.push_back("        state #" + AbilityRecord::ConvertAbilityState(GetAbilityState()) + "  start time [" +
+        std::to_string(startTime_) + "]");
+    info.push_back("        app state #" + AbilityRecord::ConvertAppState(appState_));
+    info.push_back("        ready #" + std::to_string(isReady_) + "  window attached #" +
+        std::to_string(isWindowAttached_) + "  launcher #" + std::to_string(isLauncherAbility_));
 
     if (isLauncherRoot_) {
-        dumpInfo = "        can restart num #" + std::to_string(restartCount_);
-        info.push_back(dumpInfo);
+        info.push_back("        can restart num #" + std::to_string(restartCount_));
     }
 }
 

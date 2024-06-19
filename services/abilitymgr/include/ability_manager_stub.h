@@ -71,6 +71,10 @@ private:
     void ThirdStepInit();
     void FourthStepInit();
     void FifthStepInit();
+    void SixthStepInit();
+    void SeventhStepInit();
+    void EighthStepInit();
+    void NinthStepInit();
     int TerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
     int TerminateUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
     int CloseUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
