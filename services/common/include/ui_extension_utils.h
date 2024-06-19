@@ -124,7 +124,8 @@ inline bool IsPublicCallerForNonModal(const AppExecFwk::ExtensionAbilityType typ
 {
     const std::unordered_set<AppExecFwk::ExtensionAbilityType> callerPublicForNonModalSet = {
         AppExecFwk::ExtensionAbilityType::EMBEDDED_UI, // EMBEDDED_UI usage within the app
-        AppExecFwk::ExtensionAbilityType::ADS
+        AppExecFwk::ExtensionAbilityType::ADS,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOPICKER
     };
     return callerPublicForNonModalSet.find(type) != callerPublicForNonModalSet.end();
 }
