@@ -658,7 +658,8 @@ private:
      *
      */
     void LoadAbilityLibrary(const std::vector<std::string> &libraryPaths);
-
+    void LoadAceAbilityLibrary();
+    
     void CalcNativeLiabraryEntries(const BundleInfo &bundleInfo, std::string &nativeLibraryPath);
     void LoadNativeLiabrary(const BundleInfo &bundleInfo, std::string &nativeLibraryPath);
 
@@ -691,6 +692,14 @@ private:
     bool InitResourceManager(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
         const AppExecFwk::HapModuleInfo &entryHapModuleInfo, const std::string &bundleName,
         bool multiProjects, const Configuration &config);
+    void OnStartAbility(const std::string& bundleName,
+        std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
+        const AppExecFwk::HapModuleInfo &entryHapModuleInfo);
+    std::vector<std::string> GetOverlayPaths(const std::string &bundleName,
+        const std::vector<OverlayModuleInfo> &overlayModuleInfos);
+    void SubscribeOverlayChange(const std::string &bundleName, const std::string &loadPath,
+        std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
+        const AppExecFwk::HapModuleInfo &entryHapModuleInfo);
     void HandleInitAssertFaultTask(bool isDebugModule, bool isDebugApp);
     void HandleCancelAssertFaultTask();
 
