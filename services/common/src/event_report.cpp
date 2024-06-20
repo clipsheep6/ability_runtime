@@ -106,6 +106,95 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, 
     }
 }
 
+void EventReport::LogErrorEvent(const std::string &name, HiSysEventType type, const EventInfo &eventInfo)
+{
+    HiSysEventWrite(
+        HiSysEvent::Domain::AAFWK,
+        name,
+        type,
+        EVENT_KEY_USERID, eventInfo.userId,
+        EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+        EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+        EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
+        EVENT_KEY_ERROR_CODE, eventInfo.errCode);
+}
+
+void EventReport::LogStartAbilityEvent(const std::string &name, HiSysEventType type, const EventInfo &eventInfo)
+{
+    HiSysEventWrite(
+        HiSysEvent::Domain::AAFWK,
+        name,
+        type,
+        EVENT_KEY_USERID, eventInfo.userId,
+        EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+        EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+        EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
+}
+
+void EventReport::LogTerminateAbilityEvent(const std::string &name, HiSysEventType type, const EventInfo &eventInfo)
+{
+    HiSysEventWrite(
+        HiSysEvent::Domain::AAFWK,
+        name,
+        type,
+        EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+        EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
+}
+
+void EventReport::LogAbilityOnForegroundEvent(const std::string &name, HiSysEventType type, const EventInfo &eventInfo)
+{
+    HiSysEventWrite(
+        HiSysEvent::Domain::AAFWK,
+        name,
+        type,
+        EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+        EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+        EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
+        EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType,
+        EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName);
+}
+
+void EventReport::LogAbilityOnBackgroundEvent(const std::string &name, HiSysEventType type, const EventInfo &eventInfo)
+{
+    HiSysEventWrite(
+        HiSysEvent::Domain::AAFWK,
+        name,
+        type,
+        EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+        EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+        EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
+        EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType);
+}
+
+void EventReport::LogAbilityOnActiveEvent(const std::string &name, HiSysEventType type, const EventInfo &eventInfo)
+{
+    HiSysEventWrite(
+        HiSysEvent::Domain::AAFWK,
+        name,
+        type,
+        EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+        EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+        EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
+        EVENT_KEY_ABILITY_TYPE, eventInfo.abilityType,
+        EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType,
+        EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName);
+}
+
+void EventReport::LogStartStandardEvent(const std::string &name, HiSysEventType type, const EventInfo &eventInfo)
+{
+    HILOG_DEBUG("EventInfo is [%{public}d, %{public}s, %{public}s, %{public}s]", eventInfo.userId,
+                eventInfo.bundleName.c_str(), eventInfo.moduleName.c_str(), eventInfo.abilityName.c_str());
+    HiSysEventWrite(
+        HiSysEvent::Domain::AAFWK,
+        name,
+        type,
+        EVENT_KEY_USERID, eventInfo.userId,
+        EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+        EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+        EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
+        EVENT_KEY_ABILITY_NUMBER, eventInfo.abilityNumber);
+}
+
 void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -118,81 +207,27 @@ void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType ty
     switch (eventName) {
         case EventName::START_ABILITY_ERROR:
         case EventName::TERMINATE_ABILITY_ERROR:
-            HiSysEventWrite(
-                HiSysEvent::Domain::AAFWK,
-                name,
-                type,
-                EVENT_KEY_USERID, eventInfo.userId,
-                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
-                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
-                EVENT_KEY_ERROR_CODE, eventInfo.errCode);
+            LogErrorEvent(name, type, eventInfo);
             break;
         case EventName::START_ABILITY:
-            HiSysEventWrite(
-                HiSysEvent::Domain::AAFWK,
-                name,
-                type,
-                EVENT_KEY_USERID, eventInfo.userId,
-                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
-                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
+            LogStartAbilityEvent(name, type, eventInfo);
             break;
         case EventName::TERMINATE_ABILITY:
         case EventName::CLOSE_ABILITY:
-            HiSysEventWrite(
-                HiSysEvent::Domain::AAFWK,
-                name,
-                type,
-                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
+            LogTerminateAbilityEvent(name, type, eventInfo);
             break;
         case EventName::ABILITY_ONFOREGROUND:
-            HiSysEventWrite(
-                HiSysEvent::Domain::AAFWK,
-                name,
-                type,
-                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
-                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
-                EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType,
-                EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName);
+            LogAbilityOnForegroundEvent(name, type, eventInfo);
             break;
         case EventName::ABILITY_ONBACKGROUND:
         case EventName::ABILITY_ONINACTIVE:
-            HiSysEventWrite(
-                HiSysEvent::Domain::AAFWK,
-                name,
-                type,
-                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
-                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
-                EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType);
+            LogAbilityOnBackgroundEvent(name, type, eventInfo);
             break;
         case EventName::ABILITY_ONACTIVE:
-            HiSysEventWrite(
-                HiSysEvent::Domain::AAFWK,
-                name,
-                type,
-                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
-                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
-                EVENT_KEY_ABILITY_TYPE, eventInfo.abilityType,
-                EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType,
-                EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName);
+            LogAbilityOnActiveEvent(name, type, eventInfo);
             break;
         case EventName::START_STANDARD_ABILITIES:
-            HILOG_DEBUG("EventInfo is [%{public}d, %{public}s, %{public}s, %{public}s]", eventInfo.userId,
-                eventInfo.bundleName.c_str(), eventInfo.moduleName.c_str(), eventInfo.abilityName.c_str());
-            HiSysEventWrite(
-                HiSysEvent::Domain::AAFWK,
-                name,
-                type,
-                EVENT_KEY_USERID, eventInfo.userId,
-                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
-                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
-                EVENT_KEY_ABILITY_NUMBER, eventInfo.abilityNumber);
+            LogStartStandardEvent(name, type, eventInfo);
             break;
         default:
             break;
