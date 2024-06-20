@@ -766,7 +766,8 @@ ErrCode AbilityContextImpl::GetMissionId(int32_t &missionId)
 ErrCode AbilityContextImpl::SetMissionContinueState(const AAFwk::ContinueState &state)
 {
     TAG_LOGD(AAFwkTag::CONTEXT, "SetMissionContinueState: %{public}d", state);
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->SetMissionContinueState(token_, state);
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->SetMissionContinueState(token_, state,
+        sessionToken_.promote());
     if (err != ERR_OK) {
         TAG_LOGE(AAFwkTag::CONTEXT, "SetMissionContinueState failed: %{public}d", err);
     }

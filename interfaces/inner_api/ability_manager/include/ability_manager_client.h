@@ -582,16 +582,6 @@ public:
     #endif
 
     /**
-     * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
-     * clear the application data.
-     *
-     * @param bundleName, bundle name in Application record.
-     * @param userId User ID.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode ClearUpApplicationData(const std::string &bundleName, const int32_t userId = DEFAULT_INVAL_VALUE);
-
-    /**
      * ContinueMission, continue ability from mission center.
      *
      * @param srcDeviceId, origin deviceId.
@@ -990,7 +980,8 @@ public:
      * @param state the mission continuation state of this ability.
      * @return Returns ERR_OK if success.
      */
-    ErrCode SetMissionContinueState(sptr<IRemoteObject> token, const AAFwk::ContinueState &state);
+    ErrCode SetMissionContinueState(sptr<IRemoteObject> token, const AAFwk::ContinueState &state,
+        sptr<IRemoteObject> sessionToken);
 
 #ifdef SUPPORT_SCREEN
     /**

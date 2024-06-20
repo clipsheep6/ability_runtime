@@ -188,11 +188,6 @@ public:
         return 0;
     }
 
-    int ClearUpApplicationData(const std::string& bundleName, const int32_t userId = DEFAULT_INVAL_VALUE) override
-    {
-        return 0;
-    }
-
     int ContinueMission(const std::string& srcDeviceId, const std::string& dstDeviceId,
         int32_t missionId, const sptr<IRemoteObject>& callback, AAFwk::WantParams& wantParams)
     {

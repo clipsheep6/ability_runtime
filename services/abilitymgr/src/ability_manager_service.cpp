@@ -406,7 +406,7 @@ bool AbilityManagerService::Init()
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         InitFocusListener();
     }
-    DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->Init();
+    AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().Init();
 #endif
 
     DelayedSingleton<ConnectionStateManager>::GetInstance()->Init(taskHandler_);
@@ -5949,17 +5949,6 @@ int AbilityManagerService::KillProcess(const std::string &bundleName, const bool
     return ERR_OK;
 }
 
-int AbilityManagerService::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
-{
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "ClearUpApplicationData, bundleName: %{public}s", bundleName.c_str());
-    CHECK_CALLER_IS_SYSTEM_APP;
-    int ret = DelayedSingleton<AppScheduler>::GetInstance()->ClearUpApplicationData(bundleName, userId);
-    if (ret != ERR_OK) {
-        return CLEAR_APPLICATION_DATA_FAIL;
-    }
-    return ERR_OK;
-}
-
 int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t uid)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Uninstall app, bundleName: %{public}s, uid=%{public}d", bundleName.c_str(), uid);
@@ -8652,14 +8641,14 @@ void AbilityManagerService::InitPrepareTerminateConfig()
 int AbilityManagerService::RegisterAbilityFirstFrameStateObserver(
     const sptr<IAbilityFirstFrameStateObserver> &observer, const std::string &targetBundleName)
 {
-    return DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    return AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         RegisterAbilityFirstFrameStateObserver(observer, targetBundleName);
 }
 
 int AbilityManagerService::UnregisterAbilityFirstFrameStateObserver(
     const sptr<IAbilityFirstFrameStateObserver> &observer)
 {
-    return DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    return AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         UnregisterAbilityFirstFrameStateObserver(observer);
 }
 #endif

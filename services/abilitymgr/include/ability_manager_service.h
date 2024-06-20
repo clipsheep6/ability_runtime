@@ -783,16 +783,6 @@ public:
     virtual int KillProcess(const std::string &bundleName, const bool clearPageStack = true) override;
 
     /**
-     * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
-     * clear the application data.
-     *
-     * @param bundleName, bundle name in Application record.
-     * @return ERR_OK, return back success, others fail.
-     */
-    virtual int ClearUpApplicationData(const std::string &bundleName,
-        const int32_t userId = -1) override;
-
-    /**
      * Uninstall app
      *
      * @param bundleName bundle name of uninstalling app.
@@ -1682,7 +1672,8 @@ public:
      */
     virtual int32_t TransferAbilityResultForExtension(const sptr<IRemoteObject> &callerToken, int32_t resultCode,
         const Want &want) override;
-    
+
+    std::shared_ptr<MissionListManager> GetMissionListManagerByUserId(int32_t userId);
     /**
      * Notify ability manager service frozen process.
      *
@@ -1905,7 +1896,6 @@ private:
     std::shared_ptr<PendingWantManager> GetPendingWantManagerByUserId(int32_t userId);
     std::unordered_map<int, std::shared_ptr<MissionListManager>> GetMissionListManagers();
     std::shared_ptr<MissionListManager> GetCurrentMissionListManager();
-    std::shared_ptr<MissionListManager> GetMissionListManagerByUserId(int32_t userId);
     std::unordered_map<int, std::shared_ptr<UIAbilityLifecycleManager>> GetUIAbilityManagers();
     std::shared_ptr<UIAbilityLifecycleManager> GetCurrentUIAbilityManager();
     std::shared_ptr<UIAbilityLifecycleManager> GetUIAbilityManagerByUserId(int32_t userId);

@@ -666,14 +666,6 @@ ErrCode AbilityManagerClient::ForceTimeoutForTest(const std::string &abilityName
 }
 #endif
 
-ErrCode AbilityManagerClient::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
-{
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->ClearUpApplicationData(bundleName, userId);
-}
-
 ErrCode AbilityManagerClient::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
     int32_t missionId, sptr<IRemoteObject> callback, AAFwk::WantParams &wantParams)
 {
@@ -1248,7 +1240,7 @@ ErrCode AbilityManagerClient::DelegatorDoAbilityBackground(sptr<IRemoteObject> t
 }
 
 ErrCode AbilityManagerClient::SetMissionContinueState(sptr<IRemoteObject> token,
-    const AAFwk::ContinueState &state)
+    const AAFwk::ContinueState &state, sptr<IRemoteObject> sessionToken)
 {
 #ifdef SUPPORT_SCREEN
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -1257,7 +1249,7 @@ ErrCode AbilityManagerClient::SetMissionContinueState(sptr<IRemoteObject> token,
         TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
         uint32_t value = static_cast<uint32_t>(state);
         Rosen::ContinueState continueState = static_cast<Rosen::ContinueState>(value);
-        auto err = sceneSessionManager->SetSessionContinueState(token, continueState);
+        auto err = sceneSessionManager->SetSessionContinueState(sessionToken, continueState);
         return static_cast<int>(err);
     }
 #endif //SUPPORT_SCREEN

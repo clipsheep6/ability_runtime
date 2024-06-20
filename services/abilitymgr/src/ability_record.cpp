@@ -2277,9 +2277,8 @@ void AbilityRecord::DumpAbilityState(
         info.push_back(dumpInfo);
     }
 
-    auto mission = GetMission();
-    if (mission) {
-        std::string missionAffinity = mission->GetMissionAffinity();
+    auto missionAffinity = GetMissionAffinity();
+    if (!missionAffinity.empty()) {
         dumpInfo = "        missionAffinity: " + missionAffinity;
         info.push_back(dumpInfo);
     }
@@ -2383,13 +2382,6 @@ void AbilityRecord::RemoveAbilityDeathRecipient() const
 void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "called.");
-    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto mission = GetMission();
-        if (mission) {
-            TAG_LOGW(AAFwkTag::ABILITYMGR, "On scheduler died. Is app not response Reason:%{public}d",
-                mission->IsANRState());
-        }
-    }
     std::lock_guard<ffrt::mutex> guard(lock_);
     CHECK_POINTER(scheduler_);
 
@@ -2770,26 +2762,12 @@ void AbilityRecord::NotifyContinuationResult(int32_t result)
     lifecycleDeal_->NotifyContinuationResult(result);
 }
 
-std::shared_ptr<MissionList> AbilityRecord::GetOwnedMissionList() const
+void AbilityRecord::SetMissionId(int32_t missionId)
 {
-    return missionList_.lock();
-}
-
-void AbilityRecord::SetMissionList(const std::shared_ptr<MissionList> &missionList)
-{
-    missionList_ = missionList;
-}
-
-void AbilityRecord::SetMission(const std::shared_ptr<Mission> &mission)
-{
-    if (mission) {
-        missionId_ = mission->GetMissionId();
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "SetMission come, missionId is %{public}d.", missionId_);
-    }
     std::lock_guard guard(wantLock_);
+    missionId_ = missionId;
     want_.RemoveParam(KEY_MISSION_ID);
     want_.SetParam(KEY_MISSION_ID, missionId_);
-    mission_ = mission;
 }
 
 void AbilityRecord::SetSessionInfo(sptr<SessionInfo> sessionInfo)
@@ -2846,11 +2824,6 @@ void AbilityRecord::SetClearMissionFlag(bool clearMissionFlag)
 bool AbilityRecord::IsClearMissionFlag()
 {
     return clearMissionFlag_;
-}
-
-std::shared_ptr<Mission> AbilityRecord::GetMission() const
-{
-    return mission_.lock();
 }
 
 int32_t AbilityRecord::GetMissionId() const

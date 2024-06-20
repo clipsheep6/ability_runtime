@@ -133,7 +133,6 @@ private:
 
     int GetAppMemorySizeInner(MessageParcel &data, MessageParcel &reply);
     int IsRamConstrainedDeviceInner(MessageParcel &data, MessageParcel &reply);
-    int ClearUpApplicationDataInner(MessageParcel &data, MessageParcel &reply);
 
     int ContinueMissionInner(MessageParcel &data, MessageParcel &reply);
     int ContinueMissionOfBundleNameInner(MessageParcel &data, MessageParcel &reply);

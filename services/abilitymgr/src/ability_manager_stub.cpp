@@ -207,8 +207,6 @@ void AbilityManagerStub::SecondStepInit()
         &AbilityManagerStub::GetAppMemorySizeInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_RAM_CONSTRAINED_DEVICE)] =
         &AbilityManagerStub::IsRamConstrainedDeviceInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CLEAR_UP_APPLICATION_DATA)] =
-        &AbilityManagerStub::ClearUpApplicationDataInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::LOCK_MISSION_FOR_CLEANUP)] =
         &AbilityManagerStub::LockMissionForCleanupInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNLOCK_MISSION_FOR_CLEANUP)] =
@@ -695,16 +693,6 @@ int AbilityManagerStub::KillProcessInner(MessageParcel &data, MessageParcel &rep
     int result = KillProcess(bundleName, clearPageStack);
 
     CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "remove stack error");
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::ClearUpApplicationDataInner(MessageParcel &data, MessageParcel &reply)
-{
-    std::string bundleName = Str16ToStr8(data.ReadString16());
-    int32_t userId = data.ReadInt32();
-    int result = ClearUpApplicationData(bundleName, userId);
-    CHECK_TRUE_RETURN_RET(!reply.WriteInt32(result), ERR_INVALID_VALUE, "ClearUpApplicationData error");
-
     return NO_ERROR;
 }
 

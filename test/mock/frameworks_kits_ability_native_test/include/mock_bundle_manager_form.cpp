@@ -37,7 +37,7 @@ bool BundleMgrProxy::GetBundleInfo(
     return true;
 }
 
-int BundleMgrService::GetUidByBundleName(const std::string& bundleName, const int userId)
+int BundleMgrService::GetUidByBundleName(const std::string& bundleName, int32_t userId, int32_t appCloneIndex)
 {
     if (bundleName.compare("com.form.host.app600") == 0) {
         return DEFAULT_UID;

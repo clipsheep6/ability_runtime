@@ -51,7 +51,7 @@ public:
     MOCK_METHOD0(GetAmsMgr, sptr<IAmsMgr>());
     MOCK_METHOD1(GetAppFreezingTime, void(int& time));
     MOCK_METHOD1(SetAppFreezingTime, void(int time));
-    MOCK_METHOD2(ClearUpApplicationData, int32_t(const std::string& bundleName, int32_t userId));
+    MOCK_METHOD3(ClearUpApplicationData, int32_t(const std::string& bundleName, int32_t appCloneIndex, int32_t userId));
     MOCK_METHOD1(ClearUpApplicationDataBySelf, int32_t(int32_t userId));
     MOCK_METHOD1(StartupResidentProcess, void(const std::vector<AppExecFwk::BundleInfo>& bundleInfos));
     MOCK_METHOD1(AddAbilityStageDone, void(const int32_t recordId));

@@ -356,7 +356,7 @@ HWTEST_F(AppMgrServiceModuleTest, ClearUpApplicationData_001, TestSize.Level1)
     std::string bundleName = "bundleName";
     appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
     appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
-    int32_t res = appMgrService->ClearUpApplicationData(bundleName);
+    int32_t res = appMgrService->ClearUpApplicationData(bundleName, 0);
     EXPECT_EQ(res, ERR_INVALID_OPERATION);
 }
 

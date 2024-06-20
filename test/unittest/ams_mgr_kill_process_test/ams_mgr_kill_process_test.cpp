@@ -102,7 +102,7 @@ HWTEST_F(AmsMgrKillProcessTest, KillProcess_0100, TestSize.Level0)
     auto appMgrServiceInner = GetAppMgrServiceInner();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
-    ErrCode result = appMgrServiceInner->KillApplicationByUserId(STRING_BUNDLE_NAME, ACCOUNT_ID);
+    ErrCode result = appMgrServiceInner->KillApplicationByUserId(STRING_BUNDLE_NAME, 0, ACCOUNT_ID);
     EXPECT_EQ(result, ERR_OK);
 }
 
