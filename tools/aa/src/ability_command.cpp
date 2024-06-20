@@ -1947,6 +1947,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
 
         if (option == '?') {
             MakeWantFromCmdOptionQuery(optoptHandlers, result);
+            break;
         }
 
         auto optionHandlep = [&]() { MakeWantFromCmdCheckPerfCmd(result, perfCmd); };
