@@ -97,7 +97,6 @@ declare_args() {
   ability_runtime_ces = true
   ability_runtime_resource = true
   ability_runtime_appspawn = true
-  efficiency_manager = true
   ability_fault_and_exit_test = false
   ability_command_for_test = false
   ability_runtime_feature_coverage = false
@@ -128,11 +127,6 @@ declare_args() {
   if (defined(global_parts_info) &&
       !defined(global_parts_info.powermgr_power_manager)) {
     ability_runtime_power = false
-  }
-
-  if (defined(global_parts_info) &&
-      !defined(global_parts_info.resourceschedule_efficiency_manager)) {
-    efficiency_manager = false
   }
 
   if (defined(global_parts_info) &&

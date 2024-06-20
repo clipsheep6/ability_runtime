@@ -1674,20 +1674,6 @@ HWTEST_F(AbilityManagerServiceSecondTest, KillProcess_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
- * Function: ClearUpApplicationData
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService ClearUpApplicationData
- */
-HWTEST_F(AbilityManagerServiceSecondTest, ClearUpApplicationData_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest ClearUpApplicationData_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    EXPECT_EQ(abilityMs_->ClearUpApplicationData("test"), CLEAR_APPLICATION_DATA_FAIL);
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest ClearUpApplicationData_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: PreLoadAppDataAbilities
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService PreLoadAppDataAbilities

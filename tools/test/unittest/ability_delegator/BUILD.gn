@@ -169,7 +169,8 @@ if (accessibility_enable) {
     sources = [
       "${ability_runtime_path}/tools/aa/src/accessibility_ability_command.cpp",
       "${ability_runtime_path}/tools/aa/src/accessibility_ability_utils.cpp",
-      "accessibility_ability_command_test.cpp",
+      "accessibility_ability_command_first_test.cpp",
+      "accessibility_ability_command_second_test.cpp",
       "mock_accessibility_config.cpp",
     ]
 

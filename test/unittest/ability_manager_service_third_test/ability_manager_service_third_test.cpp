@@ -979,6 +979,103 @@ HWTEST_F(AbilityManagerServiceThirdTest, CheckUIExtensionIsFocused_001, TestSize
 
 /*
  * Feature: AbilityManagerService
+ * Function: AddFreeInstallObserver
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService AddFreeInstallObserver
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, AddFreeInstallObserver_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest AddFreeInstallObserver_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    sptr<AbilityRuntime::IFreeInstallObserver> observer;
+    EXPECT_EQ(abilityMs_->AddFreeInstallObserver(observer), ERR_INVALID_VALUE);
+
+    abilityMs_->freeInstallManager_ = std::make_shared<FreeInstallManager>(abilityMs_);
+    EXPECT_EQ(abilityMs_->AddFreeInstallObserver(observer), ERR_INVALID_VALUE);
+
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest AddFreeInstallObserver_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: VerifyPermission
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService VerifyPermission
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, VerifyPermission_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest VerifyPermission_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+
+    std::string permission = "test_permission";
+    int pid = 0;
+    int uid = 0;
+    EXPECT_EQ(abilityMs_->VerifyPermission(permission, pid, uid), CHECK_PERMISSION_FAILED);
+
+    std::string permission2 = "";
+    EXPECT_EQ(abilityMs_->VerifyPermission(permission2, pid, uid), CHECK_PERMISSION_FAILED);
+
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest VerifyPermission_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: AcquireShareData
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService AcquireShareData
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, AcquireShareData_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest AcquireShareData_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+
+    int32_t missionId = 1;
+    sptr<IAcquireShareDataCallback> shareData = nullptr;
+    EXPECT_EQ(abilityMs_->AcquireShareData(missionId, shareData), ERR_INVALID_VALUE);
+
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest AcquireShareData_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: ShareDataDone
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService ShareDataDone
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, ShareDataDone_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest ShareDataDone_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+
+    sptr<IRemoteObject> token = nullptr;
+    int32_t resultCode = 1;
+    int32_t uniqueId = 1;
+    WantParams wantParam;
+    EXPECT_EQ(abilityMs_->ShareDataDone(token, resultCode, uniqueId, wantParam), ERR_INVALID_VALUE);
+
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest ShareDataDone_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: NotifySaveAsResult
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService NotifySaveAsResult
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, NotifySaveAsResult_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest NotifySaveAsResult_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+
+    Want want;
+    auto result = abilityMs_->NotifySaveAsResult(want, 0, 0);
+    EXPECT_EQ(result, ERR_INVALID_CALLER);
+
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest NotifySaveAsResult_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: CheckCollaboratorType
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService CheckCollaboratorType
@@ -1257,6 +1354,18 @@ HWTEST_F(AbilityManagerServiceThirdTest, InitInterceptor_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
+ * Function: InitDefaultRecoveryList
+ * FunctionPoints: AbilityManagerService InitDefaultRecoveryList
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, InitDefaultRecoveryList_001, TestSize.Level1)
+{
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    abilityMs->InitDefaultRecoveryList();
+    EXPECT_NE(abilityMs, nullptr);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: InitPushTask
  * FunctionPoints: AbilityManagerService InitPushTask
  */
@@ -1302,6 +1411,31 @@ HWTEST_F(AbilityManagerServiceThirdTest, InitStartAbilityChain_001, TestSize.Lev
     auto abilityMs = std::make_shared<AbilityManagerService>();
     abilityMs->InitStartAbilityChain();
     EXPECT_NE(abilityMs, nullptr);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: OnStop
+ * FunctionPoints: AbilityManagerService OnStop
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, OnStop_001, TestSize.Level1)
+{
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    abilityMs->abilityBundleEventCallback_ = new (std::nothrow) AbilityBundleEventCallback(nullptr, nullptr);
+    abilityMs->OnStop();
+    EXPECT_NE(abilityMs->abilityBundleEventCallback_, nullptr);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: OnStop
+ * FunctionPoints: AbilityManagerService OnStop
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, OnStop_002, TestSize.Level1)
+{
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    abilityMs->OnStop();
+    EXPECT_EQ(abilityMs->abilityBundleEventCallback_, nullptr);
 }
 
 /*

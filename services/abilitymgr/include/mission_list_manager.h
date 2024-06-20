@@ -525,7 +525,7 @@ private:
     std::shared_ptr<AbilityRecord> GetAbilityFromTerminateListInner(const sptr<IRemoteObject> &token);
     void SetLastExitReason(std::shared_ptr<AbilityRecord> &abilityRecord);
     bool IsAppLastAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
-
+    std::shared_ptr<MissionList> GetMissionList(int32_t missionId);
     int PrepareClearMissionLocked(int missionId, const std::shared_ptr<Mission> &mission);
 
     bool CheckPrepareTerminateEnable(const std::shared_ptr<Mission> &mission);
@@ -533,9 +533,6 @@ private:
     bool GetContentAndTypeId(uint32_t msgId, std::string &msgContent, int &typeId) const;
 
     void SendKeyEvent(const AbilityRequest &abilityRequest);
-
-    void ReportAbilitAssociatedStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo, int64_t type,
-        const std::shared_ptr<AbilityRecord> &callerAbility);
 
     int userId_;
     mutable ffrt::mutex managerLock_;

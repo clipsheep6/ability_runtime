@@ -25,7 +25,7 @@ public:
     virtual ~IFillRequestCallback() {}
 
     virtual void OnFillRequestSuccess(const AbilityBase::ViewData &viewData) = 0;
-    virtual void OnFillRequestFailed(int32_t errCode, const std::string& fillContent = "") = 0;
+    virtual void OnFillRequestFailed(int32_t errCode, const std::string& fillContent = "", bool isPopup = false) = 0;
 };
 } // AbilityRuntime
 } // OHOS

@@ -503,10 +503,10 @@ std::string ApplicationContext::GetFilesDir()
     return (contextImpl_ != nullptr) ? contextImpl_->GetFilesDir() : "";
 }
 
-void ApplicationContext::KillProcessBySelf()
+void ApplicationContext::KillProcessBySelf(const bool clearPageStack)
 {
     if (contextImpl_ != nullptr) {
-        contextImpl_->KillProcessBySelf();
+        contextImpl_->KillProcessBySelf(clearPageStack);
     }
 }
 

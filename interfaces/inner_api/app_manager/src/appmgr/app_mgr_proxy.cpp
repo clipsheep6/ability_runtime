@@ -172,7 +172,7 @@ sptr<IAmsMgr> AppMgrProxy::GetAmsMgr()
     return amsMgr;
 }
 
-int32_t AppMgrProxy::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
+int32_t AppMgrProxy::ClearUpApplicationData(const std::string &bundleName, int32_t appCloneIndex, const int32_t userId)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -183,6 +183,10 @@ int32_t AppMgrProxy::ClearUpApplicationData(const std::string &bundleName, const
     if (!data.WriteString(bundleName)) {
         TAG_LOGE(AAFwkTag::APPMGR, "parcel WriteString failed");
         return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteInt32(appCloneIndex)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appCloneIndex write failed.");
+        return ERR_INVALID_VALUE;
     }
     if (!data.WriteInt32(userId)) {
         TAG_LOGE(AAFwkTag::APPMGR, "userId write failed.");

@@ -209,6 +209,8 @@ public:
         return 0;
     }
 
+    void ScheduleClearPageStack() override
+    {}
     void ScheduleCacheProcess() override
     {}
 

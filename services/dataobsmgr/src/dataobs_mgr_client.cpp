@@ -21,11 +21,35 @@
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
+#include "system_ability_status_change_stub.h"
 
 namespace OHOS {
 namespace AAFwk {
 std::shared_ptr<DataObsMgrClient> DataObsMgrClient::instance_ = nullptr;
 std::mutex DataObsMgrClient::mutex_;
+
+class DataObsMgrClient::SystemAbilityStatusChangeListener
+    : public SystemAbilityStatusChangeStub {
+public:
+    SystemAbilityStatusChangeListener()
+    {
+    }
+    ~SystemAbilityStatusChangeListener() = default;
+    void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override
+    {
+    }
+};
+
+void DataObsMgrClient::SystemAbilityStatusChangeListener::OnAddSystemAbility(
+    int32_t systemAbilityId, const std::string &deviceId)
+{
+    TAG_LOGI(AAFwkTag::DBOBSMGR, "ObsManager restart");
+    if (systemAbilityId != DATAOBS_MGR_SERVICE_SA_ID) {
+        return;
+    }
+    GetInstance()->ReRegister();
+}
 
 std::shared_ptr<DataObsMgrClient> DataObsMgrClient::GetInstance()
 {
@@ -39,7 +63,9 @@ std::shared_ptr<DataObsMgrClient> DataObsMgrClient::GetInstance()
 }
 
 DataObsMgrClient::DataObsMgrClient()
-{}
+{
+    callback_ = new SystemAbilityStatusChangeListener();
+}
 
 DataObsMgrClient::~DataObsMgrClient()
 {}
@@ -128,7 +154,7 @@ Status DataObsMgrClient::Connect()
         return GET_DATAOBS_SERVICE_FAILED;
     }
 
-    auto remoteObject = systemManager->GetSystemAbility(DATAOBS_MGR_SERVICE_SA_ID);
+    auto remoteObject = systemManager->CheckSystemAbility(DATAOBS_MGR_SERVICE_SA_ID);
     if (remoteObject == nullptr) {
         TAG_LOGE(AAFwkTag::DBOBSMGR, "fail to get systemAbility");
         return GET_DATAOBS_SERVICE_FAILED;
@@ -211,6 +237,12 @@ void DataObsMgrClient::OnRemoteDied()
     std::this_thread::sleep_for(std::chrono::seconds(RESUB_INTERVAL));
     ResetService();
     if (Connect() != SUCCESS) {
+        sptr<ISystemAbilityManager> systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        if (systemManager == nullptr) {
+            TAG_LOGE(AAFwkTag::DBOBSMGR, "System mgr is nullptr");
+            return;
+        }
+        systemManager->SubscribeSystemAbility(DATAOBS_MGR_SERVICE_SA_ID, callback_);
         return;
     }
     ReRegister();

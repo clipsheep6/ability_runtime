@@ -261,12 +261,6 @@ ohos_source_set("abilityms_test_source") {
     "window_manager:sms",
   ]
 
-  if (efficiency_manager) {
-    sources += [ "${ability_runtime_services_path}/abilitymgr/src/process_frozen_state_observer.cpp" ]
-    cflags_cc += [ "-DEFFICIENCY_MANAGER_ENABLE" ]
-    external_deps += [ "efficiency_manager:suspend_manager_client" ]
-  }
-
   if (resource_schedule_service_enable) {
     cflags_cc += [ "-RESOURCE_SCHEDULE_SERVICE_ENABLE" ]
     external_deps += [ "resource_schedule_service:ressched_client" ]
@@ -344,7 +338,6 @@ group("unittest") {
     "ability_manager_service_second_test:unittest",
     "ability_manager_service_third_test:unittest",
     "ability_manager_stub_test:unittest",
-    "ability_manager_test:unittest",
     "ability_record_dump_test:unittest",
     "ability_record_mgr_test:unittest",
     "ability_record_test:unittest",
@@ -488,6 +481,7 @@ group("unittest") {
     "render_state_observer_manager_test:unittest",
     "render_state_observer_proxy_test:unittest",
     "render_state_observer_stub_test:unittest",
+    "res_sched_util_test:unittest",
     "resident_process_manager_test:unittest",
     "running_infos_test:unittest",
     "runtime_test:unittest",

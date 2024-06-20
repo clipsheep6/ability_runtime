@@ -165,30 +165,6 @@ public:
     int32_t SetStartFlags(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle);
 
     /**
-     * Set atomic service flags.
-     *
-     * @param startMsg, request message.
-     * @param reqHandle, handle for request message
-     */
-    int32_t SetAtomicServiceFlag(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle);
-
-    /**
-     * Set strict mode flags.
-     *
-     * @param startMsg, request message.
-     * @param reqHandle, handle for request message
-     */
-    int32_t SetStrictMode(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle);
-
-    /**
-     * Set app extension flags.
-     *
-     * @param startMsg, request message.
-     * @param reqHandle, handle for request message
-     */
-    int32_t SetAppExtension(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle);
-
-    /**
      * Set extra info: render-cmd, HspList, Overlay, DataGroup, AppEnv.
      *
      * @param startMsg, request message.
@@ -241,8 +217,6 @@ public:
     virtual int32_t GetRenderProcessTerminationStatus(const AppSpawnStartMsg &startMsg, int &status);
 
 private:
-    int32_t SetCloneFlag(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle) const;
-
     std::string serviceName_ = APPSPAWN_SERVER_NAME;
     AppSpawnClientHandle handle_ = nullptr;
     SpawnConnectionState state_ = SpawnConnectionState::STATE_NOT_CONNECT;

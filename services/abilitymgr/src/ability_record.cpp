@@ -47,6 +47,7 @@
 #include "hilog_tag_wrapper.h"
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
+#include "res_sched_util.h"
 #include "ui_extension_host_info.h"
 #include "scene_board_judgement.h"
 #include "start_ability_utils.h"
@@ -63,10 +64,6 @@
 #ifdef SUPPORT_SCREEN
 #include "locale_config.h"
 #endif
-#ifdef EFFICIENCY_MANAGER_ENABLE
-#include "suspend_manager_client.h"
-#endif // EFFICIENCY_MANAGER_ENABLE
-
 
 namespace OHOS {
 using AbilityRuntime::FreezeUtil;
@@ -525,12 +522,9 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t tokenId, uint32_t sceneFla
             // background to active state
             TAG_LOGD(AAFwkTag::ABILITYMGR, "MoveToForeground, %{public}s", element.c_str());
             lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
-#ifdef EFFICIENCY_MANAGER_ENABLE
             std::string bundleName = GetAbilityInfo().bundleName;
             int32_t uid = GetUid();
-            SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
-                uid, bundleName, "THAW_BY_FOREGROUND_ABILITY");
-#endif // EFFICIENCY_MANAGER_ENABLE
+            ResSchedUtil::GetInstance().ReportEventToRSS(uid, bundleName, "THAW_BY_FOREGROUND_ABILITY");
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token_);
         }
     } else {
@@ -2283,9 +2277,8 @@ void AbilityRecord::DumpAbilityState(
         info.push_back(dumpInfo);
     }
 
-    auto mission = GetMission();
-    if (mission) {
-        std::string missionAffinity = mission->GetMissionAffinity();
+    auto missionAffinity = GetMissionAffinity();
+    if (!missionAffinity.empty()) {
         dumpInfo = "        missionAffinity: " + missionAffinity;
         info.push_back(dumpInfo);
     }
@@ -2389,13 +2382,6 @@ void AbilityRecord::RemoveAbilityDeathRecipient() const
 void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "called.");
-    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto mission = GetMission();
-        if (mission) {
-            TAG_LOGW(AAFwkTag::ABILITYMGR, "On scheduler died. Is app not response Reason:%{public}d",
-                mission->IsANRState());
-        }
-    }
     std::lock_guard<ffrt::mutex> guard(lock_);
     CHECK_POINTER(scheduler_);
 
@@ -2550,7 +2536,9 @@ void AbilityRecord::SendEvent(uint32_t msg, uint32_t timeOut, int32_t param)
     param = (param == -1) ? recordId_ : param;
     auto eventWrap = EventWrap(msg, param);
     eventWrap.SetTimeout(timeOut);
-    handler->SendEvent(eventWrap, timeOut);
+    if (!handler->SendEvent(eventWrap, timeOut, false)) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "SendTimeOut event failed: %{public}u, %{public}d.", msg, param);
+    }
 }
 
 void AbilityRecord::SetWant(const Want &want)
@@ -2774,26 +2762,12 @@ void AbilityRecord::NotifyContinuationResult(int32_t result)
     lifecycleDeal_->NotifyContinuationResult(result);
 }
 
-std::shared_ptr<MissionList> AbilityRecord::GetOwnedMissionList() const
+void AbilityRecord::SetMissionId(int32_t missionId)
 {
-    return missionList_.lock();
-}
-
-void AbilityRecord::SetMissionList(const std::shared_ptr<MissionList> &missionList)
-{
-    missionList_ = missionList;
-}
-
-void AbilityRecord::SetMission(const std::shared_ptr<Mission> &mission)
-{
-    if (mission) {
-        missionId_ = mission->GetMissionId();
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "SetMission come, missionId is %{public}d.", missionId_);
-    }
     std::lock_guard guard(wantLock_);
+    missionId_ = missionId;
     want_.RemoveParam(KEY_MISSION_ID);
     want_.SetParam(KEY_MISSION_ID, missionId_);
-    mission_ = mission;
 }
 
 void AbilityRecord::SetSessionInfo(sptr<SessionInfo> sessionInfo)
@@ -2850,11 +2824,6 @@ void AbilityRecord::SetClearMissionFlag(bool clearMissionFlag)
 bool AbilityRecord::IsClearMissionFlag()
 {
     return clearMissionFlag_;
-}
-
-std::shared_ptr<Mission> AbilityRecord::GetMission() const
-{
-    return mission_.lock();
 }
 
 int32_t AbilityRecord::GetMissionId() const

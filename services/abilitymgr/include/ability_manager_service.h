@@ -780,17 +780,7 @@ public:
      * @param bundleName.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int KillProcess(const std::string &bundleName) override;
-
-    /**
-     * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
-     * clear the application data.
-     *
-     * @param bundleName, bundle name in Application record.
-     * @return ERR_OK, return back success, others fail.
-     */
-    virtual int ClearUpApplicationData(const std::string &bundleName,
-        const int32_t userId = -1) override;
+    virtual int KillProcess(const std::string &bundleName, const bool clearPageStack = true) override;
 
     /**
      * Uninstall app
@@ -1319,6 +1309,8 @@ public:
     virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason,
         const Want *want = nullptr) override;
 
+    virtual void ScheduleClearRecoveryPageStack() override;
+
     /**
      * Called to verify that the MissionId is valid.
      * @param missionIds Query mission list.
@@ -1557,8 +1549,6 @@ public:
      */
     virtual bool IsAbilityControllerStart(const Want &want) override;
 
-    void HandleProcessFrozen(const std::vector<int32_t> &pidList, int32_t uid);
-
     /**
      * @brief Called when insight intent execute finished.
      *
@@ -1682,7 +1672,8 @@ public:
      */
     virtual int32_t TransferAbilityResultForExtension(const sptr<IRemoteObject> &callerToken, int32_t resultCode,
         const Want &want) override;
-    
+
+    std::shared_ptr<MissionListManager> GetMissionListManagerByUserId(int32_t userId);
     /**
      * Notify ability manager service frozen process.
      *
@@ -1905,7 +1896,6 @@ private:
     std::shared_ptr<PendingWantManager> GetPendingWantManagerByUserId(int32_t userId);
     std::unordered_map<int, std::shared_ptr<MissionListManager>> GetMissionListManagers();
     std::shared_ptr<MissionListManager> GetCurrentMissionListManager();
-    std::shared_ptr<MissionListManager> GetMissionListManagerByUserId(int32_t userId);
     std::unordered_map<int, std::shared_ptr<UIAbilityLifecycleManager>> GetUIAbilityManagers();
     std::shared_ptr<UIAbilityLifecycleManager> GetCurrentUIAbilityManager();
     std::shared_ptr<UIAbilityLifecycleManager> GetUIAbilityManagerByUserId(int32_t userId);
@@ -1963,11 +1953,11 @@ private:
     void UnsubscribeBundleEventCallback();
 
     void ReportAbilitStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo);
+
     void ReportAbilitAssociatedStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo, int64_t type,
         const sptr<IRemoteObject> &callerToken);
 
-    void ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo);
-    void RegisterSuspendObserver();
+    void ReportEventToRSS(const AppExecFwk::AbilityInfo &abilityInfo);
 
     void ReportAppRecoverResult(const int32_t appId, const AppExecFwk::ApplicationInfo &appInfo,
         const std::string& abilityName, const std::string& result);
