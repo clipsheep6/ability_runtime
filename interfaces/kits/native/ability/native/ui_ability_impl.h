@@ -95,6 +95,8 @@ public:
      */
     bool AbilityTransaction(const AAFwk::Want &want, const AAFwk::LifeCycleStateInfo &targetState);
 
+    void HandleInitialState(bool &ret);
+
     /**
      * @brief Send the result code and data to be returned by this Page ability to the caller.
      * When a Page ability is destroyed, the caller overrides the AbilitySlice#onAbilityResult(int, int, Want)

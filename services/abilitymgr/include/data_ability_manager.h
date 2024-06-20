@@ -35,6 +35,8 @@ public:
     virtual ~DataAbilityManager();
 
 public:
+    sptr<IAbilityScheduler> DataAbilityRecordGetScheduler(std::shared_ptr<DataAbilityRecord> dataAbilityRecord,
+        const std::string dataAbilityName, const sptr<IRemoteObject> &client, bool tryBind, bool isNotHap);
     sptr<IAbilityScheduler> Acquire(
         const AbilityRequest &abilityRequest, bool tryBind, const sptr<IRemoteObject> &client, bool isNotHap);
     int Release(const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &client, bool isNotHap);

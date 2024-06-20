@@ -53,6 +53,8 @@ struct InnerMissionInfo {
     int32_t collaboratorType = 0;
 
     std::string ToJsonStr() const;
+    bool FromJsonStrToInnerMissionInfo(nlohmann::json value);
+    bool FromJsonStrToMissionInfo(nlohmann::json value);
     bool FromJsonStr(const std::string &jsonStr);
     void Dump(std::vector<std::string> &info) const;
     bool CheckJsonNode(nlohmann::json &value, const std::string &node, JsonType jsonType);

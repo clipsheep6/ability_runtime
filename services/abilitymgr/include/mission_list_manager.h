@@ -409,6 +409,7 @@ private:
     std::shared_ptr<Mission> GetReusedMission(const AbilityRequest &abilityRequest);
     std::shared_ptr<Mission> GetReusedSpecifiedMission(const AbilityRequest &abilityRequest);
     std::shared_ptr<Mission> GetReusedStandardMission(const AbilityRequest &abilityRequest);
+    void UpdateInnerMissionInfo(bool findReusedMissionInfo, InnerMissionInfo info);
     void GetTargetMissionAndAbility(const AbilityRequest &abilityRequest, std::shared_ptr<Mission> &targetMission,
         std::shared_ptr<AbilityRecord> &targetRecord, bool &isReachToLimit);
     bool HandleReusedMissionAndAbility(const AbilityRequest &abilityRequest, std::shared_ptr<Mission> &targetMission,
@@ -534,6 +535,7 @@ private:
 
     void SendKeyEvent(const AbilityRequest &abilityRequest);
 
+    void ChangedAppState(const AppInfo &info, std::list<std::shared_ptr<Mission>> missions, std::string &msg);
     int userId_;
     mutable ffrt::mutex managerLock_;
     // launcher list is also in currentMissionLists_

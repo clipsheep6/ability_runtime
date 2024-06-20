@@ -234,6 +234,7 @@ private:
 
     ErrCode RunAsHelpCommand();
     ErrCode RunAsScreenCommand();
+    void HandleInvalidScreenOptions(int& result);
     ErrCode RunAsStartAbility();
     ErrCode RunAsStopService();
     ErrCode RunAsDumpsysCommand();

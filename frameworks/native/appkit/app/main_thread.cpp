@@ -1049,59 +1049,7 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     if (isStageBased && multiProjects) {
         TAG_LOGI(AAFwkTag::APPKIT, "multiProjects");
     } else {
-        std::regex pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + bundleName);
-        std::string loadPath =
-            (!entryHapModuleInfo.hapPath.empty()) ? entryHapModuleInfo.hapPath : entryHapModuleInfo.resourcePath;
-        if (!loadPath.empty()) {
-            loadPath = std::regex_replace(loadPath, pattern, std::string(LOCAL_CODE_PATH));
-            TAG_LOGD(AAFwkTag::APPKIT, "ModuleResPath: %{public}s", loadPath.c_str());
-            // getOverlayPath
-            auto res = GetOverlayModuleInfos(bundleName, entryHapModuleInfo.moduleName, overlayModuleInfos_);
-            if (res != ERR_OK) {
-                TAG_LOGW(AAFwkTag::APPKIT, "getOverlayPath failed.");
-            }
-            if (overlayModuleInfos_.size() == 0) {
-                if (!resourceManager->AddResource(loadPath.c_str())) {
-                    TAG_LOGE(AAFwkTag::APPKIT, "AddResource failed");
-                }
-            } else {
-                std::vector<std::string> overlayPaths;
-                for (auto it : overlayModuleInfos_) {
-                    if (std::regex_search(it.hapPath, std::regex(bundleName))) {
-                        it.hapPath = std::regex_replace(it.hapPath, pattern, std::string(LOCAL_CODE_PATH));
-                    } else {
-                        it.hapPath = std::regex_replace(it.hapPath, std::regex(ABS_CODE_PATH), LOCAL_BUNDLES);
-                    }
-                    if (it.state == OverlayState::OVERLAY_ENABLE) {
-                        TAG_LOGD(AAFwkTag::APPKIT, "hapPath: %{public}s", it.hapPath.c_str());
-                        overlayPaths.emplace_back(it.hapPath);
-                    }
-                }
-                TAG_LOGD(AAFwkTag::APPKIT, "OverlayPaths size:%{public}zu.", overlayPaths.size());
-                if (!resourceManager->AddResource(loadPath, overlayPaths)) {
-                    TAG_LOGE(AAFwkTag::APPKIT, "AddResource failed");
-                }
-                // add listen overlay change
-                EventFwk::MatchingSkills matchingSkills;
-                matchingSkills.AddEvent(OVERLAY_STATE_CHANGED);
-                EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
-                subscribeInfo.SetThreadMode(EventFwk::CommonEventSubscribeInfo::COMMON);
-                wptr<MainThread> weak = this;
-                auto callback = [weak, resourceManager, bundleName, moduleName = entryHapModuleInfo.moduleName,
-                    loadPath](const EventFwk::CommonEventData &data) {
-                    TAG_LOGD(AAFwkTag::APPKIT, "On overlay changed.");
-                    auto appThread = weak.promote();
-                    if (appThread == nullptr) {
-                        TAG_LOGE(AAFwkTag::APPKIT, "abilityThread is nullptr, SetRunnerStarted failed.");
-                        return;
-                    }
-                    appThread->OnOverlayChanged(data, resourceManager, bundleName, moduleName, loadPath);
-                };
-                auto subscriber = std::make_shared<OverlayEventSubscriber>(subscribeInfo, callback);
-                bool subResult = EventFwk::CommonEventManager::SubscribeCommonEvent(subscriber);
-                TAG_LOGD(AAFwkTag::APPKIT, "Overlay event subscriber register result is %{public}d", subResult);
-            }
-        }
+        OnStartAbility(bundleName, resourceManager, entryHapModuleInfo);
     }
 
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
@@ -1144,6 +1092,80 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
 
     resourceManager->UpdateResConfig(*resConfig);
     return true;
+}
+
+void MainThread::OnStartAbility(const std::string &bundleName,
+    std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
+    const AppExecFwk::HapModuleInfo &entryHapModuleInfo)
+{
+    std::regex pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + bundleName);
+    std::string loadPath =
+        (!entryHapModuleInfo.hapPath.empty()) ? entryHapModuleInfo.hapPath : entryHapModuleInfo.resourcePath;
+    if (!loadPath.empty()) {
+        loadPath = std::regex_replace(loadPath, pattern, std::string(LOCAL_CODE_PATH));
+        TAG_LOGD(AAFwkTag::APPKIT, "ModuleResPath: %{public}s", loadPath.c_str());
+        // getOverlayPath
+        auto res = GetOverlayModuleInfos(bundleName, entryHapModuleInfo.moduleName, overlayModuleInfos_);
+        if (res != ERR_OK) {
+            TAG_LOGW(AAFwkTag::APPKIT, "getOverlayPath failed.");
+        }
+        if (overlayModuleInfos_.size() == 0) {
+            if (!resourceManager->AddResource(loadPath.c_str())) {
+                TAG_LOGE(AAFwkTag::APPKIT, "AddResource failed");
+            }
+        } else {
+            std::vector<std::string> overlayPaths = GetOverlayPaths(bundleName, overlayModuleInfos_);
+            TAG_LOGD(AAFwkTag::APPKIT, "OverlayPaths size:%{public}zu.", overlayPaths.size());
+            if (!resourceManager->AddResource(loadPath, overlayPaths)) {
+                TAG_LOGE(AAFwkTag::APPKIT, "AddResource failed");
+            }
+            SubscribeOverlayChange(bundleName, loadPath, resourceManager, entryHapModuleInfo);
+        }
+    }
+}
+
+std::vector<std::string> MainThread::GetOverlayPaths(const std::string &bundleName,
+    const std::vector<OverlayModuleInfo> &overlayModuleInfos)
+{
+    std::vector<std::string> overlayPaths;
+    for (auto it : overlayModuleInfos_) {
+        if (std::regex_search(it.hapPath, std::regex(bundleName))) {
+            it.hapPath = std::regex_replace(it.hapPath, std::regex(std::string(ABS_CODE_PATH) +
+                std::string(FILE_SEPARATOR) + bundleName), std::string(LOCAL_CODE_PATH));
+        } else {
+            it.hapPath = std::regex_replace(it.hapPath, std::regex(ABS_CODE_PATH), LOCAL_BUNDLES);
+        }
+        if (it.state == OverlayState::OVERLAY_ENABLE) {
+            TAG_LOGD(AAFwkTag::APPKIT, "hapPath: %{public}s", it.hapPath.c_str());
+            overlayPaths.emplace_back(it.hapPath);
+        }
+    }
+    return overlayPaths;
+}
+
+void MainThread::SubscribeOverlayChange(const std::string &bundleName, const std::string &loadPath,
+    std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
+    const AppExecFwk::HapModuleInfo &entryHapModuleInfo)
+{
+    // add listen overlay change
+    EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(OVERLAY_STATE_CHANGED);
+    EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
+    subscribeInfo.SetThreadMode(EventFwk::CommonEventSubscribeInfo::COMMON);
+    wptr<MainThread> weak = this;
+    auto callback = [weak, resourceManager, bundleName, moduleName = entryHapModuleInfo.moduleName,
+        loadPath](const EventFwk::CommonEventData &data) {
+        TAG_LOGD(AAFwkTag::APPKIT, "On overlay changed.");
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            TAG_LOGE(AAFwkTag::APPKIT, "abilityThread is nullptr, SetRunnerStarted failed.");
+            return;
+        }
+        appThread->OnOverlayChanged(data, resourceManager, bundleName, moduleName, loadPath);
+    };
+    auto subscriber = std::make_shared<OverlayEventSubscriber>(subscribeInfo, callback);
+    bool subResult = EventFwk::CommonEventManager::SubscribeCommonEvent(subscriber);
+    TAG_LOGD(AAFwkTag::APPKIT, "Overlay event subscriber register result is %{public}d", subResult);
 }
 
 void MainThread::OnOverlayChanged(const EventFwk::CommonEventData &data,
@@ -2668,15 +2690,7 @@ void MainThread::LoadAbilityLibrary(const std::vector<std::string> &libraryPaths
 #ifdef ABILITY_LIBRARY_LOADER
     TAG_LOGD(AAFwkTag::APPKIT, "start.");
 #ifdef SUPPORT_SCREEN
-    void *AceAbilityLib = nullptr;
-    const char *path = Ace::AceForwardCompatibility::GetAceLibName();
-    AceAbilityLib = dlopen(path, RTLD_NOW | RTLD_LOCAL);
-    if (AceAbilityLib == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "Fail to dlopen %{public}s, [%{public}s]", path, dlerror());
-    } else {
-        TAG_LOGD(AAFwkTag::APPKIT, "Success to dlopen %{public}s", path);
-        handleAbilityLib_.emplace_back(AceAbilityLib);
-    }
+    LoadAceAbilityLibrary();
 #endif
     size_t size = libraryPaths.size();
     for (size_t index = 0; index < size; index++) {
@@ -2717,6 +2731,19 @@ void MainThread::LoadAbilityLibrary(const std::vector<std::string> &libraryPaths
         handleAbilityLib_.emplace_back(handleAbilityLib);
     }
 #endif  // ABILITY_LIBRARY_LOADER
+}
+
+void MainThread::LoadAceAbilityLibrary()
+{
+    void *AceAbilityLib = nullptr;
+    const char *path = Ace::AceForwardCompatibility::GetAceLibName();
+    AceAbilityLib = dlopen(path, RTLD_NOW | RTLD_LOCAL);
+    if (AceAbilityLib == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Fail to dlopen %{public}s, [%{public}s]", path, dlerror());
+    } else {
+        TAG_LOGD(AAFwkTag::APPKIT, "Success to dlopen %{public}s", path);
+        handleAbilityLib_.emplace_back(AceAbilityLib);
+    }
 }
 
 void MainThread::LoadAppLibrary()
