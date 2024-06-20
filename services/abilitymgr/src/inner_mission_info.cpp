@@ -62,23 +62,12 @@ std::string InnerMissionInfo::ToJsonStr() const
     return value.dump();
 }
 
-bool InnerMissionInfo::FromJsonStr(const std::string &jsonStr)
+bool InnerMissionInfo::FromJsonStrToInnerMissionInfo(nlohmann::json value)
 {
-    // Do not throw exceptions in nlohmann::json::parse
-    if (jsonStr.empty()) {
-        return false;
-    }
-    nlohmann::json value = nlohmann::json::parse(jsonStr, nullptr, false);
-    if (value.is_discarded()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to parse json sting: %{private}s.", jsonStr.c_str());
-        return false;
-    }
-
     if (!CheckJsonNode(value, KEY_MISSION_NAME, JsonType::STRING)) {
         return false;
     }
     missionName = value[KEY_MISSION_NAME].get<std::string>();
-
     if (!CheckJsonNode(value, KEY_LAUNCH_MODE, JsonType::NUMBER)) {
         return false;
     }
@@ -103,6 +92,15 @@ bool InnerMissionInfo::FromJsonStr(const std::string &jsonStr)
         return false;
     }
     specifiedFlag = value[KEY_SPEC_FLAG].get<std::string>();
+    if (!CheckJsonNode(value, KEY_HAS_RECONER_INFO, JsonType::BOOLEAN)) {
+        return false;
+    }
+    hasRecoverInfo = value[KEY_HAS_RECONER_INFO].get<bool>();
+    return true;
+}
+
+bool InnerMissionInfo::FromJsonStrToMissionInfo(nlohmann::json value)
+{
     if (!CheckJsonNode(value, KEY_MISSION_ID, JsonType::NUMBER)) {
         return false;
     }
@@ -134,14 +132,34 @@ bool InnerMissionInfo::FromJsonStr(const std::string &jsonStr)
     if (!CheckJsonNode(value, KEY_WANT, JsonType::STRING)) {
         return false;
     }
-    if (!CheckJsonNode(value, KEY_HAS_RECONER_INFO, JsonType::BOOLEAN)) {
-        return false;
-    }
-    hasRecoverInfo = value[KEY_HAS_RECONER_INFO].get<bool>();
     Want* want = Want::ParseUri(value[KEY_WANT].get<std::string>());
     if (want) {
         missionInfo.want = *want;
     }
+    return true;
+}
+
+bool InnerMissionInfo::FromJsonStr(const std::string &jsonStr)
+{
+    // Do not throw exceptions in nlohmann::json::parse
+    if (jsonStr.empty()) {
+        return false;
+    }
+
+    nlohmann::json value = nlohmann::json::parse(jsonStr, nullptr, false);
+    if (value.is_discarded()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to parse json sting: %{private}s.", jsonStr.c_str());
+        return false;
+    }
+
+    if (!FromJsonStrToInnerMissionInfo(value)) {
+        return false;
+    }
+
+    if (!FromJsonStrToMissionInfo(value)) {
+        return false;
+    }
+
     return true;
 }
 

@@ -601,6 +601,15 @@ bool MissionListManager::CreateOrReusedMissionInfo(const AbilityRequest &ability
     return reUsedMissionInfo;
 }
 
+void MissionListManager::UpdateInnerMissionInfo(bool findReusedMissionInfo, InnerMissionInfo info)
+{
+    if (findReusedMissionInfo) {
+        DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionInfo(info);
+    } else {
+        DelayedSingleton<MissionInfoMgr>::GetInstance()->AddMissionInfo(info);
+    }
+}
+
 void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilityRequest,
     std::shared_ptr<Mission> &targetMission, std::shared_ptr<AbilityRecord> &targetRecord, bool &isReachToLimit)
 {
@@ -657,11 +666,7 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         return;
     }
 
-    if (findReusedMissionInfo) {
-        DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionInfo(info);
-    } else {
-        DelayedSingleton<MissionInfoMgr>::GetInstance()->AddMissionInfo(info);
-    }
+    UpdateInnerMissionInfo(findReusedMissionInfo, info);
 }
 
 void MissionListManager::EnableRecoverAbility(int32_t missionId)
