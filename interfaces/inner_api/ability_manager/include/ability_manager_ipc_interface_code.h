@@ -243,6 +243,9 @@ enum class AbilityManagerInterfaceCode {
 
     // Set resident process enable status.
     SET_RESIDENT_PROCESS_ENABLE = 80,
+    
+	// start UIServiceExtension
+	START_UI_SERVICE_EXTENSION_ABILITY = 81,
 
     // ipc id 1001-2000 for DMS
     // ipc id for starting ability (1001)
