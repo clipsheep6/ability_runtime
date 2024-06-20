@@ -213,10 +213,6 @@ public:
     {
         return 0;
     }
-    int ClearUpApplicationData(const std::string& bundleName, const int32_t userId = DEFAULT_INVAL_VALUE) override
-    {
-        return 0;
-    }
     int StartContinuation(const Want& want, const sptr<IRemoteObject>& abilityToken, int32_t status) override
     {
         return 0;

@@ -271,7 +271,7 @@ int32_t AmsMgrScheduler::KillProcessWithAccount(
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
-    return amsMgrServiceInner_->KillApplicationByUserId(bundleName, accountId, clearPageStack);
+    return amsMgrServiceInner_->KillApplicationByUserId(bundleName, 0, accountId, clearPageStack);
 }
 
 void AmsMgrScheduler::AbilityAttachTimeOut(const sptr<IRemoteObject> &token)

@@ -1700,20 +1700,20 @@ HWTEST_F(AmsAppLifeCycleTest, ClearUpApplicationData_001, TestSize.Level1)
 
     // pid < 0
     appRecord->SetUid(101);
-    EXPECT_CALL(*mockBundleMgr, CleanBundleDataFiles(_, _)).Times(0);
-    serviceInner_->ClearUpApplicationData(appRecord->GetBundleName(), appRecord->GetUid(), 0);
+    EXPECT_CALL(*mockBundleMgr, CleanBundleDataFiles(_, _, _)).Times(0);
+    serviceInner_->ClearUpApplicationData(appRecord->GetBundleName(), appRecord->GetUid(), 0, 0);
 
     // uid < 0
-    EXPECT_CALL(*mockBundleMgr, CleanBundleDataFiles(_, _)).Times(0);
-    serviceInner_->ClearUpApplicationData(appRecord->GetBundleName(), -1, NEW_PID);
+    EXPECT_CALL(*mockBundleMgr, CleanBundleDataFiles(_, _, _)).Times(0);
+    serviceInner_->ClearUpApplicationData(appRecord->GetBundleName(), -1, NEW_PID, 0);
 
-    EXPECT_CALL(*mockBundleMgr, CleanBundleDataFiles(_, _)).Times(1).WillOnce(Return(101));
+    EXPECT_CALL(*mockBundleMgr, CleanBundleDataFiles(_, _, _)).Times(1).WillOnce(Return(101));
 
     sptr<MockAppScheduler> mockAppScheduler = new MockAppScheduler();
     sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockAppScheduler.GetRefPtr());
     appRecord->SetApplicationClient(client);
 
-    serviceInner_->ClearUpApplicationData(appRecord->GetBundleName(), appRecord->GetUid(), NEW_PID);
+    serviceInner_->ClearUpApplicationData(appRecord->GetBundleName(), appRecord->GetUid(), NEW_PID, 0);
 }
 
 /*
@@ -1733,14 +1733,14 @@ HWTEST_F(AmsAppLifeCycleTest, ClearUpApplicationData_002, TestSize.Level1)
     auto appRecord = StartProcessAndLoadAbility(token, nullptr, abilityInfo, appInfo, NEW_PID);
     appRecord->SetUid(101);
 
-    EXPECT_CALL(*mockBundleMgr, CleanBundleDataFiles(_, _)).Times(1).WillOnce(Return(101));
-    EXPECT_CALL(*mockBundleMgr, GetUidByBundleName(_, _)).Times(1);
+    EXPECT_CALL(*mockBundleMgr, CleanBundleDataFiles(_, _, _)).Times(1).WillOnce(Return(101));
+    EXPECT_CALL(*mockBundleMgr, GetUidByBundleName(_, _, _)).Times(1);
 
     sptr<MockAppScheduler> mockAppScheduler = new MockAppScheduler();
     sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockAppScheduler.GetRefPtr());
     appRecord->SetApplicationClient(client);
 
-    serviceInner_->ClearUpApplicationData(appRecord->GetBundleName(), appRecord->GetUid(), NEW_PID);
+    serviceInner_->ClearUpApplicationData(appRecord->GetBundleName(), appRecord->GetUid(), NEW_PID, 0);
 }
 
 /*
@@ -1760,14 +1760,14 @@ HWTEST_F(AmsAppLifeCycleTest, ClearUpApplicationData_003, TestSize.Level1)
     auto appRecord = StartProcessAndLoadAbility(token, nullptr, abilityInfo, appInfo, NEW_PID);
     appRecord->SetUid(101);
 
-    EXPECT_CALL(*mockBundleMgr, CleanBundleDataFiles(_, _)).Times(1).WillOnce(Return(0));
-    EXPECT_CALL(*mockBundleMgr, GetUidByBundleName(_, _)).Times(0);
+    EXPECT_CALL(*mockBundleMgr, CleanBundleDataFiles(_, _, _)).Times(1).WillOnce(Return(0));
+    EXPECT_CALL(*mockBundleMgr, GetUidByBundleName(_, _, _)).Times(0);
 
     sptr<MockAppScheduler> mockAppScheduler = new MockAppScheduler();
     sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockAppScheduler.GetRefPtr());
     appRecord->SetApplicationClient(client);
 
-    serviceInner_->ClearUpApplicationData(appRecord->GetBundleName(), appRecord->GetUid(), NEW_PID);
+    serviceInner_->ClearUpApplicationData(appRecord->GetBundleName(), appRecord->GetUid(), NEW_PID, 0);
 }
 
 /*

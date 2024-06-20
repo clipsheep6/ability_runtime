@@ -571,16 +571,6 @@ public:
     #endif
 
     /**
-     * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
-     * clear the application data.
-     *
-     * @param bundleName, bundle name in Application record.
-     * @return
-     */
-    virtual int ClearUpApplicationData(const std::string &bundleName,
-        const int32_t userId = -1) override;
-
-    /**
      * Uninstall app
      *
      * @param bundleName bundle name of uninstalling app.

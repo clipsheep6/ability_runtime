@@ -1785,31 +1785,6 @@ int AbilityManagerProxy::ForceTimeoutForTest(const std::string &abilityName, con
 }
 #endif
 
-int AbilityManagerProxy::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
-    }
-    if (!data.WriteString16(Str8ToStr16(bundleName))) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "bundleName write failed.");
-        return ERR_INVALID_VALUE;
-    }
-    if (!data.WriteInt32(userId)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "userId write failed.");
-        return ERR_INVALID_VALUE;
-    }
-    int error = SendRequest(AbilityManagerInterfaceCode::CLEAR_UP_APPLICATION_DATA, data, reply, option);
-    if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
-        return error;
-    }
-    return reply.ReadInt32();
-}
-
 int AbilityManagerProxy::UninstallApp(const std::string &bundleName, int32_t uid)
 {
     MessageParcel data;

@@ -272,17 +272,6 @@ int AppScheduler::KillApplicationByUid(const std::string &bundleName, int32_t ui
     return ERR_OK;
 }
 
-int AppScheduler::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
-{
-    CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
-    int ret = (int)appMgrClient_->ClearUpApplicationData(bundleName, userId);
-    if (ret != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Fail to clear application data.");
-        return INNER_ERR;
-    }
-    return ERR_OK;
-}
-
 void AppScheduler::AttachTimeOut(const sptr<IRemoteObject> &token)
 {
     CHECK_POINTER(appMgrClient_);

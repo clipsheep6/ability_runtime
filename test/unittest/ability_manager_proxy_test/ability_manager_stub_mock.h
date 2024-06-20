@@ -235,11 +235,6 @@ public:
         return;
     }
 
-    int ClearUpApplicationData(const std::string& bundleName, const int32_t userId = DEFAULT_INVAL_VALUE) override
-    {
-        return 0;
-    }
-
     int StartUser(int userId, sptr<IUserCallback> callback) override
     {
         return 0;

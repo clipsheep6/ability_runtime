@@ -120,11 +120,12 @@ public:
      * clear the application data.
      *
      * @param bundleName, bundle name in Application record.
+     * @param appCloneIndex the app clone id.
      * @param userId the user id.
-     * @return
+     * @return ErrCode
      */
-    virtual int32_t ClearUpApplicationData(const std::string &bundleName,
-        const int32_t userId = -1) = 0;
+    virtual int32_t ClearUpApplicationData(const std::string &bundleName, int32_t appCloneIndex,
+        int32_t userId = -1) = 0;
 
     /**
      * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,

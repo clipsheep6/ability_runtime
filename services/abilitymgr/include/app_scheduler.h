@@ -250,13 +250,6 @@ public:
      */
     int UpdateApplicationInfoInstalled(const std::string &bundleName, const int32_t uid);
 
-    /**
-     * clear the application data
-     *
-     * @param bundleName.
-     */
-    int ClearUpApplicationData(const std::string &bundleName, const int32_t userId = -1);
-
     void AttachTimeOut(const sptr<IRemoteObject> &token);
 
     void PrepareTerminate(const sptr<IRemoteObject> &token);
