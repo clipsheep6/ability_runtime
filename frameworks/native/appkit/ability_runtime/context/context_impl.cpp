@@ -1027,10 +1027,11 @@ void ContextImpl::SetConfiguration(const std::shared_ptr<AppExecFwk::Configurati
     config_ = config;
 }
 
-void ContextImpl::KillProcessBySelf()
+void ContextImpl::KillProcessBySelf(const bool clearPageStack)
 {
+    TAG_LOGD(AAFwkTag::APPKIT, "killProcessBySelf called clearPageStack is %{public}d.", clearPageStack);
     auto appMgrClient = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance();
-    appMgrClient->KillApplicationSelf();
+    appMgrClient->KillApplicationSelf(clearPageStack);
 }
 
 int32_t ContextImpl::GetProcessRunningInformation(AppExecFwk::RunningProcessInfo &info)

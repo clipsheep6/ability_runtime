@@ -22,6 +22,10 @@ config("ability_command_config") {
   ]
 }
 
+config("ability_command_exception_config") {
+  cflags_cc = [ "-fexceptions" ]
+}
+
 ohos_static_library("tools_aa_source_set") {
   sources = [
     "src/ability_command.cpp",
@@ -38,6 +42,7 @@ ohos_static_library("tools_aa_source_set") {
 
   public_configs = [
     ":ability_command_config",
+    ":ability_command_exception_config",
     "${ability_runtime_services_path}/abilitymgr:abilityms_config",
     "${ability_runtime_services_path}/common:common_config",
   ]

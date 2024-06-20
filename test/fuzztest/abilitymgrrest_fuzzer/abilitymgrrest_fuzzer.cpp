@@ -56,13 +56,9 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     if (wantParcel.WriteBuffer(data, size)) {
         want = Want::Unmarshalling(wantParcel);
     }
-    int32_t userId = static_cast<int32_t>(GetU32Data(data));
     std::shared_ptr<SystemDialogScheduler> systemDialogScheduler = std::make_shared<SystemDialogScheduler>();
     std::vector<DialogAppInfo> dialogAppInfos;
     systemDialogScheduler->GetSelectorParams(dialogAppInfos);
-    int32_t labelId = static_cast<int32_t>(GetU32Data(data));
-    std::string appName(data, size);
-    systemDialogScheduler->GetAppNameFromResource(labelId, bundleName, userId, appName);
     InnerMissionInfo innerMissionInfo;
     innerMissionInfo.ToJsonStr();
     std::string jsonStr(data, size);

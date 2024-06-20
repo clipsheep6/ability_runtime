@@ -33,13 +33,11 @@
 #include "scene_board_judgement.h"
 #include "window_visibility_info.h"
 #endif //SUPPORT_SCREEN
-#include "ui_extension_utils.h"
 #include "app_mgr_service_const.h"
-#include "cache_process_manager.h"
-#ifdef EFFICIENCY_MANAGER_ENABLE
-#include "suspend_manager_client.h"
-#endif
 #include "app_mgr_service_dump_error_code.h"
+#include "cache_process_manager.h"
+#include "res_sched_util.h"
+#include "ui_extension_utils.h"
 
 
 namespace OHOS {
@@ -213,7 +211,8 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByAbilit
     return nullptr;
 }
 
-bool AppRunningManager::ProcessExitByBundleName(const std::string &bundleName, std::list<pid_t> &pids)
+bool AppRunningManager::ProcessExitByBundleName(
+    const std::string &bundleName, std::list<pid_t> &pids, const bool clearPageStack)
 {
     auto appRunningMap = GetAppRunningRecordMap();
     for (const auto &item : appRunningMap) {
@@ -228,10 +227,14 @@ bool AppRunningManager::ProcessExitByBundleName(const std::string &bundleName, s
                 return appInfo->bundleName == bundleName;
             };
             auto iter = std::find_if(appInfoList.begin(), appInfoList.end(), isExist);
-            if (iter != appInfoList.end() && pid > 0) {
-                pids.push_back(pid);
-                appRecord->ScheduleProcessSecurityExit();
+            if (iter == appInfoList.end() || pid <= 0) {
+                continue;
             }
+            pids.push_back(pid);
+            if (clearPageStack) {
+                appRecord->ScheduleClearPageStack();
+            }
+            appRecord->ScheduleProcessSecurityExit();
         }
     }
 
@@ -280,25 +283,29 @@ int32_t AppRunningManager::ProcessUpdateApplicationInfoInstalled(const Applicati
 }
 
 bool AppRunningManager::ProcessExitByBundleNameAndUid(
-    const std::string &bundleName, const int uid, std::list<pid_t> &pids)
+    const std::string &bundleName, const int uid, std::list<pid_t> &pids, const bool clearPageStack)
 {
     auto appRunningMap = GetAppRunningRecordMap();
     for (const auto &item : appRunningMap) {
         const auto &appRecord = item.second;
-        if (appRecord) {
-            auto appInfoList = appRecord->GetAppInfoList();
-            auto isExist = [&bundleName, &uid](const std::shared_ptr<ApplicationInfo> &appInfo) {
-                return appInfo->bundleName == bundleName && appInfo->uid == uid;
-            };
-            auto iter = std::find_if(appInfoList.begin(), appInfoList.end(), isExist);
-            pid_t pid = appRecord->GetPriorityObject()->GetPid();
-            if (iter != appInfoList.end() && pid > 0) {
-                pids.push_back(pid);
-
-                appRecord->SetKilling();
-                appRecord->ScheduleProcessSecurityExit();
-            }
+        if (appRecord == nullptr) {
+            continue;
         }
+        auto appInfoList = appRecord->GetAppInfoList();
+        auto isExist = [&bundleName, &uid](const std::shared_ptr<ApplicationInfo> &appInfo) {
+            return appInfo->bundleName == bundleName && appInfo->uid == uid;
+        };
+        auto iter = std::find_if(appInfoList.begin(), appInfoList.end(), isExist);
+        pid_t pid = appRecord->GetPriorityObject()->GetPid();
+        if (iter == appInfoList.end() || pid <= 0) {
+            continue;
+        }
+        pids.push_back(pid);
+        if (clearPageStack) {
+            appRecord->ScheduleClearPageStack();
+        }
+        appRecord->SetKilling();
+        appRecord->ScheduleProcessSecurityExit();
     }
 
     return (pids.empty() ? false : true);
@@ -767,20 +774,7 @@ bool AppRunningManager::isCollaboratorReserveType(const std::shared_ptr<AppRunni
 int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
 {
     std::unordered_set<int32_t> frozenPids;
-#ifdef EFFICIENCY_MANAGER_ENABLE
-    std::unordered_map<int32_t, std::unordered_map<int32_t, bool>> appSuspendState;
-    SuspendManager::SuspendManagerClient::GetInstance().GetAllSuspendState(appSuspendState);
-    if (appSuspendState.empty()) {
-        TAG_LOGW(AAFwkTag::APPMGR, "Get app state empty");
-    }
-    for (auto &[uid, pids] : appSuspendState) {
-        for (auto &[pid, isFrozen] : pids) {
-            if (isFrozen) {
-                frozenPids.insert(pid);
-            }
-        }
-    }
-#endif
+    AAFwk::ResSchedUtil::GetInstance().GetAllFrozenPidsFromRSS(frozenPids);
     auto appRunningMap = GetAppRunningRecordMap();
     for (const auto &item : appRunningMap) {
         const auto &appRecord = item.second;
@@ -807,20 +801,7 @@ int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
 int32_t AppRunningManager::NotifyProcMemoryLevel(const std::map<pid_t, MemoryLevel> &procLevelMap)
 {
     std::unordered_set<int32_t> frozenPids;
-#ifdef EFFICIENCY_MANAGER_ENABLE
-    std::unordered_map<int32_t, std::unordered_map<int32_t, bool>> appSuspendState;
-    SuspendManager::SuspendManagerClient::GetInstance().GetAllSuspendState(appSuspendState);
-    if (appSuspendState.empty()) {
-        TAG_LOGW(AAFwkTag::APPMGR, "Get app state empty");
-    }
-    for (auto &[uid, pids] : appSuspendState) {
-        for (auto &[pid, isFrozen] : pids) {
-            if (isFrozen) {
-                frozenPids.insert(pid);
-            }
-        }
-    }
-#endif
+    AAFwk::ResSchedUtil::GetInstance().GetAllFrozenPidsFromRSS(frozenPids);
     auto appRunningMap = GetAppRunningRecordMap();
     for (const auto &item : appRunningMap) {
         const auto &appRecord = item.second;

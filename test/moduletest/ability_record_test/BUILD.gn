@@ -86,11 +86,6 @@ ohos_moduletest("AbilityRecordModuleTest") {
     "relational_store:native_rdb",
   ]
 
-  if (efficiency_manager) {
-    cflags_cc += [ "-DEFFICIENCY_MANAGER_ENABLE" ]
-    external_deps += [ "efficiency_manager:suspend_manager_client" ]
-  }
-
   if (resource_schedule_service_enable) {
     cflags_cc += [ "-RESOURCE_SCHEDULE_SERVICE_ENABLE" ]
     external_deps += [ "resource_schedule_service:ressched_client" ]

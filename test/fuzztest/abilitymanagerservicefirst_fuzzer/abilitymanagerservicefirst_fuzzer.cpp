@@ -96,7 +96,7 @@ void DoSomethingInterestingWithMyAPI1(AbilityManagerService &abilityms, Want& wa
     abilityms.CheckOptExtensionAbility(want, abilityRequest, int32Param, extensionType);
     AppExecFwk::AbilityInfo abilityInfo;
     abilityms.ReportAbilitStartInfoToRSS(abilityInfo);
-    abilityms.ReportEventToSuspendManager(abilityInfo);
+    abilityms.ReportEventToRSS(abilityInfo);
     abilityms.StartExtensionAbility(want, token, int32Param, extensionType);
     abilityms.StopExtensionAbility(want, token, int32Param, extensionType);
     abilityms.TerminateAbility(token, intParam, &want);

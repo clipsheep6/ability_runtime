@@ -160,7 +160,7 @@ public:
      * @param  bundleName, bundle name in Application record.
      * @return ERR_OK, return back success, others fail.
      */
-    virtual AppMgrResultCode KillApplication(const std::string &bundleName);
+    virtual AppMgrResultCode KillApplication(const std::string &bundleName, const bool clearPageStack = true);
 
     /**
      * KillApplication, call KillApplication() through proxy object, kill the application.
@@ -176,7 +176,7 @@ public:
      *
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual AppMgrResultCode KillApplicationSelf();
+    virtual AppMgrResultCode KillApplicationSelf(const bool clearPageStack = true);
 
     /**
      * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,

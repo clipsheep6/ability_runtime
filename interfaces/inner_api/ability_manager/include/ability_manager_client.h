@@ -565,9 +565,10 @@ public:
      * Kill the process immediately.
      *
      * @param bundleName.
+     * @param clearPageStack.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode KillProcess(const std::string &bundleName);
+    ErrCode KillProcess(const std::string &bundleName, const bool clearPageStack = true);
 
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
@@ -989,7 +990,8 @@ public:
      * @param state the mission continuation state of this ability.
      * @return Returns ERR_OK if success.
      */
-    ErrCode SetMissionContinueState(sptr<IRemoteObject> token, const AAFwk::ContinueState &state);
+    ErrCode SetMissionContinueState(sptr<IRemoteObject> token, const AAFwk::ContinueState &state,
+        sptr<IRemoteObject> sessionToken);
 
 #ifdef SUPPORT_SCREEN
     /**
@@ -1177,6 +1179,13 @@ public:
      * @param want Want information.
      */
     void ScheduleRecoverAbility(sptr<IRemoteObject> token, int32_t reason, const Want *want = nullptr);
+
+    /**
+     * @brief Schedule clear recovery page stack.
+     *
+     * @param bundleName application bundleName.
+     */
+    void ScheduleClearRecoveryPageStack();
 
     /**
      * @brief Add free install observer.

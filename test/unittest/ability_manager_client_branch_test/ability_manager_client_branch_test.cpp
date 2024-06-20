@@ -2450,8 +2450,9 @@ HWTEST_F(AbilityManagerClientBranchTest, SetMissionContinueState_0100, TestSize.
     EXPECT_NE(client_, nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         sptr<IRemoteObject> token = nullptr;
+        sptr<IRemoteObject> sessionToken = nullptr;
         AAFwk::ContinueState state = AAFwk::ContinueState::CONTINUESTATE_ACTIVE;
-        auto result = client_->SetMissionContinueState(token, state);
+        auto result = client_->SetMissionContinueState(token, state, sessionToken);
         EXPECT_EQ(ERR_OK, result);
     }
     GTEST_LOG_(INFO) << "SetMissionContinueState_0100 end";
