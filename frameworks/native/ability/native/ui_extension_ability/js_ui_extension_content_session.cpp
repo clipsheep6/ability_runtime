@@ -860,9 +860,10 @@ napi_value JsUIExtensionContentSession::OnStartAbilityByType(napi_env env, NapiC
             }
 #ifdef SUPPORT_SCREEN
             Ace::ModalUIExtensionCallbacks callback;
-            callback.onError = std::bind(&JsUIExtensionCallback::OnError, uiExtensionCallback, std::placeholders::_1);
-            callback.onRelease = std::bind(&JsUIExtensionCallback::OnRelease,
-                uiExtensionCallback, std::placeholders::_1);
+            callback.onError = [uiExtensionCallback](const auto &arg)
+            { uiExtensionCallback->OnError(arg); };
+            callback.onRelease = [uiExtensionCallback](const auto &arg)
+            { uiExtensionCallback->OnRelease(arg); };
             Ace::ModalUIExtensionConfig config;
             auto uiContent = uiWindow->GetUIContent();
 

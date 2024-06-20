@@ -211,16 +211,35 @@ void AutoFillManager::BindModalUIExtensionCallback(
     const std::shared_ptr<AutoFillExtensionCallback> &extensionCallback, Ace::ModalUIExtensionCallbacks &callback)
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
-    callback.onResult = std::bind(
-        &AutoFillExtensionCallback::OnResult, extensionCallback, std::placeholders::_1, std::placeholders::_2);
-    callback.onRelease = std::bind(
-        &AutoFillExtensionCallback::OnRelease, extensionCallback, std::placeholders::_1);
-    callback.onError = std::bind(&AutoFillExtensionCallback::OnError,
-        extensionCallback, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-    callback.onReceive = std::bind(&AutoFillExtensionCallback::OnReceive, extensionCallback, std::placeholders::_1);
-    callback.onRemoteReady = std::bind(&AutoFillExtensionCallback::onRemoteReady,
-        extensionCallback, std::placeholders::_1);
-    callback.onDestroy = std::bind(&AutoFillExtensionCallback::onDestroy, extensionCallback);
+    callback.onResult = [extensionCallback](int arg1, int arg2)
+    {
+        extensionCallback->OnResult(arg1, arg2);
+    };
+
+    callback.onRelease = [extensionCallback](int arg1)
+    {
+        extensionCallback->OnRelease(arg1);
+    };
+
+    callback.onError = [extensionCallback](int arg1, int arg2, int arg3)
+    {
+        extensionCallback->OnError(arg1, arg2, arg3);
+    };
+
+    callback.onReceive = [extensionCallback](int arg1)
+    {
+        extensionCallback->OnReceive(arg1);
+    };
+
+    callback.onRemoteReady = [extensionCallback](int arg1)
+    {
+        extensionCallback->onRemoteReady(arg1);
+    };
+
+    callback.onDestroy = [extensionCallback]()
+    {
+        extensionCallback->onDestroy();
+    };
 }
 
 int32_t AutoFillManager::ReloadInModal(const AutoFill::ReloadInModalRequest &request)
