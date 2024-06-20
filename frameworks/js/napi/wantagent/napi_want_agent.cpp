@@ -313,6 +313,40 @@ napi_value JsWantAgent::NapiGetOperationType(napi_env env, napi_callback_info in
     return (me != nullptr) ? me->OnNapiGetOperationType(env, info) : nullptr;
 };
 
+napi_value JsWantAgent::HandleInvalidParam(napi_env env, napi_value lastParam, const std::string &errorMessage)
+{
+    #ifdef ENABLE_ERRCODE
+        ThrowInvalidParamError(env, errorMessage);
+        return CreateJsUndefined(env);
+    #else
+        return RetErrMsg(env, lastParam, ERR_NOT_OK);
+    #endif
+}
+
+void HandleAsyncTaskResult(napi_env env, NapiAsyncTask & task, ErrCode &retCode)
+{
+    bool ret = false;
+    #ifdef ENABLE_ERRCODE
+        if (retCode == ERR_NOT_OK) {
+            ret = false;
+            task.ResolveWithNoError(env, CreateJsValue(env, ret));
+        } else if (retCode == ERR_OK) {
+            ret = true;
+            task.ResolveWithNoError(env, CreateJsValue(env, ret));
+        } else {
+            task.Reject(env, CreateJsError(env, retCode, AbilityRuntimeErrorUtil::GetErrMessage(retCode)));
+        }
+    #else
+        if (retCode != ERR_OK) {
+            ret = false;
+            task.Resolve(env, CreateJsValue(env, ret));
+        } else {
+            ret = true;
+            task.Resolve(env, CreateJsValue(env, ret));
+        }
+    #endif
+}
+
 napi_value JsWantAgent::OnEqual(napi_env env, napi_callback_info info)
 {
     size_t argc = ARGS_MAX_COUNT;
@@ -332,44 +366,25 @@ napi_value JsWantAgent::OnEqual(napi_env env, napi_callback_info info)
     napi_value lastParam = (argc >= ARGC_THREE) ? argv[INDEX_TWO] : nullptr;
     if (!CheckTypeForNapiValue(env, argv[0], napi_object)) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Wrong argument type. Object expected.");
-#ifdef ENABLE_ERRCODE
-        ThrowInvalidParamError(env, "Wrong argument type. Agent must be a WantAgent.");
-        return CreateJsUndefined(env);
-#else
-        return RetErrMsg(env, lastParam, ERR_NOT_OK);
-#endif
+        return HandleInvalidParam(env, lastParam, "Wrong argument type. Agent must be a WantAgent.");
     }
 
     UnwrapWantAgent(env, argv[0], reinterpret_cast<void **>(&pWantAgentFirst));
     if (pWantAgentFirst == nullptr) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Parse pWantAgentFirst failed");
-#ifdef ENABLE_ERRCODE
-        ThrowInvalidParamError(env, "Parse pWantAgentFirst failed. Agent must be a WantAgent.");
-        return CreateJsUndefined(env);
-#else
-        return RetErrMsg(env, lastParam, ERR_NOT_OK);
-#endif
+        return HandleInvalidParam(env, lastParam, "Parse pWantAgentFirst failed. Agent must be a WantAgent.");
     }
 
     if (!CheckTypeForNapiValue(env, argv[1], napi_object)) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Wrong argument type. Object expected.");
-#ifdef ENABLE_ERRCODE
-        ThrowInvalidParamError(env, "Wrong argument type. OtherAgent must be a WantAgent.");
-        return CreateJsUndefined(env);
-#else
-        return RetErrMsg(env, lastParam, ERR_NOT_OK);
-#endif
+        return HandleInvalidParam(env, lastParam, "Wrong argument type. OtherAgent must be a WantAgent.");
     }
 
     UnwrapWantAgent(env, argv[1], reinterpret_cast<void **>(&pWantAgentSecond));
     if (pWantAgentSecond == nullptr) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "Parse pWantAgentSceond failed");
-#ifdef ENABLE_ERRCODE
-        ThrowInvalidParamError(env, "Parse pWantAgentSceond failed. OtherAgent must be a WantAgent.");
-        return CreateJsUndefined(env);
-#else
-        return RetErrMsg(env, lastParam, ERR_NOT_OK);
-#endif
+        return HandleInvalidParam(env, lastParam,
+            "Parse pWantAgentSceond failed. OtherAgent must be a WantAgent.");
     }
 
     std::shared_ptr<WantAgent> wantAgentFirst = std::make_shared<WantAgent>(*pWantAgentFirst);
@@ -377,27 +392,8 @@ napi_value JsWantAgent::OnEqual(napi_env env, napi_callback_info info)
     NapiAsyncTask::CompleteCallback complete =
         [wantAgentFirst, wantAgentSecond](napi_env env, NapiAsyncTask &task, int32_t status) {
             TAG_LOGD(AAFwkTag::WANTAGENT, "OnEqual NapiAsyncTask is called");
-            bool ret = false;
             ErrCode retCode = WantAgentHelper::IsEquals(wantAgentFirst, wantAgentSecond);
-#ifdef ENABLE_ERRCODE
-            if (retCode == ERR_NOT_OK) {
-                ret = false;
-                task.ResolveWithNoError(env, CreateJsValue(env, ret));
-            } else if (retCode == ERR_OK) {
-                ret = true;
-                task.ResolveWithNoError(env, CreateJsValue(env, ret));
-            } else {
-                task.Reject(env, CreateJsError(env, retCode, AbilityRuntimeErrorUtil::GetErrMessage(retCode)));
-            }
-#else
-            if (retCode != ERR_OK) {
-                ret = false;
-                task.Resolve(env, CreateJsValue(env, ret));
-            } else {
-                ret = true;
-                task.Resolve(env, CreateJsValue(env, ret));
-            }
-#endif
+            HandleAsyncTaskResult(env, task, retCode);
         };
 
     napi_value result = nullptr;
