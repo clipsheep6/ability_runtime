@@ -202,12 +202,9 @@ static napi_value AbilityConstantInit(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("StateType", stateType),
     };
     napi_status status = napi_define_properties(env, exports, sizeof(exportObjs) / sizeof(exportObjs[0]), exportObjs);
-    if (status != napi_ok) {
-        TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed to define properties for exports");
-        return nullptr;
-    }
+    status != napi_ok ?(TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed to define properties for exports"),
+     return nullptr) : (return exports);
 
-    return exports;
 }
 
 /*
