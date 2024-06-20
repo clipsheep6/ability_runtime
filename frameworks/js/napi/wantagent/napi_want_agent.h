@@ -112,6 +112,7 @@ private:
         std::shared_ptr<TriggerCompleteCallBack> &triggerObj);
     int32_t GetTriggerInfo(napi_env env, napi_value param, TriggerInfo &triggerInfo);
     int32_t GetWantAgentParam(napi_env env, napi_callback_info info, WantAgentWantsParas &paras);
+    napi_value HandleInvalidParam(napi_env env, napi_value lastParam, const std::string &errorMessage);
 };
 
 class TriggerCompleteCallBack : public CompletedCallback {
