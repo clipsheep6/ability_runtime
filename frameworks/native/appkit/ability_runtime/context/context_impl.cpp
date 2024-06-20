@@ -788,55 +788,69 @@ std::shared_ptr<Global::Resource::ResourceManager> ContextImpl::InitResourceMana
                 }
 
                 TAG_LOGD(AAFwkTag::APPKIT, "loadPath: %{public}s", loadPath.c_str());
-                // getOverlayPath
-                std::vector<AppExecFwk::OverlayModuleInfo> overlayModuleInfos;
-                auto res = GetOverlayModuleInfos(bundleInfo.name, hapModuleInfo.moduleName, overlayModuleInfos);
-                if (res != ERR_OK) {
-                    TAG_LOGD(AAFwkTag::APPKIT, "Get overlay paths from bms failed.");
-                }
-                if (overlayModuleInfos.size() == 0) {
-                    if (!resourceManager->AddResource(loadPath.c_str())) {
-                        TAG_LOGE(AAFwkTag::APPKIT, "AddResource fail, moduleResPath: %{public}s", loadPath.c_str());
-                    }
-                } else {
-                    std::vector<std::string> overlayPaths;
-                    for (auto it : overlayModuleInfos) {
-                        if (std::regex_search(it.hapPath, std::regex(GetBundleName()))) {
-                            it.hapPath = std::regex_replace(it.hapPath, inner_pattern, LOCAL_CODE_PATH);
-                        } else {
-                            it.hapPath = std::regex_replace(it.hapPath, outer_pattern, LOCAL_BUNDLES);
-                        }
-                        if (it.state == AppExecFwk::OverlayState::OVERLAY_ENABLE) {
-                            TAG_LOGD(AAFwkTag::APPKIT, "hapPath: %{public}s", it.hapPath.c_str());
-                            overlayPaths.emplace_back(it.hapPath);
-                        }
-                    }
-                    TAG_LOGD(AAFwkTag::APPKIT, "OverlayPaths size:%{public}zu.", overlayPaths.size());
-                    if (!resourceManager->AddResource(loadPath, overlayPaths)) {
-                        TAG_LOGE(AAFwkTag::APPKIT, "AddResource failed");
-                    }
-
-                    if (currentBundle) {
-                        // add listen overlay change
-                        overlayModuleInfos_ = overlayModuleInfos;
-                        EventFwk::MatchingSkills matchingSkills;
-                        matchingSkills.AddEvent(OVERLAY_STATE_CHANGED);
-                        EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
-                        subscribeInfo.SetThreadMode(EventFwk::CommonEventSubscribeInfo::COMMON);
-                        auto callback = [this, resourceManager, bundleName = bundleInfo.name, moduleName =
-                        hapModuleInfo.moduleName, loadPath](const EventFwk::CommonEventData &data) {
-                            TAG_LOGI(AAFwkTag::APPKIT, "On overlay changed.");
-                            this->OnOverlayChanged(data, resourceManager, bundleName, moduleName, loadPath);
-                        };
-                        auto subscriber = std::make_shared<AppExecFwk::OverlayEventSubscriber>(subscribeInfo, callback);
-                        bool subResult = EventFwk::CommonEventManager::SubscribeCommonEvent(subscriber);
-                        TAG_LOGI(AAFwkTag::APPKIT, "Overlay event subscriber register result is %{public}d", subResult);
-                    }
-                }
+                GetOverlayPath(resourceManager, bundleInfo.name, hapModuleInfo.moduleName, loadPath, currentBundle);
             }
         }
     }
     return resourceManager;
+}
+
+void ContextImpl::GetOverlayPath(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
+    const std::string &bundleName, const std::string &moduleName, std::string &loadPath, bool currentBundle)
+{
+    // getOverlayPath
+    std::vector<AppExecFwk::OverlayModuleInfo> overlayModuleInfos;
+    auto res = GetOverlayModuleInfos(bundleName, moduleName, overlayModuleInfos);
+    if (res != ERR_OK) {
+        TAG_LOGD(AAFwkTag::APPKIT, "Get overlay paths from bms failed.");
+    }
+    if (overlayModuleInfos.size() == 0) {
+        if (!resourceManager->AddResource(loadPath.c_str())) {
+            TAG_LOGE(AAFwkTag::APPKIT, "AddResource fail, moduleResPath: %{public}s", loadPath.c_str());
+        }
+    } else {
+        std::vector<std::string> overlayPaths;
+        for (auto it : overlayModuleInfos) {
+            if (std::regex_search(it.hapPath, std::regex(GetBundleName()))) {
+                it.hapPath = std::regex_replace(it.hapPath, std::regex(std::string(ABS_CODE_PATH) +
+        std::string(FILE_SEPARATOR) + GetBundleName()), LOCAL_CODE_PATH);
+            } else {
+                it.hapPath = std::regex_replace(it.hapPath, std::regex(ABS_CODE_PATH), LOCAL_BUNDLES);
+            }
+            if (it.state == AppExecFwk::OverlayState::OVERLAY_ENABLE) {
+                TAG_LOGD(AAFwkTag::APPKIT, "hapPath: %{public}s", it.hapPath.c_str());
+                overlayPaths.emplace_back(it.hapPath);
+            }
+        }
+        TAG_LOGD(AAFwkTag::APPKIT, "OverlayPaths size:%{public}zu.", overlayPaths.size());
+        if (!resourceManager->AddResource(loadPath, overlayPaths)) {
+            TAG_LOGE(AAFwkTag::APPKIT, "AddResource failed");
+        }
+
+        if (currentBundle) {
+            SubscribeToOverlayEvents(resourceManager, bundleName, moduleName, loadPath, overlayModuleInfos);
+        }
+    }
+}
+
+void ContextImpl::SubscribeToOverlayEvents(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
+    const std::string &name, const std::string &hapModuleName, std::string &loadPath,
+    std::vector<AppExecFwk::OverlayModuleInfo> overlayModuleInfos)
+{
+    // add listen overlay change
+    overlayModuleInfos_ = overlayModuleInfos;
+    EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(OVERLAY_STATE_CHANGED);
+    EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
+    subscribeInfo.SetThreadMode(EventFwk::CommonEventSubscribeInfo::COMMON);
+    auto callback = [this, resourceManager, bundleName = name, moduleName =
+    hapModuleName, loadPath](const EventFwk::CommonEventData &data) {
+        TAG_LOGI(AAFwkTag::APPKIT, "On overlay changed.");
+        this->OnOverlayChanged(data, resourceManager, bundleName, moduleName, loadPath);
+    };
+    auto subscriber = std::make_shared<AppExecFwk::OverlayEventSubscriber>(subscribeInfo, callback);
+    bool subResult = EventFwk::CommonEventManager::SubscribeCommonEvent(subscriber);
+    TAG_LOGI(AAFwkTag::APPKIT, "Overlay event subscriber register result is %{public}d", subResult);
 }
 
 void ContextImpl::UpdateResConfig(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager)

@@ -94,6 +94,9 @@ public:
      * @return return true if the lifecycle transaction successfully, otherwise return false.
      */
     bool AbilityTransaction(const AAFwk::Want &want, const AAFwk::LifeCycleStateInfo &targetState);
+    
+    void HandleInitialState(bool &ret);
+
 
     /**
      * @brief Send the result code and data to be returned by this Page ability to the caller.

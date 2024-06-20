@@ -59,6 +59,8 @@ public:
       *
       */
     bool AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState);
+    
+    void AbilityTransactionForeground(const Want &want, const AAFwk::LifeCycleStateInfo &targetState);
 
     /**
      * @brief Execution the KeyDown callback of the ability

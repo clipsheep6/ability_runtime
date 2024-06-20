@@ -44,6 +44,7 @@ public:
     void HandlePatchDeleted();
 
     bool SetQuickFixInfo(const std::shared_ptr<AppExecFwk::QuickFixResult> &result);
+    bool ExtractQuickFixDataFromJson(nlohmann::json& resultJson);
     bool GetRunningState();
 
     void RemoveTimeoutTask();

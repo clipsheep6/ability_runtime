@@ -122,28 +122,7 @@ bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycle
             break;
         }
         case AAFwk::ABILITY_STATE_FOREGROUND_NEW: {
-            if (targetState.isNewWant) {
-                NewWant(want);
-            }
-#ifdef SUPPORT_SCREEN
-            if (lifecycleState_ == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
-                if (ability_) {
-                    ability_->RequestFocus(want);
-                }
-            } else {
-                {
-                    std::lock_guard<std::mutex> lock(notifyForegroundLock_);
-                    notifyForegroundByWindow_ = false;
-                }
-                Foreground(want);
-                std::lock_guard<std::mutex> lock(notifyForegroundLock_);
-                ret = notifyForegroundByWindow_;
-                if (ret) {
-                    notifyForegroundByWindow_ = false;
-                    notifyForegroundByAbility_ = false;
-                }
-            }
-#endif
+            ret = AbilityTransactionForeground(want, targetState);
             break;
         }
         case AAFwk::ABILITY_STATE_BACKGROUND_NEW: {
@@ -162,6 +141,35 @@ bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycle
         }
     }
     TAG_LOGD(AAFwkTag::ABILITY, "NewAbilityImpl::AbilityTransaction end: retVal = %{public}d", static_cast<int>(ret));
+    return ret;
+}
+
+bool NewAbilityImpl::AbilityTransactionForeground(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+{
+    bool ret = true;
+    if (targetState.isNewWant) {
+        NewWant(want);
+    }
+#ifdef SUPPORT_SCREEN
+    if (lifecycleState_ == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
+        if (ability_) {
+            ability_->RequestFocus(want);
+        }
+    } else {
+        {
+            std::lock_guard<std::mutex> lock(notifyForegroundLock_);
+            notifyForegroundByWindow_ = false;
+        }
+        Foreground(want);
+        std::lock_guard<std::mutex> lock(notifyForegroundLock_);
+        ret = notifyForegroundByWindow_;
+        if (ret) {
+            notifyForegroundByWindow_ = false;
+            notifyForegroundByAbility_ = false;
+        }
+    }
+#endif
+
     return ret;
 }
 }  // namespace AppExecFwk

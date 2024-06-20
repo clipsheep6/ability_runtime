@@ -45,58 +45,10 @@ DataAbilityManager::~DataAbilityManager()
     TAG_LOGD(AAFwkTag::DATA_ABILITY, "Call");
 }
 
-sptr<IAbilityScheduler> DataAbilityManager::Acquire(
-    const AbilityRequest &abilityRequest, bool tryBind, const sptr<IRemoteObject> &client, bool isNotHap)
+sptr<IAbilityScheduler> DataAbilityManager::DataAbilityRecordGetScheduler(
+    std::shared_ptr<DataAbilityRecord> dataAbilityRecord, const std::string dataAbilityName,
+    const sptr<IRemoteObject> &client, bool tryBind, bool isNotHap)
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "Call");
-
-    if (abilityRequest.abilityInfo.type != AppExecFwk::AbilityType::DATA) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability manager acquire: not a data ability.");
-        return nullptr;
-    }
-
-    if (abilityRequest.abilityInfo.bundleName.empty() || abilityRequest.abilityInfo.name.empty()) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability manager acquire: invalid name.");
-        return nullptr;
-    }
-
-    std::shared_ptr<AbilityRecord> clientAbilityRecord;
-    const std::string dataAbilityName(abilityRequest.abilityInfo.bundleName + '.' + abilityRequest.abilityInfo.name);
-
-    if (client && !isNotHap) {
-        clientAbilityRecord = Token::GetAbilityRecordByToken(client);
-        if (!clientAbilityRecord) {
-            TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability manager acquire: invalid client token.");
-            return nullptr;
-        }
-        TAG_LOGI(AAFwkTag::DATA_ABILITY, "Ability '%{public}s' acquiring data ability '%{public}s'...",
-            clientAbilityRecord->GetAbilityInfo().name.c_str(), dataAbilityName.c_str());
-    } else {
-        TAG_LOGI(AAFwkTag::DATA_ABILITY, "Loading data ability '%{public}s'...", dataAbilityName.c_str());
-    }
-
-    std::lock_guard<ffrt::mutex> locker(mutex_);
-
-    if (DEBUG_ENABLED) {
-        DumpLocked(__func__, __LINE__);
-    }
-
-    DataAbilityRecordPtr dataAbilityRecord;
-
-    auto it = dataAbilityRecordsLoaded_.find(dataAbilityName);
-    if (it == dataAbilityRecordsLoaded_.end()) {
-        TAG_LOGD(AAFwkTag::DATA_ABILITY, "Acquiring data ability is not existed, loading...");
-        dataAbilityRecord = LoadLocked(dataAbilityName, abilityRequest);
-    } else {
-        TAG_LOGD(AAFwkTag::DATA_ABILITY, "Acquiring data ability is existed .");
-        dataAbilityRecord = it->second;
-    }
-
-    if (!dataAbilityRecord) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Failed to load data ability '%{public}s'.", dataAbilityName.c_str());
-        return nullptr;
-    }
-
     auto scheduler = dataAbilityRecord->GetScheduler();
     if (!scheduler) {
         if (DEBUG_ENABLED) {
@@ -121,6 +73,57 @@ sptr<IAbilityScheduler> DataAbilityManager::Acquire(
     ReportDataAbilityAcquired(client, isNotHap, dataAbilityRecord);
 
     return scheduler;
+}
+
+sptr<IAbilityScheduler> DataAbilityManager::Acquire(
+    const AbilityRequest &abilityRequest, bool tryBind, const sptr<IRemoteObject> &client, bool isNotHap)
+{
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "Call");
+
+    if (abilityRequest.abilityInfo.type != AppExecFwk::AbilityType::DATA) {
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability manager acquire: not a data ability.");
+        return nullptr;
+    }
+    if (abilityRequest.abilityInfo.bundleName.empty() || abilityRequest.abilityInfo.name.empty()) {
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability manager acquire: invalid name.");
+        return nullptr;
+    }
+
+    std::shared_ptr<AbilityRecord> clientAbilityRecord;
+    const std::string dataAbilityName(abilityRequest.abilityInfo.bundleName + '.' + abilityRequest.abilityInfo.name);
+    if (client && !isNotHap) {
+        clientAbilityRecord = Token::GetAbilityRecordByToken(client);
+        if (!clientAbilityRecord) {
+            TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability manager acquire: invalid client token.");
+            return nullptr;
+        }
+        TAG_LOGI(AAFwkTag::DATA_ABILITY, "Ability '%{public}s' acquiring data ability '%{public}s'...",
+            clientAbilityRecord->GetAbilityInfo().name.c_str(), dataAbilityName.c_str());
+    } else {
+        TAG_LOGI(AAFwkTag::DATA_ABILITY, "Loading data ability '%{public}s'...", dataAbilityName.c_str());
+    }
+
+    std::lock_guard<ffrt::mutex> locker(mutex_);
+
+    if (DEBUG_ENABLED) {
+        DumpLocked(__func__, __LINE__);
+    }
+
+    DataAbilityRecordPtr dataAbilityRecord;
+    auto it = dataAbilityRecordsLoaded_.find(dataAbilityName);
+    if (it == dataAbilityRecordsLoaded_.end()) {
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "Acquiring data ability is not existed, loading...");
+        dataAbilityRecord = LoadLocked(dataAbilityName, abilityRequest);
+    } else {
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "Acquiring data ability is existed .");
+        dataAbilityRecord = it->second;
+    }
+    if (!dataAbilityRecord) {
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Failed to load data ability '%{public}s'.", dataAbilityName.c_str());
+        return nullptr;
+    }
+
+    return DataAbilityRecordGetScheduler(dataAbilityRecord, dataAbilityName, client, tryBind, isNotHap);
 }
 
 int DataAbilityManager::Release(

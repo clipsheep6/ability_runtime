@@ -47,6 +47,10 @@ AbilityManagerStub::AbilityManagerStub()
     ThirdStepInit();
     FourthStepInit();
     FifthStepInit();
+    SixthStepInit();
+    SeventhStepInit();
+    EighthStepInit();
+    NinthStepInit();
 }
 
 AbilityManagerStub::~AbilityManagerStub()
@@ -102,6 +106,10 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::ConnectAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DISCONNECT_ABILITY)] =
         &AbilityManagerStub::DisconnectAbilityInner;
+}
+
+void AbilityManagerStub::SecondStepInit()
+{
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_SERVICE_ABILITY)] =
         &AbilityManagerStub::StopServiceAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DUMP_STATE)] =
@@ -148,6 +156,10 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::AddFreeInstallObserverInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_ABILITY_WITH_TYPE)] =
         &AbilityManagerStub::ConnectAbilityWithTypeInner;
+}
+
+void AbilityManagerStub::ThirdStepInit()
+{
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ABILITY_RECOVERY)] =
         &AbilityManagerStub::ScheduleRecoverAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ABILITY_RECOVERY_ENABLE)] =
@@ -178,10 +190,6 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::ExecuteInsightIntentDoneInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::OPEN_FILE)] =
         &AbilityManagerStub::OpenFileInner;
-}
-
-void AbilityManagerStub::SecondStepInit()
-{
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_SENDER)] =
         &AbilityManagerStub::GetWantSenderInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_PENDING_WANT_SENDER)] =
@@ -204,6 +212,10 @@ void AbilityManagerStub::SecondStepInit()
         &AbilityManagerStub::UnregisterCancelListenerInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_REQUEST_WANT)] =
         &AbilityManagerStub::GetPendingRequestWantInner;
+}
+
+void AbilityManagerStub::FourthStepInit()
+{
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_SENDER_INFO)] =
         &AbilityManagerStub::GetWantSenderInfoInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_APP_MEMORY_SIZE)] =
@@ -242,6 +254,10 @@ void AbilityManagerStub::SecondStepInit()
         &AbilityManagerStub::CallRequestDoneInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RELEASE_CALL_ABILITY)] =
         &AbilityManagerStub::ReleaseCallInner;
+}
+
+void AbilityManagerStub::FifthStepInit()
+{
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_USER)] =
         &AbilityManagerStub::StartUserInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_USER)] =
@@ -282,16 +298,16 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::BLOCK_APP_SERVICE)] =
         &AbilityManagerStub::BlockAppServiceInner;
 #endif
-}
-
-void AbilityManagerStub::ThirdStepInit()
-{
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_USER_TEST)] =
         &AbilityManagerStub::StartUserTestInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::FINISH_USER_TEST)] =
         &AbilityManagerStub::FinishUserTestInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_TOP_ABILITY_TOKEN)] =
         &AbilityManagerStub::GetTopAbilityTokenInner;
+}
+
+void AbilityManagerStub::SixthStepInit()
+{
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CHECK_UI_EXTENSION_IS_FOCUSED)] =
         &AbilityManagerStub::CheckUIExtensionIsFocusedInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_FOREGROUND)] =
@@ -336,6 +352,10 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::GetUIExtensionRootHostInfoInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::PRELOAD_UIEXTENSION_ABILITY)] =
         &AbilityManagerStub::PreloadUIExtensionAbilityInner;
+}
+
+void AbilityManagerStub::SeventhStepInit()
+{
 #ifdef SUPPORT_GRAPHICS
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_LABEL)] =
         &AbilityManagerStub::SetMissionLabelInner;
@@ -382,6 +402,10 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::SetRootSceneSessionInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CALL_ABILITY_BY_SCB)] =
         &AbilityManagerStub::CallUIAbilityBySCBInner;
+}
+
+void AbilityManagerStub::EighthStepInit()
+{
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_SPECIFIED_ABILITY_BY_SCB)] =
         &AbilityManagerStub::StartSpecifiedAbilityBySCBInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_SAVE_AS_RESULT)] =
@@ -390,10 +414,6 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::SetSessionManagerServiceInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UPDATE_SESSION_INFO)] =
         &AbilityManagerStub::UpdateSessionInfoBySCBInner;
-}
-
-void AbilityManagerStub::FourthStepInit()
-{
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_STATUS_BAR_DELEGATE)] =
         &AbilityManagerStub::RegisterStatusBarDelegateInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::KILL_PROCESS_WITH_PREPARE_TERMINATE)] =
@@ -433,6 +453,10 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::NotifyDebugAssertResultInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CHANGE_ABILITY_VISIBILITY)] =
         &AbilityManagerStub::ChangeAbilityVisibilityInner;
+}
+
+void AbilityManagerStub::NinthStepInit()
+{
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CHANGE_UI_ABILITY_VISIBILITY_BY_SCB)] =
         &AbilityManagerStub::ChangeUIAbilityVisibilityBySCBInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_SHORTCUT)] =
@@ -441,10 +465,6 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::SetResidentProcessEnableInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ABILITY_STATE_BY_PERSISTENT_ID)] =
         &AbilityManagerStub::GetAbilityStateByPersistentIdInner;
-}
-
-void AbilityManagerStub::FifthStepInit()
-{
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TRANSFER_ABILITY_RESULT)] =
         &AbilityManagerStub::TransferAbilityResultForExtensionInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_FROZEN_PROCESS_BY_RSS)] =

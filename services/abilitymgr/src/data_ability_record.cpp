@@ -270,6 +270,37 @@ int DataAbilityRecord::RemoveClient(const sptr<IRemoteObject> &client, bool isNo
     return ERR_OK;
 }
 
+void DataAbilityRecord::RemoveClientsIfClient(const std::shared_ptr<AbilityRecord> &client,
+    std::shared_ptr<AppScheduler> appScheduler)
+{
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "Removing data ability clients with filter...");
+    auto it = clients_.begin();
+    while (it != clients_.end()) {
+        if (!it->isNotHap) {
+            auto clientAbilityRecord = Token::GetAbilityRecordByToken(it->client);
+            if (!clientAbilityRecord) {
+                TAG_LOGE(AAFwkTag::DATA_ABILITY, "clientAbilityRecord is nullptr, continue.");
+                ++it;
+                continue;
+            }
+            if (clientAbilityRecord == client) {
+                appScheduler->AbilityBehaviorAnalysis(ability_->GetToken(), clientAbilityRecord->GetToken(), 0, 0, 0);
+                it = clients_.erase(it);
+                TAG_LOGI(AAFwkTag::DATA_ABILITY,
+                    "Ability '%{public}s|%{public}s' --X-> Data ability '%{public}s|%{public}s'.",
+                    client->GetApplicationInfo().bundleName.c_str(),
+                    client->GetAbilityInfo().name.c_str(),
+                    ability_->GetApplicationInfo().bundleName.c_str(),
+                    ability_->GetAbilityInfo().name.c_str());
+            } else {
+                ++it;
+            }
+        } else {
+            ++it;
+        }
+    }
+}
+
 int DataAbilityRecord::RemoveClients(const std::shared_ptr<AbilityRecord> &client)
 {
     TAG_LOGD(AAFwkTag::DATA_ABILITY, "%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
@@ -278,12 +309,10 @@ int DataAbilityRecord::RemoveClients(const std::shared_ptr<AbilityRecord> &clien
         TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability remove clients: not attached.");
         return ERR_INVALID_STATE;
     }
-
     if (ability_->GetAbilityState() != ACTIVE) {
         TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability remove clients: not loaded.");
         return ERR_INVALID_STATE;
     }
-
     if (clients_.empty()) {
         TAG_LOGD(AAFwkTag::DATA_ABILITY, "Data ability remove clients: no clients.");
         return ERR_OK;
@@ -296,33 +325,7 @@ int DataAbilityRecord::RemoveClients(const std::shared_ptr<AbilityRecord> &clien
     }
 
     if (client) {
-        TAG_LOGD(AAFwkTag::DATA_ABILITY, "Removing data ability clients with filter...");
-        auto it = clients_.begin();
-        while (it != clients_.end()) {
-            if (!it->isNotHap) {
-                auto clientAbilityRecord = Token::GetAbilityRecordByToken(it->client);
-                if (!clientAbilityRecord) {
-                    TAG_LOGE(AAFwkTag::DATA_ABILITY, "clientAbilityRecord is nullptr, continue.");
-                    ++it;
-                    continue;
-                }
-                if (clientAbilityRecord == client) {
-                    appScheduler->AbilityBehaviorAnalysis(
-                        ability_->GetToken(), clientAbilityRecord->GetToken(), 0, 0, 0);
-                    it = clients_.erase(it);
-                    TAG_LOGI(AAFwkTag::DATA_ABILITY,
-                        "Ability '%{public}s|%{public}s' --X-> Data ability '%{public}s|%{public}s'.",
-                        client->GetApplicationInfo().bundleName.c_str(),
-                        client->GetAbilityInfo().name.c_str(),
-                        ability_->GetApplicationInfo().bundleName.c_str(),
-                        ability_->GetAbilityInfo().name.c_str());
-                } else {
-                    ++it;
-                }
-            } else {
-                ++it;
-            }
-        }
+        RemoveClientsIfClient(client, appScheduler);
     } else {
         TAG_LOGD(AAFwkTag::DATA_ABILITY, "Removing data ability clients...");
         auto it = clients_.begin();
