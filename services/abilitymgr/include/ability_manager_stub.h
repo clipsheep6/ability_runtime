@@ -22,7 +22,6 @@
 #include <iremote_stub.h>
 
 #include "dlp_connection_info.h"
-#include "hilog_wrapper.h"
 #include "iconnection_observer.h"
 
 namespace OHOS {
@@ -302,6 +301,24 @@ private:
     int32_t GetAbilityStateByPersistentIdInner(MessageParcel &data, MessageParcel &reply);
     int32_t TransferAbilityResultForExtensionInner(MessageParcel &data, MessageParcel &reply);
     int32_t NotifyFrozenProcessByRSSInner(MessageParcel &data, MessageParcel &reply);
+    void WriteString16Vector(std::vector<std::string> &result, MessageParcel &reply)
+    {
+        reply.WriteInt32(result.size());
+        for (auto entry : result) {
+            reply.WriteString16(Str8ToStr16(entry));
+        }
+    }
+    template<typename T>
+    int32_t WriteParcelableVector(std::vector<T> &vec, MessageParcel &reply)
+    {
+        reply.WriteInt32(vec.size());
+        for (auto &entry : vec) {
+            if (!reply.WriteParcelable(&entry)) {
+                return ERR_INVALID_VALUE;
+            }
+        }
+        return NO_ERROR;
+    }
 };
 }  // namespace AAFwk
 }  // namespace OHOS

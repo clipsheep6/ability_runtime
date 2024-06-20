@@ -97,7 +97,7 @@ constexpr const char* JUMP_INTERCEPTOR_DIALOG_CALLER_PKG = "interceptor_callerPk
 
 #define CHECK_TRUE_RETURN_RET(object, value, log)          \
     if (object) {                                          \
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "%{public}s", log); \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s", log); \
         return value;                                      \
     }
 
