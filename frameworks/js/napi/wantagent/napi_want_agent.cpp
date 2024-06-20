@@ -313,16 +313,18 @@ napi_value JsWantAgent::NapiGetOperationType(napi_env env, napi_callback_info in
     return (me != nullptr) ? me->OnNapiGetOperationType(env, info) : nullptr;
 };
 
-napi_value JsWantAgent::HandleInvalidParam(napi_env env, napi_value lastParam, const std::string &errorMessage) {
-#ifdef ENABLE_ERRCODE
-    ThrowInvalidParamError(env, errorMessage);
-    return CreateJsUndefined(env);
-#else
-    return RetErrMsg(env, lastParam, ERR_NOT_OK);
-#endif
+napi_value JsWantAgent::HandleInvalidParam(napi_env env, napi_value lastParam, const std::string &errorMessage)
+{
+    #ifdef ENABLE_ERRCODE
+        ThrowInvalidParamError(env, errorMessage);
+        return CreateJsUndefined(env);
+    #else
+        return RetErrMsg(env, lastParam, ERR_NOT_OK);
+    #endif
 }
 
-void HandleAsyncTaskResult(napi_env env, NapiAsyncTask & task, ErrCode &retCode) {
+void HandleAsyncTaskResult(napi_env env, NapiAsyncTask & task, ErrCode &retCode)
+{
     bool ret = false;
     #ifdef ENABLE_ERRCODE
         if (retCode == ERR_NOT_OK) {
@@ -343,8 +345,8 @@ void HandleAsyncTaskResult(napi_env env, NapiAsyncTask & task, ErrCode &retCode)
             task.Resolve(env, CreateJsValue(env, ret));
         }
     #endif
-
 }
+
 napi_value JsWantAgent::OnEqual(napi_env env, napi_callback_info info)
 {
     size_t argc = ARGS_MAX_COUNT;
