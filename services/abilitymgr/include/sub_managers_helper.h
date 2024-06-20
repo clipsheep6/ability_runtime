@@ -73,6 +73,7 @@ public:
     void UninstallAppInUIAbilityManagers(int32_t userId, const std::string &bundleName, int32_t uid);
     void UninstallAppInMissionListManagers(int32_t userId, const std::string &bundleName, int32_t uid);
     bool VerificationAllToken(const sptr<IRemoteObject> &token);
+    bool VerificationAllTokenForConnectManagers(const sptr<IRemoteObject> &token);
 
 private:
     DISALLOW_COPY_AND_MOVE(SubManagersHelper);
