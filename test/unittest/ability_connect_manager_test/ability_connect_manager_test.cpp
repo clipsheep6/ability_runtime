@@ -3205,10 +3205,8 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_PauseExtensions_001, TestSiz
  */
 HWTEST_F(AbilityConnectManagerTest, AAFwk_HandleNotifyAssertFaultDialogDied_001, TestSize.Level1)
 {
-    HILOG_INFO("AAFwk_HandleNotifyAssertFaultDialogDied_001 end");
     const std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     ConnectManager()->HandleNotifyAssertFaultDialogDied(abilityRecord);
-    HILOG_INFO("AAFwk_HandleNotifyAssertFaultDialogDied_001 end");
 }
 
 /*
