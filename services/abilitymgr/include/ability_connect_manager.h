@@ -155,6 +155,15 @@ public:
 
     void OnAppStateChanged(const AppInfo &info);
 
+     /**
+     * HandleAbilityState, ability call this interface after lift cycle was changed.
+     *
+     * @param token, ability's token.
+     * @param state, the state of ability lift cycle.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int HandleAbilityState(const sptr<IRemoteObject> &token, std::shared_ptr<AbilityRecord> &abilityRecord,
+        int &state, int &targetState);
     /**
      * AbilityTransitionDone, ability call this interface after lift cycle was changed.
      *
@@ -313,11 +322,23 @@ public:
 
 private:
     /**
+     * CheckAndHandleUIExtensionAbility with request.
+     *
+     * @param abilityRequest, the request of the service ability to start.
+     * @param isLoadedAbility is bool
+     * @param targetService is shared_ptr
+     * @return Returns ERR_OK on success, others on failure.
+     */
+
+    int  CheckAndHandleUIExtensionAbility(const AbilityRequest &abilityRequest,
+      std::shared_ptr<AbilityRecord> &targetService, bool &isLoadedAbility);
+    /**
      * StartAbilityLocked with request.
      *
      * @param abilityRequest, the request of the service ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
+
     int StartAbilityLocked(const AbilityRequest &abilityRequest);
 
     /**

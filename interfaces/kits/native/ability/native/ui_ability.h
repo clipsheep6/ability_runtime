@@ -590,6 +590,7 @@ protected:
     };
 
     void OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to);
+    void UpdateConfiguration(Rosen::DisplayId to, float density, int32_t width, int32_t height);
     virtual void DoOnForeground(const AAFwk::Want &want);
     sptr<Rosen::WindowOption> GetWindowOption(const AAFwk::Want &want);
     virtual void ContinuationRestore(const AAFwk::Want &want);
