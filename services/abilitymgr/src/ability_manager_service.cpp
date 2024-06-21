@@ -2387,6 +2387,18 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+	InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
+    if (extensionType == AppExecFwk::ExtensionAbilityType::VPN) {
+        return StartExtensionAbilityInner(want, callerToken, userId, extensionType, false);
+    }
+    return StartExtensionAbilityInner(want, callerToken, userId, extensionType, true);
+}
+
+int AbilityManagerService::StartUIServiceExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
+    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called AbilityManagerService::StartUIServiceExtensionAbility");
     InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
     if (extensionType == AppExecFwk::ExtensionAbilityType::VPN) {
         return StartExtensionAbilityInner(want, callerToken, userId, extensionType, false);
@@ -8795,6 +8807,11 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
     if (extensionType == AppExecFwk::ExtensionAbilityType::VPN) {
         return ERR_OK;
     }
+
+	if (extensionType == AppExecFwk::ExtensionAbilityType::UI_SERVICE) {
+        return ERR_OK;
+    }
+	
     const std::string fileAccessPermission = "ohos.permission.FILE_ACCESS_MANAGER";
     if (extensionType == AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION &&
         AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(fileAccessPermission)) {
