@@ -106,41 +106,25 @@ void SourceMap::Init(bool isModular, const std::string& hapPath)
     }
 }
 
-std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
+void SourceMap::TranslateBySourceMapIsModular(const std::string& temp,
+    size_t start, size_t end, std::string &openBrace)
 {
-    std::string closeBrace = ")";
-    std::string openBrace = "(";
-    std::string ans = "";
-
-    // find per line of stack
-    std::vector<std::string> res;
-    ExtractStackInfo(stackStr, res);
-
-    // collect error info first
-    uint32_t i = 0;
-    std::string codeStart = "SourceCode (";
-    std::string sourceCode = "";
-    if (!res.empty()) {
-        std::string fristLine = res[0];
-        uint32_t codeStartLen = codeStart.length();
-        if (fristLine.substr(0, codeStartLen).compare(codeStart) == 0) {
-            sourceCode = fristLine.substr(codeStartLen, fristLine.length() - codeStartLen - 1);
-            i = 1;  // 1 means Convert from the second line
-        }
+    if (isModular_) {
+        start = temp.find(openBrace);
+        end = temp.find(":");
+    } else {
+        start = temp.find("/ets/");
+        end = temp.rfind("_.js");
     }
-
-    // collect error info first
+}
+void SourceMap::TranslateBySourceMapRes(std::vector<std::string> &res, std::string &openBrace,
+    std::string &closeBrace, std::string ans, uint32_t i)
+{
     for (; i < res.size(); i++) {
         std::string temp = res[i];
-        size_t start;
-        size_t end;
-        if (isModular_) {
-            start = temp.find(openBrace);
-            end = temp.find(":");
-        } else {
-            start = temp.find("/ets/");
-            end = temp.rfind("_.js");
-        }
+        size_t start = 0;
+        size_t end = 0;
+        TranslateBySourceMapIsModular(temp, start, end, openBrace);
         if (end <= start) {
             continue;
         }
@@ -179,6 +163,32 @@ std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
         temp.replace(openBracePos, closeBracePos - openBracePos + 1, sourceInfo);
         replace(temp.begin(), temp.end(), '\\', '/');
         ans = ans + temp + "\n";
+    }
+}
+std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
+{
+    std::string closeBrace = ")";
+    std::string openBrace = "(";
+    std::string ans = "";
+    // find per line of stack
+    std::vector<std::string> res;
+    ExtractStackInfo(stackStr, res);
+    // collect error info first
+    uint32_t i = 0;
+    std::string codeStart = "SourceCode (";
+    std::string sourceCode = "";
+    if (!res.empty()) {
+        std::string fristLine = res[0];
+        uint32_t codeStartLen = codeStart.length();
+        if (fristLine.substr(0, codeStartLen).compare(codeStart) == 0) {
+            sourceCode = fristLine.substr(codeStartLen, fristLine.length() - codeStartLen - 1);
+            i = 1;  // 1 means Convert from the second line
+        }
+    }
+     // collect error info first
+    TranslateBySourceMapRes(res, openBrace, closeBrace, ans, i);
+    if (ans.empty()) {
+        return (NOT_FOUNDMAP + stackStr);
     }
     if (ans.empty()) {
         return (NOT_FOUNDMAP + stackStr);

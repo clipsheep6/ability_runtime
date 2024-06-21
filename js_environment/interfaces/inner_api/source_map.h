@@ -73,6 +73,9 @@ public:
     ~SourceMap() = default;
 
     void Init(bool isModular, const std::string& hapPath);
+    void TranslateBySourceMapRes(std::vector<std::string> &res, std::string &openBrace, std::string &closeBrace,
+        std::string ans, uint32_t i);
+    void TranslateBySourceMapIsModular(const std::string& temp, size_t start, size_t end, std::string &openBrace);
     std::string TranslateBySourceMap(const std::string& stackStr);
     bool TranslateUrlPositionBySourceMap(std::string& url, int& line, int& column);
     static ErrorPos GetErrorPos(const std::string& rawStack);

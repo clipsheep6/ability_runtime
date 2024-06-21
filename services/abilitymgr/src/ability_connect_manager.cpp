@@ -217,14 +217,9 @@ int AbilityConnectManager::StopServiceAbility(const AbilityRequest &abilityReque
     std::lock_guard guard(serialMutex_);
     return StopServiceAbilityLocked(abilityRequest);
 }
-
-int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityRequest)
+int AbilityConnectManager::CheckAndHandleUIExtensionAbility(const AbilityRequest &abilityRequest,
+    std::shared_ptr<AbilityRecord> &targetService, bool &isLoadedAbility)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "ability_name:%{public}s", abilityRequest.want.GetElement().GetURI().c_str());
-
-    std::shared_ptr<AbilityRecord> targetService;
-    bool isLoadedAbility = false;
     if (UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType)) {
         auto callerAbilityRecord = AAFwk::Token::GetAbilityRecordByToken(abilityRequest.callerToken);
         if (callerAbilityRecord == nullptr) {
@@ -239,6 +234,21 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
         }
     } else {
         GetOrCreateServiceRecord(abilityRequest, false, targetService, isLoadedAbility);
+    }
+        return ERR_OK;
+    }
+
+int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityRequest)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "ability_name:%{public}s", abilityRequest.want.GetElement().GetURI().c_str());
+
+    std::shared_ptr<AbilityRecord> targetService;
+    bool isLoadedAbility = false;
+
+    CheckAndHandleUIExtensionAbility(abilityRequest, targetService, isLoadedAbility);
+    if (targetService == nullptr) {
+        return ERR_INVALID_VALUE;
     }
     CHECK_POINTER_AND_RETURN(targetService, ERR_INVALID_VALUE);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Start ability: %{public}s", targetService->GetURI().c_str());
@@ -917,7 +927,6 @@ int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &toke
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     std::string element = abilityRecord->GetURI();
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Ability: %{public}s, state: %{public}s", element.c_str(), abilityState.c_str());
-
     switch (targetState) {
         case AbilityState::INACTIVE: {
             if (abilityRecord->GetAbilityInfo().type == AbilityType::SERVICE) {
