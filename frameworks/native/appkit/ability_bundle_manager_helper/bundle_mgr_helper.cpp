@@ -539,6 +539,43 @@ bool BundleMgrHelper::GetApplicationInfo(
     return bundleMgr->GetApplicationInfo(appName, flags, userId, appInfo);
 }
 
+bool BundleMgrHelper::GetApplicationInfoWithAppIndex(
+    const std::string &appName, int32_t appIndex, int32_t userId, ApplicationInfo &appInfo)
+{
+    TAG_LOGI(AAFwkTag::BUNDLEMGRHELPER, "appName: %{public}s, appIndex: %{public}d", appName.c_str(), appIndex);
+    if (appIndex < 0) {
+        TAG_LOGE(AAFwkTag::BUNDLEMGRHELPER, "Invalid appIndex.");
+        return false;
+    }
+    auto bundleMgr = Connect();
+    if (bundleMgr == nullptr) {
+        TAG_LOGE(AAFwkTag::BUNDLEMGRHELPER, "Failed to connect.");
+        return false;
+    }
+
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BundleInfo bundleInfo;
+    if (appIndex == 0) {
+        if (bundleMgr->GetApplicationInfo(appName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, userId, appInfo)) {
+            return true;
+        }
+    } else if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
+        if (bundleMgr->GetCloneBundleInfo(appName,
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION),
+            appIndex, bundleInfo, userId) == ERR_OK) {
+            appInfo = bundleInfo.applicationInfo;
+            return true;
+        }
+    } else {
+        if (bundleMgr->GetSandboxBundleInfo(appName, appIndex, userId, bundleInfo) == ERR_OK) {
+            appInfo = bundleInfo.applicationInfo;
+            return true;
+        }
+    }
+    TAG_LOGE(AAFwkTag::BUNDLEMGRHELPER, "GetApplicationInfo failed.");
+    return false;
+}
+
 bool BundleMgrHelper::UnregisterBundleEventCallback(const sptr<IBundleEventCallback> &bundleEventCallback)
 {
     TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "Called.");

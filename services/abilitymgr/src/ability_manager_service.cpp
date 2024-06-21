@@ -2034,18 +2034,15 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bo
     return uiAbilityManager->StartUIAbility(abilityRequest, sessionInfo, isColdStart);
 }
 
-bool AbilityManagerService::CheckCallingTokenId(const std::string &bundleName, int32_t userId)
+bool AbilityManagerService::CheckCallingTokenId(const std::string &bundleName, int32_t userId, int32_t appIndex)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    auto bms = GetBundleManager();
-    if (bms == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "bms is invalid.");
-        return false;
-    }
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
+    CHECK_POINTER_AND_RETURN(bundleMgrHelper, false);
     auto validUserId = GetValidUserId(userId);
     AppExecFwk::ApplicationInfo appInfo;
-    IN_PROCESS_CALL_WITHOUT_RET(bms->GetApplicationInfo(bundleName,
-        AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, validUserId, appInfo));
+    IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->GetApplicationInfoWithAppIndex(bundleName,
+        appIndex, validUserId, appInfo));
     auto accessTokenId = IPCSkeleton::GetCallingTokenID();
     if (accessTokenId != appInfo.accessTokenId) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Permission verification failed");
@@ -9635,7 +9632,7 @@ int32_t AbilityManagerService::CheckProcessOptions(const Want &want, const Start
         return ERR_OK;
     }
 
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "start ability with process options.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "start ability with process options.");
     bool isEnable = AppUtils::GetInstance().IsStartOptionsWithProcessOptions();
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() || !isEnable) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Not support process options.");
@@ -9648,7 +9645,9 @@ int32_t AbilityManagerService::CheckProcessOptions(const Want &want, const Start
         return ERR_NOT_ALLOW_IMPLICIT_START;
     }
 
-    if (!CheckCallingTokenId(element.GetBundleName(), userId)) {
+    int32_t appIndex = 0;
+    appIndex = !AbilityRuntime::StartupUtil::GetAppIndex(want, appIndex) ? 0 : appIndex;
+    if (!CheckCallingTokenId(element.GetBundleName(), userId, appIndex)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Not self application.");
         return ERR_NOT_SELF_APPLICATION;
     }

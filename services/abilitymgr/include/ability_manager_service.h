@@ -2075,7 +2075,7 @@ private:
     int32_t RequestDialogServiceInner(const Want &want, const sptr<IRemoteObject> &callerToken,
         int requestCode, int32_t userId);
 
-    bool CheckCallingTokenId(const std::string &bundleName, int32_t userId = INVALID_USER_ID);
+    bool CheckCallingTokenId(const std::string &bundleName, int32_t userId = INVALID_USER_ID, int32_t appIndex = 0);
     bool IsCallerSceneBoard();
 
     void ReleaseAbilityTokenMap(const sptr<IRemoteObject> &token);
