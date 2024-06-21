@@ -128,12 +128,10 @@ bool FaultData::Marshalling(Parcel &parcel) const
             TAG_LOGE(AAFwkTag::APPMGR, "Token falge [false] write bool failed.");
             return false;
         }
-    } else {
-        if (!parcel.WriteBool(true) || !(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(token)) {
+    } else  if (!parcel.WriteBool(true) || !(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(token)) {
             TAG_LOGE(AAFwkTag::APPMGR, "Token falge [true] write bool failed.");
             return false;
         }
-    }
     return true;
 }
 
@@ -196,7 +194,7 @@ AppFaultDataBySA *AppFaultDataBySA::Unmarshalling(Parcel &parcel)
     return info;
 }
 
-bool AppFaultDataBySA::Marshalling(Parcel &parcel) const
+bool AppFaultDataBySA::WriteStringsMarshalling(Parcel &parcel) const
 {
     if (!parcel.WriteString(errorObject.name)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Name [%{public}s] write string failed.", errorObject.name.c_str());
@@ -210,6 +208,28 @@ bool AppFaultDataBySA::Marshalling(Parcel &parcel) const
     
     if (!parcel.WriteString(errorObject.stack)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Stack [%{public}s] write string failed.", errorObject.stack.c_str());
+        return false;
+    }
+    return true;
+}
+bool AppFaultDataBySA::Marshalling(Parcel &parcel) const
+{
+    // if (!parcel.WriteString(errorObject.name)) {
+    //     TAG_LOGE(AAFwkTag::APPMGR, "Name [%{public}s] write string failed.", errorObject.name.c_str());
+    //     return false;
+    // }
+
+    // if (!parcel.WriteString(errorObject.message)) {
+    //     TAG_LOGE(AAFwkTag::APPMGR, "Message [%{public}s] write string failed.", errorObject.message.c_str());
+    //     return false;
+    // }
+    
+    // if (!parcel.WriteString(errorObject.stack)) {
+    //     TAG_LOGE(AAFwkTag::APPMGR, "Stack [%{public}s] write string failed.", errorObject.stack.c_str());
+    //     return false;
+    // }
+
+    if (!WriteStringsMarshalling(parcel)) {
         return false;
     }
 

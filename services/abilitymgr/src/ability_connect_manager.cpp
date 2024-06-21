@@ -217,14 +217,9 @@ int AbilityConnectManager::StopServiceAbility(const AbilityRequest &abilityReque
     std::lock_guard guard(serialMutex_);
     return StopServiceAbilityLocked(abilityRequest);
 }
-
-int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityRequest)
+int AbilityConnectManager::CheckAndHandleUIExtensionAbility(const AbilityRequest &abilityRequest,
+    std::shared_ptr<AbilityRecord> &targetService, bool &isLoadedAbility)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "ability_name:%{public}s", abilityRequest.want.GetElement().GetURI().c_str());
-
-    std::shared_ptr<AbilityRecord> targetService;
-    bool isLoadedAbility = false;
     if (UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType)) {
         auto callerAbilityRecord = AAFwk::Token::GetAbilityRecordByToken(abilityRequest.callerToken);
         if (callerAbilityRecord == nullptr) {
@@ -240,6 +235,38 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     } else {
         GetOrCreateServiceRecord(abilityRequest, false, targetService, isLoadedAbility);
     }
+        return ERR_OK;
+ }
+
+int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityRequest)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "ability_name:%{public}s", abilityRequest.want.GetElement().GetURI().c_str());
+
+    std::shared_ptr<AbilityRecord> targetService;
+    bool isLoadedAbility = false;
+
+    CheckAndHandleUIExtensionAbility(abilityRequest, targetService, isLoadedAbility);
+    if (targetService == nullptr) {
+        return ERR_INVALID_VALUE;
+    }
+    /*if (UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType)) {
+        auto callerAbilityRecord = AAFwk::Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+        if (callerAbilityRecord == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to get callerAbilityRecord.");
+            return ERR_NULL_OBJECT;
+        }
+        std::string hostBundleName = callerAbilityRecord->GetAbilityInfo().bundleName;
+        int32_t ret = GetOrCreateExtensionRecord(abilityRequest, false, hostBundleName, targetService, isLoadedAbility);
+        if (ret != ERR_OK) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to get or create extension record, ret: %{public}d", ret);
+            return ret;
+        }
+    } else {
+        GetOrCreateServiceRecord(abilityRequest, false, targetService, isLoadedAbility);
+    }
+    */
+
     CHECK_POINTER_AND_RETURN(targetService, ERR_INVALID_VALUE);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Start ability: %{public}s", targetService->GetURI().c_str());
 
@@ -895,29 +922,9 @@ void AbilityConnectManager::OnAppStateChanged(const AppInfo &info)
     });
 }
 
-int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &token, int state)
+int AbilityConnectManager::HandleAbilityState(const sptr<IRemoteObject> &token,
+    std::shared_ptr<AbilityRecord> &abilityRecord, int &state, int &targetState)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::lock_guard guard(serialMutex_);
-    int targetState = AbilityRecord::ConvertLifeCycleToAbilityState(static_cast<AbilityLifeCycleState>(state));
-    std::string abilityState = AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState));
-    std::shared_ptr<AbilityRecord> abilityRecord;
-    if (targetState == AbilityState::INACTIVE) {
-        abilityRecord = GetExtensionByTokenFromServiceMap(token);
-    } else if (targetState == AbilityState::FOREGROUND || targetState == AbilityState::BACKGROUND) {
-        abilityRecord = GetExtensionByTokenFromServiceMap(token);
-        if (abilityRecord == nullptr) {
-            abilityRecord = GetExtensionByTokenFromTerminatingMap(token);
-        }
-    } else if (targetState == AbilityState::INITIAL) {
-        abilityRecord = GetExtensionByTokenFromTerminatingMap(token);
-    } else {
-        abilityRecord = nullptr;
-    }
-    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    std::string element = abilityRecord->GetURI();
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "Ability: %{public}s, state: %{public}s", element.c_str(), abilityState.c_str());
-
     switch (targetState) {
         case AbilityState::INACTIVE: {
             if (abilityRecord->GetAbilityInfo().type == AbilityType::SERVICE) {
@@ -959,8 +966,76 @@ int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &toke
         default: {
             TAG_LOGW(AAFwkTag::ABILITYMGR, "Don't support transiting state: %{public}d", state);
             return ERR_INVALID_VALUE;
+            }
         }
     }
+
+int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &token, int state)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    std::lock_guard guard(serialMutex_);
+    int targetState = AbilityRecord::ConvertLifeCycleToAbilityState(static_cast<AbilityLifeCycleState>(state));
+    std::string abilityState = AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState));
+    std::shared_ptr<AbilityRecord> abilityRecord;
+    if (targetState == AbilityState::INACTIVE) {
+        abilityRecord = GetExtensionByTokenFromServiceMap(token);
+    } else if (targetState == AbilityState::FOREGROUND || targetState == AbilityState::BACKGROUND) {
+        abilityRecord = GetExtensionByTokenFromServiceMap(token);
+        if (abilityRecord == nullptr) {
+            abilityRecord = GetExtensionByTokenFromTerminatingMap(token);
+        }
+    } else if (targetState == AbilityState::INITIAL) {
+        abilityRecord = GetExtensionByTokenFromTerminatingMap(token);
+    } else {
+        abilityRecord = nullptr;
+    }
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    std::string element = abilityRecord->GetURI();
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Ability: %{public}s, state: %{public}s", element.c_str(), abilityState.c_str());
+    return HandleAbilityState(token, abilityRecord, state, targetState);
+    /*switch (targetState) {
+        case AbilityState::INACTIVE: {
+            if (abilityRecord->GetAbilityInfo().type == AbilityType::SERVICE) {
+                DelayedSingleton<AppScheduler>::GetInstance()->UpdateAbilityState(
+                    token, AppExecFwk::AbilityState::ABILITY_STATE_CREATE);
+            } else {
+                DelayedSingleton<AppScheduler>::GetInstance()->UpdateExtensionState(
+                    token, AppExecFwk::ExtensionState::EXTENSION_STATE_CREATE);
+                auto preloadTask = [owner = weak_from_this(), abilityRecord] {
+                    auto acm = owner.lock();
+                    if (acm == nullptr) {
+                        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityConnectManager is nullptr.");
+                        return;
+                    }
+                    acm->ProcessPreload(abilityRecord);
+                };
+                if (taskHandler_ != nullptr) {
+                    taskHandler_->SubmitTask(preloadTask);
+                }
+            }
+            return DispatchInactive(abilityRecord, state);
+        }
+        case AbilityState::FOREGROUND: {
+            return DispatchForeground(abilityRecord);
+        }
+        case AbilityState::BACKGROUND: {
+            return DispatchBackground(abilityRecord);
+        }
+        case AbilityState::INITIAL: {
+            if (abilityRecord->GetAbilityInfo().type == AbilityType::SERVICE) {
+                DelayedSingleton<AppScheduler>::GetInstance()->UpdateAbilityState(
+                    token, AppExecFwk::AbilityState::ABILITY_STATE_TERMINATED);
+            } else {
+                DelayedSingleton<AppScheduler>::GetInstance()->UpdateExtensionState(
+                    token, AppExecFwk::ExtensionState::EXTENSION_STATE_TERMINATED);
+            }
+            return DispatchTerminate(abilityRecord);
+        }
+        default: {
+            TAG_LOGW(AAFwkTag::ABILITYMGR, "Don't support transiting state: %{public}d", state);
+            return ERR_INVALID_VALUE;
+        }
+    }*/
 }
 
 void AbilityConnectManager::ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const

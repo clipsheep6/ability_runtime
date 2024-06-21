@@ -86,6 +86,58 @@ unsigned int WantAgentHelper::FlagsTransformer(const std::vector<WantAgentConsta
     return wantFlags;
 }
 
+ErrCode WantAgentHelper::GetWantAgentOperationType(
+    const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context,
+    const WantAgentInfo &paramsInfo, std::shared_ptr<WantAgent> &wantAgent, std::shared_ptr<PendingWant> &pendingWant)
+{
+    std::vector<std::shared_ptr<Want>> wants = paramsInfo.GetWants();
+    if (wants.empty()) {
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::GetWantAgent invalid input param.");
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
+    }
+
+    TAG_LOGD(AAFwkTag::WANTAGENT, "bundle:%{public}s; ability:%{public}s",
+        wants[0]->GetElement().GetBundleName().c_str(),
+        wants[0]->GetElement().GetAbilityName().c_str());
+
+    unsigned int flags = FlagsTransformer(paramsInfo.GetFlags());
+    if (flags == 0) {
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::flags invalid.");
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
+    }
+
+    std::shared_ptr<WantParams> extraInfo = paramsInfo.GetExtraInfo();
+    pendingWant = nullptr;
+    int requestCode = paramsInfo.GetRequestCode();
+    WantAgentConstant::OperationType operationType = paramsInfo.GetOperationType();
+    ErrCode result;
+    switch (operationType) {
+        case WantAgentConstant::OperationType::START_ABILITY:
+            result = PendingWant::GetAbility(context, requestCode, wants[0], flags, extraInfo, pendingWant);
+            break;
+        case WantAgentConstant::OperationType::START_ABILITIES:
+            result = PendingWant::GetAbilities(context, requestCode, wants, flags, extraInfo, pendingWant);
+            break;
+        case WantAgentConstant::OperationType::START_SERVICE:
+            result = PendingWant::GetService(context, requestCode, wants[0], flags, pendingWant);
+            break;
+        case WantAgentConstant::OperationType::START_FOREGROUND_SERVICE:
+            result = PendingWant::GetForegroundService(context, requestCode, wants[0], flags, pendingWant);
+            break;
+        case WantAgentConstant::OperationType::SEND_COMMON_EVENT:
+            result = PendingWant::GetCommonEvent(context, requestCode, wants[0], flags, pendingWant);
+            break;
+        default:
+            TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::GetWantAgent operation type is error.");
+            result = ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
+            break;
+    }
+    if (pendingWant == nullptr) {
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::GetWantAgent the wants does not meet the requirements.");
+        return result;
+    }
+    return result;
+    }
 ErrCode WantAgentHelper::GetWantAgent(
     const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context,
     const WantAgentInfo &paramsInfo, std::shared_ptr<WantAgent> &wantAgent)
@@ -94,8 +146,13 @@ ErrCode WantAgentHelper::GetWantAgent(
         TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::GetWantAgent invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
-
-    std::vector<std::shared_ptr<Want>> wants = paramsInfo.GetWants();
+    std::shared_ptr<PendingWant> pendingWant = nullptr;
+    ErrCode result = GetWantAgentOperationType(context, paramsInfo, wantAgent, pendingWant);
+    if (result != ERR_OK) {
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Call WantAgentHelper::GetWantAgentOperationType failed");
+        return result;
+    }
+  /*  std::vector<std::shared_ptr<Want>> wants = paramsInfo.GetWants();
     if (wants.empty()) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::GetWantAgent invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
@@ -141,7 +198,8 @@ ErrCode WantAgentHelper::GetWantAgent(
     if (pendingWant == nullptr) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::GetWantAgent the wants does not meet the requirements.");
         return result;
-    }
+    } */
+
     wantAgent = std::make_shared<WantAgent>(pendingWant);
     return ERR_OK;
 }
