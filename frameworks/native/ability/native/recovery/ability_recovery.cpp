@@ -180,6 +180,17 @@ bool AbilityRecovery::SerializeDataToFile(int32_t savedStateId, WantParams& para
     }
     TAG_LOGD(AAFwkTag::RECOVERY, "file size: %{public}zu.", sz);
     close(fd);
+    auto token = token_.promote();
+    if (token == nullptr) {
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery token is nullptr");
+        return false;
+    }
+    std::shared_ptr<AAFwk::AbilityManagerClient> abilityMgr = AAFwk::AbilityManagerClient::GetInstance();
+    if (abilityMgr == nullptr) {
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery submitSaveRecoveryInfo. abilityMgr client is not exist.");
+        return false;
+    }
+    abilityMgr->submitSaveRecoveryInfo(token);
     return true;
 }
 

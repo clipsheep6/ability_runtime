@@ -1136,6 +1136,7 @@ public:
     }
 
     virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) {};
+    virtual void submitSaveRecoveryInfo(const sptr<IRemoteObject>& token) {};
     virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason,
         const Want *want = nullptr) {};
 

@@ -227,6 +227,7 @@ private:
     int BlockAppServiceInner(MessageParcel &data, MessageParcel &reply);
     #endif
     int EnableRecoverAbilityInner(MessageParcel &data, MessageParcel &reply);
+    int submitSaveRecoveryInfoInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleRecoverAbilityInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleClearRecoveryPageStackInner(MessageParcel &data, MessageParcel &reply);
     int GetTopAbilityInner(MessageParcel &data, MessageParcel &reply);

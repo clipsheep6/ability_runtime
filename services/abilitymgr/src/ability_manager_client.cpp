@@ -1389,6 +1389,13 @@ void AbilityManagerClient::ScheduleRecoverAbility(sptr<IRemoteObject> token, int
     return abms->ScheduleRecoverAbility(token, reason, want);
 }
 
+void AbilityManagerClient::submitSaveRecoveryInfo(sptr<IRemoteObject> token)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN(abms);
+    return abms->submitSaveRecoveryInfo(token);
+}
+
 void AbilityManagerClient::ScheduleClearRecoveryPageStack()
 {
     auto abms = GetAbilityManager();

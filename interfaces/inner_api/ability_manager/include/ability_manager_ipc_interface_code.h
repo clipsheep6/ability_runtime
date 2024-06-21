@@ -473,6 +473,8 @@ enum class AbilityManagerInterfaceCode {
 
     CLEAR_RECOVERY_PAGE_STACK = 3014,
 
+    ABILITY_RECOVERY_SUBMITINFO = 3015,
+
     ACQUIRE_SHARE_DATA = 4001,
     SHARE_DATA_DONE = 4002,
 

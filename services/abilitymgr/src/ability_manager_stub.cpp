@@ -152,6 +152,8 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::ScheduleRecoverAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ABILITY_RECOVERY_ENABLE)] =
         &AbilityManagerStub::EnableRecoverAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ABILITY_RECOVERY_SUBMITINFO)] =
+        &AbilityManagerStub::submitSaveRecoveryInfoInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CLEAR_RECOVERY_PAGE_STACK)] =
         &AbilityManagerStub::ScheduleClearRecoveryPageStackInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MINIMIZE_UI_ABILITY_BY_SCB)] =
@@ -2339,6 +2341,17 @@ int AbilityManagerStub::EnableRecoverAbilityInner(MessageParcel &data, MessagePa
 int AbilityManagerStub::ScheduleClearRecoveryPageStackInner(MessageParcel &data, MessageParcel &reply)
 {
     ScheduleClearRecoveryPageStack();
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::submitSaveRecoveryInfoInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    if (!token) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "submitSaveRecoveryInfoInner read ability token failed.");
+        return ERR_NULL_OBJECT;
+    }
+    submitSaveRecoveryInfo(token);
     return NO_ERROR;
 }
 

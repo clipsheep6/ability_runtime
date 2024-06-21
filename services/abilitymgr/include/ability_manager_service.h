@@ -16,6 +16,8 @@
 #ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H
 #define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H
 
+#include <atomic>
+#include <functional>
 #include <future>
 #include <map>
 #include <memory>
@@ -87,6 +89,14 @@ using OHOS::AppExecFwk::IAbilityController;
 class PendingWantManager;
 struct StartAbilityInfo;
 class WindowFocusChangedListener;
+
+class RecoveryTimer {
+public:
+    RecoveryTimer(): run_(false) {};
+    ~RecoveryTimer(){};
+    void Start(std::function<void()> task, int interval_ms);
+    std::atomic<bool> run_;
+};
 
 /**
  * @class AbilityManagerService
@@ -1305,6 +1315,8 @@ public:
         const std::shared_ptr<Media::PixelMap> &pixelMap) override;
 #endif // SUPPORT_SCREEN
     virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) override;
+    virtual void submitSaveRecoveryInfo(const sptr<IRemoteObject>& token) override;
+    virtual void clearRecoveryInfoByTimer();
     virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason,
         const Want *want = nullptr) override;
 
@@ -2274,6 +2286,7 @@ private:
     ffrt::mutex abilityDebugDealLock_;
     std::shared_ptr<AbilityDebugDeal> abilityDebugDeal_;
     std::shared_ptr<AppExitReasonHelper> appExitReasonHelper_;
+    RecoveryTimer recoveryTimer_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
