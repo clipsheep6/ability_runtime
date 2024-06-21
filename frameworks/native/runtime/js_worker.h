@@ -30,6 +30,7 @@ int32_t GetContainerId();
 void UpdateContainerScope(int32_t id);
 void RestoreContainerScope(int32_t id);
 void SetJsFramework();
+int32_t GetThreadIdOrTaskId();
 
 class AssetHelper final {
 public:
