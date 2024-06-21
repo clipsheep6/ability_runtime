@@ -905,9 +905,28 @@ void AbilityConnectManager::OnAppStateChanged(const AppInfo &info)
     });
 }
 
-int AbilityConnectManager::HandleAbilityState(const sptr<IRemoteObject> &token,
-    std::shared_ptr<AbilityRecord> &abilityRecord, int &state, int &targetState)
+int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &token, int state)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    std::lock_guard guard(serialMutex_);
+    int targetState = AbilityRecord::ConvertLifeCycleToAbilityState(static_cast<AbilityLifeCycleState>(state));
+    std::string abilityState = AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState));
+    std::shared_ptr<AbilityRecord> abilityRecord;
+    if (targetState == AbilityState::INACTIVE) {
+        abilityRecord = GetExtensionByTokenFromServiceMap(token);
+    } else if (targetState == AbilityState::FOREGROUND || targetState == AbilityState::BACKGROUND) {
+        abilityRecord = GetExtensionByTokenFromServiceMap(token);
+        if (abilityRecord == nullptr) {
+            abilityRecord = GetExtensionByTokenFromTerminatingMap(token);
+        }
+    } else if (targetState == AbilityState::INITIAL) {
+        abilityRecord = GetExtensionByTokenFromTerminatingMap(token);
+    } else {
+        abilityRecord = nullptr;
+    }
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    std::string element = abilityRecord->GetURI();
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Ability: %{public}s, state: %{public}s", element.c_str(), abilityState.c_str());
     switch (targetState) {
         case AbilityState::INACTIVE: {
             if (abilityRecord->GetAbilityInfo().type == AbilityType::SERVICE) {
@@ -949,33 +968,8 @@ int AbilityConnectManager::HandleAbilityState(const sptr<IRemoteObject> &token,
         default: {
             TAG_LOGW(AAFwkTag::ABILITYMGR, "Don't support transiting state: %{public}d", state);
             return ERR_INVALID_VALUE;
-            }
         }
     }
-
-int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &token, int state)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::lock_guard guard(serialMutex_);
-    int targetState = AbilityRecord::ConvertLifeCycleToAbilityState(static_cast<AbilityLifeCycleState>(state));
-    std::string abilityState = AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState));
-    std::shared_ptr<AbilityRecord> abilityRecord;
-    if (targetState == AbilityState::INACTIVE) {
-        abilityRecord = GetExtensionByTokenFromServiceMap(token);
-    } else if (targetState == AbilityState::FOREGROUND || targetState == AbilityState::BACKGROUND) {
-        abilityRecord = GetExtensionByTokenFromServiceMap(token);
-        if (abilityRecord == nullptr) {
-            abilityRecord = GetExtensionByTokenFromTerminatingMap(token);
-        }
-    } else if (targetState == AbilityState::INITIAL) {
-        abilityRecord = GetExtensionByTokenFromTerminatingMap(token);
-    } else {
-        abilityRecord = nullptr;
-    }
-    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    std::string element = abilityRecord->GetURI();
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "Ability: %{public}s, state: %{public}s", element.c_str(), abilityState.c_str());
-    return HandleAbilityState(token, abilityRecord, state, targetState);
 }
 
 void AbilityConnectManager::ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const
