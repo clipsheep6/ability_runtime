@@ -19,6 +19,7 @@
 
 #include "ability_manager_errors.h"
 #include "ability_manager_service.h"
+#include "ability_request_utils.h"
 #include "ability_util.h"
 #include "app_exit_reason_data_manager.h"
 #include "appfreeze_manager.h"
@@ -2605,7 +2606,7 @@ std::shared_ptr<MissionList> MissionListManager::GetTargetMissionList(int missio
 
     // generate a new mission and missionList
     AbilityRequest abilityRequest;
-    int generateAbility = DelayedSingleton<AbilityManagerService>::GetInstance()->GenerateAbilityRequest(
+    int generateAbility = AbilityRequestUtils::GenerateAbilityRequest(
         innerMissionInfo.missionInfo.want, DEFAULT_INVAL_VALUE, abilityRequest, nullptr, userId_);
     if (generateAbility != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "cannot find generate ability request, missionId: %{public}d", missionId);

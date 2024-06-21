@@ -27,6 +27,7 @@
 #undef private
 #undef protected
 #include "ability_manager_errors.h"
+#include "ability_request_utils.h"
 #include "app_utils.h"
 #include "connection_observer_errors.h"
 #include "hilog_tag_wrapper.h"
@@ -1513,11 +1514,10 @@ HWTEST_F(AbilityManagerServiceFirstTest, GetForegroundUIAbilities_001, TestSize.
 HWTEST_F(AbilityManagerServiceFirstTest, GenerateEmbeddableUIAbilityRequest_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GenerateEmbeddableUIAbilityRequest_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     want.SetParam("ohos.extra.param.key.startupMode", 1);
     AbilityRequest request;
-    auto res = abilityMs_->GenerateEmbeddableUIAbilityRequest(want, request, nullptr, USER_ID_U100);
+    auto res = AbilityRequestUtils::GenerateEmbeddableUIAbilityRequest(want, request, nullptr, USER_ID_U100);
     EXPECT_EQ(res, RESOLVE_ABILITY_ERR);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GenerateEmbeddableUIAbilityRequest_001 end");
 }
@@ -1531,10 +1531,9 @@ HWTEST_F(AbilityManagerServiceFirstTest, GenerateEmbeddableUIAbilityRequest_001,
 HWTEST_F(AbilityManagerServiceFirstTest, GenerateEmbeddableUIAbilityRequest_002, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GenerateEmbeddableUIAbilityRequest_002 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     AbilityRequest request;
-    auto res = abilityMs_->GenerateEmbeddableUIAbilityRequest(want, request, nullptr, USER_ID_U100);
+    auto res = AbilityRequestUtils::GenerateEmbeddableUIAbilityRequest(want, request, nullptr, USER_ID_U100);
     EXPECT_EQ(res, RESOLVE_ABILITY_ERR);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GenerateEmbeddableUIAbilityRequest_002 end");
 }

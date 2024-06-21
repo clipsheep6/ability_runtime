@@ -25,6 +25,7 @@
 #undef private
 
 #include "ability_record.h"
+#include "ability_request_utils.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
@@ -82,8 +83,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->GetEventHandler();
     abilityms->GetUserId();
     AbilityRequest request;
-    abilityms->GenerateAbilityRequest(*want, intParam, request, token, int32Param);
-    abilityms->GenerateExtensionAbilityRequest(*want, request, token, int32Param);
+    AbilityRequestUtils::GenerateAbilityRequest(*want, intParam, request, token, int32Param);
+    AbilityRequestUtils::GenerateExtensionAbilityRequest(*want, request, token, int32Param);
     abilityms->StopServiceAbility(*want, int32Param, token);
     std::shared_ptr<AbilityRecord> abilityRecord;
     abilityms->OnAbilityDied(abilityRecord);

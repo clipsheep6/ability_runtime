@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "utils/window_options_utils.h"
+#include "window_options_utils.h"
 
 #include "ability_record.h"
 #include "app_utils.h"

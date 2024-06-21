@@ -112,6 +112,40 @@ int32_t StartAbilityUtils::CheckAppProvisionMode(const Want& want, int32_t userI
     return ERR_OK;
 }
 
+int32_t StartAbilityUtils::GenerateStartAbilityInfo(const Want& want, int32_t userId,
+    std::shared_ptr<StartAbilityInfo>& abilityInfo)
+{
+    if (abilityInfo == nullptr || abilityInfo->GetAppBundleName() != want.GetElement().GetBundleName()) {
+        int32_t appIndex = 0;
+        if (!AbilityRuntime::StartupUtil::GetAppIndex(want, appIndex)) {
+            return ERR_APP_CLONE_INDEX_INVALID;
+        }
+        abilityInfo = StartAbilityInfo::CreateStartAbilityInfo(want, userId, appIndex);
+    }
+    CHECK_POINTER_AND_RETURN(abilityInfo, GET_ABILITY_SERVICE_FAILED);
+    if (abilityInfo->status != ERR_OK) {
+        return abilityInfo->status;
+    }
+    return ERR_OK;
+}
+
+int32_t StartAbilityUtils::GenerateStartExtensionInfo(const Want& want, int32_t userId,
+    std::shared_ptr<StartAbilityInfo>& abilityInfo)
+{
+    if (abilityInfo == nullptr || abilityInfo->GetAppBundleName() != want.GetElement().GetBundleName()) {
+        int32_t appIndex = 0;
+        if (!AbilityRuntime::StartupUtil::GetAppIndex(want, appIndex)) {
+            return ERR_APP_CLONE_INDEX_INVALID;
+        }
+        abilityInfo = StartAbilityInfo::CreateStartExtensionInfo(want, userId, appIndex);
+    }
+    CHECK_POINTER_AND_RETURN(abilityInfo, GET_ABILITY_SERVICE_FAILED);
+    if (abilityInfo->status != ERR_OK) {
+        return abilityInfo->status;
+    }
+    return ERR_OK;
+}
+
 StartAbilityInfoWrap::StartAbilityInfoWrap(const Want &want, int32_t validUserId, int32_t appIndex,
     const sptr<IRemoteObject> &callerToken, bool isExtension)
 {

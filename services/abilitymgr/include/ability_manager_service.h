@@ -1046,18 +1046,6 @@ public:
     int GetMissionSaveTime() const;
 
     /**
-     * generate ability request.
-     *
-     */
-    int GenerateAbilityRequest(
-        const Want &want,
-        int requestCode,
-        AbilityRequest &request,
-        const sptr<IRemoteObject> &callerToken,
-        int32_t userId,
-        bool isNeedSetDebugApp = true);
-
-    /**
      * Get mission id by target ability token.
      *
      * @param token target ability token.
@@ -1938,9 +1926,6 @@ private:
 
     bool GetValidDataAbilityUri(const std::string &abilityInfoUri, std::string &adjustUri);
 
-    int GenerateExtensionAbilityRequest(const Want &want, AbilityRequest &request,
-        const sptr<IRemoteObject> &callerToken, int32_t userId);
-    int32_t InitialAbilityRequest(AbilityRequest &request, const StartAbilityInfo &abilityInfo) const;
     int CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
         int32_t validUserId, AppExecFwk::ExtensionAbilityType extensionType, bool isImplicit = false);
 
@@ -1963,9 +1948,6 @@ private:
         const std::string& abilityName, const std::string& result);
 
     void AppRecoverKill(pid_t pid, int32_t reason);
-
-    int32_t GenerateEmbeddableUIAbilityRequest(const Want &want, AbilityRequest &request,
-        const sptr<IRemoteObject> &callerToken, int32_t userId);
 
     bool GenerateDataAbilityRequestByUri(const std::string& dataAbilityUri,
         AbilityRequest &abilityRequest, sptr<IRemoteObject> callerToken, int32_t userId);
@@ -2147,9 +2129,6 @@ private:
     bool CheckCallerIsDmsProcess();
 
     void WaitBootAnimationStart();
-
-    void SetDebugAppByWaitingDebugFlag(
-        const Want &want, Want &requestWant, const std::string &bundleName, bool isDebugApp);
 
     int32_t SignRestartAppFlag(int32_t userId, const std::string &bundleName);
     int32_t CheckRestartAppWant(const AAFwk::Want &want);

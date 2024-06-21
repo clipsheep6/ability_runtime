@@ -14,14 +14,17 @@
  */
 
 #include "start_ability_sandbox_savefile.h"
+
 #include <climits>
+
+#include "ability_manager_errors.h"
+#include "ability_manager_service.h"
+#include "ability_request_utils.h"
+#include "ability_util.h"
+#include "display_manager.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
-#include "ability_manager_errors.h"
-#include "ability_util.h"
-#include "ability_manager_service.h"
-#include "display_manager.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -95,7 +98,7 @@ int StartAbilitySandboxSavefile::StartAbility(StartAbilityParams &params, int re
     abilityRequest.connect = sptr<IAbilityConnection>(new EmptyConnection());
 
     auto abilityMs = DelayedSingleton<AbilityManagerService>::GetInstance();
-    auto ret = abilityMs->GenerateAbilityRequest(params.want, requestCode,
+    auto ret = AbilityRequestUtils::GenerateAbilityRequest(params.want, requestCode,
         abilityRequest, params.callerToken, params.GetValidUserId());
     if (ret != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Generate ability request error.");

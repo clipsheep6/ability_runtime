@@ -26,6 +26,7 @@
 #undef protected
 
 #include "ability_manager_errors.h"
+#include "ability_request_utils.h"
 #include "connection_observer_errors.h"
 #include "hilog_tag_wrapper.h"
 #include "session/host/include/session.h"
@@ -1635,10 +1636,9 @@ HWTEST_F(AbilityManagerServiceSecondTest, GetUserId_001, TestSize.Level1)
 HWTEST_F(AbilityManagerServiceSecondTest, GenerateAbilityRequest_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GenerateAbilityRequest_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     AbilityRequest request;
-    EXPECT_EQ(abilityMs_->GenerateAbilityRequest(want, 1, request, nullptr, 100), RESOLVE_ABILITY_ERR);
+    EXPECT_EQ(AbilityRequestUtils::GenerateAbilityRequest(want, 1, request, nullptr, 100), RESOLVE_ABILITY_ERR);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GenerateAbilityRequest_001 end");
 }
 
@@ -1651,10 +1651,9 @@ HWTEST_F(AbilityManagerServiceSecondTest, GenerateAbilityRequest_001, TestSize.L
 HWTEST_F(AbilityManagerServiceSecondTest, GenerateExtensionAbilityRequest_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GenerateExtensionAbilityRequest_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     AbilityRequest request;
-    EXPECT_EQ(abilityMs_->GenerateExtensionAbilityRequest(want, request, nullptr, 100), RESOLVE_ABILITY_ERR);
+    EXPECT_EQ(AbilityRequestUtils::GenerateExtensionAbilityRequest(want, request, nullptr, 100), RESOLVE_ABILITY_ERR);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GenerateExtensionAbilityRequest_001 end");
 }
 

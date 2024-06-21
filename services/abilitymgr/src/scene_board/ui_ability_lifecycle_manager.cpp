@@ -17,6 +17,7 @@
 
 #include "ability_manager_service.h"
 #include "ability_running_info.h"
+#include "ability_request_utils.h"
 #include "ability_util.h"
 #include "appfreeze_manager.h"
 #include "app_exit_reason_data_manager.h"
@@ -1528,7 +1529,7 @@ void UIAbilityLifecycleManager::StartSpecifiedAbilityBySCB(const Want &want)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     AbilityRequest abilityRequest;
-    int result = DelayedSingleton<AbilityManagerService>::GetInstance()->GenerateAbilityRequest(
+    int result = AbilityRequestUtils::GenerateAbilityRequest(
         want, DEFAULT_INVAL_VALUE, abilityRequest, nullptr, userId_);
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "cannot find generate ability request");
