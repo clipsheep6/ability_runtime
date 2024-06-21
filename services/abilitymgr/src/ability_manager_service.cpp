@@ -7933,12 +7933,17 @@ int AbilityManagerService::CheckStaticCfgPermissionForSkill(const AppExecFwk::Ab
     if (abilityInfo.skills.empty()) {
         return AppExecFwk::Constants::PERMISSION_GRANTED;
     }
+    int32_t result = AppExecFwk::Constants::PERMISSION_GRANTED;
     for (auto skill : abilityInfo.skills) {
-        if (skill.Match(abilityRequest.want) && CheckOneSkillPermission(skill, tokenId)) {
-            return AppExecFwk::Constants::PERMISSION_GRANTED;
+        if (skill.Match(abilityRequest.want)) {
+            if (CheckOneSkillPermission(skill, tokenId)) {
+                return AppExecFwk::Constants::PERMISSION_GRANTED;
+            } else {
+                result = AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
+            }
         }
     }
-    return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
+    return result;
 }
 
 int AbilityManagerService::CheckStaticCfgPermission(const AppExecFwk::AbilityRequest &abilityRequest,
