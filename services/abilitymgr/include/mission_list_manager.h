@@ -534,6 +534,7 @@ private:
 
     void SendKeyEvent(const AbilityRequest &abilityRequest);
 
+    void ChangedAppState(const AppInfo &info, std::list<std::shared_ptr<Mission>> missions, std::string &msg);
     int userId_;
     mutable ffrt::mutex managerLock_;
     // launcher list is also in currentMissionLists_
