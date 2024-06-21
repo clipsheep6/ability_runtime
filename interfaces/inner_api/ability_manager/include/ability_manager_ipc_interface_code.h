@@ -244,6 +244,9 @@ enum class AbilityManagerInterfaceCode {
     // Set resident process enable status.
     SET_RESIDENT_PROCESS_ENABLE = 80,
 
+    // Get mission delegator.
+    GET_MISSION_LIST_DELEGATOR = 81,
+
     // ipc id 1001-2000 for DMS
     // ipc id for starting ability (1001)
     START_ABILITY = 1001,

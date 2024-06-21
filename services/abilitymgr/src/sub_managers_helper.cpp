@@ -17,7 +17,7 @@
 
 #include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
-#include "mission_info_mgr.h"
+#include "mission_list_bridge.h"
 #include "scene_board_judgement.h"
 #include "os_account_manager_wrapper.h"
 
@@ -29,6 +29,8 @@ constexpr int32_t INVALID_USER_ID = -1;
 SubManagersHelper::SubManagersHelper(
     std::shared_ptr<TaskHandlerWrap> taskHandler, std::shared_ptr<AbilityEventHandler> eventHandler)
     : taskHandler_(taskHandler), eventHandler_(eventHandler) {}
+
+SubManagersHelper::~SubManagersHelper() {}
 
 void SubManagersHelper::InitSubManagers(int userId, bool switchUser)
 {
@@ -99,20 +101,11 @@ void SubManagersHelper::InitPendWantManager(int32_t userId, bool switchUser)
 
 void SubManagersHelper::InitMissionListManager(int userId, bool switchUser)
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
-    auto it = missionListManagers_.find(userId);
-    if (it != missionListManagers_.end()) {
-        if (switchUser) {
-            DelayedSingleton<MissionInfoMgr>::GetInstance()->Init(userId);
-            currentMissionListManager_ = it->second;
-        }
-        return;
-    }
-    auto manager = std::make_shared<MissionListManager>(userId);
-    manager->Init();
-    missionListManagers_.emplace(userId, manager);
-    if (switchUser) {
-        currentMissionListManager_ = manager;
+    auto missionListBridge = GetMissionListBridge();
+    if (missionListBridge) {
+        missionListBridge->InitMissionListManager(userId, switchUser);
+    } else {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListBridge null");
     }
 }
 
@@ -138,9 +131,8 @@ void SubManagersHelper::ClearSubManagers(int userId)
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         uiAbilityManagers_.erase(userId);
-    } else {
-        missionListManagers_.erase(userId);
     }
+
     connectManagers_.erase(userId);
     dataAbilityManagers_.erase(userId);
     pendingWantManagers_.erase(userId);
@@ -249,41 +241,10 @@ std::shared_ptr<PendingWantManager> SubManagersHelper::GetPendingWantManagerByUs
     return nullptr;
 }
 
-std::unordered_map<int, std::shared_ptr<MissionListManager>> SubManagersHelper::GetMissionListManagers()
+std::shared_ptr<MissionListBridge> SubManagersHelper::GetMissionListBridge()
 {
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
-    return missionListManagers_;
-}
-
-std::shared_ptr<MissionListManager> SubManagersHelper::GetCurrentMissionListManager()
-{
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
-    return currentMissionListManager_;
-}
-
-std::shared_ptr<MissionListManager> SubManagersHelper::GetMissionListManagerByUserId(int32_t userId)
-{
-    std::lock_guard<ffrt::mutex> lock(managersMutex_);
-    auto it = missionListManagers_.find(userId);
-    if (it != missionListManagers_.end()) {
-        return it->second;
-    }
-    TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to get Manager. UserId = %{public}d", userId);
-    return nullptr;
-}
-
-std::shared_ptr<MissionListManager> SubManagersHelper::GetMissionListManagerByUid(int32_t uid)
-{
-    int32_t userId = INVALID_USER_ID;
-    if (DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->GetOsAccountLocalIdFromUid(
-        uid, userId) != 0) {
-        return nullptr;
-    }
-    if (userId == U0_USER_ID) {
-        std::lock_guard<ffrt::mutex> lock(managersMutex_);
-        return currentMissionListManager_;
-    }
-    return GetMissionListManagerByUserId(userId);
+    std::lock_guard lock(managersMutex_);
+    return missionListBridge_;
 }
 
 std::unordered_map<int, std::shared_ptr<UIAbilityLifecycleManager>> SubManagersHelper::GetUIAbilityManagers()
@@ -361,18 +322,11 @@ void SubManagersHelper::UninstallAppInUIAbilityManagers(int32_t userId, const st
 
 void SubManagersHelper::UninstallAppInMissionListManagers(int32_t userId, const std::string &bundleName, int32_t uid)
 {
-    if (userId == U0_USER_ID) {
-        auto missionListManagers = GetMissionListManagers();
-        for (auto& item : missionListManagers) {
-            if (item.second) {
-                item.second->UninstallApp(bundleName, uid);
-            }
-        }
+    auto missionListBridge = GetMissionListBridge();
+    if (missionListBridge) {
+        missionListBridge->UninstallAppInMissionListManagers(userId, bundleName, uid);
     } else {
-        auto listManager = GetMissionListManagerByUserId(userId);
-        if (listManager) {
-            listManager->UninstallApp(bundleName, uid);
-        }
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListBridge null");
     }
 }
 
@@ -405,13 +359,8 @@ bool SubManagersHelper::VerificationAllToken(const sptr<IRemoteObject> &token)
         }
     } else {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "VerificationAllToken::SearchMissionListManagers");
-        for (auto& item: missionListManagers_) {
-            if (item.second && item.second->GetAbilityRecordByToken(token)) {
-                return true;
-            }
-            if (item.second && item.second->GetAbilityFromTerminateList(token)) {
-                return true;
-            }
+        if (missionListBridge_ && missionListBridge_->VerificationAllToken(token)) {
+            return true;
         }
     }
     {

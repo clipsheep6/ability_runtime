@@ -40,6 +40,7 @@ ohos_fuzztest("AbilityMgrRestFuzzTest") {
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
+    "${ability_runtime_services_path}/abilitymgr:mission_list",
     "${ability_runtime_services_path}/appmgr:libappms",
   ]
 

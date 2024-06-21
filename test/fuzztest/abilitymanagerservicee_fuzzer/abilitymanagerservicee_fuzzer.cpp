@@ -80,11 +80,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->ShowHelp(stringParam);
     abilityms->ShowIllegalInfomation(stringParam);
     abilityms->DumpAbilityInfoDone(info, token);
-    abilityms->SetMissionLabel(token, stringParam);
-    std::shared_ptr<OHOS::Media::PixelMap> icon;
-    abilityms->SetMissionIcon(token, icon);
-    sptr<IWindowManagerServiceHandler> windowManagerServiceHandler;
-    abilityms->RegisterWindowManagerServiceHandler(windowManagerServiceHandler);
 
     return true;
 }

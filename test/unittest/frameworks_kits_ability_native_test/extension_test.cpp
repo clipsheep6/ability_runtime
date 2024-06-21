@@ -404,20 +404,6 @@ HWTEST_F(ExtensionTest, AaFwk_Extension_1900, Function | MediumTest | Level1)
 }
 
 /**
- * @tc.number: AaFwk_Extension_2200
- * @tc.name: SetExtensionWindowLifeCycleListener
- * @tc.desc: Successfully verified SetExtensionWindowLifeCycleListener.
- */
-HWTEST_F(ExtensionTest, AaFwk_Extension_2200, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AaFwk_Extension_2200 start";
-    EXPECT_TRUE(extension_ != nullptr);
-    sptr<Rosen::IWindowLifeCycle> listener = nullptr;
-    extension_->SetExtensionWindowLifeCycleListener(listener);
-    GTEST_LOG_(INFO) << "AaFwk_Extension_2200 end";
-}
-
-/**
  * @tc.number: AaFwk_Extension_2300
  * @tc.name: OnCommandWindow
  * @tc.desc: Incoming want verified OnCommandWindow successfully.

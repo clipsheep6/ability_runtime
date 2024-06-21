@@ -17,13 +17,19 @@
 #define private public
 #define protected public
 #include "ability_manager_service.h"
+#include "mission_list_wrapper.h"
 #undef private
 #undef protected
 #include "ability_manager_errors.h"
+#include "mission_list_bridge.h"
 
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
+
+extern "C" {
+OHOS::AAFwk::MissionListBridge* CreateMissionListBridge();
+}
 
 namespace OHOS {
 namespace AAFwk {
@@ -141,6 +147,7 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_003, TestSize.Level1)
 HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_004, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->missionListBridge_ = std::shared_ptr<MissionListBridge>(CreateMissionListBridge());
     abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
@@ -148,7 +155,7 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_004, TestSize.Level1)
     auto result = abilityMs_->StartAbility(want);
 
     if (result == OHOS::ERR_OK) {
-        auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+        auto topAbility = MissionListWrapper::GetInstance().currentMissionListManager_->GetCurrentTopAbilityLocked();
         EXPECT_TRUE(topAbility);
         topAbility->SetAbilityState(AbilityState::FOREGROUND);
     }
@@ -216,6 +223,7 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_005, TestSize.Level1)
 HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_006, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->missionListBridge_ = std::shared_ptr<MissionListBridge>(CreateMissionListBridge());
     abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
     Want want;
     ElementName element("device", "com.ohos.launcher", "com.ohos.launcher.MainAbility");
@@ -223,7 +231,7 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_006, TestSize.Level1)
     auto result = abilityMs_->StartAbility(want);
 
     if (result == OHOS::ERR_OK) {
-        auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+        auto topAbility = MissionListWrapper::GetInstance().currentMissionListManager_->GetCurrentTopAbilityLocked();
         EXPECT_TRUE(topAbility);
         topAbility->SetAbilityState(AbilityState::FOREGROUND);
     }
@@ -255,6 +263,7 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_006, TestSize.Level1)
 HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_007, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->missionListBridge_ = std::shared_ptr<MissionListBridge>(CreateMissionListBridge());
     abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
@@ -262,7 +271,7 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_007, TestSize.Level1)
     auto result = abilityMs_->StartAbility(want);
 
     if (result == OHOS::ERR_OK) {
-        auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+        auto topAbility = MissionListWrapper::GetInstance().currentMissionListManager_->GetCurrentTopAbilityLocked();
         EXPECT_TRUE(topAbility);
         topAbility->SetAbilityState(AbilityState::ACTIVE);
 
@@ -499,6 +508,7 @@ HWTEST_F(RunningInfosTest, ConnectManagerGetExtensionRunningInfos_002, TestSize.
 HWTEST_F(RunningInfosTest, MissionGetAbilityRunningInfos_001, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->missionListBridge_ = std::shared_ptr<MissionListBridge>(CreateMissionListBridge());
     abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
@@ -507,7 +517,7 @@ HWTEST_F(RunningInfosTest, MissionGetAbilityRunningInfos_001, TestSize.Level1)
 
     if (result == OHOS::ERR_OK) {
         std::vector<AbilityRunningInfo> infos;
-        abilityMs_->subManagersHelper_->currentMissionListManager_->GetAbilityRunningInfos(infos, true);
+        MissionListWrapper::GetInstance().currentMissionListManager_->GetAbilityRunningInfos(infos, true);
         size_t infoCount{ 1 };
         EXPECT_TRUE(infos.size() == infoCount);
         if (infos.size() == infoCount) {
@@ -528,6 +538,7 @@ HWTEST_F(RunningInfosTest, MissionGetAbilityRunningInfos_001, TestSize.Level1)
 HWTEST_F(RunningInfosTest, MissionGetAbilityRunningInfos_002, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->missionListBridge_ = std::shared_ptr<MissionListBridge>(CreateMissionListBridge());
     abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
@@ -535,7 +546,7 @@ HWTEST_F(RunningInfosTest, MissionGetAbilityRunningInfos_002, TestSize.Level1)
     auto result = abilityMs_->StartAbility(want);
 
     if (result == OHOS::ERR_OK) {
-        auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+        auto topAbility = MissionListWrapper::GetInstance().currentMissionListManager_->GetCurrentTopAbilityLocked();
         EXPECT_TRUE(topAbility);
         topAbility->SetAbilityState(AbilityState::FOREGROUND);
     }
@@ -546,7 +557,7 @@ HWTEST_F(RunningInfosTest, MissionGetAbilityRunningInfos_002, TestSize.Level1)
 
     if (result2 == OHOS::ERR_OK) {
         std::vector<AbilityRunningInfo> infos;
-        abilityMs_->subManagersHelper_->currentMissionListManager_->GetAbilityRunningInfos(infos, true);
+        MissionListWrapper::GetInstance().currentMissionListManager_->GetAbilityRunningInfos(infos, true);
 
         size_t infoCount{ 2 };
         EXPECT_TRUE(infos.size() == infoCount);

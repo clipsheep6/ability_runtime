@@ -27,6 +27,8 @@
 #undef private
 #undef protected
 
+#include "window_manager_service_handler.h"
+
 using namespace testing::ext;
 using namespace testing;
 using namespace OHOS::AppExecFwk;

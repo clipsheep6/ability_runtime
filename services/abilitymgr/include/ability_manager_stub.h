@@ -79,7 +79,6 @@ private:
     int ScheduleDisconnectAbilityDoneInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleCommandAbilityDoneInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleCommandAbilityWindowDoneInner(MessageParcel &data, MessageParcel &reply);
-    int GetMissionSnapshotInner(MessageParcel &data, MessageParcel &reply);
     int AcquireDataAbilityInner(MessageParcel &data, MessageParcel &reply);
     int ReleaseDataAbilityInner(MessageParcel &data, MessageParcel &reply);
     int KillProcessInner(MessageParcel &data, MessageParcel &reply);
@@ -141,19 +140,8 @@ private:
     int RegisterRemoteOffListenerInner(MessageParcel &data, MessageParcel &reply);
     int UnRegisterRemoteMissionListenerInner(MessageParcel &data, MessageParcel &reply);
 
-    int LockMissionForCleanupInner(MessageParcel &data, MessageParcel &reply);
-    int UnlockMissionForCleanupInner(MessageParcel &data, MessageParcel &reply);
     int SetLockedStateInner(MessageParcel &data, MessageParcel &reply);
-    int RegisterMissionListenerInner(MessageParcel &data, MessageParcel &reply);
-    int UnRegisterMissionListenerInner(MessageParcel &data, MessageParcel &reply);
-    int GetMissionInfosInner(MessageParcel &data, MessageParcel &reply);
-    int GetMissionInfoInner(MessageParcel &data, MessageParcel &reply);
-    int CleanMissionInner(MessageParcel &data, MessageParcel &reply);
-    int CleanAllMissionsInner(MessageParcel &data, MessageParcel &reply);
     int MoveMissionToFrontInner(MessageParcel &data, MessageParcel &reply);
-    int MoveMissionsToForegroundInner(MessageParcel &data, MessageParcel &reply);
-    int MoveMissionsToBackgroundInner(MessageParcel &data, MessageParcel &reply);
-    int GetMissionIdByTokenInner(MessageParcel &data, MessageParcel &reply);
 
     // for new version ability (call ability)
     int StartAbilityByCallInner(MessageParcel &data, MessageParcel &reply);
@@ -168,35 +156,24 @@ private:
 
     int StartSyncRemoteMissionsInner(MessageParcel &data, MessageParcel &reply);
     int StopSyncRemoteMissionsInner(MessageParcel &data, MessageParcel &reply);
-    int RegisterSnapshotHandlerInner(MessageParcel &data, MessageParcel &reply);
-    int GetMissionSnapshotInfoInner(MessageParcel &data, MessageParcel &reply);
 
     int SetAbilityControllerInner(MessageParcel &data, MessageParcel &reply);
 
     int StartUserTestInner(MessageParcel &data, MessageParcel &reply);
     int FinishUserTestInner(MessageParcel &data, MessageParcel &reply);
-    int GetTopAbilityTokenInner(MessageParcel &data, MessageParcel &reply);
     int CheckUIExtensionIsFocusedInner(MessageParcel &data, MessageParcel &reply);
-    int DelegatorDoAbilityForegroundInner(MessageParcel &data, MessageParcel &reply);
-    int DelegatorDoAbilityBackgroundInner(MessageParcel &data, MessageParcel &reply);
     int DoAbilityForegroundInner(MessageParcel &data, MessageParcel &reply);
     int DoAbilityBackgroundInner(MessageParcel &data, MessageParcel &reply);
 
     int IsRunningInStabilityTestInner(MessageParcel &data, MessageParcel &reply);
     int MoveMissionToFrontByOptionsInner(MessageParcel &data, MessageParcel &reply);
 
-    int UpdateMissionSnapShotFromWMSInner(MessageParcel &data, MessageParcel &reply);
     int RegisterConnectionObserverInner(MessageParcel &data, MessageParcel &reply);
     int UnregisterConnectionObserverInner(MessageParcel &data, MessageParcel &reply);
     int GetDlpConnectionInfosInner(MessageParcel &data, MessageParcel &reply);
     int GetConnectionDataInner(MessageParcel &data, MessageParcel &reply);
-    int MoveAbilityToBackgroundInner(MessageParcel &data, MessageParcel &reply);
     int32_t MoveUIAbilityToBackgroundInner(MessageParcel &data, MessageParcel &reply);
-    int SetMissionContinueStateInner(MessageParcel &data, MessageParcel &reply);
 #ifdef SUPPORT_GRAPHICS
-    int SetMissionLabelInner(MessageParcel &data, MessageParcel &reply);
-    int SetMissionIconInner(MessageParcel &data, MessageParcel &reply);
-    int RegisterWindowManagerServiceHandlerInner(MessageParcel &data, MessageParcel &reply);
     int CompleteFirstFrameDrawingInner(MessageParcel &data, MessageParcel &reply);
     int PrepareTerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
     int GetDialogSessionInfoInner(MessageParcel &data, MessageParcel &reply);
@@ -221,10 +198,8 @@ private:
     int EnableRecoverAbilityInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleRecoverAbilityInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleClearRecoveryPageStackInner(MessageParcel &data, MessageParcel &reply);
-    int GetTopAbilityInner(MessageParcel &data, MessageParcel &reply);
     int GetElementNameByTokenInner(MessageParcel &data, MessageParcel &reply);
     int DumpAbilityInfoDoneInner(MessageParcel &data, MessageParcel &reply);
-    int32_t IsValidMissionIdsInner(MessageParcel &data, MessageParcel &reply);
 
     int VerifyPermissionInner(MessageParcel &data, MessageParcel &reply);
 
@@ -294,6 +269,7 @@ private:
     int32_t GetAbilityStateByPersistentIdInner(MessageParcel &data, MessageParcel &reply);
     int32_t TransferAbilityResultForExtensionInner(MessageParcel &data, MessageParcel &reply);
     int32_t NotifyFrozenProcessByRSSInner(MessageParcel &data, MessageParcel &reply);
+    int32_t GetMissionListDelegatorInner(MessageParcel &data, MessageParcel &reply);
     int OnRemoteRequestInnerFirst(uint32_t code, MessageParcel &data,
         MessageParcel &reply, MessageOption &option);
     int OnRemoteRequestInnerSecond(uint32_t code, MessageParcel &data,

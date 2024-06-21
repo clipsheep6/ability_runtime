@@ -175,15 +175,6 @@ int32_t UserController::StopUser(int32_t userId)
     }
     appScheduler->KillProcessesByUserId(userId);
 
-    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto taskDataPersistenceMgr = DelayedSingleton<TaskDataPersistenceMgr>::GetInstance();
-        if (!taskDataPersistenceMgr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "taskDataPersistenceMgr is null");
-            return -1;
-        }
-        taskDataPersistenceMgr->RemoveUserDir(userId);
-    }
-
     auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
     if (!abilityManagerService) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityManagerService is null");

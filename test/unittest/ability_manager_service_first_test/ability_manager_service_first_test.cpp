@@ -257,50 +257,6 @@ HWTEST_F(AbilityManagerServiceFirstTest, GetDlpConnectionInfos_001, TestSize.Lev
 
 /*
  * Feature: AbilityManagerService
- * Function: RegisterSnapshotHandler
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService RegisterSnapshotHandler
- */
-HWTEST_F(AbilityManagerServiceFirstTest, RegisterSnapshotHandler_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest RegisterSnapshotHandler_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
-    EXPECT_EQ(abilityMs_->RegisterSnapshotHandler(nullptr), 0);
-
-    auto temp = abilityMs_->subManagersHelper_->currentMissionListManager_;
-    abilityMs_->subManagersHelper_->currentMissionListManager_.reset();
-    EXPECT_EQ(abilityMs_->RegisterSnapshotHandler(nullptr), ERR_OK);
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest RegisterSnapshotHandler_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: GetMissionSnapshot
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService GetMissionSnapshot
- */
-HWTEST_F(AbilityManagerServiceFirstTest, GetMissionSnapshot_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest GetMissionSnapshot_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
-    MissionSnapshot missionSnapshot;
-    EXPECT_EQ(abilityMs_->GetMissionSnapshot("", 1, missionSnapshot, true), CHECK_PERMISSION_FAILED);
-
-    MyFlag::flag_ = 1;
-    auto temp = abilityMs_->subManagersHelper_->currentMissionListManager_;
-    abilityMs_->subManagersHelper_->currentMissionListManager_.reset();
-    EXPECT_EQ(abilityMs_->GetMissionSnapshot("", 1, missionSnapshot, true), INNER_ERR);
-    abilityMs_->subManagersHelper_->currentMissionListManager_ = temp;
-
-    EXPECT_EQ(abilityMs_->GetMissionSnapshot("", 1, missionSnapshot, true), INNER_ERR);
-    MyFlag::flag_ = 0;
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest GetMissionSnapshot_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: SetAbilityController
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService SetAbilityController
@@ -576,23 +532,6 @@ HWTEST_F(AbilityManagerServiceFirstTest, MinimizeUIAbilityBySCB_002, TestSize.Le
 
 /*
  * Feature: AbilityManagerService
- * Function: GetMissionIdByToken
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService GetMissionIdByToken
- */
-HWTEST_F(AbilityManagerServiceFirstTest, GetMissionIdByToken_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest GetMissionIdByToken_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
-    EXPECT_EQ(abilityMs_->GetMissionIdByToken(nullptr), ERR_INVALID_VALUE);
-    OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
-    EXPECT_EQ(abilityMs_->GetMissionIdByToken(token), ERR_INVALID_VALUE);
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest GetMissionIdByToken_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: ScheduleConnectAbilityDone
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService ScheduleConnectAbilityDone
@@ -711,39 +650,6 @@ HWTEST_F(AbilityManagerServiceFirstTest, FinishUserTest_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
- * Function: DelegatorDoAbilityForeground
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService DelegatorDoAbilityForeground
- */
-HWTEST_F(AbilityManagerServiceFirstTest, DelegatorDoAbilityForeground_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest DelegatorDoAbilityForeground_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
-    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
-    EXPECT_EQ(abilityMs_->DelegatorDoAbilityForeground(nullptr), ERR_INVALID_VALUE);
-    EXPECT_EQ(abilityMs_->DelegatorDoAbilityForeground(MockToken(AbilityType::PAGE)), ERR_INVALID_VALUE);
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest DelegatorDoAbilityForeground_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: DelegatorDoAbilityBackground
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService DelegatorDoAbilityBackground
- */
-HWTEST_F(AbilityManagerServiceFirstTest, DelegatorDoAbilityBackground_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest DelegatorDoAbilityBackground_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        EXPECT_EQ(abilityMs_->DelegatorDoAbilityBackground(nullptr), ERR_INVALID_VALUE);
-    }
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest DelegatorDoAbilityBackground_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: DoAbilityForeground
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService DoAbilityForeground
@@ -841,23 +747,6 @@ HWTEST_F(AbilityManagerServiceFirstTest, IsAbilityControllerForeground_001, Test
     EXPECT_FALSE(abilityMs_->IsAbilityControllerForeground("test"));
     abilityMs_->abilityController_ = temp2;
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest IsAbilityControllerForeground_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: DelegatorMoveMissionToFront
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService DelegatorMoveMissionToFront
- */
-HWTEST_F(AbilityManagerServiceFirstTest, DelegatorMoveMissionToFront_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest DelegatorMoveMissionToFront_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
-    auto temp = abilityMs_->subManagersHelper_->currentMissionListManager_;
-    abilityMs_->subManagersHelper_->currentMissionListManager_.reset();
-    EXPECT_EQ(abilityMs_->DelegatorMoveMissionToFront(1), ERR_NO_INIT);
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest DelegatorMoveMissionToFront_001 end");
 }
 
 /*

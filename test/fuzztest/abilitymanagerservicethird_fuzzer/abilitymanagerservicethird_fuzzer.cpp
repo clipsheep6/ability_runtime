@@ -80,7 +80,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->VerificationAllToken(token);
     sptr<IAbilityScheduler> scheduler;
     abilityms->GetDataAbilityManager(scheduler);
-    abilityms->GetMissionListManagerByUserId(int32Param);
     abilityms->GetConnectManagerByUserId(int32Param);
     abilityms->GetDataAbilityManagerByUserId(int32Param);
     abilityms->GetConnectManagerByToken(token);

@@ -25,10 +25,16 @@
 #include "auto_startup_info.h"
 #include "iremote_object.h"
 #include "mission_info.h"
+#include "mission_listener_interface.h"
+#include "mission_list_delegator_interface.h"
+#include "mission_snapshot.h"
 #include "snapshot.h"
 #include "system_memory_attr.h"
 #include "ui_extension_window_command.h"
 #include "want.h"
+#ifdef SUPPORT_SCREEN
+#include "window_manager_service_handler.h"
+#endif
 
 namespace OHOS {
 namespace AAFwk {
@@ -1512,6 +1518,7 @@ private:
     };
 
     sptr<IAbilityManager> GetAbilityManager();
+    sptr<IMissionListDelegator> GetMissionListDelegator();
     void ResetProxy(wptr<IRemoteObject> remote);
     void HandleDlpApp(Want &want);
 
@@ -1520,6 +1527,9 @@ private:
     static std::shared_ptr<AbilityManagerClient> instance_;
     sptr<IAbilityManager> proxy_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_;
+
+    std::mutex missionListDelegatorMutex_;
+    sptr<IMissionListDelegator> missionListDelegator_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

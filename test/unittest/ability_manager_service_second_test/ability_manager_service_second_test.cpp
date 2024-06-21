@@ -903,23 +903,6 @@ HWTEST_F(AbilityManagerServiceSecondTest, RegisterMissionListener_001, TestSize.
 
 /*
  * Feature: AbilityManagerService
- * Function: RegisterMissionListener
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService RegisterMissionListener
- */
-HWTEST_F(AbilityManagerServiceSecondTest, RegisterMissionListener_002, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest RegisterMissionListener_002 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
-    auto temp_ = abilityMs_->subManagersHelper_->currentMissionListManager_;
-    abilityMs_->subManagersHelper_->currentMissionListManager_ = nullptr;
-    EXPECT_EQ(abilityMs_->RegisterMissionListener(nullptr), ERR_NO_INIT);
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest RegisterMissionListener_002 end");
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: UnRegisterMissionListener
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService UnRegisterMissionListener
@@ -931,23 +914,6 @@ HWTEST_F(AbilityManagerServiceSecondTest, UnRegisterMissionListener_001, TestSiz
     std::string deviceId = "test";
     EXPECT_EQ(abilityMs_->UnRegisterMissionListener(deviceId, nullptr), REGISTER_REMOTE_MISSION_LISTENER_FAIL);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest UnRegisterMissionListener_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: UnRegisterMissionListener
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService UnRegisterMissionListener
- */
-HWTEST_F(AbilityManagerServiceSecondTest, UnRegisterMissionListener_002, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest UnRegisterMissionListener_002 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
-    auto temp_ = abilityMs_->subManagersHelper_->currentMissionListManager_;
-    abilityMs_->subManagersHelper_->currentMissionListManager_ = nullptr;
-    EXPECT_EQ(abilityMs_->UnRegisterMissionListener(nullptr), ERR_NO_INIT);
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest UnRegisterMissionListener_002 end");
 }
 
 /*
@@ -1139,108 +1105,6 @@ HWTEST_F(AbilityManagerServiceSecondTest, GetPendingRequestWant_001, TestSize.Le
 
 /*
  * Feature: AbilityManagerService
- * Function: LockMissionForCleanup
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService LockMissionForCleanup
- */
-HWTEST_F(AbilityManagerServiceSecondTest, LockMissionForCleanup_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest LockMissionForCleanup_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    EXPECT_NE(abilityMs_->LockMissionForCleanup(1), CHECK_PERMISSION_FAILED);
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest LockMissionForCleanup_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: UnlockMissionForCleanup
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService UnlockMissionForCleanup
- */
-HWTEST_F(AbilityManagerServiceSecondTest, UnlockMissionForCleanup_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest UnlockMissionForCleanup_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    EXPECT_NE(abilityMs_->UnlockMissionForCleanup(1), CHECK_PERMISSION_FAILED);
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest UnlockMissionForCleanup_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: GetMissionInfos
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService GetMissionInfos
- */
-HWTEST_F(AbilityManagerServiceSecondTest, GetMissionInfos_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GetMissionInfos_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    std::vector<MissionInfo> missionInfos;
-    EXPECT_NE(abilityMs_->GetMissionInfos("", 10, missionInfos), CHECK_PERMISSION_FAILED);
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GetMissionInfos_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: GetRemoteMissionInfos
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService GetRemoteMissionInfos
- */
-HWTEST_F(AbilityManagerServiceSecondTest, GetRemoteMissionInfos_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GetRemoteMissionInfos_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    std::vector<MissionInfo> missionInfos;
-    EXPECT_EQ(abilityMs_->GetRemoteMissionInfos("", 10, missionInfos), INVALID_PARAMETERS_ERR);
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GetRemoteMissionInfos_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: GetMissionInfo
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService GetMissionInfo
- */
-HWTEST_F(AbilityManagerServiceSecondTest, GetMissionInfo_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GetMissionInfo_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    MissionInfo missionInfo;
-    EXPECT_NE(abilityMs_->GetMissionInfo("", 10, missionInfo), CHECK_PERMISSION_FAILED);
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GetMissionInfo_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: GetRemoteMissionInfo
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService GetRemoteMissionInfo
- */
-HWTEST_F(AbilityManagerServiceSecondTest, GetRemoteMissionInfo_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GetRemoteMissionInfo_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    MissionInfo missionInfo;
-    EXPECT_EQ(abilityMs_->GetRemoteMissionInfo("", 10, missionInfo), INVALID_PARAMETERS_ERR);
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GetRemoteMissionInfo_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: CleanMission
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService CleanMission
- */
-HWTEST_F(AbilityManagerServiceSecondTest, CleanMission_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest CleanMission_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    EXPECT_NE(abilityMs_->CleanMission(1), CHECK_PERMISSION_FAILED);
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest CleanMission_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: MoveMissionToFront
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService MoveMissionToFront
@@ -1284,36 +1148,6 @@ HWTEST_F(AbilityManagerServiceSecondTest, MoveMissionToFront_003, TestSize.Level
         EXPECT_EQ(abilityMs_->MoveMissionToFront(100, startOptions), CHECK_PERMISSION_FAILED);
     }
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest MoveMissionToFront_002 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: MoveMissionsToForeground
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService MoveMissionToFront
- */
-HWTEST_F(AbilityManagerServiceSecondTest, MoveMissionsToForeground_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest MoveMissionsToForeground_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    EXPECT_EQ(abilityMs_->MoveMissionsToForeground({1, 2, 3}, 1), CHECK_PERMISSION_FAILED);
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest MoveMissionsToForeground_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: MoveMissionsToBackground
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService MoveMissionToFront
- */
-HWTEST_F(AbilityManagerServiceSecondTest, MoveMissionsToBackground_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest MoveMissionsToBackground_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    std::vector<int32_t> rs;
-    EXPECT_EQ(abilityMs_->MoveMissionsToBackground({1, 2, 3}, rs), CHECK_PERMISSION_FAILED);
-    EXPECT_TRUE(rs.empty());
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest MoveMissionsToBackground_001 end");
 }
 
 /*

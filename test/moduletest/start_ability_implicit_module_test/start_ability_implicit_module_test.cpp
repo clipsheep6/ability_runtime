@@ -18,12 +18,14 @@
 #define protected public
 #include "ability_event_handler.h"
 #include "ability_manager_service.h"
+#include "mission_list_wrapper.h"
 #undef private
 #undef protected
 
 #include "ability_manager_errors.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
+#include "mission_list_bridge.h"
 #include "mock_ability_connect_callback.h"
 #include "mock_bundle_mgr.h"
 #include "sa_mgr_client.h"
@@ -33,6 +35,11 @@
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
+
+extern "C" {
+OHOS::AAFwk::MissionListBridge* CreateMissionListBridge();
+}
+
 namespace {
 const std::string EVENT_MULT_APP_CHOOSE = "EVENT_MULT_APP_CHOOSE";
 const std::string EVENT_MULT_APP_CLOSE = "EVENT_MULT_APP_CLOSE";
@@ -90,7 +97,9 @@ void StartAbilityImplicitModuleTest::OnStartAms() const
         abilityMs_->userController_ = std::make_shared<UserController>();
         EXPECT_TRUE(abilityMs_->userController_);
         abilityMs_->userController_->Init();
+        abilityMs_->missionListBridge_ = std::shared_ptr<MissionListBridge>(CreateMissionListBridge());
         abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+        abilityMs_->subManagersHelper_->missionListBridge_ = abilityMs_->missionListBridge_;
         abilityMs_->subManagersHelper_->InitSubManagers(MOCK_MAIN_USER_ID, true);
 
         AmsConfigurationParameter::GetInstance().Parse();
@@ -113,10 +122,10 @@ void StartAbilityImplicitModuleTest::OnStartAms() const
 
 void StartAbilityImplicitModuleTest::OnStopAms() const
 {
-    abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_->missions_.clear();
-    abilityMs_->subManagersHelper_->currentMissionListManager_->defaultStandardList_->missions_.clear();
-    abilityMs_->subManagersHelper_->currentMissionListManager_->defaultSingleList_->missions_.clear();
-    abilityMs_->subManagersHelper_->currentMissionListManager_->currentMissionLists_.clear();
+    MissionListWrapper::GetInstance().currentMissionListManager_->launcherList_->missions_.clear();
+    MissionListWrapper::GetInstance().currentMissionListManager_->defaultStandardList_->missions_.clear();
+    MissionListWrapper::GetInstance().currentMissionListManager_->defaultSingleList_->missions_.clear();
+    MissionListWrapper::GetInstance().currentMissionListManager_->currentMissionLists_.clear();
     abilityMs_->OnStop();
 }
 
@@ -161,7 +170,7 @@ HWTEST_F(StartAbilityImplicitModuleTest, StartAbility_001, TestSize.Level1)
     EXPECT_TRUE(!params.empty());
     EXPECT_TRUE(isCallBack);
 
-    auto abilityRecord = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto abilityRecord = MissionListWrapper::GetInstance().currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_TRUE(abilityRecord != nullptr);
 
     GTEST_LOG_(INFO) << "ability:" << abilityRecord->GetAbilityInfo().name;
@@ -193,7 +202,7 @@ HWTEST_F(StartAbilityImplicitModuleTest, StartAbility_002, TestSize.Level1)
     EXPECT_TRUE(!params.empty());
     EXPECT_TRUE(isCallBack);
 
-    auto abilityRecord = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto abilityRecord = MissionListWrapper::GetInstance().currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_TRUE(abilityRecord == nullptr);
 }
 
@@ -222,7 +231,7 @@ HWTEST_F(StartAbilityImplicitModuleTest, StartAbility_003, TestSize.Level1)
     EXPECT_TRUE(params.empty());
     EXPECT_TRUE(!isCallBack);
 
-    auto abilityRecord = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto abilityRecord = MissionListWrapper::GetInstance().currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_TRUE(abilityRecord != nullptr);
 }
 
@@ -251,7 +260,7 @@ HWTEST_F(StartAbilityImplicitModuleTest, StartAbility_004, TestSize.Level1)
     EXPECT_TRUE(!params.empty());
     EXPECT_TRUE(isCallBack);
 
-    auto abilityRecord = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto abilityRecord = MissionListWrapper::GetInstance().currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_TRUE(abilityRecord == nullptr);
 }
 

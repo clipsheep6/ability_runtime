@@ -25,6 +25,7 @@ ohos_unittest("mission_list_manager_dump_test") {
 
   deps = [
     "${ability_runtime_services_path}/abilitymgr:abilityms",
+    "${ability_runtime_services_path}/abilitymgr:mission_list",
     "//third_party/googletest:gtest_main",
   ]
 

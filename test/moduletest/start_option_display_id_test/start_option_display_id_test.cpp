@@ -17,12 +17,19 @@
 #define private public
 #define protected public
 #include "ability_manager_service.h"
+#include "mission_list_wrapper.h"
 #undef private
 #undef protected
 #include "ability_manager_errors.h"
+#include "mission_list_bridge.h"
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
+
+extern "C" {
+OHOS::AAFwk::MissionListBridge* CreateMissionListBridge();
+}
+
 namespace OHOS {
 namespace AAFwk {
 namespace {
@@ -57,6 +64,11 @@ void StartOptionDisplayIdTest::TearDown() {}
 HWTEST_F(StartOptionDisplayIdTest, start_option_001, TestSize.Level1)
 {
     auto abilityMgrServ_ = std::make_shared<AbilityManagerService>();
+    abilityMgrServ_->missionListBridge_ = std::shared_ptr<MissionListBridge>(CreateMissionListBridge());
+    abilityMgrServ_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMgrServ_->subManagersHelper_->missionListBridge_ = abilityMgrServ_->missionListBridge_;
+    abilityMgrServ_->subManagersHelper_->InitSubManagers(USER_ID_U100, true);
+
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
@@ -64,7 +76,8 @@ HWTEST_F(StartOptionDisplayIdTest, start_option_001, TestSize.Level1)
     option.SetDisplayID(DISPLAY_ID);
     auto result = abilityMgrServ_->StartAbility(want, option, nullptr, USER_ID_U100, 0);
     if (result == OHOS::ERR_OK) {
-        auto topAbility = abilityMgrServ_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+        auto topAbility = MissionListWrapper::GetInstance().GetMissionListManagerByUserId(USER_ID_U100)->
+            GetCurrentTopAbilityLocked();
         if (topAbility) {
             auto defualtDisplayId = 0;
             auto displayId = topAbility->GetWant().GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);

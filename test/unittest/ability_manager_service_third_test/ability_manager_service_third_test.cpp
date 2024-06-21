@@ -146,26 +146,6 @@ HWTEST_F(AbilityManagerServiceThirdTest, GetDataAbilityManager_001, TestSize.Lev
 
 /*
  * Feature: AbilityManagerService
- * Function: GetMissionListManagerByUserId
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService GetMissionListManagerByUserId
- */
-HWTEST_F(AbilityManagerServiceThirdTest, GetListManagerByUserId_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest GetListManagerByUserId_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
-    EXPECT_EQ(abilityMs_->GetMissionListManagerByUserId(100), nullptr);
-
-    auto temp = abilityMs_->subManagersHelper_->missionListManagers_;
-    abilityMs_->subManagersHelper_->missionListManagers_.clear();
-    EXPECT_EQ(abilityMs_->GetMissionListManagerByUserId(100).get(), nullptr);
-    abilityMs_->subManagersHelper_->missionListManagers_ = temp;
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest GetListManagerByUserId_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: GetDataAbilityManagerByUserId
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService GetDataAbilityManagerByUserId
@@ -297,10 +277,6 @@ HWTEST_F(AbilityManagerServiceThirdTest, GetAbilityTokenByMissionId_001, TestSiz
     abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
     EXPECT_EQ(abilityMs_->GetAbilityTokenByMissionId(100), nullptr);
 
-    auto temp = abilityMs_->subManagersHelper_->currentMissionListManager_;
-    abilityMs_->subManagersHelper_->currentMissionListManager_.reset();
-    EXPECT_EQ(abilityMs_->GetAbilityTokenByMissionId(100), nullptr);
-    abilityMs_->subManagersHelper_->currentMissionListManager_ = temp;
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest GetAbilityTokenByMissionId_001 end");
 }
 
@@ -392,10 +368,6 @@ HWTEST_F(AbilityManagerServiceThirdTest, OnAcceptWantResponse_001, TestSize.Leve
     ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->OnAcceptWantResponse(want, "test");
 
-    auto temp = abilityMs_->subManagersHelper_->currentMissionListManager_;
-    abilityMs_->subManagersHelper_->currentMissionListManager_.reset();
-    abilityMs_->OnAcceptWantResponse(want, "test");
-    abilityMs_->subManagersHelper_->currentMissionListManager_ = temp;
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest OnAcceptWantResponse_001 end");
 }
 
@@ -414,10 +386,6 @@ HWTEST_F(AbilityManagerServiceThirdTest, OnStartSpecifiedAbilityTimeoutResponse_
     ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->OnStartSpecifiedAbilityTimeoutResponse(want);
 
-    auto temp = abilityMs_->subManagersHelper_->currentMissionListManager_;
-    abilityMs_->subManagersHelper_->currentMissionListManager_.reset();
-    abilityMs_->OnStartSpecifiedAbilityTimeoutResponse(want);
-    abilityMs_->subManagersHelper_->currentMissionListManager_ = temp;
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest OnStartSpecifiedAbilityTimeoutResponse_001 end");
 }
 
@@ -436,11 +404,6 @@ HWTEST_F(AbilityManagerServiceThirdTest, GetAbilityRunningInfos_001, TestSize.Le
     std::vector<AbilityRunningInfo> info;
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         EXPECT_NE(abilityMs_->GetAbilityRunningInfos(info), ERR_OK);
-
-        auto temp1 = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        abilityMs_->subManagersHelper_->currentMissionListManager_.reset();
-        EXPECT_EQ(abilityMs_->GetAbilityRunningInfos(info), ERR_INVALID_VALUE);
-        abilityMs_->subManagersHelper_->currentMissionListManager_ = temp1;
 
         auto temp2 = abilityMs_->subManagersHelper_->currentConnectManager_;
         abilityMs_->subManagersHelper_->currentConnectManager_.reset();
@@ -542,38 +505,6 @@ HWTEST_F(AbilityManagerServiceThirdTest, CallRequestDone_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
- * Function: UpdateMissionSnapShot
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService UpdateMissionSnapShot
- */
-HWTEST_F(AbilityManagerServiceThirdTest, UpdateMissionSnapShot_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest UpdateMissionSnapShot_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    auto pixelMap = std::shared_ptr<Media::PixelMap>();
-    MissionSnapshot missionSnapshot;
-    ASSERT_NE(abilityMs_, nullptr);
-    abilityMs_->UpdateMissionSnapShot(nullptr, pixelMap);
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest UpdateMissionSnapShot_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: GetRemoteMissionSnapshotInfo
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService GetRemoteMissionSnapshotInfo
- */
-HWTEST_F(AbilityManagerServiceThirdTest, GetRemoteMissionSnapshotInfo_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest GetRemoteMissionSnapshotInfo_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    MissionSnapshot missionSnapshot;
-    EXPECT_EQ(abilityMs_->GetRemoteMissionSnapshotInfo("", 1, missionSnapshot), ERR_NULL_OBJECT);
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest GetRemoteMissionSnapshotInfo_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: GetValidUserId
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService GetValidUserId
@@ -582,7 +513,6 @@ HWTEST_F(AbilityManagerServiceThirdTest, GetValidUserId_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest GetValidUserId_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    MissionSnapshot missionSnapshot;
     EXPECT_EQ(abilityMs_->GetValidUserId(100), 100);
     EXPECT_EQ(abilityMs_->GetValidUserId(0), 0);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest GetValidUserId_001 end");
@@ -784,12 +714,8 @@ HWTEST_F(AbilityManagerServiceThirdTest, BlockAbility_001, TestSize.Level1)
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
     abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
-    auto temp = abilityMs_->subManagersHelper_->currentMissionListManager_;
-    abilityMs_->subManagersHelper_->currentMissionListManager_ = nullptr;
     EXPECT_EQ(abilityMs_->BlockAbility(1), ERR_OK);
 
-    abilityMs_->subManagersHelper_->currentMissionListManager_ = temp;
-    EXPECT_EQ(abilityMs_->BlockAbility(1), ERR_OK);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest BlockAbility_001 end");
 }
 
@@ -917,22 +843,6 @@ HWTEST_F(AbilityManagerServiceThirdTest, IsCrossUserCall_003, TestSize.Level1)
     int32_t userId = 10;
     EXPECT_EQ(abilityMs_->IsCrossUserCall(userId), true);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest IsCrossUserCall_003 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: IsValidMissionIds
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService IsValidMissionIds
- */
-HWTEST_F(AbilityManagerServiceThirdTest, IsValidMissionIds_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest IsValidMissionIds_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    std::vector<int32_t> missionIds;
-    std::vector<MissionValidResult> results;
-    EXPECT_EQ(abilityMs_->IsValidMissionIds(missionIds, results), ERR_INVALID_VALUE);
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest IsValidMissionIds_001 end");
 }
 
 /*
@@ -2399,19 +2309,6 @@ HWTEST_F(AbilityManagerServiceThirdTest, StartExtensionAbilityInner_003, TestSiz
     auto result = abilityMs->StartExtensionAbilityInner(want, callerToken, userId, extensionType, checkSystemCaller,
         isImplicit, isDlp);
     EXPECT_EQ(result, ERR_INVALID_CALLER);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: MoveAbilityToBackground
- * FunctionPoints: AbilityManagerService MoveAbilityToBackground
- */
-HWTEST_F(AbilityManagerServiceThirdTest, MoveAbilityToBackground_001, TestSize.Level1)
-{
-    auto abilityMs = std::make_shared<AbilityManagerService>();
-    sptr<IRemoteObject> token = nullptr;
-    auto result = abilityMs->MoveAbilityToBackground(token);
-    EXPECT_EQ(result, ERR_INVALID_VALUE);
 }
 
 /*

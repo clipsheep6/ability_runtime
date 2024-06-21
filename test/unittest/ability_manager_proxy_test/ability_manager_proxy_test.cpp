@@ -822,41 +822,6 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ReleaseCall_002, TestSize.
 }
 
 /*
- * Feature: AbilityManagerService
- * Function: GetTopAbility
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService GetTopAbility
- * EnvConditions: NA
- * CaseDescription: Verify the function GetTopAbility is normal flow.
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetTopAbility_001, TestSize.Level1)
-{
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-    proxy_->GetTopAbility();
-    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_TOP_ABILITY), mock_->code_);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: GetTopAbility
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService GetTopAbility
- * EnvConditions: NA
- * CaseDescription: Verify the function GetTopAbility is normal flow.
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetTopAbility_002, TestSize.Level1)
-{
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-    sptr<IRemoteObject> token = nullptr;
-    proxy_->GetTopAbility(token);
-    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_TOP_ABILITY_TOKEN), mock_->code_);
-}
-
-/*
  * Feature: AbilityManagerProxy
  * Function: CheckUIExtensionIsFocused
  * SubFunction: NA
@@ -931,27 +896,6 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_MinimizeAbility_001, TestS
     auto res = proxy_->MinimizeAbility(token);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::MINIMIZE_ABILITY), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: GetMissionSnapshot
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService GetMissionSnapshot
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of GetMissionSnapshot
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetMissionSnapshot_001, TestSize.Level1)
-{
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-    std::string deviceId = "";
-    int32_t missionId = 1;
-    MissionSnapshot snapshot;
-    bool isLowResolution = true;
-    proxy_->GetMissionSnapshot(deviceId, missionId, snapshot, isLowResolution);
-    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_MISSION_SNAPSHOT_INFO), mock_->code_);
 }
 
 /*
@@ -1357,111 +1301,6 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_NotifyContinuationResult_0
 
 /*
  * Feature: AbilityManagerService
- * Function: LockMissionForCleanup
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService LockMissionForCleanup
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of LockMissionForCleanup
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_LockMissionForCleanup_001, TestSize.Level1)
-{
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-    int32_t missionId = 1;
-    auto res = proxy_->LockMissionForCleanup(missionId);
-    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::LOCK_MISSION_FOR_CLEANUP), mock_->code_);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: UnlockMissionForCleanup
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService UnlockMissionForCleanup
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of UnlockMissionForCleanup
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_UnlockMissionForCleanup_001, TestSize.Level1)
-{
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-    int32_t missionId = 1;
-    auto res = proxy_->UnlockMissionForCleanup(missionId);
-    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::UNLOCK_MISSION_FOR_CLEANUP), mock_->code_);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: RegisterMissionListener
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService RegisterMissionListener
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of RegisterMissionListener
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RegisterMissionListener_001, TestSize.Level1)
-{
-    sptr<IMissionListener> listener = nullptr;
-    auto res = proxy_->RegisterMissionListener(listener);
-    EXPECT_EQ(res, ERR_INVALID_VALUE);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: UnRegisterMissionListener
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService UnRegisterMissionListener
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of UnRegisterMissionListener
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_UnRegisterMissionListener_001, TestSize.Level1)
-{
-    sptr<IMissionListener> listener = nullptr;
-    auto res = proxy_->UnRegisterMissionListener(listener);
-    EXPECT_EQ(res, ERR_INVALID_VALUE);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: CleanMission
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService CleanMission
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of CleanMission
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_CleanMission_001, TestSize.Level1)
-{
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-    int32_t missionId = 1;
-    auto res = proxy_->CleanMission(missionId);
-    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::CLEAN_MISSION), mock_->code_);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: CleanAllMissions
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService CleanAllMissions
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of CleanAllMissions
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_CleanAllMissions_001, TestSize.Level1)
-{
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-    auto res = proxy_->CleanAllMissions();
-    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::CLEAN_ALL_MISSIONS), mock_->code_);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: MoveMissionToFront
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService MoveMissionToFront
@@ -1476,43 +1315,6 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_MoveMissionToFront_001, Te
     int32_t missionId = 1;
     auto res = proxy_->MoveMissionToFront(missionId);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSION_TO_FRONT), mock_->code_);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: MoveMissionsToForeground
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService MoveMissionsToForeground
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of MoveMissionsToForeground
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_MoveMissionsToForeground_001, TestSize.Level1)
-{
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-    auto res = proxy_->MoveMissionsToForeground({1, 2, 3}, 1);
-    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSIONS_TO_FOREGROUND), mock_->code_);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: MoveMissionsToBackground
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService MoveMissionsToBackground
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of MoveMissionsToBackground
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_MoveMissionsToBackground_001, TestSize.Level1)
-{
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-    std::vector<int32_t> rs;
-    auto res = proxy_->MoveMissionsToBackground({1, 2, 3}, rs);
-    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSIONS_TO_BACKGROUND), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1553,61 +1355,6 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StopUser_001, TestSize.Lev
     auto res = proxy_->StopUser(userId, callback);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_USER), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: SetMissionContinueState
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService SetMissionContinueState
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of SetMissionContinueState
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_SetMissionContinueState_001, TestSize.Level1)
-{
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-    OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
-    AAFwk::ContinueState state = AAFwk::ContinueState::CONTINUESTATE_ACTIVE;
-    auto res = proxy_->SetMissionContinueState(token, state);
-    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_CONTINUE_STATE), mock_->code_);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: SetMissionLabel
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService SetMissionLabel
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of SetMissionLabel
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_SetMissionLabel_001, TestSize.Level1)
-{
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-    OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
-    std::string label = "";
-    auto res = proxy_->SetMissionLabel(token, label);
-    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_LABEL), mock_->code_);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: RegisterWindowManagerServiceHandler
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService RegisterWindowManagerServiceHandler
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of RegisterWindowManagerServiceHandler
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RegisterWindowManagerServiceHandler_001, TestSize.Level1)
-{
-    sptr<IWindowManagerServiceHandler> handler = nullptr;
-    auto res = proxy_->RegisterWindowManagerServiceHandler(handler);
-    EXPECT_EQ(res, INNER_ERR);
 }
 
 /*
@@ -1799,36 +1546,6 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_FinishUserTest_001, TestSi
 
 /*
  * Feature: AbilityManagerService
- * Function: DelegatorDoAbilityForeground
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService DelegatorDoAbilityForeground
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of DelegatorDoAbilityForeground
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_DelegatorDoAbilityForeground_001, TestSize.Level1)
-{
-    sptr<IRemoteObject> token = nullptr;
-    auto res = proxy_->DelegatorDoAbilityForeground(token);
-    EXPECT_EQ(res, ERR_INVALID_VALUE);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: DelegatorDoAbilityBackground
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService DelegatorDoAbilityBackground
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of DelegatorDoAbilityBackground
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_DelegatorDoAbilityBackground_001, TestSize.Level1)
-{
-    sptr<IRemoteObject> token = nullptr;
-    auto res = proxy_->DelegatorDoAbilityBackground(token);
-    EXPECT_EQ(res, ERR_INVALID_VALUE);
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: DoAbilityForeground
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService DoAbilityForeground
@@ -1900,25 +1617,6 @@ HWTEST_F(AbilityManagerProxyTest, ReportDrawnCompleted_002, TestSize.Level1)
     OHOS::sptr<IRemoteObject> callerToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     auto res = proxy_->ReportDrawnCompleted(callerToken);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::REPORT_DRAWN_COMPLETED), mock_->code_);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: GetMissionIdByToken
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService GetMissionIdByToken
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of GetMissionIdByToken
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetMissionIdByToken_001, TestSize.Level1)
-{
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-    OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
-    auto res = proxy_->GetMissionIdByToken(token);
-    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_MISSION_ID_BY_ABILITY_TOKEN), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -2159,147 +1857,6 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_CallRequestDone_001, TestS
     sptr<IRemoteObject> callStub = nullptr;
     proxy_->CallRequestDone(token, callStub);
     EXPECT_TRUE(true);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: IsValidMissionIds
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService IsValidMissionIds
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of IsValidMissionIds
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_001, TestSize.Level1)
-{
-    std::vector<int32_t> missionIds;
-    std::vector<MissionValidResult> results;
-    auto isValidMissionIdsTask = [&](uint32_t id, MessageParcel &data, MessageParcel &reply, MessageOption &o) {
-        constexpr int32_t size = 10;
-        constexpr int32_t errorCode = ERR_OK;
-        reply.WriteInt32(errorCode);
-        reply.WriteInt32(size);
-        for (auto i = 0;  i < size; ++i) {
-            MissionValidResult results;
-            results.missionId = i;
-            reply.WriteParcelable(&results);
-        }
-        return NO_ERROR;
-    };
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _)).Times(1).WillOnce(testing::Invoke(isValidMissionIdsTask));
-    EXPECT_EQ(proxy_->IsValidMissionIds(missionIds, results), ERR_OK);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: IsValidMissionIds
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService IsValidMissionIds
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of IsValidMissionIds
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_002, TestSize.Level1)
-{
-    std::vector<int32_t> missionIds;
-    std::vector<MissionValidResult> results;
-    auto isValidMissionIdsTask = [&](uint32_t id, MessageParcel &data, MessageParcel &reply, MessageOption &o) {
-        constexpr int32_t size = 30;
-        constexpr int32_t errorCode = ERR_OK;
-        MissionValidResult results;
-        reply.WriteInt32(errorCode);
-        reply.WriteInt32(size);
-        for (auto i = 0;  i < size; ++i) {
-            MissionValidResult results;
-            results.missionId = i;
-            reply.WriteParcelable(&results);
-        }
-        return NO_ERROR;
-    };
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _)).Times(1).WillOnce(testing::Invoke(isValidMissionIdsTask));
-    EXPECT_EQ(proxy_->IsValidMissionIds(missionIds, results), ERR_OK);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: IsValidMissionIds
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService IsValidMissionIds
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of IsValidMissionIds
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_003, TestSize.Level1)
-{
-    std::vector<int32_t> missionIds;
-    std::vector<MissionValidResult> results;
-    auto isValidMissionIdsTask = [&](uint32_t id, MessageParcel &data, MessageParcel &reply, MessageOption &o) {
-        constexpr int32_t size = 1;
-        constexpr int32_t errorCode = ERR_OK;
-        reply.WriteInt32(errorCode);
-        reply.WriteInt32(size);
-        return NO_ERROR;
-    };
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _)).Times(1).WillOnce(testing::Invoke(isValidMissionIdsTask));
-    EXPECT_EQ(proxy_->IsValidMissionIds(missionIds, results), INNER_ERR);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: IsValidMissionIds
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService IsValidMissionIds
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of IsValidMissionIds
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_004, TestSize.Level1)
-{
-    std::vector<int32_t> missionIds;
-    std::vector<MissionValidResult> results;
-    auto isValidMissionIdsTask = [&](uint32_t id, MessageParcel &data, MessageParcel &reply, MessageOption &o) {
-        constexpr int32_t size = 0;
-        constexpr int32_t errorCode = ERR_OK;
-        reply.WriteInt32(errorCode);
-        reply.WriteInt32(size);
-        return NO_ERROR;
-    };
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _)).Times(1).WillOnce(testing::Invoke(isValidMissionIdsTask));
-    EXPECT_EQ(proxy_->IsValidMissionIds(missionIds, results), NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: IsValidMissionIds
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService IsValidMissionIds
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of IsValidMissionIds
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_005, TestSize.Level1)
-{
-    std::vector<int32_t> missionIds;
-    std::vector<MissionValidResult> results;
-    for (auto i = 0; i < 30; ++i) {
-        missionIds.push_back(i);
-    }
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _)).Times(1).WillOnce(Return(ERR_INVALID_VALUE));
-    EXPECT_EQ(proxy_->IsValidMissionIds(missionIds, results), ERR_INVALID_VALUE);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: IsValidMissionIds
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService IsValidMissionIds
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of IsValidMissionIds
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_006, TestSize.Level1)
-{
-    std::vector<int32_t> missionIds;
-    std::vector<MissionValidResult> results;
-    for (auto i = 0; i < 10; ++i) {
-        missionIds.push_back(i);
-    }
-    proxy_ = std::make_shared<AbilityManagerProxy>(nullptr);
-    EXPECT_EQ(proxy_->IsValidMissionIds(missionIds, results), INNER_ERR);
 }
 
 /*
