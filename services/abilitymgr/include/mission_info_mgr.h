@@ -147,6 +147,18 @@ public:
      * @param info dump result.
      */
     void Dump(std::vector<std::string> &info);
+    
+    /**
+     * @brief get mission snapshot
+     * @param missionId mission id
+     * @param abilityToken abilityToken to get current mission snapshot
+     * @param missionSnapshot result of snapshot
+     * @param isLowResolution low resolution snapshot.
+     * @param snapshot snapshot.
+     * @return return true if get mission snapshot success, else false
+     */
+    bool GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
+        MissionSnapshot& missionSnapshot, bool isLowResolution, Snapshot &snapshot);
 
     /**
      * @brief update mission snapshot

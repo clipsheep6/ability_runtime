@@ -39,7 +39,7 @@
 
 namespace OHOS {
 using AbilityRuntime::FreezeUtil;
-namespace AAFwk {
+namespace AAFwk{
 namespace {
 constexpr uint32_t DELAY_NOTIFY_LABEL_TIME = 30; // 30ms
 constexpr uint32_t SCENE_FLAG_KEYGUARD = 1;
@@ -601,6 +601,15 @@ bool MissionListManager::CreateOrReusedMissionInfo(const AbilityRequest &ability
     return reUsedMissionInfo;
 }
 
+void MissionListManager::UpdateInnerMissionInfo(bool findReusedMissionInfo, InnerMissionInfo info)
+{
+    if (findReusedMissionInfo) {
+        DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionInfo(info);
+    } else {
+        DelayedSingleton<MissionInfoMgr>::GetInstance()->AddMissionInfo(info);
+    }
+}
+
 void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilityRequest,
     std::shared_ptr<Mission> &targetMission, std::shared_ptr<AbilityRecord> &targetRecord, bool &isReachToLimit)
 {
@@ -657,11 +666,7 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         return;
     }
 
-    if (findReusedMissionInfo) {
-        DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionInfo(info);
-    } else {
-        DelayedSingleton<MissionInfoMgr>::GetInstance()->AddMissionInfo(info);
-    }
+    UpdateInnerMissionInfo(findReusedMissionInfo, info);
 }
 
 void MissionListManager::EnableRecoverAbility(int32_t missionId)
@@ -1061,6 +1066,22 @@ void MissionListManager::OnAbilityRequestDone(const sptr<IRemoteObject> &token, 
     }
 }
 
+void MissionListManager::ChangedAppState(const AppInfo& info, std::list<std::shared_ptr<Mission>> missions,
+    std::string &msg)
+{
+    for (const auto& missionInfo : missions) {
+        if (!missionInfo) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s is nullptr.", msg.c_str());
+            continue;
+        }
+        auto abilityRecord = missionInfo->GetAbilityRecord();
+        if (info.processName == abilityRecord->GetAbilityInfo().process ||
+            info.processName == abilityRecord->GetApplicationInfo().bundleName) {
+            abilityRecord->SetAppState(info.state);
+        }
+    }
+}
+
 void MissionListManager::OnAppStateChanged(const AppInfo &info)
 {
     std::lock_guard guard(managerLock_);
@@ -1081,44 +1102,16 @@ void MissionListManager::OnAppStateChanged(const AppInfo &info)
         UpdateAbilityRecordColdStartFlag(info, true);
 #endif // SUPPORT_SCREEN
     } else {
+        std::string msg;
         for (const auto& missionList : currentMissionLists_) {
-            auto missions = missionList->GetAllMissions();
-            for (const auto& missionInfo : missions) {
-                if (!missionInfo) {
-                    TAG_LOGE(AAFwkTag::ABILITYMGR, "missionInfo is nullptr.");
-                    continue;
-                }
-                auto abilityRecord = missionInfo->GetAbilityRecord();
-                if (info.processName == abilityRecord->GetAbilityInfo().process ||
-                    info.processName == abilityRecord->GetApplicationInfo().bundleName) {
-                    abilityRecord->SetAppState(info.state);
-                }
-            }
+            msg = "missionList";
+            ChangedAppState(info, missionList->GetAllMissions(), msg);
         }
-        auto defaultStandardListmissions = defaultStandardList_->GetAllMissions();
-        for (const auto& missionInfo : defaultStandardListmissions) {
-            if (!missionInfo) {
-                TAG_LOGE(AAFwkTag::ABILITYMGR, "defaultStandardListmissions is nullptr.");
-                continue;
-            }
-            auto abilityRecord = missionInfo->GetAbilityRecord();
-            if (info.processName == abilityRecord->GetAbilityInfo().process ||
-                info.processName == abilityRecord->GetApplicationInfo().bundleName) {
-                abilityRecord->SetAppState(info.state);
-            }
-        }
-        auto defaultSingleListmissions = defaultSingleList_->GetAllMissions();
-        for (const auto& missionInfo : defaultSingleListmissions) {
-            if (!missionInfo) {
-                TAG_LOGE(AAFwkTag::ABILITYMGR, "defaultSingleListmissions is nullptr.");
-                continue;
-            }
-            auto abilityRecord = missionInfo->GetAbilityRecord();
-            if (info.processName == abilityRecord->GetAbilityInfo().process ||
-                info.processName == abilityRecord->GetApplicationInfo().bundleName) {
-                abilityRecord->SetAppState(info.state);
-            }
-        }
+        msg = "defaultStandardListmissions";
+        ChangedAppState(info, defaultStandardList_->GetAllMissions(), msg);
+        msg = "defaultSingleListmissions";
+        ChangedAppState(info, defaultSingleList_->GetAllMissions(), msg);
+        
     }
 }
 

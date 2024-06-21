@@ -658,8 +658,7 @@ private:
             return CreateJsUndefined(env);
         }
         napi_value element = nullptr;
-        for (uint32_t i = 0; i < nativeArrayLen; i++) {
-            int32_t missionId = 0;
+        for (uint32_t i = 0, missionId = 0; i < nativeArrayLen; i++) {
             napi_get_element(env, argv[0], i, &element);
             if (!ConvertFromJsValue(env, element, missionId)) {
                 TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToForeground Parse missionId failed");

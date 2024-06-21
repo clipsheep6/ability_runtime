@@ -414,6 +414,11 @@ public:
      */
     virtual int StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bool &isColdStart) override;
 
+    void MarkStartBySCB(sptr<SessionInfo> &sessionInfo, AbilityRequest &abilityRequest);
+
+    int AbilityRequestPreprocessor(AbilityRequest &abilityRequest, int &requestCode,
+        sptr<SessionInfo> sessionInfo, bool &isColdStart, pid_t currentUserId);
+
     /**
      * Stop extension ability with want, send want to ability manager service.
      *
@@ -428,6 +433,13 @@ public:
         const sptr<IRemoteObject>& callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED) override;
+
+    int ProcessExtensionAbilityStopRequest(
+        const Want &want,
+        int32_t &validUserId,
+        const sptr<IRemoteObject> &callerToken,
+        EventInfo &eventInfo,
+        AppExecFwk::ExtensionAbilityType &extensionType);
 
     /**
      * TerminateAbility, terminate the special ability.
@@ -700,6 +712,11 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int AbilityTransitionDone(const sptr<IRemoteObject> &token, int state, const PacMap &saveData) override;
+   
+    void CheckTargetState(int &targetState, const sptr<IRemoteObject> &token);
+
+    int DispatchAbilityTransactionDone(std::shared_ptr<AbilityRecord> &abilityRecord,
+    const sptr<IRemoteObject> &token, int &state, const PacMap &saveData);
 
     /**
      * ScheduleConnectAbilityDone, service ability call this interface while session was connected.
@@ -2075,6 +2092,9 @@ private:
     int32_t RequestDialogServiceInner(const Want &want, const sptr<IRemoteObject> &callerToken,
         int requestCode, int32_t userId);
 
+    int32_t AbilityPermissionChecker(AbilityRequest &abilityRequest,
+        const sptr<IRemoteObject> &callerToken, int requestCode, int32_t validUserId);
+
     bool CheckCallingTokenId(const std::string &bundleName, int32_t userId = INVALID_USER_ID);
     bool IsCallerSceneBoard();
 
@@ -2224,6 +2244,8 @@ private:
     std::map<std::string, std::list<std::string>> whiteListMap_;
 
     std::list<std::string> exportWhiteList_;
+    
+    int StartAbilityDealWindowOptions(bool hasWindowOptions, const Want &want, int32_t &userId);
 
     bool ShouldPreventStartAbility(const AbilityRequest &abilityRequest);
 
@@ -2249,6 +2271,42 @@ private:
 
     void ReportPreventStartAbilityResult(const AppExecFwk::AbilityInfo &callerAbilityInfo,
         const AppExecFwk::AbilityInfo &abilityInfo);
+    
+    bool ScheduleRecoverAbilityInner(const Want *want, int32_t reason,  AAFwk::Want& curWant,
+        const std::shared_ptr<AbilityRecord>& record);
+
+    bool IsScheduleRecoverAbilityWantOk(const Want *want, const std::shared_ptr<AbilityRecord>& record,
+        const AppExecFwk::ApplicationInfo& appInfo);
+
+    void SetWantParameters(const Want &want, const sptr<IRemoteObject> &callerToken);
+
+    int CreateAndSetAbilityInfo(const Want &want, int32_t userId, AbilityRequest &request);
+
+    int CheckRequestAbilityInfo(const Want &want, AbilityRequest &request);
+
+    int ConnectLocalAbilityCheckServer(const AbilityRequest& abilityRequest,
+        AppExecFwk::ExtensionAbilityType extensionType);
+
+    int ConnectLocalAbilityCheckConnect(const AbilityRequest &abilityRequest,
+        const int32_t userId, AppExecFwk::ExtensionAbilityType extensionType);
+
+    int ConnectLocalAbilityConnectInner(const AbilityRequest &abilityRequest, const sptr<IRemoteObject> &callerToken,
+        int32_t &validUserId, AppExecFwk::ExtensionAbilityType extensionType, const int32_t userId);
+
+    int CheckScreenModeKey(const sptr<SessionInfo> &extensionSessionInfo, int32_t userId);
+
+    int InsightIntentAndDlpCheck (const sptr<SessionInfo> &extensionSessionInfo, int32_t userId,
+        const sptr<IRemoteObject> &callerToken, EventInfo &eventInfo);
+
+    int InitAbilityRequest(const sptr<SessionInfo> &extensionSessionInfo, EventInfo &eventInfo,
+        int32_t validUserId, const sptr<IRemoteObject> &callerToken, AbilityRequest &abilityRequest);
+
+    int CheckCallerAndInterceptor(const sptr<SessionInfo> &extensionSessionInfo, EventInfo &eventInfo,
+        int32_t validUserId, const sptr<IRemoteObject> &callerToken, AbilityRequest &abilityRequest);
+
+    int StartUIExtensionAbilityInner(const sptr<SessionInfo> &extensionSessionInfo,
+        const sptr<IRemoteObject> &callerToken, AbilityRequest &abilityRequest,
+        int32_t validUserId, EventInfo &eventInfo);
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     std::shared_ptr<BackgroundTaskObserver> bgtaskObserver_;
 #endif

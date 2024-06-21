@@ -45,6 +45,20 @@ static const int INVLID_WANT_AGENT_USER_ID = -1;
 
 class WantAgentHelper final : public std::enable_shared_from_this<WantAgentHelper> {
 public:
+     /**
+     * Obtains an WantAgent object.
+     * The WantAgent class does not have any constructor, and you can only use this method to create an
+     * WantAgent object.
+     * @param context Indicates the context of the caller. This parameter cannot be null.
+     * @param paramsInfo Indicates the WantAgentInfo object that contains parameters of the
+     * WantAgent object to create.
+     * @param pendingWant is shared_ptr
+     * @return Returns ERR_OK If get wantaget correctly.
+     */
+    static ErrCode GetWantAgentOperationType(const std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> &context,
+        const WantAgentInfo &paramsInfo, std::shared_ptr<WantAgent> &wantAgent,
+        std::shared_ptr<PendingWant> &pendingWant);
+
     /**
      * Obtains an WantAgent object.
      * The WantAgent class does not have any constructor, and you can only use this method to create an
