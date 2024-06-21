@@ -61,16 +61,21 @@ void PendingWantRecord::UnregisterCancelListener(const sptr<IWantReceiver> &rece
     }
 }
 
+int PendingWantRecord::SenderInnerCanceled(SenderInfo &senderInfo)
+{
+    if (senderInfo.finishedReceiver != nullptr) {
+        Want want;
+        WantParams wantParams = {};
+        senderInfo.finishedReceiver->PerformReceive(want, senderInfo.code, "canceled", wantParams, false, false, 0);
+    }
+    return START_CANCELED;
+}
+
 int32_t PendingWantRecord::SenderInner(SenderInfo &senderInfo)
 {
     std::lock_guard<ffrt::mutex> locker(lock_);
     if (canceled_) {
-        if (senderInfo.finishedReceiver != nullptr) {
-            Want want;
-            WantParams wantParams = {};
-            senderInfo.finishedReceiver->PerformReceive(want, senderInfo.code, "canceled", wantParams, false, false, 0);
-        }
-        return START_CANCELED;
+        return SenderInnerCanceled(senderInfo);
     }
 
     auto pendingWantManager = pendingWantManager_.lock();

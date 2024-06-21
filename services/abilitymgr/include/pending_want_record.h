@@ -41,7 +41,7 @@ public:
     virtual void Send(SenderInfo &senderInfo);
     virtual void RegisterCancelListener(const sptr<IWantReceiver> &receiver);
     virtual void UnregisterCancelListener(const sptr<IWantReceiver> &receiver);
-
+    int SenderInnerCanceled(SenderInfo &senderInfo);
     virtual int32_t SenderInner(SenderInfo &senderInfo);
 
 public:

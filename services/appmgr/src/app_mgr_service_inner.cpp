@@ -4189,6 +4189,37 @@ void AppMgrServiceInner::KillApplicationByRecord(const std::shared_ptr<AppRunnin
     taskHandler_->SubmitTask(timeoutTask, "DelayKillProcess", AMSEventHandler::KILL_PROCESS_TIMEOUT);
 }
 
+void AppMgrServiceInner::SendHiSysEventInnerEventId(const int32_t innerEventId, int typeId, std::string &msg)
+{
+    switch (innerEventId) {
+        case AMSEventHandler::TERMINATE_ABILITY_TIMEOUT_MSG:
+            msg += EVENT_MESSAGE_TERMINATE_ABILITY_TIMEOUT;
+            break;
+        case AMSEventHandler::TERMINATE_APPLICATION_TIMEOUT_MSG:
+            msg += EVENT_MESSAGE_TERMINATE_APPLICATION_TIMEOUT;
+            break;
+        case AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG:
+            msg += EVENT_MESSAGE_ADD_ABILITY_STAGE_INFO_TIMEOUT;
+            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
+            break;
+        case AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG:
+            msg += EVENT_MESSAGE_START_PROCESS_SPECIFIED_ABILITY_TIMEOUT;
+            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
+            break;
+        case AMSEventHandler::START_SPECIFIED_ABILITY_TIMEOUT_MSG:
+            msg += EVENT_MESSAGE_START_SPECIFIED_ABILITY_TIMEOUT;
+            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
+            break;
+        case AMSEventHandler::START_SPECIFIED_PROCESS_TIMEOUT_MSG:
+            msg += EVENT_MESSAGE_START_SPECIFIED_PROCESS_TIMEOUT;
+            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
+            break;
+        default:
+            msg += EVENT_MESSAGE_DEFAULT;
+            break;
+    }
+}
+
 void AppMgrServiceInner::SendHiSysEvent(const int32_t innerEventId, const int64_t eventId)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called AppMgrServiceInner SendHiSysEvent!");
@@ -4219,34 +4250,6 @@ void AppMgrServiceInner::SendHiSysEvent(const int32_t innerEventId, const int64_
     std::string msg = AppExecFwk::AppFreezeType::APP_LIFECYCLE_TIMEOUT;
     msg += ",";
     int typeId = AppExecFwk::AppfreezeManager::TypeAttribute::NORMAL_TIMEOUT;
-    switch (innerEventId) {
-        case AMSEventHandler::TERMINATE_ABILITY_TIMEOUT_MSG:
-            msg += EVENT_MESSAGE_TERMINATE_ABILITY_TIMEOUT;
-            break;
-        case AMSEventHandler::TERMINATE_APPLICATION_TIMEOUT_MSG:
-            msg += EVENT_MESSAGE_TERMINATE_APPLICATION_TIMEOUT;
-            break;
-        case AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG:
-            msg += EVENT_MESSAGE_ADD_ABILITY_STAGE_INFO_TIMEOUT;
-            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
-            break;
-        case AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG:
-            msg += EVENT_MESSAGE_START_PROCESS_SPECIFIED_ABILITY_TIMEOUT;
-            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
-            break;
-        case AMSEventHandler::START_SPECIFIED_ABILITY_TIMEOUT_MSG:
-            msg += EVENT_MESSAGE_START_SPECIFIED_ABILITY_TIMEOUT;
-            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
-            break;
-        case AMSEventHandler::START_SPECIFIED_PROCESS_TIMEOUT_MSG:
-            msg += EVENT_MESSAGE_START_SPECIFIED_PROCESS_TIMEOUT;
-            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
-            break;
-        default:
-            msg += EVENT_MESSAGE_DEFAULT;
-            break;
-    }
-
     TAG_LOGW(AAFwkTag::APPMGR, "LIFECYCLE_TIMEOUT, eventName = %{public}s, uid = %{public}d, pid = %{public}d, \
         packageName = %{public}s, processName = %{public}s, msg = %{public}s",
         eventName.c_str(), uid, pid, packageName.c_str(), processName.c_str(), msg.c_str());
@@ -5123,6 +5126,30 @@ void AppMgrServiceInner::AppRecoveryNotifyApp(int32_t pid, const std::string& bu
     taskHandler_->SubmitTask(waitSaveTask, timeOutName, timeOut);
 }
 
+std::function<void()> AppMgrServiceInner::NotifyAppFaultInfo(std::shared_ptr<AppRunningRecord> &appRecord,
+    const FaultData &faultData, int32_t pid, const std::string& bundleName,
+    int32_t callerUid)
+{
+    auto notifyAppTask = [appRecord, pid, callerUid, bundleName, faultData, innerService = shared_from_this()]() {
+        if (faultData.faultType == FaultDataType::APP_FREEZE) {
+            AppfreezeManager::AppInfo info = {
+                .pid = pid,
+                .uid = callerUid,
+                .bundleName = bundleName,
+                .processName = bundleName,
+            };
+            AppExecFwk::AppfreezeManager::GetInstance()->AppfreezeHandleWithStack(faultData, info);
+        }
+
+        TAG_LOGW(AAFwkTag::APPMGR,
+            "FaultData is: name: %{public}s, faultType: %{public}d, uid: %{public}d, pid: %{public}d,"
+            "bundleName: %{public}s, faultData.forceExit==%{public}d, faultData.waitSaveState==%{public}d",
+            faultData.errorObject.name.c_str(), faultData.faultType,
+            callerUid, pid, bundleName.c_str(), faultData.forceExit, faultData.waitSaveState);
+    };
+    return notifyAppTask;
+}
+
 int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called.");
@@ -5149,24 +5176,7 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
             AppRecoveryNotifyApp(pid, bundleName, FaultDataType::APP_FREEZE, "recoveryTimeout");
         }
     }
-
-    auto notifyAppTask = [appRecord, pid, callerUid, bundleName, faultData, innerService = shared_from_this()]() {
-        if (faultData.faultType == FaultDataType::APP_FREEZE) {
-            AppfreezeManager::AppInfo info = {
-                .pid = pid,
-                .uid = callerUid,
-                .bundleName = bundleName,
-                .processName = bundleName,
-            };
-            AppExecFwk::AppfreezeManager::GetInstance()->AppfreezeHandleWithStack(faultData, info);
-        }
-
-        TAG_LOGW(AAFwkTag::APPMGR,
-            "FaultData is: name: %{public}s, faultType: %{public}d, uid: %{public}d, pid: %{public}d,"
-            "bundleName: %{public}s, faultData.forceExit==%{public}d, faultData.waitSaveState==%{public}d",
-            faultData.errorObject.name.c_str(), faultData.faultType,
-            callerUid, pid, bundleName.c_str(), faultData.forceExit, faultData.waitSaveState);
-    };
+    auto notifyAppTask = NotifyAppFaultInfo(appRecord, faultData, pid, bundleName, callerUid);
 
     if (AppExecFwk::AppfreezeManager::GetInstance()->IsProcessDebug(pid, bundleName)) {
         TAG_LOGW(AAFwkTag::APPMGR,
@@ -5249,6 +5259,14 @@ void AppMgrServiceInner::TimeoutNotifyApp(int32_t pid, int32_t uid,
     }
 }
 
+void AppMgrServiceInner::NotifyAppFaultBySAIfdef(std::string &callerBundleName)
+{
+    if (auto bundleMgrHelper = remoteClientManager_->GetBundleManagerHelper(); bundleMgrHelper != nullptr) {
+        int32_t callingUid = IPCSkeleton::GetCallingUid();
+        IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callingUid, callerBundleName));
+    }
+}
+
 int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
 {
     if (remoteClientManager_ == nullptr) {
@@ -5256,10 +5274,7 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
         return ERR_NO_INIT;
     }
     std::string callerBundleName;
-    if (auto bundleMgrHelper = remoteClientManager_->GetBundleManagerHelper(); bundleMgrHelper != nullptr) {
-        int32_t callingUid = IPCSkeleton::GetCallingUid();
-        IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callingUid, callerBundleName));
-    }
+    NotifyAppFaultBySAIfdef(callerBundleName);
 #ifdef ABILITY_FAULT_AND_EXIT_TEST
     if ((AAFwk::PermissionVerification::GetInstance()->IsSACall()) ||
         AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
