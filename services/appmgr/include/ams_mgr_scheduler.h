@@ -289,6 +289,13 @@ public:
      */
     virtual bool IsMemorySizeSufficent() override;
 
+    /**
+     * Notifies that one ability is attached to status bar.
+     *
+     * @param token the token of the abilityRecord that is attached to status bar.
+     */
+    void AttachedToStatusBar(const sptr<IRemoteObject> &token) override;
+
 private:
     /**
      * @brief Judge whether the application service is ready.

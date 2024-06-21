@@ -47,6 +47,7 @@ constexpr const char* FOUNDATION_NAME = "foundation";
 constexpr const char* SCENE_BOARD_BUNDLE_NAME = "com.ohos.sceneboard";
 constexpr const char* SCENEBOARD_ABILITY_NAME = "com.ohos.sceneboard.MainAbility";
 constexpr const char* TASK_SCENE_BOARD_ATTACH_TIMEOUT = "sceneBoardAttachTimeoutTask";
+constexpr const char* TASK_ATTACHED_TO_STATUS_BAR = "AttachedToStatusBar";
 constexpr int32_t SCENE_BOARD_ATTACH_TIMEOUT_TASK_TIME = 1000;
 };  // namespace
 
@@ -582,6 +583,24 @@ bool AmsMgrScheduler::IsMemorySizeSufficent()
         return true;
     }
     return amsMgrServiceInner_->IsMemorySizeSufficent();
+}
+
+void AmsMgrScheduler::AttachedToStatusBar(const sptr<IRemoteObject> &token)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return;
+    }
+    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+    Security::AccessToken::NativeTokenInfo nativeInfo;
+    Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
+    if (nativeInfo.processName != "foundation") {
+        TAG_LOGE(AAFwkTag::APPMGR, "caller is not foundation.");
+        return;
+    }
+    std::function<void()> attachedToStatusBarFunc =
+        std::bind(&AppMgrServiceInner::AttachedToStatusBar, amsMgrServiceInner_, token);
+    amsHandler_->SubmitTask(attachedToStatusBarFunc, TASK_ATTACHED_TO_STATUS_BAR);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

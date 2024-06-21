@@ -123,6 +123,8 @@ void AmsMgrStub::CreateMemberFuncMap()
         &AmsMgrStub::HandleIsMemorySizeSufficent;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::SET_KEEP_ALIVE_ENABLE_STATE)] =
         &AmsMgrStub::HandleSetKeepAliveEnableState;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::ATTACHED_TO_STATUS_BAR)] =
+        &AmsMgrStub::HandleAttachedToStatusBar;
 }
 
 int AmsMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -675,6 +677,14 @@ int32_t AmsMgrStub::HandleIsMemorySizeSufficent(MessageParcel &data, MessageParc
         HILOG_ERROR("Fail to write result.");
         return ERR_INVALID_VALUE;
     }
+    return NO_ERROR;
+}
+
+ErrCode AmsMgrStub::HandleAttachedToStatusBar(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    AttachedToStatusBar(token);
     return NO_ERROR;
 }
 }  // namespace AppExecFwk
