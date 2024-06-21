@@ -1054,8 +1054,7 @@ public:
         int requestCode,
         AbilityRequest &request,
         const sptr<IRemoteObject> &callerToken,
-        int32_t userId,
-        bool isNeedSetDebugApp = true);
+        int32_t userId);
 
     /**
      * Get mission id by target ability token.
@@ -2147,9 +2146,6 @@ private:
     bool CheckCallerIsDmsProcess();
 
     void WaitBootAnimationStart();
-
-    void SetDebugAppByWaitingDebugFlag(
-        const Want &want, Want &requestWant, const std::string &bundleName, bool isDebugApp);
 
     int32_t SignRestartAppFlag(int32_t userId, const std::string &bundleName);
     int32_t CheckRestartAppWant(const AAFwk::Want &want);
