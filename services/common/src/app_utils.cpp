@@ -46,10 +46,10 @@ const std::string MOVE_UI_ABILITY_TO_BACKGROUND_API_ENABLE =
 const std::string LAUNCH_EMBEDED_UI_ABILITY = "const.abilityms.launch_embeded_ui_ability";
 const std::string SUPPROT_NATIVE_CHILD_PROCESS = "persist.sys.abilityms.start_native_child_process";
 const std::string LIMIT_MAXIMUM_EXTENSIONS_OF_PER_PROCESS =
-    "persist.sys.abilityms.limit_maximum_extensions_of_per_process";
+    "const.sys.abilityms.limit_maximum_extensions_of_per_process";
 const std::string LIMIT_MAXIMUM_EXTENSIONS_OF_PER_DEVICE =
-    "persist.sys.abilityms.limit_maximum_extensions_of_per_device";
-const std::string CACHE_EXTENSION_TYPES = "persist.sys.abilityms.cache_extension";
+    "const.sys.abilityms.limit_maximum_extensions_of_per_device";
+const std::string CACHE_EXTENSION_TYPES = "const.sys.abilityms.cache_extension";
 }
 
 AppUtils::~AppUtils() {}
@@ -255,7 +255,7 @@ int32_t AppUtils::GetLimitMaximumExtensionsPerDevice()
 
 std::string AppUtils::GetCacheExtensionTypeList()
 {
-    std::string cacheExtAbilityTypeList = system::GetParameter(CACHE_EXTENSION_TYPES, "3;5;17");
+    std::string cacheExtAbilityTypeList = system::GetParameter(CACHE_EXTENSION_TYPES, "3;5;17;260");
     TAG_LOGD(AAFwkTag::DEFAULT, "cacheExtAbilityTypeList is %{public}s", cacheExtAbilityTypeList.c_str());
     return cacheExtAbilityTypeList;
 }
