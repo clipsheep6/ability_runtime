@@ -25,6 +25,8 @@
 #include "auto_startup_callback_proxy.h"
 #include "auto_startup_info.h"
 #include "auto_startup_interface.h"
+#include "ability_util.h"
+#include "global_constant.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
@@ -264,8 +266,9 @@ int32_t AbilityAutoStartupService::DeleteAutoStartupData(const std::string &bund
 int32_t AbilityAutoStartupService::CheckAutoStartupData(const std::string &bundleName, int32_t uid)
 {
     int32_t userId;
+    int32_t appIndex = 0;
     AppExecFwk::BundleInfo bundleInfo;
-    if (!GetBundleInfo(bundleName, bundleInfo, uid, userId)) {
+    if (!GetBundleInfo(bundleName, bundleInfo, uid, userId, appIndex)) {
         return INNER_ERR;
     }
     auto tokenId = bundleInfo.applicationInfo.accessTokenId;
@@ -423,14 +426,22 @@ std::string AbilityAutoStartupService::GetSelfApplicationBundleName()
     return bundleName;
 }
 
+std::shared_ptr<AppExecFwk::BundleMgrHelper> AbilityAutoStartupService::GetBundleManager()
+{
+    if (bundleMgrHelper_ == nullptr) {
+        bundleMgrHelper_ = AbilityUtil::GetBundleManagerHelper();
+    }
+    return bundleMgrHelper_;
+}
+
 bool AbilityAutoStartupService::CheckSelfApplication(const std::string &bundleName)
 {
     TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called, bundleName: %{public}s.", bundleName.c_str());
     return GetSelfApplicationBundleName() == bundleName ? true : false;
 }
 
-bool AbilityAutoStartupService::GetBundleInfo(
-    const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, int32_t uid, int32_t &userId)
+bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
+    AppExecFwk::BundleInfo &bundleInfo, int32_t uid, int32_t &userId, int32_t appIndex)
 {
     TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
     auto bundleMgrClient = GetBundleMgrClient();
@@ -438,6 +449,8 @@ bool AbilityAutoStartupService::GetBundleInfo(
         TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to get BundleMgrClient.");
         return false;
     }
+    auto bms = GetBundleManager();
+    //CHECK_POINTER_AND_RETURN(bms, nullptr);
 
     if (uid == -1) {
         userId = IPCSkeleton::GetCallingUid() / AppExecFwk::Constants::BASE_USER_RANGE;
@@ -453,12 +466,31 @@ bool AbilityAutoStartupService::GetBundleInfo(
         userId = abilityMgr->GetUserId();
     }
     TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Current userId: %{public}d.", userId);
-    auto flags =
-        AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES | AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
-    if (!IN_PROCESS_CALL(bundleMgrClient->GetBundleInfo(
-        bundleName, static_cast<AppExecFwk::BundleFlag>(flags), bundleInfo, userId))) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to get bundle info.");
+
+    if (appIndex < 0) {
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Invalid appIndex.");
         return false;
+    }
+
+    if (appIndex == 0) {
+        auto flags =
+            AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES | AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
+            if (!IN_PROCESS_CALL(bundleMgrClient->GetBundleInfo(
+                bundleName, static_cast<AppExecFwk::BundleFlag>(flags), bundleInfo, userId))) {
+                TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to get bundle info.");
+                return false;
+            }
+    } else if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
+        auto bundleFlag = static_cast<int32_t>(AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO);
+        if (!IN_PROCESS_CALL(bms->GetCloneBundleInfo(bundleName, bundleFlag, appIndex, bundleInfo, userId))) {
+            TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Failed to get clone bundle info.");
+            return false;
+        }
+    } else {
+        if (!IN_PROCESS_CALL(bundleMgrClient->GetSandboxBundleInfo(bundleName, appIndex, userId, bundleInfo))) {
+        TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Failed to get sandbox bundle info.");
+        return false;
+        }
     }
     return true;
 }
@@ -474,7 +506,7 @@ bool AbilityAutoStartupService::GetAbilityData(const AutoStartupInfo &info, bool
     AppExecFwk::BundleInfo bundleInfo;
     int32_t currentUserId;
     int32_t uid = bundleInfo.applicationInfo.uid;
-    if (!GetBundleInfo(info.bundleName, bundleInfo, uid, currentUserId)) {
+    if (!GetBundleInfo(info.bundleName, bundleInfo, uid, currentUserId, info.appCloneIndex)) {
         return false;
     }
     userId = currentUserId;
