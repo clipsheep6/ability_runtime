@@ -549,6 +549,11 @@ enum {
      * Native error(2097258) for target bundle not exist.
      */
     ERR_BUNDLE_NOT_EXIST,
+
+    /**
+     * Native error(3000000) for target bundle not exist.
+     */
+    ERR_CODE_NOT_EXIST = 3000000,
 };
 
 enum {

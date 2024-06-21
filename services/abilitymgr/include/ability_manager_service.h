@@ -1836,14 +1836,12 @@ private:
     void DataDumpStateInner(const std::string &args, std::vector<std::string> &info);
     void DumpMissionListInner(const std::string &args, std::vector<std::string> &info);
     void DumpMissionInfosInner(const std::string &args, std::vector<std::string> &info);
-    void DumpFuncInit();
 
     bool JudgeMultiUserConcurrency(const int32_t userId);
     /**
      * dumpsys info
      *
      */
-    void DumpSysFuncInit();
     void DumpSysInner(
         const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
     void DumpSysMissionListInner(
@@ -1918,13 +1916,6 @@ private:
     void RemoveScreenUnlockInterceptor();
 
     int VerifyAccountPermission(int32_t userId);
-
-    using DumpFuncType = void (AbilityManagerService::*)(const std::string &args, std::vector<std::string> &info);
-    std::map<uint32_t, DumpFuncType> dumpFuncMap_;
-
-    using DumpSysFuncType = void (AbilityManagerService::*)(
-        const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID);
-    std::map<uint32_t, DumpSysFuncType> dumpsysFuncMap_;
 
     int CheckStaticCfgPermissionForAbility(const AppExecFwk::AbilityInfo &abilityInfo, uint32_t tokenId);
 

@@ -82,9 +82,10 @@ void AmsMgrScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<I
     PerfProfile::GetInstance().SetAbilityLoadStartTime(GetTickCount());
     TAG_LOGI(AAFwkTag::APPMGR, "SubmitLoadTask: %{public}s-%{public}s", abilityInfo->bundleName.c_str(),
         abilityInfo->name.c_str());
-    std::function<void()> loadAbilityFunc =
-        std::bind(&AppMgrServiceInner::LoadAbility, amsMgrServiceInner_, token, preToken, abilityInfo,
-            appInfo, want, abilityRecordId);
+    std::function<void()> loadAbilityFunc = [amsMgrServiceInner = amsMgrServiceInner_, token, preToken,
+        abilityInfo, appInfo, want, abilityRecordId]() {
+        amsMgrServiceInner->LoadAbility(token, preToken, abilityInfo, appInfo, want, abilityRecordId);
+    };
 
     // cache other application load ability task before scene board attach
     if (!amsMgrServiceInner_->GetSceneBoardAttachFlag() && abilityInfo->bundleName != SCENE_BOARD_BUNDLE_NAME) {
@@ -117,8 +118,9 @@ void AmsMgrScheduler::UpdateAbilityState(const sptr<IRemoteObject> &token, const
         TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
         return;
     }
-    std::function<void()> updateAbilityStateFunc =
-        std::bind(&AppMgrServiceInner::UpdateAbilityState, amsMgrServiceInner_, token, state);
+    std::function<void()> updateAbilityStateFunc = [amsMgrServiceInner = amsMgrServiceInner_, token, state] () {
+        amsMgrServiceInner->UpdateAbilityState(token, state);
+    };
     amsHandler_->SubmitTask(updateAbilityStateFunc, AAFwk::TaskAttribute{
         .taskName_ = TASK_UPDATE_ABILITY_STATE,
         .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
@@ -135,8 +137,9 @@ void AmsMgrScheduler::UpdateExtensionState(const sptr<IRemoteObject> &token, con
         TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
         return;
     }
-    std::function<void()> updateExtensionStateFunc =
-        std::bind(&AppMgrServiceInner::UpdateExtensionState, amsMgrServiceInner_, token, state);
+    std::function<void()> updateExtensionStateFunc = [amsMgrServiceInner = amsMgrServiceInner_, token, state]() {
+        amsMgrServiceInner->UpdateExtensionState(token, state);
+    };
     amsHandler_->SubmitTask(updateExtensionStateFunc, AAFwk::TaskAttribute{
         .taskName_ = TASK_UPDATE_EXTENSION_STATE,
         .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
@@ -153,8 +156,9 @@ void AmsMgrScheduler::TerminateAbility(const sptr<IRemoteObject> &token, bool cl
         TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
         return;
     }
-    std::function<void()> terminateAbilityFunc =
-        std::bind(&AppMgrServiceInner::TerminateAbility, amsMgrServiceInner_, token, clearMissionFlag);
+    std::function<void()> terminateAbilityFunc = [amsMgrServiceInner = amsMgrServiceInner_, token, clearMissionFlag]() {
+        amsMgrServiceInner->TerminateAbility(token, clearMissionFlag);
+    };
     amsHandler_->SubmitTask(terminateAbilityFunc, AAFwk::TaskAttribute{
         .taskName_ = TASK_TERMINATE_ABILITY,
         .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
@@ -166,8 +170,9 @@ void AmsMgrScheduler::RegisterAppStateCallback(const sptr<IAppStateCallback> &ca
     if (!IsReady()) {
         return;
     }
-    std::function<void()> registerAppStateCallbackFunc =
-        std::bind(&AppMgrServiceInner::RegisterAppStateCallback, amsMgrServiceInner_, callback);
+    std::function<void()> registerAppStateCallbackFunc = [amsMgrServiceInner = amsMgrServiceInner_, callback]() {
+        amsMgrServiceInner->RegisterAppStateCallback(callback);
+    };
     amsHandler_->SubmitTask(registerAppStateCallbackFunc, TASK_REGISTER_APP_STATE_CALLBACK);
 }
 
@@ -182,8 +187,11 @@ void AmsMgrScheduler::AbilityBehaviorAnalysis(const sptr<IRemoteObject> &token, 
         TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
         return;
     }
-    std::function<void()> abilityBehaviorAnalysisFunc = std::bind(&AppMgrServiceInner::AbilityBehaviorAnalysis,
-        amsMgrServiceInner_, token, preToken, visibility, perceptibility, connectionState);
+    std::function<void()> abilityBehaviorAnalysisFunc = [amsMgrServiceInner = amsMgrServiceInner_, token, preToken,
+        visibility, perceptibility, connectionState]() {
+        amsMgrServiceInner->AbilityBehaviorAnalysis(token, preToken,
+            visibility, perceptibility, connectionState);
+    };
     amsHandler_->SubmitTask(abilityBehaviorAnalysisFunc, TASK_ABILITY_BEHAVIOR_ANALYSIS);
 }
 
@@ -198,8 +206,9 @@ void AmsMgrScheduler::KillProcessByAbilityToken(const sptr<IRemoteObject> &token
         return;
     }
 
-    std::function<void()> killProcessByAbilityTokenFunc =
-        std::bind(&AppMgrServiceInner::KillProcessByAbilityToken, amsMgrServiceInner_, token);
+    std::function<void()> killProcessByAbilityTokenFunc = [amsMgrServiceInner = amsMgrServiceInner_, token]() {
+        amsMgrServiceInner->KillProcessByAbilityToken(token);
+    };
     amsHandler_->SubmitTask(killProcessByAbilityTokenFunc, TASK_KILL_PROCESS_BY_ABILITY_TOKEN);
 }
 
@@ -223,8 +232,9 @@ void AmsMgrScheduler::KillProcessesByUserId(int32_t userId)
         return;
     }
 
-    std::function<void()> killProcessesByUserIdFunc =
-        std::bind(&AppMgrServiceInner::KillProcessesByUserId, amsMgrServiceInner_, userId);
+    std::function<void()> killProcessesByUserIdFunc = [amsMgrServiceInner = amsMgrServiceInner_, userId]() {
+        amsMgrServiceInner->KillProcessesByUserId(userId);
+    };
     amsHandler_->SubmitTask(killProcessesByUserIdFunc, TASK_KILL_PROCESSES_BY_USERID);
 }
 
@@ -241,8 +251,9 @@ void AmsMgrScheduler::KillProcessesByPids(std::vector<int32_t> &pids)
         return;
     }
 
-    std::function<void()> killProcessesByPidsFunc =
-        std::bind(&AppMgrServiceInner::KillProcessesByPids, amsMgrServiceInner_, pids);
+    std::function<void()> killProcessesByPidsFunc = [amsMgrServiceInner = amsMgrServiceInner_, &pids]() {
+        amsMgrServiceInner->KillProcessesByPids(pids);
+    };
     amsHandler_->SubmitTask(killProcessesByPidsFunc, TASK_KILL_PROCESSES_BY_PIDS);
 }
 
@@ -259,8 +270,9 @@ void AmsMgrScheduler::AttachPidToParent(const sptr<IRemoteObject> &token, const 
         return;
     }
 
-    std::function<void()> attachPidToParentFunc =
-        std::bind(&AppMgrServiceInner::AttachPidToParent, amsMgrServiceInner_, token, callerToken);
+    std::function<void()> attachPidToParentFunc = [amsMgrServiceInner = amsMgrServiceInner_, token, callerToken]() {
+        amsMgrServiceInner->AttachPidToParent(token, callerToken);
+    };
     amsHandler_->SubmitTask(attachPidToParentFunc, TASK_ATTACH_PID_TO_PARENT);
 }
 
@@ -286,7 +298,9 @@ void AmsMgrScheduler::AbilityAttachTimeOut(const sptr<IRemoteObject> &token)
         TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
         return;
     }
-    auto task = [=]() { amsMgrServiceInner_->HandleAbilityAttachTimeOut(token); };
+    auto task = [amsMgrServiceInner = amsMgrServiceInner_, token]() {
+        amsMgrServiceInner->HandleAbilityAttachTimeOut(token);
+    };
     amsHandler_->SubmitTask(task);
 }
 
@@ -567,8 +581,9 @@ void AmsMgrScheduler::ClearProcessByToken(sptr<IRemoteObject> token)
         return;
     }
 
-    std::function<void()> clearProcessByTokenFunc =
-        std::bind(&AppMgrServiceInner::ClearProcessByToken, amsMgrServiceInner_, token);
+    std::function<void()> clearProcessByTokenFunc = [amsMgrServiceInner = amsMgrServiceInner_, token]() {
+        amsMgrServiceInner->ClearProcessByToken(token);
+    };
     amsHandler_->SubmitTask(clearProcessByTokenFunc, TASK_CLEAR_PROCESS_BY_ABILITY_TOKEN);
 }
 

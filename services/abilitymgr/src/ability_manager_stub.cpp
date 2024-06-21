@@ -41,414 +41,812 @@ constexpr int32_t CYCLE_LIMIT = 1000;
 constexpr int32_t MAX_KILL_PROCESS_PID_COUNT = 100;
 } // namespace
 AbilityManagerStub::AbilityManagerStub()
-{
-    FirstStepInit();
-    SecondStepInit();
-    ThirdStepInit();
-    FourthStepInit();
-    FifthStepInit();
-}
+{}
 
 AbilityManagerStub::~AbilityManagerStub()
+{}
+
+int AbilityManagerStub::OnRemoteRequestInnerFirst(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
 {
-    requestFuncMap_.clear();
+    AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
+    if (interfaceCode == AbilityManagerInterfaceCode::TERMINATE_ABILITY) {
+        return TerminateAbilityInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::MINIMIZE_ABILITY) {
+        return MinimizeAbilityInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::ATTACH_ABILITY_THREAD) {
+        return AttachAbilityThreadInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::ABILITY_TRANSITION_DONE) {
+        return AbilityTransitionDoneInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::CONNECT_ABILITY_DONE) {
+        return ScheduleConnectAbilityDoneInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::DISCONNECT_ABILITY_DONE) {
+        return ScheduleDisconnectAbilityDoneInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::COMMAND_ABILITY_DONE) {
+        return ScheduleCommandAbilityDoneInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::COMMAND_ABILITY_WINDOW_DONE) {
+        return ScheduleCommandAbilityWindowDoneInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::ACQUIRE_DATA_ABILITY) {
+        return AcquireDataAbilityInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::RELEASE_DATA_ABILITY) {
+        return ReleaseDataAbilityInner(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
 }
 
-void AbilityManagerStub::FirstStepInit()
+int AbilityManagerStub::OnRemoteRequestInnerSecond(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
 {
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_ABILITY)] =
-        &AbilityManagerStub::TerminateAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MINIMIZE_ABILITY)] =
-        &AbilityManagerStub::MinimizeAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ATTACH_ABILITY_THREAD)] =
-        &AbilityManagerStub::AttachAbilityThreadInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ABILITY_TRANSITION_DONE)] =
-        &AbilityManagerStub::AbilityTransitionDoneInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_ABILITY_DONE)] =
-        &AbilityManagerStub::ScheduleConnectAbilityDoneInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DISCONNECT_ABILITY_DONE)] =
-        &AbilityManagerStub::ScheduleDisconnectAbilityDoneInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::COMMAND_ABILITY_DONE)] =
-        &AbilityManagerStub::ScheduleCommandAbilityDoneInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::COMMAND_ABILITY_WINDOW_DONE)] =
-        &AbilityManagerStub::ScheduleCommandAbilityWindowDoneInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ACQUIRE_DATA_ABILITY)] =
-        &AbilityManagerStub::AcquireDataAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RELEASE_DATA_ABILITY)] =
-        &AbilityManagerStub::ReleaseDataAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::KILL_PROCESS)] =
-        &AbilityManagerStub::KillProcessInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNINSTALL_APP)] =
-        &AbilityManagerStub::UninstallAppInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UPGRADE_APP)] =
-        &AbilityManagerStub::UpgradeAppInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY)] =
-        &AbilityManagerStub::StartAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_ADD_CALLER)] =
-        &AbilityManagerStub::StartAbilityAddCallerInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_WITH_SPECIFY_TOKENID)] =
-        &AbilityManagerStub::StartAbilityInnerSpecifyTokenId;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_BY_TOKEN)] =
-        &AbilityManagerStub::StartAbilityAsCallerByTokenInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_FOR_OPTIONS)] =
-        &AbilityManagerStub::StartAbilityAsCallerForOptionInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_SESSION_ABILITY_ADD_CALLER)] =
-        &AbilityManagerStub::StartAbilityByUIContentSessionAddCallerInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_SESSION_ABILITY_FOR_OPTIONS)] =
-        &AbilityManagerStub::StartAbilityByUIContentSessionForOptionsInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_BY_INSIGHT_INTENT)] =
-        &AbilityManagerStub::StartAbilityByInsightIntentInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_ABILITY)] =
-        &AbilityManagerStub::ConnectAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DISCONNECT_ABILITY)] =
-        &AbilityManagerStub::DisconnectAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_SERVICE_ABILITY)] =
-        &AbilityManagerStub::StopServiceAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DUMP_STATE)] =
-        &AbilityManagerStub::DumpStateInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DUMPSYS_STATE)] =
-        &AbilityManagerStub::DumpSysStateInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_FOR_SETTINGS)] =
-        &AbilityManagerStub::StartAbilityForSettingsInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CONTINUE_MISSION)] =
-        &AbilityManagerStub::ContinueMissionInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CONTINUE_MISSION_OF_BUNDLENAME)] =
-        &AbilityManagerStub::ContinueMissionOfBundleNameInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CONTINUE_ABILITY)] =
-        &AbilityManagerStub::ContinueAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_CONTINUATION)] =
-        &AbilityManagerStub::StartContinuationInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_COMPLETE_CONTINUATION)] =
-        &AbilityManagerStub::NotifyCompleteContinuationInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_CONTINUATION_RESULT)] =
-        &AbilityManagerStub::NotifyContinuationResultInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_RESULT_TO_ABILITY)] =
-        &AbilityManagerStub::SendResultToAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_REMOTE_MISSION_LISTENER)] =
-        &AbilityManagerStub::RegisterRemoteMissionListenerInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_REMOTE_ON_LISTENER)] =
-        &AbilityManagerStub::RegisterRemoteOnListenerInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_REMOTE_OFF_LISTENER)] =
-        &AbilityManagerStub::RegisterRemoteOffListenerInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_REMOTE_MISSION_LISTENER)] =
-        &AbilityManagerStub::UnRegisterRemoteMissionListenerInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_FOR_OPTIONS)] =
-        &AbilityManagerStub::StartAbilityForOptionsInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_SYNC_MISSIONS)] =
-        &AbilityManagerStub::StartSyncRemoteMissionsInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_SYNC_MISSIONS)] =
-        &AbilityManagerStub::StopSyncRemoteMissionsInner;
+    AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
+    if (interfaceCode == AbilityManagerInterfaceCode::KILL_PROCESS) {
+        return KillProcessInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::UNINSTALL_APP) {
+        return UninstallAppInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::UPGRADE_APP) {
+        return UpgradeAppInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_ABILITY) {
+        return StartAbilityInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_ABILITY_ADD_CALLER) {
+        return StartAbilityAddCallerInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_ABILITY_WITH_SPECIFY_TOKENID) {
+        return StartAbilityInnerSpecifyTokenId(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_BY_TOKEN) {
+        return StartAbilityAsCallerByTokenInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_FOR_OPTIONS) {
+        return StartAbilityAsCallerForOptionInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_UI_SESSION_ABILITY_ADD_CALLER) {
+        return StartAbilityByUIContentSessionAddCallerInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_UI_SESSION_ABILITY_FOR_OPTIONS) {
+        return StartAbilityByUIContentSessionForOptionsInner(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
+}
+
+int AbilityManagerStub::OnRemoteRequestInnerThird(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
+    if (interfaceCode == AbilityManagerInterfaceCode::START_ABILITY_BY_INSIGHT_INTENT) {
+        return StartAbilityByInsightIntentInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::CONNECT_ABILITY) {
+        return ConnectAbilityInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::DISCONNECT_ABILITY) {
+        return DisconnectAbilityInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::STOP_SERVICE_ABILITY) {
+        return StopServiceAbilityInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::DUMP_STATE) {
+        return DumpStateInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::DUMPSYS_STATE) {
+        return DumpSysStateInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_ABILITY_FOR_SETTINGS) {
+        return StartAbilityForSettingsInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::CONTINUE_MISSION) {
+        return ContinueMissionInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::CONTINUE_MISSION_OF_BUNDLENAME) {
+        return ContinueMissionOfBundleNameInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::CONTINUE_ABILITY) {
+        return ContinueAbilityInner(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
+}
+
+int AbilityManagerStub::OnRemoteRequestInnerFourth(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
+    if (interfaceCode == AbilityManagerInterfaceCode::START_CONTINUATION) {
+        return StartContinuationInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::NOTIFY_COMPLETE_CONTINUATION) {
+        return NotifyCompleteContinuationInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::NOTIFY_CONTINUATION_RESULT) {
+        return NotifyContinuationResultInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::SEND_RESULT_TO_ABILITY) {
+        return SendResultToAbilityInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::REGISTER_REMOTE_MISSION_LISTENER) {
+        return RegisterRemoteMissionListenerInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::REGISTER_REMOTE_ON_LISTENER) {
+        return RegisterRemoteOnListenerInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::REGISTER_REMOTE_OFF_LISTENER) {
+        return RegisterRemoteOffListenerInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::UNREGISTER_REMOTE_MISSION_LISTENER) {
+        return UnRegisterRemoteMissionListenerInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_ABILITY_FOR_OPTIONS) {
+        return StartAbilityForOptionsInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_SYNC_MISSIONS) {
+        return StartSyncRemoteMissionsInner(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
+}
+
+int AbilityManagerStub::OnRemoteRequestInnerFifth(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
+    if (interfaceCode == AbilityManagerInterfaceCode::STOP_SYNC_MISSIONS) {
+        return StopSyncRemoteMissionsInner(data, reply);
+    }
 #ifdef ABILITY_COMMAND_FOR_TEST
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::FORCE_TIMEOUT)] =
-        &AbilityManagerStub::ForceTimeoutForTestInner;
+    if (interfaceCode == AbilityManagerInterfaceCode::FORCE_TIMEOUT) {
+        return ForceTimeoutForTestInner(data, reply);
+    }
 #endif
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::FREE_INSTALL_ABILITY_FROM_REMOTE)] =
-        &AbilityManagerStub::FreeInstallAbilityFromRemoteInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ADD_FREE_INSTALL_OBSERVER)] =
-        &AbilityManagerStub::AddFreeInstallObserverInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_ABILITY_WITH_TYPE)] =
-        &AbilityManagerStub::ConnectAbilityWithTypeInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ABILITY_RECOVERY)] =
-        &AbilityManagerStub::ScheduleRecoverAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ABILITY_RECOVERY_ENABLE)] =
-        &AbilityManagerStub::EnableRecoverAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CLEAR_RECOVERY_PAGE_STACK)] =
-        &AbilityManagerStub::ScheduleClearRecoveryPageStackInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MINIMIZE_UI_ABILITY_BY_SCB)] =
-        &AbilityManagerStub::MinimizeUIAbilityBySCBInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CLOSE_UI_ABILITY_BY_SCB)] =
-        &AbilityManagerStub::CloseUIAbilityBySCBInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_COLLABORATOR)] =
-        &AbilityManagerStub::RegisterIAbilityManagerCollaboratorInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_COLLABORATOR)] =
-        &AbilityManagerStub::UnregisterIAbilityManagerCollaboratorInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_APP_DEBUG_LISTENER)] =
-        &AbilityManagerStub::RegisterAppDebugListenerInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_APP_DEBUG_LISTENER)] =
-        &AbilityManagerStub::UnregisterAppDebugListenerInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ATTACH_APP_DEBUG)] =
-        &AbilityManagerStub::AttachAppDebugInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DETACH_APP_DEBUG)] =
-        &AbilityManagerStub::DetachAppDebugInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_ABILITY_CONTROLLER_START)] =
-        &AbilityManagerStub::IsAbilityControllerStartInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::EXECUTE_INTENT)] =
-        &AbilityManagerStub::ExecuteIntentInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::EXECUTE_INSIGHT_INTENT_DONE)] =
-        &AbilityManagerStub::ExecuteInsightIntentDoneInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::OPEN_FILE)] =
-        &AbilityManagerStub::OpenFileInner;
+    if (interfaceCode == AbilityManagerInterfaceCode::FREE_INSTALL_ABILITY_FROM_REMOTE) {
+        return FreeInstallAbilityFromRemoteInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::ADD_FREE_INSTALL_OBSERVER) {
+        return AddFreeInstallObserverInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::CONNECT_ABILITY_WITH_TYPE) {
+        return ConnectAbilityWithTypeInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::ABILITY_RECOVERY) {
+        return ScheduleRecoverAbilityInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::ABILITY_RECOVERY_ENABLE) {
+        return EnableRecoverAbilityInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::CLEAR_RECOVERY_PAGE_STACK) {
+        return ScheduleClearRecoveryPageStackInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::MINIMIZE_UI_ABILITY_BY_SCB) {
+        return MinimizeUIAbilityBySCBInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::CLOSE_UI_ABILITY_BY_SCB) {
+        return CloseUIAbilityBySCBInner(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
 }
 
-void AbilityManagerStub::SecondStepInit()
+int AbilityManagerStub::OnRemoteRequestInnerSixth(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
 {
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_SENDER)] =
-        &AbilityManagerStub::GetWantSenderInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_PENDING_WANT_SENDER)] =
-        &AbilityManagerStub::SendWantSenderInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CANCEL_PENDING_WANT_SENDER)] =
-        &AbilityManagerStub::CancelWantSenderInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_UID)] =
-        &AbilityManagerStub::GetPendingWantUidInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_USERID)] =
-        &AbilityManagerStub::GetPendingWantUserIdInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_BUNDLENAME)] =
-        &AbilityManagerStub::GetPendingWantBundleNameInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_CODE)] =
-        &AbilityManagerStub::GetPendingWantCodeInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_TYPE)] =
-        &AbilityManagerStub::GetPendingWantTypeInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_CANCEL_LISTENER)] =
-        &AbilityManagerStub::RegisterCancelListenerInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_CANCEL_LISTENER)] =
-        &AbilityManagerStub::UnregisterCancelListenerInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_REQUEST_WANT)] =
-        &AbilityManagerStub::GetPendingRequestWantInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_SENDER_INFO)] =
-        &AbilityManagerStub::GetWantSenderInfoInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_APP_MEMORY_SIZE)] =
-        &AbilityManagerStub::GetAppMemorySizeInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_RAM_CONSTRAINED_DEVICE)] =
-        &AbilityManagerStub::IsRamConstrainedDeviceInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::LOCK_MISSION_FOR_CLEANUP)] =
-        &AbilityManagerStub::LockMissionForCleanupInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNLOCK_MISSION_FOR_CLEANUP)] =
-        &AbilityManagerStub::UnlockMissionForCleanupInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_SESSION_LOCKED_STATE)] =
-        &AbilityManagerStub::SetLockedStateInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_MISSION_LISTENER)] =
-        &AbilityManagerStub::RegisterMissionListenerInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_MISSION_LISTENER)] =
-        &AbilityManagerStub::UnRegisterMissionListenerInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_MISSION_INFOS)] =
-        &AbilityManagerStub::GetMissionInfosInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_MISSION_INFO_BY_ID)] =
-        &AbilityManagerStub::GetMissionInfoInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CLEAN_MISSION)] =
-        &AbilityManagerStub::CleanMissionInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CLEAN_ALL_MISSIONS)] =
-        &AbilityManagerStub::CleanAllMissionsInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSION_TO_FRONT)] =
-        &AbilityManagerStub::MoveMissionToFrontInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSION_TO_FRONT_BY_OPTIONS)] =
-        &AbilityManagerStub::MoveMissionToFrontByOptionsInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSIONS_TO_FOREGROUND)] =
-        &AbilityManagerStub::MoveMissionsToForegroundInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSIONS_TO_BACKGROUND)] =
-        &AbilityManagerStub::MoveMissionsToBackgroundInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_CALL_ABILITY)] =
-        &AbilityManagerStub::StartAbilityByCallInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CALL_REQUEST_DONE)] =
-        &AbilityManagerStub::CallRequestDoneInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RELEASE_CALL_ABILITY)] =
-        &AbilityManagerStub::ReleaseCallInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_USER)] =
-        &AbilityManagerStub::StartUserInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_USER)] =
-        &AbilityManagerStub::StopUserInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::LOGOUT_USER)] =
-        &AbilityManagerStub::LogoutUserInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ABILITY_RUNNING_INFO)] =
-        &AbilityManagerStub::GetAbilityRunningInfosInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_EXTENSION_RUNNING_INFO)] =
-        &AbilityManagerStub::GetExtensionRunningInfosInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PROCESS_RUNNING_INFO)] =
-        &AbilityManagerStub::GetProcessRunningInfosInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_ABILITY_CONTROLLER)] =
-        &AbilityManagerStub::SetAbilityControllerInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_MISSION_SNAPSHOT_INFO)] =
-        &AbilityManagerStub::GetMissionSnapshotInfoInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_USER_A_STABILITY_TEST)] =
-        &AbilityManagerStub::IsRunningInStabilityTestInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ACQUIRE_SHARE_DATA)] =
-        &AbilityManagerStub::AcquireShareDataInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SHARE_DATA_DONE)] =
-        &AbilityManagerStub::ShareDataDoneInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ABILITY_TOKEN)] =
-        &AbilityManagerStub::GetAbilityTokenByCalleeObjInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::FORCE_EXIT_APP)] =
-        &AbilityManagerStub::ForceExitAppInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RECORD_APP_EXIT_REASON)] =
-        &AbilityManagerStub::RecordAppExitReasonInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RECORD_PROCESS_EXIT_REASON)] =
-        &AbilityManagerStub::RecordProcessExitReasonInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_SESSION_HANDLER)] =
-        &AbilityManagerStub::RegisterSessionHandlerInner;
+    AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
+    if (interfaceCode == AbilityManagerInterfaceCode::REGISTER_COLLABORATOR) {
+        return RegisterIAbilityManagerCollaboratorInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::UNREGISTER_COLLABORATOR) {
+        return UnregisterIAbilityManagerCollaboratorInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::REGISTER_APP_DEBUG_LISTENER) {
+        return RegisterAppDebugListenerInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::UNREGISTER_APP_DEBUG_LISTENER) {
+        return UnregisterAppDebugListenerInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::ATTACH_APP_DEBUG) {
+        return AttachAppDebugInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::DETACH_APP_DEBUG) {
+        return DetachAppDebugInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::IS_ABILITY_CONTROLLER_START) {
+        return IsAbilityControllerStartInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::EXECUTE_INTENT) {
+        return ExecuteIntentInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::EXECUTE_INSIGHT_INTENT_DONE) {
+        return ExecuteInsightIntentDoneInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::OPEN_FILE) {
+        return OpenFileInner(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
+}
+
+int AbilityManagerStub::OnRemoteRequestInnerSeventh(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_PENDING_WANT_SENDER) {
+        return GetWantSenderInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::SEND_PENDING_WANT_SENDER) {
+        return SendWantSenderInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::CANCEL_PENDING_WANT_SENDER) {
+        return CancelWantSenderInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_PENDING_WANT_UID) {
+        return GetPendingWantUidInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_PENDING_WANT_USERID) {
+        return GetPendingWantUserIdInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_PENDING_WANT_BUNDLENAME) {
+        return GetPendingWantBundleNameInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_PENDING_WANT_CODE) {
+        return GetPendingWantCodeInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_PENDING_WANT_TYPE) {
+        return GetPendingWantTypeInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::REGISTER_CANCEL_LISTENER) {
+        return RegisterCancelListenerInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::UNREGISTER_CANCEL_LISTENER) {
+        return UnregisterCancelListenerInner(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
+}
+
+int AbilityManagerStub::OnRemoteRequestInnerEighth(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_PENDING_REQUEST_WANT) {
+        return GetPendingRequestWantInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_PENDING_WANT_SENDER_INFO) {
+        return GetWantSenderInfoInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_APP_MEMORY_SIZE) {
+        return GetAppMemorySizeInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::IS_RAM_CONSTRAINED_DEVICE) {
+        return IsRamConstrainedDeviceInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::LOCK_MISSION_FOR_CLEANUP) {
+        return LockMissionForCleanupInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::UNLOCK_MISSION_FOR_CLEANUP) {
+        return UnlockMissionForCleanupInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::SET_SESSION_LOCKED_STATE) {
+        return SetLockedStateInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::REGISTER_MISSION_LISTENER) {
+        return RegisterMissionListenerInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::UNREGISTER_MISSION_LISTENER) {
+        return UnRegisterMissionListenerInner(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
+}
+
+int AbilityManagerStub::OnRemoteRequestInnerNinth(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_MISSION_INFOS) {
+        return GetMissionInfosInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_MISSION_INFO_BY_ID) {
+        return GetMissionInfoInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::CLEAN_MISSION) {
+        return CleanMissionInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::CLEAN_ALL_MISSIONS) {
+        return CleanAllMissionsInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::MOVE_MISSION_TO_FRONT) {
+        return MoveMissionToFrontInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::MOVE_MISSION_TO_FRONT_BY_OPTIONS) {
+        return MoveMissionToFrontByOptionsInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::MOVE_MISSIONS_TO_FOREGROUND) {
+        return MoveMissionsToForegroundInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::MOVE_MISSIONS_TO_BACKGROUND) {
+        return MoveMissionsToBackgroundInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_CALL_ABILITY) {
+        return StartAbilityByCallInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::CALL_REQUEST_DONE) {
+        return CallRequestDoneInner(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
+}
+
+int AbilityManagerStub::OnRemoteRequestInnerTenth(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
+    if (interfaceCode == AbilityManagerInterfaceCode::RELEASE_CALL_ABILITY) {
+        return ReleaseCallInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_USER) {
+        return StartUserInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::STOP_USER) {
+        return StopUserInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::LOGOUT_USER) {
+        return LogoutUserInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_ABILITY_RUNNING_INFO) {
+        return GetAbilityRunningInfosInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_EXTENSION_RUNNING_INFO) {
+        return GetExtensionRunningInfosInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_PROCESS_RUNNING_INFO) {
+        return GetProcessRunningInfosInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::SET_ABILITY_CONTROLLER) {
+        return SetAbilityControllerInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_MISSION_SNAPSHOT_INFO) {
+        return GetMissionSnapshotInfoInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::IS_USER_A_STABILITY_TEST) {
+        return IsRunningInStabilityTestInner(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
+}
+
+int AbilityManagerStub::OnRemoteRequestInnerEleventh(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
+    if (interfaceCode == AbilityManagerInterfaceCode::ACQUIRE_SHARE_DATA) {
+        return AcquireShareDataInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::SHARE_DATA_DONE) {
+        return ShareDataDoneInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_ABILITY_TOKEN) {
+        return GetAbilityTokenByCalleeObjInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::FORCE_EXIT_APP) {
+        return ForceExitAppInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::RECORD_APP_EXIT_REASON) {
+        return RecordAppExitReasonInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::RECORD_PROCESS_EXIT_REASON) {
+        return RecordProcessExitReasonInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::REGISTER_SESSION_HANDLER) {
+        return RegisterSessionHandlerInner(data, reply);
+    }
 #ifdef ABILITY_COMMAND_FOR_TEST
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::BLOCK_ABILITY)] =
-        &AbilityManagerStub::BlockAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::BLOCK_AMS_SERVICE)] =
-        &AbilityManagerStub::BlockAmsServiceInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::BLOCK_APP_SERVICE)] =
-        &AbilityManagerStub::BlockAppServiceInner;
+    if (interfaceCode == AbilityManagerInterfaceCode::BLOCK_ABILITY) {
+        return BlockAbilityInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::BLOCK_AMS_SERVICE) {
+        return BlockAmsServiceInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::BLOCK_APP_SERVICE) {
+        return BlockAppServiceInner(data, reply);
+    }
 #endif
+    return ERR_CODE_NOT_EXIST;
 }
 
-void AbilityManagerStub::ThirdStepInit()
+int AbilityManagerStub::OnRemoteRequestInnerTwelveth(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
 {
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_USER_TEST)] =
-        &AbilityManagerStub::StartUserTestInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::FINISH_USER_TEST)] =
-        &AbilityManagerStub::FinishUserTestInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_TOP_ABILITY_TOKEN)] =
-        &AbilityManagerStub::GetTopAbilityTokenInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CHECK_UI_EXTENSION_IS_FOCUSED)] =
-        &AbilityManagerStub::CheckUIExtensionIsFocusedInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_FOREGROUND)] =
-        &AbilityManagerStub::DelegatorDoAbilityForegroundInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_BACKGROUND)] =
-        &AbilityManagerStub::DelegatorDoAbilityBackgroundInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DO_ABILITY_FOREGROUND)] =
-        &AbilityManagerStub::DoAbilityForegroundInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DO_ABILITY_BACKGROUND)] =
-        &AbilityManagerStub::DoAbilityBackgroundInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_MISSION_ID_BY_ABILITY_TOKEN)] =
-        &AbilityManagerStub::GetMissionIdByTokenInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_TOP_ABILITY)] =
-        &AbilityManagerStub::GetTopAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ELEMENT_NAME_BY_TOKEN)] =
-        &AbilityManagerStub::GetElementNameByTokenInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DUMP_ABILITY_INFO_DONE)] =
-        &AbilityManagerStub::DumpAbilityInfoDoneInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_EXTENSION_ABILITY)] =
-        &AbilityManagerStub::StartExtensionAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_EXTENSION_ABILITY)] =
-        &AbilityManagerStub::StopExtensionAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UPDATE_MISSION_SNAPSHOT_FROM_WMS)] =
-        &AbilityManagerStub::UpdateMissionSnapShotFromWMSInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_CONNECTION_OBSERVER)] =
-        &AbilityManagerStub::RegisterConnectionObserverInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_CONNECTION_OBSERVER)] =
-        &AbilityManagerStub::UnregisterConnectionObserverInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_DLP_CONNECTION_INFOS)] =
-        &AbilityManagerStub::GetDlpConnectionInfosInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_ABILITY_TO_BACKGROUND)] =
-        &AbilityManagerStub::MoveAbilityToBackgroundInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_UI_ABILITY_TO_BACKGROUND)] =
-        &AbilityManagerStub::MoveUIAbilityToBackgroundInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_CONTINUE_STATE)] =
-        &AbilityManagerStub::SetMissionContinueStateInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::PREPARE_TERMINATE_ABILITY_BY_SCB)] =
-        &AbilityManagerStub::PrepareTerminateAbilityBySCBInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUESET_MODAL_UIEXTENSION)] =
-        &AbilityManagerStub::RequestModalUIExtensionInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_UI_EXTENSION_ROOT_HOST_INFO)] =
-        &AbilityManagerStub::GetUIExtensionRootHostInfoInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::PRELOAD_UIEXTENSION_ABILITY)] =
-        &AbilityManagerStub::PreloadUIExtensionAbilityInner;
+    AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
+    if (interfaceCode == AbilityManagerInterfaceCode::START_USER_TEST) {
+        return StartUserTestInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::FINISH_USER_TEST) {
+        return FinishUserTestInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_TOP_ABILITY_TOKEN) {
+        return GetTopAbilityTokenInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::CHECK_UI_EXTENSION_IS_FOCUSED) {
+        return CheckUIExtensionIsFocusedInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_FOREGROUND) {
+        return DelegatorDoAbilityForegroundInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_BACKGROUND) {
+        return DelegatorDoAbilityBackgroundInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::DO_ABILITY_FOREGROUND) {
+        return DoAbilityForegroundInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::DO_ABILITY_BACKGROUND) {
+        return DoAbilityBackgroundInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_MISSION_ID_BY_ABILITY_TOKEN) {
+        return GetMissionIdByTokenInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_TOP_ABILITY) {
+        return GetTopAbilityInner(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
+}
+
+int AbilityManagerStub::OnRemoteRequestInnerThirteenth(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_ELEMENT_NAME_BY_TOKEN) {
+        return GetElementNameByTokenInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::DUMP_ABILITY_INFO_DONE) {
+        return DumpAbilityInfoDoneInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_EXTENSION_ABILITY) {
+        return StartExtensionAbilityInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::STOP_EXTENSION_ABILITY) {
+        return StopExtensionAbilityInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::UPDATE_MISSION_SNAPSHOT_FROM_WMS) {
+        return UpdateMissionSnapShotFromWMSInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::REGISTER_CONNECTION_OBSERVER) {
+        return RegisterConnectionObserverInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::UNREGISTER_CONNECTION_OBSERVER) {
+        return UnregisterConnectionObserverInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_DLP_CONNECTION_INFOS) {
+        return GetDlpConnectionInfosInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::MOVE_ABILITY_TO_BACKGROUND) {
+        return MoveAbilityToBackgroundInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::MOVE_UI_ABILITY_TO_BACKGROUND) {
+        return MoveUIAbilityToBackgroundInner(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
+}
+
+int AbilityManagerStub::OnRemoteRequestInnerFourteenth(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
+    if (interfaceCode == AbilityManagerInterfaceCode::SET_MISSION_CONTINUE_STATE) {
+        return SetMissionContinueStateInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::PREPARE_TERMINATE_ABILITY_BY_SCB) {
+        return PrepareTerminateAbilityBySCBInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::REQUESET_MODAL_UIEXTENSION) {
+        return RequestModalUIExtensionInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_UI_EXTENSION_ROOT_HOST_INFO) {
+        return GetUIExtensionRootHostInfoInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::PRELOAD_UIEXTENSION_ABILITY) {
+        return PreloadUIExtensionAbilityInner(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
+}
+
+int AbilityManagerStub::OnRemoteRequestInnerFifteenth(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
 #ifdef SUPPORT_GRAPHICS
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_LABEL)] =
-        &AbilityManagerStub::SetMissionLabelInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_ICON)] =
-        &AbilityManagerStub::SetMissionIconInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_WMS_HANDLER)] =
-        &AbilityManagerStub::RegisterWindowManagerServiceHandlerInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::COMPLETEFIRSTFRAMEDRAWING)] =
-        &AbilityManagerStub::CompleteFirstFrameDrawingInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY)] =
-        &AbilityManagerStub::StartUIExtensionAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MINIMIZE_UI_EXTENSION_ABILITY)] =
-        &AbilityManagerStub::MinimizeUIExtensionAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_UI_EXTENSION_ABILITY)] =
-        &AbilityManagerStub::TerminateUIExtensionAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_UI_EXTENSION_ABILITY)] =
-        &AbilityManagerStub::ConnectUIExtensionAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::PREPARE_TERMINATE_ABILITY)] =
-        &AbilityManagerStub::PrepareTerminateAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_DIALOG_SESSION_INFO)] =
-        &AbilityManagerStub::GetDialogSessionInfoInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_DIALOG_RESULT)] =
-        &AbilityManagerStub::SendDialogResultInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_ABILITY_FIRST_FRAME_STATE_OBSERVER)] =
-        &AbilityManagerStub::RegisterAbilityFirstFrameStateObserverInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_ABILITY_FIRST_FRAME_STATE_OBSERVER)]
-        = &AbilityManagerStub::UnregisterAbilityFirstFrameStateObserverInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::COMPLETE_FIRST_FRAME_DRAWING_BY_SCB)] =
-        &AbilityManagerStub::CompleteFirstFrameDrawingBySCBInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY_NON_MODAL)] =
-        &AbilityManagerStub::StartUIExtensionAbilityNonModalInner;
+    if (interfaceCode == AbilityManagerInterfaceCode::SET_MISSION_LABEL) {
+        return SetMissionLabelInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::SET_MISSION_ICON) {
+        return SetMissionIconInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::REGISTER_WMS_HANDLER) {
+        return RegisterWindowManagerServiceHandlerInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::COMPLETEFIRSTFRAMEDRAWING) {
+        return CompleteFirstFrameDrawingInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY) {
+        return StartUIExtensionAbilityInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::MINIMIZE_UI_EXTENSION_ABILITY) {
+        return MinimizeUIExtensionAbilityInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::TERMINATE_UI_EXTENSION_ABILITY) {
+        return TerminateUIExtensionAbilityInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::CONNECT_UI_EXTENSION_ABILITY) {
+        return ConnectUIExtensionAbilityInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::PREPARE_TERMINATE_ABILITY) {
+        return PrepareTerminateAbilityInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_DIALOG_SESSION_INFO) {
+        return GetDialogSessionInfoInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::SEND_DIALOG_RESULT) {
+        return SendDialogResultInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::REGISTER_ABILITY_FIRST_FRAME_STATE_OBSERVER) {
+        return RegisterAbilityFirstFrameStateObserverInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::UNREGISTER_ABILITY_FIRST_FRAME_STATE_OBSERVER) {
+        return UnregisterAbilityFirstFrameStateObserverInner(data, reply);
+    }
 #endif
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUEST_DIALOG_SERVICE)] =
-        &AbilityManagerStub::HandleRequestDialogService;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REPORT_DRAWN_COMPLETED)] =
-        &AbilityManagerStub::HandleReportDrawnCompleted;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::QUERY_MISSION_VAILD)] =
-        &AbilityManagerStub::IsValidMissionIdsInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::VERIFY_PERMISSION)] =
-        &AbilityManagerStub::VerifyPermissionInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_ABILITY_BY_SCB)] =
-        &AbilityManagerStub::StartUIAbilityBySCBInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_ROOT_SCENE_SESSION)] =
-        &AbilityManagerStub::SetRootSceneSessionInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CALL_ABILITY_BY_SCB)] =
-        &AbilityManagerStub::CallUIAbilityBySCBInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_SPECIFIED_ABILITY_BY_SCB)] =
-        &AbilityManagerStub::StartSpecifiedAbilityBySCBInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_SAVE_AS_RESULT)] =
-        &AbilityManagerStub::NotifySaveAsResultInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_SESSIONMANAGERSERVICE)] =
-        &AbilityManagerStub::SetSessionManagerServiceInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UPDATE_SESSION_INFO)] =
-        &AbilityManagerStub::UpdateSessionInfoBySCBInner;
+    return ERR_CODE_NOT_EXIST;
 }
 
-void AbilityManagerStub::FourthStepInit()
+int AbilityManagerStub::OnRemoteRequestInnerSixteenth(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
 {
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_STATUS_BAR_DELEGATE)] =
-        &AbilityManagerStub::RegisterStatusBarDelegateInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::KILL_PROCESS_WITH_PREPARE_TERMINATE)] =
-        &AbilityManagerStub::KillProcessWithPrepareTerminateInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_AUTO_STARTUP_SYSTEM_CALLBACK)] =
-        &AbilityManagerStub::RegisterAutoStartupSystemCallbackInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_AUTO_STARTUP_SYSTEM_CALLBACK)] =
-        &AbilityManagerStub::UnregisterAutoStartupSystemCallbackInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_APPLICATION_AUTO_STARTUP)] =
-        &AbilityManagerStub::SetApplicationAutoStartupInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CANCEL_APPLICATION_AUTO_STARTUP)] =
-        &AbilityManagerStub::CancelApplicationAutoStartupInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::QUERY_ALL_AUTO_STARTUP_APPLICATION)] =
-        &AbilityManagerStub::QueryAllAutoStartupApplicationsInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_CONNECTION_DATA)] =
-        &AbilityManagerStub::GetConnectionDataInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_APPLICATION_AUTO_STARTUP_BY_EDM)] =
-        &AbilityManagerStub::SetApplicationAutoStartupByEDMInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CANCEL_APPLICATION_AUTO_STARTUP_BY_EDM)] =
-        &AbilityManagerStub::CancelApplicationAutoStartupByEDMInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_FOR_RESULT_AS_CALLER)] =
-        &AbilityManagerStub::StartAbilityForResultAsCallerInner;
-    requestFuncMap_[static_cast<uint32_t>(
-        AbilityManagerInterfaceCode::START_ABILITY_FOR_RESULT_AS_CALLER_FOR_OPTIONS)] =
-        &AbilityManagerStub::StartAbilityForResultAsCallerForOptionsInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_FOREGROUND_UI_ABILITIES)] =
-        &AbilityManagerStub::GetForegroundUIAbilitiesInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RESTART_APP)] =
-        &AbilityManagerStub::RestartAppInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::OPEN_ATOMIC_SERVICE)] =
-        &AbilityManagerStub::OpenAtomicServiceInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_EMBEDDED_OPEN_ALLOWED)] =
-        &AbilityManagerStub::IsEmbeddedOpenAllowedInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUEST_ASSERT_FAULT_DIALOG)] =
-        &AbilityManagerStub::RequestAssertFaultDialogInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_DEBUG_ASSERT_RESULT)] =
-        &AbilityManagerStub::NotifyDebugAssertResultInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CHANGE_ABILITY_VISIBILITY)] =
-        &AbilityManagerStub::ChangeAbilityVisibilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CHANGE_UI_ABILITY_VISIBILITY_BY_SCB)] =
-        &AbilityManagerStub::ChangeUIAbilityVisibilityBySCBInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_SHORTCUT)] =
-        &AbilityManagerStub::StartShortcutInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_RESIDENT_PROCESS_ENABLE)] =
-        &AbilityManagerStub::SetResidentProcessEnableInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ABILITY_STATE_BY_PERSISTENT_ID)] =
-        &AbilityManagerStub::GetAbilityStateByPersistentIdInner;
+    AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
+#ifdef SUPPORT_GRAPHICS
+    if (interfaceCode == AbilityManagerInterfaceCode::COMPLETE_FIRST_FRAME_DRAWING_BY_SCB) {
+        return CompleteFirstFrameDrawingBySCBInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY_NON_MODAL) {
+        return StartUIExtensionAbilityNonModalInner(data, reply);
+    }
+#endif
+    if (interfaceCode == AbilityManagerInterfaceCode::REQUEST_DIALOG_SERVICE) {
+        return HandleRequestDialogService(data, reply);
+    };
+    if (interfaceCode == AbilityManagerInterfaceCode::REPORT_DRAWN_COMPLETED) {
+        return HandleReportDrawnCompleted(data, reply);
+    };
+    if (interfaceCode == AbilityManagerInterfaceCode::QUERY_MISSION_VAILD) {
+        return IsValidMissionIdsInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::VERIFY_PERMISSION) {
+        return VerifyPermissionInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_UI_ABILITY_BY_SCB) {
+        return StartUIAbilityBySCBInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::SET_ROOT_SCENE_SESSION) {
+        return SetRootSceneSessionInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::CALL_ABILITY_BY_SCB) {
+        return CallUIAbilityBySCBInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_SPECIFIED_ABILITY_BY_SCB) {
+        return StartSpecifiedAbilityBySCBInner(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
 }
 
-void AbilityManagerStub::FifthStepInit()
+int AbilityManagerStub::OnRemoteRequestInnerSeventeenth(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
 {
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TRANSFER_ABILITY_RESULT)] =
-        &AbilityManagerStub::TransferAbilityResultForExtensionInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_FROZEN_PROCESS_BY_RSS)] =
-        &AbilityManagerStub::NotifyFrozenProcessByRSSInner;
+    AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
+    if (interfaceCode == AbilityManagerInterfaceCode::NOTIFY_SAVE_AS_RESULT) {
+        return NotifySaveAsResultInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::SET_SESSIONMANAGERSERVICE) {
+        return SetSessionManagerServiceInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::UPDATE_SESSION_INFO) {
+        return UpdateSessionInfoBySCBInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::REGISTER_STATUS_BAR_DELEGATE) {
+        return RegisterStatusBarDelegateInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::KILL_PROCESS_WITH_PREPARE_TERMINATE) {
+        return KillProcessWithPrepareTerminateInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::REGISTER_AUTO_STARTUP_SYSTEM_CALLBACK) {
+        return RegisterAutoStartupSystemCallbackInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::UNREGISTER_AUTO_STARTUP_SYSTEM_CALLBACK) {
+        return UnregisterAutoStartupSystemCallbackInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::SET_APPLICATION_AUTO_STARTUP) {
+        return SetApplicationAutoStartupInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::CANCEL_APPLICATION_AUTO_STARTUP) {
+        return CancelApplicationAutoStartupInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::QUERY_ALL_AUTO_STARTUP_APPLICATION) {
+        return QueryAllAutoStartupApplicationsInner(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
+}
+
+int AbilityManagerStub::OnRemoteRequestInnerEighteenth(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_CONNECTION_DATA) {
+        return GetConnectionDataInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::SET_APPLICATION_AUTO_STARTUP_BY_EDM) {
+        return SetApplicationAutoStartupByEDMInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::CANCEL_APPLICATION_AUTO_STARTUP_BY_EDM) {
+        return CancelApplicationAutoStartupByEDMInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_ABILITY_FOR_RESULT_AS_CALLER) {
+        return StartAbilityForResultAsCallerInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_ABILITY_FOR_RESULT_AS_CALLER_FOR_OPTIONS) {
+        return StartAbilityForResultAsCallerForOptionsInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_FOREGROUND_UI_ABILITIES) {
+        return GetForegroundUIAbilitiesInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::RESTART_APP) {
+        return RestartAppInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::OPEN_ATOMIC_SERVICE) {
+        return OpenAtomicServiceInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::IS_EMBEDDED_OPEN_ALLOWED) {
+        return IsEmbeddedOpenAllowedInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::REQUEST_ASSERT_FAULT_DIALOG) {
+        return RequestAssertFaultDialogInner(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
+}
+
+
+int AbilityManagerStub::OnRemoteRequestInnerNineteenth(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
+    if (interfaceCode == AbilityManagerInterfaceCode::NOTIFY_DEBUG_ASSERT_RESULT) {
+        return NotifyDebugAssertResultInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::CHANGE_ABILITY_VISIBILITY) {
+        return ChangeAbilityVisibilityInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::CHANGE_UI_ABILITY_VISIBILITY_BY_SCB) {
+        return ChangeUIAbilityVisibilityBySCBInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_SHORTCUT) {
+        return StartShortcutInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::SET_RESIDENT_PROCESS_ENABLE) {
+        return SetResidentProcessEnableInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_ABILITY_STATE_BY_PERSISTENT_ID) {
+        return GetAbilityStateByPersistentIdInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::TRANSFER_ABILITY_RESULT) {
+        return TransferAbilityResultForExtensionInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::NOTIFY_FROZEN_PROCESS_BY_RSS) {
+        return NotifyFrozenProcessByRSSInner(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
+}
+
+int AbilityManagerStub::OnRemoteRequestInner(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    int retCode = ERR_OK;
+    retCode = HandleOnRemoteRequestInnerFirst(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = HandleOnRemoteRequestInnerSecond(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    TAG_LOGW(AAFwkTag::ABILITYMGR, "default case, need check.");
+    return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+}
+
+int AbilityManagerStub::HandleOnRemoteRequestInnerFirst(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    int retCode = ERR_OK;
+    retCode = OnRemoteRequestInnerFirst(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerSecond(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerThird(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerFourth(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerFifth(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerSixth(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerSeventh(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerEighth(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerNinth(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerTenth(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    return ERR_CODE_NOT_EXIST;
+}
+
+int AbilityManagerStub::HandleOnRemoteRequestInnerSecond(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    int retCode = ERR_OK;
+    retCode = OnRemoteRequestInnerEleventh(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerTwelveth(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerThirteenth(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerFourteenth(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerFifteenth(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerSixteenth(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerSeventeenth(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerEighteenth(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerNineteenth(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    return ERR_CODE_NOT_EXIST;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -461,15 +859,7 @@ int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Mess
         return ERR_INVALID_STATE;
     }
 
-    auto itFunc = requestFuncMap_.find(code);
-    if (itFunc != requestFuncMap_.end()) {
-        auto requestFunc = itFunc->second;
-        if (requestFunc != nullptr) {
-            return (this->*requestFunc)(data, reply);
-        }
-    }
-    TAG_LOGW(AAFwkTag::ABILITYMGR, "default case, need check.");
-    return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+    return OnRemoteRequestInner(code, data, reply, option);
 }
 
 int AbilityManagerStub::GetTopAbilityInner(MessageParcel &data, MessageParcel &reply)
