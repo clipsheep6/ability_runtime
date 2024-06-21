@@ -1422,6 +1422,7 @@ napi_value JsApplicationContextUtils::OnGetApplicationContext(napi_env env, Napi
             [](napi_env, void *data, void *) {
               TAG_LOGD(AAFwkTag::APPKIT, "Finalizer for weak_ptr application context is called");
               delete static_cast<std::weak_ptr<ApplicationContext> *>(data);
+              data = nullptr;
             },
             nullptr, nullptr);
     }
