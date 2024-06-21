@@ -3091,7 +3091,7 @@ void AppMgrServiceInner::OnRemoteDied(const wptr<IRemoteObject> &remote, bool is
         TAG_LOGI(AAFwkTag::APPMGR, "app record is not exist.");
         return;
     }
-
+    AppExecFwk::AppfreezeManager::GetInstance()->RemoveDeathProcess(appRecord->GetBundleName());
     std::vector<sptr<IRemoteObject>> abilityTokens;
     for (const auto &token : appRecord->GetAbilities()) {
         abilityTokens.emplace_back(token.first);
@@ -5304,6 +5304,21 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
         return AAFwk::CHECK_PERMISSION_FAILED;
     }
     return ERR_OK;
+}
+
+bool AppMgrServiceInner::SetAppFreezeFilter(int32_t pid)
+{
+    int32_t callingPid = IPCSkeleton::GetCallingPid();
+    if (callingPid == pid && AppExecFwk::AppfreezeManager::GetInstance()->IsValidFreezeFilter(pid)) {
+        bool cancelResult = AppExecFwk::AppfreezeManager::GetInstance()->CancelAppFreezeDetect(pid);
+        auto resetAppfreezeTask = [pid, innerService = shared_from_this()]() {
+            AppExecFwk::AppfreezeManager::GetInstance()->ResetAppfreezeState(pid);
+        };
+        constexpr int32_t waitTime = 120000; // wait 2min
+        taskHandler_->SubmitTask(resetAppfreezeTask, "resetAppfreezeTask", waitTime);
+        return cancelResult;
+    }
+    return false;
 }
 
 FaultData AppMgrServiceInner::ConvertDataTypes(const AppFaultDataBySA &faultData)

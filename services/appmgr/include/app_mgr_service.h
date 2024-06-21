@@ -406,6 +406,14 @@ public:
     int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData) override;
 
     /**
+     * Set Appfreeze Detect Filter
+     *
+     * @param pid the process pid.
+     * @return Returns true on success, others on failure.
+     */
+    bool SetAppFreezeFilter(int32_t pid) override;
+
+    /**
      * get memorySize by pid.
      *
      * @param pid process id.
