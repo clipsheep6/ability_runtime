@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string SUPPORT_SCREEN_UNLOCK_STARTUP = "persist.sys.ability.support.screen_unlock_startup";
+constexpr const char* SUPPORT_SCREEN_UNLOCK_STARTUP = "persist.sys.ability.support.screen_unlock_startup";
 }
 ErrCode ScreenUnlockInterceptor::DoProcess(AbilityInterceptorParam param)
 {
