@@ -61,7 +61,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->OnCallConnectDied(callRecord);
     intParam = AmsConfigurationParameter::GetInstance().GetMaxRestartNum(true);
     abilityms->KillProcess(stringParam);
-    abilityms->ClearUpApplicationData(stringParam);
     abilityms->UninstallApp(stringParam, int32Param);
     abilityms->GetBundleManager();
     abilityms->PreLoadAppDataAbilities(stringParam, int32Param);

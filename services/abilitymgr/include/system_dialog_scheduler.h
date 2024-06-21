@@ -100,9 +100,6 @@ private:
     void DialogPortraitPositionAdaptive(
         DialogPosition &position, float densityPixels, int lineNums) const;
     void DialogPositionAdaptive(DialogPosition &position, int lineNums) const;
-
-    void GetAppNameFromResource(int32_t labelId,
-        const std::string &bundleName, int32_t userId, std::string &appName);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

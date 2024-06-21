@@ -22,6 +22,8 @@
 
 namespace OHOS {
 namespace AAFwk {
+constexpr const int32_t DEFAULT_MAX_EXT_PER_PROC = 10;
+constexpr const int32_t DEFAULT_MAX_EXT_PER_DEV = 100;
 template<typename T>
 class DeviceConfiguration {
 public:
@@ -48,6 +50,9 @@ public:
     bool EnableMoveUIAbilityToBackgroundApi();
     bool IsLaunchEmbededUIAbility();
     bool IsSupportNativeChildProcess();
+    int32_t GetLimitMaximumExtensionsPerProc();
+    int32_t GetLimitMaximumExtensionsPerDevice();
+    std::string GetCacheExtensionTypeList();
 
 private:
     AppUtils();
@@ -67,6 +72,8 @@ private:
     volatile DeviceConfiguration<bool> enableMoveUIAbilityToBackgroundApi_ = {false, true};
     volatile DeviceConfiguration<bool> isLaunchEmbededUIAbility_ = {false, false};
     volatile DeviceConfiguration<bool> isSupportNativeChildProcess_ = {false, false};
+    volatile DeviceConfiguration<int32_t> limitMaximumExtensionsPerProc_ = {false, DEFAULT_MAX_EXT_PER_PROC};
+    volatile DeviceConfiguration<int32_t> limitMaximumExtensionsPerDevice_ = {false, DEFAULT_MAX_EXT_PER_DEV};
     DISALLOW_COPY_AND_MOVE(AppUtils);
 };
 }  // namespace AAFwk

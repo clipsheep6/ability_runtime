@@ -128,7 +128,7 @@ public:
 
     MOCK_METHOD2(UpdateApplicationInfoInstalled, int(const std::string&, const int uid));
 
-    MOCK_METHOD1(KillApplication, int(const std::string& appName));
+    MOCK_METHOD2(KillApplication, int(const std::string& appName, const bool clearPageStack));
     MOCK_METHOD2(KillApplicationByUid, int(const std::string&, const int uid));
     MOCK_METHOD0(IsFinalAppProcess, bool());
 
@@ -136,7 +136,7 @@ public:
     {
         return nullptr;
     };
-    virtual int32_t ClearUpApplicationData(const std::string& appName) override
+    virtual int32_t ClearUpApplicationData(const std::string& appName, int32_t appCloneIndex) override
     {
         return 0;
     }

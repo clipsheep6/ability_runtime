@@ -819,22 +819,6 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_KillProcessInner_001, TestSi
 
 /*
  * Feature: AbilityManagerService
- * Function: ClearUpApplicationDataInner
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService ClearUpApplicationDataInner
- * EnvConditions: NA
- * CaseDescription: Verify the function ClearUpApplicationDataInner is normal flow.
- */
-HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_ClearUpApplicationDataInner_001, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    auto res = stub_->ClearUpApplicationDataInner(data, reply);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: UninstallAppInner
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService UninstallAppInner

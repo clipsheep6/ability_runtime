@@ -23,6 +23,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "ability_manager_client.h"
 #include "constants.h"
 #include "ability_delegator.h"
 #include "ability_delegator_registry.h"
@@ -673,6 +674,23 @@ void MainThread::ScheduleProcessSecurityExit()
     if (!result) {
         TAG_LOGE(AAFwkTag::APPKIT, "post task failed");
     }
+}
+
+/**
+ *
+ * @brief Schedule the application clear recovery page stack.
+ *
+ */
+void MainThread::ScheduleClearPageStack()
+{
+    TAG_LOGI(AAFwkTag::APPKIT, "ScheduleClearPageStack called");
+    if (applicationInfo_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "applicationInfo_ is nullptr");
+        return;
+    }
+
+    auto bundleName = applicationInfo_->bundleName;
+    AppRecovery::GetInstance().ClearPageStack(bundleName);
 }
 
 /**
@@ -2184,7 +2202,6 @@ void MainThread::HandleForegroundApplication()
 
     if (!applicationImpl_->PerformForeground()) {
         TAG_LOGE(AAFwkTag::APPKIT, "applicationImpl_->PerformForeground() failed");
-        return;
     }
 
     // Start accessing PurgeableMem if the event of foreground is successful.
@@ -2213,7 +2230,6 @@ void MainThread::HandleBackgroundApplication()
 
     if (!applicationImpl_->PerformBackground()) {
         TAG_LOGE(AAFwkTag::APPKIT, "applicationImpl_->PerformBackground() failed");
-        return;
     }
 
     // End accessing PurgeableMem if the event of background is successful.

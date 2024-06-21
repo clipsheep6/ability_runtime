@@ -62,7 +62,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     // fuzz for continue state
     OHOS::AAFwk::ContinueState state = OHOS::AAFwk::ContinueState::CONTINUESTATE_ACTIVE;
-    if (abilityMgr->SetMissionContinueState(token, state) != 0) {
+    if (abilityMgr->SetMissionContinueState(token, state, token) != 0) {
         return false;
     }
 

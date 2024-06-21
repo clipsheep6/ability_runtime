@@ -230,7 +230,7 @@ public:
      *
      * @param bundleName.
      */
-    int KillApplication(const std::string &bundleName);
+    int KillApplication(const std::string &bundleName, const bool clearPageStack = true);
 
     /**
      * kill the application by uid
@@ -249,13 +249,6 @@ public:
      * @return 0 if success.
      */
     int UpdateApplicationInfoInstalled(const std::string &bundleName, const int32_t uid);
-
-    /**
-     * clear the application data
-     *
-     * @param bundleName.
-     */
-    int ClearUpApplicationData(const std::string &bundleName, const int32_t userId = -1);
 
     void AttachTimeOut(const sptr<IRemoteObject> &token);
 

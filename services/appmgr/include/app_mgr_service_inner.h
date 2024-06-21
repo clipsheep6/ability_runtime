@@ -257,7 +257,7 @@ public:
      *
      * @return ERR_OK, return back success, others fail.
      */
-    virtual int32_t KillApplication(const std::string &bundleName);
+    virtual int32_t KillApplication(const std::string &bundleName, const bool clearPageStack = true);
 
     /**
      * KillApplicationByUid, call KillApplicationByUid() through proxy object, kill the application.
@@ -268,17 +268,19 @@ public:
      */
     virtual int32_t KillApplicationByUid(const std::string &bundleName, const int uid);
 
-    virtual int32_t KillApplicationSelf();
+    virtual int32_t KillApplicationSelf(const bool clearPageStack = true);
 
     /**
      * KillApplicationByUserId, kill the application by user ID.
      *
      * @param bundleName, bundle name in Application record.
+     * @param appCloneIndex the app clone id.
      * @param userId, user ID.
      *
      * @return ERR_OK, return back success, others fail.
      */
-    virtual int32_t KillApplicationByUserId(const std::string &bundleName, const int userId);
+    virtual int32_t KillApplicationByUserId(const std::string &bundleName, int32_t appCloneIndex, int userId,
+        const bool clearPageStack = true);
 
     /**
      * ClearUpApplicationData, clear the application data.
@@ -286,11 +288,12 @@ public:
      * @param bundleName, bundle name in Application record.
      * @param callerUid, app uid in Application record.
      * @param callerPid, app pid in Application record.
-     *
+     * @param appCloneIndex the app clone id.
+     * @param userId the user id
      * @return ERR_OK, return back success, others fail.
      */
     virtual int32_t ClearUpApplicationData(const std::string &bundleName,
-        const int32_t callerUid, const pid_t callerPid,  const int32_t userId = -1);
+        int32_t callerUid, pid_t callerPid, int32_t appCloneIndex, int32_t userId = -1);
 
     /**
      * ClearUpApplicationDataBySelf, clear the application data.
@@ -1232,11 +1235,13 @@ private:
      * KillApplicationByUserId, kill the application by user ID.
      *
      * @param bundleName, bundle name in Application record.
+     * @param appCloneIndex the app clone id.
      * @param userId, user ID.
      *
      * @return ERR_OK, return back success, others fail.
      */
-    int32_t KillApplicationByUserIdLocked(const std::string &bundleName, const int userId);
+    int32_t KillApplicationByUserIdLocked(const std::string &bundleName, int32_t appCloneIndex, int32_t userId,
+        const bool clearPageStack = true);
 
     /**
      * WaitForRemoteProcessExit, Wait for the process to exit normally.
@@ -1358,17 +1363,19 @@ private:
      * @param bundleName, bundle name in Application record.
      * @param uid, app uid in Application record.
      * @param pid, app pid in Application record.
+     * @param appCloneIndex the app clone id.
      * @param userId, userId.
      * @param isBySelf, clear data by application self.
      *
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t ClearUpApplicationDataByUserId(const std::string &bundleName,
-        int32_t callerUid, pid_t callerPid, const int userId, bool isBySelf = false);
+        int32_t callerUid, pid_t callerPid, int32_t appCloneIndex, int32_t userId, bool isBySelf = false);
 
     bool CheckGetRunningInfoPermission() const;
 
-    int32_t KillApplicationByBundleName(const std::string &bundleName);
+    int32_t KillApplicationByBundleName(
+        const std::string &bundleName, const bool clearPageStack = true);
 
     bool SendProcessStartEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
 

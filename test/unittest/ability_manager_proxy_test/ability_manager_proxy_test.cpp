@@ -1034,25 +1034,6 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ForceTimeoutForTest_001, T
 
 /*
  * Feature: AbilityManagerService
- * Function: ClearUpApplicationData
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService ClearUpApplicationData
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of ClearUpApplicationData
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ClearUpApplicationData_001, TestSize.Level1)
-{
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-    std::string bundleName = "";
-    auto res = proxy_->ClearUpApplicationData(bundleName);
-    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::CLEAR_UP_APPLICATION_DATA), mock_->code_);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: UninstallApp
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService UninstallApp
