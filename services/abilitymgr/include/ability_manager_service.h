@@ -1767,7 +1767,7 @@ private:
      * start highest priority ability.
      *
      */
-    void StartHighestPriorityAbility(int32_t userId, bool isBoot, sptr<IUserCallback> callback);
+    void StartHighestPriorityAbility(int32_t userId, bool isBoot);
     /**
      * connet bms.
      *
