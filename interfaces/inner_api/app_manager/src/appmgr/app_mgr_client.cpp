@@ -284,13 +284,13 @@ AppMgrResultCode AppMgrClient::UpdateApplicationInfoInstalled(const std::string 
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
 }
 
-AppMgrResultCode AppMgrClient::KillApplication(const std::string &bundleName)
+AppMgrResultCode AppMgrClient::KillApplication(const std::string &bundleName, bool const clearPageStack)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service != nullptr) {
         sptr<IAmsMgr> amsService = service->GetAmsMgr();
         if (amsService != nullptr) {
-            int32_t result = amsService->KillApplication(bundleName);
+            int32_t result = amsService->KillApplication(bundleName, clearPageStack);
             if (result == ERR_OK) {
                 return AppMgrResultCode::RESULT_OK;
             }
@@ -316,13 +316,13 @@ AppMgrResultCode AppMgrClient::KillApplicationByUid(const std::string &bundleNam
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
 }
 
-AppMgrResultCode AppMgrClient::KillApplicationSelf()
+AppMgrResultCode AppMgrClient::KillApplicationSelf(const bool clearPageStack)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service != nullptr) {
         sptr<IAmsMgr> amsService = service->GetAmsMgr();
         if (amsService != nullptr) {
-            int32_t result = amsService->KillApplicationSelf();
+            int32_t result = amsService->KillApplicationSelf(clearPageStack);
             if (result == ERR_OK) {
                 return AppMgrResultCode::RESULT_OK;
             }
@@ -332,11 +332,12 @@ AppMgrResultCode AppMgrClient::KillApplicationSelf()
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
 }
 
-AppMgrResultCode AppMgrClient::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
+AppMgrResultCode AppMgrClient::ClearUpApplicationData(const std::string &bundleName, int32_t appCloneIndex,
+    int32_t userId)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service != nullptr) {
-        int32_t result = service->ClearUpApplicationData(bundleName, userId);
+        int32_t result = service->ClearUpApplicationData(bundleName, appCloneIndex, userId);
         if (result == ERR_OK) {
             return AppMgrResultCode::RESULT_OK;
         }

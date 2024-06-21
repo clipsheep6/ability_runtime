@@ -87,10 +87,10 @@ void AutoFillExtensionCallback::HandleReloadInModal(const AAFwk::WantParams &wan
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     isReloadInModal_ = true;
-    AutoFillManager::GetInstance().RemoveAutoFillExtensionProxy(uiContent_);
+    AutoFillManager::GetInstance().RemoveAutoFillExtensionProxy(instanceId_);
     auto customDataString(wantParams.GetStringParam(WANT_PARAMS_CUSTOM_DATA_KEY));
     AutoFill::ReloadInModalRequest request = {
-        .uiContent = uiContent_,
+        .instanceId = instanceId_,
         .isSmartAutoFill = isSmartAutoFill_,
         .nodeId = sessionId_,
         .customData = customDataString,
@@ -103,13 +103,14 @@ void AutoFillExtensionCallback::HandleReloadInModal(const AAFwk::WantParams &wan
         SendAutoFillFailed(resultCode);
     }
 
-    if (uiContent_ == nullptr) {
+    auto uiContent = Ace::UIContent::GetUIContent(instanceId_);
+    if (uiContent == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UI content is nullptr.");
         return;
     }
 
     if (request.autoFillWindowType == AutoFill::AutoFillWindowType::POPUP_WINDOW) {
-        uiContent_->DestroyCustomPopupUIExtension(request.nodeId);
+        uiContent->DestroyCustomPopupUIExtension(request.nodeId);
     } else {
         TAG_LOGW(AAFwkTag::AUTOFILLMGR, "Window type is not popup, the window can not be destroyed.");
     }
@@ -141,7 +142,7 @@ void AutoFillExtensionCallback::OnReceive(const AAFwk::WantParams &wantParams)
         popupConfig.isFocusable = popupConfigToConvert.isFocusable;
         popupConfig.isShowInSubWindow = popupConfigToConvert.isShowInSubWindow;
         popupConfig.isEnableArrow = popupConfigToConvert.isEnableArrow;
-        auto updateResult = AutoFillManager::GetInstance().UpdateCustomPopupConfig(uiContent_, popupConfig);
+        auto updateResult = AutoFillManager::GetInstance().UpdateCustomPopupConfig(instanceId_, popupConfig);
         if (updateResult != AutoFill::AUTO_FILL_SUCCESS) {
             TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Update custom popup config failed.");
         }
@@ -154,11 +155,11 @@ void AutoFillExtensionCallback::OnReceive(const AAFwk::WantParams &wantParams)
 void AutoFillExtensionCallback::onRemoteReady(const std::shared_ptr<Ace::ModalUIExtensionProxy> &modalUIExtensionProxy)
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
-    if (modalUIExtensionProxy == nullptr || uiContent_ == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Proxy or uiContent_ is nullptr.");
+    if (modalUIExtensionProxy == nullptr) {
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Proxy is nullptr.");
         return;
     }
-    AutoFillManager::GetInstance().SetAutoFillExtensionProxy(uiContent_, modalUIExtensionProxy);
+    AutoFillManager::GetInstance().SetAutoFillExtensionProxy(instanceId_, modalUIExtensionProxy);
 }
 #endif // SUPPORT_GRAPHICS
 void AutoFillExtensionCallback::onDestroy()
@@ -200,14 +201,14 @@ void AutoFillExtensionCallback::SetSessionId(int32_t sessionId)
     sessionId_= sessionId;
 }
 #ifdef SUPPORT_GRAPHICS
-void AutoFillExtensionCallback::SetUIContent(Ace::UIContent *uiContent)
+void AutoFillExtensionCallback::SetInstanceId(int32_t instanceId)
 {
-    uiContent_ = uiContent;
+    instanceId_ = instanceId;
 }
 
-Ace::UIContent *AutoFillExtensionCallback::GetUIContent()
+int32_t AutoFillExtensionCallback::GetInstanceId()
 {
-    return uiContent_;
+    return instanceId_;
 }
 #endif // SUPPORT_GRAPHICS
 void AutoFillExtensionCallback::SetEventId(uint32_t eventId)
@@ -288,18 +289,19 @@ void AutoFillExtensionCallback::SendAutoFillFailed(int32_t errCode, const AAFwk:
 #ifdef SUPPORT_GRAPHICS
 void AutoFillExtensionCallback::CloseModalUIExtension()
 {
-    if (uiContent_ == nullptr) {
-        TAG_LOGD(AAFwkTag::AUTOFILLMGR, "uiContent_ is nullptr.");
+    auto uiContent = Ace::UIContent::GetUIContent(instanceId_);
+    if (uiContent == nullptr) {
+        TAG_LOGD(AAFwkTag::AUTOFILLMGR, "uiContent is nullptr.");
         return;
     }
 
     if (autoFillWindowType_ == AutoFill::AutoFillWindowType::POPUP_WINDOW) {
-        uiContent_->DestroyCustomPopupUIExtension(sessionId_);
+        uiContent->DestroyCustomPopupUIExtension(sessionId_);
     } else if (autoFillWindowType_ == AutoFill::AutoFillWindowType::MODAL_WINDOW) {
-        uiContent_->CloseModalUIExtension(sessionId_);
+        uiContent->CloseModalUIExtension(sessionId_);
     }
-    AutoFillManager::GetInstance().RemoveAutoFillExtensionProxy(uiContent_);
-    uiContent_ = nullptr;
+    AutoFillManager::GetInstance().RemoveAutoFillExtensionProxy(instanceId_);
+    instanceId_ = -1;
 }
 #endif // SUPPORT_GRAPHICS
 } // namespace AbilityRuntime

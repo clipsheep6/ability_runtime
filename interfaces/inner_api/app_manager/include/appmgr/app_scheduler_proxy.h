@@ -173,6 +173,8 @@ public:
      */
     virtual void ScheduleProcessSecurityExit() override;
 
+    virtual void ScheduleClearPageStack() override;
+
     virtual void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) override;
 
     virtual void ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName) override;

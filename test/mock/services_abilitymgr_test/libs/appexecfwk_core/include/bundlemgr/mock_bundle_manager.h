@@ -319,7 +319,7 @@ public:
         const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo) override;
     bool GetBundleInfo(
         const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
-    int GetUidByBundleName(const std::string& bundleName, const int userId) override;
+    int GetUidByBundleName(const std::string& bundleName, int32_t userId, int32_t appCloneIndex) override;
 
     bool CheckWantEntity(const AAFwk::Want&, AbilityInfo&);
 

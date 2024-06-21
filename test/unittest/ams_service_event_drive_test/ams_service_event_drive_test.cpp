@@ -195,7 +195,7 @@ HWTEST_F(AmsServiceEventDriveTest, EventDrive_006, TestSize.Level1)
     std::string bundleName = "bundleName";
     appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
     appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
-    int32_t res = appMgrService->ClearUpApplicationData(bundleName);
+    int32_t res = appMgrService->ClearUpApplicationData(bundleName, 0);
     EXPECT_EQ(res, OHOS::ERR_INVALID_OPERATION);
 
     TAG_LOGI(AAFwkTag::TEST, "ams_service_event_drive_test_006 end");
@@ -362,7 +362,7 @@ HWTEST_F(AmsServiceEventDriveTest, EventDrive_014, TestSize.Level1)
     appMgrService_->SetInnerService(innerService);
 
     std::string bundleName = "bundleName";
-    int32_t res = appMgrService_->ClearUpApplicationData(bundleName);
+    int32_t res = appMgrService_->ClearUpApplicationData(bundleName, 0);
     EXPECT_EQ(res, OHOS::ERR_INVALID_OPERATION);
 
     TAG_LOGI(AAFwkTag::TEST, "ams_service_event_drive_test_014 end");
@@ -531,7 +531,7 @@ HWTEST_F(AmsServiceEventDriveTest, EventDrive_022, TestSize.Level1)
     appMgrService_->OnStop();
 
     std::string bundleName = "bundleName";
-    int32_t res = appMgrService_->ClearUpApplicationData(bundleName);
+    int32_t res = appMgrService_->ClearUpApplicationData(bundleName, 0);
     EXPECT_EQ(res, OHOS::ERR_INVALID_OPERATION);
 
     TAG_LOGI(AAFwkTag::TEST, "ams_service_event_drive_test_022 end");

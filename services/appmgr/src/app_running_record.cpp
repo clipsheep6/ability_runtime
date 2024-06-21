@@ -644,8 +644,11 @@ void AppRunningRecord::ScheduleBackgroundRunning()
         TAG_LOGE(AAFwkTag::APPMGR, "APPManager move to background timeout");
         serviceInnerObj->ApplicationBackgrounded(recordId);
     };
-    PostTask("appbackground_" + std::to_string(recordId), AMSEventHandler::BACKGROUND_APPLICATION_TIMEOUT,
-        appbackgroundtask);
+    auto taskName = std::string("appbackground_") + std::to_string(recordId);
+    if (taskHandler_) {
+        taskHandler_->CancelTask(taskName);
+    }
+    PostTask(taskName, AMSEventHandler::BACKGROUND_APPLICATION_TIMEOUT, appbackgroundtask);
     if (appLifeCycleDeal_) {
         appLifeCycleDeal_->ScheduleBackgroundRunning();
     }
@@ -656,6 +659,13 @@ void AppRunningRecord::ScheduleProcessSecurityExit()
 {
     if (appLifeCycleDeal_) {
         appLifeCycleDeal_->ScheduleProcessSecurityExit();
+    }
+}
+
+void AppRunningRecord::ScheduleClearPageStack()
+{
+    if (appLifeCycleDeal_) {
+        appLifeCycleDeal_->ScheduleClearPageStack();
     }
 }
 

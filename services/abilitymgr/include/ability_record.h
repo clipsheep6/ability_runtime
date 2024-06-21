@@ -54,8 +54,6 @@ using Closure = std::function<void()>;
 
 class AbilityRecord;
 class ConnectionRecord;
-class Mission;
-class MissionList;
 class CallContainer;
 
 constexpr const char* ABILITY_TOKEN_NAME = "AbilityToken";
@@ -673,7 +671,7 @@ public:
      *
      */
     void RemoveSpecifiedWantParam(const std::string &key);
-    
+
     /**
      * get request code of the ability to start.
      *
@@ -892,11 +890,8 @@ public:
     void SetLastExitReason(const ExitReason &exitReason);
     void ContinueAbility(const std::string &deviceId, uint32_t versionCode);
     void NotifyContinuationResult(int32_t result);
-    std::shared_ptr<MissionList> GetOwnedMissionList() const;
 
-    void SetMission(const std::shared_ptr<Mission> &mission);
-    void SetMissionList(const std::shared_ptr<MissionList> &missionList);
-    std::shared_ptr<Mission> GetMission() const;
+    void SetMissionId(int32_t missionId);
     int32_t GetMissionId() const;
 
     void SetUid(int32_t uid);
@@ -1163,8 +1158,6 @@ private:
 
     int32_t uid_ = 0;
     int32_t pid_ = 0;
-    std::weak_ptr<MissionList> missionList_;
-    std::weak_ptr<Mission> mission_;
     int32_t missionId_ = -1;
     int32_t ownerMissionUserId_ = -1;
     bool isSwitchingPause_ = false;

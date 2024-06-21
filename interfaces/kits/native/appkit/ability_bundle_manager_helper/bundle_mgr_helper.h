@@ -78,7 +78,7 @@ public:
     void UpgradeAtomicService(const Want &want, int32_t userId);
     bool ImplicitQueryInfos(const Want &want, int32_t flags, int32_t userId, bool withDefault,
         std::vector<AbilityInfo> &abilityInfos, std::vector<ExtensionAbilityInfo> &extensionInfos);
-    bool CleanBundleDataFiles(const std::string &bundleName, const int32_t userId = Constants::DEFAULT_USERID);
+    bool CleanBundleDataFiles(const std::string &bundleName, int32_t userId, int32_t appCloneIndex);
     bool QueryDataGroupInfos(const std::string &bundleName, int32_t userId, std::vector<DataGroupInfo> &infos);
     bool GetBundleGidsByUid(const std::string &bundleName, const int32_t &uid, std::vector<int32_t> &gids);
     bool RegisterBundleEventCallback(const sptr<IBundleEventCallback> &bundleEventCallback);
@@ -86,7 +86,7 @@ public:
         const BundleFlag flag, std::vector<BundleInfo> &bundleInfos, int32_t userId = Constants::UNSPECIFIED_USERID);
     bool GetHapModuleInfo(const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo);
     bool QueryAppGalleryBundleName(std::string &bundleName);
-    ErrCode GetUidByBundleName(const std::string &bundleName, const int32_t userId);
+    ErrCode GetUidByBundleName(const std::string &bundleName, int32_t userId, int32_t appCloneIndex);
     ErrCode QueryExtensionAbilityInfosOnlyWithTypeName(const std::string &extensionTypeName,
         const uint32_t flag, const int32_t userId, std::vector<ExtensionAbilityInfo> &extensionInfos);
     sptr<IDefaultApp> GetDefaultAppProxy();

@@ -241,7 +241,7 @@ ohos_shared_library("ability_manager") {
     "eventhandler:libeventhandler",
     "form_fwk:form_manager",
     "graphic_2d:2d_graphics",
-    "graphic_3d:3dWidgetAdapterInterface",
+    "input:libmmi-client",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
