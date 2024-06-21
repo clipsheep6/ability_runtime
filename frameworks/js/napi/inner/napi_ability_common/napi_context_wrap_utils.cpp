@@ -60,7 +60,9 @@ static void SetShowOnLockScreenAsyncCompleteCB(napi_env env, napi_status status,
 #endif
     }
 
-    napi_value callback = nullptr, undefined = nullptr, callResult = nullptr;
+    napi_value callback = nullptr;
+    napi_value undefined = nullptr;
+    napi_value callResult = nullptr;
     napi_value result[ARGS_TWO] = {nullptr};
     napi_get_undefined(env, &undefined);
     result[PARAM0] = GetCallbackErrorValue(env, showOnLockScreenCB->cbBase.errCode);
@@ -689,7 +691,8 @@ static void GetAppInfoAsyncCompleteCB(napi_env env, napi_status status, void *da
     TAG_LOGI(AAFwkTag::JSNAPI, "NAPI_GetApplicationInfo, main event thread complete end.");
 }
 
-static napi_value GetApplicationInfoAsync(napi_env env, napi_value *args, const size_t argCallback, AppInfoCB *appInfoCB)
+static napi_value GetApplicationInfoAsync(napi_env env, napi_value *args, const size_t argCallback,
+    AppInfoCB *appInfoCB)
 {
     TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s, asyncCallback.", __func__);
     if (args == nullptr || appInfoCB == nullptr) {
@@ -923,7 +926,8 @@ static void GetProcessInfoAsyncCompleteCB(napi_env env, napi_status status, void
     TAG_LOGI(AAFwkTag::JSNAPI, "NAPI_GetProcessInfo, main event thread complete end.");
 }
 
-static napi_value GetProcessInfoAsync(napi_env env, napi_value *args, const size_t argCallback, ProcessInfoCB *processInfoCB)
+static napi_value GetProcessInfoAsync(napi_env env, napi_value *args, const size_t argCallback,
+    ProcessInfoCB *processInfoCB)
 {
     TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s, asyncCallback.", __func__);
     if (args == nullptr || processInfoCB == nullptr) {
@@ -1214,7 +1218,8 @@ static napi_value GetElementNamePromise(napi_env env, ElementNameCB *elementName
     return promise;
 }
 
-static napi_value GetElementNameAsync(napi_env env, napi_value *args, const size_t argCallback, ElementNameCB *elementNameCB)
+static napi_value GetElementNameAsync(napi_env env, napi_value *args, const size_t argCallback,
+    ElementNameCB *elementNameCB)
 {
     TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s, asyncCallback.", __func__);
     if (args == nullptr || elementNameCB == nullptr) {
@@ -1378,7 +1383,8 @@ static void GetProcessNamePromiseCompleteCB(napi_env env, napi_status status, vo
     TAG_LOGI(AAFwkTag::JSNAPI, "NAPI_GetProcessName, main event thread complete end.");
 }
 
-static napi_value GetProcessNameAsync(napi_env env, napi_value *args, const size_t argCallback, ProcessNameCB *processNameCB)
+static napi_value GetProcessNameAsync(napi_env env, napi_value *args, const size_t argCallback,
+    ProcessNameCB *processNameCB)
 {
     TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s, asyncCallback.", __func__);
     if (args == nullptr || processNameCB == nullptr) {

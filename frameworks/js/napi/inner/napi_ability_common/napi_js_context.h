@@ -29,7 +29,7 @@ struct CallAbilityPermissionParam {
 class NapiJsContext : public JsNapiCommon {
 public:
     NapiJsContext() = default;
-    virtual ~NapiJsContext() = default;
+    ~NapiJsContext() override = default;
 
     static void Finalizer(napi_env env, void *data, void *hint);
 
