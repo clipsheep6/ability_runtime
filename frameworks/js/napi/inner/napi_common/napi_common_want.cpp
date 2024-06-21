@@ -686,7 +686,6 @@ bool InnerSetWantParamsArrayObject(napi_env env, const std::string &key,
         for (size_t i = 0; i < size; i++) {
             AAFwk::WantParams wp;
             UnwrapWantParams(env, value[i], wp);
-            wp.DumpInfo(0);
             ao->Set(i, AAFwk::WantParamWrapper::Box(wp));
         }
         wantParams.SetParam(key, ao);
