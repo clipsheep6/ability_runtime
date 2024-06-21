@@ -214,21 +214,6 @@ bool AppFaultDataBySA::WriteStringsMarshalling(Parcel &parcel) const
 }
 bool AppFaultDataBySA::Marshalling(Parcel &parcel) const
 {
-    // if (!parcel.WriteString(errorObject.name)) {
-    //     TAG_LOGE(AAFwkTag::APPMGR, "Name [%{public}s] write string failed.", errorObject.name.c_str());
-    //     return false;
-    // }
-
-    // if (!parcel.WriteString(errorObject.message)) {
-    //     TAG_LOGE(AAFwkTag::APPMGR, "Message [%{public}s] write string failed.", errorObject.message.c_str());
-    //     return false;
-    // }
-    
-    // if (!parcel.WriteString(errorObject.stack)) {
-    //     TAG_LOGE(AAFwkTag::APPMGR, "Stack [%{public}s] write string failed.", errorObject.stack.c_str());
-    //     return false;
-    // }
-
     if (!WriteStringsMarshalling(parcel)) {
         return false;
     }

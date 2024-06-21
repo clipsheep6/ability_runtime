@@ -189,7 +189,7 @@ std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
     TranslateBySourceMapRes(res, openBrace, closeBrace, ans, i);
     if (ans.empty()) {
         return (NOT_FOUNDMAP + stackStr);
-    }    
+    }
     if (ans.empty()) {
         return (NOT_FOUNDMAP + stackStr);
     }
