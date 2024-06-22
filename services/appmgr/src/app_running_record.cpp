@@ -2325,5 +2325,15 @@ bool AppRunningRecord::CancelTask(std::string msg)
     }
     return taskHandler_->CancelTask(msg);
 }
+
+void AppRunningRecord::SetAttachedToStatusBar(bool isAttached)
+{
+    isAttachedToStatusBar = isAttached;
+}
+
+bool AppRunningRecord::IsAttachedToStatusBar()
+{
+    return isAttachedToStatusBar;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

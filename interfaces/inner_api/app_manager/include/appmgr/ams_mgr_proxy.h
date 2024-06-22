@@ -276,6 +276,13 @@ public:
      */
     virtual bool IsMemorySizeSufficent() override;
 
+    /**
+     * Notifies that one ability is attached to status bar.
+     *
+     * @param token the token of the abilityRecord that is attached to status bar.
+     */
+    virtual void AttachedToStatusBar(const sptr<IRemoteObject> &token) override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     int32_t SendTransactCmd(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);

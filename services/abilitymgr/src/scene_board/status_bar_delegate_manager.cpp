@@ -83,6 +83,10 @@ int32_t StatusBarDelegateManager::DoProcessAttachment(std::shared_ptr<AbilityRec
         }
         TAG_LOGI(AAFwkTag::ABILITYMGR, "AttachPidToStatusBarItem success.");
     }
+    if (processOptions->processMode == ProcessMode::NEW_PROCESS_ATTACH_TO_STATUS_BAR_ITEM) {
+        IN_PROCESS_CALL_WITHOUT_RET(DelayedSingleton<AppScheduler>::GetInstance()->AttachedToStatusBar(
+            abilityRecord->GetToken()));
+    }
     return ERR_OK;
 }
 }  // namespace AAFwk

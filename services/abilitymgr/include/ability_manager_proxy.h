@@ -894,7 +894,7 @@ public:
         const std::shared_ptr<Media::PixelMap> &pixelMap) override;
 #endif // SUPPORT_SCREEN
     virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) override;
-    virtual void submitSaveRecoveryInfo(const sptr<IRemoteObject>& token) override;
+    virtual void SubmitSaveRecoveryInfo(const sptr<IRemoteObject>& token) override;
     virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason,
         const Want *want = nullptr) override;
 

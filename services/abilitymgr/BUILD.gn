@@ -162,6 +162,7 @@ ohos_shared_library("abilityms") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "time_service:time_client",
     "window_manager:session_manager_lite",
   ]
   public_external_deps = [ "background_task_mgr:bgtaskmgr_innerkits" ]

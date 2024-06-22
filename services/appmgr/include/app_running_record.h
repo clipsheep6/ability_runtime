@@ -793,6 +793,8 @@ public:
 
     bool SetSupportedProcessCache(bool isSupport);
     SupportProcessCacheState GetSupportProcessCacheState();
+    void SetAttachedToStatusBar(bool isAttached);
+    bool IsAttachedToStatusBar();
 
     void SetBrowserHost(sptr<IRemoteObject> browser);
     sptr<IRemoteObject> GetBrowserHost();
@@ -972,6 +974,7 @@ private:
     bool isGPU_ = false;
     pid_t gpuPid_ = 0;
     bool isStrictMode_ = false;
+    bool isAttachedToStatusBar = false;
 };
 
 }  // namespace AppExecFwk

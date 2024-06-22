@@ -307,6 +307,13 @@ public:
      */
     virtual bool IsMemorySizeSufficent() = 0;
 
+    /**
+     * Notifies that one ability is attached to status bar.
+     *
+     * @param token the token of the abilityRecord that is attached to status bar.
+     */
+    virtual void AttachedToStatusBar(const sptr<IRemoteObject> &token) {}
+
     enum class Message {
         LOAD_ABILITY = 0,
         TERMINATE_ABILITY,
@@ -351,6 +358,7 @@ public:
         IS_MEMORY_SIZE_SUFFICIENT,
         SET_KEEP_ALIVE_ENABLE_STATE,
         NOTIFY_APP_MGR_RECORD_EXIT_REASON,
+        ATTACHED_TO_STATUS_BAR,
     };
 };
 }  // namespace AppExecFwk

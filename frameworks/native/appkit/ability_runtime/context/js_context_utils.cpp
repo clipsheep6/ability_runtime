@@ -621,6 +621,7 @@ napi_value JsBaseContext::OnGetApplicationContext(napi_env env, NapiCallbackInfo
         [](napi_env, void *data, void *) {
             TAG_LOGD(AAFwkTag::APPKIT, "Finalizer for weak_ptr application context is called");
             delete static_cast<std::weak_ptr<ApplicationContext> *>(data);
+            data = nullptr;
         },
         nullptr, nullptr);
     napi_ref ref = nullptr;
@@ -706,6 +707,7 @@ napi_value AttachApplicationContext(napi_env env, void* value, void* hint)
         [](napi_env, void *data, void *) {
             TAG_LOGD(AAFwkTag::APPKIT, "Finalizer for weak_ptr application context is called");
             delete static_cast<std::weak_ptr<ApplicationContext> *>(data);
+            data = nullptr;
         },
         nullptr, nullptr);
     return contextObj;

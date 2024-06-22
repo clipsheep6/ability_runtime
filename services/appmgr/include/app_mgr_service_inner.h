@@ -1120,6 +1120,14 @@ public:
      * @return Returns ERR_OK is test ability, others is not test ability.
      */
     int32_t CheckCallingIsUserTestModeInner(const pid_t pid, bool &isUserTest);
+
+    /**
+     * Notifies that one ability is attached to status bar.
+     *
+     * @param token the token of the abilityRecord that is attached to status bar.
+     */
+    void AttachedToStatusBar(const sptr<IRemoteObject> &token);
+    void KillApplicationByRecord(const std::shared_ptr<AppRunningRecord> &appRecord);
 private:
 
     std::string FaultTypeToString(FaultDataType type);
@@ -1493,7 +1501,6 @@ private:
      */
     void NotifyAppStatusByCallerUid(const std::string &bundleName, const int32_t userId, const int32_t callerUid,
         const std::string &eventData);
-    void KillApplicationByRecord(const std::shared_ptr<AppRunningRecord> &appRecord);
     void SendHiSysEvent(const int32_t innerEventId, const int64_t eventId);
     int FinishUserTestLocked(
         const std::string &msg, const int64_t &resultCode, const std::shared_ptr<AppRunningRecord> &appRecord);

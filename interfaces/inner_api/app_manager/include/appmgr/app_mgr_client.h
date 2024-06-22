@@ -747,6 +747,14 @@ public:
      * @return Returns ERR_OK is test ability, others is not test ability.
      */
     int32_t CheckCallingIsUserTestMode(const pid_t pid, bool &isUserTest);
+
+    /**
+     * Notifies that one ability is attached to status bar.
+     *
+     * @param token the token of the abilityRecord that is attached to status bar.
+     * @return Returns RESULT_OK on success, others on failure.
+     */
+    virtual AppMgrResultCode AttachedToStatusBar(const sptr<IRemoteObject> &token);
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
     /**

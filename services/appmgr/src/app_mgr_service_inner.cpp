@@ -259,8 +259,8 @@ bool IsCjApplication(const BundleInfo &bundleInfo)
             TAG_LOGW(AAFwkTag::APPMGR, "HandleLaunchApplication find entry hap module info failed!");
             entryHapModuleInfo = bundleInfo.hapModuleInfos.back();
         }
-        if (!entryHapModuleInfo.abilityInfos.empty()) {
-            return IsCjAbility(entryHapModuleInfo.abilityInfos.front().srcEntrance);
+        if (entryHapModuleInfo.srcEntrance.length() > 0) {
+            return IsCjAbility(entryHapModuleInfo.srcEntrance);
         }
     }
     return false;
@@ -5291,19 +5291,19 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
             if (!AppExecFwk::AppfreezeManager::GetInstance()->IsHandleAppfreeze(bundleName) || record->IsDebugging()) {
                 return ERR_OK;
             }
-            auto timeoutNotifyApp = std::bind(&AppMgrServiceInner::TimeoutNotifyApp, this,
-                pid, uid, bundleName, transformedFaultData);
+            auto timeoutNotifyApp = [this, pid, uid, bundleName, transformedFaultData]() {
+                this->TimeoutNotifyApp(pid, uid, bundleName, transformedFaultData);
+            };
             taskHandler_->SubmitTask(timeoutNotifyApp, transformedFaultData.timeoutMarkers, timeout);
         }
         record->NotifyAppFault(transformedFaultData);
         TAG_LOGW(AAFwkTag::APPMGR, "FaultDataBySA is: name: %{public}s, faultType: %{public}s, uid: %{public}d,"
             "pid: %{public}d, bundleName: %{public}s", faultData.errorObject.name.c_str(),
             FaultTypeToString(faultData.faultType).c_str(), uid, pid, bundleName.c_str());
-    } else {
-        TAG_LOGD(AAFwkTag::APPMGR, "this is not called by SA.");
-        return AAFwk::CHECK_PERMISSION_FAILED;
+        return ERR_OK;
     }
-    return ERR_OK;
+    TAG_LOGD(AAFwkTag::APPMGR, "this is not called by SA.");
+    return AAFwk::CHECK_PERMISSION_FAILED;
 }
 
 FaultData AppMgrServiceInner::ConvertDataTypes(const AppFaultDataBySA &faultData)
@@ -6984,6 +6984,17 @@ bool AppMgrServiceInner::IsSceneBoardCall() {
         return callerBundleName == SCENE_BOARD_BUNDLE_NAME;
     }
     return false;
+}
+
+void AppMgrServiceInner::AttachedToStatusBar(const sptr<IRemoteObject> &token)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    auto appRecord = GetAppRunningRecordByAbilityToken(token);
+    if (appRecord == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "abilityRecord is nullptr");
+        return;
+    }
+    appRecord->SetAttachedToStatusBar(true);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

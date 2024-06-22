@@ -65,6 +65,8 @@ public:
     bool GetApplicationInfo(
         const std::string &appName, const ApplicationFlag flag, const int32_t userId, ApplicationInfo &appInfo);
     bool GetApplicationInfo(const std::string &appName, int32_t flags, int32_t userId, ApplicationInfo &appInfo);
+    bool GetApplicationInfoWithAppIndex(const std::string &appName, int32_t appIndex,
+        int32_t userId, ApplicationInfo &appInfo);
     ErrCode GetJsonProfile(ProfileType profileType, const std::string &bundleName,
         const std::string &moduleName, std::string &profile, int32_t userId = Constants::UNSPECIFIED_USERID);
     bool UnregisterBundleEventCallback(const sptr<IBundleEventCallback> &bundleEventCallback);

@@ -1166,7 +1166,7 @@ public:
      *
      * @param token Ability identify.
      */
-    void submitSaveRecoveryInfo(sptr<IRemoteObject> token);
+    void SubmitSaveRecoveryInfo(sptr<IRemoteObject> token);
 
     /**
      * @brief Schedule recovery ability.

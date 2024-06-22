@@ -1117,5 +1117,26 @@ int32_t AmsMgrProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
     }
     return ret;
 }
+
+void AmsMgrProxy::AttachedToStatusBar(const sptr<IRemoteObject> &token)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "start");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    if (!data.WriteRemoteObject(token)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write token");
+        return;
+    }
+    int32_t ret = SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::ATTACHED_TO_STATUS_BAR),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
+    }
+    TAG_LOGD(AAFwkTag::APPMGR, "end");
+}
 } // namespace AppExecFwk
 } // namespace OHOS

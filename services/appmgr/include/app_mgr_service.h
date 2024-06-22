@@ -698,15 +698,6 @@ private:
 
     bool GetDumpIpcKeyByOption(const std::string &option, DumpIpcKey &key);
 
-    using DumpFuncType = int (AppMgrService::*)(const std::vector<std::u16string>& args, std::string& result);
-    bool GetDumpFunc(const std::string &optionKey, DumpFuncType &func);
-
-    using DumpIpcAllFuncType = int (AppMgrService::*)(std::string& result);
-    DumpIpcAllFuncType GetDumpIpcAllFuncByKey(uint32_t key);
-
-    using DumpIpcFuncType = int (AppMgrService::*)(const int32_t pid, std::string& result);
-    DumpIpcFuncType GetDumpIpcFuncByKey(uint32_t key);
-
     DISALLOW_COPY_AND_MOVE(AppMgrService);
 };
 }  // namespace AppExecFwk

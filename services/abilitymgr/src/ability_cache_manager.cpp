@@ -17,9 +17,7 @@
 
 #include <algorithm>
 
-#include "hitrace_meter.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {

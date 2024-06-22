@@ -594,5 +594,12 @@ bool AppScheduler::IsMemorySizeSufficent() const
     }
     return appMgrClient_->IsMemorySizeSufficent();
 }
+
+void AppScheduler::AttachedToStatusBar(const sptr<IRemoteObject> &token)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called.");
+    CHECK_POINTER(appMgrClient_);
+    appMgrClient_->AttachedToStatusBar(token);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

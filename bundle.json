@@ -90,6 +90,7 @@
             "toolchain",
             "webview",
             "window_manager",
+            "time_service",
             "zlib"
   ],
           "third_party": [

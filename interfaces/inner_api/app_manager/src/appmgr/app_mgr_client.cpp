@@ -1194,5 +1194,18 @@ int32_t AppMgrClient::CheckCallingIsUserTestMode(const pid_t pid, bool &isUserTe
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
 }
 
+AppMgrResultCode AppMgrClient::AttachedToStatusBar(const sptr<IRemoteObject> &token)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service != nullptr) {
+        sptr<IAmsMgr> amsService = service->GetAmsMgr();
+        if (amsService != nullptr) {
+            amsService->AttachedToStatusBar(token);
+            return AppMgrResultCode::RESULT_OK;
+        }
+    }
+    TAG_LOGE(AAFwkTag::APPMGR, "Service is not connected.");
+    return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

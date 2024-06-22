@@ -974,6 +974,9 @@ void MainThread::HandleProcessSecurityExit()
         HandleCleanAbilityLocal(*iter);
     }
 
+    // in process cache state, there can be abilityStage with no abilities
+    application_->CleanEmptyAbilityStage();
+
     HandleTerminateApplicationLocal();
 }
 

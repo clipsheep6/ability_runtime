@@ -1714,7 +1714,7 @@ void AbilityManagerProxy::ScheduleRecoverAbility(const sptr<IRemoteObject>& toke
     return;
 }
 
-void AbilityManagerProxy::submitSaveRecoveryInfo(const sptr<IRemoteObject>& token)
+void AbilityManagerProxy::SubmitSaveRecoveryInfo(const sptr<IRemoteObject>& token)
 {
     int error;
     MessageParcel data;

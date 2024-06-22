@@ -18,6 +18,7 @@
 #include <atomic>
 #include <chrono>
 #include <csignal>
+#include <cstdint>
 #include <cstdlib>
 #include <fstream>
 #include <functional>
@@ -115,6 +116,7 @@
 #include "config_policy_utils.h"
 #include "running_multi_info.h"
 #include "utils/window_options_utils.h"
+#include "time_service_client.h"
 #ifdef SUPPORT_GRAPHICS
 #include "dialog_session_record.h"
 #include "application_anr_listener.h"
@@ -253,6 +255,7 @@ constexpr int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
 constexpr int32_t BOOTEVENT_COMPLETED_DELAY_TIME = 1000;
 constexpr int32_t SECOND_TO_MS = 1000;
 constexpr int32_t HOURS_TO_SECOND = 60 * 60;
+constexpr int32_t TIMER_TYPE = 4;
 constexpr int32_t BOOTEVENT_BOOT_ANIMATION_READY_SIZE = 6;
 constexpr const char* BUNDLE_NAME_KEY = "bundleName";
 constexpr const char* DM_PKG_NAME = "ohos.distributedhardware.devicemanager";
@@ -349,22 +352,51 @@ struct RecoveryInfo {
 
 std::list<RecoveryInfo> recoveryInfoQueue;
 
-void RecoveryTimer::Start(std::function<void()> task, int interval_ms)
+RecoveryTimer::RecoveryTimer()
 {
-    std::thread([this, interval_ms, task]() {
-        std::this_thread::sleep_for(std::chrono::milliseconds(interval_ms));
-        task();
-    }).detach();
+}
+
+RecoveryTimer::~RecoveryTimer()
+{
+}
+
+void RecoveryTimer::OnTrigger()
+{
+    TAG_LOGE(AAFwkTag::ABILITYMGR, "TIME_MODULE_SERVICE start.");
+    if (callBack_ != nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "TIME_MODULE_SERVICE callback.");
+        callBack_();
+    }
+}
+
+void RecoveryTimer::SetCallbackInfo(const std::function<void()> &callBack)
+{
+    callBack_ = callBack;
+}
+
+void RecoveryTimer::SetType(const int &_type)
+{
+    type = _type;
+}
+
+void RecoveryTimer::SetRepeat(bool _repeat)
+{
+    repeat = _repeat;
+}
+void RecoveryTimer::SetInterval(const uint64_t &_interval)
+{
+    interval = _interval;
+}
+void RecoveryTimer::SetWantAgent(std::shared_ptr<OHOS::AbilityRuntime::WantAgent::WantAgent> _wantAgent)
+{
+    wantAgent = _wantAgent;
 }
 
 AbilityManagerService::AbilityManagerService()
     : SystemAbility(ABILITY_MGR_SERVICE_ID, true),
       state_(ServiceRunningState::STATE_NOT_START),
       bundleMgrHelper_(nullptr)
-{
-    DumpFuncInit();
-    DumpSysFuncInit();
-}
+{}
 
 AbilityManagerService::~AbilityManagerService()
 {}
@@ -1036,7 +1068,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         return ShowPickerDialog(want, validUserId, callerToken);
     }
 #endif
-    result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId, false);
+    result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     std::string callerBundleName = abilityRecord ? abilityRecord->GetAbilityInfo().bundleName : "";
     bool selfFreeInstallEnable = (result == RESOLVE_ABILITY_ERR && want.GetElement().GetModuleName() != "" &&
@@ -1063,7 +1095,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
         int32_t ret = freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, false);
         if (ret == ERR_OK) {
-            result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId, false);
+            result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
         }
     }
 
@@ -1237,9 +1269,6 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
         return uiAbilityManager->NotifySCBToStartUIAbility(abilityRequest);
     }
-
-    SetDebugAppByWaitingDebugFlag(
-        want, abilityRequest.want, abilityRequest.appInfo.bundleName, abilityRequest.appInfo.debug);
 
     auto missionListManager = GetMissionListManagerByUserId(oriValidUserId);
     if (missionListManager == nullptr) {
@@ -2055,18 +2084,15 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bo
     return uiAbilityManager->StartUIAbility(abilityRequest, sessionInfo, isColdStart);
 }
 
-bool AbilityManagerService::CheckCallingTokenId(const std::string &bundleName, int32_t userId)
+bool AbilityManagerService::CheckCallingTokenId(const std::string &bundleName, int32_t userId, int32_t appIndex)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    auto bms = GetBundleManager();
-    if (bms == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "bms is invalid.");
-        return false;
-    }
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
+    CHECK_POINTER_AND_RETURN(bundleMgrHelper, false);
     auto validUserId = GetValidUserId(userId);
     AppExecFwk::ApplicationInfo appInfo;
-    IN_PROCESS_CALL_WITHOUT_RET(bms->GetApplicationInfo(bundleName,
-        AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, validUserId, appInfo));
+    IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->GetApplicationInfoWithAppIndex(bundleName,
+        appIndex, validUserId, appInfo));
     auto accessTokenId = IPCSkeleton::GetCallingTokenID();
     if (accessTokenId != appInfo.accessTokenId) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Permission verification failed");
@@ -3023,12 +3049,6 @@ void AbilityManagerService::StopSwitchUserDialog()
         TAG_LOGE(AAFwkTag::ABILITYMGR, "System dialog scheduler instance is nullptr.");
         return;
     }
-#endif // SUPPORT_GRAPHICS
-    if (!PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "The caller is not system-app, can not use system-api");
-        return;
-    }
-#ifdef SUPPORT_GRAPHICS
     Want stopWant = sysDialog->GetSwitchUserDialogWant();
     StopSwitchUserDialogInner(stopWant, userController_->GetFreezingNewUserId());
 #endif // SUPPORT_GRAPHICS
@@ -4809,29 +4829,6 @@ int AbilityManagerService::AttachAbilityThread(
     }
 }
 
-void AbilityManagerService::DumpFuncInit()
-{
-    dumpFuncMap_[KEY_DUMP_SERVICE] = &AbilityManagerService::DumpStateInner;
-    dumpFuncMap_[KEY_DUMP_DATA] = &AbilityManagerService::DataDumpStateInner;
-
-    dumpFuncMap_[KEY_DUMP_ALL] = &AbilityManagerService::DumpInner;
-    dumpFuncMap_[KEY_DUMP_MISSION] = &AbilityManagerService::DumpMissionInner;
-    dumpFuncMap_[KEY_DUMP_MISSION_LIST] = &AbilityManagerService::DumpMissionListInner;
-    dumpFuncMap_[KEY_DUMP_MISSION_INFOS] = &AbilityManagerService::DumpMissionInfosInner;
-}
-
-void AbilityManagerService::DumpSysFuncInit()
-{
-    dumpsysFuncMap_[KEY_DUMPSYS_ALL] = &AbilityManagerService::DumpSysInner;
-    dumpsysFuncMap_[KEY_DUMPSYS_SERVICE] = &AbilityManagerService::DumpSysStateInner;
-    dumpsysFuncMap_[KEY_DUMPSYS_PENDING] = &AbilityManagerService::DumpSysPendingInner;
-    dumpsysFuncMap_[KEY_DUMPSYS_PROCESS] = &AbilityManagerService::DumpSysProcess;
-    dumpsysFuncMap_[KEY_DUMPSYS_DATA] = &AbilityManagerService::DataDumpSysStateInner;
-
-    dumpsysFuncMap_[KEY_DUMPSYS_MISSION_LIST] = &AbilityManagerService::DumpSysMissionListInner;
-    dumpsysFuncMap_[KEY_DUMPSYS_ABILITY] = &AbilityManagerService::DumpSysAbilityInner;
-}
-
 void AbilityManagerService::DumpSysInner(
     const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId)
 {
@@ -5304,15 +5301,29 @@ void AbilityManagerService::DumpState(const std::string &args, std::vector<std::
         return;
     }
     DumpKey key = it->second;
-    auto itFunc = dumpFuncMap_.find(key);
-    if (itFunc != dumpFuncMap_.end()) {
-        auto dumpFunc = itFunc->second;
-        if (dumpFunc != nullptr) {
-            (this->*dumpFunc)(args, info);
-            return;
-        }
+    switch (key) {
+        case KEY_DUMP_SERVICE:
+            DumpStateInner(args, info);
+            break;
+        case KEY_DUMP_DATA:
+            DataDumpStateInner(args, info);
+            break;
+        case KEY_DUMP_ALL:
+            DumpInner(args, info);
+            break;
+        case KEY_DUMP_MISSION:
+            DumpMissionInner(args, info);
+            break;
+        case KEY_DUMP_MISSION_LIST:
+            DumpMissionListInner(args, info);
+            break;
+        case KEY_DUMP_MISSION_INFOS:
+            DumpMissionInfosInner(args, info);
+            break;
+        default:
+            info.push_back("error: invalid argument, please see 'ability dump -h'.");
+            break;
     }
-    info.push_back("error: invalid argument, please see 'ability dump -h'.");
 }
 
 void AbilityManagerService::DumpSysState(
@@ -5335,15 +5346,32 @@ void AbilityManagerService::DumpSysState(
         return;
     }
     DumpsysKey key = it->second;
-    auto itFunc = dumpsysFuncMap_.find(key);
-    if (itFunc != dumpsysFuncMap_.end()) {
-        auto dumpsysFunc = itFunc->second;
-        if (dumpsysFunc != nullptr) {
-            (this->*dumpsysFunc)(args, info, isClient, isUserID, userId);
-            return;
-        }
+    switch (key) {
+        case KEY_DUMPSYS_ALL:
+            DumpSysInner(args, info, isClient, isUserID, userId);
+            break;
+        case KEY_DUMPSYS_SERVICE:
+            DumpSysStateInner(args, info, isClient, isUserID, userId);
+            break;
+        case KEY_DUMPSYS_PENDING:
+            DumpSysPendingInner(args, info, isClient, isUserID, userId);
+            break;
+        case KEY_DUMPSYS_PROCESS:
+            DumpSysProcess(args, info, isClient, isUserID, userId);
+            break;
+        case KEY_DUMPSYS_DATA:
+            DataDumpSysStateInner(args, info, isClient, isUserID, userId);
+            break;
+        case KEY_DUMPSYS_MISSION_LIST:
+            DumpSysMissionListInner(args, info, isClient, isUserID, userId);
+            break;
+        case KEY_DUMPSYS_ABILITY:
+            DumpSysAbilityInner(args, info, isClient, isUserID, userId);
+            break;
+        default:
+            info.push_back("error: invalid argument, please see 'ability dump -h'.");
+            break;
     }
-    info.push_back("error: invalid argument, please see 'ability dump -h'.");
 }
 
 int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &token, int state, const PacMap &saveData)
@@ -5629,7 +5657,7 @@ int32_t AbilityManagerService::GetUserId() const
     return U0_USER_ID;
 }
 
-void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isBoot, sptr<IUserCallback> callback)
+void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isBoot)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s", __func__);
     auto bms = GetBundleManager();
@@ -5648,7 +5676,6 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
         ++attemptNums;
         if (!isBoot && attemptNums > SWITCH_ACCOUNT_TRY) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Query highest priority ability failed.");
-            callback->OnStartUserDone(userId, ERR_QUERY_HIGHEST_PRIORITY_ABILITY);
             return;
         }
         AbilityRequest abilityRequest;
@@ -5657,10 +5684,8 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
 
     if (abilityInfo.name.empty() && extensionAbilityInfo.name.empty()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Query highest priority ability failed");
-        callback->OnStartUserDone(userId, ERR_QUERY_HIGHEST_PRIORITY_ABILITY);
         return;
     }
-    callback->OnStartUserDone(userId, ERR_OK);
 
     Want abilityWant; // donot use 'want' here, because the entity of 'want' is not empty
     if (!abilityInfo.name.empty()) {
@@ -5687,7 +5712,7 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
 }
 
 int AbilityManagerService::GenerateAbilityRequest(const Want &want, int requestCode, AbilityRequest &request,
-    const sptr<IRemoteObject> &callerToken, int32_t userId, bool isNeedSetDebugApp)
+    const sptr<IRemoteObject> &callerToken, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
@@ -5767,9 +5792,7 @@ int AbilityManagerService::GenerateAbilityRequest(const Want &want, int requestC
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Set start recent.");
         request.startRecent = true;
     }
-    if (isNeedSetDebugApp) {
-        SetDebugAppByWaitingDebugFlag(want, request.want, request.appInfo.bundleName, request.appInfo.debug);
-    }
+
     return ERR_OK;
 }
 
@@ -5799,7 +5822,6 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
     }
 
     auto result = InitialAbilityRequest(request, *abilityInfo);
-    SetDebugAppByWaitingDebugFlag(want, request.want, request.appInfo.bundleName, request.appInfo.debug);
     return result;
 }
 
@@ -7192,19 +7214,36 @@ void AbilityManagerService::ReportAppRecoverResult(const int32_t appId, const Ap
         "RECOVERY_RESULT", result);
 }
 
-void AbilityManagerService::clearRecoveryInfoByTimer()
+void AbilityManagerService::ClearRecoveryInfoByTimer()
 {
-    int64_t now = time(nullptr);
-    recoveryTimer_.run_ = false;
-    auto timeoutDeleteTime = DefaultRecoveryConfig::GetInstance().GetTimeoutDeleteTime() * HOURS_TO_SECOND;
+    if (!timerId_) {
+        auto timerInfo = std::make_shared<RecoveryTimer>();
+        timerInfo->SetType(TIMER_TYPE);
+        timerInfo->SetRepeat(false);
+        auto task = [this]() {
+            this->ClearRecoveryInfoByTimer();
+        };
+        timerInfo->SetCallbackInfo(task);
+        bool bRet = MiscServices::TimeServiceClient::GetInstance()->CreateTimerV9(timerInfo, timerId_);
+        if (!bRet) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Init recoveryTimer error");
+        }
+    }
+    bool ret = MiscServices::TimeServiceClient::GetInstance()->StopTimerV9(timerId_);
+    if (!ret) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Stop recoveryTimer error");
+    }
+    int64_t now = MiscServices::TimeServiceClient::GetInstance()->GetWallTimeMs();
+    auto timeoutDeleteTime = DefaultRecoveryConfig::GetInstance().
+        GetTimeoutDeleteTime() * HOURS_TO_SECOND * SECOND_TO_MS;
     auto reserveNumber = DefaultRecoveryConfig::GetInstance().GetReserveNumber();
     int timeoutCount = 0;
-    int64_t nextTimeout = -1;
+    int64_t nextTimeout = now;
     for (auto p = recoveryInfoQueue.begin(); p != recoveryInfoQueue.end(); p++) {
-        if (now - p->time >= timeoutDeleteTime) {
+        if (now - p->time + SECOND_TO_MS >= timeoutDeleteTime) {
             timeoutCount++;
         } else {
-            nextTimeout = nextTimeout > p->time ? nextTimeout : p->time;
+            nextTimeout = nextTimeout > p->time ? p->time : nextTimeout;
         }
     }
 
@@ -7218,24 +7257,17 @@ void AbilityManagerService::clearRecoveryInfoByTimer()
         recoveryInfoQueue.pop_front();
     }
 
-    if (int32_t(recoveryInfoQueue.size()) > reserveNumber && nextTimeout > 0) {
-        auto task = [this]() {
-            this->clearRecoveryInfoByTimer();
-        };
-        recoveryTimer_.run_ = true;
-        recoveryTimer_.Start(task, (timeoutDeleteTime - now + nextTimeout) * SECOND_TO_MS);
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "start recoveryTimer, recoveryInfoQueue length %{public}d",
-            recoveryInfoQueue.size());
+    if (int32_t(recoveryInfoQueue.size()) > reserveNumber) {
+        MiscServices::TimeServiceClient::GetInstance()->StartTimerV9(timerId_, nextTimeout + timeoutDeleteTime);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "start recoveryTimer, recoveryInfoQueue length %{public}d nextTime %{public}s",
+            recoveryInfoQueue.size(), std::to_string(nextTimeout + timeoutDeleteTime).c_str());
     }
 }
 
-void AbilityManagerService::submitSaveRecoveryInfo(const sptr<IRemoteObject>& token)
+void AbilityManagerService::SubmitSaveRecoveryInfo(const sptr<IRemoteObject>& token)
 {
     if (token == nullptr) {
         return;
-    }
-    if (!recoveryTimer_.run_) {
-        clearRecoveryInfoByTimer();
     }
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     if (abilityRecord == nullptr) {
@@ -7267,7 +7299,7 @@ void AbilityManagerService::submitSaveRecoveryInfo(const sptr<IRemoteObject>& to
     recoveryInfo.bundleName = abilityInfo.bundleName;
     recoveryInfo.moduleName = abilityInfo.moduleName;
     recoveryInfo.abilityName = abilityName;
-    recoveryInfo.time = time(nullptr);
+    recoveryInfo.time = MiscServices::TimeServiceClient::GetInstance()->GetWallTimeMs();
     recoveryInfo.tokenId = tokenId;
     auto findByInfo = [&abilityName, &abilityInfo](RecoveryInfo& item) {
         return item.abilityName == abilityName && item.bundleName == abilityInfo.bundleName &&
@@ -7278,6 +7310,7 @@ void AbilityManagerService::submitSaveRecoveryInfo(const sptr<IRemoteObject>& to
         recoveryInfoQueue.erase(i);
     }
     recoveryInfoQueue.push_back(recoveryInfo);
+    ClearRecoveryInfoByTimer();
 }
 
 void AbilityManagerService::AppRecoverKill(pid_t pid, int32_t reason)
@@ -7525,8 +7558,9 @@ void AbilityManagerService::SwitchToUser(int32_t oldUserId, int32_t userId, sptr
         ConnectBmsService();
         StartUserApps();
     }
+    callback->OnStartUserDone(userId, ERR_OK);
     bool isBoot = oldUserId == U0_USER_ID ? true : false;
-    StartHighestPriorityAbility(userId, isBoot, callback);
+    StartHighestPriorityAbility(userId, isBoot);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() &&
         AmsConfigurationParameter::GetInstance().MultiUserType() != 0) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "no need to terminate old scb.");
@@ -8054,12 +8088,17 @@ int AbilityManagerService::CheckStaticCfgPermissionForSkill(const AppExecFwk::Ab
     if (abilityInfo.skills.empty()) {
         return AppExecFwk::Constants::PERMISSION_GRANTED;
     }
+    int32_t result = AppExecFwk::Constants::PERMISSION_GRANTED;
     for (auto skill : abilityInfo.skills) {
-        if (skill.Match(abilityRequest.want) && CheckOneSkillPermission(skill, tokenId)) {
-            return AppExecFwk::Constants::PERMISSION_GRANTED;
+        if (skill.Match(abilityRequest.want)) {
+            if (CheckOneSkillPermission(skill, tokenId)) {
+                return AppExecFwk::Constants::PERMISSION_GRANTED;
+            } else {
+                result = AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
+            }
         }
     }
-    return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
+    return result;
 }
 
 int AbilityManagerService::CheckStaticCfgPermission(const AppExecFwk::AbilityRequest &abilityRequest,
@@ -9744,7 +9783,7 @@ int32_t AbilityManagerService::CheckProcessOptions(const Want &want, const Start
         return ERR_OK;
     }
 
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "start ability with process options.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "start ability with process options.");
     bool isEnable = AppUtils::GetInstance().IsStartOptionsWithProcessOptions();
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() || !isEnable) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Not support process options.");
@@ -9757,7 +9796,9 @@ int32_t AbilityManagerService::CheckProcessOptions(const Want &want, const Start
         return ERR_NOT_ALLOW_IMPLICIT_START;
     }
 
-    if (!CheckCallingTokenId(element.GetBundleName(), userId)) {
+    int32_t appIndex = 0;
+    appIndex = !AbilityRuntime::StartupUtil::GetAppIndex(want, appIndex) ? 0 : appIndex;
+    if (!CheckCallingTokenId(element.GetBundleName(), userId, appIndex)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Not self application.");
         return ERR_NOT_SELF_APPLICATION;
     }
@@ -10521,22 +10562,6 @@ int32_t AbilityManagerService::GetUIExtensionRootHostInfo(const sptr<IRemoteObje
     hostInfo.elementName_ = callerRecord->GetElementName();
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Root host uri: %{public}s.", hostInfo.elementName_.GetURI().c_str());
     return ERR_OK;
-}
-
-void AbilityManagerService::SetDebugAppByWaitingDebugFlag(
-    const Want &want, Want &requestWant, const std::string &bundleName, bool isDebugApp)
-{
-    if (!isDebugApp || !system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "Not meeting the set debugging conditions.");
-        return;
-    }
-
-    if (IN_PROCESS_CALL(DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->IsWaitingDebugApp(bundleName))) {
-        (const_cast<Want &>(want)).SetParam(DEBUG_APP, true);
-        requestWant.SetParam(DEBUG_APP, true);
-        IN_PROCESS_CALL_WITHOUT_RET(
-            DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->ClearNonPersistWaitingDebugFlag());
-    }
 }
 
 int32_t AbilityManagerService::RestartApp(const AAFwk::Want &want)

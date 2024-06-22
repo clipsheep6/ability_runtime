@@ -66,11 +66,6 @@ public:
     virtual int GetConnectionData(std::vector<AbilityRuntime::ConnectionData> &connectionData);
 
 private:
-    void FirstStepInit();
-    void SecondStepInit();
-    void ThirdStepInit();
-    void FourthStepInit();
-    void FifthStepInit();
     int TerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
     int TerminateUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
     int CloseUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
@@ -218,16 +213,13 @@ private:
     int FreeInstallAbilityFromRemoteInner(MessageParcel &data, MessageParcel &reply);
     int AddFreeInstallObserverInner(MessageParcel &data, MessageParcel &reply);
 
-    using RequestFuncType = int (AbilityManagerStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, RequestFuncType> requestFuncMap_;
-
     #ifdef ABILITY_COMMAND_FOR_TEST
     int BlockAmsServiceInner(MessageParcel &data, MessageParcel &reply);
     int BlockAbilityInner(MessageParcel &data, MessageParcel &reply);
     int BlockAppServiceInner(MessageParcel &data, MessageParcel &reply);
     #endif
     int EnableRecoverAbilityInner(MessageParcel &data, MessageParcel &reply);
-    int submitSaveRecoveryInfoInner(MessageParcel &data, MessageParcel &reply);
+    int SubmitSaveRecoveryInfoInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleRecoverAbilityInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleClearRecoveryPageStackInner(MessageParcel &data, MessageParcel &reply);
     int GetTopAbilityInner(MessageParcel &data, MessageParcel &reply);
@@ -303,6 +295,50 @@ private:
     int32_t GetAbilityStateByPersistentIdInner(MessageParcel &data, MessageParcel &reply);
     int32_t TransferAbilityResultForExtensionInner(MessageParcel &data, MessageParcel &reply);
     int32_t NotifyFrozenProcessByRSSInner(MessageParcel &data, MessageParcel &reply);
+    int OnRemoteRequestInnerFirst(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerSecond(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerThird(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerFourth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerFifth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerSixth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerSeventh(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerEighth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerNinth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerTenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerEleventh(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInner(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerTwelveth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerThirteenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerFourteenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerFifteenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerSixteenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerSeventeenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerEighteenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerNineteenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int HandleOnRemoteRequestInnerFirst(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int HandleOnRemoteRequestInnerSecond(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

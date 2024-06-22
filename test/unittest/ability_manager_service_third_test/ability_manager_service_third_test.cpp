@@ -17,9 +17,11 @@
 
 #define private public
 #define protected public
+#include "mock_ipc_skeleton.h"
+#include "mock_permission_verification.h"
+#include "mock_my_flag.h"
+#include "mock_permission_verification.h"
 #include "ability_manager_service.h"
-#include "ability_connect_manager.h"
-#include "ability_connection.h"
 #include "ability_start_setting.h"
 #include "recovery_param.h"
 #undef private
@@ -44,6 +46,7 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 const int32_t USER_ID_U100 = 100;
+constexpr int32_t FOUNDATION_UID = 5523;
 const int32_t APP_MEMORY_SIZE = 512;
 const std::string EMPTY_DEVICE_ID = "";
 }  // namespace
@@ -54,40 +57,10 @@ public:
     void SetUp();
     void TearDown();
 
-    AbilityRequest GenerateAbilityRequest(const std::string& deviceName, const std::string& abilityName,
-        const std::string& appName, const std::string& bundleName, const std::string& moduleName);
-
 public:
-    AbilityRequest abilityRequest_{};
     Want want_{};
 };
 
-AbilityRequest AbilityManagerServiceThirdTest::GenerateAbilityRequest(const std::string& deviceName,
-    const std::string& abilityName, const std::string& appName, const std::string& bundleName,
-    const std::string& moduleName)
-{
-    ElementName element(deviceName, bundleName, abilityName, moduleName);
-    want_.SetElement(element);
-
-    AbilityInfo abilityInfo;
-    abilityInfo.visible = true;
-    abilityInfo.applicationName = appName;
-    abilityInfo.type = AbilityType::EXTENSION;
-    abilityInfo.name = abilityName;
-    abilityInfo.bundleName = bundleName;
-    abilityInfo.moduleName = moduleName;
-    abilityInfo.deviceId = deviceName;
-    ApplicationInfo appinfo;
-    appinfo.name = appName;
-    appinfo.bundleName = bundleName;
-    abilityInfo.applicationInfo = appinfo;
-    AbilityRequest abilityRequest;
-    abilityRequest.want = want_;
-    abilityRequest.abilityInfo = abilityInfo;
-    abilityRequest.appInfo = appinfo;
-
-    return abilityRequest;
-}
 
 void AbilityManagerServiceThirdTest::SetUpTestCase() {}
 
@@ -973,7 +946,9 @@ HWTEST_F(AbilityManagerServiceThirdTest, CheckUIExtensionIsFocused_001, TestSize
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest CheckUIExtensionIsFocused_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     bool isFocused = false;
+    MyFlag::flag_ = 0;
     EXPECT_EQ(abilityMs_->CheckUIExtensionIsFocused(0, isFocused), CHECK_PERMISSION_FAILED);
+    MyFlag::flag_ = 1;
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest CheckUIExtensionIsFocused_001 end");
 }
 
@@ -1503,6 +1478,23 @@ HWTEST_F(AbilityManagerServiceThirdTest, StartAbilityWithSpecifyTokenId_001, Tes
 
 /*
  * Feature: AbilityManagerService
+ * Function: StartAbilityWithSpecifyTokenId
+ * FunctionPoints: AbilityManagerService StartAbilityWithSpecifyTokenId
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, StartAbilityWithSpecifyTokenId_002, TestSize.Level1)
+{
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    Want want;
+    sptr<IRemoteObject> callerToken;
+    uint32_t specifyTokenId = 0;
+    int32_t userId = 0;
+    int32_t requestCode = 0;
+    IPCSkeleton::SetCallingUid(FOUNDATION_UID);
+    auto result = abilityMs->StartAbilityWithSpecifyTokenId(want, callerToken, specifyTokenId, userId, requestCode);
+    EXPECT_NE(result, ERR_INVALID_CONTINUATION_FLAG);
+}
+/*
+ * Feature: AbilityManagerService
  * Function: StartAbilityByInsightIntent
  * FunctionPoints: AbilityManagerService StartAbilityByInsightIntent
  */
@@ -1763,7 +1755,7 @@ HWTEST_F(AbilityManagerServiceThirdTest, StartAbilityAsCallerDetails_003, TestSi
     auto abilityMs = std::make_shared<AbilityManagerService>();
     Want want;
     sptr<IRemoteObject> callerToken;
-    sptr<IRemoteObject> asCallerSourceToken = new AbilityManagerStubTestMock();;
+    sptr<IRemoteObject> asCallerSourceToken = new AbilityManagerStubTestMock();
     int32_t userId = 0;
     int requestCode = 0;
     bool isSendDialogResult = true;
@@ -1945,6 +1937,15 @@ HWTEST_F(AbilityManagerServiceThirdTest, StartAbilityForOptionInner_001, TestSiz
     auto result = abilityMs->StartAbilityForOptionInner(want, startOptions, callerToken, userId, requestCode,
         isStartAsCaller, specifyTokenId, isImplicit);
     EXPECT_EQ(result, ERR_INVALID_VALUE);
+    abilityMs->interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
+    result = abilityMs->StartAbilityForOptionInner(want, startOptions, callerToken, userId, requestCode,
+        isStartAsCaller, specifyTokenId, isImplicit);
+    EXPECT_NE(result, ERR_INVALID_VALUE);
+
+    abilityMs-> implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
+    result = abilityMs->StartAbilityForOptionInner(want, startOptions, callerToken, userId, requestCode,
+        isStartAsCaller, specifyTokenId, isImplicit);
+    EXPECT_NE(result, ERR_INVALID_VALUE);
 }
 
 /*
@@ -2022,6 +2023,25 @@ HWTEST_F(AbilityManagerServiceThirdTest, StartUIAbilityBySCB_002, TestSize.Level
 
 /*
  * Feature: AbilityManagerService
+ * Function: StartUIAbilityBySCB
+ * FunctionPoints: AbilityManagerService StartUIAbilityBySCB
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, StartUIAbilityBySCB_003, TestSize.Level1)
+{
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    Rosen::SessionInfo info;
+    sptr<SessionInfo> sessionInfo(new SessionInfo());
+    sessionInfo->sessionToken = new Rosen::Session(info);
+    bool isColdStart = true;
+    auto result = abilityMs->StartUIAbilityBySCB(sessionInfo, isColdStart);
+    EXPECT_EQ(result, ERR_WRONG_INTERFACE_CALL);
+    abilityMs->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    result = abilityMs->StartUIAbilityBySCB(sessionInfo, isColdStart);
+    EXPECT_EQ(result, ERR_WRONG_INTERFACE_CALL);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: CheckCallingTokenId
  * FunctionPoints: AbilityManagerService CheckCallingTokenId
  */
@@ -2031,7 +2051,7 @@ HWTEST_F(AbilityManagerServiceThirdTest, CheckCallingTokenId_001, TestSize.Level
     std::string bundleName = "test";
     int32_t userId = 0;
     auto result = abilityMs->CheckCallingTokenId(bundleName, userId);
-    EXPECT_EQ(result, false);
+    EXPECT_EQ(result, true);
 }
 
 /*
