@@ -42,15 +42,22 @@ ohos_shared_library("dialogsession_napi") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
+    "ets_runtime:libark_jsruntime",
     "eventhandler:libeventhandler",
     "ffrt:libffrt",
+    "form_fwk:form_manager",
+    "graphic_2d:2d_graphics",
     "hilog:libhilog",
+    "image_framework:image_native",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "ipc:ipc_napi",
     "json:nlohmann_json_static",
     "jsoncpp:jsoncpp",
     "napi:ace_napi",
+    "resource_management:global_resmgr",
     "samgr:samgr_proxy",
+    "skia:skia_canvaskit",
   ]
 
   relative_install_dir = "module/app/ability"

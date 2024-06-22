@@ -163,6 +163,7 @@ ohos_shared_library("abilitykit_utils") {
     "json:nlohmann_json_static",
     "napi:ace_napi",
     "resource_management:global_resmgr",
+    "skia:skia_canvaskit",
   ]
 
   public_external_deps = [
@@ -403,11 +404,17 @@ ohos_shared_library("extensionkit_native") {
     "ability_base:want",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "ets_runtime:libark_jsruntime",
     "eventhandler:libeventhandler",
+    "graphic_2d:2d_graphics",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "ipc:ipc_napi",
     "json:nlohmann_json_static",
     "napi:ace_napi",
+    "resource_management:global_resmgr",
+    "skia:skia_canvaskit",
   ]
 
   public_deps = [ ":abilitykit_utils" ]
@@ -461,12 +468,18 @@ ohos_shared_library("insight_intent_executor") {
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
     "c_utils:utils",
+    "ets_runtime:libark_jsruntime",
     "eventhandler:libeventhandler",
+    "form_fwk:form_manager",
+    "graphic_2d:2d_graphics",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "image_framework:image_native",
     "ipc:ipc_core",
     "ipc:ipc_napi",
     "napi:ace_napi",
+    "resource_management:global_resmgr",
+    "skia:skia_canvaskit",
   ]
 
   subsystem_name = "ability"
@@ -821,15 +834,18 @@ ohos_shared_library("continuation_ipc") {
   ]
 
   external_deps = [
+    "ability_base:session_info",
     "ability_base:want",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
+    "graphic_2d:2d_graphics",
     "hilog:libhilog",
     "ipc:ipc_core",
     "json:nlohmann_json_static",
     "node:node_header_notice",
     "resource_management:global_resmgr",
+    "skia:skia_canvaskit",
     "window_manager:libwm",
   ]
   public_external_deps = [

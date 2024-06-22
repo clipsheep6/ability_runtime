@@ -31,7 +31,9 @@ ohos_shared_library("dialog_request_info") {
     "ability_base:base",
     "ability_base:want",
     "c_utils:utils",
+    "ets_runtime:libark_jsruntime",
     "hilog:libhilog",
+    "ipc:ipc_core",
     "napi:ace_napi",
   ]
 

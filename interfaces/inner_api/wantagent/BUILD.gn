@@ -77,9 +77,11 @@ ohos_shared_library("wantagent_innerkits") {
     "ability_base:want",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
+    "ets_runtime:libark_jsruntime",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "jsoncpp:jsoncpp",
     "napi:ace_napi",
     "samgr:samgr_proxy",
   ]

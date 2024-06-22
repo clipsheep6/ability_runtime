@@ -52,12 +52,19 @@ ohos_shared_library("napi_common") {
     "access_token:libtokenid_sdk",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "ets_runtime:libark_jsruntime",
+    "eventhandler:libeventhandler",
+    "form_fwk:form_manager",
+    "graphic_2d:2d_graphics",
     "hilog:libhilog",
+    "image_framework:image_native",
     "ipc:ipc_core",
     "ipc:ipc_napi",
     "json:nlohmann_json_static",
     "libuv:uv",
     "napi:ace_napi",
+    "resource_management:global_resmgr",
+    "skia:skia_canvaskit",
   ]
 
   public_external_deps = [

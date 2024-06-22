@@ -87,10 +87,13 @@
             "samgr",
             "screenlock_mgr",
             "storage_service",
+            "skia",
             "toolchain",
             "webview",
             "window_manager",
-            "zlib"
+            "zlib",
+            "ets_frontend",
+            "runtime_core"
   ],
           "third_party": [
             "libjpeg-turbo"

@@ -40,6 +40,7 @@ ohos_shared_library("js_environment") {
   public_configs = [ ":public_js_environment_config" ]
 
   external_deps = [
+    "c_utils:utils",
     "ets_runtime:libark_jsruntime",
     "ets_utils:console",
     "eventhandler:libeventhandler",
@@ -47,6 +48,7 @@ ohos_shared_library("js_environment") {
     "ffrt:libffrt",
     "hilog:libhilog",
     "napi:ace_napi",
+    "runtime_core:libarkbase_static",
   ]
 
   if (ability_runtime_graphics) {

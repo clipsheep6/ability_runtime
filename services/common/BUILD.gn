@@ -121,6 +121,7 @@ ohos_shared_library("app_util") {
   ]
 
   external_deps = [
+    "c_utils:utils",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "init:libbegetutil",

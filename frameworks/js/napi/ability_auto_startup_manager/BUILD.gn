@@ -45,10 +45,14 @@ ohos_shared_library("autostartupmanager") {
     "access_token:libtokenid_sdk",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "ets_runtime:libark_jsruntime",
+    "eventhandler:libeventhandler",
+    "graphic_2d:2d_graphics",
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
     "samgr:samgr_proxy",
+    "skia:skia_canvaskit",
   ]
 
   relative_install_dir = "module/app/ability"

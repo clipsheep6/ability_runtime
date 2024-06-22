@@ -107,25 +107,6 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
 #endif // WITH_DLP
     return true;
 }
-
-static bool CheckCallerIsDlpManager(const std::shared_ptr<AppExecFwk::BundleMgrHelper> &bundleManager)
-{
-    if (!bundleManager) {
-        return false;
-    }
-
-    std::string bundleName;
-    auto callerUid = IPCSkeleton::GetCallingUid();
-    if (IN_PROCESS_CALL(bundleManager->GetNameForUid(callerUid, bundleName)) != ERR_OK) {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "Get Bundle Name failed.");
-        return false;
-    }
-    if (bundleName != "com.ohos.dlpmanager") {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "Wrong Caller.");
-        return false;
-    }
-    return true;
-}
 }  // namespace DlpUtils
 }  // namespace AAFwk
 }  // namespace OHOS
