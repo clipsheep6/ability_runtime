@@ -35,9 +35,6 @@ private:
     int32_t HandleOnAppDebugStarted(MessageParcel &data, MessageParcel &reply);
     int32_t HandleOnAppDebugStoped(MessageParcel &data, MessageParcel &reply);
 
-    using AppDebugListenerFunc = int32_t (AppDebugListenerStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, AppDebugListenerFunc> memberFuncMap_;
-
     DISALLOW_COPY_AND_MOVE(AppDebugListenerStub);
 };
 } // namespace AppExecFwk

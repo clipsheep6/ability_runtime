@@ -27,18 +27,9 @@ namespace {
 constexpr int32_t CYCLE_LIMIT_MIN = 0;
 constexpr int32_t CYCLE_LIMIT_MAX = 1000;
 }
-AbilityDebugResponseStub::AbilityDebugResponseStub()
-{
-    responseFuncMap_[static_cast<uint32_t>(IAbilityDebugResponse::Message::ON_ABILITYS_DEBUG_STARTED)] =
-        &AbilityDebugResponseStub::HandleOnAbilitysDebugStarted;
-    responseFuncMap_[static_cast<uint32_t>(IAbilityDebugResponse::Message::ON_ABILITYS_DEBUG_STOPED)] =
-        &AbilityDebugResponseStub::HandleOnAbilitysDebugStoped;
-}
+AbilityDebugResponseStub::AbilityDebugResponseStub() {}
 
-AbilityDebugResponseStub::~AbilityDebugResponseStub()
-{
-    responseFuncMap_.clear();
-}
+AbilityDebugResponseStub::~AbilityDebugResponseStub() {}
 
 int32_t AbilityDebugResponseStub::HandleOnAbilitysDebugStarted(MessageParcel &data, MessageParcel &reply)
 {
@@ -115,13 +106,13 @@ int AbilityDebugResponseStub::OnRemoteRequest(
         return ERR_INVALID_STATE;
     }
 
-    auto itFunc = responseFuncMap_.find(code);
-    if (itFunc != responseFuncMap_.end()) {
-        auto responseFunc = itFunc->second;
-        if (responseFunc != nullptr) {
-            return (this->*responseFunc)(data, reply);
-        }
+    switch (code) {
+        case static_cast<uint32_t>(IAbilityDebugResponse::Message::ON_ABILITYS_DEBUG_STARTED):
+            return HandleOnAbilitysDebugStarted(data, reply);
+        case static_cast<uint32_t>(IAbilityDebugResponse::Message::ON_ABILITYS_DEBUG_STOPED):
+            return HandleOnAbilitysDebugStoped(data, reply);
     }
+
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 } // namespace AppExecFwk
