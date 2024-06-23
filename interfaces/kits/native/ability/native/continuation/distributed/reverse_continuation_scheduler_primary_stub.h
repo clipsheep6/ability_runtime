@@ -43,10 +43,6 @@ private:
     int ContinuationBackInner(MessageParcel &data, MessageParcel &reply);
 
     static const std::string DESCRIPTOR;
-
-private:
-    using RequestFuncType = int (ReverseContinuationSchedulerPrimaryStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, RequestFuncType> requestFuncMap_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

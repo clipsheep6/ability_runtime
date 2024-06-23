@@ -23,16 +23,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-RenderStateObserverStub::RenderStateObserverStub()
-{
-    memberFuncMap_[IRenderStateObserver::ON_RENDER_STATE_CHANGED] =
-        &RenderStateObserverStub::OnRenderStateChangedInner;
-}
+RenderStateObserverStub::RenderStateObserverStub() {}
 
-RenderStateObserverStub::~RenderStateObserverStub()
-{
-    memberFuncMap_.clear();
-}
+RenderStateObserverStub::~RenderStateObserverStub() {}
 
 int32_t RenderStateObserverStub::OnRenderStateChangedInner(MessageParcel &data, MessageParcel &reply)
 {
@@ -56,12 +49,8 @@ int RenderStateObserverStub::OnRemoteRequest(
         return ERR_INVALID_STATE;
     }
 
-    auto itFunc = memberFuncMap_.find(code);
-    if (itFunc != memberFuncMap_.end()) {
-        auto memberFunc = itFunc->second;
-        if (memberFunc != nullptr) {
-            return (this->*memberFunc)(data, reply);
-        }
+    if (code == IRenderStateObserver::ON_RENDER_STATE_CHANGED) {
+        return OnRenderStateChangedInner(data, reply);
     }
 
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

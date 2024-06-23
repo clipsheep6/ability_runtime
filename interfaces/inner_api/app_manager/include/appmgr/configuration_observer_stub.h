@@ -44,10 +44,6 @@ public:
 private:
     int32_t HandleOnConfigurationUpdated(MessageParcel &data, MessageParcel &reply);
 
-    using ConfigurationObserverFunc = int32_t (ConfigurationObserverStub::*)(MessageParcel &data,
-        MessageParcel &reply);
-    std::map<uint32_t, ConfigurationObserverFunc> memberFuncMap_;
-
     DISALLOW_COPY_AND_MOVE(ConfigurationObserverStub);
 };
 }  // namespace AppExecFwk

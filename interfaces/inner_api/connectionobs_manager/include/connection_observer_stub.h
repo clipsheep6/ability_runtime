@@ -42,9 +42,6 @@ private:
     int OnExtensionDisconnectedInner(MessageParcel &data, MessageParcel &reply);
     int OnDlpAbilityOpenedInner(MessageParcel &data, MessageParcel &reply);
     int OnDlpAbilityClosedInner(MessageParcel &data, MessageParcel &reply);
-
-    using ConnectionObserverFunc = int (ConnectionObserverStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::vector<ConnectionObserverFunc> vecMemberFunc_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
