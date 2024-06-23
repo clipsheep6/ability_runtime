@@ -58,10 +58,6 @@ private:
 
     int32_t HandleAllowAbilityBackground(MessageParcel &data, MessageParcel &reply);
 
-    using AbilityControllerFunc = int32_t (AbilityControllerStub::*)(MessageParcel &data,
-        MessageParcel &reply);
-    std::map<uint32_t, AbilityControllerFunc> memberFuncMap_;
-
     DISALLOW_COPY_AND_MOVE(AbilityControllerStub);
 };
 }  // namespace AppExecFwk

@@ -281,33 +281,6 @@ HWTEST_F(RemoteRegisterServiceStubTest, AppExecFwk_RemoteRegisterServiceStub_OnR
     GTEST_LOG_(INFO) << "AppExecFwk_RemoteRegisterServiceStub_OnRemoteRequest_006 end.";
 }
 
-/*
- * Feature: AbilityManager
- * Function: RemoteRegisterServiceStub
- * SubFunction: OnRemoteRequest
- * FunctionPoints: The parameter of function OnRemoteRequest.
- * EnvConditions: Can run ohos test framework
- * CaseDescription: Verify function OnRemoteRequest parameter emptry funciton cmd
- */
-HWTEST_F(RemoteRegisterServiceStubTest, AppExecFwk_RemoteRegisterServiceStub_OnRemoteRequest_007, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "AppExecFwk_RemoteRegisterServiceStub_OnRemoteRequest_007 start.";
-    sptr<MockRegisterService> object = new (std::nothrow) MockRegisterService();
-    EXPECT_TRUE(object != nullptr);
-
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    EXPECT_TRUE(data.WriteInterfaceToken(IRemoteRegisterService::GetDescriptor()));
-
-    object->requestFuncMap_[MockRegisterService::COMMAND_SHOW_DEVICE_LIST + 1] = nullptr;
-
-    EXPECT_EQ(
-        object->OnRemoteRequest(
-            MockRegisterService::COMMAND_SHOW_DEVICE_LIST + 1, data, reply, option), IPC_STUB_UNKNOW_TRANS_ERR);
-    GTEST_LOG_(INFO) << "AppExecFwk_RemoteRegisterServiceStub_OnRemoteRequest_007 end.";
-}
 
 /*
  * Feature: AbilityManager

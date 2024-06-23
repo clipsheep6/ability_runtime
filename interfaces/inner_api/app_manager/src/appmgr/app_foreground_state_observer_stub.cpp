@@ -23,16 +23,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-AppForegroundStateObserverStub::AppForegroundStateObserverStub()
-{
-    memberFuncMap_[static_cast<uint32_t>(IAppForegroundStateObserver::Message::ON_APP_STATE_CHANGED)] =
-        &AppForegroundStateObserverStub::HandleOnAppStateChanged;
-}
+AppForegroundStateObserverStub::AppForegroundStateObserverStub() {}
 
-AppForegroundStateObserverStub::~AppForegroundStateObserverStub()
-{
-    memberFuncMap_.clear();
-}
+AppForegroundStateObserverStub::~AppForegroundStateObserverStub() {}
 
 int32_t AppForegroundStateObserverStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -45,13 +38,10 @@ int32_t AppForegroundStateObserverStub::OnRemoteRequest(
         return ERR_INVALID_STATE;
     }
 
-    auto itFunc = memberFuncMap_.find(code);
-    if (itFunc != memberFuncMap_.end()) {
-        auto memberFunc = itFunc->second;
-        if (memberFunc != nullptr) {
-            return (this->*memberFunc)(data, reply);
-        }
+    if (code == static_cast<uint32_t>(IAppForegroundStateObserver::Message::ON_APP_STATE_CHANGED)) {
+        return HandleOnAppStateChanged(data, reply);
     }
+
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
