@@ -49,9 +49,6 @@ private:
     int OnMissionLabelUpdatedInner(MessageParcel &data, MessageParcel &reply);
     int OnMissionFocusedInner(MessageParcel &data, MessageParcel &reply);
     int OnMissionUnfocusedInner(MessageParcel &data, MessageParcel &reply);
-
-    using MissionListenerFunc = int (MissionListenerStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::vector<MissionListenerFunc> vecMemberFunc_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

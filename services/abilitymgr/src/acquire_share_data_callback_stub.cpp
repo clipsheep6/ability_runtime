@@ -21,11 +21,7 @@
 namespace OHOS {
 namespace AAFwk {
 
-AcquireShareDataCallbackStub::AcquireShareDataCallbackStub()
-{
-    vecMemberFunc_.resize(IAcquireShareDataCallback::CODE_MAX);
-    vecMemberFunc_[ACQUIRE_SHARE_DATA_DONE] = &AcquireShareDataCallbackStub::AcquireShareDataDoneInner;
-}
+AcquireShareDataCallbackStub::AcquireShareDataCallbackStub() {}
 
 AcquireShareDataCallbackStub::~AcquireShareDataCallbackStub()
 {
@@ -42,10 +38,11 @@ int32_t AcquireShareDataCallbackStub::OnRemoteRequest(
         return ERR_INVALID_STATE;
     }
 
-    if (code < IAcquireShareDataCallback::CODE_MAX) {
-        auto memberFunc = vecMemberFunc_[code];
-        return (this->*memberFunc)(data, reply);
+    switch (code) {
+        case ACQUIRE_SHARE_DATA_DONE:
+            return AcquireShareDataDoneInner(data, reply);
     }
+
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 

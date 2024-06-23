@@ -35,8 +35,6 @@ public:
 private:
     DISALLOW_COPY_AND_MOVE(RenderStateObserverStub);
     int32_t OnRenderStateChangedInner(MessageParcel &data, MessageParcel &reply);
-    using RenderStateObserverFunc = int32_t (RenderStateObserverStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, RenderStateObserverFunc> memberFuncMap_;
 };
 } // namespace AppExecFwk
 } // namespace OHOS

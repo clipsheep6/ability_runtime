@@ -33,8 +33,6 @@ private:
     int32_t OnExecuteDoneInner(MessageParcel &data, MessageParcel &reply);
 
     std::shared_ptr<AppExecFwk::EventHandler> handler_;
-    using StubFunc = int (InsightIntentExecuteCallbackStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, StubFunc> requestFuncMap_;
 };
 } // namespace AAFwk
 } // namespace OHOS
