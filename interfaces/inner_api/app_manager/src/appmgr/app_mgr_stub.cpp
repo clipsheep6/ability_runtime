@@ -36,183 +36,10 @@
 namespace OHOS {
 namespace AppExecFwk {
 constexpr int32_t CYCLE_LIMIT = 1000;
-AppMgrStub::AppMgrStub()
-{
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_ATTACH_APPLICATION)] =
-        &AppMgrStub::HandleAttachApplication;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::PRELOAD_APPLICATION)] =
-        &AppMgrStub::HandlePreloadApplication;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_APPLICATION_FOREGROUNDED)] =
-        &AppMgrStub::HandleApplicationForegrounded;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_APPLICATION_BACKGROUNDED)] =
-        &AppMgrStub::HandleApplicationBackgrounded;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_APPLICATION_TERMINATED)] =
-        &AppMgrStub::HandleApplicationTerminated;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_ABILITY_CLEANED)] =
-        &AppMgrStub::HandleAbilityCleaned;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_MGR_INSTANCE)] = &AppMgrStub::HandleGetAmsMgr;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_CLEAR_UP_APPLICATION_DATA)] =
-        &AppMgrStub::HandleClearUpApplicationData;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_ALL_RUNNING_PROCESSES)] =
-        &AppMgrStub::HandleGetAllRunningProcesses;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_NOTIFY_MEMORY_LEVEL)] =
-        &AppMgrStub::HandleNotifyMemoryLevel;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_NOTIFY_PROC_MEMORY_LEVEL)] =
-        &AppMgrStub::HandleNotifyProcMemoryLevel;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_RUNNING_PROCESSES_BY_USER_ID)] =
-        &AppMgrStub::HandleGetProcessRunningInfosByUserId;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_ADD_ABILITY_STAGE_INFO_DONE)] =
-        &AppMgrStub::HandleAddAbilityStageDone;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::STARTUP_RESIDENT_PROCESS)] =
-        &AppMgrStub::HandleStartupResidentProcess;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_APPLICATION_STATE_OBSERVER)] =
-        &AppMgrStub::HandleRegisterApplicationStateObserver;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_APPLICATION_STATE_OBSERVER)] =
-        &AppMgrStub::HandleUnregisterApplicationStateObserver;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_FOREGROUND_APPLICATIONS)] =
-        &AppMgrStub::HandleGetForegroundApplications;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::START_USER_TEST_PROCESS)] =
-        &AppMgrStub::HandleStartUserTestProcess;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::FINISH_USER_TEST)] =
-        &AppMgrStub::HandleFinishUserTest;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SCHEDULE_ACCEPT_WANT_DONE)] =
-        &AppMgrStub::HandleScheduleAcceptWantDone;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SCHEDULE_NEW_PROCESS_REQUEST_DONE)] =
-        &AppMgrStub::HandleScheduleNewProcessRequestDone;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_ABILITY_RECORDS_BY_PROCESS_ID)] =
-        &AppMgrStub::HandleGetAbilityRecordsByProcessID;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::PRE_START_NWEBSPAWN_PROCESS)] =
-        &AppMgrStub::HandlePreStartNWebSpawnProcess;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::START_RENDER_PROCESS)] =
-        &AppMgrStub::HandleStartRenderProcess;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::ATTACH_RENDER_PROCESS)] =
-        &AppMgrStub::HandleAttachRenderProcess;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_RENDER_PROCESS_TERMINATION_STATUS)] =
-        &AppMgrStub::HandleGetRenderProcessTerminationStatus;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_CONFIGURATION)] =
-        &AppMgrStub::HandleGetConfiguration;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UPDATE_CONFIGURATION)] =
-        &AppMgrStub::HandleUpdateConfiguration;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_CONFIGURATION_OBSERVER)] =
-        &AppMgrStub::HandleRegisterConfigurationObserver;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_CONFIGURATION_OBSERVER)] =
-        &AppMgrStub::HandleUnregisterConfigurationObserver;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_PROCESS_RUNNING_INFORMATION)] =
-        &AppMgrStub::HandleGetProcessRunningInformation;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::DUMP_HEAP_MEMORY_PROCESS)] =
-        &AppMgrStub::HandleDumpHeapMemory;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::DUMP_JSHEAP_MEMORY_PROCESS)] =
-        &AppMgrStub::HandleDumpJsHeapMemory;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_RUNNING_MULTIAPP_INFO_BY_BUNDLENAME)] =
-        &AppMgrStub::HandleGetRunningMultiAppInfoByBundleName;
-#ifdef ABILITY_COMMAND_FOR_TEST
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::BLOCK_APP_SERVICE)] =
-        &AppMgrStub::HandleBlockAppServiceDone;
-#endif
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_APP_RUNNING_STATE)] =
-        &AppMgrStub::HandleGetAppRunningStateByBundleName;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_LOAD_REPAIR_PATCH)] =
-        &AppMgrStub::HandleNotifyLoadRepairPatch;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_HOT_RELOAD_PAGE)] =
-        &AppMgrStub::HandleNotifyHotReloadPage;
-#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SET_CONTINUOUSTASK_PROCESS)] =
-        &AppMgrStub::HandleSetContinuousTaskProcess;
-#endif
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_UNLOAD_REPAIR_PATCH)] =
-        &AppMgrStub::HandleNotifyUnLoadRepairPatch;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::IS_SHARED_BUNDLE_RUNNING)] =
-        &AppMgrStub::HandleIsSharedBundleRunning;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::START_NATIVE_PROCESS_FOR_DEBUGGER)] =
-        &AppMgrStub::HandleStartNativeProcessForDebugger;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_APP_FAULT)] =
-        &AppMgrStub::HandleNotifyFault;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_APP_FAULT_BY_SA)] =
-        &AppMgrStub::HandleNotifyFaultBySA;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::JUDGE_SANDBOX_BY_PID)] =
-        &AppMgrStub::HandleJudgeSandboxByPid;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SET_APPFREEZE_FILTER)] =
-        &AppMgrStub::HandleSetAppFreezeFilter;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_BUNDLE_NAME_BY_PID)] =
-        &AppMgrStub::HandleGetBundleNameByPid;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_RUNNING_PROCESS_INFO_BY_PID)] =
-        &AppMgrStub::HandleGetRunningProcessInfoByPid;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_ALL_RENDER_PROCESSES)] =
-        &AppMgrStub::HandleGetAllRenderProcesses;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_PROCESS_MEMORY_BY_PID)] =
-        &AppMgrStub::HandleGetProcessMemoryByPid;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_PIDS_BY_BUNDLENAME)] =
-        &AppMgrStub::HandleGetRunningProcessInformation;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::CHANGE_APP_GC_STATE)] =
-            &AppMgrStub::HandleChangeAppGcState;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_PAGE_SHOW)] =
-        &AppMgrStub::HandleNotifyPageShow;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_PAGE_HIDE)] =
-        &AppMgrStub::HandleNotifyPageHide;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_APP_RUNNING_STATUS_LISTENER)] =
-        &AppMgrStub::HandleRegisterAppRunningStatusListener;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_APP_RUNNING_STATUS_LISTENER)] =
-        &AppMgrStub::HandleUnregisterAppRunningStatusListener;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_APP_FOREGROUND_STATE_OBSERVER)] =
-        &AppMgrStub::HandleRegisterAppForegroundStateObserver;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_APP_FOREGROUND_STATE_OBSERVER)] =
-        &AppMgrStub::HandleUnregisterAppForegroundStateObserver;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_ABILITY_FOREGROUND_STATE_OBSERVER)] =
-        &AppMgrStub::HandleRegisterAbilityForegroundStateObserver;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_ABILITY_FOREGROUND_STATE_OBSERVER)] =
-        &AppMgrStub::HandleUnregisterAbilityForegroundStateObserver;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::IS_APPLICATION_RUNNING)] =
-        &AppMgrStub::HandleIsApplicationRunning;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::START_CHILD_PROCESS)] =
-        &AppMgrStub::HandleStartChildProcess;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_CHILD_PROCCESS_INFO_FOR_SELF)] =
-        &AppMgrStub::HandleGetChildProcessInfoForSelf;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::ATTACH_CHILD_PROCESS)] =
-        &AppMgrStub::HandleAttachChildProcess;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::EXIT_CHILD_PROCESS_SAFELY)] =
-        &AppMgrStub::HandleExitChildProcessSafely;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::IS_FINAL_APP_PROCESS)] =
-        &AppMgrStub::HandleIsFinalAppProcess;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_CLEAR_UP_APPLICATION_DATA_BY_SELF)] =
-        &AppMgrStub::HandleClearUpApplicationDataBySelf;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_RENDER_STATUS_OBSERVER)] =
-        &AppMgrStub::HandleRegisterRenderStateObserver;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_RENDER_STATUS_OBSERVER)] =
-        &AppMgrStub::HandleUnregisterRenderStateObserver;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UPDATE_RENDER_STATUS)] =
-        &AppMgrStub::HandleUpdateRenderState;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SIGN_RESTART_APP_FLAG)] =
-        &AppMgrStub::HandleSignRestartAppFlag;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_APP_RUNNING_UNIQUE_ID_BY_PID)] =
-        &AppMgrStub::HandleGetAppRunningUniqueIdByPid;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_ALL_UI_EXTENSION_ROOT_HOST_PID)] =
-        &AppMgrStub::HandleGetAllUIExtensionRootHostPid;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_ALL_UI_EXTENSION_PROVIDER_PID)] =
-        &AppMgrStub::HandleGetAllUIExtensionProviderPid;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UPDATE_CONFIGURATION_BY_BUNDLE_NAME)] =
-        &AppMgrStub::HandleUpdateConfigurationByBundleName;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_MEMORY_SIZE_STATE_CHANGED)] =
-        &AppMgrStub::HandleNotifyMemorySizeStateChanged;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SET_SUPPORTED_PROCESS_CACHE_SELF)] =
-        &AppMgrStub::HandleSetSupportedProcessCacheSelf;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_RUNNING_PROCESSES_BY_BUNDLE_TYPE)] =
-        &AppMgrStub::HandleGetRunningProcessesByBundleType;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SET_APP_ASSERT_PAUSE_STATE_SELF)] =
-        &AppMgrStub::HandleSetAppAssertionPauseState;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::START_NATIVE_CHILD_PROCESS)] =
-        &AppMgrStub::HandleStartNativeChildProcess;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SAVE_BROWSER_CHANNEL)] =
-        &AppMgrStub::HandleSaveBrowserChannel;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::IS_APP_RUNNING)] =
-        &AppMgrStub::HandleIsAppRunning;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::CHECK_CALLING_IS_USER_TEST_MODE)] =
-        &AppMgrStub::HandleCheckCallingIsUserTestMode;
-}
 
-AppMgrStub::~AppMgrStub()
-{
-    memberFuncMap_.clear();
-}
+AppMgrStub::AppMgrStub() {}
+
+AppMgrStub::~AppMgrStub() {}
 
 int AppMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -224,16 +51,270 @@ int AppMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParce
         TAG_LOGE(AAFwkTag::APPMGR, "local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
+}
 
-    auto itFunc = memberFuncMap_.find(code);
-    if (itFunc != memberFuncMap_.end()) {
-        auto memberFunc = itFunc->second;
-        if (memberFunc != nullptr) {
-            return (this->*memberFunc)(data, reply);
-        }
+int AppMgrStub::OnRemoteRequestInner(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    int ERR_OK = 20240625
+    int ERR_CODE_NOT_EXIST = 20240626
+    int retCode = ERR_OK;
+    retCode = OnRemoteRequestInnerFirst(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+        retCode = OnRemoteRequestInnerSecond(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+        retCode = OnRemoteRequestInnerThird(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
     }
     TAG_LOGD(AAFwkTag::APPMGR, "AppMgrStub::OnRemoteRequest end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+}
+
+int AppMgrStub::OnRemoteRequestInnerFirst(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    switch (static_cast<uint32_t>(code)) {
+        case static_cast<uint32_t>(AppMgrInterfaceCode::APP_ATTACH_APPLICATION):
+            return HandleAttachApplication(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::PRELOAD_APPLICATION):
+            return HandlePreloadApplication(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::APP_APPLICATION_FOREGROUNDED):
+            return HandleApplicationForegrounded(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::APP_APPLICATION_BACKGROUNDED):
+            return HandleApplicationBackgrounded(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::APP_APPLICATION_TERMINATED):
+            return HandleApplicationTerminated(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::APP_ABILITY_CLEANED):
+            return HandleAbilityCleaned(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_MGR_INSTANCE):
+            return HandleGetAmsMgr(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::APP_CLEAR_UP_APPLICATION_DATA):
+            return HandleClearUpApplicationData(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_ALL_RUNNING_PROCESSES):
+            return HandleGetAllRunningProcesses(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::APP_NOTIFY_MEMORY_LEVEL):
+            return HandleNotifyMemoryLevel(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::APP_NOTIFY_PROC_MEMORY_LEVEL):
+            return HandleNotifyProcMemoryLevel(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_RUNNING_PROCESSES_BY_USER_ID):
+            return HandleGetProcessRunningInfosByUserId(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::APP_ADD_ABILITY_STAGE_INFO_DONE):
+            return HandleAddAbilityStageDone(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::STARTUP_RESIDENT_PROCESS):
+            return HandleStartupResidentProcess(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_APPLICATION_STATE_OBSERVER):
+            return HandleRegisterApplicationStateObserver(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_APPLICATION_STATE_OBSERVER):
+            return HandleUnregisterApplicationStateObserver(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
+}
+
+int AppMgrStub::OnRemoteRequestInnerSecond(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    switch (static_cast<uint32_t>(code)) {
+        case static_cast<uint32_t>(AppMgrInterfaceCode::GET_FOREGROUND_APPLICATIONS):
+            return HandleGetForegroundApplications(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::START_USER_TEST_PROCESS):
+            return HandleStartUserTestProcess(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::FINISH_USER_TEST):
+            return HandleFinishUserTest(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::SCHEDULE_ACCEPT_WANT_DONE):
+            return HandleScheduleAcceptWantDone(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::SCHEDULE_NEW_PROCESS_REQUEST_DONE):
+            return HandleScheduleNewProcessRequestDone(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_ABILITY_RECORDS_BY_PROCESS_ID):
+            return HandleGetAbilityRecordsByProcessID(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::PRE_START_NWEBSPAWN_PROCESS):
+            return HandlePreStartNWebSpawnProcess(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::START_RENDER_PROCESS):
+            return HandleStartRenderProcess(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::ATTACH_RENDER_PROCESS):
+            return HandleAttachRenderProcess(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::GET_RENDER_PROCESS_TERMINATION_STATUS):
+            return HandleGetRenderProcessTerminationStatus(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::GET_CONFIGURATION):
+            return HandleGetConfiguration(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::UPDATE_CONFIGURATION):
+            return HandleUpdateConfiguration(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_CONFIGURATION_OBSERVER):
+            return HandleRegisterConfigurationObserver(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_CONFIGURATION_OBSERVER):
+            return HandleUnregisterConfigurationObserver(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_PROCESS_RUNNING_INFORMATION):
+            return HandleGetProcessRunningInformation(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::DUMP_HEAP_MEMORY_PROCESS):
+            return HandleDumpHeapMemory(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::DUMP_JSHEAP_MEMORY_PROCESS):
+            return HandleDumpJsHeapMemory(data, reply);
+        case static_cast<uint32_t>(AppMgrInterfaceCode::GET_RUNNING_MULTIAPP_INFO_BY_BUNDLENAME):
+            return HandleGetRunningMultiAppInfoByBundleName(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
+}
+
+int AppMgrStub::OnRemoteRequestInnerThird(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    switch (static_cast<uint32_t>(code)) {
+    #ifdef ABILITY_COMMAND_FOR_TEST
+        case AppMgrInterfaceCode::BLOCK_APP_SERVICE:
+            HandleBlockAppServiceDone(data, reply);
+            break;
+    #endif
+        case static_cast<uint32_t>(AppMgrInterfaceCode::GET_APP_RUNNING_STATE):
+            HandleGetAppRunningStateByBundleName(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_LOAD_REPAIR_PATCH):
+            HandleNotifyLoadRepairPatch(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_HOT_RELOAD_PAGE):
+            HandleNotifyHotReloadPage(data, reply);
+            break;
+    #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+        case static_cast<uint32_t>(AppMgrInterfaceCode::SET_CONTINUOUSTASK_PROCESS):
+            HandleSetContinuousTaskProcess(data, reply);
+            break;
+    #endif
+        case static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_UNLOAD_REPAIR_PATCH):
+            HandleNotifyUnLoadRepairPatch(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::IS_SHARED_BUNDLE_RUNNING):
+            HandleIsSharedBundleRunning(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::START_NATIVE_PROCESS_FOR_DEBUGGER):
+            HandleStartNativeProcessForDebugger(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_APP_FAULT):
+            HandleNotifyFault(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_APP_FAULT_BY_SA):
+            HandleNotifyFaultBySA(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::JUDGE_SANDBOX_BY_PID):
+            HandleJudgeSandboxByPid(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::SET_APPFREEZE_FILTER):
+            HandleSetAppFreezeFilter(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::GET_BUNDLE_NAME_BY_PID):
+            HandleGetBundleNameByPid(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::GET_RUNNING_PROCESS_INFO_BY_PID):
+            HandleGetRunningProcessInfoByPid(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_ALL_RENDER_PROCESSES):
+            HandleGetAllRenderProcesses(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::GET_PROCESS_MEMORY_BY_PID):
+            HandleGetProcessMemoryByPid(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::GET_PIDS_BY_BUNDLENAME):
+            HandleGetRunningProcessInformation(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::CHANGE_APP_GC_STATE):
+            HandleChangeAppGcState(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_PAGE_SHOW):
+            HandleNotifyPageShow(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_PAGE_HIDE):
+            HandleNotifyPageHide(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_APP_RUNNING_STATUS_LISTENER):
+            HandleRegisterAppRunningStatusListener(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_APP_RUNNING_STATUS_LISTENER):
+            HandleUnregisterAppRunningStatusListener(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_APP_FOREGROUND_STATE_OBSERVER):
+            HandleRegisterAppForegroundStateObserver(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_APP_FOREGROUND_STATE_OBSERVER):
+            HandleUnregisterAppForegroundStateObserver(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_ABILITY_FOREGROUND_STATE_OBSERVER):
+            HandleRegisterAbilityForegroundStateObserver(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_ABILITY_FOREGROUND_STATE_OBSERVER):
+            HandleUnregisterAbilityForegroundStateObserver(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::IS_APPLICATION_RUNNING):
+            HandleIsApplicationRunning(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::START_CHILD_PROCESS):
+            HandleStartChildProcess(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::GET_CHILD_PROCCESS_INFO_FOR_SELF):
+            HandleGetChildProcessInfoForSelf(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::ATTACH_CHILD_PROCESS):
+            HandleAttachChildProcess(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::EXIT_CHILD_PROCESS_SAFELY):
+            HandleExitChildProcessSafely(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::IS_FINAL_APP_PROCESS):
+            HandleIsFinalAppProcess(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::APP_CLEAR_UP_APPLICATION_DATA_BY_SELF):
+            HandleClearUpApplicationDataBySelf(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_RENDER_STATUS_OBSERVER):
+            HandleRegisterRenderStateObserver(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_RENDER_STATUS_OBSERVER):
+            HandleUnregisterRenderStateObserver(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::UPDATE_RENDER_STATUS):
+            HandleUpdateRenderState(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::SIGN_RESTART_APP_FLAG):
+            HandleSignRestartAppFlag(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::GET_APP_RUNNING_UNIQUE_ID_BY_PID):
+            HandleGetAppRunningUniqueIdByPid(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::GET_ALL_UI_EXTENSION_ROOT_HOST_PID):
+            HandleGetAllUIExtensionRootHostPid(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::GET_ALL_UI_EXTENSION_PROVIDER_PID):
+            HandleGetAllUIExtensionProviderPid(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::UPDATE_CONFIGURATION_BY_BUNDLE_NAME):
+            HandleUpdateConfigurationByBundleName(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_MEMORY_SIZE_STATE_CHANGED):
+            HandleNotifyMemorySizeStateChanged(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::SET_SUPPORTED_PROCESS_CACHE_SELF):
+            HandleSetSupportedProcessCacheSelf(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_RUNNING_PROCESSES_BY_BUNDLE_TYPE):
+            HandleGetRunningProcessesByBundleType(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::SET_APP_ASSERT_PAUSE_STATE_SELF):
+            HandleSetAppAssertionPauseState(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::START_NATIVE_CHILD_PROCESS):
+            HandleStartNativeChildProcess(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::SAVE_BROWSER_CHANNEL):
+            HandleSaveBrowserChannel(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::IS_APP_RUNNING):
+            HandleIsAppRunning(data, reply);
+            break;
+        case static_cast<uint32_t>(AppMgrInterfaceCode::CHECK_CALLING_IS_USER_TEST_MODE):
+            HandleCheckCallingIsUserTestMode(data, reply);
+            break;
+    }
+    return ERR_CODE_NOT_EXIST;
 }
 
 int32_t AppMgrStub::HandleAttachApplication(MessageParcel &data, MessageParcel &reply)
@@ -1437,6 +1518,5 @@ int32_t AppMgrStub::HandleCheckCallingIsUserTestMode(MessageParcel &data, Messag
     }
     return NO_ERROR;
 }
-
 }  // namespace AppExecFwk
 }  // namespace OHOS
