@@ -20,11 +20,7 @@
 
 namespace OHOS {
 namespace AAFwk {
-SessionHandlerStub::SessionHandlerStub()
-{
-    vecMemberFunc_.resize(ISessionHandler::CODE_MAX);
-    vecMemberFunc_[ON_SESSION_MOVED_TO_FRONT] = &SessionHandlerStub::OnSessionMovedToFrontInner;
-}
+SessionHandlerStub::SessionHandlerStub() {}
 
 int32_t SessionHandlerStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -37,8 +33,9 @@ int32_t SessionHandlerStub::OnRemoteRequest(
     }
 
     if (code < ISessionHandler::CODE_MAX) {
-        auto memberFunc = vecMemberFunc_[code];
-        return (this->*memberFunc)(data, reply);
+        if (code == ON_SESSION_MOVED_TO_FRONT) {
+            return OnSessionMovedToFrontInner(data, reply);
+        }
     }
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }

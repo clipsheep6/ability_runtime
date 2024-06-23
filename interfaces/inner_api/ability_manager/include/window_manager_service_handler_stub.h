@@ -44,9 +44,6 @@ private:
     int NotifyAnimationAbilityDiedInner(MessageParcel &data, MessageParcel &reply);
     int MoveMissionsToForegroundInner(MessageParcel &data, MessageParcel &reply);
     int MoveMissionsToBackgroundInner(MessageParcel &data, MessageParcel &reply);
-
-    using RequestFuncType = int (WindowManagerServiceHandlerStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, RequestFuncType> requestFuncMap_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

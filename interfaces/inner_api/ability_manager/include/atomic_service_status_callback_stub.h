@@ -41,9 +41,6 @@ private:
     int OnInstallFinishedInner(MessageParcel &data, MessageParcel &reply);
     int OnRemoteInstallFinishedInner(MessageParcel &data, MessageParcel &reply);
     int OnRemoveTimeoutTaskInner(MessageParcel &data, MessageParcel &replay);
-    using AtomicServiceStatusCallbackFunc = int (AtomicServiceStatusCallbackStub::*)(MessageParcel &data,
-        MessageParcel &reply);
-    std::vector<AtomicServiceStatusCallbackFunc> vecMemberFunc_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

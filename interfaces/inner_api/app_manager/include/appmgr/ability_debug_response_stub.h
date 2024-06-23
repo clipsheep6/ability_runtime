@@ -36,9 +36,6 @@ private:
     int32_t HandleOnAbilitysDebugStoped(MessageParcel &data, MessageParcel &reply);
     int32_t HandleOnAbilitysAssertDebugChange(MessageParcel &data, MessageParcel &reply);
 
-    using AbilityDebugResponseFunc = int32_t (AbilityDebugResponseStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, AbilityDebugResponseFunc> responseFuncMap_;
-
     DISALLOW_COPY_AND_MOVE(AbilityDebugResponseStub);
 };
 } // namespace AppExecFwk

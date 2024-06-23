@@ -33,8 +33,6 @@ public:
 private:
     DISALLOW_COPY_AND_MOVE(SessionHandlerStub);
     virtual int32_t OnSessionMovedToFrontInner(MessageParcel &data, MessageParcel &reply);
-    using StubFunc = int (SessionHandlerStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::vector<StubFunc> vecMemberFunc_;
 };
 } // namespace AAFwk
 } // namespace OHOS
