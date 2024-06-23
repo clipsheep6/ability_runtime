@@ -831,8 +831,6 @@ napi_value JsUIExtensionContentSession::OnSetWindowPrivacyMode(napi_env env, Nap
 
 napi_value JsUIExtensionContentSession::OnStartAbilityByType(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGI(AAFwkTag::UI_EXT, "called");
-
     std::string type;
     AAFwk::WantParams wantParam;
 
@@ -860,12 +858,14 @@ napi_value JsUIExtensionContentSession::OnStartAbilityByType(napi_env env, NapiC
             }
 #ifdef SUPPORT_SCREEN
             Ace::ModalUIExtensionCallbacks callback;
-            callback.onError = std::bind(&JsUIExtensionCallback::OnError, uiExtensionCallback, std::placeholders::_1);
-            callback.onRelease = std::bind(&JsUIExtensionCallback::OnRelease,
-                uiExtensionCallback, std::placeholders::_1);
+            callback.onError = [uiExtensionCallback](int arg, const std::string &str1, const std::string &str2) {
+                uiExtensionCallback->OnError(arg);
+            };
+            callback.onRelease = [uiExtensionCallback](const auto &arg) {
+                uiExtensionCallback->OnRelease(arg);
+            };
             Ace::ModalUIExtensionConfig config;
             auto uiContent = uiWindow->GetUIContent();
-
             int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
             if (sessionId == 0) {
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));

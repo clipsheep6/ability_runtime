@@ -43,10 +43,6 @@ public:
 private:
     int32_t HandleNotifyAbilityToken(MessageParcel &data, MessageParcel &reply);
 
-    using AbilityInfoCallbackFunc = int32_t (AbilityInfoCallbackStub::*)(MessageParcel &data,
-        MessageParcel &reply);
-    std::map<uint32_t, AbilityInfoCallbackFunc> memberFuncMap_;
-
     DISALLOW_COPY_AND_MOVE(AbilityInfoCallbackStub);
 };
 }  // namespace AppExecFwk

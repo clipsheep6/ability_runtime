@@ -15,6 +15,7 @@
 
 #include "app_scheduler_host.h"
 #include "ability_info.h"
+#include "ability_manager_errors.h"
 #include "appexecfwk_errors.h"
 #include "hitrace_meter.h"
 #include "hilog_tag_wrapper.h"
@@ -25,79 +26,15 @@ namespace OHOS {
 namespace AppExecFwk {
 AppSchedulerHost::AppSchedulerHost()
 {
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_FOREGROUND_APPLICATION_TRANSACTION)] =
-        &AppSchedulerHost::HandleScheduleForegroundApplication;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_BACKGROUND_APPLICATION_TRANSACTION)] =
-        &AppSchedulerHost::HandleScheduleBackgroundApplication;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_TERMINATE_APPLICATION_TRANSACTION)] =
-        &AppSchedulerHost::HandleScheduleTerminateApplication;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_LOWMEMORY_APPLICATION_TRANSACTION)] =
-        &AppSchedulerHost::HandleScheduleLowMemory;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_SHRINK_MEMORY_APPLICATION_TRANSACTION)] =
-        &AppSchedulerHost::HandleScheduleShrinkMemory;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_MEMORYLEVEL_APPLICATION_TRANSACTION)] =
-        &AppSchedulerHost::HandleScheduleMemoryLevel;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_LAUNCH_ABILITY_TRANSACTION)] =
-        &AppSchedulerHost::HandleScheduleLaunchAbility;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_CLEAN_ABILITY_TRANSACTION)] =
-        &AppSchedulerHost::HandleScheduleCleanAbility;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_LAUNCH_APPLICATION_TRANSACTION)] =
-        &AppSchedulerHost::HandleScheduleLaunchApplication;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_PROFILE_CHANGED_TRANSACTION)] =
-        &AppSchedulerHost::HandleScheduleProfileChanged;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_CONFIGURATION_UPDATED)] =
-        &AppSchedulerHost::HandleScheduleConfigurationUpdated;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_PROCESS_SECURITY_EXIT_TRANSACTION)] =
-        &AppSchedulerHost::HandleScheduleProcessSecurityExit;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_CLEAR_PAGE_STACK)] =
-        &AppSchedulerHost::HandleScheduleClearPageStack;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ABILITY_STAGE_INFO)] =
-        &AppSchedulerHost::HandleScheduleAbilityStage;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ACCEPT_WANT)] =
-        &AppSchedulerHost::HandleScheduleAcceptWant;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NEW_PROCESS_REQUEST)] =
-        &AppSchedulerHost::HandleScheduleNewProcessRequest;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_LOAD_REPAIR_PATCH)] =
-        &AppSchedulerHost::HandleNotifyLoadRepairPatch;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_HOT_RELOAD_PAGE)] =
-        &AppSchedulerHost::HandleNotifyHotReloadPage;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_UNLOAD_REPAIR_PATCH)] =
-        &AppSchedulerHost::HandleNotifyUnLoadRepairPatch;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_UPDATE_APPLICATION_INFO_INSTALLED)] =
-        &AppSchedulerHost::HandleScheduleUpdateApplicationInfoInstalled;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION)] =
-        &AppSchedulerHost::HandleScheduleHeapMemory;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_FAULT)] =
-        &AppSchedulerHost::HandleNotifyAppFault;
     InitMemberFuncMap();
 }
 
-void AppSchedulerHost::InitMemberFuncMap()
-{
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::APP_GC_STATE_CHANGE)] =
-        &AppSchedulerHost::HandleScheduleChangeAppGcState;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ATTACH_APP_DEBUG)] =
-        &AppSchedulerHost::HandleAttachAppDebug;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DETACH_APP_DEBUG)] =
-        &AppSchedulerHost::HandleDetachAppDebug;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_JSHEAP_MEMORY_APPLICATION_TRANSACTION)] =
-        &AppSchedulerHost::HandleScheduleJsHeapMemory;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DUMP_IPC_START)] =
-        &AppSchedulerHost::HandleScheduleDumpIpcStart;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DUMP_IPC_STOP)] =
-        &AppSchedulerHost::HandleScheduleDumpIpcStop;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DUMP_IPC_STAT)] =
-        &AppSchedulerHost::HandleScheduleDumpIpcStat;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DUMP_FFRT)] =
-        &AppSchedulerHost::HandleScheduleDumpFfrt;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_CACHE_PROCESS)] =
-        &AppSchedulerHost::HandleScheduleCacheProcess;
-}
+
+void AppSchedulerHost::InitMemberFuncMap() {}
 
 AppSchedulerHost::~AppSchedulerHost()
 {
     TAG_LOGI(AAFwkTag::APPMGR, "AppSchedulerHost destruction");
-    memberFuncMap_.clear();
 }
 
 int AppSchedulerHost::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -110,16 +47,113 @@ int AppSchedulerHost::OnRemoteRequest(uint32_t code, MessageParcel &data, Messag
         TAG_LOGE(AAFwkTag::APPMGR, "local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
+    return OnRemoteRequestInner(code, data, reply, option);
+}
 
-    auto itFunc = memberFuncMap_.find(code);
-    if (itFunc != memberFuncMap_.end()) {
-        auto memberFunc = itFunc->second;
-        if (memberFunc != nullptr) {
-            return (this->*memberFunc)(data, reply);
-        }
+int32_t AppSchedulerHost::OnRemoteRequestInner(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    int retCode = ERR_OK;
+    retCode = OnRemoteRequestInnerFirst(code, data, reply, option);
+    if (retCode != INVALID_FD) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerSecond(code, data, reply, option);
+    if (retCode != INVALID_FD) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerThird(code, data, reply, option);
+    if (retCode != INVALID_FD) {
+        return retCode;
     }
     TAG_LOGD(AAFwkTag::APPMGR, "AppSchedulerHost::OnRemoteRequest end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+}
+
+int32_t AppSchedulerHost::OnRemoteRequestInnerFirst(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    switch (static_cast<uint32_t>(code)) {
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_FOREGROUND_APPLICATION_TRANSACTION):
+            return HandleScheduleForegroundApplication(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_BACKGROUND_APPLICATION_TRANSACTION):
+            return HandleScheduleBackgroundApplication(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_TERMINATE_APPLICATION_TRANSACTION):
+            return HandleScheduleTerminateApplication(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_LOWMEMORY_APPLICATION_TRANSACTION):
+            return HandleScheduleLowMemory(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_SHRINK_MEMORY_APPLICATION_TRANSACTION):
+            return HandleScheduleShrinkMemory(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_MEMORYLEVEL_APPLICATION_TRANSACTION):
+            return HandleScheduleMemoryLevel(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_LAUNCH_ABILITY_TRANSACTION):
+            return HandleScheduleLaunchAbility(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_CLEAN_ABILITY_TRANSACTION):
+            return HandleScheduleCleanAbility(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_LAUNCH_APPLICATION_TRANSACTION):
+            return HandleScheduleLaunchApplication(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_PROFILE_CHANGED_TRANSACTION):
+            return HandleScheduleProfileChanged(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_CONFIGURATION_UPDATED):
+            return HandleScheduleConfigurationUpdated(data, reply);
+    }
+    return INVALID_FD;
+}
+
+int32_t AppSchedulerHost::OnRemoteRequestInnerSecond(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    switch (static_cast<uint32_t>(code)) {
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_PROCESS_SECURITY_EXIT_TRANSACTION):
+            return HandleScheduleProcessSecurityExit(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_CLEAR_PAGE_STACK):
+            return HandleScheduleClearPageStack(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ABILITY_STAGE_INFO):
+            return HandleScheduleAbilityStage(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ACCEPT_WANT):
+            return HandleScheduleAcceptWant(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NEW_PROCESS_REQUEST):
+            return HandleScheduleNewProcessRequest(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_LOAD_REPAIR_PATCH):
+            return HandleNotifyLoadRepairPatch(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_HOT_RELOAD_PAGE):
+            return HandleNotifyHotReloadPage(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_UNLOAD_REPAIR_PATCH):
+            return HandleNotifyUnLoadRepairPatch(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_UPDATE_APPLICATION_INFO_INSTALLED):
+            return HandleScheduleUpdateApplicationInfoInstalled(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION):
+            return HandleScheduleHeapMemory(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_FAULT):
+            return HandleNotifyAppFault(data, reply);
+    }
+    return INVALID_FD;
+}
+
+int32_t AppSchedulerHost::OnRemoteRequestInnerThird(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    switch (static_cast<uint32_t>(code)) {
+        case static_cast<uint32_t>(IAppScheduler::Message::APP_GC_STATE_CHANGE):
+            return HandleScheduleChangeAppGcState(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ATTACH_APP_DEBUG):
+            return HandleAttachAppDebug(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DETACH_APP_DEBUG):
+            return HandleDetachAppDebug(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_JSHEAP_MEMORY_APPLICATION_TRANSACTION):
+            return HandleScheduleJsHeapMemory(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DUMP_IPC_START):
+            return HandleScheduleDumpIpcStart(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DUMP_IPC_STOP):
+            return HandleScheduleDumpIpcStop(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DUMP_IPC_STAT):
+            return HandleScheduleDumpIpcStat(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DUMP_FFRT):
+            return HandleScheduleDumpFfrt(data, reply);
+        case static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_CACHE_PROCESS):
+            return HandleScheduleCacheProcess(data, reply);
+    }
+    return INVALID_FD;
 }
 
 int32_t AppSchedulerHost::HandleScheduleForegroundApplication(MessageParcel &data, MessageParcel &reply)

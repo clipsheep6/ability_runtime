@@ -40,8 +40,6 @@ public:
 private:
     int ConnectInner(MessageParcel &data, MessageParcel &reply);
     int DisconnectInner(MessageParcel &data, MessageParcel &reply);
-    using ConnectCallbackFunc = int (ConnectCallbackStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<int, ConnectCallbackFunc> memberFuncMap_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
