@@ -5193,11 +5193,9 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
 
 #ifdef APP_NO_RESPONSE_DIALOG
     // A dialog box is displayed when the PC appfreeze
-    if (appRecord->GetFocusFlag() && (faultData.errorObject.name == AppFreezeType::THREAD_BLOCK_6S ||
-        faultData.errorObject.name == AppFreezeType::APP_INPUT_BLOCK)) {
-        auto &connection = ModalSystemAppFreezeUIExtension::GetInstance();
-        connection.CreateModalUIExtension(std::to_string(pid), bundleName);
-    }
+    auto killFaultApp = std::bind(&AppMgrServiceInner::KillFaultApp, this, pid, bundleName, faultData);
+    ModalSystemAppFreezeUIExtension::GetInstance().ProcessAppFreeze(appRecord->GetFocusFlag(), faultData,
+        std::to_string(pid), bundleName, killFaultApp);
 #else
     KillFaultApp(pid, bundleName, faultData);
 #endif
