@@ -80,6 +80,7 @@
             "node",
             "os_account",
             "power_manager",
+            "preferences",
             "relational_store",
             "resource_management",
             "resource_schedule_service",
