@@ -43,6 +43,7 @@ public:
 private:
     void GetGlobalConfig(const Configuration &configuration,
         OHOS::AbilityRuntime::ResourceConfigHelper &resourceConfig);
+    std::shared_ptr<NativePreferences::Preferences> GetI18nAppPreferences()；
 
 #ifdef SUPPORT_GRAPHICS
 public:
