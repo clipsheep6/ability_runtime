@@ -20,6 +20,7 @@
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #ifdef SUPPORT_GRAPHICS
+#include "preferences_helper.h"
 #include "window.h"
 #endif
 
