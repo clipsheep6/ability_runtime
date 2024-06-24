@@ -53,7 +53,6 @@ std::shared_ptr<NativePreferences::Preferences> ConfigurationUtils::GetI18nAppPr
     std::shared_ptr<NativePreferences::Preferences> preferences =
         NativePreferences::PreferencesHelper::GetPreferences(options, status);
     if (status != 0) {
-        HILOG_ERROR_I18N("PreferredLanguage::GetAppPreferredLanguage get i18n app preferences failed.");
         return nullptr;
     }
     return preferences;
@@ -64,12 +63,15 @@ void ConfigurationUtils::GetGlobalConfig(const Configuration &configuration,
 {
     std::shared_ptr<NativePreferences::Preferences> preferences = GetI18nAppPreferences();
     if (preferences == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITY, "TestLog0619: preferences == nullptr.");
         resourceConfig.SetLanguage(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE));
     }
-    std::string res = preferences->GetString(PreferredLanguage::APP_LANGUAGE_KEY, "");
+    std::string res = preferences->GetString("app_language", "");
     if (res.length() == 0) {
+        TAG_LOGE(AAFwkTag::ABILITY, "TestLog0619: res.length() == 0.");
         resourceConfig.SetLanguage(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE));
     } else {
+        TAG_LOGE(AAFwkTag::ABILITY, "TestLog0619: SetLanguage.");
         resourceConfig.SetLanguage(res);
     }
     resourceConfig.SetColormode(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE));
