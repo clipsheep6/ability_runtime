@@ -426,10 +426,10 @@ std::string AbilityAutoStartupService::GetSelfApplicationBundleName()
     return bundleName;
 }
 
-std::shared_ptr<AppExecFwk::BundleMgrHelper> AbilityAutoStartupService::GetBundleManager()
+std::shared_ptr<AppExecFwk::BundleMgrHelper> UPMSUtils::ConnectManagerHelper()
 {
     if (bundleMgrHelper_ == nullptr) {
-        bundleMgrHelper_ = AbilityUtil::GetBundleManagerHelper();
+        bundleMgrHelper_ = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     }
     return bundleMgrHelper_;
 }
@@ -449,7 +449,11 @@ bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
         TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to get BundleMgrClient.");
         return false;
     }
-    auto bms = GetBundleManager();
+    auto bms = ConnectManagerHelper();
+    if (bms == nullptr) {
+        TAG_LOGW(AAFwkTag::AUTO_STARTUP, "The bundleMgrHelper is nullptr.");
+        return GET_BUNDLE_MANAGER_SERVICE_FAILED;
+    }
 
     if (uid == -1) {
         userId = IPCSkeleton::GetCallingUid() / AppExecFwk::Constants::BASE_USER_RANGE;
@@ -479,8 +483,9 @@ bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
                 TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to get bundle info.");
                 return false;
             }
-    } else if (appIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
+    } else if (appIndex <= GlobalConstant::MAX_APP_CLONE_INDEX) {
         auto bundleFlag = static_cast<int32_t>(AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO);
+        TAG_LOGD(AAFwkTag::AUTO_STARTUP,"appindex = : %{public}d.", appIndex);
         if (!IN_PROCESS_CALL(bms->GetCloneBundleInfo(bundleName, bundleFlag, appIndex, bundleInfo, userId))) {
             TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Failed to get clone bundle info.");
             return false;
