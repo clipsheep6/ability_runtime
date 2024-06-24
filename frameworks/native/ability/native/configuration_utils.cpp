@@ -42,10 +42,35 @@ void ConfigurationUtils::UpdateGlobalConfig(const Configuration &configuration,
     resourceConfig.UpdateResConfig(configuration, resourceManager);
 }
 
+std::shared_ptr<NativePreferences::Preferences> ConfigurationUtils::GetI18nAppPreferences()
+{
+    std::shared_ptr<AbilityRuntime::ApplicationContext> appContext = AbilityRuntime::ApplicationContext::GetInstance();
+    std::string preferencesDirPath = appContext->GetPreferencesDir();
+    std::string i18nPreferencesFilePath = preferencesDirPath + "/i18n";
+    int status;
+    NativePreferences::Options options(i18nPreferencesFilePath);
+    std::shared_ptr<NativePreferences::Preferences> preferences =
+        NativePreferences::PreferencesHelper::GetPreferences(options, status);
+    if (status != 0) {
+        HILOG_ERROR_I18N("PreferredLanguage::GetAppPreferredLanguage get i18n app preferences failed.");
+        return nullptr;
+    }
+    return preferences;
+}
+
 void ConfigurationUtils::GetGlobalConfig(const Configuration &configuration,
     OHOS::AbilityRuntime::ResourceConfigHelper &resourceConfig)
 {
-    resourceConfig.SetLanguage(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE));
+    std::shared_ptr<NativePreferences::Preferences> preferences = GetI18nAppPreferences();
+    if (preferences == nullptr) {
+        resourceConfig.SetLanguage(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE));
+    }
+    std::string res = preferences->GetString(PreferredLanguage::APP_LANGUAGE_KEY, "");
+    if (res.length() == 0) {
+        resourceConfig.SetLanguage(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE));
+    } else {
+        resourceConfig.SetLanguage(res);
+    }
     resourceConfig.SetColormode(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE));
     resourceConfig.SetHasPointerDevice(configuration.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE));
     resourceConfig.SetMcc(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MCC));
