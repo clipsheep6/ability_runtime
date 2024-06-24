@@ -450,7 +450,6 @@ bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
         return false;
     }
     auto bms = GetBundleManager();
-    //CHECK_POINTER_AND_RETURN(bms, nullptr);
 
     if (uid == -1) {
         userId = IPCSkeleton::GetCallingUid() / AppExecFwk::Constants::BASE_USER_RANGE;
