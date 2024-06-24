@@ -65,14 +65,15 @@ void ConfigurationUtils::GetGlobalConfig(const Configuration &configuration,
     if (preferences == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITY, "TestLog0619: preferences == nullptr.");
         resourceConfig.SetLanguage(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE));
-    }
-    std::string res = preferences->GetString("app_language", "");
-    if (res.length() == 0) {
-        TAG_LOGE(AAFwkTag::ABILITY, "TestLog0619: res.length() == 0.");
-        resourceConfig.SetLanguage(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE));
     } else {
-        TAG_LOGE(AAFwkTag::ABILITY, "TestLog0619: SetLanguage.");
-        resourceConfig.SetLanguage(res);
+        std::string res = preferences->GetString("app_language", "");
+        if (res.length() == 0) {
+            TAG_LOGE(AAFwkTag::ABILITY, "TestLog0619: res.length() == 0.");
+            resourceConfig.SetLanguage(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE));
+        } else {
+            TAG_LOGE(AAFwkTag::ABILITY, "TestLog0619: SetLanguage.");
+            resourceConfig.SetLanguage(res);
+        }
     }
     resourceConfig.SetColormode(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE));
     resourceConfig.SetHasPointerDevice(configuration.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE));
