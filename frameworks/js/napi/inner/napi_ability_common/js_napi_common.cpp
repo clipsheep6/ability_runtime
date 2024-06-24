@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-#include "js_napi_common_ability.h"
+#include "napi_common_ability.h"
 
 #include "ability_manager_client.h"
 #include "ability_util.h"
 
 #include "hilog_tag_wrapper.h"
 #include "js_runtime_utils.h"
-#include "napi_common_ability.h"
+
 #include "napi_common_ability_wrap_utils.h"
 #include "napi_common_util.h"
 #include "napi_context.h"
@@ -30,9 +30,6 @@ using namespace OHOS::AbilityRuntime;
 
 namespace OHOS {
 namespace AppExecFwk {
-static std::map<ConnectionKey, sptr<NAPIAbilityConnection>, key_compare> connects_;
-static std::mutex g_connectionsLock_;
-static int64_t serialNumber_ = 0;
 
 JsNapiCommon::JsNapiCommon() : ability_(nullptr)
 {}

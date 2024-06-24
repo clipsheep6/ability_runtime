@@ -24,6 +24,7 @@
 #include "ability_manager_errors.h"
 #include "application_info.h"
 #include "feature_ability_common.h"
+#include "js_napi_common_ability.h"
 #include "napi_common_ability_wrap_utils.h"
 
 namespace OHOS {
