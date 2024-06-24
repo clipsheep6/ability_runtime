@@ -50,11 +50,6 @@ constexpr const char* BUNDLE_NAME = "bundleName";
 constexpr const char* ABILITY_NAME = "abilityName";
 constexpr const char* LAUNCH_EMBEDED_UI_ABILITY = "const.abilityms.launch_embeded_ui_ability";
 const std::string SUPPROT_NATIVE_CHILD_PROCESS = "persist.sys.abilityms.start_native_child_process";
-const std::string LIMIT_MAXIMUM_EXTENSIONS_OF_PER_PROCESS =
-    "const.sys.abilityms.limit_maximum_extensions_of_per_process";
-const std::string LIMIT_MAXIMUM_EXTENSIONS_OF_PER_DEVICE =
-    "const.sys.abilityms.limit_maximum_extensions_of_per_device";
-const std::string CACHE_EXTENSION_TYPES = "const.sys.abilityms.cache_extension";
 }
 
 AppUtils::~AppUtils() {}
@@ -277,36 +272,6 @@ void AppUtils::LoadResidentProcessInExtremeMemory()
         std::string abilityName = jsonObject.at(ABILITY_NAME).get<std::string>();
         residentProcessInExtremeMemory_.value.emplace_back(std::make_pair(bundleName, abilityName));
     }
-}
-
-int32_t AppUtils::GetLimitMaximumExtensionsPerProc()
-{
-    if (!limitMaximumExtensionsPerProc_.isLoaded) {
-        limitMaximumExtensionsPerProc_.value =
-            system::GetIntParameter<int32_t>(LIMIT_MAXIMUM_EXTENSIONS_OF_PER_PROCESS, DEFAULT_MAX_EXT_PER_PROC);
-        limitMaximumExtensionsPerProc_.isLoaded = true;
-    }
-    TAG_LOGD(AAFwkTag::DEFAULT, "limitMaximumExtensionsPerProc is %{public}d", limitMaximumExtensionsPerProc_.value);
-    return limitMaximumExtensionsPerProc_.value;
-}
-
-int32_t AppUtils::GetLimitMaximumExtensionsPerDevice()
-{
-    if (!limitMaximumExtensionsPerDevice_.isLoaded) {
-        limitMaximumExtensionsPerDevice_.value =
-            system::GetIntParameter<int32_t>(LIMIT_MAXIMUM_EXTENSIONS_OF_PER_DEVICE, DEFAULT_MAX_EXT_PER_DEV);
-        limitMaximumExtensionsPerDevice_.isLoaded = true;
-    }
-    TAG_LOGD(AAFwkTag::DEFAULT, "limitMaximumExtensionsPerDevice is %{public}d",
-        limitMaximumExtensionsPerDevice_.value);
-    return limitMaximumExtensionsPerDevice_.value;
-}
-
-std::string AppUtils::GetCacheExtensionTypeList()
-{
-    std::string cacheExtAbilityTypeList = system::GetParameter(CACHE_EXTENSION_TYPES, "3;5;17;260");
-    TAG_LOGD(AAFwkTag::DEFAULT, "cacheExtAbilityTypeList is %{public}s", cacheExtAbilityTypeList.c_str());
-    return cacheExtAbilityTypeList;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

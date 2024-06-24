@@ -418,8 +418,6 @@ bool AbilityManagerService::Init()
     dialogSessionRecord_ = std::make_shared<DialogSessionRecord>();
 #endif // SUPPORT_SCREEN
     InitPushTask();
-    AbilityCacheManager::GetInstance().Init(AppUtils::GetInstance().GetLimitMaximumExtensionsPerDevice(),
-        AppUtils::GetInstance().GetLimitMaximumExtensionsPerProc());
 
     SubscribeScreenUnlockedEvent();
     appExitReasonHelper_ = std::make_shared<AppExitReasonHelper>(subManagersHelper_);
@@ -6199,11 +6197,6 @@ bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
     }
 
     if (connectManager->GetExtensionByTokenFromServiceMap(token)) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "Verification token5.");
-        return true;
-    }
-
-    if (connectManager->GetExtensionByTokenFromAbilityCache(token)) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "Verification token5.");
         return true;
     }

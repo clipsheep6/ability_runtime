@@ -22,7 +22,6 @@
 #include <unordered_map>
 #include "cpp/mutex.h"
 
-#include "ability_cache_manager.h"
 #include "ability_connect_callback_interface.h"
 #include "task_handler_wrap.h"
 #include "event_handler_wrap.h"
@@ -204,7 +203,6 @@ public:
     std::shared_ptr<AbilityRecord> GetUIExtensioBySessionInfo(const sptr<SessionInfo> &sessionInfo);
 
     std::shared_ptr<AbilityRecord> GetExtensionByTokenFromServiceMap(const sptr<IRemoteObject> &token);
-    std::shared_ptr<AbilityRecord> GetExtensionByTokenFromAbilityCache(const sptr<IRemoteObject> &token);
     std::shared_ptr<AbilityRecord> GetExtensionByTokenFromTerminatingMap(const sptr<IRemoteObject> &token);
     ConnectListType GetConnectRecordListByCallback(sptr<IAbilityConnection> callback);
 
@@ -414,7 +412,6 @@ private:
     void HandleActiveAbility(std::shared_ptr<AbilityRecord> &targetService,
         std::shared_ptr<ConnectionRecord> &connectRecord);
     void HandleCommandDestroy(const sptr<SessionInfo> &sessionInfo);
-    void TerminateOrCacheAbility(std::shared_ptr<AbilityRecord> abilityRecord);
 
     /**
      * IsAbilityConnected.
@@ -566,7 +563,6 @@ private:
     void KillProcessesByUserId() const;
     void SetLastExitReason(const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetService);
     inline bool IsUIExtensionAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    inline bool IsCacheExtensionAbilityType(const std::shared_ptr<AbilityRecord> &abilityRecord);
     inline bool CheckUIExtensionAbilityLoaded(const AbilityRequest &abilityRequest);
     inline bool CheckUIExtensionAbilitySessionExist(const std::shared_ptr<AbilityRecord> &abilityRecord);
     inline void RemoveUIExtensionAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
@@ -589,7 +585,6 @@ private:
         bool updateOnly);
 
     void KeepAbilityAlive(const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t currentUserId);
-    void ProcessEliminateAbilityRecord(std::shared_ptr<AbilityRecord> eliminateRecord);
 
 private:
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";

@@ -16,7 +16,6 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 abilityms_files = [
   "src/preload_uiext_state_observer.cpp",
   "src/ability_background_connection.cpp",
-  "src/ability_cache_manager.cpp",
   "src/ability_connect_manager.cpp",
   "src/ability_debug_deal.cpp",
   "src/ability_event_handler.cpp",

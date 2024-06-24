@@ -221,9 +221,6 @@ std::shared_ptr<AbilityConnectManager> SubManagersHelper::GetConnectManagerByTok
         if (item.second && item.second->GetExtensionByTokenFromServiceMap(token)) {
             return item.second;
         }
-        if (item.second && item.second->GetExtensionByTokenFromAbilityCache(token)) {
-            return item.second;
-        }
         if (item.second && item.second->GetExtensionByTokenFromTerminatingMap(token)) {
             return item.second;
         }
@@ -376,22 +373,6 @@ void SubManagersHelper::UninstallAppInMissionListManagers(int32_t userId, const 
     }
 }
 
-bool SubManagersHelper::VerificationAllTokenForConnectManagers(const sptr<IRemoteObject> &token)
-{
-    for (auto& item: connectManagers_) {
-        if (item.second && item.second->GetExtensionByTokenFromServiceMap(token)) {
-            return true;
-        }
-        if (item.second && item.second->GetExtensionByTokenFromAbilityCache(token)) {
-            return true;
-        }
-        if (item.second && item.second->GetExtensionByTokenFromTerminatingMap(token)) {
-            return true;
-        }
-    }
-    return false;
-}
-
 bool SubManagersHelper::VerificationAllToken(const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -424,8 +405,13 @@ bool SubManagersHelper::VerificationAllToken(const sptr<IRemoteObject> &token)
     }
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "VerificationAllToken::SearchConnectManagers_");
-        if (VerificationAllTokenForConnectManagers(token)) {
-            return true;
+        for (auto& item: connectManagers_) {
+            if (item.second && item.second->GetExtensionByTokenFromServiceMap(token)) {
+                return true;
+            }
+            if (item.second && item.second->GetExtensionByTokenFromTerminatingMap(token)) {
+                return true;
+            }
         }
     }
     TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to verify all token.");
