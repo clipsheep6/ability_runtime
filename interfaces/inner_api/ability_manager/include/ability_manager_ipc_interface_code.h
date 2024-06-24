@@ -242,7 +242,7 @@ enum class AbilityManagerInterfaceCode {
     START_SHORTCUT = 79,
 
     // Set resident process enable status.
-    SET_RESIDENT_PROCESS_ENABLE = 80,
+    SET_RESIDENT_PROCESS_ENABLE = 80,    
 
     // ipc id 1001-2000 for DMS
     // ipc id for starting ability (1001)
