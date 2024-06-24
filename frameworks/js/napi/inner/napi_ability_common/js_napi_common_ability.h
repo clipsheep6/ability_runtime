@@ -243,6 +243,9 @@ struct key_compare {
         return false;
     }
 };
+static std::map<ConnectionKey, sptr<NAPIAbilityConnection>, key_compare> connects_;
+static std::mutex g_connectionsLock_;
+static int64_t serialNumber_ = 0;
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_JS_NAPI_COMMON_ABILITY_H
