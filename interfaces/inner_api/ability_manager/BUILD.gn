@@ -243,9 +243,11 @@ ohos_shared_library("ability_manager") {
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "relational_store:native_dataability",
-    "relational_store:native_rdb",
     "samgr:samgr_proxy",
   ]
+  if (host_cpu != "arm64") {
+    external_deps += [ "relational_store:native_rdb" ]
+  }
 
   public_external_deps = [
     "ability_base:configuration",
