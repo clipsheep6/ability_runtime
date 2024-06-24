@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_CONFIGURATION_UTILS_H
 
 #include "configuration.h"
+#include "preferences_helper.h"
 #include "resource_config_helper.h"
 #ifdef SUPPORT_GRAPHICS
 #include "display_manager.h"
