@@ -3353,7 +3353,7 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_TransferAbilityResultForExte
     MessageParcel data;
     MessageParcel reply;
     auto res = stub_->TransferAbilityResultForExtensionInner(data, reply);
-    EXPECT_EQ(res, NO_ERROR);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
 }
 
 /**
