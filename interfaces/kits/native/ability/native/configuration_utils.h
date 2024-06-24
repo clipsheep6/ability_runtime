@@ -16,7 +16,6 @@
 #ifndef OHOS_ABILITY_RUNTIME_CONFIGURATION_UTILS_H
 #define OHOS_ABILITY_RUNTIME_CONFIGURATION_UTILS_H
 
-#include <memory>
 #include "configuration.h"
 #include "preferences_helper.h"
 #include "resource_config_helper.h"
@@ -45,7 +44,7 @@ public:
 private:
     void GetGlobalConfig(const Configuration &configuration,
         OHOS::AbilityRuntime::ResourceConfigHelper &resourceConfig);
-    std::shared_ptr<NativePreferences::Preferences> GetI18nAppPreferences()；
+    std::shared_ptr<NativePreferences::Preferences> GetI18nAppPreferences();
 
 #ifdef SUPPORT_GRAPHICS
 public:
