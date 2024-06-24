@@ -15,6 +15,7 @@
 
 #include "configuration_utils.h"
 
+#include "application_context.h"
 #include "configuration_convertor.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
