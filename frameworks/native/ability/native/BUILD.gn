@@ -162,6 +162,7 @@ ohos_shared_library("abilitykit_utils") {
     "ipc:ipc_napi",
     "json:nlohmann_json_static",
     "napi:ace_napi",
+    "preferences:native_preferences",
     "resource_management:global_resmgr",
   ]
 
