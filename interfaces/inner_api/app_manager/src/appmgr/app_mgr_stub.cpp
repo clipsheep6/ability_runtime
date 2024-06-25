@@ -131,6 +131,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleNotifyFaultBySA;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::JUDGE_SANDBOX_BY_PID)] =
         &AppMgrStub::HandleJudgeSandboxByPid;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SET_APPFREEZE_FILTER)] =
+        &AppMgrStub::HandleSetAppFreezeFilter;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_BUNDLE_NAME_BY_PID)] =
         &AppMgrStub::HandleGetBundleNameByPid;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_RUNNING_PROCESS_INFO_BY_PID)] =
@@ -309,8 +311,9 @@ int32_t AppMgrStub::HandleClearUpApplicationData(MessageParcel &data, MessagePar
 {
     HITRACE_METER(HITRACE_TAG_APP);
     std::string bundleName = data.ReadString();
+    int32_t appCloneIndex = data.ReadInt32();
     int32_t userId = data.ReadInt32();
-    int32_t result = ClearUpApplicationData(bundleName, userId);
+    int32_t result = ClearUpApplicationData(bundleName, appCloneIndex, userId);
     reply.WriteInt32(result);
     return NO_ERROR;
 }
@@ -1003,6 +1006,17 @@ int32_t AppMgrStub::HandleNotifyFaultBySA(MessageParcel &data, MessageParcel &re
 
     int32_t result = NotifyAppFaultBySA(*faultData);
     if (!reply.WriteInt32(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleSetAppFreezeFilter(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t pid = data.ReadInt32();
+    bool result = SetAppFreezeFilter(pid);
+    if (!reply.WriteBool(result)) {
         TAG_LOGE(AAFwkTag::APPMGR, "reply write failed.");
         return ERR_INVALID_VALUE;
     }

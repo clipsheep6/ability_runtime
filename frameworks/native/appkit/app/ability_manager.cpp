@@ -67,10 +67,10 @@ std::vector<RunningProcessInfo> AbilityManager::GetAllRunningProcesses()
     return info;
 }
 
-int AbilityManager::KillProcessesByBundleName(const std::string &bundleName)
+int AbilityManager::KillProcessesByBundleName(const std::string &bundleName, const bool clearPageStack)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "%s, %d", __func__, __LINE__);
-    ErrCode error = AAFwk::AbilityManagerClient::GetInstance()->KillProcess(bundleName);
+    ErrCode error = AAFwk::AbilityManagerClient::GetInstance()->KillProcess(bundleName, clearPageStack);
     if (error != ERR_OK) {
         TAG_LOGE(AAFwkTag::APPKIT, "%s failed, error : %d", __func__, error);
         return error;

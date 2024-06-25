@@ -100,10 +100,12 @@ public:
      * clear the application data.
      *
      * @param bundleName, bundle name in Application record.
-     * @return
+     * @param appCloneIndex the app clone id.
+     * @param userId the user id.
+     * @return ErrCode
      */
-    virtual int32_t ClearUpApplicationData(const std::string &bundleName,
-        const int32_t userId = -1) override;
+    virtual int32_t ClearUpApplicationData(const std::string &bundleName, int32_t appCloneIndex,
+        int32_t userId = -1) override;
 
     /**
      * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
@@ -355,6 +357,14 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData) override;
+
+    /**
+     * Set Appfreeze Detect Filter
+     *
+     * @param pid the process pid.
+     * @return Returns true on success, others on failure.
+     */
+    virtual bool SetAppFreezeFilter(int32_t pid) override;
 
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**

@@ -22,9 +22,11 @@
 #include <unistd.h>
 #include <vector>
 
+#include "bundle_info.h"
 #include "bundle_mgr_helper.h"
+#include "bundle_mgr_proxy.h"
 #include "connect_server_manager.h"
-#include "refbase.h"
+#include "console.h"
 #ifdef SUPPORT_SCREEN
 #include "core/common/container_scope.h"
 #include "declarative_module_preloader.h"
@@ -32,18 +34,16 @@
 
 #include "extractor.h"
 #include "file_mapper.h"
-#include "bundle_info.h"
-#include "bundle_mgr_proxy.h"
-#include "iservice_registry.h"
-#include "iremote_object.h"
-#include "singleton.h"
-#include "system_ability_definition.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "iremote_object.h"
+#include "iservice_registry.h"
 #include "js_runtime_utils.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
-#include "commonlibrary/ets_utils/js_sys_module/console/console.h"
+#include "refbase.h"
+#include "singleton.h"
 #include "syscap_ts.h"
+#include "system_ability_definition.h"
 #ifdef SUPPORT_SCREEN
 using OHOS::Ace::ContainerScope;
 #endif

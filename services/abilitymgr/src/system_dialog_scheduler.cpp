@@ -586,52 +586,6 @@ void SystemDialogScheduler::GetDialogPositionAndSize(DialogType type, DialogPosi
     }
 }
 
-void SystemDialogScheduler::GetAppNameFromResource(int32_t labelId,
-    const std::string &bundleName, int32_t userId, std::string &appName)
-{
-    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
-    if (resourceManager == nullptr) {
-        TAG_LOGE(AAFwkTag::DIALOG, "The resourceManager is nullptr.");
-        return;
-    }
-
-    AppExecFwk::BundleInfo bundleInfo;
-    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
-    CHECK_POINTER(bundleMgrHelper);
-    if (!IN_PROCESS_CALL(
-        bundleMgrHelper->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId))) {
-        TAG_LOGE(AAFwkTag::DIALOG, "Failed to get bundle info.");
-        return;
-    }
-    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
-    UErrorCode status = U_ZERO_ERROR;
-    icu::Locale locale = icu::Locale::forLanguageTag(Global::I18n::LocaleConfig::GetSystemLanguage(), status);
-    resConfig->SetLocaleInfo(locale);
-    resourceManager->UpdateResConfig(*resConfig);
-
-    std::regex pattern(std::string(ABS_CODE_PATH) +
-        std::string(FILE_SEPARATOR) + bundleInfo.name);
-    for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-        std::string loadPath;
-        TAG_LOGD(AAFwkTag::DIALOG, "make a judgment.");
-        if (!hapModuleInfo.hapPath.empty()) {
-            loadPath = hapModuleInfo.hapPath;
-        } else {
-            loadPath = hapModuleInfo.resourcePath;
-        }
-        if (loadPath.empty()) {
-            continue;
-        }
-        TAG_LOGD(AAFwkTag::DIALOG, "GetAppNameFromResource loadPath: %{public}s.", loadPath.c_str());
-        if (!resourceManager->AddResource(loadPath.c_str())) {
-            TAG_LOGE(AAFwkTag::DIALOG, "ResourceManager add %{public}s resource path failed.", bundleInfo.name.c_str());
-        }
-    }
-    resourceManager->GetStringById(static_cast<uint32_t>(labelId), appName);
-    TAG_LOGD(
-        AAFwkTag::DIALOG, "Get app display info, labelId: %{public}d, appname: %{public}s.", labelId, appName.c_str());
-}
-
 bool SystemDialogScheduler::GetAssertFaultDialogWant(Want &want)
 {
     auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();

@@ -64,13 +64,7 @@ std::shared_ptr<DataObsMgrClient> DataObsMgrClient::GetInstance()
 
 DataObsMgrClient::DataObsMgrClient()
 {
-    sptr<ISystemAbilityManager> systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (systemManager == nullptr) {
-        TAG_LOGE(AAFwkTag::DBOBSMGR, "System mgr is nullptr");
-        return;
-    }
-    sptr<SystemAbilityStatusChangeListener> callback(new SystemAbilityStatusChangeListener());
-    systemManager->SubscribeSystemAbility(DATAOBS_MGR_SERVICE_SA_ID, callback);
+    callback_ = new SystemAbilityStatusChangeListener();
 }
 
 DataObsMgrClient::~DataObsMgrClient()
@@ -243,6 +237,12 @@ void DataObsMgrClient::OnRemoteDied()
     std::this_thread::sleep_for(std::chrono::seconds(RESUB_INTERVAL));
     ResetService();
     if (Connect() != SUCCESS) {
+        sptr<ISystemAbilityManager> systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        if (systemManager == nullptr) {
+            TAG_LOGE(AAFwkTag::DBOBSMGR, "System mgr is nullptr");
+            return;
+        }
+        systemManager->SubscribeSystemAbility(DATAOBS_MGR_SERVICE_SA_ID, callback_);
         return;
     }
     ReRegister();

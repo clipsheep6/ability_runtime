@@ -101,7 +101,7 @@ HWTEST_F(AbilityManagerClientTest, AbilityManagerClient_RecordAppExitReason_0100
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient_RecordAppExitReason_0100 start");
     ExitReason exitReason = { REASON_JS_ERROR, "Js Error." };
     auto result = AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
-    EXPECT_EQ(result, GET_BUNDLE_INFO_FAILED);
+    EXPECT_EQ(result, ERR_NAME_NOT_FOUND);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient_RecordAppExitReason_0100 end");
 }
 
@@ -115,7 +115,7 @@ HWTEST_F(AbilityManagerClientTest, AbilityManagerClient_RecordProcessExitReason_
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient_RecordProcessExitReason_0100 start");
     ExitReason exitReason = { REASON_JS_ERROR, "Js Error." };
     auto result = AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
-    EXPECT_EQ(result, GET_BUNDLE_INFO_FAILED);
+    EXPECT_EQ(result, ERR_NAME_NOT_FOUND);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient_RecordProcessExitReason_0100 end");
 }
 }  // namespace AAFwk

@@ -21,12 +21,12 @@ export class PhotoEditorExtensionContext extends UIExtensionContext {
     }
 
     saveEditedContentWithUri(uri, asyncCallback) {
-        console.log("saveEditedContent with uri: " + uri);
+        console.log('saveEditedContent with uri: ' + uri);
         return this.__context_impl__.saveEditedContentWithUri(uri, asyncCallback);
     }
 
     saveEditedContentWithImage(image, option, asyncCallback) {
-        console.log("saveEditedContent with image pixmap.");
+        console.log('saveEditedContent with image pixmap.');
         return this.__context_impl__.saveEditedContentWithImage(image, option, asyncCallback);
     }
 }

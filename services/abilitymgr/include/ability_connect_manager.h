@@ -22,6 +22,7 @@
 #include <unordered_map>
 #include "cpp/mutex.h"
 
+#include "ability_cache_manager.h"
 #include "ability_connect_callback_interface.h"
 #include "task_handler_wrap.h"
 #include "event_handler_wrap.h"
@@ -116,7 +117,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int PreloadUIExtensionAbilityLocked(const AbilityRequest &abilityRequest, std::string &hostBundleName);
-    
+
     /**
      * UnloadUIExtensionAbility, unload uiextension ability.
      *
@@ -132,7 +133,7 @@ public:
      * @param abilityRecord, uiextension ability record.
      */
     void ClearPreloadUIExtensionRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    
+
     /**
      * DisconnectAbilityLocked, disconnect session with callback.
      *
@@ -203,6 +204,7 @@ public:
     std::shared_ptr<AbilityRecord> GetUIExtensioBySessionInfo(const sptr<SessionInfo> &sessionInfo);
 
     std::shared_ptr<AbilityRecord> GetExtensionByTokenFromServiceMap(const sptr<IRemoteObject> &token);
+    std::shared_ptr<AbilityRecord> GetExtensionByTokenFromAbilityCache(const sptr<IRemoteObject> &token);
     std::shared_ptr<AbilityRecord> GetExtensionByTokenFromTerminatingMap(const sptr<IRemoteObject> &token);
     ConnectListType GetConnectRecordListByCallback(sptr<IAbilityConnection> callback);
 
@@ -412,6 +414,7 @@ private:
     void HandleActiveAbility(std::shared_ptr<AbilityRecord> &targetService,
         std::shared_ptr<ConnectionRecord> &connectRecord);
     void HandleCommandDestroy(const sptr<SessionInfo> &sessionInfo);
+    void TerminateOrCacheAbility(std::shared_ptr<AbilityRecord> abilityRecord);
 
     /**
      * IsAbilityConnected.
@@ -560,10 +563,10 @@ private:
     std::shared_ptr<AbilityRecord> GetExtensionByIdFromServiceMap(int32_t abilityRecordId);
     int TerminateAbilityInner(const sptr<IRemoteObject> &token);
     bool IsLauncher(std::shared_ptr<AbilityRecord> serviceExtension) const;
-    bool IsSampleManagement(std::shared_ptr<AbilityRecord> serviceExtension) const;
     void KillProcessesByUserId() const;
     void SetLastExitReason(const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetService);
     inline bool IsUIExtensionAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    inline bool IsCacheExtensionAbilityType(const std::shared_ptr<AbilityRecord> &abilityRecord);
     inline bool CheckUIExtensionAbilityLoaded(const AbilityRequest &abilityRequest);
     inline bool CheckUIExtensionAbilitySessionExist(const std::shared_ptr<AbilityRecord> &abilityRecord);
     inline void RemoveUIExtensionAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
@@ -584,6 +587,9 @@ private:
 
     void AddConnectObjectToMap(sptr<IRemoteObject> connectObject, const ConnectListType &connectRecordList,
         bool updateOnly);
+
+    void KeepAbilityAlive(const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t currentUserId);
+    void ProcessEliminateAbilityRecord(std::shared_ptr<AbilityRecord> eliminateRecord);
 
 private:
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
