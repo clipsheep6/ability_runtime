@@ -559,6 +559,8 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
         return;
     }
 
+    bool isExtensionAbilityExists = appRecord->ExtensionAbilityRecordExists(token);
+
     auto isLastAbility =
         clearMissionFlag ? appRecord->IsLastPageAbilityRecord(token) : appRecord->IsLastAbilityRecord(token);
 #ifdef SUPPORT_SCREEN
@@ -581,7 +583,7 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
         TAG_LOGD(AAFwkTag::APPMGR, "The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
         if (clearMissionFlag && appMgrServiceInner != nullptr) {
-            auto delayTime = appRecord->ExtensionAbilityRecordExists(token) ?
+            auto delayTime = isExtensionAbilityExists ?
                 AMSEventHandler::DELAY_KILL_EXTENSION_PROCESS_TIMEOUT : AMSEventHandler::DELAY_KILL_PROCESS_TIMEOUT;
             appRecord->PostTask("DELAY_KILL_PROCESS", delayTime, killProcess);
         }
