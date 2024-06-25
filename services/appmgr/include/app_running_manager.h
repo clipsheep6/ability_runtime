@@ -235,7 +235,7 @@ public:
         const std::string &bundleName, const int uid, std::list<pid_t> &pids, const bool clearPageStack = true);
     bool GetPidsByUserId(int32_t userId, std::list<pid_t> &pids);
 
-    void PrepareTerminate(const sptr<IRemoteObject> &token);
+    void PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag = false);
 
     std::shared_ptr<AppRunningRecord> GetTerminatingAppRunningRecord(const sptr<IRemoteObject> &abilityToken);
 

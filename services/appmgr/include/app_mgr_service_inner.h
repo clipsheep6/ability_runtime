@@ -592,7 +592,7 @@ public:
 
     void HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &token);
 
-    void PrepareTerminate(const sptr<IRemoteObject> &token);
+    void PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag = false);
 
     void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
         bool needNotifyApp, bool isFromWindowFocusChanged);

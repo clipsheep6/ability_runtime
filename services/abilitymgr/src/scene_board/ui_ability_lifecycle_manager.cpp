@@ -1114,7 +1114,7 @@ int UIAbilityLifecycleManager::CloseUIAbilityInner(std::shared_ptr<AbilityRecord
         TAG_LOGI(AAFwkTag::ABILITYMGR, "ability is on terminating");
         return ERR_OK;
     }
-    DelayedSingleton<AppScheduler>::GetInstance()->PrepareTerminate(abilityRecord->GetToken());
+    DelayedSingleton<AppScheduler>::GetInstance()->PrepareTerminate(abilityRecord->GetToken(), isClearSession);
     abilityRecord->SetTerminatingState();
     abilityRecord->SetClearMissionFlag(isClearSession);
     // save result to caller AbilityRecord

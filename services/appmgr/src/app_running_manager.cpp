@@ -488,7 +488,7 @@ void AppRunningManager::HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &to
     appRecord->PostTask("DELAY_KILL_ABILITY", AMSEventHandler::KILL_PROCESS_TIMEOUT, timeoutTask);
 }
 
-void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token)
+void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag)
 {
     if (token == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "token is nullptr.");
@@ -506,7 +506,10 @@ void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token)
         abilityRecord->SetTerminating();
     }
 
-    if (appRecord->IsLastAbilityRecord(token) && (!appRecord->IsKeepAliveApp() ||
+    // set app record terminating when close last page ability
+    auto isLastAbility =
+        clearMissionFlag ? appRecord->IsLastPageAbilityRecord(token) : appRecord->IsLastAbilityRecord(token);
+    if (isLastAbility && (!appRecord->IsKeepAliveApp() ||
         !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent())) {
         auto cacheProcMgr = DelayedSingleton<CacheProcessManager>::GetInstance();
         cacheProcMgr->UpdateTypeByAbility(abilityRecord, appRecord);
@@ -581,7 +584,7 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
         TAG_LOGD(AAFwkTag::APPMGR, "The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
         if (clearMissionFlag && appMgrServiceInner != nullptr) {
-            auto delayTime = appRecord->ExtensionAbilityRecordExists(token) ?
+            auto delayTime = appRecord->ExtensionAbilityRecordExists() ?
                 AMSEventHandler::DELAY_KILL_EXTENSION_PROCESS_TIMEOUT : AMSEventHandler::DELAY_KILL_PROCESS_TIMEOUT;
             appRecord->PostTask("DELAY_KILL_PROCESS", delayTime, killProcess);
         }

@@ -292,8 +292,9 @@ public:
      * Prepare terminate.
      *
      * @param token Ability identify.
+     * @param clearMissionFlag Clear mission flag.
      */
-    virtual void PrepareTerminate(const sptr<IRemoteObject> &token);
+    virtual void PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag = false);
 
     /**
      * Get running process information by ability token.

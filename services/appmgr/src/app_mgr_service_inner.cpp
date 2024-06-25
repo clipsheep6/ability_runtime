@@ -3224,14 +3224,14 @@ void AppMgrServiceInner::HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &t
     appRunningManager_->HandleAbilityAttachTimeOut(token);
 }
 
-void AppMgrServiceInner::PrepareTerminate(const sptr<IRemoteObject> &token)
+void AppMgrServiceInner::PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!appRunningManager_) {
         TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is nullptr");
         return;
     }
-    appRunningManager_->PrepareTerminate(token);
+    appRunningManager_->PrepareTerminate(token, clearMissionFlag);
 }
 
 void AppMgrServiceInner::HandleTerminateApplicationTimeOut(const int64_t eventId)

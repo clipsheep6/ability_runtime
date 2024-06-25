@@ -304,7 +304,7 @@ void AmsMgrScheduler::AbilityAttachTimeOut(const sptr<IRemoteObject> &token)
     amsHandler_->SubmitTask(task);
 }
 
-void AmsMgrScheduler::PrepareTerminate(const sptr<IRemoteObject> &token)
+void AmsMgrScheduler::PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Notify AppMgrService to prepare to terminate the ability.");
     if (!IsReady()) {
@@ -315,7 +315,7 @@ void AmsMgrScheduler::PrepareTerminate(const sptr<IRemoteObject> &token)
         TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
         return;
     }
-    auto task = [=]() { amsMgrServiceInner_->PrepareTerminate(token); };
+    auto task = [=]() { amsMgrServiceInner_->PrepareTerminate(token, clearMissionFlag); };
     amsHandler_->SubmitTask(task, AAFwk::TaskQoS::USER_INTERACTIVE);
 }
 

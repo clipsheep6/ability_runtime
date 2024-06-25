@@ -501,7 +501,7 @@ void AmsMgrProxy::AbilityAttachTimeOut(const sptr<IRemoteObject> &token)
     TAG_LOGD(AAFwkTag::APPMGR, "end");
 }
 
-void AmsMgrProxy::PrepareTerminate(const sptr<IRemoteObject> &token)
+void AmsMgrProxy::PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "start");
     MessageParcel data;
@@ -512,6 +512,10 @@ void AmsMgrProxy::PrepareTerminate(const sptr<IRemoteObject> &token)
     }
     if (!data.WriteRemoteObject(token.GetRefPtr())) {
         TAG_LOGE(AAFwkTag::APPMGR, "Failed to write token");
+        return;
+    }
+    if (!data.WriteBool(clearMissionFlag)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write clearMissionFlag");
         return;
     }
     int32_t ret =
