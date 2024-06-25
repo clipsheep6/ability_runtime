@@ -1171,6 +1171,20 @@ int32_t AppMgrService::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
     return ret;
 }
 
+bool AppMgrService::SetAppFreezeFilter(int32_t pid)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    auto ret = appMgrServiceInner_->SetAppFreezeFilter(pid);
+    if (!ret) {
+        TAG_LOGE(AAFwkTag::APPMGR, "SetAppFreezeFilter fail.");
+    }
+    return ret;
+}
+
 int32_t AppMgrService::GetProcessMemoryByPid(const int32_t pid, int32_t &memorySize)
 {
     if (!IsReady()) {

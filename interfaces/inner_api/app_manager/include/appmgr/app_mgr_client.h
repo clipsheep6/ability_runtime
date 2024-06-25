@@ -517,6 +517,14 @@ public:
     int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData);
 
     /**
+     * Set Appfreeze Detect Filter
+     *
+     * @param pid the process pid.
+     * @return Returns true on success, others on failure.
+     */
+    bool SetAppFreezeFilter(int32_t pid);
+
+    /**
      * Set AbilityForegroundingFlag of an app-record to true.
      *
      * @param pid, pid.

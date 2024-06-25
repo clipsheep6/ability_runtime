@@ -431,6 +431,14 @@ public:
      */
     virtual int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData) = 0;
 
+    /**
+     * Set Appfreeze Detect Filter
+     *
+     * @param pid the process pid.
+     * @return Returns true on success, others on failure.
+     */
+    virtual bool SetAppFreezeFilter(int32_t pid) = 0;
+
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     /**
      * @brief Set whether the process is continuousTask.
