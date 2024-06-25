@@ -323,20 +323,8 @@ int AbilityManagerStub::OnRemoteRequestInnerEighth(uint32_t code, MessageParcel 
     if (interfaceCode == AbilityManagerInterfaceCode::IS_RAM_CONSTRAINED_DEVICE) {
         return IsRamConstrainedDeviceInner(data, reply);
     }
-    if (interfaceCode == AbilityManagerInterfaceCode::LOCK_MISSION_FOR_CLEANUP) {
-        return LockMissionForCleanupInner(data, reply);
-    }
-    if (interfaceCode == AbilityManagerInterfaceCode::UNLOCK_MISSION_FOR_CLEANUP) {
-        return UnlockMissionForCleanupInner(data, reply);
-    }
     if (interfaceCode == AbilityManagerInterfaceCode::SET_SESSION_LOCKED_STATE) {
         return SetLockedStateInner(data, reply);
-    }
-    if (interfaceCode == AbilityManagerInterfaceCode::REGISTER_MISSION_LISTENER) {
-        return RegisterMissionListenerInner(data, reply);
-    }
-    if (interfaceCode == AbilityManagerInterfaceCode::UNREGISTER_MISSION_LISTENER) {
-        return UnRegisterMissionListenerInner(data, reply);
     }
     return ERR_CODE_NOT_EXIST;
 }
@@ -345,29 +333,11 @@ int AbilityManagerStub::OnRemoteRequestInnerNinth(uint32_t code, MessageParcel &
     MessageParcel &reply, MessageOption &option)
 {
     AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
-    if (interfaceCode == AbilityManagerInterfaceCode::GET_MISSION_INFOS) {
-        return GetMissionInfosInner(data, reply);
-    }
-    if (interfaceCode == AbilityManagerInterfaceCode::GET_MISSION_INFO_BY_ID) {
-        return GetMissionInfoInner(data, reply);
-    }
-    if (interfaceCode == AbilityManagerInterfaceCode::CLEAN_MISSION) {
-        return CleanMissionInner(data, reply);
-    }
-    if (interfaceCode == AbilityManagerInterfaceCode::CLEAN_ALL_MISSIONS) {
-        return CleanAllMissionsInner(data, reply);
-    }
     if (interfaceCode == AbilityManagerInterfaceCode::MOVE_MISSION_TO_FRONT) {
         return MoveMissionToFrontInner(data, reply);
     }
     if (interfaceCode == AbilityManagerInterfaceCode::MOVE_MISSION_TO_FRONT_BY_OPTIONS) {
         return MoveMissionToFrontByOptionsInner(data, reply);
-    }
-    if (interfaceCode == AbilityManagerInterfaceCode::MOVE_MISSIONS_TO_FOREGROUND) {
-        return MoveMissionsToForegroundInner(data, reply);
-    }
-    if (interfaceCode == AbilityManagerInterfaceCode::MOVE_MISSIONS_TO_BACKGROUND) {
-        return MoveMissionsToBackgroundInner(data, reply);
     }
     if (interfaceCode == AbilityManagerInterfaceCode::START_CALL_ABILITY) {
         return StartAbilityByCallInner(data, reply);
@@ -405,9 +375,6 @@ int AbilityManagerStub::OnRemoteRequestInnerTenth(uint32_t code, MessageParcel &
     }
     if (interfaceCode == AbilityManagerInterfaceCode::SET_ABILITY_CONTROLLER) {
         return SetAbilityControllerInner(data, reply);
-    }
-    if (interfaceCode == AbilityManagerInterfaceCode::GET_MISSION_SNAPSHOT_INFO) {
-        return GetMissionSnapshotInfoInner(data, reply);
     }
     if (interfaceCode == AbilityManagerInterfaceCode::IS_USER_A_STABILITY_TEST) {
         return IsRunningInStabilityTestInner(data, reply);
@@ -464,29 +431,14 @@ int AbilityManagerStub::OnRemoteRequestInnerTwelveth(uint32_t code, MessageParce
     if (interfaceCode == AbilityManagerInterfaceCode::FINISH_USER_TEST) {
         return FinishUserTestInner(data, reply);
     }
-    if (interfaceCode == AbilityManagerInterfaceCode::GET_TOP_ABILITY_TOKEN) {
-        return GetTopAbilityTokenInner(data, reply);
-    }
     if (interfaceCode == AbilityManagerInterfaceCode::CHECK_UI_EXTENSION_IS_FOCUSED) {
         return CheckUIExtensionIsFocusedInner(data, reply);
-    }
-    if (interfaceCode == AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_FOREGROUND) {
-        return DelegatorDoAbilityForegroundInner(data, reply);
-    }
-    if (interfaceCode == AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_BACKGROUND) {
-        return DelegatorDoAbilityBackgroundInner(data, reply);
     }
     if (interfaceCode == AbilityManagerInterfaceCode::DO_ABILITY_FOREGROUND) {
         return DoAbilityForegroundInner(data, reply);
     }
     if (interfaceCode == AbilityManagerInterfaceCode::DO_ABILITY_BACKGROUND) {
         return DoAbilityBackgroundInner(data, reply);
-    }
-    if (interfaceCode == AbilityManagerInterfaceCode::GET_MISSION_ID_BY_ABILITY_TOKEN) {
-        return GetMissionIdByTokenInner(data, reply);
-    }
-    if (interfaceCode == AbilityManagerInterfaceCode::GET_TOP_ABILITY) {
-        return GetTopAbilityInner(data, reply);
     }
     return ERR_CODE_NOT_EXIST;
 }
@@ -507,9 +459,6 @@ int AbilityManagerStub::OnRemoteRequestInnerThirteenth(uint32_t code, MessagePar
     if (interfaceCode == AbilityManagerInterfaceCode::STOP_EXTENSION_ABILITY) {
         return StopExtensionAbilityInner(data, reply);
     }
-    if (interfaceCode == AbilityManagerInterfaceCode::UPDATE_MISSION_SNAPSHOT_FROM_WMS) {
-        return UpdateMissionSnapShotFromWMSInner(data, reply);
-    }
     if (interfaceCode == AbilityManagerInterfaceCode::REGISTER_CONNECTION_OBSERVER) {
         return RegisterConnectionObserverInner(data, reply);
     }
@@ -518,9 +467,6 @@ int AbilityManagerStub::OnRemoteRequestInnerThirteenth(uint32_t code, MessagePar
     }
     if (interfaceCode == AbilityManagerInterfaceCode::GET_DLP_CONNECTION_INFOS) {
         return GetDlpConnectionInfosInner(data, reply);
-    }
-    if (interfaceCode == AbilityManagerInterfaceCode::MOVE_ABILITY_TO_BACKGROUND) {
-        return MoveAbilityToBackgroundInner(data, reply);
     }
     if (interfaceCode == AbilityManagerInterfaceCode::MOVE_UI_ABILITY_TO_BACKGROUND) {
         return MoveUIAbilityToBackgroundInner(data, reply);
@@ -532,9 +478,6 @@ int AbilityManagerStub::OnRemoteRequestInnerFourteenth(uint32_t code, MessagePar
     MessageParcel &reply, MessageOption &option)
 {
     AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
-    if (interfaceCode == AbilityManagerInterfaceCode::SET_MISSION_CONTINUE_STATE) {
-        return SetMissionContinueStateInner(data, reply);
-    }
     if (interfaceCode == AbilityManagerInterfaceCode::PREPARE_TERMINATE_ABILITY_BY_SCB) {
         return PrepareTerminateAbilityBySCBInner(data, reply);
     }
@@ -555,15 +498,6 @@ int AbilityManagerStub::OnRemoteRequestInnerFifteenth(uint32_t code, MessageParc
 {
     AbilityManagerInterfaceCode interfaceCode = static_cast<AbilityManagerInterfaceCode>(code);
 #ifdef SUPPORT_GRAPHICS
-    if (interfaceCode == AbilityManagerInterfaceCode::SET_MISSION_LABEL) {
-        return SetMissionLabelInner(data, reply);
-    }
-    if (interfaceCode == AbilityManagerInterfaceCode::SET_MISSION_ICON) {
-        return SetMissionIconInner(data, reply);
-    }
-    if (interfaceCode == AbilityManagerInterfaceCode::REGISTER_WMS_HANDLER) {
-        return RegisterWindowManagerServiceHandlerInner(data, reply);
-    }
     if (interfaceCode == AbilityManagerInterfaceCode::COMPLETEFIRSTFRAMEDRAWING) {
         return CompleteFirstFrameDrawingInner(data, reply);
     }
@@ -619,9 +553,6 @@ int AbilityManagerStub::OnRemoteRequestInnerSixteenth(uint32_t code, MessageParc
     if (interfaceCode == AbilityManagerInterfaceCode::REPORT_DRAWN_COMPLETED) {
         return HandleReportDrawnCompleted(data, reply);
     };
-    if (interfaceCode == AbilityManagerInterfaceCode::QUERY_MISSION_VAILD) {
-        return IsValidMissionIdsInner(data, reply);
-    }
     if (interfaceCode == AbilityManagerInterfaceCode::VERIFY_PERMISSION) {
         return VerifyPermissionInner(data, reply);
     }
@@ -733,6 +664,9 @@ int AbilityManagerStub::OnRemoteRequestInnerNineteenth(uint32_t code, MessagePar
     }
     if (interfaceCode == AbilityManagerInterfaceCode::SET_RESIDENT_PROCESS_ENABLE) {
         return SetResidentProcessEnableInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_MISSION_LIST_DELEGATOR) {
+        return GetMissionListDelegatorInner(data, reply);
     }
     if (interfaceCode == AbilityManagerInterfaceCode::GET_ABILITY_STATE_BY_PERSISTENT_ID) {
         return GetAbilityStateByPersistentIdInner(data, reply);
@@ -865,17 +799,6 @@ int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Mess
     return OnRemoteRequestInner(code, data, reply, option);
 }
 
-int AbilityManagerStub::GetTopAbilityInner(MessageParcel &data, MessageParcel &reply)
-{
-    bool isNeedLocalDeviceId = data.ReadBool();
-    AppExecFwk::ElementName result = GetTopAbility(isNeedLocalDeviceId);
-    if (result.GetDeviceID().empty()) {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "GetTopAbilityInner is nullptr");
-    }
-    reply.WriteParcelable(&result);
-    return NO_ERROR;
-}
-
 int AbilityManagerStub::GetElementNameByTokenInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> token = data.ReadRemoteObject();
@@ -885,20 +808,6 @@ int AbilityManagerStub::GetElementNameByTokenInner(MessageParcel &data, MessageP
         TAG_LOGD(AAFwkTag::ABILITYMGR, "GetElementNameByTokenInner is nullptr");
     }
     reply.WriteParcelable(&result);
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::MoveAbilityToBackgroundInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> token = nullptr;
-    if (data.ReadBool()) {
-        token = data.ReadRemoteObject();
-    }
-    int32_t result = MoveAbilityToBackground(token);
-    if (!reply.WriteInt32(result)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write result failed");
-        return ERR_INVALID_VALUE;
-    }
     return NO_ERROR;
 }
 
@@ -1986,121 +1895,11 @@ int AbilityManagerStub::NotifyContinuationResultInner(MessageParcel &data, Messa
     return result;
 }
 
-int AbilityManagerStub::LockMissionForCleanupInner(MessageParcel &data, MessageParcel &reply)
-{
-    int32_t id = data.ReadInt32();
-    int result = LockMissionForCleanup(id);
-    if (!reply.WriteInt32(result)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerStub: lock mission failed.");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::UnlockMissionForCleanupInner(MessageParcel &data, MessageParcel &reply)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    int32_t id = data.ReadInt32();
-    int result = UnlockMissionForCleanup(id);
-    if (!reply.WriteInt32(result)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerStub: unlock mission failed.");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
 int AbilityManagerStub::SetLockedStateInner(MessageParcel &data, MessageParcel &reply)
 {
     int32_t sessionId = data.ReadInt32();
     bool flag = data.ReadBool();
     SetLockedState(sessionId, flag);
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::RegisterMissionListenerInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IMissionListener> listener = iface_cast<IMissionListener>(data.ReadRemoteObject());
-    if (listener == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "stub register mission listener, listener is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-
-    int32_t result = RegisterMissionListener(listener);
-    reply.WriteInt32(result);
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::UnRegisterMissionListenerInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IMissionListener> listener = iface_cast<IMissionListener>(data.ReadRemoteObject());
-    if (listener == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "stub unregister mission listener, listener is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-
-    int32_t result = UnRegisterMissionListener(listener);
-    reply.WriteInt32(result);
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::GetMissionInfosInner(MessageParcel &data, MessageParcel &reply)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::string deviceId = Str16ToStr8(data.ReadString16());
-    int numMax = data.ReadInt32();
-    std::vector<MissionInfo> missionInfos;
-    int32_t result = GetMissionInfos(deviceId, numMax, missionInfos);
-    reply.WriteInt32(missionInfos.size());
-    for (auto &it : missionInfos) {
-        if (!reply.WriteParcelable(&it)) {
-            return ERR_INVALID_VALUE;
-        }
-    }
-    if (!reply.WriteInt32(result)) {
-        return ERR_INVALID_VALUE;
-    }
-    return result;
-}
-
-int AbilityManagerStub::GetMissionInfoInner(MessageParcel &data, MessageParcel &reply)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    MissionInfo info;
-    std::string deviceId = Str16ToStr8(data.ReadString16());
-    int32_t missionId = data.ReadInt32();
-    int result = GetMissionInfo(deviceId, missionId, info);
-    if (!reply.WriteParcelable(&info)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetMissionInfo error");
-        return ERR_INVALID_VALUE;
-    }
-
-    if (!reply.WriteInt32(result)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetMissionInfo result error");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::CleanMissionInner(MessageParcel &data, MessageParcel &reply)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    int32_t missionId = data.ReadInt32();
-    int result = CleanMission(missionId);
-    if (!reply.WriteInt32(result)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "CleanMission failed.");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::CleanAllMissionsInner(MessageParcel &data, MessageParcel &reply)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    int result = CleanAllMissions();
-    if (!reply.WriteInt32(result)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "CleanAllMissions failed.");
-        return ERR_INVALID_VALUE;
-    }
     return NO_ERROR;
 }
 
@@ -2111,17 +1910,6 @@ int AbilityManagerStub::MoveMissionToFrontInner(MessageParcel &data, MessageParc
     int result = MoveMissionToFront(missionId);
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "MoveMissionToFront failed.");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::GetMissionIdByTokenInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> token = data.ReadRemoteObject();
-    int32_t missionId = GetMissionIdByToken(token);
-    if (!reply.WriteInt32(missionId)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetMissionIdByToken write missionId failed.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -2140,38 +1928,6 @@ int AbilityManagerStub::MoveMissionToFrontByOptionsInner(MessageParcel &data, Me
     int result = MoveMissionToFront(missionId, *startOptions);
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "MoveMissionToFront failed.");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::MoveMissionsToForegroundInner(MessageParcel &data, MessageParcel &reply)
-{
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
-    std::vector<int32_t> missionIds;
-    data.ReadInt32Vector(&missionIds);
-    int32_t topMissionId = data.ReadInt32();
-    int32_t errCode = MoveMissionsToForeground(missionIds, topMissionId);
-    if (!reply.WriteInt32(errCode)) {
-        return ERR_INVALID_VALUE;
-    }
-    return errCode;
-}
-
-int AbilityManagerStub::MoveMissionsToBackgroundInner(MessageParcel &data, MessageParcel &reply)
-{
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
-    std::vector<int32_t> missionIds;
-    std::vector<int32_t> result;
-
-    data.ReadInt32Vector(&missionIds);
-    int32_t errCode = MoveMissionsToBackground(missionIds, result);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called. resultSize: %{public}zu", __func__, result.size());
-    if (!reply.WriteInt32Vector(result)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s is called. WriteInt32Vector Failed", __func__);
-        return ERR_INVALID_VALUE;
-    }
-    if (!reply.WriteInt32(errCode)) {
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -2441,38 +2197,6 @@ int AbilityManagerStub::UnRegisterRemoteMissionListenerInner(MessageParcel &data
     return result;
 }
 
-int AbilityManagerStub::RegisterSnapshotHandlerInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<ISnapshotHandler> handler = iface_cast<ISnapshotHandler>(data.ReadRemoteObject());
-    if (handler == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: AbilityManagerStub read snapshot handler failed!");
-        return ERR_NULL_OBJECT;
-    }
-    int32_t result = RegisterSnapshotHandler(handler);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "snapshot: AbilityManagerStub register snapshot handler result = %{public}d",
-        result);
-    return result;
-}
-
-int AbilityManagerStub::GetMissionSnapshotInfoInner(MessageParcel &data, MessageParcel &reply)
-{
-    std::string deviceId = data.ReadString();
-    int32_t missionId = data.ReadInt32();
-    bool isLowResolution = data.ReadBool();
-    MissionSnapshot missionSnapshot;
-    int32_t result = GetMissionSnapshot(deviceId, missionId, missionSnapshot, isLowResolution);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "snapshot: AbilityManagerStub get snapshot result = %{public}d", result);
-    if (!reply.WriteParcelable(&missionSnapshot)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetMissionSnapshot error");
-        return ERR_INVALID_VALUE;
-    }
-    if (!reply.WriteInt32(result)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetMissionSnapshot result error");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
 int AbilityManagerStub::SetAbilityControllerInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<AppExecFwk::IAbilityController> controller =
@@ -2526,19 +2250,6 @@ int AbilityManagerStub::FinishUserTestInner(MessageParcel &data, MessageParcel &
     return result;
 }
 
-int AbilityManagerStub::GetTopAbilityTokenInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> token;
-    auto result = GetTopAbility(token);
-    if (!reply.WriteRemoteObject(token)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "data write failed.");
-        return ERR_INVALID_VALUE;
-    }
-    reply.WriteInt32(result);
-
-    return NO_ERROR;
-}
-
 int AbilityManagerStub::CheckUIExtensionIsFocusedInner(MessageParcel &data, MessageParcel &reply)
 {
     uint32_t uiExtensionTokenId = data.ReadUint32();
@@ -2551,23 +2262,6 @@ int AbilityManagerStub::CheckUIExtensionIsFocusedInner(MessageParcel &data, Mess
         }
     }
     return result;
-}
-
-int AbilityManagerStub::DelegatorDoAbilityForegroundInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> token = data.ReadRemoteObject();
-    auto result = DelegatorDoAbilityForeground(token);
-    reply.WriteInt32(result);
-
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::DelegatorDoAbilityBackgroundInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> token = data.ReadRemoteObject();
-    auto result = DelegatorDoAbilityBackground(token);
-    reply.WriteInt32(result);
-    return NO_ERROR;
 }
 
 int AbilityManagerStub::DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag)
@@ -2719,24 +2413,6 @@ int AbilityManagerStub::DumpAbilityInfoDoneInner(MessageParcel &data, MessagePar
         TAG_LOGE(AAFwkTag::ABILITYMGR, "reply write failed.");
         return ERR_INVALID_VALUE;
     }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::UpdateMissionSnapShotFromWMSInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> token = data.ReadRemoteObject();
-    if (token == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "read ability token failed.");
-        return ERR_NULL_OBJECT;
-    }
-#ifdef SUPPORT_SCREEN
-    std::shared_ptr<Media::PixelMap> pixelMap(data.ReadParcelable<Media::PixelMap>());
-    if (pixelMap == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "read pixelMap failed.");
-        return ERR_NULL_OBJECT;
-    }
-    UpdateMissionSnapShot(token, pixelMap);
-#endif // SUPPORT_SCREEN
     return NO_ERROR;
 }
 
@@ -2936,73 +2612,7 @@ int AbilityManagerStub::GetConnectionDataInner(MessageParcel &data, MessageParce
     return ERR_OK;
 }
 
-int AbilityManagerStub::SetMissionContinueStateInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> token = data.ReadRemoteObject();
-    if (!token) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "SetMissionContinueStateInner read ability token failed.");
-        return ERR_NULL_OBJECT;
-    }
-
-    int32_t state = data.ReadInt32();
-    int result = SetMissionContinueState(token, static_cast<AAFwk::ContinueState>(state));
-    if (!reply.WriteInt32(result)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "SetMissionContinueState failed.");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
 #ifdef SUPPORT_SCREEN
-int AbilityManagerStub::SetMissionLabelInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> token = data.ReadRemoteObject();
-    if (!token) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "SetMissionLabelInner read ability token failed.");
-        return ERR_NULL_OBJECT;
-    }
-
-    std::string label = Str16ToStr8(data.ReadString16());
-    int result = SetMissionLabel(token, label);
-    if (!reply.WriteInt32(result)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "SetMissionLabel failed.");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::SetMissionIconInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> token = data.ReadRemoteObject();
-    if (!token) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "SetMissionIconInner read ability token failed.");
-        return ERR_NULL_OBJECT;
-    }
-
-    std::shared_ptr<Media::PixelMap> icon(data.ReadParcelable<Media::PixelMap>());
-    if (!icon) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "SetMissionIconInner read icon failed.");
-        return ERR_NULL_OBJECT;
-    }
-
-    int result = SetMissionIcon(token, icon);
-    if (!reply.WriteInt32(result)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "SetMissionIcon failed.");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::RegisterWindowManagerServiceHandlerInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IWindowManagerServiceHandler> handler = iface_cast<IWindowManagerServiceHandler>(data.ReadRemoteObject());
-    if (handler == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s read WMS handler failed!", __func__);
-        return ERR_NULL_OBJECT;
-    }
-    return RegisterWindowManagerServiceHandler(handler);
-}
-
 int AbilityManagerStub::CompleteFirstFrameDrawingInner(MessageParcel &data, MessageParcel &reply)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
@@ -3113,32 +2723,6 @@ int AbilityManagerStub::UnregisterAbilityFirstFrameStateObserverInner(MessagePar
     return NO_ERROR;
 }
 #endif
-
-int32_t AbilityManagerStub::IsValidMissionIdsInner(MessageParcel &data, MessageParcel &reply)
-{
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
-    std::vector<int32_t> missionIds;
-    std::vector<MissionValidResult> results;
-
-    data.ReadInt32Vector(&missionIds);
-    auto err = IsValidMissionIds(missionIds, results);
-    if (err != ERR_OK) {
-        results.clear();
-    }
-
-    if (!reply.WriteInt32(err)) {
-        return ERR_INVALID_VALUE;
-    }
-
-    reply.WriteInt32(static_cast<int32_t>(results.size()));
-    for (auto &item : results) {
-        if (!reply.WriteParcelable(&item)) {
-            return ERR_INVALID_VALUE;
-        }
-    }
-    return NO_ERROR;
-}
-
 int AbilityManagerStub::VerifyPermissionInner(MessageParcel &data, MessageParcel &reply)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "VerifyPermission call.");
@@ -3887,6 +3471,13 @@ int32_t AbilityManagerStub::NotifyFrozenProcessByRSSInner(MessageParcel &data, M
     data.ReadInt32Vector(&pidList);
     int32_t uid = data.ReadInt32();
     NotifyFrozenProcessByRSS(pidList, uid);
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::GetMissionListDelegatorInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto result = GetMissionListDelegator();
+    reply.WriteRemoteObject(result);
     return NO_ERROR;
 }
 } // namespace AAFwk

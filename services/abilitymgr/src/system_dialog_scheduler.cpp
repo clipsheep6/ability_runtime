@@ -30,9 +30,7 @@
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
-#include "locale_config.h"
 #include "parameters.h"
-#include "resource_manager.h"
 #include "scene_board_judgement.h"
 #include "ui_extension_utils.h"
 

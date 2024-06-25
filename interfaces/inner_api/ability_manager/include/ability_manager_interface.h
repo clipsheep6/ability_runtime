@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_INTERFACE_H
 #define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_INTERFACE_H
 
+#include <cinttypes>
 #include <ipc_types.h>
 #include <iremote_broker.h>
 #include <list>
@@ -40,14 +41,10 @@
 #include "insight_intent_execute_param.h"
 #include "insight_intent_execute_result.h"
 #include "iprepare_terminate_callback_interface.h"
-#include "mission_info.h"
-#include "mission_listener_interface.h"
-#include "mission_snapshot.h"
 #include "remote_mission_listener_interface.h"
 #include "remote_on_listener_interface.h"
 #include "running_process_info.h"
 #include "sender_info.h"
-#include "snapshot.h"
 #include "start_options.h"
 #include "user_callback.h"
 #include "system_memory_attr.h"
@@ -61,7 +58,6 @@
 #include "want_sender_interface.h"
 #include "dialog_session_info.h"
 #ifdef SUPPORT_SCREEN
-#include "window_manager_service_handler.h"
 #include "ability_first_frame_state_observer_interface.h"
 #endif
 
@@ -416,11 +412,6 @@ public:
         return false;
     }
 
-    virtual AppExecFwk::ElementName GetTopAbility(bool isNeedLocalDeviceId = true)
-    {
-        return {};
-    }
-
     virtual AppExecFwk::ElementName GetElementNameByToken(sptr<IRemoteObject> token,
         bool isNeedLocalDeviceId = true)
     {
@@ -475,17 +466,6 @@ public:
     {
         return 0;
     }
-
-    /**
-     * MoveAbilityToBackground.
-     *
-     * @param token, the token of the ability to move.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int MoveAbilityToBackground(const sptr<IRemoteObject> &token)
-    {
-        return 0;
-    };
 
     /**
      * Move the UIAbility to background, called by app self.
@@ -779,44 +759,14 @@ public:
 
     virtual int NotifyContinuationResult(int32_t missionId, int32_t result) = 0;
 
-    virtual int LockMissionForCleanup(int32_t missionId) = 0;
-
-    virtual int UnlockMissionForCleanup(int32_t missionId) = 0;
-
     virtual void SetLockedState(int32_t sessionId, bool lockedState)
     {
         return;
     }
 
-    virtual int RegisterMissionListener(const sptr<IMissionListener> &listener) = 0;
-
-    virtual int UnRegisterMissionListener(const sptr<IMissionListener> &listener) = 0;
-
-    virtual int GetMissionInfos(
-        const std::string &deviceId, int32_t numMax, std::vector<MissionInfo> &missionInfos) = 0;
-
-    virtual int GetMissionInfo(const std::string &deviceId, int32_t missionId, MissionInfo &missionInfo) = 0;
-
-    virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
-        MissionSnapshot& snapshot, bool isLowResolution) = 0;
-
-    virtual int CleanMission(int32_t missionId) = 0;
-
-    virtual int CleanAllMissions() = 0;
-
     virtual int MoveMissionToFront(int32_t missionId) = 0;
 
     virtual int MoveMissionToFront(int32_t missionId, const StartOptions &startOptions) = 0;
-
-    virtual int MoveMissionsToForeground(const std::vector<int32_t>& missionIds, int32_t topMissionId)
-    {
-        return 0;
-    }
-
-    virtual int MoveMissionsToBackground(const std::vector<int32_t>& missionIds, std::vector<int32_t>& result)
-    {
-        return 0;
-    }
 
     virtual int RegisterSessionHandler(const sptr<IRemoteObject> &object)
     {
@@ -859,33 +809,7 @@ public:
         return 0;
     }
 
-    virtual int SetMissionContinueState(const sptr<IRemoteObject> &token, const AAFwk::ContinueState &state)
-    {
-        return 0;
-    };
-
 #ifdef SUPPORT_SCREEN
-    virtual int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label) = 0;
-
-    virtual int SetMissionIcon(const sptr<IRemoteObject> &token,
-        const std::shared_ptr<OHOS::Media::PixelMap> &icon) = 0;
-
-    /**
-     * Called to update mission snapshot.
-     * @param token The target ability.
-     * @param pixelMap The snapshot.
-     */
-    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
-        const std::shared_ptr<OHOS::Media::PixelMap> &pixelMap) {};
-
-    /**
-     * Register the WindowManagerService handler
-     *
-     * @param handler Indidate handler of WindowManagerService.
-     * @return ErrCode Returns ERR_OK on success, others on failure.
-     */
-    virtual int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler) = 0;
-
     /**
      * WindowManager notification AbilityManager after the first frame is drawn.
      *
@@ -1000,45 +924,14 @@ public:
      */
     virtual bool IsRunningInStabilityTest() = 0;
 
-    /**
-     * @brief Register the snapshot handler
-     * @param handler snapshot handler
-     * @return int Returns ERR_OK on success, others on failure.
-     */
-    virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) = 0;
-
     virtual int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) = 0;
 
     virtual int FinishUserTest(const std::string &msg, const int64_t &resultCode, const std::string &bundleName) = 0;
-
-    /**
-     * GetTopAbility, get the token of top ability.
-     *
-     * @param token, the token of top ability.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int GetTopAbility(sptr<IRemoteObject> &token) = 0;
 
     virtual int CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, bool& isFocused)
     {
         return 0;
     }
-
-    /**
-     * The delegator calls this interface to move the ability to the foreground.
-     *
-     * @param token, ability's token.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token) = 0;
-
-    /**
-     * The delegator calls this interface to move the ability to the background.
-     *
-     * @param token, ability's token.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) = 0;
 
     /**
      * Calls this interface to move the ability to the foreground.
@@ -1057,14 +950,6 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag) = 0;
-
-    /**
-     * Get mission id by ability token.
-     *
-     * @param token The token of ability.
-     * @return Returns -1 if do not find mission, otherwise return mission id.
-     */
-    virtual int32_t GetMissionIdByToken(const sptr<IRemoteObject> &token) = 0;
 
     /**
      * Get ability token by connect.
@@ -1140,15 +1025,6 @@ public:
         const Want *want = nullptr) {};
 
     virtual void ScheduleClearRecoveryPageStack() {};
-
-    /**
-     * Called to verify that the MissionId is valid.
-     * @param missionIds Query mission list.
-     * @param results Output parameters, return results up to 20 query results.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t IsValidMissionIds(
-        const std::vector<int32_t> &missionIds, std::vector<MissionValidResult> &results) = 0;
 
     /**
      * Query whether the application of the specified PID and UID has been granted a certain permission
@@ -1609,6 +1485,11 @@ public:
     virtual void NotifyFrozenProcessByRSS(const std::vector<int32_t> &pidList, int32_t uid)
     {
         return;
+    }
+
+    virtual sptr<IRemoteObject> GetMissionListDelegator()
+    {
+        return nullptr;
     }
 };
 }  // namespace AAFwk

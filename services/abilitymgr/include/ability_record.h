@@ -43,9 +43,7 @@
 #include "want.h"
 #ifdef SUPPORT_GRAPHICS
 #include "ability_window_configuration.h"
-#include "resource_manager.h"
 #include "start_options.h"
-#include "window_manager_service_handler.h"
 #endif
 
 namespace OHOS {
@@ -54,7 +52,12 @@ using Closure = std::function<void()>;
 
 class AbilityRecord;
 class ConnectionRecord;
+class MissionListBridge;
 class CallContainer;
+
+#ifdef SUPPORT_SCREEN
+struct AbilityTransitionInfo;
+#endif
 
 constexpr const char* ABILITY_TOKEN_NAME = "AbilityToken";
 constexpr const char* LAUNCHER_BUNDLE_NAME = "com.ohos.launcher";
@@ -1065,7 +1068,8 @@ private:
     void SetAbilityTransitionInfo(const AppExecFwk::AbilityInfo &abilityInfo,
         sptr<AbilityTransitionInfo> &info) const;
     void SetAbilityTransitionInfo(sptr<AbilityTransitionInfo>& info) const;
-    sptr<IWindowManagerServiceHandler> GetWMSHandler() const;
+    std::shared_ptr<MissionListBridge> GetMissionListBridge() const;
+
     void SetWindowModeAndDisplayId(sptr<AbilityTransitionInfo> &info, const std::shared_ptr<Want> &want) const;
     sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo();
     sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const std::shared_ptr<StartOptions> &startOptions,
@@ -1073,9 +1077,6 @@ private:
     sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const AbilityRequest &abilityRequest) const;
     sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const std::shared_ptr<StartOptions> &startOptions,
         const std::shared_ptr<Want> &want, const AbilityRequest &abilityRequest);
-    std::shared_ptr<Global::Resource::ResourceManager> CreateResourceManager() const;
-    std::shared_ptr<Media::PixelMap> GetPixelMap(const uint32_t windowIconId,
-        std::shared_ptr<Global::Resource::ResourceManager> resourceMgr) const;
 
     void AnimationTask(bool isRecent, const AbilityRequest &abilityRequest,
         const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility);
@@ -1096,9 +1097,9 @@ private:
     void StartingWindowHot();
     void StartingWindowCold(const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<Want> &want,
         const AbilityRequest &abilityRequest);
-    void InitColdStartingWindowResource(const std::shared_ptr<Global::Resource::ResourceManager> &resourceMgr);
-    void GetColdStartingWindowResource(std::shared_ptr<Media::PixelMap> &bg, uint32_t &bgColor);
+    void InitColdStartingWindowResource();
     void SetAbilityStateInner(AbilityState state);
+    void SetMissionAbilityState();
 #endif
 
     static int64_t abilityRecordId;
@@ -1197,8 +1198,6 @@ private:
 
 #ifdef SUPPORT_SCREEN
     bool isStartingWindow_ = false;
-    uint32_t bgColor_ = 0;
-    std::shared_ptr<Media::PixelMap> startingWindowBg_ = nullptr;
 
     bool isCompleteFirstFrameDrawing_ = false;
     bool coldStart_ = false;

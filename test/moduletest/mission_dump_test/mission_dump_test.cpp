@@ -19,6 +19,7 @@
 #include "ability_manager_service.h"
 #include "ability_event_handler.h"
 #include "ams_configuration_parameter.h"
+#include "mission_list_manager.h"
 #undef private
 #undef protected
 

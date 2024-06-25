@@ -347,14 +347,6 @@ public:
     virtual int SendResultToAbility(int32_t requestCode, int32_t resultCode, Want& resultWant) override;
 
     /**
-     * MoveAbilityToBackground.
-     *
-     * @param token, the token of the ability to move.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int MoveAbilityToBackground(const sptr<IRemoteObject> &token) override;
-
-    /**
      * Move the UIAbility to background, called by app self.
      *
      * @param token the token of the ability to move.
@@ -534,14 +526,6 @@ public:
         const sptr<IRemoteObject> &token = nullptr) override;
 
     /**
-     * Get top ability.
-     *
-     * @param isNeedLocalDeviceId is need local device id.
-     * @return Returns front desk focus ability elementName.
-     */
-    virtual AppExecFwk::ElementName GetTopAbility(bool isNeedLocalDeviceId = true) override;
-
-    /**
      * Get element name by token.
      *
      * @param token ability's token.
@@ -636,34 +620,11 @@ public:
 
     virtual int StopSyncRemoteMissions(const std::string& devId) override;
 
-    virtual int LockMissionForCleanup(int32_t missionId) override;
-
-    virtual int UnlockMissionForCleanup(int32_t missionId) override;
-
     virtual void SetLockedState(int32_t sessionId, bool lockedState) override;
-
-    virtual int RegisterMissionListener(const sptr<IMissionListener> &listener) override;
-
-    virtual int UnRegisterMissionListener(const sptr<IMissionListener> &listener) override;
-
-    virtual int GetMissionInfos(const std::string& deviceId, int32_t numMax,
-        std::vector<MissionInfo> &missionInfos) override;
-
-    virtual int GetMissionInfo(const std::string& deviceId, int32_t missionId,
-        MissionInfo &missionInfos) override;
-
-    virtual int CleanMission(int32_t missionId) override;
-
-    virtual int CleanAllMissions() override;
 
     virtual int MoveMissionToFront(int32_t missionId) override;
 
     virtual int MoveMissionToFront(int32_t missionId, const StartOptions &startOptions) override;
-
-    virtual int MoveMissionsToForeground(const std::vector<int32_t>& missionIds, int32_t topMissionId) override;
-
-    virtual int MoveMissionsToBackground(const std::vector<int32_t>& missionIds,
-        std::vector<int32_t>& result) override;
 
     /**
      * Start Ability, connect session with common ability.
@@ -700,16 +661,7 @@ public:
 
     virtual int LogoutUser(int32_t userId) override;
 
-    virtual int SetMissionContinueState(const sptr<IRemoteObject> &token, const AAFwk::ContinueState &state) override;
-
 #ifdef SUPPORT_SCREEN
-    virtual int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label) override;
-
-    virtual int SetMissionIcon(const sptr<IRemoteObject> &token,
-        const std::shared_ptr<OHOS::Media::PixelMap> &icon) override;
-
-    virtual int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler) override;
-
     virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override;
 
     virtual void CompleteFirstFrameDrawing(int32_t sessionId) override;
@@ -754,7 +706,6 @@ public:
      */
     virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
         bool imAStabilityTest) override;
-
     /**
      * Is user a stability test.
      *
@@ -762,41 +713,12 @@ public:
      */
     virtual bool IsRunningInStabilityTest() override;
 
-    virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
-
-    virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
-        MissionSnapshot& snapshot, bool isLowResolution) override;
-
     virtual int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override;
 
     virtual int FinishUserTest(
         const std::string &msg, const int64_t &resultCode, const std::string &bundleName) override;
 
-     /**
-     * GetTopAbility, get the token of top ability.
-     *
-     * @param token, the token of top ability.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int GetTopAbility(sptr<IRemoteObject> &token) override;
-
     virtual int CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, bool& isFocused) override;
-
-    /**
-     * The delegator calls this interface to move the ability to the foreground.
-     *
-     * @param token, ability's token.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token) override;
-
-    /**
-     * The delegator calls this interface to move the ability to the background.
-     *
-     * @param token, ability's token.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) override;
 
     /**
      * Calls this interface to move the ability to the foreground.
@@ -815,14 +737,6 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag) override;
-
-    /**
-     * Get mission id by ability token.
-     *
-     * @param token The token of ability.
-     * @return Returns -1 if do not find mission, otherwise return mission id.
-     */
-    virtual int32_t GetMissionIdByToken(const sptr<IRemoteObject> &token) override;
 
     /**
      * Get ability token by connect.
@@ -884,29 +798,11 @@ public:
      */
     virtual int DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken) override;
 
-    /**
-     * Called to update mission snapshot.
-     * @param token The target ability.
-     * @param pixelMap The snapshot.
-     */
-#ifdef SUPPORT_SCREEN
-    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
-        const std::shared_ptr<Media::PixelMap> &pixelMap) override;
-#endif // SUPPORT_SCREEN
     virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) override;
     virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason,
         const Want *want = nullptr) override;
 
     virtual void ScheduleClearRecoveryPageStack() override;
-
-    /**
-     * Called to verify that the MissionId is valid.
-     * @param missionIds Query mission list.
-     * @param results Output parameters, return results up to 20 query results.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int32_t IsValidMissionIds(
-        const std::vector<int32_t> &missionIds, std::vector<MissionValidResult> &results) override;
 
     /**
      * Query whether the application of the specified PID and UID has been granted a certain permission
@@ -1254,6 +1150,8 @@ public:
      * @param uid, the uid of the frozen process.
      */
     virtual void NotifyFrozenProcessByRSS(const std::vector<int32_t> &pidList, int32_t uid) override;
+
+    virtual sptr<IRemoteObject> GetMissionListDelegator() override;
 
 private:
     template <typename T>

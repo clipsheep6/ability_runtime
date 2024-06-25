@@ -19,6 +19,7 @@
 #include <chrono>
 #include <csignal>
 #include <cstdlib>
+#include <dlfcn.h>
 #include <fstream>
 #include <functional>
 #include <getopt.h>
@@ -78,8 +79,7 @@
 #include "ipc_types.h"
 #include "iservice_registry.h"
 #include "itest_observer.h"
-#include "mission_info.h"
-#include "mission_info_mgr.h"
+#include "mission_list_bridge.h"
 #include "mock_session_manager_service.h"
 #include "modal_system_ui_extension.h"
 #include "os_account_manager_wrapper.h"
@@ -119,7 +119,7 @@
 #include "application_anr_listener.h"
 #include "input_manager.h"
 #include "ability_first_frame_state_observer_manager.h"
-#include "window_focus_changed_listener.h"
+#include "window_manager.h"
 #endif
 
 using OHOS::AppExecFwk::ElementName;
@@ -129,6 +129,7 @@ namespace OHOS {
 using AbilityRuntime::FreezeUtil;
 namespace AAFwk {
 using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
+using CreateMissionBridgeFunc = MissionListBridge*(*)();
 namespace {
 #define CHECK_CALLER_IS_SYSTEM_APP                                                             \
     if (!AAFwk::PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI()) { \
@@ -342,6 +343,11 @@ AbilityManagerService::AbilityManagerService()
       bundleMgrHelper_(nullptr)
 {}
 
+std::shared_ptr<AbilityManagerService> AbilityManagerService::GetPubInstance()
+{
+    return DelayedSingleton<AbilityManagerService>::GetInstance();
+}
+
 AbilityManagerService::~AbilityManagerService()
 {}
 
@@ -390,7 +396,9 @@ bool AbilityManagerService::Init()
     userController_->Init();
     AmsConfigurationParameter::GetInstance().Parse();
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Ability manager service config parse");
+    InitMissionBridge();
     subManagersHelper_ = std::make_shared<SubManagersHelper>(taskHandler_, eventHandler_);
+    subManagersHelper_->SetMissionBridge(GetMissionBridge());
     subManagersHelper_->InitSubManagers(MAIN_USER_ID, true);
     SwitchManagers(U0_USER_ID, false);
 #ifdef SUPPORT_SCREEN
@@ -534,6 +542,7 @@ void AbilityManagerService::OnStop()
     }
     eventHandler_.reset();
     taskHandler_.reset();
+    ReleaseMissionBridge();
     state_ = ServiceRunningState::STATE_NOT_START;
 }
 
@@ -719,11 +728,12 @@ int AbilityManagerService::StartAbilityByUIContentSession(const Want &want, cons
         Rosen::WindowManager::GetInstance().GetFocusWindowInfo(focusChangeInfo);
         token = focusChangeInfo.abilityToken_;
     } else {
-        if (!wmsHandler_) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "wmsHandler_ is nullptr.");
+        auto missionListBridge = GetMissionBridge();
+        if (!missionListBridge) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListBridge is nullptr.");
             return ERR_INVALID_VALUE;
         }
-        wmsHandler_->GetFocusWindow(token);
+        token = missionListBridge->GetFocusWindow();
     }
 #endif // SUPPORT_SCREEN
     if (!token) {
@@ -752,11 +762,12 @@ int AbilityManagerService::StartAbilityByUIContentSession(const Want &want, cons
         Rosen::WindowManager::GetInstance().GetFocusWindowInfo(focusChangeInfo);
         token = focusChangeInfo.abilityToken_;
     } else {
-        if (!wmsHandler_) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "wmsHandler_ is nullptr.");
+        auto missionListBridge = GetMissionBridge();
+        if (!missionListBridge) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListBridge is nullptr.");
             return ERR_INVALID_VALUE;
         }
-        wmsHandler_->GetFocusWindow(token);
+        token = missionListBridge->GetFocusWindow();
     }
 #endif // SUPPORT_SCREEN
 
@@ -1214,16 +1225,16 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         return uiAbilityManager->NotifySCBToStartUIAbility(abilityRequest);
     }
 
-    auto missionListManager = GetMissionListManagerByUserId(oriValidUserId);
-    if (missionListManager == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListManager is nullptr. userId=%{public}d", validUserId);
+    auto missionListBridge = GetMissionBridge();
+    if (missionListBridge == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListBridge is nullptr. userId=%{public}d", validUserId);
         return ERR_INVALID_VALUE;
     }
 
     ReportAbilitStartInfoToRSS(abilityInfo);
     ReportEventToRSS(abilityInfo, callerToken);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Start ability, name is %{public}s.", abilityInfo.name.c_str());
-    return missionListManager->StartAbility(abilityRequest);
+    return missionListBridge->StartAbility(abilityRequest, oriValidUserId);
 }
 
 int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSetting &abilityStartSetting,
@@ -1418,15 +1429,15 @@ int AbilityManagerService::StartAbilityDetails(const Want &want, const AbilitySt
         CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
         return uiAbilityManager->NotifySCBToStartUIAbility(abilityRequest);
     }
-    auto missionListManager = GetMissionListManagerByUserId(oriValidUserId);
-    if (missionListManager == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListManager is Null. userId=%{public}d", validUserId);
+    auto missionListBridge = GetMissionBridge();
+    if (missionListBridge == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListBridge is Null. userId=%{public}d", validUserId);
         eventInfo.errCode = ERR_INVALID_VALUE;
         SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
     UpdateCallerInfo(abilityRequest.want, callerToken);
-    auto ret = missionListManager->StartAbility(abilityRequest);
+    auto ret = missionListBridge->StartAbility(abilityRequest, oriValidUserId);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
         SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
@@ -1756,15 +1767,15 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
         return uiAbilityManager->NotifySCBToStartUIAbility(abilityRequest);
     }
-    auto missionListManager = GetMissionListManagerByUserId(oriValidUserId);
-    if (missionListManager == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListManager is Null. userId=%{public}d", oriValidUserId);
+    auto missionListBridge = GetMissionBridge();
+    if (missionListBridge == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListBridge is Null. userId=%{public}d", oriValidUserId);
         eventInfo.errCode = ERR_INVALID_VALUE;
         SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
 
-    auto ret = missionListManager->StartAbility(abilityRequest);
+    auto ret = missionListBridge->StartAbility(abilityRequest, oriValidUserId);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
         SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
@@ -3069,32 +3080,6 @@ void AbilityManagerService::StopSwitchUserDialogInner(const Want &want, const in
     }
 }
 
-int AbilityManagerService::MoveAbilityToBackground(const sptr<IRemoteObject> &token)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Move ability to background begin");
-    if (!VerificationAllToken(token)) {
-        return ERR_INVALID_VALUE;
-    }
-    auto abilityRecord = Token::GetAbilityRecordByToken(token);
-    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    if (!JudgeSelfCalled(abilityRecord)) {
-        return CHECK_PERMISSION_FAILED;
-    }
-
-    if (!IsAbilityControllerForeground(abilityRecord->GetAbilityInfo().bundleName)) {
-        return ERR_WOULD_BLOCK;
-    }
-
-    auto ownerUserId = abilityRecord->GetOwnerMissionUserId();
-    auto missionListManager = GetMissionListManagerByUserId(ownerUserId);
-    if (!missionListManager) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListManager is Null. ownerUserId=%{public}d", ownerUserId);
-        return ERR_INVALID_VALUE;
-    }
-    return missionListManager->MoveAbilityToBackground(abilityRecord);
-}
-
 int32_t AbilityManagerService::MoveUIAbilityToBackground(const sptr<IRemoteObject> token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -3129,9 +3114,9 @@ int32_t AbilityManagerService::MoveUIAbilityToBackground(const sptr<IRemoteObjec
         return uiAbilityManager->NotifySCBToMinimizeUIAbility(abilityRecord, token);
     }
 
-    auto missionListManager = GetMissionListManagerByUserId(ownerUserId);
-    CHECK_POINTER_AND_RETURN(missionListManager, ERR_INVALID_VALUE);
-    return missionListManager->MoveAbilityToBackground(abilityRecord);
+    auto missionListBridge = GetMissionBridge();
+    CHECK_POINTER_AND_RETURN(missionListBridge, ERR_INVALID_VALUE);
+    return missionListBridge->MoveAbilityToBackground(abilityRecord, ownerUserId);
 }
 
 int AbilityManagerService::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
@@ -3193,11 +3178,11 @@ int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &t
     }
 
     auto ownerUserId = abilityRecord->GetOwnerMissionUserId();
-    auto missionListManager = GetMissionListManagerByUserId(ownerUserId);
-    if (missionListManager) {
-        return missionListManager->TerminateAbility(abilityRecord, resultCode, resultWant, flag);
+    auto missionListBridge = GetMissionBridge();
+    if (missionListBridge) {
+        return missionListBridge->TerminateAbility(abilityRecord, resultCode, resultWant, flag, ownerUserId);
     }
-    TAG_LOGW(AAFwkTag::ABILITYMGR, "missionListManager is Null. ownerUserId=%{public}d", ownerUserId);
+    TAG_LOGW(AAFwkTag::ABILITYMGR, "missionListBridge is Null. ownerUserId=%{public}d", ownerUserId);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto uiAbilityManager = GetUIAbilityManagerByUserId(ownerUserId);
         CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
@@ -3446,12 +3431,12 @@ int AbilityManagerService::MinimizeAbility(const sptr<IRemoteObject> &token, boo
         return ERR_WOULD_BLOCK;
     }
 
-    auto missionListManager = GetMissionListManagerByUserId(abilityRecord->GetOwnerMissionUserId());
-    if (!missionListManager) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListManager is Null.");
+    auto missionListBridge = GetMissionBridge();
+    if (!missionListBridge) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListBridge is Null.");
         return ERR_INVALID_VALUE;
     }
-    return missionListManager->MinimizeAbility(token, fromUser);
+    return missionListBridge->MinimizeAbility(token, fromUser, abilityRecord->GetOwnerMissionUserId());
 }
 
 int AbilityManagerService::MinimizeUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo,
@@ -4329,35 +4314,6 @@ int AbilityManagerService::GetPendingRequestWant(const sptr<IWantSender> &target
     return pendingWantManager->GetPendingRequestWant(target, want);
 }
 
-int AbilityManagerService::LockMissionForCleanup(int32_t missionId)
-{
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "request unlock mission for clean up all, id :%{public}d", missionId);
-    auto missionListManager = GetCurrentMissionListManager();
-    CHECK_POINTER_AND_RETURN(missionListManager, ERR_NO_INIT);
-    CHECK_CALLER_IS_SYSTEM_APP;
-
-    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: Permission verification failed", __func__);
-        return CHECK_PERMISSION_FAILED;
-    }
-    return missionListManager->SetMissionLockedState(missionId, true);
-}
-
-int AbilityManagerService::UnlockMissionForCleanup(int32_t missionId)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "request unlock mission for clean up all, id :%{public}d", missionId);
-    auto missionListManager = GetCurrentMissionListManager();
-    CHECK_POINTER_AND_RETURN(missionListManager, ERR_NO_INIT);
-    CHECK_CALLER_IS_SYSTEM_APP;
-
-    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: Permission verification failed", __func__);
-        return CHECK_PERMISSION_FAILED;
-    }
-    return missionListManager->SetMissionLockedState(missionId, false);
-}
-
 void AbilityManagerService::SetLockedState(int32_t sessionId, bool lockedState)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "request lock abilityRecord, sessionId :%{public}d", sessionId);
@@ -4373,148 +4329,6 @@ void AbilityManagerService::SetLockedState(int32_t sessionId, bool lockedState)
         return;
     }
     abilityRecord->SetLockedState(lockedState);
-}
-
-int AbilityManagerService::RegisterMissionListener(const sptr<IMissionListener> &listener)
-{
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "request RegisterMissionListener ");
-    auto missionListManager = GetCurrentMissionListManager();
-    CHECK_POINTER_AND_RETURN(missionListManager, ERR_NO_INIT);
-    CHECK_CALLER_IS_SYSTEM_APP;
-
-    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: Permission verification failed", __func__);
-        return CHECK_PERMISSION_FAILED;
-    }
-    return missionListManager->RegisterMissionListener(listener);
-}
-
-int AbilityManagerService::UnRegisterMissionListener(const sptr<IMissionListener> &listener)
-{
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "request RegisterMissionListener ");
-    auto missionListManager = GetCurrentMissionListManager();
-    CHECK_POINTER_AND_RETURN(missionListManager, ERR_NO_INIT);
-    CHECK_CALLER_IS_SYSTEM_APP;
-
-    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: Permission verification failed", __func__);
-        return CHECK_PERMISSION_FAILED;
-    }
-    return missionListManager->UnRegisterMissionListener(listener);
-}
-
-int AbilityManagerService::GetMissionInfos(const std::string& deviceId, int32_t numMax,
-    std::vector<MissionInfo> &missionInfos)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "request GetMissionInfos.");
-    auto missionListManager = GetCurrentMissionListManager();
-    CHECK_POINTER_AND_RETURN(missionListManager, ERR_NO_INIT);
-    CHECK_CALLER_IS_SYSTEM_APP;
-
-    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: Permission verification failed", __func__);
-        return CHECK_PERMISSION_FAILED;
-    }
-
-    if (CheckIsRemote(deviceId)) {
-        return GetRemoteMissionInfos(deviceId, numMax, missionInfos);
-    }
-
-    return missionListManager->GetMissionInfos(numMax, missionInfos);
-}
-
-int AbilityManagerService::GetRemoteMissionInfos(const std::string& deviceId, int32_t numMax,
-    std::vector<MissionInfo> &missionInfos)
-{
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "GetRemoteMissionInfos begin");
-    DistributedClient dmsClient;
-    int result = dmsClient.GetMissionInfos(deviceId, numMax, missionInfos);
-    if (result != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetRemoteMissionInfos failed, result = %{public}d", result);
-        return result;
-    }
-    return ERR_OK;
-}
-
-int AbilityManagerService::GetMissionInfo(const std::string& deviceId, int32_t missionId,
-    MissionInfo &missionInfo)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "request GetMissionInfo, missionId:%{public}d", missionId);
-    auto missionListManager = GetCurrentMissionListManager();
-    CHECK_POINTER_AND_RETURN(missionListManager, ERR_NO_INIT);
-    CHECK_CALLER_IS_SYSTEM_APP;
-
-    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: Permission verification failed", __func__);
-        return CHECK_PERMISSION_FAILED;
-    }
-
-    if (CheckIsRemote(deviceId)) {
-        return GetRemoteMissionInfo(deviceId, missionId, missionInfo);
-    }
-
-    return missionListManager->GetMissionInfo(missionId, missionInfo);
-}
-
-int AbilityManagerService::GetRemoteMissionInfo(const std::string& deviceId, int32_t missionId,
-    MissionInfo &missionInfo)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "GetMissionInfoFromDms begin");
-    std::vector<MissionInfo> missionVector;
-    int result = GetRemoteMissionInfos(deviceId, MAX_NUMBER_OF_DISTRIBUTED_MISSIONS, missionVector);
-    if (result != ERR_OK) {
-        return result;
-    }
-    for (auto iter = missionVector.begin(); iter != missionVector.end(); iter++) {
-        if (iter->id == missionId) {
-            missionInfo = *iter;
-            return ERR_OK;
-        }
-    }
-    TAG_LOGW(AAFwkTag::ABILITYMGR, "missionId not found");
-    return ERR_INVALID_VALUE;
-}
-
-int AbilityManagerService::CleanMission(int32_t missionId)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "request CleanMission, missionId:%{public}d", missionId);
-    auto missionListManager = GetCurrentMissionListManager();
-    CHECK_POINTER_AND_RETURN(missionListManager, ERR_NO_INIT);
-    CHECK_CALLER_IS_SYSTEM_APP;
-
-    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: Permission verification failed", __func__);
-        return CHECK_PERMISSION_FAILED;
-    }
-
-    return missionListManager->ClearMission(missionId);
-}
-
-int AbilityManagerService::CleanAllMissions()
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "request CleanAllMissions ");
-    auto missionListManager = GetCurrentMissionListManager();
-    CHECK_POINTER_AND_RETURN(missionListManager, ERR_NO_INIT);
-    CHECK_CALLER_IS_SYSTEM_APP;
-
-    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: Permission verification failed", __func__);
-        return CHECK_PERMISSION_FAILED;
-    }
-
-    Want want;
-    want.SetElementName(AbilityConfig::LAUNCHER_BUNDLE_NAME, AbilityConfig::LAUNCHER_ABILITY_NAME);
-    if (!IsAbilityControllerStart(want, AbilityConfig::LAUNCHER_BUNDLE_NAME)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "IsAbilityControllerStart failed: %{public}s", want.GetBundle().c_str());
-        return ERR_WOULD_BLOCK;
-    }
-
-    return missionListManager->ClearAllMissions();
 }
 
 int AbilityManagerService::MoveMissionToFront(int32_t missionId)
@@ -4538,9 +4352,9 @@ int AbilityManagerService::MoveMissionToFront(int32_t missionId)
         return uiAbilityManager->MoveMissionToFront(missionId);
     }
 
-    auto missionListManager = GetCurrentMissionListManager();
-    CHECK_POINTER_AND_RETURN(missionListManager, ERR_NO_INIT);
-    return missionListManager->MoveMissionToFront(missionId);
+    auto missionListBridge = GetMissionBridge();
+    CHECK_POINTER_AND_RETURN(missionListBridge, ERR_NO_INIT);
+    return missionListBridge->MoveMissionToFront(missionId);
 }
 
 int AbilityManagerService::MoveMissionToFront(int32_t missionId, const StartOptions &startOptions)
@@ -4565,83 +4379,29 @@ int AbilityManagerService::MoveMissionToFront(int32_t missionId, const StartOpti
         return uiAbilityManager->MoveMissionToFront(missionId, options);
     }
 
-    auto missionListManager = GetCurrentMissionListManager();
-    CHECK_POINTER_AND_RETURN(missionListManager, ERR_NO_INIT);
-    return missionListManager->MoveMissionToFront(missionId, options);
-}
-
-int AbilityManagerService::MoveMissionsToForeground(const std::vector<int32_t>& missionIds, int32_t topMissionId)
-{
-    CHECK_CALLER_IS_SYSTEM_APP;
-    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: Permission verification failed", __func__);
-        return CHECK_PERMISSION_FAILED;
-    }
-#ifdef SUPPORT_SCREEN
-    if (wmsHandler_) {
-        auto ret = wmsHandler_->MoveMissionsToForeground(missionIds, topMissionId);
-        if (ret) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "MoveMissionsToForeground failed, missiondIds may be invalid");
-            return ERR_INVALID_VALUE;
-        } else {
-            return NO_ERROR;
-        }
-    }
-#endif // SUPPORT_SCREEN
-    return ERR_NO_INIT;
-}
-
-int AbilityManagerService::MoveMissionsToBackground(const std::vector<int32_t>& missionIds,
-    std::vector<int32_t>& result)
-{
-    CHECK_CALLER_IS_SYSTEM_APP;
-    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: Permission verification failed", __func__);
-        return CHECK_PERMISSION_FAILED;
-    }
-#ifdef SUPPORT_SCREEN
-    if (wmsHandler_) {
-        auto ret = wmsHandler_->MoveMissionsToBackground(missionIds, result);
-        if (ret) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "MoveMissionsToBackground failed, missiondIds may be invalid");
-            return ERR_INVALID_VALUE;
-        } else {
-            return NO_ERROR;
-        }
-    }
-#endif // SUPPORT_SCREEN
-    return ERR_NO_INIT;
-}
-
-int32_t AbilityManagerService::GetMissionIdByToken(const sptr<IRemoteObject> &token)
-{
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "request GetMissionIdByToken.");
-    auto abilityRecord = Token::GetAbilityRecordByToken(token);
-    if (!abilityRecord) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityRecord is null.");
-        return ERR_INVALID_VALUE;
-    }
-    if (!JudgeSelfCalled(abilityRecord) && !CheckCallerIsDmsProcess()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Permission deny.");
-        return ERR_INVALID_VALUE;
-    }
-    return GetMissionIdByAbilityTokenInner(token);
+    auto missionListBridge = GetMissionBridge();
+    CHECK_POINTER_AND_RETURN(missionListBridge, ERR_NO_INIT);
+    return missionListBridge->MoveMissionToFront(missionId, options);
 }
 
 bool AbilityManagerService::IsAbilityControllerStartById(int32_t missionId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    InnerMissionInfo innerMissionInfo;
-    int getMission = DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(
-        missionId, innerMissionInfo);
-    if (getMission != ERR_OK) {
+    auto missionListBridge = GetMissionBridge();
+    if (!missionListBridge) {
+        return true;
+    }
+
+    Want missionWant;
+    int getMissionRet = missionListBridge->GetMissionWantById(missionId, missionWant);
+    if (getMissionRet != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR,
             "cannot find mission info from MissionInfoList by missionId: %{public}d", missionId);
         return true;
     }
-    if (!IsAbilityControllerStart(innerMissionInfo.missionInfo.want, innerMissionInfo.missionInfo.want.GetBundle())) {
+    if (!IsAbilityControllerStart(missionWant, missionWant.GetBundle())) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "IsAbilityControllerStart failed: %{public}s",
-            innerMissionInfo.missionInfo.want.GetBundle().c_str());
+            missionWant.GetBundle().c_str());
         return false;
     }
     return true;
@@ -4796,9 +4556,9 @@ int AbilityManagerService::AttachAbilityThread(
             CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
             return uiAbilityManager->AttachAbilityThread(scheduler, token);
         }
-        auto missionListManager = GetMissionListManagerByUserId(ownerMissionUserId);
-        CHECK_POINTER_AND_RETURN(missionListManager, ERR_INVALID_VALUE);
-        return missionListManager->AttachAbilityThread(scheduler, token);
+        auto missionListBridge = GetMissionBridge();
+        CHECK_POINTER_AND_RETURN(missionListBridge, ERR_INVALID_VALUE);
+        return missionListBridge->AttachAbilityThread(scheduler, token, ownerMissionUserId);
     }
 }
 
@@ -4824,19 +4584,8 @@ void AbilityManagerService::DumpSysMissionListInner(
         DumpSysMissionListInnerBySCB(args, info, isClient, isUserID, userId);
         return;
     }
-    std::shared_ptr<MissionListManager> targetManager;
-    if (isUserID) {
-        auto missionListManager = GetMissionListManagerByUserId(userId);
-        if (missionListManager == nullptr) {
-            info.push_back("error: No user found.");
-            return;
-        }
-        targetManager = missionListManager;
-    } else {
-        targetManager = GetCurrentMissionListManager();
-    }
-
-    CHECK_POINTER(targetManager);
+    auto missionListBridge = GetMissionBridge();
+    CHECK_POINTER(missionListBridge);
 
     std::vector<std::string> argList;
     SplitStr(args, " ", argList);
@@ -4845,9 +4594,9 @@ void AbilityManagerService::DumpSysMissionListInner(
     }
 
     if (argList.size() == MIN_DUMP_ARGUMENT_NUM) {
-        targetManager->DumpMissionList(info, isClient, argList[1]);
+        missionListBridge->DumpMissionList(argList[1], info, isClient, isClient, userId);
     } else if (argList.size() < MIN_DUMP_ARGUMENT_NUM) {
-        targetManager->DumpMissionList(info, isClient);
+        missionListBridge->DumpMissionList(std::string(), info, isClient, isClient, userId);
     } else {
         info.emplace_back("error: invalid argument, please see 'hidumper -s AbilityManagerService -a '-h''.");
     }
@@ -4884,19 +4633,8 @@ void AbilityManagerService::DumpSysAbilityInner(
         DumpSysAbilityInnerBySCB(args, info, isClient, isUserID, userId);
         return;
     }
-    std::shared_ptr<MissionListManager> targetManager;
-    if (isUserID) {
-        auto missionListManager = GetMissionListManagerByUserId(userId);
-        if (missionListManager == nullptr) {
-            info.push_back("error: No user found.");
-            return;
-        }
-        targetManager = missionListManager;
-    } else {
-        targetManager = GetCurrentMissionListManager();
-    }
-
-    CHECK_POINTER(targetManager);
+    auto missionListBridge = GetMissionBridge();
+    CHECK_POINTER(missionListBridge);
 
     std::vector<std::string> argList;
     SplitStr(args, " ", argList);
@@ -4908,7 +4646,7 @@ void AbilityManagerService::DumpSysAbilityInner(
         std::vector<std::string> params(argList.begin() + MIN_DUMP_ARGUMENT_NUM, argList.end());
         try {
             auto abilityId = static_cast<int32_t>(std::stoi(argList[1]));
-            targetManager->DumpMissionListByRecordId(info, isClient, abilityId, params);
+            missionListBridge->DumpSysAbilityInner(info, isClient, abilityId, params, isUserID, userId);
         } catch (...) {
             TAG_LOGW(AAFwkTag::ABILITYMGR, "stoi(%{public}s) failed", argList[1].c_str());
             info.emplace_back("error: invalid argument, please see 'hidumper -s AbilityManagerService -a '-h''.");
@@ -5158,9 +4896,9 @@ void AbilityManagerService::DumpInner(const std::string &args, std::vector<std::
         return;
     }
 
-    auto missionListManager = GetCurrentMissionListManager();
-    if (missionListManager) {
-        missionListManager->Dump(info);
+    auto missionListBridge = GetMissionBridge();
+    if (missionListBridge) {
+        missionListBridge->DumpInner(info);
     }
 }
 
@@ -5172,9 +4910,9 @@ void AbilityManagerService::DumpMissionListInner(const std::string &args, std::v
         uiAbilityManager->DumpMissionList(info, false, " ");
         return;
     }
-    auto missionListManager = GetCurrentMissionListManager();
-    if (missionListManager) {
-        missionListManager->DumpMissionList(info, false, "");
+    auto missionListBridge = GetMissionBridge();
+    if (missionListBridge) {
+        missionListBridge->DumpMissionListInner(info);
     }
 }
 
@@ -5187,9 +4925,9 @@ void AbilityManagerService::DumpMissionInfosInner(const std::string &args, std::
 #endif // SUPPORT_GRAPHICS
         return;
     }
-    auto missionListManager = GetCurrentMissionListManager();
-    if (missionListManager) {
-        missionListManager->DumpMissionInfos(info);
+    auto missionListBridge = GetMissionBridge();
+    if (missionListBridge) {
+        missionListBridge->DumpMissionInfosInner(info);
     }
 }
 
@@ -5215,9 +4953,9 @@ void AbilityManagerService::DumpMissionInner(const std::string &args, std::vecto
         return;
     }
 
-    auto missionListManager = GetCurrentMissionListManager();
-    CHECK_POINTER_LOG(missionListManager, "Current mission manager not init.");
-    missionListManager->DumpMission(missionId, info);
+    auto missionListBridge = GetMissionBridge();
+    CHECK_POINTER_LOG(missionListBridge, "missionListBridge not init.");
+    missionListBridge->DumpMissionInner(missionId, info);
 }
 
 void AbilityManagerService::DumpStateInner(const std::string &args, std::vector<std::string> &info)
@@ -5411,12 +5149,12 @@ int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &toke
         CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
         return uiAbilityManager->AbilityTransactionDone(token, state, saveData);
     } else {
-        auto missionListManager = GetMissionListManagerByUserId(ownerMissionUserId);
-        if (!missionListManager) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListManager is Null. userId=%{public}d", ownerMissionUserId);
+        auto missionListBridge = GetMissionBridge();
+        if (!missionListBridge) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListBridge is Null.");
             return ERR_INVALID_VALUE;
         }
-        return missionListManager->AbilityTransactionDone(token, state, saveData);
+        return missionListBridge->AbilityTransitionDone(token, state, saveData, ownerMissionUserId);
     }
 }
 
@@ -5578,12 +5316,12 @@ void AbilityManagerService::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
                 CHECK_POINTER(uiAbilityManager);
                 uiAbilityManager->OnAbilityRequestDone(token, state);
             } else {
-                auto missionListManager = GetMissionListManagerByUserId(ownerUserId);
-                if (!missionListManager) {
-                    TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListManager is Null. userId=%{public}d", ownerUserId);
+                auto missionListBridge = GetMissionBridge();
+                if (!missionListBridge) {
+                    TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListBridge is Null.");
                     return;
                 }
-                missionListManager->OnAbilityRequestDone(token, state);
+                missionListBridge->OnAbilityRequestDone(token, state, ownerUserId);
             }
             break;
         }
@@ -5601,9 +5339,9 @@ void AbilityManagerService::OnAppStateChanged(const AppInfo &info)
         CHECK_POINTER(uiAbilityManager);
         uiAbilityManager->OnAppStateChanged(info);
     } else {
-        auto missionListManager = GetCurrentMissionListManager();
-        CHECK_POINTER_LOG(missionListManager, "Current mission list manager not init.");
-        missionListManager->OnAppStateChanged(info);
+        auto missionListBridge = GetMissionBridge();
+        CHECK_POINTER_LOG(missionListBridge, "missionListBridge not init.");
+        missionListBridge->OnAppStateChanged(info);
     }
     auto dataAbilityManager = GetCurrentDataAbilityManager();
     CHECK_POINTER(dataAbilityManager);
@@ -5888,10 +5626,9 @@ void AbilityManagerService::OnAbilityDied(std::shared_ptr<AbilityRecord> ability
             return;
         }
     } else {
-        auto manager = GetMissionListManagerByUserId(abilityRecord->GetOwnerMissionUserId());
-        if (manager && abilityRecord->GetAbilityInfo().type == AbilityType::PAGE) {
+        auto missionListBridge = GetMissionBridge();
+        if (missionListBridge && missionListBridge->OnAbilityDied(abilityRecord, GetUserId())) {
             ReleaseAbilityTokenMap(abilityRecord->GetToken());
-            manager->OnAbilityDied(abilityRecord, GetUserId());
             return;
         }
     }
@@ -5917,9 +5654,9 @@ void AbilityManagerService::OnCallConnectDied(std::shared_ptr<CallRecord> callRe
         uiAbilityManager->OnCallConnectDied(callRecord);
         return;
     }
-    auto missionListManager = GetCurrentMissionListManager();
-    if (missionListManager) {
-        missionListManager->OnCallConnectDied(callRecord);
+    auto missionListBridge = GetMissionBridge();
+    if (missionListBridge) {
+        missionListBridge->OnCallConnectDied(callRecord);
     }
 }
 
@@ -6115,33 +5852,27 @@ void AbilityManagerService::HandleLoadTimeOut(int64_t abilityRecordId, bool isHa
         }
         return;
     }
-    auto missionListManagers = GetMissionListManagers();
-    for (auto& item : missionListManagers) {
-        if (item.second) {
-            item.second->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecordId, isHalf);
-}
+    auto missionListBridge = GetMissionBridge();
+    if (missionListBridge) {
+        missionListBridge->HandleLoadTimeOut(abilityRecordId, isHalf);
     }
 }
 
 void AbilityManagerService::HandleActiveTimeOut(int64_t abilityRecordId)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Handle active timeout.");
-    auto missionListManagers = GetMissionListManagers();
-    for (auto& item : missionListManagers) {
-        if (item.second) {
-            item.second->OnTimeOut(AbilityManagerService::ACTIVE_TIMEOUT_MSG, abilityRecordId);
-        }
+    auto missionListBridge = GetMissionBridge();
+    if (missionListBridge) {
+        missionListBridge->HandleActiveTimeOut(abilityRecordId);
     }
 }
 
 void AbilityManagerService::HandleInactiveTimeOut(int64_t abilityRecordId)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Handle inactive timeout.");
-    auto missionListManagers = GetMissionListManagers();
-    for (auto& item : missionListManagers) {
-        if (item.second) {
-            item.second->OnTimeOut(AbilityManagerService::INACTIVE_TIMEOUT_MSG, abilityRecordId);
-        }
+    auto missionListBridge = GetMissionBridge();
+    if (missionListBridge) {
+        missionListBridge->HandleInactiveTimeOut(abilityRecordId);
     }
     auto connectManagers = GetConnectManagers();
     for (auto& item : connectManagers) {
@@ -6163,11 +5894,9 @@ void AbilityManagerService::HandleForegroundTimeOut(int64_t abilityRecordId, boo
         }
         return;
     }
-    auto missionListManagers = GetMissionListManagers();
-    for (auto& item : missionListManagers) {
-        if (item.second) {
-            item.second->OnTimeOut(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecordId, isHalf);
-}
+    auto missionListBridge = GetMissionBridge();
+    if (missionListBridge) {
+        missionListBridge->HandleForegroundTimeOut(abilityRecordId, isHalf);
     }
 }
 
@@ -6212,13 +5941,8 @@ bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
     CHECK_POINTER_RETURN_BOOL(dataAbilityManager);
     auto connectManager = GetCurrentConnectManager();
     CHECK_POINTER_RETURN_BOOL(connectManager);
-    auto missionListManager = GetCurrentMissionListManager();
-    CHECK_POINTER_RETURN_BOOL(missionListManager);
-
-    if (missionListManager->GetAbilityRecordByToken(token)) {
-        return true;
-    }
-    if (missionListManager->GetAbilityFromTerminateList(token)) {
+    auto missionListBridge = GetMissionBridge();
+    if (missionListBridge && missionListBridge->VerificationToken(token)) {
         return true;
     }
 
@@ -6319,27 +6043,6 @@ std::shared_ptr<PendingWantManager> AbilityManagerService::GetPendingWantManager
     return subManagersHelper_->GetPendingWantManagerByUserId(userId);
 }
 
-std::unordered_map<int, std::shared_ptr<MissionListManager>> AbilityManagerService::GetMissionListManagers()
-{
-    if (subManagersHelper_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "pointer is nullptr.");
-        return std::unordered_map<int, std::shared_ptr<MissionListManager>>();
-    }
-    return subManagersHelper_->GetMissionListManagers();
-}
-
-std::shared_ptr<MissionListManager> AbilityManagerService::GetCurrentMissionListManager()
-{
-    CHECK_POINTER_AND_RETURN(subManagersHelper_, nullptr);
-    return subManagersHelper_->GetCurrentMissionListManager();
-}
-
-std::shared_ptr<MissionListManager> AbilityManagerService::GetMissionListManagerByUserId(int32_t userId)
-{
-    CHECK_POINTER_AND_RETURN(subManagersHelper_, nullptr);
-    return subManagersHelper_->GetMissionListManagerByUserId(userId);
-}
-
 std::unordered_map<int, std::shared_ptr<UIAbilityLifecycleManager>> AbilityManagerService::GetUIAbilityManagers()
 {
     if (subManagersHelper_ == nullptr) {
@@ -6365,6 +6068,48 @@ std::shared_ptr<UIAbilityLifecycleManager> AbilityManagerService::GetUIAbilityMa
 {
     CHECK_POINTER_AND_RETURN(subManagersHelper_, nullptr);
     return subManagersHelper_->GetUIAbilityManagerByUid(uid);
+}
+
+std::shared_ptr<MissionListBridge> AbilityManagerService::GetMissionBridge()
+{
+    return missionListBridge_;
+}
+
+void AbilityManagerService::InitMissionBridge()
+{
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        return;
+    }
+
+    missionLibHandle_ = dlopen("libmission_list.z.so", RTLD_NOW | RTLD_GLOBAL);
+    if (missionLibHandle_ == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to open mission_list library");
+        return;
+    }
+
+    auto creatMissionBridgeFunc = reinterpret_cast<CreateMissionBridgeFunc>(dlsym(missionLibHandle_,
+        "CreateMissionListBridge"));
+    if (creatMissionBridgeFunc == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to get create func");
+        dlclose(missionLibHandle_);
+        missionLibHandle_ = nullptr;
+        return;
+    }
+    missionListBridge_ = std::shared_ptr<MissionListBridge>(creatMissionBridgeFunc());
+}
+
+void AbilityManagerService::ReleaseMissionBridge()
+{
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        return;
+    }
+    if (missionListBridge_) {
+        missionListBridge_.reset();
+    }
+    if (missionLibHandle_) {
+        dlclose(missionLibHandle_);
+        missionLibHandle_ = nullptr;
+    }
 }
 
 void AbilityManagerService::StartResidentApps()
@@ -6640,22 +6385,22 @@ int32_t AbilityManagerService::GetMissionIdByAbilityTokenInner(const sptr<IRemot
         CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
         return uiAbilityManager->GetSessionIdByAbilityToken(token);
     }
-    auto missionListManager = GetMissionListManagerByUserId(userId);
-    if (!missionListManager) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListManager is Null. owner mission userId=%{public}d", userId);
+    auto missionListBridge = GetMissionBridge();
+    if (!missionListBridge) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListBridge is Null.");
         return -1;
     }
-    return missionListManager->GetMissionIdByAbilityToken(token);
+    return missionListBridge->GetMissionIdByAbilityToken(token, userId);
 }
 
 sptr<IRemoteObject> AbilityManagerService::GetAbilityTokenByMissionId(int32_t missionId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    auto missionListManager = GetCurrentMissionListManager();
-    if (!missionListManager) {
+    auto missionListBridge = GetMissionBridge();
+    if (!missionListBridge) {
         return nullptr;
     }
-    return missionListManager->GetAbilityTokenByMissionId(missionId);
+    return missionListBridge->GetAbilityTokenByMissionId(missionId);
 }
 
 int AbilityManagerService::StartRemoteAbilityByCall(const Want &want, const sptr<IRemoteObject> &callerToken,
@@ -6776,9 +6521,9 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
         return uiAbilityManager->ResolveLocked(abilityRequest);
     }
 
-    auto missionListMgr = GetMissionListManagerByUserId(oriValidUserId);
-    if (missionListMgr == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListMgr is Null. Designated User Id=%{public}d", oriValidUserId);
+    auto missionListBridge = GetMissionBridge();
+    if (missionListBridge == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListBridge is Null.");
         return ERR_INVALID_VALUE;
     }
     ReportEventToRSS(abilityRequest.abilityInfo, callerToken);
@@ -6788,7 +6533,7 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
         return result;
     }
 
-    return missionListMgr->ResolveLocked(abilityRequest);
+    return missionListBridge->ResolveLocked(abilityRequest, oriValidUserId);
 }
 
 int AbilityManagerService::StartAbilityJust(AbilityRequest &abilityRequest, int32_t validUserId)
@@ -6803,14 +6548,14 @@ int AbilityManagerService::StartAbilityJust(AbilityRequest &abilityRequest, int3
         return uiAbilityManager->ResolveLocked(abilityRequest);
     }
 
-    auto missionListMgr = GetMissionListManagerByUserId(validUserId);
-    if (missionListMgr == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListMgr is Null. Designated User Id=%{public}d", validUserId);
+    auto missionListBridge = GetMissionBridge();
+    if (missionListBridge == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListBridge is Null.");
         return ERR_INVALID_VALUE;
     }
     ReportEventToRSS(abilityRequest.abilityInfo, abilityRequest.callerToken);
 
-    return missionListMgr->ResolveLocked(abilityRequest);
+    return missionListBridge->ResolveLocked(abilityRequest, validUserId);
 }
 
 int AbilityManagerService::ReleaseCall(
@@ -6834,9 +6579,9 @@ int AbilityManagerService::ReleaseCall(
         CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
         return uiAbilityManager->ReleaseCallLocked(connect, element);
     }
-    auto missionListManager = GetCurrentMissionListManager();
-    CHECK_POINTER_AND_RETURN(missionListManager, ERR_NO_INIT);
-    return missionListManager->ReleaseCallLocked(connect, element);
+    auto missionListBridge = GetMissionBridge();
+    CHECK_POINTER_AND_RETURN(missionListBridge, ERR_NO_INIT);
+    return missionListBridge->ReleaseCall(connect, element);
 }
 
 int AbilityManagerService::JudgeAbilityVisibleControl(const AppExecFwk::AbilityInfo &abilityInfo)
@@ -6923,11 +6668,11 @@ void AbilityManagerService::OnAcceptWantResponse(
         uiAbilityManager->OnAcceptWantResponse(want, flag, requestId);
         return;
     }
-    auto missionListManager = GetCurrentMissionListManager();
-    if (!missionListManager) {
+    auto missionListBridge = GetMissionBridge();
+    if (!missionListBridge) {
         return;
     }
-    missionListManager->OnAcceptWantResponse(want, flag);
+    missionListBridge->OnAcceptWantResponse(want, flag);
 }
 
 void AbilityManagerService::OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want, int32_t requestId)
@@ -6939,11 +6684,11 @@ void AbilityManagerService::OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::
         uiAbilityManager->OnStartSpecifiedAbilityTimeoutResponse(want, requestId);
         return;
     }
-    auto missionListManager = GetCurrentMissionListManager();
-    if (!missionListManager) {
+    auto missionListBridge = GetMissionBridge();
+    if (!missionListBridge) {
         return;
     }
-    missionListManager->OnStartSpecifiedAbilityTimeoutResponse(want);
+    missionListBridge->OnStartSpecifiedAbilityTimeoutResponse(want);
 }
 
 void AbilityManagerService::OnStartSpecifiedProcessResponse(const AAFwk::Want &want, const std::string &flag,
@@ -6980,9 +6725,12 @@ int AbilityManagerService::GetAbilityRunningInfos(std::vector<AbilityRunningInfo
         CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
         uiAbilityManager->GetAbilityRunningInfos(info, isPerm);
     } else {
-        auto missionListManager = GetCurrentMissionListManager();
-        CHECK_POINTER_AND_RETURN(missionListManager, ERR_INVALID_VALUE);
-        missionListManager->GetAbilityRunningInfos(info, isPerm);
+        auto missionListBridge = GetMissionBridge();
+        CHECK_POINTER_AND_RETURN(missionListBridge, ERR_INVALID_VALUE);
+        auto ret = missionListBridge->GetAbilityRunningInfos(info, isPerm);
+        if (ret != ERR_OK) {
+            return ret;
+        }
     }
 
     UpdateFocusState(info);
@@ -7048,60 +6796,13 @@ void AbilityManagerService::ClearUserData(int32_t userId)
     TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s", __func__);
     CHECK_POINTER(subManagersHelper_);
     subManagersHelper_->ClearSubManagers(userId);
+
+    auto missionListBridge = GetMissionBridge();
+    if (missionListBridge && !Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        missionListBridge->RemoveUser(userId);
+    }
 }
 
-int AbilityManagerService::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
-{
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: Permission verification failed", __func__);
-        return 0;
-    }
-
-    auto missionListManager = GetCurrentMissionListManager();
-    CHECK_POINTER_AND_RETURN(missionListManager, INNER_ERR);
-    missionListManager->RegisterSnapshotHandler(handler);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "snapshot: AbilityManagerService register snapshot handler success.");
-    return ERR_OK;
-}
-
-int32_t AbilityManagerService::GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
-    MissionSnapshot& missionSnapshot, bool isLowResolution)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    CHECK_CALLER_IS_SYSTEM_APP;
-    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: Permission verification failed", __func__);
-        return CHECK_PERMISSION_FAILED;
-    }
-
-    if (CheckIsRemote(deviceId)) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "get remote mission snapshot.");
-        return GetRemoteMissionSnapshotInfo(deviceId, missionId, missionSnapshot);
-    }
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "get local mission snapshot.");
-    auto missionListManager = GetCurrentMissionListManager();
-    CHECK_POINTER_AND_RETURN(missionListManager, INNER_ERR);
-    auto token = GetAbilityTokenByMissionId(missionId);
-    bool result = missionListManager->GetMissionSnapshot(missionId, token, missionSnapshot, isLowResolution);
-    if (!result) {
-        return INNER_ERR;
-    }
-    return ERR_OK;
-}
-#ifdef SUPPORT_SCREEN
-void AbilityManagerService::UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
-    const std::shared_ptr<Media::PixelMap> &pixelMap)
-{
-    if (!PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission(FOUNDATION_PROCESS_NAME)) {
-        return;
-    }
-    auto missionListManager = GetCurrentMissionListManager();
-    if (missionListManager) {
-        missionListManager->UpdateSnapShot(token, pixelMap);
-    }
-}
-#endif // SUPPORT_SCREEN
 void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& token)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Enable recovery ability.");
@@ -7140,12 +6841,12 @@ void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& toke
         (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->AddAbilityRecoverInfo(
             abilityInfo.applicationInfo.accessTokenId, abilityInfo.moduleName, abilityName, sessionId);
     } else {
-        auto missionListMgr = GetMissionListManagerByUserId(userId);
-        if (missionListMgr == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListMgr is nullptr");
+        auto missionListBridge = GetMissionBridge();
+        if (missionListBridge == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListBridge is nullptr");
             return;
         }
-        missionListMgr->EnableRecoverAbility(record->GetMissionId());
+        missionListBridge->EnableRecoverAbility(record->GetMissionId(), userId);
     }
 }
 
@@ -7310,22 +7011,6 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
     RestartApp(curWant);
 }
 
-int32_t AbilityManagerService::GetRemoteMissionSnapshotInfo(const std::string& deviceId, int32_t missionId,
-    MissionSnapshot& missionSnapshot)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "GetRemoteMissionSnapshotInfo begin");
-    std::unique_ptr<MissionSnapshot> missionSnapshotPtr = std::make_unique<MissionSnapshot>();
-    DistributedClient dmsClient;
-    int result = dmsClient.GetRemoteMissionSnapshotInfo(deviceId, missionId, missionSnapshotPtr);
-    if (result != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetRemoteMissionSnapshotInfo failed, result = %{public}d", result);
-        return result;
-    }
-    missionSnapshot = *missionSnapshotPtr;
-    return ERR_OK;
-}
-
 void AbilityManagerService::StartSwitchUserDialog()
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Start switch user dialog extension ability come");
@@ -7461,9 +7146,9 @@ void AbilityManagerService::PauseOldUser(int32_t userId)
 void AbilityManagerService::PauseOldMissionListManager(int32_t userId)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s, PauseOldMissionListManager:%{public}d-----begin", __func__, userId);
-    auto manager = GetMissionListManagerByUserId(userId);
-    CHECK_POINTER(manager);
-    manager->PauseManager();
+    auto missionListBridge = GetMissionBridge();
+    CHECK_POINTER(missionListBridge);
+    missionListBridge->PauseOldMissionListManager(userId);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s, PauseOldMissionListManager:%{public}d-----end", __func__, userId);
 }
 
@@ -7483,10 +7168,9 @@ void AbilityManagerService::PauseOldConnectManager(int32_t userId)
 
 void AbilityManagerService::StartUserApps()
 {
-    auto missionListManager = GetCurrentMissionListManager();
-    if (missionListManager && missionListManager->IsStarted()) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "missionListManager ResumeManager");
-        missionListManager->ResumeManager();
+    auto missionListBridge = GetMissionBridge();
+    if (missionListBridge) {
+        missionListBridge->StartUserApps();
     }
 }
 
@@ -7627,11 +7311,10 @@ int AbilityManagerService::GetTopAbility(sptr<IRemoteObject> &token)
         Rosen::WindowManager::GetInstance().GetFocusWindowInfo(focusChangeInfo);
         token = focusChangeInfo.abilityToken_;
     } else {
-        if (!wmsHandler_) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "wmsHandler_ is nullptr.");
-            return ERR_INVALID_VALUE;
+        auto missionListBridge = GetMissionBridge();
+        if (missionListBridge) {
+            missionListBridge->GetTopAbility(token);
         }
-        wmsHandler_->GetFocusWindow(token);
     }
 
     if (!token) {
@@ -7640,60 +7323,6 @@ int AbilityManagerService::GetTopAbility(sptr<IRemoteObject> &token)
     }
 #endif
     return ERR_OK;
-}
-
-int AbilityManagerService::DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token)
-{
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "enter");
-    CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
-    auto &&abilityRecord = Token::GetAbilityRecordByToken(token);
-    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    int32_t callerPid = IPCSkeleton::GetCallingPid();
-    int32_t appPid = abilityRecord->GetPid();
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "callerPid: %{public}d, appPid: %{public}d", callerPid, appPid);
-    if (callerPid != appPid) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Caller is not the application itself");
-        return ERR_INVALID_VALUE;
-    }
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sessionId = GetMissionIdByAbilityTokenInner(token);
-        if (!sessionId) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid session id.");
-            return ERR_INVALID_VALUE;
-        }
-        auto want = abilityRecord->GetWant();
-        if (!IsAbilityControllerStart(want, want.GetBundle())) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR,
-                "SceneBoard IsAbilityControllerStart failed: %{public}s", want.GetBundle().c_str());
-            return ERR_WOULD_BLOCK;
-        }
-        return ERR_OK;
-    }
-    auto missionId = GetMissionIdByAbilityToken(token);
-    if (missionId < 0) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid mission id.");
-        return ERR_INVALID_VALUE;
-    }
-    return DelegatorMoveMissionToFront(missionId);
-}
-
-int AbilityManagerService::DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token)
-{
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "enter");
-    CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
-    auto &&abilityRecord = Token::GetAbilityRecordByToken(token);
-    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    int32_t appPid = abilityRecord->GetPid();
-    int32_t callerPid = IPCSkeleton::GetCallingPid();
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "callerPid: %{public}d, appPid: %{public}d", callerPid, appPid);
-    if (callerPid != appPid) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Caller is not the application itself");
-        return ERR_INVALID_VALUE;
-    }
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        return ERR_OK;
-    }
-    return MinimizeAbility(token, true);
 }
 
 int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag)
@@ -7723,9 +7352,9 @@ int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token,
         return ERR_WOULD_BLOCK;
     }
 
-    auto missionListManager = GetCurrentMissionListManager();
-    CHECK_POINTER_AND_RETURN(missionListManager, ERR_NO_INIT);
-    return missionListManager->DoAbilityForeground(abilityRecord, flag);
+    auto missionListBridge = GetMissionBridge();
+    CHECK_POINTER_AND_RETURN(missionListBridge, ERR_NO_INIT);
+    return missionListBridge->DoAbilityForeground(abilityRecord, flag);
 }
 
 int AbilityManagerService::DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag)
@@ -7740,20 +7369,6 @@ int AbilityManagerService::DoAbilityBackground(const sptr<IRemoteObject> &token,
     int ret = MinimizeAbility(token);
     abilityRecord->lifeCycleStateInfo_.sceneFlag = SCENE_FLAG_NORMAL;
     return ret;
-}
-
-int AbilityManagerService::DelegatorMoveMissionToFront(int32_t missionId)
-{
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "enter missionId : %{public}d", missionId);
-    auto missionListManager = GetCurrentMissionListManager();
-    CHECK_POINTER_AND_RETURN(missionListManager, ERR_NO_INIT);
-
-    if (!IsAbilityControllerStartById(missionId)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "IsAbilityControllerStart false");
-        return ERR_WOULD_BLOCK;
-    }
-
-    return missionListManager->MoveMissionToFront(missionId);
 }
 
 void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken)
@@ -8142,9 +7757,9 @@ int AbilityManagerService::BlockAbility(int32_t abilityRecordId)
         CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
         return uiAbilityManager->BlockAbility(abilityRecordId);
     }
-    auto missionListManager = GetCurrentMissionListManager();
-    CHECK_POINTER_AND_RETURN(missionListManager, ERR_NO_INIT);
-    return missionListManager->BlockAbility(abilityRecordId);
+    auto missionListBridge = GetMissionBridge();
+    CHECK_POINTER_AND_RETURN(missionListBridge, ERR_NO_INIT);
+    return missionListBridge->BlockAbility(abilityRecordId);
 }
 
 int AbilityManagerService::BlockAppService()
@@ -8176,32 +7791,11 @@ int AbilityManagerService::FreeInstallAbilityFromRemote(const Want &want, const 
 
 AppExecFwk::ElementName AbilityManagerService::GetTopAbility(bool isNeedLocalDeviceId)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s start.", __func__);
-    AppExecFwk::ElementName elementName = {};
-#ifdef SUPPORT_GRAPHICS
-    sptr<IRemoteObject> token;
-    int ret = IN_PROCESS_CALL(GetTopAbility(token));
-    if (ret) {
-        return elementName;
+    auto missionListBridge = GetMissionBridge();
+    if (missionListBridge) {
+        return missionListBridge->GetTopAbility(isNeedLocalDeviceId);
     }
-    if (!token) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "token is nullptr");
-        return elementName;
-    }
-    auto abilityRecord = Token::GetAbilityRecordByToken(token);
-    if (abilityRecord == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s abilityRecord is null.", __func__);
-        return elementName;
-    }
-    elementName = abilityRecord->GetElementName();
-    bool isDeviceEmpty = elementName.GetDeviceID().empty();
-    std::string localDeviceId;
-    if (isDeviceEmpty && isNeedLocalDeviceId && GetLocalDeviceId(localDeviceId)) {
-        elementName.SetDeviceID(localDeviceId);
-    }
-#endif
-    return elementName;
+    return {};
 }
 
 AppExecFwk::ElementName AbilityManagerService::GetElementNameByToken(sptr<IRemoteObject> token,
@@ -8358,136 +7952,7 @@ int AbilityManagerService::DumpAbilityInfoDone(std::vector<std::string> &infos, 
     return ERR_OK;
 }
 
-int AbilityManagerService::SetMissionContinueState(const sptr<IRemoteObject> &token, const AAFwk::ContinueState &state)
-{
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "SetMissionContinueState begin. State: %{public}d", state);
-
-    CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
-
-    int32_t missionId = GetMissionIdByAbilityToken(token);
-    if (missionId == -1) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "SetMissionContinueState failed to get missionId. State: %{public}d", state);
-        return ERR_INVALID_VALUE;
-    }
-
-    auto abilityRecord = Token::GetAbilityRecordByToken(token);
-    if (!abilityRecord) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR,
-            "SetMissionContinueState: No such ability record. Mission id: %{public}d, state: %{public}d",
-            missionId, state);
-        return -1;
-    }
-
-    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
-    auto tokenID = abilityRecord->GetApplicationInfo().accessTokenId;
-    if (callingTokenId != tokenID) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR,
-            "SetMissionContinueState not self, not enabled. Mission id: %{public}d, state: %{public}d",
-            missionId, state);
-        return -1;
-    }
-
-    auto userId = abilityRecord->GetOwnerMissionUserId();
-    auto missionListManager = GetMissionListManagerByUserId(userId);
-    if (!missionListManager) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to find mission list manager. Mission id: %{public}d, state: %{public}d",
-            missionId, state);
-        return -1;
-    }
-
-    auto setResult = missionListManager->SetMissionContinueState(token, missionId, state);
-    if (setResult != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR,
-            "missionListManager set failed, result: %{public}d, mission id: %{public}d, state: %{public}d",
-            setResult, missionId, state);
-        return setResult;
-    }
-
-    DistributedClient dmsClient;
-    auto result =  dmsClient.SetMissionContinueState(missionId, state);
-    if (result != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR,
-            "Notify DMS client failed, result: %{public}d. Mission id: %{public}d, state: %{public}d",
-            result, missionId, state);
-    }
-
-    TAG_LOGD(AAFwkTag::ABILITYMGR,
-        "SetMissionContinueState end. Mission id: %{public}d, state: %{public}d", missionId, state);
-    return ERR_OK;
-}
-
 #ifdef SUPPORT_SCREEN
-int AbilityManagerService::SetMissionLabel(const sptr<IRemoteObject> &token, const std::string &label)
-{
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s", __func__);
-    auto abilityRecord = Token::GetAbilityRecordByToken(token);
-    if (!abilityRecord) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "no such ability record");
-        return -1;
-    }
-
-    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
-    auto tokenID = abilityRecord->GetApplicationInfo().accessTokenId;
-    if (callingTokenId != tokenID) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "SetMissionLabel not self, not enabled");
-        return -1;
-    }
-
-    auto userId = abilityRecord->GetOwnerMissionUserId();
-    auto missionListManager = GetMissionListManagerByUserId(userId);
-    if (!missionListManager) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to find mission list manager when set mission label.");
-        return -1;
-    }
-
-    return missionListManager->SetMissionLabel(token, label);
-}
-
-int AbilityManagerService::SetMissionIcon(const sptr<IRemoteObject> &token,
-    const std::shared_ptr<OHOS::Media::PixelMap> &icon)
-{
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s", __func__);
-    CHECK_CALLER_IS_SYSTEM_APP;
-    auto abilityRecord = Token::GetAbilityRecordByToken(token);
-    if (!abilityRecord) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "no such ability record");
-        return -1;
-    }
-
-    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
-    auto tokenID = abilityRecord->GetApplicationInfo().accessTokenId;
-    if (callingTokenId != tokenID) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "not self, not enable to set mission icon");
-        return -1;
-    }
-
-    auto userId = abilityRecord->GetOwnerMissionUserId();
-    auto missionListManager = GetMissionListManagerByUserId(userId);
-    if (!missionListManager) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to find mission list manager.");
-        return -1;
-    }
-
-    return missionListManager->SetMissionIcon(token, icon);
-}
-
-int AbilityManagerService::RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler> &handler)
-{
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: Permission verification failed", __func__);
-        return CHECK_PERMISSION_FAILED;
-    }
-    wmsHandler_ = handler;
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s: WMS handler registered successfully.", __func__);
-    return ERR_OK;
-}
-
-sptr<IWindowManagerServiceHandler> AbilityManagerService::GetWMSHandler() const
-{
-    return wmsHandler_;
-}
-
 void AbilityManagerService::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
@@ -8501,9 +7966,9 @@ void AbilityManagerService::CompleteFirstFrameDrawing(const sptr<IRemoteObject> 
         return;
     }
 
-    auto missionListManager = GetMissionListManagerByUserId(ownerUserId);
-    CHECK_POINTER(missionListManager);
-    missionListManager->CompleteFirstFrameDrawing(abilityToken);
+    auto missionListBridge = GetMissionBridge();
+    CHECK_POINTER(missionListBridge);
+    missionListBridge->CompleteFirstFrameDrawing(abilityToken, ownerUserId);
 }
 
 void AbilityManagerService::CompleteFirstFrameDrawing(int32_t sessionId)
@@ -8605,54 +8070,22 @@ int AbilityManagerService::PrepareTerminateAbility(const sptr<IRemoteObject> &to
     return ERR_OK;
 }
 
-void AbilityManagerService::HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo)
-{
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "handle focused event");
-    auto missionListManager = GetCurrentMissionListManager();
-    CHECK_POINTER(missionListManager);
-
-    int32_t missionId = GetMissionIdByAbilityToken(focusChangeInfo->abilityToken_);
-    missionListManager->NotifyMissionFocused(missionId);
-}
-
-void AbilityManagerService::HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo)
-{
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "handle unfocused event");
-    auto missionListManager = GetCurrentMissionListManager();
-    CHECK_POINTER(missionListManager);
-
-    int32_t missionId = GetMissionIdByAbilityToken(focusChangeInfo->abilityToken_);
-    missionListManager->NotifyMissionUnfocused(missionId);
-}
-
 void AbilityManagerService::InitFocusListener()
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Init ability focus listener");
-    if (focusListener_) {
-        return;
-    }
-
-    focusListener_ = new WindowFocusChangedListener(shared_from_this(), taskHandler_);
     auto registerTask = [innerService = shared_from_this()]() {
-        if (innerService) {
+        if (!innerService) {
+            return;
+        }
+        auto missionListBridge = innerService->GetMissionBridge();
+        if (missionListBridge) {
             TAG_LOGI(AAFwkTag::ABILITYMGR, "RegisterFocusListener task");
-            innerService->RegisterFocusListener();
+            missionListBridge->RegisterFocusListener();
         }
     };
     if (taskHandler_) {
         taskHandler_->SubmitTask(registerTask, "RegisterFocusListenerTask", REGISTER_FOCUS_DELAY);
     }
-}
-
-void AbilityManagerService::RegisterFocusListener()
-{
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "Register focus listener");
-    if (!focusListener_) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "no listener obj");
-        return;
-    }
-    Rosen::WindowManager::GetInstance().RegisterFocusChangedListener(focusListener_);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "Register focus listener success");
 }
 
 void AbilityManagerService::InitPrepareTerminateConfig()
@@ -9099,9 +8532,9 @@ void AbilityManagerService::CallRequestDone(const sptr<IRemoteObject> &token, co
         return;
     }
 
-    auto missionListManager = GetCurrentMissionListManager();
-    CHECK_POINTER(missionListManager);
-    missionListManager->CallRequestDone(abilityRecord, callStub);
+    auto missionListBridge = GetMissionBridge();
+    CHECK_POINTER(missionListBridge);
+    missionListBridge->CallRequestDone(abilityRecord, callStub);
 }
 
 void AbilityManagerService::GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token)
@@ -9190,31 +8623,6 @@ bool AbilityManagerService::IsAppSelfCalled(const std::shared_ptr<AbilityRecord>
     return true;
 }
 
-std::shared_ptr<AbilityRecord> AbilityManagerService::GetFocusAbility()
-{
-#ifdef SUPPORT_SCREEN
-    sptr<IRemoteObject> token;
-    if (!wmsHandler_) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "wmsHandler_ is nullptr.");
-        return nullptr;
-    }
-
-    wmsHandler_->GetFocusWindow(token);
-    if (!token) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "token is nullptr");
-        return nullptr;
-    }
-
-    auto abilityRecord = Token::GetAbilityRecordByToken(token);
-    if (!abilityRecord) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityRecord is nullptr.");
-    }
-    return abilityRecord;
-#endif
-
-    return nullptr;
-}
-
 int AbilityManagerService::CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, bool& isFocused)
 {
     sptr<IRemoteObject> token;
@@ -9256,19 +8664,6 @@ int AbilityManagerService::AddFreeInstallObserver(const sptr<AbilityRuntime::IFr
         return ERR_INVALID_VALUE;
     }
     return freeInstallManager_->AddFreeInstallObserver(observer);
-}
-
-int32_t AbilityManagerService::IsValidMissionIds(
-    const std::vector<int32_t> &missionIds, std::vector<MissionValidResult> &results)
-{
-    auto userId = IPCSkeleton::GetCallingUid() / BASE_USER_RANGE;
-    auto missionlistMgr = GetMissionListManagerByUserId(userId);
-    if (missionlistMgr == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionlistMgr is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-
-    return missionlistMgr->IsValidMissionIds(missionIds, results);
 }
 
 int AbilityManagerService::VerifyPermission(const std::string &permission, int pid, int uid)
@@ -9320,14 +8715,9 @@ int32_t AbilityManagerService::AcquireShareData(
         CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
         abilityRecord = uiAbilityManager->GetAbilityRecordsById(missionId);
     } else {
-        auto missionListManager = GetCurrentMissionListManager();
-        CHECK_POINTER_AND_RETURN(missionListManager, ERR_INVALID_VALUE);
-        std::shared_ptr<Mission> mission = missionListManager->GetMissionById(missionId);
-        if (!mission) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "mission is null.");
-            return ERR_INVALID_VALUE;
-        }
-        abilityRecord = mission->GetAbilityRecord();
+        auto missionListBridge = GetMissionBridge();
+        CHECK_POINTER_AND_RETURN(missionListBridge, ERR_INVALID_VALUE);
+        abilityRecord = missionListBridge->GetAbilityRecordByMissionId(missionId);
     }
     if (!abilityRecord) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityRecord is null.");
@@ -9830,11 +9220,11 @@ bool AbilityManagerService::IsAbilityStarted(AbilityRequest &abilityRequest,
         return uiAbilityManager->IsAbilityStarted(abilityRequest, targetRecord);
     }
 
-    auto missionListMgr = GetMissionListManagerByUserId(oriValidUserId);
-    if (missionListMgr == nullptr) {
+    auto missionListBridge = GetMissionBridge();
+    if (missionListBridge == nullptr) {
         return false;
     }
-    return missionListMgr->IsAbilityStarted(abilityRequest, targetRecord);
+    return missionListBridge->IsAbilityStarted(abilityRequest, targetRecord, oriValidUserId);
 }
 
 int32_t AbilityManagerService::OnExecuteIntent(AbilityRequest &abilityRequest,
@@ -9900,7 +9290,6 @@ int32_t AbilityManagerService::StartAbilityByCallWithInsightIntent(const Want &w
     }
     std::shared_ptr<AbilityRecord> targetRecord;
     int32_t oriValidUserId = GetValidUserId(DEFAULT_INVAL_VALUE);
-    auto missionListMgr = GetMissionListManagerByUserId(oriValidUserId);
     if (IsAbilityStarted(abilityRequest, targetRecord, oriValidUserId)) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "ability has already started");
         UpdateCallerInfo(abilityRequest.want, callerToken);
@@ -9987,9 +9376,12 @@ int32_t AbilityManagerService::GetForegroundUIAbilities(std::vector<AppExecFwk::
         CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
         uiAbilityManager->GetAbilityRunningInfos(abilityRunningInfos, isPerm);
     } else {
-        auto missionListManager = GetCurrentMissionListManager();
-        CHECK_POINTER_AND_RETURN(missionListManager, ERR_NULL_OBJECT);
-        missionListManager->GetAbilityRunningInfos(abilityRunningInfos, isPerm);
+        auto missionListBridge = GetMissionBridge();
+        CHECK_POINTER_AND_RETURN(missionListBridge, ERR_NULL_OBJECT);
+        auto ret = missionListBridge->GetAbilityRunningInfos(abilityRunningInfos, isPerm);
+        if (ret != ERR_OK) {
+            return ERR_NULL_OBJECT;
+        }
     }
 
     for (auto &info : abilityRunningInfos) {
@@ -10526,12 +9918,13 @@ int32_t AbilityManagerService::SignRestartAppFlag(int32_t userId, const std::str
         uiAbilityManager->SignRestartAppFlag(bundleName);
         return ERR_OK;
     }
-    auto missionListManager = GetMissionListManagerByUserId(userId);
-    if (missionListManager == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListManager is nullptr. userId:%{public}d", userId);
+
+    auto missionListBridge = GetMissionBridge();
+    if (missionListBridge == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListBridge is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    missionListManager->SignRestartAppFlag(bundleName);
+    missionListBridge->SignRestartAppFlag(bundleName, userId);
     return ERR_OK;
 }
 
@@ -10799,6 +10192,15 @@ int32_t AbilityManagerService::TransferAbilityResultForExtension(const sptr<IRem
     abilityRecord->SaveResultToCallers(resultCode, newWant);
     abilityRecord->SendResultToCallers();
     return ERR_OK;
+}
+
+sptr<IRemoteObject> AbilityManagerService::GetMissionListDelegator()
+{
+    auto missionListBridge = GetMissionBridge();
+    if (missionListBridge) {
+        return missionListBridge->GetMissionListDelegator();
+    }
+    return nullptr;
 }
 
 void AbilityManagerService::GetRunningMultiAppIndex(const std::string &bundleName, int32_t uid, int32_t &appIndex)

@@ -82,11 +82,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     // fuzz for AbilityManagerService
     auto abilityms = std::make_shared<AbilityManagerService>();
     abilityms->GetTopAbility(token);
-    abilityms->DelegatorDoAbilityForeground(token);
-    abilityms->DelegatorDoAbilityBackground(token);
     abilityms->DoAbilityForeground(token, uint32Param);
     abilityms->DoAbilityBackground(token, uint32Param);
-    abilityms->DelegatorMoveMissionToFront(int32Param);
     abilityms->UpdateCallerInfo(*want, token);
     abilityms->JudgeMultiUserConcurrency(int32Param);
 #ifdef ABILITY_COMMAND_FOR_TEST

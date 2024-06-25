@@ -103,19 +103,9 @@ public:
         int32_t missionId, const sptr<IRemoteObject>& callBack, AAFwk::WantParams& wantParams));
     MOCK_METHOD3(ContinueAbility, int(const std::string& deviceId, int32_t missionId, uint32_t versionCode));
     MOCK_METHOD3(NotifyCompleteContinuation, void(const std::string& deviceId, int32_t sessionId, bool isSuccess));
-    MOCK_METHOD1(LockMissionForCleanup, int(int32_t missionId));
-    MOCK_METHOD1(UnlockMissionForCleanup, int(int32_t missionId));
-    MOCK_METHOD1(RegisterMissionListener, int(const sptr<IMissionListener>& listener));
-    MOCK_METHOD1(UnRegisterMissionListener, int(const sptr<IMissionListener>& listener));
-    MOCK_METHOD3(
-        GetMissionInfos, int(const std::string& deviceId, int32_t numMax, std::vector<MissionInfo>& missionInfos));
-    MOCK_METHOD3(GetMissionInfo, int(const std::string& deviceId, int32_t missionId, MissionInfo& missionInfo));
-    MOCK_METHOD1(CleanMission, int(int32_t missionId));
-    MOCK_METHOD0(CleanAllMissions, int());
+
     MOCK_METHOD1(MoveMissionToFront, int(int32_t missionId));
     MOCK_METHOD2(MoveMissionToFront, int(int32_t missionId, const StartOptions& startOptions));
-    MOCK_METHOD2(MoveMissionsToForeground, int(const std::vector<int32_t>& missionIds, int32_t topMissionId));
-    MOCK_METHOD2(MoveMissionsToBackground, int(const std::vector<int32_t>& missionIds, std::vector<int32_t>& result));
     MOCK_METHOD1(GetAbilityRunningInfos, int(std::vector<AbilityRunningInfo>& info));
     MOCK_METHOD2(GetExtensionRunningInfos, int(int upperLimit, std::vector<ExtensionRunningInfo>& info));
     MOCK_METHOD1(GetProcessRunningInfos, int(std::vector<AppExecFwk::RunningProcessInfo>& info));
@@ -123,7 +113,6 @@ public:
     MOCK_METHOD2(AcquireShareData, int32_t(const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData));
     MOCK_METHOD4(ShareDataDone, int32_t(const sptr<IRemoteObject> &token,
         const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam));
-    MOCK_METHOD2(SetMissionContinueState, int(const sptr<IRemoteObject>& token, const AAFwk::ContinueState& state));
     int StartUser(int userId, sptr<IUserCallback> callback) override;
     int StopUser(int userId, const sptr<IUserCallback>& callback) override;
     int LogoutUser(int32_t userId) override;
@@ -138,9 +127,6 @@ public:
     void CallRequestDone(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& callStub) override;
     int ReleaseCall(const sptr<IAbilityConnection>& connect,
         const AppExecFwk::ElementName& element) override;
-    int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
-        MissionSnapshot& snapshot, bool isLowResolution) override;
-    int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
     int SetAbilityController(const sptr<AppExecFwk::IAbilityController>& abilityController,
         bool imAStabilityTest) override;
     bool IsRunningInStabilityTest() override;
@@ -149,13 +135,9 @@ public:
     int StartUserTest(const Want& want, const sptr<IRemoteObject>& observer) override;
     int FinishUserTest(
         const std::string& msg, const int64_t& resultCode, const std::string& bundleName) override;
-    int GetTopAbility(sptr<IRemoteObject>& token) override;
-    int DelegatorDoAbilityForeground(const sptr<IRemoteObject>& token) override;
-    int DelegatorDoAbilityBackground(const sptr<IRemoteObject>& token) override;
     int32_t ReportDrawnCompleted(const sptr<IRemoteObject>& callerToken) override;
     int DoAbilityForeground(const sptr<IRemoteObject>& token, uint32_t flag);
     int DoAbilityBackground(const sptr<IRemoteObject>& token, uint32_t flag);
-    int32_t GetMissionIdByToken(const sptr<IRemoteObject>& token);
     void GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token);
     int BlockAmsService();
     int BlockAbility(int32_t abilityRecordId);
@@ -178,13 +160,8 @@ public:
     int ForceTimeoutForTest(const std::string& abilityName, const std::string& state) override;
 #endif
 #ifdef SUPPORT_GRAPHICS
-    MOCK_METHOD2(SetMissionLabel, int(const sptr<IRemoteObject>& token, const std::string& label));
-    int SetMissionIcon(
-        const sptr<IRemoteObject>& token, const std::shared_ptr<OHOS::Media::PixelMap>& icon) override;
-    int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler);
     void CompleteFirstFrameDrawing(const sptr<IRemoteObject>& abilityToken) override {}
 #endif
-    MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionValidResult>&));
     MOCK_METHOD1(RegisterAppDebugListener, int32_t(sptr<AppExecFwk::IAppDebugListener> listener));
     MOCK_METHOD1(UnregisterAppDebugListener, int32_t(sptr<AppExecFwk::IAppDebugListener> listener));
     MOCK_METHOD1(AttachAppDebug, int32_t(const std::string &bundleName));
@@ -283,19 +260,9 @@ public:
         int32_t missionId, const sptr<IRemoteObject>& callBack, AAFwk::WantParams& wantParams));
     MOCK_METHOD3(ContinueAbility, int(const std::string& deviceId, int32_t missionId, uint32_t versionCode));
     MOCK_METHOD3(NotifyCompleteContinuation, void(const std::string& deviceId, int32_t sessionId, bool isSuccess));
-    MOCK_METHOD1(LockMissionForCleanup, int(int32_t missionId));
-    MOCK_METHOD1(UnlockMissionForCleanup, int(int32_t missionId));
-    MOCK_METHOD1(RegisterMissionListener, int(const sptr<IMissionListener>& listener));
-    MOCK_METHOD1(UnRegisterMissionListener, int(const sptr<IMissionListener>& listener));
-    MOCK_METHOD3(
-        GetMissionInfos, int(const std::string& deviceId, int32_t numMax, std::vector<MissionInfo>& missionInfos));
-    MOCK_METHOD3(GetMissionInfo, int(const std::string& deviceId, int32_t missionId, MissionInfo& missionInfo));
-    MOCK_METHOD1(CleanMission, int(int32_t missionId));
-    MOCK_METHOD0(CleanAllMissions, int());
+
     MOCK_METHOD1(MoveMissionToFront, int(int32_t missionId));
     MOCK_METHOD2(MoveMissionToFront, int(int32_t missionId, const StartOptions& startOptions));
-    MOCK_METHOD2(MoveMissionsToForeground, int(const std::vector<int32_t>& missionIds, int32_t topMissionId));
-    MOCK_METHOD2(MoveMissionsToBackground, int(const std::vector<int32_t>& missionIds, std::vector<int32_t>& result));
     MOCK_METHOD1(GetAbilityRunningInfos, int(std::vector<AbilityRunningInfo>& info));
     MOCK_METHOD2(GetExtensionRunningInfos, int(int upperLimit, std::vector<ExtensionRunningInfo>& info));
     MOCK_METHOD1(GetProcessRunningInfos, int(std::vector<AppExecFwk::RunningProcessInfo>& info));
@@ -303,7 +270,6 @@ public:
     MOCK_METHOD2(AcquireShareData, int32_t(const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData));
     MOCK_METHOD4(ShareDataDone, int32_t(const sptr<IRemoteObject> &token,
         const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam));
-    MOCK_METHOD2(SetMissionContinueState, int(const sptr<IRemoteObject>& token, const AAFwk::ContinueState& state));
     int StartUser(int userId, sptr<IUserCallback> callback) override;
     int StopUser(int userId, const sptr<IUserCallback>& callback) override;
     int LogoutUser(int32_t userId) override;
@@ -322,9 +288,6 @@ public:
     }
     int ReleaseCall(const sptr<IAbilityConnection>& connect,
         const AppExecFwk::ElementName& element) override;
-    int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
-        MissionSnapshot& snapshot, bool isLowResolution) override;
-    int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
     int SetAbilityController(const sptr<AppExecFwk::IAbilityController>& abilityController,
         bool imAStabilityTest) override;
     bool IsRunningInStabilityTest() override;
@@ -333,14 +296,9 @@ public:
     int StartUserTest(const Want& want, const sptr<IRemoteObject>& observer) override;
     int FinishUserTest(
         const std::string& msg, const int64_t& resultCode, const std::string& bundleName) override;
-    int GetTopAbility(sptr<IRemoteObject>& token) override;
-    AppExecFwk::ElementName GetTopAbility(bool isNeedLocalDeviceId = true) override;
-    int DelegatorDoAbilityForeground(const sptr<IRemoteObject>& token) override;
-    int DelegatorDoAbilityBackground(const sptr<IRemoteObject>& token) override;
     int32_t ReportDrawnCompleted(const sptr<IRemoteObject>& callerToken) override;
     int DoAbilityForeground(const sptr<IRemoteObject>& token, uint32_t flag);
     int DoAbilityBackground(const sptr<IRemoteObject>& token, uint32_t flag);
-    int32_t GetMissionIdByToken(const sptr<IRemoteObject>& token);
     void GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token);
     int BlockAmsService();
     int BlockAbility(int32_t abilityRecordId);
@@ -358,13 +316,8 @@ public:
     int ForceTimeoutForTest(const std::string& abilityName, const std::string& state) override;
 #endif
 #ifdef SUPPORT_GRAPHICS
-    MOCK_METHOD2(SetMissionLabel, int(const sptr<IRemoteObject>& token, const std::string& label));
-    int SetMissionIcon(
-        const sptr<IRemoteObject>& token, const std::shared_ptr<OHOS::Media::PixelMap>& icon) override;
-    int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler);
     void CompleteFirstFrameDrawing(const sptr<IRemoteObject>& abilityToken) override {}
 #endif
-    MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionValidResult>&));
     MOCK_METHOD1(RegisterAppDebugListener, int32_t(sptr<AppExecFwk::IAppDebugListener> listener));
     MOCK_METHOD1(UnregisterAppDebugListener, int32_t(sptr<AppExecFwk::IAppDebugListener> listener));
     MOCK_METHOD1(AttachAppDebug, int32_t(const std::string &bundleName));

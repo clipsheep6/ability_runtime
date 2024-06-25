@@ -196,7 +196,7 @@ bool MissionInfoMgr::DeleteAllMissionInfos(const std::shared_ptr<MissionListener
         return false;
     }
 
-    auto abilityMs_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
+    auto abilityMs_ = AbilityManagerService::GetPubInstance();
 
     for (auto listIter = missionInfoList_.begin(); listIter != missionInfoList_.end();) {
         auto isUnclearable = ((listIter->missionInfo.unclearable) && (listIter->missionInfo.runningState == 0));
@@ -348,7 +348,7 @@ int MissionInfoMgr::UpdateMissionContinueState(int32_t missionId, const AAFwk::C
         TAG_LOGE(AAFwkTag::ABILITYMGR, "UpdateMissionContinueState failed, missionId %{public}d invalid", missionId);
         return -1;
     }
-   
+
     std::lock_guard<ffrt::mutex> lock(mutex_);
     auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
         return missionId == info.missionInfo.id;

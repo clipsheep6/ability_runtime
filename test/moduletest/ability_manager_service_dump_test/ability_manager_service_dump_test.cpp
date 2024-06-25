@@ -17,14 +17,20 @@
 #define private public
 #define protected public
 #include "ability_manager_service.h"
+#include "mission_list_wrapper.h"
+#undef private
 #undef private
 #undef protected
+#include "mission_list_bridge.h"
 #include "scene_board_judgement.h"
 
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
 
+extern "C" {
+OHOS::AAFwk::MissionListBridge* CreateMissionListBridge();
+}
 namespace OHOS {
 namespace AAFwk {
 namespace {
@@ -212,9 +218,10 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_OnAppStateChanged_
     EXPECT_NE(abilityRecord, nullptr);
 
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        abilityMs_->subManagersHelper_->currentMissionListManager_ = std::make_shared<MissionListManager>(USER_ID);
-        EXPECT_NE(abilityMs_->subManagersHelper_->currentMissionListManager_, nullptr);
-        abilityMs_->subManagersHelper_->currentMissionListManager_->terminateAbilityList_.push_back(abilityRecord);
+        abilityMs_->missionListBridge_ = std::shared_ptr<MissionListBridge>(CreateMissionListBridge());
+        MissionListWrapper::GetInstance().currentMissionListManager_ = std::make_shared<MissionListManager>(USER_ID);
+        EXPECT_NE(MissionListWrapper::GetInstance().currentMissionListManager_, nullptr);
+        MissionListWrapper::GetInstance().currentMissionListManager_->terminateAbilityList_.push_back(abilityRecord);
 
         abilityMs_->subManagersHelper_->currentDataAbilityManager_ = std::make_shared<DataAbilityManager>();
         EXPECT_NE(abilityMs_->subManagersHelper_->currentDataAbilityManager_, nullptr);
@@ -224,7 +231,7 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_OnAppStateChanged_
         info.state = AppState::TERMINATED;
         abilityMs_->OnAppStateChanged(info);
 
-        abilityRecord = abilityMs_->subManagersHelper_->currentMissionListManager_->terminateAbilityList_.front();
+        abilityRecord = MissionListWrapper::GetInstance().currentMissionListManager_->terminateAbilityList_.front();
         EXPECT_NE(abilityRecord, nullptr);
         EXPECT_EQ(abilityRecord->GetAppState(), AppState::TERMINATED);
     }

@@ -36,10 +36,12 @@
 #include "ability_manager_service.h"
 #include "ability_connect_callback_proxy.h"
 #include "ability_config.h"
+#include "mission_list_wrapper.h"
 #include "pending_want_manager.h"
 #include "pending_want_record.h"
 #undef private
 #undef protected
+#include "mission_list_bridge.h"
 #include "wants_info.h"
 #include "want_receiver_stub.h"
 #include "want_sender_stub.h"
@@ -53,6 +55,10 @@ using OHOS::sptr;
 using testing::_;
 using testing::Invoke;
 using testing::Return;
+
+extern "C" {
+OHOS::AAFwk::MissionListBridge* CreateMissionListBridge();
+}
 
 namespace OHOS {
 namespace AAFwk {
@@ -126,11 +132,13 @@ void RunningInfosModuleTest::OnStartAms()
 
         abilityMgrServ_->interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
         EXPECT_TRUE(abilityMgrServ_->interceptorExecuter_);
-
+        abilityMgrServ_->missionListBridge_ = std::shared_ptr<MissionListBridge>(CreateMissionListBridge());
         abilityMgrServ_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+        abilityMgrServ_->subManagersHelper_->missionListBridge_ = abilityMgrServ_->missionListBridge_;
         abilityMgrServ_->subManagersHelper_->InitSubManagers(userId, true);
         abilityMgrServ_->subManagersHelper_->currentConnectManager_->SetTaskHandler(abilityMgrServ_->taskHandler_);
-        auto topAbility = abilityMgrServ_->GetMissionListManagerByUserId(userId)->GetCurrentTopAbilityLocked();
+        auto topAbility = MissionListWrapper::GetInstance().GetMissionListManagerByUserId(userId)->
+            GetCurrentTopAbilityLocked();
         if (topAbility) {
             topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
         }
@@ -281,7 +289,7 @@ HWTEST_F(RunningInfosModuleTest, GetAbilityRunningInfos_004, TestSize.Level1)
     auto result = abilityMgrServ_->StartAbility(want);
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    auto topAbility = abilityMgrServ_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto topAbility = MissionListWrapper::GetInstance().currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_TRUE(topAbility);
     topAbility->SetAbilityState(AbilityState::FOREGROUND);
 
@@ -357,7 +365,7 @@ HWTEST_F(RunningInfosModuleTest, GetAbilityRunningInfos_006, TestSize.Level1)
     auto result = abilityMgrServ_->StartAbility(want);
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    auto topAbility = abilityMgrServ_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto topAbility = MissionListWrapper::GetInstance().currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_TRUE(topAbility);
     topAbility->SetAbilityState(AbilityState::FOREGROUND);
 

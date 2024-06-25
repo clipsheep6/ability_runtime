@@ -28,6 +28,7 @@
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
+#include "mission_list_bridge.h"
 #include "os_account_manager_wrapper.h"
 #include "scene_board_judgement.h"
 #include "singleton.h"
@@ -36,7 +37,8 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-    constexpr int32_t U0_USER_ID = 0;
+constexpr int32_t U0_USER_ID = 0;
+constexpr int32_t INVALID_USERID = -1;
 }
 
 AppExitReasonHelper::AppExitReasonHelper(std::shared_ptr<SubManagersHelper> subManagersHelper)
@@ -71,9 +73,10 @@ int32_t AppExitReasonHelper::RecordAppExitReason(const ExitReason &exitReason)
         CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_NULL_OBJECT);
         uiAbilityManager->GetActiveAbilityList(bundleName, abilityList);
     } else {
-        auto missionListManager = subManagersHelper_->GetMissionListManagerByUid(IPCSkeleton::GetCallingUid());
-        CHECK_POINTER_AND_RETURN(missionListManager, ERR_NULL_OBJECT);
-        missionListManager->GetActiveAbilityList(bundleName, abilityList);
+        auto listManager = subManagersHelper_->GetMissionListBridge();
+        CHECK_POINTER_AND_RETURN(listManager, ERR_NULL_OBJECT);
+        listManager->GetActiveAbilityList(bundleName, abilityList, NO_PID, ActiveAbilityMode::CALLING_UID,
+            INVALID_USERID);
     }
 
     ret = DelayedSingleton<AppScheduler>::GetInstance()->NotifyAppMgrRecordExitReason(pid, exitReason.reason,
@@ -196,16 +199,9 @@ void AppExitReasonHelper::GetActiveAbilityListByU0(const std::string bundleName,
     std::vector<std::string> &abilityLists, const int32_t pid)
 {
     CHECK_POINTER(subManagersHelper_);
-    auto missionListManagers = subManagersHelper_->GetMissionListManagers();
-    for (auto& item: missionListManagers) {
-        if (!item.second) {
-            continue;
-        }
-        std::vector<std::string> abilityList;
-        item.second->GetActiveAbilityList(bundleName, abilityList, pid);
-        if (!abilityList.empty()) {
-            abilityLists.insert(abilityLists.end(), abilityList.begin(), abilityList.end());
-        }
+    auto listManager = subManagersHelper_->GetMissionListBridge();
+    if (listManager) {
+        listManager->GetActiveAbilityList(bundleName, abilityLists, pid, ActiveAbilityMode::ALL, INVALID_USERID);
     }
 }
 
@@ -213,9 +209,9 @@ void AppExitReasonHelper::GetActiveAbilityListByUser(const std::string bundleNam
     std::vector<std::string> &abilityLists, const int32_t targetUserId, const int32_t pid)
 {
     CHECK_POINTER(subManagersHelper_);
-    auto listManager = subManagersHelper_->GetMissionListManagerByUserId(targetUserId);
+    auto listManager = subManagersHelper_->GetMissionListBridge();
     if (listManager) {
-        listManager->GetActiveAbilityList(bundleName, abilityLists, pid);
+        listManager->GetActiveAbilityList(bundleName, abilityLists, pid, ActiveAbilityMode::USER_ID, targetUserId);
     }
 }
 

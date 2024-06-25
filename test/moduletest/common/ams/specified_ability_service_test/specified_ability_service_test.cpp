@@ -25,8 +25,14 @@
 #define protected public
 #include "ability_manager_errors.h"
 #include "ability_manager_service.h"
+#include "mission_list_wrapper.h"
 #undef private
 #undef protected
+#include "mission_list_bridge.h"
+
+extern "C" {
+OHOS::AAFwk::MissionListBridge* CreateMissionListBridge();
+}
 
 using namespace std::placeholders;
 using namespace testing::ext;
@@ -96,7 +102,9 @@ void SpecifiedAbilityServiceTest::TearDown(void) {}
 HWTEST_F(SpecifiedAbilityServiceTest, OnAcceptWantResponse_001, TestSize.Level1)
 {
     auto abilityMgrServ_ = std::make_shared<AbilityManagerService>();
+    abilityMgrServ_->missionListBridge_ = std::shared_ptr<MissionListBridge>(CreateMissionListBridge());
     abilityMgrServ_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMgrServ_->subManagersHelper_->missionListBridge_ = abilityMgrServ_->missionListBridge_;
     std::string abilityName = "MusicAbility";
     std::string appName = "test_app";
     std::string bundleName = "com.ix.hiMusic";
@@ -112,8 +120,8 @@ HWTEST_F(SpecifiedAbilityServiceTest, OnAcceptWantResponse_001, TestSize.Level1)
     abilityMgrServ_->subManagersHelper_->InitMissionListManager(11, true);
     Want want;
     want.SetElementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
-    EXPECT_TRUE(abilityMgrServ_->subManagersHelper_->currentMissionListManager_);
-    abilityMgrServ_->subManagersHelper_->currentMissionListManager_->EnqueueWaitingAbility(abilityRequest);
+    EXPECT_TRUE(MissionListWrapper::GetInstance().currentMissionListManager_);
+    MissionListWrapper::GetInstance().currentMissionListManager_->EnqueueWaitingAbility(abilityRequest);
     abilityMgrServ_->OnAcceptWantResponse(want, "flag");
 
     EXPECT_EQ(false, abilityRecord->IsNewWant());

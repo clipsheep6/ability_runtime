@@ -62,25 +62,6 @@ sptr<Token> GetFuzzAbilityToken()
     }
     return token;
 }
-
-bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
-{
-    bool boolParam = *data % ENABLE;
-    int32_t int32Param = static_cast<int32_t>(GetU32Data(data));
-    std::string stringParam(data, size);
-    sptr<IRemoteObject> token = GetFuzzAbilityToken();
-
-    // fuzz for AbilityManagerService
-    auto abilityms = std::make_shared<AbilityManagerService>();
-    abilityms->ClearUserData(int32Param);
-    sptr<ISnapshotHandler> snapshotHandler;
-    abilityms->RegisterSnapshotHandler(snapshotHandler);
-    MissionSnapshot missionSnapshot;
-    abilityms->GetMissionSnapshot(stringParam, int32Param, missionSnapshot, boolParam);
-    abilityms->EnableRecoverAbility(token);
-
-    return true;
-}
 }
 
 /* Fuzzer entry point */

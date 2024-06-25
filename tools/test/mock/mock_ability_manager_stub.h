@@ -89,7 +89,6 @@ public:
         const sptr<IRemoteObject>& callerToken, int32_t userId, int requestCode));
     MOCK_METHOD4(StartAbilityByInsightIntent, int32_t(const Want& want, const sptr<IRemoteObject>& callerToken,
         uint64_t intentId, int32_t userId));
-    MOCK_METHOD1(GetMissionIdByToken, int32_t(const sptr<IRemoteObject>& token));
     MOCK_METHOD1(GetPendinTerminateAbilityTestgRequestWant, void(int id));
     MOCK_METHOD3(StartContinuation, int(const Want& want, const sptr<IRemoteObject>& abilityToken, int32_t status));
     MOCK_METHOD2(NotifyContinuationResult, int(int32_t missionId, int32_t result));
@@ -98,23 +97,8 @@ public:
     MOCK_METHOD3(ContinueAbility, int(const std::string& deviceId, int32_t missionId, uint32_t versionCode));
     MOCK_METHOD3(NotifyCompleteContinuation, void(const std::string& deviceId, int32_t sessionId, bool isSuccess));
 
-    MOCK_METHOD1(LockMissionForCleanup, int(int32_t missionId));
-    MOCK_METHOD1(UnlockMissionForCleanup, int(int32_t missionId));
-    MOCK_METHOD1(RegisterMissionListener, int(const sptr<IMissionListener>& listener));
-    MOCK_METHOD1(UnRegisterMissionListener, int(const sptr<IMissionListener>& listener));
-    MOCK_METHOD3(
-        GetMissionInfos, int(const std::string& deviceId, int32_t numMax, std::vector<MissionInfo>& missionInfos));
-    MOCK_METHOD3(GetMissionInfo, int(const std::string& deviceId, int32_t missionId, MissionInfo& missionInfo));
-    MOCK_METHOD1(CleanMission, int(int32_t missionId));
-    MOCK_METHOD0(CleanAllMissions, int());
     MOCK_METHOD1(MoveMissionToFront, int(int32_t missionId));
     MOCK_METHOD2(MoveMissionToFront, int(int32_t missionId, const StartOptions& startOptions));
-    MOCK_METHOD2(MoveMissionsToForeground, int(const std::vector<int32_t>& missionIds, int32_t topMissionId));
-    MOCK_METHOD2(MoveMissionsToBackground, int(const std::vector<int32_t>& missionIds, std::vector<int32_t>& result));
-    MOCK_METHOD2(SetMissionContinueState, int(const sptr<IRemoteObject>& token, const AAFwk::ContinueState& state));
-    MOCK_METHOD2(SetMissionLabel, int(const sptr<IRemoteObject>& token, const std::string& label));
-    MOCK_METHOD2(SetMissionIcon, int(const sptr<IRemoteObject>& token,
-        const std::shared_ptr<OHOS::Media::PixelMap>& icon));
     MOCK_METHOD1(GetAbilityRunningInfos, int(std::vector<AbilityRunningInfo>& info));
     MOCK_METHOD2(GetExtensionRunningInfos, int(int upperLimit, std::vector<ExtensionRunningInfo>& info));
     MOCK_METHOD1(GetProcessRunningInfos, int(std::vector<AppExecFwk::RunningProcessInfo>& info));
@@ -194,22 +178,6 @@ public:
         return 0;
     }
 
-    virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
-        MissionSnapshot& snapshot, bool isLowResolution)
-    {
-        return 0;
-    }
-
-    virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
-    {
-        return 0;
-    }
-
-    int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler) override
-    {
-        return 0;
-    }
-
     virtual int32_t GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
     {
         return 0;
@@ -234,21 +202,6 @@ public:
 
     int FinishUserTest(
         const std::string& msg, const int64_t& resultCode, const std::string& bundleName) override
-    {
-        return 0;
-    }
-
-    int GetTopAbility(sptr<IRemoteObject>& token) override
-    {
-        return 0;
-    }
-
-    int DelegatorDoAbilityForeground(const sptr<IRemoteObject>& token) override
-    {
-        return 0;
-    }
-
-    int DelegatorDoAbilityBackground(const sptr<IRemoteObject>& token) override
     {
         return 0;
     }
@@ -281,7 +234,6 @@ public:
         return 0;
     }
 #endif
-    MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionValidResult>&));
     MOCK_METHOD1(RegisterAppDebugListener, int32_t(sptr<AppExecFwk::IAppDebugListener> listener));
     MOCK_METHOD1(UnregisterAppDebugListener, int32_t(sptr<AppExecFwk::IAppDebugListener> listener));
     MOCK_METHOD1(AttachAppDebug, int32_t(const std::string &bundleName));

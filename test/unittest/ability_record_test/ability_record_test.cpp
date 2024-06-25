@@ -43,6 +43,9 @@
 #undef private
 #undef protected
 #endif
+#ifdef SUPPORT_SCREEN
+#include "window_info.h"
+#endif
 
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
@@ -119,31 +122,6 @@ bool IsTestAbilityExist2(const std::string& data)
 {
     return std::string::npos != data.find("test_next_app");
 }
-
-class MockWMSHandler : public IWindowManagerServiceHandler {
-public:
-    virtual void NotifyWindowTransition(sptr<AbilityTransitionInfo> fromInfo, sptr<AbilityTransitionInfo> toInfo,
-        bool& animaEnabled)
-    {}
-
-    virtual int32_t GetFocusWindow(sptr<IRemoteObject>& abilityToken)
-    {
-        return 0;
-    }
-
-    virtual void StartingWindow(sptr<AbilityTransitionInfo> info,
-        std::shared_ptr<Media::PixelMap> pixelMap, uint32_t bgColor) {}
-
-    virtual void StartingWindow(sptr<AbilityTransitionInfo> info, std::shared_ptr<Media::PixelMap> pixelMap) {}
-
-    virtual void CancelStartingWindow(sptr<IRemoteObject> abilityToken)
-    {}
-
-    virtual sptr<IRemoteObject> AsObject()
-    {
-        return nullptr;
-    }
-};
 
 /*
  * Feature: AbilityRecord
@@ -1325,56 +1303,6 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CreateAbilityTransitionInfo_006, Tes
 
 /*
  * Feature: AbilityRecord
- * Function: CreateResourceManager
- * SubFunction: CreateResourceManager
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: Verify AbilityRecord CreateResourceManager
- */
-HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CreateResourceManager_001, TestSize.Level1)
-{
-    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
-    system::SetParameter(COMPRESS_PROPERTY, "1");
-    abilityRecord->abilityInfo_.hapPath = "path";
-    auto res = abilityRecord->CreateResourceManager();
-    EXPECT_EQ(res, nullptr);
-}
-
-/*
- * Feature: AbilityRecord
- * Function: GetPixelMap
- * SubFunction: GetPixelMap
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: Verify AbilityRecord GetPixelMap
- */
-HWTEST_F(AbilityRecordTest, AbilityRecord_GetPixelMap_001, TestSize.Level1)
-{
-    EXPECT_EQ(abilityRecord_->GetPixelMap(1, nullptr), nullptr);
-    std::shared_ptr<Global::Resource::ResourceManager> resourceMgr(Global::Resource::CreateResourceManager());
-    EXPECT_EQ(abilityRecord_->GetPixelMap(1, resourceMgr), nullptr);
-}
-
-/*
- * Feature: AbilityRecord
- * Function: GetPixelMap
- * SubFunction: GetPixelMap
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: Verify AbilityRecord GetPixelMap
- */
-HWTEST_F(AbilityRecordTest, AbilityRecord_GetPixelMap_002, TestSize.Level1)
-{
-    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
-    std::shared_ptr<Global::Resource::ResourceManager> resourceMgr(Global::Resource::CreateResourceManager());
-    system::SetParameter(COMPRESS_PROPERTY, "1");
-    abilityRecord->abilityInfo_.hapPath = "path";
-    auto res = abilityRecord->GetPixelMap(1, resourceMgr);
-    EXPECT_EQ(res, nullptr);
-}
-
-/*
- * Feature: AbilityRecord
  * Function: StartingWindowHot
  * SubFunction: StartingWindowHot
  * FunctionPoints: NA
@@ -1389,43 +1317,6 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_StartingWindowHot_001, TestSize.Level1
     std::shared_ptr<Want> want = std::make_shared<Want>();
     AbilityRequest abilityRequest;
     abilityRecord->StartingWindowHot(startOptions, want, abilityRequest);
-}
-
-/*
- * Feature: AbilityRecord
- * Function: GetColdStartingWindowResource
- * SubFunction: GetColdStartingWindowResource
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: Verify AbilityRecord GetColdStartingWindowResource
- */
-HWTEST_F(AbilityRecordTest, AbilityRecord_GetColdStartingWindowResource_001, TestSize.Level1)
-{
-    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
-    EXPECT_NE(abilityRecord, nullptr);
-    std::shared_ptr<Media::PixelMap> bg;
-    uint32_t bgColor = 0;
-    abilityRecord->startingWindowBg_ = std::make_shared<Media::PixelMap>();
-    abilityRecord->GetColdStartingWindowResource(bg, bgColor);
-    abilityRecord->startingWindowBg_ = nullptr;
-    abilityRecord->GetColdStartingWindowResource(bg, bgColor);
-}
-
-/*
- * Feature: AbilityRecord
- * Function: InitColdStartingWindowResource
- * SubFunction: InitColdStartingWindowResource
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: Verify AbilityRecord InitColdStartingWindowResource
- */
-HWTEST_F(AbilityRecordTest, AbilityRecord_InitColdStartingWindowResource_001, TestSize.Level1)
-{
-    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
-    EXPECT_NE(abilityRecord, nullptr);
-    std::shared_ptr<Global::Resource::ResourceManager> resourceMgr(Global::Resource::CreateResourceManager());
-    abilityRecord->InitColdStartingWindowResource(nullptr);
-    abilityRecord->InitColdStartingWindowResource(resourceMgr);
 }
 #endif
 
@@ -1489,33 +1380,6 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_PostCancelStartingWindowColdTask_001, 
     want.SetParam("debugApp", false);
     abilityRecord.PostCancelStartingWindowColdTask();
     EXPECT_FALSE(want.GetBoolParam("debugApp", false));
-}
-
-/*
- * Feature: AbilityRecord
- * Function: CreateResourceManager
- * SubFunction: CreateResourceManager
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: CreateResourceManager
- */
-HWTEST_F(AbilityRecordTest, AbilityRecord_CreateResourceManager_001, TestSize.Level1)
-{
-    Want want;
-    AppExecFwk::AbilityInfo abilityInfo;
-    AppExecFwk::ApplicationInfo applicationInfo;
-    AbilityRecord abilityRecord(want, abilityInfo, applicationInfo, 0);
-    EXPECT_TRUE(abilityRecord.CreateResourceManager() == nullptr);
-
-    abilityInfo.hapPath = "abc";
-    EXPECT_TRUE(abilityRecord.CreateResourceManager() == nullptr);
-
-    abilityInfo.resourcePath = "abc";
-    abilityInfo.hapPath = "";
-    EXPECT_TRUE(abilityRecord.CreateResourceManager() == nullptr);
-
-    abilityInfo.hapPath = "abc";
-    EXPECT_TRUE(abilityRecord.CreateResourceManager() == nullptr);
 }
 #endif
 

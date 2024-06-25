@@ -51,7 +51,6 @@
 #include "iacquire_share_data_callback_interface.h"
 #include "interceptor/ability_interceptor_executer.h"
 #include "iremote_object.h"
-#include "mission_list_manager.h"
 #include "parameter.h"
 #include "pending_want_manager.h"
 #include "permission_verification.h"
@@ -73,9 +72,6 @@ namespace OHOS {
 namespace AbilityRuntime {
 class IStatusBarDelegate;
 }
-namespace Rosen {
-class FocusChangeInfo;
-}
 
 namespace AAFwk {
 using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
@@ -86,7 +82,7 @@ constexpr int32_t INVALID_USER_ID = -1;
 using OHOS::AppExecFwk::IAbilityController;
 class PendingWantManager;
 struct StartAbilityInfo;
-class WindowFocusChangedListener;
+class MissionListBridge;
 
 /**
  * @class AbilityManagerService
@@ -99,6 +95,8 @@ class AbilityManagerService : public SystemAbility,
     DECLARE_DELAYED_SINGLETON(AbilityManagerService)
     DECLEAR_SYSTEM_ABILITY(AbilityManagerService)
 public:
+    static std::shared_ptr<AbilityManagerService> GetPubInstance();
+
     void OnStart() override;
     void OnStop() override;
 
@@ -470,14 +468,6 @@ public:
     virtual int SendResultToAbility(int32_t requestCode, int32_t resultCode, Want& resultWant) override;
 
     /**
-     * MoveAbilityToBackground.
-     *
-     * @param token, the token of the ability to move background.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int MoveAbilityToBackground(const sptr<IRemoteObject> &token) override;
-
-    /**
      * Move the UIAbility to background, called by app self.
      *
      * @param token the token of the ability to move.
@@ -835,36 +825,11 @@ public:
 
     virtual int GetConnectionData(std::vector<AbilityRuntime::ConnectionData> &connectionData) override;
 
-    virtual int LockMissionForCleanup(int32_t missionId) override;
-
-    virtual int UnlockMissionForCleanup(int32_t missionId) override;
-
     virtual void SetLockedState(int32_t sessionId, bool lockedState) override;
-
-    virtual int RegisterMissionListener(const sptr<IMissionListener> &listener) override;
-
-    virtual int UnRegisterMissionListener(const sptr<IMissionListener> &listener) override;
-
-    virtual int GetMissionInfos(const std::string& deviceId, int32_t numMax,
-        std::vector<MissionInfo> &missionInfos) override;
-
-    virtual int GetMissionInfo(const std::string& deviceId, int32_t missionId,
-        MissionInfo &missionInfo) override;
-
-    virtual int CleanMission(int32_t missionId) override;
-
-    virtual int CleanAllMissions() override;
 
     virtual int MoveMissionToFront(int32_t missionId) override;
 
     virtual int MoveMissionToFront(int32_t missionId, const StartOptions &startOptions) override;
-
-    virtual int MoveMissionsToForeground(const std::vector<int32_t>& missionIds, int32_t topMissionId) override;
-
-    virtual int MoveMissionsToBackground(const std::vector<int32_t>& missionIds,
-        std::vector<int32_t>& result) override;
-
-    virtual int32_t GetMissionIdByToken(const sptr<IRemoteObject> &token) override;
 
     void GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token) override;
 
@@ -1087,29 +1052,13 @@ public:
      */
     virtual int DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken) override;
 
-    virtual int SetMissionContinueState(const sptr<IRemoteObject> &abilityToken,
-        const AAFwk::ContinueState &state) override;
-
 #ifdef SUPPORT_SCREEN
-    virtual int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label) override;
-
-    virtual int SetMissionIcon(const sptr<IRemoteObject> &token,
-        const std::shared_ptr<OHOS::Media::PixelMap> &icon) override;
-
-    virtual int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler) override;
-
     virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override;
 
     virtual void CompleteFirstFrameDrawing(int32_t sessionId) override;
 
-    sptr<IWindowManagerServiceHandler> GetWMSHandler() const;
-
     virtual int PrepareTerminateAbility(const sptr<IRemoteObject> &token,
         sptr<IPrepareTerminateCallback> &callback) override;
-
-    void HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
-
-    void HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
 
     virtual int GetDialogSessionInfo(const std::string dialogSessionId,
         sptr<DialogSessionInfo> &dialogSessionInfo) override;
@@ -1130,11 +1079,6 @@ public:
 #endif
 
     void ClearUserData(int32_t userId);
-
-    virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
-
-    virtual int32_t GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
-        MissionSnapshot& snapshot, bool isLowResolution) override;
 
     /**
      * Set ability controller.
@@ -1162,25 +1106,9 @@ public:
      * @param token, the token of top ability.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int GetTopAbility(sptr<IRemoteObject> &token) override;
+    int GetTopAbility(sptr<IRemoteObject> &token);
 
     virtual int CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, bool& isFocused) override;
-
-    /**
-     * The delegator calls this interface to move the ability to the foreground.
-     *
-     * @param token, ability's token.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token) override;
-
-    /**
-     * The delegator calls this interface to move the ability to the background.
-     *
-     * @param token, ability's token.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) override;
 
     /**
      * Calls this interface to move the ability to the foreground.
@@ -1240,7 +1168,7 @@ public:
     bool GetDataAbilityUri(const std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
         const std::string &mainAbility, std::string &uri);
 
-    virtual AppExecFwk::ElementName GetTopAbility(bool isNeedLocalDeviceId = true) override;
+    AppExecFwk::ElementName GetTopAbility(bool isNeedLocalDeviceId = true);
 
     virtual AppExecFwk::ElementName GetElementNameByToken(sptr<IRemoteObject> token,
         bool isNeedLocalDeviceId = true) override;
@@ -1295,29 +1223,11 @@ public:
 
     int JudgeAbilityVisibleControl(const AppExecFwk::AbilityInfo &abilityInfo);
 
-    /**
-     * Called to update mission snapshot.
-     * @param token The target ability.
-     * @param pixelMap The snapshot.
-     */
-#ifdef SUPPORT_SCREEN
-    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
-        const std::shared_ptr<Media::PixelMap> &pixelMap) override;
-#endif // SUPPORT_SCREEN
     virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) override;
     virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason,
         const Want *want = nullptr) override;
 
     virtual void ScheduleClearRecoveryPageStack() override;
-
-    /**
-     * Called to verify that the MissionId is valid.
-     * @param missionIds Query mission list.
-     * @param results Output parameters, return results up to 20 query results.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int32_t IsValidMissionIds(
-        const std::vector<int32_t> &missionIds, std::vector<MissionValidResult> &results) override;
 
     virtual int32_t RequestDialogService(const Want &want, const sptr<IRemoteObject> &callerToken) override;
 
@@ -1329,8 +1239,6 @@ public:
         const int32_t &requestCode, const int32_t &uniqueId, WantParams &wantParam) override;
 
     bool GetStartUpNewRuleFlag() const;
-
-    std::shared_ptr<AbilityRecord> GetFocusAbility();
 
     /**
      * Query whether the application of the specified PID and UID has been granted a certain permission
@@ -1672,7 +1580,6 @@ public:
     virtual int32_t TransferAbilityResultForExtension(const sptr<IRemoteObject> &callerToken, int32_t resultCode,
         const Want &want) override;
 
-    std::shared_ptr<MissionListManager> GetMissionListManagerByUserId(int32_t userId);
     /**
      * Notify ability manager service frozen process.
      *
@@ -1680,6 +1587,12 @@ public:
      * @param uid, the uid of the frozen process.
      */
     virtual void NotifyFrozenProcessByRSS(const std::vector<int32_t> &pidList, int32_t uid) override;
+
+    sptr<IRemoteObject> GetMissionListDelegator() override;
+    std::shared_ptr<MissionListBridge> GetMissionBridge();
+    bool CheckIsRemote(const std::string& deviceId);
+    bool JudgeSelfCalled(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    bool CheckCallerIsDmsProcess();
 
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
@@ -1819,13 +1732,6 @@ private:
     bool VerificationToken(const sptr<IRemoteObject> &token);
     void RequestPermission(const Want *resultWant);
 
-    bool CheckIsRemote(const std::string& deviceId);
-    int GetRemoteMissionInfos(const std::string& deviceId, int32_t numMax,
-        std::vector<MissionInfo> &missionInfos);
-    int GetRemoteMissionInfo(const std::string& deviceId, int32_t missionId,
-        MissionInfo &missionInfo);
-    int32_t GetRemoteMissionSnapshotInfo(const std::string& deviceId, int32_t missionId,
-        MissionSnapshot& missionSnapshot);
     int StartRemoteAbilityByCall(const Want &want, const sptr<IRemoteObject> &callerToken,
         const sptr<IRemoteObject> &connect);
     int ReleaseRemoteAbility(const sptr<IRemoteObject> &connect, const AppExecFwk::ElementName &element);
@@ -1891,18 +1797,13 @@ private:
     std::shared_ptr<AbilityConnectManager> GetConnectManagerByToken(const sptr<IRemoteObject> &token);
     std::shared_ptr<PendingWantManager> GetCurrentPendingWantManager();
     std::shared_ptr<PendingWantManager> GetPendingWantManagerByUserId(int32_t userId);
-    std::unordered_map<int, std::shared_ptr<MissionListManager>> GetMissionListManagers();
-    std::shared_ptr<MissionListManager> GetCurrentMissionListManager();
     std::unordered_map<int, std::shared_ptr<UIAbilityLifecycleManager>> GetUIAbilityManagers();
     std::shared_ptr<UIAbilityLifecycleManager> GetCurrentUIAbilityManager();
     std::shared_ptr<UIAbilityLifecycleManager> GetUIAbilityManagerByUserId(int32_t userId);
     std::shared_ptr<UIAbilityLifecycleManager> GetUIAbilityManagerByUid(int32_t uid);
-    bool JudgeSelfCalled(const std::shared_ptr<AbilityRecord> &abilityRecord);
     bool IsAppSelfCalled(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
     int32_t GetValidUserId(const int32_t userId);
-
-    int DelegatorMoveMissionToFront(int32_t missionId);
 
     bool IsNeedTimeoutForTest(const std::string &abilityName, const std::string &state) const;
 
@@ -2127,6 +2028,8 @@ private:
     void InitPushTask();
     void InitDeepLinkReserve();
     void InitDefaultRecoveryList();
+    void InitMissionBridge();
+    void ReleaseMissionBridge();
 
     bool CheckSenderWantInfo(int32_t callerUid, const WantSenderInfo &wantSenderInfo);
 
@@ -2134,7 +2037,6 @@ private:
         const std::string &exitMsg);
 
     int32_t GetMissionIdByAbilityTokenInner(const sptr<IRemoteObject> &token);
-    bool CheckCallerIsDmsProcess();
 
     void WaitBootAnimationStart();
 
@@ -2186,9 +2088,6 @@ private:
     std::map<int32_t, std::pair<int64_t, const sptr<IAcquireShareDataCallback>>> iAcquireShareDataMap_;
     // first is callstub, second is ability token
     std::map<sptr<IRemoteObject>, sptr<IRemoteObject>> callStubTokenMap_;
-#ifdef SUPPORT_GRAPHICS
-    sptr<WindowFocusChangedListener> focusListener_;
-#endif // SUPPORT_GRAPHICS
     // Component StartUp rule switch
     bool startUpNewRule_ = true;
     /** It only takes effect when startUpNewRule_ is TRUE
@@ -2252,7 +2151,6 @@ private:
     void RegisterFocusListener();
     void InitPrepareTerminateConfig();
     std::shared_ptr<ImplicitStartProcessor> implicitStartProcessor_;
-    sptr<IWindowManagerServiceHandler> wmsHandler_;
     std::shared_ptr<DialogSessionRecord> dialogSessionRecord_;
 #endif
     std::shared_ptr<AbilityInterceptorExecuter> interceptorExecuter_;
@@ -2268,6 +2166,9 @@ private:
     ffrt::mutex abilityDebugDealLock_;
     std::shared_ptr<AbilityDebugDeal> abilityDebugDeal_;
     std::shared_ptr<AppExitReasonHelper> appExitReasonHelper_;
+
+    std::shared_ptr<MissionListBridge> missionListBridge_;
+    void* missionLibHandle_ = nullptr;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

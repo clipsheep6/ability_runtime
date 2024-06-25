@@ -115,17 +115,6 @@ int MockAbilityDelegatorStub::ReleaseCall(const sptr<IAbilityConnection>& connec
     return 0;
 }
 
-int MockAbilityDelegatorStub::GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
-    MissionSnapshot& snapshot, bool isLowResolution)
-{
-    return 0;
-}
-
-int MockAbilityDelegatorStub::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
-{
-    return 0;
-}
-
 int32_t MockAbilityDelegatorStub::ReportDrawnCompleted(const sptr<IRemoteObject>& callerToken)
 {
     return 0;
@@ -161,25 +150,6 @@ int MockAbilityDelegatorStub::StopServiceAbility(const Want& want, int32_t userI
     return 0;
 }
 
-int MockAbilityDelegatorStub::GetTopAbility(sptr<IRemoteObject>& token)
-{
-    TAG_LOGI(AAFwkTag::TEST, "MockAbilityDelegatorStub::GetTopAbility is called");
-    token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
-    return OHOS::ERR_OK;
-}
-
-int MockAbilityDelegatorStub::DelegatorDoAbilityForeground(const sptr<IRemoteObject>& token)
-{
-    TAG_LOGI(AAFwkTag::TEST, "MockAbilityDelegatorStub::DelegatorDoAbilityForeground is called");
-    return OHOS::ERR_OK;
-}
-
-int MockAbilityDelegatorStub::DelegatorDoAbilityBackground(const sptr<IRemoteObject>& token)
-{
-    TAG_LOGI(AAFwkTag::TEST, "MockAbilityDelegatorStub::DelegatorDoAbilityBackground is called");
-    return OHOS::ERR_OK;
-}
-
 int MockAbilityDelegatorStub::FinishUserTest(const std::string& msg,
     const int64_t& resultCode, const std::string& bundleName)
 {
@@ -194,11 +164,6 @@ int MockAbilityDelegatorStub::DoAbilityForeground(const sptr<IRemoteObject>& tok
 }
 
 int MockAbilityDelegatorStub::DoAbilityBackground(const sptr<IRemoteObject>& token, uint32_t flag)
-{
-    return 0;
-}
-
-int32_t MockAbilityDelegatorStub::GetMissionIdByToken(const sptr<IRemoteObject>& token)
 {
     return 0;
 }
@@ -323,17 +288,6 @@ int MockAbilityDelegatorStub2::ReleaseCall(const sptr<IAbilityConnection>& conne
     return 0;
 }
 
-int MockAbilityDelegatorStub2::GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
-    MissionSnapshot& snapshot, bool isLowResolution)
-{
-    return 0;
-}
-
-int MockAbilityDelegatorStub2::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
-{
-    return 0;
-}
-
 int MockAbilityDelegatorStub2::SetAbilityController(const sptr<AppExecFwk::IAbilityController>& abilityController,
     bool imAStabilityTest)
 {
@@ -359,41 +313,6 @@ int MockAbilityDelegatorStub2::StartUserTest(const Want& want, const sptr<IRemot
     return OHOS::ERR_OK;
 }
 
-int MockAbilityDelegatorStub2::GetTopAbility(sptr<IRemoteObject>& token)
-{
-    TAG_LOGI(AAFwkTag::TEST, "MockAbilityDelegatorStub2::GetTopAbility is called");
-    return OHOS::ERR_INVALID_VALUE;
-}
-
-AppExecFwk::ElementName MockAbilityDelegatorStub2::GetTopAbility(bool isNeedLocalDeviceId)
-{
-    TAG_LOGI(AAFwkTag::TEST, "GetTopAbility.");
-    AppExecFwk::ElementName elementName = {};
-
-    if (testcaseBranch_ == TESTCASE_BRANCH::BRANCH_2) {
-        elementName = AppExecFwk::ElementName("deviceId", "com.ohos.bundleName", "EntryAbility", "entry");
-    } else if (testcaseBranch_ == TESTCASE_BRANCH::BRANCH_3) {
-        elementName = AppExecFwk::ElementName("deviceId", "com.example.myapplication",
-            "com.example.myapplication.MainAbility", "entry");
-    } else {
-        TAG_LOGI(AAFwkTag::TEST, "Empty top ability.");
-    }
-
-    return elementName;
-}
-
-int MockAbilityDelegatorStub2::DelegatorDoAbilityForeground(const sptr<IRemoteObject>& token)
-{
-    TAG_LOGI(AAFwkTag::TEST, "MockAbilityDelegatorStub2::DelegatorDoAbilityForeground is called");
-    return OHOS::ERR_INVALID_VALUE;
-}
-
-int MockAbilityDelegatorStub2::DelegatorDoAbilityBackground(const sptr<IRemoteObject>& token)
-{
-    TAG_LOGI(AAFwkTag::TEST, "MockAbilityDelegatorStub2::DelegatorDoAbilityBackground is called");
-    return OHOS::ERR_INVALID_VALUE;
-}
-
 int MockAbilityDelegatorStub2::FinishUserTest(const std::string& msg,
     const int64_t& resultCode, const std::string& bundleName)
 {
@@ -408,11 +327,6 @@ int MockAbilityDelegatorStub2::DoAbilityForeground(const sptr<IRemoteObject>& to
 }
 
 int MockAbilityDelegatorStub2::DoAbilityBackground(const sptr<IRemoteObject>& token, uint32_t flag)
-{
-    return 0;
-}
-
-int32_t MockAbilityDelegatorStub2::GetMissionIdByToken(const sptr<IRemoteObject>& token)
 {
     return 0;
 }
@@ -450,30 +364,6 @@ int MockAbilityDelegatorStub::ForceTimeoutForTest(const std::string& abilityName
 }
 
 int MockAbilityDelegatorStub2::ForceTimeoutForTest(const std::string& abilityName, const std::string& state)
-{
-    return 0;
-}
-#endif
-
-#ifdef SUPPORT_GRAPHICS
-int MockAbilityDelegatorStub::SetMissionIcon(
-    const sptr<IRemoteObject>& token, const std::shared_ptr<OHOS::Media::PixelMap>& icon)
-{
-    return 0;
-}
-
-int MockAbilityDelegatorStub::RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler)
-{
-    return 0;
-}
-
-int MockAbilityDelegatorStub2::SetMissionIcon(
-    const sptr<IRemoteObject>& token, const std::shared_ptr<OHOS::Media::PixelMap>& icon)
-{
-    return 0;
-}
-
-int MockAbilityDelegatorStub2::RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler)
 {
     return 0;
 }

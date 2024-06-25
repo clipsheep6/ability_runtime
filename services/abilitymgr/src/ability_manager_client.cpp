@@ -388,7 +388,7 @@ ErrCode AbilityManagerClient::TerminateUIExtensionAbility(sptr<SessionInfo> exte
 ErrCode AbilityManagerClient::MoveAbilityToBackground(sptr<IRemoteObject> token)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->MoveAbilityToBackground(token);
 }
@@ -740,9 +740,9 @@ ErrCode AbilityManagerClient::LockMissionForCleanup(int32_t missionId)
         return static_cast<int>(err);
     }
 #endif //SUPPORT_SCREEN
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->LockMissionForCleanup(missionId);
+    auto missionListDelegator = GetMissionListDelegator();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(missionListDelegator);
+    return missionListDelegator->LockMissionForCleanup(missionId);
 }
 
 ErrCode AbilityManagerClient::UnlockMissionForCleanup(int32_t missionId)
@@ -760,9 +760,9 @@ ErrCode AbilityManagerClient::UnlockMissionForCleanup(int32_t missionId)
         return static_cast<int>(err);
     }
 #endif //SUPPORT_SCREEN
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->UnlockMissionForCleanup(missionId);
+    auto missionListDelegator = GetMissionListDelegator();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(missionListDelegator);
+    return missionListDelegator->UnlockMissionForCleanup(missionId);
 }
 
 void AbilityManagerClient::SetLockedState(int32_t sessionId, bool lockedState)
@@ -786,7 +786,7 @@ ErrCode AbilityManagerClient::RegisterMissionListener(sptr<IMissionListener> lis
         return static_cast<int>(err);
     }
 #endif //SUPPORT_SCREEN
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->RegisterMissionListener(listener);
 }
@@ -805,7 +805,7 @@ ErrCode AbilityManagerClient::UnRegisterMissionListener(sptr<IMissionListener> l
         return static_cast<int>(err);
     }
 #endif //SUPPORT_SCREEN
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->UnRegisterMissionListener(listener);
 }
@@ -858,7 +858,7 @@ ErrCode AbilityManagerClient::GetMissionInfos(const std::string& deviceId, int32
         return static_cast<int>(err);
     }
 #endif //SUPPORT_SCREEN
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->GetMissionInfos(deviceId, numMax, missionInfos);
 }
@@ -879,7 +879,7 @@ ErrCode AbilityManagerClient::GetMissionInfo(const std::string& deviceId, int32_
         return static_cast<int>(err);
     }
 #endif //SUPPORT_SCREEN
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->GetMissionInfo(deviceId, missionId, missionInfo);
 }
@@ -899,7 +899,7 @@ ErrCode AbilityManagerClient::CleanMission(int32_t missionId)
         return static_cast<int>(err);
     }
 #endif //SUPPORT_SCREEN
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->CleanMission(missionId);
 }
@@ -919,7 +919,7 @@ ErrCode AbilityManagerClient::CleanAllMissions()
         return static_cast<int>(err);
     }
 #endif //SUPPORT_SCREEN
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->CleanAllMissions();
 }
@@ -967,7 +967,7 @@ ErrCode AbilityManagerClient::MoveMissionsToForeground(const std::vector<int32_t
         return static_cast<int>(errAMS);
     }
 #endif //SUPPORT_SCREEN
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->MoveMissionsToForeground(missionIds, topMissionId);
 }
@@ -988,14 +988,14 @@ ErrCode AbilityManagerClient::MoveMissionsToBackground(const std::vector<int32_t
         return static_cast<int>(err);
     }
 #endif //SUPPORT_SCREEN
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->MoveMissionsToBackground(missionIds, result);
 }
 
 ErrCode AbilityManagerClient::GetMissionIdByToken(sptr<IRemoteObject> token, int32_t &missionId)
 {
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     missionId = abms->GetMissionIdByToken(token);
     if (missionId <= 0) {
@@ -1132,7 +1132,7 @@ ErrCode AbilityManagerClient::LogoutUser(int32_t accountId)
 
 ErrCode AbilityManagerClient::RegisterSnapshotHandler(sptr<ISnapshotHandler> handler)
 {
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->RegisterSnapshotHandler(handler);
 }
@@ -1153,7 +1153,7 @@ ErrCode AbilityManagerClient::GetMissionSnapshot(const std::string& deviceId, in
         return static_cast<int>(err);
     }
 #endif //SUPPORT_SCREEN
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->GetMissionSnapshot(deviceId, missionId, snapshot, isLowResolution);
 }
@@ -1185,7 +1185,7 @@ ErrCode AbilityManagerClient::GetTopAbility(sptr<IRemoteObject> &token)
         return static_cast<int>(err);
     }
 #endif //SUPPORT_SCREEN
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->GetTopAbility(token);
 }
@@ -1219,7 +1219,7 @@ ErrCode AbilityManagerClient::DelegatorDoAbilityForeground(sptr<IRemoteObject> t
         sceneSessionManager->PendingSessionToForeground(token);
     }
 #endif //SUPPORT_SCREEN
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->DelegatorDoAbilityForeground(token);
 }
@@ -1234,7 +1234,7 @@ ErrCode AbilityManagerClient::DelegatorDoAbilityBackground(sptr<IRemoteObject> t
         sceneSessionManager->PendingSessionToBackgroundForDelegator(token);
     }
 #endif //SUPPORT_SCREEN
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->DelegatorDoAbilityBackground(token);
 }
@@ -1253,7 +1253,7 @@ ErrCode AbilityManagerClient::SetMissionContinueState(sptr<IRemoteObject> token,
         return static_cast<int>(err);
     }
 #endif //SUPPORT_SCREEN
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->SetMissionContinueState(token, state);
 }
@@ -1271,7 +1271,7 @@ ErrCode AbilityManagerClient::SetMissionLabel(sptr<IRemoteObject> token, const s
         }
         return static_cast<int>(err);
     }
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->SetMissionLabel(token, label);
 }
@@ -1289,14 +1289,14 @@ ErrCode AbilityManagerClient::SetMissionIcon(
         }
         return static_cast<int>(err);
     }
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->SetMissionIcon(abilityToken, icon);
 }
 
 ErrCode AbilityManagerClient::RegisterWindowManagerServiceHandler(sptr<IWindowManagerServiceHandler> handler)
 {
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->RegisterWindowManagerServiceHandler(handler);
 }
@@ -1370,9 +1370,9 @@ ErrCode AbilityManagerClient::SetAbilityController(sptr<AppExecFwk::IAbilityCont
 void AbilityManagerClient::UpdateMissionSnapShot(sptr<IRemoteObject> token,
     std::shared_ptr<Media::PixelMap> pixelMap)
 {
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     CHECK_POINTER_RETURN(abms);
-    return abms->UpdateMissionSnapShot(token, pixelMap);
+    abms->UpdateMissionSnapShot(token, pixelMap);
 }
 #endif // SUPPORT_SCREEN
 void AbilityManagerClient::EnableRecoverAbility(sptr<IRemoteObject> token)
@@ -1433,8 +1433,34 @@ sptr<IAbilityManager> AbilityManagerClient::GetAbilityManager()
     return proxy_;
 }
 
+sptr<IMissionListDelegator> AbilityManagerClient::GetMissionListDelegator()
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    std::lock_guard lock(missionListDelegatorMutex_);
+    if (missionListDelegator_ == nullptr) {
+        auto abms = GetAbilityManager();
+        if (abms == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "ability ms null.");
+            return nullptr;
+        }
+        auto remoteObj = abms->GetMissionListDelegator();
+        missionListDelegator_ = iface_cast<IMissionListDelegator>(remoteObj);
+        if (missionListDelegator_ == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to get mission delegator.");
+        }
+    }
+
+    return missionListDelegator_;
+}
+
 void AbilityManagerClient::ResetProxy(wptr<IRemoteObject> remote)
 {
+    {
+        std::lock_guard lock(missionListDelegatorMutex_);
+        if (missionListDelegator_) {
+            missionListDelegator_ = nullptr;
+        }
+    }
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (!proxy_) {
         return;
@@ -1483,7 +1509,7 @@ AppExecFwk::ElementName AbilityManagerClient::GetTopAbility(bool isNeedLocalDevi
 #endif //SUPPORT_SCREEN
     }
     TAG_LOGD(AAFwkTag::ABILITYMGR, "enter.");
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     if (abms == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "abms == nullptr");
         return {};
@@ -1541,7 +1567,7 @@ int32_t AbilityManagerClient::IsValidMissionIds(
         return static_cast<int>(err);
     }
 #endif //SUPPORT_SCREEN
-    auto abms = GetAbilityManager();
+    auto abms = GetMissionListDelegator();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->IsValidMissionIds(missionIds, results);
 }

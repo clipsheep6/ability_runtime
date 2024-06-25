@@ -48,17 +48,12 @@ public:
     int32_t RegisterOnListener(const std::string& type, const sptr<IRemoteObject>& obj);
     int32_t RegisterOffListener(const std::string& type, const sptr<IRemoteObject>& obj);
     int32_t UnRegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj);
-    int32_t GetMissionInfos(const std::string& deviceId, int32_t numMissions,
-        std::vector<AAFwk::MissionInfo>& missionInfos);
-    int32_t GetRemoteMissionSnapshotInfo(const std::string& deviceId, int32_t missionId,
-        std::unique_ptr<MissionSnapshot>& missionSnapshot);
     int32_t StartRemoteAbilityByCall(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect);
     int32_t ReleaseRemoteAbility(const sptr<IRemoteObject>& connect, const AppExecFwk::ElementName &element);
     int32_t StartRemoteFreeInstall(const OHOS::AAFwk::Want& want,
         int32_t callerUid, int32_t requestCode, uint32_t accessToken, const sptr<IRemoteObject>& callback);
     int32_t StopRemoteExtensionAbility(const Want &want, int32_t callerUid,
         uint32_t accessToken, int32_t extensionType);
-    int32_t SetMissionContinueState(int32_t missionId, const AAFwk::ContinueState &state);
     enum {
         START_REMOTE_ABILITY = 1,
         CONNECT_REMOTE_ABILITY = 6,
@@ -83,7 +78,6 @@ public:
     };
 private:
     sptr<IRemoteObject> GetDmsProxy();
-    bool ReadMissionInfosFromParcel(Parcel& parcel, std::vector<AAFwk::MissionInfo>& missionInfos);
     bool WriteInfosToParcel(MessageParcel& data, const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect);
 };
 }  // namespace AAFwk

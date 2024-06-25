@@ -17,10 +17,12 @@
 #define private public
 #define protected public
 #include "ability_manager_service.h"
+#include "mission_list_wrapper.h"
 #undef private
 #undef protected
 
 #include "ability_manager_errors.h"
+#include "mission_list_bridge.h"
 #include "scene_board_judgement.h"
 
 using namespace testing;
@@ -92,8 +94,9 @@ HWTEST_F(AbilityTimeoutTest, OnAbilityDied_001, TestSize.Level1)
     abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
-        auto defList = abilityMs_->subManagersHelper_->currentMissionListManager_->defaultStandardList_;
+        EXPECT_TRUE(abilityMs_->missionListBridge_ != nullptr);
+        EXPECT_TRUE(MissionListWrapper::GetInstance().currentMissionListManager_ != nullptr);
+        auto defList = MissionListWrapper::GetInstance().currentMissionListManager_->defaultStandardList_;
         EXPECT_TRUE(defList != nullptr);
 
         AbilityRequest abilityRequest;
@@ -129,10 +132,11 @@ HWTEST_F(AbilityTimeoutTest, OnAbilityDied_002, TestSize.Level1)
     abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+        EXPECT_TRUE(abilityMs_->missionListBridge_ != nullptr);
+        EXPECT_TRUE(MissionListWrapper::GetInstance().currentMissionListManager_ != nullptr);
+        auto lauList = MissionListWrapper::GetInstance().currentMissionListManager_->launcherList_;
         EXPECT_TRUE(lauList != nullptr);
-        EXPECT_EQ((int)(abilityMs_->subManagersHelper_->currentMissionListManager_->currentMissionLists_.size()), 1);
+        EXPECT_EQ((int)(MissionListWrapper::GetInstance().currentMissionListManager_->currentMissionLists_.size()), 1);
 
         AbilityRequest abilityRequest;
         abilityRequest.abilityInfo.type = AbilityType::PAGE;
@@ -171,10 +175,11 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_001, TestSize.Level1)
     abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+        EXPECT_TRUE(abilityMs_->missionListBridge_ != nullptr);
+        EXPECT_TRUE(MissionListWrapper::GetInstance().currentMissionListManager_ != nullptr);
+        auto lauList = MissionListWrapper::GetInstance().currentMissionListManager_->launcherList_;
         EXPECT_TRUE(lauList != nullptr);
-        EXPECT_EQ((int)(abilityMs_->subManagersHelper_->currentMissionListManager_->currentMissionLists_.size()), 1);
+        EXPECT_EQ((int)(MissionListWrapper::GetInstance().currentMissionListManager_->currentMissionLists_.size()), 1);
 
         // root launcher ability load timeout
         AbilityRequest abilityRequest;
@@ -215,11 +220,13 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_002, TestSize.Level1)
     abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+        EXPECT_TRUE(abilityMs_->missionListBridge_ != nullptr);
+
+        auto curListManager = MissionListWrapper::GetInstance().currentMissionListManager_;
         EXPECT_TRUE(curListManager != nullptr);
+        auto lauList = curListManager->launcherList_;
         EXPECT_TRUE(lauList != nullptr);
-        EXPECT_EQ((int)(abilityMs_->subManagersHelper_->currentMissionListManager_->currentMissionLists_.size()), 1);
+        EXPECT_EQ((int)(curListManager->currentMissionLists_.size()), 1);
 
         AbilityRequest abilityRequest;
         abilityRequest.abilityInfo.type = AbilityType::PAGE;
@@ -274,11 +281,13 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_003, TestSize.Level1)
     abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+        EXPECT_TRUE(abilityMs_->missionListBridge_ != nullptr);
+
+        auto curListManager = MissionListWrapper::GetInstance().currentMissionListManager_;
         EXPECT_TRUE(curListManager != nullptr);
+        auto lauList = curListManager->launcherList_;
         EXPECT_TRUE(lauList != nullptr);
-        EXPECT_EQ((int)(abilityMs_->subManagersHelper_->currentMissionListManager_->currentMissionLists_.size()), 1);
+        EXPECT_EQ((int)(curListManager->currentMissionLists_.size()), 1);
         AbilityRequest abilityRequest;
         abilityRequest.abilityInfo.type = AbilityType::PAGE;
         abilityRequest.abilityInfo.name = "com.test.rootLauncher";
@@ -339,10 +348,11 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_004, TestSize.Level1)
     abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+        EXPECT_TRUE(abilityMs_->missionListBridge_ != nullptr);
 
+        auto curListManager = MissionListWrapper::GetInstance().currentMissionListManager_;
         EXPECT_TRUE(curListManager != nullptr);
+        auto lauList = curListManager->launcherList_;
         EXPECT_TRUE(lauList != nullptr);
 
         AbilityRequest abilityRequest;
@@ -406,10 +416,11 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_005, TestSize.Level1)
     abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+        EXPECT_TRUE(abilityMs_->missionListBridge_ != nullptr);
 
+        auto curListManager = MissionListWrapper::GetInstance().currentMissionListManager_;
         EXPECT_TRUE(curListManager != nullptr);
+        auto lauList = curListManager->launcherList_;
         EXPECT_TRUE(lauList != nullptr);
 
         AbilityRequest abilityRequest;
@@ -473,10 +484,11 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_006, TestSize.Level1)
     abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+        EXPECT_TRUE(abilityMs_->missionListBridge_ != nullptr);
 
+        auto curListManager = MissionListWrapper::GetInstance().currentMissionListManager_;
         EXPECT_TRUE(curListManager != nullptr);
+        auto lauList = curListManager->launcherList_;
         EXPECT_TRUE(lauList != nullptr);
 
         AbilityRequest abilityRequest;
@@ -538,10 +550,11 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_007, TestSize.Level1)
     abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+        EXPECT_TRUE(abilityMs_->missionListBridge_ != nullptr);
 
+        auto curListManager = MissionListWrapper::GetInstance().currentMissionListManager_;
         EXPECT_TRUE(curListManager != nullptr);
+        auto lauList = curListManager->launcherList_;
         EXPECT_TRUE(lauList != nullptr);
 
         AbilityRequest abilityRequest;
@@ -605,10 +618,11 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_001, TestSize.Level1)
     abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+        EXPECT_TRUE(abilityMs_->missionListBridge_ != nullptr);
 
+        auto curListManager = MissionListWrapper::GetInstance().currentMissionListManager_;
         EXPECT_TRUE(curListManager != nullptr);
+        auto lauList = curListManager->launcherList_;
         EXPECT_TRUE(lauList != nullptr);
 
         AbilityRequest abilityRequest;
@@ -650,10 +664,11 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_002, TestSize.Level1)
     abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+        EXPECT_TRUE(abilityMs_->missionListBridge_ != nullptr);
 
+        auto curListManager = MissionListWrapper::GetInstance().currentMissionListManager_;
         EXPECT_TRUE(curListManager != nullptr);
+        auto lauList = curListManager->launcherList_;
         EXPECT_TRUE(lauList != nullptr);
 
         AbilityRequest abilityRequest;
@@ -707,9 +722,11 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_003, TestSize.Level1)
     abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+        EXPECT_TRUE(abilityMs_->missionListBridge_ != nullptr);
+
+        auto curListManager = MissionListWrapper::GetInstance().currentMissionListManager_;
         EXPECT_TRUE(curListManager != nullptr);
+        auto lauList = curListManager->launcherList_;
         EXPECT_TRUE(lauList != nullptr);
         AbilityRequest abilityRequest;
         abilityRequest.abilityInfo.type = AbilityType::PAGE;
@@ -774,10 +791,11 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_004, TestSize.Level1)
     abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+        EXPECT_TRUE(abilityMs_->missionListBridge_ != nullptr);
 
+        auto curListManager = MissionListWrapper::GetInstance().currentMissionListManager_;
         EXPECT_TRUE(curListManager != nullptr);
+        auto lauList = curListManager->launcherList_;
         EXPECT_TRUE(lauList != nullptr);
 
         AbilityRequest abilityRequest;
@@ -841,10 +859,11 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_005, TestSize.Level1)
     abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+        EXPECT_TRUE(abilityMs_->missionListBridge_ != nullptr);
 
+        auto curListManager = MissionListWrapper::GetInstance().currentMissionListManager_;
         EXPECT_TRUE(curListManager != nullptr);
+        auto lauList = curListManager->launcherList_;
         EXPECT_TRUE(lauList != nullptr);
 
         AbilityRequest abilityRequest;
@@ -909,10 +928,11 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_006, TestSize.Level1)
     abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+        EXPECT_TRUE(abilityMs_->missionListBridge_ != nullptr);
 
+        auto curListManager = MissionListWrapper::GetInstance().currentMissionListManager_;
         EXPECT_TRUE(curListManager != nullptr);
+        auto lauList = curListManager->launcherList_;
         EXPECT_TRUE(lauList != nullptr);
 
         AbilityRequest abilityRequest;
@@ -977,10 +997,11 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_007, TestSize.Level1)
     abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+        EXPECT_TRUE(abilityMs_->missionListBridge_ != nullptr);
 
+        auto curListManager = MissionListWrapper::GetInstance().currentMissionListManager_;
         EXPECT_TRUE(curListManager != nullptr);
+        auto lauList = curListManager->launcherList_;
         EXPECT_TRUE(lauList != nullptr);
 
         AbilityRequest abilityRequest;

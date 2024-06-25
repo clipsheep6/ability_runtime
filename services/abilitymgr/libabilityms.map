@@ -19,6 +19,7 @@
       *AbilityConnectionStub*;
       *AbilityConnectManager*;
       *AbilityEventHandler*;
+      *AbilityFirstFrameStateObserverManager*;
       *AbilityInterceptorExecuter*;
       *AbilityManagerService*;
       *AbilityManagerStub*;
@@ -27,6 +28,7 @@
       *AbilitySchedulerProxy*;
       *AbilitySchedulerStub*;
       *AmsConfigurationParameter*;
+      *AppExitReasonDataManager*;
       *ApplicationAnrListener*;
       *AppScheduler*;
       *AtomicServiceStatusCallback*;
@@ -51,20 +53,14 @@
       *InnerMissionInfo*;
       *LaunchParam*;
       *LifeCycleStateInfo*;
-      *Mission*;
-      *MissionDataStorage*;
-      *MissionInfo*;
-      *MissionInfoMgr*;
-      *MissionList*;
-      *MissionListenerStub*;
-      *MissionListManager*;
-      *MissionSnapshot*;
       *PendingWantKey*;
       *PendingWantManager*;
       *PendingWantRecord*;
+      *RemoteMissionListenerProxy*;
       *ResidentProcessManager*;
       *StartOptions*;
       *SystemDialogScheduler*;
+      *SubManagersHelper*;
       *TaskDataPersistenceMgr*;
       *Token*;
       *UserController*;

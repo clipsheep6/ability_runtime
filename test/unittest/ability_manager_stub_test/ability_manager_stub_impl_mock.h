@@ -55,10 +55,6 @@ public:
     MOCK_METHOD2(UnregisterCancelListener, void(const sptr<IWantSender>& sender, const sptr<IWantReceiver>& receiver));
     MOCK_METHOD2(GetPendingRequestWant, int(const sptr<IWantSender>& target, std::shared_ptr<Want>& want));
     MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender>& target, std::shared_ptr<WantSenderInfo>& info));
-    MOCK_METHOD2(SetMissionContinueState, int(const sptr<IRemoteObject>& token, const AAFwk::ContinueState& state));
-    MOCK_METHOD2(SetMissionLabel, int(const sptr<IRemoteObject>& token, const std::string& label));
-    MOCK_METHOD2(SetMissionIcon, int(const sptr<IRemoteObject>& token,
-        const std::shared_ptr<OHOS::Media::PixelMap>& icon));
     MOCK_METHOD3(StartContinuation, int(const Want& want, const sptr<IRemoteObject>& abilityToken, int32_t status));
     MOCK_METHOD2(NotifyContinuationResult, int(int32_t missionId, int32_t result));
     MOCK_METHOD5(ContinueMission, int(const std::string& srcDeviceId, const std::string& dstDeviceId,
@@ -229,30 +225,7 @@ public:
     {
         return 0;
     }
-    int LockMissionForCleanup(int32_t missionId) override
-    {
-        return 0;
-    }
-    int UnlockMissionForCleanup(int32_t missionId) override
-    {
-        return 0;
-    }
-    int RegisterMissionListener(const sptr<IMissionListener>& listener) override
-    {
-        return 0;
-    }
-    int UnRegisterMissionListener(const sptr<IMissionListener>& listener) override
-    {
-        return 0;
-    }
-    int CleanMission(int32_t missionId) override
-    {
-        return 0;
-    }
-    int CleanAllMissions() override
-    {
-        return 0;
-    }
+
     int MoveMissionToFront(int32_t missionId) override
     {
         return 0;
@@ -261,32 +234,12 @@ public:
     {
         return 0;
     }
-    int MoveMissionsToForeground(const std::vector<int32_t>& missionIds, int32_t topMissionId) override
-    {
-        return 0;
-    }
-    int MoveMissionsToBackground(const std::vector<int32_t>& missionIds, std::vector<int32_t>& result) override
-    {
-        return 0;
-    }
-    int32_t GetMissionIdByToken(const sptr<IRemoteObject>& token) override
-    {
-        return 0;
-    }
+
     void GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token) override
     {
         return;
     }
-    int GetMissionInfos(const std::string& deviceId, int32_t numMax,
-        std::vector<MissionInfo>& missionInfos) override
-    {
-        return 0;
-    }
-    int GetMissionInfo(const std::string& deviceId, int32_t missionId,
-        MissionInfo& missionInfo) override
-    {
-        return 0;
-    }
+
     int StartUser(int userId, sptr<IUserCallback> callback) override
     {
         return 0;
@@ -328,21 +281,6 @@ public:
     {
         return 0;
     }
-    virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
-        MissionSnapshot& snapshot, bool isLowResolution)
-    {
-        return 0;
-    }
-
-    virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
-    {
-        return 0;
-    }
-
-    int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler) override
-    {
-        return 0;
-    }
 
     void CompleteFirstFrameDrawing(const sptr<IRemoteObject>& abilityToken) override {}
 
@@ -364,21 +302,6 @@ public:
 
     int FinishUserTest(
         const std::string& msg, const int64_t& resultCode, const std::string& bundleName) override
-    {
-        return 0;
-    }
-
-    int GetTopAbility(sptr<IRemoteObject>& token) override
-    {
-        return 0;
-    }
-
-    int DelegatorDoAbilityForeground(const sptr<IRemoteObject>& token) override
-    {
-        return 0;
-    }
-
-    int DelegatorDoAbilityBackground(const sptr<IRemoteObject>& token) override
     {
         return 0;
     }
@@ -432,7 +355,6 @@ public:
 #endif
     MOCK_METHOD5(StartAbilityWithSpecifyTokenId, int(const Want& want, const sptr<IRemoteObject>& callerToken,
         uint32_t specifyTokenId, int32_t userId, int requestCode));
-    MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionValidResult>&));
     MOCK_METHOD2(PrepareTerminateAbilityBySCB, int32_t(const sptr<SessionInfo> &sessionInfo, bool &isPrepareTerminate));
     MOCK_METHOD1(RegisterAppDebugListener, int32_t(sptr<AppExecFwk::IAppDebugListener> listener));
     MOCK_METHOD1(UnregisterAppDebugListener, int32_t(sptr<AppExecFwk::IAppDebugListener> listener));

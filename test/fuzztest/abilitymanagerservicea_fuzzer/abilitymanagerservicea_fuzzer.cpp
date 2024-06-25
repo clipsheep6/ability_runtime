@@ -80,8 +80,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     // fuzz for AbilityManagerService
     auto abilityms = std::make_shared<AbilityManagerService>();
     abilityms->ScheduleRecoverAbility(token, int32Param);
-    MissionSnapshot missionSnapshot;
-    abilityms->GetRemoteMissionSnapshotInfo(stringParam, int32Param, missionSnapshot);
     abilityms->StartFreezingScreen();
     abilityms->StopFreezingScreen();
 

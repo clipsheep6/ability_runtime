@@ -19,6 +19,7 @@
 #include "call_container.h"
 #include "ability_record.h"
 #include "ability_manager_service.h"
+#include "mission_list_manager.h"
 #undef private
 #undef protected
 #include "ability_scheduler_mock.h"
@@ -370,8 +371,6 @@ HWTEST_F(CallContainerTest, Call_Container_On_Connect_Died_001, TestSize.Level1)
     missionListMgr->currentMissionLists_.push_front(missionList);
     DelayedSingleton<AbilityManagerService>::GetInstance()->subManagersHelper_ =
         std::make_shared<SubManagersHelper>(nullptr, nullptr);
-    DelayedSingleton<AbilityManagerService>::GetInstance()->subManagersHelper_->currentMissionListManager_ =
-        missionListMgr;
     callContainer->OnConnectionDied(abilityRequest.connect->AsObject());
 
     EXPECT_EQ(callContainer->callRecordMap_.size(), 1);

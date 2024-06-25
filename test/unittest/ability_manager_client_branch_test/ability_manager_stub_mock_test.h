@@ -210,11 +210,6 @@ public:
         return 0;
     }
 
-    int32_t GetMissionIdByToken(const sptr<IRemoteObject>& token) override
-    {
-        return 0;
-    }
-
     void GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token) override
     {
         return;
@@ -256,21 +251,6 @@ public:
     {
         return 0;
     }
-    virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
-        MissionSnapshot& snapshot, bool isLowResolution)
-    {
-        return 0;
-    }
-
-    virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
-    {
-        return 0;
-    }
-
-    int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler) override
-    {
-        return 0;
-    }
 
     void CompleteFirstFrameDrawing(const sptr<IRemoteObject>& abilityToken) override {}
 
@@ -283,16 +263,6 @@ public:
     bool IsRunningInStabilityTest() override
     {
         return true;
-    }
-
-    int SetMissionIcon(const sptr<IRemoteObject>& token,
-        const std::shared_ptr<OHOS::Media::PixelMap>& icon) override
-    {
-        if (!token || !icon) {
-            return -1;
-        }
-
-        return 0;
     }
 
     MOCK_METHOD4(StartAbility, int(const Want& want, const sptr<IRemoteObject>& callerToken,
@@ -320,21 +290,8 @@ public:
     MOCK_METHOD3(ContinueAbility, int(const std::string& deviceId, int32_t missionId, uint32_t versionCode));
     MOCK_METHOD3(NotifyCompleteContinuation, void(const std::string& deviceId, int32_t sessionId, bool isSuccess));
 
-    MOCK_METHOD1(LockMissionForCleanup, int(int32_t missionId));
-    MOCK_METHOD1(UnlockMissionForCleanup, int(int32_t missionId));
-    MOCK_METHOD1(RegisterMissionListener, int(const sptr<IMissionListener>& listener));
-    MOCK_METHOD1(UnRegisterMissionListener, int(const sptr<IMissionListener>& listener));
-    MOCK_METHOD3(
-        GetMissionInfos, int(const std::string& deviceId, int32_t numMax, std::vector<MissionInfo>& missionInfos));
-    MOCK_METHOD3(GetMissionInfo, int(const std::string& deviceId, int32_t missionId, MissionInfo& missionInfo));
-    MOCK_METHOD1(CleanMission, int(int32_t missionId));
-    MOCK_METHOD0(CleanAllMissions, int());
     MOCK_METHOD1(MoveMissionToFront, int(int32_t missionId));
     MOCK_METHOD2(MoveMissionToFront, int(int32_t missionId, const StartOptions& startOptions));
-    MOCK_METHOD2(MoveMissionsToForeground, int(const std::vector<int32_t>& missionIds, int32_t topMissionId));
-    MOCK_METHOD2(MoveMissionsToBackground, int(const std::vector<int32_t>& missionIds, std::vector<int32_t>& result));
-    MOCK_METHOD2(SetMissionContinueState, int(const sptr<IRemoteObject>& token, const AAFwk::ContinueState& state));
-    MOCK_METHOD2(SetMissionLabel, int(const sptr<IRemoteObject>& token, const std::string& label));
     MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender>& target, std::shared_ptr<WantSenderInfo>& info));
     MOCK_METHOD1(GetAbilityRunningInfos, int(std::vector<AbilityRunningInfo>& info));
     MOCK_METHOD2(GetExtensionRunningInfos, int(int upperLimit, std::vector<ExtensionRunningInfo>& info));
@@ -375,21 +332,6 @@ public:
         return 0;
     }
 
-    int GetTopAbility(sptr<IRemoteObject>& token) override
-    {
-        return 0;
-    }
-
-    int DelegatorDoAbilityForeground(const sptr<IRemoteObject>& token) override
-    {
-        return 0;
-    }
-
-    int DelegatorDoAbilityBackground(const sptr<IRemoteObject>& token) override
-    {
-        return 0;
-    }
-
     int DoAbilityForeground(const sptr<IRemoteObject>& token, uint32_t flag) override
     {
         return 0;
@@ -421,7 +363,6 @@ public:
         return 0;
     }
 #endif
-    MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionValidResult>&));
     MOCK_METHOD1(RegisterAppDebugListener, int32_t(sptr<AppExecFwk::IAppDebugListener> listener));
     MOCK_METHOD1(UnregisterAppDebugListener, int32_t(sptr<AppExecFwk::IAppDebugListener> listener));
     MOCK_METHOD1(AttachAppDebug, int32_t(const std::string &bundleName));
