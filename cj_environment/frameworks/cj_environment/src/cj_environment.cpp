@@ -473,4 +473,47 @@ bool IsCJAbility(const std::string& info)
     std::string pattern = "^([a-zA-Z0-9_]+\\.)+[a-zA-Z0-9_]+$";
     return std::regex_match(info, std::regex(pattern));
 }
+
+struct CJEnvMethods {
+    void (*initCJAppNS)(const std::string& path) = nullptr;
+    void (*initCJSDKNS)(const std::string& path) = nullptr;
+    void (*initCJSysNS)(const std::string& path) = nullptr;
+    void (*initCJChipSDKNS)(const std::string& path) = nullptr;
+    bool (*startRuntime)() = nullptr;
+    bool (*startUIScheduler)() = nullptr;
+    void* (*loadCJModule)(const char* dllName) = nullptr;
+    void* (*loadLibrary)(uint32_t kind, const char* dllName) = nullptr;
+    void* (*getSymbol)(void* handle, const char* symbol) = nullptr;
+};
+
+CJ_EXPORT extern "C" CJEnvMethods* OHOS_GetCJEnvInstance()
+{
+    static CJEnvMethods gCJEnvMethods {
+        .initCJAppNS = [](const std::string& path) {
+            CJEnvironment::GetInstance()->InitCJAppNS(path);
+        },
+        .initCJSDKNS = [](const std::string& path) {
+            CJEnvironment::GetInstance()->InitCJSDKNS(path);
+        },
+        .initCJSysNS = [](const std::string& path) {
+            CJEnvironment::GetInstance()->InitCJSysNS(path);
+        },
+        .initCJChipSDKNS = [](const std::string& path) {
+            CJEnvironment::GetInstance()->InitCJChipSDKNS(path);
+        },
+        .startRuntime = [] {
+            return CJEnvironment::GetInstance()->StartRuntime();
+        },
+        .startUIScheduler = [] {
+            return CJEnvironment::GetInstance()->StartUIScheduler();
+        },
+        .loadCJModule = [](const char* dllName) {
+            return CJEnvironment::GetInstance()->LoadCJLibrary(dllName);
+        },
+        .getSymbol = [](void* handle, const char* dllName) {
+            return CJEnvironment::GetInstance()->GetSymbol(handle, dllName);
+        }
+    };
+    return &gCJEnvMethods;
+}
 }
