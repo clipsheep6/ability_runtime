@@ -301,7 +301,7 @@ private:
     napi_value OnOpenLink(napi_env env, NapiCallbackInfo& info)
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-        TAG_LOGI(AAFwkTag::SERVICE_EXT, "OnOpenLink");
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "OnOpenLink");
 
         std::string linkValue("");
         AAFwk::OpenLinkOptions openLinkOptions;
@@ -315,7 +315,6 @@ private:
             return CreateJsUndefined(env);
         }
 
-        TAG_LOGI(AAFwkTag::SERVICE_EXT, "open link:%{public}s.", linkValue.c_str());
         want.SetUri(linkValue);
         auto innerErrorCode = std::make_shared<int>(ERR_OK);
 

@@ -532,7 +532,7 @@ napi_value JsAbilityContext::OnOpenLink(napi_env env, NapiCallbackInfo& info)
 {
     StartAsyncTrace(HITRACE_TAG_ABILITY_MANAGER, TRACE_ATOMIC_SERVICE, TRACE_ATOMIC_SERVICE_ID);
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::CONTEXT, "OnOpenLink");
+    TAG_LOGD(AAFwkTag::CONTEXT, "OnOpenLink");
 
     std::string linkValue("");
     AAFwk::OpenLinkOptions openLinkOptions;
@@ -547,7 +547,6 @@ napi_value JsAbilityContext::OnOpenLink(napi_env env, NapiCallbackInfo& info)
         return CreateJsUndefined(env);
     }
 
-    TAG_LOGI(AAFwkTag::CONTEXT, "open link:%{public}s.", linkValue.c_str());
     want.SetUri(linkValue);
     int requestCode = -1;
     if (CheckTypeForNapiValue(env, info.argv[INDEX_TWO], napi_function)) {
