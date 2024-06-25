@@ -4027,14 +4027,13 @@ int MissionListManager::DoAbilityForeground(std::shared_ptr<AbilityRecord> &abil
     return ERR_OK;
 }
 
-void MissionListManager::GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList,
-    int32_t pid)
+void MissionListManager::GetActiveAbilityList(int32_t uid, std::vector<std::string> &abilityList, int32_t pid)
 {
     std::lock_guard guard(managerLock_);
     for (auto missionList : currentMissionLists_) {
         if (missionList != nullptr) {
             std::vector<std::string> currentActiveAbilities;
-            missionList->GetActiveAbilityList(bundleName, currentActiveAbilities, pid);
+            missionList->GetActiveAbilityList(uid, currentActiveAbilities, pid);
             if (!currentActiveAbilities.empty()) {
                 abilityList.insert(abilityList.end(), currentActiveAbilities.begin(), currentActiveAbilities.end());
             }
@@ -4043,7 +4042,7 @@ void MissionListManager::GetActiveAbilityList(const std::string &bundleName, std
 
     if (defaultStandardList_ != nullptr) {
         std::vector<std::string> defaultActiveStandardList;
-        defaultStandardList_->GetActiveAbilityList(bundleName, defaultActiveStandardList, pid);
+        defaultStandardList_->GetActiveAbilityList(uid, defaultActiveStandardList, pid);
         if (!defaultActiveStandardList.empty()) {
             abilityList.insert(abilityList.end(), defaultActiveStandardList.begin(), defaultActiveStandardList.end());
         }
@@ -4051,7 +4050,7 @@ void MissionListManager::GetActiveAbilityList(const std::string &bundleName, std
 
     if (defaultSingleList_ != nullptr) {
         std::vector<std::string> defaultActiveSingleList;
-        defaultSingleList_->GetActiveAbilityList(bundleName, defaultActiveSingleList, pid);
+        defaultSingleList_->GetActiveAbilityList(uid, defaultActiveSingleList, pid);
         if (!defaultActiveSingleList.empty()) {
             abilityList.insert(abilityList.end(), defaultActiveSingleList.begin(), defaultActiveSingleList.end());
         }
@@ -4094,16 +4093,12 @@ bool MissionListManager::IsAppLastAbility(const std::shared_ptr<AbilityRecord> &
         return false;
     }
 
-    std::string bundleName = abilityRecord->GetAbilityInfo().bundleName;
-    if (bundleName.empty()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "bundleName is empty.");
-        return false;
-    }
+    auto uid = abilityRecord->GetAbilityInfo().applicationInfo.uid;
 
     std::vector<std::string> abilityList;
     for (auto missionList : currentMissionLists_) {
         if (missionList != nullptr) {
-            missionList->GetActiveAbilityList(bundleName, abilityList);
+            missionList->GetActiveAbilityList(uid, abilityList);
         }
     }
 
