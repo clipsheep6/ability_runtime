@@ -56,6 +56,25 @@ sptr<ModalSystemAppFreezeUIExtension::AppFreezeDialogConnection> ModalSystemAppF
     return dialogConnectionCallback_;
 }
 
+void ModalSystemAppFreezeUIExtension::ProcessAppFreeze(bool focusFlag, const FaultData &faultData, std::string pid,
+    std::string bundleName, std::function<void()> callback)
+{
+    const std::string SCENE_BAOARD_NAME = "com.ohos.sceneboard";
+    if (bundleName == SCENE_BAOARD_NAME && callback) {
+        callback();
+        return;
+    }
+    FaultDataType faultType = faultData.faultType;
+    std::string name = faultData.errorObject.name;
+    bool isAppFreezeDialog = name == AppFreezeType::THREAD_BLOCK_6S || name == AppFreezeType::APP_INPUT_BLOCK ||
+        name == AppFreezeType::LIFECYCLE_TIMEOUT;
+    if (focusFlag && isAppFreezeDialog) {
+        CreateModalUIExtension(pid, bundleName);
+    } else if (callback && faultType != FaultDataType::APP_FREEZE) {
+        callback();
+    }
+}
+
 bool ModalSystemAppFreezeUIExtension::CreateModalUIExtension(std::string pid, std::string bundleName)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "CreateModalUIExtension Called.");

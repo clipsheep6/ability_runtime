@@ -750,10 +750,12 @@ int AbilityManagerProxy::StartUIExtensionAbility(const sptr<SessionInfo> &extens
         return INNER_ERR;
     }
 
-    if (!extensionSessionInfo->isModal) {
-        error = SendRequest(AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY_NON_MODAL, data, reply, option);
-    } else {
+    if (extensionSessionInfo->uiExtensionUsage == UIExtensionUsage::EMBEDDED) {
+        error = SendRequest(AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY_EMBEDDED, data, reply, option);
+    } else if (extensionSessionInfo->uiExtensionUsage == UIExtensionUsage::MODAL) {
         error = SendRequest(AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY, data, reply, option);
+    } else {
+        error = SendRequest(AbilityManagerInterfaceCode::START_UI_EXTENSION_CONSTRAINED_EMBEDDED, data, reply, option);
     }
 
     if (error != NO_ERROR) {

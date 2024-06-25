@@ -93,7 +93,8 @@ private:
     int StartAbilityAsCallerForOptionInner(MessageParcel &data, MessageParcel &reply);
     int StartExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
     int StartUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
-    int StartUIExtensionAbilityNonModalInner(MessageParcel &data, MessageParcel &reply);
+    int StartUIExtensionAbilityEmbeddedInner(MessageParcel &data, MessageParcel &reply);
+    int StartUIExtensionConstrainedEmbeddedInner(MessageParcel &data, MessageParcel &reply);
     int StartUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
     int StopExtensionAbilityInner(MessageParcel& data, MessageParcel& reply);
     int StartAbilityAddCallerInner(MessageParcel &data, MessageParcel &reply);
