@@ -57,6 +57,8 @@ public:
         std::shared_ptr<CJAbilityStageObject> cjStage) : cjAbilityStageObject_(std::move(cjStage)) {}
     ~CJAbilityStage() override = default;
 
+    void Init(const std::shared_ptr<Context> &context,
+        const std::weak_ptr<AppExecFwk::OHOSApplication> application) override;
     void OnCreate(const AAFwk::Want& want) const override;
     std::string OnAcceptWant(const AAFwk::Want& want) override;
     void OnConfigurationUpdated(const AppExecFwk::Configuration& configuration) override;
