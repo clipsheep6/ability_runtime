@@ -251,7 +251,7 @@ void AmsMgrScheduler::KillProcessesByPids(std::vector<int32_t> &pids)
         return;
     }
 
-    std::function<void()> killProcessesByPidsFunc = [amsMgrServiceInner = amsMgrServiceInner_, &pids]() {
+    std::function<void()> killProcessesByPidsFunc = [amsMgrServiceInner = amsMgrServiceInner_, pids]() mutable {
         amsMgrServiceInner->KillProcessesByPids(pids);
     };
     amsHandler_->SubmitTask(killProcessesByPidsFunc, TASK_KILL_PROCESSES_BY_PIDS);
