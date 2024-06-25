@@ -2166,7 +2166,7 @@ private:
     sptr<OHOS::AppExecFwk::IAppMgr> appMgr_ { nullptr };
     const static std::map<std::string, AbilityManagerService::DumpKey> dumpMap;
     const static std::map<std::string, AbilityManagerService::DumpsysKey> dumpsysMap;
-    const static std::map<int32_t, AppExecFwk::SupportWindowMode> windowModeMap;
+    // const static std::map<int32_t, AppExecFwk::SupportWindowMode> windowModeMap;
 
     std::shared_ptr<FreeInstallManager> freeInstallManager_;
 
@@ -2248,6 +2248,7 @@ private:
 #ifdef SUPPORT_SCREEN
     int32_t ShowPickerDialog(const Want& want, int32_t userId, const sptr<IRemoteObject> &token);
     bool CheckWindowMode(int32_t windowMode, const std::vector<AppExecFwk::SupportWindowMode>& windowModes) const;
+    std::pair<bool, AppExecFwk::SupportWindowMode> WindowModeMap(int32_t windowMode) const;
     void InitFocusListener();
     void RegisterFocusListener();
     void InitPrepareTerminateConfig();
