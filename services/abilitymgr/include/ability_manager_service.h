@@ -16,6 +16,8 @@
 #ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H
 #define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H
 
+#include <atomic>
+#include <functional>
 #include <future>
 #include <map>
 #include <memory>
@@ -38,6 +40,8 @@
 #include "app_mgr_interface.h"
 #include "app_scheduler.h"
 #include "auto_startup_info.h"
+#include "time_service_client.h"
+#include "itimer_info.h"
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_observer.h"
 #endif
@@ -87,6 +91,21 @@ using OHOS::AppExecFwk::IAbilityController;
 class PendingWantManager;
 struct StartAbilityInfo;
 class WindowFocusChangedListener;
+
+class RecoveryTimer : public OHOS::MiscServices::ITimerInfo {
+public:
+    RecoveryTimer();
+    virtual ~RecoveryTimer();
+    virtual void OnTrigger() override;
+    virtual void SetType(const int &type) override;
+    virtual void SetRepeat(bool repeat) override;
+    virtual void SetInterval(const uint64_t &interval) override;
+    virtual void SetWantAgent(std::shared_ptr<OHOS::AbilityRuntime::WantAgent::WantAgent> wantAgent) override;
+    void SetCallbackInfo(const std::function<void()> &callBack);
+
+private:
+    std::function<void()> callBack_ = nullptr;
+};
 
 /**
  * @class AbilityManagerService
@@ -1317,6 +1336,8 @@ public:
         const std::shared_ptr<Media::PixelMap> &pixelMap) override;
 #endif // SUPPORT_SCREEN
     virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) override;
+    virtual void SubmitSaveRecoveryInfo(const sptr<IRemoteObject>& token) override;
+    virtual void ClearRecoveryInfoByTimer();
     virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason,
         const Want *want = nullptr) override;
 
@@ -2280,6 +2301,8 @@ private:
     ffrt::mutex abilityDebugDealLock_;
     std::shared_ptr<AbilityDebugDeal> abilityDebugDeal_;
     std::shared_ptr<AppExitReasonHelper> appExitReasonHelper_;
+    uint64_t timerId_;
+    bool startTimer_ = false;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

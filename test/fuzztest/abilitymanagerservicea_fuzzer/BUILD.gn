@@ -66,6 +66,7 @@ ohos_fuzztest("AbilityManagerServiceAFuzzTest") {
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "samgr:samgr_proxy",
+    "time_service:time_client",
   ]
 
   if (ability_runtime_graphics) {

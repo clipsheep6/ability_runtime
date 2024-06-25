@@ -277,6 +277,9 @@ bool AbilityRecovery::ScheduleSaveAbilityState(StateReason reason)
             return false;
         }
         abilityMgr->EnableRecoverAbility(token);
+        if (reason == StateReason::LIFECYCLE && useAppSettedValue_) {
+            abilityMgr->SubmitSaveRecoveryInfo(token);
+        }
     }
     return ret;
 }

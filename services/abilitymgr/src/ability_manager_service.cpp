@@ -18,6 +18,7 @@
 #include <atomic>
 #include <chrono>
 #include <csignal>
+#include <cstdint>
 #include <cstdlib>
 #include <fstream>
 #include <functional>
@@ -29,6 +30,7 @@
 #include <thread>
 #include <unistd.h>
 #include <unordered_set>
+#include <list>
 
 #include "ability_background_connection.h"
 #include "ability_connect_manager.h"
@@ -114,6 +116,7 @@
 #include "config_policy_utils.h"
 #include "running_multi_info.h"
 #include "utils/window_options_utils.h"
+#include "time_service_client.h"
 #ifdef SUPPORT_GRAPHICS
 #include "dialog_session_record.h"
 #include "application_anr_listener.h"
@@ -250,6 +253,9 @@ constexpr int32_t BROKER_RESERVE_UID = 5005;
 constexpr int32_t DMS_UID = 5522;
 constexpr int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
 constexpr int32_t BOOTEVENT_COMPLETED_DELAY_TIME = 1000;
+constexpr int32_t SECOND_TO_MS = 1000;
+constexpr int32_t HOURS_TO_SECOND = 60 * 60;
+constexpr int32_t TIMER_TYPE = 4;
 constexpr int32_t BOOTEVENT_BOOT_ANIMATION_READY_SIZE = 6;
 constexpr const char* BUNDLE_NAME_KEY = "bundleName";
 constexpr const char* DM_PKG_NAME = "ohos.distributedhardware.devicemanager";
@@ -335,6 +341,56 @@ const std::map<int32_t, AppExecFwk::SupportWindowMode> AbilityManagerService::wi
 const bool REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<AbilityManagerService>::GetInstance().get());
 sptr<AbilityManagerService> AbilityManagerService::instance_;
+
+struct RecoveryInfo {
+    uint32_t tokenId;
+    int64_t time;
+    std::string bundleName;
+    std::string moduleName;
+    std::string abilityName;
+};
+
+std::list<RecoveryInfo> recoveryInfoQueue;
+
+RecoveryTimer::RecoveryTimer()
+{
+}
+
+RecoveryTimer::~RecoveryTimer()
+{
+}
+
+void RecoveryTimer::OnTrigger()
+{
+    TAG_LOGE(AAFwkTag::ABILITYMGR, "TIME_MODULE_SERVICE start.");
+    if (callBack_ != nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "TIME_MODULE_SERVICE callback.");
+        callBack_();
+    }
+}
+
+void RecoveryTimer::SetCallbackInfo(const std::function<void()> &callBack)
+{
+    callBack_ = callBack;
+}
+
+void RecoveryTimer::SetType(const int &_type)
+{
+    type = _type;
+}
+
+void RecoveryTimer::SetRepeat(bool _repeat)
+{
+    repeat = _repeat;
+}
+void RecoveryTimer::SetInterval(const uint64_t &_interval)
+{
+    interval = _interval;
+}
+void RecoveryTimer::SetWantAgent(std::shared_ptr<OHOS::AbilityRuntime::WantAgent::WantAgent> _wantAgent)
+{
+    wantAgent = _wantAgent;
+}
 
 AbilityManagerService::AbilityManagerService()
     : SystemAbility(ABILITY_MGR_SERVICE_ID, true),
@@ -7198,6 +7254,105 @@ void AbilityManagerService::ReportAppRecoverResult(const int32_t appId, const Ap
         "BUNDLE_NAME", appInfo.bundleName,
         "ABILITY_NAME", abilityName,
         "RECOVERY_RESULT", result);
+}
+
+void AbilityManagerService::ClearRecoveryInfoByTimer()
+{
+    if (!timerId_) {
+        auto timerInfo = std::make_shared<RecoveryTimer>();
+        timerInfo->SetType(TIMER_TYPE);
+        timerInfo->SetRepeat(false);
+        auto task = [this]() {
+            this->ClearRecoveryInfoByTimer();
+        };
+        timerInfo->SetCallbackInfo(task);
+        bool bRet = MiscServices::TimeServiceClient::GetInstance()->CreateTimerV9(timerInfo, timerId_);
+        if (!bRet) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Init recoveryTimer error");
+        }
+    }
+    bool ret = MiscServices::TimeServiceClient::GetInstance()->StopTimerV9(timerId_);
+    if (!ret) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Stop recoveryTimer error");
+    }
+    int64_t now = MiscServices::TimeServiceClient::GetInstance()->GetWallTimeMs();
+    auto timeoutDeleteTime = DefaultRecoveryConfig::GetInstance().
+        GetTimeoutDeleteTime() * HOURS_TO_SECOND * SECOND_TO_MS;
+    auto reserveNumber = DefaultRecoveryConfig::GetInstance().GetReserveNumber();
+    int timeoutCount = 0;
+    int64_t nextTimeout = now;
+    for (auto p = recoveryInfoQueue.begin(); p != recoveryInfoQueue.end(); p++) {
+        if (now - p->time + SECOND_TO_MS >= timeoutDeleteTime) {
+            timeoutCount++;
+        } else {
+            nextTimeout = nextTimeout > p->time ? p->time : nextTimeout;
+        }
+    }
+
+    timeoutCount -= reserveNumber;
+    for (; timeoutCount > 0; timeoutCount--) {
+        auto recoveryInfo = recoveryInfoQueue.begin();
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "clearRecoveryInfo bundleName = %{public}s, abilityName = %{public}s",
+            recoveryInfo->bundleName.c_str(), recoveryInfo->abilityName.c_str());
+        (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
+            DeleteAbilityRecoverInfo(recoveryInfo->tokenId, recoveryInfo->moduleName, recoveryInfo->abilityName);
+        recoveryInfoQueue.pop_front();
+    }
+
+    if (int32_t(recoveryInfoQueue.size()) > reserveNumber) {
+        MiscServices::TimeServiceClient::GetInstance()->StartTimerV9(timerId_, nextTimeout + timeoutDeleteTime);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "start recoveryTimer, recoveryInfoQueue length %{public}d nextTime %{public}s",
+            recoveryInfoQueue.size(), std::to_string(nextTimeout + timeoutDeleteTime).c_str());
+    }
+}
+
+void AbilityManagerService::SubmitSaveRecoveryInfo(const sptr<IRemoteObject>& token)
+{
+    if (token == nullptr) {
+        return;
+    }
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    if (abilityRecord == nullptr) {
+        return;
+    }
+    auto abilityInfo = abilityRecord->GetAbilityInfo();
+    auto userId = abilityRecord->GetOwnerMissionUserId();
+    auto tokenId = abilityRecord->GetApplicationInfo().accessTokenId;
+    std::string abilityName = abilityInfo.name;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto uiAbilityManager = GetUIAbilityManagerByUserId(userId);
+        CHECK_POINTER(uiAbilityManager);
+        auto sessionId = uiAbilityManager->GetSessionIdByAbilityToken(token);
+        if (abilityInfo.launchMode == AppExecFwk::LaunchMode::STANDARD) {
+            abilityName += std::to_string(sessionId);
+        }
+    } else {
+        auto missionListMgr = GetMissionListManagerByUserId(userId);
+        if (missionListMgr == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListMgr is nullptr");
+            return;
+        }
+        abilityName += std::to_string(abilityRecord->GetMissionId());
+    }
+    TAG_LOGI(AAFwkTag::ABILITYMGR,
+        "submitInfo bundleName = %{public}s, moduleName = %{public}s, abilityName = %{public}s, tokenId = %{public}d",
+        abilityInfo.bundleName.c_str(),  abilityInfo.moduleName.c_str(), abilityName.c_str(), tokenId);
+    RecoveryInfo recoveryInfo;
+    recoveryInfo.bundleName = abilityInfo.bundleName;
+    recoveryInfo.moduleName = abilityInfo.moduleName;
+    recoveryInfo.abilityName = abilityName;
+    recoveryInfo.time = MiscServices::TimeServiceClient::GetInstance()->GetWallTimeMs();
+    recoveryInfo.tokenId = tokenId;
+    auto findByInfo = [&abilityName, &abilityInfo](RecoveryInfo& item) {
+        return item.abilityName == abilityName && item.bundleName == abilityInfo.bundleName &&
+            item.moduleName == abilityInfo.moduleName;
+    };
+    auto i = find_if(recoveryInfoQueue.begin(), recoveryInfoQueue.end(), findByInfo);
+    if (i != recoveryInfoQueue.end()) {
+        recoveryInfoQueue.erase(i);
+    }
+    recoveryInfoQueue.push_back(recoveryInfo);
+    ClearRecoveryInfoByTimer();
 }
 
 void AbilityManagerService::AppRecoverKill(pid_t pid, int32_t reason)
