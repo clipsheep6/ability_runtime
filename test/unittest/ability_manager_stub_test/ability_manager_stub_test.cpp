@@ -980,6 +980,38 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartUIExtensionAbilityInner
 
 /*
  * Feature: AbilityManagerService
+ * Function: StartUIExtensionAbilityEmbeddedInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartUIExtensionAbilityEmbeddedInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function StartUIExtensionAbilityEmbeddedInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartUIExtensionAbilityEmbeddedInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->StartUIExtensionAbilityEmbeddedInner(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartUIExtensionConstrainedEmbeddedInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartUIExtensionConstrainedEmbeddedInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function StartUIExtensionConstrainedEmbeddedInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartUIExtensionConstrainedEmbeddedInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->StartUIExtensionConstrainedEmbeddedInner(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: StopExtensionAbilityInner
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService StopExtensionAbilityInner

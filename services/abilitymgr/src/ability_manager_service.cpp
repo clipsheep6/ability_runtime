@@ -2728,6 +2728,22 @@ void AbilityManagerService::SetAutoFillElementName(const sptr<SessionInfo> &exte
     extensionSessionInfo->want.SetModuleName(argList[INDEX_ONE]);
 }
 
+int AbilityManagerService::CheckUIExtensionUsage(AppExecFwk::UIExtensionUsage uiExtensionUsage,
+    AppExecFwk::ExtensionAbilityType extensionType)
+{
+    if (uiExtensionUsage == UIExtensionUsage::EMBEDDED &&
+        !AAFwk::UIExtensionUtils::IsPublicForEmbedded(extensionType)) {
+        CHECK_CALLER_IS_SYSTEM_APP;
+    }
+
+    if (uiExtensionUsage == UIExtensionUsage::CONSTRAINED_EMBEDDED &&
+        !AAFwk::UIExtensionUtils::IsPublicForConstrainedEmbedded(extensionType)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "error extension type %u for SecureConstrainedEmbedded.", extensionType);
+        return ERR_INVALID_VALUE;
+    }
+    return ERR_OK;
+}
+
 int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -2769,9 +2785,10 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
     EventInfo eventInfo = BuildEventInfo(extensionSessionInfo->want, userId);
     eventInfo.extensionType = static_cast<int32_t>(extensionType);
 
-    // non-modal uiextension can only be used by system applications.
-    if (!extensionSessionInfo->isModal && !AAFwk::UIExtensionUtils::IsPublicCallerForNonModal(extensionType)) {
-        CHECK_CALLER_IS_SYSTEM_APP;
+    auto ret = CheckUIExtensionUsage(extensionSessionInfo->uiExtensionUsage, extensionType);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "check usage failed.");
+        return ret;
     }
 
     if (InsightIntentExecuteParam::IsInsightIntentExecute(extensionSessionInfo->want)) {
