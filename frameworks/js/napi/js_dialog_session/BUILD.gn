@@ -44,6 +44,7 @@ ohos_shared_library("dialogsession_napi") {
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "ffrt:libffrt",
+    "form_fwk:form_manager",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",

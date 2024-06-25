@@ -96,11 +96,9 @@ config("ability_public_config") {
 
   if (ability_runtime_graphics) {
     include_dirs += [
-      "${form_fwk_path}/interfaces/kits/native/include",
       "${form_fwk_path}/interfaces/inner_api/include",
       "${windowmanager_path}/interfaces/innerkits/dm",
       "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_stage_napi",
-      "${windowmanager_path}/utils/include",
     ]
     defines = [ "SUPPORT_GRAPHICS" ]
   }
@@ -365,7 +363,6 @@ config("extensionkit_public_config") {
   if (ability_runtime_graphics) {
     include_dirs += [
       "${windowmanager_path}/interfaces/innerkits/wm",
-      "${windowmanager_path}/utils/include",
     ]
     defines = [ "SUPPORT_GRAPHICS" ]
   }
@@ -464,6 +461,7 @@ ohos_shared_library("insight_intent_executor") {
     "access_token:libtokenid_sdk",
     "c_utils:utils",
     "eventhandler:libeventhandler",
+    "form_fwk:form_manager",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
@@ -492,7 +490,6 @@ config("uiability_config") {
   if (ability_runtime_graphics) {
     include_dirs += [
       "${windowmanager_path}/interfaces/innerkits/wm",
-      "${windowmanager_path}/utils/include",
     ]
     defines = [
       "SUPPORT_GRAPHICS",
@@ -500,6 +497,7 @@ config("uiability_config") {
     ]
   }
 }
+
 
 ohos_shared_library("uiabilitykit_native") {
   include_dirs = [
@@ -724,6 +722,7 @@ ohos_shared_library("form_extension_module") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
+    "form_fwk:form_manager",
     "hilog:libhilog",
     "json:nlohmann_json_static",
     "napi:ace_napi",

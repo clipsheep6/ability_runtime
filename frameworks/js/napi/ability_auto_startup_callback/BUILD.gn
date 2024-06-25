@@ -39,6 +39,7 @@ ohos_shared_library("autostartupcallback") {
   external_deps = [
     "ability_base:session_info",
     "c_utils:utils",
+    "form_fwk:form_manager",
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
