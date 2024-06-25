@@ -334,7 +334,7 @@ AbilityManagerService::AbilityManagerService()
 AbilityManagerService::~AbilityManagerService()
 {}
 
-std::pair<bool, AppExecFwk::SupportWindowMode> AbilityManagerService::WindowModeMap(int32_t windowMode) const
+std::pair<bool, AppExecFwk::SupportWindowMode> AbilityManagerService::Modify the windowModeMap constant(int32_t windowMode) const
 {
     std::map<int32_t, AppExecFwk::SupportWindowMode> window_mode_map = {
         std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_FULLSCREEN,
