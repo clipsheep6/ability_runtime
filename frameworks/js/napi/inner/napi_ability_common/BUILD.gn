@@ -47,7 +47,6 @@ ohos_shared_library("napi_ability_common") {
 
   external_deps = [
     "ability_base:base",
-    "ability_base:configuration",
     "ability_base:want",
     "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",
