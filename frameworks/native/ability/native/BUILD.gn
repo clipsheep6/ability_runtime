@@ -279,10 +279,12 @@ ohos_shared_library("abilitykit_native") {
     "json:nlohmann_json_static",
     "napi:ace_napi",
     "node:node_header_notice",
-    "relational_store:native_rdb",
     "resource_management:global_resmgr",
     "samgr:samgr_proxy",
   ]
+  if (!(host_os == "linux" && host_cpu == "arm64")) {
+    external_deps += [ "relational_store:native_rdb" ]
+  }
 
   public_external_deps = [
     "accessibility:accessibility_common",
@@ -874,10 +876,12 @@ ohos_shared_library("data_ability_helper") {
     "hitrace:hitrace_meter",
     "json:nlohmann_json_static",
     "relational_store:native_dataability",
-    "relational_store:native_rdb",
     "relational_store:rdb_data_ability_adapter",
     "window_manager:libwm",
   ]
+  if (!(host_os == "linux" && host_cpu == "arm64")) {
+    external_deps += [ "relational_store:native_rdb" ]
+  }
 
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"

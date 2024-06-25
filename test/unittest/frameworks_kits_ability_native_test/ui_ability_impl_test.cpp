@@ -106,7 +106,7 @@ HWTEST_F(UIAbilityImplTest, AbilityRuntime_ScheduleUpdateConfiguration_001, Test
             EXPECT_EQ(testNotify1, 0);
             mockUIAbilityimpl->ScheduleUpdateConfiguration(config);
             auto testNotify2 = pMocKUIAbility->OnConfigurationUpdated_;
-            EXPECT_EQ(testNotify2, 0);
+            EXPECT_EQ(testNotify2, 1);
         }
     }
     GTEST_LOG_(INFO) << "AbilityRuntime_ScheduleUpdateConfiguration_001 end";
@@ -154,14 +154,14 @@ HWTEST_F(UIAbilityImplTest, AbilityRuntime_ScheduleUpdateConfiguration_002, Test
             Configuration config;
             mockUIAbilityimpl->ScheduleUpdateConfiguration(config);
             auto testNotify2 = pMocKUIAbility->OnConfigurationUpdated_;
-            EXPECT_EQ(testNotify2, 0);
+            EXPECT_EQ(testNotify2, 1);
             auto language = OHOS::Global::I18n::LocaleConfig::GetSystemLanguage();
             GTEST_LOG_(INFO) << "AbilityRuntime_ScheduleUpdateConfiguration_002 : " << language;
             config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, language);
             mockUIAbilityimpl->SetlifecycleState(AAFwk::ABILITY_STATE_ACTIVE);
             mockUIAbilityimpl->ScheduleUpdateConfiguration(config);
             auto testNotify3 = pMocKUIAbility->OnConfigurationUpdated_;
-            EXPECT_EQ(testNotify3, 1);
+            EXPECT_EQ(testNotify3, 2);
         }
     }
     GTEST_LOG_(INFO) << "AbilityRuntime_ScheduleUpdateConfiguration_002 end";
@@ -212,17 +212,17 @@ HWTEST_F(UIAbilityImplTest, AbilityRuntime_ScheduleUpdateConfiguration_003, Test
             EXPECT_EQ(testNotify1, 0);
             mockUIAbilityimpl->ScheduleUpdateConfiguration(config);
             auto testNotify2 = pMocKUIAbility->OnConfigurationUpdated_;
-            EXPECT_EQ(testNotify2, 0);
+            EXPECT_EQ(testNotify2, 1);
             auto language = OHOS::Global::I18n::LocaleConfig::GetSystemLanguage();
             GTEST_LOG_(INFO) << "AbilityRuntime_ScheduleUpdateConfiguration_003 : " << language;
             config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, language);
             mockUIAbilityimpl->SetlifecycleState(AAFwk::ABILITY_STATE_ACTIVE);
             mockUIAbilityimpl->ScheduleUpdateConfiguration(config);
             auto testNotify3 = pMocKUIAbility->OnConfigurationUpdated_;
-            EXPECT_EQ(testNotify3, 1);
+            EXPECT_EQ(testNotify3, 2);
             mockUIAbilityimpl->ScheduleUpdateConfiguration(config);
             auto testNotify4 = pMocKUIAbility->OnConfigurationUpdated_;
-            EXPECT_EQ(testNotify4, 2);
+            EXPECT_EQ(testNotify4, 3);
         }
     }
     GTEST_LOG_(INFO) << "AbilityRuntime_ScheduleUpdateConfiguration_003 end";

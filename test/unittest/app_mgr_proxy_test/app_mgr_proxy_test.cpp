@@ -334,6 +334,21 @@ HWTEST_F(AppMgrProxyTest, NotifyAppFaultBySA_001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: SetAppFreezeFilter_001
+ * @tc.desc: Set appfreeze filter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, SetAppFreezeFilter_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+    int32_t pid = 0; // test value
+    appMgrProxy_->SetAppFreezeFilter(pid);
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::SET_APPFREEZE_FILTER));
+}
+
+/**
  * @tc.name: ChangeAppGcState_001
  * @tc.desc: Change app Gc state.
  * @tc.type: FUNC

@@ -50,6 +50,8 @@ public:
     enum AppFreezeState {
         APPFREEZE_STATE_IDLE = 0,
         APPFREEZE_STATE_FREEZE = 1,
+        APPFREEZE_STATE_CANCELING = 2,
+        APPFREEZE_STATE_CANCELED = 3,
     };
 
     struct AppFreezeInfo {
@@ -79,6 +81,10 @@ public:
     bool IsProcessDebug(int32_t pid, std::string processName);
     bool IsNeedIgnoreFreezeEvent(int32_t pid);
     void DeleteStack(int pid);
+    bool CancelAppFreezeDetect(int32_t pid);
+    void RemoveDeathProcess(std::string processName);
+    void ResetAppfreezeState(int32_t pid);
+    bool IsValidFreezeFilter(int32_t pid);
 
 private:
     AppfreezeManager& operator=(const AppfreezeManager&) = delete;
@@ -97,6 +103,9 @@ private:
     int GetFreezeState(int32_t pid);
     int64_t GetFreezeTime(int32_t pid);
     void ClearOldInfo();
+    std::string FormatCmdLine(const std::string& cmdLine);
+    std::string GetProcessName(int32_t pid);
+    std::string GetBundleName(int32_t pid);
 
     static const inline std::string LOGGER_DEBUG_PROC_PATH = "/proc/transaction_proc";
     std::string name_;
@@ -106,6 +115,8 @@ private:
     std::map<int32_t, AppFreezeInfo> appfreezeInfo_;
     static ffrt::mutex catchStackMutex_;
     static std::map<int, std::string> catchStackMap_;
+    static ffrt::mutex freezeFilterMutex_;
+    std::map<std::string, AppFreezeInfo> appfreezeFilterMap_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -606,8 +606,11 @@ int AbilityManagerStub::OnRemoteRequestInnerSixteenth(uint32_t code, MessageParc
     if (interfaceCode == AbilityManagerInterfaceCode::COMPLETE_FIRST_FRAME_DRAWING_BY_SCB) {
         return CompleteFirstFrameDrawingBySCBInner(data, reply);
     }
-    if (interfaceCode == AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY_NON_MODAL) {
-        return StartUIExtensionAbilityNonModalInner(data, reply);
+    if (interfaceCode == AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY_EMBEDDED) {
+        return StartUIExtensionAbilityEmbeddedInner(data, reply);
+    }
+    if (interfaceCode == AbilityManagerInterfaceCode::START_UI_EXTENSION_CONSTRAINED_EMBEDDED) {
+        return StartUIExtensionConstrainedEmbeddedInner(data, reply);
     }
 #endif
     if (interfaceCode == AbilityManagerInterfaceCode::REQUEST_DIALOG_SERVICE) {
@@ -1330,7 +1333,8 @@ int AbilityManagerStub::StartUIExtensionAbilityInner(MessageParcel &data, Messag
             TAG_LOGE(AAFwkTag::ABILITYMGR, "read extensionSessionInfo failed.");
             return ERR_NULL_OBJECT;
         }
-        extensionSessionInfo->isModal = true; // To ensure security, this attribute must be rewritten.
+        // To ensure security, this attribute must be rewritten.
+        extensionSessionInfo->uiExtensionUsage = UIExtensionUsage::MODAL;
     }
 
     int32_t userId = data.ReadInt32();
@@ -1340,7 +1344,7 @@ int AbilityManagerStub::StartUIExtensionAbilityInner(MessageParcel &data, Messag
     return NO_ERROR;
 }
 
-int AbilityManagerStub::StartUIExtensionAbilityNonModalInner(MessageParcel &data, MessageParcel &reply)
+int AbilityManagerStub::StartUIExtensionAbilityEmbeddedInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<SessionInfo> extensionSessionInfo = nullptr;
     if (data.ReadBool()) {
@@ -1349,7 +1353,28 @@ int AbilityManagerStub::StartUIExtensionAbilityNonModalInner(MessageParcel &data
             TAG_LOGE(AAFwkTag::ABILITYMGR, "read extensionSessionInfo failed.");
             return ERR_NULL_OBJECT;
         }
-        extensionSessionInfo->isModal = false; // To ensure security, this attribute must be rewritten.
+        // To ensure security, this attribute must be rewritten.
+        extensionSessionInfo->uiExtensionUsage = UIExtensionUsage::EMBEDDED;
+    }
+
+    int32_t userId = data.ReadInt32();
+
+    int32_t result = StartUIExtensionAbility(extensionSessionInfo, userId);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartUIExtensionConstrainedEmbeddedInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<SessionInfo> extensionSessionInfo = nullptr;
+    if (data.ReadBool()) {
+        extensionSessionInfo = data.ReadParcelable<SessionInfo>();
+        if (extensionSessionInfo == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "read extensionSessionInfo failed.");
+            return ERR_NULL_OBJECT;
+        }
+        // To ensure security, this attribute must be rewritten.
+        extensionSessionInfo->uiExtensionUsage = UIExtensionUsage::CONSTRAINED_EMBEDDED;
     }
 
     int32_t userId = data.ReadInt32();
