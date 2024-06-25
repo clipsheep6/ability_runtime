@@ -450,10 +450,6 @@ bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
         return false;
     }
     auto bms = ConnectManagerHelper();
-    if (bms == nullptr) {
-        TAG_LOGW(AAFwkTag::AUTO_STARTUP, "The bundleMgrHelper is nullptr.");
-        return GET_BUNDLE_MANAGER_SERVICE_FAILED;
-    }
 
     if (uid == -1) {
         userId = IPCSkeleton::GetCallingUid() / AppExecFwk::Constants::BASE_USER_RANGE;
@@ -485,7 +481,7 @@ bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
             }
     } else if (appIndex <= GlobalConstant::MAX_APP_CLONE_INDEX) {
         auto bundleFlag = static_cast<int32_t>(AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO);
-        TAG_LOGD(AAFwkTag::AUTO_STARTUP,"appindex = : %{public}d.", appIndex);
+        TAG_LOGD(AAFwkTag::AUTO_STARTUP, "appindex = : %{public}d.", appIndex);
         if (!IN_PROCESS_CALL(bms->GetCloneBundleInfo(bundleName, bundleFlag, appIndex, bundleInfo, userId))) {
             TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Failed to get clone bundle info.");
             return false;
