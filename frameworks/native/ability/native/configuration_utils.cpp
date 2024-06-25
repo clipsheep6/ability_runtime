@@ -73,6 +73,7 @@ void ConfigurationUtils::GetGlobalConfig(const Configuration &configuration,
             resourceConfig.SetLanguage(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE));
         } else {
             TAG_LOGE(AAFwkTag::ABILITY, "TestLog0619: SetLanguage.");
+            configuration.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, res);
             resourceConfig.SetLanguage(res);
         }
     }
