@@ -321,17 +321,6 @@ const std::map<std::string, AbilityManagerService::DumpsysKey> AbilityManagerSer
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-d", KEY_DUMPSYS_DATA),
 };
 
-const std::map<int32_t, AppExecFwk::SupportWindowMode> AbilityManagerService::windowModeMap = {
-    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_FULLSCREEN,
-        AppExecFwk::SupportWindowMode::FULLSCREEN),
-    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_PRIMARY,
-        AppExecFwk::SupportWindowMode::SPLIT),
-    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_SECONDARY,
-        AppExecFwk::SupportWindowMode::SPLIT),
-    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_FLOATING,
-        AppExecFwk::SupportWindowMode::FLOATING),
-};
-
 const bool REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<AbilityManagerService>::GetInstance().get());
 sptr<AbilityManagerService> AbilityManagerService::instance_;
@@ -344,6 +333,33 @@ AbilityManagerService::AbilityManagerService()
 
 AbilityManagerService::~AbilityManagerService()
 {}
+
+std::pair<bool, AppExecFwk::SupportWindowMode> AbilityManagerService::WindowModeMap(int32_t windowMode) const
+{
+    std::map<int32_t, AppExecFwk::SupportWindowMode> window_mode_map = {
+        std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_FULLSCREEN,
+            AppExecFwk::SupportWindowMode::FULLSCREEN),
+        std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_PRIMARY,
+            AppExecFwk::SupportWindowMode::SPLIT),
+        std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_SECONDARY,
+            AppExecFwk::SupportWindowMode::SPLIT),
+        std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_FLOATING,
+            AppExecFwk::SupportWindowMode::FLOATING),
+    };
+
+    std::pair<bool, AppExecFwk::SupportWindowMode> result;
+    auto it = window_mode_map.find(windowMode);
+    if (it != window_mode_map.end()) {
+        auto bmsWindowMode = it->second;
+        result.first = true;
+        result.second = bmsWindowMode;
+        return result;
+    }else {
+        result.first = false;
+        result.second = AppExecFwk::SupportWindowMode::FULLSCREEN;
+        return result;
+    }
+}
 
 void AbilityManagerService::OnStart()
 {
@@ -8534,15 +8550,15 @@ int32_t AbilityManagerService::ShowPickerDialog(
 }
 
 bool AbilityManagerService::CheckWindowMode(int32_t windowMode,
-    const std::vector<AppExecFwk::SupportWindowMode>& windowModes) const
+        const std::vector<AppExecFwk::SupportWindowMode>& windowModes) const
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Window mode is %{public}d.", windowMode);
     if (windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED) {
         return true;
     }
-    auto it = windowModeMap.find(windowMode);
-    if (it != windowModeMap.end()) {
-        auto bmsWindowMode = it->second;
+
+    if (WindowModeMap(windowMode).first) {
+        auto bmsWindowMode = WindowModeMap(windowMode).second;
         for (auto mode : windowModes) {
             if (mode == bmsWindowMode) {
                 return true;
