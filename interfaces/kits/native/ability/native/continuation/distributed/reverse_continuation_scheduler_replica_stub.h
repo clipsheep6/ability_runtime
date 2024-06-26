@@ -38,10 +38,6 @@ public:
     int32_t NotifyReverseResultInner(MessageParcel &data, MessageParcel &reply);
 
 private:
-    using ReverseContinuationSchedulerReplicaFunc = int32_t (ReverseContinuationSchedulerReplicaStub::*)(
-        MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, ReverseContinuationSchedulerReplicaFunc> continuationFuncMap_;
-
     DISALLOW_COPY_AND_MOVE(ReverseContinuationSchedulerReplicaStub);
 };
 }  // namespace AppExecFwk

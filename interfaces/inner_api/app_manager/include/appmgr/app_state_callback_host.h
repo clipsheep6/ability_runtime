@@ -76,9 +76,6 @@ private:
     int32_t HandleNotifyStartResidentProcess(MessageParcel &data, MessageParcel &reply);
     int32_t HandleOnAppRemoteDied(MessageParcel &data, MessageParcel &reply);
 
-    using AppStateCallbackFunc = int32_t (AppStateCallbackHost::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, AppStateCallbackFunc> memberFuncMap_;
-
     DISALLOW_COPY_AND_MOVE(AppStateCallbackHost);
 };
 }  // namespace AppExecFwk

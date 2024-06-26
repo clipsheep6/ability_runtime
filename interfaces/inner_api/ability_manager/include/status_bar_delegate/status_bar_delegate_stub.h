@@ -38,9 +38,6 @@ private:
 
     int32_t HandleCheckIfStatusBarItemExists(MessageParcel &data, MessageParcel &reply);
     int32_t HandleAttachPidToStatusBarItem(MessageParcel &data, MessageParcel &reply);
-
-    using StatusBarDelegateStubFunc = int (StatusBarDelegateStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::vector<StatusBarDelegateStubFunc> vecMemberFunc_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
