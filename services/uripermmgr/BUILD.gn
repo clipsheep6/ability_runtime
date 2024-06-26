@@ -84,6 +84,12 @@ ohos_shared_library("libupms") {
     "samgr:samgr_proxy",
     "storage_service:storage_manager_sa_proxy",
   ]
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "graphic_2d:color_manager",
+      "image_framework:image_native",
+    ]
+  }
 
   subsystem_name = "ability"
   part_name = "ability_runtime"

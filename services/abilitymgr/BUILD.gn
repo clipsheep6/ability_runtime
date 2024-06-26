@@ -156,7 +156,6 @@ ohos_shared_library("abilityms") {
     "config_policy:configpolicy_util",
     "dsoftbus:softbus_client",
     "ffrt:libffrt",
-    "graphic_2d:color_manager",
     "hicollie:libhicollie",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
@@ -215,6 +214,10 @@ ohos_shared_library("abilityms") {
       "window_manager:libwsutils",
       "window_manager:scene_session",
       "window_manager:sms",
+    ]
+    public_external_deps += [
+      "graphic_2d:color_manager",
+      "image_framework:image_native",
     ]
   }
 
