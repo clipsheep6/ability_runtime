@@ -1016,27 +1016,30 @@ private:
             ThrowInvalidParamError(env, "Parse param want failed, must be a Want.");
             return CreateJsUndefined(env);
         }
-
-        NapiAsyncTask::CompleteCallback complete =
-            [weak = context_, want](napi_env env, NapiAsyncTask& task, int32_t status) {
-            auto context = weak.lock();
+        
+        auto innerErrCode = std::make_shared<ErrCode>(ERR_OK);
+        NapiAsyncTask::ExecuteCallback execute = [serviceContext = context_, want, innerErrCode]() {
+            auto context = serviceContext.lock();
             if (!context) {
-                TAG_LOGW(AAFwkTag::SERVICE_EXT, "context is released");
-                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                TAG_LOGE(AAFwkTag::APPKIT, "context is released");
+                *innerErrCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INNER);
                 return;
             }
-            auto errcode = context->RequestModalUIExtension(want);
-            if (errcode == 0) {
+            *innerErrCode = AAFwk::AbilityManagerClient::GetInstance()->RequestModalUIExtension(want);
+        };
+        NapiAsyncTask::CompleteCallback complete = [innerErrCode](napi_env env, NapiAsyncTask& task, int32_t status) {
+            if (*innerErrCode == ERR_OK) {
                 task.Resolve(env, CreateJsUndefined(env));
             } else {
-                task.Reject(env, CreateJsErrorByNativeErr(env, errcode));
+                TAG_LOGE(AAFwkTag::APPKIT, "OnRequestModalUIExtension is failed %{public}d", *innerErrCode);
+                task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrCode));
             }
         };
 
         napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[ARGC_ONE] : nullptr;
         napi_value result = nullptr;
         NapiAsyncTask::ScheduleHighQos("JSServiceExtensionContext::OnRequestModalUIExtension",
-            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+            env, CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
         return result;
     }
 
