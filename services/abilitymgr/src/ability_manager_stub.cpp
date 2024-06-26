@@ -1120,7 +1120,8 @@ int AbilityManagerStub::UninstallAppInner(MessageParcel &data, MessageParcel &re
 {
     std::string bundleName = Str16ToStr8(data.ReadString16());
     int32_t uid = data.ReadInt32();
-    int result = UninstallApp(bundleName, uid);
+    int32_t appIndex = data.ReadInt32();
+    int32_t result = UninstallApp(bundleName, uid, appIndex);
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "remove stack error");
         return ERR_INVALID_VALUE;
@@ -1133,7 +1134,8 @@ int32_t AbilityManagerStub::UpgradeAppInner(MessageParcel &data, MessageParcel &
     std::string bundleName = Str16ToStr8(data.ReadString16());
     int32_t uid = data.ReadInt32();
     std::string exitMsg = Str16ToStr8(data.ReadString16());
-    int result = UpgradeApp(bundleName, uid, exitMsg);
+    int32_t appIndex = data.ReadInt32();
+    int32_t result = UpgradeApp(bundleName, uid, exitMsg, appIndex);
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "UpgradeAppInner error");
         return ERR_INVALID_VALUE;

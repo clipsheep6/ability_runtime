@@ -57,6 +57,7 @@ public:
     MOCK_METHOD1(GetMissionIdByToken, int32_t(const sptr<IRemoteObject>& token));
     MOCK_METHOD2(KillProcess, int(const std::string&, const bool clearPageStack));
     MOCK_METHOD2(UninstallApp, int(const std::string&, int32_t));
+    MOCK_METHOD3(UninstallApp, int32_t(const std::string&, int32_t, int32_t));
     MOCK_METHOD4(OnRemoteRequest, int(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option));
     MOCK_METHOD3(StartAbility, int(const Want& want, const sptr<IRemoteObject>& callerToken, int requestCode));
     MOCK_METHOD2(

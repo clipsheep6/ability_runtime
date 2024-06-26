@@ -121,7 +121,7 @@ void AppScheduler::AttachTimeOut(const sptr<IRemoteObject>& token)
     TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::AttachTimeOut()");
 }
 
-void AppScheduler::PrepareTerminate(const sptr<IRemoteObject>& token)
+void AppScheduler::PrepareTerminate(const sptr<IRemoteObject>& token, bool clearMissionFlag)
 {
     TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::PrepareTerminate()");
 }

@@ -67,6 +67,15 @@ CJAbilityStageObject::~CJAbilityStageObject()
     id_ = 0;
 }
 
+void CJAbilityStageObject::Init(AbilityStageHandle abilityStage) const
+{
+    if (g_cjAbilityStageFuncs == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "cj functions for CJAbilityStage are not registered");
+        return;
+    }
+    g_cjAbilityStageFuncs->AbilityStageInit(id_, abilityStage);
+}
+
 void CJAbilityStageObject::OnCreate() const
 {
     if (g_cjAbilityStageFuncs == nullptr) {

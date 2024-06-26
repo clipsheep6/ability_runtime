@@ -2148,16 +2148,21 @@ int32_t AbilityManagerService::ForceExitApp(const int32_t pid, const ExitReason 
         return ERR_PERMISSION_DENIED;
     }
 
-    std::string bundleName;
-    int32_t uid;
-    DelayedSingleton<AppScheduler>::GetInstance()->GetBundleNameByPid(pid, bundleName, uid);
-    if (bundleName.empty()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get bundle name by pid failed.");
-        return ERR_INVALID_VALUE;
+    AppExecFwk::ApplicationInfo application;
+    bool debug = false;
+    auto ret = IN_PROCESS_CALL(DelayedSingleton<AppScheduler>::GetInstance()->GetApplicationInfoByProcessID(pid,
+        application, debug));
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetApplicationInfoByProcessID failed.");
+        return ret;
     }
 
+    std::string bundleName = application.bundleName;
+    int32_t uid = application.uid;
+    int32_t appIndex = application.appIndex;
+
     CHECK_POINTER_AND_RETURN(appExitReasonHelper_, ERR_NULL_OBJECT);
-    appExitReasonHelper_->RecordProcessExitReason(bundleName, uid, exitReason);
+    appExitReasonHelper_->RecordAppExitReason(bundleName, uid, appIndex, exitReason);
 
     return DelayedSingleton<AppScheduler>::GetInstance()->KillApplication(bundleName);
 }
@@ -5969,20 +5974,27 @@ int AbilityManagerService::KillProcess(const std::string &bundleName, const bool
 
 int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t uid)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "Uninstall app, bundleName: %{public}s, uid=%{public}d", bundleName.c_str(), uid);
-    return UninstallAppInner(bundleName, uid, false, "");
+    return UninstallApp(bundleName, uid, 0);
 }
 
-int32_t AbilityManagerService::UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg)
+int32_t AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t uid, int32_t appIndex)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR,
-        "UpgradeApp app, bundleName: %{public}s, uid=%{public}d, exitMsg: %{public}s,", bundleName.c_str(),
-        uid, exitMsg.c_str());
-    return UninstallAppInner(bundleName, uid, true, exitMsg);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Uninstall app, bundleName: %{public}s, uid=%{public}d, appIndex:%{public}d",
+        bundleName.c_str(), uid, appIndex);
+    return UninstallAppInner(bundleName, uid, appIndex, false, "");
 }
 
-int32_t AbilityManagerService::UninstallAppInner(const std::string &bundleName, const int32_t uid, const bool isUpgrade,
-    const std::string &exitMsg)
+int32_t AbilityManagerService::UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg,
+    int32_t appIndex)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR,
+        "UpgradeApp app, bundleName: %{public}s, uid=%{public}d, exitMsg: %{public}s, appIndex:%{public}d",
+        bundleName.c_str(), uid, exitMsg.c_str(), appIndex);
+    return UninstallAppInner(bundleName, uid, appIndex, true, exitMsg);
+}
+
+int32_t AbilityManagerService::UninstallAppInner(const std::string &bundleName, const int32_t uid, int32_t appIndex,
+    const bool isUpgrade, const std::string &exitMsg)
 {
     pid_t callingPid = IPCSkeleton::GetCallingPid();
     pid_t pid = getprocpid();
@@ -5994,7 +6006,7 @@ int32_t AbilityManagerService::UninstallAppInner(const std::string &bundleName, 
     if (isUpgrade) {
         CHECK_POINTER_AND_RETURN(appExitReasonHelper_, ERR_NULL_OBJECT);
         AAFwk::ExitReason exitReason = { REASON_UPGRADE, exitMsg };
-        appExitReasonHelper_->RecordProcessExitReason(bundleName, uid, exitReason);
+        appExitReasonHelper_->RecordAppExitReason(bundleName, uid, appIndex, exitReason);
     }
 
     CHECK_POINTER_AND_RETURN(subManagersHelper_, ERR_NULL_OBJECT);
@@ -6004,7 +6016,8 @@ int32_t AbilityManagerService::UninstallAppInner(const std::string &bundleName, 
         return UNINSTALL_APP_FAILED;
     }
     if (!isUpgrade) {
-        DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->DeleteAppExitReason(bundleName, uid);
+        DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->DeleteAppExitReason(bundleName, uid,
+            appIndex);
     }
     return ERR_OK;
 }
@@ -7170,7 +7183,7 @@ void AbilityManagerService::ScheduleClearRecoveryPageStack()
         "ScheduleClearRecoveryPageStack bundleName = %{public}s, callerUid = %{public}d, tokenId = %{public}d",
         bundleName.c_str(), callerUid, tokenId);
     (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
-        DeleteAppExitReason(bundleName, callerUid);
+        DeleteAppExitReason(bundleName, tokenId);
     (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
         DeleteAllRecoverInfoByTokenId(tokenId);
 }

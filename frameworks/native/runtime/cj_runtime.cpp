@@ -87,7 +87,7 @@ bool CJRuntime::Initialize(const Options& options)
 
 void CJRuntime::RegisterUncaughtExceptionHandler(const CJUncaughtExceptionInfo& uncaughtExceptionInfo)
 {
-    HILOG_INFO("RegisterUncaughtExceptionHandler not support yet");
+    OHOS::CJEnvironment::GetInstance()->RegisterCJUncaughtExceptionHandler(uncaughtExceptionInfo);
 }
 
 bool CJRuntime::LoadCJAppLibrary(const AppLibPathVec& appLibPaths)

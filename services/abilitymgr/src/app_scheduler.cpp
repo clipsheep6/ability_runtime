@@ -278,10 +278,10 @@ void AppScheduler::AttachTimeOut(const sptr<IRemoteObject> &token)
     IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->AbilityAttachTimeOut(token));
 }
 
-void AppScheduler::PrepareTerminate(const sptr<IRemoteObject> &token)
+void AppScheduler::PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag)
 {
     CHECK_POINTER(appMgrClient_);
-    IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->PrepareTerminate(token));
+    IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->PrepareTerminate(token, clearMissionFlag));
 }
 
 void AppScheduler::OnAppStateChanged(const AppExecFwk::AppProcessData &appData)

@@ -541,7 +541,7 @@ public:
 
     bool IsLastPageAbilityRecord(const sptr<IRemoteObject> &token);
 
-    bool ExtensionAbilityRecordExists(const sptr<IRemoteObject> &token);
+    bool ExtensionAbilityRecordExists();
 
     void SetTerminating();
 

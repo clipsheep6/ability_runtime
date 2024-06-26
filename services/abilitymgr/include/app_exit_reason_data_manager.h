@@ -39,7 +39,9 @@ public:
     int32_t GetAppExitReason(const std::string &bundleName, uint32_t accessTokenId, const std::string &abilityName,
         bool &isSetReason, AAFwk::ExitReason &exitReason);
 
-    int32_t DeleteAppExitReason(const std::string &bundleName, int32_t uid);
+    int32_t DeleteAppExitReason(const std::string &bundleName, int32_t uid, int32_t appIndex);
+
+    int32_t DeleteAppExitReason(const std::string &bundleName, uint32_t accessTokenId);
 
     int32_t AddAbilityRecoverInfo(uint32_t accessTokenId,
         const std::string &moduleName, const std::string &abilityName, const int &sessionId);
