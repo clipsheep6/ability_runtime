@@ -882,10 +882,19 @@ ErrCode AbilityContextImpl::StartAbilityByType(const std::string &type,
         wantParams.Remove(FLAG_AUTH_READ_URI_PERMISSION);
     }
     Ace::ModalUIExtensionCallbacks callback;
-    callback.onError = std::bind(&JsUIExtensionCallback::OnError, uiExtensionCallbacks, std::placeholders::_1);
-    callback.onRelease = std::bind(&JsUIExtensionCallback::OnRelease, uiExtensionCallbacks, std::placeholders::_1);
-    callback.onResult = std::bind(
-        &JsUIExtensionCallback::OnResult, uiExtensionCallbacks, std::placeholders::_1, std::placeholders::_2);
+    callback.onError = [uiExtensionCallbacks](const auto &arg)
+    {
+        uiExtensionCallbacks->OnError(arg);
+    };
+    callback.onRelease = [uiExtensionCallbacks](const auto &arg)
+    {
+        uiExtensionCallbacks->OnRelease(arg);
+    };
+    callback.onResult = [uiExtensionCallbacks](const auto &arg1, const auto &arg2)
+    {
+        uiExtensionCallbacks->OnResult(arg1, arg2);
+    };
+
     Ace::ModalUIExtensionConfig config;
     int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
     if (sessionId == 0) {
@@ -940,9 +949,19 @@ ErrCode AbilityContextImpl::CreateModalUIExtensionWithApp(const AAFwk::Want &wan
     }
     auto disposedCallback = std::make_shared<DialogUIExtensionCallback>(abilityCallback);
     Ace::ModalUIExtensionCallbacks callback;
-    callback.onError = std::bind(&DialogUIExtensionCallback::OnError, disposedCallback);
-    callback.onRelease = std::bind(&DialogUIExtensionCallback::OnRelease, disposedCallback);
-    callback.onDestroy = std::bind(&DialogUIExtensionCallback::OnDestroy, disposedCallback);
+    callback.onError = [disposedCallback]()
+    {
+        disposedCallback->OnError();
+    };
+    callback.onRelease = [disposedCallback]()
+    {
+        disposedCallback->OnRelease();
+    };
+    callback.onDestroy = [disposedCallback]() 
+    {
+        disposedCallback->OnDestroy();
+    };
+
     Ace::ModalUIExtensionConfig config;
     int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
     if (sessionId == 0) {
