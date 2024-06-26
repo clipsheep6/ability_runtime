@@ -49,6 +49,7 @@
 #include "context_impl.h"
 #include "dump_ffrt_helper.h"
 #include "dump_ipc_helper.h"
+#include "dump_runtime_helper.h"
 #include "exit_reason.h"
 #include "extension_ability_info.h"
 #include "extension_module_loader.h"
@@ -1661,6 +1662,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 
             IdleNotifyStatusCallback cb = idleTime_->GetIdleNotifyFunc();
             jsEngine.NotifyIdleStatusControl(cb);
+
+            auto helper = std::make_shared<DumpRuntimeHelper>(application_);
+            helper->SetAppFreezeFilterCallback();
         }
 #ifdef CJ_FRONTEND
     }
