@@ -69,8 +69,13 @@ ohos_shared_library("napi_ability_common") {
       "SUPPORT_GRAPHICS",
       "SUPPORT_SCREEN",
     ]
-
-    public_external_deps += [ "window_manager:libwm_lite" ]
+    public_external_deps += [
+      "form_fwk:fmskit_provider_client",
+      "form_fwk:form_manager",
+      "window_manager:libdm",
+      "window_manager:libdm_lite",
+      "window_manager:libwm_lite",
+    ]
   }
 
   innerapi_tags = [ "platformsdk" ]
