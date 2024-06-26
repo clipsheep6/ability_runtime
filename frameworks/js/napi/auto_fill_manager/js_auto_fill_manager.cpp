@@ -107,7 +107,8 @@ void JsAutoFillManager::OnRequestAutoSaveInner(napi_env env, int32_t instanceId,
         AutoFill::AutoFillRequest request;
         uiContent->DumpViewData(request.viewData, request.autoFillType);
         request.autoFillCommand = AutoFill::AutoFillCommand::SAVE;
-        auto ret = AutoFillManager::GetInstance().RequestAutoSave(uiContent, request, saveRequestCallback);
+        AbilityRuntime::AutoFill::AutoFillResult result;
+        auto ret = AutoFillManager::GetInstance().RequestAutoSave(uiContent, request, saveRequestCallback, result);
         if (ret != ERR_OK) {
             TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Request auto save error[%{public}d].", ret);
             ThrowError(env, GetJsErrorCodeByNativeError(ret));
