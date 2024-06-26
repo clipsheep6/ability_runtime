@@ -700,6 +700,11 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int AbilityTransitionDone(const sptr<IRemoteObject> &token, int state, const PacMap &saveData) override;
+   
+    void CheckTargetState(int &targetState, const sptr<IRemoteObject> &token);
+
+    int DispatchAbilityTransactionDone(std::shared_ptr<AbilityRecord> &abilityRecord,
+    const sptr<IRemoteObject> &token, int &state, const PacMap &saveData);
 
     /**
      * ScheduleConnectAbilityDone, service ability call this interface while session was connected.
