@@ -26,18 +26,9 @@ namespace {
 constexpr int32_t CYCLE_LIMIT_MIN = 0;
 constexpr int32_t CYCLE_LIMIT_MAX = 1000;
 }
-AppDebugListenerStub::AppDebugListenerStub()
-{
-    memberFuncMap_[static_cast<uint32_t>(IAppDebugListener::Message::ON_APP_DEBUG_STARTED)] =
-        &AppDebugListenerStub::HandleOnAppDebugStarted;
-    memberFuncMap_[static_cast<uint32_t>(IAppDebugListener::Message::ON_APP_DEBUG_STOPED)] =
-        &AppDebugListenerStub::HandleOnAppDebugStoped;
-}
+AppDebugListenerStub::AppDebugListenerStub() {}
 
-AppDebugListenerStub::~AppDebugListenerStub()
-{
-    memberFuncMap_.clear();
-}
+AppDebugListenerStub::~AppDebugListenerStub() {}
 
 int AppDebugListenerStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -50,13 +41,13 @@ int AppDebugListenerStub::OnRemoteRequest(
         return ERR_INVALID_STATE;
     }
 
-    auto itFunc = memberFuncMap_.find(code);
-    if (itFunc != memberFuncMap_.end()) {
-        auto memberFunc = itFunc->second;
-        if (memberFunc != nullptr) {
-            return (this->*memberFunc)(data, reply);
-        }
+    switch (code) {
+        case static_cast<uint32_t>(IAppDebugListener::Message::ON_APP_DEBUG_STARTED):
+            return HandleOnAppDebugStarted(data, reply);
+        case static_cast<uint32_t>(IAppDebugListener::Message::ON_APP_DEBUG_STOPED):
+            return HandleOnAppDebugStoped(data, reply);
     }
+
     TAG_LOGD(AAFwkTag::APPMGR, "AppDebugListenerStub::OnRemoteRequest end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
