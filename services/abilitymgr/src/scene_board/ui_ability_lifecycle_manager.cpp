@@ -1114,7 +1114,7 @@ int UIAbilityLifecycleManager::CloseUIAbilityInner(std::shared_ptr<AbilityRecord
         TAG_LOGI(AAFwkTag::ABILITYMGR, "ability is on terminating");
         return ERR_OK;
     }
-    DelayedSingleton<AppScheduler>::GetInstance()->PrepareTerminate(abilityRecord->GetToken());
+    DelayedSingleton<AppScheduler>::GetInstance()->PrepareTerminate(abilityRecord->GetToken(), isClearSession);
     abilityRecord->SetTerminatingState();
     abilityRecord->SetClearMissionFlag(isClearSession);
     // save result to caller AbilityRecord
@@ -1903,8 +1903,7 @@ std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetAbilityRecordsById(
     return search->second;
 }
 
-void UIAbilityLifecycleManager::GetActiveAbilityList(const std::string &bundleName,
-    std::vector<std::string> &abilityList, int32_t pid)
+void UIAbilityLifecycleManager::GetActiveAbilityList(int32_t uid, std::vector<std::string> &abilityList, int32_t pid)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
@@ -1918,7 +1917,7 @@ void UIAbilityLifecycleManager::GetActiveAbilityList(const std::string &bundleNa
             continue;
         }
         const auto &abilityInfo = abilityRecord->GetAbilityInfo();
-        if (abilityInfo.bundleName == bundleName && !abilityInfo.name.empty()) {
+        if (abilityInfo.applicationInfo.uid == uid && !abilityInfo.name.empty()) {
             std::string abilityName = abilityInfo.name;
             if (abilityInfo.launchMode == AppExecFwk::LaunchMode::STANDARD &&
                 abilityRecord->GetSessionInfo() != nullptr) {

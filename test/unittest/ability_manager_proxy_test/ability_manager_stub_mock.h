@@ -220,7 +220,8 @@ public:
         return 0;
     }
 
-    virtual int32_t UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg)
+    virtual int32_t UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg,
+        int32_t appIndex)
     {
         return 0;
     }

@@ -109,7 +109,7 @@ AppMgrResultCode AppMgrClient::ConnectAppMgrService()
 void AppMgrClient::AbilityAttachTimeOut(const sptr<IRemoteObject>& token)
 {}
 
-void AppMgrClient::PrepareTerminate(const sptr<IRemoteObject>& token)
+void AppMgrClient::PrepareTerminate(const sptr<IRemoteObject>& token, bool clearMissionFlag)
 {}
 }  // namespace AppExecFwk
 }  // namespace OHOS

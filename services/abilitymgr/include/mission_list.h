@@ -223,8 +223,7 @@ public:
     int32_t GetMissionCountByUid(int32_t targetUid) const;
     void FindEarliestMission(std::shared_ptr<Mission>& targetMission) const;
     int32_t GetMissionCount() const;
-    void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList,
-        int32_t pid = NO_PID);
+    void GetActiveAbilityList(int32_t uid, std::vector<std::string> &abilityList, int32_t pid = NO_PID);
     
     void SignRestartAppFlag(const std::string &bundleName);
 

@@ -171,7 +171,7 @@ public:
     virtual AppMgrResultCode GetAppFreezingTime(int& time);
     virtual void AbilityAttachTimeOut(const sptr<IRemoteObject>& token);
 
-    virtual void PrepareTerminate(const sptr<IRemoteObject>& token);
+    virtual void PrepareTerminate(const sptr<IRemoteObject>& token, bool clearMissionFlag = false);
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject>& token, AppExecFwk::RunningProcessInfo& info);
 

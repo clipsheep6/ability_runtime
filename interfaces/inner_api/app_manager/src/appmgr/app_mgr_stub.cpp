@@ -1049,6 +1049,17 @@ int32_t AppMgrStub::HandleNotifyFaultBySA(MessageParcel &data, MessageParcel &re
     return NO_ERROR;
 }
 
+int32_t AppMgrStub::HandleSetAppFreezeFilter(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t pid = data.ReadInt32();
+    bool result = SetAppFreezeFilter(pid);
+    if (!reply.WriteBool(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
 int32_t AppMgrStub::HandleGetProcessMemoryByPid(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);

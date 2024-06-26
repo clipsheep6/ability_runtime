@@ -495,7 +495,7 @@ void AppMgrClient::AbilityAttachTimeOut(const sptr<IRemoteObject> &token)
     amsService->AbilityAttachTimeOut(token);
 }
 
-void AppMgrClient::PrepareTerminate(const sptr<IRemoteObject> &token)
+void AppMgrClient::PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
@@ -505,7 +505,7 @@ void AppMgrClient::PrepareTerminate(const sptr<IRemoteObject> &token)
     if (amsService == nullptr) {
         return;
     }
-    amsService->PrepareTerminate(token);
+    amsService->PrepareTerminate(token, clearMissionFlag);
 }
 
 void AppMgrClient::GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info)
@@ -852,6 +852,15 @@ int32_t AppMgrClient::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
     return service->NotifyAppFaultBySA(faultData);
+}
+
+bool AppMgrClient::SetAppFreezeFilter(int32_t pid)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->SetAppFreezeFilter(pid);
 }
 
 int32_t AppMgrClient::ChangeAppGcState(pid_t pid, int32_t state)

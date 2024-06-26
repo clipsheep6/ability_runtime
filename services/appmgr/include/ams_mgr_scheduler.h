@@ -170,7 +170,7 @@ public:
 
     virtual void AbilityAttachTimeOut(const sptr<IRemoteObject> &token) override;
 
-    virtual void PrepareTerminate(const sptr<IRemoteObject> &token) override;
+    virtual void PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag = false) override;
 
     virtual void GetRunningProcessInfoByToken(
         const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info) override;
