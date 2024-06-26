@@ -33,11 +33,10 @@ export default class TipsServiceExtensionAbility extends extension {
   onRequest(want, startId) {
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
     globalThis.abilityWant = want;
-    globalThis.params = JSON.parse(want.parameters.params);
-    globalThis.position = PositionUtils.getTipsDialogPosition();
-    globalThis.callerToken = want.parameters.callerToken;
-
     try {
+      globalThis.params = JSON.parse(want.parameters.params);
+      globalThis.position = PositionUtils.getTipsDialogPosition();
+      globalThis.callerToken = want.parameters.callerToken;
       display.on('change', (data: number) => {
         let position = PositionUtils.getTipsDialogPosition();
         if (position.offsetX !== globalThis.position.offsetX || position.offsetY !== globalThis.position.offsetY) {

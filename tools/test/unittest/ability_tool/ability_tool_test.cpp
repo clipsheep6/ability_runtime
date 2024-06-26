@@ -757,7 +757,7 @@ HWTEST_F(AbilityToolTest, AbilityTool_ForceStop_0300, TestSize.Level1)
     auto managerClientPtr = AbilityManagerClient::GetInstance();
     auto mockAbilityManagerStub = sptr<MockAbilityManagerStub>(new MockAbilityManagerStub());
     ASSERT_NE(mockAbilityManagerStub, nullptr);
-    EXPECT_CALL(*mockAbilityManagerStub, KillProcess(testing::_))
+    EXPECT_CALL(*mockAbilityManagerStub, KillProcess(testing::_, testing::_))
         .Times(1)
         .WillOnce(testing::Return(0));
     managerClientPtr->proxy_ = static_cast<IAbilityManager*>(mockAbilityManagerStub);

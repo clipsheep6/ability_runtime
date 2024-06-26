@@ -41,9 +41,6 @@ private:
     DISALLOW_COPY_AND_MOVE(DialogRequestCallbackStub);
 
     int SendResultInner(MessageParcel &data, MessageParcel &reply);
-
-    using StubFunc = int (DialogRequestCallbackStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::vector<StubFunc> vecMemberFunc_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

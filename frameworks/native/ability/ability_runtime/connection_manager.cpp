@@ -241,7 +241,7 @@ bool ConnectionManager::RemoveConnection(const sptr<AbilityConnection> connectio
     return isDisconnect;
 }
 
-void ConnectionManager::DisconnectNonexistentService(
+bool ConnectionManager::DisconnectNonexistentService(
     const AppExecFwk::ElementName& element, const sptr<AbilityConnection> connection)
 {
     bool exit = false;
@@ -264,7 +264,9 @@ void ConnectionManager::DisconnectNonexistentService(
     if (!exit) {
         HILOG_ERROR("this service need disconnect");
         AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(connection);
+        return true;
     }
+    return false;
 }
 
 void ConnectionManager::ReportConnectionLeakEvent(const int pid, const int tid)

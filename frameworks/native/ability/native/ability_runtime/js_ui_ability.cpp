@@ -38,13 +38,13 @@
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "js_utils.h"
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 #include "js_window_stage.h"
+#include "scene_board_judgement.h"
 #endif
 #include "napi_common_configuration.h"
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
-#include "scene_board_judgement.h"
 #include "string_wrapper.h"
 #include "system_ability_definition.h"
 #include "time_util.h"
@@ -58,7 +58,9 @@ const std::string SUPPORT_CONTINUE_PAGE_STACK_PROPERTY_NAME = "ohos.extra.param.
 const std::string METHOD_NAME = "WindowScene::GoForeground";
 #endif
 // Numerical base (radix) that determines the valid characters and their interpretation.
+#ifdef SUPPORT_SCREEN
 const int32_t BASE_DISPLAY_ID_NUM (10);
+#endif
 constexpr const int32_t API12 = 12;
 constexpr const int32_t API_VERSION_MOD = 100;
 
@@ -150,14 +152,15 @@ JsUIAbility::JsUIAbility(JsRuntime &jsRuntime) : jsRuntime_(jsRuntime)
 
 JsUIAbility::~JsUIAbility()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    //"maintenance log
+    TAG_LOGI(AAFwkTag::UIABILITY, "Called.");
     if (abilityContext_ != nullptr) {
         abilityContext_->Unbind();
     }
 
     jsRuntime_.FreeNativeReference(std::move(jsAbilityObj_));
     jsRuntime_.FreeNativeReference(std::move(shellContextRef_));
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     jsRuntime_.FreeNativeReference(std::move(jsWindowStageObj_));
 #endif
 }
@@ -212,6 +215,7 @@ void JsUIAbility::Init(std::shared_ptr<AppExecFwk::AbilityLocalRecord> record,
 void JsUIAbility::SetAbilityContext(std::shared_ptr<AbilityInfo> abilityInfo,
     std::shared_ptr<AAFwk::Want> want, const std::string &moduleName, const std::string &srcPath)
 {
+    TAG_LOGI(AAFwkTag::UIABILITY, "called.");
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     jsAbilityObj_ = jsRuntime_.LoadModule(
@@ -311,6 +315,12 @@ void JsUIAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo
         CreateJsLaunchParam(env, launchParam),
     };
     std::string methodName = "OnStart";
+
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnAbilityWillCreate(jsAbilityObj_);
+    }
+
     AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
     CallObjectMethod("onCreate", argv, ArraySize(argv));
     AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
@@ -320,7 +330,8 @@ void JsUIAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo
         TAG_LOGD(AAFwkTag::UIABILITY, "Call PostPerformStart.");
         delegator->PostPerformStart(CreateADelegatorAbilityProperty());
     }
-    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+
+    applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityCreate(jsAbilityObj_);
     }
@@ -378,6 +389,10 @@ void JsUIAbility::OnStop()
     }
     UIAbility::OnStop();
     HandleScope handleScope(jsRuntime_);
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnAbilityWillDestroy(jsAbilityObj_);
+    }
     CallObjectMethod("onDestroy");
     OnStopCallback();
     TAG_LOGD(AAFwkTag::UIABILITY, "End.");
@@ -401,6 +416,10 @@ void JsUIAbility::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackI
     UIAbility::OnStop();
 
     HandleScope handleScope(jsRuntime_);
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnAbilityWillDestroy(jsAbilityObj_);
+    }
     napi_value result = CallObjectMethod("onDestroy", nullptr, 0, true);
     if (!CheckPromise(result)) {
         OnStopCallback();
@@ -446,7 +465,7 @@ void JsUIAbility::OnStopCallback()
     }
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 void JsUIAbility::OnSceneCreated()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -461,6 +480,11 @@ void JsUIAbility::OnSceneCreated()
     HandleScope handleScope(jsRuntime_);
     UpdateJsWindowStage(jsAppWindowStage->GetNapiValue());
     napi_value argv[] = {jsAppWindowStage->GetNapiValue()};
+    jsWindowStageObj_ = std::shared_ptr<NativeReference>(jsAppWindowStage.release());
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnWindowStageWillCreate(jsAbilityObj_, jsWindowStageObj_);
+    }
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "onWindowStageCreate");
         std::string methodName = "OnSceneCreated";
@@ -475,8 +499,7 @@ void JsUIAbility::OnSceneCreated()
         delegator->PostPerformScenceCreated(CreateADelegatorAbilityProperty());
     }
 
-    jsWindowStageObj_ = std::shared_ptr<NativeReference>(jsAppWindowStage.release());
-    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnWindowStageCreate(jsAbilityObj_, jsWindowStageObj_);
     }
@@ -486,6 +509,7 @@ void JsUIAbility::OnSceneCreated()
 
 void JsUIAbility::OnSceneRestored()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     UIAbility::OnSceneRestored();
     TAG_LOGD(AAFwkTag::UIABILITY, "called.");
     HandleScope handleScope(jsRuntime_);
@@ -527,6 +551,11 @@ void JsUIAbility::onSceneDestroyed()
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin ability is %{public}s.", GetAbilityName().c_str());
     UIAbility::onSceneDestroyed();
+
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnWindowStageWillDestroy(jsAbilityObj_, jsWindowStageObj_);
+    }
     HandleScope handleScope(jsRuntime_);
     UpdateJsWindowStage(nullptr);
     CallObjectMethod("onWindowStageDestroy");
@@ -545,7 +574,7 @@ void JsUIAbility::onSceneDestroyed()
         delegator->PostPerformScenceDestroyed(CreateADelegatorAbilityProperty());
     }
 
-    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnWindowStageDestroy(jsAbilityObj_, jsWindowStageObj_);
     }
@@ -588,6 +617,11 @@ void JsUIAbility::CallOnForegroundFunc(const Want &want)
         return;
     }
 
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnAbilityWillForeground(jsAbilityObj_);
+    }
+
     napi_set_named_property(env, obj, "lastRequestWant", jsWant);
     std::string methodName = "OnForeground";
     AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
@@ -600,7 +634,7 @@ void JsUIAbility::CallOnForegroundFunc(const Want &want)
         delegator->PostPerformForeground(CreateADelegatorAbilityProperty());
     }
 
-    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityForeground(jsAbilityObj_);
     }
@@ -611,6 +645,10 @@ void JsUIAbility::OnBackground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin ability is %{public}s.", GetAbilityName().c_str());
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnAbilityWillBackground(jsAbilityObj_);
+    }
     std::string methodName = "OnBackground";
     HandleScope handleScope(jsRuntime_);
     AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::BACKGROUND, methodName);
@@ -625,7 +663,7 @@ void JsUIAbility::OnBackground()
         delegator->PostPerformBackground(CreateADelegatorAbilityProperty());
     }
 
-    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityBackground(jsAbilityObj_);
     }
@@ -717,7 +755,8 @@ void JsUIAbility::AbilityContinuationOrRecover(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     // multi-instance ability continuation
-    TAG_LOGD(AAFwkTag::UIABILITY, "Launch reason is %{public}d.", launchParam_.launchReason);
+    TAG_LOGD(AAFwkTag::UIABILITY, "Launch reason is %{public}d, last exit reasion is %{public}d.",
+        launchParam_.launchReason, launchParam_.lastExitReason);
     if (IsRestoredInContinuation()) {
         RestorePageStack(want);
         OnSceneRestored();
@@ -729,12 +768,20 @@ void JsUIAbility::AbilityContinuationOrRecover(const Want &want)
         auto mainWindow = scene_->GetMainWindow();
         if (mainWindow != nullptr) {
             mainWindow->NapiSetUIContent(pageStack, env, abilityContext_->GetContentStorage()->GetNapiValue(),
-                Rosen::BackupAndRestoreType::CONTINUATION);
+                Rosen::BackupAndRestoreType::APP_RECOVERY);
         } else {
             TAG_LOGE(AAFwkTag::UIABILITY, "MainWindow is nullptr.");
         }
         OnSceneRestored();
     } else {
+        if (ShouldDefaultRecoverState(want) && abilityRecovery_ != nullptr && scene_ != nullptr) {
+            TAG_LOGD(AAFwkTag::UIABILITY, "Need restore.");
+            std::string pageStack = abilityRecovery_->GetSavedPageStack(AppExecFwk::StateReason::DEVELOPER_REQUEST);
+            auto mainWindow = scene_->GetMainWindow();
+            if (!pageStack.empty() && mainWindow != nullptr) {
+                mainWindow->SetRestoredRouterStack(pageStack);
+            }
+        }
         OnSceneCreated();
     }
 }
@@ -1150,7 +1197,7 @@ void JsUIAbility::OnNewWant(const Want &want)
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
     UIAbility::OnNewWant(want);
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     if (scene_) {
         scene_->OnNewWant(want);
     }
@@ -1174,6 +1221,11 @@ void JsUIAbility::OnNewWant(const Want &want)
         return;
     }
 
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnWillNewWant(jsAbilityObj_);
+    }
+
     napi_set_named_property(env, obj, "lastRequestWant", jsWant);
     auto launchParam = GetLaunchParam();
     if (InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
@@ -1187,6 +1239,11 @@ void JsUIAbility::OnNewWant(const Want &want)
     AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
     CallObjectMethod("onNewWant", argv, ArraySize(argv));
     AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
+
+    applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnNewWant(jsAbilityObj_);
+    }
     TAG_LOGD(AAFwkTag::UIABILITY, "End.");
 }
 
@@ -1489,7 +1546,7 @@ sptr<IRemoteObject> JsUIAbility::SetNewRuleFlagToCallee(napi_env env, napi_value
     }
     return remoteObj;
 }
-
+#ifdef SUPPORT_SCREEN
 void JsUIAbility::UpdateJsWindowStage(napi_value windowStage)
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
@@ -1511,7 +1568,7 @@ void JsUIAbility::UpdateJsWindowStage(napi_value windowStage)
     TAG_LOGD(AAFwkTag::UIABILITY, "Set context windowStage object.");
     napi_set_named_property(env, contextObj, "windowStage", windowStage);
 }
-
+#endif
 bool JsUIAbility::CheckSatisfyTargetAPIVersion(int32_t version)
 {
     auto applicationInfo = GetApplicationInfo();

@@ -24,7 +24,9 @@
 #include "fill_request_callback_interface.h"
 #include "save_request_callback_interface.h"
 #include "task_handler_wrap.h"
+#ifdef SUPPORT_GRAPHICS
 #include "ui_content.h"
+#endif // SUPPORT_GRAPHICS
 #include "view_data.h"
 
 namespace OHOS {
@@ -55,8 +57,9 @@ struct AutoFillRequest {
  * @struct ReloadInModalRequest
  * ReloadInModalRequest is used to define the reload in modal request parameter structure.
  */
+#ifdef SUPPORT_GRAPHICS
 struct ReloadInModalRequest {
-    Ace::UIContent *uiContent = nullptr;
+    int32_t instanceId = -1;
     bool isSmartAutoFill = false;
     int32_t nodeId;
     std::string customData;
@@ -64,6 +67,7 @@ struct ReloadInModalRequest {
     AbilityBase::AutoFillType autoFillType = AbilityBase::AutoFillType::UNSPECIFIED;
     std::shared_ptr<AutoFillExtensionCallback> extensionCallback;
 };
+
 }
 class AutoFillManager {
 public:
@@ -81,16 +85,17 @@ public:
         Ace::UIContent *uiContent,
         const AutoFill::AutoFillRequest &request,
         const std::shared_ptr<ISaveRequestCallback> &saveCallback);
-
     void UpdateCustomPopupUIExtension(Ace::UIContent *uiContent, const AbilityBase::ViewData &viewData);
-    int32_t UpdateCustomPopupConfig(Ace::UIContent *uiContent, const Ace::CustomPopupUIExtensionConfig &popupConfig);
-    void SetAutoFillExtensionProxy(Ace::UIContent *uiContent,
+    int32_t UpdateCustomPopupConfig(int32_t instanceId, const Ace::CustomPopupUIExtensionConfig &popupConfig);
+    void SetAutoFillExtensionProxy(int32_t instanceId,
         const std::shared_ptr<Ace::ModalUIExtensionProxy> &modalUIExtensionProxy);
-    void RemoveAutoFillExtensionProxy(Ace::UIContent *uiContent);
+    void RemoveAutoFillExtensionProxy(int32_t instanceId);
     int32_t ReloadInModal(const AutoFill::ReloadInModalRequest &request);
+
     void HandleTimeOut(uint32_t eventId);
     void RemoveEvent(uint32_t eventId);
 private:
+
     int32_t HandleRequestExecuteInner(
         Ace::UIContent *uiContent,
         const AutoFill::AutoFillRequest &request,
@@ -103,17 +108,21 @@ private:
         bool isSmartAutoFill);
     void BindModalUIExtensionCallback(
         const std::shared_ptr<AutoFillExtensionCallback> &extensionCallback, Ace::ModalUIExtensionCallbacks &callback);
+
     void SetTimeOutEvent(uint32_t eventId);
-    AutoFill::AutoFillWindowType ConvertAutoFillWindowType(const AutoFill::AutoFillRequest &request,
-        bool &isSmartAutoFill);
+    bool ConvertAutoFillWindowType(const AutoFill::AutoFillRequest &request,
+        bool &isSmartAutoFill, AutoFill::AutoFillWindowType &autoFillWindowType);
     bool IsPreviousRequestFinished(Ace::UIContent *uiContent);
+    bool IsNeed2SaveRequest(const AbilityBase::ViewData &viewData, bool &isSmartAutoFill);
 
     std::mutex extensionCallbacksMutex_;
     std::mutex modalProxyMapMutex_;
     std::map<uint32_t, std::weak_ptr<AutoFillExtensionCallback>> extensionCallbacks_;
-    std::map<Ace::UIContent *, std::shared_ptr<Ace::ModalUIExtensionProxy>> modalUIExtensionProxyMap_;
+
+    std::map<int32_t, std::shared_ptr<Ace::ModalUIExtensionProxy>> modalUIExtensionProxyMap_;
     uint32_t eventId_ = 0;
     std::shared_ptr<AutoFillEventHandler> eventHandler_;
+#endif // SUPPORT_GRAPHICS
 };
 } // AbilityRuntime
 } // OHOS

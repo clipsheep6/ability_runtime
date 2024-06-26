@@ -750,7 +750,14 @@ int AbilityManagerProxy::StartUIExtensionAbility(const sptr<SessionInfo> &extens
         return INNER_ERR;
     }
 
-    error = SendRequest(AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY, data, reply, option);
+    if (extensionSessionInfo->uiExtensionUsage == UIExtensionUsage::EMBEDDED) {
+        error = SendRequest(AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY_EMBEDDED, data, reply, option);
+    } else if (extensionSessionInfo->uiExtensionUsage == UIExtensionUsage::MODAL) {
+        error = SendRequest(AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY, data, reply, option);
+    } else {
+        error = SendRequest(AbilityManagerInterfaceCode::START_UI_EXTENSION_CONSTRAINED_EMBEDDED, data, reply, option);
+    }
+
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "StartExtensionAbility, Send request error: %{public}d", error);
         return error;
@@ -1626,7 +1633,7 @@ int AbilityManagerProxy::GetMissionSnapshot(const std::string& deviceId, int32_t
     snapshot = *info;
     return reply.ReadInt32();
 }
-
+#ifdef SUPPORT_SCREEN
 void AbilityManagerProxy::UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
     const std::shared_ptr<Media::PixelMap> &pixelMap)
 {
@@ -1651,7 +1658,7 @@ void AbilityManagerProxy::UpdateMissionSnapShot(const sptr<IRemoteObject> &token
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
     }
 }
-
+#endif // SUPPORT_SCREEN
 void AbilityManagerProxy::EnableRecoverAbility(const sptr<IRemoteObject>& token)
 {
     int error;
@@ -1709,7 +1716,7 @@ void AbilityManagerProxy::ScheduleRecoverAbility(const sptr<IRemoteObject>& toke
     return;
 }
 
-int AbilityManagerProxy::KillProcess(const std::string &bundleName)
+int AbilityManagerProxy::KillProcess(const std::string &bundleName, const bool clearPageStack)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -1722,12 +1729,35 @@ int AbilityManagerProxy::KillProcess(const std::string &bundleName)
         TAG_LOGE(AAFwkTag::ABILITYMGR, "bundleName write failed.");
         return ERR_INVALID_VALUE;
     }
+    if (!data.WriteBool(clearPageStack)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "clearPageStack write failed.");
+        return ERR_INVALID_VALUE;
+    }
     int error = SendRequest(AbilityManagerInterfaceCode::KILL_PROCESS, data, reply, option);
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
+}
+
+void AbilityManagerProxy::ScheduleClearRecoveryPageStack()
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ScheduleClearRecoveryPageStack WriteInterfaceToken failed.");
+        return;
+    }
+
+    int error = SendRequest(AbilityManagerInterfaceCode::CLEAR_RECOVERY_PAGE_STACK, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        return;
+    }
+    return;
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST
@@ -1757,32 +1787,12 @@ int AbilityManagerProxy::ForceTimeoutForTest(const std::string &abilityName, con
 }
 #endif
 
-int AbilityManagerProxy::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
+int AbilityManagerProxy::UninstallApp(const std::string &bundleName, int32_t uid)
 {
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
-    }
-    if (!data.WriteString16(Str8ToStr16(bundleName))) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "bundleName write failed.");
-        return ERR_INVALID_VALUE;
-    }
-    if (!data.WriteInt32(userId)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "userId write failed.");
-        return ERR_INVALID_VALUE;
-    }
-    int error = SendRequest(AbilityManagerInterfaceCode::CLEAR_UP_APPLICATION_DATA, data, reply, option);
-    if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
-        return error;
-    }
-    return reply.ReadInt32();
+    return UninstallApp(bundleName, uid, 0);
 }
 
-int AbilityManagerProxy::UninstallApp(const std::string &bundleName, int32_t uid)
+int32_t AbilityManagerProxy::UninstallApp(const std::string &bundleName, int32_t uid, int32_t appIndex)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -1799,6 +1809,10 @@ int AbilityManagerProxy::UninstallApp(const std::string &bundleName, int32_t uid
         TAG_LOGE(AAFwkTag::ABILITYMGR, "uid write failed.");
         return ERR_INVALID_VALUE;
     }
+    if (!data.WriteInt32(appIndex)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "appIndex write failed.");
+        return ERR_INVALID_VALUE;
+    }
     int error = SendRequest(AbilityManagerInterfaceCode::UNINSTALL_APP, data, reply, option);
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
@@ -1807,7 +1821,8 @@ int AbilityManagerProxy::UninstallApp(const std::string &bundleName, int32_t uid
     return reply.ReadInt32();
 }
 
-int32_t AbilityManagerProxy::UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg)
+int32_t AbilityManagerProxy::UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg,
+    int32_t appIndex)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -1819,6 +1834,7 @@ int32_t AbilityManagerProxy::UpgradeApp(const std::string &bundleName, const int
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, String16, Str8ToStr16(bundleName));
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, uid);
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, String16, Str8ToStr16(exitMsg));
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, appIndex);
     int error = SendRequest(AbilityManagerInterfaceCode::UPGRADE_APP, data, reply, option);
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
@@ -2895,7 +2911,7 @@ int AbilityManagerProxy::LogoutUser(int32_t userId)
     return reply.ReadInt32();
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 int AbilityManagerProxy::SetMissionLabel(const sptr<IRemoteObject> &token, const std::string &label)
 {
     MessageParcel data;
@@ -4221,7 +4237,7 @@ void AbilityManagerProxy::SetRootSceneSession(const sptr<IRemoteObject> &rootSce
     }
 }
 
-void AbilityManagerProxy::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
+void AbilityManagerProxy::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isColdStart)
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
@@ -4241,11 +4257,13 @@ void AbilityManagerProxy::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInf
     }
 
     MessageParcel reply;
-    MessageOption option(MessageOption::TF_ASYNC);
+    MessageOption option;
     auto error = SendRequest(AbilityManagerInterfaceCode::CALL_ABILITY_BY_SCB, data, reply, option);
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        return;
     }
+    isColdStart = reply.ReadBool();
 }
 
 void AbilityManagerProxy::StartSpecifiedAbilityBySCB(const Want &want)
@@ -5254,6 +5272,31 @@ int32_t AbilityManagerProxy::TransferAbilityResultForExtension(const sptr<IRemot
         return error;
     }
     return NO_ERROR;
+}
+
+void AbilityManagerProxy::NotifyFrozenProcessByRSS(const std::vector<int32_t> &pidList, int32_t uid)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
+        return;
+    }
+    if (!data.WriteInt32Vector(pidList)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "pid list write failed.");
+        return;
+    }
+    if (!data.WriteInt32(uid)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "uid write failed.");
+        return;
+    }
+
+    int error = SendRequest(AbilityManagerInterfaceCode::NOTIFY_FROZEN_PROCESS_BY_RSS, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerProxy: SendRequest err %{public}d", error);
+    }
 }
 } // namespace AAFwk
 } // namespace OHOS

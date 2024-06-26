@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 
+#include "ability_record.h"
 #include "nocopyable.h"
 #include "uri.h"
 #include "want.h"
@@ -30,6 +31,8 @@ public:
     static UriUtils &GetInstance();
 
     void FilterUriWithPermissionDms(Want &want, uint32_t tokenId);
+
+    bool CheckNonImplicitShareFileUri(const AbilityRequest &abilityRequest);
 
 private:
     UriUtils();

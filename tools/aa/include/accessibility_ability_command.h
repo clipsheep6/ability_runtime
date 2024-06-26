@@ -94,6 +94,7 @@ private:
     ErrCode MakeSetShortKeyTargetCommandArgumentFromCmd(AccessibilityCommandArgument& argument);
     ErrCode MakeSetCommandArgumentFromCmd(AccessibilityCommandArgument& argument);
     ErrCode MakeCommandArgumentFromCmd(AccessibilityCommandArgument& argument);
+    void SetArgument(int option, AccessibilityCommandArgument& argument);
 
     std::shared_ptr<Accessibility::AccessibilitySystemAbilityClient> abilityClientPtr_ = nullptr;
 };

@@ -90,6 +90,7 @@ struct StartFlags {
     static const int GWP_ENABLED_FORCE = 10;
     static const int GWP_ENABLED_NORMAL = 11;
     static const int TSANENABLED = 12;
+    static const int EXTENSION_CONTROLLED = 13;
 };
 
 union AppSpawnPidMsg {
@@ -162,30 +163,6 @@ public:
      * @param reqHandle, handle for request message
      */
     int32_t SetStartFlags(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle);
-
-    /**
-     * Set atomic service flags.
-     *
-     * @param startMsg, request message.
-     * @param reqHandle, handle for request message
-     */
-    int32_t SetAtomicServiceFlag(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle);
-
-    /**
-     * Set strict mode flags.
-     *
-     * @param startMsg, request message.
-     * @param reqHandle, handle for request message
-     */
-    int32_t SetStrictMode(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle);
-
-    /**
-     * Set app extension flags.
-     *
-     * @param startMsg, request message.
-     * @param reqHandle, handle for request message
-     */
-    int32_t SetAppExtension(const AppSpawnStartMsg &startMsg, AppSpawnReqMsgHandle reqHandle);
 
     /**
      * Set extra info: render-cmd, HspList, Overlay, DataGroup, AppEnv.

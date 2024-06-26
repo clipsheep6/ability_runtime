@@ -29,7 +29,10 @@ ohos_shared_library("startup_util") {
   }
   branch_protector_ret = "pac_ret"
 
-  include_dirs = [ "${ability_runtime_utils_path}/server/constant" ]
+  include_dirs = [
+    "${ability_runtime_utils_path}/global/constant",
+    "${ability_runtime_utils_path}/server/constant",
+  ]
 
   sources = [ "src/startup_util.cpp" ]
 
@@ -45,6 +48,7 @@ ohos_shared_library("startup_util") {
   external_deps = [
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
   ]
 
   innerapi_tags = [ "platformsdk" ]

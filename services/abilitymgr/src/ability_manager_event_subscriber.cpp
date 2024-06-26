@@ -22,8 +22,10 @@
 namespace OHOS {
 namespace AbilityRuntime {
 AbilityManagerEventSubscriber::AbilityManagerEventSubscriber(
-    const EventFwk::CommonEventSubscribeInfo &subscribeInfo, const std::function<void()> &callback)
-    : EventFwk::CommonEventSubscriber(subscribeInfo), callback_(callback)
+    const EventFwk::CommonEventSubscribeInfo &subscribeInfo, const std::function<void()> &callback,
+    const std::function<void()> &userScreenUnlockCallback)
+    : EventFwk::CommonEventSubscriber(subscribeInfo), callback_(callback),
+    userScreenUnlockCallback_(userScreenUnlockCallback)
 {}
 
 void AbilityManagerEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &data)
@@ -34,6 +36,10 @@ void AbilityManagerEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventDa
     if (action == EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED) {
         if (callback_ != nullptr) {
             callback_();
+        }
+    } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_USER_UNLOCKED) {
+        if (userScreenUnlockCallback_ != nullptr) {
+            userScreenUnlockCallback_();
         }
     }
 }

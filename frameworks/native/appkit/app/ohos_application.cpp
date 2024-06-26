@@ -200,9 +200,18 @@ void OHOSApplication::SetApplicationContext(
     abilityRuntimeContext_->RegisterAppConfigUpdateObserver([applicationWptr](const Configuration &config) {
         std::shared_ptr<OHOSApplication> applicationSptr = applicationWptr.lock();
         if (applicationSptr == nullptr) {
+            TAG_LOGE(AAFwkTag::APPKIT, "application is nullptr.");
             return;
         }
         applicationSptr->OnConfigurationUpdated(config);
+    });
+    abilityRuntimeContext_->RegisterAppFontObserver([applicationWptr](const Configuration &config) {
+        std::shared_ptr<OHOSApplication> applicationSptr = applicationWptr.lock();
+        if (applicationSptr == nullptr) {
+            TAG_LOGE(AAFwkTag::APPKIT, "application is nullptr.");
+            return;
+        }
+        applicationSptr->OnFontUpdated(config);
     });
 }
 
@@ -539,6 +548,22 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
 
 /**
  *
+ * @brief Will be Called when the application font of the device changes.
+ *
+ * @param config Indicates the new Configuration object.
+ */
+void OHOSApplication::OnFontUpdated(Configuration config)
+{
+    #ifdef SUPPORT_GRAPHICS
+    // Notify Window
+    TAG_LOGD(AAFwkTag::APPKIT, "Update configuration for all window.");
+    auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(config);
+    Rosen::Window::UpdateConfigurationForAll(diffConfiguration);
+    #endif
+}
+
+/**
+ *
  * @brief Called when the system has determined to trim the memory, for example,
  * when the ability is running in the background and there is no enough memory for
  * running as many background processes as possible.
@@ -653,6 +678,10 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
         if (hapModuleInfo == nullptr) {
             TAG_LOGE(AAFwkTag::APPKIT, "hapModuleInfo is nullptr");
             return nullptr;
+        }
+        if (runtime_) {
+            runtime_->UpdatePkgContextInfoJson(
+                hapModuleInfo->moduleName, hapModuleInfo->hapPath, hapModuleInfo->packageName);
         }
         SetAppEnv(hapModuleInfo->appEnvironments);
 
@@ -948,6 +977,28 @@ void OHOSApplication::UpdateAppContextResMgr(const Configuration &config)
 
     auto configUtils = std::make_shared<AbilityRuntime::ConfigurationUtils>();
     configUtils->UpdateGlobalConfig(config, context->GetResourceManager());
+}
+
+void OHOSApplication::CleanEmptyAbilityStage()
+{
+    bool containsNonEmpty = false;
+    for (auto it = abilityStages_.begin(); it != abilityStages_.end();) {
+        auto abilityStage = it->second;
+        if (abilityStage == nullptr) {
+            it++;
+            continue;
+        }
+        if (!abilityStage->ContainsAbility()) {
+            abilityStage->OnDestroy();
+            it = abilityStages_.erase(it);
+        } else {
+            containsNonEmpty = true;
+            it++;
+        }
+    }
+    if (containsNonEmpty) {
+        TAG_LOGI(AAFwkTag::APPKIT, "Application contains none empty abilityStage.");
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

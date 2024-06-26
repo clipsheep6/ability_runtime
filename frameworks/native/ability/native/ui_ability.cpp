@@ -23,10 +23,16 @@
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_ui_ability.h"
+#ifdef CJ_FRONTEND
 #include "cj_ui_ability.h"
+#endif
 #include "ohos_application.h"
 #include "reverse_continuation_scheduler_primary_stage.h"
 #include "runtime.h"
+#include "resource_config_helper.h"
+#ifdef SUPPORT_GRAPHICS
+#include "wm_common.h"
+#endif
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -34,12 +40,17 @@ namespace {
 constexpr char DMS_SESSION_ID[] = "sessionId";
 constexpr char DMS_ORIGIN_DEVICE_ID[] = "deviceId";
 constexpr int32_t DEFAULT_DMS_SESSION_ID = 0;
+#ifdef SUPPORT_SCREEN
 constexpr char LAUNCHER_BUNDLE_NAME[] = "com.ohos.launcher";
 constexpr char LAUNCHER_ABILITY_NAME[] = "com.ohos.launcher.MainAbility";
 constexpr char SHOW_ON_LOCK_SCREEN[] = "ShowOnLockScreen";
+#endif
+
 constexpr char DLP_PARAMS_SECURITY_FLAG[] = "ohos.dlp.params.securityFlag";
 constexpr char COMPONENT_STARTUP_NEW_RULES[] = "component.startup.newRules";
+#ifdef SUPPORT_SCREEN
 constexpr int32_t ERR_INVALID_VALUE = -1;
+#endif
 }
 UIAbility *UIAbility::Create(const std::unique_ptr<Runtime> &runtime)
 {
@@ -50,8 +61,10 @@ UIAbility *UIAbility::Create(const std::unique_ptr<Runtime> &runtime)
     switch (runtime->GetLanguage()) {
         case Runtime::Language::JS:
             return JsUIAbility::Create(runtime);
+#ifdef CJ_FRONTEND
         case Runtime::Language::CJ:
             return CJUIAbility::Create(runtime);
+#endif
         default:
             return new (std::nothrow) UIAbility();
     }
@@ -71,7 +84,7 @@ void UIAbility::Init(std::shared_ptr<AppExecFwk::AbilityLocalRecord> record,
     abilityInfo_ = record->GetAbilityInfo();
     handler_ = handler;
     token_ = token;
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     continuationManager_ = std::make_shared<AppExecFwk::ContinuationManagerStage>();
     std::weak_ptr<AppExecFwk::ContinuationManagerStage> continuationManager = continuationManager_;
     continuationHandler_ =
@@ -159,7 +172,7 @@ void UIAbility::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessio
     (const_cast<AAFwk::Want &>(want)).RemoveParam(DLP_PARAMS_SECURITY_FLAG);
     SetWant(want);
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin ability is %{public}s.", abilityInfo_->name.c_str());
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     if (sessionInfo != nullptr) {
         SetSessionToken(sessionInfo->sessionToken);
         SetIdentityToken(sessionInfo->identityToken);
@@ -185,10 +198,7 @@ void UIAbility::OnStop()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
-#ifdef SUPPORT_GRAPHICS
-    if (abilityRecovery_ != nullptr) {
-        abilityRecovery_->ScheduleSaveAbilityState(AppExecFwk::StateReason::LIFECYCLE);
-    }
+#ifdef SUPPORT_SCREEN
     TAG_LOGI(AAFwkTag::UIABILITY, "UnregisterDisplayInfoChangedListener.");
     (void)Rosen::WindowManager::GetInstance().UnregisterDisplayInfoChangedListener(token_, abilityDisplayListener_);
     auto &&window = GetWindow();
@@ -273,6 +283,18 @@ bool UIAbility::ShouldRecoverState(const AAFwk::Want &want)
     return true;
 }
 
+bool UIAbility::ShouldDefaultRecoverState(const AAFwk::Want &want)
+{
+    auto launchParam = GetLaunchParam();
+    if (CheckDefaultRecoveryEnabled() && IsStartByScb() &&
+        want.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false) &&
+        (launchParam.lastExitReason == AAFwk::LastExitReason::LASTEXITREASON_PERFORMANCE_CONTROL ||
+        launchParam.lastExitReason == AAFwk::LastExitReason::LASTEXITREASON_RESOURCE_CONTROL)) {
+        return true;
+    }
+    return false;
+}
+
 void UIAbility::NotifyContinuationResult(const AAFwk::Want &want, bool success)
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
@@ -290,44 +312,10 @@ void UIAbility::NotifyContinuationResult(const AAFwk::Want &want, bool success)
 void UIAbility::OnConfigurationUpdatedNotify(const AppExecFwk::Configuration &configuration)
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "begin");
-    std::string language;
-    std::string colormode;
-    std::string hasPointerDevice;
-    InitConfigurationProperties(configuration, language, colormode, hasPointerDevice);
-    std::string colorModeIsSetByApp = configuration.GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP);
-    // Notify ResourceManager
-    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
-    if (resConfig == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Create res config failed.");
-        return;
-    }
+    ResourceConfigHelper resourceConfig;
+    InitConfigurationProperties(configuration, resourceConfig);
     auto resourceManager = GetResourceManager();
-    if (resourceManager != nullptr) {
-        resourceManager->GetResConfig(*resConfig);
-#ifdef SUPPORT_GRAPHICS
-        if (!language.empty()) {
-            UErrorCode status = U_ZERO_ERROR;
-            icu::Locale locale = icu::Locale::forLanguageTag(language, status);
-            TAG_LOGD(AAFwkTag::UIABILITY, "Get forLanguageTag return[%{public}d].", static_cast<int>(status));
-            if (status == U_ZERO_ERROR) {
-                resConfig->SetLocaleInfo(locale);
-            }
-        }
-#endif
-        if (!colormode.empty()) {
-            resConfig->SetColorMode(AppExecFwk::ConvertColorMode(colormode));
-        }
-        if (!hasPointerDevice.empty()) {
-            resConfig->SetInputDevice(AppExecFwk::ConvertHasPointerDevice(hasPointerDevice));
-        }
-        if (!colorModeIsSetByApp.empty()) {
-            TAG_LOGD(AAFwkTag::UIABILITY, "set app true");
-            resConfig->SetAppColorMode(true);
-        }
-        resourceManager->UpdateResConfig(*resConfig);
-        TAG_LOGD(AAFwkTag::UIABILITY, "Current colorMode: %{public}d, hasPointerDevice: %{public}d.",
-            resConfig->GetColorMode(), resConfig->GetInputDevice());
-    }
+    resourceConfig.UpdateResConfig(configuration, resourceManager);
 
     if (abilityContext_ != nullptr && application_ != nullptr) {
         abilityContext_->SetConfiguration(application_->GetConfiguration());
@@ -337,36 +325,51 @@ void UIAbility::OnConfigurationUpdatedNotify(const AppExecFwk::Configuration &co
     TAG_LOGD(AAFwkTag::UIABILITY, "End.");
 }
 
-void UIAbility::InitConfigurationProperties(const AppExecFwk::Configuration &changeConfiguration, std::string &language,
-    std::string &colormode, std::string &hasPointerDevice)
+void UIAbility::InitConfigurationProperties(const AppExecFwk::Configuration &changeConfiguration,
+    ResourceConfigHelper &resourceConfig)
 {
+    resourceConfig.SetMcc(changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MCC));
+    resourceConfig.SetMnc(changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MNC));
+    resourceConfig.SetColorModeIsSetByApp(
+        changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP));
     if (setting_) {
         auto displayId =
             std::atoi(setting_->GetProperty(AppExecFwk::AbilityStartSetting::WINDOW_DISPLAY_ID_KEY).c_str());
-        language = changeConfiguration.GetItem(displayId, AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
-        colormode = changeConfiguration.GetItem(displayId, AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
-        hasPointerDevice = changeConfiguration.GetItem(displayId, AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
+        resourceConfig.SetLanguage(changeConfiguration.GetItem(displayId,
+            AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE));
+        resourceConfig.SetColormode(changeConfiguration.GetItem(displayId,
+            AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE));
+        resourceConfig.SetHasPointerDevice(changeConfiguration.GetItem(displayId,
+            AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE));
         TAG_LOGD(AAFwkTag::UIABILITY, "displayId: [%{public}d], language: [%{public}s], colormode: [%{public}s], "
-                    "hasPointerDevice: [%{public}s].",
-            displayId, language.c_str(), colormode.c_str(), hasPointerDevice.c_str());
+            "hasPointerDevice: [%{public}s] mcc: [%{public}s], mnc: [%{public}s].", displayId,
+            resourceConfig.GetLanguage().c_str(), resourceConfig.GetColormode().c_str(),
+            resourceConfig.GetHasPointerDevice().c_str(), resourceConfig.GetMcc().c_str(),
+            resourceConfig.GetMnc().c_str());
     } else {
-        language = changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
-        colormode = changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
-        hasPointerDevice = changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
+        resourceConfig.SetLanguage(changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE));
+        resourceConfig.SetColormode(changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE));
+        resourceConfig.SetHasPointerDevice(changeConfiguration.GetItem(
+            AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE));
         TAG_LOGD(AAFwkTag::UIABILITY,
-            "Language: [%{public}s], colormode: [%{public}s], hasPointerDevice: [%{public}s].",
-            language.c_str(), colormode.c_str(), hasPointerDevice.c_str());
+            "Language: [%{public}s], colormode: [%{public}s], hasPointerDevice: [%{public}s] "
+            "mcc: [%{public}s], mnc: [%{public}s].",
+            resourceConfig.GetLanguage().c_str(), resourceConfig.GetColormode().c_str(),
+            resourceConfig.GetHasPointerDevice().c_str(), resourceConfig.GetMcc().c_str(),
+            resourceConfig.GetMnc().c_str());
     }
 }
 
 void UIAbility::OnMemoryLevel(int level)
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+#ifdef SUPPORT_SCREEN
     if (scene_ == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "WindowScene is null.");
         return;
     }
     scene_->NotifyMemoryLevel(level);
+#endif
 }
 
 std::string UIAbility::GetAbilityName()
@@ -552,9 +555,11 @@ bool UIAbility::IsUseNewStartUpRule()
     return startUpNewRule_;
 }
 
-void UIAbility::EnableAbilityRecovery(const std::shared_ptr<AppExecFwk::AbilityRecovery> &abilityRecovery)
+void UIAbility::EnableAbilityRecovery(const std::shared_ptr<AppExecFwk::AbilityRecovery> &abilityRecovery,
+    bool useAppSettedRecoveryValue)
 {
     abilityRecovery_ = abilityRecovery;
+    useAppSettedRecoveryValue_.store(useAppSettedRecoveryValue);
 }
 
 int32_t UIAbility::OnShare(AAFwk::WantParams &wantParams)
@@ -572,7 +577,7 @@ void UIAbility::SetIsSilentForeground(bool isSilentForeground)
     isSilentForeground_ = isSilentForeground;
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 void UIAbility::OnSceneCreated()
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
@@ -630,7 +635,9 @@ void UIAbility::OnBackground()
         TAG_LOGD(AAFwkTag::UIABILITY, "GoBackground sceneFlag: %{public}d.", sceneFlag_);
         scene_->GoBackground(sceneFlag_);
     }
-    if (abilityRecovery_ != nullptr) {
+
+    if (abilityRecovery_ != nullptr && abilityContext_ != nullptr && abilityContext_->GetRestoreEnabled() &&
+        CheckRecoveryEnabled()) {
         abilityRecovery_->ScheduleSaveAbilityState(AppExecFwk::StateReason::LIFECYCLE);
     }
 
@@ -679,10 +686,32 @@ void UIAbility::OnLeaveForeground()
 
 std::string UIAbility::GetContentInfo()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (scene_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UIABILITY, "Scene invalid.");
         return "";
     }
-    return scene_->GetContentInfo();
+    return scene_->GetContentInfo(Rosen::BackupAndRestoreType::CONTINUATION);
+}
+
+std::string UIAbility::GetContentInfoForRecovery()
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (scene_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UIABILITY, "Scene invalid.");
+        return "";
+    }
+    return scene_->GetContentInfo(Rosen::BackupAndRestoreType::APP_RECOVERY);
+}
+
+std::string UIAbility::GetContentInfoForDefaultRecovery()
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (scene_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UIABILITY, "Scene invalid.");
+        return "";
+    }
+    return scene_->GetContentInfo(Rosen::BackupAndRestoreType::RESOURCESCHEDULE_RECOVERY);
 }
 
 void UIAbility::SetSceneListener(const sptr<Rosen::IWindowLifeCycle> &listener)
@@ -1114,17 +1143,17 @@ void UIAbility::SetSessionToken(sptr<IRemoteObject> sessionToken)
 {
     std::lock_guard lock(sessionTokenMutex_);
     sessionToken_ = sessionToken;
-}
-
-void UIAbility::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
-{
-    SetSessionToken(sessionToken);
     auto abilityContextImpl = GetAbilityContext();
     if (abilityContextImpl == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "abilityContext is nullptr");
         return;
     }
     abilityContextImpl->SetWeakSessionToken(sessionToken);
+}
+
+void UIAbility::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
+{
+    SetSessionToken(sessionToken);
 }
 
 void UIAbility::EraseUIExtension(int32_t sessionId)
@@ -1146,6 +1175,49 @@ void UIAbility::SetIdentityToken(const std::string &identityToken)
 std::string UIAbility::GetIdentityToken() const
 {
     return identityToken_;
+}
+
+bool UIAbility::CheckRecoveryEnabled()
+{
+    if (useAppSettedRecoveryValue_.load()) {
+        TAG_LOGD(AAFwkTag::UIABILITY, "Use app setted value.");
+        // Check in app recovery, here return true.
+        return true;
+    }
+
+    return CheckDefaultRecoveryEnabled();
+}
+
+bool UIAbility::CheckDefaultRecoveryEnabled()
+{
+    if (setting_ == nullptr) {
+        TAG_LOGW(AAFwkTag::UIABILITY, "setting is nullptr.");
+        return false;
+    }
+
+    auto value = setting_->GetProperty(AppExecFwk::AbilityStartSetting::DEFAULT_RECOVERY_KEY);
+    if ((!useAppSettedRecoveryValue_.load()) && (value == "true")) {
+        TAG_LOGD(AAFwkTag::UIABILITY, "default recovery enabled.");
+        return true;
+    }
+
+    return false;
+}
+
+bool UIAbility::IsStartByScb()
+{
+    if (setting_ == nullptr) {
+        TAG_LOGW(AAFwkTag::UIABILITY, "setting is nullptr.");
+        return false;
+    }
+
+    auto value = setting_->GetProperty(AppExecFwk::AbilityStartSetting::IS_START_BY_SCB_KEY);
+    if (value == "true") {
+        TAG_LOGD(AAFwkTag::UIABILITY, "Start by scb.");
+        return true;
+    }
+
+    return false;
 }
 #endif
 } // namespace AbilityRuntime

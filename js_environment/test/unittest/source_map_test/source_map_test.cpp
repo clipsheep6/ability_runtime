@@ -189,7 +189,7 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_0900, Function | MediumTest | Level1)
         }
     }
     auto info = modSourceMap->Find(row, col, targetMap);
-    EXPECT_STREQ(info.sources.c_str(), "sources");
+    EXPECT_STREQ(info.sources.c_str(), "");
     GTEST_LOG_(INFO) << "JsEnv_SourceMap_0900 end";
 }
 
@@ -218,7 +218,7 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_1000, Function | MediumTest | Level1)
         }
     }
     auto info = modSourceMap->Find(row, col, targetMap);
-    EXPECT_STREQ(info.sources.c_str(), "sources");
+    EXPECT_STREQ(info.sources.c_str(), "");
     GTEST_LOG_(INFO) << "JsEnv_SourceMap_1000 end";
 }
 

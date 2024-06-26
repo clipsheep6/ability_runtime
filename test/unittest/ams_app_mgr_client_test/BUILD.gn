@@ -49,6 +49,7 @@ ohos_unittest("AmsAppMgrClientTest") {
   ]
 
   external_deps = [
+    "ability_base:configuration",
     "ability_base:want",
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",

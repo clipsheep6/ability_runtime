@@ -289,7 +289,7 @@ HWTEST_F(AppMgrServiceTest, ClearUpApplicationData_001, TestSize.Level0)
     std::string bundleName = "bundleName";
     appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
     appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
-    int32_t res = appMgrService->ClearUpApplicationData(bundleName);
+    int32_t res = appMgrService->ClearUpApplicationData(bundleName, 0);
     EXPECT_EQ(res, ERR_INVALID_OPERATION);
 }
 
@@ -1399,6 +1399,29 @@ HWTEST_F(AppMgrServiceTest, IsApplicationRunning_001, TestSize.Level1)
     bool isRunning = false;
     int32_t res = appMgrService->IsApplicationRunning(bundleName, isRunning);
     EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: IsAppRunning_001
+ * @tc.desc: Determine that the application is running by returning a value.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, IsAppRunning_001, TestSize.Level1)
+{
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
+    sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
+    ASSERT_NE(appMgrService, nullptr);
+    appMgrService->SetInnerService(nullptr);
+
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
+
+    std::string bundleName = "test_bundleName";
+    int32_t appCloneIndex = 0;
+    bool isRunning = false;
+    int32_t res = appMgrService->IsAppRunning(bundleName, appCloneIndex, isRunning);
+    EXPECT_EQ(res, AAFwk::ERR_APP_CLONE_INDEX_INVALID);
 }
 
 /**

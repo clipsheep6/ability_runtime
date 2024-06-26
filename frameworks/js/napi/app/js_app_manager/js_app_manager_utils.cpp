@@ -66,6 +66,9 @@ napi_value CreateJsAbilityStateData(napi_env env, const AbilityStateData &abilit
     napi_set_named_property(env, object, "state", CreateJsValue(env, abilityStateData.abilityState));
     napi_set_named_property(env, object, "abilityType", CreateJsValue(env, abilityStateData.abilityType));
     napi_set_named_property(env, object, "isAtomicService", CreateJsValue(env, abilityStateData.isAtomicService));
+    if (abilityStateData.appCloneIndex != -1) {
+        napi_set_named_property(env, object, "appCloneIndex", CreateJsValue(env, abilityStateData.appCloneIndex));
+    }
     TAG_LOGD(AAFwkTag::APPMGR, "end.");
     return object;
 }
@@ -147,6 +150,9 @@ napi_value CreateJsRunningProcessInfo(napi_env env, const RunningProcessInfo &in
     napi_set_named_property(env, object, "state", CreateJsValue(env,
         ConvertToJsAppProcessState(info.state_, info.isFocused)));
     napi_set_named_property(env, object, "bundleType", CreateJsValue(env, info.bundleType));
+    if (info.appCloneIndex != -1) {
+        napi_set_named_property(env, object, "appCloneIndex", CreateJsValue(env, info.appCloneIndex));
+    }
     return object;
 }
 
@@ -270,12 +276,12 @@ bool ConvertPreloadApplicationParam(napi_env env, size_t argc, napi_value *argv,
 {
     if (!ConvertFromJsValue(env, argv[ARG_INDEX_0], param.bundleName)) {
         TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication get param bundleName failed.");
-        errorMsg = "Param bundleName must be a valid string.";
+        errorMsg = "Parse param bundleName failed, must be a valid string.";
         return false;
     }
     if (!ConvertFromJsValue(env, argv[ARG_INDEX_1], param.userId)) {
         TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication get param userId failed.");
-        errorMsg = "Param userId must be a valid number.";
+        errorMsg = "Parse param userId failed, must be a valid number.";
         return false;
     }
     if (!ConvertFromJsValue(env, argv[ARG_INDEX_2], param.preloadMode)
@@ -286,7 +292,7 @@ bool ConvertPreloadApplicationParam(napi_env env, size_t argc, napi_value *argv,
     }
     if (argc > ARG_INDEX_3 && !ConvertFromJsValue(env, argv[ARG_INDEX_3], param.appIndex)) {
         TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication get param appIndex failed.");
-        errorMsg = "Param appIndex must be a valid number.";
+        errorMsg = "Parse param appIndex failed, must be a valid number.";
         return false;
     }
     return true;

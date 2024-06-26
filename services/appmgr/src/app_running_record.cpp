@@ -24,8 +24,9 @@
 #include "app_mgr_service_const.h"
 #include "app_mgr_service_dump_error_code.h"
 #include "cache_process_manager.h"
+#ifdef SUPPORT_SCREEN
 #include "window_visibility_info.h"
-
+#endif //SUPPORT_SCREEN
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
@@ -643,8 +644,11 @@ void AppRunningRecord::ScheduleBackgroundRunning()
         TAG_LOGE(AAFwkTag::APPMGR, "APPManager move to background timeout");
         serviceInnerObj->ApplicationBackgrounded(recordId);
     };
-    PostTask("appbackground_" + std::to_string(recordId), AMSEventHandler::BACKGROUND_APPLICATION_TIMEOUT,
-        appbackgroundtask);
+    auto taskName = std::string("appbackground_") + std::to_string(recordId);
+    if (taskHandler_) {
+        taskHandler_->CancelTask(taskName);
+    }
+    PostTask(taskName, AMSEventHandler::BACKGROUND_APPLICATION_TIMEOUT, appbackgroundtask);
     if (appLifeCycleDeal_) {
         appLifeCycleDeal_->ScheduleBackgroundRunning();
     }
@@ -655,6 +659,13 @@ void AppRunningRecord::ScheduleProcessSecurityExit()
 {
     if (appLifeCycleDeal_) {
         appLifeCycleDeal_->ScheduleProcessSecurityExit();
+    }
+}
+
+void AppRunningRecord::ScheduleClearPageStack()
+{
+    if (appLifeCycleDeal_) {
+        appLifeCycleDeal_->ScheduleClearPageStack();
     }
 }
 
@@ -794,11 +805,15 @@ void AppRunningRecord::StateChangedNotifyObserver(
     abilityStateData.abilityType = static_cast<int32_t>(ability->GetAbilityInfo()->type);
     abilityStateData.isFocused = ability->GetFocusFlag();
     abilityStateData.abilityRecordId = ability->GetAbilityRecordId();
+    auto applicationInfo = GetApplicationInfo();
+    if (applicationInfo && (static_cast<int32_t>(applicationInfo->multiAppMode.multiAppModeType) ==
+            static_cast<int32_t>(MultiAppModeType::APP_CLONE))) {
+            abilityStateData.appCloneIndex = appIndex_;
+    }
     if (ability->GetWant() != nullptr) {
         abilityStateData.callerAbilityName = ability->GetWant()->GetStringParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
         abilityStateData.callerBundleName = ability->GetWant()->GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
     }
-    auto applicationInfo = GetApplicationInfo();
     if (applicationInfo && applicationInfo->bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
         abilityStateData.isAtomicService = true;
     }
@@ -1134,6 +1149,7 @@ void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
     auto appRecord = shared_from_this();
     auto cacheProcMgr = DelayedSingleton<CacheProcessManager>::GetInstance();
     bool needCache = false;
+    cacheProcMgr->UpdateTypeByAbility(abilityRecord, appRecord);
     if (cacheProcMgr != nullptr && cacheProcMgr->IsAppShouldCache(appRecord)) {
         cacheProcMgr->CheckAndCacheProcess(appRecord);
         TAG_LOGI(AAFwkTag::APPMGR, "App %{public}s should cache, not remove module and terminate app.",
@@ -1338,6 +1354,18 @@ bool AppRunningRecord::IsLastAbilityRecord(const sptr<IRemoteObject> &token)
     return false;
 }
 
+bool AppRunningRecord::ExtensionAbilityRecordExists()
+{
+    auto moduleRecordList = GetAllModuleRecord();
+    for (auto moduleRecord : moduleRecordList) {
+        if (moduleRecord && moduleRecord->ExtensionAbilityRecordExists()) {
+            return true;
+        }
+    }
+    TAG_LOGD(AAFwkTag::APPMGR, "can not find extension record");
+    return false;
+}
+
 bool AppRunningRecord::IsLastPageAbilityRecord(const sptr<IRemoteObject> &token)
 {
     auto moduleRecord = GetModuleRunningRecordByToken(token);
@@ -1349,7 +1377,9 @@ bool AppRunningRecord::IsLastPageAbilityRecord(const sptr<IRemoteObject> &token)
     int32_t pageAbilitySize = 0;
     auto moduleRecordList = GetAllModuleRecord();
     for (auto moduleRecord : moduleRecordList) {
-        pageAbilitySize += moduleRecord->GetPageAbilitySize() ;
+        if (moduleRecord) {
+            pageAbilitySize += moduleRecord->GetPageAbilitySize();
+        }
         if (pageAbilitySize > 1) {
             return false;
         }
@@ -1860,7 +1890,7 @@ bool AppRunningRecord::IsAbilitytiesBackground()
     }
     return true;
 }
-
+#ifdef SUPPORT_SCREEN
 void AppRunningRecord::OnWindowVisibilityChanged(
     const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos)
 {
@@ -1910,6 +1940,7 @@ void AppRunningRecord::OnWindowVisibilityChanged(
         ScheduleBackgroundRunning();
     }
 }
+#endif //SUPPORT_SCREEN
 
 bool AppRunningRecord::IsContinuousTask()
 {
@@ -2271,6 +2302,34 @@ void AppRunningRecord::SetGPUPid(pid_t gpuPid)
 pid_t AppRunningRecord::GetGPUPid()
 {
     return gpuPid_;
+}
+
+void AppRunningRecord::ScheduleCacheProcess()
+{
+    if (appLifeCycleDeal_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
+        return;
+    }
+    appLifeCycleDeal_->ScheduleCacheProcess();
+}
+
+bool AppRunningRecord::CancelTask(std::string msg)
+{
+    if (!taskHandler_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "taskHandler_ is nullptr");
+        return false;
+    }
+    return taskHandler_->CancelTask(msg);
+}
+
+void AppRunningRecord::SetAttachedToStatusBar(bool isAttached)
+{
+    isAttachedToStatusBar = isAttached;
+}
+
+bool AppRunningRecord::IsAttachedToStatusBar()
+{
+    return isAttachedToStatusBar;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

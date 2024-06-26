@@ -41,12 +41,16 @@ export default class UiExtAbility extends UIExtensionAbility {
   }
 
   onSessionCreate(want: Want, session: UIExtensionContentSession): void {
-    this.sessionId = want.parameters[wantConstant.Params.ASSERT_FAULT_SESSION_ID] as string,
-    this.storage = new LocalStorage(
-      {
-        'session': session,
-        'textDetail' : want.parameters[TEXT_DETAIL]
-      });
+    try {
+      this.sessionId = want.parameters[wantConstant.Params.ASSERT_FAULT_SESSION_ID] as string,
+      this.storage = new LocalStorage(
+        {
+          'session': session,
+          'textDetail' : want.parameters[TEXT_DETAIL]
+        });
+    } catch (exception) {
+      console.error('Failed to register callback. Code: ' + JSON.stringify(exception));
+    }
     session.loadContent('pages/assertFaultDialog', this.storage);
     session.setWindowBackgroundColor('#00000000');
   }

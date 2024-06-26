@@ -20,7 +20,6 @@
 #include <sys/types.h>
 
 #include "parcel.h"
-#include "app_mgr_constants.h"
 #include "iremote_object.h"
 
 namespace OHOS {

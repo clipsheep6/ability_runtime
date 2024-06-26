@@ -40,7 +40,6 @@ config("abilityms_config") {
     "${ability_runtime_services_path}/common/include",
     "//prebuilts/jdk/jdk8/linux-x86/include",
     "//prebuilts/jdk/jdk8/linux-x86/include/linux",
-    "//third_party/json/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
     "${ability_runtime_path}/tools/aa/include",
@@ -50,8 +49,6 @@ config("abilityms_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
     "${ability_runtime_utils_path}/global/constant",
     "${ability_runtime_utils_path}/server/constant",
-    "${bgtaskmgr_frameworks_path}/common/include",
-    "${bgtaskmgr_frameworks_path}/include",
   ]
 
   defines = []
@@ -65,13 +62,10 @@ config("abilityms_config") {
   }
 
   if (ability_runtime_graphics) {
-    include_dirs += [
-      "${graphic_path}/interfaces/inner_api",
-      "${graphic_path}/interfaces/inner_api/wmservice",
-      "${global_path}/i18n/frameworks/intl/include",
+    defines += [
+      "SUPPORT_GRAPHICS",
+      "SUPPORT_SCREEN",
     ]
-
-    defines += [ "SUPPORT_GRAPHICS" ]
   }
 
   if (background_task_mgr_continuous_task_enable) {
@@ -80,10 +74,6 @@ config("abilityms_config") {
 
   if (resource_schedule_service_enable) {
     defines += [ "RESOURCE_SCHEDULE_SERVICE_ENABLE" ]
-  }
-
-  if (efficiency_manager) {
-    defines += [ "EFFICIENCY_MANAGER_ENABLE" ]
   }
 
   if (is_asan || asan_detector) {
@@ -116,7 +106,7 @@ ohos_shared_library("abilityms") {
   ]
   include_dirs = [ "${ability_runtime_services_path}/appdfr/include" ]
   deps = [
-    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager_base",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
     "${ability_runtime_innerkits_path}/ability_manager:mission_info",
@@ -126,7 +116,6 @@ ohos_shared_library("abilityms") {
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_innerkits_path}/session_handler:session_handler",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
-    "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/ability/native:auto_startup_callback",
     "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_path}/utils/global/freeze:freeze_util",
@@ -134,13 +123,13 @@ ohos_shared_library("abilityms") {
     "${ability_runtime_services_path}/common:app_util",
     "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",
+    "${ability_runtime_services_path}/common:res_sched_util",
     "${ability_runtime_services_path}/common:task_handler_wrap",
   ]
 
   external_deps = [
     "ability_base:base",
     "ability_base:configuration",
-    "ability_base:extractortool",
     "ability_base:session_info",
     "ability_base:view_data",
     "ability_base:want",
@@ -151,7 +140,6 @@ ohos_shared_library("abilityms") {
     "bundle_framework:appexecfwk_core",
     "bundle_framework:libappexecfwk_common",
     "c_utils:utils",
-    "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
     "config_policy:configpolicy_util",
     "dsoftbus:softbus_client",
@@ -164,6 +152,7 @@ ohos_shared_library("abilityms") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "kv_store:distributeddata_inner",
     "os_account:os_account_innerkits",
     "relational_store:native_appdatafwk",
@@ -171,11 +160,7 @@ ohos_shared_library("abilityms") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "window_manager:libmodal_system_ui_extension_client",
-    "window_manager:libwsutils",
-    "window_manager:scene_session",
     "window_manager:session_manager_lite",
-    "window_manager:sms",
   ]
   public_external_deps = [ "background_task_mgr:bgtaskmgr_innerkits" ]
 
@@ -185,10 +170,6 @@ ohos_shared_library("abilityms") {
 
   if (resource_schedule_service_enable) {
     external_deps += [ "resource_schedule_service:ressched_client" ]
-  }
-
-  if (efficiency_manager) {
-    external_deps += [ "efficiency_manager:suspend_manager_client" ]
   }
 
   if (os_dlp_part_enabled) {
@@ -202,11 +183,9 @@ ohos_shared_library("abilityms") {
     defines += [ "SUPPORT_GRAPHICS" ]
     external_deps += [
       "ability_base:session_info",
+      "graphic_2d:color_manager",
       "i18n:intl_util",
-      "icu:shared_icuuc",
       "image_framework:image_native",
-      "input:libmmi-client",
-      "resource_management:global_resmgr",
       "screenlock_mgr:screenlock_client",
       "window_manager:libdm",
       "window_manager:libmodal_system_ui_extension_client",
@@ -214,10 +193,6 @@ ohos_shared_library("abilityms") {
       "window_manager:libwsutils",
       "window_manager:scene_session",
       "window_manager:sms",
-    ]
-    public_external_deps += [
-      "graphic_2d:color_manager",
-      "image_framework:image_native",
     ]
   }
 
@@ -250,10 +225,23 @@ ohos_prebuilt_etc("deeplink_reserve_config.json") {
   part_name = "ability_runtime"
 }
 
+ohos_prebuilt_etc("ams_extension_config.json") {
+  source = "resource/ams_extension_config.json"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_prebuilt_etc("default_recovery_config.json") {
+  source = "resource/default_recovery_config.json"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
 group("ams_service_config") {
   deps = [
     ":ams_service_config.json",
     ":deeplink_reserve_config.json",
+    ":default_recovery_config.json",
     ":uiextension_picker_config.json",
   ]
 }

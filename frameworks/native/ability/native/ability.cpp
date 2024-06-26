@@ -42,7 +42,6 @@
 #include "reverse_continuation_scheduler_replica.h"
 #include "reverse_continuation_scheduler_replica_handler_interface.h"
 #include "runtime.h"
-#include "scene_board_judgement.h"
 #include "singleton.h"
 #include "system_ability_definition.h"
 #include "task_handler_client.h"
@@ -53,7 +52,8 @@
 #include "continuous_task_param.h"
 #endif
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
+#include "scene_board_judgement.h"
 #include "display_type.h"
 #include "key_event.h"
 #endif
@@ -100,7 +100,7 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
     handler_ = handler;
     AbilityContext::token_ = token;
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     // page ability only.
     if (abilityInfo_->type == AbilityType::PAGE) {
         if (!abilityInfo_->isStageBasedModel) {
@@ -167,11 +167,11 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     securityFlag_ = want.GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false);
     (const_cast<Want &>(want)).RemoveParam(DLP_PARAMS_SECURITY_FLAG);
     SetWant(want);
+#ifdef SUPPORT_SCREEN
     if (sessionInfo != nullptr) {
         SetSessionToken(sessionInfo->sessionToken);
     }
     TAG_LOGD(AAFwkTag::ABILITY, "AbilityName is %{public}s.", abilityInfo_->name.c_str());
-#ifdef SUPPORT_GRAPHICS
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         int32_t defualtDisplayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
         int32_t displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
@@ -206,7 +206,7 @@ void Ability::OnStop()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITY, "called");
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     (void)Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(abilityDisplayListener_);
     auto && window = GetWindow();
     if (window != nullptr) {
@@ -245,7 +245,7 @@ void Ability::OnStopCallback()
 void Ability::DestroyInstance()
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     // Release the window.
     if (abilityWindow_ != nullptr && abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         abilityWindow_->OnPostAbilityStop(); // Ability instance will been released when window destroy.
@@ -258,7 +258,7 @@ void Ability::OnActive()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITY, "called");
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     bWindowFocus_ = true;
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
@@ -297,7 +297,7 @@ void Ability::OnInactive()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITY, "called");
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     bWindowFocus_ = false;
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
@@ -486,7 +486,7 @@ void Ability::OnConfigurationUpdatedNotify(const Configuration &configuration)
     auto resourceManager = GetResourceManager();
     if (resourceManager != nullptr) {
         resourceManager->GetResConfig(*resConfig);
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
         if (!language.empty()) {
             UErrorCode status = U_ZERO_ERROR;
             icu::Locale locale = icu::Locale::forLanguageTag(language, status);
@@ -538,11 +538,13 @@ void Ability::InitConfigurationProperties(const Configuration& changeConfigurati
 void Ability::OnMemoryLevel(int level)
 {
     TAG_LOGD(AAFwkTag::ABILITY, "called");
+#ifdef SUPPORT_SCREEN
     if (scene_ == nullptr) {
         TAG_LOGD(AAFwkTag::ABILITY, "WindowScene is null");
         return;
     }
     scene_->NotifyMemoryLevel(level);
+#endif
 }
 
 int Ability::OpenRawFile(const Uri &uri, const std::string &mode)
@@ -1444,7 +1446,7 @@ int32_t Ability::OnShare(WantParams &wantParams)
     return ERR_OK;
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 bool Ability::PrintDrawnCompleted()
 {
     return AbilityContext::PrintDrawnCompleted();

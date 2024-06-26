@@ -15,6 +15,7 @@
 
 #include "cj_environment.h"
 
+#include <regex>
 #include <string>
 
 #include "cj_hilog.h"
@@ -27,8 +28,7 @@
 #include "event_handler.h"
 #endif
 
-using namespace OHOS;
-
+namespace OHOS {
 namespace {
 const char DEBUGGER_LIBNAME[] = "libcj_debugger.z.so";
 const char DEBUGGER_SYMBOL_NAME[] = "StartDebuggerServer";
@@ -310,7 +310,7 @@ bool CJEnvironment::StartRuntime()
     RuntimeParam rtParams {
         .heapParam = {
             .regionSize = 64,
-            .heapSize = 64 * 1024,
+            .heapSize = 256 * 1024,
             .exemptionThreshold= 0.8,
             .heapUtilization = 0.8,
             .heapGrowth = 0.15,
@@ -467,3 +467,10 @@ bool CJEnvironment::StartDebugger()
     return true;
 }
 
+bool IsCJAbility(const std::string& info)
+{
+    // in cj application, the srcEntry format should be packageName.AbilityClassName.
+    std::string pattern = "^([a-zA-Z0-9_]+\\.)+[a-zA-Z0-9_]+$";
+    return std::regex_match(info, std::regex(pattern));
+}
+}

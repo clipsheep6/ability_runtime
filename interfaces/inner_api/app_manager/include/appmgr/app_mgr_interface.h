@@ -120,11 +120,12 @@ public:
      * clear the application data.
      *
      * @param bundleName, bundle name in Application record.
+     * @param appCloneIndex the app clone id.
      * @param userId the user id.
-     * @return
+     * @return ErrCode
      */
-    virtual int32_t ClearUpApplicationData(const std::string &bundleName,
-        const int32_t userId = -1) = 0;
+    virtual int32_t ClearUpApplicationData(const std::string &bundleName, int32_t appCloneIndex,
+        int32_t userId = -1) = 0;
 
     /**
      * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
@@ -430,6 +431,14 @@ public:
      */
     virtual int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData) = 0;
 
+    /**
+     * Set Appfreeze Detect Filter
+     *
+     * @param pid the process pid.
+     * @return Returns true on success, others on failure.
+     */
+    virtual bool SetAppFreezeFilter(int32_t pid) = 0;
+
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     /**
      * @brief Set whether the process is continuousTask.
@@ -569,6 +578,17 @@ public:
     virtual int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning) = 0;
 
     /**
+     * Check whether the bundle is running.
+     *
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param appCloneIndex the appindex of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return Return ERR_OK if success, others fail.
+     */
+    virtual int32_t IsAppRunning(const std::string &bundleName, int32_t appCloneIndex,
+        bool &isRunning) = 0;
+
+    /**
      * Start child process, called by ChildProcessManager.
      *
      * @param srcEntry Child process source file entrance path to be started.
@@ -696,6 +716,17 @@ public:
         const sptr<IRemoteObject> &callback) = 0;
 
     virtual void SaveBrowserChannel(sptr<IRemoteObject> browser) = 0;
+
+    /**
+     * Check caller is test ability
+     *
+     * @param pid, the pid of ability.
+     * @return Returns ERR_OK is test ability, others is not test ability.
+     */
+    virtual int32_t CheckCallingIsUserTestMode(const pid_t pid, bool &isUserTest)
+    {
+        return 0;
+    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

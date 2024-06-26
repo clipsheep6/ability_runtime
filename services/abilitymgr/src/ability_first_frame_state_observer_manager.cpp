@@ -18,15 +18,15 @@
 
 #include "ability_first_frame_state_data.h"
 #include "ability_first_frame_state_observer_stub.h"
+#include "ability_manager_errors.h"
 #include "application_info.h"
 #include "hilog_tag_wrapper.h"
 #include "permission_verification.h"
 
 namespace OHOS {
 namespace AppExecFwk {
-AbilityFirstFrameStateObserverSet::AbilityFirstFrameStateObserverSet(
-    std::weak_ptr<AbilityFirstFrameStateObserverManager> managerPtr, bool isNotifyAllBundles)
-    : abilityFirstFrameStateObserverManager_(managerPtr), isNotifyAllBundles_(isNotifyAllBundles) {}
+AbilityFirstFrameStateObserverSet::AbilityFirstFrameStateObserverSet(bool isNotifyAllBundles)
+    : isNotifyAllBundles_(isNotifyAllBundles) {}
 
 int32_t AbilityFirstFrameStateObserverSet::AddAbilityFirstFrameStateObserver(
     const sptr<IAbilityFirstFrameStateObserver> &observer, const std::string &targetBundleName)
@@ -62,15 +62,14 @@ void AbilityFirstFrameStateObserverSet::AddObserverDeathRecipient(const sptr<IRe
         TAG_LOGE(AAFwkTag::ABILITYMGR, "This death recipient has been added.");
         return;
     }
-    auto deathRecipientFunc = [weak = abilityFirstFrameStateObserverManager_](const wptr<IRemoteObject> &remote) {
-        auto manager = weak.lock();
+    auto deathRecipientFunc = [](const wptr<IRemoteObject> &remote) {
         auto object = remote.promote();
-        if (manager == nullptr || object == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "manager or object is nullptr.");
+        if (object == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "object is nullptr.");
             return;
         }
         sptr<IAbilityFirstFrameStateObserver> observer = iface_cast<IAbilityFirstFrameStateObserver>(object);
-        manager->UnregisterAbilityFirstFrameStateObserver(observer);
+        AbilityFirstFrameStateObserverManager::GetInstance().UnregisterAbilityFirstFrameStateObserver(observer);
     };
     sptr<IRemoteObject::DeathRecipient> deathRecipient =
         new (std::nothrow) AbilityFirstFrameStateObserverRecipient(deathRecipientFunc);
@@ -140,23 +139,19 @@ void AbilityFirstFrameStateObserverSet::OnAbilityFirstFrameState(const std::shar
     }
 }
 
-AbilityFirstFrameStateObserverManager::AbilityFirstFrameStateObserverManager()
+AbilityFirstFrameStateObserverManager &AbilityFirstFrameStateObserverManager::GetInstance()
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityFirstFrameStateObserverManager instance is created");
-}
-
-AbilityFirstFrameStateObserverManager::~AbilityFirstFrameStateObserverManager()
-{
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityFirstFrameStateObserverManager instance is destroyed");
+    static AbilityFirstFrameStateObserverManager instance;
+    return instance;
 }
 
 void AbilityFirstFrameStateObserverManager::Init()
 {
     if (!stateObserverSetForBundleName_) {
-        stateObserverSetForBundleName_ = std::make_unique<AbilityFirstFrameStateObserverSet>(shared_from_this());
+        stateObserverSetForBundleName_ = std::make_unique<AbilityFirstFrameStateObserverSet>(false);
     }
     if (!stateObserverSetForAllBundles_) {
-        stateObserverSetForAllBundles_ = std::make_unique<AbilityFirstFrameStateObserverSet>(shared_from_this(), true);
+        stateObserverSetForAllBundles_ = std::make_unique<AbilityFirstFrameStateObserverSet>(true);
     }
 }
 

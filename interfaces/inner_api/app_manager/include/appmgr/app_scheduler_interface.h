@@ -172,6 +172,8 @@ public:
      */
     virtual void ScheduleProcessSecurityExit() = 0;
 
+    virtual void ScheduleClearPageStack() = 0;
+
     virtual void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) = 0;
 
     virtual void ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName) = 0;
@@ -272,6 +274,8 @@ public:
      */
     virtual int32_t ScheduleDumpFfrt(std::string& result) = 0;
 
+    virtual void ScheduleCacheProcess() = 0;
+
     enum class Message {
         SCHEDULE_FOREGROUND_APPLICATION_TRANSACTION = 0,
         SCHEDULE_BACKGROUND_APPLICATION_TRANSACTION,
@@ -302,6 +306,8 @@ public:
         SCHEDULE_DUMP_IPC_STOP,
         SCHEDULE_DUMP_IPC_STAT,
         SCHEDULE_DUMP_FFRT,
+        SCHEDULE_CACHE_PROCESS,
+        SCHEDULE_CLEAR_PAGE_STACK,
     };
 };
 }  // namespace AppExecFwk

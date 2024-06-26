@@ -92,6 +92,8 @@ private:
     bool isUISchedulerStarted_{false};
     void* uiScheduler_ {nullptr};
 };
+
+CJ_EXPORT bool IsCJAbility(const std::string& info);
 }
 
 #endif //OHOS_ABILITY_RUNTIME_CJ_ENVIRONMENT_H

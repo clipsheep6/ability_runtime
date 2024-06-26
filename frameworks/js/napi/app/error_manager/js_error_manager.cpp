@@ -217,11 +217,6 @@ private:
             return OnSetLoopWatch(env, argc, argv);
         }
         if (type == ON_OFF_TYPE_UNHANDLED_REJECTION) {
-            if (!AppExecFwk::EventRunner::IsAppMainThread()) {
-                TAG_LOGE(AAFwkTag::JSNAPI, "UnhandledRejectionObserver can only be set from main thread.");
-                ThrowInvalidCallerError(env);
-                return CreateJsUndefined(env);
-            }
             if (argc != ARGC_TWO) {
                 TAG_LOGE(AAFwkTag::JSNAPI, "The number of params is invalid.");
                 ThrowInvalidNumParametersError(env);
@@ -333,11 +328,6 @@ private:
             return OnRemoveLoopWatch(env, argc, argv);
         }
         if (type == ON_OFF_TYPE_UNHANDLED_REJECTION) {
-            if (!AppExecFwk::EventRunner::IsAppMainThread()) {
-                TAG_LOGE(AAFwkTag::JSNAPI, "UnhandledRejectionObserver can only be unset from main thread.");
-                ThrowInvalidCallerError(env);
-                return CreateJsUndefined(env);
-            }
             if (argc != ARGC_TWO && argc != ARGC_ONE) {
                 TAG_LOGE(AAFwkTag::JSNAPI, "The number of params is invalid.");
                 ThrowInvalidNumParametersError(env);

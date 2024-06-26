@@ -611,5 +611,36 @@ HWTEST_F(AppRunningManagerTest, UIExtensionReleationship_0700, TestSize.Level1)
     SET_THREAD_NUM(100);
     GTEST_RUN_TASK(task);
 }
+
+/**
+ * @tc.name: IsAppProcessesAllCached_0100
+ * @tc.desc: MultiProcess application cache check test.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningManagerTest, IsAppProcessesAllCached_0100, TestSize.Level1)
+{
+    static std::shared_ptr<AppRunningManager> appRunningManager = std::make_shared<AppRunningManager>();
+    ASSERT_NE(appRunningManager, nullptr);
+    std::string bundleName;
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->bundleName = "com.tdd.cacheprocesstest";
+    appInfo->apiTargetVersion = 12;
+    appInfo->uid = 1010101;
+    int32_t recordId1 = RECORD_ID;
+    int32_t recordId2 = RECORD_ID + 1;
+    std::string processName = "com.tdd.cacheprocesstest";
+    auto appRunningRecord1 = std::make_shared<AppRunningRecord>(appInfo, recordId1, processName);
+    appRunningRecord1->SetUid(appInfo->uid);
+    auto appRunningRecord2 = std::make_shared<AppRunningRecord>(appInfo, recordId2, processName);
+    appRunningRecord2->SetUid(appInfo->uid);
+
+    appRunningManager->appRunningRecordMap_.insert(make_pair(recordId1, appRunningRecord1));
+    std::set<std::shared_ptr<AppRunningRecord>> cachedSet;
+    cachedSet.insert(appRunningRecord1);
+    EXPECT_EQ(appRunningManager->IsAppProcessesAllCached(appInfo->bundleName, appInfo->uid, cachedSet), true);
+
+    appRunningManager->appRunningRecordMap_.insert(make_pair(recordId2, appRunningRecord2));
+    EXPECT_EQ(appRunningManager->IsAppProcessesAllCached(appInfo->bundleName, appInfo->uid, cachedSet), false);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

@@ -116,20 +116,20 @@ bool AppRecovery::InitApplicationInfo(const std::shared_ptr<EventHandler>& mainH
 bool AppRecovery::AddAbility(std::shared_ptr<AbilityRuntime::UIAbility> ability,
     const std::shared_ptr<AbilityInfo>& abilityInfo, const sptr<IRemoteObject>& token)
 {
-    if (!isEnable_) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery not enabled.");
+    if (abilityInfo == nullptr) {
+        TAG_LOGE(AAFwkTag::RECOVERY, "Ability info invalid.");
         return false;
     }
 
-    if (!abilityRecoverys_.empty() && !abilityInfo->recoverable) {
+    if (isEnable_ && !abilityRecoverys_.empty() && !abilityInfo->recoverable) {
         TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery abilityRecoverys is not empty but ability recoverable is false.");
         return false;
     }
     ability_ = ability;
     std::shared_ptr<AbilityRecovery> abilityRecovery = std::make_shared<AbilityRecovery>();
     abilityRecovery->InitAbilityInfo(ability, abilityInfo, token);
-    abilityRecovery->EnableAbilityRecovery(restartFlag_, saveOccasion_, saveMode_);
-    ability->EnableAbilityRecovery(abilityRecovery);
+    abilityRecovery->EnableAbilityRecovery(useAppSettedValue_.load(), restartFlag_, saveOccasion_, saveMode_);
+    ability->EnableAbilityRecovery(abilityRecovery, useAppSettedValue_.load());
     abilityRecoverys_.push_back(abilityRecovery);
     auto handler = mainHandler_.lock();
     if (handler != nullptr) {
@@ -145,11 +145,6 @@ bool AppRecovery::AddAbility(std::shared_ptr<AbilityRuntime::UIAbility> ability,
 
 bool AppRecovery::RemoveAbility(const sptr<IRemoteObject>& tokenId)
 {
-    if (!isEnable_) {
-        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery not enabled. not removeAbility");
-        return false;
-    }
-
     if (!tokenId) {
         TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery removeAbility tokenId is null.");
         return false;
@@ -190,10 +185,12 @@ bool AppRecovery::ScheduleSaveAppState(StateReason reason, uintptr_t ability)
             TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery Failed to block main thread, skip save state when appfreeze");
             return false;
         }
+#ifdef SUPPORT_SCREEN
         OHOS::AbilityRuntime::JsUIAbility& jsAbility = static_cast<AbilityRuntime::JsUIAbility&>(*abilityPtr);
         AbilityRuntime::JsRuntime& runtime = const_cast<AbilityRuntime::JsRuntime&>(jsAbility.GetJsRuntime());
         auto& nativeEngine = runtime.GetNativeEngine();
         nativeEngine.AllowCrossThreadExecution();
+#endif
         AppRecovery::GetInstance().DoSaveAppState(reason, ability);
         return true;
     }
@@ -337,6 +334,7 @@ void AppRecovery::EnableAppRecovery(uint16_t restartFlag, uint16_t saveFlag, uin
     restartFlag_ = restartFlag;
     saveOccasion_ = saveFlag;
     saveMode_ = saveMode;
+    useAppSettedValue_.store(true);
 }
 
 bool AppRecovery::ShouldSaveAppState(StateReason reason)
@@ -355,6 +353,7 @@ bool AppRecovery::ShouldSaveAppState(StateReason reason)
 
         case StateReason::CPP_CRASH:
         case StateReason::JS_ERROR:
+        case StateReason::CJ_ERROR:
         case StateReason::APP_FREEZE: // appfreeze could not callback to js function safely.
             if ((saveOccasion_ & SaveOccasionFlag::SAVE_WHEN_ERROR) != 0) {
                 ret = true;
@@ -394,6 +393,12 @@ bool AppRecovery::ShouldRecoverApp(StateReason reason)
             }
             break;
 
+        case StateReason::CJ_ERROR:
+            if (isAlwaysStart || (restartFlag_ & RestartFlag::RESTART_WHEN_CJ_CRASH) != 0) {
+                ret = true;
+            }
+            break;
+
         case StateReason::APP_FREEZE:
             if (isAlwaysStart || (restartFlag_ & RestartFlag::RESTART_WHEN_APP_FREEZE) != 0) {
                 ret = true;
@@ -411,7 +416,7 @@ void AppRecovery::DeleteInValidMissionFiles()
     }
 
     std::string fileDir = context->GetFilesDir();
-    TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery DeleteInValidMissionFiles fileDir: %{public}s", fileDir.c_str());
+    TAG_LOGI(AAFwkTag::RECOVERY, "AppRecovery DeleteInValidMissionFiles fileDir: %{public}s", fileDir.c_str());
     if (fileDir.empty() || !OHOS::FileExists(fileDir)) {
         TAG_LOGD(AAFwkTag::RECOVERY,
             "AppRecovery DeleteInValidMissionFiles fileDir is empty or fileDir is not exists.");
@@ -456,6 +461,18 @@ void AppRecovery::DeleteInValidMissionFileById(std::string fileDir, int32_t miss
         TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery delete the file: %{public}s failed", file.c_str());
     }
     TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery delete the file: %{public}s done", file.c_str());
+}
+
+void AppRecovery::ClearPageStack(std::string bundleName)
+{
+    TAG_LOGI(AAFwkTag::RECOVERY, "AppRecovery ClearPageStack %{public}s", bundleName.c_str());
+    DeleteInValidMissionFiles();
+    std::shared_ptr<AAFwk::AbilityManagerClient> abilityMgr = AAFwk::AbilityManagerClient::GetInstance();
+    if (abilityMgr == nullptr) {
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery ClearPageStack. abilityMgr client is not exist.");
+        return;
+    }
+    abilityMgr->ScheduleClearRecoveryPageStack();
 }
 
 bool AppRecovery::GetMissionIds(std::string path, std::vector<int32_t> &missionIds)

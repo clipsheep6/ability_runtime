@@ -19,7 +19,9 @@
 #include "auto_fill_custom_config.h"
 #include "fill_request_callback_interface.h"
 #include "save_request_callback_interface.h"
+#ifdef SUPPORT_GRAPHICS
 #include "ui_content.h"
+#endif // SUPPORT_GRAPHICS
 #include "want.h"
 
 namespace OHOS {
@@ -39,15 +41,19 @@ public:
     void OnRelease(int32_t errCode);
     void OnError(int32_t errCode, const std::string &name, const std::string &message);
     void OnReceive(const AAFwk::WantParams &wantParams);
+#ifdef SUPPORT_GRAPHICS
     void onRemoteReady(const std::shared_ptr<Ace::ModalUIExtensionProxy> &modalUIExtensionProxy);
+#endif // SUPPORT_GRAPHICS
     void onDestroy();
 
     void SetFillRequestCallback(const std::shared_ptr<IFillRequestCallback> &callback);
     void SetSaveRequestCallback(const std::shared_ptr<ISaveRequestCallback> &callback);
 
     void SetSessionId(int32_t sessionId);
-    void SetUIContent(Ace::UIContent *uiContent);
-    Ace::UIContent *GetUIContent();
+#ifdef SUPPORT_GRAPHICS
+    void SetInstanceId(int32_t instanceId);
+    int32_t GetInstanceId();
+#endif // SUPPORT_GRAPHICS
     void SetEventId(uint32_t eventId);
     void SetWindowType(const AutoFill::AutoFillWindowType &autoFillWindowType);
     void SetExtensionType(bool isSmartAutoFill);
@@ -66,7 +72,9 @@ private:
     std::shared_ptr<IFillRequestCallback> fillCallback_;
     std::shared_ptr<ISaveRequestCallback> saveCallback_;
     int32_t sessionId_;
-    Ace::UIContent *uiContent_ = nullptr;
+#ifdef SUPPORT_GRAPHICS
+    int32_t instanceId_ = -1;
+#endif // SUPPORT_GRAPHICS
     uint32_t eventId_ = 0;
     AutoFill::AutoFillWindowType autoFillWindowType_ = AutoFill::AutoFillWindowType::MODAL_WINDOW;
     AbilityBase::ViewData viewData_;

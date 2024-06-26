@@ -200,6 +200,8 @@ public:
 
     ErrCode RequestDialogService(napi_env env, AAFwk::Want &want, RequestDialogResultTask &&task) override;
 
+    ErrCode RequestDialogService(AAFwk::Want &want, RequestDialogResultTask &&task) override;
+
     ErrCode ReportDrawnCompleted() override;
 
     ErrCode GetMissionId(int32_t &missionId) override;
@@ -211,10 +213,10 @@ public:
      * @return Returns ERR_OK if success.
      */
     ErrCode SetMissionContinueState(const AAFwk::ContinueState &state) override;
-
+#ifdef SUPPORT_SCREEN
     ErrCode StartAbilityByType(const std::string &type,
         AAFwk::WantParams &wantParam, const std::shared_ptr<JsUIExtensionCallback> &uiExtensionCallbacks) override;
-
+#endif
     ErrCode RequestModalUIExtension(const Want &want) override;
 
     ErrCode ChangeAbilityVisibility(bool isShow) override;
@@ -228,7 +230,10 @@ public:
 
     void InsertResultCallbackTask(int requestCode, RuntimeTask&& task) override;
 
-#ifdef SUPPORT_GRAPHICS
+    void SetRestoreEnabled(bool enabled) override;
+    bool GetRestoreEnabled() override;
+
+#ifdef SUPPORT_SCREEN
     /**
      * @brief Set mission label of this ability.
      *
@@ -294,6 +299,7 @@ private:
     wptr<IRemoteObject> sessionToken_;
     std::mutex uiExtensionMutex_;
     std::map<int32_t, Want> uiExtensionMap_;
+    std::atomic<bool> restoreEnabled_ = true;
 
     static void RequestDialogResultJSThreadWorker(uv_work_t* work, int status);
     void OnAbilityResultInner(int requestCode, int resultCode, const AAFwk::Want &resultData);

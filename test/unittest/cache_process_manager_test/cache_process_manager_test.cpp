@@ -29,6 +29,8 @@ namespace OHOS {
 namespace AppExecFwk {
 
 const std::string ABILITY_RECORD_NAME = "Ability_Name_Z";
+const std::string DEFAULT_BUNDLE_NAME = "com.tdd.cacheprocessmanager";
+const int32_t DEFAULT_UID = 101010;
 
 class CacheProcessManagerTest : public testing::Test {
 public:
@@ -37,6 +39,7 @@ public:
     void SetUp() override;
     void TearDown() override;
     std::shared_ptr<AppRunningRecord> MockAppRecord(int apiLevel = 12);
+    int recordId = 0;
 };
 
 
@@ -54,16 +57,16 @@ void CacheProcessManagerTest::TearDown()
 
 std::shared_ptr<AppRunningRecord> CacheProcessManagerTest::MockAppRecord(int apiLevel)
 {
-    ApplicationInfo appInfo;
-    appInfo.accessTokenId = 1;
-    std::shared_ptr<ApplicationInfo> info = std::make_shared<ApplicationInfo>(appInfo);
-    info->accessTokenId = 1;
-    info->apiTargetVersion = apiLevel;
-    std::shared_ptr<AppRunningRecord> appRecord = std::make_shared<AppRunningRecord>(info, 0, "process");
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->bundleName = DEFAULT_BUNDLE_NAME;
+    appInfo->uid = DEFAULT_UID;
+    appInfo->accessTokenId = 1;
+    appInfo->apiTargetVersion = apiLevel;
+    std::shared_ptr<AppRunningRecord> appRecord = std::make_shared<AppRunningRecord>(appInfo, recordId++, "process");
     std::shared_ptr<PriorityObject> priorityObject = std::make_shared<PriorityObject>();
     priorityObject->SetPid(1);
     appRecord->priorityObject_ = priorityObject;
-    appRecord->SetUid(1);
+    appRecord->SetUid(DEFAULT_UID);
     appRecord->SetState(ApplicationState::APP_STATE_CREATE);
     appRecord->SetContinuousTaskAppState(false);
     appRecord->SetKeepAliveEnableState(false);
@@ -73,7 +76,7 @@ std::shared_ptr<AppRunningRecord> CacheProcessManagerTest::MockAppRecord(int api
     return appRecord;
 }
 /**
- * @tc.name: AppRunningManager_QueryEnableProcessCache_0100
+ * @tc.name: CacheProcessManager_QueryEnableProcessCache_0100
  * @tc.desc: Test the state of QueryEnableProcessCache
  * @tc.type: FUNC
  */
@@ -86,7 +89,7 @@ HWTEST_F(CacheProcessManagerTest, CacheProcessManager_QueryEnableProcessCache_01
 }
 
 /**
- * @tc.name: AppRunningManager_QueryEnableProcessCache_0200
+ * @tc.name: CacheProcessManager_QueryEnableProcessCache_0200
  * @tc.desc: Test the state of QueryEnableProcessCache
  * @tc.type: FUNC
  */
@@ -99,7 +102,7 @@ HWTEST_F(CacheProcessManagerTest, CacheProcessManager_QueryEnableProcessCache_02
 }
 
 /**
- * @tc.name: AppRunningManager_SetAppMgr_0100
+ * @tc.name: CacheProcessManager_SetAppMgr_0100
  * @tc.desc: Test the state of SetAppMgr
  * @tc.type: FUNC
  */
@@ -113,7 +116,7 @@ HWTEST_F(CacheProcessManagerTest, CacheProcessManager_SetAppMgr_0100, TestSize.L
 }
 
 /**
- * @tc.name: AppRunningManager_PenddingCacheProcess_0100
+ * @tc.name: CacheProcessManager_PenddingCacheProcess_0100
  * @tc.desc: Test the state of PenddingCacheProcess
  * @tc.type: FUNC
  */
@@ -147,7 +150,7 @@ HWTEST_F(CacheProcessManagerTest, CacheProcessManager_PenddingCacheProcess_0100,
 }
 
 /**
- * @tc.name: AppRunningManager_CheckAndCacheProcess_0100
+ * @tc.name: CacheProcessManager_CheckAndCacheProcess_0100
  * @tc.desc: Test the state of CheckAndCacheProcess
  * @tc.type: FUNC
  */
@@ -173,7 +176,7 @@ HWTEST_F(CacheProcessManagerTest, CacheProcessManager_CheckAndCacheProcess_0100,
 }
 
 /**
- * @tc.name: AppRunningManager_IsCachedProcess_0100
+ * @tc.name: CacheProcessManager_IsCachedProcess_0100
  * @tc.desc: Test the state of IsCachedProcess
  * @tc.type: FUNC
  */
@@ -192,7 +195,7 @@ HWTEST_F(CacheProcessManagerTest, CacheProcessManager_IsCachedProcess_0100, Test
 }
 
 /**
- * @tc.name: AppRunningManager_OnProcessKilled_0100
+ * @tc.name: CacheProcessManager_OnProcessKilled_0100
  * @tc.desc: Test the state of OnProcessKilled
  * @tc.type: FUNC
  */
@@ -218,7 +221,7 @@ HWTEST_F(CacheProcessManagerTest, CacheProcessManager_OnProcessKilled_0100, Test
 }
 
 /**
- * @tc.name: AppRunningManager_ReuseCachedProcess_0100
+ * @tc.name: CacheProcessManager_ReuseCachedProcess_0100
  * @tc.desc: Test the state of ReuseCachedProcess
  * @tc.type: FUNC
  */
@@ -244,7 +247,7 @@ HWTEST_F(CacheProcessManagerTest, CacheProcessManager_ReuseCachedProcess_0100, T
 }
 
 /**
- * @tc.name: AppRunningManager_IsAppSupportProcessCache_0100
+ * @tc.name: CacheProcessManager_IsAppSupportProcessCache_0100
  * @tc.desc: Test the state of IsAppSupportProcessCache
  * @tc.type: FUNC
  */
@@ -258,9 +261,11 @@ HWTEST_F(CacheProcessManagerTest, CacheProcessManager_IsAppSupportProcessCache_0
     EXPECT_EQ(cacheProcMgr->IsAppSupportProcessCache(appRecord), false);
     // API earlier than 12 not allowed
     auto appRecord2 = MockAppRecord(11);
+    EXPECT_NE(appRecord2, nullptr);
     EXPECT_EQ(cacheProcMgr->IsAppSupportProcessCache(appRecord2), false);
     // different supportState
     auto appRecord3 = MockAppRecord(12);
+    EXPECT_NE(appRecord3, nullptr);
     EXPECT_EQ(cacheProcMgr->IsAppSupportProcessCache(appRecord3), true);
     appRecord3->SetSupportedProcessCache(true);
     EXPECT_EQ(cacheProcMgr->IsAppSupportProcessCache(appRecord3), true);
@@ -269,7 +274,7 @@ HWTEST_F(CacheProcessManagerTest, CacheProcessManager_IsAppSupportProcessCache_0
 }
 
 /**
- * @tc.name: AppRunningManager_RefreshCacheNum_0100
+ * @tc.name: CacheProcessManager_RefreshCacheNum_0100
  * @tc.desc: Test the state of RefreshCacheNum
  * @tc.type: FUNC
  */
@@ -282,7 +287,7 @@ HWTEST_F(CacheProcessManagerTest, CacheProcessManager_RefreshCacheNum_0100, Test
 }
 
 /**
- * @tc.name: AppRunningManager_GetCurrentCachedProcNum_0100
+ * @tc.name: CacheProcessManager_GetCurrentCachedProcNum_0100
  * @tc.desc: Test the state of GetCurrentCachedProcNum
  * @tc.type: FUNC
  */
@@ -302,7 +307,7 @@ HWTEST_F(CacheProcessManagerTest, CacheProcessManager_GetCurrentCachedProcNum_01
 }
 
 /**
- * @tc.name: AppRunningManager_KillProcessByRecord_0100
+ * @tc.name: CacheProcessManager_KillProcessByRecord_0100
  * @tc.desc: Test the state of KillProcessByRecord
  * @tc.type: FUNC
  */
@@ -317,7 +322,7 @@ HWTEST_F(CacheProcessManagerTest, CacheProcessManager_KillProcessByRecord_0100, 
 }
 
 /**
- * @tc.name: AppRunningManager_IsAppShouldCache_0100
+ * @tc.name: CacheProcessManager_IsAppShouldCache_0100
  * @tc.desc: Test the state of IsAppShouldCache
  * @tc.type: FUNC
  */
@@ -347,7 +352,7 @@ HWTEST_F(CacheProcessManagerTest, CacheProcessManager_IsAppShouldCache_0100, Tes
 }
 
 /**
- * @tc.name: AppRunningManager_IsAppAbilitiesEmpty_0100
+ * @tc.name: CacheProcessManager_IsAppAbilitiesEmpty_0100
  * @tc.desc: Test the state of IsAppAbilitiesEmpty
  * @tc.type: FUNC
  */
@@ -379,7 +384,7 @@ HWTEST_F(CacheProcessManagerTest, CacheProcessManager_IsAppAbilitiesEmpty_0100, 
 }
 
 /**
- * @tc.name: AppRunningManager_ShrinkAndKillCache_0100
+ * @tc.name: CacheProcessManager_ShrinkAndKillCache_0100
  * @tc.desc: Test the state of ShrinkAndKillCache
  * @tc.type: FUNC
  */
@@ -404,7 +409,7 @@ HWTEST_F(CacheProcessManagerTest, CacheProcessManager_ShrinkAndKillCache_0100, T
 }
 
 /**
- * @tc.name: AppRunningManager_PrintCacheQueue_0100
+ * @tc.name: CacheProcessManager_PrintCacheQueue_0100
  * @tc.desc: Test the state of PrintCacheQueue
  * @tc.type: FUNC
  */
@@ -420,6 +425,54 @@ HWTEST_F(CacheProcessManagerTest, CacheProcessManager_PrintCacheQueue_0100, Test
     EXPECT_NE(appRecord2, nullptr);
 
     EXPECT_NE(cacheProcMgr->PrintCacheQueue(), "");
+}
+
+/**
+ * @tc.name: CacheProcessManager_AddToApplicationSet_0100
+ * @tc.desc: Test the state of AddToApplicationSet
+ * @tc.type: FUNC
+ */
+HWTEST_F(CacheProcessManagerTest, CacheProcessManager_AddToApplicationSet_0100, TestSize.Level1)
+{
+    auto cacheProcMgr = std::make_shared<CacheProcessManager>();
+    EXPECT_NE(cacheProcMgr, nullptr);
+    cacheProcMgr->maxProcCacheNum_ = 2;
+
+    auto appRecord1 = MockAppRecord();
+    EXPECT_NE(appRecord1, nullptr);
+    auto appRecord2 = MockAppRecord();
+    EXPECT_NE(appRecord2, nullptr);
+
+    cacheProcMgr->AddToApplicationSet(appRecord1);
+    cacheProcMgr->AddToApplicationSet(appRecord2);
+
+    EXPECT_TRUE(cacheProcMgr->sameAppSet.find(DEFAULT_BUNDLE_NAME) != cacheProcMgr->sameAppSet.end());
+    EXPECT_TRUE(cacheProcMgr->sameAppSet[DEFAULT_BUNDLE_NAME].find(DEFAULT_UID) !=
+        cacheProcMgr->sameAppSet[DEFAULT_BUNDLE_NAME].end());
+}
+
+/**
+ * @tc.name: CacheProcessManager_RemoveFromApplicationSet_0100
+ * @tc.desc: Test the state of RemoveFromApplicationSet
+ * @tc.type: FUNC
+ */
+HWTEST_F(CacheProcessManagerTest, CacheProcessManager_RemoveFromApplicationSet_0100, TestSize.Level1)
+{
+    auto cacheProcMgr = std::make_shared<CacheProcessManager>();
+    EXPECT_NE(cacheProcMgr, nullptr);
+    cacheProcMgr->maxProcCacheNum_ = 2;
+
+    auto appRecord1 = MockAppRecord();
+    EXPECT_NE(appRecord1, nullptr);
+    auto appRecord2 = MockAppRecord();
+    EXPECT_NE(appRecord2, nullptr);
+
+    cacheProcMgr->AddToApplicationSet(appRecord1);
+    cacheProcMgr->RemoveFromApplicationSet(appRecord2);
+    EXPECT_TRUE(cacheProcMgr->sameAppSet.find(DEFAULT_BUNDLE_NAME) != cacheProcMgr->sameAppSet.end());
+
+    cacheProcMgr->RemoveFromApplicationSet(appRecord1);
+    EXPECT_TRUE(cacheProcMgr->sameAppSet.find(DEFAULT_BUNDLE_NAME) == cacheProcMgr->sameAppSet.end());
 }
 } // namespace AppExecFwk
 } // namespace OHOS

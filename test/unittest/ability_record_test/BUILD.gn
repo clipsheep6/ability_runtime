@@ -18,7 +18,13 @@ module_output_path = "ability_runtime/abilitymgr"
 
 ohos_unittest("ability_record_test") {
   module_out_path = module_output_path
-
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "${ability_runtime_services_path}/appdfr/include",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/system_ability_mock",
@@ -47,6 +53,7 @@ ohos_unittest("ability_record_test") {
   }
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
     "${ability_runtime_innerkits_path}/ability_manager:mission_info",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
@@ -94,7 +101,13 @@ ohos_unittest("ability_record_test") {
 
 ohos_unittest("ability_record_test_call") {
   module_out_path = "ability_runtime/ability_call_test"
-
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "${ability_runtime_path}/interfaces/inner_api/ability_manager/include/",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
@@ -147,6 +160,7 @@ ohos_unittest("ability_record_test_call") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "config_policy:configpolicy_util",
     "ffrt:libffrt",
     "hilog:libhilog",
     "init:libbegetutil",

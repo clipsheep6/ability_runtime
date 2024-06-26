@@ -215,7 +215,8 @@ int UriPermissionManagerProxy::RevokeAllUriPermissions(const uint32_t tokenId)
     return reply.ReadInt32();
 }
 
-int UriPermissionManagerProxy::RevokeUriPermissionManually(const Uri &uri, const std::string bundleName)
+int UriPermissionManagerProxy::RevokeUriPermissionManually(const Uri &uri, const std::string bundleName,
+    int32_t appIndex)
 {
     TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::RevokeUriPermissionManually is called.");
     MessageParcel data;
@@ -229,6 +230,10 @@ int UriPermissionManagerProxy::RevokeUriPermissionManually(const Uri &uri, const
     }
     if (!data.WriteString(bundleName)) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write bundleName failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(appIndex)) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write appIndex failed.");
         return INNER_ERR;
     }
     MessageParcel reply;

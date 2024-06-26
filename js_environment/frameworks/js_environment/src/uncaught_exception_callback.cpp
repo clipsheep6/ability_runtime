@@ -17,20 +17,22 @@
 #include <string>
 #include <sstream>
 
-#include "js_env_logger.h"
+#include "hilog_tag_wrapper.h"
+#include "hilog_wrapper.h"
 #include "native_engine/native_engine.h"
+#ifdef SUPPORT_GRAPHICS
 #include "ui_content.h"
+#endif // SUPPORT_GRAPHICS
 #include "unwinder.h"
 
 namespace OHOS {
 namespace JsEnv {
-constexpr int32_t INDEX_EIGHT = 8;
 constexpr char BACKTRACE[] = "=====================Backtrace========================";
 
 std::string NapiUncaughtExceptionCallback::GetNativeStrFromJsTaggedObj(napi_value obj, const char* key)
 {
     if (obj == nullptr) {
-        JSENV_LOG_E("Failed to get value from key.");
+        TAG_LOGE(AAFwkTag::JSENV, "Failed to get value from key.");
         return "";
     }
 
@@ -39,7 +41,7 @@ std::string NapiUncaughtExceptionCallback::GetNativeStrFromJsTaggedObj(napi_valu
     napi_valuetype valueType = napi_undefined;
     napi_typeof(env_, valueStr, &valueType);
     if (valueType != napi_string) {
-        JSENV_LOG_E("Failed to convert value from key.");
+        TAG_LOGE(AAFwkTag::JSENV, "Failed to convert value from key.");
         return "";
     }
 
@@ -49,7 +51,7 @@ std::string NapiUncaughtExceptionCallback::GetNativeStrFromJsTaggedObj(napi_valu
     size_t valueStrLength = 0;
     napi_get_value_string_utf8(env_, valueStr, valueCStr.get(), valueStrBufLength + 1, &valueStrLength);
     std::string ret(valueCStr.get(), valueStrLength);
-    JSENV_LOG_D("GetNativeStrFromJsTaggedObj Success.");
+    TAG_LOGD(AAFwkTag::JSENV, "GetNativeStrFromJsTaggedObj Success.");
     return ret;
 }
 
@@ -73,7 +75,7 @@ void NapiUncaughtExceptionCallback::operator()(napi_value obj)
         summary += "Error code:" + errorCode + "\n";
     }
     if (errorStack.empty()) {
-        JSENV_LOG_E("errorStack is empty");
+        TAG_LOGE(AAFwkTag::JSENV, "errorStack is empty");
         return;
     }
     auto errorPos = SourceMap::GetErrorPos(topStack);
@@ -92,10 +94,12 @@ void NapiUncaughtExceptionCallback::operator()(napi_value obj)
     } else {
         summary += error + "Stacktrace:\n" + errorStack;
     }
+#ifdef SUPPORT_GRAPHICS
     std::string str = Ace::UIContent::GetCurrentUIStackInfo();
     if (!str.empty()) {
         summary.append(str);
     }
+#endif // SUPPORT_GRAPHICS
     if (uncaughtTask_) {
         uncaughtTask_(summary, errorObj);
     }

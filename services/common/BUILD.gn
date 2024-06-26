@@ -118,16 +118,50 @@ ohos_shared_library("app_util") {
   sources = [
     "src/ability_manager_radar.cpp",
     "src/app_utils.cpp",
+    "src/json_utils.cpp",
   ]
 
   external_deps = [
+    "config_policy:configpolicy_util",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "init:libbegetutil",
+    "json:nlohmann_json_static",
   ]
 
   if (ability_runtime_graphics) {
+    defines = [ "SUPPORT_GRAPHICS" ]
     external_deps += [ "window_manager:libwsutils" ]
+  }
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_shared_library("res_sched_util") {
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+
+  public_configs = [ ":common_config" ]
+  include_dirs = [ "include" ]
+
+  sources = [ "src/res_sched_util.cpp" ]
+
+  external_deps = [
+    "bundle_framework:appexecfwk_base",
+    "hilog:libhilog",
+  ]
+
+  if (resource_schedule_service_enable) {
+    defines = [ "RESOURCE_SCHEDULE_SERVICE_ENABLE" ]
+    external_deps += [ "resource_schedule_service:ressched_client" ]
   }
 
   subsystem_name = "ability"

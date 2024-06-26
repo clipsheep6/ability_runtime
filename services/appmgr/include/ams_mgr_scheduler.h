@@ -132,7 +132,8 @@ public:
      * @param accountId, account ID.
      * @return ERR_OK, return back success, others fail.
      */
-    virtual int32_t KillProcessWithAccount(const std::string &bundleName, const int accountId) override;
+    virtual int32_t KillProcessWithAccount(
+        const std::string &bundleName, const int accountId, const bool clearPageStack = true) override;
 
     /**
      * UpdateApplicationInfoInstalled, call UpdateApplicationInfoInstalled() through proxy object,
@@ -150,7 +151,7 @@ public:
      * @param  bundleName, bundle name in Application record.
      * @return ERR_OK, return back success, others fail.
      */
-    virtual int32_t KillApplication(const std::string &bundleName) override;
+    virtual int32_t KillApplication(const std::string &bundleName,  const bool clearPageStack = true) override;
 
     /**
      * KillApplicationByUid, call KillApplicationByUid() through proxy object, kill the application.
@@ -161,7 +162,7 @@ public:
      */
     virtual int KillApplicationByUid(const std::string &bundleName, const int uid) override;
 
-    virtual int KillApplicationSelf() override;
+    virtual int KillApplicationSelf(const bool clearPageStack = true) override;
 
     int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug) override;
 
@@ -169,7 +170,7 @@ public:
 
     virtual void AbilityAttachTimeOut(const sptr<IRemoteObject> &token) override;
 
-    virtual void PrepareTerminate(const sptr<IRemoteObject> &token) override;
+    virtual void PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag = false) override;
 
     virtual void GetRunningProcessInfoByToken(
         const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info) override;
@@ -287,6 +288,13 @@ public:
      * @return Returns true is sufficent memory size, others return false.
      */
     virtual bool IsMemorySizeSufficent() override;
+
+    /**
+     * Notifies that one ability is attached to status bar.
+     *
+     * @param token the token of the abilityRecord that is attached to status bar.
+     */
+    void AttachedToStatusBar(const sptr<IRemoteObject> &token) override;
 
 private:
     /**

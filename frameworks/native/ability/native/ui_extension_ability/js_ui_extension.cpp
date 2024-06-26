@@ -241,6 +241,7 @@ void JsUIExtension::OnStart(const AAFwk::Want &want)
     TAG_LOGD(AAFwkTag::UI_EXT, "JsUIExtension OnStart begin.");
     Extension::OnStart(want);
     auto context = GetContext();
+#ifdef SUPPORT_GRAPHICS
     if (context != nullptr) {
         int32_t  displayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
         displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, displayId);
@@ -248,6 +249,7 @@ void JsUIExtension::OnStart(const AAFwk::Want &want)
         auto configUtils = std::make_shared<ConfigurationUtils>();
         configUtils->InitDisplayConfig(displayId, context->GetConfiguration(), context->GetResourceManager());
     }
+#endif // SUPPORT_GRAPHICS
 
     HandleScope handleScope(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
@@ -260,11 +262,14 @@ void JsUIExtension::OnStart(const AAFwk::Want &want)
     if (InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
         launchParam.launchReason = AAFwk::LaunchReason::LAUNCHREASON_INSIGHT_INTENT;
     }
-    napi_value argv[] = {
-        CreateJsLaunchParam(env, launchParam),
-        napiWant
-    };
-    CallObjectMethod("onCreate", argv, ARGC_TWO);
+    int32_t screenMode = want.GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::IDLE_SCREEN_MODE);
+    if (screenMode == AAFwk::EMBEDDED_FULL_SCREEN_MODE) {
+        napi_value argv[] = {napiWant, CreateJsLaunchParam(env, launchParam) };
+        CallObjectMethod("onCreate", argv, ARGC_TWO);
+    } else {
+        napi_value argv[] = {CreateJsLaunchParam(env, launchParam) };
+        CallObjectMethod("onCreate", argv, ARGC_ONE);
+    }
     TAG_LOGD(AAFwkTag::UI_EXT, "JsUIExtension OnStart end.");
 }
 
@@ -329,8 +334,7 @@ void JsUIExtension::OnStopCallBack()
 
     auto applicationContext = Context::GetApplicationContext();
     if (applicationContext != nullptr) {
-        std::shared_ptr<NativeReference> sharedJsObj = std::move(jsObj_);
-        applicationContext->DispatchOnAbilityDestroy(sharedJsObj);
+        applicationContext->DispatchOnAbilityDestroy(jsObj_);
     }
 }
 
@@ -683,9 +687,11 @@ bool JsUIExtension::HandleSessionCreate(const AAFwk::Want &want, const sptr<AAFw
             CallObjectMethod("onSessionCreate", argv, ARGC_TWO);
         }
         uiWindowMap_[compId] = uiWindow;
+#ifdef SUPPORT_GRAPHICS
         if (context->GetWindow() == nullptr) {
             context->SetWindow(uiWindow);
         }
+#endif // SUPPORT_GRAPHICS
     }
     return true;
 }
@@ -787,6 +793,7 @@ void JsUIExtension::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
         uiWindow->Destroy();
     }
     uiWindowMap_.erase(componentId);
+#ifdef SUPPORT_GRAPHICS
     auto context = GetContext();
     if (context != nullptr && context->GetWindow() == uiWindow) {
         context->SetWindow(nullptr);
@@ -795,6 +802,7 @@ void JsUIExtension::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
             break;
         }
     }
+#endif // SUPPORT_GRAPHICS
     foregroundWindows_.erase(componentId);
     contentSessions_.erase(componentId);
     if (abilityResultListeners_) {

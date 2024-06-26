@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_APP_SCHEDULER_HOST_H
 #define OHOS_ABILITY_RUNTIME_APP_SCHEDULER_HOST_H
 
+#include <cstdint>
 #include <map>
 
 #include "iremote_object.h"
@@ -48,6 +49,7 @@ private:
     int32_t HandleScheduleProfileChanged(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleConfigurationUpdated(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleProcessSecurityExit(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleScheduleClearPageStack(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleAcceptWant(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleNewProcessRequest(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyLoadRepairPatch(MessageParcel &data, MessageParcel &reply);
@@ -64,6 +66,7 @@ private:
     int32_t HandleScheduleDumpIpcStop(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleDumpIpcStat(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleDumpFfrt(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleScheduleCacheProcess(MessageParcel &data, MessageParcel &reply);
 
     using AppSchedulerFunc = int32_t (AppSchedulerHost::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AppSchedulerFunc> memberFuncMap_;

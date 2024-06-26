@@ -43,7 +43,8 @@ JsModuleReader::JsModuleReader(const std::string& bundleName, const std::string&
     }
 }
 
-bool JsModuleReader::operator()(const std::string& inputPath, uint8_t **buff, size_t *buffSize) const
+bool JsModuleReader::operator()(const std::string& inputPath, uint8_t **buff,
+    size_t *buffSize, std::string& errorMsg) const
 {
     TAG_LOGD(AAFwkTag::JSRUNTIME, "JsModuleReader operator start: %{private}s", inputPath.c_str());
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -61,6 +62,7 @@ bool JsModuleReader::operator()(const std::string& inputPath, uint8_t **buff, si
     bool newCreate = false;
     std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(realHapPath, newCreate);
     if (extractor == nullptr) {
+        errorMsg = "hap path error: " + realHapPath;
         TAG_LOGE(AAFwkTag::JSRUNTIME, "realHapPath %{private}s GetExtractor failed", realHapPath.c_str());
         return false;
     }

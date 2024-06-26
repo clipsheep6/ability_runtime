@@ -77,6 +77,7 @@ namespace AppExecFwk {
 using OHOS::AAFwk::Want;
 class WindowFocusChangedListener;
 class WindowVisibilityChangedListener;
+using LoabAbilityTaskFunc = std::function<void()>;
 
 class AppMgrServiceInner : public std::enable_shared_from_this<AppMgrServiceInner> {
 public:
@@ -256,7 +257,7 @@ public:
      *
      * @return ERR_OK, return back success, others fail.
      */
-    virtual int32_t KillApplication(const std::string &bundleName);
+    virtual int32_t KillApplication(const std::string &bundleName, const bool clearPageStack = true);
 
     /**
      * KillApplicationByUid, call KillApplicationByUid() through proxy object, kill the application.
@@ -267,17 +268,19 @@ public:
      */
     virtual int32_t KillApplicationByUid(const std::string &bundleName, const int uid);
 
-    virtual int32_t KillApplicationSelf();
+    virtual int32_t KillApplicationSelf(const bool clearPageStack = true);
 
     /**
      * KillApplicationByUserId, kill the application by user ID.
      *
      * @param bundleName, bundle name in Application record.
+     * @param appCloneIndex the app clone id.
      * @param userId, user ID.
      *
      * @return ERR_OK, return back success, others fail.
      */
-    virtual int32_t KillApplicationByUserId(const std::string &bundleName, const int userId);
+    virtual int32_t KillApplicationByUserId(const std::string &bundleName, int32_t appCloneIndex, int userId,
+        const bool clearPageStack = true);
 
     /**
      * ClearUpApplicationData, clear the application data.
@@ -285,11 +288,12 @@ public:
      * @param bundleName, bundle name in Application record.
      * @param callerUid, app uid in Application record.
      * @param callerPid, app pid in Application record.
-     *
+     * @param appCloneIndex the app clone id.
+     * @param userId the user id
      * @return ERR_OK, return back success, others fail.
      */
     virtual int32_t ClearUpApplicationData(const std::string &bundleName,
-        const int32_t callerUid, const pid_t callerPid,  const int32_t userId = -1);
+        int32_t callerUid, pid_t callerPid, int32_t appCloneIndex, int32_t userId = -1);
 
     /**
      * ClearUpApplicationDataBySelf, clear the application data.
@@ -415,6 +419,16 @@ public:
      * @return Return ERR_OK if success, others fail.
      */
     int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning);
+
+    /**
+     * Check whether the bundle is running.
+     *
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param appCloneIndex the appindex of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return Return ERR_OK if success, others fail.
+     */
+    int32_t IsAppRunning(const std::string &bundleName, int32_t appCloneIndex, bool &isRunning);
 
     int32_t StartNativeProcessForDebugger(const AAFwk::Want &want);
 
@@ -578,7 +592,7 @@ public:
 
     void HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &token);
 
-    void PrepareTerminate(const sptr<IRemoteObject> &token);
+    void PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag = false);
 
     void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
         bool needNotifyApp, bool isFromWindowFocusChanged);
@@ -756,7 +770,7 @@ public:
     int32_t NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
 
     int32_t NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
-
+#ifdef SUPPORT_SCREEN
     void HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
     void HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
 
@@ -765,7 +779,7 @@ public:
      */
     void HandleWindowVisibilityChanged(
             const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos);
-
+#endif //SUPPORT_SCREEN
     /**
      * Set the current userId, only used by abilityMgr.
      *
@@ -804,6 +818,14 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData);
+
+    /**
+     * Set Appfreeze Detect Filter
+     *
+     * @param pid the process pid.
+     * @return Returns true on success, others on failure.
+     */
+    bool SetAppFreezeFilter(int32_t pid);
 
     /**
      * get memorySize by pid.
@@ -1084,9 +1106,36 @@ public:
 
     int32_t SetSupportedProcessCacheSelf(bool isSupport);
 
-    void OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, ApplicationState state);
 
     virtual void SaveBrowserChannel(const pid_t hostPid, sptr<IRemoteObject> browser);
+
+    bool IsAppProcessesAllCached(const std::string &bundleName, int32_t uid,
+        const std::set<std::shared_ptr<AppRunningRecord>> &cachedSet);
+
+    bool GetSceneBoardAttachFlag() const;
+
+    void SetSceneBoardAttachFlag(bool flag);
+
+    void CacheLoabAbilityTask(const LoabAbilityTaskFunc& func);
+
+    void SubmitCacheLoabAbilityTask();
+
+    /**
+     * Check caller is test ability
+     *
+     * @param pid, the pid of ability.
+     * @return Returns ERR_OK is test ability, others is not test ability.
+     */
+    int32_t CheckCallingIsUserTestModeInner(const pid_t pid, bool &isUserTest);
+
+    /**
+     * Notifies that one ability is attached to status bar.
+     *
+     * @param token the token of the abilityRecord that is attached to status bar.
+     */
+    void AttachedToStatusBar(const sptr<IRemoteObject> &token);
+    void KillApplicationByRecord(const std::shared_ptr<AppRunningRecord> &appRecord);
 private:
 
     std::string FaultTypeToString(FaultDataType type);
@@ -1202,11 +1251,13 @@ private:
      * KillApplicationByUserId, kill the application by user ID.
      *
      * @param bundleName, bundle name in Application record.
+     * @param appCloneIndex the app clone id.
      * @param userId, user ID.
      *
      * @return ERR_OK, return back success, others fail.
      */
-    int32_t KillApplicationByUserIdLocked(const std::string &bundleName, const int userId);
+    int32_t KillApplicationByUserIdLocked(const std::string &bundleName, int32_t appCloneIndex, int32_t userId,
+        const bool clearPageStack = true);
 
     /**
      * WaitForRemoteProcessExit, Wait for the process to exit normally.
@@ -1328,28 +1379,31 @@ private:
      * @param bundleName, bundle name in Application record.
      * @param uid, app uid in Application record.
      * @param pid, app pid in Application record.
+     * @param appCloneIndex the app clone id.
      * @param userId, userId.
      * @param isBySelf, clear data by application self.
      *
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t ClearUpApplicationDataByUserId(const std::string &bundleName,
-        int32_t callerUid, pid_t callerPid, const int userId, bool isBySelf = false);
+        int32_t callerUid, pid_t callerPid, int32_t appCloneIndex, int32_t userId, bool isBySelf = false);
 
     bool CheckGetRunningInfoPermission() const;
 
-    int32_t KillApplicationByBundleName(const std::string &bundleName);
+    int32_t KillApplicationByBundleName(
+        const std::string &bundleName, const bool clearPageStack = true);
 
     bool SendProcessStartEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
 
     void SendAppStartupTypeEvent(const std::shared_ptr<AppRunningRecord> &appRecord,
         const std::shared_ptr<AbilityInfo> &abilityInfo, const AppStartType startType);
 
+    bool SendCreateAtomicServiceProcessEvent(const std::shared_ptr<AppRunningRecord> &appRecord,
+        const BundleType &bundleType, const std::string &moduleName = "", const std::string &abilityName = "");
+
     void SendProcessExitEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
 
     void SendProcessExitEventTask(const std::shared_ptr<AppRunningRecord> &appRecord, time_t exitTime, int32_t count);
-
-    void UpDateStartupType(const std::shared_ptr<AbilityInfo> &info, int32_t &abilityType, int32_t &extensionType);
 
     void SetRunningSharedBundleList(const std::string &bundleName,
         const std::vector<BaseSharedBundleInfo> baseSharedBundleInfoList);
@@ -1441,6 +1495,8 @@ private:
 
     void SetAppInfo(const BundleInfo &bundleInfo, AppSpawnStartMsg &startMsg);
 
+    bool CreateAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo);
+
 private:
     /**
      * Notify application status.
@@ -1453,13 +1509,11 @@ private:
      */
     void NotifyAppStatusByCallerUid(const std::string &bundleName, const int32_t userId, const int32_t callerUid,
         const std::string &eventData);
-    void KillApplicationByRecord(const std::shared_ptr<AppRunningRecord> &appRecord);
     void SendHiSysEvent(const int32_t innerEventId, const int64_t eventId);
     int FinishUserTestLocked(
         const std::string &msg, const int64_t &resultCode, const std::shared_ptr<AppRunningRecord> &appRecord);
     int32_t GetCurrentAccountId() const;
-    void SendReStartProcessEvent(const AAFwk::EventInfo &eventInfo,
-        const std::shared_ptr<AppRunningRecord> &appRecord);
+    void SendReStartProcessEvent(AAFwk::EventInfo &eventInfo, int32_t appUid);
     void SendAppLaunchEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
     void InitAppWaitingDebugList();
     void HandleConfigurationChange(const Configuration &config);
@@ -1469,6 +1523,7 @@ private:
     void AddUIExtensionLauncherItem(std::shared_ptr<AAFwk::Want> want, std::shared_ptr<AppRunningRecord> appRecord,
         sptr<IRemoteObject> token);
     void RemoveUIExtensionLauncherItem(std::shared_ptr<AppRunningRecord> appRecord, sptr<IRemoteObject> token);
+    bool IsSceneBoardCall();
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
     std::vector<const sptr<IAppStateCallback>> appStateCallbacks_;
     std::shared_ptr<AppProcessManager> appProcessManager_;
@@ -1485,8 +1540,10 @@ private:
     sptr<IStartSpecifiedAbilityResponse> startSpecifiedAbilityResponse_;
     ffrt::mutex configurationObserverLock_;
     std::vector<sptr<IConfigurationObserver>> configurationObservers_;
+#ifdef SUPPORT_SCREEN
     sptr<WindowFocusChangedListener> focusListener_;
     sptr<WindowVisibilityChangedListener> windowVisibilityChangedListener_;
+#endif //SUPPORT_SCREEN
     std::vector<std::shared_ptr<AppRunningRecord>> restartResedentTaskList_;
     std::map<std::string, std::vector<BaseSharedBundleInfo>> runningSharedBundleList_;
     std::map<std::string, bool> waitingDebugBundleList_;
@@ -1508,6 +1565,8 @@ private:
     std::shared_ptr<AAFwk::TaskHandlerWrap> dfxTaskHandler_;
     std::shared_ptr<AAFwk::TaskHandlerWrap> otherTaskHandler_;
     std::shared_ptr<AppPreloader> appPreloader_;
+    std::atomic<bool> sceneBoardAttachFlag_ = true;
+    std::vector<LoabAbilityTaskFunc> loadAbilityTaskFuncList_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

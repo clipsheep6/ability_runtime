@@ -289,7 +289,7 @@ static bool ParseOpenLinkParams(const napi_env &env, const NapiCallbackInfo &inf
 napi_value JsUIExtensionContext::OnOpenLink(napi_env env, NapiCallbackInfo& info)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::UI_EXT, "OnOpenLink");
+    TAG_LOGD(AAFwkTag::UI_EXT, "OnOpenLink");
 
     std::string linkValue("");
     AAFwk::OpenLinkOptions openLinkOptions;
@@ -299,11 +299,11 @@ napi_value JsUIExtensionContext::OnOpenLink(napi_env env, NapiCallbackInfo& info
 
     if (!ParseOpenLinkParams(env, info, linkValue, openLinkOptions, want)) {
         TAG_LOGE(AAFwkTag::UI_EXT, "parse openLink arguments failed");
-        ThrowInvalidParamError(env, "Parse param openLink arguments failed");
+        ThrowInvalidParamError(env,
+            "Parse param link or openLinkOptions failed, link must be string, openLinkOptions must be options.");
         return CreateJsUndefined(env);
     }
 
-    TAG_LOGI(AAFwkTag::UI_EXT, "open link:%{public}s.", linkValue.c_str());
     want.SetUri(linkValue);
     int requestCode = -1;
     if (CheckTypeForNapiValue(env, info.argv[INDEX_TWO], napi_function)) {
@@ -660,6 +660,7 @@ void JsUIExtensionContext::SetCallbackForTerminateWithResult(int32_t resultCode,
             }
             auto token = extensionContext->GetToken();
             AAFwk::AbilityManagerClient::GetInstance()->TransferAbilityResultForExtension(token, resultCode, want);
+#ifdef SUPPORT_SCREEN
             sptr<Rosen::Window> uiWindow = context->GetWindow();
             if (!uiWindow) {
                 TAG_LOGE(AAFwkTag::UI_EXT, "uiWindow is nullptr");
@@ -671,6 +672,7 @@ void JsUIExtensionContext::SetCallbackForTerminateWithResult(int32_t resultCode,
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
                 return;
             }
+#endif // SUPPORT_SCREEN
             auto errorCode = context->TerminateSelf();
             if (errorCode == 0) {
                 task.ResolveWithNoError(env, CreateJsUndefined(env));

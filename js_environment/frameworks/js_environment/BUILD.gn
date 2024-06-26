@@ -23,6 +23,7 @@ config("public_js_environment_config") {
   include_dirs = [
     "${inner_api_path}",
     "${utils_path}/include",
+    "${ability_runtime_services_path}/common/include",
   ]
 }
 
@@ -34,10 +35,7 @@ ohos_shared_library("js_environment") {
     "src/uncaught_exception_callback.cpp",
   ]
 
-  configs = [
-    ":js_environment_config",
-    "${ark_compile_path}/ets_runtime:ark_jsruntime_public_config",
-  ]
+  configs = [ ":js_environment_config" ]
 
   public_configs = [ ":public_js_environment_config" ]
 
@@ -47,10 +45,12 @@ ohos_shared_library("js_environment") {
     "eventhandler:libeventhandler",
     "faultloggerd:libunwinder",
     "ffrt:libffrt",
+    "hilog:libhilog",
     "napi:ace_napi",
   ]
 
   if (ability_runtime_graphics) {
+    defines = [ "SUPPORT_GRAPHICS" ]
     external_deps += [ "ace_engine:ace_uicontent" ]
   }
 

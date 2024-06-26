@@ -108,7 +108,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->MoveMissionToFront(int32Param, startOptions);
     abilityms->GetMissionIdByToken(token);
     abilityms->IsAbilityControllerStartById(int32Param);
-    abilityms->GetServiceRecordByElementName(stringParam);
     sptr<IAbilityConnection> callback;
     abilityms->GetConnectRecordListByCallback(callback);
     Uri uri("myFuzzTest");
@@ -116,8 +115,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     sptr<IAbilityScheduler> dataAbilityScheduler;
     abilityms->ReleaseDataAbility(dataAbilityScheduler, token);
     abilityms->AttachAbilityThread(dataAbilityScheduler, token);
-    abilityms->DumpFuncInit();
-    abilityms->DumpSysFuncInit();
     std::vector<std::string> info;
     abilityms->DumpSysInner(stringParam, info, boolParam, boolParam, intParam);
     abilityms->DumpSysMissionListInner(stringParam, info, boolParam, boolParam, intParam);

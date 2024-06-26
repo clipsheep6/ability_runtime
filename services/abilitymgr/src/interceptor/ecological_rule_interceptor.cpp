@@ -29,8 +29,9 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE = "persist.sys.abilityms.support.ecologicalrulemgrservice";
-const std::string BUNDLE_NAME_SCENEBOARD = "com.ohos.sceneboard";
+constexpr const char* ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE =
+    "persist.sys.abilityms.support.ecologicalrulemgrservice";
+constexpr const char* BUNDLE_NAME_SCENEBOARD = "com.ohos.sceneboard";
 }
 ErrCode EcologicalRuleInterceptor::DoProcess(AbilityInterceptorParam param)
 {
@@ -181,7 +182,7 @@ void EcologicalRuleInterceptor::InitErmsCallerInfo(Want &want, ErmsCallerInfo &c
 {
     callerInfo.packageName = want.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
     callerInfo.uid = want.GetIntParam(Want::PARAM_RESV_CALLER_UID, IPCSkeleton::GetCallingUid());
-    callerInfo.pid = want.GetIntParam(Want::PARAM_RESV_CALLER_PID, IPCSkeleton::GetCallingRealPid());
+    callerInfo.pid = want.GetIntParam(Want::PARAM_RESV_CALLER_PID, IPCSkeleton::GetCallingPid());
     callerInfo.targetAppType = ErmsCallerInfo::TYPE_INVALID;
     callerInfo.callerAppType = ErmsCallerInfo::TYPE_INVALID;
     callerInfo.targetLinkFeature = want.GetStringParam("send_to_erms_targetLinkFeature");

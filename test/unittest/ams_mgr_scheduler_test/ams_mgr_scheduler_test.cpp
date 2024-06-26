@@ -287,7 +287,7 @@ HWTEST_F(AmsMgrSchedulerTest, AmsMgrScheduler_008, TestSize.Level1)
     auto mockAppMgrServiceInner = GetMockAppMgrServiceInner();
     auto amsTaskHandler = GetAmsTaskHandler();
 
-    EXPECT_CALL(*mockAppMgrServiceInner, KillApplication(_)).Times(1).WillOnce(Return(ERR_OK));
+    EXPECT_CALL(*mockAppMgrServiceInner, KillApplication(_, _)).Times(1).WillOnce(Return(ERR_OK));
 
     // check params AppMgrServiceInner
     std::unique_ptr<AmsMgrScheduler> amsMgrScheduler2 = std::make_unique<AmsMgrScheduler>(nullptr, amsTaskHandler);
@@ -824,12 +824,7 @@ HWTEST_F(AmsMgrSchedulerTest, IsMemorySizeSufficent_001, TestSize.Level0)
  */
 HWTEST_F(AmsMgrSchedulerTest, StartSpecifiedAbility_001, TestSize.Level0)
 {
-    auto mockBundleMgr = DelayedSingleton<BundleMgrHelper>::GetInstance();
-    auto remoteClientManager = std::make_shared<RemoteClientManager>();
-    remoteClientManager->SetBundleManagerHelper(mockBundleMgr);
-    auto amsMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    amsMgrServiceInner->remoteClientManager_ = remoteClientManager;
-    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(amsMgrServiceInner, nullptr);
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
     ASSERT_NE(amsMgrScheduler, nullptr);
     Want want;
     AbilityInfo abilityInfo;

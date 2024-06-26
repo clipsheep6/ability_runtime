@@ -189,6 +189,16 @@ HWTEST_F(AppfreezeManagerTest, AppfreezeManagerTest_006, TestSize.Level1)
     ret = appfreezeManager->CatcherStacktrace(2);
     printf("ret: %s\n", ret.c_str());
     EXPECT_TRUE(!ret.empty());
+    appfreezeManager->ClearOldInfo();
+    int32_t pid = static_cast<int32_t>(getprocpid());
+    int state = AppfreezeManager::AppFreezeState::APPFREEZE_STATE_FREEZE;
+    bool result = appfreezeManager->IsNeedIgnoreFreezeEvent(pid);
+    EXPECT_TRUE(!result);
+    appfreezeManager->ClearOldInfo();
+    result = appfreezeManager->IsProcessDebug(pid, "Test");
+    EXPECT_TRUE(!result);
+    result = appfreezeManager->IsNeedIgnoreFreezeEvent(pid);
+    EXPECT_TRUE(result);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

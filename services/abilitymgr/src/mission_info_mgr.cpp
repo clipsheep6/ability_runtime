@@ -466,7 +466,7 @@ void MissionInfoMgr::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handl
     std::lock_guard<ffrt::mutex> lock(mutex_);
     snapshotHandler_ = handler;
 }
-
+#ifdef SUPPORT_SCREEN
 void MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const std::shared_ptr<Media::PixelMap> &pixelMap,
     bool isPrivate)
 {
@@ -494,18 +494,18 @@ void MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const std::shared_
     Snapshot snapshot;
     snapshot.SetPixelMap(pixelMap);
 
-#ifdef SUPPORT_GRAPHICS
+
     if (isPrivate) {
         CreateWhitePixelMap(snapshot);
     }
     savedSnapshot.snapshot = snapshot.GetPixelMap();
-#endif
+
 
     if (!taskDataPersistenceMgr_->SaveMissionSnapshot(missionId, savedSnapshot)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: save mission snapshot failed");
     }
 }
-
+#endif
 bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
     MissionSnapshot& missionSnapshot, bool isLowResolution)
 {
@@ -538,7 +538,7 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
         return false;
     }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     if (missionSnapshot.isPrivate) {
         CreateWhitePixelMap(snapshot);
     }
@@ -547,7 +547,7 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
 #endif
 
     MissionSnapshot savedSnapshot = missionSnapshot;
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     savedSnapshot.snapshot = snapshot.GetPixelMap();
 #endif
     {
@@ -585,7 +585,7 @@ void MissionInfoMgr::CompleteSaveSnapshot(int32_t missionId)
     }
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 std::shared_ptr<Media::PixelMap> MissionInfoMgr::GetSnapshot(int32_t missionId) const
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "missionId:%{public}d", missionId);
@@ -661,7 +661,7 @@ bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObj
     return UpdateMissionSnapshot(missionId, abilityToken, missionSnapshot, isLowResolution);
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 void MissionInfoMgr::CreateWhitePixelMap(Snapshot &snapshot) const
 {
     if (snapshot.GetPixelMap() == nullptr) {

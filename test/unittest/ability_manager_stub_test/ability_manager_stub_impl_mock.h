@@ -220,17 +220,12 @@ public:
         return 0;
     }
 
-    virtual int KillProcess(const std::string& bundleName)
+    virtual int KillProcess(const std::string& bundleName, const bool clearPageStack = true)
     {
         return 0;
     }
 
     virtual int UninstallApp(const std::string& bundleName, int32_t uid)
-    {
-        return 0;
-    }
-
-    int ClearUpApplicationData(const std::string& bundleName, const int32_t userId = DEFAULT_INVAL_VALUE) override
     {
         return 0;
     }
@@ -413,6 +408,7 @@ public:
         abilityStateDataOne.pid = ABILITY_STATE_FIRST_UID;
         abilityStateDataOne.uid = ABILITY_STATE_FIRST_PID;
         abilityStateDataOne.abilityType = static_cast<int32_t>(AppExecFwk::AbilityType::PAGE);
+        abilityStateDataOne.appCloneIndex = 0;
         list.emplace_back(abilityStateDataOne);
 
         AppExecFwk::AbilityStateData abilityStateDataTwo;
@@ -422,6 +418,7 @@ public:
         abilityStateDataTwo.abilityState = AbilityState::INACTIVE;
         abilityStateDataTwo.pid = ABILITY_STATE_SECOND_UID;
         abilityStateDataTwo.uid = ABILITY_STATE_SECOND_PID;
+        abilityStateDataOne.appCloneIndex = 0;
         abilityStateDataTwo.abilityType = static_cast<int32_t>(AppExecFwk::AbilityType::PAGE);
         list.emplace_back(abilityStateDataTwo);
         return ERR_OK;

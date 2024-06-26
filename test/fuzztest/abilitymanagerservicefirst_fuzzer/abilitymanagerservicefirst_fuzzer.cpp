@@ -80,8 +80,14 @@ sptr<Token> GetFuzzAbilityToken()
 }
 
 void DoSomethingInterestingWithMyAPI1(AbilityManagerService &abilityms, Want& want,
-    sptr<IRemoteObject> token)
+    sptr<IRemoteObject> token, const char* data, size_t size)
 {
+    bool boolParam = *data % ENABLE;
+    int intParam = static_cast<int>(GetU32Data(data));
+    int32_t int32Param = static_cast<int32_t>(GetU32Data(data));
+    int64_t int64Param = static_cast<int64_t>(GetU32Data(data));
+    uint32_t uint32Param = GetU32Data(data);
+    std::string stringParam(data, size);
     sptr<IAbilityConnection> connect(new MyAbilityConnection());
     abilityms.InitStartupFlag();
     abilityms.QueryServiceState();
@@ -90,11 +96,11 @@ void DoSomethingInterestingWithMyAPI1(AbilityManagerService &abilityms, Want& wa
     abilityms.CheckOptExtensionAbility(want, abilityRequest, int32Param, extensionType);
     AppExecFwk::AbilityInfo abilityInfo;
     abilityms.ReportAbilitStartInfoToRSS(abilityInfo);
-    abilityms.ReportEventToSuspendManager(abilityInfo);
+    abilityms.ReportEventToRSS(abilityInfo, token);
     abilityms.StartExtensionAbility(want, token, int32Param, extensionType);
     abilityms.StopExtensionAbility(want, token, int32Param, extensionType);
-    abilityms.TerminateAbility(token, intParam, want);
-    abilityms.CloseAbility(token, intParam, want);
+    abilityms.TerminateAbility(token, intParam, &want);
+    abilityms.CloseAbility(token, intParam, &want);
     abilityms.TerminateAbilityWithFlag(token, intParam, &want, boolParam);
     abilityms.SendResultToAbility(intParam, intParam, want);
     abilityms.StartRemoteAbility(want, intParam, int32Param, token);
@@ -120,8 +126,11 @@ void DoSomethingInterestingWithMyAPI1(AbilityManagerService &abilityms, Want& wa
 }
 
 void DoSomethingInterestingWithMyAPI2(AbilityManagerService &abilityms, Want& want,
-    sptr<IRemoteObject> token)
+    sptr<IRemoteObject> token, const char* data, size_t size)
 {
+    int32_t int32Param = static_cast<int32_t>(GetU32Data(data));
+    int64_t int64Param = static_cast<int64_t>(GetU32Data(data));
+    std::string stringParam(data, size);
     sptr<AbilityRuntime::IConnectionObserver> observer;
     abilityms.RegisterObserver(observer);
     abilityms.UnregisterObserver(observer);
@@ -149,12 +158,6 @@ void DoSomethingInterestingWithMyAPI2(AbilityManagerService &abilityms, Want& wa
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    bool boolParam = *data % ENABLE;
-    int intParam = static_cast<int>(GetU32Data(data));
-    int32_t int32Param = static_cast<int32_t>(GetU32Data(data));
-    int64_t int64Param = static_cast<int64_t>(GetU32Data(data));
-    uint32_t uint32Param = GetU32Data(data);
-    std::string stringParam(data, size);
     Parcel wantParcel;
     Want* want = nullptr;
     if (wantParcel.WriteBuffer(data, size)) {
@@ -167,8 +170,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     // fuzz for AbilityManagerService
     auto abilityms = std::make_shared<AbilityManagerService>();
-    DoSomethingInterestingWithMyAPI1(*abilityms, *want, token);
-    DoSomethingInterestingWithMyAPI2(*abilityms, *want, token);
+    DoSomethingInterestingWithMyAPI1(*abilityms, *want, token, data, size);
+    DoSomethingInterestingWithMyAPI2(*abilityms, *want, token, data, size);
     if (!want) {
         delete want;
         want = nullptr;

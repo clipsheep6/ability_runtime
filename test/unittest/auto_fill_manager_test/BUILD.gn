@@ -47,6 +47,11 @@ ohos_unittest("auto_fill_manager_test") {
     "ability_base:configuration",
     "ability_base:view_data",
     "ability_base:want",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:ability_manager",
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:app_manager",
+    "ability_runtime:runtime",
     "accessibility:accessibility_common",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
@@ -63,7 +68,14 @@ ohos_unittest("auto_fill_manager_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "ace_engine:ace_uicontent" ]
+    external_deps += [
+      "ace_engine:ace_uicontent",
+      "window_manager:libwm",
+    ]
+    defines = [
+      "SUPPORT_GRAPHICS",
+      "SUPPORT_SCREEN",
+    ]
   }
 }
 

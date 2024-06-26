@@ -411,6 +411,13 @@ public:
     void ScheduleProcessSecurityExit();
 
     /**
+     * ScheduleTerminate, Notify application clear page stack.
+     *
+     * @return
+     */
+    void ScheduleClearPageStack();
+
+    /**
      * ScheduleTrimMemory, Notifies the application of the memory seen.
      *
      * @return
@@ -534,6 +541,8 @@ public:
 
     bool IsLastPageAbilityRecord(const sptr<IRemoteObject> &token);
 
+    bool ExtensionAbilityRecordExists();
+
     void SetTerminating();
 
     bool IsTerminating();
@@ -628,6 +637,7 @@ public:
 
     using Closure = std::function<void()>;
     void PostTask(std::string msg, int64_t timeOut, const Closure &task);
+    bool CancelTask(std::string msg);
     void RemoveTerminateAbilityTimeoutTask(const sptr<IRemoteObject>& token) const;
 
     int32_t NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
@@ -673,9 +683,9 @@ public:
     ProcessType GetProcessType() const;
 
     int32_t NotifyAppFault(const FaultData &faultData);
-
+#ifdef SUPPORT_SCREEN
     void OnWindowVisibilityChanged(const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos);
-
+#endif //SUPPORT_SCREEN
     bool IsAbilitytiesBackground();
 
     inline void SetAbilityForegroundingFlag()
@@ -783,6 +793,8 @@ public:
 
     bool SetSupportedProcessCache(bool isSupport);
     SupportProcessCacheState GetSupportProcessCacheState();
+    void SetAttachedToStatusBar(bool isAttached);
+    bool IsAttachedToStatusBar();
 
     void SetBrowserHost(sptr<IRemoteObject> browser);
     sptr<IRemoteObject> GetBrowserHost();
@@ -790,6 +802,18 @@ public:
     bool GetIsGPU();
     void SetGPUPid(pid_t gpuPid);
     pid_t GetGPUPid();
+
+    void ScheduleCacheProcess();
+    
+    inline void SetStrictMode(bool strictMode)
+    {
+        isStrictMode_ = strictMode;
+    }
+
+    inline bool IsStrictMode()
+    {
+        return isStrictMode_;
+    }
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -949,6 +973,8 @@ private:
     sptr<IRemoteObject> browserHost_;
     bool isGPU_ = false;
     pid_t gpuPid_ = 0;
+    bool isStrictMode_ = false;
+    bool isAttachedToStatusBar = false;
 };
 
 }  // namespace AppExecFwk

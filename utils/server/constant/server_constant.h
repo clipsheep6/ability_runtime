@@ -18,7 +18,6 @@
 
 namespace OHOS::AbilityRuntime {
 namespace ServerConstant {
-constexpr const char* APP_CLONE_INDEX = "ohos.extra.param.key.appCloneIndex";
 constexpr const char* DLP_INDEX = "ohos.dlp.params.index";
 }  // namespace ServerConstant
 }  // namespace OHOS::AbilityRuntime

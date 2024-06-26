@@ -279,19 +279,6 @@ HWTEST_F(AbilityManagerClientBranchTest, ForceTimeoutForTest_0100, TestSize.Leve
 #endif
 
 /**
- * @tc.name: AbilityManagerClient_ClearUpApplicationData_0100
- * @tc.desc: ClearUpApplicationData
- * @tc.type: FUNC
- * @tc.require: issueI5NRWT
- */
-HWTEST_F(AbilityManagerClientBranchTest, ClearUpApplicationData_0100, TestSize.Level1)
-{
-    std::string bundleName = "bundleName_test";
-    auto result = client_->ClearUpApplicationData(bundleName);
-    EXPECT_EQ(ERR_OK, result);
-}
-
-/**
  * @tc.name: AbilityManagerClient_StartContinuation_0100
  * @tc.desc: StartContinuation
  * @tc.type: FUNC
@@ -1522,7 +1509,8 @@ HWTEST_F(AbilityManagerClientBranchTest, SetRootSceneSession_001, TestSize.Level
 HWTEST_F(AbilityManagerClientBranchTest, CallUIAbilityBySCB_001, TestSize.Level1)
 {
     sptr<SessionInfo> sessionInfo = new SessionInfo();
-    AbilityManagerClient::GetInstance()->CallUIAbilityBySCB(sessionInfo);
+    bool isColdStart = false;
+    AbilityManagerClient::GetInstance()->CallUIAbilityBySCB(sessionInfo, isColdStart);
     EXPECT_NE(sessionInfo, nullptr);
 }
 
@@ -1535,7 +1523,8 @@ HWTEST_F(AbilityManagerClientBranchTest, CallUIAbilityBySCB_002, TestSize.Level1
 {
     sptr<SessionInfo> sessionInfo = new SessionInfo();
     EXPECT_NE(sessionInfo, nullptr);
-    AbilityManagerClient::GetInstance()->CallUIAbilityBySCB(sessionInfo);
+    bool isColdStart = false;
+    AbilityManagerClient::GetInstance()->CallUIAbilityBySCB(sessionInfo, isColdStart);
     EXPECT_NE(sessionInfo, nullptr);
 }
 
@@ -2448,8 +2437,9 @@ HWTEST_F(AbilityManagerClientBranchTest, SetMissionContinueState_0100, TestSize.
     EXPECT_NE(client_, nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         sptr<IRemoteObject> token = nullptr;
+        sptr<IRemoteObject> sessionToken = nullptr;
         AAFwk::ContinueState state = AAFwk::ContinueState::CONTINUESTATE_ACTIVE;
-        auto result = client_->SetMissionContinueState(token, state);
+        auto result = client_->SetMissionContinueState(token, state, sessionToken);
         EXPECT_EQ(ERR_OK, result);
     }
     GTEST_LOG_(INFO) << "SetMissionContinueState_0100 end";
@@ -2619,6 +2609,20 @@ HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_TransferAbilityRes
     auto result = client_->TransferAbilityResultForExtension(callerToken, resultCode, resultWant);
     EXPECT_EQ(result, NO_ERROR);
     GTEST_LOG_(INFO) << "AbilityManagerClient_TransferAbilityResultForExtension_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_SetResidentProcessEnabled_0100
+ * @tc.desc: SetResidentProcessEnabled
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_SetResidentProcessEnabled_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityManagerClient_SetResidentProcessEnabled_0100 start";
+    bool enable = false;
+    auto result = client_->SetResidentProcessEnabled(BUNDLE_NAME, enable);
+    EXPECT_TRUE(client_ != nullptr);
+    GTEST_LOG_(INFO) << "AbilityManagerClient_SetResidentProcessEnabled_0100 end";
 }
 }  // namespace AAFwk
 }  // namespace OHOS

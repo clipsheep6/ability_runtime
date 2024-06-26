@@ -375,6 +375,21 @@ void AppSchedulerProxy::ScheduleProcessSecurityExit()
     }
 }
 
+void AppSchedulerProxy::ScheduleClearPageStack()
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    int32_t ret = SendTransactCmd(
+        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_CLEAR_PAGE_STACK), data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
+    }
+}
+
 void AppSchedulerProxy::ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName)
 {
     MessageParcel data;
@@ -750,6 +765,21 @@ int32_t AppSchedulerProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
         return ret;
     }
     return ret;
+}
+
+void AppSchedulerProxy::ScheduleCacheProcess()
+{
+    uint32_t operation = static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_CACHE_PROCESS);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    int32_t ret = SendTransactCmd(operation, data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

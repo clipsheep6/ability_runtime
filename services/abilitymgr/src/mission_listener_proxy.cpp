@@ -52,7 +52,7 @@ void MissionListenerProxy::OnMissionUnfocused(int32_t missionId)
     SendRequestCommon(missionId, IMissionListener::ON_MISSION_UNFOCUSED);
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 void MissionListenerProxy::OnMissionIconUpdated(int32_t missionId, const std::shared_ptr<Media::PixelMap> &icon)
 {
     if (!icon) {

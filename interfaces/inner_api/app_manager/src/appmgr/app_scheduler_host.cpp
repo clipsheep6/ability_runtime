@@ -49,6 +49,8 @@ AppSchedulerHost::AppSchedulerHost()
         &AppSchedulerHost::HandleScheduleConfigurationUpdated;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_PROCESS_SECURITY_EXIT_TRANSACTION)] =
         &AppSchedulerHost::HandleScheduleProcessSecurityExit;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_CLEAR_PAGE_STACK)] =
+        &AppSchedulerHost::HandleScheduleClearPageStack;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ABILITY_STAGE_INFO)] =
         &AppSchedulerHost::HandleScheduleAbilityStage;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ACCEPT_WANT)] =
@@ -88,6 +90,8 @@ void AppSchedulerHost::InitMemberFuncMap()
         &AppSchedulerHost::HandleScheduleDumpIpcStat;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DUMP_FFRT)] =
         &AppSchedulerHost::HandleScheduleDumpFfrt;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_CACHE_PROCESS)] =
+        &AppSchedulerHost::HandleScheduleCacheProcess;
 }
 
 AppSchedulerHost::~AppSchedulerHost()
@@ -289,6 +293,13 @@ int32_t AppSchedulerHost::HandleScheduleProcessSecurityExit(MessageParcel &data,
     return NO_ERROR;
 }
 
+int32_t AppSchedulerHost::HandleScheduleClearPageStack(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    ScheduleClearPageStack();
+    return NO_ERROR;
+}
+
 int32_t AppSchedulerHost::HandleScheduleAcceptWant(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER(HITRACE_TAG_APP);
@@ -445,6 +456,13 @@ int32_t AppSchedulerHost::HandleScheduleDumpFfrt(MessageParcel &data, MessagePar
         TAG_LOGE(AAFwkTag::APPMGR, "Fail to write string of ScheduleDumpFfrt result");
         return ERR_INVALID_VALUE;
     }
+    return NO_ERROR;
+}
+
+int32_t AppSchedulerHost::HandleScheduleCacheProcess(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    ScheduleCacheProcess();
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

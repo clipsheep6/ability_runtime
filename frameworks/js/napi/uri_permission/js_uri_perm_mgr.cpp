@@ -151,7 +151,7 @@ private:
         [uriStr, bundleName](napi_env env, NapiAsyncTask& task, int32_t status) {
             Uri uri(uriStr);
             auto errCode = AAFwk::UriPermissionManagerClient::GetInstance().RevokeUriPermissionManually(uri,
-                bundleName);
+                bundleName, 0);
             if (errCode == ERR_OK) {
                 task.ResolveWithNoError(env, CreateJsUndefined(env));
             } else if (errCode == AAFwk::CHECK_PERMISSION_FAILED) {

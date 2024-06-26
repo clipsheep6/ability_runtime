@@ -32,9 +32,12 @@ ohos_shared_library("dialogsession_napi") {
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/appkit:app_context",
   ]
-
+  if (ability_runtime_graphics) {
+    defines = [ "SUPPORT_SCREEN" ]
+  }
   external_deps = [
     "ability_base:extractortool",
+    "ability_base:session_info",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",

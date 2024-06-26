@@ -16,17 +16,22 @@
 #include "startup_util.h"
 
 #include "ability_info.h"
+#include "extension_ability_info.h"
+#include "global_constant.h"
 #include "server_constant.h"
 #include "want.h"
 
 namespace OHOS::AbilityRuntime {
-int32_t StartupUtil::GetAppIndex(const AAFwk::Want &want)
+bool StartupUtil::GetAppIndex(const AAFwk::Want &want, int32_t &appIndex)
 {
-    int32_t appIndex = want.GetIntParam(ServerConstant::APP_CLONE_INDEX, 0);
+    appIndex = want.GetIntParam(ServerConstant::DLP_INDEX, 0);
     if (appIndex == 0) {
-        appIndex = want.GetIntParam(ServerConstant::DLP_INDEX, 0);
+        appIndex = want.GetIntParam(AAFwk::Want::PARAM_APP_CLONE_INDEX_KEY, 0);
+        if (appIndex < 0 || appIndex > GlobalConstant::MAX_APP_CLONE_INDEX) {
+            return false;
+        }
     }
-    return appIndex;
+    return true;
 }
 
 int32_t StartupUtil::BuildAbilityInfoFlag()
@@ -35,4 +40,50 @@ int32_t StartupUtil::BuildAbilityInfoFlag()
         AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
         AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA;
 }
+
+bool StartupUtil::IsSupportAppClone(AppExecFwk::ExtensionAbilityType type)
+{
+    return type == AppExecFwk::ExtensionAbilityType::WORK_SCHEDULER ||
+        type == AppExecFwk::ExtensionAbilityType::BACKUP ||
+        type == AppExecFwk::ExtensionAbilityType::SHARE;
+}
+
+void StartupUtil::InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo &extensionInfo,
+    AppExecFwk::AbilityInfo &abilityInfo)
+{
+    abilityInfo.applicationName = extensionInfo.applicationInfo.name;
+    abilityInfo.applicationInfo = extensionInfo.applicationInfo;
+    abilityInfo.bundleName = extensionInfo.bundleName;
+    abilityInfo.package = extensionInfo.moduleName;
+    abilityInfo.moduleName = extensionInfo.moduleName;
+    abilityInfo.name = extensionInfo.name;
+    abilityInfo.srcEntrance = extensionInfo.srcEntrance;
+    abilityInfo.srcPath = extensionInfo.srcEntrance;
+    abilityInfo.iconPath = extensionInfo.icon;
+    abilityInfo.iconId = extensionInfo.iconId;
+    abilityInfo.label = extensionInfo.label;
+    abilityInfo.labelId = extensionInfo.labelId;
+    abilityInfo.description = extensionInfo.description;
+    abilityInfo.descriptionId = extensionInfo.descriptionId;
+    abilityInfo.priority = extensionInfo.priority;
+    abilityInfo.permissions = extensionInfo.permissions;
+    abilityInfo.readPermission = extensionInfo.readPermission;
+    abilityInfo.writePermission = extensionInfo.writePermission;
+    abilityInfo.uri = extensionInfo.uri;
+    abilityInfo.extensionAbilityType = extensionInfo.type;
+    abilityInfo.visible = extensionInfo.visible;
+    abilityInfo.resourcePath = extensionInfo.resourcePath;
+    abilityInfo.enabled = extensionInfo.enabled;
+    abilityInfo.isModuleJson = true;
+    abilityInfo.isStageBasedModel = true;
+    abilityInfo.process = extensionInfo.process;
+    abilityInfo.metadata = extensionInfo.metadata;
+    abilityInfo.compileMode = extensionInfo.compileMode;
+    abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
+    abilityInfo.extensionTypeName = extensionInfo.extensionTypeName;
+    if (!extensionInfo.hapPath.empty()) {
+        abilityInfo.hapPath = extensionInfo.hapPath;
+    }
+}
+
 }  // namespace OHOS::AbilityRuntime

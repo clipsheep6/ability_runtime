@@ -67,6 +67,7 @@ ohos_unittest("AmsRecentAppListTest") {
     "${ability_runtime_services_path}/common:app_util",
     "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",
+    "${ability_runtime_services_path}/common:res_sched_util",
     "${ability_runtime_services_path}/common:task_handler_wrap",
     "${ability_runtime_test_path}/unittest:appmgr_test_source",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
@@ -92,21 +93,16 @@ ohos_unittest("AmsRecentAppListTest") {
     "ipc:ipc_core",
     "kv_store:distributeddata_inner",
     "kv_store:distributeddata_mgr",
+    "memmgr:memmgrclient",
     "memory_utils:libmeminfo",
     "resource_schedule_service:ressched_client",
   ]
 
   if (ability_runtime_graphics) {
     external_deps += [
-      "window_manager:libwm",
+      "window_manager:libwm_lite",
       "window_manager:libwsutils",
     ]
-  }
-
-  if (ability_runtime_use_memmgr_plugin) {
-    external_deps += [ "memmgr_override:memmgrclient" ]
-  } else if (ability_runtime_use_memmgr) {
-    external_deps += [ "memmgr:memmgrclient" ]
   }
 }
 

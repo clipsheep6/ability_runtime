@@ -198,6 +198,17 @@ void AppLifeCycleDeal::ScheduleProcessSecurityExit()
     appThread->ScheduleProcessSecurityExit();
 }
 
+void AppLifeCycleDeal::ScheduleClearPageStack()
+{
+    auto appThread = GetApplicationClient();
+    if (!appThread) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
+        return;
+    }
+
+    appThread->ScheduleClearPageStack();
+}
+
 void AppLifeCycleDeal::SetApplicationClient(const sptr<IAppScheduler> &thread)
 {
     std::lock_guard guard(schedulerMutex_);
@@ -382,6 +393,17 @@ int AppLifeCycleDeal::DumpFfrt(std::string& result)
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
     return appThread->ScheduleDumpFfrt(result);
+}
+
+void AppLifeCycleDeal::ScheduleCacheProcess()
+{
+    auto appThread = GetApplicationClient();
+    if (!appThread) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
+        return;
+    }
+
+    appThread->ScheduleCacheProcess();
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

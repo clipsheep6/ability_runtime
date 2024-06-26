@@ -31,11 +31,15 @@ config("ability_context_public_config") {
   ]
 
   cflags = []
+  defines = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   if (ability_runtime_graphics) {
-    defines = [ "SUPPORT_GRAPHICS" ]
+    defines += [
+      "SUPPORT_GRAPHICS",
+      "SUPPORT_SCREEN",
+    ]
   }
   if (hichecker_enabled) {
     defines += [ "SUPPORT_HICHECKER" ]

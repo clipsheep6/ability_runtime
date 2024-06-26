@@ -105,7 +105,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     appMgrService->Dump(fd, args);
     std::string result(data, size);
     appMgrService->Dump(args, result);
-    appMgrService->ShowHelp(args, result);
+    appMgrService->ShowHelp(result);
     std::string flag(data, size);
     appMgrService->ScheduleAcceptWantDone(recordId, *want, flag);
     Configuration config;
@@ -136,7 +136,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     appMgrService->ApplicationBackgrounded(recordId);
     sptr<IRemoteObject> token = GetFuzzAbilityToken();
     appMgrService->AbilityCleaned(token);
-    appMgrService->ClearUpApplicationData(bundleName);
+    int32_t appCloneIndex = static_cast<int32_t>(GetU32Data(data));
+    appMgrService->ClearUpApplicationData(bundleName, appCloneIndex);
     appMgrService->ApplicationTerminated(recordId);
     std::string msg(data, size);
     int64_t resultCode = static_cast<int64_t>(GetU32Data(data));

@@ -62,6 +62,7 @@ public:
     std::unordered_map<int, std::shared_ptr<MissionListManager>> GetMissionListManagers();
     std::shared_ptr<MissionListManager> GetCurrentMissionListManager();
     std::shared_ptr<MissionListManager> GetMissionListManagerByUserId(int32_t userId);
+    std::shared_ptr<MissionListManager> GetMissionListManagerByUid(int32_t uid);
 
     std::unordered_map<int, std::shared_ptr<UIAbilityLifecycleManager>> GetUIAbilityManagers();
     std::shared_ptr<UIAbilityLifecycleManager> GetCurrentUIAbilityManager();
@@ -72,6 +73,7 @@ public:
     void UninstallAppInUIAbilityManagers(int32_t userId, const std::string &bundleName, int32_t uid);
     void UninstallAppInMissionListManagers(int32_t userId, const std::string &bundleName, int32_t uid);
     bool VerificationAllToken(const sptr<IRemoteObject> &token);
+    bool VerificationAllTokenForConnectManagers(const sptr<IRemoteObject> &token);
 
 private:
     DISALLOW_COPY_AND_MOVE(SubManagersHelper);

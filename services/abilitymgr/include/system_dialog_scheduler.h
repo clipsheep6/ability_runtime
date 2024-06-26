@@ -70,11 +70,11 @@ public:
     explicit SystemDialogScheduler() = default;
     virtual ~SystemDialogScheduler() = default;
 
-    int GetSelectorDialogWantCommon(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant,
-        const sptr<IRemoteObject> &callerToken);
-    int GetPcSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant,
+    int GetSelectorDialogWantCommon(const std::vector<DialogAppInfo> &dialogAppInfos, Want &requestWant,
+        Want &targetWant, const sptr<IRemoteObject> &callerToken);
+    int GetPcSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &requestWant, Want &targetWant,
         const std::string &type, int32_t userId, const sptr<IRemoteObject> &callerToken);
-    int GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant,
+    int GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &requestWant, Want &targetWant,
         const sptr<IRemoteObject> &callerToken);
     Want GetTipsDialogWant(const sptr<IRemoteObject> &callerToken);
     Want GetJumpInterceptorDialogWant(Want &targetWant);
@@ -100,9 +100,6 @@ private:
     void DialogPortraitPositionAdaptive(
         DialogPosition &position, float densityPixels, int lineNums) const;
     void DialogPositionAdaptive(DialogPosition &position, int lineNums) const;
-
-    void GetAppNameFromResource(int32_t labelId,
-        const std::string &bundleName, int32_t userId, std::string &appName);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

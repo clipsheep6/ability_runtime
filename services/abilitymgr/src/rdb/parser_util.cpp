@@ -30,8 +30,8 @@ constexpr const char *INSTALL_LIST_CAPABILITY_CONFIG = "/install_list_capability
 constexpr const char *INSTALL_LIST = "install_list";
 constexpr const char *BUNDLE_NAME = "bundleName";
 constexpr const char *KEEP_ALIVE = "keepAlive";
-constexpr const char *KEEP_ALIVE_ENABLE = "KeepAliveEnable";
-constexpr const char *KEEP_ALIVE_CONFIGURED_LIST = "KeepAliveConfiguredList";
+constexpr const char *KEEP_ALIVE_ENABLE = "keepAliveEnable";
+constexpr const char *KEEP_ALIVE_CONFIGURED_LIST = "keepAliveConfiguredList";
 
 } // namespace
 ParserUtil &ParserUtil::GetInstance()
@@ -156,7 +156,13 @@ bool ParserUtil::ReadFileIntoJson(const std::string &filePath, nlohmann::json &j
         return false;
     }
 
-    std::ifstream fin(filePath);
+    char path[PATH_MAX] = {0};
+    if (realpath(filePath.c_str(), path) == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "realpath error, errno is %{public}d.", errno);
+        return false;
+    }
+
+    std::ifstream fin(path);
     if (!fin.is_open()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "File path exception.");
         return false;

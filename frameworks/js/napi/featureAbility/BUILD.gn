@@ -21,6 +21,8 @@ ohos_shared_library("featureability") {
     "feature_ability.cpp",
     "feature_ability_constant.cpp",
     "napi_data_ability_helper.cpp",
+    "napi_data_ability_helper_utils.cpp",
+    "napi_data_ability_observer.cpp",
     "napi_data_ability_operation.cpp",
     "native_module.cpp",
   ]
@@ -58,16 +60,17 @@ ohos_shared_library("featureability") {
       "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_napi",
     ]
     external_deps += [ "window_manager:window_native_kit" ]
-    defines = [ "SUPPORT_GRAPHICS" ]
+    defines = [
+      "SUPPORT_GRAPHICS",
+      "SUPPORT_SCREEN",
+    ]
   }
 
   if (ability_runtime_relational) {
     include_dirs += [
-      "${common_tool_path}",
       "${relational_store_napi_path}/common/include",
       "${relational_store_napi_path}/dataability/include",
       "${relational_store_napi_path}/rdb/include",
-      "${relational_store_common_path}/include",
     ]
     sources += [
       "${relational_store_napi_path}/common/src/js_utils.cpp",
@@ -76,6 +79,7 @@ ohos_shared_library("featureability") {
       "${relational_store_napi_path}/rdb/src/napi_result_set.cpp",
     ]
     external_deps += [
+      "kv_store:distributeddata_mgr",
       "relational_store:native_dataability",
       "relational_store:native_rdb",
       "relational_store:rdb_data_share_adapter",

@@ -19,6 +19,7 @@
 #include <map>
 #include <mutex>
 #include <regex>
+#include <set>
 
 #include "ability_info.h"
 #include "app_debug_listener_interface.h"
@@ -81,6 +82,17 @@ public:
     bool CheckAppRunningRecordIsExistByBundleName(const std::string &bundleName);
 
     /**
+     * CheckAppRunningRecordIsExistByBundleName, Check whether the process of the application exists.
+     *
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param appCloneIndex the appindex of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return, Return ERR_OK if success, others fail.
+     */
+    int32_t CheckAppCloneRunningRecordIsExistByBundleName(const std::string &bundleName,
+        int32_t appCloneIndex, bool &isRunning);
+
+    /**
      * GetAppRunningRecordByPid, Get process record by application pid.
      *
      * @param pid, the application pid.
@@ -102,9 +114,11 @@ public:
      * OnRemoteDied, Equipment death notification.
      *
      * @param remote, Death client.
+     * @param appMgrServiceInner, Application manager service inner instance.
      * @return
      */
-    std::shared_ptr<AppRunningRecord> OnRemoteDied(const wptr<IRemoteObject> &remote);
+    std::shared_ptr<AppRunningRecord> OnRemoteDied(const wptr<IRemoteObject> &remote,
+        std::shared_ptr<AppMgrServiceInner> appMgrServiceInner);
 
     /**
      * GetAppRunningRecordMap, Get application record list.
@@ -133,7 +147,8 @@ public:
      *
      * @return Return true if found, otherwise return false.
      */
-    bool ProcessExitByBundleName(const std::string &bundleName, std::list<pid_t> &pids);
+    bool ProcessExitByBundleName(
+        const std::string &bundleName, std::list<pid_t> &pids, const bool clearPageStack = true);
     /**
      * Get Foreground Applications.
      *
@@ -216,10 +231,11 @@ public:
      */
     int32_t ProcessUpdateApplicationInfoInstalled(const ApplicationInfo &appInfo);
 
-    bool ProcessExitByBundleNameAndUid(const std::string &bundleName, const int uid, std::list<pid_t> &pids);
+    bool ProcessExitByBundleNameAndUid(
+        const std::string &bundleName, const int uid, std::list<pid_t> &pids, const bool clearPageStack = true);
     bool GetPidsByUserId(int32_t userId, std::list<pid_t> &pids);
 
-    void PrepareTerminate(const sptr<IRemoteObject> &token);
+    void PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag = false);
 
     std::shared_ptr<AppRunningRecord> GetTerminatingAppRunningRecord(const sptr<IRemoteObject> &abilityToken);
 
@@ -240,8 +256,9 @@ public:
     bool IsApplicationBackground(const std::string &bundleName);
     bool IsApplicationFirstFocused(const AppRunningRecord &foregroundingRecord);
     bool IsApplicationUnfocused(const std::string &bundleName);
+#ifdef SUPPORT_SCREEN
     void OnWindowVisibilityChanged(const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos);
-
+#endif //SUPPORT_SCREEN
     /**
      * @brief Set attach app debug mode.
      * @param bundleName The application bundle name.
@@ -299,6 +316,9 @@ public:
     int DumpIpcStat(const int32_t pid, std::string& result);
 
     int DumpFfrt(const std::vector<int32_t>& pids, std::string& result);
+
+    bool IsAppProcessesAllCached(const std::string &bundleName, int32_t uid,
+        const std::set<std::shared_ptr<AppRunningRecord>> &cachedSet);
 
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);

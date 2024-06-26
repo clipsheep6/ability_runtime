@@ -173,6 +173,8 @@ public:
      */
     virtual void ScheduleProcessSecurityExit() override;
 
+    virtual void ScheduleClearPageStack() override;
+
     virtual void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) override;
 
     virtual void ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName) override;
@@ -231,6 +233,8 @@ public:
      * @return Returns 0 on success, error code on failure.
      */
     virtual int32_t ScheduleDumpFfrt(std::string& result) override;
+
+    virtual void ScheduleCacheProcess() override;
 
 private:
     bool WriteInterfaceToken(MessageParcel &data);

@@ -60,7 +60,10 @@ inline std::unordered_set<AppExecFwk::ExtensionAbilityType> GetUiExtensionSet()
         AppExecFwk::ExtensionAbilityType::SYSPICKER_CAMERA,
         AppExecFwk::ExtensionAbilityType::SYSPICKER_FILEPICKER,
         AppExecFwk::ExtensionAbilityType::AUTO_FILL_SMART,
-        AppExecFwk::ExtensionAbilityType::LIVEVIEW_LOCKSCREEN
+        AppExecFwk::ExtensionAbilityType::LIVEVIEW_LOCKSCREEN,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOEDITOR,
+        AppExecFwk::ExtensionAbilityType::PHOTO_EDITOR,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_AUDIOPICKER
     };
 }
 
@@ -88,8 +91,52 @@ inline bool IsSystemUIExtension(const AppExecFwk::ExtensionAbilityType type)
         AppExecFwk::ExtensionAbilityType::SYSPICKER_APPSELECTOR,
         AppExecFwk::ExtensionAbilityType::UI,
         AppExecFwk::ExtensionAbilityType::SYS_COMMON_UI,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOEDITOR,
+        AppExecFwk::ExtensionAbilityType::ADS,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_AUDIOPICKER,
+        AppExecFwk::ExtensionAbilityType::AUTO_FILL_PASSWORD,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_CAMERA,
+        AppExecFwk::ExtensionAbilityType::AUTO_FILL_SMART,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_FILEPICKER,
+        AppExecFwk::ExtensionAbilityType::SYSDIALOG_USERAUTH,
+        AppExecFwk::ExtensionAbilityType::HMS_ACCOUNT
     };
     return systemUiExtensionSet.find(type) != systemUiExtensionSet.end();
+}
+
+// In this case, extension which be starting needs that caller should be the system app, otherwise not supported.
+inline bool IsSystemCallerNeeded(const AppExecFwk::ExtensionAbilityType type)
+{
+    const std::unordered_set<AppExecFwk::ExtensionAbilityType> uiExtensionStartingSet = {
+        AppExecFwk::ExtensionAbilityType::PHOTO_EDITOR,
+        AppExecFwk::ExtensionAbilityType::INSIGHT_INTENT_UI,
+        AppExecFwk::ExtensionAbilityType::LIVEVIEW_LOCKSCREEN,
+        AppExecFwk::ExtensionAbilityType::SHARE,
+        AppExecFwk::ExtensionAbilityType::ACTION,
+        AppExecFwk::ExtensionAbilityType::STATUS_BAR_VIEW,
+        AppExecFwk::ExtensionAbilityType::VOIP
+    };
+    return uiExtensionStartingSet.find(type) != uiExtensionStartingSet.end();
+}
+
+// In this collection, extension can be embedded by public app, which requires vertical businesses to ensure security.
+inline bool IsPublicForEmbedded(const AppExecFwk::ExtensionAbilityType type)
+{
+    const std::unordered_set<AppExecFwk::ExtensionAbilityType> publicForEmbeddedSet = {
+        AppExecFwk::ExtensionAbilityType::EMBEDDED_UI, // EMBEDDED_UI usage within the app
+        AppExecFwk::ExtensionAbilityType::ADS,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOPICKER
+    };
+    return publicForEmbeddedSet.find(type) != publicForEmbeddedSet.end();
+}
+
+// In this collection, extension can be embedded by public app, which some UX effects are constrained
+inline bool IsPublicForConstrainedEmbedded(const AppExecFwk::ExtensionAbilityType type)
+{
+    const std::unordered_set<AppExecFwk::ExtensionAbilityType> publicForConstrainedEmbeddedSet = {
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOPICKER
+    };
+    return publicForConstrainedEmbeddedSet.find(type) != publicForConstrainedEmbeddedSet.end();
 }
 
 inline bool IsEnterpriseAdmin(const AppExecFwk::ExtensionAbilityType type)

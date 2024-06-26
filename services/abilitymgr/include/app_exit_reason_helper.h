@@ -31,19 +31,18 @@ public:
     ~AppExitReasonHelper() = default;
 
     int32_t RecordAppExitReason(const ExitReason &exitReason);
+    int32_t RecordAppExitReason(const std::string &bundleName, int32_t uid, int32_t appIndex,
+        const ExitReason &exitReason);
     int32_t RecordProcessExtensionExitReason(
         const int32_t pid, const std::string &bundleName, const ExitReason &exitReason);
     int32_t RecordProcessExitReason(const int32_t pid, const ExitReason &exitReason);
-    int32_t RecordProcessExitReason(const int32_t pid, const ExitReason &exitReason, const std::string bundleName,
-        const int32_t uid);
 
 private:
-    void GetActiveAbilityListByU0(const std::string bundleName, std::vector<std::string> &abilityLists,
+    int32_t RecordProcessExitReason(const int32_t pid, const std::string bundleName, const int32_t uid,
+        const uint32_t accessTokenId, const ExitReason &exitReason);
+    void GetActiveAbilityList(int32_t uid, std::vector<std::string> &abilityLists, const int32_t pid);
+    void GetActiveAbilityListFromUIAbilityManager(int32_t uid, std::vector<std::string> &abilityLists,
         const int32_t pid);
-    void GetActiveAbilityListByUser(const std::string bundleName, std::vector<std::string> &abilityLists,
-        const int32_t targetUserId, const int32_t pid);
-    void GetActiveAbilityListFromUIAabilityManager(const std::string bundleName,
-        std::vector<std::string> &abilityLists, const int32_t targetUserId, const int32_t pid);
     bool IsExitReasonValid(const ExitReason &exitReason);
 
     std::shared_ptr<SubManagersHelper> subManagersHelper_;

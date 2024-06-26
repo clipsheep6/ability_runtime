@@ -15,11 +15,11 @@
 
 #include "interceptor/ability_jump_interceptor.h"
 
+#include "ability_manager_service.h"
 #include "ability_util.h"
 #include "accesstoken_kit.h"
 #include "app_jump_control_rule.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 #include "permission_constants.h"
@@ -30,11 +30,11 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string JUMP_DIALOG_CALLER_BUNDLE_NAME = "interceptor_callerBundleName";
-const std::string JUMP_DIALOG_CALLER_MODULE_NAME = "interceptor_callerModuleName";
-const std::string JUMP_DIALOG_CALLER_LABEL_ID = "interceptor_callerLabelId";
-const std::string JUMP_DIALOG_TARGET_MODULE_NAME = "interceptor_targetModuleName";
-const std::string JUMP_DIALOG_TARGET_LABEL_ID = "interceptor_targetLabelId";
+constexpr const char* JUMP_DIALOG_CALLER_BUNDLE_NAME = "interceptor_callerBundleName";
+constexpr const char* JUMP_DIALOG_CALLER_MODULE_NAME = "interceptor_callerModuleName";
+constexpr const char* JUMP_DIALOG_CALLER_LABEL_ID = "interceptor_callerLabelId";
+constexpr const char* JUMP_DIALOG_TARGET_MODULE_NAME = "interceptor_targetModuleName";
+constexpr const char* JUMP_DIALOG_TARGET_LABEL_ID = "interceptor_targetLabelId";
 }
 ErrCode AbilityJumpInterceptor::DoProcess(AbilityInterceptorParam param)
 {
@@ -75,7 +75,7 @@ ErrCode AbilityJumpInterceptor::DoProcess(AbilityInterceptorParam param)
         Want dialogWant = sysDialogScheduler->GetJumpInterceptorDialogWant(targetWant);
         AbilityUtil::ParseJumpInterceptorWant(dialogWant, controlRule.callerPkg);
         LoadAppLabelInfo(dialogWant, controlRule, param.userId);
-        int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(dialogWant,
+        int ret = IN_PROCESS_CALL(DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(dialogWant,
             param.requestCode, param.userId));
         if (ret != ERR_OK) {
             TAG_LOGI(AAFwkTag::ABILITYMGR, "appInterceptor Dialog StartAbility error, ret:%{public}d", ret);

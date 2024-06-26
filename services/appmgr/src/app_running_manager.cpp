@@ -28,15 +28,17 @@
 #include "perf_profile.h"
 #include "parameters.h"
 #include "quick_fix_callback_with_record.h"
+#include <cstddef>
+#ifdef SUPPORT_SCREEN
 #include "scene_board_judgement.h"
-#include "ui_extension_utils.h"
-#include "app_mgr_service_const.h"
-#include "cache_process_manager.h"
-#ifdef EFFICIENCY_MANAGER_ENABLE
-#include "suspend_manager_client.h"
-#endif
-#include "app_mgr_service_dump_error_code.h"
 #include "window_visibility_info.h"
+#endif //SUPPORT_SCREEN
+#include "app_mgr_service_const.h"
+#include "app_mgr_service_dump_error_code.h"
+#include "cache_process_manager.h"
+#include "res_sched_util.h"
+#include "ui_extension_utils.h"
+
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -157,6 +159,21 @@ bool AppRunningManager::CheckAppRunningRecordIsExistByBundleName(const std::stri
     return false;
 }
 
+int32_t AppRunningManager::CheckAppCloneRunningRecordIsExistByBundleName(const std::string &bundleName,
+    int32_t appCloneIndex, bool &isRunning)
+{
+    std::lock_guard guard(runningRecordMapMutex_);
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetBundleName() == bundleName && !(appRecord->GetRestartAppFlag()) &&
+            appRecord->GetAppIndex() == appCloneIndex) {
+            isRunning = true;
+            break;
+        }
+    }
+    return ERR_OK;
+}
+
 int32_t AppRunningManager::GetAllAppRunningRecordCountByBundleName(const std::string &bundleName)
 {
     int32_t count = 0;
@@ -194,7 +211,8 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByAbilit
     return nullptr;
 }
 
-bool AppRunningManager::ProcessExitByBundleName(const std::string &bundleName, std::list<pid_t> &pids)
+bool AppRunningManager::ProcessExitByBundleName(
+    const std::string &bundleName, std::list<pid_t> &pids, const bool clearPageStack)
 {
     auto appRunningMap = GetAppRunningRecordMap();
     for (const auto &item : appRunningMap) {
@@ -209,10 +227,14 @@ bool AppRunningManager::ProcessExitByBundleName(const std::string &bundleName, s
                 return appInfo->bundleName == bundleName;
             };
             auto iter = std::find_if(appInfoList.begin(), appInfoList.end(), isExist);
-            if (iter != appInfoList.end() && pid > 0) {
-                pids.push_back(pid);
-                appRecord->ScheduleProcessSecurityExit();
+            if (iter == appInfoList.end() || pid <= 0) {
+                continue;
             }
+            pids.push_back(pid);
+            if (clearPageStack) {
+                appRecord->ScheduleClearPageStack();
+            }
+            appRecord->ScheduleProcessSecurityExit();
         }
     }
 
@@ -261,25 +283,29 @@ int32_t AppRunningManager::ProcessUpdateApplicationInfoInstalled(const Applicati
 }
 
 bool AppRunningManager::ProcessExitByBundleNameAndUid(
-    const std::string &bundleName, const int uid, std::list<pid_t> &pids)
+    const std::string &bundleName, const int uid, std::list<pid_t> &pids, const bool clearPageStack)
 {
     auto appRunningMap = GetAppRunningRecordMap();
     for (const auto &item : appRunningMap) {
         const auto &appRecord = item.second;
-        if (appRecord) {
-            auto appInfoList = appRecord->GetAppInfoList();
-            auto isExist = [&bundleName, &uid](const std::shared_ptr<ApplicationInfo> &appInfo) {
-                return appInfo->bundleName == bundleName && appInfo->uid == uid;
-            };
-            auto iter = std::find_if(appInfoList.begin(), appInfoList.end(), isExist);
-            pid_t pid = appRecord->GetPriorityObject()->GetPid();
-            if (iter != appInfoList.end() && pid > 0) {
-                pids.push_back(pid);
-
-                appRecord->SetKilling();
-                appRecord->ScheduleProcessSecurityExit();
-            }
+        if (appRecord == nullptr) {
+            continue;
         }
+        auto appInfoList = appRecord->GetAppInfoList();
+        auto isExist = [&bundleName, &uid](const std::shared_ptr<ApplicationInfo> &appInfo) {
+            return appInfo->bundleName == bundleName && appInfo->uid == uid;
+        };
+        auto iter = std::find_if(appInfoList.begin(), appInfoList.end(), isExist);
+        pid_t pid = appRecord->GetPriorityObject()->GetPid();
+        if (iter == appInfoList.end() || pid <= 0) {
+            continue;
+        }
+        pids.push_back(pid);
+        if (clearPageStack) {
+            appRecord->ScheduleClearPageStack();
+        }
+        appRecord->SetKilling();
+        appRecord->ScheduleProcessSecurityExit();
     }
 
     return (pids.empty() ? false : true);
@@ -296,7 +322,8 @@ bool AppRunningManager::ProcessExitByPid(pid_t pid)
     return false;
 }
 
-std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRemoteObject> &remote)
+std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRemoteObject> &remote,
+    std::shared_ptr<AppMgrServiceInner> appMgrServiceInner)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (remote == nullptr) {
@@ -333,6 +360,9 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRe
         auto priorityObject = appRecord->GetPriorityObject();
         if (priorityObject != nullptr) {
             TAG_LOGI(AAFwkTag::APPMGR, "pid: %{public}d.", priorityObject->GetPid());
+            if (appMgrServiceInner != nullptr) {
+                appMgrServiceInner->KillProcessByPid(priorityObject->GetPid(), "OnRemoteDied");
+            }
         }
     }
     if (appRecord != nullptr && appRecord->GetPriorityObject() != nullptr) {
@@ -458,7 +488,7 @@ void AppRunningManager::HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &to
     appRecord->PostTask("DELAY_KILL_ABILITY", AMSEventHandler::KILL_PROCESS_TIMEOUT, timeoutTask);
 }
 
-void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token)
+void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag)
 {
     if (token == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "token is nullptr.");
@@ -476,9 +506,13 @@ void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token)
         abilityRecord->SetTerminating();
     }
 
-    if (appRecord->IsLastAbilityRecord(token) && (!appRecord->IsKeepAliveApp() ||
+    // set app record terminating when close last page ability
+    auto isLastAbility =
+        clearMissionFlag ? appRecord->IsLastPageAbilityRecord(token) : appRecord->IsLastAbilityRecord(token);
+    if (isLastAbility && (!appRecord->IsKeepAliveApp() ||
         !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent())) {
         auto cacheProcMgr = DelayedSingleton<CacheProcessManager>::GetInstance();
+        cacheProcMgr->UpdateTypeByAbility(abilityRecord, appRecord);
         if (cacheProcMgr != nullptr && cacheProcMgr->IsAppShouldCache(appRecord)) {
             cacheProcMgr->PenddingCacheProcess(appRecord);
             TAG_LOGI(AAFwkTag::APPMGR, "App %{public}s supports process cache, not terminate record.",
@@ -530,15 +564,18 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
 
     auto isLastAbility =
         clearMissionFlag ? appRecord->IsLastPageAbilityRecord(token) : appRecord->IsLastAbilityRecord(token);
+#ifdef SUPPORT_SCREEN
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         appRecord->TerminateAbility(token, true);
     } else {
         appRecord->TerminateAbility(token, false);
     }
+#endif //SUPPORT_SCREEN
     auto isLauncherApp = appRecord->GetApplicationInfo()->isLauncherApp;
     if (isLastAbility && (!appRecord->IsKeepAliveApp() ||
         !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent()) && !isLauncherApp) {
         auto cacheProcMgr = DelayedSingleton<CacheProcessManager>::GetInstance();
+        cacheProcMgr->UpdateTypeByToken(token, appRecord);
         if (cacheProcMgr != nullptr && cacheProcMgr->IsAppShouldCache(appRecord)) {
             TAG_LOGI(AAFwkTag::APPMGR, "App %{public}s is cached, not terminate app.",
                 appRecord->GetBundleName().c_str());
@@ -547,7 +584,9 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
         TAG_LOGD(AAFwkTag::APPMGR, "The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
         if (clearMissionFlag && appMgrServiceInner != nullptr) {
-            appRecord->PostTask("DELAY_KILL_PROCESS", AMSEventHandler::DELAY_KILL_PROCESS_TIMEOUT, killProcess);
+            auto delayTime = appRecord->ExtensionAbilityRecordExists() ?
+                AMSEventHandler::DELAY_KILL_EXTENSION_PROCESS_TIMEOUT : AMSEventHandler::DELAY_KILL_PROCESS_TIMEOUT;
+            appRecord->PostTask("DELAY_KILL_PROCESS", delayTime, killProcess);
         }
     }
 }
@@ -593,9 +632,14 @@ int32_t AppRunningManager::AssignRunningProcessInfoByAppRecord(
     info.isTestMode = info.isTestProcess && system::GetBoolParameter(DEVELOPER_MODE_STATE, false);
     info.extensionType_ = appRecord->GetExtensionType();
     info.processType_ = appRecord->GetProcessType();
+    info.isStrictMode = appRecord->IsStrictMode();
     auto appInfo = appRecord->GetApplicationInfo();
     if (appInfo) {
         info.bundleType = static_cast<int32_t>(appInfo->bundleType);
+    }
+    if (appInfo && (static_cast<int32_t>(appInfo->multiAppMode.multiAppModeType) ==
+            static_cast<int32_t>(MultiAppModeType::APP_CLONE))) {
+            info.appCloneIndex = appRecord->GetAppIndex();
     }
     return ERR_OK;
 }
@@ -733,20 +777,7 @@ bool AppRunningManager::isCollaboratorReserveType(const std::shared_ptr<AppRunni
 int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
 {
     std::unordered_set<int32_t> frozenPids;
-#ifdef EFFICIENCY_MANAGER_ENABLE
-    std::unordered_map<int32_t, std::unordered_map<int32_t, bool>> appSuspendState;
-    SuspendManager::SuspendManagerClient::GetInstance().GetAllSuspendState(appSuspendState);
-    if (appSuspendState.empty()) {
-        TAG_LOGW(AAFwkTag::APPMGR, "Get app state empty");
-    }
-    for (auto &[uid, pids] : appSuspendState) {
-        for (auto &[pid, isFrozen] : pids) {
-            if (isFrozen) {
-                frozenPids.insert(pid);
-            }
-        }
-    }
-#endif
+    AAFwk::ResSchedUtil::GetInstance().GetAllFrozenPidsFromRSS(frozenPids);
     auto appRunningMap = GetAppRunningRecordMap();
     for (const auto &item : appRunningMap) {
         const auto &appRecord = item.second;
@@ -773,20 +804,7 @@ int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
 int32_t AppRunningManager::NotifyProcMemoryLevel(const std::map<pid_t, MemoryLevel> &procLevelMap)
 {
     std::unordered_set<int32_t> frozenPids;
-#ifdef EFFICIENCY_MANAGER_ENABLE
-    std::unordered_map<int32_t, std::unordered_map<int32_t, bool>> appSuspendState;
-    SuspendManager::SuspendManagerClient::GetInstance().GetAllSuspendState(appSuspendState);
-    if (appSuspendState.empty()) {
-        TAG_LOGW(AAFwkTag::APPMGR, "Get app state empty");
-    }
-    for (auto &[uid, pids] : appSuspendState) {
-        for (auto &[pid, isFrozen] : pids) {
-            if (isFrozen) {
-                frozenPids.insert(pid);
-            }
-        }
-    }
-#endif
+    AAFwk::ResSchedUtil::GetInstance().GetAllFrozenPidsFromRSS(frozenPids);
     auto appRunningMap = GetAppRunningRecordMap();
     for (const auto &item : appRunningMap) {
         const auto &appRecord = item.second;
@@ -985,7 +1003,7 @@ int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName, co
             TAG_LOGD(AAFwkTag::APPMGR, "Notify application [%{public}s] reload page, record id %{public}d.",
                 appRecord->GetProcessName().c_str(), recordId);
             callbackByRecord->AddRecordId(recordId);
-            result = appRecord->NotifyHotReloadPage(callback, recordId);
+            result = appRecord->NotifyHotReloadPage(callbackByRecord, recordId);
             if (result == ERR_OK) {
                 reloadPageSucceed = true;
             } else {
@@ -1017,7 +1035,7 @@ int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName
             TAG_LOGD(AAFwkTag::APPMGR, "Notify application [%{public}s] unload patch, record id %{public}d.",
                 appRecord->GetProcessName().c_str(), recordId);
             callbackByRecord->AddRecordId(recordId);
-            result = appRecord->NotifyUnLoadRepairPatch(bundleName, callback, recordId);
+            result = appRecord->NotifyUnLoadRepairPatch(bundleName, callbackByRecord, recordId);
             if (result == ERR_OK) {
                 unLoadSucceed = true;
             } else {
@@ -1075,7 +1093,7 @@ bool AppRunningManager::IsApplicationBackground(const std::string &bundleName)
     }
     return true;
 }
-
+#ifdef SUPPORT_SCREEN
 void AppRunningManager::OnWindowVisibilityChanged(
     const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos)
 {
@@ -1099,7 +1117,7 @@ void AppRunningManager::OnWindowVisibilityChanged(
         pids.emplace(info->pid_);
     }
 }
-
+#endif //SUPPORT_SCREEN
 bool AppRunningManager::IsApplicationFirstFocused(const AppRunningRecord &focusedRecord)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "check focus function called.");
@@ -1462,6 +1480,31 @@ int AppRunningManager::DumpFfrt(const std::vector<int32_t>& pids, std::string& r
         return DumpErrorCode::ERR_INTERNAL_ERROR;
     }
     return DumpErrorCode::ERR_OK;
+}
+
+bool AppRunningManager::IsAppProcessesAllCached(const std::string &bundleName, int32_t uid,
+    const std::set<std::shared_ptr<AppRunningRecord>> &cachedSet)
+{
+    if (cachedSet.size() == 0) {
+        TAG_LOGI(AAFwkTag::APPMGR, "empty cache set.");
+        return false;
+    }
+    std::lock_guard guard(runningRecordMapMutex_);
+    for (const auto &item : appRunningRecordMap_) {
+        auto &itemRecord = item.second;
+        if (itemRecord == nullptr) {
+            continue;
+        }
+        if (itemRecord->GetBundleName() == bundleName && itemRecord->GetUid() == uid) {
+            auto supportCache =
+                DelayedSingleton<CacheProcessManager>::GetInstance()->IsAppSupportProcessCache(itemRecord);
+            // need wait for unsupported processes
+            if ((cachedSet.find(itemRecord) == cachedSet.end() && supportCache) || !supportCache) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

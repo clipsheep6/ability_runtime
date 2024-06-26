@@ -29,7 +29,7 @@
 #include "napi_common_util.h"
 #include "native_engine/native_value.h"
 #include "permission_constants.h"
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 #include "pixel_map_napi.h"
 #endif
 #include "start_options.h"
@@ -146,7 +146,7 @@ private:
         }
 
         if (!CheckOnOffType(env, argc, argv)) {
-            ThrowInvalidParamError(env, "Parse param type failed, must be a string, value must be mission");
+            ThrowInvalidParamError(env, "Parse param type failed, must be a string, value must be mission.");
             return CreateJsUndefined(env);
         }
 
@@ -183,7 +183,7 @@ private:
         }
         if (!AppExecFwk::IsTypeForNapiValue(env, argv[1], napi_object)) {
             TAG_LOGE(AAFwkTag::MISSION, "Invalid param");
-            ThrowInvalidParamError(env, "Parse param listener failed, must be a MissionListener");
+            ThrowInvalidParamError(env, "Parse param listener failed, must be a MissionListener.");
             return CreateJsUndefined(env);
         }
 
@@ -230,14 +230,14 @@ private:
         }
 
         if (!CheckOnOffType(env, argc, argv)) {
-            ThrowInvalidParamError(env, "Parse param type failed, must be a string, value must be mission");
+            ThrowInvalidParamError(env, "Parse param type failed, must be a string, value must be mission.");
             return CreateJsUndefined(env);
         }
 
         int32_t missionListenerId = -1;
         if (!ConvertFromJsValue(env, argv[ARGC_ONE], missionListenerId)) {
             TAG_LOGE(AAFwkTag::MISSION, "Parse missionListenerId failed");
-            ThrowInvalidParamError(env, "Parse param listenerId failed, must be a number");
+            ThrowInvalidParamError(env, "Parse param listenerId failed, must be a number.");
             return CreateJsUndefined(env);
         }
 
@@ -282,7 +282,7 @@ private:
         int32_t missionListenerId = -1;
         if (!ConvertFromJsValue(env, argv[INDEX_ONE], missionListenerId)) {
             TAG_LOGE(AAFwkTag::MISSION, "Parse missionListenerId failed");
-            ThrowInvalidParamError(env, "Parse param listenerId failed, must be a number");
+            ThrowInvalidParamError(env, "Parse param listenerId failed, must be a number.");
             return CreateJsUndefined(env);
         }
 
@@ -326,13 +326,13 @@ private:
         std::string deviceId;
         if (!ConvertFromJsValue(env, argv[0], deviceId)) {
             TAG_LOGE(AAFwkTag::MISSION, "Parse deviceId failed");
-            ThrowInvalidParamError(env, "Parse param deviceId failed, must be a string");
+            ThrowInvalidParamError(env, "Parse param deviceId failed, must be a string.");
             return CreateJsUndefined(env);
         }
         int numMax = -1;
         if (!ConvertFromJsValue(env, argv[1], numMax)) {
             TAG_LOGE(AAFwkTag::MISSION, "Parse numMax failed");
-            ThrowInvalidParamError(env, "Parse param numMax failed, must be a number");
+            ThrowInvalidParamError(env, "Parse param numMax failed, must be a number.");
             return CreateJsUndefined(env);
         }
 
@@ -366,13 +366,13 @@ private:
         std::string deviceId;
         if (!ConvertFromJsValue(env, argv[0], deviceId)) {
             TAG_LOGE(AAFwkTag::MISSION, "Parse deviceId failed");
-            ThrowInvalidParamError(env, "Parse param deviceId failed, must be a string");
+            ThrowInvalidParamError(env, "Parse param deviceId failed, must be a string.");
             return CreateJsUndefined(env);
         }
         int32_t missionId = -1;
         if (!ConvertFromJsValue(env, argv[1], missionId)) {
             TAG_LOGE(AAFwkTag::MISSION, "Parse missionId failed");
-            ThrowInvalidParamError(env, "Parse param missionId failed, must be a number");
+            ThrowInvalidParamError(env, "Parse param missionId failed, must be a number.");
             return CreateJsUndefined(env);
         }
 
@@ -439,7 +439,7 @@ private:
                 napi_set_named_property(env, abilityObj, "abilityName",
                     CreateJsValue(env, snapshotWrap->missionSnapshot.topAbility.GetAbilityName()));
                 napi_set_named_property(env, object, "ability", abilityObj);
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
                 auto snapshotValue = Media::PixelMapNapi::CreatePixelMap(
                     env, snapshotWrap->missionSnapshot.snapshot);
                 napi_set_named_property(env, object, "snapshot", snapshotValue);
@@ -467,13 +467,13 @@ private:
 
         if (!ConvertFromJsValue(env, argv[0], deviceId)) {
             TAG_LOGE(AAFwkTag::MISSION, "missionSnapshot: Parse deviceId failed");
-            ThrowInvalidParamError(env, "Parse param deviceId failed, must be a string");
+            ThrowInvalidParamError(env, "Parse param deviceId failed, must be a string.");
             return false;
         }
 
         if (!ConvertFromJsValue(env, argv[1], missionId)) {
             TAG_LOGE(AAFwkTag::MISSION, "missionSnapshot: Parse missionId failed");
-            ThrowInvalidParamError(env, "Parse param missionId failed, must be a number");
+            ThrowInvalidParamError(env, "Parse param missionId failed, must be a number.");
             return false;
         }
 
@@ -491,7 +491,7 @@ private:
         int32_t missionId = -1;
         if (!ConvertFromJsValue(env, argv[0], missionId)) {
             TAG_LOGE(AAFwkTag::MISSION, "OnLockMission Parse missionId failed");
-            ThrowInvalidParamError(env, "Parse param missionId failed, must be a number");
+            ThrowInvalidParamError(env, "Parse param missionId failed, must be a number.");
             return CreateJsUndefined(env);
         }
 
@@ -524,7 +524,7 @@ private:
         int32_t missionId = -1;
         if (!ConvertFromJsValue(env, argv[0], missionId)) {
             TAG_LOGE(AAFwkTag::MISSION, "OnUnlockMission Parse missionId failed");
-            ThrowInvalidParamError(env, "Parse param missionId failed, must be a number");
+            ThrowInvalidParamError(env, "Parse param missionId failed, must be a number.");
             return CreateJsUndefined(env);
         }
 
@@ -557,7 +557,7 @@ private:
         int32_t missionId = -1;
         if (!ConvertFromJsValue(env, argv[0], missionId)) {
             TAG_LOGE(AAFwkTag::MISSION, "OnClearMission Parse missionId failed");
-            ThrowInvalidParamError(env, "Parse param missionId failed, must be a number");
+            ThrowInvalidParamError(env, "Parse param missionId failed, must be a number.");
             return CreateJsUndefined(env);
         }
 
@@ -611,7 +611,7 @@ private:
         int32_t missionId = -1;
         if (!ConvertFromJsValue(env, argv[0], missionId)) {
             TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionToFront Parse missionId failed");
-            ThrowInvalidParamError(env, "Parse param missionId failed, must be a number");
+            ThrowInvalidParamError(env, "Parse param missionId failed, must be a number.");
             return CreateJsUndefined(env);
         }
         decltype(argc) unwrapArgc = 1;
@@ -654,7 +654,7 @@ private:
         napi_get_array_length(env, argv[0], &nativeArrayLen);
         if (nativeArrayLen == 0) {
             TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToForeground MissionId is null");
-            ThrowInvalidParamError(env, "Parse param missionIds failed, the size of missionIds must above zero");
+            ThrowInvalidParamError(env, "Parse param missionIds failed, the size of missionIds must above zero.");
             return CreateJsUndefined(env);
         }
         napi_value element = nullptr;
@@ -663,7 +663,7 @@ private:
             napi_get_element(env, argv[0], i, &element);
             if (!ConvertFromJsValue(env, element, missionId)) {
                 TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToForeground Parse missionId failed");
-                ThrowInvalidParamError(env, "Parse param missionIds failed, missionId must be a number");
+                ThrowInvalidParamError(env, "Parse param missionIds failed, missionId must be a number.");
                 return CreateJsUndefined(env);
             }
             missionIds.push_back(missionId);
@@ -674,7 +674,7 @@ private:
         if (argc > ARGC_ONE && AppExecFwk::IsTypeForNapiValue(env, argv[1], napi_number)) {
             if (!ConvertFromJsValue(env, argv[1], topMissionId)) {
                 TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToForeground Parse topMissionId failed");
-                ThrowInvalidParamError(env, "Parse param topMission failed, must be a number");
+                ThrowInvalidParamError(env, "Parse param topMission failed, must be a number.");
                 return CreateJsUndefined(env);
             }
             unwrapArgc++;
@@ -713,7 +713,7 @@ private:
         napi_get_array_length(env, argv[0], &nativeArrayLen);
         if (nativeArrayLen == 0) {
             TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToBackground MissionId is null");
-            ThrowInvalidParamError(env, "Parse param missionIds failed, the size of missionIds must above zero");
+            ThrowInvalidParamError(env, "Parse param missionIds failed, the size of missionIds must above zero.");
             return CreateJsUndefined(env);
         }
         napi_value element = nullptr;
@@ -722,7 +722,7 @@ private:
             napi_get_element(env, argv[0], i, &element);
             if (!ConvertFromJsValue(env, element, missionId)) {
                 TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToBackground Parse topMissionId failed");
-                ThrowInvalidParamError(env, "Parse param missionIds failed, missionId must be a number");
+                ThrowInvalidParamError(env, "Parse param missionIds failed, missionId must be a number.");
                 return CreateJsUndefined(env);
             }
             missionIds.push_back(missionId);

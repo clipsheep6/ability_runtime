@@ -32,6 +32,9 @@
 #include "resource_manager.h"
 #include "foundation/ability/ability_runtime/interfaces/inner_api/runtime/include/runtime.h"
 #include "ipc_singleton.h"
+#ifdef CJ_FRONTEND
+#include "cj_environment.h"
+#endif
 #include "js_runtime.h"
 #include "native_engine/native_engine.h"
 #include "overlay_event_subscriber.h"
@@ -262,6 +265,8 @@ public:
      */
     void ScheduleProcessSecurityExit() override;
 
+    void ScheduleClearPageStack() override;
+
     void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) override;
 
     void ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName) override;
@@ -282,7 +287,10 @@ public:
         const sptr<IQuickFixCallback> &callback, const int32_t recordId) override;
 
     int32_t ScheduleNotifyAppFault(const FaultData &faultData) override;
-
+#ifdef CJ_FRONTEND
+    CJUncaughtExceptionInfo CreateCjExceptionInfo(const std::string &bundleName, uint32_t versionCode,
+        const std::string &hapPath);
+#endif
     /**
      * @brief Notify NativeEngine GC of status change.
      *
@@ -339,6 +347,7 @@ public:
      */
     int32_t ScheduleDumpFfrt(std::string& result) override;
 
+    void ScheduleCacheProcess() override;
 private:
     /**
      *
@@ -599,6 +608,10 @@ private:
     std::vector<std::string> GetRemoveOverlayPaths(const std::vector<OverlayModuleInfo> &overlayModuleInfos);
 
     int32_t ChangeAppGcState(int32_t state);
+
+    void HandleCacheProcess();
+
+    bool IsBgWorkingThread(const AbilityInfo &info);
 
     class MainHandler : public EventHandler {
     public:

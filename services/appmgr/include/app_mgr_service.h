@@ -124,10 +124,12 @@ public:
      * clear the application data.
      *
      * @param bundleName, bundle name in Application record.
+     * @param appCloneIndex the app clone id.
+     * @param userId the user id.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t ClearUpApplicationData(const std::string &bundleName,
-        const int32_t userId = -1) override;
+    virtual int32_t ClearUpApplicationData(const std::string &bundleName, int32_t appCloneIndex,
+        int32_t userId = -1) override;
 
     /**
      * ClearUpApplicationDataBySelf, call ClearUpApplicationDataBySelf() through proxy project,
@@ -404,6 +406,14 @@ public:
     int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData) override;
 
     /**
+     * Set Appfreeze Detect Filter
+     *
+     * @param pid the process pid.
+     * @return Returns true on success, others on failure.
+     */
+    bool SetAppFreezeFilter(int32_t pid) override;
+
+    /**
      * get memorySize by pid.
      *
      * @param pid process id.
@@ -536,6 +546,14 @@ public:
         const sptr<IRemoteObject> &callback) override;
 
     virtual void SaveBrowserChannel(sptr<IRemoteObject> browser) override;
+
+    /**
+     * Check caller is test ability
+     *
+     * @param pid, the pid of ability.
+     * @return Returns ERR_OK is test ability, others is not test ability.
+     */
+    int32_t CheckCallingIsUserTestMode(const pid_t pid, bool &isUserTest) override;
 private:
     /**
      * Init, Initialize application services.
@@ -649,6 +667,16 @@ private:
     int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning) override;
 
     /**
+     * Check whether the bundle is running.
+     *
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param appCloneIndex the appindex of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return Return ERR_OK if success, others fail.
+     */
+    int32_t IsAppRunning(const std::string &bundleName, int32_t appCloneIndex, bool &isRunning) override;
+
+    /**
      * Whether the current application process is the last surviving process.
      *
      * @return Returns true is final application process, others return false.
@@ -662,8 +690,6 @@ private:
     };
 
 private:
-    void DumpIpcAllFuncInit();
-    void DumpIpcFuncInit();
     int DumpIpcAllInner(const AppMgrService::DumpIpcKey key, std::string& result);
     int DumpIpcWithPidInner(const AppMgrService::DumpIpcKey key,
         const std::string& optionPid, std::string& result);
@@ -678,16 +704,7 @@ private:
     sptr<ISystemAbilityManager> systemAbilityMgr_;
     sptr<IAmsMgr> amsMgrScheduler_;
 
-    using DumpFuncType = int (AppMgrService::*)(const std::vector<std::u16string>& args, std::string& result);
-    const static std::map<std::string, DumpFuncType> dumpFuncMap_;
-
-    const static std::map<std::string, AppMgrService::DumpIpcKey> dumpIpcMap;
-
-    using DumpIpcAllFuncType = int (AppMgrService::*)(std::string& result);
-    std::map<uint32_t, DumpIpcAllFuncType> dumpIpcAllFuncMap_;
-
-    using DumpIpcFuncType = int (AppMgrService::*)(const int32_t pid, std::string& result);
-    std::map<uint32_t, DumpIpcFuncType> dumpIpcFuncMap_;
+    bool GetDumpIpcKeyByOption(const std::string &option, DumpIpcKey &key);
 
     DISALLOW_COPY_AND_MOVE(AppMgrService);
 };

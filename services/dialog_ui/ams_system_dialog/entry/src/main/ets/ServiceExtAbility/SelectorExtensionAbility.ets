@@ -30,17 +30,17 @@ export default class SelectorExtensionAbility extends UIExtensionAbility {
 
     onSessionCreate(want: Want, session: UIExtensionContentSession) {
         const storage: LocalStorage = new LocalStorage({
-            "session": session,
-            "extensionAbility": this,
-            "callerWant": want
+            'session': session,
+            'extensionAbility': this,
+            'callerWant': want
         } as Record<string, object>);
         globalThis.ExtensionType = 'UIExtension';
         if (systemparameter.getSync('persist.sys.abilityms.isdialogconfirmpermission', 'false') === 'false' &&
             globalThis.preferences.getSync('isdialogconfirmpermission', 'false') === 'false') {
             globalThis.currentURL = 'pages/PhonePage';
-            session.loadContent("pages/permissionConfirmDialog", storage);
+            session.loadContent('pages/permissionConfirmDialog', storage);
         } else {
-            session.loadContent("pages/PhonePage", storage);
+            session.loadContent('pages/PhonePage', storage);
         }
         try {
             const bgColor: string = '#40FFFFFF';

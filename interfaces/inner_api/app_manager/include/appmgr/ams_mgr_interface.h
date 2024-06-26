@@ -126,7 +126,8 @@ public:
      * @param accountId, account ID.
      * @return ERR_OK, return back success, others fail.
      */
-    virtual int KillProcessWithAccount(const std::string &bundleName, const int accountId) = 0;
+    virtual int KillProcessWithAccount(
+        const std::string &bundleName, const int accountId, const bool clearPageStack = true) = 0;
 
     /**
      * UpdateApplicationInfoInstalled, call UpdateApplicationInfoInstalled() through proxy object,
@@ -144,7 +145,7 @@ public:
      * @param  bundleName, bundle name in Application record.
      * @return ERR_OK, return back success, others fail.
      */
-    virtual int KillApplication(const std::string &bundleName) = 0;
+    virtual int KillApplication(const std::string &bundleName, const bool clearPageStack = true) = 0;
 
     /**
      * KillApplicationByUid, call KillApplicationByUid() through proxy object, kill the application.
@@ -160,14 +161,14 @@ public:
      *
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int KillApplicationSelf()
+    virtual int KillApplicationSelf(const bool clearPageStack = true)
     {
         return ERR_OK;
     }
 
     virtual void AbilityAttachTimeOut(const sptr<IRemoteObject> &token) = 0;
 
-    virtual void PrepareTerminate(const sptr<IRemoteObject> &token) = 0;
+    virtual void PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag = false) = 0;
 
     virtual void GetRunningProcessInfoByToken(
         const sptr<IRemoteObject> &token, OHOS::AppExecFwk::RunningProcessInfo &info) = 0;
@@ -306,6 +307,13 @@ public:
      */
     virtual bool IsMemorySizeSufficent() = 0;
 
+    /**
+     * Notifies that one ability is attached to status bar.
+     *
+     * @param token the token of the abilityRecord that is attached to status bar.
+     */
+    virtual void AttachedToStatusBar(const sptr<IRemoteObject> &token) {}
+
     enum class Message {
         LOAD_ABILITY = 0,
         TERMINATE_ABILITY,
@@ -350,6 +358,7 @@ public:
         IS_MEMORY_SIZE_SUFFICIENT,
         SET_KEEP_ALIVE_ENABLE_STATE,
         NOTIFY_APP_MGR_RECORD_EXIT_REASON,
+        ATTACHED_TO_STATUS_BAR,
     };
 };
 }  // namespace AppExecFwk

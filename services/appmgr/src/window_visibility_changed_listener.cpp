@@ -20,6 +20,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+#ifdef SUPPORT_SCREEN
 using namespace OHOS::Rosen;
 WindowVisibilityChangedListener::WindowVisibilityChangedListener(
     const std::weak_ptr<AppMgrServiceInner> &appInner, const std::shared_ptr<AAFwk::TaskHandlerWrap> &handler)
@@ -50,5 +51,6 @@ void WindowVisibilityChangedListener::OnWindowVisibilityChanged(
     };
     taskHandler_->SubmitTask(task);
 }
+#endif // SUPPORT_SCREEN
 } // namespace AppExecFwk
 } // namespace OHOS

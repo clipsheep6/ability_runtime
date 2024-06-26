@@ -58,6 +58,16 @@ public:
     void DispatchMemoryLevel(const int level);
     void NotifyApplicationForeground();
     void NotifyApplicationBackground();
+    void DispatchOnWillNewWant(const std::shared_ptr<NativeReference> &ability);
+    void DispatchOnNewWant(const std::shared_ptr<NativeReference> &ability);
+    void DispatchOnAbilityWillCreate(const std::shared_ptr<NativeReference> &ability);
+    void DispatchOnWindowStageWillCreate(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage);
+    void DispatchOnWindowStageWillDestroy(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage);
+    void DispatchOnAbilityWillDestroy(const std::shared_ptr<NativeReference> &ability);
+    void DispatchOnAbilityWillForeground(const std::shared_ptr<NativeReference> &ability);
+    void DispatchOnAbilityWillBackground(const std::shared_ptr<NativeReference> &ability);
 
     std::string GetBundleName() const override;
     std::shared_ptr<Context> CreateBundleContext(const std::string &bundleName) override;
@@ -91,12 +101,13 @@ public:
     void SwitchArea(int mode) override;
     void SetColorMode(int32_t colorMode);
     void SetLanguage(const std::string &language);
+    void SetFont(const std::string &font);
     void ClearUpApplicationData();
     int GetArea() override;
     std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() const override;
     std::string GetBaseDir() const override;
     Global::Resource::DeviceType GetDeviceType() const override;
-    void KillProcessBySelf();
+    void KillProcessBySelf(const bool clearPageStack = true);
     int32_t GetProcessRunningInformation(AppExecFwk::RunningProcessInfo &info);
     int32_t RestartApp(const AAFwk::Want& want);
 
@@ -110,6 +121,7 @@ public:
     bool GetApplicationInfoUpdateFlag() const;
     void SetApplicationInfoUpdateFlag(bool flag);
     void RegisterAppConfigUpdateObserver(AppConfigUpdateCallback appConfigChangeCallback);
+    void RegisterAppFontObserver(AppConfigUpdateCallback appFontCallback);
 
     std::string GetAppRunningUniqueId() const;
     void SetAppRunningUniqueId(const std::string &appRunningUniqueId);
@@ -128,6 +140,7 @@ private:
     std::recursive_mutex applicationStateCallbackLock_;
     bool applicationInfoUpdateFlag_ = false;
     AppConfigUpdateCallback appConfigChangeCallback_ = nullptr;
+    AppConfigUpdateCallback appFontCallback_ = nullptr;
     std::string appRunningUniqueId_;
     int32_t appIndex_ = 0;
     int32_t appMode_ = 0;
