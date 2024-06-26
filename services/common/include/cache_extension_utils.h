@@ -24,6 +24,8 @@
 namespace OHOS {
 namespace AAFwk {
 namespace CacheExtensionUtils {
+constexpr const int32_t BASE_TEN = 10;
+
 // cache extension type list
 std::unordered_set<AppExecFwk::ExtensionAbilityType> GetCacheExtensionTypeList()
 {
@@ -35,7 +37,8 @@ std::unordered_set<AppExecFwk::ExtensionAbilityType> GetCacheExtensionTypeList()
     std::vector<std::string> cacheExtTypeListVec;
     SplitStr(cacheExtTypeListStr, ";", cacheExtTypeListVec);
     for (auto it = cacheExtTypeListVec.begin(); it != cacheExtTypeListVec.end(); it++) {
-        cacheExtTypeList.insert(static_cast<AppExecFwk::ExtensionAbilityType>(std::stoi(*it)));
+        cacheExtTypeList.insert(
+            static_cast<AppExecFwk::ExtensionAbilityType>(std::strtol((*it).c_str(), nullptr, BASE_TEN)));
     }
     return cacheExtTypeList;
 }

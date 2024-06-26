@@ -19,8 +19,6 @@
 #include <map>
 #include <list>
 #include <string>
-#include <memory>
-#include <thread>
 #include <mutex>
 
 #include "ability_record.h"
