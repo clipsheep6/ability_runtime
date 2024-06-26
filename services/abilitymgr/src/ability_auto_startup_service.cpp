@@ -482,7 +482,10 @@ bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
     } else if (appIndex <= GlobalConstant::MAX_APP_CLONE_INDEX) {
         auto bundleFlag = static_cast<int32_t>(AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO);
         TAG_LOGD(AAFwkTag::AUTO_STARTUP, "appindex = : %{public}d.", appIndex);
-        if (!IN_PROCESS_CALL(bms->GetCloneBundleInfo(bundleName, bundleFlag, appIndex, bundleInfo, userId))) {
+        int32_t bundleMgrResult = 0;
+        bundleMgrResult = IN_PROCESS_CALL(bms->GetCloneBundleInfo(bundleName, bundleFlag, appIndex, bundleInfo, userId);
+        if (!bundleMgrResult) {
+            TAG_LOGD(AAFwkTag::AUTO_STARTUP, "bundleMgrResult = : %{public}d.", bundleMgrResult);
             TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Failed to get clone bundle info.");
             return false;
         }
