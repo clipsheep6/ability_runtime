@@ -191,6 +191,61 @@ ohos_shared_library("abilitykit_utils") {
   part_name = "ability_runtime"
 }
 
+ohos_shared_library("free_install_observer") {
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    cfi_vcall_icall_only = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+
+  include_dirs = [
+    "${ability_runtime_innerkits_path}/ability_manager/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_services_path}/common/include",
+  ]
+
+  defines = []
+  if (ability_runtime_graphics) {
+    defines += [
+      "SUPPORT_GRAPHICS",
+      "SUPPORT_SCREEN",
+    ]
+  }
+
+  if (target_cpu == "arm64") {
+    defines += [ "APP_USE_ARM64" ]
+  } else if (target_cpu == "arm") {
+    defines += [ "APP_USE_ARM" ]
+  } else if (target_cpu == "x86_64") {
+    defines += [ "APP_USE_X86_64" ]
+  }
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+
+  sources = [
+    "${ability_runtime_native_path}/ability/native/free_install_observer_proxy.cpp",
+    "${ability_runtime_native_path}/ability/native/free_install_observer_stub.cpp",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  innerapi_tags = [ "platformsdk" ]
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
 ohos_shared_library("abilitykit_native") {
   include_dirs = [ "${ability_runtime_path}/utils/global/time/include" ]
 
@@ -214,8 +269,6 @@ ohos_shared_library("abilitykit_native") {
     "${ability_runtime_native_path}/ability/native/data_ability_helper_impl.cpp",
     "${ability_runtime_native_path}/ability/native/data_ability_impl.cpp",
     "${ability_runtime_native_path}/ability/native/data_uri_utils.cpp",
-    "${ability_runtime_native_path}/ability/native/free_install_observer_proxy.cpp",
-    "${ability_runtime_native_path}/ability/native/free_install_observer_stub.cpp",
     "${ability_runtime_native_path}/ability/native/insight_intent_host_client.cpp",
     "${ability_runtime_native_path}/ability/native/js_free_install_observer.cpp",
     "${ability_runtime_native_path}/ability/native/new_ability_impl.cpp",
@@ -236,6 +289,7 @@ ohos_shared_library("abilitykit_native") {
   deps = [
     ":continuation_ipc",
     ":extension_blocklist_config",
+    ":free_install_observer",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
@@ -1254,7 +1308,9 @@ ohos_shared_library("auto_startup_callback") {
     "${ability_runtime_native_path}/ability/native/auto_startup_callback_stub.cpp",
   ]
 
-  deps = [ "${ability_runtime_innerkits_path}/ability_manager:ability_manager" ]
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager_base",
+  ]
 
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
 

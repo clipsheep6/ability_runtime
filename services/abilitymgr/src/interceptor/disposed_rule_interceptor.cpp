@@ -61,7 +61,7 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
         SetInterceptInfo(param.want, disposedRule);
         if (disposedRule.componentType == AppExecFwk::ComponentType::UI_ABILITY) {
             int ret = IN_PROCESS_CALL(DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(
-                *disposedRule.want, param.requestCode, param.userId));
+                *disposedRule.want, param.userId, param.requestCode));
             if (ret != ERR_OK) {
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "DisposedRuleInterceptor start ability failed.");
                 return ret;

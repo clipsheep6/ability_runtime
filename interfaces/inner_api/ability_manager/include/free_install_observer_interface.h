@@ -40,6 +40,8 @@ public:
         ON_INSTALL_FINISHED = 1,
     };
 };
+
+sptr<IFreeInstallObserver> BuildFreeInstallObserver(sptr<IRemoteObject> remoteObject);
 } // namespace AbilityRuntime
 } // namespace OHOS
 
