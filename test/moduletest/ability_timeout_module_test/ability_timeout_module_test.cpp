@@ -198,8 +198,7 @@ std::shared_ptr<AbilityRecord> AbilityTimeoutModuleTest::CreateRootLauncher()
     abilityRequest.appInfo.name = AbilityConfig::LAUNCHER_BUNDLE_NAME;
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     auto mission = std::make_shared<Mission>(MOCK_MISSION_ID++, abilityRecord, abilityRequest.abilityInfo.bundleName);
-    abilityRecord->SetMission(mission);
-    abilityRecord->SetMissionList(lauList);
+    abilityRecord->SetMissionId(mission->GetMissionId());
     abilityRecord->SetLauncherRoot();
     lauList->AddMissionToTop(mission);
     EXPECT_TRUE(lauList->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
@@ -222,8 +221,7 @@ std::shared_ptr<AbilityRecord> AbilityTimeoutModuleTest::CreateLauncherAbility()
     abilityRequest.appInfo.name = "com.ix.hiworld";
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     auto mission = std::make_shared<Mission>(MOCK_MISSION_ID++, abilityRecord, abilityRequest.abilityInfo.bundleName);
-    abilityRecord->SetMission(mission);
-    abilityRecord->SetMissionList(lauList);
+    abilityRecord->SetMissionId(mission->GetMissionId());
     lauList->AddMissionToTop(mission);
     EXPECT_TRUE(lauList->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
 
@@ -282,9 +280,8 @@ std::shared_ptr<AbilityRecord> AbilityTimeoutModuleTest::CreateCommonAbility()
     auto mission = std::make_shared<Mission>(MOCK_MISSION_ID++, abilityRecord, abilityRequest.abilityInfo.bundleName);
     EXPECT_TRUE(abilityRecord != nullptr);
     EXPECT_TRUE(mission != nullptr);
-    abilityRecord->SetMission(mission);
+    abilityRecord->SetMissionId(mission->GetMissionId());
     auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
-    abilityRecord->SetMissionList(missionList);
     missionList->AddMissionToTop(mission);
     curListManager->MoveMissionListToTop(missionList);
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);

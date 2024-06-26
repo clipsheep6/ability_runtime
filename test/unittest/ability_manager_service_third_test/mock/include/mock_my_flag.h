@@ -13,9 +13,19 @@
  * limitations under the License.
  */
 
-#ifndef FUZZTEST_OHOS_ABILITY_RUNTIME_ABILITYSTUBCLEARUPAPPLICATIONDATA_FUZZER_H
-#define FUZZTEST_OHOS_ABILITY_RUNTIME_ABILITYSTUBCLEARUPAPPLICATIONDATA_FUZZER_H
-
-#define FUZZ_PROJECT_NAME "abilitystubclearupapplicationdata_fuzzer"
-
-#endif // FUZZTEST_OHOS_ABILITY_RUNTIME_ABILITYSTUBCLEARUPAPPLICATIONDATA_FUZZER_H
+#ifndef MOCK_MY_FLAG_H
+#define MOCK_MY_FLAG_H
+namespace OHOS {
+namespace AAFwk {
+class MyFlag {
+public:
+    enum FLAG {
+        IS_SA_CALL = 1,
+        IS_SHELL_CALL,
+        IS_SA_AND_SHELL_CALL,
+    };
+    static int flag_;
+};
+} // namespace AAFwk
+} // namespace OHOS
+#endif // MOCK_MY_FLAG_H

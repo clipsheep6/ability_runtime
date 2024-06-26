@@ -557,7 +557,7 @@ public:
      * @param bundleName.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int KillProcess(const std::string &bundleName) override;
+    virtual int KillProcess(const std::string &bundleName, const bool clearPageStack = true) override;
 
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
@@ -569,16 +569,6 @@ public:
      */
     virtual int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override;
     #endif
-
-    /**
-     * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
-     * clear the application data.
-     *
-     * @param bundleName, bundle name in Application record.
-     * @return
-     */
-    virtual int ClearUpApplicationData(const std::string &bundleName,
-        const int32_t userId = -1) override;
 
     /**
      * Uninstall app
@@ -906,6 +896,8 @@ public:
     virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) override;
     virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason,
         const Want *want = nullptr) override;
+
+    virtual void ScheduleClearRecoveryPageStack() override;
 
     /**
      * Called to verify that the MissionId is valid.

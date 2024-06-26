@@ -220,17 +220,12 @@ public:
         return 0;
     }
 
-    virtual int KillProcess(const std::string& bundleName)
+    virtual int KillProcess(const std::string& bundleName, const bool clearPageStack = true)
     {
         return 0;
     }
 
     virtual int UninstallApp(const std::string& bundleName, int32_t uid)
-    {
-        return 0;
-    }
-
-    int ClearUpApplicationData(const std::string& bundleName, const int32_t userId = DEFAULT_INVAL_VALUE) override
     {
         return 0;
     }

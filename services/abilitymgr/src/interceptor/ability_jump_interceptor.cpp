@@ -30,11 +30,11 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string JUMP_DIALOG_CALLER_BUNDLE_NAME = "interceptor_callerBundleName";
-const std::string JUMP_DIALOG_CALLER_MODULE_NAME = "interceptor_callerModuleName";
-const std::string JUMP_DIALOG_CALLER_LABEL_ID = "interceptor_callerLabelId";
-const std::string JUMP_DIALOG_TARGET_MODULE_NAME = "interceptor_targetModuleName";
-const std::string JUMP_DIALOG_TARGET_LABEL_ID = "interceptor_targetLabelId";
+constexpr const char* JUMP_DIALOG_CALLER_BUNDLE_NAME = "interceptor_callerBundleName";
+constexpr const char* JUMP_DIALOG_CALLER_MODULE_NAME = "interceptor_callerModuleName";
+constexpr const char* JUMP_DIALOG_CALLER_LABEL_ID = "interceptor_callerLabelId";
+constexpr const char* JUMP_DIALOG_TARGET_MODULE_NAME = "interceptor_targetModuleName";
+constexpr const char* JUMP_DIALOG_TARGET_LABEL_ID = "interceptor_targetLabelId";
 }
 ErrCode AbilityJumpInterceptor::DoProcess(AbilityInterceptorParam param)
 {

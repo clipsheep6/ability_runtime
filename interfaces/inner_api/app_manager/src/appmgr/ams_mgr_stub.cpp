@@ -17,7 +17,7 @@
 
 #include "ability_info.h"
 #include "app_debug_listener_interface.h"
-#include "app_mgr_proxy.h"
+#include "app_mgr_proxy.h"0
 #include "app_scheduler_interface.h"
 #include "appexecfwk_errors.h"
 #include "hilog_tag_wrapper.h"
@@ -288,10 +288,13 @@ ErrCode AmsMgrStub::HandleKillProcessWithAccount(MessageParcel &data, MessagePar
 
     std::string bundleName = data.ReadString();
     int accountId = data.ReadInt32();
+    bool clearPageStack = data.ReadBool();
 
-    TAG_LOGI(AAFwkTag::APPMGR, "bundleName = %{public}s, accountId = %{public}d", bundleName.c_str(), accountId);
+    TAG_LOGI(AAFwkTag::APPMGR,
+        "bundleName = %{public}s, accountId = %{public}d, clearPageStack = %{public}d",
+        bundleName.c_str(), accountId, clearPageStack);
 
-    int32_t result = KillProcessWithAccount(bundleName, accountId);
+    int32_t result = KillProcessWithAccount(bundleName, accountId, clearPageStack);
     reply.WriteInt32(result);
 
     TAG_LOGI(AAFwkTag::APPMGR, "end");
@@ -303,7 +306,12 @@ ErrCode AmsMgrStub::HandleKillApplication(MessageParcel &data, MessageParcel &re
 {
     HITRACE_METER(HITRACE_TAG_APP);
     std::string bundleName = data.ReadString();
-    int32_t result = KillApplication(bundleName);
+    bool clearPageStack = data.ReadBool();
+
+    TAG_LOGI(AAFwkTag::APPMGR, "bundleName = %{public}s, clearPageStack = %{public}d",
+        bundleName.c_str(), clearPageStack);
+
+    int32_t result = KillApplication(bundleName, clearPageStack);
     reply.WriteInt32(result);
     return NO_ERROR;
 }
@@ -321,7 +329,8 @@ ErrCode AmsMgrStub::HandleKillApplicationByUid(MessageParcel &data, MessageParce
 ErrCode AmsMgrStub::HandleKillApplicationSelf(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER(HITRACE_TAG_APP);
-    int32_t result = KillApplicationSelf();
+    bool clearPageStack = data.ReadBool();
+    int32_t result = KillApplicationSelf(clearPageStack);
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::APPMGR, "result write failed.");
         return ERR_INVALID_VALUE;
@@ -666,6 +675,14 @@ int32_t AmsMgrStub::HandleIsMemorySizeSufficent(MessageParcel &data, MessageParc
         HILOG_ERROR("Fail to write result.");
         return ERR_INVALID_VALUE;
     }
+    return NO_ERROR;
+}
+
+ErrCode AmsMgrStub::HandleAttachedToStatusBar(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    AttachedToStatusBar(token);
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

@@ -416,7 +416,7 @@ void AppRecovery::DeleteInValidMissionFiles()
     }
 
     std::string fileDir = context->GetFilesDir();
-    TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery DeleteInValidMissionFiles fileDir: %{public}s", fileDir.c_str());
+    TAG_LOGI(AAFwkTag::RECOVERY, "AppRecovery DeleteInValidMissionFiles fileDir: %{public}s", fileDir.c_str());
     if (fileDir.empty() || !OHOS::FileExists(fileDir)) {
         TAG_LOGD(AAFwkTag::RECOVERY,
             "AppRecovery DeleteInValidMissionFiles fileDir is empty or fileDir is not exists.");
@@ -461,6 +461,18 @@ void AppRecovery::DeleteInValidMissionFileById(std::string fileDir, int32_t miss
         TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery delete the file: %{public}s failed", file.c_str());
     }
     TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery delete the file: %{public}s done", file.c_str());
+}
+
+void AppRecovery::ClearPageStack(std::string bundleName)
+{
+    TAG_LOGI(AAFwkTag::RECOVERY, "AppRecovery ClearPageStack %{public}s", bundleName.c_str());
+    DeleteInValidMissionFiles();
+    std::shared_ptr<AAFwk::AbilityManagerClient> abilityMgr = AAFwk::AbilityManagerClient::GetInstance();
+    if (abilityMgr == nullptr) {
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery ClearPageStack. abilityMgr client is not exist.");
+        return;
+    }
+    abilityMgr->ScheduleClearRecoveryPageStack();
 }
 
 bool AppRecovery::GetMissionIds(std::string path, std::vector<int32_t> &missionIds)

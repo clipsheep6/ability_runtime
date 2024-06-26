@@ -180,8 +180,9 @@ int32_t ResidentProcessManager::SetResidentProcessEnabled(
         IN_PROCESS_CALL_WITHOUT_RET(appMgrClient->SetKeepAliveEnableState(bundleName, updateEnable));
     }
 
-    ffrt::submit(std::bind(&ResidentProcessManager::UpdateResidentProcessesStatus, shared_from_this(), bundleName,
-        localEnable, updateEnable));
+    ffrt::submit([self = shared_from_this(), bundleName, localEnable, updateEnable]() {
+        self->UpdateResidentProcessesStatus(bundleName, localEnable, updateEnable);
+    });
     return ERR_OK;
 }
 

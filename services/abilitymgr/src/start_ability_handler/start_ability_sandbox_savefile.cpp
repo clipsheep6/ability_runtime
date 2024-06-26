@@ -66,7 +66,7 @@ int StartAbilitySandboxSavefile::HandleStartRequest(StartAbilityParams &params)
     auto callerRecord = params.GetCallerRecord();
     if (!callerRecord) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "this shouldn't happen: caller is null");
-        return ERR_INVALID_CALLER;
+        return CHECK_PERMISSION_FAILED;
     }
 
     if (!params.SandboxExternalAuth()) {

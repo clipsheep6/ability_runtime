@@ -70,19 +70,6 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_GetProcessRunningI
 }
 
 /**
- * @tc.name: AbilityManagerService_DumpSysFuncInit_0100
- * @tc.desc: DumpSysFuncInit
- * @tc.type: FUNC
- * @tc.require: SR000GH1GO
- */
-HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DumpSysFuncInit_0100, TestSize.Level1)
-{
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->DumpSysFuncInit();
-    EXPECT_GT(abilityMs_->dumpsysFuncMap_.size(), SIZE_ZERO);
-}
-
-/**
  * @tc.name: AbilityManagerService_DumpSysInner_0100
  * @tc.desc: DumpSysInner
  * @tc.type: FUNC

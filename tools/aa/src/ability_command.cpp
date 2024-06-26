@@ -157,26 +157,26 @@ AbilityManagerShellCommand::AbilityManagerShellCommand(int argc, char* argv[]) :
 ErrCode AbilityManagerShellCommand::CreateCommandMap()
 {
     commandMap_ = {
-        {"help", std::bind(&AbilityManagerShellCommand::RunAsHelpCommand, this)},
-        {"screen", std::bind(&AbilityManagerShellCommand::RunAsScreenCommand, this)},
-        {"start", std::bind(&AbilityManagerShellCommand::RunAsStartAbility, this)},
-        {"stop-service", std::bind(&AbilityManagerShellCommand::RunAsStopService, this)},
-        {"dump", std::bind(&AbilityManagerShellCommand::RunAsDumpsysCommand, this)},
-        {"force-stop", std::bind(&AbilityManagerShellCommand::RunAsForceStop, this)},
-        {"test", std::bind(&AbilityManagerShellCommand::RunAsTestCommand, this)},
-        {"process", std::bind(&AbilityManagerShellCommand::RunAsProcessCommand, this)},
-        {"attach", std::bind(&AbilityManagerShellCommand::RunAsAttachDebugCommand, this)},
-        {"detach", std::bind(&AbilityManagerShellCommand::RunAsDetachDebugCommand, this)},
-        {"appdebug", std::bind(&AbilityManagerShellCommand::RunAsAppDebugDebugCommand, this)},
+        {"help", [this]() { return this->RunAsHelpCommand(); }},
+        {"screen", [this]() { return this->RunAsScreenCommand(); }},
+        {"start", [this]() { return this->RunAsStartAbility(); }},
+        {"stop-service", [this]() { return this->RunAsStopService(); }},
+        {"dump", [this]() { return this->RunAsDumpsysCommand(); }},
+        {"force-stop", [this]() { return this->RunAsForceStop(); }},
+        {"test", [this]() { return this->RunAsTestCommand(); }},
+        {"process", [this]() { return this->RunAsProcessCommand(); }},
+        {"attach", [this]() { return this->RunAsAttachDebugCommand(); }},
+        {"detach", [this]() { return this->RunAsDetachDebugCommand(); }},
+        {"appdebug", [this]() { return this->RunAsAppDebugDebugCommand(); }},
 #ifdef ABILITY_COMMAND_FOR_TEST
-        {"force-timeout", std::bind(&AbilityManagerShellCommand::RunForceTimeoutForTest, this)},
-        {"block-ability", std::bind(&AbilityManagerShellCommand::RunAsBlockAbilityCommand, this)},
-        {"block-ams-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAmsServiceCommand, this)},
-        {"block-app-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAppServiceCommand, this)},
+        {"force-timeout", [this]() { return this->RunForceTimeoutForTest(); }},
+        {"block-ability", [this]() { return this->RunAsBlockAbilityCommand(); }},
+        {"block-ams-service", [this]() { return this->RunAsBlockAmsServiceCommand(); }},
+        {"block-app-service", [this]() { return this->RunAsBlockAppServiceCommand(); }},
 #endif
 #ifdef ABILITY_FAULT_AND_EXIT_TEST
-        {"forceexitapp", std::bind(&AbilityManagerShellCommand::RunAsForceExitAppCommand, this)},
-        {"notifyappfault", std::bind(&AbilityManagerShellCommand::RunAsNotifyAppFaultCommand, this)},
+        {"forceexitapp", [this]() { return this->RunAsForceExitAppCommand(); }},
+        {"notifyappfault", [this]() { return this->RunAsNotifyAppFaultCommand(); }},
 #endif
     };
 
@@ -2007,6 +2007,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                 // app multi thread
                 isMultiThread = true;
                 TAG_LOGD(AAFwkTag::AA_TOOL, "isMultiThread");
+                break;
             }
             case 0: {
                 // 'aa start' with an unknown option: aa start -x

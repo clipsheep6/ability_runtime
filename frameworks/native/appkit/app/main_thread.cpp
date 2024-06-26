@@ -23,6 +23,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "ability_manager_client.h"
 #include "constants.h"
 #include "ability_delegator.h"
 #include "ability_delegator_registry.h"
@@ -677,6 +678,23 @@ void MainThread::ScheduleProcessSecurityExit()
 
 /**
  *
+ * @brief Schedule the application clear recovery page stack.
+ *
+ */
+void MainThread::ScheduleClearPageStack()
+{
+    TAG_LOGI(AAFwkTag::APPKIT, "ScheduleClearPageStack called");
+    if (applicationInfo_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "applicationInfo_ is nullptr");
+        return;
+    }
+
+    auto bundleName = applicationInfo_->bundleName;
+    AppRecovery::GetInstance().ClearPageStack(bundleName);
+}
+
+/**
+ *
  * @brief Low the memory which used by application.
  *
  */
@@ -955,6 +973,9 @@ void MainThread::HandleProcessSecurityExit()
     for (auto iter = tokens.begin(); iter != tokens.end(); ++iter) {
         HandleCleanAbilityLocal(*iter);
     }
+
+    // in process cache state, there can be abilityStage with no abilities
+    application_->CleanEmptyAbilityStage();
 
     HandleTerminateApplicationLocal();
 }

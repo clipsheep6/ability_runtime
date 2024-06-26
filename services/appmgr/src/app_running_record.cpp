@@ -662,6 +662,13 @@ void AppRunningRecord::ScheduleProcessSecurityExit()
     }
 }
 
+void AppRunningRecord::ScheduleClearPageStack()
+{
+    if (appLifeCycleDeal_) {
+        appLifeCycleDeal_->ScheduleClearPageStack();
+    }
+}
+
 void AppRunningRecord::ScheduleTrimMemory()
 {
     if (appLifeCycleDeal_ && priorityObject_) {
@@ -2317,6 +2324,16 @@ bool AppRunningRecord::CancelTask(std::string msg)
         return false;
     }
     return taskHandler_->CancelTask(msg);
+}
+
+void AppRunningRecord::SetAttachedToStatusBar(bool isAttached)
+{
+    isAttachedToStatusBar = isAttached;
+}
+
+bool AppRunningRecord::IsAttachedToStatusBar()
+{
+    return isAttachedToStatusBar;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

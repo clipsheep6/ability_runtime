@@ -29,11 +29,9 @@ namespace OHOS {
 namespace AppExecFwk {
 using AbilityFirstFrameStateObserverMap = std::map<sptr<IAbilityFirstFrameStateObserver>, std::string>;
 
-class AbilityFirstFrameStateObserverManager;
 class AbilityFirstFrameStateObserverSet final {
 public:
-    AbilityFirstFrameStateObserverSet(std::weak_ptr<AbilityFirstFrameStateObserverManager> managerPtr,
-        bool isNotifyAllBundles = false);
+    explicit AbilityFirstFrameStateObserverSet(bool isNotifyAllBundles);
     ~AbilityFirstFrameStateObserverSet() = default;
     int32_t AddAbilityFirstFrameStateObserver(const sptr<IAbilityFirstFrameStateObserver> &observer,
         const std::string &bundleName);
@@ -48,14 +46,15 @@ private:
     ffrt::mutex observerLock_;
     AbilityFirstFrameStateObserverMap observerMap_;
     std::map<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>> recipientMap_;
-    std::weak_ptr<AbilityFirstFrameStateObserverManager> abilityFirstFrameStateObserverManager_;
     bool isNotifyAllBundles_;
 };
 
-class AbilityFirstFrameStateObserverManager :
-    public std::enable_shared_from_this<AbilityFirstFrameStateObserverManager> {
-    DECLARE_DELAYED_SINGLETON(AbilityFirstFrameStateObserverManager)
+class AbilityFirstFrameStateObserverManager {
 public:
+    static AbilityFirstFrameStateObserverManager &GetInstance();
+
+    AbilityFirstFrameStateObserverManager() = default;
+    ~AbilityFirstFrameStateObserverManager() = default;
     void Init();
     int32_t RegisterAbilityFirstFrameStateObserver(const sptr<IAbilityFirstFrameStateObserver> &observer,
         const std::string &targetBundleName);

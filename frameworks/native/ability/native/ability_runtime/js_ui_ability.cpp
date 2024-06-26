@@ -152,7 +152,8 @@ JsUIAbility::JsUIAbility(JsRuntime &jsRuntime) : jsRuntime_(jsRuntime)
 
 JsUIAbility::~JsUIAbility()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    //"maintenance log
+    TAG_LOGI(AAFwkTag::UIABILITY, "Called.");
     if (abilityContext_ != nullptr) {
         abilityContext_->Unbind();
     }
@@ -214,6 +215,7 @@ void JsUIAbility::Init(std::shared_ptr<AppExecFwk::AbilityLocalRecord> record,
 void JsUIAbility::SetAbilityContext(std::shared_ptr<AbilityInfo> abilityInfo,
     std::shared_ptr<AAFwk::Want> want, const std::string &moduleName, const std::string &srcPath)
 {
+    TAG_LOGI(AAFwkTag::UIABILITY, "called.");
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     jsAbilityObj_ = jsRuntime_.LoadModule(

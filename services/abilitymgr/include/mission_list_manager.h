@@ -525,7 +525,7 @@ private:
     std::shared_ptr<AbilityRecord> GetAbilityFromTerminateListInner(const sptr<IRemoteObject> &token);
     void SetLastExitReason(std::shared_ptr<AbilityRecord> &abilityRecord);
     bool IsAppLastAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
-
+    std::shared_ptr<MissionList> GetMissionList(int32_t missionId);
     int PrepareClearMissionLocked(int missionId, const std::shared_ptr<Mission> &mission);
 
     bool CheckPrepareTerminateEnable(const std::shared_ptr<Mission> &mission);
