@@ -308,6 +308,7 @@ int32_t AutoFillManager::CreateAutoFillExtension(Ace::UIContent *uiContent,
         want.SetParam(WANT_PARAMS_AUTO_FILL_POPUP_WINDOW_KEY, false);
         Ace::ModalUIExtensionConfig config;
         config.isAsyncModalBinding = true;
+        config.doAfterAsyncModalBinding = std::move(request.doAfterAsyncModalBinding);
         sessionId = uiContent->CreateModalUIExtension(want, callback, config);
     }
     return sessionId;

@@ -51,6 +51,7 @@ struct AutoFillRequest {
     AutoFillCommand autoFillCommand = AutoFillCommand::NONE;
     AbilityBase::ViewData viewData;
     AutoFillCustomConfig config;
+    std::function<void()> doAfterAsyncModalBinding;
 };
 
 /**
