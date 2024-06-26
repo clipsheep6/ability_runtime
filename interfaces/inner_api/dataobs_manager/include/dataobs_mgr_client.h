@@ -145,6 +145,7 @@ private:
         bool isDescendants;
     };
     ConcurrentMap<sptr<IDataAbilityObserver>, std::list<Param>> observerExts_;
+    sptr<SystemAbilityStatusChangeListener> callback_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

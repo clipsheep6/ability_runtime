@@ -124,10 +124,12 @@ public:
      * clear the application data.
      *
      * @param bundleName, bundle name in Application record.
+     * @param appCloneIndex the app clone id.
+     * @param userId the user id.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t ClearUpApplicationData(const std::string &bundleName,
-        const int32_t userId = -1) override;
+    virtual int32_t ClearUpApplicationData(const std::string &bundleName, int32_t appCloneIndex,
+        int32_t userId = -1) override;
 
     /**
      * ClearUpApplicationDataBySelf, call ClearUpApplicationDataBySelf() through proxy project,
@@ -695,15 +697,6 @@ private:
     sptr<IAmsMgr> amsMgrScheduler_;
 
     bool GetDumpIpcKeyByOption(const std::string &option, DumpIpcKey &key);
-
-    using DumpFuncType = int (AppMgrService::*)(const std::vector<std::u16string>& args, std::string& result);
-    bool GetDumpFunc(const std::string &optionKey, DumpFuncType &func);
-
-    using DumpIpcAllFuncType = int (AppMgrService::*)(std::string& result);
-    DumpIpcAllFuncType GetDumpIpcAllFuncByKey(uint32_t key);
-
-    using DumpIpcFuncType = int (AppMgrService::*)(const int32_t pid, std::string& result);
-    DumpIpcFuncType GetDumpIpcFuncByKey(uint32_t key);
 
     DISALLOW_COPY_AND_MOVE(AppMgrService);
 };

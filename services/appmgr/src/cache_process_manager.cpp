@@ -238,6 +238,11 @@ bool CacheProcessManager::IsAppSupportProcessCache(const std::shared_ptr<AppRunn
             appRecord->GetProcessName().c_str(), appRecord->GetBundleName().c_str());
         return false;
     }
+    if (appRecord->IsAttachedToStatusBar()) {
+        TAG_LOGD(AAFwkTag::APPMGR, "%{public}s of %{public}s is attached to statusbar, not support cache",
+            appRecord->GetProcessName().c_str(), appRecord->GetBundleName().c_str());
+        return false;
+    }
     if (appRecord->IsKeepAliveApp()) {
         TAG_LOGD(AAFwkTag::APPMGR, "Keepalive app.");
         return false;
@@ -247,6 +252,7 @@ bool CacheProcessManager::IsAppSupportProcessCache(const std::shared_ptr<AppRunn
         return false;
     }
     if (appRecord->GetBundleName() == SHELL_ASSISTANT_BUNDLENAME) {
+        TAG_LOGD(AAFwkTag::APPMGR, "shell assistant, not support.");
         return false;
     }
     auto supportState = appRecord->GetSupportProcessCacheState();
@@ -348,26 +354,13 @@ bool CacheProcessManager::KillProcessByRecord(const std::shared_ptr<AppRunningRe
         TAG_LOGW(AAFwkTag::APPMGR, "appRecord nullptr precheck failed");
         return false;
     }
-    auto priorityObject = appRecord->GetPriorityObject();
-    if (priorityObject == nullptr) {
-        TAG_LOGW(AAFwkTag::APPMGR, "priorityObject is nullptr.");
-        return false;
-    }
-    auto pid = priorityObject->GetPid();
-    if (pid < 0) {
-        TAG_LOGW(AAFwkTag::APPMGR, "Pid error");
-        return false;
-    }
     auto appMgrSptr = appMgr_.lock();
     if (appMgrSptr == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "appMgr is nullptr");
         return false;
     }
-    auto result = appMgrSptr->KillProcessByPid(pid);
-    if (result < 0) {
-        TAG_LOGW(AAFwkTag::APPMGR, "Kill application directly failed, pid: %{public}d", pid);
-        return false;
-    }
+    // this uses ScheduleProcessSecurityExit
+    appMgrSptr->KillApplicationByRecord(appRecord);
     return true;
 }
 

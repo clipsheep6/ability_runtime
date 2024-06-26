@@ -15,6 +15,7 @@
 
 #include "ability_scheduler_stub.h"
 
+#include "ability_manager_errors.h"
 #include "abs_shared_result_set.h"
 #include "data_ability_observer_interface.h"
 #include "data_ability_operation.h"
@@ -33,51 +34,10 @@ namespace OHOS {
 namespace AAFwk {
 constexpr int CYCLE_LIMIT = 2000;
 AbilitySchedulerStub::AbilitySchedulerStub()
-{
-    requestFuncMap_[SCHEDULE_ABILITY_TRANSACTION] = &AbilitySchedulerStub::AbilityTransactionInner;
-    requestFuncMap_[SEND_RESULT] = &AbilitySchedulerStub::SendResultInner;
-    requestFuncMap_[SCHEDULE_ABILITY_CONNECT] = &AbilitySchedulerStub::ConnectAbilityInner;
-    requestFuncMap_[SCHEDULE_ABILITY_DISCONNECT] = &AbilitySchedulerStub::DisconnectAbilityInner;
-    requestFuncMap_[SCHEDULE_ABILITY_COMMAND] = &AbilitySchedulerStub::CommandAbilityInner;
-    requestFuncMap_[SCHEDULE_ABILITY_PREPARE_TERMINATE] = &AbilitySchedulerStub::PrepareTerminateAbilityInner;
-    requestFuncMap_[SCHEDULE_ABILITY_COMMAND_WINDOW] = &AbilitySchedulerStub::CommandAbilityWindowInner;
-    requestFuncMap_[SCHEDULE_SAVE_ABILITY_STATE] = &AbilitySchedulerStub::SaveAbilityStateInner;
-    requestFuncMap_[SCHEDULE_RESTORE_ABILITY_STATE] = &AbilitySchedulerStub::RestoreAbilityStateInner;
-    requestFuncMap_[SCHEDULE_GETFILETYPES] = &AbilitySchedulerStub::GetFileTypesInner;
-    requestFuncMap_[SCHEDULE_OPENFILE] = &AbilitySchedulerStub::OpenFileInner;
-    requestFuncMap_[SCHEDULE_OPENRAWFILE] = &AbilitySchedulerStub::OpenRawFileInner;
-    requestFuncMap_[SCHEDULE_INSERT] = &AbilitySchedulerStub::InsertInner;
-    requestFuncMap_[SCHEDULE_UPDATE] = &AbilitySchedulerStub::UpdatetInner;
-    requestFuncMap_[SCHEDULE_DELETE] = &AbilitySchedulerStub::DeleteInner;
-    requestFuncMap_[SCHEDULE_QUERY] = &AbilitySchedulerStub::QueryInner;
-    requestFuncMap_[SCHEDULE_CALL] = &AbilitySchedulerStub::CallInner;
-    requestFuncMap_[SCHEDULE_GETTYPE] = &AbilitySchedulerStub::GetTypeInner;
-    requestFuncMap_[SCHEDULE_RELOAD] = &AbilitySchedulerStub::ReloadInner;
-    requestFuncMap_[SCHEDULE_BATCHINSERT] = &AbilitySchedulerStub::BatchInsertInner;
-    requestFuncMap_[SCHEDULE_REGISTEROBSERVER] = &AbilitySchedulerStub::RegisterObserverInner;
-    requestFuncMap_[SCHEDULE_UNREGISTEROBSERVER] = &AbilitySchedulerStub::UnregisterObserverInner;
-    requestFuncMap_[SCHEDULE_NOTIFYCHANGE] = &AbilitySchedulerStub::NotifyChangeInner;
-    requestFuncMap_[SCHEDULE_NORMALIZEURI] = &AbilitySchedulerStub::NormalizeUriInner;
-    requestFuncMap_[SCHEDULE_DENORMALIZEURI] = &AbilitySchedulerStub::DenormalizeUriInner;
-    requestFuncMap_[SCHEDULE_EXECUTEBATCH] = &AbilitySchedulerStub::ExecuteBatchInner;
-    requestFuncMap_[NOTIFY_CONTINUATION_RESULT] = &AbilitySchedulerStub::NotifyContinuationResultInner;
-    requestFuncMap_[REQUEST_CALL_REMOTE] = &AbilitySchedulerStub::CallRequestInner;
-    requestFuncMap_[CONTINUE_ABILITY] = &AbilitySchedulerStub::ContinueAbilityInner;
-    requestFuncMap_[DUMP_ABILITY_RUNNER_INNER] = &AbilitySchedulerStub::DumpAbilityInfoInner;
-    requestFuncMap_[SCHEDULE_SHARE_DATA] = &AbilitySchedulerStub::ShareDataInner;
-    requestFuncMap_[SCHEDULE_ONEXECUTE_INTENT] = &AbilitySchedulerStub::OnExecuteIntentInner;
-    requestFuncMap_[CREATE_MODAL_UI_EXTENSION] = &AbilitySchedulerStub::CreateModalUIExtensionInner;
-    requestFuncMap_[UPDATE_SESSION_TOKEN] = &AbilitySchedulerStub::UpdateSessionTokenInner;
-    
-#ifdef ABILITY_COMMAND_FOR_TEST
-    requestFuncMap_[BLOCK_ABILITY_INNER] = &AbilitySchedulerStub::BlockAbilityInner;
-#endif
-}
+{}
 
 AbilitySchedulerStub::~AbilitySchedulerStub()
-{
-    requestFuncMap_.clear();
-}
+{}
 
 int AbilitySchedulerStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -88,16 +48,123 @@ int AbilitySchedulerStub::OnRemoteRequest(
         TAG_LOGE(AAFwkTag::ABILITYMGR, "local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
+    return OnRemoteRequestInner(code, data, reply, option);
+}
 
-    auto itFunc = requestFuncMap_.find(code);
-    if (itFunc != requestFuncMap_.end()) {
-        auto requestFunc = itFunc->second;
-        if (requestFunc != nullptr) {
-            return (this->*requestFunc)(data, reply);
-        }
+int AbilitySchedulerStub::OnRemoteRequestInner(
+    uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    int retCode = ERR_OK;
+    retCode = OnRemoteRequestInnerFirst(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerSecond(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerThird(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
     }
     TAG_LOGW(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::OnRemoteRequest, default case, need check.");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+}
+
+int AbilitySchedulerStub::OnRemoteRequestInnerFirst(
+    uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    switch (code) {
+        case SCHEDULE_ABILITY_TRANSACTION:
+            return AbilityTransactionInner(data, reply);
+        case SEND_RESULT:
+            return SendResultInner(data, reply);
+        case SCHEDULE_ABILITY_CONNECT:
+            return ConnectAbilityInner(data, reply);
+        case SCHEDULE_ABILITY_DISCONNECT:
+            return DisconnectAbilityInner(data, reply);
+        case SCHEDULE_ABILITY_COMMAND:
+            return CommandAbilityInner(data, reply);
+        case SCHEDULE_ABILITY_PREPARE_TERMINATE:
+            return PrepareTerminateAbilityInner(data, reply);
+        case SCHEDULE_ABILITY_COMMAND_WINDOW:
+            return CommandAbilityWindowInner(data, reply);
+        case SCHEDULE_SAVE_ABILITY_STATE:
+            return SaveAbilityStateInner(data, reply);
+        case SCHEDULE_RESTORE_ABILITY_STATE:
+            return RestoreAbilityStateInner(data, reply);
+        case SCHEDULE_GETFILETYPES:
+            return GetFileTypesInner(data, reply);
+        case SCHEDULE_OPENFILE:
+            return OpenFileInner(data, reply);
+        case SCHEDULE_OPENRAWFILE:
+            return OpenRawFileInner(data, reply);
+        case SCHEDULE_INSERT:
+            return InsertInner(data, reply);
+        case SCHEDULE_UPDATE:
+            return UpdatetInner(data, reply);
+        case SCHEDULE_DELETE:
+            return DeleteInner(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
+}
+
+int AbilitySchedulerStub::OnRemoteRequestInnerSecond(
+    uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    switch (code) {
+        case SCHEDULE_QUERY:
+            return QueryInner(data, reply);
+        case SCHEDULE_CALL:
+            return CallInner(data, reply);
+        case SCHEDULE_GETTYPE:
+            return GetTypeInner(data, reply);
+        case SCHEDULE_RELOAD:
+            return ReloadInner(data, reply);
+        case SCHEDULE_BATCHINSERT:
+            return BatchInsertInner(data, reply);
+        case SCHEDULE_REGISTEROBSERVER:
+            return RegisterObserverInner(data, reply);
+        case SCHEDULE_UNREGISTEROBSERVER:
+            return UnregisterObserverInner(data, reply);
+        case SCHEDULE_NOTIFYCHANGE:
+            return NotifyChangeInner(data, reply);
+        case SCHEDULE_NORMALIZEURI:
+            return NormalizeUriInner(data, reply);
+        case SCHEDULE_DENORMALIZEURI:
+            return DenormalizeUriInner(data, reply);
+        case SCHEDULE_EXECUTEBATCH:
+            return ExecuteBatchInner(data, reply);
+        case NOTIFY_CONTINUATION_RESULT:
+            return NotifyContinuationResultInner(data, reply);
+        case REQUEST_CALL_REMOTE:
+            return CallRequestInner(data, reply);
+        case CONTINUE_ABILITY:
+            return ContinueAbilityInner(data, reply);
+        case DUMP_ABILITY_RUNNER_INNER:
+            return DumpAbilityInfoInner(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
+}
+
+int AbilitySchedulerStub::OnRemoteRequestInnerThird(
+    uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    switch (code) {
+        case SCHEDULE_SHARE_DATA:
+            return ShareDataInner(data, reply);
+        case SCHEDULE_ONEXECUTE_INTENT:
+            return OnExecuteIntentInner(data, reply);
+        case CREATE_MODAL_UI_EXTENSION:
+            return CreateModalUIExtensionInner(data, reply);
+        case UPDATE_SESSION_TOKEN:
+            return UpdateSessionTokenInner(data, reply);
+#ifdef ABILITY_COMMAND_FOR_TEST
+        case BLOCK_ABILITY_INNER:
+            return BlockAbilityInner(data, reply);
+#endif
+    }
+    return ERR_CODE_NOT_EXIST;
 }
 
 int AbilitySchedulerStub::AbilityTransactionInner(MessageParcel &data, MessageParcel &reply)

@@ -978,5 +978,27 @@ void OHOSApplication::UpdateAppContextResMgr(const Configuration &config)
     auto configUtils = std::make_shared<AbilityRuntime::ConfigurationUtils>();
     configUtils->UpdateGlobalConfig(config, context->GetResourceManager());
 }
+
+void OHOSApplication::CleanEmptyAbilityStage()
+{
+    bool containsNonEmpty = false;
+    for (auto it = abilityStages_.begin(); it != abilityStages_.end();) {
+        auto abilityStage = it->second;
+        if (abilityStage == nullptr) {
+            it++;
+            continue;
+        }
+        if (!abilityStage->ContainsAbility()) {
+            abilityStage->OnDestroy();
+            it = abilityStages_.erase(it);
+        } else {
+            containsNonEmpty = true;
+            it++;
+        }
+    }
+    if (containsNonEmpty) {
+        TAG_LOGI(AAFwkTag::APPKIT, "Application contains none empty abilityStage.");
+    }
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -285,6 +285,13 @@ int32_t AppSchedulerHost::HandleScheduleProcessSecurityExit(MessageParcel &data,
     return NO_ERROR;
 }
 
+int32_t AppSchedulerHost::HandleScheduleClearPageStack(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    ScheduleClearPageStack();
+    return NO_ERROR;
+}
+
 int32_t AppSchedulerHost::HandleScheduleAcceptWant(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER(HITRACE_TAG_APP);

@@ -147,7 +147,8 @@ public:
      *
      * @return Return true if found, otherwise return false.
      */
-    bool ProcessExitByBundleName(const std::string &bundleName, std::list<pid_t> &pids);
+    bool ProcessExitByBundleName(
+        const std::string &bundleName, std::list<pid_t> &pids, const bool clearPageStack = true);
     /**
      * Get Foreground Applications.
      *
@@ -230,7 +231,8 @@ public:
      */
     int32_t ProcessUpdateApplicationInfoInstalled(const ApplicationInfo &appInfo);
 
-    bool ProcessExitByBundleNameAndUid(const std::string &bundleName, const int uid, std::list<pid_t> &pids);
+    bool ProcessExitByBundleNameAndUid(
+        const std::string &bundleName, const int uid, std::list<pid_t> &pids, const bool clearPageStack = true);
     bool GetPidsByUserId(int32_t userId, std::list<pid_t> &pids);
 
     void PrepareTerminate(const sptr<IRemoteObject> &token);

@@ -115,8 +115,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     sptr<IAbilityScheduler> dataAbilityScheduler;
     abilityms->ReleaseDataAbility(dataAbilityScheduler, token);
     abilityms->AttachAbilityThread(dataAbilityScheduler, token);
-    abilityms->DumpFuncInit();
-    abilityms->DumpSysFuncInit();
     std::vector<std::string> info;
     abilityms->DumpSysInner(stringParam, info, boolParam, boolParam, intParam);
     abilityms->DumpSysMissionListInner(stringParam, info, boolParam, boolParam, intParam);

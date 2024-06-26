@@ -118,12 +118,15 @@ ohos_shared_library("app_util") {
   sources = [
     "src/ability_manager_radar.cpp",
     "src/app_utils.cpp",
+    "src/json_utils.cpp",
   ]
 
   external_deps = [
+    "config_policy:configpolicy_util",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "init:libbegetutil",
+    "json:nlohmann_json_static",
   ]
 
   if (ability_runtime_graphics) {
