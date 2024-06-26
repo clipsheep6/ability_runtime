@@ -71,7 +71,7 @@ public:
 
 private:
     int GenerateAbilityRequestByAction(int32_t userId, AbilityRequest &request,
-        std::vector<DialogAppInfo> &dialogAppInfos, bool isMoreHapList);
+        std::vector<DialogAppInfo> &dialogAppInfos, bool isMoreHapList, bool &findDefaultApp);
     std::string MatchTypeAndUri(const AAFwk::Want &want);
     std::shared_ptr<AppExecFwk::BundleMgrHelper> GetBundleManagerHelper();
     std::vector<std::string> SplitStr(const std::string& str, char delimiter);
@@ -104,6 +104,8 @@ private:
 
     void OnlyKeepReserveApp(std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
         std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos);
+
+    bool IsActionImplicitStart(const Want &want, bool findDeafultApp);
 
 private:
     const static std::vector<std::string> blackList;
