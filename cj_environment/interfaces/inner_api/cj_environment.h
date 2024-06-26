@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_CJ_ENVIRONMENT_H
 #define OHOS_ABILITY_RUNTIME_CJ_ENVIRONMENT_H
 
+#include <string>
 #include <functional>
 
 #ifdef WINDOWS_PLATFORM
