@@ -34,10 +34,6 @@ public:
 private:
     int32_t HandleOnAppStateChanged(MessageParcel &data, MessageParcel &reply);
 
-    using AppForegroundStateObserverFunc = int32_t (AppForegroundStateObserverStub::*)(
-        MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, AppForegroundStateObserverFunc> memberFuncMap_;
-
     DISALLOW_COPY_AND_MOVE(AppForegroundStateObserverStub);
 };
 

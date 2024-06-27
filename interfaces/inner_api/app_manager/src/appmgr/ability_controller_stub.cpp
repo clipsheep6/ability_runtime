@@ -22,20 +22,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-AbilityControllerStub::AbilityControllerStub()
-{
-    memberFuncMap_[static_cast<uint32_t>(
-        IAbilityController::Message::TRANSACT_ON_ALLOW_ABILITY_START)] =
-        &AbilityControllerStub::HandleAllowAbilityStart;
-    memberFuncMap_[static_cast<uint32_t>(
-        IAbilityController::Message::TRANSACT_ON_ALLOW_ABILITY_BACKGROUND)] =
-        &AbilityControllerStub::HandleAllowAbilityBackground;
-}
+AbilityControllerStub::AbilityControllerStub() {}
 
-AbilityControllerStub::~AbilityControllerStub()
-{
-    memberFuncMap_.clear();
-}
+AbilityControllerStub::~AbilityControllerStub() {}
 
 int AbilityControllerStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -49,13 +38,13 @@ int AbilityControllerStub::OnRemoteRequest(
         return ERR_INVALID_STATE;
     }
 
-    auto itFunc = memberFuncMap_.find(code);
-    if (itFunc != memberFuncMap_.end()) {
-        auto memberFunc = itFunc->second;
-        if (memberFunc != nullptr) {
-            return (this->*memberFunc)(data, reply);
-        }
+    switch (code) {
+        case static_cast<uint32_t>(IAbilityController::Message::TRANSACT_ON_ALLOW_ABILITY_START):
+            return HandleAllowAbilityStart(data, reply);
+        case static_cast<uint32_t>(IAbilityController::Message::TRANSACT_ON_ALLOW_ABILITY_BACKGROUND):
+            return HandleAllowAbilityBackground(data, reply);
     }
+    
     TAG_LOGI(AAFwkTag::APPMGR, "AbilityControllerStub::OnRemoteRequest finish");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }

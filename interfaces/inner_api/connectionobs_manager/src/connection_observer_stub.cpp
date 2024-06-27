@@ -22,14 +22,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-ConnectionObserverStub::ConnectionObserverStub()
-{
-    vecMemberFunc_.resize(IConnectionObserver::CMD_MAX);
-    vecMemberFunc_[ON_EXTENSION_CONNECTED] = &ConnectionObserverStub::OnExtensionConnectedInner;
-    vecMemberFunc_[ON_EXTENSION_DISCONNECTED] = &ConnectionObserverStub::OnExtensionDisconnectedInner;
-    vecMemberFunc_[ON_DLP_ABILITY_OPENED] = &ConnectionObserverStub::OnDlpAbilityOpenedInner;
-    vecMemberFunc_[ON_DLP_ABILITY_CLOSED] = &ConnectionObserverStub::OnDlpAbilityClosedInner;
-}
+ConnectionObserverStub::ConnectionObserverStub() {}
 
 int ConnectionObserverStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -40,12 +33,18 @@ int ConnectionObserverStub::OnRemoteRequest(
         TAG_LOGI(AAFwkTag::CONNECTION, "ConnectionObserverStub Local descriptor is not equal to remote.");
         return ERR_INVALID_STATE;
     }
-
     if (code < IConnectionObserver::CMD_MAX && code >= 0) {
-        auto memberFunc = vecMemberFunc_[code];
-        return (this->*memberFunc)(data, reply);
+        switch (code) {
+            case ON_EXTENSION_CONNECTED:
+                return OnExtensionConnectedInner(data, reply);
+            case ON_EXTENSION_DISCONNECTED:
+                return OnExtensionDisconnectedInner(data, reply);
+            case ON_DLP_ABILITY_OPENED:
+                return OnDlpAbilityOpenedInner(data, reply);
+            case ON_DLP_ABILITY_CLOSED:
+                return OnDlpAbilityClosedInner(data, reply);
+        }
     }
-
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 

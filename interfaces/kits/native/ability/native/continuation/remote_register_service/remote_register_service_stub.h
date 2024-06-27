@@ -36,9 +36,6 @@ private:
     int UnregisterInner(MessageParcel &data, MessageParcel &reply);
     int UpdateConnectStatusInner(MessageParcel &data, MessageParcel &reply);
     int ShowDeviceListInner(MessageParcel &data, MessageParcel &reply);
-
-    using RequestRegisterFuncType = int (RemoteRegisterServiceStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, RequestRegisterFuncType> requestFuncMap_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
