@@ -688,9 +688,12 @@ bool SimulatorImpl::OnInit()
         return false;
     }
 
-    panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, (options_.debugPort != 0), options_.debugPort};
-    panda::JSNApi::StartDebugger(vm_, debugOption, 0,
-        std::bind(&DebuggerTask::OnPostTask, &debuggerTask_, std::placeholders::_1));
+    panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, (options_.debugPort != 0), options_.debugPort};;
+    panda::JSNApi::StartDebugger(vm_, debugOption, 0, [&debuggerTask_](std::function<void()> &&arg) {
+        debuggerTask_.OnPostTask(std::move(arg));
+    });
+
+
 
     auto nativeEngine = new (std::nothrow) ArkNativeEngine(vm_, nullptr);
     if (nativeEngine == nullptr) {

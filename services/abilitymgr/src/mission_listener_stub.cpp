@@ -22,19 +22,7 @@
 
 namespace OHOS {
 namespace AAFwk {
-MissionListenerStub::MissionListenerStub()
-{
-    vecMemberFunc_.resize(IMissionListener::MISSION_LINSTENER_CMD_MAX);
-    vecMemberFunc_[ON_MISSION_CREATED] = &MissionListenerStub::OnMissionCreatedInner;
-    vecMemberFunc_[ON_MISSION_DESTROYED] = &MissionListenerStub::OnMissionDestroyedInner;
-    vecMemberFunc_[ON_MISSION_SNAPSHOT_CHANGED] = &MissionListenerStub::OnMissionSnapshotChangedInner;
-    vecMemberFunc_[ON_MISSION_MOVED_TO_FRONT] = &MissionListenerStub::OnMissionMovedToFrontInner;
-    vecMemberFunc_[ON_MISSION_ICON_UPDATED] = &MissionListenerStub::OnMissionIconUpdatedInner;
-    vecMemberFunc_[ON_MISSION_CLOSED] = &MissionListenerStub::OnMissionClosedInner;
-    vecMemberFunc_[ON_MISSION_LABEL_UPDATED] = &MissionListenerStub::OnMissionLabelUpdatedInner;
-    vecMemberFunc_[ON_MISSION_FOCUSED] = &MissionListenerStub::OnMissionFocusedInner;
-    vecMemberFunc_[ON_MISSION_UNFOCUSED] = &MissionListenerStub::OnMissionUnfocusedInner;
-}
+MissionListenerStub::MissionListenerStub() {}
 
 int MissionListenerStub::OnMissionCreatedInner(MessageParcel &data, MessageParcel &reply)
 {
@@ -112,12 +100,37 @@ int MissionListenerStub::OnRemoteRequest(
         TAG_LOGI(AAFwkTag::ABILITYMGR, "Local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
-
     if (code < IMissionListener::MISSION_LINSTENER_CMD_MAX && code >= 0) {
-        auto memberFunc = vecMemberFunc_[code];
-        return (this->*memberFunc)(data, reply);
+        switch (code) {
+            case ON_MISSION_CREATED:
+                return OnMissionCreatedInner(data, reply);
+                break;
+            case ON_MISSION_DESTROYED:
+                return OnMissionDestroyedInner(data, reply);
+                break;
+            case ON_MISSION_SNAPSHOT_CHANGED:
+                return OnMissionSnapshotChangedInner(data, reply);
+                break;
+            case ON_MISSION_MOVED_TO_FRONT:
+                return OnMissionMovedToFrontInner(data, reply);
+                break;
+            case ON_MISSION_ICON_UPDATED:
+                return OnMissionIconUpdatedInner(data, reply);
+                break;
+            case ON_MISSION_CLOSED:
+                return OnMissionClosedInner(data, reply);
+                break;
+            case ON_MISSION_LABEL_UPDATED:
+                return OnMissionLabelUpdatedInner(data, reply);
+                break;
+            case ON_MISSION_FOCUSED:
+                return OnMissionFocusedInner(data, reply);
+                break;
+            case ON_MISSION_UNFOCUSED:
+                return OnMissionUnfocusedInner(data, reply);
+                break;
+        }
     }
-
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 }  // namespace AAFwk

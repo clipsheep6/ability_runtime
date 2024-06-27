@@ -42,9 +42,6 @@ private:
 
     int OnStopUserDoneInner(MessageParcel &data, MessageParcel &reply);
     int OnStartUserDoneInner(MessageParcel &data, MessageParcel &reply);
-
-    using UserCallbackFunc = int (UserCallbackStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::vector<UserCallbackFunc> vecMemberFunc_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

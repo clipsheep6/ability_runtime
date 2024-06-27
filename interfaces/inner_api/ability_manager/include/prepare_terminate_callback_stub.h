@@ -33,8 +33,6 @@ public:
 
 private:
     int DoPrepareTerminateInner(MessageParcel &data, MessageParcel &reply);
-    using RequestFuncType = int (PrepareTerminateCallbackStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, RequestFuncType> requestFuncMap_;
 };
 } // namespace AAFwk
 } // namespace OHOS
