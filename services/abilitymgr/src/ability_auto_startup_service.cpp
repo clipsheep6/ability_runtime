@@ -482,12 +482,8 @@ bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
     } else if (appIndex <= GlobalConstant::MAX_APP_CLONE_INDEX) {
         auto bundleFlag = static_cast<int32_t>(AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO);
         TAG_LOGD(AAFwkTag::AUTO_STARTUP, "appindex = : %{public}d.", appIndex);
-        bool bundleMgrResult;
-        int32_t errorCode = 0;
-        errorCode = bms->GetCloneBundleInfo(bundleName, bundleFlag, appIndex, bundleInfo, userId);
-        bundleMgrResult = IN_PROCESS_CALL(bms->GetCloneBundleInfo(bundleName, bundleFlag, appIndex, bundleInfo, userId));
-        if (!bundleMgrResult) {
-            TAG_LOGD(AAFwkTag::AUTO_STARTUP, "errorCode = : %{public}d.", errorCode);
+        auto bundleMgrResult = IN_PROCESS_CALL(bms->GetCloneBundleInfo(bundleName, bundleFlag, appIndex, bundleInfo, userId));
+        if (bundleMgrResult != ERR_OK) {
             TAG_LOGD(AAFwkTag::AUTO_STARTUP, "bundleMgrResult = : %{public}d.", bundleMgrResult);
             TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Failed to get clone bundle info.");
             return false;
@@ -498,6 +494,7 @@ bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
         return false;
         }
     }
+    TAG_LOGW(AAFwkTag::AUTO_STARTUP, " get clone bundle info success.");
     return true;
 }
 
