@@ -21,14 +21,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-StatusBarDelegateStub::StatusBarDelegateStub()
-{
-    vecMemberFunc_.resize(static_cast<size_t>(StatusBarDelegateCmd::END));
-    vecMemberFunc_[static_cast<uint32_t>(StatusBarDelegateCmd::CHECK_IF_STATUS_BAR_ITEM_EXISTS)] =
-        &StatusBarDelegateStub::HandleCheckIfStatusBarItemExists;
-    vecMemberFunc_[static_cast<uint32_t>(StatusBarDelegateCmd::ATTACH_PID_TO_STATUS_BAR_ITEM)] =
-        &StatusBarDelegateStub::HandleAttachPidToStatusBarItem;
-}
+StatusBarDelegateStub::StatusBarDelegateStub() {}
 
 int32_t StatusBarDelegateStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -41,8 +34,12 @@ int32_t StatusBarDelegateStub::OnRemoteRequest(
     }
 
     if (code < static_cast<uint32_t>(StatusBarDelegateCmd::END)) {
-        auto memberFunc = vecMemberFunc_[code];
-        return (this->*memberFunc)(data, reply);
+        switch (code) {
+            case static_cast<uint32_t>(StatusBarDelegateCmd::CHECK_IF_STATUS_BAR_ITEM_EXISTS):
+                return HandleCheckIfStatusBarItemExists(data, reply);
+            case static_cast<uint32_t>(StatusBarDelegateCmd::ATTACH_PID_TO_STATUS_BAR_ITEM):
+                return HandleAttachPidToStatusBarItem(data, reply);
+        }
     }
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
