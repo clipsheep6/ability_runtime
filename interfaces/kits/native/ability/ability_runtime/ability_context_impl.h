@@ -186,7 +186,7 @@ public:
 
     bool IsTerminating() override
     {
-        return isTerminating_;
+        return isTerminating_.load();
     }
 
     void SetWeakSessionToken(const wptr<IRemoteObject>& sessionToken) override;
@@ -195,7 +195,7 @@ public:
 
     void SetTerminating(bool state) override
     {
-        isTerminating_ = state;
+        isTerminating_.store(state);
     }
 
     ErrCode RequestDialogService(napi_env env, AAFwk::Want &want, RequestDialogResultTask &&task) override;
@@ -292,7 +292,7 @@ private:
     std::shared_ptr<AppExecFwk::Configuration> config_ = nullptr;
     std::shared_ptr<LocalCallContainer> localCallContainer_ = nullptr;
     std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback_;
-    bool isTerminating_ = false;
+    std::atomic<bool> isTerminating_ = false;
     int32_t missionId_ = -1;
     int32_t abilityRecordId_ = 0;
     std::mutex sessionTokenMutex_;
