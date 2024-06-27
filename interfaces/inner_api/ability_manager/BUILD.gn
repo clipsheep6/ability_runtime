@@ -270,7 +270,10 @@ ohos_shared_library("ability_manager") {
       "window_manager:libwsutils",
       "window_manager:session_manager_lite",
     ]
-    public_external_deps += [ "graphic_2d:color_manager" ]
+    public_external_deps += [
+      "graphic_2d:color_manager",
+      "image_framework:image_native",
+    ]
   }
 
   cflags_cc = []

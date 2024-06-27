@@ -73,14 +73,20 @@ ohos_static_library("tools_aa_source_set") {
   ]
   public_external_deps = [
     "bundle_framework:appexecfwk_base",
-    "graphic_2d:color_manager",
-    "image_framework:image_native",
+    "bundle_framework:appexecfwk_core",
     "init:libbegetutil",
     "jsoncpp:jsoncpp",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "samgr:samgr_proxy",
   ]
+
+  if (ability_runtime_graphics) {
+    public_external_deps += [
+      "graphic_2d:color_manager",
+      "image_framework:image_native",
+    ]
+  }
 
   subsystem_name = "ability"
   part_name = "ability_runtime"

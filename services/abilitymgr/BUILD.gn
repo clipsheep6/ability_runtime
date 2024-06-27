@@ -145,7 +145,6 @@ ohos_shared_library("abilityms") {
     "config_policy:configpolicy_util",
     "dsoftbus:softbus_client",
     "ffrt:libffrt",
-    "graphic_2d:color_manager",
     "hicollie:libhicollie",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
@@ -185,6 +184,7 @@ ohos_shared_library("abilityms") {
     defines += [ "SUPPORT_GRAPHICS" ]
     external_deps += [
       "ability_base:session_info",
+      "graphic_2d:color_manager",
       "i18n:intl_util",
       "image_framework:image_native",
       "screenlock_mgr:screenlock_client",

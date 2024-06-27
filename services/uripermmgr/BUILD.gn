@@ -75,7 +75,6 @@ ohos_shared_library("libupms") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
-    "graphic_2d:color_manager",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "image_framework:image_native",
@@ -89,7 +88,11 @@ ohos_shared_library("libupms") {
     "storage_service:storage_manager_sa_proxy",
   ]
   if (ability_runtime_graphics) {
-    external_deps += [ "i18n:intl_util" ]
+    external_deps += [
+      "graphic_2d:color_manager",
+      "i18n:intl_util",
+      "image_framework:image_native",
+    ]
   }
 
   subsystem_name = "ability"
