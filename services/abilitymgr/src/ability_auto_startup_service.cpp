@@ -481,16 +481,17 @@ bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
             }
     } else if (appIndex <= GlobalConstant::MAX_APP_CLONE_INDEX) {
         auto bundleFlag = static_cast<int32_t>(AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO);
-        auto bundleMgrResult = IN_PROCESS_CALL(bms->GetCloneBundleInfo(bundleName, bundleFlag, appIndex, bundleInfo, userId));
-        if (bundleMgrResult != ERR_OK ) {
-            TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Failed to get clone bundle info.");
-            return false;
-        }
+        auto bundleMgrResult = IN_PROCESS_CALL(
+            bms->GetCloneBundleInfo(bundleName, bundleFlag, appIndex, bundleInfo, userId));
+            if (bundleMgrResult != ERR_OK ) {
+                TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Failed to get clone bundle info.");
+                return false;
+            }
     } else {
-        if (!IN_PROCESS_CALL(bundleMgrClient->GetSandboxBundleInfo(bundleName, appIndex, userId, bundleInfo))) {
-        TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Failed to get sandbox bundle info.");
-        return false;
-        }
+            if (!IN_PROCESS_CALL(bundleMgrClient->GetSandboxBundleInfo(bundleName, appIndex, userId, bundleInfo))) {
+                TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Failed to get sandbox bundle info.");
+                return false;
+            }
     }
     TAG_LOGW(AAFwkTag::AUTO_STARTUP, "get bundle info success.");
     return true;
@@ -507,6 +508,7 @@ bool AbilityAutoStartupService::GetAbilityData(const AutoStartupInfo &info, bool
     AppExecFwk::BundleInfo bundleInfo;
     int32_t currentUserId;
     int32_t uid = bundleInfo.applicationInfo.uid;
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "appCloneIndex: %{public}d. ", info.appCloneIndex);
     if (!GetBundleInfo(info.bundleName, bundleInfo, uid, currentUserId, info.appCloneIndex)) {
         return false;
     }
@@ -514,10 +516,10 @@ bool AbilityAutoStartupService::GetAbilityData(const AutoStartupInfo &info, bool
     auto accessTokenIdStr = bundleInfo.applicationInfo.accessTokenId;
     accessTokenId = std::to_string(accessTokenIdStr);
     TAG_LOGD(AAFwkTag::AUTO_STARTUP, "userId: %{public}d. ", userId);
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "accessTokenId: %{public}s. ", accessTokenId);
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "abilityInfo.bundleName: %{public}s. ", abilityInfo.bundleName);
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "abilityInfo.name: %{public}s. ", abilityInfo.name);
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "accessTokenId: %{public}d. ", accessTokenIdStr);
     for (auto abilityInfo : bundleInfo.abilityInfos) {
+        TAG_LOGD(AAFwkTag::AUTO_STARTUP, "abilityInfo.bundleName: %{public}s. ", abilityInfo.bundleName.c_str());
+        TAG_LOGD(AAFwkTag::AUTO_STARTUP, "abilityInfo.name: %{public}s. ", abilityInfo.name.c_str());
         if ((abilityInfo.bundleName == info.bundleName) && (abilityInfo.name == info.abilityName)) {
             if (info.moduleName.empty() || (abilityInfo.moduleName == info.moduleName)) {
                 isVisible = abilityInfo.visible;
