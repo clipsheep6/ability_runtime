@@ -283,9 +283,7 @@ void JsRuntime::StartDebugMode(const DebugOption dOption)
             if (isDebugApp) {
                 weak->StopDebugger(option);
             }
-            int32_t tid = weak->ParseHdcRegisterOption(option);
-            const auto &debuggerPostTask = ConnectServerManager::Get().GetDebuggerPostTask(tid);
-            weak->StartDebugger(option, socketFd, isDebugApp, debuggerPostTask);
+            weak->StartDebugger(option, socketFd, isDebugApp);
         }
     });
     if (isDebugApp) {
@@ -411,9 +409,7 @@ void JsRuntime::StartProfiler(const DebugOption dOption)
             if (isDebugApp) {
                 weak->StopDebugger(option);
             }
-            int32_t tid = weak->ParseHdcRegisterOption(option);
-            const auto &debuggerPostTask = ConnectServerManager::Get().GetDebuggerPostTask(tid);
-            weak->StartDebugger(option, socketFd, isDebugApp, debuggerPostTask);
+            weak->StartDebugger(option, socketFd, isDebugApp);
         }
     });
     if (isDebugApp) {
