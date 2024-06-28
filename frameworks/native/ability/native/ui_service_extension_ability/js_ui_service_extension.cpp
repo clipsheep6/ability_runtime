@@ -290,18 +290,6 @@ void JsUIServiceExtension::OnCommand(const AAFwk::Want &want, bool restart, int 
     TAG_LOGD(AAFwkTag::UISERVC_EXT, "ok");
 }
 
-bool JsUIServiceExtension::HandleInsightIntent(const AAFwk::Want &want)
-{    
-    return true;
-}
-
-
-bool JsUIServiceExtension::OnInsightIntentExecuteDone(uint64_t intentId,
-    const AppExecFwk::InsightIntentExecuteResult &result)
-{    
-    return true;
-}
-
 napi_value JsUIServiceExtension::CallObjectMethod(const char* name, napi_value const* argv, size_t argc)
 {
     TAG_LOGD(AAFwkTag::UISERVC_EXT, "name:%{public}s", name);
