@@ -127,7 +127,6 @@ ohos_shared_library("libappms") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "json:nlohmann_json_static",
     "kv_store:distributeddata_inner",
     "memmgr:memmgrclient",
     "memory_utils:libmeminfo",
