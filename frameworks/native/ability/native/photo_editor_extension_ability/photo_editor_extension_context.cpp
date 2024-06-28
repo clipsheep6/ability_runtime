@@ -14,6 +14,7 @@
  */
 
 #include "photo_editor_extension_context.h"
+#include <cstdlib>
 #include <fstream>
 #include "media_errors.h"
 #include "hilog_tag_wrapper.h"
@@ -114,8 +115,14 @@ PhotoEditorErrorCode PhotoEditorExtensionContext::CopyImageToPanel(const std::st
     TAG_LOGD(AAFwkTag::UI_EXT, "ImageUri: %{public}s, panelPhysicalPath: %{public}s.", imageUri.c_str(),
              panelPhysicalPath.c_str());
 
+    char imagePath[PATH_MAX] = {0};
+    if (realpath(imageUri.c_str(), imagePath) == nullptr) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Realpath error, errno is %{public}d.", errno);
+        return PhotoEditorErrorCode::ERROR_CODE_IMAGE_INPUT_ERROR;
+    }
+
     std::ifstream sourceFile;
-    sourceFile.open(imageUri, std::ios::binary);
+    sourceFile.open(imagePath, std::ios::binary);
     if (!sourceFile.is_open()) {
         TAG_LOGE(AAFwkTag::UI_EXT, "Can not open source file.");
         sourceFile.close();
@@ -143,8 +150,7 @@ PhotoEditorErrorCode PhotoEditorExtensionContext::CopyImageToPanel(const std::st
     while (sourceFile.read(buffer, sizeof(buffer))) {
         panelFile.write(buffer, sizeof(buffer));
     }
-    size_t remainingBytes = sourceFile.gcount();
-    panelFile.write(buffer, remainingBytes);
+    panelFile.write(buffer, sourceFile.gcount());
     sourceFile.close();
     panelFile.close();
 
