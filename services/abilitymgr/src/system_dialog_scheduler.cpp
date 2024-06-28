@@ -441,7 +441,7 @@ int SystemDialogScheduler::GetSelectorDialogWantCommon(const std::vector<DialogA
             return INNER_ERR;
         }
         targetWant.SetElementName(bundleName, ABILITY_NAME_APPGALLERY_SELECTOR_DIALOG);
-        targetWant.SetParam(UIEXTENSION_TYPE_KEY, UIEXTENSION_SYS_COMMON_UI);
+        targetWant.SetParam(UIEXTENSION_TYPE_KEY, std::string(UIEXTENSION_SYS_COMMON_UI));
         targetWant.SetParam("isCreateAppGallerySelector", true);
     }
     return ERR_OK;
@@ -603,7 +603,7 @@ bool SystemDialogScheduler::GetAssertFaultDialogWant(Want &want)
 
     want.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_ASSERT_FAULT_DIALOG);
     want.SetParam(BUNDLE_NAME, bundleName);
-    want.SetParam(UIEXTENSION_TYPE_KEY, UIEXTENSION_SYS_COMMON_UI);
+    want.SetParam(UIEXTENSION_TYPE_KEY, std::string(UIEXTENSION_SYS_COMMON_UI));
     return true;
 }
 

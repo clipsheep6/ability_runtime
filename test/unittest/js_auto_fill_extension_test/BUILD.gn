@@ -28,7 +28,6 @@ ohos_unittest("js_auto_fill_extension_test") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
     "//third_party/jsoncpp/include",
-    "//third_party/json/include",
   ]
 
   sources = [ "js_auto_fill_extension_test.cpp" ]
@@ -62,6 +61,7 @@ ohos_unittest("js_auto_fill_extension_test") {
     "i18n:intl_util",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "napi:ace_napi",
     "resource_management:global_resmgr",
   ]

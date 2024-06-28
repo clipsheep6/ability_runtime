@@ -1080,11 +1080,11 @@ void JsUIExtensionContentSession::SetCallbackForTerminateWithResult(int32_t resu
             auto extensionContext = AbilityRuntime::Context::ConvertTo<AbilityRuntime::UIExtensionContext>(weak.lock());
             if (!extensionContext) {
                 TAG_LOGE(AAFwkTag::UI_EXT, "extensionContext is nullptr");
-                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
-                return;
+            } else {
+                auto token = extensionContext->GetToken();
+                AAFwk::AbilityManagerClient::GetInstance()->TransferAbilityResultForExtension(token, resultCode, want);
             }
-            auto token = extensionContext->GetToken();
-            AAFwk::AbilityManagerClient::GetInstance()->TransferAbilityResultForExtension(token, resultCode, want);
+
             if (uiWindow == nullptr) {
                 TAG_LOGE(AAFwkTag::UI_EXT, "uiWindow is nullptr.");
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));

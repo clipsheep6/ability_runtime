@@ -464,8 +464,7 @@ int32_t MissionList::GetMissionCount() const
     return static_cast<int32_t>(missions_.size());
 }
 
-void MissionList::GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList,
-    int32_t pid)
+void MissionList::GetActiveAbilityList(int32_t uid, std::vector<std::string> &abilityList, int32_t pid)
 {
     for (auto mission : missions_) {
         if (!mission) {
@@ -482,7 +481,7 @@ void MissionList::GetActiveAbilityList(const std::string &bundleName, std::vecto
         }
 
         const AppExecFwk::AbilityInfo &abilityInfo = abilityRecord->GetAbilityInfo();
-        if (abilityInfo.bundleName == bundleName && !abilityInfo.name.empty()) {
+        if (abilityInfo.applicationInfo.uid == uid && !abilityInfo.name.empty()) {
             TAG_LOGD(AAFwkTag::ABILITYMGR, "find ability name is %{public}s", abilityInfo.name.c_str());
             abilityList.push_back(abilityInfo.name);
         }

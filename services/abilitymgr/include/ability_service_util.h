@@ -42,7 +42,7 @@ constexpr const char* MARKET_CROWD_TEST_BUNDLE_PARAM = "crowd_test_bundle_name";
     want.SetElementName(appGalleryBundleName, "");
     want.SetAction(action);
     want.SetParam(MARKET_CROWD_TEST_BUNDLE_PARAM, bundleName);
-    return DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(want, requestCode, userId);
+    return DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(want, userId, requestCode);
 }
 }  // namespace AbilityUtil
 }  // namespace AAFwk

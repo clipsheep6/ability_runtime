@@ -351,7 +351,8 @@ int32_t AmsMgrStub::HandleAbilityAttachTimeOut(MessageParcel &data, MessageParce
 int32_t AmsMgrStub::HandlePrepareTerminate(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> token = data.ReadRemoteObject();
-    PrepareTerminate(token);
+    bool clearMissionFlag = data.ReadBool();
+    PrepareTerminate(token, clearMissionFlag);
     return NO_ERROR;
 }
 

@@ -28,16 +28,16 @@ enum class PhotoEditorErrorCode {
     ERROR_OK = 0,
 
     // param error
-    ERROR_CODE_PARAM_ERROR = 1500000001,
+    ERROR_CODE_PARAM_ERROR = 401,
 
     // internal error
-    ERROR_CODE_INTERNAL_ERROR = 1500000002,
+    ERROR_CODE_INTERNAL_ERROR = 29600001,
 
     // image input error
-    ERROR_CODE_IMAGE_INPUT_ERROR = 1500000003,
+    ERROR_CODE_IMAGE_INPUT_ERROR = 29600002,
 
     // image too big
-    ERROR_CODE_IMAGE_TOO_BIG_ERROR = 1500000004
+    ERROR_CODE_IMAGE_TOO_BIG_ERROR = 29600003
 };
 
 class PhotoEditorExtensionContext : public UIExtensionContext {

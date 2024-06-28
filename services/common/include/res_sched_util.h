@@ -35,7 +35,8 @@ public:
     void ReportAbilitStartInfoToRSS(const AbilityInfo &abilityInfo, int32_t pid, bool isColdStart);
     void ReportAbilitAssociatedStartInfoToRSS(
         const AbilityInfo &abilityInfo, int64_t resSchedType, int32_t callerUid, int32_t callerPid);
-    void ReportEventToRSS(int32_t uid, std::string bundleName, std::string name);
+    void ReportEventToRSS(const int32_t uid, const std::string &bundleName, const std::string &reason,
+        const int32_t callerPid = -1);
     void GetAllFrozenPidsFromRSS(std::unordered_set<int32_t> &frozenPids);
 private:
     ResSchedUtil() = default;

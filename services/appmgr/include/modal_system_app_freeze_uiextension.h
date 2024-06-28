@@ -20,10 +20,12 @@
 
 #include <iremote_broker.h>
 #include <semaphore.h>
+#include <functional>
 
 #include "ability_connect_callback_stub.h"
 #include "ability_manager_client.h"
 #include "ability_state.h"
+#include "fault_data.h"
 #include "iremote_stub.h"
 #include "task_handler_wrap.h"
 #include "want.h"
@@ -37,9 +39,11 @@ public:
     ModalSystemAppFreezeUIExtension() = default;
     virtual ~ModalSystemAppFreezeUIExtension();
 
-    bool CreateModalUIExtension(std::string pid, std::string bundleName);
+    void ProcessAppFreeze(bool focusFlag, const FaultData &faultData, std::string pid, std::string bundleName,
+        std::function<void()> callback);
 
 private:
+    bool CreateModalUIExtension(std::string pid, std::string bundleName);
     AAFwk::Want CreateSystemDialogWant(std::string pid, std::string bundleName);
 
 private:

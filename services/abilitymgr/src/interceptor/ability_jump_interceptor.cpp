@@ -76,7 +76,7 @@ ErrCode AbilityJumpInterceptor::DoProcess(AbilityInterceptorParam param)
         AbilityUtil::ParseJumpInterceptorWant(dialogWant, controlRule.callerPkg);
         LoadAppLabelInfo(dialogWant, controlRule, param.userId);
         int ret = IN_PROCESS_CALL(DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(dialogWant,
-            param.requestCode, param.userId));
+            param.userId, param.requestCode));
         if (ret != ERR_OK) {
             TAG_LOGI(AAFwkTag::ABILITYMGR, "appInterceptor Dialog StartAbility error, ret:%{public}d", ret);
             return ret;

@@ -122,7 +122,6 @@ ohos_shared_library("app_manager") {
   deps = [ "${ability_runtime_path}/utils/global/freeze:freeze_util" ]
 
   external_deps = [
-    "ability_base:configuration",
     "c_utils:utils",
     "faultloggerd:libdfx_dumpcatcher",
     "faultloggerd:libfaultloggerd",

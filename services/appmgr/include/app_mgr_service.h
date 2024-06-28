@@ -406,6 +406,14 @@ public:
     int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData) override;
 
     /**
+     * Set Appfreeze Detect Filter
+     *
+     * @param pid the process pid.
+     * @return Returns true on success, others on failure.
+     */
+    bool SetAppFreezeFilter(int32_t pid) override;
+
+    /**
      * get memorySize by pid.
      *
      * @param pid process id.
@@ -546,6 +554,12 @@ public:
      * @return Returns ERR_OK is test ability, others is not test ability.
      */
     int32_t CheckCallingIsUserTestMode(const pid_t pid, bool &isUserTest) override;
+
+    virtual int32_t NotifyProcessDependedOnWeb() override;
+
+    virtual void KillProcessDependedOnWeb() override;
+
+    virtual void RestartResidentProcessDependedOnWeb() override;
 private:
     /**
      * Init, Initialize application services.

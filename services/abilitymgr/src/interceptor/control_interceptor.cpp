@@ -58,7 +58,7 @@ ErrCode ControlInterceptor::DoProcess(AbilityInterceptorParam param)
             controlRule.controlWant = controlWant;
         }
         int ret = IN_PROCESS_CALL(DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(
-            *controlRule.controlWant, param.requestCode, param.userId));
+            *controlRule.controlWant, param.userId, param.requestCode));
         if (ret != ERR_OK) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Control implicit start appgallery failed.");
             return ret;

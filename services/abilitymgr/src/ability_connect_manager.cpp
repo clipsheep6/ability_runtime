@@ -1023,6 +1023,7 @@ int AbilityConnectManager::ScheduleConnectAbilityDoneLocked(
 
 void AbilityConnectManager::ProcessEliminateAbilityRecord(std::shared_ptr<AbilityRecord> eliminateRecord)
 {
+    CHECK_POINTER(eliminateRecord);
     std::string eliminateKey = eliminateRecord->GetURI();
     if (FRS_BUNDLE_NAME == eliminateRecord->GetAbilityInfo().bundleName) {
         eliminateKey = eliminateKey +
@@ -1035,28 +1036,35 @@ void AbilityConnectManager::ProcessEliminateAbilityRecord(std::shared_ptr<Abilit
 void AbilityConnectManager::TerminateOrCacheAbility(std::shared_ptr<AbilityRecord> abilityRecord)
 {
     RemoveUIExtensionAbilityRecord(abilityRecord);
-    if (!abilityRecord->IsSceneBoard()) {
-        if (IsCacheExtensionAbilityType(abilityRecord)) {
-            std::string serviceKey = abilityRecord->GetURI();
-            auto abilityInfo = abilityRecord->GetAbilityInfo();
-            if (FRS_BUNDLE_NAME == abilityInfo.bundleName) {
-                AppExecFwk::ElementName elementName(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name,
-                    abilityInfo.moduleName);
-                serviceKey = elementName.GetURI() +
-                    std::to_string(abilityRecord->GetWant().GetIntParam(FRS_APP_INDEX, 0));
-            }
-            {
-                std::lock_guard lock(serviceMapMutex_);
-                serviceMap_.erase(serviceKey);
-            }
-            auto eliminateRecord = AbilityCacheManager::GetInstance().Put(abilityRecord);
-            if (eliminateRecord != nullptr) {
-                ProcessEliminateAbilityRecord(eliminateRecord);
-            }
-        } else {
-            TerminateRecord(abilityRecord);
-        }
+    if (abilityRecord->IsSceneBoard()) {
+        return;
     }
+    if (IsCacheExtensionAbilityType(abilityRecord)) {
+        std::string serviceKey = abilityRecord->GetURI();
+        auto abilityInfo = abilityRecord->GetAbilityInfo();
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Cache the ability, service:%{public}s, extension type %{public}d",
+            serviceKey.c_str(), abilityInfo.extensionAbilityType);
+        if (FRS_BUNDLE_NAME == abilityInfo.bundleName) {
+            AppExecFwk::ElementName elementName(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name,
+                abilityInfo.moduleName);
+            serviceKey = elementName.GetURI() +
+                std::to_string(abilityRecord->GetWant().GetIntParam(FRS_APP_INDEX, 0));
+        }
+        {
+            std::lock_guard lock(serviceMapMutex_);
+            serviceMap_.erase(serviceKey);
+        }
+        auto eliminateRecord = AbilityCacheManager::GetInstance().Put(abilityRecord);
+        if (eliminateRecord != nullptr) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Terminate the eliminated ability, service:%{public}s.",
+                eliminateRecord->GetURI().c_str());
+            ProcessEliminateAbilityRecord(eliminateRecord);
+        }
+        return;
+    }
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Terminate the ability, service:%{public}s, extension type %{public}d",
+        abilityRecord->GetURI().c_str(), abilityRecord->GetAbilityInfo().extensionAbilityType);
+    TerminateRecord(abilityRecord);
 }
 
 int AbilityConnectManager::ScheduleDisconnectAbilityDoneLocked(const sptr<IRemoteObject> &token)
@@ -2634,14 +2642,14 @@ void AbilityConnectManager::MoveToTerminatingMap(const std::shared_ptr<AbilityRe
     auto& abilityInfo = abilityRecord->GetAbilityInfo();
     std::lock_guard lock(serviceMapMutex_);
     terminatingExtensionMap_.emplace(abilityRecord->GetURI(), abilityRecord);
+    std::string serviceKey = abilityRecord->GetURI();
     if (FRS_BUNDLE_NAME == abilityInfo.bundleName) {
         AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name,
             abilityInfo.moduleName);
-        serviceMap_.erase(
-            element.GetURI() + std::to_string(abilityRecord->GetWant().GetIntParam(FRS_APP_INDEX, 0)));
-    } else {
-        serviceMap_.erase(abilityRecord->GetURI());
+        serviceKey = element.GetURI() + std::to_string(abilityRecord->GetWant().GetIntParam(FRS_APP_INDEX, 0));
     }
+    serviceMap_.erase(serviceKey);
+    AbilityCacheManager::GetInstance().Remove(abilityRecord);
     if (IsSpecialAbility(abilityRecord->GetAbilityInfo())) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "Moving ability: %{public}s", abilityRecord->GetURI().c_str());
     }

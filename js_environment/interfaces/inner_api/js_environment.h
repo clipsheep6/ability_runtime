@@ -77,7 +77,7 @@ public:
     bool LoadScript(const std::string& path, std::vector<uint8_t>* buffer = nullptr, bool isBundle = false);
 
     bool StartDebugger(
-        std::string& option, uint32_t socketFd, bool isDebugApp, const DebuggerPostTask &debuggerPostTask);
+        std::string& option, uint32_t socketFd, bool isDebugApp);
 
     void StopDebugger();
 

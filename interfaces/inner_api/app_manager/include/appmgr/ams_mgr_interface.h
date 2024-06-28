@@ -168,7 +168,7 @@ public:
 
     virtual void AbilityAttachTimeOut(const sptr<IRemoteObject> &token) = 0;
 
-    virtual void PrepareTerminate(const sptr<IRemoteObject> &token) = 0;
+    virtual void PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag = false) = 0;
 
     virtual void GetRunningProcessInfoByToken(
         const sptr<IRemoteObject> &token, OHOS::AppExecFwk::RunningProcessInfo &info) = 0;

@@ -39,6 +39,7 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 const std::string DLP_INDEX = "ohos.dlp.params.index";
+constexpr int32_t TEST_UID = 20010001;
 };
 class UIAbilityLifecycleManagerTest : public testing::Test {
 public:
@@ -2854,10 +2855,9 @@ HWTEST_F(UIAbilityLifecycleManagerTest, GetActiveAbilityList_001, TestSize.Level
     AbilityRequest abilityRequest;
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     uiAbilityLifecycleManager->sessionAbilityMap_.emplace(1, abilityRecord);
-    std::string bundleName = "com.example.unittest";
     std::vector<std::string> abilityList;
     int32_t pid = 100;
-    uiAbilityLifecycleManager->GetActiveAbilityList(bundleName, abilityList, pid);
+    uiAbilityLifecycleManager->GetActiveAbilityList(TEST_UID, abilityList, pid);
     uiAbilityLifecycleManager.reset();
 }
 
@@ -2875,13 +2875,13 @@ HWTEST_F(UIAbilityLifecycleManagerTest, GetActiveAbilityList_002, TestSize.Level
     abilityRequest.abilityInfo.name = "testAbility";
     abilityRequest.abilityInfo.moduleName = "testModule";
     abilityRequest.abilityInfo.bundleName = "com.example.unittest";
+    abilityRequest.abilityInfo.applicationInfo.uid = TEST_UID;
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     abilityRecord->SetOwnerMissionUserId(DelayedSingleton<AbilityManagerService>::GetInstance()->GetUserId());
     uiAbilityLifecycleManager->sessionAbilityMap_.emplace(1, abilityRecord);
-    std::string bundleName = "com.example.unittest";
     std::vector<std::string> abilityList;
     int32_t pid = 100;
-    uiAbilityLifecycleManager->GetActiveAbilityList(bundleName, abilityList, pid);
+    uiAbilityLifecycleManager->GetActiveAbilityList(TEST_UID, abilityList, pid);
     uiAbilityLifecycleManager.reset();
 }
 

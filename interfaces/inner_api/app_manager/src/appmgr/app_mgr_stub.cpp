@@ -131,6 +131,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleNotifyFaultBySA;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::JUDGE_SANDBOX_BY_PID)] =
         &AppMgrStub::HandleJudgeSandboxByPid;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SET_APPFREEZE_FILTER)] =
+        &AppMgrStub::HandleSetAppFreezeFilter;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_BUNDLE_NAME_BY_PID)] =
         &AppMgrStub::HandleGetBundleNameByPid;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_RUNNING_PROCESS_INFO_BY_PID)] =
@@ -205,6 +207,12 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleIsAppRunning;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::CHECK_CALLING_IS_USER_TEST_MODE)] =
         &AppMgrStub::HandleCheckCallingIsUserTestMode;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_PROCESS_DEPENDED_ON_WEB)] =
+        &AppMgrStub::HandleNotifyProcessDependedOnWeb;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::KILL_PROCESS_DEPENDED_ON_WEB)] =
+        &AppMgrStub::HandleKillProcessDependedOnWeb;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::RESTART_RESIDENT_PROCESS_DEPENDED_ON_WEB)] =
+        &AppMgrStub::HandleRestartResidentProcessDependedOnWeb;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -1010,6 +1018,17 @@ int32_t AppMgrStub::HandleNotifyFaultBySA(MessageParcel &data, MessageParcel &re
     return NO_ERROR;
 }
 
+int32_t AppMgrStub::HandleSetAppFreezeFilter(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t pid = data.ReadInt32();
+    bool result = SetAppFreezeFilter(pid);
+    if (!reply.WriteBool(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
 int32_t AppMgrStub::HandleGetProcessMemoryByPid(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -1425,5 +1444,30 @@ int32_t AppMgrStub::HandleCheckCallingIsUserTestMode(MessageParcel &data, Messag
     return NO_ERROR;
 }
 
+int32_t AppMgrStub::HandleNotifyProcessDependedOnWeb(MessageParcel &data, MessageParcel &reply)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "call");
+    int32_t ret = NotifyProcessDependedOnWeb();
+    if (!reply.WriteInt32(ret)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write ret error.");
+        return IPC_STUB_ERR;
+    }
+
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleKillProcessDependedOnWeb(MessageParcel &data, MessageParcel &reply)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "call");
+    KillProcessDependedOnWeb();
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleRestartResidentProcessDependedOnWeb(MessageParcel &data, MessageParcel &reply)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "call");
+    RestartResidentProcessDependedOnWeb();
+    return NO_ERROR;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

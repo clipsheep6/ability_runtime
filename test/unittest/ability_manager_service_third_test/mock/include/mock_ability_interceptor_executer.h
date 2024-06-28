@@ -27,7 +27,7 @@ using InterceptorMap = std::unordered_map<std::string, std::shared_ptr<IAbilityI
  * @class AbilityInterceptorExecuter
  * AbilityInterceptorExecuter excute the interceptors.
  */
-class AbilityInterceptorExecuter {
+class MockAbilityInterceptorExecuter {
 public:
     /**
      * Add Interceptor to Executer.

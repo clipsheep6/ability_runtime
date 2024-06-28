@@ -358,6 +358,14 @@ public:
      */
     virtual int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData) override;
 
+    /**
+     * Set Appfreeze Detect Filter
+     *
+     * @param pid the process pid.
+     * @return Returns true on success, others on failure.
+     */
+    virtual bool SetAppFreezeFilter(int32_t pid) override;
+
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block app service.
@@ -629,6 +637,11 @@ public:
      */
     int32_t CheckCallingIsUserTestMode(const pid_t pid, bool &isUserTest) override;
 
+    virtual int32_t NotifyProcessDependedOnWeb() override;
+
+    virtual void KillProcessDependedOnWeb() override;
+
+    virtual void RestartResidentProcessDependedOnWeb() override;
 private:
     bool SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply);
     bool WriteInterfaceToken(MessageParcel &data);

@@ -18,7 +18,7 @@
 namespace OHOS {
 namespace AAFwk {
 
-ErrCode AbilityInterceptorExecuter::DoProcess(AbilityInterceptorParam param)
+ErrCode MockAbilityInterceptorExecuter::DoProcess(AbilityInterceptorParam param)
 {
     return ERR_OK;
 }

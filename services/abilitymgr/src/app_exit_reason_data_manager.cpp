@@ -95,7 +95,7 @@ int32_t AppExitReasonDataManager::SetAppExitReason(const std::string &bundleName
     const std::vector<std::string> &abilityList, const AAFwk::ExitReason &exitReason)
 {
     auto accessTokenIdStr = std::to_string(accessTokenId);
-    if (bundleName.empty() || accessTokenIdStr.empty()) {
+    if (bundleName.empty() || accessTokenId == Security::AccessToken::INVALID_TOKENID) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "invalid value");
         return ERR_INVALID_VALUE;
     }
@@ -124,7 +124,8 @@ int32_t AppExitReasonDataManager::SetAppExitReason(const std::string &bundleName
     return ERR_OK;
 }
 
-int32_t AppExitReasonDataManager::DeleteAppExitReason(const std::string &bundleName, int32_t uid)
+
+int32_t AppExitReasonDataManager::DeleteAppExitReason(const std::string &bundleName, int32_t uid, int32_t appIndex)
 {
     int32_t userId;
     if (DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
@@ -132,9 +133,14 @@ int32_t AppExitReasonDataManager::DeleteAppExitReason(const std::string &bundleN
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Get GetOsAccountLocalIdFromUid failed.");
         return ERR_INVALID_VALUE;
     }
-    uint32_t accessTokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(userId, bundleName, 0);
+    uint32_t accessTokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(userId, bundleName, appIndex);
+    return DeleteAppExitReason(bundleName, accessTokenId);
+}
+
+int32_t AppExitReasonDataManager::DeleteAppExitReason(const std::string &bundleName, uint32_t accessTokenId)
+{
     auto accessTokenIdStr = std::to_string(accessTokenId);
-    if (bundleName.empty() || accessTokenIdStr.empty()) {
+    if (bundleName.empty() || accessTokenId == Security::AccessToken::INVALID_TOKENID) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "invalid value.");
         return ERR_INVALID_VALUE;
     }
@@ -178,7 +184,7 @@ int32_t AppExitReasonDataManager::GetAppExitReason(const std::string &bundleName
     const std::string &abilityName, bool &isSetReason, AAFwk::ExitReason &exitReason)
 {
     auto accessTokenIdStr = std::to_string(accessTokenId);
-    if (bundleName.empty() || accessTokenIdStr.empty()) {
+    if (bundleName.empty() || accessTokenId == Security::AccessToken::INVALID_TOKENID) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "invalid value!");
         return ERR_INVALID_VALUE;
     }

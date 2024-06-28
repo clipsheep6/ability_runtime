@@ -592,7 +592,7 @@ public:
 
     void HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &token);
 
-    void PrepareTerminate(const sptr<IRemoteObject> &token);
+    void PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag = false);
 
     void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
         bool needNotifyApp, bool isFromWindowFocusChanged);
@@ -818,6 +818,14 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData);
+
+    /**
+     * Set Appfreeze Detect Filter
+     *
+     * @param pid the process pid.
+     * @return Returns true on success, others on failure.
+     */
+    bool SetAppFreezeFilter(int32_t pid);
 
     /**
      * get memorySize by pid.
@@ -1128,6 +1136,12 @@ public:
      */
     void AttachedToStatusBar(const sptr<IRemoteObject> &token);
     void KillApplicationByRecord(const std::shared_ptr<AppRunningRecord> &appRecord);
+
+    int32_t NotifyProcessDependedOnWeb();
+
+    void KillProcessDependedOnWeb();
+
+    void RestartResidentProcessDependedOnWeb();
 private:
 
     std::string FaultTypeToString(FaultDataType type);

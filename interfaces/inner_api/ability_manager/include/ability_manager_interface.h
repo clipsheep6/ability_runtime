@@ -723,7 +723,23 @@ public:
      * @param uid uid of bundle.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int UninstallApp(const std::string &bundleName, int32_t uid) = 0;
+    virtual int UninstallApp(const std::string &bundleName, int32_t uid)
+    {
+        return 0;
+    }
+
+    /**
+     * Uninstall app
+     *
+     * @param bundleName bundle name of uninstalling app.
+     * @param uid uid of bundle.
+     * @param appIndex the app index of app clone.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UninstallApp(const std::string &bundleName, int32_t uid, int32_t appIndex)
+    {
+        return 0;
+    }
 
     /**
      * Upgrade app, record exit reason and kill application
@@ -731,9 +747,11 @@ public:
      * @param bundleName bundle name of upgrading app.
      * @param uid uid of bundle.
      * @param exitMsg the exit reason message.
+     * @param appIndex the app index of app clone.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg)
+    virtual int32_t UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg,
+        int32_t appIndex = 0)
     {
         return 0;
     }
