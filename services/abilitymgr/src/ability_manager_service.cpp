@@ -1124,11 +1124,20 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
     }
 
+    if ((isSendDialogResult && want.GetBoolParam("isSelector", false))) {
+        abilityRequest.want.SetParam("ascallerimplicitstart", true);
+    } else {
+        abilityRequest.want.SetParam("ascallerimplicitstart", false);
+    }
     Want newWant = abilityRequest.want;
+    SetAbilityRequest(abilityRequest);
     AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(newWant, requestCode, GetUserId(),
         true, callerToken, std::make_shared<AppExecFwk::AbilityInfo>(abilityInfo), isStartAsCaller);
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
         afterCheckExecuter_->DoProcess(afterCheckParam);
+    if (result == ERR_APPLOCK_START_SUCCESS) {
+        return ERR_OK;
+    }
     bool isReplaceWantExist = newWant.GetBoolParam("queryWantFromErms", false);
     newWant.RemoveParam("queryWantFromErms");
     if (result != ERR_OK && isReplaceWantExist == false) {
@@ -1980,6 +1989,7 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bo
     if (sessionInfo->want.GetBoolParam(IS_CALL_BY_SCB, true)) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "afterCheckExecuter_ called.");
         Want newWant = abilityRequest.want;
+        SetAbilityRequest(abilityRequest);
         AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(newWant, requestCode,
             GetUserId(), true, sessionInfo->callerToken, std::make_shared<AppExecFwk::AbilityInfo>(abilityInfo));
         result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -10157,6 +10167,7 @@ int AbilityManagerService::SendDialogResult(const Want &want, const std::string 
     targetWant.SetElement(want.GetElement());
     targetWant.SetParam("isSelector", dialogCallerInfo->isSelector);
     targetWant.SetParam("dialogSessionId", dialogSessionId);
+    targetWant.SetParam("verified", true);
     sptr<IRemoteObject> callerToken = dialogCallerInfo->callerToken;
     int ret = StartAbilityAsCaller(targetWant, callerToken, nullptr, dialogCallerInfo->userId,
         dialogCallerInfo->requestCode, true);
@@ -10846,6 +10857,17 @@ void AbilityManagerService::HandleRestartResidentProcessDependedOnWeb()
     auto appMgr = GetAppMgr();
     CHECK_POINTER_LOG(appMgr, "get appMgr fail");
     appMgr->RestartResidentProcessDependedOnWeb();
+}
+
+std::shared_ptr<AbilityRequest> AbilityManagerService::GetAbilityRequest() const
+{
+    return abilityRequest_;
+}
+
+void AbilityManagerService::SetAbilityRequest(const AbilityRequest &abilityRequest)
+{
+    std::lock_guard<ffrt::mutex> lock(abilityRequestMutex_);
+    abilityRequest_ = std::make_shared<AbilityRequest>(abilityRequest);
 }
 }  // namespace AAFwk
 }  // namespace OHOS
