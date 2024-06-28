@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,22 +13,18 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_WINDOW_OPTIONS_UTILS_H
-#define OHOS_ABILITY_RUNTIME_WINDOW_OPTIONS_UTILS_H
+#ifndef OHOS_EXTENSION_PERMISSIONS_UTIL_H
+#define OHOS_EXTENSION_PERMISSIONS_UTIL_H
 
-#include "ability_info.h"
-#include "iremote_object.h"
-#include "start_options.h"
-#include "want.h"
+#include "extension_ability_info.h"
 
 namespace OHOS {
 namespace AAFwk {
-class WindowOptionsUtils final {
+class ExtensionPermissionsUtil final {
 public:
-    static void SetWindowPositionAndSize(Want& want,
-        const sptr<IRemoteObject>& callerToken, const StartOptions& startOptions);
-    static std::pair<bool, AppExecFwk::SupportWindowMode> WindowModeMap(int32_t windowMode);
+    static bool CheckSAPermission(const AppExecFwk::ExtensionAbilityType &extensionType);
 };
-}  // namespace AAFwk
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_WINDOW_OPTIONS_UTILS_H
+
+} // namespace AAFwk
+} // namespace OHOS
+#endif // OHOS_EXTENSION_PERMISSIONS_UTIL_H

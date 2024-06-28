@@ -143,6 +143,9 @@ private:
     int32_t HandleStartNativeChildProcess(MessageParcel &data, MessageParcel &reply);
     int32_t HandleSaveBrowserChannel(MessageParcel &data, MessageParcel &reply);
     int32_t HandleCheckCallingIsUserTestMode(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleNotifyProcessDependedOnWeb(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleKillProcessDependedOnWeb(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleRestartResidentProcessDependedOnWeb(MessageParcel &data, MessageParcel &reply);
     using AppMgrFunc = int32_t (AppMgrStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AppMgrFunc> memberFuncMap_;
 

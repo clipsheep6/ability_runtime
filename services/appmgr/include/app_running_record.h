@@ -814,6 +814,16 @@ public:
     {
         return isStrictMode_;
     }
+
+    inline void SetIsDependedOnArkWeb(bool isDepend)
+    {
+        isDependedOnArkWeb_ = isDepend;
+    }
+
+    inline bool IsDependedOnArkWeb()
+    {
+        return isDependedOnArkWeb_;
+    }
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -975,6 +985,7 @@ private:
     pid_t gpuPid_ = 0;
     bool isStrictMode_ = false;
     bool isAttachedToStatusBar = false;
+    bool isDependedOnArkWeb_ = false;
 };
 
 }  // namespace AppExecFwk

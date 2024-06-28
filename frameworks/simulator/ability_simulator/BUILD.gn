@@ -68,7 +68,6 @@ ohos_shared_library("ability_simulator_inner") {
       "${windowmanager_path}/interfaces/innerkits/wm",
       "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_stage_napi",
       "include/bundle_parser",
-      "//third_party/json/include",
     ]
 
     sources = [
@@ -113,6 +112,7 @@ ohos_shared_library("ability_simulator_inner") {
       "ets_utils:console",
       "ets_utils:timer",
       "hilog:libhilog",
+      "json:nlohmann_json_static",
       "jsoncpp:jsoncpp_static",
       "napi:ace_napi",
     ]

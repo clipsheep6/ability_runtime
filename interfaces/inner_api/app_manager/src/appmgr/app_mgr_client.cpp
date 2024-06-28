@@ -1216,5 +1216,27 @@ AppMgrResultCode AppMgrClient::AttachedToStatusBar(const sptr<IRemoteObject> &to
     TAG_LOGE(AAFwkTag::APPMGR, "Service is not connected.");
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
 }
+
+int32_t AppMgrClient::NotifyProcessDependedOnWeb()
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Service is nullptr.");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    TAG_LOGD(AAFwkTag::APPMGR, "call");
+    return service->NotifyProcessDependedOnWeb();
+}
+
+void AppMgrClient::KillProcessDependedOnWeb()
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Service is nullptr.");
+        return;
+    }
+    TAG_LOGD(AAFwkTag::APPMGR, "call");
+    service->KillProcessDependedOnWeb();
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

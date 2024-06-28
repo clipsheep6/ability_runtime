@@ -301,7 +301,7 @@ ErrCode AbilityContextImpl::StopServiceExtensionAbility(const AAFwk::Want& want,
 ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, int resultCode)
 {
     TAG_LOGI(AAFwkTag::CONTEXT, "TerminateAbilityWithResult");
-    isTerminating_ = true;
+    isTerminating_.store(true);
 #ifdef SUPPORT_SCREEN
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sessionToken = GetSessionToken();
@@ -539,7 +539,7 @@ ErrCode AbilityContextImpl::MoveUIAbilityToBackground()
 ErrCode AbilityContextImpl::TerminateSelf()
 {
     TAG_LOGI(AAFwkTag::CONTEXT, "TerminateSelf");
-    isTerminating_ = true;
+    isTerminating_.store(true);
     auto sessionToken = GetSessionToken();
     if (sessionToken == nullptr) {
         TAG_LOGW(AAFwkTag::CONTEXT, "sessionToken is null");
@@ -576,7 +576,7 @@ ErrCode AbilityContextImpl::CloseAbility()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::CONTEXT, "CloseAbility");
-    isTerminating_ = true;
+    isTerminating_.store(true);
     AAFwk::Want resultWant;
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->CloseAbility(token_, -1, &resultWant);
     if (err != ERR_OK) {
