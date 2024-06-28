@@ -1114,9 +1114,8 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     icu::Locale locale = icu::Locale::forLanguageTag(Global::I18n::PreferredLanguage::GetAppPreferredLanguage(), status);
     if (Global::I18n::PreferredLanguage::IsSetAppPreferredLanguage()) {
         resConfig->SetPreferredLocaleInfo(locale);
-    } else {
-        resConfig->SetLocaleInfo(locale);
     }
+    resConfig->SetLocaleInfo(locale);
     const icu::Locale *localeInfo = resConfig->GetLocaleInfo();
     if (localeInfo != nullptr) {
         TAG_LOGD(AAFwkTag::APPKIT, "Language: %{public}s, script: %{public}s, region: %{public}s",
