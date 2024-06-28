@@ -701,6 +701,11 @@ public:
      */
     virtual int AbilityTransitionDone(const sptr<IRemoteObject> &token, int state, const PacMap &saveData) override;
 
+    void CheckTargetState(int &targetState, const sptr<IRemoteObject> &token);
+
+    int DispatchAbilityTransactionDone(std::shared_ptr<AbilityRecord> &abilityRecord,
+    const sptr<IRemoteObject> &token, int &state, const PacMap &saveData);
+
     /**
      * ScheduleConnectAbilityDone, service ability call this interface while session was connected.
      *
@@ -1067,6 +1072,8 @@ public:
         AbilityRequest &request,
         const sptr<IRemoteObject> &callerToken,
         int32_t userId);
+
+    int ConfigureAndVerifyAbilityRequest(const Want &want, AbilityRequest &request);
 
     /**
      * Get mission id by target ability token.
