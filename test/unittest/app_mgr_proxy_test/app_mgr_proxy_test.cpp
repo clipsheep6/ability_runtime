@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,10 +15,15 @@
 
 #include <gtest/gtest.h>
 
-#include "mock_app_mgr_service.h"
+#include "ability_foreground_state_observer_interface.h"
+#include "app_foreground_state_observer_stub.h"
 #include "app_mgr_proxy.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "mock_ability_foreground_state_observer_stub.h"
+#include "mock_app_mgr_service.h"
 #include "quick_fix_callback_stub.h"
+#include "render_state_observer_stub.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -29,6 +34,23 @@ namespace {
 const int32_t USER_ID = 100;
 } // namespace
 
+class AppForegroundStateObserverMock : public AppForegroundStateObserverStub {
+public:
+    AppForegroundStateObserverMock() = default;
+    virtual ~AppForegroundStateObserverMock() = default;
+
+    void OnAppStateChanged(const AppStateData &appStateData) override
+    {}
+};
+
+class RenderStateObserverMock : public RenderStateObserverStub {
+public:
+    RenderStateObserverMock() = default;
+    virtual ~RenderStateObserverMock() = default;
+    void OnRenderStateChanged(const RenderStateData &renderStateData) override
+    {}
+};
+
 class QuickFixCallbackImpl : public AppExecFwk::QuickFixCallbackStub {
 public:
     QuickFixCallbackImpl() = default;
@@ -36,17 +58,17 @@ public:
 
     void OnLoadPatchDone(int32_t resultCode, int32_t recordId) override
     {
-        HILOG_DEBUG("function called.");
+        TAG_LOGD(AAFwkTag::TEST, "function called.");
     }
 
     void OnUnloadPatchDone(int32_t resultCode, int32_t recordId) override
     {
-        HILOG_DEBUG("function called.");
+        TAG_LOGD(AAFwkTag::TEST, "function called.");
     }
 
     void OnReloadPageDone(int32_t resultCode, int32_t recordId) override
     {
-        HILOG_DEBUG("function called.");
+        TAG_LOGD(AAFwkTag::TEST, "function called.");
     }
 };
 
@@ -131,7 +153,7 @@ HWTEST_F(AppMgrProxyTest, AppMgrProxy_GetAllRenderProcesses_0100, TestSize.Level
  */
 HWTEST_F(AppMgrProxyTest, GetAppRunningStateByBundleName_0100, TestSize.Level0)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
         .Times(1)
@@ -142,7 +164,7 @@ HWTEST_F(AppMgrProxyTest, GetAppRunningStateByBundleName_0100, TestSize.Level0)
 
     EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::GET_APP_RUNNING_STATE));
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -153,7 +175,7 @@ HWTEST_F(AppMgrProxyTest, GetAppRunningStateByBundleName_0100, TestSize.Level0)
  */
 HWTEST_F(AppMgrProxyTest, NotifyLoadRepairPatch_0100, TestSize.Level0)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
         .Times(1)
@@ -165,7 +187,7 @@ HWTEST_F(AppMgrProxyTest, NotifyLoadRepairPatch_0100, TestSize.Level0)
 
     EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_LOAD_REPAIR_PATCH));
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -176,7 +198,7 @@ HWTEST_F(AppMgrProxyTest, NotifyLoadRepairPatch_0100, TestSize.Level0)
  */
 HWTEST_F(AppMgrProxyTest, NotifyHotReloadPage_0100, TestSize.Level0)
 {
-    HILOG_INFO("%{public}s start", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start", __func__);
 
     EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
         .Times(1)
@@ -188,7 +210,7 @@ HWTEST_F(AppMgrProxyTest, NotifyHotReloadPage_0100, TestSize.Level0)
 
     EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_HOT_RELOAD_PAGE));
 
-    HILOG_INFO("%{public}s end", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end", __func__);
 }
 
 /**
@@ -199,7 +221,7 @@ HWTEST_F(AppMgrProxyTest, NotifyHotReloadPage_0100, TestSize.Level0)
  */
 HWTEST_F(AppMgrProxyTest, NotifyUnLoadRepairPatch_0100, TestSize.Level0)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
         .Times(1)
@@ -211,7 +233,7 @@ HWTEST_F(AppMgrProxyTest, NotifyUnLoadRepairPatch_0100, TestSize.Level0)
 
     EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_UNLOAD_REPAIR_PATCH));
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -222,7 +244,7 @@ HWTEST_F(AppMgrProxyTest, NotifyUnLoadRepairPatch_0100, TestSize.Level0)
  */
 HWTEST_F(AppMgrProxyTest, PreStartNWebSpawnProcess_001, TestSize.Level0)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
         .Times(1)
@@ -231,7 +253,7 @@ HWTEST_F(AppMgrProxyTest, PreStartNWebSpawnProcess_001, TestSize.Level0)
     appMgrProxy_->PreStartNWebSpawnProcess();
     EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::PRE_START_NWEBSPAWN_PROCESS));
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -242,7 +264,7 @@ HWTEST_F(AppMgrProxyTest, PreStartNWebSpawnProcess_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrProxyTest, GetProcessMemoryByPid_001, TestSize.Level0)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
         .Times(1)
@@ -253,7 +275,7 @@ HWTEST_F(AppMgrProxyTest, GetProcessMemoryByPid_001, TestSize.Level0)
     appMgrProxy_->GetProcessMemoryByPid(pid, memorySize);
     EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::GET_PROCESS_MEMORY_BY_PID));
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -264,7 +286,7 @@ HWTEST_F(AppMgrProxyTest, GetProcessMemoryByPid_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrProxyTest, GetRunningProcessInformation_001, TestSize.Level0)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
         .Times(1)
@@ -276,7 +298,7 @@ HWTEST_F(AppMgrProxyTest, GetRunningProcessInformation_001, TestSize.Level0)
     appMgrProxy_->GetRunningProcessInformation(bundleName, userId, info);
     EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::GET_PIDS_BY_BUNDLENAME));
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -312,6 +334,21 @@ HWTEST_F(AppMgrProxyTest, NotifyAppFaultBySA_001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: SetAppFreezeFilter_001
+ * @tc.desc: Set appfreeze filter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, SetAppFreezeFilter_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+    int32_t pid = 0; // test value
+    appMgrProxy_->SetAppFreezeFilter(pid);
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::SET_APPFREEZE_FILTER));
+}
+
+/**
  * @tc.name: ChangeAppGcState_001
  * @tc.desc: Change app Gc state.
  * @tc.type: FUNC
@@ -327,5 +364,305 @@ HWTEST_F(AppMgrProxyTest, ChangeAppGcState_001, TestSize.Level1)
     appMgrProxy_->ChangeAppGcState(pid, state);
     EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::CHANGE_APP_GC_STATE));
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+
+/**
+ * @tc.name: IsApplicationRunning_001
+ * @tc.desc: Send request to query the running status of the application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, IsApplicationRunning_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+
+    std::string bundleName = "testBundleName";
+    bool isRunning = false;
+    appMgrProxy_->IsApplicationRunning(bundleName, isRunning);
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::IS_APPLICATION_RUNNING));
+}
+
+/**
+ * @tc.name: IsAppRunning_001
+ * @tc.desc: Send request to query the running status of the application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, IsAppRunning_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+
+    std::string bundleName = "testBundleName";
+    int32_t appCloneIndex = 0;
+    bool isRunning = false;
+
+    appMgrProxy_->IsAppRunning(bundleName, appCloneIndex, isRunning);
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::IS_APP_RUNNING));
+}
+
+/**
+ * @tc.number: RegisterAbilityForegroundStateObserver_0100
+ * @tc.desc: Verify that the RegisterAbilityForegroundStateObserver function is called normally.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, RegisterAbilityForegroundStateObserver_0100, TestSize.Level1)
+{
+    sptr<IAbilityForegroundStateObserver> observer = new MockAbilityForegroundStateObserverStub();
+    EXPECT_NE(observer->AsObject(), nullptr);
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+    appMgrProxy_->RegisterAbilityForegroundStateObserver(observer);
+    EXPECT_EQ(mockAppMgrService_->code_,
+        static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_ABILITY_FOREGROUND_STATE_OBSERVER));
+}
+
+/**
+ * @tc.number: RegisterAbilityForegroundStateObserver_0200
+ * @tc.desc: Verify that the RegisterAbilityForegroundStateObserver parameter of the function is null.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, RegisterAbilityForegroundStateObserver_0200, TestSize.Level1)
+{
+    sptr<IAbilityForegroundStateObserver> observer = nullptr;
+    auto result = appMgrProxy_->RegisterAbilityForegroundStateObserver(observer);
+    EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.number: UnregisterAbilityForegroundStateObserver_0100
+ * @tc.desc: Verify that the UnregisterAbilityForegroundStateObserver function is called normally.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, UnregisterAbilityForegroundStateObserver_0100, TestSize.Level1)
+{
+    sptr<IAbilityForegroundStateObserver> observer = new MockAbilityForegroundStateObserverStub();
+    EXPECT_NE(observer->AsObject(), nullptr);
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+    appMgrProxy_->UnregisterAbilityForegroundStateObserver(observer);
+    EXPECT_EQ(mockAppMgrService_->code_,
+        static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_ABILITY_FOREGROUND_STATE_OBSERVER));
+}
+
+/**
+ * @tc.number: RegisterAbilityForegroundStateObserver_0200
+ * @tc.desc: Verify that the UnregisterAbilityForegroundStateObserver parameter of the function is null.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, UnregisterAbilityForegroundStateObserver_0200, TestSize.Level1)
+{
+    sptr<IAbilityForegroundStateObserver> observer = nullptr;
+    auto result = appMgrProxy_->UnregisterAbilityForegroundStateObserver(observer);
+    EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: RegisterAppForegroundStateObserver_0100
+ * @tc.desc: Test when all condition not met.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, RegisterAppForegroundStateObserver_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _)).Times(1);
+    sptr<IAppForegroundStateObserver> observer = new (std::nothrow) AppForegroundStateObserverMock();
+    auto res = appMgrProxy_->RegisterAppForegroundStateObserver(observer);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: UnregisterAppForegroundStateObserver_0100
+ * @tc.desc: Test when all condition not met.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, UnregisterAppForegroundStateObserver_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _)).Times(1);
+    sptr<IAppForegroundStateObserver> observer = new (std::nothrow) AppForegroundStateObserverMock();
+    auto res = appMgrProxy_->RegisterAppForegroundStateObserver(observer);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: RegisterRenderStateObserver_0100
+ * @tc.desc: Test registerRenderStateObserversendRequest.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, RegisterRenderStateObserver_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _)).Times(1);
+    sptr<IRenderStateObserver> observer = new (std::nothrow) RenderStateObserverMock();
+    auto res = appMgrProxy_->RegisterRenderStateObserver(observer);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: UnregisterRenderStateObserver_0100
+ * @tc.desc: Test unregisterRenderStateObserversendRequest.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, UnregisterRenderStateObserver_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _)).Times(1);
+    sptr<IRenderStateObserver> observer = new (std::nothrow) RenderStateObserverMock();
+    auto res = appMgrProxy_->UnregisterRenderStateObserver(observer);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: UpdateRenderState_0100
+ * @tc.desc: Test updateRenderState sendRequest.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, UpdateRenderState_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _)).Times(1);
+    pid_t renderPid = 0;
+    int32_t state = 0;
+    auto res = appMgrProxy_->UpdateRenderState(renderPid, state);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: SignRestartAppFlag_0100
+ * @tc.desc: Test SignRestartAppFlag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, SignRestartAppFlag_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _)).Times(1);
+    std::string bundleName;
+    auto res = appMgrProxy_->SignRestartAppFlag(bundleName);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: NotifyMemorySizeStateChanged_0100
+ * @tc.desc: Test NotifyMemorySizeStateChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, NotifyMemorySizeStateChanged_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _)).Times(1);
+    auto res = appMgrProxy_->NotifyMemorySizeStateChanged(true);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: NotifyMemorySizeStateChanged_0200
+ * @tc.desc: Test NotifyMemorySizeStateChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, NotifyMemorySizeStateChanged_0200, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _)).Times(1);
+    auto res = appMgrProxy_->NotifyMemorySizeStateChanged(false);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: GetAllUIExtensionRootHostPid_0100
+ * @tc.desc: Get all ui extension root host pid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, GetAllUIExtensionRootHostPid_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+    pid_t pid = 0;
+    std::vector<pid_t> hostPids;
+    auto res = appMgrProxy_->GetAllUIExtensionRootHostPid(pid, hostPids);
+    EXPECT_EQ(res, NO_ERROR);
+    EXPECT_EQ(mockAppMgrService_->code_,
+        static_cast<uint32_t>(AppMgrInterfaceCode::GET_ALL_UI_EXTENSION_ROOT_HOST_PID));
+}
+
+/**
+ * @tc.name: GetAllUIExtensionProviderPid_0100
+ * @tc.desc: Get all ui extension provider pid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, GetAllUIExtensionProviderPid_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+    pid_t hostPid = 0;
+    std::vector<pid_t> providerPids;
+    auto res = appMgrProxy_->GetAllUIExtensionProviderPid(hostPid, providerPids);
+    EXPECT_EQ(res, NO_ERROR);
+    EXPECT_EQ(mockAppMgrService_->code_,
+        static_cast<uint32_t>(AppMgrInterfaceCode::GET_ALL_UI_EXTENSION_PROVIDER_PID));
+}
+
+/**
+ * @tc.name: PreloadApplication_0100
+ * @tc.desc: Preload application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, PreloadApplication_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+
+    std::string bundleName = "com.acts.preloadtest";
+    int32_t userId = 100;
+    PreloadMode preloadMode = PreloadMode::PRE_MAKE;
+    int32_t appIndex = 0;
+    auto ret = appMgrProxy_->PreloadApplication(bundleName, userId, preloadMode, appIndex);
+    EXPECT_EQ(ret, NO_ERROR);
+    EXPECT_EQ(mockAppMgrService_->code_,
+        static_cast<uint32_t>(AppMgrInterfaceCode::PRELOAD_APPLICATION));
+}
+
+/**
+ * @tc.name: SetSupportedProcessCacheSelf_001
+ * @tc.desc: The application sets itself whether or not to support process cache.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, SetSupportedProcessCacheSelf_001, TestSize.Level0)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+    bool isSupported = false;
+    appMgrProxy_->SetSupportedProcessCacheSelf(isSupported);
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::SET_SUPPORTED_PROCESS_CACHE_SELF));
+
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: GetRunningMultiAppInfoByBundleName_001
+ * @tc.desc: Get multiApp information by bundleName.
+ * @tc.type: FUNC
+ * @tc.require: issueI9HMAO
+ */
+HWTEST_F(AppMgrProxyTest, GetRunningMultiAppInfoByBundleName_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    data.WriteInterfaceToken(AppMgrStub::GetDescriptor());
+    std::string bundleName = "testBundleName";
+    data.WriteString(bundleName);
+
+    EXPECT_CALL(*mockAppMgrService_, GetRunningMultiAppInfoByBundleName(_, _)).Times(1);
+
+    auto result = mockAppMgrService_->OnRemoteRequest(
+        static_cast<uint32_t>(AppMgrInterfaceCode::GET_RUNNING_MULTIAPP_INFO_BY_BUNDLENAME), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
+} // namespace AppExecFwk
+} // namespace OHOS

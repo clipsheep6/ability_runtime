@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,21 +24,29 @@
 #include <vector>
 
 #include "ability_debug_response_interface.h"
+#include "ability_foreground_state_observer_interface.h"
 #include "ability_info.h"
+#include "advanced_security_mode_manager.h"
 #include "app_death_recipient.h"
 #include "app_debug_listener_interface.h"
 #include "app_debug_manager.h"
+#include "app_foreground_state_observer_interface.h"
 #include "app_malloc_info.h"
 #include "app_mgr_constants.h"
+#include "app_preloader.h"
 #include "app_process_manager.h"
 #include "app_record_id.h"
 #include "app_running_manager.h"
 #include "app_running_record.h"
+#include "app_running_status_listener_interface.h"
+#include "app_running_status_module.h"
 #include "app_scheduler_interface.h"
 #include "app_spawn_client.h"
 #include "app_task_info.h"
 #include "appexecfwk_errors.h"
 #include "bundle_info.h"
+#include "bundle_mgr_helper.h"
+#include "child_process_info.h"
 #include "cpp/mutex.h"
 #include "event_report.h"
 #include "fault_data.h"
@@ -47,6 +55,7 @@
 #include "iapplication_state_observer.h"
 #include "iconfiguration_observer.h"
 #include "iremote_object.h"
+#include "irender_state_observer.h"
 #include "istart_specified_ability_response.h"
 #include "record_query_result.h"
 #include "refbase.h"
@@ -56,12 +65,20 @@
 #include "shared/base_shared_bundle_info.h"
 #include "task_handler_wrap.h"
 #include "want.h"
-#include "window_focus_changed_listener.h"
-#include "window_visibility_changed_listener.h"
+#include "app_jsheap_mem_info.h"
+#include "running_multi_info.h"
 
 namespace OHOS {
+namespace Rosen {
+class WindowVisibilityInfo;
+class FocusChangeInfo;
+}
 namespace AppExecFwk {
 using OHOS::AAFwk::Want;
+class WindowFocusChangedListener;
+class WindowVisibilityChangedListener;
+using LoabAbilityTaskFunc = std::function<void()>;
+
 class AppMgrServiceInner : public std::enable_shared_from_this<AppMgrServiceInner> {
 public:
     AppMgrServiceInner();
@@ -82,9 +99,9 @@ public:
      *
      * @return
      */
-    virtual void LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
-        const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
-        const std::shared_ptr<AAFwk::Want> &want);
+    virtual void LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObject> preToken,
+        std::shared_ptr<AbilityInfo> abilityInfo, std::shared_ptr<ApplicationInfo> appInfo,
+        std::shared_ptr<AAFwk::Want> want, int32_t abilityRecordId);
 
     /**
      * TerminateAbility, terminate the token ability.
@@ -121,7 +138,8 @@ public:
      *
      * @return
      */
-    void StateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility);
+    void StateChangedNotifyObserver(
+        const AbilityStateData abilityStateData, bool isAbility, bool isFromWindowFocusChanged);
 
     /**
      * RegisterAppStateCallback, register the callback.
@@ -161,6 +179,10 @@ public:
      */
     virtual void KillProcessesByUserId(int32_t userId);
 
+    virtual void KillProcessesByPids(std::vector<int32_t> &pids);
+
+    virtual void AttachPidToParent(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callerToken);
+
     /**
      * AttachApplication, get all the information needed to start the Application
      * (data related to the Application ).
@@ -170,6 +192,18 @@ public:
      * @return
      */
     virtual void AttachApplication(const pid_t pid, const sptr<IAppScheduler> &appScheduler);
+
+    /**
+     * Preload application.
+     *
+     * @param bundleName The bundle name of the application to preload.
+     * @param userId Indicates the user identification.
+     * @param preloadMode Preload application mode.
+     * @param appIndex The index of application clone.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t PreloadApplication(const std::string &bundleName, int32_t userId,
+        AppExecFwk::PreloadMode preloadMode, int32_t appIndex);
 
     /**
      * ApplicationForegrounded, set the application to Foreground State.
@@ -223,7 +257,7 @@ public:
      *
      * @return ERR_OK, return back success, others fail.
      */
-    virtual int32_t KillApplication(const std::string &bundleName);
+    virtual int32_t KillApplication(const std::string &bundleName, const bool clearPageStack = true);
 
     /**
      * KillApplicationByUid, call KillApplicationByUid() through proxy object, kill the application.
@@ -234,17 +268,19 @@ public:
      */
     virtual int32_t KillApplicationByUid(const std::string &bundleName, const int uid);
 
-    virtual int32_t KillApplicationSelf();
+    virtual int32_t KillApplicationSelf(const bool clearPageStack = true);
 
     /**
      * KillApplicationByUserId, kill the application by user ID.
      *
      * @param bundleName, bundle name in Application record.
+     * @param appCloneIndex the app clone id.
      * @param userId, user ID.
      *
      * @return ERR_OK, return back success, others fail.
      */
-    virtual int32_t KillApplicationByUserId(const std::string &bundleName, const int userId);
+    virtual int32_t KillApplicationByUserId(const std::string &bundleName, int32_t appCloneIndex, int userId,
+        const bool clearPageStack = true);
 
     /**
      * ClearUpApplicationData, clear the application data.
@@ -252,10 +288,23 @@ public:
      * @param bundleName, bundle name in Application record.
      * @param callerUid, app uid in Application record.
      * @param callerPid, app pid in Application record.
-     *
-     * @return
+     * @param appCloneIndex the app clone id.
+     * @param userId the user id
+     * @return ERR_OK, return back success, others fail.
      */
-    virtual void ClearUpApplicationData(const std::string &bundleName, const int32_t callerUid, const pid_t callerPid);
+    virtual int32_t ClearUpApplicationData(const std::string &bundleName,
+        int32_t callerUid, pid_t callerPid, int32_t appCloneIndex, int32_t userId = -1);
+
+    /**
+     * ClearUpApplicationDataBySelf, clear the application data.
+     *
+     * @param callerUid, app uid in Application record.
+     * @param callerPid, app pid in Application record.
+     * @param userId, user ID.
+     *
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual int32_t ClearUpApplicationDataBySelf(int32_t callerUid, pid_t callerPid,  int32_t userId = -1);
 
     /**
      * GetAllRunningProcesses, Obtains information about application processes that are running on the device.
@@ -265,6 +314,27 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int32_t GetAllRunningProcesses(std::vector<RunningProcessInfo> &info);
+
+    /**
+     * GetRunningMultiAppInfoByBundleName, call GetRunningMultiAppInfoByBundleName through proxy project.
+     * Obtains information about TwinApp that are running on the device.
+     *
+     * @param bundleName, input.
+     * @param info, output multiapp information.
+     * @return void.
+     */
+    virtual int32_t GetRunningMultiAppInfoByBundleName(const std::string &bundleName,
+        RunningMultiAppInfo &info);
+
+    /**
+     * GetRunningProcessesByBundleType, Obtains information about application processes by bundle type.
+     *
+     * @param bundleType, the bundle type of the application process
+     * @param info, app name in Application record.
+     *
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t GetRunningProcessesByBundleType(BundleType bundleType, std::vector<RunningProcessInfo> &info);
 
     /**
      * GetProcessRunningInfosByUserId, Obtains information about application processes that are running on the device.
@@ -304,6 +374,15 @@ public:
     virtual int32_t NotifyMemoryLevel(int32_t level);
 
     /**
+     * NotifyProcMemoryLevel, Notify applications background the current memory level.
+     *
+     * @param procLevelMap , <pid_t, MemoryLevel>.
+     *
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t NotifyProcMemoryLevel(const std::map<pid_t, MemoryLevel> &procLevelMap);
+
+    /**
      * DumpHeapMemory, get the application's memory info.
      * Get the application's memory allocation info.
      *
@@ -315,6 +394,15 @@ public:
     virtual int32_t DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo);
 
     /**
+     * DumpJsHeapMemory, call DumpJsHeapMemory() through proxy project.
+     * triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid, tid, needGc, needSnapshot
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info);
+
+    /**
      * @brief Check whether the shared bundle is running.
      *
      * @param bundleName Shared bundle name.
@@ -323,17 +411,37 @@ public:
      */
     virtual bool IsSharedBundleRunning(const std::string &bundleName, uint32_t versionCode);
 
-    int32_t StartNativeProcessForDebugger(const AAFwk::Want &want) const;
+    /**
+     * Check whether the bundle is running.
+     *
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return Return ERR_OK if success, others fail.
+     */
+    int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning);
+
+    /**
+     * Check whether the bundle is running.
+     *
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param appCloneIndex the appindex of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return Return ERR_OK if success, others fail.
+     */
+    int32_t IsAppRunning(const std::string &bundleName, int32_t appCloneIndex, bool &isRunning);
+
+    int32_t StartNativeProcessForDebugger(const AAFwk::Want &want);
 
     std::shared_ptr<AppRunningRecord> CreateAppRunningRecord(
-        const sptr<IRemoteObject> &token,
-        const sptr<IRemoteObject> &preToken,
-        const std::shared_ptr<ApplicationInfo> &appInfo,
-        const std::shared_ptr<AbilityInfo> &abilityInfo,
+        sptr<IRemoteObject> token,
+        sptr<IRemoteObject> preToken,
+        std::shared_ptr<ApplicationInfo> appInfo,
+        std::shared_ptr<AbilityInfo> abilityInfo,
         const std::string &processName,
         const BundleInfo &bundleInfo,
         const HapModuleInfo &hapModuleInfo,
-        const std::shared_ptr<AAFwk::Want> &want);
+        std::shared_ptr<AAFwk::Want> want,
+        int32_t abilityRecordId);
 
     /**
      * OnStop, Application management service stopped.
@@ -465,20 +573,10 @@ public:
      *
      * @param remote, Death client.
      * @param isRenderProcess is render process died.
+     * @param isChildProcess is child process died.
      * @return
      */
-    void OnRemoteDied(const wptr<IRemoteObject> &remote, bool isRenderProcess = false);
-
-    /**
-     * AddAppDeathRecipient, Add monitoring death application record.
-     *
-     * @param pid, the application pid.
-     * @param appDeathRecipient, Application death recipient list.
-     *
-     * @return
-     */
-
-    virtual void AddAppDeathRecipient(const pid_t pid, const sptr<AppDeathRecipient> &appDeathRecipient) const;
+    void OnRemoteDied(const wptr<IRemoteObject> &remote, bool isRenderProcess = false, bool isChildProcess = false);
 
     void HandleTimeOut(const AAFwk::EventWrap &event);
 
@@ -494,10 +592,10 @@ public:
 
     void HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &token);
 
-    void PrepareTerminate(const sptr<IRemoteObject> &token);
+    void PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag = false);
 
     void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
-        bool needNotifyApp);
+        bool needNotifyApp, bool isFromWindowFocusChanged);
 
     void OnAppStarted(const std::shared_ptr<AppRunningRecord> &appRecord);
 
@@ -505,7 +603,7 @@ public:
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
 
-    void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const;
+    int32_t GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const;
 
     /**
      * Set AbilityForegroundingFlag of an app-record to true.
@@ -522,6 +620,8 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t UpdateConfiguration(const Configuration &config);
+
+    int32_t UpdateConfigurationByBundleName(const Configuration &config, const std::string &name);
 
     std::shared_ptr<AppExecFwk::Configuration> GetConfiguration();
 
@@ -554,6 +654,20 @@ public:
     int32_t UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer);
 
     /**
+     * Register application or process state observer.
+     * @param observer, Is ability foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer);
+
+    /**
+     * Unregister application or process state observer.
+     * @param observer, Is ability foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer);
+
+    /**
      * Get Foreground Applications.
      *
      * @return Foreground Applications.
@@ -583,11 +697,17 @@ public:
     int FinishUserTest(
         const std::string &msg, const int64_t &resultCode, const std::string &bundleName, const pid_t &pid);
 
-    void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
+    void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0);
+
+    void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0);
 
     void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response);
 
     void ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Want &want, const std::string &flag);
+
+    void ScheduleNewProcessRequestDone(const int32_t recordId, const AAFwk::Want &want, const std::string &flag);
 
     /**
      *  Get the token of ability records by process ID.
@@ -603,7 +723,7 @@ public:
     virtual int32_t StartRenderProcess(const pid_t hostPid,
                                        const std::string &renderParam,
                                        int32_t ipcFd, int32_t sharedFd,
-                                       int32_t crashFd, pid_t &renderPid);
+                                       int32_t crashFd, pid_t &renderPid, bool isGPU = false);
 
     virtual void AttachRenderProcess(const pid_t pid, const sptr<IRenderScheduler> &scheduler);
 
@@ -620,6 +740,9 @@ public:
     void TerminateApplication(const std::shared_ptr<AppRunningRecord> &appRecord);
 
     int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug);
+
+    int32_t NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg);
+
     /**
      * Notify application status.
      *
@@ -634,10 +757,11 @@ public:
      * KillProcessByPid, Kill process by PID.
      *
      * @param pid_t, the app record pid.
+     * @param reason, the reason why the process is killed, default to "foundation"
      *
      * @return ERR_OK, return back success，others fail.
      */
-    int32_t KillProcessByPid(const pid_t pid) const;
+    int32_t KillProcessByPid(const pid_t pid, const std::string& reason = "foundation");
 
     bool GetAppRunningStateByBundleName(const std::string &bundleName);
 
@@ -646,7 +770,7 @@ public:
     int32_t NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
 
     int32_t NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback);
-
+#ifdef SUPPORT_SCREEN
     void HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
     void HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
 
@@ -655,7 +779,7 @@ public:
      */
     void HandleWindowVisibilityChanged(
             const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos);
-    
+#endif //SUPPORT_SCREEN
     /**
      * Set the current userId, only used by abilityMgr.
      *
@@ -694,6 +818,14 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData);
+
+    /**
+     * Set Appfreeze Detect Filter
+     *
+     * @param pid the process pid.
+     * @return Returns true on success, others on failure.
+     */
+    bool SetAppFreezeFilter(int32_t pid);
 
     /**
      * get memorySize by pid.
@@ -778,6 +910,38 @@ public:
     int32_t DetachAppDebug(const std::string &bundleName);
 
     /**
+     * @brief Set app waiting debug mode.
+     * @param bundleName The application bundle name.
+     * @param isPersist The persist flag.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t SetAppWaitingDebug(const std::string &bundleName, bool isPersist);
+
+    /**
+     * @brief Cancel app waiting debug mode.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t CancelAppWaitingDebug();
+
+    /**
+     * @brief Get waiting debug mode application.
+     * @param bundleNameList The application bundle name list.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t GetWaitingDebugApp(std::vector<std::string> &bundleNameList);
+
+    /**
+     * @brief Determine whether it is a waiting debug application based on the bundle name.
+     * @return Returns true if it is a waiting debug application, otherwise it returns false.
+     */
+    bool IsWaitingDebugApp(const std::string &bundleName);
+
+    /**
+     * @brief Clear non persist waiting debug flag.
+     */
+    void ClearNonPersistWaitingDebugFlag();
+
+    /**
      * @brief Registering ability debug mode response.
      * @param response Response for ability debug object.
      * @return Returns ERR_OK on success, others on failure.
@@ -806,6 +970,178 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t NotifyPageHide(const sptr<IRemoteObject> &token, const PageStateData &pageStateData);
+
+    /**
+     * Register appRunning status listener.
+     *
+     * @param listener Running status listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener);
+
+    /**
+     * Unregister appRunning status listener.
+     *
+     * @param listener Running status listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener);
+
+    /**
+     * Register application foreground state observer.
+     * @param observer Is app foreground statue observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer);
+
+    /**
+     * Unregister application foreground state observer.
+     * @param observer Is app foreground statue observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer);
+
+    /**
+     * Start child process, called by ChildProcessManager.
+     *
+     * @param hostPid Host process pid.
+     * @param srcEntry Child process source file entrance path to be started.
+     * @param childPid Created child process pid.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t StartChildProcess(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid,
+        int32_t childProcessCount, bool isStartWithDebug);
+
+    /**
+     * Get child process record for self.
+     *
+     * @return child process record.
+     */
+    virtual int32_t GetChildProcessInfoForSelf(ChildProcessInfo &info);
+
+    /**
+     * Attach child process scheduler to app manager service.
+     *
+     * @param pid the child process pid to exit.
+     * @param childScheduler scheduler of child process.
+     */
+    virtual void AttachChildProcess(const pid_t pid, const sptr<IChildScheduler> &childScheduler);
+
+    /**
+     * Exit child process safely by child process pid.
+     *
+     * @param pid child process pid.
+     */
+    virtual void ExitChildProcessSafelyByChildPid(const pid_t pid);
+
+    /**
+     * Start native child process, callde by ChildProcessManager.
+     * @param hostPid Host process pid.
+     * @param childProcessCount current started child process count
+     * @param libName lib file name to be load in child process
+     * @param callback callback for notify start result
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t StartNativeChildProcess(const pid_t hostPid,
+        const std::string &libName, int32_t childProcessCount, const sptr<IRemoteObject> &callback);
+
+    /**
+     * Whether the current application process is the last surviving process.
+     * @param bundleName To query the bundle name of a process.
+     * @return Returns true is final application process, others return false.
+     */
+    bool IsFinalAppProcessByBundleName(const std::string &bundleName);
+
+    /**
+     * To clear the process by ability token.
+     *
+     * @param token the unique identification to the ability.
+     */
+    void ClearProcessByToken(sptr<IRemoteObject> token);
+
+    /**
+     * @brief Notify memory size state changed to sufficient or insufficent.
+     * @param isMemorySizeSufficent Indicates the memory size state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent);
+
+    /**
+     * whether memory size is sufficent.
+     * @return Returns true is sufficent memory size, others return false.
+     */
+    bool IsMemorySizeSufficent();
+
+    int32_t RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
+
+    int32_t UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
+
+    int32_t UpdateRenderState(pid_t renderPid, int32_t state);
+
+    int32_t SignRestartAppFlag(const std::string &bundleName);
+
+    void SetAppAssertionPauseState(bool flag);
+
+    void SetKeepAliveEnableState(const std::string &bundleName, bool enable);
+
+    int32_t GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId);
+
+    int32_t GetAllUIExtensionRootHostPid(pid_t pid, std::vector<pid_t> &hostPids);
+
+    int32_t GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid_t> &providerPids);
+
+    virtual int DumpIpcAllStart(std::string& result);
+
+    virtual int DumpIpcAllStop(std::string& result);
+
+    virtual int DumpIpcAllStat(std::string& result);
+
+    virtual int DumpIpcStart(const int32_t pid, std::string& result);
+
+    virtual int DumpIpcStop(const int32_t pid, std::string& result);
+
+    virtual int DumpIpcStat(const int32_t pid, std::string& result);
+
+    virtual int DumpFfrt(const std::vector<int32_t>& pids, std::string& result);
+
+    int32_t SetSupportedProcessCacheSelf(bool isSupport);
+
+    void OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, ApplicationState state);
+
+    virtual void SaveBrowserChannel(const pid_t hostPid, sptr<IRemoteObject> browser);
+
+    bool IsAppProcessesAllCached(const std::string &bundleName, int32_t uid,
+        const std::set<std::shared_ptr<AppRunningRecord>> &cachedSet);
+
+    bool GetSceneBoardAttachFlag() const;
+
+    void SetSceneBoardAttachFlag(bool flag);
+
+    void CacheLoabAbilityTask(const LoabAbilityTaskFunc& func);
+
+    void SubmitCacheLoabAbilityTask();
+
+    /**
+     * Check caller is test ability
+     *
+     * @param pid, the pid of ability.
+     * @return Returns ERR_OK is test ability, others is not test ability.
+     */
+    int32_t CheckCallingIsUserTestModeInner(const pid_t pid, bool &isUserTest);
+
+    /**
+     * Notifies that one ability is attached to status bar.
+     *
+     * @param token the token of the abilityRecord that is attached to status bar.
+     */
+    void AttachedToStatusBar(const sptr<IRemoteObject> &token);
+    void KillApplicationByRecord(const std::shared_ptr<AppRunningRecord> &appRecord);
+
+    int32_t NotifyProcessDependedOnWeb();
+
+    void KillProcessDependedOnWeb();
+
+    void RestartResidentProcessDependedOnWeb();
 private:
 
     std::string FaultTypeToString(FaultDataType type);
@@ -824,9 +1160,12 @@ private:
 
     bool GenerateRenderUid(int32_t &renderUid);
 
+    void MakeServiceExtProcessName(const std::shared_ptr<AbilityInfo> &abilityInfo,
+        const std::shared_ptr<ApplicationInfo> &appInfo, std::string &processName) const;
+
     void MakeProcessName(const std::shared_ptr<AbilityInfo> &abilityInfo,
-        const std::shared_ptr<ApplicationInfo> &appInfo,
-        const HapModuleInfo &hapModuleInfo, int32_t appIndex, std::string &processName) const;
+        const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo, int32_t appIndex,
+        const std::string &specifiedProcessFlag, std::string &processName) const;
 
     void MakeProcessName(const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo,
         std::string &processName) const;
@@ -845,16 +1184,17 @@ private:
      *
      * @return
      */
-    void StartAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
-        const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<AppRunningRecord> &appRecord,
-        const HapModuleInfo &hapModuleInfo, const std::shared_ptr<AAFwk::Want> &want);
+    void StartAbility(sptr<IRemoteObject> token, sptr<IRemoteObject> preToken,
+        std::shared_ptr<AbilityInfo> abilityInfo, std::shared_ptr<AppRunningRecord> appRecord,
+        const HapModuleInfo &hapModuleInfo, std::shared_ptr<AAFwk::Want> want, int32_t abilityRecordId);
 
     int32_t StartPerfProcess(const std::shared_ptr<AppRunningRecord> &appRecord, const std::string& perfCmd,
-        const std::string& debugCmd, bool isSanboxApp) const;
+        const std::string& debugCmd, bool isSandboxApp);
 
     void StartProcessVerifyPermission(const BundleInfo &bundleInfo, bool &hasAccessBundleDirReq,
-        uint8_t &setAllowInternet, uint8_t &allowInternet, std::vector<int32_t> &gids,
-        std::set<std::string> &permissions);
+        uint8_t &setAllowInternet, uint8_t &allowInternet, std::vector<int32_t> &gids);
+
+    void AddMountPermission(uint32_t accessTokenId, std::set<std::string> &permissions);
 
     /**
      * StartProcess, load the ability that needed to be started(Start on a new boot process).
@@ -868,8 +1208,10 @@ private:
      * @return
      */
     void StartProcess(const std::string &appName, const std::string &processName, uint32_t startFlags,
-                      const std::shared_ptr<AppRunningRecord> &appRecord, const int uid,
-                      const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag = true);
+                      std::shared_ptr<AppRunningRecord> appRecord, const int uid, const BundleInfo &bundleInfo,
+                      const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag = true,
+                      bool isPreload = false, const std::string &moduleName = "", const std::string &abilityName = "",
+                      bool strictMode = false, int32_t maxChildProcess = 0);
 
     /**
      * PushAppFront, Adjust the latest application record to the top level.
@@ -915,11 +1257,13 @@ private:
      * KillApplicationByUserId, kill the application by user ID.
      *
      * @param bundleName, bundle name in Application record.
+     * @param appCloneIndex the app clone id.
      * @param userId, user ID.
      *
      * @return ERR_OK, return back success, others fail.
      */
-    int32_t KillApplicationByUserIdLocked(const std::string &bundleName, const int userId);
+    int32_t KillApplicationByUserIdLocked(const std::string &bundleName, int32_t appCloneIndex, int32_t userId,
+        const bool clearPageStack = true);
 
     /**
      * WaitForRemoteProcessExit, Wait for the process to exit normally.
@@ -947,7 +1291,7 @@ private:
      *
      * @return true, return back existed，others non-existent.
      */
-    bool ProcessExist(pid_t &pid);
+    bool ProcessExist(pid_t pid);
 
     /**
      * CheckAllProcessExist, Determine whether all processes exist .
@@ -966,7 +1310,7 @@ private:
     int64_t SystemTimeMillisecond();
 
     // Test add the bundle manager instance.
-    void SetBundleManager(sptr<IBundleMgr> bundleManager);
+    void SetBundleManagerHelper(const std::shared_ptr<BundleMgrHelper> &bundleMgrHelper);
 
     void HandleTerminateApplicationTimeOut(const int64_t eventId);
 
@@ -987,6 +1331,8 @@ private:
 
     void HandleStartSpecifiedAbilityTimeOut(const int64_t eventId);
 
+    void HandleStartSpecifiedProcessTimeout(const int64_t eventId);
+
     void InitGlobalConfiguration();
 
     void GetRunningProcesses(const std::shared_ptr<AppRunningRecord> &appRecord, std::vector<RunningProcessInfo> &info);
@@ -995,7 +1341,7 @@ private:
     void GetRenderProcesses(const std::shared_ptr<AppRunningRecord> &appRecord, std::vector<RenderProcessInfo> &info);
 
     int StartRenderProcessImpl(const std::shared_ptr<RenderRecord> &renderRecord,
-        const std::shared_ptr<AppRunningRecord> appRecord, pid_t &renderPid);
+        const std::shared_ptr<AppRunningRecord> appRecord, pid_t &renderPid, bool isGPU = false);
 
     void OnRenderRemoteDied(const wptr<IRemoteObject> &remote);
 
@@ -1011,8 +1357,26 @@ private:
 
     int VerifyProcessPermission(const std::string &bundleName) const;
 
+    bool CheckCallerIsAppGallery();
+
     void ApplicationTerminatedSendProcessEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
     void ClearAppRunningDataForKeepAlive(const std::shared_ptr<AppRunningRecord> &appRecord);
+
+    int32_t StartChildProcessPreCheck(const pid_t callingPid);
+
+    int32_t StartChildProcessImpl(const std::shared_ptr<ChildProcessRecord> childProcessRecord,
+        const std::shared_ptr<AppRunningRecord> appRecord, pid_t &childPid);
+
+    int32_t GetChildProcessInfo(const std::shared_ptr<ChildProcessRecord> childProcessRecord,
+        const std::shared_ptr<AppRunningRecord> appRecord, ChildProcessInfo &info);
+
+    void OnChildProcessRemoteDied(const wptr<IRemoteObject> &remote);
+
+    void KillChildProcess(const std::shared_ptr<AppRunningRecord> &appRecord);
+
+    void KillAttachedChildProcess(const std::shared_ptr<AppRunningRecord> &appRecord);
+
+    void PresetMaxChildProcess(const std::shared_ptr<AbilityInfo> &abilityInfo, int32_t &maxChildProcess);
 
 private:
     /**
@@ -1021,29 +1385,31 @@ private:
      * @param bundleName, bundle name in Application record.
      * @param uid, app uid in Application record.
      * @param pid, app pid in Application record.
+     * @param appCloneIndex the app clone id.
      * @param userId, userId.
+     * @param isBySelf, clear data by application self.
      *
-     * @return
+     * @return Returns ERR_OK on success, others on failure.
      */
-    void ClearUpApplicationDataByUserId(const std::string &bundleName,
-        int32_t callerUid, pid_t callerPid, const int userId);
-
-    uint32_t BuildStartFlags(const AAFwk::Want &want, const AbilityInfo &abilityInfo);
+    int32_t ClearUpApplicationDataByUserId(const std::string &bundleName,
+        int32_t callerUid, pid_t callerPid, int32_t appCloneIndex, int32_t userId, bool isBySelf = false);
 
     bool CheckGetRunningInfoPermission() const;
 
-    int32_t KillApplicationByBundleName(const std::string &bundleName);
+    int32_t KillApplicationByBundleName(
+        const std::string &bundleName, const bool clearPageStack = true);
 
     bool SendProcessStartEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
 
     void SendAppStartupTypeEvent(const std::shared_ptr<AppRunningRecord> &appRecord,
         const std::shared_ptr<AbilityInfo> &abilityInfo, const AppStartType startType);
 
-    void SendProcessExitEvent(pid_t pid);
+    bool SendCreateAtomicServiceProcessEvent(const std::shared_ptr<AppRunningRecord> &appRecord,
+        const BundleType &bundleType, const std::string &moduleName = "", const std::string &abilityName = "");
 
-    void SendProcessExitEventTask(pid_t pid, time_t exitTime, int32_t count);
+    void SendProcessExitEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
 
-    void UpDateStartupType(const std::shared_ptr<AbilityInfo> &info, int32_t &abilityType, int32_t &extensionType);
+    void SendProcessExitEventTask(const std::shared_ptr<AppRunningRecord> &appRecord, time_t exitTime, int32_t count);
 
     void SetRunningSharedBundleList(const std::string &bundleName,
         const std::vector<BaseSharedBundleInfo> baseSharedBundleInfoList);
@@ -1053,6 +1419,7 @@ private:
     void KillRenderProcess(const std::shared_ptr<AppRunningRecord> &appRecord);
 
     void SetOverlayInfo(const std::string& bundleName, const int32_t userId, AppSpawnStartMsg& startMsg);
+    void SetAppEnvInfo(const BundleInfo &bundleInfo, AppSpawnStartMsg& startMsg);
 
     void TimeoutNotifyApp(int32_t pid, int32_t uid, const std::string& bundleName, const FaultData &faultData);
 
@@ -1062,11 +1429,80 @@ private:
     void ProcessAppDebug(const std::shared_ptr<AppRunningRecord> &appRecord, const bool &isDebugStart);
     AppDebugInfo MakeAppDebugInfo(const std::shared_ptr<AppRunningRecord> &appRecord, const bool &isDebugStart);
     int32_t NotifyAbilitysDebugChange(const std::string &bundleName, const bool &isAppDebug);
+    int32_t NotifyAbilitysAssertDebugChange(const std::shared_ptr<AppRunningRecord> &appRecord, bool isAssertDebug);
+
+    void SetProcessJITState(const std::shared_ptr<AppRunningRecord> appRecord);
 
     bool JudgeSelfCalledByToken(const sptr<IRemoteObject> &token, const PageStateData &pageStateData);
 
-    void SendReStartProcessEvent(const AAFwk::EventInfo &eventInfo,
-        const std::shared_ptr<AppRunningRecord> &appRecord);
+    void ParseServiceExtMultiProcessWhiteList();
+    void ClearData(std::shared_ptr<AppRunningRecord> appRecord);
+
+    /**
+     * Notify the app running status.
+     *
+     * @param bundle Bundle name in application record.
+     * @param uid Uid of bundle.
+     * @param runningStatus The app running status.
+     *
+     * @return
+     */
+    void NotifyAppRunningStatusEvent(
+        const std::string &bundle, int32_t uid, AbilityRuntime::RunningStatus runningStatus);
+
+    void GetRunningCloneAppInfo(const std::shared_ptr<AppRunningRecord> &appRecord,
+        RunningMultiAppInfo &info);
+
+    /**
+     * To Prevent process being killed when ability is starting in an existing process,
+     * we need notify memmgr to increase process priority.
+     *
+     * @param appRecord Current app running record.
+     *
+     * @return Whether improve priority succeed.
+     */
+    bool NotifyMemMgrPriorityChanged(const std::shared_ptr<AppRunningRecord> appRecord);
+
+    void HandlePreloadApplication(const PreloadRequest &request);
+
+    std::string GetSpecifiedProcessFlag(std::shared_ptr<AbilityInfo> abilityInfo, std::shared_ptr<AAFwk::Want> want);
+
+    void LoadAbilityNoAppRecord(const std::shared_ptr<AppRunningRecord> appRecord,
+        sptr<IRemoteObject> preToken,
+        std::shared_ptr<ApplicationInfo> appInfo,
+        std::shared_ptr<AbilityInfo> abilityInfo,
+        const std::string &processName,
+        const std::string &specifiedProcessFlag,
+        const BundleInfo &bundleInfo,
+        const HapModuleInfo &hapModuleInfo,
+        std::shared_ptr<AAFwk::Want> want,
+        bool appExistFlag,
+        bool isPreload);
+
+    int32_t CheckSetProcessCachePermission() const;
+
+    int32_t CreatNewStartMsg(const Want &want, const AbilityInfo &abilityInfo,
+        const std::shared_ptr<ApplicationInfo> &appInfo, const std::string &processName,
+        AppSpawnStartMsg &startMsg);
+
+    int32_t CreateStartMsg(const std::string &processName, uint32_t startFlags, const int uid,
+        const BundleInfo &bundleInfo, const int32_t bundleIndex, BundleType bundleType,
+        AppSpawnStartMsg &startMsg, const std::string &moduleName = "", const std::string &abilityName = "",
+        bool strictMode = false);
+
+    void QueryExtensionSandBox(const std::string &moduleName, const std::string &abilityName,
+        const BundleInfo &bundleInfo, AppSpawnStartMsg &startMsg, DataGroupInfoList& dataGroupInfoList,
+        bool strictMode);
+
+    int32_t StartPerfProcessByStartMsg(AppSpawnStartMsg &startMsg, const std::string& perfCmd,
+        const std::string& debugCmd, bool isSandboxApp);
+
+    void SetAtomicServiceInfo(BundleType bundleType, AppSpawnStartMsg &startMsg);
+
+    void SetAppInfo(const BundleInfo &bundleInfo, AppSpawnStartMsg &startMsg);
+
+    bool CreateAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo);
+
 private:
     /**
      * Notify application status.
@@ -1079,11 +1515,21 @@ private:
      */
     void NotifyAppStatusByCallerUid(const std::string &bundleName, const int32_t userId, const int32_t callerUid,
         const std::string &eventData);
-    void KillApplicationByRecord(const std::shared_ptr<AppRunningRecord> &appRecord);
     void SendHiSysEvent(const int32_t innerEventId, const int64_t eventId);
     int FinishUserTestLocked(
         const std::string &msg, const int64_t &resultCode, const std::shared_ptr<AppRunningRecord> &appRecord);
     int32_t GetCurrentAccountId() const;
+    void SendReStartProcessEvent(AAFwk::EventInfo &eventInfo, int32_t appUid);
+    void SendAppLaunchEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void InitAppWaitingDebugList();
+    void HandleConfigurationChange(const Configuration &config);
+    bool CheckAppFault(const std::shared_ptr<AppRunningRecord> &appRecord, const FaultData &faultData);
+    int32_t KillFaultApp(int32_t pid, const std::string &bundleName, const FaultData &faultData);
+    void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos);
+    void AddUIExtensionLauncherItem(std::shared_ptr<AAFwk::Want> want, std::shared_ptr<AppRunningRecord> appRecord,
+        sptr<IRemoteObject> token);
+    void RemoveUIExtensionLauncherItem(std::shared_ptr<AppRunningRecord> appRecord, sptr<IRemoteObject> token);
+    bool IsSceneBoardCall();
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
     std::vector<const sptr<IAppStateCallback>> appStateCallbacks_;
     std::shared_ptr<AppProcessManager> appProcessManager_;
@@ -1095,22 +1541,38 @@ private:
     ffrt::mutex userTestLock_;
     ffrt::mutex appStateCallbacksLock_;
     ffrt::mutex renderUidSetLock_;
+    ffrt::mutex exceptionLock_;
+    ffrt::mutex browserHostLock_;
     sptr<IStartSpecifiedAbilityResponse> startSpecifiedAbilityResponse_;
     ffrt::mutex configurationObserverLock_;
     std::vector<sptr<IConfigurationObserver>> configurationObservers_;
+#ifdef SUPPORT_SCREEN
     sptr<WindowFocusChangedListener> focusListener_;
     sptr<WindowVisibilityChangedListener> windowVisibilityChangedListener_;
+#endif //SUPPORT_SCREEN
     std::vector<std::shared_ptr<AppRunningRecord>> restartResedentTaskList_;
     std::map<std::string, std::vector<BaseSharedBundleInfo>> runningSharedBundleList_;
+    std::map<std::string, bool> waitingDebugBundleList_;
+    ffrt::mutex waitingDebugLock_;
+    bool isInitAppWaitingDebugListExecuted_ = false;
     std::unordered_set<int32_t> renderUidSet_;
     std::string supportIsolationMode_ {"false"};
-    std::string deviceType_ {"default"};
+    std::string supportServiceExtMultiProcess_ {"false"};
     int32_t currentUserId_ = 0;
     int32_t lastRenderUid_ = Constants::START_UID_FOR_RENDER_PROCESS;
     sptr<IAbilityDebugResponse> abilityDebugResponse_;
     std::shared_ptr<AppDebugManager> appDebugManager_;
     ffrt::mutex killpedProcessMapLock_;
     mutable std::map<int64_t, std::string> killedPorcessMap_;
+    ffrt::mutex startChildProcessLock_;
+    std::shared_ptr<AbilityRuntime::AppRunningStatusModule> appRunningStatusModule_;
+    std::vector<std::string> serviceExtensionWhiteList_;
+    std::shared_ptr<AdvancedSecurityModeManager> securityModeManager_;
+    std::shared_ptr<AAFwk::TaskHandlerWrap> dfxTaskHandler_;
+    std::shared_ptr<AAFwk::TaskHandlerWrap> otherTaskHandler_;
+    std::shared_ptr<AppPreloader> appPreloader_;
+    std::atomic<bool> sceneBoardAttachFlag_ = true;
+    std::vector<LoabAbilityTaskFunc> loadAbilityTaskFuncList_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

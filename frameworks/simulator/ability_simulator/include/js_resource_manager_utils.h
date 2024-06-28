@@ -20,9 +20,6 @@
 #include "native_engine/native_engine.h"
 #include "resource_manager.h"
 
-class NativeEngine;
-class NativeValue;
-
 namespace OHOS {
 namespace AbilityRuntime {
 napi_value CreateJsResourceManager(napi_env env,

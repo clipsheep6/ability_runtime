@@ -23,7 +23,10 @@ namespace OHOS {
 namespace AppExecFwk {
 EXTERN_C_START
 
+bool UnwrapStartOptionsWithProcessOption(napi_env env, napi_value param, AAFwk::StartOptions &startOptions);
 bool UnwrapStartOptions(napi_env env, napi_value param, AAFwk::StartOptions &startOptions);
+
+bool UnwrapStartOptionsAndWant(napi_env env, napi_value param, AAFwk::StartOptions &startOptions, AAFwk::Want &want);
 
 EXTERN_C_END
 }  // namespace AppExecFwk

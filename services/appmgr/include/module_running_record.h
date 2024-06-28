@@ -74,12 +74,14 @@ public:
      */
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecordByToken(const sptr<IRemoteObject> &token) const;
 
-    std::shared_ptr<AbilityRunningRecord> AddAbility(const sptr<IRemoteObject> &token,
-        const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<AAFwk::Want> &want);
+    std::shared_ptr<AbilityRunningRecord> AddAbility(sptr<IRemoteObject> token,
+        std::shared_ptr<AbilityInfo> abilityInfo, std::shared_ptr<AAFwk::Want> want, int32_t abilityRecordId);
 
     bool IsLastAbilityRecord(const sptr<IRemoteObject> &token);
 
     int32_t GetPageAbilitySize();
+
+    bool ExtensionAbilityRecordExists();
 
     // Get abilities_ for this process
     /**
@@ -157,7 +159,7 @@ public:
     const std::shared_ptr<ApplicationInfo> GetAppInfo();
 
     bool RemoveTerminateAbilityTimeoutTask(const sptr<IRemoteObject>& token) const;
-    
+
     bool IsAbilitiesBackgrounded();
 
 private:

@@ -45,8 +45,6 @@ struct VerificationInfo {
  
     bool IsShellCall() const;
 
-    bool IsGatewayCall() const;
-
     bool CheckSpecificSystemAbilityAccessPermission() const;
 
     bool VerifyRunningInfoPerm() const;
@@ -93,8 +91,11 @@ struct VerificationInfo {
     }
 
     bool JudgeCallerIsAllowedToUseSystemAPI() const;
+    bool IsSystemAppCall() const;
 
     bool VerifyPrepareTerminatePermission() const;
+
+    bool VerifySetProcessCachePermission() const;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

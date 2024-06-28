@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include <dlfcn.h>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS::AbilityRuntime {
@@ -47,27 +48,29 @@ DummyExtensionModuleLoader::~DummyExtensionModuleLoader() = default;
 ExtensionModuleLoader& GetExtensionModuleLoader(const char* sharedLibrary)
 {
     if (sharedLibrary == nullptr) {
-        HILOG_ERROR("Name of shared extension library MUST NOT be null pointer");
+        TAG_LOGE(AAFwkTag::EXT, "Name of shared extension library MUST NOT be null pointer");
         return DummyExtensionModuleLoader::GetInstance();
     }
 
     void* handle = dlopen(sharedLibrary, RTLD_LAZY);
     if (handle == nullptr) {
-        HILOG_ERROR("Failed to open extension library %{public}s, reason: %{public}sn", sharedLibrary, dlerror());
+        TAG_LOGE(AAFwkTag::EXT, "Failed to open extension library %{public}s, reason: %{public}sn", sharedLibrary,
+            dlerror());
         return DummyExtensionModuleLoader::GetInstance();
     }
 
     auto entry = reinterpret_cast<DynamicEntry>(dlsym(handle, EXTENSION_MODULE_ENTRY));
     if (entry == nullptr) {
         dlclose(handle);
-        HILOG_ERROR("Failed to get extension symbol %{public}s in %{public}s", EXTENSION_MODULE_ENTRY, sharedLibrary);
+        TAG_LOGE(AAFwkTag::EXT, "Failed to get extension symbol %{public}s in %{public}s", EXTENSION_MODULE_ENTRY,
+            sharedLibrary);
         return DummyExtensionModuleLoader::GetInstance();
     }
 
     auto loader = reinterpret_cast<ExtensionModuleLoader*>(entry());
     if (loader == nullptr) {
         dlclose(handle);
-        HILOG_ERROR("Failed to get extension module loader in %{public}s", sharedLibrary);
+        TAG_LOGE(AAFwkTag::EXT, "Failed to get extension module loader in %{public}s", sharedLibrary);
         return DummyExtensionModuleLoader::GetInstance();
     }
 

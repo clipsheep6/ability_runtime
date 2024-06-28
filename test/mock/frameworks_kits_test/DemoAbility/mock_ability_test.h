@@ -62,8 +62,8 @@ public:
             GTEST_LOG_(INFO) << "MockAbilityTest::OpenFile fd1 == nullptr";
             return -1;
         }
-        fputs("123456", fd1);
-        fclose(fd1);
+        (void)fputs("123456", fd1);
+        (void)fclose(fd1);
 
         FILE* fd2 = fopen("/dataability_openfile_test.txt", "r");
         if (fd2 == nullptr) {

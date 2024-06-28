@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,10 +16,11 @@
 #include "window_visibility_changed_listener.h"
 
 #include "app_mgr_service_inner.h"
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
+#ifdef SUPPORT_SCREEN
 using namespace OHOS::Rosen;
 WindowVisibilityChangedListener::WindowVisibilityChangedListener(
     const std::weak_ptr<AppMgrServiceInner> &appInner, const std::shared_ptr<AAFwk::TaskHandlerWrap> &handler)
@@ -29,26 +30,27 @@ WindowVisibilityChangedListener::WindowVisibilityChangedListener(
 void WindowVisibilityChangedListener::OnWindowVisibilityChanged(
     const std::vector<sptr<WindowVisibilityInfo>> &windowVisibilityInfos)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (windowVisibilityInfos.empty()) {
-        HILOG_WARN("Window visibility info is empty.");
+        TAG_LOGW(AAFwkTag::APPMGR, "Window visibility info is empty.");
         return;
     }
 
     if (taskHandler_ == nullptr) {
-        HILOG_ERROR("Task handler is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Task handler is nullptr.");
         return;
     }
 
     auto task = [inner = appServiceInner_, windowVisibilityInfos] {
         auto serviceInner = inner.lock();
         if (serviceInner == nullptr) {
-            HILOG_ERROR("Failed to get app mgr service inner.");
+            TAG_LOGE(AAFwkTag::APPMGR, "Failed to get app mgr service inner.");
             return;
         }
         serviceInner->HandleWindowVisibilityChanged(windowVisibilityInfos);
     };
     taskHandler_->SubmitTask(task);
 }
+#endif // SUPPORT_SCREEN
 } // namespace AppExecFwk
 } // namespace OHOS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,18 +16,20 @@
 #include "task_data_persistence_mgr.h"
 #include "ability_util.h"
 #include "directory_ex.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 
 namespace OHOS {
 namespace AAFwk {
 TaskDataPersistenceMgr::TaskDataPersistenceMgr()
 {
-    HILOG_INFO("TaskDataPersistenceMgr instance is created");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "TaskDataPersistenceMgr instance is created");
 }
 
 TaskDataPersistenceMgr::~TaskDataPersistenceMgr()
 {
-    HILOG_INFO("TaskDataPersistenceMgr instance is destroyed");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "TaskDataPersistenceMgr instance is destroyed");
 }
 
 bool TaskDataPersistenceMgr::Init(int userId)
@@ -47,7 +49,7 @@ bool TaskDataPersistenceMgr::Init(int userId)
     currentUserId_ = userId;
 
     CHECK_POINTER_RETURN_BOOL(currentMissionDataStorage_);
-    HILOG_INFO("Init success.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Init success.");
     return true;
 }
 
@@ -55,7 +57,7 @@ bool TaskDataPersistenceMgr::LoadAllMissionInfo(std::list<InnerMissionInfo> &mis
 {
     std::lock_guard<ffrt::mutex> lock(mutex_);
     if (!currentMissionDataStorage_) {
-        HILOG_ERROR("currentMissionDataStorage_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "currentMissionDataStorage_ is nullptr");
         return false;
     }
 
@@ -66,7 +68,7 @@ bool TaskDataPersistenceMgr::SaveMissionInfo(const InnerMissionInfo &missionInfo
 {
     std::lock_guard<ffrt::mutex> lock(mutex_);
     if (!handler_ || !currentMissionDataStorage_) {
-        HILOG_ERROR("handler_ or currentMissionDataStorage_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "handler_ or currentMissionDataStorage_ is nullptr");
         return false;
     }
 
@@ -85,7 +87,7 @@ bool TaskDataPersistenceMgr::DeleteMissionInfo(int missionId)
 {
     std::lock_guard<ffrt::mutex> lock(mutex_);
     if (!handler_ || !currentMissionDataStorage_) {
-        HILOG_ERROR("handler_ or currentMissionDataStorage_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "handler_ or currentMissionDataStorage_ is nullptr");
         return false;
     }
 
@@ -104,13 +106,13 @@ bool TaskDataPersistenceMgr::RemoveUserDir(int32_t userId)
 {
     std::lock_guard<ffrt::mutex> lock(mutex_);
     if (currentUserId_ == userId) {
-        HILOG_ERROR("can not removed current user dir");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "can not removed current user dir");
         return false;
     }
     std::string userDir = std::string(TASK_DATA_FILE_BASE_PATH) + "/" + std::to_string(userId);
     bool ret = OHOS::ForceRemoveDirectory(userDir);
     if (!ret) {
-        HILOG_ERROR("remove user dir %{public}s failed.", userDir.c_str());
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "remove user dir %{public}s failed.", userDir.c_str());
         return false;
     }
     return true;
@@ -120,7 +122,7 @@ bool TaskDataPersistenceMgr::SaveMissionSnapshot(int missionId, const MissionSna
 {
     std::lock_guard<ffrt::mutex> lock(mutex_);
     if (!handler_ || !currentMissionDataStorage_) {
-        HILOG_ERROR("snapshot: handler_ or currentMissionDataStorage_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: handler_ or currentMissionDataStorage_ is nullptr");
         return false;
     }
 
@@ -135,11 +137,11 @@ bool TaskDataPersistenceMgr::SaveMissionSnapshot(int missionId, const MissionSna
     return true;
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 std::shared_ptr<Media::PixelMap> TaskDataPersistenceMgr::GetSnapshot(int missionId) const
 {
     if (!currentMissionDataStorage_) {
-        HILOG_ERROR("snapshot: currentMissionDataStorage_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: currentMissionDataStorage_ is nullptr");
         return nullptr;
     }
     return currentMissionDataStorage_->GetSnapshot(missionId);
@@ -148,9 +150,10 @@ std::shared_ptr<Media::PixelMap> TaskDataPersistenceMgr::GetSnapshot(int mission
 
 bool TaskDataPersistenceMgr::GetMissionSnapshot(int missionId, MissionSnapshot& snapshot, bool isLowResolution)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> lock(mutex_);
     if (!currentMissionDataStorage_) {
-        HILOG_ERROR("snapshot: currentMissionDataStorage_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: currentMissionDataStorage_ is nullptr");
         return false;
     }
     return currentMissionDataStorage_->GetMissionSnapshot(missionId, snapshot, isLowResolution);

@@ -55,12 +55,15 @@ public:
     int StartAbilityAsCaller(
         const Want& want,
         const sptr<IRemoteObject>& callerToken,
+        const sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
-        int requestCode = DEFAULT_INVAL_VALUE) override;
+        int requestCode = DEFAULT_INVAL_VALUE,
+        bool isSendDialogResult = false) override;
     int StartAbilityAsCaller(
         const Want& want,
         const StartOptions& startOptions,
         const sptr<IRemoteObject>& callerToken,
+        const sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE) override
     {
@@ -86,7 +89,7 @@ public:
         const sptr<IAbilityConnection>& connect,
         const sptr<IRemoteObject>& callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE) override;
-    int DisconnectAbility(const sptr<IAbilityConnection>& connect) override;
+    int DisconnectAbility(sptr<IAbilityConnection> connect) override;
 
     int AttachAbilityThread(const sptr<IAbilityScheduler>& scheduler, const sptr<IRemoteObject>& token) override;
 
@@ -107,11 +110,12 @@ public:
     int StopServiceAbility(const Want& want, int32_t userId = DEFAULT_INVAL_VALUE,
         const sptr<IRemoteObject> &token = nullptr) override;
 
-    MOCK_METHOD1(KillProcess, int(const std::string& bundleName));
+    MOCK_METHOD2(KillProcess, int(const std::string& bundleName, const bool clearPageStack));
     MOCK_METHOD2(UninstallApp, int(const std::string& bundleName, int32_t uid));
+    MOCK_METHOD3(UninstallApp, int32_t(const std::string& bundleName, int32_t uid, int32_t appIndex));
     MOCK_METHOD2(
         GetWantSender, sptr<IWantSender>(const WantSenderInfo& wantSenderInfo, const sptr<IRemoteObject>& callerToken));
-    MOCK_METHOD2(SendWantSender, int(const sptr<IWantSender>& target, const SenderInfo& senderInfo));
+    MOCK_METHOD2(SendWantSender, int(sptr<IWantSender> target, const SenderInfo& senderInfo));
     MOCK_METHOD1(CancelWantSender, void(const sptr<IWantSender>& sender));
     MOCK_METHOD1(GetPendingWantUid, int(const sptr<IWantSender>& target));
     MOCK_METHOD1(GetPendingWantUserId, int(const sptr<IWantSender>& target));
@@ -123,6 +127,8 @@ public:
     MOCK_METHOD2(GetPendingRequestWant, int(const sptr<IWantSender>& target, std::shared_ptr<Want>& want));
     MOCK_METHOD5(StartAbility, int(const Want& want, const AbilityStartSetting& abilityStartSetting,
         const sptr<IRemoteObject>& callerToken, int32_t userId, int requestCode));
+    MOCK_METHOD4(StartAbilityByInsightIntent, int32_t(const Want& want, const sptr<IRemoteObject>& callerToken,
+        uint64_t intentId, int32_t userId));
     MOCK_METHOD1(GetPendinTerminateAbilityTestgRequestWant, void(int id));
     MOCK_METHOD3(StartContinuation, int(const Want& want, const sptr<IRemoteObject>& abilityToken, int32_t status));
     MOCK_METHOD2(NotifyContinuationResult, int(int32_t missionId, int32_t result));
@@ -178,20 +184,21 @@ public:
         return 0;
     }
 
-    int ClearUpApplicationData(const std::string& bundleName) override
+    int StartUser(int userId, sptr<IUserCallback> callback) override
     {
         return 0;
     }
 
-    int StartUser(int userId) override
+    int StopUser(int userId, const sptr<IUserCallback>& callback) override
     {
         return 0;
     }
 
-    int StopUser(int userId, const sptr<IStopUserCallback>& callback) override
+    int LogoutUser(int32_t userId) override
     {
         return 0;
     }
+
     int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override
     {
         return 0;
@@ -213,6 +220,10 @@ public:
     void CallRequestDone(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& callStub) override
     {
         return;
+    }
+    virtual int32_t GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
+    {
+        return 0;
     }
     int ReleaseCall(const sptr<IAbilityConnection>& connect,
         const AppExecFwk::ElementName& element) override
@@ -240,11 +251,6 @@ public:
     bool IsRunningInStabilityTest() override
     {
         return true;
-    }
-
-    int SendANRProcessID(int pid) override
-    {
-        return 0;
     }
 
     int StartUserTest(const Want& want, const sptr<IRemoteObject>& observer) override
@@ -278,6 +284,16 @@ public:
         return 0;
     }
 
+    int32_t SetApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag) override
+    {
+        return 0;
+    }
+
+    int32_t CancelApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag) override
+    {
+        return 0;
+    }
+
     void CompleteFirstFrameDrawing(const sptr<IRemoteObject>& abilityToken) override {}
 
 #ifdef ABILITY_COMMAND_FOR_TEST
@@ -287,10 +303,16 @@ public:
     }
 #endif
     MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionValidResult>&));
-    MOCK_METHOD1(RegisterAppDebugListener, int32_t(const sptr<AppExecFwk::IAppDebugListener> &listener));
-    MOCK_METHOD1(UnregisterAppDebugListener, int32_t(const sptr<AppExecFwk::IAppDebugListener> &listener));
+    MOCK_METHOD1(RegisterAppDebugListener, int32_t(sptr<AppExecFwk::IAppDebugListener> listener));
+    MOCK_METHOD1(UnregisterAppDebugListener, int32_t(sptr<AppExecFwk::IAppDebugListener> listener));
     MOCK_METHOD1(AttachAppDebug, int32_t(const std::string &bundleName));
     MOCK_METHOD1(DetachAppDebug, int32_t(const std::string &bundleName));
+    MOCK_METHOD3(ExecuteIntent, int32_t(uint64_t key, const sptr<IRemoteObject> &callerToken,
+        const InsightIntentExecuteParam &param));
+    MOCK_METHOD3(ExecuteInsightIntentDone, int32_t(const sptr<IRemoteObject> &token, uint64_t intentId,
+        const InsightIntentExecuteResult &result));
+    MOCK_METHOD5(StartAbilityWithSpecifyTokenId, int(const Want& want, const sptr<IRemoteObject>& callerToken,
+        uint32_t specifyTokenId, int32_t userId, int requestCode));
 
     sptr<IAbilityScheduler> abilityScheduler_ = nullptr;  // kit interface used to schedule ability life
     Want want_;

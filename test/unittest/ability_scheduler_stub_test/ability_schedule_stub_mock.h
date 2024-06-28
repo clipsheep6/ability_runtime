@@ -151,6 +151,13 @@ public:
     {
         return;
     }
+    void OnExecuteIntent(const Want &want) override
+    {}
+    virtual int CreateModalUIExtension(const Want &want) override
+    {
+        return 0;
+    }
+    virtual void UpdateSessionToken(sptr<IRemoteObject> sessionToken) override {}
 #ifdef ABILITY_COMMAND_FOR_TEST
     int BlockAbility() override
     {

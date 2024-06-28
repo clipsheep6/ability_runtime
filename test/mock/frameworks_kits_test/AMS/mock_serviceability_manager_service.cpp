@@ -54,7 +54,8 @@ int MockServiceAbilityManagerService::StartAbility(
 }
 
 int MockServiceAbilityManagerService::StartAbilityAsCaller(
-    const Want& want, const sptr<IRemoteObject>& callerToken, int32_t userId, int requestCode)
+    const Want& want, const sptr<IRemoteObject>& callerToken, sptr<IRemoteObject> asCallerSourceToken,
+    int32_t userId, int requestCode, bool isSendDialogResult)
 {
     return 0;
 }
@@ -89,7 +90,7 @@ int MockServiceAbilityManagerService::ConnectAbility(
     return -1;
 }
 
-int MockServiceAbilityManagerService::DisconnectAbility(const sptr<IAbilityConnection>& connect)
+int MockServiceAbilityManagerService::DisconnectAbility(sptr<IAbilityConnection> connect)
 {
     GTEST_LOG_(INFO) << "MockServiceAbilityManagerService::DisconnectAbility";
     if (abilityScheduler_ != nullptr) {

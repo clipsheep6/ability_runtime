@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include <map>
 #include "errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "napi/native_api.h"
 #include "runtime.h"
@@ -129,6 +130,10 @@ const std::map<int32_t, std::string> ERROR_MSG_MAP = {
         "The specified SystemCapability name was not found." },
     { ERR_ABILITY_RUNTIME_EXTERNAL_START_ABILITY_WAITTING,
         "The previous ability is starting, wait start later." },
+    { ERR_ABILITY_RUNTIME_EXTERNAL_NOT_SUPPORT_CROSS_APP_START,
+        "The application is not allow jumping to other applications." },
+    { ERR_ABILITY_RUNTIME_EXTERNAL_CANNOT_MATCH_ANY_COMPONENT,
+        "Can not match any component." },
     { ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_FLAG,
         "Invalid URI flag." },
     { ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_TYPE,
@@ -138,7 +143,15 @@ const std::map<int32_t, std::string> ERROR_MSG_MAP = {
     { ERR_ABILITY_RUNTIME_OPERATION_NOT_SUPPORTED,
         "Operation not supported." },
     { ERR_ABILITY_RUNTIME_CHILD_PROCESS_NUMBER_EXCEEDS_UPPER_BOUND,
-        "The number of child process exceeds upper bound." }
+        "The number of child process exceeds upper bound." },
+    { ERR_ABILITY_RUNTIME_RESTART_APP_INCORRECT_ABILITY,
+        "The target to restart does not belong to the current app or is not a UIAbility." },
+    { ERR_ABILITY_RUNTIME_RESTART_APP_FREQUENT,
+        "Restart too frequently. Try again at least 10s later." },
+    { ERR_ABILITY_RUNTIME_EXTERNAL_NOT_SYSTEM_HSP,
+        "The input bundleName and moduleName is not system HSP" },
+    { ERR_ABILITY_RUNTIME_SET_SUPPORTED_PROCESS_CACHE_AGAIN,
+        "The supported process cache state cannot be set more than once" },
 };
 }
 
@@ -151,7 +164,7 @@ bool AbilityRuntimeErrorUtil::Throw(napi_env env, int32_t errCode, const std::st
     napi_value error = nullptr;
     napi_create_error(env, CreateJsValue(env, errCode), CreateJsValue(env, eMes), &error);
     if (error == nullptr) {
-        HILOG_ERROR("Failed to create error.");
+        TAG_LOGE(AAFwkTag::DEFAULT, "Failed to create error.");
         return false;
     }
     napi_throw(env, error);
@@ -161,7 +174,7 @@ bool AbilityRuntimeErrorUtil::Throw(napi_env env, int32_t errCode, const std::st
 bool AbilityRuntimeErrorUtil::ThrowByInternalErrCode(napi_env env, int32_t errCode)
 {
     if (ERROR_CODE_MAP.find(errCode) == ERROR_CODE_MAP.end()) {
-        HILOG_ERROR("Invalid inner errCode, check ERROR_CODE_MAP");
+        TAG_LOGE(AAFwkTag::DEFAULT, "Invalid inner errCode, check ERROR_CODE_MAP");
         return false;
     }
     return Throw(env, ERROR_CODE_MAP.at(errCode));
@@ -170,45 +183,11 @@ bool AbilityRuntimeErrorUtil::ThrowByInternalErrCode(napi_env env, int32_t errCo
 napi_value AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(napi_env env, int32_t errCode)
 {
     if (ERROR_CODE_MAP.find(errCode) == ERROR_CODE_MAP.end()) {
-        HILOG_ERROR("Invalid inner errCode, check ERROR_CODE_MAP");
+        TAG_LOGE(AAFwkTag::DEFAULT, "Invalid inner errCode, check ERROR_CODE_MAP");
         return nullptr;
     }
     int32_t externalErrCode = ERROR_CODE_MAP.at(errCode);
     return CreateJsError(env, externalErrCode, ERROR_MSG_MAP.at(externalErrCode));
-}
-
-// to do
-bool AbilityRuntimeErrorUtil::Throw(NativeEngine &engine, int32_t errCode, const std::string &errMessage)
-{
-    std::string eMes = errMessage;
-    if (eMes.empty()) {
-        eMes = ERROR_MSG_MAP.at(errCode);
-    }
-    NativeValue *error = engine.CreateError(CreateJsValue(engine, errCode), CreateJsValue(engine, eMes));
-    if (error == nullptr) {
-        HILOG_ERROR("Failed to create error.");
-        return false;
-    }
-    return engine.Throw(error);
-}
-
-bool AbilityRuntimeErrorUtil::ThrowByInternalErrCode(NativeEngine &engine, int32_t errCode)
-{
-    if (ERROR_CODE_MAP.find(errCode) == ERROR_CODE_MAP.end()) {
-        HILOG_ERROR("Invalid inner errCode, check ERROR_CODE_MAP");
-        return false;
-    }
-    return Throw(engine, ERROR_CODE_MAP.at(errCode));
-}
-
-NativeValue *AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(NativeEngine &engine, int32_t errCode)
-{
-    if (ERROR_CODE_MAP.find(errCode) == ERROR_CODE_MAP.end()) {
-        HILOG_ERROR("Invalid inner errCode, check ERROR_CODE_MAP");
-        return nullptr;
-    }
-    int32_t externalErrCode = ERROR_CODE_MAP.at(errCode);
-    return CreateJsError(engine, externalErrCode, ERROR_MSG_MAP.at(externalErrCode));
 }
 
 std::string AbilityRuntimeErrorUtil::GetErrMessage(int32_t errCode)

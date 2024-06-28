@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,19 +17,12 @@
 #include <cstring>
 #include <vector>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "securec.h"
 
 namespace OHOS {
 namespace AppExecFwk {
-/**
- * @brief FeatureAbilityConstantInit NAPI module registration.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param exports An empty object via the exports parameter as a convenience.
- *
- * @return The return value from Init is treated as the exports object for the module.
- */
 napi_value FAConstantInit(napi_env env, napi_value exports)
 {
     const int Window_Configuration_Zero = 100;
@@ -39,7 +32,7 @@ napi_value FAConstantInit(napi_env env, napi_value exports)
     const int INVALID_PARAMETER = -1;
     const int ABILITY_NOT_FOUND = -2;
     const int PERMISSION_DENY = -3;
-    HILOG_INFO("%{public}s,called", __func__);
+    TAG_LOGD(AAFwkTag::FA, "called");
     napi_value abilityStartSetting = nullptr;
     napi_value abilityWindowConfiguration = nullptr;
     napi_value errorCode = nullptr;
@@ -74,7 +67,7 @@ napi_value FAConstantInit(napi_env env, napi_value exports)
 
 void SetNamedProperty(napi_env env, napi_value dstObj, const char *objName, const char *propName)
 {
-    HILOG_DEBUG("SetNamedProperty start");
+    TAG_LOGD(AAFwkTag::FA, "SetNamedProperty start");
     napi_value prop = nullptr;
     napi_create_string_utf8(env, objName, NAPI_AUTO_LENGTH, &prop);
     napi_set_named_property(env, dstObj, propName, prop);
@@ -82,7 +75,7 @@ void SetNamedProperty(napi_env env, napi_value dstObj, const char *objName, cons
 
 void SetNamedProperty(napi_env env, napi_value dstObj, const int32_t objValue, const char *propName)
 {
-    HILOG_DEBUG("SetNamedProperty start");
+    TAG_LOGD(AAFwkTag::FA, "SetNamedProperty start");
     napi_value prop = nullptr;
     napi_create_int32(env, objValue, &prop);
     napi_set_named_property(env, dstObj, propName, prop);

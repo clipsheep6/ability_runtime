@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "js_ability_stage_context.h"
 
 #include "ability_runtime/context/context.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_context_utils.h"
 #include "js_data_struct_converter.h"
@@ -27,34 +28,34 @@ namespace AbilityRuntime {
 void JsAbilityStageContext::ConfigurationUpdated(napi_env env, std::shared_ptr<NativeReference> &jsContext,
     const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     if (!jsContext || !config) {
-        HILOG_INFO("jsContext or config is nullptr.");
+        TAG_LOGE(AAFwkTag::APPKIT, "jsContext or config is nullptr.");
         return;
     }
 
     napi_value object = jsContext->GetNapiValue();
     if (!CheckTypeForNapiValue(env, object, napi_object)) {
-        HILOG_INFO("object is nullptr.");
+        TAG_LOGE(AAFwkTag::APPKIT, "object is nullptr.");
         return;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env, object, "onUpdateConfiguration", &method);
     if (!method) {
-        HILOG_ERROR("Failed to get onUpdateConfiguration from object");
+        TAG_LOGE(AAFwkTag::APPKIT, "Failed to get onUpdateConfiguration from object");
         return;
     }
 
-    HILOG_INFO("JsAbilityStageContext call onUpdateConfiguration.");
+    TAG_LOGD(AAFwkTag::APPKIT, "call onUpdateConfiguration");
     napi_value argv[] = { CreateJsConfiguration(env, *config) };
     napi_call_function(env, object, method, 1, argv, nullptr);
 }
 
 napi_value CreateJsAbilityStageContext(napi_env env,
-    std::shared_ptr<AbilityRuntime::Context> context, DetachCallback detach, AttachCallback attach)
+    std::shared_ptr<AbilityRuntime::Context> context, DetachCallback detach, NapiAttachCallback attach)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::APPKIT, "called.");
     napi_value objValue = CreateJsBaseContext(env, context);
     if (context == nullptr) {
         return objValue;

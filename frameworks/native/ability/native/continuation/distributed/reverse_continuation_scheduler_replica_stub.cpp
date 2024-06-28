@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 #include "reverse_continuation_scheduler_replica_stub.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -33,38 +34,39 @@ ReverseContinuationSchedulerReplicaStub::~ReverseContinuationSchedulerReplicaStu
 }
 int32_t ReverseContinuationSchedulerReplicaStub::PassPrimaryInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     sptr<IRemoteObject> primary = nullptr;
     if (data.ReadBool()) {
         primary = data.ReadRemoteObject();
     }
     PassPrimary(primary);
-    HILOG_INFO("%{public}s called end", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return NO_ERROR;
 }
 int32_t ReverseContinuationSchedulerReplicaStub::ReverseContinuationInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     ReverseContinuation();
-    HILOG_INFO("%{public}s called end", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return NO_ERROR;
 }
 int32_t ReverseContinuationSchedulerReplicaStub::NotifyReverseResultInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     int reverseResult = data.ReadInt32();
     NotifyReverseResult(reverseResult);
-    HILOG_INFO("%{public}s called end", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return NO_ERROR;
 }
 
 int ReverseContinuationSchedulerReplicaStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_INFO("%{public}s called begin, code = %{public}u, flags= %{public}d.", __func__, code, option.GetFlags());
+    TAG_LOGI(AAFwkTag::CONTINUATION,
+        "%{public}s called begin, code = %{public}u, flags= %{public}d.", __func__, code, option.GetFlags());
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (remoteDescriptor != ReverseContinuationSchedulerReplicaStub::GetDescriptor()) {
-        HILOG_ERROR("ReverseContinuationSchedulerReplicaStub::OnRemoteRequest token is invalid");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "ReverseContinuationSchedulerReplicaStub::OnRemoteRequest token is invalid");
         return ERR_INVALID_STATE;
     }
 
@@ -75,7 +77,7 @@ int ReverseContinuationSchedulerReplicaStub::OnRemoteRequest(
             return (this->*continuationFunc)(data, reply);
         }
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 }  // namespace AppExecFwk

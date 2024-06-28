@@ -33,6 +33,7 @@ enum class AppProcessState {
     APP_STATE_BACKGROUND,
     APP_STATE_TERMINATED,
     APP_STATE_END,
+    APP_STATE_CACHED = 100,
 };
 
 enum class WeightReasonCode {
@@ -60,6 +61,10 @@ struct RunningProcessInfo : public Parcelable {
     bool isFocused = false;
     bool isTestProcess = false;
     bool isAbilityForegrounding = false;
+    bool isTestMode = false;
+    bool isStrictMode = false;
+    std::int32_t bundleType = 0;
+    std::int32_t appCloneIndex = -1;
 
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;

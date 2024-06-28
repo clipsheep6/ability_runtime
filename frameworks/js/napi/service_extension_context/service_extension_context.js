@@ -35,6 +35,11 @@ class ServiceExtensionContext extends ExtensionContext {
     return this.__context_impl__.startAbility(want, options, callback);
   }
 
+  openLink(link, options) {
+    console.log('openLink');
+    return this.__context_impl__.openLink(link, options);
+  }
+
   startAbilityAsCaller(want, options, callback) {
     console.log('startAbilityAsCaller');
     return this.__context_impl__.startAbilityAsCaller(want, options, callback);
@@ -43,11 +48,6 @@ class ServiceExtensionContext extends ExtensionContext {
   startRecentAbility(want, options, callback) {
     console.log('startRecentAbility');
     return this.__context_impl__.startRecentAbility(want, options, callback);
-  }
-
-  connectAbility(want, options) {
-    console.log('connectAbility');
-    return this.__context_impl__.connectAbility(want, options);
   }
 
   connectServiceExtensionAbility(want, options) {
@@ -105,6 +105,10 @@ class ServiceExtensionContext extends ExtensionContext {
     return this.__context_impl__.terminateSelf(callback);
   }
 
+  requestModalUIExtension(want, callback) {
+    return this.__context_impl__.requestModalUIExtension(want, callback);
+  }
+  
   startAbilityByCall(want) {
     return new Promise(async (resolve, reject) => {
       if (typeof want !== 'object' || want == null) {

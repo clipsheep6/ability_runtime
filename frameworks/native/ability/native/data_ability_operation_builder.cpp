@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "data_ability_operation_builder.h"
 #include "data_ability_predicates.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "values_bucket.h"
 
@@ -38,104 +39,118 @@ DataAbilityOperationBuilder::~DataAbilityOperationBuilder()
 
 std::shared_ptr<DataAbilityOperation> DataAbilityOperationBuilder::Build()
 {
-    HILOG_DEBUG("DataAbilityOperationBuilder::Build start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::Build start");
     if (type_ != DataAbilityOperation::TYPE_UPDATE || (valuesBucket_ != nullptr && !valuesBucket_->IsEmpty())) {
         std::shared_ptr<DataAbilityOperation> operation = std::make_shared<DataAbilityOperation>(shared_from_this());
-        HILOG_DEBUG("DataAbilityOperationBuilder::Build end");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::Build end");
         return operation;
     }
-    HILOG_ERROR("DataAbilityOperationBuilder::Build return nullptr");
+    TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::Build return nullptr");
     return nullptr;
 }
 
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithValuesBucket(
     std::shared_ptr<NativeRdb::ValuesBucket> &values)
 {
-    HILOG_DEBUG("DataAbilityOperationBuilder::WithValuesBucket start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithValuesBucket start");
     if (type_ != DataAbilityOperation::TYPE_INSERT && type_ != DataAbilityOperation::TYPE_UPDATE &&
         type_ != DataAbilityOperation::TYPE_ASSERT) {
-        HILOG_ERROR("DataAbilityOperationBuilder::WithValuesBucket only inserts, updates and assert can have values,"
-            " type=%{public}d", type_);
+        TAG_LOGE(AAFwkTag::DATA_ABILITY,
+            "DataAbilityOperationBuilder::WithValuesBucket only inserts, updates and assert can have values,"
+            " type=%{public}d",
+            type_);
         return nullptr;
     }
 
     valuesBucket_ = std::make_shared<NativeRdb::ValuesBucket>(*values);
-    HILOG_DEBUG("DataAbilityOperationBuilder::WithValuesBucket end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithValuesBucket end");
     return shared_from_this();
 }
 
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithPredicates(
     std::shared_ptr<NativeRdb::DataAbilityPredicates> &predicates)
 {
-    HILOG_DEBUG("DataAbilityOperationBuilder::WithPredicates start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithPredicates start");
     if (type_ != DataAbilityOperation::TYPE_DELETE && type_ != DataAbilityOperation::TYPE_UPDATE &&
         type_ != DataAbilityOperation::TYPE_ASSERT) {
-        HILOG_ERROR(
+        TAG_LOGE(AAFwkTag::DATA_ABILITY,
             "DataAbilityOperationBuilder::withPredicates only deletes, updates and assert can have selections,"
-            " type=%{public}d", type_);
+            " type=%{public}d",
+            type_);
         return nullptr;
     }
     dataAbilityPredicates_ = predicates;
-    HILOG_DEBUG("DataAbilityOperationBuilder::WithPredicates end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithPredicates end");
     return shared_from_this();
 }
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithExpectedCount(int count)
 {
-    HILOG_DEBUG("DataAbilityOperationBuilder::WithExpectedCount start");
-    HILOG_INFO("DataAbilityOperationBuilder::WithExpectedCount expectedCount:%{public}d", count);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithExpectedCount start");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithExpectedCount expectedCount:%{public}d", count);
     if (type_ != DataAbilityOperation::TYPE_UPDATE && type_ != DataAbilityOperation::TYPE_DELETE &&
         type_ != DataAbilityOperation::TYPE_ASSERT) {
-        HILOG_ERROR("DataAbilityOperationBuilder::withExpectedCount only updates, deletes and assert "
+        TAG_LOGE(AAFwkTag::DATA_ABILITY,
+            "DataAbilityOperationBuilder::withExpectedCount only updates, deletes and assert "
             "can have expected counts, "
-            "type=%{public}d", type_);
+            "type=%{public}d",
+            type_);
         return nullptr;
     }
     expectedCount_ = count;
-    HILOG_DEBUG("DataAbilityOperationBuilder::WithExpectedCount end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithExpectedCount end");
     return shared_from_this();
 }
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithPredicatesBackReference(
     int requestArgIndex, int previousResult)
 {
-    HILOG_DEBUG("DataAbilityOperationBuilder::WithPredicatesBackReference start");
-    HILOG_INFO("DataAbilityOperationBuilder::WithPredicatesBackReference requestArgIndex:%{public}d, "
-        "previousResult:%{public}d", requestArgIndex, previousResult);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithPredicatesBackReference start");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY,
+        "DataAbilityOperationBuilder::WithPredicatesBackReference requestArgIndex:%{public}d, "
+        "previousResult:%{public}d",
+        requestArgIndex, previousResult);
     if (type_ != DataAbilityOperation::TYPE_UPDATE && type_ != DataAbilityOperation::TYPE_DELETE &&
         type_ != DataAbilityOperation::TYPE_ASSERT) {
-        HILOG_ERROR("DataAbilityOperationBuilder::withPredicatesBackReference only updates, deletes, "
-            "and asserts can have select back-references, type=%{public}d", type_);
+        TAG_LOGE(AAFwkTag::DATA_ABILITY,
+            "DataAbilityOperationBuilder::withPredicatesBackReference only updates, deletes, "
+            "and asserts can have select back-references, type=%{public}d",
+            type_);
         return nullptr;
     }
     dataAbilityPredicatesBackReferences_.insert(std::make_pair(requestArgIndex, previousResult));
-    HILOG_DEBUG("DataAbilityOperationBuilder::WithPredicatesBackReference end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithPredicatesBackReference end");
     return shared_from_this();
 }
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithValueBackReferences(
     std::shared_ptr<NativeRdb::ValuesBucket> &backReferences)
 {
-    HILOG_DEBUG("DataAbilityOperationBuilder::WithValueBackReferences start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithValueBackReferences start");
     if (type_ != DataAbilityOperation::TYPE_INSERT && type_ != DataAbilityOperation::TYPE_UPDATE &&
         type_ != DataAbilityOperation::TYPE_ASSERT) {
-        HILOG_ERROR("DataAbilityOperationBuilder::withValueBackReferences only inserts, updates, and asserts can have "
-            "value back-references, type=%{public}d", type_);
+        TAG_LOGE(AAFwkTag::DATA_ABILITY,
+            "DataAbilityOperationBuilder::withValueBackReferences only inserts, updates, and asserts can have "
+            "value back-references, type=%{public}d",
+            type_);
         return nullptr;
     }
     valuesBucketReferences_ = backReferences;
-    HILOG_DEBUG("DataAbilityOperationBuilder::WithValueBackReferences end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithValueBackReferences end");
     return shared_from_this();
 }
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithInterruptionAllowed(bool interrupted)
 {
-    HILOG_DEBUG("DataAbilityOperationBuilder::WithInterruptionAllowed start");
-    HILOG_INFO("DataAbilityOperationBuilder::WithInterruptionAllowed  interrupted=%{public}d", interrupted);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithInterruptionAllowed start");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithInterruptionAllowed  interrupted=%{public}d",
+        interrupted);
     if (type_ != DataAbilityOperation::TYPE_INSERT && type_ != DataAbilityOperation::TYPE_UPDATE &&
         type_ != DataAbilityOperation::TYPE_ASSERT && type_ != DataAbilityOperation::TYPE_DELETE) {
-        HILOG_ERROR("DataAbilityOperationBuilder::withInterruptionAllowed only inserts, updates, delete, "
-            "and asserts can have value back-references, type=%{public}d", type_);
+        TAG_LOGE(AAFwkTag::DATA_ABILITY,
+            "DataAbilityOperationBuilder::withInterruptionAllowed only inserts, updates, delete, "
+            "and asserts can have value back-references, type=%{public}d",
+            type_);
         return nullptr;
     }
     interrupted_ = interrupted;
-    HILOG_DEBUG("DataAbilityOperationBuilder::WithInterruptionAllowed end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithInterruptionAllowed end");
     return shared_from_this();
 }
 }  // namespace AppExecFwk

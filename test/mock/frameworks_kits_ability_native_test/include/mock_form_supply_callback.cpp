@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_form_supply_callback.h"
 
@@ -40,7 +41,7 @@ sptr<MockFormSupplyCallback> MockFormSupplyCallback::GetInstance()
  */
 int MockFormSupplyCallback::OnAcquire(const FormProviderInfo& formProviderInfo, const Want& want)
 {
-    HILOG_INFO("MockFormSupplyCallback::OnAcquire called.");
+    TAG_LOGI(AAFwkTag::TEST, "MockFormSupplyCallback::OnAcquire called.");
     return 1;
 }
 
@@ -52,7 +53,7 @@ int MockFormSupplyCallback::OnAcquire(const FormProviderInfo& formProviderInfo, 
  */
 int MockFormSupplyCallback::OnEventHandle(const Want& want)
 {
-    HILOG_INFO("MockFormSupplyCallback::OnEventHandle called.");
+    TAG_LOGI(AAFwkTag::TEST, "MockFormSupplyCallback::OnEventHandle called.");
     return 1;
 }
 
@@ -67,19 +68,19 @@ int MockFormSupplyCallback::OnEventHandle(const Want& want)
 int MockFormSupplyCallback::OnAcquireStateResult(FormState state, const std::string& provider, const Want& wantArg,
     const Want& want)
 {
-    HILOG_INFO("MockFormSupplyCallback::OnAcquireStateResult called.");
+    TAG_LOGI(AAFwkTag::TEST, "MockFormSupplyCallback::OnAcquireStateResult called.");
     return 1;
 }
 
 void MockFormSupplyCallback::OnShareAcquire(int64_t formId, const std::string& remoteDeviceId,
     const AAFwk::WantParams& wantParams, int64_t requestCode, const bool& result)
 {
-    HILOG_INFO("MockFormSupplyCallback::OnShareAcquire called.");
+    TAG_LOGI(AAFwkTag::TEST, "MockFormSupplyCallback::OnShareAcquire called.");
 }
 
 int MockFormSupplyCallback::OnAcquireDataResult(const AAFwk::WantParams &wantParams, int64_t requestCode)
 {
-    HILOG_INFO("MockFormSupplyCallback::OnAcquireDataResult called.");
+    TAG_LOGI(AAFwkTag::TEST, "MockFormSupplyCallback::OnAcquireDataResult called.");
     return 1;
 }
 }  // namespace AppExecFwk

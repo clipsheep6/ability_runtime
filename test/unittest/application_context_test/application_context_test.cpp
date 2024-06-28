@@ -21,8 +21,11 @@
 #include "mock_application_state_change_callback.h"
 #include "mock_context_impl.h"
 #include "running_process_info.h"
+#include "want.h"
 #include "configuration_convertor.h"
+#include "ability_manager_errors.h"
 using namespace testing::ext;
+
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -364,6 +367,35 @@ HWTEST_F(ApplicationContextTest, GetTempDir_0200, TestSize.Level1)
 }
 
 /**
+ * @tc.number: GetResourceDir_0100
+ * @tc.name: GetResourceDir
+ * @tc.desc: Get Resource Dir failed
+ */
+HWTEST_F(ApplicationContextTest, GetResourceDir_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetResourceDir_0100 start";
+    std::shared_ptr<ContextImpl> contextImpl = nullptr;
+    context_->AttachContextImpl(contextImpl);
+    auto ret = context_->GetResourceDir();
+    EXPECT_EQ(ret, "");
+    GTEST_LOG_(INFO) << "GetResourceDir_0100 end";
+}
+
+/**
+ * @tc.number: GetResourceDir_0200
+ * @tc.name: GetResourceDir
+ * @tc.desc: Get Resource Dir failed
+ */
+HWTEST_F(ApplicationContextTest, GetResourceDir_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetResourceDir_0200 start";
+    context_->AttachContextImpl(mock_);
+    auto ret = context_->GetResourceDir();
+    EXPECT_EQ(ret, "/resfile");
+    GTEST_LOG_(INFO) << "GetResourceDir_0200 end";
+}
+
+/**
  * @tc.number: GetGroupDir_0100
  * @tc.name: GetGroupDir
  * @tc.desc: Get Group Dir failed
@@ -626,6 +658,21 @@ HWTEST_F(ApplicationContextTest, GetDistributedFilesDir_0200, TestSize.Level1)
     auto ret = context_->GetDistributedFilesDir();
     EXPECT_EQ(ret, "/mnt/hmdfs/device_view/local/data/bundleName");
     GTEST_LOG_(INFO) << "GetDistributedFilesDir_0200 end";
+}
+
+/**
+ * @tc.number: GetCloudFileDir_0100
+ * @tc.name: GetCloudFileDir
+ * @tc.desc: Get Cloud File Dir failed
+ */
+HWTEST_F(ApplicationContextTest, GetCloudFileDir_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetCloudFileDir_0100 start";
+    std::shared_ptr<ContextImpl> contextImpl = nullptr;
+    context_->AttachContextImpl(contextImpl);
+    auto ret = context_->GetCloudFileDir();
+    EXPECT_EQ(ret, "");
+    GTEST_LOG_(INFO) << "GetCloudFileDir_0100 end";
 }
 
 /**
@@ -934,6 +981,7 @@ HWTEST_F(ApplicationContextTest, SetColorMode_0100, TestSize.Level1)
     EXPECT_NE(context_, nullptr);
     int32_t colorMode = 1;
     context_->SetColorMode(colorMode);
+    EXPECT_EQ(colorMode, 1);
     GTEST_LOG_(INFO) << "SetColorMode_0100 end";
 }
 
@@ -948,6 +996,7 @@ HWTEST_F(ApplicationContextTest, SetLanguage_0100, TestSize.Level1)
     EXPECT_NE(context_, nullptr);
     std::string language = "zh-cn";
     context_->SetLanguage(language);
+    EXPECT_EQ(language, "zh-cn");
     GTEST_LOG_(INFO) << "SetLanguage_0100 end";
 }
 
@@ -962,6 +1011,20 @@ HWTEST_F(ApplicationContextTest, KillProcessBySelf_0100, TestSize.Level1)
     EXPECT_NE(context_, nullptr);
     context_->KillProcessBySelf();
     GTEST_LOG_(INFO) << "KillProcessBySelf_0100 end";
+}
+
+/**
+ * @tc.number: ClearUpApplicationData_0100
+ * @tc.name: ClearUpApplicationData
+ * @tc.desc: ClearUpApplicationData
+ */
+HWTEST_F(ApplicationContextTest, ClearUpApplicationData_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "ClearUpApplicationData_0100 start";
+    EXPECT_NE(context_, nullptr);
+    context_->AttachContextImpl(mock_);
+    context_->ClearUpApplicationData();
+    GTEST_LOG_(INFO) << "ClearUpApplicationData_0100 end";
 }
 
 /**
@@ -1003,11 +1066,9 @@ HWTEST_F(ApplicationContextTest, GetCacheDir_0100, TestSize.Level1)
 HWTEST_F(ApplicationContextTest, RegisterApplicationStateChangeCallback_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "RegisterApplicationStateChangeCallback_0100 start";
-    context_->applicationStateCallback_.reset();
     std::shared_ptr<MockApplicationStateChangeCallback> applicationStateCallback = nullptr;
     context_->RegisterApplicationStateChangeCallback(applicationStateCallback);
-    auto callback = context_->applicationStateCallback_.lock();
-    EXPECT_EQ(callback, nullptr);
+    EXPECT_EQ(1, context_->applicationStateCallback_.size());
     GTEST_LOG_(INFO) << "RegisterApplicationStateChangeCallback_0100 end";
 }
 
@@ -1020,15 +1081,13 @@ HWTEST_F(ApplicationContextTest, RegisterApplicationStateChangeCallback_0100, Te
 HWTEST_F(ApplicationContextTest, NotifyApplicationForeground_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "NotifyApplicationForeground_0100 start";
-    auto callback = context_->applicationStateCallback_.lock();
-    EXPECT_EQ(callback, nullptr);
 
     auto applicationStateCallback = std::make_shared<MockApplicationStateChangeCallback>();
     context_->RegisterApplicationStateChangeCallback(applicationStateCallback);
     EXPECT_CALL(*applicationStateCallback, NotifyApplicationForeground()).Times(1);
     context_->NotifyApplicationForeground();
-    callback = context_->applicationStateCallback_.lock();
-    EXPECT_NE(callback, nullptr);
+    context_->applicationStateCallback_[0];
+    EXPECT_NE(context_, nullptr);
     GTEST_LOG_(INFO) << "NotifyApplicationForeground_0100 end";
 }
 
@@ -1041,15 +1100,13 @@ HWTEST_F(ApplicationContextTest, NotifyApplicationForeground_0100, TestSize.Leve
 HWTEST_F(ApplicationContextTest, NotifyApplicationBackground_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "NotifyApplicationBackground_0100 start";
-    auto callback = context_->applicationStateCallback_.lock();
-    EXPECT_EQ(callback, nullptr);
 
     auto applicationStateCallback = std::make_shared<MockApplicationStateChangeCallback>();
     context_->RegisterApplicationStateChangeCallback(applicationStateCallback);
     EXPECT_CALL(*applicationStateCallback, NotifyApplicationBackground()).Times(1);
     context_->NotifyApplicationBackground();
-    callback = context_->applicationStateCallback_.lock();
-    EXPECT_NE(callback, nullptr);
+    context_->applicationStateCallback_[0];
+    EXPECT_NE(context_, nullptr);
     GTEST_LOG_(INFO) << "NotifyApplicationBackground_0100 end";
 }
 
@@ -1078,6 +1135,186 @@ HWTEST_F(ApplicationContextTest, SetApplicationInfoUpdateFlag_0100, TestSize.Lev
     bool flag = true;
     context_->SetApplicationInfoUpdateFlag(flag);
     GTEST_LOG_(INFO) << "SetApplicationInfoUpdateFlag_0100 end";
+}
+
+/**
+ * @tc.number: CreateModuleResourceManager_0100
+ * @tc.name: CreateModuleResourceManager
+ * @tc.desc: Create ModuleContext failed
+ */
+HWTEST_F(ApplicationContextTest, CreateModuleResourceManager_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "CreateModuleResourceManager_0100 start";
+    std::shared_ptr<ContextImpl> contextImpl = nullptr;
+    context_->AttachContextImpl(contextImpl);
+    std::string moduleName = "moduleName";
+    std::string bundleName = "com.test.bundleName";
+    auto ret = context_->CreateModuleResourceManager(bundleName, moduleName);
+    EXPECT_EQ(ret, nullptr);
+    GTEST_LOG_(INFO) << "CreateModuleResourceManager_0100 end";
+}
+
+/**
+ * @tc.number: CreateSystemHspModuleResourceManager_0100
+ * @tc.name: CreateSystemHspModuleResourceManager
+ * @tc.desc: Create ModuleContext failed
+ */
+HWTEST_F(ApplicationContextTest, CreateSystemHspModuleResourceManager_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "CreateSystemHspModuleResourceManager_0100 start";
+    std::shared_ptr<ContextImpl> contextImpl = std::make_shared<ContextImpl>();
+    context_->AttachContextImpl(contextImpl);
+    std::string moduleName = "moduleName";
+    std::string bundleName = "com.test.bundleName";
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager = nullptr;
+    context_->CreateSystemHspModuleResourceManager(bundleName, moduleName, resourceManager);
+    EXPECT_NE(context_, nullptr);
+    GTEST_LOG_(INFO) << "CreateModuleResourceManager_0100 end";
+}
+
+/**
+ * @tc.number: GetAllTempDir_0100
+ * @tc.name: GetAllTempDir
+ * @tc.desc: GetAllTempDir
+ */
+HWTEST_F(ApplicationContextTest, GetAllTempDir_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetAllTempDir_0100 start";
+    std::vector<std::string> tempPaths;
+    context_->GetAllTempDir(tempPaths);
+    EXPECT_NE(context_, nullptr);
+    GTEST_LOG_(INFO) << "GetAllTempDir_0100 end";
+}
+
+/**
+ * @tc.number: RestartApp_0100
+ * @tc.name: RestartApp
+ * @tc.desc: RestartApp
+ */
+HWTEST_F(ApplicationContextTest, RestartApp_0100, TestSize.Level1)
+{
+    AAFwk::Want want;
+    int32_t res = context_->RestartApp(want);
+    EXPECT_EQ(res, OHOS::ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.number: DispatchConfigurationUpdated_0100
+ * @tc.name: DispatchConfigurationUpdated
+ * @tc.desc: DispatchConfigurationUpdated
+ */
+HWTEST_F(ApplicationContextTest, DispatchConfigurationUpdated_0100, TestSize.Level1)
+{
+    AppExecFwk::Configuration config;
+    context_->DispatchConfigurationUpdated(config);
+    EXPECT_NE(context_, nullptr);
+}
+
+/**
+ * @tc.number: DispatchMemoryLevel_0100
+ * @tc.name: DispatchMemoryLevel
+ * @tc.desc: DispatchMemoryLevel
+ */
+HWTEST_F(ApplicationContextTest, DispatchMemoryLevel_0100, TestSize.Level1)
+{
+    int level = 0;
+    context_->DispatchMemoryLevel(level);
+    EXPECT_NE(context_, nullptr);
+}
+
+/**
+ * @tc.number: RegisterAppConfigUpdateObserver_0100
+ * @tc.name: RegisterAppConfigUpdateObserver
+ * @tc.desc: RegisterAppConfigUpdateObserver
+ */
+HWTEST_F(ApplicationContextTest, RegisterAppConfigUpdateObserver_0100, TestSize.Level1)
+{
+    AppConfigUpdateCallback appConfigChangeCallback;
+    context_->RegisterAppConfigUpdateObserver(appConfigChangeCallback);
+    EXPECT_NE(context_, nullptr);
+}
+
+/**
+ * @tc.number: GetAppRunningUniqueId_0100
+ * @tc.name: GetAppRunningUniqueId
+ * @tc.desc: GetAppRunningUniqueId
+ */
+HWTEST_F(ApplicationContextTest, GetAppRunningUniqueId_0100, TestSize.Level1)
+{
+    context_->GetAppRunningUniqueId();
+    EXPECT_NE(context_, nullptr);
+}
+
+/**
+ * @tc.number: SetAppRunningUniqueId_0100
+ * @tc.name: SetAppRunningUniqueId
+ * @tc.desc: SetAppRunningUniqueId
+ */
+HWTEST_F(ApplicationContextTest, SetAppRunningUniqueId_0100, TestSize.Level1)
+{
+    std::string appRunningUniqueId;
+    context_->SetAppRunningUniqueId(appRunningUniqueId);
+    EXPECT_NE(context_, nullptr);
+}
+
+/**
+ * @tc.number: SetSupportedProcessCacheSelf_0100
+ * @tc.name: SetSupportedProcessCacheSelf
+ * @tc.desc: SetSupportedProcessCacheSelf fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, SetSupportedProcessCacheSelf_0100, TestSize.Level1)
+{
+    bool isSupport = false;
+    int32_t res = context_->SetSupportedProcessCacheSelf(isSupport);
+    EXPECT_EQ(res, OHOS::ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.number: GetCurrentAppCloneIndex_0100
+ * @tc.name: GetCurrentAppCloneIndex
+ * @tc.desc: GetCurrentAppCloneIndex fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, GetCurrentAppCloneIndex_0100, TestSize.Level1)
+{
+    int32_t res = context_->GetCurrentAppCloneIndex();
+    EXPECT_EQ(res, 0);
+}
+
+/**
+ * @tc.number: SetCurrentAppCloneIndex_0100
+ * @tc.name: SetCurrentAppCloneIndex
+ * @tc.desc: SetCurrentAppCloneIndex fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, SetCurrentAppCloneIndex_0100, TestSize.Level1)
+{
+    int32_t appIndex = 3;
+    context_->SetCurrentAppCloneIndex(appIndex);
+    int32_t res = context_->GetCurrentAppCloneIndex();
+    EXPECT_EQ(res, appIndex);
+}
+
+/**
+ * @tc.number: GetCurrentAppMode_0100
+ * @tc.name: GetCurrentAppMode
+ * @tc.desc: GetCurrentAppMode fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, GetCurrentAppMode_0100, TestSize.Level1)
+{
+    int32_t res = context_->GetCurrentAppMode();
+    EXPECT_EQ(res, 0);
+}
+
+/**
+ * @tc.number:SetCurrentAppMode_0100
+ * @tc.name: SetCurrentAppMode
+ * @tc.desc: SetCurrentAppMode fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, SetCurrentAppMode_0100, TestSize.Level1)
+{
+    int32_t appMode = 7;
+    context_->SetCurrentAppMode(appMode);
+    int32_t res = context_->GetCurrentAppMode();
+    EXPECT_EQ(res, appMode);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -18,9 +18,9 @@
 
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "application.appManager",
     .nm_filename = "application/appmanager_napi.so/app_manager.js",
     .nm_register_func = OHOS::AbilityRuntime::JsAppManagerInit,
+    .nm_modname = "application.appManager",
 };
 
 extern "C" __attribute__((constructor)) void NAPI_application_AppManager_AutoRegister(void)

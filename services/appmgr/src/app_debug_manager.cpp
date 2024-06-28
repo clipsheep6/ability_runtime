@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,16 +15,16 @@
 
 #include "app_debug_manager.h"
 
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 #include "ipc_types.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 int32_t AppDebugManager::RegisterAppDebugListener(const sptr<IAppDebugListener> &listener)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (listener == nullptr) {
-        HILOG_ERROR("Listener is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Listener is nullptr.");
         return ERR_INVALID_DATA;
     }
 
@@ -48,9 +48,9 @@ int32_t AppDebugManager::RegisterAppDebugListener(const sptr<IAppDebugListener> 
 
 int32_t AppDebugManager::UnregisterAppDebugListener(const sptr<IAppDebugListener> &listener)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (listener == nullptr) {
-        HILOG_ERROR("Listener is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Listener is nullptr.");
         return ERR_INVALID_DATA;
     }
 
@@ -70,7 +70,7 @@ int32_t AppDebugManager::UnregisterAppDebugListener(const sptr<IAppDebugListener
 
 void AppDebugManager::StartDebug(const std::vector<AppDebugInfo> &infos)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     std::lock_guard<std::mutex> lock(mutex_);
     std::vector<AppDebugInfo> incrementInfos;
     GetIncrementAppDebugInfos(infos, incrementInfos);
@@ -88,7 +88,7 @@ void AppDebugManager::StartDebug(const std::vector<AppDebugInfo> &infos)
 
 void AppDebugManager::StopDebug(const std::vector<AppDebugInfo> &infos)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     std::lock_guard<std::mutex> lock(mutex_);
     std::vector<AppDebugInfo> debugInfos;
     for (auto &it : infos) {
@@ -148,7 +148,7 @@ void AppDebugManager::GetIncrementAppDebugInfos(
 
 void AppDebugManager::RemoveAppDebugInfo(const AppDebugInfo &info)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     std::lock_guard<std::mutex> lock(mutex_);
     auto isExist = [this, info](const AppDebugInfo &debugInfo) {
         return (debugInfo.bundleName == info.bundleName && debugInfo.pid == info.pid &&

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,18 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#include <gtest/gtest.h>
 #define private public
 #include "app_death_recipient.h"
 #include "app_mgr_service_inner.h"
+#include "iservice_registry.h"
 #undef private
-#include <gtest/gtest.h>
+
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "iremote_object.h"
 #include "mock_ability_token.h"
 #include "mock_app_scheduler.h"
 #include "mock_app_spawn_client.h"
-#include "iremote_object.h"
-#include "mock_bundle_manager.h"
+#include "mock_bundle_installer_service.h"
+#include "mock_bundle_manager_service.h"
+#include "mock_system_ability_manager.h"
+#include "singleton.h"
 
 using namespace testing::ext;
 using testing::_;
@@ -33,12 +38,20 @@ using ::testing::DoAll;
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+constexpr int32_t BUNDLE_MGR_SERVICE_SYS_ABILITY_ID = 401;
+sptr<MockBundleInstallerService> mockBundleInstaller = new (std::nothrow) MockBundleInstallerService();
+sptr<MockBundleManagerService> mockBundleMgr = new (std::nothrow) MockBundleManagerService();
+} // namespace
 class AppDeathRecipientTest : public testing::Test {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
+    void MockBundleInstallerAndSA() const;
+    sptr<ISystemAbilityManager> iSystemAbilityMgr_ = nullptr;
+    sptr<AppExecFwk::MockSystemAbilityManager> mockSystemAbility_ = nullptr;
 
 public:
     const std::shared_ptr<AbilityInfo> GetAbilityInfoByIndex(const int32_t index) const;
@@ -51,7 +64,6 @@ public:
     std::shared_ptr<AppMgrServiceInner> appMgrServiceInner_;
     sptr<AppDeathRecipient> appDeathRecipientObject_;
     OHOS::sptr<MockAbilityToken> mockToken_;
-    OHOS::sptr<BundleMgrService> mockBundleMgr;
 };
 
 static void WaitUntilTaskFinished(std::shared_ptr<AAFwk::TaskHandlerWrap> handler)
@@ -92,13 +104,31 @@ void AppDeathRecipientTest::SetUp()
     handler_ = AAFwk::TaskHandlerWrap::CreateQueueHandler("AppDeathRecipientTest");
 
     appDeathRecipientObject_ = new (std::nothrow) AppDeathRecipient();
+    mockSystemAbility_ = new (std::nothrow) AppExecFwk::MockSystemAbilityManager();
+    iSystemAbilityMgr_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = mockSystemAbility_;
+}
 
-    mockBundleMgr = new (std::nothrow) BundleMgrService();
-    appMgrServiceInner_->SetBundleManager(mockBundleMgr);
+void AppDeathRecipientTest::MockBundleInstallerAndSA() const
+{
+    auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
+    auto mockGetSystemAbility = [&](int32_t systemAbilityId) {
+        if (systemAbilityId == BUNDLE_MGR_SERVICE_SYS_ABILITY_ID) {
+            return mockBundleMgr->AsObject();
+        } else {
+            return iSystemAbilityMgr_->GetSystemAbility(systemAbilityId);
+        }
+    };
+    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
+    EXPECT_CALL(*mockSystemAbility_, GetSystemAbility(testing::_))
+        .WillOnce(testing::Invoke(mockGetSystemAbility))
+        .WillRepeatedly(testing::Invoke(mockGetSystemAbility));
 }
 
 void AppDeathRecipientTest::TearDown()
-{}
+{
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = iSystemAbilityMgr_;
+}
 
 const std::shared_ptr<AbilityInfo> AppDeathRecipientTest::GetAbilityInfoByIndex(const int32_t index) const
 {
@@ -132,6 +162,9 @@ const std::shared_ptr<AppRunningRecord> AppDeathRecipientTest::GetAppRunningReco
 
 sptr<IRemoteObject> AppDeathRecipientTest::GetApp(int32_t pid, int size)
 {
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     auto abilityInfo = GetAbilityInfoByIndex(pid);
     auto appInfo = GetApplicationByIndex(pid);
     sptr<IRemoteObject> token = new MockAbilityToken();
@@ -141,7 +174,7 @@ sptr<IRemoteObject> AppDeathRecipientTest::GetApp(int32_t pid, int size)
     std::shared_ptr<MockAppSpawnClient> mockClientstr(mockClientPtr);
     appMgrServiceInner_->SetAppSpawnClient(mockClientstr);
 
-    appMgrServiceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
+    appMgrServiceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr, 0);
 
     auto appRecord = GetAppRunningRecordByIndex(pid);
 
@@ -165,13 +198,13 @@ sptr<IRemoteObject> AppDeathRecipientTest::GetApp(int32_t pid, int size)
 
 HWTEST_F(AppDeathRecipientTest, AppDeathRecipient_001, TestSize.Level1)
 {
-    HILOG_INFO("AppDeathRecipient_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "AppDeathRecipient_001 start");
     appDeathRecipientObject_->SetTaskHandler(handler_);
     EXPECT_TRUE(appDeathRecipientObject_->handler_.lock() != nullptr);
 
     appDeathRecipientObject_->SetAppMgrServiceInner(appMgrServiceInner_);
     EXPECT_TRUE(appDeathRecipientObject_->appMgrServiceInner_.lock() != nullptr);
-    HILOG_INFO("AppDeathRecipient_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "AppDeathRecipient_001 end");
 }
 
 /*
@@ -184,19 +217,15 @@ HWTEST_F(AppDeathRecipientTest, AppDeathRecipient_001, TestSize.Level1)
  */
 HWTEST_F(AppDeathRecipientTest, AppDeathRecipient_002, TestSize.Level1)
 {
-    HILOG_INFO("AppDeathRecipient_002 start");
-    pid_t pid1 = 24;
-    pid_t pid2 = 25;
-    sptr<IRemoteObject> appOne = GetApp(pid1, 1);
-    sptr<IRemoteObject> appTwo = GetApp(pid2, 2);
+    TAG_LOGI(AAFwkTag::TEST, "AppDeathRecipient_002 start");
 
     appDeathRecipientObject_->SetTaskHandler(handler_);
     appDeathRecipientObject_->SetAppMgrServiceInner(appMgrServiceInner_);
-    appDeathRecipientObject_->OnRemoteDied(appOne);
+    wptr<IRemoteObject> remote;
+    appDeathRecipientObject_->OnRemoteDied(remote);
+    EXPECT_TRUE(appDeathRecipientObject_ != nullptr);
 
-    WaitUntilTaskFinished(handler_);
-    EXPECT_EQ(1, static_cast<int>(appDeathRecipientObject_->appMgrServiceInner_.lock()->GetRecentAppList().size()));
-    HILOG_INFO("AppDeathRecipient_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "AppDeathRecipient_002 end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

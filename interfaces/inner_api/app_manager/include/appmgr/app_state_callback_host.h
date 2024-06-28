@@ -22,6 +22,7 @@
 #include "nocopyable.h"
 #include "string_ex.h"
 #include "app_mgr_constants.h"
+#include "bundle_info.h"
 #include "iapp_state_callback.h"
 
 namespace OHOS {
@@ -49,9 +50,31 @@ public:
      */
     virtual void OnAppStateChanged(const AppProcessData &) override;
 
+    /**
+     * @brief Notify application update system environment changes.
+     * @param config System environment change parameters.
+     * @param userId userId Designation User ID.
+     */
+    virtual void NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId) override;
+
+    /**
+     * @brief Notify abilityms start resident process.
+     * @param bundleInfos resident process bundle infos.
+     */
+    virtual void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos) override;
+    
+    /**
+     * @brief Notify abilityms app process OnRemoteDied
+     * @param abilityTokens abilities in died process.
+     */
+    virtual void OnAppRemoteDied(const std::vector<sptr<IRemoteObject>> &abilityTokens) override;
+
 private:
     int32_t HandleOnAppStateChanged(MessageParcel &data, MessageParcel &reply);
     int32_t HandleOnAbilityRequestDone(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleNotifyConfigurationChange(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleNotifyStartResidentProcess(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleOnAppRemoteDied(MessageParcel &data, MessageParcel &reply);
 
     using AppStateCallbackFunc = int32_t (AppStateCallbackHost::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AppStateCallbackFunc> memberFuncMap_;

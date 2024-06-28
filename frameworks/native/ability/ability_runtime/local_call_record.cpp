@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 #include "local_call_record.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -39,7 +40,7 @@ LocalCallRecord::~LocalCallRecord()
 void LocalCallRecord::SetRemoteObject(const sptr<IRemoteObject>& call)
 {
     if (call == nullptr) {
-        HILOG_ERROR("remote object is nullptr");
+        TAG_LOGE(AAFwkTag::LOCAL_CALL, "remote object is nullptr");
         return;
     }
 
@@ -49,7 +50,7 @@ void LocalCallRecord::SetRemoteObject(const sptr<IRemoteObject>& call)
         auto diedTask = [self](const wptr<IRemoteObject>& remote) {
             auto record = self.lock();
             if (record == nullptr) {
-                HILOG_ERROR("LocalCallRecord is null, OnCallStubDied failed.");
+                TAG_LOGE(AAFwkTag::LOCAL_CALL, "LocalCallRecord is null, OnCallStubDied failed.");
                 return;
             }
             record->OnCallStubDied(remote);
@@ -57,14 +58,14 @@ void LocalCallRecord::SetRemoteObject(const sptr<IRemoteObject>& call)
         callRecipient_ = new CallRecipient(diedTask);
     }
     remoteObject_->AddDeathRecipient(callRecipient_);
-    HILOG_DEBUG("SetRemoteObject complete.");
+    TAG_LOGD(AAFwkTag::LOCAL_CALL, "SetRemoteObject complete.");
 }
 
 void LocalCallRecord::SetRemoteObject(const sptr<IRemoteObject>& call,
     sptr<IRemoteObject::DeathRecipient> callRecipient)
 {
     if (call == nullptr) {
-        HILOG_ERROR("remote object is nullptr");
+        TAG_LOGE(AAFwkTag::LOCAL_CALL, "remote object is nullptr");
         return;
     }
 
@@ -72,13 +73,13 @@ void LocalCallRecord::SetRemoteObject(const sptr<IRemoteObject>& call,
     callRecipient_ = callRecipient;
 
     remoteObject_->AddDeathRecipient(callRecipient_);
-    HILOG_DEBUG("SetRemoteObject2 complete.");
+    TAG_LOGD(AAFwkTag::LOCAL_CALL, "SetRemoteObject2 complete.");
 }
 
 void LocalCallRecord::AddCaller(const std::shared_ptr<CallerCallBack>& callback)
 {
     if (callback == nullptr) {
-        HILOG_ERROR("input param is nullptr");
+        TAG_LOGE(AAFwkTag::LOCAL_CALL, "input param is nullptr");
         return;
     }
 
@@ -89,7 +90,7 @@ void LocalCallRecord::AddCaller(const std::shared_ptr<CallerCallBack>& callback)
 bool LocalCallRecord::RemoveCaller(const std::shared_ptr<CallerCallBack>& callback)
 {
     if (callers_.empty()) {
-        HILOG_ERROR("this caller vector is empty.");
+        TAG_LOGE(AAFwkTag::LOCAL_CALL, "this caller vector is empty.");
         return false;
     }
 
@@ -100,16 +101,16 @@ bool LocalCallRecord::RemoveCaller(const std::shared_ptr<CallerCallBack>& callba
         return true;
     }
 
-    HILOG_ERROR("this caller callback can't find.");
+    TAG_LOGE(AAFwkTag::LOCAL_CALL, "this caller callback can't find.");
     return false;
 }
 
 void LocalCallRecord::OnCallStubDied(const wptr<IRemoteObject>& remote)
 {
-    HILOG_DEBUG("OnCallStubDied.");
+    TAG_LOGD(AAFwkTag::LOCAL_CALL, "OnCallStubDied.");
     for (auto& callBack : callers_) {
         if (callBack != nullptr) {
-            HILOG_ERROR("invoke caller's OnRelease.");
+            TAG_LOGE(AAFwkTag::LOCAL_CALL, "invoke caller's OnRelease.");
             callBack->InvokeOnRelease(ON_DIED);
         }
     }
@@ -118,7 +119,7 @@ void LocalCallRecord::OnCallStubDied(const wptr<IRemoteObject>& remote)
 void LocalCallRecord::InvokeCallBack() const
 {
     if (remoteObject_ == nullptr) {
-        HILOG_ERROR("remote object is nullptr, can't callback.");
+        TAG_LOGE(AAFwkTag::LOCAL_CALL, "remote object is nullptr, can't callback.");
         return;
     }
 
@@ -127,13 +128,13 @@ void LocalCallRecord::InvokeCallBack() const
             callBack->InvokeCallBack(remoteObject_);
         }
     }
-    HILOG_DEBUG("finish callback with remote object.");
+    TAG_LOGD(AAFwkTag::LOCAL_CALL, "finish callback with remote object.");
 }
 
 void LocalCallRecord::NotifyRemoteStateChanged(int32_t abilityState)
 {
     if (remoteObject_ == nullptr) {
-        HILOG_ERROR("remote object is nullptr, can't notify.");
+        TAG_LOGE(AAFwkTag::LOCAL_CALL, "remote object is nullptr, can't notify.");
         return;
     }
     std::string state = "";
@@ -142,15 +143,15 @@ void LocalCallRecord::NotifyRemoteStateChanged(int32_t abilityState)
     } else if (abilityState == BACKGROUND) {
         state = "background";
     }
-    HILOG_DEBUG("NotifyRemoteStateChanged, state = %{public}s.", state.c_str());
+    TAG_LOGD(AAFwkTag::LOCAL_CALL, "NotifyRemoteStateChanged, state = %{public}s.", state.c_str());
 
     for (auto& callBack : callers_) {
         if (callBack != nullptr && callBack->IsCallBack()) {
-            HILOG_INFO("callback is not nullptr, and is callbcak ");
+            TAG_LOGI(AAFwkTag::LOCAL_CALL, "callback is not nullptr, and is callbcak ");
             callBack->InvokeOnNotify(state);
         }
     }
-    HILOG_DEBUG("finish notify remote state changed.");
+    TAG_LOGD(AAFwkTag::LOCAL_CALL, "finish notify remote state changed.");
 }
 
 sptr<IRemoteObject> LocalCallRecord::GetRemoteObject() const
@@ -181,12 +182,12 @@ std::vector<std::shared_ptr<CallerCallBack>> LocalCallRecord::GetCallers() const
 bool LocalCallRecord::IsSameObject(const sptr<IRemoteObject>& remote) const
 {
     if (remote == nullptr) {
-        HILOG_ERROR("input remote object is nullptr");
+        TAG_LOGE(AAFwkTag::LOCAL_CALL, "input remote object is nullptr");
         return false;
     }
 
     bool retVal = (remoteObject_ == remote);
-    HILOG_DEBUG("LocalCallRecord::%{public}s the input object same as local object is %{public}s.",
+    TAG_LOGD(AAFwkTag::LOCAL_CALL, "LocalCallRecord::%{public}s the input object same as local object is %{public}s.",
         __func__, retVal ? "true" : "false");
     return retVal;
 }

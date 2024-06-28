@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,23 +15,38 @@
 #ifndef OHOS_ABILITY_RUNTIME_IMPLICIT_START_PROCESSOR_H
 #define OHOS_ABILITY_RUNTIME_IMPLICIT_START_PROCESSOR_H
 
+#include <list>
 #include <vector>
 #include <string>
 #include <unordered_set>
 
 #include "ability_record.h"
-#include "bundle_mgr_interface.h"
+#include "bundle_mgr_helper.h"
 #include "system_dialog_scheduler.h"
-#ifdef SUPPORT_ERMS
-#include "ecological_rule_mgr_service_client.h"
-#endif
 
 namespace OHOS {
+namespace EcologicalRuleMgrService {
+struct AbilityCallerInfo;
+}
 namespace AAFwk {
-#ifdef SUPPORT_ERMS
+struct IdentityNode {
+    int32_t tokenId;
+    std::string identity;
+    IdentityNode(int tokenId, std::string identity) : tokenId(tokenId), identity(identity)
+    {}
+};
+
+struct AddInfoParam {
+    AppExecFwk::AbilityInfo info;
+    int32_t userId = 0;
+    bool isExtension = false;
+    bool isMoreHapList = false;
+    bool withDefault = false;
+    std::string typeName;
+    std::vector<std::string> infoNames;
+};
 using namespace OHOS::EcologicalRuleMgrService;
-using ErmsCallerInfo = OHOS::EcologicalRuleMgrService::CallerInfo;
-#endif
+using ErmsCallerInfo = OHOS::EcologicalRuleMgrService::AbilityCallerInfo;
 /**
  * @class ImplicitStartProcessor
  * ImplicitStartProcessor.
@@ -43,13 +58,24 @@ public:
 
     static bool IsImplicitStartAction(const Want &want);
 
-    int ImplicitStartAbility(AbilityRequest &request, int32_t userId);
+    int ImplicitStartAbility(AbilityRequest &request, int32_t userId, int32_t windowMode = 0);
+
+    void ResetCallingIdentityAsCaller(int32_t tokenId);
+
+    int NotifyCreateModalDialog(AbilityRequest &abilityRequest, const Want &want, int32_t userId,
+        std::vector<DialogAppInfo> &dialogAppInfos);
+
+    void SetUriReservedFlag(const bool flag);
+
+    void SetUriReservedBundle(const std::string bundleName);
 
 private:
     int GenerateAbilityRequestByAction(int32_t userId, AbilityRequest &request,
-        std::vector<DialogAppInfo> &dialogAppInfos, std::string &deviceType, bool isMoreHapList);
+        std::vector<DialogAppInfo> &dialogAppInfos, bool isMoreHapList, bool &findDefaultApp);
     std::string MatchTypeAndUri(const AAFwk::Want &want);
-    sptr<AppExecFwk::IBundleMgr> GetBundleManager();
+    std::shared_ptr<AppExecFwk::BundleMgrHelper> GetBundleManagerHelper();
+    std::vector<std::string> SplitStr(const std::string& str, char delimiter);
+    int QueryBmsAppInfos(AbilityRequest &request, int32_t userId, std::vector<DialogAppInfo> &dialogAppInfos);
 
     using StartAbilityClosure = std::function<int32_t()>;
     int CallStartAbilityInner(int32_t userId, const Want &want, const StartAbilityClosure &callBack,
@@ -64,14 +90,31 @@ private:
         std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos, int32_t userId);
     sptr<AppExecFwk::IDefaultApp> GetDefaultAppProxy();
 
-#ifdef SUPPORT_ERMS
     void GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId);
-#endif
+
+    void AddIdentity(int32_t tokenId, std::string identity);
+
+    void AddAbilityInfoToDialogInfos(const AddInfoParam &param, std::vector<DialogAppInfo> &dialogAppInfos);
+
+    bool IsExistDefaultApp(int32_t userId, const std::string &typeName);
+
+    bool IsCallFromAncoShellOrBroker(const sptr<IRemoteObject> &token);
+
+    void SetTargetLinkInfo(const std::vector<AppExecFwk::SkillUriForAbilityAndExtension> &skillUri, Want &want);
+
+    void OnlyKeepReserveApp(std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
+        std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos);
+
+    bool IsActionImplicitStart(const Want &want, bool findDeafultApp);
 
 private:
     const static std::vector<std::string> blackList;
     const static std::unordered_set<AppExecFwk::ExtensionAbilityType> extensionWhiteList;
-    sptr<AppExecFwk::IBundleMgr> iBundleManager_;
+    std::shared_ptr<AppExecFwk::BundleMgrHelper> iBundleManagerHelper_;
+    ffrt::mutex identityListLock_;
+    std::list<IdentityNode> identityList_;
+    bool uriReservedFlag_ = false;
+    std::string reservedBundleName_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

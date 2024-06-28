@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,8 +22,14 @@
 #include "extension_context.h"
 #include "start_options.h"
 #include "want.h"
+#ifdef SUPPORT_SCREEN
+#include "window.h"
+#endif // SUPPORT_SCREEN
 
 namespace OHOS {
+namespace Ace {
+class UIContent;
+}
 namespace AbilityRuntime {
 using RuntimeTask = std::function<void(int, const AAFwk::Want &, bool)>;
 /**
@@ -47,7 +53,7 @@ public:
      */
     virtual ErrCode StartAbility(const AAFwk::Want &want) const;
     virtual ErrCode StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions) const;
-
+    virtual ErrCode StartAbility(const AAFwk::Want &want, int requestCode) const;
     /**
      * @brief Destroys the current ui extension ability.
      *
@@ -92,6 +98,31 @@ public:
         const AAFwk::Want &want, const AAFwk::StartOptions &startOptions, int requestCode, RuntimeTask &&task);
 
     /**
+     * Starts a new ability for result using the original caller information.
+     *
+     * @param want Information of other ability.
+     * @param requestCode Request code for abilityMS to return result.
+     * @param task Represent std::function<void(int, const AAFwk::Want &, bool)>.
+     *
+     * @return errCode ERR_OK on success, others on failure.
+     */
+    virtual ErrCode StartAbilityForResultAsCaller(const AAFwk::Want &want, int requestCode, RuntimeTask &&task);
+
+    /**
+     * Starts a new ability for result using the original caller information.
+     *
+     * @param want Information of other ability.
+     * @param startOptions Indicates the StartOptions containing service side information about the target ability to
+     * start.
+     * @param requestCode Request code for abilityMS to return result.
+     * @param task Represent std::function<void(int, const AAFwk::Want &, bool)>.
+     *
+     * @return errCode ERR_OK on success, others on failure.
+     */
+    virtual ErrCode StartAbilityForResultAsCaller(
+        const AAFwk::Want &want, const AAFwk::StartOptions &startOptions, int requestCode, RuntimeTask &&task);
+
+    /**
      * @brief Called when startAbilityForResult(ohos.aafwk.content.Want,int) is called to start an extension ability
      * and the result is returned.
      * @param requestCode Indicates the request code returned after the ability is started. You can define the request
@@ -105,15 +136,37 @@ public:
 
     virtual int GenerateCurRequestCode();
 
+    virtual ErrCode ReportDrawnCompleted();
+#ifdef SUPPORT_SCREEN
+    void SetWindow(sptr<Rosen::Window> window);
+
+    sptr<Rosen::Window> GetWindow();
+#endif // SUPPORT_SCREEN
+    Ace::UIContent* GetUIContent();
+
+    ErrCode OpenAtomicService(AAFwk::Want& want, const AAFwk::StartOptions &options, int requestCode,
+        RuntimeTask &&task);
+    
+    void InsertResultCallbackTask(int requestCode, RuntimeTask&& task);
+
     using SelfType = UIExtensionContext;
     static const size_t CONTEXT_TYPE_ID;
-
+#ifdef SUPPORT_SCREEN
+protected:
+    bool IsContext(size_t contextTypeId) override
+    {
+        return contextTypeId == CONTEXT_TYPE_ID || ExtensionContext::IsContext(contextTypeId);
+    }
+#endif // SUPPORT_SCREEN
 private:
     static int ILLEGAL_REQUEST_CODE;
     std::map<int, RuntimeTask> resultCallbacks_;
 
     int curRequestCode_ = 0;
-
+#ifdef SUPPORT_SCREEN
+    sptr<Rosen::Window> window_ = nullptr;
+#endif // SUPPORT_SCREEN
+    std::mutex mutexlock_;
     /**
      * @brief Get Current Ability Type
      *

@@ -29,19 +29,11 @@ public:
     static void ConfigurationUpdated(napi_env env, const std::shared_ptr<NativeReference>& jsContext,
         const std::shared_ptr<AppExecFwk::Configuration> &config);
 
-    // to do
-    static void ConfigurationUpdated(NativeEngine* engine, const std::shared_ptr<NativeReference> &jsContext,
-        const std::shared_ptr<AppExecFwk::Configuration> &config);
-
 private:
     std::weak_ptr<ExtensionContext> context_;
 };
 
 napi_value CreateJsExtensionContext(napi_env env, const std::shared_ptr<ExtensionContext>& context,
-    std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr);
-
-// to do
-NativeValue* CreateJsExtensionContext(NativeEngine& engine, const std::shared_ptr<ExtensionContext>& context,
     std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr);
 } // namespace AbilityRuntime
 } // namespace OHOS

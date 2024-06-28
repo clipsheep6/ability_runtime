@@ -20,7 +20,7 @@
 
 #define private public
 #include "ability_event_handler.h"
-#include "ability_interceptor_executer.h"
+#include "interceptor/ability_interceptor_executer.h"
 #include "ability_running_info.h"
 #include "ability_scheduler_proxy.h"
 #include "ams_configuration_parameter.h"
@@ -35,9 +35,15 @@ using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace {
+constexpr int INPUT_ZERO = 0;
+constexpr int INPUT_ONE = 1;
+constexpr int INPUT_THREE = 3;
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
 constexpr uint8_t ENABLE = 2;
+constexpr int OFFSET_ZERO = 24;
+constexpr int OFFSET_ONE = 16;
+constexpr int OFFSET_TWO = 8;
 class DataAbilityObserver : public IDataAbilityObserver {
 public:
     DataAbilityObserver() = default;
@@ -54,7 +60,8 @@ public:
 uint32_t GetU32Data(const char* ptr)
 {
     // convert fuzz input data to an integer
-    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
+    return (ptr[INPUT_ZERO] << OFFSET_ZERO) | (ptr[INPUT_ONE] << OFFSET_ONE) | (ptr[ENABLE] << OFFSET_TWO) |
+        ptr[INPUT_THREE];
 }
 
 sptr<Token> GetFuzzAbilityToken()
@@ -101,7 +108,10 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
             return false;
         }
     }
-    abilityInterceptorExecuter->DoProcess(*want, intParam, int32Param, boolParam);
+    
+    AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(
+        *want, intParam, int32Param, boolParam, nullptr);
+    abilityInterceptorExecuter->DoProcess(interceptorParam);
 
     // fuzz for AbilityRunningInfo
     auto abilityRunningInfo = std::make_shared<AbilityRunningInfo>();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -38,6 +38,13 @@ public:
      * @param tokens The token of ability token.
      */
     void OnAbilitysDebugStoped(const std::vector<sptr<IRemoteObject>> &tokens) override;
+
+    /**
+     * @brief Change ability assert debug flag.
+     * @param tokens The token of ability records.
+     * @param isAssertDebug Assert debug flag.
+     */
+    void OnAbilitysAssertDebugChange(const std::vector<sptr<IRemoteObject>> &tokens, bool isAssertDebug) override;
 
 private:
     bool WriteInterfaceToken(MessageParcel &data);

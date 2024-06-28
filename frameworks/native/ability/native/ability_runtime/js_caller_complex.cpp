@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include <set>
 
 #include "event_handler.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_context_utils.h"
 #include "js_data_struct_converter.h"
@@ -67,21 +68,21 @@ public:
 
     static bool ReleaseObject(JsCallerComplex* data)
     {
-        HILOG_DEBUG("ReleaseObject begin");
+        TAG_LOGD(AAFwkTag::DEFAULT, "ReleaseObject begin");
         if (data == nullptr) {
-            HILOG_ERROR("ReleaseObject begin, but input parameters is nullptr");
+            TAG_LOGE(AAFwkTag::DEFAULT, "ReleaseObject begin, but input parameters is nullptr");
             return false;
         }
 
         if (!data->ChangeCurrentState(OBJSTATE::OBJ_RELEASE)) {
             auto handler = data->GetEventHandler();
             if (handler == nullptr) {
-                HILOG_ERROR("ReleaseObject error end, Get eventHandler failed");
+                TAG_LOGE(AAFwkTag::DEFAULT, "ReleaseObject error end, Get eventHandler failed");
                 return false;
             }
             auto releaseObjTask = [pdata = data] () {
                 if (!FindJsCallerComplex(pdata)) {
-                    HILOG_ERROR("ReleaseObject error end, but input parameters does not found");
+                    TAG_LOGE(AAFwkTag::DEFAULT, "ReleaseObject error end, but input parameters does not found");
                     return;
                 }
                 ReleaseObject(pdata);
@@ -93,33 +94,35 @@ public:
             // when the object is about to be destroyed, does not reset state
             std::unique_ptr<JsCallerComplex> delObj(data);
         }
-        HILOG_DEBUG("ReleaseObject success end");
+        TAG_LOGD(AAFwkTag::DEFAULT, "ReleaseObject success end");
         return true;
     }
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        HILOG_DEBUG("JsCallerComplex::%{public}s begin.", __func__);
+        TAG_LOGD(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s begin.", __func__);
         if (data == nullptr) {
-            HILOG_ERROR("JsCallerComplex::%{public}s is called, but input parameters is nullptr", __func__);
+            TAG_LOGE(
+                AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s is called, but input parameters is nullptr", __func__);
             return;
         }
 
         auto ptr = static_cast<JsCallerComplex*>(data);
         if (!FindJsCallerComplex(ptr)) {
-            HILOG_ERROR("JsCallerComplex::%{public}s is called, but input parameters does not found", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT,
+                "JsCallerComplex::%{public}s is called, but input parameters does not found", __func__);
             return;
         }
 
         ReleaseObject(ptr);
-        HILOG_DEBUG("JsCallerComplex::%{public}s end.", __func__);
+        TAG_LOGD(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s end.", __func__);
     }
 
     static napi_value JsReleaseCall(napi_env env, napi_callback_info info)
     {
         if (env == nullptr || info == nullptr) {
-            HILOG_ERROR("JsCallerComplex::%{public}s is called, but input parameters %{public}s is nullptr",
-                __func__,
+            TAG_LOGE(AAFwkTag::DEFAULT,
+                "JsCallerComplex::%{public}s is called, but input parameters %{public}s is nullptr", __func__,
                 ((env == nullptr) ? "env" : "info"));
             return nullptr;
         }
@@ -129,8 +132,8 @@ public:
     static napi_value JsSetOnReleaseCallBack(napi_env env, napi_callback_info info)
     {
         if (env == nullptr || info == nullptr) {
-            HILOG_ERROR("JsCallerComplex::%{public}s is called, but input parameters %{public}s is nullptr",
-                __func__,
+            TAG_LOGE(AAFwkTag::DEFAULT,
+                "JsCallerComplex::%{public}s is called, but input parameters %{public}s is nullptr", __func__,
                 ((env == nullptr) ? "env" : "info"));
             return nullptr;
         }
@@ -140,8 +143,8 @@ public:
     static napi_value JsSetOnRemoteStateChanged(napi_env env, napi_callback_info info)
     {
         if (env == nullptr || info == nullptr) {
-            HILOG_ERROR("JsCallerComplex::%{public}s is called, but input parameters %{public}s is nullptr",
-                __func__,
+            TAG_LOGE(AAFwkTag::DEFAULT,
+                "JsCallerComplex::%{public}s is called, but input parameters %{public}s is nullptr", __func__,
                 ((env == nullptr) ? "env" : "info"));
             return nullptr;
         }
@@ -151,46 +154,46 @@ public:
     static bool AddJsCallerComplex(JsCallerComplex* ptr)
     {
         if (ptr == nullptr) {
-            HILOG_ERROR("JsAbilityContext::%{public}s, input parameters is nullptr", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "JsAbilityContext::%{public}s, input parameters is nullptr", __func__);
             return false;
         }
 
         std::lock_guard<std::mutex> lck (jsCallerComplexMutex);
         auto iter = jsCallerComplexManagerList.find(ptr);
         if (iter != jsCallerComplexManagerList.end()) {
-            HILOG_ERROR("JsAbilityContext::%{public}s, address exists", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "JsAbilityContext::%{public}s, address exists", __func__);
             return false;
         }
 
         auto iterRet = jsCallerComplexManagerList.emplace(ptr);
-        HILOG_DEBUG("JsAbilityContext::%{public}s, execution ends and retval is %{public}s",
-            __func__, iterRet.second ? "true" : "false");
+        TAG_LOGD(AAFwkTag::DEFAULT, "JsAbilityContext::%{public}s, execution ends and retval is %{public}s", __func__,
+            iterRet.second ? "true" : "false");
         return iterRet.second;
     }
 
     static bool RemoveJsCallerComplex(JsCallerComplex* ptr)
     {
         if (ptr == nullptr) {
-            HILOG_ERROR("JsAbilityContext::%{public}s, input parameters is nullptr", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "JsAbilityContext::%{public}s, input parameters is nullptr", __func__);
             return false;
         }
 
         std::lock_guard<std::mutex> lck (jsCallerComplexMutex);
         auto iter = jsCallerComplexManagerList.find(ptr);
         if (iter == jsCallerComplexManagerList.end()) {
-            HILOG_ERROR("JsAbilityContext::%{public}s, input parameters not found", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "JsAbilityContext::%{public}s, input parameters not found", __func__);
             return false;
         }
 
         jsCallerComplexManagerList.erase(ptr);
-        HILOG_DEBUG("JsAbilityContext::%{public}s, called", __func__);
+        TAG_LOGD(AAFwkTag::DEFAULT, "JsAbilityContext::%{public}s, called", __func__);
         return true;
     }
 
     static bool FindJsCallerComplex(JsCallerComplex* ptr)
     {
         if (ptr == nullptr) {
-            HILOG_ERROR("JsAbilityContext::%{public}s, input parameters is nullptr", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "JsAbilityContext::%{public}s, input parameters is nullptr", __func__);
             return false;
         }
         auto ret = true;
@@ -199,28 +202,29 @@ public:
         if (iter == jsCallerComplexManagerList.end()) {
             ret = false;
         }
-        HILOG_DEBUG("JsAbilityContext::%{public}s, execution ends and retval is %{public}s",
-            __func__, ret ? "true" : "false");
+        TAG_LOGD(AAFwkTag::DEFAULT, "JsAbilityContext::%{public}s, execution ends and retval is %{public}s", __func__,
+            ret ? "true" : "false");
         return ret;
     }
 
     static bool FindJsCallerComplexAndChangeState(JsCallerComplex* ptr, OBJSTATE state)
     {
         if (ptr == nullptr) {
-            HILOG_ERROR("JsAbilityContext::%{public}s, input parameters is nullptr", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "JsAbilityContext::%{public}s, input parameters is nullptr", __func__);
             return false;
         }
 
         std::lock_guard<std::mutex> lck (jsCallerComplexMutex);
         auto iter = jsCallerComplexManagerList.find(ptr);
         if (iter == jsCallerComplexManagerList.end()) {
-            HILOG_ERROR("JsAbilityContext::%{public}s, execution end, but not found", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "JsAbilityContext::%{public}s, execution end, but not found", __func__);
             return false;
         }
 
         auto ret = ptr->ChangeCurrentState(state);
-        HILOG_DEBUG("JsAbilityContext::%{public}s, execution ends and ChangeCurrentState retval is %{public}s",
-            __func__, ret ? "true" : "false");
+        TAG_LOGD(AAFwkTag::DEFAULT,
+            "JsAbilityContext::%{public}s, execution ends and ChangeCurrentState retval is %{public}s", __func__,
+            ret ? "true" : "false");
 
         return ret;
     }
@@ -239,20 +243,20 @@ public:
     {
         auto ret = false;
         if (stateMechanismMutex_.try_lock() == false) {
-            HILOG_ERROR("mutex try_lock false");
+            TAG_LOGE(AAFwkTag::DEFAULT, "mutex try_lock false");
             return ret;
         }
 
         if (currentState_ == OBJSTATE::OBJ_NORMAL) {
             currentState_ = state;
             ret = true;
-            HILOG_DEBUG("currentState_ == OBJSTATE::OBJ_NORMAL");
+            TAG_LOGD(AAFwkTag::DEFAULT, "currentState_ == OBJSTATE::OBJ_NORMAL");
         } else if (currentState_ == state) {
             ret = true;
-            HILOG_DEBUG("currentState_ == state");
+            TAG_LOGD(AAFwkTag::DEFAULT, "currentState_ == state");
         } else {
             ret = false;
-            HILOG_DEBUG("ret = false");
+            TAG_LOGD(AAFwkTag::DEFAULT, "ret = false");
         }
 
         stateMechanismMutex_.unlock();
@@ -273,28 +277,28 @@ private:
 
     void OnReleaseNotify(const std::string &str)
     {
-        HILOG_DEBUG("OnReleaseNotify begin");
+        TAG_LOGD(AAFwkTag::DEFAULT, "OnReleaseNotify begin");
         if (handler_ == nullptr) {
-            HILOG_ERROR("handler parameters error");
+            TAG_LOGE(AAFwkTag::DEFAULT, "handler parameters error");
             return;
         }
 
         auto task = [notify = this, &str] () {
             if (!FindJsCallerComplex(notify)) {
-                HILOG_ERROR("ptr not found, address error");
+                TAG_LOGE(AAFwkTag::DEFAULT, "ptr not found, address error");
                 return;
             }
             notify->OnReleaseNotifyTask(str);
         };
         handler_->PostSyncTask(task, "OnReleaseNotify");
-        HILOG_DEBUG("OnReleaseNotify end");
+        TAG_LOGD(AAFwkTag::DEFAULT, "OnReleaseNotify end");
     }
 
     void OnReleaseNotifyTask(const std::string &str)
     {
-        HILOG_DEBUG("OnReleaseNotifyTask begin");
+        TAG_LOGD(AAFwkTag::DEFAULT, "OnReleaseNotifyTask begin");
         if (jsReleaseCallBackObj_ == nullptr) {
-            HILOG_ERROR("JsCallerComplex::%{public}s, jsreleaseObj is nullptr", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, jsreleaseObj is nullptr", __func__);
             return;
         }
 
@@ -302,36 +306,36 @@ private:
         napi_value callback = jsReleaseCallBackObj_->GetNapiValue();
         napi_value args[] = { CreateJsValue(releaseCallBackEngine_, str) };
         napi_call_function(releaseCallBackEngine_, value, callback, 1, args, nullptr);
-        HILOG_DEBUG("OnReleaseNotifyTask CallFunction call done");
+        TAG_LOGD(AAFwkTag::DEFAULT, "OnReleaseNotifyTask CallFunction call done");
         callee_ = nullptr;
         StateReset();
-        HILOG_DEBUG("OnReleaseNotifyTask end");
+        TAG_LOGD(AAFwkTag::DEFAULT, "OnReleaseNotifyTask end");
     }
 
     void OnRemoteStateChangedNotify(const std::string &str)
     {
-        HILOG_DEBUG("OnRemoteStateChangedNotify begin");
+        TAG_LOGD(AAFwkTag::DEFAULT, "OnRemoteStateChangedNotify begin");
         if (handler_ == nullptr) {
-            HILOG_ERROR("handler parameters error");
+            TAG_LOGE(AAFwkTag::DEFAULT, "handler parameters error");
             return;
         }
 
         auto task = [notify = this, &str] () {
             if (!FindJsCallerComplex(notify)) {
-                HILOG_ERROR("ptr not found, address error");
+                TAG_LOGE(AAFwkTag::DEFAULT, "ptr not found, address error");
                 return;
             }
             notify->OnRemoteStateChangedNotifyTask(str);
         };
         handler_->PostSyncTask(task, "OnRemoteStateChangedNotify");
-        HILOG_DEBUG("OnRemoteStateChangedNotify end");
+        TAG_LOGD(AAFwkTag::DEFAULT, "OnRemoteStateChangedNotify end");
     }
 
     void OnRemoteStateChangedNotifyTask(const std::string &str)
     {
-        HILOG_DEBUG("OnRemoteStateChangedNotifyTask begin");
+        TAG_LOGD(AAFwkTag::DEFAULT, "OnRemoteStateChangedNotifyTask begin");
         if (jsRemoteStateChangedObj_ == nullptr) {
-            HILOG_ERROR("JsCallerComplex::%{public}s, jsRemoteStateChangedObj is nullptr", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, jsRemoteStateChangedObj is nullptr", __func__);
             return;
         }
 
@@ -339,26 +343,26 @@ private:
         napi_value callback = jsRemoteStateChangedObj_->GetNapiValue();
         napi_value args[] = { CreateJsValue(remoteStateChanegdEngine_, str) };
         napi_call_function(remoteStateChanegdEngine_, value, callback, 1, args, nullptr);
-        HILOG_DEBUG("OnRemoteStateChangedNotifyTask CallFunction call done");
+        TAG_LOGD(AAFwkTag::DEFAULT, "OnRemoteStateChangedNotifyTask CallFunction call done");
         StateReset();
-        HILOG_DEBUG("OnRemoteStateChangedNotifyTask end");
+        TAG_LOGD(AAFwkTag::DEFAULT, "OnRemoteStateChangedNotifyTask end");
     }
 
     napi_value ReleaseCallInner(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_DEBUG("JsCallerComplex::%{public}s, called", __func__);
+        TAG_LOGD(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, called", __func__);
         if (callerCallBackObj_ == nullptr) {
-            HILOG_ERROR("JsCallerComplex::%{public}s, CallBacker is nullptr", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, CallBacker is nullptr", __func__);
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         }
 
         if (!releaseCallFunc_) {
-            HILOG_ERROR("JsCallerComplex::%{public}s, releaseFunc is nullptr", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, releaseFunc is nullptr", __func__);
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         }
         int32_t innerErrorCode = releaseCallFunc_(callerCallBackObj_);
         if (innerErrorCode != ERR_OK) {
-            HILOG_ERROR("JsCallerComplex::%{public}s, ReleaseAbility failed %{public}d",
+            TAG_LOGE(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, ReleaseAbility failed %{public}d",
                 __func__, static_cast<int>(innerErrorCode));
             ThrowError(env, innerErrorCode);
         }
@@ -368,28 +372,28 @@ private:
 
     napi_value SetOnReleaseCallBackInner(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_DEBUG("JsCallerComplex::%{public}s, start", __func__);
+        TAG_LOGD(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, start", __func__);
         constexpr size_t argcOne = 1;
         if (info.argc < argcOne) {
-            HILOG_ERROR("JsCallerComplex::%{public}s, Invalid input parameters", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, Invalid input parameters", __func__);
             ThrowTooFewParametersError(env);
         }
         bool isCallable = false;
         napi_is_callable(env, info.argv[0], &isCallable);
         if (!isCallable) {
-            HILOG_ERROR("JsCallerComplex::%{public}s, IsCallable is %{public}s.",
+            TAG_LOGE(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, IsCallable is %{public}s.",
                 __func__, isCallable ? "true" : "false");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         }
 
         if (callerCallBackObj_ == nullptr) {
-            HILOG_ERROR("JsCallerComplex::%{public}s, CallBacker is null", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, CallBacker is null", __func__);
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         }
 
         auto param1 = info.argv[0];
         if (param1 == nullptr) {
-            HILOG_ERROR("JsCallerComplex::%{public}s, param1 is null", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, param1 is null", __func__);
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         }
 
@@ -398,40 +402,40 @@ private:
         jsReleaseCallBackObj_.reset(reinterpret_cast<NativeReference*>(ref));
         auto task = [notify = this] (const std::string &str) {
             if (!FindJsCallerComplexAndChangeState(notify, OBJSTATE::OBJ_EXECUTION)) {
-                HILOG_ERROR("ptr not found, address error");
+                TAG_LOGE(AAFwkTag::DEFAULT, "ptr not found, address error");
                 return;
             }
             notify->OnReleaseNotify(str);
         };
         callerCallBackObj_->SetOnRelease(task);
-        HILOG_DEBUG("JsCallerComplex::%{public}s, end", __func__);
+        TAG_LOGD(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, end", __func__);
         return CreateJsUndefined(env);
     }
 
     napi_value SetOnRemoteStateChangedInner(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_DEBUG("JsCallerComplex::%{public}s, begin", __func__);
+        TAG_LOGD(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, begin", __func__);
         constexpr size_t argcOne = 1;
         if (info.argc < argcOne) {
-            HILOG_ERROR("JsCallerComplex::%{public}s, Invalid input params", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, Invalid input params", __func__);
             ThrowTooFewParametersError(env);
         }
         bool isCallable = false;
         napi_is_callable(env, info.argv[0], &isCallable);
         if (!isCallable) {
-            HILOG_ERROR("JsCallerComplex::%{public}s, IsCallable is %{public}s.",
+            TAG_LOGE(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, IsCallable is %{public}s.",
                 __func__, isCallable ? "true" : "false");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         }
 
         if (callerCallBackObj_ == nullptr) {
-            HILOG_ERROR("JsCallerComplex::%{public}s, CallBacker is nullptr", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, CallBacker is nullptr", __func__);
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         }
 
         auto param1 = info.argv[0];
         if (param1 == nullptr) {
-            HILOG_ERROR("JsCallerComplex::%{public}s, param1 is nullptr", __func__);
+            TAG_LOGE(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, param1 is nullptr", __func__);
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         }
 
@@ -439,15 +443,15 @@ private:
         napi_create_reference(remoteStateChanegdEngine_, param1, 1, &ref);
         jsRemoteStateChangedObj_.reset(reinterpret_cast<NativeReference*>(ref));
         auto task = [notify = this] (const std::string &str) {
-            HILOG_INFO("state changed");
+            TAG_LOGI(AAFwkTag::DEFAULT, "state changed");
             if (!FindJsCallerComplexAndChangeState(notify, OBJSTATE::OBJ_EXECUTION)) {
-                HILOG_ERROR("ptr not found, address error");
+                TAG_LOGE(AAFwkTag::DEFAULT, "ptr not found, address error");
                 return;
             }
             notify->OnRemoteStateChangedNotify(str);
         };
         callerCallBackObj_->SetOnRemoteStateChanged(task);
-        HILOG_DEBUG("JsCallerComplex::%{public}s, end", __func__);
+        TAG_LOGD(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, end", __func__);
         return CreateJsUndefined(env);
     }
 
@@ -475,9 +479,9 @@ napi_value CreateJsCallerComplex(
     napi_env env, ReleaseCallFunc releaseCallFunc, sptr<IRemoteObject> callee,
     std::shared_ptr<CallerCallBack> callerCallBack)
 {
-    HILOG_DEBUG("JsCallerComplex::%{public}s, begin", __func__);
+    TAG_LOGD(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, begin", __func__);
     if (callee == nullptr || callerCallBack == nullptr || releaseCallFunc == nullptr) {
-        HILOG_ERROR("%{public}s is called, input params error. %{public}s is nullptr", __func__,
+        TAG_LOGE(AAFwkTag::DEFAULT, "%{public}s is called, input params error. %{public}s is nullptr", __func__,
             (callee == nullptr) ? ("callee") :
             ((releaseCallFunc == nullptr) ? ("releaseCallFunc") : ("callerCallBack")));
         return CreateJsUndefined(env);
@@ -488,7 +492,7 @@ napi_value CreateJsCallerComplex(
     auto jsCaller = std::make_unique<JsCallerComplex>(env, releaseCallFunc, callee, callerCallBack);
     auto remoteObj = jsCaller->GetRemoteObject();
     if (remoteObj == nullptr) {
-        HILOG_ERROR("%{public}s is called,remoteObj is nullptr", __func__);
+        TAG_LOGE(AAFwkTag::DEFAULT, "%{public}s is called,remoteObj is nullptr", __func__);
         return CreateJsUndefined(env);
     }
 
@@ -499,19 +503,19 @@ napi_value CreateJsCallerComplex(
     BindNativeFunction(env, object, "onRelease", moduleName, JsCallerComplex::JsSetOnReleaseCallBack);
     BindNativeFunction(env, object, "onRemoteStateChange", moduleName, JsCallerComplex::JsSetOnRemoteStateChanged);
 
-    HILOG_DEBUG("JsCallerComplex::%{public}s, end", __func__);
+    TAG_LOGD(AAFwkTag::DEFAULT, "JsCallerComplex::%{public}s, end", __func__);
     return object;
 }
 
 napi_value CreateJsCalleeRemoteObject(napi_env env, sptr<IRemoteObject> callee)
 {
     if (callee == nullptr) {
-        HILOG_ERROR("%{public}s is called, input params is nullptr", __func__);
+        TAG_LOGE(AAFwkTag::DEFAULT, "%{public}s is called, input params is nullptr", __func__);
         return CreateJsUndefined(env);
     }
     napi_value napiRemoteObject = NAPI_ohos_rpc_CreateJsRemoteObject(env, callee);
     if (napiRemoteObject == nullptr) {
-        HILOG_ERROR("%{public}s is called, but remoteObj is nullptr", __func__);
+        TAG_LOGE(AAFwkTag::DEFAULT, "%{public}s is called, but remoteObj is nullptr", __func__);
     }
     return napiRemoteObject;
 }

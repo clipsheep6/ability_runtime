@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "dialog_request_callback_proxy.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
@@ -27,26 +28,26 @@ void DialogRequestCallbackProxy::SendResult(int32_t resultCode, const AAFwk::Wan
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
-    HILOG_INFO("DialogRequestCallbackProxy, send result");
+    TAG_LOGI(AAFwkTag::DIALOG, "DialogRequestCallbackProxy, send result");
     if (!data.WriteInterfaceToken(IDialogRequestCallback::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::DIALOG, "Write interface token failed.");
         return;
     }
 
     if (!data.WriteInt32(resultCode)) {
-        HILOG_ERROR("Write resultCode error.");
+        TAG_LOGE(AAFwkTag::DIALOG, "Write resultCode error.");
         return;
     }
 
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::DIALOG, "want write failed.");
         return;
     }
 
     auto remote = Remote();
     if (remote) {
         auto errCode = remote->SendRequest(IDialogRequestCallback::CODE_SEND_RESULT, data, reply, option);
-        HILOG_INFO("SendRequest result, error code: %{public}d", errCode);
+        TAG_LOGI(AAFwkTag::DIALOG, "SendRequest result, error code: %{public}d", errCode);
     }
 }
 }  // namespace AbilityRuntime

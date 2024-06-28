@@ -15,14 +15,14 @@ import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("connection_obs_manager_public_config") {
+  defines = [ "AMS_LOG_TAG = \"Ability\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001300" ]
   visibility = [ ":*" ]
   visibility +=
       [ "${ability_runtime_test_path}/unittest/connection_observer_test/*" ]
   include_dirs = [
     "include",
     "${ability_runtime_services_path}/common/include",
-    "${safwk_path}/native/include",
-    "${bundlefwk_inner_api_path}/appexecfwk_base/include",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -48,12 +48,13 @@ ohos_shared_library("connection_obs_manager") {
   deps = []
 
   external_deps = [
+    "ability_base:want",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
-
+  public_external_deps = [ "bundle_framework:appexecfwk_base" ]
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"

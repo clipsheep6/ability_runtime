@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -52,6 +52,8 @@ private:
     int32_t HandleAbilityBehaviorAnalysis(MessageParcel &data, MessageParcel &reply);
     int32_t HandleKillProcessByAbilityToken(MessageParcel &data, MessageParcel &reply);
     int32_t HandleKillProcessesByUserId(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleKillProcessesByPids(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleAttachPidToParent(MessageParcel &data, MessageParcel &reply);
     int32_t HandleKillProcessWithAccount(MessageParcel &data, MessageParcel &reply);
     int32_t HandleKillApplication(MessageParcel &data, MessageParcel &reply);
     int32_t HandleAbilityAttachTimeOut(MessageParcel &data, MessageParcel &reply);
@@ -59,11 +61,11 @@ private:
     int32_t HandleKillApplicationByUid(MessageParcel &data, MessageParcel &reply);
     int32_t HandleKillApplicationSelf(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetRunningProcessInfoByToken(MessageParcel &data, MessageParcel &reply);
-    int32_t HandleGetRunningProcessInfoByPid(MessageParcel &data, MessageParcel &reply);
     int32_t HandleSetAbilityForegroundingFlagToAppRecord(MessageParcel &data, MessageParcel &reply);
     int32_t HandleStartSpecifiedAbility(MessageParcel &data, MessageParcel &reply);
     int32_t HandleRegisterStartSpecifiedAbilityResponse(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetApplicationInfoByProcessID(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleNotifyAppMgrRecordExitReason(MessageParcel &data, MessageParcel &reply);
     int32_t HandleUpdateApplicationInfoInstalled(MessageParcel &data, MessageParcel &reply);
     int32_t HandleSetCurrentUserId(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetBundleNameByPid(MessageParcel &data, MessageParcel &reply);
@@ -71,8 +73,17 @@ private:
     int32_t HandleUnregisterAppDebugListener(MessageParcel &data, MessageParcel &reply);
     int32_t HandleAttachAppDebug(MessageParcel &data, MessageParcel &reply);
     int32_t HandleDetachAppDebug(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleSetAppWaitingDebug(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleCancelAppWaitingDebug(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleGetWaitingDebugApp(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleIsWaitingDebugApp(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleClearNonPersistWaitingDebugFlag(MessageParcel &data, MessageParcel &reply);
     int32_t HandleRegisterAbilityDebugResponse(MessageParcel &data, MessageParcel &reply);
     int32_t HandleIsAttachDebug(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleClearProcessByToken(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleIsMemorySizeSufficent(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleSetKeepAliveEnableState(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleAttachedToStatusBar(MessageParcel &data, MessageParcel &reply);
 
     using AmsMgrFunc = int32_t (AmsMgrStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AmsMgrFunc> memberFuncMap_;

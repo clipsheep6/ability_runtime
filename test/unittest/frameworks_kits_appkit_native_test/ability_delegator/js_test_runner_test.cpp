@@ -26,6 +26,7 @@
 #include "ability_delegator_registry.h"
 #include "app_loader.h"
 #include "event_runner.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "napi/native_common.h"
 #include "mock_ability_delegator_stub.h"
@@ -96,7 +97,7 @@ void JsTestRunnerTest::MakeMockObjects() const
  */
 HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Js_Test_Runner_Test_0100 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Js_Test_Runner_Test_0100 is called");
 
     MockAbilityDelegatorStub::finishFlag_ = false;
     std::map<std::string, std::string> paras;
@@ -126,7 +127,7 @@ HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0100, Function | MediumTest | Lev
  */
 HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Js_Test_Runner_Test_0200 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Js_Test_Runner_Test_0200 is called");
 
     MockAbilityDelegatorStub::finishFlag_ = false;
     std::map<std::string, std::string> paras;
@@ -166,7 +167,7 @@ HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0200, Function | MediumTest | Lev
  */
 HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0300, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Js_Test_Runner_Test_0300 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Js_Test_Runner_Test_0300 is called");
 
     MockAbilityDelegatorStub::finishFlag_ = false;
     std::map<std::string, std::string> paras;
@@ -206,7 +207,7 @@ HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0300, Function | MediumTest | Lev
  */
 HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0400, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Js_Test_Runner_Test_0400 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Js_Test_Runner_Test_0400 is called");
 
     MockAbilityDelegatorStub::finishFlag_ = false;
     std::map<std::string, std::string> paras;
@@ -248,7 +249,7 @@ HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0400, Function | MediumTest | Lev
  */
 HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0500, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Js_Test_Runner_Test_0500 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Js_Test_Runner_Test_0500 is called");
 
     MockAbilityDelegatorStub::finishFlag_ = false;
     std::map<std::string, std::string> paras;
@@ -287,7 +288,7 @@ HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0500, Function | MediumTest | Lev
  */
 HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0600, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Js_Test_Runner_Test_0600 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Js_Test_Runner_Test_0600 is called");
 
     MockAbilityDelegatorStub::finishFlag_ = false;
     std::map<std::string, std::string> paras;

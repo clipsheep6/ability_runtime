@@ -37,7 +37,7 @@ public:
     ErrCode GetWantSender(const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken,
         sptr<IWantSender> &wantSender);
 
-    ErrCode SendWantSender(const sptr<IWantSender> &target, const SenderInfo &senderInfo);
+    ErrCode SendWantSender(sptr<IWantSender> target, const SenderInfo &senderInfo);
 
     ErrCode CancelWantSender(const sptr<IWantSender> &sender);
 
@@ -49,7 +49,7 @@ public:
 
     ErrCode GetPendingWantCode(const sptr<IWantSender> &target, int32_t &code);
 
-    ErrCode GetPendingWantType(const sptr<IWantSender> &target, int32_t &type);
+    ErrCode GetPendingWantType(sptr<IWantSender> target, int32_t &type);
 
     void RegisterCancelListener(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &receiver);
 

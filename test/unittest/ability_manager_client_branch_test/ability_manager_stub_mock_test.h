@@ -40,6 +40,11 @@ public:
         return 0;
     }
 
+    virtual int32_t GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
+    {
+        return 0;
+    }
+
     int InvokeErrorSendRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
     {
         code_ = code;
@@ -76,6 +81,7 @@ public:
         const Want& want,
         const StartOptions& startOptions,
         const sptr<IRemoteObject>& callerToken,
+        sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE)
     {
@@ -142,7 +148,7 @@ public:
         return 0;
     }
 
-    virtual int DisconnectAbility(const sptr<IAbilityConnection>& connect)
+    virtual int DisconnectAbility(sptr<IAbilityConnection> connect)
     {
         return 0;
     }
@@ -194,7 +200,7 @@ public:
         return 0;
     }
 
-    virtual int KillProcess(const std::string& bundleName)
+    virtual int KillProcess(const std::string& bundleName, const bool clearPageStack = true)
     {
         return 0;
     }
@@ -214,17 +220,16 @@ public:
         return;
     }
 
-    int ClearUpApplicationData(const std::string& bundleName) override
+    int StartUser(int userId, sptr<IUserCallback> callback) override
     {
         return 0;
     }
 
-    int StartUser(int userId) override
+    int StopUser(int userId, const sptr<IUserCallback>& callback) override
     {
         return 0;
     }
-
-    int StopUser(int userId, const sptr<IStopUserCallback>& callback) override
+    int LogoutUser(int32_t userId) override
     {
         return 0;
     }
@@ -280,11 +285,6 @@ public:
         return true;
     }
 
-    int SendANRProcessID(int pid) override
-    {
-        return 0;
-    }
-
     int SetMissionIcon(const sptr<IRemoteObject>& token,
         const std::shared_ptr<OHOS::Media::PixelMap>& icon) override
     {
@@ -297,11 +297,13 @@ public:
 
     MOCK_METHOD4(StartAbility, int(const Want& want, const sptr<IRemoteObject>& callerToken,
         int32_t userId, int requestCode));
-    MOCK_METHOD4(StartAbilityAsCaller, int(const Want& want, const sptr<IRemoteObject>& callerToken,
-            int32_t userId, int requestCode));
+    MOCK_METHOD4(StartAbilityByInsightIntent, int32_t(const Want& want, const sptr<IRemoteObject>& callerToken,
+        uint64_t intentId, int32_t userId));
+    MOCK_METHOD6(StartAbilityAsCaller, int(const Want& want, const sptr<IRemoteObject>& callerToken,
+        sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode, bool isSendDialogResult));
     MOCK_METHOD2(
         GetWantSender, sptr<IWantSender>(const WantSenderInfo& wantSenderInfo, const sptr<IRemoteObject>& callerToken));
-    MOCK_METHOD2(SendWantSender, int(const sptr<IWantSender>& target, const SenderInfo& senderInfo));
+    MOCK_METHOD2(SendWantSender, int(sptr<IWantSender> target, const SenderInfo& senderInfo));
     MOCK_METHOD1(CancelWantSender, void(const sptr<IWantSender>& sender));
     MOCK_METHOD1(GetPendingWantUid, int(const sptr<IWantSender>& target));
     MOCK_METHOD1(GetPendingWantUserId, int(const sptr<IWantSender>& target));
@@ -403,6 +405,16 @@ public:
         return 0;
     }
 
+    int32_t SetApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag) override
+    {
+        return 0;
+    }
+
+    int32_t CancelApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag) override
+    {
+        return 0;
+    }
+
 #ifdef ABILITY_COMMAND_FOR_TEST
     int ForceTimeoutForTest(const std::string& abilityName, const std::string& state) override
     {
@@ -410,10 +422,16 @@ public:
     }
 #endif
     MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionValidResult>&));
-    MOCK_METHOD1(RegisterAppDebugListener, int32_t(const sptr<AppExecFwk::IAppDebugListener> &listener));
-    MOCK_METHOD1(UnregisterAppDebugListener, int32_t(const sptr<AppExecFwk::IAppDebugListener> &listener));
+    MOCK_METHOD1(RegisterAppDebugListener, int32_t(sptr<AppExecFwk::IAppDebugListener> listener));
+    MOCK_METHOD1(UnregisterAppDebugListener, int32_t(sptr<AppExecFwk::IAppDebugListener> listener));
     MOCK_METHOD1(AttachAppDebug, int32_t(const std::string &bundleName));
     MOCK_METHOD1(DetachAppDebug, int32_t(const std::string &bundleName));
+    MOCK_METHOD3(ExecuteIntent, int32_t(uint64_t key, const sptr<IRemoteObject> &callerToken,
+        const InsightIntentExecuteParam &param));
+    MOCK_METHOD3(ExecuteInsightIntentDone, int32_t(const sptr<IRemoteObject> &token, uint64_t intentId,
+        const InsightIntentExecuteResult &result));
+    MOCK_METHOD5(StartAbilityWithSpecifyTokenId, int(const Want& want, const sptr<IRemoteObject>& callerToken,
+        uint32_t specifyTokenId, int32_t userId, int requestCode));
 };
 }  // namespace AAFwk
 }  // namespace OHOS

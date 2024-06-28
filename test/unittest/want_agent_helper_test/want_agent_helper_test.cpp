@@ -167,7 +167,7 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_0600, Function | MediumTest | Leve
     std::vector<WantAgentConstant::Flags> flags;
     flags.emplace_back(WantAgentConstant::Flags::REPLACE_BUNDLE);
     EXPECT_EQ(
-        wantAgentHelper->FlagsTransformer(flags), static_cast<unsigned int>(WantAgentConstant::Flags::ONE_TIME_FLAG));
+        wantAgentHelper->FlagsTransformer(flags), static_cast<unsigned int>(FLAG_UPDATE_CURRENT));
 }
 
 /*

@@ -18,10 +18,8 @@ config("dataobs_manager_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "include/",
-    "${safwk_path}/native/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_services_path}/dataobsmgr/include",
-    "${ability_base_kits_path}/uri/include",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -30,6 +28,12 @@ config("dataobs_manager_public_config") {
 }
 
 ohos_shared_library("dataobs_manager") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
   sources = [
     "${ability_runtime_services_path}/dataobsmgr/src/data_ability_observer_proxy.cpp",
     "${ability_runtime_services_path}/dataobsmgr/src/data_ability_observer_stub.cpp",
@@ -46,13 +50,12 @@ ohos_shared_library("dataobs_manager") {
   deps = []
 
   external_deps = [
-    "ability_base:zuri",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
-
+  public_external_deps = [ "ability_base:zuri" ]
   innerapi_tags = [
     "platformsdk",
     "sasdk",

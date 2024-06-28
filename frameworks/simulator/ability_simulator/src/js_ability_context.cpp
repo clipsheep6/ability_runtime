@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "js_ability_context.h"
 
 #include "ability_business_error.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_context_utils.h"
 #include "js_data_converter.h"
@@ -30,7 +31,7 @@ constexpr size_t ARGC_ONE = 1;
 }
 void JsAbilityContext::Finalizer(napi_env env, void *data, void *hint)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called");
     std::unique_ptr<JsAbilityContext>(static_cast<JsAbilityContext*>(data));
 }
 
@@ -111,7 +112,7 @@ napi_value JsAbilityContext::TerminateSelf(napi_env env, napi_callback_info info
 
 napi_value JsAbilityContext::OnTerminateSelf(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("TerminateSelf");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "TerminateSelf");
     auto abilityContext = context_.lock();
     if (abilityContext == nullptr) {
         return nullptr;
@@ -142,7 +143,7 @@ napi_value JsAbilityContext::TerminateSelfWithResult(napi_env env, napi_callback
 
 napi_value JsAbilityContext::OnTerminateSelfWithResult(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called.");
     auto abilityContext = context_.lock();
     if (abilityContext == nullptr) {
         return nullptr;
@@ -183,10 +184,10 @@ napi_value JsAbilityContext::IsTerminating(napi_env env, napi_callback_info info
 
 napi_value JsAbilityContext::OnIsTerminating(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("IsTerminating");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "IsTerminating");
     auto context = context_.lock();
     if (context == nullptr) {
-        HILOG_ERROR("OnIsTerminating context is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "OnIsTerminating context is nullptr");
         return CreateJsUndefined(env);
     }
     return CreateJsValue(env, context->IsTerminating());
@@ -203,22 +204,22 @@ napi_value CreateJsErrorByNativeErr(napi_env env, int32_t err, const std::string
 void JsAbilityContext::ConfigurationUpdated(napi_env env, std::shared_ptr<NativeReference> &jsContext,
     const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called.");
     if (jsContext == nullptr || config == nullptr) {
-        HILOG_ERROR("jsContext is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "jsContext is nullptr.");
         return;
     }
 
     napi_value value = jsContext->GetNapiValue();
     if (value == nullptr) {
-        HILOG_ERROR("value is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "value is nullptr.");
         return;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env, value, "onUpdateConfiguration", &method);
     if (method == nullptr) {
-        HILOG_ERROR("Failed to get onUpdateConfiguration from object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to get onUpdateConfiguration from object");
         return;
     }
 

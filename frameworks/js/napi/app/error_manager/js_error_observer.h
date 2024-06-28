@@ -35,7 +35,7 @@ public:
     bool IsEmpty();
 
 private:
-    void CallJsFunction(napi_value value, const char* methodName, napi_value const* argv, size_t argc);
+    void CallJsFunction(napi_value value, const char* methodName, napi_value const *argv, size_t argc);
     void HandleOnUnhandledException(const std::string &errMsg);
     void HandleException(const AppExecFwk::ErrorObject &errorObj);
     napi_value CreateJsErrorObject(napi_env env, const AppExecFwk::ErrorObject &errorObj);

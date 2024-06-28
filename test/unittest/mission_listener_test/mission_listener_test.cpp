@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mission_listener_controller.h"
 #include "mission_listener_stub.h"
@@ -151,7 +152,7 @@ std::shared_ptr<MissionListenerController> MissionListenerTest::GetController()
  */
 HWTEST_F(MissionListenerTest, MissionListener_Register_0100, TestSize.Level1)
 {
-    HILOG_INFO("MissionListener_Register_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "MissionListener_Register_0100 start");
 
     auto controller = GetController();
     ASSERT_TRUE(controller);
@@ -165,7 +166,7 @@ HWTEST_F(MissionListenerTest, MissionListener_Register_0100, TestSize.Level1)
     EXPECT_EQ(result, 0);
 
     controller->DelMissionListener(listener);
-    HILOG_INFO("MissionListener_Register_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "MissionListener_Register_0100 end");
 }
 
 /**
@@ -176,7 +177,7 @@ HWTEST_F(MissionListenerTest, MissionListener_Register_0100, TestSize.Level1)
  */
 HWTEST_F(MissionListenerTest, MissionListener_Callback_0100, TestSize.Level2)
 {
-    HILOG_INFO("MissionListener_Callback_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "MissionListener_Callback_0100 start");
 
     auto controller = GetController();
     ASSERT_TRUE(controller);
@@ -213,7 +214,7 @@ HWTEST_F(MissionListenerTest, MissionListener_Callback_0100, TestSize.Level2)
 
     controller->DelMissionListener(listener);
 
-    HILOG_INFO("MissionListener_Callback_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "MissionListener_Callback_0100 end");
 }
 
 /**
@@ -224,7 +225,7 @@ HWTEST_F(MissionListenerTest, MissionListener_Callback_0100, TestSize.Level2)
  */
 HWTEST_F(MissionListenerTest, MissionListener_Callback_0200, TestSize.Level2)
 {
-    HILOG_INFO("MissionListener_Callback_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "MissionListener_Callback_0200 start");
 
     std::shared_ptr<MissionListenerController> controller = std::make_shared<MissionListenerController>();
     ASSERT_TRUE(controller);
@@ -239,7 +240,7 @@ HWTEST_F(MissionListenerTest, MissionListener_Callback_0200, TestSize.Level2)
 
     EXPECT_FALSE(listener->IsMissionLabelUpdated());
 
-    HILOG_INFO("MissionListener_Callback_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "MissionListener_Callback_0200 end");
 }
 }  // namespace AAFwk
 }  // namespace OHOS

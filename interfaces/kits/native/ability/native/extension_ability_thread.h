@@ -64,7 +64,7 @@ public:
      * @param sessionInfo Indicates the session info.
      */
     void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &targetState,
-        sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr) override;
+        sptr<AAFwk::SessionInfo> sessionInfo = nullptr) override;
 
     /**
      * @brief Provide operating system ConnectAbility information to the observer
@@ -168,7 +168,7 @@ private:
      * @param sessionInfo Indicates the session info.
      */
     void HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
-        sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr);
+        sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
      * @brief Handle the current connection of Extension.
@@ -214,6 +214,16 @@ private:
 
     void HandleAttachInner(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord);
+
+    /**
+     * @brief Handle the current command of Extension.
+     * @param want The Want object to command to.
+     */
+    void HandleInsightIntent(const Want &want);
+
+    void ScheduleCommandAbilityInner(const Want &want, bool restart, int32_t startId);
+
+    void ScheduleInsightIntentInner(const Want &want);
 
     std::shared_ptr<ExtensionImpl> extensionImpl_ = nullptr;
     std::shared_ptr<Extension> currentExtension_ = nullptr;

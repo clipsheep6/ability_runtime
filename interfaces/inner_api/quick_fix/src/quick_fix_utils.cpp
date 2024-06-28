@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,9 +15,12 @@
 
 #include "quick_fix_utils.h"
 
+#include "bundle_mgr_helper.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
+#include "singleton.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
@@ -26,13 +29,13 @@ sptr<IRemoteObject> QuickFixUtil::GetRemoteObjectOfSystemAbility(const int32_t s
 {
     auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemAbilityMgr == nullptr) {
-        HILOG_ERROR("Failed to get SystemAbilityManager.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Failed to get SystemAbilityManager.");
         return nullptr;
     }
 
     auto remoteObj = systemAbilityMgr->GetSystemAbility(systemAbilityId);
     if (remoteObj == nullptr) {
-        HILOG_ERROR("Remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Remote object is nullptr.");
         return nullptr;
     }
 
@@ -44,27 +47,22 @@ sptr<AppExecFwk::IAppMgr> QuickFixUtil::GetAppManagerProxy()
     return iface_cast<AppExecFwk::IAppMgr>(GetRemoteObjectOfSystemAbility(APP_MGR_SERVICE_ID));
 }
 
-sptr<AppExecFwk::IBundleMgr> QuickFixUtil::GetBundleManagerProxy()
-{
-    return iface_cast<AppExecFwk::IBundleMgr>(GetRemoteObjectOfSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID));
-}
-
 sptr<AppExecFwk::IQuickFixManager> QuickFixUtil::GetBundleQuickFixMgrProxy()
 {
-    HILOG_DEBUG("function called.");
-    auto bundleMgr = GetBundleManagerProxy();
-    if (bundleMgr == nullptr) {
-        HILOG_ERROR("Failed to get bms.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "Function called.");
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
+    if (bundleMgrHelper == nullptr) {
+        TAG_LOGE(AAFwkTag::QUICKFIX, "The bundleMgrHelper is nullptr.");
         return nullptr;
     }
 
-    auto bundleQuickFixMgr = bundleMgr->GetQuickFixManagerProxy();
+    auto bundleQuickFixMgr = bundleMgrHelper->GetQuickFixManagerProxy();
     if (bundleQuickFixMgr == nullptr) {
-        HILOG_ERROR("Failed to get bundle quick fix manager.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "The bundleQuickFixMgr is nullptr.");
         return nullptr;
     }
 
-    HILOG_DEBUG("function finished.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "Function finished.");
     return bundleQuickFixMgr;
 }
 } // namespace AAFwk

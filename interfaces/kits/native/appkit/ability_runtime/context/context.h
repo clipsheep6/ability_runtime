@@ -23,7 +23,7 @@
 #include "bindable.h"
 #include "configuration.h"
 #include "hap_module_info.h"
-#include "foundation/communication/ipc/interfaces/innerkits/ipc_core/include/iremote_object.h"
+#include "iremote_object.h"
 #include "resource_manager.h"
 
 using IRemoteObject = OHOS::IRemoteObject;
@@ -121,6 +121,8 @@ public:
      */
     virtual std::string GetFilesDir() = 0;
 
+    virtual std::string GetResourceDir() = 0;
+
     /**
      * @brief Checks whether the configuration of this ability is changing.
      *
@@ -180,6 +182,8 @@ public:
      */
     virtual std::string GetDistributedFilesDir() = 0;
 
+    virtual std::string GetCloudFileDir() = 0;
+
      /**
      * @brief Obtains token.
      *
@@ -221,6 +225,21 @@ public:
      */
     virtual std::shared_ptr<Context> CreateModuleContext(const std::string &bundleName,
                                                           const std::string &moduleName) = 0;
+
+    /**
+     * @brief Creates a ResourceManager object for a hap with the given hap name and app name.
+     *
+     * @param bundleName Indicates the app name of the application.
+
+     * @param moduleName Indicates the module name of the hap.
+     *
+     * @return Returns a ResourceManager object created for the specified hap and app.
+     */
+    virtual std::shared_ptr<Global::Resource::ResourceManager> CreateModuleResourceManager(
+        const std::string &bundleName, const std::string &moduleName) = 0;
+
+    virtual int32_t CreateSystemHspModuleResourceManager(const std::string &bundleName,
+        const std::string &moduleName, std::shared_ptr<Global::Resource::ResourceManager> &resourceManager) = 0;
 
     /**
      * @brief Get file area

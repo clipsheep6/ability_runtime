@@ -14,6 +14,7 @@
  */
 
 #include "mock_ability_connect_callback.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -24,14 +25,14 @@ int AbilityConnectCallback::onAbilityDisconnectDoneCount = 0;
 void AbilityConnectCallback::OnAbilityConnectDone(const AppExecFwk::ElementName& __attribute__((unused)) element,
     const sptr<IRemoteObject>& __attribute__((unused)) remoteObject, int __attribute__((unused)) resultCode)
 {
-    HILOG_DEBUG("mock AbilityConnectCallback::OnAbilityConnectDone");
+    TAG_LOGD(AAFwkTag::TEST, "mock AbilityConnectCallback::OnAbilityConnectDone");
     onAbilityConnectDoneCount++;
 }
 
 void AbilityConnectCallback::OnAbilityDisconnectDone(
     const AppExecFwk::ElementName& __attribute__((unused)) element, int __attribute__((unused)) resultCode)
 {
-    HILOG_DEBUG("mock AbilityConnectCallback::OnAbilityDisConnectDone");
+    TAG_LOGD(AAFwkTag::TEST, "mock AbilityConnectCallback::OnAbilityDisConnectDone");
     onAbilityDisconnectDoneCount++;
 }
 }  // namespace AAFwk

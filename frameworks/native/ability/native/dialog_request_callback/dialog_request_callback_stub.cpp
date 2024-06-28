@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "dialog_request_callback_stub.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
@@ -22,10 +23,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 DialogRequestCallbackStub::DialogRequestCallbackStub()
-{
-    vecMemberFunc_.resize(IDialogRequestCallback::CODE_MAX);
-    vecMemberFunc_[CODE_SEND_RESULT] = &DialogRequestCallbackStub::SendResultInner;
-}
+{}
 
 int DialogRequestCallbackStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -33,13 +31,12 @@ int DialogRequestCallbackStub::OnRemoteRequest(
     std::u16string descriptor = DialogRequestCallbackStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_INFO("Local descriptor is not equal to remote");
+        TAG_LOGI(AAFwkTag::DIALOG, "Local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
 
-    if (code < IDialogRequestCallback::CODE_MAX) {
-        auto memberFunc = vecMemberFunc_[code];
-        return (this->*memberFunc)(data, reply);
+    if (code == CODE_SEND_RESULT) {
+        return SendResultInner(data, reply);
     }
 
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
@@ -50,7 +47,7 @@ int DialogRequestCallbackStub::SendResultInner(MessageParcel &data, MessageParce
     auto resultCode = data.ReadInt32();
     std::unique_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
     if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
+        TAG_LOGE(AAFwkTag::DIALOG, "want is nullptr");
         return ERR_INVALID_VALUE;
     }
 

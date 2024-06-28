@@ -217,7 +217,8 @@ HWTEST_F(FormExtensionTest, AaFwk_Form_Extension_0900, Function | MediumTest | L
     ASSERT_NE(runtime, nullptr);
     auto formExtension = AbilityRuntime::FormExtension::Create(runtime);
     int64_t formId = 0;
-    formExtension->OnUpdate(formId);
+    AAFwk::WantParams params;
+    formExtension->OnUpdate(formId, params);
     GTEST_LOG_(INFO) << "AaFwk_Form_Extension_0900 end";
 }
 

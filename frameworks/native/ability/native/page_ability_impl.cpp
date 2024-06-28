@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 
 #include "page_ability_impl.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 
@@ -24,18 +25,18 @@ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
     sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Handle ability transaction start, sourceState:%{public}d, targetState:%{public}d, "
+    TAG_LOGI(AAFwkTag::ABILITY, "Handle ability transaction start, sourceState:%{public}d, targetState:%{public}d, "
              "isNewWant:%{public}d, sceneFlag:%{public}d.",
         lifecycleState_, targetState.state, targetState.isNewWant, targetState.sceneFlag);
     if (ability_ == nullptr) {
-        HILOG_ERROR("Handle ability transaction error, ability_ is null.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Handle ability transaction error, ability_ is null.");
         return;
     }
 
     auto abilityContext = ability_->GetAbilityContext();
     if (abilityContext != nullptr && abilityContext->IsTerminating()
         && targetState.state == AAFwk::ABILITY_STATE_INACTIVE) {
-        HILOG_ERROR("Invalid translate state.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Invalid translate state.");
         return;
     }
 
@@ -45,13 +46,13 @@ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
             ability_->RequestFocus(want);
             AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, GetRestoreData());
         }
-        HILOG_ERROR("Org lifeCycleState equals to Dst lifeCycleState.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Org lifeCycleState equals to Dst lifeCycleState.");
         return;
     }
 
     if (lifecycleState_ == AAFwk::ABILITY_STATE_BACKGROUND || lifecycleState_ == AAFwk::ABILITY_STATE_BACKGROUND_NEW) {
         if (targetState.state == AAFwk::ABILITY_STATE_ACTIVE || targetState.state == AAFwk::ABILITY_STATE_INACTIVE) {
-            HILOG_ERROR("Invalid state.");
+            TAG_LOGE(AAFwkTag::ABILITY, "Invalid state.");
             return;
         }
     }
@@ -75,7 +76,7 @@ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
     }
 
     if (AbilityTransaction(want, targetState)) {
-        HILOG_INFO("Handle ability transaction done, notify ability manager service.");
+        TAG_LOGI(AAFwkTag::ABILITY, "Handle ability transaction done, notify ability manager service.");
         AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, GetRestoreData());
     }
 }
@@ -91,7 +92,7 @@ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
  */
 bool PageAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
 {
-    HILOG_DEBUG("PageAbilityImpl::AbilityTransaction begin");
+    TAG_LOGD(AAFwkTag::ABILITY, "PageAbilityImpl::AbilityTransaction begin");
     bool ret = true;
     switch (targetState.state) {
         case AAFwk::ABILITY_STATE_INITIAL: {
@@ -142,11 +143,11 @@ bool PageAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycl
         }
         default: {
             ret = false;
-            HILOG_ERROR("PageAbilityImpl::HandleAbilityTransaction state error");
+            TAG_LOGE(AAFwkTag::ABILITY, "PageAbilityImpl::HandleAbilityTransaction state error");
             break;
         }
     }
-    HILOG_DEBUG("PageAbilityImpl::AbilityTransaction end: retVal = %{public}d", static_cast<int>(ret));
+    TAG_LOGD(AAFwkTag::ABILITY, "PageAbilityImpl::AbilityTransaction end: retVal = %{public}d", static_cast<int>(ret));
     return ret;
 }
 
@@ -160,18 +161,18 @@ bool PageAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycl
  */
 void PageAbilityImpl::DoKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
 {
-    HILOG_INFO("PageAbilityImpl::DoKeyDown begin");
+    TAG_LOGI(AAFwkTag::ABILITY, "PageAbilityImpl::DoKeyDown begin");
     if (ability_ == nullptr) {
-        HILOG_ERROR("PageAbilityImpl::DoKeyDown ability_ == nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "PageAbilityImpl::DoKeyDown ability_ == nullptr");
         return;
     }
     auto abilityInfo = ability_->GetAbilityInfo();
-    HILOG_INFO("PageAbilityImpl::DoKeyDown called %{public}s And Focus is %{public}s",
+    TAG_LOGI(AAFwkTag::ABILITY, "PageAbilityImpl::DoKeyDown called %{public}s And Focus is %{public}s",
         abilityInfo->name.c_str(),
         ability_->HasWindowFocus() ? "true" : "false");
 
     ability_->OnKeyDown(keyEvent);
-    HILOG_INFO("PageAbilityImpl::DoKeyDown end");
+    TAG_LOGI(AAFwkTag::ABILITY, "PageAbilityImpl::DoKeyDown end");
 }
 
 /**
@@ -184,18 +185,18 @@ void PageAbilityImpl::DoKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
  */
 void PageAbilityImpl::DoKeyUp(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
 {
-    HILOG_INFO("PageAbilityImpl::DoKeyUp begin");
+    TAG_LOGI(AAFwkTag::ABILITY, "PageAbilityImpl::DoKeyUp begin");
     if (ability_ == nullptr) {
-        HILOG_ERROR("PageAbilityImpl::DoKeyUp ability_ == nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "PageAbilityImpl::DoKeyUp ability_ == nullptr");
         return;
     }
     auto abilityInfo = ability_->GetAbilityInfo();
-    HILOG_INFO("PageAbilityImpl::DoKeyUp called %{public}s And Focus is %{public}s",
+    TAG_LOGI(AAFwkTag::ABILITY, "PageAbilityImpl::DoKeyUp called %{public}s And Focus is %{public}s",
         abilityInfo->name.c_str(),
         ability_->HasWindowFocus() ? "true" : "false");
 
     ability_->OnKeyUp(keyEvent);
-    HILOG_INFO("PageAbilityImpl::DoKeyUp end");
+    TAG_LOGI(AAFwkTag::ABILITY, "PageAbilityImpl::DoKeyUp end");
 }
 
 /**
@@ -208,18 +209,18 @@ void PageAbilityImpl::DoKeyUp(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
  */
 void PageAbilityImpl::DoPointerEvent(std::shared_ptr<MMI::PointerEvent>& pointerEvent)
 {
-    HILOG_INFO("PageAbilityImpl::DoPointerEvent begin");
+    TAG_LOGI(AAFwkTag::ABILITY, "PageAbilityImpl::DoPointerEvent begin");
     if (ability_ == nullptr) {
-        HILOG_ERROR("PageAbilityImpl::DoPointerEvent ability_ == nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "PageAbilityImpl::DoPointerEvent ability_ == nullptr");
         return;
     }
     auto abilityInfo = ability_->GetAbilityInfo();
-    HILOG_INFO("PageAbilityImpl::DoPointerEvent called %{public}s And Focus is %{public}s",
+    TAG_LOGI(AAFwkTag::ABILITY, "PageAbilityImpl::DoPointerEvent called %{public}s And Focus is %{public}s",
         abilityInfo->name.c_str(),
         ability_->HasWindowFocus() ? "true" : "false");
 
     ability_->OnPointerEvent(pointerEvent);
-    HILOG_INFO("PageAbilityImpl::DoPointerEvent end");
+    TAG_LOGI(AAFwkTag::ABILITY, "PageAbilityImpl::DoPointerEvent end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

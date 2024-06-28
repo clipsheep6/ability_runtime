@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "connection_observer_controller.h"
 
 #include "connection_observer_errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -24,7 +25,7 @@ using namespace OHOS::AbilityRuntime;
 int ConnectionObserverController::AddObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer)
 {
     if (!observer) {
-        HILOG_ERROR("observer is invalid");
+        TAG_LOGE(AAFwkTag::CONNECTION, "observer is invalid");
         return AbilityRuntime::ERR_INVALID_OBSERVER;
     }
 
@@ -33,7 +34,7 @@ int ConnectionObserverController::AddObserver(const sptr<AbilityRuntime::IConnec
         return (item && item->AsObject() == observer->AsObject());
     });
     if (it != observers_.end()) {
-        HILOG_WARN("observer was already added, do not add again");
+        TAG_LOGW(AAFwkTag::CONNECTION, "observer was already added, do not add again");
         return 0;
     }
 
@@ -49,7 +50,7 @@ int ConnectionObserverController::AddObserver(const sptr<AbilityRuntime::IConnec
     }
     auto observerObj = observer->AsObject();
     if (!observerObj || !observerObj->AddDeathRecipient(observerDeathRecipient_)) {
-        HILOG_ERROR("AddDeathRecipient failed.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "AddDeathRecipient failed.");
     }
     observers_.emplace_back(observer);
 
@@ -59,7 +60,7 @@ int ConnectionObserverController::AddObserver(const sptr<AbilityRuntime::IConnec
 void ConnectionObserverController::RemoveObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer)
 {
     if (!observer) {
-        HILOG_ERROR("observer is invalid");
+        TAG_LOGE(AAFwkTag::CONNECTION, "observer is invalid");
         return;
     }
 
@@ -100,10 +101,10 @@ std::vector<sptr<AbilityRuntime::IConnectionObserver>> ConnectionObserverControl
 
 void ConnectionObserverController::HandleRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_DEBUG("remote connection oberver was died.");
+    TAG_LOGD(AAFwkTag::CONNECTION, "remote connection oberver was died.");
     auto remoteObj = remote.promote();
     if (!remoteObj) {
-        HILOG_DEBUG("invalid remote object.");
+        TAG_LOGD(AAFwkTag::CONNECTION, "invalid remote object.");
         return;
     }
     remoteObj->RemoveDeathRecipient(observerDeathRecipient_);

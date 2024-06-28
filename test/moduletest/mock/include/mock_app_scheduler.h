@@ -33,11 +33,11 @@ public:
 
     MOCK_METHOD0(ScheduleForegroundApplication, void());
     MOCK_METHOD0(ScheduleBackgroundApplication, void());
-    MOCK_METHOD0(ScheduleTerminateApplication, void());
+    MOCK_METHOD1(ScheduleTerminateApplication, void(bool));
     MOCK_METHOD2(ScheduleLaunchApplication, void(const AppExecFwk::AppLaunchData&, const Configuration& config));
-    MOCK_METHOD3(ScheduleLaunchAbility, void(const AppExecFwk::AbilityInfo&, const sptr<IRemoteObject>&,
-        const std::shared_ptr<AAFwk::Want>&));
-    MOCK_METHOD1(ScheduleCleanAbility, void(const sptr<IRemoteObject>&));
+    MOCK_METHOD4(ScheduleLaunchAbility, void(const AppExecFwk::AbilityInfo&, const sptr<IRemoteObject>&,
+        const std::shared_ptr<AAFwk::Want>&, int32_t));
+    MOCK_METHOD2(ScheduleCleanAbility, void(const sptr<IRemoteObject>&, bool));
     MOCK_METHOD1(ScheduleProfileChanged, void(const AppExecFwk::Profile&));
     MOCK_METHOD1(ScheduleConfigurationUpdated, void(const AppExecFwk::Configuration& config));
     MOCK_METHOD1(ScheduleShrinkMemory, void(const int));
@@ -51,6 +51,7 @@ public:
     MOCK_METHOD1(AttachAppDebug, int32_t(const std::string &bundleName));
     MOCK_METHOD1(DetachAppDebug, int32_t(const std::string &bundleName));
     MOCK_METHOD1(RegisterAbilityDebugResponse, int32_t(const sptr<AppExecFwk::IAbilityDebugResponse> &response));
+    MOCK_METHOD1(ScheduleJsHeapMemory, void(OHOS::AppExecFwk::JsHeapDumpInfo &info));
 };
 }  // namespace AAFwk
 }  // namespace OHOS

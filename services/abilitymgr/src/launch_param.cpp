@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,10 @@
 
 #include "launch_param.h"
 
+#include "hilog_tag_wrapper.h"
+#include "hilog_wrapper.h"
+#include "string_ex.h"
+
 namespace OHOS {
 namespace AAFwk {
 bool LaunchParam::ReadFromParcel(Parcel &parcel)
@@ -29,6 +33,8 @@ bool LaunchParam::ReadFromParcel(Parcel &parcel)
         return false;
     }
     lastExitReason = static_cast<LastExitReason>(reason);
+
+    lastExitMessage = Str16ToStr8(parcel.ReadString16());
     return true;
 }
 
@@ -54,6 +60,10 @@ bool LaunchParam::Marshalling(Parcel &parcel) const
     }
     // write lastExitReason
     if (!parcel.WriteInt32(static_cast<int32_t>(lastExitReason))) {
+        return false;
+    }
+    if (!parcel.WriteString16(Str8ToStr16(lastExitMessage))) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write parcel lastExitMessage failed.");
         return false;
     }
     return true;

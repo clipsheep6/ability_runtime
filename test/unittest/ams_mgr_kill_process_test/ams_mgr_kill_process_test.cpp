@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,9 +19,11 @@
 #include "ams_mgr_scheduler.h"
 #undef private
 #include "app_mgr_interface.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_bundle_manager.h"
 #include "mock_native_token.h"
+#include "mock_sa_call.h"
 #include "system_ability_definition.h"
 #include "sys_mgr_client.h"
 
@@ -64,9 +66,8 @@ std::shared_ptr<AppMgrServiceInner> AmsMgrKillProcessTest::GetAppMgrServiceInner
 {
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
-
-    sptr<IBundleMgr> bundleMgr = new BundleMgrService();
-    appMgrServiceInner->remoteClientManager_->SetBundleManager(bundleMgr);
+    auto bundleMgr = DelayedSingleton<BundleMgrHelper>::GetInstance();
+    appMgrServiceInner->remoteClientManager_->SetBundleManagerHelper(bundleMgr);
 
     return appMgrServiceInner;
 }
@@ -95,12 +96,13 @@ sptr<IAppMgr> AmsMgrKillProcessTest::GetAppMgrProxy(void)
  */
 HWTEST_F(AmsMgrKillProcessTest, KillProcess_0100, TestSize.Level0)
 {
-    HILOG_INFO("AmsMgrKillProcessTest_KillProcess_0100");
+    TAG_LOGI(AAFwkTag::TEST, "AmsMgrKillProcessTest_KillProcess_0100");
 
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto appMgrServiceInner = GetAppMgrServiceInner();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
-    ErrCode result = appMgrServiceInner->KillApplicationByUserId(STRING_BUNDLE_NAME, ACCOUNT_ID);
+    ErrCode result = appMgrServiceInner->KillApplicationByUserId(STRING_BUNDLE_NAME, 0, ACCOUNT_ID);
     EXPECT_EQ(result, ERR_OK);
 }
 
@@ -114,8 +116,9 @@ HWTEST_F(AmsMgrKillProcessTest, KillProcess_0100, TestSize.Level0)
  */
 HWTEST_F(AmsMgrKillProcessTest, KillProcess_0200, TestSize.Level0)
 {
-    HILOG_INFO("AmsMgrKillProcessTest_KillProcess_0200");
+    TAG_LOGI(AAFwkTag::TEST, "AmsMgrKillProcessTest_KillProcess_0200");
 
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto proxy = GetAppMgrProxy();
     EXPECT_NE(proxy, nullptr);
 

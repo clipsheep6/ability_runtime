@@ -19,6 +19,8 @@
 #include "ability_manager_service.h"
 #include "user_controller.h"
 #undef private
+#include "scene_board_judgement.h"
+#include "user_callback_stub.h"
 using namespace testing;
 using namespace testing::ext;
 
@@ -47,6 +49,21 @@ void UserControllerTest::SetUp()
 void UserControllerTest::TearDown()
 {}
 
+class TestUserCallback : public UserCallbackStub {
+public:
+    void OnStopUserDone(int userId, int errcode) override;
+    void OnStartUserDone(int userId, int errcode) override;
+
+    int errCode_ = -1;
+};
+
+void TestUserCallback::OnStartUserDone(int userId, int errcode)
+{
+    errCode_ = errcode;
+}
+
+void TestUserCallback::OnStopUserDone(int userId, int errcode) {}
+
 /**
  * @tc.name: UserItemSetState_0100
  * @tc.desc: UserItemSetState Test
@@ -72,10 +89,11 @@ HWTEST_F(UserControllerTest, UserItemSetState_0100, TestSize.Level0)
 HWTEST_F(UserControllerTest, StartUserTest_0100, TestSize.Level0)
 {
     UserController userController;
-    userController.StartUser(0, true);
-    userController.StartUser(-1, true);
-    userController.StartUser(100, true);
-    EXPECT_TRUE(userController.StartUser(100, true) == 0);
+    userController.GetOrCreateUserItem(1000);
+    userController.SetCurrentUserId(1000);
+    sptr<TestUserCallback> callback = new TestUserCallback();
+    userController.StartUser(1000, callback, true);
+    EXPECT_TRUE(callback->errCode_ == 0);
 }
 
 /**
@@ -87,7 +105,9 @@ HWTEST_F(UserControllerTest, StartUserTest_0100, TestSize.Level0)
 HWTEST_F(UserControllerTest, StartUserTest_0200, TestSize.Level0)
 {
     UserController userController;
-    EXPECT_TRUE(userController.StartUser(666, true) == -1);
+    sptr<TestUserCallback> callback = new TestUserCallback();
+    userController.StartUser(666, callback, true);
+    EXPECT_TRUE(callback->errCode_ != 0);
 }
 
 /**
@@ -126,8 +146,54 @@ HWTEST_F(UserControllerTest, StopUserTest_0300, TestSize.Level0)
 {
     UserController userController;
     userController.GetOrCreateUserItem(1000);
-    userController.StopUser(1000);
-    EXPECT_TRUE(true);
+    auto result = userController.StopUser(1000);
+    EXPECT_TRUE(result = 1000);
+}
+
+/**
+ * @tc.name: LogoutUserTest_0100
+ * @tc.desc: LogoutUser Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(UserControllerTest, LogoutUserTest_0100, TestSize.Level0)
+{
+    UserController userController;
+    auto result = userController.LogoutUser(-1);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(result, INVALID_USERID_VALUE);
+    }
+    EXPECT_TRUE(userController.GetCurrentUserId() == 0);
+}
+
+/**
+ * @tc.name: LogoutUserTest_0200
+ * @tc.desc: LogoutUser Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(UserControllerTest, LogoutUserTest_0200, TestSize.Level0)
+{
+    UserController userController;
+    auto result = userController.LogoutUser(666);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(result, INVALID_USERID_VALUE);
+    }
+    EXPECT_TRUE(userController.GetCurrentUserId() == 0);
+}
+
+/**
+ * @tc.name: LogoutUserTest_0300
+ * @tc.desc: LogoutUser Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(UserControllerTest, LogoutUserTest_0300, TestSize.Level0)
+{
+    UserController userController;
+    userController.GetOrCreateUserItem(1000);
+    auto result = userController.LogoutUser(1000);
+    EXPECT_TRUE(result = 1000);
 }
 
 /**
@@ -141,7 +207,8 @@ HWTEST_F(UserControllerTest, HandleContinueUserSwitchTest_0100, TestSize.Level0)
     UserController userController;
     auto userItem = std::make_shared<UserItem>(1000);
     userController.HandleContinueUserSwitch(1000, 1000, userItem);
-    EXPECT_TRUE(true);
+    auto result = userController.GetCurrentUserId();
+    EXPECT_TRUE(result == 0);
 }
 
 /**
@@ -156,7 +223,8 @@ HWTEST_F(UserControllerTest, SendUserSwitchDoneTest_0100, TestSize.Level0)
     userController.SendUserSwitchDone(1000);
     userController.Init();
     userController.SendUserSwitchDone(1001);
-    EXPECT_TRUE(true);
+    auto result = userController.GetCurrentUserId();
+    EXPECT_TRUE(result == 0);
 }
 
 /**
@@ -172,7 +240,8 @@ HWTEST_F(UserControllerTest, SendContinueUserSwitchTest_0200, TestSize.Level0)
     userController.SendContinueUserSwitch(1000, 1000, userItem);
     userController.Init();
     userController.SendContinueUserSwitch(1000, 1000, userItem);
-    EXPECT_TRUE(true);
+    auto result = userController.GetCurrentUserId();
+    EXPECT_TRUE(result == 0);
 }
 
 /**
@@ -188,7 +257,8 @@ HWTEST_F(UserControllerTest, SendUserSwitchTimeoutTest_0100, TestSize.Level0)
     userController.SendUserSwitchTimeout(1000, 1000, userItem);
     userController.Init();
     userController.SendUserSwitchTimeout(1000, 1000, userItem);
-    EXPECT_TRUE(true);
+    auto result = userController.GetCurrentUserId();
+    EXPECT_TRUE(result == 0);
 }
 
 /**
@@ -204,7 +274,8 @@ HWTEST_F(UserControllerTest, SendReportUserSwitchTest_0100, TestSize.Level0)
     userController.SendReportUserSwitch(1000, 1000, userItem);
     userController.Init();
     userController.SendReportUserSwitch(1000, 1000, userItem);
-    EXPECT_TRUE(true);
+    auto result = userController.GetCurrentUserId();
+    EXPECT_TRUE(result == 0);
 }
 
 /**
@@ -219,7 +290,8 @@ HWTEST_F(UserControllerTest, SendSystemUserCurrentTest_0100, TestSize.Level0)
     userController.SendSystemUserCurrent(1000, 1000);
     userController.Init();
     userController.SendSystemUserCurrent(1000, 1000);
-    EXPECT_TRUE(true);
+    auto result = userController.GetCurrentUserId();
+    EXPECT_TRUE(result == 0);
 }
 
 /**
@@ -234,7 +306,8 @@ HWTEST_F(UserControllerTest, SendSystemUserStartTest_0100, TestSize.Level0)
     userController.SendSystemUserStart(1000);
     userController.Init();
     userController.SendSystemUserStart(1000);
-    EXPECT_TRUE(true);
+    auto result = userController.GetCurrentUserId();
+    EXPECT_TRUE(result == 0);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

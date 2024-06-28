@@ -31,12 +31,11 @@ public:
     virtual int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
-    // virtual void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag) {}
-    // virtual void OnTimeoutResponse(const AAFwk::Want &want) {}
-
 private:
     int32_t HandleOnAcceptWantResponse(MessageParcel &data, MessageParcel &reply);
     int32_t HandleOnTimeoutResponse(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleOnNewProcessRequestResponse(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleOnNewProcessRequestTimeoutResponse(MessageParcel &data, MessageParcel &reply);
 
     using responseFunc = std::function<int32_t(MessageParcel&, MessageParcel&)>;
     std::map<uint32_t, responseFunc> responseFuncMap_;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "application_state_observer_stub.h"
 #include "appexecfwk_errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
@@ -22,64 +23,13 @@
 namespace OHOS {
 namespace AppExecFwk {
 std::mutex ApplicationStateObserverStub::callbackMutex_;
-
-ApplicationStateObserverStub::ApplicationStateObserverStub()
-{
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_FOREGROUND_APPLICATION_CHANGED)] =
-        &ApplicationStateObserverStub::HandleOnForegroundApplicationChanged;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_ABILITY_STATE_CHANGED)] =
-        &ApplicationStateObserverStub::HandleOnAbilityStateChanged;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_EXTENSION_STATE_CHANGED)] =
-        &ApplicationStateObserverStub::HandleOnExtensionStateChanged;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_PROCESS_CREATED)] =
-        &ApplicationStateObserverStub::HandleOnProcessCreated;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_PROCESS_STATE_CHANGED)] =
-        &ApplicationStateObserverStub::HandleOnProcessStateChanged;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_PROCESS_DIED)] =
-        &ApplicationStateObserverStub::HandleOnProcessDied;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_APPLICATION_STATE_CHANGED)] =
-        &ApplicationStateObserverStub::HandleOnApplicationStateChanged;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_APP_STATE_CHANGED)] =
-        &ApplicationStateObserverStub::HandleOnAppStateChanged;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_PROCESS_REUSED)] =
-        &ApplicationStateObserverStub::HandleOnProcessReused;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_APP_STARTED)] =
-        &ApplicationStateObserverStub::HandleOnAppStarted;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_APP_STOPPED)] =
-        &ApplicationStateObserverStub::HandleOnAppStopped;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_PAGE_SHOW)] =
-        &ApplicationStateObserverStub::HandleOnPageShow;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_PAGE_HIDE)] =
-        &ApplicationStateObserverStub::HandleOnPageHide;
-}
-
-ApplicationStateObserverStub::~ApplicationStateObserverStub()
-{
-    memberFuncMap_.clear();
-}
-
 int ApplicationStateObserverStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_DEBUG("ApplicationStateObserverStub::OnReceived, code = %{public}u, flags= %{public}d.",
-        code, option.GetFlags());
     std::u16string descriptor = ApplicationStateObserverStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_ERROR("local descriptor is not equal to remote");
+        TAG_LOGE(AAFwkTag::APPMGR, "local descriptor is not equal to remote.");
         return ERR_INVALID_STATE;
     }
 
@@ -90,6 +40,7 @@ int ApplicationStateObserverStub::OnRemoteRequest(
             return (this->*memberFunc)(data, reply);
         }
     }
+    TAG_LOGW(AAFwkTag::APPMGR, "ApplicationStateObserverStub::OnRemoteRequest, default case, need check");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
@@ -132,11 +83,14 @@ void ApplicationStateObserverStub::OnPageShow(const PageStateData &pageStateData
 void ApplicationStateObserverStub::OnPageHide(const PageStateData &pageStateData)
 {}
 
+void ApplicationStateObserverStub::OnAppCacheStateChanged(const AppStateData &appStateData)
+{}
+
 int32_t ApplicationStateObserverStub::HandleOnForegroundApplicationChanged(MessageParcel &data, MessageParcel &reply)
 {
     std::unique_ptr<AppStateData> processData(data.ReadParcelable<AppStateData>());
     if (!processData) {
-        HILOG_ERROR("ReadParcelable<AppStateData> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<AppStateData> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -151,7 +105,7 @@ int32_t ApplicationStateObserverStub::HandleOnAbilityStateChanged(MessageParcel 
         std::unique_lock<std::mutex> lock(callbackMutex_);
         abilityStateData = data.ReadParcelable<AbilityStateData>();
         if (!abilityStateData) {
-            HILOG_ERROR("ReadParcelable<AbilityStateData> failed");
+            TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<AbilityStateData> failed");
             return ERR_APPEXECFWK_PARCEL_ERROR;
         }
     }
@@ -171,7 +125,7 @@ int32_t ApplicationStateObserverStub::HandleOnExtensionStateChanged(MessageParce
         std::unique_lock<std::mutex> lock(callbackMutex_);
         abilityStateData = data.ReadParcelable<AbilityStateData>();
         if (!abilityStateData) {
-            HILOG_ERROR("ReadParcelable<AbilityStateData> failed");
+            TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<AbilityStateData> failed");
             return ERR_APPEXECFWK_PARCEL_ERROR;
         }
     }
@@ -188,7 +142,7 @@ int32_t ApplicationStateObserverStub::HandleOnProcessCreated(MessageParcel &data
 {
     std::unique_ptr<ProcessData> processData(data.ReadParcelable<ProcessData>());
     if (!processData) {
-        HILOG_ERROR("ReadParcelable<ProcessData> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<ProcessData> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -200,7 +154,7 @@ int32_t ApplicationStateObserverStub::HandleOnProcessStateChanged(MessageParcel 
 {
     std::unique_ptr<ProcessData> processData(data.ReadParcelable<ProcessData>());
     if (!processData) {
-        HILOG_ERROR("ReadParcelable<ProcessData> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<ProcessData> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -212,7 +166,7 @@ int32_t ApplicationStateObserverStub::HandleOnProcessDied(MessageParcel &data, M
 {
     std::unique_ptr<ProcessData> processData(data.ReadParcelable<ProcessData>());
     if (!processData) {
-        HILOG_ERROR("ReadParcelable<ProcessData> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<ProcessData> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -224,7 +178,7 @@ int32_t ApplicationStateObserverStub::HandleOnApplicationStateChanged(MessagePar
 {
     std::unique_ptr<AppStateData> processData(data.ReadParcelable<AppStateData>());
     if (!processData) {
-        HILOG_ERROR("ReadParcelable<AppStateData> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<AppStateData> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -236,7 +190,7 @@ int32_t ApplicationStateObserverStub::HandleOnAppStateChanged(MessageParcel &dat
 {
     std::unique_ptr<AppStateData> processData(data.ReadParcelable<AppStateData>());
     if (!processData) {
-        HILOG_ERROR("ReadParcelable<AppStateData> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<AppStateData> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -246,7 +200,7 @@ int32_t ApplicationStateObserverStub::HandleOnAppStateChanged(MessageParcel &dat
 
 void ApplicationStateObserverRecipient::OnRemoteDied(const wptr<IRemoteObject> &__attribute__((unused)) remote)
 {
-    HILOG_ERROR("ApplicationStateObserverRecipient On remote died.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (handler_) {
         handler_(remote);
     }
@@ -256,7 +210,7 @@ int32_t ApplicationStateObserverStub::HandleOnProcessReused(MessageParcel &data,
 {
     std::unique_ptr<ProcessData> processData(data.ReadParcelable<ProcessData>());
     if (!processData) {
-        HILOG_ERROR("ReadParcelable<ProcessData> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<ProcessData> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -268,7 +222,7 @@ int32_t ApplicationStateObserverStub::HandleOnAppStarted(MessageParcel &data, Me
 {
     std::unique_ptr<AppStateData> processData(data.ReadParcelable<AppStateData>());
     if (!processData) {
-        HILOG_ERROR("ReadParcelable<AppStateData> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<AppStateData> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -280,7 +234,7 @@ int32_t ApplicationStateObserverStub::HandleOnAppStopped(MessageParcel &data, Me
 {
     std::unique_ptr<AppStateData> processData(data.ReadParcelable<AppStateData>());
     if (!processData) {
-        HILOG_ERROR("ReadParcelable<AppStateData> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<AppStateData> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -292,7 +246,7 @@ int32_t ApplicationStateObserverStub::HandleOnPageShow(MessageParcel &data, Mess
 {
     std::unique_ptr<PageStateData> pageStateData(data.ReadParcelable<PageStateData>());
     if (!pageStateData) {
-        HILOG_ERROR("ReadParcelable<pageStateData> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<pageStateData> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -304,11 +258,23 @@ int32_t ApplicationStateObserverStub::HandleOnPageHide(MessageParcel &data, Mess
 {
     std::unique_ptr<PageStateData> pageStateData(data.ReadParcelable<PageStateData>());
     if (!pageStateData) {
-        HILOG_ERROR("ReadParcelable<pageStateData> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<pageStateData> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
     OnPageHide(*pageStateData);
+    return NO_ERROR;
+}
+
+int32_t ApplicationStateObserverStub::HandleOnAppCacheStateChanged(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<AppStateData> processData(data.ReadParcelable<AppStateData>());
+    if (!processData) {
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<AppStateData> failed");
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+
+    OnAppCacheStateChanged(*processData);
     return NO_ERROR;
 }
 

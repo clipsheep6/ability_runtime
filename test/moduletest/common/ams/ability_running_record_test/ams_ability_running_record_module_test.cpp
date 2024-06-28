@@ -20,6 +20,7 @@
 #include "ability_info.h"
 #include "application_info.h"
 #include "app_running_record.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_ability_token.h"
 
@@ -79,7 +80,7 @@ public:
     {
         scheduled_ |= BACKGROUND_SCHEDULED;
     }
-    void ScheduleTerminateApplication() override
+    void ScheduleTerminateApplication(bool isLastProcess = false) override
     {
         scheduled_ |= TERMINATE_SCHEDULED;
     }
@@ -105,12 +106,12 @@ public:
         appLaunchTime++;
     }
     void ScheduleLaunchAbility(const AbilityInfo&, const sptr<IRemoteObject>&,
-        const std::shared_ptr<AAFwk::Want>&) override
+        const std::shared_ptr<AAFwk::Want>&, int32_t) override
     {
         scheduled_ |= LAUNCH_ABILITY_SCHEDULED;
         abilityLaunchTime++;
     }
-    void ScheduleCleanAbility(const sptr<IRemoteObject>&) override
+    void ScheduleCleanAbility(const sptr<IRemoteObject>&, bool isCacheProcess) override
     {
         scheduled_ |= CLEAN_ABILITY_SCHEDULED;
     }
@@ -140,6 +141,9 @@ public:
     {}
 
     void ScheduleAcceptWant(const AAFwk::Want& want, const std::string& moduleName) override
+    {}
+
+    void ScheduleNewProcessRequest(const AAFwk::Want& want, const std::string& moduleName) override
     {}
 
     int32_t ScheduleNotifyLoadRepairPatch(const std::string& bundleName,
@@ -180,6 +184,34 @@ public:
     {}
 
     void DetachAppDebug() override
+    {}
+
+    void ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info) override
+    {}
+
+    int32_t ScheduleDumpIpcStart(std::string& result) override
+    {
+        return 0;
+    }
+
+    int32_t ScheduleDumpIpcStop(std::string& result) override
+    {
+        return 0;
+    }
+
+    int32_t ScheduleDumpIpcStat(std::string& result) override
+    {
+        return 0;
+    }
+
+    int32_t ScheduleDumpFfrt(std::string& result) override
+    {
+        return 0;
+    }
+
+    void ScheduleClearPageStack() override
+    {}
+    void ScheduleCacheProcess() override
     {}
 
 private:
@@ -251,7 +283,7 @@ std::shared_ptr<AppRunningRecord> AmsAbilityRunningRecordModuleTest::QueryAppRun
  */
 HWTEST_F(AmsAbilityRunningRecordModuleTest, AddAbilityRunningRecord_002, TestSize.Level1)
 {
-    HILOG_INFO("AddAbilityRunningRecord_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "AddAbilityRunningRecord_002 start");
     int i;
     auto appRunningRecord = QueryAppRunningRecord();
     auto appInfo = std::make_shared<ApplicationInfo>();
@@ -263,16 +295,16 @@ HWTEST_F(AmsAbilityRunningRecordModuleTest, AddAbilityRunningRecord_002, TestSiz
         sptr<IRemoteObject> token = new MockAbilityToken();
         HapModuleInfo hapModuleInfo;
         hapModuleInfo.moduleName = "Module";
-        appRunningRecord->AddModule(appInfo, caseAbilityInfo, token, hapModuleInfo, nullptr);
+        appRunningRecord->AddModule(appInfo, caseAbilityInfo, token, hapModuleInfo, nullptr, 0);
         auto moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName,
             hapModuleInfo.moduleName);
-        auto caseAbilityRunningRecord = moduleRecord->AddAbility(token, caseAbilityInfo, nullptr);
+        auto caseAbilityRunningRecord = moduleRecord->AddAbility(token, caseAbilityInfo, nullptr, 0);
         EXPECT_TRUE(caseAbilityRunningRecord == nullptr);
         caseAbilityRunningRecord = moduleRecord->GetAbilityRunningRecordByToken(token);
         EXPECT_EQ(caseAbilityRunningRecord, appRunningRecord->GetAbilityRunningRecordByToken(token));
         EXPECT_EQ(caseAbilityRunningRecord->GetState(), AbilityState::ABILITY_STATE_CREATE);
     }
-    HILOG_INFO("AddAbilityRunningRecord_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "AddAbilityRunningRecord_002 end");
 }
 
 /*
@@ -285,7 +317,7 @@ HWTEST_F(AmsAbilityRunningRecordModuleTest, AddAbilityRunningRecord_002, TestSiz
  */
 HWTEST_F(AmsAbilityRunningRecordModuleTest, UpdateAbilityRunningRecord_001, TestSize.Level1)
 {
-    HILOG_INFO("UpdateAbilityRunningRecord_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "UpdateAbilityRunningRecord_001 start");
     int i;
     auto appRunningRecord = QueryAppRunningRecord();
     auto appInfo = std::make_shared<ApplicationInfo>();
@@ -297,21 +329,27 @@ HWTEST_F(AmsAbilityRunningRecordModuleTest, UpdateAbilityRunningRecord_001, Test
         sptr<IRemoteObject> token = new MockAbilityToken();
         HapModuleInfo hapModuleInfo;
         hapModuleInfo.moduleName = "Module";
-        appRunningRecord->AddModule(appInfo, caseAbilityInfo, token, hapModuleInfo, nullptr);
+        appRunningRecord->AddModule(appInfo, caseAbilityInfo, token, hapModuleInfo, nullptr, 0);
         auto moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName,
             hapModuleInfo.moduleName);
-        auto caseAbilityRunningRecord = moduleRecord->AddAbility(token, caseAbilityInfo, nullptr);
+        auto caseAbilityRunningRecord = moduleRecord->AddAbility(token, caseAbilityInfo, nullptr, 0);
         EXPECT_TRUE(caseAbilityRunningRecord == nullptr);
         caseAbilityRunningRecord = moduleRecord->GetAbilityRunningRecordByToken(token);
         EXPECT_EQ(caseAbilityRunningRecord, appRunningRecord->GetAbilityRunningRecordByToken(token));
-        caseAbilityRunningRecord->SetState(AbilityState::ABILITY_STATE_BACKGROUND);
+        caseAbilityRunningRecord->SetState(AbilityState::ABILITY_STATE_CREATE);
+        appRunningRecord->SetState(ApplicationState::APP_STATE_CREATE);
+        appRunningRecord->UpdateAbilityState(token, AbilityState::ABILITY_STATE_CREATE);
+        EXPECT_EQ(caseAbilityRunningRecord->GetState(), AbilityState::ABILITY_STATE_CREATE);
+        caseAbilityRunningRecord->SetState(AbilityState::ABILITY_STATE_FOREGROUND);
         appRunningRecord->SetState(ApplicationState::APP_STATE_FOREGROUND);
         appRunningRecord->UpdateAbilityState(token, AbilityState::ABILITY_STATE_FOREGROUND);
-        EXPECT_EQ(caseAbilityRunningRecord->GetState(), AbilityState::ABILITY_STATE_FOREGROUND);
+        EXPECT_EQ(appRunningRecord->GetState(), ApplicationState::APP_STATE_FOREGROUND);
+        caseAbilityRunningRecord->SetState(AbilityState::ABILITY_STATE_BACKGROUND);
+        appRunningRecord->SetState(ApplicationState::APP_STATE_BACKGROUND);
         appRunningRecord->UpdateAbilityState(token, AbilityState::ABILITY_STATE_BACKGROUND);
-        EXPECT_EQ(caseAbilityRunningRecord->GetState(), AbilityState::ABILITY_STATE_BACKGROUND);
+        EXPECT_EQ(appRunningRecord->GetState(), ApplicationState::APP_STATE_BACKGROUND);
     }
-    HILOG_INFO("UpdateAbilityRunningRecord_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "UpdateAbilityRunningRecord_001 end");
 }
 
 /*
@@ -324,7 +362,7 @@ HWTEST_F(AmsAbilityRunningRecordModuleTest, UpdateAbilityRunningRecord_001, Test
  */
 HWTEST_F(AmsAbilityRunningRecordModuleTest, UpdateAbilityRunningRecord_002, TestSize.Level1)
 {
-    HILOG_INFO("UpdateAbilityRunningRecord_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "UpdateAbilityRunningRecord_002 start");
     int i;
     auto appRunningRecord = QueryAppRunningRecord();
     auto appInfo = std::make_shared<ApplicationInfo>();
@@ -336,17 +374,17 @@ HWTEST_F(AmsAbilityRunningRecordModuleTest, UpdateAbilityRunningRecord_002, Test
         sptr<IRemoteObject> token = new MockAbilityToken();
         HapModuleInfo hapModuleInfo;
         hapModuleInfo.moduleName = "Module";
-        appRunningRecord->AddModule(appInfo, caseAbilityInfo, token, hapModuleInfo, nullptr);
+        appRunningRecord->AddModule(appInfo, caseAbilityInfo, token, hapModuleInfo, nullptr, 0);
         auto moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName,
             hapModuleInfo.moduleName);
-        auto caseAbilityRunningRecord = moduleRecord->AddAbility(token, caseAbilityInfo, nullptr);
+        auto caseAbilityRunningRecord = moduleRecord->AddAbility(token, caseAbilityInfo, nullptr, 0);
         EXPECT_TRUE(caseAbilityRunningRecord == nullptr);
         caseAbilityRunningRecord = moduleRecord->GetAbilityRunningRecordByToken(token);
         EXPECT_EQ(caseAbilityRunningRecord, appRunningRecord->GetAbilityRunningRecordByToken(token));
         appRunningRecord->UpdateAbilityState(token, AbilityState::ABILITY_STATE_END);
         EXPECT_EQ(caseAbilityRunningRecord->GetState(), AbilityState::ABILITY_STATE_CREATE);
     }
-    HILOG_INFO("UpdateAbilityRunningRecord_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "UpdateAbilityRunningRecord_002 end");
 }
 
 /*
@@ -359,7 +397,7 @@ HWTEST_F(AmsAbilityRunningRecordModuleTest, UpdateAbilityRunningRecord_002, Test
  */
 HWTEST_F(AmsAbilityRunningRecordModuleTest, UpdateAbilityRunningRecord_003, TestSize.Level1)
 {
-    HILOG_INFO("UpdateAbilityRunningRecord_003 start");
+    TAG_LOGI(AAFwkTag::TEST, "UpdateAbilityRunningRecord_003 start");
     int i;
     auto appRunningRecord = QueryAppRunningRecord();
     auto appInfo = std::make_shared<ApplicationInfo>();
@@ -371,10 +409,10 @@ HWTEST_F(AmsAbilityRunningRecordModuleTest, UpdateAbilityRunningRecord_003, Test
         sptr<IRemoteObject> token = new MockAbilityToken();
         HapModuleInfo hapModuleInfo;
         hapModuleInfo.moduleName = "Module";
-        appRunningRecord->AddModule(appInfo, caseAbilityInfo, token, hapModuleInfo, nullptr);
+        appRunningRecord->AddModule(appInfo, caseAbilityInfo, token, hapModuleInfo, nullptr, 0);
         auto moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName,
             hapModuleInfo.moduleName);
-        auto caseAbilityRunningRecord = moduleRecord->AddAbility(token, caseAbilityInfo, nullptr);
+        auto caseAbilityRunningRecord = moduleRecord->AddAbility(token, caseAbilityInfo, nullptr, 0);
         EXPECT_TRUE(caseAbilityRunningRecord == nullptr);
         caseAbilityRunningRecord = moduleRecord->GetAbilityRunningRecordByToken(token);
         EXPECT_EQ(caseAbilityRunningRecord, appRunningRecord->GetAbilityRunningRecordByToken(token));
@@ -385,7 +423,7 @@ HWTEST_F(AmsAbilityRunningRecordModuleTest, UpdateAbilityRunningRecord_003, Test
         appRunningRecord->UpdateAbilityState(token, AbilityState::ABILITY_STATE_READY);
         EXPECT_EQ(caseAbilityRunningRecord->GetState(), AbilityState::ABILITY_STATE_BACKGROUND);
     }
-    HILOG_INFO("UpdateAbilityRunningRecord_003 end");
+    TAG_LOGI(AAFwkTag::TEST, "UpdateAbilityRunningRecord_003 end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

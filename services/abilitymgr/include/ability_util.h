@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,13 +21,10 @@
 
 #include "ability_config.h"
 #include "ability_manager_errors.h"
-#include "ability_manager_client.h"
+#include "ability_window_configuration.h"
 #include "app_jump_control_rule.h"
-#include "bundlemgr/bundle_mgr_interface.h"
-#ifndef SUPPORT_ERMS
-#include "erms_mgr_interface.h"
-#endif
-#include "hilog_wrapper.h"
+#include "bundle_mgr_helper.h"
+#include "hilog_tag_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
 #include "permission_verification.h"
@@ -39,70 +36,69 @@ namespace AAFwk {
 namespace AbilityUtil {
 constexpr const char* SYSTEM_BASIC = "system_basic";
 constexpr const char* SYSTEM_CORE = "system_core";
+constexpr const char* DEFAULT_DEVICE_ID = "";
 constexpr const char* DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
+constexpr const char* DLP_MODULE_NAME = "entry";
 constexpr const char* DLP_ABILITY_NAME = "ViewAbility";
 constexpr const char* DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
 constexpr const char* DLP_PARAMS_BUNDLE_NAME = "ohos.dlp.params.bundleName";
 constexpr const char* DLP_PARAMS_MODULE_NAME = "ohos.dlp.params.moduleName";
 constexpr const char* DLP_PARAMS_ABILITY_NAME = "ohos.dlp.params.abilityName";
-const std::string MARKET_BUNDLE_NAME = "com.huawei.hmos.appgallery";
-const std::string BUNDLE_NAME_SELECTOR_DIALOG = "com.ohos.amsdialog";
-const std::string JUMP_INTERCEPTOR_DIALOG_CALLER_PKG = "interceptor_callerPkg";
-// dlp White list
-const std::unordered_set<std::string> WHITE_LIST_DLP_SET = { BUNDLE_NAME_SELECTOR_DIALOG };
+constexpr const char* BUNDLE_NAME_SELECTOR_DIALOG = "com.ohos.amsdialog";
+constexpr const char* JUMP_INTERCEPTOR_DIALOG_CALLER_PKG = "interceptor_callerPkg";
 
-#define CHECK_POINTER_CONTINUE(object)      \
-    if (!object) {                          \
-        HILOG_ERROR("pointer is nullptr."); \
-        continue;                           \
+#define CHECK_POINTER_CONTINUE(object)                         \
+    if (!object) {                                             \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "pointer is nullptr."); \
+        continue;                                              \
     }
 
-#define CHECK_POINTER_IS_NULLPTR(object)    \
-    if (object == nullptr) {                \
-        HILOG_ERROR("pointer is nullptr."); \
-        return;                             \
+#define CHECK_POINTER_IS_NULLPTR(object)                       \
+    if (object == nullptr) {                                   \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "pointer is nullptr."); \
+        return;                                                \
     }
 
-#define CHECK_POINTER(object)               \
-    if (!object) {                          \
-        HILOG_ERROR("pointer is nullptr."); \
-        return;                             \
+#define CHECK_POINTER(object)                                  \
+    if (!object) {                                             \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "pointer is nullptr."); \
+        return;                                                \
     }
 
-#define CHECK_POINTER_LOG(object, log)   \
-    if (!object) {                       \
-        HILOG_ERROR("%{public}s:", log); \
-        return;                          \
+#define CHECK_POINTER_LOG(object, log)                      \
+    if (!object) {                                          \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s:", log); \
+        return;                                             \
     }
 
-#define CHECK_POINTER_AND_RETURN(object, value) \
-    if (!object) {                              \
-        HILOG_ERROR("pointer is nullptr.");     \
-        return value;                           \
+#define CHECK_POINTER_AND_RETURN(object, value)                \
+    if (!object) {                                             \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "pointer is nullptr."); \
+        return value;                                          \
     }
 
-#define CHECK_POINTER_AND_RETURN_LOG(object, value, log) \
-    if (!object) {                                       \
-        HILOG_ERROR("%{public}s:", log);                 \
-        return value;                                    \
+#define CHECK_POINTER_AND_RETURN_LOG(object, value, log)    \
+    if (!object) {                                          \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s:", log); \
+        return value;                                       \
     }
 
-#define CHECK_POINTER_RETURN_BOOL(object)   \
-    if (!object) {                          \
-        HILOG_ERROR("pointer is nullptr."); \
-        return false;                       \
+#define CHECK_POINTER_RETURN_BOOL(object)                      \
+    if (!object) {                                             \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "pointer is nullptr."); \
+        return false;                                          \
     }
 
-#define CHECK_RET_RETURN_RET(object, log)                         \
-    if (object != ERR_OK) {                                       \
-        HILOG_ERROR("%{public}s, ret : %{public}d", log, object); \
-        return object;                                            \
+#define CHECK_RET_RETURN_RET(object, log)                                            \
+    if (object != ERR_OK) {                                                          \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s, ret : %{public}d", log, object); \
+        return object;                                                               \
     }
 
-#define CHECK_TRUE_RETURN_RET(object, value, log) \
-    if (object) {                                 \
-        HILOG_WARN("%{public}s", log);            \
-        return value;                             \
+#define CHECK_TRUE_RETURN_RET(object, value, log)          \
+    if (object) {                                          \
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "%{public}s", log); \
+        return value;                                      \
     }
 
 [[maybe_unused]] static bool IsSystemDialogAbility(const std::string &bundleName, const std::string &abilityName)
@@ -165,37 +161,15 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     return false;
 }
 
-[[maybe_unused]] static sptr<AppExecFwk::IBundleMgr> GetBundleManager()
+[[maybe_unused]] static std::shared_ptr<AppExecFwk::BundleMgrHelper> GetBundleManagerHelper()
 {
-    auto bundleObj =
-        OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (bundleObj == nullptr) {
-        HILOG_ERROR("failed to get bundle manager service");
-        return nullptr;
-    }
-    return iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
+    return DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
 }
-
-#ifndef SUPPORT_ERMS
-[[maybe_unused]] static sptr<AppExecFwk::IEcologicalRuleManager> CheckEcologicalRuleMgr()
-{
-    // should remove when AG SA online
-    int32_t ECOLOGICAL_RULE_SA_ID = 9999;
-    auto remoteObject =
-            OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->CheckSystemAbility(ECOLOGICAL_RULE_SA_ID);
-    if (remoteObject == nullptr) {
-        HILOG_ERROR("%{public}s error, failed to check ecological rule manager service.", __func__);
-        return nullptr;
-    }
-
-    return iface_cast<AppExecFwk::IEcologicalRuleManager>(remoteObject);
-}
-#endif
 
 [[maybe_unused]] static bool ParseJumpInterceptorWant(Want &targetWant, const std::string callerPkg)
 {
     if (callerPkg.empty()) {
-        HILOG_ERROR("%{public}s error, get empty callerPkg.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s error, get empty callerPkg.", __func__);
         return false;
     }
     targetWant.SetParam(JUMP_INTERCEPTOR_DIALOG_CALLER_PKG, callerPkg);
@@ -206,7 +180,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     std::string &targetPkg)
 {
     if (!targetWant.HasParameter(JUMP_INTERCEPTOR_DIALOG_CALLER_PKG)) {
-        HILOG_ERROR("%{public}s error, the interceptor parameter invalid.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s error, the interceptor parameter invalid.", __func__);
         return false;
     }
     callerPkg = targetWant.GetStringParam(JUMP_INTERCEPTOR_DIALOG_CALLER_PKG);
@@ -218,17 +192,17 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     int32_t userId)
 {
     if (callerPkg.empty() || targetPkg.empty()) {
-        HILOG_ERROR("get invalid inputs");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "get invalid inputs");
         return false;
     }
-    auto bms = AbilityUtil::GetBundleManager();
-    if (!bms) {
-        HILOG_ERROR("GetBundleManager failed");
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    if (bundleMgrHelper == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get bundle manager helper failed.");
         return false;
     }
-    auto appControlMgr = bms->GetAppControlProxy();
+    auto appControlMgr = bundleMgrHelper->GetAppControlProxy();
     if (appControlMgr == nullptr) {
-        HILOG_ERROR("Get appControlMgr failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get appControlMgr failed");
         return false;
     }
     int ret = IN_PROCESS_CALL(appControlMgr->ConfirmAppJumpControlRule(callerPkg, targetPkg, userId));
@@ -237,15 +211,16 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
 
 [[maybe_unused]] static bool HandleDlpApp(Want &want)
 {
-    if (WHITE_LIST_DLP_SET.find(want.GetBundle()) != WHITE_LIST_DLP_SET.end()) {
-        HILOG_INFO("%{public}s, enter special app", __func__);
+    const std::unordered_set<std::string> whiteListDlpSet = { BUNDLE_NAME_SELECTOR_DIALOG };
+    if (whiteListDlpSet.find(want.GetBundle()) != whiteListDlpSet.end()) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s, enter special app", __func__);
         return false;
     }
 
     AppExecFwk::ElementName element = want.GetElement();
     if (want.GetBoolParam(DLP_PARAMS_SANDBOX, false) && !element.GetBundleName().empty() &&
         !element.GetAbilityName().empty()) {
-        want.SetElementName(DLP_BUNDLE_NAME, DLP_ABILITY_NAME);
+        want.SetElementName(DEFAULT_DEVICE_ID, DLP_BUNDLE_NAME, DLP_ABILITY_NAME, DLP_MODULE_NAME);
         want.SetParam(DLP_PARAMS_BUNDLE_NAME, element.GetBundleName());
         want.SetParam(DLP_PARAMS_MODULE_NAME, element.GetModuleName());
         want.SetParam(DLP_PARAMS_ABILITY_NAME, element.GetAbilityName());
@@ -258,52 +233,99 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
 
 [[maybe_unused]] static bool IsStartIncludeAtomicService(const Want &want, const int32_t userId)
 {
-    auto bms = GetBundleManager();
-    if (!bms) {
-        HILOG_ERROR("GetBundleManager failed");
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    if (bundleMgrHelper == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get bundle manager helper failed.");
         return false;
     }
 
     std::string targetBundleName = want.GetBundle();
     AppExecFwk::ApplicationInfo targetAppInfo;
-    bool getTargetResult = IN_PROCESS_CALL(bms->GetApplicationInfo(targetBundleName,
+    bool getTargetResult = IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(targetBundleName,
         AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, targetAppInfo));
     if (!getTargetResult) {
-        HILOG_ERROR("Get targetAppInfo failed in check atomic service.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get targetAppInfo failed in check atomic service.");
         return false;
     }
     if (targetAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
-        HILOG_INFO("the target is atomic service");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "the target is atomic service");
         return true;
     }
 
     int callerUid = IPCSkeleton::GetCallingUid();
     std::string callerBundleName;
-    ErrCode err = IN_PROCESS_CALL(bms->GetNameForUid(callerUid, callerBundleName));
+    ErrCode err = IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callerUid, callerBundleName));
     if (err != ERR_OK) {
-        HILOG_ERROR("Get bms failed in check atomic service.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get bms failed in check atomic service.");
         return false;
     }
     AppExecFwk::ApplicationInfo callerAppInfo;
-    bool getCallerResult = IN_PROCESS_CALL(bms->GetApplicationInfo(callerBundleName,
+    bool getCallerResult = IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(callerBundleName,
         AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
     if (!getCallerResult) {
-        HILOG_ERROR("Get callerAppInfo failed in check atomic service.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get callerAppInfo failed in check atomic service.");
         return false;
     }
     if (callerAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
-        HILOG_INFO("the caller is atomic service");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "the caller is atomic service");
         return true;
     }
     return false;
 }
 
-inline int StartAppgallery(const int requestCode, const int32_t userId, const std::string &action)
+[[maybe_unused]] static void RemoveShowModeKey(Want &want)
 {
-    Want want;
-    want.SetElementName(MARKET_BUNDLE_NAME, "");
-    want.SetAction(action);
-    return AbilityManagerClient::GetInstance()->StartAbility(want, requestCode, userId);
+    if (want.HasParameter(AAFwk::SCREEN_MODE_KEY)) {
+        want.RemoveParam(AAFwk::SCREEN_MODE_KEY);
+    }
+}
+
+[[maybe_unused]] static bool IsSceneBoard(const std::string &bundleName, const std::string &AbilityName)
+{
+    return AbilityName == AbilityConfig::SCENEBOARD_ABILITY_NAME &&
+        bundleName == AbilityConfig::SCENEBOARD_BUNDLE_NAME;
+}
+
+[[maybe_unused]] static void RemoveWindowModeKey(Want &want)
+{
+    if (want.HasParameter(Want::PARAM_RESV_WINDOW_MODE)) {
+        want.RemoveParam(Want::PARAM_RESV_WINDOW_MODE);
+    }
+}
+
+[[maybe_unused]] static void RemoveWantKey(Want &want)
+{
+    RemoveShowModeKey(want);
+    RemoveWindowModeKey(want);
+}
+
+[[maybe_unused]] static void WantSetParameterWindowMode(Want &want, int32_t windowMode)
+{
+    want.SetParam(Want::PARAM_RESV_WINDOW_MODE, windowMode);
+}
+
+[[maybe_unused]] static void ProcessWindowMode(Want &want, uint32_t accessTokenId, int32_t windowMode)
+{
+    if (PermissionVerification::GetInstance()->IsSystemAppCall()) {
+        want.SetParam(Want::PARAM_RESV_WINDOW_MODE, windowMode);
+        return;
+    }
+    if (IPCSkeleton::GetCallingTokenID() == accessTokenId && (
+        windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY ||
+        windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY)) {
+        want.SetParam(Want::PARAM_RESV_WINDOW_MODE, windowMode);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "set parameter windownMode for inner application split-screen mode");
+    } else {
+        RemoveWindowModeKey(want);
+    }
+}
+
+inline ErrCode EdmErrorType(bool isEdm)
+{
+    if (isEdm) {
+        return ERR_EDM_APP_CONTROLLED;
+    }
+    return ERR_APP_CONTROLLED;
 }
 }  // namespace AbilityUtil
 }  // namespace AAFwk

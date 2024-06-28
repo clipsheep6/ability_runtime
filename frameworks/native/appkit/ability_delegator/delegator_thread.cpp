@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 
 #include "delegator_thread.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -32,12 +33,12 @@ DelegatorThread::DelegatorThread(bool isMain)
 bool DelegatorThread::Run(const DTask &task)
 {
     if (!task) {
-        HILOG_WARN("Invalid input parameter");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid input parameter");
         return false;
     }
 
     if (!handler_) {
-        HILOG_WARN("Invalid EventHandler");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid EventHandler");
         return false;
     }
 

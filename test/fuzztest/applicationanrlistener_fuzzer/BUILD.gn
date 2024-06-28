@@ -16,7 +16,6 @@ import("//build/config/features.gni")
 import("//build/ohos.gni")
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
-import("//foundation/resourceschedule/background_task_mgr/bgtaskmgr.gni")
 module_output_path = "ability_runtime/abilitymgr"
 
 ##############################fuzztest##########################################
@@ -75,10 +74,6 @@ ohos_fuzztest("ApplicationAnrListenerFuzzTest") {
       "i18n:intl_util",
       "window_manager:libwm",
     ]
-  }
-
-  if (ecologic_rule_enabled) {
-    external_deps += [ "ecological_rule_manager:erms_client" ]
   }
 }
 

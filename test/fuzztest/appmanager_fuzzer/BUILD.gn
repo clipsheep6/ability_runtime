@@ -24,6 +24,7 @@ ohos_fuzztest("AppManagerFuzzTest") {
   fuzz_config_file = "${ability_runtime_test_path}/fuzztest/appmanager_fuzzer"
 
   include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
     "${ability_runtime_services_path}/appmgr/include",
     "${ability_runtime_innerkits_path}/app_manager/include",
   ]
@@ -39,6 +40,7 @@ ohos_fuzztest("AppManagerFuzzTest") {
 
   deps = [
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_services_path}/appmgr:libappms",
     "${ability_runtime_services_path}/common:task_handler_wrap",
   ]
@@ -46,15 +48,20 @@ ohos_fuzztest("AppManagerFuzzTest") {
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
-    "appspawn:appspawn_socket_client",
+    "appspawn:appspawn_client",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "ffrt:libffrt",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "window_manager:libwm",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libwm" ]
+  }
 }
 
 ###############################################################################

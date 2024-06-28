@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,10 +18,12 @@
 #include <dlfcn.h>
 #include <unistd.h>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS::AbilityRuntime {
-using StartRegister = void (*)(const std::string& pkgName);
+using StartRegister = void (*)(const std::string& processName, const std::string& pkgName, bool isDebug,
+    const HdcRegisterCallback& callback);
 using StopRegister = void (*)();
 
 HdcRegister::~HdcRegister()
@@ -35,39 +37,41 @@ HdcRegister& HdcRegister::Get()
     return hdcRegister;
 }
 
-void HdcRegister::StartHdcRegister(const std::string& bundleName)
+void HdcRegister::StartHdcRegister(const std::string& bundleName, const std::string& processName, bool debugApp,
+    HdcRegisterCallback callback)
 {
-    HILOG_DEBUG("HdcRegister::StartHdcRegister begin");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "HdcRegister::StartHdcRegister begin");
 
     registerHandler_ = dlopen("libhdc_register.z.so", RTLD_LAZY);
     if (registerHandler_ == nullptr) {
-        HILOG_ERROR("HdcRegister::StartHdcRegister failed to open register library");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "HdcRegister::StartHdcRegister failed to open register library");
         return;
     }
     auto startRegister = reinterpret_cast<StartRegister>(dlsym(registerHandler_, "StartConnect"));
     if (startRegister == nullptr) {
-        HILOG_ERROR("HdcRegister::StartHdcRegister failed to find symbol 'StartConnect'");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "HdcRegister::StartHdcRegister failed to find symbol 'StartConnect'");
         return;
     }
-    startRegister(bundleName);
-    HILOG_DEBUG("HdcRegister::StartHdcRegister end");
+    startRegister(processName, bundleName, debugApp, callback);
+    
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "HdcRegister::StartHdcRegister end");
 }
 
 void HdcRegister::StopHdcRegister()
 {
-    HILOG_DEBUG("HdcRegister::StopHdcRegister begin");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "HdcRegister::StopHdcRegister begin");
     if (registerHandler_ == nullptr) {
-        HILOG_ERROR("HdcRegister::StopHdcRegister registerHandler_ is nullptr");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "HdcRegister::StopHdcRegister registerHandler_ is nullptr");
         return;
     }
     auto stopRegister = reinterpret_cast<StopRegister>(dlsym(registerHandler_, "StopConnect"));
     if (stopRegister != nullptr) {
         stopRegister();
     } else {
-        HILOG_ERROR("HdcRegister::StopHdcRegister failed to find symbol 'StopConnect'");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "HdcRegister::StopHdcRegister failed to find symbol 'StopConnect'");
     }
     dlclose(registerHandler_);
     registerHandler_ = nullptr;
-    HILOG_DEBUG("HdcRegister::StopHdcRegister end");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "HdcRegister::StopHdcRegister end");
 }
 } // namespace OHOS::AbilityRuntime

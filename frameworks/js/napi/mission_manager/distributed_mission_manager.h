@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,10 +18,12 @@
 
 #include <uv.h>
 
+#include "distributed_mission_manager_helper.h"
 #include "mission_continue_interface.h"
 #include "mission_continue_stub.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
+#include "js_runtime_utils.h"
 #include "securec.h"
 #include "want.h"
 #include "remote_mission_listener_stub.h"
@@ -39,6 +41,7 @@ napi_value NAPI_NotifyToOff(napi_env env, napi_callback_info info);
 napi_value NAPI_ContinueAbility(napi_env env, napi_callback_info info);
 napi_value WrapString(napi_env &env, const std::string &deviceId, const std::string &paramName);
 napi_value WrapInt32(napi_env &env, int32_t num, const std::string &paramName);
+napi_value CreateInt32(napi_env &env, int32_t num, const std::string &paramName);
 
 class NAPIMissionContinue : public MissionContinueStub {
 public:
@@ -81,18 +84,22 @@ public:
     virtual ~NAPIRemoteOnListener();
 
     void OnCallback(const uint32_t continueState, const std::string &srcDeviceId,
-        const std::string &bundleName) override;
+        const std::string &bundleName, const std::string &continueType = "",
+        const std::string &srcBundleName = "") override;
     void SetEnv(const napi_env &env);
-    void SetOnCallbackCBRef(const napi_ref &ref);
+    void SetOnCallbackCBRef(std::shared_ptr<NativeReference> &ref);
+    std::vector<std::shared_ptr<NativeReference>> GetOnCallbackCBRef();
+    bool DelOnCallbackCBRef(napi_env env, std::shared_ptr<NativeReference> &ref);
 
 private:
     napi_env env_ = nullptr;
-    napi_ref onCallbackRef_ = nullptr;
+    std::vector<std::shared_ptr<NativeReference>> callbacks_;
 };
 
 struct CallbackInfo {
     napi_env env;
     napi_ref callback;
+    std::vector<std::shared_ptr<NativeReference>> vecCallbacks;
     napi_deferred deferred;
 };
 
@@ -123,6 +130,7 @@ struct RegisterMissionCB {
 struct OnCallbackCB {
     napi_env env = nullptr;
     napi_ref callback = nullptr;
+    std::shared_ptr<NativeReference> napiCallback;
     int resultCode = 0;
 };
 
@@ -133,6 +141,8 @@ struct OnCB {
     int continueState = 0;
     std::string srcDeviceId;
     std::string bundleName;
+    std::string continueType;
+    std::string srcBundleName;
     OnCallbackCB onCallbackCB;
     int result = 0;
     napi_ref callbackRef;
@@ -154,6 +164,8 @@ struct ContinueAbilityCB {
     int resultCode = 0;
     int missionId = 0;
     std::string bundleName;
+    std::string srcBundleName;
+    std::string continueType;
     bool hasArgsWithBundleName = false;
     napi_ref callbackRef = nullptr;
 };
@@ -204,9 +216,9 @@ enum ErrorCode {
      */
     SYSTEM_WORK_ABNORMALLY = 16300501,
     /**
-     * Result(16300502) for failed to get the missionInfo of the specified missionId.
+     * Result(29360221) for failed to get the missionInfo of the specified missionId.
      */
-    NO_MISSION_INFO_FOR_MISSION_ID = 16300502,
+    NO_MISSION_INFO_FOR_MISSION_ID = 29360221,
     /**
      * Result(16300503) for the application is not installed on the remote end and installation-free is
      * not supported.
@@ -218,18 +230,18 @@ enum ErrorCode {
      */
     CONTINUE_WITHOUT_FREEINSTALL_FLAG = 16300504,
     /**
-     * Result(16300505) for the operation device must be the device where the application to be continued
+     * Result(29360222) for the operation device must be the device where the application to be continued
      * is located or the target device to be continued.
      */
-    OPERATION_DEVICE_NOT_INITIATOR_OR_TARGET = 16300505,
+    OPERATION_DEVICE_NOT_INITIATOR_OR_TARGET = 29360222,
     /**
-     * Result(16300506) for the local continuation task is already in progress.
+     * Result(29360223) for the local continuation task is already in progress.
      */
-    CONTINUE_ALREADY_IN_PROGRESS = 16300506,
+    CONTINUE_ALREADY_IN_PROGRESS = 29360223,
     /**
-     * Result(16300507) for the mission is dead, try again after restart mission.
+     * Result(29360224) for the mission is dead, try again after restart mission.
      */
-    MISSION_FOR_CONTINUING_IS_NOT_ALIVE = 16300507,
+    MISSION_FOR_CONTINUING_IS_NOT_ALIVE = 29360224,
     /*
      * Result(29360144) for get local deviceid fail.
      */

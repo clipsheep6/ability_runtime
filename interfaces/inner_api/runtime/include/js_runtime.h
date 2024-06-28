@@ -29,6 +29,9 @@
 namespace panda::ecmascript {
 class EcmaVM;
 } // namespace panda::ecmascript
+namespace panda {
+struct HmsMap;
+}
 namespace OHOS {
 namespace AppExecFwk {
 class EventHandler;
@@ -49,11 +52,6 @@ using AppLibPathMap = std::map<std::string, std::vector<std::string>>;
 namespace AbilityRuntime {
 class TimerTask;
 
-inline void *DetachCallbackFunc(NativeEngine *engine, void *value, void *)
-{
-    return value;
-}
-
 inline void *DetachCallbackFunc(napi_env env, void *value, void *)
 {
     return value;
@@ -63,13 +61,11 @@ class JsRuntime : public Runtime {
 public:
     static std::unique_ptr<JsRuntime> Create(const Options& options);
 
-    static std::unique_ptr<NativeReference> LoadSystemModuleByEngine(NativeEngine* engine,
-        const std::string& moduleName, NativeValue* const* argv, size_t argc);
-
     static void SetAppLibPath(const AppLibPathMap& appLibPaths, const bool& isSystemApp = false);
 
     static bool ReadSourceMapData(const std::string& hapPath, const std::string& sourceMapPath, std::string& content);
 
+    static std::shared_ptr<Options> GetChildOptions();
     JsRuntime();
     ~JsRuntime() override;
 
@@ -81,13 +77,17 @@ public:
         return Language::JS;
     }
 
-    std::unique_ptr<NativeReference> LoadSystemModule(
-        const std::string& moduleName, NativeValue* const* argv = nullptr, size_t argc = 0);
     void PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime);
     void PostSyncTask(const std::function<void()>& task, const std::string& name);
     void RemoveTask(const std::string& name);
     void DumpHeapSnapshot(bool isPrivate) override;
-    bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) override;
+    void DumpCpuProfile(bool isPrivate) override;
+    void DestroyHeapProfiler() override;
+    void ForceFullGC() override;
+    void ForceFullGC(uint32_t tid) override;
+    void DumpHeapSnapshot(uint32_t tid, bool isFullGC) override;
+    void AllowCrossThreadExecution() override;
+    void GetHeapPrepare() override;
     void NotifyApplicationState(bool isBackground) override;
     bool SuspendVM(uint32_t tid) override;
     void ResumeVM(uint32_t tid) override;
@@ -96,7 +96,8 @@ public:
     bool RunScript(const std::string& path, const std::string& hapPath, bool useCommonChunk = false);
 
     void PreloadSystemModule(const std::string& moduleName) override;
-    void StartDebugMode(bool needBreakPoint) override;
+
+    void StartDebugMode(const DebugOption debugOption) override;
     void StopDebugMode();
     bool LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath) override;
     bool UnLoadRepairPatch(const std::string& hqfFile) override;
@@ -112,16 +113,18 @@ public:
 
     void UpdateModuleNameAndAssetPath(const std::string& moduleName);
     void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath) override;
-    static bool GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer);
+    static bool GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer,
+                              bool isABC = true);
 
     void InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorImpl);
+    void InitSourceMap(const std::string hqfFilePath);
     void FreeNativeReference(std::unique_ptr<NativeReference> reference);
     void FreeNativeReference(std::shared_ptr<NativeReference>&& reference);
-    void StartProfiler(const std::string &perfCmd) override;
+    void StartProfiler(const DebugOption debugOption) override;
 
     void ReloadFormComponent(); // Reload ArkTS-Card component
     void DoCleanWorkAfterStageCleaned() override;
-    void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate) const override;
+    void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate> moduleCheckerDelegate) const override;
 
     static std::unique_ptr<NativeReference> LoadSystemModuleByEngine(napi_env env,
         const std::string& moduleName, const napi_value* argv, size_t argc);
@@ -129,19 +132,21 @@ public:
         const std::string& hapPath, bool esmodule = false, bool useCommonChunk = false);
     std::unique_ptr<NativeReference> LoadSystemModule(
         const std::string& moduleName, const napi_value* argv = nullptr, size_t argc = 0);
+    void SetDeviceDisconnectCallback(const std::function<bool()> &cb) override;
+    void UpdatePkgContextInfoJson(std::string moduleName, std::string hapPath, std::string packageName) override;
 
 private:
     void FinishPreload() override;
 
     bool Initialize(const Options& options);
     void Deinitialize();
+    static void SetChildOptions(const Options& options);
 
     int32_t JsperfProfilerCommandParse(const std::string &command, int32_t defaultValue);
 
     napi_value LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk = false);
     napi_value LoadJsModule(const std::string& path, const std::string& hapPath);
 
-    bool debugMode_ = false;
     bool preloaded_ = false;
     bool isBundle_ = true;
     std::string codePath_;
@@ -152,13 +157,17 @@ private:
     uint32_t instanceId_ = 0;
     std::string bundleName_;
     int32_t apiTargetVersion_ = 0;
+    std::map<std::string, std::string> pkgContextInfoJsonStringMap_;
+    std::map<std::string, std::string> packageNameList_;
 
     static std::atomic<bool> hasInstance;
+
+    static std::shared_ptr<Options> childOptions_;
 
 private:
     bool CreateJsEnv(const Options& options);
     void PreloadAce(const Options& options);
-    bool InitLoop();
+    bool InitLoop(bool isStage = true);
     inline bool IsUseAbilityRuntime(const Options& options) const;
     void FreeNativeReference(std::unique_ptr<NativeReference> uniqueNativeRef,
         std::shared_ptr<NativeReference>&& sharedNativeRef);
@@ -169,6 +178,13 @@ private:
     void PostPreload(const Options& options);
     void LoadAotFile(const Options& options);
     void SetRequestAotCallback();
+
+    std::string GetSystemKitPath();
+    std::vector<panda::HmsMap> GetSystemKitsMap(uint32_t version);
+
+    void GetPkgContextInfoListMap(const std::map<std::string, std::string> &contextInfoMap,
+        std::map<std::string, std::vector<std::vector<std::string>>> &pkgContextInfoMap,
+        std::map<std::string, std::string> &pkgAliasMap);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

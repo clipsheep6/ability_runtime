@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,6 +29,7 @@
  */
 
 #include <gtest/gtest.h>
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iremote_proxy.h"
 #include "test_observer_proxy.h"
@@ -128,11 +129,11 @@ public:
  */
 HWTEST_F(TestObserverProxyTest, Test_Observer_Proxy_Test_0100, TestSize.Level1)
 {
-    HILOG_INFO("Test_Observer_Proxy_Test_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Proxy_Test_0100 start");
     OHOS::sptr<OHOS::IRemoteObject> object = new OHOS::MockIRemoteObject();
     TestObserverProxy testObserverProxy(object);
     EXPECT_EQ(testObserverProxy.ExecuteShellCommand(CMD.c_str(), 0).stdResult.size(), 0);
-    HILOG_INFO("Test_Observer_Proxy_Test_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Proxy_Test_0100 end");
 }
 
 /**
@@ -142,12 +143,12 @@ HWTEST_F(TestObserverProxyTest, Test_Observer_Proxy_Test_0100, TestSize.Level1)
  */
 HWTEST_F(TestObserverProxyTest, Test_Observer_Proxy_Test_0200, TestSize.Level1)
 {
-    HILOG_INFO("Test_Observer_Proxy_Test_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Proxy_Test_0200 start");
     OHOS::sptr<OHOS::IRemoteObject> object = new OHOS::MockIRemoteObject();
     ASSERT_NE(object, nullptr);
     TestObserverProxy testObserverProxy(object);
     testObserverProxy.TestStatus(CMD.c_str(), 0);
-    HILOG_INFO("Test_Observer_Proxy_Test_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Proxy_Test_0200 end");
 }
 
 /**
@@ -157,10 +158,10 @@ HWTEST_F(TestObserverProxyTest, Test_Observer_Proxy_Test_0200, TestSize.Level1)
  */
 HWTEST_F(TestObserverProxyTest, Test_Observer_Proxy_Test_0300, TestSize.Level1)
 {
-    HILOG_INFO("Test_Observer_Proxy_Test_0300 start");
+    TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Proxy_Test_0300 start");
     OHOS::sptr<OHOS::IRemoteObject> object = new OHOS::MockIRemoteObject();
     ASSERT_NE(object, nullptr);
     TestObserverProxy testObserverProxy(object);
     testObserverProxy.TestFinished(CMD.c_str(), 0);
-    HILOG_INFO("Test_Observer_Proxy_Test_0300 end");
+    TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Proxy_Test_0300 end");
 }

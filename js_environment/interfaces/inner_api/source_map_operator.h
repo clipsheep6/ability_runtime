@@ -16,37 +16,81 @@
 #ifndef OHOS_ABILITY_JS_ENVIRONMENT_SOURCE_MAP_OPERATOR_H
 #define OHOS_ABILITY_JS_ENVIRONMENT_SOURCE_MAP_OPERATOR_H
 #include <memory>
+#include <set>
 #include <string>
 
-#include "js_env_logger.h"
+#include "ffrt.h"
 #include "source_map.h"
 
 namespace OHOS {
 namespace JsEnv {
-class SourceMapOperator {
+namespace {
+enum InitStatus { NOT_EXECUTED, EXECUTED_SUCCESSFULLY };
+}
+class SourceMapOperator : public std::enable_shared_from_this<SourceMapOperator> {
 public:
-    SourceMapOperator(const std::string hapPath, bool isModular)
-        : hapPath_(hapPath), isModular_(isModular) {}
+    SourceMapOperator(const std::string bundleName, bool isModular, bool isDebugVersion)
+        : bundleName_(bundleName), isModular_(isModular), isDebugVersion_(isDebugVersion), initStatus_(NOT_EXECUTED) {}
 
     ~SourceMapOperator() = default;
 
+    void InitSourceMap()
+    {
+        sourceMapObj_ = std::make_shared<SourceMap>();
+
+        auto init = [weak = weak_from_this()]() {
+            auto sourceMapOperator = weak.lock();
+            if (sourceMapOperator != nullptr && sourceMapOperator->sourceMapObj_ != nullptr) {
+                std::vector<std::string> hapList;
+                sourceMapOperator->sourceMapObj_->GetHapPath(sourceMapOperator->bundleName_, hapList);
+                for (auto &hapInfo : hapList) {
+                    if (!hapInfo.empty()) {
+                        sourceMapOperator->sourceMapObj_->Init(sourceMapOperator->isModular_, hapInfo);
+                    }
+                }
+                sourceMapOperator->initStatus_ = EXECUTED_SUCCESSFULLY;
+            }
+        };
+
+        ffrt::submit(init, {}, {}, ffrt::task_attr().qos(ffrt::qos_user_initiated));
+    }
+
     std::string TranslateBySourceMap(const std::string& stackStr)
     {
-        SourceMap sourceMapObj;
-        sourceMapObj.Init(isModular_, hapPath_);
-        return sourceMapObj.TranslateBySourceMap(stackStr);
+        if (sourceMapObj_ == nullptr) {
+            return "";
+        }
+        if (isDebugVersion_) {
+            return sourceMapObj_->TranslateBySourceMap(stackStr);
+        } else {
+            return NOT_FOUNDMAP + stackStr;
+        }
     }
 
     bool TranslateUrlPositionBySourceMap(std::string& url, int& line, int& column)
     {
-        SourceMap sourceMapObj;
-        sourceMapObj.Init(isModular_, hapPath_);
-        return sourceMapObj.TranslateUrlPositionBySourceMap(url, line, column);
+        if (sourceMapObj_ == nullptr) {
+            return false;
+        }
+        return sourceMapObj_->TranslateUrlPositionBySourceMap(url, line, column);
+    }
+
+    bool GetInitStatus() const
+    {
+        return (initStatus_ == InitStatus::EXECUTED_SUCCESSFULLY);
+    }
+
+    std::shared_ptr<SourceMap> GetSourceMapObj() const
+    {
+        return sourceMapObj_;
     }
 
 private:
-    const std::string hapPath_;
+    const std::string bundleName_;
     bool isModular_ = false;
+    bool isDebugVersion_ = false;
+    std::shared_ptr<SourceMap> sourceMapObj_;
+    InitStatus initStatus_;
 };
 } // namespace JsEnv
 } // namespace OHOS

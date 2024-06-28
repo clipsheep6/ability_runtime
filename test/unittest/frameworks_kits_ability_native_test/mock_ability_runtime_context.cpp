@@ -72,6 +72,11 @@ std::string MockAbilityRuntimeContext::GetTempDir()
     return {};
 };
 
+std::string MockAbilityRuntimeContext::GetResourceDir()
+{
+    return {};
+};
+
 std::string MockAbilityRuntimeContext::GetFilesDir()
 {
     return {};
@@ -102,6 +107,11 @@ std::string MockAbilityRuntimeContext::GetDistributedFilesDir()
     return {};
 };
 
+std::string MockAbilityRuntimeContext::GetCloudFileDir()
+{
+    return {};
+};
+
 sptr<IRemoteObject> MockAbilityRuntimeContext::GetToken()
 {
     return {};
@@ -123,6 +133,18 @@ std::shared_ptr<Context> MockAbilityRuntimeContext::CreateModuleContext(
 {
     return {};
 };
+
+std::shared_ptr<Global::Resource::ResourceManager> MockAbilityRuntimeContext::CreateModuleResourceManager(
+    const std::string &bundleName, const std::string &moduleName)
+{
+    return nullptr;
+}
+
+int32_t MockAbilityRuntimeContext::CreateSystemHspModuleResourceManager(const std::string &bundleName,
+    const std::string &moduleName, std::shared_ptr<Global::Resource::ResourceManager> &resourceManager)
+{
+    return 0;
+}
 
 int MockAbilityRuntimeContext::GetArea()
 {

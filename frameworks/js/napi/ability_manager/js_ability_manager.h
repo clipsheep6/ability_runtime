@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-#include "native_engine/native_engine.h"
-#include "event_handler.h"
-
 #ifndef OHOS_ABILITY_RUNTIME_JS_ABILITY_MANAGER_H
 #define OHOS_ABILITY_RUNTIME_JS_ABILITY_MANAGER_H
+
+#include "native_engine/native_engine.h"
+#include "event_handler.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

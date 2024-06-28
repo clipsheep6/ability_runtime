@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -38,6 +38,7 @@ struct EventInfo {
     std::string processName;
     std::string callerProcessName;
     std::string callerBundleName;
+    int32_t abilityNumber = 0;
     int32_t abilityType = -1;
     int64_t time = 0;
     int32_t callerUid = -1;
@@ -49,23 +50,24 @@ struct EventInfo {
     uint32_t callerVersionCode = -1;
     std::string callerVersionName;
     std::string uri;
+    int32_t processType = -1;
+    int32_t callerPid = -1;
+    int64_t duration = 0;
 };
 
 enum class EventName {
     // fault event
-    START_ABILITY_ERROR,
+    START_ABILITY_ERROR = 0,
     TERMINATE_ABILITY_ERROR,
     START_EXTENSION_ERROR,
     STOP_EXTENSION_ERROR,
     CONNECT_SERVICE_ERROR,
     DISCONNECT_SERVICE_ERROR,
-    CLOSE_UI_ABILITY_BY_SCB_ERROR,
 
     // ability behavior event
     START_ABILITY,
     TERMINATE_ABILITY,
     CLOSE_ABILITY,
-    CLOSE_UI_ABILITY_BY_SCB,
     ABILITY_ONFOREGROUND,
     ABILITY_ONBACKGROUND,
     ABILITY_ONACTIVE,
@@ -93,14 +95,33 @@ enum class EventName {
     FA_SHOW_ON_LOCK,
     START_PRIVATE_ABILITY,
     RESTART_PROCESS_BY_SAME_APP,
+    START_STANDARD_ABILITIES,
+
+    // atomic service event
+    CREATE_ATOMIC_SERVICE_PROCESS,
+    ATOMIC_SERVICE_DRAWN_COMPLETE,
+    
+    // uri permission
+    SHARE_UNPRIVILEGED_FILE_URI
 };
 
 class EventReport {
 public:
     static void SendAppEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
     static void SendAbilityEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
+    static void SendAtomicServiceEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
     static void SendExtensionEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
     static void SendKeyEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
+    static void SendAppLaunchEvent(const EventName &eventName, const EventInfo &eventInfo);
+    static void SendAppForegroundEvent(const EventName &eventName, const EventInfo &eventInfo);
+    static void SendAppBackgroundEvent(const EventName &eventName, const EventInfo &eventInfo);
+    static void SendProcessStartEvent(const EventName &eventName, const EventInfo &eventInfo);
+    static void SendProcessExitEvent(const EventName &eventName, const EventInfo &eventInfo);
+    static void SendStartServiceEvent(const EventName &eventName, const EventInfo &eventInfo);
+    static void SendStopServiceEvent(const EventName &eventName, const EventInfo &eventInfo);
+    static void SendConnectServiceEvent(const EventName &eventName, const EventInfo &eventInfo);
+    static void SendDisconnectServiceEvent(const EventName &eventName, const EventInfo &eventInfo);
+    static void SendGrantUriPermissionEvent(const EventName &eventName, const EventInfo &eventInfo);
 
 private:
     static std::string ConvertEventName(const EventName &eventName);

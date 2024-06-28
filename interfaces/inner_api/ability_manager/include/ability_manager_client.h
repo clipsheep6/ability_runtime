@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,27 +20,29 @@
 
 #include "ability_connect_callback_interface.h"
 #include "ability_manager_errors.h"
-#include "ability_scheduler_interface.h"
 #include "ability_manager_interface.h"
+#include "ability_scheduler_interface.h"
+#include "auto_startup_info.h"
+#include "iremote_object.h"
 #include "mission_info.h"
 #include "snapshot.h"
-#include "want.h"
-
-#include "iremote_object.h"
 #include "system_memory_attr.h"
 #include "ui_extension_window_command.h"
+#include "want.h"
 
 namespace OHOS {
 namespace AAFwk {
+using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
 /**
  * @class AbilityManagerClient
  * AbilityManagerClient is used to access ability manager services.
  */
 class AbilityManagerClient {
 public:
-    AbilityManagerClient();
     virtual ~AbilityManagerClient();
     static std::shared_ptr<AbilityManagerClient> GetInstance();
+
+    void RemoveDeathRecipient();
 
     /**
      * AttachAbilityThread, ability call this interface after loaded.
@@ -49,7 +51,7 @@ public:
      * @param token,.ability's token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode AttachAbilityThread(const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &token);
+    ErrCode AttachAbilityThread(sptr<IAbilityScheduler> scheduler, sptr<IRemoteObject> token);
 
     /**
      * AbilityTransitionDone, ability call this interface after lift cycle was changed.
@@ -58,7 +60,7 @@ public:
      * @param state,.the state of ability lift cycle.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode AbilityTransitionDone(const sptr<IRemoteObject> &token, int state, const PacMap &saveData);
+    ErrCode AbilityTransitionDone(sptr<IRemoteObject> token, int state, const PacMap &saveData);
 
     /**
      * ScheduleConnectAbilityDone, service ability call this interface while session was connected.
@@ -67,7 +69,7 @@ public:
      * @param remoteObject,.the session proxy of service ability.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode ScheduleConnectAbilityDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &remoteObject);
+    ErrCode ScheduleConnectAbilityDone(sptr<IRemoteObject> token, sptr<IRemoteObject> remoteObject);
 
     /**
      * ScheduleDisconnectAbilityDone, service ability call this interface while session was disconnected.
@@ -75,7 +77,7 @@ public:
      * @param token,.service ability's token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode ScheduleDisconnectAbilityDone(const sptr<IRemoteObject> &token);
+    ErrCode ScheduleDisconnectAbilityDone(sptr<IRemoteObject> token);
 
     /**
      * ScheduleCommandAbilityDone, service ability call this interface while session was commanded.
@@ -83,11 +85,11 @@ public:
      * @param token,.service ability's token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode ScheduleCommandAbilityDone(const sptr<IRemoteObject> &token);
+    ErrCode ScheduleCommandAbilityDone(sptr<IRemoteObject> token);
 
     ErrCode ScheduleCommandAbilityWindowDone(
-        const sptr<IRemoteObject> &token,
-        const sptr<SessionInfo> &sessionInfo,
+        sptr<IRemoteObject> token,
+        sptr<SessionInfo> sessionInfo,
         WindowCommand winCmd,
         AbilityCommand abilityCmd);
 
@@ -106,7 +108,7 @@ public:
      * @param isNeedLocalDeviceId is need local device id.
      * @return Returns front desk focus ability elementName by token.
      */
-    AppExecFwk::ElementName GetElementNameByToken(const sptr<IRemoteObject> &token, bool isNeedLocalDeviceId = true);
+    AppExecFwk::ElementName GetElementNameByToken(sptr<IRemoteObject> token, bool isNeedLocalDeviceId = true);
 
     /**
      * StartAbility with want, send want to ability manager service.
@@ -128,8 +130,23 @@ public:
      */
     ErrCode StartAbility(
         const Want &want,
-        const sptr<IRemoteObject> &callerToken,
+        sptr<IRemoteObject> callerToken,
         int requestCode = DEFAULT_INVAL_VALUE,
+        int32_t userId = DEFAULT_INVAL_VALUE);
+
+    /**
+     * StartAbility by insight intent, send want to ability manager service.
+     *
+     * @param want Ability want.
+     * @param callerToken caller ability token.
+     * @param intentId insight intent id.
+     * @param userId userId of target ability.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartAbilityByInsightIntent(
+        const Want &want,
+        sptr<IRemoteObject> callerToken,
+        uint64_t intentId,
         int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
@@ -143,7 +160,7 @@ public:
     ErrCode StartAbility(
         const Want &want,
         const AbilityStartSetting &abilityStartSetting,
-        const sptr<IRemoteObject> &callerToken,
+        sptr<IRemoteObject> callerToken,
         int requestCode = DEFAULT_INVAL_VALUE,
         int32_t userId = DEFAULT_INVAL_VALUE);
 
@@ -159,7 +176,7 @@ public:
     ErrCode StartAbility(
         const Want &want,
         const StartOptions &startOptions,
-        const sptr<IRemoteObject> &callerToken,
+        sptr<IRemoteObject> callerToken,
         int requestCode = DEFAULT_INVAL_VALUE,
         int32_t userId = DEFAULT_INVAL_VALUE);
 
@@ -167,13 +184,16 @@ public:
      * Starts a new ability using the original caller information.
      *
      * @param want Ability want.
-     * @param callerToken caller ability token.
+     * @param callerToken current caller ability token.
+     * @param asCallerSourceToken source caller ability token.
      * @param requestCode Ability request code.
+     * @param userId Ability userId
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode StartAbilityAsCaller(
             const Want &want,
-            const sptr<IRemoteObject> &callerToken,
+            sptr<IRemoteObject> callerToken,
+            sptr<IRemoteObject> asCallerSourceToken,
             int requestCode = DEFAULT_INVAL_VALUE,
             int32_t userId = DEFAULT_INVAL_VALUE);
 
@@ -181,17 +201,52 @@ public:
      * Starts a new ability using the original caller information.
      *
      * @param want Indicates the ability to start.
-     * @param startOptions Indicates the options used to start.
+     * @param startOptions current Indicates the options used to start.
      * @param callerToken caller ability token.
+     * @param asCallerSourceToken source caller ability token.
      * @param requestCode the resultCode of the ability to start.
+     * @param userId Ability userId
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode StartAbilityAsCaller(
             const Want &want,
             const StartOptions &startOptions,
-            const sptr<IRemoteObject> &callerToken,
+            sptr<IRemoteObject> callerToken,
+            sptr<IRemoteObject> asCallerSourceToken,
             int requestCode = DEFAULT_INVAL_VALUE,
             int32_t userId = DEFAULT_INVAL_VALUE);
+
+    /**
+     * Starts a new ability for result using the original caller information.
+     *
+     * @param want the want of the ability to start.
+     * @param callerToken current caller ability token.
+     * @param requestCode the resultCode of the ability to start.
+     * @param userId Designation User ID.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartAbilityForResultAsCaller(
+        const Want &want,
+        sptr<IRemoteObject> callerToken,
+        int requestCode = DEFAULT_INVAL_VALUE,
+        int32_t userId = DEFAULT_INVAL_VALUE);
+
+    /**
+     * Starts a new ability for result using the original caller information.
+     *
+     * @param want the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @param callerToken current caller ability token.
+     * @param requestCode the resultCode of the ability to start.
+     * @param userId Designation User ID.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartAbilityForResultAsCaller(
+        const Want &want,
+        const StartOptions &startOptions,
+        sptr<IRemoteObject> callerToken,
+        int requestCode = DEFAULT_INVAL_VALUE,
+        int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
      * Start ui session ability with extension session info, send session info to ability manager service.
@@ -204,8 +259,8 @@ public:
      */
     ErrCode StartAbilityByUIContentSession(
         const Want &want,
-        const sptr<IRemoteObject> &callerToken,
-        const sptr<AAFwk::SessionInfo> &sessionInfo,
+        sptr<IRemoteObject> callerToken,
+        sptr<AAFwk::SessionInfo> sessionInfo,
         int requestCode = DEFAULT_INVAL_VALUE,
         int32_t userId = DEFAULT_INVAL_VALUE);
 
@@ -222,8 +277,8 @@ public:
     ErrCode StartAbilityByUIContentSession(
         const Want &want,
         const StartOptions &startOptions,
-        const sptr<IRemoteObject> &callerToken,
-        const sptr<AAFwk::SessionInfo> &sessionInfo,
+        sptr<IRemoteObject> callerToken,
+        sptr<AAFwk::SessionInfo> sessionInfo,
         int requestCode = DEFAULT_INVAL_VALUE,
         int32_t userId = DEFAULT_INVAL_VALUE);
 
@@ -238,9 +293,32 @@ public:
      */
     ErrCode StartExtensionAbility(
         const Want &want,
-        const sptr<IRemoteObject> &callerToken,
+        sptr<IRemoteObject> callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
+
+    /**
+     * Create UIExtension with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode RequestModalUIExtension(const Want &want);
+
+    /**
+     * Preload UIExtension with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param hostBundleName, the caller application bundle name.
+     * @param userId, the extension runs in.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode PreloadUIExtensionAbility(const Want &want, std::string &hostBundleName,
+        int32_t userId = DEFAULT_INVAL_VALUE);
+
+    ErrCode ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow);
+
+    ErrCode ChangeUIAbilityVisibilityBySCB(sptr<SessionInfo> sessionInfo, bool isShow);
 
     /**
      * Start ui extension ability with extension session info, send extension session info to ability manager service.
@@ -250,16 +328,17 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode StartUIExtensionAbility(
-        const sptr<SessionInfo> &extensionSessionInfo,
+        sptr<SessionInfo> extensionSessionInfo,
         int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
      * Start ui ability with want, send want to ability manager service.
      *
      * @param sessionInfo the session info of the ability to start.
+     * @param isColdStart the session info of the ability is or not cold start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo);
+    ErrCode StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bool &isColdStart);
 
     /**
      * Stop extension ability with want, send want to ability manager service.
@@ -272,7 +351,7 @@ public:
      */
     ErrCode StopExtensionAbility(
         const Want& want,
-        const sptr<IRemoteObject>& callerToken,
+        sptr<IRemoteObject> callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
 
@@ -284,7 +363,7 @@ public:
      * @param Want Ability want returned.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant);
+    ErrCode TerminateAbility(sptr<IRemoteObject> token, int resultCode, const Want *resultWant);
 
     /**
      * TerminateUIExtensionAbility with want, return want from ability manager service.
@@ -294,7 +373,7 @@ public:
      * @param Want Ability want returned.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode TerminateUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo,
+    ErrCode TerminateUIExtensionAbility(sptr<SessionInfo> extensionSessionInfo,
         int resultCode = DEFAULT_INVAL_VALUE, const Want *resultWant = nullptr);
 
     /**
@@ -303,7 +382,7 @@ public:
      * @param sessionInfo the session info of the ability to terminate.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo);
+    ErrCode CloseUIAbilityBySCB(sptr<SessionInfo> sessionInfo);
 
     /**
      * SendResultToAbility with want, return resultWant from ability manager service.
@@ -315,13 +394,21 @@ public:
      */
     ErrCode SendResultToAbility(int requestCode, int resultCode, Want& resultWant);
 
-/**
+    /**
      * MoveAbilityToBackground.
      *
      * @param token Ability token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode MoveAbilityToBackground(const sptr<IRemoteObject> &token);
+    ErrCode MoveAbilityToBackground(sptr<IRemoteObject> token);
+
+    /**
+     * Move the UIAbility to background, called by app self.
+     *
+     * @param token the token of the ability to move.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode MoveUIAbilityToBackground(const sptr<IRemoteObject> token);
 
     /**
      * CloseAbility with want, return want from ability manager service.
@@ -331,7 +418,7 @@ public:
      * @param Want Ability want returned.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode CloseAbility(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
+    ErrCode CloseAbility(sptr<IRemoteObject> token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want *resultWant = nullptr);
 
     /**
@@ -341,7 +428,7 @@ public:
      * @param fromUser mark the minimize operation source.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser = false);
+    ErrCode MinimizeAbility(sptr<IRemoteObject> token, bool fromUser = false);
 
     /**
      * MinimizeUIExtensionAbility, minimize the special ui extension ability.
@@ -350,7 +437,7 @@ public:
      * @param fromUser mark the minimize operation source.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode MinimizeUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo, bool fromUser = false);
+    ErrCode MinimizeUIExtensionAbility(sptr<SessionInfo> extensionSessionInfo, bool fromUser = false);
 
     /**
      * MinimizeUIAbilityBySCB, minimize the special ability by scb.
@@ -359,7 +446,7 @@ public:
      * @param fromUser, Whether form user.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool fromUser = false);
+    ErrCode MinimizeUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bool fromUser = false);
 
     /**
      * ConnectAbility, connect session with service ability.
@@ -368,7 +455,7 @@ public:
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode ConnectAbility(const Want &want, const sptr<IAbilityConnection> &connect, int32_t userId);
+    ErrCode ConnectAbility(const Want &want, sptr<IAbilityConnection> connect, int32_t userId);
 
     /**
      * ConnectAbility, connect session with service ability.
@@ -380,8 +467,8 @@ public:
      */
     ErrCode ConnectAbility(
         const Want &want,
-        const sptr<IAbilityConnection> &connect,
-        const sptr<IRemoteObject> &callerToken,
+        sptr<IAbilityConnection> connect,
+        sptr<IRemoteObject> callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
@@ -392,7 +479,7 @@ public:
      * @param userId, the extension runs in.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode ConnectDataShareExtensionAbility(const Want &want, const sptr<IAbilityConnection> &connect,
+    ErrCode ConnectDataShareExtensionAbility(const Want &want, sptr<IAbilityConnection> connect,
         int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
@@ -403,7 +490,7 @@ public:
      * @param userId, the extension runs in.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode ConnectExtensionAbility(const Want &want, const sptr<IAbilityConnection> &connect,
+    ErrCode ConnectExtensionAbility(const Want &want, sptr<IAbilityConnection> connect,
         int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
@@ -413,10 +500,12 @@ public:
      * @param connect, callback used to notify caller the result of connecting or disconnecting.
      * @param sessionInfo the extension session info of the ability to connect.
      * @param userId, the extension runs in.
+     * @param connectInfo the connect info.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode ConnectUIExtensionAbility(const Want &want, const sptr<IAbilityConnection> &connect,
-        const sptr<SessionInfo> &sessionInfo, int32_t userId = DEFAULT_INVAL_VALUE);
+    ErrCode ConnectUIExtensionAbility(const Want &want, sptr<IAbilityConnection> connect,
+        sptr<SessionInfo> sessionInfo, int32_t userId = DEFAULT_INVAL_VALUE,
+        sptr<UIExtensionAbilityConnectInfo> connectInfo = nullptr);
 
     /**
      * DisconnectAbility, disconnect session with service ability.
@@ -424,7 +513,7 @@ public:
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode DisconnectAbility(const sptr<IAbilityConnection> &connect);
+    ErrCode DisconnectAbility(sptr<IAbilityConnection> connect);
 
     /**
      * AcquireDataAbility, acquire a data ability by its authority, if it not existed,
@@ -435,7 +524,7 @@ public:
      * @param callerToken, specifies the caller ability token.
      * @return returns the data ability ipc object, or nullptr for failed.
      */
-    sptr<IAbilityScheduler> AcquireDataAbility(const Uri &uri, bool tryBind, const sptr<IRemoteObject> &callerToken);
+    sptr<IAbilityScheduler> AcquireDataAbility(const Uri &uri, bool tryBind, sptr<IRemoteObject> callerToken);
 
     /**
      * ReleaseDataAbility, release the data ability that referenced by 'dataAbilityToken'.
@@ -444,7 +533,7 @@ public:
      * @param callerToken, specifies the caller ability token.
      * @return returns ERR_OK if succeeded, or error codes for failed.
      */
-    ErrCode ReleaseDataAbility(sptr<IAbilityScheduler> dataAbilityScheduler, const sptr<IRemoteObject> &callerToken);
+    ErrCode ReleaseDataAbility(sptr<IAbilityScheduler> dataAbilityScheduler, sptr<IRemoteObject> callerToken);
 
     /**
      * dump ability stack info, about userID, mission stack info,
@@ -470,15 +559,16 @@ public:
      * @param token ability's token.
      * @return Returns true if this Service ability will be destroyed; returns false otherwise.
      */
-    ErrCode StopServiceAbility(const Want &want, const sptr<IRemoteObject> &token = nullptr);
+    ErrCode StopServiceAbility(const Want &want, sptr<IRemoteObject> token = nullptr);
 
     /**
      * Kill the process immediately.
      *
      * @param bundleName.
+     * @param clearPageStack.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode KillProcess(const std::string &bundleName);
+    ErrCode KillProcess(const std::string &bundleName, const bool clearPageStack = true);
 
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
@@ -492,15 +582,6 @@ public:
     #endif
 
     /**
-     * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
-     * clear the application data.
-     *
-     * @param bundleName, bundle name in Application record.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode ClearUpApplicationData(const std::string &bundleName);
-
-    /**
      * ContinueMission, continue ability from mission center.
      *
      * @param srcDeviceId, origin deviceId.
@@ -511,7 +592,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId, int32_t missionId,
-        const sptr<IRemoteObject> &callback, AAFwk::WantParams &wantParams);
+        sptr<IRemoteObject> callback, AAFwk::WantParams &wantParams);
 
     /**
      * ContinueMission, continue ability from mission center.
@@ -523,8 +604,7 @@ public:
      * @param wantParams, extended params.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
-        const std::string &bundleName, const sptr<IRemoteObject> &callback, AAFwk::WantParams &wantParams);
+    ErrCode ContinueMission(AAFwk::ContinueMissionInfo continueMissionInfo, const sptr<IRemoteObject> &callback);
 
     /**
      * start continuation.
@@ -533,7 +613,7 @@ public:
      * @param status, continue status.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken, int32_t status);
+    ErrCode StartContinuation(const Want &want, sptr<IRemoteObject> abilityToken, int32_t status);
 
     /**
      * notify continuation complete to dms.
@@ -592,7 +672,7 @@ public:
      *
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode RegisterMissionListener(const sptr<IMissionListener> &listener);
+    ErrCode RegisterMissionListener(sptr<IMissionListener> listener);
 
     /**
      * @brief UnRegister mission listener from ams.
@@ -600,7 +680,7 @@ public:
      *
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode UnRegisterMissionListener(const sptr<IMissionListener> &listener);
+    ErrCode UnRegisterMissionListener(sptr<IMissionListener> listener);
 
     /**
      * @brief Register mission listener to ability manager service.
@@ -609,7 +689,7 @@ public:
      *
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode RegisterMissionListener(const std::string &deviceId, const sptr<IRemoteMissionListener> &listener);
+    ErrCode RegisterMissionListener(const std::string &deviceId, sptr<IRemoteMissionListener> listener);
 
     /**
      * @brief Register mission listener to ability manager service.
@@ -618,7 +698,7 @@ public:
      *
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode RegisterOnListener(const std::string &type, const sptr<IRemoteOnListener> &listener);
+    ErrCode RegisterOnListener(const std::string &type, sptr<IRemoteOnListener> listener);
 
     /**
      * @brief Register mission listener to ability manager service.
@@ -627,7 +707,7 @@ public:
      *
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode RegisterOffListener(const std::string &type, const sptr<IRemoteOnListener> &listener);
+    ErrCode RegisterOffListener(const std::string &type, sptr<IRemoteOnListener> listener);
 
     /**
      * @brief UnRegister mission listener from ability manager service.
@@ -636,7 +716,7 @@ public:
      *
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode UnRegisterMissionListener(const std::string &deviceId, const sptr<IRemoteMissionListener> &listener);
+    ErrCode UnRegisterMissionListener(const std::string &deviceId, sptr<IRemoteMissionListener> listener);
 
     /**
      * @brief Get mission infos from ams.
@@ -717,7 +797,7 @@ public:
      * @param missionId output mission id.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode GetMissionIdByToken(const sptr<IRemoteObject> &token, int32_t &missionId);
+    ErrCode GetMissionIdByToken(sptr<IRemoteObject> token, int32_t &missionId);
 
     /**
      * Start Ability, connect session with common ability.
@@ -726,7 +806,7 @@ public:
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode StartAbilityByCall(const Want &want, const sptr<IAbilityConnection> &connect);
+    ErrCode StartAbilityByCall(const Want &want, sptr<IAbilityConnection> connect);
 
     /**
      * Start Ability, connect session with common ability.
@@ -736,8 +816,8 @@ public:
      * @param accountId Indicates the account to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode StartAbilityByCall(const Want &want, const sptr<IAbilityConnection> &connect,
-        const sptr<IRemoteObject> &callToken, int32_t accountId = DEFAULT_INVAL_VALUE);
+    ErrCode StartAbilityByCall(const Want &want, sptr<IAbilityConnection> connect,
+        sptr<IRemoteObject> callToken, int32_t accountId = DEFAULT_INVAL_VALUE);
 
     /**
      * CallRequestDone, after invoke callRequest, ability will call this interface to return callee.
@@ -745,7 +825,7 @@ public:
      * @param token, ability's token.
      * @param callStub, ability's callee.
      */
-    void CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub);
+    void CallRequestDone(sptr<IRemoteObject> token, sptr<IRemoteObject> callStub);
 
     /**
      * Get ability token by connect.
@@ -753,7 +833,7 @@ public:
      * @param token The token of ability.
      * @param callStub The callee object.
      */
-    void GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token);
+    void GetAbilityTokenByCalleeObj(sptr<IRemoteObject> callStub, sptr<IRemoteObject> &token);
 
     /**
      * Release the call between Ability, disconnect session with common ability.
@@ -761,7 +841,7 @@ public:
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode ReleaseCall(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element);
+    ErrCode ReleaseCall(sptr<IAbilityConnection> connect, const AppExecFwk::ElementName &element);
 
     /**
      * @brief Get the ability running information.
@@ -810,7 +890,7 @@ public:
      *
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode StartUser(int accountId);
+    ErrCode StartUser(int accountId, sptr<IUserCallback> callback);
 
     /**
      * @brief stop user.
@@ -819,14 +899,22 @@ public:
      *
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode StopUser(int accountId, const sptr<IStopUserCallback> &callback);
+    ErrCode StopUser(int accountId, sptr<IUserCallback> callback);
+
+    /**
+     * @brief logout user.
+     * @param accountId accountId.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode LogoutUser(int32_t accountId);
 
     /**
      * @brief Register the snapshot handler
      * @param handler snapshot handler
      * @return ErrCode Returns ERR_OK on success, others on failure.
      */
-    ErrCode RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler);
+    ErrCode RegisterSnapshotHandler(sptr<ISnapshotHandler> handler);
 
     /**
      * PrepareTerminateAbility with want, if terminate, return want from ability manager service.
@@ -835,7 +923,46 @@ public:
      * @param callback callback.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode PrepareTerminateAbility(const sptr<IRemoteObject> &token, sptr<IPrepareTerminateCallback> &callback);
+    ErrCode PrepareTerminateAbility(sptr<IRemoteObject> token, sptr<IPrepareTerminateCallback> callback);
+
+    ErrCode RegisterStatusBarDelegate(sptr<AbilityRuntime::IStatusBarDelegate> delegate);
+
+    ErrCode KillProcessWithPrepareTerminate(const std::vector<int32_t>& pids);
+
+    /**
+     * @brief Register auto start up callback for system api.
+     * @param callback The point of JsAbilityAutoStartupCallBack.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode RegisterAutoStartupSystemCallback(sptr<IRemoteObject> callback);
+
+    /**
+     * @brief Unregister auto start up callback for system api.
+     * @param callback The point of JsAbilityAutoStartupCallBack.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode UnregisterAutoStartupSystemCallback(sptr<IRemoteObject> callback);
+
+    /**
+     * @brief Set every application auto start up state.
+     * @param info The auto startup info,include bundle name, module name, ability name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode SetApplicationAutoStartup(const AutoStartupInfo &info);
+
+    /**
+     * @brief Cancel every application auto start up .
+     * @param info The auto startup info,include bundle name, module name, ability name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode CancelApplicationAutoStartup(const AutoStartupInfo &info);
+
+    /**
+     * @brief Query auto startup state all application.
+     * @param infoList Output parameters, return auto startup info list.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList);
 
     /**
      * PrepareTerminateAbilityBySCB, prepare to terminate ability by scb.
@@ -844,7 +971,7 @@ public:
      * @param isPrepareTerminate the result of ability onPrepareToTermiante.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isPrepareTerminate);
+    ErrCode PrepareTerminateAbilityBySCB(sptr<SessionInfo> sessionInfo, bool &isPrepareTerminate);
 
     /**
      * Set mission continue state of this ability.
@@ -853,9 +980,10 @@ public:
      * @param state the mission continuation state of this ability.
      * @return Returns ERR_OK if success.
      */
-    ErrCode SetMissionContinueState(const sptr<IRemoteObject> &token, const AAFwk::ContinueState &state);
+    ErrCode SetMissionContinueState(sptr<IRemoteObject> token, const AAFwk::ContinueState &state,
+        sptr<IRemoteObject> sessionToken);
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     /**
      * Set mission label of this ability.
      *
@@ -863,7 +991,7 @@ public:
      * @param label Indidate the label showed of the ability in recent missions.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label);
+    ErrCode SetMissionLabel(sptr<IRemoteObject> abilityToken, const std::string &label);
 
     /**
      * Set mission icon of this ability.
@@ -872,8 +1000,8 @@ public:
      * @param icon Indidate the icon showed of the ability in recent missions.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode SetMissionIcon(const sptr<IRemoteObject> &abilityToken,
-        const std::shared_ptr<OHOS::Media::PixelMap> &icon);
+    ErrCode SetMissionIcon(sptr<IRemoteObject> abilityToken,
+        std::shared_ptr<OHOS::Media::PixelMap> icon);
 
     /**
      * Register the WindowManagerService handler
@@ -881,22 +1009,32 @@ public:
      * @param handler Indidate handler of WindowManagerService.
      * @return ErrCode Returns ERR_OK on success, others on failure.
      */
-    ErrCode RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler);
+    ErrCode RegisterWindowManagerServiceHandler(sptr<IWindowManagerServiceHandler> handler);
 
     /**
      * WindowManager notification AbilityManager after the first frame is drawn.
      *
      * @param abilityToken Indidate token of ability.
      */
-    void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken);
+    void CompleteFirstFrameDrawing(sptr<IRemoteObject> abilityToken);
+
+    /**
+     * WindowManager notification AbilityManager after the first frame is drawn.
+     *
+     * @param sessionId Indidate session id.
+     */
+    void CompleteFirstFrameDrawing(int32_t sessionId);
 
     /**
      * Called to update mission snapshot.
      * @param token The target ability.
      * @param pixelMap The snapshot.
      */
-    void UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
-        const std::shared_ptr<OHOS::Media::PixelMap> &pixelMap);
+    void UpdateMissionSnapShot(sptr<IRemoteObject> token,
+        std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
+
+    ErrCode GetDialogSessionInfo(const std::string dialogSessionId, sptr<DialogSessionInfo> &info);
+    ErrCode SendDialogResult(const Want &want, const std::string dialogSessionId, bool isAllow);
 #endif
 
     /**
@@ -906,7 +1044,7 @@ public:
      *
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode StartUserTest(const Want &want, const sptr<IRemoteObject> &observer);
+    ErrCode StartUserTest(const Want &want, sptr<IRemoteObject> observer);
 
     /**
      * @brief Finish user test.
@@ -934,7 +1072,7 @@ public:
      * @param token, ability's token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token);
+    ErrCode DelegatorDoAbilityForeground(sptr<IRemoteObject> token);
 
     /**
      * DelegatorDoAbilityBackground, the delegator calls this interface to move the ability to the background.
@@ -942,7 +1080,7 @@ public:
      * @param token, ability's token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token);
+    ErrCode DelegatorDoAbilityBackground(sptr<IRemoteObject> token);
 
    /**
      * Calls this interface to move the ability to the foreground.
@@ -951,7 +1089,7 @@ public:
      * @param flag, use for lock or unlock flag and so on.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag);
+    ErrCode DoAbilityForeground(sptr<IRemoteObject> token, uint32_t flag);
 
     /**
      * Calls this interface to move the ability to the background.
@@ -960,7 +1098,7 @@ public:
      * @param flag, use for lock or unlock flag and so on.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag);
+    ErrCode DoAbilityBackground(sptr<IRemoteObject> token, uint32_t flag);
 
     /**
      * Set ability controller.
@@ -968,16 +1106,8 @@ public:
      * @param abilityController, The ability controller.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
+    virtual int SetAbilityController(sptr<AppExecFwk::IAbilityController> abilityController,
         bool imAStabilityTest);
-
-    /**
-     * Send not response process ID to ability manager service.
-     *
-     * @param pid The not response process ID.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode SendANRProcessID(int pid);
 
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
@@ -1012,7 +1142,7 @@ public:
      * @param requestCode Ability request code.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback, int32_t userId,
+    ErrCode FreeInstallAbilityFromRemote(const Want &want, sptr<IRemoteObject> callback, int32_t userId,
         int requestCode = DEFAULT_INVAL_VALUE);
 
     /**
@@ -1022,14 +1152,14 @@ public:
      * @param callerToken The caller ability token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken);
+    ErrCode DumpAbilityInfoDone(std::vector<std::string> &infos, sptr<IRemoteObject> callerToken);
 
     /**
      * @brief Enable recover ability.
      *
      * @param token Ability identify.
      */
-    void EnableRecoverAbility(const sptr<IRemoteObject>& token);
+    void EnableRecoverAbility(sptr<IRemoteObject> token);
 
     /**
      * @brief Schedule recovery ability.
@@ -1038,7 +1168,14 @@ public:
      * @param reason See AppExecFwk::StateReason.
      * @param want Want information.
      */
-    void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason, const Want *want = nullptr);
+    void ScheduleRecoverAbility(sptr<IRemoteObject> token, int32_t reason, const Want *want = nullptr);
+
+    /**
+     * @brief Schedule clear recovery page stack.
+     *
+     * @param bundleName application bundleName.
+     */
+    void ScheduleClearRecoveryPageStack();
 
     /**
      * @brief Add free install observer.
@@ -1046,7 +1183,7 @@ public:
      * @param observer Free install observer.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer);
+    ErrCode AddFreeInstallObserver(sptr<AbilityRuntime::IFreeInstallObserver> observer);
 
     /**
      * Called to verify that the MissionId is valid.
@@ -1071,7 +1208,7 @@ public:
      * @param The IAcquireShareDataCallback object.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode AcquireShareData(const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData);
+    ErrCode AcquireShareData(int32_t missionId, sptr<IAcquireShareDataCallback> shareData);
 
     /**
      * Notify sharing data finished.
@@ -1081,7 +1218,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode ShareDataDone(
-        const sptr<IRemoteObject> &token, const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam);
+        sptr<IRemoteObject> token, int32_t resultCode, int32_t uniqueId, WantParams &wantParam);
 
     /**
      * Request dialog service with want, send want to ability manager service.
@@ -1092,7 +1229,7 @@ public:
      */
     ErrCode RequestDialogService(
         const Want &want,
-        const sptr<IRemoteObject> &callerToken);
+        sptr<IRemoteObject> callerToken);
 
     /**
      * Force app exit and record exit reason.
@@ -1100,28 +1237,37 @@ public:
      * @param exitReason The reason of app exit.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode ForceExitApp(const int32_t pid, Reason exitReason);
+    ErrCode ForceExitApp(const int32_t pid, const ExitReason &exitReason);
 
     /**
      * Record app exit reason.
      * @param exitReason The reason of app exit.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode RecordAppExitReason(Reason exitReason);
+    ErrCode RecordAppExitReason(const ExitReason &exitReason);
+
+    /**
+     * Record the process exit reason before the process being killed.
+     * @param pid The process id.
+     * @param exitReason The reason of process exit.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RecordProcessExitReason(const int32_t pid, const ExitReason &exitReason);
 
     /**
      * Set rootSceneSession by SCB.
      *
      * @param rootSceneSession Indicates root scene session of SCB.
      */
-    void SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession);
+    void SetRootSceneSession(sptr<IRemoteObject> rootSceneSession);
 
     /**
      * Call UIAbility by SCB.
      *
      * @param sessionInfo the session info of the ability to be called.
+     * @param isColdStart the session of the ability is or not cold start.
      */
-    void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo);
+    void CallUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bool &isColdStart);
 
     /**
      * Start specified ability by SCB.
@@ -1145,9 +1291,9 @@ public:
      *
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService);
+    ErrCode SetSessionManagerService(sptr<IRemoteObject> sessionManagerService);
 
-    ErrCode ReportDrawnCompleted(const sptr<IRemoteObject> &token);
+    ErrCode ReportDrawnCompleted(sptr<IRemoteObject> token);
 
     /**
      * @brief Register collaborator.
@@ -1156,7 +1302,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
     */
     ErrCode RegisterIAbilityManagerCollaborator(
-        int32_t type, const sptr<IAbilityManagerCollaborator> &impl);
+        int32_t type, sptr<IAbilityManagerCollaborator> impl);
 
     /**
      * @brief Unregister collaborator.
@@ -1166,40 +1312,26 @@ public:
     ErrCode UnregisterIAbilityManagerCollaborator(int32_t type);
 
     /**
-     * @brief Notify to move mission to backround.
-     * @param missionId missionId.
-     * @return Returns ERR_OK on success, others on failure.
-    */
-    ErrCode MoveMissionToBackground(int32_t missionId);
-
-    /**
-     * @brief Notify to terminate mission. it is not clear.
-     * @param missionId missionId.
-     * @return Returns ERR_OK on success, others on failure.
-    */
-    ErrCode TerminateMission(int32_t missionId);
-
-    /**
      * @brief Register session handler.
      * @param object The handler.
      *
      * @return Returns ERR_OK on success, others on failure.
     */
-    ErrCode RegisterSessionHandler(const sptr<IRemoteObject> &object);
+    ErrCode RegisterSessionHandler(sptr<IRemoteObject> object);
 
     /**
      * @brief Register app debug listener.
      * @param listener App debug listener.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode RegisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener);
+    ErrCode RegisterAppDebugListener(sptr<AppExecFwk::IAppDebugListener> listener);
 
     /**
      * @brief Unregistering app debug listener.
      * @param listener App debug listener.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode UnregisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener);
+    ErrCode UnregisterAppDebugListener(sptr<AppExecFwk::IAppDebugListener> listener);
 
     /**
      * @brief Attach app debug.
@@ -1222,7 +1354,154 @@ public:
      */
     bool IsAbilityControllerStart(const Want &want);
 
+    /**
+     * @brief Open file by uri.
+     * @param uri The file uri.
+     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
+     * @return int The file descriptor.
+     */
+    int32_t OpenFile(const Uri& uri, uint32_t flag);
+
+    /**
+     * @brief Execute intent.
+     * @param key The key of intent executing client.
+     * @param callerToken Caller ability token.
+     * @param param The Intent execute param.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode ExecuteIntent(uint64_t key, sptr<IRemoteObject> callerToken,
+        const InsightIntentExecuteParam &param);
+
+    /**
+     * @brief Called when insight intent execute finished.
+     *
+     * @param token ability's token.
+     * @param intentId insight intent id.
+     * @param result insight intent execute result.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode ExecuteInsightIntentDone(sptr<IRemoteObject> token, uint64_t intentId,
+        const InsightIntentExecuteResult &result);
+
+    /**
+     * @brief Get foreground ui abilities.
+     * @param list Foreground ui abilities.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list);
+
+    /**
+     * @brief Update session info.
+     * @param sessionInfos The vector of session info.
+     */
+    int32_t UpdateSessionInfoBySCB(std::list<SessionInfo> &sessionInfos, int32_t userId,
+        std::vector<int32_t> &sessionIds);
+
+    /**
+     * @brief Get host info of root caller.
+     *
+     * @param token The ability token.
+     * @param hostInfo The host info of root caller.
+     * @param userId The user id.
+     * @return ErrCode Returns ERR_OK on success, others on failure.
+     */
+    ErrCode GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token, UIExtensionHostInfo &hostInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE);
+
+    /**
+     * @brief Restart app self.
+     * @param want The ability type must be UIAbility.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RestartApp(const AAFwk::Want &want);
+
+    /**
+     * Pop-up launch of full-screen atomic service.
+     *
+     * @param want The want with parameters.
+     * @param callerToken caller ability token.
+     * @param requestCode Ability request code.
+     * @param userId The User ID.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t OpenAtomicService(Want& want, const StartOptions &options, sptr<IRemoteObject> callerToken,
+        int32_t requestCode = DEFAULT_INVAL_VALUE, int32_t userId = DEFAULT_INVAL_VALUE);
+
+    /**
+     * @brief Querying whether to allow embedded startup of atomic service.
+     *
+     * @param token The caller UIAbility token.
+     * @param appId The ID of the application to which this bundle belongs.
+     * @return Returns true to allow ability to start, or false to reject.
+     */
+    bool IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken, const std::string &appId);
+
+    /**
+     * @brief Request to display assert fault dialog.
+     * @param callback Listen for user operation callbacks.
+     * @param wantParams Assert dialog box display information.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RequestAssertFaultDialog(const sptr<IRemoteObject> &callback, const AAFwk::WantParams &wantParams);
+
+    /**
+     * @brief Notify the operation status of the user.
+     * @param assertFaultSessionId Indicates the request ID of AssertFault.
+     * @param userStatus Operation status of the user.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t NotifyDebugAssertResult(uint64_t assertFaultSessionId, AAFwk::UserStatus userStatus);
+
+    /**
+     * Set the enable status for starting and stopping resident processes.
+     * The caller application can only set the resident status of the configured process.
+     * @param bundleName The bundle name of the resident process.
+     * @param enable Set resident process enable status.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t SetResidentProcessEnabled(const std::string &bundleName, bool enable);
+
+    /**
+     * Starts a new ability with specific start options.
+     *
+     * @param want, the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t StartShortcut(const Want &want, const StartOptions &startOptions);
+
+    /**
+     * Get ability state by persistent id.
+     *
+     * @param persistentId, the persistentId of the session.
+     * @param state Indicates the ability state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t GetAbilityStateByPersistentId(int32_t persistentId, bool &state);
+
+    /**
+     * Transfer resultCode & want to abms.
+     *
+     * @param callerToken caller ability token.
+     * @param requestCode the resultCode of the ability to start.
+     * @param want Indicates the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t TransferAbilityResultForExtension(const sptr<IRemoteObject> &callerToken, int32_t resultCode,
+        const Want &want);
+
+    /**
+     * Notify ability manager service frozen process.
+     *
+     * @param pidList, the pid list of the frozen process.
+     * @param uid, the uid of the frozen process.
+     */
+    void NotifyFrozenProcessByRSS(const std::vector<int32_t> &pidList, int32_t uid);
+
 private:
+    AbilityManagerClient();
+    DISALLOW_COPY_AND_MOVE(AbilityManagerClient);
+
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         AbilityMgrDeathRecipient() = default;
@@ -1233,10 +1512,12 @@ private:
     };
 
     sptr<IAbilityManager> GetAbilityManager();
-    void ResetProxy(const wptr<IRemoteObject>& remote);
+    void ResetProxy(wptr<IRemoteObject> remote);
     void HandleDlpApp(Want &want);
 
-    static std::recursive_mutex mutex_;
+    static std::once_flag singletonFlag_;
+    std::recursive_mutex mutex_;
+    std::mutex topAbilityMutex_;
     static std::shared_ptr<AbilityManagerClient> instance_;
     sptr<IAbilityManager> proxy_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_;

@@ -36,6 +36,7 @@ public:
     virtual void OnActive()
     {
         GTEST_LOG_(INFO) << "MockLifecycleObserver::OnActive called";
+        state_ = LifeCycle::Event::ON_ACTIVE;
     }
 
     /**
@@ -48,6 +49,7 @@ public:
     virtual void OnInactive()
     {
         GTEST_LOG_(INFO) << "MockLifecycleObserver::OnInactive called";
+        state_ = LifeCycle::Event::ON_INACTIVE;
     }
 
     /**
@@ -63,6 +65,7 @@ public:
     {
         (void)want;
         GTEST_LOG_(INFO) << "MockLifecycleObserver::OnStart called";
+        state_ = LifeCycle::Event::ON_START;
     }
 
     /**
@@ -74,6 +77,7 @@ public:
     virtual void OnStop()
     {
         GTEST_LOG_(INFO) << "MockLifecycleObserver::OnStop called";
+        state_ = LifeCycle::Event::ON_STOP;
     }
 
     /**
@@ -88,6 +92,7 @@ public:
         (void)event;
         (void)want;
         GTEST_LOG_(INFO) << "MockLifecycleObserver::OnStateChanged called";
+        state_ = event;
     }
 
     /**
@@ -100,6 +105,7 @@ public:
     {
         (void)event;
         GTEST_LOG_(INFO) << "MockLifecycleObserver::OnStateChanged called";
+        state_ = event;
     }
 
 #ifdef SUPPORT_GRAPHICS
@@ -113,6 +119,7 @@ public:
     virtual void OnBackground()
     {
         GTEST_LOG_(INFO) << "MockLifecycleObserver::OnBackground called";
+        state_ = LifeCycle::Event::ON_BACKGROUND;
     }
 
     /**
@@ -127,8 +134,22 @@ public:
     {
         (void)want;
         GTEST_LOG_(INFO) << "MockLifecycleObserver::OnForeground called";
+        state_ = LifeCycle::Event::ON_FOREGROUND;
     }
 #endif
+
+    /**
+     * Get current observed lifecycle state.
+     *
+     * @return Current observed lifecycle state.
+     */
+    LifeCycle::Event GetLifecycleState()
+    {
+        return state_;
+    }
+
+private:
+    LifeCycle::Event state_{LifeCycle::Event::UNDEFINED};
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,11 +17,15 @@
 
 #include <algorithm>
 #include <mutex>
+#include <string>
 
 #include "ability_auto_startup_data_manager.h"
 #include "ability_manager_errors.h"
+#include "ability_manager_service.h"
+#include "auto_startup_callback_proxy.h"
 #include "auto_startup_info.h"
 #include "auto_startup_interface.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
@@ -42,7 +46,7 @@ AbilityAutoStartupService::~AbilityAutoStartupService() {}
 
 int32_t AbilityAutoStartupService::RegisterAutoStartupSystemCallback(const sptr<IRemoteObject> &callback)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
     int32_t code = CheckPermissionForSystem();
     if (code != ERR_OK) {
         return code;
@@ -64,7 +68,7 @@ int32_t AbilityAutoStartupService::RegisterAutoStartupSystemCallback(const sptr<
             SetDeathRecipient(
                 callback, new (std::nothrow) AbilityAutoStartupService::ClientDeathRecipient(weak_from_this()));
         } else {
-            HILOG_DEBUG("Callback is already exist.");
+            TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Callback is already exist.");
         }
     }
     return ERR_OK;
@@ -72,7 +76,7 @@ int32_t AbilityAutoStartupService::RegisterAutoStartupSystemCallback(const sptr<
 
 int32_t AbilityAutoStartupService::UnregisterAutoStartupSystemCallback(const sptr<IRemoteObject> &callback)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
     int32_t code = CheckPermissionForSystem();
     if (code != ERR_OK) {
         return code;
@@ -91,7 +95,7 @@ int32_t AbilityAutoStartupService::UnregisterAutoStartupSystemCallback(const spt
             }
         }
         if (!isFound) {
-            HILOG_DEBUG("Callback is not exist.");
+            TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Callback is not exist.");
         }
     }
     return ERR_OK;
@@ -99,27 +103,34 @@ int32_t AbilityAutoStartupService::UnregisterAutoStartupSystemCallback(const spt
 
 int32_t AbilityAutoStartupService::SetApplicationAutoStartup(const AutoStartupInfo &info)
 {
-    HILOG_DEBUG("Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s.",
-        info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str());
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP,
+        "Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s,"
+        " accessTokenId: %{public}s, userId: %{public}d.",
+        info.bundleName.c_str(), info.moduleName.c_str(),
+        info.abilityName.c_str(), info.accessTokenId.c_str(), info.userId);
     int32_t code = CheckPermissionForSystem();
     if (code != ERR_OK) {
         return code;
     }
 
     bool isVisible;
+    int32_t userId;
     std::string abilityTypeName;
-    if (!GetAbilityData(info, isVisible, abilityTypeName)) {
-        HILOG_ERROR("Failed to get ability data.");
+    std::string accessTokenId;
+    if (!GetAbilityData(info, isVisible, abilityTypeName, accessTokenId, userId)) {
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to get ability data.");
         return INNER_ERR;
     }
 
     if (!isVisible) {
-        HILOG_ERROR("Current ability is not visible.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Current ability is not visible.");
         return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
     }
 
     AutoStartupInfo fullInfo(info);
     fullInfo.abilityTypeName = abilityTypeName;
+    fullInfo.accessTokenId = accessTokenId;
+    fullInfo.userId = userId;
 
     return InnerSetApplicationAutoStartup(fullInfo);
 }
@@ -129,13 +140,13 @@ int32_t AbilityAutoStartupService::InnerSetApplicationAutoStartup(const AutoStar
     AutoStartupStatus status =
         DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->QueryAutoStartupData(info);
     if (status.code != ERR_OK && status.code != ERR_NAME_NOT_FOUND) {
-        HILOG_ERROR("Query auto startup data failed.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Query auto startup data failed.");
         return status.code;
     }
 
     int32_t result;
     if (status.code == ERR_NAME_NOT_FOUND) {
-        HILOG_INFO("Query data is not exist.");
+        TAG_LOGI(AAFwkTag::AUTO_STARTUP, "Query data is not exist.");
         result =
             DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->InsertAutoStartupData(info, true, false);
         if (result == ERR_OK) {
@@ -144,7 +155,7 @@ int32_t AbilityAutoStartupService::InnerSetApplicationAutoStartup(const AutoStar
         return result;
     }
     if (status.isEdmForce) {
-        HILOG_ERROR("Edm application abnormal.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Edm application abnormal.");
         return ERR_EDM_APP_CONTROLLED;
     }
     if (!status.isAutoStartup) {
@@ -160,8 +171,11 @@ int32_t AbilityAutoStartupService::InnerSetApplicationAutoStartup(const AutoStar
 
 int32_t AbilityAutoStartupService::CancelApplicationAutoStartup(const AutoStartupInfo &info)
 {
-    HILOG_DEBUG("Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s.",
-        info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str());
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP,
+        "Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s,"
+        " accessTokenId: %{public}s, userId: %{public}d.",
+        info.bundleName.c_str(), info.moduleName.c_str(),
+        info.abilityName.c_str(), info.accessTokenId.c_str(), info.userId);
     int32_t code = CheckPermissionForSystem();
     if (code != ERR_OK) {
         return code;
@@ -169,18 +183,22 @@ int32_t AbilityAutoStartupService::CancelApplicationAutoStartup(const AutoStartu
 
     bool isVisible;
     std::string abilityTypeName;
-    if (!GetAbilityData(info, isVisible, abilityTypeName)) {
-        HILOG_ERROR("Failed to get ability data.");
+    std::string accessTokenId;
+    int32_t userId;
+    if (!GetAbilityData(info, isVisible, abilityTypeName, accessTokenId, userId)) {
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to get ability data.");
         return INNER_ERR;
     }
 
     if (!isVisible) {
-        HILOG_ERROR("Current ability is not visible.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Current ability is not visible.");
         return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
     }
 
     AutoStartupInfo fullInfo(info);
     fullInfo.abilityTypeName = abilityTypeName;
+    fullInfo.accessTokenId = accessTokenId;
+    fullInfo.userId = userId;
 
     return InnerCancelApplicationAutoStartup(fullInfo);
 }
@@ -190,12 +208,12 @@ int32_t AbilityAutoStartupService::InnerCancelApplicationAutoStartup(const AutoS
     AutoStartupStatus status =
         DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->QueryAutoStartupData(info);
     if (status.code != ERR_OK) {
-        HILOG_ERROR("Query auto startup data failed.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Query auto startup data failed.");
         return status.code;
     }
 
     if (status.isEdmForce) {
-        HILOG_ERROR("Edm application abnormal.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Edm application abnormal.");
         return ERR_EDM_APP_CONTROLLED;
     }
 
@@ -209,244 +227,58 @@ int32_t AbilityAutoStartupService::InnerCancelApplicationAutoStartup(const AutoS
     return ERR_OK;
 }
 
-int32_t AbilityAutoStartupService::QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList)
+int32_t AbilityAutoStartupService::QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList,
+    int32_t userId)
 {
-    HILOG_DEBUG("Called.");
-    int32_t code = CheckPermissionForSystem();
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
+    int32_t code = CheckPermissionForEDM();
+    code = code == ERR_OK ? code : CheckPermissionForSystem();
     if (code != ERR_OK) {
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Permission verification failed.");
         return code;
     }
 
-    return DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->QueryAllAutoStartupApplications(infoList);
+    return DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->QueryAllAutoStartupApplications(infoList,
+        userId);
 }
 
 int32_t AbilityAutoStartupService::QueryAllAutoStartupApplicationsWithoutPermission(
-    std::vector<AutoStartupInfo> &infoList)
+    std::vector<AutoStartupInfo> &infoList, int32_t userId)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
     if (!system::GetBoolParameter(PRODUCT_APPBOOT_SETTING_ENABLED, false)) {
-        HILOG_ERROR("Product configuration item is disable.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Product configuration item is disable.");
         return ERR_NOT_SUPPORTED_PRODUCT_TYPE;
     }
 
-    return DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->QueryAllAutoStartupApplications(infoList);
+    return DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->QueryAllAutoStartupApplications(infoList,
+        userId);
 }
 
-int32_t AbilityAutoStartupService::RegisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
+int32_t AbilityAutoStartupService::DeleteAutoStartupData(const std::string &bundleName, const int32_t uid)
 {
-    HILOG_DEBUG("Called.");
-    if (!system::GetBoolParameter(PRODUCT_APPBOOT_SETTING_ENABLED, false)) {
-        HILOG_ERROR("Product configuration item is disable.");
-        return ERR_NOT_SUPPORTED_PRODUCT_TYPE;
-    }
-
-    std::string bundleName = GetSelfApplicationBundleName();
-    if (bundleName.empty()) {
-        HILOG_ERROR("Get self application bundleName failed.");
-        return ERR_INVALID_OPERATION;
-    }
-    {
-        std::lock_guard<std::mutex> lock(autoStartUpMutex_);
-        auto item = callbackMaps_.find(bundleName);
-        if (item != callbackMaps_.end()) {
-            HILOG_DEBUG("Callback is already exist.");
-            return ERR_OK;
-        }
-        callbackMaps_.emplace(bundleName, callback);
-        SetDeathRecipient(
-            callback, new (std::nothrow) AbilityAutoStartupService::ClientDeathRecipient(weak_from_this()));
-    }
-
-    return ERR_OK;
-}
-
-int32_t AbilityAutoStartupService::UnregisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
-{
-    HILOG_DEBUG("Called.");
-    if (!system::GetBoolParameter(PRODUCT_APPBOOT_SETTING_ENABLED, false)) {
-        HILOG_ERROR("Product configuration item is disable.");
-        return ERR_NOT_SUPPORTED_PRODUCT_TYPE;
-    }
-
-    std::string bundleName = GetSelfApplicationBundleName();
-    if (bundleName.empty()) {
-        HILOG_ERROR("Get self application bundleName failed.");
-        return ERR_INVALID_OPERATION;
-    }
-    {
-        std::lock_guard<std::mutex> lock(autoStartUpMutex_);
-        auto item = callbackMaps_.find(bundleName);
-        if (item == callbackMaps_.end()) {
-            HILOG_DEBUG("BundleName is not exist.");
-            return ERR_NAME_NOT_FOUND;
-        }
-        if (item->second != callback) {
-            HILOG_DEBUG("Callback is not exist.");
-            return ERR_NAME_NOT_FOUND;
-        }
-        callbackMaps_.erase(item);
-    }
-
-    return ERR_OK;
-}
-
-int32_t AbilityAutoStartupService::SetAutoStartup(const AutoStartupInfo &info)
-{
-    HILOG_DEBUG("Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s.",
-        info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str());
-    int32_t code = CheckPermissionForSelf(info.bundleName);
-    if (code != ERR_OK) {
-        return code;
-    }
-
-    bool isVisible;
-    std::string abilityTypeName;
-    if (!GetAbilityData(info, isVisible, abilityTypeName)) {
-        HILOG_ERROR("Failed to get ability data.");
-        return INNER_ERR;
-    }
-
-    if (!isVisible) {
-        HILOG_ERROR("Current ability is not visible.");
-        return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
-    }
-
-    AutoStartupInfo fullInfo(info);
-    fullInfo.abilityTypeName = abilityTypeName;
-
-    return InnerSetAutoStartup(fullInfo);
-}
-
-int32_t AbilityAutoStartupService::InnerSetAutoStartup(const AutoStartupInfo &info)
-{
-    AutoStartupStatus status =
-        DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->QueryAutoStartupData(info);
-    if (status.code != ERR_OK && status.code != ERR_NAME_NOT_FOUND) {
-        HILOG_ERROR("Query auto startup data failed.");
-        return status.code;
-    }
-
-    int32_t result;
-    if (status.code == ERR_NAME_NOT_FOUND) {
-        HILOG_INFO("Query data is not exist.");
-        result =
-            DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->InsertAutoStartupData(info, true, false);
-        if (result == ERR_OK) {
-            ExecuteCallbacks(true, info);
-        }
-        return result;
-    }
-
-    if (status.isEdmForce) {
-        HILOG_ERROR("Edm application abnormal.");
-        return ERR_EDM_APP_CONTROLLED;
-    }
-
-    if (!status.isAutoStartup) {
-        result =
-            DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->UpdateAutoStartupData(info, true, false);
-        if (result == ERR_OK) {
-            ExecuteCallbacks(true, info);
-        }
-        return result;
-    }
-    return ERR_ALREADY_EXISTS;
-}
-
-int32_t AbilityAutoStartupService::CancelAutoStartup(const AutoStartupInfo &info)
-{
-    HILOG_DEBUG("Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s.",
-        info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str());
-    int32_t code = CheckPermissionForSelf(info.bundleName);
-    if (code != ERR_OK) {
-        return code;
-    }
-
-    bool isVisible;
-    std::string abilityTypeName;
-    if (!GetAbilityData(info, isVisible, abilityTypeName)) {
-        HILOG_ERROR("Failed to get ability data.");
-        return INNER_ERR;
-    }
-
-    if (!isVisible) {
-        HILOG_ERROR("Current ability is not visible.");
-        return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
-    }
-
-    AutoStartupInfo fullInfo(info);
-    fullInfo.abilityTypeName = abilityTypeName;
-
-    return InnerCancelAutoStartup(fullInfo);
-}
-
-int32_t AbilityAutoStartupService::InnerCancelAutoStartup(const AutoStartupInfo &info)
-{
-    AutoStartupStatus status =
-        DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->QueryAutoStartupData(info);
-    if (status.code != ERR_OK) {
-        HILOG_ERROR("Query auto startup data failed.");
-        return status.code;
-    }
-
-    if (status.isEdmForce) {
-        HILOG_ERROR("Edm application abnormal.");
-        return ERR_EDM_APP_CONTROLLED;
-    }
-
-    if (status.isAutoStartup) {
-        int32_t result = DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->DeleteAutoStartupData(info);
-        if (result == ERR_OK) {
-            ExecuteCallbacks(false, info);
-        }
-        return result;
-    }
-
-    return ERR_OK;
-}
-
-int32_t AbilityAutoStartupService::IsAutoStartup(const AutoStartupInfo &info, bool &isAutoStartup)
-{
-    HILOG_DEBUG("Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s.",
-        info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str());
-    int32_t code = CheckPermissionForSelf(info.bundleName);
-    if (code != ERR_OK) {
-        return code;
-    }
-
-    AutoStartupStatus status =
-        DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->QueryAutoStartupData(info);
-    if (status.code != ERR_OK) {
-        HILOG_DEBUG("Query auto startup data failed.");
-        isAutoStartup = false;
-    } else {
-        isAutoStartup = status.isAutoStartup;
-    }
-    return ERR_OK;
-}
-
-int32_t AbilityAutoStartupService::DeleteAutoStartupData(const std::string &bundleName)
-{
-    HILOG_DEBUG("Called.");
-    return DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->DeleteAutoStartupData(bundleName);
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
+    return DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->DeleteAutoStartupData(bundleName, uid);
 }
 
 int32_t AbilityAutoStartupService::CheckAutoStartupData(const std::string &bundleName, int32_t uid)
 {
+    int32_t userId;
+    AppExecFwk::BundleInfo bundleInfo;
+    if (!GetBundleInfo(bundleName, bundleInfo, uid, userId)) {
+        return INNER_ERR;
+    }
+    auto tokenId = bundleInfo.applicationInfo.accessTokenId;
+    std::string accessTokenIdStr = std::to_string(tokenId);
     std::vector<AutoStartupInfo> infoList;
     int32_t result = DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->GetCurrentAppAutoStartupData(
-        bundleName, infoList);
+        bundleName, infoList, accessTokenIdStr);
     if (result != ERR_OK) {
-        HILOG_ERROR("Failed to get auto startup data.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to get auto startup data.");
         return result;
     }
     if (infoList.size() == 0) {
         return ERR_OK;
-    }
-
-    AppExecFwk::BundleInfo bundleInfo;
-    if (!GetBundleInfo(bundleName, bundleInfo, uid)) {
-        return INNER_ERR;
     }
 
     bool isFound = false;
@@ -461,16 +293,19 @@ int32_t AbilityAutoStartupService::CheckAutoStartupData(const std::string &bundl
     }
 
     if (!isFound) {
-        HILOG_DEBUG("Current bundleName not found in Datebase.");
-        return DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->DeleteAutoStartupData(bundleName);
+        TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Current bundleName not found in Datebase.");
+        return DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->DeleteAutoStartupData(bundleName, uid);
     }
     return ERR_OK;
 }
 
 void AbilityAutoStartupService::ExecuteCallbacks(bool isCallOn, const AutoStartupInfo &info)
 {
-    HILOG_DEBUG("bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s.", info.bundleName.c_str(),
-        info.moduleName.c_str(), info.abilityName.c_str());
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP,
+        "Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s,"
+        " accessTokenId: %{public}s, userId: %{public}d.",
+        info.bundleName.c_str(), info.moduleName.c_str(),
+        info.abilityName.c_str(), info.accessTokenId.c_str(), info.userId);
     for (auto item : callbackVector_) {
         auto remoteSystemCallback = iface_cast<IAutoStartupCallBack>(item);
         if (remoteSystemCallback != nullptr) {
@@ -498,9 +333,9 @@ void AbilityAutoStartupService::ExecuteCallbacks(bool isCallOn, const AutoStartu
 void AbilityAutoStartupService::SetDeathRecipient(
     const sptr<IRemoteObject> &callback, const sptr<IRemoteObject::DeathRecipient> &deathRecipient)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
     if (callback == nullptr || deathRecipient == nullptr) {
-        HILOG_ERROR("The callerToken or the deathRecipient is empty.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The callerToken or the deathRecipient is empty.");
         return;
     }
     std::lock_guard<std::mutex> lock(deathRecipientsMutex_);
@@ -510,15 +345,15 @@ void AbilityAutoStartupService::SetDeathRecipient(
         callback->AddDeathRecipient(deathRecipient);
         return;
     }
-    HILOG_DEBUG("The deathRecipient has been added.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "The deathRecipient has been added.");
 }
 
 void AbilityAutoStartupService::CleanResource(const wptr<IRemoteObject> &remote)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
     auto object = remote.promote();
     if (object == nullptr) {
-        HILOG_ERROR("Remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Remote object is nullptr.");
         return;
     }
 
@@ -534,7 +369,7 @@ void AbilityAutoStartupService::CleanResource(const wptr<IRemoteObject> &remote)
         }
 
         for (auto it = callbackMaps_.begin(); it != callbackMaps_.end();) {
-            auto &callback = it->second;
+            const auto &callback = it->second;
             if (callback == object) {
                 it = callbackMaps_.erase(it);
             } else {
@@ -561,10 +396,10 @@ AbilityAutoStartupService::ClientDeathRecipient::ClientDeathRecipient(
 
 void AbilityAutoStartupService::ClientDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
     auto abilityAutoStartupService = weakPtr_.lock();
     if (abilityAutoStartupService == nullptr) {
-        HILOG_ERROR("abilityAutoStartupService is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "abilityAutoStartupService is nullptr.");
         return;
     }
     abilityAutoStartupService->CleanResource(remote);
@@ -574,70 +409,83 @@ std::string AbilityAutoStartupService::GetSelfApplicationBundleName()
 {
     auto bundleMgrClient = GetBundleMgrClient();
     if (bundleMgrClient == nullptr) {
-        HILOG_ERROR("Failed to get BundleMgrClient.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to get BundleMgrClient.");
         return "";
     }
 
     std::string bundleName;
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     if (IN_PROCESS_CALL(bundleMgrClient->GetNameForUid(callerUid, bundleName)) != ERR_OK) {
-        HILOG_ERROR("Get Bundle Name failed.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Get Bundle Name failed.");
         return "";
     }
-    HILOG_DEBUG("Get bundle name: %{public}s.", bundleName.c_str());
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Get bundle name: %{public}s.", bundleName.c_str());
     return bundleName;
 }
 
 bool AbilityAutoStartupService::CheckSelfApplication(const std::string &bundleName)
 {
-    HILOG_DEBUG("Called, bundleName: %{public}s.", bundleName.c_str());
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called, bundleName: %{public}s.", bundleName.c_str());
     return GetSelfApplicationBundleName() == bundleName ? true : false;
 }
 
 bool AbilityAutoStartupService::GetBundleInfo(
-    const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, int32_t uid)
+    const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, int32_t uid, int32_t &userId)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
     auto bundleMgrClient = GetBundleMgrClient();
     if (bundleMgrClient == nullptr) {
-        HILOG_ERROR("Failed to get BundleMgrClient.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to get BundleMgrClient.");
         return false;
     }
 
-    int32_t userId;
     if (uid == -1) {
         userId = IPCSkeleton::GetCallingUid() / AppExecFwk::Constants::BASE_USER_RANGE;
     } else {
         userId = uid / AppExecFwk::Constants::BASE_USER_RANGE;
     }
-    HILOG_DEBUG("Current userId: %{public}d.", userId);
+    if (userId == 0) {
+        auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
+        if (abilityMgr == nullptr) {
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The abilityMgr is nullptr.");
+            return false;
+        }
+        userId = abilityMgr->GetUserId();
+    }
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Current userId: %{public}d.", userId);
     auto flags =
         AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES | AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
     if (!IN_PROCESS_CALL(bundleMgrClient->GetBundleInfo(
         bundleName, static_cast<AppExecFwk::BundleFlag>(flags), bundleInfo, userId))) {
-        HILOG_ERROR("Failed to get bundle info.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to get bundle info.");
         return false;
     }
-
     return true;
 }
 
-bool AbilityAutoStartupService::GetAbilityData(
-    const AutoStartupInfo &info, bool &isVisible, std::string &abilityTypeName)
+bool AbilityAutoStartupService::GetAbilityData(const AutoStartupInfo &info, bool &isVisible,
+    std::string &abilityTypeName, std::string &accessTokenId, int32_t &userId)
 {
-    HILOG_DEBUG("Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s.",
-        info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str());
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP,
+        "bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s,"
+        " accessTokenId: %{public}s, userId: %{public}d.",
+        info.bundleName.c_str(), info.moduleName.c_str(),
+        info.abilityName.c_str(), info.accessTokenId.c_str(), info.userId);
     AppExecFwk::BundleInfo bundleInfo;
-    if (!GetBundleInfo(info.bundleName, bundleInfo)) {
+    int32_t currentUserId;
+    int32_t uid = bundleInfo.applicationInfo.uid;
+    if (!GetBundleInfo(info.bundleName, bundleInfo, uid, currentUserId)) {
         return false;
     }
-
+    userId = currentUserId;
+    auto accessTokenIdStr = bundleInfo.applicationInfo.accessTokenId;
+    accessTokenId = std::to_string(accessTokenIdStr);
     for (auto abilityInfo : bundleInfo.abilityInfos) {
         if ((abilityInfo.bundleName == info.bundleName) && (abilityInfo.name == info.abilityName)) {
             if (info.moduleName.empty() || (abilityInfo.moduleName == info.moduleName)) {
                 isVisible = abilityInfo.visible;
                 abilityTypeName = GetAbilityTypeName(abilityInfo);
-                HILOG_DEBUG("Get ability info success.");
+                TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Get ability info success.");
                 return true;
             }
         }
@@ -648,7 +496,7 @@ bool AbilityAutoStartupService::GetAbilityData(
             if (info.moduleName.empty() || (extensionInfo.moduleName == info.moduleName)) {
                 isVisible = extensionInfo.visible;
                 abilityTypeName = GetExtensionTypeName(extensionInfo);
-                HILOG_DEBUG("Get extension info success.");
+                TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Get extension info success.");
                 return true;
             }
         }
@@ -676,7 +524,7 @@ std::string AbilityAutoStartupService::GetExtensionTypeName(AppExecFwk::Extensio
 
 std::shared_ptr<AppExecFwk::BundleMgrClient> AbilityAutoStartupService::GetBundleMgrClient()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
     if (bundleMgrClient_ == nullptr) {
         bundleMgrClient_ = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
     }
@@ -686,27 +534,144 @@ std::shared_ptr<AppExecFwk::BundleMgrClient> AbilityAutoStartupService::GetBundl
 int32_t AbilityAutoStartupService::CheckPermissionForSystem()
 {
     if (!system::GetBoolParameter(PRODUCT_APPBOOT_SETTING_ENABLED, false)) {
-        HILOG_ERROR("Product configuration item is disable.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Product configuration item is disable.");
         return ERR_NOT_SUPPORTED_PRODUCT_TYPE;
     }
 
     if (!PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI()) {
-        HILOG_ERROR("The caller is not system-app, can not use system-api.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The caller is not system-app, can not use system-api.");
         return ERR_NOT_SYSTEM_APP;
     }
+
+    if (!PermissionVerification::GetInstance()->VerifyCallingPermission(
+        PermissionConstants::PERMISSION_MANAGE_APP_BOOT)) {
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Not have PERMISSION_MANAGE_APP_BOOT approval.");
+        return CHECK_PERMISSION_FAILED;
+    }
+
     return ERR_OK;
 }
 
 int32_t AbilityAutoStartupService::CheckPermissionForSelf(const std::string &bundleName)
 {
     if (!system::GetBoolParameter(PRODUCT_APPBOOT_SETTING_ENABLED, false)) {
-        HILOG_ERROR("Product configuration item is disable.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Product configuration item is disable.");
         return ERR_NOT_SUPPORTED_PRODUCT_TYPE;
     }
 
     if (!CheckSelfApplication(bundleName)) {
-        HILOG_ERROR("Not self application.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Not self application.");
         return ERR_NOT_SELF_APPLICATION;
+    }
+    return ERR_OK;
+}
+
+int32_t AbilityAutoStartupService::GetAbilityInfo(
+    const AutoStartupInfo &info, std::string &abilityTypeName, std::string &accessTokenId, int32_t &userId)
+{
+    bool isVisible = false;
+    if (!GetAbilityData(info, isVisible, abilityTypeName, accessTokenId, userId)) {
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to get ability data.");
+        return INNER_ERR;
+    }
+
+    if (!isVisible) {
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Current ability is not visible.");
+        return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
+    }
+
+    return ERR_OK;
+}
+
+int32_t AbilityAutoStartupService::SetApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag)
+{
+    int32_t errorCode = CheckPermissionForEDM();
+    if (errorCode != ERR_OK) {
+        return errorCode;
+    }
+    int32_t userId;
+    std::string typeName;
+    std::string accessTokenId;
+    
+    errorCode = GetAbilityInfo(info, typeName, accessTokenId, userId);
+    if (errorCode != ERR_OK) {
+        return errorCode;
+    }
+    AutoStartupInfo fullInfo(info);
+    fullInfo.abilityTypeName = typeName;
+    fullInfo.accessTokenId = accessTokenId;
+    fullInfo.userId = userId;
+    return InnerApplicationAutoStartupByEDM(fullInfo, true, flag);
+}
+
+int32_t AbilityAutoStartupService::CancelApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag)
+{
+    int32_t errorCode = CheckPermissionForEDM();
+    if (errorCode != ERR_OK) {
+        return errorCode;
+    }
+    int32_t userId;
+    std::string typeName;
+    std::string accessTokenId;
+    errorCode = GetAbilityInfo(info, typeName, accessTokenId, userId);
+    if (errorCode != ERR_OK) {
+        return errorCode;
+    }
+    AutoStartupInfo fullInfo(info);
+    fullInfo.abilityTypeName = typeName;
+    fullInfo.accessTokenId = accessTokenId;
+    fullInfo.userId = userId;
+    return InnerApplicationAutoStartupByEDM(fullInfo, false, flag);
+}
+
+int32_t AbilityAutoStartupService::InnerApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool isSet, bool flag)
+{
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP,
+        "Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s, accessTokenId: %{public}s,"
+        " userId: %{public}d, isSet: %{public}d, flag: %{public}d.",
+        info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str(),
+        info.accessTokenId.c_str(), info.userId, isSet, flag);
+    AutoStartupStatus status =
+        DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->QueryAutoStartupData(info);
+    if (status.code != ERR_OK && status.code != ERR_NAME_NOT_FOUND) {
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Query auto startup data failed.");
+        return status.code;
+    }
+
+    int32_t result = ERR_OK;
+    if (status.code == ERR_NAME_NOT_FOUND) {
+        result = DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->InsertAutoStartupData(
+            info, isSet, flag);
+        if (result == ERR_OK && isSet) {
+            ExecuteCallbacks(isSet, info);
+        }
+        return result;
+    }
+
+    bool isFlag = isSet ? !status.isAutoStartup : status.isAutoStartup;
+    if (isFlag) {
+        result =
+            DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->UpdateAutoStartupData(info, isSet, flag);
+        if (result == ERR_OK) {
+            ExecuteCallbacks(isSet, info);
+        }
+        return result;
+    }
+    if (status.isEdmForce != flag) {
+        result =
+            DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->UpdateAutoStartupData(info, isSet, flag);
+        return result;
+    }
+
+    return result;
+}
+
+int32_t AbilityAutoStartupService::CheckPermissionForEDM()
+{
+    if (!PermissionVerification::GetInstance()->VerifyCallingPermission(
+        PermissionConstants::PERMISSION_MANAGE_APP_BOOT_INTERNAL)) {
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Not have ohos.permission.MANAGE_APP_BOOT_INTERNAL approval.");
+        return CHECK_PERMISSION_FAILED;
     }
     return ERR_OK;
 }

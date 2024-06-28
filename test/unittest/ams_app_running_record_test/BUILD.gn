@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -17,10 +17,19 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 module_output_path = "ability_runtime/appmgrservice"
 
 ohos_unittest("AmsAppRunningRecordTest") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
   module_out_path = module_output_path
   include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${ability_runtime_services_path}/appmgr/include",
+    "${ability_runtime_test_path}/mock/common/include",
     "${ability_runtime_test_path}/mock/services_appmgr_test/include",
     "${ability_runtime_test_path}/moduletest/mock/include",
   ]
@@ -39,22 +48,33 @@ ohos_unittest("AmsAppRunningRecordTest") {
   }
   deps = [
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_services_path}/appmgr:libappms",
     "${ability_runtime_services_path}/common:task_handler_wrap",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "${windowmanager_path}/utils:libwmutil_static",
     "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
     "ability_base:configuration",
     "ability_base:want",
-    "appspawn:appspawn_socket_client",
+    "appspawn:appspawn_client",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "ffrt:libffrt",
     "hilog:libhilog",
+    "image_framework:image_native",
+    "init:libbegetutil",
     "ipc:ipc_core",
-    "window_manager:libwm",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libwm" ]
+    defines = [ "SUPPORT_SCREEN" ]
+  }
 }
 
 group("unittest") {

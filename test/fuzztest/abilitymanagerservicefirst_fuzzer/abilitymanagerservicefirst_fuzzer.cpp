@@ -33,9 +33,15 @@ using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace {
+constexpr int INPUT_ZERO = 0;
+constexpr int INPUT_ONE = 1;
+constexpr int INPUT_THREE = 3;
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
 constexpr uint8_t ENABLE = 2;
+constexpr size_t OFFSET_ZERO = 24;
+constexpr size_t OFFSET_ONE = 16;
+constexpr size_t OFFSET_TWO = 8;
 class MyAbilityConnection : public IAbilityConnection {
 public:
     MyAbilityConnection() = default;
@@ -55,7 +61,8 @@ public:
 uint32_t GetU32Data(const char* ptr)
 {
     // convert fuzz input data to an integer
-    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
+    return (ptr[INPUT_ZERO] << OFFSET_ZERO) | (ptr[INPUT_ONE] << OFFSET_ONE) | (ptr[ENABLE] << OFFSET_TWO) |
+        ptr[INPUT_THREE];
 }
 
 sptr<Token> GetFuzzAbilityToken()
@@ -73,8 +80,14 @@ sptr<Token> GetFuzzAbilityToken()
 }
 
 void DoSomethingInterestingWithMyAPI1(AbilityManagerService &abilityms, Want& want,
-    sptr<IRemoteObject> token)
+    sptr<IRemoteObject> token, const char* data, size_t size)
 {
+    bool boolParam = *data % ENABLE;
+    int intParam = static_cast<int>(GetU32Data(data));
+    int32_t int32Param = static_cast<int32_t>(GetU32Data(data));
+    int64_t int64Param = static_cast<int64_t>(GetU32Data(data));
+    uint32_t uint32Param = GetU32Data(data);
+    std::string stringParam(data, size);
     sptr<IAbilityConnection> connect(new MyAbilityConnection());
     abilityms.InitStartupFlag();
     abilityms.QueryServiceState();
@@ -83,11 +96,11 @@ void DoSomethingInterestingWithMyAPI1(AbilityManagerService &abilityms, Want& wa
     abilityms.CheckOptExtensionAbility(want, abilityRequest, int32Param, extensionType);
     AppExecFwk::AbilityInfo abilityInfo;
     abilityms.ReportAbilitStartInfoToRSS(abilityInfo);
-    abilityms.ReportEventToSuspendManager(abilityInfo);
+    abilityms.ReportEventToRSS(abilityInfo, token);
     abilityms.StartExtensionAbility(want, token, int32Param, extensionType);
     abilityms.StopExtensionAbility(want, token, int32Param, extensionType);
-    abilityms.TerminateAbility(token, intParam, want);
-    abilityms.CloseAbility(token, intParam, want);
+    abilityms.TerminateAbility(token, intParam, &want);
+    abilityms.CloseAbility(token, intParam, &want);
     abilityms.TerminateAbilityWithFlag(token, intParam, &want, boolParam);
     abilityms.SendResultToAbility(intParam, intParam, want);
     abilityms.StartRemoteAbility(want, intParam, int32Param, token);
@@ -113,8 +126,11 @@ void DoSomethingInterestingWithMyAPI1(AbilityManagerService &abilityms, Want& wa
 }
 
 void DoSomethingInterestingWithMyAPI2(AbilityManagerService &abilityms, Want& want,
-    sptr<IRemoteObject> token)
+    sptr<IRemoteObject> token, const char* data, size_t size)
 {
+    int32_t int32Param = static_cast<int32_t>(GetU32Data(data));
+    int64_t int64Param = static_cast<int64_t>(GetU32Data(data));
+    std::string stringParam(data, size);
     sptr<AbilityRuntime::IConnectionObserver> observer;
     abilityms.RegisterObserver(observer);
     abilityms.UnregisterObserver(observer);
@@ -142,12 +158,6 @@ void DoSomethingInterestingWithMyAPI2(AbilityManagerService &abilityms, Want& wa
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    bool boolParam = *data % ENABLE;
-    int intParam = static_cast<int>(GetU32Data(data));
-    int32_t int32Param = static_cast<int32_t>(GetU32Data(data));
-    int64_t int64Param = static_cast<int64_t>(GetU32Data(data));
-    uint32_t uint32Param = GetU32Data(data);
-    std::string stringParam(data, size);
     Parcel wantParcel;
     Want* want = nullptr;
     if (wantParcel.WriteBuffer(data, size)) {
@@ -160,8 +170,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     // fuzz for AbilityManagerService
     auto abilityms = std::make_shared<AbilityManagerService>();
-    DoSomethingInterestingWithMyAPI1(*abilityms, *want, token);
-    DoSomethingInterestingWithMyAPI2(*abilityms, *want, token);
+    DoSomethingInterestingWithMyAPI1(*abilityms, *want, token, data, size);
+    DoSomethingInterestingWithMyAPI2(*abilityms, *want, token, data, size);
     if (!want) {
         delete want;
         want = nullptr;

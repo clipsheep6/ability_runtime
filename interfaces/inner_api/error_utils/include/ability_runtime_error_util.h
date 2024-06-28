@@ -38,6 +38,8 @@ enum {
     ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_TIMEOUT = 16000015,
     ERR_ABILITY_RUNTIME_EXTERNAL_APP_UNDER_CONTROL = 16000016,
     ERR_ABILITY_RUNTIME_EXTERNAL_START_ABILITY_WAITTING = 16000017,
+    ERR_ABILITY_RUNTIME_EXTERNAL_NOT_SUPPORT_CROSS_APP_START = 16000018,
+    ERR_ABILITY_RUNTIME_EXTERNAL_CANNOT_MATCH_ANY_COMPONENT = 16000019,
     ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR = 16000050,
     ERR_ABILITY_RUNTIME_EXTERNAL_NETWORK_ERROR = 16000051,
     ERR_ABILITY_RUNTIME_EXTERNAL_FREE_INSTALL_NOT_SUPPORT = 16000052,
@@ -51,10 +53,13 @@ enum {
     ERR_ABILITY_RUNTIME_EXTERNAL_GRANT_URI_PERMISSION = 16000060,
     ERR_ABILITY_RUNTIME_OPERATION_NOT_SUPPORTED = 16000061,
     ERR_ABILITY_RUNTIME_CHILD_PROCESS_NUMBER_EXCEEDS_UPPER_BOUND = 16000062,
+    ERR_ABILITY_RUNTIME_RESTART_APP_INCORRECT_ABILITY = 16000063,
+    ERR_ABILITY_RUNTIME_RESTART_APP_FREQUENT = 16000064,
     ERR_ABILITY_RUNTIME_EXTERNAL_EXECUTE_SHELL_COMMAND_FAILED = 16000101,
     ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT = 16000151,
     ERR_ABILITY_RUNTIME_EXTERNAL_WANTAGENT_NOT_FOUND = 16000152,
     ERR_ABILITY_RUNTIME_EXTERNAL_WANTAGENT_CANCELED = 16000153,
+    ERR_ABILITY_RUNTIME_SET_SUPPORTED_PROCESS_CACHE_AGAIN = 16000200,
 
     ERR_ABILITY_RUNTIME_EXTERNAL_NO_SUCH_URI_ABILITY = 16100001,
     ERR_ABILITY_RUNTIME_EXTERNAL_FA_NOT_SUPPORT_OPERATION = 16100002,
@@ -67,6 +72,8 @@ enum {
 
     ERR_ABILITY_RUNTIME_EXTERNAL_NO_SUCH_MISSION = 16300001,
     ERR_ABILITY_RUNTIME_EXTERNAL_NO_SUCH_MISSION_LISTENER = 16300002,
+
+    ERR_ABILITY_RUNTIME_EXTERNAL_NOT_SYSTEM_HSP = 16400001,
 
     ERR_ABILITY_RUNTIME_EXTERNAL_NO_SUCH_BUNDLENAME = 18500001,
     ERR_ABILITY_RUNTIME_EXTERNAL_NO_SUCH_HQF = 18500002,
@@ -87,38 +94,31 @@ class AbilityRuntimeErrorUtil {
 public:
     /**
      * @brief Throw an runtime exception for js.
-     *
      * @param engine js runtime engine.
      * @param errCode external errorcode.
      * @param errMessage error msg.
      * @return true if success.
      */
-    static bool Throw(NativeEngine &engine, int32_t errCode, const std::string &errMessage = "");
     static bool Throw(napi_env env, int32_t errCode, const std::string &errMessage = "");
 
     /**
      * @brief Throw an runtime exception for js with internal error code.
-     *
      * @param engine js runtime engine.
      * @param errCode internal errorcode.
      * @return true if success.
      */
-    static bool ThrowByInternalErrCode(NativeEngine &engine, int32_t errCode);
     static bool ThrowByInternalErrCode(napi_env env, int32_t errCode);
 
     /**
      * @brief Create a Error By Internal errorCode
-     *
      * @param engine js runtime engine.
      * @param errCode internal errorcode.
      * @return js error object.
      */
-    static NativeValue *CreateErrorByInternalErrCode(NativeEngine &engine, int32_t errCode);
     static napi_value CreateErrorByInternalErrCode(napi_env env, int32_t errCode);
 
     /**
      * @brief Get error message By error code
-     * 
      * @param errCode internal errorcode.
      * @return error message.
      */

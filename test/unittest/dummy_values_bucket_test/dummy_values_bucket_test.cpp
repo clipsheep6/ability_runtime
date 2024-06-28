@@ -20,6 +20,7 @@
 #include "parcel.h"
 #undef private
 #undef protected
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 using namespace testing::ext;
 using namespace testing;
@@ -41,11 +42,11 @@ public:
  */
 HWTEST_F(DummyValuesBucketTest, DummyValuesBucketTest_0100, TestSize.Level1)
 {
-    HILOG_INFO("DummyValuesBucketTest_0100 is start");
+    TAG_LOGI(AAFwkTag::TEST, "DummyValuesBucketTest_0100 is start");
     const std::string testInf = "test";
     ValuesBucket valuesBucket(testInf);
     EXPECT_FALSE(valuesBucket.IsEmpty());
-    HILOG_INFO("DummyValuesBucketTest_0100 is end");
+    TAG_LOGI(AAFwkTag::TEST, "DummyValuesBucketTest_0100 is end");
 }
 
 /*
@@ -55,13 +56,13 @@ HWTEST_F(DummyValuesBucketTest, DummyValuesBucketTest_0100, TestSize.Level1)
  */
 HWTEST_F(DummyValuesBucketTest, DummyValuesBucketTest_0200, TestSize.Level1)
 {
-    HILOG_INFO("DummyValuesBucketTest_0200 is start");
+    TAG_LOGI(AAFwkTag::TEST, "DummyValuesBucketTest_0200 is start");
     const std::string testInf = "test";
     ValuesBucket valuesBucket(testInf);
     Parcel parcel;
     auto res = valuesBucket.ReadFromParcel(parcel);
     EXPECT_TRUE(res);
-    HILOG_INFO("DummyValuesBucketTest_0200 is end");
+    TAG_LOGI(AAFwkTag::TEST, "DummyValuesBucketTest_0200 is end");
 }
 
 /*
@@ -71,13 +72,13 @@ HWTEST_F(DummyValuesBucketTest, DummyValuesBucketTest_0200, TestSize.Level1)
  */
 HWTEST_F(DummyValuesBucketTest, DummyValuesBucketTest_0300, TestSize.Level1)
 {
-    HILOG_INFO("DummyValuesBucketTest_0300 is start");
+    TAG_LOGI(AAFwkTag::TEST, "DummyValuesBucketTest_0300 is start");
     const std::string testInf = "test";
     ValuesBucket valuesBucket(testInf);
     Parcel parcel;
     auto res = valuesBucket.Unmarshalling(parcel);
     EXPECT_TRUE(res.IsEmpty());
-    HILOG_INFO("DummyValuesBucketTest_0300 is end");
+    TAG_LOGI(AAFwkTag::TEST, "DummyValuesBucketTest_0300 is end");
 }
 
 /*
@@ -87,13 +88,13 @@ HWTEST_F(DummyValuesBucketTest, DummyValuesBucketTest_0300, TestSize.Level1)
  */
 HWTEST_F(DummyValuesBucketTest, DummyValuesBucketTest_0400, TestSize.Level1)
 {
-    HILOG_INFO("DummyValuesBucketTest_0400 is start");
+    TAG_LOGI(AAFwkTag::TEST, "DummyValuesBucketTest_0400 is start");
     const std::string testInf = "test";
     ValuesBucket valuesBucket(testInf);
     Parcel parcel;
     auto res = valuesBucket.Marshalling(parcel);
     EXPECT_TRUE(res);
-    HILOG_INFO("DummyValuesBucketTest_0400 is end");
+    TAG_LOGI(AAFwkTag::TEST, "DummyValuesBucketTest_0400 is end");
 }
 } // namespace AAFwk
 } // namespace OHOS

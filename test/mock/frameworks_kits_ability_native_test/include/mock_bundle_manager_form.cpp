@@ -29,6 +29,7 @@ const std::string FORM_PROVIDER_MODULE_SOURCE_DIR = "";
 const std::string FORM_JS_COMPOMENT_NAME = "jsComponentName";
 const std::string PARAM_FORM_NAME = "com.form.name.test";
 const std::string DEVICE_ID = "ohos-phone1";
+const int DEFAULT_UID = 600;
 
 bool BundleMgrProxy::GetBundleInfo(
     const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId)
@@ -36,10 +37,10 @@ bool BundleMgrProxy::GetBundleInfo(
     return true;
 }
 
-int BundleMgrService::GetUidByBundleName(const std::string& bundleName, const int userId)
+int BundleMgrService::GetUidByBundleName(const std::string& bundleName, int32_t userId, int32_t appCloneIndex)
 {
     if (bundleName.compare("com.form.host.app600") == 0) {
-        return 600;
+        return DEFAULT_UID;
     }
     return 0;
 }

@@ -22,8 +22,8 @@ extern const char _binary_ability_data_uri_utils_abc_end[];
 
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "app.ability.dataUriUtils",
     .nm_filename = "app/ability/libdatauriutils.so/ability_data_uri_utils.js",
+    .nm_modname = "app.ability.dataUriUtils",
 };
 extern "C" __attribute__((constructor))
 void NAPI_app_ability_dataUriUtils_AutoRegister()

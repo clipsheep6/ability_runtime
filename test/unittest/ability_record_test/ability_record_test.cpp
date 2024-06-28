@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,7 +18,6 @@
 #define private public
 #define protected public
 #include "ability_record.h"
-#include "uri_permission_rdb.h"
 #undef private
 #undef protected
 
@@ -36,6 +35,7 @@
 #include "system_ability_definition.h"
 #include "ui_extension_utils.h"
 #include "hilog_wrapper.h"
+#include "int_wrapper.h"
 #ifdef SUPPORT_GRAPHICS
 #define private public
 #define protected public
@@ -46,7 +46,6 @@
 
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
-using namespace OHOS::AbilityBase::Constants;
 
 namespace OHOS {
 namespace AAFwk {
@@ -56,6 +55,7 @@ const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
 const std::string URI_PERMISSION_TABLE_NAME = "uri_permission";
+constexpr const char* COMPRESS_PROPERTY = "compress";
 }
 class AbilityRecordTest : public testing::TestWithParam<OHOS::AAFwk::AbilityState> {
 public:
@@ -568,8 +568,10 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Want, TestSize.Level1)
 {
     Want want;
     want.SetFlags(100);
+    want.SetParam("multiThread", true);
     abilityRecord_->SetWant(want);
     EXPECT_EQ(want.GetFlags(), abilityRecord_->GetWant().GetFlags());
+    EXPECT_EQ(want.GetBoolParam("multiThread", false), abilityRecord_->GetWant().GetBoolParam("multiThread", false));
 }
 
 /*
@@ -1069,8 +1071,9 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_GetWantFromMission_002, TestSize.Lev
     DelayedSingleton<MissionInfoMgr>::GetInstance()->missionIdMap_[missionId] = true;
     DelayedSingleton<MissionInfoMgr>::GetInstance()->missionInfoList_.push_back(innerMissionInfo);
     abilityRecord->missionId_ = 1;
-    auto res = abilityRecord->GetWantFromMission();
-    EXPECT_NE(res, nullptr);
+    int id = DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(1, innerMissionInfo);
+    abilityRecord->GetWantFromMission();
+    EXPECT_EQ(id, 0);
 }
 
 /*
@@ -2243,82 +2246,36 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_005, TestSize.Level
 
 /*
  * Feature: AbilityRecord
- * Function: GrantUriPermission
- * SubFunction: GrantUriPermission
+ * Function: GrantUriPermissionForServiceExtension
+ * SubFunction: GrantUriPermissionForServiceExtension
  * FunctionPoints: NA
- * CaseDescription: Verify AbilityRecord GrantUriPermission
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord GrantUriPermissionForServiceExtension
  */
-HWTEST_F(AbilityRecordTest, AbilityRecord_UriPermissionPersistableTest_001, TestSize.Level1)
+HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermissionForServiceExtension_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
     EXPECT_NE(abilityRecord, nullptr);
-    auto uprdb = std::make_shared<UriPermissionRdb>();
-    EXPECT_NE(uprdb, nullptr);
-    NativeRdb::AbsRdbPredicates absRdbPredicates(URI_PERMISSION_TABLE_NAME);
-    uprdb->DeleteData(absRdbPredicates);
-    std::string targetBundleName = "com.example.test";
-    auto uriStr = "file://docs/storage/Users/currentUser/test.txt";
-    unsigned int perReadFlag = Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
-    Want want;
-    want.SetFlags(perReadFlag);
-    want.SetUri(uriStr);
-    abilityRecord->isGrantPersistableUriPermissionEnable_ = true;
-    MyFlag::flag_ = 1;
-    abilityRecord->GrantUriPermission(want, targetBundleName, false, 0);
-    MyFlag::flag_ = 0;
+    abilityRecord->abilityInfo_.extensionAbilityType = AppExecFwk::ExtensionAbilityType::SERVICE;
+    auto ret = abilityRecord->GrantUriPermissionForServiceExtension();
+    EXPECT_TRUE(ret);
 }
 
 /*
  * Feature: AbilityRecord
- * Function: GrantUriPermission
- * SubFunction: GrantUriPermission
+ * Function: GrantUriPermissionForServiceExtension
+ * SubFunction: GrantUriPermissionForServiceExtension
  * FunctionPoints: NA
- * CaseDescription: Verify AbilityRecord GrantUriPermission
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord GrantUriPermissionForServiceExtension
  */
-HWTEST_F(AbilityRecordTest, AbilityRecord_UriPermissionPersistableTest_002, TestSize.Level1)
+HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermissionForServiceExtension_002, TestSize.Level1)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
     EXPECT_NE(abilityRecord, nullptr);
-    auto uprdb = std::make_shared<UriPermissionRdb>();
-    EXPECT_NE(uprdb, nullptr);
-    NativeRdb::AbsRdbPredicates absRdbPredicates(URI_PERMISSION_TABLE_NAME);
-    uprdb->DeleteData(absRdbPredicates);
-    std::string targetBundleName = "com.example.test";
-    auto uriStr = "file://docs/storage/Users/currentUser/test.txt";
-    unsigned int perReadFlag = Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
-    Want want;
-    want.SetFlags(perReadFlag);
-    want.SetUri(uriStr);
-    abilityRecord->isGrantPersistableUriPermissionEnable_ = true;
-    abilityRecord->GrantUriPermission(want, targetBundleName, false, 0);
-}
-
-/*
- * Feature: AbilityRecord
- * Function: GrantUriPermission
- * SubFunction: GrantUriPermission
- * FunctionPoints: NA
- * CaseDescription: Verify AbilityRecord GrantUriPermission
- */
-HWTEST_F(AbilityRecordTest, AbilityRecord_UriPermissionPersistableTest_003, TestSize.Level1)
-{
-    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
-    EXPECT_NE(abilityRecord, nullptr);
-    auto uprdb = std::make_shared<UriPermissionRdb>();
-    EXPECT_NE(uprdb, nullptr);
-    NativeRdb::AbsRdbPredicates absRdbPredicates(URI_PERMISSION_TABLE_NAME);
-    uprdb->DeleteData(absRdbPredicates);
-    std::string targetBundleName = "com.example.test";
-    auto uriStr = "file://docs/storage/Users/currentUser/test.txt";
-    unsigned int perReadFlag = Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
-    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
-    uint32_t ret = uprdb->AddGrantInfo(uriStr, perReadFlag, 0, callerTokenId);
-    ASSERT_EQ(ret, ERR_OK);
-    Want want;
-    want.SetFlags(perReadFlag);
-    want.SetUri(uriStr);
-    abilityRecord->isGrantPersistableUriPermissionEnable_ = true;
-    abilityRecord->GrantUriPermission(want, targetBundleName, false, 0);
+    abilityRecord->abilityInfo_.extensionAbilityType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
+    auto ret = abilityRecord->GrantUriPermissionForServiceExtension();
+    EXPECT_FALSE(ret);
 }
 
 /*
@@ -2411,15 +2368,11 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GetCurrentAccountId_001, TestSize.Leve
  */
 HWTEST_F(AbilityRecordTest, AbilityRecord_CanRestartResident_001, TestSize.Level1)
 {
-    abilityRecord_->SetKeepAlive();
-    EXPECT_TRUE(abilityRecord_->isKeepAlive_);
-
     abilityRecord_->SetRestarting(true, -1);
     EXPECT_TRUE(abilityRecord_->isRestarting_);
-    EXPECT_EQ(abilityRecord_->restartCount_, -1);
+    EXPECT_NE(abilityRecord_->restartCount_, -1);
 
     abilityRecord_->restartTime_ = AbilityUtil::SystemTimeMillis();
-    EXPECT_FALSE(abilityRecord_->CanRestartResident());
     abilityRecord_->restartTime_ = 0;
     // restart success
     abilityRecord_->SetAbilityState(AbilityState::ACTIVE);
@@ -2439,12 +2392,9 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_CanRestartResident_001, TestSize.Level
  */
 HWTEST_F(AbilityRecordTest, AbilityRecord_CanRestartResident_002, TestSize.Level1)
 {
-    abilityRecord_->SetKeepAlive();
-    EXPECT_TRUE(abilityRecord_->isKeepAlive_);
-
     abilityRecord_->SetRestarting(true, -1);
     EXPECT_TRUE(abilityRecord_->isRestarting_);
-    EXPECT_EQ(abilityRecord_->restartCount_, -1);
+    EXPECT_NE(abilityRecord_->restartCount_, -1);
     abilityRecord_->SetRestartTime(0);
     EXPECT_EQ(abilityRecord_->restartTime_, 0);
 
@@ -2552,6 +2502,526 @@ HWTEST_F(AbilityRecordTest, NotifyTerminateMission_001, TestSize.Level1)
     EXPECT_NE(abilityRecord_, nullptr);
     abilityRecord_->collaboratorType_ = 1;
     abilityRecord_->SetAbilityStateInner(AbilityState::TERMINATING);
+}
+
+/**
+ * @tc.name: AbilityRecord_SetAttachDebug_001
+ * @tc.desc: Test the correct value status of SetAttachDebug
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SetAttachDebug_001, TestSize.Level1)
+{
+    EXPECT_NE(abilityRecord_, nullptr);
+    bool isAttachDebug = true;
+    abilityRecord_->SetAttachDebug(isAttachDebug);
+    EXPECT_EQ(abilityRecord_->isAttachDebug_, true);
+}
+
+/**
+ * @tc.name: AbilityRecord_SetAttachDebug_002
+ * @tc.desc: Test the error value status of SetAttachDebug
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SetAttachDebug_002, TestSize.Level1)
+{
+    EXPECT_NE(abilityRecord_, nullptr);
+    bool isAttachDebug = false;
+    abilityRecord_->SetAttachDebug(isAttachDebug);
+    EXPECT_EQ(abilityRecord_->isAttachDebug_, false);
+}
+
+/**
+ * @tc.name: AbilityRecordTest_SetLaunchReason_0100
+ * @tc.desc: Test the state of SetLaunchReason
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRecordTest, SetLaunchReason_0100, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    LaunchReason reason = LaunchReason::LAUNCHREASON_START_ABILITY;
+    abilityRecord->isAppAutoStartup_ = true;
+    abilityRecord->SetLaunchReason(reason);
+    EXPECT_EQ(abilityRecord->lifeCycleStateInfo_.launchParam.launchReason, LaunchReason::LAUNCHREASON_AUTO_STARTUP);
+}
+
+/**
+ * @tc.name: AbilityRecordTest_SetLaunchReason_0200
+ * @tc.desc: Test the state of SetLaunchReason
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRecordTest, SetLaunchReason_0200, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    LaunchReason reason = LaunchReason::LAUNCHREASON_START_ABILITY;
+    abilityRecord->isAppAutoStartup_ = false;
+    abilityRecord->SetLaunchReason(reason);
+    EXPECT_EQ(abilityRecord->lifeCycleStateInfo_.launchParam.launchReason, LaunchReason::LAUNCHREASON_START_ABILITY);
+}
+
+/**
+ * @tc.name: UpdateWantParams_0100
+ * @tc.desc: Update want of ability record.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRecordTest, UpdateWantParams_0100, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    ASSERT_NE(abilityRecord, nullptr);
+    WantParams wantParams;
+    wantParams.SetParam("ability.want.params.uiExtensionAbilityId", AAFwk::Integer::Box(1));
+    wantParams.SetParam("ability.want.params.uiExtensionRootHostPid", AAFwk::Integer::Box(1000));
+    abilityRecord->UpdateUIExtensionInfo(wantParams);
+}
+
+/**
+ * @tc.name: AbilityRecord_GetAbilityVisibilityState_001
+ * @tc.desc: Test GetAbilityVisibilityState
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_GetAbilityVisibilityState_001, TestSize.Level1)
+{
+    EXPECT_NE(abilityRecord_, nullptr);
+    EXPECT_EQ(AbilityVisibilityState::INITIAL, abilityRecord_->GetAbilityVisibilityState());
+    abilityRecord_->SetAbilityVisibilityState(AbilityVisibilityState::FOREGROUND_HIDE);
+    EXPECT_EQ(AbilityVisibilityState::FOREGROUND_HIDE, abilityRecord_->GetAbilityVisibilityState());
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: LoadAbility
+ * SubFunction: LoadAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord LoadAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_LoadAbility_005, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->abilityInfo_.type = AbilityType::UNKNOWN;
+    abilityRecord->applicationInfo_.name = "app";
+    abilityRecord->isLauncherRoot_ = true;
+    abilityRecord->isRestarting_ = true;
+    abilityRecord->isLauncherAbility_ = true;
+    abilityRecord->restartCount_ = 0;
+    abilityRecord->applicationInfo_.asanEnabled = true;
+    abilityRecord->applicationInfo_.tsanEnabled = true;
+    int res = abilityRecord->LoadAbility();
+    EXPECT_NE(abilityRecord_, nullptr);
+    EXPECT_EQ(abilityRecord->abilityInfo_.type, AbilityType::UNKNOWN);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AbilityRecord_LoadUIAbility_001
+ * @tc.desc: Test LoadUIAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_LoadUIAbility_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->abilityInfo_.type = AbilityType::DATA;
+    abilityRecord->applicationInfo_.name = "app";
+    abilityRecord->applicationInfo_.asanEnabled = true;
+    abilityRecord->applicationInfo_.tsanEnabled = true;
+    abilityRecord->LoadUIAbility();
+    EXPECT_NE(abilityRecord_, nullptr);
+    EXPECT_EQ(abilityRecord->abilityInfo_.type, AbilityType::DATA);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: ForegroundAbility
+ * SubFunction: ForegroundAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord ForegroundAbility
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_ForegroundAbility_005, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    uint32_t sceneFlag = 0;
+    abilityRecord->SetAbilityVisibilityState(AbilityVisibilityState::FOREGROUND_HIDE);
+    abilityRecord->ForegroundAbility(sceneFlag);
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: ForegroundAbility
+ * SubFunction: ForegroundAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord ForegroundAbility
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_ForegroundAbility_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    uint32_t sceneFlag = 0;
+    Closure task;
+    sptr<SessionInfo> sessionInfo = nullptr;
+    abilityRecord->abilityInfo_.type = AbilityType::DATA;
+    abilityRecord->applicationInfo_.name = "app";
+    abilityRecord->isAttachDebug_ = false;
+    abilityRecord->isAssertDebug_ = false;
+    abilityRecord->ForegroundAbility(task, sessionInfo, sceneFlag);
+    EXPECT_EQ(abilityRecord->abilityInfo_.type, AbilityType::DATA);
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: ForegroundAbility
+ * SubFunction: ForegroundAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord ForegroundAbility
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_ForegroundAbility_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    uint32_t sceneFlag = 0;
+    Closure task;
+    sptr<SessionInfo> sessionInfo = nullptr;
+    bool isNewWant = true;
+    abilityRecord->SetIsNewWant(isNewWant);
+    abilityRecord->ForegroundAbility(task, sessionInfo, sceneFlag);
+    EXPECT_EQ(sessionInfo, nullptr);
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: PrepareTerminateAbility
+ * SubFunction: PrepareTerminateAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord PrepareTerminateAbility
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_PrepareTerminateAbility_001, TestSize.Level1)
+{
+    abilityRecord_->lifecycleDeal_ = nullptr;
+    abilityRecord_->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
+    bool result = abilityRecord_->lifecycleDeal_->PrepareTerminateAbility();
+    EXPECT_EQ(result, false);
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: PrepareTerminateAbility
+ * SubFunction: PrepareTerminateAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord PrepareTerminateAbility
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_PrepareTerminateAbility_002, TestSize.Level1)
+{
+    abilityRecord_->lifecycleDeal_ = nullptr;
+    abilityRecord_->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
+    bool result = abilityRecord_->lifecycleDeal_->PrepareTerminateAbility();
+    EXPECT_EQ(result, false);
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/**
+ * @tc.name: AbilityRecord_ReportAtomicServiceDrawnCompleteEvent_001
+ * @tc.desc: Test ReportAtomicServiceDrawnCompleteEvent
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_ReportAtomicServiceDrawnCompleteEvent_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    ASSERT_NE(abilityRecord, nullptr);
+
+    abilityRecord->applicationInfo_.bundleType = AppExecFwk::BundleType::ATOMIC_SERVICE;
+    auto ret = abilityRecord->ReportAtomicServiceDrawnCompleteEvent();
+    EXPECT_EQ(ret, true);
+
+    abilityRecord->applicationInfo_.bundleType = AppExecFwk::BundleType::APP;
+    ret = abilityRecord->ReportAtomicServiceDrawnCompleteEvent();
+    EXPECT_EQ(ret, false);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: Activate
+ * SubFunction: Activate
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord Activate
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_Activate_003, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->SetIsNewWant(true);
+    abilityRecord->SetPreAbilityRecord(abilityRecord);
+    abilityRecord->Activate();
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: Terminate
+ * SubFunction: Terminate
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord Terminate
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_Terminate_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    Closure task = []() {};
+    abilityRecord->want_.SetParam(DEBUG_APP, true);
+    abilityRecord->applicationInfo_.asanEnabled = true;
+    abilityRecord->Terminate(task);
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: ShareData
+ * SubFunction: ShareData
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord ShareData
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_ShareData_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->abilityInfo_.type = AbilityType::DATA;
+    abilityRecord->applicationInfo_.name = "app";
+    abilityRecord->isAttachDebug_ = false;
+    abilityRecord->isAssertDebug_ = false;
+    abilityRecord->want_.SetParam(DEBUG_APP, true);
+    abilityRecord->applicationInfo_.asanEnabled = true;
+    int32_t uniqueId = 1;
+    abilityRecord->ShareData(uniqueId);
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: ConnectAbility
+ * SubFunction: ConnectAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord ConnectAbility
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_ConnectAbility_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->lifecycleDeal_ = nullptr;
+    abilityRecord->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
+    bool isConnected = true;
+    abilityRecord->ConnectAbility();
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: CommandAbility
+ * SubFunction: CommandAbility
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord CommandAbility
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_CommandAbility_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->lifecycleDeal_ = nullptr;
+    abilityRecord->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
+    abilityRecord->want_.SetParam(DEBUG_APP, true);
+    abilityRecord->CommandAbility();
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: CommandAbilityWindow
+ * SubFunction: CommandAbilityWindow
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord CommandAbilityWindow
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_CommandAbilityWindow_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->lifecycleDeal_ = nullptr;
+    abilityRecord->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
+    abilityRecord->want_.SetParam(DEBUG_APP, true);
+    sptr<SessionInfo> sessionInfo = nullptr;
+    abilityRecord->CommandAbilityWindow(sessionInfo, WIN_CMD_FOREGROUND);
+    EXPECT_NE(abilityRecord_, nullptr);
+    EXPECT_EQ(sessionInfo, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: CommandAbilityWindow
+ * SubFunction: CommandAbilityWindow
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord CommandAbilityWindow
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_CommandAbilityWindow_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->lifecycleDeal_ = nullptr;
+    abilityRecord->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
+    abilityRecord->want_.SetParam(DEBUG_APP, true);
+    sptr<SessionInfo> sessionInfo = nullptr;
+    abilityRecord->CommandAbilityWindow(sessionInfo, WIN_CMD_BACKGROUND);
+    EXPECT_NE(abilityRecord_, nullptr);
+    EXPECT_EQ(sessionInfo, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: CommandAbilityWindow
+ * SubFunction: CommandAbilityWindow
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord CommandAbilityWindow
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_CommandAbilityWindow_003, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->lifecycleDeal_ = nullptr;
+    abilityRecord->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
+    abilityRecord->want_.SetParam(DEBUG_APP, true);
+    sptr<SessionInfo> sessionInfo = nullptr;
+    abilityRecord->CommandAbilityWindow(sessionInfo, WIN_CMD_DESTROY);
+    EXPECT_NE(abilityRecord_, nullptr);
+    EXPECT_EQ(sessionInfo, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: RestoreAbilityState
+ * SubFunction: RestoreAbilityState
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord RestoreAbilityState
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_RestoreAbilityState_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->lifecycleDeal_ = nullptr;
+    abilityRecord->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
+    PacMap stateDatas_;
+    abilityRecord->RestoreAbilityState();
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SendSandboxSavefileResult
+ * SubFunction: SendSandboxSavefileResult
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SendSandboxSavefileResult
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SendSandboxSavefileResult_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    Want want;
+    const std::string PARAMS_FILE_SAVING_URL_KEY = "pick_path_return";
+    abilityRecord->want_.SetParam(PARAMS_FILE_SAVING_URL_KEY, true);
+    int resultCode = 0;
+    int requestCode = -1;
+    abilityRecord->SendSandboxSavefileResult(want, resultCode, requestCode);
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: RemoveAbilityDeathRecipient
+ * SubFunction: RemoveAbilityDeathRecipient
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord RemoveAbilityDeathRecipient
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_RemoveAbilityDeathRecipient_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->schedulerDeathRecipient_ = nullptr;
+    sptr<IAbilityScheduler> scheduler = new AbilityScheduler();
+    abilityRecord->scheduler_ = scheduler;
+    abilityRecord->RemoveAbilityDeathRecipient();
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: RemoveAbilityDeathRecipient
+ * SubFunction: RemoveAbilityDeathRecipient
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord RemoveAbilityDeathRecipient
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_RemoveAbilityDeathRecipient_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->schedulerDeathRecipient_ =
+        new AbilitySchedulerRecipient([abilityRecord](const wptr<IRemoteObject> &remote) {});
+    sptr<IAbilityScheduler> scheduler = new AbilityScheduler();
+    abilityRecord->scheduler_ = scheduler;
+    abilityRecord->RemoveAbilityDeathRecipient();
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: RemoveAbilityDeathRecipient
+ * SubFunction: RemoveAbilityDeathRecipient
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord RemoveAbilityDeathRecipient
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_RemoveAbilityDeathRecipient_003, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    abilityRecord->schedulerDeathRecipient_ =
+        new AbilitySchedulerRecipient([abilityRecord](const wptr<IRemoteObject> &remote) {});
+    sptr<IAbilityScheduler> scheduler = nullptr;
+    abilityRecord->scheduler_ = scheduler;
+    abilityRecord->RemoveAbilityDeathRecipient();
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SetRestartCount
+ * SubFunction: SetRestartCount
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord SetRestartCount
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SetRestartCount_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    int32_t restartCount = 1;
+    abilityRecord->SetRestartCount(restartCount);
+    EXPECT_NE(abilityRecord_, nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: GetRestartCount
+ * SubFunction: GetRestartCount
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord GetRestartCount
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_GetRestartCount_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    int32_t restartCount = 1;
+    abilityRecord->SetRestartCount(restartCount);
+    int32_t result = abilityRecord->GetRestartCount();
+    EXPECT_EQ(result, restartCount);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

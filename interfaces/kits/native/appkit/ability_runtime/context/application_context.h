@@ -25,6 +25,9 @@
 #include "context_impl.h"
 #include "environment_callback.h"
 namespace OHOS {
+namespace AAFwk {
+class Want;
+}
 namespace AbilityRuntime {
 using AppConfigUpdateCallback = std::function<void(const AppExecFwk::Configuration &config)>;
 class ApplicationContext : public Context {
@@ -55,11 +58,25 @@ public:
     void DispatchMemoryLevel(const int level);
     void NotifyApplicationForeground();
     void NotifyApplicationBackground();
+    void DispatchOnWillNewWant(const std::shared_ptr<NativeReference> &ability);
+    void DispatchOnNewWant(const std::shared_ptr<NativeReference> &ability);
+    void DispatchOnAbilityWillCreate(const std::shared_ptr<NativeReference> &ability);
+    void DispatchOnWindowStageWillCreate(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage);
+    void DispatchOnWindowStageWillDestroy(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage);
+    void DispatchOnAbilityWillDestroy(const std::shared_ptr<NativeReference> &ability);
+    void DispatchOnAbilityWillForeground(const std::shared_ptr<NativeReference> &ability);
+    void DispatchOnAbilityWillBackground(const std::shared_ptr<NativeReference> &ability);
 
     std::string GetBundleName() const override;
     std::shared_ptr<Context> CreateBundleContext(const std::string &bundleName) override;
     std::shared_ptr<Context> CreateModuleContext(const std::string &moduleName) override;
     std::shared_ptr<Context> CreateModuleContext(const std::string &bundleName, const std::string &moduleName) override;
+    std::shared_ptr<Global::Resource::ResourceManager> CreateModuleResourceManager(
+        const std::string &bundleName, const std::string &moduleName) override;
+    int32_t CreateSystemHspModuleResourceManager(const std::string &bundleName,
+        const std::string &moduleName, std::shared_ptr<Global::Resource::ResourceManager> &resourceManager) override;
     std::shared_ptr<AppExecFwk::ApplicationInfo> GetApplicationInfo() const override;
     void SetApplicationInfo(const std::shared_ptr<AppExecFwk::ApplicationInfo> &info);
     std::shared_ptr<Global::Resource::ResourceManager> GetResourceManager() const override;
@@ -67,6 +84,8 @@ public:
     std::string GetBundleCodeDir() override;
     std::string GetCacheDir() override;
     std::string GetTempDir() override;
+    std::string GetResourceDir() override;
+    void GetAllTempDir(std::vector<std::string> &tempPaths);
     std::string GetFilesDir() override;
     bool IsUpdatingConfigurations() override;
     bool PrintDrawnCompleted() override;
@@ -76,17 +95,21 @@ public:
     int32_t GetSystemPreferencesDir(const std::string &groupId, bool checkExist, std::string &preferencesDir) override;
     std::string GetGroupDir(std::string groupId) override;
     std::string GetDistributedFilesDir() override;
+    std::string GetCloudFileDir() override;
     sptr<IRemoteObject> GetToken() override;
     void SetToken(const sptr<IRemoteObject> &token) override;
     void SwitchArea(int mode) override;
     void SetColorMode(int32_t colorMode);
     void SetLanguage(const std::string &language);
+    void SetFont(const std::string &font);
+    void ClearUpApplicationData();
     int GetArea() override;
     std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() const override;
     std::string GetBaseDir() const override;
     Global::Resource::DeviceType GetDeviceType() const override;
-    void KillProcessBySelf();
+    void KillProcessBySelf(const bool clearPageStack = true);
     int32_t GetProcessRunningInformation(AppExecFwk::RunningProcessInfo &info);
+    int32_t RestartApp(const AAFwk::Want& want);
 
     void AttachContextImpl(const std::shared_ptr<ContextImpl> &contextImpl);
 
@@ -98,15 +121,29 @@ public:
     bool GetApplicationInfoUpdateFlag() const;
     void SetApplicationInfoUpdateFlag(bool flag);
     void RegisterAppConfigUpdateObserver(AppConfigUpdateCallback appConfigChangeCallback);
+    void RegisterAppFontObserver(AppConfigUpdateCallback appFontCallback);
 
+    std::string GetAppRunningUniqueId() const;
+    void SetAppRunningUniqueId(const std::string &appRunningUniqueId);
+    int32_t SetSupportedProcessCacheSelf(bool isSupport);
+    int32_t GetCurrentAppCloneIndex();
+    void SetCurrentAppCloneIndex(int32_t appIndex);
+    int32_t GetCurrentAppMode();
+    void SetCurrentAppMode(int32_t appIndex);
 private:
     std::shared_ptr<ContextImpl> contextImpl_;
     static std::vector<std::shared_ptr<AbilityLifecycleCallback>> callbacks_;
     static std::vector<std::shared_ptr<EnvironmentCallback>> envCallbacks_;
-    static std::weak_ptr<ApplicationStateChangeCallback> applicationStateCallback_;
-    std::mutex callbackLock_;
+    static std::vector<std::weak_ptr<ApplicationStateChangeCallback>> applicationStateCallback_;
+    std::recursive_mutex callbackLock_;
+    std::recursive_mutex envCallbacksLock_;
+    std::recursive_mutex applicationStateCallbackLock_;
     bool applicationInfoUpdateFlag_ = false;
     AppConfigUpdateCallback appConfigChangeCallback_ = nullptr;
+    AppConfigUpdateCallback appFontCallback_ = nullptr;
+    std::string appRunningUniqueId_;
+    int32_t appIndex_ = 0;
+    int32_t appMode_ = 0;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -292,12 +292,21 @@ public:
     virtual void NotifyContinuationResult(int32_t result) = 0;
 
     virtual void DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info) = 0;
+    virtual int CreateModalUIExtension(const Want &want) = 0;
+
+    virtual void OnExecuteIntent(const Want &want) = 0;
 
     #ifdef ABILITY_COMMAND_FOR_TEST
     virtual int BlockAbility() = 0;
     #endif
 
     virtual void CallRequest() = 0;
+
+    /**
+     * @brief Update sessionToken.
+     * @param sessionToken The token of session.
+     */
+    virtual void UpdateSessionToken(sptr<IRemoteObject> sessionToken) = 0;
 
     enum {
         // ipc id for scheduling ability to a state of life cycle
@@ -391,7 +400,13 @@ public:
         SCHEDULE_SHARE_DATA,
 
         // ipc id for scheduling service ability to prepare terminate (30)
-        SCHEDULE_ABILITY_PREPARE_TERMINATE
+        SCHEDULE_ABILITY_PREPARE_TERMINATE,
+
+        SCHEDULE_ONEXECUTE_INTENT,
+
+        CREATE_MODAL_UI_EXTENSION,
+
+        UPDATE_SESSION_TOKEN
     };
 };
 }  // namespace AAFwk

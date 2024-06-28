@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_SCHEDULER_MOCK_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_SCHEDULER_MOCK_H
+
 #pragma once
 #include <iremote_object.h>
 #include <iremote_stub.h>
@@ -152,6 +155,18 @@ public:
         return;
     }
 
+    virtual void OnExecuteIntent(const Want &want)
+    {
+        return;
+    }
+
+    virtual int CreateModalUIExtension(const Want &want)
+    {
+        return 0;
+    }
+
+    virtual void UpdateSessionToken(sptr<IRemoteObject> sessionToken) override {}
+
 #ifdef ABILITY_COMMAND_FOR_TEST
     virtual int BlockAbility()
     {
@@ -163,3 +178,4 @@ public:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_ABILITY_SCHEDULER_MOCK_H

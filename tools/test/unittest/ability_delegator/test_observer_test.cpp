@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +19,7 @@
 #include <thread>
 #include <unistd.h>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "system_time.h"
 
@@ -65,9 +66,9 @@ void TestObserverTest::TearDown()
 
 void TestObserverTest::thfunc(TestObserver& observer)
 {
-    HILOG_INFO("thfunc");
+    TAG_LOGI(AAFwkTag::TEST, "thfunc");
     sleep(1);
-    HILOG_INFO("after sleep 1s thfunc");
+    TAG_LOGI(AAFwkTag::TEST, "after sleep 1s thfunc");
     observer.isFinished_ = true;
 }
 
@@ -78,7 +79,7 @@ void TestObserverTest::thfunc(TestObserver& observer)
  */
 HWTEST_F(TestObserverTest, Test_Observer_Test_0100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Test_Observer_Test_0100 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Test_0100 is called");
     TestObserver observer;
     observer.TestFinished(MSG.c_str(), RESULT_CODE);
     EXPECT_TRUE(observer.isFinished_);
@@ -91,7 +92,7 @@ HWTEST_F(TestObserverTest, Test_Observer_Test_0100, Function | MediumTest | Leve
  */
 HWTEST_F(TestObserverTest, Test_Observer_Test_0200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Test_Observer_Test_0200 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Test_0200 is called");
     TestObserver observer;
     EXPECT_EQ(observer.ExecuteShellCommand(CMD.c_str(), TIMEOUT).stdResult.size(), 0);
 }
@@ -103,7 +104,7 @@ HWTEST_F(TestObserverTest, Test_Observer_Test_0200, Function | MediumTest | Leve
  */
 HWTEST_F(TestObserverTest, Test_Observer_Test_0300, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Test_Observer_Test_0300 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Test_0300 is called");
     TestObserver observer;
     std::thread th(&TestObserverTest::thfunc, std::ref(observer));
     bool ret = observer.WaitForFinish(5000);
@@ -118,7 +119,7 @@ HWTEST_F(TestObserverTest, Test_Observer_Test_0300, Function | MediumTest | Leve
  */
 HWTEST_F(TestObserverTest, Test_Observer_Test_0400, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Test_Observer_Test_0400 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Test_0400 is called");
     TestObserver observer;
     observer.isFinished_ = false;
     bool ret = observer.WaitForFinish(1);
@@ -132,7 +133,7 @@ HWTEST_F(TestObserverTest, Test_Observer_Test_0400, Function | MediumTest | Leve
  */
 HWTEST_F(TestObserverTest, Test_Observer_Test_0500, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Test_Observer_Test_0500 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Test_0500 is called");
     std::shared_ptr<TestObserver> observer = std::make_shared<TestObserver>();
     ASSERT_NE(observer, nullptr);
     observer->TestStatus(MSG.c_str(), RESULT_CODE);

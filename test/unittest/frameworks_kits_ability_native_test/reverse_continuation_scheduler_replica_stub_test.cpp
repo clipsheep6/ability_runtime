@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_reverse_continuation_scheduler_replica_stub.h"
 #include "reverse_continuation_scheduler_replica_stub.h"
@@ -55,16 +56,16 @@ void ReverseContinuationSchedulerReplicaStubTest::TearDown(void)
   */
 HWTEST_F(ReverseContinuationSchedulerReplicaStubTest, PassPrimaryInner_0100, Level1)
 {
-    HILOG_INFO("ReverseContinuationSchedulerReplicaStubTest PassPrimaryInner_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "ReverseContinuationSchedulerReplicaStubTest PassPrimaryInner_0100 start");
     MessageParcel data;
     MessageParcel reply;
 
     auto stub = std::make_shared<MockReverseContinuationSchedulerReplicaStub>();
     EXPECT_CALL(*stub, PassPrimary(_)).Times(1);
     int32_t result = stub->PassPrimaryInner(data, reply);
-    HILOG_INFO("result is %{public}d", result);
+    TAG_LOGI(AAFwkTag::TEST, "result is %{public}d", result);
     EXPECT_EQ(result, NO_ERROR);
-    HILOG_INFO("ReverseContinuationSchedulerReplicaStubTest PassPrimaryInner_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "ReverseContinuationSchedulerReplicaStubTest PassPrimaryInner_0100 end");
 }
 
  /**
@@ -74,7 +75,7 @@ HWTEST_F(ReverseContinuationSchedulerReplicaStubTest, PassPrimaryInner_0100, Lev
   */
 HWTEST_F(ReverseContinuationSchedulerReplicaStubTest, PassPrimaryInner_0200, Level1)
 {
-    HILOG_INFO("ReverseContinuationSchedulerReplicaStubTest PassPrimaryInner_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "ReverseContinuationSchedulerReplicaStubTest PassPrimaryInner_0200 start");
     MessageParcel data;
     MessageParcel reply;
 
@@ -82,9 +83,9 @@ HWTEST_F(ReverseContinuationSchedulerReplicaStubTest, PassPrimaryInner_0200, Lev
     auto stub = std::make_shared<MockReverseContinuationSchedulerReplicaStub>();
     EXPECT_CALL(*stub, PassPrimary(_)).Times(1);
     int32_t result = stub->PassPrimaryInner(data, reply);
-    HILOG_INFO("result is %{public}d", result);
+    TAG_LOGI(AAFwkTag::TEST, "result is %{public}d", result);
     EXPECT_EQ(result, NO_ERROR);
-    HILOG_INFO("ReverseContinuationSchedulerReplicaStubTest PassPrimaryInner_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "ReverseContinuationSchedulerReplicaStubTest PassPrimaryInner_0200 end");
 }
 
  /**
@@ -94,16 +95,16 @@ HWTEST_F(ReverseContinuationSchedulerReplicaStubTest, PassPrimaryInner_0200, Lev
   */
 HWTEST_F(ReverseContinuationSchedulerReplicaStubTest, ReverseContinuationInner_0100, Level1)
 {
-    HILOG_INFO("ReverseContinuationSchedulerReplicaStubTest ReverseContinuationInner_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "ReverseContinuationSchedulerReplicaStubTest ReverseContinuationInner_0100 start");
     MessageParcel data;
     MessageParcel reply;
 
     auto stub = std::make_shared<MockReverseContinuationSchedulerReplicaStub>();
     EXPECT_CALL(*stub, ReverseContinuation()).Times(1);
     int32_t result = stub->ReverseContinuationInner(data, reply);
-    HILOG_INFO("result is %{public}d", result);
+    TAG_LOGI(AAFwkTag::TEST, "result is %{public}d", result);
     EXPECT_EQ(result, NO_ERROR);
-    HILOG_INFO("ReverseContinuationSchedulerReplicaStubTest ReverseContinuationInner_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "ReverseContinuationSchedulerReplicaStubTest ReverseContinuationInner_0100 end");
 }
 
  /**
@@ -113,16 +114,16 @@ HWTEST_F(ReverseContinuationSchedulerReplicaStubTest, ReverseContinuationInner_0
   */
 HWTEST_F(ReverseContinuationSchedulerReplicaStubTest, NotifyReverseResultInner_0100, Level1)
 {
-    HILOG_INFO("ReverseContinuationSchedulerReplicaStubTest NotifyReverseResultInner_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "ReverseContinuationSchedulerReplicaStubTest NotifyReverseResultInner_0100 start");
     MessageParcel data;
     MessageParcel reply;
 
     auto stub = std::make_shared<MockReverseContinuationSchedulerReplicaStub>();
     EXPECT_CALL(*stub, NotifyReverseResult(_)).Times(1);
     int32_t result = stub->NotifyReverseResultInner(data, reply);
-    HILOG_INFO("result is %{public}d", result);
+    TAG_LOGI(AAFwkTag::TEST, "result is %{public}d", result);
     EXPECT_EQ(result, NO_ERROR);
-    HILOG_INFO("ReverseContinuationSchedulerReplicaStubTest NotifyReverseResultInner_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "ReverseContinuationSchedulerReplicaStubTest NotifyReverseResultInner_0100 end");
 }
 
  /**
@@ -132,7 +133,7 @@ HWTEST_F(ReverseContinuationSchedulerReplicaStubTest, NotifyReverseResultInner_0
   */
 HWTEST_F(ReverseContinuationSchedulerReplicaStubTest, OnRemoteRequest_0100, Level1)
 {
-    HILOG_INFO("ReverseContinuationSchedulerReplicaStubTest OnRemoteRequest_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "ReverseContinuationSchedulerReplicaStubTest OnRemoteRequest_0100 start");
     uint32_t code = 0;
     MessageParcel data;
     MessageParcel reply;
@@ -140,9 +141,9 @@ HWTEST_F(ReverseContinuationSchedulerReplicaStubTest, OnRemoteRequest_0100, Leve
 
     auto stub = std::make_shared<MockReverseContinuationSchedulerReplicaStub>();
     int32_t result = stub->OnRemoteRequest(code, data, reply, option);
-    HILOG_INFO("result is %{public}d", result);
+    TAG_LOGI(AAFwkTag::TEST, "result is %{public}d", result);
     EXPECT_EQ(result, ERR_INVALID_STATE);
-    HILOG_INFO("ReverseContinuationSchedulerReplicaStubTest OnRemoteRequest_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "ReverseContinuationSchedulerReplicaStubTest OnRemoteRequest_0100 end");
 }
 
  /**
@@ -152,7 +153,7 @@ HWTEST_F(ReverseContinuationSchedulerReplicaStubTest, OnRemoteRequest_0100, Leve
   */
 HWTEST_F(ReverseContinuationSchedulerReplicaStubTest, OnRemoteRequest_0200, Level1)
 {
-    HILOG_INFO("ReverseContinuationSchedulerReplicaStubTest OnRemoteRequest_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "ReverseContinuationSchedulerReplicaStubTest OnRemoteRequest_0200 start");
     uint32_t code = 0;
     MessageParcel data;
     MessageParcel reply;
@@ -161,9 +162,9 @@ HWTEST_F(ReverseContinuationSchedulerReplicaStubTest, OnRemoteRequest_0200, Leve
     data.WriteInterfaceToken(u"ohos.appexecfwk.IReverseContinuationSchedulerReplica");
     auto stub = std::make_shared<MockReverseContinuationSchedulerReplicaStub>();
     int32_t result = stub->OnRemoteRequest(code, data, reply, option);
-    HILOG_INFO("result is %{public}d", result);
+    TAG_LOGI(AAFwkTag::TEST, "result is %{public}d", result);
     EXPECT_EQ(result, IPC_STUB_UNKNOW_TRANS_ERR);
-    HILOG_INFO("ReverseContinuationSchedulerReplicaStubTest OnRemoteRequest_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "ReverseContinuationSchedulerReplicaStubTest OnRemoteRequest_0200 end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

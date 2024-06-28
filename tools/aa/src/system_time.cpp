@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "system_time.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "inner_event.h"
 
@@ -24,7 +25,7 @@ using namespace OHOS::AppExecFwk;
 
 int64_t SystemTime::GetNowSysTime()
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::AA_TOOL, "enter");
 
     InnerEvent::TimePoint nowSys = InnerEvent::Clock::now();
     auto epoch = nowSys.time_since_epoch();

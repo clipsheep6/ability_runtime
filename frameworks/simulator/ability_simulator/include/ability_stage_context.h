@@ -41,10 +41,12 @@ public:
     std::string GetBundleCodeDir() override;
     std::string GetCacheDir() override;
     std::string GetTempDir() override;
+    std::string GetResourceDir() override;
     std::string GetFilesDir() override;
     std::string GetDatabaseDir() override;
     std::string GetPreferencesDir() override;
     std::string GetDistributedFilesDir() override;
+    std::string GetCloudFileDir() override;
     void SwitchArea(int mode) override;
     int GetArea() override;
     std::string GetBaseDir() override;

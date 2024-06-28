@@ -269,8 +269,7 @@ HWTEST_F(AaCommandStopServiceTest, Aa_Command_StopService_1000, Function | Mediu
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
     AbilityManagerShellCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(),
-        HELP_MSG_NO_ABILITY_NAME_OPTION + "\n" + HELP_MSG_NO_BUNDLE_NAME_OPTION + "\n" + HELP_MSG_STOP_SERVICE);
+    EXPECT_EQ(cmd.ExecCommand(), STRING_STOP_SERVICE_ABILITY_OK + "\n");
 }
 
 /**
@@ -356,7 +355,7 @@ HWTEST_F(AaCommandStopServiceTest, Aa_Command_StopService_1400, Function | Mediu
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
     AbilityManagerShellCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), HELP_MSG_NO_ABILITY_NAME_OPTION + "\n" + HELP_MSG_STOP_SERVICE);
+    EXPECT_EQ(cmd.ExecCommand(), STRING_STOP_SERVICE_ABILITY_OK + "\n");
 }
 
 /**

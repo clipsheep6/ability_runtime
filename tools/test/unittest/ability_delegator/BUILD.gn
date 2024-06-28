@@ -11,7 +11,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/security/access_token/access_token.gni")
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
@@ -38,6 +37,7 @@ ohos_unittest("ability_command_test") {
 
   deps = [
     "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -60,6 +60,7 @@ ohos_unittest("test_observer_test") {
 
   deps = [
     "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -168,7 +169,8 @@ if (accessibility_enable) {
     sources = [
       "${ability_runtime_path}/tools/aa/src/accessibility_ability_command.cpp",
       "${ability_runtime_path}/tools/aa/src/accessibility_ability_utils.cpp",
-      "accessibility_ability_command_test.cpp",
+      "accessibility_ability_command_first_test.cpp",
+      "accessibility_ability_command_second_test.cpp",
       "mock_accessibility_config.cpp",
     ]
 
@@ -182,6 +184,7 @@ if (accessibility_enable) {
       "access_token:libaccesstoken_sdk",
       "access_token:libnativetoken",
       "access_token:libtoken_setproc",
+      "accessibility:accessibility_common",
       "accessibility:accessibilityclient",
       "accessibility:accessibilityconfig",
       "bundle_framework:appexecfwk_base",

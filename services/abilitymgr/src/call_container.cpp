@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "call_container.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ability_manager_errors.h"
 #include "ability_connect_callback_stub.h"
@@ -55,7 +56,7 @@ void CallContainer::AddCallRecord(const sptr<IAbilityConnection> & connect,
     callRecord->SetConCallBack(connect);
     callRecordMap_.emplace(connect->AsObject(), callRecord);
 
-    HILOG_DEBUG("Add call record to callcontainer, target: %{public}s",
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Add call record to callcontainer, target: %{public}s",
         callRecord->GetTargetServiceName().GetURI().c_str());
 }
 
@@ -74,7 +75,7 @@ std::shared_ptr<CallRecord> CallContainer::GetCallRecord(const sptr<IAbilityConn
 
 bool CallContainer::RemoveCallRecord(const sptr<IAbilityConnection> & connect)
 {
-    HILOG_DEBUG("call container release call record by callback.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call container release call record by callback.");
     CHECK_POINTER_AND_RETURN(connect, false);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), false);
 
@@ -86,22 +87,22 @@ bool CallContainer::RemoveCallRecord(const sptr<IAbilityConnection> & connect)
         }
         RemoveConnectDeathRecipient(connect);
         callRecordMap_.erase(callRecordMap_.find(connect->AsObject()));
-        HILOG_DEBUG("remove call record is success.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "remove call record is success.");
         return true;
     }
 
     if (callRecordMap_.empty()) {
         // notify soft resouce service.
-        HILOG_DEBUG("this ability has no callrecord.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "this ability has no callrecord.");
     }
 
-    HILOG_WARN("remove call record is not exist.");
+    TAG_LOGW(AAFwkTag::ABILITYMGR, "remove call record is not exist.");
     return false;
 }
 
 void CallContainer::OnConnectionDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_WARN("Call back is died.");
+    TAG_LOGW(AAFwkTag::ABILITYMGR, "Call back is died.");
     auto object = remote.promote();
     CHECK_POINTER(object);
 
@@ -123,7 +124,7 @@ void CallContainer::OnConnectionDied(const wptr<IRemoteObject> &remote)
 
 bool CallContainer::CallRequestDone(const sptr<IRemoteObject> &callStub)
 {
-    HILOG_INFO("Call Request Done start.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Call Request Done start.");
 
     CHECK_POINTER_AND_RETURN(callStub, false);
 
@@ -137,13 +138,13 @@ bool CallContainer::CallRequestDone(const sptr<IRemoteObject> &callStub)
             }
         });
 
-    HILOG_INFO("Call Request Done end.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Call Request Done end.");
     return true;
 }
 
 void CallContainer::Dump(std::vector<std::string> &info) const
 {
-    HILOG_INFO("Dump call records.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Dump call records.");
     for (const auto &iter : callRecordMap_) {
         auto callRecord = iter.second;
         if (callRecord) {
@@ -169,7 +170,7 @@ void CallContainer::AddConnectDeathRecipient(const sptr<IAbilityConnection> &con
     CHECK_POINTER(connect->AsObject());
     auto it = deathRecipientMap_.find(connect->AsObject());
     if (it != deathRecipientMap_.end()) {
-        HILOG_ERROR("This death recipient has been added.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "This death recipient has been added.");
         return;
     } else {
         std::weak_ptr<CallContainer> thisWeakPtr(shared_from_this());
@@ -181,7 +182,7 @@ void CallContainer::AddConnectDeathRecipient(const sptr<IAbilityConnection> &con
                 }
             });
         if (!connect->AsObject()->AddDeathRecipient(deathRecipient)) {
-            HILOG_ERROR("AddDeathRecipient failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "AddDeathRecipient failed.");
         }
         deathRecipientMap_.emplace(connect->AsObject(), deathRecipient);
     }

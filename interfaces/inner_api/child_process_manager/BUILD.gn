@@ -30,13 +30,17 @@ ohos_shared_library("child_process_manager") {
   sources = [
     "${ability_runtime_native_path}/ability/native/child_process_manager/child_process.cpp",
     "${ability_runtime_native_path}/ability/native/child_process_manager/child_process_manager.cpp",
+    "${ability_runtime_native_path}/ability/native/child_process_manager/child_process_manager_error_utils.cpp",
     "${ability_runtime_native_path}/ability/native/child_process_manager/js_child_process.cpp",
+    "${ability_runtime_native_path}/ability/native/child_process_manager/native_child_ipc_process.cpp",
   ]
 
   deps = [
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_services_path}/common:app_util",
   ]
 
   external_deps = [
@@ -47,10 +51,16 @@ ohos_shared_library("child_process_manager") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "init:libbegetutil",
+    "ipc:ipc_capi",
     "ipc:ipc_core",
     "napi:ace_napi",
     "samgr:samgr_proxy",
   ]
+
+  defines = []
+  if (background_task_mgr_continuous_task_enable) {
+    defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
+  }
 
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"

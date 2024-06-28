@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "hilog_tag_wrapper.h"
 #include "ohos_loop_handler.h"
 
 namespace OHOS {
@@ -19,25 +20,21 @@ namespace AbilityRuntime {
 
 void OHOSLoopHandler::OnReadable(int32_t)
 {
-    HILOG_DEBUG("OHOSLoopHandler::OnReadable is triggered");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "OHOSLoopHandler::OnReadable is triggered");
     OnTriggered();
 }
 
 void OHOSLoopHandler::OnWritable(int32_t)
 {
-    HILOG_DEBUG("OHOSLoopHandler::OnWritable is triggered");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "OHOSLoopHandler::OnWritable is triggered");
     OnTriggered();
 }
 
 void OHOSLoopHandler::OnTriggered()
 {
-    HILOG_DEBUG("OHOSLoopHandler::OnTriggered is triggered");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "OHOSLoopHandler::OnTriggered is triggered");
 
-    auto fd = uv_backend_fd(uvLoop_);
-    struct epoll_event ev;
-    do {
-        uv_run(uvLoop_, UV_RUN_NOWAIT);
-    } while (epoll_wait(fd, &ev, 1, 0) > 0);
+    uv_run(uvLoop_, UV_RUN_NOWAIT);
 
     auto eventHandler = GetOwner();
     if (!eventHandler) {
@@ -53,9 +50,12 @@ void OHOSLoopHandler::OnTriggered()
     }
 
     int64_t timeStamp = static_cast<int64_t>(uv_now(uvLoop_)) + timeout;
+    // we don't check timestamp in emulator for computer clock is inaccurate
+#ifndef RUNTIME_EMULATOR
     if (timeStamp == lastTimeStamp_) {
         return;
     }
+#endif
 
     if (haveTimerTask_) {
         eventHandler->RemoveTask(TIMER_TASK);

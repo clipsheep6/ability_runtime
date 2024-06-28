@@ -57,14 +57,16 @@ HWTEST_F(AtomicServiceStatusCallbackProxyTest, AtomicServiceStatusCallbackProxy_
 {
     sptr<MockAtomicServiceStatusCallbackStub> mockAtomicServiceStatusCallbackStub(
         new MockAtomicServiceStatusCallbackStub());
-    sptr<AtomicServiceStatusCallbackProxy> callback(new AtomicServiceStatusCallbackProxy(mockAtomicServiceStatusCallbackStub));
+    sptr<AtomicServiceStatusCallbackProxy> callback(
+        new AtomicServiceStatusCallbackProxy(mockAtomicServiceStatusCallbackStub));
     int resultCode = 0;
     Want want;
     int32_t userId = 0;
 
     EXPECT_CALL(*mockAtomicServiceStatusCallbackStub, OnInstallFinished(_, _, _))
         .Times(1)
-        .WillOnce(InvokeWithoutArgs(mockAtomicServiceStatusCallbackStub.GetRefPtr(), &MockAtomicServiceStatusCallbackStub::PostVoid));
+        .WillOnce(InvokeWithoutArgs(mockAtomicServiceStatusCallbackStub.GetRefPtr(),
+            &MockAtomicServiceStatusCallbackStub::PostVoid));
     callback->OnInstallFinished(resultCode, want, userId);
     mockAtomicServiceStatusCallbackStub->Wait();
 }
@@ -81,14 +83,16 @@ HWTEST_F(AtomicServiceStatusCallbackProxyTest, AtomicServiceStatusCallbackProxy_
 {
     sptr<MockAtomicServiceStatusCallbackStub> mockAtomicServiceStatusCallbackStub(
         new MockAtomicServiceStatusCallbackStub());
-    sptr<AtomicServiceStatusCallbackProxy> callback(new AtomicServiceStatusCallbackProxy(mockAtomicServiceStatusCallbackStub));
+    sptr<AtomicServiceStatusCallbackProxy> callback(
+        new AtomicServiceStatusCallbackProxy(mockAtomicServiceStatusCallbackStub));
     int resultCode = 0;
     Want want;
     int32_t userId = 0;
 
     EXPECT_CALL(*mockAtomicServiceStatusCallbackStub, OnRemoteInstallFinished(_, _, _))
         .Times(1)
-        .WillOnce(InvokeWithoutArgs(mockAtomicServiceStatusCallbackStub.GetRefPtr(), &MockAtomicServiceStatusCallbackStub::PostVoid));
+        .WillOnce(InvokeWithoutArgs(mockAtomicServiceStatusCallbackStub.GetRefPtr(),
+            &MockAtomicServiceStatusCallbackStub::PostVoid));
     callback->OnRemoteInstallFinished(resultCode, want, userId);
     mockAtomicServiceStatusCallbackStub->Wait();
 }
@@ -105,7 +109,8 @@ HWTEST_F(AtomicServiceStatusCallbackProxyTest, AtomicServiceStatusCallbackProxy_
 {
     sptr<MockAtomicServiceStatusCallbackStub> mockAtomicServiceStatusCallbackStub(
         new MockAtomicServiceStatusCallbackStub());
-    sptr<AtomicServiceStatusCallbackProxy> callback(new AtomicServiceStatusCallbackProxy(mockAtomicServiceStatusCallbackStub));
+    sptr<AtomicServiceStatusCallbackProxy> callback(
+        new AtomicServiceStatusCallbackProxy(mockAtomicServiceStatusCallbackStub));
     EXPECT_NE(callback, nullptr);
 }
 }  // namespace AAFwk

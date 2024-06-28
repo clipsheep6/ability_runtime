@@ -17,6 +17,7 @@
 #include "ability_handler.h"
 #include "continuation_handler.h"
 #include "continuation_manager.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_new_ability.h"
 #include "mock_reverse_continuation_scheduler_replica_stub.h"
@@ -61,7 +62,7 @@ void ReverseContinuationSchedulerReplicaProxyTest::TearDown(void)
   */
 HWTEST_F(ReverseContinuationSchedulerReplicaProxyTest, PassPrimary_0100, Level1)
 {
-    HILOG_INFO("PassPrimary_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "PassPrimary_0100 start");
     auto continuationManager = std::make_shared<ContinuationManager>();
     std::weak_ptr<ContinuationManager> weakContinuationManager = continuationManager;
     std::weak_ptr<Ability> weakMockAbility = std::make_shared<MockNewAbility>();
@@ -75,7 +76,7 @@ HWTEST_F(ReverseContinuationSchedulerReplicaProxyTest, PassPrimary_0100, Level1)
     proxy->PassPrimary(primary);
     sptr<MockReverseContinuationSchedulerReplicaStub> mockStub(new MockReverseContinuationSchedulerReplicaStub());
     EXPECT_FALSE(mockStub->SendRequest_called);
-    HILOG_INFO("PassPrimary_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "PassPrimary_0100 end");
 }
 
  /**
@@ -85,7 +86,7 @@ HWTEST_F(ReverseContinuationSchedulerReplicaProxyTest, PassPrimary_0100, Level1)
   */
 HWTEST_F(ReverseContinuationSchedulerReplicaProxyTest, PassPrimary_0200, Level1)
 {
-    HILOG_INFO("PassPrimary_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "PassPrimary_0200 start");
     auto continuationManager = std::make_shared<ContinuationManager>();
     std::weak_ptr<ContinuationManager> weakContinuationManager = continuationManager;
     std::weak_ptr<Ability> weakMockAbility = std::make_shared<MockNewAbility>();
@@ -100,7 +101,7 @@ HWTEST_F(ReverseContinuationSchedulerReplicaProxyTest, PassPrimary_0200, Level1)
     auto proxy = std::make_shared<ReverseContinuationSchedulerReplicaProxy>(mockStub);
     proxy->PassPrimary(primary);
     EXPECT_TRUE(mockStub->SendRequest_called);
-    HILOG_INFO("PassPrimary_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "PassPrimary_0200 end");
 }
 
  /**
@@ -110,13 +111,13 @@ HWTEST_F(ReverseContinuationSchedulerReplicaProxyTest, PassPrimary_0200, Level1)
   */
 HWTEST_F(ReverseContinuationSchedulerReplicaProxyTest, PassPrimary_0300, Level1)
 {
-    HILOG_INFO("PassPrimary_0300 start");
+    TAG_LOGI(AAFwkTag::TEST, "PassPrimary_0300 start");
     sptr<ReverseContinuationSchedulerPrimary> primary = nullptr;
     sptr<MockReverseContinuationSchedulerReplicaStub> mockStub(new MockReverseContinuationSchedulerReplicaStub());
     auto proxy = std::make_shared<ReverseContinuationSchedulerReplicaProxy>(mockStub);
     proxy->PassPrimary(primary);
     EXPECT_TRUE(mockStub->SendRequest_called);
-    HILOG_INFO("PassPrimary_0300 end");
+    TAG_LOGI(AAFwkTag::TEST, "PassPrimary_0300 end");
 }
 
  /**
@@ -126,11 +127,11 @@ HWTEST_F(ReverseContinuationSchedulerReplicaProxyTest, PassPrimary_0300, Level1)
   */
 HWTEST_F(ReverseContinuationSchedulerReplicaProxyTest, ReverseContinuation_0100, Level1)
 {
-    HILOG_INFO("ReverseContinuation_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "ReverseContinuation_0100 start");
     auto proxy = std::make_shared<ReverseContinuationSchedulerReplicaProxy>(nullptr);
     bool result = proxy->ReverseContinuation();
     EXPECT_FALSE(result);
-    HILOG_INFO("ReverseContinuation_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "ReverseContinuation_0100 end");
 }
 
  /**
@@ -140,12 +141,12 @@ HWTEST_F(ReverseContinuationSchedulerReplicaProxyTest, ReverseContinuation_0100,
   */
 HWTEST_F(ReverseContinuationSchedulerReplicaProxyTest, ReverseContinuation_0200, Level1)
 {
-    HILOG_INFO("ReverseContinuation_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "ReverseContinuation_0200 start");
     sptr<ReverseContinuationSchedulerReplicaStub> stub(new MockReverseContinuationSchedulerReplicaStub());
     auto proxy = std::make_shared<ReverseContinuationSchedulerReplicaProxy>(stub);
     bool result = proxy->ReverseContinuation();
     EXPECT_TRUE(result);
-    HILOG_INFO("ReverseContinuation_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "ReverseContinuation_0200 end");
 }
 
  /**
@@ -155,12 +156,12 @@ HWTEST_F(ReverseContinuationSchedulerReplicaProxyTest, ReverseContinuation_0200,
   */
 HWTEST_F(ReverseContinuationSchedulerReplicaProxyTest, NotifyReverseResult_0100, Level1)
 {
-    HILOG_INFO("NotifyReverseResult_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "NotifyReverseResult_0100 start");
     auto proxy = std::make_shared<ReverseContinuationSchedulerReplicaProxy>(nullptr);
     proxy->NotifyReverseResult(0);
     sptr<MockReverseContinuationSchedulerReplicaStub> mockStub(new MockReverseContinuationSchedulerReplicaStub());
     EXPECT_FALSE(mockStub->SendRequest_called);
-    HILOG_INFO("NotifyReverseResult_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "NotifyReverseResult_0100 end");
 }
 
  /**
@@ -170,12 +171,12 @@ HWTEST_F(ReverseContinuationSchedulerReplicaProxyTest, NotifyReverseResult_0100,
   */
 HWTEST_F(ReverseContinuationSchedulerReplicaProxyTest, NotifyReverseResult_0200, Level1)
 {
-    HILOG_INFO("NotifyReverseResult_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "NotifyReverseResult_0200 start");
     sptr<MockReverseContinuationSchedulerReplicaStub> mockStub(new MockReverseContinuationSchedulerReplicaStub());
     auto proxy = std::make_shared<ReverseContinuationSchedulerReplicaProxy>(mockStub);
     proxy->NotifyReverseResult(1);
     EXPECT_TRUE(mockStub->SendRequest_called);
-    HILOG_INFO("NotifyReverseResult_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "NotifyReverseResult_0200 end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

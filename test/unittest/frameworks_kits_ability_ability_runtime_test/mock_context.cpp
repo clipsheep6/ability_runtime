@@ -61,6 +61,11 @@ std::string MockContext::GetTempDir()
     return "/temp";
 }
 
+std::string MockContext::GetResourceDir()
+{
+    return "/resfile";
+}
+
 std::string MockContext::GetFilesDir()
 {
     return "/files";
@@ -71,6 +76,11 @@ std::string MockContext::GetDistributedFilesDir()
     return "/mnt/hmdfs/device_view/local/data/bundleName";
 }
 
+std::string MockContext::GetCloudFileDir()
+{
+    return "/cloud";
+}
+
 std::shared_ptr<Context> MockContext::CreateModuleContext(const std::string &moduleName)
 {
     return nullptr;
@@ -79,6 +89,18 @@ std::shared_ptr<Context> MockContext::CreateModuleContext(const std::string &mod
 std::shared_ptr<Context> MockContext::CreateModuleContext(const std::string &bundleName, const std::string &moduleName)
 {
     return nullptr;
+}
+
+std::shared_ptr<Global::Resource::ResourceManager> MockContext::CreateModuleResourceManager(
+    const std::string &bundleName, const std::string &moduleName)
+{
+    return nullptr;
+}
+
+int32_t MockContext::CreateSystemHspModuleResourceManager(const std::string &bundleName,
+    const std::string &moduleName, std::shared_ptr<Global::Resource::ResourceManager> &resourceManager)
+{
+    return 0;
 }
 
 int MockContext::GetArea()
@@ -152,7 +174,7 @@ sptr<IRemoteObject> MockContext::GetToken()
 
 std::shared_ptr<AppExecFwk::HapModuleInfo> MockContext::GetHapModuleInfo() const
 {
-    return nullptr;  
+    return nullptr;
 }
 
 void MockContext::SwitchArea(int mode)

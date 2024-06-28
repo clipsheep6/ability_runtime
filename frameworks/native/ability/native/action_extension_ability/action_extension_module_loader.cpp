@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "action_extension_module_loader.h"
 
 #include "action_extension.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -25,13 +26,13 @@ ActionExtensionModuleLoader::~ActionExtensionModuleLoader() = default;
 
 Extension *ActionExtensionModuleLoader::Create(const std::unique_ptr<Runtime> &runtime) const
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ACTION_EXT, "called");
     return ActionExtension::Create(runtime);
 }
 
 std::map<std::string, std::string> ActionExtensionModuleLoader::GetParams()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ACTION_EXT, "called");
     std::map<std::string, std::string> params;
     // type means extension type in ExtensionAbilityType of extension_ability_info.h, 19 means actionextension.
     params.insert(std::pair<std::string, std::string>("type", "19"));

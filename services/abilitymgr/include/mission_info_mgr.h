@@ -99,15 +99,13 @@ public:
      * @brief Try find reused mission info.
      *
      * @param missionName name of mission.
-     * @param missionAffinity uni-key of mission from broker.
      * @param flag name of specified mission flag.
      * @param isFindRecentStandard find recent standard mission.
-     * @param isFromCollaborator request from collaborator.
      * @param info found mission info.
      * @return true if success.
      */
-    bool FindReusedMissionInfo(const std::string &missionName, const std::string &missionAffinity,
-        const std::string &flag, bool isFindRecentStandard, bool isFromCollaborator, InnerMissionInfo &info);
+    bool FindReusedMissionInfo(const std::string &missionName,
+        const std::string &flag, bool isFindRecentStandard, InnerMissionInfo &info);
 
     /**
      * @brief Delete all the mission info.
@@ -167,9 +165,9 @@ public:
      * @param pixelMap The snapshot.
      * @param isPrivate Indicates whether the window is private window.
      */
+#ifdef SUPPORT_SCREEN
     void UpdateMissionSnapshot(int32_t missionId, const std::shared_ptr<Media::PixelMap> &pixelMap, bool isPrivate);
 
-#ifdef SUPPORT_GRAPHICS
     /**
      * @brief Get the Snapshot object
      * @param missionId Indicates this mission id.
@@ -207,7 +205,7 @@ private:
     bool LoadAllMissionInfo();
     bool AddMissionInfoInner(const InnerMissionInfo &missionInfo);
     void GetMatchedMission(const std::string &bundleName, int32_t uid, std::list<int32_t> &missions);
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     void CreateWhitePixelMap(Snapshot &snapshot) const;
 #endif
 

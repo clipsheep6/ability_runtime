@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 
 #include "remote_on_listener_stub.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
@@ -34,7 +35,7 @@ int RemoteOnListenerStub::OnRemoteRequest(
     std::u16string descriptor = RemoteOnListenerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_INFO("RemoteOnListenerStub Local descriptor is not equal to remote");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "RemoteOnListenerStub Local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
 
@@ -53,7 +54,9 @@ int32_t RemoteOnListenerStub::OnCallbackInner(MessageParcel &data, MessageParcel
     uint32_t continueState = data.ReadUint32();
     std::string srcDeviceId = data.ReadString();
     std::string bundleName = data.ReadString();
-    OnCallback(continueState, srcDeviceId, bundleName);
+    std::string continueType = data.ReadString();
+    std::string srcBundleName = data.ReadString();
+    OnCallback(continueState, srcDeviceId, bundleName, continueType, srcBundleName);
     return NO_ERROR;
 }
 }  // namespace AAFwk

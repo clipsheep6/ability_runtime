@@ -17,6 +17,13 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+namespace {
+void HandleClean(void *data)
+{
+    auto env = reinterpret_cast<napi_env>(data);
+    ApplicationContextManager::GetApplicationContextManager().RemoveGlobalObject(env);
+}
+}
 ApplicationContextManager::ApplicationContextManager()
 {}
 
@@ -37,6 +44,7 @@ ApplicationContextManager& ApplicationContextManager::GetApplicationContextManag
 void ApplicationContextManager::AddGlobalObject(napi_env env,
     std::shared_ptr<NativeReference> applicationContextObj)
 {
+    napi_add_env_cleanup_hook(env, HandleClean, env);
     std::lock_guard<std::mutex> lock(applicationContextMutex_);
     auto iter = applicationContextMap_.find(env);
     if (iter == applicationContextMap_.end()) {
@@ -54,6 +62,17 @@ std::shared_ptr<NativeReference> ApplicationContextManager::GetGlobalObject(napi
 {
     std::lock_guard<std::mutex> lock(applicationContextMutex_);
     return applicationContextMap_[env];
+}
+
+void ApplicationContextManager::RemoveGlobalObject(napi_env env)
+{
+    std::lock_guard<std::mutex> lock(applicationContextMutex_);
+    auto iter = applicationContextMap_.find(env);
+    if (iter != applicationContextMap_.end() && iter->second != nullptr) {
+        iter->second.reset();
+        iter->second = nullptr;
+        applicationContextMap_.erase(env);
+    }
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

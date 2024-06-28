@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 
 #include "mock_test_observer_stub.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -23,18 +24,18 @@ MockTestObserverStub::~MockTestObserverStub()
 
 void MockTestObserverStub::TestStatus(const std::string& msg, const int64_t& resultCode)
 {
-    HILOG_INFO("MockTestObserverStub::TestStatus is called");
+    TAG_LOGI(AAFwkTag::TEST, "MockTestObserverStub::TestStatus is called");
 }
 
 void MockTestObserverStub::TestFinished(const std::string& msg, const int64_t& resultCode)
 {
-    HILOG_INFO("MockTestObserverStub::TestFinished is called");
+    TAG_LOGI(AAFwkTag::TEST, "MockTestObserverStub::TestFinished is called");
 }
 
 ShellCommandResult MockTestObserverStub::ExecuteShellCommand(
     const std::string& cmd, const int64_t timeoutMs)
 {
-    HILOG_INFO("MockTestObserverStub::ExecuteShellCommand is called");
+    TAG_LOGI(AAFwkTag::TEST, "MockTestObserverStub::ExecuteShellCommand is called");
     return ShellCommandResult();
 }
 }  // namespace AAFwk

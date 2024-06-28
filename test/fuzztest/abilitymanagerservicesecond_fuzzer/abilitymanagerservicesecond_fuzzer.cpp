@@ -31,15 +31,22 @@ using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace {
+constexpr int INPUT_ZERO = 0;
+constexpr int INPUT_ONE = 1;
+constexpr int INPUT_THREE = 3;
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
 constexpr uint8_t ENABLE = 2;
+constexpr size_t OFFSET_ZERO = 24;
+constexpr size_t OFFSET_ONE = 16;
+constexpr size_t OFFSET_TWO = 8;
 }
 
 uint32_t GetU32Data(const char* ptr)
 {
     // convert fuzz input data to an integer
-    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
+    return (ptr[INPUT_ZERO] << OFFSET_ZERO) | (ptr[INPUT_ONE] << OFFSET_ONE) | (ptr[ENABLE] << OFFSET_TWO) |
+        ptr[INPUT_THREE];
 }
 
 sptr<Token> GetFuzzAbilityToken()
@@ -101,7 +108,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->MoveMissionToFront(int32Param, startOptions);
     abilityms->GetMissionIdByToken(token);
     abilityms->IsAbilityControllerStartById(int32Param);
-    abilityms->GetServiceRecordByElementName(stringParam);
     sptr<IAbilityConnection> callback;
     abilityms->GetConnectRecordListByCallback(callback);
     Uri uri("myFuzzTest");
@@ -109,8 +115,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     sptr<IAbilityScheduler> dataAbilityScheduler;
     abilityms->ReleaseDataAbility(dataAbilityScheduler, token);
     abilityms->AttachAbilityThread(dataAbilityScheduler, token);
-    abilityms->DumpFuncInit();
-    abilityms->DumpSysFuncInit();
     std::vector<std::string> info;
     abilityms->DumpSysInner(stringParam, info, boolParam, boolParam, intParam);
     abilityms->DumpSysMissionListInner(stringParam, info, boolParam, boolParam, intParam);

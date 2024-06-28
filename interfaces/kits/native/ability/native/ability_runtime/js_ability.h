@@ -21,7 +21,6 @@
 #include "freeze_util.h"
 
 class NativeReference;
-class NativeValue;
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -71,7 +70,7 @@ public:
     std::shared_ptr<NativeReference> GetJsAbility();
     int32_t OnShare(WantParams &wantParams) override;
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 public:
     void OnSceneCreated() override;
     void onSceneDestroyed() override;
@@ -108,6 +107,11 @@ private:
     sptr<IRemoteObject> SetNewRuleFlagToCallee(napi_env env, napi_value remoteJsObj);
     void AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState state, const std::string &methodName) const;
     void AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState state, const std::string &methodName) const;
+    std::string GenerateSrcPath(std::shared_ptr<AbilityInfo> abilityInfo) const;
+    void BindContext();
+    bool InitWindowScene(const Want &want);
+    bool AddDumpInfo(napi_env env, napi_value obj, const std::vector<std::string> &params,
+        std::vector<std::string> &info, const std::string &methodName) const;
 
     JsRuntime &jsRuntime_;
     std::shared_ptr<NativeReference> shellContextRef_;

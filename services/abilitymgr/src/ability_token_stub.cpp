@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "ability_token_stub.h"
 
 #include "ability_token_proxy.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -28,7 +29,7 @@ AbilityTokenStub::~AbilityTokenStub()
 
 void AbilityTokenRecipient::OnRemoteDied(const wptr<IRemoteObject> &__attribute__((unused)) remote)
 {
-    HILOG_ERROR("recv AbilityTokenRecipient death notice");
+    TAG_LOGE(AAFwkTag::ABILITYMGR, "recv AbilityTokenRecipient death notice");
 }
 }  // namespace AAFwk
 }  // namespace OHOS

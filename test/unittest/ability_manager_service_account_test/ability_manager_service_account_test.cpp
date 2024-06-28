@@ -111,8 +111,8 @@ void AbilityManagerServiceAccountTest::TearDown()
 HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_001, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StartAbility_001 start";
-    abilityMs_->StartUser(USER_ID_U100);
-    auto topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+    abilityMs_->StartUser(USER_ID_U100, nullptr);
+    auto topAbility = abilityMs_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
@@ -123,8 +123,8 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_001, TestSize.Le
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    abilityMs_->StartUser(newUserId);
-    topAbility = abilityMs_->GetListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
+    abilityMs_->StartUser(newUserId, nullptr);
+    topAbility = abilityMs_->GetMissionListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
@@ -132,7 +132,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_001, TestSize.Le
     result = abilityMs_->StartAbility(want, newUserId);
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
-    abilityMs_->StartUser(USER_ID_U100);
+    abilityMs_->StartUser(USER_ID_U100, nullptr);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StartAbility_001 end";
 }
 
@@ -147,7 +147,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_001, TestSize.Le
 HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_002, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StartAbility_002 start";
-    auto topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMs_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
@@ -158,7 +158,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_002, TestSize.Le
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+    topAbility = abilityMs_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
     sptr<IRemoteObject> token = nullptr;
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
@@ -186,7 +186,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_003, TestSize.Le
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StartAbility_003 start";
     AbilityStartSetting abilityStartSetting;
     // default user
-    auto topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMs_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
@@ -197,15 +197,15 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_003, TestSize.Le
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    abilityMs_->StartUser(newUserId);
-    topAbility = abilityMs_->GetListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
+    abilityMs_->StartUser(newUserId, nullptr);
+    topAbility = abilityMs_->GetMissionListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
     result = abilityMs_->StartAbility(want, abilityStartSetting, nullptr, newUserId, -1);
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
-    abilityMs_->StartUser(USER_ID_U100);
+    abilityMs_->StartUser(USER_ID_U100, nullptr);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StartAbility_003 end";
 }
 
@@ -222,7 +222,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_004, TestSize.Le
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StartAbility_004 start";
     StartOptions abilityStartOptions;
     // default user
-    auto topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMs_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
@@ -233,15 +233,15 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_004, TestSize.Le
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    abilityMs_->StartUser(newUserId);
-    topAbility = abilityMs_->GetListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
+    abilityMs_->StartUser(newUserId, nullptr);
+    topAbility = abilityMs_->GetMissionListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
     result = abilityMs_->StartAbility(want, abilityStartOptions, nullptr, newUserId, -1);
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
-    abilityMs_->StartUser(USER_ID_U100);
+    abilityMs_->StartUser(USER_ID_U100, nullptr);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StartAbility_004 end";
 }
 
@@ -299,7 +299,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_006, TestSize.Le
 HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_007, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StartAbility_007 start";
-    abilityMs_->StartUser(USER_ID_U100);
+    abilityMs_->StartUser(USER_ID_U100, nullptr);
     Want want;
     ElementName element("", "com.ix.hiSingleMusicInfo", "SingleMusicAbility");
     want.SetElement(element);
@@ -321,7 +321,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_007, TestSize.Le
 HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_008, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StartAbility_008 start";
-    abilityMs_->StartUser(USER_ID_U100);
+    abilityMs_->StartUser(USER_ID_U100, nullptr);
     Want want;
     ElementName element("", "com.ix.hiBackgroundMusic", "hiBackgroundMusic");
     want.SetElement(element);
@@ -385,8 +385,8 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_010, TestSize.Le
 HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_011, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StartAbility_011 start";
-    abilityMs_->StartUser(USER_ID_U100);
-    auto topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+    abilityMs_->StartUser(USER_ID_U100, nullptr);
+    auto topAbility = abilityMs_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
@@ -410,7 +410,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_011, TestSize.Le
 HWTEST_F(AbilityManagerServiceAccountTest, Account_TerminateAbility_001, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_TerminateAbility_001 start";
-    auto topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMs_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
@@ -421,7 +421,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_TerminateAbility_001, TestSiz
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+    topAbility = abilityMs_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
 
     sptr<IRemoteObject> token = nullptr;
     if (topAbility) {
@@ -602,7 +602,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ConnectAbility_001, TestSize.
 HWTEST_F(AbilityManagerServiceAccountTest, Account_ConnectAbility_002, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ConnectAbility_002 start";
-    abilityMs_->StartUser(newUserId);
+    abilityMs_->StartUser(newUserId, nullptr);
     Want want;
     ElementName element("", "com.ix.musicService", "MusicService");
     want.SetElement(element);
@@ -618,7 +618,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ConnectAbility_002, TestSize.
 
     auto result2 = abilityMs_->ConnectAbility(want, callback, nullptr, newUserId);
     EXPECT_EQ(result2, ERR_OK);
-    abilityMs_->StartUser(USER_ID_U100);
+    abilityMs_->StartUser(USER_ID_U100, nullptr);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ConnectAbility_002 end";
 }
 
@@ -761,7 +761,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleConnectAbilityDone_00
 HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleConnectAbilityDone_002, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ScheduleConnectAbilityDone_002 start";
-    auto topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMs_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
@@ -772,7 +772,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleConnectAbilityDone_00
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+    topAbility = abilityMs_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
 
     sptr<IRemoteObject> token = nullptr;
     if (topAbility) {
@@ -799,7 +799,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleConnectAbilityDone_00
 HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleConnectAbilityDone_003, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ScheduleConnectAbilityDone_003 start";
-    abilityMs_->StartUser(newUserId);
+    abilityMs_->StartUser(newUserId, nullptr);
     Want want;
     ElementName element("", "com.ix.musicService", "MusicService");
     want.SetElement(element);
@@ -825,7 +825,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleConnectAbilityDone_00
     auto result3 = abilityMs_->ScheduleConnectAbilityDone(service->GetToken(), callback->AsObject());
     WaitUntilTaskFinished();
     EXPECT_EQ(result3, ERR_OK);
-    abilityMs_->StartUser(USER_ID_U100);
+    abilityMs_->StartUser(USER_ID_U100, nullptr);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ScheduleConnectAbilityDone_003 end";
 }
 
@@ -842,8 +842,8 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleConnectAbilityDone_00
 HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleConnectAbilityDone_004, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ScheduleConnectAbilityDone_004 start";
-    abilityMs_->StartUser(newUserId);
-    auto topAbility = abilityMs_->GetListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
+    abilityMs_->StartUser(newUserId, nullptr);
+    auto topAbility = abilityMs_->GetMissionListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
@@ -854,7 +854,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleConnectAbilityDone_00
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    topAbility = abilityMs_->GetListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
+    topAbility = abilityMs_->GetMissionListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
 
     sptr<IRemoteObject> token = nullptr;
     if (topAbility) {
@@ -864,7 +864,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleConnectAbilityDone_00
     auto result1 = abilityMs_->ScheduleConnectAbilityDone(token, callback->AsObject());
     WaitUntilTaskFinished();
     EXPECT_EQ(result1, TARGET_ABILITY_NOT_SERVICE);
-    abilityMs_->StartUser(USER_ID_U100);
+    abilityMs_->StartUser(USER_ID_U100, nullptr);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ScheduleConnectAbilityDone_004 end";
 }
 
@@ -923,7 +923,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleDisconnectAbilityDone
 HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleDisconnectAbilityDone_002, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ScheduleDisconnectAbilityDone_002 start";
-    auto topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMs_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
@@ -934,7 +934,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleDisconnectAbilityDone
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+    topAbility = abilityMs_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
 
     sptr<IRemoteObject> token = nullptr;
     if (topAbility) {
@@ -960,8 +960,8 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleDisconnectAbilityDone
 HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleDisconnectAbilityDone_003, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ScheduleDisconnectAbilityDone_003 start";
-    abilityMs_->StartUser(newUserId);
-    auto topAbility = abilityMs_->GetListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
+    abilityMs_->StartUser(newUserId, nullptr);
+    auto topAbility = abilityMs_->GetMissionListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
@@ -972,7 +972,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleDisconnectAbilityDone
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    topAbility = abilityMs_->GetListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
+    topAbility = abilityMs_->GetMissionListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
 
     sptr<IRemoteObject> token = nullptr;
     if (topAbility) {
@@ -982,7 +982,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleDisconnectAbilityDone
     auto result1 = abilityMs_->ScheduleDisconnectAbilityDone(token);
     WaitUntilTaskFinished();
     EXPECT_EQ(result1, TARGET_ABILITY_NOT_SERVICE);
-    abilityMs_->StartUser(USER_ID_U100);
+    abilityMs_->StartUser(USER_ID_U100, nullptr);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ScheduleDisconnectAbilityDone_003 end";
 }
 
@@ -1041,7 +1041,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleCommandAbilityDone_00
 HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleCommandAbilityDone_002, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ScheduleCommandAbilityDone_002 start";
-    auto topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMs_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
@@ -1052,7 +1052,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleCommandAbilityDone_00
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+    topAbility = abilityMs_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
 
     sptr<IRemoteObject> token = nullptr;
     if (topAbility) {
@@ -1079,7 +1079,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleCommandAbilityDone_00
 HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleCommandAbilityDone_003, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ScheduleCommandAbilityDone_003 start";
-    abilityMs_->StartUser(newUserId);
+    abilityMs_->StartUser(newUserId, nullptr);
     Want want;
     ElementName element("", "com.ix.musicService", "MusicService");
     want.SetElement(element);
@@ -1105,7 +1105,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleCommandAbilityDone_00
     auto result3 = abilityMs_->ScheduleCommandAbilityDone(service->GetToken());
     WaitUntilTaskFinished();
     EXPECT_EQ(result3, ERR_OK);
-    abilityMs_->StartUser(USER_ID_U100);
+    abilityMs_->StartUser(USER_ID_U100, nullptr);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ScheduleCommandAbilityDone_003 end";
 }
 
@@ -1122,8 +1122,8 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleCommandAbilityDone_00
 HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleCommandAbilityDone_004, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ScheduleCommandAbilityDone_004 start";
-    abilityMs_->StartUser(newUserId);
-    auto topAbility = abilityMs_->GetListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
+    abilityMs_->StartUser(newUserId, nullptr);
+    auto topAbility = abilityMs_->GetMissionListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
@@ -1134,7 +1134,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleCommandAbilityDone_00
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    topAbility = abilityMs_->GetListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
+    topAbility = abilityMs_->GetMissionListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
 
     sptr<IRemoteObject> token = nullptr;
     if (topAbility) {
@@ -1144,7 +1144,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleCommandAbilityDone_00
     auto result1 = abilityMs_->ScheduleCommandAbilityDone(token);
     WaitUntilTaskFinished();
     EXPECT_EQ(result1, TARGET_ABILITY_NOT_SERVICE);
-    abilityMs_->StartUser(USER_ID_U100);
+    abilityMs_->StartUser(USER_ID_U100, nullptr);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ScheduleCommandAbilityDone_004 end";
 }
 
@@ -1197,7 +1197,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StopServiceAbility_001, TestS
 HWTEST_F(AbilityManagerServiceAccountTest, Account_StopServiceAbility_002, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StopServiceAbility_002 start";
-    abilityMs_->StartUser(newUserId);
+    abilityMs_->StartUser(newUserId, nullptr);
     Want want;
     ElementName element("", "com.ix.musicService", "MusicService");
     want.SetElement(element);
@@ -1222,7 +1222,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StopServiceAbility_002, TestS
     auto result2 = abilityMs_->StopServiceAbility(want, newUserId);
     WaitUntilTaskFinished();
     EXPECT_EQ(CHECK_PERMISSION_FAILED, result2);
-    abilityMs_->StartUser(USER_ID_U100);
+    abilityMs_->StartUser(USER_ID_U100, nullptr);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StopServiceAbility_002 end";
 }
 
@@ -1306,7 +1306,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_MinimizeAbility_001, TestSize
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_MinimizeAbility_001 start";
     // default user
-    auto topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMs_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
@@ -1317,7 +1317,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_MinimizeAbility_001, TestSize
     WaitUntilTaskFinished();
     EXPECT_EQ(ERR_OK, result);
 
-    topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+    topAbility = abilityMs_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
 
     sptr<IRemoteObject> token = nullptr;
     if (topAbility) {
@@ -1340,7 +1340,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_AttachAbilityThread_001, Test
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_AttachAbilityThread_001 start";
     // default user
-    auto topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMs_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
@@ -1351,7 +1351,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_AttachAbilityThread_001, Test
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
     OHOS::sptr<IAbilityScheduler> scheduler = new AbilityScheduler();
-    topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+    topAbility = abilityMs_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
     sptr<IRemoteObject> token = nullptr;
     if (topAbility) {
         token = topAbility->GetToken();
@@ -1372,7 +1372,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_OnAbilityRequestDone_001, Tes
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_OnAbilityRequestDone_001 start";
     // default user
-    auto topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMs_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
@@ -1382,7 +1382,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_OnAbilityRequestDone_001, Tes
     auto result = abilityMs_->StartAbility(want, USER_ID_U100, -1);
     WaitUntilTaskFinished();
     EXPECT_EQ(ERR_OK, result);
-    topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+    topAbility = abilityMs_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
     sptr<IRemoteObject> token = nullptr;
     if (topAbility) {
         token = topAbility->GetToken();
@@ -1403,7 +1403,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_KillProcess_001, TestSize.Lev
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_KillProcess_001 start";
     // default user
-    auto topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMs_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }

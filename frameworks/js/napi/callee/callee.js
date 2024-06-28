@@ -49,6 +49,14 @@ class BusinessError extends Error {
   }
 }
 
+class ThrowInvalidParamError extends Error {
+  constructor(msg) {
+    let message = ERROR_MSG_INVALID_PARAM + msg;
+    super(message);
+    this.code = ERROR_CODE_INVALID_PARAM;
+  }
+}
+
 class Callee extends rpc.RemoteObject {
   constructor(des) {
     if (typeof des === 'string') {
@@ -68,17 +76,8 @@ class Callee extends rpc.RemoteObject {
 
   onRemoteMessageRequest(code, data, reply, option) {
     console.log('Callee onRemoteMessageRequest code [' + typeof code + ' ' + code + ']');
-    if (this.startUpNewRule && rpc.IPCSkeleton.isLocalCalling()) {
-      console.log('Use new start up rule, check caller permission.');
-      let accessManger = accessControl.createAtManager();
-      let accessTokenId = rpc.IPCSkeleton.getCallingTokenId();
-      let grantStatus =
-        accessManger.verifyAccessTokenSync(accessTokenId, PERMISSION_ABILITY_BACKGROUND_COMMUNICATION);
-      if (grantStatus === accessControl.GrantStatus.PERMISSION_DENIED) {
-        console.log(
-          'Callee onRemoteMessageRequest error, the Caller does not have PERMISSION_ABILITY_BACKGROUND_COMMUNICATION');
-        return false;
-      }
+    if (!this.StartUpRuleCheck()) {
+      return false;
     }
 
     if (typeof code !== 'number' || typeof data !== 'object' ||
@@ -127,7 +126,8 @@ class Callee extends rpc.RemoteObject {
     if (typeof method !== 'string' || method === '' || typeof callback !== 'function') {
       console.log(
         'Callee on error, method is [' + typeof method + '], typeof callback [' + typeof callback + ']');
-      throw new BusinessError(ERROR_CODE_INVALID_PARAM);
+      throw new ThrowInvalidParamError('Parameter error: Failed to get method or callback.' +
+        'method must be a non-empty string, callback must be a function.');
     }
 
     if (this.callList == null) {
@@ -147,7 +147,7 @@ class Callee extends rpc.RemoteObject {
   off(method) {
     if (typeof method !== 'string' || method === '') {
       console.log('Callee off error, method is [' + typeof method + ']');
-      throw new BusinessError(ERROR_CODE_INVALID_PARAM);
+      throw new ThrowInvalidParamError('Parameter error: Failed to get method, must be a string.');
     }
 
     if (this.callList == null) {
@@ -162,6 +162,22 @@ class Callee extends rpc.RemoteObject {
 
     this.callList.delete(method);
     console.log('Callee off method [' + method + ']');
+  }
+
+  StartUpRuleCheck() {
+    if (this.startUpNewRule && rpc.IPCSkeleton.isLocalCalling()) {
+      console.log('Use new start up rule, check caller permission.');
+      let accessManger = accessControl.createAtManager();
+      let accessTokenId = rpc.IPCSkeleton.getCallingTokenId();
+      let grantStatus =
+        accessManger.verifyAccessTokenSync(accessTokenId, PERMISSION_ABILITY_BACKGROUND_COMMUNICATION);
+      if (grantStatus === accessControl.GrantStatus.PERMISSION_DENIED) {
+        console.log(
+          'Callee onRemoteMessageRequest error, the Caller does not have PERMISSION_ABILITY_BACKGROUND_COMMUNICATION');
+        return false;
+      }
+    }
+    return true;
   }
 }
 

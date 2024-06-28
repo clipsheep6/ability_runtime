@@ -59,6 +59,11 @@ std::string MockContextImpl::GetTempDir()
     return "/temp";
 }
 
+std::string MockContextImpl::GetResourceDir()
+{
+    return "/resfile";
+}
+
 std::string MockContextImpl::GetFilesDir()
 {
     return "/files";
@@ -67,6 +72,11 @@ std::string MockContextImpl::GetFilesDir()
 std::string MockContextImpl::GetDistributedFilesDir()
 {
     return "/mnt/hmdfs/device_view/local/data/bundleName";
+}
+
+std::string MockContextImpl::GetCloudFileDir()
+{
+    return "/cloud";
 }
 
 std::string MockContextImpl::GetGroupDir(std::string groupId)
@@ -91,10 +101,23 @@ std::shared_ptr<Context> MockContextImpl::CreateModuleContext(const std::string 
     return appContext;
 }
 
-std::shared_ptr<Context> MockContextImpl::CreateModuleContext(const std::string &bundleName, const std::string &moduleName)
+std::shared_ptr<Context> MockContextImpl::CreateModuleContext(const std::string &bundleName,
+    const std::string &moduleName)
 {
     std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
     return appContext;
+}
+
+int32_t MockContextImpl::CreateSystemHspModuleResourceManager(const std::string &bundleName,
+    const std::string &moduleName, std::shared_ptr<Global::Resource::ResourceManager> &resourceManager)
+{
+    return 0;
+}
+
+std::shared_ptr<Global::Resource::ResourceManager> MockContextImpl::CreateModuleResourceManager(
+    const std::string &bundleName, const std::string &moduleName)
+{
+    return nullptr;
 }
 
 int MockContextImpl::GetArea()

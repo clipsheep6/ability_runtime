@@ -20,27 +20,20 @@
 #include <mutex>
 #include <list>
 
-#include "ability_connect_callback_stub.h"
 #include "ability_info.h"
 #include "ability_manager_errors.h"
 #include "application_info.h"
 #include "feature_ability_common.h"
+#include "napi_common_ability_wrap_utils.h"
 
 namespace OHOS {
 namespace AppExecFwk {
-const std::int32_t STR_MAX_SIZE = 128;
 napi_status SetGlobalClassContext(napi_env env, napi_value constructor);
 napi_value GetGlobalClassContext(napi_env env);
 
 napi_status SaveGlobalDataAbilityHelper(napi_env env, napi_value constructor);
 napi_value GetGlobalDataAbilityHelper(napi_env env);
 bool& GetDataAbilityHelperStatus();
-
-napi_value WrapAppInfo(napi_env env, const ApplicationInfo &appInfo);
-napi_value WrapProperties(napi_env env, const std::vector<std::string> properties, const std::string &proName,
-    napi_value &result);
-napi_value WrapModuleInfos(napi_env env, const ApplicationInfo &appInfo, napi_value &result);
-int32_t GetStartAbilityErrorCode(ErrCode innerErrorCode);
 
 /**
  * @brief Get Files Dir.
@@ -174,128 +167,6 @@ napi_value NAPI_GetAbilityNameCommon(napi_env env, napi_callback_info info, Abil
 napi_value NAPI_StopAbilityCommon(napi_env env, napi_callback_info info, AbilityType abilityType);
 
 /**
- * @brief Obtains the continue ability Info this application.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param value The value passed into the info.
- * @param info The continue ability options info
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value GetContinueAbilityOptionsInfoCommon(
-    const napi_env &env, const napi_value &value, ContinueAbilityOptionsInfo &info);
-
-/**
- * @brief Obtains the continue ability can reversible or not
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param value The value passed into the info.
- * @param info The continue ability options info
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value GetContinueAbilityOptionsReversible(
-    const napi_env &env, const napi_value &value, ContinueAbilityOptionsInfo &info);
-
-/**
- * @brief Obtains the continue ability Info this application.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param value The value passed into the info.
- * @param info The continue ability options info
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value GetContinueAbilityOptionsDeviceID(
-    const napi_env &env, const napi_value &value, ContinueAbilityOptionsInfo &info);
-
-bool UnwrapAbilityStartSetting(napi_env env, napi_value param, AAFwk::AbilityStartSetting &setting);
-
-enum {
-    CONNECTION_STATE_DISCONNECTED = -1,
-
-    CONNECTION_STATE_CONNECTED = 0,
-
-    CONNECTION_STATE_CONNECTING = 1
-};
-
-class JsNapiCommon;
-using ConnectRemoveKeyType = JsNapiCommon*;
-struct ConnectionCallback {
-    ConnectionCallback(napi_env env, napi_value cbInfo, ConnectRemoveKeyType key)
-    {
-        this->env = env;
-        napi_value jsMethod = nullptr;
-        napi_get_named_property(env, cbInfo, "onConnect", &jsMethod);
-        napi_create_reference(env, jsMethod, 1, &connectCallbackRef);
-        napi_get_named_property(env, cbInfo, "onDisconnect", &jsMethod);
-        napi_create_reference(env, jsMethod, 1, &disconnectCallbackRef);
-        napi_get_named_property(env, cbInfo, "onFailed", &jsMethod);
-        napi_create_reference(env, jsMethod, 1, &failedCallbackRef);
-        removeKey = key;
-    }
-    ConnectionCallback(ConnectionCallback &) = delete;
-    ConnectionCallback(ConnectionCallback &&other)
-        : env(other.env), connectCallbackRef(other.connectCallbackRef),
-        disconnectCallbackRef(other.disconnectCallbackRef), failedCallbackRef(other.failedCallbackRef),
-        removeKey(other.removeKey)
-    {
-        other.env = nullptr;
-        other.connectCallbackRef = nullptr;
-        other.disconnectCallbackRef = nullptr;
-        other.failedCallbackRef = nullptr;
-        other.removeKey = nullptr;
-    }
-    const ConnectionCallback &operator=(ConnectionCallback &) = delete;
-    const ConnectionCallback &operator=(ConnectionCallback &&other)
-    {
-        Reset();
-        env = other.env;
-        connectCallbackRef = other.connectCallbackRef;
-        disconnectCallbackRef = other.disconnectCallbackRef;
-        failedCallbackRef = other.failedCallbackRef;
-        other.env = nullptr;
-        other.connectCallbackRef = nullptr;
-        other.disconnectCallbackRef = nullptr;
-        other.failedCallbackRef = nullptr;
-        other.removeKey = nullptr;
-        return *this;
-    }
-    ~ConnectionCallback()
-    {
-        Reset();
-    }
-    void Reset();
-
-    napi_env env = nullptr;
-    napi_ref connectCallbackRef = nullptr;
-    napi_ref disconnectCallbackRef = nullptr;
-    napi_ref failedCallbackRef = nullptr;
-    ConnectRemoveKeyType removeKey = nullptr;
-};
-
-class NAPIAbilityConnection : public AAFwk::AbilityConnectionStub {
-public:
-    void OnAbilityConnectDone(
-        const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
-    void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override;
-    void AddConnectionCallback(std::shared_ptr<ConnectionCallback> callback);
-    void HandleOnAbilityConnectDone(ConnectionCallback &callback, int resultCode);
-    void HandleOnAbilityDisconnectDone(ConnectionCallback &callback, int resultCode);
-    int GetConnectionState() const;
-    void SetConnectionState(int connectionState);
-    size_t GetCallbackSize();
-    size_t RemoveAllCallbacks(ConnectRemoveKeyType key);
-
-private:
-    std::list<std::shared_ptr<ConnectionCallback>> callbacks_;
-    AppExecFwk::ElementName element_;
-    sptr<IRemoteObject> serviceRemoteObject_ = nullptr;
-    int connectionState_ = CONNECTION_STATE_DISCONNECTED;
-    mutable std::mutex lock_;
-};
-
-/**
  * @brief acquireDataAbilityHelper processing function.
  *
  * @param env The environment that the Node-API call is invoked under.
@@ -338,24 +209,6 @@ napi_value NAPI_StartBackgroundRunningCommon(napi_env env, napi_callback_info in
  */
 napi_value NAPI_CancelBackgroundRunningCommon(napi_env env, napi_callback_info info);
 
-bool CheckAbilityType(const CBBase *cbBase);
-
-struct ConnectionKey {
-    Want want;
-    int64_t id;
-};
-struct key_compare {
-    bool operator()(const ConnectionKey &key1, const ConnectionKey &key2) const
-    {
-        if (key1.id < key2.id) {
-            return true;
-        }
-        return false;
-    }
-};
-static std::map<ConnectionKey, sptr<NAPIAbilityConnection>, key_compare> connects_;
-static std::mutex g_connectionsLock_;
-static int64_t serialNumber_ = 0;
 enum ErrorCode {
     NO_ERROR = 0,
     INVALID_PARAMETER = -1,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,7 +34,7 @@ public:
      *
      * @param Ability Indicates the ability object that calls the onStart() method.
      */
-    virtual void OnAbilityStart(const std::shared_ptr<Ability>& ability)
+    virtual void OnAbilityStart(const std::shared_ptr<AbilityRuntime::UIAbility>& ability)
     {
         GTEST_LOG_(INFO) << "MockAbilityLifecycleCallbacks::OnAbilityStart called";
     }
@@ -45,7 +45,7 @@ public:
      *
      * @param Ability Indicates the Ability object that calls the onInactive() method.
      */
-    virtual void OnAbilityInactive(const std::shared_ptr<Ability>& ability)
+    virtual void OnAbilityInactive(const std::shared_ptr<AbilityRuntime::UIAbility>& ability)
     {
         GTEST_LOG_(INFO) << "MockAbilityLifecycleCallbacks::OnAbilityInactive called";
     }
@@ -56,7 +56,7 @@ public:
      *
      * @param Ability Indicates the Ability object that calls the onBackground() method.
      */
-    virtual void OnAbilityBackground(const std::shared_ptr<Ability>& ability)
+    virtual void OnAbilityBackground(const std::shared_ptr<AbilityRuntime::UIAbility>& ability)
     {
         GTEST_LOG_(INFO) << "MockAbilityLifecycleCallbacks::OnAbilityBackground called";
     }
@@ -67,7 +67,7 @@ public:
      *
      * @param Ability Indicates the Ability object that calls the onForeground() method.
      */
-    virtual void OnAbilityForeground(const std::shared_ptr<Ability>& ability)
+    virtual void OnAbilityForeground(const std::shared_ptr<AbilityRuntime::UIAbility>& ability)
     {
         GTEST_LOG_(INFO) << "MockAbilityLifecycleCallbacks::OnAbilityForeground called";
     }
@@ -78,7 +78,7 @@ public:
      *
      * @param Ability Indicates the Ability object that calls the onActive() method.
      */
-    virtual void OnAbilityActive(const std::shared_ptr<Ability>& ability)
+    virtual void OnAbilityActive(const std::shared_ptr<AbilityRuntime::UIAbility>& ability)
     {
         GTEST_LOG_(INFO) << "MockAbilityLifecycleCallbacks::OnAbilityActive called";
     }
@@ -89,7 +89,7 @@ public:
      *
      * @param Ability Indicates the Ability object that calls the onStop() method.
      */
-    virtual void OnAbilityStop(const std::shared_ptr<Ability>& ability)
+    virtual void OnAbilityStop(const std::shared_ptr<AbilityRuntime::UIAbility>& ability)
     {
         GTEST_LOG_(INFO) << "MockAbilityLifecycleCallbacks::OnAbilityStop called";
     }

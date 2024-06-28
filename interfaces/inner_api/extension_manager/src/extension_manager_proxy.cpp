@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include "ability_manager_errors.h"
 #include "ability_manager_ipc_interface_code.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "message_parcel.h"
 #include "want.h"
@@ -25,7 +26,7 @@ namespace OHOS::AAFwk {
 bool ExtensionManagerProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(ExtensionManagerProxy::GetDescriptor())) {
-        HILOG_ERROR("write interface token failed.");
+        TAG_LOGE(AAFwkTag::EXTMGR, "write interface token failed.");
         return false;
     }
     return true;
@@ -36,7 +37,7 @@ int ExtensionManagerProxy::ConnectAbilityCommon(const Want &want, const sptr<IRe
     bool isQueryExtensionOnly)
 {
     if (connect == nullptr) {
-        HILOG_ERROR("connect is nullptr");
+        TAG_LOGE(AAFwkTag::EXTMGR, "connect is nullptr");
         return ERR_INVALID_VALUE;
     }
 
@@ -45,34 +46,34 @@ int ExtensionManagerProxy::ConnectAbilityCommon(const Want &want, const sptr<IRe
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::EXTMGR, "want write failed.");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteBool(true) || !data.WriteRemoteObject(connect)) {
-        HILOG_ERROR("flag and connect write failed.");
+        TAG_LOGE(AAFwkTag::EXTMGR, "flag and connect write failed.");
         return ERR_INVALID_VALUE;
     }
     if (callerToken) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
-            HILOG_ERROR("flag and callerToken write failed.");
+            TAG_LOGE(AAFwkTag::EXTMGR, "flag and callerToken write failed.");
             return ERR_INVALID_VALUE;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
+            TAG_LOGE(AAFwkTag::EXTMGR, "flag write failed.");
             return ERR_INVALID_VALUE;
         }
     }
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("%{public}s, userId write failed.", __func__);
+        TAG_LOGE(AAFwkTag::EXTMGR, "%{public}s, userId write failed.", __func__);
         return INNER_ERR;
     }
     if (!data.WriteInt32(static_cast<int32_t>(extensionType))) {
-        HILOG_ERROR("%{public}s, extensionType write failed.", __func__);
+        TAG_LOGE(AAFwkTag::EXTMGR, "%{public}s, extensionType write failed.", __func__);
         return INNER_ERR;
     }
     if (!data.WriteBool(isQueryExtensionOnly)) {
-        HILOG_ERROR("isQueryExtensionOnly write failed.");
+        TAG_LOGE(AAFwkTag::EXTMGR, "isQueryExtensionOnly write failed.");
         return INNER_ERR;
     }
 
@@ -80,7 +81,7 @@ int ExtensionManagerProxy::ConnectAbilityCommon(const Want &want, const sptr<IRe
     MessageOption option;
     int error = SendRequest(AbilityManagerInterfaceCode::CONNECT_ABILITY_WITH_TYPE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("%{public}s, Send request error: %{public}d", __func__, error);
+        TAG_LOGE(AAFwkTag::EXTMGR, "%{public}s, Send request error: %{public}d", __func__, error);
         return error;
     }
     return reply.ReadInt32();
@@ -89,7 +90,7 @@ int ExtensionManagerProxy::ConnectAbilityCommon(const Want &want, const sptr<IRe
 int ExtensionManagerProxy::DisconnectAbility(const sptr<IRemoteObject> &connect)
 {
     if (connect == nullptr) {
-        HILOG_ERROR("disconnect ability fail, connect is nullptr");
+        TAG_LOGE(AAFwkTag::EXTMGR, "disconnect ability fail, connect is nullptr");
         return ERR_INVALID_VALUE;
     }
 
@@ -98,7 +99,7 @@ int ExtensionManagerProxy::DisconnectAbility(const sptr<IRemoteObject> &connect)
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(connect)) {
-        HILOG_ERROR("connect write failed.");
+        TAG_LOGE(AAFwkTag::EXTMGR, "connect write failed.");
         return ERR_INVALID_VALUE;
     }
 
@@ -106,7 +107,7 @@ int ExtensionManagerProxy::DisconnectAbility(const sptr<IRemoteObject> &connect)
     MessageOption option;
     auto error = SendRequest(AbilityManagerInterfaceCode::DISCONNECT_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::EXTMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -117,7 +118,7 @@ ErrCode ExtensionManagerProxy::SendRequest(AbilityManagerInterfaceCode code, Mes
 {
     auto remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+        TAG_LOGE(AAFwkTag::EXTMGR, "Remote() is NULL");
         return INNER_ERR;
     }
 

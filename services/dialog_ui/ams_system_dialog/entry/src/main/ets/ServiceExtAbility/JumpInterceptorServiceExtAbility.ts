@@ -16,6 +16,7 @@
 import display from '@ohos.display';
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
 import window from '@ohos.window';
+import deviceInfo from '@ohos.deviceInfo';
 
 const TAG = 'JumpInterceptorDialog_Service';
 
@@ -30,13 +31,17 @@ export default class JumpInterceptorServiceExtAbility extends extension {
 
   async onRequest(want, startId) {
     globalThis.abilityWant = want;
-    globalThis.params = JSON.parse(want.parameters.params);
-    globalThis.position = JSON.parse(want.parameters.position);
-    globalThis.interceptor_callerBundleName = want.parameters.interceptor_callerBundleName;
-    globalThis.interceptor_callerModuleName = want.parameters.interceptor_callerModuleName;
-    globalThis.interceptor_callerLabelId = want.parameters.interceptor_callerLabelId;
-    globalThis.interceptor_targetModuleName = want.parameters.interceptor_targetModuleName;
-    globalThis.interceptor_targetLabelId = want.parameters.interceptor_targetLabelId;
+    try {
+      globalThis.params = JSON.parse(want.parameters.params);
+      globalThis.position = JSON.parse(want.parameters.position);
+      globalThis.interceptor_callerBundleName = want.parameters.interceptor_callerBundleName;
+      globalThis.interceptor_callerModuleName = want.parameters.interceptor_callerModuleName;
+      globalThis.interceptor_callerLabelId = want.parameters.interceptor_callerLabelId;
+      globalThis.interceptor_targetModuleName = want.parameters.interceptor_targetModuleName;
+      globalThis.interceptor_targetLabelId = want.parameters.interceptor_targetLabelId;
+    } catch (error) {
+      console.error(TAG, `getMediaBase64 error:${JSON.stringify(error)}`);
+    }
     await this.getHapResource();
     display.getDefaultDisplay().then(dis => {
       let navigationBarRect = {
@@ -49,7 +54,7 @@ export default class JumpInterceptorServiceExtAbility extends extension {
         win.destroy();
         winNum--;
       }
-      if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
+      if (globalThis.params.isDefaultSelector) {
         this.createWindow('JumpInterceptorDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
       } else {
         this.createWindow('JumpInterceptorDialog' + startId, window.WindowType.TYPE_FLOAT, navigationBarRect);
@@ -92,9 +97,13 @@ export default class JumpInterceptorServiceExtAbility extends extension {
   }
 
   private async createWindow(name: string, windowType: number, rect) {
+    let deviceTypeInfo = deviceInfo.deviceType;
     console.info(TAG, 'create window');
     try {
       win = await window.create(globalThis.jumpInterceptorExtensionContext, name, windowType);
+      if (deviceTypeInfo !== 'default') {
+        await win.hideNonSystemFloatingWindows(true);
+      }
       await win.moveTo(rect.left, rect.top);
       await win.resetSize(rect.width, rect.height);
       await win.loadContent('pages/jumpInterceptorDialog');

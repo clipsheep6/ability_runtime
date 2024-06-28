@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,12 +14,15 @@
  */
 #include "ability_scheduler_proxy.h"
 
+#include "ability_manager_errors.h"
 #include "abs_shared_result_set.h"
 #include "data_ability_observer_interface.h"
 #include "data_ability_operation.h"
 #include "data_ability_predicates.h"
 #include "data_ability_result.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "ipc_types.h"
 #include "ishared_result_set.h"
 #include "pac_map.h"
@@ -32,7 +35,7 @@ namespace AAFwk {
 bool AbilitySchedulerProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(AbilitySchedulerProxy::GetDescriptor())) {
-        HILOG_ERROR("write interface token failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed");
         return false;
     }
     return true;
@@ -60,7 +63,7 @@ void AbilitySchedulerProxy::ScheduleAbilityTransaction(const Want &want, const L
     }
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_ABILITY_TRANSACTION, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("ScheduleAbilityTransaction fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ScheduleAbilityTransaction fail to SendRequest. err: %{public}d", err);
     }
 }
 
@@ -70,16 +73,16 @@ void AbilitySchedulerProxy::ScheduleShareData(const int32_t &uniqueId)
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
         return;
     }
     if (!data.WriteInt32(uniqueId)) {
-        HILOG_ERROR("uniqueId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "uniqueId write failed.");
         return;
     }
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_SHARE_DATA, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("ScheduleShareData fail to SendRequest, err: %{public}d.", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ScheduleShareData fail to SendRequest, err: %{public}d.", err);
     }
     return;
 }
@@ -95,12 +98,12 @@ void AbilitySchedulerProxy::SendResult(int requestCode, int resultCode, const Wa
     data.WriteInt32(requestCode);
     data.WriteInt32(resultCode);
     if (!data.WriteParcelable(&resultWant)) {
-        HILOG_ERROR("fail to WriteParcelable");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable");
         return;
     }
     int32_t err = SendTransactCmd(IAbilityScheduler::SEND_RESULT, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("SendResult fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendResult fail to SendRequest. err: %{public}d", err);
     }
 }
 
@@ -113,12 +116,12 @@ void AbilitySchedulerProxy::ScheduleConnectAbility(const Want &want)
         return;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("fail to WriteParcelable");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable");
         return;
     }
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_ABILITY_CONNECT, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("ScheduleConnectAbility fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ScheduleConnectAbility fail to SendRequest. err: %{public}d", err);
     }
 }
 
@@ -131,13 +134,13 @@ void AbilitySchedulerProxy::ScheduleDisconnectAbility(const Want &want)
         return;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("fail to WriteParcelable");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable.");
         return;
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_ABILITY_DISCONNECT, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("ScheduleDisconnectAbility fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ScheduleDisconnectAbility fail to SendRequest. err: %{public}d.", err);
     }
 }
 
@@ -150,22 +153,22 @@ void AbilitySchedulerProxy::ScheduleCommandAbility(const Want &want, bool restar
         return;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("fail to WriteParcelable");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteParcelable failed");
         return;
     }
     if (!data.WriteBool(restart)) {
-        HILOG_ERROR("fail to WriteBool");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteBool failed");
         return;
     }
-    HILOG_INFO("WriteInt32,startId:%{public}d", startId);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "WriteInt32,startId:%{public}d", startId);
     if (!data.WriteInt32(startId)) {
-        HILOG_ERROR("fail to WriteInt32");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteInt32");
         return;
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_ABILITY_COMMAND, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("ScheduleCommandAbility fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ScheduleCommandAbility fail to SendRequest. err: %{public}d", err);
     }
 }
 
@@ -175,13 +178,13 @@ bool AbilitySchedulerProxy::SchedulePrepareTerminateAbility()
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("fail to write interface.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to write interface.");
         return false;
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_ABILITY_PREPARE_TERMINATE, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("end failed. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "end failed. err: %{public}d", err);
         return false;
     }
     return reply.ReadBool();
@@ -197,21 +200,21 @@ void AbilitySchedulerProxy::ScheduleCommandAbilityWindow(const Want &want, const
         return;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("fail to WriteParcelable");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteParcelable failed.");
         return;
     }
     if (!data.WriteParcelable(sessionInfo)) {
-        HILOG_ERROR("fail to WriteParcelable");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteParcelable failed.");
         return;
     }
     if (!data.WriteInt32(winCmd)) {
-        HILOG_ERROR("fail to WriteInt32");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteInt32");
         return;
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_ABILITY_COMMAND_WINDOW, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to SendRequest. err: %{public}d", err);
     }
 }
 
@@ -225,7 +228,7 @@ void AbilitySchedulerProxy::ScheduleSaveAbilityState()
     }
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_SAVE_ABILITY_STATE, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("ScheduleSaveAbilityState fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ScheduleSaveAbilityState fail to SendRequest. err: %{public}d", err);
     }
 }
 
@@ -238,12 +241,12 @@ void AbilitySchedulerProxy::ScheduleRestoreAbilityState(const PacMap &inState)
         return;
     }
     if (!data.WriteParcelable(&inState)) {
-        HILOG_ERROR("WriteParcelable error");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteParcelable error");
         return;
     }
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_RESTORE_ABILITY_STATE, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("ScheduleRestoreAbilityState fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ScheduleRestoreAbilityState fail to SendRequest. err: %{public}d", err);
     }
 }
 
@@ -268,22 +271,22 @@ std::vector<std::string> AbilitySchedulerProxy::GetFileTypes(const Uri &uri, con
     }
 
     if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("fail to WriteParcelable uri");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable uri");
         return types;
     }
 
     if (!data.WriteString(mimeTypeFilter)) {
-        HILOG_ERROR("fail to WriteString mimeTypeFilter");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteString mimeTypeFilter");
         return types;
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_GETFILETYPES, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("GetFileTypes fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetFileTypes fail to SendRequest. err: %{public}d", err);
     }
 
     if (!reply.ReadStringVector(&types)) {
-        HILOG_ERROR("fail to ReadStringVector types");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to ReadStringVector types");
     }
 
     return types;
@@ -313,24 +316,24 @@ int AbilitySchedulerProxy::OpenFile(const Uri &uri, const std::string &mode)
     }
 
     if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("fail to WriteParcelable uri");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable uri");
         return fd;
     }
 
     if (!data.WriteString(mode)) {
-        HILOG_ERROR("fail to WriteString mode");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteString mode");
         return fd;
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_OPENFILE, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("OpenFile fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "OpenFile fail to SendRequest. err: %{public}d", err);
         return fd;
     }
 
     fd = reply.ReadFileDescriptor();
     if (fd == -1) {
-        HILOG_ERROR("fail to ReadInt32 fd");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to ReadInt32 fd");
         return fd;
     }
 
@@ -362,23 +365,23 @@ int AbilitySchedulerProxy::OpenRawFile(const Uri &uri, const std::string &mode)
     }
 
     if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("fail to WriteParcelable uri");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable uri");
         return fd;
     }
 
     if (!data.WriteString(mode)) {
-        HILOG_ERROR("fail to WriteString mode");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteString mode");
         return fd;
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_OPENRAWFILE, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("OpenFile fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "OpenFile fail to SendRequest. err: %{public}d", err);
         return fd;
     }
 
     if (!reply.ReadInt32(fd)) {
-        HILOG_ERROR("fail to ReadInt32 fd");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to ReadInt32 fd");
         return fd;
     }
 
@@ -406,23 +409,23 @@ int AbilitySchedulerProxy::Insert(const Uri &uri, const NativeRdb::ValuesBucket 
     }
 
     if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("fail to WriteParcelable uri");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable uri");
         return index;
     }
 
     if (!value.Marshalling(data)) {
-        HILOG_ERROR("fail to WriteParcelable value");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable value");
         return index;
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_INSERT, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("Insert fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Insert fail to SendRequest. err: %{public}d", err);
         return index;
     }
 
     if (!reply.ReadInt32(index)) {
-        HILOG_ERROR("fail to ReadInt32 index");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to ReadInt32 index");
         return index;
     }
 
@@ -449,33 +452,33 @@ std::shared_ptr<AppExecFwk::PacMap> AbilitySchedulerProxy::Call(
     }
 
     if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("fail to WriteParcelable uri");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable uri");
         return nullptr;
     }
 
     if (!data.WriteString(method)) {
-        HILOG_ERROR("fail to WriteString method");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteString method");
         return nullptr;
     }
 
     if (!data.WriteString(arg)) {
-        HILOG_ERROR("fail to WriteString arg");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteString arg");
         return nullptr;
     }
 
     if (!data.WriteParcelable(&pacMap)) {
-        HILOG_ERROR("fail to WriteParcelable pacMap");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable pacMap");
         return nullptr;
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_CALL, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("Call fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Call fail to SendRequest. err: %{public}d", err);
         return nullptr;
     }
     std::shared_ptr<AppExecFwk::PacMap> result(reply.ReadParcelable<AppExecFwk::PacMap>());
     if (!result) {
-        HILOG_ERROR("ReadParcelable value is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ReadParcelable value is nullptr.");
         return nullptr;
     }
     return result;
@@ -504,28 +507,28 @@ int AbilitySchedulerProxy::Update(const Uri &uri, const NativeRdb::ValuesBucket 
     }
 
     if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("fail to WriteParcelable uri");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable uri");
         return index;
     }
 
     if (!value.Marshalling(data)) {
-        HILOG_ERROR("fail to WriteParcelable value");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable value");
         return index;
     }
 
     if (!data.WriteParcelable(&predicates)) {
-        HILOG_ERROR("fail to WriteParcelable predicates");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable predicates");
         return index;
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_UPDATE, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("Update fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Update fail to SendRequest. err: %{public}d", err);
         return index;
     }
 
     if (!reply.ReadInt32(index)) {
-        HILOG_ERROR("fail to ReadInt32 index");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to ReadInt32 index");
         return index;
     }
 
@@ -553,23 +556,23 @@ int AbilitySchedulerProxy::Delete(const Uri &uri, const NativeRdb::DataAbilityPr
     }
 
     if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("fail to WriteParcelable uri");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable uri");
         return index;
     }
 
     if (!data.WriteParcelable(&predicates)) {
-        HILOG_ERROR("fail to WriteParcelable predicates");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable predicates");
         return index;
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_DELETE, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("Delete fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Delete fail to SendRequest. err: %{public}d", err);
         return index;
     }
 
     if (!reply.ReadInt32(index)) {
-        HILOG_ERROR("fail to ReadInt32 index");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to ReadInt32 index");
         return index;
     }
 
@@ -597,23 +600,23 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilitySchedulerProxy::Query(
     }
 
     if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("fail to WriteParcelable uri");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable uri");
         return nullptr;
     }
 
     if (!data.WriteStringVector(columns)) {
-        HILOG_ERROR("fail to WriteStringVector columns");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteStringVector columns");
         return nullptr;
     }
 
     if (!data.WriteParcelable(&predicates)) {
-        HILOG_ERROR("fail to WriteParcelable predicates");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable predicates");
         return nullptr;
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_QUERY, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("Query fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Query fail to SendRequest. err: %{public}d", err);
         return nullptr;
     }
     return OHOS::NativeRdb::ISharedResultSet::ReadFromParcel(reply);
@@ -640,19 +643,19 @@ std::string AbilitySchedulerProxy::GetType(const Uri &uri)
     }
 
     if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("fail to WriteParcelable uri");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable uri");
         return type;
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_GETTYPE, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("GetFileTypes fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetFileTypes fail to SendRequest. err: %{public}d", err);
         return type;
     }
 
     type = reply.ReadString();
     if (type.empty()) {
-        HILOG_ERROR("fail to ReadString type");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to ReadString type");
         return type;
     }
 
@@ -682,24 +685,24 @@ bool AbilitySchedulerProxy::Reload(const Uri &uri, const PacMap &extras)
     }
 
     if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("fail to WriteParcelable uri");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable uri");
         return ret;
     }
 
     if (!data.WriteParcelable(&extras)) {
-        HILOG_ERROR("fail to WriteParcelable extras");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable extras");
         return ret;
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_RELOAD, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("GetFileTypes fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetFileTypes fail to SendRequest. err: %{public}d", err);
         return ret;
     }
 
     ret = reply.ReadBool();
     if (!ret) {
-        HILOG_ERROR("fail to ReadBool ret");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to ReadBool ret");
         return ret;
     }
 
@@ -727,31 +730,31 @@ int AbilitySchedulerProxy::BatchInsert(const Uri &uri, const std::vector<NativeR
     }
 
     if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("fail to WriteParcelable uri");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable uri");
         return ret;
     }
 
     int count = (int)values.size();
     if (!data.WriteInt32(count)) {
-        HILOG_ERROR("fail to WriteInt32 ret");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteInt32 ret");
         return ret;
     }
 
     for (int i = 0; i < count; i++) {
         if (!values[i].Marshalling(data)) {
-            HILOG_ERROR("fail to WriteParcelable ret, index = %{public}d", i);
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable ret, index = %{public}d", i);
             return ret;
         }
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_BATCHINSERT, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("GetFileTypes fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetFileTypes fail to SendRequest. err: %{public}d", err);
         return ret;
     }
 
     if (!reply.ReadInt32(ret)) {
-        HILOG_ERROR("fail to ReadInt32 index");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to ReadInt32 index");
         return ret;
     }
 
@@ -771,26 +774,26 @@ bool AbilitySchedulerProxy::ScheduleRegisterObserver(const Uri &uri, const sptr<
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("%{public}s WriteInterfaceToken(data) return false", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s WriteInterfaceToken(data) return false", __func__);
         return false;
     }
 
     if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("%{public}s failed to WriteParcelable uri ", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s failed to WriteParcelable uri ", __func__);
         return false;
     }
 
     if (!data.WriteRemoteObject(dataObserver->AsObject())) {
-        HILOG_ERROR("%{public}s failed to WriteParcelable dataObserver ", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s failed to WriteParcelable dataObserver ", __func__);
         return false;
     }
 
     int32_t result = SendTransactCmd(IAbilityScheduler::SCHEDULE_REGISTEROBSERVER, data, reply, option);
     if (result == ERR_NONE) {
-        HILOG_INFO("%{public}s SendRequest ok, retval is %{public}d", __func__, reply.ReadInt32());
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s SendRequest ok, retval is %{public}d", __func__, reply.ReadInt32());
         return true;
     } else {
-        HILOG_ERROR("%{public}s SendRequest error, result=%{public}d", __func__, result);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s SendRequest error, result=%{public}d", __func__, result);
         return false;
     }
 }
@@ -808,26 +811,26 @@ bool AbilitySchedulerProxy::ScheduleUnregisterObserver(const Uri &uri, const spt
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("%{public}s WriteInterfaceToken(data) return false", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s WriteInterfaceToken(data) return false", __func__);
         return false;
     }
 
     if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("%{public}s failed to WriteParcelable uri ", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s failed to WriteParcelable uri ", __func__);
         return false;
     }
 
     if (!data.WriteRemoteObject(dataObserver->AsObject())) {
-        HILOG_ERROR("%{public}s failed to WriteParcelable dataObserver ", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s failed to WriteParcelable dataObserver ", __func__);
         return false;
     }
 
     int32_t result = SendTransactCmd(IAbilityScheduler::SCHEDULE_UNREGISTEROBSERVER, data, reply, option);
     if (result == ERR_NONE) {
-        HILOG_INFO("%{public}s SendRequest ok, retval is %{public}d", __func__, reply.ReadInt32());
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s SendRequest ok, retval is %{public}d", __func__, reply.ReadInt32());
         return true;
     } else {
-        HILOG_ERROR("%{public}s SendRequest error, result=%{public}d", __func__, result);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s SendRequest error, result=%{public}d", __func__, result);
         return false;
     }
 }
@@ -844,21 +847,21 @@ bool AbilitySchedulerProxy::ScheduleNotifyChange(const Uri &uri)
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("%{public}s WriteInterfaceToken(data) return false", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s WriteInterfaceToken(data) return false", __func__);
         return false;
     }
 
     if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("%{public}s failed to WriteParcelable uri ", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s failed to WriteParcelable uri ", __func__);
         return false;
     }
 
     int32_t result = SendTransactCmd(IAbilityScheduler::SCHEDULE_NOTIFYCHANGE, data, reply, option);
     if (result == ERR_NONE) {
-        HILOG_INFO("%{public}s SendRequest ok, retval is %{public}d", __func__, reply.ReadInt32());
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s SendRequest ok, retval is %{public}d", __func__, reply.ReadInt32());
         return true;
     } else {
-        HILOG_ERROR("%{public}s SendRequest error, result=%{public}d", __func__, result);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s SendRequest error, result=%{public}d", __func__, result);
         return false;
     }
 }
@@ -889,19 +892,19 @@ Uri AbilitySchedulerProxy::NormalizeUri(const Uri &uri)
     }
 
     if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("fail to WriteParcelable uri");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable uri");
         return urivalue;
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_NORMALIZEURI, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("NormalizeUri fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NormalizeUri fail to SendRequest. err: %{public}d", err);
         return Uri("");
     }
 
     std::unique_ptr<Uri> info(reply.ReadParcelable<Uri>());
     if (!info) {
-        HILOG_ERROR("ReadParcelable value is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ReadParcelable value is nullptr.");
         return Uri("");
     }
     return *info;
@@ -930,19 +933,19 @@ Uri AbilitySchedulerProxy::DenormalizeUri(const Uri &uri)
     }
 
     if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("fail to WriteParcelable uri");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable uri");
         return urivalue;
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_DENORMALIZEURI, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("DenormalizeUri fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "DenormalizeUri fail to SendRequest. err: %{public}d", err);
         return Uri("");
     }
 
     std::unique_ptr<Uri> info(reply.ReadParcelable<Uri>());
     if (!info) {
-        HILOG_ERROR("ReadParcelable value is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ReadParcelable value is nullptr.");
         return Uri("");
     }
     return *info;
@@ -951,7 +954,7 @@ Uri AbilitySchedulerProxy::DenormalizeUri(const Uri &uri)
 std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> AbilitySchedulerProxy::ExecuteBatch(
     const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> &operations)
 {
-    HILOG_INFO("AbilitySchedulerProxy::ExecuteBatch start");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerProxy::ExecuteBatch start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -960,32 +963,33 @@ std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> AbilitySchedulerProx
     results.clear();
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("AbilitySchedulerProxy::ExecuteBatch fail to Writer token");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerProxy::ExecuteBatch fail to Writer token");
         return results;
     }
 
     int count = (int)operations.size();
     if (!data.WriteInt32(count)) {
-        HILOG_ERROR("AbilitySchedulerProxy::ExecuteBatch fail to WriteInt32 ret");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerProxy::ExecuteBatch fail to WriteInt32 ret");
         return results;
     }
 
     for (int i = 0; i < count; i++) {
         if (!data.WriteParcelable(operations[i].get())) {
-            HILOG_ERROR("AbilitySchedulerProxy::ExecuteBatch fail to WriteParcelable ret, index = %{public}d", i);
+            TAG_LOGE(AAFwkTag::ABILITYMGR,
+                "AbilitySchedulerProxy::ExecuteBatch fail to WriteParcelable ret, index = %{public}d", i);
             return results;
         }
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_EXECUTEBATCH, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("AbilitySchedulerProxy::ExecuteBatch fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerProxy::ExecuteBatch fail to SendRequest. err: %{public}d", err);
         return results;
     }
 
     int total = 0;
     if (!reply.ReadInt32(total)) {
-        HILOG_ERROR("AbilitySchedulerProxy::ExecuteBatch fail to ReadInt32 count %{public}d", total);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerProxy::ExecuteBatch fail to ReadInt32 count %{public}d", total);
         return results;
     }
 
@@ -993,12 +997,13 @@ std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> AbilitySchedulerProx
         std::shared_ptr<AppExecFwk::DataAbilityResult> dataAbilityResult(
             reply.ReadParcelable<AppExecFwk::DataAbilityResult>());
         if (dataAbilityResult == nullptr) {
-            HILOG_ERROR("AbilitySchedulerProxy::ExecuteBatch dataAbilityResult is nullptr, index = %{public}d", i);
+            TAG_LOGE(AAFwkTag::ABILITYMGR,
+                "AbilitySchedulerProxy::ExecuteBatch dataAbilityResult is nullptr, index = %{public}d", i);
             return results;
         }
         results.push_back(dataAbilityResult);
     }
-    HILOG_INFO("AbilitySchedulerProxy::ExecuteBatch end %{public}d", total);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerProxy::ExecuteBatch end %{public}d", total);
     return results;
 }
 
@@ -1008,21 +1013,21 @@ void AbilitySchedulerProxy::ContinueAbility(const std::string& deviceId, uint32_
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("ContinueAbility fail to write token");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ContinueAbility fail to write token");
         return;
     }
     if (!data.WriteString(deviceId)) {
-        HILOG_ERROR("ContinueAbility fail to write deviceId");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ContinueAbility fail to write deviceId");
         return;
     }
     if (!data.WriteUint32(versionCode)) {
-        HILOG_ERROR("ContinueAbility fail to write versionCode");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ContinueAbility fail to write versionCode");
         return;
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::CONTINUE_ABILITY, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("ContinueAbility fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ContinueAbility fail to SendRequest. err: %{public}d", err);
     }
 }
 
@@ -1032,17 +1037,17 @@ void AbilitySchedulerProxy::NotifyContinuationResult(int32_t result)
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("NotifyContinuationResult fail to write token");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyContinuationResult fail to write token");
         return;
     }
     if (!data.WriteInt32(result)) {
-        HILOG_ERROR("NotifyContinuationResult fail to write result");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyContinuationResult fail to write result");
         return;
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::NOTIFY_CONTINUATION_RESULT, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("NotifyContinuationResult fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyContinuationResult fail to SendRequest. err: %{public}d", err);
     }
 }
 
@@ -1052,24 +1057,24 @@ void AbilitySchedulerProxy::DumpAbilityInfo(const std::vector<std::string> &para
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("DumpAbilityRunner fail to write token");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "DumpAbilityRunner fail to write token");
         return;
     }
 
     if (!data.WriteStringVector(params)) {
-        HILOG_ERROR("DumpAbilityRunner fail to write params");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "DumpAbilityRunner fail to write params");
         return;
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::DUMP_ABILITY_RUNNER_INNER, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("DumpAbilityRunner fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "DumpAbilityRunner fail to SendRequest. err: %{public}d", err);
     }
 }
 
 void AbilitySchedulerProxy::CallRequest()
 {
-    HILOG_INFO("AbilitySchedulerProxy::CallRequest start");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerProxy::CallRequest start");
 
     MessageParcel data;
     MessageParcel reply;
@@ -1081,17 +1086,77 @@ void AbilitySchedulerProxy::CallRequest()
 
     int32_t err = SendTransactCmd(IAbilityScheduler::REQUEST_CALL_REMOTE, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("CallRequest fail to SendRequest. err: %{public}d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "CallRequest fail to SendRequest. err: %{public}d", err);
         return;
     }
 
-    HILOG_INFO("AbilitySchedulerProxy::CallRequest end");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerProxy::CallRequest end");
+}
+
+void AbilitySchedulerProxy::OnExecuteIntent(const Want &want)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerProxy::OnExecuteIntent start");
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    data.WriteParcelable(&want);
+    int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_ONEXECUTE_INTENT, data, reply, option);
+    if (err != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ScheduleAbilityTransaction fail to SendRequest. err: %{public}d", err);
+    }
+
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerProxy::OnExecuteIntent end");
+}
+
+int32_t AbilitySchedulerProxy::CreateModalUIExtension(const Want &want)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilitySchedulerProxy::CreateModalUIExtension start");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface fail");
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write wants fail");
+        return INNER_ERR;
+    }
+    int32_t err = SendTransactCmd(IAbilityScheduler::CREATE_MODAL_UI_EXTENSION, data, reply, option);
+    if (err != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "CreateModalUIExtension fail to SendRequest. err: %{public}d", err);
+        return err;
+    }
+    return reply.ReadInt32();
+}
+
+void AbilitySchedulerProxy::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    if (!data.WriteRemoteObject(sessionToken)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write sessionToken failed.");
+        return;
+    }
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    int32_t err = SendTransactCmd(IAbilityScheduler::UPDATE_SESSION_TOKEN, data, reply, option);
+    if (err != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Fail to SendRequest. err: %{public}d", err);
+    }
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST
 int AbilitySchedulerProxy::BlockAbility()
 {
-    HILOG_INFO("AbilitySchedulerProxy::BlockAbility start");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerProxy::BlockAbility start");
     int ret = -1;
     MessageParcel data;
     MessageParcel reply;
@@ -1102,11 +1167,11 @@ int AbilitySchedulerProxy::BlockAbility()
     }
     int32_t err = SendTransactCmd(IAbilityScheduler::BLOCK_ABILITY_INNER, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("BlockAbility fail to SendRequest. err: %d", err);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "BlockAbility fail to SendRequest. err: %d", err);
         return ret;
     }
     if (!reply.ReadInt32(ret)) {
-        HILOG_ERROR("fail to ReadInt32 ret");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to ReadInt32 ret");
         return ret;
     }
     return ret;
@@ -1118,13 +1183,13 @@ int32_t AbilitySchedulerProxy::SendTransactCmd(uint32_t code, MessageParcel &dat
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "remote object is nullptr.");
         return ERR_NULL_OBJECT;
     }
 
     int32_t ret = remote->SendRequest(code, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
         return ret;
     }
     return NO_ERROR;

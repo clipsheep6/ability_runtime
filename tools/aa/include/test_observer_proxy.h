@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,8 +16,8 @@
 #ifndef OHOS_ABILITY_RUNTIME_TEST_OBSERVER_PROXY_H
 #define OHOS_ABILITY_RUNTIME_TEST_OBSERVER_PROXY_H
 
-#include "itest_observer.h"
 #include "iremote_proxy.h"
+#include "itest_observer.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -61,6 +61,7 @@ public:
 
 private:
     static inline BrokerDelegator<TestObserverProxy> delegator_;
+    int32_t SendTransactCmd(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

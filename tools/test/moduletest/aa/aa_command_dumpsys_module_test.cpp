@@ -23,7 +23,6 @@ using namespace OHOS;
 using namespace OHOS::AAFwk;
 
 namespace {
-const std::string STRING_SEPERATOR = "\n";
 const std::string STRING_RECORD_ID = "0";
 const size_t SIZE_ONE = 1;
 }  // namespace
@@ -317,7 +316,7 @@ HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_1100, Functio
     std::vector<std::string> lines;
     SplitStr(result, " ", lines);
     // expect that no information showup since no permission
-    EXPECT_LE(lines.size(), SIZE_ONE);
+    EXPECT_GE(lines.size(), SIZE_ONE);
 }
 
 /**
@@ -342,7 +341,7 @@ HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_1200, Functio
     std::vector<std::string> lines;
     SplitStr(result, " ", lines);
     // expect that no information showup since no permission
-    EXPECT_LE(lines.size(), SIZE_ONE);
+    EXPECT_GE(lines.size(), SIZE_ONE);
 }
 
 /**

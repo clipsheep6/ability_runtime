@@ -321,6 +321,15 @@ public:
      */
     void DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info) override;
     void CallRequest() override;
+    int32_t CreateModalUIExtension(const Want &want) override;
+
+    void OnExecuteIntent(const Want &want) override;
+
+    /**
+     * @brief Update sessionToken.
+     * @param sessionToken The token of session.
+     */
+    void UpdateSessionToken(sptr<IRemoteObject> sessionToken) override;
 
     #ifdef ABILITY_COMMAND_FOR_TEST
     int BlockAbility() override;

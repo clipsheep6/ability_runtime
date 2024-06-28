@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 
 #include "task_handler_client.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -40,18 +41,18 @@ TaskHandlerClient::~TaskHandlerClient()
 
 bool TaskHandlerClient::PostTask(std::function<void()> task, long delayTime)
 {
-    HILOG_INFO("TaskHandlerClient::PostTask called");
+    TAG_LOGI(AAFwkTag::ABILITY, "TaskHandlerClient::PostTask called");
 
     if (taskHandler_ == nullptr) {
         if (!CreateRunner()) {
-            HILOG_ERROR("TaskHandlerClient::PostTask failed, CreateRunner failed");
+            TAG_LOGE(AAFwkTag::ABILITY, "TaskHandlerClient::PostTask failed, CreateRunner failed");
             return false;
         }
     }
 
     bool ret = taskHandler_->PostTask(task, delayTime, EventQueue::Priority::LOW);
     if (!ret) {
-        HILOG_ERROR("TaskHandlerClient::PostTask failed, taskHandler_ PostTask failed");
+        TAG_LOGE(AAFwkTag::ABILITY, "TaskHandlerClient::PostTask failed, taskHandler_ PostTask failed");
     }
     return ret;
 }
@@ -61,12 +62,12 @@ bool TaskHandlerClient::CreateRunner()
     if (taskHandler_ == nullptr) {
         std::shared_ptr<EventRunner> runner = EventRunner::Create("TaskRunner");
         if (runner == nullptr) {
-            HILOG_ERROR("TaskHandlerClient::CreateRunner failed, runner is nullptr");
+            TAG_LOGE(AAFwkTag::ABILITY, "TaskHandlerClient::CreateRunner failed, runner is nullptr");
             return false;
         }
         taskHandler_ = std::make_shared<TaskHandler>(runner);
         if (taskHandler_ == nullptr) {
-            HILOG_ERROR("TaskHandlerClient::CreateRunner failed, taskHandler_ is nullptr");
+            TAG_LOGE(AAFwkTag::ABILITY, "TaskHandlerClient::CreateRunner failed, taskHandler_ is nullptr");
             return false;
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,6 +23,7 @@
 #define private public
 #include "app_mgr_service_inner.h"
 #undef private
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_ability_token.h"
 #include "mock_bundle_manager.h"
@@ -74,7 +75,7 @@ protected:
 protected:
     std::shared_ptr<AppMgrServiceInner> serviceInner_ = nullptr;
     std::shared_ptr<AMSEventHandler> handler_ = nullptr;
-    sptr<BundleMgrService> mockBundleMgr_{ nullptr };
+    std::shared_ptr<BundleMgrHelper> mockBundleMgr_{ nullptr };
 };
 
 void AmsAppServiceFlowModuleTest::SetUpTestCase()
@@ -92,8 +93,8 @@ void AmsAppServiceFlowModuleTest::SetUp()
     handler_ = std::make_shared<AMSEventHandler>(taskHandler, serviceInner_);
     serviceInner_->SetTaskHandler(taskHandler);
     serviceInner_->SetEventHandler(handler_);
-    mockBundleMgr_ = new (std::nothrow) BundleMgrService();
-    serviceInner_->SetBundleManager(mockBundleMgr_);
+    mockBundleMgr_ = DelayedSingleton<BundleMgrHelper>::GetInstance();
+    serviceInner_->SetBundleManagerHelper(mockBundleMgr_);
 }
 
 void AmsAppServiceFlowModuleTest::TearDown()
@@ -130,16 +131,16 @@ TestApplicationPreRunningRecord AmsAppServiceFlowModuleTest::TestCreateApplicati
 
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
-    EXPECT_TRUE(serviceInner_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
+    EXPECT_FALSE(serviceInner_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
 
     auto appRecord = serviceInner_->appRunningManager_->CheckAppRunningRecordIsExist(
         appInfo->name, appName, appInfo->uid, bundleInfo);
     if (!appRecord) {
         appRecord = serviceInner_->CreateAppRunningRecord(
-            token, nullptr, appInfo, abilityInfo, appName, bundleInfo, hapModuleInfo, nullptr);
+            token, nullptr, appInfo, abilityInfo, appName, bundleInfo, hapModuleInfo, nullptr, 0);
         appRecord->GetPriorityObject()->SetPid(TestApplicationPreRunningRecord::g_pid++);
     } else {
-        serviceInner_->StartAbility(token, nullptr, abilityInfo, appRecord, hapModuleInfo, nullptr);
+        serviceInner_->StartAbility(token, nullptr, abilityInfo, appRecord, hapModuleInfo, nullptr, 0);
     }
 
     EXPECT_TRUE(appRecord);
@@ -164,7 +165,7 @@ TestApplicationPreRunningRecord AmsAppServiceFlowModuleTest::TestCreateApplicati
  */
 HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_001, TestSize.Level1)
 {
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_BackKey_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_BackKey_001 start");
     sptr<IRemoteObject> abilityA1Token;
     TestApplicationPreRunningRecord testAppA = TestCreateApplicationRecordAndSetState("abilityA1", "appA",
         AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND, abilityA1Token);
@@ -201,7 +202,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_001, TestSize.Level1)
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, testAppA.GetAbility(abilityA1Token)->GetState());
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, testAppA.GetAbility(abilityA2Token)->GetState());
     EXPECT_EQ(ApplicationState::APP_STATE_BACKGROUND, testAppA.appRecord_->GetState());
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_BackKey_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_BackKey_001 end");
 }
 
 /*
@@ -213,7 +214,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_001, TestSize.Level1)
  */
 HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_002, TestSize.Level1)
 {
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_BackKey_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_BackKey_002 start");
     sptr<IRemoteObject> abilityA1Token;
     TestApplicationPreRunningRecord testAppA = TestCreateApplicationRecordAndSetState("abilityA1", "appA",
         AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND, abilityA1Token);
@@ -251,7 +252,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_002, TestSize.Level1)
     EXPECT_EQ(ApplicationState::APP_STATE_FOREGROUND, testappC.appRecord_->GetState());
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, testAppA.GetAbility(abilityA1Token)->GetState());
     EXPECT_EQ(ApplicationState::APP_STATE_BACKGROUND, testAppA.appRecord_->GetState());
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_BackKey_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_BackKey_002 end");
 }
 
 /*
@@ -263,7 +264,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_002, TestSize.Level1)
  */
 HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_003, TestSize.Level1)
 {
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_BackKey_003 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_BackKey_003 start");
     sptr<IRemoteObject> abilityA1Token;
     TestApplicationPreRunningRecord testAppA = TestCreateApplicationRecordAndSetState("abilityA1", "appA",
         AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND, abilityA1Token);
@@ -286,7 +287,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_003, TestSize.Level1)
     EXPECT_EQ(AbilityState::ABILITY_STATE_FOREGROUND, testAppA.GetAbility(abilityA2Token)->GetState());
     EXPECT_EQ(AbilityState::ABILITY_STATE_FOREGROUND, testAppA.GetAbility(abilityA3Token)->GetState());
     EXPECT_EQ(ApplicationState::APP_STATE_FOREGROUND, testAppA.appRecord_->GetState());
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_BackKey_003 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_BackKey_003 end");
 }
 
 /*
@@ -298,7 +299,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_003, TestSize.Level1)
  */
 HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_004, TestSize.Level1)
 {
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_BackKey_004 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_BackKey_004 start");
     sptr<IRemoteObject> abilityA1Token;
     TestApplicationPreRunningRecord testAppA = TestCreateApplicationRecordAndSetState("abilityA1", "appA",
         AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND, abilityA1Token);
@@ -319,7 +320,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_004, TestSize.Level1)
 
     EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleForegroundApplication()).Times(1);
     EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(2);
-    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleCleanAbility(_)).Times(2);
+    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleCleanAbility(_, _)).Times(2);
 
     // simulate press back key
     serviceInner_->UpdateAbilityState(abilityB2Token, AbilityState::ABILITY_STATE_FOREGROUND);
@@ -348,7 +349,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_004, TestSize.Level1)
     EXPECT_EQ(testAppA.GetAbility(abilityA1Token), nullptr);
     EXPECT_EQ(testAppA.GetAbility(abilityA2Token), nullptr);
     EXPECT_EQ(ApplicationState::APP_STATE_TERMINATED, testAppA.appRecord_->GetState());
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_BackKey_004 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_BackKey_004 end");
 }
 
 /*
@@ -362,7 +363,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_004, TestSize.Level1)
  */
 HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_005, TestSize.Level1)
 {
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_BackKey_005 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_BackKey_005 start");
     sptr<IRemoteObject> abilityA1Token;
     TestApplicationPreRunningRecord testAppA = TestCreateApplicationRecordAndSetState("abilityA1", "appA",
         AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND, abilityA1Token);
@@ -375,7 +376,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_005, TestSize.Level1)
 
     EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleForegroundApplication()).Times(1);
     EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
-    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleCleanAbility(_)).Times(1);
+    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleCleanAbility(_, _)).Times(1);
 
     // simulate press back key, AppA to background and exit.
     serviceInner_->UpdateAbilityState(abilityB1Token, AbilityState::ABILITY_STATE_FOREGROUND);
@@ -394,7 +395,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_005, TestSize.Level1)
 
     EXPECT_CALL(*(testappC.mockAppScheduler_), ScheduleForegroundApplication()).Times(1);
     EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
-    EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleCleanAbility(_)).Times(1);
+    EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleCleanAbility(_, _)).Times(1);
     // simulate press back key again
     serviceInner_->UpdateAbilityState(abilityC1Token, AbilityState::ABILITY_STATE_FOREGROUND);
     testappC.appRecord_->SetUpdateStateFromService(true);
@@ -409,7 +410,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_005, TestSize.Level1)
     EXPECT_EQ(ApplicationState::APP_STATE_FOREGROUND, testappC.appRecord_->GetState());
     EXPECT_EQ(testAppB.GetAbility(abilityB1Token), nullptr);
     EXPECT_EQ(ApplicationState::APP_STATE_TERMINATED, testAppB.appRecord_->GetState());
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_BackKey_005 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_BackKey_005 end");
 }
 
 /*
@@ -421,7 +422,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_005, TestSize.Level1)
  */
 HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_001, TestSize.Level1)
 {
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_ScreenOff_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_ScreenOff_001 start");
     sptr<IRemoteObject> abilityA1Token;
     TestApplicationPreRunningRecord testAppA = TestCreateApplicationRecordAndSetState("abilityA1", "appA",
         AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND, abilityA1Token);
@@ -431,9 +432,9 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_001, TestSize.Level1
         AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND, abilityB1Token);
 
     EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
-    EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleCleanAbility(_)).Times(1);
+    EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleCleanAbility(_, _)).Times(1);
     EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
-    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleCleanAbility(_)).Times(1);
+    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleCleanAbility(_, _)).Times(1);
 
     // simulate press screenOff key
     serviceInner_->UpdateAbilityState(abilityB1Token, AbilityState::ABILITY_STATE_BACKGROUND);
@@ -453,7 +454,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_001, TestSize.Level1
     EXPECT_EQ(ApplicationState::APP_STATE_TERMINATED, testAppA.appRecord_->GetState());
     EXPECT_EQ(testAppB.GetAbility(abilityB1Token), nullptr);
     EXPECT_EQ(ApplicationState::APP_STATE_TERMINATED, testAppB.appRecord_->GetState());
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_ScreenOff_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_ScreenOff_001 end");
 }
 
 /*
@@ -465,7 +466,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_001, TestSize.Level1
  */
 HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_002, TestSize.Level1)
 {
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_ScreenOff_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_ScreenOff_002 start");
     sptr<IRemoteObject> abilityA1Token;
     TestApplicationPreRunningRecord testAppA = TestCreateApplicationRecordAndSetState("abilityA1", "appA",
         AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND, abilityA1Token);
@@ -502,7 +503,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_002, TestSize.Level1
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, testAppA.GetAbility(abilityA1Token)->GetState());
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, testAppA.GetAbility(abilityA2Token)->GetState());
     EXPECT_EQ(ApplicationState::APP_STATE_BACKGROUND, testAppA.appRecord_->GetState());
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_ScreenOff_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_ScreenOff_002 end");
 }
 
 /*
@@ -514,7 +515,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_002, TestSize.Level1
  */
 HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_003, TestSize.Level1)
 {
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_ScreenOff_003 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_ScreenOff_003 start");
     sptr<IRemoteObject> abilityA1Token;
     TestApplicationPreRunningRecord testAppA = TestCreateApplicationRecordAndSetState("abilityA1", "appA",
         AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND, abilityA1Token);
@@ -529,8 +530,8 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_003, TestSize.Level1
         AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_BACKGROUND, abilityB1Token);
 
     EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
-    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleCleanAbility(_)).Times(2);
-    EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleCleanAbility(_)).Times(1);
+    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleCleanAbility(_, _)).Times(2);
+    EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleCleanAbility(_, _)).Times(1);
 
     // simulate press screenOff key
     serviceInner_->UpdateAbilityState(abilityB1Token, AbilityState::ABILITY_STATE_BACKGROUND);
@@ -553,7 +554,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_003, TestSize.Level1
     EXPECT_EQ(ApplicationState::APP_STATE_TERMINATED, testAppA.appRecord_->GetState());
     EXPECT_EQ(testAppB.GetAbility(abilityB1Token), nullptr);
     EXPECT_EQ(ApplicationState::APP_STATE_TERMINATED, testAppB.appRecord_->GetState());
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_ScreenOff_003 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_ScreenOff_003 end");
 }
 
 /*
@@ -565,7 +566,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_003, TestSize.Level1
  */
 HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_004, TestSize.Level1)
 {
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_ScreenOff_004 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_ScreenOff_004 start");
     sptr<IRemoteObject> abilityA1Token;
     TestApplicationPreRunningRecord testAppA = TestCreateApplicationRecordAndSetState("abilityA1", "appA",
         AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND, abilityA1Token);
@@ -585,7 +586,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_004, TestSize.Level1
         ApplicationState::APP_STATE_BACKGROUND, abilityB2Token);
 
     EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
-    EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleCleanAbility(_)).Times(2);
+    EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleCleanAbility(_, _)).Times(2);
 
     // simulate press screenOff key
     serviceInner_->UpdateAbilityState(abilityB1Token, AbilityState::ABILITY_STATE_BACKGROUND);
@@ -606,7 +607,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_004, TestSize.Level1
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, testAppA.GetAbility(abilityA1Token)->GetState());
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, testAppA.GetAbility(abilityA2Token)->GetState());
     EXPECT_EQ(ApplicationState::APP_STATE_BACKGROUND, testAppA.appRecord_->GetState());
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_ScreenOff_004 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_ScreenOff_004 end");
 }
 
 /*
@@ -618,7 +619,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_004, TestSize.Level1
  */
 HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOn_001, TestSize.Level1)
 {
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_ScreenOn_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_ScreenOn_001 start");
     sptr<IRemoteObject> abilityA1Token;
     TestApplicationPreRunningRecord testAppA = TestCreateApplicationRecordAndSetState("abilityA1", "appA",
         AbilityState::ABILITY_STATE_BACKGROUND, ApplicationState::APP_STATE_BACKGROUND, abilityA1Token);
@@ -644,7 +645,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOn_001, TestSize.Level1)
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, testAppA.GetAbility(abilityA2Token)->GetState());
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, testAppA.GetAbility(abilityA3Token)->GetState());
     EXPECT_EQ(ApplicationState::APP_STATE_FOREGROUND, testAppA.appRecord_->GetState());
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_ScreenOn_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_ScreenOn_001 end");
 }
 
 /*
@@ -656,7 +657,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOn_001, TestSize.Level1)
  */
 HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOn_002, TestSize.Level1)
 {
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_ScreenOn_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_ScreenOn_002 start");
     sptr<IRemoteObject> abilityA1Token;
     TestApplicationPreRunningRecord testAppA = TestCreateApplicationRecordAndSetState("abilityA1", "appA",
         AbilityState::ABILITY_STATE_BACKGROUND, ApplicationState::APP_STATE_BACKGROUND, abilityA1Token);
@@ -684,7 +685,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOn_002, TestSize.Level1)
     EXPECT_EQ(AbilityState::ABILITY_STATE_FOREGROUND, testAppA.GetAbility(abilityA2Token)->GetState());
     EXPECT_EQ(AbilityState::ABILITY_STATE_FOREGROUND, testAppA.GetAbility(abilityA3Token)->GetState());
     EXPECT_EQ(ApplicationState::APP_STATE_FOREGROUND, testAppA.appRecord_->GetState());
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_ScreenOn_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_ScreenOn_002 end");
 }
 
 /*
@@ -696,7 +697,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOn_002, TestSize.Level1)
  */
 HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOn_003, TestSize.Level1)
 {
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_ScreenOn_003 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_ScreenOn_003 start");
     sptr<IRemoteObject> abilityA1Token;
     TestApplicationPreRunningRecord testAppA = TestCreateApplicationRecordAndSetState("abilityA1", "appA",
         AbilityState::ABILITY_STATE_BACKGROUND, ApplicationState::APP_STATE_BACKGROUND, abilityA1Token);
@@ -733,7 +734,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOn_003, TestSize.Level1)
     EXPECT_EQ(AbilityState::ABILITY_STATE_FOREGROUND, testAppB.GetAbility(abilityB1Token)->GetState());
     EXPECT_EQ(AbilityState::ABILITY_STATE_FOREGROUND, testAppB.GetAbility(abilityB2Token)->GetState());
     EXPECT_EQ(ApplicationState::APP_STATE_FOREGROUND, testAppB.appRecord_->GetState());
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_ScreenOn_003 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_ScreenOn_003 end");
 }
 
 /*
@@ -745,7 +746,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOn_003, TestSize.Level1)
  */
 HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOnAndOff_001, TestSize.Level1)
 {
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_ScreenOnAndOff_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_ScreenOnAndOff_001 start");
     sptr<IRemoteObject> abilityA1Token;
     TestApplicationPreRunningRecord testAppA = TestCreateApplicationRecordAndSetState("abilityA1", "appA",
         AbilityState::ABILITY_STATE_BACKGROUND, ApplicationState::APP_STATE_BACKGROUND, abilityA1Token);
@@ -783,7 +784,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOnAndOff_001, TestSize.L
     EXPECT_EQ(AbilityState::ABILITY_STATE_FOREGROUND, testAppA.GetAbility(abilityA1Token)->GetState());
     EXPECT_EQ(AbilityState::ABILITY_STATE_FOREGROUND, testAppA.GetAbility(abilityA2Token)->GetState());
     EXPECT_EQ(ApplicationState::APP_STATE_FOREGROUND, testAppA.appRecord_->GetState());
-    HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_ScreenOnAndOff_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsAppServiceFlowModuleTest ServiceFlow_ScreenOnAndOff_001 end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

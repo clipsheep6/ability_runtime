@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,13 +20,13 @@
 #include <mutex>
 #include <vector>
 
-#include "ability.h"
 #include "ability_info.h"
 #include "ability_recovery.h"
 #include "application_info.h"
 #include "event_handler.h"
 #include "iremote_object.h"
 #include "parcel.h"
+#include "ui_ability.h"
 #include "want.h"
 #include "want_params.h"
 
@@ -38,8 +38,8 @@ public:
     void EnableAppRecovery(uint16_t restartFlag, uint16_t saveFlag, uint16_t saveMode);
     bool InitApplicationInfo(const std::shared_ptr<AppExecFwk::EventHandler>& mainHandler,
         const std::shared_ptr<ApplicationInfo>& applicationInfo);
-    bool AddAbility(std::shared_ptr<Ability> ability,
-        const std::shared_ptr<AbilityInfo>& abilityInfo, const sptr<IRemoteObject>& token);
+    bool AddAbility(std::shared_ptr<AbilityRuntime::UIAbility> ability, const std::shared_ptr<AbilityInfo> &abilityInfo,
+        const sptr<IRemoteObject> &token);
     bool RemoveAbility(const sptr<IRemoteObject>& tokenId);
 
     bool IsEnabled() const;
@@ -52,6 +52,8 @@ public:
     uint16_t GetRestartFlag() const;
     uint16_t GetSaveOccasionFlag() const;
     uint16_t GetSaveModeFlag() const;
+    void DeleteInValidMissionFiles();
+    void ClearPageStack(std::string bundleName);
 
 private:
     AppRecovery();
@@ -61,7 +63,6 @@ private:
 
     void DoRecoverApp(StateReason reason);
     void DoSaveAppState(StateReason reason, uintptr_t ability = 0);
-    void DeleteInValidMissionFiles();
     void DeleteInValidMissionFileById(std::string path, int32_t missionId);
     bool GetMissionIds(std::string path, std::vector<int32_t> &missionIds);
 
@@ -71,9 +72,10 @@ private:
     uint16_t saveMode_;
     std::weak_ptr<AppExecFwk::EventHandler> mainHandler_;
     std::weak_ptr<AppExecFwk::ApplicationInfo> applicationInfo_;
-    std::weak_ptr<AppExecFwk::Ability> ability_;
+    std::weak_ptr<AbilityRuntime::UIAbility> ability_;
     std::vector<std::shared_ptr<AbilityRecovery>> abilityRecoverys_;
     std::shared_ptr<AAFwk::Want> want_ = nullptr;
+    std::atomic<bool> useAppSettedValue_ = false; // If the value is true means app call appRecovery.enableAppRecovery
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

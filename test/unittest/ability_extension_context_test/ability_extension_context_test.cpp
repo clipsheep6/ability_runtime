@@ -23,6 +23,7 @@
 
 #include "ability_handler.h"
 #include "configuration.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "mock_ability_token.h"
@@ -61,7 +62,7 @@ void AbilityExtensionContextTest::TearDown()
  */
 HWTEST_F(AbilityExtensionContextTest, GetAbilityInfo_0100, TestSize.Level1)
 {
-    HILOG_INFO("GetAbilityInfo start");
+    TAG_LOGI(AAFwkTag::TEST, "GetAbilityInfo start");
 
     std::shared_ptr<AppExecFwk::AbilityInfo> info = std::make_shared<AppExecFwk::AbilityInfo>();
     info->name = "ExtensionContextTest";
@@ -84,7 +85,7 @@ HWTEST_F(AbilityExtensionContextTest, GetAbilityInfo_0100, TestSize.Level1)
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo = context->GetAbilityInfo();
     EXPECT_STREQ(abilityInfo->name.c_str(), "ExtensionContextTest");
 
-    HILOG_INFO("GetAbilityInfo end");
+    TAG_LOGI(AAFwkTag::TEST, "GetAbilityInfo end");
 }
 
 /**
@@ -94,7 +95,7 @@ HWTEST_F(AbilityExtensionContextTest, GetAbilityInfo_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionContextTest, SetAbilityInfo_0100, TestSize.Level1)
 {
-    HILOG_INFO("SetAbilityInfo start");
+    TAG_LOGI(AAFwkTag::TEST, "SetAbilityInfo start");
 
     std::shared_ptr<AppExecFwk::AbilityInfo> info = std::make_shared<AppExecFwk::AbilityInfo>();
     info->name = "ExtensionContextTest";
@@ -123,7 +124,7 @@ HWTEST_F(AbilityExtensionContextTest, SetAbilityInfo_0100, TestSize.Level1)
     abilityInfo = context->GetAbilityInfo();
     EXPECT_STREQ(abilityInfo->name.c_str(), "NewExtensionContextTest");
 
-    HILOG_INFO("SetAbilityInfo end");
+    TAG_LOGI(AAFwkTag::TEST, "SetAbilityInfo end");
 }
 
 /**
@@ -133,7 +134,7 @@ HWTEST_F(AbilityExtensionContextTest, SetAbilityInfo_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionContextTest, SetAbilityInfo_0200, TestSize.Level1)
 {
-    HILOG_INFO("SetAbilityInfo start");
+    TAG_LOGI(AAFwkTag::TEST, "SetAbilityInfo start");
 
     std::shared_ptr<AppExecFwk::AbilityInfo> info = std::make_shared<AppExecFwk::AbilityInfo>();
     info->name = "ExtensionContextTest";
@@ -162,7 +163,7 @@ HWTEST_F(AbilityExtensionContextTest, SetAbilityInfo_0200, TestSize.Level1)
     abilityInfo = context->GetAbilityInfo();
     EXPECT_NE(abilityInfo, nullptr);
 
-    HILOG_INFO("SetAbilityInfo end");
+    TAG_LOGI(AAFwkTag::TEST, "SetAbilityInfo end");
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

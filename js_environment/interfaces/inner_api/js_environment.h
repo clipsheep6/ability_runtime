@@ -29,6 +29,7 @@ namespace JsEnv {
 class JsEnvironmentImpl;
 using RequestAotCallback =
     std::function<int32_t(const std::string& bundleName, const std::string& moduleName, int32_t triggerMode)>;
+using DebuggerPostTask = std::function<void(std::function<void()>&&)>;
 class JsEnvironment final : public std::enable_shared_from_this<JsEnvironment> {
 public:
     JsEnvironment() {}
@@ -45,6 +46,11 @@ public:
     NativeEngine* GetNativeEngine() const
     {
         return engine_;
+    }
+
+    std::shared_ptr<SourceMapOperator> GetSourceMapOperator() const
+    {
+        return sourceMapOperator_;
     }
 
     panda::ecmascript::EcmaVM* GetVM() const
@@ -70,31 +76,49 @@ public:
 
     bool LoadScript(const std::string& path, std::vector<uint8_t>* buffer = nullptr, bool isBundle = false);
 
-    bool StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId);
+    bool StartDebugger(
+        std::string& option, uint32_t socketFd, bool isDebugApp);
 
     void StopDebugger();
 
+    void StopDebugger(std::string& option);
+
     void InitConsoleModule();
 
-    bool InitLoop();
+    bool InitLoop(bool isStage = true);
 
     void DeInitLoop();
 
     bool LoadScript(const std::string& path, uint8_t* buffer, size_t len, bool isBundle);
 
-    void StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler, int32_t interval);
+    void StartProfiler(const char* libraryPath,
+        uint32_t instanceId, PROFILERTYPE profiler, int32_t interval, int tid, bool isDebugApp);
+    
+    DebuggerPostTask GetDebuggerPostTask();
+
+    void DestroyHeapProfiler();
+
+    void GetHeapPrepare();
 
     void ReInitJsEnvImpl(std::unique_ptr<JsEnvironmentImpl> impl);
 
-    void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate);
+    void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate> moduleCheckerDelegate);
 
     void SetRequestAotCallback(const RequestAotCallback& cb);
 
+    void SetDeviceDisconnectCallback(const std::function<bool()> &cb);
+
+    void NotifyDebugMode(int tid, const char* libraryPath, uint32_t instanceId, bool isDebugApp, bool debugMode);
+
+    bool GetDebugMode() const;
+
+    int32_t ParseHdcRegisterOption(std::string& option);
 private:
     std::unique_ptr<JsEnvironmentImpl> impl_ = nullptr;
     NativeEngine* engine_ = nullptr;
     panda::ecmascript::EcmaVM* vm_ = nullptr;
     std::shared_ptr<SourceMapOperator> sourceMapOperator_ = nullptr;
+    bool debugMode_ = false;
 };
 } // namespace JsEnv
 } // namespace OHOS

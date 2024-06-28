@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 
 #include "bundle_constants.h"
 #include "bundle_info.h"
+#include "hilog_tag_wrapper.h"
 #include "inner_service_info.h"
 #include "service_info.h"
 #include "sr_constants.h"
@@ -38,13 +39,14 @@ public:
         std::vector<BusinessAbilityInfo> &businessAbilityInfos, const AppInfo &appInfo)
     {
         if (bundleInfo.name.empty()) {
-            APP_LOGE("ConvertBundleInfo, bundleInfo invalid");
+            TAG_LOGE(AAFwkTag::SER_ROUTER, "ConvertBundleInfo, bundleInfo invalid");
             return false;
         }
         ResolveAbilityInfos(bundleInfo.abilityInfos, purposeInfos, appInfo);
         ResolveExtAbilityInfos(bundleInfo.extensionInfos, purposeInfos, businessAbilityInfos, appInfo);
         if (purposeInfos.empty() && businessAbilityInfos.empty()) {
-            APP_LOGI("ResolveBundleInfo, not support, bundleName: %{public}s", bundleInfo.name.c_str());
+            TAG_LOGI(AAFwkTag::SER_ROUTER,
+                "ResolveBundleInfo, not support, bundleName: %{public}s", bundleInfo.name.c_str());
             return false;
         }
         return true;
@@ -112,7 +114,8 @@ private:
             purposeInfo.componentType = ComponentType::UI_ABILITY;
             purposeInfo.appInfo = appInfo;
             purposeInfos.emplace_back(purposeInfo);
-            APP_LOGI("AbilityToPurposes, bundle: %{public}s ,ability: %{public}s, purposeName: %{public}s",
+            TAG_LOGI(AAFwkTag::SER_ROUTER,
+                "AbilityToPurposes, bundle: %{public}s ,ability: %{public}s, purposeName: %{public}s",
                 abilityInfo.bundleName.c_str(), abilityInfo.name.c_str(), name.c_str());
         }
     }
@@ -140,7 +143,8 @@ private:
                 purposeInfo.purposeName = purposeAndCard;
                 purposeInfo.componentType = ComponentType::UI_EXTENSION;
                 purposeInfos.emplace_back(purposeInfo);
-                APP_LOGI("UIExtToPurposes, bundle: %{public}s, abilityName: %{public}s, purposeName: %{public}s",
+                TAG_LOGI(AAFwkTag::SER_ROUTER,
+                    "UIExtToPurposes, bundle: %{public}s, abilityName: %{public}s, purposeName: %{public}s",
                     extAbilityInfo.bundleName.c_str(), extAbilityInfo.name.c_str(), purposeAndCard.c_str());
             } else {
                 std::vector<std::string> purposeNameAndCardName;
@@ -150,11 +154,12 @@ private:
                     purposeInfo.cardName = purposeNameAndCardName[1];
                     purposeInfo.componentType = ComponentType::FORM;
                     purposeInfos.emplace_back(purposeInfo);
-                    APP_LOGI("FormToPurposes, bundle: %{public}s, abilityName: %{public}s, purposeName: %{public}s",
+                    TAG_LOGI(AAFwkTag::SER_ROUTER,
+                        "FormToPurposes, bundle: %{public}s, abilityName: %{public}s, purposeName: %{public}s",
                         extAbilityInfo.bundleName.c_str(), extAbilityInfo.name.c_str(),
                         purposeInfo.purposeName.c_str());
                 } else {
-                    APP_LOGW("FormToPurposes invalid supportPurpose");
+                    TAG_LOGW(AAFwkTag::SER_ROUTER, "FormToPurposes invalid supportPurpose");
                 }
             }
         }
@@ -167,7 +172,7 @@ private:
             return;
         }
         BusinessType type = GetBusinessType(extAbilityInfo.metadata);
-        APP_LOGI("ToService, abilityName: %{public}s, businessType: %{public}d",
+        TAG_LOGI(AAFwkTag::SER_ROUTER, "ToService, abilityName: %{public}s, businessType: %{public}d",
             extAbilityInfo.name.c_str(), static_cast<int>(type));
         if (type != BusinessType::UNSPECIFIED) {
             BusinessAbilityInfo businessAbilityInfo;

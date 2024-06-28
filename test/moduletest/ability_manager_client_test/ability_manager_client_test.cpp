@@ -16,6 +16,8 @@
 #include <gtest/gtest.h>
 
 #include "ability_manager_client.h"
+#include "ability_manager_errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 using namespace testing;
@@ -56,7 +58,7 @@ void AbilityManagerClientTest::TearDown()
  */
 HWTEST_F(AbilityManagerClientTest, AbilityManagerClient_DumpSysState_0100, TestSize.Level1)
 {
-    HILOG_INFO("AbilityManagerClient_DumpSysState_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient_DumpSysState_0100 start");
 
     std::string args = "-a";
     std::vector<std::string> state;
@@ -66,12 +68,12 @@ HWTEST_F(AbilityManagerClientTest, AbilityManagerClient_DumpSysState_0100, TestS
     EXPECT_EQ(result, ERR_OK);
     EXPECT_GT(state.size(), SIZE_ONE);
 
-    HILOG_INFO("state.size() = %{public}zu", state.size());
+    TAG_LOGI(AAFwkTag::TEST, "state.size() = %{public}zu", state.size());
     for (auto item : state) {
-        HILOG_INFO("item = %{public}s", item.c_str());
+        TAG_LOGI(AAFwkTag::TEST, "item = %{public}s", item.c_str());
     }
 
-    HILOG_INFO("AbilityManagerClient_DumpSysState_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient_DumpSysState_0100 end");
 }
 
 /**
@@ -81,12 +83,12 @@ HWTEST_F(AbilityManagerClientTest, AbilityManagerClient_DumpSysState_0100, TestS
  */
 HWTEST_F(AbilityManagerClientTest, AbilityManagerClient_ForceExitApp_0100, TestSize.Level1)
 {
-    HILOG_INFO("AbilityManagerClient_ForceExitApp_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient_ForceExitApp_0100 start");
     int32_t pid = 0;
-    Reason exitReason = REASON_JS_ERROR;
+    ExitReason exitReason = { REASON_JS_ERROR, "Js Error." };
     auto result = AbilityManagerClient::GetInstance()->ForceExitApp(pid, exitReason);
     EXPECT_EQ(result, ERR_OK);
-    HILOG_INFO("AbilityManagerClient_ForceExitApp_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient_ForceExitApp_0100 end");
 }
 
 /**
@@ -96,11 +98,25 @@ HWTEST_F(AbilityManagerClientTest, AbilityManagerClient_ForceExitApp_0100, TestS
  */
 HWTEST_F(AbilityManagerClientTest, AbilityManagerClient_RecordAppExitReason_0100, TestSize.Level1)
 {
-    HILOG_INFO("AbilityManagerClient_RecordAppExitReason_0100 start");
-    Reason exitReason = REASON_JS_ERROR;
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient_RecordAppExitReason_0100 start");
+    ExitReason exitReason = { REASON_JS_ERROR, "Js Error." };
     auto result = AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
-    EXPECT_EQ(result, ERR_OK);
-    HILOG_INFO("AbilityManagerClient_RecordAppExitReason_0100 end");
+    EXPECT_EQ(result, ERR_NAME_NOT_FOUND);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient_RecordAppExitReason_0100 end");
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RecordProcessExitReason_0100
+ * @tc.desc: RecordAppExitReason
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, AbilityManagerClient_RecordProcessExitReason_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient_RecordProcessExitReason_0100 start");
+    ExitReason exitReason = { REASON_JS_ERROR, "Js Error." };
+    auto result = AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
+    EXPECT_EQ(result, ERR_NAME_NOT_FOUND);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient_RecordProcessExitReason_0100 end");
 }
 }  // namespace AAFwk
 }  // namespace OHOS

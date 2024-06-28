@@ -19,6 +19,7 @@
 #include <list>
 #include <memory>
 
+#include "ability_manager_constants.h"
 #include "ability_record.h"
 #include "iremote_object.h"
 #include "mission.h"
@@ -78,14 +79,6 @@ public:
      * @return founded mission.
      */
     std::shared_ptr<Mission> GetRecentStandardMission(const std::string& missionName) const;
-
-    /**
-     * Get recent standard mission by name.
-     *
-     * @param missionAffinity target mission uni-key.
-     * @return founded mission.
-     */
-    std::shared_ptr<Mission> GetRecentStandardMissionWithAffinity(const std::string& missionAffinity) const;
 
     /**
      * Get top mission of this mission list.
@@ -230,7 +223,9 @@ public:
     int32_t GetMissionCountByUid(int32_t targetUid) const;
     void FindEarliestMission(std::shared_ptr<Mission>& targetMission) const;
     int32_t GetMissionCount() const;
-    void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList);
+    void GetActiveAbilityList(int32_t uid, std::vector<std::string> &abilityList, int32_t pid = NO_PID);
+    
+    void SignRestartAppFlag(const std::string &bundleName);
 
 private:
     std::string GetTypeName();

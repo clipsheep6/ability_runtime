@@ -172,6 +172,36 @@ public:
         return perfCmd_;
     }
 
+    inline void SetMultiThread(const bool multiThread)
+    {
+        isMultiThread_ = multiThread;
+    }
+
+    inline bool GetMultiThread() const
+    {
+        return isMultiThread_;
+    }
+
+    inline void SetJITEnabled(const bool jitEnabled)
+    {
+        jitEnabled_ = jitEnabled;
+    }
+
+    inline bool IsJITEnabled() const
+    {
+        return jitEnabled_;
+    }
+
+    inline std::string GetAppRunningUniqueId() const
+    {
+        return appRunningUniqueId_;
+    }
+
+    inline void SetAppRunningUniqueId(const std::string &appRunningUniqueId)
+    {
+        appRunningUniqueId_ = appRunningUniqueId;
+    }
+
     /**
      * @brief read this Sequenceable object from a Parcel.
      *
@@ -193,6 +223,18 @@ public:
      * @param inParcel Indicates the Parcel object into which the Sequenceable object has been marshaled.
      */
     static AppLaunchData *Unmarshalling(Parcel &parcel);
+    /**
+     * @brief Setting is aa start with native.
+     *
+     * @param isNativeStart, is aa start with native.
+     */
+    void SetNativeStart(bool isNativeStart);
+    /**
+     * @brief Obtains is native start.
+     *
+     * @return Returns is native start.
+     */
+    bool isNativeStart() const;
 
 private:
     ApplicationInfo applicationInfo_;
@@ -204,6 +246,10 @@ private:
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
     bool debugApp_ = false;
     std::string perfCmd_;
+    bool jitEnabled_ = false;
+    bool isNativeStart_ = false;
+    bool isMultiThread_ = false;
+    std::string appRunningUniqueId_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

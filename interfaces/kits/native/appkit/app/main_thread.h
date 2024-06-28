@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_MAIN_THREAD_H
 
 #include <string>
+#include <signal.h>
 #include <mutex>
 #include "event_handler.h"
 #include "extension_config_mgr.h"
@@ -26,15 +27,20 @@
 #include "app_mgr_interface.h"
 #include "ability_record_mgr.h"
 #include "application_impl.h"
+#include "assert_fault_task_thread.h"
 #include "common_event_subscriber.h"
 #include "resource_manager.h"
 #include "foundation/ability/ability_runtime/interfaces/inner_api/runtime/include/runtime.h"
 #include "ipc_singleton.h"
+#ifdef CJ_FRONTEND
+#include "cj_environment.h"
+#endif
 #include "js_runtime.h"
 #include "native_engine/native_engine.h"
 #include "overlay_event_subscriber.h"
 #include "watchdog.h"
 #include "app_malloc_info.h"
+#include "app_jsheap_mem_info.h"
 #define ABILITY_LIBRARY_LOADER
 
 class Runtime;
@@ -139,8 +145,9 @@ public:
      *
      * @brief Schedule the terminate lifecycle of application.
      *
+     * @param isLastProcess When it is the last application process, pass in true.
      */
-    void ScheduleTerminateApplication() override;
+    void ScheduleTerminateApplication(bool isLastProcess = false) override;
 
     /**
      *
@@ -166,6 +173,14 @@ public:
      * @param mallocInfo, dynamic storage information output.
      */
     void ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) override;
+
+    /**
+     *
+     * @brief triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid, tid, needGc, needSnapshot.
+     */
+    void ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info) override;
 
     /**
      *
@@ -200,7 +215,7 @@ public:
     void ScheduleAbilityStage(const HapModuleInfo &abilityStage) override;
 
     void ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemoteObject> &token,
-        const std::shared_ptr<AAFwk::Want> &want) override;
+        const std::shared_ptr<AAFwk::Want> &want, int32_t abilityRecordId) override;
 
     /**
      *
@@ -209,7 +224,7 @@ public:
      * @param token The token belong to the ability which want to be cleaned.
      *
      */
-    void ScheduleCleanAbility(const sptr<IRemoteObject> &token) override;
+    void ScheduleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess = false) override;
 
     /**
      *
@@ -250,7 +265,11 @@ public:
      */
     void ScheduleProcessSecurityExit() override;
 
+    void ScheduleClearPageStack() override;
+
     void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) override;
+
+    void ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName) override;
 
     /**
      *
@@ -268,7 +287,10 @@ public:
         const sptr<IQuickFixCallback> &callback, const int32_t recordId) override;
 
     int32_t ScheduleNotifyAppFault(const FaultData &faultData) override;
-
+#ifdef CJ_FRONTEND
+    CJUncaughtExceptionInfo CreateCjExceptionInfo(const std::string &bundleName, uint32_t versionCode,
+        const std::string &hapPath);
+#endif
     /**
      * @brief Notify NativeEngine GC of status change.
      *
@@ -280,7 +302,52 @@ public:
 
     void AttachAppDebug() override;
     void DetachAppDebug() override;
+    bool NotifyDeviceDisConnect();
 
+    void AssertFaultPauseMainThreadDetection();
+    void AssertFaultResumeMainThreadDetection();
+
+    /**
+     * ScheduleDumpIpcStart, call ScheduleDumpIpcStart(std::string& result) through proxy project,
+     * Start querying the application's IPC payload info.
+     *
+     * @param result, start IPC dump result output.
+     *
+     * @return Returns 0 on success, error code on failure.
+     */
+    int32_t ScheduleDumpIpcStart(std::string& result) override;
+
+    /**
+     * ScheduleDumpIpcStop, call ScheduleDumpIpcStop(std::string& result) through proxy project,
+     * Stop querying the application's IPC payload info.
+     *
+     * @param result, stop IPC dump result output.
+     *
+     * @return Returns 0 on success, error code on failure.
+     */
+    int32_t ScheduleDumpIpcStop(std::string& result) override;
+
+    /**
+     * ScheduleDumpIpcStat, call ScheduleDumpIpcStat(std::string& result) through proxy project,
+     * Collect the application's IPC payload info.
+     *
+     * @param result, IPC payload result output.
+     *
+     * @return Returns 0 on success, error code on failure.
+     */
+    int32_t ScheduleDumpIpcStat(std::string& result) override;
+
+    /**
+     * ScheduleDumpFfrt, call ScheduleDumpFfrt(std::string& result) through proxy project,
+     * Start querying the application's ffrt usage.
+     *
+     * @param result, ffrt dump result output.
+     *
+     * @return Returns 0 on success, error code on failure.
+     */
+    int32_t ScheduleDumpFfrt(std::string& result) override;
+
+    void ScheduleCacheProcess() override;
 private:
     /**
      *
@@ -290,6 +357,8 @@ private:
     void HandleTerminateApplicationLocal();
 
     void HandleScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName);
+
+    void HandleScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName);
 
     /**
      *
@@ -350,7 +419,7 @@ private:
      * @param token The token which belongs to the ability launched.
      *
      */
-    void HandleCleanAbility(const sptr<IRemoteObject> &token);
+    void HandleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess = false);
 
     /**
      *
@@ -371,7 +440,7 @@ private:
      * @brief Terminate the application.
      *
      */
-    void HandleTerminateApplication();
+    void HandleTerminateApplication(bool isLastProcess = false);
 
     /**
      *
@@ -515,8 +584,11 @@ private:
      */
     void UpdateRuntimeModuleChecker(const std::unique_ptr<AbilityRuntime::Runtime> &runtime);
 
+    static void HandleDumpHeapPrepare();
     static void HandleDumpHeap(bool isPrivate);
-    static void HandleSignal(int signal);
+    static void DestroyHeapProfiler();
+    static void ForceFullGC();
+    static void HandleSignal(int signal, siginfo_t *siginfo, void *context);
 
     void NotifyAppFault(const FaultData &faultData);
 
@@ -536,6 +608,10 @@ private:
     std::vector<std::string> GetRemoveOverlayPaths(const std::vector<OverlayModuleInfo> &overlayModuleInfos);
 
     int32_t ChangeAppGcState(int32_t state);
+
+    void HandleCacheProcess();
+
+    bool IsBgWorkingThread(const AbilityInfo &info);
 
     class MainHandler : public EventHandler {
     public:
@@ -571,7 +647,6 @@ private:
     std::string aceApplicationName_ = "AceApplication";
     std::string pathSeparator_ = "/";
     std::string abilityLibraryType_ = ".so";
-    static std::shared_ptr<EventHandler> signalHandler_;
     static std::weak_ptr<OHOSApplication> applicationForDump_;
 
 #ifdef ABILITY_LIBRARY_LOADER
@@ -616,16 +691,28 @@ private:
     bool InitResourceManager(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
         const AppExecFwk::HapModuleInfo &entryHapModuleInfo, const std::string &bundleName,
         bool multiProjects, const Configuration &config);
+    void HandleInitAssertFaultTask(bool isDebugModule, bool isDebugApp);
+    void HandleCancelAssertFaultTask();
 
     bool GetHqfFileAndHapPath(const std::string &bundleName,
         std::vector<std::pair<std::string, std::string>> &fileMap);
     void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppLibPathMap &appLibPaths);
+    void SetAppDebug(uint32_t modeFlag, bool isDebug);
+
+    /**
+     * @brief Whether MainThread is started by ChildProcessManager.
+     *
+     * @param info The child process info to be set from appMgr.
+     * @return true if started by ChildProcessManager, false otherwise.
+     */
+    static bool IsStartChild(ChildProcessInfo &info);
 
     std::vector<std::string> fileEntries_;
     std::vector<std::string> nativeFileEntries_;
     std::vector<void *> handleAbilityLib_;  // the handler of ACE Library.
     std::shared_ptr<IdleTime> idleTime_ = nullptr;
     std::vector<AppExecFwk::OverlayModuleInfo> overlayModuleInfos_;
+    std::weak_ptr<AbilityRuntime::AssertFaultTaskThread> assertThread_;
 #endif                                      // ABILITY_LIBRARY_LOADER
 #ifdef APPLICATION_LIBRARY_LOADER
     void *handleAppLib_ = nullptr;  // the handler of ACE Library.

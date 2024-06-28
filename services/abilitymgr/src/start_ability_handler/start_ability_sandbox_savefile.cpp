@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,28 +15,30 @@
 
 #include "start_ability_sandbox_savefile.h"
 #include <climits>
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "ability_manager_errors.h"
 #include "ability_util.h"
 #include "ability_manager_service.h"
+#include "display_manager.h"
 
 namespace OHOS {
 namespace AAFwk {
 namespace {
 const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 const std::string DLP_ABILITY_NAME = "SaveAsAbility";
-const std::string DLP_INDEX = "ohos.dlp.params.index";
 
 class EmptyConnection : public IRemoteStub<IAbilityConnection> {
 public:
     void OnAbilityConnectDone(const AppExecFwk::ElementName &element,
         const sptr<IRemoteObject> &remoteObject, int resultCode) override
     {
-        HILOG_DEBUG("OnAbilityConnectDone");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "OnAbilityConnectDone");
     }
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override
     {
-        HILOG_DEBUG("OnAbilityDisconnectDone");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "OnAbilityDisconnectDone");
     }
 };
 }
@@ -59,15 +61,16 @@ bool StartAbilitySandboxSavefile::MatchStartRequest(StartAbilityParams &params)
 
 int StartAbilitySandboxSavefile::HandleStartRequest(StartAbilityParams &params)
 {
-    HILOG_DEBUG("called");
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     auto callerRecord = params.GetCallerRecord();
     if (!callerRecord) {
-        HILOG_ERROR("this shouldn't happen: caller is null");
-        return ERR_INVALID_CALLER;
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "this shouldn't happen: caller is null");
+        return CHECK_PERMISSION_FAILED;
     }
 
     if (!params.SandboxExternalAuth()) {
-        HILOG_WARN("sandbox external auth failed");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "sandbox external auth failed");
         return CHECK_PERMISSION_FAILED;
     }
 
@@ -82,6 +85,7 @@ int StartAbilitySandboxSavefile::HandleStartRequest(StartAbilityParams &params)
 
 int StartAbilitySandboxSavefile::StartAbility(StartAbilityParams &params, int requestCode)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     AbilityRequest abilityRequest;
     abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
     abilityRequest.callerUid = IPCSkeleton::GetCallingUid();
@@ -94,12 +98,17 @@ int StartAbilitySandboxSavefile::StartAbility(StartAbilityParams &params, int re
     auto ret = abilityMs->GenerateAbilityRequest(params.want, requestCode,
         abilityRequest, params.callerToken, params.GetValidUserId());
     if (ret != ERR_OK) {
-        HILOG_ERROR("Generate ability request error.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Generate ability request error.");
         return ret;
     }
 
     if (params.startOptions) {
-        abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, params.startOptions->GetDisplayID());
+        if (params.startOptions->GetDisplayID() == 0) {
+            abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID,
+                static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId()));
+        } else {
+            abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, params.startOptions->GetDisplayID());
+        }
         abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, params.startOptions->GetWindowMode());
     }
 
@@ -121,7 +130,7 @@ int StartAbilitySandboxSavefile::PushRecord(int reqCode, const std::shared_ptr<A
 
     auto it = fileSavingRecords_.find(requestCode_);
     if (it != fileSavingRecords_.end()) {
-        HILOG_ERROR("repeated request code");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "repeated request code");
         fileSavingRecords_.erase(it);
     }
 
@@ -150,7 +159,7 @@ void StartAbilitySandboxSavefile::HandleResult(const Want &want, int resultCode,
         }
     }
     if (!callerRecord) {
-        HILOG_ERROR("request code not found: %{public}d.", requestCode);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "request code not found: %{public}d.", requestCode);
         return;
     }
     callerRecord->SendSandboxSavefileResult(want, resultCode, originReqCode);

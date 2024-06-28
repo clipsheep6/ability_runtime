@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -52,7 +52,7 @@ public:
      */
     virtual void LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
         const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
-        const std::shared_ptr<AAFwk::Want> &want) override;
+        const std::shared_ptr<AAFwk::Want> &want, int32_t abilityRecordId) override;
 
     /**
      * TerminateAbility, call TerminateAbility() through the proxy object, terminate the token ability.
@@ -120,6 +120,10 @@ public:
      */
     virtual void KillProcessesByUserId(int32_t userId) override;
 
+    virtual void KillProcessesByPids(std::vector<int32_t> &pids) override;
+
+    virtual void AttachPidToParent(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callerToken) override;
+
     /**
      * KillProcessWithAccount, call KillProcessWithAccount() through proxy object, kill the
      * process.
@@ -128,7 +132,8 @@ public:
      * @param accountId, account ID.
      * @return ERR_OK, return back success, others fail.
      */
-    virtual int32_t KillProcessWithAccount(const std::string &bundleName, const int accountId) override;
+    virtual int32_t KillProcessWithAccount(
+        const std::string &bundleName, const int accountId, const bool clearPageStack = true) override;
 
     /**
      * UpdateApplicationInfoInstalled, call UpdateApplicationInfoInstalled() through proxy object,
@@ -146,7 +151,7 @@ public:
      * @param  bundleName, bundle name in Application record.
      * @return ERR_OK, return back success, others fail.
      */
-    virtual int32_t KillApplication(const std::string &bundleName) override;
+    virtual int32_t KillApplication(const std::string &bundleName,  const bool clearPageStack = true) override;
 
     /**
      * KillApplicationByUid, call KillApplicationByUid() through proxy object, kill the application.
@@ -157,18 +162,18 @@ public:
      */
     virtual int KillApplicationByUid(const std::string &bundleName, const int uid) override;
 
-    virtual int KillApplicationSelf() override;
+    virtual int KillApplicationSelf(const bool clearPageStack = true) override;
 
     int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug) override;
 
+    virtual int32_t NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg) override;
+
     virtual void AbilityAttachTimeOut(const sptr<IRemoteObject> &token) override;
 
-    virtual void PrepareTerminate(const sptr<IRemoteObject> &token) override;
+    virtual void PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag = false) override;
 
     virtual void GetRunningProcessInfoByToken(
         const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info) override;
-
-    void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) override;
 
     /**
      * Set AbilityForegroundingFlag of an app-record to true.
@@ -179,9 +184,12 @@ public:
     void SetAbilityForegroundingFlagToAppRecord(const pid_t pid) override;
 
     virtual void StartSpecifiedAbility(
-        const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo) override;
+        const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo, int32_t requestId = 0) override;
 
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response) override;
+
+    virtual void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0) override;
 
     virtual void SetCurrentUserId(const int32_t userId) override;
 
@@ -216,6 +224,38 @@ public:
     int32_t DetachAppDebug(const std::string &bundleName) override;
 
     /**
+     * @brief Set app waiting debug mode.
+     * @param bundleName The application bundle name.
+     * @param isPersist The persist flag.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t SetAppWaitingDebug(const std::string &bundleName, bool isPersist) override;
+
+    /**
+     * @brief Cancel app waiting debug mode.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t CancelAppWaitingDebug() override;
+
+    /**
+     * @brief Get waiting debug mode application.
+     * @param debugInfoList The debug info list, including bundle name and persist flag.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t GetWaitingDebugApp(std::vector<std::string> &debugInfoList) override;
+
+    /**
+     * @brief Determine whether it is a waiting debug application based on the bundle name.
+     * @return Returns true if it is a waiting debug application, otherwise it returns false.
+     */
+    bool IsWaitingDebugApp(const std::string &bundleName) override;
+
+    /**
+     * @brief Clear non persist waiting debug flag.
+     */
+    void ClearNonPersistWaitingDebugFlag() override;
+
+    /**
      * @brief Registering ability debug mode response.
      * @param response Response for ability debug object.
      * @return Returns ERR_OK on success, others on failure.
@@ -228,6 +268,33 @@ public:
      * @return Returns true if it is an attach debug application, otherwise it returns false.
      */
     bool IsAttachDebug(const std::string &bundleName) override;
+
+    /**
+     * @brief Set resident process enable status.
+     * @param bundleName The application bundle name.
+     * @param enable The current updated enable status.
+     */
+    void SetKeepAliveEnableState(const std::string &bundleName, bool enable) override;
+
+    /**
+     * To clear the process by ability token.
+     *
+     * @param token the unique identification to the ability.
+     */
+    virtual void ClearProcessByToken(sptr<IRemoteObject> token) override;
+
+    /**
+     * whether memory size is sufficent.
+     * @return Returns true is sufficent memory size, others return false.
+     */
+    virtual bool IsMemorySizeSufficent() override;
+
+    /**
+     * Notifies that one ability is attached to status bar.
+     *
+     * @param token the token of the abilityRecord that is attached to status bar.
+     */
+    void AttachedToStatusBar(const sptr<IRemoteObject> &token) override;
 
 private:
     /**

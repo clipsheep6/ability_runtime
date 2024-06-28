@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,9 +20,10 @@
 #include "ipc_skeleton.h"
 #include "system_ability_definition.h"
 
+#include "accesstoken_kit.h"
 #include "app_death_recipient.h"
 #include "app_mgr_constants.h"
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 #include "perf_profile.h"
 #include "permission_constants.h"
 #include "permission_verification.h"
@@ -30,16 +31,24 @@
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
-const std::string TASK_LOAD_ABILITY = "LoadAbilityTask";
-const std::string TASK_TERMINATE_ABILITY = "TerminateAbilityTask";
-const std::string TASK_UPDATE_ABILITY_STATE = "UpdateAbilityStateTask";
-const std::string TASK_UPDATE_EXTENSION_STATE = "UpdateExtensionStateTask";
-const std::string TASK_REGISTER_APP_STATE_CALLBACK = "RegisterAppStateCallbackTask";
-const std::string TASK_STOP_ALL_PROCESS = "StopAllProcessTask";
-const std::string TASK_ABILITY_BEHAVIOR_ANALYSIS = "AbilityBehaviorAnalysisTask";
-const std::string TASK_KILL_PROCESS_BY_ABILITY_TOKEN = "KillProcessByAbilityTokenTask";
-const std::string TASK_KILL_PROCESSES_BY_USERID = "KillProcessesByUserIdTask";
-const std::string TASK_KILL_APPLICATION = "KillApplicationTask";
+constexpr const char* TASK_TERMINATE_ABILITY = "TerminateAbilityTask";
+constexpr const char* TASK_UPDATE_ABILITY_STATE = "UpdateAbilityStateTask";
+constexpr const char* TASK_UPDATE_EXTENSION_STATE = "UpdateExtensionStateTask";
+constexpr const char* TASK_REGISTER_APP_STATE_CALLBACK = "RegisterAppStateCallbackTask";
+constexpr const char* TASK_STOP_ALL_PROCESS = "StopAllProcessTask";
+constexpr const char* TASK_ABILITY_BEHAVIOR_ANALYSIS = "AbilityBehaviorAnalysisTask";
+constexpr const char* TASK_KILL_PROCESS_BY_ABILITY_TOKEN = "KillProcessByAbilityTokenTask";
+constexpr const char* TASK_KILL_PROCESSES_BY_USERID = "KillProcessesByUserIdTask";
+constexpr const char* TASK_KILL_PROCESSES_BY_PIDS = "KillProcessesByPids";
+constexpr const char* TASK_ATTACH_PID_TO_PARENT = "AttachPidToParent";
+constexpr const char* TASK_KILL_APPLICATION = "KillApplicationTask";
+constexpr const char* TASK_CLEAR_PROCESS_BY_ABILITY_TOKEN = "ClearProcessByAbilityTokenTask";
+constexpr const char* FOUNDATION_NAME = "foundation";
+constexpr const char* SCENE_BOARD_BUNDLE_NAME = "com.ohos.sceneboard";
+constexpr const char* SCENEBOARD_ABILITY_NAME = "com.ohos.sceneboard.MainAbility";
+constexpr const char* TASK_SCENE_BOARD_ATTACH_TIMEOUT = "sceneBoardAttachTimeoutTask";
+constexpr const char* TASK_ATTACHED_TO_STATUS_BAR = "AttachedToStatusBar";
+constexpr int32_t SCENE_BOARD_ATTACH_TIMEOUT_TASK_TIME = 1000;
 };  // namespace
 
 AmsMgrScheduler::AmsMgrScheduler(
@@ -50,15 +59,15 @@ AmsMgrScheduler::AmsMgrScheduler(
 
 AmsMgrScheduler::~AmsMgrScheduler()
 {
-    HILOG_INFO("AmsMgrScheduler instance destroyed");
+    TAG_LOGI(AAFwkTag::APPMGR, "AmsMgrScheduler instance destroyed");
 }
 
 void AmsMgrScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
     const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
-    const std::shared_ptr<AAFwk::Want> &want)
+    const std::shared_ptr<AAFwk::Want> &want, int32_t abilityRecordId)
 {
     if (!abilityInfo || !appInfo) {
-        HILOG_ERROR("param error");
+        TAG_LOGE(AAFwkTag::APPMGR, "param error");
         return;
     }
 
@@ -67,15 +76,36 @@ void AmsMgrScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<I
     }
 
     if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
-        HILOG_ERROR("Permission verification failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
         return;
     }
     PerfProfile::GetInstance().SetAbilityLoadStartTime(GetTickCount());
-    HILOG_INFO("SubmitLoadTask: %{public}s-%{public}s", abilityInfo->bundleName.c_str(), abilityInfo->name.c_str());
-    std::function<void()> loadAbilityFunc =
-        std::bind(&AppMgrServiceInner::LoadAbility, amsMgrServiceInner_, token, preToken, abilityInfo, appInfo, want);
+    TAG_LOGI(AAFwkTag::APPMGR, "SubmitLoadTask: %{public}s-%{public}s", abilityInfo->bundleName.c_str(),
+        abilityInfo->name.c_str());
+    std::function<void()> loadAbilityFunc = [amsMgrServiceInner = amsMgrServiceInner_, token, preToken,
+        abilityInfo, appInfo, want, abilityRecordId]() {
+        amsMgrServiceInner->LoadAbility(token, preToken, abilityInfo, appInfo, want, abilityRecordId);
+    };
 
-    amsHandler_->SubmitTask(loadAbilityFunc, TASK_LOAD_ABILITY);
+    // cache other application load ability task before scene board attach
+    if (!amsMgrServiceInner_->GetSceneBoardAttachFlag() && abilityInfo->bundleName != SCENE_BOARD_BUNDLE_NAME) {
+        amsMgrServiceInner_->CacheLoabAbilityTask(loadAbilityFunc);
+        return;
+    }
+    if (abilityInfo->bundleName == SCENE_BOARD_BUNDLE_NAME && abilityInfo->name == SCENEBOARD_ABILITY_NAME) {
+        amsMgrServiceInner_->SetSceneBoardAttachFlag(false);
+        // set scene board attach timeout task
+        std::weak_ptr<AppMgrServiceInner> amsMgrServiceInner = amsMgrServiceInner_;
+        auto timeoutTask = [amsMgrServiceInner]() {
+            auto inner = amsMgrServiceInner.lock();
+            if (inner != nullptr) {
+                inner->SetSceneBoardAttachFlag(true);
+            }
+        };
+        amsHandler_->SubmitTask(timeoutTask, TASK_SCENE_BOARD_ATTACH_TIMEOUT, SCENE_BOARD_ATTACH_TIMEOUT_TASK_TIME);
+    }
+
+    amsHandler_->SubmitTask(loadAbilityFunc);
 }
 
 void AmsMgrScheduler::UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state)
@@ -85,12 +115,16 @@ void AmsMgrScheduler::UpdateAbilityState(const sptr<IRemoteObject> &token, const
     }
 
     if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
-        HILOG_ERROR("Permission verification failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
         return;
     }
-    std::function<void()> updateAbilityStateFunc =
-        std::bind(&AppMgrServiceInner::UpdateAbilityState, amsMgrServiceInner_, token, state);
-    amsHandler_->SubmitTask(updateAbilityStateFunc, TASK_UPDATE_ABILITY_STATE);
+    std::function<void()> updateAbilityStateFunc = [amsMgrServiceInner = amsMgrServiceInner_, token, state] () {
+        amsMgrServiceInner->UpdateAbilityState(token, state);
+    };
+    amsHandler_->SubmitTask(updateAbilityStateFunc, AAFwk::TaskAttribute{
+        .taskName_ = TASK_UPDATE_ABILITY_STATE,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
 }
 
 void AmsMgrScheduler::UpdateExtensionState(const sptr<IRemoteObject> &token, const ExtensionState state)
@@ -100,12 +134,16 @@ void AmsMgrScheduler::UpdateExtensionState(const sptr<IRemoteObject> &token, con
     }
 
     if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
-        HILOG_ERROR("Permission verification failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
         return;
     }
-    std::function<void()> updateExtensionStateFunc =
-        std::bind(&AppMgrServiceInner::UpdateExtensionState, amsMgrServiceInner_, token, state);
-    amsHandler_->SubmitTask(updateExtensionStateFunc, TASK_UPDATE_EXTENSION_STATE);
+    std::function<void()> updateExtensionStateFunc = [amsMgrServiceInner = amsMgrServiceInner_, token, state]() {
+        amsMgrServiceInner->UpdateExtensionState(token, state);
+    };
+    amsHandler_->SubmitTask(updateExtensionStateFunc, AAFwk::TaskAttribute{
+        .taskName_ = TASK_UPDATE_EXTENSION_STATE,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
 }
 
 void AmsMgrScheduler::TerminateAbility(const sptr<IRemoteObject> &token, bool clearMissionFlag)
@@ -115,12 +153,16 @@ void AmsMgrScheduler::TerminateAbility(const sptr<IRemoteObject> &token, bool cl
     }
 
     if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
-        HILOG_ERROR("Permission verification failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
         return;
     }
-    std::function<void()> terminateAbilityFunc =
-        std::bind(&AppMgrServiceInner::TerminateAbility, amsMgrServiceInner_, token, clearMissionFlag);
-    amsHandler_->SubmitTask(terminateAbilityFunc, TASK_TERMINATE_ABILITY);
+    std::function<void()> terminateAbilityFunc = [amsMgrServiceInner = amsMgrServiceInner_, token, clearMissionFlag]() {
+        amsMgrServiceInner->TerminateAbility(token, clearMissionFlag);
+    };
+    amsHandler_->SubmitTask(terminateAbilityFunc, AAFwk::TaskAttribute{
+        .taskName_ = TASK_TERMINATE_ABILITY,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
 }
 
 void AmsMgrScheduler::RegisterAppStateCallback(const sptr<IAppStateCallback> &callback)
@@ -128,8 +170,9 @@ void AmsMgrScheduler::RegisterAppStateCallback(const sptr<IAppStateCallback> &ca
     if (!IsReady()) {
         return;
     }
-    std::function<void()> registerAppStateCallbackFunc =
-        std::bind(&AppMgrServiceInner::RegisterAppStateCallback, amsMgrServiceInner_, callback);
+    std::function<void()> registerAppStateCallbackFunc = [amsMgrServiceInner = amsMgrServiceInner_, callback]() {
+        amsMgrServiceInner->RegisterAppStateCallback(callback);
+    };
     amsHandler_->SubmitTask(registerAppStateCallbackFunc, TASK_REGISTER_APP_STATE_CALLBACK);
 }
 
@@ -141,11 +184,14 @@ void AmsMgrScheduler::AbilityBehaviorAnalysis(const sptr<IRemoteObject> &token, 
     }
 
     if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
-        HILOG_ERROR("Permission verification failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
         return;
     }
-    std::function<void()> abilityBehaviorAnalysisFunc = std::bind(&AppMgrServiceInner::AbilityBehaviorAnalysis,
-        amsMgrServiceInner_, token, preToken, visibility, perceptibility, connectionState);
+    std::function<void()> abilityBehaviorAnalysisFunc = [amsMgrServiceInner = amsMgrServiceInner_, token, preToken,
+        visibility, perceptibility, connectionState]() {
+        amsMgrServiceInner->AbilityBehaviorAnalysis(token, preToken,
+            visibility, perceptibility, connectionState);
+    };
     amsHandler_->SubmitTask(abilityBehaviorAnalysisFunc, TASK_ABILITY_BEHAVIOR_ANALYSIS);
 }
 
@@ -156,12 +202,13 @@ void AmsMgrScheduler::KillProcessByAbilityToken(const sptr<IRemoteObject> &token
     }
 
     if (amsMgrServiceInner_->VerifyProcessPermission(token) != ERR_OK) {
-        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        TAG_LOGE(AAFwkTag::APPMGR, "%{public}s: Permission verification failed", __func__);
         return;
     }
 
-    std::function<void()> killProcessByAbilityTokenFunc =
-        std::bind(&AppMgrServiceInner::KillProcessByAbilityToken, amsMgrServiceInner_, token);
+    std::function<void()> killProcessByAbilityTokenFunc = [amsMgrServiceInner = amsMgrServiceInner_, token]() {
+        amsMgrServiceInner->KillProcessByAbilityToken(token);
+    };
     amsHandler_->SubmitTask(killProcessByAbilityTokenFunc, TASK_KILL_PROCESS_BY_ABILITY_TOKEN);
 }
 
@@ -172,58 +219,104 @@ void AmsMgrScheduler::KillProcessesByUserId(int32_t userId)
     }
 
     if (!AAFwk::PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI()) {
-        HILOG_ERROR("The caller is not system-app, can not use system-api");
+        TAG_LOGE(AAFwkTag::APPMGR, "The caller is not system-app, can not use system-api");
         return;
     }
 
+    bool isCallingFromFoundation =
+        AAFwk::PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission(FOUNDATION_NAME);
     auto permission = AAFwk::PermissionConstants::PERMISSION_CLEAN_BACKGROUND_PROCESSES;
-    if (amsMgrServiceInner_->VerifyAccountPermission(permission, userId) == ERR_PERMISSION_DENIED) {
-        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+    if (!isCallingFromFoundation &&
+        amsMgrServiceInner_->VerifyAccountPermission(permission, userId) == ERR_PERMISSION_DENIED) {
+        TAG_LOGE(AAFwkTag::APPMGR, "%{public}s: Permission verification failed", __func__);
         return;
     }
 
-    std::function<void()> killProcessesByUserIdFunc =
-        std::bind(&AppMgrServiceInner::KillProcessesByUserId, amsMgrServiceInner_, userId);
+    std::function<void()> killProcessesByUserIdFunc = [amsMgrServiceInner = amsMgrServiceInner_, userId]() {
+        amsMgrServiceInner->KillProcessesByUserId(userId);
+    };
     amsHandler_->SubmitTask(killProcessesByUserIdFunc, TASK_KILL_PROCESSES_BY_USERID);
 }
 
-int32_t AmsMgrScheduler::KillProcessWithAccount(const std::string &bundleName, const int accountId)
+void AmsMgrScheduler::KillProcessesByPids(std::vector<int32_t> &pids)
 {
-    HILOG_INFO("bundleName = %{public}s, accountId = %{public}d", bundleName.c_str(), accountId);
+    if (!IsReady()) {
+        return;
+    }
+
+    pid_t callingPid = IPCSkeleton::GetCallingPid();
+    pid_t pid = getprocpid();
+    if (callingPid != pid) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not allow other process to call.");
+        return;
+    }
+
+    std::function<void()> killProcessesByPidsFunc = [amsMgrServiceInner = amsMgrServiceInner_, pids]() mutable {
+        amsMgrServiceInner->KillProcessesByPids(pids);
+    };
+    amsHandler_->SubmitTask(killProcessesByPidsFunc, TASK_KILL_PROCESSES_BY_PIDS);
+}
+
+void AmsMgrScheduler::AttachPidToParent(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callerToken)
+{
+    if (!IsReady()) {
+        return;
+    }
+
+    pid_t callingPid = IPCSkeleton::GetCallingPid();
+    pid_t pid = getprocpid();
+    if (callingPid != pid) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not allow other process to call.");
+        return;
+    }
+
+    std::function<void()> attachPidToParentFunc = [amsMgrServiceInner = amsMgrServiceInner_, token, callerToken]() {
+        amsMgrServiceInner->AttachPidToParent(token, callerToken);
+    };
+    amsHandler_->SubmitTask(attachPidToParentFunc, TASK_ATTACH_PID_TO_PARENT);
+}
+
+int32_t AmsMgrScheduler::KillProcessWithAccount(
+    const std::string &bundleName, const int accountId, const bool clearPageStack)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "bundleName = %{public}s, accountId = %{public}d, clearPageStack = %{public}d",
+        bundleName.c_str(), accountId, clearPageStack);
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
-    return amsMgrServiceInner_->KillApplicationByUserId(bundleName, accountId);
+    return amsMgrServiceInner_->KillApplicationByUserId(bundleName, 0, accountId, clearPageStack);
 }
 
 void AmsMgrScheduler::AbilityAttachTimeOut(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("AmsMgrScheduler AttachTimeOut begin");
+    TAG_LOGI(AAFwkTag::APPMGR, "AmsMgrScheduler AttachTimeOut begin");
     if (!IsReady()) {
         return;
     }
 
     if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
-        HILOG_ERROR("Permission verification failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
         return;
     }
-    auto task = [=]() { amsMgrServiceInner_->HandleAbilityAttachTimeOut(token); };
+    auto task = [amsMgrServiceInner = amsMgrServiceInner_, token]() {
+        amsMgrServiceInner->HandleAbilityAttachTimeOut(token);
+    };
     amsHandler_->SubmitTask(task);
 }
 
-void AmsMgrScheduler::PrepareTerminate(const sptr<IRemoteObject> &token)
+void AmsMgrScheduler::PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag)
 {
-    HILOG_DEBUG("Notify AppMgrService to prepare to terminate the ability.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Notify AppMgrService to prepare to terminate the ability.");
     if (!IsReady()) {
         return;
     }
 
     if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
-        HILOG_ERROR("Permission verification failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
         return;
     }
-    auto task = [=]() { amsMgrServiceInner_->PrepareTerminate(token); };
-    amsHandler_->SubmitTask(task);
+    auto task = [=]() { amsMgrServiceInner_->PrepareTerminate(token, clearMissionFlag); };
+    amsHandler_->SubmitTask(task, AAFwk::TaskQoS::USER_INTERACTIVE);
 }
 
 int32_t AmsMgrScheduler::UpdateApplicationInfoInstalled(const std::string &bundleName, const int uid)
@@ -235,41 +328,42 @@ int32_t AmsMgrScheduler::UpdateApplicationInfoInstalled(const std::string &bundl
     return amsMgrServiceInner_->UpdateApplicationInfoInstalled(bundleName, uid);
 }
 
-int32_t AmsMgrScheduler::KillApplication(const std::string &bundleName)
+int32_t AmsMgrScheduler::KillApplication(const std::string &bundleName, const bool clearPageStack)
 {
-    HILOG_INFO("bundleName = %{public}s", bundleName.c_str());
+    TAG_LOGI(AAFwkTag::APPMGR, "bundleName = %{public}s, clearPageStack = %{public}d",
+        bundleName.c_str(), clearPageStack);
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
 
-    return amsMgrServiceInner_->KillApplication(bundleName);
+    return amsMgrServiceInner_->KillApplication(bundleName, clearPageStack);
 }
 
 int32_t AmsMgrScheduler::KillApplicationByUid(const std::string &bundleName, const int uid)
 {
-    HILOG_INFO("bundleName = %{public}s, uid = %{public}d", bundleName.c_str(), uid);
+    TAG_LOGI(AAFwkTag::APPMGR, "bundleName = %{public}s, uid = %{public}d", bundleName.c_str(), uid);
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
     return amsMgrServiceInner_->KillApplicationByUid(bundleName, uid);
 }
 
-int32_t AmsMgrScheduler::KillApplicationSelf()
+int32_t AmsMgrScheduler::KillApplicationSelf(const bool clearPageStack)
 {
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
-    return amsMgrServiceInner_->KillApplicationSelf();
+    return amsMgrServiceInner_->KillApplicationSelf(clearPageStack);
 }
 
 bool AmsMgrScheduler::IsReady() const
 {
     if (!amsMgrServiceInner_) {
-        HILOG_ERROR("amsMgrServiceInner_ is null");
+        TAG_LOGE(AAFwkTag::APPMGR, "amsMgrServiceInner_ is null");
         return false;
     }
     if (!amsHandler_) {
-        HILOG_ERROR("amsHandler_ is null");
+        TAG_LOGE(AAFwkTag::APPMGR, "amsHandler_ is null");
         return false;
     }
     return true;
@@ -285,19 +379,6 @@ void AmsMgrScheduler::GetRunningProcessInfoByToken(
     amsMgrServiceInner_->GetRunningProcessInfoByToken(token, info);
 }
 
-void AmsMgrScheduler::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info)
-{
-    if (!IsReady()) {
-        return;
-    }
-
-    if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
-        HILOG_ERROR("Permission verification failed.");
-        return;
-    }
-    amsMgrServiceInner_->GetRunningProcessInfoByPid(pid, info);
-}
-
 void AmsMgrScheduler::SetAbilityForegroundingFlagToAppRecord(const pid_t pid)
 {
     if (!IsReady()) {
@@ -306,18 +387,35 @@ void AmsMgrScheduler::SetAbilityForegroundingFlagToAppRecord(const pid_t pid)
     amsMgrServiceInner_->SetAbilityForegroundingFlagToAppRecord(pid);
 }
 
-void AmsMgrScheduler::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
+void AmsMgrScheduler::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+    int32_t requestId)
 {
     if (!IsReady()) {
         return;
     }
 
     if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
-        HILOG_ERROR("Permission verification failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
         return;
     }
-    auto task = [=]() { amsMgrServiceInner_->StartSpecifiedAbility(want, abilityInfo); };
-    amsHandler_->SubmitTask(task);
+    auto task = [=]() { amsMgrServiceInner_->StartSpecifiedAbility(want, abilityInfo, requestId); };
+    amsHandler_->SubmitTask(task, AAFwk::TaskQoS::USER_INTERACTIVE);
+}
+
+void AmsMgrScheduler::StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+    int32_t requestId)
+{
+    if (!IsReady()) {
+        TAG_LOGW(AAFwkTag::APPMGR, "not ready.");
+        return;
+    }
+
+    if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
+        return;
+    }
+    auto task = [=]() { amsMgrServiceInner_->StartSpecifiedProcess(want, abilityInfo, requestId); };
+    amsHandler_->SubmitTask(task, AAFwk::TaskQoS::USER_INTERACTIVE);
 }
 
 void AmsMgrScheduler::RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response)
@@ -335,6 +433,14 @@ int AmsMgrScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::Ap
         return ERR_INVALID_OPERATION;
     }
     return amsMgrServiceInner_->GetApplicationInfoByProcessID(pid, application, debug);
+}
+
+int32_t AmsMgrScheduler::NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return amsMgrServiceInner_->NotifyAppMgrRecordExitReason(pid, reason, exitMsg);
 }
 
 void AmsMgrScheduler::SetCurrentUserId(const int32_t userId)
@@ -356,7 +462,7 @@ int32_t AmsMgrScheduler::GetBundleNameByPid(const int pid, std::string &bundleNa
 int32_t AmsMgrScheduler::RegisterAppDebugListener(const sptr<IAppDebugListener> &listener)
 {
     if (!IsReady()) {
-        HILOG_ERROR("AmsMgrService is not ready.");
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
         return ERR_INVALID_OPERATION;
     }
     return amsMgrServiceInner_->RegisterAppDebugListener(listener);
@@ -365,7 +471,7 @@ int32_t AmsMgrScheduler::RegisterAppDebugListener(const sptr<IAppDebugListener> 
 int32_t AmsMgrScheduler::UnregisterAppDebugListener(const sptr<IAppDebugListener> &listener)
 {
     if (!IsReady()) {
-        HILOG_ERROR("AmsMgrService is not ready.");
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
         return ERR_INVALID_OPERATION;
     }
     return amsMgrServiceInner_->UnregisterAppDebugListener(listener);
@@ -374,7 +480,7 @@ int32_t AmsMgrScheduler::UnregisterAppDebugListener(const sptr<IAppDebugListener
 int32_t AmsMgrScheduler::AttachAppDebug(const std::string &bundleName)
 {
     if (!IsReady()) {
-        HILOG_ERROR("AmsMgrService is not ready.");
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
         return ERR_INVALID_OPERATION;
     }
     return amsMgrServiceInner_->AttachAppDebug(bundleName);
@@ -383,16 +489,61 @@ int32_t AmsMgrScheduler::AttachAppDebug(const std::string &bundleName)
 int32_t AmsMgrScheduler::DetachAppDebug(const std::string &bundleName)
 {
     if (!IsReady()) {
-        HILOG_ERROR("AmsMgrService is not ready.");
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
         return ERR_INVALID_OPERATION;
     }
     return amsMgrServiceInner_->DetachAppDebug(bundleName);
 }
 
+int32_t AmsMgrScheduler::SetAppWaitingDebug(const std::string &bundleName, bool isPersist)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return amsMgrServiceInner_->SetAppWaitingDebug(bundleName, isPersist);
+}
+
+int32_t AmsMgrScheduler::CancelAppWaitingDebug()
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return amsMgrServiceInner_->CancelAppWaitingDebug();
+}
+
+int32_t AmsMgrScheduler::GetWaitingDebugApp(std::vector<std::string> &debugInfoList)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return amsMgrServiceInner_->GetWaitingDebugApp(debugInfoList);
+}
+
+bool AmsMgrScheduler::IsWaitingDebugApp(const std::string &bundleName)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return false;
+    }
+    return amsMgrServiceInner_->IsWaitingDebugApp(bundleName);
+}
+
+void AmsMgrScheduler::ClearNonPersistWaitingDebugFlag()
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return;
+    }
+    amsMgrServiceInner_->ClearNonPersistWaitingDebugFlag();
+}
+
 int32_t AmsMgrScheduler::RegisterAbilityDebugResponse(const sptr<IAbilityDebugResponse> &response)
 {
     if (!IsReady()) {
-        HILOG_ERROR("AmsMgrService is not ready.");
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
         return ERR_INVALID_OPERATION;
     }
     return amsMgrServiceInner_->RegisterAbilityDebugResponse(response);
@@ -401,10 +552,70 @@ int32_t AmsMgrScheduler::RegisterAbilityDebugResponse(const sptr<IAbilityDebugRe
 bool AmsMgrScheduler::IsAttachDebug(const std::string &bundleName)
 {
     if (!IsReady()) {
-        HILOG_ERROR("AmsMgrService is not ready.");
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
         return false;
     }
     return amsMgrServiceInner_->IsAttachDebug(bundleName);
+}
+
+void AmsMgrScheduler::SetKeepAliveEnableState(const std::string &bundleName, bool enable)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return;
+    }
+    amsMgrServiceInner_->SetKeepAliveEnableState(bundleName, enable);
+}
+
+void AmsMgrScheduler::ClearProcessByToken(sptr<IRemoteObject> token)
+{
+    if (!IsReady()) {
+        return;
+    }
+
+    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+    Security::AccessToken::NativeTokenInfo nativeInfo;
+    Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
+    if (nativeInfo.processName != "foundation") {
+        TAG_LOGE(AAFwkTag::APPMGR, "caller is not foundation.");
+        return;
+    }
+
+    std::function<void()> clearProcessByTokenFunc = [amsMgrServiceInner = amsMgrServiceInner_, token]() {
+        amsMgrServiceInner->ClearProcessByToken(token);
+    };
+    amsHandler_->SubmitTask(clearProcessByTokenFunc, TASK_CLEAR_PROCESS_BY_ABILITY_TOKEN);
+}
+
+bool AmsMgrScheduler::IsMemorySizeSufficent()
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return true;
+    }
+    if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
+        return true;
+    }
+    return amsMgrServiceInner_->IsMemorySizeSufficent();
+}
+
+void AmsMgrScheduler::AttachedToStatusBar(const sptr<IRemoteObject> &token)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return;
+    }
+    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+    Security::AccessToken::NativeTokenInfo nativeInfo;
+    Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
+    if (nativeInfo.processName != "foundation") {
+        TAG_LOGE(AAFwkTag::APPMGR, "caller is not foundation.");
+        return;
+    }
+    std::function<void()> attachedToStatusBarFunc =
+        std::bind(&AppMgrServiceInner::AttachedToStatusBar, amsMgrServiceInner_, token);
+    amsHandler_->SubmitTask(attachedToStatusBarFunc, TASK_ATTACHED_TO_STATUS_BAR);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -86,6 +86,15 @@ public:
      */
     const sptr<IRemoteObject> &GetToken();
 
+    int32_t GetAbilityRecordId() const
+    {
+        return abilityRecordId_;
+    }
+    void SetAbilityRecordId(int32_t abilityRecordId)
+    {
+        abilityRecordId_ = abilityRecordId;
+    }
+
     /**
      * @description: Obtains the information based on ability thread.
      * @return return AbilityThread Pointer
@@ -105,6 +114,7 @@ public:
 private:
     std::shared_ptr<AbilityInfo> abilityInfo_ = nullptr;
     sptr<IRemoteObject> token_;
+    int32_t abilityRecordId_ = 0;
     std::shared_ptr<EventRunner> runner_ = nullptr;
     std::shared_ptr<EventHandler> handler_ = nullptr;
     std::shared_ptr<AbilityImpl> abilityImpl_ = nullptr;  // store abilityImpl

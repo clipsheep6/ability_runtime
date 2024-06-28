@@ -149,9 +149,6 @@ HWTEST_F(AbilityServiceExtensionTest, OnConfigurationUpdated_0100, TestSize.Leve
     applicationContext->AttachContextImpl(contextImpl);
     application->SetApplicationContext(applicationContext);
 
-    std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr);
-
     ServiceExtension* serviceExtension = ServiceExtension::Create(nullptr);
     EXPECT_NE(serviceExtension, nullptr);
 

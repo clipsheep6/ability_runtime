@@ -63,7 +63,7 @@ public:
      * @param data output relationship data.
      * @return Returns true if need report relationship.
      */
-    bool AddConnection(const std::shared_ptr<ConnectionRecord> &record, AbilityRuntime::ConnectionData &data);
+    bool AddConnection(std::shared_ptr<ConnectionRecord> record, AbilityRuntime::ConnectionData &data);
 
     /**
      * remove a connection to target extension.
@@ -72,7 +72,7 @@ public:
      * @param data output relationship data.
      * @return Returns true if need report relationship.
      */
-    bool RemoveConnection(const std::shared_ptr<ConnectionRecord> &record, AbilityRuntime::ConnectionData &data);
+    bool RemoveConnection(std::shared_ptr<ConnectionRecord> record, AbilityRuntime::ConnectionData &data);
 
     /**
      * add a connection to target data ability.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,6 +34,11 @@ class UIExtensionContext extends ExtensionContext {
     return this.__context_impl__.startAbility(want, options, callback);
   }
 
+  openLink(link, options, callback) {
+    console.log('openLink');
+    return this.__context_impl__.openLink(link, options, callback);
+  }
+
   terminateSelf(callback) {
     console.log('terminateSelf');
     return this.__context_impl__.terminateSelf(callback);
@@ -42,6 +47,11 @@ class UIExtensionContext extends ExtensionContext {
   startAbilityForResult(want, options, callback) {
     console.log('startAbilityForResult');
     return this.__context_impl__.startAbilityForResult(want, options, callback);
+  }
+
+  startAbilityForResultAsCaller(want, options, callback) {
+    console.log('startAbilityForResultAsCaller');
+    return this.__context_impl__.startAbilityForResultAsCaller(want, options, callback);
   }
 
   terminateSelfWithResult(abilityResult, callback) {
@@ -57,6 +67,13 @@ class UIExtensionContext extends ExtensionContext {
     return this.__context_impl__.disconnectServiceExtensionAbility(connection, callback);
   }
 
+  reportDrawnCompleted(callback) {
+    return this.__context_impl__.reportDrawnCompleted(callback);
+  }
+
+  openAtomicService(appId, options, callback) {
+    return this.__context_impl__.openAtomicService(appId, options, callback);
+  }
 }
 
 export default UIExtensionContext;

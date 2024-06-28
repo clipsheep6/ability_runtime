@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,7 +23,6 @@
 #include "cpp/mutex.h"
 
 #include "ability_running_info.h"
-#include "foundation/distributedhardware/device_manager/interfaces/inner_kits/native_cpp/include/device_manager.h"
 #include "mission_list.h"
 #include "mission_listener_controller.h"
 #include "mission_info.h"
@@ -314,11 +313,20 @@ public:
      * @param token The target ability.
      * @param pixelMap The snapshot.
      */
+#ifdef SUPPORT_SCREEN
     void UpdateSnapShot(const sptr<IRemoteObject> &token, const std::shared_ptr<Media::PixelMap> &pixelMap);
+#endif // SUPPORT_SCREEN
+
+    /**
+     * Get ability number.
+     * @param element type of ElementName.
+     * @return ability number.
+     */
+    int32_t GetAbilityNumber(const AppExecFwk::ElementName &element) const;
 
     void EnableRecoverAbility(int32_t missionId);
 
-    #ifdef ABILITY_COMMAND_FOR_TEST
+#ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block ability.
      *
@@ -326,7 +334,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int BlockAbility(int abilityRecordId);
-    #endif
+#endif
 
     void UninstallApp(const std::string &bundleName, int32_t uid);
 
@@ -340,15 +348,17 @@ public:
 
     int DoAbilityForeground(std::shared_ptr<AbilityRecord> &abilityRecord, uint32_t flag);
 
-    void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList);
+    void GetActiveAbilityList(int32_t uid, std::vector<std::string> &abilityList, int32_t pid = NO_PID);
 
     void CallRequestDone(const std::shared_ptr<AbilityRecord> &abilityRecord, const sptr<IRemoteObject> &callStub);
-  
+
     int SetMissionContinueState(const sptr<IRemoteObject> &token, const int32_t missionId,
         const AAFwk::ContinueState &state);
 
-    int32_t MoveMissionToBackground(int32_t missionId);
-#ifdef SUPPORT_GRAPHICS
+    bool IsAbilityStarted(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetRecord);
+
+    void SignRestartAppFlag(const std::string &bundleName);
+#ifdef SUPPORT_SCREEN
 public:
     /**
      * Set mission label of this ability.
@@ -372,7 +382,7 @@ public:
 
     void PostMissionLabelUpdateTask(int missionId) const;
 
-    int32_t TerminateMission(int32_t missionId);
+    void UpdateAbilityRecordColdStartFlag(const AppInfo& info, bool isColdStart);
 
 private:
     Closure GetCancelStartingWindowTask(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
@@ -381,6 +391,9 @@ private:
 #endif
 
 private:
+    void AddRecord(const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetAbilityRecord);
+    int GetTargetMission(const AbilityRequest &abilityRequest, std::shared_ptr<Mission> &targetMission,
+        std::shared_ptr<AbilityRecord> &targetAbilityRecord);
     int StartAbilityLocked(const std::shared_ptr<AbilityRecord> &currentTopAbility,
         const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest);
     int StartAbility(const std::shared_ptr<AbilityRecord> &currentTopAbility,
@@ -468,6 +481,8 @@ private:
     void CompleteForegroundFailed(const std::shared_ptr<AbilityRecord> &abilityRecord, AbilityState state);
     int ResolveAbility(const std::shared_ptr<AbilityRecord> &targetAbility, const AbilityRequest &abilityRequest);
     std::shared_ptr<AbilityRecord> GetAbilityRecordByName(const AppExecFwk::ElementName &element);
+    std::shared_ptr<AbilityRecord> GetAbilityRecordByNameFromCurrentMissionLists(
+        const AppExecFwk::ElementName &element) const;
     std::vector<std::shared_ptr<AbilityRecord>> GetAbilityRecordsByName(const AppExecFwk::ElementName &element);
     int CallAbilityLocked(const AbilityRequest &abilityRequest);
     void UpdateMissionSnapshot(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
@@ -478,7 +493,7 @@ private:
     void NotifyMissionCreated(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
     bool IsExcludeFromMissions(const std::shared_ptr<Mission> &mission);
     void BuildInnerMissionInfo(InnerMissionInfo &info, const std::string &missionName,
-        const std::string &missionAffinity, const AbilityRequest &abilityRequest) const;
+        const AbilityRequest &abilityRequest) const;
     void NotifyStartSpecifiedAbility(AbilityRequest &request, const AAFwk::Want &want);
     void NotifyRestartSpecifiedAbility(AbilityRequest &request, const sptr<IRemoteObject> &token);
     void ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const;
@@ -508,15 +523,12 @@ private:
     int32_t GetMissionIdByAbilityTokenInner(const sptr<IRemoteObject> &token);
     std::shared_ptr<AbilityRecord> GetAbilityFromTerminateListInner(const sptr<IRemoteObject> &token);
     void SetLastExitReason(std::shared_ptr<AbilityRecord> &abilityRecord);
-    LastExitReason CovertAppExitReasonToLastReason(const Reason exitReason);
     bool IsAppLastAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
-
+    std::shared_ptr<MissionList> GetMissionList(int32_t missionId);
     int PrepareClearMissionLocked(int missionId, const std::shared_ptr<Mission> &mission);
 
     bool CheckPrepareTerminateEnable(const std::shared_ptr<Mission> &mission);
 
-    void NotifyCollaboratorMissionCreated(const AbilityRequest &abilityRequest,
-        const std::shared_ptr<Mission> &targetMission, InnerMissionInfo &info);
     bool GetContentAndTypeId(uint32_t msgId, std::string &msgContent, int &typeId) const;
 
     void SendKeyEvent(const AbilityRequest &abilityRequest);
@@ -535,13 +547,6 @@ private:
     std::queue<AbilityRequest> waitingAbilityQueue_;
     std::shared_ptr<MissionListenerController> listenerController_;
     bool isPrepareTerminateEnable_ = false;
-
-    class MissionDmInitCallback : public DistributedHardware::DmInitCallback {
-    public:
-        void OnRemoteDied() override;
-
-        static bool isInit_;
-    };
 };
 }  // namespace AAFwk
 }  // namespace OHOS

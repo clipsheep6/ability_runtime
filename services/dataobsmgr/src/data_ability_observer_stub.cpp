@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "data_ability_observer_stub.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "common_utils.h"
@@ -36,19 +37,20 @@ DataAbilityObserverStub::~DataAbilityObserverStub() {}
 int DataAbilityObserverStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
-    HILOG_DEBUG("code: %{public}d, flags: %{public}d, callingPid:%{public}d", code, option.GetFlags(),
+    TAG_LOGD(AAFwkTag::DBOBSMGR, "code: %{public}d, flags: %{public}d, callingPid:%{public}d", code, option.GetFlags(),
         IPCSkeleton::GetCallingPid());
     std::u16string descriptor = DataAbilityObserverStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_ERROR("local descriptor is not equal to remote, descriptor: %{public}s, remoteDescriptor: %{public}s",
+        TAG_LOGE(AAFwkTag::DBOBSMGR,
+            "local descriptor is not equal to remote, descriptor: %{public}s, remoteDescriptor: %{public}s",
             CommonUtils::Anonymous(Str16ToStr8(descriptor)).c_str(),
             CommonUtils::Anonymous(Str16ToStr8(remoteDescriptor)).c_str());
         return ERR_INVALID_STATE;
     }
 
     if (code < TRANS_HEAD || code >= TRANS_BUTT || HANDLES[code] == nullptr) {
-        HILOG_ERROR("not support code:%u, BUTT:%d", code, TRANS_BUTT);
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "not support code:%u, BUTT:%d", code, TRANS_BUTT);
         return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
     return (this->*HANDLES[code])(data, reply);

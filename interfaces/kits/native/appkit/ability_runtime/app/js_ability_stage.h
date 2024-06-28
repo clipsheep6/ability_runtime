@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,8 +17,15 @@
 #define OHOS_ABILITY_RUNTIME_JS_ABILITY_STAGE_H
 
 #include "ability_delegator_infos.h"
+
+#include <memory>
+#include <vector>
+
 #include "ability_stage.h"
 #include "configuration.h"
+#include "js_startup_task.h"
+#include "resource_manager.h"
+#include "nlohmann/json.hpp"
 #include "native_engine/native_value.h"
 
 class NativeReference;
@@ -34,15 +41,23 @@ public:
     JsAbilityStage(JsRuntime& jsRuntime, std::unique_ptr<NativeReference>&& jsAbilityStageObj);
     ~JsAbilityStage() override;
 
-    void Init(const std::shared_ptr<Context> &context) override;
+    void Init(const std::shared_ptr<Context> &context,
+        const std::weak_ptr<AppExecFwk::OHOSApplication> application) override;
 
     void OnCreate(const AAFwk::Want &want) const override;
 
+    void OnDestroy() const override;
+
     std::string OnAcceptWant(const AAFwk::Want &want) override;
+
+    std::string OnNewProcessRequest(const AAFwk::Want &want) override;
 
     void OnConfigurationUpdated(const AppExecFwk::Configuration& configuration) override;
 
     void OnMemoryLevel(int32_t level) override;
+
+    int32_t RunAutoStartupTask(const std::function<void()> &callback, bool &isAsyncCallback,
+        const std::shared_ptr<Context> &stageContext) override;
 
 private:
     napi_value CallObjectMethod(const char* name, napi_value const * argv = nullptr, size_t argc = 0);
@@ -52,6 +67,29 @@ private:
     std::string GetHapModuleProp(const std::string &propName) const;
 
     static bool UseCommonChunk(const AppExecFwk::HapModuleInfo& hapModuleInfo);
+
+    int32_t RegisterStartupTaskFromProfile(std::vector<JsStartupTask> &jsStartupTasks);
+    
+    bool GetProfileInfoFromResourceManager(std::vector<std::string> &profileInfo);
+    
+    bool AnalyzeProfileInfoAndRegisterStartupTask(const std::vector<std::string> &profileInfo);
+
+    void SetOptionalParameters(const nlohmann::json &module, JsStartupTask &jsStartupTask);
+    
+    std::unique_ptr<NativeReference> LoadJsSrcEntry(const std::string &srcEntry);
+
+    bool LoadJsStartupConfig(const std::string &srcEntry);
+    
+    bool GetResFromResMgr(
+        const std::string &resName,
+        const std::shared_ptr<Global::Resource::ResourceManager> &resMgr,
+        bool isCompressed, std::vector<std::string> &profileInfo);
+        
+    bool IsFileExisted(const std::string &filePath);
+    
+    bool TransformFileToJsonString(const std::string &resPath, std::string &profile);
+    
+    void SetJsAbilityStage(const std::shared_ptr<Context> &context);
 
     JsRuntime& jsRuntime_;
     std::shared_ptr<NativeReference> jsAbilityStageObj_;

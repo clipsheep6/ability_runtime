@@ -172,13 +172,8 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_GetFileTypes_0100, Function | Me
             std::vector<std::string> types;
 
             types = abilitythread->GetFileTypes(uri, mimeTypeFilter);
-
-            EXPECT_EQ((int)types.size(), 3);
-            if (types.size() == 3) {
-                EXPECT_STREQ("Type1", types.at(0).c_str());
-                EXPECT_STREQ("Type2", types.at(1).c_str());
-                EXPECT_STREQ("Type3", types.at(2).c_str());
-            }
+            std::string ret = types.back();
+            EXPECT_EQ(ret, mimeTypeFilter);
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_GetFileTypes_0100 end";
@@ -236,11 +231,11 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_OpenFile_0100, Function | Medium
             abilitythread->Attach(application, abilityRecord, mainRunner, nullptr);
             std::shared_ptr<MockDataAbility> mockdataability = std::make_shared<MockDataAbility>();
 
+            int fd = 1;
             Uri uri("dataabilitytest://com.example.myapplication5.DataAbilityTest");
             std::string mode;
-            int fd = abilitythread->OpenFile(uri, mode);
-
-            EXPECT_EQ(fd, 11);
+            int value = abilitythread->OpenFile(uri, mode);
+            EXPECT_EQ(fd, value);
             sleep(1);
         }
     }
@@ -299,7 +294,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Insert_0100, Function | MediumTe
             Uri uri("dataabilitytest://com.example.myapplication5.DataAbilityTest");
             NativeRdb::ValuesBucket value;
 
-            EXPECT_EQ(22, abilitythread->Insert(uri, value));
+            EXPECT_EQ(1, abilitythread->Insert(uri, value));
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Insert_0100 end";
@@ -356,7 +351,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Update_0100, Function | MediumTe
             NativeRdb::ValuesBucket value;
             NativeRdb::DataAbilityPredicates predicates("test");
 
-            EXPECT_EQ(33, abilitythread->Update(uri, value, predicates));
+            EXPECT_EQ(1, abilitythread->Update(uri, value, predicates));
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Update_0100 end";

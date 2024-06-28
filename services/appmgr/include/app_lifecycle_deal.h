@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,6 +23,7 @@
 #include "hap_module_info.h"
 #include "want.h"
 #include "app_malloc_info.h"
+#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -73,9 +74,11 @@ public:
      * ScheduleTerminate, call ScheduleTerminateApplication() through proxy project,
      * Notify application to terminate.
      *
+     * @param isLastProcess When it is the last application process, pass in true.
+     *
      * @return
      */
-    void ScheduleTerminate();
+    void ScheduleTerminate(bool isLastProcess = false);
 
     /**
      * ScheduleForegroundRunning, call ScheduleForegroundApplication() through proxy project,
@@ -123,7 +126,17 @@ public:
      * @return
      */
     void ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo);
-    
+
+    /**
+     * ScheduleJsHeapMemory, call ScheduleJsHeapMemory() through proxy project,
+     * triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid, tid, needGc, needSnapshot
+     *
+     * @return
+     */
+    void ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info);
+
     /**
      * LowMemoryWarning, call ScheduleLowMemory() through proxy project,
      * Notify application to low memory.
@@ -139,7 +152,7 @@ public:
      * @param token, The ability token.
      * @return
      */
-    void ScheduleCleanAbility(const sptr<IRemoteObject> &token);
+    void ScheduleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess = false);
 
     /**
      * ScheduleProcessSecurityExit, call ScheduleTerminateApplication() through proxy project,
@@ -148,6 +161,14 @@ public:
      * @return
      */
     void ScheduleProcessSecurityExit();
+
+    /**
+     * cheduleClearPageStack, call cheduleClearPageStack() through proxy project,
+     * Notify application clear recovery page stack.
+     *
+     * @return
+     */
+    void ScheduleClearPageStack();
 
     /**
      * @brief Setting client for application record.
@@ -164,6 +185,8 @@ public:
     sptr<IAppScheduler> GetApplicationClient() const;
 
     void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName);
+
+    void ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName);
 
     /**
      * UpdateConfiguration, ANotify application update system environment changes.
@@ -195,7 +218,31 @@ public:
     int32_t AttachAppDebug();
     int32_t DetachAppDebug();
 
+    /**
+     * Whether the current application process is the last surviving process.
+     *
+     * @return Returns true is final application process, others return false.
+     */
+    bool IsFinalAppProcess();
+
+    int DumpIpcStart(std::string& result);
+
+    int DumpIpcStop(std::string& result);
+
+    int DumpIpcStat(std::string& result);
+
+    int DumpFfrt(std::string& result);
+
+    /**
+     * Notifies the application of process caching.
+     *
+     *
+     * @return
+     */
+    void ScheduleCacheProcess();
+
 private:
+    mutable std::mutex schedulerMutex_;
     sptr<IAppScheduler> appThread_ = nullptr;
 };
 }  // namespace AppExecFwk

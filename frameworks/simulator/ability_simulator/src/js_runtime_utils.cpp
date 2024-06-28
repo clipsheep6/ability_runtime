@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,282 +15,14 @@
 
 #include "js_runtime_utils.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime.h"
+
 namespace OHOS {
 namespace AbilityRuntime {
 #define ARGS_MAX_COUNT 10
 namespace {
-std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine &engine, NativeValue *lastParam,
-    std::unique_ptr<AsyncTask::ExecuteCallback> &&execute, std::unique_ptr<AsyncTask::CompleteCallback> &&complete,
-    NativeValue **result)
-{
-    if (lastParam == nullptr || lastParam->TypeOf() != NATIVE_FUNCTION) {
-        NativeDeferred *nativeDeferred = nullptr;
-        *result = engine.CreatePromise(&nativeDeferred);
-        return std::make_unique<AsyncTask>(nativeDeferred, std::move(execute), std::move(complete));
-    } else {
-        *result = engine.CreateUndefined();
-        NativeReference *callbackRef = engine.CreateReference(lastParam, 1);
-        return std::make_unique<AsyncTask>(callbackRef, std::move(execute), std::move(complete));
-    }
-}
-} // namespace
-
-// Help Functions
-NativeValue *CreateJsError(NativeEngine &engine, int32_t errCode, const std::string &message)
-{
-    return engine.CreateError(CreateJsValue(engine, errCode), CreateJsValue(engine, message));
-}
-
-void BindNativeFunction(NativeEngine &engine, NativeObject &object, const char *name,
-    const char *moduleName, NativeCallback func)
-{
-    std::string fullName(moduleName);
-    fullName += ".";
-    fullName += name;
-    object.SetProperty(name, engine.CreateFunction(fullName.c_str(), fullName.length(), func, nullptr));
-}
-
-void BindNativeProperty(NativeObject &object, const char *name, NativeCallback getter)
-{
-    NativePropertyDescriptor property;
-    property.utf8name = name;
-    property.name = nullptr;
-    property.method = nullptr;
-    property.getter = getter;
-    property.setter = nullptr;
-    property.value = nullptr;
-    property.attributes = napi_default;
-    property.data = nullptr;
-    object.DefineProperty(property);
-}
-
-void *GetNativePointerFromCallbackInfo(const NativeEngine *engine, NativeCallbackInfo *info, const char *name)
-{
-    if (engine == nullptr || info == nullptr) {
-        return nullptr;
-    }
-
-    NativeObject *object = ConvertNativeValueTo<NativeObject>(info->thisVar);
-    if (object != nullptr && name != nullptr) {
-        object = ConvertNativeValueTo<NativeObject>(object->GetProperty(name));
-    }
-    return (object != nullptr) ? object->GetNativePointer() : nullptr;
-}
-
-void SetNamedNativePointer(NativeEngine &engine, NativeObject &object, const char *name, void *ptr, NativeFinalize func)
-{
-    NativeValue *value = engine.CreateObject();
-    NativeObject *newObject = ConvertNativeValueTo<NativeObject>(value);
-    if (newObject == nullptr) {
-        return;
-    }
-    newObject->SetNativePointer(ptr, func, nullptr);
-    object.SetProperty(name, value);
-}
-
-void *GetNamedNativePointer(NativeEngine &engine, NativeObject &object, const char *name)
-{
-    NativeObject *namedObj = ConvertNativeValueTo<NativeObject>(object.GetProperty(name));
-    return (namedObj != nullptr) ? namedObj->GetNativePointer() : nullptr;
-}
-
-// Async Task
-AsyncTask::AsyncTask(NativeDeferred *deferred, std::unique_ptr<AsyncTask::ExecuteCallback> &&execute,
-    std::unique_ptr<AsyncTask::CompleteCallback> &&complete)
-    : deferred_(deferred), execute_(std::move(execute)), complete_(std::move(complete))
-{}
-
-AsyncTask::AsyncTask(NativeReference *callbackRef, std::unique_ptr<AsyncTask::ExecuteCallback> &&execute,
-    std::unique_ptr<AsyncTask::CompleteCallback> &&complete)
-    : callbackRef_(callbackRef), execute_(std::move(execute)), complete_(std::move(complete))
-{}
-
-AsyncTask::~AsyncTask() = default;
-
-void AsyncTask::Schedule(const std::string &name, NativeEngine &engine, std::unique_ptr<AsyncTask> &&task)
-{
-    if (task && task->Start(name, engine)) {
-        task.release();
-    }
-}
-
-void AsyncTask::Resolve(NativeEngine &engine, NativeValue *value)
-{
-    HILOG_DEBUG("AsyncTask::Resolve is called");
-    if (deferred_) {
-        deferred_->Resolve(value);
-        deferred_.reset();
-    }
-    if (callbackRef_) {
-        NativeValue *argv[] = {
-            CreateJsError(engine, 0),
-            value,
-        };
-        engine.CallFunction(engine.CreateUndefined(), callbackRef_->Get(), argv, ArraySize(argv));
-        callbackRef_.reset();
-    }
-    HILOG_DEBUG("AsyncTask::Resolve is called end.");
-}
-
-void AsyncTask::ResolveWithNoError(NativeEngine &engine, NativeValue *value)
-{
-    HILOG_DEBUG("AsyncTask::Resolve is called");
-    if (deferred_) {
-        deferred_->Resolve(value);
-        deferred_.reset();
-    }
-    if (callbackRef_) {
-        NativeValue *argv[] = {
-            engine.CreateNull(),
-            value,
-        };
-        engine.CallFunction(engine.CreateUndefined(), callbackRef_->Get(), argv, ArraySize(argv));
-        callbackRef_.reset();
-    }
-    HILOG_DEBUG("AsyncTask::Resolve is called end.");
-}
-
-void AsyncTask::Reject(NativeEngine &engine, NativeValue *error)
-{
-    if (deferred_) {
-        deferred_->Reject(error);
-        deferred_.reset();
-    }
-    if (callbackRef_) {
-        NativeValue *argv[] = {
-            error,
-            engine.CreateUndefined(),
-        };
-        engine.CallFunction(engine.CreateUndefined(), callbackRef_->Get(), argv, ArraySize(argv));
-        callbackRef_.reset();
-    }
-}
-
-void AsyncTask::ResolveWithCustomize(NativeEngine &engine, NativeValue *error, NativeValue *value)
-{
-    HILOG_DEBUG("AsyncTask::ResolveWithCustomize is called");
-    if (deferred_) {
-        deferred_->Resolve(value);
-        deferred_.reset();
-    }
-    if (callbackRef_) {
-        NativeValue *argv[] = {
-            error,
-            value,
-        };
-        engine.CallFunction(engine.CreateUndefined(), callbackRef_->Get(), argv, ArraySize(argv));
-        callbackRef_.reset();
-    }
-    HILOG_DEBUG("AsyncTask::ResolveWithCustomize is called end.");
-}
-
-void AsyncTask::RejectWithCustomize(NativeEngine &engine, NativeValue *error, NativeValue *value)
-{
-    HILOG_DEBUG("AsyncTask::RejectWithCustomize is called");
-    if (deferred_) {
-        deferred_->Reject(error);
-        deferred_.reset();
-    }
-    if (callbackRef_) {
-        NativeValue *argv[] = {
-            error,
-            value,
-        };
-        engine.CallFunction(engine.CreateUndefined(), callbackRef_->Get(), argv, ArraySize(argv));
-        callbackRef_.reset();
-    }
-    HILOG_DEBUG("AsyncTask::RejectWithCustomize is called end.");
-}
-
-void AsyncTask::Execute(NativeEngine *engine, void *data)
-{
-    if (engine == nullptr || data == nullptr) {
-        return;
-    }
-    auto me = static_cast<AsyncTask*>(data);
-    if (me->execute_ && *(me->execute_)) {
-        (*me->execute_)();
-    }
-}
-
-void AsyncTask::Complete(NativeEngine *engine, int32_t status, void *data)
-{
-    if (engine == nullptr || data == nullptr) {
-        return;
-    }
-    std::unique_ptr<AsyncTask> me(static_cast<AsyncTask*>(data));
-    if (me->complete_ && *(me->complete_)) {
-        (*me->complete_)(*engine, *me, status);
-    }
-}
-
-bool AsyncTask::Start(const std::string &name, NativeEngine &engine)
-{
-    work_.reset(engine.CreateAsyncWork(name, Execute, Complete, this));
-    return work_->Queue();
-}
-
-std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine &engine, NativeValue *lastParam,
-    AsyncTask::ExecuteCallback &&execute, AsyncTask::CompleteCallback &&complete, NativeValue **result)
-{
-    return CreateAsyncTaskWithLastParam(engine, lastParam,
-        std::make_unique<AsyncTask::ExecuteCallback>(std::move(execute)),
-        std::make_unique<AsyncTask::CompleteCallback>(std::move(complete)), result);
-}
-
-std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine &engine, NativeValue *lastParam,
-    AsyncTask::ExecuteCallback &&execute, nullptr_t, NativeValue **result)
-{
-    return CreateAsyncTaskWithLastParam(
-        engine, lastParam, std::make_unique<AsyncTask::ExecuteCallback>(std::move(execute)), nullptr, result);
-}
-
-std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine &engine, NativeValue *lastParam,
-    nullptr_t, AsyncTask::CompleteCallback &&complete, NativeValue **result)
-{
-    return CreateAsyncTaskWithLastParam(
-        engine, lastParam, nullptr, std::make_unique<AsyncTask::CompleteCallback>(std::move(complete)), result);
-}
-
-std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine &engine, NativeValue *lastParam,
-    nullptr_t, nullptr_t, NativeValue **result)
-{
-    return CreateAsyncTaskWithLastParam(engine, lastParam, std::unique_ptr<AsyncTask::ExecuteCallback>(),
-        std::unique_ptr<AsyncTask::CompleteCallback>(), result);
-}
-
-std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(NativeEngine *engine,
-    const std::string &moduleName, NativeValue *const *argv, size_t argc)
-{
-    HILOG_DEBUG("JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
-    if (engine == nullptr) {
-        HILOG_DEBUG("JsRuntime::LoadSystemModule: invalid engine.");
-        return std::unique_ptr<NativeReference>();
-    }
-
-    NativeObject *globalObj = ConvertNativeValueTo<NativeObject>(engine->GetGlobal());
-    std::unique_ptr<NativeReference> methodRequireNapiRef_;
-    methodRequireNapiRef_.reset(engine->CreateReference(globalObj->GetProperty("requireNapi"), 1));
-    if (!methodRequireNapiRef_) {
-        HILOG_ERROR("Failed to create reference for global.requireNapi");
-        return nullptr;
-    }
-    NativeValue *className = engine->CreateString(moduleName.c_str(), moduleName.length());
-    NativeValue *classValue =
-        engine->CallFunction(engine->GetGlobal(), methodRequireNapiRef_->Get(), &className, 1);
-    NativeValue *instanceValue = engine->CreateInstance(classValue, argv, argc);
-    if (instanceValue == nullptr) {
-        HILOG_ERROR("Failed to create object instance");
-        return std::unique_ptr<NativeReference>();
-    }
-
-    return std::unique_ptr<NativeReference>(engine->CreateReference(instanceValue, 1));
-}
-
-namespace {
-// ----------above going to delete----------
 std::unique_ptr<NapiAsyncTask> CreateAsyncTaskWithLastParam(napi_env env, napi_value lastParam,
     std::unique_ptr<NapiAsyncTask::ExecuteCallback> &&execute,
     std::unique_ptr<NapiAsyncTask::CompleteCallback> &&complete, napi_value* result)
@@ -418,7 +150,7 @@ void NapiAsyncTask::Schedule(const std::string &name, napi_env env, std::unique_
 
 void NapiAsyncTask::Resolve(napi_env env, napi_value value)
 {
-    HILOG_DEBUG("NapiAsyncTask::Resolve is called");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "NapiAsyncTask::Resolve is called");
     if (deferred_) {
         napi_resolve_deferred(env, deferred_, value);
         deferred_ = nullptr;
@@ -434,12 +166,12 @@ void NapiAsyncTask::Resolve(napi_env env, napi_value value)
         napi_delete_reference(env, callbackRef_);
         callbackRef_ = nullptr;
     }
-    HILOG_DEBUG("NapiAsyncTask::Resolve is called end.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "NapiAsyncTask::Resolve is called end.");
 }
 
 void NapiAsyncTask::ResolveWithNoError(napi_env env, napi_value value)
 {
-    HILOG_DEBUG("NapiAsyncTask::Resolve is called");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "NapiAsyncTask::Resolve is called");
     if (deferred_) {
         napi_resolve_deferred(env, deferred_, value);
         deferred_ = nullptr;
@@ -455,7 +187,7 @@ void NapiAsyncTask::ResolveWithNoError(napi_env env, napi_value value)
         napi_delete_reference(env, callbackRef_);
         callbackRef_ = nullptr;
     }
-    HILOG_DEBUG("NapiAsyncTask::Resolve is called end.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "NapiAsyncTask::Resolve is called end.");
 }
 
 void NapiAsyncTask::Reject(napi_env env, napi_value error)
@@ -479,7 +211,7 @@ void NapiAsyncTask::Reject(napi_env env, napi_value error)
 
 void NapiAsyncTask::ResolveWithCustomize(napi_env env, napi_value error, napi_value value)
 {
-    HILOG_DEBUG("NapiAsyncTask::ResolveWithCustomize is called");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "NapiAsyncTask::ResolveWithCustomize is called");
     if (deferred_) {
         napi_resolve_deferred(env, deferred_, value);
         deferred_ = nullptr;
@@ -495,12 +227,12 @@ void NapiAsyncTask::ResolveWithCustomize(napi_env env, napi_value error, napi_va
         napi_delete_reference(env, callbackRef_);
         callbackRef_ = nullptr;
     }
-    HILOG_DEBUG("NapiAsyncTask::ResolveWithCustomize is called end.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "NapiAsyncTask::ResolveWithCustomize is called end.");
 }
 
 void NapiAsyncTask::RejectWithCustomize(napi_env env, napi_value error, napi_value value)
 {
-    HILOG_DEBUG("NapiAsyncTask::RejectWithCustomize is called");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "NapiAsyncTask::RejectWithCustomize is called");
     if (deferred_) {
         napi_reject_deferred(env, deferred_, error);
         deferred_ = nullptr;
@@ -516,7 +248,7 @@ void NapiAsyncTask::RejectWithCustomize(napi_env env, napi_value error, napi_val
         napi_delete_reference(env, callbackRef_);
         callbackRef_ = nullptr;
     }
-    HILOG_DEBUG("NapiAsyncTask::RejectWithCustomize is called end.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "NapiAsyncTask::RejectWithCustomize is called end.");
 }
 
 void NapiAsyncTask::Execute(napi_env env, void *data)
@@ -567,32 +299,50 @@ std::unique_ptr<NapiAsyncTask> CreateAsyncTaskWithLastParam(napi_env env, napi_v
 }
 
 std::unique_ptr<NapiAsyncTask> CreateAsyncTaskWithLastParam(napi_env env, napi_value lastParam,
-    NapiAsyncTask::ExecuteCallback &&execute, nullptr_t, napi_value *result)
+    NapiAsyncTask::ExecuteCallback &&execute, std::nullptr_t, napi_value *result)
 {
     return CreateAsyncTaskWithLastParam(
         env, lastParam, std::make_unique<NapiAsyncTask::ExecuteCallback>(std::move(execute)), nullptr, result);
 }
 
 std::unique_ptr<NapiAsyncTask> CreateAsyncTaskWithLastParam(napi_env env, napi_value lastParam,
-    nullptr_t, NapiAsyncTask::CompleteCallback &&complete, napi_value *result)
+    std::nullptr_t, NapiAsyncTask::CompleteCallback &&complete, napi_value *result)
 {
     return CreateAsyncTaskWithLastParam(
         env, lastParam, nullptr, std::make_unique<NapiAsyncTask::CompleteCallback>(std::move(complete)), result);
 }
 
 std::unique_ptr<NapiAsyncTask> CreateAsyncTaskWithLastParam(napi_env env, napi_value lastParam,
-    nullptr_t, nullptr_t, napi_value *result)
+    std::nullptr_t, std::nullptr_t, napi_value *result)
 {
     return CreateAsyncTaskWithLastParam(env, lastParam, std::unique_ptr<NapiAsyncTask::ExecuteCallback>(),
         std::unique_ptr<NapiAsyncTask::CompleteCallback>(), result);
 }
 
+std::unique_ptr<NapiAsyncTask> CreateEmptyAsyncTask(napi_env env, napi_value lastParam, napi_value* result)
+{
+    napi_valuetype type = napi_undefined;
+    napi_typeof(env, lastParam, &type);
+    if (lastParam == nullptr || type != napi_function) {
+        napi_deferred nativeDeferred = nullptr;
+        napi_create_promise(env, &nativeDeferred, result);
+        return std::make_unique<NapiAsyncTask>(nativeDeferred, std::unique_ptr<NapiAsyncTask::ExecuteCallback>(),
+            std::unique_ptr<NapiAsyncTask::CompleteCallback>());
+    } else {
+        napi_get_undefined(env, result);
+        napi_ref callbackRef = nullptr;
+        napi_create_reference(env, lastParam, 1, &callbackRef);
+        return std::make_unique<NapiAsyncTask>(callbackRef, std::unique_ptr<NapiAsyncTask::ExecuteCallback>(),
+            std::unique_ptr<NapiAsyncTask::CompleteCallback>());
+    }
+}
+
 std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(napi_env env,
     const std::string &moduleName, napi_value const *argv, size_t argc)
 {
-    HILOG_DEBUG("JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
     if (env == nullptr) {
-        HILOG_DEBUG("JsRuntime::LoadSystemModule: invalid env.");
+        TAG_LOGD(AAFwkTag::ABILITY_SIM, "JsRuntime::LoadSystemModule: invalid env.");
         return std::unique_ptr<NativeReference>();
     }
 
@@ -605,7 +355,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(napi_env en
     napi_create_reference(env, ref, 1, &methodRequireNapiRef);
     methodRequireNapiRef_.reset(reinterpret_cast<NativeReference *>(methodRequireNapiRef));
     if (!methodRequireNapiRef_) {
-        HILOG_ERROR("Failed to create reference for global.requireNapi");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to create reference for global.requireNapi");
         return nullptr;
     }
     napi_value className = nullptr;
@@ -616,7 +366,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(napi_env en
     napi_value instanceValue = nullptr;
     napi_new_instance(env, classValue, argc, argv, &instanceValue);
     if (instanceValue == nullptr) {
-        HILOG_ERROR("Failed to create object instance");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to create object instance");
         return std::unique_ptr<NativeReference>();
     }
 

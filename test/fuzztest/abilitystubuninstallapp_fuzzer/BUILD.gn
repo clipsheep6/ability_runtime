@@ -50,6 +50,7 @@ ohos_fuzztest("AbilityStubUninstallAppFuzzTest") {
     "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "kv_store:distributeddata_inner",
     "napi:ace_napi",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
@@ -60,10 +61,6 @@ ohos_fuzztest("AbilityStubUninstallAppFuzzTest") {
       "input:libmmi-client",
       "window_manager:libwm",
     ]
-  }
-
-  if (ecologic_rule_enabled) {
-    external_deps += [ "ecological_rule_manager:erms_client" ]
   }
 }
 

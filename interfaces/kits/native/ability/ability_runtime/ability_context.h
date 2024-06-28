@@ -20,9 +20,11 @@
 
 #include "ability_connect_callback.h"
 #include "ability_info.h"
+#include "ability_lifecycle_observer_interface.h"
 #include "caller_callback.h"
 #include "configuration.h"
 #include "iability_callback.h"
+#include "js_ui_extension_callback.h"
 #include "mission_info.h"
 #include "native_engine/native_reference.h"
 #include "native_engine/native_value.h"
@@ -30,7 +32,9 @@
 #include "want.h"
 
 #ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 #include "pixel_map.h"
+#endif
 #endif
 
 namespace OHOS {
@@ -163,6 +167,13 @@ public:
 
     virtual void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData) = 0;
 
+    virtual ErrCode RequestModalUIExtension(const AAFwk::Want& want) = 0;
+
+    virtual ErrCode OpenAtomicService(AAFwk::Want& want, const AAFwk::StartOptions &options, int requestCode,
+        RuntimeTask &&task) = 0;
+
+    virtual ErrCode ChangeAbilityVisibility(bool isShow) { return 0; }
+
     /**
     * @brief Connects the current ability to an ability using the AbilityInfo.AbilityType.SERVICE template.
     *
@@ -189,7 +200,8 @@ public:
     * @param connectCallback Indicates the callback object when the target ability is connected.
     * is set up. The IAbilityConnection object uniquely identifies a connection between two abilities.
     */
-    virtual void DisconnectAbility(const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) = 0;
+    virtual void DisconnectAbility(const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback,
+        int32_t accountId = -1) = 0;
 
     /**
      * @brief get ability info of the current ability
@@ -214,6 +226,8 @@ public:
     virtual ErrCode OnBackPressedCallBack(bool &needMoveToBackground) = 0;
 
     virtual ErrCode MoveAbilityToBackground() = 0;
+
+    virtual ErrCode MoveUIAbilityToBackground() = 0;
 
     virtual ErrCode TerminateSelf() = 0;
 
@@ -268,6 +282,8 @@ public:
     virtual void RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback) = 0;
 
     virtual void SetWeakSessionToken(const wptr<IRemoteObject>& sessionToken) = 0;
+    virtual void SetAbilityRecordId(int32_t abilityRecordId) = 0;
+    virtual int32_t GetAbilityRecordId() = 0;
 
     /**
      * @brief Requests dialogService from the system.
@@ -280,6 +296,17 @@ public:
      * @return Returns ERR_OK if success.
      */
     virtual ErrCode RequestDialogService(napi_env env, AAFwk::Want &want, RequestDialogResultTask &&task) = 0;
+
+    /**
+     * @brief Requests dialogService from the system.
+     * This method is called for dialog request. This is an asynchronous method. When it is executed,
+     * the task will be called back.
+     *
+     * @param want Indicates the dialog service to be requested.
+     * @param task The callback or promise fo js interface.
+     * @return Returns ERR_OK if success.
+     */
+    virtual ErrCode RequestDialogService(AAFwk::Want &want, RequestDialogResultTask &&task) = 0;
 
     /**
      * @brief Report drawn completed.
@@ -298,7 +325,26 @@ public:
      */
     virtual ErrCode SetMissionContinueState(const AAFwk::ContinueState &state) = 0;
 
+    /**
+     * Register lifecycle observer on ability.
+     *
+     * @param observer the lifecycle observer to be registered on ability.
+     */
+    virtual void RegisterAbilityLifecycleObserver(const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer) = 0;
+
+    /**
+     * Unregister lifecycle observer on ability.
+     *
+     * @param observer the lifecycle observer to be unregistered on ability.
+     */
+    virtual void UnregisterAbilityLifecycleObserver(
+        const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer) = 0;
+
+    virtual void SetRestoreEnabled(bool enabled) = 0;
+    virtual bool GetRestoreEnabled() = 0;
+
 #ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     /**
      * @brief Set mission label of this ability.
      *
@@ -333,9 +379,15 @@ public:
      * @return UIContent object of ACE.
      */
     virtual Ace::UIContent* GetUIContent() = 0;
+    virtual ErrCode StartAbilityByType(const std::string &type, AAFwk::WantParams &wantParam,
+        const std::shared_ptr<JsUIExtensionCallback> &uiExtensionCallbacks) = 0;
+    virtual ErrCode CreateModalUIExtensionWithApp(const AAFwk::Want &want) = 0;
+    virtual void EraseUIExtension(int32_t sessionId) = 0;
+#endif
 #endif
     virtual bool IsTerminating() = 0;
     virtual void SetTerminating(bool state) = 0;
+    virtual void InsertResultCallbackTask(int requestCode, RuntimeTask&& task) = 0;
     using SelfType = AbilityContext;
     static const size_t CONTEXT_TYPE_ID;
 

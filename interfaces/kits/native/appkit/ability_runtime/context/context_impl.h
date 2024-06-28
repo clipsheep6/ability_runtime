@@ -24,6 +24,10 @@
 namespace OHOS {
 namespace AppExecFwk {
 struct RunningProcessInfo;
+class BundleMgrHelper;
+}
+namespace AAFwk {
+class Want;
 }
 namespace AbilityRuntime {
 class ContextImpl : public Context {
@@ -76,6 +80,15 @@ public:
      */
     std::string GetTempDir() override;
 
+    std::string GetResourceDir() override;
+
+    /**
+     * @brief Get all temporary directories.
+     *
+     * @param tempPaths Return all temporary directories of the application.
+     */
+    virtual void GetAllTempDir(std::vector<std::string> &tempPaths);
+
     /**
      * @brief Obtains the directory for storing files for the application on the device's internal storage.
      *
@@ -127,6 +140,8 @@ public:
      */
     std::string GetDistributedFilesDir() override;
 
+    std::string GetCloudFileDir() override;
+
     /**
      * @brief Switch file area
      *
@@ -142,11 +157,23 @@ public:
     void SetColorMode(int colorMode);
 
     /**
-     * @brief Set color mode
+     * @brief Set language
      *
-     * @param colorMode color mode.
+     * @param language language.
      */
     void SetLanguage(std::string language);
+
+    /**
+     * @brief Set font
+     *
+     * @param Font font.
+     */
+    void SetFont(std::string font);
+
+    /**
+     * @brief clear the application data by app self
+     */
+    void ClearUpApplicationData();
 
     /**
      * @brief Creates a Context object for a hap with the given module name.
@@ -197,6 +224,21 @@ public:
      * @return Returns a Context object created for the specified application.
      */
     std::shared_ptr<Context> CreateBundleContext(const std::string &bundleName) override;
+
+    /**
+     * @brief Creates a ResourceManager object for a hap with the given hap name and app name.
+     *
+     * @param bundleName Indicates the app name of the application.
+     *
+     * @param moduleName Indicates the module name of the hap.
+     *
+     * @return Returns a ResourceManager object created for the specified hap and app.
+     */
+    std::shared_ptr<Global::Resource::ResourceManager> CreateModuleResourceManager(
+        const std::string &bundleName, const std::string &moduleName) override;
+
+    int32_t CreateSystemHspModuleResourceManager(const std::string &bundleName, const std::string &moduleName,
+        std::shared_ptr<Global::Resource::ResourceManager> &resourceManager) override;
 
     /**
     * @brief Obtains an IBundleMgr instance.
@@ -283,7 +325,7 @@ public:
      *
      * @return error code
      */
-    void KillProcessBySelf();
+    void KillProcessBySelf(const bool clearPageStack = true);
 
     /**
      * @brief Get running informationfor cuirrent process
@@ -291,6 +333,13 @@ public:
      * @return error code
      */
     int32_t GetProcessRunningInformation(AppExecFwk::RunningProcessInfo &info);
+
+    /**
+     * @brief Restart app
+     *
+     * @return error code
+     */
+    int32_t RestartApp(const AAFwk::Want& want);
 
     /**
      * @brief Get the token witch the app launched.
@@ -313,6 +362,8 @@ public:
      */
     Global::Resource::DeviceType GetDeviceType() const override;
 
+    int32_t SetSupportedProcessCacheSelf(bool isSupport);
+
     static const int EL_DEFAULT = 1;
 
 protected:
@@ -325,6 +376,7 @@ private:
     static const std::string CONTEXT_DISTRIBUTEDFILES_BASE_BEFORE;
     static const std::string CONTEXT_DISTRIBUTEDFILES_BASE_MIDDLE;
     static const std::string CONTEXT_DISTRIBUTEDFILES;
+    static const std::string CONTEXT_CLOUDFILE;
     static const std::string CONTEXT_FILE_SEPARATOR;
     static const std::string CONTEXT_DATA;
     static const std::string CONTEXT_DATA_STORAGE;
@@ -338,6 +390,7 @@ private:
     static const std::string CONTEXT_FILES;
     static const std::string CONTEXT_HAPS;
     static const std::string CONTEXT_ELS[];
+    static const std::string CONTEXT_RESOURCE_END;
     int flags_ = 0x00000000;
 
     void InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo, const std::shared_ptr<ContextImpl> &appContext,
@@ -370,6 +423,14 @@ private:
     int32_t GetPreferencesDirWithCheck(bool checkExist, std::string &preferencesDir);
     int32_t GetGroupPreferencesDirWithCheck(const std::string &groupId, bool checkExist, std::string &preferencesDir);
     int32_t GetGroupDirWithCheck(const std::string &groupId, bool checkExist, std::string &groupDir);
+    std::shared_ptr<Global::Resource::ResourceManager> InitOthersResourceManagerInner(
+        const AppExecFwk::BundleInfo &bundleInfo, bool currentBundle, const std::string& moduleName);
+    std::shared_ptr<Global::Resource::ResourceManager> InitResourceManagerInner(
+        const AppExecFwk::BundleInfo &bundleInfo, bool currentBundle, const std::string& moduleName);
+    void UpdateResConfig(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager);
+    int32_t GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, bool &currentBundle);
+    void GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, const int &accountId);
+    ErrCode GetOverlayMgrProxy();
 
     static Global::Resource::DeviceType deviceType_;
     std::shared_ptr<AppExecFwk::ApplicationInfo> applicationInfo_ = nullptr;
@@ -383,7 +444,9 @@ private:
     std::mutex checkedDirSetLock_;
 
     std::mutex bundleManagerMutex_;
-    sptr<AppExecFwk::IBundleMgr> bundleMgr_;
+    std::shared_ptr<AppExecFwk::BundleMgrHelper> bundleMgr_;
+    std::mutex overlayMgrProxyMutex_;
+    sptr<AppExecFwk::IOverlayManager> overlayMgrProxy_ = nullptr;
 
     // True: need to get a new fms remote object,
     // False: no need to get a new fms remote object.

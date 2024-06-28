@@ -31,10 +31,6 @@ bool PermissionVerification::IsShellCall() const
 {
     return (MyFlag::flag_ & MyFlag::FLAG::IS_SHELL_CALL);
 }
-bool PermissionVerification::IsGatewayCall() const
-{
-    return false;
-}
 bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission() const
 {
     return !!(MyFlag::flag_);
@@ -120,6 +116,15 @@ bool PermissionVerification::JudgeCallerIsAllowedToUseSystemAPI() const
     return true;
 }
 bool PermissionVerification::VerifyPrepareTerminatePermission() const
+{
+    return true;
+}
+bool PermissionVerification::IsSystemAppCall() const
+{
+    return true;
+}
+
+bool PermissionVerification::VerifySetProcessCachePermission() const
 {
     return true;
 }

@@ -23,12 +23,12 @@ extern const char _binary_ability_stage_abc_end[];
 static napi_module _module = {
 #ifdef ENABLE_ERRCODE
     .nm_version = 0,
-    .nm_modname = "app.ability.AbilityStage",
     .nm_filename = "app/ability/libabilitystage.so/ability_stage.js",
+    .nm_modname = "app.ability.AbilityStage",
 #else
     .nm_version = 0,
-    .nm_modname = "application.AbilityStage",
     .nm_filename = "application/libabilitystage_napi.so/ability_stage.js",
+    .nm_modname = "application.AbilityStage",
 #endif
 };
 extern "C" __attribute__((constructor))

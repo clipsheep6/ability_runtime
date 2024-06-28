@@ -14,3 +14,5 @@
 # any change to xxx_ipc_interface_code.h needs to be reviewed by @leonchan5
 interfaces/inner_api/ability_manager/include/ability_manager_ipc_interface_code.h @leonchan5
 interfaces/inner_api/app_manager/include/appmgr/app_mgr_ipc_interface_code.h @leonchan5
+services/common/include/ui_extension_utils.h @li-weifeng2
+services/common/include/ui_extension_utils.h @zhangyafei-echo

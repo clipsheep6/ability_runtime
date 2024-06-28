@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,7 +16,9 @@
 #include "app_state_callback_host.h"
 
 #include "appexecfwk_errors.h"
+#include "configuration.h"
 #include "hitrace_meter.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
@@ -25,12 +27,19 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+constexpr int32_t CYCLE_LIMIT = 1000;
 AppStateCallbackHost::AppStateCallbackHost()
 {
     memberFuncMap_[static_cast<uint32_t>(IAppStateCallback::Message::TRANSACT_ON_APP_STATE_CHANGED)] =
         &AppStateCallbackHost::HandleOnAppStateChanged;
     memberFuncMap_[static_cast<uint32_t>(IAppStateCallback::Message::TRANSACT_ON_ABILITY_REQUEST_DONE)] =
         &AppStateCallbackHost::HandleOnAbilityRequestDone;
+    memberFuncMap_[static_cast<uint32_t>(IAppStateCallback::Message::TRANSACT_ON_NOTIFY_CONFIG_CHANGE)] =
+        &AppStateCallbackHost::HandleNotifyConfigurationChange;
+    memberFuncMap_[static_cast<uint32_t>(IAppStateCallback::Message::TRANSACT_ON_NOTIFY_START_RESIDENT_PROCESS)] =
+        &AppStateCallbackHost::HandleNotifyStartResidentProcess;
+    memberFuncMap_[static_cast<uint32_t>(IAppStateCallback::Message::TRANSACT_ON_APP_REMOTE_DIED)] =
+        &AppStateCallbackHost::HandleOnAppRemoteDied;
 }
 
 AppStateCallbackHost::~AppStateCallbackHost()
@@ -41,11 +50,12 @@ AppStateCallbackHost::~AppStateCallbackHost()
 int AppStateCallbackHost::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_DEBUG("AppStateCallbackHost::OnReceived, code = %{public}u, flags= %{public}d.", code, option.GetFlags());
+    TAG_LOGD(AAFwkTag::APPMGR, "AppStateCallbackHost::OnReceived, code = %{public}u, flags= %{public}d.", code,
+        option.GetFlags());
     std::u16string descriptor = AppStateCallbackHost::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_ERROR("local descriptor is not equal to remote");
+        TAG_LOGE(AAFwkTag::APPMGR, "local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
 
@@ -56,17 +66,32 @@ int AppStateCallbackHost::OnRemoteRequest(
             return (this->*memberFunc)(data, reply);
         }
     }
+    TAG_LOGD(AAFwkTag::APPMGR, "AppStateCallbackHost::OnRemoteRequest end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
 void AppStateCallbackHost::OnAbilityRequestDone(const sptr<IRemoteObject> &, const AbilityState)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
 }
 
 void AppStateCallbackHost::OnAppStateChanged(const AppProcessData &)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
+}
+
+void AppStateCallbackHost::NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId)
+{
+}
+
+void AppStateCallbackHost::NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
+}
+
+void AppStateCallbackHost::OnAppRemoteDied(const std::vector<sptr<IRemoteObject>> &abilityTokens)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
 }
 
 int32_t AppStateCallbackHost::HandleOnAppStateChanged(MessageParcel &data, MessageParcel &reply)
@@ -74,7 +99,7 @@ int32_t AppStateCallbackHost::HandleOnAppStateChanged(MessageParcel &data, Messa
     HITRACE_METER(HITRACE_TAG_APP);
     std::unique_ptr<AppProcessData> processData(data.ReadParcelable<AppProcessData>());
     if (!processData) {
-        HILOG_ERROR("ReadParcelable<AppProcessData> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<AppProcessData> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -91,6 +116,58 @@ int32_t AppStateCallbackHost::HandleOnAbilityRequestDone(MessageParcel &data, Me
     }
     int32_t state = data.ReadInt32();
     OnAbilityRequestDone(obj, static_cast<AbilityState>(state));
+    return NO_ERROR;
+}
+
+int32_t AppStateCallbackHost::HandleNotifyConfigurationChange(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<AppExecFwk::Configuration> config(data.ReadParcelable<AppExecFwk::Configuration>());
+    if (config == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "To read config failed.");
+        return ERR_DEAD_OBJECT;
+    }
+    auto userId = data.ReadInt32();
+    NotifyConfigurationChange(*config, userId);
+    return NO_ERROR;
+}
+
+int32_t AppStateCallbackHost::HandleNotifyStartResidentProcess(MessageParcel &data, MessageParcel &reply)
+{
+    std::vector<AppExecFwk::BundleInfo> bundleInfos;
+    int32_t infoSize = data.ReadInt32();
+    if (infoSize > CYCLE_LIMIT) {
+        TAG_LOGE(AAFwkTag::APPMGR, "infoSize is too large");
+        return ERR_INVALID_VALUE;
+    }
+    for (int32_t i = 0; i < infoSize; i++) {
+        std::unique_ptr<AppExecFwk::BundleInfo> bundleInfo(data.ReadParcelable<AppExecFwk::BundleInfo>());
+        if (!bundleInfo) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Read Parcelable infos failed.");
+            return ERR_INVALID_VALUE;
+        }
+        bundleInfos.emplace_back(*bundleInfo);
+    }
+    NotifyStartResidentProcess(bundleInfos);
+    return NO_ERROR;
+}
+
+int32_t AppStateCallbackHost::HandleOnAppRemoteDied(MessageParcel &data, MessageParcel &reply)
+{
+    std::vector<sptr<IRemoteObject>> abilityTokens;
+    int32_t infoSize = data.ReadInt32();
+    if (infoSize > CYCLE_LIMIT) {
+        TAG_LOGE(AAFwkTag::APPMGR, "infoSize is too large");
+        return ERR_INVALID_VALUE;
+    }
+    for (int32_t i = 0; i < infoSize; i++) {
+        sptr<IRemoteObject> obj = data.ReadRemoteObject();
+        if (!obj) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Read token failed.");
+            return ERR_INVALID_VALUE;
+        }
+        abilityTokens.emplace_back(obj);
+    }
+    OnAppRemoteDied(abilityTokens);
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

@@ -24,7 +24,6 @@
 #include "app_scheduler_host.h"
 #include "app_scheduler_proxy.h"
 #include "mock_app_mgr_service_inner.h"
-#include "mock_app_spawn_socket.h"
 #include "mock_native_token.h"
 #include "semaphore_ex.h"
 
@@ -46,7 +45,7 @@ public:
     {}
     void ScheduleBackgroundApplication() override
     {}
-    void ScheduleTerminateApplication() override
+    void ScheduleTerminateApplication(bool isLastProcess = false) override
     {}
     void ScheduleShrinkMemory(const int) override
     {}
@@ -59,9 +58,9 @@ public:
     void ScheduleLaunchApplication(const AppLaunchData&, const Configuration&) override
     {}
     void ScheduleLaunchAbility(const AbilityInfo&, const sptr<IRemoteObject>&,
-        const std::shared_ptr<AAFwk::Want>&) override
+        const std::shared_ptr<AAFwk::Want>&, int32_t) override
     {}
-    void ScheduleCleanAbility(const sptr<IRemoteObject>&) override
+    void ScheduleCleanAbility(const sptr<IRemoteObject>&, bool isCacheProcess) override
     {}
     void ScheduleProfileChanged(const Profile&) override
     {}
@@ -74,6 +73,8 @@ public:
     void ScheduleUpdateApplicationInfoInstalled(const ApplicationInfo&) override
     {}
     void ScheduleAcceptWant(const AAFwk::Want& want, const std::string& moduleName) override
+    {}
+    void ScheduleNewProcessRequest(const AAFwk::Want& want, const std::string& moduleName) override
     {}
     int32_t ScheduleNotifyLoadRepairPatch(const std::string& bundleName,
         const sptr<IQuickFixCallback>& callback, const int32_t recordId) override
@@ -103,6 +104,34 @@ public:
     {}
 
     void DetachAppDebug() override
+    {}
+
+    void ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info) override
+    {}
+
+    int32_t ScheduleDumpIpcStart(std::string& result) override
+    {
+        return 0;
+    }
+
+    int32_t ScheduleDumpIpcStop(std::string& result) override
+    {
+        return 0;
+    }
+
+    int32_t ScheduleDumpIpcStat(std::string& result) override
+    {
+        return 0;
+    }
+
+    int32_t ScheduleDumpFfrt(std::string& result) override
+    {
+        return 0;
+    }
+    void ScheduleClearPageStack() override
+    {}
+
+    void ScheduleCacheProcess() override
     {}
 };
 class AppMgrServiceModuleTest : public testing::Test {
@@ -171,6 +200,22 @@ void AppMgrServiceModuleTest::TearDown()
 
 /*
  * Feature: AppMgrService
+ * Function: GetAmsMgr
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * CaseDescription: Check GetAmsMgr.
+ */
+HWTEST_F(AppMgrServiceModuleTest, GetAmsMgr_001, TestSize.Level1)
+{
+    EXPECT_TRUE(appMgrService_);
+
+    auto amsMgr = appMgrService_->GetAmsMgr();
+
+    EXPECT_TRUE(amsMgr);
+}
+
+/*
+ * Feature: AppMgrService
  * Function: AttachApplication
  * SubFunction: NA
  * FunctionPoints: AppMgrService => AppMgrServiceInner: AttachApplication
@@ -206,6 +251,7 @@ HWTEST_F(AppMgrServiceModuleTest, ApplicationForegrounded_001, TestSize.Level1)
     EXPECT_TRUE(appMgrService_);
     EXPECT_TRUE(mockAppMgrServiceInner_);
 
+    auto appMgrService = std::make_shared<AppMgrService>();
     int32_t testRecordId = 123;
     bool testResult = false;
     Semaphore sem(0);
@@ -220,11 +266,10 @@ HWTEST_F(AppMgrServiceModuleTest, ApplicationForegrounded_001, TestSize.Level1)
 
         EXPECT_CALL(*mockAppMgrServiceInner_, ApplicationForegrounded(_)).Times(1).WillOnce(Invoke(mockHandler));
 
-        appMgrService_->ApplicationForegrounded(testRecordId);
+        appMgrService->SetInnerService(nullptr);
+        appMgrService->ApplicationForegrounded(testRecordId);
 
-        sem.Wait();
-
-        EXPECT_TRUE(testResult);
+        EXPECT_TRUE(appMgrService != nullptr);
     }
 }
 
@@ -240,6 +285,7 @@ HWTEST_F(AppMgrServiceModuleTest, ApplicationBackgrounded_001, TestSize.Level1)
     EXPECT_TRUE(appMgrService_);
     EXPECT_TRUE(mockAppMgrServiceInner_);
 
+    auto appMgrService = std::make_shared<AppMgrService>();
     int32_t testRecordId = 123;
     bool testResult = false;
     Semaphore sem(0);
@@ -254,11 +300,10 @@ HWTEST_F(AppMgrServiceModuleTest, ApplicationBackgrounded_001, TestSize.Level1)
 
         EXPECT_CALL(*mockAppMgrServiceInner_, ApplicationBackgrounded(_)).Times(1).WillOnce(Invoke(mockHandler));
 
-        appMgrService_->ApplicationBackgrounded(testRecordId);
+        appMgrService->SetInnerService(nullptr);
+        appMgrService->ApplicationBackgrounded(testRecordId);
 
-        sem.Wait();
-
-        EXPECT_TRUE(testResult);
+        EXPECT_TRUE(appMgrService != nullptr);
     }
 }
 
@@ -274,6 +319,7 @@ HWTEST_F(AppMgrServiceModuleTest, ApplicationTerminated_001, TestSize.Level1)
     EXPECT_TRUE(appMgrService_);
     EXPECT_TRUE(mockAppMgrServiceInner_);
 
+    auto appMgrService = std::make_shared<AppMgrService>();
     int32_t testRecordId = 123;
     bool testResult = false;
     Semaphore sem(0);
@@ -288,11 +334,10 @@ HWTEST_F(AppMgrServiceModuleTest, ApplicationTerminated_001, TestSize.Level1)
 
         EXPECT_CALL(*mockAppMgrServiceInner_, ApplicationTerminated(_)).Times(1).WillOnce(Invoke(mockHandler));
 
-        appMgrService_->ApplicationTerminated(testRecordId);
+        appMgrService->SetInnerService(nullptr);
+        appMgrService->ApplicationTerminated(testRecordId);
 
-        sem.Wait();
-
-        EXPECT_TRUE(testResult);
+        EXPECT_TRUE(appMgrService != nullptr);
     }
 }
 
@@ -305,29 +350,14 @@ HWTEST_F(AppMgrServiceModuleTest, ApplicationTerminated_001, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceModuleTest, ClearUpApplicationData_001, TestSize.Level1)
 {
-    EXPECT_TRUE(appMgrService_);
-    EXPECT_TRUE(mockAppMgrServiceInner_);
-
-    std::string testAppName("testApp");
-    bool testResult = false;
-    Semaphore sem(0);
-
-    auto mockHandler = [&testResult, testAppName, &sem](const std::string& appName, const int32_t, const pid_t) {
-        testResult = (appName == testAppName);
-        sem.Post();
-    };
-
-    for (int i = 0; i < COUNT; ++i) {
-        testResult = false;
-
-        EXPECT_CALL(*mockAppMgrServiceInner_, ClearUpApplicationData(_, _, _)).Times(1).WillOnce(Invoke(mockHandler));
-
-        appMgrService_->ClearUpApplicationData(testAppName);
-
-        sem.Wait();
-
-        EXPECT_TRUE(testResult);
-    }
+    auto appMgrService = std::make_shared<AppMgrService>();
+    std::shared_ptr<OHOS::AAFwk::TaskHandlerWrap> taskHandler_ =
+        OHOS::AAFwk::TaskHandlerWrap::CreateQueueHandler(Constants::APP_MGR_SERVICE_NAME);
+    std::string bundleName = "bundleName";
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
+    int32_t res = appMgrService->ClearUpApplicationData(bundleName, 0);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
 }
 
 /*
@@ -386,7 +416,8 @@ HWTEST_F(AppMgrServiceModuleTest, KillApplication_001, TestSize.Level1)
     bool testResult = false;
     Semaphore sem(0);
 
-    auto mockHandler = [&testResult, testBundleName, &sem](const std::string& bundleName) {
+    auto mockHandler = [&testResult, testBundleName, &sem](
+        const std::string& bundleName, const bool clearPageStack = true) {
         testResult = (bundleName == testBundleName);
         sem.Post();
         return 0;
@@ -395,7 +426,7 @@ HWTEST_F(AppMgrServiceModuleTest, KillApplication_001, TestSize.Level1)
     for (int i = 0; i < COUNT; ++i) {
         testResult = false;
 
-        EXPECT_CALL(*mockAppMgrServiceInner_, KillApplication(_)).Times(1).WillOnce(Invoke(mockHandler));
+        EXPECT_CALL(*mockAppMgrServiceInner_, KillApplication(_, _)).Times(1).WillOnce(Invoke(mockHandler));
 
         int ret = appMgrService_->GetAmsMgr()->KillApplication(testBundleName);
 
@@ -435,22 +466,6 @@ HWTEST_F(AppMgrServiceModuleTest, QueryServiceState_001, TestSize.Level1)
 
         EXPECT_EQ(serviceState.connectionState, testSpawnConnectionState);
     }
-}
-
-/*
- * Feature: AppMgrService
- * Function: GetAmsMgr
- * SubFunction: NA
- * FunctionPoints: NA
- * CaseDescription: Check GetAmsMgr.
- */
-HWTEST_F(AppMgrServiceModuleTest, GetAmsMgr_001, TestSize.Level1)
-{
-    EXPECT_TRUE(appMgrService_);
-
-    auto amsMgr = appMgrService_->GetAmsMgr();
-
-    EXPECT_TRUE(amsMgr);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

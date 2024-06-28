@@ -17,6 +17,7 @@
 #define MODULETEST_OHOS_ABILITY_RUNTIME_SYSTEM_ABILITY_H
 
 #include "hilog/log.h"
+#include "hilog_tag_wrapper.h"
 #include "iremote_object.h"
 namespace OHOS {
 #define REGISTER_SYSTEM_ABILITY_BY_ID(a, b, c)
@@ -37,44 +38,44 @@ public:
 protected:
     virtual void OnStart()
     {
-        HiviewDFX::HiLog::Debug(LABEL, "Mock SystemAbility OnStart called");
+        TAG_LOGD(AAFwkTag::TEST, "Mock SystemAbility OnStart called");
     }
 
     virtual void OnStop()
     {
-        HiviewDFX::HiLog::Debug(LABEL, "Mock SystemAbility OnStop called");
+        TAG_LOGD(AAFwkTag::TEST, "Mock SystemAbility OnStop called");
     }
 
     virtual void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
     {
-        HiviewDFX::HiLog::Debug(LABEL, "Mock SystemAbility OnAddSystemAbility called");
+        TAG_LOGD(AAFwkTag::TEST, "Mock SystemAbility OnAddSystemAbility called");
     }
 
     virtual void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
     {
-        HiviewDFX::HiLog::Debug(LABEL, "Mock SystemAbility OnRemoveSystemAbility called");
+        TAG_LOGD(AAFwkTag::TEST, "Mock SystemAbility OnRemoveSystemAbility called");
     }
 
     bool Publish(sptr<IRemoteObject> systemAbility)
     {
-        HiviewDFX::HiLog::Debug(LABEL, "Mock SystemAbility Publish called");
+        TAG_LOGD(AAFwkTag::TEST, "Mock SystemAbility Publish called");
         systemAbility.ForceSetRefPtr(nullptr);
         return true;
     }
 
     explicit SystemAbility(bool runOnCreate = false)
     {
-        HiviewDFX::HiLog::Debug(LABEL, "Mock SystemAbility default Creator called %d", runOnCreate);
+        TAG_LOGD(AAFwkTag::TEST, "Mock SystemAbility default Creator called %d", runOnCreate);
     }
 
     SystemAbility(const int32_t serviceId, bool runOnCreate = false)
     {
-        HiviewDFX::HiLog::Debug(LABEL, "Mock SystemAbility Creator called %d", runOnCreate);
+        TAG_LOGD(AAFwkTag::TEST, "Mock SystemAbility Creator called %d", runOnCreate);
     }
 
     virtual ~SystemAbility()
     {
-        HiviewDFX::HiLog::Debug(LABEL, "Mock SystemAbility Destructor called");
+        TAG_LOGD(AAFwkTag::TEST, "Mock SystemAbility Destructor called");
     }
 };
 }  // namespace OHOS

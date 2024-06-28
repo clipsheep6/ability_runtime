@@ -22,7 +22,8 @@
 
 #include "appexecfwk_errors.h"
 #include "service_info.h"
-#include "service_router_mgr_helper.h"
+#include "service_router_data_mgr.h"
+#include "service_router_mgr_proxy.h"
 #include "want.h"
 
 using namespace testing::ext;
@@ -36,6 +37,8 @@ const std::string WRONG_BUNDLE_NAME = "wrong";
 const std::string MIME_TYPE = "html";
 const std::string BUNDLE_NAME = "bundleName";
 const std::string PURPOSE_NAME = "pay";
+const int32_t ERR_COD1 = 8519924;
+const int32_t ERR_COD2 = 8388613;
 }  // namespace
 
 class ServiceRouterMgrInterfaceTest : public testing::Test {
@@ -75,7 +78,7 @@ void ServiceRouterMgrInterfaceTest::TearDown()
  */
 HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0001, Function | SmallTest | Level0)
 {
-    auto serviceRouterMgr = ServiceRouterMgrHelper::GetInstance().GetServiceRouterMgr();
+    auto serviceRouterMgr = std::make_shared<ServiceRouterDataMgr>();
     EXPECT_NE(serviceRouterMgr, nullptr);
     if (serviceRouterMgr != nullptr) {
         BusinessAbilityFilter filter;
@@ -95,7 +98,7 @@ HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0001, Func
  */
 HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0002, Function | SmallTest | Level0)
 {
-    auto serviceRouterMgr = ServiceRouterMgrHelper::GetInstance().GetServiceRouterMgr();
+    auto serviceRouterMgr = std::make_shared<ServiceRouterDataMgr>();
     EXPECT_NE(serviceRouterMgr, nullptr);
     if (serviceRouterMgr != nullptr) {
         BusinessAbilityFilter filter;
@@ -134,7 +137,7 @@ HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0003, Func
  */
 HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0004, Function | SmallTest | Level0)
 {
-    auto serviceRouterMgr = ServiceRouterMgrHelper::GetInstance().GetServiceRouterMgr();
+    auto serviceRouterMgr = std::make_shared<ServiceRouterDataMgr>();
     EXPECT_NE(serviceRouterMgr, nullptr);
     if (serviceRouterMgr != nullptr) {
         Want want;
@@ -153,7 +156,7 @@ HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0004, Func
  */
 HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0005, Function | SmallTest | Level0)
 {
-    auto serviceRouterMgr = ServiceRouterMgrHelper::GetInstance().GetServiceRouterMgr();
+    auto serviceRouterMgr = std::make_shared<ServiceRouterDataMgr>();
     EXPECT_NE(serviceRouterMgr, nullptr);
     if (serviceRouterMgr != nullptr) {
         Want want;
@@ -172,7 +175,7 @@ HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0005, Func
  */
 HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0006, Function | SmallTest | Level0)
 {
-    auto serviceRouterMgr = ServiceRouterMgrHelper::GetInstance().GetServiceRouterMgr();
+    auto serviceRouterMgr = std::make_shared<ServiceRouterDataMgr>();
     EXPECT_NE(serviceRouterMgr, nullptr);
     if (serviceRouterMgr != nullptr) {
         Want want;
@@ -389,28 +392,179 @@ HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0019, Func
 }
 
 /**
- * @tc.number: ServiceRouterMgrInterfaceTest_0020
- * @tc.name: test StartUIExtensionAbility
+ * @tc.number: ServiceRouterMgrInterfaceTest
+ * @tc.name: test LoadAllBundleInfos
+ * @tc.desc: test LoadAllBundleInfos function
  */
 HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0020, Function | SmallTest | Level0)
 {
-    auto serviceRouterMgr = ServiceRouterMgrHelper::GetInstance().GetServiceRouterMgr();
-    EXPECT_TRUE(serviceRouterMgr != nullptr);
-    serviceRouterMgr->StartUIExtensionAbility(nullptr, 100);
+    auto serviceRouterMgr = std::make_shared<ServiceRouterDataMgr>();
+    EXPECT_NE(serviceRouterMgr, nullptr);
+    if (serviceRouterMgr != nullptr) {
+        auto ret = serviceRouterMgr->LoadAllBundleInfos();
+        EXPECT_EQ(ret, true);
+    }
 }
 
 /**
- * @tc.number: ServiceRouterMgrInterfaceTest_0021
- * @tc.name: test ConnectUIExtensionAbility
+ * @tc.number: ServiceRouterMgrInterfaceTest
+ * @tc.name: test LoadBundleInfo
+ * @tc.desc: test LoadBundleInfo function
  */
 HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0021, Function | SmallTest | Level0)
 {
-    auto serviceRouterMgr = ServiceRouterMgrHelper::GetInstance().GetServiceRouterMgr();
-    EXPECT_TRUE(serviceRouterMgr != nullptr);
+    auto serviceRouterMgr = std::make_shared<ServiceRouterDataMgr>();
+    EXPECT_NE(serviceRouterMgr, nullptr);
+    if (serviceRouterMgr != nullptr) {
+        std::string bundleName = BUNDLE_NAME;
+        auto ret = serviceRouterMgr->LoadBundleInfo(bundleName);
+        EXPECT_EQ(ret, false);
+    }
+}
+
+/**
+ * @tc.number: ServiceRouterMgrInterfaceTest
+ * @tc.name: test UpdateBundleInfoLocked
+ * @tc.desc: test UpdateBundleInfoLocked function
+ */
+HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0022, Function | SmallTest | Level0)
+{
+    auto serviceRouterMgr = std::make_shared<ServiceRouterDataMgr>();
+    EXPECT_NE(serviceRouterMgr, nullptr);
+    if (serviceRouterMgr != nullptr) {
+        BundleInfo bundleInfo;
+        serviceRouterMgr->UpdateBundleInfoLocked(bundleInfo);
+    }
+}
+
+/**
+ * @tc.number: ServiceRouterMgrInterfaceTest
+ * @tc.name: test DeleteBundleInfo
+ * @tc.desc: test DeleteBundleInfo function
+ */
+HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0023, Function | SmallTest | Level0)
+{
+    auto serviceRouterMgr = std::make_shared<ServiceRouterDataMgr>();
+    EXPECT_NE(serviceRouterMgr, nullptr);
+    if (serviceRouterMgr != nullptr) {
+        std::string bundleName = BUNDLE_NAME;
+        serviceRouterMgr->DeleteBundleInfo(bundleName);
+    }
+}
+
+/**
+ * @tc.number: ServiceRouterMgrInterfaceTest
+ * @tc.name: test GetBusinessType
+ * @tc.desc: test GetBusinessType function 1
+ */
+HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0024, Function | SmallTest | Level0)
+{
+    auto serviceRouterMgr = std::make_shared<ServiceRouterDataMgr>();
+    EXPECT_NE(serviceRouterMgr, nullptr);
+    if (serviceRouterMgr != nullptr) {
+        BusinessAbilityFilter filter;
+        filter.businessType = BusinessType::SHARE;
+        auto ret = serviceRouterMgr->GetBusinessType(filter);
+        EXPECT_EQ(ret, BusinessType::SHARE);
+    }
+}
+
+/**
+ * @tc.number: ServiceRouterMgrInterfaceTest
+ * @tc.name: test GetBusinessType
+ * @tc.desc: test GetBusinessType function 2
+ */
+HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0025, Function | SmallTest | Level0)
+{
+    auto serviceRouterMgr = std::make_shared<ServiceRouterDataMgr>();
+    EXPECT_NE(serviceRouterMgr, nullptr);
+    if (serviceRouterMgr != nullptr) {
+        BusinessAbilityFilter filter;
+        filter.businessType = BusinessType::UNSPECIFIED;
+        filter.uri = "";
+        auto ret = serviceRouterMgr->GetBusinessType(filter);
+        EXPECT_EQ(ret, BusinessType::UNSPECIFIED);
+    }
+}
+
+/**
+ * @tc.number: ServiceRouterMgrInterfaceTest
+ * @tc.name: test ClearAllBundleInfos
+ * @tc.desc: test ClearAllBundleInfos function
+ */
+HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0026, Function | SmallTest | Level0)
+{
+    auto serviceRouterMgr = std::make_shared<ServiceRouterDataMgr>();
+    EXPECT_NE(serviceRouterMgr, nullptr);
+    if (serviceRouterMgr != nullptr) {
+        serviceRouterMgr->ClearAllBundleInfos();
+    }
+}
+
+/**
+ * @tc.number: serviceRouterMgrProxy
+ * @tc.name: test QueryBusinessAbilityInfos
+ * @tc.require: I9KS48
+ * @tc.desc: QueryBusinessAbilityInfos
+ */
+HWTEST_F(ServiceRouterMgrInterfaceTest, serviceRouterMgrProxy_0001, Function | SmallTest | Level0)
+{
+    auto serviceRouterMgrProxy = std::make_shared<ServiceRouterMgrProxy>(nullptr);
+    EXPECT_NE(serviceRouterMgrProxy, nullptr);
+    BusinessAbilityFilter filter;
+    filter.businessType = BusinessType::UNSPECIFIED;
+    std::vector<BusinessAbilityInfo> abilityInfos;
+    auto ret = serviceRouterMgrProxy->QueryBusinessAbilityInfos(filter, abilityInfos);
+    EXPECT_EQ(ret, ERR_COD1);
+}
+
+/**
+ * @tc.number: serviceRouterMgrProxy
+ * @tc.name: test QueryPurposeInfos
+ * @tc.require: I9KS48
+ * @tc.desc: QueryPurposeInfos
+ */
+HWTEST_F(ServiceRouterMgrInterfaceTest, serviceRouterMgrProxy_0002, Function | SmallTest | Level0)
+{
+    auto serviceRouterMgrProxy = std::make_shared<ServiceRouterMgrProxy>(nullptr);
+    EXPECT_NE(serviceRouterMgrProxy, nullptr);
+    Want want;
+    std::vector<PurposeInfo> purposeInfos;
+    auto ret = serviceRouterMgrProxy->QueryPurposeInfos(want, "", purposeInfos);
+    EXPECT_EQ(ret, ERR_COD1);
+}
+
+/**
+ * @tc.number: serviceRouterMgrProxy
+ * @tc.name: test StartUIExtensionAbility
+ * @tc.require: I9KS48
+ * @tc.desc: StartUIExtensionAbility
+ */
+HWTEST_F(ServiceRouterMgrInterfaceTest, serviceRouterMgrProxy_0003, Function | SmallTest | Level0)
+{
+    auto serviceRouterMgrProxy = std::make_shared<ServiceRouterMgrProxy>(nullptr);
+    EXPECT_NE(serviceRouterMgrProxy, nullptr);
+    sptr<SessionInfo> sessionInfo = nullptr;
+    int32_t userId = 1;
+    auto ret = serviceRouterMgrProxy->StartUIExtensionAbility(sessionInfo, userId);
+    EXPECT_EQ(ret, ERR_COD1);
+}
+
+/**
+ * @tc.number: serviceRouterMgrProxy
+ * @tc.name: test ConnectUIExtensionAbility
+ * @tc.require: I9KS48
+ * @tc.desc: ConnectUIExtensionAbility
+ */
+HWTEST_F(ServiceRouterMgrInterfaceTest, serviceRouterMgrProxy_0004, Function | SmallTest | Level0)
+{
+    auto serviceRouterMgrProxy = std::make_shared<ServiceRouterMgrProxy>(nullptr);
+    EXPECT_NE(serviceRouterMgrProxy, nullptr);
     Want want;
     sptr<IAbilityConnection> connect = nullptr;
     sptr<SessionInfo> sessionInfo = nullptr;
     int32_t userId = 1;
-    serviceRouterMgr->ConnectUIExtensionAbility(want, connect, sessionInfo, userId);
+    auto ret = serviceRouterMgrProxy->ConnectUIExtensionAbility(want, connect, sessionInfo, userId);
+    EXPECT_EQ(ret, ERR_COD2);
 }
 } // OHOS

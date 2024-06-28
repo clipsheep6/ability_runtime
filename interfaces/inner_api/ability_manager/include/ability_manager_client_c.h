@@ -25,9 +25,10 @@ extern "C" {
 /**
  * Record app exit reason.
  * @param exitReason The reason of app exit. defined in ability_state.h
+ * @param exitMsg The message of app exit.
  * @return Returns ERR_OK on success, others on failure.
  */
-int RecordAppExitReason(int exitReason);
+int RecordAppExitReason(int exitReason, const char *exitMsg = "");
 
 #ifdef __cplusplus
 }

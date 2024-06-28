@@ -21,17 +21,19 @@
 #include "semaphore_ex.h"
 #include "app_scheduler_interface.h"
 #include "app_mgr_stub.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "app_malloc_info.h"
+#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 class MockAppMgrService : public AppMgrStub {
 public:
-    MOCK_METHOD5(LoadAbility,
+    MOCK_METHOD6(LoadAbility,
         void(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken,
             const std::shared_ptr<AbilityInfo>& abilityInfo, const std::shared_ptr<ApplicationInfo>& appInfo,
-            const std::shared_ptr<AAFwk::Want>& want));
+            const std::shared_ptr<AAFwk::Want>& want, int32_t abilityRecordId));
     MOCK_METHOD2(TerminateAbility, void(const sptr<IRemoteObject>& token, bool isClearMissionFlag));
     MOCK_METHOD2(UpdateAbilityState, void(const sptr<IRemoteObject>& token, const AbilityState state));
     MOCK_METHOD1(SetAppFreezingTime, void(int time));
@@ -39,6 +41,7 @@ public:
     MOCK_METHOD1(AddAbilityStageDone, void(const int32_t recordId));
     MOCK_METHOD1(StartupResidentProcess, void(const std::vector<AppExecFwk::BundleInfo>& bundleInfos));
     MOCK_METHOD1(NotifyMemoryLevel, int(int32_t level));
+    MOCK_METHOD1(NotifyProcMemoryLevel, int32_t(const std::map<pid_t, MemoryLevel> &procLevelMap));
     MOCK_METHOD2(DumpHeapMemory, int(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo));
     MOCK_METHOD2(GetProcessRunningInfosByUserId, int(std::vector<RunningProcessInfo>& info, int32_t userId));
     MOCK_METHOD4(StartUserTestProcess, int(const AAFwk::Want& want, const sptr<IRemoteObject>& observer,
@@ -52,10 +55,11 @@ public:
     MOCK_METHOD0(BlockAppService, int());
 #endif
     MOCK_METHOD0(PreStartNWebSpawnProcess, int());
-    MOCK_METHOD5(StartRenderProcess,
+    MOCK_METHOD6(StartRenderProcess,
                  int(const std::string &renderParam, int32_t ipcFd,
-                     int32_t sharedFd, int32_t crashFd, pid_t &renderPid));
+                     int32_t sharedFd, int32_t crashFd, pid_t &renderPid, bool isGPU));
     MOCK_METHOD1(AttachRenderProcess, void(const sptr<IRemoteObject>& renderScheduler));
+    MOCK_METHOD1(SaveBrowserChannel, void(sptr<IRemoteObject> browser));
     MOCK_METHOD2(GetRenderProcessTerminationStatus, int(pid_t renderPid, int& status));
     MOCK_METHOD1(GetConfiguration, int32_t(Configuration& config));
     MOCK_METHOD1(UpdateConfiguration, int32_t(const Configuration& config));
@@ -73,6 +77,19 @@ public:
     MOCK_METHOD2(GetProcessMemoryByPid, int32_t(const int32_t pid, int32_t & memorySize));
     MOCK_METHOD3(GetRunningProcessInformation, int32_t(const std::string & bundleName, int32_t userId,
         std::vector<RunningProcessInfo> &info));
+    MOCK_METHOD3(StartChildProcess, int32_t(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount));
+    MOCK_METHOD1(GetChildProcessInfoForSelf, int32_t(ChildProcessInfo &info));
+    MOCK_METHOD1(AttachChildProcess, void(const sptr<IRemoteObject> &childScheduler));
+    MOCK_METHOD0(ExitChildProcessSafely, void());
+    MOCK_METHOD1(RegisterRenderStateObserver, int32_t(const sptr<IRenderStateObserver> &observer));
+    MOCK_METHOD1(UnregisterRenderStateObserver, int32_t(const sptr<IRenderStateObserver> &observer));
+    MOCK_METHOD2(UpdateRenderState, int32_t(pid_t renderPid, int32_t state));
+    MOCK_METHOD1(SetSupportedProcessCacheSelf, int32_t(bool isSupported));
+    MOCK_METHOD2(GetRunningMultiAppInfoByBundleName, int32_t(const std::string &bundleName,
+        RunningMultiAppInfo &info));
+    MOCK_METHOD3(StartNativeChildProcess, int32_t(const std::string &libName, int32_t childProcessCount,
+        const sptr<IRemoteObject> &callback));
+
     void AttachApplication(const sptr<IRemoteObject>& app)
     {
         GTEST_LOG_(INFO) << "MockAppMgrService::AttachApplication called";
@@ -101,7 +118,6 @@ public:
         Terminated_ = true;
         EXPECT_TRUE(Terminated_);
     }
-    MOCK_METHOD2(CheckPermission, int32_t(const int32_t recordId, const std::string& permission));
 
     virtual void AbilityCleaned(const sptr<IRemoteObject>& token)
     {
@@ -112,14 +128,15 @@ public:
 
     MOCK_METHOD2(UpdateApplicationInfoInstalled, int(const std::string&, const int uid));
 
-    MOCK_METHOD1(KillApplication, int(const std::string& appName));
+    MOCK_METHOD2(KillApplication, int(const std::string& appName, const bool clearPageStack));
     MOCK_METHOD2(KillApplicationByUid, int(const std::string&, const int uid));
+    MOCK_METHOD0(IsFinalAppProcess, bool());
 
     virtual sptr<IAmsMgr> GetAmsMgr() override
     {
         return nullptr;
     };
-    virtual int32_t ClearUpApplicationData(const std::string& appName) override
+    virtual int32_t ClearUpApplicationData(const std::string& appName, int32_t appCloneIndex) override
     {
         return 0;
     }
@@ -132,16 +149,23 @@ public:
     int IsBackgroundRunningRestricted(const std::string& appName)
     {
         return 0;
-    };
+    }
+
     virtual int GetAllRunningProcesses(std::vector<RunningProcessInfo>& info) override
     {
         return 0;
-    };
+    }
+
+    virtual int GetRunningProcessesByBundleType(const BundleType bundleType,
+        std::vector<RunningProcessInfo>& info) override
+    {
+        return 0;
+    }
 
     virtual int GetAllRenderProcesses(std::vector<RenderProcessInfo>& info) override
     {
         return 0;
-    };
+    }
 
     virtual int32_t StartNativeProcessForDebugger(const AAFwk::Want &want) override
     {
@@ -199,10 +223,10 @@ public:
         callback_->OnAbilityRequestDone(token, st);
     }
 
-    void ScheduleTerminateApplication()
+    void ScheduleTerminateApplication(bool isLastProcess = false)
     {
         if (Appthread_ != nullptr) {
-            Appthread_->ScheduleTerminateApplication();
+            Appthread_->ScheduleTerminateApplication(isLastProcess);
         }
     }
 
@@ -245,7 +269,7 @@ public:
         const std::shared_ptr<AAFwk::Want>& want)
     {
         if (Appthread_ != nullptr) {
-            Appthread_->ScheduleLaunchAbility(abilityinf, token, want);
+            Appthread_->ScheduleLaunchAbility(abilityinf, token, want, 0);
         }
     }
 
@@ -277,37 +301,42 @@ public:
 
     bool IsAttached()
     {
-        HILOG_INFO("MockAppMgrService::IsAttached Attached_ = %{public}d", Attached_);
+        TAG_LOGI(AAFwkTag::TEST, "MockAppMgrService::IsAttached Attached_ = %{public}d", Attached_);
         return Attached_;
     }
 
     bool IsForegrounded()
     {
-        HILOG_INFO("MockAppMgrService::IsForegrounded Foregrounded_ = %{public}d", Foregrounded_);
+        TAG_LOGI(AAFwkTag::TEST, "MockAppMgrService::IsForegrounded Foregrounded_ = %{public}d", Foregrounded_);
         return Foregrounded_;
     }
 
     bool IsBackgrounded()
     {
-        HILOG_INFO("MockAppMgrService::IsBackgrounded Backgrounded_ = %{public}d", Backgrounded_);
+        TAG_LOGI(AAFwkTag::TEST, "MockAppMgrService::IsBackgrounded Backgrounded_ = %{public}d", Backgrounded_);
         return Backgrounded_;
     }
 
     bool IsTerminated()
     {
-        HILOG_INFO("MockAppMgrService::IsTerminated Terminated_ = %{public}d", Terminated_);
+        TAG_LOGI(AAFwkTag::TEST, "MockAppMgrService::IsTerminated Terminated_ = %{public}d", Terminated_);
         return Terminated_;
     }
 
     void init()
     {
-        HILOG_INFO("MockAppMgrService::init called");
+        TAG_LOGI(AAFwkTag::TEST, "MockAppMgrService::init called");
         Attached_ = false;
     }
 
     bool AddDeathRecipient(const sptr<DeathRecipient>& recipient)
     {
         return true;
+    }
+
+    int32_t DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
+    {
+        return 0;
     }
 
 private:

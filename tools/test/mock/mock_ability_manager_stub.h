@@ -31,8 +31,8 @@ public:
 
     MOCK_METHOD4(StartAbility, int(const Want& want, const sptr<IRemoteObject>& callerToken,
         int32_t userId, int requestCode));
-    MOCK_METHOD4(StartAbilityAsCaller, int(const Want &want, const sptr<IRemoteObject> &callerToken,
-        int32_t userId, int requestCode));
+    MOCK_METHOD6(StartAbilityAsCaller, int(const Want &want, const sptr<IRemoteObject> &callerToken,
+        sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode, bool isSendDialogResult));
     MOCK_METHOD3(TerminateAbility, int(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant));
     MOCK_METHOD3(TerminateUIExtensionAbility, int(const sptr<SessionInfo> &extensionSessionInfo, int resultCode,
         const Want* resultWant));
@@ -51,7 +51,7 @@ public:
     }
     MOCK_METHOD4(ConnectAbility, int(const Want& want, const sptr<IAbilityConnection>& connect,
         const sptr<IRemoteObject>& callerToken, int32_t userId));
-    MOCK_METHOD1(DisconnectAbility, int(const sptr<IAbilityConnection>& connect));
+    MOCK_METHOD1(DisconnectAbility, int(sptr<IAbilityConnection> connect));
     MOCK_METHOD3(AcquireDataAbility,
         sptr<IAbilityScheduler>(const Uri& uri, bool tryBind, const sptr<IRemoteObject>& callerToken));
     MOCK_METHOD2(
@@ -70,12 +70,13 @@ public:
     int StopServiceAbility(const Want& want, int32_t userId = DEFAULT_INVAL_VALUE,
         const sptr<IRemoteObject> &token = nullptr);
 
-    MOCK_METHOD1(KillProcess, int(const std::string& bundleName));
+    MOCK_METHOD2(KillProcess, int(const std::string& bundleName, const bool clearPageStack));
     MOCK_METHOD2(UninstallApp, int(const std::string& bundleName, int32_t uid));
+    MOCK_METHOD3(UninstallApp, int32_t(const std::string& bundleName, int32_t uid, int32_t appIndex));
 
     MOCK_METHOD2(
         GetWantSender, sptr<IWantSender>(const WantSenderInfo& wantSenderInfo, const sptr<IRemoteObject>& callerToken));
-    MOCK_METHOD2(SendWantSender, int(const sptr<IWantSender>& target, const SenderInfo& senderInfo));
+    MOCK_METHOD2(SendWantSender, int(sptr<IWantSender> target, const SenderInfo& senderInfo));
     MOCK_METHOD1(CancelWantSender, void(const sptr<IWantSender>& sender));
     MOCK_METHOD1(GetPendingWantUid, int(const sptr<IWantSender>& target));
     MOCK_METHOD1(GetPendingWantUserId, int(const sptr<IWantSender>& target));
@@ -87,6 +88,8 @@ public:
     MOCK_METHOD2(GetPendingRequestWant, int(const sptr<IWantSender>& target, std::shared_ptr<Want>& want));
     MOCK_METHOD5(StartAbility, int(const Want& want, const AbilityStartSetting& abilityStartSetting,
         const sptr<IRemoteObject>& callerToken, int32_t userId, int requestCode));
+    MOCK_METHOD4(StartAbilityByInsightIntent, int32_t(const Want& want, const sptr<IRemoteObject>& callerToken,
+        uint64_t intentId, int32_t userId));
     MOCK_METHOD1(GetMissionIdByToken, int32_t(const sptr<IRemoteObject>& token));
     MOCK_METHOD1(GetPendinTerminateAbilityTestgRequestWant, void(int id));
     MOCK_METHOD3(StartContinuation, int(const Want& want, const sptr<IRemoteObject>& abilityToken, int32_t status));
@@ -113,7 +116,6 @@ public:
     MOCK_METHOD2(SetMissionLabel, int(const sptr<IRemoteObject>& token, const std::string& label));
     MOCK_METHOD2(SetMissionIcon, int(const sptr<IRemoteObject>& token,
         const std::shared_ptr<OHOS::Media::PixelMap>& icon));
-    MOCK_METHOD1(ClearUpApplicationData, int(const std::string&));
     MOCK_METHOD1(GetAbilityRunningInfos, int(std::vector<AbilityRunningInfo>& info));
     MOCK_METHOD2(GetExtensionRunningInfos, int(int upperLimit, std::vector<ExtensionRunningInfo>& info));
     MOCK_METHOD1(GetProcessRunningInfos, int(std::vector<AppExecFwk::RunningProcessInfo>& info));
@@ -136,21 +138,28 @@ public:
         const Want& want,
         const StartOptions& startOptions,
         const sptr<IRemoteObject>& callerToken,
+        sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE)
     {
         return 0;
     }
 
-    int StartUser(int userId) override
+    int StartUser(int userId, sptr<IUserCallback> callback) override
     {
         return 0;
     }
 
-    int StopUser(int userId, const sptr<IStopUserCallback>& callback) override
+    int StopUser(int userId, const sptr<IUserCallback>& callback) override
     {
         return 0;
     }
+
+    int LogoutUser(int32_t userId) override
+    {
+        return 0;
+    }
+
     int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override
     {
         return 0;
@@ -202,12 +211,12 @@ public:
         return 0;
     }
 
-    void CompleteFirstFrameDrawing(const sptr<IRemoteObject>& abilityToken) override {}
-
-    virtual int SendANRProcessID(int pid)
+    virtual int32_t GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
     {
         return 0;
     }
+
+    void CompleteFirstFrameDrawing(const sptr<IRemoteObject>& abilityToken) override {}
 
     int SetAbilityController(const sptr<AppExecFwk::IAbilityController>& abilityController,
         bool imAStabilityTest) override
@@ -245,6 +254,16 @@ public:
         return 0;
     }
 
+    int32_t SetApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag) override
+    {
+        return 0;
+    }
+
+    int32_t CancelApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag) override
+    {
+        return 0;
+    }
+
 #ifdef ABILITY_COMMAND_FOR_TEST
     MOCK_METHOD2(ForceTimeoutForTest, int(const std::string& abilityName, const std::string& state));
 
@@ -264,11 +283,16 @@ public:
     }
 #endif
     MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionValidResult>&));
-    MOCK_METHOD1(RegisterAppDebugListener, int32_t(const sptr<AppExecFwk::IAppDebugListener> &listener));
-    MOCK_METHOD1(UnregisterAppDebugListener, int32_t(const sptr<AppExecFwk::IAppDebugListener> &listener));
+    MOCK_METHOD1(RegisterAppDebugListener, int32_t(sptr<AppExecFwk::IAppDebugListener> listener));
+    MOCK_METHOD1(UnregisterAppDebugListener, int32_t(sptr<AppExecFwk::IAppDebugListener> listener));
     MOCK_METHOD1(AttachAppDebug, int32_t(const std::string &bundleName));
     MOCK_METHOD1(DetachAppDebug, int32_t(const std::string &bundleName));
-
+    MOCK_METHOD3(ExecuteIntent, int32_t(uint64_t key, const sptr<IRemoteObject> &callerToken,
+        const InsightIntentExecuteParam &param));
+    MOCK_METHOD3(ExecuteInsightIntentDone, int32_t(const sptr<IRemoteObject> &token, uint64_t intentId,
+        const InsightIntentExecuteResult &result));
+    MOCK_METHOD5(StartAbilityWithSpecifyTokenId, int(const Want& want, const sptr<IRemoteObject>& callerToken,
+        uint32_t specifyTokenId, int32_t userId, int requestCode));
 public:
     std::string powerState_;
 };

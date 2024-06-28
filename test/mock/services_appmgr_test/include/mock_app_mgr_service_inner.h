@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,10 +30,10 @@ public:
     virtual ~MockAppMgrServiceInner()
     {}
 
-    MOCK_METHOD5(LoadAbility,
-        void(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken,
-            const std::shared_ptr<AbilityInfo>& abilityInfo, const std::shared_ptr<ApplicationInfo>& appInfo,
-            const std::shared_ptr<AAFwk::Want>& want));
+    MOCK_METHOD6(LoadAbility,
+        void(sptr<IRemoteObject> token, sptr<IRemoteObject> preToken,
+            std::shared_ptr<AbilityInfo> abilityInfo, std::shared_ptr<ApplicationInfo> appInfo,
+            std::shared_ptr<AAFwk::Want> want, int32_t abilityRecordId));
     MOCK_METHOD2(AttachApplication, void(const pid_t pid, const sptr<IAppScheduler>& app));
     MOCK_METHOD1(ApplicationForegrounded, void(const int32_t recordId));
     MOCK_METHOD1(ApplicationBackgrounded, void(const int32_t recordId));
@@ -41,10 +41,12 @@ public:
     MOCK_METHOD2(UpdateAbilityState, void(const sptr<IRemoteObject>& token, const AbilityState state));
     MOCK_METHOD2(TerminateAbility, void(const sptr<IRemoteObject>& token, bool clearMissionFlag));
     MOCK_METHOD2(UpdateApplicationInfoInstalled, int(const std::string&, const int uid));
-    MOCK_METHOD1(KillApplication, int32_t(const std::string& bundleName));
+    MOCK_METHOD2(KillApplication, int32_t(const std::string& bundleName, const bool clearPageStack));
     MOCK_METHOD2(KillApplicationByUid, int(const std::string&, const int uid));
     MOCK_METHOD1(AbilityTerminated, void(const sptr<IRemoteObject>& token));
-    MOCK_METHOD3(ClearUpApplicationData, void(const std::string&, const int32_t, const pid_t));
+    MOCK_METHOD5(ClearUpApplicationData,
+        int32_t(const std::string&, const int32_t, const pid_t, int32_t appCloneIndex, int32_t userId));
+    MOCK_METHOD3(ClearUpApplicationDataBySelf, int32_t(int32_t, pid_t, int32_t userId));
     MOCK_METHOD1(IsBackgroundRunningRestricted, int32_t(const std::string&));
     MOCK_METHOD1(GetAllRunningProcesses, int32_t(std::vector<RunningProcessInfo>&));
     MOCK_METHOD1(GetAllRenderProcesses, int32_t(std::vector<RenderProcessInfo>&));
@@ -61,7 +63,18 @@ public:
     MOCK_METHOD0(GetConfiguration, std::shared_ptr<Configuration>());
     MOCK_METHOD2(IsSharedBundleRunning, bool(const std::string &bundleName, uint32_t versionCode));
     MOCK_METHOD3(GetBundleNameByPid, int32_t(const int pid, std::string &bundleName, int32_t &uid));
-    void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
+    MOCK_METHOD5(StartChildProcess, int32_t(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid,
+        int32_t childProcessCount, bool isStartWithNative));
+    MOCK_METHOD1(GetChildProcessInfoForSelf, int32_t(ChildProcessInfo &info));
+    MOCK_METHOD2(SetAppWaitingDebug, int32_t(const std::string &bundleName, bool isPersist));
+    MOCK_METHOD0(CancelAppWaitingDebug, int32_t());
+    MOCK_METHOD1(GetWaitingDebugApp, int32_t(std::vector<std::string> &debugInfoList));
+    MOCK_METHOD1(IsWaitingDebugApp, bool(const std::string &bundleName));
+    MOCK_METHOD0(ClearNonPersistWaitingDebugFlag, void());
+    MOCK_METHOD0(IsMemorySizeSufficent, bool());
+    MOCK_METHOD4(StartNativeChildProcess, int32_t(const pid_t hostPid,
+        const std::string &libName, int32_t childProcessCount, const sptr<IRemoteObject> &callback));
+    void StartSpecifiedAbility(const AAFwk::Want&, const AppExecFwk::AbilityInfo&, int32_t)
     {}
 
     void Post()

@@ -18,9 +18,9 @@
 
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "application.missionManager",
     .nm_filename = "application/libmissionmanager_napi.so/missionmanager.js",
     .nm_register_func = OHOS::AbilityRuntime::JsMissionManagerInit,
+    .nm_modname = "application.missionManager",
 };
 
 extern "C" __attribute__((constructor)) void NAPI_application_missionmanager_AutoRegister(void)

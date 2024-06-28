@@ -15,6 +15,7 @@
 
 #include "app_state_callback_host.h"
 #include "appexecfwk_errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
@@ -36,12 +37,17 @@ int AppStateCallbackHost::OnRemoteRequest(
 
 void AppStateCallbackHost::OnAbilityRequestDone(const sptr<IRemoteObject>&, const AbilityState)
 {
-    HILOG_DEBUG("OnAbilityRequestDone called");
+    TAG_LOGD(AAFwkTag::TEST, "OnAbilityRequestDone called");
 }
 
 void AppStateCallbackHost::OnAppStateChanged(const AppProcessData&)
 {
-    HILOG_DEBUG("OnAppStateChanged called");
+    TAG_LOGD(AAFwkTag::TEST, "OnAppStateChanged called");
+}
+
+void AppStateCallbackHost::NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos)
+{
+    TAG_LOGD(AAFwkTag::TEST, "NotifyStartResidentProcess called");
 }
 
 int32_t AppStateCallbackHost::HandleOnAppStateChanged(MessageParcel& data, MessageParcel& reply)
@@ -50,6 +56,11 @@ int32_t AppStateCallbackHost::HandleOnAppStateChanged(MessageParcel& data, Messa
 }
 
 int32_t AppStateCallbackHost::HandleOnAbilityRequestDone(MessageParcel& data, MessageParcel& reply)
+{
+    return NO_ERROR;
+}
+
+int32_t AppStateCallbackHost::HandleNotifyStartResidentProcess(MessageParcel &data, MessageParcel &reply)
 {
     return NO_ERROR;
 }

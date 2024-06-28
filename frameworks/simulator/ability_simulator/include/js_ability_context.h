@@ -23,9 +23,7 @@
 #include "configuration.h"
 #include "js_runtime_utils.h"
 
-class NativeObject;
 class NativeReference;
-class NativeValue;
 
 namespace OHOS {
 namespace AbilityRuntime {

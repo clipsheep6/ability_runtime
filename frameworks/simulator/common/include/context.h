@@ -41,6 +41,8 @@ public:
 
     virtual std::string GetTempDir() = 0;
 
+    virtual std::string GetResourceDir() = 0;
+
     virtual std::string GetFilesDir() = 0;
 
     virtual std::string GetDatabaseDir() = 0;
@@ -48,6 +50,8 @@ public:
     virtual std::string GetPreferencesDir() = 0;
 
     virtual std::string GetDistributedFilesDir() = 0;
+
+    virtual std::string GetCloudFileDir() = 0;
 
     virtual void SwitchArea(int mode) = 0;
 

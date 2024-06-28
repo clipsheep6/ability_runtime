@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,8 @@
 
 #include "dlp_state_item.h"
 
+#include "global_constant.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -52,13 +54,13 @@ int32_t DlpStateItem::GetOpenedAbilitySize() const
 bool DlpStateItem::HandleDlpConnectionState(const std::shared_ptr<AbilityRecord> &record, bool isAdd,
     AbilityRuntime::DlpStateData &data)
 {
-    if (!record || record->GetAppIndex() == 0) {
-        HILOG_WARN("invalid dlp ability.");
+    if (!record || record->GetAppIndex() <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "invalid dlp ability.");
         return false;
     }
 
     if (dlpUid_ == 0 || dlpPid_ == 0) {
-        HILOG_WARN("invalid dlp manager state.");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "invalid dlp manager state.");
         return false;
     }
 
@@ -68,7 +70,7 @@ bool DlpStateItem::HandleDlpConnectionState(const std::shared_ptr<AbilityRecord>
     }
 
     if (!tokenObj) {
-        HILOG_WARN("invalid ability, no ability token.");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "invalid ability, no ability token.");
         return false;
     }
 
@@ -78,13 +80,13 @@ bool DlpStateItem::HandleDlpConnectionState(const std::shared_ptr<AbilityRecord>
 
     if (isAdd) {
         if (it != dlpAbilities_.end()) {
-            HILOG_INFO("dlp ability already reported.");
+            TAG_LOGI(AAFwkTag::ABILITYMGR, "dlp ability already reported.");
             return false;
         }
         dlpAbilities_.emplace_back(tokenObj);
     } else {
         if (it == dlpAbilities_.end()) {
-            HILOG_INFO("find target dlp ability failed, not report closed.");
+            TAG_LOGI(AAFwkTag::ABILITYMGR, "find target dlp ability failed, not report closed.");
             return false;
         }
         dlpAbilities_.erase(it);

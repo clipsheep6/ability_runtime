@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 #include "connect_callback_proxy.h"
 
 #include "extra_params.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "string_ex.h"
 
@@ -28,15 +29,15 @@ namespace AppExecFwk {
  */
 void ConnectCallbackProxy::Connect(const string &deviceId, const string &deviceType)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     MessageParcel data;
     if (!data.WriteInterfaceToken(IConnectCallback::GetDescriptor()) || !data.WriteString(deviceId) ||
         !data.WriteString(deviceType)) {
-        HILOG_ERROR("%{public}s params is wrong", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s params is wrong", __func__);
         return;
     }
     RemoteRequest(data, COMMAND_CONNECT);
-    HILOG_INFO("%{public}s called end", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 /**
  * @brief Remote device sends disconnection request.
@@ -45,27 +46,27 @@ void ConnectCallbackProxy::Connect(const string &deviceId, const string &deviceT
  */
 void ConnectCallbackProxy::Disconnect(const string &deviceId)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     MessageParcel data;
     if (!data.WriteInterfaceToken(IConnectCallback::GetDescriptor()) || !data.WriteString(deviceId)) {
-        HILOG_ERROR("%{public}s params is wrong", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s params is wrong", __func__);
         return;
     }
     RemoteRequest(data, COMMAND_DISCONNECT);
-    HILOG_INFO("%{public}s called end", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 void ConnectCallbackProxy::RemoteRequest(MessageParcel &data, int commandDisconnect)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     MessageParcel reply;
     MessageOption option;
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "remote object is nullptr.");
         return;
     }
     remote->SendRequest(commandDisconnect, data, reply, option);
-    HILOG_INFO("%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

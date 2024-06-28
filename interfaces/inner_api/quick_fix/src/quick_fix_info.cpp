@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "quick_fix_info.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -26,7 +27,7 @@ bool ApplicationQuickFixInfo::ReadFromParcel(Parcel &parcel)
     bundleVersionName = parcel.ReadString();
     std::unique_ptr<AppExecFwk::AppqfInfo> qfInfo(parcel.ReadParcelable<AppExecFwk::AppqfInfo>());
     if (qfInfo == nullptr) {
-        HILOG_ERROR("ReadParcelable<AppqfInfo> failed.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "ReadParcelable<AppqfInfo> failed.");
         return false;
     }
     appqfInfo = *qfInfo;
@@ -36,19 +37,19 @@ bool ApplicationQuickFixInfo::ReadFromParcel(Parcel &parcel)
 bool ApplicationQuickFixInfo::Marshalling(Parcel &parcel) const
 {
     if (!parcel.WriteString(bundleName)) {
-        HILOG_ERROR("Write bundleName failed.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Write bundleName failed.");
         return false;
     }
     if (!parcel.WriteUint32(bundleVersionCode)) {
-        HILOG_ERROR("Write bundleVersionCode failed.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Write bundleVersionCode failed.");
         return false;
     }
     if (!parcel.WriteString(bundleVersionName)) {
-        HILOG_ERROR("Write bundleVersionName failed.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Write bundleVersionName failed.");
         return false;
     }
     if (!parcel.WriteParcelable(&appqfInfo)) {
-        HILOG_ERROR("Write appQfInfo failed.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Write appQfInfo failed.");
         return false;
     }
     return true;
@@ -58,12 +59,12 @@ ApplicationQuickFixInfo *ApplicationQuickFixInfo::Unmarshalling(Parcel &parcel)
 {
     ApplicationQuickFixInfo *info = new (std::nothrow) ApplicationQuickFixInfo();
     if (info == nullptr) {
-        HILOG_ERROR("Create failed.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Create failed.");
         return nullptr;
     }
 
     if (!info->ReadFromParcel(parcel)) {
-        HILOG_ERROR("Read from parcel failed.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Read from parcel failed.");
         delete info;
         return nullptr;
     }

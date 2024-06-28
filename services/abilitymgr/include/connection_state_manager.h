@@ -71,7 +71,7 @@ public:
      *
      * @param connectionRecord connection record info.
      */
-    void AddConnection(const std::shared_ptr<ConnectionRecord> &connectionRecord);
+    void AddConnection(std::shared_ptr<ConnectionRecord> connectionRecord);
 
     /**
      * remove an connection.
@@ -79,7 +79,7 @@ public:
      * @param connectionRecord connection record info.
      * @param isCallerDied whether caller was died.
      */
-    void RemoveConnection(const std::shared_ptr<ConnectionRecord> &connectionRecord, bool isCallerDied);
+    void RemoveConnection(std::shared_ptr<ConnectionRecord> connectionRecord, bool isCallerDied);
 
     /**
      * add a data ability acquired information to manager.
@@ -189,9 +189,9 @@ private:
         ProcessDiedHandler handler_;
     };
 
-    bool AddConnectionInner(const std::shared_ptr<ConnectionRecord> &connectionRecord,
+    bool AddConnectionInner(std::shared_ptr<ConnectionRecord> connectionRecord,
         AbilityRuntime::ConnectionData &data);
-    bool RemoveConnectionInner(const std::shared_ptr<ConnectionRecord> &connectionRecord,
+    bool RemoveConnectionInner(std::shared_ptr<ConnectionRecord> connectionRecord,
         AbilityRuntime::ConnectionData &data);
     bool AddDataAbilityConnectionInner(const DataAbilityCaller &caller,
         const std::shared_ptr<DataAbilityRecord> &record, AbilityRuntime::ConnectionData &data);

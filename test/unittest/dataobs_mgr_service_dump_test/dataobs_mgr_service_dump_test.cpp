@@ -19,6 +19,7 @@
 #include "dataobs_mgr_service.h"
 #include "app_mgr_service.h"
 #undef private
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 using namespace testing;
@@ -49,7 +50,7 @@ void DataobsMgrServiceDumpTest::TearDown() {}
  */
 HWTEST_F(DataobsMgrServiceDumpTest, DataobsMgrServiceDump_0100, TestSize.Level1)
 {
-    HILOG_INFO("DataobsMgrServiceDump_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "DataobsMgrServiceDump_0100 start");
 
     auto dataobsMgrService = std::make_shared<DataObsMgrService>();
     EXPECT_NE(dataobsMgrService, nullptr);
@@ -61,7 +62,7 @@ HWTEST_F(DataobsMgrServiceDumpTest, DataobsMgrServiceDump_0100, TestSize.Level1)
     auto result = dataobsMgrService->Dump(fd, args);
     EXPECT_EQ(result, ERR_OK);
 
-    HILOG_INFO("DataobsMgrServiceDump_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "DataobsMgrServiceDump_0100 end");
 }
 
 /*
@@ -71,7 +72,7 @@ HWTEST_F(DataobsMgrServiceDumpTest, DataobsMgrServiceDump_0100, TestSize.Level1)
  */
 HWTEST_F(DataobsMgrServiceDumpTest, DataobsMgrServiceDump_0200, TestSize.Level1)
 {
-    HILOG_INFO("DataobsMgrServiceDump_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "DataobsMgrServiceDump_0200 start");
 
     auto dataobsMgrService = std::make_shared<DataObsMgrService>();
     EXPECT_NE(dataobsMgrService, nullptr);
@@ -81,7 +82,7 @@ HWTEST_F(DataobsMgrServiceDumpTest, DataobsMgrServiceDump_0200, TestSize.Level1)
     auto result = dataobsMgrService->Dump(fd, args);
     EXPECT_EQ(result, ERR_OK);
 
-    HILOG_INFO("DataobsMgrServiceDump_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "DataobsMgrServiceDump_0200 end");
 }
 
 /*
@@ -91,7 +92,7 @@ HWTEST_F(DataobsMgrServiceDumpTest, DataobsMgrServiceDump_0200, TestSize.Level1)
  */
 HWTEST_F(DataobsMgrServiceDumpTest, DataobsMgrServiceDump_0300, TestSize.Level1)
 {
-    HILOG_INFO("DataobsMgrServiceDump_0300 start");
+    TAG_LOGI(AAFwkTag::TEST, "DataobsMgrServiceDump_0300 start");
 
     auto dataobsMgrService = std::make_shared<DataObsMgrService>();
     EXPECT_NE(dataobsMgrService, nullptr);
@@ -103,7 +104,7 @@ HWTEST_F(DataobsMgrServiceDumpTest, DataobsMgrServiceDump_0300, TestSize.Level1)
     auto result = dataobsMgrService->Dump(fd, args);
     EXPECT_EQ(result, ERR_OK);
 
-    HILOG_INFO("DataobsMgrServiceDump_0300 end");
+    TAG_LOGI(AAFwkTag::TEST, "DataobsMgrServiceDump_0300 end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

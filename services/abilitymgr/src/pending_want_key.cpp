@@ -40,6 +40,7 @@ void PendingWantKey::SetRequestCode(int32_t requestCode)
 
 void PendingWantKey::SetRequestWant(const Want &requestWant)
 {
+    std::lock_guard<std::mutex> lock(requestWantMutex_);
     requestWant_ = requestWant;
 }
 
@@ -50,6 +51,7 @@ void PendingWantKey::SetRequestResolvedType(const std::string &requestResolvedTy
 
 void PendingWantKey::SetAllWantsInfos(const std::vector<WantsInfo> &allWantsInfos)
 {
+    std::lock_guard<std::mutex> lock(wantsInfosMutex_);
     allWantsInfos_ = allWantsInfos;
 }
 
@@ -66,6 +68,11 @@ void PendingWantKey::SetCode(int32_t code)
 void PendingWantKey::SetUserId(int32_t userId)
 {
     userId_ = userId;
+}
+
+void PendingWantKey::SetAppIndex(int32_t appIndex)
+{
+    appIndex_ = appIndex;
 }
 
 int32_t PendingWantKey::GetType()
@@ -90,11 +97,13 @@ int32_t PendingWantKey::GetRequestCode()
 
 Want PendingWantKey::GetRequestWant()
 {
+    std::lock_guard<std::mutex> lock(requestWantMutex_);
     return requestWant_;
 }
 
 Want& PendingWantKey::GetRequestWantRef()
 {
+    std::lock_guard<std::mutex> lock(requestWantMutex_);
     return requestWant_;
 }
 
@@ -105,6 +114,7 @@ std::string PendingWantKey::GetRequestResolvedType()
 
 std::vector<WantsInfo> PendingWantKey::GetAllWantsInfos()
 {
+    std::lock_guard<std::mutex> lock(wantsInfosMutex_);
     return allWantsInfos_;
 }
 
@@ -121,6 +131,17 @@ int32_t PendingWantKey::GetCode()
 int32_t PendingWantKey::GetUserId()
 {
     return userId_;
+}
+
+int32_t PendingWantKey::GetAppIndex()
+{
+    return appIndex_;
+}
+
+bool PendingWantKey::IsEqualsRequestWant(const Want &otherWant)
+{
+    std::lock_guard<std::mutex> lock(requestWantMutex_);
+    return requestWant_.IsEquals(otherWant);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

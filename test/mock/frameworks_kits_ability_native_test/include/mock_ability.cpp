@@ -16,6 +16,7 @@
 #include "ability.h"
 #include <gtest/gtest.h>
 #include "ability_loader.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
@@ -27,7 +28,7 @@ REGISTER_AA(Ability)
 void Ability::Init(std::shared_ptr<AbilityInfo>& abilityInfo, const std::shared_ptr<OHOSApplication>& application,
     std::shared_ptr<AbilityHandler>& handler, const sptr<IRemoteObject>& token)
 {
-    HILOG_INFO("Ability::Init called.");
+    TAG_LOGI(AAFwkTag::TEST, "Ability::Init called.");
 
     abilityInfo_ = abilityInfo;
     handler_ = handler;
@@ -149,17 +150,17 @@ void Ability::OnBackPressed()
 
 void Ability::OnNewWant(const Want& want)
 {
-    HILOG_INFO("Ability::OnNewWant called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability::OnNewWant called");
 }
 
 void Ability::OnRestoreAbilityState(const PacMap& inState)
 {
-    HILOG_INFO("Ability::OnRestoreAbilityState called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability::OnRestoreAbilityState called");
 }
 
 void Ability::OnSaveAbilityState(const PacMap& outState)
 {
-    HILOG_INFO("Ability::OnSaveAbilityState called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability::OnSaveAbilityState called");
 }
 
 void Ability::OnEventDispatch()
@@ -180,10 +181,10 @@ std::shared_ptr<AAFwk::Want> Ability::GetWant()
 void Ability::SetResult(int resultCode, const Want& resultData)
 {
     if (abilityInfo_ == nullptr) {
-        HILOG_INFO("Ability::SetResult nullptr == abilityInfo_");
+        TAG_LOGI(AAFwkTag::TEST, "Ability::SetResult nullptr == abilityInfo_");
         return;
     }
-    HILOG_INFO("Ability::SetResult called type = %{public}d", abilityInfo_->type);
+    TAG_LOGI(AAFwkTag::TEST, "Ability::SetResult called type = %{public}d", abilityInfo_->type);
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         AbilityContext::resultWant_ = resultData;
         AbilityContext::resultCode_ = resultCode;
@@ -274,16 +275,16 @@ std::shared_ptr<Uri> Ability::DenormalizeUri(const Uri& uri)
 
 std::shared_ptr<LifeCycle> Ability::GetLifecycle()
 {
-    HILOG_INFO("Ability::GetLifecycle called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability::GetLifecycle called");
     return lifecycle_;
 }
 
 AbilityLifecycleExecutor::LifecycleState Ability::GetState()
 {
-    HILOG_INFO("Ability::GetState called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability::GetState called");
 
     if (abilityLifecycleExecutor_ == nullptr) {
-        HILOG_INFO("Ability::GetState error. abilityLifecycleExecutor_ == nullptr.");
+        TAG_LOGI(AAFwkTag::TEST, "Ability::GetState error. abilityLifecycleExecutor_ == nullptr.");
         return AbilityLifecycleExecutor::LifecycleState::UNINITIALIZED;
     }
 
@@ -292,13 +293,13 @@ AbilityLifecycleExecutor::LifecycleState Ability::GetState()
 
 void Ability::StartAbility(const Want& want)
 {
-    HILOG_INFO("Ability::StartAbility called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability::StartAbility called");
     AbilityContext::StartAbility(want, -1);
 }
 
 void Ability::TerminateAbility()
 {
-    HILOG_INFO("Ability::TerminateAbility called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability::TerminateAbility called");
     AbilityContext::TerminateAbility();
 }
 
@@ -338,7 +339,7 @@ bool Ability::OnTouchEvent(const TouchEvent& touchEvent)
  */
 std::unique_ptr<Window>& Ability::GetWindow(int windowID)
 {
-    HILOG_INFO("Ability::GetWindow called windowID = %d.", windowID);
+    TAG_LOGI(AAFwkTag::TEST, "Ability::GetWindow called windowID = %d.", windowID);
 
     return abilityWindow_->GetWindow(windowID);
 }

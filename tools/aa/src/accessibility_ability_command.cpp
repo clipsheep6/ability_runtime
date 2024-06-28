@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,6 +25,7 @@
 #include "accessibility_config.h"
 #include "accessibility_system_ability_client.h"
 #include "bool_wrapper.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iservice_registry.h"
 #include "mission_snapshot.h"
@@ -240,17 +241,17 @@ AccessibilityAbilityShellCommand::AccessibilityAbilityShellCommand(int argc, cha
     : ShellCommand(argc, argv, ACCESSIBILITY_TOOL_NAME)
 {
     for (int i = 0; i < argc_; i++) {
-        HILOG_INFO("argv_[%{public}d]: %{public}s", i, argv_[i]);
+        TAG_LOGI(AAFwkTag::AA_TOOL, "argv_[%{public}d]: %{public}s", i, argv_[i]);
     }
     if (abilityClientPtr_ == nullptr) {
         abilityClientPtr_ = Accessibility::AccessibilitySystemAbilityClient::GetInstance();
         if (abilityClientPtr_ == nullptr) {
-            HILOG_ERROR("Get accessibility system ability client failed.");
+            TAG_LOGE(AAFwkTag::AA_TOOL, "Get access ability system ability client failed.");
         }
     }
     int32_t addPermissionResult = AccessibilityUtils::AddPermission();
     if (addPermissionResult != 0) {
-        HILOG_ERROR("Add permission for accessibility tool failed.");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Add permission for access ability tool failed.");
     }
 }
 
@@ -313,24 +314,6 @@ ErrCode AccessibilityAbilityShellCommand::CreateMessageMap()
 ErrCode AccessibilityAbilityShellCommand::CreateCommandMap()
 {
     commandMap_ = {
-        {"help", std::bind(&AccessibilityAbilityShellCommand::RunAsHelpCommand, this)},
-        {"enable", std::bind(&AccessibilityAbilityShellCommand::RunAsEnableAbility, this)},
-        {"disable", std::bind(&AccessibilityAbilityShellCommand::RunAsDisableAbility, this)},
-        {"list", std::bind(&AccessibilityAbilityShellCommand::RunAsGetInstalledAbilities, this)},
-        {"setShortKeyState", std::bind(&AccessibilityAbilityShellCommand::RunAsSetShortKeyState, this)},
-        {"setMouseKeyState", std::bind(&AccessibilityAbilityShellCommand::RunAsSetMouseKeyState, this)},
-        {"setCaptionState", std::bind(&AccessibilityAbilityShellCommand::RunAsSetCaptionState, this)},
-        {"setMouseAutoClick", std::bind(&AccessibilityAbilityShellCommand::RunAsSetMouseAutoClick, this)},
-        {"setShortKeyTarget", std::bind(&AccessibilityAbilityShellCommand::RunAsSetShortKeyTarget, this)},
-        {"setHighContrastTextState", std::bind(&AccessibilityAbilityShellCommand::RunAsSetHighContrastTextState, this)},
-        {"setInvertColorState", std::bind(&AccessibilityAbilityShellCommand::RunAsSetInvertColorState, this)},
-        {"setDaltonizationColorFilter",
-            std::bind(&AccessibilityAbilityShellCommand::RunAsSetDaltonizationColorFilter, this)},
-        {"setContentTimeout", std::bind(&AccessibilityAbilityShellCommand::RunAsSetContentTimeout, this)},
-        {"setAnimationOffState", std::bind(&AccessibilityAbilityShellCommand::RunAsSetAnimationOffState, this)},
-        {"setBrightnessDiscount", std::bind(&AccessibilityAbilityShellCommand::RunAsSetBrightnessDiscount, this)},
-        {"setAudioMonoState", std::bind(&AccessibilityAbilityShellCommand::RunAsSetAudioMonoState, this)},
-        {"setAudioBalance", std::bind(&AccessibilityAbilityShellCommand::RunAsSetAudioBalance, this)},
     };
 
     return OHOS::ERR_OK;
@@ -353,7 +336,8 @@ ErrCode AccessibilityAbilityShellCommand::MakeEnableCommandArgumentFromCmd(Acces
 
         option = getopt_long(argc_, argv_, ENABLE_SHORT_OPTIONS.c_str(), ENABLE_LONG_OPTIONS, nullptr);
 
-        HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
+        TAG_LOGI(
+            AAFwkTag::AA_TOOL, "option: %{public}d, optind: %{public}d, optopt: %{public}d", option, optind, optopt);
 
         if (optind < 0 || optind > argc_) {
             return OHOS::ERR_INVALID_VALUE;
@@ -506,7 +490,7 @@ const std::vector<std::string> AccessibilityAbilityShellCommand::GetEnabledAbili
     std::vector<std::string> enabledAbilities;
     if (abilityClientPtr_ != nullptr &&
         (abilityClientPtr_->GetEnabledAbilities(enabledAbilities) != Accessibility::RET_OK)) {
-        HILOG_ERROR("Failed to GetEnabledAbilities");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Failed to GetEnabledAbilities");
     }
     return enabledAbilities;
 }
@@ -518,7 +502,7 @@ const std::vector<Accessibility::AccessibilityAbilityInfo> AccessibilityAbilityS
     const Accessibility::AbilityStateType stateType = Accessibility::AbilityStateType::ABILITY_STATE_INSTALLED;
     if (abilityClientPtr_ != nullptr &&
         (abilityClientPtr_->GetAbilityList(allTypes, stateType, installedAbilities) != Accessibility::RET_OK)) {
-        HILOG_ERROR("Failed to GetInstalledAbilities");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Failed to GetInstalledAbilities");
     }
     return installedAbilities;
 }
@@ -624,31 +608,31 @@ ErrCode AccessibilityAbilityShellCommand::CheckEnableCommandArgument(const Acces
             resultMessage.append("and exist duplicated arguments");
         }
         if (argument.unknownArgumentNum > 0) {
-            resultMessage.append("and exist unknown arguments ");
+            resultMessage.append("and exist unknown arguments.");
             resultMessage.append(AccessibilityUtils::GetUnknownArgumentsMsg(argument.unknownArguments));
         }
         return OHOS::ERR_INVALID_VALUE;
     }
     if (argument.unknownArgumentNum > 0) {
-        resultMessage.append("unknown arguments ");
+        resultMessage.append("unknown arguments.");
         resultMessage.append(AccessibilityUtils::GetUnknownArgumentsMsg(argument.unknownArguments));
         return OHOS::ERR_INVALID_VALUE;
     }
     std::vector<Accessibility::AccessibilityAbilityInfo> installedAbilities = GetInstalledAbilities();
     if (!CheckAbilityArgument(argument, resultMessage)) {
-        HILOG_ERROR("abilityName = %{public}s is invalid", argument.abilityName.c_str());
+        TAG_LOGE(AAFwkTag::AA_TOOL, "abilityName = %{public}s is invalid.", argument.abilityName.c_str());
         return OHOS::ERR_INVALID_VALUE;
     }
     if (!CheckBundleArgument(argument, resultMessage)) {
-        HILOG_ERROR("bundleName = %{public}s is invalid", argument.bundleName.c_str());
+        TAG_LOGE(AAFwkTag::AA_TOOL, "bundleName = %{public}s is invalid.", argument.bundleName.c_str());
         return OHOS::ERR_INVALID_VALUE;
     }
     if (!CheckCapabilitiesArgument(argument, installedAbilities, resultMessage)) {
-        HILOG_ERROR("capabilityNames = %{public}s is invalid", argument.capabilityNames.c_str());
+        TAG_LOGE(AAFwkTag::AA_TOOL, "capabilityNames = %{public}s is invalid", argument.capabilityNames.c_str());
         return OHOS::ERR_INVALID_VALUE;
     }
     if (!CheckParamValidity(argument, installedAbilities, resultMessage)) {
-        HILOG_ERROR("%{public}s/%{public}s is not installed",
+        TAG_LOGE(AAFwkTag::AA_TOOL, "%{public}s/%{public}s is not installed",
             argument.bundleName.c_str(), argument.abilityName.c_str());
         return OHOS::ERR_INVALID_VALUE;
     }
@@ -694,30 +678,30 @@ ErrCode AccessibilityAbilityShellCommand::CheckCommandArgument(const Accessibili
     if (totalArgumentNum > ACCESSIBILITY_DISABLE_COMMAND_ARGUMENT_NUM) {
         resultReceiver_.append(ACCESSIBILITY_ABILITY_TOO_MANY_ARGUMENT);
         if (argument.bundleArgumentNum > 1 || argument.abilityArgumentNum > 1) {
-            resultMessage.append("and exist duplicated arguments.");
+            resultMessage.append("and duplicated arguments exist.");
         }
         if (argument.unknownArgumentNum > 0) {
-            resultMessage.append("and exist unknown arguments ");
+            resultMessage.append("and unknown arguments exist.");
             resultMessage.append(AccessibilityUtils::GetUnknownArgumentsMsg(argument.unknownArguments));
         }
         return OHOS::ERR_INVALID_VALUE;
     }
     if (argument.unknownArgumentNum > 0) {
-        resultMessage.append("unknown arguments ");
+        resultMessage.append("unknown arguments exist.");
         resultMessage.append(AccessibilityUtils::GetUnknownArgumentsMsg(argument.unknownArguments));
         return OHOS::ERR_INVALID_VALUE;
     }
     std::vector<Accessibility::AccessibilityAbilityInfo> installedAbilities = GetInstalledAbilities();
     if (!CheckAbilityArgument(argument, resultMessage)) {
-        HILOG_ERROR("abilityName = %{public}s is invalid", argument.abilityName.c_str());
+        TAG_LOGE(AAFwkTag::AA_TOOL, "abilityName = %{public}s is invalid", argument.abilityName.c_str());
         return OHOS::ERR_INVALID_VALUE;
     }
     if (!CheckBundleArgument(argument, resultMessage)) {
-        HILOG_ERROR("bundleName = %{public}s is invalid", argument.bundleName.c_str());
+        TAG_LOGE(AAFwkTag::AA_TOOL, "bundleName = %{public}s is invalid", argument.bundleName.c_str());
         return OHOS::ERR_INVALID_VALUE;
     }
     if (!CheckParamValidity(argument, installedAbilities, resultMessage)) {
-        HILOG_ERROR("%{public}s/%{public}s is not installed",
+        TAG_LOGE(AAFwkTag::AA_TOOL, "%{public}s/%{public}s is not installed",
             argument.bundleName.c_str(), argument.abilityName.c_str());
         return OHOS::ERR_INVALID_VALUE;
     }
@@ -1190,6 +1174,27 @@ ErrCode AccessibilityAbilityShellCommand::MakeSetShortKeyTargetCommandArgumentFr
     return result;
 }
 
+void AccessibilityAbilityShellCommand::SetArgument(int option, AccessibilityCommandArgument& argument)
+{
+    switch (option) {
+        case 'a': {
+            argument.abilityName = optarg;
+            argument.abilityArgumentNum++;
+            break;
+        }
+        case 'b': {
+            argument.bundleName = optarg;
+            argument.bundleArgumentNum++;
+            break;
+        }
+        default: {
+            argument.unknownArgumentNum++;
+            argument.unknownArguments.push_back(argv_[optind - 1]);
+            break;
+        }
+    }
+}
+
 ErrCode AccessibilityAbilityShellCommand::MakeCommandArgumentFromCmd(AccessibilityCommandArgument& argument)
 {
     int option = -1;
@@ -1198,7 +1203,8 @@ ErrCode AccessibilityAbilityShellCommand::MakeCommandArgumentFromCmd(Accessibili
         counter++;
         option = getopt_long(argc_, argv_, DISABLE_SHORT_OPTIONS.c_str(), DISABLE_LONG_OPTIONS, nullptr);
 
-        HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
+        TAG_LOGI(
+            AAFwkTag::AA_TOOL, "optopt: %{public}d, option: %{public}d, optind: %{public}d", optopt, option, optind);
 
         if (optind < 0 || optind > argc_) {
             return OHOS::ERR_INVALID_VALUE;
@@ -1229,23 +1235,7 @@ ErrCode AccessibilityAbilityShellCommand::MakeCommandArgumentFromCmd(Accessibili
             }
         }
 
-        switch (option) {
-            case 'a': {
-                argument.abilityName = optarg;
-                argument.abilityArgumentNum++;
-                break;
-            }
-            case 'b': {
-                argument.bundleName = optarg;
-                argument.bundleArgumentNum++;
-                break;
-            }
-            default: {
-                argument.unknownArgumentNum++;
-                argument.unknownArguments.push_back(argv_[optind - 1]);
-                break;
-            }
-        }
+        SetArgument(option, argument);
     }
     return OHOS::ERR_OK;
 }
@@ -1260,7 +1250,8 @@ ErrCode AccessibilityAbilityShellCommand::MakeSetCommandArgumentFromCmd(Accessib
 
         option = getopt_long(argc_, argv_, SET_SHORT_OPTIONS.c_str(), SET_LONG_OPTIONS, nullptr);
 
-        HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
+        TAG_LOGI(
+            AAFwkTag::AA_TOOL, "optind: %{public}d, optopt: %{public}d, option: %{public}d", optind, optopt, option);
 
         if (optind < 0 || optind > argc_) {
             return OHOS::ERR_INVALID_VALUE;

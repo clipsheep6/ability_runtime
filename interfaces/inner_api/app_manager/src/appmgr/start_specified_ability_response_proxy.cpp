@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "start_specified_ability_response_proxy.h"
 #include "ipc_types.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -26,62 +27,122 @@ StartSpecifiedAbilityResponseProxy::StartSpecifiedAbilityResponseProxy(const spt
 bool StartSpecifiedAbilityResponseProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(StartSpecifiedAbilityResponseProxy::GetDescriptor())) {
-        HILOG_ERROR("write interface token failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "write interface token failed");
         return false;
     }
     return true;
 }
 
 void StartSpecifiedAbilityResponseProxy::OnAcceptWantResponse(
-    const AAFwk::Want &want, const std::string &flag)
+    const AAFwk::Want &want, const std::string &flag, int32_t requestId)
 {
-    HILOG_DEBUG("On accept want by proxy.");
+    TAG_LOGD(AAFwkTag::APPMGR, "On accept want by proxy.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     if (!WriteInterfaceToken(data)) {
         return;
     }
-    if (!data.WriteParcelable(&want) || !data.WriteString(flag)) {
-        HILOG_ERROR("Write data failed.");
+    if (!data.WriteParcelable(&want) || !data.WriteString(flag) ||
+        !data.WriteInt32(requestId)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write data failed.");
         return;
     }
 
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
-        return;
-    }
-    int32_t ret = remote->SendRequest(
+    int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IStartSpecifiedAbilityResponse::Message::ON_ACCEPT_WANT_RESPONSE), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
-void StartSpecifiedAbilityResponseProxy::OnTimeoutResponse(const AAFwk::Want &want)
+void StartSpecifiedAbilityResponseProxy::OnTimeoutResponse(const AAFwk::Want &want, int32_t requestId)
 {
-    HILOG_DEBUG("On timeout response by proxy.");
+    TAG_LOGD(AAFwkTag::APPMGR, "On timeout response by proxy.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     if (!WriteInterfaceToken(data)) {
         return;
     }
-    if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("Write data failed.");
+    if (!data.WriteParcelable(&want) || !data.WriteInt32(requestId)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write data failed.");
+        return;
+    }
+
+    int32_t ret = SendTransactCmd(static_cast<uint32_t>(
+        IStartSpecifiedAbilityResponse::Message::ON_TIMEOUT_RESPONSE), data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
+    }
+}
+
+int32_t StartSpecifiedAbilityResponseProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    return remote->SendRequest(code, data, reply, option);
+}
+
+void StartSpecifiedAbilityResponseProxy::OnNewProcessRequestResponse(const AAFwk::Want &want, const std::string &flag,
+    int32_t requestId)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "On satrt specified process response by proxy.");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    if (!data.WriteParcelable(&want) || !data.WriteString(flag) ||
+        !data.WriteInt32(requestId)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write data failed.");
         return;
     }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote is nullptr.");
+        return;
+    }
+    int32_t ret = remote->SendRequest(
+        static_cast<uint32_t>(IStartSpecifiedAbilityResponse::Message::ON_NEW_PROCESS_REQUEST_RESPONSE),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
+    }
+}
+
+void StartSpecifiedAbilityResponseProxy::OnNewProcessRequestTimeoutResponse(const AAFwk::Want &want,
+    int32_t requestId)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "On start specified process timeout response by proxy.");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    if (!data.WriteParcelable(&want) || data.WriteInt32(requestId)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write data failed.");
+        return;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote is nullptr.");
         return;
     }
     int32_t ret = remote->SendRequest(static_cast<uint32_t>(
-        IStartSpecifiedAbilityResponse::Message::ON_TIMEOUT_RESPONSE), data, reply, option);
+        IStartSpecifiedAbilityResponse::Message::ON_NEW_PROCESS_REQUEST_TIMEOUT_RESPONSE),
+        data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 }  // namespace AppExecFwk

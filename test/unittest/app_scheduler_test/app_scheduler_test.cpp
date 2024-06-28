@@ -22,10 +22,13 @@
 #include "app_scheduler.h"
 #undef private
 #undef protected
-#include "app_state_call_back_mock.h"
-#include "app_process_data.h"
-#include "element_name.h"
+#include "app_debug_listener_stub_mock.h"
 #include "app_mgr_client_mock.h"
+#include "app_process_data.h"
+#include "app_state_call_back_mock.h"
+#include "bundle_info.h"
+#include "element_name.h"
+#include "mock_sa_call.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -228,7 +231,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_oprator_004, TestSize.Level1)
     DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = nullptr;
     EXPECT_NE((int)ERR_OK,
         DelayedSingleton<AppScheduler>::GetInstance()->LoadAbility(
-            token, pretoken, record->GetAbilityInfo(), record->GetApplicationInfo(), record->GetWant()));
+            token, pretoken, record->GetAbilityInfo(), record->GetApplicationInfo(), record->GetWant(), 0));
 }
 
 /*
@@ -241,7 +244,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_oprator_004, TestSize.Level1)
  */
 HWTEST_F(AppSchedulerTest, AppScheduler_LoadAbility_001, TestSize.Level1)
 {
-    EXPECT_CALL(*clientMock_, LoadAbility(_, _, _, _, _)).Times(1)
+    EXPECT_CALL(*clientMock_, LoadAbility(_, _, _, _, _, _)).Times(1)
         .WillOnce(Return(AppMgrResultCode::ERROR_SERVICE_NOT_READY));
     sptr<IRemoteObject> token;
     sptr<IRemoteObject> preToken;
@@ -250,7 +253,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_LoadAbility_001, TestSize.Level1)
     Want want;
     DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::move(clientMock_);
     int res = DelayedSingleton<AppScheduler>::GetInstance()->LoadAbility(
-        token, preToken, abilityInfo, applicationInfo, want);
+        token, preToken, abilityInfo, applicationInfo, want, 0);
     EXPECT_EQ(res, INNER_ERR);
 }
 
@@ -642,6 +645,22 @@ HWTEST_F(AppSchedulerTest, AppScheduler_OnAbilityRequestDone_001, TestSize.Level
 
 /*
  * Feature: AppScheduler
+ * Function: NotifyStartResidentProcess
+ * SubFunction: NA
+ * FunctionPoints: AppScheduler NotifyStartResidentProcess
+ * EnvConditions: NA
+ * CaseDescription: Verify NotifyStartResidentProcess
+ */
+HWTEST_F(AppSchedulerTest, AppScheduler_NotifyStartResidentProcess_001, TestSize.Level1)
+{
+    std::vector<AppExecFwk::BundleInfo> bundleInfos;
+    ASSERT_NE(appStateMock_, nullptr);
+    DelayedSingleton<AppScheduler>::GetInstance()->callback_ = appStateMock_;
+    DelayedSingleton<AppScheduler>::GetInstance()->NotifyStartResidentProcess(bundleInfos);
+}
+
+/*
+ * Feature: AppScheduler
  * Function: KillApplication
  * SubFunction: NA
  * FunctionPoints: AppScheduler KillApplication
@@ -650,7 +669,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_OnAbilityRequestDone_001, TestSize.Level
  */
 HWTEST_F(AppSchedulerTest, AppScheduler_KillApplication_001, TestSize.Level1)
 {
-    EXPECT_CALL(*clientMock_, KillApplication(_)).Times(1)
+    EXPECT_CALL(*clientMock_, KillApplication(_, _)).Times(1)
         .WillOnce(Return(AppMgrResultCode::ERROR_SERVICE_NOT_READY));
     DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::move(clientMock_);
     std::string bundleName = "bundleName";
@@ -668,7 +687,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_KillApplication_001, TestSize.Level1)
  */
 HWTEST_F(AppSchedulerTest, AppScheduler_KillApplication_002, TestSize.Level1)
 {
-    EXPECT_CALL(*clientMock_, KillApplication(_)).Times(1)
+    EXPECT_CALL(*clientMock_, KillApplication(_, _)).Times(1)
         .WillOnce(Return(AppMgrResultCode::RESULT_OK));
     DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::move(clientMock_);
     std::string bundleName = "bundleName";
@@ -711,42 +730,6 @@ HWTEST_F(AppSchedulerTest, AppScheduler_KillApplicationByUid_002, TestSize.Level
     std::string bundleName = "bundleName";
     int32_t uid = 0;
     int res = DelayedSingleton<AppScheduler>::GetInstance()->KillApplicationByUid(bundleName, uid);
-    EXPECT_EQ(res, ERR_OK);
-}
-
-/*
- * Feature: AppScheduler
- * Function: ClearUpApplicationData
- * SubFunction: NA
- * FunctionPoints: AppScheduler ClearUpApplicationData
- * EnvConditions: NA
- * CaseDescription: Verify ClearUpApplicationData
- */
-HWTEST_F(AppSchedulerTest, AppScheduler_ClearUpApplicationData_001, TestSize.Level1)
-{
-    EXPECT_CALL(*clientMock_, ClearUpApplicationData(_)).Times(1)
-        .WillOnce(Return(AppMgrResultCode::ERROR_SERVICE_NOT_READY));
-    DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::move(clientMock_);
-    std::string bundleName = "bundleName";
-    int res = DelayedSingleton<AppScheduler>::GetInstance()->ClearUpApplicationData(bundleName);
-    EXPECT_EQ(res, INNER_ERR);
-}
-
-/*
- * Feature: AppScheduler
- * Function: ClearUpApplicationData
- * SubFunction: NA
- * FunctionPoints: AppScheduler ClearUpApplicationData
- * EnvConditions: NA
- * CaseDescription: Verify ClearUpApplicationData
- */
-HWTEST_F(AppSchedulerTest, AppScheduler_ClearUpApplicationData_002, TestSize.Level1)
-{
-    EXPECT_CALL(*clientMock_, ClearUpApplicationData(_)).Times(1)
-        .WillOnce(Return(AppMgrResultCode::RESULT_OK));
-    DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::move(clientMock_);
-    std::string bundleName = "bundleName";
-    int res = DelayedSingleton<AppScheduler>::GetInstance()->ClearUpApplicationData(bundleName);
     EXPECT_EQ(res, ERR_OK);
 }
 
@@ -840,7 +823,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_StartupResidentProcess_001, TestSize.Lev
  */
 HWTEST_F(AppSchedulerTest, AppScheduler_StartSpecifiedAbility_001, TestSize.Level1)
 {
-    EXPECT_CALL(*clientMock_, StartSpecifiedAbility(_, _)).Times(1);
+    EXPECT_CALL(*clientMock_, StartSpecifiedAbility(_, _, _)).Times(1);
     DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::move(clientMock_);
     ASSERT_NE(DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_, nullptr);
     AAFwk::Want want;
@@ -1158,6 +1141,93 @@ HWTEST_F(AppSchedulerTest, AppScheduler_NotifyFault_001, TestSize.Level1)
 {
     AppExecFwk::FaultData faultData;
     int res = DelayedSingleton<AppScheduler>::GetInstance()->NotifyFault(faultData);
+    EXPECT_EQ(res, INNER_ERR);
+}
+
+/**
+ * @tc.name: AppScheduler_RegisterAppDebugListener_001
+ * @tc.desc: Test the state of RegisterAppDebugListener
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerTest, AppScheduler_RegisterAppDebugListener_001, TestSize.Level1)
+{
+    sptr<AppExecFwk::IAppDebugListener> listener = nullptr;
+    int res = DelayedSingleton<AppScheduler>::GetInstance()->RegisterAppDebugListener(listener);
+    EXPECT_EQ(res, INNER_ERR);
+}
+
+/**
+ * @tc.name: AppScheduler_RegisterAppDebugListener_002
+ * @tc.desc: Test the state of RegisterAppDebugListener
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerTest, AppScheduler_RegisterAppDebugListener_002, TestSize.Level1)
+{
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
+    auto listener = new AppDebugListenerStubMock();
+    int res = DelayedSingleton<AppScheduler>::GetInstance()->RegisterAppDebugListener(listener);
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: AppScheduler_UnregisterAppDebugListener_001
+ * @tc.desc: Test the state of UnregisterAppDebugListener
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerTest, AppScheduler_UnregisterAppDebugListener_001, TestSize.Level1)
+{
+    sptr<AppExecFwk::IAppDebugListener> listener = nullptr;
+    int res = DelayedSingleton<AppScheduler>::GetInstance()->UnregisterAppDebugListener(listener);
+    EXPECT_EQ(res, INNER_ERR);
+}
+
+/**
+ * @tc.name: AppScheduler_UnregisterAppDebugListener_002
+ * @tc.desc: Test the state of UnregisterAppDebugListener
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerTest, AppScheduler_UnregisterAppDebugListener_002, TestSize.Level1)
+{
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
+    auto listener = new AppDebugListenerStubMock();
+    int res = DelayedSingleton<AppScheduler>::GetInstance()->UnregisterAppDebugListener(listener);
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: AppScheduler_AttachAppDebug_001
+ * @tc.desc: Test the state of AttachAppDebug
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerTest, AppScheduler_AttachAppDebug_001, TestSize.Level1)
+{
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
+    std::string bundleName = "bundleName";
+    int res = DelayedSingleton<AppScheduler>::GetInstance()->AttachAppDebug(bundleName);
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: AppScheduler_DetachAppDebug_001
+ * @tc.desc: Test the state of DetachAppDebug
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerTest, AppScheduler_DetachAppDebug_001, TestSize.Level1)
+{
+    std::string bundleName = "bundleName";
+    int res = DelayedSingleton<AppScheduler>::GetInstance()->DetachAppDebug(bundleName);
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: AppScheduler_RegisterAbilityDebugResponse_001
+ * @tc.desc: Test the state of RegisterAbilityDebugResponse
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerTest, AppScheduler_RegisterAbilityDebugResponse_001, TestSize.Level1)
+{
+    sptr<AppExecFwk::IAbilityDebugResponse> response = nullptr;
+    int res = DelayedSingleton<AppScheduler>::GetInstance()->RegisterAbilityDebugResponse(response);
     EXPECT_EQ(res, INNER_ERR);
 }
 }  // namespace AAFwk

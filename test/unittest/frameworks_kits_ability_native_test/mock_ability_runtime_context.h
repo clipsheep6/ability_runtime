@@ -33,6 +33,8 @@ public:
 
     std::string GetBundleName() const override;
     std::shared_ptr<Context> CreateBundleContext(const std::string &bundleName) override;
+    std::shared_ptr<Global::Resource::ResourceManager> CreateModuleResourceManager(
+        const std::string &bundleName, const std::string &moduleName) override;
     std::shared_ptr<AppExecFwk::ApplicationInfo> GetApplicationInfo() const override;
     std::shared_ptr<Global::Resource::ResourceManager> GetResourceManager() const override;
     std::string GetBundleCodePath() const override;
@@ -40,16 +42,20 @@ public:
     std::string GetBundleCodeDir() override;
     std::string GetCacheDir() override;
     std::string GetTempDir() override;
+    std::string GetResourceDir() override;
     std::string GetFilesDir() override;
     bool IsUpdatingConfigurations() override;
     bool PrintDrawnCompleted() override;
     std::string GetDatabaseDir() override;
     std::string GetPreferencesDir() override;
     std::string GetDistributedFilesDir() override;
+    std::string GetCloudFileDir() override;
     sptr<IRemoteObject> GetToken() override;
     void SetToken(const sptr<IRemoteObject> &token) override;
     void SwitchArea(int mode) override;
     std::shared_ptr<Context> CreateModuleContext(const std::string &moduleName) override;
+    int32_t CreateSystemHspModuleResourceManager(const std::string &bundleName,
+        const std::string &moduleName, std::shared_ptr<Global::Resource::ResourceManager> &resourceManager) override;
     std::shared_ptr<Context> CreateModuleContext(
         const std::string &bundleName, const std::string &moduleName) override;
     int GetArea() override;

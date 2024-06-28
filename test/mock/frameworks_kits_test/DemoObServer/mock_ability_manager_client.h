@@ -42,7 +42,7 @@ public:
 static DemoAbilityManagerClientData demoAbilityMgrClientData;
 
 sptr<AAFwk::IAbilityScheduler> AAFwk::AbilityManagerClient::AcquireDataAbility(
-    const Uri& uri, bool tryBind, const sptr<IRemoteObject>& callerToken)
+    const Uri& uri, bool tryBind, sptr<IRemoteObject> callerToken)
 {
     sptr<AAFwk::IAbilityScheduler> retval = nullptr;
     auto iter = demoAbilityMgrClientData.data.find(uri.ToString());
@@ -66,7 +66,7 @@ sptr<AAFwk::IAbilityScheduler> AAFwk::AbilityManagerClient::AcquireDataAbility(
 }
 
 ErrCode AbilityManagerClient::ReleaseDataAbility(
-    sptr<IAbilityScheduler> dataAbilityScheduler, const sptr<IRemoteObject>& callerToken)
+    sptr<IAbilityScheduler> dataAbilityScheduler, sptr<IRemoteObject> callerToken)
 {
     return ERR_OK;
 }

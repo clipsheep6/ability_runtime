@@ -91,7 +91,7 @@ HWTEST_F(AaCommandForceStopTest, Aa_Command_Force_Stop_0100, Function | MediumTe
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
     AbilityManagerShellCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), HELP_MSG_FORCE_STOP + "\n");
+    EXPECT_EQ(cmd.ExecCommand(), HELP_MSG_FORCE_STOP);
 }
 
 /**
@@ -113,7 +113,7 @@ HWTEST_F(AaCommandForceStopTest, Aa_Command_Force_Stop_0200, Function | MediumTe
     auto managerClientPtr = AbilityManagerClient::GetInstance();
     auto mockAbilityManagerStub = sptr<MockAbilityManagerStub>(new MockAbilityManagerStub());
     ASSERT_NE(mockAbilityManagerStub, nullptr);
-    EXPECT_CALL(*mockAbilityManagerStub, KillProcess(_))
+    EXPECT_CALL(*mockAbilityManagerStub, KillProcess(_, _))
         .Times(1)
         .WillOnce(Return(-1));
     managerClientPtr->proxy_ = static_cast<IAbilityManager*>(mockAbilityManagerStub);
@@ -141,7 +141,7 @@ HWTEST_F(AaCommandForceStopTest, Aa_Command_Force_Stop_0300, Function | MediumTe
     auto managerClientPtr = AbilityManagerClient::GetInstance();
     auto mockAbilityManagerStub = sptr<MockAbilityManagerStub>(new MockAbilityManagerStub());
     ASSERT_NE(mockAbilityManagerStub, nullptr);
-    EXPECT_CALL(*mockAbilityManagerStub, KillProcess(_))
+    EXPECT_CALL(*mockAbilityManagerStub, KillProcess(_, _))
         .Times(1)
         .WillOnce(Return(0));
     managerClientPtr->proxy_ = static_cast<IAbilityManager*>(mockAbilityManagerStub);

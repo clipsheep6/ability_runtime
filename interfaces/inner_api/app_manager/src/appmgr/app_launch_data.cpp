@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "app_launch_data.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -56,44 +57,48 @@ void AppLaunchData::SetUserTestInfo(const std::shared_ptr<UserTestRecord> &recor
 
 bool AppLaunchData::Marshalling(Parcel &parcel) const
 {
-    if (!parcel.WriteParcelable(&applicationInfo_)) {
+    if (!parcel.WriteParcelable(&applicationInfo_) ||
+        !parcel.WriteParcelable(&profile_) || !parcel.WriteParcelable(&processInfo_)) {
         return false;
     }
-    if (!parcel.WriteParcelable(&profile_)) {
-        return false;
-    }
-    if (!parcel.WriteParcelable(&processInfo_)) {
-        return false;
-    }
-    if (!parcel.WriteInt32(recordId_)) {
-        return false;
-    }
-    if (!parcel.WriteInt32(uId_)) {
-        return false;
-    }
-    if (!parcel.WriteInt32(appIndex_)) {
+    if (!parcel.WriteInt32(recordId_) ||
+        !parcel.WriteInt32(uId_) || !parcel.WriteInt32(appIndex_)) {
         return false;
     }
 
     bool valid = userTestRecord_ ? true : false;
     if (!parcel.WriteBool(valid)) {
-        HILOG_ERROR("Failed to write the flag which indicate whether userTestRecord_ is null");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write the flag which indicate whether userTestRecord_ is null");
         return false;
     }
     if (valid) {
         if (!parcel.WriteParcelable(userTestRecord_.get())) {
-            HILOG_ERROR("Failed to write userTestRecord_");
+            TAG_LOGE(AAFwkTag::APPMGR, "Failed to write userTestRecord_");
             return false;
         }
     }
 
     if (!parcel.WriteBool(debugApp_)) {
-        HILOG_ERROR("Failed to write debug flag.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write debug flag.");
         return false;
     }
 
     if (!parcel.WriteString(perfCmd_)) {
-        HILOG_ERROR("Failed to write perf cmd.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write perf cmd.");
+        return false;
+    }
+
+    if (!parcel.WriteBool(jitEnabled_) || !parcel.WriteBool(isNativeStart_)) {
+        return false;
+    }
+
+    if (!parcel.WriteString(appRunningUniqueId_)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Marshalling, Failed to write app running unique id.");
+        return false;
+    }
+
+    if (!parcel.WriteBool(isMultiThread_)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write is multi thread flag.");
         return false;
     }
 
@@ -104,21 +109,21 @@ bool AppLaunchData::ReadFromParcel(Parcel &parcel)
 {
     std::unique_ptr<ApplicationInfo> applicationInfoRead(parcel.ReadParcelable<ApplicationInfo>());
     if (!applicationInfoRead) {
-        HILOG_ERROR("failed, applicationInfoRead is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "failed, applicationInfoRead is nullptr");
         return false;
     }
     applicationInfo_ = *applicationInfoRead;
 
     std::unique_ptr<Profile> profileRead(parcel.ReadParcelable<Profile>());
     if (!profileRead) {
-        HILOG_ERROR("failed, profileRead is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "failed, profileRead is nullptr");
         return false;
     }
     profile_ = *profileRead;
 
     std::unique_ptr<ProcessInfo> processInfoRead(parcel.ReadParcelable<ProcessInfo>());
     if (!processInfoRead) {
-        HILOG_ERROR("failed, processInfoRead is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "failed, processInfoRead is nullptr");
         return false;
     }
     processInfo_ = *processInfoRead;
@@ -131,13 +136,17 @@ bool AppLaunchData::ReadFromParcel(Parcel &parcel)
     if (valid) {
         userTestRecord_ = std::shared_ptr<UserTestRecord>(parcel.ReadParcelable<UserTestRecord>());
         if (!userTestRecord_) {
-            HILOG_ERROR("failed, userTestRecord is nullptr");
+            TAG_LOGE(AAFwkTag::APPMGR, "failed, userTestRecord is nullptr");
             return false;
         }
     }
 
     debugApp_ = parcel.ReadBool();
     perfCmd_ = parcel.ReadString();
+    jitEnabled_ = parcel.ReadBool();
+    isNativeStart_ = parcel.ReadBool();
+    appRunningUniqueId_ = parcel.ReadString();
+    isMultiThread_ = parcel.ReadBool();
     return true;
 }
 
@@ -145,7 +154,7 @@ AppLaunchData *AppLaunchData::Unmarshalling(Parcel &parcel)
 {
     AppLaunchData *appLaunchData = new AppLaunchData();
     if (appLaunchData && !appLaunchData->ReadFromParcel(parcel)) {
-        HILOG_WARN("failed, because ReadFromParcel failed");
+        TAG_LOGW(AAFwkTag::APPMGR, "failed, because ReadFromParcel failed");
         delete appLaunchData;
         appLaunchData = nullptr;
     }
@@ -155,30 +164,30 @@ AppLaunchData *AppLaunchData::Unmarshalling(Parcel &parcel)
 bool UserTestRecord::Marshalling(Parcel &parcel) const
 {
     if (!parcel.WriteParcelable(&want)) {
-        HILOG_ERROR("Failed to write want");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write want");
         return false;
     }
 
     auto valid = observer ? true : false;
     if (!parcel.WriteBool(valid)) {
-        HILOG_ERROR("Failed to write the flag which indicate whether observer is null");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write the flag which indicate whether observer is null");
         return false;
     }
 
     if (valid) {
         if (!(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(observer)) {
-            HILOG_ERROR("Failed to write observer");
+            TAG_LOGE(AAFwkTag::APPMGR, "Failed to write observer");
             return false;
         }
     }
 
     if (!parcel.WriteBool(isFinished)) {
-        HILOG_ERROR("Failed to write isFinished");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write isFinished");
         return false;
     }
 
     if (!parcel.WriteInt32(userId)) {
-        HILOG_ERROR("Failed to write userId");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write userId");
         return false;
     }
     return true;
@@ -188,7 +197,7 @@ UserTestRecord *UserTestRecord::Unmarshalling(Parcel &parcel)
 {
     UserTestRecord *userTestRecord = new (std::nothrow) UserTestRecord();
     if (userTestRecord && !userTestRecord->ReadFromParcel(parcel)) {
-        HILOG_WARN("failed, because ReadFromParcel failed");
+        TAG_LOGW(AAFwkTag::APPMGR, "failed, because ReadFromParcel failed");
         delete userTestRecord;
         userTestRecord = nullptr;
     }
@@ -199,7 +208,7 @@ bool UserTestRecord::ReadFromParcel(Parcel &parcel)
 {
     AAFwk::Want *wantPtr = parcel.ReadParcelable<AAFwk::Want>();
     if (wantPtr == nullptr) {
-        HILOG_ERROR("wantPtr is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "wantPtr is nullptr");
         return ERR_INVALID_VALUE;
     }
     want = *wantPtr;
@@ -209,7 +218,7 @@ bool UserTestRecord::ReadFromParcel(Parcel &parcel)
     if (valid) {
         observer = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
         if (!observer) {
-            HILOG_ERROR("observer is nullptr");
+            TAG_LOGE(AAFwkTag::APPMGR, "observer is nullptr");
             return false;
         }
     }
@@ -217,6 +226,16 @@ bool UserTestRecord::ReadFromParcel(Parcel &parcel)
     isFinished = parcel.ReadBool();
     userId = parcel.ReadInt32();
     return true;
+}
+
+void AppLaunchData::SetNativeStart(bool isNativeStart)
+{
+    isNativeStart_ = isNativeStart;
+}
+
+bool AppLaunchData::isNativeStart() const
+{
+    return isNativeStart_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

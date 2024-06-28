@@ -19,8 +19,8 @@ let Caller = requireNapi('application.Caller');
 const ERROR_CODE_INVALID_PARAM = 401;
 const ERROR_MSG_INVALID_PARAM = 'Invalid input parameter.';
 class ParamError extends Error {
-  constructor() {
-    super(ERROR_MSG_INVALID_PARAM);
+  constructor(msg) {
+    super(msg);
     this.code = ERROR_CODE_INVALID_PARAM;
   }
 }
@@ -31,6 +31,7 @@ class AbilityContext extends Context {
     this.abilityInfo = obj.abilityInfo;
     this.currentHapModuleInfo = obj.currentHapModuleInfo;
     this.config = obj.config;
+    this.windowStage = obj.windowStage;
   }
 
   onUpdateConfiguration(config) {
@@ -39,6 +40,10 @@ class AbilityContext extends Context {
 
   startAbility(want, options, callback) {
     return this.__context_impl__.startAbility(want, options, callback);
+  }
+
+  openLink(link, options, callback) {
+    return this.__context_impl__.openLink(link, options, callback);
   }
 
   startAbilityAsCaller(want, options, callback) {
@@ -57,7 +62,7 @@ class AbilityContext extends Context {
     return new Promise(async (resolve, reject) => {
       if (typeof want !== 'object' || want == null) {
         console.log('AbilityContext::startAbilityByCall input param error');
-        reject(new ParamError());
+        reject(new ParamError('Parse param want failed, want must be Want'));
         return;
       }
 
@@ -80,7 +85,8 @@ class AbilityContext extends Context {
     return new Promise(async (resolve, reject) => {
       if (typeof want !== 'object' || want == null || typeof accountId !== 'number') {
         console.log('AbilityContext::startAbilityByCall With accountId input param error');
-        reject(new ParamError());
+        reject(new ParamError(
+          'Parse param want or accountId failed, want must be Want and accountId must be number'));
         return;
       }
 
@@ -121,10 +127,6 @@ class AbilityContext extends Context {
 
   stopServiceExtensionAbilityWithAccount(want, accountId, callback) {
     return this.__context_impl__.stopServiceExtensionAbilityWithAccount(want, accountId, callback);
-  }
-
-  connectAbility(want, options) {
-    return this.__context_impl__.connectAbility(want, options);
   }
 
   connectServiceExtensionAbility(want, options) {
@@ -181,6 +183,34 @@ class AbilityContext extends Context {
 
   reportDrawnCompleted(callback) {
     return this.__context_impl__.reportDrawnCompleted(callback);
+  }
+
+  startAbilityByType(type, wantParam, abilityStartCallback, callback) {
+    return this.__context_impl__.startAbilityByType(type, wantParam, abilityStartCallback, callback);
+  }
+
+  requestModalUIExtension(want, callback) {
+    return this.__context_impl__.requestModalUIExtension(want, callback);
+  }
+
+  showAbility() {
+    return this.__context_impl__.showAbility();
+  }
+
+  hideAbility() {
+    return this.__context_impl__.hideAbility();
+  }
+
+  openAtomicService(appId, options, callback) {
+    return this.__context_impl__.openAtomicService(appId, options, callback);
+  }
+
+  moveAbilityToBackground(callback) {
+    return this.__context_impl__.moveAbilityToBackground(callback);
+  }
+
+  setRestoreEnabled(enabled) {
+    this.__context_impl__.setRestoreEnabled(enabled);
   }
 }
 

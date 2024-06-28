@@ -27,11 +27,11 @@
 #include "event_handler.h"
 
 class NativeReference;
-class NativeValue;
 
 namespace OHOS {
 namespace AbilityRuntime {
 struct NapiCallbackInfo;
+class JsEmbeddableUIAbilityContext;
 class JsAbilityContext final {
 public:
     explicit JsAbilityContext(const std::shared_ptr<AbilityContext>& context) : context_(context) {}
@@ -40,6 +40,7 @@ public:
     static void Finalizer(napi_env env, void* data, void* hint);
 
     static napi_value StartAbility(napi_env env, napi_callback_info info);
+    static napi_value OpenLink(napi_env env, napi_callback_info info);
     static napi_value StartAbilityAsCaller(napi_env env, napi_callback_info info);
     static napi_value StartRecentAbility(napi_env env, napi_callback_info info);
     static napi_value StartAbilityWithAccount(napi_env env, napi_callback_info info);
@@ -60,12 +61,15 @@ public:
     static napi_value IsTerminating(napi_env env, napi_callback_info info);
     static napi_value ReportDrawnCompleted(napi_env env, napi_callback_info info);
     static napi_value SetMissionContinueState(napi_env env, napi_callback_info info);
+    static napi_value StartAbilityByType(napi_env env, napi_callback_info info);
+    static napi_value RequestModalUIExtension(napi_env env, napi_callback_info info);
+    static napi_value ShowAbility(napi_env env, napi_callback_info info);
+    static napi_value HideAbility(napi_env env, napi_callback_info info);
+    static napi_value OpenAtomicService(napi_env env, napi_callback_info info);
+    static napi_value MoveAbilityToBackground(napi_env env, napi_callback_info info);
+    static napi_value SetRestoreEnabled(napi_env env, napi_callback_info info);
 
     static void ConfigurationUpdated(napi_env env, std::shared_ptr<NativeReference> &jsContext,
-        const std::shared_ptr<AppExecFwk::Configuration> &config);
-
-    // to do
-    static void ConfigurationUpdated(NativeEngine* engine, std::shared_ptr<NativeReference> &jsContext,
         const std::shared_ptr<AppExecFwk::Configuration> &config);
 
     std::shared_ptr<AbilityContext> GetAbilityContext()
@@ -87,6 +91,7 @@ private:
     static void ClearFailedCallConnection(
         const std::weak_ptr<AbilityContext>& abilityContext, const std::shared_ptr<CallerCallBack> &callback);
     napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info, bool isStartRecent = false);
+    napi_value OnOpenLink(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartAbilityAsCaller(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartRecentAbility(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartAbilityWithAccount(napi_env env, NapiCallbackInfo& info);
@@ -107,6 +112,18 @@ private:
     napi_value OnIsTerminating(napi_env env, NapiCallbackInfo& info);
     napi_value OnReportDrawnCompleted(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetMissionContinueState(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStartAbilityByType(napi_env env, NapiCallbackInfo& info);
+    napi_value OnRequestModalUIExtension(napi_env env, NapiCallbackInfo& info);
+    napi_value OnShowAbility(napi_env env, NapiCallbackInfo& info);
+    napi_value OnHideAbility(napi_env env, NapiCallbackInfo& info);
+    napi_value ChangeAbilityVisibility(napi_env env, NapiCallbackInfo& info, bool isShow);
+    napi_value OnOpenAtomicService(napi_env env, NapiCallbackInfo& info);
+    napi_value OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, AAFwk::Want &want,
+        AAFwk::StartOptions &options);
+    napi_value OnMoveAbilityToBackground(napi_env env, NapiCallbackInfo& info);
+    napi_value OnSetRestoreEnabled(napi_env env, NapiCallbackInfo& info);
+    bool CreateOpenLinkTask(const napi_env &env, const napi_value &lastParam, AAFwk::Want &want,
+        int &requestCode);
 
     static bool UnWrapWant(napi_env env, napi_value argv, AAFwk::Want& want);
     static napi_value WrapWant(napi_env env, const AAFwk::Want& want);
@@ -114,17 +131,18 @@ private:
     static napi_value WrapAbilityResult(napi_env env, const int& resultCode, const AAFwk::Want& want);
     void InheritWindowMode(AAFwk::Want &want);
     static napi_value WrapRequestDialogResult(napi_env env, int32_t resultCode, const AAFwk::Want& want);
-    void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback,
+    void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback, napi_value* result,
         bool isAbilityResult = false);
+    bool CheckStartAbilityByCallParams(napi_env env, NapiCallbackInfo& info, AAFwk::Want &want,
+        int32_t &userId, napi_value &lastParam);
 
     std::weak_ptr<AbilityContext> context_;
     int curRequestCode_ = 0;
     sptr<JsFreeInstallObserver> freeInstallObserver_ = nullptr;
+    friend class JsEmbeddableUIAbilityContext;
 };
 
 napi_value CreateJsAbilityContext(napi_env env, std::shared_ptr<AbilityContext> context);
-// to do
-NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<AbilityContext> context);
 
 struct ConnectCallback {
     std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;
@@ -154,6 +172,7 @@ private:
 struct ConnectionKey {
     AAFwk::Want want;
     int64_t id;
+    int32_t accountId;
 };
 
 struct KeyCompare {

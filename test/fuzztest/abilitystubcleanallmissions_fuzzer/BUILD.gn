@@ -36,6 +36,7 @@ ohos_fuzztest("AbilityStubCleanAllMissionsFuzzTest") {
 
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
   ]
@@ -60,10 +61,6 @@ ohos_fuzztest("AbilityStubCleanAllMissionsFuzzTest") {
       "input:libmmi-client",
       "window_manager:libwm",
     ]
-  }
-
-  if (ecologic_rule_enabled) {
-    external_deps += [ "ecological_rule_manager:erms_client" ]
   }
 }
 

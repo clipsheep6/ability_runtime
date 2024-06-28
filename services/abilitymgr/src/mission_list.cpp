@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +15,9 @@
 
 #include "mission_list.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -34,7 +36,7 @@ void MissionList::AddMissionToTop(const std::shared_ptr<Mission> &mission)
     }
 
     if (!missions_.empty() && missions_.front() == mission) {
-        HILOG_DEBUG("mission is already at the top of list");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "mission is already at the top of list");
         return;
     }
 
@@ -104,25 +106,6 @@ std::shared_ptr<Mission> MissionList::GetRecentStandardMission(const std::string
     std::shared_ptr<Mission> result = nullptr;
     for (auto& mission : missions_) {
         if (mission && mission->IsStandardAbility() && mission->GetMissionName() == missionName &&
-            mission->GetMissionTime() >= missionTime) {
-            result = mission;
-            missionTime = mission->GetMissionTime();
-        }
-    }
-
-    return result;
-}
-
-std::shared_ptr<Mission> MissionList::GetRecentStandardMissionWithAffinity(const std::string &missionAffinity) const
-{
-    if (missionAffinity.empty()) {
-        return nullptr;
-    }
-
-    std::string missionTime = "0";
-    std::shared_ptr<Mission> result = nullptr;
-    for (auto& mission : missions_) {
-        if (mission && mission->IsStandardAbility() && mission->GetMissionAffinity() == missionAffinity &&
             mission->GetMissionTime() >= missionTime) {
             result = mission;
             missionTime = mission->GetMissionTime();
@@ -293,7 +276,7 @@ void MissionList::GetAbilityRecordsByName(
             AppExecFwk::ElementName localElementNoModuleName(abilityInfo.deviceId,
                 abilityInfo.bundleName, abilityInfo.name);
             if (localElement == element || localElementNoModuleName == element) {
-                HILOG_DEBUG("find element %{public}s", localElement.GetURI().c_str());
+                TAG_LOGD(AAFwkTag::ABILITYMGR, "find element %{public}s", localElement.GetURI().c_str());
                 records.push_back(mission->GetAbilityRecord());
             }
         }
@@ -389,7 +372,7 @@ void MissionList::DumpStateByRecordId(
             auto abilityRecord = mission->GetAbilityRecord();
             if (abilityRecord) {
                 if (abilityRecord->GetRecordId() == abilityRecordId) {
-                    HILOG_INFO("record begin to call DumpAbilityState %{public}s", __func__);
+                    TAG_LOGI(AAFwkTag::ABILITYMGR, "record begin to call DumpAbilityState %{public}s", __func__);
                     abilityRecord->DumpAbilityState(info, isClient, params);
                     return;
                 }
@@ -411,7 +394,7 @@ void MissionList::DumpList(std::vector<std::string> &info, bool isClient)
 
             auto abilityRecord = mission->GetAbilityRecord();
             if (abilityRecord) {
-                HILOG_INFO("record begin to call DumpAbilityState %{public}s", __func__);
+                TAG_LOGI(AAFwkTag::ABILITYMGR, "record begin to call DumpAbilityState %{public}s", __func__);
                 std::vector<std::string> params;
                 abilityRecord->DumpAbilityState(info, isClient, params);
             }
@@ -428,7 +411,7 @@ int MissionList::BlockAbilityByRecordId(int32_t abilityRecordId)
             auto abilityRecord = mission->GetAbilityRecord();
             if (abilityRecord) {
                 if (abilityRecord->GetRecordId() == abilityRecordId) {
-                    HILOG_INFO("record begin to call BlockAbilityByRecordId %{public}s", __func__);
+                    TAG_LOGI(AAFwkTag::ABILITYMGR, "record begin to call BlockAbilityByRecordId %{public}s", __func__);
                     return abilityRecord->BlockAbility();
                 }
             }
@@ -481,7 +464,7 @@ int32_t MissionList::GetMissionCount() const
     return static_cast<int32_t>(missions_.size());
 }
 
-void MissionList::GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList)
+void MissionList::GetActiveAbilityList(int32_t uid, std::vector<std::string> &abilityList, int32_t pid)
 {
     for (auto mission : missions_) {
         if (!mission) {
@@ -492,12 +475,33 @@ void MissionList::GetActiveAbilityList(const std::string &bundleName, std::vecto
         if (!abilityRecord) {
             continue;
         }
+        
+        if (pid != NO_PID && abilityRecord->GetPid() != pid) {
+            continue;
+        }
 
         const AppExecFwk::AbilityInfo &abilityInfo = abilityRecord->GetAbilityInfo();
-        if (abilityInfo.bundleName == bundleName && !abilityInfo.name.empty()) {
-            HILOG_DEBUG("find ability name is %{public}s", abilityInfo.name.c_str());
+        if (abilityInfo.applicationInfo.uid == uid && !abilityInfo.name.empty()) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "find ability name is %{public}s", abilityInfo.name.c_str());
             abilityList.push_back(abilityInfo.name);
         }
+    }
+}
+
+void MissionList::SignRestartAppFlag(const std::string &bundleName)
+{
+    for (auto mission : missions_) {
+        if (!mission) {
+            continue;
+        }
+        auto abilityRecord = mission->GetAbilityRecord();
+        if (!abilityRecord) {
+            continue;
+        }
+        if (abilityRecord->GetApplicationInfo().bundleName != bundleName) {
+            continue;
+        }
+        abilityRecord->SetRestartAppFlag(true);
     }
 }
 }  // namespace AAFwk

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,12 +16,14 @@
 #ifndef OHOS_ABILITY_RUNTIME_APP_MGR_PROXY_H
 #define OHOS_ABILITY_RUNTIME_APP_MGR_PROXY_H
 
-#include "iremote_proxy.h"
-#include "want.h"
-
+#include "app_jsheap_mem_info.h"
+#include "app_malloc_info.h"
 #include "app_mgr_interface.h"
 #include "bundle_info.h"
-#include "app_malloc_info.h"
+#include "iremote_proxy.h"
+#include "memory_level_info.h"
+#include "running_process_info.h"
+#include "want.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -38,6 +40,18 @@ public:
      * @return
      */
     virtual void AttachApplication(const sptr<IRemoteObject> &obj) override;
+
+    /**
+     * Preload application.
+     *
+     * @param bundleName The bundle name of the application to preload.
+     * @param userId Indicates the user identification.
+     * @param preloadMode Preload application mode.
+     * @param appIndex The index of application clone.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t PreloadApplication(const std::string &bundleName, int32_t userId,
+        AppExecFwk::PreloadMode preloadMode, int32_t appIndex = 0) override;
 
     /**
      * ApplicationForegrounded, call ApplicationForegrounded() through proxy object,
@@ -67,15 +81,6 @@ public:
     virtual void ApplicationTerminated(const int32_t recordId) override;
 
     /**
-     * CheckPermission, call CheckPermission() through proxy object, check the permission.
-     *
-     * @param recordId, a unique record that identifies this Application from others.
-     * @param permission, check the permissions.
-     * @return ERR_OK, return back success, others fail.
-     */
-    virtual int32_t CheckPermission(const int32_t recordId, const std::string &permission) override;
-
-    /**
      * AbilityCleaned,call through AbilityCleaned() proxy project, clean Ability record.
      *
      * @param token, a unique record that identifies AbilityCleaned from others.
@@ -95,9 +100,21 @@ public:
      * clear the application data.
      *
      * @param bundleName, bundle name in Application record.
+     * @param appCloneIndex the app clone id.
+     * @param userId the user id.
+     * @return ErrCode
+     */
+    virtual int32_t ClearUpApplicationData(const std::string &bundleName, int32_t appCloneIndex,
+        int32_t userId = -1) override;
+
+    /**
+     * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
+     * clear the application data.
+     *
+     * @param bundleName, bundle name in Application record.
      * @return
      */
-    virtual int32_t ClearUpApplicationData(const std::string &bundleName) override;
+    virtual int32_t ClearUpApplicationDataBySelf(int32_t userId = -1) override;
 
     /**
      * GetAllRunningProcesses, call GetAllRunningProcesses() through proxy project.
@@ -107,6 +124,27 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int32_t GetAllRunningProcesses(std::vector<RunningProcessInfo> &info) override;
+
+    /**
+     * GetALLRunningMultiAppInfo, call GetALLRunningMultiAppInfo() through proxy project.
+     * Obtains information about multiapp that are running on the device.
+     *
+     * @param info, app name in multiappinfo.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t GetRunningMultiAppInfoByBundleName(const std::string &bundleName,
+        RunningMultiAppInfo &info) override;
+
+    /**
+     * GetRunningProcessesByBundleType, call GetRunningProcessesByBundleType() through proxy project.
+     * Obtains information about application processes by bundle type that are running on the device.
+     *
+     * @param bundleType, bundle type of the processes
+     * @param info, app name in Application record.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int GetRunningProcessesByBundleType(const BundleType bundleType,
+        std::vector<RunningProcessInfo> &info) override;
 
     /**
      * GetAllRenderProcesses, call GetAllRenderProcesses() through proxy project.
@@ -155,6 +193,15 @@ public:
     virtual int32_t NotifyMemoryLevel(int32_t level) override;
 
     /**
+     * NotifyProcMemoryLevel, call NotifyMemoryLevel() through proxy project.
+     * Notify abilities the current memory level.
+     *
+     * @param procLevelMap ,<pid, level> map;
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t NotifyProcMemoryLevel(const std::map<pid_t, MemoryLevel> &procLevelMap) override;
+
+    /**
      * DumpHeapMemory, call DumpHeapMemory() through proxy project.
      * Get the application's memory allocation info.
      *
@@ -163,6 +210,15 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int32_t DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) override;
+
+    /**
+     * DumpJsHeapMemory, call DumpJsHeapMemory() through proxy project.
+     * triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid tid needGc needSnapshot
+     * @return ERR_OK ,return back success, others fail.
+     */
+    virtual int32_t DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info) override;
 
     /**
      * Notify that the ability stage has been updated
@@ -189,6 +245,20 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer) override;
+
+    /**
+     * Register application or process state observer.
+     * @param observer, Is ability foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer) override;
+
+    /**
+     * Unregister application or process state observer.
+     * @param observer, Is ability foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer) override;
 
     /**
      * Get foreground applications.
@@ -222,6 +292,9 @@ public:
     virtual void ScheduleAcceptWantDone(
         const int32_t recordId, const AAFwk::Want &want, const std::string &flag) override;
 
+    virtual void ScheduleNewProcessRequestDone(
+        const int32_t recordId, const AAFwk::Want &want, const std::string &flag) override;
+
     /**
      *  Get the token of ability records by process ID.
      *
@@ -246,11 +319,12 @@ public:
      * @param sharedFd, shared memory file descriptior.
      * @param crashFd, crash signal file descriptior.
      * @param renderPid, created render pid.
+     * @param isGPU, is or not GPU process
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int StartRenderProcess(const std::string &renderParam,
                                    int32_t ipcFd, int32_t sharedFd,
-                                   int32_t crashFd, pid_t &renderPid) override;
+                                   int32_t crashFd, pid_t &renderPid, bool isGPU = false) override;
 
     /**
      * Render process call this to attach app manager service.
@@ -284,6 +358,14 @@ public:
      */
     virtual int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData) override;
 
+    /**
+     * Set Appfreeze Detect Filter
+     *
+     * @param pid the process pid.
+     * @return Returns true on success, others on failure.
+     */
+    virtual bool SetAppFreezeFilter(int32_t pid) override;
+
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block app service.
@@ -296,6 +378,8 @@ public:
     virtual int32_t GetConfiguration(Configuration& config) override;
 
     virtual int32_t UpdateConfiguration(const Configuration &config) override;
+
+    virtual int32_t UpdateConfigurationByBundleName(const Configuration &config, const std::string &name) override;
 
     virtual int32_t RegisterConfigurationObserver(const sptr<IConfigurationObserver> &observer) override;
 
@@ -335,6 +419,15 @@ public:
     virtual int32_t GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid) override;
 
     /**
+     * Get running process information by pid.
+     *
+     * @param pid process id.
+     * @param info Output parameters, return runningProcessInfo.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) override;
+
+    /**
      * get memorySize by pid.
      *
      * @param pid process id.
@@ -353,7 +446,7 @@ public:
      */
     virtual int32_t GetRunningProcessInformation(
         const std::string &bundleName, int32_t userId, std::vector<RunningProcessInfo> &info) override;
-    
+
     /**
      * @brief Notify AbilityManagerService the page show.
      * @param token Ability identify.
@@ -379,6 +472,176 @@ public:
      */
     virtual int32_t ChangeAppGcState(pid_t pid, int32_t state) override;
 
+    /**
+     * Register appRunning status listener.
+     *
+     * @param listener Running status listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener) override;
+
+    /**
+     * Unregister appRunning status listener.
+     *
+     * @param listener Running status listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener) override;
+
+    /**
+     * Register application foreground state observer.
+     * @param observer, app Is app foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) override;
+
+    /**
+     * Unregister application foreground state observer.
+     * @param observer, app Is app foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) override;
+
+    /**
+     * Check whether the bundle is running.
+     *
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return Return ERR_OK if success, others fail.
+     */
+    int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning) override;
+
+    /**
+     * Check whether the bundle is running.
+     *
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param appCloneIndex the appindex of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return Return ERR_OK if success, others fail.
+     */
+    int32_t IsAppRunning(const std::string &bundleName, int32_t appCloneIndex, bool &isRunning) override;
+
+    /**
+     * Start child process, called by ChildProcessManager.
+     *
+     * @param srcEntry Child process source file entrance path to be started.
+     * @param childPid Created child process pid.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount,
+        bool isStartWithDebug) override;
+
+    /**
+     * Get child process record for self.
+     *
+     * @return child process info.
+     */
+    int32_t GetChildProcessInfoForSelf(ChildProcessInfo &info) override;
+
+    /**
+     * Attach child process scheduler to app manager service.
+     *
+     * @param childScheduler scheduler of child process.
+     */
+    void AttachChildProcess(const sptr<IRemoteObject> &childScheduler) override;
+
+    /**
+     * Exit child process, called by itself.
+     */
+    void ExitChildProcessSafely() override;
+
+    /**
+     * Whether the current application process is the last surviving process.
+     *
+     * @return Returns true is final application process, others return false.
+     */
+    bool IsFinalAppProcess() override;
+
+    /**
+     * Register render state observer.
+     * @param observer Render process state observer.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer) override;
+
+    /**
+     * Unregister render state observer.
+     * @param observer Render process state observer.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer) override;
+
+    /**
+     * Update render state.
+     * @param renderPid Render pid.
+     * @param state foreground or background state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UpdateRenderState(pid_t renderPid, int32_t state) override;
+
+    int32_t SignRestartAppFlag(const std::string &bundleName) override;
+
+    int32_t GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId) override;
+
+    /*
+     * Get all uiextension root host process id, need apply permission ohos.permission.GET_RUNNING_INFO.
+     * If specified pid mismatch UIExtensionAbility type, return empty vector.
+     * @param pid Process id.
+     * @param hostPids All host process id.
+     * @return Returns 0 on success, others on failure.
+     */
+    int32_t GetAllUIExtensionRootHostPid(pid_t pid, std::vector<pid_t> &hostPids) override;
+
+    /**
+     * Get all uiextension provider process id, need apply permission ohos.permission.GET_RUNNING_INFO.
+     * If specified hostPid didn't start any UIExtensionAbility, return empty vector.
+     * @param hostPid Host process id.
+     * @param providerPids All provider process id started by specified hostPid.
+     * @return Returns 0 on success, others on failure.
+     */
+    int32_t GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid_t> &providerPids) override;
+
+    /**
+     * @brief Notify memory size state changed to sufficient or insufficent.
+     * @param isMemorySizeSufficent Indicates the memory size state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent) override;
+
+    int32_t SetSupportedProcessCacheSelf(bool isSupport) override;
+
+    /**
+     * Set application assertion pause state.
+     *
+     * @param flag assertion pause state.
+     */
+    void SetAppAssertionPauseState(bool flag) override;
+
+    /**
+     * Start native child process, callde by ChildProcessManager.
+     * @param libName lib file name to be load in child process
+     * @param childProcessCount current started child process count
+     * @param callback callback for notify start result
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t StartNativeChildProcess(const std::string &libName, int32_t childProcessCount,
+        const sptr<IRemoteObject> &callback) override;
+
+    virtual void SaveBrowserChannel(sptr<IRemoteObject> browser) override;
+
+    /**
+     * Check caller is test ability
+     *
+     * @param pid, the pid of ability.
+     * @return Returns ERR_OK is test ability, others is not test ability.
+     */
+    int32_t CheckCallingIsUserTestMode(const pid_t pid, bool &isUserTest) override;
+
+    virtual int32_t NotifyProcessDependedOnWeb() override;
+
+    virtual void KillProcessDependedOnWeb() override;
+
+    virtual void RestartResidentProcessDependedOnWeb() override;
 private:
     bool SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply);
     bool WriteInterfaceToken(MessageParcel &data);

@@ -35,18 +35,13 @@ public:
 
 private:
     int64_t GetSysTimeNs();
-    void OnVSync(int64_t nanoTimestamp, void* client);
-    void RequestVSync();
+    void InitVSyncReceiver();
     void EventTask();
     void PostTask();
     void SetNeedStop(bool needStop);
     bool GetNeedStop();
 
-    int64_t firstVSyncTime_ = 0;
-    int64_t period_ = 0;
-    int32_t continueFailCount_ = 0;
     bool needStop_ {false};
-    int32_t successCount_ = 0;
     std::shared_ptr<EventHandler> eventHandler_;
     IdleTimeCallback callback_ = nullptr;
     std::shared_ptr<Rosen::VSyncReceiver> receiver_ = nullptr;

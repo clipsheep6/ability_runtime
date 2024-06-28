@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "freeze_util.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS::AbilityRuntime {
@@ -27,18 +28,18 @@ FreezeUtil& FreezeUtil::GetInstance()
 void FreezeUtil::AddLifecycleEvent(const LifecycleFlow &flow, const std::string &entry)
 {
     std::lock_guard lock(mutex_);
-    if (lifecycleFolw_.count(flow)) {
-        lifecycleFolw_[flow] = lifecycleFolw_[flow] + "\n" + entry;
+    if (lifecycleFlow_.count(flow)) {
+        lifecycleFlow_[flow] = lifecycleFlow_[flow] + "\n" + entry;
     } else {
-        lifecycleFolw_[flow] = entry;
+        lifecycleFlow_[flow] = entry;
     }
 }
 
 std::string FreezeUtil::GetLifecycleEvent(const LifecycleFlow &flow)
 {
     std::lock_guard lock(mutex_);
-    auto search = lifecycleFolw_.find(flow);
-    if (search != lifecycleFolw_.end()) {
+    auto search = lifecycleFlow_.find(flow);
+    if (search != lifecycleFlow_.end()) {
         return search->second;
     }
     return "";
@@ -53,7 +54,7 @@ void FreezeUtil::DeleteLifecycleEvent(const LifecycleFlow &flow)
 void FreezeUtil::DeleteLifecycleEvent(sptr<IRemoteObject> token)
 {
     std::lock_guard lock(mutex_);
-    if (lifecycleFolw_.empty()) {
+    if (lifecycleFlow_.empty()) {
         return;
     }
     LifecycleFlow foregroundFlow = { token, TimeoutState::FOREGROUND };
@@ -65,9 +66,9 @@ void FreezeUtil::DeleteLifecycleEvent(sptr<IRemoteObject> token)
 
 void FreezeUtil::DeleteLifecycleEventInner(const LifecycleFlow &flow)
 {
-    if (lifecycleFolw_.count(flow)) {
-        lifecycleFolw_.erase(flow);
+    if (lifecycleFlow_.count(flow)) {
+        lifecycleFlow_.erase(flow);
     }
-    HILOG_INFO("lifecycleFolw_ size: %{public}d", lifecycleFolw_.size());
+    TAG_LOGD(AAFwkTag::DEFAULT, "lifecycleFlow_ size: %{public}zu", lifecycleFlow_.size());
 }
 }  // namespace OHOS::AbilityRuntime

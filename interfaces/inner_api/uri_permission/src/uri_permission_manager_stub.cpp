@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,8 @@
 
 #include "uri_permission_manager_stub.h"
 
+#include "ability_manager_errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -26,7 +28,7 @@ int UriPermissionManagerStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     if (data.ReadInterfaceToken() != IUriPermissionManager::GetDescriptor()) {
-        HILOG_ERROR("InterfaceToken not equal IUriPermissionManager's descriptor.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "InterfaceToken not equal IUriPermissionManager's descriptor.");
         return ERR_INVALID_VALUE;
     }
     ErrCode errCode = ERR_OK;
@@ -37,6 +39,9 @@ int UriPermissionManagerStub::OnRemoteRequest(
         case UriPermMgrCmd::ON_BATCH_GRANT_URI_PERMISSION : {
             return HandleBatchGrantUriPermission(data, reply);
         }
+        case UriPermMgrCmd::ON_GRANT_URI_PERMISSION_PRIVILEGED : {
+            return HandleGrantUriPermissionPrivileged(data, reply);
+        }
         case UriPermMgrCmd::ON_REVOKE_URI_PERMISSION : {
             return HandleRevokeUriPermission(data, reply);
         }
@@ -46,11 +51,11 @@ int UriPermissionManagerStub::OnRemoteRequest(
         case UriPermMgrCmd::ON_REVOKE_URI_PERMISSION_MANUALLY : {
             return HandleRevokeUriPermissionManually(data, reply);
         }
-        case UriPermMgrCmd::ON_CHECK_PERSISTABLE_URIPERMISSION_PROXY : {
-            return HandleCheckPerSiSTableUriPermissionProxy(data, reply);
-        }
         case UriPermMgrCmd::ON_VERIFY_URI_PERMISSION : {
             return HandleVerifyUriPermission(data, reply);
+        }
+        case UriPermMgrCmd::ON_CHECK_URI_AUTHORIZATION : {
+            return HandleCheckUriAuthorization(data, reply);
         }
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
@@ -60,14 +65,15 @@ int UriPermissionManagerStub::OnRemoteRequest(
 
 int UriPermissionManagerStub::HandleRevokeUriPermission(MessageParcel &data, MessageParcel &reply)
 {
-    auto tokenId = data.ReadInt32();
-    RevokeUriPermission(tokenId);
+    auto tokenId = data.ReadUint32();
+    auto abilityId = data.ReadInt32();
+    RevokeUriPermission(tokenId, abilityId);
     return ERR_OK;
 }
 
 int UriPermissionManagerStub::HandleRevokeAllUriPermission(MessageParcel &data, MessageParcel &reply)
 {
-    auto tokenId = data.ReadInt32();
+    auto tokenId = data.ReadUint32();
     int result = RevokeAllUriPermissions(tokenId);
     reply.WriteInt32(result);
     return ERR_OK;
@@ -77,14 +83,15 @@ int UriPermissionManagerStub::HandleGrantUriPermission(MessageParcel &data, Mess
 {
     std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (!uri) {
-        HILOG_ERROR("To read uri failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "To read uri failed.");
         return ERR_DEAD_OBJECT;
     }
-    auto flag = data.ReadInt32();
+    auto flag = data.ReadUint32();
     auto targetBundleName = data.ReadString();
-    auto autoremove = data.ReadInt32();
     auto appIndex = data.ReadInt32();
-    int result = GrantUriPermission(*uri, flag, targetBundleName, autoremove, appIndex);
+    auto initiatorTokenId = data.ReadUint32();
+    auto abilityId = data.ReadInt32();
+    int result = GrantUriPermission(*uri, flag, targetBundleName, appIndex, initiatorTokenId, abilityId);
     reply.WriteInt32(result);
     return ERR_OK;
 }
@@ -92,24 +99,49 @@ int UriPermissionManagerStub::HandleGrantUriPermission(MessageParcel &data, Mess
 int UriPermissionManagerStub::HandleBatchGrantUriPermission(MessageParcel &data, MessageParcel &reply)
 {
     auto size = data.ReadUint32();
-    if (size <= 0 || size > MAX_URI_COUNT) {
-        HILOG_ERROR("size is invalid.");
-        return ERR_DEAD_OBJECT;
+    if (size == 0 || size > MAX_URI_COUNT) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec is empty or exceed maximum size %{public}d.", MAX_URI_COUNT);
+        return ERR_URI_LIST_OUT_OF_RANGE;
     }
     std::vector<Uri> uriVec;
-    for (auto i = 0; i < size; i++) {
+    for (uint32_t i = 0; i < size; i++) {
         std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
         if (!uri) {
-            HILOG_ERROR("To read uri failed.");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "To read uri failed.");
             return ERR_DEAD_OBJECT;
         }
         uriVec.emplace_back(*uri);
     }
-    auto flag = data.ReadInt32();
+    auto flag = data.ReadUint32();
     auto targetBundleName = data.ReadString();
-    auto autoremove = data.ReadInt32();
     auto appIndex = data.ReadInt32();
-    int result = GrantUriPermission(uriVec, flag, targetBundleName, autoremove, appIndex);
+    auto initiatorTokenId = data.ReadUint32();
+    auto abilityId = data.ReadInt32();
+    int result = GrantUriPermission(uriVec, flag, targetBundleName, appIndex, initiatorTokenId, abilityId);
+    reply.WriteInt32(result);
+    return ERR_OK;
+}
+
+int32_t UriPermissionManagerStub::HandleGrantUriPermissionPrivileged(MessageParcel &data, MessageParcel &reply)
+{
+    auto size = data.ReadUint32();
+    if (size == 0 || size > MAX_URI_COUNT) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec is empty or exceed maximum size %{public}d.", MAX_URI_COUNT);
+        return ERR_URI_LIST_OUT_OF_RANGE;
+    }
+    std::vector<Uri> uriVec;
+    for (uint32_t i = 0; i < size; i++) {
+        std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
+        if (!uri) {
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "To read uri failed.");
+            return ERR_DEAD_OBJECT;
+        }
+        uriVec.emplace_back(*uri);
+    }
+    auto flag = data.ReadUint32();
+    auto targetBundleName = data.ReadString();
+    auto appIndex = data.ReadInt32();
+    int result = GrantUriPermissionPrivileged(uriVec, flag, targetBundleName, appIndex);
     reply.WriteInt32(result);
     return ERR_OK;
 }
@@ -118,26 +150,13 @@ int UriPermissionManagerStub::HandleRevokeUriPermissionManually(MessageParcel &d
 {
     std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (!uri) {
-        HILOG_ERROR("To read uri failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "To read uri failed.");
         return ERR_DEAD_OBJECT;
     }
     auto bundleName = data.ReadString();
-    int result = RevokeUriPermissionManually(*uri, bundleName);
+    auto appIndex = data.ReadInt32();
+    int result = RevokeUriPermissionManually(*uri, bundleName, appIndex);
     reply.WriteInt32(result);
-    return ERR_OK;
-}
-
-int UriPermissionManagerStub::HandleCheckPerSiSTableUriPermissionProxy(MessageParcel &data, MessageParcel &reply)
-{
-    std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
-    if (!uri) {
-        HILOG_ERROR("To read uri failed.");
-        return ERR_DEAD_OBJECT;
-    }
-    auto flag = data.ReadInt32();
-    auto tokenId = data.ReadInt32();
-    bool result = CheckPersistableUriPermissionProxy(*uri, flag, tokenId);
-    reply.WriteBool(result);
     return ERR_OK;
 }
 
@@ -145,13 +164,41 @@ int UriPermissionManagerStub::HandleVerifyUriPermission(MessageParcel &data, Mes
 {
     std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (!uri) {
-        HILOG_ERROR("To read uri failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "To read uri failed.");
         return ERR_DEAD_OBJECT;
     }
-    auto flag = data.ReadInt32();
-    auto tokenId = data.ReadInt32();
+    auto flag = data.ReadUint32();
+    auto tokenId = data.ReadUint32();
     bool result = VerifyUriPermission(*uri, flag, tokenId);
     reply.WriteBool(result);
+    return ERR_OK;
+}
+
+int32_t UriPermissionManagerStub::HandleCheckUriAuthorization(MessageParcel &data, MessageParcel &reply)
+{
+    auto size = data.ReadUint32();
+    if (size == 0 || size > MAX_URI_COUNT) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec is empty or exceed maximum size %{public}d.", MAX_URI_COUNT);
+        return ERR_URI_LIST_OUT_OF_RANGE;
+    }
+    std::vector<std::string> uriVec;
+    for (uint32_t i = 0; i < size; i++) {
+        auto uri = data.ReadString();
+        uriVec.emplace_back(uri);
+    }
+    auto flag = data.ReadUint32();
+    auto tokenId = data.ReadUint32();
+    auto result = CheckUriAuthorization(uriVec, flag, tokenId);
+    if (!reply.WriteUint32(result.size())) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write size of uriVec failed.");
+        return ERR_DEAD_OBJECT;
+    }
+    for (auto res: result) {
+        if (!reply.WriteBool(res)) {
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "Write res failed.");
+            return ERR_DEAD_OBJECT;
+        }
+    }
     return ERR_OK;
 }
 }  // namespace AAFwk

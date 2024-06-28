@@ -42,8 +42,8 @@ public:
      * @param appInfo, Application information.
      * @return Returns RESULT_OK on success, others on failure.
      */
-    virtual AppMgrResultCode LoadAbility(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken,
-        const AbilityInfo& abilityInfo, const ApplicationInfo& appInfo, const AAFwk::Want& want);
+    virtual AppMgrResultCode LoadAbility(sptr<IRemoteObject>& token, sptr<IRemoteObject> preToken,
+        const AbilityInfo& abilityInfo, const ApplicationInfo& appInfo, const AAFwk::Want& want, int32_t);
 
     /**
      * Terminate ability.
@@ -123,7 +123,7 @@ public:
      * @param  bundleName, bundle name in Application record.
      * @return ERR_OK, return back success, others fail.
      */
-    virtual AppMgrResultCode KillApplication(const std::string& bundleName);
+    virtual AppMgrResultCode KillApplication(const std::string& bundleName, const bool clearPageStack = true);
 
     /**
      * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
@@ -171,7 +171,7 @@ public:
     virtual AppMgrResultCode GetAppFreezingTime(int& time);
     virtual void AbilityAttachTimeOut(const sptr<IRemoteObject>& token);
 
-    virtual void PrepareTerminate(const sptr<IRemoteObject>& token);
+    virtual void PrepareTerminate(const sptr<IRemoteObject>& token, bool clearMissionFlag = false);
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject>& token, AppExecFwk::RunningProcessInfo& info);
 

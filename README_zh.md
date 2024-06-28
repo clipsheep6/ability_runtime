@@ -150,7 +150,7 @@ aa start -d 12345 -a com.ohos.app.MainAbility -b com.ohos.app -D
 
 | 命令                                                           | 描述                      |
 | -------------------------------------------------------------- | ------------------------ |
-| aa force-stop <bundle-name>                                    | 强制停止application       |
+| aa force-stop <bundle-name> [-p <pid>] [-r <kill-reason>] | 强制停止application，支持传递pid和进程退出原因 |
 
 ```
 示例：

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/context.h"
 #include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/application_context.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -26,7 +27,7 @@ void ExtensionBase<C>::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const sptr<IRemoteObject> &token)
 {
     Extension::Init(record, application, handler, token);
-    HILOG_INFO("begin init context");
+    TAG_LOGD(AAFwkTag::EXT, "begin init context");
     context_ = CreateAndInitContext(record, application, handler, token);
 }
 
@@ -36,29 +37,32 @@ std::shared_ptr<C> ExtensionBase<C>::CreateAndInitContext(const std::shared_ptr<
     std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("begin init base");
+    TAG_LOGD(AAFwkTag::EXT, "begin init base");
     std::shared_ptr<C> context = std::make_shared<C>();
     context->SetToken(token);
     auto appContext = Context::GetApplicationContext();
     if (appContext == nullptr) {
-        HILOG_ERROR("ServiceExtension::CreateAndInitContext appContext is nullptr");
+        TAG_LOGE(AAFwkTag::EXT, "ServiceExtension::CreateAndInitContext appContext is nullptr");
         return context;
     }
     context->SetApplicationInfo(appContext->GetApplicationInfo());
     context->SetResourceManager(appContext->GetResourceManager());
     context->SetParentContext(appContext);
     if (record == nullptr) {
-        HILOG_ERROR("ServiceExtension::CreateAndInitContext record is nullptr");
+        TAG_LOGE(AAFwkTag::EXT, "ServiceExtension::CreateAndInitContext record is nullptr");
         return context;
     }
-    HILOG_INFO("begin init abilityInfo");
+    TAG_LOGD(AAFwkTag::EXT, "begin init abilityInfo");
     auto abilityInfo = record->GetAbilityInfo();
     context->SetAbilityInfo(abilityInfo);
     context->InitHapModuleInfo(abilityInfo);
     context->SetConfiguration(appContext->GetConfiguration());
     if (abilityInfo->applicationInfo.multiProjects) {
-        auto rm = context->CreateModuleContext(abilityInfo->moduleName)->GetResourceManager();
-        context->SetResourceManager(rm);
+        std::shared_ptr<Context> moduleContext = context->CreateModuleContext(abilityInfo->moduleName);
+        if (moduleContext != nullptr) {
+            auto rm = moduleContext->GetResourceManager();
+            context->SetResourceManager(rm);
+        }
     }
     return context;
 }
@@ -73,16 +77,16 @@ template<class C>
 void ExtensionBase<C>::OnConfigurationUpdated(const AppExecFwk::Configuration &configuration)
 {
     Extension::OnConfigurationUpdated(configuration);
-    HILOG_INFO("%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::EXT, "called.");
 
     if (!context_) {
-        HILOG_ERROR("context is nullptr.");
+        TAG_LOGE(AAFwkTag::EXT, "context is nullptr.");
         return;
     }
 
     auto fullConfig = context_->GetConfiguration();
     if (!fullConfig) {
-        HILOG_ERROR("configuration is nullptr.");
+        TAG_LOGE(AAFwkTag::EXT, "configuration is nullptr.");
         return;
     }
 
@@ -95,7 +99,7 @@ template<class C>
 void ExtensionBase<C>::OnMemoryLevel(int level)
 {
     Extension::OnMemoryLevel(level);
-    HILOG_INFO("%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::EXT, "called.");
 
     if (extensionCommon_) {
         extensionCommon_->OnMemoryLevel(level);

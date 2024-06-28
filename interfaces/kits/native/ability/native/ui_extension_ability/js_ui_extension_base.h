@@ -20,9 +20,11 @@
 #include "ability_local_record.h"
 #include "configuration.h"
 #include "js_extension_common.h"
+#include "js_ui_extension_content_session.h"
 #include "native_engine/native_engine.h"
 #include "ohos_application.h"
 #include "session_info.h"
+#include "ui_extension_base.h"
 #include "ui_extension_context.h"
 #include "ui_extension_window_command.h"
 #include "want.h"
@@ -37,7 +39,8 @@ class JsRuntime;
 /**
  * @brief Js ui extension base.
  */
-class JsUIExtensionBase {
+class JsUIExtensionBase : public UIExtensionBaseImpl,
+                          public std::enable_shared_from_this<JsUIExtensionBase> {
 public:
     explicit JsUIExtensionBase(const std::unique_ptr<Runtime> &runtime);
     virtual ~JsUIExtensionBase();
@@ -51,9 +54,9 @@ public:
      * @param token the remote token.
      * @return js extension common object.
      */
-    std::shared_ptr<JsExtensionCommon> Init(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &record,
+    std::shared_ptr<ExtensionCommon> Init(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &record,
         const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-        std::shared_ptr<AppExecFwk::AbilityHandler> &handler, const sptr<IRemoteObject> &token);
+        std::shared_ptr<AppExecFwk::AbilityHandler> &handler, const sptr<IRemoteObject> &token) override;
 
     /**
      * @brief Called when this ui extension is started. You must override this function if you want to perform some
@@ -62,8 +65,9 @@ public:
      * This function can be called only once in the entire lifecycle of an ui extension.
      *
      * @param Want Indicates the {@link Want} structure containing startup information about the ui extension.
+     * @param launchParam The launch param.
      */
-    void OnStart(const AAFwk::Want &want);
+    void OnStart(const AAFwk::Want &want, AAFwk::LaunchParam &launchParam) override;
 
     /**
      * @brief Called back when ui extension is started.
@@ -79,10 +83,10 @@ public:
      * by 1 every time the ui extension is started. For example, if the ui extension has been started for six
      * times, the value of startId is 6.
      */
-    void OnCommand(const AAFwk::Want &want, bool restart, int32_t startId);
+    void OnCommand(const AAFwk::Want &want, bool restart, int32_t startId) override;
 
     void OnCommandWindow(
-        const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
+        const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd) override;
 
     /**
      * @brief Called when this ui extension enters the <b>STATE_STOP</b> state.
@@ -90,14 +94,14 @@ public:
      * The ui extension in the <b>STATE_STOP</b> is being destroyed.
      * You can override this function to implement your own processing logic.
      */
-    void OnStop();
+    void OnStop() override;
 
     /**
      * @brief Called when the system configuration is updated.
      *
      * @param configuration Indicates the updated configuration information.
      */
-    void OnConfigurationUpdated(const AppExecFwk::Configuration &configuration);
+    void OnConfigurationUpdated(const AppExecFwk::Configuration &configuration) override;
 
     /**
      * @brief Called when this extension enters the <b>STATE_FOREGROUND</b> state.
@@ -106,7 +110,7 @@ public:
      * The extension in the <b>STATE_FOREGROUND</b> state is visible.
      * You can override this function to implement your own processing logic.
      */
-    void OnForeground(const Want &want);
+    void OnForeground(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo) override;
 
     /**
      * @brief Called when this extension enters the <b>STATE_BACKGROUND</b> state.
@@ -115,7 +119,7 @@ public:
      * The extension in the <b>STATE_BACKGROUND</b> state is invisible.
      * You can override this function to implement your own processing logic.
      */
-    void OnBackground();
+    void OnBackground() override;
 
     /**
      * @brief Called when ui extension need dump info.
@@ -123,7 +127,7 @@ public:
      * @param params The params from ui extension.
      * @param info The dump info to show.
      */
-    void Dump(const std::vector<std::string> &params, std::vector<std::string> &info);
+    void Dump(const std::vector<std::string> &params, std::vector<std::string> &info) override;
 
     /**
      * @brief Called when startAbilityForResult(ohos.aafwk.content.Want,int32_t) is called to start an extension ability
@@ -135,35 +139,46 @@ public:
      * @param resultData Indicates the data returned after the ability is started. You can define the data returned. The
      * value can be null.
      */
-    void OnAbilityResult(int32_t requestCode, int32_t resultCode, const Want &resultData);
+    void OnAbilityResult(int32_t requestCode, int32_t resultCode, const Want &resultData) override;
 
     /**
      * @brief Set ability info.
      */
-    void SetAbilityInfo(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo);
+    void SetAbilityInfo(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo) override;
 
     /**
      * @brief Set ui extension context.
      */
-    void SetContext(const std::shared_ptr<UIExtensionContext> &context);
+    void SetContext(const std::shared_ptr<UIExtensionContext> &context) override;
 
-private:
-    void BindContext(napi_env env, napi_value obj);
+    void BindContext() override;
+protected:
     napi_value CallObjectMethod(const char *name, napi_value const *argv = nullptr, size_t argc = 0);
     void ForegroundWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
     void BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);
     void DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);
     bool CallJsOnSessionCreate(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
-        const sptr<Rosen::Window> &uiWindow, const sptr<IRemoteObject> &sessionToken);
+        const sptr<Rosen::Window> &uiWindow, const uint64_t &uiExtensionComponentId);
+    void OnCommandWindowDone(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
+    bool ForegroundWindowWithInsightIntent(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
+        bool needForeground);
+    bool HandleSessionCreate(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
+    void OnInsightIntentExecuteDone(const sptr<AAFwk::SessionInfo> &sessionInfo,
+        const AppExecFwk::InsightIntentExecuteResult &result);
+    void PostInsightIntentExecuted(const sptr<AAFwk::SessionInfo> &sessionInfo,
+        const AppExecFwk::InsightIntentExecuteResult &result, bool needForeground);
 
+protected:
     JsRuntime &jsRuntime_;
-    std::unique_ptr<NativeReference> jsObj_;
     std::shared_ptr<NativeReference> shellContextRef_;
-    std::map<sptr<IRemoteObject>, sptr<Rosen::Window>> uiWindowMap_;
-    std::set<sptr<IRemoteObject>> foregroundWindows_;
-    std::map<sptr<IRemoteObject>, std::shared_ptr<NativeReference>> contentSessions_;
-    std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_;
+    std::unique_ptr<NativeReference> jsObj_;
     std::shared_ptr<UIExtensionContext> context_;
+    std::map<uint64_t, sptr<Rosen::Window>> uiWindowMap_;
+    std::set<uint64_t> foregroundWindows_;
+    std::map<uint64_t, std::shared_ptr<NativeReference>> contentSessions_;
+    std::shared_ptr<AbilityResultListeners> abilityResultListeners_ = nullptr;
+    std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_;
+    sptr<IRemoteObject> token_ = nullptr;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

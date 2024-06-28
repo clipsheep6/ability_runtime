@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,7 +23,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-void StartDebuggerInWorkerModule();
+void StartDebuggerInWorkerModule(bool isDebugApp, bool isNativeStart);
 void InitWorkerFunc(NativeEngine* nativeEngine);
 void OffWorkerFunc(NativeEngine* nativeEngine);
 int32_t GetContainerId();
@@ -32,7 +32,7 @@ void RestoreContainerScope(int32_t id);
 void SetJsFramework();
 
 class AssetHelper final {
-public:    
+public:
     explicit AssetHelper(std::shared_ptr<JsEnv::WorkerInfo> workerInfo) : workerInfo_(workerInfo)
     {
         if (!(workerInfo_->codePath).empty() && (workerInfo->codePath).back() != '/') {
@@ -40,20 +40,26 @@ public:
         }
     }
 
+    virtual ~AssetHelper();
+
+    void operator()(const std::string& uri, uint8_t** buff, size_t* buffSize, std::vector<uint8_t>& content,
+        std::string& ami, bool& useSecureMem, bool isRestricted = false);
+
+private:
     std::string NormalizedFileName(const std::string& fileName) const;
 
-    void operator()(const std::string& uri, std::vector<uint8_t>& content, std::string &ami);
+    bool ReadAmiData(const std::string& ami, uint8_t** buff, size_t* buffSize, std::vector<uint8_t>& content,
+        bool& useSecureMem, bool isRestricted);
 
-    sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
-
-    bool ReadAmiData(const std::string& ami, std::vector<uint8_t>& content) const;
-
-    bool ReadFilePathData(const std::string& filePath, std::vector<uint8_t>& content);
+    bool ReadFilePathData(const std::string& filePath, uint8_t** buff, size_t* buffSize, std::vector<uint8_t>& content,
+        bool& useSecureMem, bool isRestricted);
 
     void GetAmi(std::string& ami, const std::string& filePath);
-private:
-    std::shared_ptr<JsEnv::WorkerInfo> workerInfo_;
-    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy_ = nullptr;
+
+    bool GetSafeData(const std::string& ami, uint8_t** buff, size_t* buffSize);
+
+    std::shared_ptr<JsEnv::WorkerInfo> workerInfo_ = nullptr;
+    int fd_ = -1;
 };
 
 } // namespace AbilityRuntime

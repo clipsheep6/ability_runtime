@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include <string>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
 
@@ -43,20 +44,20 @@ std::string MakeLogContent(napi_env env, napi_callback_info info)
         }
 
         if (value == nullptr) {
-            HILOG_ERROR("Failed to convert to string object");
+            TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to convert to string object");
             continue;
         }
 
         size_t bufferLen = 0;
         napi_status status = napi_get_value_string_utf8(env, value, nullptr, 0, &bufferLen);
         if (status != napi_ok || bufferLen == 0 || bufferLen >= JS_CONSOLE_LOG_MAX_LOG_LEN) {
-            HILOG_DEBUG("Log length exceeds maximum");
+            TAG_LOGD(AAFwkTag::ABILITY_SIM, "Log length exceeds maximum");
             return content;
         }
 
         auto buff = new (std::nothrow) char[bufferLen + 1];
         if (buff == nullptr) {
-            HILOG_ERROR("Failed to allocate buffer, size = %zu", bufferLen + 1);
+            TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to allocate buffer, size = %zu", bufferLen + 1);
             break;
         }
 
@@ -76,7 +77,7 @@ template<LogLevel LEVEL>
 napi_value ConsoleLog(napi_env env, napi_callback_info info)
 {
     if (env == nullptr || info == nullptr) {
-        HILOG_ERROR("env or callback info is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "env or callback info is nullptr");
         return nullptr;
     }
 
@@ -92,7 +93,7 @@ void InitConsoleLogModule(napi_env env, napi_value globalObject)
     napi_value consoleObj = nullptr;
     napi_create_object(env, &consoleObj);
     if (consoleObj == nullptr) {
-        HILOG_ERROR("Failed to create console object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to create console object");
         return;
     }
     const char *moduleName = "console";

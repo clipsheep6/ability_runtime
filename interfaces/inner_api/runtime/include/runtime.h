@@ -20,13 +20,6 @@
 #include <string>
 #include <vector>
 
-struct JsFrames {
-    std::string functionName;
-    std::string fileName;
-    std::string pos;
-    uintptr_t *nativePointer = nullptr;
-};
-
 class ModuleCheckerDelegate;
 
 namespace OHOS {
@@ -38,6 +31,7 @@ class Runtime {
 public:
     enum class Language {
         JS = 0,
+        CJ
     };
 
     struct Options {
@@ -50,7 +44,8 @@ public:
         std::string arkNativeFilePath;
         std::string packagePathStr;
         std::vector<std::string> assetBasePathStr;
-        std::shared_ptr<AppExecFwk::EventRunner> eventRunner;
+        std::shared_ptr<AppExecFwk::EventRunner> eventRunner = nullptr;
+        std::map<std::string, std::string> hapModulePath;
         bool loadAce = true;
         bool preload = false;
         bool isBundle = true;
@@ -58,12 +53,25 @@ public:
         bool isJsFramework = false;
         bool isStageModel = true;
         bool isTestFramework = false;
+        bool jitEnabled = false;
+        bool isMultiThread = false;
         int32_t uid = -1;
         // ArkTsCard start
         bool isUnique = false;
         // ArkTsCard end
-        std::shared_ptr<ModuleCheckerDelegate> moduleCheckerDelegate;
+        std::shared_ptr<ModuleCheckerDelegate> moduleCheckerDelegate = nullptr;
         int32_t apiTargetVersion = 0;
+        std::map<std::string, std::string> pkgContextInfoJsonStringMap;
+        std::map<std::string, std::string> packageNameList;
+    };
+
+    struct DebugOption {
+        std::string bundleName = "";
+        std::string perfCmd;
+        std::string processName = "";
+        bool isDebugApp = true;
+        bool isStartWithDebug = false;
+        bool isStartWithNative = false;
     };
 
     static std::unique_ptr<Runtime> Create(const Options& options);
@@ -75,9 +83,15 @@ public:
 
     virtual Language GetLanguage() const = 0;
 
-    virtual void StartDebugMode(bool needBreakPoint) = 0;
-    virtual bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) = 0;
+    virtual void StartDebugMode(const DebugOption debugOption) = 0;
     virtual void DumpHeapSnapshot(bool isPrivate) = 0;
+    virtual void DumpCpuProfile(bool isPrivate) = 0;
+    virtual void DestroyHeapProfiler() = 0;
+    virtual void ForceFullGC() = 0;
+    virtual void ForceFullGC(uint32_t tid) = 0;
+    virtual void DumpHeapSnapshot(uint32_t tid, bool isFullGC) = 0;
+    virtual void AllowCrossThreadExecution() = 0;
+    virtual void GetHeapPrepare() = 0;
     virtual void NotifyApplicationState(bool isBackground) = 0;
     virtual bool SuspendVM(uint32_t tid) = 0;
     virtual void ResumeVM(uint32_t tid) = 0;
@@ -87,10 +101,11 @@ public:
     virtual bool NotifyHotReloadPage() = 0;
     virtual bool UnLoadRepairPatch(const std::string& patchFile) = 0;
     virtual void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath) = 0;
-    virtual void StartProfiler(const std::string &perfCmd) = 0;
+    virtual void StartProfiler(const DebugOption debugOption) = 0;
     virtual void DoCleanWorkAfterStageCleaned() = 0;
-    virtual void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate) const {}
-
+    virtual void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate> moduleCheckerDelegate) const {}
+    virtual void SetDeviceDisconnectCallback(const std::function<bool()> &cb) = 0;
+    virtual void UpdatePkgContextInfoJson(std::string moduleName, std::string hapPath, std::string packageName) = 0;
     Runtime(const Runtime&) = delete;
     Runtime(Runtime&&) = delete;
     Runtime& operator=(const Runtime&) = delete;

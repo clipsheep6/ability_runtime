@@ -18,11 +18,11 @@
 #include <gmock/gmock.h>
 #include <iremote_object.h>
 #include <iremote_stub.h>
-#include "stop_user_callback.h"
+#include "user_callback.h"
 
 namespace OHOS {
 namespace AAFwk {
-class StopUserCallbackStubMock : public IRemoteStub<IStopUserCallback> {
+class StopUserCallbackStubMock : public IRemoteStub<IUserCallback> {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"StopUserCallbackStubMock");
 
@@ -46,6 +46,7 @@ public:
     int code_ = 0;
 
     virtual void OnStopUserDone(int userId, int errcode) {};
+    virtual void OnStartUserDone(int userId, int errcode) {}
 };
 }  // namespace AAFwk
 }  // namespace OHOS

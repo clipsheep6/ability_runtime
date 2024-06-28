@@ -15,7 +15,9 @@
 
 #include "js_environment.h"
 
-#include "js_env_logger.h"
+#include "ffrt.h"
+#include "hilog_tag_wrapper.h"
+#include "hilog_wrapper.h"
 #include "js_environment_impl.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 #include "uncaught_exception_callback.h"
@@ -23,6 +25,10 @@
 
 namespace OHOS {
 namespace JsEnv {
+namespace {
+static const std::string DEBUGGER = "@Debugger";
+static const std::string NOT_INIT = "SourceMap is not initialized yet \n";
+}
 
 static panda::DFXJSNApi::ProfilerType ConvertProfilerType(JsEnvironment::PROFILERTYPE type)
 {
@@ -35,12 +41,12 @@ static panda::DFXJSNApi::ProfilerType ConvertProfilerType(JsEnvironment::PROFILE
 
 JsEnvironment::JsEnvironment(std::unique_ptr<JsEnvironmentImpl> impl) : impl_(std::move(impl))
 {
-    JSENV_LOG_I("Js environment costructor.");
+    TAG_LOGD(AAFwkTag::JSENV, "called");
 }
 
 JsEnvironment::~JsEnvironment()
 {
-    JSENV_LOG_I("Js environment destructor.");
+    TAG_LOGD(AAFwkTag::JSENV, "called");
 
     if (engine_ != nullptr) {
         delete engine_;
@@ -55,10 +61,10 @@ JsEnvironment::~JsEnvironment()
 
 bool JsEnvironment::Initialize(const panda::RuntimeOption& pandaOption, void* jsEngine)
 {
-    JSENV_LOG_D("Js environment initialize.");
+    TAG_LOGD(AAFwkTag::JSENV, "Js environment initialize.");
     vm_ = panda::JSNApi::CreateJSVM(pandaOption);
     if (vm_ == nullptr) {
-        JSENV_LOG_E("Create vm failed.");
+        TAG_LOGE(AAFwkTag::JSENV, "Create vm failed.");
         return false;
     }
 
@@ -69,7 +75,7 @@ bool JsEnvironment::Initialize(const panda::RuntimeOption& pandaOption, void* js
 void JsEnvironment::InitTimerModule()
 {
     if (engine_ == nullptr) {
-        JSENV_LOG_E("Invalid native engine.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid native engine.");
         return;
     }
 
@@ -81,7 +87,7 @@ void JsEnvironment::InitTimerModule()
 void JsEnvironment::InitWorkerModule(std::shared_ptr<WorkerInfo> workerInfo)
 {
     if (engine_ == nullptr) {
-        JSENV_LOG_E("Invalid native engine.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid native engine.");
         return;
     }
 
@@ -122,17 +128,30 @@ void JsEnvironment::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator
 {
     sourceMapOperator_ = operatorObj;
     if (engine_ == nullptr) {
-        JSENV_LOG_E("Invalid Native Engine.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid Native Engine.");
         return;
     }
 
-    auto translateBySourceMapFunc = [&](const std::string& rawStack) {
-        return sourceMapOperator_->TranslateBySourceMap(rawStack);
+    if (sourceMapOperator_ != nullptr) {
+        sourceMapOperator_->InitSourceMap();
+    }
+
+    auto translateBySourceMapFunc = [&](const std::string& rawStack) -> std::string {
+        if (sourceMapOperator_ != nullptr && sourceMapOperator_->GetInitStatus()) {
+            return sourceMapOperator_->TranslateBySourceMap(rawStack);
+        } else {
+            TAG_LOGE(AAFwkTag::JSENV, "SourceMap is not initialized yet");
+            return NOT_INIT + rawStack;
+        }
     };
     engine_->RegisterTranslateBySourceMap(translateBySourceMapFunc);
 
-    auto translateUrlBySourceMapFunc = [&](std::string& url, int& line, int& column) {
-        return sourceMapOperator_->TranslateUrlPositionBySourceMap(url, line, column);
+    auto translateUrlBySourceMapFunc = [&](std::string& url, int& line, int& column) -> bool {
+        if (sourceMapOperator_ != nullptr && sourceMapOperator_->GetInitStatus()) {
+            return sourceMapOperator_->TranslateUrlPositionBySourceMap(url, line, column);
+        }
+        TAG_LOGE(AAFwkTag::JSENV, "SourceMap is not initialized yet");
+        return false;
     };
     engine_->RegisterSourceMapTranslateCallback(translateUrlBySourceMapFunc);
 }
@@ -140,7 +159,7 @@ void JsEnvironment::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator
 void JsEnvironment::RegisterUncaughtExceptionHandler(const JsEnv::UncaughtExceptionInfo& uncaughtExceptionInfo)
 {
     if (engine_ == nullptr) {
-        JSENV_LOG_E("Invalid Native Engine.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid Native Engine.");
         return;
     }
 
@@ -151,50 +170,58 @@ void JsEnvironment::RegisterUncaughtExceptionHandler(const JsEnv::UncaughtExcept
 bool JsEnvironment::LoadScript(const std::string& path, std::vector<uint8_t>* buffer, bool isBundle)
 {
     if (engine_ == nullptr) {
-        JSENV_LOG_E("Invalid Native Engine.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid Native Engine.");
         return false;
     }
 
     if (buffer == nullptr) {
-        return engine_->RunScriptPath(path.c_str()) != nullptr;
+        return engine_->RunScriptPath(path.c_str());
     }
 
     return engine_->RunScriptBuffer(path.c_str(), *buffer, isBundle) != nullptr;
 }
 
-bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId)
+bool JsEnvironment::StartDebugger(
+    std::string& option, uint32_t socketFd, bool isDebugApp)
 {
+    TAG_LOGD(AAFwkTag::JSENV, "call.");
     if (vm_ == nullptr) {
-        JSENV_LOG_E("Invalid vm.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid vm.");
         return false;
     }
-
-    panda::JSNApi::DebugOption debugOption = {libraryPath, needBreakPoint};
-    auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
-        auto jsEnv = weak.lock();
-        if (jsEnv == nullptr) {
-            JSENV_LOG_E("JsEnv is invalid.");
-            return;
-        }
-        jsEnv->PostTask(task, "JsEnvironment:StartDebugger");
-    };
-    return panda::JSNApi::StartDebugger(vm_, debugOption, instanceId, debuggerPostTask);
+    int32_t identifierId = ParseHdcRegisterOption(option);
+    if (identifierId == -1) {
+        TAG_LOGE(AAFwkTag::JSENV, "Abnormal parsing of tid results.");
+        return false;
+    }
+    debugMode_ = panda::JSNApi::StartDebuggerForSocketPair(identifierId, socketFd);
+    return debugMode_;
 }
 
 void JsEnvironment::StopDebugger()
 {
     if (vm_ == nullptr) {
-        JSENV_LOG_E("Invalid vm.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid vm.");
         return;
     }
 
     (void)panda::JSNApi::StopDebugger(vm_);
 }
 
+void JsEnvironment::StopDebugger(std::string& option)
+{
+    int32_t identifierId = ParseHdcRegisterOption(option);
+    if (identifierId == -1) {
+        TAG_LOGE(AAFwkTag::JSENV, "Abnormal parsing of tid results.");
+        return;
+    }
+    panda::JSNApi::StopDebugger(identifierId);
+}
+
 void JsEnvironment::InitConsoleModule()
 {
     if (engine_ == nullptr) {
-        JSENV_LOG_E("Invalid Native Engine.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid Native Engine.");
         return;
     }
 
@@ -203,15 +230,15 @@ void JsEnvironment::InitConsoleModule()
     }
 }
 
-bool JsEnvironment::InitLoop()
+bool JsEnvironment::InitLoop(bool isStage)
 {
     if (engine_ == nullptr) {
-        JSENV_LOG_E("Invalid Native Engine.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid Native Engine.");
         return false;
     }
 
     if (impl_ != nullptr) {
-        impl_->InitLoop(engine_);
+        impl_->InitLoop(engine_, isStage);
     }
     return true;
 }
@@ -219,7 +246,7 @@ bool JsEnvironment::InitLoop()
 void JsEnvironment::DeInitLoop()
 {
     if (engine_ == nullptr) {
-        JSENV_LOG_E("Invalid Native Engine.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid Native Engine.");
         return;
     }
 
@@ -231,7 +258,7 @@ void JsEnvironment::DeInitLoop()
 bool JsEnvironment::LoadScript(const std::string& path, uint8_t* buffer, size_t len, bool isBundle)
 {
     if (engine_ == nullptr) {
-        JSENV_LOG_E("Invalid Native Engine.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid Native Engine.");
         return false;
     }
 
@@ -239,17 +266,17 @@ bool JsEnvironment::LoadScript(const std::string& path, uint8_t* buffer, size_t 
 }
 
 void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler,
-    int32_t interval)
+    int32_t interval, int tid, bool isDebugApp)
 {
     if (vm_ == nullptr) {
-        JSENV_LOG_E("Invalid vm.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid vm.");
         return;
     }
 
     auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
         auto jsEnv = weak.lock();
         if (jsEnv == nullptr) {
-            JSENV_LOG_E("JsEnv is invalid.");
+            TAG_LOGE(AAFwkTag::JSENV, "JsEnv is invalid.");
             return;
         }
         jsEnv->PostTask(task, "JsEnvironment::StartProfiler");
@@ -260,19 +287,37 @@ void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, 
     option.profilerType = ConvertProfilerType(profiler);
     option.interval = interval;
 
-    panda::DFXJSNApi::StartProfiler(vm_, option, instanceId, debuggerPostTask);
+    panda::DFXJSNApi::StartProfiler(vm_, option, tid, instanceId, debuggerPostTask, isDebugApp);
+}
+
+void JsEnvironment::DestroyHeapProfiler()
+{
+    if (vm_ == nullptr) {
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid vm.");
+        return;
+    }
+    panda::DFXJSNApi::DestroyHeapProfiler(vm_);
+}
+
+void JsEnvironment::GetHeapPrepare()
+{
+    if (vm_ == nullptr) {
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid vm.");
+        return;
+    }
+    panda::DFXJSNApi::GetHeapPrepare(vm_);
 }
 
 void JsEnvironment::ReInitJsEnvImpl(std::unique_ptr<JsEnvironmentImpl> impl)
 {
-    JSENV_LOG_I("ReInit jsenv impl.");
+    TAG_LOGD(AAFwkTag::JSENV, "ReInit jsenv impl.");
     impl_ = std::move(impl);
 }
 
-void JsEnvironment::SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate)
+void JsEnvironment::SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate> moduleCheckerDelegate)
 {
     if (engine_ == nullptr) {
-        JSENV_LOG_E("Invalid native engine.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid native engine.");
         return;
     }
 
@@ -282,11 +327,73 @@ void JsEnvironment::SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDele
 void JsEnvironment::SetRequestAotCallback(const RequestAotCallback& cb)
 {
     if (vm_ == nullptr) {
-        JSENV_LOG_E("Invalid vm.");
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid vm.");
         return;
     }
 
     panda::JSNApi::SetRequestAotCallback(vm_, cb);
+}
+
+void JsEnvironment::SetDeviceDisconnectCallback(const std::function<bool()> &cb)
+{
+    panda::JSNApi::SetDeviceDisconnectCallback(vm_, std::move(cb));
+}
+
+DebuggerPostTask JsEnvironment::GetDebuggerPostTask()
+{
+    auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
+        auto jsEnv = weak.lock();
+        if (jsEnv == nullptr) {
+            TAG_LOGE(AAFwkTag::JSENV, "JsEnv is invalid.");
+            return;
+        }
+        jsEnv->PostTask(task, "JsEnvironment:GetDebuggerPostTask");
+    };
+    return debuggerPostTask;
+}
+
+void JsEnvironment::NotifyDebugMode(
+    int tid, const char* libraryPath, uint32_t instanceId, bool debug, bool debugMode)
+{
+    if (vm_ == nullptr) {
+        TAG_LOGE(AAFwkTag::JSENV, "Invalid vm.");
+        return;
+    }
+    panda::JSNApi::DebugOption debugOption = {libraryPath, debug ? debugMode : false};
+    auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
+        auto jsEnv = weak.lock();
+        if (jsEnv == nullptr) {
+            TAG_LOGE(AAFwkTag::JSENV, "JsEnv is invalid.");
+            return;
+        }
+        jsEnv->PostTask(task, "JsEnvironment:NotifyDebugMode");
+    };
+    panda::JSNApi::NotifyDebugMode(tid, vm_, debugOption, instanceId, debuggerPostTask, debug);
+}
+
+int32_t JsEnvironment::ParseHdcRegisterOption(std::string& option)
+{
+    TAG_LOGD(AAFwkTag::JSENV, "Start.");
+    std::size_t pos = option.find_first_of(":");
+    if (pos == std::string::npos) {
+        return -1;
+    }
+    std::string idStr = option.substr(pos + 1);
+    pos = idStr.find(DEBUGGER);
+    if (pos == std::string::npos) {
+        return -1;
+    }
+    idStr = idStr.substr(0, pos);
+    pos = idStr.find("@");
+    if (pos != std::string::npos) {
+        idStr = idStr.substr(pos + 1);
+    }
+    return std::atoi(idStr.c_str());
+}
+
+bool JsEnvironment::GetDebugMode() const
+{
+    return debugMode_;
 }
 } // namespace JsEnv
 } // namespace OHOS

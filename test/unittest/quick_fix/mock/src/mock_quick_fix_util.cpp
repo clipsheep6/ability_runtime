@@ -15,6 +15,7 @@
 
 #include "mock_quick_fix_util.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
@@ -31,7 +32,7 @@ sptr<IRemoteObject> QuickFixUtil::GetRemoteObjectOfSystemAbility(const int32_t s
     if (servicesMap_[systemAbilityId] == nullptr) {
         auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (systemAbilityMgr == nullptr) {
-            HILOG_ERROR("Failed to get SystemAbilityManager.");
+            TAG_LOGE(AAFwkTag::TEST, "Failed to get SystemAbilityManager.");
             return nullptr;
         }
 
@@ -54,20 +55,20 @@ sptr<AppExecFwk::IBundleMgr> QuickFixUtil::GetBundleManagerProxy()
 
 sptr<AppExecFwk::IQuickFixManager> QuickFixUtil::GetBundleQuickFixMgrProxy()
 {
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::TEST, "function called.");
     auto bundleMgr = GetBundleManagerProxy();
     if (bundleMgr == nullptr) {
-        HILOG_ERROR("Failed to get bms.");
+        TAG_LOGE(AAFwkTag::TEST, "Failed to get bms.");
         return nullptr;
     }
 
     auto bundleQuickFixMgr = bundleMgr->GetQuickFixManagerProxy();
     if (bundleQuickFixMgr == nullptr) {
-        HILOG_ERROR("Failed to get bundle quick fix manager.");
+        TAG_LOGE(AAFwkTag::TEST, "Failed to get bundle quick fix manager.");
         return nullptr;
     }
 
-    HILOG_DEBUG("function finished.");
+    TAG_LOGD(AAFwkTag::TEST, "function finished.");
     return bundleQuickFixMgr;
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "share_extension_module_loader.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "share_extension.h"
 
@@ -25,13 +26,13 @@ ShareExtensionModuleLoader::~ShareExtensionModuleLoader() = default;
 
 Extension *ShareExtensionModuleLoader::Create(const std::unique_ptr<Runtime> &runtime) const
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::SHARE_EXT, "called");
     return ShareExtension::Create(runtime);
 }
 
 std::map<std::string, std::string> ShareExtensionModuleLoader::GetParams()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::SHARE_EXT, "called");
     std::map<std::string, std::string> params;
     // type means extension type in ExtensionAbilityType of
     // extension_ability_info.h, 16 means shareextension.

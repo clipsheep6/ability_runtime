@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -23,6 +23,8 @@ ohos_unittest("AppRecoveryUnitTest") {
   include_dirs = [
     "./",
     "mock",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_runtime",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_extension_ability",
     "${ability_runtime_test_path}/mock/services_appmgr_test/include",
   ]
 
@@ -36,6 +38,7 @@ ohos_unittest("AppRecoveryUnitTest") {
   deps = [
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:uiabilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:app_context_utils",
     "${ability_runtime_native_path}/appkit:appkit_delegator",
@@ -67,13 +70,15 @@ ohos_unittest("AppRecoveryUnitTest") {
     "faultloggerd:libdfx_dumpcatcher",
     "form_fwk:fmskit_native",
     "form_fwk:form_manager",
-    "hichecker:libhichecker",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "napi:ace_napi",
   ]
+  if (hichecker_enabled) {
+    external_deps += [ "hichecker:libhichecker" ]
+  }
 }
 
 ohos_unittest("AbilityRecoveryUnitTest") {
@@ -96,6 +101,7 @@ ohos_unittest("AbilityRecoveryUnitTest") {
   deps = [
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:uiabilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:app_context_utils",
     "${ability_runtime_native_path}/appkit:appkit_delegator",
@@ -126,13 +132,15 @@ ohos_unittest("AbilityRecoveryUnitTest") {
     "faultloggerd:libdfx_dumpcatcher",
     "form_fwk:fmskit_native",
     "form_fwk:form_manager",
-    "hichecker:libhichecker",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "napi:ace_napi",
   ]
+  if (hichecker_enabled) {
+    external_deps += [ "hichecker:libhichecker" ]
+  }
 }
 
 group("unittest") {

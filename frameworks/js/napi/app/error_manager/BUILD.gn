@@ -34,6 +34,7 @@ template("errormanager") {
 
     deps = [
       "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+      "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
       "${ability_runtime_innerkits_path}/app_manager:app_manager",
       "${ability_runtime_innerkits_path}/runtime:runtime",
       "${ability_runtime_native_path}/appkit:appkit_native",
@@ -41,6 +42,7 @@ template("errormanager") {
 
     external_deps = [
       "c_utils:utils",
+      "eventhandler:libeventhandler",
       "hilog:libhilog",
       "napi:ace_napi",
     ]

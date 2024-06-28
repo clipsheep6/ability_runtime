@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -71,7 +71,8 @@ public:
     };
 
     ErrCode GetBaseSharedBundleInfos(const std::string &bundleName,
-        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos) override
+        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos,
+        AppExecFwk::GetDependentBundleInfoFlag flag) override
     {
         return ERR_OK;
     }
@@ -87,6 +88,7 @@ public:
 
 class BundleMgrService : public BundleMgrStub {
 public:
+    MOCK_METHOD0(GetBundleInstaller, sptr<AppExecFwk::IBundleInstaller>());
     bool QueryAbilityInfo(const AAFwk::Want& want, AbilityInfo& abilityInfo) override;
     bool QueryAbilityInfoByUri(const std::string& uri, AbilityInfo& abilityInfo) override;
 
@@ -150,7 +152,8 @@ public:
     void MakingResidentProcData();
     ErrCode GetBundleInfoForSelf(int32_t flags, BundleInfo &bundleInfo);
     ErrCode GetBaseSharedBundleInfos(const std::string &bundleName,
-        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos) override
+        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos,
+        AppExecFwk::GetDependentBundleInfoFlag flag) override
     {
         return ERR_OK;
     }
@@ -167,8 +170,8 @@ public:
 
 class QuickFixManagerHostImpl : public QuickFixManagerHost {
 public:
-    MOCK_METHOD2(DeployQuickFix, ErrCode(const std::vector<std::string>& bundleFilePaths,
-        const sptr<IQuickFixStatusCallback>& statusCallback));
+    MOCK_METHOD4(DeployQuickFix, ErrCode(const std::vector<std::string>& bundleFilePaths,
+        const sptr<IQuickFixStatusCallback>& statusCallback, bool isDebug, const std::string& targetPath));
     MOCK_METHOD3(SwitchQuickFix, ErrCode(const std::string& bundleName, bool enable,
         const sptr<IQuickFixStatusCallback>& statusCallback));
     MOCK_METHOD2(DeleteQuickFix, ErrCode(const std::string& bundleName,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "hilog_tag_wrapper.h"
 #include "want_agent.h"
 #include "want_agent_log_wrapper.h"
 
@@ -35,7 +36,7 @@ void WantAgent::SetPendingWant(const std::shared_ptr<PendingWant> &pendingWant)
 bool WantAgent::Marshalling(Parcel &parcel) const
 {
     if (!parcel.WriteParcelable(pendingWant_.get())) {
-        WANT_AGENT_LOGE("parcel WriteString failed");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "parcel WriteString failed");
         return false;
     }
 
@@ -46,7 +47,7 @@ WantAgent *WantAgent::Unmarshalling(Parcel &parcel)
 {
     WantAgent *agent = new (std::nothrow) WantAgent();
     if (agent == nullptr) {
-        WANT_AGENT_LOGE("read from parcel failed");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "read from parcel failed");
         return nullptr;
     }
     std::shared_ptr<PendingWant> pendingWant(parcel.ReadParcelable<PendingWant>());

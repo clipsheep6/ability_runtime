@@ -17,6 +17,7 @@
 
 #include "ability_impl.h"
 #include "ability_local_record.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ohos_application.h"
 
@@ -28,30 +29,30 @@ void AbilityImpl::Init(const std::shared_ptr<OHOSApplication> &application,
                        std::shared_ptr<AbilityHandler> &handler,
                        const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("AbilityImpl::init begin");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityImpl::init begin");
 
     if (token == nullptr) {
-        HILOG_ERROR("AbilityImpl::init failed, token is nullptr");
+        TAG_LOGE(AAFwkTag::TEST, "AbilityImpl::init failed, token is nullptr");
         return;
     }
 
     if (application == nullptr) {
-        HILOG_ERROR("AbilityImpl::init failed, application is nullptr");
+        TAG_LOGE(AAFwkTag::TEST, "AbilityImpl::init failed, application is nullptr");
         return;
     }
 
     if (record == nullptr) {
-        HILOG_ERROR("AbilityImpl::init failed, record is nullptr");
+        TAG_LOGE(AAFwkTag::TEST, "AbilityImpl::init failed, record is nullptr");
         return;
     }
 
     if (ability == nullptr) {
-        HILOG_ERROR("AbilityImpl::init failed, ability is nullptr");
+        TAG_LOGE(AAFwkTag::TEST, "AbilityImpl::init failed, ability is nullptr");
         return;
     }
 
     if (token == nullptr) {
-        HILOG_ERROR("AbilityImpl::init failed, token is nullptr");
+        TAG_LOGE(AAFwkTag::TEST, "AbilityImpl::init failed, token is nullptr");
         return;
     }
 
@@ -60,7 +61,7 @@ void AbilityImpl::Init(const std::shared_ptr<OHOSApplication> &application,
     ability_->Init(record->GetAbilityInfo(), application, handler, token);
     lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
     abilityLifecycleCallbacks_ = application;
-    HILOG_INFO("AbilityImpl::init end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityImpl::init end");
 }
 
 void AbilityImpl::Start(const Want& want, sptr<AAFwk::SessionInfo> sessionInfos)
@@ -129,7 +130,7 @@ void AbilityImpl::NewWant(const Want& want)
 {
     GTEST_LOG_(INFO) << "Mock AbilityImpl::NewWant called";
     if (ability_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::NewWant ability_ is nullptr");
+        TAG_LOGE(AAFwkTag::TEST, "AbilityImpl::NewWant ability_ is nullptr");
         return;
     }
     ability_->SetWant(want);

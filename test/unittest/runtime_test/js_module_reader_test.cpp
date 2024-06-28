@@ -56,7 +56,8 @@ HWTEST_F(JsModuleReaderTest, JsModuleReaderTest_0100, TestSize.Level0)
     JsModuleReader jsModuleReader("JsModuleReader", "");
     uint8_t *buff = nullptr;
     size_t buffSize = 0;
-    auto result = jsModuleReader("", &buff, &buffSize);
+    std::string errorMsg = "";
+    auto result = jsModuleReader("", &buff, &buffSize, errorMsg);
     EXPECT_EQ(result, false);
 }
 
@@ -71,7 +72,8 @@ HWTEST_F(JsModuleReaderTest, JsModuleReaderTest_0200, TestSize.Level0)
     JsModuleReader jsModuleReader("JsModuleReader", "");
     uint8_t *buff = nullptr;
     size_t buffSize = 0;
-    auto result = jsModuleReader("bundleName/moduleName", &buff, &buffSize);
+    std::string errorMsg = "";
+    auto result = jsModuleReader("bundleName/moduleName", &buff, &buffSize, errorMsg);
     EXPECT_EQ(result, false);
 }
 
@@ -83,7 +85,7 @@ HWTEST_F(JsModuleReaderTest, JsModuleReaderTest_0200, TestSize.Level0)
 HWTEST_F(JsModuleReaderTest, GetPresetAppHapPathTest_0100, TestSize.Level0)
 {
 JsModuleReader jsModuleReader("JsModuleReader", "");
-std::string hapPath = jsModuleReader.GetPresetAppHapPath("");
+std::string hapPath = jsModuleReader.GetPresetAppHapPath("", "");
 EXPECT_TRUE(hapPath.empty());
 }
 
@@ -95,7 +97,7 @@ EXPECT_TRUE(hapPath.empty());
 HWTEST_F(JsModuleReaderTest, GetPresetAppHapPathTest_0200, TestSize.Level0)
 {
 JsModuleReader jsModuleReader("JsModuleReader", "/data/storage/el1/test.hsp");
-std::string hapPath = jsModuleReader.GetPresetAppHapPath("");
+std::string hapPath = jsModuleReader.GetPresetAppHapPath("", "");
 EXPECT_TRUE(hapPath.empty());
 }
 }  // namespace AAFwk

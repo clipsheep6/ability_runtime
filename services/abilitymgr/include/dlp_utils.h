@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,12 +17,17 @@
 #define OHOS_ABILITY_RUNTIME_DLP_UTILS_H
 
 #include "ability_record.h"
+#include "bundle_mgr_helper.h"
 #ifdef WITH_DLP
 #include "dlp_permission_kit.h"
 #endif // WITH_DLP
+#include "global_constant.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "in_process_call_wrapper.h"
 #include "iremote_object.h"
 #include "permission_verification.h"
+#include "server_constant.h"
 #include "want.h"
 
 namespace OHOS {
@@ -43,10 +48,10 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
     }
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     if (abilityRecord == nullptr) {
-        HILOG_ERROR("Ability has already been destroyed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability has already been destroyed.");
         return true;
     }
-    if (abilityRecord->GetAppIndex() == 0) {
+    if (abilityRecord->GetAppIndex() <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
         return true;
     }
     if (abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
@@ -56,11 +61,11 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
     Security::DlpPermission::SandBoxExternalAuthorType authResult;
     int result = Dlp::GetSandboxExternalAuthorization(uid, want, authResult);
     if (result != ERR_OK) {
-        HILOG_ERROR("GetSandboxExternalAuthorization failed %{public}d.", result);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetSandboxExternalAuthorization failed %{public}d.", result);
         return false;
     }
     if (authResult != Security::DlpPermission::SandBoxExternalAuthorType::ALLOW_START_ABILITY) {
-        HILOG_ERROR("Auth failed, not allow start %{public}d.", uid);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Auth failed, not allow start %{public}d.", uid);
         return false;
     }
 #endif // WITH_DLP
@@ -69,9 +74,15 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
 
 [[maybe_unused]]static bool OtherAppsAccessDlpCheck(const sptr<IRemoteObject> &callerToken, const Want &want)
 {
+    int32_t dlpIndex = want.GetIntParam(AbilityRuntime::ServerConstant::DLP_INDEX, 0);
+    if (dlpIndex <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX && dlpIndex != 0) {
+        return false;
+    }
+
     if (callerToken != nullptr) {
         auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-        if (abilityRecord != nullptr && abilityRecord->GetAppIndex() != 0) {
+        if (abilityRecord != nullptr &&
+            abilityRecord->GetAppIndex() > AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
             return true;
         }
     }
@@ -86,14 +97,33 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
     Security::DlpPermission::SandBoxExternalAuthorType authResult;
     int result = Dlp::GetSandboxExternalAuthorization(uid, want, authResult);
     if (result != ERR_OK) {
-        HILOG_ERROR("GetSandboxExternalAuthorization failed %{public}d.", result);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetSandboxExternalAuthorization failed %{public}d.", result);
         return false;
     }
     if (authResult != Security::DlpPermission::SandBoxExternalAuthorType::ALLOW_START_ABILITY) {
-        HILOG_ERROR("Auth failed, not allow start %{public}d.", uid);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Auth failed, not allow start %{public}d.", uid);
         return false;
     }
 #endif // WITH_DLP
+    return true;
+}
+
+static bool CheckCallerIsDlpManager(const std::shared_ptr<AppExecFwk::BundleMgrHelper> &bundleManager)
+{
+    if (!bundleManager) {
+        return false;
+    }
+
+    std::string bundleName;
+    auto callerUid = IPCSkeleton::GetCallingUid();
+    if (IN_PROCESS_CALL(bundleManager->GetNameForUid(callerUid, bundleName)) != ERR_OK) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "Get Bundle Name failed.");
+        return false;
+    }
+    if (bundleName != "com.ohos.dlpmanager") {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "Wrong Caller.");
+        return false;
+    }
     return true;
 }
 }  // namespace DlpUtils

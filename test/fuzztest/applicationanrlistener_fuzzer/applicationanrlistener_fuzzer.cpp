@@ -27,9 +27,6 @@
 #include "background_task_observer.h"
 #include "call_container.h"
 #include "call_record.h"
-#ifndef SUPPORT_ERMS
-#include "caller_info.h"
-#endif
 #include "free_install_manager.h"
 #undef protected
 #undef private
@@ -42,9 +39,15 @@ using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace {
+constexpr int INPUT_ZERO = 0;
+constexpr int INPUT_ONE = 1;
+constexpr int INPUT_THREE = 3;
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
 constexpr uint8_t ENABLE = 2;
+constexpr size_t OFFSET_ZERO = 24;
+constexpr size_t OFFSET_ONE = 16;
+constexpr size_t OFFSET_TWO = 8;
 class MyAbilityConnection : public IAbilityConnection {
 public:
     MyAbilityConnection() = default;
@@ -64,7 +67,8 @@ public:
 uint32_t GetU32Data(const char* ptr)
 {
     // convert fuzz input data to an integer
-    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
+    return (ptr[INPUT_ZERO] << OFFSET_ZERO) | (ptr[INPUT_ONE] << OFFSET_ONE) | (ptr[ENABLE] << OFFSET_TWO) |
+        ptr[INPUT_THREE];
 }
 
 std::shared_ptr<AbilityRecord> GetFuzzAbilityRecord()
@@ -181,15 +185,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     callContainer->IsNeedToCallRequest();
     callContainer->AddConnectDeathRecipient(connect);
     callContainer->RemoveConnectDeathRecipient(connect);
-
-#ifndef SUPPORT_ERMS
-    // fuzz for CallerInfo
-    auto callerInfo = std::make_shared<CallerInfo>();
-    Parcel parcel;
-    callerInfo->Marshalling(parcel);
-    callerInfo->Unmarshalling(parcel);
-    callerInfo->ReadFromParcel(parcel);
-#endif
 
     return true;
 }

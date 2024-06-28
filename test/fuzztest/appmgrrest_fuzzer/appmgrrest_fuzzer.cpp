@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,9 +23,7 @@
 #include "app_process_manager.h"
 #define private public
 #include "app_spawn_client.h"
-#include "app_spawn_msg_wrapper.h"
 #undef private
-#include "app_spawn_socket.h"
 #include "remote_client_manager.h"
 #include "window_focus_changed_listener.h"
 #include "ability_record.h"
@@ -37,6 +35,9 @@ using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace {
+constexpr int INPUT_ZERO = 0;
+constexpr int INPUT_ONE = 1;
+constexpr int INPUT_THREE = 3;
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
 constexpr uint8_t ENABLE = 2;
@@ -47,7 +48,8 @@ constexpr size_t OFFSET_TWO = 8;
 uint32_t GetU32Data(const char* ptr)
 {
     // convert fuzz input data to an integer
-    return (ptr[0] << OFFSET_ZERO) | (ptr[1] << OFFSET_ONE) | (ptr[2] << OFFSET_TWO) | ptr[3];
+    return (ptr[INPUT_ZERO] << OFFSET_ZERO) | (ptr[INPUT_ONE] << OFFSET_ONE) | (ptr[ENABLE] << OFFSET_TWO) |
+        ptr[INPUT_THREE];
 }
 sptr<Token> GetFuzzAbilityToken()
 {
@@ -92,43 +94,26 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     appProcessManager.ClearRecentAppList();
     AppSpawnClient appSpawnClient;
     appSpawnClient.OpenConnection();
-    std::shared_ptr<AppSpawnSocket> socket;
-    appSpawnClient.SetSocket(socket);
     appSpawnClient.PreStartNWebSpawnProcess();
-    appSpawnClient.PreStartNWebSpawnProcessImpl();
     AppSpawnStartMsg startMsg;
     appSpawnClient.StartProcess(startMsg, pid);
     int status = static_cast<int>(GetU32Data(data));
     appSpawnClient.GetRenderProcessTerminationStatus(startMsg, status);
     appSpawnClient.QueryConnectionState();
-    appSpawnClient.CloseConnection();
-    AppSpawnMsgWrapper appSpawnMsgWrapper;
-    appSpawnMsgWrapper.AssembleMsg(startMsg);
-    appSpawnMsgWrapper.VerifyMsg(startMsg);
-    appSpawnMsgWrapper.DumpMsg();
-    appSpawnMsgWrapper.FreeMsg();
-    AppSpawnSocket appSpawnSocket;
-    std::shared_ptr<OHOS::AppSpawn::ClientSocket> clientSocket;
-    appSpawnSocket.SetClientSocket(clientSocket);
-    appSpawnSocket.OpenAppSpawnConnection();
-    int32_t len = appSpawnMsgWrapper.GetMsgLength();
-    appSpawnSocket.WriteMessage(appSpawnMsgWrapper.GetMsgBuf(), len);
-    appSpawnSocket.ReadMessage(reinterpret_cast<void*>(*data), len);
-    appSpawnSocket.CloseAppSpawnConnection();
     RemoteClientManager remoteClientManager;
-    sptr<IBundleMgr> bundleManager = nullptr;
-    remoteClientManager.SetBundleManager(bundleManager);
+    std::shared_ptr<BundleMgrHelper> bundleManagerHelper = nullptr;
+    remoteClientManager.SetBundleManagerHelper(bundleManagerHelper);
     std::shared_ptr<AppSpawnClient> appSpawnClientptr;
     remoteClientManager.SetSpawnClient(appSpawnClientptr);
     remoteClientManager.GetSpawnClient();
-    remoteClientManager.GetBundleManager();
+    remoteClientManager.GetBundleManagerHelper();
     remoteClientManager.GetNWebSpawnClient();
     std::shared_ptr<AppMgrServiceInner> owner;
     WindowFocusChangedListener windowFocusChangedListener(owner, handler);
     sptr<Rosen::FocusChangeInfo> focusChangeInfo = nullptr;
     windowFocusChangedListener.OnFocused(focusChangeInfo);
     windowFocusChangedListener.OnUnfocused(focusChangeInfo);
-    return (appSpawnClient.StartProcessImpl(startMsg, pid) != 0);
+    return (appSpawnClient.StartProcess(startMsg, pid) != 0);
 }
 }
 

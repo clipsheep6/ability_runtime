@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "dataobs_mgr_proxy.h"
 
 #include "errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "dataobs_mgr_errors.h"
 #include "common_utils.h"
@@ -25,7 +26,7 @@ namespace AAFwk {
 bool DataObsManagerProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(DataObsManagerProxy::GetDescriptor())) {
-        HILOG_ERROR("failed, write interface token error");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "failed, write interface token error");
         return false;
     }
     return true;
@@ -34,17 +35,17 @@ bool DataObsManagerProxy::WriteInterfaceToken(MessageParcel &data)
 bool DataObsManagerProxy::WriteParam(MessageParcel &data, const Uri &uri, sptr<IDataAbilityObserver> dataObserver)
 {
     if (!data.WriteString(uri.ToString())) {
-        HILOG_ERROR("failed, write uri error");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "failed, write uri error");
         return false;
     }
 
     if (dataObserver == nullptr) {
-        HILOG_ERROR("failed, dataObserver is nullptr");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "failed, dataObserver is nullptr");
         return false;
     }
 
     if (!data.WriteRemoteObject(dataObserver->AsObject())) {
-        HILOG_ERROR("failed, write dataObserver error");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "failed, write dataObserver error");
         return false;
     }
     return true;
@@ -66,7 +67,7 @@ int32_t DataObsManagerProxy::RegisterObserver(const Uri &uri, sptr<IDataAbilityO
 
     auto error = SendTransactCmd(IDataObsMgr::REGISTER_OBSERVER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("failed, SendRequest error: %{public}d, uri: %{public}s", error,
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "failed, SendRequest error: %{public}d, uri: %{public}s", error,
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return error;
     }
@@ -91,7 +92,7 @@ int32_t DataObsManagerProxy::UnregisterObserver(const Uri &uri, sptr<IDataAbilit
 
     auto error = SendTransactCmd(IDataObsMgr::UNREGISTER_OBSERVER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("failed, SendRequest error: %{public}d, uri: %{public}s", error,
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "failed, SendRequest error: %{public}d, uri: %{public}s", error,
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return error;
     }
@@ -109,12 +110,13 @@ int32_t DataObsManagerProxy::NotifyChange(const Uri &uri)
         return IPC_PARCEL_ERROR;
     }
     if (!data.WriteString(uri.ToString())) {
-        HILOG_ERROR("failed, write uri error, uri: %{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "failed, write uri error, uri: %{public}s",
+            CommonUtils::Anonymous(uri.ToString()).c_str());
         return INVALID_PARAM;
     }
     auto error = SendTransactCmd(IDataObsMgr::NOTIFY_CHANGE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("failed, SendRequest error: %{public}d, uri: %{public}s", error,
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "failed, SendRequest error: %{public}d, uri: %{public}s", error,
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return IPC_ERROR;
     }
@@ -139,14 +141,15 @@ Status DataObsManagerProxy::RegisterObserverExt(const Uri &uri, sptr<IDataAbilit
     }
 
     if (!data.WriteBool(isDescendants)) {
-        HILOG_ERROR("failed, write isDescendants error, uri: %{public}s, isDescendants: %{public}d",
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "failed, write isDescendants error, uri: %{public}s, isDescendants: %{public}d",
             CommonUtils::Anonymous(uri.ToString()).c_str(), isDescendants);
         return INVALID_PARAM;
     }
 
     auto error = SendTransactCmd(IDataObsMgr::REGISTER_OBSERVER_EXT, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("failed, SendRequest error: %{public}d, uri: %{public}s, isDescendants: %{public}d", error,
+        TAG_LOGE(AAFwkTag::DBOBSMGR,
+            "failed, SendRequest error: %{public}d, uri: %{public}s, isDescendants: %{public}d", error,
             CommonUtils::Anonymous(uri.ToString()).c_str(), isDescendants);
         return IPC_ERROR;
     }
@@ -170,7 +173,7 @@ Status DataObsManagerProxy::UnregisterObserverExt(const Uri &uri, sptr<IDataAbil
 
     auto error = SendTransactCmd(IDataObsMgr::UNREGISTER_OBSERVER_EXT, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("failed, SendRequest error: %{public}d, uri: %{public}s", error,
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "failed, SendRequest error: %{public}d, uri: %{public}s", error,
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return IPC_ERROR;
     }
@@ -189,18 +192,18 @@ Status DataObsManagerProxy::UnregisterObserverExt(sptr<IDataAbilityObserver> dat
     }
 
     if (dataObserver == nullptr) {
-        HILOG_ERROR("failed, dataObserver is nullptr");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "failed, dataObserver is nullptr");
         return INVALID_PARAM;
     }
 
     if (!data.WriteRemoteObject(dataObserver->AsObject())) {
-        HILOG_ERROR("failed, write dataObserver error");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "failed, write dataObserver error");
         return INVALID_PARAM;
     }
 
     auto error = SendTransactCmd(IDataObsMgr::UNREGISTER_OBSERVER_ALL_EXT, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("failed, SendRequest error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "failed, SendRequest error: %{public}d", error);
         return IPC_ERROR;
     }
     int32_t res = IPC_ERROR;
@@ -218,16 +221,18 @@ Status DataObsManagerProxy::NotifyChangeExt(const ChangeInfo &changeInfo)
     }
 
     if (!ChangeInfo::Marshalling(changeInfo, data)) {
-        HILOG_ERROR("failed, changeInfo marshalling error, changeType:%{public}ud, num of uris:%{public}zu, data is "
-                    "nullptr:%{public}d, size:%{public}ud",
+        TAG_LOGE(AAFwkTag::DBOBSMGR,
+            "failed, changeInfo marshalling error, changeType:%{public}ud, num of uris:%{public}zu, data is "
+            "nullptr:%{public}d, size:%{public}ud",
             changeInfo.changeType_, changeInfo.uris_.size(), changeInfo.data_ == nullptr, changeInfo.size_);
         return INVALID_PARAM;
     }
 
     auto error = SendTransactCmd(IDataObsMgr::NOTIFY_CHANGE_EXT, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("failed, SendRequest error: %{public}d, changeType:%{public}ud, num of uris:%{public}zu, data is "
-                    "nullptr:%{public}d, size:%{public}ud",
+        TAG_LOGE(AAFwkTag::DBOBSMGR,
+            "failed, SendRequest error: %{public}d, changeType:%{public}ud, num of uris:%{public}zu, data is "
+            "nullptr:%{public}d, size:%{public}ud",
             error, changeInfo.changeType_, changeInfo.uris_.size(), changeInfo.data_ == nullptr, changeInfo.size_);
         return IPC_ERROR;
     }
@@ -240,13 +245,13 @@ int32_t DataObsManagerProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "remote object is nullptr.");
         return ERR_NULL_OBJECT;
     }
 
     int32_t ret = remote->SendRequest(code, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
         return ret;
     }
     return NO_ERROR;

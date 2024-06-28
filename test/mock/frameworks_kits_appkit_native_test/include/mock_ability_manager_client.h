@@ -23,7 +23,11 @@
 #include "ability_manager_errors.h"
 #include "ability_scheduler_interface.h"
 #include "ability_manager_interface.h"
+#define private public
+#define protected public
 #include "ability_manager_client.h"
+#undef private
+#undef protected
 #include "ability_context.h"
 #include "want.h"
 

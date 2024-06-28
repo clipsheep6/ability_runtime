@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,6 +27,7 @@
 
 namespace OHOS {
 namespace AAFwk {
+using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
 /**
  * @class AbilityManagerStub
  * AbilityManagerStub.
@@ -65,10 +66,6 @@ public:
     virtual int GetConnectionData(std::vector<AbilityRuntime::ConnectionData> &connectionData);
 
 private:
-    void FirstStepInit();
-    void SecondStepInit();
-    void ThirdStepInit();
-    void FourthStepInit();
     int TerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
     int TerminateUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
     int CloseUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
@@ -87,13 +84,17 @@ private:
     int ReleaseDataAbilityInner(MessageParcel &data, MessageParcel &reply);
     int KillProcessInner(MessageParcel &data, MessageParcel &reply);
     int UninstallAppInner(MessageParcel &data, MessageParcel &reply);
+    int32_t UpgradeAppInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityInner(MessageParcel &data, MessageParcel &reply);
+    int StartAbilityInnerSpecifyTokenId(MessageParcel &data, MessageParcel &reply);
     int StartAbilityByUIContentSessionAddCallerInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityByUIContentSessionForOptionsInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityAsCallerByTokenInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityAsCallerForOptionInner(MessageParcel &data, MessageParcel &reply);
     int StartExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
     int StartUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
+    int StartUIExtensionAbilityEmbeddedInner(MessageParcel &data, MessageParcel &reply);
+    int StartUIExtensionConstrainedEmbeddedInner(MessageParcel &data, MessageParcel &reply);
     int StartUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
     int StopExtensionAbilityInner(MessageParcel& data, MessageParcel& reply);
     int StartAbilityAddCallerInner(MessageParcel &data, MessageParcel &reply);
@@ -106,6 +107,10 @@ private:
     int DumpSysStateInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityForSettingsInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityForOptionsInner(MessageParcel &data, MessageParcel &reply);
+    int RequestModalUIExtensionInner(MessageParcel &data, MessageParcel &reply);
+    int ChangeAbilityVisibilityInner(MessageParcel &data, MessageParcel &reply);
+    int ChangeUIAbilityVisibilityBySCBInner(MessageParcel &data, MessageParcel &reply);
+    int PreloadUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
 
     int GetWantSenderInner(MessageParcel &data, MessageParcel &reply);
     int SendWantSenderInner(MessageParcel &data, MessageParcel &reply);
@@ -125,7 +130,6 @@ private:
 
     int GetAppMemorySizeInner(MessageParcel &data, MessageParcel &reply);
     int IsRamConstrainedDeviceInner(MessageParcel &data, MessageParcel &reply);
-    int ClearUpApplicationDataInner(MessageParcel &data, MessageParcel &reply);
 
     int ContinueMissionInner(MessageParcel &data, MessageParcel &reply);
     int ContinueMissionOfBundleNameInner(MessageParcel &data, MessageParcel &reply);
@@ -158,6 +162,7 @@ private:
     int ReleaseCallInner(MessageParcel &data, MessageParcel &reply);
     int StartUserInner(MessageParcel &data, MessageParcel &reply);
     int StopUserInner(MessageParcel &data, MessageParcel &reply);
+    int LogoutUserInner(MessageParcel &data, MessageParcel &reply);
     int GetAbilityRunningInfosInner(MessageParcel &data, MessageParcel &reply);
     int GetExtensionRunningInfosInner(MessageParcel &data, MessageParcel &reply);
     int GetProcessRunningInfosInner(MessageParcel &data, MessageParcel &reply);
@@ -166,11 +171,8 @@ private:
     int StopSyncRemoteMissionsInner(MessageParcel &data, MessageParcel &reply);
     int RegisterSnapshotHandlerInner(MessageParcel &data, MessageParcel &reply);
     int GetMissionSnapshotInfoInner(MessageParcel &data, MessageParcel &reply);
-    int SendANRProcessIDInner(MessageParcel &data, MessageParcel &reply);
 
     int SetAbilityControllerInner(MessageParcel &data, MessageParcel &reply);
-    int SetComponentInterceptionInner(MessageParcel &data, MessageParcel &reply);
-    int SendResultToAbilityByTokenInner(MessageParcel &data, MessageParcel &reply);
 
     int StartUserTestInner(MessageParcel &data, MessageParcel &reply);
     int FinishUserTestInner(MessageParcel &data, MessageParcel &reply);
@@ -190,6 +192,7 @@ private:
     int GetDlpConnectionInfosInner(MessageParcel &data, MessageParcel &reply);
     int GetConnectionDataInner(MessageParcel &data, MessageParcel &reply);
     int MoveAbilityToBackgroundInner(MessageParcel &data, MessageParcel &reply);
+    int32_t MoveUIAbilityToBackgroundInner(MessageParcel &data, MessageParcel &reply);
     int SetMissionContinueStateInner(MessageParcel &data, MessageParcel &reply);
 #ifdef SUPPORT_GRAPHICS
     int SetMissionLabelInner(MessageParcel &data, MessageParcel &reply);
@@ -197,6 +200,11 @@ private:
     int RegisterWindowManagerServiceHandlerInner(MessageParcel &data, MessageParcel &reply);
     int CompleteFirstFrameDrawingInner(MessageParcel &data, MessageParcel &reply);
     int PrepareTerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
+    int GetDialogSessionInfoInner(MessageParcel &data, MessageParcel &reply);
+    int SendDialogResultInner(MessageParcel &data, MessageParcel &reply);
+    int RegisterAbilityFirstFrameStateObserverInner(MessageParcel &data, MessageParcel &reply);
+    int UnregisterAbilityFirstFrameStateObserverInner(MessageParcel &data, MessageParcel &reply);
+    int CompleteFirstFrameDrawingBySCBInner(MessageParcel &data, MessageParcel &reply);
 #endif
 
     #ifdef ABILITY_COMMAND_FOR_TEST
@@ -206,9 +214,6 @@ private:
     int FreeInstallAbilityFromRemoteInner(MessageParcel &data, MessageParcel &reply);
     int AddFreeInstallObserverInner(MessageParcel &data, MessageParcel &reply);
 
-    using RequestFuncType = int (AbilityManagerStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, RequestFuncType> requestFuncMap_;
-
     #ifdef ABILITY_COMMAND_FOR_TEST
     int BlockAmsServiceInner(MessageParcel &data, MessageParcel &reply);
     int BlockAbilityInner(MessageParcel &data, MessageParcel &reply);
@@ -216,6 +221,7 @@ private:
     #endif
     int EnableRecoverAbilityInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleRecoverAbilityInner(MessageParcel &data, MessageParcel &reply);
+    int ScheduleClearRecoveryPageStackInner(MessageParcel &data, MessageParcel &reply);
     int GetTopAbilityInner(MessageParcel &data, MessageParcel &reply);
     int GetElementNameByTokenInner(MessageParcel &data, MessageParcel &reply);
     int DumpAbilityInfoDoneInner(MessageParcel &data, MessageParcel &reply);
@@ -232,6 +238,8 @@ private:
 
     int32_t ForceExitAppInner(MessageParcel &data, MessageParcel &reply);
     int32_t RecordAppExitReasonInner(MessageParcel &data, MessageParcel &reply);
+    int32_t RecordProcessExitReasonInner(MessageParcel &data, MessageParcel &reply);
+    int32_t SetResidentProcessEnableInner(MessageParcel &data, MessageParcel &reply);
 
     int SetRootSceneSessionInner(MessageParcel &data, MessageParcel &reply);
     int CallUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
@@ -242,18 +250,95 @@ private:
 
     int32_t RegisterIAbilityManagerCollaboratorInner(MessageParcel &data, MessageParcel &reply);
     int32_t UnregisterIAbilityManagerCollaboratorInner(MessageParcel &data, MessageParcel &reply);
-    int32_t MoveMissionToBackgroundInner(MessageParcel &data, MessageParcel &reply);
-    int32_t TerminateMissionInner(MessageParcel &data, MessageParcel &reply);
+
+    int32_t RegisterStatusBarDelegateInner(MessageParcel &data, MessageParcel &reply);
+    int32_t KillProcessWithPrepareTerminateInner(MessageParcel &data, MessageParcel &reply);
+
+    int32_t RegisterAutoStartupSystemCallbackInner(MessageParcel &data, MessageParcel &reply);
+    int32_t UnregisterAutoStartupSystemCallbackInner(MessageParcel &data, MessageParcel &reply);
+    int32_t SetApplicationAutoStartupInner(MessageParcel &data, MessageParcel &reply);
+    int32_t CancelApplicationAutoStartupInner(MessageParcel &data, MessageParcel &reply);
+    int32_t QueryAllAutoStartupApplicationsInner(MessageParcel &data, MessageParcel &reply);
 
     int PrepareTerminateAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
     int RegisterSessionHandlerInner(MessageParcel &data, MessageParcel &reply);
+    int32_t UpdateSessionInfoBySCBInner(MessageParcel &data, MessageParcel &reply);
 
     int32_t RegisterAppDebugListenerInner(MessageParcel &data, MessageParcel &reply);
     int32_t UnregisterAppDebugListenerInner(MessageParcel &data, MessageParcel &reply);
     int32_t AttachAppDebugInner(MessageParcel &data, MessageParcel &reply);
     int32_t DetachAppDebugInner(MessageParcel &data, MessageParcel &reply);
+    int32_t ExecuteIntentInner(MessageParcel &data, MessageParcel &reply);
+
+    int32_t SetApplicationAutoStartupByEDMInner(MessageParcel &data, MessageParcel &reply);
+    int32_t CancelApplicationAutoStartupByEDMInner(MessageParcel &data, MessageParcel &reply);
 
     int32_t IsAbilityControllerStartInner(MessageParcel &data, MessageParcel &reply);
+    int32_t OpenFileInner(MessageParcel &data, MessageParcel &reply);
+
+    int32_t OpenAtomicServiceInner(MessageParcel &data, MessageParcel &reply);
+    int32_t IsEmbeddedOpenAllowedInner(MessageParcel &data, MessageParcel &reply);
+
+    int StartAbilityForResultAsCallerInner(MessageParcel &data, MessageParcel &reply);
+    int StartAbilityForResultAsCallerForOptionsInner(MessageParcel &data, MessageParcel &reply);
+
+    //insight intent related
+    int32_t StartAbilityByInsightIntentInner(MessageParcel &data, MessageParcel &reply);
+    int32_t ExecuteInsightIntentDoneInner(MessageParcel &data, MessageParcel &reply);
+    int32_t GetForegroundUIAbilitiesInner(MessageParcel &data, MessageParcel &reply);
+
+    int32_t GetUIExtensionRootHostInfoInner(MessageParcel &data, MessageParcel &reply);
+    int32_t RestartAppInner(MessageParcel &data, MessageParcel &reply);
+    int32_t RequestAssertFaultDialogInner(MessageParcel &data, MessageParcel &reply);
+    int32_t NotifyDebugAssertResultInner(MessageParcel &data, MessageParcel &reply);
+    int32_t StartShortcutInner(MessageParcel &data, MessageParcel &reply);
+    int32_t GetAbilityStateByPersistentIdInner(MessageParcel &data, MessageParcel &reply);
+    int32_t TransferAbilityResultForExtensionInner(MessageParcel &data, MessageParcel &reply);
+    int32_t NotifyFrozenProcessByRSSInner(MessageParcel &data, MessageParcel &reply);
+    int OnRemoteRequestInnerFirst(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerSecond(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerThird(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerFourth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerFifth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerSixth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerSeventh(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerEighth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerNinth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerTenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerEleventh(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInner(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerTwelveth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerThirteenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerFourteenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerFifteenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerSixteenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerSeventeenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerEighteenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerNineteenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int HandleOnRemoteRequestInnerFirst(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int HandleOnRemoteRequestInnerSecond(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

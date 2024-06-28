@@ -146,8 +146,8 @@ public:
      *
      * @return errCode ERR_OK on success, others on failure.
      */
-    ErrCode DisconnectAbility(
-        const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const;
+    ErrCode DisconnectAbility(const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback,
+        int32_t accountId = -1) const;
 
     /**
      * @brief Destroys the current ability.
@@ -155,6 +155,8 @@ public:
      * @return errCode ERR_OK on success, others on failure.
      */
     ErrCode TerminateAbility();
+
+    ErrCode RequestModalUIExtension(const Want &want);
 
     using SelfType = ServiceExtensionContext;
     static const size_t CONTEXT_TYPE_ID;

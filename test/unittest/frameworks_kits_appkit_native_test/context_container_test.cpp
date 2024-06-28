@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -108,7 +108,7 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetBundleManager_0100
 {
     context_->AttachBaseContext(contextDeal_);
 
-    sptr<IBundleMgr> ptr = context_->GetBundleManager();
+    auto ptr = context_->GetBundleManager();
 
     EXPECT_NE(ptr, nullptr);
 }
@@ -120,7 +120,7 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetBundleManager_0100
  */
 HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetBundleManager_0200, Function | MediumTest | Level3)
 {
-    sptr<IBundleMgr> ptr = context_->GetBundleManager();
+    auto ptr = context_->GetBundleManager();
     EXPECT_EQ(ptr, nullptr);
 }
 
@@ -209,24 +209,6 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetBundleResourcePath
     std::string path = context_->GetBundleResourcePath();
     std::string empty = "";
     EXPECT_STREQ(context_->GetBundleResourcePath().c_str(), empty.c_str());
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetAppType_0100
- * @tc.name: GetAppType
- * @tc.desc: Test whether AttachBaseContext is called normally,
- *           and verify whether the return value of GetAppType is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetAppType_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<ApplicationInfo> info = std::make_shared<ApplicationInfo>();
-    info->bundleName = "hello";
-    contextDeal_->SetApplicationInfo(info);
-    context_->AttachBaseContext(contextDeal_);
-    std::string path = context_->GetAppType();
-    std::string appType = "system";
-
-    EXPECT_STREQ(context_->GetAppType().c_str(), appType.c_str());
 }
 
 /**
@@ -532,6 +514,9 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_InitResourceManager_0
 {
     std::shared_ptr<AppExecFwk::ContextDeal> appContext = std::make_shared<AppExecFwk::ContextDeal>(true);
     AppExecFwk::BundleInfo bundleInfo;
+    bundleInfo.name = "com.ohos.contactsdataability";
+    bundleInfo.isKeepAlive = true;
+    bundleInfo.applicationInfo.process = "com.ohos.contactsdataability";
     context_->InitResourceManager(bundleInfo, appContext);
     EXPECT_TRUE(appContext->GetResourceManager() != nullptr);
 
@@ -1243,7 +1228,8 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_UnauthUriPermission_0
  * @tc.desc: Test Get Ability Package Context When baseContext is not null,
  *           and verify whether the return value of Get Ability Package Context is correct.
  */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetAbilityPackageContext_0100, Function | MediumTest | Level1)
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetAbilityPackageContext_0100,
+    Function | MediumTest | Level1)
 {
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
     std::shared_ptr<Context> context(ability);
@@ -1259,7 +1245,8 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetAbilityPackageCont
  * @tc.desc: Test Get Ability Package Context When baseContext is null.
  *           and verify whether the return value of Get Ability Package Context is correct.
  */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetAbilityPackageContext_0200, Function | MediumTest | Level3)
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetAbilityPackageContext_0200,
+    Function | MediumTest | Level3)
 {
     EXPECT_EQ(context_->GetAbilityPackageContext(), nullptr);
 }
@@ -1696,7 +1683,8 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetMissionId_0200, Fu
  * @tc.desc: Test Is Updating Configurations When baseContext is not null,
  *           and verify whether the return value of Is Updating Configurations is correct.
  */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_IsUpdatingConfigurations_0100, Function | MediumTest | Level1)
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_IsUpdatingConfigurations_0100,
+    Function | MediumTest | Level1)
 {
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
     std::shared_ptr<Context> context(ability);
@@ -1712,7 +1700,8 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_IsUpdatingConfigurati
  * @tc.desc: Test Is Updating Configurations When baseContext is null.
  *           and verify whether the return value of Is Updating Configurations is correct.
  */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_IsUpdatingConfigurations_0200, Function | MediumTest | Level3)
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_IsUpdatingConfigurations_0200,
+    Function | MediumTest | Level3)
 {
     EXPECT_EQ(context_->IsUpdatingConfigurations(), false);
 }
@@ -1803,6 +1792,5 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_CreateBundleContext_0
 {
     EXPECT_EQ(context_->CreateBundleContext("", 0, 0), nullptr);
 }
-
 }  // namespace AppExecFwk
 }  // namespace OHOS

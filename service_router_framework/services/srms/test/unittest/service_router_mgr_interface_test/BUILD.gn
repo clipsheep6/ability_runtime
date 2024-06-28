@@ -13,16 +13,22 @@
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/service_router_framework/srms.gni")
 
-module_output_path = "bundle_framework/serviceroutermanagerservice"
+module_output_path = "ability_runtime/serviceroutermanagerservice"
 
 ohos_unittest("ServiceRouterMgrInterfaceTest") {
   use_exceptions = true
   module_out_path = module_output_path
   include_dirs = [ "${srms_services_path}/include" ]
 
-  sources = [ "srms_interface_test.cpp" ]
+  sources = [
+    "${srms_services_path}/src/inner_service_info.cpp",
+    "${srms_services_path}/src/service_router_data_mgr.cpp",
+    "${srms_services_path}/src/sr_samgr_helper.cpp",
+    "srms_interface_test.cpp",
+  ]
 
   deps = [
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${bundlefwk_common_path}:libappexecfwk_common",
     "${srms_inner_api_path}:srms_fwk",
   ]

@@ -21,9 +21,12 @@
 #include "cpp/mutex.h"
 
 #include "user_event_handler.h"
+#include "refbase.h"
 
 namespace OHOS {
 namespace AAFwk {
+class IUserCallback;
+
 const int32_t USER_ID_NO_HEAD = 0;
 const int32_t USER_ID_DEFAULT = 100;
 
@@ -71,7 +74,7 @@ public:
      * @param isForeground whether user should brout to foreground.
      * @return 0 if the user has been successfully started.
      */
-    int32_t StartUser(int32_t userId, bool isForeground);
+    void StartUser(int32_t userId, sptr<IUserCallback> callback, bool isForeground);
 
     /**
      * Stop user, if it is running..
@@ -80,6 +83,14 @@ public:
      * @return 0 if the user has been successfully started.
      */
     int32_t StopUser(int32_t userId);
+    
+    /**
+     * Logout user, if it is running..
+     *
+     * @param userId id of Logout user.
+     * @return 0 if the user has been successfully Logout.
+     */
+    int32_t LogoutUser(int32_t userId);
 
     int32_t GetCurrentUserId();
 
@@ -91,13 +102,15 @@ public:
 
     void SetFreezingNewUserId(int32_t userId);
 
+    void ClearAbilityUserItems(int32_t userId);
+
 private:
     bool IsCurrentUser(int32_t userId);
     bool IsExistOsAccount(int32_t userId);
     std::shared_ptr<UserItem> GetOrCreateUserItem(int32_t userId);
     void SetCurrentUserId(int32_t userId);
     void BroadcastUserStarted(int32_t userId);
-    void MoveUserToForeground(int32_t oldUserId, int32_t newUserId);
+    void MoveUserToForeground(int32_t oldUserId, int32_t newUserId, sptr<IUserCallback> callback);
     void UserBootDone(std::shared_ptr<UserItem> &item);
     void BroadcastUserBackground(int32_t userId);
     void BroadcastUserForeground(int32_t userId);

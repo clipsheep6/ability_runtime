@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -189,10 +189,6 @@ enum class AbilityManagerInterfaceCode {
     // stop extension ability (58)
     STOP_EXTENSION_ABILITY = 58,
 
-    SET_COMPONENT_INTERCEPTION = 59,
-
-    SEND_ABILITY_RESULT_BY_TOKEN = 60,
-
     // ipc id for set rootSceneSession (61)
     SET_ROOT_SCENE_SESSION = 61,
 
@@ -223,6 +219,30 @@ enum class AbilityManagerInterfaceCode {
 
     // Deatch app debug (71)
     DETACH_APP_DEBUG = 71,
+
+    // Execute intent (72)
+    EXECUTE_INTENT = 72,
+
+    // execute insight intent done with result (73)
+    EXECUTE_INSIGHT_INTENT_DONE = 73,
+
+    // ipc id for logout user (74)
+    LOGOUT_USER = 74,
+
+    // Get forgeround UI abilities(75)
+    GET_FOREGROUND_UI_ABILITIES = 75,
+
+    // Pop-up launch of full-screen atomic service(77)
+    OPEN_ATOMIC_SERVICE = 77,
+
+    // Querying whether to allow embedded startup of atomic service.
+    IS_EMBEDDED_OPEN_ALLOWED = 78,
+
+    // Starts a new ability by shortcut.
+    START_SHORTCUT = 79,
+
+    // Set resident process enable status.
+    SET_RESIDENT_PROCESS_ENABLE = 80,
 
     // ipc id 1001-2000 for DMS
     // ipc id for starting ability (1001)
@@ -281,8 +301,6 @@ enum class AbilityManagerInterfaceCode {
     GET_EXTENSION_RUNNING_INFO = 1025,
 
     GET_PROCESS_RUNNING_INFO = 1026,
-
-    CLEAR_UP_APPLICATION_DATA = 1027,
 
     START_ABILITY_FOR_OPTIONS = 1028,
 
@@ -347,6 +365,42 @@ enum class AbilityManagerInterfaceCode {
 
     START_UI_SESSION_ABILITY_FOR_OPTIONS = 1052,
 
+    // start ability by insigt intent
+    START_ABILITY_BY_INSIGHT_INTENT = 1053,
+
+    // get dialog session info
+    GET_DIALOG_SESSION_INFO = 1054,
+
+    // send dialog result
+    SEND_DIALOG_RESULT = 1055,
+
+    // request modal UIExtension by want
+    REQUESET_MODAL_UIEXTENSION = 1056,
+
+    // get root host info of uiextesnion
+    GET_UI_EXTENSION_ROOT_HOST_INFO = 1057,
+
+    // change current ability visibility
+    CHANGE_ABILITY_VISIBILITY = 1058,
+
+    // change ui ability visibility by scb
+    CHANGE_UI_ABILITY_VISIBILITY_BY_SCB = 1059,
+
+    // ipc id for start ability for result as caller
+    START_ABILITY_FOR_RESULT_AS_CALLER = 1060,
+
+    // ipc id for start ability for result as caller
+    START_ABILITY_FOR_RESULT_AS_CALLER_FOR_OPTIONS = 1061,
+
+    // ipc id for preload UIExtension ability by want
+    PRELOAD_UIEXTENSION_ABILITY = 1062,
+
+    // ipc id for start UIExtension ability embedded
+    START_UI_EXTENSION_ABILITY_EMBEDDED = 1063,
+
+    // ipc id for start UIExtension ability constrained embedded
+    START_UI_EXTENSION_CONSTRAINED_EMBEDDED = 1064,
+
     // ipc id for continue ability(1101)
     START_CONTINUATION = 1101,
 
@@ -383,6 +437,15 @@ enum class AbilityManagerInterfaceCode {
     DELEGATOR_DO_ABILITY_FOREGROUND = 1122,
     DELEGATOR_DO_ABILITY_BACKGROUND = 1123,
     GET_TOP_ABILITY_TOKEN         = 1124,
+    // ipc id for starting ability with specify token id(1125)
+    START_ABILITY_WITH_SPECIFY_TOKENID = 1125,
+    REGISTER_ABILITY_FIRST_FRAME_STATE_OBSERVER = 1126,
+    UNREGISTER_ABILITY_FIRST_FRAME_STATE_OBSERVER = 1127,
+    // ipc for get ability state by persistent id
+    GET_ABILITY_STATE_BY_PERSISTENT_ID = 1128,
+    TRANSFER_ABILITY_RESULT = 1129,
+    // ipc for notify frozen process by RSS
+    NOTIFY_FROZEN_PROCESS_BY_RSS = 1130,
 
     // ipc id 2001-3000 for tools
     // ipc id for dumping state (2001)
@@ -396,6 +459,7 @@ enum class AbilityManagerInterfaceCode {
     UNREGISTER_CONNECTION_OBSERVER = 2503,
     GET_DLP_CONNECTION_INFOS = 2504,
     GET_CONNECTION_DATA = 2505,
+    COMPLETE_FIRST_FRAME_DRAWING_BY_SCB = 2506,
 
     GET_TOP_ABILITY = 3000,
     FREE_INSTALL_ABILITY_FROM_REMOTE = 3001,
@@ -410,6 +474,8 @@ enum class AbilityManagerInterfaceCode {
 
     VERIFY_PERMISSION = 3013,
 
+    CLEAR_RECOVERY_PAGE_STACK = 3014,
+
     ACQUIRE_SHARE_DATA = 4001,
     SHARE_DATA_DONE = 4002,
 
@@ -419,17 +485,53 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for collborator
     REGISTER_COLLABORATOR = 4050,
     UNREGISTER_COLLABORATOR = 4051,
-    MOVE_MISSION_TO_BACKGROUND = 4052,
-    TERMINATE_MISSION = 4053,
+
     IS_ABILITY_CONTROLLER_START = 4054,
+    OPEN_FILE = 4055,
 
     GET_ABILITY_TOKEN = 5001,
 
+    REGISTER_STATUS_BAR_DELEGATE = 5100,
+    KILL_PROCESS_WITH_PREPARE_TERMINATE = 5101,
+
     FORCE_EXIT_APP = 6001,
     RECORD_APP_EXIT_REASON = 6002,
+    RECORD_PROCESS_EXIT_REASON = 6003,
+    UPGRADE_APP = 6004,
+    MOVE_UI_ABILITY_TO_BACKGROUND = 6005,
+
+    // ipc id for register auto startup system callback
+    REGISTER_AUTO_STARTUP_SYSTEM_CALLBACK = 6101,
+    // ipc id for unregister auto startup system callback
+    UNREGISTER_AUTO_STARTUP_SYSTEM_CALLBACK = 6102,
+    // ipc id for set application auto startup
+    SET_APPLICATION_AUTO_STARTUP = 6103,
+    // ipc id for cancel application auto startup
+    CANCEL_APPLICATION_AUTO_STARTUP = 6104,
+    // ipc id for auery all auto startup application
+    QUERY_ALL_AUTO_STARTUP_APPLICATION = 6105,
+
+    // ipc id for on auto starup on
+    ON_AUTO_STARTUP_ON = 6111,
+    // ipc id for on auto starup off
+    ON_AUTO_STARTUP_OFF = 6112,
 
     // ipc id for register session handler
     REGISTER_SESSION_HANDLER = 6010,
+    // ipc id for update session info
+    UPDATE_SESSION_INFO = 6011,
+
+    // ipc id for set application auto startup by EDM
+    SET_APPLICATION_AUTO_STARTUP_BY_EDM = 6113,
+    // ipc id for cancel application auto startup by EDM
+    CANCEL_APPLICATION_AUTO_STARTUP_BY_EDM = 6114,
+
+    // ipc id for restart app
+    RESTART_APP = 6115,
+    // ipc id for request to display assert fault dialog
+    REQUEST_ASSERT_FAULT_DIALOG = 6116,
+    // ipc id for notify the operation status of the user
+    NOTIFY_DEBUG_ASSERT_RESULT = 6117,
 };
 }  // namespace AAFwk
 }  // namespace OHOS

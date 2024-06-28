@@ -35,14 +35,19 @@ struct ConnectionInfo {
     // connection
     sptr<AbilityConnection> abilityConnection;
 
+    int32_t userid;
+
     ConnectionInfo(const sptr<IRemoteObject> &connectCaller, const AAFwk::Operation &connectReceiver,
-        const sptr<AbilityConnection> &abilityConnection) : connectCaller(connectCaller),
-        connectReceiver(connectReceiver), abilityConnection(abilityConnection)
+        const sptr<AbilityConnection> &abilityConnection, int32_t accountId = -1) : connectCaller(connectCaller),
+        connectReceiver(connectReceiver), abilityConnection(abilityConnection), userid(accountId)
     {
     }
 
     inline bool operator < (const ConnectionInfo &that) const
     {
+        if (userid < that.userid) {
+            return true;
+        }
         if (connectCaller < that.connectCaller) {
             return true;
         }
@@ -128,8 +133,8 @@ public:
      * @param connectCallback The connection callback.
      * @return Returns the result of disconnecting ability connection.
      */
-    ErrCode DisconnectAbility(const sptr<IRemoteObject> &connectCaller,
-        const AAFwk::Want &connectReceiver, const sptr<AbilityConnectCallback> &connectCallback);
+    ErrCode DisconnectAbility(const sptr<IRemoteObject> &connectCaller, const AAFwk::Want &connectReceiver,
+        const sptr<AbilityConnectCallback> &connectCallback, int32_t accountId = -1);
 
     /**
      * @brief check the ability connection of caller is disconnect.
@@ -154,13 +159,16 @@ public:
      * @param tid The thread id.
      */
     void ReportConnectionLeakEvent(const int pid, const int tid);
+
+    bool DisconnectNonexistentService(const AppExecFwk::ElementName& element,
+        const sptr<AbilityConnection> connection);
 private:
     ConnectionManager() = default;
     bool IsConnectCallerEqual(const sptr<IRemoteObject> &connectCaller, const sptr<IRemoteObject> &connectCallerOther);
     bool IsConnectReceiverEqual(AAFwk::Operation &connectReceiver,
         const AppExecFwk::ElementName &connectReceiverOther);
     bool MatchConnection(
-        const sptr<IRemoteObject>& connectCaller, const AAFwk::Want& connectReceiver,
+        const sptr<IRemoteObject>& connectCaller, const AAFwk::Want& connectReceiver, int32_t accountId,
         const std::map<ConnectionInfo, std::vector<sptr<AbilityConnectCallback>>>::value_type& connection);
     std::recursive_mutex connectionsLock_;
     std::map<ConnectionInfo, std::vector<sptr<AbilityConnectCallback>>> abilityConnections_;

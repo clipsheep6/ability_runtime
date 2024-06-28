@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -51,11 +51,14 @@ struct DialogPosition {
     DialogAlign align = DialogAlign::CENTER;
 };
 struct DialogAppInfo {
-    int32_t iconId = 0;
-    int32_t labelId = 0;
+    int32_t abilityIconId = 0;
+    int32_t abilityLabelId = 0;
+    int32_t bundleIconId = 0;
+    int32_t bundleLabelId = 0;
     std::string bundleName = {};
     std::string abilityName = {};
     std::string moduleName = {};
+    bool visible = true;
 };
 /**
  * @class SystemDialogScheduler
@@ -67,27 +70,18 @@ public:
     explicit SystemDialogScheduler() = default;
     virtual ~SystemDialogScheduler() = default;
 
-    bool GetANRDialogWant(int userId, int pid, AAFwk::Want &want);
-    Want GetPcSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant,
+    int GetSelectorDialogWantCommon(const std::vector<DialogAppInfo> &dialogAppInfos, Want &requestWant,
+        Want &targetWant, const sptr<IRemoteObject> &callerToken);
+    int GetPcSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &requestWant, Want &targetWant,
         const std::string &type, int32_t userId, const sptr<IRemoteObject> &callerToken);
-    Want GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant,
+    int GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &requestWant, Want &targetWant,
         const sptr<IRemoteObject> &callerToken);
     Want GetTipsDialogWant(const sptr<IRemoteObject> &callerToken);
     Want GetJumpInterceptorDialogWant(Want &targetWant);
     Want GetSwitchUserDialogWant();
-
-    void SetDeviceType(const std::string &deviceType)
-    {
-        deviceType_ = deviceType;
-    }
-
-    const std::string GetDeviceType()
-    {
-        return deviceType_;
-    }
+    bool GetAssertFaultDialogWant(Want &want);
 
 private:
-    const std::string GetAnrParams(const DialogPosition position, const std::string &appName) const;
     const std::string GetSelectorParams(const std::vector<DialogAppInfo> &infos) const;
     const std::string GetPcSelectorParams(const std::vector<DialogAppInfo> &infos,
         const std::string &type, int32_t userId, const std::string &action) const;
@@ -106,15 +100,6 @@ private:
     void DialogPortraitPositionAdaptive(
         DialogPosition &position, float densityPixels, int lineNums) const;
     void DialogPositionAdaptive(DialogPosition &position, int lineNums) const;
-
-    sptr<AppExecFwk::IBundleMgr> GetBundleManager();
-
-    void GetAppNameFromResource(int32_t labelId,
-        const std::string &bundleName, int32_t userId, std::string &appName);
-
-private:
-    sptr<AppExecFwk::IBundleMgr> iBundleManager_;
-    std::string deviceType_ = {};
 };
 }  // namespace AAFwk
 }  // namespace OHOS

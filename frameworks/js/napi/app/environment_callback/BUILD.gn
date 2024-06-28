@@ -1,0 +1,50 @@
+# Copyright (c) 2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
+import("//build/ohos.gni")
+
+es2abc_gen_abc("gen_environment_callback_abc") {
+  src_js = rebase_path("environment_callback.js")
+  dst_file = rebase_path(target_out_dir + "/environment_callback.abc")
+  in_puts = [ "environment_callback.js" ]
+  out_puts = [ target_out_dir + "/environment_callback.abc" ]
+  extra_args = [ "--module" ]
+}
+
+gen_js_obj("environment_callback_js") {
+  input = "environment_callback.js"
+  output = target_out_dir + "/environment_callback.o"
+}
+
+gen_js_obj("environment_callback_abc") {
+  input = get_label_info(":gen_environment_callback_abc", "target_out_dir") +
+          "/environment_callback.abc"
+  output = target_out_dir + "/environment_callback_abc.o"
+  dep = ":gen_environment_callback_abc"
+}
+
+ohos_shared_library("environmentcallback") {
+  sources = [ "environment_callback_module.cpp" ]
+
+  deps = [
+    ":environment_callback_abc",
+    ":environment_callback_js",
+  ]
+
+  external_deps = [ "napi:ace_napi" ]
+
+  relative_install_dir = "module/app/ability"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}

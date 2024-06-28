@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +15,7 @@
 
 #include "app_spawn_socket.h"
 
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -34,21 +34,21 @@ AppSpawnSocket::~AppSpawnSocket()
 
 ErrCode AppSpawnSocket::OpenAppSpawnConnection()
 {
-    HILOG_DEBUG("ready to open connection");
+    TAG_LOGD(AAFwkTag::APPMGR, "ready to open connection");
     if (clientSocket_) {
         if (clientSocket_->CreateClient() != ERR_OK) {
-            HILOG_ERROR("failed to create socketClient");
+            TAG_LOGE(AAFwkTag::APPMGR, "failed to create socketClient");
             return ERR_APPEXECFWK_BAD_APPSPAWN_CLIENT;
         }
         if (clientSocket_->ConnectSocket() != ERR_OK) {
-            HILOG_ERROR("failed to connect socket");
+            TAG_LOGE(AAFwkTag::APPMGR, "failed to connect socket");
             clientSocket_->CloseClient();
             return ERR_APPEXECFWK_CONNECT_APPSPAWN_FAILED;
         }
-        HILOG_DEBUG("connection has been opened");
+        TAG_LOGD(AAFwkTag::APPMGR, "connection has been opened");
         return ERR_OK;
     }
-    HILOG_ERROR("failed to open connection without socket");
+    TAG_LOGE(AAFwkTag::APPMGR, "failed to open connection without socket");
     return ERR_APPEXECFWK_BAD_APPSPAWN_SOCKET;
 }
 
@@ -61,48 +61,48 @@ void AppSpawnSocket::CloseAppSpawnConnection()
 
 ErrCode AppSpawnSocket::WriteMessage(const void *buf, const int32_t len)
 {
-    HILOG_DEBUG("ready to write message");
+    TAG_LOGD(AAFwkTag::APPMGR, "ready to write message");
     if (len <= 0) {
-        HILOG_ERROR("failed to write message due to invalid length of message");
+        TAG_LOGE(AAFwkTag::APPMGR, "failed to write message due to invalid length of message");
         return ERR_INVALID_VALUE;
     }
     if (buf == nullptr) {
-        HILOG_ERROR("failed to write message due to null buf");
+        TAG_LOGE(AAFwkTag::APPMGR, "failed to write message due to null buf");
         return ERR_INVALID_VALUE;
     }
     if (clientSocket_) {
         if (clientSocket_->WriteSocketMessage(buf, len) != len) {
-            HILOG_ERROR("failed to write message due to invalid write length");
+            TAG_LOGE(AAFwkTag::APPMGR, "failed to write message due to invalid write length");
             return ERR_APPEXECFWK_SOCKET_WRITE_FAILED;
         }
-        HILOG_DEBUG("write message success");
+        TAG_LOGD(AAFwkTag::APPMGR, "write message success");
         return ERR_OK;
     }
 
-    HILOG_ERROR("failed to write message without socket");
+    TAG_LOGE(AAFwkTag::APPMGR, "failed to write message without socket");
     return ERR_APPEXECFWK_BAD_APPSPAWN_SOCKET;
 }
 
 ErrCode AppSpawnSocket::ReadMessage(void *buf, const int32_t len)
 {
-    HILOG_DEBUG("ready to read message");
+    TAG_LOGD(AAFwkTag::APPMGR, "ready to read message");
     if (len <= 0) {
-        HILOG_ERROR("failed to read message due to invalid length of cache");
+        TAG_LOGE(AAFwkTag::APPMGR, "failed to read message due to invalid length of cache");
         return ERR_INVALID_VALUE;
     }
     if (buf == nullptr) {
-        HILOG_ERROR("failed to read message due to null buf");
+        TAG_LOGE(AAFwkTag::APPMGR, "failed to read message due to null buf");
         return ERR_INVALID_VALUE;
     }
     if (clientSocket_) {
         if (clientSocket_->ReadSocketMessage(buf, len) != len) {
-            HILOG_ERROR("failed to read message due to invalid read length");
+            TAG_LOGE(AAFwkTag::APPMGR, "failed to read message due to invalid read length");
             return ERR_APPEXECFWK_SOCKET_READ_FAILED;
         }
-        HILOG_DEBUG("read message success");
+        TAG_LOGD(AAFwkTag::APPMGR, "read message success");
         return ERR_OK;
     }
-    HILOG_ERROR("failed to read message without socket");
+    TAG_LOGE(AAFwkTag::APPMGR, "failed to read message without socket");
     return ERR_APPEXECFWK_BAD_APPSPAWN_CLIENT;
 }
 

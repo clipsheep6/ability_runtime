@@ -390,6 +390,20 @@ HWTEST_F(FilePathUtilsTest, FindNpmPackageInTopLevel_0100, TestSize.Level0)
 }
 
 /**
+ * @tc.name: FindNpmPackage_0100
+ * @tc.desc: FindNpmPackage Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, FindNpmPackage_0100, TestSize.Level0)
+{
+    const std::string& curJsModulePath = "";
+    const std::string& npmPackage = "";
+    std::string newJsModulePath = FindNpmPackage(curJsModulePath, npmPackage);
+    EXPECT_EQ(newJsModulePath, std::string());
+}
+
+/**
  * @tc.name: ParseOhmUri_0100
  * @tc.desc: ParseOhmUri Test
  * @tc.type: FUNC

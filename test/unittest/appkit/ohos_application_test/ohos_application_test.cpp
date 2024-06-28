@@ -7,7 +7,7 @@
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, 
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -24,13 +24,17 @@
 #include "context_deal.h"
 #include "context_impl.h"
 #include "fa_ability_thread.h"
+#include "hilog_tag_wrapper.h"
+#include "hilog_wrapper.h"
 #include "mock_ability_lifecycle_callbacks.h"
 #include "mock_element_callback.h"
 #include "mock_i_remote_object.h"
 #include "mock_runtime.h"
 #include "ohos_application.h"
 #include "pac_map.h"
+#include "resource_manager.h"
 #include "runtime.h"
+#include "ui_ability.h"
 #undef private
 
 using namespace testing;
@@ -362,7 +366,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_UnregisterAbilityLi
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityStart_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityStart_0100 start.";
-    std::shared_ptr<Ability> ability = nullptr;
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = nullptr;
     EXPECT_TRUE(ability == nullptr);
     ohosApplication_->OnAbilityStart(ability);
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityStart_0100 end.";
@@ -376,7 +380,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityStart_0100
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityStart_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityStart_0200 start.";
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     EXPECT_TRUE(ability != nullptr);
     ohosApplication_->OnAbilityStart(ability);
     EXPECT_TRUE(ohosApplication_->abilityLifecycleCallbacks_.empty());
@@ -397,7 +401,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityStart_0200
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityInactive_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityInactive_0100 start.";
-    std::shared_ptr<Ability> ability = nullptr;
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = nullptr;
     ohosApplication_->OnAbilityInactive(ability);
     EXPECT_TRUE(ability == nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityInactive_0100 end.";
@@ -411,7 +415,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityInactive_0
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityInactive_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityInactive_0200 start.";
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     EXPECT_TRUE(ability != nullptr);
     ohosApplication_->OnAbilityInactive(ability);
     EXPECT_TRUE(ohosApplication_->abilityLifecycleCallbacks_.empty());
@@ -432,7 +436,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityInactive_0
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityBackground_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityBackground_0100 start.";
-    std::shared_ptr<Ability> ability = nullptr;
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = nullptr;
     ohosApplication_->OnAbilityBackground(ability);
     EXPECT_TRUE(ability == nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityBackground_0100 end.";
@@ -446,7 +450,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityBackground
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityBackground_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityBackground_0200 start.";
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     EXPECT_TRUE(ability != nullptr);
     ohosApplication_->OnAbilityBackground(ability);
     EXPECT_TRUE(ohosApplication_->abilityLifecycleCallbacks_.empty());
@@ -465,7 +469,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityBackground
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityForeground_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityForeground_0100 start.";
-    std::shared_ptr<Ability> ability = nullptr;
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = nullptr;
     ohosApplication_->OnAbilityForeground(ability);
     EXPECT_TRUE(ability == nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityForeground_0100 end.";
@@ -479,7 +483,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityForeground
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityForeground_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityForeground_0200 start.";
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     EXPECT_TRUE(ability != nullptr);
     ohosApplication_->OnAbilityForeground(ability);
     EXPECT_TRUE(ohosApplication_->abilityLifecycleCallbacks_.empty());
@@ -498,7 +502,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityForeground
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityActive_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityActive_0100 start.";
-    std::shared_ptr<Ability> ability = nullptr;
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = nullptr;
     ohosApplication_->OnAbilityActive(ability);
     EXPECT_TRUE(ability == nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityActive_0100 end.";
@@ -512,7 +516,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityActive_010
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityActive_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityActive_0200 start.";
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     EXPECT_TRUE(ability != nullptr);
     ohosApplication_->OnAbilityActive(ability);
     EXPECT_TRUE(ohosApplication_->abilityLifecycleCallbacks_.empty());
@@ -531,7 +535,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityActive_020
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityStop_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityStop_0100 start.";
-    std::shared_ptr<Ability> ability = nullptr;
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = nullptr;
     ohosApplication_->OnAbilityStop(ability);
     EXPECT_TRUE(ability == nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityStop_0100 end.";
@@ -545,7 +549,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityStop_0100,
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityStop_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityStop_0200 start.";
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     EXPECT_TRUE(ability != nullptr);
     ohosApplication_->OnAbilityStop(ability);
     EXPECT_TRUE(ohosApplication_->abilityLifecycleCallbacks_.empty());
@@ -718,6 +722,43 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnConfigurationUpda
 }
 
 /*
+* @tc.number: OnConfigurationUpdated_0600
+* @tc.name: OnConfigurationUpdated
+* @tc.desc: Function test abilityRuntimeContext_ not empty
+*/
+HWTEST_F(OHOSApplicationTest, OnConfigurationUpdated_0600, TestSize.Level1)
+{
+    std::string bundleName = "test.bundleName";
+    std::string moduleName = "test.moduleName";
+    std::string hapPath = "/data/app/testHap";
+    std::vector<std::string> overlayPaths;
+    std::unique_ptr<Global::Resource::ResConfig> resConfigBefore(Global::Resource::CreateResConfig());
+    ASSERT_NE(resConfigBefore, nullptr);
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(
+        bundleName, moduleName, hapPath, overlayPaths, *resConfigBefore));
+    ASSERT_NE(resourceManager, nullptr);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    contextImpl->SetResourceManager(resourceManager);
+
+    auto appContext = std::make_shared<AbilityRuntime::ApplicationContext>();
+    appContext->AttachContextImpl(contextImpl);
+    ohosApplication_->SetApplicationContext(appContext);
+    ohosApplication_->abilityRecordMgr_ = std::make_shared<AbilityRecordMgr>();
+    ohosApplication_->configuration_ = std::make_shared<Configuration>();
+
+    Configuration config;
+    config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, "zh");
+    ohosApplication_->OnConfigurationUpdated(config);
+    std::unique_ptr<Global::Resource::ResConfig> resConfigAfter(Global::Resource::CreateResConfig());
+    ASSERT_NE(resConfigAfter, nullptr);
+    resourceManager->GetResConfig(*resConfigAfter);
+    const icu::Locale *localeInfo = resConfigAfter->GetLocaleInfo();
+    ASSERT_NE(localeInfo, nullptr);
+    TAG_LOGI(AAFwkTag::TEST, "Update config language %{public}s succeed.", localeInfo->getLanguage());
+    EXPECT_EQ(strcmp(localeInfo->getLanguage(), "zh"), 0);
+}
+
+/*
 * @tc.number: AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0100
 * @tc.name: OnMemoryLevel
 * @tc.desc: Verify function OnMemoryLevel pointer abilityRecord not empty
@@ -810,7 +851,9 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_010
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0100 start.";
     ohosApplication_->OnStart();
     std::shared_ptr<AbilityLocalRecord> abilityRecord = nullptr;
-    ohosApplication_->AddAbilityStage(abilityRecord);
+    auto callback = [](const std::shared_ptr<AbilityRuntime::Context> &) {};
+    bool isAsyncCallback = false;
+    ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
     EXPECT_TRUE(abilityRecord == nullptr);
     const PacMap outState;
     ohosApplication_->OnAbilitySaveState(outState);
@@ -828,7 +871,9 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_020
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0200 start.";
     std::shared_ptr<AbilityLocalRecord> abilityRecord = nullptr;
     std::shared_ptr<AbilityInfo> abilityInfo = nullptr;
-    ohosApplication_->AddAbilityStage(abilityRecord);
+    auto callback = [](const std::shared_ptr<AbilityRuntime::Context> &) {};
+    bool isAsyncCallback = false;
+    ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
     EXPECT_TRUE(abilityInfo == nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0200 end.";
 }
@@ -845,7 +890,9 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_030
     std::shared_ptr<AbilityInfo> info = nullptr;
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(info, token);
     EXPECT_TRUE(ohosApplication_->abilityStages_.empty());
-    ohosApplication_->AddAbilityStage(abilityRecord);
+    auto callback = [](const std::shared_ptr<AbilityRuntime::Context> &) {};
+    bool isAsyncCallback = false;
+    ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0300 end.";
 }
 
@@ -863,7 +910,9 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_040
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(info, token);
     auto want = std::make_shared<AAFwk::Want>();
     abilityRecord->SetWant(want);
-    ohosApplication_->AddAbilityStage(abilityRecord);
+    auto callback = [](const std::shared_ptr<AbilityRuntime::Context> &) {};
+    bool isAsyncCallback = false;
+    ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
     EXPECT_FALSE(ohosApplication_->abilityStages_.empty());
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0400 end.";
 }
@@ -883,7 +932,9 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_050
     EXPECT_TRUE(ohosApplication_->abilityStages_.empty());
     std::shared_ptr<AbilityRuntime::AbilityStage> abilityStages = std::make_shared<AbilityRuntime::AbilityStage>();
     ohosApplication_->abilityStages_.emplace(moduleName, abilityStages);
-    ohosApplication_->AddAbilityStage(abilityRecord);
+    auto callback = [](const std::shared_ptr<AbilityRuntime::Context> &) {};
+    bool isAsyncCallback = false;
+    ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
     EXPECT_FALSE(ohosApplication_->abilityStages_.empty());
     EXPECT_TRUE(abilityStages != nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0500 end.";
@@ -901,8 +952,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_060
     std::shared_ptr<AbilityInfo> info = std::make_shared<AbilityInfo>();
     info->moduleName = "entry";
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(info, token);
-    ohosApplication_->AddAbilityStage(abilityRecord);
-    ohosApplication_->AddAbilityStage(abilityRecord);
+    auto callback = [](const std::shared_ptr<AbilityRuntime::Context> &) {};
+    bool isAsyncCallback = false;
+    ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
+    ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
     EXPECT_TRUE(token == nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0600 end.";
 }
@@ -919,7 +972,9 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_070
     std::shared_ptr<AbilityInfo> info = std::make_shared<AbilityInfo>();
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(info, token);
     abilityRecord->token_ = new (std::nothrow) Notification::MockIRemoteObject();
-    ohosApplication_->AddAbilityStage(abilityRecord);
+    auto callback = [](const std::shared_ptr<AbilityRuntime::Context> &) {};
+    bool isAsyncCallback = false;
+    ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
     EXPECT_TRUE(token != nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0700 end.";
 }
@@ -1255,6 +1310,24 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_NotifyUnLoadRepairP
     ohosApplication_->NotifyUnLoadRepairPatch(hqfFile);
     EXPECT_TRUE(ohosApplication_->runtime_ != nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_NotifyUnLoadRepairPatch_0200 end.";
+}
+
+/*
+* @tc.number: AppExecFwk_OHOSApplicationTest_SetAppEnv_0100
+* @tc.name: SetAppEnv
+* @tc.desc: Verify SetAppEnv function
+*/
+HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_SetAppEnv_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_SetAppEnv_0100 start.";
+    AppEnvironment appEnvironment;
+    appEnvironment.name = "env_key_demo";
+    appEnvironment.value = "env_value_demo";
+    std::vector<AppEnvironment> appEnvironments = {appEnvironment};
+    ohosApplication_->SetAppEnv(appEnvironments);
+    std::string appEnvVal = getenv(appEnvironment.name.c_str());
+    EXPECT_EQ(appEnvVal, appEnvironment.value);
+    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_SetAppEnv_0100 end.";
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

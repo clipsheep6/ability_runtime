@@ -16,8 +16,12 @@
 #ifndef OHOS_ABILITY_RUNTIME_IABILITY_CALLBACK_H
 #define OHOS_ABILITY_RUNTIME_IABILITY_CALLBACK_H
 
+#include "ability_lifecycle_observer_interface.h"
+
 #ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 #include "pixel_map.h"
+#endif
 #endif
 
 namespace OHOS {
@@ -31,6 +35,7 @@ public:
     IAbilityCallback() = default;
     virtual ~IAbilityCallback() = default;
 #ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     /**
      * @brief Called back at ability context.
      *
@@ -80,7 +85,23 @@ public:
      * @return UIContent object of ACE.
      */
     virtual Ace::UIContent* GetUIContent() = 0;
+    virtual void EraseUIExtension(int32_t sessionId) = 0;
 #endif
+#endif
+
+    /**
+     * Register lifecycle observer on ability.
+     *
+     * @param observer the lifecycle observer to be registered on ability.
+     */
+    virtual void RegisterAbilityLifecycleObserver(const std::shared_ptr<ILifecycleObserver> &observer) = 0;
+
+    /**
+     * Unregister lifecycle observer on ability.
+     *
+     * @param observer the lifecycle observer to be unregistered on ability.
+     */
+    virtual void UnregisterAbilityLifecycleObserver(const std::shared_ptr<ILifecycleObserver> &observer) = 0;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

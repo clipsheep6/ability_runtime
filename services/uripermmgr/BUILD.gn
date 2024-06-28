@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -19,7 +19,7 @@ config("upms_config") {
   visibility += [ "${ability_runtime_test_path}/unittest/*" ]
   include_dirs = [
     "include",
-    "include/rdb",
+    "${ability_runtime_utils_path}/global/constant",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -28,51 +28,69 @@ config("upms_config") {
 }
 
 libupms_sources = [
-  "src/rdb/ability_rdb_open_callback.cpp",
-  "src/rdb/rdb_data_manager.cpp",
-  "src/rdb/uri_permission_rdb.cpp",
+  "src/tokenid_permission.cpp",
   "src/uri_permission_manager_service.cpp",
   "src/uri_permission_manager_stub_impl.cpp",
+  "src/uri_permission_utils.cpp",
 ]
 
 #build so
 ohos_shared_library("libupms") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
   shlib_type = "sa"
   configs = [
     "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config",
     "${ability_runtime_services_path}/common:common_config",
+    "${ability_runtime_services_path}/abilitymgr:abilityms_config",
   ]
   public_configs = [ ":upms_config" ]
+
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper" ]
 
   sources = libupms_sources
 
   deps = [
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
+    "${ability_runtime_services_path}/common:app_util",
     "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",
   ]
 
   external_deps = [
+    "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
+    "access_token:libtokenid_sdk",
+    "background_task_mgr:bgtaskmgr_innerkits",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
+    "graphic_2d:color_manager",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
+    "image_framework:image_native",
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "relational_store:native_dataability",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "storage_service:storage_manager_sa_proxy",
   ]
+  if (ability_runtime_graphics) {
+    external_deps += [ "i18n:intl_util" ]
+  }
 
   subsystem_name = "ability"
   part_name = "ability_runtime"
@@ -86,14 +104,18 @@ ohos_static_library("libupms_static") {
   ]
   public_configs = [ ":upms_config" ]
 
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper" ]
+
   sources = libupms_sources
 
   deps = [
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_services_path}/common:app_util",
     "${ability_runtime_services_path}/common:perm_verification",
   ]
 
   external_deps = [
+    "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_deps_wrapper",
@@ -101,13 +123,11 @@ ohos_static_library("libupms_static") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "storage_service:storage_manager_sa_proxy",

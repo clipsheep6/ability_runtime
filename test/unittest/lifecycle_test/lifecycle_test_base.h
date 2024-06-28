@@ -23,6 +23,7 @@
 #include "ability_manager_service.h"
 #include "ability_record.h"
 #include "ability_scheduler.h"
+#include "sa_mgr_client.h"
 
 /**
  * @class LifeTestCommand

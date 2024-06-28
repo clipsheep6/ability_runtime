@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include "nlohmann/json.hpp"
 #include "string_ex.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "parcel_macro_base.h"
 
@@ -46,8 +47,12 @@ bool RunningProcessInfo::ReadFromParcel(Parcel &parcel)
     isFocused = parcel.ReadBool();
     isTestProcess = parcel.ReadBool();
     isAbilityForegrounding = parcel.ReadBool();
+    isTestMode = parcel.ReadBool();
+    int32_t bundleTypeData;
+    READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, bundleTypeData);
+    bundleType = static_cast<int32_t>(bundleTypeData);
     if (!parcel.ReadStringVector(&bundleNames)) {
-        HILOG_ERROR("read bundleNames failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "read bundleNames failed.");
         return false;
     }
     int32_t processType;
@@ -56,6 +61,7 @@ bool RunningProcessInfo::ReadFromParcel(Parcel &parcel)
     int32_t extensionType;
     READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, extensionType);
     extensionType_ = static_cast<ExtensionAbilityType>(extensionType);
+    appCloneIndex = parcel.ReadInt32();
     return true;
 }
 
@@ -63,7 +69,7 @@ RunningProcessInfo *RunningProcessInfo::Unmarshalling(Parcel &parcel)
 {
     RunningProcessInfo *info = new (std::nothrow) RunningProcessInfo();
     if (info && !info->ReadFromParcel(parcel)) {
-        HILOG_WARN("read from parcel failed");
+        TAG_LOGW(AAFwkTag::APPMGR, "read from parcel failed");
         delete info;
         info = nullptr;
     }
@@ -81,12 +87,15 @@ bool RunningProcessInfo::Marshalling(Parcel &parcel) const
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Bool, parcel, isFocused);
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Bool, parcel, isTestProcess);
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Bool, parcel, isAbilityForegrounding);
+    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Bool, parcel, isTestMode);
+    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, static_cast<int32_t>(bundleType));
     if (!parcel.WriteStringVector(bundleNames)) {
-        HILOG_ERROR("write bundleNames failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "write bundleNames failed.");
         return false;
     }
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, static_cast<int32_t>(processType_));
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, static_cast<int32_t>(extensionType_));
+    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, appCloneIndex);
     return true;
 }
 }  // namespace AppExecFwk

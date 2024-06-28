@@ -41,6 +41,7 @@ ohos_unittest("aa_command_test") {
 
   deps = [
     "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -68,6 +69,7 @@ ohos_unittest("aa_command_start_test") {
 
   deps = [
     "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -95,6 +97,7 @@ ohos_unittest("aa_command_stop_service_test") {
 
   deps = [
     "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -122,6 +125,7 @@ ohos_unittest("aa_command_dump_test") {
 
   deps = [
     "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -149,6 +153,7 @@ ohos_unittest("aa_command_dumpsys_test") {
 
   deps = [
     "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -176,6 +181,7 @@ ohos_unittest("aa_command_screen_test") {
 
   deps = [
     "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -203,6 +209,7 @@ ohos_unittest("aa_command_force_stop_test") {
 
   deps = [
     "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -230,6 +237,7 @@ ohos_unittest("aa_command_force_timeout_test") {
 
   deps = [
     "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -257,6 +265,7 @@ ohos_unittest("aa_command_test_test") {
 
   deps = [
     "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]

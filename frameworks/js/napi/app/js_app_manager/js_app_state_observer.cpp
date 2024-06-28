@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 
 #include "js_app_state_observer.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
 #include "js_app_manager_utils.h"
@@ -28,10 +29,10 @@ JSAppStateObserver::~JSAppStateObserver() = default;
 
 void JSAppStateObserver::OnForegroundApplicationChanged(const AppStateData &appStateData)
 {
-    HILOG_DEBUG("onForegroundApplicationChanged bundleName:%{public}s, uid:%{public}d, state:%{public}d",
+    TAG_LOGD(AAFwkTag::APPMGR, "bundleName:%{public}s, uid:%{public}d, state:%{public}d",
         appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
     if (!valid_) {
-        HILOG_ERROR("the app manager may has destoryed");
+        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has destroyed");
         return;
     }
     wptr<JSAppStateObserver> jsObserver = this;
@@ -39,7 +40,7 @@ void JSAppStateObserver::OnForegroundApplicationChanged(const AppStateData &appS
         ([jsObserver, appStateData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
             if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr nullptr");
+                TAG_LOGW(AAFwkTag::APPMGR, "jsObserverSptr nullptr");
                 return;
             }
             jsObserverSptr->HandleOnForegroundApplicationChanged(appStateData);
@@ -52,7 +53,7 @@ void JSAppStateObserver::OnForegroundApplicationChanged(const AppStateData &appS
 
 void JSAppStateObserver::HandleOnForegroundApplicationChanged(const AppStateData &appStateData)
 {
-    HILOG_DEBUG("HandleOnForegroundApplicationChanged bundleName:%{public}s, uid:%{public}d, state:%{public}d",
+    TAG_LOGD(AAFwkTag::APPMGR, "bundleName:%{public}s, uid:%{public}d, state:%{public}d",
         appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
@@ -64,9 +65,9 @@ void JSAppStateObserver::HandleOnForegroundApplicationChanged(const AppStateData
 
 void JSAppStateObserver::OnAbilityStateChanged(const AbilityStateData &abilityStateData)
 {
-    HILOG_INFO("OnAbilityStateChanged begin");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!valid_) {
-        HILOG_ERROR("the app manager may has destoryed");
+        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has cancelled storage");
         return;
     }
     wptr<JSAppStateObserver> jsObserver = this;
@@ -74,7 +75,7 @@ void JSAppStateObserver::OnAbilityStateChanged(const AbilityStateData &abilitySt
         ([jsObserver, abilityStateData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
             if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr nullptr");
+                TAG_LOGW(AAFwkTag::APPMGR, "jsObserverSptr null");
                 return;
             }
             jsObserverSptr->HandleOnAbilityStateChanged(abilityStateData);
@@ -87,7 +88,7 @@ void JSAppStateObserver::OnAbilityStateChanged(const AbilityStateData &abilitySt
 
 void JSAppStateObserver::HandleOnAbilityStateChanged(const AbilityStateData &abilityStateData)
 {
-    HILOG_INFO("HandleOnAbilityStateChanged begin");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();
@@ -98,9 +99,9 @@ void JSAppStateObserver::HandleOnAbilityStateChanged(const AbilityStateData &abi
 
 void JSAppStateObserver::OnExtensionStateChanged(const AbilityStateData &abilityStateData)
 {
-    HILOG_INFO("OnExtensionStateChanged begin");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!valid_) {
-        HILOG_ERROR("the app manager may has destoryed");
+        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has destroyed");
         return;
     }
     wptr<JSAppStateObserver> jsObserver = this;
@@ -108,7 +109,7 @@ void JSAppStateObserver::OnExtensionStateChanged(const AbilityStateData &ability
         ([jsObserver, abilityStateData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
             if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr nullptr");
+                TAG_LOGW(AAFwkTag::APPMGR, "jsObserverSptr nullptr");
                 return;
             }
             jsObserverSptr->HandleOnExtensionStateChanged(abilityStateData);
@@ -121,7 +122,7 @@ void JSAppStateObserver::OnExtensionStateChanged(const AbilityStateData &ability
 
 void JSAppStateObserver::HandleOnExtensionStateChanged(const AbilityStateData &abilityStateData)
 {
-    HILOG_INFO("HandleOnExtensionStateChanged begin");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();
@@ -132,9 +133,9 @@ void JSAppStateObserver::HandleOnExtensionStateChanged(const AbilityStateData &a
 
 void JSAppStateObserver::OnProcessCreated(const ProcessData &processData)
 {
-    HILOG_INFO("OnProcessCreated begin");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!valid_) {
-        HILOG_ERROR("the app manager may has destoryed");
+        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has cancelled storage");
         return;
     }
     wptr<JSAppStateObserver> jsObserver = this;
@@ -142,7 +143,7 @@ void JSAppStateObserver::OnProcessCreated(const ProcessData &processData)
         ([jsObserver, processData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
             if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr nullptr");
+                TAG_LOGW(AAFwkTag::APPMGR, "jsObserverSptr null");
                 return;
             }
             jsObserverSptr->HandleOnProcessCreated(processData);
@@ -155,7 +156,7 @@ void JSAppStateObserver::OnProcessCreated(const ProcessData &processData)
 
 void JSAppStateObserver::HandleOnProcessCreated(const ProcessData &processData)
 {
-    HILOG_INFO("HandleOnProcessCreated begin");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();
@@ -166,9 +167,9 @@ void JSAppStateObserver::HandleOnProcessCreated(const ProcessData &processData)
 
 void JSAppStateObserver::OnProcessStateChanged(const ProcessData &processData)
 {
-    HILOG_INFO("OnProcessStateChanged begin");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!valid_) {
-        HILOG_ERROR("the app manager may has destoryed");
+        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has destroyed");
         return;
     }
     wptr<JSAppStateObserver> jsObserver = this;
@@ -176,7 +177,7 @@ void JSAppStateObserver::OnProcessStateChanged(const ProcessData &processData)
         ([jsObserver, processData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
             if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr nullptr");
+                TAG_LOGW(AAFwkTag::APPMGR, "jsObserverSptr nullptr");
                 return;
             }
             jsObserverSptr->HandleOnProcessStateChanged(processData);
@@ -189,7 +190,7 @@ void JSAppStateObserver::OnProcessStateChanged(const ProcessData &processData)
 
 void JSAppStateObserver::HandleOnProcessStateChanged(const ProcessData &processData)
 {
-    HILOG_INFO("HandleOnProcessStateChanged begin");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();
@@ -200,9 +201,9 @@ void JSAppStateObserver::HandleOnProcessStateChanged(const ProcessData &processD
 
 void JSAppStateObserver::OnProcessDied(const ProcessData &processData)
 {
-    HILOG_INFO("OnProcessDied begin");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!valid_) {
-        HILOG_ERROR("the app manager may has destoryed");
+        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has destroyed");
         return;
     }
     wptr<JSAppStateObserver> jsObserver = this;
@@ -210,7 +211,7 @@ void JSAppStateObserver::OnProcessDied(const ProcessData &processData)
         ([jsObserver, processData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
             if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr nullptr");
+                TAG_LOGW(AAFwkTag::APPMGR, "jsObserverSptr nullptr.");
                 return;
             }
             jsObserverSptr->HandleOnProcessDied(processData);
@@ -223,7 +224,7 @@ void JSAppStateObserver::OnProcessDied(const ProcessData &processData)
 
 void JSAppStateObserver::HandleOnProcessDied(const ProcessData &processData)
 {
-    HILOG_INFO("HandleOnProcessDied begin");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();
@@ -232,24 +233,104 @@ void JSAppStateObserver::HandleOnProcessDied(const ProcessData &processData)
     }
 }
 
+void JSAppStateObserver::OnAppStarted(const AppStateData &appStateData)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "onAppStarted bundleName:%{public}s, uid:%{public}d, state:%{public}d",
+        appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
+    if (!valid_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has destroyed");
+        return;
+    }
+    wptr<JSAppStateObserver> jsObserver = this;
+    std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
+        ([jsObserver, appStateData](napi_env env, NapiAsyncTask &task, int32_t status) {
+            sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
+            if (!jsObserverSptr) {
+                TAG_LOGW(AAFwkTag::APPMGR, "jsObserverSptr nullptr.");
+                return;
+            }
+            jsObserverSptr->HandleOnAppStarted(appStateData);
+        });
+    napi_ref callback = nullptr;
+    std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
+    NapiAsyncTask::Schedule("JSAppStateObserver::OnAppStarted",
+        env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
+}
+
+void JSAppStateObserver::HandleOnAppStarted(const AppStateData &appStateData)
+{
+    TAG_LOGD(AAFwkTag::APPMGR,
+        "HandleOnAppStarted bundleName:%{public}s, uid:%{public}d, state:%{public}d",
+        appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
+    auto tmpMap = jsObserverObjectMap_;
+    for (auto &item : tmpMap) {
+        if (item.second == nullptr) {
+            continue;
+        }
+        napi_value obj = (item.second)->GetNapiValue();
+        napi_value argv[] = {CreateJsAppStateData(env_, appStateData)};
+        CallJsFunction(obj, "onAppStarted", argv, ARGC_ONE);
+    }
+}
+
+void JSAppStateObserver::OnAppStopped(const AppStateData &appStateData)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "OnAppStopped bundleName:%{public}s, uid:%{public}d, state:%{public}d",
+        appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
+    if (!valid_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "the app manager may has destroyed");
+        return;
+    }
+    wptr<JSAppStateObserver> jsObserver = this;
+    std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
+        ([jsObserver, appStateData](napi_env env, NapiAsyncTask &task, int32_t status) {
+            sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
+            if (!jsObserverSptr) {
+                TAG_LOGW(AAFwkTag::APPMGR, "jsObserverSptr nullptr.");
+                return;
+            }
+            jsObserverSptr->HandleOnAppStopped(appStateData);
+        });
+    napi_ref callback = nullptr;
+    std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
+    NapiAsyncTask::Schedule("JSAppStateObserver::OnAppStopped",
+        env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
+}
+
+void JSAppStateObserver::HandleOnAppStopped(const AppStateData &appStateData)
+{
+    TAG_LOGD(AAFwkTag::APPMGR,
+        "HandleOnAppStopped bundleName:%{public}s, uid:%{public}d, state:%{public}d",
+        appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
+    auto tmpMap = jsObserverObjectMap_;
+    for (auto &item : tmpMap) {
+        if (item.second == nullptr) {
+            continue;
+        }
+        napi_value obj = (item.second)->GetNapiValue();
+        napi_value argv[] = {CreateJsAppStateData(env_, appStateData)};
+        CallJsFunction(obj, "onAppStopped", argv, ARGC_ONE);
+    }
+}
+
 void JSAppStateObserver::CallJsFunction(
     napi_value value, const char *methodName, napi_value* argv, size_t argc)
 {
-    HILOG_INFO("CallJsFunction begin, method:%{public}s", methodName);
+    TAG_LOGD(AAFwkTag::APPMGR, "called, method:%{public}s", methodName);
     if (value == nullptr) {
-        HILOG_ERROR("Failed to get object");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to get object");
         return;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env_, value, methodName, &method);
     if (method == nullptr) {
-        HILOG_ERROR("Failed to get from object");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to get from object");
         return;
     }
     napi_value callResult = nullptr;
     napi_call_function(env_, value, method, argc, argv, &callResult);
-    HILOG_INFO("CallJsFunction end");
+    TAG_LOGD(AAFwkTag::APPMGR, "end");
 }
 
 void JSAppStateObserver::AddJsObserverObject(const int32_t observerId, napi_value jsObserverObject)

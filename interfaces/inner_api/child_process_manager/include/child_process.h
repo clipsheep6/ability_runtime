@@ -30,7 +30,7 @@ public:
 
     static std::shared_ptr<ChildProcess> Create(const std::unique_ptr<Runtime> &runtime);
     
-    virtual void Init(const std::shared_ptr<ChildProcessStartInfo> &info);
+    virtual bool Init(const std::shared_ptr<ChildProcessStartInfo> &info);
     virtual void OnStart();
 
 protected:

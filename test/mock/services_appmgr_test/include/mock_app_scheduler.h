@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,11 +31,11 @@ public:
     virtual ~MockAppScheduler() = default;
     MOCK_METHOD0(ScheduleForegroundApplication, void());
     MOCK_METHOD0(ScheduleBackgroundApplication, void());
-    MOCK_METHOD0(ScheduleTerminateApplication, void());
+    MOCK_METHOD1(ScheduleTerminateApplication, void(bool));
     MOCK_METHOD2(ScheduleLaunchApplication, void(const AppLaunchData&, const Configuration& config));
-    MOCK_METHOD3(ScheduleLaunchAbility, void(const AbilityInfo&, const sptr<IRemoteObject>&,
-        const std::shared_ptr<AAFwk::Want>&));
-    MOCK_METHOD1(ScheduleCleanAbility, void(const sptr<IRemoteObject>&));
+    MOCK_METHOD4(ScheduleLaunchAbility, void(const AbilityInfo&, const sptr<IRemoteObject>&,
+        const std::shared_ptr<AAFwk::Want>&, int32_t));
+    MOCK_METHOD2(ScheduleCleanAbility, void(const sptr<IRemoteObject>&, bool));
     MOCK_METHOD1(ScheduleProfileChanged, void(const Profile&));
     MOCK_METHOD1(ScheduleConfigurationUpdated, void(const Configuration& config));
     MOCK_METHOD1(ScheduleShrinkMemory, void(const int));
@@ -46,6 +46,7 @@ public:
     MOCK_METHOD1(ScheduleMemoryLevel, void(int32_t level));
     MOCK_METHOD2(ScheduleHeapMemory, void(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo));
     MOCK_METHOD2(ScheduleAcceptWant, void(const AAFwk::Want& want, const std::string& moduleName));
+    MOCK_METHOD2(ScheduleNewProcessRequest, void(const AAFwk::Want& want, const std::string& moduleName));
     MOCK_METHOD3(ScheduleNotifyLoadRepairPatch, int32_t(const std::string& bundleName,
         const sptr<IQuickFixCallback>& callback, const int32_t recordId));
     MOCK_METHOD2(ScheduleNotifyHotReloadPage, int32_t(const sptr<IQuickFixCallback>& callback, const int32_t recordId));
@@ -55,6 +56,19 @@ public:
     MOCK_METHOD1(ScheduleChangeAppGcState, int32_t(int32_t state));
     MOCK_METHOD0(AttachAppDebug, void());
     MOCK_METHOD0(DetachAppDebug, void());
+    MOCK_METHOD1(ScheduleJsHeapMemory, void(OHOS::AppExecFwk::JsHeapDumpInfo &info));
+    MOCK_METHOD2(SetAppWaitingDebug, int32_t(const std::string &bundleName, bool isPersist));
+    MOCK_METHOD0(CancelAppWaitingDebug, int32_t());
+    MOCK_METHOD1(GetWaitingDebugApp, int32_t(std::vector<std::string> &debugInfoList));
+    MOCK_METHOD1(IsWaitingDebugApp, bool(const std::string &bundleName));
+    MOCK_METHOD0(ClearNonPersistWaitingDebugFlag, void());
+    MOCK_METHOD1(ScheduleDumpIpcStart, int32_t(std::string &result));
+    MOCK_METHOD1(ScheduleDumpIpcStop, int32_t(std::string &result));
+    MOCK_METHOD1(ScheduleDumpIpcStat, int32_t(std::string &result));
+    MOCK_METHOD0(IsMemorySizeSufficent, bool());
+    MOCK_METHOD1(ScheduleDumpFfrt, int32_t(std::string& result));
+    MOCK_METHOD0(ScheduleClearPageStack, void());
+    MOCK_METHOD0(ScheduleCacheProcess, void());
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

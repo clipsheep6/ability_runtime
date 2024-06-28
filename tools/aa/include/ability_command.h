@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,14 +18,20 @@
 
 #include <regex>
 
-#include "shell_command.h"
 #include "ability_manager_interface.h"
+#include "shell_command.h"
 
 namespace OHOS {
 namespace AAFwk {
 namespace {
+using ParametersInteger = std::map<std::string, int>;
+using ParametersString = std::map<std::string, std::string>;
+using ParametersBool = std::map<std::string, bool>;
+
 const std::string TOOL_NAME = "aa";
 
+// not show in command
+// process -- debug ability with options
 const std::string HELP_MSG = "usage: aa <command> <options>\n"
     "These are common aa commands list:\n"
     "  help                        list available commands\n"
@@ -33,8 +39,7 @@ const std::string HELP_MSG = "usage: aa <command> <options>\n"
     "  stop-service                stop service with options\n"
     "  dump                        dump the ability info\n"
     "  force-stop <bundle-name>    force stop the process with bundle name\n"
-    "  process                     debug ability with options\n"
-    "  attach                      attach application to enter debug mdoe\n"
+    "  attach                      attach application to enter debug mode\n"
     "  detach                      detach application to exit debug mode\n"
 #ifdef ABILITY_COMMAND_FOR_TEST
     "  test                        start the test framework with options\n"
@@ -43,7 +48,8 @@ const std::string HELP_MSG = "usage: aa <command> <options>\n"
     "  block-ams-service                       block ams service\n"
     "  block-app-service                       block app service\n";
 #else
-    "  test                        start the test framework with options\n";
+    "  test                        start the test framework with options\n"
+    "  appdebug                    set / cancel / get waiting debug status\n";
 #endif
 
 const std::string HELP_MSG_SCREEN =
@@ -58,11 +64,25 @@ const std::string HELP_ApplicationNotResponding =
     "  -h, --help                   list available commands\n"
     "  -p, --pid                    Pass in pid with option\n";
 
+// not show in command
+// [-N] [-p <perf-cmd>]
 const std::string HELP_MSG_START =
     "usage: aa start <options>\n"
     "options list:\n"
     "  -h, --help                                                   list available commands\n"
-    "  [-d <device-id>] -a <ability-name> -b <bundle-name> [-m <module-name>] [-p <perf-cmd>] [-D] [-S] [-N] "
+    "  [-d <device-id>] [-a <ability-name> -b <bundle-name>] [-m <module-name>] [-p <perf-cmd>] [-D] [-S] [-N] [-R]"
+    "  [--ps <key> <string-value>] "
+    "  [--pi <key> <integer-value>] "
+    "  [--pb <key> <boolean-value>] "
+    "  [--psn <key>] "
+    "  [-A <action-name>] "
+    "  [-U <URI>] "
+    "  [-e <entity>] "
+    "  [-t <mime-type>] "
+    "  [--wl <window-left>] "
+    "  [--wt <window-top>] "
+    "  [--wh <window-height>] "
+    "  [--ww <window-width>] "
     "  start ability with an element name\n";
 
 const std::string HELP_MSG_STOP_SERVICE =
@@ -128,7 +148,16 @@ const std::string HELP_MSG_DETACH_APP_DEBUG =
     "  -h, --help                                             list available commands\n"
     "  -b <bundle-name>                                       let application exit debug mode by bundle name\n";
 
-const std::string HELP_MSG_FORCE_STOP = "usage: aa force-stop <bundle-name>\n";
+const std::string HELP_MSG_APPDEBUG_APP_DEBUG =
+    "usage: aa appdebug <options>\n"
+    "options list:\n"
+    "  -h, --help                                  list available commands\n"
+    "  -b, --bundlename <bundle-name>              let application set wait debug mode by bundle name with options\n"
+    "                  [-p, --persist]             option: persist flag\n"
+    "  -c, --cancel                                let application cancel wait debug\n"
+    "  -g, --get                                   get wait debug mode application bundle name and persist flag\n";
+
+const std::string HELP_MSG_FORCE_STOP = "usage: aa force-stop <bundle-name> [-p pid] [-r kill-reason]\n";
 const std::string HELP_MSG_BLOCK_ABILITY = "usage: aa block-ability <abilityrecordid>\n";
 const std::string HELP_MSG_FORCE_TIMEOUT =
     "usage: aa force-timeout <ability-name> <INITIAL|INACTIVE|COMMAND|FOREGROUND|BACKGROUND|TERMINATING>\n"
@@ -165,6 +194,9 @@ const std::string STRING_BLOCK_AMS_SERVICE_NG = "error: failed to block ams serv
 
 const std::string STRING_BLOCK_APP_SERVICE_OK = "block app service successfully.";
 const std::string STRING_BLOCK_APP_SERVICE_NG = "error: failed to block app service.";
+
+const std::string STRING_APP_DEBUG_OK = "app debug successfully.";
+const std::string STRING_APP_DEBUG_NG = "error: failed to app debug.";
 
 const std::string STRING_START_NATIVE_PROCESS_OK = "start native process successfully.";
 const std::string STRING_START_NATIVE_PROCESS_NG = "error: failed to start native process.";
@@ -206,9 +238,22 @@ private:
     ErrCode RunAsStopService();
     ErrCode RunAsDumpsysCommand();
     ErrCode RunAsForceStop();
+    bool SwitchOptionForAppDebug(int32_t option, std::string &bundleName, bool &isPersist, bool &isCancel, bool &isGet);
+    bool ParseAppDebugParameter(std::string &bundleName, bool &isPersist, bool &isCancel, bool &isGet);
+    ErrCode RunAsAppDebugDebugCommand();
     ErrCode RunAsProcessCommand();
     ErrCode RunAsAttachDebugCommand();
     ErrCode RunAsDetachDebugCommand();
+    bool CheckParameters(int target);
+    ErrCode ParseParam(ParametersInteger& pi);
+    ErrCode ParseParam(ParametersString& ps, bool isNull);
+    ErrCode ParseParam(ParametersBool& pb);
+    void SetParams(const ParametersInteger& pi, Want& want);
+    void SetParams(const ParametersString& ps, Want& want);
+    void SetParams(const ParametersBool& pb, Want& want);
+    Reason CovertExitReason(std::string& reasonStr);
+    pid_t ConvertPid(std::string& inputPid);
+
 #ifdef ABILITY_COMMAND_FOR_TEST
     ErrCode RunForceTimeoutForTest();
     ErrCode RunAsSendAppNotRespondingProcessID();

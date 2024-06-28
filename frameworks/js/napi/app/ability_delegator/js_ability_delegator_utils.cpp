@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "js_ability_delegator_utils.h"
 
 #include <map>
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_ability_monitor.h"
 #include "napi/native_common.h"
@@ -25,12 +26,12 @@ namespace AbilityDelegatorJs {
 using namespace OHOS::AbilityRuntime;
 napi_value CreateJsAbilityDelegator(napi_env env)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
 
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
     if (objValue == nullptr) {
-        HILOG_ERROR("Failed to get object");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to get object");
         return nullptr;
     }
 
@@ -70,11 +71,11 @@ napi_value CreateJsAbilityDelegator(napi_env env)
 
 napi_value SetAbilityDelegatorArgumentsPara(napi_env env, const std::map<std::string, std::string> &paras)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
     if (objValue == nullptr) {
-        HILOG_ERROR("Failed to get object");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to get object");
         return nullptr;
     }
 
@@ -89,12 +90,12 @@ napi_value SetAbilityDelegatorArgumentsPara(napi_env env, const std::map<std::st
 napi_value CreateJsAbilityDelegatorArguments(
     napi_env env, const std::shared_ptr<AbilityDelegatorArgs> &abilityDelegatorArgs)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
 
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
     if (objValue == nullptr) {
-        HILOG_ERROR("Failed to get object");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to get object");
         return CreateJsNull(env);
     }
 
@@ -112,17 +113,17 @@ napi_value CreateJsAbilityDelegatorArguments(
 
 napi_value CreateJsShellCmdResult(napi_env env, std::unique_ptr<ShellCmdResult> &shellResult)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
 
     if (!shellResult) {
-        HILOG_ERROR("shellResult is null");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "shellResult is null");
         return nullptr;
     }
 
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
     if (objValue == nullptr) {
-        HILOG_ERROR("Failed to get object");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to get object");
         return nullptr;
     }
 

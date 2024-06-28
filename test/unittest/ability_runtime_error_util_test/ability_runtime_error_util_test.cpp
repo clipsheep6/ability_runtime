@@ -18,6 +18,7 @@
 #include "ability_runtime_error_util.h"
 #include "ecmascript/napi/include/jsnapi.h"
 #include "errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 #include "native_engine/native_engine.h"
@@ -34,7 +35,7 @@ public:
     void SetUp() override;
     void TearDown() override;
 
-    NativeEngine* engine_ = nullptr;
+    napi_env env_ = nullptr;
     panda::ecmascript::EcmaVM* vm_ = nullptr;
 };
 
@@ -49,18 +50,18 @@ void AbilityRuntimeErrorUtilTest::SetUp()
     panda::RuntimeOption pandaOption;
     vm_ = panda::JSNApi::CreateJSVM(pandaOption);
     if (vm_ == nullptr) {
-        HILOG_ERROR("Create vm failed.");
+        TAG_LOGE(AAFwkTag::TEST, "Create vm failed.");
         return;
     }
 
-    engine_ = new ArkNativeEngine(vm_, nullptr);
+    env_ = reinterpret_cast<napi_env>(new ArkNativeEngine(vm_, nullptr));
 }
 
 void AbilityRuntimeErrorUtilTest::TearDown()
 {
-    if (engine_ != nullptr) {
-        delete engine_;
-        engine_ = nullptr;
+    if (env_ != nullptr) {
+        delete reinterpret_cast<NativeEngine*>(env_);
+        env_ = nullptr;
     }
 
     if (vm_ != nullptr) {
@@ -77,8 +78,8 @@ void AbilityRuntimeErrorUtilTest::TearDown()
  */
 HWTEST_F(AbilityRuntimeErrorUtilTest, ThrowByInternalErrCode_0200, TestSize.Level0)
 {
-    ASSERT_NE(engine_, nullptr);
-    bool result = AbilityRuntimeErrorUtil::ThrowByInternalErrCode(*engine_, 1);
+    ASSERT_NE(env_, nullptr);
+    bool result = AbilityRuntimeErrorUtil::ThrowByInternalErrCode(env_, 1);
     EXPECT_FALSE(result);
 }
 
@@ -90,8 +91,8 @@ HWTEST_F(AbilityRuntimeErrorUtilTest, ThrowByInternalErrCode_0200, TestSize.Leve
  */
 HWTEST_F(AbilityRuntimeErrorUtilTest, CreateErrorByInternalErrCode_0100, TestSize.Level0)
 {
-    ASSERT_NE(engine_, nullptr);
-    NativeValue* result = AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(*engine_, ERR_OK);
+    ASSERT_NE(env_, nullptr);
+    napi_value result = AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(env_, ERR_OK);
     EXPECT_NE(result, nullptr);
 }
 
@@ -103,8 +104,8 @@ HWTEST_F(AbilityRuntimeErrorUtilTest, CreateErrorByInternalErrCode_0100, TestSiz
  */
 HWTEST_F(AbilityRuntimeErrorUtilTest, CreateErrorByInternalErrCode_0200, TestSize.Level0)
 {
-    ASSERT_NE(engine_, nullptr);
-    NativeValue* result = AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(*engine_, 1);
+    ASSERT_NE(env_, nullptr);
+    napi_value result = AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(env_, 1);
     EXPECT_EQ(result, nullptr);
 }
 
@@ -130,6 +131,19 @@ HWTEST_F(AbilityRuntimeErrorUtilTest, GetErrMessage_0200, TestSize.Level0)
 {
     std::string errMsg = AbilityRuntimeErrorUtil::GetErrMessage(1);
     EXPECT_EQ(errMsg, "");
+}
+
+/**
+ * @tc.name: Throw_0100
+ * @tc.desc: Throw_0100 Test
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRuntimeErrorUtilTest, Throw_0100, TestSize.Level0)
+{
+    ASSERT_NE(env_, nullptr);
+    std::string errMessage = nullptr;
+    bool result = AbilityRuntimeErrorUtil::Throw(env_, 1, errMessage);
+    EXPECT_FALSE(result);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

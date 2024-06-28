@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,7 @@
 #include <unistd.h>
 
 #include "bundle_constants.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "json_serializer.h"
 #include "json_util.h"
@@ -148,7 +149,7 @@ void from_json(const nlohmann::json &jsonObject, Resource &resource)
         parseResult,
         ArrayType::NOT_ARRAY);
     if (parseResult != ERR_OK) {
-        HILOG_DEBUG("read Resource from database error, error code : %{public}d", parseResult);
+        TAG_LOGD(AAFwkTag::ABILITY_SIM, "read Resource from database error, error code : %{public}d", parseResult);
     }
 }
 
@@ -865,7 +866,7 @@ void from_json(const nlohmann::json &jsonObject, ApplicationInfo &applicationInf
         parseResult,
         ArrayType::NUMBER);
     if (parseResult != ERR_OK) {
-        HILOG_ERROR("from_json error, error code : %{public}d", parseResult);
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "from_json error, error code : %{public}d", parseResult);
     }
 }
 }  // namespace AppExecFwk

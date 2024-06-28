@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,13 +14,14 @@
  */
 
 #include "data_ability_caller_recipient.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
 void DataAbilityCallerRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_ERROR("recv DataAbilityCallerRecipient death notice");
+    TAG_LOGE(AAFwkTag::DATA_ABILITY, "recv DataAbilityCallerRecipient death notice");
 
     if (handler_) {
         handler_(remote);
@@ -29,12 +30,12 @@ void DataAbilityCallerRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 
 DataAbilityCallerRecipient::DataAbilityCallerRecipient(RemoteDiedHandler handler) : handler_(handler)
 {
-    HILOG_ERROR("%{public}s", __func__);
+    TAG_LOGE(AAFwkTag::DATA_ABILITY, "%{public}s", __func__);
 }
 
 DataAbilityCallerRecipient::~DataAbilityCallerRecipient()
 {
-    HILOG_ERROR("%{public}s", __func__);
+    TAG_LOGE(AAFwkTag::DATA_ABILITY, "%{public}s", __func__);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

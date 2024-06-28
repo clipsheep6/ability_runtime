@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,15 +16,40 @@
 #include <thread>
 #include "dataobs_mgr_client.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
+#include "system_ability_status_change_stub.h"
 
 namespace OHOS {
 namespace AAFwk {
 std::shared_ptr<DataObsMgrClient> DataObsMgrClient::instance_ = nullptr;
 std::mutex DataObsMgrClient::mutex_;
+
+class DataObsMgrClient::SystemAbilityStatusChangeListener
+    : public SystemAbilityStatusChangeStub {
+public:
+    SystemAbilityStatusChangeListener()
+    {
+    }
+    ~SystemAbilityStatusChangeListener() = default;
+    void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override
+    {
+    }
+};
+
+void DataObsMgrClient::SystemAbilityStatusChangeListener::OnAddSystemAbility(
+    int32_t systemAbilityId, const std::string &deviceId)
+{
+    TAG_LOGI(AAFwkTag::DBOBSMGR, "ObsManager restart");
+    if (systemAbilityId != DATAOBS_MGR_SERVICE_SA_ID) {
+        return;
+    }
+    GetInstance()->ReRegister();
+}
 
 std::shared_ptr<DataObsMgrClient> DataObsMgrClient::GetInstance()
 {
@@ -38,7 +63,9 @@ std::shared_ptr<DataObsMgrClient> DataObsMgrClient::GetInstance()
 }
 
 DataObsMgrClient::DataObsMgrClient()
-{}
+{
+    callback_ = new SystemAbilityStatusChangeListener();
+}
 
 DataObsMgrClient::~DataObsMgrClient()
 {}
@@ -123,19 +150,19 @@ Status DataObsMgrClient::Connect()
 
     sptr<ISystemAbilityManager> systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemManager == nullptr) {
-        HILOG_ERROR("fail to get Registry");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "fail to get Registry");
         return GET_DATAOBS_SERVICE_FAILED;
     }
 
-    auto remoteObject = systemManager->GetSystemAbility(DATAOBS_MGR_SERVICE_SA_ID);
+    auto remoteObject = systemManager->CheckSystemAbility(DATAOBS_MGR_SERVICE_SA_ID);
     if (remoteObject == nullptr) {
-        HILOG_ERROR("fail to get systemAbility");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "fail to get systemAbility");
         return GET_DATAOBS_SERVICE_FAILED;
     }
 
     dataObsManger_ = iface_cast<IDataObsMgr>(remoteObject);
     if (dataObsManger_ == nullptr) {
-        HILOG_ERROR("fail to get IDataObsMgr");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "fail to get IDataObsMgr");
         return GET_DATAOBS_SERVICE_FAILED;
     }
     sptr<ServiceDeathRecipient> serviceDeathRecipient(new (std::nothrow) ServiceDeathRecipient(GetInstance()));
@@ -210,6 +237,12 @@ void DataObsMgrClient::OnRemoteDied()
     std::this_thread::sleep_for(std::chrono::seconds(RESUB_INTERVAL));
     ResetService();
     if (Connect() != SUCCESS) {
+        sptr<ISystemAbilityManager> systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        if (systemManager == nullptr) {
+            TAG_LOGE(AAFwkTag::DBOBSMGR, "System mgr is nullptr");
+            return;
+        }
+        systemManager->SubscribeSystemAbility(DATAOBS_MGR_SERVICE_SA_ID, callback_);
         return;
     }
     ReRegister();

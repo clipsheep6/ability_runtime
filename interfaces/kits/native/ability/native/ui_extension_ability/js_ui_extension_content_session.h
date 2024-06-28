@@ -19,7 +19,6 @@
 #include "native_engine/native_engine.h"
 #include "js_free_install_observer.h"
 #include "js_runtime_utils.h"
-#include "js_ui_extension.h"
 #include "session_info.h"
 #include "start_options.h"
 #include "window.h"
@@ -28,13 +27,32 @@ namespace OHOS {
 namespace AbilityRuntime {
 using RuntimeTask = std::function<void(int, const AAFwk::Want&, bool)>;
 
+class AbilityResultListener {
+public:
+    AbilityResultListener() = default;
+    virtual ~AbilityResultListener() = default;
+    virtual void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData) = 0;
+    virtual bool IsMatch(int requestCode) = 0;
+};
+
+class AbilityResultListeners {
+public:
+    AbilityResultListeners() = default;
+    virtual ~AbilityResultListeners() = default;
+    void AddListener(const uint64_t &uiExtensionComponentId, std::shared_ptr<AbilityResultListener> listener);
+    void RemoveListener(const uint64_t &uiExtensionComponentId);
+    void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData);
+private:
+    std::map<uint64_t, std::shared_ptr<AbilityResultListener>> listeners_;
+};
+
 class UISessionAbilityResultListener : public AbilityResultListener {
 public:
     UISessionAbilityResultListener() = default;
     virtual ~UISessionAbilityResultListener() = default;
-    virtual void OnAbilityResult(int requestCode, int resultCode, const Want &resultData);
+    virtual void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData);
     virtual bool IsMatch(int requestCode);
-    void OnAbilityResultInner(int requestCode, int resultCode, const Want &resultData);
+    void OnAbilityResultInner(int requestCode, int resultCode, const AAFwk::Want &resultData);
     void SaveResultCallbacks(int requestCode, RuntimeTask&& task);
 private:
     std::map<int, RuntimeTask> resultCallbacks_;
@@ -57,52 +75,64 @@ public:
         std::shared_ptr<AbilityResultListeners>& abilityResultListeners);
     static napi_value CreateJsUIExtensionContentSession(napi_env env,
         sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow);
-    // to do
-    static NativeValue* CreateJsUIExtensionContentSession(NativeEngine& engine,
-        sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow,
-        std::weak_ptr<AbilityRuntime::Context> context,
-        std::shared_ptr<AbilityResultListeners>& abilityResultListeners);
-    static NativeValue* CreateJsUIExtensionContentSession(NativeEngine& engine,
-        sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow);
 
     static napi_value StartAbility(napi_env env, napi_callback_info info);
+    static napi_value StartAbilityAsCaller(napi_env env, napi_callback_info info);
+    static napi_value GetUIExtensionHostWindowProxy(napi_env env, napi_callback_info info);
+    static napi_value GetUIExtensionWindowProxy(napi_env env, napi_callback_info info);
     static napi_value StartAbilityForResult(napi_env env, napi_callback_info info);
     static napi_value TerminateSelf(napi_env env, napi_callback_info info);
     static napi_value TerminateSelfWithResult(napi_env env, napi_callback_info info);
     static napi_value SendData(napi_env env, napi_callback_info info);
     static napi_value SetReceiveDataCallback(napi_env env, napi_callback_info info);
+    static napi_value SetReceiveDataForResultCallback(napi_env env, napi_callback_info info);
     static napi_value LoadContent(napi_env env, napi_callback_info info);
     static napi_value SetWindowBackgroundColor(napi_env env, napi_callback_info info);
     static napi_value SetWindowPrivacyMode(napi_env env, napi_callback_info info);
+    static napi_value StartAbilityByType(napi_env env, napi_callback_info info);
 
 protected:
     napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStartAbilityAsCaller(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetUIExtensionHostWindowProxy(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetUIExtensionWindowProxy(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartAbilityForResult(napi_env env, NapiCallbackInfo& info);
     napi_value OnTerminateSelf(napi_env env, NapiCallbackInfo& info);
     napi_value OnTerminateSelfWithResult(napi_env env, NapiCallbackInfo& info);
     napi_value OnSendData(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetReceiveDataCallback(napi_env env, NapiCallbackInfo& info);
+    napi_value OnSetReceiveDataForResultCallback(napi_env env, NapiCallbackInfo& info);
     napi_value OnLoadContent(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetWindowBackgroundColor(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetWindowPrivacyMode(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStartAbilityByType(napi_env env, NapiCallbackInfo& info);
 
     static void CallReceiveDataCallback(napi_env env, std::weak_ptr<CallbackWrapper> weakCallback,
         const AAFwk::WantParams& wantParams);
-    void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback,
+    static void CallReceiveDataCallbackForResult(napi_env env, std::weak_ptr<CallbackWrapper> weakCallback,
+        const AAFwk::WantParams& wantParams, AAFwk::WantParams& retWantParams);
+    void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback, napi_value* result,
         bool isAbilityResult = false);
     NapiAsyncTask::ExecuteCallback StartAbilityExecuteCallback(AAFwk::Want& want, size_t& unwrapArgc,
         napi_env env, NapiCallbackInfo& info, std::shared_ptr<int> &innerErrorCode);
     void StartAbilityForResultRuntimeTask(napi_env env, AAFwk::Want &want,
         std::shared_ptr<NapiAsyncTask> asyncTask, size_t& unwrapArgc, AAFwk::StartOptions startOptions);
-    
+    void SetCallbackForTerminateWithResult(int32_t resultCode, AAFwk::Want& want,
+        NapiAsyncTask::CompleteCallback& complete);
+    bool CheckStartAbilityByTypeParam(napi_env env, NapiCallbackInfo& info, std::string& type,
+        AAFwk::WantParams& wantParam);
+
 private:
     sptr<AAFwk::SessionInfo> sessionInfo_;
     sptr<Rosen::Window> uiWindow_;
     std::weak_ptr<AbilityRuntime::Context> context_;
     std::shared_ptr<CallbackWrapper> receiveDataCallback_;
     bool isRegistered = false;
+    std::shared_ptr<CallbackWrapper> receiveDataForResultCallback_;
+    bool isSyncRegistered = false;
     std::shared_ptr<UISessionAbilityResultListener> listener_;
     sptr<JsFreeInstallObserver> freeInstallObserver_ = nullptr;
+    bool isFirstTriggerBindModal_ = true;
 };
 
 class JsUIExtensionContentSession::CallbackWrapper {

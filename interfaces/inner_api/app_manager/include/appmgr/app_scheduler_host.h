@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_APP_SCHEDULER_HOST_H
 #define OHOS_ABILITY_RUNTIME_APP_SCHEDULER_HOST_H
 
+#include <cstdint>
 #include <map>
 
 #include "iremote_object.h"
@@ -30,7 +31,7 @@ class AppSchedulerHost : public IRemoteStub<IAppScheduler> {
 public:
     AppSchedulerHost();
     virtual ~AppSchedulerHost();
-
+    void InitMemberFuncMap();
     virtual int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
@@ -48,16 +49,24 @@ private:
     int32_t HandleScheduleProfileChanged(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleConfigurationUpdated(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleProcessSecurityExit(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleScheduleClearPageStack(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleAcceptWant(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleScheduleNewProcessRequest(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyLoadRepairPatch(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyHotReloadPage(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyUnLoadRepairPatch(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleUpdateApplicationInfoInstalled(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleHeapMemory(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleScheduleJsHeapMemory(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyAppFault(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleChangeAppGcState(MessageParcel &data, MessageParcel &reply);
     int32_t HandleAttachAppDebug(MessageParcel &data, MessageParcel &reply);
     int32_t HandleDetachAppDebug(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleScheduleDumpIpcStart(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleScheduleDumpIpcStop(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleScheduleDumpIpcStat(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleScheduleDumpFfrt(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleScheduleCacheProcess(MessageParcel &data, MessageParcel &reply);
 
     using AppSchedulerFunc = int32_t (AppSchedulerHost::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AppSchedulerFunc> memberFuncMap_;

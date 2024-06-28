@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "quick_fix_callback_proxy.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "message_parcel.h"
 #include "parcel_macro_base.h"
@@ -23,7 +24,7 @@ namespace OHOS {
 namespace AppExecFwk {
 void QuickFixCallbackProxy::OnLoadPatchDone(int32_t resultCode, int32_t recordId)
 {
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
 
     MessageParcel data;
     MessageParcel reply;
@@ -34,13 +35,13 @@ void QuickFixCallbackProxy::OnLoadPatchDone(int32_t resultCode, int32_t recordId
         return;
     }
 
-    HILOG_DEBUG("function finished.");
+    TAG_LOGD(AAFwkTag::APPMGR, "function finished.");
     return;
 }
 
 void QuickFixCallbackProxy::OnUnloadPatchDone(int32_t resultCode, int32_t recordId)
 {
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
 
     MessageParcel data;
     MessageParcel reply;
@@ -51,13 +52,13 @@ void QuickFixCallbackProxy::OnUnloadPatchDone(int32_t resultCode, int32_t record
         return;
     }
 
-    HILOG_DEBUG("function finished.");
+    TAG_LOGD(AAFwkTag::APPMGR, "function finished.");
     return;
 }
 
 void QuickFixCallbackProxy::OnReloadPageDone(int32_t resultCode, int32_t recordId)
 {
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
 
     MessageParcel data;
     MessageParcel reply;
@@ -68,7 +69,7 @@ void QuickFixCallbackProxy::OnReloadPageDone(int32_t resultCode, int32_t recordI
         return;
     }
 
-    HILOG_DEBUG("function finished.");
+    TAG_LOGD(AAFwkTag::APPMGR, "function finished.");
     return;
 }
 
@@ -76,14 +77,14 @@ bool QuickFixCallbackProxy::SendRequestWithCmd(uint32_t code, MessageParcel &dat
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote is nullptr.");
         return false;
     }
 
     MessageOption option(MessageOption::TF_SYNC);
     auto ret = remote->SendRequest(code, data, reply, option);
     if (ret != 0) {
-        HILOG_ERROR("Send request failed with error %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request failed with error %{public}d.", ret);
         return false;
     }
 

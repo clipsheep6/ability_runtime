@@ -19,7 +19,6 @@
 #include <cstdint>
 
 #define private public
-#include "ability_interceptor.h"
 #include "implicit_start_processor.h"
 #include "system_dialog_scheduler.h"
 #undef private
@@ -32,6 +31,10 @@ using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace {
+constexpr int INPUT_ZERO = 0;
+constexpr int INPUT_ONE = 1;
+constexpr int INPUT_TWO = 2;
+constexpr int INPUT_THREE = 3;
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
 constexpr size_t OFFSET_ZERO = 24;
@@ -41,22 +44,8 @@ constexpr size_t OFFSET_TWO = 8;
 uint32_t GetU32Data(const char* ptr)
 {
     // convert fuzz input data to an integer
-    return (ptr[0] << OFFSET_ZERO) | (ptr[1] << OFFSET_ONE) | (ptr[2] << OFFSET_TWO) | ptr[3];
-}
-sptr<Token> GetFuzzAbilityToken()
-{
-    sptr<Token> token = nullptr;
-
-    AbilityRequest abilityRequest;
-    abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
-    abilityRequest.abilityInfo.name = "MainAbility";
-    abilityRequest.abilityInfo.type = AbilityType::PAGE;
-    std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
-    if (abilityRecord) {
-        token = abilityRecord->GetToken();
-    }
-
-    return token;
+    return (ptr[INPUT_ZERO] << OFFSET_ZERO) | (ptr[INPUT_ONE] << OFFSET_ONE) | (ptr[INPUT_TWO] << OFFSET_TWO) |
+        ptr[INPUT_THREE];
 }
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
@@ -67,14 +56,9 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     if (wantParcel.WriteBuffer(data, size)) {
         want = Want::Unmarshalling(wantParcel);
     }
-    int32_t userId = static_cast<int32_t>(GetU32Data(data));
     std::shared_ptr<SystemDialogScheduler> systemDialogScheduler = std::make_shared<SystemDialogScheduler>();
-    systemDialogScheduler->GetANRDialogWant(static_cast<int>(userId), pid, *want);
     std::vector<DialogAppInfo> dialogAppInfos;
     systemDialogScheduler->GetSelectorParams(dialogAppInfos);
-    int32_t labelId = static_cast<int32_t>(GetU32Data(data));
-    std::string appName(data, size);
-    systemDialogScheduler->GetAppNameFromResource(labelId, bundleName, userId, appName);
     InnerMissionInfo innerMissionInfo;
     innerMissionInfo.ToJsonStr();
     std::string jsonStr(data, size);

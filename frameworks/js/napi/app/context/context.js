@@ -82,6 +82,14 @@ class Context {
     return this.__context_impl__.createModuleContext(bundleName, moduleName);
   }
 
+  createSystemHspModuleResourceManager(bundleName, moduleName) {
+    return this.__context_impl__.createSystemHspModuleResourceManager(bundleName, moduleName);
+  }
+
+  createModuleResourceManager(bundleName, moduleName) {
+    return this.__context_impl__.createModuleResourceManager(bundleName, moduleName);
+  }
+
   getApplicationContext() {
     return this.__context_impl__.getApplicationContext();
   }
@@ -114,6 +122,10 @@ class Context {
     return this.__context_impl__.tempDir;
   }
 
+  get resourceDir() {
+    return this.__context_impl__.resourceDir;
+  }
+
   get filesDir() {
     return this.__context_impl__.filesDir;
   }
@@ -132,6 +144,10 @@ class Context {
 
   get bundleCodeDir() {
     return this.__context_impl__.bundleCodeDir;
+  }
+
+  get cloudFileDir() {
+    return this.__context_impl__.cloudFileDir;
   }
 
   get eventHub() {

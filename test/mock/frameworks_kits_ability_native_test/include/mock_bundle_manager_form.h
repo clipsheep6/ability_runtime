@@ -42,7 +42,7 @@ public:
         return "system";
     }
 
-    int GetUidByBundleName(const std::string& bundleName, const int userId) override
+    int GetUidByBundleName(const std::string& bundleName, int32_t userId, int32_t appCloneIndex) override
     {
         if (bundleName.compare("com.form.host.app600") == 0) {
             return USER_ID_U600;
@@ -50,10 +50,10 @@ public:
         return 0;
     }
 
-    bool GetBundleNameForUid(const int uid, std::string& bundleName) override
+    ErrCode GetNameForUid(const int uid, std::string& bundleName) override
     {
         bundleName = "com.form.provider.service";
-        return true;
+        return 0;
     }
 
     bool CheckIsSystemAppByUid(const int uid) override
@@ -67,7 +67,8 @@ public:
     bool GetBundleInfo(
         const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
     ErrCode GetBaseSharedBundleInfos(const std::string &bundleName,
-        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos) override
+        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos,
+        AppExecFwk::GetDependentBundleInfoFlag flag) override
     {
         return ERR_OK;
     }
@@ -91,13 +92,13 @@ public:
     ~BundleMgrService() = default;
 
     std::string GetAppType(const std::string& bundleName) override;
-    int GetUidByBundleName(const std::string& bundleName, const int userId) override;
+    int GetUidByBundleName(const std::string& bundleName, int32_t userId, int32_t appCloneIndex) override;
     bool GetBundleInfo(
         const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
-    bool GetBundleNameForUid(const int uid, std::string& bundleName) override
+    ErrCode GetNameForUid(const int uid, std::string& bundleName) override
     {
         bundleName = "com.form.provider.service";
-        return true;
+        return 0;
     }
     bool CheckIsSystemAppByUid(const int uid) override
     {
@@ -114,7 +115,8 @@ public:
         const std::string& moduleName,
         std::vector<FormInfo>& formInfo) override;
     ErrCode GetBaseSharedBundleInfos(const std::string &bundleName,
-        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos) override
+        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos,
+        AppExecFwk::GetDependentBundleInfoFlag flag) override
     {
         return ERR_OK;
     }

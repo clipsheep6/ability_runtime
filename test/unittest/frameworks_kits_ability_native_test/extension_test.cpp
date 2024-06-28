@@ -384,7 +384,9 @@ HWTEST_F(ExtensionTest, AaFwk_Extension_1800, Function | MediumTest | Level1)
     Want want;
     want.SetElementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
     EXPECT_TRUE(extension_ != nullptr);
-    extension_->OnForeground(want);
+    sptr<AAFwk::SessionInfo> session = new (std::nothrow) AAFwk::SessionInfo();
+    EXPECT_NE(session, nullptr);
+    extension_->OnForeground(want, session);
     GTEST_LOG_(INFO) << "AaFwk_Extension_1800 end";
 }
 
@@ -444,6 +446,64 @@ HWTEST_F(ExtensionTest, AaFwk_Extension_2400, Function | MediumTest | Level1)
     int resultCode = 0;
     extension_->OnAbilityResult(requestCode, resultCode, want);
     GTEST_LOG_(INFO) << "AaFwk_Extension_2400 end";
+}
+
+/**
+ * @tc.number: AaFwk_Extension_2500
+ * @tc.name: HandleInsightIntent
+ * @tc.desc: Successfully verified HandleInsightIntent.
+ */
+HWTEST_F(ExtensionTest, AaFwk_Extension_2500, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2500 start";
+    EXPECT_NE(extension_, nullptr);
+    Want want;
+    auto ret = extension_->HandleInsightIntent(want);
+    EXPECT_TRUE(ret);
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2500 end";
+}
+
+/**
+ * @tc.number: AaFwk_Extension_2600
+ * @tc.name: OnInsightIntentExecuteDone
+ * @tc.desc: Successfully verified OnInsightIntentExecuteDone.
+ */
+HWTEST_F(ExtensionTest, AaFwk_Extension_2600, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2600 start";
+    EXPECT_NE(extension_, nullptr);
+    uint64_t intentId = 0;
+    AppExecFwk::InsightIntentExecuteResult result;
+    auto ret = extension_->OnInsightIntentExecuteDone(intentId, result);
+    EXPECT_TRUE(ret);
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2600 end";
+}
+
+/**
+ * @tc.number: AaFwk_Extension_2700
+ * @tc.name: OnStopCallBack
+ * @tc.desc: OnStopCallBack.
+ */
+HWTEST_F(ExtensionTest, AaFwk_Extension_2700, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2700 start";
+    extension_->OnStopCallBack();
+    EXPECT_NE(extension_, nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2700 end";
+}
+
+/**
+ * @tc.number: AaFwk_Extension_2800
+ * @tc.name: OnCommandWindowDone
+ * @tc.desc: OnCommandWindowDone.
+ */
+HWTEST_F(ExtensionTest, AaFwk_Extension_2800, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2800 start";
+    sptr<AAFwk::SessionInfo> sessionInfo;
+    extension_->OnCommandWindowDone(sessionInfo, AAFwk::WIN_CMD_FOREGROUND);
+    EXPECT_NE(extension_, nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2800 end";
 }
 } // namespace AppExecFwk
 } // namespace OHOS

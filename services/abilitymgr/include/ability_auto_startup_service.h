@@ -64,59 +64,26 @@ public:
     /**
      * @brief Query auto startup state all application.
      * @param infoList Output parameters, return auto startup info list.
+     * @param infoList Input parameters, return userid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList);
+    int32_t QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList, int32_t userId);
 
     /**
      * @brief Query auto startup state all application without permission.
      * @param infoList Output parameters, return auto startup info list.
+     * @param infoList Input parameters, return userid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t QueryAllAutoStartupApplicationsWithoutPermission(std::vector<AutoStartupInfo> &infoList);
-
-    /**
-     * @brief Register auto start up callback.
-     * @param callback The point of JsAbilityAutoStartupCallBack.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int32_t RegisterAutoStartupCallback(const sptr<IRemoteObject> &callback);
-
-    /**
-     * @brief Unregister auto start up callback.
-     * @param callback The point of JsAbilityAutoStartupCallBack.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int32_t UnregisterAutoStartupCallback(const sptr<IRemoteObject> &callback);
-
-    /**
-     * @brief Set current application auto start up state.
-     * @param info The auto startup info,include bundle name, module name, ability name.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int32_t SetAutoStartup(const AutoStartupInfo &info);
-
-    /**
-     * @brief Cancel current application auto start up state.
-     * @param info The auto startup info, include bundle name, module name, ability name.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int32_t CancelAutoStartup(const AutoStartupInfo &info);
-
-    /**
-     * @brief Check current application auto start up state.
-     * @param info The auto startup info, include bundle name, module name, ability name.
-     * @param isAutoStartup Output parameters, return auto start up state.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int32_t IsAutoStartup(const AutoStartupInfo &info, bool &isAutoStartup);
+    int32_t QueryAllAutoStartupApplicationsWithoutPermission(std::vector<AutoStartupInfo> &infoList, int32_t userId);
 
     /**
      * @brief Delete current bundleName auto start up data.
      * @param bundleName The current bundleName.
+     * @param uid The uid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t DeleteAutoStartupData(const std::string &bundleName);
+    int32_t DeleteAutoStartupData(const std::string &bundleName, int32_t uid);
 
     /**
      * @brief Check current bundleName auto start up data.
@@ -125,6 +92,22 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t CheckAutoStartupData(const std::string &bundleName, int32_t uid);
+
+    /**
+     * @brief Set application auto start up state by EDM.
+     * @param info The auto startup info, include bundle name, module name, ability name.
+     * @param flag Indicate whether to allow the application to change the auto start up state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t SetApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag);
+
+    /**
+     * @brief Cancel application auto start up state by EDM.
+     * @param info The auto startup info, include bundle name, module name, ability name.
+     * @param flag Indicate whether to allow the application to change the auto start up state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t CancelApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag);
 
     /**
      * @class ClientDeathRecipient
@@ -150,21 +133,24 @@ public:
 private:
     int32_t InnerSetApplicationAutoStartup(const AutoStartupInfo &info);
     int32_t InnerCancelApplicationAutoStartup(const AutoStartupInfo &info);
-    int32_t InnerSetAutoStartup(const AutoStartupInfo &info);
-    int32_t InnerCancelAutoStartup(const AutoStartupInfo &info);
     void ExecuteCallbacks(bool isCallOn, const AutoStartupInfo &info);
     void SetDeathRecipient(
         const sptr<IRemoteObject> &callback, const sptr<IRemoteObject::DeathRecipient> &deathRecipient);
     void CleanResource(const wptr<IRemoteObject> &remote);
     std::string GetSelfApplicationBundleName();
     bool CheckSelfApplication(const std::string &bundleName);
-    bool GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, int32_t uid = -1);
-    bool GetAbilityData(const AutoStartupInfo &info, bool &isVisible, std::string &abilityTypeName);
+    bool GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, int32_t uid, int32_t &userId);
+    bool GetAbilityData(const AutoStartupInfo &info, bool &isVisible,
+        std::string &abilityTypeName, std::string &accessTokenId, int32_t &userId);
     std::string GetAbilityTypeName(AppExecFwk::AbilityInfo abilityInfo);
     std::string GetExtensionTypeName(AppExecFwk::ExtensionAbilityInfo extensionInfo);
     std::shared_ptr<AppExecFwk::BundleMgrClient> GetBundleMgrClient();
     int32_t CheckPermissionForSystem();
     int32_t CheckPermissionForSelf(const std::string &bundleName);
+    int32_t CheckPermissionForEDM();
+    int32_t InnerApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool isSet, bool flag);
+    int32_t GetAbilityInfo(const AutoStartupInfo &info, std::string &abilityTypeName,
+        std::string &accessTokenId, int32_t &userId);
 
     mutable std::mutex autoStartUpMutex_;
     mutable std::mutex deathRecipientsMutex_;

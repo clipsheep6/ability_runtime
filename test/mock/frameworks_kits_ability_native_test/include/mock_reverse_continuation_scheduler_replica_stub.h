@@ -25,9 +25,10 @@ public:
     MOCK_METHOD1(PassPrimary, void(const sptr<IRemoteObject> &primary));
     MOCK_METHOD0(ReverseContinuation, bool());
     MOCK_METHOD1(NotifyReverseResult, void(int reverseResult));
-    int SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+    int SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+    {
         SendRequest_called = true;
-        return 1;
+        return 0;
     }
     bool SendRequest_called = false;
 };

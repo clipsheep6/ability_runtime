@@ -38,8 +38,9 @@ void AppMgrClient::GetRunningProcessInfoByToken(const sptr<IRemoteObject>& token
 
 void AppMgrClient::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo& info) const {}
 
-AppMgrResultCode AppMgrClient::LoadAbility(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken,
-    const AbilityInfo& abilityInfo, const ApplicationInfo& appInfo, const AAFwk::Want& want)
+AppMgrResultCode AppMgrClient::LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObject> preToken,
+    const AbilityInfo& abilityInfo, const ApplicationInfo& appInfo, const AAFwk::Want& want,
+    int32_t abilityRecordId)
 {
     return AppMgrResultCode::RESULT_OK;
 }
@@ -76,12 +77,13 @@ AppMgrResultCode AppMgrClient::KillProcessesByUserId(int32_t userId)
     return AppMgrResultCode::RESULT_OK;
 }
 
-AppMgrResultCode AppMgrClient::KillApplication(const std::string& bundleName)
+AppMgrResultCode AppMgrClient::KillApplication(
+    const std::string& bundleName, const bool clearPageStack = true)
 {
     return AppMgrResultCode::RESULT_OK;
 }
 
-AppMgrResultCode AppMgrClient::ClearUpApplicationData(const std::string& bundleName)
+AppMgrResultCode AppMgrClient::ClearUpApplicationData(const std::string& bundleName, const int32_t userId)
 {
     return AppMgrResultCode::RESULT_OK;
 }
@@ -107,7 +109,7 @@ AppMgrResultCode AppMgrClient::ConnectAppMgrService()
 void AppMgrClient::AbilityAttachTimeOut(const sptr<IRemoteObject>& token)
 {}
 
-void AppMgrClient::PrepareTerminate(const sptr<IRemoteObject>& token)
+void AppMgrClient::PrepareTerminate(const sptr<IRemoteObject>& token, bool clearMissionFlag)
 {}
 }  // namespace AppExecFwk
 }  // namespace OHOS

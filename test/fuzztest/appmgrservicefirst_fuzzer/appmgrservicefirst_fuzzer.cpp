@@ -32,14 +32,21 @@ using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace {
+constexpr int INPUT_ZERO = 0;
+constexpr int INPUT_ONE = 1;
+constexpr int INPUT_THREE = 3;
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
 constexpr uint8_t ENABLE = 2;
+constexpr size_t OFFSET_ZERO = 24;
+constexpr size_t OFFSET_ONE = 16;
+constexpr size_t OFFSET_TWO = 8;
 }
 uint32_t GetU32Data(const char* ptr)
 {
     // convert fuzz input data to an integer
-    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
+    return (ptr[INPUT_ZERO] << OFFSET_ZERO) | (ptr[INPUT_ONE] << OFFSET_ONE) | (ptr[ENABLE] << OFFSET_TWO) |
+        ptr[INPUT_THREE];
 }
 sptr<Token> GetFuzzAbilityToken()
 {
@@ -70,9 +77,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     pid_t pid = static_cast<pid_t>(GetU32Data(data));
     appMgrService->AddAppDeathRecipient(pid);
     appMgrService->QueryServiceState();
-    int32_t recordId = static_cast<int32_t>(GetU32Data(data));
-    std::string permission(data, size);
-    appMgrService->CheckPermission(recordId, permission);
     sptr<IRemoteObject> app = nullptr;
     appMgrService->AttachApplication(app);
     std::vector<BundleInfo> bundleInfos;
@@ -93,6 +97,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     appMgrService->AttachRenderProcess(scheduler);
     bool isContinuousTask = *data % ENABLE;
     appMgrService->SetContinuousTaskProcess(static_cast<int32_t>(pid), isContinuousTask);
+    int32_t recordId = static_cast<int32_t>(GetU32Data(data));
     appMgrService->ApplicationForegrounded(recordId);
     appMgrService->AddAbilityStageDone(recordId);
     int fd = static_cast<int>(GetU32Data(data));
@@ -131,7 +136,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     appMgrService->ApplicationBackgrounded(recordId);
     sptr<IRemoteObject> token = GetFuzzAbilityToken();
     appMgrService->AbilityCleaned(token);
-    appMgrService->ClearUpApplicationData(bundleName);
+    int32_t appCloneIndex = static_cast<int32_t>(GetU32Data(data));
+    appMgrService->ClearUpApplicationData(bundleName, appCloneIndex);
     appMgrService->ApplicationTerminated(recordId);
     std::string msg(data, size);
     int64_t resultCode = static_cast<int64_t>(GetU32Data(data));

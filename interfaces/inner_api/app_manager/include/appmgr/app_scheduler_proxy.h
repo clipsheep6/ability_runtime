@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +19,7 @@
 #include "iremote_proxy.h"
 #include "app_scheduler_interface.h"
 #include "app_malloc_info.h"
+#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -47,9 +48,9 @@ public:
      * ScheduleTerminateApplication, call ScheduleTerminateApplication() through proxy project,
      * Notify application to terminate.
      *
-     * @return
+     * @param isLastProcess When it is the last application process, pass in true.
      */
-    virtual void ScheduleTerminateApplication() override;
+    virtual void ScheduleTerminateApplication(bool isLastProcess = false) override;
 
     /**
      * ScheduleShrinkMemory, call ScheduleShrinkMemory() through proxy project,
@@ -89,6 +90,16 @@ public:
     virtual void ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) override;
 
     /**
+     * ScheduleJsHeapMemory, call ScheduleJsHeapMemory() through proxy project,
+     * triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid, tid, needGc, needSnapshot
+     *
+     * @return
+     */
+    virtual void ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info) override;
+
+    /**
      * ScheduleLaunchApplication, call ScheduleLaunchApplication() through proxy project,
      * Notify application to launch application.
      *
@@ -125,7 +136,7 @@ public:
      * @return
      */
     virtual void ScheduleLaunchAbility(const AbilityInfo &, const sptr<IRemoteObject> &,
-        const std::shared_ptr<AAFwk::Want> &want) override;
+        const std::shared_ptr<AAFwk::Want> &want, int32_t abilityRecordId) override;
 
     /**
      * ScheduleCleanAbility, call ScheduleCleanAbility() through proxy project,
@@ -134,7 +145,7 @@ public:
      * @param The ability token.
      * @return
      */
-    virtual void ScheduleCleanAbility(const sptr<IRemoteObject> &token) override;
+    virtual void ScheduleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess = false) override;
 
     /**
      * ScheduleProfileChanged, call ScheduleProfileChanged() through proxy project,
@@ -162,7 +173,11 @@ public:
      */
     virtual void ScheduleProcessSecurityExit() override;
 
+    virtual void ScheduleClearPageStack() override;
+
     virtual void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) override;
+
+    virtual void ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName) override;
 
     int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
         const sptr<IQuickFixCallback> &callback, const int32_t recordId) override;
@@ -179,10 +194,52 @@ public:
     void AttachAppDebug() override;
     void DetachAppDebug() override;
 
+    /**
+     * ScheduleDumpIpcStart, call ScheduleDumpIpcStart(std::string& result) through proxy project,
+     * Start querying the application's IPC payload info.
+     *
+     * @param result, start IPC dump result output.
+     *
+     * @return Returns 0 on success, error code on failure.
+     */
+    virtual int32_t ScheduleDumpIpcStart(std::string& result) override;
+
+    /**
+     * ScheduleDumpIpcStop, call ScheduleDumpIpcStop(std::string& result) through proxy project,
+     * Stop querying the application's IPC payload info.
+     *
+     * @param result, stop IPC dump result output.
+     *
+     * @return Returns 0 on success, error code on failure.
+     */
+    virtual int32_t ScheduleDumpIpcStop(std::string& result) override;
+
+    /**
+     * ScheduleDumpIpcStat, call ScheduleDumpIpcStat(std::string& result) through proxy project,
+     * Collect the application's IPC payload info.
+     *
+     * @param result, IPC payload result output.
+     *
+     * @return Returns 0 on success, error code on failure.
+     */
+    virtual int32_t ScheduleDumpIpcStat(std::string& result) override;
+
+    /**
+     * ScheduleDumpFfrt, call ScheduleDumpFfrt(std::string& result) through proxy project,
+     * Start querying the application's ffrt usage.
+     *
+     * @param result, ffrt dump result output.
+     *
+     * @return Returns 0 on success, error code on failure.
+     */
+    virtual int32_t ScheduleDumpFfrt(std::string& result) override;
+
+    virtual void ScheduleCacheProcess() override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     void ScheduleMemoryCommon(const int32_t level, const uint32_t operation);
-    void SendRequest(const IAppScheduler::Message &message);
+    int32_t SendTransactCmd(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
     static inline BrokerDelegator<AppSchedulerProxy> delegator_;
 };
 }  // namespace AppExecFwk

@@ -14,6 +14,7 @@
  */
 
 #include "sa_mgr_client.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 #include "if_system_ability_manager.h"
@@ -29,12 +30,12 @@ SaMgrClient::~SaMgrClient()
 
 sptr<IRemoteObject> SaMgrClient::GetSystemAbility(const int32_t systemAbilityId)
 {
-    HILOG_INFO("Test GetSystemAbility id : %{public}d", systemAbilityId);
+    TAG_LOGI(AAFwkTag::TEST, "Test GetSystemAbility id : %{public}d", systemAbilityId);
     if (servicesMap_[systemAbilityId] == nullptr) {
         OHOS::sptr<ISystemAbilityManager> systemAbilityManager =
             SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (systemAbilityManager == nullptr) {
-            HILOG_ERROR("%s:fail to get Registry", __func__);
+            TAG_LOGE(AAFwkTag::TEST, "%s:fail to get Registry", __func__);
             return nullptr;
         }
         OHOS::sptr<OHOS::IRemoteObject> object = systemAbilityManager->GetSystemAbility(systemAbilityId);
@@ -45,12 +46,12 @@ sptr<IRemoteObject> SaMgrClient::GetSystemAbility(const int32_t systemAbilityId)
 
 sptr<IRemoteObject> SaMgrClient::CheckSystemAbility(const int32_t systemAbilityId)
 {
-    HILOG_INFO("Test CheckSystemAbility id : %{public}d", systemAbilityId);
+    TAG_LOGI(AAFwkTag::TEST, "Test CheckSystemAbility id : %{public}d", systemAbilityId);
     if (servicesMap_[systemAbilityId] == nullptr) {
         OHOS::sptr<ISystemAbilityManager> systemAbilityManager =
                 SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (systemAbilityManager == nullptr) {
-            HILOG_ERROR("%s:fail to get Registry", __func__);
+            TAG_LOGE(AAFwkTag::TEST, "%s:fail to get Registry", __func__);
             return nullptr;
         }
         OHOS::sptr<OHOS::IRemoteObject> object = systemAbilityManager->CheckSystemAbility(systemAbilityId);
@@ -61,7 +62,7 @@ sptr<IRemoteObject> SaMgrClient::CheckSystemAbility(const int32_t systemAbilityI
 
 void SaMgrClient::RegisterSystemAbility(const int32_t systemAbilityId, sptr<IRemoteObject> broker)
 {
-    HILOG_INFO("Test RegisterSystemAbility id : %{public}d", systemAbilityId);
+    TAG_LOGI(AAFwkTag::TEST, "Test RegisterSystemAbility id : %{public}d", systemAbilityId);
     servicesMap_[systemAbilityId] = broker;
 }
 }  // namespace AAFwk

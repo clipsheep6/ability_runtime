@@ -53,6 +53,9 @@ public:
     std::list<sptr<IWantReceiver>> GetCancelCallbacks();
 
 private:
+    void BuildSendWant(SenderInfo &senderInfo, Want &want);
+
+private:
     std::weak_ptr<PendingWantManager> pendingWantManager_ = {};
     int32_t uid_ = 0;
     int32_t callerUid_ = 0;

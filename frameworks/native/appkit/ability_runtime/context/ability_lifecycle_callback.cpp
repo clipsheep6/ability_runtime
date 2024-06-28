@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "ability_lifecycle_callback.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
 
@@ -45,20 +46,21 @@ void JsAbilityLifecycleCallback::CallJsMethodInnerCommon(const std::string &meth
 
     for (auto &callback : callbacks) {
         if (!callback.second) {
-            HILOG_ERROR("CallJsMethodInnerCommon, Invalid jsCallback");
+            TAG_LOGE(AAFwkTag::APPKIT, "CallJsMethodInnerCommon, Invalid jsCallback");
             return;
         }
 
         auto obj = callback.second->GetNapiValue();
         if (!CheckTypeForNapiValue(env_, obj, napi_object)) {
-            HILOG_ERROR("CallJsMethodInnerCommon, Failed to get object");
+            TAG_LOGE(AAFwkTag::APPKIT, "CallJsMethodInnerCommon, Failed to get object");
             return;
         }
 
         napi_value method = nullptr;
         napi_get_named_property(env_, obj, methodName.data(), &method);
         if (method == nullptr) {
-            HILOG_ERROR("CallJsMethodInnerCommon, Failed to get %{public}s from object", methodName.data());
+            TAG_LOGE(AAFwkTag::APPKIT, "CallJsMethodInnerCommon, Failed to get %{public}s from object",
+                methodName.data());
             return;
         }
 
@@ -75,51 +77,27 @@ void JsAbilityLifecycleCallback::CallJsMethodInnerCommon(const std::string &meth
 void JsAbilityLifecycleCallback::CallJsMethod(
     const std::string &methodName, const std::shared_ptr<NativeReference> &ability)
 {
-    HILOG_DEBUG("CallJsMethod methodName = %{public}s", methodName.c_str());
+    TAG_LOGD(AAFwkTag::APPKIT, "CallJsMethod methodName = %{public}s", methodName.c_str());
     if (!ability) {
-        HILOG_ERROR("ability is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
         return;
     }
-    std::weak_ptr<JsAbilityLifecycleCallback> thisWeakPtr(shared_from_this());
-    std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>(
-        [thisWeakPtr, methodName, ability, callbacks = callbacks_, callbacksSync = callbacksSync_]
-        (napi_env env, NapiAsyncTask &task, int32_t status) {
-            std::shared_ptr<JsAbilityLifecycleCallback> jsCallback = thisWeakPtr.lock();
-            if (jsCallback) {
-                jsCallback->CallJsMethodInnerCommon(methodName, ability, nullptr, callbacks);
-                jsCallback->CallJsMethodInnerCommon(methodName, ability, nullptr, callbacksSync);
-            }
-        }
-    );
-    napi_ref callback = nullptr;
-    std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
-    NapiAsyncTask::Schedule("JsAbilityLifecycleCallback::CallJsMethod:" + methodName,
-        env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
+    HandleScope handleScope(env_);
+    CallJsMethodInnerCommon(methodName, ability, nullptr, callbacks_);
+    CallJsMethodInnerCommon(methodName, ability, nullptr, callbacksSync_);
 }
 
 void JsAbilityLifecycleCallback::CallWindowStageJsMethod(const std::string &methodName,
     const std::shared_ptr<NativeReference> &ability, const std::shared_ptr<NativeReference> &windowStage)
 {
-    HILOG_DEBUG("CallWindowStageJsMethod methodName = %{public}s", methodName.c_str());
+    TAG_LOGD(AAFwkTag::APPKIT, "CallWindowStageJsMethod methodName = %{public}s", methodName.c_str());
     if (!ability || !windowStage) {
-        HILOG_ERROR("ability or windowStage is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "ability or windowStage is nullptr");
         return;
     }
-    std::weak_ptr<JsAbilityLifecycleCallback> thisWeakPtr(shared_from_this());
-    std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>(
-        [thisWeakPtr, methodName, ability, windowStage, callbacks = callbacks_, callbacksSync = callbacksSync_]
-        (napi_env env, NapiAsyncTask &task, int32_t status) {
-            std::shared_ptr<JsAbilityLifecycleCallback> jsCallback = thisWeakPtr.lock();
-            if (jsCallback) {
-                jsCallback->CallJsMethodInnerCommon(methodName, ability, windowStage, callbacks);
-                jsCallback->CallJsMethodInnerCommon(methodName, ability, windowStage, callbacksSync);
-            }
-        }
-    );
-    napi_ref callback = nullptr;
-    std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
-    NapiAsyncTask::Schedule("JsAbilityLifecycleCallback::CallWindowStageJsMethod:" + methodName,
-        env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
+    HandleScope handleScope(env_);
+    CallJsMethodInnerCommon(methodName, ability, windowStage, callbacks_);
+    CallJsMethodInnerCommon(methodName, ability, windowStage, callbacksSync_);
 }
 
 void JsAbilityLifecycleCallback::OnAbilityCreate(const std::shared_ptr<NativeReference> &ability)
@@ -173,7 +151,7 @@ void JsAbilityLifecycleCallback::OnAbilityContinue(const std::shared_ptr<NativeR
 
 int32_t JsAbilityLifecycleCallback::Register(napi_value jsCallback, bool isSync)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::APPKIT, "enter");
     if (env_ == nullptr) {
         return -1;
     }
@@ -195,21 +173,63 @@ int32_t JsAbilityLifecycleCallback::Register(napi_value jsCallback, bool isSync)
 
 bool JsAbilityLifecycleCallback::UnRegister(int32_t callbackId, bool isSync)
 {
-    HILOG_INFO("UnRegister called, callbackId : %{public}d", callbackId);
+    TAG_LOGI(AAFwkTag::APPKIT, "UnRegister called, callbackId : %{public}d", callbackId);
     if (isSync) {
         auto it = callbacksSync_.find(callbackId);
         if (it == callbacksSync_.end()) {
-            HILOG_ERROR("UnRegister callbackId: %{public}d is not in callbacksSync_", callbackId);
+            TAG_LOGE(AAFwkTag::APPKIT, "UnRegister callbackId: %{public}d is not in callbacksSync_", callbackId);
             return false;
         }
         return callbacksSync_.erase(callbackId) == 1;
     }
     auto it = callbacks_.find(callbackId);
     if (it == callbacks_.end()) {
-        HILOG_ERROR("UnRegister callbackId: %{public}d is not in callbacks_", callbackId);
+        TAG_LOGE(AAFwkTag::APPKIT, "UnRegister callbackId: %{public}d is not in callbacks_", callbackId);
         return false;
     }
     return callbacks_.erase(callbackId) == 1;
+}
+
+void JsAbilityLifecycleCallback::OnNewWant(const std::shared_ptr<NativeReference> &ability)
+{
+    CallJsMethod("onNewWant", ability);
+}
+
+void JsAbilityLifecycleCallback::OnWillNewWant(const std::shared_ptr<NativeReference> &ability)
+{
+    CallJsMethod("onWillNewWant", ability);
+}
+
+void JsAbilityLifecycleCallback::OnAbilityWillCreate(const std::shared_ptr<NativeReference> &ability)
+{
+    CallJsMethod("onAbilityWillCreate", ability);
+}
+
+void JsAbilityLifecycleCallback::OnWindowStageWillCreate(const std::shared_ptr<NativeReference> &ability,
+    const std::shared_ptr<NativeReference> &windowStage)
+{
+    CallWindowStageJsMethod("onWindowStageWillCreate", ability, windowStage);
+}
+
+void JsAbilityLifecycleCallback::OnWindowStageWillDestroy(const std::shared_ptr<NativeReference> &ability,
+    const std::shared_ptr<NativeReference> &windowStage)
+{
+    CallWindowStageJsMethod("onWindowStageWillDestroy", ability, windowStage);
+}
+
+void JsAbilityLifecycleCallback::OnAbilityWillDestroy(const std::shared_ptr<NativeReference> &ability)
+{
+    CallJsMethod("onAbilityWillDestroy", ability);
+}
+
+void JsAbilityLifecycleCallback::OnAbilityWillForeground(const std::shared_ptr<NativeReference> &ability)
+{
+    CallJsMethod("onAbilityWillForeground", ability);
+}
+
+void JsAbilityLifecycleCallback::OnAbilityWillBackground(const std::shared_ptr<NativeReference> &ability)
+{
+    CallJsMethod("onAbilityWillBackground", ability);
 }
 
 bool JsAbilityLifecycleCallback::IsEmpty() const

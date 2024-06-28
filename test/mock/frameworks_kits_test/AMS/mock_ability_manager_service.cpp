@@ -74,7 +74,7 @@ int MockAbilityManagerService::StartAbility(const Want& want, const sptr<IRemote
 }
 
 int MockAbilityManagerService::StartAbilityAsCaller(const Want& want, const sptr<IRemoteObject>& callerToken,
-    int32_t userId, int requestCode)
+    sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode, bool isSendDialogResult)
 {
     return 0;
 }
@@ -107,7 +107,7 @@ int MockAbilityManagerService::ConnectAbility(
     return 0;
 }
 
-int MockAbilityManagerService::DisconnectAbility(const sptr<IAbilityConnection>& connect)
+int MockAbilityManagerService::DisconnectAbility(sptr<IAbilityConnection> connect)
 {
     GTEST_LOG_(INFO) << "MockAbilityManagerService::DisconnectAbility";
     AbilityLifeCycleState lifeState = AbilityLifeCycleState::ABILITY_STATE_ACTIVE;

@@ -315,6 +315,19 @@ private:
 
     bool callFromJs_ = false; // true: call from js, false: call from native
 };
+
+class NAPIDataAbilityHelperWrapper {
+public:
+    explicit NAPIDataAbilityHelperWrapper(std::weak_ptr<DataAbilityHelper>&& dataAbilityHelper)
+        : dataAbilityHelper_(dataAbilityHelper) {}
+    inline std::shared_ptr<DataAbilityHelper> GetDataAbilityHelper() const
+    {
+        return dataAbilityHelper_.lock();
+    }
+
+private:
+    std::weak_ptr<DataAbilityHelper> dataAbilityHelper_;
+};
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_DATA_ABILITY_HELPER_H

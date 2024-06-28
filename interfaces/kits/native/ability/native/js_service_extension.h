@@ -17,9 +17,13 @@
 #define OHOS_ABILITY_RUNTIME_JS_SERVICE_EXTENSION_H
 
 #include "configuration.h"
+#include "insight_intent_execute_param.h"
+#include "insight_intent_execute_result.h"
+#include "insight_intent_executor_info.h"
 #ifdef SUPPORT_GRAPHICS
 #include "display_manager.h"
 #include "system_ability_status_change_stub.h"
+#include "window_manager.h"
 #endif
 #include "service_extension.h"
 
@@ -124,6 +128,13 @@ public:
     virtual void OnCommand(const AAFwk::Want &want, bool restart, int startId) override;
 
     /**
+     * @brief Called back when Service is started by intent driver.
+     *
+     * @param want Indicates the want of intent to handle.
+     */
+    bool HandleInsightIntent(const AAFwk::Want &want) override;
+
+    /**
      * @brief Called when this extension enters the <b>STATE_STOP</b> state.
      *
      * The extension in the <b>STATE_STOP</b> is being destroyed.
@@ -153,7 +164,7 @@ public:
     virtual void Dump(const std::vector<std::string> &params, std::vector<std::string> &info) override;
 
 private:
-    napi_value CallObjectMethod(const char* name, napi_value const* argv = nullptr, size_t argc = 0);
+    napi_value CallObjectMethod(const char* name, napi_value const *argv = nullptr, size_t argc = 0);
 
     void BindContext(napi_env env, napi_value obj);
 
@@ -169,6 +180,12 @@ private:
 
     void ListenWMS();
 
+    bool GetInsightIntentExecutorInfo(const Want &want,
+        const std::shared_ptr<AppExecFwk::InsightIntentExecuteParam> &executeParam,
+        InsightIntentExecutorInfo &executorInfo);
+
+    bool OnInsightIntentExecuteDone(uint64_t intentId, const AppExecFwk::InsightIntentExecuteResult &result) override;
+
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;
     std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
@@ -176,36 +193,21 @@ private:
 
 #ifdef SUPPORT_GRAPHICS
 protected:
-    class JsServiceExtensionDisplayListener : public Rosen::DisplayManager::IDisplayListener {
+    class JsServiceExtensionDisplayListener : public Rosen::IDisplayInfoChangedListener {
     public:
         explicit JsServiceExtensionDisplayListener(const std::weak_ptr<JsServiceExtension>& jsServiceExtension)
         {
             jsServiceExtension_ = jsServiceExtension;
         }
 
-        void OnCreate(Rosen::DisplayId displayId) override
-        {
-            auto sptr = jsServiceExtension_.lock();
-            if (sptr != nullptr) {
-                sptr->OnCreate(displayId);
+        void OnDisplayInfoChange(const sptr<IRemoteObject>& token, Rosen::DisplayId displayId, float density,
+            Rosen::DisplayOrientation orientation) override
+            {
+                auto sptr = jsServiceExtension_.lock();
+                if (sptr != nullptr) {
+                    sptr->OnDisplayInfoChange(token, displayId, density, orientation);
+                }
             }
-        }
-
-        void OnDestroy(Rosen::DisplayId displayId) override
-        {
-            auto sptr = jsServiceExtension_.lock();
-            if (sptr != nullptr) {
-                sptr->OnDestroy(displayId);
-            }
-        }
-
-        void OnChange(Rosen::DisplayId displayId) override
-        {
-            auto sptr = jsServiceExtension_.lock();
-            if (sptr != nullptr) {
-                sptr->OnChange(displayId);
-            }
-        }
 
     private:
         std::weak_ptr<JsServiceExtension> jsServiceExtension_;
@@ -214,17 +216,20 @@ protected:
     void OnCreate(Rosen::DisplayId displayId);
     void OnDestroy(Rosen::DisplayId displayId);
     void OnChange(Rosen::DisplayId displayId);
+    void OnDisplayInfoChange(const sptr<IRemoteObject>& token, Rosen::DisplayId displayId, float density,
+        Rosen::DisplayOrientation orientation);
 
 private:
     class SystemAbilityStatusChangeListener : public OHOS::SystemAbilityStatusChangeStub {
     public:
-        SystemAbilityStatusChangeListener(sptr<JsServiceExtensionDisplayListener> displayListener)
-            : tmpDisplayListener_(displayListener) {};
+        SystemAbilityStatusChangeListener(sptr<JsServiceExtensionDisplayListener> displayListener,
+            const sptr<IRemoteObject> & token): tmpDisplayListener_(displayListener), token_(token) {};
         virtual void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
         virtual void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override {}
 
     private:
         sptr<JsServiceExtensionDisplayListener> tmpDisplayListener_ = nullptr;
+        sptr<IRemoteObject> token_ = nullptr;
     };
 
     sptr<JsServiceExtensionDisplayListener> displayListener_ = nullptr;

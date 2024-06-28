@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,47 +21,48 @@
 #include "ability_util.h"
 #include "app_scheduler.h"
 #include "connection_state_manager.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
 DataAbilityRecord::DataAbilityRecord(const AbilityRequest &req) : request_(req)
 {
-    HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
 
     if (request_.abilityInfo.type != AppExecFwk::AbilityType::DATA) {
-        HILOG_ERROR("BUG: Construct a data ability with wrong ability type.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "BUG: Construct a data ability with wrong ability type.");
     }
 }
 
 DataAbilityRecord::~DataAbilityRecord()
 {
-    HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
 }
 
 int DataAbilityRecord::StartLoading()
 {
-    HILOG_INFO("Start data ability loading...");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Start data ability loading...");
 
     if (ability_ || scheduler_) {
-        HILOG_ERROR("Data ability already started.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability already started.");
         return ERR_ALREADY_EXISTS;
     }
 
     if (request_.abilityInfo.type != AppExecFwk::AbilityType::DATA) {
-        HILOG_ERROR("Start a data ability with wrong ability type.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Start a data ability with wrong ability type.");
         return ERR_INVALID_VALUE;
     }
 
     auto ability = AbilityRecord::CreateAbilityRecord(request_);
     if (!ability) {
-        HILOG_ERROR("Failed to allocate ability for DataAbilityRecord.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Failed to allocate ability for DataAbilityRecord.");
         return ERR_NO_MEMORY;
     }
 
     int ret = ability->LoadAbility();
     if (ret != ERR_OK) {
-        HILOG_ERROR("Failed to start data ability loading.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Failed to start data ability loading.");
         return ret;
     }
 
@@ -110,35 +111,35 @@ sptr<IAbilityScheduler> DataAbilityRecord::GetScheduler()
 
 int DataAbilityRecord::Attach(const sptr<IAbilityScheduler> &scheduler)
 {
-    HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
 
     if (!scheduler) {
-        HILOG_ERROR("Attach data ability: invalid scheduler.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Attach data ability: invalid scheduler.");
         return ERR_INVALID_DATA;
     }
 
     if (!ability_) {
-        HILOG_ERROR("Data ability attach: not startloading.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability attach: not startloading.");
         return ERR_INVALID_STATE;
     }
 
     if (scheduler_) {
-        HILOG_ERROR("Attach data ability: already attached.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Attach data ability: already attached.");
         return ERR_INVALID_STATE;
     }
 
     // INITIAL => ACTIVATING
 
     if (ability_->GetAbilityState() != INITIAL) {
-        HILOG_ERROR("Attaching data ability: not in 'INITIAL' state.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Attaching data ability: not in 'INITIAL' state.");
         return ERR_INVALID_STATE;
     }
 
-    HILOG_DEBUG("Attaching data ability...");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "Attaching data ability...");
     ability_->SetScheduler(scheduler);
     scheduler_ = scheduler;
 
-    HILOG_INFO("Scheduling 'OnStart' for data ability '%{public}s|%{public}s'...",
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Scheduling 'OnStart' for data ability '%{public}s|%{public}s'...",
         ability_->GetApplicationInfo().bundleName.c_str(),
         ability_->GetAbilityInfo().name.c_str());
 
@@ -158,12 +159,12 @@ int DataAbilityRecord::OnTransitionDone(int state)
     CHECK_POINTER_AND_RETURN(scheduler_, ERR_INVALID_STATE);
 
     if (ability_->GetAbilityState() != ACTIVATING) {
-        HILOG_ERROR("Data ability on transition done: not in 'ACTIVATING' state.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability on transition done: not in 'ACTIVATING' state.");
         return ERR_INVALID_STATE;
     }
 
     if (state != AbilityLifeCycleState::ABILITY_STATE_ACTIVE) {
-        HILOG_ERROR("Data ability on transition done: not ACTIVE.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability on transition done: not ACTIVE.");
         ability_->SetAbilityState(INITIAL);
         loadedCond_.notify_all();
         return ERR_INVALID_STATE;
@@ -175,7 +176,7 @@ int DataAbilityRecord::OnTransitionDone(int state)
     ability_->SetAbilityState(ACTIVE);
     loadedCond_.notify_all();
 
-    HILOG_INFO("Data ability '%{public}s|%{public}s' is loaded.",
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Data ability '%{public}s|%{public}s' is loaded.",
         ability_->GetApplicationInfo().bundleName.c_str(),
         ability_->GetAbilityInfo().name.c_str());
 
@@ -185,27 +186,27 @@ int DataAbilityRecord::OnTransitionDone(int state)
 int DataAbilityRecord::AddClient(const sptr<IRemoteObject> &client, bool tryBind, bool isNotHap)
 {
     if (!client) {
-        HILOG_ERROR("Data ability add client: invalid param.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability add client: invalid param.");
         return ERR_INVALID_STATE;
     }
 
     if (!ability_ || !scheduler_) {
-        HILOG_ERROR("Data ability add client: not attached.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability add client: not attached.");
         return ERR_INVALID_STATE;
     }
 
     if (ability_->GetAbilityState() != ACTIVE) {
-        HILOG_ERROR("Data ability add client: not loaded.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability add client: not loaded.");
         return ERR_INVALID_STATE;
     }
 
     auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
     if (!appScheduler) {
-        HILOG_ERROR("Data ability add client: failed to get app scheduler.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability add client: failed to get app scheduler.");
         return ERR_NULL_OBJECT;
     }
 
-    HILOG_INFO("add death monitoring for data ability caller.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "add death monitoring for data ability caller.");
     if (client != nullptr && callerDeathRecipient_ != nullptr) {
         client->RemoveDeathRecipient(callerDeathRecipient_);
     }
@@ -234,32 +235,32 @@ int DataAbilityRecord::AddClient(const sptr<IRemoteObject> &client, bool tryBind
 
 int DataAbilityRecord::RemoveClient(const sptr<IRemoteObject> &client, bool isNotHap)
 {
-    HILOG_INFO("Removing data ability client...");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Removing data ability client...");
 
     if (!client) {
-        HILOG_ERROR("Data ability remove client: invalid client.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability remove client: invalid client.");
         return ERR_INVALID_STATE;
     }
 
     if (!ability_ || !scheduler_) {
-        HILOG_ERROR("Data ability remove clients: not attached.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability remove clients: not attached.");
         return ERR_INVALID_STATE;
     }
 
     if (ability_->GetAbilityState() != ACTIVE) {
-        HILOG_ERROR("Data ability remove client: not loaded.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability remove client: not loaded.");
         return ERR_INVALID_STATE;
     }
 
     if (clients_.empty()) {
-        HILOG_DEBUG("BUG: Data ability record has no clients.");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "BUG: Data ability record has no clients.");
         return ERR_OK;
     }
 
     for (auto it(clients_.begin()); it != clients_.end(); ++it) {
         if (it->client == client) {
             clients_.erase(it);
-            HILOG_INFO("Data ability '%{public}s|%{public}s'.",
+            TAG_LOGI(AAFwkTag::DATA_ABILITY, "Data ability '%{public}s|%{public}s'.",
                 ability_->GetApplicationInfo().bundleName.c_str(),
                 ability_->GetAbilityInfo().name.c_str());
             break;
@@ -271,37 +272,37 @@ int DataAbilityRecord::RemoveClient(const sptr<IRemoteObject> &client, bool isNo
 
 int DataAbilityRecord::RemoveClients(const std::shared_ptr<AbilityRecord> &client)
 {
-    HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
 
     if (!ability_ || !scheduler_) {
-        HILOG_ERROR("Data ability remove clients: not attached.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability remove clients: not attached.");
         return ERR_INVALID_STATE;
     }
 
     if (ability_->GetAbilityState() != ACTIVE) {
-        HILOG_ERROR("Data ability remove clients: not loaded.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability remove clients: not loaded.");
         return ERR_INVALID_STATE;
     }
 
     if (clients_.empty()) {
-        HILOG_DEBUG("Data ability remove clients: no clients.");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "Data ability remove clients: no clients.");
         return ERR_OK;
     }
 
     auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
     if (!appScheduler) {
-        HILOG_ERROR("Data ability remove clients: invalid app scheduler.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability remove clients: invalid app scheduler.");
         return ERR_NULL_OBJECT;
     }
 
     if (client) {
-        HILOG_DEBUG("Removing data ability clients with filter...");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "Removing data ability clients with filter...");
         auto it = clients_.begin();
         while (it != clients_.end()) {
             if (!it->isNotHap) {
                 auto clientAbilityRecord = Token::GetAbilityRecordByToken(it->client);
                 if (!clientAbilityRecord) {
-                    HILOG_ERROR("clientAbilityRecord is nullptr, continue.");
+                    TAG_LOGE(AAFwkTag::DATA_ABILITY, "clientAbilityRecord is nullptr, continue.");
                     ++it;
                     continue;
                 }
@@ -309,7 +310,8 @@ int DataAbilityRecord::RemoveClients(const std::shared_ptr<AbilityRecord> &clien
                     appScheduler->AbilityBehaviorAnalysis(
                         ability_->GetToken(), clientAbilityRecord->GetToken(), 0, 0, 0);
                     it = clients_.erase(it);
-                    HILOG_INFO("Ability '%{public}s|%{public}s' --X-> Data ability '%{public}s|%{public}s'.",
+                    TAG_LOGI(AAFwkTag::DATA_ABILITY,
+                        "Ability '%{public}s|%{public}s' --X-> Data ability '%{public}s|%{public}s'.",
                         client->GetApplicationInfo().bundleName.c_str(),
                         client->GetAbilityInfo().name.c_str(),
                         ability_->GetApplicationInfo().bundleName.c_str(),
@@ -322,13 +324,13 @@ int DataAbilityRecord::RemoveClients(const std::shared_ptr<AbilityRecord> &clien
             }
         }
     } else {
-        HILOG_DEBUG("Removing data ability clients...");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "Removing data ability clients...");
         auto it = clients_.begin();
         while (it != clients_.end()) {
             if (!it->isNotHap) {
                 auto clientAbilityRecord = Token::GetAbilityRecordByToken(it->client);
                 if (!clientAbilityRecord) {
-                    HILOG_DEBUG("clientAbilityRecord is null,clear record");
+                    TAG_LOGD(AAFwkTag::DATA_ABILITY, "clientAbilityRecord is null,clear record");
                     it = clients_.erase(it);
                     continue;
                 }
@@ -349,7 +351,7 @@ size_t DataAbilityRecord::GetClientCount(const sptr<IRemoteObject> &client) cons
     CHECK_POINTER_AND_RETURN(scheduler_, 0);
 
     if (ability_->GetAbilityState() != ACTIVE) {
-        HILOG_ERROR("Data ability get client count: not loaded.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability get client count: not loaded.");
         return 0;
     }
 
@@ -367,13 +369,13 @@ int DataAbilityRecord::KillBoundClientProcesses()
     CHECK_POINTER_AND_RETURN(scheduler_, ERR_INVALID_STATE);
 
     if (ability_->GetAbilityState() != ACTIVE) {
-        HILOG_ERROR("Data ability kill bound clients: not loaded.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability kill bound clients: not loaded.");
         return ERR_INVALID_STATE;
     }
 
     auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
     if (!appScheduler) {
-        HILOG_ERROR("Data ability kill bound clients: invalid app scheduler.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability kill bound clients: invalid app scheduler.");
         return ERR_INVALID_STATE;
     }
 
@@ -381,7 +383,8 @@ int DataAbilityRecord::KillBoundClientProcesses()
         if (it->tryBind && it->isNotHap == false) {
             auto clientAbilityRecord = Token::GetAbilityRecordByToken(it->client);
             CHECK_POINTER_CONTINUE(clientAbilityRecord);
-            HILOG_INFO("Killing bound client '%{public}s|%{public}s' of data ability '%{public}s|%{public}s'...",
+            TAG_LOGI(AAFwkTag::DATA_ABILITY,
+                "Killing bound client '%{public}s|%{public}s' of data ability '%{public}s|%{public}s'...",
                 clientAbilityRecord->GetApplicationInfo().bundleName.c_str(),
                 clientAbilityRecord->GetAbilityInfo().name.c_str(),
                 ability_->GetApplicationInfo().bundleName.c_str(),
@@ -416,7 +419,8 @@ void DataAbilityRecord::Dump() const
 {
     CHECK_POINTER(ability_);
 
-    HILOG_INFO("attached: %{public}s, clients: %{public}zu, refcnt: %{public}d, state: %{public}s",
+    TAG_LOGI(AAFwkTag::DATA_ABILITY,
+        "attached: %{public}s, clients: %{public}zu, refcnt: %{public}d, state: %{public}s",
         scheduler_ ? "true" : "false",
         clients_.size(),
         scheduler_ ? scheduler_->GetSptrRefCount() : 0,
@@ -428,13 +432,13 @@ void DataAbilityRecord::Dump() const
         if (it->isNotHap == false) {
             auto clientAbilityRecord = Token::GetAbilityRecordByToken(it->client);
             CHECK_POINTER_CONTINUE(clientAbilityRecord);
-            HILOG_INFO("  %{public}2d '%{public}s|%{public}s' - tryBind: %{public}s",
+            TAG_LOGI(AAFwkTag::DATA_ABILITY, "  %{public}2d '%{public}s|%{public}s' - tryBind: %{public}s",
                 i++,
                 clientAbilityRecord->GetApplicationInfo().bundleName.c_str(),
                 clientAbilityRecord->GetAbilityInfo().name.c_str(),
                 it->tryBind ? "true" : "false");
         } else {
-            HILOG_INFO("  %{public}2d '%{public}s' - tryBind: %{public}s",
+            TAG_LOGI(AAFwkTag::DATA_ABILITY, "  %{public}2d '%{public}s' - tryBind: %{public}s",
                 i++,
                 "caller is system",
                 it->tryBind ? "true" : "false");
@@ -472,18 +476,18 @@ void DataAbilityRecord::Dump(std::vector<std::string> &info) const
 
 void DataAbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_INFO("'%{public}s':", __func__);
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "'%{public}s':", __func__);
     auto object = remote.promote();
     DelayedSingleton<ConnectionStateManager>::GetInstance()->HandleDataAbilityCallerDied(GetDiedCallerPid(object));
 
     if (clients_.empty()) {
-        HILOG_DEBUG("BUG: Data ability record has no clients.");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "BUG: Data ability record has no clients.");
         return;
     }
 
     auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
     if (!appScheduler) {
-        HILOG_ERROR("Data ability remove clients: invalid app scheduler.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability remove clients: invalid app scheduler.");
         return;
     }
 
@@ -491,9 +495,9 @@ void DataAbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
         auto it = clients_.begin();
         while (it != clients_.end()) {
             if (it->client == object) {
-                HILOG_DEBUG("remove system caller record with filter...");
+                TAG_LOGD(AAFwkTag::DATA_ABILITY, "remove system caller record with filter...");
                 it = clients_.erase(it);
-                HILOG_INFO("Data ability '%{public}s|%{public}s'.",
+                TAG_LOGI(AAFwkTag::DATA_ABILITY, "Data ability '%{public}s|%{public}s'.",
                     ability_->GetApplicationInfo().bundleName.c_str(),
                     ability_->GetAbilityInfo().name.c_str());
             } else {
@@ -504,9 +508,9 @@ void DataAbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
         auto it = clients_.begin();
         while (it != clients_.end()) {
             if (it->isNotHap) {
-                HILOG_DEBUG("remove system caller record...");
+                TAG_LOGD(AAFwkTag::DATA_ABILITY, "remove system caller record...");
                 it = clients_.erase(it);
-                HILOG_INFO("Data ability '%{public}s|%{public}s'.",
+                TAG_LOGI(AAFwkTag::DATA_ABILITY, "Data ability '%{public}s|%{public}s'.",
                     ability_->GetApplicationInfo().bundleName.c_str(),
                     ability_->GetAbilityInfo().name.c_str());
             } else {

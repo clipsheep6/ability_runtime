@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "atomic_service_status_callback_stub.h"
 
 #include "ability_manager_interface.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
@@ -38,7 +39,7 @@ int AtomicServiceStatusCallbackStub::OnInstallFinishedInner(MessageParcel &data,
     auto resultCode = data.ReadInt32();
     std::unique_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
     if (want == nullptr) {
-        HILOG_ERROR("AtomicServiceStatusCallbackStub want is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AtomicServiceStatusCallbackStub want is nullptr");
         return ERR_INVALID_VALUE;
     }
 
@@ -52,7 +53,7 @@ int AtomicServiceStatusCallbackStub::OnRemoteInstallFinishedInner(MessageParcel 
     auto resultCode = data.ReadInt32();
     std::unique_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
     if (want == nullptr) {
-        HILOG_ERROR("AtomicServiceStatusCallbackStub want is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AtomicServiceStatusCallbackStub want is nullptr");
         return ERR_INVALID_VALUE;
     }
 
@@ -66,7 +67,7 @@ int AtomicServiceStatusCallbackStub::OnRemoveTimeoutTaskInner(MessageParcel &dat
 {
     std::unique_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
     if (want == nullptr) {
-        HILOG_ERROR("AtomicServiceStatusCallbackStub want is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AtomicServiceStatusCallbackStub want is nullptr.");
         return ERR_INVALID_VALUE;
     }
 
@@ -80,7 +81,7 @@ int AtomicServiceStatusCallbackStub::OnRemoteRequest(
     std::u16string descriptor = AtomicServiceStatusCallbackStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_ERROR("Local descriptor is not equal to remote");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
 

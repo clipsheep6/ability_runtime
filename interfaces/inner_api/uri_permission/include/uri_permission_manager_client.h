@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -35,10 +35,9 @@ public:
      * @param uri The file uri.
      * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
      * @param targetBundleName The user of uri.
-     * @param autoremove the uri is temperarily or not
      */
-    int GrantUriPermission(const Uri &uri, unsigned int flag,
-        const std::string targetBundleName, int autoremove, int32_t appIndex = 0);
+    int GrantUriPermission(const Uri &uri, unsigned int flag, const std::string targetBundleName, int32_t appIndex = 0,
+        uint32_t initiatorTokenId = 0, int32_t abilityId = -1);
 
     /**
      * @brief Authorize the uri permission of to targetBundleName.
@@ -46,41 +45,45 @@ public:
      * @param uriVec The file uri list.
      * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
      * @param targetBundleName The user of uri.
-     * @param autoremove the uri is temperarily or not
      */
-    int GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
-        const std::string targetBundleName, int autoremove, int32_t appIndex = 0);
+    int GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag, const std::string targetBundleName,
+        int32_t appIndex = 0, uint32_t initiatorTokenId = 0, int32_t abilityId = -1);
+
+    /**
+     * @brief Authorize the uri permission to targetBundleName.
+     *
+     * @param uriVec The file urilist.
+     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
+     * @param targetBundleName The user of uri.
+     * @param appIndex The index of application in sandbox.
+     * @return Returns ERR_OK if the authorization is successful, otherwise returns error code.
+     */
+    int32_t GrantUriPermissionPrivileged(const std::vector<Uri> &uriVec, uint32_t flag,
+        const std::string &targetBundleName, int32_t appIndex = 0);
 
     /**
      * @brief Clear user's uri authorization record with auto remove flag.
      *
      * @param tokenId A tokenId of an application.
+     * @param abilityId The abilityId of an ability record.
      */
-    void RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId);
+    void RevokeUriPermission(const uint32_t tokenId, int32_t abilityId = -1);
 
     /**
      * @brief Clear user's all uri authorization record with auto remove flag.
      *
      * @param tokenId A tokenId of an application.
      */
-    int RevokeAllUriPermissions(const Security::AccessToken::AccessTokenID tokenId);
+    int RevokeAllUriPermissions(const uint32_t tokenId);
 
     /**
      * @brief Clear user's uri authorization record.
      *
      * @param uri The file uri.
      * @param BundleName A BundleName of an application.
+     * @param appIndex The index of application in sandbox.
      */
-    int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName);
-
-    /**
-     * @brief check if caller can grant persistable uri permission
-     *
-     * @param uri The file uri.
-     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
-     * @param tokenId A tokenId of an application.
-     */
-    bool CheckPersistableUriPermissionProxy(const Uri& uri, uint32_t flag, uint32_t tokenId);
+    int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName, int32_t appIndex = 0);
 
     /**
      * @brief verify if tokenId have uri permission of flag, including temporary permission and persistable permission
@@ -90,6 +93,15 @@ public:
      * @param tokenId A tokenId of an application.
      */
     bool VerifyUriPermission(const Uri& uri, uint32_t flag, uint32_t tokenId);
+
+    /**
+     * @brief verify if tokenId have uri permission of flag.
+     *
+     * @param uri The file uri.
+     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
+     * @param tokenId A tokenId of an application.
+     */
+    std::vector<bool> CheckUriAuthorization(const std::vector<std::string> &uriVec, uint32_t flag, uint32_t tokenId);
 
     void OnLoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject);
     void OnLoadSystemAbilityFail();

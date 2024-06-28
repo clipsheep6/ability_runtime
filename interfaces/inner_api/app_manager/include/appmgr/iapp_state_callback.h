@@ -21,6 +21,13 @@
 
 #include "app_mgr_constants.h"
 #include "app_process_data.h"
+#include "bundle_info.h"
+
+namespace OHOS {
+namespace AppExecFwk {
+    class Configuration;
+}
+}
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -43,9 +50,31 @@ public:
      */
     virtual void OnAbilityRequestDone(const sptr<IRemoteObject> &token, const AbilityState state) = 0;
 
+    /**
+     * @brief Notify application update system environment changes.
+     * @param config System environment change parameters.
+     * @param userId userId Designation User ID.
+     */
+    virtual void NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId) {}
+
+    /**
+     * @brief Notify abilityms start resident process.
+     * @param bundleInfos resident process bundle infos.
+     */
+    virtual void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos) {}
+
+    /**
+     * @brief Notify abilityms app process OnRemoteDied
+     * @param abilityTokens abilities in died process.
+     */
+    virtual void OnAppRemoteDied(const std::vector<sptr<IRemoteObject>> &abilityTokens) {}
+
     enum class Message {
         TRANSACT_ON_APP_STATE_CHANGED = 0,
         TRANSACT_ON_ABILITY_REQUEST_DONE,
+        TRANSACT_ON_NOTIFY_CONFIG_CHANGE,
+        TRANSACT_ON_NOTIFY_START_RESIDENT_PROCESS,
+        TRANSACT_ON_APP_REMOTE_DIED
     };
 };
 }  // namespace AppExecFwk

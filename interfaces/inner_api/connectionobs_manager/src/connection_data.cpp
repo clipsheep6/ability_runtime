@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "connection_data.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "string_ex.h"
 
@@ -95,17 +96,17 @@ bool ConnectionData::ReadFromParcel(Parcel &parcel)
     extensionType = static_cast<ExtensionAbilityType>(type);
 
     if (!parcel.ReadInt32(callerUid)) {
-        HILOG_WARN("ConnectionData::ReadFromParcel read callerUid failed");
+        TAG_LOGW(AAFwkTag::CONNECTION, "ConnectionData::ReadFromParcel read callerUid failed");
         return false;
     }
 
     if (!parcel.ReadInt32(callerPid)) {
-        HILOG_WARN("ConnectionData::ReadFromParcel read callerPid failed");
+        TAG_LOGW(AAFwkTag::CONNECTION, "ConnectionData::ReadFromParcel read callerPid failed");
         return false;
     }
 
     if (!parcel.ReadString16(strValue)) {
-        HILOG_WARN("ConnectionData::ReadFromParcel read strValue failed");
+        TAG_LOGW(AAFwkTag::CONNECTION, "ConnectionData::ReadFromParcel read strValue failed");
         return false;
     }
     callerName = Str16ToStr8(strValue);

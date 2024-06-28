@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "json_serializer.h"
 #include "module_profile.h"
@@ -33,7 +34,7 @@ void BundleContainer::LoadBundleInfos(const std::vector<uint8_t> &buffer)
 {
     bundleInfo_ = std::make_shared<InnerBundleInfo>();
     if (!bundleInfo_) {
-        HILOG_DEBUG("bundleInfo_ is nullptr");
+        TAG_LOGD(AAFwkTag::ABILITY_SIM, "bundleInfo_ is nullptr");
         return;
     }
 
@@ -56,7 +57,8 @@ std::shared_ptr<HapModuleInfo> BundleContainer::GetHapModuleInfo(const std::stri
 {
     if (bundleInfo_ != nullptr) {
         auto uid = Constants::UNSPECIFIED_USERID;
-        HILOG_INFO("BundleContainer GetHapModuleInfo by modulePackage %{public}s", modulePackage.c_str());
+        TAG_LOGI(AAFwkTag::ABILITY_SIM,
+            "BundleContainer GetHapModuleInfo by modulePackage %{public}s", modulePackage.c_str());
         std::optional<HapModuleInfo> hapMouduleInfo = bundleInfo_->FindHapModuleInfo(modulePackage, uid);
         if (hapMouduleInfo) {
             auto hapInfo = std::make_shared<HapModuleInfo>();

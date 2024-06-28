@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,8 @@
 #include <unistd.h>
 
 #include "child_process_manager.h"
+#include "child_process_manager_error_utils.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_error_utils.h"
 #include "js_runtime_utils.h"
@@ -32,6 +34,7 @@ constexpr size_t ARGC_TWO = 2;
 
 enum {
     MODE_SELF_FORK = 0,
+    MODE_APP_SPAWN_FORK = 1,
 };
 }
 
@@ -42,7 +45,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        HILOG_INFO("%{public}s::Finalizer is called", PROCESS_MANAGER_NAME);
+        TAG_LOGI(AAFwkTag::PROCESSMGR, "%{public}s::Finalizer is called", PROCESS_MANAGER_NAME);
         std::unique_ptr<JsChildProcessManager>(static_cast<JsChildProcessManager*>(data));
     }
 
@@ -54,46 +57,41 @@ public:
 private:
     napi_value OnStartChildProcess(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
-        AbilityErrorCode errCode = preCheck();
-        if (errCode != AbilityErrorCode::ERROR_OK) {
-            ThrowError(env, errCode);
+        TAG_LOGI(AAFwkTag::PROCESSMGR, "called.");
+        if (ChildProcessManager::GetInstance().IsChildProcess()) {
+            TAG_LOGE(AAFwkTag::PROCESSMGR, "Already in child process");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED);
             return CreateJsUndefined(env);
         }
         if (argc < ARGC_TWO) {
-            HILOG_ERROR("Not enough params");
+            TAG_LOGE(AAFwkTag::PROCESSMGR, "Not enough params");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         std::string srcEntry;
         int32_t startMode;
         if (!ConvertFromJsValue(env, argv[0], srcEntry)) {
-            HILOG_ERROR("Parse param srcEntry failed");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            TAG_LOGE(AAFwkTag::PROCESSMGR, "Parse param srcEntry failed");
+            ThrowInvalidParamError(env, "Parse param srcEntry failed, must be a valid string.");
             return CreateJsUndefined(env);
         }
         if (!ConvertFromJsValue(env, argv[1], startMode)) {
-            HILOG_ERROR("Parse param startMode failed");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            TAG_LOGE(AAFwkTag::PROCESSMGR, "Parse param startMode failed");
+            ThrowInvalidParamError(env,
+                "Unsupported startMode, must be StartMode.SELF_FORK or StartMode.APP_SPAWN_FORK.");
             return CreateJsUndefined(env);
         }
-        HILOG_DEBUG("StartMode: %{public}d", startMode);
-
+        TAG_LOGD(AAFwkTag::PROCESSMGR, "StartMode: %{public}d", startMode);
+        if (startMode != MODE_SELF_FORK && startMode != MODE_APP_SPAWN_FORK) {
+            TAG_LOGE(AAFwkTag::PROCESSMGR, "Not supported StartMode");
+            ThrowInvalidParamError(env,
+                "Unsupported startMode, must be StartMode.SELF_FORK or StartMode.APP_SPAWN_FORK.");
+            return CreateJsUndefined(env);
+        }
         NapiAsyncTask::CompleteCallback complete = [srcEntry, startMode](napi_env env, NapiAsyncTask &task,
                                                                          int32_t status) {
-            switch (startMode) {
-                case MODE_SELF_FORK: {
-                    SelfForkProcess(env, task, srcEntry);
-                    break;
-                }
-                default: {
-                    HILOG_ERROR("Not supported StartMode");
-                    task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
-                    break;
-                }
-            }
+            ForkProcess(env, task, srcEntry, startMode);
         };
-
         napi_value lastParam = (argc <= ARGC_TWO) ? nullptr : argv[ARGC_TWO];
         napi_value result = nullptr;
         NapiAsyncTask::Schedule("JsChildProcessManager::OnStartChildProcess",
@@ -101,36 +99,42 @@ private:
         return result;
     }
 
-    AbilityErrorCode preCheck()
+    static void ForkProcess(napi_env env, NapiAsyncTask &task, const std::string &srcEntry, const int32_t startMode)
     {
-        auto &mgr = ChildProcessManager::GetInstance();
-        if (!mgr.MultiProcessModelEnabled()) {
-            HILOG_ERROR("Starting child process is not supported");
-            return AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED;
+        TAG_LOGD(AAFwkTag::PROCESSMGR, "called.");
+        pid_t pid = 0;
+        ChildProcessManagerErrorCode errorCode;
+        switch (startMode) {
+            case MODE_SELF_FORK: {
+                errorCode = ChildProcessManager::GetInstance().StartChildProcessBySelfFork(srcEntry, pid);
+                break;
+            }
+            case MODE_APP_SPAWN_FORK: {
+                errorCode = ChildProcessManager::GetInstance().StartChildProcessByAppSpawnFork(srcEntry, pid);
+                break;
+            }
+            default: {
+                TAG_LOGE(AAFwkTag::PROCESSMGR, "Not supported StartMode");
+                task.Reject(env, CreateInvalidParamJsError(env,
+                    "Unsupported startMode,must be StartMode.SELF_FORK or StartMode.APP_SPAWN_FORK."));
+                return;
+            }
         }
-        if (mgr.IsChildProcess()) {
-            HILOG_ERROR("Starting child process in child process is not supported");
-            return AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED;
-        }
-        return AbilityErrorCode::ERROR_OK;
-    }
-
-    static void SelfForkProcess(napi_env env, NapiAsyncTask &task, const std::string &srcEntry)
-    {
-        pid_t pid = ChildProcessManager::GetInstance().StartChildProcessBySelfFork(srcEntry);
-        if (pid >= 0) {
+        TAG_LOGD(
+            AAFwkTag::PROCESSMGR, "ChildProcessManager start resultCode: %{public}d, pid:%{public}d", errorCode, pid);
+        if (errorCode == ChildProcessManagerErrorCode::ERR_OK) {
             task.ResolveWithNoError(env, CreateJsValue(env, pid));
         } else {
-            task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+            task.Reject(env, CreateJsError(env, ChildProcessManagerErrorUtil::GetAbilityErrorCode(errorCode)));
         }
     }
 };
 
 napi_value JsChildProcessManagerInit(napi_env env, napi_value exportObj)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::PROCESSMGR, "called.");
     if (env == nullptr || exportObj == nullptr) {
-        HILOG_ERROR("Invalid input params");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Invalid input params");
         return nullptr;
     }
 

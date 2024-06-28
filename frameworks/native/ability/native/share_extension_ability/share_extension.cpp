@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "share_extension.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_share_extension.h"
 #include "runtime.h"
@@ -24,7 +25,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 ShareExtension *ShareExtension::Create(const std::unique_ptr<Runtime> &runtime)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::SHARE_EXT, "called.");
     if (!runtime) {
         return new ShareExtension();
     }
@@ -34,14 +35,6 @@ ShareExtension *ShareExtension::Create(const std::unique_ptr<Runtime> &runtime)
         default:
             return new ShareExtension();
     }
-}
-
-void ShareExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
-    const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
-    const sptr<IRemoteObject> &token)
-{
-    HILOG_DEBUG("called.");
-    ExtensionBase<UIExtensionContext>::Init(record, application, handler, token);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

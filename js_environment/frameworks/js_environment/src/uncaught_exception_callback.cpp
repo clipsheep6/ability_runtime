@@ -15,16 +15,24 @@
 #include "uncaught_exception_callback.h"
 
 #include <string>
+#include <sstream>
 
-#include "js_env_logger.h"
+#include "hilog_tag_wrapper.h"
+#include "hilog_wrapper.h"
 #include "native_engine/native_engine.h"
+#ifdef SUPPORT_GRAPHICS
+#include "ui_content.h"
+#endif // SUPPORT_GRAPHICS
+#include "unwinder.h"
 
 namespace OHOS {
 namespace JsEnv {
+constexpr char BACKTRACE[] = "=====================Backtrace========================";
+
 std::string NapiUncaughtExceptionCallback::GetNativeStrFromJsTaggedObj(napi_value obj, const char* key)
 {
     if (obj == nullptr) {
-        JSENV_LOG_E("Failed to get value from key.");
+        TAG_LOGE(AAFwkTag::JSENV, "Failed to get value from key.");
         return "";
     }
 
@@ -33,7 +41,7 @@ std::string NapiUncaughtExceptionCallback::GetNativeStrFromJsTaggedObj(napi_valu
     napi_valuetype valueType = napi_undefined;
     napi_typeof(env_, valueStr, &valueType);
     if (valueType != napi_string) {
-        JSENV_LOG_E("Failed to convert value from key.");
+        TAG_LOGE(AAFwkTag::JSENV, "Failed to convert value from key.");
         return "";
     }
 
@@ -43,7 +51,7 @@ std::string NapiUncaughtExceptionCallback::GetNativeStrFromJsTaggedObj(napi_valu
     size_t valueStrLength = 0;
     napi_get_value_string_utf8(env_, valueStr, valueCStr.get(), valueStrBufLength + 1, &valueStrLength);
     std::string ret(valueCStr.get(), valueStrLength);
-    JSENV_LOG_D("GetNativeStrFromJsTaggedObj Success.");
+    TAG_LOGD(AAFwkTag::JSENV, "GetNativeStrFromJsTaggedObj Success.");
     return ret;
 }
 
@@ -52,7 +60,9 @@ void NapiUncaughtExceptionCallback::operator()(napi_value obj)
     std::string errorMsg = GetNativeStrFromJsTaggedObj(obj, "message");
     std::string errorName = GetNativeStrFromJsTaggedObj(obj, "name");
     std::string errorStack = GetNativeStrFromJsTaggedObj(obj, "stack");
-    std::string summary = "Error message:" + errorMsg + "\n";
+    std::string topStack = GetNativeStrFromJsTaggedObj(obj, "topstack");
+    std::string summary = "Error name:" + errorName + "\n";
+    summary += "Error message:" + errorMsg + "\n";
     const JsEnv::ErrorObject errorObj = {
         .name = errorName,
         .message = errorMsg,
@@ -65,10 +75,10 @@ void NapiUncaughtExceptionCallback::operator()(napi_value obj)
         summary += "Error code:" + errorCode + "\n";
     }
     if (errorStack.empty()) {
-        JSENV_LOG_E("errorStack is empty");
+        TAG_LOGE(AAFwkTag::JSENV, "errorStack is empty");
         return;
     }
-    auto errorPos = SourceMap::GetErrorPos(errorStack);
+    auto errorPos = SourceMap::GetErrorPos(topStack);
     std::string error;
     if (obj != nullptr) {
         napi_value fuc = nullptr;
@@ -79,14 +89,42 @@ void NapiUncaughtExceptionCallback::operator()(napi_value obj)
             error = reinterpret_cast<NativeEngine*>(env_)->GetSourceCodeInfo(fuc, errorPos);
         }
     }
-    if (sourceMapOperator_ == nullptr) {
-        JSENV_LOG_E("sourceMapOperator_ is empty");
-        return;
+    if (errorStack.find(BACKTRACE) != std::string::npos) {
+        summary += error + "Stacktrace:\n" + GetBuildId(errorStack);
+    } else {
+        summary += error + "Stacktrace:\n" + errorStack;
     }
-    summary += error + "Stacktrace:\n" + sourceMapOperator_->TranslateBySourceMap(errorStack);
+#ifdef SUPPORT_GRAPHICS
+    std::string str = Ace::UIContent::GetCurrentUIStackInfo();
+    if (!str.empty()) {
+        summary.append(str);
+    }
+#endif // SUPPORT_GRAPHICS
     if (uncaughtTask_) {
         uncaughtTask_(summary, errorObj);
     }
+}
+
+std::string NapiUncaughtExceptionCallback::GetBuildId(std::string nativeStack)
+{
+    std::stringstream ss(nativeStack);
+    std::string tempStr;
+    std::string addBuildId;
+    int i = 0;
+    while (std::getline(ss, tempStr)) {
+        auto spitlPos = tempStr.rfind(" ");
+        if (spitlPos != std::string::npos) {
+            auto elfFile = std::make_shared<HiviewDFX::DfxElf>(tempStr.substr(spitlPos + 1));
+            std::string buildId = elfFile->GetBuildId();
+            if (i != 0 && !buildId.empty()) {
+                addBuildId += tempStr + "(" + buildId + ")" + "\n";
+            } else {
+                addBuildId += tempStr + "\n";
+            }
+        }
+        i++;
+    }
+    return addBuildId;
 }
 } // namespace JsEnv
 } // namespace OHOS

@@ -134,18 +134,6 @@ HWTEST_F(PermissionVerificationTest, CheckCallAbilityPermission_0100, TestSize.L
 }
 
 /**
- * @tc.name: IsGatewayCall_0100
- * @tc.desc: IsGatewayCall Test
- * @tc.type: FUNC
- * @tc.require: issueI65DZW
- */
-HWTEST_F(PermissionVerificationTest, IsGatewayCall_0100, TestSize.Level0)
-{
-    bool result = AAFwk::PermissionVerification::GetInstance()->IsGatewayCall();
-    EXPECT_FALSE(result);
-}
-
-/**
  * @tc.name: CheckSpecificSystemAbilityAccessPermission_0100
  * @tc.desc: CheckSpecificSystemAbilityAccessPermission Test
  * @tc.type: FUNC
@@ -153,7 +141,8 @@ HWTEST_F(PermissionVerificationTest, IsGatewayCall_0100, TestSize.Level0)
  */
 HWTEST_F(PermissionVerificationTest, CheckSpecificSystemAbilityAccessPermission_0100, TestSize.Level0)
 {
-    bool result = AAFwk::PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission();
+    std::string processName;
+    bool result = AAFwk::PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission(processName);
     EXPECT_FALSE(result);
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include "common_func.h"
 #include "configuration_convertor.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
@@ -29,7 +30,7 @@ napi_value CreateJsWantObject(napi_env env, const AAFwk::Want& want)
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
-        HILOG_ERROR("Native object is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Native object is nullptr.");
         return nullptr;
     }
     napi_set_named_property(env, object, "deviceId", CreateJsValue(env, want.GetOperation().GetDeviceId()));
@@ -48,7 +49,7 @@ napi_value CreateJsAbilityInfo(napi_env env, const AppExecFwk::AbilityInfo& abil
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
-        HILOG_ERROR("Create object failed.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Create object failed.");
         return nullptr;
     }
     AppExecFwk::CommonFunc::ConvertAbilityInfo(env, abilityInfo, object);
@@ -60,7 +61,7 @@ napi_value CreateJsApplicationInfo(napi_env env, const AppExecFwk::ApplicationIn
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
-        HILOG_ERROR("Create object failed.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Create object failed.");
         return nullptr;
     }
     AppExecFwk::CommonFunc::ConvertApplicationInfo(env, object, applicationInfo);
@@ -72,11 +73,12 @@ napi_value CreateJsLaunchParam(napi_env env, const AAFwk::LaunchParam& launchPar
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
-        HILOG_ERROR("Native object is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Native object is nullptr.");
         return nullptr;
     }
     napi_set_named_property(env, object, "launchReason", CreateJsValue(env, launchParam.launchReason));
     napi_set_named_property(env, object, "lastExitReason", CreateJsValue(env, launchParam.lastExitReason));
+    napi_set_named_property(env, object, "lastExitMessage", CreateJsValue(env, launchParam.lastExitMessage));
     return object;
 }
 
@@ -85,7 +87,7 @@ napi_value CreateJsConfiguration(napi_env env, const AppExecFwk::Configuration& 
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
-        HILOG_ERROR("Native object is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Native object is nullptr.");
         return nullptr;
     }
 
@@ -93,6 +95,9 @@ napi_value CreateJsConfiguration(napi_env env, const AppExecFwk::Configuration& 
         configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE)));
     napi_set_named_property(env, object, "colorMode", CreateJsValue(env,
         ConvertColorMode(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE))));
+    
+    napi_set_named_property(env, object, "time24", CreateJsValue(env,
+        ConvertTimeFormat(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_HOUR))));
 
     int32_t displayId = ConvertDisplayId(configuration.GetItem(ConfigurationInner::APPLICATION_DISPLAYID));
     std::string direction = configuration.GetItem(displayId, ConfigurationInner::APPLICATION_DIRECTION);
@@ -105,16 +110,24 @@ napi_value CreateJsConfiguration(napi_env env, const AppExecFwk::Configuration& 
     std::string hasPointerDevice = configuration.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
     napi_set_named_property(env, object, "hasPointerDevice",
         CreateJsValue(env, hasPointerDevice == "true" ? true : false));
+
+    std::string fontSizeScale = configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_SIZE_SCALE);
+    napi_set_named_property(env, object, "fontSizeScale",
+        CreateJsValue(env, fontSizeScale == "" ? 1.0 : std::stod(fontSizeScale)));
+
+    std::string fontWeightScale = configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_WEIGHT_SCALE);
+    napi_set_named_property(env, object, "fontWeightScale",
+        CreateJsValue(env, fontWeightScale == "" ? 1.0 : std::stod(fontWeightScale)));
     return object;
 }
 
 napi_value CreateJsExtensionAbilityInfo(napi_env env, const AppExecFwk::ExtensionAbilityInfo& info)
 {
-    HILOG_DEBUG("CreateJsExtensionAbilityInfo begin");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "CreateJsExtensionAbilityInfo begin");
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
-        HILOG_ERROR("Create object failed.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Create object failed.");
         return nullptr;
     }
     AppExecFwk::CommonFunc::ConvertExtensionInfo(env, info, object);
@@ -126,48 +139,11 @@ napi_value CreateJsHapModuleInfo(napi_env env, const AppExecFwk::HapModuleInfo& 
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
-        HILOG_ERROR("Create object failed.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Create object failed.");
         return nullptr;
     }
     AppExecFwk::CommonFunc::ConvertHapModuleInfo(env, hapModuleInfo, object);
     return object;
-}
-
-// to do
-NativeValue* CreateJsWantObject(NativeEngine& engine, const AAFwk::Want& want)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsWantObject(reinterpret_cast<napi_env>(&engine), want));
-}
-
-NativeValue* CreateJsAbilityInfo(NativeEngine& engine, const AppExecFwk::AbilityInfo& abilityInfo)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsAbilityInfo(reinterpret_cast<napi_env>(&engine), abilityInfo));
-}
-
-NativeValue* CreateJsApplicationInfo(NativeEngine& engine, const AppExecFwk::ApplicationInfo &applicationInfo)
-{
-    return reinterpret_cast<NativeValue*>(
-        CreateJsApplicationInfo(reinterpret_cast<napi_env>(&engine), applicationInfo));
-}
-
-NativeValue* CreateJsLaunchParam(NativeEngine& engine, const AAFwk::LaunchParam& launchParam)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsLaunchParam(reinterpret_cast<napi_env>(&engine), launchParam));
-}
-
-NativeValue* CreateJsConfiguration(NativeEngine& engine, const AppExecFwk::Configuration& configuration)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsConfiguration(reinterpret_cast<napi_env>(&engine), configuration));
-}
-
-NativeValue* CreateJsExtensionAbilityInfo(NativeEngine& engine, const AppExecFwk::ExtensionAbilityInfo& info)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsExtensionAbilityInfo(reinterpret_cast<napi_env>(&engine), info));
-}
-
-NativeValue* CreateJsHapModuleInfo(NativeEngine& engine, const AppExecFwk::HapModuleInfo& hapModuleInfo)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsHapModuleInfo(reinterpret_cast<napi_env>(&engine), hapModuleInfo));
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

@@ -22,6 +22,7 @@
 #include "ability_lifecycle_callback.h"
 #include "application_context.h"
 #include "application_state_change_callback.h"
+#include "js_ability_auto_startup_callback.h"
 #include "native_engine/native_engine.h"
 #include "running_process_info.h"
 
@@ -55,6 +56,11 @@ public:
     static napi_value SwitchArea(napi_env env, napi_callback_info info);
     static napi_value GetArea(napi_env env, napi_callback_info info);
     static napi_value CreateModuleContext(napi_env env, napi_callback_info info);
+    static napi_value CreateSystemHspModuleResourceManager(napi_env env, napi_callback_info info);
+    static napi_value CreateModuleResourceManager(napi_env env, napi_callback_info info);
+    static napi_value SetAutoStartup(napi_env env, napi_callback_info info);
+    static napi_value CancelAutoStartup(napi_env env, napi_callback_info info);
+    static napi_value IsAutoStartup(napi_env env, napi_callback_info info);
 
     napi_value OnRegisterAbilityLifecycleCallback(napi_env env, NapiCallbackInfo& info);
     napi_value OnUnregisterAbilityLifecycleCallback(napi_env env, NapiCallbackInfo& info);
@@ -76,40 +82,58 @@ public:
 
     napi_value OnGetCacheDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetTempDir(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetResourceDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetFilesDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetDistributedFilesDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetDatabaseDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetPreferencesDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetGroupDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetBundleCodeDir(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetCloudFileDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnKillProcessBySelf(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetRunningProcessInformation(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetColorMode(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetLanguage(napi_env env, NapiCallbackInfo& info);
+    napi_value OnSetFont(napi_env env, NapiCallbackInfo& info);
+    napi_value OnClearUpApplicationData(napi_env env, NapiCallbackInfo& info);
+    napi_value OnRestartApp(napi_env env, NapiCallbackInfo& info);
+    napi_value OnSetSupportedProcessCacheSelf(napi_env env, NapiCallbackInfo& info);
+    napi_value OnPreloadUIExtensionAbility(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetCurrentAppCloneIndex(napi_env env, NapiCallbackInfo& info);
 
     static napi_value GetCacheDir(napi_env env, napi_callback_info info);
     static napi_value GetTempDir(napi_env env, napi_callback_info info);
+    static napi_value GetResourceDir(napi_env env, napi_callback_info info);
     static napi_value GetFilesDir(napi_env env, napi_callback_info info);
     static napi_value GetDistributedFilesDir(napi_env env, napi_callback_info info);
     static napi_value GetDatabaseDir(napi_env env, napi_callback_info info);
     static napi_value GetPreferencesDir(napi_env env, napi_callback_info info);
     static napi_value GetGroupDir(napi_env env, napi_callback_info info);
     static napi_value GetBundleCodeDir(napi_env env, napi_callback_info info);
+    static napi_value GetCloudFileDir(napi_env env, napi_callback_info info);
     static napi_value GetApplicationContext(napi_env env, napi_callback_info info);
     static napi_value KillProcessBySelf(napi_env env, napi_callback_info info);
     static napi_value SetColorMode(napi_env env, napi_callback_info info);
     static napi_value SetLanguage(napi_env env, napi_callback_info info);
+    static napi_value SetFont(napi_env env, napi_callback_info info);
+    static napi_value ClearUpApplicationData(napi_env env, napi_callback_info info);
     static napi_value GetRunningProcessInformation(napi_env env, napi_callback_info info);
     static napi_value CreateJsApplicationContext(napi_env env);
+    static napi_value RestartApp(napi_env env, napi_callback_info info);
+    static napi_value SetSupportedProcessCacheSelf(napi_env env, napi_callback_info info);
+    static napi_value PreloadUIExtensionAbility(napi_env env, napi_callback_info info);
+    static napi_value GetCurrentAppCloneIndex(napi_env env, napi_callback_info info);
 
 protected:
     std::weak_ptr<ApplicationContext> applicationContext_;
 
 private:
     napi_value OnCreateBundleContext(napi_env env, NapiCallbackInfo& info);
+    napi_value OnCreateModuleResourceManager(napi_env env, NapiCallbackInfo& info);
     napi_value OnSwitchArea(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetArea(napi_env env, NapiCallbackInfo& info);
     napi_value OnCreateModuleContext(napi_env env, NapiCallbackInfo& info);
+    napi_value OnCreateSystemHspModuleResourceManager(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetApplicationContext(napi_env env, NapiCallbackInfo& info);
     bool CheckCallerIsSystemApp();
     static void BindNativeApplicationContext(napi_env env, napi_value object);
@@ -119,6 +143,7 @@ private:
     std::shared_ptr<JsEnvironmentCallback> envCallback_;
     std::shared_ptr<JsApplicationStateChangeCallback> applicationStateCallback_;
     std::mutex applicationStateCallbackLock_;
+    sptr<JsAbilityAutoStartupCallBack> jsAutoStartupCallback_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

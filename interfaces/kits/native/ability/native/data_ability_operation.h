@@ -104,6 +104,11 @@ public:
      * @brief Checks whether an insert operation is created.
      * @return Returns true if it is an insert operation; returns false otherwise.
      */
+    bool IsValidOperation() const;
+    /**
+     * @brief Checks whether an operation is valid.
+     * @return Returns true if it is an insert or delete or update or assert operation; returns false otherwise.
+     */
     bool IsInsertOperation() const;
     /**
      * @brief Checks whether an delete operation is created.
@@ -147,6 +152,14 @@ public:
 private:
     void PutMap(Parcel &in);
     bool ReadFromParcel(Parcel &in);
+    bool ReadUriFromParcel(Parcel &in);
+    bool ReadValuesBucketFromParcel(Parcel &in);
+    bool ReadDataAbilityPredicatesFromParcel(Parcel &in);
+    bool ReadValuesBucketReferencesFromParcel(Parcel &in);
+    bool WriteUri(Parcel &out) const;
+    bool WriteValuesBucket(Parcel &out) const;
+    bool WritePredicates(Parcel &out) const;
+    bool WriteValuesBucketReferences(Parcel &out) const;
 
 private:
     // no object in parcel

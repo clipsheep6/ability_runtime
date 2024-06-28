@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,8 +33,8 @@ enum class AbilityErrorCode {
     // invalid param.
     ERROR_CODE_INVALID_PARAM = 401,
 
-    // no such systemcap.
-    ERROR_CODE_SYSTEMCAP = 801,
+    // capability not support.
+    ERROR_CODE_CAPABILITY_NOT_SUPPORT = 801,
 
     // common inner error.
     ERROR_CODE_INNER = 16000050,
@@ -81,6 +81,12 @@ enum class AbilityErrorCode {
     // ability wait start.
     ERROR_START_ABILITY_WAITTING = 16000017,
 
+    // jump to other applicaiton is not enable after API12.
+    ERROR_CODE_NOT_SUPPORT_CROSS_APP_START = 16000018,
+
+    // implicit start can not match any component.
+    ERROR_CODE_CANNOT_MATCH_ANY_COMPONENT = 16000019,
+
     // free install network abnormal.
     ERROR_CODE_NETWORK_ABNORMAL = 16000051,
 
@@ -117,8 +123,44 @@ enum class AbilityErrorCode {
     // The number of child process exceeds upper bound.
     ERROR_CODE_CHILD_PROCESS_NUMBER_EXCEEDS_UPPER_BOUND = 16000062,
 
+    // The target to restart does not belong to the current app or is not a UIAbility.
+    ERROR_CODE_RESTART_APP_INCORRECT_ABILITY = 16000063,
+
+    // Restart too frequently. Try again at least 10s later.
+    ERROR_CODE_RESTART_APP_FREQUENT = 16000064,
+
+    // ability not foreground.
+    ERROR_CODE_ABILITY_NOT_FOREGROUND = 16000065,
+
+    // wukong mode, can not move to foreground or background.
+    ERROR_CODE_WUKONG_MODE_CANT_MOVE_STATE = 16000066,
+
+    // Start options check failed.
+    ERROR_START_OPTIONS_CHECK_FAILED = 16000067,
+
+    // Ability already running.
+    ERROR_ABILITY_ALREADY_RUNNING = 16000068,
+
+    // extension start third party app has been controlled.
+    ERROR_CODE_EXTENSION_START_THIRD_PARTY_APP_CONTROLLED = 16000069,
+
+    // extension start service has been controlled.
+    ERROR_CODE_EXTENSION_START_SERVICE_CONTROLLED = 16000070,
+    
+    // app is not Clone.
+    ERROR_NOT_APP_CLONE = 16000071,
+
+    // not support Clone app.
+    ERROR_CODE_MULTI_APP_NOT_SUPPORTED = 16000072,
+
+    // app clone index does not exist.
+    ERROR_APP_CLONE_INDEX_INVALID = 16000073,
+
     // invalid caller.
     ERROR_CODE_INVALID_CALLER = 16200001,
+
+    // Setting permissions for resident processes
+    ERROR_CODE_NO_RESIDENT_PERMISSION = 16200006,
 
     // no such mission id.
     ERROR_CODE_NO_MISSION_ID = 16300001,
@@ -128,6 +170,16 @@ enum class AbilityErrorCode {
 
     // not self application.
     ERROR_NOT_SELF_APPLICATION = 16300003,
+
+    // observer not found.
+    ERROR_CODE_OBSERVER_NOT_FOUND = 16300004,
+
+    // target bundle not exist.
+    ERROR_CODE_TARGET_BUNDLE_NOT_EXIST = 16300005,
+
+    ERROR_CODE_SET_SUPPORTED_PROCESS_CACHE_AGAIN = 16300006,
+
+    ERROR_CODE_BUNDLE_NAME_INVALID = 18500001,
 };
 
 std::string GetErrorMsg(const AbilityErrorCode& errCode);

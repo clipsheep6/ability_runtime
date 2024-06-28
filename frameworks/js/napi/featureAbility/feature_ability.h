@@ -32,6 +32,8 @@ using namespace OHOS::AbilityRuntime;
 napi_value FeatureAbilityInit(napi_env env, napi_value exports);
 
 EXTERN_C_START
+int CreateUVQueueWork(uv_loop_t *loop, uv_work_t *work);
+
 /**
  * @brief The interface of onAbilityResult provided for ACE to call back to JS.
  *
@@ -157,6 +159,7 @@ AppInfoCB *CreateAppInfoCBInfo(napi_env env);
 napi_value SetResultWrap(napi_env env, napi_callback_info info, AsyncCallbackInfo *asyncCallbackInfo);
 napi_value SetResultAsync(
     napi_env env, napi_value *args, const size_t argCallback, AsyncCallbackInfo *asyncCallbackInfo);
+napi_value CreateAsyncWork(napi_env env, napi_value &resourceName, AsyncCallbackInfo *asyncCallbackInfo);
 napi_value SetResultPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo);
 
 /**
@@ -170,6 +173,7 @@ napi_value SetResultPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo);
 napi_value ContinueAbilityWrap(napi_env env, napi_callback_info info, AsyncCallbackInfo *asyncCallbackInfo);
 napi_value ContinueAbilityAsync(napi_env env, napi_value *args, AsyncCallbackInfo *asyncCallbackInfo, size_t argc);
 napi_value ContinueAbilityPromise(napi_env env, napi_value *args, AsyncCallbackInfo *asyncCallbackInfo, size_t argc);
+void CreateContinueAsyncWork(napi_env env, napi_value &resourceName, AsyncCallbackInfo *asyncCallbackInfo);
 
 /**
  * @brief Obtains the HapModuleInfo object of the application.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "want_receiver_stub.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 
@@ -35,11 +36,11 @@ WantReceiverStub::~WantReceiverStub()
 
 int WantReceiverStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_DEBUG("WantReceiverStub::OnRemoteRequest, cmd = %d, flags= %d", code, option.GetFlags());
+    TAG_LOGD(AAFwkTag::WANTAGENT, "WantReceiverStub::OnRemoteRequest, cmd = %d, flags= %d", code, option.GetFlags());
     std::u16string descriptor = WantReceiverStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_INFO("local descriptor is not equal to remote");
+        TAG_LOGI(AAFwkTag::WANTAGENT, "local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
 
@@ -50,7 +51,7 @@ int WantReceiverStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messag
             return (this->*requestFunc)(data, reply);
         }
     }
-    HILOG_WARN("WantReceiverStub::OnRemoteRequest, default case, need check.");
+    TAG_LOGW(AAFwkTag::WANTAGENT, "WantReceiverStub::OnRemoteRequest, default case, need check.");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
@@ -65,7 +66,7 @@ int WantReceiverStub::PerformReceiveInner(MessageParcel &data, MessageParcel &re
 {
     Want *want = data.ReadParcelable<Want>();
     if (want == nullptr) {
-        HILOG_ERROR("AbilityManagerStub: want is nullptr");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "AbilityManagerStub: want is nullptr");
         return ERR_INVALID_VALUE;
     }
 
@@ -74,7 +75,7 @@ int WantReceiverStub::PerformReceiveInner(MessageParcel &data, MessageParcel &re
 
     WantParams *wantParams = data.ReadParcelable<WantParams>();
     if (wantParams == nullptr) {
-        HILOG_ERROR("AbilityManagerStub: wantParams is nullptr");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "AbilityManagerStub: wantParams is nullptr");
         delete want;
         return ERR_INVALID_VALUE;
     }

@@ -92,7 +92,7 @@ int MockAbilityManagerService::ConnectAbility(
     return ERR_OK;
 }
 
-int MockAbilityManagerService::DisconnectAbility(const sptr<IAbilityConnection>& connect)
+int MockAbilityManagerService::DisconnectAbility(sptr<IAbilityConnection> connect)
 {
     GTEST_LOG_(INFO) << "MockAbilityManagerService::DisconnectAbility";
     return ERR_OK;
@@ -150,7 +150,7 @@ int MockAbilityManagerService::StopServiceAbility(const Want& want, int32_t user
     return ERR_OK;
 }
 
-int MockAbilityManagerService::KillProcess(const std::string& bundleName)
+int MockAbilityManagerService::KillProcess(const std::string& bundleName, const bool clearPageStack)
 {
     return 0;
 }

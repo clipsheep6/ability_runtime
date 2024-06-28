@@ -21,6 +21,7 @@
 
 #include "auto_startup_info.h"
 #include "distributed_kv_data_manager.h"
+#include "nlohmann/json.hpp"
 #include "singleton.h"
 
 namespace OHOS {
@@ -37,13 +38,14 @@ public:
 
     int32_t DeleteAutoStartupData(const AutoStartupInfo &info);
 
-    int32_t DeleteAutoStartupData(const std::string &bundleName);
+    int32_t DeleteAutoStartupData(const std::string &bundleName, int32_t uid);
 
     AutoStartupStatus QueryAutoStartupData(const AutoStartupInfo &info);
 
-    int32_t QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList);
+    int32_t QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList, int32_t userId);
 
-    int32_t GetCurrentAppAutoStartupData(const std::string &bundleName, std::vector<AutoStartupInfo> &infoList);
+    int32_t GetCurrentAppAutoStartupData(const std::string &bundleName,
+        std::vector<AutoStartupInfo> &infoList, const std::string &accessTokenId);
 
 private:
     DistributedKv::Status GetKvStore();
@@ -54,8 +56,12 @@ private:
     DistributedKv::Key ConvertAutoStartupDataToKey(const AutoStartupInfo &info);
     AutoStartupInfo ConvertAutoStartupInfoFromKeyAndValue(
         const DistributedKv::Key &key, const DistributedKv::Value &value);
+    bool IsEqual(nlohmann::json &jsonObject, const std::string &key,
+        const std::string &value, bool checkEmpty = false);
+    bool IsEqual(nlohmann::json &jsonObject, const std::string &key, int32_t value);
     bool IsEqual(const DistributedKv::Key &key, const AutoStartupInfo &info);
-    bool IsEqual(const DistributedKv::Key &key, const std::string &bundleName);
+    bool IsEqual(const DistributedKv::Key &key, const std::string &accessTokenId);
+    bool IsEqual(const DistributedKv::Key &key, int32_t userId);
 
     static const DistributedKv::AppId APP_ID;
     static const DistributedKv::StoreId STORE_ID;

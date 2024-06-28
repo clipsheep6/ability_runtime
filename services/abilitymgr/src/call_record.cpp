@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "call_record.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ability_util.h"
 #include "ability_manager_service.h"
@@ -63,14 +64,14 @@ void CallRecord::SetCallStub(const sptr<IRemoteObject> &call)
     }
     callRemoteObject_ = call;
 
-    HILOG_DEBUG("SetCallStub complete.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "SetCallStub complete.");
 
     if (callDeathRecipient_ == nullptr) {
         std::weak_ptr<CallRecord> callRecord = shared_from_this();
         auto callStubDied = [wptr = callRecord] (const wptr<IRemoteObject> &remote) {
             auto call = wptr.lock();
             if (call == nullptr) {
-                HILOG_ERROR("callRecord  is nullptr, can't call stub died.");
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "callRecord  is nullptr, can't call stub died.");
                 return;
             }
 
@@ -81,7 +82,7 @@ void CallRecord::SetCallStub(const sptr<IRemoteObject> &call)
     }
 
     if (!callRemoteObject_->AddDeathRecipient(callDeathRecipient_)) {
-        HILOG_ERROR("AddDeathRecipient failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AddDeathRecipient failed.");
     }
 }
 
@@ -119,12 +120,12 @@ sptr<IRemoteObject> CallRecord::GetCallerToken() const
 
 bool CallRecord::SchedulerConnectDone()
 {
-    HILOG_DEBUG("Scheduler Connect Done by callback. id:%{public}d", recordId_);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Scheduler Connect Done by callback. id:%{public}d", recordId_);
     std::shared_ptr<AbilityRecord> tmpService = service_.lock();
     auto remoteObject = callRemoteObject_;
     auto callback = connCallback_;
     if (!remoteObject || !callback || !tmpService) {
-        HILOG_ERROR("callstub or connCallback is nullptr, can't scheduler connect done.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callstub or connCallback is nullptr, can't scheduler connect done.");
         return false;
     }
 
@@ -139,18 +140,18 @@ bool CallRecord::SchedulerConnectDone()
         });
     state_ = CallState::REQUESTED;
 
-    HILOG_DEBUG("element: %{public}s, mode: %{public}d. connectstate:%{public}d.", element.GetURI().c_str(),
-        static_cast<int32_t>(abilityInfo.launchMode), state_);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "element: %{public}s, mode: %{public}d. connectstate:%{public}d.",
+        element.GetURI().c_str(), static_cast<int32_t>(abilityInfo.launchMode), state_);
     return true;
 }
 
 bool CallRecord::SchedulerDisconnectDone()
 {
-    HILOG_DEBUG("Scheduler disconnect Done by callback. id:%{public}d", recordId_);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Scheduler disconnect Done by callback. id:%{public}d", recordId_);
     std::shared_ptr<AbilityRecord> tmpService = service_.lock();
     auto callback = connCallback_;
     if (!callback || !tmpService) {
-        HILOG_ERROR("callstub or connCallback is nullptr, can't scheduler connect done.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callstub or connCallback is nullptr, can't scheduler connect done.");
         return false;
     }
 
@@ -168,7 +169,7 @@ bool CallRecord::SchedulerDisconnectDone()
 
 void CallRecord::OnCallStubDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_DEBUG("callstub is died. id:%{public}d begin", recordId_);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "callstub is died. id:%{public}d begin", recordId_);
 
     auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
     CHECK_POINTER(abilityManagerService);
@@ -178,12 +179,12 @@ void CallRecord::OnCallStubDied(const wptr<IRemoteObject> &remote)
         abilityManagerService->OnCallConnectDied(callRecord);
     };
     handler->SubmitTask(task);
-    HILOG_DEBUG("callstub is died. id:%{public}d, end", recordId_);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "callstub is died. id:%{public}d, end", recordId_);
 }
 
 void CallRecord::Dump(std::vector<std::string> &info) const
 {
-    HILOG_DEBUG("CallRecord::Dump is called");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "CallRecord::Dump is called");
 
     std::string tempstr = "            CallRecord";
     tempstr += " ID #" + std::to_string (recordId_) + "\n";
@@ -201,7 +202,7 @@ void CallRecord::Dump(std::vector<std::string> &info) const
     tempstr += "              state #" + state;
     tempstr += " start time [" + std::to_string (startTime_) + "]";
     info.emplace_back(tempstr);
-    HILOG_DEBUG("CallRecord::Dump is called1");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "CallRecord::Dump is called1");
 }
 
 int32_t CallRecord::GetCallerUid() const

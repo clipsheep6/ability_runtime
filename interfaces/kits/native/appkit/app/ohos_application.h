@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_OHOS_APPLICATION_H
 #define OHOS_ABILITY_RUNTIME_OHOS_APPLICATION_H
 
+#include <functional>
 #include <string>
 #include <list>
 #include <memory>
@@ -92,7 +93,7 @@ public:
      *
      * @param Ability Indicates the ability object that calls the onStart() method.
      */
-    void OnAbilityStart(const std::shared_ptr<Ability> &ability);
+    void OnAbilityStart(const std::shared_ptr<AbilityRuntime::UIAbility> &ability);
 
     /**
      *
@@ -100,7 +101,7 @@ public:
      *
      * @param Ability Indicates the Ability object that calls the onInactive() method.
      */
-    void OnAbilityInactive(const std::shared_ptr<Ability> &ability);
+    void OnAbilityInactive(const std::shared_ptr<AbilityRuntime::UIAbility> &ability);
 
     /**
      *
@@ -108,7 +109,7 @@ public:
      *
      * @param Ability Indicates the Ability object that calls the onBackground() method.
      */
-    void OnAbilityBackground(const std::shared_ptr<Ability> &ability);
+    void OnAbilityBackground(const std::shared_ptr<AbilityRuntime::UIAbility> &ability);
 
     /**
      *
@@ -116,7 +117,7 @@ public:
      *
      * @param Ability Indicates the Ability object that calls the onForeground() method.
      */
-    void OnAbilityForeground(const std::shared_ptr<Ability> &ability);
+    void OnAbilityForeground(const std::shared_ptr<AbilityRuntime::UIAbility> &ability);
 
     /**
      *
@@ -124,7 +125,7 @@ public:
      *
      * @param Ability Indicates the Ability object that calls the onActive() method.
      */
-    void OnAbilityActive(const std::shared_ptr<Ability> &ability);
+    void OnAbilityActive(const std::shared_ptr<AbilityRuntime::UIAbility> &ability);
 
     /**
      *
@@ -132,7 +133,7 @@ public:
      *
      * @param Ability Indicates the Ability object that calls the onStop() method.
      */
-    void OnAbilityStop(const std::shared_ptr<Ability> &ability);
+    void OnAbilityStop(const std::shared_ptr<AbilityRuntime::UIAbility> &ability);
 
     /**
      *
@@ -174,7 +175,15 @@ public:
      *
      * @param config Indicates the new Configuration object.
      */
-    virtual void OnConfigurationUpdated(const Configuration &config);
+    virtual void OnConfigurationUpdated(Configuration config);
+    
+    /**
+     *
+     * @brief Will be Called when the application font of the device changes.
+     *
+     * @param config Indicates the new Configuration object.
+     */
+    virtual void OnFontUpdated(Configuration config);
 
     /**
      *
@@ -210,7 +219,6 @@ public:
     /**
      *
      * @brief Will be called the application ends
-     *
      */
     virtual void OnTerminate();
 
@@ -221,7 +229,8 @@ public:
      * @return abilityStage context
      */
     std::shared_ptr<AbilityRuntime::Context> AddAbilityStage(
-        const std::shared_ptr<AbilityLocalRecord> &abilityRecord);
+        const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
+        const std::function<void(const std::shared_ptr<AbilityRuntime::Context> &)> &callback, bool &isAsyncCallback);
 
     /**
      *
@@ -245,7 +254,8 @@ public:
      *
      * @param abilityInfo
      */
-    void CleanAbilityStage(const sptr<IRemoteObject> &token, const std::shared_ptr<AbilityInfo> &abilityInfo);
+    void CleanAbilityStage(const sptr<IRemoteObject> &token, const std::shared_ptr<AbilityInfo> &abilityInfo,
+        bool isCacheProcess = false);
 
     /**
      * @brief return the application context
@@ -270,6 +280,8 @@ public:
 
     void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName, std::string &flag);
 
+    void ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName, std::string &flag);
+
     virtual std::shared_ptr<Configuration> GetConfiguration();
 
     void GetExtensionNameByType(int32_t type, std::string &name)
@@ -293,8 +305,22 @@ public:
     bool NotifyHotReloadPage();
 
     bool NotifyUnLoadRepairPatch(const std::string &hqfFile);
+
+    void CleanAppTempData(bool isLastProcess = false);
+
+    void CleanUselessTempData();
+
+    void SetAppEnv(const std::vector<AppEnvironment>& appEnvironments);
+
+    void AutoStartupDone(const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
+        const std::shared_ptr<AbilityRuntime::AbilityStage> &abilityStage, const std::string &moduleName);
+
+    void CleanEmptyAbilityStage();
+
 private:
     void DoCleanWorkAfterStageCleaned(const AbilityInfo &abilityInfo);
+    void UpdateAppContextResMgr(const Configuration &config);
+
 private:
     std::list<std::shared_ptr<AbilityLifecycleCallbacks>> abilityLifecycleCallbacks_;
     std::list<std::shared_ptr<ElementsCallback>> elementsCallbacks_;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,12 +15,15 @@
 
 #include "app_module_checker.h"
 
+#include "hilog_tag_wrapper.h"
 #include "module_checker_delegate.h"
 #include "utils/log.h"
 
-bool AppModuleChecker::CheckModuleLoadable(const char* moduleName)
+bool AppModuleChecker::CheckModuleLoadable(const char *moduleName,
+                                           std::unique_ptr<ApiAllowListChecker> &apiAllowListChecker)
 {
-    HILOG_INFO("check blocklist, moduleName = %{public}s, processExtensionType_ = %{public}d",
+    apiAllowListChecker = nullptr;
+    TAG_LOGD(AAFwkTag::ABILITY, "check blocklist, moduleName = %{public}s, processExtensionType_ = %{public}d",
         moduleName, static_cast<int32_t>(processExtensionType_));
     const auto& blockListIter = moduleBlocklist_.find(processExtensionType_);
     if (blockListIter == moduleBlocklist_.end()) {
@@ -30,5 +33,10 @@ bool AppModuleChecker::CheckModuleLoadable(const char* moduleName)
     if (blockList.find(moduleName) == blockList.end()) {
         return true;
     }
+    return false;
+}
+
+bool AppModuleChecker::DiskCheckOnly()
+{
     return false;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 #include "mission_info_mgr.h"
 
 #include "ability_manager_service.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "nlohmann/json.hpp"
@@ -29,12 +30,12 @@ namespace OHOS {
 namespace AAFwk {
 MissionInfoMgr::MissionInfoMgr()
 {
-    HILOG_INFO("MissionInfoMgr instance is created");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "MissionInfoMgr instance is created");
 }
 
 MissionInfoMgr::~MissionInfoMgr()
 {
-    HILOG_INFO("MissionInfoMgr instance is destroyed");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "MissionInfoMgr instance is destroyed");
 }
 
 bool MissionInfoMgr::GenerateMissionId(int32_t &missionId)
@@ -53,7 +54,7 @@ bool MissionInfoMgr::GenerateMissionId(int32_t &missionId)
         }
     }
 
-    HILOG_ERROR("cannot generate mission id");
+    TAG_LOGE(AAFwkTag::ABILITYMGR, "cannot generate mission id");
     return false;
 }
 
@@ -63,7 +64,7 @@ bool MissionInfoMgr::Init(int userId)
     if (!taskDataPersistenceMgr_) {
         taskDataPersistenceMgr_ = DelayedSingleton<TaskDataPersistenceMgr>::GetInstance();
         if (!taskDataPersistenceMgr_) {
-            HILOG_ERROR("taskDataPersistenceMgr_ is nullptr");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "taskDataPersistenceMgr_ is nullptr");
             return false;
         }
     }
@@ -89,9 +90,10 @@ bool MissionInfoMgr::AddMissionInfo(const InnerMissionInfo &missionInfo)
 
 bool MissionInfoMgr::AddMissionInfoInner(const InnerMissionInfo &missionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto id = missionInfo.missionInfo.id;
     if (missionIdMap_.find(id) != missionIdMap_.end() && missionIdMap_[id]) {
-        HILOG_ERROR("add mission info failed, missionId %{public}d already exists", id);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "add mission info failed, missionId %{public}d already exists", id);
         return false;
     }
 
@@ -103,7 +105,7 @@ bool MissionInfoMgr::AddMissionInfoInner(const InnerMissionInfo &missionInfo)
     }
 
     if (!taskDataPersistenceMgr_->SaveMissionInfo(missionInfo)) {
-        HILOG_ERROR("save mission info failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "save mission info failed");
         return false;
     }
 
@@ -114,10 +116,11 @@ bool MissionInfoMgr::AddMissionInfoInner(const InnerMissionInfo &missionInfo)
 
 bool MissionInfoMgr::UpdateMissionInfo(const InnerMissionInfo &missionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> lock(mutex_);
     auto id = missionInfo.missionInfo.id;
     if (missionIdMap_.find(id) == missionIdMap_.end() || !missionIdMap_[id]) {
-        HILOG_ERROR("update mission info failed, missionId %{public}d not exists", id);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "update mission info failed, missionId %{public}d not exists", id);
         return false;
     }
 
@@ -129,7 +132,7 @@ bool MissionInfoMgr::UpdateMissionInfo(const InnerMissionInfo &missionInfo)
     }
 
     if (listIter == missionInfoList_.end()) {
-        HILOG_ERROR("update mission info failed, missionId %{public}d not exists", id);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "update mission info failed, missionId %{public}d not exists", id);
         return false;
     }
 
@@ -137,7 +140,7 @@ bool MissionInfoMgr::UpdateMissionInfo(const InnerMissionInfo &missionInfo)
         // time not changes, no need sort again
         *listIter = missionInfo;
         if (!taskDataPersistenceMgr_->SaveMissionInfo(missionInfo)) {
-            HILOG_ERROR("save mission info failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "save mission info failed.");
             return false;
         }
         return true;
@@ -150,25 +153,26 @@ bool MissionInfoMgr::UpdateMissionInfo(const InnerMissionInfo &missionInfo)
 
 bool MissionInfoMgr::DeleteMissionInfo(int missionId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> lock(mutex_);
     if (missionIdMap_.find(missionId) == missionIdMap_.end()) {
-        HILOG_WARN("missionId %{public}d not exists, no need delete", missionId);
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "missionId %{public}d not exists, no need delete", missionId);
         return true;
     }
 
     if (!missionIdMap_[missionId]) {
-        HILOG_WARN("missionId %{public}d distributed but not saved, no need delete", missionId);
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "missionId %{public}d distributed but not saved, no need delete", missionId);
         missionIdMap_.erase(missionId);
         return true;
     }
 
     if (!taskDataPersistenceMgr_) {
-        HILOG_ERROR("taskDataPersistenceMgr_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "taskDataPersistenceMgr_ is nullptr");
         return false;
     }
 
     if (!taskDataPersistenceMgr_->DeleteMissionInfo(missionId)) {
-        HILOG_ERROR("delete mission info failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "delete mission info failed");
         return false;
     }
 
@@ -185,9 +189,10 @@ bool MissionInfoMgr::DeleteMissionInfo(int missionId)
 
 bool MissionInfoMgr::DeleteAllMissionInfos(const std::shared_ptr<MissionListenerController> &listenerController)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> lock(mutex_);
     if (!taskDataPersistenceMgr_) {
-        HILOG_ERROR("taskDataPersistenceMgr_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "taskDataPersistenceMgr_ is nullptr");
         return false;
     }
 
@@ -212,6 +217,7 @@ bool MissionInfoMgr::DeleteAllMissionInfos(const std::shared_ptr<MissionListener
 
 static bool DoesNotShowInTheMissionList(const InnerMissionInfo &mission)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     bool isStartByCall = false;
     switch (static_cast<StartMethod>(mission.startMethod)) {
         case StartMethod::START_CALL:
@@ -225,7 +231,8 @@ static bool DoesNotShowInTheMissionList(const InnerMissionInfo &mission)
 
 int MissionInfoMgr::GetMissionInfos(int32_t numMax, std::vector<MissionInfo> &missionInfos)
 {
-    HILOG_INFO("numMax:%{public}d", numMax);
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "numMax:%{public}d", numMax);
     if (numMax < 0) {
         return -1;
     }
@@ -237,7 +244,7 @@ int MissionInfoMgr::GetMissionInfos(int32_t numMax, std::vector<MissionInfo> &mi
         }
 
         if (DoesNotShowInTheMissionList(mission)) {
-            HILOG_INFO("MissionId[%{public}d] don't show in mission list", mission.missionInfo.id);
+            TAG_LOGI(AAFwkTag::ABILITYMGR, "MissionId[%{public}d] don't show in mission list", mission.missionInfo.id);
             continue;
         }
         MissionInfo info = mission.missionInfo;
@@ -249,29 +256,29 @@ int MissionInfoMgr::GetMissionInfos(int32_t numMax, std::vector<MissionInfo> &mi
 
 int MissionInfoMgr::GetMissionInfoById(int32_t missionId, MissionInfo &missionInfo)
 {
-    HILOG_INFO("missionId:%{public}d", missionId);
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "missionId:%{public}d", missionId);
     std::lock_guard<ffrt::mutex> lock(mutex_);
     if (missionIdMap_.find(missionId) == missionIdMap_.end()) {
-        HILOG_ERROR("missionId %{public}d not exists, get mission info failed", missionId);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionId %{public}d not exists, get mission info failed", missionId);
         return -1;
     }
 
     auto it = std::find_if(missionInfoList_.begin(), missionInfoList_.end(),
         [&missionId](const InnerMissionInfo item) {
             return item.missionInfo.id == missionId;
-        }
-    );
+        });
     if (it == missionInfoList_.end()) {
-        HILOG_ERROR("no such mission:%{public}d", missionId);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "no such mission:%{public}d", missionId);
         return -1;
     }
 
     if (DoesNotShowInTheMissionList(*it)) {
-        HILOG_INFO("MissionId[%{public}d] don't show in mission list", (*it).missionInfo.id);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "MissionId[%{public}d] don't show in mission list", (*it).missionInfo.id);
         return -1;
     }
 
-    HILOG_INFO("ok missionId:%{public}d", missionId);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "ok missionId:%{public}d", missionId);
     missionInfo = (*it).missionInfo;
     return 0;
 }
@@ -280,25 +287,24 @@ int MissionInfoMgr::GetInnerMissionInfoById(int32_t missionId, InnerMissionInfo 
 {
     std::lock_guard<ffrt::mutex> lock(mutex_);
     if (missionIdMap_.find(missionId) == missionIdMap_.end()) {
-        HILOG_ERROR("missionId %{public}d not exists, get inner mission info failed", missionId);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionId %{public}d not exists, get inner mission info failed", missionId);
         return MISSION_NOT_FOUND;
     }
 
     auto it = std::find_if(missionInfoList_.begin(), missionInfoList_.end(),
         [&missionId](const InnerMissionInfo item) {
             return item.missionInfo.id == missionId;
-        }
-    );
+        });
     if (it == missionInfoList_.end()) {
-        HILOG_ERROR("no such mission:%{public}d", missionId);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "no such mission:%{public}d", missionId);
         return MISSION_NOT_FOUND;
     }
     innerMissionInfo = *it;
     return 0;
 }
 
-bool MissionInfoMgr::FindReusedMissionInfo(const std::string &missionName, const std::string &missionAffinity,
-    const std::string &flag, bool isFindRecentStandard, bool isFromCollaborator, InnerMissionInfo &info)
+bool MissionInfoMgr::FindReusedMissionInfo(const std::string &missionName,
+    const std::string &flag, bool isFindRecentStandard, InnerMissionInfo &info)
 {
     if (missionName.empty()) {
         return false;
@@ -306,13 +312,7 @@ bool MissionInfoMgr::FindReusedMissionInfo(const std::string &missionName, const
 
     std::lock_guard<ffrt::mutex> lock(mutex_);
     auto it = std::find_if(missionInfoList_.begin(), missionInfoList_.end(),
-        [&missionName, &missionAffinity, &flag, &isFindRecentStandard, &isFromCollaborator](
-            const InnerMissionInfo item) {
-            if (isFromCollaborator && missionAffinity == item.missionAffinity &&
-                item.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
-                return true;
-            }
-
+        [&missionName, &flag, &isFindRecentStandard](const InnerMissionInfo item) {
             if (missionName != item.missionName) {
                 return false;
             }
@@ -330,10 +330,9 @@ bool MissionInfoMgr::FindReusedMissionInfo(const std::string &missionName, const
                 return flag == item.specifiedFlag;
             }
             return false;
-        }
-    );
+        });
     if (it == missionInfoList_.end()) {
-        HILOG_WARN("can not find target singleton mission:%{public}s", missionName.c_str());
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "can not find target singleton mission:%{public}s", missionName.c_str());
         return false;
     }
     info = *it;
@@ -342,11 +341,11 @@ bool MissionInfoMgr::FindReusedMissionInfo(const std::string &missionName, const
 
 int MissionInfoMgr::UpdateMissionContinueState(int32_t missionId, const AAFwk::ContinueState &state)
 {
-    HILOG_INFO("UpdateMissionContinueState Start. Mission id: %{public}d, state: %{public}d",
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "UpdateMissionContinueState Start. Mission id: %{public}d, state: %{public}d",
         missionId, state);
 
     if (missionId <= 0) {
-        HILOG_ERROR("UpdateMissionContinueState failed, missionId %{public}d invalid", missionId);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "UpdateMissionContinueState failed, missionId %{public}d invalid", missionId);
         return -1;
     }
    
@@ -355,15 +354,16 @@ int MissionInfoMgr::UpdateMissionContinueState(int32_t missionId, const AAFwk::C
         return missionId == info.missionInfo.id;
     });
     if (it == missionInfoList_.end()) {
-        HILOG_ERROR("UpdateMissionContinueState to %{public}d failed, missionId %{public}d not exists.",
-            state, missionId);
+        TAG_LOGE(AAFwkTag::ABILITYMGR,
+            "UpdateMissionContinueState to %{public}d failed, missionId %{public}d not exists.", state, missionId);
         return -1;
     }
 
     it->missionInfo.continueState = state;
-    
-    HILOG_INFO("UpdateMissionContinueState success. Mission id: %{public}d, ContinueState set to: %{public}d",
-        missionId, state);
+
+    TAG_LOGI(AAFwkTag::ABILITYMGR,
+        "UpdateMissionContinueState success. Mission id: %{public}d, ContinueState set to: %{public}d", missionId,
+        state);
     return 0;
 }
 
@@ -371,20 +371,20 @@ int MissionInfoMgr::UpdateMissionLabel(int32_t missionId, const std::string& lab
 {
     std::lock_guard<ffrt::mutex> lock(mutex_);
     if (!taskDataPersistenceMgr_) {
-        HILOG_ERROR("task data persist not init.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "task data persist not init.");
         return -1;
     }
     auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
         return missionId == info.missionInfo.id;
     });
     if (it == missionInfoList_.end()) {
-        HILOG_ERROR("UpdateMissionLabel failed, missionId %{public}d not exists", missionId);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "UpdateMissionLabel failed, missionId %{public}d not exists", missionId);
         return -1;
     }
 
     it->missionInfo.label = label;
     if (!taskDataPersistenceMgr_->SaveMissionInfo(*it)) {
-        HILOG_ERROR("save mission info failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "save mission info failed.");
         return -1;
     }
     return 0;
@@ -400,7 +400,7 @@ void MissionInfoMgr::SetMissionAbilityState(int32_t missionId, AbilityState stat
         return missionId == info.missionInfo.id;
     });
     if (it == missionInfoList_.end()) {
-        HILOG_ERROR("SetMissionAbilityState failed, missionId %{public}d not exists", missionId);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SetMissionAbilityState failed, missionId %{public}d not exists", missionId);
         return;
     }
     it->missionInfo.abilityState = state;
@@ -409,12 +409,12 @@ void MissionInfoMgr::SetMissionAbilityState(int32_t missionId, AbilityState stat
 bool MissionInfoMgr::LoadAllMissionInfo()
 {
     if (!taskDataPersistenceMgr_) {
-        HILOG_ERROR("taskDataPersistenceMgr_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "taskDataPersistenceMgr_ is nullptr");
         return false;
     }
 
     if (!taskDataPersistenceMgr_->LoadAllMissionInfo(missionInfoList_)) {
-        HILOG_ERROR("load mission info failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "load mission info failed");
         return false;
     }
 
@@ -432,7 +432,7 @@ bool MissionInfoMgr::LoadAllMissionInfo()
 
 void MissionInfoMgr::HandleUnInstallApp(const std::string &bundleName, int32_t uid, std::list<int32_t> &missions)
 {
-    HILOG_INFO("bundleName:%{public}s, uid:%{public}d", bundleName.c_str(), uid);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "bundleName:%{public}s, uid:%{public}d", bundleName.c_str(), uid);
     GetMatchedMission(bundleName, uid, missions);
     if (missions.empty()) {
         return;
@@ -466,11 +466,11 @@ void MissionInfoMgr::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handl
     std::lock_guard<ffrt::mutex> lock(mutex_);
     snapshotHandler_ = handler;
 }
-
+#ifdef SUPPORT_SCREEN
 void MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const std::shared_ptr<Media::PixelMap> &pixelMap,
     bool isPrivate)
 {
-    HILOG_INFO("Update mission snapshot, missionId:%{public}d.", missionId);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Update mission snapshot, missionId:%{public}d.", missionId);
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     MissionSnapshot savedSnapshot;
     {
@@ -480,13 +480,13 @@ void MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const std::shared_
             return missionId == info.missionInfo.id;
         });
         if (it == missionInfoList_.end()) {
-            HILOG_ERROR("snapshot: get mission failed, missionId %{public}d not exists", missionId);
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: get mission failed, missionId %{public}d not exists", missionId);
             return;
         }
         savedSnapshot.topAbility = it->missionInfo.want.GetElement();
     }
     if (!taskDataPersistenceMgr_) {
-        HILOG_ERROR("snapshot: taskDataPersistenceMgr_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: taskDataPersistenceMgr_ is nullptr");
         return;
     }
 
@@ -494,22 +494,22 @@ void MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const std::shared_
     Snapshot snapshot;
     snapshot.SetPixelMap(pixelMap);
 
-#ifdef SUPPORT_GRAPHICS
+
     if (isPrivate) {
         CreateWhitePixelMap(snapshot);
     }
     savedSnapshot.snapshot = snapshot.GetPixelMap();
-#endif
+
 
     if (!taskDataPersistenceMgr_->SaveMissionSnapshot(missionId, savedSnapshot)) {
-        HILOG_ERROR("snapshot: save mission snapshot failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: save mission snapshot failed");
     }
 }
-
+#endif
 bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
     MissionSnapshot& missionSnapshot, bool isLowResolution)
 {
-    HILOG_INFO("missionId:%{public}d.", missionId);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "missionId:%{public}d.", missionId);
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "FindTargetMissionSnapshot");
@@ -518,27 +518,27 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
             return missionId == info.missionInfo.id;
         });
         if (it == missionInfoList_.end()) {
-            HILOG_ERROR("snapshot: get mission failed, missionId %{public}d not exists", missionId);
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: get mission failed, missionId %{public}d not exists", missionId);
             return false;
         }
         missionSnapshot.topAbility = it->missionInfo.want.GetElement();
     }
     if (!taskDataPersistenceMgr_) {
-        HILOG_ERROR("snapshot: taskDataPersistenceMgr_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: taskDataPersistenceMgr_ is nullptr");
         return false;
     }
     if (!snapshotHandler_) {
-        HILOG_ERROR("snapshot: snapshotHandler_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: snapshotHandler_ is nullptr");
         return false;
     }
     Snapshot snapshot;
     int32_t result = snapshotHandler_->GetSnapshot(abilityToken, snapshot);
     if (result != 0) {
-        HILOG_ERROR("snapshot: get WMS snapshot failed, result = %{public}d", result);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: get WMS snapshot failed, result = %{public}d", result);
         return false;
     }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     if (missionSnapshot.isPrivate) {
         CreateWhitePixelMap(snapshot);
     }
@@ -547,7 +547,7 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
 #endif
 
     MissionSnapshot savedSnapshot = missionSnapshot;
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     savedSnapshot.snapshot = snapshot.GetPixelMap();
 #endif
     {
@@ -561,16 +561,17 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
         }
     }
     if (!taskDataPersistenceMgr_->SaveMissionSnapshot(missionId, savedSnapshot)) {
-        HILOG_ERROR("snapshot: save mission snapshot failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: save mission snapshot failed");
         CompleteSaveSnapshot(missionId);
         return false;
     }
-    HILOG_INFO("success");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "success");
     return true;
 }
 
 void MissionInfoMgr::CompleteSaveSnapshot(int32_t missionId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::unique_lock<ffrt::mutex> lock(savingSnapshotLock_);
     auto search = savingSnapshot_.find(missionId);
     if (search != savingSnapshot_.end()) {
@@ -584,22 +585,22 @@ void MissionInfoMgr::CompleteSaveSnapshot(int32_t missionId)
     }
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 std::shared_ptr<Media::PixelMap> MissionInfoMgr::GetSnapshot(int32_t missionId) const
 {
-    HILOG_INFO("missionId:%{public}d", missionId);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "missionId:%{public}d", missionId);
     {
         std::lock_guard<ffrt::mutex> lock(mutex_);
         auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
             return missionId == info.missionInfo.id;
         });
         if (it == missionInfoList_.end()) {
-            HILOG_ERROR("snapshot: get mission failed, missionId %{public}d not exists", missionId);
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: get mission failed, missionId %{public}d not exists", missionId);
             return nullptr;
         }
     }
     if (!taskDataPersistenceMgr_) {
-        HILOG_ERROR("snapshot: taskDataPersistenceMgr_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: taskDataPersistenceMgr_ is nullptr");
         return nullptr;
     }
 
@@ -610,7 +611,7 @@ std::shared_ptr<Media::PixelMap> MissionInfoMgr::GetSnapshot(int32_t missionId) 
 bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
     MissionSnapshot& missionSnapshot, bool isLowResolution, bool force)
 {
-    HILOG_INFO("missionId:%{public}d, force:%{public}d", missionId, force);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "missionId:%{public}d, force:%{public}d", missionId, force);
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     {
         std::lock_guard<ffrt::mutex> lock(mutex_);
@@ -618,18 +619,18 @@ bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObj
             return missionId == info.missionInfo.id;
         });
         if (it == missionInfoList_.end()) {
-            HILOG_ERROR("snapshot: get mission failed, missionId %{public}d not exists", missionId);
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: get mission failed, missionId %{public}d not exists", missionId);
             return false;
         }
         missionSnapshot.topAbility = it->missionInfo.want.GetElement();
     }
     if (!taskDataPersistenceMgr_) {
-        HILOG_ERROR("snapshot: taskDataPersistenceMgr_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: taskDataPersistenceMgr_ is nullptr");
         return false;
     }
 
     if (force) {
-        HILOG_INFO("force");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "force");
         return UpdateMissionSnapshot(missionId, abilityToken, missionSnapshot, isLowResolution);
     }
     {
@@ -644,7 +645,7 @@ bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObj
                 ++waitingNum;
                 auto iter = savingSnapshot_.find(missionId);
                 if (iter == savingSnapshot_.end() || waitingNum == waitingCount) {
-                    HILOG_INFO("Saved successfully or waiting failed.");
+                    TAG_LOGI(AAFwkTag::ABILITYMGR, "Saved successfully or waiting failed.");
                     break;
                 }
             }
@@ -652,25 +653,26 @@ bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObj
     }
 
     if (taskDataPersistenceMgr_->GetMissionSnapshot(missionId, missionSnapshot, isLowResolution)) {
-        HILOG_ERROR("mission_list_info GetMissionSnapshot, find snapshot OK, missionId:%{public}d", missionId);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "mission_list_info GetMissionSnapshot, find snapshot OK, missionId:%{public}d",
+            missionId);
         return true;
     }
-    HILOG_INFO("create new snapshot");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "create new snapshot");
     return UpdateMissionSnapshot(missionId, abilityToken, missionSnapshot, isLowResolution);
 }
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 void MissionInfoMgr::CreateWhitePixelMap(Snapshot &snapshot) const
 {
     if (snapshot.GetPixelMap() == nullptr) {
-        HILOG_ERROR("CreateWhitePixelMap error.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "CreateWhitePixelMap error.");
         return;
     }
     int32_t dataLength = snapshot.GetPixelMap()->GetByteCount();
     const uint8_t *pixelData = snapshot.GetPixelMap()->GetPixels();
     uint8_t *data = const_cast<uint8_t *>(pixelData);
     if (memset_s(data, dataLength, 0xff, dataLength) != EOK) {
-        HILOG_ERROR("CreateWhitePixelMap memset_s error.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "CreateWhitePixelMap memset_s error.");
     }
 }
 #endif

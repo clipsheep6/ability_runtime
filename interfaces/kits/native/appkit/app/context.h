@@ -32,6 +32,7 @@ namespace DataShare {
 class DataShareHelper;
 }
 namespace AppExecFwk {
+class BundleMgrHelper;
 using Want = OHOS::AAFwk::Want;
 using AbilityStartSetting = AAFwk::AbilityStartSetting;
 using PermissionRequestTask = std::function<void(const std::vector<std::string>&, const std::vector<int>&)>;
@@ -109,12 +110,12 @@ public:
     virtual std::shared_ptr<Context> GetContext() = 0;
 
     /**
-     * @brief Obtains an IBundleMgr instance.
+     * @brief Obtains an BundleMgrHelper instance.
      * You can use this instance to obtain information about the application bundle.
      *
-     * @return Returns an IBundleMgr instance.
+     * @return Returns an BundleMgrHelper instance.
      */
-    virtual sptr<IBundleMgr> GetBundleManager() const = 0;
+    virtual std::shared_ptr<BundleMgrHelper> GetBundleManager() const = 0;
 
     /**
      * @brief Obtains a resource manager.

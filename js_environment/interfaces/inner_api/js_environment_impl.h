@@ -32,6 +32,8 @@ struct WorkerInfo {
     std::vector<std::string> assetBasePathStr;
     std::string hapPath;
     bool isStageModel = true;
+    std::string moduleName;
+    int32_t apiTargetVersion = 0;
 };
 
 class JsEnvironmentImpl {
@@ -49,7 +51,7 @@ public:
 
     virtual void InitConsoleModule(NativeEngine* engine) = 0;
 
-    virtual bool InitLoop(NativeEngine* engine) = 0;
+    virtual bool InitLoop(NativeEngine* engine, bool isStage = true) = 0;
 
     virtual void DeInitLoop(NativeEngine* engine) = 0;
 

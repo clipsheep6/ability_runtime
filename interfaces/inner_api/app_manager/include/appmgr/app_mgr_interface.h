@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,26 +16,32 @@
 #ifndef OHOS_ABILITY_RUNTIME_APP_MGR_INTERFACE_H
 #define OHOS_ABILITY_RUNTIME_APP_MGR_INTERFACE_H
 
-#include "iremote_broker.h"
-#include "iremote_object.h"
-#include "want.h"
-
+#include "ability_foreground_state_observer_interface.h"
 #include "ability_info.h"
-#include "application_info.h"
+#include "ams_mgr_interface.h"
+#include "app_foreground_state_observer_interface.h"
+#include "app_malloc_info.h"
 #include "app_mgr_ipc_interface_code.h"
 #include "app_record_id.h"
+#include "application_info.h"
 #include "bundle_info.h"
+#include "child_process_info.h"
 #include "fault_data.h"
 #include "iapp_state_callback.h"
-#include "ams_mgr_interface.h"
+#include "iapplication_state_observer.h"
+#include "iconfiguration_observer.h"
+#include "iquick_fix_callback.h"
+#include "iremote_broker.h"
+#include "iremote_object.h"
+#include "irender_state_observer.h"
+#include "memory_level_info.h"
 #include "page_state_data.h"
 #include "render_process_info.h"
 #include "running_process_info.h"
 #include "system_memory_attr.h"
-#include "iapplication_state_observer.h"
-#include "iconfiguration_observer.h"
-#include "iquick_fix_callback.h"
-#include "app_malloc_info.h"
+#include "want.h"
+#include "app_jsheap_mem_info.h"
+#include "running_multi_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -51,6 +57,21 @@ public:
      * @return
      */
     virtual void AttachApplication(const sptr<IRemoteObject> &app) = 0;
+
+    /**
+     * Preload application.
+     *
+     * @param bundleName The bundle name of the application to preload.
+     * @param userId Indicates the user identification.
+     * @param preloadMode Preload application mode.
+     * @param appIndex The index of application clone.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t PreloadApplication(const std::string &bundleName, int32_t userId,
+        AppExecFwk::PreloadMode preloadMode, int32_t appIndex = 0)
+    {
+        return 0;
+    }
 
     /**
      * ApplicationForegrounded, call ApplicationForegrounded() through proxy object,
@@ -80,15 +101,6 @@ public:
     virtual void ApplicationTerminated(const int32_t recordId) = 0;
 
     /**
-     * CheckPermission, call CheckPermission() through proxy object, check the permission.
-     *
-     * @param recordId, a unique record that identifies this Application from others.
-     * @param permission, check the permissions.
-     * @return ERR_OK, return back success, others fail.
-     */
-    virtual int CheckPermission(const int32_t recordId, const std::string &permission) = 0;
-
-    /**
      * AbilityCleaned,call through AbilityCleaned() proxy project, clean Ability record.
      *
      * @param token, a unique record that identifies AbilityCleaned from others.
@@ -108,9 +120,21 @@ public:
      * clear the application data.
      *
      * @param bundleName, bundle name in Application record.
+     * @param appCloneIndex the app clone id.
+     * @param userId the user id.
+     * @return ErrCode
+     */
+    virtual int32_t ClearUpApplicationData(const std::string &bundleName, int32_t appCloneIndex,
+        int32_t userId = -1) = 0;
+
+    /**
+     * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
+     * clear the application data.
+     *
+     * @param userId the user id.
      * @return
      */
-    virtual int32_t ClearUpApplicationData(const std::string &bundleName) = 0;
+    virtual int32_t ClearUpApplicationDataBySelf(int32_t userId = -1) = 0;
 
     /**
      * GetAllRunningProcesses, call GetAllRunningProcesses() through proxy project.
@@ -120,6 +144,28 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int GetAllRunningProcesses(std::vector<RunningProcessInfo> &info) = 0;
+
+    /**
+     * GetRunningMultiAppInfoByBundleName, call GetRunningMultiAppInfoByBundleName() through proxy project.
+     * Obtains information about multiapp that are running on the device.
+     *
+     * @param bundlename, bundle name in Application record.
+     * @param info, output multiapp information.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t GetRunningMultiAppInfoByBundleName(const std::string &bundleName,
+        RunningMultiAppInfo &info) = 0;
+
+    /**
+     * GetRunningProcessesByBundleType, call GetRunningProcessesByBundleType() through proxy project.
+     * Obtains information about application processes by bundle type that are running on the device.
+     *
+     * @param bundleType, bundle type of the processes
+     * @param info, app name in Application record.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int GetRunningProcessesByBundleType(const BundleType bundleType,
+        std::vector<RunningProcessInfo> &info) = 0;
 
     /**
      * GetAllRenderProcesses, call GetAllRenderProcesses() through proxy project.
@@ -169,6 +215,15 @@ public:
     virtual int NotifyMemoryLevel(int32_t level) = 0;
 
     /**
+     * NotifyProcMemoryLevel, call NotifyMemoryLevel() through proxy project.
+     * Notify abilities the current memory level.
+     *
+     * @param procLevelMap ,<pid, level> map
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t NotifyProcMemoryLevel(const std::map<pid_t, MemoryLevel> &procLevelMap) = 0;
+
+    /**
      * DumpHeapMemory, call DumpHeapMemory() through proxy project.
      * Get the application's memory allocation info.
      *
@@ -183,6 +238,15 @@ public:
      * @param recordId, the app record.
      */
     virtual void AddAbilityStageDone(const int32_t recordId) = 0;
+
+    /**
+     * DumpJsHeapMemory, call DumpJsHeapMemory() through proxy project.
+     * triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid tid needGc needSnapshot
+     * @return ERR_OK ,return back success, others fail.
+     */
+    virtual int DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info) = 0;
 
     /**
      * Start a resident process
@@ -203,6 +267,20 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer) = 0;
+
+    /**
+     * Register application or process state observer.
+     * @param observer Is ability foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer) = 0;
+
+    /**
+     * Unregister application or process state observer.
+     * @param observer Is ability foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer) = 0;
 
     /**
      * Get foreground applications.
@@ -233,6 +311,9 @@ public:
     virtual int FinishUserTest(const std::string &msg, const int64_t &resultCode, const std::string &bundleName) = 0;
 
     virtual void ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Want &want, const std::string &flag) = 0;
+
+    virtual void ScheduleNewProcessRequestDone(const int32_t recordId, const AAFwk::Want &want,
+        const std::string &flag) = 0;
 
     /**
      *  Get the token of ability records by process ID.
@@ -266,11 +347,12 @@ public:
      * @param sharedFd, shared memory file descriptior.
      * @param crashFd, crash signal file descriptior.
      * @param renderPid, created render pid.
+     * @param isGPU, is or not gpu process
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int StartRenderProcess(const std::string &renderParam,
                                    int32_t ipcFd, int32_t sharedFd,
-                                   int32_t crashFd, pid_t &renderPid) = 0;
+                                   int32_t crashFd, pid_t &renderPid, bool isGPU = false) = 0;
 
     /**
      * Render process call this to attach app manager service.
@@ -291,6 +373,8 @@ public:
     virtual int32_t GetConfiguration(Configuration& config) = 0;
 
     virtual int32_t UpdateConfiguration(const Configuration &config) = 0;
+
+    virtual int32_t UpdateConfigurationByBundleName(const Configuration &config, const std::string &name) = 0;
 
     virtual int32_t RegisterConfigurationObserver(const sptr<IConfigurationObserver> &observer) = 0;
 
@@ -347,6 +431,14 @@ public:
      */
     virtual int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData) = 0;
 
+    /**
+     * Set Appfreeze Detect Filter
+     *
+     * @param pid the process pid.
+     * @return Returns true on success, others on failure.
+     */
+    virtual bool SetAppFreezeFilter(int32_t pid) = 0;
+
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     /**
      * @brief Set whether the process is continuousTask.
@@ -383,6 +475,18 @@ public:
     virtual int32_t GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid) = 0;
 
     /**
+     * Get running process information by pid.
+     *
+     * @param pid process id.
+     * @param info Output parameters, return runningProcessInfo.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info)
+    {
+        return 0;
+    }
+
+    /**
      * get memorySize by pid.
      *
      * @param pid process id.
@@ -401,7 +505,7 @@ public:
      */
     virtual int32_t GetRunningProcessInformation(
         const std::string &bundleName, int32_t userId, std::vector<RunningProcessInfo> &info) = 0;
-    
+
     /**
      * @brief Notify AbilityManagerService the page show.
      * @param token Ability identify.
@@ -434,57 +538,219 @@ public:
      */
     virtual int32_t ChangeAppGcState(pid_t pid, int32_t state) = 0;
 
-    // please add new message item to the bottom in order to prevent some unexpected BUG
-    enum class Message {
-        APP_ATTACH_APPLICATION = 0,
-        APP_APPLICATION_FOREGROUNDED,
-        APP_APPLICATION_BACKGROUNDED,
-        APP_APPLICATION_TERMINATED,
-        APP_CHECK_PERMISSION,
-        APP_ABILITY_CLEANED,
-        APP_GET_MGR_INSTANCE,
-        APP_CLEAR_UP_APPLICATION_DATA,
-        APP_GET_ALL_RUNNING_PROCESSES,
-        APP_GET_RUNNING_PROCESSES_BY_USER_ID,
-        APP_ADD_ABILITY_STAGE_INFO_DONE,
-        STARTUP_RESIDENT_PROCESS,
-        REGISTER_APPLICATION_STATE_OBSERVER,
-        UNREGISTER_APPLICATION_STATE_OBSERVER,
-        GET_FOREGROUND_APPLICATIONS,
-        START_USER_TEST_PROCESS,
-        FINISH_USER_TEST,
-        SCHEDULE_ACCEPT_WANT_DONE,
-        BLOCK_APP_SERVICE,
-        APP_GET_ABILITY_RECORDS_BY_PROCESS_ID,
-        START_RENDER_PROCESS,
-        ATTACH_RENDER_PROCESS,
-        GET_RENDER_PROCESS_TERMINATION_STATUS,
-        GET_CONFIGURATION,
-        UPDATE_CONFIGURATION,
-        REGISTER_CONFIGURATION_OBSERVER,
-        UNREGISTER_CONFIGURATION_OBSERVER,
-        APP_NOTIFY_MEMORY_LEVEL,
-        GET_APP_RUNNING_STATE,
-        NOTIFY_LOAD_REPAIR_PATCH,
-        NOTIFY_HOT_RELOAD_PAGE,
-        SET_CONTINUOUSTASK_PROCESS,
-        NOTIFY_UNLOAD_REPAIR_PATCH,
-        PRE_START_NWEBSPAWN_PROCESS,
-        APP_GET_PROCESS_RUNNING_INFORMATION,
-        IS_SHARED_BUNDLE_RUNNING,
-        DUMP_HEAP_MEMORY_PROCESS,
-        START_NATIVE_PROCESS_FOR_DEBUGGER,
-        NOTIFY_APP_FAULT,
-        NOTIFY_APP_FAULT_BY_SA,
-        JUDGE_SANDBOX_BY_PID,
-        GET_BUNDLE_NAME_BY_PID,
-        APP_GET_ALL_RENDER_PROCESSES,
-        GET_PROCESS_MEMORY_BY_PID,
-        GET_PIDS_BY_BUNDLENAME,
-        CHANGE_APP_GC_STATE,
-        NOTIFY_PAGE_SHOW,
-        NOTIFY_PAGE_HIDE
-    };
+    /**
+     * Register appRunning status listener.
+     *
+     * @param listener Running status listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener) = 0;
+
+    /**
+     * Unregister appRunning status listener.
+     *
+     * @param listener Running status listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener) = 0;
+
+	/**
+     * Register application foreground state observer.
+     * @param observer Is app foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) = 0;
+
+    /**
+     * Unregister application foreground state observer.
+     * @param observer Is app foreground state observer.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) = 0;
+
+    /**
+     * Check whether the bundle is running.
+     *
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return Return ERR_OK if success, others fail.
+     */
+    virtual int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning) = 0;
+
+    /**
+     * Check whether the bundle is running.
+     *
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param appCloneIndex the appindex of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return Return ERR_OK if success, others fail.
+     */
+    virtual int32_t IsAppRunning(const std::string &bundleName, int32_t appCloneIndex,
+        bool &isRunning) = 0;
+
+    /**
+     * Start child process, called by ChildProcessManager.
+     *
+     * @param srcEntry Child process source file entrance path to be started.
+     * @param childPid Created child process pid.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount,
+        bool isStartWithDebug) = 0;
+
+    /**
+     * Get child process record for self.
+     *
+     * @return child process info.
+     */
+    virtual int32_t GetChildProcessInfoForSelf(ChildProcessInfo &info) = 0;
+
+    /**
+     * Attach child process scheduler to app manager service.
+     *
+     * @param childScheduler scheduler of child process.
+     */
+    virtual void AttachChildProcess(const sptr<IRemoteObject> &childScheduler) = 0;
+
+    /**
+     * Exit child process, called by itself.
+     */
+    virtual void ExitChildProcessSafely() = 0;
+
+    /**
+     * Whether the current application process is the last surviving process.
+     *
+     * @return Returns true is final application process, others return false.
+     */
+    virtual bool IsFinalAppProcess()  = 0;
+
+    /**
+     * Register render state observer.
+     * @param observer Render process state observer.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer) = 0;
+
+    /**
+     * Unregister render state observer.
+     * @param observer Render process state observer.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer) = 0;
+
+    /**
+     * Update render state.
+     * @param renderPid Render pid.
+     * @param state foreground or background state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UpdateRenderState(pid_t renderPid, int32_t state) = 0;
+
+    virtual int32_t SignRestartAppFlag(const std::string &bundleName)
+    {
+        return 0;
+    }
+
+    /**
+     * Get appRunningUniqueId by pid.
+     * @param pid pid.
+     * @param appRunningUniqueId appRunningUniqueId.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId)
+    {
+        return 0;
+    }
+
+    /*
+     * Get all uiextension root host process id, need apply permission ohos.permission.GET_RUNNING_INFO.
+     * If specified pid mismatch UIExtensionAbility type, return empty vector.
+     * @param pid Process id.
+     * @param hostPids All host process id.
+     * @return Returns 0 on success, others on failure.
+     */
+    virtual int32_t GetAllUIExtensionRootHostPid(pid_t pid, std::vector<pid_t> &hostPids)
+    {
+        return 0;
+    }
+
+    /**
+     * Get all uiextension provider process id, need apply permission ohos.permission.GET_RUNNING_INFO.
+     * If specified hostPid didn't start any UIExtensionAbility, return empty vector.
+     * @param hostPid Host process id.
+     * @param providerPids All provider process id started by specified hostPid.
+     * @return Returns 0 on success, others on failure.
+     */
+    virtual int32_t GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid_t> &providerPids)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Notify memory size state changed to sufficient or insufficent.
+     * @param isMemorySizeSufficent Indicates the memory size state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent)
+    {
+        return 0;
+    }
+
+    virtual int32_t SetSupportedProcessCacheSelf(bool isSupport) = 0;
+
+    /**
+     * Set application assertion pause state.
+     *
+     * @param flag assertion pause state.
+     */
+    virtual void SetAppAssertionPauseState(bool flag) {}
+
+    /**
+     * Start native child process, callde by ChildProcessManager.
+     * @param libName lib file name to be load in child process
+     * @param childProcessCount current started child process count
+     * @param callback callback for notify start result
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t StartNativeChildProcess(const std::string &libName, int32_t childProcessCount,
+        const sptr<IRemoteObject> &callback) = 0;
+
+    virtual void SaveBrowserChannel(sptr<IRemoteObject> browser) = 0;
+
+    /**
+     * Check caller is test ability
+     *
+     * @param pid, the pid of ability.
+     * @return Returns ERR_OK is test ability, others is not test ability.
+     */
+    virtual int32_t CheckCallingIsUserTestMode(const pid_t pid, bool &isUserTest)
+    {
+        return 0;
+    }
+
+    /**
+     * Notify that the process depends on web by itself.
+     */
+    virtual int32_t NotifyProcessDependedOnWeb()
+    {
+        return 0;
+    }
+
+    /**
+     * Kill process depended on web by sa.
+     */
+    virtual void KillProcessDependedOnWeb()
+    {
+        return;
+    }
+
+    /**
+     * Restart resident process depended on web.
+     */
+    virtual void RestartResidentProcessDependedOnWeb()
+    {
+        return;
+    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

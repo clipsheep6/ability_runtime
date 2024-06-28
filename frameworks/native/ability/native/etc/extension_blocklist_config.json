@@ -1,6 +1,14 @@
 {
     "blocklist": {
         "ServiceExtension": [],
+	"VpnExtension":[],
+        "AdsServiceExtension": [
+            "multimedia.camera",
+            "multimedia.mediaLibrary",
+            "telephony.sim",
+            "telephony.sms",
+            "contact"
+        ],
         "FormExtension": [
             "ability.particleAbility",
             "resourceschedule.backgroundTaskManager",
@@ -124,7 +132,6 @@
             "nfctech",
             "reminderAgent",
             "reminderAgentManager",
-            "sensor",
             "tagSession",
             "telephony.call",
             "telephony.data",
@@ -160,7 +167,7 @@
             "prompt",
             "promptAction",
             "window",
-            "system.prompt"
+            "core.liveview.liveViewManager"
         ],
         "DriverExtension": [
             "abilityAccessCtrl",
@@ -277,7 +284,7 @@
             "prompt",
             "promptAction",
             "window",
-            "system.prompt"
+            "core.liveview.liveViewManager"
         ],
         "RemoteLocationExtension": [
             "notification",
@@ -302,6 +309,71 @@
             "application.formHost",
             "application.formInfo",
             "application.formProvider"
+        ],
+        "LiveViewLockScreenExtension": [
+            "ability.featureAbility",
+            "ability.particleAbility",
+            "accessibility.config",
+            "account.appAccount",
+            "account.distributedAccount",
+            "account.osAccount",
+            "app.ability.quickFixManager",
+            "app.form.formHost",
+            "application.formError",
+            "application.formHost",
+            "backgroundTaskManager",
+            "bundle.bundleMonitor",
+            "bundle.distributedBundleManager",
+            "bundle.freeInstall",
+            "bundle.innerBundleManager",
+            "bundle.installer",
+            "bundle.launcherBundleManager",
+            "connectedTag",
+            "contact",
+            "continuation.continuationManager",
+            "data.distributedData",
+            "data.distributedDataObject",
+            "data.distributedKVStore",
+            "distributedBundle",
+            "distributedMissionManager",
+            "enterprise.adminManager",
+            "enterprise.dataTimeManager",
+            "enterprise.deviceInfo",
+            "filemanagement.userFileManager",
+            "hidebug",
+            "multimedia.audio",
+            "multimedia.avsession",
+            "multimedia.camera",
+            "multimedia.media",
+            "nfc.cardEmulation",
+            "nfc.controller",
+            "nfc.tag",
+            "notification",
+            "notificationManager",
+            "notificationSubscribe",
+            "privacyManager",
+            "reminderAgent",
+            "reminderAgentManager",
+            "request",
+            "resourceschedule.backgroundTaskManager",
+            "resourceschedule.usageStatistics",
+            "telephony.call",
+            "telephony.data",
+            "telephony.observer",
+            "telephony.radio",
+            "telephony.sim",
+            "telephony.sms",
+            "update",
+            "userIAM.faceAuth",
+            "userIAM.userAuth",
+            "vibrator",
+            "wallpaper",
+            "window",
+            "Context",
+            "ServiceExtensionContext",
+            "UIAbilityContext",
+            "nfctech",
+            "tagSession"
         ]
     }
 }

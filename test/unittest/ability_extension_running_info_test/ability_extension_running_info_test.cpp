@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #include "extension_running_info.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "want.h"
@@ -53,14 +54,14 @@ void AbilityExtensionRunningInfoTest::TearDown()
  */
 HWTEST_F(AbilityExtensionRunningInfoTest, ReadFromParcel_0100, TestSize.Level1)
 {
-    HILOG_INFO("ReadFromParcel start");
+    TAG_LOGI(AAFwkTag::TEST, "ReadFromParcel start");
 
     Parcel parcel;
     ExtensionRunningInfo extensionRunningInfo;
     bool ret = extensionRunningInfo.ReadFromParcel(parcel);
     EXPECT_FALSE(ret);
 
-    HILOG_INFO("ReadFromParcel end");
+    TAG_LOGI(AAFwkTag::TEST, "ReadFromParcel end");
 }
 
 /**
@@ -71,7 +72,7 @@ HWTEST_F(AbilityExtensionRunningInfoTest, ReadFromParcel_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionRunningInfoTest, ReadFromParcel_0200, TestSize.Level1)
 {
-    HILOG_INFO("ReadFromParcel start");
+    TAG_LOGI(AAFwkTag::TEST, "ReadFromParcel start");
 
     std::string deviceId;
     std::string bundleName = "ohos.test.bundle";
@@ -89,7 +90,7 @@ HWTEST_F(AbilityExtensionRunningInfoTest, ReadFromParcel_0200, TestSize.Level1)
     bool ret = extensionRunningInfo.ReadFromParcel(parcel);
     EXPECT_TRUE(ret);
 
-    HILOG_INFO("ReadFromParcel end");
+    TAG_LOGI(AAFwkTag::TEST, "ReadFromParcel end");
 }
 
 /**
@@ -100,7 +101,7 @@ HWTEST_F(AbilityExtensionRunningInfoTest, ReadFromParcel_0200, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionRunningInfoTest, Unmarshalling_0100, TestSize.Level1)
 {
-    HILOG_INFO("Unmarshalling start");
+    TAG_LOGI(AAFwkTag::TEST, "Unmarshalling start");
 
     std::string deviceId;
     std::string bundleName = "ohos.test.bundle";
@@ -117,7 +118,7 @@ HWTEST_F(AbilityExtensionRunningInfoTest, Unmarshalling_0100, TestSize.Level1)
     ExtensionRunningInfo* extensionRunningInfo = ExtensionRunningInfo::Unmarshalling(parcel);
     EXPECT_NE(extensionRunningInfo, nullptr);
 
-    HILOG_INFO("Unmarshalling end");
+    TAG_LOGI(AAFwkTag::TEST, "Unmarshalling end");
 }
 
 /**
@@ -128,13 +129,13 @@ HWTEST_F(AbilityExtensionRunningInfoTest, Unmarshalling_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionRunningInfoTest, Unmarshalling_0200, TestSize.Level1)
 {
-    HILOG_INFO("Unmarshalling start");
+    TAG_LOGI(AAFwkTag::TEST, "Unmarshalling start");
 
     Parcel parcel;
     ExtensionRunningInfo* extensionRunningInfo = ExtensionRunningInfo::Unmarshalling(parcel);
     EXPECT_EQ(extensionRunningInfo, nullptr);
 
-    HILOG_INFO("Unmarshalling end");
+    TAG_LOGI(AAFwkTag::TEST, "Unmarshalling end");
 }
 
 /**
@@ -145,14 +146,14 @@ HWTEST_F(AbilityExtensionRunningInfoTest, Unmarshalling_0200, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionRunningInfoTest, Marshalling_0100, TestSize.Level1)
 {
-    HILOG_INFO("Marshalling start");
+    TAG_LOGI(AAFwkTag::TEST, "Marshalling start");
 
     Parcel parcel;
     ExtensionRunningInfo extensionRunningInfo;
     bool ret = extensionRunningInfo.Marshalling(parcel);
     EXPECT_TRUE(ret);
 
-    HILOG_INFO("Marshalling end");
+    TAG_LOGI(AAFwkTag::TEST, "Marshalling end");
 }
 
 /**
@@ -163,7 +164,7 @@ HWTEST_F(AbilityExtensionRunningInfoTest, Marshalling_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionRunningInfoTest, Marshalling_0200, TestSize.Level1)
 {
-    HILOG_INFO("Marshalling start");
+    TAG_LOGI(AAFwkTag::TEST, "Marshalling start");
 
     std::string deviceId;
     std::string bundleName = "ohos.test.bundle";
@@ -185,7 +186,7 @@ HWTEST_F(AbilityExtensionRunningInfoTest, Marshalling_0200, TestSize.Level1)
     bool ret = extensionRunningInfo.Marshalling(parcel);
     EXPECT_TRUE(ret);
 
-    HILOG_INFO("Marshalling end");
+    TAG_LOGI(AAFwkTag::TEST, "Marshalling end");
 }
 } // namespace AAFwk
 } // namespace OHOS

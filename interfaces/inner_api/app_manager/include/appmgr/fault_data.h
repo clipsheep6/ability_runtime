@@ -33,6 +33,7 @@ enum class FaultDataType {
     UNKNOWN = -1,
     CPP_CRASH,
     JS_ERROR,
+    CJ_ERROR,
     APP_FREEZE,
     PERFORMANCE_CONTROL,
     RESOURCE_CONTROL

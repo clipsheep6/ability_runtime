@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "want_sender_info.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "nlohmann/json.hpp"
 #include "string_ex.h"
@@ -32,13 +33,13 @@ bool WantSenderInfo::ReadFromParcel(Parcel &parcel)
     requestCode = parcel.ReadInt32();
     int32_t wantsInfoSize = parcel.ReadInt32();
     if (wantsInfoSize > READ_PARCEL_MAX_WANT_INFO_SIZE) {
-        HILOG_ERROR("ReadFromParcel wantsInfoSize Control");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "ReadFromParcel wantsInfoSize Control");
         return false;
     }
     for (int32_t i = 0; i < wantsInfoSize; i++) {
         std::unique_ptr<WantsInfo> wantsInfo(parcel.ReadParcelable<WantsInfo>());
         if (!wantsInfo) {
-            HILOG_ERROR("ReadParcelable<WantsInfo> failed");
+            TAG_LOGE(AAFwkTag::WANTAGENT, "ReadParcelable<WantsInfo> failed");
             return false;
         }
         allWants.emplace_back(*wantsInfo);

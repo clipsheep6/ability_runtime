@@ -22,11 +22,20 @@
       *ApplicationLoader*;
       *AppMgrDeathRecipient*;
       *GetDataPath*;
+      *JsStartupConfig*;
       *MainHandlerDumper*;
       *MainThread*;
-      *MixStackDumper*;
       *OHOSApplication*;
+      *OnCompletedCallback*;
+      *StartupManager*;
+      *StartupTaskManager*;
+      *StartupTaskResult*;
+      *StartupUtils*;
       *Watchdog*;
+    };
+    extern "C" {
+      Ffi*;
+      FFI*;
     };
   local:
     *;

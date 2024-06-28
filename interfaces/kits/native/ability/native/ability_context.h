@@ -174,12 +174,23 @@ public:
      */
     void StartAbilities(const std::vector<AAFwk::Want> &wants) override;
 
+    void SetAbilityRecordId(int32_t abilityRecordId)
+    {
+        abilityRecordId_ = abilityRecordId;
+    }
+    int32_t GetAbilityRecordId() const
+    {
+        return abilityRecordId_;
+    }
+
     friend DataAbilityHelper;
     friend OHOS::DataShare::DataShareHelper;
     static int ABILITY_CONTEXT_DEFAULT_REQUEST_CODE;
 
 protected:
     sptr<IRemoteObject> GetToken() override;
+    sptr<IRemoteObject> GetSessionToken();
+
     sptr<IRemoteObject> token_;
     AAFwk::Want resultWant_;
     int resultCode_ = -1;
@@ -188,7 +199,9 @@ protected:
     std::string callingAbilityName_;
     std::string callingModuleName_;
     std::map<sptr<AAFwk::IAbilityConnection>, sptr<IRemoteObject>> abilityConnectionMap_;
-    sptr<AAFwk::SessionInfo> sessionInfo_;
+    std::mutex sessionTokenMutex_;
+    sptr<IRemoteObject> sessionToken_;
+    int32_t abilityRecordId_ = 0;
 
 private:
     /**

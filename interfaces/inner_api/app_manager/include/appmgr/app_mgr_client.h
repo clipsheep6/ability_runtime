@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,6 +23,7 @@
 #include "app_mem_info.h"
 #include "app_mgr_constants.h"
 #include "app_mgr_interface.h"
+#include "app_running_status_listener_interface.h"
 #include "application_info.h"
 #include "bundle_info.h"
 #include "fault_data.h"
@@ -31,12 +32,14 @@
 #include "iconfiguration_observer.h"
 #include "iremote_object.h"
 #include "irender_scheduler.h"
+#include "irender_state_observer.h"
 #include "istart_specified_ability_response.h"
 #include "refbase.h"
 #include "render_process_info.h"
 #include "running_process_info.h"
 #include "system_memory_attr.h"
 #include "want.h"
+#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -58,8 +61,9 @@ public:
      * @param want Want.
      * @return Returns RESULT_OK on success, others on failure.
      */
-    virtual AppMgrResultCode LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
-        const AbilityInfo &abilityInfo, const ApplicationInfo &appInfo, const AAFwk::Want &want);
+    virtual AppMgrResultCode LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObject> preToken,
+        const AbilityInfo &abilityInfo, const ApplicationInfo &appInfo, const AAFwk::Want &want,
+        int32_t abilityRecordId);
 
     /**
      * Terminate ability.
@@ -135,6 +139,11 @@ public:
      */
     virtual AppMgrResultCode KillProcessesByUserId(int32_t userId);
 
+    virtual AppMgrResultCode KillProcessesByPids(std::vector<int32_t> &pids);
+
+    virtual AppMgrResultCode AttachPidToParent(const sptr<IRemoteObject> &token,
+        const sptr<IRemoteObject> &callerToken);
+
     /**
      * UpdateApplicationInfoInstalled, call UpdateApplicationInfoInstalled() through proxy object,
      * update the application info after new module installed.
@@ -151,7 +160,7 @@ public:
      * @param  bundleName, bundle name in Application record.
      * @return ERR_OK, return back success, others fail.
      */
-    virtual AppMgrResultCode KillApplication(const std::string &bundleName);
+    virtual AppMgrResultCode KillApplication(const std::string &bundleName, const bool clearPageStack = true);
 
     /**
      * KillApplication, call KillApplication() through proxy object, kill the application.
@@ -167,16 +176,28 @@ public:
      *
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual AppMgrResultCode KillApplicationSelf();
+    virtual AppMgrResultCode KillApplicationSelf(const bool clearPageStack = true);
 
     /**
      * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
      * clear the application data.
      *
      * @param bundleName, bundle name in Application record.
+     * @param appCloneIndex the app clone id.
+     * @param userId, the user id.
      * @return
      */
-    virtual AppMgrResultCode ClearUpApplicationData(const std::string &bundleName);
+    virtual AppMgrResultCode ClearUpApplicationData(const std::string &bundleName, int32_t appCloneIndex,
+        int32_t userId = -1);
+
+    /**
+     * ClearUpApplicationDataBySelf, call ClearUpApplicationDataBySelf() through proxy project,
+     * clear the application data.
+     *
+     * @param userId, the user id.
+     * @return
+     */
+    virtual AppMgrResultCode ClearUpApplicationDataBySelf(int32_t userId = -1);
 
     /**
      * GetAllRunningProcesses, call GetAllRunningProcesses() through proxy project.
@@ -225,6 +246,15 @@ public:
     virtual AppMgrResultCode NotifyMemoryLevel(MemoryLevel level);
 
     /**
+     * NotifyProcMemoryLevel, call NotifyMemoryLevel() through proxy project.
+     * Notify abilities the current memory level.
+     *
+     * @param procLevelMap ,<pid, level> map;
+     * @return ERR_OK ,return back success, others fail.
+     */
+    virtual AppMgrResultCode NotifyProcMemoryLevel(const std::map<pid_t, MemoryLevel> &procLevelMap) const;
+
+    /**
      * DumpHeapMemory, call DumpHeapMemory() through proxy project.
      * Get the application's memory allocation info.
      *
@@ -233,6 +263,15 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual AppMgrResultCode DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo);
+
+    /**
+     * DumpJsHeapMemory, call DumpJsHeapMemory() through proxy project.
+     * triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid tid needGc needSnapshot
+     * @return ERR_OK ,return back success, others fail.
+     */
+    virtual AppMgrResultCode DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info);
 
     /**
      * GetConfiguration
@@ -253,8 +292,9 @@ public:
      * Prepare terminate.
      *
      * @param token Ability identify.
+     * @param clearMissionFlag Clear mission flag.
      */
-    virtual void PrepareTerminate(const sptr<IRemoteObject> &token);
+    virtual void PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag = false);
 
     /**
      * Get running process information by ability token.
@@ -267,10 +307,11 @@ public:
     /**
      * Get running process information by pid.
      *
-     * @param token Process id.
-     * @param info Running process info.
+     * @param pid process id.
+     * @param info Output parameters, return runningProcessInfo.
+     * @return Returns ERR_OK on success, others on failure.
      */
-    virtual void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const;
+    virtual int32_t GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const;
 
     /**
      * Notify that the ability stage has been updated
@@ -290,6 +331,15 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual AppMgrResultCode UpdateConfiguration(const Configuration &config);
+
+    /**
+     *  Update config by bundle name.
+     *
+     * @param config Application enviroment change parameters.
+     * @param name Application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual AppMgrResultCode UpdateConfigurationByBundleName(const Configuration &config, const std::string &name);
 
     /**
      * Register configuration observer.
@@ -338,7 +388,8 @@ public:
      * @param want Want contains information wish to start.
      * @param abilityInfo Ability information.
      */
-    virtual void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
+    virtual void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0);
 
     /**
      * Register response of start specified ability.
@@ -346,6 +397,15 @@ public:
      * @param response Response of start specified ability.
      */
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response);
+
+    /**
+     * Start specified process.
+     *
+     * @param want Want contains information wish to start.
+     * @param abilityInfo Ability information.
+     */
+    virtual void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0);
 
     /**
      * Schedule accept want done.
@@ -384,7 +444,7 @@ public:
      */
     virtual int StartRenderProcess(const std::string &renderParam,
                                    int32_t ipcFd, int32_t sharedFd,
-                                   int32_t crashFd, pid_t &renderPid);
+                                   int32_t crashFd, pid_t &renderPid, bool isGPU = false);
 
     /**
      * Render process call this to attach app manager service.
@@ -420,7 +480,7 @@ public:
      * @param debug Whether IsDebugApp.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t StartNativeProcessForDebugger(const AAFwk::Want &want) const;
+    int32_t StartNativeProcessForDebugger(const AAFwk::Want &want);
 
     /**
      * Set the current userId of appMgr.
@@ -456,6 +516,14 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData);
+
+    /**
+     * Set Appfreeze Detect Filter
+     *
+     * @param pid the process pid.
+     * @return Returns true on success, others on failure.
+     */
+    bool SetAppFreezeFilter(int32_t pid);
 
     /**
      * Set AbilityForegroundingFlag of an app-record to true.
@@ -503,6 +571,38 @@ public:
     int32_t DetachAppDebug(const std::string &bundleName);
 
     /**
+     * @brief Set app waiting debug mode.
+     * @param bundleName The application bundle name.
+     * @param isPersist The persist flag.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t SetAppWaitingDebug(const std::string &bundleName, bool isPersist);
+
+    /**
+     * @brief Cancel app waiting debug mode.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t CancelAppWaitingDebug();
+
+    /**
+     * @brief Get waiting debug mode application.
+     * @param debugInfoList The debug bundle info list, including bundle name and persist flag.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t GetWaitingDebugApp(std::vector<std::string> &debugInfoList);
+
+    /**
+     * @brief Determine whether it is a waiting debug application based on the bundle name.
+     * @return Returns true if it is a waiting debug application, otherwise it returns false.
+     */
+    bool IsWaitingDebugApp(const std::string &bundleName);
+
+    /**
+     * @brief Clear non persist waiting debug flag.
+     */
+    void ClearNonPersistWaitingDebugFlag();
+
+    /**
      * @brief Registering ability Debug Mode response.
      * @param abilityResponse Response of ability debug object.
      * @return Returns ERR_OK on success, others on failure.
@@ -517,8 +617,16 @@ public:
     bool IsAttachDebug(const std::string &bundleName);
 
     /**
+     * @brief Set resident process enable status.
+     * @param bundleName The application bundle name.
+     * @param enable The current updated enable status.
+     */
+    void SetKeepAliveEnableState(const std::string &bundleName, bool enable);
+
+    /**
      * Register application or process state observer.
      * @param observer, ability token.
+     * @param bundleNameList, the list of bundle names.
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
@@ -547,6 +655,119 @@ public:
      */
     int32_t NotifyPageHide(const sptr<IRemoteObject> &token, const PageStateData &pageStateData);
 
+    /**
+     * Register appRunning status listener.
+     *
+     * @param listener Running status listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener);
+
+    /**
+     * Unregister appRunning status listener.
+     *
+     * @param listener Running status listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener);
+
+    /**
+     * Whether the current application process is the last surviving process.
+     *
+     * @return Returns true is final application process, others return false.
+     */
+    bool IsFinalAppProcess();
+
+    /**
+     * To clear the process by ability token.
+     *
+     * @param token the unique identification to the ability.
+     */
+    void ClearProcessByToken(sptr<IRemoteObject> token) const;
+
+    int32_t RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
+
+    int32_t UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
+
+    int32_t UpdateRenderState(pid_t renderPid, int32_t state);
+
+    int32_t GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId);
+
+    /**
+     * Get all uiextension root host process id, need apply permission ohos.permission.GET_RUNNING_INFO.
+     * If specified pid mismatch UIExtensionAbility type, return empty vector.
+     * @param pid Process id.
+     * @param hostPids All host process id.
+     * @return Returns 0 on success, others on failure.
+     */
+    int32_t GetAllUIExtensionRootHostPid(pid_t pid, std::vector<pid_t> &hostPids);
+
+    /**
+     * Get all uiextension provider process id, need apply permission ohos.permission.GET_RUNNING_INFO.
+     * If specified hostPid didn't start any UIExtensionAbility, return empty vector.
+     * @param hostPid Host process id.
+     * @param providerPids All provider process id started by specified hostPid.
+     * @return Returns 0 on success, others on failure.
+     */
+    int32_t GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid_t> &providerPids);
+
+    /**
+     * @brief Notify memory size state changed to sufficient or insufficent.
+     * @param isMemorySizeSufficent Indicates the memory size state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t NotifyMemorySizeStateChanged(bool isMemorySizeSufficent);
+
+    /**
+     * whether memory size is sufficent.
+     * @return Returns true is sufficent memory size, others return false.
+     */
+    bool IsMemorySizeSufficent() const;
+
+    /**
+     * Record process exit reason to appRunningRecord
+     * @param pid pid
+     * @param reason reason enum
+     * @param exitMsg exitMsg
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg);
+
+    /**
+     * Preload application.
+     *
+     * @param bundleName The bundle name of the application to preload.
+     * @param userId Indicates the user identification.
+     * @param preloadMode Preload application mode.
+     * @param appIndex The index of application clone.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t PreloadApplication(const std::string &bundleName, int32_t userId,
+        AppExecFwk::PreloadMode preloadMode, int32_t appIndex = 0);
+
+    int32_t SetSupportedProcessCacheSelf(bool isSupport);
+
+    void SaveBrowserChannel(sptr<IRemoteObject> browser);
+
+    /**
+     * Check caller is test ability
+     *
+     * @param pid, the pid of ability.
+     * @return Returns ERR_OK is test ability, others is not test ability.
+     */
+    int32_t CheckCallingIsUserTestMode(const pid_t pid, bool &isUserTest);
+
+    /**
+     * Notifies that one ability is attached to status bar.
+     *
+     * @param token the token of the abilityRecord that is attached to status bar.
+     * @return Returns RESULT_OK on success, others on failure.
+     */
+    virtual AppMgrResultCode AttachedToStatusBar(const sptr<IRemoteObject> &token);
+
+    int32_t NotifyProcessDependedOnWeb();
+
+    void KillProcessDependedOnWeb();
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
     /**

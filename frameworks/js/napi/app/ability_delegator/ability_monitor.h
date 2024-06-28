@@ -22,7 +22,6 @@
 #include "native_engine/native_reference.h"
 
 class NativeReference;
-class NativeValue;
 
 namespace OHOS {
 namespace AbilityDelegatorJs {

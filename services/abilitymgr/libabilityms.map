@@ -41,6 +41,7 @@
       *ConnectionManagerClient*;
       *ControlInterceptor*;
       *CrowdTestInterceptor*;
+      *DisposedRuleInterceptor*;
       *EcologicalRuleInterceptor*;
       *AbilityJumpInterceptor*;
       *DataAbilityManager*;
@@ -67,17 +68,19 @@
       *TaskDataPersistenceMgr*;
       *Token*;
       *UserController*;
+      *UnlockScreenManager*;
       *WantSenderInfo*;
       *SenderInfo*;
       *AbilityManagerProxy*;
       *ExtensionRunningInfo*;
-      *StopUserCallbackStub*;
+      *UserCallbackStub*;
       *UserItem*;
       *WantReceiverStub*;
       *CallRecord*;
       *WantReceiverProxy*;
       *WantSenderProxy*;
       *WantSenderStub*;
+      *DeepLinkReserveConfig*;
     };
   local:
     *;

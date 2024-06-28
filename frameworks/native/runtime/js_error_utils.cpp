@@ -22,6 +22,8 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr const char* ERR_MSG_TOO_FEW_PARAM = "Parameter error. Too few parameters.";
+constexpr const char* ERR_MSG_NOT_MAINTHREAD = "Caller error. Caller from non-main thread.";
+constexpr const char* ERR_MSG_INVALID_NUM_PARAMS = "Parameter error. The number of parameters is invalid.";
 } // namespace
 
 void ThrowError(napi_env env, int32_t errCode, const std::string& errorMsg)
@@ -34,6 +36,13 @@ void ThrowError(napi_env env, const AbilityErrorCode& err)
     napi_throw(env, CreateJsError(env, static_cast<int32_t>(err), GetErrorMsg(err)));
 }
 
+void ThrowInvalidCallerError(napi_env env)
+{
+    napi_throw(env, CreateJsError(env,
+        static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_CALLER),
+        ERR_MSG_NOT_MAINTHREAD));
+}
+
 void ThrowTooFewParametersError(napi_env env)
 {
     napi_throw(env, CreateJsError(env,
@@ -41,11 +50,23 @@ void ThrowTooFewParametersError(napi_env env)
         ERR_MSG_TOO_FEW_PARAM));
 }
 
+void ThrowInvalidNumParametersError(napi_env env)
+{
+    napi_throw(env, CreateJsError(env,
+        static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM),
+        ERR_MSG_INVALID_NUM_PARAMS));
+}
+
 void ThrowNoPermissionError(napi_env env, const std::string& permission)
 {
     napi_throw(env, CreateJsError(env,
         static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_PERMISSION_DENIED),
         GetNoPermissionErrorMsg(permission)));
+}
+
+void ThrowInvalidParamError(napi_env env, const std::string &message)
+{
+    napi_throw(env, CreateInvalidParamJsError(env, message));
 }
 
 void ThrowErrorByNativeErr(napi_env env, int32_t err)
@@ -56,6 +77,11 @@ void ThrowErrorByNativeErr(napi_env env, int32_t err)
 napi_value CreateJsError(napi_env env, const AbilityErrorCode& err)
 {
     return CreateJsError(env, static_cast<int32_t>(err), GetErrorMsg(err));
+}
+
+napi_value CreateInvalidParamJsError(napi_env env, const std::string &message)
+{
+    return CreateJsError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM), message);
 }
 
 napi_value CreateNoPermissionError(napi_env env, const std::string& permission)
@@ -72,56 +98,5 @@ napi_value CreateJsErrorByNativeErr(napi_env env, int32_t err, const std::string
         GetNoPermissionErrorMsg(permission) : GetErrorMsg(errCode);
     return CreateJsError(env, static_cast<int32_t>(errCode), errMsg);
 }
-
-// ---About to be deleted
-void ThrowError(NativeEngine& engine, int32_t errCode, const std::string& errorMsg)
-{
-    engine.Throw(CreateJsError(engine, errCode, errorMsg));
-}
-
-void ThrowError(NativeEngine& engine, const AbilityErrorCode& err)
-{
-    engine.Throw(CreateJsError(engine, static_cast<int32_t>(err), GetErrorMsg(err)));
-}
-
-void ThrowTooFewParametersError(NativeEngine& engine)
-{
-    engine.Throw(CreateJsError(engine,
-        static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM),
-        ERR_MSG_TOO_FEW_PARAM));
-}
-
-void ThrowNoPermissionError(NativeEngine& engine, const std::string& permission)
-{
-    engine.Throw(CreateJsError(engine,
-        static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_PERMISSION_DENIED),
-        GetNoPermissionErrorMsg(permission)));
-}
-
-void ThrowErrorByNativeErr(NativeEngine& engine, int32_t err)
-{
-    engine.Throw(CreateJsErrorByNativeErr(engine, err));
-}
-
-NativeValue* CreateJsError(NativeEngine& engine, const AbilityErrorCode& err)
-{
-    return CreateJsError(engine, static_cast<int32_t>(err), GetErrorMsg(err));
-}
-
-NativeValue* CreateNoPermissionError(NativeEngine& engine, const std::string& permission)
-{
-    return CreateJsError(engine,
-        static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_PERMISSION_DENIED),
-        GetNoPermissionErrorMsg(permission));
-}
-
-NativeValue* CreateJsErrorByNativeErr(NativeEngine& engine, int32_t err, const std::string& permission)
-{
-    auto errCode = GetJsErrorCodeByNativeError(err);
-    auto errMsg = (errCode == AbilityErrorCode::ERROR_CODE_PERMISSION_DENIED && !permission.empty()) ?
-        GetNoPermissionErrorMsg(permission) : GetErrorMsg(errCode);
-    return CreateJsError(engine, static_cast<int32_t>(errCode), errMsg);
-}
-// ---
 }  // namespace AbilityRuntime
 }  // namespace OHOS

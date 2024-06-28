@@ -144,11 +144,17 @@ public:
     {
         return;
     };
+    virtual void OnExecuteIntent(const Want &want) {};
     virtual void ScheduleShareData(const int32_t &uniqueId) {};
     virtual bool SchedulePrepareTerminateAbility()
     {
         return false;
     }
+    virtual int CreateModalUIExtension(const Want &want)
+    {
+        return 0;
+    }
+    virtual void UpdateSessionToken(sptr<IRemoteObject> sessionToken) {}
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

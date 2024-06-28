@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -60,6 +60,7 @@ enum class AppState {
     TERMINATED,
     END,
     SUSPENDED,
+    COLD_START = 99,
 };
 
 struct AppData {
@@ -71,6 +72,7 @@ struct AppInfo {
     std::vector<AppData> appData;
     std::string processName;
     AppState state;
+    pid_t pid = 0;
 };
 /**
  * @class AppStateCallback
@@ -86,6 +88,12 @@ public:
     virtual void OnAbilityRequestDone(const sptr<IRemoteObject> &token, const int32_t state) = 0;
 
     virtual void OnAppStateChanged(const AppInfo &info) = 0;
+
+    virtual void NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId) {}
+
+    virtual void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos) {}
+
+    virtual void OnAppRemoteDied(const std::vector<sptr<IRemoteObject>> &abilityTokens) {}
 };
 
 class StartSpecifiedAbilityResponse : public AppExecFwk::StartSpecifiedAbilityResponseStub {
@@ -93,8 +101,13 @@ public:
     StartSpecifiedAbilityResponse() = default;
     virtual ~StartSpecifiedAbilityResponse() = default;
 
-    virtual void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag) override;
-    virtual void OnTimeoutResponse(const AAFwk::Want &want) override;
+    virtual void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag,
+        int32_t requestId) override;
+    virtual void OnTimeoutResponse(const AAFwk::Want &want, int32_t requestId) override;
+
+    virtual void OnNewProcessRequestResponse(const AAFwk::Want &want, const std::string &flag,
+        int32_t requestId) override;
+    virtual void OnNewProcessRequestTimeoutResponse(const AAFwk::Want &want, int32_t requestId) override;
 };
 
 /**
@@ -121,9 +134,9 @@ public:
      * @param want ability want
      * @return true on success ,false on failure.
      */
-    int LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
+    int LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObject> preToken,
         const AppExecFwk::AbilityInfo &abilityInfo, const AppExecFwk::ApplicationInfo &applicationInfo,
-        const Want &want);
+        const Want &want, int32_t abilityRecordId);
 
     /**
      * terminate ability with token.
@@ -194,6 +207,10 @@ public:
      */
     void KillProcessesByUserId(int32_t userId);
 
+    void KillProcessesByPids(std::vector<int32_t> &pids);
+
+    void AttachPidToParent(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callerToken);
+
     /**
      * convert ability state to app ability state.
      *
@@ -213,7 +230,7 @@ public:
      *
      * @param bundleName.
      */
-    int KillApplication(const std::string &bundleName);
+    int KillApplication(const std::string &bundleName, const bool clearPageStack = true);
 
     /**
      * kill the application by uid
@@ -233,16 +250,9 @@ public:
      */
     int UpdateApplicationInfoInstalled(const std::string &bundleName, const int32_t uid);
 
-    /**
-     * clear the application data
-     *
-     * @param bundleName.
-     */
-    int ClearUpApplicationData(const std::string &bundleName);
-
     void AttachTimeOut(const sptr<IRemoteObject> &token);
 
-    void PrepareTerminate(const sptr<IRemoteObject> &token);
+    void PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag = false);
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
 
@@ -261,8 +271,12 @@ public:
      */
     void StartupResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos);
 
-    void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
+    void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0);
     int GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info);
+
+    void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
+        int32_t requestId = 0);
 
     /**
      * Start a user test
@@ -313,6 +327,15 @@ public:
     int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug);
 
     /**
+     * Record process exit reason to appRunningRecord
+     * @param pid pid
+     * @param reason reason enum
+     * @param exitMsg exitMsg
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyAppMgrRecordExitReason(int32_t pid, int32_t reason, const std::string &exitMsg);
+
+    /**
      * Set the current userId of appMgr, only used by abilityMgr.
      *
      * @param userId the user id.
@@ -354,14 +377,14 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t RegisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener);
-    
+
     /**
      * @brief Unregister app debug listener.
      * @param listener App debug listener.
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t UnregisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener);
-    
+
     /**
      * @brief Attach app debug.
      * @param bundleName The application bundle name.
@@ -390,6 +413,26 @@ public:
      */
     bool IsAttachDebug(const std::string &bundleName);
 
+    /**
+     * To clear the process by ability token.
+     *
+     * @param token the unique identification to the ability.
+     */
+    void ClearProcessByToken(sptr<IRemoteObject> token) const;
+
+    /**
+     * whether memory size is sufficent.
+     * @return Returns true is sufficent memory size, others return false.
+     */
+    virtual bool IsMemorySizeSufficent() const;
+
+    /**
+     * Notifies that one ability is attached to status bar.
+     *
+     * @param token the token of the abilityRecord that is attached to status bar.
+     */
+    void AttachedToStatusBar(const sptr<IRemoteObject> &token);
+
 protected:
     /**
      * OnAbilityRequestDone, app manager service call this interface after ability request done.
@@ -405,6 +448,21 @@ protected:
      * @param appProcessData Process data
      */
     virtual void OnAppStateChanged(const AppExecFwk::AppProcessData &appData) override;
+
+    /**
+     * @brief Notify application update system environment changes.
+     * @param config System environment change parameters.
+     * @param userId userId Designation User ID.
+     */
+    virtual void NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId) override;
+
+    /**
+     * @brief Notify abilityms start resident process.
+     * @param bundleInfos resident process bundle infos.
+     */
+    virtual void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos) override;
+
+    virtual void OnAppRemoteDied(const std::vector<sptr<IRemoteObject>> &abilityTokens) override;
 
 private:
     std::mutex lock_;

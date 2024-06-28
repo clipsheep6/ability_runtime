@@ -56,6 +56,7 @@ public:
     WantSenderInfo MakeWantSenderInfo(Want& want, int32_t flags, int32_t userId, int32_t type = 1);
     WantSenderInfo MakeWantSenderInfo(std::vector<Want>& wants, int32_t flags, int32_t userId, int32_t type = 1);
     std::shared_ptr<PendingWantKey> MakeWantKey(WantSenderInfo& wantSenderInfo);
+    static constexpr int defaultCount = 100;
     static constexpr int TEST_WAIT_TIME = 100000;
 
     class CancelReceiver : public AAFwk::WantReceiverStub {
@@ -81,12 +82,12 @@ int PendingWantManagerTest::CancelReceiver::sendCount = 0;
 
 void PendingWantManagerTest::CancelReceiver::Send(const int32_t resultCode)
 {
-    sendCount = 100;
+    sendCount = defaultCount;
 }
 void PendingWantManagerTest::CancelReceiver::PerformReceive(const AAFwk::Want& want, int resultCode,
     const std::string& data, const AAFwk::WantParams& extras, bool serialized, bool sticky, int sendingUser)
 {
-    performReceiveCount = 100;
+    performReceiveCount = defaultCount;
 }
 
 void PendingWantManagerTest::SetUpTestCase()

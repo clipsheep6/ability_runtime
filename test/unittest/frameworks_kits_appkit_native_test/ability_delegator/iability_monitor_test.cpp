@@ -28,6 +28,7 @@
 #include "ability_manager_client.h"
 #undef private
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_ability_delegator_stub.h"
 #include "native_engine/native_reference.h"
@@ -92,7 +93,7 @@ void IabilityMonitorTest::MakeMockObjects() const
  */
 HWTEST_F(IabilityMonitorTest, Iability_Monitor_Test_0100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Iability_Monitor_Test_0100 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Iability_Monitor_Test_0100 is called");
 
     IAbilityMonitor iabilityMonitor(ABILITY_NAME);
     EXPECT_FALSE(iabilityMonitor.Match(nullptr));
@@ -105,7 +106,7 @@ HWTEST_F(IabilityMonitorTest, Iability_Monitor_Test_0100, Function | MediumTest 
  */
 HWTEST_F(IabilityMonitorTest, Iability_Monitor_Test_0200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Iability_Monitor_Test_0200 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Iability_Monitor_Test_0200 is called");
 
     IAbilityMonitor iabilityMonitor("");
     std::shared_ptr<ADelegatorAbilityProperty> proterty = std::make_shared<ADelegatorAbilityProperty>();
@@ -121,7 +122,7 @@ HWTEST_F(IabilityMonitorTest, Iability_Monitor_Test_0200, Function | MediumTest 
  */
 HWTEST_F(IabilityMonitorTest, Iability_Monitor_Test_0300, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Iability_Monitor_Test_0300 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Iability_Monitor_Test_0300 is called");
 
     IAbilityMonitor iabilityMonitor(ABILITY_NAME);
     std::shared_ptr<ADelegatorAbilityProperty> proterty = std::make_shared<ADelegatorAbilityProperty>();
@@ -138,7 +139,7 @@ HWTEST_F(IabilityMonitorTest, Iability_Monitor_Test_0300, Function | MediumTest 
  */
 HWTEST_F(IabilityMonitorTest, MatchTest_0100, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     IAbilityMonitor iabilityMonitor(ABILITY_NAME);
     std::shared_ptr<ADelegatorAbilityProperty> proterty = std::make_shared<ADelegatorAbilityProperty>();
     proterty->token_ = new MockAbilityDelegatorStub;
@@ -154,7 +155,7 @@ HWTEST_F(IabilityMonitorTest, MatchTest_0100, TestSize.Level1)
  */
 HWTEST_F(IabilityMonitorTest, MatchTest_0200, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     IAbilityMonitor iabilityMonitor(ABILITY_NAME);
     std::shared_ptr<ADelegatorAbilityProperty> proterty = std::make_shared<ADelegatorAbilityProperty>();
     proterty->token_ = new MockAbilityDelegatorStub;
@@ -170,7 +171,7 @@ HWTEST_F(IabilityMonitorTest, MatchTest_0200, TestSize.Level1)
  */
 HWTEST_F(IabilityMonitorTest, WaitForAbilityTest_0100, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     IAbilityMonitor iabilityMonitor(ABILITY_NAME);
 
     // wait for 100ms until timeout
@@ -188,17 +189,17 @@ std::shared_ptr<IAbilityMonitor> gt_iAbilityMonitor = nullptr;
 void IAbilityMonitorWaitTask()
 {
     ASSERT_NE(gt_iAbilityMonitor, nullptr);
-    HILOG_INFO("Running in thread %{public}d", gettid());
+    TAG_LOGI(AAFwkTag::TEST, "Running in thread %{public}d", gettid());
     auto property = gt_iAbilityMonitor->WaitForAbility();
     if (property == nullptr) {
-        HILOG_WARN("Wait for ability failed.");
+        TAG_LOGW(AAFwkTag::TEST, "Wait for ability failed.");
     }
 }
 
 void IAbilityMonitorMatchTask()
 {
     ASSERT_NE(gt_iAbilityMonitor, nullptr);
-    HILOG_INFO("Running in thread %{public}d", gettid());
+    TAG_LOGI(AAFwkTag::TEST, "Running in thread %{public}d", gettid());
     std::shared_ptr<ADelegatorAbilityProperty> proterty = std::make_shared<ADelegatorAbilityProperty>();
     proterty->token_ = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
     proterty->name_ = PROPERTY_ABILITY_NAME;
@@ -207,7 +208,7 @@ void IAbilityMonitorMatchTask()
 
 HWTEST_F(IabilityMonitorTest, WaitForAbilityTest_0200, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     gt_iAbilityMonitor = std::make_shared<IAbilityMonitor>(ABILITY_NAME);
     SET_THREAD_NUM(1);
     GTEST_RUN_TASK(IAbilityMonitorWaitTask);
@@ -223,7 +224,7 @@ HWTEST_F(IabilityMonitorTest, WaitForAbilityTest_0200, TestSize.Level1)
  */
 HWTEST_F(IabilityMonitorTest, FuncTest_0100, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     auto iabilityMonitor = new IAbilityMonitor(ABILITY_NAME);
     ASSERT_NE(iabilityMonitor, nullptr);
     auto nativeRef = std::shared_ptr<NativeReference>();

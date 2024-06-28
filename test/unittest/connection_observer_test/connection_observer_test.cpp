@@ -24,6 +24,7 @@
 #include "connection_observer_client.h"
 #include "connection_observer_client_impl.h"
 #include "dlp_state_data.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_native_token.h"
 #include "parcel.h"
@@ -131,7 +132,7 @@ void ConnectionObserverTest::TearDown(void) {}
  */
 HWTEST_F(ConnectionObserverTest, ConnectionObserver_Data_0100, TestSize.Level1)
 {
-    HILOG_INFO("ConnectionObserver_Data_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectionObserver_Data_0100 start");
 
     ConnectionData connectionData;
     connectionData.extensionPid = TEST_PID;
@@ -159,7 +160,7 @@ HWTEST_F(ConnectionObserverTest, ConnectionObserver_Data_0100, TestSize.Level1)
     EXPECT_EQ(connectionData.callerUid, readedData->callerUid);
     EXPECT_EQ(connectionData.callerName, readedData->callerName);
 
-    HILOG_INFO("ConnectionObserver_Data_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectionObserver_Data_0100 end");
 }
 
 /**
@@ -170,7 +171,7 @@ HWTEST_F(ConnectionObserverTest, ConnectionObserver_Data_0100, TestSize.Level1)
  */
 HWTEST_F(ConnectionObserverTest, ConnectionObserver_Data_0200, TestSize.Level1)
 {
-    HILOG_INFO("ConnectionObserver_Data_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectionObserver_Data_0200 start");
 
     DlpStateData dlpData;
     dlpData.targetPid = TEST_PID;
@@ -197,7 +198,7 @@ HWTEST_F(ConnectionObserverTest, ConnectionObserver_Data_0200, TestSize.Level1)
     EXPECT_EQ(dlpData.callerPid, readedData->callerPid);
     EXPECT_EQ(dlpData.callerName, readedData->callerName);
 
-    HILOG_INFO("ConnectionObserver_Data_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectionObserver_Data_0200 end");
 }
 
 /**
@@ -208,7 +209,7 @@ HWTEST_F(ConnectionObserverTest, ConnectionObserver_Data_0200, TestSize.Level1)
  */
 HWTEST_F(ConnectionObserverTest, ConnectionObserver_Data_0300, TestSize.Level1)
 {
-    HILOG_INFO("ConnectionObserver_Data_0300 start");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectionObserver_Data_0300 start");
 
     DlpConnectionInfo info;
     info.dlpUid = TEST_UID;
@@ -223,7 +224,7 @@ HWTEST_F(ConnectionObserverTest, ConnectionObserver_Data_0300, TestSize.Level1)
     EXPECT_EQ(info.dlpUid, readedData->dlpUid);
     EXPECT_EQ(info.openedAbilityCount, readedData->openedAbilityCount);
 
-    HILOG_INFO("ConnectionObserver_Data_0300 end");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectionObserver_Data_0300 end");
 }
 
 /**
@@ -234,7 +235,7 @@ HWTEST_F(ConnectionObserverTest, ConnectionObserver_Data_0300, TestSize.Level1)
  */
 HWTEST_F(ConnectionObserverTest, ConnectionObserver_Observer_0100, TestSize.Level1)
 {
-    HILOG_INFO("ConnectionObserver_Observer_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectionObserver_Observer_0100 start");
 
     auto clientImpl = ConnectionObserverClient::GetInstance().clientImpl_;
     EXPECT_TRUE(clientImpl);
@@ -268,7 +269,7 @@ HWTEST_F(ConnectionObserverTest, ConnectionObserver_Observer_0100, TestSize.Leve
     myObserver->OnServiceDied();
     ConnectionObserverClient::GetInstance().UnregisterObserver(myObserver);
 
-    HILOG_INFO("ConnectionObserver_Observer_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectionObserver_Observer_0100 end");
 }
 
 /**
@@ -279,7 +280,7 @@ HWTEST_F(ConnectionObserverTest, ConnectionObserver_Observer_0100, TestSize.Leve
  */
 HWTEST_F(ConnectionObserverTest, ConnectionObserver_Observer_0200, TestSize.Level1)
 {
-    HILOG_INFO("ConnectionObserver_Observer_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectionObserver_Observer_0200 start");
 
     auto currentID = GetSelfTokenID();
     AppExecFwk::MockNativeToken::SetNativeToken();
@@ -296,7 +297,7 @@ HWTEST_F(ConnectionObserverTest, ConnectionObserver_Observer_0200, TestSize.Leve
     EXPECT_EQ(result, ERR_OK);
 
     SetSelfTokenID(currentID);
-    HILOG_INFO("ConnectionObserver_Observer_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectionObserver_Observer_0200 end");
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

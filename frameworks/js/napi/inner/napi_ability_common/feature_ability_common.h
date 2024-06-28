@@ -15,6 +15,7 @@
 
 #ifndef OHOS_ABILITY_RUNTIME_FEATURE_ABILITY_COMMON_H
 #define OHOS_ABILITY_RUNTIME_FEATURE_ABILITY_COMMON_H
+
 #include "ability.h"
 #include "ability_info.h"
 #include "application_info.h"
@@ -66,7 +67,7 @@ struct AsyncCallbackInfo {
     AbilityType abilityType = AbilityType::UNKNOWN;
     int errCode = 0;
     ContinueAbilityOptionsInfo optionInfo;
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
     sptr<OHOS::Rosen::Window> window;
 #endif
 };

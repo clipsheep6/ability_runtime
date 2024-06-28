@@ -25,6 +25,7 @@
 #include "ability_runtime/context/context_impl.h"
 #include "app_loader.h"
 #include "event_runner.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "mock_ability_delegator_stub.h"
@@ -79,7 +80,7 @@ void AbilityDelegatorRegistryTest::MakeMockObjects() const
  */
 HWTEST_F(AbilityDelegatorRegistryTest, Ability_Delegator_Registry_Test_0100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Registry_Test_0100 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Registry_Test_0100 is called");
 
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);

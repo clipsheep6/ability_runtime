@@ -18,6 +18,7 @@
 #include <unistd.h>
 
 #include "connection_manager.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -29,10 +30,10 @@ constexpr int32_t DIED = -1;
 void AbilityConnection::OnAbilityConnectDone(
     const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int resultCode)
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    TAG_LOGD(AAFwkTag::CONNECTION, "%{public}s begin.", __func__);
     mutex_.lock();
     if (abilityConnectCallbackList_.empty()) {
-        HILOG_ERROR("%{public}s abilityConnectCallbackList is empty.", __func__);
+        TAG_LOGD(AAFwkTag::CONNECTION, "%{public}s abilityConnectCallbackList is empty.", __func__);
         mutex_.unlock();
         return;
     }
@@ -43,37 +44,42 @@ void AbilityConnection::OnAbilityConnectDone(
 
     std::vector<sptr<AbilityConnectCallback>> callbacks = GetCallbackList();
     mutex_.unlock();
+    sptr<AbilityConnection> connection(this);
+    if (ConnectionManager::GetInstance().DisconnectNonexistentService(element, connection)) {
+        TAG_LOGW(AAFwkTag::CONNECTION, "No need to call onConnect callback.");
+        return;
+    }
 
     auto item = callbacks.begin();
     while (item != callbacks.end()) {
         (*item)->OnAbilityConnectDone(element, remoteObject, resultCode);
         item++;
     }
-    HILOG_DEBUG("%{public}s end, bundleName:%{public}s, abilityName:%{public}s.",
+    TAG_LOGD(AAFwkTag::CONNECTION, "%{public}s end, bundleName:%{public}s, abilityName:%{public}s.",
         __func__, element.GetBundleName().c_str(), element.GetAbilityName().c_str());
 }
 
 void AbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int resultCode)
 {
-    HILOG_DEBUG("%{public}s begin, resultCode:%{public}d.", __func__, resultCode);
+    TAG_LOGD(AAFwkTag::CONNECTION, "%{public}s begin, resultCode:%{public}d.", __func__, resultCode);
     mutex_.lock();
     SetConnectionState(CONNECTION_STATE_DISCONNECTED);
     if (abilityConnectCallbackList_.empty()) {
-        HILOG_ERROR("%{public}s abilityConnectCallback is empty.", __func__);
+        TAG_LOGE(AAFwkTag::CONNECTION, "%{public}s abilityConnectCallback is empty.", __func__);
         mutex_.unlock();
         return;
     }
 
     std::vector<sptr<AbilityConnectCallback>> callbacks = GetCallbackList();
     mutex_.unlock();
-    
+
     // if resultCode < 0 that means the service is dead
     if (resultCode == DIED) {
         sptr<AbilityConnection> connection(this);
         bool ret = ConnectionManager::GetInstance().RemoveConnection(connection);
         if (ret) {
             ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
-            HILOG_INFO("The service connection is not disconnected.");
+            TAG_LOGI(AAFwkTag::CONNECTION, "The service connection is not disconnected.");
         }
         resultCode = DIED + 1;
     }
@@ -83,7 +89,7 @@ void AbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName& e
         (*item)->OnAbilityDisconnectDone(element, resultCode);
         item++;
     }
-    HILOG_DEBUG("%{public}s end, bundleName:%{public}s, abilityName:%{public}s.",
+    TAG_LOGD(AAFwkTag::CONNECTION, "%{public}s end, bundleName:%{public}s, abilityName:%{public}s.",
         __func__, element.GetBundleName().c_str(), element.GetAbilityName().c_str());
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "app_process_data.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 #include "nlohmann/json.hpp"
@@ -30,7 +31,7 @@ bool ReadFromParcelAppData(std::vector<AppData> &appDatas, Parcel &parcel)
     int32_t appDataSize;
     READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, appDataSize);
     if (appDataSize > CYCLE_LIMIT) {
-        HILOG_ERROR("infoSize is too large");
+        TAG_LOGE(AAFwkTag::APPMGR, "infoSize is too large");
         return false;
     }
     for (auto i = 0; i < appDataSize; i++) {
@@ -86,7 +87,7 @@ AppProcessData *AppProcessData::Unmarshalling(Parcel &parcel)
 {
     AppProcessData *appProcessData = new (std::nothrow) AppProcessData();
     if (appProcessData && !appProcessData->ReadFromParcel(parcel)) {
-        HILOG_WARN("failed, because ReadFromParcel failed");
+        TAG_LOGW(AAFwkTag::APPMGR, "failed, because ReadFromParcel failed");
         delete appProcessData;
         appProcessData = nullptr;
     }

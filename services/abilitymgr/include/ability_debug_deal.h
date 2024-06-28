@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,7 +23,7 @@ namespace OHOS {
 namespace AAFwk {
 class AbilityDebugDeal : public std::enable_shared_from_this<AbilityDebugDeal>  {
 public:
-    AbilityDebugDeal();
+    AbilityDebugDeal() = default;
     ~AbilityDebugDeal() = default;
 
     /**
@@ -38,6 +38,18 @@ public:
      */
     void OnAbilitysDebugStoped(const std::vector<sptr<IRemoteObject>> &tokens);
 
+    /**
+     * @brief Change ability assert debug flag.
+     * @param tokens The token of ability records.
+     * @param isAssertDebug Assert debug flag.
+     */
+    void OnAbilitysAssertDebugChange(const std::vector<sptr<IRemoteObject>> &tokens, bool isAssertDebug);
+
+    /**
+     * @brief Register debug response in attach mode.
+     */
+    void RegisterAbilityDebugResponse();
+
 private:
     sptr<AppExecFwk::IAbilityDebugResponse> abilityDebugResponse_;
 };
@@ -50,6 +62,7 @@ public:
 private:
     void OnAbilitysDebugStarted(const std::vector<sptr<IRemoteObject>> &tokens) override;
     void OnAbilitysDebugStoped(const std::vector<sptr<IRemoteObject>> &tokens) override;
+    void OnAbilitysAssertDebugChange(const std::vector<sptr<IRemoteObject>> &tokens, bool isAssertDebug) override;
 
     std::weak_ptr<AbilityDebugDeal> abilityDebugDeal_;
 };

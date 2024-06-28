@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "process_info.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "string_ex.h"
 
@@ -45,7 +46,7 @@ ProcessInfo *ProcessInfo::Unmarshalling(Parcel &parcel)
 {
     ProcessInfo *processInfo = new (std::nothrow) ProcessInfo();
     if (processInfo && !processInfo->ReadFromParcel(parcel)) {
-        HILOG_ERROR("ProcessInfo::Unmarshalling ReadFromParcel failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ProcessInfo::Unmarshalling ReadFromParcel failed");
         delete processInfo;
         processInfo = nullptr;
     }

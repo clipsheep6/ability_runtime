@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -72,11 +72,18 @@ public:
 
     /**
      * Application state changed callback.
+     * Only observe APP_STATE_CREATE and APP_STATE_TERMINATED
      *
      * @param appStateData Application state data.
      */
     virtual void OnApplicationStateChanged(const AppStateData &appStateData) override;
 
+    /**
+     * Application state changed callback.
+     * Only observe APP_STATE_FOREGROUND and APP_STATE_BACKGROUND
+     *
+     * @param appStateData Application state data.
+     */
     virtual void OnAppStateChanged(const AppStateData &appStateData) override;
 
     virtual void OnProcessReused(const ProcessData &processData) override;
@@ -109,9 +116,17 @@ public:
      */
     virtual void OnPageHide(const PageStateData &pageStateData) override;
 
+    /**
+     * Will be called when application cache state change.
+     *
+     * @param appStateData Application state data.
+     */
+    virtual void OnAppCacheStateChanged(const AppStateData &appStateData) override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     static inline BrokerDelegator<ApplicationStateObserverProxy> delegator_;
+    int32_t SendTransactCmd(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

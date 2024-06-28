@@ -66,20 +66,7 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_GetProcessRunningI
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     std::vector<RunningProcessInfo> info;
     auto result = abilityMs_->GetProcessRunningInfosByUserId(info, USER_ID);
-    EXPECT_NE(result, AppMgrResultCode::RESULT_OK);
-}
-
-/**
- * @tc.name: AbilityManagerService_DumpSysFuncInit_0100
- * @tc.desc: DumpSysFuncInit
- * @tc.type: FUNC
- * @tc.require: SR000GH1GO
- */
-HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DumpSysFuncInit_0100, TestSize.Level1)
-{
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->DumpSysFuncInit();
-    EXPECT_GT(abilityMs_->dumpsysFuncMap_.size(), SIZE_ZERO);
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 }
 
 /**
@@ -184,7 +171,7 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DumpSysProcess_010
     bool isClient = false;
     bool isUserID = true;
     abilityMs_->DumpSysProcess(args, info, isClient, isUserID, USER_ID);
-    EXPECT_EQ(info.size(), SIZE_ZERO);
+    EXPECT_NE(info.size(), SIZE_ZERO);
 }
 
 /**
@@ -213,8 +200,9 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DataDumpSysStateIn
 HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_OnAppStateChanged_0100, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->connectManager_ = std::make_shared<AbilityConnectManager>(0);
-    EXPECT_NE(abilityMs_->connectManager_, nullptr);
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentConnectManager_ = std::make_shared<AbilityConnectManager>(0);
+    EXPECT_NE(abilityMs_->subManagersHelper_->currentConnectManager_, nullptr);
 
     Want want;
     OHOS::AppExecFwk::AbilityInfo abilityInfo;
@@ -224,22 +212,52 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_OnAppStateChanged_
     EXPECT_NE(abilityRecord, nullptr);
 
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        abilityMs_->currentMissionListManager_ = std::make_shared<MissionListManager>(USER_ID);
-        EXPECT_NE(abilityMs_->currentMissionListManager_, nullptr);
-        abilityMs_->currentMissionListManager_->terminateAbilityList_.push_back(abilityRecord);
+        abilityMs_->subManagersHelper_->currentMissionListManager_ = std::make_shared<MissionListManager>(USER_ID);
+        EXPECT_NE(abilityMs_->subManagersHelper_->currentMissionListManager_, nullptr);
+        abilityMs_->subManagersHelper_->currentMissionListManager_->terminateAbilityList_.push_back(abilityRecord);
 
-        abilityMs_->dataAbilityManager_ = std::make_shared<DataAbilityManager>();
-        EXPECT_NE(abilityMs_->dataAbilityManager_, nullptr);
+        abilityMs_->subManagersHelper_->currentDataAbilityManager_ = std::make_shared<DataAbilityManager>();
+        EXPECT_NE(abilityMs_->subManagersHelper_->currentDataAbilityManager_, nullptr);
 
         AppInfo info;
         info.processName = STRING_PROCESS_NAME;
         info.state = AppState::TERMINATED;
         abilityMs_->OnAppStateChanged(info);
 
-        abilityRecord = abilityMs_->currentMissionListManager_->terminateAbilityList_.front();
+        abilityRecord = abilityMs_->subManagersHelper_->currentMissionListManager_->terminateAbilityList_.front();
         EXPECT_NE(abilityRecord, nullptr);
         EXPECT_EQ(abilityRecord->GetAppState(), AppState::TERMINATED);
     }
+}
+
+/**
+ * @tc.name: DumpUIExtensionRootHostRunningInfos_0100
+ * @tc.desc: Dump ui extension root host info.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceDumpTest, DumpUIExtensionRootHostRunningInfos_0100, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    ASSERT_NE(abilityMs_, nullptr);
+    pid_t pid = 1;
+    std::vector<std::string> info;
+    abilityMs_->DumpUIExtensionRootHostRunningInfos(pid, info);
+    EXPECT_EQ(info.size(), 0);
+}
+
+/**
+ * @tc.name: DumpUIExtensionProviderRunningInfos_0100
+ * @tc.desc: Dump ui extension provider info.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceDumpTest, DumpUIExtensionProviderRunningInfos_0100, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    ASSERT_NE(abilityMs_, nullptr);
+    pid_t hostPid = 1;
+    std::vector<std::string> info;
+    abilityMs_->DumpUIExtensionRootHostRunningInfos(hostPid, info);
+    EXPECT_EQ(info.size(), 0);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

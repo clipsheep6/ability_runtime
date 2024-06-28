@@ -24,6 +24,7 @@
 #include "configuration_utils.h"
 #undef private
 #undef protected
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "js_runtime.h"
@@ -36,6 +37,7 @@
 #include "mock_ability_token.h"
 #include "ohos_application.h"
 #include "runtime.h"
+#include "string_wrapper.h"
 #include "want.h"
 #ifdef SUPPORT_GRAPHICS
 #include "locale_config.h"
@@ -105,13 +107,13 @@ void JsServiceExtensionTest::CreateJsServiceExtension()
 #ifdef SUPPORT_GRAPHICS
     UErrorCode status = U_ZERO_ERROR;
     icu::Locale locale = icu::Locale::forLanguageTag("zh", status);
-    HILOG_INFO("language: %{public}s, script: %{public}s, region: %{public}s", locale.getLanguage(),
-        locale.getScript(), locale.getCountry());
+    TAG_LOGI(AAFwkTag::TEST, "language: %{public}s, script: %{public}s, region: %{public}s", locale.getLanguage(),
+             locale.getScript(), locale.getCountry());
     resConfig->SetLocaleInfo(locale);
 #endif
     Global::Resource::RState updateRet = resourceManager->UpdateResConfig(*resConfig);
     if (updateRet != Global::Resource::RState::SUCCESS) {
-        HILOG_ERROR("Init locale failed.");
+        TAG_LOGE(AAFwkTag::TEST, "Init locale failed.");
     }
     contextImpl->SetResourceManager(resourceManager);
 
@@ -159,7 +161,6 @@ HWTEST_F(JsServiceExtensionTest, Init_0100, TestSize.Level1)
     // normally configuration is different, size is equal; cause LoadModule can't succeed, configuration is same.
     EXPECT_EQ(configuration.get(), appConfig.get());
     EXPECT_EQ(configuration->GetItemSize(), appConfig->GetItemSize());
-
     auto language = configuration->GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
     EXPECT_EQ(language, DEFAULT_LANGUAGE);
     auto colorMode = configuration->GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
@@ -307,6 +308,31 @@ HWTEST_F(JsServiceExtensionTest, OnChange_0100, TestSize.Level1)
     resourceManager->GetResConfig(*resConfig);
     EXPECT_EQ(originDensity, resConfig->GetScreenDensity());
     EXPECT_EQ(ConvertDirection(originDirection), resConfig->GetDirection());
+}
+
+/**
+ * @tc.name: HandleInsightIntent_0100
+ * @tc.desc: Js service extension HandleInsightIntent.
+ * @tc.type: FUNC
+ * @tc.require: issueI7HPHB
+ */
+HWTEST_F(JsServiceExtensionTest, HandleInsightIntent_0100, TestSize.Level1)
+{
+    ASSERT_NE(jsServiceExtension_, nullptr);
+    Want want;
+    WantParams wantParams;
+    std::string paramName(AppExecFwk::INSIGHT_INTENT_EXECUTE_PARAM_NAME);
+    std::string insightIntentId(AppExecFwk::INSIGHT_INTENT_EXECUTE_PARAM_ID);
+    wantParams.SetParam(paramName, String::Box("playMusic"));
+    wantParams.SetParam(insightIntentId, String::Box("1"));
+
+    want.SetParams(wantParams);
+    AppExecFwk::ElementName element;
+    element.SetBundleName("com.ohos.test");
+    want.SetElement(element);
+
+    auto ret = jsServiceExtension_->HandleInsightIntent(want);
+    EXPECT_TRUE(ret);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

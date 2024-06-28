@@ -148,11 +148,12 @@ public:
         const sptr<IDialogTargetTouchListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
     virtual void RegisterDialogDeathRecipientListener(const sptr<IDialogDeathRecipientListener>& listener) {}
     virtual void UnregisterDialogDeathRecipientListener(const sptr<IDialogDeathRecipientListener>& listener) {}
-    virtual void NotifyTouchDialogTarget() {}
+    virtual void NotifyTouchDialogTarget(int32_t posX = 0, int32_t posY = 0) {}
     virtual void SetAceAbilityHandler(const sptr<IAceAbilityHandler>& handler) {}
-    virtual WMError SetUIContent(const std::string& contentInfo, NativeEngine* engine, NativeValue* storage,
-        bool isDistributed = false, AppExecFwk::Ability* ability = nullptr) {return WMError::WM_OK;}
-    virtual std::string GetContentInfo() {return "";}
+    virtual WMError NapiSetUIContent(const std::string& contentInfo, napi_env env, napi_value storage,
+        BackupAndRestoreType type = BackupAndRestoreType::NONE, sptr<IRemoteObject> token = nullptr,
+        AppExecFwk::Ability* ability = nullptr) {return WMError::WM_OK;}
+    virtual std::string GetContentInfo(BackupAndRestoreType type = BackupAndRestoreType::CONTINUATION) {return "";}
     virtual Ace::UIContent* GetUIContent() const {return nullptr;}
     virtual void OnNewWant(const AAFwk::Want& want) {}
     virtual void SetRequestedOrientation(Orientation) {}

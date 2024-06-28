@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 
 #include "extension_running_info.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "nlohmann/json.hpp"
 #include "string_ex.h"
@@ -37,7 +38,7 @@ bool ExtensionRunningInfo::ReadFromParcel(Parcel &parcel)
     startTime = parcel.ReadInt32();
     int32_t clientPackageSize = parcel.ReadInt32();
     if (clientPackageSize > CYCLE_LIMIT) {
-        HILOG_ERROR("clientPackageSize is too large.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "clientPackageSize is too large.");
         return false;
     }
     for (int32_t i = 0; i < clientPackageSize; i++) {

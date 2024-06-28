@@ -17,6 +17,11 @@
 
 namespace OHOS {
 namespace AAFwk {
+const int32_t CREATE_VALUE_ZERO = 0;
+const int32_t CREATE_VALUE_ONE = 1;
+const int32_t CREATE_VALUE_TWO = 2;
+const int32_t CREATE_VALUE_THREE = 3;
+const int32_t CREATE_VALUE_FOUR = 4;
 static napi_status SetEnumItem(napi_env env, napi_value object, const char* name, int32_t value)
 {
     napi_status status;
@@ -37,9 +42,34 @@ static napi_value InitAreaModeObject(napi_env env)
     napi_value object;
     NAPI_CALL(env, napi_create_object(env, &object));
 
-    NAPI_CALL(env, SetEnumItem(env, object, "EL1", 0));
-    NAPI_CALL(env, SetEnumItem(env, object, "EL2", 1));
+    NAPI_CALL(env, SetEnumItem(env, object, "EL1", CREATE_VALUE_ZERO));
+    NAPI_CALL(env, SetEnumItem(env, object, "EL2", CREATE_VALUE_ONE));
+    NAPI_CALL(env, SetEnumItem(env, object, "EL3", CREATE_VALUE_TWO));
+    NAPI_CALL(env, SetEnumItem(env, object, "EL4", CREATE_VALUE_THREE));
+    NAPI_CALL(env, SetEnumItem(env, object, "EL5", CREATE_VALUE_FOUR));
 
+    return object;
+}
+
+static napi_value InitProcessModeObject(napi_env env)
+{
+    napi_value object = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &object));
+
+    NAPI_CALL(env, SetEnumItem(env, object, "NEW_PROCESS_ATTACH_TO_PARENT", CREATE_VALUE_ONE));
+    NAPI_CALL(env, SetEnumItem(env, object, "NEW_PROCESS_ATTACH_TO_STATUS_BAR_ITEM", CREATE_VALUE_TWO));
+    NAPI_CALL(env, SetEnumItem(env, object, "ATTACH_TO_STATUS_BAR_ITEM", CREATE_VALUE_THREE));
+
+    return object;
+}
+
+static napi_value InitStartupVisibilityObject(napi_env env)
+{
+    napi_value object = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &object));
+
+    NAPI_CALL(env, SetEnumItem(env, object, "STARTUP_HIDE", CREATE_VALUE_ZERO));
+    NAPI_CALL(env, SetEnumItem(env, object, "STARTUP_SHOW", CREATE_VALUE_ONE));
     return object;
 }
 
@@ -50,9 +80,15 @@ static napi_value ApplicationContextConstantInit(napi_env env, napi_value export
 {
     napi_value areaMode = InitAreaModeObject(env);
     NAPI_ASSERT(env, areaMode != nullptr, "failed to create AreaMode object");
+    napi_value processMode = InitProcessModeObject(env);
+    NAPI_ASSERT(env, processMode != nullptr, "failed to create ProcessMode object");
+    napi_value startupVisibility = InitStartupVisibilityObject(env);
+    NAPI_ASSERT(env, startupVisibility != nullptr, "failed to create StartupVisibility object");
 
     napi_property_descriptor exportObjs[] = {
         DECLARE_NAPI_PROPERTY("AreaMode", areaMode),
+        DECLARE_NAPI_PROPERTY("ProcessMode", processMode),
+        DECLARE_NAPI_PROPERTY("StartupVisibility", startupVisibility),
     };
 
     napi_status status = napi_define_properties(env, exports, sizeof(exportObjs) / sizeof(exportObjs[0]), exportObjs);

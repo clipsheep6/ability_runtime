@@ -28,6 +28,8 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 const int32_t TEST_DISPLAY_ID = 1;
+const bool TEST_TRUE = true;
+const bool TEST_FALSE = false;
 } // namespace
 
 class StartOptionsTest : public testing::Test {
@@ -84,6 +86,41 @@ HWTEST_F(StartOptionsTest, start_options_test_001, TestSize.Level1)
     EXPECT_EQ(ret2, true);
     EXPECT_EQ(fourthStartOptions.GetWindowMode(), AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FULLSCREEN);
     EXPECT_EQ(fourthStartOptions.GetDisplayID(), TEST_DISPLAY_ID);
+}
+
+/**
+ * @tc.name: start_options_test_002
+ * @tc.desc: test class StartOptions SetWindowFocused function
+ * @tc.type: FUNC
+ */
+HWTEST_F(StartOptionsTest, start_options_test_002, TestSize.Level1)
+{
+    StartOptions startOptions;
+
+    bool ret = startOptions.GetWindowFocused();
+    EXPECT_TRUE(ret);
+
+    startOptions.SetWindowFocused(TEST_TRUE);
+    ret = startOptions.GetWindowFocused();
+    EXPECT_TRUE(ret);
+
+    startOptions.SetWindowFocused(TEST_FALSE);
+    ret = startOptions.GetWindowFocused();
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name: start_options_test_003
+ * @tc.desc: test class StartOptions &operator= function
+ * @tc.type: FUNC
+ */
+HWTEST_F(StartOptionsTest, start_options_test_003, TestSize.Level1)
+{
+    StartOptions firstStartOptions;
+    int32_t windowMode = 10;
+    firstStartOptions.SetWindowMode(windowMode);
+    StartOptions secondStartOptions = firstStartOptions;
+    EXPECT_EQ(secondStartOptions.GetWindowMode(), firstStartOptions.windowMode_);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

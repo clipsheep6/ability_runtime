@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,11 +18,12 @@
 #include <cstdint>
 
 #include "ability_state.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
-#include "napi_common_want.h"
-#include "napi_remote_object.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
+#include "napi_common_want.h"
+#include "napi_remote_object.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -38,8 +39,8 @@ napi_value CreateJSToken(napi_env env, const sptr<IRemoteObject> target)
         env, "TokenClass", NAPI_AUTO_LENGTH, constructorcb, nullptr, 0, nullptr, &tokenClass);
     napi_value jsToken = nullptr;
     napi_new_instance(env, tokenClass, 0, nullptr, &jsToken);
-    auto finalizecb = [](napi_env env, void *data, void *hint) {};
-    napi_wrap(env, jsToken, static_cast<void *>(target.GetRefPtr()), finalizecb, nullptr, nullptr);
+    auto finalizercb = [](napi_env env, void *data, void *hint) {};
+    napi_wrap(env, jsToken, static_cast<void *>(target.GetRefPtr()), finalizercb, nullptr, nullptr);
     return jsToken;
 }
 
@@ -103,7 +104,7 @@ napi_value CreateJsExtensionRunningInfo(napi_env env, const AAFwk::ExtensionRunn
 
 napi_value AbilityStateInit(napi_env env)
 {
-    HILOG_INFO("enter");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
 
@@ -115,5 +116,53 @@ napi_value AbilityStateInit(napi_env env)
     napi_set_named_property(env, objValue, "BACKGROUNDING", CreateJsValue(env, AAFwk::AbilityState::BACKGROUNDING));
     return objValue;
 }
-}  // namespace AbilityRuntime
-}  // namespace OHOS
+
+napi_value UserStatusInit(napi_env env)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    napi_value objValue = nullptr;
+    napi_create_object(env, &objValue);
+
+    napi_set_named_property(
+        env, objValue, "ASSERT_TERMINATE", CreateJsValue(env, AAFwk::UserStatus::ASSERT_TERMINATE));
+    napi_set_named_property(env, objValue, "ASSERT_CONTINUE", CreateJsValue(env, AAFwk::UserStatus::ASSERT_CONTINUE));
+    napi_set_named_property(env, objValue, "ASSERT_RETRY", CreateJsValue(env, AAFwk::UserStatus::ASSERT_RETRY));
+    return objValue;
+}
+
+napi_value CreateJsAbilityStateData(napi_env env, const AbilityStateData &abilityStateData)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
+    if (object == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ObjValue nullptr.");
+        return nullptr;
+    }
+    napi_set_named_property(env, object, "bundleName", CreateJsValue(env, abilityStateData.bundleName));
+    napi_set_named_property(env, object, "moduleName", CreateJsValue(env, abilityStateData.moduleName));
+    napi_set_named_property(env, object, "abilityName", CreateJsValue(env, abilityStateData.abilityName));
+    napi_set_named_property(env, object, "pid", CreateJsValue(env, abilityStateData.pid));
+    napi_set_named_property(env, object, "uid", CreateJsValue(env, abilityStateData.uid));
+    napi_set_named_property(env, object, "state", CreateJsValue(env, abilityStateData.abilityState));
+    napi_set_named_property(env, object, "abilityType", CreateJsValue(env, abilityStateData.abilityType));
+    napi_set_named_property(env, object, "isAtomicService", CreateJsValue(env, abilityStateData.isAtomicService));
+    if (abilityStateData.appCloneIndex != -1) {
+        napi_set_named_property(env, object, "appCloneIndex", CreateJsValue(env, abilityStateData.appCloneIndex));
+    }
+    return object;
+}
+
+napi_value CreateJsAbilityStateDataArray(
+    napi_env env, const std::vector<AppExecFwk::AbilityStateData> &abilityStateDatas)
+{
+    napi_value arrayValue = nullptr;
+    napi_create_array_with_length(env, abilityStateDatas.size(), &arrayValue);
+    uint32_t index = 0;
+    for (const auto &abilityStateData : abilityStateDatas) {
+        napi_set_element(env, arrayValue, index++, CreateJsAbilityStateData(env, abilityStateData));
+    }
+    return arrayValue;
+}
+} // namespace AbilityRuntime
+} // namespace OHOS

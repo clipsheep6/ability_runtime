@@ -39,7 +39,7 @@
 #include "want_agent.h"
 #include "foundation/ability/ability_runtime/interfaces/kits/native/ability/ability_runtime/ability_context.h"
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 #include "ability_window.h"
 #include "display_manager.h"
 #include "form_constants.h"
@@ -57,12 +57,13 @@ namespace OHOS {
 namespace NativeRdb {
 class AbsSharedResultSet;
 class DataAbilityPredicates;
+class ValueObject;
 class ValuesBucket;
 } // namespace NativeRdb
 namespace AbilityRuntime {
 class Runtime;
 }
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 class KeyEvent;
 namespace Ace {
 class UIContent;
@@ -75,11 +76,12 @@ class DataAbilityOperation;
 class AbilityPostEventTimeout;
 class OHOSApplication;
 class AbilityHandler;
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 class AbilityWindow;
 #endif
 class ILifeCycle;
 class ContinuationManager;
+class ContinuationHandler;
 class AbilityRecovery;
 class ContinuationRegisterManager;
 class Ability : public IAbilityEvent,
@@ -112,6 +114,20 @@ public:
      * @return Returns the Lifecycle object.
      */
     std::shared_ptr<LifeCycle> GetLifecycle() override final;
+
+    /**
+     * Register lifecycle observer on ability.
+     *
+     * @param observer the lifecycle observer to be registered on ability.
+     */
+    void RegisterAbilityLifecycleObserver(const std::shared_ptr<ILifecycleObserver> &observer) override;
+
+    /**
+     * Unregister lifecycle observer on ability.
+     *
+     * @param observer the lifecycle observer to be unregistered on ability.
+     */
+    void UnregisterAbilityLifecycleObserver(const std::shared_ptr<ILifecycleObserver> &observer) override;
 
     /**
      * @brief Obtains a resource manager.
@@ -736,18 +752,6 @@ public:
     virtual int StopBackgroundRunning() final;
 
     /**
-     * @brief Acquire a bundle manager, if it not existed,
-     * @return returns the bundle manager ipc object, or nullptr for failed.
-     */
-    sptr<IBundleMgr> GetBundleMgr();
-
-    /**
-     * @brief Add the bundle manager instance for debug.
-     * @param bundleManager the bundle manager ipc object.
-     */
-    void SetBundleManager(const sptr<IBundleMgr> &bundleManager);
-
-    /**
      * @brief Prepare user data of local Ability.
      *
      * @param wantParams Indicates the user data to be saved.
@@ -821,7 +825,7 @@ public:
      */
     virtual int32_t OnShare(WantParams &wantParams);
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 public:
     friend class PageAbilityImpl;
     uint32_t sceneFlag_ = 0;
@@ -1061,7 +1065,7 @@ public:
      * @param formId Indicates the ID of the form to update.
      * @return none.
      */
-    virtual void OnUpdate(const int64_t formId);
+    virtual void OnUpdate(const int64_t formId, const AAFwk::WantParams &wantParams);
 
     /**
      * @brief Called when the form provider receives form events from the fms.
@@ -1142,6 +1146,20 @@ public:
      * @return UIContent object of ACE.
      */
     Ace::UIContent* GetUIContent() override;
+
+    /**
+     * @brief create modal UIExtension.
+     * @param want Create modal UIExtension with want object.
+     */
+    int CreateModalUIExtension(const Want &want);
+
+    /**
+     * @brief Update sessionToken.
+     * @param sessionToken The token of session.
+     */
+    void UpdateSessionToken(sptr<IRemoteObject> sessionToken);
+
+    void EraseUIExtension(int32_t sessionId) override;
 
 protected:
     class AbilityDisplayListener : public OHOS::Rosen::DisplayManager::IDisplayListener {
@@ -1236,6 +1254,8 @@ protected:
      */
     virtual void ContinuationRestore(const Want &want);
 
+    void SetSessionToken(sptr<IRemoteObject> sessionToken);
+
     std::shared_ptr<Rosen::WindowScene> scene_ = nullptr;
     sptr<Rosen::IWindowLifeCycle> sceneListener_ = nullptr;
     sptr<AbilityDisplayListener> abilityDisplayListener_ = nullptr;
@@ -1273,10 +1293,8 @@ protected:
 
     std::shared_ptr<AbilityRuntime::AbilityContext> abilityContext_ = nullptr;
     std::shared_ptr<AbilityStartSetting> setting_ = nullptr;
-    std::shared_ptr<AbilityRecovery> abilityRecovery_ = nullptr;
     std::shared_ptr<AbilityInfo> abilityInfo_ = nullptr;
     LaunchParam launchParam_;
-    int32_t appIndex_ = 0;
     bool securityFlag_ = false;
 
 private:
@@ -1316,6 +1334,17 @@ private:
     void InitConfigurationProperties(const Configuration& changeConfiguration, std::string& language,
         std::string& colormode, std::string& hasPointerDevice);
 
+    void ParseIntValue(const NativeRdb::ValueObject &obj, const std::string &key,
+        NativeRdb::ValuesBucket &retValueBucket) const;
+    void ParseDoubleValue(const NativeRdb::ValueObject &obj, const std::string &key,
+        NativeRdb::ValuesBucket &retValueBucket) const;
+    void ParseStringValue(const NativeRdb::ValueObject &obj, const std::string &key,
+        NativeRdb::ValuesBucket &retValueBucket) const;
+    void ParseBlobValue(const NativeRdb::ValueObject &obj, const std::string &key,
+        NativeRdb::ValuesBucket &retValueBucket) const;
+    void ParseBoolValue(const NativeRdb::ValueObject &obj, const std::string &key,
+        NativeRdb::ValuesBucket &retValueBucket) const;
+
     std::shared_ptr<ContinuationHandler> continuationHandler_ = nullptr;
     std::shared_ptr<ContinuationManager> continuationManager_ = nullptr;
     std::shared_ptr<ContinuationRegisterManager> continuationRegisterManager_ = nullptr;
@@ -1341,13 +1370,15 @@ private:
 
     // If session id cannot get from want, assign it as default.
     static const int DEFAULT_DMS_SESSION_ID;
-    sptr<IBundleMgr> iBundleMgr_;
 
     bool isNewRuleFlagSetted_ = false;
     bool startUpNewRule_ = false;
 
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 private:
+    void InitFAWindow(const Want &want, int32_t displayId);
+    bool UpdateResMgrAndConfiguration(int32_t displayId);
+
     std::shared_ptr<AbilityWindow> abilityWindow_ = nullptr;
     bool bWindowFocus_ = false;
     bool showOnLockScreen_ = false;

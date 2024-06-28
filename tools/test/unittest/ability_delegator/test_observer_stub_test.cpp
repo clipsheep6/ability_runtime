@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 
 #include <gtest/gtest.h>
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iremote_proxy.h"
 #include "mock_test_observer_stub.h"
@@ -50,7 +51,7 @@ void TestObserverStubTest::TearDown()
  */
 HWTEST_F(TestObserverStubTest, Test_Observer_Stub_Test_0100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Test_Observer_Stub_Test_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Stub_Test_0100 start");
 
     MessageParcel data;
     MessageParcel reply;
@@ -65,7 +66,7 @@ HWTEST_F(TestObserverStubTest, Test_Observer_Stub_Test_0100, Function | MediumTe
     int res = stub.OnRemoteRequest(static_cast<uint32_t>(ITestObserver::Message::AA_TEST_STATUS), data, reply, option);
     EXPECT_EQ(res, NO_ERROR);
 
-    HILOG_INFO("Test_Observer_Stub_Test_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Stub_Test_0100 end");
 }
 
 /**
@@ -75,7 +76,7 @@ HWTEST_F(TestObserverStubTest, Test_Observer_Stub_Test_0100, Function | MediumTe
  */
 HWTEST_F(TestObserverStubTest, Test_Observer_Stub_Test_0200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Test_Observer_Stub_Test_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Stub_Test_0200 start");
 
     MessageParcel data;
     MessageParcel reply;
@@ -87,10 +88,11 @@ HWTEST_F(TestObserverStubTest, Test_Observer_Stub_Test_0200, Function | MediumTe
     data.WriteInt64(0);
 
     MockTestObserverStub stub;
-    int res = stub.OnRemoteRequest(static_cast<uint32_t>(ITestObserver::Message::AA_TEST_FINISHED), data, reply, option);
+    int res = stub.OnRemoteRequest(static_cast<uint32_t>(ITestObserver::Message::AA_TEST_FINISHED),
+        data, reply, option);
     EXPECT_EQ(res, NO_ERROR);
 
-    HILOG_INFO("Test_Observer_Stub_Test_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Stub_Test_0200 end");
 }
 
 /**
@@ -100,7 +102,7 @@ HWTEST_F(TestObserverStubTest, Test_Observer_Stub_Test_0200, Function | MediumTe
  */
 HWTEST_F(TestObserverStubTest, Test_Observer_Stub_Test_0300, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Test_Observer_Stub_Test_0300 start");
+    TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Stub_Test_0300 start");
 
     MessageParcel data;
     MessageParcel reply;
@@ -112,10 +114,11 @@ HWTEST_F(TestObserverStubTest, Test_Observer_Stub_Test_0300, Function | MediumTe
     data.WriteInt64(0);
 
     MockTestObserverStub stub;
-    int res = stub.OnRemoteRequest(static_cast<uint32_t>(ITestObserver::Message::AA_EXECUTE_SHELL_COMMAND), data, reply, option);
+    int res = stub.OnRemoteRequest(static_cast<uint32_t>(ITestObserver::Message::AA_EXECUTE_SHELL_COMMAND),
+        data, reply, option);
     EXPECT_EQ(res, NO_ERROR);
 
-    HILOG_INFO("Test_Observer_Stub_Test_0300 end");
+    TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Stub_Test_0300 end");
 }
 
 /**
@@ -125,7 +128,7 @@ HWTEST_F(TestObserverStubTest, Test_Observer_Stub_Test_0300, Function | MediumTe
  */
 HWTEST_F(TestObserverStubTest, Test_Observer_Stub_Test_0400, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Test_Observer_Stub_Test_0400 start");
+    TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Stub_Test_0400 start");
 
     MessageParcel data;
     MessageParcel reply;
@@ -140,7 +143,7 @@ HWTEST_F(TestObserverStubTest, Test_Observer_Stub_Test_0400, Function | MediumTe
     int res = stub.OnRemoteRequest(0, data, reply, option);
     EXPECT_EQ(res, IPC_STUB_UNKNOW_TRANS_ERR);
 
-    HILOG_INFO("Test_Observer_Stub_Test_0400 end");
+    TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Stub_Test_0400 end");
 }
 
 /**
@@ -150,7 +153,7 @@ HWTEST_F(TestObserverStubTest, Test_Observer_Stub_Test_0400, Function | MediumTe
  */
 HWTEST_F(TestObserverStubTest, Test_Observer_Stub_Test_0500, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Test_Observer_Stub_Test_0500 start");
+    TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Stub_Test_0500 start");
 
     MessageParcel data;
     MessageParcel reply;
@@ -164,5 +167,5 @@ HWTEST_F(TestObserverStubTest, Test_Observer_Stub_Test_0500, Function | MediumTe
     int res = stub.OnRemoteRequest(0, data, reply, option);
     EXPECT_EQ(res, ERR_TRANSACTION_FAILED);
 
-    HILOG_INFO("Test_Observer_Stub_Test_0500 end");
+    TAG_LOGI(AAFwkTag::TEST, "Test_Observer_Stub_Test_0500 end");
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "js_ability_stage_context.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_context_utils.h"
 #include "js_data_converter.h"
@@ -24,7 +25,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 napi_value CreateJsAbilityStageContext(napi_env env, const std::shared_ptr<AbilityRuntime::Context> &context)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called.");
     napi_value objValue = CreateJsBaseContext(env, context);
     if (context == nullptr) {
         return objValue;
@@ -40,26 +41,26 @@ napi_value CreateJsAbilityStageContext(napi_env env, const std::shared_ptr<Abili
 void JsAbilityStageContext::ConfigurationUpdated(napi_env env, std::shared_ptr<NativeReference> &jsContext,
     const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called.");
     if (!jsContext || !config) {
-        HILOG_ERROR("jsContext or config is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "jsContext or config is nullptr.");
         return;
     }
 
     napi_value value = jsContext->GetNapiValue();
     if (value == nullptr) {
-        HILOG_ERROR("value is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "value is nullptr.");
         return;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env, value, "onUpdateConfiguration", &method);
     if (!method) {
-        HILOG_ERROR("Failed to get onUpdateConfiguration from object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to get onUpdateConfiguration from object");
         return;
     }
 
-    HILOG_DEBUG("JsAbilityStageContext call onUpdateConfiguration.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "JsAbilityStageContext call onUpdateConfiguration.");
     napi_value argv[] = { CreateJsConfiguration(env, *config) };
     napi_value callResult = nullptr;
     napi_call_function(env, value, method, 1, argv, &callResult);

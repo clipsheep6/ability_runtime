@@ -18,6 +18,7 @@
 
 #include "ability_info.h"
 #include "application_info.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_overlay_manager.h"
 namespace {
@@ -28,6 +29,8 @@ namespace OHOS {
 namespace AppExecFwk {
 namespace {
 std::string g_CurrentBundleName;
+int32_t appUid = 2100;
+int32_t appUid1 = 2101;
 }
 
 void MockSetCurrentBundleName(const std::string& bundleName)
@@ -230,8 +233,8 @@ bool BundleMgrService::GetBundleInfo(
         ApplicationInfo appInfo;
         appInfo.name = "KeepAliveApp";
         appInfo.bundleName = bundleName;
-        appInfo.uid = 2100;
-        bundleInfo.uid = 2100;
+        appInfo.uid = appUid;
+        bundleInfo.uid = appUid;
         bundleInfo.name = bundleName;
         bundleInfo.applicationInfo = appInfo;
         bundleInfo.hapModuleInfos.push_back(hapModuleInfo);
@@ -242,14 +245,14 @@ bool BundleMgrService::GetBundleInfo(
         ApplicationInfo appInfo;
         appInfo.name = "KeepAliveApp1";
         appInfo.bundleName = bundleName;
-        appInfo.uid = 2101;
-        bundleInfo.uid = 2101;
+        appInfo.uid = appUid1;
+        bundleInfo.uid = appUid1;
         bundleInfo.name = bundleName;
         bundleInfo.applicationInfo = appInfo;
         bundleInfo.hapModuleInfos.push_back(hapModuleInfo);
     }
     if (bundleName == "com.ohos.quickfix") {
-        HILOG_INFO("GetBundleInfo of [com.ohos.quickfix].");
+        TAG_LOGI(AAFwkTag::TEST, "GetBundleInfo of [com.ohos.quickfix].");
         ConstructHqfInfo(bundleInfo);
     }
     return true;
@@ -384,7 +387,7 @@ ErrCode BundleMgrService::GetBundleInfoForSelf(int32_t flags, BundleInfo &bundle
     HapModuleInfo hapModuleInfo;
     bundleInfo.hapModuleInfos.push_back(hapModuleInfo);
     if (g_CurrentBundleName == "com.ohos.quickfix") {
-        HILOG_INFO("GetBundleInfo of [com.ohos.quickfix].");
+        TAG_LOGI(AAFwkTag::TEST, "GetBundleInfo of [com.ohos.quickfix].");
         ConstructHqfInfo(bundleInfo);
     }
     return ERR_OK;

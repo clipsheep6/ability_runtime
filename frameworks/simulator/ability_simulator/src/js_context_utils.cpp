@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "js_context_utils.h"
 
 #include <iostream>
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_application_context_utils.h"
 #include "js_data_converter.h"
@@ -37,22 +38,27 @@ public:
     static napi_value SwitchArea(napi_env env, napi_callback_info info);
     static napi_value GetArea(napi_env env, napi_callback_info info);
     static napi_value CreateModuleContext(napi_env env, napi_callback_info info);
+    static napi_value CreateModuleResourceManager(napi_env env, napi_callback_info info);
 
     static napi_value GetCacheDir(napi_env env, napi_callback_info info);
     static napi_value GetTempDir(napi_env env, napi_callback_info info);
+    static napi_value GetResourceDir(napi_env env, napi_callback_info info);
     static napi_value GetFilesDir(napi_env env, napi_callback_info info);
     static napi_value GetDistributedFilesDir(napi_env env, napi_callback_info info);
     static napi_value GetDatabaseDir(napi_env env, napi_callback_info info);
     static napi_value GetPreferencesDir(napi_env env, napi_callback_info info);
     static napi_value GetBundleCodeDir(napi_env env, napi_callback_info info);
+    static napi_value GetCloudFileDir(napi_env env, napi_callback_info info);
 
     napi_value OnGetCacheDir(napi_env env, NapiCallbackInfo &info);
     napi_value OnGetTempDir(napi_env env, NapiCallbackInfo &info);
+    napi_value OnGetResourceDir(napi_env env, NapiCallbackInfo &info);
     napi_value OnGetFilesDir(napi_env env, NapiCallbackInfo &info);
     napi_value OnGetDistributedFilesDir(napi_env env, NapiCallbackInfo &info);
     napi_value OnGetDatabaseDir(napi_env env, NapiCallbackInfo &info);
     napi_value OnGetPreferencesDir(napi_env env, NapiCallbackInfo &info);
     napi_value OnGetBundleCodeDir(napi_env env, NapiCallbackInfo &info);
+    napi_value OnGetCloudFileDir(napi_env env, NapiCallbackInfo &info);
     napi_value OnSwitchArea(napi_env env, NapiCallbackInfo &info);
     napi_value OnGetArea(napi_env env, NapiCallbackInfo &info);
     napi_value OnGetApplicationContext(napi_env env, NapiCallbackInfo &info);
@@ -63,7 +69,7 @@ protected:
 
 void JsBaseContext::Finalizer(napi_env env, void *data, void *hint)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called");
     std::unique_ptr<JsBaseContext>(static_cast<JsBaseContext*>(data));
 }
 
@@ -85,19 +91,19 @@ napi_value JsBaseContext::SwitchArea(napi_env env, napi_callback_info info)
 napi_value JsBaseContext::OnSwitchArea(napi_env env, NapiCallbackInfo &info)
 {
     if (info.argc == 0) {
-        HILOG_ERROR("Not enough params");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Not enough params");
         return CreateJsUndefined(env);
     }
 
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
         return CreateJsUndefined(env);
     }
 
     int mode = 0;
     if (!ConvertFromJsValue(env, info.argv[0], mode)) {
-        HILOG_ERROR("Parse mode failed");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Parse mode failed");
         return CreateJsUndefined(env);
     }
 
@@ -105,20 +111,27 @@ napi_value JsBaseContext::OnSwitchArea(napi_env env, NapiCallbackInfo &info)
 
     napi_value object = info.thisVar;
     if (object == nullptr) {
-        HILOG_ERROR("object is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "object is nullptr");
         return CreateJsUndefined(env);
     }
     BindNativeProperty(env, object, "cacheDir", GetCacheDir);
     BindNativeProperty(env, object, "tempDir", GetTempDir);
+    BindNativeProperty(env, object, "resourceDir", GetResourceDir);
     BindNativeProperty(env, object, "filesDir", GetFilesDir);
     BindNativeProperty(env, object, "distributedFilesDir", GetDistributedFilesDir);
     BindNativeProperty(env, object, "databaseDir", GetDatabaseDir);
     BindNativeProperty(env, object, "preferencesDir", GetPreferencesDir);
     BindNativeProperty(env, object, "bundleCodeDir", GetBundleCodeDir);
+    BindNativeProperty(env, object, "cloudFileDir", GetCloudFileDir);
     return CreateJsUndefined(env);
 }
 
 napi_value JsBaseContext::CreateModuleContext(napi_env env, napi_callback_info info)
+{
+    return nullptr;
+}
+
+napi_value JsBaseContext::CreateModuleResourceManager(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
@@ -132,7 +145,7 @@ napi_value JsBaseContext::OnGetArea(napi_env env, NapiCallbackInfo &info)
 {
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
         return CreateJsUndefined(env);
     }
     int area = context->GetArea();
@@ -148,7 +161,7 @@ napi_value JsBaseContext::OnGetCacheDir(napi_env env, NapiCallbackInfo &info)
 {
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
         return CreateJsUndefined(env);
     }
     std::string path = context->GetCacheDir();
@@ -164,10 +177,26 @@ napi_value JsBaseContext::OnGetTempDir(napi_env env, NapiCallbackInfo &info)
 {
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
         return CreateJsUndefined(env);
     }
     std::string path = context->GetTempDir();
+    return CreateJsValue(env, path);
+}
+
+napi_value JsBaseContext::GetResourceDir(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsBaseContext, OnGetResourceDir, BASE_CONTEXT_NAME);
+}
+
+napi_value JsBaseContext::OnGetResourceDir(napi_env env, NapiCallbackInfo &info)
+{
+    auto context = context_.lock();
+    if (!context) {
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
+        return CreateJsUndefined(env);
+    }
+    std::string path = context->GetResourceDir();
     return CreateJsValue(env, path);
 }
 
@@ -180,7 +209,7 @@ napi_value JsBaseContext::OnGetFilesDir(napi_env env, NapiCallbackInfo &info)
 {
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
         return CreateJsUndefined(env);
     }
     std::string path = context->GetFilesDir();
@@ -196,7 +225,7 @@ napi_value JsBaseContext::OnGetDistributedFilesDir(napi_env env, NapiCallbackInf
 {
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
         return CreateJsUndefined(env);
     }
     std::string path = context->GetDistributedFilesDir();
@@ -212,7 +241,7 @@ napi_value JsBaseContext::OnGetDatabaseDir(napi_env env, NapiCallbackInfo &info)
 {
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
         return CreateJsUndefined(env);
     }
     std::string path = context->GetDatabaseDir();
@@ -228,7 +257,7 @@ napi_value JsBaseContext::OnGetPreferencesDir(napi_env env, NapiCallbackInfo &in
 {
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
         return CreateJsUndefined(env);
     }
     std::string path = context->GetPreferencesDir();
@@ -244,16 +273,32 @@ napi_value JsBaseContext::OnGetBundleCodeDir(napi_env env, NapiCallbackInfo &inf
 {
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
         return CreateJsUndefined(env);
     }
     std::string path = context->GetBundleCodeDir();
     return CreateJsValue(env, path);
 }
 
+napi_value JsBaseContext::GetCloudFileDir(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsBaseContext, OnGetCloudFileDir, BASE_CONTEXT_NAME);
+}
+
+napi_value JsBaseContext::OnGetCloudFileDir(napi_env env, NapiCallbackInfo &info)
+{
+    auto context = context_.lock();
+    if (!context) {
+        HILOG_WARN("context is already released");
+        return CreateJsUndefined(env);
+    }
+    std::string path = context->GetCloudFileDir();
+    return CreateJsValue(env, path);
+}
+
 napi_value JsBaseContext::OnGetApplicationContext(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called");
     napi_value value = JsApplicationContextUtils::CreateJsApplicationContext(env, context_.lock());
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.ApplicationContext", &value, 1);
     if (systemModule == nullptr) {
@@ -269,7 +314,7 @@ napi_value CreateJsBaseContext(napi_env env, std::shared_ptr<Context> context, b
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
-        HILOG_WARN("invalid object.");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "invalid object.");
         return object;
     }
 
@@ -287,11 +332,13 @@ napi_value CreateJsBaseContext(napi_env env, std::shared_ptr<Context> context, b
 
     BindNativeProperty(env, object, "cacheDir", JsBaseContext::GetCacheDir);
     BindNativeProperty(env, object, "tempDir", JsBaseContext::GetTempDir);
+    BindNativeProperty(env, object, "resourceDir", JsBaseContext::GetResourceDir);
     BindNativeProperty(env, object, "filesDir", JsBaseContext::GetFilesDir);
     BindNativeProperty(env, object, "distributedFilesDir", JsBaseContext::GetDistributedFilesDir);
     BindNativeProperty(env, object, "databaseDir", JsBaseContext::GetDatabaseDir);
     BindNativeProperty(env, object, "preferencesDir", JsBaseContext::GetPreferencesDir);
     BindNativeProperty(env, object, "bundleCodeDir", JsBaseContext::GetBundleCodeDir);
+    BindNativeProperty(env, object, "cloudFileDir", JsBaseContext::GetCloudFileDir);
     BindNativeProperty(env, object, "area", JsBaseContext::GetArea);
     const char *moduleName = "JsBaseContext";
     BindNativeFunction(env, object, "createBundleContext", moduleName, JsBaseContext::CreateBundleContext);
@@ -299,6 +346,8 @@ napi_value CreateJsBaseContext(napi_env env, std::shared_ptr<Context> context, b
     BindNativeFunction(env, object, "switchArea", moduleName, JsBaseContext::SwitchArea);
     BindNativeFunction(env, object, "getArea", moduleName, JsBaseContext::GetArea);
     BindNativeFunction(env, object, "createModuleContext", moduleName, JsBaseContext::CreateModuleContext);
+    BindNativeFunction(env, object, "createModuleResourceManager", moduleName,
+        JsBaseContext::CreateModuleResourceManager);
 
     return object;
 }

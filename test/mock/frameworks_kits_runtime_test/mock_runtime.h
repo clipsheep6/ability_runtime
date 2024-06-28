@@ -24,20 +24,17 @@ namespace OHOS {
 namespace AbilityRuntime {
 class MockRuntime : public Runtime {
 public:
+    const int DEFAULT_LANGUAGE = 100;
     MockRuntime() = default;
     ~MockRuntime() = default;
 
     Language GetLanguage() const override
     {
-        return static_cast<Runtime::Language>(100);
+        return static_cast<Runtime::Language>(DEFAULT_LANGUAGE);
     }
 
-    bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) override
-    {
-        GTEST_LOG_(INFO) << "MockRuntime::BuildJsStackInfoList called";
-        return true;
-    }
-    void StartDebugMode(bool needBreakPoint) override {}
+    void StartDebugMode(const DebugOption debugOption) override {}
+
     void FinishPreload() override {}
     bool LoadRepairPatch(const std::string& patchFile, const std::string& baseFile) override
     {
@@ -57,6 +54,26 @@ public:
         return true;
     }
     void DumpHeapSnapshot(bool isPrivate) override
+    {
+        return;
+    }
+    void DumpCpuProfile(bool isPrivate) override
+    {
+        return;
+    }
+    void DestroyHeapProfiler() override
+    {
+        return;
+    }
+    void ForceFullGC() override
+    {
+        return;
+    }
+    void AllowCrossThreadExecution() override
+    {
+        return;
+    }
+    void GetHeapPrepare() override
     {
         return;
     }
@@ -93,9 +110,18 @@ public:
     {
         return;
     }
+    void SetDeviceDisconnectCallback(const std::function<bool()> &cb) override
+    {
+        return;
+    }
 
-    void StartProfiler(const std::string &perfCmd) override {}
+    void StartProfiler(const DebugOption debugOption) override {}
+
     void DoCleanWorkAfterStageCleaned() override {}
+    void DumpHeapSnapshot(uint32_t tid, bool isFullGC) override {}
+    void ForceFullGC(uint32_t tid) override {}
+
+    void UpdatePkgContextInfoJson(std::string moduleName, std::string hapPath, std::string packageName) override {};
 public:
     Language language;
 };

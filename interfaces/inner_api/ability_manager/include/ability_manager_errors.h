@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -353,6 +353,207 @@ enum {
      * Result(2097218) for collaborator is empty.
      */
     ERR_COLLABORATOR_NOTIFY_FAILED,
+
+    /**
+     * Result(2097219) for prouct application boot setting.
+     */
+    ERR_NOT_SUPPORTED_PRODUCT_TYPE,
+    /**
+     * Result(2097220) for starting invalid component.
+     */
+    ERR_INSIGHT_INTENT_START_INVALID_COMPONENT,
+
+    /**
+     * Result(2097221) for developer mode.
+     */
+    ERR_NOT_DEVELOPER_MODE,
+
+    /**
+     * Result(2097222) for get active ability list empty when record exit reason.
+     */
+    ERR_GET_ACTIVE_ABILITY_LIST_EMPTY,
+
+    /**
+     * Result(2097223) for query highest priority ability.
+     */
+    ERR_QUERY_HIGHEST_PRIORITY_ABILITY,
+
+    /**
+     * Result(2097224) for the target to restart does not belong to the current app or is not a UIAbility.
+     */
+    ERR_RESTART_APP_INCORRECT_ABILITY,
+
+    /**
+     * Result(2097225) for restart too frequently. Try again at least 10s later.
+     */
+    ERR_RESTART_APP_FREQUENT,
+
+    /**
+     * Result(2097226) for connect ERMS service failed.
+     */
+    ERR_CONNECT_ERMS_FAILED,
+
+    /**
+     * Result(2097227) for ability is not foreground state.
+     */
+    ERR_ABILITY_NOT_FOREGROUND,
+
+    /**
+     * Result(2097228) for in wukong mode, ability can not move to foreground or background.
+     */
+    ERR_WUKONG_MODE_CANT_MOVE_STATE,
+
+    /**
+     * Result(2097229) for operation not supported on current device.
+     */
+    ERR_OPERATION_NOT_SUPPORTED_ON_CURRENT_DEVICE,
+
+    /**
+     * Result(2097230) for capability not support.
+     */
+    ERR_CAPABILITY_NOT_SUPPORT,
+
+    /**
+     * Result(2097231) for not allow implicit start.
+     */
+    ERR_NOT_ALLOW_IMPLICIT_START,
+
+    /**
+     * Result(2097232) for start options check failed.
+     */
+    ERR_START_OPTIONS_CHECK_FAILED,
+
+    /**
+     * Result(2097233) for ability already running.
+     */
+    ERR_ABILITY_ALREADY_RUNNING,
+
+    /**
+     * Native error(2097234) for not self application.
+     */
+    ERR_NATIVE_NOT_SELF_APPLICATION,
+
+    /**
+     * Native error(2097235) for IPC parcel failed.
+     */
+    ERR_NATIVE_IPC_PARCEL_FAILED,
+
+    /**
+     * Native error(2097236) for ability not found.
+     */
+    ERR_NATIVE_ABILITY_NOT_FOUND,
+
+    /**
+     * Native error(2097237) for ability state check failed.
+     */
+    ERR_NATIVE_ABILITY_STATE_CHECK_FAILED,
+    
+    /**
+     * Native error(2097238) for kill process not exist.
+     */
+    ERR_KILL_PROCESS_NOT_EXIST,
+
+    /**
+     * Native error(2097239) for start other app failed.
+     */
+    ERR_START_OTHER_APP_FAILED,
+
+    /**
+     * Native error(2097240) for memory size state unchanged.
+     */
+    ERR_NATIVE_MEMORY_SIZE_STATE_UNCHANGED,
+    
+    /**
+     * Native error(2097241) for target bundle not exist.
+     */
+    ERR_TARGET_BUNDLE_NOT_EXIST,
+
+    /**
+     * Native error(2097242) for get launch ability info failed.
+     */
+    ERR_GET_LAUNCH_ABILITY_INFO_FAILED,
+
+    /**
+     * Native error(2097243) for check preload conditions failed.
+     */
+    ERR_CHECK_PRELOAD_CONDITIONS_FAILED,
+
+    ERR_SET_SUPPORTED_PROCESS_CACHE_AGAIN,
+
+    /**
+     * Result(2097245) for size of uri list out of range.
+     */
+    ERR_URI_LIST_OUT_OF_RANGE,
+
+    /**
+     * Native error(2097246) for not allow preload by rss.
+     */
+    ERR_NOT_ALLOW_PRELOAD_BY_RSS,
+
+    /**
+     * Result(2097247) for get active extension list empty when record exit reason.
+     */
+    ERR_GET_ACTIVE_EXTENSION_LIST_EMPTY,
+
+    /**
+     * Result(2097248) for get ExtensionName by uid fail.
+     */
+    GET_EXTENSION_NAME_BY_UID_FAIL,
+
+    /**
+     * Native error(2097249) no resident process permissions set.
+     */
+    ERR_NO_RESIDENT_PERMISSION,
+
+    /**
+     * Result(2097250) for app clone index does not exist.
+     */
+    ERR_APP_CLONE_INDEX_INVALID,
+
+    /**
+     * Result(2097251) not support twin.
+     */
+    ERR_MULTI_APP_NOT_SUPPORTED,
+
+    /**
+     * Result(2097252) for unlock screen failed in developer mode.
+     */
+    ERR_UNLOCK_SCREEN_FAILED_IN_DEVELOPER_MODE,
+
+    /*
+     * Result(2097253) for block startup in lock screen.
+     */
+    ERR_BLOCK_START_FIRST_BOOT_SCREEN_UNLOCK = 2097253,
+
+    /*
+     * Result(2097254) for extension blocked by third party app flag
+     */
+    EXTENSION_BLOCKED_BY_THIRD_PARTY_APP_FLAG = 2097254,
+
+    /*
+     * Result(2097255) for extension blocked by service list
+     */
+    EXTENSION_BLOCKED_BY_SERVICE_LIST = 2097255,
+
+    /*
+     * Result(2097256) for non-app-provision mode
+     */
+    ERR_NOT_IN_APP_PROVISION_MODE = 2097256,
+    
+    /*
+     * Result(2097257) for share file uri non-implicitly
+     */
+    ERR_SHARE_FILE_URI_NON_IMPLICITLY = 2097257,
+
+    /**
+     * Native error(2097258) for target bundle not exist.
+     */
+    ERR_BUNDLE_NOT_EXIST,
+
+    /**
+     * Native error(3000000) for target bundle not exist.
+     */
+    ERR_CODE_NOT_EXIST = 3000000,
 };
 
 enum {

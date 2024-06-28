@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include "commonlibrary/ets_utils/js_sys_module/console/console.h"
 #include "commonlibrary/ets_utils/js_sys_module/timer/timer.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_utils.h"
 #include "js_worker.h"
@@ -24,28 +25,72 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+namespace {
+    std::shared_ptr<AppExecFwk::EventHandler> g_eventHandler = nullptr;
+}
+void OHOSJsEnvironmentImpl::PostTaskToHandler(void* handler, uv_io_cb func, void* work, int status, int priority)
+{
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "Enter.");
+    if (!func || !work) {
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Invalid parameters!");
+        return;
+    }
+
+    auto task = [func, work, status]() {
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "Do uv work.");
+        func(work, status);
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "Do uv work end.");
+    };
+
+    AppExecFwk::EventQueue::Priority prio = AppExecFwk::EventQueue::Priority::IMMEDIATE;
+    switch (priority) {
+        case uv_qos_t::uv_qos_user_initiated:
+            prio = AppExecFwk::EventQueue::Priority::IMMEDIATE;
+            break;
+        case uv_qos_t::uv_qos_utility:
+            prio = AppExecFwk::EventQueue::Priority::LOW;
+            break;
+        case uv_qos_t::uv_qos_background:
+            prio = AppExecFwk::EventQueue::Priority::IDLE;
+            break;
+        default:
+            prio = AppExecFwk::EventQueue::Priority::HIGH;
+            break;
+    }
+
+    if (g_eventHandler  == nullptr) {
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Invalid parameters!");
+        return;
+    }
+    g_eventHandler->PostTask(task, prio);
+
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "PostTask end.");
+}
 OHOSJsEnvironmentImpl::OHOSJsEnvironmentImpl()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
 }
 
 OHOSJsEnvironmentImpl::OHOSJsEnvironmentImpl(const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner)
 {
-    HILOG_INFO("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     if (eventRunner != nullptr) {
-        HILOG_DEBUG("Create event handler.");
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "Create event handler.");
         eventHandler_ = std::make_shared<AppExecFwk::EventHandler>(eventRunner);
+        if (eventRunner.get() == AppExecFwk::EventRunner::GetMainEventRunner().get()) {
+            g_eventHandler = std::make_shared<AppExecFwk::EventHandler>(eventRunner);
+        }
     }
 }
 
 OHOSJsEnvironmentImpl::~OHOSJsEnvironmentImpl()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
 }
 
 void OHOSJsEnvironmentImpl::PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     if (eventHandler_ != nullptr) {
         eventHandler_->PostTask(task, name, delayTime);
     }
@@ -53,7 +98,7 @@ void OHOSJsEnvironmentImpl::PostTask(const std::function<void()>& task, const st
 
 void OHOSJsEnvironmentImpl::PostSyncTask(const std::function<void()>& task, const std::string& name)
 {
-    HILOG_DEBUG("Post sync task");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "Post sync task");
     if (eventHandler_ != nullptr) {
         eventHandler_->PostSyncTask(task, name);
     }
@@ -61,7 +106,7 @@ void OHOSJsEnvironmentImpl::PostSyncTask(const std::function<void()>& task, cons
 
 void OHOSJsEnvironmentImpl::RemoveTask(const std::string& name)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     if (eventHandler_ != nullptr) {
         eventHandler_->RemoveTask(name);
     }
@@ -69,28 +114,28 @@ void OHOSJsEnvironmentImpl::RemoveTask(const std::string& name)
 
 void OHOSJsEnvironmentImpl::InitTimerModule(NativeEngine* engine)
 {
-    HILOG_DEBUG("Init timer.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "Init timer.");
     CHECK_POINTER(engine);
     auto ret = JsSysModule::Timer::RegisterTime(reinterpret_cast<napi_env>(engine));
     if (!ret) {
-        HILOG_ERROR("Register timer failed");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Register timer failed");
     }
 }
 
 void OHOSJsEnvironmentImpl::InitConsoleModule(NativeEngine* engine)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     JsSysModule::Console::InitConsoleModule(reinterpret_cast<napi_env>(engine));
 }
 
-bool OHOSJsEnvironmentImpl::InitLoop(NativeEngine* engine)
+bool OHOSJsEnvironmentImpl::InitLoop(NativeEngine* engine, bool isStage)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     CHECK_POINTER_AND_RETURN(engine, false);
     auto uvLoop = engine->GetUVLoop();
     auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
     if (fd < 0) {
-        HILOG_ERROR("Failed to get backend fd from uv loop");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to get backend fd from uv loop");
         return false;
     }
     uv_run(uvLoop, UV_RUN_NOWAIT);
@@ -98,6 +143,10 @@ bool OHOSJsEnvironmentImpl::InitLoop(NativeEngine* engine)
     if (eventHandler_ != nullptr) {
         uint32_t events = AppExecFwk::FILE_DESCRIPTOR_INPUT_EVENT | AppExecFwk::FILE_DESCRIPTOR_OUTPUT_EVENT;
         eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<OHOSLoopHandler>(uvLoop), "uvLoopTask");
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "uv_register_task_to_event, isStage: %{public}d", isStage);
+        if (isStage && (eventHandler_->GetEventRunner()).get() == AppExecFwk::EventRunner::GetMainEventRunner().get()) {
+            uv_register_task_to_event(uvLoop, PostTaskToHandler, nullptr);
+        }
     }
 
     return true;
@@ -111,16 +160,19 @@ void OHOSJsEnvironmentImpl::DeInitLoop(NativeEngine* engine)
     if (fd >= 0 && eventHandler_ != nullptr) {
         eventHandler_->RemoveFileDescriptorListener(fd);
     }
+    uv_unregister_task_to_event(uvLoop);
     RemoveTask(TIMER_TASK);
 }
 
 void OHOSJsEnvironmentImpl::InitWorkerModule(NativeEngine* engine, std::shared_ptr<JsEnv::WorkerInfo> workerInfo)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     CHECK_POINTER(engine);
+    CHECK_POINTER(workerInfo);
     engine->SetInitWorkerFunc(InitWorkerFunc);
     engine->SetOffWorkerFunc(OffWorkerFunc);
     engine->SetGetAssetFunc(AssetHelper(workerInfo));
+    engine->SetApiVersion(workerInfo->apiTargetVersion);
 
     engine->SetGetContainerScopeIdFunc(GetContainerId);
     engine->SetInitContainerScopeFunc(UpdateContainerScope);
@@ -129,7 +181,7 @@ void OHOSJsEnvironmentImpl::InitWorkerModule(NativeEngine* engine, std::shared_p
 
 void OHOSJsEnvironmentImpl::InitSyscapModule()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

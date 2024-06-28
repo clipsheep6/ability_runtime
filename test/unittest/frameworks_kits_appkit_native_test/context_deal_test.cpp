@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,14 +17,21 @@
 #include <singleton.h>
 #define private public
 #define protected public
-#include "ohos_application.h"
 #include "ability.h"
+#include "bundle_mgr_interface.h"
 #include "context_deal.h"
-#include "process_info.h"
-#include "system_ability_definition.h"
-#include "sys_mgr_client.h"
-#include "mock_bundle_manager.h"
+#include "if_system_ability_manager.h"
+#include "iservice_registry.h"
 #include "mock_ability_manager_client.h"
+#include "mock_bundle_installer_service.h"
+#include "mock_bundle_manager.h"
+#include "mock_bundle_manager_service.h"
+#include "mock_system_ability_manager.h"
+#include "ohos_application.h"
+#include "permission_verification.h"
+#include "process_info.h"
+#include "sys_mgr_client.h"
+#include "system_ability_definition.h"
 #undef private
 #undef protected
 
@@ -33,6 +40,9 @@ namespace AppExecFwk {
 using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AppExecFwk;
+
+sptr<MockBundleInstallerService> mockBundleInstaller = new (std::nothrow) MockBundleInstallerService();
+sptr<MockBundleManagerService> mockBundleMgr = new (std::nothrow) MockBundleManagerService();
 
 class ContextDealTest : public testing::Test {
 public:
@@ -45,6 +55,9 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
+
+    sptr<ISystemAbilityManager> iSystemAbilityMgr_ = nullptr;
+    sptr<AppExecFwk::MockSystemAbilityManager> mockSystemAbility_ = nullptr;
 };
 
 void ContextDealTest::SetUpTestCase(void)
@@ -55,16 +68,16 @@ void ContextDealTest::TearDownTestCase(void)
 
 void ContextDealTest::SetUp(void)
 {
-    OHOS::sptr<OHOS::IRemoteObject> bundleObject = new (std::nothrow) BundleMgrService();
-    OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->RegisterSystemAbility(
-        OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, bundleObject);
-    OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->RegisterSystemAbility(
-        OHOS::ABILITY_MGR_SERVICE_ID, bundleObject);
+    mockSystemAbility_ = new (std::nothrow) AppExecFwk::MockSystemAbilityManager();
+    iSystemAbilityMgr_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = mockSystemAbility_;
     context_ = std::make_shared<ContextDeal>();
 }
 
 void ContextDealTest::TearDown(void)
-{}
+{
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = iSystemAbilityMgr_;
+}
 
 /**
  * @tc.number: AppExecFwk_ContextDeal_GetBundleName_0100
@@ -101,7 +114,7 @@ HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetBundleName_0200, Function | 
  */
 HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetBundleManager_0100, Function | MediumTest | Level3)
 {
-    sptr<IBundleMgr> ptr = context_->GetBundleManager();
+    auto ptr = context_->GetBundleManager();
     EXPECT_NE(ptr, nullptr);
 }
 
@@ -753,10 +766,22 @@ HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetPreferencesDir_0100, Functio
  */
 HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_HapModuleInfoRequestInit_0100, Function | MediumTest | Level1)
 {
+    auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
+    auto mockGetSystemAbility = [bms = mockBundleMgr, saMgr = iSystemAbilityMgr_](int32_t systemAbilityId) {
+        if (systemAbilityId == BUNDLE_MGR_SERVICE_SYS_ABILITY_ID) {
+            return bms->AsObject();
+        } else {
+            return saMgr->GetSystemAbility(systemAbilityId);
+        }
+    };
+    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
+    EXPECT_CALL(*mockSystemAbility_, GetSystemAbility(testing::_))
+        .WillOnce(testing::Invoke(mockGetSystemAbility))
+        .WillRepeatedly(testing::Invoke(mockGetSystemAbility));
     EXPECT_TRUE(context_ != nullptr);
-    const std::shared_ptr<EventRunner> runner;
     EXPECT_FALSE(context_->HapModuleInfoRequestInit());
 
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_)).WillOnce(testing::Return(true));
     context_->abilityInfo_ = std::make_shared<AbilityInfo>();
     EXPECT_TRUE(context_->HapModuleInfoRequestInit());
 }

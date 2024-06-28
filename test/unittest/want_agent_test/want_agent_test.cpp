@@ -22,6 +22,7 @@
 #include "base_types.h"
 #include "pending_want.h"
 #include "pending_want_record.h"
+#include "process_options.h"
 #include "want.h"
 #define private public
 #define protected public
@@ -130,5 +131,111 @@ HWTEST_F(WantAgentTest, WantAgent_0500, Function | MediumTest | Level1)
     Parcel parcel;
     bool ret = wantAgent->Unmarshalling(parcel);
     EXPECT_EQ(ret, true);
+}
+
+/*
+ * @tc.number    : ProcessOptionsTest_0100
+ * @tc.name      : Marshalling
+ * @tc.desc      : Marshalling
+ */
+HWTEST_F(WantAgentTest, ProcessOptionsTest_0100, TestSize.Level1)
+{
+    auto option = std::make_shared<ProcessOptions>();
+    Parcel parcel;
+    auto result = option->Marshalling(parcel);
+    EXPECT_EQ(result, true);
+}
+
+/*
+ * @tc.number    : ProcessOptionsTest_0200
+ * @tc.name      : Unmarshalling
+ * @tc.desc      : Unmarshalling
+ */
+HWTEST_F(WantAgentTest, ProcessOptionsTest_0200, TestSize.Level1)
+{
+    auto option = std::make_shared<ProcessOptions>();
+    Parcel parcel;
+    option->Unmarshalling(parcel);
+    EXPECT_NE(option, nullptr);
+}
+
+/*
+ * @tc.number    : ProcessOptionsTest_0300
+ * @tc.name      : ConvertInt32ToProcessMode
+ * @tc.desc      : ConvertInt32ToProcessMode
+ */
+HWTEST_F(WantAgentTest, ProcessOptionsTest_0300, TestSize.Level1)
+{
+    auto option = std::make_shared<ProcessOptions>();
+    int32_t value = 1;
+    option->ConvertInt32ToProcessMode(value);
+    EXPECT_NE(option, nullptr);
+}
+
+/*
+ * @tc.number    : ProcessOptionsTest_0400
+ * @tc.name      : ConvertInt32ToStartupVisibility
+ * @tc.desc      : ConvertInt32ToStartupVisibility
+ */
+HWTEST_F(WantAgentTest, ProcessOptionsTest_0400, TestSize.Level1)
+{
+    auto option = std::make_shared<ProcessOptions>();
+    int32_t value = 1;
+    option->ConvertInt32ToStartupVisibility(value);
+    EXPECT_NE(option, nullptr);
+}
+
+/*
+ * @tc.number    : ProcessOptionsTest_0500
+ * @tc.name      : IsNewProcessMode
+ * @tc.desc      : IsNewProcessMode
+ */
+HWTEST_F(WantAgentTest, ProcessOptionsTest_0500, TestSize.Level1)
+{
+    auto option = std::make_shared<ProcessOptions>();
+    ProcessMode value = ProcessMode::UNSPECIFIED;
+    option->IsNewProcessMode(value);
+    EXPECT_NE(option, nullptr);
+}
+
+/*
+ * @tc.number    : ProcessOptionsTest_0600
+ * @tc.name      : IsAttachToStatusBarMode
+ * @tc.desc      : IsAttachToStatusBarMode
+ */
+HWTEST_F(WantAgentTest, ProcessOptionsTest_0600, TestSize.Level1)
+{
+    auto option = std::make_shared<ProcessOptions>();
+    ProcessMode value = ProcessMode::NEW_PROCESS_ATTACH_TO_STATUS_BAR_ITEM;
+    bool ret = option->IsAttachToStatusBarMode(value);
+    EXPECT_EQ(ret, true);
+}
+
+
+/*
+ * @tc.number    : ProcessOptionsTest_0700
+ * @tc.name      : IsAttachToStatusBarMode
+ * @tc.desc      : IsAttachToStatusBarMode
+ */
+HWTEST_F(WantAgentTest, ProcessOptionsTest_0700, TestSize.Level1)
+{
+    auto option = std::make_shared<ProcessOptions>();
+    ProcessMode value = ProcessMode::ATTACH_TO_STATUS_BAR_ITEM;
+    bool ret = option->IsAttachToStatusBarMode(value);
+    EXPECT_EQ(ret, true);
+}
+
+
+/*
+ * @tc.number    : ProcessOptionsTest_0800
+ * @tc.name      : IsAttachToStatusBarMode
+ * @tc.desc      : IsAttachToStatusBarMode
+ */
+HWTEST_F(WantAgentTest, ProcessOptionsTest_0800, TestSize.Level1)
+{
+    auto option = std::make_shared<ProcessOptions>();
+    ProcessMode value = ProcessMode::UNSPECIFIED;
+    bool ret = option->IsAttachToStatusBarMode(value);
+    EXPECT_EQ(ret, false);
 }
 }  // namespace OHOS::AbilityRuntime::WantAgent

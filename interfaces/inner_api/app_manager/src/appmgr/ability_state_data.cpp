@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,17 +15,70 @@
 
 #include "ability_state_data.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 bool AbilityStateData::Marshalling(Parcel &parcel) const
 {
-    return (parcel.WriteString(moduleName) && parcel.WriteString(bundleName) &&
-        parcel.WriteString(abilityName) && parcel.WriteInt32(abilityState) &&
-        parcel.WriteInt32(pid) && parcel.WriteInt32(uid) &&
-        (static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(token) &&
-        parcel.WriteInt32(abilityType) && parcel.WriteBool(isFocused));
+    if (!parcel.WriteString(moduleName)) {
+        return false;
+    }
+    if (!parcel.WriteString(bundleName)) {
+        return false;
+    }
+    if (!parcel.WriteString(abilityName)) {
+        return false;
+    }
+    if (!parcel.WriteInt32(abilityState)) {
+        return false;
+    }
+    if (!parcel.WriteInt32(pid)) {
+        return false;
+    }
+    if (!parcel.WriteInt32(uid)) {
+        return false;
+    }
+    if (token == nullptr) {
+        if (!parcel.WriteBool(false)) {
+            return false;
+        }
+    } else {
+        if (!parcel.WriteBool(true)) {
+            return false;
+        }
+        if (!parcel.WriteRemoteObject(token)) {
+            return false;
+        }
+    }
+    if (!MarshallingOne(parcel)) {
+        return false;
+    }
+    return true;
+}
+
+bool AbilityStateData::MarshallingOne(Parcel &parcel) const
+{
+    if (!parcel.WriteInt32(abilityType)) {
+        return false;
+    }
+    if (!parcel.WriteBool(isFocused)) {
+        return false;
+    }
+    if (!parcel.WriteString(callerBundleName)) {
+        return false;
+    }
+    if (!parcel.WriteString(callerAbilityName)) {
+        return false;
+    }
+    if (!parcel.WriteBool(isAtomicService) || !parcel.WriteInt32(abilityRecordId)) {
+        return false;
+    }
+    if (!parcel.WriteInt32(appCloneIndex)) {
+        return false;
+    }
+    return true;
 }
 
 bool AbilityStateData::ReadFromParcel(Parcel &parcel)
@@ -42,11 +95,20 @@ bool AbilityStateData::ReadFromParcel(Parcel &parcel)
 
     uid = parcel.ReadInt32();
 
-    token = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
+    if (parcel.ReadBool()) {
+        token = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
+    }
 
     abilityType = parcel.ReadInt32();
 
     isFocused = parcel.ReadBool();
+
+    callerBundleName = parcel.ReadString();
+
+    callerAbilityName = parcel.ReadString();
+    isAtomicService = parcel.ReadBool();
+    abilityRecordId = parcel.ReadInt32();
+    appCloneIndex = parcel.ReadInt32();
     return true;
 }
 
@@ -54,7 +116,7 @@ AbilityStateData *AbilityStateData::Unmarshalling(Parcel &parcel)
 {
     AbilityStateData *abilityStateData = new (std::nothrow) AbilityStateData();
     if (abilityStateData && !abilityStateData->ReadFromParcel(parcel)) {
-        HILOG_WARN("AbilityStateData failed, because ReadFromParcel failed");
+        TAG_LOGW(AAFwkTag::APPMGR, "AbilityStateData failed, because ReadFromParcel failed");
         delete abilityStateData;
         abilityStateData = nullptr;
     }

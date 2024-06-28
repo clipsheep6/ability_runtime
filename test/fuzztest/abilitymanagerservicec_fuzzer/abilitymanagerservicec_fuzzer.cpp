@@ -31,15 +31,22 @@ using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace {
+constexpr int INPUT_ZERO = 0;
+constexpr int INPUT_ONE = 1;
+constexpr int INPUT_THREE = 3;
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
 constexpr uint8_t ENABLE = 2;
+constexpr size_t OFFSET_ZERO = 24;
+constexpr size_t OFFSET_ONE = 16;
+constexpr size_t OFFSET_TWO = 8;
 }
 
 uint32_t GetU32Data(const char* ptr)
 {
     // convert fuzz input data to an integer
-    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
+    return (ptr[INPUT_ZERO] << OFFSET_ZERO) | (ptr[INPUT_ONE] << OFFSET_ONE) | (ptr[ENABLE] << OFFSET_TWO) |
+        ptr[INPUT_THREE];
 }
 
 sptr<Token> GetFuzzAbilityToken()
@@ -75,20 +82,17 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     // fuzz for AbilityManagerService
     auto abilityms = std::make_shared<AbilityManagerService>();
+    abilityms->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
     abilityms->PauseOldConnectManager(int32Param);
-    abilityms->InitConnectManager(int32Param, boolParam);
-    abilityms->InitDataAbilityManager(int32Param, boolParam);
-    abilityms->InitPendWantManager(int32Param, boolParam);
+    abilityms->subManagersHelper_->InitDataAbilityManager(int32Param, boolParam);
     abilityms->GetValidUserId(int32Param);
     sptr<IAbilityController> abilityController;
     abilityms->SetAbilityController(abilityController, boolParam);
-    abilityms->SendANRProcessID(intParam);
     abilityms->IsRunningInStabilityTest();
     abilityms->IsAbilityControllerStart(*want, stringParam);
     abilityms->IsAbilityControllerForeground(stringParam);
     AppExecFwk::ExtensionAbilityInfo extensionInfo;
     AppExecFwk::AbilityInfo abilityInfo;
-    abilityms->InitAbilityInfoFromExtension(extensionInfo, abilityInfo);
     abilityms->StartUserTest(*want, token);
     abilityms->FinishUserTest(stringParam, int64Param, stringParam);
 

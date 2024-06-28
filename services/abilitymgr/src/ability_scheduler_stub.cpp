@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,11 +15,13 @@
 
 #include "ability_scheduler_stub.h"
 
+#include "ability_manager_errors.h"
 #include "abs_shared_result_set.h"
 #include "data_ability_observer_interface.h"
 #include "data_ability_operation.h"
 #include "data_ability_predicates.h"
 #include "data_ability_result.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "ishared_result_set.h"
@@ -32,48 +34,10 @@ namespace OHOS {
 namespace AAFwk {
 constexpr int CYCLE_LIMIT = 2000;
 AbilitySchedulerStub::AbilitySchedulerStub()
-{
-    requestFuncMap_[SCHEDULE_ABILITY_TRANSACTION] = &AbilitySchedulerStub::AbilityTransactionInner;
-    requestFuncMap_[SEND_RESULT] = &AbilitySchedulerStub::SendResultInner;
-    requestFuncMap_[SCHEDULE_ABILITY_CONNECT] = &AbilitySchedulerStub::ConnectAbilityInner;
-    requestFuncMap_[SCHEDULE_ABILITY_DISCONNECT] = &AbilitySchedulerStub::DisconnectAbilityInner;
-    requestFuncMap_[SCHEDULE_ABILITY_COMMAND] = &AbilitySchedulerStub::CommandAbilityInner;
-    requestFuncMap_[SCHEDULE_ABILITY_PREPARE_TERMINATE] = &AbilitySchedulerStub::PrepareTerminateAbilityInner;
-    requestFuncMap_[SCHEDULE_ABILITY_COMMAND_WINDOW] = &AbilitySchedulerStub::CommandAbilityWindowInner;
-    requestFuncMap_[SCHEDULE_SAVE_ABILITY_STATE] = &AbilitySchedulerStub::SaveAbilityStateInner;
-    requestFuncMap_[SCHEDULE_RESTORE_ABILITY_STATE] = &AbilitySchedulerStub::RestoreAbilityStateInner;
-    requestFuncMap_[SCHEDULE_GETFILETYPES] = &AbilitySchedulerStub::GetFileTypesInner;
-    requestFuncMap_[SCHEDULE_OPENFILE] = &AbilitySchedulerStub::OpenFileInner;
-    requestFuncMap_[SCHEDULE_OPENRAWFILE] = &AbilitySchedulerStub::OpenRawFileInner;
-    requestFuncMap_[SCHEDULE_INSERT] = &AbilitySchedulerStub::InsertInner;
-    requestFuncMap_[SCHEDULE_UPDATE] = &AbilitySchedulerStub::UpdatetInner;
-    requestFuncMap_[SCHEDULE_DELETE] = &AbilitySchedulerStub::DeleteInner;
-    requestFuncMap_[SCHEDULE_QUERY] = &AbilitySchedulerStub::QueryInner;
-    requestFuncMap_[SCHEDULE_CALL] = &AbilitySchedulerStub::CallInner;
-    requestFuncMap_[SCHEDULE_GETTYPE] = &AbilitySchedulerStub::GetTypeInner;
-    requestFuncMap_[SCHEDULE_RELOAD] = &AbilitySchedulerStub::ReloadInner;
-    requestFuncMap_[SCHEDULE_BATCHINSERT] = &AbilitySchedulerStub::BatchInsertInner;
-    requestFuncMap_[SCHEDULE_REGISTEROBSERVER] = &AbilitySchedulerStub::RegisterObserverInner;
-    requestFuncMap_[SCHEDULE_UNREGISTEROBSERVER] = &AbilitySchedulerStub::UnregisterObserverInner;
-    requestFuncMap_[SCHEDULE_NOTIFYCHANGE] = &AbilitySchedulerStub::NotifyChangeInner;
-    requestFuncMap_[SCHEDULE_NORMALIZEURI] = &AbilitySchedulerStub::NormalizeUriInner;
-    requestFuncMap_[SCHEDULE_DENORMALIZEURI] = &AbilitySchedulerStub::DenormalizeUriInner;
-    requestFuncMap_[SCHEDULE_EXECUTEBATCH] = &AbilitySchedulerStub::ExecuteBatchInner;
-    requestFuncMap_[NOTIFY_CONTINUATION_RESULT] = &AbilitySchedulerStub::NotifyContinuationResultInner;
-    requestFuncMap_[REQUEST_CALL_REMOTE] = &AbilitySchedulerStub::CallRequestInner;
-    requestFuncMap_[CONTINUE_ABILITY] = &AbilitySchedulerStub::ContinueAbilityInner;
-    requestFuncMap_[DUMP_ABILITY_RUNNER_INNER] = &AbilitySchedulerStub::DumpAbilityInfoInner;
-    requestFuncMap_[SCHEDULE_SHARE_DATA] = &AbilitySchedulerStub::ShareDataInner;
-    
-#ifdef ABILITY_COMMAND_FOR_TEST
-    requestFuncMap_[BLOCK_ABILITY_INNER] = &AbilitySchedulerStub::BlockAbilityInner;
-#endif
-}
+{}
 
 AbilitySchedulerStub::~AbilitySchedulerStub()
-{
-    requestFuncMap_.clear();
-}
+{}
 
 int AbilitySchedulerStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -81,31 +45,138 @@ int AbilitySchedulerStub::OnRemoteRequest(
     std::u16string descriptor = AbilitySchedulerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_ERROR("local descriptor is not equal to remote");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
+    return OnRemoteRequestInner(code, data, reply, option);
+}
 
-    auto itFunc = requestFuncMap_.find(code);
-    if (itFunc != requestFuncMap_.end()) {
-        auto requestFunc = itFunc->second;
-        if (requestFunc != nullptr) {
-            return (this->*requestFunc)(data, reply);
-        }
+int AbilitySchedulerStub::OnRemoteRequestInner(
+    uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    int retCode = ERR_OK;
+    retCode = OnRemoteRequestInnerFirst(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
     }
-    HILOG_WARN("AbilitySchedulerStub::OnRemoteRequest, default case, need check.");
+    retCode = OnRemoteRequestInnerSecond(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    retCode = OnRemoteRequestInnerThird(code, data, reply, option);
+    if (retCode != ERR_CODE_NOT_EXIST) {
+        return retCode;
+    }
+    TAG_LOGW(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::OnRemoteRequest, default case, need check.");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+}
+
+int AbilitySchedulerStub::OnRemoteRequestInnerFirst(
+    uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    switch (code) {
+        case SCHEDULE_ABILITY_TRANSACTION:
+            return AbilityTransactionInner(data, reply);
+        case SEND_RESULT:
+            return SendResultInner(data, reply);
+        case SCHEDULE_ABILITY_CONNECT:
+            return ConnectAbilityInner(data, reply);
+        case SCHEDULE_ABILITY_DISCONNECT:
+            return DisconnectAbilityInner(data, reply);
+        case SCHEDULE_ABILITY_COMMAND:
+            return CommandAbilityInner(data, reply);
+        case SCHEDULE_ABILITY_PREPARE_TERMINATE:
+            return PrepareTerminateAbilityInner(data, reply);
+        case SCHEDULE_ABILITY_COMMAND_WINDOW:
+            return CommandAbilityWindowInner(data, reply);
+        case SCHEDULE_SAVE_ABILITY_STATE:
+            return SaveAbilityStateInner(data, reply);
+        case SCHEDULE_RESTORE_ABILITY_STATE:
+            return RestoreAbilityStateInner(data, reply);
+        case SCHEDULE_GETFILETYPES:
+            return GetFileTypesInner(data, reply);
+        case SCHEDULE_OPENFILE:
+            return OpenFileInner(data, reply);
+        case SCHEDULE_OPENRAWFILE:
+            return OpenRawFileInner(data, reply);
+        case SCHEDULE_INSERT:
+            return InsertInner(data, reply);
+        case SCHEDULE_UPDATE:
+            return UpdatetInner(data, reply);
+        case SCHEDULE_DELETE:
+            return DeleteInner(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
+}
+
+int AbilitySchedulerStub::OnRemoteRequestInnerSecond(
+    uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    switch (code) {
+        case SCHEDULE_QUERY:
+            return QueryInner(data, reply);
+        case SCHEDULE_CALL:
+            return CallInner(data, reply);
+        case SCHEDULE_GETTYPE:
+            return GetTypeInner(data, reply);
+        case SCHEDULE_RELOAD:
+            return ReloadInner(data, reply);
+        case SCHEDULE_BATCHINSERT:
+            return BatchInsertInner(data, reply);
+        case SCHEDULE_REGISTEROBSERVER:
+            return RegisterObserverInner(data, reply);
+        case SCHEDULE_UNREGISTEROBSERVER:
+            return UnregisterObserverInner(data, reply);
+        case SCHEDULE_NOTIFYCHANGE:
+            return NotifyChangeInner(data, reply);
+        case SCHEDULE_NORMALIZEURI:
+            return NormalizeUriInner(data, reply);
+        case SCHEDULE_DENORMALIZEURI:
+            return DenormalizeUriInner(data, reply);
+        case SCHEDULE_EXECUTEBATCH:
+            return ExecuteBatchInner(data, reply);
+        case NOTIFY_CONTINUATION_RESULT:
+            return NotifyContinuationResultInner(data, reply);
+        case REQUEST_CALL_REMOTE:
+            return CallRequestInner(data, reply);
+        case CONTINUE_ABILITY:
+            return ContinueAbilityInner(data, reply);
+        case DUMP_ABILITY_RUNNER_INNER:
+            return DumpAbilityInfoInner(data, reply);
+    }
+    return ERR_CODE_NOT_EXIST;
+}
+
+int AbilitySchedulerStub::OnRemoteRequestInnerThird(
+    uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    switch (code) {
+        case SCHEDULE_SHARE_DATA:
+            return ShareDataInner(data, reply);
+        case SCHEDULE_ONEXECUTE_INTENT:
+            return OnExecuteIntentInner(data, reply);
+        case CREATE_MODAL_UI_EXTENSION:
+            return CreateModalUIExtensionInner(data, reply);
+        case UPDATE_SESSION_TOKEN:
+            return UpdateSessionTokenInner(data, reply);
+#ifdef ABILITY_COMMAND_FOR_TEST
+        case BLOCK_ABILITY_INNER:
+            return BlockAbilityInner(data, reply);
+#endif
+    }
+    return ERR_CODE_NOT_EXIST;
 }
 
 int AbilitySchedulerStub::AbilityTransactionInner(MessageParcel &data, MessageParcel &reply)
 {
     std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub want is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub want is nullptr");
         return ERR_INVALID_VALUE;
     }
     std::unique_ptr<LifeCycleStateInfo> stateInfo(data.ReadParcelable<LifeCycleStateInfo>());
     if (!stateInfo) {
-        HILOG_ERROR("ReadParcelable<LifeCycleStateInfo> failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ReadParcelable<LifeCycleStateInfo> failed");
         return ERR_INVALID_VALUE;
     }
     sptr<SessionInfo> sessionInfo = nullptr;
@@ -119,7 +190,7 @@ int AbilitySchedulerStub::AbilityTransactionInner(MessageParcel &data, MessagePa
 int AbilitySchedulerStub::ShareDataInner(MessageParcel &data, MessageParcel &reply)
 {
     int32_t requestCode = data.ReadInt32();
-    HILOG_INFO("requestCode:%{public}d.", requestCode);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "requestCode:%{public}d.", requestCode);
     ScheduleShareData(requestCode);
     return NO_ERROR;
 }
@@ -130,7 +201,7 @@ int AbilitySchedulerStub::SendResultInner(MessageParcel &data, MessageParcel &re
     int resultCode = data.ReadInt32();
     std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub want is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub want is nullptr");
         return ERR_INVALID_VALUE;
     }
     SendResult(requestCode, resultCode, *want);
@@ -141,7 +212,7 @@ int AbilitySchedulerStub::ConnectAbilityInner(MessageParcel &data, MessageParcel
 {
     std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub want is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub want is nullptr");
         return ERR_INVALID_VALUE;
     }
     ScheduleConnectAbility(*want);
@@ -152,7 +223,7 @@ int AbilitySchedulerStub::DisconnectAbilityInner(MessageParcel &data, MessagePar
 {
     std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub want is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub want is nullptr");
         return ERR_INVALID_VALUE;
     }
     ScheduleDisconnectAbility(*want);
@@ -163,12 +234,12 @@ int AbilitySchedulerStub::CommandAbilityInner(MessageParcel &data, MessageParcel
 {
     std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub want is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub want is nullptr");
         return ERR_INVALID_VALUE;
     }
     bool reStart = data.ReadBool();
     int startId = data.ReadInt32();
-    HILOG_INFO("ReadInt32, startId:%{public}d", startId);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "ReadInt32, startId:%{public}d", startId);
     ScheduleCommandAbility(*want, reStart, startId);
     return NO_ERROR;
 }
@@ -177,7 +248,7 @@ int AbilitySchedulerStub::PrepareTerminateAbilityInner(MessageParcel &data, Mess
 {
     bool ret = SchedulePrepareTerminateAbility();
     if (!reply.WriteInt32(ret)) {
-        HILOG_ERROR("fail to write ret");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to write ret");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -187,7 +258,7 @@ int AbilitySchedulerStub::CommandAbilityWindowInner(MessageParcel &data, Message
 {
     std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want is nullptr");
         return ERR_INVALID_VALUE;
     }
     sptr<SessionInfo> sessionInfo(data.ReadParcelable<SessionInfo>());
@@ -206,7 +277,7 @@ int AbilitySchedulerStub::RestoreAbilityStateInner(MessageParcel &data, MessageP
 {
     std::shared_ptr<PacMap> pacMap(data.ReadParcelable<PacMap>());
     if (pacMap == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub RestoreAbilityState is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub RestoreAbilityState is nullptr");
         return ERR_INVALID_VALUE;
     }
     ScheduleRestoreAbilityState(*pacMap);
@@ -217,17 +288,17 @@ int AbilitySchedulerStub::GetFileTypesInner(MessageParcel &data, MessageParcel &
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
         return ERR_INVALID_VALUE;
     }
     std::string mimeTypeFilter = data.ReadString();
     if (mimeTypeFilter.empty()) {
-        HILOG_ERROR("AbilitySchedulerStub mimeTypeFilter is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub mimeTypeFilter is nullptr");
         return ERR_INVALID_VALUE;
     }
     std::vector<std::string> types = GetFileTypes(*uri, mimeTypeFilter);
     if (!reply.WriteStringVector(types)) {
-        HILOG_ERROR("fail to WriteStringVector types");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteStringVector types");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -237,21 +308,21 @@ int AbilitySchedulerStub::OpenFileInner(MessageParcel &data, MessageParcel &repl
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
         return ERR_INVALID_VALUE;
     }
     std::string mode = data.ReadString();
     if (mode.empty()) {
-        HILOG_ERROR("AbilitySchedulerStub mode is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub mode is nullptr");
         return ERR_INVALID_VALUE;
     }
     int fd = OpenFile(*uri, mode);
     if (fd < 0) {
-        HILOG_ERROR("OpenFile fail, fd is %{pubilc}d", fd);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "OpenFile fail, fd is %{pubilc}d", fd);
         return ERR_INVALID_VALUE;
     }
     if (!reply.WriteFileDescriptor(fd)) {
-        HILOG_ERROR("fail to WriteFileDescriptor fd");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteFileDescriptor fd");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -261,17 +332,17 @@ int AbilitySchedulerStub::OpenRawFileInner(MessageParcel &data, MessageParcel &r
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
         return ERR_INVALID_VALUE;
     }
     std::string mode = data.ReadString();
     if (mode.empty()) {
-        HILOG_ERROR("AbilitySchedulerStub mode is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub mode is nullptr");
         return ERR_INVALID_VALUE;
     }
     int fd = OpenRawFile(*uri, mode);
     if (!reply.WriteInt32(fd)) {
-        HILOG_ERROR("fail to WriteInt32 fd");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteInt32 fd");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -281,15 +352,15 @@ int AbilitySchedulerStub::InsertInner(MessageParcel &data, MessageParcel &reply)
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
         return ERR_INVALID_VALUE;
     }
     int index = Insert(*uri, NativeRdb::ValuesBucket::Unmarshalling(data));
     if (!reply.WriteInt32(index)) {
-        HILOG_ERROR("fail to WriteInt32 index");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteInt32 index");
         return ERR_INVALID_VALUE;
     }
-    HILOG_INFO("AbilitySchedulerStub::InsertInner end");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::InsertInner end");
     return NO_ERROR;
 }
 
@@ -297,31 +368,31 @@ int AbilitySchedulerStub::CallInner(MessageParcel &data, MessageParcel &reply)
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
         return ERR_INVALID_VALUE;
     }
     std::string method = data.ReadString();
     if (method.empty()) {
-        HILOG_ERROR("ReadParcelable method is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ReadParcelable method is nullptr");
         return ERR_INVALID_VALUE;
     }
     std::string arg = data.ReadString();
     if (arg.empty()) {
-        HILOG_ERROR("ReadParcelable arg is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ReadParcelable arg is nullptr");
         return ERR_INVALID_VALUE;
     }
 
     std::shared_ptr<AppExecFwk::PacMap> pacMap(data.ReadParcelable<AppExecFwk::PacMap>());
     if (pacMap == nullptr) {
-        HILOG_ERROR("ReadParcelable pacMap is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ReadParcelable pacMap is nullptr");
         return ERR_INVALID_VALUE;
     }
     std::shared_ptr<AppExecFwk::PacMap> result = Call(*uri, method, arg, *pacMap);
     if (!reply.WriteParcelable(result.get())) {
-        HILOG_ERROR("fail to WriteParcelable pacMap error");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable pacMap error");
         return ERR_INVALID_VALUE;
     }
-    HILOG_INFO("AbilitySchedulerStub::CallInner end");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::CallInner end");
     return NO_ERROR;
 }
 
@@ -329,19 +400,19 @@ int AbilitySchedulerStub::UpdatetInner(MessageParcel &data, MessageParcel &reply
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
         return ERR_INVALID_VALUE;
     }
     auto value = NativeRdb::ValuesBucket::Unmarshalling(data);
     std::shared_ptr<NativeRdb::DataAbilityPredicates> predicates(
         data.ReadParcelable<NativeRdb::DataAbilityPredicates>());
     if (predicates == nullptr) {
-        HILOG_ERROR("ReadParcelable predicates is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ReadParcelable predicates is nullptr");
         return ERR_INVALID_VALUE;
     }
     int index = Update(*uri, std::move(value), *predicates);
     if (!reply.WriteInt32(index)) {
-        HILOG_ERROR("fail to WriteInt32 index");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteInt32 index");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -351,18 +422,18 @@ int AbilitySchedulerStub::DeleteInner(MessageParcel &data, MessageParcel &reply)
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
         return ERR_INVALID_VALUE;
     }
     std::shared_ptr<NativeRdb::DataAbilityPredicates> predicates(
         data.ReadParcelable<NativeRdb::DataAbilityPredicates>());
     if (predicates == nullptr) {
-        HILOG_ERROR("ReadParcelable predicates is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ReadParcelable predicates is nullptr");
         return ERR_INVALID_VALUE;
     }
     int index = Delete(*uri, *predicates);
     if (!reply.WriteInt32(index)) {
-        HILOG_ERROR("fail to WriteInt32 index");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteInt32 index");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -372,31 +443,31 @@ int AbilitySchedulerStub::QueryInner(MessageParcel &data, MessageParcel &reply)
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
         return ERR_INVALID_VALUE;
     }
     std::vector<std::string> columns;
     if (!data.ReadStringVector(&columns)) {
-        HILOG_ERROR("fail to ReadStringVector columns");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to ReadStringVector columns");
         return ERR_INVALID_VALUE;
     }
     std::shared_ptr<NativeRdb::DataAbilityPredicates> predicates(
         data.ReadParcelable<NativeRdb::DataAbilityPredicates>());
     if (predicates == nullptr) {
-        HILOG_ERROR("ReadParcelable predicates is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ReadParcelable predicates is nullptr");
         return ERR_INVALID_VALUE;
     }
     auto resultSet = Query(*uri, columns, *predicates);
     if (resultSet == nullptr) {
-        HILOG_ERROR("fail to WriteParcelable resultSet");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable resultSet");
         return ERR_INVALID_VALUE;
     }
     auto result = NativeRdb::ISharedResultSet::WriteToParcel(std::move(resultSet), reply);
     if (result == nullptr) {
-        HILOG_ERROR("!resultSet->Marshalling(reply)");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "!resultSet->Marshalling(reply)");
         return ERR_INVALID_VALUE;
     }
-    HILOG_INFO("AbilitySchedulerStub::QueryInner end");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::QueryInner end");
     return NO_ERROR;
 }
 
@@ -404,12 +475,12 @@ int AbilitySchedulerStub::GetTypeInner(MessageParcel &data, MessageParcel &reply
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
         return ERR_INVALID_VALUE;
     }
     std::string type = GetType(*uri);
     if (!reply.WriteString(type)) {
-        HILOG_ERROR("fail to WriteString type");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteString type");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -419,18 +490,18 @@ int AbilitySchedulerStub::ReloadInner(MessageParcel &data, MessageParcel &reply)
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
         return ERR_INVALID_VALUE;
     }
 
     std::shared_ptr<PacMap> extras(data.ReadParcelable<PacMap>());
     if (extras == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub extras is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub extras is nullptr");
         return ERR_INVALID_VALUE;
     }
     bool ret = Reload(*uri, *extras);
     if (!reply.WriteBool(ret)) {
-        HILOG_ERROR("fail to writeBool ret");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to writeBool ret");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -440,18 +511,18 @@ int AbilitySchedulerStub::BatchInsertInner(MessageParcel &data, MessageParcel &r
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
         return ERR_INVALID_VALUE;
     }
 
     int count = 0;
     if (!data.ReadInt32(count)) {
-        HILOG_ERROR("fail to ReadInt32 index");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to ReadInt32 index");
         return ERR_INVALID_VALUE;
     }
 
     if (count > CYCLE_LIMIT) {
-        HILOG_ERROR("count is too large");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "count is too large");
         return ERR_INVALID_VALUE;
     }
     std::vector<NativeRdb::ValuesBucket> values;
@@ -461,7 +532,7 @@ int AbilitySchedulerStub::BatchInsertInner(MessageParcel &data, MessageParcel &r
 
     int ret = BatchInsert(*uri, values);
     if (!reply.WriteInt32(ret)) {
-        HILOG_ERROR("fail to WriteInt32 ret");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteInt32 ret");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -471,18 +542,18 @@ int AbilitySchedulerStub::RegisterObserverInner(MessageParcel &data, MessageParc
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
         return ERR_INVALID_VALUE;
     }
     auto obServer = iface_cast<IDataAbilityObserver>(data.ReadRemoteObject());
     if (obServer == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub obServer is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub obServer is nullptr");
         return ERR_INVALID_VALUE;
     }
 
     bool ret = ScheduleRegisterObserver(*uri, obServer);
     if (!reply.WriteInt32(ret)) {
-        HILOG_ERROR("fail to WriteInt32 ret");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteInt32 ret");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -492,18 +563,18 @@ int AbilitySchedulerStub::UnregisterObserverInner(MessageParcel &data, MessagePa
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
         return ERR_INVALID_VALUE;
     }
     auto obServer = iface_cast<IDataAbilityObserver>(data.ReadRemoteObject());
     if (obServer == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub obServer is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub obServer is nullptr");
         return ERR_INVALID_VALUE;
     }
 
     bool ret = ScheduleUnregisterObserver(*uri, obServer);
     if (!reply.WriteInt32(ret)) {
-        HILOG_ERROR("fail to WriteInt32 ret");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteInt32 ret");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -513,13 +584,13 @@ int AbilitySchedulerStub::NotifyChangeInner(MessageParcel &data, MessageParcel &
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
         return ERR_INVALID_VALUE;
     }
 
     bool ret = ScheduleNotifyChange(*uri);
     if (!reply.WriteInt32(ret)) {
-        HILOG_ERROR("fail to WriteInt32 ret");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteInt32 ret");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -529,14 +600,14 @@ int AbilitySchedulerStub::NormalizeUriInner(MessageParcel &data, MessageParcel &
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
         return ERR_INVALID_VALUE;
     }
 
     Uri ret("");
     ret = NormalizeUri(*uri);
     if (!reply.WriteParcelable(&ret)) {
-        HILOG_ERROR("fail to WriteParcelable type");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable type");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -546,14 +617,14 @@ int AbilitySchedulerStub::DenormalizeUriInner(MessageParcel &data, MessageParcel
 {
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub uri is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub uri is nullptr");
         return ERR_INVALID_VALUE;
     }
 
     Uri ret("");
     ret = DenormalizeUri(*uri);
     if (!reply.WriteParcelable(&ret)) {
-        HILOG_ERROR("fail to WriteParcelable type");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteParcelable type");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -561,15 +632,15 @@ int AbilitySchedulerStub::DenormalizeUriInner(MessageParcel &data, MessageParcel
 
 int AbilitySchedulerStub::ExecuteBatchInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("AbilitySchedulerStub::ExecuteBatchInner start");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::ExecuteBatchInner start");
     int count = 0;
     if (!data.ReadInt32(count)) {
-        HILOG_ERROR("AbilitySchedulerStub::ExecuteBatchInner fail to ReadInt32 count");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::ExecuteBatchInner fail to ReadInt32 count");
         return ERR_INVALID_VALUE;
     }
-    HILOG_INFO("AbilitySchedulerStub::ExecuteBatchInner count:%{public}d", count);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::ExecuteBatchInner count:%{public}d", count);
     if (count > CYCLE_LIMIT) {
-        HILOG_ERROR("count is too large");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "count is too large");
         return ERR_INVALID_VALUE;
     }
     std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> operations;
@@ -577,7 +648,7 @@ int AbilitySchedulerStub::ExecuteBatchInner(MessageParcel &data, MessageParcel &
         std::shared_ptr<AppExecFwk::DataAbilityOperation> dataAbilityOperation(
             data.ReadParcelable<AppExecFwk::DataAbilityOperation>());
         if (dataAbilityOperation == nullptr) {
-            HILOG_ERROR("AbilitySchedulerStub::ExecuteBatchInner dataAbilityOperation is nullptr, "
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::ExecuteBatchInner dataAbilityOperation is nullptr, "
                 "index = %{public}d", i);
             return ERR_INVALID_VALUE;
         }
@@ -587,22 +658,23 @@ int AbilitySchedulerStub::ExecuteBatchInner(MessageParcel &data, MessageParcel &
     std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> results = ExecuteBatch(operations);
     int total = (int)results.size();
     if (!reply.WriteInt32(total)) {
-        HILOG_ERROR("AbilitySchedulerStub::ExecuteBatchInner fail to WriteInt32 ret");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::ExecuteBatchInner fail to WriteInt32 ret");
         return ERR_INVALID_VALUE;
     }
-    HILOG_INFO("AbilitySchedulerStub::ExecuteBatchInner total:%{public}d", total);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::ExecuteBatchInner total:%{public}d", total);
     for (int i = 0; i < total; i++) {
         if (results[i] == nullptr) {
-            HILOG_ERROR("AbilitySchedulerStub::ExecuteBatchInner results[i] is nullptr, index = %{public}d", i);
+            TAG_LOGE(AAFwkTag::ABILITYMGR,
+                "AbilitySchedulerStub::ExecuteBatchInner results[i] is nullptr, index = %{public}d", i);
             return ERR_INVALID_VALUE;
         }
         if (!reply.WriteParcelable(results[i].get())) {
-            HILOG_ERROR(
+            TAG_LOGE(AAFwkTag::ABILITYMGR,
                 "AbilitySchedulerStub::ExecuteBatchInner fail to WriteParcelable operation, index = %{public}d", i);
             return ERR_INVALID_VALUE;
         }
     }
-    HILOG_INFO("AbilitySchedulerStub::ExecuteBatchInner end");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::ExecuteBatchInner end");
     return NO_ERROR;
 }
 
@@ -626,7 +698,7 @@ int AbilitySchedulerStub::DumpAbilityInfoInner(MessageParcel &data, MessageParce
     std::vector<std::string> infos;
     std::vector<std::string> params;
     if (!data.ReadStringVector(&params)) {
-        HILOG_INFO("DumpAbilityInfoInner read params error");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "DumpAbilityInfoInner read params error");
         return ERR_INVALID_VALUE;
     }
 
@@ -634,20 +706,55 @@ int AbilitySchedulerStub::DumpAbilityInfoInner(MessageParcel &data, MessageParce
 
     return NO_ERROR;
 }
+
 int AbilitySchedulerStub::CallRequestInner(MessageParcel &data, MessageParcel &reply)
 {
     CallRequest();
     return NO_ERROR;
 }
 
+int AbilitySchedulerStub::OnExecuteIntentInner(MessageParcel &data, MessageParcel &reply)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::OnExecuteIntentInner start");
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
+    if (want == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    OnExecuteIntent(*want);
+    return NO_ERROR;
+}
+
+int AbilitySchedulerStub::CreateModalUIExtensionInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
+    if (want == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    int ret = CreateModalUIExtension(*want);
+    if (!reply.WriteInt32(ret)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteInt32 ret");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilitySchedulerStub::UpdateSessionTokenInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> sessionToken = data.ReadRemoteObject();
+    UpdateSessionToken(sessionToken);
+    return NO_ERROR;
+}
+
 #ifdef ABILITY_COMMAND_FOR_TEST
 int AbilitySchedulerStub::BlockAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("AbilitySchedulerStub::BlockAbilityInner start");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilitySchedulerStub::BlockAbilityInner start");
 
     auto result = BlockAbility();
     if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("fail to WriteInt32 result");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to WriteInt32 result");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -656,7 +763,7 @@ int AbilitySchedulerStub::BlockAbilityInner(MessageParcel &data, MessageParcel &
 
 void AbilitySchedulerRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_ERROR("recv AbilitySchedulerRecipient death notice");
+    TAG_LOGE(AAFwkTag::ABILITYMGR, "recv AbilitySchedulerRecipient death notice");
 
     if (handler_) {
         handler_(remote);

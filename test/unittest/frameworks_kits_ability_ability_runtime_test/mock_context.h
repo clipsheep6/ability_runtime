@@ -24,7 +24,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-class MockContext : public AbilityRuntime::Context{
+class MockContext : public AbilityRuntime::Context {
 public:
     MockContext() = default;
     virtual ~MockContext() = default;
@@ -41,6 +41,8 @@ public:
 
     std::string GetTempDir() override;
 
+    std::string GetResourceDir() override;
+
     std::string GetFilesDir() override;
 
     std::string GetDatabaseDir() override;
@@ -48,6 +50,8 @@ public:
     std::string GetPreferencesDir() override;
 
     std::string GetDistributedFilesDir() override;
+
+    std::string GetCloudFileDir() override;
 
     int32_t GetSystemDatabaseDir(const std::string &groupId, bool checkExist, std::string &databaseDir) override;
 
@@ -66,6 +70,12 @@ public:
     std::shared_ptr<Global::Resource::ResourceManager> GetResourceManager() const override;
 
     std::shared_ptr<Context> CreateBundleContext(const std::string &bundleName) override;
+
+    std::shared_ptr<Global::Resource::ResourceManager> CreateModuleResourceManager(
+        const std::string &bundleName, const std::string &moduleName) override;
+
+    int32_t CreateSystemHspModuleResourceManager(const std::string &bundleName,
+        const std::string &moduleName, std::shared_ptr<Global::Resource::ResourceManager> &resourceManager) override;
 
     sptr<AppExecFwk::IBundleMgr> GetBundleManager() const;
 

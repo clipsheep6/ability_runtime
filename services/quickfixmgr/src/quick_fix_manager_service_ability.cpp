@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "quick_fix_manager_service_ability.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "system_ability_definition.h"
 
@@ -25,44 +26,44 @@ REGISTER_SYSTEM_ABILITY_BY_ID(QuickFixManagerServiceAbility, QUICK_FIX_MGR_SERVI
 QuickFixManagerServiceAbility::QuickFixManagerServiceAbility(const int32_t systemAbilityId, bool runOnCreate)
     : SystemAbility(systemAbilityId, runOnCreate), service_(nullptr)
 {
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
 }
 
 QuickFixManagerServiceAbility::~QuickFixManagerServiceAbility()
 {
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
 }
 
 void QuickFixManagerServiceAbility::OnStart()
 {
-    HILOG_INFO("function called.");
+    TAG_LOGI(AAFwkTag::QUICKFIX, "function called.");
     if (service_ != nullptr) {
-        HILOG_DEBUG("Quick fix manager service has started.");
+        TAG_LOGD(AAFwkTag::QUICKFIX, "Quick fix manager service has started.");
         return;
     }
 
     service_ = QuickFixManagerService::GetInstance();
     if (service_ == nullptr) {
-        HILOG_ERROR("instance is nullptr.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "instance is nullptr.");
         return;
     }
 
     if (!service_->Init()) {
-        HILOG_ERROR("init failed.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "init failed.");
         return;
     }
 
     if (!Publish(service_)) {
-        HILOG_ERROR("Publish failed.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Publish failed.");
         return;
     }
 
-    HILOG_INFO("Quick fix manager service start succeed.");
+    TAG_LOGI(AAFwkTag::QUICKFIX, "Quick fix manager service start succeed.");
 }
 
 void QuickFixManagerServiceAbility::OnStop()
 {
-    HILOG_INFO("function called.");
+    TAG_LOGI(AAFwkTag::QUICKFIX, "function called.");
     service_ = nullptr;
 }
 }  // namespace AAFwk

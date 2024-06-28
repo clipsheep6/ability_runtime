@@ -35,6 +35,8 @@ public:
 
     std::shared_ptr<NativeReference> GetGlobalObject(napi_env env);
 
+    void RemoveGlobalObject(napi_env env);
+
 private:
     ApplicationContextManager();
 

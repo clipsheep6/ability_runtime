@@ -20,6 +20,7 @@
 #include "app_mgr_proxy.h"
 #include "app_mgr_stub.h"
 #include "main_thread.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
@@ -44,17 +45,17 @@ public:
 
     void OnLoadPatchDone(int32_t resultCode, int32_t recordId) override
     {
-        HILOG_DEBUG("function called.");
+        TAG_LOGD(AAFwkTag::TEST, "function called.");
     }
 
     void OnUnloadPatchDone(int32_t resultCode, int32_t recordId) override
     {
-        HILOG_DEBUG("function called.");
+        TAG_LOGD(AAFwkTag::TEST, "function called.");
     }
 
     void OnReloadPageDone(int32_t resultCode, int32_t recordId) override
     {
-        HILOG_DEBUG("function called.");
+        TAG_LOGD(AAFwkTag::TEST, "function called.");
     }
 };
 
@@ -115,11 +116,6 @@ class MockAppMgrStub : public AppMgrStub {
     void ApplicationTerminated(const int32_t recordId) override
     {}
 
-    int CheckPermission(const int32_t recordId, const std::string &permission) override
-    {
-        return 0;
-    }
-
     void AbilityCleaned(const sptr<IRemoteObject> &token) override
     {}
 
@@ -128,7 +124,7 @@ class MockAppMgrStub : public AppMgrStub {
         return nullptr;
     }
 
-    int32_t ClearUpApplicationData(const std::string &bundleName) override
+    int32_t ClearUpApplicationData(const std::string &bundleName, const int32_t userId) override
     {
         return 0;
     }
@@ -170,8 +166,8 @@ class MockAppMgrStub : public AppMgrStub {
         return 0;
     }
 
-    int StartUserTestProcess(
-        const AAFwk::Want &want, const sptr<IRemoteObject> &observer, const BundleInfo &bundleInfo, int32_t userId) override
+    int StartUserTestProcess(const AAFwk::Want &want, const sptr<IRemoteObject> &observer,
+        const BundleInfo &bundleInfo, int32_t userId) override
     {
         return 0;
     }
@@ -202,7 +198,7 @@ class MockAppMgrStub : public AppMgrStub {
     }
 
     int StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
-        int32_t sharedFd, int32_t crashFd, pid_t &renderPid) override
+        int32_t sharedFd, int32_t crashFd, pid_t &renderPid, bool isGPU = false) override
     {
         return 0;
     }
@@ -269,6 +265,11 @@ class MockAppMgrStub : public AppMgrStub {
     {
         return 0;
     }
+
+    bool IsFinalAppProcess() override
+    {
+        return true;
+    }
 };
 
 /*
@@ -281,9 +282,9 @@ class MockAppMgrStub : public AppMgrStub {
  */
 HWTEST_F(MainThreadTest, GetMainThreadState_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     EXPECT_EQ(mainThread_->GetMainThreadState(), MainThreadState::INIT);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /*
@@ -296,10 +297,10 @@ HWTEST_F(MainThreadTest, GetMainThreadState_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, SetRunnerStarted_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     mainThread_->SetRunnerStarted(true);
     EXPECT_TRUE(mainThread_->isRunnerStarted_);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /*
@@ -312,9 +313,9 @@ HWTEST_F(MainThreadTest, SetRunnerStarted_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, GetRunnerStarted_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     EXPECT_FALSE(mainThread_->GetRunnerStarted());
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /*
@@ -327,9 +328,9 @@ HWTEST_F(MainThreadTest, GetRunnerStarted_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, GetNewThreadId_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     EXPECT_EQ(mainThread_->GetNewThreadId(), -1);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /*
@@ -342,9 +343,9 @@ HWTEST_F(MainThreadTest, GetNewThreadId_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, GetApplication_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     EXPECT_EQ(mainThread_->GetApplication(), nullptr);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /*
@@ -357,9 +358,9 @@ HWTEST_F(MainThreadTest, GetApplication_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, GetApplicationInfo_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     EXPECT_EQ(mainThread_->GetApplicationInfo(), nullptr);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /*
@@ -372,9 +373,9 @@ HWTEST_F(MainThreadTest, GetApplicationInfo_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, GetApplicationImpl_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     EXPECT_EQ(mainThread_->GetApplicationImpl(), nullptr);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /*
@@ -387,7 +388,7 @@ HWTEST_F(MainThreadTest, GetApplicationImpl_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, GetMainHandler_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     EXPECT_NE(mainThread_->GetMainHandler(), nullptr);
     mainThread_->ScheduleForegroundApplication();
     mainThread_->ScheduleBackgroundApplication();
@@ -404,12 +405,12 @@ HWTEST_F(MainThreadTest, GetMainHandler_0100, TestSize.Level1)
     AbilityInfo info;
     sptr<IRemoteObject> Token = nullptr;
     std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
-    mainThread_->ScheduleLaunchAbility(info, Token, want);
+    mainThread_->ScheduleLaunchAbility(info, Token, want, 0);
     mainThread_->ScheduleCleanAbility(Token);
     Profile profile;
     mainThread_->ScheduleProfileChanged(profile);
     mainThread_->ScheduleConfigurationUpdated(config);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /*
@@ -422,13 +423,13 @@ HWTEST_F(MainThreadTest, GetMainHandler_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, InitCreate_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     std::shared_ptr<ContextDeal> contextDeal;
     ApplicationInfo appInfo;
     ProcessInfo processInfo;
     auto result = mainThread_->InitCreate(contextDeal, appInfo, processInfo);
     EXPECT_TRUE(result);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -439,13 +440,13 @@ HWTEST_F(MainThreadTest, InitCreate_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, ScheduleNotifyLoadRepairPatch_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     std::string bundleName;
     sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
     int32_t recordId = 0;
     auto ret = mainThread_->ScheduleNotifyLoadRepairPatch(bundleName, callback, recordId);
     EXPECT_EQ(ret, NO_ERROR);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -456,12 +457,12 @@ HWTEST_F(MainThreadTest, ScheduleNotifyLoadRepairPatch_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, ScheduleNotifyHotReloadPage_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
     int32_t recordId = 0;
     auto ret = mainThread_->ScheduleNotifyHotReloadPage(callback, recordId);
     EXPECT_EQ(ret, NO_ERROR);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -472,14 +473,14 @@ HWTEST_F(MainThreadTest, ScheduleNotifyHotReloadPage_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, GetHqfFileAndHapPath_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ProcessInfo processInfo("test_quickfix", 1);
     mainThread_->processInfo_ = std::make_shared<ProcessInfo>(processInfo);
     std::string bundleName = "com.ohos.quickfix";
     std::vector<std::pair<std::string, std::string>> fileMap;
     auto ret = mainThread_->GetHqfFileAndHapPath(bundleName, fileMap);
     EXPECT_FALSE(ret);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -490,7 +491,7 @@ HWTEST_F(MainThreadTest, GetHqfFileAndHapPath_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, ScheduleNotifyUnLoadRepairPatch_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     std::string bundleName;
     int32_t recordId = 0;
     sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
@@ -499,7 +500,7 @@ HWTEST_F(MainThreadTest, ScheduleNotifyUnLoadRepairPatch_0100, TestSize.Level1)
 
     mainThread_->mainHandler_ = nullptr;
     EXPECT_EQ(mainThread_->ScheduleNotifyUnLoadRepairPatch(bundleName, callback, recordId), ERR_INVALID_VALUE);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -573,31 +574,6 @@ HWTEST_F(MainThreadTest, HandleLaunchApplication_0100, TestSize.Level1)
 }
 
 /**
- * @tc.name: SetNativeLibPath_0100
- * @tc.desc: set native lib path.
- * @tc.type: FUNC
- * @tc.require: issueI64MUJ
- */
-HWTEST_F(MainThreadTest, SetNativeLibPath_0100, TestSize.Level1)
-{
-    HILOG_INFO("%{public}s start.", __func__);
-    Configuration config;
-    AppLaunchData launchData;
-    ProcessInfo processInfo("test_quickfix", 9999);
-    ApplicationInfo appInfo;
-    appInfo.name = "MainAbility";
-    appInfo.bundleName = "com.ohos.quickfix";
-    launchData.SetApplicationInfo(appInfo);
-    launchData.SetProcessInfo(processInfo);
-
-    // SetNativeLibPath is implemented in anonymous space, called by HandleLaunchApplication
-    mainThread_->HandleLaunchApplication(launchData, config);
-    ASSERT_NE(mainThread_->application_, nullptr);
-    EXPECT_NE(mainThread_->application_->abilityRuntimeContext_, nullptr);
-    HILOG_INFO("%{public}s end.", __func__);
-}
-
-/**
  * @tc.name: ConnectToAppMgr_0100
  * @tc.desc: ConnectToAppMgr.
  * @tc.type: FUNC
@@ -605,9 +581,9 @@ HWTEST_F(MainThreadTest, SetNativeLibPath_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, ConnectToAppMgr_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     EXPECT_TRUE(mainThread_->ConnectToAppMgr());
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -618,10 +594,10 @@ HWTEST_F(MainThreadTest, ConnectToAppMgr_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, Attach_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     mainThread_->Attach();
     EXPECT_EQ(MainThreadState::ATTACH, mainThread_->mainThreadState_);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -632,11 +608,11 @@ HWTEST_F(MainThreadTest, Attach_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, RemoveAppMgrDeathRecipient_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     mainThread_->RemoveAppMgrDeathRecipient();
     EXPECT_TRUE(mainThread_->ConnectToAppMgr());
     mainThread_->RemoveAppMgrDeathRecipient();
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -647,7 +623,7 @@ HWTEST_F(MainThreadTest, RemoveAppMgrDeathRecipient_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, CheckLaunchApplicationParam_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     AppLaunchData appLaunchData;
     ApplicationInfo appInfo;
     appInfo.name = "";
@@ -655,7 +631,7 @@ HWTEST_F(MainThreadTest, CheckLaunchApplicationParam_0100, TestSize.Level1)
     appLaunchData.SetApplicationInfo(appInfo);
     appLaunchData.SetProcessInfo(processInfo);
     EXPECT_FALSE(mainThread_->CheckLaunchApplicationParam(appLaunchData));
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -666,7 +642,7 @@ HWTEST_F(MainThreadTest, CheckLaunchApplicationParam_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, CheckLaunchApplicationParam_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     AppLaunchData appLaunchData;
     ApplicationInfo appInfo;
     appInfo.name = "test";
@@ -678,7 +654,7 @@ HWTEST_F(MainThreadTest, CheckLaunchApplicationParam_0200, TestSize.Level1)
     ProcessInfo processInfo2("test", 1);
     appLaunchData.SetProcessInfo(processInfo2);
     EXPECT_TRUE(mainThread_->CheckLaunchApplicationParam(appLaunchData));
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -689,11 +665,11 @@ HWTEST_F(MainThreadTest, CheckLaunchApplicationParam_0200, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, CheckAbilityItem_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     std::shared_ptr<AbilityInfo> info = std::make_shared<AbilityInfo>();
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(info, nullptr);
     EXPECT_FALSE(mainThread_->CheckAbilityItem(record));
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -704,10 +680,10 @@ HWTEST_F(MainThreadTest, CheckAbilityItem_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, CheckAbilityItem_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(nullptr, nullptr);
     EXPECT_FALSE(mainThread_->CheckAbilityItem(record));
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -718,9 +694,9 @@ HWTEST_F(MainThreadTest, CheckAbilityItem_0200, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, CheckAbilityItem_0300, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     EXPECT_FALSE(mainThread_->CheckAbilityItem(nullptr));
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -731,11 +707,11 @@ HWTEST_F(MainThreadTest, CheckAbilityItem_0300, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->application_ = nullptr;
     mainThread_->HandleTerminateApplicationLocal();
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -746,11 +722,10 @@ HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
-    mainThread_->signalHandler_->SetEventRunner(nullptr);
     mainThread_->HandleTerminateApplicationLocal();
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -761,11 +736,11 @@ HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0200, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0300, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->mainHandler_->SetEventRunner(nullptr);
     mainThread_->HandleTerminateApplicationLocal();
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -776,11 +751,11 @@ HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0300, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0400, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->watchdog_ = nullptr;
     mainThread_->HandleTerminateApplicationLocal();
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -791,7 +766,7 @@ HWTEST_F(MainThreadTest, HandleTerminateApplicationLocal_0400, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleProcessSecurityExit_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->abilityRecordMgr_ = nullptr;
     mainThread_->HandleProcessSecurityExit();
@@ -801,7 +776,7 @@ HWTEST_F(MainThreadTest, HandleProcessSecurityExit_0100, TestSize.Level1)
     ProcessInfo processInfo;
     mainThread_->InitCreate(contextDeal, appInfo, processInfo);
     mainThread_->HandleProcessSecurityExit();
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -812,10 +787,10 @@ HWTEST_F(MainThreadTest, HandleProcessSecurityExit_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleProcessSecurityExit_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleProcessSecurityExit();
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -826,7 +801,7 @@ HWTEST_F(MainThreadTest, HandleProcessSecurityExit_0200, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, CheckForHandleLaunchApplication_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     mainThread_->application_ = nullptr;
     AppLaunchData appLaunchData;
     ApplicationInfo appInfo;
@@ -835,7 +810,7 @@ HWTEST_F(MainThreadTest, CheckForHandleLaunchApplication_0100, TestSize.Level1)
     appLaunchData.SetApplicationInfo(appInfo);
     appLaunchData.SetProcessInfo(processInfo);
     EXPECT_TRUE(mainThread_->CheckForHandleLaunchApplication(appLaunchData));
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -846,7 +821,7 @@ HWTEST_F(MainThreadTest, CheckForHandleLaunchApplication_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, CheckForHandleLaunchApplication_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     mainThread_->application_ = std::make_shared<OHOSApplication>();
     AppLaunchData appLaunchData;
     ApplicationInfo appInfo;
@@ -855,7 +830,7 @@ HWTEST_F(MainThreadTest, CheckForHandleLaunchApplication_0200, TestSize.Level1)
     appLaunchData.SetApplicationInfo(appInfo);
     appLaunchData.SetProcessInfo(processInfo);
     EXPECT_FALSE(mainThread_->CheckForHandleLaunchApplication(appLaunchData));
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -866,7 +841,7 @@ HWTEST_F(MainThreadTest, CheckForHandleLaunchApplication_0200, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, CheckForHandleLaunchApplication_0300, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     AppLaunchData appLaunchData;
     ApplicationInfo appInfo;
     appInfo.name = "";
@@ -874,7 +849,7 @@ HWTEST_F(MainThreadTest, CheckForHandleLaunchApplication_0300, TestSize.Level1)
     appLaunchData.SetApplicationInfo(appInfo);
     appLaunchData.SetProcessInfo(processInfo);
     EXPECT_FALSE(mainThread_->CheckForHandleLaunchApplication(appLaunchData));
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -885,11 +860,11 @@ HWTEST_F(MainThreadTest, CheckForHandleLaunchApplication_0300, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleAbilityStage_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     HapModuleInfo info;
     mainThread_->HandleAbilityStage(info);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -900,12 +875,12 @@ HWTEST_F(MainThreadTest, HandleAbilityStage_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleAbilityStage_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->application_ = nullptr;
     HapModuleInfo info;
     mainThread_->HandleAbilityStage(info);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -916,12 +891,12 @@ HWTEST_F(MainThreadTest, HandleAbilityStage_0200, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleAbilityStage_0300, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->appMgr_ = nullptr;
     HapModuleInfo info;
     mainThread_->HandleAbilityStage(info);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -932,12 +907,12 @@ HWTEST_F(MainThreadTest, HandleAbilityStage_0300, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleAbilityStage_0400, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->applicationImpl_ = nullptr;
     HapModuleInfo info;
     mainThread_->HandleAbilityStage(info);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -948,13 +923,13 @@ HWTEST_F(MainThreadTest, HandleAbilityStage_0400, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, PrepareAbilityDelegator_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     mainThread_->application_ = std::make_shared<OHOSApplication>();
     std::shared_ptr<UserTestRecord> usertestInfo = std::make_shared<UserTestRecord>();
     bool isStageBased = true;
     HapModuleInfo hapModuleInfo;
     EXPECT_TRUE(mainThread_->PrepareAbilityDelegator(usertestInfo, isStageBased, hapModuleInfo));
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -965,11 +940,11 @@ HWTEST_F(MainThreadTest, PrepareAbilityDelegator_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, PrepareAbilityDelegator_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     bool isStageBased = true;
     HapModuleInfo hapModuleInfo;
     EXPECT_FALSE(mainThread_->PrepareAbilityDelegator(nullptr, isStageBased, hapModuleInfo));
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -980,7 +955,7 @@ HWTEST_F(MainThreadTest, PrepareAbilityDelegator_0200, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, PrepareAbilityDelegator_0300, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     mainThread_->application_ = std::make_shared<OHOSApplication>();
     std::shared_ptr<UserTestRecord> usertestInfo = std::make_shared<UserTestRecord>();
     bool isStageBased = false;
@@ -988,7 +963,7 @@ HWTEST_F(MainThreadTest, PrepareAbilityDelegator_0300, TestSize.Level1)
     HapModuleInfo hapModuleInfo;
     hapModuleInfo.abilityInfos.emplace_back(abilityInfo);
     EXPECT_FALSE(mainThread_->PrepareAbilityDelegator(usertestInfo, isStageBased, hapModuleInfo));
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -999,13 +974,13 @@ HWTEST_F(MainThreadTest, PrepareAbilityDelegator_0300, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, PrepareAbilityDelegator_0400, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     mainThread_->application_ = std::make_shared<OHOSApplication>();
     std::shared_ptr<UserTestRecord> usertestInfo = std::make_shared<UserTestRecord>();
     bool isStageBased = false;
     HapModuleInfo hapModuleInfo;
     EXPECT_FALSE(mainThread_->PrepareAbilityDelegator(usertestInfo, isStageBased, hapModuleInfo));
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1016,11 +991,11 @@ HWTEST_F(MainThreadTest, PrepareAbilityDelegator_0400, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleLaunchAbility_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(nullptr, nullptr);
     ASSERT_NE(abilityRecord, nullptr);
     mainThread_->HandleLaunchAbility(abilityRecord);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1031,11 +1006,11 @@ HWTEST_F(MainThreadTest, HandleLaunchAbility_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleCleanAbilityLocal_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->application_ = nullptr;
     mainThread_->HandleCleanAbilityLocal(nullptr);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1046,10 +1021,10 @@ HWTEST_F(MainThreadTest, HandleCleanAbilityLocal_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleCleanAbilityLocal_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleCleanAbilityLocal(nullptr);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1060,10 +1035,10 @@ HWTEST_F(MainThreadTest, HandleCleanAbilityLocal_0200, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleForegroundApplication_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleForegroundApplication();
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1074,11 +1049,11 @@ HWTEST_F(MainThreadTest, HandleForegroundApplication_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleForegroundApplication_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->application_ = nullptr;
     mainThread_->HandleForegroundApplication();
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1089,11 +1064,11 @@ HWTEST_F(MainThreadTest, HandleForegroundApplication_0200, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleForegroundApplication_0300, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->appMgr_ = nullptr;
     mainThread_->HandleForegroundApplication();
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1104,10 +1079,10 @@ HWTEST_F(MainThreadTest, HandleForegroundApplication_0300, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleBackgroundApplication_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleBackgroundApplication();
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1118,11 +1093,11 @@ HWTEST_F(MainThreadTest, HandleBackgroundApplication_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleBackgroundApplication_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->application_ = nullptr;
     mainThread_->HandleBackgroundApplication();
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1133,11 +1108,11 @@ HWTEST_F(MainThreadTest, HandleBackgroundApplication_0200, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleBackgroundApplication_0300, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->appMgr_ = nullptr;
     mainThread_->HandleBackgroundApplication();
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1148,10 +1123,10 @@ HWTEST_F(MainThreadTest, HandleBackgroundApplication_0300, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleTerminateApplication_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleTerminateApplication();
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1162,11 +1137,11 @@ HWTEST_F(MainThreadTest, HandleTerminateApplication_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleTerminateApplication_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->application_ = nullptr;
     mainThread_->HandleTerminateApplication();
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1177,11 +1152,11 @@ HWTEST_F(MainThreadTest, HandleTerminateApplication_0200, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleTerminateApplication_0300, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->appMgr_ = nullptr;
     mainThread_->HandleTerminateApplication();
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1192,11 +1167,10 @@ HWTEST_F(MainThreadTest, HandleTerminateApplication_0300, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleTerminateApplication_0400, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
-    mainThread_->signalHandler_->SetEventRunner(nullptr);
     mainThread_->HandleTerminateApplication();
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1207,11 +1181,11 @@ HWTEST_F(MainThreadTest, HandleTerminateApplication_0400, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleTerminateApplication_0500, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->mainHandler_->SetEventRunner(nullptr);
     mainThread_->HandleTerminateApplication();
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1222,11 +1196,11 @@ HWTEST_F(MainThreadTest, HandleTerminateApplication_0500, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleTerminateApplication_0600, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->watchdog_ = nullptr;
     mainThread_->HandleTerminateApplication();
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1237,10 +1211,10 @@ HWTEST_F(MainThreadTest, HandleTerminateApplication_0600, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleShrinkMemory_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleShrinkMemory(1);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1251,11 +1225,11 @@ HWTEST_F(MainThreadTest, HandleShrinkMemory_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleShrinkMemory_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->applicationImpl_ = nullptr;
     mainThread_->HandleShrinkMemory(1);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1266,10 +1240,10 @@ HWTEST_F(MainThreadTest, HandleShrinkMemory_0200, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleMemoryLevel_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleMemoryLevel(1);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1280,11 +1254,11 @@ HWTEST_F(MainThreadTest, HandleMemoryLevel_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleMemoryLevel_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->application_ = nullptr;
     mainThread_->HandleMemoryLevel(1);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1295,11 +1269,11 @@ HWTEST_F(MainThreadTest, HandleMemoryLevel_0200, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleConfigurationUpdated_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     Configuration config;
     mainThread_->HandleConfigurationUpdated(config);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1310,12 +1284,12 @@ HWTEST_F(MainThreadTest, HandleConfigurationUpdated_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleConfigurationUpdated_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->applicationImpl_ = nullptr;
     Configuration config;
     mainThread_->HandleConfigurationUpdated(config);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1326,11 +1300,12 @@ HWTEST_F(MainThreadTest, HandleConfigurationUpdated_0200, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleSignal_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
-    constexpr int SIGNAL_JS_HEAP = 39;
-    mainThread_->HandleSignal(SIGNAL_JS_HEAP);
-    HILOG_INFO("%{public}s end.", __func__);
+    siginfo_t siginfo;
+    siginfo.si_value.sival_int = 1;
+    mainThread_->HandleSignal(MUSL_SIGNAL_JSHEAP, &siginfo, nullptr);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1341,11 +1316,12 @@ HWTEST_F(MainThreadTest, HandleSignal_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleSignal_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
-    constexpr int SIGNAL_JS_HEAP_PRIV = 40;
-    mainThread_->HandleSignal(SIGNAL_JS_HEAP_PRIV);
-    HILOG_INFO("%{public}s end.", __func__);
+    siginfo_t siginfo;
+    siginfo.si_value.sival_int = 2;
+    mainThread_->HandleSignal(MUSL_SIGNAL_JSHEAP, &siginfo, nullptr);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1356,10 +1332,12 @@ HWTEST_F(MainThreadTest, HandleSignal_0200, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleSignal_0300, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
-    mainThread_->HandleSignal(-1);
-    HILOG_INFO("%{public}s end.", __func__);
+    siginfo_t siginfo;
+    siginfo.si_value.sival_int = 1;
+    mainThread_->HandleSignal(-1, &siginfo, nullptr);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1370,11 +1348,11 @@ HWTEST_F(MainThreadTest, HandleSignal_0300, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, IsApplicationReady_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     mainThread_->application_ = std::make_shared<OHOSApplication>();
     mainThread_->applicationImpl_ = std::make_shared<ApplicationImpl>();
     EXPECT_TRUE(mainThread_->IsApplicationReady());
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1385,11 +1363,11 @@ HWTEST_F(MainThreadTest, IsApplicationReady_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, IsApplicationReady_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     mainThread_->application_ = nullptr;
     mainThread_->applicationImpl_ = std::make_shared<ApplicationImpl>();
     EXPECT_FALSE(mainThread_->IsApplicationReady());
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1400,11 +1378,11 @@ HWTEST_F(MainThreadTest, IsApplicationReady_0200, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, IsApplicationReady_0300, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     mainThread_->application_ = std::make_shared<OHOSApplication>();
     mainThread_->applicationImpl_ = nullptr;
     EXPECT_FALSE(mainThread_->IsApplicationReady());
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1415,11 +1393,11 @@ HWTEST_F(MainThreadTest, IsApplicationReady_0300, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, CheckFileType_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     std::string fileName = "test.testExtension";
     std::string extensionName = "testExtension";
     EXPECT_FALSE(mainThread_->CheckFileType(fileName, extensionName));
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1430,11 +1408,11 @@ HWTEST_F(MainThreadTest, CheckFileType_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, CheckFileType_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     std::string fileName = "";
     std::string extensionName = "testExtension";
     EXPECT_FALSE(mainThread_->CheckFileType(fileName, extensionName));
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1445,11 +1423,11 @@ HWTEST_F(MainThreadTest, CheckFileType_0200, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, CheckFileType_0300, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     std::string fileName = "testExtension";
     std::string extensionName = "testExtension";
     EXPECT_FALSE(mainThread_->CheckFileType(fileName, extensionName));
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1460,12 +1438,12 @@ HWTEST_F(MainThreadTest, CheckFileType_0300, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleScheduleAcceptWant_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     Want want;
     std::string moduleName;
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleScheduleAcceptWant(want, moduleName);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1476,13 +1454,13 @@ HWTEST_F(MainThreadTest, HandleScheduleAcceptWant_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleScheduleAcceptWant_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     mainThread_->application_ = nullptr;
     Want want;
     std::string moduleName;
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleScheduleAcceptWant(want, moduleName);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1493,13 +1471,13 @@ HWTEST_F(MainThreadTest, HandleScheduleAcceptWant_0200, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleScheduleAcceptWant_0300, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     mainThread_->appMgr_ = nullptr;
     Want want;
     std::string moduleName;
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleScheduleAcceptWant(want, moduleName);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1510,13 +1488,31 @@ HWTEST_F(MainThreadTest, HandleScheduleAcceptWant_0300, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleScheduleAcceptWant_0400, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     mainThread_->applicationImpl_ = nullptr;
     Want want;
     std::string moduleName;
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleScheduleAcceptWant(want, moduleName);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleScheduleAcceptWant_0500
+ * @tc.desc: HandleScheduleAcceptWant.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleScheduleAcceptWant_0500, TestSize.Level1)
+{
+    std::string moduleName = "entry";
+    std::string loadPath = "test";
+    std::string bundleName = "com.ohos.demo";
+    std::vector<std::string> overlayPaths;
+    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+    int32_t appType = 0;
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(
+        bundleName, moduleName, loadPath, overlayPaths, *resConfig, appType));
 }
 
 #ifdef ABILITY_LIBRARY_LOADER
@@ -1530,7 +1526,7 @@ HWTEST_F(MainThreadTest, HandleScheduleAcceptWant_0400, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, LoadNativeLiabrary_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     std::string nativeLibraryPath = "";
     ASSERT_NE(mainThread_, nullptr);
     BundleInfo bundleInfo;
@@ -1538,7 +1534,7 @@ HWTEST_F(MainThreadTest, LoadNativeLiabrary_0100, TestSize.Level1)
 
     nativeLibraryPath = "test/";
     mainThread_->LoadNativeLibrary(bundleInfo, nativeLibraryPath);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 #endif
 
@@ -1552,7 +1548,7 @@ HWTEST_F(MainThreadTest, LoadNativeLiabrary_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, TaskTimeoutDetected_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->TaskTimeoutDetected(nullptr);
 
@@ -1561,7 +1557,7 @@ HWTEST_F(MainThreadTest, TaskTimeoutDetected_0100, TestSize.Level1)
 
     mainThread_->mainHandler_.reset();
     mainThread_->TaskTimeoutDetected(runner);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /*
@@ -1574,14 +1570,14 @@ HWTEST_F(MainThreadTest, TaskTimeoutDetected_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, HandleDumpHeap_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     bool isPrivate = false;
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleDumpHeap(isPrivate);
 
     mainThread_->mainHandler_ = nullptr;
     mainThread_->HandleDumpHeap(isPrivate);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1591,7 +1587,7 @@ HWTEST_F(MainThreadTest, HandleDumpHeap_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, ScheduleNotifyLoadRepairPatch_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     std::string bundleName;
     sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
     int32_t recordId = 0;
@@ -1600,7 +1596,7 @@ HWTEST_F(MainThreadTest, ScheduleNotifyLoadRepairPatch_0200, TestSize.Level1)
     auto ret = mainThread_->ScheduleNotifyLoadRepairPatch(bundleName, callback, recordId);
     mainThread_->mainHandler_ = bakHandler;
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1610,7 +1606,7 @@ HWTEST_F(MainThreadTest, ScheduleNotifyLoadRepairPatch_0200, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, ScheduleNotifyHotReloadPage_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
     int32_t recordId = 0;
     auto bakHandler = mainThread_->mainHandler_;
@@ -1618,7 +1614,7 @@ HWTEST_F(MainThreadTest, ScheduleNotifyHotReloadPage_0200, TestSize.Level1)
     auto ret = mainThread_->ScheduleNotifyHotReloadPage(callback, recordId);
     mainThread_->mainHandler_ = bakHandler;
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1628,7 +1624,7 @@ HWTEST_F(MainThreadTest, ScheduleNotifyHotReloadPage_0200, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, ScheduleNotifyUnLoadRepairPatch_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     std::string bundleName;
     int32_t recordId = 0;
     sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
@@ -1637,7 +1633,7 @@ HWTEST_F(MainThreadTest, ScheduleNotifyUnLoadRepairPatch_0200, TestSize.Level1)
     auto ret = mainThread_->ScheduleNotifyUnLoadRepairPatch(bundleName, callback, recordId);
     mainThread_->mainHandler_ = bakHandler;
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1750,6 +1746,10 @@ HWTEST_F(MainThreadTest, HandleLaunchApplication_0500, TestSize.Level1)
     launchData.SetPerfCmd(perfCmd);
     EXPECT_EQ(launchData.GetPerfCmd(), perfCmd);
 
+    // check JIT enabled
+    launchData.SetJITEnabled(true)
+    EXPECT_EQ(launchData.IsJITEnabled(), true);
+
     // check debug app
     bool appDebug = true;
     launchData.SetDebugApp(appDebug);
@@ -1840,7 +1840,7 @@ HWTEST_F(MainThreadTest, PostTask_0100, TestSize.Level1)
     AbilityInfo abilityInfo = {};
     sptr<IRemoteObject> token = nullptr;
     std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
-    mainThread_->ScheduleLaunchAbility(abilityInfo, token, want);
+    mainThread_->ScheduleLaunchAbility(abilityInfo, token, want, 0);
     mainThread_->ScheduleCleanAbility(token);
     Profile profile = {};
     mainThread_->ScheduleProfileChanged(profile);
