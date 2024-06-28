@@ -304,7 +304,7 @@ int32_t AppUtils::GetLimitMaximumExtensionsPerDevice()
 
 std::string AppUtils::GetCacheExtensionTypeList()
 {
-    std::string cacheExtAbilityTypeList = system::GetParameter(CACHE_EXTENSION_TYPES, "3;5;17;260");
+    std::string cacheExtAbilityTypeList = system::GetParameter(CACHE_EXTENSION_TYPES, "260");
     TAG_LOGD(AAFwkTag::DEFAULT, "cacheExtAbilityTypeList is %{public}s", cacheExtAbilityTypeList.c_str());
     return cacheExtAbilityTypeList;
 }
