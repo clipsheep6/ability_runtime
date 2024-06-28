@@ -53,6 +53,7 @@ const std::string OPEN_LINK_APP_LINKING_ONLY = "appLinkingOnly";
 const std::string HTTP_SCHEME_NAME = "http";
 const std::string HTTPS_SCHEME_NAME = "https";
 const std::string APP_CLONE_INDEX = "ohos.extra.param.key.appCloneIndex";
+constexpr const char* SUPPORT_ACTION_START_SELECTOR = "persist.sys.ability.support.action_start_selector";
 
 const std::vector<std::string> ImplicitStartProcessor::blackList = {
     std::vector<std::string>::value_type(BLACK_ACTION_SELECT_DATA),
@@ -796,6 +797,11 @@ void ImplicitStartProcessor::SetTargetLinkInfo(const std::vector<AppExecFwk::Ski
 
 bool ImplicitStartProcessor::IsActionImplicitStart(const Want &want, bool findDeafultApp)
 {
+    std::string supportStart = OHOS::system::GetParameter(SUPPORT_ACTION_START_SELECTOR, "false");
+    if (supportStart == "false") {
+        return false;
+    }
+
     if (findDeafultApp) {
         return false;
     }
@@ -806,7 +812,8 @@ bool ImplicitStartProcessor::IsActionImplicitStart(const Want &want, bool findDe
     }
 
     std::string bundleName = "";
-    if (want.GetAction() != "" && DeepLinkReserveConfig::GetInstance().isLinkReserved(want.GetUriString(),
+    if (want.GetElement().GetBundleName() != "" && want.GetAction() != "" &&
+        DeepLinkReserveConfig::GetInstance().isLinkReserved(want.GetUriString(),
         bundleName)) {
         return false;
     }
