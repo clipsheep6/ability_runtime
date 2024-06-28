@@ -24,10 +24,8 @@ ohos_source_set("appmgr_mst_source") {
 
   defines = [ "AMS_LOG_TAG = \"AppMgrService\"" ]
 
-  include_dirs = [
-    "//third_party/json/include",
-    "${ability_runtime_test_path}/mock/services_appmgr_test/include",
-  ]
+  include_dirs =
+      [ "${ability_runtime_test_path}/mock/services_appmgr_test/include" ]
 
   public_configs = [
     "${ability_runtime_test_path}/moduletest:services_module_test_config",
@@ -80,6 +78,7 @@ ohos_source_set("appmgr_mst_source") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
   ]
 
   if (ability_runtime_graphics) {
