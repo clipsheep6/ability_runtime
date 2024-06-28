@@ -182,7 +182,7 @@ bool JsEnvironment::LoadScript(const std::string& path, std::vector<uint8_t>* bu
 }
 
 bool JsEnvironment::StartDebugger(
-    std::string& option, uint32_t socketFd, bool isDebugApp, const DebuggerPostTask &debuggerPostTask)
+    std::string& option, uint32_t socketFd, bool isDebugApp)
 {
     TAG_LOGD(AAFwkTag::JSENV, "call.");
     if (vm_ == nullptr) {
@@ -194,18 +194,7 @@ bool JsEnvironment::StartDebugger(
         TAG_LOGE(AAFwkTag::JSENV, "Abnormal parsing of tid results.");
         return false;
     }
-    if (isDebugApp) {
-        debugMode_ = panda::JSNApi::StartDebuggerForSocketPair(identifierId, socketFd);
-    } else {
-        if (debuggerPostTask == nullptr) {
-            TAG_LOGE(AAFwkTag::JSENV, "debuggerPostTask is nullptr.");
-            return false;
-        }
-        auto startDebuggerForSocketPairTask = [identifierId, socketFd, this]() {
-            debugMode_ = panda::JSNApi::StartDebuggerForSocketPair(identifierId, socketFd);
-        };
-        debuggerPostTask(startDebuggerForSocketPairTask);
-    }
+    debugMode_ = panda::JSNApi::StartDebuggerForSocketPair(identifierId, socketFd);
     return debugMode_;
 }
 

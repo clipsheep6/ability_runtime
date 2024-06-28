@@ -2905,7 +2905,7 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
     }
 
     AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(abilityRequest.want, 0, GetUserId(),
-        false, callerToken, std::make_shared<AppExecFwk::AbilityInfo>(abilityInfo));
+        true, callerToken, std::make_shared<AppExecFwk::AbilityInfo>(abilityInfo));
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
         afterCheckExecuter_->DoProcess(afterCheckParam);
     if (result != ERR_OK) {
@@ -5760,10 +5760,6 @@ int AbilityManagerService::GenerateAbilityRequest(const Want &want, int requestC
         request.appInfo.name.c_str(), request.abilityInfo.moduleName.c_str(), request.uid);
 
     request.want.SetModuleName(request.abilityInfo.moduleName);
-    request.want.SetParam("send_to_erms_targetBundleType",
-        static_cast<int>(request.abilityInfo.applicationInfo.bundleType));
-    request.want.SetParam("send_to_erms_targetAppProvisionType", request.abilityInfo.applicationInfo.appProvisionType);
-    request.want.SetParam("send_to_erms_targetAppDistType", request.abilityInfo.applicationInfo.appDistributionType);
 
     if (want.GetBoolParam(Want::PARAM_RESV_START_RECENT, false) &&
         AAFwk::PermissionVerification::GetInstance()->VerifyStartRecentAbilityPermission()) {
@@ -5817,9 +5813,6 @@ int32_t AbilityManagerService::InitialAbilityRequest(AbilityRequest &request,
     TAG_LOGD(AAFwkTag::ABILITYMGR,
         "GenerateExtensionAbilityRequest end, app name: %{public}s, bundle name: %{public}s, uid: %{public}d.",
         request.appInfo.name.c_str(), request.appInfo.bundleName.c_str(), request.uid);
-    request.want.SetParam("send_to_erms_targetBundleType",
-        static_cast<int>(request.abilityInfo.applicationInfo.bundleType));
-    request.want.SetParam("send_to_erms_targetAppProvisionType", request.abilityInfo.applicationInfo.appProvisionType);
 
     TAG_LOGD(AAFwkTag::ABILITYMGR,
         "GenerateExtensionAbilityRequest, moduleName: %{public}s.", request.abilityInfo.moduleName.c_str());
@@ -10845,6 +10838,13 @@ void AbilityManagerService::NotifyFrozenProcessByRSS(const std::vector<int32_t> 
     auto connectManager = GetConnectManagerByUserId(userId);
     CHECK_POINTER_LOG(connectManager, "can not find user connect manager");
     connectManager->HandleProcessFrozen(pidList, uid);
+}
+
+void AbilityManagerService::HandleRestartResidentProcessDependedOnWeb()
+{
+    auto appMgr = GetAppMgr();
+    CHECK_POINTER_LOG(appMgr, "get appMgr fail");
+    appMgr->RestartResidentProcessDependedOnWeb();
 }
 }  // namespace AAFwk
 }  // namespace OHOS

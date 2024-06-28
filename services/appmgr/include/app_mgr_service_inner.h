@@ -1136,6 +1136,12 @@ public:
      */
     void AttachedToStatusBar(const sptr<IRemoteObject> &token);
     void KillApplicationByRecord(const std::shared_ptr<AppRunningRecord> &appRecord);
+
+    int32_t NotifyProcessDependedOnWeb();
+
+    void KillProcessDependedOnWeb();
+
+    void RestartResidentProcessDependedOnWeb();
 private:
 
     std::string FaultTypeToString(FaultDataType type);

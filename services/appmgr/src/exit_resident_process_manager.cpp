@@ -53,6 +53,14 @@ bool ExitResidentProcessManager::RecordExitResidentBundleName(const std::string 
     return true;
 }
 
+bool ExitResidentProcessManager::RecordExitResidentBundleDependedOnWeb(const std::string &bundleName)
+{
+    std::lock_guard<ffrt::mutex> lock(webMutexLock_);
+    TAG_LOGE(AAFwkTag::APPMGR, "call");
+    exitResidentBundlesDependedOnWeb_.emplace_back(bundleName);
+    return true;
+}
+
 int32_t ExitResidentProcessManager::HandleMemorySizeInSufficent()
 {
     std::lock_guard<ffrt::mutex> lock(mutexLock_);
@@ -75,6 +83,14 @@ int32_t ExitResidentProcessManager::HandleMemorySizeSufficent(std::vector<std::s
     bundleNames = exitResidentBundleNames_;
     exitResidentBundleNames_.clear();
     return ERR_OK;
+}
+
+void ExitResidentProcessManager::HandleExitResidentBundleDependedOnWeb(std::vector<std::string>& bundleNames)
+{
+    std::lock_guard<ffrt::mutex> lock(webMutexLock_);
+    TAG_LOGE(AAFwkTag::APPMGR, "call");
+    bundleNames = exitResidentBundlesDependedOnWeb_;
+    exitResidentBundlesDependedOnWeb_.clear();
 }
 
 void ExitResidentProcessManager::QueryExitBundleInfos(const std::vector<std::string>& exitBundleNames,

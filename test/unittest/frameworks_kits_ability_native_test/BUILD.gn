@@ -2777,6 +2777,7 @@ ohos_unittest("dialog_request_callback_test") {
   defines = []
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/ability/ability_runtime",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_path}/frameworks/simulator/common/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/dialog_request_callback",
   ]

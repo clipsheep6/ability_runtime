@@ -24,6 +24,7 @@
 #include "iservice_registry.h"
 #include "modal_system_ui_extension.h"
 #include "task_utils_wrap.h"
+#include "ui_extension_utils.h"
 
 namespace OHOS {
 namespace AAFwk {

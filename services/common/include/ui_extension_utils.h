@@ -125,7 +125,8 @@ inline bool IsPublicForEmbedded(const AppExecFwk::ExtensionAbilityType type)
     const std::unordered_set<AppExecFwk::ExtensionAbilityType> publicForEmbeddedSet = {
         AppExecFwk::ExtensionAbilityType::EMBEDDED_UI, // EMBEDDED_UI usage within the app
         AppExecFwk::ExtensionAbilityType::ADS,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOPICKER
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOPICKER,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL
     };
     return publicForEmbeddedSet.find(type) != publicForEmbeddedSet.end();
 }

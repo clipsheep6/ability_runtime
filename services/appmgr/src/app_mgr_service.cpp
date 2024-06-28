@@ -1543,5 +1543,40 @@ int32_t AppMgrService::CheckCallingIsUserTestMode(const pid_t pid, bool &isUserT
     return appMgrServiceInner_->CheckCallingIsUserTestModeInner(pid, isUserTest);
 }
 
+int32_t AppMgrService::NotifyProcessDependedOnWeb()
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "called.");
+    if (!appMgrServiceInner_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not ready.");
+        return ERR_INVALID_VALUE;
+    }
+    return appMgrServiceInner_->NotifyProcessDependedOnWeb();
+}
+
+void AppMgrService::KillProcessDependedOnWeb()
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "called.");
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "caller is not SA.");
+        return;
+    }
+    if (!appMgrServiceInner_) {
+        return;
+    }
+    appMgrServiceInner_->KillProcessDependedOnWeb();
+}
+
+void AppMgrService::RestartResidentProcessDependedOnWeb()
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "called.");
+    if (!AAFwk::PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission(FOUNDATION_PROCESS)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "caller is not foundation.");
+        return;
+    }
+    if (!appMgrServiceInner_) {
+        return;
+    }
+    appMgrServiceInner_->RestartResidentProcessDependedOnWeb();
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
