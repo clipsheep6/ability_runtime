@@ -15,11 +15,13 @@
 
 #include "configuration_utils.h"
 
+#include "application_context.h"
 #include "configuration_convertor.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #ifdef SUPPORT_GRAPHICS
+#include "preferences_helper.h"
 #include "window.h"
 #endif
 
@@ -42,10 +44,39 @@ void ConfigurationUtils::UpdateGlobalConfig(const Configuration &configuration,
     resourceConfig.UpdateResConfig(configuration, resourceManager);
 }
 
+std::shared_ptr<NativePreferences::Preferences> ConfigurationUtils::GetI18nAppPreferences()
+{
+    std::shared_ptr<AbilityRuntime::ApplicationContext> appContext = AbilityRuntime::ApplicationContext::GetInstance();
+    std::string preferencesDirPath = appContext->GetPreferencesDir();
+    std::string i18nPreferencesFilePath = preferencesDirPath + "/i18n";
+    int status;
+    NativePreferences::Options options(i18nPreferencesFilePath);
+    std::shared_ptr<NativePreferences::Preferences> preferences =
+        NativePreferences::PreferencesHelper::GetPreferences(options, status);
+    if (status != 0) {
+        return nullptr;
+    }
+    return preferences;
+}
+
 void ConfigurationUtils::GetGlobalConfig(const Configuration &configuration,
     OHOS::AbilityRuntime::ResourceConfigHelper &resourceConfig)
 {
-    resourceConfig.SetLanguage(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE));
+    std::shared_ptr<NativePreferences::Preferences> preferences = GetI18nAppPreferences();
+    if (preferences == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITY, "TestLog0619: preferences == nullptr.");
+        resourceConfig.SetLanguage(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE));
+    } else {
+        std::string res = preferences->GetString("app_language", "");
+        if (res.length() == 0) {
+            TAG_LOGE(AAFwkTag::ABILITY, "TestLog0619: res.length() == 0.");
+            resourceConfig.SetLanguage(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE));
+        } else {
+            TAG_LOGE(AAFwkTag::ABILITY, "TestLog0619: SetLanguage.");
+            configuration.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, res);
+            resourceConfig.SetLanguage(res);
+        }
+    }
     resourceConfig.SetColormode(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE));
     resourceConfig.SetHasPointerDevice(configuration.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE));
     resourceConfig.SetMcc(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MCC));
