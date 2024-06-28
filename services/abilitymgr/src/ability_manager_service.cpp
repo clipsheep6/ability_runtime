@@ -628,11 +628,11 @@ int AbilityManagerService::StartAbilityWithSpecifyTokenId(const Want &want, cons
         TAG_LOGE(AAFwkTag::ABILITYMGR, "StartAbility with specialId, the current process is not foundation process.");
         return ERR_INVALID_CONTINUATION_FLAG;
     }
-    return StartAbilityWithSpecifyTokenIdInner(want, callerToken, specifyTokenId, userId, requestCode);
+    return StartAbilityWithSpecifyTokenIdInner(want, callerToken, specifyTokenId, userId, requestCode, true);
 }
 
 int AbilityManagerService::StartAbilityWithSpecifyTokenIdInner(const Want &want, const sptr<IRemoteObject> &callerToken,
-    uint32_t specifyTokenId, int32_t userId, int requestCode)
+    uint32_t specifyTokenId, int32_t userId, int requestCode, bool isStartForm)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
@@ -651,7 +651,7 @@ int AbilityManagerService::StartAbilityWithSpecifyTokenIdInner(const Want &want,
         "Start ability come, ability is %{public}s, userId is %{public}d, specifyTokenId is %{public}u.",
         want.GetElement().GetAbilityName().c_str(), userId, specifyTokenId);
 
-    int32_t ret = StartAbilityWrap(want, callerToken, requestCode, userId, false, false, specifyTokenId);
+    int32_t ret = StartAbilityWrap(want, callerToken, requestCode, userId, false, false, specifyTokenId, isStartForm);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
         SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
@@ -877,7 +877,7 @@ bool AbilityManagerService::StartAbilityInChain(StartAbilityParams &params, int 
 
 int AbilityManagerService::StartAbilityWrap(const Want &want, const sptr<IRemoteObject> &callerToken,
     int requestCode, int32_t userId, bool isStartAsCaller, bool isSendDialogResult, uint32_t specifyToken,
-    bool isForegroundToRestartApp, bool isImplicit)
+    bool isForegroundToRestartApp, bool isImplicit, bool isStartFromForm)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     StartAbilityParams startParams(const_cast<Want &>(want));
@@ -892,8 +892,8 @@ int AbilityManagerService::StartAbilityWrap(const Want &want, const sptr<IRemote
         return result;
     }
 
-    return StartAbilityInner(want, callerToken,
-        requestCode, userId, isStartAsCaller, isSendDialogResult, specifyToken, isForegroundToRestartApp, isImplicit);
+    return StartAbilityInner(want, callerToken, requestCode, userId, isStartAsCaller, isSendDialogResult, specifyToken,
+        isForegroundToRestartApp, isImplicit, isStartFromForm);
 }
 
 void AbilityManagerService::SetReserveInfo(const std::string &linkString)
@@ -916,7 +916,7 @@ void AbilityManagerService::SetReserveInfo(const std::string &linkString)
 
 int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemoteObject> &callerToken,
     int requestCode, int32_t userId, bool isStartAsCaller, bool isSendDialogResult, uint32_t specifyTokenId,
-    bool isForegroundToRestartApp, bool isImplicit)
+    bool isForegroundToRestartApp, bool isImplicit, bool isStartFromForm)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     {
@@ -1178,7 +1178,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
 
     abilityRequest.want.RemoveParam(SPECIFY_TOKEN_ID);
-    if (specifyTokenId > 0) {
+    if (!isStartFromForm && specifyTokenId > 0) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Set specifyTokenId, the specifyTokenId is %{public}d.", specifyTokenId);
         abilityRequest.want.SetParam(SPECIFY_TOKEN_ID, static_cast<int32_t>(specifyTokenId));
         abilityRequest.specifyTokenId = specifyTokenId;

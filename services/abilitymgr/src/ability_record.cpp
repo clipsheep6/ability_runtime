@@ -3138,8 +3138,9 @@ void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string>
 {
     auto callerTokenId = specifyTokenId_ > 0 ? specifyTokenId_ :
         static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId));
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "callerTokenId=%{public}u, tokenId=%{public}u, specifyTokenId=%{public}u",
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "callerTokenId=%{public}u, tokenId=%{public}u, specifyTokenId=%{public}u",
         callerTokenId, tokenId, specifyTokenId_);
+    specifyTokenId_ = 0;
     uint32_t flag = want.GetFlags();
     std::vector<Uri> validUriList = {};
     for (auto &&uriStr : uriVec) {

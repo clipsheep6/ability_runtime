@@ -142,6 +142,7 @@ public:
      * @param specialId the caller Id.
      * @param userId, Designation User ID.
      * @param requestCode the resultCode of the ability to start.
+     * @param isStartFromForm, is start with form.
      * @return Returns ERR_OK on success, others on failure.
      */
     int StartAbilityWithSpecifyTokenIdInner(
@@ -149,7 +150,8 @@ public:
         const sptr<IRemoteObject> &callerToken,
         uint32_t specifyTokenId,
         int32_t userId = DEFAULT_INVAL_VALUE,
-        int requestCode = DEFAULT_INVAL_VALUE);
+        int requestCode = DEFAULT_INVAL_VALUE,
+        bool isStartFromForm = false);
 
     /**
      * Starts a new ability with specific start options and specialId, send want to ability manager service.
@@ -948,7 +950,8 @@ public:
         bool isSendDialogResult = false,
         uint32_t specifyTokenId = 0,
         bool isForegroundToRestartApp = false,
-        bool isImplicit = false);
+        bool isImplicit = false,
+        bool isStartFromForm = false);
 
     int StartAbilityInner(
         const Want &want,
@@ -959,7 +962,8 @@ public:
         bool isSendDialogResult = false,
         uint32_t specifyTokenId = 0,
         bool isForegroundToRestartApp = false,
-        bool isImplicit = false);
+        bool isImplicit = false,
+        bool isStartFromForm = false);
 
     int StartExtensionAbilityInner(
         const Want &want,
