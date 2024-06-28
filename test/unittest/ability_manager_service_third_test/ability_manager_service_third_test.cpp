@@ -2579,5 +2579,19 @@ HWTEST_F(AbilityManagerServiceThirdTest, TransferAbilityResultForExtension_001, 
     int32_t res = abilityMs->TransferAbilityResultForExtension(token, resultCode, want);
     EXPECT_EQ(res, ERR_INVALID_VALUE);
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: GetAbilityRequest
+ * FunctionPoints: AbilityManagerService GetAbilityRequest
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, GetAbilityRequest_001, TestSize.Level1)
+{
+    auto abilityRequest = std::make_shared<AbilityRequest>();
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    abilityMs->SetAbilityRequest(*abilityRequest);
+    auto ret = abilityMs->GetAbilityRequest();
+    EXPECT_EQ(ret->uid, abilityRequest->uid);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
