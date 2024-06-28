@@ -485,7 +485,8 @@ bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
             }
     } else if (appIndex <= GlobalConstant::MAX_APP_CLONE_INDEX) {
         auto bundleFlag = static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) +
-            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY);
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY);
         auto bundleMgrResult = IN_PROCESS_CALL(
             bms->GetCloneBundleInfo(bundleName, bundleFlag, appIndex, bundleInfo, userId));
             if (bundleMgrResult != ERR_OK) {
@@ -522,6 +523,9 @@ bool AbilityAutoStartupService::GetAbilityData(const AutoStartupInfo &info, bool
     accessTokenId = std::to_string(accessTokenIdStr);
     TAG_LOGD(AAFwkTag::AUTO_STARTUP, "userId: %{public}d. ", userId);
     TAG_LOGD(AAFwkTag::AUTO_STARTUP, "accessTokenId: %{public}d. ", accessTokenIdStr);
+    if (bundleInfo.abilityInfos.empty()) {
+                TAG_LOGE(AAFwkTag::AUTO_STARTUP, "failed to get abilityInfos");
+        }
     for (auto abilityInfo : bundleInfo.abilityInfos) {
         if ((abilityInfo.bundleName == info.bundleName) && (abilityInfo.name == info.abilityName)) {
             if (info.moduleName.empty() || (abilityInfo.moduleName == info.moduleName)) {
