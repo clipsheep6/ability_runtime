@@ -936,6 +936,9 @@ public:
     int32_t GetShareDataPairAndReturnData(std::shared_ptr<AbilityRecord> abilityRecord,
         const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam);
 
+    std::shared_ptr<AbilityRequest> GetAbilityRequest() const;
+    void SetAbilityRequest(const AbilityRequest &abilityRequest);
+
     int32_t StartAbilityByFreeInstall(const Want &want, sptr<IRemoteObject> callerToken, int32_t userId,
         int32_t requestCode);
 
@@ -2183,6 +2186,9 @@ private:
     std::shared_ptr<FreeInstallManager> freeInstallManager_;
 
     std::shared_ptr<SubManagersHelper> subManagersHelper_;
+
+    std::shared_ptr<AbilityRequest> abilityRequest_;
+    ffrt::mutex abilityRequestMutex_;
 
     std::shared_ptr<UserController> userController_;
     sptr<AppExecFwk::IAbilityController> abilityController_ = nullptr;
