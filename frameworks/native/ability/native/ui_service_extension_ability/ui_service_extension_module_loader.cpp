@@ -28,8 +28,8 @@ Extension *UIServiceExtensionModuleLoader::Create(const std::unique_ptr<Runtime>
 std::map<std::string, std::string> UIServiceExtensionModuleLoader::GetParams()
 {
     std::map<std::string, std::string> params;
-    // type means extension type in ExtensionAbilityType of extension_ability_info.h, 266 means uiService.
-    params.insert(std::pair<std::string, std::string>("type", "266"));
+    // type means extension type in ExtensionAbilityType of extension_ability_info.h, 269 means uiService.
+    params.insert(std::pair<std::string, std::string>("type", "269"));
     // extension name
     params.insert(std::pair<std::string, std::string>("name", "UIServiceExtensionAbility"));
     return params;

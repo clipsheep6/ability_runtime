@@ -28,8 +28,6 @@ class Runtime;
 using AbilityHandler = AppExecFwk::AbilityHandler;
 using OHOSApplication = AppExecFwk::OHOSApplication;
 
-
-
 /**
  * @brief Basic ui extension components.
  */
@@ -72,7 +70,7 @@ public:
      * @param runtime The runtime.
      * @return The ui service extension instance.
      */
-    static UIServiceExtension* Create(const std::unique_ptr<Runtime>& runtime);    
+    static UIServiceExtension* Create(const std::unique_ptr<Runtime>& runtime);
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

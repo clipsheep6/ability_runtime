@@ -61,9 +61,6 @@ ErrCode UIServiceExtensionContext::TerminateSelf()
 
 sptr<Rosen::Window> UIServiceExtensionContext::GetWindow()
 {
-    // std::shared_ptr<UIServiceExtension> uiServiceExtension_ = std::make_shared<UIServiceExtension>();
-    // auto scence = uiServiceExtension_->GetScene();
-    // window_ = scence->GetMainWindow();
     return window_;
 }
 
@@ -81,7 +78,7 @@ ErrCode UIServiceExtensionContext::StartAbilityByType(const std::string &type,
     AAFwk::WantParams &wantParam, const std::shared_ptr<JsUIExtensionCallback> &uiExtensionCallbacks)
 {
     //todo StartAbilityByType
-    TAG_LOGD(AAFwkTag::APPKIT, "Start ability begin, ability:%{public}s.",__func__);
+    TAG_LOGD(AAFwkTag::APPKIT, "StartAbilityByType begin.");
     auto uiContent = GetUIContent();
     if (uiContent == nullptr) {
         TAG_LOGD(AAFwkTag::APPKIT, "uiContent is nullptr.");

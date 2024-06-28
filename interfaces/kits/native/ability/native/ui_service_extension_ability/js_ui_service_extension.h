@@ -18,9 +18,6 @@
 
 #include "ui_service_extension.h"
 #include "configuration.h"
-#include "insight_intent_execute_param.h"
-#include "insight_intent_execute_result.h"
-#include "insight_intent_executor_info.h"
 #include "ability_info.h"
 #include "ui_service_extension_context.h"
 #ifdef SUPPORT_GRAPHICS
@@ -32,9 +29,6 @@
 #include "ui_service_extension.h"
 
 class NativeReference;
-#ifdef SUPPORT_GRAPHICS
-
-#endif
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -73,7 +67,7 @@ public:
         const sptr<IRemoteObject> &token) override;
 
 
-		/**
+     /**
      * @brief Called when this extension is started. You must override this function if you want to perform some
      *        initialization operations during extension startup.
      *
@@ -84,14 +78,13 @@ public:
    
 
 
-	 /**
+     /**
      * @brief Called when this extension enters the <b>STATE_STOP</b> state.
      *
      * The extension in the <b>STATE_STOP</b> is being destroyed.
      * You can override this function to implement your own processing logic.
      */
     virtual void OnStop() override;
-	
 
     /**
      * @brief Called when this Service extension is connected for the first time.
@@ -105,7 +98,6 @@ public:
      */
     virtual sptr<IRemoteObject> OnConnect(const AAFwk::Want &want,
         AppExecFwk::AbilityTransactionCallbackInfo<sptr<IRemoteObject>> *callbackInfo, bool &isAsyncCallback) override;
-		
 
     /**
      * @brief Called when all abilities connected to this Service extension are disconnected.
@@ -117,8 +109,6 @@ public:
     virtual void OnDisconnect(const AAFwk::Want &want, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo,
         bool &isAsyncCallback) override;
 
-	
-   
     /**
      * @brief Called back when Service is started.
      * This method can be called only by Service. You can use the StartAbility(ohos.aafwk.content.Want) method to start
@@ -132,8 +122,7 @@ public:
      * by 1 every time the extension is started. For example, if the extension has been started for six times, the
      * value of startId is 6.
      */
-    virtual void OnCommand(const AAFwk::Want &want, bool restart, int startId) override; 
-   
+    virtual void OnCommand(const AAFwk::Want &want, bool restart, int startId) override;
 
     /**
      * @brief Called when the system configuration is updated.
@@ -155,7 +144,7 @@ public:
      * @param info The dump info to show.
      */
     virtual void Dump(const std::vector<std::string> &params, std::vector<std::string> &info) override;
-	
+
 protected:
     bool showOnLockScreen_ = false;
 
@@ -164,21 +153,15 @@ private:
 
     void BindContext(napi_env env, napi_value obj);
 
-    void GetSrcPath(std::string &srcPath);  
-
-    
+    void GetSrcPath(std::string& srcPath);
 
     void ListenWMS();
-    
-    bool GetInsightIntentExecutorInfo(const Want &want,
-        const std::shared_ptr<AppExecFwk::InsightIntentExecuteParam> &executeParam,
-        InsightIntentExecutorInfo &executorInfo);	
 
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;
     std::shared_ptr<AbilityContext> aContext_ = nullptr;
     std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
-    std::shared_ptr<AbilityHandler> handler_ = nullptr;    
+    std::shared_ptr<AbilityHandler> handler_ = nullptr;
 
 #ifdef SUPPORT_GRAPHICS
 protected:

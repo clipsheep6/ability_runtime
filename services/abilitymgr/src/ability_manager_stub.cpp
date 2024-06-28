@@ -506,7 +506,7 @@ int AbilityManagerStub::OnRemoteRequestInnerThirteenth(uint32_t code, MessagePar
     }
     if (interfaceCode == AbilityManagerInterfaceCode::STOP_EXTENSION_ABILITY) {
         return StopExtensionAbilityInner(data, reply);
-    }    
+    }
     if (interfaceCode == AbilityManagerInterfaceCode::UPDATE_MISSION_SNAPSHOT_FROM_WMS) {
         return UpdateMissionSnapShotFromWMSInner(data, reply);
     }

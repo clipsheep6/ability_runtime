@@ -325,7 +325,7 @@ public:
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED)
     {
         return 0;
-    }		
+    }
 
   /**
      * Create UIExtension with want, send want to ability manager service.

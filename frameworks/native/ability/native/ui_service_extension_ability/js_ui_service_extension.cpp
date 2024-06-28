@@ -26,10 +26,6 @@
 #include "hitrace_meter.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
-#include "insight_intent_execute_param.h"
-#include "insight_intent_execute_result.h"
-#include "insight_intent_executor_info.h"
-#include "insight_intent_executor_mgr.h"
 #include "js_extension_common.h"
 #include "js_extension_context.h"
 #include "js_runtime.h"
@@ -62,10 +58,8 @@ constexpr size_t ARGC_TWO = 2;
 const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
 const std::string LAUNCHER_BUNDLE_NAME = "com.ohos.launcher";
 const std::string LAUNCHER_ABILITY_NAME = "com.ohos.launcher.MainAbility";
-}
+
 using namespace OHOS::AppExecFwk;
-
-
 
 napi_value AttachUIServiceExtensionContext(napi_env env, void *value, void *)
 {
@@ -97,9 +91,6 @@ napi_value AttachUIServiceExtensionContext(napi_env env, void *value, void *)
         nullptr, nullptr);
     return contextObj;
 }
-
-
-using namespace OHOS::AbilityRuntime;
 
 JsUIServiceExtension* JsUIServiceExtension::Create(const std::unique_ptr<Runtime>& runtime)
 {
@@ -168,8 +159,6 @@ void JsUIServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &recor
     }
     ListenWMS();
 }
-
-
 
 void JsUIServiceExtension::SystemAbilityStatusChangeListener::OnAddSystemAbility(int32_t systemAbilityId,
     const std::string& deviceId)
@@ -241,8 +230,6 @@ void JsUIServiceExtension::OnStart(const AAFwk::Want &want)
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
     napi_value argv[] = {napiWant};
     CallObjectMethod("onCreate", argv, ARGC_ONE);
-#ifdef SUPPORT_GRAPHICS	
-#endif	
     TAG_LOGD(AAFwkTag::UISERVC_EXT, "ok");
 }
 
@@ -257,19 +244,19 @@ void JsUIServiceExtension::OnStop()
         ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
         TAG_LOGD(AAFwkTag::UISERVC_EXT, "The service extension connection is not disconnected.");
     }
-    Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(displayListener_);		
+    Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(displayListener_);
     TAG_LOGD(AAFwkTag::UISERVC_EXT, "ok");
 }
 
 sptr<IRemoteObject> JsUIServiceExtension::OnConnect(const AAFwk::Want &want,
     AppExecFwk::AbilityTransactionCallbackInfo<sptr<IRemoteObject>> *callbackInfo, bool &isAsyncCallback)
-{    
+{
     return nullptr;
 }
 
 void JsUIServiceExtension::OnDisconnect(const AAFwk::Want &want,
     AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback)
-{    
+{
 }
 
 void JsUIServiceExtension::OnCommand(const AAFwk::Want &want, bool restart, int startId)
@@ -288,18 +275,6 @@ void JsUIServiceExtension::OnCommand(const AAFwk::Want &want, bool restart, int 
     napi_value argv[] = {napiWant, napiStartId};
     CallObjectMethod("onRequest", argv, ARGC_TWO);
     TAG_LOGD(AAFwkTag::UISERVC_EXT, "ok");
-}
-
-bool JsUIServiceExtension::HandleInsightIntent(const AAFwk::Want &want)
-{    
-    return true;
-}
-
-
-bool JsUIServiceExtension::OnInsightIntentExecuteDone(uint64_t intentId,
-    const AppExecFwk::InsightIntentExecuteResult &result)
-{    
-    return true;
 }
 
 napi_value JsUIServiceExtension::CallObjectMethod(const char* name, napi_value const* argv, size_t argc)
@@ -527,5 +502,5 @@ void JsUIServiceExtension::OnChange(Rosen::DisplayId displayId)
 }
 
 #endif
-} // AbilityRuntime
+}
 } // OHOS

@@ -40,7 +40,7 @@ class UIServiceExtensionContext extends ExtensionContext {
     return this.__context_impl__.terminateSelf(callback);
   }
 
-  startAbilityByType(type, wantParam, abilityStartCallback, callback){
+  startAbilityByType(type, wantParam, abilityStartCallback, callback) {
     console.log('startAbilityByType');
     return this.__context_impl__.startAbilityByType(type, wantParam, abilityStartCallback, callback);
   }

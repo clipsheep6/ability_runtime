@@ -29,8 +29,6 @@
 #include "napi_common_configuration.h"
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
-// #include "time_util.h"
-// #include "js_ability.h"
 #include "ui_service_extension_context.h"
 #include "foundation/ability/ability_runtime/utils/global/time/include/time_util.h"
 
