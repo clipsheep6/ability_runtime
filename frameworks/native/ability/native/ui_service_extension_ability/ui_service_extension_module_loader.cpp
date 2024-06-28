@@ -29,7 +29,7 @@ std::map<std::string, std::string> UIServiceExtensionModuleLoader::GetParams()
 {
     std::map<std::string, std::string> params;
     // type means extension type in ExtensionAbilityType of extension_ability_info.h, 266 means uiService.
-    params.insert(std::pair<std::string, std::string>("type", "266"));
+    params.insert(std::pair<std::string, std::string>("type", "268"));
     // extension name
     params.insert(std::pair<std::string, std::string>("name", "UIServiceExtensionAbility"));
     return params;

@@ -18,9 +18,6 @@
 
 #include "ui_service_extension.h"
 #include "configuration.h"
-#include "insight_intent_execute_param.h"
-#include "insight_intent_execute_result.h"
-#include "insight_intent_executor_info.h"
 #include "ability_info.h"
 #include "ui_service_extension_context.h"
 #ifdef SUPPORT_GRAPHICS
@@ -132,8 +129,7 @@ public:
      * by 1 every time the extension is started. For example, if the extension has been started for six times, the
      * value of startId is 6.
      */
-    virtual void OnCommand(const AAFwk::Want &want, bool restart, int startId) override; 
-   
+    virtual void OnCommand(const AAFwk::Want &want, bool restart, int startId) override;
 
     /**
      * @brief Called when the system configuration is updated.
@@ -164,21 +160,15 @@ private:
 
     void BindContext(napi_env env, napi_value obj);
 
-    void GetSrcPath(std::string &srcPath);  
-
-    
+    void GetSrcPath(std::string& srcPath);
 
     void ListenWMS();
-    
-    bool GetInsightIntentExecutorInfo(const Want &want,
-        const std::shared_ptr<AppExecFwk::InsightIntentExecuteParam> &executeParam,
-        InsightIntentExecutorInfo &executorInfo);	
 
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;
     std::shared_ptr<AbilityContext> aContext_ = nullptr;
     std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
-    std::shared_ptr<AbilityHandler> handler_ = nullptr;    
+    std::shared_ptr<AbilityHandler> handler_ = nullptr;
 
 #ifdef SUPPORT_GRAPHICS
 protected:

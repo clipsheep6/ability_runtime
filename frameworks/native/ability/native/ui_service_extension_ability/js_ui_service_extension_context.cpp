@@ -170,7 +170,6 @@ private:
 
     napi_value OnTerminateSelf(napi_env env, NapiCallbackInfo& info)
     {
-        TAG_LOGD(AAFwkTag::UISERVC_EXT, "%{public}s, %{public}d", __func__,__LINE__);
         TAG_LOGI(AAFwkTag::UISERVC_EXT, "OnTerminateSelf");
 
         NapiAsyncTask::CompleteCallback complete =
@@ -200,8 +199,7 @@ private:
 
     napi_value OnStartAbilityByType(napi_env env, NapiCallbackInfo& info)
     {
-        TAG_LOGD(AAFwkTag::UISERVC_EXT, "%{public}s, %{public}d", __func__,__LINE__);
-        TAG_LOGI(AAFwkTag::UISERVC_EXT,"OnStartAbilityByType");
+        TAG_LOGI(AAFwkTag::UISERVC_EXT, "OnStartAbilityByType");
         if (info.argc < ARGC_THREE) {
         TAG_LOGE(AAFwkTag::CONTEXT, "OnStartAbilityByType, Not enough params");
         ThrowTooFewParametersError(env);
@@ -233,7 +231,7 @@ private:
                     return;
                 }
 
-                TAG_LOGD(AAFwkTag::UISERVC_EXT, "%{public}s, %{public}d", __func__,__LINE__);
+                TAG_LOGD(AAFwkTag::UISERVC_EXT, "%{public}s, %{public}d", __func__, __LINE__);
                 auto errcode = context->StartAbilityByType(type, wantParam, callback);
                 if (errcode != 0) {
                     task.Reject(env, CreateJsErrorByNativeErr(env, errcode));

@@ -623,7 +623,7 @@ int AbilityManagerProxy::StartExtensionAbility(const Want &want, const sptr<IRem
         return error;
     }
     return reply.ReadInt32();
-}	
+}
 
 int AbilityManagerProxy::RequestModalUIExtension(const Want &want)
 {

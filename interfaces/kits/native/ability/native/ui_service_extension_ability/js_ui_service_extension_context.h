@@ -40,20 +40,20 @@ public:
     void SetJsConnectionObject(napi_value jsConnectionObject);
     void RemoveConnectionObject();
 
-	struct ConnectionKey {
-	    AAFwk::Want want;
-	    int64_t id;
+    struct ConnectionKey {
+        AAFwk::Want want;
+        int64_t id;
     };
 
-	struct key_compare {
-	    bool operator()(const ConnectionKey &key1, const ConnectionKey &key2) const
-	    {
-	        if (key1.id < key2.id) {
-	            return true;
-	        }
-	        return false;
-	    }
-	};
+    struct key_compare {
+        bool operator()(const ConnectionKey &key1, const ConnectionKey &key2) const
+        {
+            if (key1.id < key2.id) {
+                return true;
+            }
+            return false;
+        }
+    };
 
 private:
     napi_env env_;

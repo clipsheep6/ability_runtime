@@ -25,7 +25,6 @@
 #include "iability_callback.h"
 #include "want.h"
 #include "window.h"
-// #include "ui_service_extension.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
