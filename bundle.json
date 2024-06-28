@@ -93,7 +93,14 @@
             "zlib"
   ],
           "third_party": [
-            "libjpeg-turbo"
+            "libjpeg-turbo",
+            "icu",
+            "json",
+            "jsoncpp",
+            "libjpeg-turbo",
+            "libuv",
+            "node",
+            "zlib"
           ]
       },
       "build": {
