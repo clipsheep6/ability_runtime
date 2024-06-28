@@ -92,8 +92,7 @@ config("ability_public_config") {
     "${ability_runtime_innerkits_path}/ability_manager/include/continuation",
     "${ability_runtime_services_path}/common/include",
   ]
-  if (ability_runtime_graphics) {
-    include_dirs += [ "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_stage_napi" ]
+  if (ability_runtime_graphics) {    
     defines = [ "SUPPORT_GRAPHICS" ]
   }
 }
@@ -791,25 +790,18 @@ ohos_shared_library("form_extension_module") {
     external_deps += [ "form_fwk:form_manager" ]
   }
 
+  public_external_deps = []
   if (ability_runtime_graphics) {
     public_external_deps = [
       "window_manager:libdm",
+      "window_manager:libdm_lite",
       "form_fwk:fmskit_native",
       "form_fwk:fmskit_provider_client",
       "form_fwk:form_manager",
       "window_manager:libwmutil",
       "window_manager:windowstage_kit",
     ]
-  }
-
-  if (ability_runtime_graphics) {
-    public_external_deps = [
-      "form_fwk:fmskit_provider_client",
-      "form_fwk:form_manager",
-      "window_manager:libdm",
-      "window_manager:libdm_lite",
-    ]
-  }
+  } 
 
   relative_install_dir = "extensionability"
   subsystem_name = "ability"
@@ -1153,20 +1145,12 @@ ohos_shared_library("data_ability_helper") {
 
     public_external_deps += [
       "window_manager:libdm",
+      "window_manager:libdm_lite",
       "form_fwk:fmskit_native",
       "form_fwk:fmskit_provider_client",
       "form_fwk:form_manager",
       "window_manager:libwmutil",
       "window_manager:windowstage_kit",
-    ]
-  }
-
-  if (ability_runtime_graphics) {
-    public_external_deps = [
-      "form_fwk:fmskit_provider_client",
-      "form_fwk:form_manager",
-      "window_manager:libdm",
-      "window_manager:libdm_lite",
     ]
   }
 
