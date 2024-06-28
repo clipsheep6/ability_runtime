@@ -168,11 +168,8 @@ private:
 
     
 
-    void ListenWMS();
+    void ListenWMS();    
     
-    bool GetInsightIntentExecutorInfo(const Want &want,
-        const std::shared_ptr<AppExecFwk::InsightIntentExecuteParam> &executeParam,
-        InsightIntentExecutorInfo &executorInfo);	
 
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;

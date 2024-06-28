@@ -62,10 +62,8 @@ constexpr size_t ARGC_TWO = 2;
 const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
 const std::string LAUNCHER_BUNDLE_NAME = "com.ohos.launcher";
 const std::string LAUNCHER_ABILITY_NAME = "com.ohos.launcher.MainAbility";
-}
+
 using namespace OHOS::AppExecFwk;
-
-
 
 napi_value AttachUIServiceExtensionContext(napi_env env, void *value, void *)
 {
@@ -97,9 +95,6 @@ napi_value AttachUIServiceExtensionContext(napi_env env, void *value, void *)
         nullptr, nullptr);
     return contextObj;
 }
-
-
-using namespace OHOS::AbilityRuntime;
 
 JsUIServiceExtension* JsUIServiceExtension::Create(const std::unique_ptr<Runtime>& runtime)
 {
@@ -288,18 +283,6 @@ void JsUIServiceExtension::OnCommand(const AAFwk::Want &want, bool restart, int 
     napi_value argv[] = {napiWant, napiStartId};
     CallObjectMethod("onRequest", argv, ARGC_TWO);
     TAG_LOGD(AAFwkTag::UISERVC_EXT, "ok");
-}
-
-bool JsUIServiceExtension::HandleInsightIntent(const AAFwk::Want &want)
-{    
-    return true;
-}
-
-
-bool JsUIServiceExtension::OnInsightIntentExecuteDone(uint64_t intentId,
-    const AppExecFwk::InsightIntentExecuteResult &result)
-{    
-    return true;
 }
 
 napi_value JsUIServiceExtension::CallObjectMethod(const char* name, napi_value const* argv, size_t argc)
@@ -527,5 +510,5 @@ void JsUIServiceExtension::OnChange(Rosen::DisplayId displayId)
 }
 
 #endif
-} // AbilityRuntime
-} // OHOS
+}
+}// OHOS
