@@ -450,6 +450,10 @@ bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
         return false;
     }
     auto bms = ConnectManagerHelper();
+    if (bms == nullptr) {
+        TAG_LOGW(AAFwkTag::AUTO_STARTUP, "The bms is nullptr.");
+        return false;
+    }
 
     if (uid == -1) {
         userId = IPCSkeleton::GetCallingUid() / AppExecFwk::Constants::BASE_USER_RANGE;
@@ -480,7 +484,7 @@ bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
                 return false;
             }
     } else if (appIndex <= GlobalConstant::MAX_APP_CLONE_INDEX) {
-        auto bundleFlag = static_cast<int32_t>(AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO);
+        auto bundleFlag = static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION);
         auto bundleMgrResult = IN_PROCESS_CALL(
             bms->GetCloneBundleInfo(bundleName, bundleFlag, appIndex, bundleInfo, userId));
             if (bundleMgrResult != ERR_OK ) {
