@@ -364,6 +364,9 @@ void AbilityManagerService::OnStart()
     AddSystemAbilityListener(BACKGROUND_TASK_MANAGER_SERVICE_ID);
     AddSystemAbilityListener(DISTRIBUTED_SCHED_SA_ID);
     AddSystemAbilityListener(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+#ifdef SUPPORT_SCREEN
+    AddSystemAbilityListener(MULTIMODAL_INPUT_SERVICE_ID);
+#endif
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Ability manager service start success.");
 }
 
@@ -384,11 +387,6 @@ bool AbilityManagerService::Init()
     subManagersHelper_->InitSubManagers(MAIN_USER_ID, true);
     SwitchManagers(U0_USER_ID, false);
 #ifdef SUPPORT_SCREEN
-    auto anrListenerTask = []() {
-        auto anrListener = std::make_shared<ApplicationAnrListener>();
-        MMI::InputManager::GetInstance()->SetAnrObserver(anrListener);
-    };
-    taskHandler_->SubmitTask(anrListenerTask, "AnrListenerTask");
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         InitFocusListener();
@@ -2239,6 +2237,13 @@ void AbilityManagerService::OnAddSystemAbility(int32_t systemAbilityId, const st
             SubscribeBundleEventCallback();
             break;
         }
+#ifdef SUPPORT_SCREEN
+        case MULTIMODAL_INPUT_SERVICE_ID: {
+            auto anrListener = std::make_shared<ApplicationAnrListener>();
+            MMI::InputManager::GetInstance()->SetAnrObserver(anrListener);
+            break;
+        }
+#endif
         default:
             break;
     }
