@@ -63,6 +63,7 @@ void AbilityBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData 
         // install or uninstall module/bundle
         HandleUpdatedModuleInfo(bundleName, uid);
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED) {
+        HandleRestartResidentProcessDependedOnWeb();
         HandleUpdatedModuleInfo(bundleName, uid);
         HandleAppUpgradeCompleted(bundleName, uid);
         if (abilityAutoStartupService_ == nullptr) {
@@ -112,6 +113,19 @@ void AbilityBundleEventCallback::HandleAppUpgradeCompleted(const std::string &bu
             return;
         }
         abilityMgr->AppUpgradeCompleted(bundleName, uid);
+    };
+    taskHandler_->SubmitTask(task);
+}
+
+void AbilityBundleEventCallback::HandleRestartResidentProcessDependedOnWeb()
+{
+    auto task = []() {
+        auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
+        if (abilityMgr == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityMgr is nullptr.");
+            return;
+        }
+        abilityMgr->HandleRestartResidentProcessDependedOnWeb();
     };
     taskHandler_->SubmitTask(task);
 }

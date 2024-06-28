@@ -1889,5 +1889,45 @@ int32_t AppMgrProxy::CheckCallingIsUserTestMode(const pid_t pid, bool &isUserTes
     isUserTest = reply.ReadBool();
     return reply.ReadInt32();
 }
+
+int32_t AppMgrProxy::NotifyProcessDependedOnWeb()
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
+        return IPC_PROXY_ERR;
+    }
+
+    PARCEL_UTIL_SENDREQ_RET_INT(AppMgrInterfaceCode::NOTIFY_PROCESS_DEPENDED_ON_WEB, data, reply, option);
+    return reply.ReadInt32();
+}
+
+void AppMgrProxy::KillProcessDependedOnWeb()
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
+        return;
+    }
+
+    PARCEL_UTIL_SENDREQ_NORET(AppMgrInterfaceCode::KILL_PROCESS_DEPENDED_ON_WEB, data, reply, option);
+}
+
+void AppMgrProxy::RestartResidentProcessDependedOnWeb()
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
+        return;
+    }
+
+    PARCEL_UTIL_SENDREQ_NORET(AppMgrInterfaceCode::RESTART_RESIDENT_PROCESS_DEPENDED_ON_WEB, data, reply, option);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -764,6 +764,10 @@ public:
      * @return Returns RESULT_OK on success, others on failure.
      */
     virtual AppMgrResultCode AttachedToStatusBar(const sptr<IRemoteObject> &token);
+
+    int32_t NotifyProcessDependedOnWeb();
+
+    void KillProcessDependedOnWeb();
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
     /**

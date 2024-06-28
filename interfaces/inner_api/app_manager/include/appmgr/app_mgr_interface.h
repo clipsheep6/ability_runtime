@@ -727,6 +727,30 @@ public:
     {
         return 0;
     }
+
+    /**
+     * Notify that the process depends on web by itself.
+     */
+    virtual int32_t NotifyProcessDependedOnWeb()
+    {
+        return 0;
+    }
+
+    /**
+     * Kill process depended on web by sa.
+     */
+    virtual void KillProcessDependedOnWeb()
+    {
+        return;
+    }
+
+    /**
+     * Restart resident process depended on web.
+     */
+    virtual void RestartResidentProcessDependedOnWeb()
+    {
+        return;
+    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

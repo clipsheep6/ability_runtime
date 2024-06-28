@@ -10839,5 +10839,12 @@ void AbilityManagerService::NotifyFrozenProcessByRSS(const std::vector<int32_t> 
     CHECK_POINTER_LOG(connectManager, "can not find user connect manager");
     connectManager->HandleProcessFrozen(pidList, uid);
 }
+
+void AbilityManagerService::HandleRestartResidentProcessDependedOnWeb()
+{
+    auto appMgr = GetAppMgr();
+    CHECK_POINTER_LOG(appMgr, "get appMgr fail");
+    appMgr->RestartResidentProcessDependedOnWeb();
+}
 }  // namespace AAFwk
 }  // namespace OHOS
