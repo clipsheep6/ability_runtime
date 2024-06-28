@@ -590,15 +590,32 @@ HWTEST_F(AbilityAutoStartupDataManagerTest, IsEqual_info_100, TestSize.Level1)
  * SubFunction: NA
  * FunctionPoints: AbilityAutoStartupDataManager IsEqual
  */
-HWTEST_F(AbilityAutoStartupDataManagerTest, IsEqual_bundleName_100, TestSize.Level1)
+HWTEST_F(AbilityAutoStartupDataManagerTest, IsEqual_userId_100, TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "IsEqual_bundleName_100 start";
+    GTEST_LOG_(INFO) << "IsEqual_userId_100 start";
     AbilityAutoStartupDataManager abilityAutoStartupDataManager;
     DistributedKv::Key key;
-    std::string bundleName = " com.example.testbundle";
-    auto result = abilityAutoStartupDataManager.IsEqual(key, bundleName);
+    int32_t userId = 100;
+    auto result = abilityAutoStartupDataManager.IsEqual(key, userId);
     EXPECT_FALSE(result);
-    GTEST_LOG_(INFO) << "IsEqual_bundleName_100 end";
+    GTEST_LOG_(INFO) << "IsEqual_userId_100 end";
+}
+
+/**
+ * Feature: AbilityAutoStartupDataManager
+ * Function: IsEqual
+ * SubFunction: NA
+ * FunctionPoints: AbilityAutoStartupDataManager IsEqual
+ */
+HWTEST_F(AbilityAutoStartupDataManagerTest, IsEqual_accessTokenId_100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "IsEqual_userId_100 start";
+    AbilityAutoStartupDataManager abilityAutoStartupDataManager;
+    DistributedKv::Key key;
+    std::string accessTokenId = "123";
+    auto result = abilityAutoStartupDataManager.IsEqual(key, accessTokenId);
+    EXPECT_FALSE(result);
+    GTEST_LOG_(INFO) << "IsEqual_accessTokenId_100 end";
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
