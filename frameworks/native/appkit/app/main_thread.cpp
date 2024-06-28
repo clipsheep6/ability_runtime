@@ -1112,7 +1112,11 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
 #if defined(SUPPORT_GRAPHICS) && defined(SUPPORT_APP_PREFERRED_LANGUAGE)
     UErrorCode status = U_ZERO_ERROR;
     icu::Locale locale = icu::Locale::forLanguageTag(Global::I18n::PreferredLanguage::GetAppPreferredLanguage(), status);
-    resConfig->SetLocaleInfo(locale);
+    if (Global::I18n::PreferredLanguage::IsSetAppPreferredLanguage()) {
+        resConfig->SetPreferredLocaleInfo(locale);
+    } else {
+        resConfig->SetLocaleInfo(locale);
+    }
     const icu::Locale *localeInfo = resConfig->GetLocaleInfo();
     if (localeInfo != nullptr) {
         TAG_LOGD(AAFwkTag::APPKIT, "Language: %{public}s, script: %{public}s, region: %{public}s",
