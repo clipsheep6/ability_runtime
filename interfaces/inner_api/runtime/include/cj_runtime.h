@@ -33,6 +33,9 @@ class CJRuntime : public Runtime {
 public:
     static std::unique_ptr<CJRuntime> Create(const Options& options);
     static void SetAppLibPath(const AppLibPathMap& appLibPaths);
+    static void SetAsanVersion();
+    static void SetTsanVersion();
+    static void SetHWAsanVersion();
     ~CJRuntime() override = default;
 
     Language GetLanguage() const override

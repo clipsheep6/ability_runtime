@@ -1464,6 +1464,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 #ifdef CJ_FRONTEND
     if (isCJApp) {
         AbilityRuntime::CJRuntime::SetAppLibPath(appLibPaths);
+        if (appInfo.asanEnabled) {
+            AbilityRuntime::CJRuntime::SetAsanVersion();
+        } else if (appInfo.tsanEnabled) {
+            AbilityRuntime::CJRuntime::SetTsanVersion();
+        }
     } else {
 #endif
         AbilityRuntime::JsRuntime::SetAppLibPath(appLibPaths, isSystemApp);
