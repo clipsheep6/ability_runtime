@@ -325,6 +325,34 @@ HWTEST_F(AppRunningRecordTest, AppRunningRecord_GetAssignTokenId_0100, TestSize.
 }
 
 /**
+ * @tc.name: SetAssertionPauseFlag_001
+ * @tc.desc: set assert pause flag
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningRecordTest, SetAssertionPauseFlag_001, TestSize.Level1)
+{
+    HILOG_DEBUG("SetAssertionPauseFlag_001 called.");
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
+    appRecord->SetAssertionPauseFlag(true);
+    EXPECT_NE(appRecord, nullptr);
+}
+
+/**
+ * @tc.name: IsAssertionPause_001
+ * @tc.desc: get assert pause state
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningRecordTest, IsAssertionPause_001, TestSize.Level1)
+{
+    HILOG_DEBUG("IsAssertionPause_001 called.");
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
+    bool flag = appRecord->IsAssertionPause();
+    EXPECT_EQ(flag, false);
+}
+
+/**
  * @tc.name: AppRunningRecord_SetAssignTokenId_0100
  * @tc.desc: Test SetAssignTokenId works.
  * @tc.type: FUNC

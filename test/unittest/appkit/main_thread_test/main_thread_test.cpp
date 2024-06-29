@@ -17,6 +17,8 @@
 #include <gtest/gtest.h>
 
 #define private public
+#include "appfreeze_inner.h"
+#include "appfreeze_state.h"
 #include "app_mgr_proxy.h"
 #include "app_mgr_stub.h"
 #include "main_thread.h"
@@ -1747,7 +1749,7 @@ HWTEST_F(MainThreadTest, HandleLaunchApplication_0500, TestSize.Level1)
     EXPECT_EQ(launchData.GetPerfCmd(), perfCmd);
 
     // check JIT enabled
-    launchData.SetJITEnabled(true)
+    launchData.SetJITEnabled(true);
     EXPECT_EQ(launchData.IsJITEnabled(), true);
 
     // check debug app
@@ -2441,6 +2443,62 @@ HWTEST_F(MainThreadTest, GetNativeLibPath_0400, TestSize.Level1)
     ASSERT_EQ(appLibPaths["com.ohos.myapplication/library"].size(), size_t(1));
     EXPECT_EQ(appLibPaths["com.ohos.myapplication/library"][0],
         "/data/storage/el1/bundle/com.ohos.myapplication/library/library.hsp!/libs/armeabi-v7a");
+}
+
+/**
+ * @tc.name: AssertFaultPauseMainThreadDetection_0100
+ * @tc.desc: Fault pause main thread detection.
+ * @tc.type: FUNC
+ * @tc.require: issuesI85VVU
+ */
+HWTEST_F(MainThreadTest, AssertFaultPauseMainThreadDetection_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->AssertFaultPauseMainThreadDetection();
+    EXPECT_TRUE(AppExecFwk::AppfreezeInner::GetInstance()->IsHandleAppfreeze());
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: AssertFaultResumeMainThreadDetection_0100
+ * @tc.desc: Pause main thread detection.
+ * @tc.type: FUNC
+ * @tc.require: issuesI85VVU
+ */
+HWTEST_F(MainThreadTest, AssertFaultResumeMainThreadDetection_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->AssertFaultResumeMainThreadDetection();
+    EXPECT_TRUE(AppExecFwk::AppfreezeInner::GetInstance()->IsHandleAppfreeze());
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleInitAssertFaultTask_0100
+ * @tc.desc: Schedule Gc state chage.
+ * @tc.type: FUNC
+ * @tc.require: issuesI85VVU
+ */
+HWTEST_F(MainThreadTest, HandleInitAssertFaultTask_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    bool isDebugModule = true;
+    bool isDebugApp = true;
+    mainThread_->HandleInitAssertFaultTask(isDebugModule, isDebugApp);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleCancelAssertFaultTask_0100
+ * @tc.desc: Schedule Gc state chage.
+ * @tc.type: FUNC
+ * @tc.require: issuesI85VVU
+ */
+HWTEST_F(MainThreadTest, HandleCancelAssertFaultTask_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    mainThread_->HandleCancelAssertFaultTask();
+    HILOG_INFO("%{public}s end.", __func__);
 }
 
 /**

@@ -14,5 +14,10 @@
 group("unittest") {
   testonly = true
 
-  deps = [ "child_main_thread_test:unittest" ]
+  deps = [
+    "assert_fault_callback_test:unittest",
+    "assert_fault_task_thread_test:unittest",
+    "main_thread_test:unittest",
+    "ohos_application_test:unittest",
+  ]
 }
