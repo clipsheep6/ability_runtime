@@ -32,7 +32,10 @@ std::unique_ptr<NapiAsyncTask> CreateAsyncTaskWithLastParam(napi_env env, napi_v
     napi_typeof(env, lastParam, &type);
     if (lastParam == nullptr || type != napi_function) {
         napi_deferred nativeDeferred = nullptr;
-        napi_create_promise(env, &nativeDeferred, result);
+        napi_status res = napi_create_promise(env, &nativeDeferred, result);
+        if (res != napi_ok){
+            TAG_LOGD(AAFwkTag::JSRUNTIME, "CreateAsyncTaskWithLastParam napi_create_promise failed");
+        }
         return std::make_unique<NapiAsyncTask>(nativeDeferred, std::move(execute), std::move(complete));
     } else {
         napi_get_undefined(env, result);
@@ -268,7 +271,7 @@ void NapiAsyncTask::Resolve(napi_env env, napi_value value)
 
 void NapiAsyncTask::ResolveWithNoError(napi_env env, napi_value value)
 {
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "NapiAsyncTask::Resolve is called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "NapiAsyncTask::ResolveWithNoError is called");
     if (deferred_) {
         napi_resolve_deferred(env, deferred_, value);
         deferred_ = nullptr;
@@ -284,11 +287,12 @@ void NapiAsyncTask::ResolveWithNoError(napi_env env, napi_value value)
         napi_delete_reference(env, callbackRef_);
         callbackRef_ = nullptr;
     }
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "NapiAsyncTask::Resolve is called end.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "NapiAsyncTask::ResolveWithNoError is called end.");
 }
 
 void NapiAsyncTask::Reject(napi_env env, napi_value error)
 {
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "NapiAsyncTask::Reject is called");
     if (deferred_) {
         napi_reject_deferred(env, deferred_, error);
         deferred_ = nullptr;
@@ -304,6 +308,7 @@ void NapiAsyncTask::Reject(napi_env env, napi_value error)
         napi_delete_reference(env, callbackRef_);
         callbackRef_ = nullptr;
     }
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "NapiAsyncTask::Reject is called end");
 }
 
 void NapiAsyncTask::ResolveWithCustomize(napi_env env, napi_value error, napi_value value)
