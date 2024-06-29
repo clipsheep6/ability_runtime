@@ -50,9 +50,6 @@ bool ExtensionPermissionsUtil::CheckSAPermission(const AppExecFwk::ExtensionAbil
     } else if (extensionType == AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN) {
         checkRet = PermissionVerification::GetInstance()->VerifyCallingPermission(
             "ohos.permission.CONNECT_ENTERPRISE_ADMIN_EXTENSION");
-    } else if (extensionType == AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION) {
-        checkRet = PermissionVerification::GetInstance()->VerifyCallingPermission(
-            "ohos.permission.CONNECT_FILE_ACCESS_EXTENSION");
     } else if (extensionType == AppExecFwk::ExtensionAbilityType::PRINT) {
         checkRet = PermissionVerification::GetInstance()->VerifyCallingPermission(
             "ohos.permission.CONNECT_PRINT_EXTENSION");
