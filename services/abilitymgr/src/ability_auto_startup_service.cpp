@@ -469,12 +469,6 @@ bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
         userId = abilityMgr->GetUserId();
     }
     TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Current userId: %{public}d.", userId);
-
-    if (appIndex < 0) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Invalid appIndex.");
-        return false;
-    }
-
     if (appIndex == 0) {
         auto flags =
             AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES | AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
@@ -487,8 +481,7 @@ bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
         auto bundleFlag = static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) +
             static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) +
             static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) +
-            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) +
-            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_MENU);
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE);
         auto bundleMgrResult = IN_PROCESS_CALL(
             bms->GetCloneBundleInfo(bundleName, bundleFlag, appIndex, bundleInfo, userId));
             if (bundleMgrResult != ERR_OK) {
@@ -527,8 +520,8 @@ bool AbilityAutoStartupService::GetAbilityData(const AutoStartupInfo &info, bool
     TAG_LOGD(AAFwkTag::AUTO_STARTUP, "accessTokenId: %{public}d. ", accessTokenIdStr);
     if (bundleInfo.abilityInfos.empty()) {
                 TAG_LOGE(AAFwkTag::AUTO_STARTUP, "failed to get abilityInfos");
-        }
-    for (auto abilityInfo : bundleInfo.abilityInfos) {
+    }
+    for (auto abilityInfo : bundleInfo.hapModuleInfos.abilityInfos) {
         if ((abilityInfo.bundleName == info.bundleName) && (abilityInfo.name == info.abilityName)) {
             if (info.moduleName.empty() || (abilityInfo.moduleName == info.moduleName)) {
                 isVisible = abilityInfo.visible;
