@@ -364,6 +364,8 @@ public:
 
     int32_t SetSupportedProcessCacheSelf(bool isSupport);
 
+    void PrintTokenInfo() const;
+
     static const int EL_DEFAULT = 1;
 
 protected:

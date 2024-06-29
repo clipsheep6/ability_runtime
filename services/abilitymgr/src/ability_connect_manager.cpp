@@ -764,6 +764,7 @@ int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection
 
 void AbilityConnectManager::TerminateRecord(std::shared_ptr<AbilityRecord> abilityRecord)
 {
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "terminate record called.");
     if (!GetAbilityRecordById(abilityRecord->GetRecordId())) {
         return;
     }
@@ -2011,15 +2012,18 @@ void AbilityConnectManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId)
 
 void AbilityConnectManager::HandleInactiveTimeout(const std::shared_ptr<AbilityRecord> &ability)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "HandleInactiveTimeout start");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "HandleInactiveTimeout start");
     CHECK_POINTER(ability);
     if (ability->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Handle root launcher inactive timeout.");
         // terminate the timeout root launcher.
         DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(ability->GetToken());
     }
+    if (ability->GetAbilityInfo().name == AbilityConfig::CALLUI_ABILITY_NAME && ability->GetStartId() == 0) {
+        HandleConnectTimeoutTask(ability);
+    }
 
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "HandleInactiveTimeout end");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "HandleInactiveTimeout end");
 }
 
 bool AbilityConnectManager::IsAbilityNeedKeepAlive(const std::shared_ptr<AbilityRecord> &abilityRecord)

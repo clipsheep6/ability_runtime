@@ -458,6 +458,7 @@ ohos_shared_library("extensionkit_native") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "ipc:ipc_core",
     "json:nlohmann_json_static",
     "napi:ace_napi",
   ]
