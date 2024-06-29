@@ -204,7 +204,8 @@ using AAFwkTag = OHOS::AAFwk::AAFwkLogTag;
 #define AAFWK_PRINT_LOG(level, tag, fmt, ...)                                                           \
     do {                                                                                                \
         AAFwkTag logTag = tag;                                                                          \
-        ((void)HILOG_IMPL(LOG_CORE, level, static_cast<uint32_t>(logTag),                                  \
+        uint32_t domainId =  static_cast<uint32_t>(logTag);                                              \
+        ((void)HILOG_IMPL(LOG_CORE, level, domainId - (domainId & 0xf),                                  \
         OHOS::AAFwk::GetTagInfoFromDomainId(logTag), AAFWK_FUNC_FMT fmt, AAFWK_FUNC_INFO, ##__VA_ARGS__)); \
     } while (0)
 
