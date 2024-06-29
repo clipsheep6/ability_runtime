@@ -20,6 +20,7 @@
 #include <vector>
 #include <unordered_map>
 
+#include "constants.h"
 #include "ability_event_handler.h"
 #include "ability_manager_service.h"
 #include "ability_resident_process_rdb.h"
@@ -45,6 +46,7 @@
 #include "errors.h"
 #include "event_report.h"
 #include "hilog_tag_wrapper.h"
+#include "hilog_wrapper.h"
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
 #include "res_sched_util.h"
@@ -2231,8 +2233,7 @@ void AbilityRecord::DumpUIExtensionRootHostInfo(std::vector<std::string> &info) 
     }
 
     UIExtensionHostInfo hostInfo;
-    auto ret = IN_PROCESS_CALL(DelayedSingleton<AbilityManagerService>::GetInstance()->GetUIExtensionRootHostInfo(
-        token, hostInfo));
+    auto ret = IN_PROCESS_CALL(AAFwk::AbilityManagerClient::GetInstance()->GetUIExtensionRootHostInfo(token, hostInfo));
     if (ret != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Get ui extension host info failed with %{public}d.", ret);
         return;

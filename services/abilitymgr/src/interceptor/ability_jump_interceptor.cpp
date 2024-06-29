@@ -15,11 +15,11 @@
 
 #include "interceptor/ability_jump_interceptor.h"
 
-#include "ability_manager_service.h"
 #include "ability_util.h"
 #include "accesstoken_kit.h"
 #include "app_jump_control_rule.h"
 #include "hilog_tag_wrapper.h"
+#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 #include "permission_constants.h"
@@ -75,8 +75,8 @@ ErrCode AbilityJumpInterceptor::DoProcess(AbilityInterceptorParam param)
         Want dialogWant = sysDialogScheduler->GetJumpInterceptorDialogWant(targetWant);
         AbilityUtil::ParseJumpInterceptorWant(dialogWant, controlRule.callerPkg);
         LoadAppLabelInfo(dialogWant, controlRule, param.userId);
-        int ret = IN_PROCESS_CALL(DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(dialogWant,
-            param.userId, param.requestCode));
+        int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(dialogWant,
+            param.requestCode, param.userId));
         if (ret != ERR_OK) {
             TAG_LOGI(AAFwkTag::ABILITYMGR, "appInterceptor Dialog StartAbility error, ret:%{public}d", ret);
             return ret;

@@ -640,7 +640,7 @@ void AppMgrServiceInner::MakeProcessName(const std::shared_ptr<AbilityInfo> &abi
     if (appIndex != 0) {
         processName += std::to_string(appIndex);
     }
-
+        
     if (!specifiedProcessFlag.empty()) {
         processName = (processName + ":" + specifiedProcessFlag).substr(0, MAX_SPECIFIED_PROCESS_NAME_LENGTH);
         TAG_LOGI(AAFwkTag::APPMGR, "specifiedProcessFlag = %{public}s, processName = %{public}s",
@@ -4814,7 +4814,7 @@ void AppMgrServiceInner::RegisterFocusListener()
         TAG_LOGE(AAFwkTag::APPMGR, "no focusListener_");
         return;
     }
-    WindowManagerLite::GetInstance().RegisterFocusChangedListener(focusListener_);
+    WindowManager::GetInstance().RegisterFocusChangedListener(focusListener_);
 #endif // SUPPORT_SCREEN
     TAG_LOGI(AAFwkTag::APPMGR, "RegisterFocusListener end");
 }
@@ -4827,7 +4827,7 @@ void AppMgrServiceInner::FreeFocusListener()
         TAG_LOGE(AAFwkTag::APPMGR, "no focusListener_");
         return;
     }
-    WindowManagerLite::GetInstance().UnregisterFocusChangedListener(focusListener_);
+    WindowManager::GetInstance().UnregisterFocusChangedListener(focusListener_);
     focusListener_ = nullptr;
 #endif // SUPPORT_SCREEN
     TAG_LOGI(AAFwkTag::APPMGR, "FreeFocusListener end");
@@ -4916,7 +4916,7 @@ void AppMgrServiceInner::InitWindowVisibilityChangedListener()
             TAG_LOGE(AAFwkTag::APPMGR, "Window visibility changed listener is nullptr.");
             return;
         }
-        WindowManagerLite::GetInstance().RegisterVisibilityChangedListener(inner->windowVisibilityChangedListener_);
+        WindowManager::GetInstance().RegisterVisibilityChangedListener(inner->windowVisibilityChangedListener_);
     };
 
     if (taskHandler_ == nullptr) {
@@ -4934,7 +4934,7 @@ void AppMgrServiceInner::FreeWindowVisibilityChangedListener()
         TAG_LOGW(AAFwkTag::APPMGR, "Visibility listener has been freed.");
         return;
     }
-    WindowManagerLite::GetInstance().UnregisterVisibilityChangedListener(windowVisibilityChangedListener_);
+    WindowManager::GetInstance().UnregisterVisibilityChangedListener(windowVisibilityChangedListener_);
 }
 
 void AppMgrServiceInner::HandleWindowVisibilityChanged(

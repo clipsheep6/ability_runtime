@@ -457,14 +457,6 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:dialog_request_callback"
-          },
-          {
-            "header": {
-              "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager/include",
-              "header_files": [
-              ]
-            },
-            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager:ability_manager_base"
           }
         ],
         "test": [

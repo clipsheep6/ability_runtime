@@ -18,7 +18,7 @@
 
 #include "task_handler_wrap.h"
 #ifdef SUPPORT_SCREEN
-#include "window_manager_lite.h"
+#include "window_manager.h"
 #endif // SUPPORT_SCREEN
 namespace OHOS {
 namespace AppExecFwk {

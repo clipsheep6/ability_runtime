@@ -17,7 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_WINDOW_FOCUS_CHANGE_LISTENER_H
 
 #ifdef SUPPORT_SCREEN
-#include "window_manager_lite.h"
+#include "window_manager.h"
 #endif // SUPPORT_SCREEN
 #include "task_handler_wrap.h"
 

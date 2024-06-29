@@ -16,8 +16,8 @@
 #include "interceptor/crowd_test_interceptor.h"
 
 #include "ability_util.h"
-#include "ability_service_util.h"
 #include "hilog_tag_wrapper.h"
+#include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "start_ability_utils.h"
 

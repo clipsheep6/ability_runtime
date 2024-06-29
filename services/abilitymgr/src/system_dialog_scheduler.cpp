@@ -19,6 +19,7 @@
 
 #include "app_utils.h"
 #include "display_info.h"
+#include "constants.h"
 #include "ability_record.h"
 #include "ability_util.h"
 #include "app_gallery_enable_util.h"
@@ -38,99 +39,98 @@
 
 namespace OHOS {
 namespace AAFwk {
-constexpr int32_t UI_SELECTOR_DIALOG_WIDTH = 328 * 2;
-constexpr int32_t UI_SELECTOR_DIALOG_HEIGHT = 350 * 2;
-constexpr int32_t UI_SELECTOR_DIALOG_HEIGHT_NARROW = 350 * 2;
-constexpr int32_t UI_SELECTOR_DIALOG_WIDTH_NARROW = 328 * 2;
-constexpr int32_t UI_SELECTOR_DIALOG_PHONE_H1 = 240 * 2;
-constexpr int32_t UI_SELECTOR_DIALOG_PHONE_H2 = 340 * 2;
-constexpr int32_t UI_SELECTOR_DIALOG_PHONE_H3 = 350 * 2;
-constexpr int32_t UI_SELECTOR_DIALOG_PC_H0 = 1;
-constexpr int32_t UI_SELECTOR_DIALOG_PC_H2 = (64 * 2 + 56 + 48 + 54 + 64 + 48 + 2) * 2;
-constexpr int32_t UI_SELECTOR_DIALOG_PC_H3 = (64 * 3 + 56 + 48 + 54 + 64 + 48 + 2) * 2;
-constexpr int32_t UI_SELECTOR_DIALOG_PC_H4 = (64 * 4 + 56 + 48 + 54 + 64 + 48 + 2) * 2;
-constexpr int32_t UI_SELECTOR_DIALOG_PC_H5 = (64 * 4 + 56 + 48 + 54 + 64 + 48 + 58 + 2) * 2;
+const int32_t UI_SELECTOR_DIALOG_WIDTH = 328 * 2;
+const int32_t UI_SELECTOR_DIALOG_HEIGHT = 350 * 2;
+const int32_t UI_SELECTOR_DIALOG_HEIGHT_NARROW = 350 * 2;
+const int32_t UI_SELECTOR_DIALOG_WIDTH_NARROW = 328 * 2;
+const int32_t UI_SELECTOR_DIALOG_PHONE_H1 = 240 * 2;
+const int32_t UI_SELECTOR_DIALOG_PHONE_H2 = 340 * 2;
+const int32_t UI_SELECTOR_DIALOG_PHONE_H3 = 350 * 2;
+const int32_t UI_SELECTOR_DIALOG_PC_H0 = 1;
+const int32_t UI_SELECTOR_DIALOG_PC_H2 = (64 * 2 + 56 + 48 + 54 + 64 + 48 + 2) * 2;
+const int32_t UI_SELECTOR_DIALOG_PC_H3 = (64 * 3 + 56 + 48 + 54 + 64 + 48 + 2) * 2;
+const int32_t UI_SELECTOR_DIALOG_PC_H4 = (64 * 4 + 56 + 48 + 54 + 64 + 48 + 2) * 2;
+const int32_t UI_SELECTOR_DIALOG_PC_H5 = (64 * 4 + 56 + 48 + 54 + 64 + 48 + 58 + 2) * 2;
 
-constexpr int32_t UI_SELECTOR_PORTRAIT_PHONE_H1 = 280;
-constexpr int32_t UI_SELECTOR_PORTRAIT_PHONE_H2 = 400;
-constexpr int32_t UI_SELECTOR_PORTRAIT_PHONE_H3 = 410;
-constexpr int32_t UI_SELECTOR_LANDSCAPE_SIGNAL_BAR = 24;
-constexpr int32_t UI_SELECTOR_LANDSCAPE_HEIGHT = 350;
-constexpr int32_t UI_SELECTOR_LANDSCAPE_HEIGHT_NARROW = 350;
-constexpr int32_t UI_SELECTOR_LANDSCAPE_PHONE_H1 = 280;
-constexpr int32_t UI_SELECTOR_LANDSCAPE_PHONE_H2 = 400;
-constexpr int32_t UI_SELECTOR_LANDSCAPE_PHONE_H3 = 410;
-constexpr int32_t UI_SELECTOR_LANDSCAPE_COUNT_THREE = 3;
-constexpr int32_t UI_SELECTOR_LANDSCAPE_COUNT_FOUR = 4;
-constexpr float UI_SELECTOR_LANDSCAPE_GRILLE_LARGE = 0.107692;
-constexpr float UI_SELECTOR_LANDSCAPE_GRILLE_SAMLL = 0.015385;
-constexpr float UI_SELECTOR_LANDSCAPE_MAX_RATIO = 0.9;
-constexpr float UI_SELECTOR_PORTRAIT_WIDTH_RATIO = 0.8;
-constexpr float UI_SELECTOR_PORTRAIT_WIDTH_EDGE_RATIO = 0.1;
-constexpr float UI_SELECTOR_PORTRAIT_HEIGHT_RATIO = 0.98;
+const int32_t UI_SELECTOR_PORTRAIT_PHONE_H1 = 280;
+const int32_t UI_SELECTOR_PORTRAIT_PHONE_H2 = 400;
+const int32_t UI_SELECTOR_PORTRAIT_PHONE_H3 = 410;
+const int32_t UI_SELECTOR_LANDSCAPE_SIGNAL_BAR = 24;
+const int32_t UI_SELECTOR_LANDSCAPE_HEIGHT = 350;
+const int32_t UI_SELECTOR_LANDSCAPE_HEIGHT_NARROW = 350;
+const int32_t UI_SELECTOR_LANDSCAPE_PHONE_H1 = 280;
+const int32_t UI_SELECTOR_LANDSCAPE_PHONE_H2 = 400;
+const int32_t UI_SELECTOR_LANDSCAPE_PHONE_H3 = 410;
+const int32_t UI_SELECTOR_LANDSCAPE_COUNT_THREE = 3;
+const int32_t UI_SELECTOR_LANDSCAPE_COUNT_FOUR = 4;
+const float UI_SELECTOR_LANDSCAPE_GRILLE_LARGE = 0.107692;
+const float UI_SELECTOR_LANDSCAPE_GRILLE_SAMLL = 0.015385;
+const float UI_SELECTOR_LANDSCAPE_MAX_RATIO = 0.9;
+const float UI_SELECTOR_PORTRAIT_WIDTH_RATIO = 0.8;
+const float UI_SELECTOR_PORTRAIT_WIDTH_EDGE_RATIO = 0.1;
+const float UI_SELECTOR_PORTRAIT_HEIGHT_RATIO = 0.98;
 
-constexpr int32_t UI_TIPS_DIALOG_WIDTH = 328 * 2;
-constexpr int32_t UI_TIPS_DIALOG_HEIGHT = 135 * 2;
-constexpr int32_t UI_TIPS_DIALOG_HEIGHT_NARROW = 135 * 2;
-constexpr int32_t UI_TIPS_DIALOG_WIDTH_NARROW = 328 * 2;
+const int32_t UI_TIPS_DIALOG_WIDTH = 328 * 2;
+const int32_t UI_TIPS_DIALOG_HEIGHT = 135 * 2;
+const int32_t UI_TIPS_DIALOG_HEIGHT_NARROW = 135 * 2;
+const int32_t UI_TIPS_DIALOG_WIDTH_NARROW = 328 * 2;
 
-constexpr int32_t UI_JUMP_INTERCEPTOR_DIALOG_WIDTH = 328 * 2;
-constexpr int32_t UI_JUMP_INTERCEPTOR_DIALOG_HEIGHT = 135 * 2;
-constexpr int32_t UI_JUMP_INTERCEPTOR_DIALOG_HEIGHT_NARROW = 135 * 2;
-constexpr int32_t UI_JUMP_INTERCEPTOR_DIALOG_WIDTH_NARROW = 328 * 2;
+const int32_t UI_JUMP_INTERCEPTOR_DIALOG_WIDTH = 328 * 2;
+const int32_t UI_JUMP_INTERCEPTOR_DIALOG_HEIGHT = 135 * 2;
+const int32_t UI_JUMP_INTERCEPTOR_DIALOG_HEIGHT_NARROW = 135 * 2;
+const int32_t UI_JUMP_INTERCEPTOR_DIALOG_WIDTH_NARROW = 328 * 2;
 
-constexpr int32_t UI_DIALOG_WIDTH = 328 * 2;
-constexpr int32_t UI_DIALOG_HEIGHT = 192 * 2;
-constexpr const char* APP_NAME = "appName";
-constexpr const char* IS_DEFAULT_SELECTOR = "isDefaultSelector";
-constexpr const char* OFF_SET_X = "offsetX";
-constexpr const char* OFF_SET_Y = "offsetY";
-constexpr const char* WIDTH = "width";
-constexpr const char* HEIGHT = "height";
-constexpr const char* MODEL_FLAG = "modelFlag";
-constexpr const char* ACTION = "action";
-constexpr const char* OVERSIZE_HEIGHT = "oversizeHeight";
+const int32_t UI_ANR_DIALOG_WIDTH = 328 * 2;
+const int32_t UI_ANR_DIALOG_HEIGHT = 192 * 2;
+const std::string APP_NAME = "appName";
+const std::string IS_DEFAULT_SELECTOR = "isDefaultSelector";
+const std::string OFF_SET_X = "offsetX";
+const std::string OFF_SET_Y = "offsetY";
+const std::string WIDTH = "width";
+const std::string HEIGHT = "height";
+const std::string MODEL_FLAG = "modelFlag";
+const std::string ACTION = "action";
+const std::string OVERSIZE_HEIGHT = "oversizeHeight";
 
-constexpr int32_t UI_HALF = 2;
-constexpr int32_t UI_DEFAULT_BUTTOM_CLIP = 100;
-constexpr int32_t UI_WIDTH_780DP = 1560;
-constexpr int32_t UI_DEFAULT_WIDTH = 2560;
-constexpr int32_t UI_DEFAULT_HEIGHT = 1600;
+const int32_t UI_HALF = 2;
+const int32_t UI_DEFAULT_BUTTOM_CLIP = 100;
+const int32_t UI_WIDTH_780DP = 1560;
+const int32_t UI_DEFAULT_WIDTH = 2560;
+const int32_t UI_DEFAULT_HEIGHT = 1600;
 
-constexpr const char* STR_PHONE = "phone";
-constexpr const char* STR_DEFAULT = "default";
-constexpr const char* DIALOG_NAME_TIPS = "dialog_tips_service";
-constexpr const char* DIALOG_SELECTOR_NAME = "dialog_selector_service";
-constexpr const char* DIALOG_JUMP_INTERCEPTOR_NAME = "dialog_jump_interceptor_service";
+const std::string STR_PHONE = "phone";
+const std::string STR_DEFAULT = "default";
+const std::string DIALOG_NAME_ANR = "dialog_anr_service";
+const std::string DIALOG_NAME_TIPS = "dialog_tips_service";
+const std::string DIALOG_SELECTOR_NAME = "dialog_selector_service";
+const std::string DIALOG_JUMP_INTERCEPTOR_NAME = "dialog_jump_interceptor_service";
 
-constexpr const char* BUNDLE_NAME = "bundleName";
-constexpr const char* BUNDLE_NAME_DIALOG = "com.ohos.amsdialog";
-constexpr const char* DIALOG_PARAMS = "params";
-constexpr const char* DIALOG_POSITION = "position";
-constexpr const char* VERTICAL_SCREEN_DIALOG_POSITION = "landscapeScreen";
-constexpr const char* ABILITY_NAME_FREEZE_DIALOG = "SwitchUserDialog";
-constexpr const char* ABILITY_NAME_ASSERT_FAULT_DIALOG = "AssertFaultDialog";
-constexpr const char* ABILITY_NAME_TIPS_DIALOG = "TipsDialog";
-constexpr const char* ABILITY_NAME_SELECTOR_DIALOG = "SelectorDialog";
-constexpr const char* ABILITY_NAME_APPGALLERY_SELECTOR_DIALOG = "AppSelectorExtensionAbility";
-constexpr const char* UIEXTENSION_TYPE_KEY = "ability.want.params.uiExtensionType";
-constexpr const char* UIEXTENSION_SYS_COMMON_UI = "sys/commonUI";
-constexpr const char* CALLER_TOKEN = "callerToken";
-constexpr const char* ABILITY_NAME_JUMP_INTERCEPTOR_DIALOG = "JumpInterceptorDialog";
-constexpr const char* TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
-constexpr const char* ORIENTATION = "orientation";
-constexpr const char* ABS_CODE_PATH = "/data/app/el1/bundle/public";
-constexpr const char* FILE_SEPARATOR = "/";
+const std::string BUNDLE_NAME = "bundleName";
+const std::string BUNDLE_NAME_DIALOG = "com.ohos.amsdialog";
+const std::string DIALOG_PARAMS = "params";
+const std::string DIALOG_POSITION = "position";
+const std::string VERTICAL_SCREEN_DIALOG_POSITION = "landscapeScreen";
+const std::string ABILITY_NAME_FREEZE_DIALOG = "SwitchUserDialog";
+const std::string ABILITY_NAME_ASSERT_FAULT_DIALOG = "AssertFaultDialog";
+const std::string ABILITY_NAME_TIPS_DIALOG = "TipsDialog";
+const std::string ABILITY_NAME_SELECTOR_DIALOG = "SelectorDialog";
+const std::string ABILITY_NAME_APPGALLERY_SELECTOR_DIALOG = "AppSelectorExtensionAbility";
+const std::string UIEXTENSION_TYPE_KEY = "ability.want.params.uiExtensionType";
+const std::string UIEXTENSION_SYS_COMMON_UI = "sys/commonUI";
+const std::string CALLER_TOKEN = "callerToken";
+const std::string ABILITY_NAME_JUMP_INTERCEPTOR_DIALOG = "JumpInterceptorDialog";
+const std::string TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
+const std::string ORIENTATION = "orientation";
 
-constexpr int32_t LINE_NUMS_ZERO = 0;
-constexpr int32_t LINE_NUMS_TWO = 2;
-constexpr int32_t LINE_NUMS_THREE = 3;
-constexpr int32_t LINE_NUMS_FOUR = 4;
-constexpr int32_t LINE_NUMS_EIGHT = 8;
+const int32_t LINE_NUMS_ZERO = 0;
+const int32_t LINE_NUMS_TWO = 2;
+const int32_t LINE_NUMS_THREE = 3;
+const int32_t LINE_NUMS_FOUR = 4;
+const int32_t LINE_NUMS_EIGHT = 8;
 
-constexpr float WIDTH_MULTIPLE = 0.8;
-constexpr float HEIGHT_MULTIPLE = 0.3;
-constexpr float SETX_WIDTH_MULTIPLE = 0.1;
+const float WIDTH_MULTIPLE = 0.8;
+const float HEIGHT_MULTIPLE = 0.3;
+const float SETX_WIDTH_MULTIPLE = 0.1;
 
 Want SystemDialogScheduler::GetTipsDialogWant(const sptr<IRemoteObject> &callerToken)
 {
@@ -441,7 +441,7 @@ int SystemDialogScheduler::GetSelectorDialogWantCommon(const std::vector<DialogA
             return INNER_ERR;
         }
         targetWant.SetElementName(bundleName, ABILITY_NAME_APPGALLERY_SELECTOR_DIALOG);
-        targetWant.SetParam(UIEXTENSION_TYPE_KEY, std::string(UIEXTENSION_SYS_COMMON_UI));
+        targetWant.SetParam(UIEXTENSION_TYPE_KEY, UIEXTENSION_SYS_COMMON_UI);
         targetWant.SetParam("isCreateAppGallerySelector", true);
     }
     return ERR_OK;
@@ -468,18 +468,18 @@ void SystemDialogScheduler::InitDialogPosition(DialogType type, DialogPosition &
     switch (type) {
         case DialogType::DIALOG_ANR:
             if (position.wideScreen) {
-                position.width = UI_DIALOG_WIDTH;
-                position.height = UI_DIALOG_HEIGHT;
-                position.width_narrow = UI_DIALOG_WIDTH;
-                position.height_narrow = UI_DIALOG_HEIGHT;
+                position.width = UI_ANR_DIALOG_WIDTH;
+                position.height = UI_ANR_DIALOG_HEIGHT;
+                position.width_narrow = UI_ANR_DIALOG_WIDTH;
+                position.height_narrow = UI_ANR_DIALOG_HEIGHT;
                 position.align = DialogAlign::CENTER;
             } else {
                 position.width =  display->GetWidth();
                 position.height = display->GetHeight();
                 position.width_narrow =  display->GetWidth();
                 position.height_narrow = display->GetHeight();
-                position.window_width = UI_DIALOG_WIDTH;
-                position.window_height = UI_DIALOG_HEIGHT;
+                position.window_width = UI_ANR_DIALOG_WIDTH;
+                position.window_height = UI_ANR_DIALOG_HEIGHT;
                 position.align = DialogAlign::CENTER;
             }
             break;
@@ -603,7 +603,7 @@ bool SystemDialogScheduler::GetAssertFaultDialogWant(Want &want)
 
     want.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_ASSERT_FAULT_DIALOG);
     want.SetParam(BUNDLE_NAME, bundleName);
-    want.SetParam(UIEXTENSION_TYPE_KEY, std::string(UIEXTENSION_SYS_COMMON_UI));
+    want.SetParam(UIEXTENSION_TYPE_KEY, UIEXTENSION_SYS_COMMON_UI);
     return true;
 }
 

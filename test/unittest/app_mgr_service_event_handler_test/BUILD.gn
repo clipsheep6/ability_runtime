@@ -98,7 +98,7 @@ ohos_unittest("AMSEventHandlerTest") {
 
   if (ability_runtime_graphics) {
     external_deps += [
-      "window_manager:libwm_lite",
+      "window_manager:libwm",
       "window_manager:libwsutils",
     ]
   }

@@ -20,11 +20,12 @@
 #include <unordered_set>
 
 #include "ability_config.h"
+#include "ability_manager_client.h"
 #include "ability_manager_errors.h"
-#include "ability_window_configuration.h"
 #include "app_jump_control_rule.h"
 #include "bundle_mgr_helper.h"
 #include "hilog_tag_wrapper.h"
+#include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
 #include "permission_verification.h"
@@ -44,6 +45,8 @@ constexpr const char* DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
 constexpr const char* DLP_PARAMS_BUNDLE_NAME = "ohos.dlp.params.bundleName";
 constexpr const char* DLP_PARAMS_MODULE_NAME = "ohos.dlp.params.moduleName";
 constexpr const char* DLP_PARAMS_ABILITY_NAME = "ohos.dlp.params.abilityName";
+constexpr const char* MARKET_BUNDLE_NAME = "com.huawei.hmsapp.appgallery";
+constexpr const char* MARKET_CROWD_TEST_BUNDLE_PARAM = "crowd_test_bundle_name";
 constexpr const char* BUNDLE_NAME_SELECTOR_DIALOG = "com.ohos.amsdialog";
 constexpr const char* JUMP_INTERCEPTOR_DIALOG_CALLER_PKG = "interceptor_callerPkg";
 
@@ -318,6 +321,25 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     } else {
         RemoveWindowModeKey(want);
     }
+}
+
+[[maybe_unused]] static int StartAppgallery(const std::string &bundleName, const int requestCode, const int32_t userId,
+    const std::string &action)
+{
+    std::string appGalleryBundleName;
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    if (bundleMgrHelper == nullptr || !bundleMgrHelper->QueryAppGalleryBundleName(appGalleryBundleName)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get bundle manager helper failed or QueryAppGalleryBundleName failed.");
+        appGalleryBundleName = MARKET_BUNDLE_NAME;
+    }
+
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "appGalleryBundleName:%{public}s", appGalleryBundleName.c_str());
+
+    Want want;
+    want.SetElementName(appGalleryBundleName, "");
+    want.SetAction(action);
+    want.SetParam(MARKET_CROWD_TEST_BUNDLE_PARAM, bundleName);
+    return AbilityManagerClient::GetInstance()->StartAbility(want, requestCode, userId);
 }
 
 inline ErrCode EdmErrorType(bool isEdm)
