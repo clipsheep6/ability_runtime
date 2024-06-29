@@ -358,6 +358,8 @@ public:
     bool IsAbilityStarted(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetRecord);
 
     void SignRestartAppFlag(const std::string &bundleName);
+    
+    void SetAnimationFlag(bool IsAnimationEnabled);
 #ifdef SUPPORT_SCREEN
 public:
     /**
