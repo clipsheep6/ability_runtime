@@ -52,8 +52,7 @@ void JsAbilityStageContext::ConfigurationUpdated(napi_env env, std::shared_ptr<N
     napi_call_function(env, object, method, 1, argv, nullptr);
 }
 
-napi_value CreateJsAbilityStageContext(napi_env env,
-    std::shared_ptr<AbilityRuntime::Context> context, DetachCallback detach, NapiAttachCallback attach)
+napi_value CreateJsAbilityStageContext(napi_env env, std::shared_ptr<AbilityRuntime::Context> context)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "called.");
     napi_value objValue = CreateJsBaseContext(env, context);
