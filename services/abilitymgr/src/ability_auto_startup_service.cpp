@@ -443,18 +443,6 @@ bool AbilityAutoStartupService::CheckSelfApplication(const std::string &bundleNa
 bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
     AppExecFwk::BundleInfo &bundleInfo, int32_t uid, int32_t &userId, int32_t appIndex)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
-    auto bundleMgrClient = GetBundleMgrClient();
-    if (bundleMgrClient == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to get BundleMgrClient.");
-        return false;
-    }
-    auto bms = ConnectManagerHelper();
-    if (bms == nullptr) {
-        TAG_LOGW(AAFwkTag::AUTO_STARTUP, "The bms is nullptr.");
-        return false;
-    }
-
     if (uid == -1) {
         userId = IPCSkeleton::GetCallingUid() / AppExecFwk::Constants::BASE_USER_RANGE;
     } else {
@@ -468,6 +456,15 @@ bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
         userId = abilityMgr->GetUserId();
     }
     TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Current userId: %{public}d.", userId);
+    auto bundleMgrClient = GetBundleMgrClient();
+    if (bundleMgrClient == nullptr) {
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to get BundleMgrClient.");
+        return false;
+    }
+    auto bms = ConnectManagerHelper();
+    if (bms == nullptr) {
+        return false;
+    }
     if (appIndex == 0) {
         auto flags =
             AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES | AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
@@ -512,20 +509,17 @@ bool AbilityAutoStartupService::GetAbilityData(const AutoStartupInfo &info, bool
     userId = currentUserId;
     auto accessTokenIdStr = bundleInfo.applicationInfo.accessTokenId;
     accessTokenId = std::to_string(accessTokenIdStr);
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "userId: %{public}d. ", userId);
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "accessTokenId: %{public}d. ", accessTokenIdStr);
     if (bundleInfo.hapModuleInfos.empty()) {
         TAG_LOGE(AAFwkTag::AUTO_STARTUP, "failed to get hapModuleInfos");
     }
     for (const auto& hapModuleInfo : bundleInfo.hapModuleInfos) {
         for (const auto& abilityInfo : hapModuleInfo.abilityInfos) {
-            if ((abilityInfo.bundleName == info.bundleName) && (abilityInfo.name == info.abilityName)) {
-                if (info.moduleName.empty() || (abilityInfo.moduleName == info.moduleName)) {
-                    isVisible = abilityInfo.visible;
-                    abilityTypeName = GetAbilityTypeName(abilityInfo);
-                    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Get ability info success.");
-                    return true;
-                }
+            if ((abilityInfo.bundleName == info.bundleName) && (abilityInfo.name == info.abilityName) && 
+                (info.moduleName.empty() || (abilityInfo.moduleName == info.moduleName))) {
+                isVisible = abilityInfo.visible;
+                abilityTypeName = GetAbilityTypeName(abilityInfo);
+                TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Get ability info success.");
+                return true;
             }
         }
     }
