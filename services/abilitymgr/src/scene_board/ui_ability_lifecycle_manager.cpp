@@ -116,17 +116,13 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
     TAG_LOGD(AAFwkTag::ABILITYMGR, "StartUIAbility, specifyTokenId is %{public}u.", abilityRequest.specifyTokenId);
     uiAbilityRecord->SetSpecifyTokenId(abilityRequest.specifyTokenId);
 
-    if (uiAbilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "pending state is FOREGROUND.");
+    if (uiAbilityRecord->GetPendingState() != AbilityState::INITIAL) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "pending state is FOREGROUND or BACKGROUND, dropped.");
         uiAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
         return ERR_OK;
     } else {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "pending state is not FOREGROUND.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "pending state is not FOREGROUND or BACKGROUND.");
         uiAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
-        if (uiAbilityRecord->IsLoading()) {
-            TAG_LOGI(AAFwkTag::ABILITYMGR, "ability: %{public}s is loading.", abilityRequest.abilityInfo.name.c_str());
-            return ERR_OK;
-        }
     }
 
     if (iter == sessionAbilityMap_.end()) {
@@ -735,6 +731,11 @@ int UIAbilityLifecycleManager::MinimizeUIAbility(const std::shared_ptr<AbilityRe
     }
     TAG_LOGI(AAFwkTag::ABILITYMGR, "abilityInfoName:%{public}s", abilityRecord->GetAbilityInfo().name.c_str());
     abilityRecord->SetMinimizeReason(fromUser);
+    if (abilityRecord->GetPendingState() != AbilityState::INITIAL) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "pending state is FOREGROUND or BACKGROUND, dropped.");
+        abilityRecord->SetPendingState(AbilityState::BACKGROUND);
+        return ERR_OK;
+    }
     abilityRecord->SetPendingState(AbilityState::BACKGROUND);
     if (!abilityRecord->IsAbilityState(AbilityState::FOREGROUND)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "ability state is not foreground: %{public}d",
@@ -1069,6 +1070,7 @@ void UIAbilityLifecycleManager::CompleteBackground(const std::shared_ptr<Ability
     DelayedSingleton<AppScheduler>::GetInstance()->MoveToBackground(abilityRecord->GetToken());
 
     if (abilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
+        abilityRecord->PostForegroundTimeoutTask();
         DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(abilityRecord->GetToken());
     } else if (abilityRecord->GetPendingState() == AbilityState::BACKGROUND) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "not continuous startup.");
