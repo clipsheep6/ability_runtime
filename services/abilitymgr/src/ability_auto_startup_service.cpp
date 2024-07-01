@@ -463,7 +463,6 @@ bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
     if (userId == 0) {
         auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
         if (abilityMgr == nullptr) {
-            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The abilityMgr is nullptr.");
             return false;
         }
         userId = abilityMgr->GetUserId();
@@ -485,16 +484,13 @@ bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
         auto bundleMgrResult = IN_PROCESS_CALL(
             bms->GetCloneBundleInfo(bundleName, bundleFlag, appIndex, bundleInfo, userId));
             if (bundleMgrResult != ERR_OK) {
-                TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Failed to get clone bundle info.");
                 return false;
             }
     } else {
             if (!IN_PROCESS_CALL(bundleMgrClient->GetSandboxBundleInfo(bundleName, appIndex, userId, bundleInfo))) {
-                TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Failed to get sandbox bundle info.");
                 return false;
             }
     }
-    TAG_LOGW(AAFwkTag::AUTO_STARTUP, "get bundle info success.");
     return true;
 }
 
@@ -533,18 +529,6 @@ bool AbilityAutoStartupService::GetAbilityData(const AutoStartupInfo &info, bool
             }
         }
     }
-/*
-    for (auto abilityInfo : bundleInfo.hapModuleInfos.abilityInfos) {
-        if ((abilityInfo.bundleName == info.bundleName) && (abilityInfo.name == info.abilityName)) {
-            if (info.moduleName.empty() || (abilityInfo.moduleName == info.moduleName)) {
-                isVisible = abilityInfo.visible;
-                abilityTypeName = GetAbilityTypeName(abilityInfo);
-                TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Get ability info success.");
-                return true;
-            }
-        }
-    }
-*/
     for (auto extensionInfo : bundleInfo.extensionInfos) {
         if ((extensionInfo.bundleName == info.bundleName) && (extensionInfo.name == info.abilityName)) {
             if (info.moduleName.empty() || (extensionInfo.moduleName == info.moduleName)) {
