@@ -30,6 +30,9 @@
 #include "reverse_continuation_scheduler_primary_stage.h"
 #include "runtime.h"
 #include "resource_config_helper.h"
+#ifdef SUPPORT_GRAPHICS
+#include "wm_common.h"
+#endif
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -196,9 +199,6 @@ void UIAbility::OnStop()
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin.");
 #ifdef SUPPORT_SCREEN
-    if (abilityRecovery_ != nullptr) {
-        abilityRecovery_->ScheduleSaveAbilityState(AppExecFwk::StateReason::LIFECYCLE);
-    }
     TAG_LOGI(AAFwkTag::UIABILITY, "UnregisterDisplayInfoChangedListener.");
     (void)Rosen::WindowManager::GetInstance().UnregisterDisplayInfoChangedListener(token_, abilityDisplayListener_);
     auto &&window = GetWindow();
@@ -281,6 +281,18 @@ bool UIAbility::ShouldRecoverState(const AAFwk::Want &want)
         return false;
     }
     return true;
+}
+
+bool UIAbility::ShouldDefaultRecoverState(const AAFwk::Want &want)
+{
+    auto launchParam = GetLaunchParam();
+    if (CheckDefaultRecoveryEnabled() && IsStartByScb() &&
+        want.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false) &&
+        (launchParam.lastExitReason == AAFwk::LastExitReason::LASTEXITREASON_PERFORMANCE_CONTROL ||
+        launchParam.lastExitReason == AAFwk::LastExitReason::LASTEXITREASON_RESOURCE_CONTROL)) {
+        return true;
+    }
+    return false;
 }
 
 void UIAbility::NotifyContinuationResult(const AAFwk::Want &want, bool success)
@@ -543,9 +555,11 @@ bool UIAbility::IsUseNewStartUpRule()
     return startUpNewRule_;
 }
 
-void UIAbility::EnableAbilityRecovery(const std::shared_ptr<AppExecFwk::AbilityRecovery> &abilityRecovery)
+void UIAbility::EnableAbilityRecovery(const std::shared_ptr<AppExecFwk::AbilityRecovery> &abilityRecovery,
+    bool useAppSettedRecoveryValue)
 {
     abilityRecovery_ = abilityRecovery;
+    useAppSettedRecoveryValue_.store(useAppSettedRecoveryValue);
 }
 
 int32_t UIAbility::OnShare(AAFwk::WantParams &wantParams)
@@ -621,7 +635,9 @@ void UIAbility::OnBackground()
         TAG_LOGD(AAFwkTag::UIABILITY, "GoBackground sceneFlag: %{public}d.", sceneFlag_);
         scene_->GoBackground(sceneFlag_);
     }
-    if (abilityRecovery_ != nullptr) {
+
+    if (abilityRecovery_ != nullptr && abilityContext_ != nullptr && abilityContext_->GetRestoreEnabled() &&
+        CheckRecoveryEnabled()) {
         abilityRecovery_->ScheduleSaveAbilityState(AppExecFwk::StateReason::LIFECYCLE);
     }
 
@@ -670,10 +686,32 @@ void UIAbility::OnLeaveForeground()
 
 std::string UIAbility::GetContentInfo()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (scene_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UIABILITY, "Scene invalid.");
         return "";
     }
-    return scene_->GetContentInfo();
+    return scene_->GetContentInfo(Rosen::BackupAndRestoreType::CONTINUATION);
+}
+
+std::string UIAbility::GetContentInfoForRecovery()
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (scene_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UIABILITY, "Scene invalid.");
+        return "";
+    }
+    return scene_->GetContentInfo(Rosen::BackupAndRestoreType::APP_RECOVERY);
+}
+
+std::string UIAbility::GetContentInfoForDefaultRecovery()
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (scene_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UIABILITY, "Scene invalid.");
+        return "";
+    }
+    return scene_->GetContentInfo(Rosen::BackupAndRestoreType::RESOURCESCHEDULE_RECOVERY);
 }
 
 void UIAbility::SetSceneListener(const sptr<Rosen::IWindowLifeCycle> &listener)
@@ -1105,17 +1143,17 @@ void UIAbility::SetSessionToken(sptr<IRemoteObject> sessionToken)
 {
     std::lock_guard lock(sessionTokenMutex_);
     sessionToken_ = sessionToken;
-}
-
-void UIAbility::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
-{
-    SetSessionToken(sessionToken);
     auto abilityContextImpl = GetAbilityContext();
     if (abilityContextImpl == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "abilityContext is nullptr");
         return;
     }
     abilityContextImpl->SetWeakSessionToken(sessionToken);
+}
+
+void UIAbility::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
+{
+    SetSessionToken(sessionToken);
 }
 
 void UIAbility::EraseUIExtension(int32_t sessionId)
@@ -1137,6 +1175,49 @@ void UIAbility::SetIdentityToken(const std::string &identityToken)
 std::string UIAbility::GetIdentityToken() const
 {
     return identityToken_;
+}
+
+bool UIAbility::CheckRecoveryEnabled()
+{
+    if (useAppSettedRecoveryValue_.load()) {
+        TAG_LOGD(AAFwkTag::UIABILITY, "Use app setted value.");
+        // Check in app recovery, here return true.
+        return true;
+    }
+
+    return CheckDefaultRecoveryEnabled();
+}
+
+bool UIAbility::CheckDefaultRecoveryEnabled()
+{
+    if (setting_ == nullptr) {
+        TAG_LOGW(AAFwkTag::UIABILITY, "setting is nullptr.");
+        return false;
+    }
+
+    auto value = setting_->GetProperty(AppExecFwk::AbilityStartSetting::DEFAULT_RECOVERY_KEY);
+    if ((!useAppSettedRecoveryValue_.load()) && (value == "true")) {
+        TAG_LOGD(AAFwkTag::UIABILITY, "default recovery enabled.");
+        return true;
+    }
+
+    return false;
+}
+
+bool UIAbility::IsStartByScb()
+{
+    if (setting_ == nullptr) {
+        TAG_LOGW(AAFwkTag::UIABILITY, "setting is nullptr.");
+        return false;
+    }
+
+    auto value = setting_->GetProperty(AppExecFwk::AbilityStartSetting::IS_START_BY_SCB_KEY);
+    if (value == "true") {
+        TAG_LOGD(AAFwkTag::UIABILITY, "Start by scb.");
+        return true;
+    }
+
+    return false;
 }
 #endif
 } // namespace AbilityRuntime

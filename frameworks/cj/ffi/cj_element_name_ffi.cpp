@@ -22,8 +22,9 @@
 
 using OHOS::AppExecFwk::ElementName;
 
+extern "C" {
 ElementNameHandle FFICJElementNameCreateWithContent(
-    const char* deviceId, const char* bundleName, const char* abilityName, const char* moduleName)
+    char* deviceId, char* bundleName, char* abilityName, char* moduleName)
 {
     return new ElementName(deviceId, bundleName, abilityName, moduleName);
 }
@@ -62,6 +63,6 @@ void FFICJElementNameParamsDelete(ElementNameParams* elementNameParams)
     free(static_cast<void*>(elementNameParams->bundleName));
     free(static_cast<void*>(elementNameParams->abilityName));
     free(static_cast<void*>(elementNameParams->moduleName));
-    free(static_cast<void*>(elementNameParams->deviceId));
     free(static_cast<void*>(elementNameParams));
+}
 }

@@ -315,6 +315,8 @@ public:
     void AutoStartupDone(const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
         const std::shared_ptr<AbilityRuntime::AbilityStage> &abilityStage, const std::string &moduleName);
 
+    void CleanEmptyAbilityStage();
+
 private:
     void DoCleanWorkAfterStageCleaned(const AbilityInfo &abilityInfo);
     void UpdateAppContextResMgr(const Configuration &config);

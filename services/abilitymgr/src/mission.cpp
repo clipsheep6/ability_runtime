@@ -15,6 +15,8 @@
 
 #include "mission.h"
 
+#include "mission_list.h"
+
 namespace OHOS {
 namespace AAFwk {
 Mission::Mission(int32_t id, const std::shared_ptr<AbilityRecord> abilityRecord, const std::string &missionName,
@@ -101,9 +103,6 @@ std::string Mission::GetMissionName() const
 void Mission::SetMissionList(const std::shared_ptr<MissionList> &missionList)
 {
     ownerMissionList_ = missionList;
-    if (abilityRecord_) {
-        abilityRecord_->SetMissionList(missionList);
-    }
 }
 
 void Mission::SetLockedState(bool lockedState)

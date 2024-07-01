@@ -316,6 +316,14 @@ public:
 #ifdef SUPPORT_SCREEN
     void UpdateSnapShot(const sptr<IRemoteObject> &token, const std::shared_ptr<Media::PixelMap> &pixelMap);
 #endif // SUPPORT_SCREEN
+
+    /**
+     * Get ability number.
+     * @param element type of ElementName.
+     * @return ability number.
+     */
+    int32_t GetAbilityNumber(const AppExecFwk::ElementName &element) const;
+
     void EnableRecoverAbility(int32_t missionId);
 
 #ifdef ABILITY_COMMAND_FOR_TEST
@@ -340,8 +348,7 @@ public:
 
     int DoAbilityForeground(std::shared_ptr<AbilityRecord> &abilityRecord, uint32_t flag);
 
-    void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList,
-        int32_t pid = NO_PID);
+    void GetActiveAbilityList(int32_t uid, std::vector<std::string> &abilityList, int32_t pid = NO_PID);
 
     void CallRequestDone(const std::shared_ptr<AbilityRecord> &abilityRecord, const sptr<IRemoteObject> &callStub);
 
@@ -351,6 +358,8 @@ public:
     bool IsAbilityStarted(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetRecord);
 
     void SignRestartAppFlag(const std::string &bundleName);
+    
+    void SetAnimationFlag(bool IsAnimationEnabled);
 #ifdef SUPPORT_SCREEN
 public:
     /**
@@ -517,7 +526,7 @@ private:
     std::shared_ptr<AbilityRecord> GetAbilityFromTerminateListInner(const sptr<IRemoteObject> &token);
     void SetLastExitReason(std::shared_ptr<AbilityRecord> &abilityRecord);
     bool IsAppLastAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
-
+    std::shared_ptr<MissionList> GetMissionList(int32_t missionId);
     int PrepareClearMissionLocked(int missionId, const std::shared_ptr<Mission> &mission);
 
     bool CheckPrepareTerminateEnable(const std::shared_ptr<Mission> &mission);
@@ -525,9 +534,6 @@ private:
     bool GetContentAndTypeId(uint32_t msgId, std::string &msgContent, int &typeId) const;
 
     void SendKeyEvent(const AbilityRequest &abilityRequest);
-
-    void ReportAbilitAssociatedStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo, int64_t type,
-        const std::shared_ptr<AbilityRecord> &callerAbility);
 
     int userId_;
     mutable ffrt::mutex managerLock_;

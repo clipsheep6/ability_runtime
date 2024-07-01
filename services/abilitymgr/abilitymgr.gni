@@ -16,6 +16,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 abilityms_files = [
   "src/preload_uiext_state_observer.cpp",
   "src/ability_background_connection.cpp",
+  "src/ability_cache_manager.cpp",
   "src/ability_connect_manager.cpp",
   "src/ability_debug_deal.cpp",
   "src/ability_event_handler.cpp",
@@ -104,6 +105,7 @@ abilityms_files = [
   "src/scene_board/status_bar_delegate_manager.cpp",
   "src/scene_board/ui_ability_lifecycle_manager.cpp",
   "src/deeplink_reserve/deeplink_reserve_config.cpp",
+  "src/app_recovery/default_recovery_config.cpp",
 
   #connection observer
   "src/connection_observer_controller.cpp",
@@ -137,6 +139,10 @@ abilityms_files = [
   "src/insight_intent_execute_result.cpp",
 
   "src/ability_manager_event_subscriber.cpp",
+
+  #utils
+  "src/utils/window_options_utils.cpp",
+  "src/utils/extension_permissions_util.cpp",
 ]
 
 if (ability_runtime_graphics) {
@@ -147,8 +153,4 @@ if (ability_runtime_graphics) {
     "src/ability_first_frame_state_observer_manager.cpp",
     "src/screen_lock/unlock_screen_callback.cpp",
   ]
-}
-
-if (efficiency_manager) {
-  abilityms_files += [ "src/process_frozen_state_observer.cpp" ]
 }

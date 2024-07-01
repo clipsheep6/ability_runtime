@@ -334,15 +334,8 @@ int32_t PendingWantManager::PendingWantPublishCommonEvent(
         eventPublishData.SetSubscriberPermissions(permissions);
     }
 
-    std::shared_ptr<PendingWantCommonEvent> pendingWantCommonEvent = nullptr;
-    if (senderInfo.finishedReceiver != nullptr) {
-        eventPublishData.SetOrdered(true);
-        pendingWantCommonEvent = std::make_shared<PendingWantCommonEvent>();
-        pendingWantCommonEvent->SetFinishedReceiver(senderInfo.finishedReceiver);
-        pendingWantCommonEvent->SetWantParams(senderInfo.want.GetParams());
-    }
     bool result = IN_PROCESS_CALL(DelayedSingleton<EventFwk::CommonEvent>::GetInstance()->PublishCommonEvent(
-        eventData, eventPublishData, pendingWantCommonEvent, callerUid, callerTokenId));
+        eventData, eventPublishData, nullptr, callerUid, callerTokenId));
     return ((result == true) ? ERR_OK : (-1));
 }
 

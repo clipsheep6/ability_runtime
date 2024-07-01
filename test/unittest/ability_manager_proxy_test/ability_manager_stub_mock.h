@@ -210,7 +210,7 @@ public:
         return 0;
     }
 
-    virtual int KillProcess(const std::string& bundleName)
+    virtual int KillProcess(const std::string& bundleName, const bool clearPageStack = true)
     {
         return 0;
     }
@@ -220,7 +220,8 @@ public:
         return 0;
     }
 
-    virtual int32_t UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg)
+    virtual int32_t UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg,
+        int32_t appIndex)
     {
         return 0;
     }
@@ -233,11 +234,6 @@ public:
     void GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token) override
     {
         return;
-    }
-
-    int ClearUpApplicationData(const std::string& bundleName, const int32_t userId = DEFAULT_INVAL_VALUE) override
-    {
-        return 0;
     }
 
     int StartUser(int userId, sptr<IUserCallback> callback) override
@@ -293,7 +289,8 @@ public:
         return 0;
     }
 
-    int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler) override
+    int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler,
+        bool animationEnabled = true) override
     {
         return 0;
     }

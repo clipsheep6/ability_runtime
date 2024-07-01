@@ -53,6 +53,8 @@ public:
     void SendDebuggerInfo(bool needBreakPoint, bool isDebugApp);
     void LoadConnectServerDebuggerSo();
     DebuggerPostTask GetDebuggerPostTask(int32_t tid);
+    void SetSwitchCallback(int32_t instanceId);
+    void SetProfilerCallBack();
 
 private:
     ConnectServerManager() = default;

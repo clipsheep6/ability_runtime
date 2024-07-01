@@ -166,6 +166,13 @@ public:
     virtual void ScheduleConfigurationUpdated(const Configuration &config) override;
 
     /**
+     * Request normal scheduling to exit the process.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t ScheduleRequestTerminateProcess() override;
+
+    /**
      * ScheduleProcessSecurityExit, call ScheduleProcessSecurityExit() through proxy project,
      * Notify application process exit safely.
      *
@@ -173,12 +180,7 @@ public:
      */
     virtual void ScheduleProcessSecurityExit() override;
 
-    /**
-     * Request normal scheduling to exit the process.
-     *
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int32_t ScheduleRequestTerminateProcess() override;
+    virtual void ScheduleClearPageStack() override;
 
     virtual void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) override;
 

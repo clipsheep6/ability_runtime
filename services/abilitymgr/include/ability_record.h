@@ -54,8 +54,6 @@ using Closure = std::function<void()>;
 
 class AbilityRecord;
 class ConnectionRecord;
-class Mission;
-class MissionList;
 class CallContainer;
 
 constexpr const char* ABILITY_TOKEN_NAME = "AbilityToken";
@@ -150,14 +148,26 @@ private:
 };
 
 /**
+ * @struct CallerAbilityInfo
+ * caller ability info.
+ */
+struct CallerAbilityInfo {
+public:
+    std::string callerBundleName;
+    std::string callerAbilityName;
+    int32_t callerTokenId = 0;
+    int32_t callerUid = 0;
+    int32_t callerPid = 0;
+};
+
+/**
  * @class CallerRecord
  * Record caller ability of for-result start mode and result.
  */
 class CallerRecord {
 public:
     CallerRecord() = default;
-    CallerRecord(int requestCode, std::weak_ptr<AbilityRecord> caller) : requestCode_(requestCode), caller_(caller)
-    {}
+    CallerRecord(int requestCode, std::weak_ptr<AbilityRecord> caller);
     CallerRecord(int requestCode, std::shared_ptr<SystemAbilityCallerRecord> saCaller) : requestCode_(requestCode),
         saCaller_(saCaller)
     {}
@@ -176,11 +186,16 @@ public:
     {
         return saCaller_;
     }
+    std::shared_ptr<CallerAbilityInfo> GetCallerInfo()
+    {
+        return callerInfo_;
+    }
 
 private:
     int requestCode_ = -1;  // requestCode of for-result start mode
     std::weak_ptr<AbilityRecord> caller_;
     std::shared_ptr<SystemAbilityCallerRecord> saCaller_ = nullptr;
+    std::shared_ptr<CallerAbilityInfo> callerInfo_ = nullptr;
 };
 
 /**
@@ -217,7 +232,7 @@ struct AbilityRequest {
     int callerUid = -1;
     AbilityCallType callType = AbilityCallType::INVALID_TYPE;
     sptr<IRemoteObject> callerToken = nullptr;
-    sptr<IRemoteObject> asCallerSoureToken = nullptr;
+    sptr<IRemoteObject> asCallerSourceToken = nullptr;
     uint32_t callerAccessTokenId = -1;
     sptr<IAbilityConnection> connect = nullptr;
 
@@ -656,7 +671,7 @@ public:
      *
      */
     void RemoveSpecifiedWantParam(const std::string &key);
-    
+
     /**
      * get request code of the ability to start.
      *
@@ -749,6 +764,8 @@ public:
      */
     std::list<std::shared_ptr<CallerRecord>> GetCallerRecordList() const;
     std::shared_ptr<AbilityRecord> GetCallerRecord() const;
+
+    std::shared_ptr<CallerAbilityInfo> GetCallerInfo() const;
 
     /**
      * get connecting record from list.
@@ -873,11 +890,8 @@ public:
     void SetLastExitReason(const ExitReason &exitReason);
     void ContinueAbility(const std::string &deviceId, uint32_t versionCode);
     void NotifyContinuationResult(int32_t result);
-    std::shared_ptr<MissionList> GetOwnedMissionList() const;
 
-    void SetMission(const std::shared_ptr<Mission> &mission);
-    void SetMissionList(const std::shared_ptr<MissionList> &missionList);
-    std::shared_ptr<Mission> GetMission() const;
+    void SetMissionId(int32_t missionId);
     int32_t GetMissionId() const;
 
     void SetUid(int32_t uid);
@@ -1043,6 +1057,8 @@ private:
 
     void PublishFileOpenEvent(const Want &want);
 
+    static void SetDebugAppByWaitingDebugFlag(Want &requestWant, const std::string &bundleName, bool isDebugApp);
+
 #ifdef SUPPORT_SCREEN
     std::shared_ptr<Want> GetWantFromMission() const;
     void SetShowWhenLocked(const AppExecFwk::AbilityInfo &abilityInfo, sptr<AbilityTransitionInfo> &info) const;
@@ -1144,8 +1160,6 @@ private:
 
     int32_t uid_ = 0;
     int32_t pid_ = 0;
-    std::weak_ptr<MissionList> missionList_;
-    std::weak_ptr<Mission> mission_;
     int32_t missionId_ = -1;
     int32_t ownerMissionUserId_ = -1;
     bool isSwitchingPause_ = false;

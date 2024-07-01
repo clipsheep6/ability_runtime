@@ -117,8 +117,9 @@ public:
 
     int ReleaseCall(const sptr<IAbilityConnection>& connect, const AppExecFwk::ElementName& element) override;
 
-    MOCK_METHOD1(KillProcess, int(const std::string& bundleName));
+    MOCK_METHOD2(KillProcess, int(const std::string& bundleName, const bool clearPageStack));
     MOCK_METHOD2(UninstallApp, int(const std::string& bundleName, int32_t uid));
+    MOCK_METHOD3(UninstallApp, int32_t(const std::string& bundleName, int32_t uid, int32_t appIndex));
     MOCK_METHOD2(
         GetWantSender, sptr<IWantSender>(const WantSenderInfo& wantSenderInfo, const sptr<IRemoteObject>& callerToken));
     MOCK_METHOD2(SendWantSender, int(sptr<IWantSender> target, const SenderInfo& senderInfo));
@@ -184,11 +185,6 @@ public:
 
     int GetMissionSnapshot(
         const std::string& deviceId, const int32_t missionId, MissionSnapshot& snapshot, bool isLowResolution) override
-    {
-        return 0;
-    }
-
-    int ClearUpApplicationData(const std::string& bundleName, const int32_t userId = DEFAULT_INVAL_VALUE) override
     {
         return 0;
     }
@@ -305,7 +301,8 @@ public:
         return 0;
     }
 
-    int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler) override
+    int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler,
+        bool animationEnabled = true) override
     {
         return 0;
     }

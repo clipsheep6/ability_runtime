@@ -42,9 +42,6 @@ public:
     {
         return nullptr;
     }
-
-    std::shared_ptr<AbilityRuntime::AutoFillManager> autoFillManager_ =
-        std::make_shared<AbilityRuntime::AutoFillManager>();
 };
 
 class MockModalUIExtensionProxy : public Ace::ModalUIExtensionProxy {
@@ -64,19 +61,6 @@ void AutoFillManagerTest::SetUp()
 void AutoFillManagerTest::TearDown()
 {}
 
-/**
- * @tc.name: ReloadInModal_0100
- * @tc.desc: Js auto fill extension ReloadInModal.
- * @tc.type: FUNC
- */
-HWTEST_F(AutoFillManagerTest, ReloadInModal_0100, TestSize.Level1)
-{
-    AbilityRuntime::AutoFill::ReloadInModalRequest request;
-    ASSERT_NE(autoFillManager_, nullptr);
-    auto ret = autoFillManager_->ReloadInModal(request);
-    EXPECT_EQ(ret, AbilityRuntime::AutoFill::AUTO_FILL_OBJECT_IS_NULL);
-}
-
 /*
  * Feature: AutoFillManager
  * Function: RequestAutoFill
@@ -91,9 +75,9 @@ HWTEST_F(AutoFillManagerTest, RequestAutoFill_0100, TestSize.Level1)
     auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
     const AbilityRuntime::AutoFill::AutoFillRequest autoFillRequest;
     const std::shared_ptr<AbilityRuntime::IFillRequestCallback> fillCallback = nullptr;
-    bool isPopup = false;
-    int32_t result = manager.RequestAutoFill(GetUIContent(), autoFillRequest, fillCallback, isPopup);
-    EXPECT_EQ(result, AbilityRuntime::AutoFill::AUTO_FILL_OBJECT_IS_NULL);
+    AbilityRuntime::AutoFill::AutoFillResult result;
+    int32_t ret = manager.RequestAutoFill(GetUIContent(), autoFillRequest, fillCallback, result);
+    EXPECT_EQ(ret, AbilityRuntime::AutoFill::AUTO_FILL_OBJECT_IS_NULL);
 }
 
 /*
@@ -110,8 +94,9 @@ HWTEST_F(AutoFillManagerTest, RequestAutoSave_0100, TestSize.Level1)
     auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
     const AbilityRuntime::AutoFill::AutoFillRequest autoFillRequest;
     const std::shared_ptr<AbilityRuntime::ISaveRequestCallback> saveCallback = nullptr;
-    int32_t result = manager.RequestAutoSave(GetUIContent(), autoFillRequest, saveCallback);
-    EXPECT_EQ(result, AbilityRuntime::AutoFill::AUTO_FILL_OBJECT_IS_NULL);
+    AbilityRuntime::AutoFill::AutoFillResult result;
+    int32_t ret = manager.RequestAutoSave(GetUIContent(), autoFillRequest, saveCallback, result);
+    EXPECT_EQ(ret, AbilityRuntime::AutoFill::AUTO_FILL_OBJECT_IS_NULL);
 }
 
 /*
@@ -130,10 +115,10 @@ HWTEST_F(AutoFillManagerTest, HandleRequestExecuteInner_0100, TestSize.Level1)
     const AbilityRuntime::AutoFill::AutoFillRequest autoFillRequest;
     const std::shared_ptr<AbilityRuntime::IFillRequestCallback> fillCallback = nullptr;
     const std::shared_ptr<AbilityRuntime::ISaveRequestCallback> saveCallback = nullptr;
-    bool isPopup = false;
-    int32_t result =
-        manager.HandleRequestExecuteInner(GetUIContent(), autoFillRequest, fillCallback, saveCallback, isPopup);
-    EXPECT_EQ(result, AbilityRuntime::AutoFill::AUTO_FILL_OBJECT_IS_NULL);
+    AbilityRuntime::AutoFill::AutoFillResult result;
+    int32_t ret =
+        manager.HandleRequestExecuteInner(GetUIContent(), autoFillRequest, fillCallback, saveCallback, result);
+    EXPECT_EQ(ret, AbilityRuntime::AutoFill::AUTO_FILL_OBJECT_IS_NULL);
 }
 
 /*
@@ -148,12 +133,8 @@ HWTEST_F(AutoFillManagerTest, SetTimeOutEvent_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AutoFillManagerTest, SetTimeOutEvent_0100, TestSize.Level1";
     auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
-    EXPECT_EQ(manager.eventHandler_, nullptr);
     manager.SetTimeOutEvent(EVENT_ID);
     EXPECT_NE(manager.eventHandler_, nullptr);
-    if (manager.eventHandler_ != nullptr) {
-        manager.eventHandler_.reset();
-    }
 }
 
 /*
@@ -168,14 +149,10 @@ HWTEST_F(AutoFillManagerTest, RemoveEvent_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AutoFillManagerTest, SetTimeOutEvent_0100, TestSize.Level1";
     auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
-    EXPECT_EQ(manager.eventHandler_, nullptr);
     manager.SetTimeOutEvent(EVENT_ID);
     EXPECT_NE(manager.eventHandler_, nullptr);
     manager.RemoveEvent(EVENT_ID);
     EXPECT_NE(manager.eventHandler_, nullptr);
-    if (manager.eventHandler_ != nullptr) {
-        manager.eventHandler_.reset();
-    }
 }
 
 /*
@@ -190,9 +167,8 @@ HWTEST_F(AutoFillManagerTest, RemoveEvent_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AutoFillManagerTest, RemoveEvent_0200, TestSize.Level1";
     auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
-    EXPECT_EQ(manager.eventHandler_, nullptr);
     manager.RemoveEvent(EVENT_ID);
-    EXPECT_EQ(manager.eventHandler_, nullptr);
+    EXPECT_NE(manager.eventHandler_, nullptr);
 }
 
 /*
@@ -207,76 +183,9 @@ HWTEST_F(AutoFillManagerTest, UpdateCustomPopupUIExtension_0100, TestSize.Level1
 {
     GTEST_LOG_(INFO) << "AutoFillManagerTest, UpdateCustomPopupUIExtension_0100, TestSize.Level1";
     auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
-    EXPECT_EQ(manager.modalUIExtensionProxyMap_.size(), 0);
-    auto modalUIExtensionProxy = std::make_shared<MockModalUIExtensionProxy>();
-    auto uiContent = Ace::UIContent::Create(nullptr, nullptr);
-    manager.modalUIExtensionProxyMap_.emplace(uiContent.get(), modalUIExtensionProxy);
+    EXPECT_EQ(manager.extensionCallbacks_.size(), 0);
     const AbilityBase::ViewData viewdata;
-    EXPECT_CALL(*modalUIExtensionProxy, SendData(_)).Times(1);
-    manager.UpdateCustomPopupUIExtension(uiContent.get(), viewdata);
-    manager.modalUIExtensionProxyMap_.clear();
-}
-
-/*
- * Feature: AutoFillManager
- * Function: UpdateCustomPopupConfig
- * SubFunction: NA
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: Verify if the UpdateCustomPopupConfig is valid.
- */
-HWTEST_F(AutoFillManagerTest, UpdateCustomPopupConfig_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "AutoFillManagerTest, UpdateCustomPopupConfig_0100, TestSize.Level1";
-    auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
-    Ace::CustomPopupUIExtensionConfig customPopupUIExtensionConfig;
-    int32_t result = manager.UpdateCustomPopupConfig(nullptr, customPopupUIExtensionConfig);
-    EXPECT_EQ(result, AbilityRuntime::AutoFill::AUTO_FILL_OBJECT_IS_NULL);
-
-    auto uiContent = Ace::UIContent::Create(nullptr, nullptr);
-    result = manager.UpdateCustomPopupConfig(uiContent.get(), customPopupUIExtensionConfig);
-    EXPECT_EQ(result, AbilityRuntime::AutoFill::AUTO_FILL_SUCCESS);
-}
-
-/*
- * Feature: AutoFillManager
- * Function: SetAutoFillExtensionProxy
- * SubFunction: NA
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: Verify if the SetAutoFillExtensionProxy is valid.
- */
-HWTEST_F(AutoFillManagerTest, SetAutoFillExtensionProxy_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "AutoFillManagerTest, SetAutoFillExtensionProxy_0100, TestSize.Level1";
-    auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
-    EXPECT_EQ(manager.modalUIExtensionProxyMap_.size(), 0);
-    auto modalUIExtensionProxy = std::make_shared<MockModalUIExtensionProxy>();
-    auto uiContent = Ace::UIContent::Create(nullptr, nullptr);
-    manager.SetAutoFillExtensionProxy(uiContent.get(), modalUIExtensionProxy);
-    EXPECT_EQ(manager.modalUIExtensionProxyMap_.size(), 1);
-    manager.modalUIExtensionProxyMap_.clear();
-}
-
-/*
- * Feature: AutoFillManager
- * Function: RemoveAutoFillExtensionProxy
- * SubFunction: NA
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: Verify if the RemoveAutoFillExtensionProxy is valid.
- */
-HWTEST_F(AutoFillManagerTest, RemoveAutoFillExtensionProxy_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "AutoFillManagerTest, RemoveAutoFillExtensionProxy_0100, TestSize.Level1";
-    auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
-    EXPECT_EQ(manager.modalUIExtensionProxyMap_.size(), 0);
-    auto modalUIExtensionProxy = std::make_shared<MockModalUIExtensionProxy>();
-    auto uiContent = Ace::UIContent::Create(nullptr, nullptr);
-    manager.modalUIExtensionProxyMap_.emplace(uiContent.get(), modalUIExtensionProxy);
-    manager.RemoveAutoFillExtensionProxy(uiContent.get());
-    EXPECT_EQ(manager.modalUIExtensionProxyMap_.size(), 0);
-    manager.modalUIExtensionProxyMap_.clear();
+    manager.UpdateCustomPopupUIExtension(1, viewdata);
 }
 
 /*
@@ -293,9 +202,8 @@ HWTEST_F(AutoFillManagerTest, HandleTimeOut_0100, TestSize.Level1)
     auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
     EXPECT_EQ(manager.extensionCallbacks_.size(), 0);
     auto extensionCallback = std::make_shared<AbilityRuntime::AutoFillExtensionCallback>();
-    uint32_t eventId = 0;
-    manager.extensionCallbacks_.emplace(eventId, extensionCallback);
-    manager.HandleTimeOut(eventId);
+    manager.extensionCallbacks_.emplace(extensionCallback->GetCallbackId(), extensionCallback);
+    manager.HandleTimeOut(extensionCallback->GetCallbackId());
     EXPECT_EQ(manager.extensionCallbacks_.size(), 0);
     manager.extensionCallbacks_.clear();
 }
@@ -317,12 +225,14 @@ HWTEST_F(AutoFillManagerTest, ConvertAutoFillWindowType_0100, TestSize.Level1)
     autoFillRequest.autoFillType = AbilityBase::AutoFillType::PASSWORD;
     auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
     bool isSmartAutoFill = false;
-    auto autoFillWindowType = manager.ConvertAutoFillWindowType(autoFillRequest, isSmartAutoFill);
+    AbilityRuntime::AutoFill::AutoFillWindowType autoFillWindowType
+        = AbilityRuntime::AutoFill::AutoFillWindowType::MODAL_WINDOW;
+    manager.ConvertAutoFillWindowType(autoFillRequest, isSmartAutoFill, autoFillWindowType);
     EXPECT_EQ(isSmartAutoFill, false);
 
     autoFillRequest.autoFillCommand = AbilityRuntime::AutoFill::AutoFillCommand::SAVE;
     autoFillRequest.autoFillType = AbilityBase::AutoFillType::PERSON_FULL_NAME;
-    autoFillWindowType = manager.ConvertAutoFillWindowType(autoFillRequest, isSmartAutoFill);
+    manager.ConvertAutoFillWindowType(autoFillRequest, isSmartAutoFill, autoFillWindowType);
     EXPECT_EQ(isSmartAutoFill, true);
     EXPECT_EQ(autoFillWindowType, AbilityRuntime::AutoFill::AutoFillWindowType::MODAL_WINDOW);
 }

@@ -550,6 +550,8 @@ napi_value JsApplicationContextUtils::OnRestartApp(napi_env env, NapiCallbackInf
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_RESTART_APP_INCORRECT_ABILITY);
     } else if (errCode == AAFwk::ERR_RESTART_APP_FREQUENT) {
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_RESTART_APP_FREQUENT);
+    } else if (errCode == AAFwk::NOT_TOP_ABILITY) {
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_NOT_TOP_ABILITY);
     } else {
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR);
     }
@@ -583,25 +585,32 @@ napi_value JsApplicationContextUtils::KillProcessBySelf(napi_env env, napi_callb
 
 napi_value JsApplicationContextUtils::OnKillProcessBySelf(napi_env env, NapiCallbackInfo& info)
 {
-    // only support 0 or 1 params
-    if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
+    // only support 0 or 1 or 2 params
+    if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
         ThrowInvalidParamError(env, "Not enough params.");
         return CreateJsUndefined(env);
     }
+
+    bool clearPageStack = false;
+    bool hasClearPageStack = false;
+    if (info.argc > ARGC_ZERO && ConvertFromJsValue(env, info.argv[0], clearPageStack)) {
+        hasClearPageStack = true;
+    }
+
     TAG_LOGD(AAFwkTag::APPKIT, "kill self process");
     NapiAsyncTask::CompleteCallback complete =
-        [applicationContext = applicationContext_](napi_env env, NapiAsyncTask& task, int32_t status) {
+        [applicationContext = applicationContext_, clearPageStack](napi_env env, NapiAsyncTask& task, int32_t status) {
             auto context = applicationContext.lock();
             if (!context) {
                 task.Reject(env, CreateJsError(env, ERR_ABILITY_RUNTIME_EXTERNAL_CONTEXT_NOT_EXIST,
                     "applicationContext if already released."));
                 return;
             }
-            context->KillProcessBySelf();
+            context->KillProcessBySelf(clearPageStack);
             task.ResolveWithNoError(env, CreateJsUndefined(env));
         };
-    napi_value lastParam = (info.argc = ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
+    napi_value lastParam = (info.argc == ARGC_ONE && !hasClearPageStack) ? info.argv[INDEX_ZERO] : nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsApplicationContextUtils::OnkillProcessBySelf",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
@@ -1139,7 +1148,7 @@ napi_value JsApplicationContextUtils::OnOn(napi_env env, NapiCallbackInfo& info)
         return OnOnApplicationStateChange(env, info);
     }
     TAG_LOGE(AAFwkTag::APPKIT, "on function type not match.");
-    AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    ThrowInvalidParamError(env, "Parse param callback failed, callback must be function.");
     return CreateJsUndefined(env);
 }
 
@@ -1194,7 +1203,7 @@ napi_value JsApplicationContextUtils::OnOff(napi_env env, NapiCallbackInfo& info
         return OnOffEnvironmentEventSync(env, info, callbackId);
     }
     TAG_LOGE(AAFwkTag::APPKIT, "off function type not match.");
-    AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    ThrowInvalidParamError(env, "Parse param callback failed, callback must be function.");
     return CreateJsUndefined(env);
 }
 
@@ -1410,7 +1419,8 @@ napi_value JsApplicationContextUtils::OnOffApplicationStateChange(
     std::lock_guard<std::mutex> lock(applicationStateCallbackLock_);
     if (applicationStateCallback_ == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "ApplicationStateCallback_ is nullptr.");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env,
+            "Parse applicationStateCallback failed, applicationStateCallback must be function.");
         return CreateJsUndefined(env);
     }
 
@@ -1418,7 +1428,7 @@ napi_value JsApplicationContextUtils::OnOffApplicationStateChange(
         applicationStateCallback_->UnRegister();
     } else if (!applicationStateCallback_->UnRegister(info.argv[INDEX_ONE])) {
         TAG_LOGE(AAFwkTag::APPKIT, "call UnRegister failed!");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        ThrowInvalidParamError(env, "Parse param call UnRegister failed, call UnRegister must be function.");
         return CreateJsUndefined(env);
     }
 
@@ -1465,6 +1475,7 @@ napi_value JsApplicationContextUtils::OnGetApplicationContext(napi_env env, Napi
             [](napi_env, void *data, void *) {
               TAG_LOGD(AAFwkTag::APPKIT, "Finalizer for weak_ptr application context is called");
               delete static_cast<std::weak_ptr<ApplicationContext> *>(data);
+              data = nullptr;
             },
             nullptr, nullptr);
     }

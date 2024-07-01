@@ -35,7 +35,7 @@ class AbilityRecovery {
 public:
     AbilityRecovery();
     virtual ~AbilityRecovery();
-    void EnableAbilityRecovery(uint16_t restartFlag, uint16_t saveFlag, uint16_t saveMode);
+    void EnableAbilityRecovery(bool useAppSettedValue, uint16_t restartFlag, uint16_t saveFlag, uint16_t saveMode);
     bool InitAbilityInfo(const std::shared_ptr<AbilityRuntime::UIAbility> ability,
         const std::shared_ptr<AbilityInfo> &abilityInfo, const sptr<IRemoteObject> &token);
     bool ScheduleSaveAbilityState(StateReason reason);
@@ -62,6 +62,7 @@ private:
     bool ReadSerializeDataFromFile(int32_t savedStateId, AAFwk::WantParams& params);
     bool LoadSavedState(StateReason reason);
     bool IsSaveAbilityState(StateReason reason);
+    bool DefaultRecovery() const;
 
     bool isEnable_;
     uint16_t restartFlag_;
@@ -76,6 +77,7 @@ private:
     bool hasTryLoad_ = false;
     bool hasLoaded_ = false;
     std::mutex lock_;
+    std::atomic<bool> useAppSettedValue_ = false; // If the value is true means app call appRecovery.enableAppRecovery
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

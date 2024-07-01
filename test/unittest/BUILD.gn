@@ -57,8 +57,6 @@ ohos_source_set("appmgr_test_source") {
     "${ability_runtime_innerkits_path}/app_manager/src/appmgr/running_process_info.cpp",
   ]
 
-  include_dirs = [ "//third_party/json/include" ]
-
   public_configs = [
     ":appmgr_test_config",
     "${c_utils_base_path}:utils_config",
@@ -94,6 +92,7 @@ ohos_source_set("appmgr_test_source") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "kv_store:distributeddata_mgr",
   ]
 
@@ -109,6 +108,7 @@ ohos_source_set("abilityms_test_source") {
   sources = [
     "${ability_runtime_services_path}/abilitymgr/src/ability_background_connection.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_bundle_event_callback.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_cache_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_connect_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_debug_deal.cpp",
@@ -261,12 +261,6 @@ ohos_source_set("abilityms_test_source") {
     "window_manager:sms",
   ]
 
-  if (efficiency_manager) {
-    sources += [ "${ability_runtime_services_path}/abilitymgr/src/process_frozen_state_observer.cpp" ]
-    cflags_cc += [ "-DEFFICIENCY_MANAGER_ENABLE" ]
-    external_deps += [ "efficiency_manager:suspend_manager_client" ]
-  }
-
   if (resource_schedule_service_enable) {
     cflags_cc += [ "-RESOURCE_SCHEDULE_SERVICE_ENABLE" ]
     external_deps += [ "resource_schedule_service:ressched_client" ]
@@ -292,10 +286,7 @@ ohos_source_set("abilityms_test_source") {
       "${ability_runtime_services_path}/abilitymgr/src/system_dialog_scheduler.cpp",
       "${ability_runtime_services_path}/appdfr/src/application_anr_listener.cpp",
     ]
-    deps += [
-      "${ace_engine_path}/interfaces/inner_api/ui_service_manager:ui_service_mgr",
-      "//third_party/libjpeg-turbo:turbojpeg_static",
-    ]
+    deps += [ "//third_party/libjpeg-turbo:turbojpeg_static" ]
     external_deps += [
       "i18n:intl_util",
       "icu:shared_icuuc",
@@ -321,6 +312,7 @@ group("unittest") {
     "ability_auto_startup_service_test:unittest",
     "ability_bundle_event_callback_test:unittest",
     "ability_business_error_test:unittest",
+    "ability_cache_manager_test:unittest",
     "ability_connect_callback_proxy_test:unittest",
     "ability_connect_callback_stub_test:unittest",
     "ability_connect_manager_test:unittest",
@@ -347,7 +339,6 @@ group("unittest") {
     "ability_manager_service_second_test:unittest",
     "ability_manager_service_third_test:unittest",
     "ability_manager_stub_test:unittest",
-    "ability_manager_test:unittest",
     "ability_record_dump_test:unittest",
     "ability_record_mgr_test:unittest",
     "ability_record_test:unittest",
@@ -448,6 +439,7 @@ group("unittest") {
     "dataobs_mgr_service_test:unittest",
     "dataobs_mgr_stub_test:unittest",
     "deeplink_reserve_config_test:unittest",
+    "default_recovery_config_test:unittest",
     "dfr_test:unittest",
     "dlp_state_item_test:unittest",
     "dlp_utils_test:unittest",
@@ -483,12 +475,14 @@ group("unittest") {
     "pending_want_record_test:unittest",
     "pending_want_test:unittest",
     "permission_verification_test:unittest",
+    "photo_editor_extension_test:unittest",
     "quick_fix:unittest",
     "remote_mission_listener_proxy_test:unittest",
     "remote_mission_listener_stub_test:unittest",
     "render_state_observer_manager_test:unittest",
     "render_state_observer_proxy_test:unittest",
     "render_state_observer_stub_test:unittest",
+    "res_sched_util_test:unittest",
     "resident_process_manager_test:unittest",
     "running_infos_test:unittest",
     "runtime_test:unittest",
@@ -510,6 +504,7 @@ group("unittest") {
     "ui_extension_context_test:unittest",
     "ui_extension_utils_test:unittest",
     "unlock_screen_test:unittest",
+    "uri_perm_mgr_test:unittest",
     "uri_permission_impl_test:unittest",
     "uri_permission_manager_test:unittest",
     "uri_permission_test:unittest",

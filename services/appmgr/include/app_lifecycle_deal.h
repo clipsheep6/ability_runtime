@@ -163,6 +163,14 @@ public:
     void ScheduleProcessSecurityExit();
 
     /**
+     * cheduleClearPageStack, call cheduleClearPageStack() through proxy project,
+     * Notify application clear recovery page stack.
+     *
+     * @return
+     */
+    void ScheduleClearPageStack();
+
+    /**
      * @brief Setting client for application record.
      *
      * @param thread, the application client.

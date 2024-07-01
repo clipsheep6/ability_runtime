@@ -565,9 +565,10 @@ public:
      * Kill the process immediately.
      *
      * @param bundleName.
+     * @param clearPageStack.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode KillProcess(const std::string &bundleName);
+    ErrCode KillProcess(const std::string &bundleName, const bool clearPageStack = true);
 
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
@@ -579,16 +580,6 @@ public:
      */
     ErrCode ForceTimeoutForTest(const std::string &abilityName, const std::string &state);
     #endif
-
-    /**
-     * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
-     * clear the application data.
-     *
-     * @param bundleName, bundle name in Application record.
-     * @param userId User ID.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode ClearUpApplicationData(const std::string &bundleName, const int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
      * ContinueMission, continue ability from mission center.
@@ -989,7 +980,8 @@ public:
      * @param state the mission continuation state of this ability.
      * @return Returns ERR_OK if success.
      */
-    ErrCode SetMissionContinueState(sptr<IRemoteObject> token, const AAFwk::ContinueState &state);
+    ErrCode SetMissionContinueState(sptr<IRemoteObject> token, const AAFwk::ContinueState &state,
+        sptr<IRemoteObject> sessionToken);
 
 #ifdef SUPPORT_SCREEN
     /**
@@ -1017,7 +1009,8 @@ public:
      * @param handler Indidate handler of WindowManagerService.
      * @return ErrCode Returns ERR_OK on success, others on failure.
      */
-    ErrCode RegisterWindowManagerServiceHandler(sptr<IWindowManagerServiceHandler> handler);
+    ErrCode RegisterWindowManagerServiceHandler(sptr<IWindowManagerServiceHandler> handler,
+        bool animationEnabled = true);
 
     /**
      * WindowManager notification AbilityManager after the first frame is drawn.
@@ -1179,6 +1172,13 @@ public:
     void ScheduleRecoverAbility(sptr<IRemoteObject> token, int32_t reason, const Want *want = nullptr);
 
     /**
+     * @brief Schedule clear recovery page stack.
+     *
+     * @param bundleName application bundleName.
+     */
+    void ScheduleClearRecoveryPageStack();
+
+    /**
      * @brief Add free install observer.
      *
      * @param observer Free install observer.
@@ -1266,8 +1266,9 @@ public:
      * Call UIAbility by SCB.
      *
      * @param sessionInfo the session info of the ability to be called.
+     * @param isColdStart the session of the ability is or not cold start.
      */
-    void CallUIAbilityBySCB(sptr<SessionInfo> sessionInfo);
+    void CallUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bool &isColdStart);
 
     /**
      * Start specified ability by SCB.
@@ -1490,6 +1491,14 @@ public:
     int32_t TransferAbilityResultForExtension(const sptr<IRemoteObject> &callerToken, int32_t resultCode,
         const Want &want);
 
+    /**
+     * Notify ability manager service frozen process.
+     *
+     * @param pidList, the pid list of the frozen process.
+     * @param uid, the uid of the frozen process.
+     */
+    void NotifyFrozenProcessByRSS(const std::vector<int32_t> &pidList, int32_t uid);
+
 private:
     AbilityManagerClient();
     DISALLOW_COPY_AND_MOVE(AbilityManagerClient);
@@ -1509,6 +1518,7 @@ private:
 
     static std::once_flag singletonFlag_;
     std::recursive_mutex mutex_;
+    std::mutex topAbilityMutex_;
     static std::shared_ptr<AbilityManagerClient> instance_;
     sptr<IAbilityManager> proxy_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_;

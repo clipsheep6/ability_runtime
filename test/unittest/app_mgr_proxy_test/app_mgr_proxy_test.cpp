@@ -334,6 +334,21 @@ HWTEST_F(AppMgrProxyTest, NotifyAppFaultBySA_001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: SetAppFreezeFilter_001
+ * @tc.desc: Set appfreeze filter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, SetAppFreezeFilter_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+    int32_t pid = 0; // test value
+    appMgrProxy_->SetAppFreezeFilter(pid);
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::SET_APPFREEZE_FILTER));
+}
+
+/**
  * @tc.name: ChangeAppGcState_001
  * @tc.desc: Change app Gc state.
  * @tc.type: FUNC
@@ -633,15 +648,19 @@ HWTEST_F(AppMgrProxyTest, GetRunningMultiAppInfoByBundleName_001, TestSize.Level
 {
     TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
-    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
 
+    data.WriteInterfaceToken(AppMgrStub::GetDescriptor());
     std::string bundleName = "testBundleName";
-    RunningMultiAppInfo info;
-    appMgrProxy_->GetRunningMultiAppInfoByBundleName(bundleName, info);
-    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>
-        (AppMgrInterfaceCode::GET_RUNNING_MULTIAPP_INFO_BY_BUNDLENAME));
+    data.WriteString(bundleName);
+
+    EXPECT_CALL(*mockAppMgrService_, GetRunningMultiAppInfoByBundleName(_, _)).Times(1);
+
+    auto result = mockAppMgrService_->OnRemoteRequest(
+        static_cast<uint32_t>(AppMgrInterfaceCode::GET_RUNNING_MULTIAPP_INFO_BY_BUNDLENAME), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
 
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }

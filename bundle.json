@@ -24,7 +24,8 @@
       "features": [
         "ability_runtime_auto_fill_ability",
         "ability_runtime_graphics",
-        "ability_runtime_power"
+        "ability_runtime_power",
+        "ability_runtime_app_no_response_dialog"
       ],
       "adapted_system_type": [
           "standard"
@@ -49,7 +50,6 @@
             "data_share",
             "dlp_permission_service",
             "dsoftbus",
-            "efficiency_manager",
             "eventhandler",
             "ets_runtime",
             "ets_utils",
@@ -74,7 +74,6 @@
             "kv_store",
             "libuv",
             "memmgr",
-            "memmgr_override",
             "memory_utils",
             "napi",
             "netmanager_base",

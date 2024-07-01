@@ -154,7 +154,8 @@ int UriPermissionManagerStub::HandleRevokeUriPermissionManually(MessageParcel &d
         return ERR_DEAD_OBJECT;
     }
     auto bundleName = data.ReadString();
-    int result = RevokeUriPermissionManually(*uri, bundleName);
+    auto appIndex = data.ReadInt32();
+    int result = RevokeUriPermissionManually(*uri, bundleName, appIndex);
     reply.WriteInt32(result);
     return ERR_OK;
 }

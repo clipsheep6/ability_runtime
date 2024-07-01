@@ -104,8 +104,7 @@ HWTEST_F(AbilityTimeoutTest, OnAbilityDied_001, TestSize.Level1)
         auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
         auto mission =
             std::make_shared<Mission>(MOCK_MISSION_ID, abilityRecord, abilityRequest.abilityInfo.bundleName);
-        abilityRecord->SetMission(mission);
-        abilityRecord->SetMissionList(defList);
+        abilityRecord->SetMissionId(mission->GetMissionId());
         abilityRecord->SetOwnerMissionUserId(MOCK_MAIN_USER_ID);
         defList->AddMissionToTop(mission);
         EXPECT_TRUE(defList->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
@@ -144,8 +143,7 @@ HWTEST_F(AbilityTimeoutTest, OnAbilityDied_002, TestSize.Level1)
         auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
         auto mission =
             std::make_shared<Mission>(MOCK_MISSION_ID, abilityRecord, abilityRequest.abilityInfo.bundleName);
-        abilityRecord->SetMission(mission);
-        abilityRecord->SetMissionList(lauList);
+        abilityRecord->SetMissionId(mission->GetMissionId());
         abilityRecord->SetLauncherRoot();
         abilityRecord->SetOwnerMissionUserId(MOCK_MAIN_USER_ID);
         lauList->AddMissionToTop(mission);
@@ -190,8 +188,7 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_001, TestSize.Level1)
             std::make_shared<Mission>(MOCK_MISSION_ID, abilityRecord, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(mission != nullptr);
         EXPECT_TRUE(abilityRecord != nullptr);
-        abilityRecord->SetMission(mission);
-        abilityRecord->SetMissionList(lauList);
+        abilityRecord->SetMissionId(mission->GetMissionId());
         abilityRecord->SetLauncherRoot();
         lauList->AddMissionToTop(mission);
         EXPECT_TRUE(lauList->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
@@ -235,8 +232,7 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_002, TestSize.Level1)
             std::make_shared<Mission>(MOCK_MISSION_ID, launcher, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(launcher != nullptr);
         EXPECT_TRUE(missionLauncher != nullptr);
-        launcher->SetMission(missionLauncher);
-        launcher->SetMissionList(lauList);
+        launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
         lauList->AddMissionToTop(missionLauncher);
         EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
@@ -246,13 +242,12 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_002, TestSize.Level1)
         abilityRequest.abilityInfo.name = "com.test.Timeout002";
         auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
         auto mission =
-            std::make_shared<Mission>(MOCK_MISSION_ID, abilityRecord, abilityRequest.abilityInfo.bundleName);
+            std::make_shared<Mission>(MOCK_MISSION_ID + 1, abilityRecord, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(mission != nullptr);
         EXPECT_TRUE(abilityRecord != nullptr);
 
-        abilityRecord->SetMission(mission);
+        abilityRecord->SetMissionId(mission->GetMissionId());
         auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
-        abilityRecord->SetMissionList(missionList);
         missionList->AddMissionToTop(mission);
         curListManager->MoveMissionListToTop(missionList);
         EXPECT_TRUE(curListManager->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
@@ -293,8 +288,7 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_003, TestSize.Level1)
         auto launcher = AbilityRecord::CreateAbilityRecord(abilityRequest);
         auto missionLauncher =
             std::make_shared<Mission>(MOCK_MISSION_ID, launcher, abilityRequest.abilityInfo.bundleName);
-        launcher->SetMission(missionLauncher);
-        launcher->SetMissionList(lauList);
+        launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
         lauList->AddMissionToTop(missionLauncher);
         EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
@@ -306,9 +300,8 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_003, TestSize.Level1)
             std::make_shared<Mission>(MOCK_MISSION_ID + 1, caller, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(caller != nullptr);
         EXPECT_TRUE(callerMission != nullptr);
-        caller->SetMission(callerMission);
+        caller->SetMissionId(callerMission->GetMissionId());
         auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
-        caller->SetMissionList(missionList);
         missionList->AddMissionToTop(callerMission);
         curListManager->MoveMissionListToTop(missionList);
         EXPECT_TRUE(curListManager->GetAbilityRecordByToken(caller->GetToken()) != nullptr);
@@ -319,8 +312,7 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_003, TestSize.Level1)
             std::make_shared<Mission>(MOCK_MISSION_ID + 2, abilityRecord, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(abilityRecord != nullptr);
         EXPECT_TRUE(mission != nullptr);
-        abilityRecord->SetMission(mission);
-        abilityRecord->SetMissionList(missionList);
+        abilityRecord->SetMissionId(mission->GetMissionId());
         abilityRecord->AddCallerRecord(caller->GetToken(), -1);
         missionList->AddMissionToTop(mission);
         curListManager->MoveMissionListToTop(missionList);
@@ -364,8 +356,7 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_004, TestSize.Level1)
         auto missionLauncher =
             std::make_shared<Mission>(MOCK_MISSION_ID, launcher, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(missionLauncher != nullptr);
-        launcher->SetMission(missionLauncher);
-        launcher->SetMissionList(lauList);
+        launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
         lauList->AddMissionToTop(missionLauncher);
         EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
@@ -383,12 +374,11 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_004, TestSize.Level1)
         auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
         EXPECT_TRUE(launcher != nullptr);
         auto mission =
-            std::make_shared<Mission>(MOCK_MISSION_ID, abilityRecord, abilityRequest.abilityInfo.bundleName);
+            std::make_shared<Mission>(MOCK_MISSION_ID + 1, abilityRecord, abilityRequest.abilityInfo.bundleName);
         auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
         EXPECT_TRUE(mission != nullptr);
         EXPECT_TRUE(missionList != nullptr);
-        abilityRecord->SetMission(mission);
-        abilityRecord->SetMissionList(missionList);
+        abilityRecord->SetMissionId(mission->GetMissionId());
         abilityRecord->AddCallerRecord(caller->GetToken(), -1);
         missionList->AddMissionToTop(mission);
         curListManager->MoveMissionListToTop(missionList);
@@ -433,8 +423,7 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_005, TestSize.Level1)
         auto missionLauncher =
             std::make_shared<Mission>(MOCK_MISSION_ID, launcher, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(missionLauncher != nullptr);
-        launcher->SetMission(missionLauncher);
-        launcher->SetMissionList(lauList);
+        launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
         lauList->AddMissionToTop(missionLauncher);
         EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
@@ -452,12 +441,11 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_005, TestSize.Level1)
         auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
         EXPECT_TRUE(launcher != nullptr);
         auto mission =
-            std::make_shared<Mission>(MOCK_MISSION_ID, abilityRecord, abilityRequest.abilityInfo.bundleName);
+            std::make_shared<Mission>(MOCK_MISSION_ID + 1, abilityRecord, abilityRequest.abilityInfo.bundleName);
         auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
         EXPECT_TRUE(mission != nullptr);
         EXPECT_TRUE(missionList != nullptr);
-        abilityRecord->SetMission(mission);
-        abilityRecord->SetMissionList(missionList);
+        abilityRecord->SetMissionId(mission->GetMissionId());
         abilityRecord->AddCallerRecord(caller->GetToken(), -1);
         missionList->AddMissionToTop(mission);
         curListManager->MoveMissionListToTop(missionList);
@@ -502,8 +490,7 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_006, TestSize.Level1)
         auto missionLauncher =
             std::make_shared<Mission>(MOCK_MISSION_ID, launcher, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(missionLauncher != nullptr);
-        launcher->SetMission(missionLauncher);
-            launcher->SetMissionList(lauList);
+        launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
         lauList->AddMissionToTop(missionLauncher);
         EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
@@ -519,12 +506,11 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_006, TestSize.Level1)
         auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
         EXPECT_TRUE(launcher != nullptr);
         auto mission =
-            std::make_shared<Mission>(MOCK_MISSION_ID, abilityRecord, abilityRequest.abilityInfo.bundleName);
+            std::make_shared<Mission>(MOCK_MISSION_ID + 1, abilityRecord, abilityRequest.abilityInfo.bundleName);
         auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
         EXPECT_TRUE(mission != nullptr);
         EXPECT_TRUE(missionList != nullptr);
-        abilityRecord->SetMission(mission);
-        abilityRecord->SetMissionList(missionList);
+        abilityRecord->SetMissionId(mission->GetMissionId());
         abilityRecord->AddCallerRecord(caller->GetToken(), -1);
         missionList->AddMissionToTop(mission);
         curListManager->MoveMissionListToTop(missionList);
@@ -569,8 +555,7 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_007, TestSize.Level1)
         auto missionLauncher =
             std::make_shared<Mission>(MOCK_MISSION_ID, launcher, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(missionLauncher != nullptr);
-        launcher->SetMission(missionLauncher);
-        launcher->SetMissionList(lauList);
+        launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
         lauList->AddMissionToTop(missionLauncher);
         EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
@@ -588,12 +573,11 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_007, TestSize.Level1)
         auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
         EXPECT_TRUE(launcher != nullptr);
         auto mission =
-            std::make_shared<Mission>(MOCK_MISSION_ID, abilityRecord, abilityRequest.abilityInfo.bundleName);
+            std::make_shared<Mission>(MOCK_MISSION_ID + 1, abilityRecord, abilityRequest.abilityInfo.bundleName);
         auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
         EXPECT_TRUE(mission != nullptr);
         EXPECT_TRUE(missionList != nullptr);
-        abilityRecord->SetMission(mission);
-        abilityRecord->SetMissionList(missionList);
+        abilityRecord->SetMissionId(mission->GetMissionId());
         abilityRecord->AddCallerRecord(caller->GetToken(), -1);
         missionList->AddMissionToTop(mission);
         curListManager->MoveMissionListToTop(missionList);
@@ -638,8 +622,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_001, TestSize.Level1)
         auto missionLauncher =
             std::make_shared<Mission>(MOCK_MISSION_ID, launcher, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(missionLauncher != nullptr);
-        launcher->SetMission(missionLauncher);
-        launcher->SetMissionList(lauList);
+        launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
         lauList->AddMissionToTop(missionLauncher);
         EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
@@ -684,8 +667,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_002, TestSize.Level1)
         auto missionLauncher =
             std::make_shared<Mission>(MOCK_MISSION_ID, launcher, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(missionLauncher != nullptr);
-        launcher->SetMission(missionLauncher);
-        launcher->SetMissionList(lauList);
+        launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
         lauList->AddMissionToTop(missionLauncher);
         EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
@@ -695,10 +677,9 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_002, TestSize.Level1)
         auto commonLauncher = AbilityRecord::CreateAbilityRecord(abilityRequest);
         EXPECT_TRUE(commonLauncher != nullptr);
         auto commonMissionLauncher =
-            std::make_shared<Mission>(MOCK_MISSION_ID, commonLauncher, abilityRequest.abilityInfo.bundleName);
+            std::make_shared<Mission>(MOCK_MISSION_ID + 1, commonLauncher, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(commonMissionLauncher != nullptr);
-        commonLauncher->SetMission(commonMissionLauncher);
-        commonLauncher->SetMissionList(lauList);
+        commonLauncher->SetMissionId(commonMissionLauncher->GetMissionId());
         lauList->AddMissionToTop(commonMissionLauncher);
         commonLauncher->SetAbilityState(AbilityState::FOREGROUNDING);
         EXPECT_TRUE(lauList->GetAbilityRecordByToken(commonLauncher->GetToken()) != nullptr);
@@ -741,8 +722,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_003, TestSize.Level1)
         auto missionLauncher =
             std::make_shared<Mission>(MOCK_MISSION_ID, launcher, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(missionLauncher != nullptr);
-        launcher->SetMission(missionLauncher);
-        launcher->SetMissionList(lauList);
+        launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
         lauList->AddMissionToTop(missionLauncher);
         EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
@@ -754,9 +734,8 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_003, TestSize.Level1)
             std::make_shared<Mission>(MOCK_MISSION_ID + 1, caller, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(caller != nullptr);
         EXPECT_TRUE(callerMission != nullptr);
-        caller->SetMission(callerMission);
+        caller->SetMissionId(callerMission->GetMissionId());
         auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
-        caller->SetMissionList(missionList);
         missionList->AddMissionToTop(callerMission);
         curListManager->MoveMissionListToTop(missionList);
         EXPECT_TRUE(curListManager->GetAbilityRecordByToken(caller->GetToken()) != nullptr);
@@ -767,7 +746,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_003, TestSize.Level1)
         auto commonMissionLauncher =
             std::make_shared<Mission>(MOCK_MISSION_ID + 2, commonLauncher, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(commonMissionLauncher != nullptr);
-        commonLauncher->SetMission(commonMissionLauncher);
+        commonLauncher->SetMissionId(commonMissionLauncher->GetMissionId());
         commonLauncher->AddCallerRecord(caller->GetToken(), -1);
         missionList->AddMissionToTop(commonMissionLauncher);
         curListManager->MoveMissionListToTop(missionList);
@@ -812,8 +791,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_004, TestSize.Level1)
         auto missionLauncher =
             std::make_shared<Mission>(MOCK_MISSION_ID, launcher, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(missionLauncher != nullptr);
-        launcher->SetMission(missionLauncher);
-        launcher->SetMissionList(lauList);
+        launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
         lauList->AddMissionToTop(missionLauncher);
         EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
@@ -830,11 +808,10 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_004, TestSize.Level1)
         auto commonLauncher = AbilityRecord::CreateAbilityRecord(abilityRequest);
         EXPECT_TRUE(commonLauncher != nullptr);
         auto commonMissionLauncher =
-            std::make_shared<Mission>(MOCK_MISSION_ID, commonLauncher, abilityRequest.abilityInfo.bundleName);
+            std::make_shared<Mission>(MOCK_MISSION_ID + 1, commonLauncher, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(commonMissionLauncher != nullptr);
         auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
-        commonLauncher->SetMissionList(missionList);
-        commonLauncher->SetMission(commonMissionLauncher);
+        commonLauncher->SetMissionId(commonMissionLauncher->GetMissionId());
         commonLauncher->AddCallerRecord(caller->GetToken(), -1);
         missionList->AddMissionToTop(commonMissionLauncher);
         curListManager->MoveMissionListToTop(missionList);
@@ -881,8 +858,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_005, TestSize.Level1)
         auto missionLauncher =
             std::make_shared<Mission>(MOCK_MISSION_ID, launcher, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(missionLauncher != nullptr);
-        launcher->SetMission(missionLauncher);
-        launcher->SetMissionList(lauList);
+        launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
         lauList->AddMissionToTop(missionLauncher);
         EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
@@ -900,11 +876,10 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_005, TestSize.Level1)
         auto commonLauncher = AbilityRecord::CreateAbilityRecord(abilityRequest);
         EXPECT_TRUE(commonLauncher != nullptr);
         auto commonMissionLauncher =
-            std::make_shared<Mission>(MOCK_MISSION_ID, commonLauncher, abilityRequest.abilityInfo.bundleName);
+            std::make_shared<Mission>(MOCK_MISSION_ID + 1, commonLauncher, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(commonMissionLauncher != nullptr);
         auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
-        commonLauncher->SetMissionList(missionList);
-        commonLauncher->SetMission(commonMissionLauncher);
+        commonLauncher->SetMissionId(commonMissionLauncher->GetMissionId());
         commonLauncher->AddCallerRecord(caller->GetToken(), -1);
         missionList->AddMissionToTop(commonMissionLauncher);
         curListManager->MoveMissionListToTop(missionList);
@@ -951,8 +926,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_006, TestSize.Level1)
         auto missionLauncher =
             std::make_shared<Mission>(MOCK_MISSION_ID, launcher, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(missionLauncher != nullptr);
-        launcher->SetMission(missionLauncher);
-        launcher->SetMissionList(lauList);
+        launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
         lauList->AddMissionToTop(missionLauncher);
         EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
@@ -973,8 +947,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_006, TestSize.Level1)
             std::make_shared<Mission>(MOCK_MISSION_ID, commonAbility, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(commonMissionLauncher != nullptr);
         auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
-        commonAbility->SetMissionList(missionList);
-        commonAbility->SetMission(commonMissionLauncher);
+        commonAbility->SetMissionId(commonMissionLauncher->GetMissionId());
         commonAbility->AddCallerRecord(caller->GetToken(), -1);
         missionList->AddMissionToTop(commonMissionLauncher);
         curListManager->MoveMissionListToTop(missionList);
@@ -1021,8 +994,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_007, TestSize.Level1)
         auto missionLauncher =
             std::make_shared<Mission>(MOCK_MISSION_ID, launcher, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(missionLauncher != nullptr);
-        launcher->SetMission(missionLauncher);
-        launcher->SetMissionList(lauList);
+        launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
         lauList->AddMissionToTop(missionLauncher);
         EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
@@ -1032,11 +1004,10 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_007, TestSize.Level1)
         auto commonLauncher = AbilityRecord::CreateAbilityRecord(abilityRequest);
         EXPECT_TRUE(commonLauncher != nullptr);
         auto commonMissionLauncher =
-            std::make_shared<Mission>(MOCK_MISSION_ID, commonLauncher, abilityRequest.abilityInfo.bundleName);
+            std::make_shared<Mission>(MOCK_MISSION_ID + 1, commonLauncher, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(commonMissionLauncher != nullptr);
         auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
-        commonLauncher->SetMissionList(missionList);
-        commonLauncher->SetMission(commonMissionLauncher);
+        commonLauncher->SetMissionId(commonMissionLauncher->GetMissionId());
         missionList->AddMissionToTop(commonMissionLauncher);
         curListManager->MoveMissionListToTop(missionList);
         commonLauncher->SetAbilityState(AbilityState::FOREGROUNDING);

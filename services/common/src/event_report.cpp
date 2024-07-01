@@ -28,6 +28,7 @@ constexpr const char *EVENT_KEY_ERROR_CODE = "ERROR_CODE";
 constexpr const char *EVENT_KEY_BUNDLE_NAME = "BUNDLE_NAME";
 constexpr const char *EVENT_KEY_MODULE_NAME = "MODULE_NAME";
 constexpr const char *EVENT_KEY_ABILITY_NAME = "ABILITY_NAME";
+constexpr const char *EVENT_KEY_ABILITY_NUMBER = "ABILITY_NUMBER";
 constexpr const char *EVENT_KEY_ABILITY_TYPE = "ABILITY_TYPE";
 constexpr const char *EVENT_KEY_VERSION_NAME = "VERSION_NAME";
 constexpr const char *EVENT_KEY_VERSION_CODE = "VERSION_CODE";
@@ -190,7 +191,8 @@ void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType ty
                 EVENT_KEY_USERID, eventInfo.userId,
                 EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
                 EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
-                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
+                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
+                EVENT_KEY_ABILITY_NUMBER, eventInfo.abilityNumber);
             break;
         default:
             break;
@@ -225,6 +227,36 @@ void EventReport::SendAtomicServiceEvent(const EventName &eventName, HiSysEventT
                 EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName,
                 EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.callerProcessName,
                 EVENT_KEY_CALLER_UID, eventInfo.callerUid);
+            break;
+        default:
+            break;
+    }
+}
+
+void EventReport::SendGrantUriPermissionEvent(const EventName &eventName, const EventInfo &eventInfo)
+{
+    std::string name = ConvertEventName(eventName);
+    if (name == INVALID_EVENT_NAME) {
+        TAG_LOGE(AAFwkTag::DEFAULT, "invalid eventName: %{public}s", name.c_str());
+        return;
+    }
+    switch (eventName) {
+        case EventName::GRANT_URI_PERMISSION:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                HiSysEventType::BEHAVIOR,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName,
+                EVENT_KEY_URI, eventInfo.uri);
+            break;
+        case EventName::SHARE_UNPRIVILEGED_FILE_URI:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                HiSysEventType::BEHAVIOR,
+                EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName);
             break;
         default:
             break;
@@ -270,15 +302,6 @@ void EventReport::SendKeyEvent(const EventName &eventName, HiSysEventType type, 
     }
     TAG_LOGI(AAFwkTag::DEFAULT, "name is %{public}s", name.c_str());
     switch (eventName) {
-        case EventName::GRANT_URI_PERMISSION:
-            HiSysEventWrite(
-                HiSysEvent::Domain::AAFWK,
-                name,
-                type,
-                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-                EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName,
-                EVENT_KEY_URI, eventInfo.uri);
-            break;
         case EventName::FA_SHOW_ON_LOCK:
         case EventName::START_PRIVATE_ABILITY:
             HiSysEventWrite(
@@ -541,7 +564,10 @@ std::string EventReport::ConvertEventName(const EventName &eventName)
         "RESTART_PROCESS_BY_SAME_APP", "START_STANDARD_ABILITIES",
 
         // atomic service event
-        "CREATE_ATOMIC_SERVICE_PROCESS", "ATOMIC_SERVICE_DRAWN_COMPLETE"
+        "CREATE_ATOMIC_SERVICE_PROCESS", "ATOMIC_SERVICE_DRAWN_COMPLETE",
+        
+        // uri permission
+        "SHARE_UNPRIVILEGED_FILE_URI"
     };
     uint32_t eventIndex = static_cast<uint32_t> (eventName);
     if (eventIndex >= sizeof(eventNames) / sizeof(const char*)) {

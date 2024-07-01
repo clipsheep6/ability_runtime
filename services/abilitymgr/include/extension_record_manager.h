@@ -97,8 +97,12 @@ public:
 
     void RemoveAllPreloadUIExtensionRecord(PreLoadUIExtensionMapKey &preLoadUIExtensionInfo);
     
-    bool RemovePreloadUIExtensionRecord(const AAFwk::AbilityRequest &abilityRequest,
-    const std::string &hostBundleName, std::shared_ptr<ExtensionRecord> &extensionRecord, bool &isLoaded);
+    bool RemovePreloadUIExtensionRecord(
+        const std::tuple<std::string, std::string, std::string, std::string> extensionRecordMapKey);
+
+    bool RemovePreloadUIExtensionRecordById(
+        const std::tuple<std::string, std::string, std::string, std::string> extensionRecordMapKey,
+        int32_t extensionRecordId);
 
     int32_t GetOrCreateExtensionRecord(const AAFwk::AbilityRequest &abilityRequest, const std::string &hostBundleName,
         std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord, bool &isLoaded);
@@ -111,6 +115,8 @@ public:
     void ForegroundTimeout(int32_t extensionRecordId);
     void BackgroundTimeout(int32_t extensionRecordId);
     void TerminateTimeout(int32_t extensionRecordId);
+
+    int32_t GetHostBundleNameForExtensionId(int32_t extensionRecordId, std::string& hostBundleName);
 private:
     inline std::shared_ptr<ExtensionRecord> GetExtensionRecordById(int32_t extensionRecordId);
 

@@ -2432,6 +2432,7 @@ ohos_unittest("form_extension_module_loader_test") {
   external_deps = [
     "ability_base:configuration",
     "ability_base:session_info",
+    "ability_runtime:extensionkit_native",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
@@ -2600,6 +2601,7 @@ ohos_unittest("auto_fill_extension_module_loader_test") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "window_manager:libwm",
   ]
 }
 

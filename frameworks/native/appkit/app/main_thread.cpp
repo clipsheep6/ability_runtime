@@ -23,6 +23,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "ability_manager_client.h"
 #include "constants.h"
 #include "ability_delegator.h"
 #include "ability_delegator_registry.h"
@@ -47,6 +48,7 @@
 #include "context_impl.h"
 #include "dump_ffrt_helper.h"
 #include "dump_ipc_helper.h"
+#include "dump_runtime_helper.h"
 #include "exit_reason.h"
 #include "extension_ability_info.h"
 #include "extension_module_loader.h"
@@ -644,16 +646,7 @@ void MainThread::ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
         return;
     }
     if (info.needSnapshot == true) {
-        std::vector<uint32_t> fdVec;
-        for (auto &fd : info.fdVec) {
-            uint32_t newFd = dup(fd);
-            if (newFd == -1) {
-                TAG_LOGE(AAFwkTag::APPKIT, "dup failed.");
-                return;
-            }
-            fdVec.push_back(newFd);
-        }
-        runtime->DumpHeapSnapshot(info.tid, info.needGc, fdVec, info.tidVec);
+        runtime->DumpHeapSnapshot(info.tid, info.needGc);
     } else {
         if (info.needGc == true) {
             runtime->ForceFullGC(info.tid);
@@ -682,6 +675,23 @@ void MainThread::ScheduleProcessSecurityExit()
     if (!result) {
         TAG_LOGE(AAFwkTag::APPKIT, "post task failed");
     }
+}
+
+/**
+ *
+ * @brief Schedule the application clear recovery page stack.
+ *
+ */
+void MainThread::ScheduleClearPageStack()
+{
+    TAG_LOGI(AAFwkTag::APPKIT, "ScheduleClearPageStack called");
+    if (applicationInfo_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "applicationInfo_ is nullptr");
+        return;
+    }
+
+    auto bundleName = applicationInfo_->bundleName;
+    AppRecovery::GetInstance().ClearPageStack(bundleName);
 }
 
 /**
@@ -761,6 +771,11 @@ void MainThread::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
     }
 }
 
+bool MainThread::IsBgWorkingThread(const AbilityInfo &info)
+{
+    return info.extensionAbilityType == ExtensionAbilityType::BACKUP;
+}
+
 void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemoteObject> &token,
     const std::shared_ptr<AAFwk::Want> &want, int32_t abilityRecordId)
 {
@@ -775,7 +790,9 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
     auto abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     abilityRecord->SetWant(want);
     abilityRecord->SetAbilityRecordId(abilityRecordId);
-
+    if (watchdog_ != nullptr) {
+        watchdog_->SetBgWorkingThreadStatus(IsBgWorkingThread(info));
+    }
     FreezeUtil::LifecycleFlow flow = { token, FreezeUtil::TimeoutState::LOAD };
     std::string entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
         "; MainThread::ScheduleLaunchAbility; the load lifecycle.";
@@ -958,6 +975,9 @@ void MainThread::HandleProcessSecurityExit()
     for (auto iter = tokens.begin(); iter != tokens.end(); ++iter) {
         HandleCleanAbilityLocal(*iter);
     }
+
+    // in process cache state, there can be abilityStage with no abilities
+    application_->CleanEmptyAbilityStage();
 
     HandleTerminateApplicationLocal();
 }
@@ -1445,6 +1465,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 #ifdef CJ_FRONTEND
     if (isCJApp) {
         AbilityRuntime::CJRuntime::SetAppLibPath(appLibPaths);
+        if (appInfo.asanEnabled) {
+            AbilityRuntime::CJRuntime::SetAsanVersion();
+        } else if (appInfo.tsanEnabled) {
+            AbilityRuntime::CJRuntime::SetTsanVersion();
+        }
     } else {
 #endif
         AbilityRuntime::JsRuntime::SetAppLibPath(appLibPaths, isSystemApp);
@@ -1643,6 +1668,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 
             IdleNotifyStatusCallback cb = idleTime_->GetIdleNotifyFunc();
             jsEngine.NotifyIdleStatusControl(cb);
+
+            auto helper = std::make_shared<DumpRuntimeHelper>(application_);
+            helper->SetAppFreezeFilterCallback();
         }
 #ifdef CJ_FRONTEND
     }
@@ -2187,7 +2215,6 @@ void MainThread::HandleForegroundApplication()
 
     if (!applicationImpl_->PerformForeground()) {
         TAG_LOGE(AAFwkTag::APPKIT, "applicationImpl_->PerformForeground() failed");
-        return;
     }
 
     // Start accessing PurgeableMem if the event of foreground is successful.
@@ -2216,7 +2243,6 @@ void MainThread::HandleBackgroundApplication()
 
     if (!applicationImpl_->PerformBackground()) {
         TAG_LOGE(AAFwkTag::APPKIT, "applicationImpl_->PerformBackground() failed");
-        return;
     }
 
     // End accessing PurgeableMem if the event of background is successful.
@@ -3206,6 +3232,9 @@ int32_t MainThread::ChangeAppGcState(int32_t state)
     if (runtime == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "runtime is nullptr.");
         return ERR_INVALID_VALUE;
+    }
+    if (runtime->GetLanguage() == AbilityRuntime::Runtime::Language::CJ) {
+        return NO_ERROR;
     }
     auto& nativeEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
     nativeEngine.NotifyForceExpandState(state);

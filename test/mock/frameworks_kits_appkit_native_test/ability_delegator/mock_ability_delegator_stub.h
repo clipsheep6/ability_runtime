@@ -70,8 +70,9 @@ public:
     MOCK_METHOD1(MoveMissionToTop, int(int32_t missionId));
     MOCK_METHOD1(RemoveMission, int(int id));
     MOCK_METHOD1(RemoveStack, int(int id));
-    MOCK_METHOD1(KillProcess, int(const std::string& bundleName));
+    MOCK_METHOD2(KillProcess, int(const std::string& bundleName, const bool clearPageStack));
     MOCK_METHOD2(UninstallApp, int(const std::string& bundleName, int32_t uid));
+    MOCK_METHOD3(UninstallApp, int32_t(const std::string& bundleName, int32_t uid, int32_t appIndex));
     MOCK_METHOD2(MoveMissionToEnd, int(const sptr<IRemoteObject>& token, const bool nonFirst));
     MOCK_METHOD1(IsFirstInMission, bool(const sptr<IRemoteObject>& token));
     MOCK_METHOD4(CompelVerifyPermission, int(const std::string& permission, int pid, int uid, std::string& message));
@@ -116,7 +117,6 @@ public:
     MOCK_METHOD2(MoveMissionToFront, int(int32_t missionId, const StartOptions& startOptions));
     MOCK_METHOD2(MoveMissionsToForeground, int(const std::vector<int32_t>& missionIds, int32_t topMissionId));
     MOCK_METHOD2(MoveMissionsToBackground, int(const std::vector<int32_t>& missionIds, std::vector<int32_t>& result));
-    MOCK_METHOD2(ClearUpApplicationData, int(const std::string&, int32_t userId));
     MOCK_METHOD1(GetAbilityRunningInfos, int(std::vector<AbilityRunningInfo>& info));
     MOCK_METHOD2(GetExtensionRunningInfos, int(int upperLimit, std::vector<ExtensionRunningInfo>& info));
     MOCK_METHOD1(GetProcessRunningInfos, int(std::vector<AppExecFwk::RunningProcessInfo>& info));
@@ -182,7 +182,8 @@ public:
     MOCK_METHOD2(SetMissionLabel, int(const sptr<IRemoteObject>& token, const std::string& label));
     int SetMissionIcon(
         const sptr<IRemoteObject>& token, const std::shared_ptr<OHOS::Media::PixelMap>& icon) override;
-    int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler);
+    int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler,
+        bool animationEnabled = true);
     void CompleteFirstFrameDrawing(const sptr<IRemoteObject>& abilityToken) override {}
 #endif
     MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionValidResult>&));
@@ -251,8 +252,9 @@ public:
     MOCK_METHOD1(MoveMissionToTop, int(int32_t missionId));
     MOCK_METHOD1(RemoveMission, int(int id));
     MOCK_METHOD1(RemoveStack, int(int id));
-    MOCK_METHOD1(KillProcess, int(const std::string& bundleName));
+    MOCK_METHOD2(KillProcess, int(const std::string& bundleName, const bool clearPageStack));
     MOCK_METHOD2(UninstallApp, int(const std::string& bundleName, int32_t uid));
+    MOCK_METHOD3(UninstallApp, int32_t(const std::string& bundleName, int32_t uid, int32_t appIndex));
     MOCK_METHOD2(MoveMissionToEnd, int(const sptr<IRemoteObject>& token, const bool nonFirst));
     MOCK_METHOD1(IsFirstInMission, bool(const sptr<IRemoteObject>& token));
     MOCK_METHOD4(CompelVerifyPermission, int(const std::string& permission, int pid, int uid, std::string& message));
@@ -297,7 +299,6 @@ public:
     MOCK_METHOD2(MoveMissionToFront, int(int32_t missionId, const StartOptions& startOptions));
     MOCK_METHOD2(MoveMissionsToForeground, int(const std::vector<int32_t>& missionIds, int32_t topMissionId));
     MOCK_METHOD2(MoveMissionsToBackground, int(const std::vector<int32_t>& missionIds, std::vector<int32_t>& result));
-    MOCK_METHOD2(ClearUpApplicationData, int(const std::string&, int32_t userId));
     MOCK_METHOD1(GetAbilityRunningInfos, int(std::vector<AbilityRunningInfo>& info));
     MOCK_METHOD2(GetExtensionRunningInfos, int(int upperLimit, std::vector<ExtensionRunningInfo>& info));
     MOCK_METHOD1(GetProcessRunningInfos, int(std::vector<AppExecFwk::RunningProcessInfo>& info));
@@ -363,7 +364,8 @@ public:
     MOCK_METHOD2(SetMissionLabel, int(const sptr<IRemoteObject>& token, const std::string& label));
     int SetMissionIcon(
         const sptr<IRemoteObject>& token, const std::shared_ptr<OHOS::Media::PixelMap>& icon) override;
-    int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler);
+    int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler,
+        bool animationEnabled = true);
     void CompleteFirstFrameDrawing(const sptr<IRemoteObject>& abilityToken) override {}
 #endif
     MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionValidResult>&));

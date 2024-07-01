@@ -284,13 +284,13 @@ AppMgrResultCode AppMgrClient::UpdateApplicationInfoInstalled(const std::string 
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
 }
 
-AppMgrResultCode AppMgrClient::KillApplication(const std::string &bundleName)
+AppMgrResultCode AppMgrClient::KillApplication(const std::string &bundleName, bool const clearPageStack)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service != nullptr) {
         sptr<IAmsMgr> amsService = service->GetAmsMgr();
         if (amsService != nullptr) {
-            int32_t result = amsService->KillApplication(bundleName);
+            int32_t result = amsService->KillApplication(bundleName, clearPageStack);
             if (result == ERR_OK) {
                 return AppMgrResultCode::RESULT_OK;
             }
@@ -316,13 +316,13 @@ AppMgrResultCode AppMgrClient::KillApplicationByUid(const std::string &bundleNam
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
 }
 
-AppMgrResultCode AppMgrClient::KillApplicationSelf()
+AppMgrResultCode AppMgrClient::KillApplicationSelf(const bool clearPageStack)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service != nullptr) {
         sptr<IAmsMgr> amsService = service->GetAmsMgr();
         if (amsService != nullptr) {
-            int32_t result = amsService->KillApplicationSelf();
+            int32_t result = amsService->KillApplicationSelf(clearPageStack);
             if (result == ERR_OK) {
                 return AppMgrResultCode::RESULT_OK;
             }
@@ -366,11 +366,12 @@ AppMgrResultCode AppMgrClient::RequestTerminateApplication()
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
 }
 
-AppMgrResultCode AppMgrClient::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
+AppMgrResultCode AppMgrClient::ClearUpApplicationData(const std::string &bundleName, int32_t appCloneIndex,
+    int32_t userId)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service != nullptr) {
-        int32_t result = service->ClearUpApplicationData(bundleName, userId);
+        int32_t result = service->ClearUpApplicationData(bundleName, appCloneIndex, userId);
         if (result == ERR_OK) {
             return AppMgrResultCode::RESULT_OK;
         }
@@ -528,7 +529,7 @@ void AppMgrClient::AbilityAttachTimeOut(const sptr<IRemoteObject> &token)
     amsService->AbilityAttachTimeOut(token);
 }
 
-void AppMgrClient::PrepareTerminate(const sptr<IRemoteObject> &token)
+void AppMgrClient::PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
@@ -538,7 +539,7 @@ void AppMgrClient::PrepareTerminate(const sptr<IRemoteObject> &token)
     if (amsService == nullptr) {
         return;
     }
-    amsService->PrepareTerminate(token);
+    amsService->PrepareTerminate(token, clearMissionFlag);
 }
 
 void AppMgrClient::GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info)
@@ -887,6 +888,15 @@ int32_t AppMgrClient::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
     return service->NotifyAppFaultBySA(faultData);
 }
 
+bool AppMgrClient::SetAppFreezeFilter(int32_t pid)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->SetAppFreezeFilter(pid);
+}
+
 int32_t AppMgrClient::ChangeAppGcState(pid_t pid, int32_t state)
 {
     if (mgrHolder_ == nullptr) {
@@ -1216,6 +1226,51 @@ void AppMgrClient::SaveBrowserChannel(sptr<IRemoteObject> browser)
         return;
     }
     service->SaveBrowserChannel(browser);
+}
+
+int32_t AppMgrClient::CheckCallingIsUserTestMode(const pid_t pid, bool &isUserTest)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service != nullptr) {
+        return service->CheckCallingIsUserTestMode(pid, isUserTest);
+    }
+    return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+}
+
+AppMgrResultCode AppMgrClient::AttachedToStatusBar(const sptr<IRemoteObject> &token)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service != nullptr) {
+        sptr<IAmsMgr> amsService = service->GetAmsMgr();
+        if (amsService != nullptr) {
+            amsService->AttachedToStatusBar(token);
+            return AppMgrResultCode::RESULT_OK;
+        }
+    }
+    TAG_LOGE(AAFwkTag::APPMGR, "Service is not connected.");
+    return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+}
+
+int32_t AppMgrClient::NotifyProcessDependedOnWeb()
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Service is nullptr.");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    TAG_LOGD(AAFwkTag::APPMGR, "call");
+    return service->NotifyProcessDependedOnWeb();
+}
+
+void AppMgrClient::KillProcessDependedOnWeb()
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Service is nullptr.");
+        return;
+    }
+    TAG_LOGD(AAFwkTag::APPMGR, "call");
+    service->KillProcessDependedOnWeb();
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

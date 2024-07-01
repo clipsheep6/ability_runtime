@@ -27,6 +27,8 @@
 #define CJ_EXPORT __attribute__((visibility("default")))
 #endif
 
+using AbilityStageHandle = void*;
+
 extern "C" {
 struct CJConfiguration {
     int32_t colorMode;
@@ -44,6 +46,7 @@ struct CJAbilityStageFuncs {
     char* (*AbilityStageOnAcceptWant)(int64_t handle, OHOS::AAFwk::Want* want);
     void (*AbilityStageOnConfigurationUpdated)(int64_t id, CJConfiguration configuration);
     void (*AbilityStageOnMemoryLevel)(int64_t id, int32_t level);
+    void (*AbilityStageInit)(int64_t id, void* abilityStage);
 };
 
 CJ_EXPORT void RegisterCJAbilityStageFuncs(void (*registerFunc)(CJAbilityStageFuncs* result));
@@ -58,6 +61,7 @@ public:
     explicit CJAbilityStageObject(int64_t id) : id_(id) {}
     ~CJAbilityStageObject();
 
+    void Init(AbilityStageHandle abilityStage) const;
     void OnCreate() const;
     std::string OnAcceptWant(const AAFwk::Want& want) const;
     void OnConfigurationUpdated(const std::shared_ptr<AppExecFwk::Configuration>& configuration) const;

@@ -41,6 +41,8 @@ ohos_shared_library("libappms") {
   shlib_type = "sa"
   include_dirs = [ "${ability_runtime_services_path}/appdfr/include" ]
   sources = [
+    "${ability_runtime_path}/tools/aa/src/shell_command_result.cpp",
+    "${ability_runtime_path}/tools/aa/src/test_observer_proxy.cpp",
     "src/ability_running_record.cpp",
     "src/advanced_security_mode_manager.cpp",
     "src/ams_mgr_scheduler.cpp",
@@ -62,6 +64,7 @@ ohos_shared_library("libappms") {
     "src/cache_process_manager.cpp",
     "src/child_process_record.cpp",
     "src/exit_resident_process_manager.cpp",
+    "src/modal_system_app_freeze_uiextension.cpp",
     "src/module_running_record.cpp",
     "src/quick_fix_callback_with_record.cpp",
     "src/remote_client_manager.cpp",
@@ -72,6 +75,7 @@ ohos_shared_library("libappms") {
 
   defines = [ "AMS_LOG_TAG = \"AppMgrService\"" ]
   defines += [ "AMS_LOG_DOMAIN = 0xD001303" ]
+  defines += [ "OHOS_ACCOUNT_ENABLED" ]
 
   if (product_name != "ohcore") {
     defines += [ "APP_MGR_SERVICE_APPMS" ]
@@ -91,6 +95,7 @@ ohos_shared_library("libappms") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
@@ -100,6 +105,7 @@ ohos_shared_library("libappms") {
     "${ability_runtime_services_path}/common:app_util",
     "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",
+    "${ability_runtime_services_path}/common:res_sched_util",
     "${ability_runtime_services_path}/common:task_handler_wrap",
   ]
 
@@ -123,7 +129,7 @@ ohos_shared_library("libappms") {
     "ipc:ipc_core",
     "json:nlohmann_json_static",
     "kv_store:distributeddata_inner",
-    "kv_store:distributeddata_mgr",
+    "memmgr:memmgrclient",
     "memory_utils:libmeminfo",
     "os_account:libaccountkits",
     "resource_schedule_service:ressched_client",
@@ -150,23 +156,16 @@ ohos_shared_library("libappms") {
     ]
   }
 
-  if (efficiency_manager) {
-    defines += [ "EFFICIENCY_MANAGER_ENABLE" ]
-    external_deps += [ "efficiency_manager:suspend_manager_client" ]
-  }
-
-  if (ability_runtime_use_memmgr_plugin) {
-    external_deps += [ "memmgr_override:memmgrclient" ]
-  } else if (ability_runtime_use_memmgr) {
-    external_deps += [ "memmgr:memmgrclient" ]
-  }
-
   if (background_task_mgr_continuous_task_enable) {
     defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
   }
 
   if (is_asan || asan_detector) {
     defines += [ "SUPPORT_ASAN" ]
+  }
+
+  if (ability_runtime_app_no_response_dialog) {
+    defines += [ "APP_NO_RESPONSE_DIALOG" ]
   }
 
   version_script = "libappms.map"

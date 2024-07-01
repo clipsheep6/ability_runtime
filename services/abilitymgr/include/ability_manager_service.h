@@ -241,7 +241,7 @@ public:
      *
      * @param want the want of the ability to start.
      * @param callerToken current caller ability token.
-     * @param asCallerSoureToken source caller ability token
+     * @param asCallerSourceToken source caller ability token
      * @param userId Designation User ID.
      * @param requestCode the resultCode of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
@@ -249,7 +249,7 @@ public:
     virtual int StartAbilityAsCaller(
             const Want &want,
             const sptr<IRemoteObject> &callerToken,
-            sptr<IRemoteObject> asCallerSoureToken,
+            sptr<IRemoteObject> asCallerSourceToken,
             int32_t userId = DEFAULT_INVAL_VALUE,
             int requestCode = DEFAULT_INVAL_VALUE,
             bool isSendDialogResult = false) override;
@@ -260,7 +260,7 @@ public:
      * @param want the want of the ability to start.
      * @param startOptions Indicates the options used to start.
      * @param callerToken current caller ability token.
-     * @param asCallerSoureToken source caller ability token
+     * @param asCallerSourceToken source caller ability token
      * @param userId Designation User ID.
      * @param requestCode the resultCode of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
@@ -269,7 +269,7 @@ public:
         const Want &want,
         const StartOptions &startOptions,
         const sptr<IRemoteObject> &callerToken,
-        sptr<IRemoteObject> asCallerSoureToken,
+        sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE) override;
 
@@ -780,17 +780,7 @@ public:
      * @param bundleName.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int KillProcess(const std::string &bundleName) override;
-
-    /**
-     * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
-     * clear the application data.
-     *
-     * @param bundleName, bundle name in Application record.
-     * @return ERR_OK, return back success, others fail.
-     */
-    virtual int ClearUpApplicationData(const std::string &bundleName,
-        const int32_t userId = -1) override;
+    virtual int KillProcess(const std::string &bundleName, const bool clearPageStack = true) override;
 
     /**
      * Uninstall app
@@ -802,14 +792,26 @@ public:
     virtual int UninstallApp(const std::string &bundleName, int32_t uid) override;
 
     /**
+     * Uninstall app
+     *
+     * @param bundleName bundle name of uninstalling app.
+     * @param uid uid of bundle.
+     * @param appIndex the app index of app clone.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UninstallApp(const std::string &bundleName, int32_t uid, int32_t appIndex) override;
+
+    /**
      * Upgrade app, record exit reason and kill application
      *
      * @param bundleName bundle name of upgrading app.
      * @param uid uid of bundle.
      * @param exitMsg the exit reason message.
+     * @param appIndex the app index of app clone.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg) override;
+    virtual int32_t UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg,
+        int32_t appIndex = 0) override;
 
     virtual sptr<IWantSender> GetWantSender(
         const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken) override;
@@ -1024,7 +1026,7 @@ public:
     int StartAbilityAsCallerDetails(
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
-        sptr<IRemoteObject> asCallerSoureToken,
+        sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE,
         bool isSendDialogResult = false,
@@ -1033,7 +1035,7 @@ public:
     int ImplicitStartAbilityAsCaller(
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
-        sptr<IRemoteObject> asCallerSoureToken,
+        sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE,
         bool isSendDialogResult = false);
@@ -1064,8 +1066,7 @@ public:
         int requestCode,
         AbilityRequest &request,
         const sptr<IRemoteObject> &callerToken,
-        int32_t userId,
-        bool isNeedSetDebugApp = true);
+        int32_t userId);
 
     /**
      * Get mission id by target ability token.
@@ -1107,7 +1108,8 @@ public:
     virtual int SetMissionIcon(const sptr<IRemoteObject> &token,
         const std::shared_ptr<OHOS::Media::PixelMap> &icon) override;
 
-    virtual int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler) override;
+    virtual int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler,
+        bool animationEnabled) override;
 
     virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override;
 
@@ -1137,6 +1139,8 @@ public:
 
     virtual int UnregisterAbilityFirstFrameStateObserver(
         const sptr<IAbilityFirstFrameStateObserver> &observer) override;
+    
+    bool GetAnimationFlag();
 
 #endif
 
@@ -1319,6 +1323,8 @@ public:
     virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason,
         const Want *want = nullptr) override;
 
+    virtual void ScheduleClearRecoveryPageStack() override;
+
     /**
      * Called to verify that the MissionId is valid.
      * @param missionIds Query mission list.
@@ -1395,8 +1401,9 @@ public:
      * Call UIAbility by SCB.
      *
      * @param sessionInfo the session info of the ability to be called.
+     * @param isColdStart the session of the ability is or not cold start.
      */
-    virtual void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo) override;
+    virtual void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isColdStart) override;
 
     /**
      * Start specified ability by SCB.
@@ -1556,8 +1563,6 @@ public:
      */
     virtual bool IsAbilityControllerStart(const Want &want) override;
 
-    void HandleProcessFrozen(const std::vector<int32_t> &pidList, int32_t uid);
-
     /**
      * @brief Called when insight intent execute finished.
      *
@@ -1682,6 +1687,17 @@ public:
     virtual int32_t TransferAbilityResultForExtension(const sptr<IRemoteObject> &callerToken, int32_t resultCode,
         const Want &want) override;
 
+    std::shared_ptr<MissionListManager> GetMissionListManagerByUserId(int32_t userId);
+    /**
+     * Notify ability manager service frozen process.
+     *
+     * @param pidList, the pid list of the frozen process.
+     * @param uid, the uid of the frozen process.
+     */
+    virtual void NotifyFrozenProcessByRSS(const std::vector<int32_t> &pidList, int32_t uid) override;
+
+    void HandleRestartResidentProcessDependedOnWeb();
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -1768,7 +1784,7 @@ private:
      * start highest priority ability.
      *
      */
-    void StartHighestPriorityAbility(int32_t userId, bool isBoot, sptr<IUserCallback> callback);
+    void StartHighestPriorityAbility(int32_t userId, bool isBoot);
     /**
      * connet bms.
      *
@@ -1806,7 +1822,9 @@ private:
     int DisconnectRemoteAbility(const sptr<IRemoteObject> &connect);
     int PreLoadAppDataAbilities(const std::string &bundleName, const int32_t userId);
     void PreLoadAppDataAbilitiesTask(const std::string &bundleName, const int32_t userId);
-    void UpdateAsCallerSourceInfo(Want& want, sptr<IRemoteObject> asCallerSourceToken);
+    void UpdateAsCallerSourceInfo(Want& want, sptr<IRemoteObject> asCallerSourceToken, sptr<IRemoteObject> callerToken);
+    void UpdateAsCallerInfoFromToken(Want& want, sptr<IRemoteObject> asCallerSourceToken);
+    void UpdateAsCallerInfoFromCallerRecord(Want& want, sptr<IRemoteObject> callerToken);
     void UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken);
     void UpdateCallerInfoFromToken(Want& want, const sptr<IRemoteObject> &token);
     int StartAbilityPublicPrechainCheck(StartAbilityParams &params);
@@ -1835,14 +1853,12 @@ private:
     void DataDumpStateInner(const std::string &args, std::vector<std::string> &info);
     void DumpMissionListInner(const std::string &args, std::vector<std::string> &info);
     void DumpMissionInfosInner(const std::string &args, std::vector<std::string> &info);
-    void DumpFuncInit();
 
     bool JudgeMultiUserConcurrency(const int32_t userId);
     /**
      * dumpsys info
      *
      */
-    void DumpSysFuncInit();
     void DumpSysInner(
         const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
     void DumpSysMissionListInner(
@@ -1894,7 +1910,6 @@ private:
     std::shared_ptr<PendingWantManager> GetPendingWantManagerByUserId(int32_t userId);
     std::unordered_map<int, std::shared_ptr<MissionListManager>> GetMissionListManagers();
     std::shared_ptr<MissionListManager> GetCurrentMissionListManager();
-    std::shared_ptr<MissionListManager> GetMissionListManagerByUserId(int32_t userId);
     std::unordered_map<int, std::shared_ptr<UIAbilityLifecycleManager>> GetUIAbilityManagers();
     std::shared_ptr<UIAbilityLifecycleManager> GetCurrentUIAbilityManager();
     std::shared_ptr<UIAbilityLifecycleManager> GetUIAbilityManagerByUserId(int32_t userId);
@@ -1918,13 +1933,6 @@ private:
     void RemoveScreenUnlockInterceptor();
 
     int VerifyAccountPermission(int32_t userId);
-
-    using DumpFuncType = void (AbilityManagerService::*)(const std::string &args, std::vector<std::string> &info);
-    std::map<uint32_t, DumpFuncType> dumpFuncMap_;
-
-    using DumpSysFuncType = void (AbilityManagerService::*)(
-        const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID);
-    std::map<uint32_t, DumpSysFuncType> dumpsysFuncMap_;
 
     int CheckStaticCfgPermissionForAbility(const AppExecFwk::AbilityInfo &abilityInfo, uint32_t tokenId);
 
@@ -1952,11 +1960,11 @@ private:
     void UnsubscribeBundleEventCallback();
 
     void ReportAbilitStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo);
+
     void ReportAbilitAssociatedStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo, int64_t type,
         const sptr<IRemoteObject> &callerToken);
 
-    void ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo);
-    void RegisterSuspendObserver();
+    void ReportEventToRSS(const AppExecFwk::AbilityInfo &abilityInfo, sptr<IRemoteObject> callerToken);
 
     void ReportAppRecoverResult(const int32_t appId, const AppExecFwk::ApplicationInfo &appInfo,
         const std::string& abilityName, const std::string& result);
@@ -1965,6 +1973,9 @@ private:
 
     int32_t GenerateEmbeddableUIAbilityRequest(const Want &want, AbilityRequest &request,
         const sptr<IRemoteObject> &callerToken, int32_t userId);
+
+    bool GenerateDataAbilityRequestByUri(const std::string& dataAbilityUri,
+        AbilityRequest &abilityRequest, sptr<IRemoteObject> callerToken, int32_t userId);
 
     /**
      * Check if Caller is allowed to start ServiceAbility(FA) or ServiceExtension(Stage) or DataShareExtension(Stage).
@@ -2071,7 +2082,7 @@ private:
     int32_t RequestDialogServiceInner(const Want &want, const sptr<IRemoteObject> &callerToken,
         int requestCode, int32_t userId);
 
-    bool CheckCallingTokenId(const std::string &bundleName, int32_t userId = INVALID_USER_ID);
+    bool CheckCallingTokenId(const std::string &bundleName, int32_t userId = INVALID_USER_ID, int32_t appIndex = 0);
     bool IsCallerSceneBoard();
 
     void ReleaseAbilityTokenMap(const sptr<IRemoteObject> &token);
@@ -2132,19 +2143,17 @@ private:
     void InitInterceptor();
     void InitPushTask();
     void InitDeepLinkReserve();
+    void InitDefaultRecoveryList();
 
     bool CheckSenderWantInfo(int32_t callerUid, const WantSenderInfo &wantSenderInfo);
 
-    int32_t UninstallAppInner(const std::string &bundleName, const int32_t uid, const bool isUpgrade,
+    int32_t UninstallAppInner(const std::string &bundleName, const int32_t uid, int32_t appIndex, const bool isUpgrade,
         const std::string &exitMsg);
 
     int32_t GetMissionIdByAbilityTokenInner(const sptr<IRemoteObject> &token);
     bool CheckCallerIsDmsProcess();
 
     void WaitBootAnimationStart();
-
-    void SetDebugAppByWaitingDebugFlag(
-        const Want &want, Want &requestWant, const std::string &bundleName, bool isDebugApp);
 
     int32_t SignRestartAppFlag(int32_t userId, const std::string &bundleName);
     int32_t CheckRestartAppWant(const AAFwk::Want &want);
@@ -2160,6 +2169,9 @@ private:
 
     void GetRunningMultiAppIndex(const std::string &bundleName, int32_t uid, int32_t &appIndex);
 
+    int CheckUIExtensionUsage(AppExecFwk::UIExtensionUsage uiExtensionUsage,
+        AppExecFwk::ExtensionAbilityType extensionType);
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 
@@ -2171,7 +2183,6 @@ private:
     sptr<OHOS::AppExecFwk::IAppMgr> appMgr_ { nullptr };
     const static std::map<std::string, AbilityManagerService::DumpKey> dumpMap;
     const static std::map<std::string, AbilityManagerService::DumpsysKey> dumpsysMap;
-    const static std::map<int32_t, AppExecFwk::SupportWindowMode> windowModeMap;
 
     std::shared_ptr<FreeInstallManager> freeInstallManager_;
 
@@ -2259,6 +2270,7 @@ private:
     std::shared_ptr<ImplicitStartProcessor> implicitStartProcessor_;
     sptr<IWindowManagerServiceHandler> wmsHandler_;
     std::shared_ptr<DialogSessionRecord> dialogSessionRecord_;
+    bool isAnimationEnabled_ = true; //only use on mission list
 #endif
     std::shared_ptr<AbilityInterceptorExecuter> interceptorExecuter_;
     std::shared_ptr<AbilityInterceptorExecuter> afterCheckExecuter_;

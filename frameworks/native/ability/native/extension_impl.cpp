@@ -19,13 +19,20 @@
 #include "ability_local_record.h"
 #include "ability_transaction_callback_info.h"
 #include "hitrace_meter.h"
+#include "ipc_object_proxy.h"
 #include "extension_context.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ui_extension_utils.h"
 
+
 namespace OHOS {
 namespace AbilityRuntime {
+ExtensionImpl::~ExtensionImpl()
+{
+    TAG_LOGI(AAFwkTag::EXT, "~ExtensionImpl");
+}
+
 void ExtensionImpl::Init(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &record,
     std::shared_ptr<Extension> &extension,
@@ -48,10 +55,31 @@ void ExtensionImpl::Init(const std::shared_ptr<AppExecFwk::OHOSApplication> &app
             extension_->SetExtensionWindowLifeCycleListener(
                 sptr<ExtensionWindowLifeCycleImpl>(new ExtensionWindowLifeCycleImpl(token_, shared_from_this())));
         }
+        if (record->GetAbilityInfo()->name == "com.ohos.callui.ServiceAbility") {
+            PrintTokenInfo();
+        }
     }
     extension_->Init(record, application, handler, token);
     lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
     skipCommandExtensionWithIntent_ = false;
+}
+
+void ExtensionImpl::PrintTokenInfo() const
+{
+    if (token_ == nullptr) {
+        TAG_LOGI(AAFwkTag::EXT, "com.ohos.callui.ServiceAbility token is null");
+        return;
+    }
+    if (!token_->IsProxyObject()) {
+        TAG_LOGI(AAFwkTag::EXT, "com.ohos.callui.ServiceAbility token is not proxy");
+        return;
+    }
+    IPCObjectProxy *tokenProxyObject = reinterpret_cast<IPCObjectProxy *>(token_.GetRefPtr());
+    if (tokenProxyObject != nullptr) {
+        std::string remoteDescriptor = Str16ToStr8(tokenProxyObject->GetInterfaceDescriptor());
+        TAG_LOGI(AAFwkTag::EXT, "com.ohos.callui.ServiceAbility handle: %{public}d, descriptor: %{public}s",
+            tokenProxyObject->GetHandle(), remoteDescriptor.c_str());
+    }
 }
 
 /**
@@ -131,9 +159,7 @@ void ExtensionImpl::ScheduleUpdateConfiguration(const AppExecFwk::Configuration 
         return;
     }
 
-    if (lifecycleState_ != AAFwk::ABILITY_STATE_INITIAL) {
-        extension_->OnConfigurationUpdated(config);
-    }
+    extension_->OnConfigurationUpdated(config);
 }
 
 void ExtensionImpl::NotifyMemoryLevel(int level)

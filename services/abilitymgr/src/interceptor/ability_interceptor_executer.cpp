@@ -41,9 +41,9 @@ ErrCode AbilityInterceptorExecuter::DoProcess(AbilityInterceptorParam param)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int32_t result = ERR_OK;
-    std::lock_guard lock(interceptorMapLock_);
-    auto item = interceptorMap_.begin();
-    while (item != interceptorMap_.end()) {
+    auto interceptorMap = GetInterceptorMapCopy();
+    auto item = interceptorMap.begin();
+    while (item != interceptorMap.end()) {
         result = (*item).second->DoProcess(param);
         if (result != ERR_OK) {
             break;
@@ -65,6 +65,12 @@ void AbilityInterceptorExecuter::SetTaskHandler(std::shared_ptr<AAFwk::TaskHandl
         }
         (item.second)->SetTaskHandler(taskHandler);
     }
+}
+
+InterceptorMap AbilityInterceptorExecuter::GetInterceptorMapCopy()
+{
+    std::lock_guard lock(interceptorMapLock_);
+    return interceptorMap_;
 }
 } // namespace AAFwk
 } // namespace OHOS

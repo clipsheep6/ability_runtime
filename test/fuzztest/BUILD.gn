@@ -48,7 +48,6 @@ group("fuzztest") {
     "abilitystubcheckuiextensionisfocused_fuzzer:fuzztest",
     "abilitystubcleanallmissions_fuzzer:fuzztest",
     "abilitystubcleanmission_fuzzer:fuzztest",
-    "abilitystubclearupapplicationdata_fuzzer:fuzztest",
     "abilitystubcloseuiabilitybyscb_fuzzer:fuzztest",
     "abilitystubcommandabilitydone_fuzzer:fuzztest",
     "abilitystubcommandabilitywindowdone_fuzzer:fuzztest",

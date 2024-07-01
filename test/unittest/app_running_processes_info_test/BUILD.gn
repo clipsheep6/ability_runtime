@@ -17,6 +17,13 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 module_output_path = "ability_runtime/appmgrservice"
 
 ohos_unittest("AppRunningProcessesInfoTest") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
   module_out_path = module_output_path
   cflags_cc = []
   include_dirs = [
@@ -83,18 +90,13 @@ ohos_unittest("AppRunningProcessesInfoTest") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "kv_store:distributeddata_inner",
+    "memmgr:memmgrclient",
     "memory_utils:libmeminfo",
     "resource_schedule_service:ressched_client",
   ]
 
   if (ability_runtime_graphics) {
     external_deps += [ "window_manager:libwm" ]
-  }
-
-  if (ability_runtime_use_memmgr_plugin) {
-    external_deps += [ "memmgr_override:memmgrclient" ]
-  } else if (ability_runtime_use_memmgr) {
-    external_deps += [ "memmgr:memmgrclient" ]
   }
 }
 

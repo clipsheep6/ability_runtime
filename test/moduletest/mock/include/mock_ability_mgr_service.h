@@ -63,8 +63,9 @@ public:
     MOCK_METHOD3(StopServiceAbility, int(const Want&, int32_t userId, const sptr<IRemoteObject> &token));
     MOCK_METHOD1(GetMissionIdByToken, int32_t(const sptr<IRemoteObject>& token));
     MOCK_METHOD2(GetAbilityTokenByCalleeObj, void(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token));
-    MOCK_METHOD1(KillProcess, int(const std::string&));
+    MOCK_METHOD2(KillProcess, int(const std::string&, const bool clearPageStack));
     MOCK_METHOD2(UninstallApp, int(const std::string&, int32_t));
+    MOCK_METHOD3(UninstallApp, int32_t(const std::string&, int32_t, int32_t));
     MOCK_METHOD4(OnRemoteRequest, int(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option));
     MOCK_METHOD2(
         GetWantSender, sptr<IWantSender>(const WantSenderInfo& wantSenderInfo, const sptr<IRemoteObject>& callerToken));
@@ -106,7 +107,6 @@ public:
     MOCK_METHOD2(SetMissionLabel, int(const sptr<IRemoteObject>& token, const std::string& label));
     MOCK_METHOD2(SetMissionIcon, int(const sptr<IRemoteObject>& token,
         const std::shared_ptr<OHOS::Media::PixelMap>& icon));
-    MOCK_METHOD2(ClearUpApplicationData, int(const std::string&, int32_t userId));
 
     MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender>& target, std::shared_ptr<WantSenderInfo>& info));
 
@@ -190,7 +190,8 @@ public:
         return 0;
     }
 
-    virtual int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler) override
+    virtual int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler,
+        bool animationEnabled = true) override
     {
         return 0;
     }

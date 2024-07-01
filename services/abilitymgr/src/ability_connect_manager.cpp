@@ -39,6 +39,7 @@
 #include "startup_util.h"
 #include "extension_record.h"
 #include "ui_extension_utils.h"
+#include "cache_extension_utils.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -75,8 +76,6 @@ const std::unordered_set<std::string> FROZEN_WHITE_LIST {
 };
 constexpr char BUNDLE_NAME_DIALOG[] = "com.ohos.amsdialog";
 constexpr char ABILITY_NAME_ASSERT_FAULT_DIALOG[] = "AssertFaultDialog";
-constexpr char BUNDLE_NAME_SAMPLE_MANAGEMENT[] = "com.huawei.hmsapp.samplemanagement";
-constexpr char ABILITY_NAME_SAMPLE_MANAGEMENT[] = "MspesService";
 
 bool IsSpecialAbility(const AppExecFwk::AbilityInfo &abilityInfo)
 {
@@ -188,6 +187,9 @@ int AbilityConnectManager::TerminateAbility(const sptr<IRemoteObject> &token)
 int AbilityConnectManager::TerminateAbilityInner(const sptr<IRemoteObject> &token)
 {
     auto abilityRecord = GetExtensionByTokenFromServiceMap(token);
+    if (abilityRecord == nullptr) {
+        abilityRecord = GetExtensionByTokenFromAbilityCache(token);
+    }
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     std::string element = abilityRecord->GetURI();
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Terminate ability, ability is %{public}s.", element.c_str());
@@ -425,10 +427,14 @@ int AbilityConnectManager::StopServiceAbilityLocked(const AbilityRequest &abilit
     TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     AppExecFwk::ElementName element(abilityRequest.abilityInfo.deviceId, GenerateBundleName(abilityRequest),
         abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName);
-    auto abilityRecord = GetServiceRecordByElementName(element.GetURI());
+    std::string serviceKey = element.GetURI();
     if (FRS_BUNDLE_NAME == abilityRequest.abilityInfo.bundleName) {
-        abilityRecord = GetServiceRecordByElementName(
-            element.GetURI() + std::to_string(abilityRequest.want.GetIntParam(FRS_APP_INDEX, 0)));
+        serviceKey = serviceKey + std::to_string(abilityRequest.want.GetIntParam(FRS_APP_INDEX, 0));
+    }
+    auto abilityRecord = GetServiceRecordByElementName(serviceKey);
+    if (abilityRecord == nullptr) {
+        abilityRecord = AbilityCacheManager::GetInstance().Get(abilityRequest);
+        AddToServiceMap(serviceKey, abilityRecord);
     }
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
@@ -494,6 +500,13 @@ void AbilityConnectManager::GetOrCreateServiceRecord(const AbilityRequest &abili
         auto serviceMapIter = serviceMap_.find(serviceKey);
         targetService = serviceMapIter == serviceMap_.end() ? nullptr : serviceMapIter->second;
     }
+    if (targetService == nullptr &&
+        CacheExtensionUtils::IsCacheExtensionType(abilityRequest.abilityInfo.extensionAbilityType)) {
+        targetService = AbilityCacheManager::GetInstance().Get(abilityRequest);
+        if (targetService != nullptr) {
+            AddToServiceMap(serviceKey, targetService);
+        }
+    }
     if (noReuse && targetService) {
         if (IsSpecialAbility(abilityRequest.abilityInfo)) {
             TAG_LOGI(AAFwkTag::ABILITYMGR, "Removing ability: %{public}s", element.GetURI().c_str());
@@ -501,6 +514,7 @@ void AbilityConnectManager::GetOrCreateServiceRecord(const AbilityRequest &abili
         std::lock_guard lock(serviceMapMutex_);
         serviceMap_.erase(serviceKey);
     }
+    isLoadedAbility = true;
     if (noReuse || targetService == nullptr) {
         targetService = AbilityRecord::CreateAbilityRecord(abilityRequest);
         if (targetService) {
@@ -520,8 +534,6 @@ void AbilityConnectManager::GetOrCreateServiceRecord(const AbilityRequest &abili
         }
         AddToServiceMap(serviceKey, targetService);
         isLoadedAbility = false;
-    } else {
-        isLoadedAbility = true;
     }
 }
 
@@ -752,6 +764,10 @@ int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection
 
 void AbilityConnectManager::TerminateRecord(std::shared_ptr<AbilityRecord> abilityRecord)
 {
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "terminate record called.");
+    if (!GetAbilityRecordById(abilityRecord->GetRecordId())) {
+        return;
+    }
     auto timeoutTask = [abilityRecord, connectManager = shared_from_this()]() {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "Disconnect ability terminate timeout.");
         connectManager->HandleStopTimeoutTask(abilityRecord);
@@ -1006,6 +1022,52 @@ int AbilityConnectManager::ScheduleConnectAbilityDoneLocked(
     return ERR_OK;
 }
 
+void AbilityConnectManager::ProcessEliminateAbilityRecord(std::shared_ptr<AbilityRecord> eliminateRecord)
+{
+    CHECK_POINTER(eliminateRecord);
+    std::string eliminateKey = eliminateRecord->GetURI();
+    if (FRS_BUNDLE_NAME == eliminateRecord->GetAbilityInfo().bundleName) {
+        eliminateKey = eliminateKey +
+            std::to_string(eliminateRecord->GetWant().GetIntParam(FRS_APP_INDEX, 0));
+    }
+    AddToServiceMap(eliminateKey, eliminateRecord);
+    TerminateRecord(eliminateRecord);
+}
+
+void AbilityConnectManager::TerminateOrCacheAbility(std::shared_ptr<AbilityRecord> abilityRecord)
+{
+    RemoveUIExtensionAbilityRecord(abilityRecord);
+    if (abilityRecord->IsSceneBoard()) {
+        return;
+    }
+    if (IsCacheExtensionAbilityType(abilityRecord)) {
+        std::string serviceKey = abilityRecord->GetURI();
+        auto abilityInfo = abilityRecord->GetAbilityInfo();
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Cache the ability, service:%{public}s, extension type %{public}d",
+            serviceKey.c_str(), abilityInfo.extensionAbilityType);
+        if (FRS_BUNDLE_NAME == abilityInfo.bundleName) {
+            AppExecFwk::ElementName elementName(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name,
+                abilityInfo.moduleName);
+            serviceKey = elementName.GetURI() +
+                std::to_string(abilityRecord->GetWant().GetIntParam(FRS_APP_INDEX, 0));
+        }
+        {
+            std::lock_guard lock(serviceMapMutex_);
+            serviceMap_.erase(serviceKey);
+        }
+        auto eliminateRecord = AbilityCacheManager::GetInstance().Put(abilityRecord);
+        if (eliminateRecord != nullptr) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Terminate the eliminated ability, service:%{public}s.",
+                eliminateRecord->GetURI().c_str());
+            ProcessEliminateAbilityRecord(eliminateRecord);
+        }
+        return;
+    }
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Terminate the ability, service:%{public}s, extension type %{public}d",
+        abilityRecord->GetURI().c_str(), abilityRecord->GetAbilityInfo().extensionAbilityType);
+    TerminateRecord(abilityRecord);
+}
+
 int AbilityConnectManager::ScheduleDisconnectAbilityDoneLocked(const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -1048,11 +1110,9 @@ int AbilityConnectManager::ScheduleDisconnectAbilityDoneLocked(const sptr<IRemot
         if (IsUIExtensionAbility(abilityRecord) && CheckUIExtensionAbilitySessionExist(abilityRecord)) {
             TAG_LOGI(AAFwkTag::ABILITYMGR, "There exist ui extension component, don't terminate when disconnect.");
         } else {
-            TAG_LOGD(AAFwkTag::ABILITYMGR, "Service ability has no any connection, and not started, need terminate.");
-            RemoveUIExtensionAbilityRecord(abilityRecord);
-            if (!abilityRecord->IsSceneBoard()) {
-                TerminateRecord(abilityRecord);
-            }
+            TAG_LOGD(AAFwkTag::ABILITYMGR,
+                "Service ability has no any connection, and not started, need terminate or cache.");
+            TerminateOrCacheAbility(abilityRecord);
         }
     }
     RemoveConnectionRecordFromMap(connect);
@@ -1216,6 +1276,12 @@ std::shared_ptr<AbilityRecord> AbilityConnectManager::GetExtensionByTokenFromSer
         return serviceRecord->second;
     }
     return nullptr;
+}
+
+std::shared_ptr<AbilityRecord> AbilityConnectManager::GetExtensionByTokenFromAbilityCache(
+    const sptr<IRemoteObject> &token)
+{
+    return AbilityCacheManager::GetInstance().FindRecordByToken(token);
 }
 
 std::shared_ptr<AbilityRecord> AbilityConnectManager::GetExtensionByIdFromServiceMap(
@@ -1448,7 +1514,7 @@ void AbilityConnectManager::HandleStartTimeoutTask(const std::shared_ptr<Ability
             TAG_LOGW(AAFwkTag::ABILITYMGR, "ConnectRecord is nullptr.");
             continue;
         }
-        connectRecord->CompleteDisconnect(ERR_OK, true);
+        connectRecord->CompleteDisconnect(ERR_OK, false, true);
         abilityRecord->RemoveConnectRecordFromList(connectRecord);
         RemoveConnectionRecordFromMap(connectRecord);
     }
@@ -1493,7 +1559,7 @@ void AbilityConnectManager::HandleConnectTimeoutTask(std::shared_ptr<AbilityReco
     std::lock_guard guard(serialMutex_);
     for (const auto &connectRecord : connectList) {
         RemoveExtensionDelayDisconnectTask(connectRecord);
-        connectRecord->CompleteDisconnect(ERR_OK, true);
+        connectRecord->CompleteDisconnect(ERR_OK, false, true);
         abilityRecord->RemoveConnectRecordFromList(connectRecord);
         RemoveConnectionRecordFromMap(connectRecord);
     }
@@ -1559,7 +1625,7 @@ void AbilityConnectManager::HandleTerminateDisconnectTask(const ConnectListType&
         if (targetService) {
             TAG_LOGW(AAFwkTag::ABILITYMGR, "This record complete disconnect directly. recordId:%{public}d",
                 connectRecord->GetRecordId());
-            connectRecord->CompleteDisconnect(ERR_OK, true);
+            connectRecord->CompleteDisconnect(ERR_OK, false, true);
             targetService->RemoveConnectRecordFromList(connectRecord);
             RemoveConnectionRecordFromMap(connectRecord);
         };
@@ -1585,7 +1651,6 @@ int AbilityConnectManager::DispatchInactive(const std::shared_ptr<AbilityRecord>
         ConnectAbility(abilityRecord);
     } else if (abilityRecord->GetWant().GetBoolParam(IS_PRELOAD_UIEXTENSION_ABILITY, false)) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "IS_PRELOAD_UIEXTENSION_ABILITY");
-        abilityRecord->RemoveSpecifiedWantParam(IS_PRELOAD_UIEXTENSION_ABILITY);
         auto ret = uiExtensionAbilityRecordMgr_->AddPreloadUIExtensionRecord(abilityRecord);
         if (ret != ERR_OK) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Add preload UI Extension record error!");
@@ -1947,15 +2012,18 @@ void AbilityConnectManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId)
 
 void AbilityConnectManager::HandleInactiveTimeout(const std::shared_ptr<AbilityRecord> &ability)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "HandleInactiveTimeout start");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "HandleInactiveTimeout start");
     CHECK_POINTER(ability);
     if (ability->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Handle root launcher inactive timeout.");
         // terminate the timeout root launcher.
         DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(ability->GetToken());
     }
+    if (ability->GetAbilityInfo().name == AbilityConfig::CALLUI_ABILITY_NAME && ability->GetStartId() == 0) {
+        HandleConnectTimeoutTask(ability);
+    }
 
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "HandleInactiveTimeout end");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "HandleInactiveTimeout end");
 }
 
 bool AbilityConnectManager::IsAbilityNeedKeepAlive(const std::shared_ptr<AbilityRecord> &abilityRecord)
@@ -1973,6 +2041,46 @@ bool AbilityConnectManager::IsAbilityNeedKeepAlive(const std::shared_ptr<Ability
     return false;
 }
 
+void AbilityConnectManager::ClearPreloadUIExtensionRecord(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called.");
+    CHECK_POINTER(abilityRecord);
+    auto extensionRecordId = abilityRecord->GetUIExtensionAbilityId();
+    std::string hostBundleName;
+    auto ret = uiExtensionAbilityRecordMgr_->GetHostBundleNameForExtensionId(extensionRecordId, hostBundleName);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "cannot get hostbundlename for this extension id.");
+        return;
+    }
+    auto extensionRecordMapKey = std::make_tuple(abilityRecord->GetWant().GetElement().GetAbilityName(),
+        abilityRecord->GetWant().GetElement().GetBundleName(),
+        abilityRecord->GetWant().GetElement().GetModuleName(), hostBundleName);
+    uiExtensionAbilityRecordMgr_->RemovePreloadUIExtensionRecordById(extensionRecordMapKey, extensionRecordId);
+}
+
+void AbilityConnectManager::KeepAbilityAlive(const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t currentUserId)
+{
+    CHECK_POINTER(abilityRecord);
+    auto abilityInfo = abilityRecord->GetAbilityInfo();
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "restart ability, bundleName: %{public}s, abilityName: %{public}s",
+        abilityInfo.bundleName.c_str(), abilityInfo.name.c_str());
+    auto token = abilityRecord->GetToken();
+    if ((IsLauncher(abilityRecord) || abilityRecord->IsSceneBoard()) && token != nullptr) {
+        IN_PROCESS_CALL_WITHOUT_RET(DelayedSingleton<AppScheduler>::GetInstance()->ClearProcessByToken(
+            token->AsObject()));
+        if (abilityRecord->IsSceneBoard() && currentUserId != userId_) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Not the current user's SCB, clear the user and do not restart");
+            KillProcessesByUserId();
+            return;
+        }
+    }
+    if (DelayedSingleton<AppScheduler>::GetInstance()->IsMemorySizeSufficent() ||
+        IsLauncher(abilityRecord) || abilityRecord->IsSceneBoard() ||
+        AppUtils::GetInstance().IsAllowResidentInExtremeMemory(abilityInfo.bundleName, abilityInfo.name)) {
+        RestartAbility(abilityRecord, currentUserId);
+    }
+}
+
 void AbilityConnectManager::HandleAbilityDiedTask(
     const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t currentUserId)
 {
@@ -1986,18 +2094,25 @@ void AbilityConnectManager::HandleAbilityDiedTask(
         TAG_LOGW(AAFwkTag::ABILITYMGR, "This record complete disconnect directly. recordId:%{public}d",
             connectRecord->GetRecordId());
         RemoveExtensionDelayDisconnectTask(connectRecord);
-        connectRecord->CompleteDisconnect(ERR_OK, true);
+        connectRecord->CompleteDisconnect(ERR_OK, false, true);
         abilityRecord->RemoveConnectRecordFromList(connectRecord);
         RemoveConnectionRecordFromMap(connectRecord);
     }
-
+    if (abilityRecord->GetWant().GetBoolParam(IS_PRELOAD_UIEXTENSION_ABILITY, false)) {
+        ClearPreloadUIExtensionRecord(abilityRecord);
+    }
     if (IsUIExtensionAbility(abilityRecord)) {
         HandleUIExtensionDied(abilityRecord);
     }
 
-    auto token = abilityRecord->GetToken();
     bool isRemove = false;
-    if (GetExtensionByIdFromServiceMap(abilityRecord->GetAbilityRecordId()) != nullptr) {
+    if (IsCacheExtensionAbilityType(abilityRecord) &&
+        AbilityCacheManager::GetInstance().FindRecordByToken(abilityRecord->GetToken()) != nullptr) {
+        AbilityCacheManager::GetInstance().Remove(abilityRecord);
+        MoveToTerminatingMap(abilityRecord);
+        RemoveServiceAbility(abilityRecord);
+        isRemove = true;
+    } else if (GetExtensionByIdFromServiceMap(abilityRecord->GetAbilityRecordId()) != nullptr) {
         MoveToTerminatingMap(abilityRecord);
         RemoveServiceAbility(abilityRecord);
         if (UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
@@ -2007,20 +2122,7 @@ void AbilityConnectManager::HandleAbilityDiedTask(
     }
 
     if (IsAbilityNeedKeepAlive(abilityRecord)) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "restart ability: %{public}s", abilityRecord->GetAbilityInfo().name.c_str());
-        if ((IsLauncher(abilityRecord) || abilityRecord->IsSceneBoard()) && token != nullptr) {
-            IN_PROCESS_CALL_WITHOUT_RET(DelayedSingleton<AppScheduler>::GetInstance()->ClearProcessByToken(
-                token->AsObject()));
-        }
-        if (abilityRecord->IsSceneBoard() && currentUserId != userId_) {
-            TAG_LOGD(AAFwkTag::ABILITYMGR, "Not the current user's SCB, clear the user and do not restart");
-            KillProcessesByUserId();
-            return;
-        }
-        if (DelayedSingleton<AppScheduler>::GetInstance()->IsMemorySizeSufficent() ||
-            IsLauncher(abilityRecord) || abilityRecord->IsSceneBoard() || IsSampleManagement(abilityRecord)) {
-            RestartAbility(abilityRecord, currentUserId);
-        }
+        KeepAbilityAlive(abilityRecord, currentUserId);
     } else {
         if (isRemove) {
             HandleNotifyAssertFaultDialogDied(abilityRecord);
@@ -2134,6 +2236,7 @@ void AbilityConnectManager::RestartAbility(const std::shared_ptr<AbilityRecord> 
     requestInfo.appInfo = abilityRecord->GetApplicationInfo();
     requestInfo.restartTime = abilityRecord->GetRestartTime();
     requestInfo.restart = true;
+    requestInfo.uid = abilityRecord->GetUid();
     abilityRecord->SetRestarting(true);
 
     if (AppUtils::GetInstance().IsLauncherAbility(abilityRecord->GetAbilityInfo().name)) {
@@ -2347,16 +2450,6 @@ bool AbilityConnectManager::IsLauncher(std::shared_ptr<AbilityRecord> serviceExt
         serviceExtension->GetAbilityInfo().bundleName == AbilityConfig::LAUNCHER_BUNDLE_NAME;
 }
 
-bool AbilityConnectManager::IsSampleManagement(std::shared_ptr<AbilityRecord> serviceExtension) const
-{
-    if (serviceExtension == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "param is nullptr");
-        return false;
-    }
-    return serviceExtension->GetAbilityInfo().name == ABILITY_NAME_SAMPLE_MANAGEMENT &&
-        serviceExtension->GetAbilityInfo().bundleName == BUNDLE_NAME_SAMPLE_MANAGEMENT;
-}
-
 void AbilityConnectManager::KillProcessesByUserId() const
 {
     auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
@@ -2553,14 +2646,14 @@ void AbilityConnectManager::MoveToTerminatingMap(const std::shared_ptr<AbilityRe
     auto& abilityInfo = abilityRecord->GetAbilityInfo();
     std::lock_guard lock(serviceMapMutex_);
     terminatingExtensionMap_.emplace(abilityRecord->GetURI(), abilityRecord);
+    std::string serviceKey = abilityRecord->GetURI();
     if (FRS_BUNDLE_NAME == abilityInfo.bundleName) {
         AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name,
             abilityInfo.moduleName);
-        serviceMap_.erase(
-            element.GetURI() + std::to_string(abilityRecord->GetWant().GetIntParam(FRS_APP_INDEX, 0)));
-    } else {
-        serviceMap_.erase(abilityRecord->GetURI());
+        serviceKey = element.GetURI() + std::to_string(abilityRecord->GetWant().GetIntParam(FRS_APP_INDEX, 0));
     }
+    serviceMap_.erase(serviceKey);
+    AbilityCacheManager::GetInstance().Remove(abilityRecord);
     if (IsSpecialAbility(abilityRecord->GetAbilityInfo())) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "Moving ability: %{public}s", abilityRecord->GetURI().c_str());
     }
@@ -2784,6 +2877,12 @@ bool AbilityConnectManager::IsUIExtensionAbility(const std::shared_ptr<AbilityRe
     return UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType);
 }
 
+bool AbilityConnectManager::IsCacheExtensionAbilityType(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    CHECK_POINTER_AND_RETURN(abilityRecord, false);
+    return CacheExtensionUtils::IsCacheExtensionType(abilityRecord->GetAbilityInfo().extensionAbilityType);
+}
+
 bool AbilityConnectManager::CheckUIExtensionAbilitySessionExist(
     const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
@@ -2853,7 +2952,8 @@ void AbilityConnectManager::DeleteInvalidServiceRecord(const std::string &bundle
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Delete invalid record by %{public}s.", bundleName.c_str());
     std::lock_guard lock(serviceMapMutex_);
     for (auto it = serviceMap_.begin(); it != serviceMap_.end();) {
-        if (it->second != nullptr && it->second->GetApplicationInfo().bundleName == bundleName) {
+        if (it->second != nullptr && it->second->GetApplicationInfo().bundleName == bundleName &&
+            !IsUIExtensionAbility(it->second) && !IsAbilityNeedKeepAlive(it->second)) {
             it = serviceMap_.erase(it);
         } else {
             ++it;
@@ -2901,7 +3001,7 @@ EventInfo AbilityConnectManager::BuildEventInfo(const std::shared_ptr<AbilityRec
     eventInfo.time = std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::system_clock::now().time_since_epoch()).count();
     auto callerPid = abilityRecord->GetWant().GetIntParam(Want::PARAM_RESV_CALLER_PID, -1);
-    eventInfo.callerPid = callerPid == -1 ? IPCSkeleton::GetCallingRealPid() : callerPid;
+    eventInfo.callerPid = callerPid == -1 ? IPCSkeleton::GetCallingPid() : callerPid;
     DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(eventInfo.callerPid, processInfo);
     eventInfo.callerPid = processInfo.pid_;
     eventInfo.callerProcessName = processInfo.processName_;

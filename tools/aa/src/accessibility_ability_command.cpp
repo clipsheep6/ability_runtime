@@ -1174,6 +1174,27 @@ ErrCode AccessibilityAbilityShellCommand::MakeSetShortKeyTargetCommandArgumentFr
     return result;
 }
 
+void AccessibilityAbilityShellCommand::SetArgument(int option, AccessibilityCommandArgument& argument)
+{
+    switch (option) {
+        case 'a': {
+            argument.abilityName = optarg;
+            argument.abilityArgumentNum++;
+            break;
+        }
+        case 'b': {
+            argument.bundleName = optarg;
+            argument.bundleArgumentNum++;
+            break;
+        }
+        default: {
+            argument.unknownArgumentNum++;
+            argument.unknownArguments.push_back(argv_[optind - 1]);
+            break;
+        }
+    }
+}
+
 ErrCode AccessibilityAbilityShellCommand::MakeCommandArgumentFromCmd(AccessibilityCommandArgument& argument)
 {
     int option = -1;
@@ -1214,23 +1235,7 @@ ErrCode AccessibilityAbilityShellCommand::MakeCommandArgumentFromCmd(Accessibili
             }
         }
 
-        switch (option) {
-            case 'a': {
-                argument.abilityName = optarg;
-                argument.abilityArgumentNum++;
-                break;
-            }
-            case 'b': {
-                argument.bundleName = optarg;
-                argument.bundleArgumentNum++;
-                break;
-            }
-            default: {
-                argument.unknownArgumentNum++;
-                argument.unknownArguments.push_back(argv_[optind - 1]);
-                break;
-            }
-        }
+        SetArgument(option, argument);
     }
     return OHOS::ERR_OK;
 }

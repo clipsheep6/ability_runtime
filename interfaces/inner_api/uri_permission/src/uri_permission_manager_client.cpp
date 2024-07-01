@@ -98,12 +98,13 @@ int UriPermissionManagerClient::RevokeAllUriPermissions(const uint32_t tokenId)
     return INNER_ERR;
 }
 
-int UriPermissionManagerClient::RevokeUriPermissionManually(const Uri &uri, const std::string bundleName)
+int UriPermissionManagerClient::RevokeUriPermissionManually(const Uri &uri, const std::string bundleName,
+    int32_t appIndex)
 {
     TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerClient::RevokeUriPermissionManually is called.");
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
-        return uriPermMgr->RevokeUriPermissionManually(uri, bundleName);
+        return uriPermMgr->RevokeUriPermissionManually(uri, bundleName, appIndex);
     }
     return INNER_ERR;
 }

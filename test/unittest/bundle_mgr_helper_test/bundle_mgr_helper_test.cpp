@@ -232,7 +232,9 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_ImplicitQueryInfos_001, TestSi
     bool withDefault = false;
     std::vector<AbilityInfo> abilityInfos;
     std::vector<ExtensionAbilityInfo> extensionInfos;
-    auto ret = bundleMgrHelper->ImplicitQueryInfos(want, flags, userId, withDefault, abilityInfos, extensionInfos);
+    bool findDefaultApp = false;
+    auto ret = bundleMgrHelper->ImplicitQueryInfos(want, flags, userId, withDefault, abilityInfos, extensionInfos,
+        findDefaultApp);
     EXPECT_EQ(ret, false);
 }
 
@@ -245,7 +247,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_CleanBundleDataFiles_001, Test
 {
     std::string bundleName;
     int32_t userId = DEFAULT_USERID;
-    auto ret = bundleMgrHelper->CleanBundleDataFiles(bundleName, userId);
+    auto ret = bundleMgrHelper->CleanBundleDataFiles(bundleName, userId, 0);
     EXPECT_EQ(ret, false);
 }
 
@@ -449,7 +451,7 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetUidByBundleName_001, TestSi
 {
     std::string bundleName;
     int32_t userId = DEFAULT_USERID;
-    auto ret = bundleMgrHelper->GetUidByBundleName(bundleName, userId);
+    auto ret = bundleMgrHelper->GetUidByBundleName(bundleName, userId, 0);
     EXPECT_EQ(ret, Constants::INVALID_UID);
 }
 

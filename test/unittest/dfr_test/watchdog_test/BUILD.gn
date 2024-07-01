@@ -52,7 +52,6 @@ ohos_unittest("watchdog_test") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/dfr",
     "${ability_runtime_test_path}/mock/frameworks_kits_appkit_test/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/app",
-    "//third_party/json/include",
   ]
 
   configs = [
@@ -80,6 +79,7 @@ ohos_unittest("watchdog_test") {
     "hilog:libhilog",
     "image_framework:image_native",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "napi:ace_napi",
   ]
 }

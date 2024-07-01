@@ -307,8 +307,10 @@ public:
     /**
      * @brief enable ability recovery.
      * @param abilityRecovery shared_ptr of abilityRecovery
+     * @param useAppSettedRecoveryValue Indicates use default recovery or not.
      */
-    void EnableAbilityRecovery(const std::shared_ptr<AppExecFwk::AbilityRecovery> &abilityRecovery);
+    void EnableAbilityRecovery(const std::shared_ptr<AppExecFwk::AbilityRecovery> &abilityRecovery,
+        bool useAppSettedRecoveryValue);
 
     /**
      * @brief Callback when the ability is shared.You can override this function to implement your own sharing logic.
@@ -326,6 +328,7 @@ protected:
     bool IsRestoredInContinuation() const;
     void NotifyContinuationResult(const AAFwk::Want &want, bool success);
     bool ShouldRecoverState(const AAFwk::Want &want);
+    bool ShouldDefaultRecoverState(const AAFwk::Want &want);
     bool IsUseNewStartUpRule();
 
     std::shared_ptr<AbilityRuntime::AbilityContext> abilityContext_ = nullptr;
@@ -355,6 +358,7 @@ private:
     bool isNewRuleFlagSetted_ = false;
     bool startUpNewRule_ = false;
     bool isSilentForeground_ = false;
+    std::atomic<bool> useAppSettedRecoveryValue_ = false;
 
 #ifdef SUPPORT_SCREEN
 public:
@@ -433,6 +437,8 @@ public:
      * @return A string represents page ability stack info, empty if failed;
      */
     virtual std::string GetContentInfo();
+    virtual std::string GetContentInfoForRecovery();
+    virtual std::string GetContentInfoForDefaultRecovery();
 
     /**
      * @brief Set WindowScene listener
@@ -587,6 +593,9 @@ protected:
     virtual void DoOnForeground(const AAFwk::Want &want);
     sptr<Rosen::WindowOption> GetWindowOption(const AAFwk::Want &want);
     virtual void ContinuationRestore(const AAFwk::Want &want);
+    bool CheckRecoveryEnabled();
+    bool CheckDefaultRecoveryEnabled();
+    bool IsStartByScb();
 
     std::shared_ptr<Rosen::WindowScene> scene_ = nullptr;
     sptr<Rosen::IWindowLifeCycle> sceneListener_ = nullptr;

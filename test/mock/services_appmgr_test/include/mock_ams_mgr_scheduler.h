@@ -35,13 +35,13 @@ public:
     MOCK_METHOD0(Reset, void());
     MOCK_METHOD1(KillProcessByAbilityToken, void(const sptr<IRemoteObject>& token));
     MOCK_METHOD1(KillProcessesByUserId, void(int32_t userId));
-    MOCK_METHOD2(KillProcessWithAccount, int(const std::string&, const int));
+    MOCK_METHOD3(KillProcessWithAccount, int(const std::string&, const int, const bool clearPageStack));
     MOCK_METHOD2(UpdateApplicationInfoInstalled, int(const std::string&, const int uid));
-    MOCK_METHOD1(KillApplication, int32_t(const std::string& bundleName));
+    MOCK_METHOD2(KillApplication, int32_t(const std::string& bundleName, const bool clearPageStack));
     MOCK_METHOD2(KillApplicationByUid, int(const std::string&, const int uid));
     MOCK_METHOD0(IsReady, bool());
     MOCK_METHOD1(AbilityAttachTimeOut, void(const sptr<IRemoteObject>& token));
-    MOCK_METHOD1(PrepareTerminate, void(const sptr<IRemoteObject>& token));
+    MOCK_METHOD2(PrepareTerminate, void(const sptr<IRemoteObject>& token, bool clearMissionFlag));
     MOCK_METHOD2(GetRunningProcessInfoByToken,
         void(const sptr<IRemoteObject>& token, OHOS::AppExecFwk::RunningProcessInfo& info));
     MOCK_METHOD1(SetAbilityForegroundingFlagToAppRecord, void(const pid_t pid));

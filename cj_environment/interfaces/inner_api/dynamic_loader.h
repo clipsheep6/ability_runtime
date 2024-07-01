@@ -22,9 +22,9 @@
 
 extern "C" {
 #ifdef __OHOS__
-void* DynamicLoadLibrary(Dl_namespace *ns, const char* dlPath, int mode);
+void* DynamicLoadLibrary(Dl_namespace *ns, const char* dlPath, unsigned int mode);
 #else
-void* DynamicLoadLibrary(const char* dlPath, int mode);
+void* DynamicLoadLibrary(const char* dlPath, unsigned int mode);
 #endif
 void* DynamicFindSymbol(void* so, const char* symbol);
 const char* DynamicGetError();

@@ -52,6 +52,8 @@ public:
     uint16_t GetRestartFlag() const;
     uint16_t GetSaveOccasionFlag() const;
     uint16_t GetSaveModeFlag() const;
+    void DeleteInValidMissionFiles();
+    void ClearPageStack(std::string bundleName);
 
 private:
     AppRecovery();
@@ -61,7 +63,6 @@ private:
 
     void DoRecoverApp(StateReason reason);
     void DoSaveAppState(StateReason reason, uintptr_t ability = 0);
-    void DeleteInValidMissionFiles();
     void DeleteInValidMissionFileById(std::string path, int32_t missionId);
     bool GetMissionIds(std::string path, std::vector<int32_t> &missionIds);
 
@@ -74,6 +75,7 @@ private:
     std::weak_ptr<AbilityRuntime::UIAbility> ability_;
     std::vector<std::shared_ptr<AbilityRecovery>> abilityRecoverys_;
     std::shared_ptr<AAFwk::Want> want_ = nullptr;
+    std::atomic<bool> useAppSettedValue_ = false; // If the value is true means app call appRecovery.enableAppRecovery
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

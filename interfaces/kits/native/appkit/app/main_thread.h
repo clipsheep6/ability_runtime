@@ -265,6 +265,8 @@ public:
      */
     void ScheduleProcessSecurityExit() override;
 
+    void ScheduleClearPageStack() override;
+
     void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) override;
 
     void ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName) override;
@@ -616,6 +618,8 @@ private:
 
     void RequestTerminateProcess();
     void HandleCacheProcess();
+
+    bool IsBgWorkingThread(const AbilityInfo &info);
 
     class MainHandler : public EventHandler {
     public:

@@ -1331,8 +1331,8 @@ HWTEST_F(JsRuntimeTest, InitSourceMap_0100, TestSize.Level0)
     AbilityRuntime::Runtime::Options options;
     options.preload = true;
     auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
-
-    jsRuntime->InitSourceMap(nullptr);
+    auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>("", true, true);
+    jsRuntime->InitSourceMap(operatorObj);
     ASSERT_NE(jsRuntime, nullptr);
     jsRuntime.reset();
     TAG_LOGI(AAFwkTag::TEST, "InitSourceMap_0100 end");
@@ -1492,9 +1492,7 @@ HWTEST_F(JsRuntimeTest, DumpHeapSnapshot_0200, TestSize.Level1)
     auto jsRuntime = std::make_unique<JsRuntime>();
     uint32_t tid = 1;
     bool isFullGC = true;
-    std::vector<uint32_t> fdVec;
-    std::vector<uint32_t> tidVec;
-    jsRuntime->DumpHeapSnapshot(tid, isFullGC, fdVec, tidVec);
+    jsRuntime->DumpHeapSnapshot(tid, isFullGC);
     EXPECT_TRUE(jsRuntime != nullptr);
 }
 

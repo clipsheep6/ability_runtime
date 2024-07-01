@@ -336,7 +336,8 @@ void AmsMgrProxy::AttachPidToParent(const sptr<IRemoteObject> &token, const sptr
     TAG_LOGD(AAFwkTag::APPMGR, "end");
 }
 
-int32_t AmsMgrProxy::KillProcessWithAccount(const std::string &bundleName, const int accountId)
+int32_t AmsMgrProxy::KillProcessWithAccount(
+    const std::string &bundleName, const int accountId, const bool clearPageStack)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "start");
 
@@ -357,6 +358,11 @@ int32_t AmsMgrProxy::KillProcessWithAccount(const std::string &bundleName, const
         return ERR_FLATTEN_OBJECT;
     }
 
+    if (!data.WriteBool(clearPageStack)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "parcel bool failed");
+        return ERR_FLATTEN_OBJECT;
+    }
+
     int32_t ret =
         SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::KILL_PROCESS_WITH_ACCOUNT), data, reply, option);
     if (ret != NO_ERROR) {
@@ -369,7 +375,7 @@ int32_t AmsMgrProxy::KillProcessWithAccount(const std::string &bundleName, const
     return reply.ReadInt32();
 }
 
-int32_t AmsMgrProxy::KillApplication(const std::string &bundleName)
+int32_t AmsMgrProxy::KillApplication(const std::string &bundleName, const bool clearPageStack)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "start");
     MessageParcel data;
@@ -378,10 +384,17 @@ int32_t AmsMgrProxy::KillApplication(const std::string &bundleName)
     if (!WriteInterfaceToken(data)) {
         return ERR_INVALID_DATA;
     }
+
     if (!data.WriteString(bundleName)) {
         TAG_LOGE(AAFwkTag::APPMGR, "parcel WriteString failed.");
         return ERR_FLATTEN_OBJECT;
     }
+
+    if (!data.WriteBool(clearPageStack)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "parcel bool failed");
+        return ERR_FLATTEN_OBJECT;
+    }
+
     int32_t ret =
         SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::KILL_APPLICATION), data, reply, option);
     if (ret != NO_ERROR) {
@@ -444,7 +457,7 @@ int32_t AmsMgrProxy::KillApplicationByUid(const std::string &bundleName, const i
     return reply.ReadInt32();
 }
 
-int32_t AmsMgrProxy::KillApplicationSelf()
+int32_t AmsMgrProxy::KillApplicationSelf(const bool clearPageStack)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -452,6 +465,12 @@ int32_t AmsMgrProxy::KillApplicationSelf()
     if (!WriteInterfaceToken(data)) {
         return ERR_INVALID_DATA;
     }
+
+    if (!data.WriteBool(clearPageStack)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "parcel bool failed");
+        return ERR_FLATTEN_OBJECT;
+    }
+
     int32_t ret =
         SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::KILL_APPLICATION_SELF), data, reply, option);
     if (ret != NO_ERROR) {
@@ -482,7 +501,7 @@ void AmsMgrProxy::AbilityAttachTimeOut(const sptr<IRemoteObject> &token)
     TAG_LOGD(AAFwkTag::APPMGR, "end");
 }
 
-void AmsMgrProxy::PrepareTerminate(const sptr<IRemoteObject> &token)
+void AmsMgrProxy::PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "start");
     MessageParcel data;
@@ -493,6 +512,10 @@ void AmsMgrProxy::PrepareTerminate(const sptr<IRemoteObject> &token)
     }
     if (!data.WriteRemoteObject(token.GetRefPtr())) {
         TAG_LOGE(AAFwkTag::APPMGR, "Failed to write token");
+        return;
+    }
+    if (!data.WriteBool(clearMissionFlag)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write clearMissionFlag");
         return;
     }
     int32_t ret =
@@ -1097,6 +1120,27 @@ int32_t AmsMgrProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
         return ret;
     }
     return ret;
+}
+
+void AmsMgrProxy::AttachedToStatusBar(const sptr<IRemoteObject> &token)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "start");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    if (!data.WriteRemoteObject(token)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write token");
+        return;
+    }
+    int32_t ret = SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::ATTACHED_TO_STATUS_BAR),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
+    }
+    TAG_LOGD(AAFwkTag::APPMGR, "end");
 }
 } // namespace AppExecFwk
 } // namespace OHOS

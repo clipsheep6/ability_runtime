@@ -39,6 +39,7 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 const std::string DLP_INDEX = "ohos.dlp.params.index";
+constexpr int32_t TEST_UID = 20010001;
 };
 class UIAbilityLifecycleManagerTest : public testing::Test {
 public:
@@ -1934,7 +1935,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, CallUIAbilityBySCB_001, TestSize.Level1)
     auto uiAbilityLifecycleManager = std::make_unique<UIAbilityLifecycleManager>();
     EXPECT_NE(uiAbilityLifecycleManager, nullptr);
     sptr<SessionInfo> sessionInfo;
-    uiAbilityLifecycleManager->CallUIAbilityBySCB(sessionInfo);
+    bool isColdStart = false;
+    uiAbilityLifecycleManager->CallUIAbilityBySCB(sessionInfo, isColdStart);
     EXPECT_NE(uiAbilityLifecycleManager, nullptr);
 }
 
@@ -1949,7 +1951,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, CallUIAbilityBySCB_002, TestSize.Level1)
     EXPECT_NE(uiAbilityLifecycleManager, nullptr);
     sptr<SessionInfo> sessionInfo(new SessionInfo());
     sessionInfo->sessionToken = nullptr;
-    uiAbilityLifecycleManager->CallUIAbilityBySCB(sessionInfo);
+    bool isColdStart = false;
+    uiAbilityLifecycleManager->CallUIAbilityBySCB(sessionInfo, isColdStart);
     EXPECT_NE(uiAbilityLifecycleManager, nullptr);
 }
 
@@ -1969,7 +1972,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, CallUIAbilityBySCB_003, TestSize.Level1)
     auto token = abilityRecord->GetToken();
     EXPECT_NE(token, nullptr);
     sessionInfo->sessionToken = token->AsObject();
-    uiAbilityLifecycleManager->CallUIAbilityBySCB(sessionInfo);
+    bool isColdStart = false;
+    uiAbilityLifecycleManager->CallUIAbilityBySCB(sessionInfo, isColdStart);
     EXPECT_NE(uiAbilityLifecycleManager, nullptr);
 }
 
@@ -1985,8 +1989,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, CallUIAbilityBySCB_004, TestSize.Level1)
     Rosen::SessionInfo info;
     sptr<SessionInfo> sessionInfo(new SessionInfo());
     sessionInfo->sessionToken = new Rosen::Session(info);
-
-    uiAbilityLifecycleManager->CallUIAbilityBySCB(sessionInfo);
+    bool isColdStart = false;
+    uiAbilityLifecycleManager->CallUIAbilityBySCB(sessionInfo, isColdStart);
     EXPECT_NE(uiAbilityLifecycleManager, nullptr);
 }
 
@@ -2005,7 +2009,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, CallUIAbilityBySCB_005, TestSize.Level1)
     sessionInfo->uiAbilityId = 1;
 
     uiAbilityLifecycleManager->tmpAbilityMap_.emplace(1, nullptr);
-    uiAbilityLifecycleManager->CallUIAbilityBySCB(sessionInfo);
+    bool isColdStart = false;
+    uiAbilityLifecycleManager->CallUIAbilityBySCB(sessionInfo, isColdStart);
     EXPECT_NE(uiAbilityLifecycleManager, nullptr);
 }
 
@@ -2027,8 +2032,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, CallUIAbilityBySCB_006, TestSize.Level1)
     abilityRequest.sessionInfo = sessionInfo;
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     uiAbilityLifecycleManager->tmpAbilityMap_.emplace(1, abilityRecord);
-
-    uiAbilityLifecycleManager->CallUIAbilityBySCB(sessionInfo);
+    bool isColdStart = false;
+    uiAbilityLifecycleManager->CallUIAbilityBySCB(sessionInfo, isColdStart);
     EXPECT_NE(uiAbilityLifecycleManager, nullptr);
 }
 
@@ -2054,7 +2059,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, CallUIAbilityBySCB_007, TestSize.Level1)
 
     uiAbilityLifecycleManager->tmpAbilityMap_.emplace(1, abilityRecord);
     uiAbilityLifecycleManager->sessionAbilityMap_.emplace(sessionInfo->persistentId, abilityRecord);
-    uiAbilityLifecycleManager->CallUIAbilityBySCB(sessionInfo);
+    bool isColdStart = false;
+    uiAbilityLifecycleManager->CallUIAbilityBySCB(sessionInfo, isColdStart);
     EXPECT_NE(uiAbilityLifecycleManager, nullptr);
 }
 
@@ -2849,10 +2855,9 @@ HWTEST_F(UIAbilityLifecycleManagerTest, GetActiveAbilityList_001, TestSize.Level
     AbilityRequest abilityRequest;
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     uiAbilityLifecycleManager->sessionAbilityMap_.emplace(1, abilityRecord);
-    std::string bundleName = "com.example.unittest";
     std::vector<std::string> abilityList;
     int32_t pid = 100;
-    uiAbilityLifecycleManager->GetActiveAbilityList(bundleName, abilityList, pid);
+    uiAbilityLifecycleManager->GetActiveAbilityList(TEST_UID, abilityList, pid);
     uiAbilityLifecycleManager.reset();
 }
 
@@ -2870,13 +2875,13 @@ HWTEST_F(UIAbilityLifecycleManagerTest, GetActiveAbilityList_002, TestSize.Level
     abilityRequest.abilityInfo.name = "testAbility";
     abilityRequest.abilityInfo.moduleName = "testModule";
     abilityRequest.abilityInfo.bundleName = "com.example.unittest";
+    abilityRequest.abilityInfo.applicationInfo.uid = TEST_UID;
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     abilityRecord->SetOwnerMissionUserId(DelayedSingleton<AbilityManagerService>::GetInstance()->GetUserId());
     uiAbilityLifecycleManager->sessionAbilityMap_.emplace(1, abilityRecord);
-    std::string bundleName = "com.example.unittest";
     std::vector<std::string> abilityList;
     int32_t pid = 100;
-    uiAbilityLifecycleManager->GetActiveAbilityList(bundleName, abilityList, pid);
+    uiAbilityLifecycleManager->GetActiveAbilityList(TEST_UID, abilityList, pid);
     uiAbilityLifecycleManager.reset();
 }
 

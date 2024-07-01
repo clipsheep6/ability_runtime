@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string ACTION_MARKET_CROWDTEST = "ohos.want.action.marketCrowdTest";
+constexpr const char* ACTION_MARKET_CROWDTEST = "ohos.want.action.marketCrowdTest";
 }
 ErrCode CrowdTestInterceptor::DoProcess(AbilityInterceptorParam param)
 {

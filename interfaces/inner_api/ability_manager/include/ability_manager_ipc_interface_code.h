@@ -302,8 +302,6 @@ enum class AbilityManagerInterfaceCode {
 
     GET_PROCESS_RUNNING_INFO = 1026,
 
-    CLEAR_UP_APPLICATION_DATA = 1027,
-
     START_ABILITY_FOR_OPTIONS = 1028,
 
     BLOCK_AMS_SERVICE = 1029,
@@ -397,8 +395,11 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for preload UIExtension ability by want
     PRELOAD_UIEXTENSION_ABILITY = 1062,
 
-    // ipc id for start UIExtension ability non—modal
-    START_UI_EXTENSION_ABILITY_NON_MODAL = 1063,
+    // ipc id for start UIExtension ability embedded
+    START_UI_EXTENSION_ABILITY_EMBEDDED = 1063,
+
+    // ipc id for start UIExtension ability constrained embedded
+    START_UI_EXTENSION_CONSTRAINED_EMBEDDED = 1064,
 
     // ipc id for continue ability(1101)
     START_CONTINUATION = 1101,
@@ -443,6 +444,8 @@ enum class AbilityManagerInterfaceCode {
     // ipc for get ability state by persistent id
     GET_ABILITY_STATE_BY_PERSISTENT_ID = 1128,
     TRANSFER_ABILITY_RESULT = 1129,
+    // ipc for notify frozen process by RSS
+    NOTIFY_FROZEN_PROCESS_BY_RSS = 1130,
 
     // ipc id 2001-3000 for tools
     // ipc id for dumping state (2001)
@@ -470,6 +473,8 @@ enum class AbilityManagerInterfaceCode {
     QUERY_MISSION_VAILD = 3012,
 
     VERIFY_PERMISSION = 3013,
+
+    CLEAR_RECOVERY_PAGE_STACK = 3014,
 
     ACQUIRE_SHARE_DATA = 4001,
     SHARE_DATA_DONE = 4002,

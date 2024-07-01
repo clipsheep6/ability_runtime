@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string SUPPORT_SCREEN_UNLOCK_STARTUP = "persist.sys.ability.support.screen_unlock_startup";
+constexpr const char* SUPPORT_SCREEN_UNLOCK_STARTUP = "persist.sys.ability.support.screen_unlock_startup";
 }
 ErrCode ScreenUnlockInterceptor::DoProcess(AbilityInterceptorParam param)
 {
@@ -46,6 +46,12 @@ ErrCode ScreenUnlockInterceptor::DoProcess(AbilityInterceptorParam param)
         }
         IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->QueryAbilityInfo(param.want,
             AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, param.userId, targetAbilityInfo));
+        if (targetAbilityInfo.applicationInfo.name.empty() ||
+            targetAbilityInfo.applicationInfo.bundleName.empty()) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Cannot find targetAbilityInfo, element uri: %{public}s",
+                param.want.GetElement().GetURI().c_str());
+            return ERR_OK;
+        }
     }
 
     // temp add isSystemApp pass, remove after systemapp adjust

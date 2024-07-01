@@ -703,7 +703,7 @@ public:
      * @param bundleName.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int KillProcess(const std::string &bundleName) = 0;
+    virtual int KillProcess(const std::string &bundleName, const bool clearPageStack = true) = 0;
 
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
@@ -717,22 +717,29 @@ public:
     #endif
 
     /**
-     * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
-     * clear the application data.
-     *
-     * @param bundleName, bundle name in Application record.
-     * @return
-     */
-    virtual int ClearUpApplicationData(const std::string &bundleName, const int32_t userId = DEFAULT_INVAL_VALUE) = 0;
-
-    /**
      * Uninstall app
      *
      * @param bundleName bundle name of uninstalling app.
      * @param uid uid of bundle.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int UninstallApp(const std::string &bundleName, int32_t uid) = 0;
+    virtual int UninstallApp(const std::string &bundleName, int32_t uid)
+    {
+        return 0;
+    }
+
+    /**
+     * Uninstall app
+     *
+     * @param bundleName bundle name of uninstalling app.
+     * @param uid uid of bundle.
+     * @param appIndex the app index of app clone.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UninstallApp(const std::string &bundleName, int32_t uid, int32_t appIndex)
+    {
+        return 0;
+    }
 
     /**
      * Upgrade app, record exit reason and kill application
@@ -740,9 +747,11 @@ public:
      * @param bundleName bundle name of upgrading app.
      * @param uid uid of bundle.
      * @param exitMsg the exit reason message.
+     * @param appIndex the app index of app clone.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg)
+    virtual int32_t UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg,
+        int32_t appIndex = 0)
     {
         return 0;
     }
@@ -893,7 +902,11 @@ public:
      * @param handler Indidate handler of WindowManagerService.
      * @return ErrCode Returns ERR_OK on success, others on failure.
      */
-    virtual int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler) = 0;
+    virtual int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler,
+        bool animationEnabled)
+    {
+        return 0;
+    }
 
     /**
      * WindowManager notification AbilityManager after the first frame is drawn.
@@ -1148,6 +1161,8 @@ public:
     virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason,
         const Want *want = nullptr) {};
 
+    virtual void ScheduleClearRecoveryPageStack() {};
+
     /**
      * Called to verify that the MissionId is valid.
      * @param missionIds Query mission list.
@@ -1256,8 +1271,9 @@ public:
      * Call UIAbility by SCB.
      *
      * @param sessionInfo the session info of the ability to be called.
+     * @param isColdStart the session of the ability is or not cold start.
      */
-    virtual void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo) {}
+    virtual void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isColdStart) {}
 
     /**
      * Start specified ability by SCB.
@@ -1604,6 +1620,17 @@ public:
         const Want &want)
     {
         return 0;
+    }
+
+    /**
+     * Notify ability manager service frozen process.
+     *
+     * @param pidList, the pid list of the frozen process.
+     * @param uid, the uid of the frozen process.
+     */
+    virtual void NotifyFrozenProcessByRSS(const std::vector<int32_t> &pidList, int32_t uid)
+    {
+        return;
     }
 };
 }  // namespace AAFwk

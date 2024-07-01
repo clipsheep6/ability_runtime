@@ -32,12 +32,12 @@ namespace {
 constexpr static char FORM_EXTENSION[] = "FormExtension";
 constexpr static char UI_EXTENSION[] = "UIExtensionAbility";
 constexpr static char CUSTOM_EXTENSION[] = "ExtensionAbility";
-constexpr static char MEDIA_CONTROL_EXTENSION[] = "MediaControlExtensionAbility";
 constexpr static char USER_AUTH_EXTENSION[] = "UserAuthExtensionAbility";
 constexpr static char ACTION_EXTENSION[] = "ActionExtensionAbility";
 constexpr static char SHARE_EXTENSION[] = "ShareExtensionAbility";
 constexpr static char AUTO_FILL_EXTENSION[] = "AutoFillExtensionAbility";
 constexpr static char EMBEDDED_UI_EXTENSION[] = "EmbeddedUIExtensionAbility";
+constexpr static char PHOTO_EDITOR_EXTENSION[] = "PhotoEditorExtensionAbility";
 constexpr static char VPN_EXTENSION[] = "VpnExtension";
 #endif
 constexpr static char BASE_SERVICE_EXTENSION[] = "ServiceExtension";
@@ -59,7 +59,8 @@ const std::map<AppExecFwk::ExtensionAbilityType, std::string> UI_EXTENSION_NAME_
     { AppExecFwk::ExtensionAbilityType::ACTION, ACTION_EXTENSION },
     { AppExecFwk::ExtensionAbilityType::AUTO_FILL_PASSWORD, AUTO_FILL_EXTENSION },
     { AppExecFwk::ExtensionAbilityType::AUTO_FILL_SMART, AUTO_FILL_EXTENSION },
-    { AppExecFwk::ExtensionAbilityType::EMBEDDED_UI, EMBEDDED_UI_EXTENSION }
+    { AppExecFwk::ExtensionAbilityType::EMBEDDED_UI, EMBEDDED_UI_EXTENSION },
+    { AppExecFwk::ExtensionAbilityType::PHOTO_EDITOR, PHOTO_EDITOR_EXTENSION }
 #endif //SUPPORT_GRAPHICS
 };
 
@@ -149,11 +150,6 @@ void ExtensionAbilityThread::CreateExtensionAbilityName(
     if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::INPUTMETHOD) {
         abilityName = INPUTMETHOD_EXTENSION;
     }
-#ifdef SUPPORT_GRAPHICS
-    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL) {
-        abilityName = MEDIA_CONTROL_EXTENSION;
-    }
-#endif // SUPPORT_GRAPHICS
     if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::APP_ACCOUNT_AUTHORIZATION) {
         abilityName = APP_ACCOUNT_AUTHORIZATION_EXTENSION;
     }
@@ -362,23 +358,7 @@ void ExtensionAbilityThread::HandleCommandExtensionWindow(
 void ExtensionAbilityThread::ScheduleUpdateConfiguration(const AppExecFwk::Configuration &config)
 {
     TAG_LOGD(AAFwkTag::EXT, "Begin.");
-    if (abilityHandler_ == nullptr) {
-        TAG_LOGE(AAFwkTag::EXT, "abilityHandler_ is nullptr.");
-        return;
-    }
-    wptr<ExtensionAbilityThread> weak = this;
-    auto task = [weak, config]() {
-        auto abilityThread = weak.promote();
-        if (abilityThread == nullptr) {
-            TAG_LOGE(AAFwkTag::EXT, "Ability thread is nullptr.");
-            return;
-        }
-        abilityThread->HandleExtensionUpdateConfiguration(config);
-    };
-    bool ret = abilityHandler_->PostTask(task);
-    if (!ret) {
-        TAG_LOGE(AAFwkTag::EXT, "PostTask error");
-    }
+    HandleExtensionUpdateConfiguration(config);
     TAG_LOGD(AAFwkTag::EXT, "End.");
 }
 

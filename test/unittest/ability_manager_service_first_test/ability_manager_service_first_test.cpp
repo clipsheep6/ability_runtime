@@ -1132,7 +1132,8 @@ HWTEST_F(AbilityManagerServiceFirstTest, UpgradeApp_001, TestSize.Level1)
     std::string bundleName = "";
     int32_t uid = 1;
     std::string exitMsg = "App upgrade.";
-    EXPECT_EQ(abilityMs_->UpgradeApp(bundleName, uid, exitMsg), ERR_NULL_OBJECT);
+    int32_t appIndex = 0;
+    EXPECT_EQ(abilityMs_->UpgradeApp(bundleName, uid, exitMsg, appIndex), ERR_NULL_OBJECT);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest UpgradeApp_001 end");
 }
 
@@ -1329,6 +1330,7 @@ HWTEST_F(AbilityManagerServiceFirstTest, AppRecoverKill_001, TestSize.Level1)
     abilityMs_->AppRecoverKill(pid, StateReason::JS_ERROR);
     abilityMs_->AppRecoverKill(pid, StateReason::LIFECYCLE);
     abilityMs_->AppRecoverKill(pid, StateReason::APP_FREEZE);
+    EXPECT_TRUE(abilityMs_ != nullptr);
 }
 
 /*

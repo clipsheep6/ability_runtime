@@ -126,6 +126,12 @@ bool Watchdog::IsStopWatchdog()
     return stopWatchdog_;
 }
 
+void Watchdog::SetBgWorkingThreadStatus(const bool isBgWorkingThread)
+{
+    std::unique_lock<std::mutex> lock(cvMutex_);
+    isBgWorkingThread_.store(isBgWorkingThread);
+}
+
 void Watchdog::Timer()
 {
     std::unique_lock<std::mutex> lock(cvMutex_);
@@ -159,6 +165,10 @@ void Watchdog::Timer()
 
 void Watchdog::ReportEvent()
 {
+    if (isBgWorkingThread_) {
+        TAG_LOGD(AAFwkTag::APPDFR, "Thread is working in the background, do not report this time");
+        return;
+    }
     int64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
         system_clock::now().time_since_epoch()).count();
     if ((now - lastWatchTime_) > (RESET_RATIO * CHECK_INTERVAL_TIME) ||
@@ -182,9 +192,11 @@ void Watchdog::ReportEvent()
         return;
     }
 
+#ifndef APP_NO_RESPONSE_DIALOG
     if (isSixSecondEvent_) {
         needReport_.store(false);
     }
+#endif
     AppExecFwk::AppfreezeInner::GetInstance()->ThreadBlock(isSixSecondEvent_);
 }
 }  // namespace AppExecFwk

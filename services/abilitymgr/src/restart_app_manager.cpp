@@ -55,8 +55,7 @@ bool RestartAppManager::IsForegroundToRestartApp() const
     auto callerPid = IPCSkeleton::GetCallingPid();
     AppExecFwk::RunningProcessInfo processInfo;
     DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(callerPid, processInfo);
-    if (processInfo.state_ == AppProcessState::APP_STATE_FOREGROUND || processInfo.isFocused ||
-        processInfo.isAbilityForegrounding) {
+    if (processInfo.isFocused || processInfo.isAbilityForegrounding) {
         return true;
     }
     TAG_LOGE(AAFwkTag::ABILITYMGR, "IsForegroundToRestartApp, app stae is not foreground.");

@@ -51,7 +51,7 @@ const uint8_t NUMBER_OF_PARAMETERS_NINE = 9;
 class TriggerCompleteCallBack;
 
 struct CallbackInfo {
-    WantAgent* wantAgent = nullptr;
+    std::shared_ptr<WantAgent> wantAgent;
     napi_env env = nullptr;
     std::unique_ptr<NativeReference> nativeRef = nullptr;
 };
@@ -123,7 +123,7 @@ public:
     void OnSendFinished(const AAFwk::Want &want, int resultCode, const std::string &resultData,
         const AAFwk::WantParams &resultExtras) override;
     void SetCallbackInfo(napi_env env, NativeReference* ref);
-    void SetWantAgentInstance(WantAgent* wantAgent);
+    void SetWantAgentInstance(std::shared_ptr<WantAgent> wantAgent);
 
 private:
     CallbackInfo triggerCompleteInfo_;

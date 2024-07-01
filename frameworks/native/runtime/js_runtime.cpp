@@ -283,9 +283,7 @@ void JsRuntime::StartDebugMode(const DebugOption dOption)
             if (isDebugApp) {
                 weak->StopDebugger(option);
             }
-            int32_t tid = weak->ParseHdcRegisterOption(option);
-            const auto &debuggerPostTask = ConnectServerManager::Get().GetDebuggerPostTask(tid);
-            weak->StartDebugger(option, socketFd, isDebugApp, debuggerPostTask);
+            weak->StartDebugger(option, socketFd, isDebugApp);
         }
     });
     if (isDebugApp) {
@@ -411,9 +409,7 @@ void JsRuntime::StartProfiler(const DebugOption dOption)
             if (isDebugApp) {
                 weak->StopDebugger(option);
             }
-            int32_t tid = weak->ParseHdcRegisterOption(option);
-            const auto &debuggerPostTask = ConnectServerManager::Get().GetDebuggerPostTask(tid);
-            weak->StartDebugger(option, socketFd, isDebugApp, debuggerPostTask);
+            weak->StartDebugger(option, socketFd, isDebugApp);
         }
     });
     if (isDebugApp) {
@@ -475,20 +471,7 @@ bool JsRuntime::LoadRepairPatch(const std::string& hqfFile, const std::string& h
     auto vm = GetEcmaVm();
     CHECK_POINTER_AND_RETURN(vm, false);
 
-    std::string patchSoureMapFile;
-    std::vector<uint8_t> soureMapBuffer;
-    if (!GetFileBuffer(hqfFile, patchSoureMapFile, soureMapBuffer, false)) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "LoadRepairPatch, get patchSoureMap file buffer failed.");
-        return false;
-    }
-    std::string str(soureMapBuffer.begin(), soureMapBuffer.end());
-    auto sourceMapOperator = jsEnv_->GetSourceMapOperator();
-    if (sourceMapOperator != nullptr) {
-        auto sourceMapObj = sourceMapOperator->GetSourceMapObj();
-        if (sourceMapObj != nullptr) {
-            sourceMapObj->SplitSourceMap(str);
-        }
-    }
+    InitSourceMap(hqfFile);
 
     std::string patchFile;
     std::vector<uint8_t> patchBuffer;
@@ -757,6 +740,8 @@ bool JsRuntime::Initialize(const Options& options)
             panda::JSNApi::SetHmsModuleList(vm, systemKitsMap);
             std::map<std::string, std::vector<std::vector<std::string>>> pkgContextInfoMap;
             std::map<std::string, std::string> pkgAliasMap;
+            pkgContextInfoJsonStringMap_ = options.pkgContextInfoJsonStringMap;
+            packageNameList_ = options.packageNameList;
             GetPkgContextInfoListMap(options.pkgContextInfoJsonStringMap, pkgContextInfoMap, pkgAliasMap);
             panda::JSNApi::SetpkgContextInfoList(vm, pkgContextInfoMap);
             panda::JSNApi::SetPkgAliasList(vm, pkgAliasMap);
@@ -850,7 +835,8 @@ void JsRuntime::PreloadAce(const Options& options)
     if (options.loadAce) {
         // ArkTsCard start
         if (options.isUnique) {
-            OHOS::Ace::DeclarativeModulePreloader::PreloadCard(*nativeEngine, options.bundleName);
+            OHOS::Ace::DeclarativeModulePreloader::PreloadCard(
+                *nativeEngine, options.bundleName, options.pkgContextInfoJsonStringMap);
         } else {
             OHOS::Ace::DeclarativeModulePreloader::Preload(*nativeEngine);
         }
@@ -866,7 +852,7 @@ void JsRuntime::ReloadFormComponent()
     CHECK_POINTER(nativeEngine);
     // ArkTsCard update condition, need to reload new component
 #ifdef SUPPORT_SCREEN
-    OHOS::Ace::DeclarativeModulePreloader::ReloadCard(*nativeEngine, bundleName_);
+    OHOS::Ace::DeclarativeModulePreloader::ReloadCard(*nativeEngine, bundleName_, pkgContextInfoJsonStringMap_);
 #endif
 }
 
@@ -913,6 +899,24 @@ void JsRuntime::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> op
     jsEnv_->InitSourceMap(operatorObj);
     JsEnv::SourceMap::RegisterReadSourceMapCallback(JsRuntime::ReadSourceMapData);
     JsEnv::SourceMap::RegisterGetHapPathCallback(JsModuleReader::GetHapPathList);
+}
+
+void JsRuntime::InitSourceMap(const std::string hqfFilePath)
+{
+    std::string patchSoureMapFile;
+    std::vector<uint8_t> soureMapBuffer;
+    if (!GetFileBuffer(hqfFilePath, patchSoureMapFile, soureMapBuffer, false)) {
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "InitSourceMap, get patchSoureMap file buffer failed.");
+        return;
+    }
+    std::string str(soureMapBuffer.begin(), soureMapBuffer.end());
+    auto sourceMapOperator = jsEnv_->GetSourceMapOperator();
+    if (sourceMapOperator != nullptr) {
+        auto sourceMapObj = sourceMapOperator->GetSourceMapObj();
+        if (sourceMapObj != nullptr) {
+            sourceMapObj->SplitSourceMap(str);
+        }
+    }
 }
 
 void JsRuntime::Deinitialize()
@@ -1197,12 +1201,11 @@ void JsRuntime::DumpHeapSnapshot(bool isPrivate)
     nativeEngine->DumpHeapSnapshot(true, DumpFormat::JSON, isPrivate, false);
 }
 
-void JsRuntime::DumpHeapSnapshot(uint32_t tid, bool isFullGC, std::vector<uint32_t> fdVec,
-    std::vector<uint32_t> tidVec)
+void JsRuntime::DumpHeapSnapshot(uint32_t tid, bool isFullGC)
 {
     auto vm = GetEcmaVm();
     CHECK_POINTER(vm);
-    DFXJSNApi::DumpHeapSnapshot(vm, 0, true, false, false, isFullGC, tid, fdVec, tidVec);
+    DFXJSNApi::DumpHeapSnapshot(vm, 0, true, false, false, isFullGC, tid);
 }
 
 void JsRuntime::ForceFullGC(uint32_t tid)
@@ -1329,6 +1332,10 @@ void JsRuntime::RegisterQuickFixQueryFunc(const std::map<std::string, std::strin
 {
     auto vm = GetEcmaVm();
     CHECK_POINTER(vm);
+    for (auto it = moduleAndPath.begin(); it != moduleAndPath.end(); it++) {
+        std::string hqfFile(AbilityBase::GetLoadPath(it->second));
+        InitSourceMap(hqfFile);
+    }
     panda::JSNApi::RegisterQuickFixQueryFunc(vm, JsQuickfixCallback(moduleAndPath));
 }
 
@@ -1460,7 +1467,7 @@ void JsRuntime::ReInitJsEnvImpl(const Options& options)
     jsEnv_->ReInitJsEnvImpl(std::make_unique<OHOSJsEnvironmentImpl>(options.eventRunner));
 }
 
-void JsRuntime::SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate) const
+void JsRuntime::SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate> moduleCheckerDelegate) const
 {
     CHECK_POINTER(jsEnv_);
     jsEnv_->SetModuleLoadChecker(moduleCheckerDelegate);
@@ -1694,6 +1701,22 @@ std::shared_ptr<Runtime::Options> JsRuntime::GetChildOptions()
     std::lock_guard<std::mutex> lock(childOptionsMutex_);
     TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     return childOptions_;
+}
+
+void JsRuntime::UpdatePkgContextInfoJson(std::string moduleName, std::string hapPath, std::string packageName)
+{
+    auto iterator = pkgContextInfoJsonStringMap_.find(moduleName);
+    if (iterator == pkgContextInfoJsonStringMap_.end()) {
+        pkgContextInfoJsonStringMap_[moduleName] = hapPath;
+        packageNameList_[moduleName] = packageName;
+        auto vm = GetEcmaVm();
+        std::map<std::string, std::vector<std::vector<std::string>>> pkgContextInfoMap;
+        std::map<std::string, std::string> pkgAliasMap;
+        GetPkgContextInfoListMap(pkgContextInfoJsonStringMap_, pkgContextInfoMap, pkgAliasMap);
+        panda::JSNApi::SetpkgContextInfoList(vm, pkgContextInfoMap);
+        panda::JSNApi::SetPkgAliasList(vm, pkgAliasMap);
+        panda::JSNApi::SetPkgNameList(vm, packageNameList_);
+    }
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

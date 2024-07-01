@@ -289,7 +289,7 @@ static bool ParseOpenLinkParams(const napi_env &env, const NapiCallbackInfo &inf
 napi_value JsUIExtensionContext::OnOpenLink(napi_env env, NapiCallbackInfo& info)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::UI_EXT, "OnOpenLink");
+    TAG_LOGD(AAFwkTag::UI_EXT, "OnOpenLink");
 
     std::string linkValue("");
     AAFwk::OpenLinkOptions openLinkOptions;
@@ -304,7 +304,6 @@ napi_value JsUIExtensionContext::OnOpenLink(napi_env env, NapiCallbackInfo& info
         return CreateJsUndefined(env);
     }
 
-    TAG_LOGI(AAFwkTag::UI_EXT, "open link:%{public}s.", linkValue.c_str());
     want.SetUri(linkValue);
     int requestCode = -1;
     if (CheckTypeForNapiValue(env, info.argv[INDEX_TWO], napi_function)) {

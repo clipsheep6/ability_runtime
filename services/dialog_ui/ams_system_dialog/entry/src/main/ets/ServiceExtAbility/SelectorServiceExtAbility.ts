@@ -142,14 +142,14 @@ export default class SelectorServiceExtensionAbility extends extension {
   async onRequest(want, startId) {
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
     globalThis.abilityWant = want;
-    globalThis.params = JSON.parse(want.parameters.params);
-    let displayClass = display.getDefaultDisplaySync();
-    let lineNums = 0;
-    if (globalThis.params && globalThis.params.hapList && globalThis.params.hapList.length) {
-      lineNums = globalThis.params.hapList.length;
-    }
-    globalThis.position = PositionUtils.getSelectorDialogPosition(lineNums);
     try {
+      globalThis.params = JSON.parse(want.parameters.params);
+      globalThis.callerToken = want.parameters.callerToken;
+      let lineNums = 0;
+      if (globalThis.params && globalThis.params.hapList && globalThis.params.hapList.length) {
+        lineNums = globalThis.params.hapList.length;
+      }
+      globalThis.position = PositionUtils.getSelectorDialogPosition(lineNums);
       display.on('change', (data: number) => {
         let position = PositionUtils.getSelectorDialogPosition(lineNums);
         if (position.offsetX !== globalThis.position.offsetX || position.offsetY !== globalThis.position.offsetY) {
@@ -163,11 +163,10 @@ export default class SelectorServiceExtensionAbility extends extension {
     } catch (exception) {
       console.error('Failed to register callback. Code: ' + JSON.stringify(exception));
     }
-
+    let displayClass = display.getDefaultDisplaySync();
     console.debug(TAG, 'onRequest display is' + JSON.stringify(displayClass));
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
     console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
-    globalThis.callerToken = want.parameters.callerToken;
     console.debug(TAG, 'onRequest, position: ' + JSON.stringify(globalThis.position));
     if (!globalThis.params.isDefaultSelector) {
       globalThis.modelFlag = Boolean(globalThis.params.modelFlag);

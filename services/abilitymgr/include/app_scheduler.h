@@ -231,7 +231,7 @@ public:
      *
      * @param bundleName.
      */
-    int KillApplication(const std::string &bundleName);
+    int KillApplication(const std::string &bundleName, const bool clearPageStack = true);
 
     /**
      * kill the application by uid
@@ -251,16 +251,9 @@ public:
      */
     int UpdateApplicationInfoInstalled(const std::string &bundleName, const int32_t uid);
 
-    /**
-     * clear the application data
-     *
-     * @param bundleName.
-     */
-    int ClearUpApplicationData(const std::string &bundleName, const int32_t userId = -1);
-
     void AttachTimeOut(const sptr<IRemoteObject> &token);
 
-    void PrepareTerminate(const sptr<IRemoteObject> &token);
+    void PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag = false);
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
 
@@ -433,6 +426,13 @@ public:
      * @return Returns true is sufficent memory size, others return false.
      */
     virtual bool IsMemorySizeSufficent() const;
+
+    /**
+     * Notifies that one ability is attached to status bar.
+     *
+     * @param token the token of the abilityRecord that is attached to status bar.
+     */
+    void AttachedToStatusBar(const sptr<IRemoteObject> &token);
 
 protected:
     /**

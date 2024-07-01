@@ -301,7 +301,7 @@ ErrCode AbilityContextImpl::StopServiceExtensionAbility(const AAFwk::Want& want,
 ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, int resultCode)
 {
     TAG_LOGI(AAFwkTag::CONTEXT, "TerminateAbilityWithResult");
-    isTerminating_ = true;
+    isTerminating_.store(true);
 #ifdef SUPPORT_SCREEN
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sessionToken = GetSessionToken();
@@ -539,7 +539,7 @@ ErrCode AbilityContextImpl::MoveUIAbilityToBackground()
 ErrCode AbilityContextImpl::TerminateSelf()
 {
     TAG_LOGI(AAFwkTag::CONTEXT, "TerminateSelf");
-    isTerminating_ = true;
+    isTerminating_.store(true);
     auto sessionToken = GetSessionToken();
     if (sessionToken == nullptr) {
         TAG_LOGW(AAFwkTag::CONTEXT, "sessionToken is null");
@@ -576,7 +576,7 @@ ErrCode AbilityContextImpl::CloseAbility()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::CONTEXT, "CloseAbility");
-    isTerminating_ = true;
+    isTerminating_.store(true);
     AAFwk::Want resultWant;
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->CloseAbility(token_, -1, &resultWant);
     if (err != ERR_OK) {
@@ -766,7 +766,8 @@ ErrCode AbilityContextImpl::GetMissionId(int32_t &missionId)
 ErrCode AbilityContextImpl::SetMissionContinueState(const AAFwk::ContinueState &state)
 {
     TAG_LOGD(AAFwkTag::CONTEXT, "SetMissionContinueState: %{public}d", state);
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->SetMissionContinueState(token_, state);
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->SetMissionContinueState(token_, state,
+        sessionToken_.promote());
     if (err != ERR_OK) {
         TAG_LOGE(AAFwkTag::CONTEXT, "SetMissionContinueState failed: %{public}d", err);
     }
@@ -987,6 +988,16 @@ ErrCode AbilityContextImpl::OpenAtomicService(AAFwk::Want& want, const AAFwk::St
         OnAbilityResultInner(requestCode, err, want);
     }
     return err;
+}
+
+void AbilityContextImpl::SetRestoreEnabled(bool enabled)
+{
+    restoreEnabled_.store(enabled);
+}
+
+bool AbilityContextImpl::GetRestoreEnabled()
+{
+    return restoreEnabled_.load();
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

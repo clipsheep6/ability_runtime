@@ -167,7 +167,11 @@ int32_t ExtensionRecordManager::GetOrCreateExtensionRecord(const AAFwk::AbilityR
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Check Preload Extension Record.");
     auto result = IsPreloadExtensionRecord(abilityRequest, hostBundleName, extensionRecord, isLoaded);
     if (result) {
-        RemovePreloadUIExtensionRecord(abilityRequest, hostBundleName, extensionRecord, isLoaded);
+        std::string abilityName = abilityRequest.want.GetElement().GetAbilityName();
+        std::string bundleName = abilityRequest.want.GetElement().GetBundleName();
+        std::string moduleName = abilityRequest.want.GetElement().GetModuleName();
+        auto extensionRecordMapKey = std::make_tuple(abilityName, bundleName, moduleName, hostBundleName);
+        RemovePreloadUIExtensionRecord(extensionRecordMapKey);
     } else {
         int32_t ret = GetOrCreateExtensionRecordInner(abilityRequest, hostBundleName, extensionRecord, isLoaded);
         if (ret != ERR_OK) {
@@ -271,6 +275,20 @@ int32_t ExtensionRecordManager::UpdateProcessName(const AAFwk::AbilityRequest &a
     return ERR_OK;
 }
 
+int32_t ExtensionRecordManager::GetHostBundleNameForExtensionId(int32_t extensionRecordId, std::string &hostBundleName)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
+    std::lock_guard<std::mutex> lock(mutex_);
+    std::shared_ptr<ExtensionRecord> extensionRecord = nullptr;
+    if (extensionRecords_.find(extensionRecordId) != extensionRecords_.end()) {
+        extensionRecord = extensionRecords_[extensionRecordId];
+        CHECK_POINTER_AND_RETURN(extensionRecord, ERR_INVALID_VALUE);
+        hostBundleName = extensionRecord->hostBundleName_;
+        return ERR_OK;
+    }
+    return ERR_INVALID_VALUE;
+}
+
 int32_t ExtensionRecordManager::AddPreloadUIExtensionRecord(const std::shared_ptr<AAFwk::AbilityRecord> abilityRecord)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
@@ -336,14 +354,41 @@ bool ExtensionRecordManager::IsPreloadExtensionRecord(const AAFwk::AbilityReques
     return false;
 }
 
-bool ExtensionRecordManager::RemovePreloadUIExtensionRecord(const AAFwk::AbilityRequest &abilityRequest,
-    const std::string &hostBundleName, std::shared_ptr<ExtensionRecord> &extensionRecord, bool &isLoaded)
+bool ExtensionRecordManager::RemovePreloadUIExtensionRecordById(
+    const std::tuple<std::string, std::string, std::string, std::string> extensionRecordMapKey,
+    int32_t extensionRecordId)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call.");
-    std::string abilityName = abilityRequest.want.GetElement().GetAbilityName();
-    std::string bundleName = abilityRequest.want.GetElement().GetBundleName();
-    std::string moduleName = abilityRequest.want.GetElement().GetModuleName();
-    auto extensionRecordMapKey = std::make_tuple(abilityName, bundleName, moduleName, hostBundleName);
+    std::lock_guard<std::mutex> lock(preloadUIExtensionMapMutex_);
+    auto item = preloadUIExtensionMap_.find(extensionRecordMapKey);
+    if (item == preloadUIExtensionMap_.end()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Cannot find ExtensionRecords!");
+        return false;
+    }
+    if (item->second.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Extension record vector is empty! Clean the map key");
+        preloadUIExtensionMap_.erase(extensionRecordMapKey);
+        return false;
+    }
+    for (auto it = item->second.begin(); it != item->second.end(); ++it) {
+        if ((*it)->extensionRecordId_ == extensionRecordId) {
+            item->second.erase(it);
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Remove extension record by id: %{public}d success.", extensionRecordId);
+            if (item->second.empty()) {
+                TAG_LOGD(AAFwkTag::ABILITYMGR, "Clean extensionRecord by map key");
+                preloadUIExtensionMap_.erase(extensionRecordMapKey);
+            }
+            return true;
+        }
+    }
+    TAG_LOGE(AAFwkTag::ABILITYMGR, "Cannot find extension records by id: %{public}d.", extensionRecordId);
+    return false;
+}
+
+bool ExtensionRecordManager::RemovePreloadUIExtensionRecord(
+    const std::tuple<std::string, std::string, std::string, std::string> extensionRecordMapKey)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call.");
     std::lock_guard<std::mutex> lock(preloadUIExtensionMapMutex_);
     auto item = preloadUIExtensionMap_.find(extensionRecordMapKey);
     if (item != preloadUIExtensionMap_.end()) {

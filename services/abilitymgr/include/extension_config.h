@@ -46,7 +46,8 @@ private:
     bool CheckServiceExtensionUriValid(const std::string &uri);
 
     std::map<std::string, int32_t> extensionAutoDisconnectTimeMap_;
-    std::unordered_map<std::string, bool> thirdPartyAppBlockedFlags_;
+    std::unordered_map<std::string, bool> thirdPartyAppEnableFlags_;
+    std::unordered_map<std::string, bool> serviceEnableFlags_;
     std::unordered_map<std::string, std::unordered_set<std::string>> serviceBlockedLists_;
 };
 } // OHOS

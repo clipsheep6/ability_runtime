@@ -22,6 +22,7 @@
 
 namespace OHOS {
 namespace AAFwk {
+using InterceptorMap = std::unordered_map<std::string, std::shared_ptr<IAbilityInterceptor>>;
 /**
  * @class AbilityInterceptorExecuter
  * AbilityInterceptorExecuter excute the interceptors.
@@ -47,6 +48,8 @@ public:
     ErrCode DoProcess(AbilityInterceptorParam param);
 
     void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler);
+private:
+    InterceptorMap GetInterceptorMapCopy();
 private:
     std::mutex interceptorMapLock_;
     std::unordered_map<std::string, std::shared_ptr<IAbilityInterceptor>> interceptorMap_;

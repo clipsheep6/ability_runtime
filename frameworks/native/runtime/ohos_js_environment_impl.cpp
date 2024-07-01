@@ -58,7 +58,7 @@ void OHOSJsEnvironmentImpl::PostTaskToHandler(void* handler, uv_io_cb func, void
             break;
     }
 
-    if (g_eventHandler == nullptr) {
+    if (g_eventHandler  == nullptr) {
         TAG_LOGE(AAFwkTag::JSRUNTIME, "Invalid parameters!");
         return;
     }
@@ -77,7 +77,9 @@ OHOSJsEnvironmentImpl::OHOSJsEnvironmentImpl(const std::shared_ptr<AppExecFwk::E
     if (eventRunner != nullptr) {
         TAG_LOGD(AAFwkTag::JSRUNTIME, "Create event handler.");
         eventHandler_ = std::make_shared<AppExecFwk::EventHandler>(eventRunner);
-        g_eventHandler = std::make_shared<AppExecFwk::EventHandler>(eventRunner);
+        if (eventRunner.get() == AppExecFwk::EventRunner::GetMainEventRunner().get()) {
+            g_eventHandler = std::make_shared<AppExecFwk::EventHandler>(eventRunner);
+        }
     }
 }
 
@@ -142,7 +144,7 @@ bool OHOSJsEnvironmentImpl::InitLoop(NativeEngine* engine, bool isStage)
         uint32_t events = AppExecFwk::FILE_DESCRIPTOR_INPUT_EVENT | AppExecFwk::FILE_DESCRIPTOR_OUTPUT_EVENT;
         eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<OHOSLoopHandler>(uvLoop), "uvLoopTask");
         TAG_LOGD(AAFwkTag::JSRUNTIME, "uv_register_task_to_event, isStage: %{public}d", isStage);
-        if (isStage) {
+        if (isStage && (eventHandler_->GetEventRunner()).get() == AppExecFwk::EventRunner::GetMainEventRunner().get()) {
             uv_register_task_to_event(uvLoop, PostTaskToHandler, nullptr);
         }
     }

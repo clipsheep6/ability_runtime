@@ -75,6 +75,8 @@ struct AbilityCallerInfo : public Parcelable {
     std::string callerAppProvisionType;
     std::string targetAppProvisionType;
     AppExecFwk::ExtensionAbilityType callerExtensionAbilityType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
+    AppExecFwk::AbilityType targetAbilityType = AppExecFwk::AbilityType::UNKNOWN;
+    AppExecFwk::ExtensionAbilityType targetExtensionAbilityType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
 
     bool ReadFromParcel(Parcel &parcel);
 

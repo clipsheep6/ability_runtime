@@ -177,8 +177,9 @@ public:
      * Call UIAbility by SCB.
      *
      * @param sessionInfo the session info of the ability to be called.
+     * @param isColdStart the session of the ability is or not cold start.
      */
-    void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo);
+    void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isColdStart);
 
     /**
      * OnAcceptWantResponse.
@@ -249,8 +250,7 @@ public:
      */
     int32_t GetSessionIdByAbilityToken(const sptr<IRemoteObject> &token);
 
-    void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList,
-        int32_t pid = NO_PID);
+    void GetActiveAbilityList(int32_t uid, std::vector<std::string> &abilityList, int32_t pid = NO_PID);
 
     bool PrepareTerminateAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void SetSessionHandler(const sptr<ISessionHandler> &handler);
@@ -262,6 +262,28 @@ public:
      * @return Returns abilityRecord on success, nullptr on failure.
      */
     std::shared_ptr<AbilityRecord> GetAbilityRecordsById(int32_t sessionId) const;
+
+    /**
+     * Get check ability number.
+     *
+     * @param bundleName record ability info bundle name.
+     * @param abilityName record ability info ability name.
+     * @param moduleName recode ability info module name.
+     * @return Return find ability number.
+     */
+    int32_t CheckAbilityNumber(
+        const std::string &bundleName, const std::string &abilityName, const std::string &moduleName) const;
+
+    /**
+     * If ability number more then one, send event info.
+     *
+     * @param userId record ability info user id.
+     * @param bundleName record ability info bundle name.
+     * @param abilityName record ability info ability name.
+     * @param moduleName recode ability info module name.
+     */
+    void MoreAbilityNumbersSendEventInfo(
+        int32_t userId, const std::string &bundleName, const std::string &abilityName, const std::string &moduleName);
 
     void OnAppStateChanged(const AppInfo &info);
 

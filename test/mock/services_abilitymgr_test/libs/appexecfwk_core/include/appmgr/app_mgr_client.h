@@ -123,7 +123,7 @@ public:
      * @param  bundleName, bundle name in Application record.
      * @return ERR_OK, return back success, others fail.
      */
-    virtual AppMgrResultCode KillApplication(const std::string& bundleName);
+    virtual AppMgrResultCode KillApplication(const std::string& bundleName, const bool clearPageStack = true);
 
     /**
      * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
@@ -171,7 +171,7 @@ public:
     virtual AppMgrResultCode GetAppFreezingTime(int& time);
     virtual void AbilityAttachTimeOut(const sptr<IRemoteObject>& token);
 
-    virtual void PrepareTerminate(const sptr<IRemoteObject>& token);
+    virtual void PrepareTerminate(const sptr<IRemoteObject>& token, bool clearMissionFlag = false);
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject>& token, AppExecFwk::RunningProcessInfo& info);
 

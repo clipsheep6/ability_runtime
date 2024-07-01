@@ -23,15 +23,10 @@
 namespace OHOS {
 namespace AbilityRuntime {
 FreeInstallObserverStub::FreeInstallObserverStub()
-{
-    memberFuncMap_[IFreeInstallObserver::ON_INSTALL_FINISHED] =
-        &FreeInstallObserverStub::OnInstallFinishedInner;
-}
+{}
 
 FreeInstallObserverStub::~FreeInstallObserverStub()
-{
-    memberFuncMap_.clear();
-}
+{}
 
 int FreeInstallObserverStub::OnInstallFinishedInner(MessageParcel &data, MessageParcel &reply)
 {
@@ -54,12 +49,8 @@ int FreeInstallObserverStub::OnRemoteRequest(
         return ERR_INVALID_STATE;
     }
 
-    auto itFunc = memberFuncMap_.find(code);
-    if (itFunc != memberFuncMap_.end()) {
-        auto memberFunc = itFunc->second;
-        if (memberFunc != nullptr) {
-            return (this->*memberFunc)(data, reply);
-        }
+    if (code == IFreeInstallObserver::ON_INSTALL_FINISHED) {
+        return OnInstallFinishedInner(data, reply);
     }
 
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

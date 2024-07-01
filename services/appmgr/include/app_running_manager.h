@@ -114,9 +114,11 @@ public:
      * OnRemoteDied, Equipment death notification.
      *
      * @param remote, Death client.
+     * @param appMgrServiceInner, Application manager service inner instance.
      * @return
      */
-    std::shared_ptr<AppRunningRecord> OnRemoteDied(const wptr<IRemoteObject> &remote);
+    std::shared_ptr<AppRunningRecord> OnRemoteDied(const wptr<IRemoteObject> &remote,
+        std::shared_ptr<AppMgrServiceInner> appMgrServiceInner);
 
     /**
      * GetAppRunningRecordMap, Get application record list.
@@ -145,7 +147,8 @@ public:
      *
      * @return Return true if found, otherwise return false.
      */
-    bool ProcessExitByBundleName(const std::string &bundleName, std::list<pid_t> &pids);
+    bool ProcessExitByBundleName(
+        const std::string &bundleName, std::list<pid_t> &pids, const bool clearPageStack = true);
     /**
      * Get Foreground Applications.
      *
@@ -228,10 +231,11 @@ public:
      */
     int32_t ProcessUpdateApplicationInfoInstalled(const ApplicationInfo &appInfo);
 
-    bool ProcessExitByBundleNameAndUid(const std::string &bundleName, const int uid, std::list<pid_t> &pids);
+    bool ProcessExitByBundleNameAndUid(
+        const std::string &bundleName, const int uid, std::list<pid_t> &pids, const bool clearPageStack = true);
     bool GetPidsByUserId(int32_t userId, std::list<pid_t> &pids);
 
-    void PrepareTerminate(const sptr<IRemoteObject> &token);
+    void PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag = false);
 
     std::shared_ptr<AppRunningRecord> GetTerminatingAppRunningRecord(const sptr<IRemoteObject> &abilityToken);
 

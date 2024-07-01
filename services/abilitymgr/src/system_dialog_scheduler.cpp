@@ -316,8 +316,8 @@ void SystemDialogScheduler::GetSelectorDialogPositionAndSize(
         lineNums, display->GetVirtualPixelRatio());
 }
 
-int SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant,
-    const sptr<IRemoteObject> &callerToken)
+int SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &requestWant,
+    Want &targetWant, const sptr<IRemoteObject> &callerToken)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::DIALOG, "GetSelectorDialogWant start");
@@ -326,11 +326,11 @@ int SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInfo
     GetSelectorDialogPositionAndSize(portraitPosition, landscapePosition, static_cast<int>(dialogAppInfos.size()));
     std::string params = GetSelectorParams(dialogAppInfos);
 
-    targetWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
-    targetWant.SetParam(DIALOG_POSITION, GetDialogPositionParams(portraitPosition));
-    targetWant.SetParam(VERTICAL_SCREEN_DIALOG_POSITION, GetDialogPositionParams(landscapePosition));
-    targetWant.SetParam(DIALOG_PARAMS, params);
-    return GetSelectorDialogWantCommon(dialogAppInfos, targetWant, callerToken);
+    requestWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
+    requestWant.SetParam(DIALOG_POSITION, GetDialogPositionParams(portraitPosition));
+    requestWant.SetParam(VERTICAL_SCREEN_DIALOG_POSITION, GetDialogPositionParams(landscapePosition));
+    requestWant.SetParam(DIALOG_PARAMS, params);
+    return GetSelectorDialogWantCommon(dialogAppInfos, requestWant, targetWant, callerToken);
 }
 
 const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<DialogAppInfo> &infos) const
@@ -359,7 +359,7 @@ const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<Dia
     return jsonObject.dump();
 }
 
-int SystemDialogScheduler::GetPcSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos,
+int SystemDialogScheduler::GetPcSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &requestWant,
     Want &targetWant, const std::string &type, int32_t userId, const sptr<IRemoteObject> &callerToken)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -367,11 +367,11 @@ int SystemDialogScheduler::GetPcSelectorDialogWant(const std::vector<DialogAppIn
     DialogPosition position;
     GetDialogPositionAndSize(DialogType::DIALOG_SELECTOR, position, static_cast<int>(dialogAppInfos.size()));
 
-    std::string params = GetPcSelectorParams(dialogAppInfos, type, userId, targetWant.GetAction());
-    targetWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
-    targetWant.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
-    targetWant.SetParam(DIALOG_PARAMS, params);
-    return GetSelectorDialogWantCommon(dialogAppInfos, targetWant, callerToken);
+    std::string params = GetPcSelectorParams(dialogAppInfos, type, userId, requestWant.GetAction());
+    requestWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
+    requestWant.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
+    requestWant.SetParam(DIALOG_PARAMS, params);
+    return GetSelectorDialogWantCommon(dialogAppInfos, requestWant, targetWant, callerToken);
 }
 
 const std::string SystemDialogScheduler::GetPcSelectorParams(const std::vector<DialogAppInfo> &infos,
@@ -410,7 +410,7 @@ const std::string SystemDialogScheduler::GetPcSelectorParams(const std::vector<D
 }
 
 int SystemDialogScheduler::GetSelectorDialogWantCommon(const std::vector<DialogAppInfo> &dialogAppInfos,
-    Want &targetWant, const sptr<IRemoteObject> &callerToken)
+    Want &requestWant, Want &targetWant, const sptr<IRemoteObject> &callerToken)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::DIALOG, "GetSelectorDialogWantCommon start");
@@ -423,9 +423,9 @@ int SystemDialogScheduler::GetSelectorDialogWantCommon(const std::vector<DialogA
         }
         if (abilityRecord && UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
             // SelectorDialog can't bind to the window of UIExtension, so set CALLER_TOKEN to null.
-            targetWant.RemoveParam(CALLER_TOKEN);
+            requestWant.RemoveParam(CALLER_TOKEN);
         } else {
-            targetWant.SetParam(CALLER_TOKEN, callerToken);
+            requestWant.SetParam(CALLER_TOKEN, callerToken);
         }
     }
     if (AppGalleryEnableUtil::IsEnableAppGallerySelector() && Rosen::SceneBoardJudgement::IsSceneBoardEnabled()
@@ -584,52 +584,6 @@ void SystemDialogScheduler::GetDialogPositionAndSize(DialogType type, DialogPosi
         position.offsetX = (UI_DEFAULT_WIDTH - position.width) / UI_HALF;
         position.offsetY = UI_DEFAULT_HEIGHT - position.height - UI_DEFAULT_BUTTOM_CLIP;
     }
-}
-
-void SystemDialogScheduler::GetAppNameFromResource(int32_t labelId,
-    const std::string &bundleName, int32_t userId, std::string &appName)
-{
-    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
-    if (resourceManager == nullptr) {
-        TAG_LOGE(AAFwkTag::DIALOG, "The resourceManager is nullptr.");
-        return;
-    }
-
-    AppExecFwk::BundleInfo bundleInfo;
-    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
-    CHECK_POINTER(bundleMgrHelper);
-    if (!IN_PROCESS_CALL(
-        bundleMgrHelper->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId))) {
-        TAG_LOGE(AAFwkTag::DIALOG, "Failed to get bundle info.");
-        return;
-    }
-    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
-    UErrorCode status = U_ZERO_ERROR;
-    icu::Locale locale = icu::Locale::forLanguageTag(Global::I18n::LocaleConfig::GetSystemLanguage(), status);
-    resConfig->SetLocaleInfo(locale);
-    resourceManager->UpdateResConfig(*resConfig);
-
-    std::regex pattern(std::string(AbilityBase::Constants::ABS_CODE_PATH) +
-        std::string(AbilityBase::Constants::FILE_SEPARATOR) + bundleInfo.name);
-    for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-        std::string loadPath;
-        TAG_LOGD(AAFwkTag::DIALOG, "make a judgment.");
-        if (!hapModuleInfo.hapPath.empty()) {
-            loadPath = hapModuleInfo.hapPath;
-        } else {
-            loadPath = hapModuleInfo.resourcePath;
-        }
-        if (loadPath.empty()) {
-            continue;
-        }
-        TAG_LOGD(AAFwkTag::DIALOG, "GetAppNameFromResource loadPath: %{public}s.", loadPath.c_str());
-        if (!resourceManager->AddResource(loadPath.c_str())) {
-            TAG_LOGE(AAFwkTag::DIALOG, "ResourceManager add %{public}s resource path failed.", bundleInfo.name.c_str());
-        }
-    }
-    resourceManager->GetStringById(static_cast<uint32_t>(labelId), appName);
-    TAG_LOGD(
-        AAFwkTag::DIALOG, "Get app display info, labelId: %{public}d, appname: %{public}s.", labelId, appName.c_str());
 }
 
 bool SystemDialogScheduler::GetAssertFaultDialogWant(Want &want)

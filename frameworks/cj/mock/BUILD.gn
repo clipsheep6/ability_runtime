@@ -26,3 +26,10 @@ ohos_shared_library("cj_delegator_ffi") {
 
   sources = [ "cj_delegator_ffi.cpp" ]
 }
+
+ohos_shared_library("cj_errormanager_ffi") {
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+
+  sources = [ "cj_errormanager_mock_ffi.cpp" ]
+}

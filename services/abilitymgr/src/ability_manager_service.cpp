@@ -31,6 +31,7 @@
 #include <unordered_set>
 
 #include "ability_background_connection.h"
+#include "ability_connect_manager.h"
 #include "ability_debug_deal.h"
 #include "ability_info.h"
 #include "ability_manager_constants.h"
@@ -41,6 +42,7 @@
 #include "accesstoken_kit.h"
 #include "app_utils.h"
 #include "app_exit_reason_data_manager.h"
+#include "app_recovery/default_recovery_config.h"
 #include "application_util.h"
 #include "assert_fault_callback_death_mgr.h"
 #include "assert_fault_proxy.h"
@@ -86,6 +88,7 @@
 #include "permission_constants.h"
 #include "process_options.h"
 #include "recovery_param.h"
+#include "res_sched_util.h"
 #include "restart_app_manager.h"
 #include "sa_mgr_client.h"
 #include "scene_board_judgement.h"
@@ -110,6 +113,8 @@
 #include "xcollie/watchdog.h"
 #include "config_policy_utils.h"
 #include "running_multi_info.h"
+#include "utils/extension_permissions_util.h"
+#include "utils/window_options_utils.h"
 #ifdef SUPPORT_GRAPHICS
 #include "dialog_session_record.h"
 #include "application_anr_listener.h"
@@ -117,16 +122,6 @@
 #include "ability_first_frame_state_observer_manager.h"
 #include "window_focus_changed_listener.h"
 #endif
-
-#ifdef EFFICIENCY_MANAGER_ENABLE
-#include "suspend_manager_client.h"
-#include "process_frozen_state_observer.h"
-#endif // EFFICIENCY_MANAGER_ENABLE
-
-#ifdef RESOURCE_SCHEDULE_SERVICE_ENABLE
-#include "res_sched_client.h"
-#include "res_type.h"
-#endif // RESOURCE_SCHEDULE_SERVICE_ENABLE
 
 using OHOS::AppExecFwk::ElementName;
 using OHOS::Security::AccessToken::AccessTokenKit;
@@ -143,30 +138,33 @@ namespace {
         return ERR_NOT_SYSTEM_APP;                                                             \
     }
 
-const std::string ARGS_USER_ID = "-u";
-const std::string ARGS_CLIENT = "-c";
-const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can enter '-h' for help.";
+constexpr const char* ARGS_USER_ID = "-u";
+constexpr const char* ARGS_CLIENT = "-c";
+constexpr const char* ILLEGAL_INFOMATION = "The arguments are illegal and you can enter '-h' for help.";
+
 
 constexpr int32_t NEW_RULE_VALUE_SIZE = 6;
-constexpr int64_t APP_ALIVE_TIME_MS = 1000;  // Allow background startup within 1 second after application startup
+constexpr int32_t APP_ALIVE_TIME_MS = 1000;  // Allow background startup within 1 second after application startup
 constexpr int32_t REGISTER_FOCUS_DELAY = 5000;
 constexpr size_t OFFSET = 32;
-const std::string IS_DELEGATOR_CALL = "isDelegatorCall";
+constexpr const char* IS_DELEGATOR_CALL = "isDelegatorCall";
+
 // Startup rule switch
-const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
-const std::string NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI = "component.startup.newRules.except.LauncherSystemUI";
-const std::string BACKGROUND_JUDGE_FLAG = "component.startup.backgroundJudge.flag";
-const std::string WHITE_LIST_ASS_WAKEUP_FLAG = "component.startup.whitelist.associatedWakeUp";
+constexpr const char* COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
+constexpr const char* NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI = "component.startup.newRules.except.LauncherSystemUI";
+constexpr const char* BACKGROUND_JUDGE_FLAG = "component.startup.backgroundJudge.flag";
+constexpr const char* WHITE_LIST_ASS_WAKEUP_FLAG = "component.startup.whitelist.associatedWakeUp";
+
 // White list app
-const std::string BUNDLE_NAME_SETTINGSDATA = "com.ohos.settingsdata";
+constexpr const char* BUNDLE_NAME_SETTINGSDATA = "com.ohos.settingsdata";
 // Support prepare terminate
 constexpr int32_t PREPARE_TERMINATE_ENABLE_SIZE = 6;
-const char* PREPARE_TERMINATE_ENABLE_PARAMETER = "persist.sys.prepare_terminate";
+constexpr const char* PREPARE_TERMINATE_ENABLE_PARAMETER = "persist.sys.prepare_terminate";
 // UIExtension type
-const std::string UIEXTENSION_TYPE_KEY = "ability.want.params.uiExtensionType";
-const std::string UIEXTENSION_TARGET_TYPE_KEY = "ability.want.params.uiExtensionTargetType";
-const std::string SYSTEM_SHARE = "share";
-const std::string SYSTEM_SHARE_TYPE = "sysPicker/share";
+constexpr const char* UIEXTENSION_TYPE_KEY = "ability.want.params.uiExtensionType";
+constexpr const char* UIEXTENSION_TARGET_TYPE_KEY = "ability.want.params.uiExtensionTargetType";
+constexpr const char* SYSTEM_SHARE = "share";
+constexpr const char* SYSTEM_SHARE_TYPE = "sysPicker/share";
 // Share picker params
 constexpr char SHARE_PICKER_DIALOG_BUNDLE_NAME_KEY[] = "const.system.sharePicker.bundleName";
 constexpr char SHARE_PICKER_DIALOG_ABILITY_NAME_KEY[] = "const.system.sharePicker.abilityName";
@@ -177,19 +175,19 @@ constexpr char TOKEN_KEY[] = "ohos.ability.params.token";
 // Developer mode param
 constexpr char DEVELOPER_MODE_STATE[] = "const.security.developermode.state";
 // Broker params key
-const std::string KEY_VISIBLE_ID = "ohos.anco.param.visible";
-const std::string START_ABILITY_TYPE = "ABILITY_INNER_START_WITH_ACCOUNT";
-const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
-const std::string SHELL_ASSISTANT_ABILITYNAME = "MainAbility";
-const std::string AMS_DIALOG_BUNDLENAME = "com.ohos.amsdialog";
-const std::string STR_PHONE = "phone";
+constexpr const char* KEY_VISIBLE_ID = "ohos.anco.param.visible";
+constexpr const char* START_ABILITY_TYPE = "ABILITY_INNER_START_WITH_ACCOUNT";
+constexpr const char* SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
+constexpr const char* SHELL_ASSISTANT_ABILITYNAME = "MainAbility";
+constexpr const char* BUNDLE_NAME_DIALOG = "com.ohos.amsdialog";
+constexpr const char* STR_PHONE = "phone";
 // Distributed continued session Id
-const std::string DMS_CONTINUED_SESSION_ID = "ohos.dms.continueSessionId";
-const std::string DMS_PERSISTENT_ID = "ohos.dms.persistentId";
+constexpr const char* DMS_CONTINUED_SESSION_ID = "ohos.dms.continueSessionId";
+constexpr const char* DMS_PERSISTENT_ID = "ohos.dms.persistentId";
 
-const std::string DEBUG_APP = "debugApp";
-const std::string AUTO_FILL_PASSWORD_TPYE = "autoFill/password";
-const std::string AUTO_FILL_SMART_TPYE = "autoFill/smart";
+constexpr const char* DEBUG_APP = "debugApp";
+constexpr const char* AUTO_FILL_PASSWORD_TPYE = "autoFill/password";
+constexpr const char* AUTO_FILL_SMART_TPYE = "autoFill/smart";
 constexpr size_t INDEX_ZERO = 0;
 constexpr size_t INDEX_ONE = 1;
 constexpr size_t INDEX_TWO = 2;
@@ -197,11 +195,12 @@ constexpr size_t ARGC_THREE = 3;
 constexpr static char WANT_PARAMS_VIEW_DATA_KEY[] = "ohos.ability.params.viewData";
 
 constexpr int32_t FOUNDATION_UID = 5523;
-const std::string FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
-const std::string FOUNDATION_PROCESS_NAME = "foundation";
-const std::string IS_PRELOAD_UIEXTENSION_ABILITY = "ability.want.params.is_preload_uiextension_ability";
-const std::string UIEXTENSION_MODAL_TYPE = "ability.want.params.modalType";
-const std::string ATOMIC_SERVICE_PREFIX = "com.atomicservice.";
+constexpr const char* FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
+constexpr const char* FOUNDATION_PROCESS_NAME = "foundation";
+constexpr const char* RSS_PROCESS_NAME = "resource_schedule_service";
+constexpr const char* IS_PRELOAD_UIEXTENSION_ABILITY = "ability.want.params.is_preload_uiextension_ability";
+constexpr const char* UIEXTENSION_MODAL_TYPE = "ability.want.params.modalType";
+constexpr const char* ATOMIC_SERVICE_PREFIX = "com.atomicservice.";
 constexpr const char* PARAM_SPECIFIED_PROCESS_FLAG = "ohosSpecifiedProcessFlag";
 
 constexpr char ASSERT_FAULT_DETAIL[] = "assertFaultDialogDetail";
@@ -231,54 +230,54 @@ using namespace std::chrono_literals;
 using namespace BackgroundTaskMgr;
 #endif
 const bool CONCURRENCY_MODE_FALSE = false;
-const int32_t MAIN_USER_ID = 100;
+constexpr int32_t MAIN_USER_ID = 100;
 constexpr auto DATA_ABILITY_START_TIMEOUT = 5s;
 constexpr int32_t NON_ANONYMIZE_LENGTH = 6;
 constexpr uint32_t SCENE_FLAG_NORMAL = 0;
-const int32_t MAX_NUMBER_OF_DISTRIBUTED_MISSIONS = 20;
-const int32_t SWITCH_ACCOUNT_TRY = 3;
+constexpr int32_t MAX_NUMBER_OF_DISTRIBUTED_MISSIONS = 20;
+constexpr int32_t SWITCH_ACCOUNT_TRY = 3;
 #ifdef ABILITY_COMMAND_FOR_TEST
-const int32_t BLOCK_AMS_SERVICE_TIME = 65;
+constexpr int32_t BLOCK_AMS_SERVICE_TIME = 65;
 #endif
-const std::string EMPTY_DEVICE_ID = "";
-const int32_t APP_MEMORY_SIZE = 512;
-const int32_t GET_PARAMETER_INCORRECT = -9;
-const int32_t GET_PARAMETER_OTHER = -1;
-const int32_t SIZE_10 = 10;
-const int32_t HIDUMPER_SERVICE_UID = 1212;
-const int32_t ACCOUNT_MGR_SERVICE_UID = 3058;
-const int32_t BROKER_UID = 5557;
-const int32_t BROKER_RESERVE_UID = 5005;
-const int32_t DMS_UID = 5522;
-const int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
-const int32_t BOOTEVENT_COMPLETED_DELAY_TIME = 1000;
+constexpr const char* EMPTY_DEVICE_ID = "";
+constexpr int32_t APP_MEMORY_SIZE = 512;
+constexpr int32_t GET_PARAMETER_INCORRECT = -9;
+constexpr int32_t GET_PARAMETER_OTHER = -1;
+constexpr int32_t SIZE_10 = 10;
+constexpr int32_t HIDUMPER_SERVICE_UID = 1212;
+constexpr int32_t ACCOUNT_MGR_SERVICE_UID = 3058;
+constexpr int32_t BROKER_UID = 5557;
+constexpr int32_t BROKER_RESERVE_UID = 5005;
+constexpr int32_t DMS_UID = 5522;
+constexpr int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
+constexpr int32_t BOOTEVENT_COMPLETED_DELAY_TIME = 1000;
 constexpr int32_t BOOTEVENT_BOOT_ANIMATION_READY_SIZE = 6;
-const std::string BUNDLE_NAME_KEY = "bundleName";
-const std::string DM_PKG_NAME = "ohos.distributedhardware.devicemanager";
-const std::string ACTION_CHOOSE = "ohos.want.action.select";
-const std::string HIGHEST_PRIORITY_ABILITY_ENTITY = "flag.home.intent.from.system";
-const std::string DMS_API_VERSION = "dmsApiVersion";
-const std::string DMS_IS_CALLER_BACKGROUND = "dmsIsCallerBackGround";
-const std::string DMS_PROCESS_NAME = "distributedsched";
-const std::string DMS_MISSION_ID = "dmsMissionId";
-const std::string BOOTEVENT_APPFWK_READY = "bootevent.appfwk.ready";
-const std::string BOOTEVENT_BOOT_COMPLETED = "bootevent.boot.completed";
-const std::string BOOTEVENT_BOOT_ANIMATION_STARTED = "bootevent.bootanimation.started";
-const std::string BOOTEVENT_BOOT_ANIMATION_READY = "bootevent.bootanimation.ready";
-const std::string NEED_STARTINGWINDOW = "ohos.ability.NeedStartingWindow";
-const std::string PERMISSIONMGR_BUNDLE_NAME = "com.ohos.permissionmanager";
-const std::string PERMISSIONMGR_ABILITY_NAME = "com.ohos.permissionmanager.GrantAbility";
-const std::string IS_CALL_BY_SCB = "isCallBySCB";
-const std::string SPECIFY_TOKEN_ID = "specifyTokenId";
-const std::string PROCESS_SUFFIX = "embeddable";
-const int DEFAULT_DMS_MISSION_ID = -1;
-const char* PARAM_PREVENT_STARTABILITY = "persist.sys.abilityms.prevent_startability";
-const std::string SUSPEND_SERVICE_CONFIG_FILE = "/etc/efficiency_manager/prevent_startability_whitelist.json";
-const int32_t MAX_BUFFER = 2048;
+constexpr const char* BUNDLE_NAME_KEY = "bundleName";
+constexpr const char* DM_PKG_NAME = "ohos.distributedhardware.devicemanager";
+constexpr const char* ACTION_CHOOSE = "ohos.want.action.select";
+constexpr const char* HIGHEST_PRIORITY_ABILITY_ENTITY = "flag.home.intent.from.system";
+constexpr const char* DMS_API_VERSION = "dmsApiVersion";
+constexpr const char* DMS_IS_CALLER_BACKGROUND = "dmsIsCallerBackGround";
+constexpr const char* DMS_PROCESS_NAME = "distributedsched";
+constexpr const char* DMS_MISSION_ID = "dmsMissionId";
+constexpr const char* BOOTEVENT_APPFWK_READY = "bootevent.appfwk.ready";
+constexpr const char* BOOTEVENT_BOOT_COMPLETED = "bootevent.boot.completed";
+constexpr const char* BOOTEVENT_BOOT_ANIMATION_STARTED = "bootevent.bootanimation.started";
+constexpr const char* BOOTEVENT_BOOT_ANIMATION_READY = "bootevent.bootanimation.ready";
+constexpr const char* NEED_STARTINGWINDOW = "ohos.ability.NeedStartingWindow";
+constexpr const char* PERMISSIONMGR_BUNDLE_NAME = "com.ohos.permissionmanager";
+constexpr const char* PERMISSIONMGR_ABILITY_NAME = "com.ohos.permissionmanager.GrantAbility";
+constexpr const char* IS_CALL_BY_SCB = "isCallBySCB";
+constexpr const char* SPECIFY_TOKEN_ID = "specifyTokenId";
+constexpr const char* PROCESS_SUFFIX = "embeddable";
+constexpr int32_t DEFAULT_DMS_MISSION_ID = -1;
+constexpr const char* PARAM_PREVENT_STARTABILITY = "persist.sys.abilityms.prevent_startability";
+constexpr const char* SUSPEND_SERVICE_CONFIG_FILE = "/etc/efficiency_manager/prevent_startability_whitelist.json";
+constexpr int32_t MAX_BUFFER = 2048;
 nlohmann::json whiteListJsonObj;
-const int32_t API12 = 12;
-const int32_t API_VERSION_MOD = 100;
-const std::string WHITE_LIST = "white_list";
+constexpr int32_t API12 = 12;
+constexpr int32_t API_VERSION_MOD = 100;
+constexpr const char* WHITE_LIST = "white_list";
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("--all", KEY_DUMP_ALL),
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("-a", KEY_DUMP_ALL),
@@ -323,17 +322,6 @@ const std::map<std::string, AbilityManagerService::DumpsysKey> AbilityManagerSer
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-d", KEY_DUMPSYS_DATA),
 };
 
-const std::map<int32_t, AppExecFwk::SupportWindowMode> AbilityManagerService::windowModeMap = {
-    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_FULLSCREEN,
-        AppExecFwk::SupportWindowMode::FULLSCREEN),
-    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_PRIMARY,
-        AppExecFwk::SupportWindowMode::SPLIT),
-    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_SECONDARY,
-        AppExecFwk::SupportWindowMode::SPLIT),
-    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_FLOATING,
-        AppExecFwk::SupportWindowMode::FLOATING),
-};
-
 const bool REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<AbilityManagerService>::GetInstance().get());
 sptr<AbilityManagerService> AbilityManagerService::instance_;
@@ -342,10 +330,7 @@ AbilityManagerService::AbilityManagerService()
     : SystemAbility(ABILITY_MGR_SERVICE_ID, true),
       state_(ServiceRunningState::STATE_NOT_START),
       bundleMgrHelper_(nullptr)
-{
-    DumpFuncInit();
-    DumpSysFuncInit();
-}
+{}
 
 AbilityManagerService::~AbilityManagerService()
 {}
@@ -375,10 +360,13 @@ void AbilityManagerService::OnStart()
         return;
     }
 
-    SetParameter(BOOTEVENT_APPFWK_READY.c_str(), "true");
+    SetParameter(BOOTEVENT_APPFWK_READY, "true");
     AddSystemAbilityListener(BACKGROUND_TASK_MANAGER_SERVICE_ID);
     AddSystemAbilityListener(DISTRIBUTED_SCHED_SA_ID);
     AddSystemAbilityListener(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+#ifdef SUPPORT_SCREEN
+    AddSystemAbilityListener(MULTIMODAL_INPUT_SERVICE_ID);
+#endif
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Ability manager service start success.");
 }
 
@@ -399,16 +387,11 @@ bool AbilityManagerService::Init()
     subManagersHelper_->InitSubManagers(MAIN_USER_ID, true);
     SwitchManagers(U0_USER_ID, false);
 #ifdef SUPPORT_SCREEN
-    auto anrListenerTask = []() {
-        auto anrListener = std::make_shared<ApplicationAnrListener>();
-        MMI::InputManager::GetInstance()->SetAnrObserver(anrListener);
-    };
-    taskHandler_->SubmitTask(anrListenerTask, "AnrListenerTask");
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         InitFocusListener();
     }
-    DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->Init();
+    AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().Init();
 #endif
 
     DelayedSingleton<ConnectionStateManager>::GetInstance()->Init(taskHandler_);
@@ -416,12 +399,15 @@ bool AbilityManagerService::Init()
     InitInterceptor();
     InitStartAbilityChain();
     InitDeepLinkReserve();
+    InitDefaultRecoveryList();
 
     abilityAutoStartupService_ = std::make_shared<AbilityRuntime::AbilityAutoStartupService>();
 #ifdef SUPPORT_SCREEN
     dialogSessionRecord_ = std::make_shared<DialogSessionRecord>();
 #endif // SUPPORT_SCREEN
     InitPushTask();
+    AbilityCacheManager::GetInstance().Init(AppUtils::GetInstance().GetLimitMaximumExtensionsPerDevice(),
+        AppUtils::GetInstance().GetLimitMaximumExtensionsPerProc());
 
     SubscribeScreenUnlockedEvent();
     appExitReasonHelper_ = std::make_shared<AppExitReasonHelper>(subManagersHelper_);
@@ -433,6 +419,13 @@ void AbilityManagerService::InitDeepLinkReserve()
 {
     if (!DeepLinkReserveConfig::GetInstance().LoadConfiguration()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "InitDeepLinkReserve failed.");
+    }
+}
+
+void AbilityManagerService::InitDefaultRecoveryList()
+{
+    if (!DefaultRecoveryConfig::GetInstance().LoadConfiguration()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Load default recovery list failed.");
     }
 }
 
@@ -469,7 +462,6 @@ void AbilityManagerService::InitPushTask()
     auto initPrepareTerminateConfigTask = [aams = shared_from_this()]() { aams->InitPrepareTerminateConfig(); };
     taskHandler_->SubmitTask(initPrepareTerminateConfigTask, "InitPrepareTerminateConfig");
 #endif // SUPPORT_SCREEN
-    RegisterSuspendObserver();
 
     auto initExtensionConfigTask = []() {
         DelayedSingleton<ExtensionConfig>::GetInstance()->LoadExtensionConfiguration();
@@ -479,11 +471,11 @@ void AbilityManagerService::InitPushTask()
     auto bootCompletedTask = [handler = taskHandler_]() {
         if (ApplicationUtil::IsBootCompleted()) {
             auto task = []() {
-                ApplicationUtil::AppFwkBootEventCallback(BOOTEVENT_BOOT_COMPLETED.c_str(), "true", nullptr);
+                ApplicationUtil::AppFwkBootEventCallback(BOOTEVENT_BOOT_COMPLETED, "true", nullptr);
             };
             handler->SubmitTask(task, "BootCompletedDelayTask", BOOTEVENT_COMPLETED_DELAY_TIME);
         } else {
-            WatchParameter(BOOTEVENT_BOOT_COMPLETED.c_str(), ApplicationUtil::AppFwkBootEventCallback, nullptr);
+            WatchParameter(BOOTEVENT_BOOT_COMPLETED, ApplicationUtil::AppFwkBootEventCallback, nullptr);
         }
     };
     if (!ParseJsonFromBoot(whiteListJsonObj, SUSPEND_SERVICE_CONFIG_FILE, WHITE_LIST)) {
@@ -541,7 +533,15 @@ ServiceRunningState AbilityManagerService::QueryServiceState() const
 int AbilityManagerService::StartAbility(const Want &want, int32_t userId, int requestCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    if (want.GetBoolParam(DEBUG_APP, false) && !system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
+    bool isDebugApp = want.GetBoolParam(DEBUG_APP, false);
+    bool hasWindowOptions = (want.GetIntParam(Want::PARAM_RESV_WINDOW_LEFT, 0) > 0 ||
+        want.GetIntParam(Want::PARAM_RESV_WINDOW_TOP, 0) > 0 ||
+        want.GetIntParam(Want::PARAM_RESV_WINDOW_HEIGHT, 0) > 0 ||
+        want.GetIntParam(Want::PARAM_RESV_WINDOW_WIDTH, 0) > 0);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "isDebugApp=%{public}d, hasWindowOptions=%{public}d",
+        static_cast<int>(isDebugApp), static_cast<int>(hasWindowOptions));
+    bool checkDeveloperModeFlag = (isDebugApp || hasWindowOptions);
+    if (checkDeveloperModeFlag && !system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Developer Mode is false.");
         return ERR_NOT_DEVELOPER_MODE;
     }
@@ -554,6 +554,20 @@ int AbilityManagerService::StartAbility(const Want &want, int32_t userId, int re
     if (startWithAccount || IsCrossUserCall(userId)) {
         (const_cast<Want &>(want)).RemoveParam(START_ABILITY_TYPE);
         CHECK_CALLER_IS_SYSTEM_APP;
+    }
+    if (hasWindowOptions) {
+        if (!AppUtils::GetInstance().IsStartOptionsWithAnimation()) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "window options are not supported in the current product type.");
+            return ERR_NOT_SUPPORTED_PRODUCT_TYPE;
+        }
+        int32_t err = ERR_OK;
+        if (userId == DEFAULT_INVAL_VALUE) {
+            userId = GetValidUserId(userId);
+        }
+        if ((err = StartAbilityUtils::CheckAppProvisionMode(want, userId)) != ERR_OK) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "CheckAppProvisionMode returns errcode=%{public}d", err);
+            return err;
+        }
     }
     InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
     AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
@@ -747,20 +761,20 @@ int AbilityManagerService::StartAbilityByUIContentSession(const Want &want, cons
 }
 
 int AbilityManagerService::StartAbilityAsCaller(const Want &want, const sptr<IRemoteObject> &callerToken,
-    sptr<IRemoteObject> asCallerSoureToken, int32_t userId, int requestCode, bool isSendDialogResult)
+    sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode, bool isSendDialogResult)
 {
-    return StartAbilityAsCallerDetails(want, callerToken, asCallerSoureToken, userId, requestCode, isSendDialogResult);
+    return StartAbilityAsCallerDetails(want, callerToken, asCallerSourceToken, userId, requestCode, isSendDialogResult);
 }
 
 int AbilityManagerService::ImplicitStartAbilityAsCaller(const Want &want, const sptr<IRemoteObject> &callerToken,
-    sptr<IRemoteObject> asCallerSoureToken, int32_t userId, int requestCode, bool isSendDialogResult)
+    sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode, bool isSendDialogResult)
 {
-    return StartAbilityAsCallerDetails(want, callerToken, asCallerSoureToken, userId,
+    return StartAbilityAsCallerDetails(want, callerToken, asCallerSourceToken, userId,
         requestCode, isSendDialogResult, true);
 }
 
 int AbilityManagerService::StartAbilityAsCallerDetails(const Want &want, const sptr<IRemoteObject> &callerToken,
-    sptr<IRemoteObject> asCallerSoureToken, int32_t userId, int requestCode, bool isSendDialogResult, bool isImplicit)
+    sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode, bool isSendDialogResult, bool isImplicit)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_CALLER_IS_SYSTEM_APP;
@@ -776,11 +790,7 @@ int AbilityManagerService::StartAbilityAsCallerDetails(const Want &want, const s
     }
 
     AAFwk::Want newWant = want;
-    if (asCallerSoureToken != nullptr) {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "Start as caller, UpdateCallerInfo");
-        UpdateAsCallerSourceInfo(newWant, asCallerSoureToken);
-    }
-
+    UpdateAsCallerSourceInfo(newWant, asCallerSourceToken, callerToken);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Start ability come, ability is %{public}s, userId is %{public}d",
         want.GetElement().GetAbilityName().c_str(), userId);
     std::string callerPkg;
@@ -909,6 +919,16 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     bool isForegroundToRestartApp, bool isImplicit)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    // prevent the app from dominating the screen
+    auto callerPid = IPCSkeleton::GetCallingPid();
+    AppExecFwk::RunningProcessInfo processInfo;
+    DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(callerPid, processInfo);
+    bool isDelegatorCall = processInfo.isTestProcess && want.GetBoolParam(IS_DELEGATOR_CALL, false);
+    if (callerToken == nullptr && !IsCallerSceneBoard() && !isDelegatorCall && !isForegroundToRestartApp &&
+        !PermissionVerification::GetInstance()->IsSACall() && !PermissionVerification::GetInstance()->IsShellCall()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "caller is invalid.");
+        return ERR_INVALID_CALLER;
+    }
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "CHECK_DLP");
         if (!DlpUtils::OtherAppsAccessDlpCheck(callerToken, want) ||
@@ -979,6 +999,8 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         } else if (!isStartAsCaller) {
             TAG_LOGD(AAFwkTag::ABILITYMGR, "do not start as caller, UpdateCallerInfo");
             UpdateCallerInfo(abilityRequest.want, callerToken);
+        } else {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "start as caller, skip UpdateCallerInfo!");
         }
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
         SetReserveInfo(want.GetUriString());
@@ -988,11 +1010,11 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         return ShowPickerDialog(want, validUserId, callerToken);
     }
 #endif
-    result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId, false);
+    result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     std::string callerBundleName = abilityRecord ? abilityRecord->GetAbilityInfo().bundleName : "";
     bool selfFreeInstallEnable = (result == RESOLVE_ABILITY_ERR && want.GetElement().GetModuleName() != "" &&
-        want.GetElement().GetBundleName() == callerBundleName);
+                                  want.GetElement().GetBundleName() == callerBundleName);
     bool isStartFreeInstallByWant = AbilityUtil::IsStartFreeInstall(want);
     if (isStartFreeInstallByWant || selfFreeInstallEnable) {
         if (freeInstallManager_ == nullptr) {
@@ -1015,7 +1037,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
         int32_t ret = freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, false);
         if (ret == ERR_OK) {
-            result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId, false);
+            result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
         }
     }
 
@@ -1023,13 +1045,16 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Generate ability request local error.");
         return result;
     }
+    if (!UriUtils::GetInstance().CheckNonImplicitShareFileUri(abilityRequest)) {
+        return ERR_SHARE_FILE_URI_NON_IMPLICITLY;
+    }
 
     if (specifyTokenId > 0 && callerToken != nullptr) { // for sa specify tokenId and caller token
         UpdateCallerInfoFromToken(abilityRequest.want, callerToken);
     } else if (!isStartAsCaller) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "do not start as caller, UpdateCallerInfo");
         UpdateCallerInfo(abilityRequest.want, callerToken);
-    } else if (callerBundleName == AMS_DIALOG_BUNDLENAME ||
+    } else if (callerBundleName == BUNDLE_NAME_DIALOG ||
         (isSendDialogResult && want.GetBoolParam("isSelector", false))) {
 #ifdef SUPPORT_SCREEN
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
@@ -1121,7 +1146,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         return result;
     }
     if (result != ERR_OK && isReplaceWantExist && !isSendDialogResult &&
-        callerBundleName != AMS_DIALOG_BUNDLENAME) {
+        callerBundleName != BUNDLE_NAME_DIALOG) {
         std::string dialogSessionId;
 #ifdef SUPPORT_SCREEN
         std::vector<DialogAppInfo> dialogAppInfos(1);
@@ -1152,7 +1177,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             return ERR_INVALID_VALUE;
         }
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Start service or extension, name is %{public}s.", abilityInfo.name.c_str());
-        ReportEventToSuspendManager(abilityInfo);
+        ReportEventToRSS(abilityInfo, callerToken);
         InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
         return connectManager->StartAbility(abilityRequest);
     }
@@ -1171,7 +1196,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     abilityRequest.want.RemoveParam(PARAM_SPECIFIED_PROCESS_FLAG);
     // sceneboard
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        ReportEventToSuspendManager(abilityInfo);
+        ReportEventToRSS(abilityInfo, abilityRequest.callerToken);
         abilityRequest.userId = oriValidUserId;
         abilityRequest.want.SetParam(IS_CALL_BY_SCB, false);
         // other sa or shell can not use continueSessionId and persistentId
@@ -1187,16 +1212,14 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         return uiAbilityManager->NotifySCBToStartUIAbility(abilityRequest);
     }
 
-    SetDebugAppByWaitingDebugFlag(
-        want, abilityRequest.want, abilityRequest.appInfo.bundleName, abilityRequest.appInfo.debug);
-
     auto missionListManager = GetMissionListManagerByUserId(oriValidUserId);
     if (missionListManager == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListManager is nullptr. userId=%{public}d", validUserId);
         return ERR_INVALID_VALUE;
     }
+
     ReportAbilitStartInfoToRSS(abilityInfo);
-    ReportEventToSuspendManager(abilityInfo);
+    ReportEventToRSS(abilityInfo, callerToken);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Start ability, name is %{public}s.", abilityInfo.name.c_str());
     return missionListManager->StartAbility(abilityRequest);
 }
@@ -1439,7 +1462,7 @@ int AbilityManagerService::StartUIAbilityForOptionWrap(const Want &want, const S
 }
 
 int AbilityManagerService::StartAbilityAsCaller(const Want &want, const StartOptions &startOptions,
-    const sptr<IRemoteObject> &callerToken, sptr<IRemoteObject> asCallerSoureToken,
+    const sptr<IRemoteObject> &callerToken, sptr<IRemoteObject> asCallerSourceToken,
     int32_t userId, int requestCode)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Start ability as caller with startOptions.");
@@ -1447,11 +1470,7 @@ int AbilityManagerService::StartAbilityAsCaller(const Want &want, const StartOpt
 
     AbilityUtil::RemoveWantKey(const_cast<Want &>(want));
     AAFwk::Want newWant = want;
-    if (asCallerSoureToken != nullptr) {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "start as caller, UpdateCallerInfo");
-        UpdateAsCallerSourceInfo(newWant, asCallerSoureToken);
-    }
-
+    UpdateAsCallerSourceInfo(newWant, asCallerSourceToken, callerToken);
     return StartAbilityForOptionWrap(newWant, startOptions, callerToken, userId, requestCode, true);
 }
 
@@ -1466,11 +1485,7 @@ int AbilityManagerService::StartAbilityForResultAsCaller(
     auto connectManager = GetCurrentConnectManager();
     CHECK_POINTER_AND_RETURN(connectManager, ERR_NO_INIT);
     auto asCallerSourceToken = connectManager->GetUIExtensionSourceToken(callerToken);
-    if (asCallerSourceToken != nullptr) {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "Update as caller source info.");
-        UpdateAsCallerSourceInfo(newWant, asCallerSourceToken);
-    }
-
+    UpdateAsCallerSourceInfo(newWant, asCallerSourceToken, callerToken);
     return StartAbilityWrap(newWant, callerToken, requestCode, userId, true);
 }
 
@@ -1484,11 +1499,7 @@ int AbilityManagerService::StartAbilityForResultAsCaller(const Want &want, const
     auto connectManager = GetCurrentConnectManager();
     CHECK_POINTER_AND_RETURN(connectManager, ERR_NO_INIT);
     auto asCallerSourceToken = connectManager->GetUIExtensionSourceToken(callerToken);
-    if (asCallerSourceToken != nullptr) {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "Update as caller source info.");
-        UpdateAsCallerSourceInfo(newWant, asCallerSourceToken);
-    }
-
+    UpdateAsCallerSourceInfo(newWant, asCallerSourceToken, callerToken);
     return StartAbilityForOptionWrap(newWant, startOptions, callerToken, userId, requestCode, true);
 }
 
@@ -1597,26 +1608,7 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         } else {
             abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
         }
-        if (AppUtils::GetInstance().IsStartOptionsWithAnimation()) {
-            if (startOptions.windowLeftUsed_) {
-                abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_LEFT, startOptions.GetWindowLeft());
-            }
-            if (startOptions.windowTopUsed_) {
-                abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_TOP, startOptions.GetWindowTop());
-            }
-            if (startOptions.windowWidthUsed_) {
-                abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_WIDTH, startOptions.GetWindowWidth());
-            }
-            if (startOptions.windowHeightUsed_) {
-                abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_HEIGHT, startOptions.GetWindowHeight());
-            }
-            bool withAnimation = startOptions.GetWithAnimation();
-            auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-            if (!withAnimation && abilityRecord != nullptr &&
-                abilityRecord->GetAbilityInfo().bundleName == abilityRequest.want.GetBundle()) {
-                abilityRequest.want.SetParam(Want::PARAM_RESV_WITH_ANIMATION, withAnimation);
-            }
-        }
+        WindowOptionsUtils::SetWindowPositionAndSize(abilityRequest.want, callerToken, startOptions);
         abilityRequest.callType = AbilityCallType::START_OPTIONS_TYPE;
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
         if (specifyTokenId > 0 && callerToken) { // for sa specify tokenId and caller token
@@ -1644,6 +1636,9 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         eventInfo.errCode = result;
         SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return result;
+    }
+    if (!UriUtils::GetInstance().CheckNonImplicitShareFileUri(abilityRequest)) {
+        return ERR_SHARE_FILE_URI_NON_IMPLICITLY;
     }
 
     if (!isStartAsCaller) {
@@ -1708,26 +1703,8 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     }
     AbilityUtil::ProcessWindowMode(abilityRequest.want, abilityInfo.applicationInfo.accessTokenId,
         startOptions.GetWindowMode());
-    if (AppUtils::GetInstance().IsStartOptionsWithAnimation()) {
-        if (startOptions.windowLeftUsed_) {
-            abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_LEFT, startOptions.GetWindowLeft());
-        }
-        if (startOptions.windowTopUsed_) {
-            abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_TOP, startOptions.GetWindowTop());
-        }
-        if (startOptions.windowHeightUsed_) {
-            abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_HEIGHT, startOptions.GetWindowHeight());
-        }
-        if (startOptions.windowWidthUsed_) {
-            abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_WIDTH, startOptions.GetWindowWidth());
-        }
-        bool withAnimation = startOptions.GetWithAnimation();
-        auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-        if (!withAnimation && abilityRecord != nullptr &&
-            abilityRecord->GetAbilityInfo().bundleName == abilityRequest.want.GetBundle()) {
-            abilityRequest.want.SetParam(Want::PARAM_RESV_WITH_ANIMATION, withAnimation);
-        }
-    }
+
+    WindowOptionsUtils::SetWindowPositionAndSize(abilityRequest.want, callerToken, startOptions);
 
     if (PermissionVerification::GetInstance()->IsSystemAppCall()) {
         bool focused = abilityRequest.want.GetBoolParam(Want::PARAM_RESV_WINDOW_FOCUSED, true);
@@ -1823,7 +1800,7 @@ int32_t AbilityManagerService::ReportDrawnCompleted(const sptr<IRemoteObject> &c
 
     EventInfo eventInfo;
     eventInfo.userId = IPCSkeleton::GetCallingUid() / BASE_USER_RANGE;
-    eventInfo.pid = IPCSkeleton::GetCallingRealPid();
+    eventInfo.pid = IPCSkeleton::GetCallingPid();
     eventInfo.bundleName = abilityInfo.bundleName;
     eventInfo.moduleName = abilityInfo.moduleName;
     eventInfo.abilityName = abilityInfo.name;
@@ -1918,7 +1895,7 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
     }
     TAG_LOGD(AAFwkTag::ABILITYMGR,
         "request dialog service, start service extension,name is %{public}s.", abilityInfo.name.c_str());
-    ReportEventToSuspendManager(abilityInfo);
+    ReportEventToRSS(abilityInfo, callerToken);
     return connectManager->StartAbility(abilityRequest);
 }
 
@@ -1985,6 +1962,19 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bo
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Generate ability request local error.");
         return result;
     }
+
+    if (sessionInfo->want.GetBoolParam(IS_CALL_BY_SCB, true)) {
+        if (sessionInfo->startSetting != nullptr) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Start by scb, last not.");
+            sessionInfo->startSetting->AddProperty(AbilityStartSetting::IS_START_BY_SCB_KEY, "true");
+        }
+
+        if (abilityRequest.startSetting != nullptr) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Start by scb.");
+            abilityRequest.startSetting->AddProperty(AbilityStartSetting::IS_START_BY_SCB_KEY, "true");
+        }
+    }
+
     abilityRequest.collaboratorType = sessionInfo->collaboratorType;
     uint32_t specifyTokenId = static_cast<uint32_t>(sessionInfo->want.GetIntParam(SPECIFY_TOKEN_ID, 0));
     (sessionInfo->want).RemoveParam(SPECIFY_TOKEN_ID);
@@ -2028,25 +2018,23 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bo
     }
 
     ReportAbilitStartInfoToRSS(abilityInfo);
-    ReportAbilitAssociatedStartInfoToRSS(abilityInfo, static_cast<int64_t>(
-        ResourceSchedule::ResType::AssociatedStartType::SCB_START_ABILITY), sessionInfo->callerToken);
+    ReportAbilitAssociatedStartInfoToRSS(abilityInfo, RES_TYPE_SCB_START_ABILITY, sessionInfo->callerToken);
     auto uiAbilityManager = GetUIAbilityManagerByUid(IPCSkeleton::GetCallingUid());
     CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
+    // here we don't need want param "IS_CALL_BY_SCB" any more, remove it.
+    (sessionInfo->want).RemoveParam(IS_CALL_BY_SCB);
     return uiAbilityManager->StartUIAbility(abilityRequest, sessionInfo, isColdStart);
 }
 
-bool AbilityManagerService::CheckCallingTokenId(const std::string &bundleName, int32_t userId)
+bool AbilityManagerService::CheckCallingTokenId(const std::string &bundleName, int32_t userId, int32_t appIndex)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    auto bms = GetBundleManager();
-    if (bms == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "bms is invalid.");
-        return false;
-    }
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
+    CHECK_POINTER_AND_RETURN(bundleMgrHelper, false);
     auto validUserId = GetValidUserId(userId);
     AppExecFwk::ApplicationInfo appInfo;
-    IN_PROCESS_CALL_WITHOUT_RET(bms->GetApplicationInfo(bundleName,
-        AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, validUserId, appInfo));
+    IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->GetApplicationInfoWithAppIndex(bundleName,
+        appIndex, validUserId, appInfo));
     auto accessTokenId = IPCSkeleton::GetCallingTokenID();
     if (accessTokenId != appInfo.accessTokenId) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Permission verification failed");
@@ -2137,7 +2125,8 @@ int32_t AbilityManagerService::RecordProcessExitReason(const int32_t pid, const 
     TAG_LOGI(AAFwkTag::ABILITYMGR, "RecordProcessExitReason pid:%{public}d, reason:%{public}d, exitMsg: %{public}s",
         pid, exitReason.reason, exitReason.exitMsg.c_str());
 
-    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall() &&
+        !AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Not sa call");
         return ERR_PERMISSION_DENIED;
     }
@@ -2157,16 +2146,21 @@ int32_t AbilityManagerService::ForceExitApp(const int32_t pid, const ExitReason 
         return ERR_PERMISSION_DENIED;
     }
 
-    std::string bundleName;
-    int32_t uid;
-    DelayedSingleton<AppScheduler>::GetInstance()->GetBundleNameByPid(pid, bundleName, uid);
-    if (bundleName.empty()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get bundle name by pid failed.");
-        return ERR_INVALID_VALUE;
+    AppExecFwk::ApplicationInfo application;
+    bool debug = false;
+    auto ret = IN_PROCESS_CALL(DelayedSingleton<AppScheduler>::GetInstance()->GetApplicationInfoByProcessID(pid,
+        application, debug));
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetApplicationInfoByProcessID failed.");
+        return ret;
     }
 
+    std::string bundleName = application.bundleName;
+    int32_t uid = application.uid;
+    int32_t appIndex = application.appIndex;
+
     CHECK_POINTER_AND_RETURN(appExitReasonHelper_, ERR_NULL_OBJECT);
-    appExitReasonHelper_->RecordProcessExitReason(bundleName, uid, exitReason);
+    appExitReasonHelper_->RecordAppExitReason(bundleName, uid, appIndex, exitReason);
 
     return DelayedSingleton<AppScheduler>::GetInstance()->KillApplication(bundleName);
 }
@@ -2253,6 +2247,13 @@ void AbilityManagerService::OnAddSystemAbility(int32_t systemAbilityId, const st
             SubscribeBundleEventCallback();
             break;
         }
+#ifdef SUPPORT_SCREEN
+        case MULTIMODAL_INPUT_SERVICE_ID: {
+            auto anrListener = std::make_shared<ApplicationAnrListener>();
+            MMI::InputManager::GetInstance()->SetAnrObserver(anrListener);
+            break;
+        }
+#endif
         default:
             break;
     }
@@ -2346,7 +2347,6 @@ void AbilityManagerService::UnsubscribeBundleEventCallback()
 
 void AbilityManagerService::ReportAbilitStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo)
 {
-#ifdef RESOURCE_SCHEDULE_SERVICE_ENABLE
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (abilityInfo.type == AppExecFwk::AbilityType::PAGE &&
         abilityInfo.launchMode != AppExecFwk::LaunchMode::SPECIFIED) {
@@ -2363,76 +2363,43 @@ void AbilityManagerService::ReportAbilitStartInfoToRSS(const AppExecFwk::Ability
                 break;
             }
         }
-        std::unordered_map<std::string, std::string> eventParams {
-            { "name", "ability_start" },
-            { "uid", std::to_string(abilityInfo.applicationInfo.uid) },
-            { "bundleName", abilityInfo.applicationInfo.bundleName },
-            { "abilityName", abilityInfo.name },
-            { "pid", std::to_string(pid) }
-        };
-        ResourceSchedule::ResSchedClient::GetInstance().ReportData(
-            ResourceSchedule::ResType::RES_TYPE_APP_ABILITY_START, isColdStart ? 1 : 0, eventParams);
+        ResSchedUtil::GetInstance().ReportAbilitStartInfoToRSS(abilityInfo, pid, isColdStart);
     }
-#endif
 }
 
 void AbilityManagerService::ReportAbilitAssociatedStartInfoToRSS(
     const AppExecFwk::AbilityInfo &abilityInfo, int64_t type, const sptr<IRemoteObject> &callerToken)
 {
-#ifdef RESOURCE_SCHEDULE_SERVICE_ENABLE
-    if (callerToken == nullptr) {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "associated start caller token is nullptr");
-        return;
-    }
-
+    CHECK_POINTER_LOG(callerToken, "associated start caller token is nullptr");
     auto callerAbility = Token::GetAbilityRecordByToken(callerToken);
-    if (callerAbility == nullptr) {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "associated start caller  ability is nullptr");
-        return;
-    }
+    CHECK_POINTER_LOG(callerAbility, "associated start caller ability is nullptr");
     int32_t callerUid = callerAbility->GetUid();
     int32_t callerPid = callerAbility->GetPid();
-    std::unordered_map<std::string, std::string> eventParams {
-        { "name", "associated_start" },
-        { "caller_uid", std::to_string(callerUid) },
-        { "caller_pid", std::to_string(callerPid) },
-        { "callee_uid", std::to_string(abilityInfo.applicationInfo.uid) },
-        { "callee_bundle_name", abilityInfo.applicationInfo.bundleName }
-    };
-    ResourceSchedule::ResSchedClient::GetInstance().ReportData(
-        ResourceSchedule::ResType::RES_TYPE_APP_ASSOCIATED_START, type, eventParams);
-#endif
+    ResSchedUtil::GetInstance().ReportAbilitAssociatedStartInfoToRSS(abilityInfo, type, callerUid, callerPid);
 }
 
-void AbilityManagerService::ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo)
+void AbilityManagerService::ReportEventToRSS(const AppExecFwk::AbilityInfo &abilityInfo,
+    sptr<IRemoteObject> callerToken)
 {
-#ifdef EFFICIENCY_MANAGER_ENABLE
-    if (taskHandler_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "taskhandler null");
-        return;
+    CHECK_POINTER_LOG(taskHandler_, "taskhandler null");
+    std::string reason;
+    if (abilityInfo.type == AppExecFwk::AbilityType::PAGE) {
+        reason = "THAW_BY_START_PAGE_ABILITY";
+    } else if (abilityInfo.type == AppExecFwk::AbilityType::EXTENSION &&
+               abilityInfo.extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE) {
+        reason = "THAW_BY_START_SERVICE_EXTENSION";
+    } else {
+        reason = "THAW_BY_START_NOT_PAGE_ABILITY";
     }
-    std::string reason = (abilityInfo.type == AppExecFwk::AbilityType::PAGE) ?
-        "THAW_BY_START_PAGE_ABILITY" : "THAW_BY_START_NOT_PAGE_ABILITY";
     const auto uid = abilityInfo.applicationInfo.uid;
     const auto bundleName = abilityInfo.applicationInfo.bundleName;
-    taskHandler_->SubmitTask([reason, uid, bundleName]() {
-        SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
-            uid, bundleName, reason);
-        });
-#endif // EFFICIENCY_MANAGER_ENABLE
-}
-
-void AbilityManagerService::RegisterSuspendObserver()
-{
-#ifdef EFFICIENCY_MANAGER_ENABLE
-    if (!taskHandler_) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "taskhandler null");
-        return;
-    }
-    taskHandler_->SubmitTask([taskHandler = taskHandler_]() {
-            ProcessFrozenStateObserver::RegisterSuspendObserver(taskHandler);
-        });
-#endif // EFFICIENCY_MANAGER_ENABLE
+    auto callerAbility = Token::GetAbilityRecordByToken(callerToken);
+    const int32_t callerPid = (callerAbility != nullptr) ? callerAbility->GetPid() : IPCSkeleton::GetCallingPid();
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}d_%{public}s reason=%{public}s callerPid=%{public}d", uid,
+        bundleName.c_str(), reason.c_str(), callerPid);
+    taskHandler_->SubmitTask([reason, uid, bundleName, callerPid]() {
+        ResSchedUtil::GetInstance().ReportEventToRSS(uid, bundleName, reason, callerPid);
+    });
 }
 
 int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
@@ -2651,18 +2618,18 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
         EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
         return result;
     }
+    if (!UriUtils::GetInstance().CheckNonImplicitShareFileUri(abilityRequest)) {
+        return ERR_SHARE_FILE_URI_NON_IMPLICITLY;
+    }
 
     auto abilityInfo = abilityRequest.abilityInfo;
     validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : validUserId;
     TAG_LOGD(AAFwkTag::ABILITYMGR, "userId is : %{public}d, singleton is : %{public}d",
         validUserId, static_cast<int>(abilityInfo.applicationInfo.singleton));
 
-    if (isDlp) {
-        result = IN_PROCESS_CALL(
-            CheckOptExtensionAbility(want, abilityRequest, validUserId, extensionType, isImplicit));
-    } else {
-        result = CheckOptExtensionAbility(want, abilityRequest, validUserId, extensionType, isImplicit);
-    }
+    result = isDlp ? IN_PROCESS_CALL(
+        CheckOptExtensionAbility(want, abilityRequest, validUserId, extensionType, isImplicit)) :
+        CheckOptExtensionAbility(want, abilityRequest, validUserId, extensionType, isImplicit);
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "CheckOptExtensionAbility error.");
         eventInfo.errCode = result;
@@ -2692,8 +2659,7 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
     if (eventInfo.errCode != ERR_OK) {
         EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
     }
-    ReportAbilitAssociatedStartInfoToRSS(abilityRequest.abilityInfo, static_cast<int64_t>(
-        ResourceSchedule::ResType::AssociatedStartType::EXTENSION_START_ABILITY), callerToken);
+    ReportAbilitAssociatedStartInfoToRSS(abilityRequest.abilityInfo, RES_TYPE_EXTENSION_START_ABILITY, callerToken);
     return eventInfo.errCode;
 }
 
@@ -2772,14 +2738,27 @@ void AbilityManagerService::SetAutoFillElementName(const sptr<SessionInfo> &exte
     extensionSessionInfo->want.SetModuleName(argList[INDEX_ONE]);
 }
 
+int AbilityManagerService::CheckUIExtensionUsage(AppExecFwk::UIExtensionUsage uiExtensionUsage,
+    AppExecFwk::ExtensionAbilityType extensionType)
+{
+    if (uiExtensionUsage == UIExtensionUsage::EMBEDDED &&
+        !AAFwk::UIExtensionUtils::IsPublicForEmbedded(extensionType)) {
+        CHECK_CALLER_IS_SYSTEM_APP;
+    }
+
+    if (uiExtensionUsage == UIExtensionUsage::CONSTRAINED_EMBEDDED &&
+        !AAFwk::UIExtensionUtils::IsPublicForConstrainedEmbedded(extensionType)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "error extension type %u for SecureConstrainedEmbedded.", extensionType);
+        return ERR_INVALID_VALUE;
+    }
+    return ERR_OK;
+}
+
 int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Start ui extension ability come");
     CHECK_POINTER_AND_RETURN(extensionSessionInfo, ERR_INVALID_VALUE);
-    if (!extensionSessionInfo->isModal) {
-        CHECK_CALLER_IS_SYSTEM_APP;
-    }
     SetPickerElementName(extensionSessionInfo, userId);
     SetAutoFillElementName(extensionSessionInfo);
 
@@ -2815,6 +2794,12 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
         AppExecFwk::ExtensionAbilityType::UI : AppExecFwk::ConvertToExtensionAbilityType(extensionTypeStr);
     EventInfo eventInfo = BuildEventInfo(extensionSessionInfo->want, userId);
     eventInfo.extensionType = static_cast<int32_t>(extensionType);
+
+    auto ret = CheckUIExtensionUsage(extensionSessionInfo->uiExtensionUsage, extensionType);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "check usage failed.");
+        return ret;
+    }
 
     if (InsightIntentExecuteParam::IsInsightIntentExecute(extensionSessionInfo->want)) {
         int32_t result = DelayedSingleton<InsightIntentExecuteManager>::GetInstance()->CheckAndUpdateWant(
@@ -2893,6 +2878,9 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
         EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
         return result;
     }
+    if (!UriUtils::GetInstance().CheckNonImplicitShareFileUri(abilityRequest)) {
+        return ERR_SHARE_FILE_URI_NON_IMPLICITLY;
+    }
     abilityRequest.extensionType = abilityRequest.abilityInfo.extensionAbilityType;
 
     auto abilityInfo = abilityRequest.abilityInfo;
@@ -2922,7 +2910,7 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
     }
 
     AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(abilityRequest.want, 0, GetUserId(),
-        false, callerToken, std::make_shared<AppExecFwk::AbilityInfo>(abilityInfo));
+        true, callerToken, std::make_shared<AppExecFwk::AbilityInfo>(abilityInfo));
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
         afterCheckExecuter_->DoProcess(afterCheckParam);
     if (result != ERR_OK) {
@@ -3044,12 +3032,6 @@ void AbilityManagerService::StopSwitchUserDialog()
         TAG_LOGE(AAFwkTag::ABILITYMGR, "System dialog scheduler instance is nullptr.");
         return;
     }
-#endif // SUPPORT_GRAPHICS
-    if (!PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "The caller is not system-app, can not use system-api");
-        return;
-    }
-#ifdef SUPPORT_GRAPHICS
     Want stopWant = sysDialog->GetSwitchUserDialogWant();
     StopSwitchUserDialogInner(stopWant, userController_->GetFreezingNewUserId());
 #endif // SUPPORT_GRAPHICS
@@ -3296,9 +3278,12 @@ int AbilityManagerService::CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionI
 
     if (sessionInfo->isClearSession) {
         const auto &abilityInfo = abilityRecord->GetAbilityInfo();
+        std::string abilityName = abilityInfo.name;
+        if (abilityInfo.launchMode == AppExecFwk::LaunchMode::STANDARD) {
+            abilityName += std::to_string(sessionInfo->persistentId);
+        }
         (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
-            DeleteAbilityRecoverInfo(abilityInfo.applicationInfo.accessTokenId, abilityInfo.moduleName,
-            abilityInfo.name);
+            DeleteAbilityRecoverInfo(abilityInfo.applicationInfo.accessTokenId, abilityInfo.moduleName, abilityName);
     }
 
     EventInfo eventInfo;
@@ -3422,7 +3407,7 @@ bool AbilityManagerService::GetLocalDeviceId(std::string& localDeviceId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto localNode = std::make_unique<NodeBasicInfo>();
-    int32_t errCode = GetLocalNodeDeviceInfo(DM_PKG_NAME.c_str(), localNode.get());
+    int32_t errCode = GetLocalNodeDeviceInfo(DM_PKG_NAME, localNode.get());
     if (errCode != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerService::GetLocalNodeDeviceInfo errCode = %{public}d", errCode);
         return false;
@@ -3796,6 +3781,9 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Generate ability request error.");
         return result;
     }
+    if (!UriUtils::GetInstance().CheckNonImplicitShareFileUri(abilityRequest)) {
+        return ERR_SHARE_FILE_URI_NON_IMPLICITLY;
+    }
 
     if (abilityRequest.abilityInfo.isStageBasedModel) {
         bool isService =
@@ -3855,6 +3843,12 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
         TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s CheckCallServicePermission error.", __func__);
         return result;
     }
+
+    if (!ExtensionPermissionsUtil::CheckSAPermission(targetExtensionType)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "The SA doesn't have permission for target extension.");
+        return CHECK_PERMISSION_FAILED;
+    }
+
     result = PreLoadAppDataAbilities(abilityInfo.bundleName, validUserId);
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "ConnectAbility: App data ability preloading failed, '%{public}s', %{public}d",
@@ -3869,7 +3863,7 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
         return ERR_INVALID_VALUE;
     }
 
-    ReportEventToSuspendManager(abilityInfo);
+    ReportEventToRSS(abilityInfo, callerToken);
     return connectManager->ConnectAbilityLocked(abilityRequest, connect, callerToken, sessionInfo, connectInfo);
 }
 
@@ -4168,7 +4162,7 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
 
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     int32_t userId = wantSenderInfo.userId;
-    bool bundleMgrResult = false;
+    int32_t bundleMgrResult = 0;
     if (userId < 0) {
         if (DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
             GetOsAccountLocalIdFromUid(callerUid, userId) != 0) {
@@ -4182,12 +4176,13 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
     if (!wantSenderInfo.allWants.empty()) {
         AppExecFwk::BundleInfo bundleInfo;
         std::string bundleName = wantSenderInfo.allWants.back().want.GetElement().GetBundleName();
-        bundleMgrResult = IN_PROCESS_CALL(bms->GetBundleInfo(bundleName,
-            AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
-        if (bundleMgrResult) {
+        GetRunningMultiAppIndex(bundleName, callerUid, appIndex);
+        bundleMgrResult = IN_PROCESS_CALL(bms->GetCloneBundleInfo(bundleName,
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION),
+            appIndex, bundleInfo, userId));
+        if (bundleMgrResult == ERR_OK) {
             appUid = bundleInfo.uid;
         }
-        GetRunningMultiAppIndex(bundleName, callerUid, appIndex);
         TAG_LOGD(AAFwkTag::ABILITYMGR, "App bundleName: %{public}s, uid: %{public}d", bundleName.c_str(), appUid);
     }
     if (!CheckSenderWantInfo(callerUid, wantSenderInfo)) {
@@ -4676,12 +4671,24 @@ std::list<std::shared_ptr<ConnectionRecord>> AbilityManagerService::GetConnectRe
     return connectManager->GetConnectRecordListByCallback(callback);
 }
 
+bool AbilityManagerService::GenerateDataAbilityRequestByUri(const std::string& dataAbilityUri,
+    AbilityRequest &abilityRequest, sptr<IRemoteObject> callerToken, int32_t userId)
+{
+    auto bms = GetBundleManager();
+    CHECK_POINTER_AND_RETURN(bms, false);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called. userId %{public}d", userId);
+    bool queryResult = IN_PROCESS_CALL(bms->QueryAbilityInfoByUri(dataAbilityUri, userId, abilityRequest.abilityInfo));
+    if (!queryResult || abilityRequest.abilityInfo.name.empty() || abilityRequest.abilityInfo.bundleName.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid ability info for data ability acquiring.");
+        return false;
+    }
+    abilityRequest.callerToken = callerToken;
+    return true;
+}
+
 sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     const Uri &uri, bool tryBind, const sptr<IRemoteObject> &callerToken)
 {
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, nullptr);
-
     auto localUri(uri);
     if (localUri.GetScheme() != AbilityConfig::SCHEME_DATA_ABILITY) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Acquire data ability with invalid uri scheme.");
@@ -4696,15 +4703,11 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
 
     auto userId = GetValidUserId(INVALID_USER_ID);
     AbilityRequest abilityRequest;
-    std::string dataAbilityUri = localUri.ToString();
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "called. userId %{public}d", userId);
-    bool queryResult = IN_PROCESS_CALL(bms->QueryAbilityInfoByUri(dataAbilityUri, userId, abilityRequest.abilityInfo));
-    if (!queryResult || abilityRequest.abilityInfo.name.empty() || abilityRequest.abilityInfo.bundleName.empty()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid ability info for data ability acquiring.");
+    if (!GenerateDataAbilityRequestByUri(localUri.ToString(), abilityRequest, callerToken, userId)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Generate data ability request by uri failed.");
         return nullptr;
     }
 
-    abilityRequest.callerToken = callerToken;
     auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (!isSaCall && CheckCallDataAbilityPermission(abilityRequest, isShellCall, isSaCall) != ERR_OK) {
@@ -4718,10 +4721,13 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
 
     if (CheckStaticCfgPermission(abilityRequest, false, -1, true, isSaCall) !=
         AppExecFwk::Constants::PERMISSION_GRANTED) {
-        if (!VerificationAllToken(callerToken)) {
-            TAG_LOGI(AAFwkTag::ABILITYMGR, "VerificationAllToken fail");
-            return nullptr;
-        }
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "CheckStaticCfgPermission fail");
+        return nullptr;
+    }
+
+    if (!VerificationAllToken(callerToken)) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "VerificationAllToken fail");
+        return nullptr;
     }
 
     if (abilityRequest.abilityInfo.applicationInfo.singleton) {
@@ -4730,7 +4736,7 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
 
     std::shared_ptr<DataAbilityManager> dataAbilityManager = GetDataAbilityManagerByUserId(userId);
     CHECK_POINTER_AND_RETURN(dataAbilityManager, nullptr);
-    ReportEventToSuspendManager(abilityRequest.abilityInfo);
+    ReportEventToRSS(abilityRequest.abilityInfo, callerToken);
     bool isNotHap = isSaCall || isShellCall;
     UpdateCallerInfo(abilityRequest.want, callerToken);
     return dataAbilityManager->Acquire(abilityRequest, tryBind, callerToken, isNotHap);
@@ -4810,29 +4816,6 @@ int AbilityManagerService::AttachAbilityThread(
         CHECK_POINTER_AND_RETURN(missionListManager, ERR_INVALID_VALUE);
         return missionListManager->AttachAbilityThread(scheduler, token);
     }
-}
-
-void AbilityManagerService::DumpFuncInit()
-{
-    dumpFuncMap_[KEY_DUMP_SERVICE] = &AbilityManagerService::DumpStateInner;
-    dumpFuncMap_[KEY_DUMP_DATA] = &AbilityManagerService::DataDumpStateInner;
-
-    dumpFuncMap_[KEY_DUMP_ALL] = &AbilityManagerService::DumpInner;
-    dumpFuncMap_[KEY_DUMP_MISSION] = &AbilityManagerService::DumpMissionInner;
-    dumpFuncMap_[KEY_DUMP_MISSION_LIST] = &AbilityManagerService::DumpMissionListInner;
-    dumpFuncMap_[KEY_DUMP_MISSION_INFOS] = &AbilityManagerService::DumpMissionInfosInner;
-}
-
-void AbilityManagerService::DumpSysFuncInit()
-{
-    dumpsysFuncMap_[KEY_DUMPSYS_ALL] = &AbilityManagerService::DumpSysInner;
-    dumpsysFuncMap_[KEY_DUMPSYS_SERVICE] = &AbilityManagerService::DumpSysStateInner;
-    dumpsysFuncMap_[KEY_DUMPSYS_PENDING] = &AbilityManagerService::DumpSysPendingInner;
-    dumpsysFuncMap_[KEY_DUMPSYS_PROCESS] = &AbilityManagerService::DumpSysProcess;
-    dumpsysFuncMap_[KEY_DUMPSYS_DATA] = &AbilityManagerService::DataDumpSysStateInner;
-
-    dumpsysFuncMap_[KEY_DUMPSYS_MISSION_LIST] = &AbilityManagerService::DumpSysMissionListInner;
-    dumpsysFuncMap_[KEY_DUMPSYS_ABILITY] = &AbilityManagerService::DumpSysAbilityInner;
 }
 
 void AbilityManagerService::DumpSysInner(
@@ -5307,15 +5290,29 @@ void AbilityManagerService::DumpState(const std::string &args, std::vector<std::
         return;
     }
     DumpKey key = it->second;
-    auto itFunc = dumpFuncMap_.find(key);
-    if (itFunc != dumpFuncMap_.end()) {
-        auto dumpFunc = itFunc->second;
-        if (dumpFunc != nullptr) {
-            (this->*dumpFunc)(args, info);
-            return;
-        }
+    switch (key) {
+        case KEY_DUMP_SERVICE:
+            DumpStateInner(args, info);
+            break;
+        case KEY_DUMP_DATA:
+            DataDumpStateInner(args, info);
+            break;
+        case KEY_DUMP_ALL:
+            DumpInner(args, info);
+            break;
+        case KEY_DUMP_MISSION:
+            DumpMissionInner(args, info);
+            break;
+        case KEY_DUMP_MISSION_LIST:
+            DumpMissionListInner(args, info);
+            break;
+        case KEY_DUMP_MISSION_INFOS:
+            DumpMissionInfosInner(args, info);
+            break;
+        default:
+            info.push_back("error: invalid argument, please see 'ability dump -h'.");
+            break;
     }
-    info.push_back("error: invalid argument, please see 'ability dump -h'.");
 }
 
 void AbilityManagerService::DumpSysState(
@@ -5338,15 +5335,32 @@ void AbilityManagerService::DumpSysState(
         return;
     }
     DumpsysKey key = it->second;
-    auto itFunc = dumpsysFuncMap_.find(key);
-    if (itFunc != dumpsysFuncMap_.end()) {
-        auto dumpsysFunc = itFunc->second;
-        if (dumpsysFunc != nullptr) {
-            (this->*dumpsysFunc)(args, info, isClient, isUserID, userId);
-            return;
-        }
+    switch (key) {
+        case KEY_DUMPSYS_ALL:
+            DumpSysInner(args, info, isClient, isUserID, userId);
+            break;
+        case KEY_DUMPSYS_SERVICE:
+            DumpSysStateInner(args, info, isClient, isUserID, userId);
+            break;
+        case KEY_DUMPSYS_PENDING:
+            DumpSysPendingInner(args, info, isClient, isUserID, userId);
+            break;
+        case KEY_DUMPSYS_PROCESS:
+            DumpSysProcess(args, info, isClient, isUserID, userId);
+            break;
+        case KEY_DUMPSYS_DATA:
+            DataDumpSysStateInner(args, info, isClient, isUserID, userId);
+            break;
+        case KEY_DUMPSYS_MISSION_LIST:
+            DumpSysMissionListInner(args, info, isClient, isUserID, userId);
+            break;
+        case KEY_DUMPSYS_ABILITY:
+            DumpSysAbilityInner(args, info, isClient, isUserID, userId);
+            break;
+        default:
+            info.push_back("error: invalid argument, please see 'ability dump -h'.");
+            break;
     }
-    info.push_back("error: invalid argument, please see 'ability dump -h'.");
 }
 
 int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &token, int state, const PacMap &saveData)
@@ -5632,7 +5646,7 @@ int32_t AbilityManagerService::GetUserId() const
     return U0_USER_ID;
 }
 
-void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isBoot, sptr<IUserCallback> callback)
+void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isBoot)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s", __func__);
     auto bms = GetBundleManager();
@@ -5651,7 +5665,6 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
         ++attemptNums;
         if (!isBoot && attemptNums > SWITCH_ACCOUNT_TRY) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Query highest priority ability failed.");
-            callback->OnStartUserDone(userId, ERR_QUERY_HIGHEST_PRIORITY_ABILITY);
             return;
         }
         AbilityRequest abilityRequest;
@@ -5660,10 +5673,8 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
 
     if (abilityInfo.name.empty() && extensionAbilityInfo.name.empty()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Query highest priority ability failed");
-        callback->OnStartUserDone(userId, ERR_QUERY_HIGHEST_PRIORITY_ABILITY);
         return;
     }
-    callback->OnStartUserDone(userId, ERR_OK);
 
     Want abilityWant; // donot use 'want' here, because the entity of 'want' is not empty
     if (!abilityInfo.name.empty()) {
@@ -5690,7 +5701,7 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
 }
 
 int AbilityManagerService::GenerateAbilityRequest(const Want &want, int requestCode, AbilityRequest &request,
-    const sptr<IRemoteObject> &callerToken, int32_t userId, bool isNeedSetDebugApp)
+    const sptr<IRemoteObject> &callerToken, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
@@ -5706,7 +5717,16 @@ int AbilityManagerService::GenerateAbilityRequest(const Want &want, int requestC
     request.want = want;
     request.requestCode = requestCode;
     request.callerToken = callerToken;
-    request.startSetting = nullptr;
+    auto setting = AbilityStartSetting::GetEmptySetting();
+    if (setting != nullptr) {
+        auto bundleName = want.GetElement().GetBundleName();
+        auto defaultRecovery = DefaultRecoveryConfig::GetInstance().IsBundleDefaultRecoveryEnabled(bundleName);
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "bundleName: %{public}s, defaultRecovery: %{public}d.", bundleName.c_str(),
+            defaultRecovery);
+        setting->AddProperty(AbilityStartSetting::DEFAULT_RECOVERY_KEY, defaultRecovery ? "true" : "false");
+        setting->AddProperty(AbilityStartSetting::IS_START_BY_SCB_KEY, "false"); // default is false
+        request.startSetting = std::make_shared<AbilityStartSetting>(*(setting.get()));
+    }
 
     auto abilityInfo = StartAbilityUtils::startAbilityInfo;
     if (abilityInfo == nullptr || abilityInfo->GetAppBundleName() != want.GetElement().GetBundleName()) {
@@ -5751,18 +5771,13 @@ int AbilityManagerService::GenerateAbilityRequest(const Want &want, int requestC
         request.appInfo.name.c_str(), request.abilityInfo.moduleName.c_str(), request.uid);
 
     request.want.SetModuleName(request.abilityInfo.moduleName);
-    request.want.SetParam("send_to_erms_targetBundleType",
-        static_cast<int>(request.abilityInfo.applicationInfo.bundleType));
-    request.want.SetParam("send_to_erms_targetAppProvisionType", request.abilityInfo.applicationInfo.appProvisionType);
-    request.want.SetParam("send_to_erms_targetAppDistType", request.abilityInfo.applicationInfo.appDistributionType);
 
     if (want.GetBoolParam(Want::PARAM_RESV_START_RECENT, false) &&
         AAFwk::PermissionVerification::GetInstance()->VerifyStartRecentAbilityPermission()) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Set start recent.");
         request.startRecent = true;
     }
-    if (isNeedSetDebugApp) {
-        SetDebugAppByWaitingDebugFlag(want, request.want, request.appInfo.bundleName, request.appInfo.debug);
-    }
+
     return ERR_OK;
 }
 
@@ -5792,7 +5807,6 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
     }
 
     auto result = InitialAbilityRequest(request, *abilityInfo);
-    SetDebugAppByWaitingDebugFlag(want, request.want, request.appInfo.bundleName, request.appInfo.debug);
     return result;
 }
 
@@ -5810,9 +5824,6 @@ int32_t AbilityManagerService::InitialAbilityRequest(AbilityRequest &request,
     TAG_LOGD(AAFwkTag::ABILITYMGR,
         "GenerateExtensionAbilityRequest end, app name: %{public}s, bundle name: %{public}s, uid: %{public}d.",
         request.appInfo.name.c_str(), request.appInfo.bundleName.c_str(), request.uid);
-    request.want.SetParam("send_to_erms_targetBundleType",
-        static_cast<int>(request.abilityInfo.applicationInfo.bundleType));
-    request.want.SetParam("send_to_erms_targetAppProvisionType", request.abilityInfo.applicationInfo.appProvisionType);
 
     TAG_LOGD(AAFwkTag::ABILITYMGR,
         "GenerateExtensionAbilityRequest, moduleName: %{public}s.", request.abilityInfo.moduleName.c_str());
@@ -5932,9 +5943,10 @@ void AbilityManagerService::ReleaseAbilityTokenMap(const sptr<IRemoteObject> &to
     }
 }
 
-int AbilityManagerService::KillProcess(const std::string &bundleName)
+int AbilityManagerService::KillProcess(const std::string &bundleName, const bool clearPageStack)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Kill process, bundleName: %{public}s", bundleName.c_str());
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Kill process, bundleName: %{public}s, clearPageStack: %{public}d",
+        bundleName.c_str(), clearPageStack);
     CHECK_CALLER_IS_SYSTEM_APP;
     auto bms = GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, KILL_PROCESS_FAILED);
@@ -5953,7 +5965,7 @@ int AbilityManagerService::KillProcess(const std::string &bundleName)
         return KILL_PROCESS_KEEP_ALIVE;
     }
 
-    int ret = DelayedSingleton<AppScheduler>::GetInstance()->KillApplication(bundleName);
+    int ret = DelayedSingleton<AppScheduler>::GetInstance()->KillApplication(bundleName, clearPageStack);
     if (ret != ERR_OK) {
         return KILL_PROCESS_FAILED;
     }
@@ -5964,35 +5976,31 @@ int AbilityManagerService::KillProcess(const std::string &bundleName)
     return ERR_OK;
 }
 
-int AbilityManagerService::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
-{
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "ClearUpApplicationData, bundleName: %{public}s", bundleName.c_str());
-    CHECK_CALLER_IS_SYSTEM_APP;
-    int ret = DelayedSingleton<AppScheduler>::GetInstance()->ClearUpApplicationData(bundleName, userId);
-    if (ret != ERR_OK) {
-        return CLEAR_APPLICATION_DATA_FAIL;
-    }
-    return ERR_OK;
-}
-
 int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t uid)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "Uninstall app, bundleName: %{public}s, uid=%{public}d", bundleName.c_str(), uid);
-    return UninstallAppInner(bundleName, uid, false, "");
+    return UninstallApp(bundleName, uid, 0);
 }
 
-int32_t AbilityManagerService::UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg)
+int32_t AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t uid, int32_t appIndex)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR,
-        "UpgradeApp app, bundleName: %{public}s, uid=%{public}d, exitMsg: %{public}s,", bundleName.c_str(),
-        uid, exitMsg.c_str());
-    return UninstallAppInner(bundleName, uid, true, exitMsg);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Uninstall app, bundleName: %{public}s, uid=%{public}d, appIndex:%{public}d",
+        bundleName.c_str(), uid, appIndex);
+    return UninstallAppInner(bundleName, uid, appIndex, false, "");
 }
 
-int32_t AbilityManagerService::UninstallAppInner(const std::string &bundleName, const int32_t uid, const bool isUpgrade,
-    const std::string &exitMsg)
+int32_t AbilityManagerService::UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg,
+    int32_t appIndex)
 {
-    pid_t callingPid = IPCSkeleton::GetCallingRealPid();
+    TAG_LOGI(AAFwkTag::ABILITYMGR,
+        "UpgradeApp app, bundleName: %{public}s, uid=%{public}d, exitMsg: %{public}s, appIndex:%{public}d",
+        bundleName.c_str(), uid, exitMsg.c_str(), appIndex);
+    return UninstallAppInner(bundleName, uid, appIndex, true, exitMsg);
+}
+
+int32_t AbilityManagerService::UninstallAppInner(const std::string &bundleName, const int32_t uid, int32_t appIndex,
+    const bool isUpgrade, const std::string &exitMsg)
+{
+    pid_t callingPid = IPCSkeleton::GetCallingPid();
     pid_t pid = getprocpid();
     if (callingPid != pid) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: Not bundleMgr call.", __func__);
@@ -6002,7 +6010,7 @@ int32_t AbilityManagerService::UninstallAppInner(const std::string &bundleName, 
     if (isUpgrade) {
         CHECK_POINTER_AND_RETURN(appExitReasonHelper_, ERR_NULL_OBJECT);
         AAFwk::ExitReason exitReason = { REASON_UPGRADE, exitMsg };
-        appExitReasonHelper_->RecordProcessExitReason(bundleName, uid, exitReason);
+        appExitReasonHelper_->RecordAppExitReason(bundleName, uid, appIndex, exitReason);
     }
 
     CHECK_POINTER_AND_RETURN(subManagersHelper_, ERR_NULL_OBJECT);
@@ -6012,7 +6020,8 @@ int32_t AbilityManagerService::UninstallAppInner(const std::string &bundleName, 
         return UNINSTALL_APP_FAILED;
     }
     if (!isUpgrade) {
-        DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->DeleteAppExitReason(bundleName, uid);
+        DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->DeleteAppExitReason(bundleName, uid,
+            appIndex);
     }
     return ERR_OK;
 }
@@ -6240,6 +6249,11 @@ bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
         return true;
     }
 
+    if (connectManager->GetExtensionByTokenFromAbilityCache(token)) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "Verification token5.");
+        return true;
+    }
+
     if (connectManager->GetExtensionByTokenFromTerminatingMap(token)) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "Verification token5.");
         return true;
@@ -6402,7 +6416,8 @@ void AbilityManagerService::StartAutoStartupApps()
         return;
     }
     std::vector<AutoStartupInfo> infoList;
-    int32_t result = abilityAutoStartupService_->QueryAllAutoStartupApplicationsWithoutPermission(infoList);
+    int32_t result = abilityAutoStartupService_->QueryAllAutoStartupApplicationsWithoutPermission(infoList,
+        GetUserId());
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to query data.");
         return;
@@ -6482,7 +6497,17 @@ void AbilityManagerService::SubscribeScreenUnlockedEvent()
         };
         taskHandler->SubmitTask(startAutoStartupAppsTask, "StartAutoStartupApps");
     };
-    screenSubscriber_ = std::make_shared<AbilityRuntime::AbilityManagerEventSubscriber>(subscribeInfo, callback);
+    auto userScreenUnlockCallback = [abilityManager = weak_from_this()]() {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "On user screen unlocked.");
+        auto abilityMgr = abilityManager.lock();
+        if (abilityMgr == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid abilityMgr pointer.");
+            return;
+        }
+        abilityMgr->RemoveScreenUnlockInterceptor();
+    };
+    screenSubscriber_ = std::make_shared<AbilityRuntime::AbilityManagerEventSubscriber>(subscribeInfo, callback,
+        userScreenUnlockCallback);
     bool subResult = EventFwk::CommonEventManager::SubscribeCommonEvent(screenSubscriber_);
     if (!subResult) {
         constexpr int retryCount = 20;
@@ -6761,7 +6786,7 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
         afterCheckExecuter_->DoProcess(afterCheckParam);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        ReportEventToSuspendManager(abilityRequest.abilityInfo);
+        ReportEventToRSS(abilityRequest.abilityInfo, callerToken);
         abilityRequest.want.SetParam(IS_CALL_BY_SCB, false);
         auto uiAbilityManager = GetUIAbilityManagerByUserId(oriValidUserId);
         CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
@@ -6773,7 +6798,7 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
         TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListMgr is Null. Designated User Id=%{public}d", oriValidUserId);
         return ERR_INVALID_VALUE;
     }
-    ReportEventToSuspendManager(abilityRequest.abilityInfo);
+    ReportEventToRSS(abilityRequest.abilityInfo, callerToken);
 
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "afterCheckExecuter_ is nullptr or DoProcess return error.");
@@ -6789,7 +6814,7 @@ int AbilityManagerService::StartAbilityJust(AbilityRequest &abilityRequest, int3
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     UpdateCallerInfo(abilityRequest.want, abilityRequest.callerToken);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        ReportEventToSuspendManager(abilityRequest.abilityInfo);
+        ReportEventToRSS(abilityRequest.abilityInfo, abilityRequest.callerToken);
         auto uiAbilityManager = GetUIAbilityManagerByUserId(validUserId);
         CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
         return uiAbilityManager->ResolveLocked(abilityRequest);
@@ -6800,7 +6825,7 @@ int AbilityManagerService::StartAbilityJust(AbilityRequest &abilityRequest, int3
         TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListMgr is Null. Designated User Id=%{public}d", validUserId);
         return ERR_INVALID_VALUE;
     }
-    ReportEventToSuspendManager(abilityRequest.abilityInfo);
+    ReportEventToRSS(abilityRequest.abilityInfo, abilityRequest.callerToken);
 
     return missionListMgr->ResolveLocked(abilityRequest);
 }
@@ -7096,6 +7121,7 @@ void AbilityManagerService::UpdateMissionSnapShot(const sptr<IRemoteObject> &tok
 #endif // SUPPORT_SCREEN
 void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& token)
 {
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Enable recovery ability.");
     if (token == nullptr) {
         return;
     }
@@ -7123,9 +7149,13 @@ void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& toke
         auto uiAbilityManager = GetUIAbilityManagerByUserId(userId);
         CHECK_POINTER(uiAbilityManager);
         const auto& abilityInfo = record->GetAbilityInfo();
+        std::string abilityName = abilityInfo.name;
+        auto sessionId = uiAbilityManager->GetSessionIdByAbilityToken(token);
+        if (abilityInfo.launchMode == AppExecFwk::LaunchMode::STANDARD) {
+            abilityName += std::to_string(sessionId);
+        }
         (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->AddAbilityRecoverInfo(
-            abilityInfo.applicationInfo.accessTokenId, abilityInfo.moduleName, abilityInfo.name,
-            uiAbilityManager->GetSessionIdByAbilityToken(token));
+            abilityInfo.applicationInfo.accessTokenId, abilityInfo.moduleName, abilityName, sessionId);
     } else {
         auto missionListMgr = GetMissionListManagerByUserId(userId);
         if (missionListMgr == nullptr) {
@@ -7134,6 +7164,32 @@ void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& toke
         }
         missionListMgr->EnableRecoverAbility(record->GetMissionId());
     }
+}
+
+void AbilityManagerService::ScheduleClearRecoveryPageStack()
+{
+    int32_t callerUid = IPCSkeleton::GetCallingUid();
+    std::string bundleName;
+    auto bms = GetBundleManager();
+    if (bms == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ScheduleClearRecoveryPageStack failed to get bms");
+        return;
+    }
+
+    if (IN_PROCESS_CALL(bms->GetNameForUid(callerUid, bundleName)) != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ScheduleClearRecoveryPageStack failed to get bundleName by uid");
+        return;
+    }
+
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+
+    TAG_LOGI(AAFwkTag::ABILITYMGR,
+        "ScheduleClearRecoveryPageStack bundleName = %{public}s, callerUid = %{public}d, tokenId = %{public}d",
+        bundleName.c_str(), callerUid, tokenId);
+    (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
+        DeleteAppExitReason(bundleName, tokenId);
+    (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
+        DeleteAllRecoverInfoByTokenId(tokenId);
 }
 
 void AbilityManagerService::ReportAppRecoverResult(const int32_t appId, const AppExecFwk::ApplicationInfo &appInfo,
@@ -7393,8 +7449,9 @@ void AbilityManagerService::SwitchToUser(int32_t oldUserId, int32_t userId, sptr
         ConnectBmsService();
         StartUserApps();
     }
+    callback->OnStartUserDone(userId, ERR_OK);
     bool isBoot = oldUserId == U0_USER_ID ? true : false;
-    StartHighestPriorityAbility(userId, isBoot, callback);
+    StartHighestPriorityAbility(userId, isBoot);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() &&
         AmsConfigurationParameter::GetInstance().MultiUserType() != 0) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "no need to terminate old scb.");
@@ -7608,7 +7665,7 @@ int AbilityManagerService::DelegatorDoAbilityForeground(const sptr<IRemoteObject
     CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
     auto &&abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    int32_t callerPid = IPCSkeleton::GetCallingRealPid();
+    int32_t callerPid = IPCSkeleton::GetCallingPid();
     int32_t appPid = abilityRecord->GetPid();
     TAG_LOGD(AAFwkTag::ABILITYMGR, "callerPid: %{public}d, appPid: %{public}d", callerPid, appPid);
     if (callerPid != appPid) {
@@ -7644,7 +7701,7 @@ int AbilityManagerService::DelegatorDoAbilityBackground(const sptr<IRemoteObject
     auto &&abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     int32_t appPid = abilityRecord->GetPid();
-    int32_t callerPid = IPCSkeleton::GetCallingRealPid();
+    int32_t callerPid = IPCSkeleton::GetCallingPid();
     TAG_LOGD(AAFwkTag::ABILITYMGR, "callerPid: %{public}d, appPid: %{public}d", callerPid, appPid);
     if (callerPid != appPid) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Caller is not the application itself");
@@ -7721,7 +7778,7 @@ void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObjec
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int32_t tokenId = static_cast<int32_t>(IPCSkeleton::GetCallingTokenID());
     int32_t callerUid = IPCSkeleton::GetCallingUid();
-    int32_t callerPid = IPCSkeleton::GetCallingRealPid();
+    int32_t callerPid = IPCSkeleton::GetCallingPid();
     want.RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
     want.SetParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId);
     want.RemoveParam(Want::PARAM_RESV_CALLER_UID);
@@ -7750,8 +7807,25 @@ void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObjec
     }
 }
 
-void AbilityManagerService::UpdateAsCallerSourceInfo(Want& want, sptr<IRemoteObject> asCallerSourceToken)
+void AbilityManagerService::UpdateAsCallerSourceInfo(Want& want, sptr<IRemoteObject> asCallerSourceToken,
+    sptr<IRemoteObject> callerToken)
 {
+    if (asCallerSourceToken != nullptr) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Update as caller source info from token.");
+        UpdateAsCallerInfoFromToken(want, asCallerSourceToken);
+    } else if (callerToken != nullptr) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Update as caller source info from callerRecord.");
+        UpdateAsCallerInfoFromCallerRecord(want, callerToken);
+    }
+}
+
+void AbilityManagerService::UpdateAsCallerInfoFromToken(Want& want, sptr<IRemoteObject> asCallerSourceToken)
+{
+    want.RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_UID);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_PID);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
     AppExecFwk::RunningProcessInfo processInfo = {};
     DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(asCallerSourceToken, processInfo);
 
@@ -7761,20 +7835,32 @@ void AbilityManagerService::UpdateAsCallerSourceInfo(Want& want, sptr<IRemoteObj
         return;
     }
     int32_t tokenId = abilityRecord->GetApplicationInfo().accessTokenId;
-
-    want.RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
     want.SetParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId);
-    want.RemoveParam(Want::PARAM_RESV_CALLER_UID);
     want.SetParam(Want::PARAM_RESV_CALLER_UID, processInfo.uid_);
-    want.RemoveParam(Want::PARAM_RESV_CALLER_PID);
     want.SetParam(Want::PARAM_RESV_CALLER_PID, processInfo.pid_);
 
     std::string callerBundleName = abilityRecord->GetAbilityInfo().bundleName;
-    want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
     want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerBundleName);
     std::string callerAbilityName = abilityRecord->GetAbilityInfo().name;
-    want.RemoveParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
     want.SetParam(Want::PARAM_RESV_CALLER_ABILITY_NAME, callerAbilityName);
+}
+
+void AbilityManagerService::UpdateAsCallerInfoFromCallerRecord(Want& want, sptr<IRemoteObject> callerToken)
+{
+    want.RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_UID);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_PID);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
+    auto callerRecord = Token::GetAbilityRecordByToken(callerToken);
+    CHECK_POINTER(callerRecord);
+    auto sourceInfo = callerRecord->GetCallerInfo();
+    CHECK_POINTER(sourceInfo);
+    want.SetParam(Want::PARAM_RESV_CALLER_TOKEN, sourceInfo->callerTokenId);
+    want.SetParam(Want::PARAM_RESV_CALLER_UID, sourceInfo->callerUid);
+    want.SetParam(Want::PARAM_RESV_CALLER_PID, sourceInfo->callerPid);
+    want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, sourceInfo->callerBundleName);
+    want.SetParam(Want::PARAM_RESV_CALLER_ABILITY_NAME, sourceInfo->callerAbilityName);
 }
 
 void AbilityManagerService::UpdateCallerInfoFromToken(Want& want, const sptr<IRemoteObject> &token)
@@ -7893,12 +7979,17 @@ int AbilityManagerService::CheckStaticCfgPermissionForSkill(const AppExecFwk::Ab
     if (abilityInfo.skills.empty()) {
         return AppExecFwk::Constants::PERMISSION_GRANTED;
     }
+    int32_t result = AppExecFwk::Constants::PERMISSION_GRANTED;
     for (auto skill : abilityInfo.skills) {
-        if (skill.Match(abilityRequest.want) && CheckOneSkillPermission(skill, tokenId)) {
-            return AppExecFwk::Constants::PERMISSION_GRANTED;
+        if (skill.Match(abilityRequest.want)) {
+            if (CheckOneSkillPermission(skill, tokenId)) {
+                return AppExecFwk::Constants::PERMISSION_GRANTED;
+            } else {
+                result = AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
+            }
         }
     }
-    return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
+    return result;
 }
 
 int AbilityManagerService::CheckStaticCfgPermission(const AppExecFwk::AbilityRequest &abilityRequest,
@@ -8397,7 +8488,8 @@ int AbilityManagerService::SetMissionIcon(const sptr<IRemoteObject> &token,
     return missionListManager->SetMissionIcon(token, icon);
 }
 
-int AbilityManagerService::RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler> &handler)
+int AbilityManagerService::RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler> &handler,
+    bool animationEnabled)
 {
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (!isSaCall) {
@@ -8405,6 +8497,7 @@ int AbilityManagerService::RegisterWindowManagerServiceHandler(const sptr<IWindo
         return CHECK_PERMISSION_FAILED;
     }
     wmsHandler_ = handler;
+    isAnimationEnabled_ = animationEnabled;
     TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s: WMS handler registered successfully.", __func__);
     return ERR_OK;
 }
@@ -8466,11 +8559,11 @@ bool AbilityManagerService::CheckWindowMode(int32_t windowMode,
     if (windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED) {
         return true;
     }
-    auto it = windowModeMap.find(windowMode);
-    if (it != windowModeMap.end()) {
-        auto bmsWindowMode = it->second;
-        for (auto mode : windowModes) {
-            if (mode == bmsWindowMode) {
+
+    auto bmsWindowMode = WindowOptionsUtils::WindowModeMap(windowMode);
+    if (bmsWindowMode.first) {
+        for (const auto& mode : windowModes) {
+            if (mode == bmsWindowMode.second) {
                 return true;
             }
         }
@@ -8596,16 +8689,22 @@ void AbilityManagerService::InitPrepareTerminateConfig()
 int AbilityManagerService::RegisterAbilityFirstFrameStateObserver(
     const sptr<IAbilityFirstFrameStateObserver> &observer, const std::string &targetBundleName)
 {
-    return DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    return AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         RegisterAbilityFirstFrameStateObserver(observer, targetBundleName);
 }
 
 int AbilityManagerService::UnregisterAbilityFirstFrameStateObserver(
     const sptr<IAbilityFirstFrameStateObserver> &observer)
 {
-    return DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+    return AppExecFwk::AbilityFirstFrameStateObserverManager::GetInstance().
         UnregisterAbilityFirstFrameStateObserver(observer);
 }
+
+bool AbilityManagerService::GetAnimationFlag()
+{
+    return isAnimationEnabled_;
+}
+
 #endif
 
 int AbilityManagerService::CheckCallServicePermission(const AbilityRequest &abilityRequest)
@@ -8793,6 +8892,24 @@ int AbilityManagerService::CheckUIExtensionPermission(const AbilityRequest &abil
             return CHECK_PERMISSION_FAILED;
         }
     }
+
+    if (AAFwk::UIExtensionUtils::IsSystemCallerNeeded(extensionType)) {
+        auto callerRecord = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+        if (callerRecord == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid caller.");
+            return NO_FOUND_ABILITY_BY_CALLER;
+        }
+
+        if (!callerRecord->GetApplicationInfo().isSystemApp
+            && !AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR,
+                     "Bundle %{public}s wanna to start but caller bundle %{public}s "
+                     "isn't system app, type %{public}d not allowed.",
+                     abilityRequest.appInfo.bundleName.c_str(), callerRecord->GetApplicationInfo().bundleName.c_str(),
+                     extensionType);
+            return CHECK_PERMISSION_FAILED;
+        }
+    }
     return ERR_OK;
 }
 
@@ -8875,6 +8992,9 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
 
     AppExecFwk::RunningProcessInfo processInfo;
     std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+    if (callerAbility && callerAbility->GetAbilityInfo().bundleName == BUNDLE_NAME_DIALOG) {
+        callerAbility = callerAbility->GetCallerRecord();
+    }
     if (callerAbility) {
         if (callerAbility->IsForeground() || callerAbility->GetAbilityForegroundingFlag()) {
             isBackgroundCall = false;
@@ -8897,7 +9017,7 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
             return ERR_OK;
         }
     } else {
-        auto callerPid = IPCSkeleton::GetCallingRealPid();
+        auto callerPid = IPCSkeleton::GetCallingPid();
         DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(callerPid, processInfo);
         if (processInfo.processName_.empty()) {
             TAG_LOGD(AAFwkTag::ABILITYMGR, "Can not find caller application by callerPid: %{private}d.", callerPid);
@@ -9069,7 +9189,7 @@ int AbilityManagerService::CheckDlpForExtension(
 
 bool AbilityManagerService::JudgeSelfCalled(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
-    if (IPCSkeleton::GetCallingRealPid() == getprocpid()) {
+    if (IPCSkeleton::GetCallingPid() == getprocpid()) {
         return true;
     }
 
@@ -9294,7 +9414,7 @@ void AbilityManagerService::SetRootSceneSession(const sptr<IRemoteObject> &rootS
     uiAbilityManager->SetRootSceneSession(rootSceneSession);
 }
 
-void AbilityManagerService::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
+void AbilityManagerService::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isColdStart)
 {
     if (!IsCallerSceneBoard()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Not sceneboard called, not allowed.");
@@ -9302,7 +9422,7 @@ void AbilityManagerService::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionI
     }
     auto uiAbilityManager = GetUIAbilityManagerByUid(IPCSkeleton::GetCallingUid());
     CHECK_POINTER(uiAbilityManager);
-    uiAbilityManager->CallUIAbilityBySCB(sessionInfo);
+    uiAbilityManager->CallUIAbilityBySCB(sessionInfo, isColdStart);
 }
 
 int32_t AbilityManagerService::SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService)
@@ -9495,7 +9615,7 @@ int32_t AbilityManagerService::QueryAllAutoStartupApplications(std::vector<AutoS
         TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityAutoStartupService_ is nullptr.");
         return ERR_NO_INIT;
     }
-    return abilityAutoStartupService_->QueryAllAutoStartupApplications(infoList);
+    return abilityAutoStartupService_->QueryAllAutoStartupApplications(infoList, GetUserId());
 }
 
 int AbilityManagerService::PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isTerminate)
@@ -9562,7 +9682,7 @@ int32_t AbilityManagerService::CheckProcessOptions(const Want &want, const Start
         return ERR_OK;
     }
 
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "start ability with process options.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "start ability with process options.");
     bool isEnable = AppUtils::GetInstance().IsStartOptionsWithProcessOptions();
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() || !isEnable) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Not support process options.");
@@ -9575,7 +9695,9 @@ int32_t AbilityManagerService::CheckProcessOptions(const Want &want, const Start
         return ERR_NOT_ALLOW_IMPLICIT_START;
     }
 
-    if (!CheckCallingTokenId(element.GetBundleName(), userId)) {
+    int32_t appIndex = 0;
+    appIndex = !AbilityRuntime::StartupUtil::GetAppIndex(want, appIndex) ? 0 : appIndex;
+    if (!CheckCallingTokenId(element.GetBundleName(), userId, appIndex)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Not self application.");
         return ERR_NOT_SELF_APPLICATION;
     }
@@ -9921,17 +10043,6 @@ int32_t AbilityManagerService::GetForegroundUIAbilities(std::vector<AppExecFwk::
     return ERR_OK;
 }
 
-void AbilityManagerService::HandleProcessFrozen(const std::vector<int32_t> &pidList, int32_t uid)
-{
-    auto userId = uid / BASE_USER_RANGE;
-    auto connectManager = GetConnectManagerByUserId(userId);
-    if (connectManager == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "can not find user connect manager");
-        return;
-    }
-    connectManager->HandleProcessFrozen(pidList, uid);
-}
-
 void AbilityManagerService::NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId)
 {
     auto collaborator = GetCollaborator(CollaboratorType::RESERVE_TYPE);
@@ -10165,7 +10276,7 @@ int32_t AbilityManagerService::SetResidentProcessEnabled(const std::string &bund
 
     std::string callerName;
     int32_t uid = 0;
-    auto callerPid = IPCSkeleton::GetCallingRealPid();
+    auto callerPid = IPCSkeleton::GetCallingPid();
     DelayedSingleton<AppScheduler>::GetInstance()->GetBundleNameByPid(callerPid, callerName, uid);
     if (callerName.empty()) {
         HILOG_ERROR("Failed to obtain caller name.");
@@ -10308,15 +10419,15 @@ bool AbilityManagerService::CheckCallerIsDmsProcess()
 void AbilityManagerService::WaitBootAnimationStart()
 {
     char value[BOOTEVENT_BOOT_ANIMATION_READY_SIZE] = "";
-    int32_t ret = GetParameter(BOOTEVENT_BOOT_ANIMATION_READY.c_str(), "", value,
+    int32_t ret = GetParameter(BOOTEVENT_BOOT_ANIMATION_READY, "", value,
         BOOTEVENT_BOOT_ANIMATION_READY_SIZE);
     if (ret > 0 && !std::strcmp(value, "false")) {
         // Get new param success and new param is not ready, wait the new param.
-        WaitParameter(BOOTEVENT_BOOT_ANIMATION_READY.c_str(), "true",
+        WaitParameter(BOOTEVENT_BOOT_ANIMATION_READY, "true",
             AmsConfigurationParameter::GetInstance().GetBootAnimationTimeoutTime());
     } else if (ret <= 0 || !std::strcmp(value, "")) {
         // Get new param failed or new param is not set, wait the old param.
-        WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true",
+        WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED, "true",
             AmsConfigurationParameter::GetInstance().GetBootAnimationTimeoutTime());
     }
     // other, the animation is ready, not wait.
@@ -10352,22 +10463,6 @@ int32_t AbilityManagerService::GetUIExtensionRootHostInfo(const sptr<IRemoteObje
     return ERR_OK;
 }
 
-void AbilityManagerService::SetDebugAppByWaitingDebugFlag(
-    const Want &want, Want &requestWant, const std::string &bundleName, bool isDebugApp)
-{
-    if (!isDebugApp || !system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "Not meeting the set debugging conditions.");
-        return;
-    }
-
-    if (IN_PROCESS_CALL(DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->IsWaitingDebugApp(bundleName))) {
-        (const_cast<Want &>(want)).SetParam(DEBUG_APP, true);
-        requestWant.SetParam(DEBUG_APP, true);
-        IN_PROCESS_CALL_WITHOUT_RET(
-            DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->ClearNonPersistWaitingDebugFlag());
-    }
-}
-
 int32_t AbilityManagerService::RestartApp(const AAFwk::Want &want)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call.");
@@ -10388,8 +10483,7 @@ int32_t AbilityManagerService::RestartApp(const AAFwk::Want &want)
     bool isForegroundToRestartApp = RestartAppManager::GetInstance().IsForegroundToRestartApp();
     if (!isForegroundToRestartApp) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "RestartApp, IsForegroundToRestartApp failed.");
-        // temporary use, need add new errorcode here, only allow to call when app is foreground
-        return INNER_ERR;
+        return AAFwk::NOT_TOP_ABILITY;
     }
 
     result = SignRestartAppFlag(userId, bundleName);
@@ -10522,18 +10616,18 @@ bool AbilityManagerService::ShouldPreventStartAbility(const AbilityRequest &abil
     }
     auto abilityInfo = abilityRequest.abilityInfo;
     auto callerAbilityInfo = abilityRecord->GetAbilityInfo();
-    bool isUIAbility = false;
     bool continuousFlag = false;
     continuousFlag = IsBackgroundTaskUid(IPCSkeleton::GetCallingUid());
-    if (callerAbilityInfo.type == AppExecFwk::AbilityType::PAGE) {
-        isUIAbility = true;
-    }
     if (abilityInfo.extensionAbilityType != AppExecFwk::ExtensionAbilityType::DATASHARE &&
         abilityInfo.extensionAbilityType != AppExecFwk::ExtensionAbilityType::SERVICE) {
-            TAG_LOGD(AAFwkTag::ABILITYMGR, "Process did not call service or datashare extension Pass");
-            return false;
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Process did not call service or datashare extension Pass");
+        return false;
     }
-    if (!isUIAbility) {
+    if (abilityInfo.applicationInfo.uid == IPCSkeleton::GetCallingUid()) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Process is in same bundle Pass");
+        return false;
+    }
+    if (callerAbilityInfo.type != AppExecFwk::AbilityType::PAGE) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Is not UI Ability Pass");
         return false;
     }
@@ -10559,7 +10653,7 @@ void AbilityManagerService::ReportPreventStartAbilityResult(const AppExecFwk::Ab
     const AppExecFwk::AbilityInfo &abilityInfo)
 {
     int32_t callerUid = IPCSkeleton::GetCallingUid();
-    int32_t callerPid = IPCSkeleton::GetCallingRealPid();
+    int32_t callerPid = IPCSkeleton::GetCallingPid();
     int32_t extensionAbilityType = static_cast<int32_t>(abilityInfo.extensionAbilityType);
     TAG_LOGD(AAFwkTag::ABILITYMGR,
         "Prevent start ability debug log CALLER_BUNDLE_NAME %{public}s CALLEE_BUNDLE_NAME"
@@ -10717,7 +10811,6 @@ int32_t AbilityManagerService::TransferAbilityResultForExtension(const sptr<IRem
     int32_t resultCode, const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    auto token = IPCSkeleton::GetCallingTokenID();
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     auto type = abilityRecord->GetAbilityInfo().type;
@@ -10741,7 +10834,7 @@ void AbilityManagerService::GetRunningMultiAppIndex(const std::string &bundleNam
         TAG_LOGW(AAFwkTag::ABILITYMGR, "GetAppMgr failed");
         return;
     }
-    auto ret = appMgr->GetRunningMultiAppInfoByBundleName(bundleName, runningMultiAppInfo);
+    auto ret = IN_PROCESS_CALL(appMgr->GetRunningMultiAppInfoByBundleName(bundleName, runningMultiAppInfo));
     if (ret != ERR_OK) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "GetRunningMultiAppInfo failed bundleName = %{public}s",
             bundleName.c_str());
@@ -10752,6 +10845,25 @@ void AbilityManagerService::GetRunningMultiAppIndex(const std::string &bundleNam
             break;
         }
     }
+}
+
+void AbilityManagerService::NotifyFrozenProcessByRSS(const std::vector<int32_t> &pidList, int32_t uid)
+{
+    if (!PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission(RSS_PROCESS_NAME)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "caller is not RSS.");
+        return;
+    }
+    auto userId = uid / BASE_USER_RANGE;
+    auto connectManager = GetConnectManagerByUserId(userId);
+    CHECK_POINTER_LOG(connectManager, "can not find user connect manager");
+    connectManager->HandleProcessFrozen(pidList, uid);
+}
+
+void AbilityManagerService::HandleRestartResidentProcessDependedOnWeb()
+{
+    auto appMgr = GetAppMgr();
+    CHECK_POINTER_LOG(appMgr, "get appMgr fail");
+    appMgr->RestartResidentProcessDependedOnWeb();
 }
 }  // namespace AAFwk
 }  // namespace OHOS
