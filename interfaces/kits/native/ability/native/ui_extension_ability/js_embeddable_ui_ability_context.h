@@ -37,6 +37,7 @@ public:
     ~JsEmbeddableUIAbilityContext() = default;
     static void Finalizer(napi_env env, void* data, void* hint);
     static napi_value StartAbility(napi_env env, napi_callback_info info);
+    static napi_value OpenLink(napi_env env, napi_callback_info info);
     static napi_value StartAbilityForResult(napi_env env, napi_callback_info info);
     static napi_value ConnectAbility(napi_env env, napi_callback_info info);
     static napi_value DisconnectAbility(napi_env env, napi_callback_info info);
@@ -68,6 +69,7 @@ private:
     static void WrapJsUIExtensionContext(napi_env env, std::shared_ptr<UIExtensionContext> uiExtContext,
         napi_value &objValue, int32_t screenMode);
     napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info);
+    napi_value OnOpenLink(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartAbilityForResult(napi_env env, NapiCallbackInfo& info);
     napi_value OnConnectAbility(napi_env env, NapiCallbackInfo& info);
     napi_value OnDisconnectAbility(napi_env env, NapiCallbackInfo& info);
