@@ -235,6 +235,88 @@ void ApplicationContext::DispatchOnAbilityContinue(const std::shared_ptr<NativeR
     }
 }
 
+void ApplicationContext::DispatchOnAbilityWillContinue(const std::shared_ptr<NativeReference> &ability)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "Dispatch onAbilityWillContinue.");
+    if (ability == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Parameters invalid, ability is nullptr.");
+        return;
+    }
+
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnAbilityWillContinue(ability);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnWindowStageWillRestore(const std::shared_ptr<NativeReference> &ability,
+    const std::shared_ptr<NativeReference> &windowStage)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "Dispatch onWindowStageWillRestore.");
+    if (ability == nullptr || windowStage == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Parameters invalid, ability or windowStage is null.");
+        return;
+    }
+
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnWindowStageWillRestore(ability, windowStage);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnWindowStageRestore(const std::shared_ptr<NativeReference> &ability,
+    const std::shared_ptr<NativeReference> &windowStage)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "Dispatch onWindowStageRestore.");
+    if (ability == nullptr || windowStage == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Parameters invalid, ability or windowStage is null.");
+        return;
+    }
+
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnWindowStageRestore(ability, windowStage);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnAbilityWillSaveState(const std::shared_ptr<NativeReference> &ability)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "Dispatch onAbilityWillSaveState.");
+    if (ability == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Parameters invalid, ability is nullptr.");
+        return;
+    }
+
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnAbilityWillSaveState(ability);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnAbilitySaveState(const std::shared_ptr<NativeReference> &ability)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "Dispatch onAbilitySaveState.");
+    if (ability == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Parameters invalid, ability is nullptr.");
+        return;
+    }
+
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnAbilitySaveState(ability);
+        }
+    }
+}
+
 void ApplicationContext::DispatchConfigurationUpdated(const AppExecFwk::Configuration &config)
 {
     std::lock_guard<std::recursive_mutex> lock(envCallbacksLock_);
