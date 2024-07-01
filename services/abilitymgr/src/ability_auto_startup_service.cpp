@@ -456,11 +456,7 @@ bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
         userId = abilityMgr->GetUserId();
     }
     TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Current userId: %{public}d.", userId);
-    auto bundleMgrClient = GetBundleMgrClient();
-    if (bundleMgrClient == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to get BundleMgrClient.");
-        return false;
-    }
+    
     auto bms = ConnectManagerHelper();
     if (bms == nullptr) {
         return false;
@@ -468,7 +464,7 @@ bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
     if (appIndex == 0) {
         auto flags =
             AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES | AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
-            if (!IN_PROCESS_CALL(bundleMgrClient->GetBundleInfo(
+            if (!IN_PROCESS_CALL(bms->GetBundleInfo(
                 bundleName, static_cast<AppExecFwk::BundleFlag>(flags), bundleInfo, userId))) {
                 TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to get bundle info.");
                 return false;
@@ -484,7 +480,7 @@ bool AbilityAutoStartupService::GetBundleInfo(const std::string &bundleName,
                 return false;
             }
     } else {
-            if (!IN_PROCESS_CALL(bundleMgrClient->GetSandboxBundleInfo(bundleName, appIndex, userId, bundleInfo))) {
+            if (!IN_PROCESS_CALL(bms->GetSandboxBundleInfo(bundleName, appIndex, userId, bundleInfo))) {
                 return false;
             }
     }
@@ -509,9 +505,6 @@ bool AbilityAutoStartupService::GetAbilityData(const AutoStartupInfo &info, bool
     userId = currentUserId;
     auto accessTokenIdStr = bundleInfo.applicationInfo.accessTokenId;
     accessTokenId = std::to_string(accessTokenIdStr);
-    if (bundleInfo.hapModuleInfos.empty()) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "failed to get hapModuleInfos");
-    }
     for (const auto& hapModuleInfo : bundleInfo.hapModuleInfos) {
         for (const auto& abilityInfo : hapModuleInfo.abilityInfos) {
             if ((abilityInfo.bundleName == info.bundleName) && (abilityInfo.name == info.abilityName) &&
