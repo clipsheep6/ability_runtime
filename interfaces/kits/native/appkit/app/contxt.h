@@ -18,13 +18,13 @@
 
 #include <memory>
 
-#include "bundle_mgr_interface.h"
-#include "ability_manager_interface.h"
 #include "ability_info.h"
-#include "process_info.h"
-#include "resource_manager.h"
+#include "ability_manager_interface.h"
+#include "bundle_mgr_interface.h"
 #include "dummy_hap_module_info.h"
 #include "hap_module_info.h"
+#include "process_info.h"
+#include "resource_manager.h"
 #include "task/task_priority.h"
 
 namespace OHOS {

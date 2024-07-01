@@ -20,8 +20,8 @@
 #include <map>
 #include <string>
 
-#include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/app/context.h"
-#include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/context.h"
+#include "context.h"
+#include "contxt.h"
 #include "uri.h"
 
 using Uri = OHOS::Uri;
