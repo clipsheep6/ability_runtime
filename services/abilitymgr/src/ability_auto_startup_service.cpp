@@ -518,9 +518,22 @@ bool AbilityAutoStartupService::GetAbilityData(const AutoStartupInfo &info, bool
     accessTokenId = std::to_string(accessTokenIdStr);
     TAG_LOGD(AAFwkTag::AUTO_STARTUP, "userId: %{public}d. ", userId);
     TAG_LOGD(AAFwkTag::AUTO_STARTUP, "accessTokenId: %{public}d. ", accessTokenIdStr);
-    if (bundleInfo.abilityInfos.empty()) {
-                TAG_LOGE(AAFwkTag::AUTO_STARTUP, "failed to get abilityInfos");
+    if (bundleInfo.hapModuleInfos.empty()) {
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "failed to get hapModuleInfos");
     }
+    for (const auto& hapModuleInfo : bundleInfo.hapModuleInfos) {
+        for (const auto& abilityInfo : hapModuleInfo.abilityInfos) {
+            if ((abilityInfo.bundleName == info.bundleName) && (abilityInfo.name == info.abilityName)) {
+                if (info.moduleName.empty() || (abilityInfo.moduleName == info.moduleName)) {
+                    isVisible = abilityInfo.visible;
+                    abilityTypeName = GetAbilityTypeName(abilityInfo);
+                    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Get ability info success.");
+                    return true;
+                }
+            }
+        }
+    }
+/*
     for (auto abilityInfo : bundleInfo.hapModuleInfos.abilityInfos) {
         if ((abilityInfo.bundleName == info.bundleName) && (abilityInfo.name == info.abilityName)) {
             if (info.moduleName.empty() || (abilityInfo.moduleName == info.moduleName)) {
@@ -531,7 +544,7 @@ bool AbilityAutoStartupService::GetAbilityData(const AutoStartupInfo &info, bool
             }
         }
     }
-
+*/
     for (auto extensionInfo : bundleInfo.extensionInfos) {
         if ((extensionInfo.bundleName == info.bundleName) && (extensionInfo.name == info.abilityName)) {
             if (info.moduleName.empty() || (extensionInfo.moduleName == info.moduleName)) {
