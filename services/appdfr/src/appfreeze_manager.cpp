@@ -137,9 +137,9 @@ int AppfreezeManager::AppfreezeHandleWithStack(const FaultData& faultData, const
 
     HITRACE_METER_FMT(HITRACE_TAG_APP, "AppfreezeHandleWithStack pid:%d-name:%s",
         appInfo.pid, faultData.errorObject.name.c_str());
-    if (faultData.errorObject.name == AppFreezeType::LIFECYCLE_HALF_TIMEOUT
-        || faultData.errorObject.name == AppFreezeType::APP_INPUT_BLOCK
-        || faultData.errorObject.name == AppFreezeType::THREAD_BLOCK_6S) {
+    if (faultData.errorObject.name == AppFreezeType::LIFECYCLE_TIMEOUT ||
+        faultData.errorObject.name == AppFreezeType::APP_INPUT_BLOCK ||
+        faultData.errorObject.name == AppFreezeType::THREAD_BLOCK_6S) {
         if (AppExecFwk::AppfreezeManager::GetInstance()->IsNeedIgnoreFreezeEvent(appInfo.pid)) {
             TAG_LOGE(AAFwkTag::APPDFR, "AppFreeze already happend in a short period of time.");
             return 0;
@@ -411,6 +411,7 @@ std::string AppfreezeManager::CatchJsonStacktrace(int pid, const std::string& fa
     std::string msg;
     size_t defaultMaxFaultNum = 256;
     if (!dumplog.DumpCatch(pid, 0, msg, defaultMaxFaultNum, true)) {
+        TAG_LOGI(AAFwkTag::APPDFR, "appfreeze catch stack failed.");
         FindStackByPid(ret, pid, msg);
     } else {
         ret = msg;
