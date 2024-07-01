@@ -63,7 +63,8 @@ inline std::unordered_set<AppExecFwk::ExtensionAbilityType> GetUiExtensionSet()
         AppExecFwk::ExtensionAbilityType::LIVEVIEW_LOCKSCREEN,
         AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOEDITOR,
         AppExecFwk::ExtensionAbilityType::PHOTO_EDITOR,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_AUDIOPICKER
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_AUDIOPICKER,
+        AppExecFwk::ExtensionAbilityType::SYS_VISUAL
     };
 }
 
@@ -99,7 +100,8 @@ inline bool IsSystemUIExtension(const AppExecFwk::ExtensionAbilityType type)
         AppExecFwk::ExtensionAbilityType::AUTO_FILL_SMART,
         AppExecFwk::ExtensionAbilityType::SYSPICKER_FILEPICKER,
         AppExecFwk::ExtensionAbilityType::SYSDIALOG_USERAUTH,
-        AppExecFwk::ExtensionAbilityType::HMS_ACCOUNT
+        AppExecFwk::ExtensionAbilityType::HMS_ACCOUNT,
+        AppExecFwk::ExtensionAbilityType::SYS_VISUAL
     };
     return systemUiExtensionSet.find(type) != systemUiExtensionSet.end();
 }
@@ -126,7 +128,8 @@ inline bool IsPublicForEmbedded(const AppExecFwk::ExtensionAbilityType type)
         AppExecFwk::ExtensionAbilityType::EMBEDDED_UI, // EMBEDDED_UI usage within the app
         AppExecFwk::ExtensionAbilityType::ADS,
         AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOPICKER,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL,
+        AppExecFwk::ExtensionAbilityType::SYS_VISUAL
     };
     return publicForEmbeddedSet.find(type) != publicForEmbeddedSet.end();
 }
