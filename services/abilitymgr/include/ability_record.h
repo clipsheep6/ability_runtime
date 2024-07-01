@@ -1057,7 +1057,7 @@ private:
 
     void PublishFileOpenEvent(const Want &want);
 
-    static void SetDebugAppByWaitingDebugFlag(Want &requestWant, const std::string &bundleName, bool isDebugApp);
+    void SetDebugAppByWaitingDebugFlag();
 
 #ifdef SUPPORT_SCREEN
     std::shared_ptr<Want> GetWantFromMission() const;
