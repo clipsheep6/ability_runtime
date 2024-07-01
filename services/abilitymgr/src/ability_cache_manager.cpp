@@ -163,7 +163,7 @@ std::shared_ptr<AbilityRecord> AbilityCacheManager::GetAbilityRecInProcList(cons
     auto recIter = procRecordsInfo.recList.begin();
     while (recIter != procRecordsInfo.recList.end()) {
         if (IsRecInfoSame(abilityRequest, *recIter)) {
-            std::shared_ptr<AbilityRecord> &abilityRecord = *recIter;
+            std::shared_ptr<AbilityRecord> abilityRecord = *recIter;
             procRecordsInfo.recList.erase(recIter);
             procRecordsInfo.cnt--;
             return abilityRecord;
