@@ -514,7 +514,7 @@ bool AbilityAutoStartupService::GetAbilityData(const AutoStartupInfo &info, bool
     }
     for (const auto& hapModuleInfo : bundleInfo.hapModuleInfos) {
         for (const auto& abilityInfo : hapModuleInfo.abilityInfos) {
-            if ((abilityInfo.bundleName == info.bundleName) && (abilityInfo.name == info.abilityName) && 
+            if ((abilityInfo.bundleName == info.bundleName) && (abilityInfo.name == info.abilityName) &&
                 (info.moduleName.empty() || (abilityInfo.moduleName == info.moduleName))) {
                 isVisible = abilityInfo.visible;
                 abilityTypeName = GetAbilityTypeName(abilityInfo);
