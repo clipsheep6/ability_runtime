@@ -1981,7 +1981,8 @@ void MissionListManager::MoveToBackgroundTask(const std::shared_ptr<AbilityRecor
     HILOG_INFO("ability:%{public}s.", abilityRecord->GetAbilityInfo().name.c_str());
     abilityRecord->SetIsNewWant(false);
     if (abilityRecord->lifeCycleStateInfo_.sceneFlag != SCENE_FLAG_KEYGUARD &&
-        !abilityRecord->IsClearMissionFlag() && !isClose) {
+        !abilityRecord->IsClearMissionFlag() &&
+        !(isClose && OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetAnimationFlag())) {
         UpdateMissionSnapshot(abilityRecord);
     }
 

@@ -1580,7 +1580,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_SetMissionLabel_001, TestS
 HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RegisterWindowManagerServiceHandler_001, TestSize.Level1)
 {
     sptr<IWindowManagerServiceHandler> handler = nullptr;
-    auto res = proxy_->RegisterWindowManagerServiceHandler(handler);
+    auto res = proxy_->RegisterWindowManagerServiceHandler(handler, true);
     EXPECT_EQ(res, INNER_ERR);
 }
 

@@ -7837,7 +7837,8 @@ int AbilityManagerService::SetMissionIcon(const sptr<IRemoteObject> &token,
     return missionListManager->SetMissionIcon(token, icon);
 }
 
-int AbilityManagerService::RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler> &handler)
+int AbilityManagerService::RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler> &handler,
+    bool animationEnabled)
 {
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (!isSaCall) {
@@ -7845,6 +7846,7 @@ int AbilityManagerService::RegisterWindowManagerServiceHandler(const sptr<IWindo
         return CHECK_PERMISSION_FAILED;
     }
     wmsHandler_ = handler;
+    isAnimationEnabled_ = animationEnabled;
     HILOG_DEBUG("%{public}s: WMS handler registered successfully.", __func__);
     return ERR_OK;
 }
@@ -8015,6 +8017,11 @@ void AbilityManagerService::InitPrepareTerminateConfig()
     if (retSysParam > 0 && !std::strcmp(value, "true")) {
         isPrepareTerminateEnable_ = true;
     }
+}
+
+bool AbilityManagerService::GetAnimationFlag()
+{
+    return isAnimationEnabled_;
 }
 #endif
 
