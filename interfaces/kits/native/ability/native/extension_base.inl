@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/context.h"
-#include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/application_context.h"
+#include "application_context.h"
+#include "context.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
