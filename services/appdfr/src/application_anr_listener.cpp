@@ -29,7 +29,7 @@ ApplicationAnrListener::ApplicationAnrListener() {}
 
 ApplicationAnrListener::~ApplicationAnrListener() {}
 
-void ApplicationAnrListener::OnAnr(int32_t pid) const
+void ApplicationAnrListener::OnAnr(int32_t pid, int32_t eventId) const
 {
     AppExecFwk::AppFaultDataBySA faultData;
     faultData.faultType = AppExecFwk::FaultDataType::APP_FREEZE;
