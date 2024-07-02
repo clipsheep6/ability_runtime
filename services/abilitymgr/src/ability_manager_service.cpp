@@ -5407,7 +5407,12 @@ int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &toke
         }
         return dataAbilityManager->AbilityTransitionDone(token, state);
     }
+    CheckTargetState(targetState, token);
+    return DispatchAbilityTransactionDone(abilityRecord, token, state, saveData);
+}
 
+void AbilityManagerService::CheckTargetState(int &targetState, const sptr<IRemoteObject> &token)
+{
     if (targetState == AbilityState::BACKGROUND) {
         FreezeUtil::LifecycleFlow flow = { token, FreezeUtil::TimeoutState::BACKGROUND };
         auto entry = std::to_string(AbilityUtil::SystemTimeMillis()) +
@@ -5420,7 +5425,11 @@ int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &toke
         entry += " the end of foreground lifecycle.";
         FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
     }
+}
 
+int AbilityManagerService::DispatchAbilityTransactionDone(std::shared_ptr<AbilityRecord> &abilityRecord,
+    const sptr<IRemoteObject> &token, int &state, const PacMap &saveData)
+{
     int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto uiAbilityManager = GetUIAbilityManagerByUserId(ownerMissionUserId);
@@ -5753,7 +5762,11 @@ int AbilityManagerService::GenerateAbilityRequest(const Want &want, int requestC
         TAG_LOGI(AAFwkTag::ABILITYMGR, "Stage mode, abilityInfo SERVICE type reset EXTENSION.");
         request.abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
     }
+    return ConfigureAndVerifyAbilityRequest(want, request);
+}
 
+int AbilityManagerService::ConfigureAndVerifyAbilityRequest(const Want &want, AbilityRequest &request)
+{
     if (request.abilityInfo.applicationInfo.name.empty() || request.abilityInfo.applicationInfo.bundleName.empty()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Get app info failed.");
         return RESOLVE_APP_ERR;
