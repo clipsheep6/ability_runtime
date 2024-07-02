@@ -31,7 +31,6 @@
 #include "ability_thread.h"
 #include "ability_util.h"
 #include "app_loader.h"
-#include "ability_manager_client.h"
 #include "app_recovery.h"
 #include "app_utils.h"
 #include "appfreeze_inner.h"
@@ -59,6 +58,7 @@
 #include "file_path_utils.h"
 #include "freeze_util.h"
 #include "hilog_tag_wrapper.h"
+#include "hilog_wrapper.h"
 #include "resource_config_helper.h"
 #ifdef SUPPORT_SCREEN
 #include "locale_config.h"
@@ -1464,6 +1464,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 #ifdef CJ_FRONTEND
     if (isCJApp) {
         AbilityRuntime::CJRuntime::SetAppLibPath(appLibPaths);
+        if (appInfo.asanEnabled) {
+            AbilityRuntime::CJRuntime::SetAsanVersion();
+        } else if (appInfo.tsanEnabled) {
+            AbilityRuntime::CJRuntime::SetTsanVersion();
+        }
     } else {
 #endif
         AbilityRuntime::JsRuntime::SetAppLibPath(appLibPaths, isSystemApp);
@@ -1602,7 +1607,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                 TAG_LOGI(AAFwkTag::APPKIT, "hisysevent write result=%{public}d, send event [FRAMEWORK,PROCESS_KILL],"
                     " pid=%{public}d, processName=%{public}s, msg=%{public}s", result, pid, processName.c_str(),
                     KILL_REASON);
-
+    
                 if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary) &&
                     ApplicationDataManager::GetInstance().NotifyExceptionObject(appExecErrorObj)) {
                     return;

@@ -54,6 +54,13 @@ public:
     void DispatchOnAbilityForeground(const std::shared_ptr<NativeReference> &ability);
     void DispatchOnAbilityBackground(const std::shared_ptr<NativeReference> &ability);
     void DispatchOnAbilityContinue(const std::shared_ptr<NativeReference> &ability);
+    void DispatchOnAbilityWillContinue(const std::shared_ptr<NativeReference> &ability);
+    void DispatchOnWindowStageWillRestore(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage);
+    void DispatchOnWindowStageRestore(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage);
+    void DispatchOnAbilityWillSaveState(const std::shared_ptr<NativeReference> &ability);
+    void DispatchOnAbilitySaveState(const std::shared_ptr<NativeReference> &ability);
     void DispatchConfigurationUpdated(const AppExecFwk::Configuration &config);
     void DispatchMemoryLevel(const int level);
     void NotifyApplicationForeground();

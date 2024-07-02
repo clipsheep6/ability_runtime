@@ -15,10 +15,10 @@
 
 #include "interceptor/disposed_rule_interceptor.h"
 
-#include "ability_manager_service.h"
 #include "ability_record.h"
 #include "ability_util.h"
 #include "hilog_tag_wrapper.h"
+#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 #include "iservice_registry.h"
@@ -61,8 +61,8 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
         }
         SetInterceptInfo(param.want, disposedRule);
         if (disposedRule.componentType == AppExecFwk::ComponentType::UI_ABILITY) {
-            int ret = IN_PROCESS_CALL(DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(
-                *disposedRule.want, param.userId, param.requestCode));
+            int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*disposedRule.want,
+                param.requestCode, param.userId));
             if (ret != ERR_OK) {
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "DisposedRuleInterceptor start ability failed.");
                 return ret;

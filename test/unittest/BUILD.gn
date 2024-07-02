@@ -57,8 +57,6 @@ ohos_source_set("appmgr_test_source") {
     "${ability_runtime_innerkits_path}/app_manager/src/appmgr/running_process_info.cpp",
   ]
 
-  include_dirs = [ "//third_party/json/include" ]
-
   public_configs = [
     ":appmgr_test_config",
     "${c_utils_base_path}:utils_config",
@@ -94,6 +92,7 @@ ohos_source_set("appmgr_test_source") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "kv_store:distributeddata_mgr",
   ]
 

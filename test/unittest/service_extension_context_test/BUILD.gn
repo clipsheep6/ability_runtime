@@ -40,7 +40,6 @@ ohos_unittest("service_extension_context_test") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability/native:ability_business_error",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",

@@ -840,7 +840,6 @@ void OffExecuteCB(napi_env env, OnCB *onCB)
     onCB->onRegistration->DelOnCallbackCBRef(env, onCB->onCallbackCB.napiCallback);
     if (!onCB->onRegistration->GetOnCallbackCBRef().empty()) {
         TAG_LOGI(AAFwkTag::MISSION, "There are still other remaining callback");
-        return;
     }
     DmsSaClient::GetInstance().DelListener(onCB->type, onCB->onRegistration);
     if (onCB->result == NO_ERROR) {

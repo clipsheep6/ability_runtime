@@ -548,86 +548,44 @@ bool AppfreezeManager::IsNeedIgnoreFreezeEvent(int32_t pid)
     }
 }
 
-std::string AppfreezeManager::FormatCmdLine(const std::string& cmdLine)
+bool AppfreezeManager::CancelAppFreezeDetect(int32_t pid, const std::string& bundleName)
 {
-    std::string::size_type startPos = 0;
-    std::string::size_type endPos = cmdLine.size();
-    for (std::string::size_type i = 0; i < cmdLine.size(); i++) {
-        if (cmdLine[i] == '/') {
-            startPos = i + 1;
-        } else if (cmdLine[i] == '\0') {
-            endPos = i;
-            break;
-        }
-    }
-    return cmdLine.substr(startPos, endPos - startPos);
-}
-
-std::string AppfreezeManager::GetProcessName(int32_t pid)
-{
-    std::ifstream cmdLineFile("/proc/" + std::to_string(pid) + "/cmdline");
-    std::string processName;
-    if (cmdLineFile) {
-        std::getline(cmdLineFile, processName);
-        cmdLineFile.close();
-        processName = FormatCmdLine(processName);
-        return processName;
-    } else {
-        TAG_LOGI(AAFwkTag::APPDFR, "GetProcessName failed, pid: %{public}d", pid);
-        return "";
-    }
-}
-
-std::string AppfreezeManager::GetBundleName(int32_t pid)
-{
-    std::string processName = GetProcessName(pid);
-    if (processName.find(":") != std::string::npos) {
-        return processName.substr(0, processName.find(":"));
-    }
-    return processName;
-}
-
-bool AppfreezeManager::CancelAppFreezeDetect(int32_t pid)
-{
-    std::string processName = GetBundleName(pid);
-    if (processName.empty()) {
+    if (bundleName.empty()) {
         return false;
     }
     std::lock_guard<ffrt::mutex> lock(freezeFilterMutex_);
     AppFreezeInfo info;
     info.pid = pid;
     info.state = AppFreezeState::APPFREEZE_STATE_CANCELING;
-    appfreezeFilterMap_.emplace(processName, info);
+    appfreezeFilterMap_.emplace(bundleName, info);
     return true;
 }
 
-void AppfreezeManager::RemoveDeathProcess(std::string processName)
+void AppfreezeManager::RemoveDeathProcess(std::string bundleName)
 {
     std::lock_guard<ffrt::mutex> lock(freezeFilterMutex_);
-    auto it = appfreezeFilterMap_.find(processName);
+    auto it = appfreezeFilterMap_.find(bundleName);
     if (it != appfreezeFilterMap_.end()) {
-        TAG_LOGD(AAFwkTag::APPDFR, "RemoveDeathProcess processName: %{public}s",
-            processName.c_str());
+        TAG_LOGD(AAFwkTag::APPDFR, "RemoveDeathProcess bundleName: %{public}s",
+            bundleName.c_str());
         appfreezeFilterMap_.erase(it);
     }
 }
 
-void AppfreezeManager::ResetAppfreezeState(int32_t pid)
+void AppfreezeManager::ResetAppfreezeState(int32_t pid, const std::string& bundleName)
 {
-    std::string processName = GetBundleName(pid);
     std::lock_guard<ffrt::mutex> lock(freezeFilterMutex_);
-    if (appfreezeFilterMap_.find(processName) != appfreezeFilterMap_.end()) {
-        TAG_LOGD(AAFwkTag::APPDFR, "ResetAppfreezeState processName: %{public}s",
-            processName.c_str());
-        appfreezeFilterMap_[processName].state = AppFreezeState::APPFREEZE_STATE_CANCELED;
+    if (appfreezeFilterMap_.find(bundleName) != appfreezeFilterMap_.end()) {
+        TAG_LOGD(AAFwkTag::APPDFR, "ResetAppfreezeState bundleName: %{public}s",
+            bundleName.c_str());
+        appfreezeFilterMap_[bundleName].state = AppFreezeState::APPFREEZE_STATE_CANCELED;
     }
 }
 
-bool AppfreezeManager::IsValidFreezeFilter(int32_t pid)
+bool AppfreezeManager::IsValidFreezeFilter(int32_t pid, const std::string& bundleName)
 {
     std::lock_guard<ffrt::mutex> lock(freezeFilterMutex_);
-    std::string processName = GetBundleName(pid);
-    if (appfreezeFilterMap_.find(processName) != appfreezeFilterMap_.end()) {
+    if (appfreezeFilterMap_.find(bundleName) != appfreezeFilterMap_.end()) {
         return false;
     }
     return true;

@@ -45,5 +45,25 @@ void WindowOptionsUtils::SetWindowPositionAndSize(Want& want,
         want.SetParam(Want::PARAM_RESV_WITH_ANIMATION, withAnimation);
     }
 }
+
+std::pair<bool, AppExecFwk::SupportWindowMode> WindowOptionsUtils::WindowModeMap(int32_t windowMode)
+{
+    std::pair<bool, AppExecFwk::SupportWindowMode> result(false, AppExecFwk::SupportWindowMode::FULLSCREEN);
+
+    if (windowMode == MULTI_WINDOW_DISPLAY_FULLSCREEN) {
+        result.first = true;
+        result.second = AppExecFwk::SupportWindowMode::FULLSCREEN;
+    } else if (windowMode == MULTI_WINDOW_DISPLAY_PRIMARY) {
+        result.first = true;
+        result.second = AppExecFwk::SupportWindowMode::SPLIT;
+    } else if (windowMode == MULTI_WINDOW_DISPLAY_SECONDARY) {
+        result.first = true;
+        result.second = AppExecFwk::SupportWindowMode::SPLIT;
+    } else if (windowMode == MULTI_WINDOW_DISPLAY_FLOATING) {
+        result.first = true;
+        result.second = AppExecFwk::SupportWindowMode::FLOATING;
+    }
+    return result;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

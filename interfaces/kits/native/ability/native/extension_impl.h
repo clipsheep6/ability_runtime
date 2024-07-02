@@ -38,7 +38,7 @@ namespace AbilityRuntime {
 class ExtensionImpl : public std::enable_shared_from_this<ExtensionImpl> {
 public:
     ExtensionImpl() = default;
-    virtual ~ExtensionImpl() = default;
+    virtual ~ExtensionImpl();
 
     /**
      * @brief Init the object.
@@ -204,6 +204,8 @@ protected:
 
 private:
     inline bool UIExtensionAbilityExecuteInsightIntent(const Want &want);
+
+    void PrintTokenInfo() const;
 
     int lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
     sptr<IRemoteObject> token_;

@@ -212,6 +212,14 @@ public:
      * @StageModelOnly
      */
     virtual void OnAbilityContinue(const std::shared_ptr<NativeReference> &ability) = 0;
+
+    virtual void OnAbilityWillContinue(const std::shared_ptr<NativeReference> &ability) {}
+    virtual void OnWindowStageWillRestore(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage) {}
+    virtual void OnWindowStageRestore(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage) {}
+    virtual void OnAbilityWillSaveState(const std::shared_ptr<NativeReference> &ability) {}
+    virtual void OnAbilitySaveState(const std::shared_ptr<NativeReference> &ability) {}
 };
 
 class JsAbilityLifecycleCallback : public AbilityLifecycleCallback,
@@ -241,6 +249,13 @@ public:
     void OnAbilityForeground(const std::shared_ptr<NativeReference> &ability) override;
     void OnAbilityBackground(const std::shared_ptr<NativeReference> &ability) override;
     void OnAbilityContinue(const std::shared_ptr<NativeReference> &ability) override;
+    void OnAbilityWillContinue(const std::shared_ptr<NativeReference> &ability) override;
+    void OnWindowStageWillRestore(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage) override;
+    void OnWindowStageRestore(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage) override;
+    void OnAbilityWillSaveState(const std::shared_ptr<NativeReference> &ability) override;
+    void OnAbilitySaveState(const std::shared_ptr<NativeReference> &ability) override;
     int32_t Register(napi_value jsCallback, bool isSync = false);
     bool UnRegister(int32_t callbackId, bool isSync = false);
     bool IsEmpty() const;

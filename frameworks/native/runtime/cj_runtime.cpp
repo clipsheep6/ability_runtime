@@ -112,6 +112,21 @@ bool CJRuntime::LoadCJAppLibrary(const AppLibPathVec& appLibPaths)
     return true;
 }
 
+void CJRuntime::SetAsanVersion()
+{
+    CJEnvironment::GetInstance()->SetSanitizerKindRuntimeVersion(CJEnvironment::SanitizerKind::ASAN);
+}
+
+void CJRuntime::SetTsanVersion()
+{
+    CJEnvironment::GetInstance()->SetSanitizerKindRuntimeVersion(CJEnvironment::SanitizerKind::TSAN);
+}
+
+void CJRuntime::SetHWAsanVersion()
+{
+    CJEnvironment::GetInstance()->SetSanitizerKindRuntimeVersion(CJEnvironment::SanitizerKind::HWASAN);
+}
+
 void CJRuntime::StartDebugMode(const DebugOption dOption)
 {
     if (debugModel_) {

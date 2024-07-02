@@ -49,6 +49,16 @@ public:
     {
         return isRuntimeStarted_;
     }
+    enum SanitizerKind {
+        NONE,
+        ASAN,
+        TSAN,
+        HWASAN,
+    };
+    void SetSanitizerKindRuntimeVersion(SanitizerKind kind)
+    {
+        sanitizerKind_ = kind;
+    }
     void InitCJAppNS(const std::string& path);
     void InitCJSDKNS(const std::string& path);
     void InitCJSysNS(const std::string& path);
@@ -92,6 +102,7 @@ private:
     bool isRuntimeStarted_{false};
     bool isUISchedulerStarted_{false};
     void* uiScheduler_ {nullptr};
+    SanitizerKind sanitizerKind_ {SanitizerKind::NONE};
 };
 
 CJ_EXPORT bool IsCJAbility(const std::string& info);

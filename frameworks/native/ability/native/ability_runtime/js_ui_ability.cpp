@@ -520,15 +520,21 @@ void JsUIAbility::OnSceneRestored()
     }
     UpdateJsWindowStage(jsAppWindowStage->GetNapiValue());
     napi_value argv[] = {jsAppWindowStage->GetNapiValue()};
+    jsWindowStageObj_ = std::shared_ptr<NativeReference>(jsAppWindowStage.release());
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnWindowStageWillRestore(jsAbilityObj_, jsWindowStageObj_);
+    }
     CallObjectMethod("onWindowStageRestore", argv, ArraySize(argv));
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnWindowStageRestore(jsAbilityObj_, jsWindowStageObj_);
+    }
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
         TAG_LOGD(AAFwkTag::UIABILITY, "Call PostPerformScenceRestored.");
         delegator->PostPerformScenceRestored(CreateADelegatorAbilityProperty());
     }
-
-    jsWindowStageObj_ = std::shared_ptr<NativeReference>(jsAppWindowStage.release());
 }
 
 void JsUIAbility::OnSceneWillDestroy()
@@ -1074,6 +1080,12 @@ int32_t JsUIAbility::OnContinue(WantParams &wantParams)
         TAG_LOGE(AAFwkTag::UIABILITY, "Failed to get Ability object.");
         return AppExecFwk::ContinuationManagerStage::OnContinueResult::REJECT;
     }
+
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnAbilityWillContinue(jsAbilityObj_);
+    }
+
     napi_value jsWantParams = OHOS::AppExecFwk::WrapWantParams(env, wantParams);
     napi_value result = CallObjectMethod("onContinue", &jsWantParams, 1, true);
     int32_t onContinueRes = 0;
@@ -1089,7 +1101,6 @@ int32_t JsUIAbility::OnContinue(WantParams &wantParams)
         }
     }
     OHOS::AppExecFwk::UnwrapWantParams(env, jsWantParams, wantParams);
-    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityContinue(jsAbilityObj_);
     }
@@ -1111,6 +1122,11 @@ int32_t JsUIAbility::OnSaveState(int32_t reason, WantParams &wantParams)
         return -1;
     }
 
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnAbilityWillSaveState(jsAbilityObj_);
+    }
+
     napi_value methodOnSaveState = nullptr;
     napi_get_named_property(env, obj, "onSaveState", &methodOnSaveState);
     if (methodOnSaveState == nullptr) {
@@ -1130,6 +1146,11 @@ int32_t JsUIAbility::OnSaveState(int32_t reason, WantParams &wantParams)
         TAG_LOGE(AAFwkTag::UIABILITY, "AppRecovery no result return from onSaveState.");
         return -1;
     }
+
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnAbilitySaveState(jsAbilityObj_);
+    }
+
     return numberResult;
 }
 

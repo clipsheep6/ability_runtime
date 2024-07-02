@@ -31,6 +31,7 @@
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "ipc_object_proxy.h"
 #include "ipc_singleton.h"
 #include "js_runtime_utils.h"
 #ifdef SUPPORT_SCREEN
@@ -1000,6 +1001,9 @@ void ContextImpl::SetToken(const sptr<IRemoteObject> &token)
         return;
     }
     token_ = token;
+    if (GetBundleName() == "com.ohos.callui") {
+        PrintTokenInfo();
+    }
 }
 
 sptr<IRemoteObject> ContextImpl::GetToken()
@@ -1247,6 +1251,24 @@ int32_t ContextImpl::SetSupportedProcessCacheSelf(bool isSupport)
         return ERR_INVALID_VALUE;
     }
     return appMgrClient->SetSupportedProcessCacheSelf(isSupport);
+}
+
+void ContextImpl::PrintTokenInfo() const
+{
+    if (token_ == nullptr) {
+        TAG_LOGI(AAFwkTag::EXT, "com.ohos.callui.ServiceAbility token is null");
+        return;
+    }
+    if (!token_->IsProxyObject()) {
+        TAG_LOGI(AAFwkTag::EXT, "com.ohos.callui.ServiceAbility token is not proxy");
+        return;
+    }
+    IPCObjectProxy *tokenProxyObject = reinterpret_cast<IPCObjectProxy *>(token_.GetRefPtr());
+    if (tokenProxyObject != nullptr) {
+        std::string remoteDescriptor = Str16ToStr8(tokenProxyObject->GetInterfaceDescriptor());
+        TAG_LOGI(AAFwkTag::EXT, "com.ohos.callui.ServiceAbility handle: %{public}d, descriptor: %{public}s",
+            tokenProxyObject->GetHandle(), remoteDescriptor.c_str());
+    }
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

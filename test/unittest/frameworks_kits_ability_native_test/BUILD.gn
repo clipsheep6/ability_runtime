@@ -2014,7 +2014,7 @@ ohos_unittest("reserse_continuation_scheduler_primary_proxy_test") {
 ohos_unittest("distributed_client_test") {
   module_out_path = module_output_path
   sources = [
-    "${ability_runtime_services_path}/abilitymgr/src/distributed_client.cpp",
+    "${ability_runtime_native_path}/ability/native/distributed_ability_runtime/distributed_client.cpp",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/aakit/src/mock_ability_connect_callback.cpp",
     "distributed_client_test.cpp",
   ]

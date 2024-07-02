@@ -83,6 +83,26 @@ class AbilityLifecycleCallback {
   onAbilityWillBackground(ability) {
     console.log('onAbilityWillBackground');
   }
+
+  onAbilityWillContinue(ability) {
+    console.log('onAbilityWillContinue');
+  }
+
+  onWindowStageWillRestore(ability, windowStage) {
+    console.log('onWindowStageWillRestore');
+  }
+
+  onWindowStageRestore(ability, windowStage) {
+    console.log('onWindowStageRestore');
+  }
+
+  onAbilityWillSaveState(ability) {
+    console.log('onAbilityWillSaveState');
+  }
+
+  onAbilitySaveState(ability) {
+    console.log('onAbilitySaveState');
+  }
 }
 
 export default AbilityLifecycleCallback;

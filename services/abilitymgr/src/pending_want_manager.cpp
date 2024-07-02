@@ -21,7 +21,6 @@
 
 #include "ability_manager_service.h"
 #include "ability_util.h"
-#include "common_event_manager.h"
 #include "distributed_client.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
@@ -335,7 +334,7 @@ int32_t PendingWantManager::PendingWantPublishCommonEvent(
         eventPublishData.SetSubscriberPermissions(permissions);
     }
 
-    bool result = IN_PROCESS_CALL(CommonEventManager::PublishCommonEvent(
+    bool result = IN_PROCESS_CALL(DelayedSingleton<EventFwk::CommonEvent>::GetInstance()->PublishCommonEvent(
         eventData, eventPublishData, nullptr, callerUid, callerTokenId));
     return ((result == true) ? ERR_OK : (-1));
 }

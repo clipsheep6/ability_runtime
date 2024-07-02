@@ -12,17 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "ability_manager_service.h"
+#include "ability_manager_client.h"
 #include "assert_fault_proxy.h"
 #include "hilog_tag_wrapper.h"
+#include "hilog_wrapper.h"
 #include "scene_board_judgement.h"
 #include "task_handler_wrap.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-constexpr const char* ASSERT_FAULT_DETAIL = "assertFaultDialogDetail";
-constexpr const char* UIEXTENSION_TYPE_KEY = "ability.want.params.uiExtensionType";
+constexpr char ASSERT_FAULT_DETAIL[] = "assertFaultDialogDetail";
+constexpr char UIEXTENSION_TYPE_KEY[] = "ability.want.params.uiExtensionType";
 constexpr int32_t INVALID_USERID = -1;
 constexpr int32_t MESSAGE_PARCEL_KEY_SIZE = 3;
 constexpr uint32_t COMMAND_START_DIALOG = 1;
@@ -109,9 +110,9 @@ bool ModalSystemAssertUIExtension::CreateModalUIExtension(const AAFwk::Want &wan
         return false;
     }
     callback->SetReqeustAssertDialogWant(want);
-    auto abilityMs = DelayedSingleton<AAFwk::AbilityManagerService>::GetInstance();
-    if (abilityMs == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "ConnectSystemUi abilityMs is nullptr");
+    auto abilityManagerClient = AAFwk::AbilityManagerClient::GetInstance();
+    if (abilityManagerClient == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ConnectSystemUi AbilityManagerClient is nullptr");
         TryNotifyOneWaitingThread();
         return false;
     }
@@ -121,7 +122,7 @@ bool ModalSystemAssertUIExtension::CreateModalUIExtension(const AAFwk::Want &wan
     } else {
         systemUIWant.SetElementName("com.ohos.systemui", "com.ohos.systemui.dialog");
     }
-    auto result = abilityMs->ConnectAbility(systemUIWant, callback, nullptr, INVALID_USERID);
+    auto result = abilityManagerClient->ConnectAbility(systemUIWant, callback, INVALID_USERID);
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "ConnectSystemUi ConnectAbility dialog failed, result = %{public}d", result);
         TryNotifyOneWaitingThread();
@@ -135,9 +136,9 @@ bool ModalSystemAssertUIExtension::DisconnectSystemUI()
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     bool retVal = true;
     do {
-        auto abilityMs = DelayedSingleton<AAFwk::AbilityManagerService>::GetInstance();
-        if (abilityMs == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityMs is nullptr");
+        auto abilityManagerClient = AAFwk::AbilityManagerClient::GetInstance();
+        if (abilityManagerClient == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerClient is nullptr");
             retVal = false;
             break;
         }
@@ -147,7 +148,7 @@ bool ModalSystemAssertUIExtension::DisconnectSystemUI()
             retVal = false;
             break;
         }
-        auto result = abilityMs->DisconnectAbility(callback);
+        auto result = abilityManagerClient->DisconnectAbility(callback);
         if (result != ERR_OK) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "DisconnectAbility dialog failed, result = %{public}d", result);
             retVal = false;

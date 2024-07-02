@@ -177,7 +177,16 @@ bool CJEnvironment::LoadRuntimeApis()
 #ifdef __OHOS__
     Dl_namespace ns;
     dlns_get(CJEnvironment::cjSDKNSName, &ns);
-    auto dso = DynamicLoadLibrary(&ns, RTLIB_NAME, 1);
+    std::string runtimeLibName = "libcangjie-runtime";
+    if (sanitizerKind_ == SanitizerKind::ASAN) {
+        runtimeLibName += "_asan";
+    } else if (sanitizerKind_ == SanitizerKind::TSAN) {
+        runtimeLibName += "_tsan";
+    } else if (sanitizerKind_ == SanitizerKind::HWASAN) {
+        runtimeLibName += "_hwasan";
+    }
+    runtimeLibName += ".so";
+    auto dso = DynamicLoadLibrary(&ns, runtimeLibName.c_str(), 1);
 #else
     auto dso = DynamicLoadLibrary(RTLIB_NAME, 1);
 #endif

@@ -14,7 +14,6 @@
  */
 
 #include <gtest/gtest.h>
-#include "ability_manager_errors.h"
 #include "ability_manager_stub_impl_mock.h"
 #include "ability_scheduler.h"
 #include "app_debug_listener_stub_mock.h"

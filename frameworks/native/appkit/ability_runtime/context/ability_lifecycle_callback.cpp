@@ -149,6 +149,33 @@ void JsAbilityLifecycleCallback::OnAbilityContinue(const std::shared_ptr<NativeR
     CallJsMethod("onAbilityContinue", ability);
 }
 
+void JsAbilityLifecycleCallback::OnAbilityWillContinue(const std::shared_ptr<NativeReference> &ability)
+{
+    CallJsMethod("onAbilityWillContinue", ability);
+}
+
+void JsAbilityLifecycleCallback::OnWindowStageWillRestore(const std::shared_ptr<NativeReference> &ability,
+    const std::shared_ptr<NativeReference> &windowStage)
+{
+    CallWindowStageJsMethod("onWindowStageWillRestore", ability, windowStage);
+}
+
+void JsAbilityLifecycleCallback::OnWindowStageRestore(const std::shared_ptr<NativeReference> &ability,
+    const std::shared_ptr<NativeReference> &windowStage)
+{
+    CallWindowStageJsMethod("onWindowStageRestore", ability, windowStage);
+}
+
+void JsAbilityLifecycleCallback::OnAbilityWillSaveState(const std::shared_ptr<NativeReference> &ability)
+{
+    CallJsMethod("onAbilityWillSaveState", ability);
+}
+
+void JsAbilityLifecycleCallback::OnAbilitySaveState(const std::shared_ptr<NativeReference> &ability)
+{
+    CallJsMethod("onAbilitySaveState", ability);
+}
+
 int32_t JsAbilityLifecycleCallback::Register(napi_value jsCallback, bool isSync)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "enter");

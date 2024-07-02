@@ -250,7 +250,7 @@ void AppExitReasonHelper::GetActiveAbilityListFromUIAbilityManager(int32_t uid, 
 bool AppExitReasonHelper::IsExitReasonValid(const ExitReason &exitReason)
 {
     const Reason reason = exitReason.reason;
-    return reason >= REASON_MIN || reason <= REASON_MAX;
+    return reason >= REASON_MIN && reason <= REASON_MAX;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

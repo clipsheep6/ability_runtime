@@ -1640,6 +1640,20 @@ HWTEST_F(AbilityManagerClientBranchTest, RegisterOffListener_0100, TestSize.Leve
 }
 
 /**
+ * @tc.name: AbilityManagerClient_RegisterOffListener_0200
+ * @tc.desc: RegisterOffListener
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientBranchTest, RegisterOffListener_0200, TestSize.Level1)
+{
+    std::string type = "continueStateChange";
+    sptr<IRemoteOnListener> listener = nullptr;
+    auto result = client_->RegisterOffListener(type, listener);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
  * @tc.name: AbilityManagerClient_RequestDialogService_0100
  * @tc.desc: RequestDialogService
  * @tc.type: FUNC

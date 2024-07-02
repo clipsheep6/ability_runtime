@@ -139,8 +139,8 @@ struct SelectorPhoneDialog {
   }
 
   build() {
-    Flex({ direction: FlexDirection.Column }) {
-      Flex({ direction: FlexDirection.Column }) {
+    Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center }) {
+      Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Start }) {
         Text($r('app.string.message_title_selector'))
           .fontSize(22)
           .fontWeight(FontWeight.Medium)
@@ -199,14 +199,15 @@ struct SelectorPhoneDialog {
                   })
                 }
                 .margin({ top: 10 })
+                .align(Alignment.Center)
               }, item => item)
             }
             .columnsTemplate(this.selector.swiper.gridColumns)
             .rowsTemplate(this.selector.swiper.gridRows)
             .columnsGap(12)
             .rowsGap(12)
-            .margin({ top: 30 })
-            .height(210)
+            .margin({ top: 10 })
+            .height(300)
           }, item => item)
         }
         .indicatorStyle({ color: '#bebdc0', selectedColor: '#ff326Ce9', size: 4 })
@@ -232,6 +233,7 @@ struct SelectorPhoneDialog {
     }
     .borderRadius(24)
     .borderWidth(1)
+    .align(Alignment.Center)
     .borderColor('#e9e9e9')
     .backgroundColor('#ffffff')
     .width('100%')

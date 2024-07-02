@@ -81,10 +81,10 @@ public:
     bool IsProcessDebug(int32_t pid, std::string processName);
     bool IsNeedIgnoreFreezeEvent(int32_t pid);
     void DeleteStack(int pid);
-    bool CancelAppFreezeDetect(int32_t pid);
-    void RemoveDeathProcess(std::string processName);
-    void ResetAppfreezeState(int32_t pid);
-    bool IsValidFreezeFilter(int32_t pid);
+    bool CancelAppFreezeDetect(int32_t pid, const std::string& bundleName);
+    void RemoveDeathProcess(std::string bundleName);
+    void ResetAppfreezeState(int32_t pid, const std::string& bundleName);
+    bool IsValidFreezeFilter(int32_t pid, const std::string& bundleName);
 
 private:
     AppfreezeManager& operator=(const AppfreezeManager&) = delete;
@@ -103,9 +103,6 @@ private:
     int GetFreezeState(int32_t pid);
     int64_t GetFreezeTime(int32_t pid);
     void ClearOldInfo();
-    std::string FormatCmdLine(const std::string& cmdLine);
-    std::string GetProcessName(int32_t pid);
-    std::string GetBundleName(int32_t pid);
 
     static const inline std::string LOGGER_DEBUG_PROC_PATH = "/proc/transaction_proc";
     std::string name_;
