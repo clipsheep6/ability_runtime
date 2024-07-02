@@ -41,6 +41,7 @@ public:
 
     void ProcessAppFreeze(bool focusFlag, const FaultData &faultData, std::string pid, std::string bundleName,
         std::function<void()> callback);
+    void TryReduceReqeustCount();
 
 private:
     bool CreateModalUIExtension(std::string pid, std::string bundleName);
@@ -66,6 +67,7 @@ private:
 
     std::mutex appFreezeResultMutex_;
     std::mutex dialogConnectionMutex_;
+    int32_t reqeustCount_ = 0;
     sptr<AppFreezeDialogConnection> dialogConnectionCallback_;
 };
 } // namespace AppExecFwk

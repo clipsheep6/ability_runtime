@@ -21,6 +21,7 @@
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "in_process_call_wrapper.h"
 #include "scene_board_judgement.h"
 
 namespace OHOS {
@@ -75,11 +76,23 @@ void ModalSystemAppFreezeUIExtension::ProcessAppFreeze(bool focusFlag, const Fau
     }
 }
 
+void ModalSystemAppFreezeUIExtension::TryReduceReqeustCount()
+{
+    std::unique_lock<std::mutex> lockAssertResult(appFreezeResultMutex_);
+    if (reqeustCount_ > 0) {
+        reqeustCount_--;
+    }
+}
+
 bool ModalSystemAppFreezeUIExtension::CreateModalUIExtension(std::string pid, std::string bundleName)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "CreateModalUIExtension Called.");
     AAFwk::Want want = CreateSystemDialogWant(pid, bundleName);
     std::unique_lock<std::mutex> lockAssertResult(appFreezeResultMutex_);
+    if (reqeustCount_ > 0) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "CreateModalUIExtension reqeustCount is greater than 0.");
+        return false;
+    }
     auto callback = GetConnection();
     if (callback == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "CreateModalUIExtension Callback is nullptr.");
@@ -97,7 +110,7 @@ bool ModalSystemAppFreezeUIExtension::CreateModalUIExtension(std::string pid, st
     } else {
         systemUIWant.SetElementName("com.ohos.systemui", "com.ohos.systemui.dialog");
     }
-    auto result = abilityManagerClient->ConnectAbility(systemUIWant, callback, INVALID_USERID);
+    auto result = IN_PROCESS_CALL(abilityManagerClient->ConnectAbility(systemUIWant, callback, INVALID_USERID));
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR,
             "CreateModalUIExtension ConnectSystemUi ConnectAbility dialog failed, result = %{public}d", result);
@@ -105,6 +118,7 @@ bool ModalSystemAppFreezeUIExtension::CreateModalUIExtension(std::string pid, st
     }
     TAG_LOGE(AAFwkTag::ABILITYMGR,
         "CreateModalUIExtension ConnectSystemUi ConnectAbility dialog success, result = %{public}d", result);
+    reqeustCount_++;
     return true;
 }
 
@@ -131,6 +145,7 @@ void ModalSystemAppFreezeUIExtension::AppFreezeDialogConnection::OnAbilityConnec
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     if (remote == nullptr) {
+        ModalSystemAppFreezeUIExtension::GetInstance().TryReduceReqeustCount();
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Input remote object is nullptr.");
         return;
     }
@@ -156,6 +171,7 @@ void ModalSystemAppFreezeUIExtension::AppFreezeDialogConnection::OnAbilityConnec
     TAG_LOGI(AAFwkTag::ABILITYMGR, "AppFreezeDialogConnection::OnAbilityConnectDone Show dialog");
     auto ret = remote->SendRequest(code, data, reply, option);
     if (ret != ERR_OK) {
+        ModalSystemAppFreezeUIExtension::GetInstance().TryReduceReqeustCount();
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Show dialog is failed");
         return;
     }
@@ -165,6 +181,7 @@ void ModalSystemAppFreezeUIExtension::AppFreezeDialogConnection::OnAbilityDiscon
     const AppExecFwk::ElementName &element, int resultCode)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Called.");
+    ModalSystemAppFreezeUIExtension::GetInstance().TryReduceReqeustCount();
 }
 } // namespace AppExecFwk
 } // namespace OHOS
