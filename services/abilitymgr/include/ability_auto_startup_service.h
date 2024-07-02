@@ -22,6 +22,7 @@
 
 #include "auto_startup_info.h"
 #include "bundle_mgr_client.h"
+#include "bundle_mgr_helper.h"
 #include "iremote_object.h"
 #include "singleton.h"
 
@@ -139,12 +140,14 @@ private:
     void CleanResource(const wptr<IRemoteObject> &remote);
     std::string GetSelfApplicationBundleName();
     bool CheckSelfApplication(const std::string &bundleName);
-    bool GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, int32_t uid, int32_t &userId);
+    bool GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, int32_t uid,
+        int32_t &userId, int32_t appIndex);
     bool GetAbilityData(const AutoStartupInfo &info, bool &isVisible,
         std::string &abilityTypeName, std::string &accessTokenId, int32_t &userId);
     std::string GetAbilityTypeName(AppExecFwk::AbilityInfo abilityInfo);
     std::string GetExtensionTypeName(AppExecFwk::ExtensionAbilityInfo extensionInfo);
     std::shared_ptr<AppExecFwk::BundleMgrClient> GetBundleMgrClient();
+    std::shared_ptr<AppExecFwk::BundleMgrHelper> ConnectManagerHelper();
     int32_t CheckPermissionForSystem();
     int32_t CheckPermissionForSelf(const std::string &bundleName);
     int32_t CheckPermissionForEDM();
@@ -158,6 +161,7 @@ private:
     std::map<std::string, sptr<IRemoteObject>> callbackMaps_;
     std::map<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>> deathRecipients_;
     std::shared_ptr<AppExecFwk::BundleMgrClient> bundleMgrClient_;
+    std::shared_ptr<AppExecFwk::BundleMgrHelper> bundleMgrHelper_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
