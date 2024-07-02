@@ -23,7 +23,7 @@
 #include "js_dialog_session.h"
 #include "js_runtime_utils.h"
 #include "native_engine/native_engine.h"
-#include "dialog_session_record.h"
+#include "dialog_session_manager.h"
 
 namespace OHOS {
 namespace AppExecFwk {

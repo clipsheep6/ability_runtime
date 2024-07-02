@@ -145,8 +145,7 @@ public:
         const sptr<IRemoteObject> &callerToken,
         sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
-        int requestCode = DEFAULT_INVAL_VALUE,
-        bool isSendDialogResult = false) override;
+        int requestCode = DEFAULT_INVAL_VALUE) override;
 
     /**
      * Starts a new ability using the original caller information.
