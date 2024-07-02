@@ -2612,7 +2612,8 @@ int AbilityManagerProxy::SetMissionIcon(const sptr<IRemoteObject> &token,
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler)
+int AbilityManagerProxy::RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler,
+    bool animationEnabled)
 {
     if (!handler) {
         HILOG_ERROR("%{public}s: handler is nullptr.", __func__);
@@ -2626,6 +2627,10 @@ int AbilityManagerProxy::RegisterWindowManagerServiceHandler(const sptr<IWindowM
     if (!data.WriteRemoteObject(handler->AsObject())) {
         HILOG_ERROR("%{public}s: handler write failed.", __func__);
         return INNER_ERR;
+    }
+    if (!data.WriteBool(animationEnabled)) {
+        HILOG_ERROR("write animationEnabled fail.");
+        return ERR_INVALID_VALUE;
     }
     MessageOption option;
     MessageParcel reply;

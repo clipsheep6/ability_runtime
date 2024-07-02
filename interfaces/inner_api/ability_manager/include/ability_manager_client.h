@@ -869,7 +869,8 @@ public:
      * @param handler Indidate handler of WindowManagerService.
      * @return ErrCode Returns ERR_OK on success, others on failure.
      */
-    ErrCode RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler);
+    ErrCode RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler> handler,
+        bool animationEnabled = true);
 
     /**
      * WindowManager notification AbilityManager after the first frame is drawn.

@@ -2252,7 +2252,8 @@ int AbilityManagerStub::RegisterWindowManagerServiceHandlerInner(MessageParcel &
         HILOG_ERROR("%{public}s read WMS handler failed!", __func__);
         return ERR_NULL_OBJECT;
     }
-    return RegisterWindowManagerServiceHandler(handler);
+    bool animationEnabled = data.ReadBool();
+    return RegisterWindowManagerServiceHandler(handler, animationEnabled);
 }
 
 int AbilityManagerStub::CompleteFirstFrameDrawingInner(MessageParcel &data, MessageParcel &reply)
