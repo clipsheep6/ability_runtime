@@ -100,7 +100,7 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
     }
 
     if (g_debugMode) {
-        auto instanceId = getproctid();
+        auto instanceId = arkNativeEngine->GetThreadIdOrTaskId();
         std::string instanceName = "workerThread_" + std::to_string(instanceId);
         bool needBreakPoint = ConnectServerManager::Get().AddInstance(instanceId, instanceId, instanceName);
         if (g_nativeStart) {
@@ -128,9 +128,9 @@ void OffWorkerFunc(NativeEngine* nativeEngine)
     }
 
     if (g_debugMode) {
-        auto instanceId = getproctid();
-        ConnectServerManager::Get().RemoveInstance(instanceId);
         auto arkNativeEngine = static_cast<ArkNativeEngine*>(nativeEngine);
+        auto instanceId = arkNativeEngine->GetThreadIdOrTaskId();
+        ConnectServerManager::Get().RemoveInstance(instanceId);
         auto vm = const_cast<EcmaVM*>(arkNativeEngine->GetEcmaVm());
         panda::JSNApi::StopDebugger(vm);
     }
