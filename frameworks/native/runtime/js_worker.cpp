@@ -33,6 +33,9 @@
 #endif
 
 #include "extractor.h"
+#if defined(ENABLE_FFRT_INTERFACES)
+#include "ffrt.h"
+#endif
 #include "file_mapper.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
@@ -73,6 +76,21 @@ bool g_nativeStart = false;
 std::mutex g_mutex;
 }
 
+static int32_t GetThreadIdOrTaskId()
+{
+    // If ENABLE_FFRT_INTERFACES is defined and FFRT is enabled, we will use the taslId as tid and instanceId.
+    int32_t threadId = 0;
+#if defined(ENABLE_FFRT_INTERFACES)
+    threadId = ffrt_this_task_get_id();
+    if (threadId == 0) {
+        threadId = getproctid();
+    }
+#else
+    threadId = getproctid();
+#endif
+    return threadId;
+}
+
 void InitWorkerFunc(NativeEngine* nativeEngine)
 {
     TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
@@ -100,7 +118,7 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
     }
 
     if (g_debugMode) {
-        auto instanceId = getproctid();
+        auto instanceId = GetThreadIdOrTaskId();
         std::string instanceName = "workerThread_" + std::to_string(instanceId);
         bool needBreakPoint = ConnectServerManager::Get().AddInstance(instanceId, instanceId, instanceName);
         if (g_nativeStart) {
@@ -128,7 +146,7 @@ void OffWorkerFunc(NativeEngine* nativeEngine)
     }
 
     if (g_debugMode) {
-        auto instanceId = getproctid();
+        auto instanceId = GetThreadIdOrTaskId();
         ConnectServerManager::Get().RemoveInstance(instanceId);
         auto arkNativeEngine = static_cast<ArkNativeEngine*>(nativeEngine);
         auto vm = const_cast<EcmaVM*>(arkNativeEngine->GetEcmaVm());
