@@ -341,11 +341,24 @@ int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &a
     sessionInfo->persistentId = GetPersistentIdByAbilityRequest(abilityRequest, sessionInfo->reuse);
     sessionInfo->userId = userId_;
     sessionInfo->processOptions = abilityRequest.processOptions;
+    sessionInfo->isAtomicService = (abilityInfo.applicationInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE);
     TAG_LOGI(
         AAFwkTag::ABILITYMGR, "Reused sessionId: %{public}d, userId: %{public}d.", sessionInfo->persistentId, userId_);
     int ret = NotifySCBPendingActivation(sessionInfo, abilityRequest);
     sessionInfo->want.CloseAllFd();
     return ret;
+}
+
+int UIAbilityLifecycleManager::NotifySCBToPreStartUIAbility(const AbilityRequest &abilityRequest,
+    sptr<SessionInfo> &sessionInfo)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    sessionInfo = CreateSessionInfo(abilityRequest);
+    sessionInfo->requestCode = abilityRequest.requestCode;
+    sessionInfo->isAtomicService = true;
+    return NotifySCBPendingActivation(sessionInfo, abilityRequest);
 }
 
 int UIAbilityLifecycleManager::DispatchState(const std::shared_ptr<AbilityRecord> &abilityRecord, int state)
@@ -821,6 +834,7 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
     NotifyAbilityToken(uiAbilityRecord->GetToken(), abilityRequest);
 
     // new version started by call type
+    const auto& abilityInfo = abilityRequest.abilityInfo;
     auto ret = ResolveAbility(uiAbilityRecord, abilityRequest);
     if (ret == ResolveResultType::OK_HAS_REMOTE_OBJ) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "target ability has been resolved.");
@@ -831,6 +845,8 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
             sessionInfo->state = CallToState::FOREGROUND;
             sessionInfo->reuse = reuse;
             sessionInfo->uiAbilityId = uiAbilityRecord->GetAbilityRecordId();
+            sessionInfo->isAtomicService =
+                (abilityInfo.applicationInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE);
             uiAbilityRecord->PostForegroundTimeoutTask();
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(uiAbilityRecord->GetToken());
             return NotifySCBPendingActivation(sessionInfo, abilityRequest);
@@ -845,6 +861,7 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
     sessionInfo->persistentId = persistentId;
     sessionInfo->reuse = reuse;
     sessionInfo->uiAbilityId = uiAbilityRecord->GetAbilityRecordId();
+    sessionInfo->isAtomicService = (abilityInfo.applicationInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE);
     if (abilityRequest.want.GetBoolParam(Want::PARAM_RESV_CALL_TO_FOREGROUND, false)) {
         sessionInfo->state = CallToState::FOREGROUND;
     } else {
@@ -1362,7 +1379,7 @@ void UIAbilityLifecycleManager::SetRootSceneSession(const sptr<IRemoteObject> &r
 }
 
 void UIAbilityLifecycleManager::NotifySCBToHandleException(const std::shared_ptr<AbilityRecord> &abilityRecord,
-    int32_t errorCode, std::string errorReason)
+    int32_t errorCode, const std::string& errorReason)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     if (abilityRecord == nullptr) {
@@ -1514,6 +1531,8 @@ void UIAbilityLifecycleManager::OnStartSpecifiedProcessResponse(const AAFwk::Wan
     sessionInfo->requestCode = abilityRequest.requestCode;
     sessionInfo->persistentId = GetPersistentIdByAbilityRequest(abilityRequest, sessionInfo->reuse);
     sessionInfo->userId = abilityRequest.userId;
+    sessionInfo->isAtomicService =
+        (abilityRequest.abilityInfo.applicationInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Reused sessionId: %{public}d, userId: %{public}d.", sessionInfo->persistentId,
         abilityRequest.userId);
     NotifySCBPendingActivation(sessionInfo, abilityRequest);
@@ -2453,6 +2472,8 @@ int UIAbilityLifecycleManager::StartWithPersistentIdByDistributed(const AbilityR
     sessionInfo->persistentId = persistentId;
     sessionInfo->userId = userId_;
     sessionInfo->processOptions = abilityRequest.processOptions;
+    sessionInfo->isAtomicService =
+        (abilityRequest.abilityInfo.applicationInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE);
     return NotifySCBPendingActivation(sessionInfo, abilityRequest);
 }
 

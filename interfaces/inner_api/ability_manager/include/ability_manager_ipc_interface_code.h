@@ -447,6 +447,9 @@ enum class AbilityManagerInterfaceCode {
     // ipc for notify frozen process by RSS
     NOTIFY_FROZEN_PROCESS_BY_RSS = 1130,
 
+    // ipc id for pre-start mission
+    PRE_START_MISSION = 1135,
+
     // ipc id 2001-3000 for tools
     // ipc id for dumping state (2001)
     DUMP_STATE = 2001,

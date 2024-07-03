@@ -45,12 +45,14 @@ namespace {
 constexpr int32_t INDEX_ZERO = 0;
 constexpr int32_t INDEX_ONE = 1;
 constexpr int32_t INDEX_TWO = 2;
+constexpr int32_t INDEX_THREE = 3;
 constexpr int32_t ERROR_CODE_ONE = 1;
 constexpr int32_t ERROR_CODE_TWO = 2;
 constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
+constexpr size_t ARGC_FOUR = 4;
 
 class StartAbilityByCallParameters {
 public:
@@ -168,6 +170,11 @@ public:
     static napi_value RequestModalUIExtension(napi_env env, napi_callback_info info)
     {
         GET_NAPI_INFO_AND_CALL(env, info, JsServiceExtensionContext, OnRequestModalUIExtension);
+    }
+
+    static napi_value PreStartMission(napi_env env, napi_callback_info info)
+    {
+        GET_NAPI_INFO_AND_CALL(env, info, JsServiceExtensionContext, OnPreStartMission);
     }
 
 private:
@@ -1043,6 +1050,76 @@ private:
         return result;
     }
 
+    bool ParsePreStartMissionArgs(const napi_env &env, const NapiCallbackInfo &info, std::string& bundleName,
+        std::string& moduleName, std::string& abilityName, std::string& startTime)
+    {
+        if (info.argc < ARGC_FOUR) {
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "wrong arguments num");
+            ThrowTooFewParametersError(env);
+            return false;
+        }
+
+        std::string args[ARGC_FOUR];
+        for (size_t i = 0; i < ARGC_FOUR; i++) {
+            if (!CheckTypeForNapiValue(env, info.argv[i], napi_string)) {
+                TAG_LOGE(AAFwkTag::SERVICE_EXT, "param must be string");
+                return false;
+            }
+            if (!ConvertFromJsValue(env, info.argv[i], args[i])) {
+                TAG_LOGE(AAFwkTag::SERVICE_EXT, "parameter invalid");
+                return false;
+            }
+        }
+
+        bundleName = args[INDEX_ZERO];
+        moduleName = args[INDEX_ONE];
+        abilityName = args[INDEX_TWO];
+        startTime = args[INDEX_THREE];
+
+        return true;
+    }
+
+    napi_value OnPreStartMission(napi_env env, NapiCallbackInfo& info)
+    {
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "called");
+        if (info.argc < ARGC_FOUR) {
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+
+        std::string bundleName;
+        std::string moduleName;
+        std::string abilityName;
+        std::string startTime;
+        if (!ParsePreStartMissionArgs(env, info, bundleName, moduleName, abilityName, startTime)) {
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "parse preStartMission arguments failed");
+            ThrowInvalidParamError(env, "Parse params failed, params must be strings.");
+            return CreateJsUndefined(env);
+        }
+
+        NapiAsyncTask::CompleteCallback complete =
+            [weak = context_, bundleName, moduleName, abilityName, startTime](
+                napi_env env, NapiAsyncTask& task, int32_t status) {
+                auto context = weak.lock();
+                if (!context) {
+                    TAG_LOGW(AAFwkTag::SERVICE_EXT, "context is released");
+                    task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                    return;
+                }
+                auto errcode = context->PreStartMission(bundleName, moduleName, abilityName, startTime);
+                if (errcode == 0) {
+                    task.ResolveWithNoError(env, CreateJsUndefined(env));
+                    return;
+                }
+                task.Reject(env, CreateJsErrorByNativeErr(env, errcode));
+        };
+
+        napi_value result = nullptr;
+        NapiAsyncTask::ScheduleHighQos("JSServiceExtensionContext::OnPreStartMission",
+            env, CreateAsyncTaskWithLastParam(env, nullptr, nullptr, std::move(complete), &result));
+        return result;
+    }
+
     NapiAsyncTask::ExecuteCallback GetStartAbilityExecFunc(const AAFwk::Want &want,
         const AAFwk::StartOptions &startOptions, int32_t userId, bool useOption, std::shared_ptr<int> retCode)
     {
@@ -1154,6 +1231,8 @@ napi_value CreateJsServiceExtensionContext(napi_env env, std::shared_ptr<Service
         JsServiceExtensionContext::StartRecentAbility);
     BindNativeFunction(env, object, "requestModalUIExtension", moduleName,
         JsServiceExtensionContext::RequestModalUIExtension);
+    BindNativeFunction(env, object, "preStartMission", moduleName,
+        JsServiceExtensionContext::PreStartMission);
     return object;
 }
 

@@ -150,6 +150,9 @@ public:
 
     int NotifySCBToStartUIAbility(const AbilityRequest &abilityRequest);
 
+    int NotifySCBToPreStartUIAbility(const AbilityRequest &abilityRequest,
+        sptr<SessionInfo> &sessionInfo);
+
     /**
      * @brief handle time out event
      *
@@ -353,6 +356,9 @@ public:
 
     int32_t GetAbilityStateByPersistentId(int32_t persistentId, bool &state);
 
+    void NotifySCBToHandleException(const std::shared_ptr<AbilityRecord> &ability, int32_t errorCode,
+        const std::string& errorReason);
+
 private:
     int32_t GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest, bool &reuse) const;
     int32_t GetReusedSpecifiedPersistentId(const AbilityRequest &abilityRequest, bool &reuse) const;
@@ -374,8 +380,6 @@ private:
     void HandleForegroundFailed(const std::shared_ptr<AbilityRecord> &ability,
         AbilityState state = AbilityState::INITIAL);
     void HandleForegroundTimeout(const std::shared_ptr<AbilityRecord> &ability);
-    void NotifySCBToHandleException(const std::shared_ptr<AbilityRecord> &ability, int32_t errorCode,
-        std::string errorReason);
     void MoveToBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void PrintTimeOutLog(std::shared_ptr<AbilityRecord> ability, uint32_t msgId, bool isHalf = false);

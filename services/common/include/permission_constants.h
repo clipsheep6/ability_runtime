@@ -56,6 +56,7 @@ constexpr const char* PERMISSION_START_SHORTCUT = "ohos.permission.START_SHORTCU
 constexpr const char* PERMISSION_PRELOAD_APPLICATION = "ohos.permission.PRELOAD_APPLICATION";
 constexpr const char* PERMISSION_SET_PROCESS_CACHE_STATE = "ohos.permission.SET_PROCESS_CACHE_STATE";
 constexpr const char* PERMISSION_PRELOAD_UI_EXTENSION_ABILITY = "ohos.permission.PRELOAD_UI_EXTENSION_ABILITY";
+constexpr const char* PERMISSION_PRE_START_ATOMIC_SERVICE = "ohos.permission.PRE_START_ATOMIC_SERVICE";
 } // namespace PermissionConstants
 } // namespace AAFwk
 } // namespace OHOS

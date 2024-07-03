@@ -83,7 +83,7 @@ bool FreeInstallManager::IsTopAbility(const sptr<IRemoteObject> &callerToken)
 }
 
 int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int requestCode,
-    const sptr<IRemoteObject> &callerToken, bool isAsync)
+    const sptr<IRemoteObject> &callerToken, bool isAsync, uint32_t specifyTokenId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::FREE_INSTALL, "StartFreeInstall called");
@@ -91,7 +91,7 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
     if (!isSaCall && !IsTopAbility(callerToken)) {
         return NOT_TOP_ABILITY;
     }
-    FreeInstallInfo info = BuildFreeInstallInfo(want, userId, requestCode, callerToken, isAsync);
+    FreeInstallInfo info = BuildFreeInstallInfo(want, userId, requestCode, callerToken, isAsync, specifyTokenId);
     {
         std::lock_guard<ffrt::mutex> lock(freeInstallListLock_);
         freeInstallList_.push_back(info);
@@ -162,13 +162,14 @@ int FreeInstallManager::RemoteFreeInstall(const Want &want, int32_t userId, int 
 }
 
 FreeInstallInfo FreeInstallManager::BuildFreeInstallInfo(const Want &want, int32_t userId, int requestCode,
-    const sptr<IRemoteObject> &callerToken, bool isAsync)
+    const sptr<IRemoteObject> &callerToken, bool isAsync, uint32_t specifyTokenId)
 {
     FreeInstallInfo info = {
         .want = want,
         .userId = userId,
         .requestCode = requestCode,
-        .callerToken = callerToken
+        .callerToken = callerToken,
+        .specifyTokenId = specifyTokenId
     };
     if (!isAsync) {
         auto promise = std::make_shared<std::promise<int32_t>>();
@@ -259,40 +260,71 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
     bool isFromRemote = want.GetBoolParam(FROM_REMOTE_KEY, false);
     TAG_LOGI(AAFwkTag::FREE_INSTALL, "isFromRemote = %{public}d", isFromRemote);
     for (auto it = freeInstallList_.begin(); it != freeInstallList_.end();) {
-        std::string bundleName = (*it).want.GetElement().GetBundleName();
-        std::string abilityName = (*it).want.GetElement().GetAbilityName();
-        std::string startTime = (*it).want.GetStringParam(Want::PARAM_RESV_START_TIME);
+        FreeInstallInfo &freeInstallInfo = *it;
+        std::string bundleName = freeInstallInfo.want.GetElement().GetBundleName();
+        std::string abilityName = freeInstallInfo.want.GetElement().GetAbilityName();
+        std::string startTime = freeInstallInfo.want.GetStringParam(Want::PARAM_RESV_START_TIME);
         if (want.GetElement().GetBundleName().compare(bundleName) != 0 ||
             want.GetElement().GetAbilityName().compare(abilityName) != 0 ||
             want.GetStringParam(Want::PARAM_RESV_START_TIME).compare(startTime) != 0) {
-            it++;
             continue;
         }
 
-        if (!isAsync && (*it).promise == nullptr) {
+        if (!isAsync && freeInstallInfo.promise == nullptr) {
             it++;
             continue;
         }
-
-        if (resultCode == ERR_OK) {
-            TAG_LOGI(AAFwkTag::FREE_INSTALL, "FreeInstall success.");
-            if (isAsync) {
-                StartAbilityByFreeInstall(*it, bundleName, abilityName, startTime);
-            } else {
-                (*it).promise->set_value(resultCode);
-            }
-        } else {
-            TAG_LOGI(AAFwkTag::FREE_INSTALL, "FreeInstall failed.");
-            if (isAsync) {
-                DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinished(
-                    bundleName, abilityName, startTime, resultCode);
-            } else {
-                (*it).promise->set_value(resultCode);
-            }
-        }
-
+        freeInstallInfo.isInstalled = true;
+        HandleFreeInstallResult(freeInstallInfo, resultCode, isAsync);
         it = freeInstallList_.erase(it);
     }
+}
+
+void FreeInstallManager::HandleOnFreeInstallSuccess(FreeInstallInfo &freeInstallInfo, bool isAsync)
+{
+    TAG_LOGI(AAFwkTag::FREE_INSTALL, "FreeInstall success.");
+
+    if (isAsync) {
+        std::string startTime = freeInstallInfo.want.GetStringParam(Want::PARAM_RESV_START_TIME);
+        std::string bundleName = freeInstallInfo.want.GetElement().GetBundleName();
+        std::string abilityName = freeInstallInfo.want.GetElement().GetAbilityName();
+        if (freeInstallInfo.isPreStartMissionCalled) {
+            StartAbilityByPreInstall(freeInstallInfo, bundleName, abilityName, startTime);
+            return;
+        }
+        StartAbilityByFreeInstall(freeInstallInfo, bundleName, abilityName, startTime);
+        return;
+    }
+    freeInstallInfo.promise->set_value(ERR_OK);
+}
+
+void FreeInstallManager::HandleOnFreeInstallFail(FreeInstallInfo &freeInstallInfo, int resultCode, bool isAsync)
+{
+    TAG_LOGI(AAFwkTag::FREE_INSTALL, "FreeInstall failed.");
+
+    if (isAsync) {
+        if (freeInstallInfo.isPreStartMissionCalled) {
+            DelayedSingleton<AbilityManagerService>::GetInstance()->NotifySCBToHandleException(
+                freeInstallInfo.callerToken, resultCode, "free install failed");
+        }
+        std::string startTime = freeInstallInfo.want.GetStringParam(Want::PARAM_RESV_START_TIME);
+        std::string bundleName = freeInstallInfo.want.GetElement().GetBundleName();
+        std::string abilityName = freeInstallInfo.want.GetElement().GetAbilityName();
+
+        DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinished(
+            bundleName, abilityName, startTime, resultCode);
+        return;
+    }
+    freeInstallInfo.promise->set_value(resultCode);
+}
+
+void FreeInstallManager::HandleFreeInstallResult(FreeInstallInfo &freeInstallInfo, int resultCode, bool isAsync)
+{
+    if (resultCode == ERR_OK) {
+        HandleOnFreeInstallSuccess(freeInstallInfo, isAsync);
+        return;
+    }
+    HandleOnFreeInstallFail(freeInstallInfo, resultCode, isAsync);
 }
 
 void FreeInstallManager::StartAbilityByFreeInstall(FreeInstallInfo &info, std::string &bundleName,
@@ -308,6 +340,25 @@ void FreeInstallManager::StartAbilityByFreeInstall(FreeInstallInfo &info, std::s
     if (result == ERR_OK) {
         result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbilityByFreeInstall(info.want,
             info.callerToken, info.userId, info.requestCode);
+    }
+    IPCSkeleton::SetCallingIdentity(identity);
+    TAG_LOGI(AAFwkTag::FREE_INSTALL, "The result of StartAbility is %{public}d.", result);
+    DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinished(
+        bundleName, abilityName, startTime, result);
+}
+
+void FreeInstallManager::StartAbilityByPreInstall(FreeInstallInfo &info, std::string &bundleName,
+    std::string &abilityName, std::string &startTime)
+{
+    info.want.SetFlags(info.want.GetFlags() ^ Want::FLAG_INSTALL_ON_DEMAND);
+    auto identity = IPCSkeleton::ResetCallingIdentity();
+    IPCSkeleton::SetCallingIdentity(info.identity);
+    int32_t result = ERR_OK;
+    if (info.want.GetElement().GetAbilityName().empty()) {
+        result = UpdateElementName(info.want, info.userId);
+    }
+    if (result == ERR_OK) {
+        result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartUIAbilityByPreInstall(info);
     }
     IPCSkeleton::SetCallingIdentity(identity);
     TAG_LOGI(AAFwkTag::FREE_INSTALL, "The result of StartAbility is %{public}d.", result);
@@ -526,6 +577,80 @@ void FreeInstallManager::RemoveFreeInstallInfo(const std::string &bundleName, co
         } else {
             it++;
         }
+    }
+}
+
+bool FreeInstallManager::GetFreeInstallTaskInfo(const std::string& bundleName, const std::string& abilityName,
+    const std::string& startTime, FreeInstallInfo& taskInfo)
+{
+    std::lock_guard<ffrt::mutex> lock(freeInstallListLock_);
+    for (auto it = freeInstallList_.begin(); it != freeInstallList_.end();) {
+        if ((*it).want.GetElement().GetBundleName() == bundleName &&
+            (*it).want.GetElement().GetAbilityName() == abilityName &&
+            (*it).want.GetStringParam(Want::PARAM_RESV_START_TIME) == startTime) {
+            taskInfo = *it;
+            return true;
+        }
+        it++;
+    }
+    return false;
+}
+
+bool FreeInstallManager::GetFreeInstallTaskInfo(const std::string& sessionId, FreeInstallInfo& taskInfo)
+{
+    std::lock_guard<ffrt::mutex> lock(freeInstallListLock_);
+    for (auto it = freeInstallList_.begin(); it != freeInstallList_.end();) {
+        if ((*it).want.GetStringParam(KEY_SESSION_ID) == sessionId) {
+            taskInfo = *it;
+            return true;
+        }
+        it++;
+    }
+    return false;
+}
+
+void FreeInstallManager::SetSCBCallStatus(const std::string& bundleName, const std::string& abilityName,
+    const std::string& startTime, bool scbCallStatus)
+{
+    std::lock_guard<ffrt::mutex> lock(freeInstallListLock_);
+    for (auto it = freeInstallList_.begin(); it != freeInstallList_.end();) {
+        if ((*it).want.GetElement().GetBundleName() == bundleName &&
+            (*it).want.GetElement().GetAbilityName() == abilityName &&
+            (*it).want.GetStringParam(Want::PARAM_RESV_START_TIME) == startTime) {
+            (*it).isStartUIAbilityBySCBCalled = scbCallStatus;
+            return;
+        }
+        it++;
+    }
+}
+
+void FreeInstallManager::SetPreStartMissionCallStatus(const std::string& bundleName, const std::string& abilityName,
+    const std::string& startTime, bool preStartMissionCallStatus)
+{
+    std::lock_guard<ffrt::mutex> lock(freeInstallListLock_);
+    for (auto it = freeInstallList_.begin(); it != freeInstallList_.end();) {
+        if ((*it).want.GetElement().GetBundleName() == bundleName &&
+            (*it).want.GetElement().GetAbilityName() == abilityName &&
+            (*it).want.GetStringParam(Want::PARAM_RESV_START_TIME) == startTime) {
+            (*it).isPreStartMissionCalled = preStartMissionCallStatus;
+            return;
+        }
+        it++;
+    }
+}
+
+void FreeInstallManager::SetFreeInstallTaskSessionId(const std::string& bundleName, const std::string& abilityName,
+    const std::string& startTime, const std::string& sessionId)
+{
+    std::lock_guard<ffrt::mutex> lock(freeInstallListLock_);
+    for (auto it = freeInstallList_.begin(); it != freeInstallList_.end();) {
+        if ((*it).want.GetElement().GetBundleName() == bundleName &&
+            (*it).want.GetElement().GetAbilityName() == abilityName &&
+            (*it).want.GetStringParam(Want::PARAM_RESV_START_TIME) == startTime) {
+            (*it).want.SetParam(KEY_SESSION_ID, sessionId);
+            return;
+        }
+        it++;
     }
 }
 }  // namespace AAFwk

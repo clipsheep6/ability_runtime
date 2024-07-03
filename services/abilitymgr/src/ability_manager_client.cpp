@@ -1911,5 +1911,14 @@ void AbilityManagerClient::NotifyFrozenProcessByRSS(const std::vector<int32_t> &
     CHECK_POINTER_RETURN(abms);
     return abms->NotifyFrozenProcessByRSS(pidList, uid);
 }
+
+ErrCode AbilityManagerClient::PreStartMission(const std::string& bundleName, const std::string& moduleName,
+    const std::string& abilityName, const std::string& startTime)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->PreStartMission(bundleName, moduleName, abilityName, startTime);
+}
 } // namespace AAFwk
 } // namespace OHOS

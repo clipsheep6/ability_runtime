@@ -158,6 +158,9 @@ public:
 
     ErrCode RequestModalUIExtension(const Want &want);
 
+    ErrCode PreStartMission(const std::string& bundleName, const std::string& moduleName,
+        const std::string& abilityName, const std::string& startTime);
+
     using SelfType = ServiceExtensionContext;
     static const size_t CONTEXT_TYPE_ID;
 

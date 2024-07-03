@@ -101,6 +101,8 @@ struct VerificationInfo {
 
     bool VerifySetProcessCachePermission() const;
 
+    bool VerifyPreStartAtomicServicePermission() const;
+
 private:
     DISALLOW_COPY_AND_MOVE(PermissionVerification);
 

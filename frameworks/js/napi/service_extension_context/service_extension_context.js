@@ -154,6 +154,11 @@ class ServiceExtensionContext extends ExtensionContext {
       return;
     });
   }
+
+  preStartMission(bundleName, moduleName, abilityName, startTime) {
+    console.log('preStartMission');
+    return this.__context_impl__.preStartMission(bundleName, moduleName, abilityName, startTime);
+  }
 }
 
 export default ServiceExtensionContext;

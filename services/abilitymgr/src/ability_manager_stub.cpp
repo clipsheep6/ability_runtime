@@ -743,6 +743,9 @@ int AbilityManagerStub::OnRemoteRequestInnerNineteenth(uint32_t code, MessagePar
     if (interfaceCode == AbilityManagerInterfaceCode::NOTIFY_FROZEN_PROCESS_BY_RSS) {
         return NotifyFrozenProcessByRSSInner(data, reply);
     }
+    if (interfaceCode == AbilityManagerInterfaceCode::PRE_START_MISSION) {
+        return PreStartMissionInner(data, reply);
+    }
     return ERR_CODE_NOT_EXIST;
 }
 
@@ -3890,6 +3893,17 @@ int32_t AbilityManagerStub::NotifyFrozenProcessByRSSInner(MessageParcel &data, M
     data.ReadInt32Vector(&pidList);
     int32_t uid = data.ReadInt32();
     NotifyFrozenProcessByRSS(pidList, uid);
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::PreStartMissionInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::string bundleName = data.ReadString();
+    std::string moduleName = data.ReadString();
+    std::string abilityName = data.ReadString();
+    std::string startTime = data.ReadString();
+    int32_t result = PreStartMission(bundleName, moduleName, abilityName, startTime);
+    reply.WriteInt32(result);
     return NO_ERROR;
 }
 } // namespace AAFwk

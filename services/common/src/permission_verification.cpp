@@ -482,5 +482,17 @@ bool PermissionVerification::VerifySetProcessCachePermission() const
     TAG_LOGW(AAFwkTag::APPMGR, "Permission verification failed");
     return false;
 }
+
+bool PermissionVerification::VerifyPreStartAtomicServicePermission() const
+{
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_PRE_START_ATOMIC_SERVICE)) {
+        TAG_LOGD(AAFwkTag::APPMGR, "verify permission %{public}s succeeded.",
+            PermissionConstants::PERMISSION_PRE_START_ATOMIC_SERVICE);
+        return true;
+    }
+    TAG_LOGW(AAFwkTag::APPMGR, "verify permission %{public}s failed.",
+        PermissionConstants::PERMISSION_PRE_START_ATOMIC_SERVICE);
+    return false;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

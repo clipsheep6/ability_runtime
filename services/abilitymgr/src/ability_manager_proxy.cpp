@@ -5303,5 +5303,38 @@ void AbilityManagerProxy::NotifyFrozenProcessByRSS(const std::vector<int32_t> &p
         TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerProxy: SendRequest err %{public}d", error);
     }
 }
+
+int32_t AbilityManagerProxy::PreStartMission(const std::string& bundleName, const std::string& moduleName,
+    const std::string& abilityName, const std::string& startTime)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return IPC_PROXY_ERR;
+    }
+    if (!data.WriteString(bundleName)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write bundleName failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteString(moduleName)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write moduleName failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteString(abilityName)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write abilityName failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteString(startTime)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write startTime failed.");
+        return INNER_ERR;
+    }
+    auto error = SendRequest(AbilityManagerInterfaceCode::PRE_START_MISSION, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
 } // namespace AAFwk
 } // namespace OHOS

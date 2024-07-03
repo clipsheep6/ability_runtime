@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H
 #define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H
 
+#include <cstdint>
 #include <future>
 #include <map>
 #include <memory>
@@ -30,6 +31,7 @@
 #include "ability_connect_manager.h"
 #include "ability_debug_deal.h"
 #include "ability_event_handler.h"
+#include "ability_info.h"
 #include "ability_manager_event_subscriber.h"
 #include "ability_manager_stub.h"
 #include "ams_configuration_parameter.h"
@@ -83,6 +85,7 @@ enum class ServiceRunningState { STATE_NOT_START, STATE_RUNNING };
 constexpr int32_t BASE_USER_RANGE = 200000;
 constexpr int32_t U0_USER_ID = 0;
 constexpr int32_t INVALID_USER_ID = -1;
+constexpr const char* KEY_SESSION_ID = "com.ohohs.param.sessionId";
 using OHOS::AppExecFwk::IAbilityController;
 class PendingWantManager;
 struct StartAbilityInfo;
@@ -1698,6 +1701,23 @@ public:
 
     void HandleRestartResidentProcessDependedOnWeb();
 
+    /**
+     * Open atomic service window prior to finishing free install.
+     *
+     * @param bundleName, the bundle name of the atomic service.
+     * @param moduleName, the module name of the atomic service.
+     * @param abilityName, the ability name of the atomic service.
+     * @param startTime, the starting time of the free install task.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t PreStartMission(const std::string& bundleName, const std::string& moduleName,
+        const std::string& abilityName, const std::string& startTime) override;
+
+    int32_t StartUIAbilityByPreInstall(const FreeInstallInfo &taskInfo);
+
+    void NotifySCBToHandleException(sptr<IRemoteObject> callerToken, int errCode,
+        const std::string& reason);
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -1808,6 +1828,12 @@ private:
 
     int StartRemoteAbility(const Want &want, int requestCode, int32_t validUserId,
         const sptr<IRemoteObject> &callerToken);
+    int StartUIAbilityBySCBDefault(sptr<SessionInfo> sessionInfo, bool &isColdStart);
+    int StartUIAbilityByPreInstallInner(sptr<SessionInfo> sessionInfo,
+        uint32_t specifyTokenId, bool &isColdStart);
+    int32_t PreStartInner(const FreeInstallInfo& taskInfo);
+    void RemovePreStartSession(const std::string& sessionId);
+
     int ConnectLocalAbility(
         const Want &want,
         const int32_t userId,
@@ -2172,6 +2198,28 @@ private:
     int CheckUIExtensionUsage(AppExecFwk::UIExtensionUsage uiExtensionUsage,
         AppExecFwk::ExtensionAbilityType extensionType);
 
+    int CheckExtensionCallPermission(const Want& want, const AbilityRequest& abilityRequest);
+
+    int CheckServiceCallPermission(const AbilityRequest& abilityRequest,
+        const AppExecFwk::AbilityInfo& abilityInfo);
+
+    int CheckBrokerCallPermission(const AbilityRequest& abilityRequest,
+        const AppExecFwk::AbilityInfo& abilityInfo);
+
+    int CheckAbilityCallPermission(const AbilityRequest& abilityRequest,
+        const AppExecFwk::AbilityInfo& abilityInfo, uint32_t specifyTokenId);
+
+    int CheckCallPermission(const Want& want, const AppExecFwk::AbilityInfo& abilityInfo,
+        const AbilityRequest& abilityRequest, bool isForegroundToRestartApp,
+        bool isSendDialogResult, uint32_t specifyTokenId,
+        const std::string& callerBundleName);
+
+    int StartAbilityByConnectManager(const Want& want, const AbilityRequest& abilityRequest,
+        const AppExecFwk::AbilityInfo& abilityInfo, int validUserId, sptr<IRemoteObject> callerToken);
+
+    int PreStartFreeInstall(const Want &want, sptr<IRemoteObject> callerToken,
+        uint32_t specifyTokenId, bool isStartAsCaller, Want &localWant);
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 
@@ -2194,8 +2242,10 @@ private:
     ffrt::mutex globalLock_;
     ffrt::mutex bgtaskObserverMutex_;
     ffrt::mutex abilityTokenLock_;
+    ffrt::mutex preStartSessionMapLock_;
 
     std::multimap<std::string, std::string> timeoutMap_;
+    std::map<std::string, sptr<SessionInfo>> preStartSessionMap_;
 
     static sptr<AbilityManagerService> instance_;
     int32_t uniqueId_ = 0;

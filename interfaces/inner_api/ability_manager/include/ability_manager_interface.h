@@ -1632,6 +1632,21 @@ public:
     {
         return;
     }
+
+    /**
+     * Open atomic service window prior to finishing free install.
+     *
+     * @param bundleName, the bundle name of the atomic service.
+     * @param moduleName, the module name of the atomic service.
+     * @param abilityName, the ability name of the atomic service.
+     * @param startTime, the starting time of the free install task.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t PreStartMission(const std::string& bundleName, const std::string& moduleName,
+        const std::string& abilityName, const std::string& startTime)
+    {
+        return 0;
+    }
 };
 }  // namespace AAFwk
 }  // namespace OHOS

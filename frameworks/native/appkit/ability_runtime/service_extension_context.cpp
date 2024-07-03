@@ -235,5 +235,18 @@ AppExecFwk::AbilityType ServiceExtensionContext::GetAbilityInfoType() const
 
     return info->type;
 }
+
+ErrCode ServiceExtensionContext::PreStartMission(const std::string& bundleName, const std::string& moduleName,
+    const std::string& abilityName, const std::string& startTime)
+{
+    TAG_LOGI(AAFwkTag::APPKIT, "Called.");
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->PreStartMission(
+        bundleName, moduleName, abilityName, startTime);
+    if (err != ERR_OK) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ServiceExtensionContext::PreStartMission is failed %{public}d", err);
+    }
+    TAG_LOGI(AAFwkTag::APPKIT, "End.");
+    return err;
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS
