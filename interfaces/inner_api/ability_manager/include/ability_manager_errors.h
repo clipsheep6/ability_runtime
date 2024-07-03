@@ -550,6 +550,11 @@ enum {
      */
     ERR_BUNDLE_NOT_EXIST,
 
+     /*
+     * Result(2097259) for applock start success.
+     */
+    ERR_APPLOCK_START_SUCCESS = 2097259,
+
     /**
      * Native error(3000000) for target bundle not exist.
      */
