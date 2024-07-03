@@ -266,20 +266,6 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryDataGroupInfos_001, TestS
 }
 
 /**
- * @tc.name: BundleMgrHelperTest_GetBundleGidsByUid_001
- * @tc.desc: GetBundleGidsByUid
- * @tc.type: FUNC
- */
-HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetBundleGidsByUid_001, TestSize.Level1)
-{
-    std::string bundleName;
-    int32_t uid = DEFAULT_USERID;
-    std::vector<int> gids;
-    auto ret = bundleMgrHelper->GetBundleGidsByUid(bundleName, uid, gids);
-    EXPECT_EQ(ret, true);
-}
-
-/**
  * @tc.name: BundleMgrHelperTest_RegisterBundleEventCallback_001
  * @tc.desc: RegisterBundleEventCallback
  * @tc.type: FUNC

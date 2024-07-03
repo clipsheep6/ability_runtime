@@ -83,7 +83,6 @@ public:
         bool &findDefaultApp);
     bool CleanBundleDataFiles(const std::string &bundleName, int32_t userId, int32_t appCloneIndex);
     bool QueryDataGroupInfos(const std::string &bundleName, int32_t userId, std::vector<DataGroupInfo> &infos);
-    bool GetBundleGidsByUid(const std::string &bundleName, const int32_t &uid, std::vector<int32_t> &gids);
     bool RegisterBundleEventCallback(const sptr<IBundleEventCallback> &bundleEventCallback);
     bool GetBundleInfos(
         const BundleFlag flag, std::vector<BundleInfo> &bundleInfos, int32_t userId = Constants::UNSPECIFIED_USERID);

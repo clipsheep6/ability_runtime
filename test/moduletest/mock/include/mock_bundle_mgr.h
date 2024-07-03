@@ -329,10 +329,6 @@ public:
 
     bool GetApplicationInfo(
         const std::string& appName, const ApplicationFlag flag, const int userId, ApplicationInfo& appInfo) override;
-    virtual bool GetBundleGidsByUid(const std::string& bundleName, const int& uid, std::vector<int>& gids) override
-    {
-        return true;
-    }
 
     bool ImplicitQueryInfos(const Want& want, int32_t flags, int32_t userId, bool withDefault,
         std::vector<AbilityInfo>& abilityInfos, std::vector<ExtensionAbilityInfo>& extensionInfos) override;

@@ -713,19 +713,6 @@ bool BundleMgrHelper::QueryDataGroupInfos(
     return bundleMgr->QueryDataGroupInfos(bundleName, userId, infos);
 }
 
-bool BundleMgrHelper::GetBundleGidsByUid(const std::string &bundleName, const int32_t &uid, std::vector<int32_t> &gids)
-{
-    TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "Called.");
-    auto bundleMgr = Connect();
-    if (bundleMgr == nullptr) {
-        TAG_LOGE(AAFwkTag::BUNDLEMGRHELPER, "Failed to connect.");
-        return false;
-    }
-
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    return bundleMgr->GetBundleGidsByUid(bundleName, uid, gids);
-}
-
 bool BundleMgrHelper::RegisterBundleEventCallback(const sptr<IBundleEventCallback> &bundleEventCallback)
 {
     TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "Called.");

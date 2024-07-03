@@ -275,12 +275,6 @@ bool BundleMgrService::GetBundleInfos(
     return true;
 }
 
-bool BundleMgrService::GetBundleGidsByUid(
-    const std::string& bundleName, const int& uid, std::vector<int>& gids)
-{
-    return true;
-}
-
 void BundleMgrService::PushTestHelloIndexAbility(int index)
 {
     AbilityInfo info;

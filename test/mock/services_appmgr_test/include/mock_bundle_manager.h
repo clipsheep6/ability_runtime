@@ -100,8 +100,6 @@ public:
         const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
     virtual bool GetBundleInfos(
         const BundleFlag flag, std::vector<BundleInfo>& bundleInfos, int32_t userId) override;
-    bool GetBundleGidsByUid(
-        const std::string& bundleName, const int& uid, std::vector<int>& gids) override;
     virtual bool GetBundleGids(const std::string& bundleName, std::vector<int>& gids) override;
     virtual bool GetHapModuleInfo(const AbilityInfo& abilityInfo, HapModuleInfo& hapModuleInfo);
     virtual bool GetHapModuleInfo(

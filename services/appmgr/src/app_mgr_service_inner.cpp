@@ -2738,10 +2738,6 @@ int32_t AppMgrServiceInner::CreateStartMsg(const std::string &processName, uint3
     TAG_LOGI(AAFwkTag::APPMGR, "apl is %{public}s, bundleName is %{public}s, startFlags is %{public}d",
         startMsg.apl.c_str(), bundleInfo.name.c_str(), startFlags);
 
-    if (!IN_PROCESS_CALL(bundleMgrHelper->GetBundleGidsByUid(bundleInfo.name, uid, startMsg.gids))) {
-        TAG_LOGE(AAFwkTag::APPMGR, "GetBundleGids is fail.");
-        return ERR_INVALID_OPERATION;
-    }
     autoSync.Sync();
     return ERR_OK;
 }
