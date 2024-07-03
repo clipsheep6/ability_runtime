@@ -595,12 +595,12 @@ private:
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
     const std::string TASK_ON_ABILITY_DIED = "OnAbilityDiedTask";
 
-    std::mutex serialMutex_;
+    ffrt::mutex serialMutex_;
 
     std::mutex connectMapMutex_;
     ConnectMapType connectMap_;
 
-    std::mutex serviceMapMutex_;
+    ffrt::mutex serviceMapMutex_;
     ServiceMapType serviceMap_;
     ServiceMapType terminatingExtensionMap_;
 
