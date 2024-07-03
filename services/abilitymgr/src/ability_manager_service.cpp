@@ -10577,6 +10577,34 @@ int32_t AbilityManagerService::GetUIExtensionRootHostInfo(const sptr<IRemoteObje
     return ERR_OK;
 }
 
+int32_t AbilityManagerService::GetUIExtensionSessionInfo(const sptr<IRemoteObject> token,
+    UIExtensionSessionInfo &uiExtensionSessionInfo, int32_t userId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Get ui extension host info.");
+    CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
+
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall() && !IsCallerSceneBoard()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Permission deny.");
+        return ERR_PERMISSION_DENIED;
+    }
+
+    auto validUserId = GetValidUserId(userId);
+    auto connectManager = GetConnectManagerByUserId(validUserId);
+    if (connectManager == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Connect manager is nullptr, userId: %{public}d.", validUserId);
+        return ERR_INVALID_VALUE;
+    }
+
+    auto ret = connectManager->GetUIExtensionSessionInfo(token, uiExtensionSessionInfo);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get ui extension session info failed.");
+        return ret;
+    }
+
+    return ERR_OK;
+}
+
 int32_t AbilityManagerService::RestartApp(const AAFwk::Want &want)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call.");

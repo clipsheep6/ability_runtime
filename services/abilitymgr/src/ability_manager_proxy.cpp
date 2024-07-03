@@ -5077,6 +5077,47 @@ int32_t AbilityManagerProxy::GetUIExtensionRootHostInfo(const sptr<IRemoteObject
     return reply.ReadInt32();
 }
 
+int32_t AbilityManagerProxy::GetUIExtensionSessionInfo(const sptr<IRemoteObject> token,
+    UIExtensionSessionInfo &uiExtensionSessionInfo, int32_t userId)
+{
+    if (token == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Input param invalid.");
+        return ERR_INVALID_VALUE;
+    }
+
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write remote object failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteBool(true) || !data.WriteRemoteObject(token)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write flag and token failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteInt32(userId)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write userId failed.");
+        return INNER_ERR;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto error = SendRequest(AbilityManagerInterfaceCode::GET_UI_EXTENSION_SESSION_INFO, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        return error;
+    }
+
+    std::unique_ptr<UIExtensionSessionInfo> info(reply.ReadParcelable<UIExtensionSessionInfo>());
+    if (info == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get host info failed.");
+        return INNER_ERR;
+    }
+    uiExtensionSessionInfo = *info;
+    return reply.ReadInt32();
+}
+
 int32_t AbilityManagerProxy::RestartApp(const AAFwk::Want &want)
 {
     MessageParcel data;

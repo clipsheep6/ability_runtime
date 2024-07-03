@@ -44,6 +44,7 @@ namespace AAFwk {
 using OHOS::AppExecFwk::AbilityType;
 using UIExtensionAbilityConnectInfo = AbilityRuntime::UIExtensionAbilityConnectInfo;
 using UIExtensionAbilityConnectManager = AbilityRuntime::ExtensionRecordManager;
+using UIExtensionSessionInfo = AbilityRuntime::UIExtensionSessionInfo;
 /**
  * @class AbilityConnectManager
  * AbilityConnectManager provides a facility for managing service ability connection.
@@ -300,6 +301,16 @@ public:
     void RemoveLauncherDeathRecipient();
 
     std::shared_ptr<AAFwk::AbilityRecord> GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token);
+
+    /**
+     * @brief Get ui extension session info
+     *
+     * @param token The ability token.
+     * @param uiExtensionSessionInfo The ui extension session info.
+     * @param userId The user id.
+     * @return int32_t Returns ERR_OK on success, others on failure.
+     */
+    int32_t GetUIExtensionSessionInfo(const sptr<IRemoteObject> token, UIExtensionSessionInfo &uiExtensionSessionInfo);
 
     void CloseAssertDialog(const std::string &assertSessionId);
 

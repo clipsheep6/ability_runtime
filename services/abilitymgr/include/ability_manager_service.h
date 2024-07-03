@@ -1629,6 +1629,17 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE) override;
 
     /**
+     * @brief Get ui extension session info
+     *
+     * @param token The ability token.
+     * @param uiExtensionSessionInfo The ui extension session info.
+     * @param userId The user id.
+     * @return int32_t Returns ERR_OK on success, others on failure.
+     */
+    int32_t GetUIExtensionSessionInfo(const sptr<IRemoteObject> token, UIExtensionSessionInfo &uiExtensionSessionInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE) override;
+
+    /**
      * Set the enable status for starting and stopping resident processes.
      * The caller application can only set the resident status of the configured process.
      * @param bundleName The bundle name of the resident process.

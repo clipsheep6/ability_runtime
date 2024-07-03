@@ -544,6 +544,9 @@ int AbilityManagerStub::OnRemoteRequestInnerFourteenth(uint32_t code, MessagePar
     if (interfaceCode == AbilityManagerInterfaceCode::GET_UI_EXTENSION_ROOT_HOST_INFO) {
         return GetUIExtensionRootHostInfoInner(data, reply);
     }
+    if (interfaceCode == AbilityManagerInterfaceCode::GET_UI_EXTENSION_SESSION_INFO) {
+        return GetUIExtensionSessionInfoInner(data, reply);
+    }
     if (interfaceCode == AbilityManagerInterfaceCode::PRELOAD_UIEXTENSION_ABILITY) {
         return PreloadUIExtensionAbilityInner(data, reply);
     }
@@ -3748,6 +3751,33 @@ int32_t AbilityManagerStub::GetUIExtensionRootHostInfoInner(MessageParcel &data,
     auto result = GetUIExtensionRootHostInfo(callerToken, hostInfo, userId);
     if (!reply.WriteParcelable(&hostInfo)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Write host info failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!reply.WriteInt32(result)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::GetUIExtensionSessionInfoInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+        if (callerToken == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "caller token is nullptr.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+
+    int32_t userId = data.ReadInt32();
+    UIExtensionSessionInfo uiExtensionSessionInfo;
+    auto result = GetUIExtensionSessionInfo(callerToken, uiExtensionSessionInfo, userId);
+    if (!reply.WriteParcelable(&uiExtensionSessionInfo)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write ui extension session info failed.");
         return ERR_INVALID_VALUE;
     }
 

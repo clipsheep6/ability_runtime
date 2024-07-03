@@ -53,6 +53,7 @@
 #include "system_memory_attr.h"
 #include "ui_extension_ability_connect_info.h"
 #include "ui_extension_host_info.h"
+#include "ui_extension_session_info.h"
 #include "ui_extension_window_command.h"
 #include "uri.h"
 #include "want.h"
@@ -76,6 +77,7 @@ using InsightIntentExecuteParam = AppExecFwk::InsightIntentExecuteParam;
 using InsightIntentExecuteResult = AppExecFwk::InsightIntentExecuteResult;
 using UIExtensionAbilityConnectInfo = AbilityRuntime::UIExtensionAbilityConnectInfo;
 using UIExtensionHostInfo = AbilityRuntime::UIExtensionHostInfo;
+using UIExtensionSessionInfo = AbilityRuntime::UIExtensionSessionInfo;
 #ifdef SUPPORT_SCREEN
 using IAbilityFirstFrameStateObserver = AppExecFwk::IAbilityFirstFrameStateObserver;
 #endif
@@ -1511,6 +1513,20 @@ public:
      */
     virtual int32_t GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token, UIExtensionHostInfo &hostInfo,
         int32_t userId = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Get ui extension session info
+     *
+     * @param token The ability token.
+     * @param uiExtensionSessionInfo The ui extension session info.
+     * @param userId The user id.
+     * @return int32_t Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetUIExtensionSessionInfo(const sptr<IRemoteObject> token,
+        UIExtensionSessionInfo &uiExtensionSessionInfo, int32_t userId = DEFAULT_INVAL_VALUE)
     {
         return 0;
     }

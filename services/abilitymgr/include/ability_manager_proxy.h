@@ -1179,6 +1179,17 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE) override;
 
     /**
+     * @brief Get ui extension session info
+     *
+     * @param token The ability token.
+     * @param uiExtensionSessionInfo The ui extension session info.
+     * @param userId The user id.
+     * @return int32_t Returns ERR_OK on success, others on failure.
+     */
+    int32_t GetUIExtensionSessionInfo(const sptr<IRemoteObject> token, UIExtensionSessionInfo &uiExtensionSessionInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE) override;
+
+    /**
      * @brief Restart app self.
      * @param want The ability type must be UIAbility.
      * @return Returns ERR_OK on success, others on failure.

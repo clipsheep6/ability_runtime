@@ -401,6 +401,9 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for start UIExtension ability constrained embedded
     START_UI_EXTENSION_CONSTRAINED_EMBEDDED = 1064,
 
+    // get ui extension session info
+    GET_UI_EXTENSION_SESSION_INFO = 1065,
+
     // ipc id for continue ability(1101)
     START_CONTINUATION = 1101,
 

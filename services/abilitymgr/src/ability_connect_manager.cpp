@@ -2936,6 +2936,14 @@ std::shared_ptr<AAFwk::AbilityRecord> AbilityConnectManager::GetUIExtensionRootH
     return uiExtensionAbilityRecordMgr_->GetUIExtensionRootHostInfo(token);
 }
 
+int32_t AbilityConnectManager::GetUIExtensionSessionInfo(const sptr<IRemoteObject> token,
+    UIExtensionSessionInfo &uiExtensionSessionInfo)
+{
+    CHECK_POINTER_AND_RETURN(token, ERR_NULL_OBJECT);
+    CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, ERR_NULL_OBJECT);
+    return uiExtensionAbilityRecordMgr_->GetUIExtensionSessionInfo(token, uiExtensionSessionInfo);
+}
+
 void AbilityConnectManager::SignRestartAppFlag(const std::string &bundleName)
 {
     std::lock_guard lock(serviceMapMutex_);
