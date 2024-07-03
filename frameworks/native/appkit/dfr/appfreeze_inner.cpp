@@ -170,6 +170,7 @@ int AppfreezeInner::AcquireStack(const FaultData& info, bool onlyMainThread)
         faultData.notifyApp = false;
         faultData.waitSaveState = false;
         faultData.forceExit = false;
+        faultData.eventId = it->eventId;
         bool isExit = IsExitApp(it->errorObject.name);
         if (isExit) {
             faultData.forceExit = true;

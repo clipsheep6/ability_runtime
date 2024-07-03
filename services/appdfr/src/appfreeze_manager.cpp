@@ -41,6 +41,7 @@ namespace AppExecFwk {
 namespace {
 constexpr char EVENT_UID[] = "UID";
 constexpr char EVENT_PID[] = "PID";
+constexpr char EVENT_INPUT_ID[] = "INPUT_ID";
 constexpr char EVENT_MESSAGE[] = "MSG";
 constexpr char EVENT_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_PROCESS_NAME[] = "PROCESS_NAME";
@@ -134,6 +135,7 @@ int AppfreezeManager::AppfreezeHandleWithStack(const FaultData& faultData, const
     faultNotifyData.errorObject.message = faultData.errorObject.message;
     faultNotifyData.errorObject.stack = faultData.errorObject.stack;
     faultNotifyData.faultType = FaultDataType::APP_FREEZE;
+    faultNotifyData.eventId = faultData.eventId;
 
     HITRACE_METER_FMT(HITRACE_TAG_APP, "AppfreezeHandleWithStack pid:%d-name:%s",
         appInfo.pid, faultData.errorObject.name.c_str());
@@ -234,6 +236,7 @@ int AppfreezeManager::AcquireStack(const FaultData& faultData, const AppfreezeMa
     faultNotifyData.errorObject.message = faultData.errorObject.message;
     faultNotifyData.errorObject.stack = faultData.errorObject.stack;
     faultNotifyData.faultType = FaultDataType::APP_FREEZE;
+    faultNotifyData.eventId = faultData.eventId;
     std::string binderInfo;
     std::set<int> pids = GetBinderPeerPids(binderInfo, pid);
     if (pids.empty()) {
@@ -262,17 +265,25 @@ int AppfreezeManager::NotifyANR(const FaultData& faultData, const AppfreezeManag
     std::string appRunningUniqueId = "";
     DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->GetAppRunningUniqueIdByPid(appInfo.pid,
         appRunningUniqueId);
-
-    int ret = HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, faultData.errorObject.name,
-        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_UID, appInfo.uid, EVENT_PID, appInfo.pid,
-        EVENT_PACKAGE_NAME, appInfo.bundleName, EVENT_PROCESS_NAME, appInfo.processName, EVENT_MESSAGE,
-        faultData.errorObject.message, EVENT_STACK, faultData.errorObject.stack, BINDER_INFO, binderInfo,
-        APP_RUNNING_UNIQUE_ID, appRunningUniqueId);
-
+    int ret = -1;
+    if (faultData.errorObject.name == AppFreezeType::APP_INPUT_BLOCK) {
+        HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, faultData.errorObject.name,
+            OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_UID, appInfo.uid, EVENT_PID, appInfo.pid,
+            EVENT_PACKAGE_NAME, appInfo.bundleName, EVENT_PROCESS_NAME, appInfo.processName, EVENT_MESSAGE,
+            faultData.errorObject.message, EVENT_STACK, faultData.errorObject.stack, BINDER_INFO, binderInfo,
+            APP_RUNNING_UNIQUE_ID, appRunningUniqueId, EVENT_INPUT_ID, faultData.eventId);
+    } else {
+        HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, faultData.errorObject.name,
+            OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_UID, appInfo.uid, EVENT_PID, appInfo.pid,
+            EVENT_PACKAGE_NAME, appInfo.bundleName, EVENT_PROCESS_NAME, appInfo.processName, EVENT_MESSAGE,
+            faultData.errorObject.message, EVENT_STACK, faultData.errorObject.stack, BINDER_INFO, binderInfo,
+            APP_RUNNING_UNIQUE_ID, appRunningUniqueId);
+    }
     TAG_LOGI(AAFwkTag::APPDFR,
-        "reportEvent:%{public}s, pid:%{public}d, bundleName:%{public}s, appRunningUniqueId:%{public}s "
-        "hisysevent write ret = %{public}d.",
-        faultData.errorObject.name.c_str(), appInfo.pid, appInfo.bundleName.c_str(), appRunningUniqueId.c_str(), ret);
+        "reportEvent:%{public}s, pid:%{public}d, bundleName:%{public}s, appRunningUniqueId:%{public}s"
+        ", eventId:%{public}d hisysevent write ret = %{public}d.",
+        faultData.errorObject.name.c_str(), appInfo.pid, appInfo.bundleName.c_str(), appRunningUniqueId.c_str(),
+        faultData.eventId, ret);
     return 0;
 }
 

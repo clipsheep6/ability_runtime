@@ -40,6 +40,7 @@ void ApplicationAnrListener::OnAnr(int32_t pid, int32_t eventId) const
     faultData.waitSaveState = false;
     faultData.notifyApp = false;
     faultData.forceExit = false;
+    faultData.eventId = eventId;
     DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFaultBySA(faultData);
 }
 }  // namespace AAFwk

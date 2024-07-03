@@ -5291,8 +5291,8 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
         }
         record->NotifyAppFault(transformedFaultData);
         TAG_LOGW(AAFwkTag::APPMGR, "FaultDataBySA is: name: %{public}s, faultType: %{public}s, uid: %{public}d,"
-            "pid: %{public}d, bundleName: %{public}s", faultData.errorObject.name.c_str(),
-            FaultTypeToString(faultData.faultType).c_str(), uid, pid, bundleName.c_str());
+            "pid: %{public}d, bundleName: %{public}s, eventId: %{public}d", faultData.errorObject.name.c_str(),
+            FaultTypeToString(faultData.faultType).c_str(), uid, pid, bundleName.c_str(), faultData.eventId);
         return ERR_OK;
     }
     TAG_LOGD(AAFwkTag::APPMGR, "this is not called by SA.");
@@ -5335,6 +5335,7 @@ FaultData AppMgrServiceInner::ConvertDataTypes(const AppFaultDataBySA &faultData
     newfaultData.forceExit = faultData.forceExit;
     newfaultData.token = faultData.token;
     newfaultData.state = faultData.state;
+    newfaultData.eventId = faultData.eventId;
     return newfaultData;
 }
 
