@@ -372,6 +372,13 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
             static_cast<uint32_t>(AppExecFwk::GetAbilityInfoFlag::GET_ABILITY_INFO_ONLY_SYSTEM_APP);
     }
 
+    if (isOpenLink) {
+        std::string linkUriScheme = request.want.GetUri().GetScheme();
+        if (linkUriScheme == HTTPS_SCHEME_NAME || linkUriScheme == HTTP_SCHEME_NAME) {
+            request.want.SetAction(ACTION_VIEW);
+        }
+    }
+
     IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->ImplicitQueryInfos(
         request.want, abilityInfoFlag, userId, withDefault, abilityInfos, extensionInfos, findDefaultApp));
 
@@ -419,13 +426,6 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
                 infoNames.emplace_back(implicitAbilityInfo.bundleName + "#" +
                     implicitAbilityInfo.moduleName + "#" + implicitAbilityInfo.name);
             }
-        }
-    }
-
-    if (isOpenLink) {
-        std::string linkUriScheme = request.want.GetUri().GetScheme();
-        if (linkUriScheme == HTTPS_SCHEME_NAME || linkUriScheme == HTTP_SCHEME_NAME) {
-            request.want.SetAction(ACTION_VIEW);
         }
     }
 
