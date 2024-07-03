@@ -630,6 +630,10 @@ void JsRuntime::PostPreload(const Options& options)
         TAG_LOGD(AAFwkTag::JSRUNTIME, "Start Multi-Thread Mode: %{public}d.", options.isMultiThread);
         panda::JSNApi::SetMultiThreadCheck();
     }
+    if (options.isErrorInfoEnhance) {
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "Start Error-Info-Enhance Mode: %{public}d.", options.isErrorInfoEnhance);
+        panda::JSNApi::SetErrorInfoEnhance();
+    }
     bool profileEnabled = OHOS::system::GetBoolParameter("ark.profile", false);
     postOption.SetEnableProfile(profileEnabled);
     TAG_LOGD(AAFwkTag::JSRUNTIME, "ASMM JIT Verify PostFork, jitEnabled: %{public}d", options.jitEnabled);
@@ -808,6 +812,11 @@ bool JsRuntime::CreateJsEnv(const Options& options)
     if (options.isMultiThread) {
         TAG_LOGD(AAFwkTag::JSRUNTIME, "Start Multi Thread Mode: %{public}d.", options.isMultiThread);
         panda::JSNApi::SetMultiThreadCheck();
+    }
+
+    if (options.isErrorInfoEnhance) {
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "Start Error Info Enhance Mode: %{public}d.", options.isErrorInfoEnhance);
+        panda::JSNApi::SetErrorInfoEnhance();
     }
 
     if (IsUseAbilityRuntime(options)) {
