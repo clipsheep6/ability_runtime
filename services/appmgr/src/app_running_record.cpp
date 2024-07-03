@@ -658,6 +658,8 @@ void AppRunningRecord::ScheduleBackgroundRunning()
 void AppRunningRecord::ScheduleProcessSecurityExit()
 {
     if (appLifeCycleDeal_) {
+        auto appRecord = shared_from_this();
+        DelayedSingleton<CacheProcessManager>::GetInstance()->PrepareActivateCache(appRecord);
         appLifeCycleDeal_->ScheduleProcessSecurityExit();
     }
 }

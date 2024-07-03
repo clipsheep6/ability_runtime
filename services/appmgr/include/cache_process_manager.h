@@ -44,6 +44,7 @@ public:
     void UpdateTypeByToken(const sptr<IRemoteObject> &token, const std::shared_ptr<AppRunningRecord> &appRecord);
     void UpdateTypeByAbility(const std::shared_ptr<AbilityRunningRecord> &abilityRecord,
         const std::shared_ptr<AppRunningRecord> &appRecord);
+    void PrepareActivateCache(const std::shared_ptr<AppRunningRecord> &appRecord);
 private:
     bool IsAppAbilitiesEmpty(const std::shared_ptr<AppRunningRecord> &appRecord);
     int GetCurrentCachedProcNum();
