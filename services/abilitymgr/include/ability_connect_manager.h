@@ -601,6 +601,7 @@ private:
 
     void KeepAbilityAlive(const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t currentUserId);
     void ProcessEliminateAbilityRecord(std::shared_ptr<AbilityRecord> eliminateRecord);
+    std::string GetServiceKey(const std::shared_ptr<AbilityRecord> &service);
 
 private:
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";

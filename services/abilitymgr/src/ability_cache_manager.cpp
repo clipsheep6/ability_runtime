@@ -21,6 +21,8 @@
 
 namespace OHOS {
 namespace AAFwk {
+const std::string FRS_APP_INDEX = "ohos.extra.param.key.frs_index";
+const std::string FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
 
 AbilityCacheManager::AbilityCacheManager() {}
 
@@ -194,12 +196,14 @@ std::shared_ptr<AbilityRecord> AbilityCacheManager::FindRecordByToken(const sptr
         TAG_LOGE(AAFwkTag::ABILITYMGR, "The param token is nullptr for FindRecordByToken operation.");
         return nullptr;
     }
+    std::lock_guard<std::mutex> lock(mutex_);
     auto it = devRecLru_.begin();
     while (it != devRecLru_.end()) {
         sptr<IRemoteObject> srcToken = (*it)->GetToken();
         if (srcToken == token) {
             std::shared_ptr<AbilityRecord> &abilityRecord = *it;
-            TAG_LOGD(AAFwkTag::ABILITYMGR, "Find the ability from lru, service:%{public}s, extension type %{public}d",
+            TAG_LOGD(AAFwkTag::ABILITYMGR,
+                "Find the ability by token from lru, service:%{public}s, extension type %{public}d",
                 abilityRecord->GetURI().c_str(), abilityRecord->GetAbilityInfo().extensionAbilityType);
             return abilityRecord;
         } else {
@@ -207,6 +211,97 @@ std::shared_ptr<AbilityRecord> AbilityCacheManager::FindRecordByToken(const sptr
         }
     }
     return nullptr;
+}
+
+std::list<std::shared_ptr<AbilityRecord>> AbilityCacheManager::GetAbilityList()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    return devRecLru_;
+}
+
+std::shared_ptr<AbilityRecord> AbilityCacheManager::FindRecordBySessionId(const std::string &assertSessionId)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto it = devRecLru_.begin();
+    while (it != devRecLru_.end()) {
+        auto assertSessionStr = (*it)->GetWant().GetStringParam(Want::PARAM_ASSERT_FAULT_SESSION_ID);
+        if (assertSessionStr == assertSessionId) {
+            std::shared_ptr<AbilityRecord> &abilityRecord = *it;
+            TAG_LOGD(AAFwkTag::ABILITYMGR,
+                "Find the ability by sessionId from lru, service:%{public}s, extension type %{public}d",
+                abilityRecord->GetURI().c_str(), abilityRecord->GetAbilityInfo().extensionAbilityType);
+            return abilityRecord;
+        } else {
+            it++;
+        }
+    }
+    return nullptr;
+}
+
+std::shared_ptr<AbilityRecord> AbilityCacheManager::FindRecordByServiceKey(const std::string &serviceKey)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto it = devRecLru_.begin();
+    while (it != devRecLru_.end()) {
+        std::string curServiceKey = (*it)->GetURI();
+        if (FRS_BUNDLE_NAME == (*it)->GetAbilityInfo().bundleName) {
+            curServiceKey = curServiceKey + std::to_string((*it)->GetWant().GetIntParam(FRS_APP_INDEX, 0));
+        }
+        if (curServiceKey.compare(serviceKey) == 0) {
+            std::shared_ptr<AbilityRecord> &abilityRecord = *it;
+            TAG_LOGD(AAFwkTag::ABILITYMGR,
+                "Find the ability by serviceKey from lru, service:%{public}s, extension type %{public}d",
+                abilityRecord->GetURI().c_str(), abilityRecord->GetAbilityInfo().extensionAbilityType);
+            return abilityRecord;
+        } else {
+            it++;
+        }
+    }
+    return nullptr;
+}
+
+void AbilityCacheManager::RemoveLauncherDeathRecipient()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto it = devRecLru_.begin();
+    while (it != devRecLru_.end()) {
+        auto targetExtension = *it;
+        if (targetExtension != nullptr && targetExtension->GetAbilityInfo().type == AbilityType::EXTENSION &&
+            ((targetExtension->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME &&
+            targetExtension->GetAbilityInfo().bundleName == AbilityConfig::LAUNCHER_BUNDLE_NAME) ||
+            targetExtension->IsSceneBoard())) {
+            targetExtension->RemoveAbilityDeathRecipient();
+            return;
+        }
+        it++;
+    }
+}
+
+void AbilityCacheManager::SignRestartAppFlag(const std::string &bundleName)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto it = devRecLru_.begin();
+    while (it != devRecLru_.end()) {
+        auto abilityRecord = *it;
+        if (abilityRecord != nullptr && abilityRecord->GetApplicationInfo().bundleName == bundleName) {
+            abilityRecord->SetRestartAppFlag(true);
+        }
+        it++;
+    }
+}
+
+void AbilityCacheManager::DeleteInvalidServiceRecord(const std::string &bundleName)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto it = devRecLru_.begin();
+    while (it != devRecLru_.end()) {
+        auto abilityRecord = *it;
+        if (abilityRecord != nullptr && abilityRecord->GetApplicationInfo().bundleName == bundleName) {
+            RemoveAbilityRecInProcList(abilityRecord);
+            RemoveAbilityRecInDevList(abilityRecord);
+        }
+        it++;
+    }
 }
 }  // namespace AAFwk
 } // namespace OHOS

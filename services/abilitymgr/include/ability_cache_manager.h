@@ -21,6 +21,8 @@
 #include <string>
 #include <mutex>
 
+#include "ability_config.h"
+#include "ability_info.h"
 #include "ability_record.h"
 namespace OHOS {
 namespace AAFwk {
@@ -31,6 +33,7 @@ namespace AAFwk {
 class AbilityCacheManager {
 public:
     using AbilityInfo = OHOS::AppExecFwk::AbilityInfo;
+    using AbilityType = OHOS::AppExecFwk::AbilityType;
     /**
      * Get ability cache manager.
      * @return AbilityCacheManager
@@ -70,6 +73,43 @@ public:
      * @return AbilityRecord if one is matched, otherwise nullptr.
      */
     std::shared_ptr<AbilityRecord> FindRecordByToken(const sptr<IRemoteObject> &token);
+
+    /**
+     * Get all the abilities of current ability cache manager.
+     * @return AbilityRecord list.
+     */
+    std::list<std::shared_ptr<AbilityRecord>> GetAbilityList();
+
+    /**
+     * Get a single ability by sessionId from ability cache manager.
+     * @param assertSessionId the ability assertSessionId to be searched in cache manager.
+     * @return AbilityRecord if one is matched, otherwise nullptr.
+     */
+    std::shared_ptr<AbilityRecord> FindRecordBySessionId(const std::string &assertSessionId);
+
+    /**
+     * Get a single ability by serviceKey from ability cache manager.
+     * @param serviceKey the ability serviceKey to be searched in cache manager.
+     * @return AbilityRecord if one is matched, otherwise nullptr.
+     */
+    std::shared_ptr<AbilityRecord> FindRecordByServiceKey(const std::string &serviceKey);
+
+    /**
+     * Remove the launcher death recipient from ability cache manager.
+     */
+    void RemoveLauncherDeathRecipient();
+
+    /**
+     * Sign the restart flag by bundleName of ability from ability cache manager.
+     * @param bundleName the ability bundleName to be searched in cache manager.
+     */
+    void SignRestartAppFlag(const std::string &bundleName);
+
+    /**
+     * Delete the invalid ability by bundleName from ability cache manager.
+     * @param bundleName the ability bundleName to be searched in cache manager.
+     */
+    void DeleteInvalidServiceRecord(const std::string &bundleName);
     private:
         AbilityCacheManager();
         ~AbilityCacheManager();
