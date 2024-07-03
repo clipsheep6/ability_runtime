@@ -1465,7 +1465,7 @@ HWTEST_F(JsRuntimeTest, DumpCpuProfile_0100, TestSize.Level1)
 {
     auto jsRuntime = std::make_unique<JsRuntime>();
     bool isPrivate = true;
-    jsRuntime->DumpCpuProfile(isPrivate);
+    jsRuntime->DumpCpuProfile();
     EXPECT_TRUE(jsRuntime != nullptr);
 }
 

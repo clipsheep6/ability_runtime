@@ -85,7 +85,7 @@ public:
 
     virtual void StartDebugMode(const DebugOption debugOption) = 0;
     virtual void DumpHeapSnapshot(bool isPrivate) = 0;
-    virtual void DumpCpuProfile(bool isPrivate) = 0;
+    virtual void DumpCpuProfile() = 0;
     virtual void DestroyHeapProfiler() = 0;
     virtual void ForceFullGC() = 0;
     virtual void ForceFullGC(uint32_t tid) = 0;

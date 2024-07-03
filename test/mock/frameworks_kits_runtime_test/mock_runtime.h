@@ -57,7 +57,7 @@ public:
     {
         return;
     }
-    void DumpCpuProfile(bool isPrivate) override
+    void DumpCpuProfile() override
     {
         return;
     }

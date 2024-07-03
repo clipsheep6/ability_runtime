@@ -64,7 +64,7 @@ public:
     void ForceFullGC() override {};
     void ForceFullGC(uint32_t tid) override {};
     void DumpHeapSnapshot(uint32_t tid, bool isFullGC) override {};
-    void DumpCpuProfile(bool isPrivate) override {};
+    void DumpCpuProfile() override {};
     void AllowCrossThreadExecution() override {};
     void GetHeapPrepare() override {};
     void RegisterUncaughtExceptionHandler(const CJUncaughtExceptionInfo& uncaughtExceptionInfo);
