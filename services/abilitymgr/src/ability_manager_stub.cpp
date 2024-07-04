@@ -1449,9 +1449,7 @@ int AbilityManagerStub::StartAbilityAsCallerByTokenInner(MessageParcel &data, Me
     }
     int32_t userId = data.ReadInt32();
     int requestCode = data.ReadInt32();
-    bool isSendDialogResult = data.ReadBool();
-    int32_t result = StartAbilityAsCaller(*want, callerToken, asCallerSourceToken, userId, requestCode,
-        isSendDialogResult);
+    int32_t result = StartAbilityAsCaller(*want, callerToken, asCallerSourceToken, userId, requestCode);
     reply.WriteInt32(result);
     return NO_ERROR;
 }

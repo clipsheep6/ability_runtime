@@ -367,7 +367,7 @@ int AbilityManagerProxy::StartAbility(const Want &want, const StartOptions &star
 }
 
 int AbilityManagerProxy::StartAbilityAsCaller(const Want &want, const sptr<IRemoteObject> &callerToken,
-    sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode, bool isSendDialogResult)
+    sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -390,7 +390,6 @@ int AbilityManagerProxy::StartAbilityAsCaller(const Want &want, const sptr<IRemo
     }
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, userId);
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, requestCode);
-    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, isSendDialogResult);
     int error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_BY_TOKEN, data, reply, option);
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
