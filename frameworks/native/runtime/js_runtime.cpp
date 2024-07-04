@@ -293,8 +293,8 @@ void JsRuntime::StartDebugMode(const DebugOption dOption)
     ConnectServerManager::Get().StoreInstanceMessage(getproctid(), instanceId_);
     EcmaVM* vm = GetEcmaVm();
     auto dTask = jsEnv_->GetDebuggerPostTask();
-    panda::JSNApi::DebugOption option = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? isStartWithDebug : false};
-    ConnectServerManager::Get().StoreDebuggerInfo(getproctid(), reinterpret_cast<void*>(vm), option, dTask, isDebugApp);
+    panda::JSNApi::DebugOption option = {ARK_DEBUGGER_LIB_PATH, isStartWithDebug, isDebugApp};
+    ConnectServerManager::Get().StoreDebuggerInfo(getproctid(), reinterpret_cast<void*>(vm), option, dTask);
     jsEnv_->NotifyDebugMode(getproctid(), ARK_DEBUGGER_LIB_PATH, instanceId_, isDebugApp, isStartWithDebug);
 }
 
@@ -425,8 +425,8 @@ void JsRuntime::StartProfiler(const DebugOption dOption)
     }
     EcmaVM* vm = GetEcmaVm();
     auto dTask = jsEnv_->GetDebuggerPostTask();
-    panda::JSNApi::DebugOption option = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? isStartWithDebug : false};
-    ConnectServerManager::Get().StoreDebuggerInfo(getproctid(), reinterpret_cast<void*>(vm), option, dTask, isDebugApp);
+    panda::JSNApi::DebugOption option = {ARK_DEBUGGER_LIB_PATH, isStartWithDebug, isDebugApp};
+    ConnectServerManager::Get().StoreDebuggerInfo(getproctid(), reinterpret_cast<void*>(vm), option, dTask);
     TAG_LOGD(AAFwkTag::JSRUNTIME, "profiler:%{public}d interval:%{public}d.", profiler, interval);
     jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval, getproctid(), isDebugApp);
 }

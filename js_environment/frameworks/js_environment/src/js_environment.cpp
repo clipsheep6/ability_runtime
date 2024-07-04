@@ -359,7 +359,7 @@ void JsEnvironment::NotifyDebugMode(
         TAG_LOGE(AAFwkTag::JSENV, "Invalid vm.");
         return;
     }
-    panda::JSNApi::DebugOption debugOption = {libraryPath, debug ? debugMode : false};
+    panda::JSNApi::DebugOption debugOption = {libraryPath, debugMode, debug};
     auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
         auto jsEnv = weak.lock();
         if (jsEnv == nullptr) {
@@ -368,7 +368,7 @@ void JsEnvironment::NotifyDebugMode(
         }
         jsEnv->PostTask(task, "JsEnvironment:NotifyDebugMode");
     };
-    panda::JSNApi::NotifyDebugMode(tid, vm_, debugOption, instanceId, debuggerPostTask, debug);
+    panda::JSNApi::NotifyDebugMode(tid, vm_, debugOption, instanceId, debuggerPostTask);
 }
 
 int32_t JsEnvironment::ParseHdcRegisterOption(std::string& option)
