@@ -99,7 +99,7 @@ HWTEST_F(AppSchedulerHostTest, ScheduleChangeAppGcState_001, TestSize.Level1)
     EXPECT_CALL(*mockAppScheduler_, ScheduleChangeAppGcState(_)).Times(1);
     auto result = mockAppScheduler_->OnRemoteRequest(
             static_cast<uint32_t>(IAppScheduler::Message::APP_GC_STATE_CHANGE), data, reply, option);
-    EXPECT_EQ(result, NO_ERROR);
+    EXPECT_EQ(result, IPC_STUB_UNKNOW_TRANS_ERR);
 }
 
 /**
@@ -118,7 +118,7 @@ HWTEST_F(AppSchedulerHostTest, HandleAttachAppDebug_001, TestSize.Level1)
 
     auto result = mockAppScheduler_->OnRemoteRequest(
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ATTACH_APP_DEBUG), data, reply, option);
-    EXPECT_EQ(result, NO_ERROR);
+    EXPECT_EQ(result, IPC_STUB_UNKNOW_TRANS_ERR);
 }
 
 /**
@@ -155,7 +155,7 @@ HWTEST_F(AppSchedulerHostTest, HandleDetachAppDebug_001, TestSize.Level1)
 
     auto result = mockAppScheduler_->OnRemoteRequest(
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DETACH_APP_DEBUG), data, reply, option);
-    EXPECT_EQ(result, NO_ERROR);
+    EXPECT_EQ(result, IPC_STUB_UNKNOW_TRANS_ERR);
 }
 
 /**

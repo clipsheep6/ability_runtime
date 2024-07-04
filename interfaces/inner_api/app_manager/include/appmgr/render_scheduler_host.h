@@ -40,9 +40,6 @@ public:
 private:
     int32_t HandleNotifyBrowserFd(MessageParcel &data, MessageParcel &reply);
 
-    using RenderSchedulerFunc = int32_t (RenderSchedulerHost::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, RenderSchedulerFunc> memberFuncMap_;
-
     DISALLOW_COPY_AND_MOVE(RenderSchedulerHost);
 };
 }  // namespace AppExecFwk
