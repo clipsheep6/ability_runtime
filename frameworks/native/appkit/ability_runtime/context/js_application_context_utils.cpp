@@ -431,7 +431,7 @@ napi_value JsApplicationContextUtils::OnGetCloudFileDir(napi_env env, NapiCallba
 {
     auto applicationContext = applicationContext_.lock();
     if (!applicationContext) {
-        HILOG_WARN("applicationContext is already released");
+        TAG_LOGW(AAFwkTag::APPKIT, "applicationContext is already released");
         return CreateJsUndefined(env);
     }
     std::string path = applicationContext->GetCloudFileDir();
@@ -711,7 +711,7 @@ napi_value JsApplicationContextUtils::PreloadUIExtensionAbility(napi_env env, na
 
 napi_value JsApplicationContextUtils::OnPreloadUIExtensionAbility(napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     if (info.argc < ARGC_ONE) {
         TAG_LOGW(AAFwkTag::APPKIT, "Params error!");
         ThrowTooFewParametersError(env);

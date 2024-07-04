@@ -547,7 +547,7 @@ void CJUIAbility::ExecuteInsightIntentRepeateForeground(const Want &want,
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "called .");
     if (executeParam == nullptr) {
-        HILOG_WARN("Intention execute param invalid.");
+        TAG_LOGW(AAFwkTag::UIABILITY, "Intention execute param invalid.");
         RequestFocus(want);
         InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback), ERR_OK);
         return;
@@ -580,7 +580,7 @@ void CJUIAbility::ExecuteInsightIntentMoveToForeground(const Want &want,
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "called.");
     if (executeParam == nullptr) {
-        HILOG_WARN("Intention execute param invalid.");
+        TAG_LOGW(AAFwkTag::UIABILITY, "Intention execute param invalid.");
         OnForeground(want);
         InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback), ERR_OK);
         return;

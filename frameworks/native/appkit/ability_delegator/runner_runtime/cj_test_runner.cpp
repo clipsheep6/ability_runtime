@@ -18,7 +18,7 @@
 #include <regex>
 
 #include "ability_delegator_registry.h"
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 #include "runner_runtime/cj_test_runner_object.h"
 
 namespace OHOS {
@@ -27,26 +27,26 @@ namespace RunnerRuntime {
 std::unique_ptr<TestRunner> CJTestRunner::Create(const std::unique_ptr<Runtime> &runtime,
     const std::shared_ptr<AbilityDelegatorArgs> &args, const AppExecFwk::BundleInfo &bundleInfo)
 {
-    HILOG_INFO("CJTestRunner::Create start.");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "CJTestRunner::Create start.");
     if (!runtime) {
-        HILOG_ERROR("Invalid runtime");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "Invalid runtime");
         return nullptr;
     }
 
     auto cjRuntime = static_cast<CJRuntime*>(runtime.get());
     if (!cjRuntime->IsAppLibLoaded()) {
-        HILOG_ERROR("CJTestRunner: AppLib Not Loaded");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "CJTestRunner: AppLib Not Loaded");
         return nullptr;
     }
 
     if (!args) {
-        HILOG_ERROR("Invalid ability delegator args");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "Invalid ability delegator args");
         return nullptr;
     }
 
     auto pTestRunner = new (std::nothrow) CJTestRunner(*cjRuntime, args, bundleInfo);
     if (!pTestRunner) {
-        HILOG_ERROR("Failed to create test runner");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to create test runner");
         return nullptr;
     }
 
@@ -65,11 +65,11 @@ CJTestRunner::~CJTestRunner() = default;
 bool CJTestRunner::Initialize()
 {
     if (!cjRuntime_.IsAppLibLoaded()) {
-        HILOG_ERROR("CJTestRunner: AppLib Not Loaded");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "CJTestRunner: AppLib Not Loaded");
         return false;
     }
     if (!cjTestRunnerObj_) {
-        HILOG_ERROR("CJTestRunnerObj does not exist, Initialize failed.");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "CJTestRunnerObj does not exist, Initialize failed.");
         return false;
     }
     return true;
@@ -77,34 +77,34 @@ bool CJTestRunner::Initialize()
 
 void CJTestRunner::Prepare()
 {
-    HILOG_INFO("Enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
     TestRunner::Prepare();
     if (!cjTestRunnerObj_) {
-        HILOG_ERROR("CJTestRunnerObj does not exist, Prepare failed.");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "CJTestRunnerObj does not exist, Prepare failed.");
         return;
     }
     cjTestRunnerObj_->OnPrepare();
-    HILOG_INFO("End");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "End");
 }
 
 void CJTestRunner::Run()
 {
-    HILOG_INFO("Enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
     TestRunner::Run();
     if (!cjTestRunnerObj_) {
-        HILOG_ERROR("CJTestRunnerObj does not exist, OnRun failed.");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "CJTestRunnerObj does not exist, OnRun failed.");
         return;
     }
     cjTestRunnerObj_->OnRun();
-    HILOG_INFO("End");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "End");
 }
 
 void CJTestRunner::ReportFinished(const std::string &msg)
 {
-    HILOG_INFO("Enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
     auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
     if (!delegator) {
-        HILOG_ERROR("delegator is null.");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "delegator is null.");
         return;
     }
 
@@ -113,10 +113,10 @@ void CJTestRunner::ReportFinished(const std::string &msg)
 
 void CJTestRunner::ReportStatus(const std::string &msg)
 {
-    HILOG_INFO("Enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "Enter");
     auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
     if (!delegator) {
-        HILOG_ERROR("delegator is null.");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "delegator is null.");
         return;
     }
 

@@ -470,9 +470,9 @@ void ExtensionImpl::SendResult(int requestCode, int resultCode, const Want &resu
 
 void ExtensionImpl::SetLaunchParam(const AAFwk::LaunchParam &launchParam)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::EXT, "Called.");
     if (extension_ == nullptr) {
-        HILOG_ERROR("Extension is nullptr.");
+        TAG_LOGE(AAFwkTag::EXT, "Extension is nullptr.");
         return;
     }
 

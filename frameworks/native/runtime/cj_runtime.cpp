@@ -20,7 +20,7 @@
 #include <filesystem>
 
 #include "cj_environment.h"
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 #include "hdc_register.h"
 #include "connect_server_manager.h"
 
@@ -51,7 +51,7 @@ void CJRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths)
     std::string appPath = "";
     for (const auto& kv : appLibPaths) {
         for (const auto& libPath : kv.second) {
-            HILOG_INFO("SetCJAppLibPath: %{public}s.", libPath.c_str());
+            TAG_LOGI(AAFwkTag::DELEGATOR, "SetCJAppLibPath: %{public}s.", libPath.c_str());
             CJRuntime::appLibPaths_.emplace_back(libPath);
             appPath += appPath.empty() ? libPath : ":" + libPath;
         }
@@ -65,19 +65,19 @@ void CJRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths)
 bool CJRuntime::Initialize(const Options& options)
 {
     if (options.lang != GetLanguage()) {
-        HILOG_ERROR("CJRuntime Initialize fail, language mismatch");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "CJRuntime Initialize fail, language mismatch");
         return false;
     }
     if (!OHOS::CJEnvironment::GetInstance()->StartRuntime()) {
-        HILOG_ERROR("start cj runtime failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "start cj runtime failed");
         return false;
     }
     if (!OHOS::CJEnvironment::GetInstance()->StartUIScheduler()) {
-        HILOG_ERROR("start cj ui context failed");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "start cj ui context failed");
         return false;
     }
     if (!LoadCJAppLibrary(CJRuntime::appLibPaths_)) {
-        HILOG_ERROR("CJRuntime::Initialize fail, load app library fail.");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "CJRuntime::Initialize fail, load app library fail.");
         return false;
     }
     bundleName_ = options.bundleName;
@@ -102,7 +102,7 @@ bool CJRuntime::LoadCJAppLibrary(const AppLibPathVec& appLibPaths)
             handle = OHOS::CJEnvironment::GetInstance()->LoadCJLibrary(itor.path().c_str());
             if (handle == nullptr) {
                 char* errMsg = dlerror();
-                HILOG_ERROR(
+                TAG_LOGE(AAFwkTag::DELEGATOR,
                     "Failed to load %{public}s : reason: %{public}s.", itor.path().c_str(), errMsg ? errMsg : "null");
                 return false;
             }
@@ -130,7 +130,7 @@ void CJRuntime::SetHWAsanVersion()
 void CJRuntime::StartDebugMode(const DebugOption dOption)
 {
     if (debugModel_) {
-        HILOG_INFO("Already in debug mode");
+        TAG_LOGI(AAFwkTag::DELEGATOR, "Already in debug mode");
         return;
     }
 
@@ -139,12 +139,13 @@ void CJRuntime::StartDebugMode(const DebugOption dOption)
     const std::string bundleName = bundleName_;
     std::string inputProcessName = bundleName_ != dOption.processName ? dOption.processName : "";
 
-    HILOG_INFO("StartDebugMode %{public}s", bundleName_.c_str());
+    TAG_LOGI(AAFwkTag::DELEGATOR, "StartDebugMode %{public}s", bundleName_.c_str());
 
     HdcRegister::Get().StartHdcRegister(bundleName_, inputProcessName, isDebugApp,
         [bundleName, isStartWithDebug, isDebugApp](int socketFd, std::string option) {
-            HILOG_INFO("HdcRegister callback is call, socket fd is %{public}d, option is %{public}s.",
-                       socketFd, option.c_str());
+            TAG_LOGI(AAFwkTag::DELEGATOR,
+                "HdcRegister callback is call, socket fd is %{public}d, option is %{public}s.",
+                socketFd, option.c_str());
             if (option.find(DEBUGGER) == std::string::npos) {
                 if (!isDebugApp) {
                     ConnectServerManager::Get().StopConnectServer(false);
@@ -152,7 +153,7 @@ void CJRuntime::StartDebugMode(const DebugOption dOption)
                 ConnectServerManager::Get().SendDebuggerInfo(isStartWithDebug, isDebugApp);
                 ConnectServerManager::Get().StartConnectServer(bundleName, socketFd, false);
             } else {
-                HILOG_ERROR("debugger service unexpected option: %{public}s", option.c_str());
+                TAG_LOGE(AAFwkTag::DELEGATOR, "debugger service unexpected option: %{public}s", option.c_str());
             }
         });
     if (isDebugApp) {
@@ -170,5 +171,5 @@ bool CJRuntime::StartDebugger()
 
 void CJRuntime::UnLoadCJAppLibrary()
 {
-    HILOG_INFO("UnLoadCJAppLibrary not support yet");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "UnLoadCJAppLibrary not support yet");
 }

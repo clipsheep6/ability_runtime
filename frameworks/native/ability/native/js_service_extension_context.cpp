@@ -696,12 +696,12 @@ private:
         NapiAsyncTask::CompleteCallback complete = [connection, connectId, innerErrorCode](napi_env env,
             NapiAsyncTask& task, int32_t status) {
             if (*innerErrorCode == 0) {
-                HILOG_INFO("Connect ability success.");
+                TAG_LOGI(AAFwkTag::SERVICE_EXT, "Connect ability success.");
                 task.ResolveWithNoError(env, CreateJsUndefined(env));
                 return;
             }
 
-            HILOG_ERROR("Connect ability failed.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Connect ability failed.");
             int32_t errcode = static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(*innerErrorCode));
             if (errcode) {
                 connection->CallJsFailed(errcode);
