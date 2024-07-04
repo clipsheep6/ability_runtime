@@ -73,6 +73,8 @@ ohos_copy("ability_simulator_copy_app_ability_modules") {
   sources = []
 
   napi_modules = [
+    "napi_module/embeddable_ui_ability:embeddableuiability_napi",
+    "napi_module/embeddable_ui_ability_context:embeddeduiextensionability_napi",
     "napi_module/uiability:uiability",
     "napi_module/ability_stage:abilitystage",
     "napi_module/ability_constant:abilityconstant",
