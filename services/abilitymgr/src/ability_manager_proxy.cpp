@@ -5189,22 +5189,22 @@ int32_t AbilityManagerProxy::SetResidentProcessEnabled(const std::string &bundle
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return INNER_ERR;
     }
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("Write bundl name failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write bundl name failed.");
         return INNER_ERR;
     }
     if (!data.WriteBool(enable)) {
-        HILOG_ERROR("Write enable status failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write enable status failed.");
         return INNER_ERR;
     }
     MessageParcel reply;
     MessageOption option;
     auto ret = SendRequest(AbilityManagerInterfaceCode::SET_RESIDENT_PROCESS_ENABLE, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d.", ret);
         return ret;
     }
 

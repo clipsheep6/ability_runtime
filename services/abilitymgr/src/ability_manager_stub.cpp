@@ -3841,7 +3841,7 @@ int32_t AbilityManagerStub::SetResidentProcessEnableInner(MessageParcel &data, M
     bool enable = data.ReadBool();
     auto result = SetResidentProcessEnabled(bundleName, enable);
     if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("Write result failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write result failed.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

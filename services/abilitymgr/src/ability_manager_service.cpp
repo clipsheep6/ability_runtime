@@ -10378,13 +10378,13 @@ int32_t AbilityManagerService::SetResidentProcessEnabled(const std::string &bund
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     if (!AAFwk::PermissionVerification::GetInstance()->IsSystemAppCall()) {
-        HILOG_ERROR("Permission verification failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Permission verification failed.");
         return ERR_NOT_SYSTEM_APP;
     }
 
     auto residentProcessManager = DelayedSingleton<ResidentProcessManager>::GetInstance();
     if (residentProcessManager == nullptr) {
-        HILOG_ERROR("Get resident proces mgr is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get resident proces mgr is nullptr");
         return INNER_ERR;
     }
 
@@ -10393,7 +10393,7 @@ int32_t AbilityManagerService::SetResidentProcessEnabled(const std::string &bund
     auto callerPid = IPCSkeleton::GetCallingPid();
     DelayedSingleton<AppScheduler>::GetInstance()->GetBundleNameByPid(callerPid, callerName, uid);
     if (callerName.empty()) {
-        HILOG_ERROR("Failed to obtain caller name.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to obtain caller name.");
         return INNER_ERR;
     }
 

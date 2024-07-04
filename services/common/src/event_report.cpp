@@ -114,7 +114,7 @@ void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType ty
         TAG_LOGE(AAFwkTag::DEFAULT, "invalid eventName");
         return;
     }
-    HILOG_DEBUG("EventName is %{public}s", name.c_str());
+    TAG_LOGD(AAFwkTag::DEFAULT, "EventName is %{public}s", name.c_str());
     switch (eventName) {
         case EventName::START_ABILITY_ERROR:
         case EventName::TERMINATE_ABILITY_ERROR:
@@ -182,8 +182,9 @@ void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType ty
                 EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName);
             break;
         case EventName::START_STANDARD_ABILITIES:
-            HILOG_DEBUG("EventInfo is [%{public}d, %{public}s, %{public}s, %{public}s]", eventInfo.userId,
-                eventInfo.bundleName.c_str(), eventInfo.moduleName.c_str(), eventInfo.abilityName.c_str());
+            TAG_LOGD(AAFwkTag::DEFAULT, "EventInfo is [%{public}d, %{public}s, %{public}s, %{public}s]",
+                eventInfo.userId, eventInfo.bundleName.c_str(), eventInfo.moduleName.c_str(),
+                eventInfo.abilityName.c_str());
             HiSysEventWrite(
                 HiSysEvent::Domain::AAFWK,
                 name,
