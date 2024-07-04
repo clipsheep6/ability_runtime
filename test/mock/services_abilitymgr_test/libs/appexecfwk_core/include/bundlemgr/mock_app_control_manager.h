@@ -52,8 +52,8 @@ public:
     virtual ErrCode GetAppRunningControlRule(
         const std::string& bundleName, int32_t userId, AppRunningControlRuleResult& controlRuleResult) override;
 
-    virtual ErrCode GetAbilityRunningControlRule(
-        const std::string &bundleName, int32_t userId, std::vector<DisposedRule> &disposedRuleList) override;
+    virtual ErrCode GetAbilityRunningControlRule(const std::string &bundleName, int32_t userId,
+        std::vector<DisposedRule> &disposedRuleList, int32_t appIndex = 0) override;
 
     virtual ErrCode ConfirmAppJumpControlRule(const std::string &callerBundleName, const std::string &targetBundleName,
         int32_t userId) override;

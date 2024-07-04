@@ -53,7 +53,8 @@ public:
 
     int CreateSelectorModalDialog(AbilityRequest &abilityRequest, const Want &want, int32_t userId,
         std::vector<DialogAppInfo> &dialogAppInfos);
-
+    bool GetGenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
+        std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos, bool isSelector);
 private:
     DialogSessionManager() = default;
     std::string GenerateDialogSessionId();

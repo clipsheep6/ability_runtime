@@ -91,7 +91,7 @@ ErrCode AppControlProxy::GetAppRunningControlRule(
 }
 
 ErrCode AppControlProxy::GetAbilityRunningControlRule(
-    const std::string &bundleName, int32_t userId, std::vector<DisposedRule> &disposedRuleList)
+    const std::string &bundleName, int32_t userId, std::vector<DisposedRule> &disposedRuleList, int32_t appIndex)
 {
     if (bundleName == "com.acts.disposedrulehap") {
         DisposedRule disposedRule;
