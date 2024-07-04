@@ -216,6 +216,7 @@ constexpr int32_t FOUNDATION_UID = 5523;
 constexpr int32_t QUICKFIX_UID = 5524;
 constexpr int32_t DEFAULT_USER_ID = 0;
 constexpr int32_t CURRENT_USER_ID = -1;
+constexpr int32_t RESOURCE_MANAGER_UID = 1096;
 
 constexpr int32_t BLUETOOTH_GROUPID = 1002;
 
@@ -5660,7 +5661,7 @@ int32_t AppMgrServiceInner::ChangeAppGcState(pid_t pid, int32_t state)
 {
     auto callerUid = IPCSkeleton::GetCallingUid();
     TAG_LOGD(AAFwkTag::APPMGR, "called, pid:%{public}d, state:%{public}d, uid:%{public}d.", pid, state, callerUid);
-    if (callerUid != ROOT_UID) { // The current UID for resource management is 0
+    if (callerUid != RESOURCE_MANAGER_UID) { // The current UID for resource management is 1096
         TAG_LOGE(AAFwkTag::APPMGR, "The caller is not a resource manager.");
         return ERR_INVALID_VALUE;
     }
