@@ -1130,7 +1130,7 @@ int32_t AppMgrServiceInner::KillApplication(const std::string &bundleName, const
         return KillApplicationByBundleName(bundleName, clearPageStack);
     }
 
-    auto result = VerifyProcessPermission(bundleName);
+    auto result = VerifyKillProcessPermission(bundleName);
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
         return result;
@@ -1148,7 +1148,7 @@ int32_t AppMgrServiceInner::KillApplicationByUid(const std::string &bundleName, 
 
     int32_t result = ERR_OK;
     if (!CheckCallerIsAppGallery()) {
-        result = VerifyProcessPermission(bundleName);
+        result = VerifyKillProcessPermission(bundleName);
         if (result != ERR_OK) {
             TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
             return result;
@@ -4319,33 +4319,13 @@ int32_t AppMgrServiceInner::NotifyAppMgrRecordExitReason(int32_t pid, int32_t re
     return ERR_OK;
 }
 
-int AppMgrServiceInner::VerifyProcessPermission() const
+int AppMgrServiceInner::VerifyKillProcessPermission(const std::string &bundleName) const
 {
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (isSaCall) {
-        return ERR_OK;
-    }
-
-    if (VerifyAPL()) {
-        return ERR_OK;
-    }
-
-    auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
-        AAFwk::PermissionConstants::PERMISSION_CLEAN_BACKGROUND_PROCESSES);
-    return isCallingPerm ? ERR_OK : ERR_PERMISSION_DENIED;
-}
-
-int AppMgrServiceInner::VerifyProcessPermission(const std::string &bundleName) const
-{
-    CHECK_CALLER_IS_SYSTEM_APP;
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
-    if (isSaCall || isShellCall) {
-        return ERR_OK;
-    }
-
-    if (VerifyAPL()) {
-        return ERR_OK;
+    TAG_LOGI(AAFwkTag::APPMGR, "Check Kill permission, callerUid:%{public}d, callerPid:%{public}d",
+        IPCSkeleton::GetCallingUid(), IPCSkeleton::GetCallingPid());
+    int32_t ret = VerifyKillProcessPermissionCommon();
+    if (ret != ERR_PERMISSION_DENIED) {
+        return ret;
     }
 
     auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
@@ -4365,16 +4345,13 @@ int AppMgrServiceInner::VerifyProcessPermission(const std::string &bundleName) c
     return ERR_OK;
 }
 
-int AppMgrServiceInner::VerifyProcessPermission(const sptr<IRemoteObject> &token) const
+int AppMgrServiceInner::VerifyKillProcessPermission(const sptr<IRemoteObject> &token) const
 {
-    CHECK_CALLER_IS_SYSTEM_APP;
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (isSaCall) {
-        return ERR_OK;
-    }
-
-    if (VerifyAPL()) {
-        return ERR_OK;
+    TAG_LOGI(AAFwkTag::APPMGR, "Check Kill permission, callerUid:%{public}d, callerPid:%{public}d",
+        IPCSkeleton::GetCallingUid(), IPCSkeleton::GetCallingPid());
+    int32_t ret = VerifyKillProcessPermissionCommon();
+    if (ret != ERR_PERMISSION_DENIED) {
+        return ret;
     }
 
     auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
@@ -4392,6 +4369,29 @@ int AppMgrServiceInner::VerifyProcessPermission(const sptr<IRemoteObject> &token
     }
 
     return ERR_OK;
+}
+
+int32_t AppMgrServiceInner::VerifyKillProcessPermissionCommon() const
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
+        AAFwk::PermissionConstants::PERMISSION_KILL_APP_PROCESSES);
+    if (isCallingPerm) {
+        return ERR_OK;
+    }
+
+    // VerifyAPL and ohos.permission.CLEAN_BACKGROUND_PROCESSES will be removed on API18
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
+    if (isSaCall || isShellCall) {
+        return ERR_OK;
+    }
+
+    if (VerifyAPL()) {
+        return ERR_OK;
+    }
+
+    return ERR_PERMISSION_DENIED;
 }
 
 bool AppMgrServiceInner::CheckCallerIsAppGallery()

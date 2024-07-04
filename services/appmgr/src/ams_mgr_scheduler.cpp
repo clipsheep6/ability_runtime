@@ -201,7 +201,7 @@ void AmsMgrScheduler::KillProcessByAbilityToken(const sptr<IRemoteObject> &token
         return;
     }
 
-    if (amsMgrServiceInner_->VerifyProcessPermission(token) != ERR_OK) {
+    if (amsMgrServiceInner_->VerifyKillProcessPermission(token) != ERR_OK) {
         TAG_LOGE(AAFwkTag::APPMGR, "%{public}s: Permission verification failed", __func__);
         return;
     }

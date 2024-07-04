@@ -729,7 +729,7 @@ public:
 
     virtual int GetRenderProcessTerminationStatus(pid_t renderPid, int &status);
 
-    int VerifyProcessPermission(const sptr<IRemoteObject> &token) const;
+    int VerifyKillProcessPermission(const sptr<IRemoteObject> &token) const;
 
     int VerifyAccountPermission(const std::string &permissionName, const int userId) const;
 
@@ -1353,9 +1353,9 @@ private:
 
     static void PointerDeviceEventCallback(const char *key, const char *value, void *context);
 
-    int VerifyProcessPermission() const;
+    int VerifyKillProcessPermission(const std::string &bundleName) const;
 
-    int VerifyProcessPermission(const std::string &bundleName) const;
+    int32_t VerifyKillProcessPermissionCommon() const;
 
     bool CheckCallerIsAppGallery();
 
