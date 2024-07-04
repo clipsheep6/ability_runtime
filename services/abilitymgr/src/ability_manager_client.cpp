@@ -1338,7 +1338,7 @@ ErrCode AbilityManagerClient::GetDialogSessionInfo(const std::string dialogSessi
     return abms->GetDialogSessionInfo(dialogSessionId, info);
 }
 
-ErrCode AbilityManagerClient::SendDialogResult(const Want &want, const std::string dialogSessionId, const bool isAllow)
+ErrCode AbilityManagerClient::SendDialogResult(const Want &want, const std::string &dialogSessionId, const bool isAllow)
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);

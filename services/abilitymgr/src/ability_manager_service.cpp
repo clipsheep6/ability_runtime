@@ -82,7 +82,6 @@
 #include "mock_session_manager_service.h"
 #include "modal_system_ui_extension.h"
 #include "os_account_manager_wrapper.h"
-#include "modal_system_ui_extension.h"
 #include "parameters.h"
 #include "permission_constants.h"
 #include "process_options.h"
@@ -115,7 +114,7 @@
 #include "utils/extension_permissions_util.h"
 #include "utils/window_options_utils.h"
 #ifdef SUPPORT_GRAPHICS
-#include "dialog_session_record.h"
+#include "dialog_session_manager.h"
 #include "application_anr_listener.h"
 #include "input_manager.h"
 #include "ability_first_frame_state_observer_manager.h"
@@ -401,9 +400,6 @@ bool AbilityManagerService::Init()
     InitDefaultRecoveryList();
 
     abilityAutoStartupService_ = std::make_shared<AbilityRuntime::AbilityAutoStartupService>();
-#ifdef SUPPORT_SCREEN
-    dialogSessionRecord_ = std::make_shared<DialogSessionRecord>();
-#endif // SUPPORT_SCREEN
     InitPushTask();
     AbilityCacheManager::GetInstance().Init(AppUtils::GetInstance().GetLimitMaximumExtensionsPerDevice(),
         AppUtils::GetInstance().GetLimitMaximumExtensionsPerProc());
@@ -760,20 +756,20 @@ int AbilityManagerService::StartAbilityByUIContentSession(const Want &want, cons
 }
 
 int AbilityManagerService::StartAbilityAsCaller(const Want &want, const sptr<IRemoteObject> &callerToken,
-    sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode, bool isSendDialogResult)
+    sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode)
 {
-    return StartAbilityAsCallerDetails(want, callerToken, asCallerSourceToken, userId, requestCode, isSendDialogResult);
+    return StartAbilityAsCallerDetails(want, callerToken, asCallerSourceToken, userId, requestCode);
 }
 
 int AbilityManagerService::ImplicitStartAbilityAsCaller(const Want &want, const sptr<IRemoteObject> &callerToken,
-    sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode, bool isSendDialogResult)
+    sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode)
 {
     return StartAbilityAsCallerDetails(want, callerToken, asCallerSourceToken, userId,
-        requestCode, isSendDialogResult, true);
+        requestCode, true);
 }
 
 int AbilityManagerService::StartAbilityAsCallerDetails(const Want &want, const sptr<IRemoteObject> &callerToken,
-    sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode, bool isSendDialogResult, bool isImplicit)
+    sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode, bool isImplicit)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_CALLER_IS_SYSTEM_APP;
@@ -800,7 +796,7 @@ int AbilityManagerService::StartAbilityAsCallerDetails(const Want &want, const s
             callerPkg.c_str(), targetPkg.c_str());
         AbilityUtil::AddAbilityJumpRuleToBms(callerPkg, targetPkg, GetUserId());
     }
-    int32_t ret = StartAbilityWrap(newWant, callerToken, requestCode, userId, true, isSendDialogResult,
+    int32_t ret = StartAbilityWrap(newWant, callerToken, requestCode, userId, true,
         0, false, isImplicit);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
@@ -875,7 +871,7 @@ bool AbilityManagerService::StartAbilityInChain(StartAbilityParams &params, int 
 }
 
 int AbilityManagerService::StartAbilityWrap(const Want &want, const sptr<IRemoteObject> &callerToken,
-    int requestCode, int32_t userId, bool isStartAsCaller, bool isSendDialogResult, uint32_t specifyToken,
+    int requestCode, int32_t userId, bool isStartAsCaller, uint32_t specifyToken,
     bool isForegroundToRestartApp, bool isImplicit)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -892,7 +888,7 @@ int AbilityManagerService::StartAbilityWrap(const Want &want, const sptr<IRemote
     }
 
     return StartAbilityInner(want, callerToken,
-        requestCode, userId, isStartAsCaller, isSendDialogResult, specifyToken, isForegroundToRestartApp, isImplicit);
+        requestCode, userId, isStartAsCaller, specifyToken, isForegroundToRestartApp, isImplicit);
 }
 
 void AbilityManagerService::SetReserveInfo(const std::string &linkString)
@@ -1005,7 +1001,7 @@ int AbilityManagerService::CheckCallPermission(const Want& want, const AppExecFw
 }
 
 int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemoteObject> &callerToken,
-    int requestCode, int32_t userId, bool isStartAsCaller, bool isSendDialogResult, uint32_t specifyTokenId,
+    int requestCode, int32_t userId, bool isStartAsCaller, uint32_t specifyTokenId,
     bool isForegroundToRestartApp, bool isImplicit)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -1037,9 +1033,10 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 
     AbilityUtil::RemoveWindowModeKey(const_cast<Want &>(want));
     std::string dialogSessionId = want.GetStringParam("dialogSessionId");
-    isSendDialogResult = false;
+    bool isSendDialogResult = false;
 #ifdef SUPPORT_SCREEN
-    if (!dialogSessionId.empty() && dialogSessionRecord_->GetDialogCallerInfo(dialogSessionId) != nullptr) {
+    if (!dialogSessionId.empty() &&
+        DialogSessionManager::GetInstance().GetDialogCallerInfo(dialogSessionId) != nullptr) {
         isSendDialogResult = true;
     }
 #endif // SUPPORT_SCREEN
@@ -1179,19 +1176,12 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         TAG_LOGE(AAFwkTag::ABILITYMGR, "DoProcess failed or replaceWant not exist");
         return result;
     }
+#ifdef SUPPORT_SCREEN
     if (result != ERR_OK && isReplaceWantExist && !isSendDialogResult &&
         callerBundleName != BUNDLE_NAME_DIALOG) {
-        std::string dialogSessionId;
-#ifdef SUPPORT_SCREEN
-        std::vector<DialogAppInfo> dialogAppInfos(1);
-        if (GenerateDialogSessionRecord(abilityRequest, GetUserId(), dialogSessionId, dialogAppInfos, false)) {
-            TAG_LOGD(AAFwkTag::ABILITYMGR, "create dialog by ui extension");
-            return CreateModalDialog(newWant, callerToken, dialogSessionId);
-        }
-#endif // SUPPORT_SCREEN
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "create dialog by ui extension failed");
-        return INNER_ERR;
+        return DialogSessionManager::GetInstance().CreateJumpModalDialog(abilityRequest, GetUserId(), newWant);
     }
+#endif // SUPPORT_SCREEN
 
     if (!AbilityUtil::IsSystemDialogAbility(abilityInfo.bundleName, abilityInfo.name)) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "PreLoadAppDataAbilities:%{public}s.", abilityInfo.bundleName.c_str());
@@ -1791,18 +1781,11 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         TAG_LOGE(AAFwkTag::ABILITYMGR, "DoProcess failed or replaceWant not exist");
         return result;
     }
-    if (result != ERR_OK && isReplaceWantExist) {
-        std::string dialogSessionId;
 #ifdef SUPPORT_SCREEN
-        std::vector<DialogAppInfo> dialogAppInfos(1);
-        if (GenerateDialogSessionRecord(abilityRequest, GetUserId(), dialogSessionId, dialogAppInfos, false)) {
-            TAG_LOGD(AAFwkTag::ABILITYMGR, "create dialog by ui extension");
-            return CreateModalDialog(newWant, callerToken, dialogSessionId);
-        }
-#endif // SUPPORT_GRAPHICS
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "create dialog by ui extension failed");
-        return INNER_ERR;
+    if (result != ERR_OK && isReplaceWantExist) {
+        return DialogSessionManager::GetInstance().CreateJumpModalDialog(abilityRequest, GetUserId(), newWant);
     }
+#endif // SUPPORT_GRAPHICS
     abilityRequest.want.RemoveParam(SPECIFY_TOKEN_ID);
     if (specifyTokenId > 0) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Set specifyTokenId, the specifyTokenId is %{public}d.", specifyTokenId);
@@ -10209,8 +10192,7 @@ int AbilityManagerService::GetDialogSessionInfo(const std::string dialogSessionI
     sptr<DialogSessionInfo> &dialogSessionInfo)
 {
     CHECK_CALLER_IS_SYSTEM_APP;
-    CHECK_POINTER_AND_RETURN(dialogSessionRecord_, ERR_INVALID_VALUE);
-    dialogSessionInfo = dialogSessionRecord_->GetDialogSessionInfo(dialogSessionId);
+    dialogSessionInfo = DialogSessionManager::GetInstance().GetDialogSessionInfo(dialogSessionId);
     if (dialogSessionInfo) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "success");
         return ERR_OK;
@@ -10219,83 +10201,10 @@ int AbilityManagerService::GetDialogSessionInfo(const std::string dialogSessionI
     return INNER_ERR;
 }
 
-bool AbilityManagerService::GenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
-    std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos, bool isSelector)
-{
-    CHECK_POINTER_AND_RETURN(dialogSessionRecord_, ERR_INVALID_VALUE);
-    if (!isSelector && dialogAppInfos.size() == 1) {
-        dialogAppInfos.front().bundleName = abilityRequest.abilityInfo.bundleName;
-        dialogAppInfos.front().moduleName = abilityRequest.abilityInfo.moduleName;
-        dialogAppInfos.front().abilityName = abilityRequest.abilityInfo.name;
-        dialogAppInfos.front().abilityIconId = abilityRequest.abilityInfo.iconId;
-        dialogAppInfos.front().abilityLabelId = abilityRequest.abilityInfo.labelId;
-        dialogAppInfos.front().bundleIconId = abilityRequest.abilityInfo.applicationInfo.iconId;
-        dialogAppInfos.front().bundleLabelId = abilityRequest.abilityInfo.applicationInfo.labelId;
-    }
-    return dialogSessionRecord_->GenerateDialogSessionRecord(abilityRequest, userId,
-        dialogSessionId, dialogAppInfos, isSelector);
-}
-
-int AbilityManagerService::CreateModalDialog(const Want &replaceWant, sptr<IRemoteObject> callerToken,
-    std::string dialogSessionId)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    (const_cast<Want &>(replaceWant)).SetParam("dialogSessionId", dialogSessionId);
-    auto connection = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
-    if (callerToken == nullptr) {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "create modal ui extension for system");
-        (const_cast<Want &>(replaceWant)).SetParam(UIEXTENSION_MODAL_TYPE, 1);
-        return connection->CreateModalUIExtension(replaceWant) ? ERR_OK : INNER_ERR;
-    }
-    auto callerRecord = Token::GetAbilityRecordByToken(callerToken);
-    if (!callerRecord) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "callerRecord is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-
-    sptr<IRemoteObject> token;
-    int ret = IN_PROCESS_CALL(GetTopAbility(token));
-    if (ret != ERR_OK || token == nullptr) {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "create modal ui extension for system");
-        (const_cast<Want &>(replaceWant)).SetParam(UIEXTENSION_MODAL_TYPE, 1);
-        return connection->CreateModalUIExtension(replaceWant) ? ERR_OK : INNER_ERR;
-    }
-
-    if (callerRecord->GetAbilityInfo().type == AppExecFwk::AbilityType::PAGE && token == callerToken) {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "create modal ui extension for application");
-        return callerRecord->CreateModalUIExtension(replaceWant);
-    }
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "create modal ui extension for system");
-    (const_cast<Want &>(replaceWant)).SetParam(UIEXTENSION_MODAL_TYPE, 1);
-    return connection->CreateModalUIExtension(replaceWant) ? ERR_OK : INNER_ERR;
-}
-
-int AbilityManagerService::SendDialogResult(const Want &want, const std::string dialogSessionId, bool isAllowed)
+int AbilityManagerService::SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllowed)
 {
     CHECK_CALLER_IS_SYSTEM_APP;
-    CHECK_POINTER_AND_RETURN(dialogSessionRecord_, ERR_INVALID_VALUE);
-    if (!isAllowed) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "user refuse to jump");
-        dialogSessionRecord_->ClearDialogContext(dialogSessionId);
-        return ERR_OK;
-    }
-    std::shared_ptr<DialogCallerInfo> dialogCallerInfo = dialogSessionRecord_->GetDialogCallerInfo(dialogSessionId);
-    if (dialogCallerInfo == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "dialog caller info is nullptr");
-        dialogSessionRecord_->ClearDialogContext(dialogSessionId);
-        return ERR_INVALID_VALUE;
-    }
-    auto targetWant = dialogCallerInfo->targetWant;
-    targetWant.SetElement(want.GetElement());
-    targetWant.SetParam("isSelector", dialogCallerInfo->isSelector);
-    targetWant.SetParam("dialogSessionId", dialogSessionId);
-    sptr<IRemoteObject> callerToken = dialogCallerInfo->callerToken;
-    int ret = StartAbilityAsCaller(targetWant, callerToken, nullptr, dialogCallerInfo->userId,
-        dialogCallerInfo->requestCode, true);
-    if (ret == ERR_OK) {
-        dialogSessionRecord_->ClearDialogContext(dialogSessionId);
-    }
-    return ret;
+    return DialogSessionManager::GetInstance().SendDialogResult(want, dialogSessionId, isAllowed);
 }
 #endif // SUPPORT_SCREEN
 void AbilityManagerService::RemoveLauncherDeathRecipient(int32_t userId)
@@ -11233,19 +11142,12 @@ int AbilityManagerService::StartUIAbilityByPreInstallInner(sptr<SessionInfo> ses
         TAG_LOGE(AAFwkTag::ABILITYMGR, "DoProcess failed or replaceWant not exist");
         return result;
     }
+#ifdef SUPPORT_SCREEN
     if (result != ERR_OK && isReplaceWantExist &&
         callerBundleName != BUNDLE_NAME_DIALOG) {
-        std::string dialogSessionId;
-#ifdef SUPPORT_SCREEN
-        std::vector<DialogAppInfo> dialogAppInfos(1);
-        if (GenerateDialogSessionRecord(abilityRequest, GetUserId(), dialogSessionId, dialogAppInfos, false)) {
-            TAG_LOGD(AAFwkTag::ABILITYMGR, "create dialog by ui extension");
-            return CreateModalDialog(newWant, callerToken, dialogSessionId);
-        }
-#endif // SUPPORT_SCREEN
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "create dialog by ui extension failed");
-        return INNER_ERR;
+        return DialogSessionManager::GetInstance().CreateJumpModalDialog(abilityRequest, GetUserId(), newWant);
     }
+#endif // SUPPORT_SCREEN
 
     if (abilityInfo.type == AppExecFwk::AbilityType::SERVICE ||
         abilityInfo.type == AppExecFwk::AbilityType::EXTENSION) {

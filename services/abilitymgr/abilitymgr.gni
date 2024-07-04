@@ -35,7 +35,7 @@ abilityms_files = [
   "src/data_ability_caller_recipient.cpp",
   "src/data_ability_manager.cpp",
   "src/data_ability_record.cpp",
-  "src/dialog_session_record.cpp",
+  "src/dialog_session/dialog_session_manager.cpp",
   "src/lifecycle_deal.cpp",
   "src/ability_running_info.cpp",
   "src/ecological_rule/ability_ecological_rule_mgr_service_param.cpp",

@@ -1717,9 +1717,8 @@ HWTEST_F(AbilityManagerServiceThirdTest, ImplicitStartAbilityAsCaller_001, TestS
     sptr<IRemoteObject> asCallerSourceToken;
     int32_t userId = 0;
     int requestCode = 0;
-    bool isSendDialogResult = true;
     auto result = abilityMs->ImplicitStartAbilityAsCaller(want, callerToken, asCallerSourceToken, userId,
-        requestCode, isSendDialogResult);
+        requestCode);
     EXPECT_EQ(result, ERR_INVALID_VALUE);
 }
 
@@ -1736,10 +1735,9 @@ HWTEST_F(AbilityManagerServiceThirdTest, StartAbilityAsCallerDetails_001, TestSi
     sptr<IRemoteObject> asCallerSourceToken;
     int32_t userId = 0;
     int requestCode = 0;
-    bool isSendDialogResult = true;
     bool isImplicit = true;
     auto result = abilityMs->StartAbilityAsCallerDetails(want, callerToken, asCallerSourceToken, userId,
-        requestCode, isSendDialogResult, isImplicit);
+        requestCode, isImplicit);
     EXPECT_EQ(result, ERR_INVALID_VALUE);
 }
 
@@ -1757,10 +1755,9 @@ HWTEST_F(AbilityManagerServiceThirdTest, StartAbilityAsCallerDetails_002, TestSi
     sptr<IRemoteObject> asCallerSourceToken;
     int32_t userId = 0;
     int requestCode = 0;
-    bool isSendDialogResult = true;
     bool isImplicit = true;
     auto result = abilityMs->StartAbilityAsCallerDetails(want, callerToken, asCallerSourceToken, userId,
-        requestCode, isSendDialogResult, isImplicit);
+        requestCode, isImplicit);
     EXPECT_EQ(result, ERR_INVALID_CONTINUATION_FLAG);
 }
 
@@ -1777,10 +1774,9 @@ HWTEST_F(AbilityManagerServiceThirdTest, StartAbilityAsCallerDetails_003, TestSi
     sptr<IRemoteObject> asCallerSourceToken = new AbilityManagerStubTestMock();
     int32_t userId = 0;
     int requestCode = 0;
-    bool isSendDialogResult = true;
     bool isImplicit = true;
     auto result = abilityMs->StartAbilityAsCallerDetails(want, callerToken, asCallerSourceToken, userId,
-        requestCode, isSendDialogResult, isImplicit);
+        requestCode, isImplicit);
     EXPECT_EQ(result, ERR_INVALID_VALUE);
 }
 
@@ -1840,12 +1836,11 @@ HWTEST_F(AbilityManagerServiceThirdTest, StartAbilityWrap_001, TestSize.Level1)
     int requestCode = 0;
     int32_t userId = 0;
     bool isStartAsCaller = true;
-    bool isSendDialogResult = true;
     uint32_t specifyToken = 0;
     bool isForegroundToRestartApp = true;
     bool isImplicit = true;
     auto result = abilityMs->StartAbilityWrap(want, callerToken, requestCode, userId, isStartAsCaller,
-        isSendDialogResult, specifyToken, isForegroundToRestartApp, isImplicit);
+        specifyToken, isForegroundToRestartApp, isImplicit);
     EXPECT_EQ(result, ERR_INVALID_VALUE);
 }
 

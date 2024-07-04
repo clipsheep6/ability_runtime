@@ -347,7 +347,7 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, int
             AAFwk::PermissionConstants::PERMISSION_CLEAN_APPLICATION_DATA);
         if (!isCallingPerm) {
             TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed");
-            return ERR_PERMISSION_DENIED;
+            return AAFwk::CHECK_PERMISSION_FAILED;
         }
     }
     pid_t pid = IPCSkeleton::GetCallingPid();

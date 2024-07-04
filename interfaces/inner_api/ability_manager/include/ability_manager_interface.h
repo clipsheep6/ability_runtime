@@ -203,8 +203,7 @@ public:
         const sptr<IRemoteObject> &callerToken,
         sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
-        int requestCode = DEFAULT_INVAL_VALUE,
-        bool isSendDialogResult = false)
+        int requestCode = DEFAULT_INVAL_VALUE)
     {
         return 0;
     }
@@ -942,7 +941,7 @@ public:
         return 0;
     }
 
-    virtual int SendDialogResult(const Want &want, const std::string dialogSessionId, bool isAllow)
+    virtual int SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllow)
     {
         return 0;
     }

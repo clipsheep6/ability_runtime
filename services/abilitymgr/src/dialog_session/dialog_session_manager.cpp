@@ -13,17 +13,19 @@
  * limitations under the License.
  */
 
-#include "dialog_session_record.h"
+#include "dialog_session_manager.h"
 
 #include <random>
 #include <string>
 #include <chrono>
+#include "ability_manager_service.h"
 #include "ability_record.h"
 #include "ability_util.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "int_wrapper.h"
+#include "modal_system_ui_extension.h"
 #include "parameters.h"
 #include "string_wrapper.h"
 #include "want_params_wrapper.h"
@@ -31,7 +33,17 @@
 namespace OHOS {
 namespace AAFwk {
 using OHOS::AppExecFwk::BundleInfo;
-std::string DialogSessionRecord::GenerateDialogSessionId()
+namespace {
+constexpr const char* UIEXTENSION_MODAL_TYPE = "ability.want.params.modalType";
+}
+
+DialogSessionManager &DialogSessionManager::GetInstance()
+{
+    static DialogSessionManager instance;
+    return instance;
+}
+
+std::string DialogSessionManager::GenerateDialogSessionId()
 {
     auto timestamp = std::chrono::system_clock::now().time_since_epoch();
     auto time = std::chrono::duration_cast<std::chrono::seconds>(timestamp).count();
@@ -51,7 +63,7 @@ std::string DialogSessionRecord::GenerateDialogSessionId()
     return dialogSessionId;
 }
 
-void DialogSessionRecord::SetDialogSessionInfo(const std::string dialogSessionId,
+void DialogSessionManager::SetDialogSessionInfo(const std::string dialogSessionId,
     sptr<DialogSessionInfo> &dilogSessionInfo, std::shared_ptr<DialogCallerInfo> &dialogCallerInfo)
 {
     std::lock_guard<ffrt::mutex> guard(dialogSessionRecordLock_);
@@ -59,7 +71,7 @@ void DialogSessionRecord::SetDialogSessionInfo(const std::string dialogSessionId
     dialogCallerInfoMap_[dialogSessionId] = dialogCallerInfo;
 }
 
-sptr<DialogSessionInfo> DialogSessionRecord::GetDialogSessionInfo(const std::string dialogSessionId) const
+sptr<DialogSessionInfo> DialogSessionManager::GetDialogSessionInfo(const std::string dialogSessionId) const
 {
     std::lock_guard<ffrt::mutex> guard(dialogSessionRecordLock_);
     auto it = dialogSessionInfoMap_.find(dialogSessionId);
@@ -70,7 +82,7 @@ sptr<DialogSessionInfo> DialogSessionRecord::GetDialogSessionInfo(const std::str
     return nullptr;
 }
 
-std::shared_ptr<DialogCallerInfo> DialogSessionRecord::GetDialogCallerInfo(const std::string dialogSessionId) const
+std::shared_ptr<DialogCallerInfo> DialogSessionManager::GetDialogCallerInfo(const std::string dialogSessionId) const
 {
     std::lock_guard<ffrt::mutex> guard(dialogSessionRecordLock_);
     auto it = dialogCallerInfoMap_.find(dialogSessionId);
@@ -81,7 +93,7 @@ std::shared_ptr<DialogCallerInfo> DialogSessionRecord::GetDialogCallerInfo(const
     return nullptr;
 }
 
-void DialogSessionRecord::ClearDialogContext(const std::string dialogSessionId)
+void DialogSessionManager::ClearDialogContext(const std::string dialogSessionId)
 {
     std::lock_guard<ffrt::mutex> guard(dialogSessionRecordLock_);
     auto it = dialogSessionInfoMap_.find(dialogSessionId);
@@ -95,14 +107,14 @@ void DialogSessionRecord::ClearDialogContext(const std::string dialogSessionId)
     return;
 }
 
-void DialogSessionRecord::ClearAllDialogContexts()
+void DialogSessionManager::ClearAllDialogContexts()
 {
     std::lock_guard<ffrt::mutex> guard(dialogSessionRecordLock_);
     dialogSessionInfoMap_.clear();
     dialogCallerInfoMap_.clear();
 }
 
-bool DialogSessionRecord::GenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
+bool DialogSessionManager::GenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
     std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos, bool isSelector)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -148,6 +160,107 @@ bool DialogSessionRecord::GenerateDialogSessionRecord(AbilityRequest &abilityReq
     dialogSessionId = GenerateDialogSessionId();
     SetDialogSessionInfo(dialogSessionId, dialogSessionInfo, dialogCallerInfo);
     return true;
+}
+
+int DialogSessionManager::SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllowed)
+{
+    if (!isAllowed) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "user refuse to jump");
+        ClearDialogContext(dialogSessionId);
+        return ERR_OK;
+    }
+    std::shared_ptr<DialogCallerInfo> dialogCallerInfo = GetDialogCallerInfo(dialogSessionId);
+    if (dialogCallerInfo == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "dialog caller info is nullptr");
+        ClearDialogContext(dialogSessionId);
+        return ERR_INVALID_VALUE;
+    }
+    auto targetWant = dialogCallerInfo->targetWant;
+    targetWant.SetElement(want.GetElement());
+    targetWant.SetParam("isSelector", dialogCallerInfo->isSelector);
+    targetWant.SetParam("dialogSessionId", dialogSessionId);
+    sptr<IRemoteObject> callerToken = dialogCallerInfo->callerToken;
+    auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
+    if (!abilityMgr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityMgr is nullptr.");
+        return INNER_ERR;
+    }
+    int ret = abilityMgr->StartAbilityAsCaller(targetWant, callerToken, callerToken, dialogCallerInfo->userId,
+        dialogCallerInfo->requestCode);
+    if (ret == ERR_OK) {
+        ClearDialogContext(dialogSessionId);
+    }
+    return ret;
+}
+
+int DialogSessionManager::CreateJumpModalDialog(AbilityRequest &abilityRequest, int32_t userId,
+    const Want &replaceWant)
+{
+    std::string dialogSessionId;
+    std::vector<DialogAppInfo> dialogAppInfos(1);
+    dialogAppInfos.front().bundleName = abilityRequest.abilityInfo.bundleName;
+    dialogAppInfos.front().moduleName = abilityRequest.abilityInfo.moduleName;
+    dialogAppInfos.front().abilityName = abilityRequest.abilityInfo.name;
+    dialogAppInfos.front().abilityIconId = abilityRequest.abilityInfo.iconId;
+    dialogAppInfos.front().abilityLabelId = abilityRequest.abilityInfo.labelId;
+    dialogAppInfos.front().bundleIconId = abilityRequest.abilityInfo.applicationInfo.iconId;
+    dialogAppInfos.front().bundleLabelId = abilityRequest.abilityInfo.applicationInfo.labelId;
+    if (!GenerateDialogSessionRecord(abilityRequest, userId, dialogSessionId, dialogAppInfos, false)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "generate dialog session record failed");
+        return INNER_ERR;
+    }
+    return CreateModalDialogCommon(replaceWant, abilityRequest.callerToken, dialogSessionId);
+}
+
+int DialogSessionManager::CreateSelectorModalDialog(AbilityRequest &abilityRequest, const Want &want, int32_t userId,
+    std::vector<DialogAppInfo> &dialogAppInfos)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    std::string dialogSessionId;
+    if (!GenerateDialogSessionRecord(abilityRequest, userId, dialogSessionId, dialogAppInfos, true)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "generate dialog session record failed");
+        return INNER_ERR;
+    }
+    return CreateModalDialogCommon(want, abilityRequest.callerToken, dialogSessionId);
+}
+
+int DialogSessionManager::CreateModalDialogCommon(const Want &replaceWant, sptr<IRemoteObject> callerToken,
+    std::string dialogSessionId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    (const_cast<Want &>(replaceWant)).SetParam("dialogSessionId", dialogSessionId);
+    auto connection = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
+    if (callerToken == nullptr) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "create modal ui extension for system");
+        (const_cast<Want &>(replaceWant)).SetParam(UIEXTENSION_MODAL_TYPE, 1);
+        return connection->CreateModalUIExtension(replaceWant) ? ERR_OK : INNER_ERR;
+    }
+    auto callerRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (!callerRecord) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callerRecord is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    sptr<IRemoteObject> token;
+    auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
+    if (!abilityMgr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityMgr is nullptr.");
+        return INNER_ERR;
+    }
+    int ret = IN_PROCESS_CALL(abilityMgr->GetTopAbility(token));
+    if (ret != ERR_OK || token == nullptr) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "create modal ui extension for system");
+        (const_cast<Want &>(replaceWant)).SetParam(UIEXTENSION_MODAL_TYPE, 1);
+        return connection->CreateModalUIExtension(replaceWant) ? ERR_OK : INNER_ERR;
+    }
+
+    if (callerRecord->GetAbilityInfo().type == AppExecFwk::AbilityType::PAGE && token == callerToken) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "create modal ui extension for application");
+        return callerRecord->CreateModalUIExtension(replaceWant);
+    }
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "create modal ui extension for system");
+    (const_cast<Want &>(replaceWant)).SetParam(UIEXTENSION_MODAL_TYPE, 1);
+    return connection->CreateModalUIExtension(replaceWant) ? ERR_OK : INNER_ERR;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
