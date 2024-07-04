@@ -32,7 +32,6 @@
 #include "ability_util.h"
 #include "app_loader.h"
 #include "app_recovery.h"
-#include "app_utils.h"
 #include "appfreeze_inner.h"
 #include "appfreeze_state.h"
 #include "application_data_manager.h"
@@ -2567,15 +2566,6 @@ void MainThread::Start()
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::APPKIT, "App main thread create, pid:%{public}d.", getprocpid());
 
-    if (AAFwk::AppUtils::GetInstance().IsMultiProcessModel()) {
-        ChildProcessInfo info;
-        if (IsStartChild(info)) {
-            ChildMainThread::Start(info);
-            TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ChildMainThread end.");
-            return;
-        }
-    }
-
     std::shared_ptr<EventRunner> runner = EventRunner::GetMainEventRunner();
     if (runner == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "runner is nullptr");
@@ -2605,20 +2595,11 @@ void MainThread::Start()
     thread->RemoveAppMgrDeathRecipient();
 }
 
-bool MainThread::IsStartChild(ChildProcessInfo &info)
+void MainThread::StartChild(const std::map<std::string, int32_t> &fds)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "called.");
-    auto object = OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(APP_MGR_SERVICE_ID);
-    if (object == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "failed to get app manager service");
-        return false;
-    }
-    auto appMgr = iface_cast<IAppMgr>(object);
-    if (appMgr == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "failed to iface_cast object to appMgr");
-        return false;
-    }
-    return appMgr->GetChildProcessInfoForSelf(info) == ERR_OK;
+    TAG_LOGI(AAFwkTag::APPKIT, "MainThread StartChild, fds size:%{public}zu", fds.size());
+    ChildMainThread::Start(fds);
+    TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ChildMainThread end.");
 }
 
 void MainThread::PreloadExtensionPlugin()

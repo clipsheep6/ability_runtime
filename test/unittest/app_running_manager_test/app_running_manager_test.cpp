@@ -217,7 +217,9 @@ HWTEST_F(AppRunningManagerTest, AppRunningManager_GetAppRunningRecordByChildProc
 
     auto appInfo = std::make_shared<ApplicationInfo>();
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
-    auto childRecord = ChildProcessRecord::CreateChildProcessRecord(PID, "./ets/AProcess.ts", appRecord, 1, false);
+    ChildProcessRequest request;
+    request.srcEntry = "./ets/AProcess.ts";
+    auto childRecord = ChildProcessRecord::CreateChildProcessRecord(PID, request, appRecord);
     pid_t childPid = 201;
     childRecord->pid_ = childPid;
     appRecord->AddChildProcessRecord(childPid, childRecord);

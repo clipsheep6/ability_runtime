@@ -5872,7 +5872,7 @@ bool AppMgrServiceInner::IsWaitingDebugApp(const std::string &bundleName)
 
     std::lock_guard<ffrt::mutex> lock(waitingDebugLock_);
     if (waitingDebugBundleList_.empty()) {
-        TAG_LOGD(AAFwkTag::APPMGR, "The waiting debug bundle list is empty.");
+        TAG_LOGD(AAFwkTag::APPMGR, "The waiting debug bundles list is empty.");
         return false;
     }
 
@@ -6119,14 +6119,14 @@ int32_t AppMgrServiceInner::UnregisterAppRunningStatusListener(const sptr<IRemot
     return appRunningStatusModule_->UnregisterListener(appRunningStatusListener);
 }
 
-int32_t AppMgrServiceInner::StartChildProcess(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid,
-    int32_t childProcessCount, bool isStartWithDebug)
+int32_t AppMgrServiceInner::StartChildProcess(const pid_t hostPid, pid_t &childPid, const ChildProcessRequest &request)
 {
     TAG_LOGI(AAFwkTag::APPMGR, "StarChildProcess, hostPid:%{public}d", hostPid);
     auto errCode = StartChildProcessPreCheck(hostPid);
     if (errCode != ERR_OK) {
         return errCode;
     }
+    auto &srcEntry = request.srcEntry;
     if (hostPid <= 0 || srcEntry.empty()) {
         TAG_LOGE(AAFwkTag::APPMGR, "Invalid param: hostPid:%{public}d srcEntry:%{private}s", hostPid, srcEntry.c_str());
         return ERR_INVALID_VALUE;
@@ -6136,9 +6136,17 @@ int32_t AppMgrServiceInner::StartChildProcess(const pid_t hostPid, const std::st
         return ERR_NO_INIT;
     }
     auto appRecord = GetAppRunningRecordByPid(hostPid);
-    auto childProcessRecord = ChildProcessRecord::CreateChildProcessRecord(hostPid, srcEntry, appRecord,
-        childProcessCount, isStartWithDebug);
-    return StartChildProcessImpl(childProcessRecord, appRecord, childPid);
+    auto childProcessRecord = ChildProcessRecord::CreateChildProcessRecord(hostPid, request, appRecord);
+    if (!childProcessRecord) {
+        TAG_LOGE(AAFwkTag::APPMGR, "CreateChildProcessRecord failed, childProcessRecord is nullptr");
+        return ERR_NULL_OBJECT;
+    }
+    auto &args = request.args;
+    childProcessRecord->SetEntryParams(args.entryParams);
+    TAG_LOGI(AAFwkTag::APPMGR, "StartChildProcess, srcEntry:%{private}s, args.entryParams:%{public}s,"
+        " args.fds size:%{public}zu, options.isolationMode:%{public}d", request.srcEntry.c_str(),
+        args.entryParams.c_str(), args.fds.size(), request.options.isolationMode);
+    return StartChildProcessImpl(childProcessRecord, appRecord, childPid, args);
 }
 
 int32_t AppMgrServiceInner::StartChildProcessPreCheck(const pid_t callingPid)
@@ -6156,7 +6164,7 @@ int32_t AppMgrServiceInner::StartChildProcessPreCheck(const pid_t callingPid)
 }
 
 int32_t AppMgrServiceInner::StartChildProcessImpl(const std::shared_ptr<ChildProcessRecord> childProcessRecord,
-    const std::shared_ptr<AppRunningRecord> appRecord, pid_t &childPid)
+    const std::shared_ptr<AppRunningRecord> appRecord, pid_t &childPid, const ChildProcessArgs &args)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (!appRecord) {
@@ -6172,9 +6180,14 @@ int32_t AppMgrServiceInner::StartChildProcessImpl(const std::shared_ptr<ChildPro
         TAG_LOGE(AAFwkTag::APPMGR, "spawnClient is null");
         return ERR_APPEXECFWK_BAD_APPSPAWN_CLIENT;
     }
+    if (!args.CheckFdsSize() || !args.CheckFdsKeyLength()) {
+        return ERR_INVALID_VALUE;
+    }
 
     AppSpawnStartMsg startMsg = appRecord->GetStartMsg();
     startMsg.procName = childProcessRecord->GetProcessName();
+    startMsg.childProcessType = childProcessRecord->GetChildProcessType();
+    startMsg.fds = args.fds;
     pid_t pid = 0;
     {
         std::lock_guard<ffrt::mutex> lock(startChildProcessLock_);
@@ -6236,10 +6249,11 @@ int32_t AppMgrServiceInner::GetChildProcessInfo(const std::shared_ptr<ChildProce
     info.pid = childProcessRecord->GetPid();
     info.hostPid = childProcessRecord->GetHostPid();
     info.uid = childProcessRecord->GetUid();
-    info.processType = childProcessRecord->GetProcessType();
+    info.childProcessType = childProcessRecord->GetChildProcessType();
     info.bundleName = appRecord->GetBundleName();
     info.processName = childProcessRecord->GetProcessName();
     info.srcEntry = childProcessRecord->GetSrcEntry();
+    info.entryParams = childProcessRecord->GetEntryParams();
     info.jitEnabled = appRecord->IsJITEnabled();
     info.isStartWithDebug = childProcessRecord->isStartWithDebug();
     auto applicationInfo = appRecord->GetApplicationInfo();
@@ -6285,7 +6299,7 @@ void AppMgrServiceInner::AttachChildProcess(const pid_t pid, const sptr<IChildSc
     childRecord->SetDeathRecipient(appDeathRecipient);
     childRecord->RegisterDeathRecipient();
 
-    if (childRecord->GetProcessType() != CHILD_PROCESS_TYPE_NATIVE) {
+    if (childRecord->GetChildProcessType() != CHILD_PROCESS_TYPE_NATIVE) {
         childScheduler->ScheduleLoadJs();
     } else {
         childScheduler->ScheduleRunNativeProc(childRecord->GetMainProcessCallback());
@@ -6911,7 +6925,7 @@ int32_t AppMgrServiceInner::StartNativeChildProcess(const pid_t hostPid, const s
 
     auto childRecordMap = appRecord->GetChildProcessRecordMap();
     auto itNativeChildInfo = find_if(childRecordMap.begin(), childRecordMap.end(), [] (const auto &pair) -> bool {
-        return pair.second->GetProcessType() == CHILD_PROCESS_TYPE_NATIVE;
+        return pair.second->GetChildProcessType() == CHILD_PROCESS_TYPE_NATIVE;
     });
 
     if (itNativeChildInfo != childRecordMap.end()) {
@@ -6923,7 +6937,8 @@ int32_t AppMgrServiceInner::StartNativeChildProcess(const pid_t hostPid, const s
     pid_t dummyChildPid = 0;
     auto nativeChildRecord = ChildProcessRecord::CreateNativeChildProcessRecord(
         hostPid, libName, appRecord, callback, childProcessCount, false);
-    return StartChildProcessImpl(nativeChildRecord, appRecord, dummyChildPid);
+    ChildProcessArgs args;
+    return StartChildProcessImpl(nativeChildRecord, appRecord, dummyChildPid, args);
 }
 
 bool AppMgrServiceInner::IsAppProcessesAllCached(const std::string &bundleName, int32_t uid,

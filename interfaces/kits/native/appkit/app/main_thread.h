@@ -251,6 +251,8 @@ public:
      */
     static void Start();
 
+    static void StartChild(const std::map<std::string, int32_t> &fds);
+
     /**
      *
      * @brief Preload extensions in appspawn.
@@ -698,14 +700,6 @@ private:
         std::vector<std::pair<std::string, std::string>> &fileMap);
     void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppLibPathMap &appLibPaths);
     void SetAppDebug(uint32_t modeFlag, bool isDebug);
-
-    /**
-     * @brief Whether MainThread is started by ChildProcessManager.
-     *
-     * @param info The child process info to be set from appMgr.
-     * @return true if started by ChildProcessManager, false otherwise.
-     */
-    static bool IsStartChild(ChildProcessInfo &info);
 
     std::vector<std::string> fileEntries_;
     std::vector<std::string> nativeFileEntries_;

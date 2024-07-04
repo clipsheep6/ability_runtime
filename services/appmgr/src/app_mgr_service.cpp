@@ -1338,16 +1338,14 @@ int32_t AppMgrService::IsAppRunning(const std::string &bundleName, int32_t appCl
     return appMgrServiceInner_->IsAppRunning(bundleName, appCloneIndex, isRunning);
 }
 
-int32_t AppMgrService::StartChildProcess(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount,
-    bool isStartWithDebug)
+int32_t AppMgrService::StartChildProcess(pid_t &childPid, const ChildProcessRequest &request)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (!IsReady()) {
         TAG_LOGE(AAFwkTag::APPMGR, "StartChildProcess failed, AppMgrService not ready.");
         return ERR_INVALID_OPERATION;
     }
-    return appMgrServiceInner_->StartChildProcess(IPCSkeleton::GetCallingPid(), srcEntry, childPid,
-        childProcessCount, isStartWithDebug);
+    return appMgrServiceInner_->StartChildProcess(IPCSkeleton::GetCallingPid(), childPid, request);
 }
 
 int32_t AppMgrService::GetChildProcessInfoForSelf(ChildProcessInfo &info)

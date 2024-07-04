@@ -22,6 +22,7 @@
 #include "app_scheduler_interface.h"
 #include "appexecfwk_errors.h"
 #include "bundle_info.h"
+#include "child_process_request.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
@@ -1208,18 +1209,19 @@ int32_t AppMgrStub::HandleIsAppRunning(MessageParcel &data, MessageParcel &reply
 int32_t AppMgrStub::HandleStartChildProcess(MessageParcel &data, MessageParcel &reply)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called.");
-    std::string srcEntry = data.ReadString();
+    std::unique_ptr<ChildProcessRequest> request(data.ReadParcelable<ChildProcessRequest>());
+    if (!request) {
+        return IPC_STUB_ERR;
+    }
     int32_t childPid = 0;
-    int32_t childProcessCount = data.ReadInt32();
-    int32_t isStartWithDebug = data.ReadBool();
-    int32_t result = StartChildProcess(srcEntry, childPid, childProcessCount, isStartWithDebug);
+    int32_t result = StartChildProcess(childPid, *request);
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write result error.");
-        return ERR_INVALID_VALUE;
+        return IPC_STUB_ERR;
     }
     if (result == ERR_OK && !reply.WriteInt32(childPid)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write childPid error.");
-        return ERR_INVALID_VALUE;
+        return IPC_STUB_ERR;
     }
     return NO_ERROR;
 }

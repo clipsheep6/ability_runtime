@@ -74,7 +74,7 @@ HWTEST_F(JsChildProcessTest, JsChildProcessInit_0100, TestSize.Level0)
 
     std::shared_ptr<ChildProcessStartInfo> info = std::make_shared<ChildProcessStartInfo>();
     info->name = "AProcess";
-    info->srcEntry = "./ets/process/AProcess.ts";
+    info->srcEntry = "entry/./ets/process/AProcess.ts";
     info->moduleName = "entry";
 
     process->Init(info);
@@ -132,11 +132,34 @@ HWTEST_F(JsChildProcessTest, JsChildProcessOnStart_0100, TestSize.Level0)
 
     std::shared_ptr<ChildProcessStartInfo> info = std::make_shared<ChildProcessStartInfo>();
     info->name = "AProcess";
-    info->srcEntry = "./ets/process/AProcess.ts";
+    info->srcEntry = "entry/./ets/process/AProcess.ts";
     info->moduleName = "entry";
 
     process->Init(info);
     process->OnStart();
+    EXPECT_TRUE(process->processStartInfo_ != nullptr);
+}
+
+/**
+ * @tc.number: JsChildProcessOnStart_0200
+ * @tc.desc: Test JsChildProcess OnStart works
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsChildProcessTest, JsChildProcessOnStart_0200, TestSize.Level0)
+{
+    TAG_LOGD(AAFwkTag::TEST, "JsChildProcessOnStart_0200 called.");
+    std::unique_ptr<Runtime> runtime = std::make_unique<JsRuntime>();
+    auto process = JsChildProcess::Create(runtime);
+    EXPECT_TRUE(process != nullptr);
+
+    std::shared_ptr<ChildProcessStartInfo> info = std::make_shared<ChildProcessStartInfo>();
+    info->name = "AProcess";
+    info->srcEntry = "entry/./ets/process/AProcess.ts";
+    info->moduleName = "entry";
+
+    process->Init(info);
+    auto args = std::make_shared<AppExecFwk::ChildProcessArgs>();
+    process->OnStart(args);
     EXPECT_TRUE(process->processStartInfo_ != nullptr);
 }
 }  // namespace AbilityRuntime

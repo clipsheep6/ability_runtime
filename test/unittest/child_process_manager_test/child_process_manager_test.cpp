@@ -153,7 +153,24 @@ HWTEST_F(ChildProcessManagerTest, GetHapModuleInfo_0100, TestSize.Level0)
     EXPECT_TRUE(ret);
 
     AppExecFwk::HapModuleInfo hapModuleInfo;
-    ret = ChildProcessManager::GetInstance().GetHapModuleInfo(bundleInfo, hapModuleInfo);
+    ret = ChildProcessManager::GetInstance().GetHapModuleInfo(bundleInfo, "entry", hapModuleInfo);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.number: GetEntryHapModuleInfo_0100
+ * @tc.desc: Test GetEntryHapModuleInfo works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ChildProcessManagerTest, GetEntryHapModuleInfo_0100, TestSize.Level0)
+{
+    TAG_LOGD(AAFwkTag::TEST, "GetEntryHapModuleInfo_0100 called.");
+    AppExecFwk::BundleInfo bundleInfo;
+    auto ret = ChildProcessManager::GetInstance().GetBundleInfo(bundleInfo);
+    EXPECT_TRUE(ret);
+
+    AppExecFwk::HapModuleInfo hapModuleInfo;
+    ret = ChildProcessManager::GetInstance().GetEntryHapModuleInfo(bundleInfo, hapModuleInfo);
     EXPECT_TRUE(ret);
 }
 
@@ -172,7 +189,7 @@ HWTEST_F(ChildProcessManagerTest, CreateRuntime_0100, TestSize.Level0)
     EXPECT_TRUE(ret);
 
     AppExecFwk::HapModuleInfo hapModuleInfo;
-    ret = ChildProcessManager::GetInstance().GetHapModuleInfo(bundleInfo, hapModuleInfo);
+    ret = ChildProcessManager::GetInstance().GetEntryHapModuleInfo(bundleInfo, hapModuleInfo);
     EXPECT_TRUE(ret);
 
     auto runtime = ChildProcessManager::GetInstance().CreateRuntime(bundleInfo, hapModuleInfo, false, false);
@@ -219,6 +236,21 @@ HWTEST_F(ChildProcessManagerTest, LoadJsFile_0100, TestSize.Level0)
 }
 
 /**
+ * @tc.number: LoadJsFile_0200
+ * @tc.desc: Test LoadJsFile works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ChildProcessManagerTest, LoadJsFile_0200, TestSize.Level0)
+{
+    TAG_LOGD(AAFwkTag::TEST, "LoadJsFile_0200 called.");
+    std::unique_ptr<Runtime> runtime;
+    AppExecFwk::HapModuleInfo hapModuleInfo;
+    auto args = std::make_shared<AppExecFwk::ChildProcessArgs>();
+    auto ret = ChildProcessManager::GetInstance().LoadJsFile("./ets/process/AProcess.ts", hapModuleInfo, runtime, args);
+    EXPECT_TRUE(ret);
+}
+
+/**
  * @tc.number: SetForkProcessDebugOption_0100
  * @tc.desc: Test SetForkProcessDebugOption.
  * @tc.type: FUNC
@@ -244,5 +276,72 @@ HWTEST_F(ChildProcessManagerTest, StartNativeChildProcessByAppSpawnFork_0100, Te
     EXPECT_NE(ret, ChildProcessManagerErrorCode::ERR_FORK_FAILED);
 }
 
+/**
+ * @tc.number: GetModuleNameFromSrcEntry_0100
+ * @tc.desc: Test GetModuleNameFromSrcEntry works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ChildProcessManagerTest, GetModuleNameFromSrcEntry_0100, TestSize.Level0)
+{
+    TAG_LOGD(AAFwkTag::TEST, "GetModuleNameFromSrcEntry_0100 called.");
+    std::string srcEntry = "entry/./ets/process/AProcess.ts";
+    auto moduleName = ChildProcessManager::GetInstance().GetModuleNameFromSrcEntry(srcEntry);
+    EXPECT_EQ(moduleName, "entry");
+}
+
+/**
+ * @tc.number: GetModuleNameFromSrcEntry_0200
+ * @tc.desc: Test GetModuleNameFromSrcEntry works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ChildProcessManagerTest, GetModuleNameFromSrcEntry_0200, TestSize.Level0)
+{
+    TAG_LOGD(AAFwkTag::TEST, "GetModuleNameFromSrcEntry_0200 called.");
+    std::string srcEntry = "AProcess.ts";
+    auto moduleName = ChildProcessManager::GetInstance().GetModuleNameFromSrcEntry(srcEntry);
+    EXPECT_EQ(moduleName, "");
+}
+
+/**
+ * @tc.number: GetModuleNameFromSrcEntry_0300
+ * @tc.desc: Test GetModuleNameFromSrcEntry works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ChildProcessManagerTest, GetModuleNameFromSrcEntry_0300, TestSize.Level0)
+{
+    TAG_LOGD(AAFwkTag::TEST, "GetModuleNameFromSrcEntry_0300 called.");
+    std::string srcEntry = "./ets/process/AProcess.ts";
+    auto moduleName = ChildProcessManager::GetInstance().GetModuleNameFromSrcEntry(srcEntry);
+    EXPECT_EQ(moduleName, "");
+}
+
+/**
+ * @tc.number: SetAppSpawnForkDebugOption_0100
+ * @tc.desc: Test SetAppSpawnForkDebugOption works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ChildProcessManagerTest, SetAppSpawnForkDebugOption_0100, TestSize.Level0)
+{
+    TAG_LOGD(AAFwkTag::TEST, "SetAppSpawnForkDebugOption_0100 called.");
+    Runtime::DebugOption debugOption;
+    ChildProcessManager::GetInstance().SetAppSpawnForkDebugOption(debugOption, nullptr);
+    EXPECT_EQ(debugOption.processName, "");
+}
+
+/**
+ * @tc.number: SetAppSpawnForkDebugOption_0200
+ * @tc.desc: Test SetAppSpawnForkDebugOption works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ChildProcessManagerTest, SetAppSpawnForkDebugOption_0200, TestSize.Level0)
+{
+    TAG_LOGD(AAFwkTag::TEST, "SetAppSpawnForkDebugOption_0200 called.");
+    Runtime::DebugOption debugOption;
+    auto processInfo = std::make_shared<AppExecFwk::ChildProcessInfo>();
+    auto processName = "com.test.abc";
+    processInfo->processName = processName;
+    ChildProcessManager::GetInstance().SetAppSpawnForkDebugOption(debugOption, processInfo);
+    EXPECT_EQ(debugOption.processName, processName);
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

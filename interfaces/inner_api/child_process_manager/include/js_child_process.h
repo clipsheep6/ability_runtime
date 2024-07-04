@@ -31,6 +31,7 @@ public:
 
     bool Init(const std::shared_ptr<ChildProcessStartInfo> &info) override;
     void OnStart() override;
+    void OnStart(std::shared_ptr<AppExecFwk::ChildProcessArgs> args) override;
 
 private:
     napi_value CallObjectMethod(const char *name, napi_value const *argv = nullptr, size_t argc = 0);

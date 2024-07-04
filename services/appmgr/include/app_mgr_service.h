@@ -490,12 +490,11 @@ public:
     /**
      * Start child process, called by ChildProcessManager.
      *
-     * @param srcEntry Child process source file entrance path to be started.
      * @param childPid Created child process pid.
+     * @param request Child process start request params.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCoun,
-        bool isStartWithDebug) override;
+    int32_t StartChildProcess(pid_t &childPid, const ChildProcessRequest &request) override;
 
     /**
      * Get child process record for self.
