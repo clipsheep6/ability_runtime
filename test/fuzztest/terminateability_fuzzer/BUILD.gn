@@ -52,9 +52,10 @@ ohos_fuzztest("TerminateAbilityFuzzTest") {
   external_deps = [
     "ability_base:want",
     "ability_runtime:ability_manager",
-    "appspawn:appspawn_socket_client",
+    "appspawn:appspawn_client",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "ffrt:libffrt",
     "ipc:ipc_core",
     "napi:ace_napi",
