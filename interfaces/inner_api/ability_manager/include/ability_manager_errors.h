@@ -550,6 +550,11 @@ enum {
      */
     ERR_BUNDLE_NOT_EXIST,
 
+     /*
+     * Result(2097259) for applock start success.
+     */
+    ERR_APPLOCK_START_SUCCESS = 2097259,
+
     /*
      * Result (2097260) for target free install task does not exist.
      */
