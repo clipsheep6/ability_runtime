@@ -539,6 +539,8 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
     }
 
     abilityRuntimeContext_->DispatchConfigurationUpdated(*configuration_);
+    abilityRuntimeContext_->SetMcc(configuration_->GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MCC));
+    abilityRuntimeContext_->SetMnc(configuration_->GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MNC));
 
     if (colorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) == 0
         || (globalColorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) == 0 && colorModeIsSetByApp.empty())) {

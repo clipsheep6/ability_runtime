@@ -109,6 +109,8 @@ public:
     void SetColorMode(int32_t colorMode);
     void SetLanguage(const std::string &language);
     void SetFont(const std::string &font);
+    void SetMcc(const std::string &mcc);
+    void SetMnc(const std::string &mnc);
     void ClearUpApplicationData();
     int GetArea() override;
     std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() const override;
