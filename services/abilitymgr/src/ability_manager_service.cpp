@@ -8290,8 +8290,13 @@ AppExecFwk::ElementName AbilityManagerService::GetTopAbility(bool isNeedLocalDev
     TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s start.", __func__);
     AppExecFwk::ElementName elementName = {};
     if (!PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "caller can not use system-api.");
-        return elementName;
+        auto callerPid = IPCSkeleton::GetCallingPid();
+        AppExecFwk::RunningProcessInfo processInfo;
+        DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(callerPid, processInfo);
+        if (!processInfo.isTestProcess) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "caller can not use system-api or not test process.");
+            return elementName;
+        }
     }
 #ifdef SUPPORT_GRAPHICS
     sptr<IRemoteObject> token;
