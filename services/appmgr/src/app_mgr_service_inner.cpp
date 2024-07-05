@@ -641,7 +641,7 @@ void AppMgrServiceInner::MakeProcessName(const std::shared_ptr<AbilityInfo> &abi
     if (appIndex != 0) {
         processName += std::to_string(appIndex);
     }
-        
+
     if (!specifiedProcessFlag.empty()) {
         processName = (processName + ":" + specifiedProcessFlag).substr(0, MAX_SPECIFIED_PROCESS_NAME_LENGTH);
         TAG_LOGI(AAFwkTag::APPMGR, "specifiedProcessFlag = %{public}s, processName = %{public}s",
@@ -6953,11 +6953,13 @@ bool AppMgrServiceInner::IsAppProcessesAllCached(const std::string &bundleName, 
 
 void AppMgrServiceInner::CacheLoabAbilityTask(const LoabAbilityTaskFunc& func)
 {
+    std::lock_guard lock(loadTaskListMutex_);
     loadAbilityTaskFuncList_.emplace_back(func);
 }
 
 void AppMgrServiceInner::SubmitCacheLoabAbilityTask()
 {
+    std::lock_guard lock(loadTaskListMutex_);
     std::weak_ptr<AAFwk::TaskHandlerWrap> taskHandler = taskHandler_;
     for_each(loadAbilityTaskFuncList_.begin(), loadAbilityTaskFuncList_.end(),
         [taskHandler](LoabAbilityTaskFunc loadAbilityFunc) {

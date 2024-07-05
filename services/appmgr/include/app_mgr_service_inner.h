@@ -18,6 +18,7 @@
 
 #include <list>
 #include <map>
+#include <mutex>
 #include <regex>
 #include <unordered_map>
 #include <unordered_set>
@@ -1572,6 +1573,8 @@ private:
     std::shared_ptr<AAFwk::TaskHandlerWrap> otherTaskHandler_;
     std::shared_ptr<AppPreloader> appPreloader_;
     std::atomic<bool> sceneBoardAttachFlag_ = true;
+
+    std::mutex loadTaskListMutex_;
     std::vector<LoabAbilityTaskFunc> loadAbilityTaskFuncList_;
 };
 }  // namespace AppExecFwk
