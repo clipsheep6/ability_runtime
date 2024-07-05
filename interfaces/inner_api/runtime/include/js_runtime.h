@@ -98,6 +98,7 @@ public:
     void PreloadSystemModule(const std::string& moduleName) override;
 
     void StartDebugMode(const DebugOption debugOption) override;
+    void DebuggerConnectionHandler(bool isDebugApp, bool isStartWithDebug);
     void StopDebugMode();
     bool LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath) override;
     bool UnLoadRepairPatch(const std::string& hqfFile) override;
@@ -121,6 +122,7 @@ public:
     void FreeNativeReference(std::unique_ptr<NativeReference> reference);
     void FreeNativeReference(std::shared_ptr<NativeReference>&& reference);
     void StartProfiler(const DebugOption debugOption) override;
+    void DebuggerConnectionManager(bool isDebugApp, bool isStartWithDebug, const DebugOption dOption);
 
     void ReloadFormComponent(); // Reload ArkTS-Card component
     void DoCleanWorkAfterStageCleaned() override;

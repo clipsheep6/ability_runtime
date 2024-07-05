@@ -65,6 +65,8 @@ public:
      *
      */
     bool AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState);
+
+    bool AbilityTransactionForeground(const Want &want, const AAFwk::LifeCycleStateInfo &targetState);
     
     /**
      * @description:  Provide operating system ShareData information to the observer

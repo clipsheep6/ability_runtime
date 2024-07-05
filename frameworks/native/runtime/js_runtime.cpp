@@ -290,6 +290,11 @@ void JsRuntime::StartDebugMode(const DebugOption dOption)
         ConnectServerManager::Get().StartConnectServer(bundleName_, -1, true);
     }
 
+    DebuggerConnectionHandler(isDebugApp, isStartWithDebug);
+}
+
+void JsRuntime::DebuggerConnectionHandler(bool isDebugApp, bool isStartWithDebug)
+{
     ConnectServerManager::Get().StoreInstanceMessage(getproctid(), instanceId_);
     EcmaVM* vm = GetEcmaVm();
     auto dTask = jsEnv_->GetDebuggerPostTask();
@@ -412,6 +417,12 @@ void JsRuntime::StartProfiler(const DebugOption dOption)
             weak->StartDebugger(option, socketFd, isDebugApp);
         }
     });
+
+    DebuggerConnectionManager(isDebugApp, isStartWithDebug, dOption);
+}
+
+void JsRuntime::DebuggerConnectionManager(bool isDebugApp, bool isStartWithDebug, const DebugOption dOption)
+{
     if (isDebugApp) {
         ConnectServerManager::Get().StartConnectServer(bundleName_, 0, true);
     }

@@ -231,6 +231,9 @@ public:
      */
     void InitResourceManager(BundleInfo &bundleInfo, std::shared_ptr<ContextDeal> &deal);
 
+    void LoadResources(BundleInfo &bundleInfo, std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
+        std::unique_ptr<Global::Resource::ResConfig> &resConfig, std::shared_ptr<ContextDeal> &deal);
+
     /**
      * @brief Get the string of this Context based on the specified resource ID.
      *

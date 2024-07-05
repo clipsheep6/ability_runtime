@@ -110,20 +110,7 @@ bool PageAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycl
             break;
         }
         case AAFwk::ABILITY_STATE_FOREGROUND_NEW: {
-            if (targetState.isNewWant) {
-                NewWant(want);
-            }
-            SetUriString(targetState.caller.deviceId + "/" + targetState.caller.bundleName + "/" +
-                         targetState.caller.abilityName);
-
-            if (lifecycleState_ == AAFwk::ABILITY_STATE_BACKGROUND_NEW ||
-                lifecycleState_ == AAFwk::ABILITY_STATE_BACKGROUND) {
-                Foreground(want);
-            } else {
-                if (ability_) {
-                    ability_->RequestFocus(want);
-                }
-            }
+            AbilityTransactionForeground(want, targetState);
             break;
         }
         case AAFwk::ABILITY_STATE_ACTIVE: {
@@ -149,6 +136,23 @@ bool PageAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycl
     }
     TAG_LOGD(AAFwkTag::ABILITY, "PageAbilityImpl::AbilityTransaction end: retVal = %{public}d", static_cast<int>(ret));
     return ret;
+}
+
+void PageAbilityImpl::AbilityTransactionForeground(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+{
+    if (targetState.isNewWant) {
+        NewWant(want);
+    }
+    SetUriString(targetState.caller.deviceId + "/" + targetState.caller.bundleName + "/" +
+                 targetState.caller.abilityName);
+    if (lifecycleState_ == AAFwk::ABILITY_STATE_BACKGROUND_NEW ||
+        lifecycleState_ == AAFwk::ABILITY_STATE_BACKGROUND) {
+        Foreground(want);
+    } else {
+        if (ability_) {
+            ability_->RequestFocus(want);
+        }
+    }
 }
 
 /**
