@@ -1530,10 +1530,10 @@ HWTEST_F(MainThreadTest, LoadNativeLiabrary_0100, TestSize.Level1)
     std::string nativeLibraryPath = "";
     ASSERT_NE(mainThread_, nullptr);
     BundleInfo bundleInfo;
-    mainThread_->LoadNativeLiabrary(bundleInfo, nativeLibraryPath);
+    mainThread_->LoadNativeLibrary(bundleInfo, nativeLibraryPath);
 
     nativeLibraryPath = "test/";
-    mainThread_->LoadNativeLiabrary(bundleInfo, nativeLibraryPath);
+    mainThread_->LoadNativeLibrary(bundleInfo, nativeLibraryPath);
     TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 #endif

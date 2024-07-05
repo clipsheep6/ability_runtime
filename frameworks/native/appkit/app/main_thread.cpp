@@ -1398,8 +1398,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         std::vector<std::string> localPaths;
         ChangeToLocalPath(bundleName, appInfo.moduleSourceDirs, localPaths);
         LoadAbilityLibrary(localPaths);
-        LoadNativeLiabrary(bundleInfo, appInfo.nativeLibraryPath);
-#ifdef SUPPORT_SCREEN
+        LoadNativeLibrary(bundleInfo, appInfo.nativeLibraryPath);
+#ifdef SUPPORT_GRAPHICS
     } else if (Ace::AceForwardCompatibility::PipelineChanged()) {
         std::vector<std::string> localPaths;
         ChangeToLocalPath(bundleName, appInfo.moduleSourceDirs, localPaths);
@@ -1771,7 +1771,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 }
 
 #ifdef ABILITY_LIBRARY_LOADER
-void MainThread::CalcNativeLiabraryEntries(const BundleInfo &bundleInfo, std::string &nativeLibraryPath)
+void MainThread::CalcNativeLibraryEntries(const BundleInfo &bundleInfo, std::string &nativeLibraryPath)
 {
     bool loadSoFromDir = bundleInfo.hapModuleInfos.empty();
     std::vector<std::string> nativeFileEntries;
@@ -1822,9 +1822,9 @@ void MainThread::CalcNativeLiabraryEntries(const BundleInfo &bundleInfo, std::st
     }
 }
 
-void MainThread::LoadNativeLiabrary(const BundleInfo &bundleInfo, std::string &nativeLibraryPath)
+void MainThread::LoadNativeLibrary(const BundleInfo &bundleInfo, std::string &nativeLibraryPath)
 {
-    CalcNativeLiabraryEntries(bundleInfo, nativeLibraryPath);
+    CalcNativeLibraryEntries(bundleInfo, nativeLibraryPath);
     if (nativeFileEntries_.empty()) {
         TAG_LOGW(AAFwkTag::APPKIT, "No native library");
         return;

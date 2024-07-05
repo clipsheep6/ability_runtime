@@ -661,8 +661,8 @@ private:
      */
     void LoadAbilityLibrary(const std::vector<std::string> &libraryPaths);
 
-    void CalcNativeLiabraryEntries(const BundleInfo &bundleInfo, std::string &nativeLibraryPath);
-    void LoadNativeLiabrary(const BundleInfo &bundleInfo, std::string &nativeLibraryPath);
+    void CalcNativeLibraryEntries(const BundleInfo &bundleInfo, std::string &nativeLibraryPath);
+    void LoadNativeLibrary(const BundleInfo &bundleInfo, std::string &nativeLibraryPath);
 
     void LoadAppDetailAbilityLibrary(std::string &nativeLibraryPath);
 
