@@ -28,6 +28,7 @@
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
+#include "utils/app_mgr_util.h"
 #include "uri_utils.h"
 
 namespace OHOS {
@@ -39,6 +40,7 @@ const std::string PARAM_FREEINSTALL_BUNDLENAMES = "ohos.freeinstall.params.calli
 const std::string PARAM_FREEINSTALL_UID = "ohos.freeinstall.params.callingUid";
 constexpr uint32_t IDMS_CALLBACK_ON_FREE_INSTALL_DONE = 0;
 constexpr uint32_t UPDATE_ATOMOIC_SERVICE_TASK_TIMER = 24 * 60 * 60 * 1000; /* 24h */
+constexpr const char* KEY_IS_APP_RUNNING = "com.ohos.param.isAppRunning";
 
 FreeInstallManager::FreeInstallManager(const std::weak_ptr<AbilityManagerService> &server)
     : server_(server)
@@ -102,6 +104,12 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
     AppExecFwk::AbilityInfo abilityInfo = {};
     constexpr auto flag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION;
     info.want.SetParam(PARAM_FREEINSTALL_UID, IPCSkeleton::GetCallingUid());
+
+    int result = SetAppRunningState(info.want);
+    if (result != ERR_OK) {
+        TAG_LOGE(AAFwkTag::FREE_INSTALL, "SetAppRunningState failed.");
+        return result;
+    }
 
     if (IN_PROCESS_CALL(bundleMgrHelper->QueryAbilityInfo(info.want, flag, info.userId, abilityInfo, callback))) {
         TAG_LOGI(AAFwkTag::FREE_INSTALL, "The app has installed.");
@@ -652,6 +660,20 @@ void FreeInstallManager::SetFreeInstallTaskSessionId(const std::string& bundleNa
         }
         it++;
     }
+}
+
+int FreeInstallManager::SetAppRunningState(Want &want)
+{
+    auto appMgr = AppMgrUtil::GetAppMgr();
+    if (appMgr == nullptr) {
+        TAG_LOGE(AAFwkTag::FREE_INSTALL, "appMgr is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    bool isAppRunning = appMgr->GetAppRunningStateByBundleName(want.GetElement().GetBundleName());
+    TAG_LOGI(AAFwkTag::FREE_INSTALL, "isAppRunning=%{public}d.", static_cast<int>(isAppRunning));
+    want.SetParam(KEY_IS_APP_RUNNING, isAppRunning);
+    return ERR_OK;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

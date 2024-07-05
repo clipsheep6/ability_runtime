@@ -11010,6 +11010,11 @@ int32_t AbilityManagerService::StartUIAbilityByPreInstall(const FreeInstallInfo 
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Called.");
+    if (!taskInfo.isStartUIAbilityBySCBCalled) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "Free install is finished, StartUIAbilityBySCB has not been called.");
+        return ERR_OK;
+    }
+
     const auto& want = taskInfo.want;
     auto sessionId = want.GetStringParam(KEY_SESSION_ID);
     if (sessionId.empty()) {
@@ -11032,11 +11037,6 @@ int32_t AbilityManagerService::StartUIAbilityByPreInstall(const FreeInstallInfo 
             return ERR_INVALID_VALUE;
         }
         sessionInfo = it->second;
-    }
-
-    if (!taskInfo.isStartUIAbilityBySCBCalled) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "Free install is finished, StartUIAbilityBySCB has not been called.");
-        return ERR_OK;
     }
 
     int errCode = ERR_OK;

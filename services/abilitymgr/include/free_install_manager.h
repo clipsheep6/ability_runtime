@@ -195,6 +195,9 @@ private:
     ffrt::mutex distributedFreeInstallLock_;
     ffrt::mutex freeInstallListLock_;
     ffrt::mutex freeInstallObserverLock_;
+
+    int SetAppRunningState(Want &want);
+
     /**
      * Start remote free install.
      *
