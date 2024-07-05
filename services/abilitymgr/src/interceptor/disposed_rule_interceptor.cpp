@@ -301,7 +301,7 @@ ErrCode DisposedRuleInterceptor::HandleBlockApplicationWithResult(
     auto abilityRequest = DelayedSingleton<AbilityManagerService>::GetInstance()->GetAbilityRequest();
     std::string dialogSessionId;
     std::vector<DialogAppInfo> dialogAppInfos(1);
-    if (!DialogSessionManager::GetInstance()->GetGenerateDialogSessionRecord(*abilityRequest,
+    if (!DialogSessionManager::GetInstance().GetGenerateDialogSessionRecord(*abilityRequest,
         param.userId, dialogSessionId, dialogAppInfos, false)) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "generate dialogSessionId failed");
         return ERR_INVALID_VALUE;
