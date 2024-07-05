@@ -1541,6 +1541,21 @@ public:
     }
 
     /**
+     * Open link of ability and atomic service.
+     *
+     * @param want Ability want.
+     * @param callerToken Caller ability token.
+     * @param userId User ID.
+     * @param requestCode Ability request code.
+     * @return Returns ERR_OK on success, others on failure.
+    */
+    virtual int32_t OpenLink(const Want& want, sptr<IRemoteObject> callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
+    /**
      * @brief Pop-up launch of full-screen atomic service.
      * @param want The want with parameters.
      * @param callerToken caller ability token.

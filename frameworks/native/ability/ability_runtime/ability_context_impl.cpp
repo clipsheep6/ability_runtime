@@ -779,6 +779,13 @@ void AbilityContextImpl::InsertResultCallbackTask(int requestCode, RuntimeTask &
     TAG_LOGD(AAFwkTag::CONTEXT, "InsertResultCallbackTask");
     resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
 }
+
+void AbilityContextImpl::RemoveResultCallbackTask(int requestCode)
+{
+    TAG_LOGD(AAFwkTag::CONTEXT, "Called.");
+    resultCallbacks_.erase(requestCode);
+}
+
 #ifdef SUPPORT_SCREEN
 void AbilityContextImpl::GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t &height)
 {
@@ -998,6 +1005,12 @@ void AbilityContextImpl::SetRestoreEnabled(bool enabled)
 bool AbilityContextImpl::GetRestoreEnabled()
 {
     return restoreEnabled_.load();
+}
+
+ErrCode AbilityContextImpl::OpenLink(const AAFwk::Want& want, int requestCode)
+{
+    TAG_LOGD(AAFwkTag::CONTEXT, "Called.");
+    return AAFwk::AbilityManagerClient::GetInstance()->OpenLink(want, token_, -1, requestCode);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

@@ -120,6 +120,15 @@ void UIExtensionContext::InsertResultCallbackTask(int requestCode, RuntimeTask &
     }
 }
 
+void UIExtensionContext::RemoveResultCallbackTask(int requestCode)
+{
+    TAG_LOGD(AAFwkTag::UI_EXT, "Called.");
+    {
+        std::lock_guard<std::mutex> lock(mutexlock_);
+        resultCallbacks_.erase(requestCode);
+    }
+}
+
 ErrCode UIExtensionContext::StartAbilityForResult(
     const AAFwk::Want &want, const AAFwk::StartOptions &startOptions, int requestCode, RuntimeTask &&task)
 {
@@ -255,6 +264,12 @@ ErrCode UIExtensionContext::OpenAtomicService(AAFwk::Want& want, const AAFwk::St
         OnAbilityResultInner(requestCode, err, want);
     }
     return err;
+}
+
+ErrCode UIExtensionContext::OpenLink(const AAFwk::Want& want, int requestCode)
+{
+    TAG_LOGD(AAFwkTag::UI_EXT, "Called.");
+    return AAFwk::AbilityManagerClient::GetInstance()->OpenLink(want, token_, -1, requestCode);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

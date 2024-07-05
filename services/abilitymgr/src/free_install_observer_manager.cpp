@@ -105,6 +105,24 @@ void FreeInstallObserverManager::OnInstallFinished(const std::string &bundleName
     handler->SubmitTask(task);
 }
 
+void FreeInstallObserverManager::OnInstallFinishedByUrl(const std::string &startTime, const std::string &url,
+    const int &resultCode)
+{
+    auto task = [weak = weak_from_this(), startTime, url, resultCode]() {
+        auto self = weak.lock();
+        if (self == nullptr) {
+            TAG_LOGE(AAFwkTag::FREE_INSTALL, "self is nullptr, OnInstallFinished failed.");
+            return;
+        }
+        TAG_LOGI(AAFwkTag::FREE_INSTALL, "OnInstallFinishedByUrl come.");
+        self->HandleOnInstallFinishedByUrl(startTime, url, resultCode);
+    };
+
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    CHECK_POINTER_LOG(handler, "Fail to get Ability task handler.");
+    handler->SubmitTask(task);
+}
+
 void FreeInstallObserverManager::HandleOnInstallFinished(const std::string &bundleName, const std::string &abilityName,
     const std::string &startTime, const int &resultCode)
 {
@@ -114,6 +132,18 @@ void FreeInstallObserverManager::HandleOnInstallFinished(const std::string &bund
             continue;
         }
         (*it)->OnInstallFinished(bundleName, abilityName, startTime, resultCode);
+    }
+}
+
+void FreeInstallObserverManager::HandleOnInstallFinishedByUrl(const std::string &startTime, const std::string &url,
+    const int &resultCode)
+{
+    TAG_LOGD(AAFwkTag::FREE_INSTALL, "HandleOnInstallFinishedByUrl begin.");
+    for (auto it = observerList_.begin(); it != observerList_.end(); ++it) {
+        if ((*it) == nullptr) {
+            continue;
+        }
+        (*it)->OnInstallFinishedByUrl(startTime, url, resultCode);
     }
 }
 

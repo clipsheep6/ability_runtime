@@ -1290,6 +1290,18 @@ public:
     virtual int32_t PreStartMission(const std::string& bundleName, const std::string& moduleName,
         const std::string& abilityName, const std::string& startTime) override;
 
+    /**
+     * Open link of ability and atomic service.
+     *
+     * @param want Ability want.
+     * @param callerToken Caller ability token.
+     * @param userId User ID.
+     * @param requestCode Ability request code.
+     * @return Returns ERR_OK on success, others on failure.
+    */
+    virtual int32_t OpenLink(const Want& want, sptr<IRemoteObject> callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = DEFAULT_INVAL_VALUE) override;
+
 private:
     template <typename T>
     int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);

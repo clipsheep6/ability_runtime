@@ -18,6 +18,7 @@
 #include <cstdint>
 
 #include "ability_manager_client.h"
+#include "ability_manager_errors.h"
 #include "event_handler.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
@@ -239,23 +240,32 @@ bool JsUIExtensionContext::CreateOpenLinkTask(const napi_env &env, const napi_va
         if (abilityResult == nullptr) {
             TAG_LOGW(AAFwkTag::UI_EXT, "wrap abilityResult error");
             asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
-        } else {
-            if (isInner) {
-                asyncTask->Reject(env, CreateJsErrorByNativeErr(env, resultCode));
-            } else {
-                asyncTask->ResolveWithNoError(env, abilityResult);
-            }
+            return;
         }
+        if (isInner) {
+            asyncTask->Reject(env, CreateJsErrorByNativeErr(env, resultCode));
+            return;
+        }
+        asyncTask->ResolveWithNoError(env, abilityResult);
     };
     auto context = context_.lock();
     if (context == nullptr) {
         TAG_LOGW(AAFwkTag::UI_EXT, "context is released");
         return false;
-    } else {
-        requestCode = context->GenerateCurRequestCode();
-        context->InsertResultCallbackTask(requestCode, std::move(task));
     }
+    requestCode = context->GenerateCurRequestCode();
+    context->InsertResultCallbackTask(requestCode, std::move(task));
     return true;
+}
+
+void JsUIExtensionContext::RemoveOpenLinkTask(int requestCode)
+{
+    auto context = context_.lock();
+    if (context == nullptr) {
+        TAG_LOGW(AAFwkTag::UI_EXT, "context is released");
+        return;
+    }
+    context->RemoveResultCallbackTask(requestCode);
 }
 
 static bool ParseOpenLinkParams(const napi_env &env, const NapiCallbackInfo &info, std::string &linkValue,
@@ -293,7 +303,6 @@ napi_value JsUIExtensionContext::OnOpenLink(napi_env env, NapiCallbackInfo& info
 
     std::string linkValue("");
     AAFwk::OpenLinkOptions openLinkOptions;
-    napi_value lastParam = nullptr;
     AAFwk::Want want;
     want.SetParam(AppExecFwk::APP_LINKING_ONLY, false);
 
@@ -305,35 +314,56 @@ napi_value JsUIExtensionContext::OnOpenLink(napi_env env, NapiCallbackInfo& info
     }
 
     want.SetUri(linkValue);
+    std::string startTime = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count());
+    want.SetParam(Want::PARAM_RESV_START_TIME, startTime);
+
     int requestCode = -1;
     if (CheckTypeForNapiValue(env, info.argv[INDEX_TWO], napi_function)) {
         TAG_LOGD(AAFwkTag::UI_EXT, "completionHandler is used.");
-        lastParam = info.argv[INDEX_TWO];
-        CreateOpenLinkTask(env, lastParam, want, requestCode);
+        CreateOpenLinkTask(env, info.argv[INDEX_TWO], want, requestCode);
     }
+    return OnOpenLinkInner(env, want, requestCode, startTime, linkValue);
+}
 
-    NapiAsyncTask::CompleteCallback complete = [weak = context_, want, requestCode](napi_env env,
-        NapiAsyncTask& task, int32_t status) {
+napi_value JsUIExtensionContext::OnOpenLinkInner(napi_env env, const AAFwk::Want& want,
+    int requestCode, const std::string& startTime, const std::string& url)
+{
+    auto innerErrorCode = std::make_shared<int>(ERR_OK);
+    NapiAsyncTask::ExecuteCallback execute = [weak = context_, want, innerErrorCode, requestCode]() {
         auto context = weak.lock();
         if (!context) {
             TAG_LOGW(AAFwkTag::UI_EXT, "context is released");
-            task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+            *innerErrorCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
             return;
         }
-        auto innerErrorCode = std::make_shared<int>(ERR_OK);
-        *innerErrorCode = context->StartAbility(want, requestCode);
+        *innerErrorCode = context->OpenLink(want, requestCode);
+    };
+
+    NapiAsyncTask::CompleteCallback complete = [innerErrorCode, requestCode, startTime, url, this](
+        napi_env env, NapiAsyncTask& task, int32_t status) {
         if (*innerErrorCode == 0) {
-            TAG_LOGI(AAFwkTag::UI_EXT, "OpenLink success.");
-            task.ResolveWithNoError(env, CreateJsUndefined(env));
-        } else {
-            TAG_LOGI(AAFwkTag::UI_EXT, "OpenLink failed.");
-            task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
+            TAG_LOGI(AAFwkTag::UI_EXT, "OpenLink succeeded.");
+            return;
         }
+        if (*innerErrorCode == AAFwk::ERR_OPEN_LINK_START_ABILITY_DEFAULT_OK) {
+            TAG_LOGI(AAFwkTag::UI_EXT, "start ability by default succeeded.");
+            if (freeInstallObserver_ != nullptr) {
+                freeInstallObserver_->OnInstallFinishedByUrl(startTime, url, ERR_OK);
+                return;
+            }
+            TAG_LOGE(AAFwkTag::UI_EXT, "freeInstallObserver_ is nullptr.");
+            *innerErrorCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+        }
+        TAG_LOGI(AAFwkTag::UI_EXT, "OpenLink failed.");
+        freeInstallObserver_->OnInstallFinishedByUrl(startTime, url, *innerErrorCode);
+        RemoveOpenLinkTask(requestCode);
     };
 
     napi_value result = nullptr;
+    AddFreeInstallObserver(env, want, nullptr, &result, false, true);
     NapiAsyncTask::ScheduleHighQos("JsUIExtensionContext::OnOpenLink", env,
-        CreateAsyncTaskWithLastParam(env, nullptr, nullptr, std::move(complete), &result));
+        CreateAsyncTaskWithLastParam(env, nullptr, std::move(execute), std::move(complete), nullptr));
 
     return result;
 }
@@ -728,7 +758,7 @@ napi_value JsUIExtensionContext::OpenAtomicServiceInner(napi_env env, NapiCallba
 }
 
 void JsUIExtensionContext::AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback,
-    napi_value *result, bool isAbilityResult)
+    napi_value *result, bool isAbilityResult, bool isOpenLink)
 {
     // adapter free install async return install and start result
     TAG_LOGD(AAFwkTag::UI_EXT, "ConvertWindowSize begin.");
@@ -740,14 +770,18 @@ void JsUIExtensionContext::AddFreeInstallObserver(napi_env env, const AAFwk::Wan
 
     if (ret != ERR_OK) {
         TAG_LOGE(AAFwkTag::UI_EXT, "AddFreeInstallObserver error.");
-    } else {
+        return;
+    }
+    std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
+    if (!isOpenLink) {
         TAG_LOGI(AAFwkTag::UI_EXT, "AddJsObserverObject");
         std::string bundleName = want.GetElement().GetBundleName();
         std::string abilityName = want.GetElement().GetAbilityName();
-        std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
         freeInstallObserver_->AddJsObserverObject(
             bundleName, abilityName, startTime, callback, result, isAbilityResult);
     }
+    std::string url = want.GetUriString();
+    freeInstallObserver_->AddJsObserverObject(startTime, url, callback, result, isAbilityResult);
 }
 
 napi_value JsUIExtensionContext::CreateJsUIExtensionContext(napi_env env,

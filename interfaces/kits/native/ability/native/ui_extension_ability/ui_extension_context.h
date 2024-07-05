@@ -144,10 +144,14 @@ public:
 #endif // SUPPORT_SCREEN
     Ace::UIContent* GetUIContent();
 
+    ErrCode OpenLink(const AAFwk::Want& want, int reuqestCode);
+
     ErrCode OpenAtomicService(AAFwk::Want& want, const AAFwk::StartOptions &options, int requestCode,
         RuntimeTask &&task);
     
     void InsertResultCallbackTask(int requestCode, RuntimeTask&& task);
+
+    void RemoveResultCallbackTask(int requestCode);
 
     using SelfType = UIExtensionContext;
     static const size_t CONTEXT_TYPE_ID;

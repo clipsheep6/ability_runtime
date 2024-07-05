@@ -453,6 +453,9 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for pre-start mission
     PRE_START_MISSION = 1135,
 
+    // ipc for open link
+    OPEN_LINK = 1140,
+
     // ipc id 2001-3000 for tools
     // ipc id for dumping state (2001)
     DUMP_STATE = 2001,

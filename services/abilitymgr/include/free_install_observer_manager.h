@@ -37,6 +37,9 @@ public:
     void OnInstallFinished(const std::string &bundleName, const std::string &abilityName,
         const std::string &startTime, const int &resultCode);
 
+    void OnInstallFinishedByUrl(const std::string &startTime, const std::string &url,
+        const int &resultCode);
+
 private:
     bool ObserverExistLocked(const sptr<IFreeInstallObserver> &observer);
 
@@ -44,6 +47,9 @@ private:
 
     void HandleOnInstallFinished(const std::string &bundleName, const std::string &abilityName,
         const std::string &startTime, const int &resultCode);
+
+    void HandleOnInstallFinishedByUrl(const std::string &startTime, const std::string &url,
+        const int &resultCode);
 
     ffrt::mutex observerLock_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_;

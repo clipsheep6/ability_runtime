@@ -106,6 +106,7 @@ declare_args() {
       "com.ohos.textautofill/entry/TextAutoFillAbility"
   cj_frontend = true
   ability_runtime_app_no_response_dialog = false
+  include_app_domain_verify = true
 
   if (!defined(global_parts_info) ||
       defined(global_parts_info.account_os_account)) {
@@ -168,6 +169,11 @@ declare_args() {
     hichecker_enabled = true
   } else {
     hichecker_enabled = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.bundlemanager_app_domain_verify)) {
+    include_app_domain_verify = false
   }
 
   if (!defined(global_parts_info) ||

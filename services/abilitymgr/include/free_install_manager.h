@@ -21,6 +21,7 @@
 
 #include <iremote_object.h>
 #include <iremote_stub.h>
+#include <memory>
 
 #include "ability_info.h"
 #include "free_install_observer_manager.h"
@@ -42,6 +43,8 @@ struct FreeInstallInfo {
     bool isPreStartMissionCalled = false;
     bool isStartUIAbilityBySCBCalled = false;
     uint32_t specifyTokenId = 0;
+    bool isOpenAtomicServiceShortUrl = false;
+    std::shared_ptr<Want> originalWant = nullptr;
 };
 
 /**
@@ -79,10 +82,12 @@ public:
      * @param requestCode, ability request code.
      * @param callerToken, caller ability token.
      * @param isAsync, the request is async.
+     * @param isOpenAtomicServiceShortUrl, the flag of open atomic service short url.
      * @return Returns ERR_OK on success, others on failure.
      */
     int StartFreeInstall(const Want &want, int32_t userId, int requestCode, const sptr<IRemoteObject> &callerToken,
-        bool isAsync = false, uint32_t specifyTokenId = 0);
+        bool isAsync = false, uint32_t specifyTokenId = 0, bool isOpenAtomicServiceShortUrl = false,
+        std::shared_ptr<Want> originalWant = nullptr);
 
     /**
      * Start to remote free install.
@@ -213,7 +218,8 @@ private:
     bool IsTopAbility(const sptr<IRemoteObject> &callerToken);
     void NotifyFreeInstallResult(const Want &want, int resultCode, bool isAsync = false);
     FreeInstallInfo BuildFreeInstallInfo(const Want &want, int32_t userId, int requestCode,
-        const sptr<IRemoteObject> &callerToken, bool isAsync, uint32_t specifyTokenId = 0);
+        const sptr<IRemoteObject> &callerToken, bool isAsync, uint32_t specifyTokenId = 0,
+        bool isOpenAtomicServiceShortUrl = false, std::shared_ptr<Want> originalWant = nullptr);
     std::time_t GetTimeStamp();
 
     void RemoveFreeInstallInfo(const std::string &bundleName, const std::string &abilityName,
@@ -234,6 +240,8 @@ private:
     void HandleOnFreeInstallSuccess(FreeInstallInfo &freeInstallInfo, bool isAsync);
     void HandleOnFreeInstallFail(FreeInstallInfo &freeInstallInfo, int resultCode, bool isAsync);
     void NotifySCBToHandleException(const FreeInstallInfo &info, int resultCode);
+    void StartAbilityByConvertedWant(FreeInstallInfo &info, const std::string &startTime);
+    void StartAbilityByOriginalWant(FreeInstallInfo &info, const std::string &startTime);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

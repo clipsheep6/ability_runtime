@@ -155,3 +155,7 @@ if (ability_runtime_graphics) {
     "src/screen_lock/unlock_screen_callback.cpp",
   ]
 }
+
+if (include_app_domain_verify) {
+  abilityms_files += [ "src/ag_convert_callback_impl.cpp" ]
+}

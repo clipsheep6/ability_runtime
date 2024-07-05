@@ -1929,5 +1929,13 @@ ErrCode AbilityManagerClient::PreStartMission(const std::string& bundleName, con
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->PreStartMission(bundleName, moduleName, abilityName, startTime);
 }
+
+ErrCode AbilityManagerClient::OpenLink(const Want& want, sptr<IRemoteObject> callerToken,
+    int32_t userId, int requestCode)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_INVALID_VALUE(abms);
+    return abms->OpenLink(want, callerToken, userId, requestCode);
+}
 } // namespace AAFwk
 } // namespace OHOS

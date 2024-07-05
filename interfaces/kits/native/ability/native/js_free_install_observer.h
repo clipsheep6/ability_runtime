@@ -30,6 +30,7 @@ struct JsFreeInstallObserverObject {
     std::string bundleName;
     std::string abilityName;
     std::string startTime;
+    std::string url;
     napi_deferred deferred;
     napi_ref callback;
     bool isAbilityResult = false;
@@ -50,6 +51,16 @@ public:
      */
     void OnInstallFinished(const std::string &bundleName, const std::string &abilityName,
         const std::string &startTime, const int &resultCode) override;
+
+    /**
+     * OnInstallFinishedByUrl, return free install result.
+     *
+     * @param startTime Free install start request time.
+     * @param url Free install url.
+     * @param resultCode The result of this free install.
+     */
+    void OnInstallFinishedByUrl(const std::string &startTime, const std::string &url,
+        const int &resultCode) override;
 
     /**
      * OnInstallFinished, return free install result.
@@ -74,6 +85,17 @@ public:
     void AddJsObserverObject(const std::string &bundleName, const std::string &abilityName,
         const std::string &startTime, napi_value jsObserverObject, napi_value* result, bool isAbilityResult = false);
 
+    /**
+     * @brief Use for context to add an callback into the observer.
+     *
+     * @param startTime The startTime that want requested.
+     * @param url Free install url.
+     * @param jsObserverObject The js object instance.
+     * @param result the promise to return.
+     */
+    void AddJsObserverObject(const std::string &startTime, const std::string &url,
+        napi_value jsObserverObject, napi_value* result, bool isAbilityResult = false);
+
 private:
     void CallPromise(napi_deferred deferred, int32_t resultCode);
     void CallPromise(napi_deferred deferred, napi_value abilityResult);
@@ -81,6 +103,10 @@ private:
     void CallCallback(napi_ref callback, napi_value abilityResult);
     void HandleOnInstallFinished(const std::string &bundleName, const std::string &abilityName,
         const std::string &startTime, const int &resultCode);
+    void HandleOnInstallFinishedByUrl(const std::string &startTime, const std::string &url,
+        const int &resultCode);
+    void AddJsObserverCommon(JsFreeInstallObserverObject &object,
+        napi_value jsObserverObject, napi_value* result, bool isAbilityResult);
     napi_env env_;
     std::vector<JsFreeInstallObserverObject> jsObserverObjectList_;
 };

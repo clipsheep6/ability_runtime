@@ -42,6 +42,7 @@
             "accessibility",
             "access_token",
             "ace_engine",
+            "app_domain_verify",
             "appspawn",
             "background_task_mgr",
             "bundle_framework",

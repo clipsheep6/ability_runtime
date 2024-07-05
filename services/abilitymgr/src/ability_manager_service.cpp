@@ -39,6 +39,10 @@
 #include "ability_resident_process_rdb.h"
 #include "ability_util.h"
 #include "accesstoken_kit.h"
+#ifdef APP_DOMAIN_VERIFY_ENABLED
+#include "ag_convert_callback_impl.h"
+#include "app_domain_verify_mgr_client.h"
+#endif
 #include "app_utils.h"
 #include "app_exit_reason_data_manager.h"
 #include "app_recovery/default_recovery_config.h"
@@ -237,6 +241,7 @@ constexpr int32_t SWITCH_ACCOUNT_TRY = 3;
 #ifdef ABILITY_COMMAND_FOR_TEST
 constexpr int32_t BLOCK_AMS_SERVICE_TIME = 65;
 #endif
+constexpr const int32_t CONVERT_CALLBACK_TIMEOUT_SECONDS = 2; // 2s
 constexpr const char* EMPTY_DEVICE_ID = "";
 constexpr int32_t APP_MEMORY_SIZE = 512;
 constexpr int32_t GET_PARAMETER_INCORRECT = -9;
@@ -11196,6 +11201,109 @@ void AbilityManagerService::RemovePreStartSession(const std::string& sessionId)
 {
     std::lock_guard<ffrt::mutex> guard(preStartSessionMapLock_);
     preStartSessionMap_.erase(sessionId);
+}
+
+ErrCode AbilityManagerService::OpenLink(const Want& want, sptr<IRemoteObject> callerToken,
+    int32_t userId, int requestCode)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Called.");
+    std::string url = want.GetUriString();
+    bool isAtomicServiceShortUrl = false;
+#ifdef APP_DOMAIN_VERIFY_ENABLED
+    isAtomicServiceShortUrl = AppDomainVerify::AppDomainVerifyMgrClient::GetInstance()->IsAtomicServiceUrl(url);
+#endif
+    int32_t retCode = ERR_OK;
+    if (!isAtomicServiceShortUrl) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "not atomic service short url, start ability by default.");
+        retCode = StartAbility(want, callerToken, userId, requestCode);
+        CHECK_RET_RETURN_RET(retCode, "StartAbility failed");
+        return ERR_OPEN_LINK_START_ABILITY_DEFAULT_OK;
+    }
+
+    Want convertedWant = want;
+    retCode = ConvertToExplicitWant(convertedWant);
+    if (retCode != ERR_OK) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "failed to convert to explicit want, start ability by default.");
+        retCode = StartAbility(want, callerToken, userId, requestCode);
+        CHECK_RET_RETURN_RET(retCode, "StartAbility failed");
+        return ERR_OPEN_LINK_START_ABILITY_DEFAULT_OK;
+    }
+
+    if (!freeInstallManager_) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "free install manager is nullptr, start ability by default.");
+        retCode = StartAbility(want, callerToken, userId, requestCode);
+        CHECK_RET_RETURN_RET(retCode, "StartAbility failed");
+        return ERR_OPEN_LINK_START_ABILITY_DEFAULT_OK;
+    }
+
+    convertedWant.AddFlags(Want::FLAG_INSTALL_ON_DEMAND);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "convertedWant=%{public}s", convertedWant.ToString().c_str());
+    retCode = freeInstallManager_->StartFreeInstall(convertedWant, GetValidUserId(userId),
+        requestCode, callerToken, true, 0, true, std::make_shared<Want>(want));
+    if (retCode != ERR_OK) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "StartFreeInstall returns errCode=%{public}d.", retCode);
+        if (retCode == NOT_TOP_ABILITY) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "start from background is not allowed.");
+            return retCode;
+        }
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "start ability by default.");
+        retCode = StartAbility(want, callerToken, userId, requestCode);
+        CHECK_RET_RETURN_RET(retCode, "StartAbility failed");
+        return ERR_OPEN_LINK_START_ABILITY_DEFAULT_OK;
+    }
+    return ERR_OK;
+}
+
+ErrCode AbilityManagerService::ConvertToExplicitWant(Want& want)
+{
+    ErrCode retCode = ERR_OK;
+#ifdef APP_DOMAIN_VERIFY_ENABLED
+    auto bundleMgrHelper = GetBundleManager();
+    if (bundleMgrHelper == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "bundleMgrHelper is invalid.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t callerUid = IPCSkeleton::GetCallingUid();
+    std::string callerBundleName;
+    retCode = IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callerUid, callerBundleName));
+    if (retCode != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get callerBundleName failed,retCode=%{public}d.", retCode);
+        return retCode;
+    }
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "callerBundleName=%{public}s.", callerBundleName.c_str());
+    want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerBundleName);
+
+    bool isUsed = false;
+    ffrt::condition_variable callbackDoneCv;
+    ffrt::mutex callbackDoneMutex;
+    ConvertCallbackTask task = [&retCode, &isUsed, &callbackDoneCv, &callbackDoneMutex,
+        &convertedWant = want, this](int resultCode, AAFwk::Want& want) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "in convert callback task, resultCode=%{public}d,want=%{public}s",
+            resultCode, want.ToString().c_str());
+        retCode = resultCode;
+        convertedWant = want;
+        {
+            std::lock_guard<ffrt::mutex> lock(callbackDoneMutex);
+            isUsed = true;
+        }
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "start to notify.");
+        callbackDoneCv.notify_all();
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "convert callback task finished");
+    };
+    sptr<OHOS::AppDomainVerify::IConvertCallback> callback = new ConvertCallbackImpl(std::move(task));
+    AppDomainVerify::AppDomainVerifyMgrClient::GetInstance()->ConvertToExplicitWant(want, callback);
+    auto condition = [&isUsed] {
+        return isUsed;
+    };
+    std::unique_lock<ffrt::mutex> lock(callbackDoneMutex);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "start to wait for condition.");
+    if (callbackDoneCv.wait_for(lock, seconds(CONVERT_CALLBACK_TIMEOUT_SECONDS), condition)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "convert callback timeout.");
+        retCode = ERR_TIMED_OUT;
+    }
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "finish wait for condition.");
+#endif
+    return retCode;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

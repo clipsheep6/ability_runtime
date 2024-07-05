@@ -1522,6 +1522,17 @@ public:
     int32_t PreStartMission(const std::string& bundleName, const std::string& moduleName,
         const std::string& abilityName, const std::string& startTime);
 
+    /**
+     * Open link of ability and atomic service.
+     *
+     * @param want Ability want.
+     * @param callerToken Caller ability token.
+     * @param userId User ID.
+     * @param requestCode Ability request code.
+     * @return Returns ERR_OK on success, others on failure.
+    */
+    int32_t OpenLink(const Want& want, sptr<IRemoteObject> callerToken, int32_t userId, int requestCode);
+
 private:
     AbilityManagerClient();
     DISALLOW_COPY_AND_MOVE(AbilityManagerClient);

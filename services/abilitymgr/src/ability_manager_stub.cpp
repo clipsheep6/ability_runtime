@@ -749,6 +749,9 @@ int AbilityManagerStub::OnRemoteRequestInnerNineteenth(uint32_t code, MessagePar
     if (interfaceCode == AbilityManagerInterfaceCode::PRE_START_MISSION) {
         return PreStartMissionInner(data, reply);
     }
+    if (interfaceCode == AbilityManagerInterfaceCode::OPEN_LINK) {
+        return OpenLinkInner(data, reply);
+    }
     return ERR_CODE_NOT_EXIST;
 }
 
@@ -3933,6 +3936,21 @@ int32_t AbilityManagerStub::PreStartMissionInner(MessageParcel &data, MessagePar
     int32_t result = PreStartMission(bundleName, moduleName, abilityName, startTime);
     reply.WriteInt32(result);
     return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::OpenLinkInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<Want> want = data.ReadParcelable<Want>();
+    sptr<IRemoteObject> callerToken = data.ReadRemoteObject();
+    int32_t userId = data.ReadInt32();
+    int requestCode = data.ReadInt32();
+
+    int32_t result = OpenLink(*want, callerToken, userId, requestCode);
+    if (result != NO_ERROR && result != ERR_OPEN_LINK_START_ABILITY_DEFAULT_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "OpenLink failed.");
+    }
+    reply.WriteInt32(result);
+    return result;
 }
 } // namespace AAFwk
 } // namespace OHOS

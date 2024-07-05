@@ -3889,6 +3889,11 @@ int AbilityManagerProxy::AddFreeInstallObserver(const sptr<AbilityRuntime::IFree
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
+    if (observer == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "observer is nullptr.");
+        return INNER_ERR;
+    }
+
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
         return INNER_ERR;
@@ -5370,6 +5375,43 @@ int32_t AbilityManagerProxy::PreStartMission(const std::string& bundleName, cons
         return INNER_ERR;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::PRE_START_MISSION, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+ErrCode AbilityManagerProxy::OpenLink(const Want& want, sptr<IRemoteObject> callerToken,
+    int32_t userId, int requestCode)
+{
+    if (callerToken == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callerToken is nullptr");
+        return INNER_ERR;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return IPC_PROXY_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteRemoteObject(callerToken)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callerToken write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(userId)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "userId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(requestCode)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "requestCode write failed.");
+        return INNER_ERR;
+    }
+    auto error = SendRequest(AbilityManagerInterfaceCode::OPEN_LINK, data, reply, option);
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;

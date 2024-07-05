@@ -221,6 +221,8 @@ public:
 
     ErrCode ChangeAbilityVisibility(bool isShow) override;
 
+    ErrCode OpenLink(const AAFwk::Want& want, int requestCode) override;
+
     ErrCode OpenAtomicService(AAFwk::Want& want, const AAFwk::StartOptions &options, int requestCode,
         RuntimeTask &&task) override;
 
@@ -229,6 +231,8 @@ public:
     void UnregisterAbilityLifecycleObserver(const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer) override;
 
     void InsertResultCallbackTask(int requestCode, RuntimeTask&& task) override;
+
+    void RemoveResultCallbackTask(int requestCode) override;
 
     void SetRestoreEnabled(bool enabled) override;
     bool GetRestoreEnabled() override;

@@ -343,6 +343,18 @@ public:
         int requestCode) override;
 
     /**
+     * Open link of ability and atomic service.
+     *
+     * @param want Ability want.
+     * @param callerToken Caller ability token.
+     * @param userId User ID.
+     * @param requestCode Ability request code.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t OpenLink(const Want& want, sptr<IRemoteObject> callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = DEFAULT_INVAL_VALUE) override;
+
+    /**
      * Pop-up launch of full-screen atomic service.
      *
      * @param want The want with parameters.
@@ -2194,6 +2206,7 @@ private:
         const AbilityRequest &abilityRequest, bool &isBackgroundCall) const;
 
     void GetRunningMultiAppIndex(const std::string &bundleName, int32_t uid, int32_t &appIndex);
+    ErrCode ConvertToExplicitWant(Want& want);
 
     int CheckUIExtensionUsage(AppExecFwk::UIExtensionUsage uiExtensionUsage,
         AppExecFwk::ExtensionAbilityType extensionType);

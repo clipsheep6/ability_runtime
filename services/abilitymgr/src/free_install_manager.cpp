@@ -85,7 +85,8 @@ bool FreeInstallManager::IsTopAbility(const sptr<IRemoteObject> &callerToken)
 }
 
 int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int requestCode,
-    const sptr<IRemoteObject> &callerToken, bool isAsync, uint32_t specifyTokenId)
+    const sptr<IRemoteObject> &callerToken, bool isAsync, uint32_t specifyTokenId, bool isOpenAtomicServiceShortUrl,
+    std::shared_ptr<Want> originalWant)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::FREE_INSTALL, "StartFreeInstall called");
@@ -93,7 +94,8 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
     if (!isSaCall && !IsTopAbility(callerToken)) {
         return NOT_TOP_ABILITY;
     }
-    FreeInstallInfo info = BuildFreeInstallInfo(want, userId, requestCode, callerToken, isAsync, specifyTokenId);
+    FreeInstallInfo info = BuildFreeInstallInfo(want, userId, requestCode, callerToken,
+        isAsync, specifyTokenId, isOpenAtomicServiceShortUrl, originalWant);
     {
         std::lock_guard<ffrt::mutex> lock(freeInstallListLock_);
         freeInstallList_.push_back(info);
@@ -170,14 +172,17 @@ int FreeInstallManager::RemoteFreeInstall(const Want &want, int32_t userId, int 
 }
 
 FreeInstallInfo FreeInstallManager::BuildFreeInstallInfo(const Want &want, int32_t userId, int requestCode,
-    const sptr<IRemoteObject> &callerToken, bool isAsync, uint32_t specifyTokenId)
+    const sptr<IRemoteObject> &callerToken, bool isAsync, uint32_t specifyTokenId, bool isOpenAtomicServiceShortUrl,
+    std::shared_ptr<Want> originalWant)
 {
     FreeInstallInfo info = {
         .want = want,
         .userId = userId,
         .requestCode = requestCode,
         .callerToken = callerToken,
-        .specifyTokenId = specifyTokenId
+        .specifyTokenId = specifyTokenId,
+        .isOpenAtomicServiceShortUrl = isOpenAtomicServiceShortUrl,
+        .originalWant = originalWant
     };
     if (!isAsync) {
         auto promise = std::make_shared<std::promise<int32_t>>();
@@ -272,9 +277,12 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
         std::string bundleName = freeInstallInfo.want.GetElement().GetBundleName();
         std::string abilityName = freeInstallInfo.want.GetElement().GetAbilityName();
         std::string startTime = freeInstallInfo.want.GetStringParam(Want::PARAM_RESV_START_TIME);
+        std::string url = freeInstallInfo.want.GetUriString();
         if (want.GetElement().GetBundleName().compare(bundleName) != 0 ||
             want.GetElement().GetAbilityName().compare(abilityName) != 0 ||
-            want.GetStringParam(Want::PARAM_RESV_START_TIME).compare(startTime) != 0) {
+            want.GetStringParam(Want::PARAM_RESV_START_TIME).compare(startTime) != 0 ||
+            want.GetUriString().compare(url) != 0) {
+            it++;
             continue;
         }
 
@@ -300,6 +308,10 @@ void FreeInstallManager::HandleOnFreeInstallSuccess(FreeInstallInfo &freeInstall
             StartAbilityByPreInstall(freeInstallInfo, bundleName, abilityName, startTime);
             return;
         }
+        if (freeInstallInfo.isOpenAtomicServiceShortUrl) {
+            StartAbilityByConvertedWant(freeInstallInfo, startTime);
+            return;
+        }
         StartAbilityByFreeInstall(freeInstallInfo, bundleName, abilityName, startTime);
         return;
     }
@@ -316,6 +328,12 @@ void FreeInstallManager::HandleOnFreeInstallFail(FreeInstallInfo &freeInstallInf
                 freeInstallInfo.callerToken, resultCode, "free install failed");
         }
         std::string startTime = freeInstallInfo.want.GetStringParam(Want::PARAM_RESV_START_TIME);
+        if (freeInstallInfo.isOpenAtomicServiceShortUrl
+            && resultCode != CONCURRENT_TASKS_WAITING_FOR_RETRY) {
+            StartAbilityByOriginalWant(freeInstallInfo, startTime);
+            return;
+        }
+
         std::string bundleName = freeInstallInfo.want.GetElement().GetBundleName();
         std::string abilityName = freeInstallInfo.want.GetElement().GetAbilityName();
 
@@ -372,6 +390,37 @@ void FreeInstallManager::StartAbilityByPreInstall(FreeInstallInfo &info, std::st
     TAG_LOGI(AAFwkTag::FREE_INSTALL, "The result of StartAbility is %{public}d.", result);
     DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinished(
         bundleName, abilityName, startTime, result);
+}
+
+void FreeInstallManager::StartAbilityByConvertedWant(FreeInstallInfo &info, const std::string &startTime)
+{
+    info.want.SetFlags(info.want.GetFlags() ^ Want::FLAG_INSTALL_ON_DEMAND);
+    auto identity = IPCSkeleton::ResetCallingIdentity();
+    IPCSkeleton::SetCallingIdentity(info.identity);
+    int32_t result = ERR_OK;
+    if (info.want.GetElement().GetAbilityName().empty()) {
+        result = UpdateElementName(info.want, info.userId);
+    }
+    if (result == ERR_OK) {
+        result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(info.want,
+            info.callerToken, info.userId, info.requestCode);
+    }
+    IPCSkeleton::SetCallingIdentity(identity);
+    TAG_LOGI(AAFwkTag::FREE_INSTALL, "The result of StartAbility is %{public}d.", result);
+    auto url = info.want.GetUriString();
+    DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinishedByUrl(startTime, url, result);
+}
+
+void FreeInstallManager::StartAbilityByOriginalWant(FreeInstallInfo &info, const std::string &startTime)
+{
+    auto identity = IPCSkeleton::ResetCallingIdentity();
+    IPCSkeleton::SetCallingIdentity(info.identity);
+    int32_t result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(*(info.originalWant),
+        info.callerToken, info.userId, info.requestCode);
+    IPCSkeleton::SetCallingIdentity(identity);
+    TAG_LOGI(AAFwkTag::FREE_INSTALL, "The result of StartAbility is %{public}d.", result);
+    auto url = info.want.GetUriString();
+    DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinishedByUrl(startTime, url, result);
 }
 
 int32_t FreeInstallManager::UpdateElementName(Want &want, int32_t userId) const
