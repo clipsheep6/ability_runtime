@@ -214,7 +214,7 @@ int32_t UriPermissionManagerStubImpl::CheckCalledBySandBox()
     }
     auto callerPid = IPCSkeleton::GetCallingPid();
     bool isSandbox = false;
-    if (appMgr_->JudgeSandboxByPid(callerPid, isSandbox) != ERR_OK) {
+    if (IN_PROCESS_CALL(appMgr_->JudgeSandboxByPid(callerPid, isSandbox)) != ERR_OK) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "JudgeSandboxByPid failed.");
         return INNER_ERR;
     }
