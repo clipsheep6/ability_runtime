@@ -97,7 +97,14 @@ napi_value CreateJsBaseContextFromSendable(napi_env env, void* wrapped)
     }
 
     // create normal context
-    return CreateJsBaseContext(env, contextPtr);
+    auto value = CreateJsBaseContext(env, contextPtr);
+    auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.Context", &value, 1);
+    if (systemModule == nullptr) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Load context module failed.");
+        return nullptr;
+    }
+
+    return systemModule->GetNapiValue();
 }
 
 napi_value CreateJsApplicationContextFromSendable(napi_env env, void* wrapped)
@@ -122,7 +129,14 @@ napi_value CreateJsApplicationContextFromSendable(napi_env env, void* wrapped)
     }
 
     // create application context
-    return JsApplicationContextUtils::CreateJsApplicationContext(env);
+    auto value = JsApplicationContextUtils::CreateJsApplicationContext(env);
+    auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.ApplicationContext", &value, 1);
+    if (systemModule == nullptr) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Load application context module failed.");
+        return nullptr;
+    }
+
+    return systemModule->GetNapiValue();
 }
 
 napi_value CreateJsAbilityStageContextFromSendable(napi_env env, void* wrapped)
@@ -147,7 +161,14 @@ napi_value CreateJsAbilityStageContextFromSendable(napi_env env, void* wrapped)
     }
 
     // create normal abilitystage context
-    return CreateJsAbilityStageContext(env, abilitystageContext);
+    auto value = CreateJsAbilityStageContext(env, abilitystageContext);
+    auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.AbilityStageContext", &value, 1);
+    if (systemModule == nullptr) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Load ability stage context module failed.");
+        return nullptr;
+    }
+
+    return systemModule->GetNapiValue();
 }
 
 napi_value CreateJsUIAbilityContextFromSendable(napi_env env, void* wrapped)
@@ -172,7 +193,14 @@ napi_value CreateJsUIAbilityContextFromSendable(napi_env env, void* wrapped)
     }
 
     // create normal uiability context
-    return CreateJsAbilityContext(env, uiAbilityContext);
+    auto value = CreateJsAbilityContext(env, uiAbilityContext);
+    auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.AbilityContext", &value, 1);
+    if (systemModule == nullptr) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Load ability context module failed.");
+        return nullptr;
+    }
+
+    return systemModule->GetNapiValue();
 }
 
 class JsSendableContextManager {
