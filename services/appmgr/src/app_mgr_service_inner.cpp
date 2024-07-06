@@ -6815,6 +6815,12 @@ void AppMgrServiceInner::SetKeepAliveEnableState(const std::string &bundleName, 
         return;
     }
 
+    auto callerUid = IPCSkeleton::GetCallingUid();
+    if (callerUid != FOUNDATION_UID) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not foundation call.");
+        return;
+    }
+
     for (const auto &item : appRunningManager_->GetAppRunningRecordMap()) {
         const auto &appRecord = item.second;
         if (appRecord != nullptr && appRecord->GetBundleName() == bundleName) {
