@@ -759,6 +759,24 @@ void ApplicationContext::RegisterAppFontObserver(AppConfigUpdateCallback appFont
     appFontCallback_ = appFontCallback;
 }
 
+void ApplicationContext::RequestTerminateProcess()
+{
+    if (contextImpl_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Context is nullptr.");
+        return;
+    }
+    contextImpl_->RequestTerminateProcess();
+}
+
+void ApplicationContext::RequestTerminateApplication()
+{
+    if (contextImpl_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Context is nullptr.");
+        return;
+    }
+    contextImpl_->RequestTerminateApplication();
+}
+
 std::string ApplicationContext::GetAppRunningUniqueId() const
 {
     TAG_LOGD(AAFwkTag::APPKIT, "GetAppRunningUniqueId is %{public}s.", appRunningUniqueId_.c_str());

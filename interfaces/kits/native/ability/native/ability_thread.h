@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -86,6 +86,11 @@ public:
      * @param level Current memory level
      */
     virtual void NotifyMemoryLevel(int32_t level) = 0;
+
+    /**
+     * Requesting the component to end itself.
+     */
+    virtual void RequestTerminateSelf() {}
 
     /**
      * @brief  Provide operating system AbilityTransaction information to the observer

@@ -1061,6 +1061,19 @@ public:
     void ClearProcessByToken(sptr<IRemoteObject> token);
 
     /**
+     * Normal scheduling to exit the process.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RequestTerminateProcess() const;
+
+    /**
+     * Normal scheduling to exit the application.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RequestTerminateApplication() const;
+    /**
      * @brief Notify memory size state changed to sufficient or insufficent.
      * @param isMemorySizeSufficent Indicates the memory size state.
      * @return Returns ERR_OK on success, others on failure.

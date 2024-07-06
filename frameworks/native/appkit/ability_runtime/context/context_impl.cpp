@@ -1052,6 +1052,26 @@ void ContextImpl::KillProcessBySelf(const bool clearPageStack)
     appMgrClient->KillApplicationSelf(clearPageStack);
 }
 
+void ContextImpl::RequestTerminateProcess()
+{
+    auto appMgrClient = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance();
+    if (appMgrClient == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Get app mgr client error");
+        return;
+    }
+    appMgrClient->RequestTerminateProcess();
+}
+
+void ContextImpl::RequestTerminateApplication()
+{
+    auto appMgrClient = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance();
+    if (appMgrClient == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Get app mgr client error");
+        return;
+    }
+    appMgrClient->RequestTerminateApplication();
+}
+
 int32_t ContextImpl::GetProcessRunningInformation(AppExecFwk::RunningProcessInfo &info)
 {
     auto appMgrClient = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance();
