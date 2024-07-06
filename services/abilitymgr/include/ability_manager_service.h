@@ -608,7 +608,8 @@ public:
      * @param isSuccess, continuation result.
      * @return
      */
-    virtual void NotifyCompleteContinuation(const std::string &deviceId, int32_t sessionId, bool isSuccess) override;
+    virtual void NotifyCompleteContinuation(const std::string &deviceId, int32_t sessionId, bool isSuccess,
+        const sptr<IRemoteObject> &token) override;
 
     /**
      * NotifyContinuationResult, notify continue result to ability.

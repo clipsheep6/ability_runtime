@@ -45,7 +45,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     int32_t sessionId = static_cast<int32_t>(GetU32Data(data));
     bool isSuccess = *data % ENABLE;
     if (!deviceId.empty()) {
-        abilitymgr->NotifyCompleteContinuation(deviceId, sessionId, isSuccess);
+        abilitymgr->NotifyCompleteContinuation(deviceId, sessionId, isSuccess, nullptr);
     }
 
     return true;

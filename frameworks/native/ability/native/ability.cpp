@@ -369,7 +369,7 @@ void Ability::NotifyContinuationResult(const Want& want, bool success)
     std::string originDeviceId = want.GetStringParam(DMS_ORIGIN_DEVICE_ID);
     TAG_LOGD(AAFwkTag::ABILITY, "Notify complete continuation.");
     continuationManager_->NotifyCompleteContinuation(
-        originDeviceId, sessionId, success, reverseContinuationSchedulerReplica_);
+        originDeviceId, sessionId, success, reverseContinuationSchedulerReplica_, token_);
 }
 
 sptr<IRemoteObject> Ability::OnConnect(const Want &want)
@@ -991,7 +991,7 @@ void Ability::HandleCreateAsContinuation(const Want &want)
     std::string originDeviceId = want.GetStringParam(DMS_ORIGIN_DEVICE_ID);
     TAG_LOGD(AAFwkTag::ABILITY, "Notify complete continuation.");
     continuationManager_->NotifyCompleteContinuation(
-        originDeviceId, sessionId, success, reverseContinuationSchedulerReplica_);
+        originDeviceId, sessionId, success, reverseContinuationSchedulerReplica_, token_);
 }
 
 void Ability::HandleCreateAsRecovery(const Want &want)

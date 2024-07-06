@@ -847,7 +847,8 @@ HWTEST_F(AbilityManagerClientBranchTest, NotifyCompleteContinuation_0100, TestSi
     std::string deviceId = BUNDLE_NAME;
     int32_t sessionId = 1;
     bool isSuccess = true;
-    client_->NotifyCompleteContinuation(deviceId, sessionId, isSuccess);
+    const sptr<IRemoteObject> token = nullptr;
+    client_->NotifyCompleteContinuation(deviceId, sessionId, isSuccess, token);
 
     EXPECT_TRUE(true);
     GTEST_LOG_(INFO) << "NotifyCompleteContinuation_0100 end";

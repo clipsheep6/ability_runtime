@@ -230,7 +230,8 @@ public:
     {
         return 0;
     }
-    void NotifyCompleteContinuation(const std::string& deviceId, int32_t sessionId, bool isSuccess) override
+    void NotifyCompleteContinuation(const std::string& deviceId, int32_t sessionId, bool isSuccess,
+        const sptr<IRemoteObject> &token) override
     {}
 
     virtual int LockMissionForCleanup(int32_t missionId) override

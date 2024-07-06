@@ -705,11 +705,11 @@ ErrCode AbilityManagerClient::StartContinuation(const Want &want, sptr<IRemoteOb
 }
 
 void AbilityManagerClient::NotifyCompleteContinuation(const std::string &deviceId,
-    int32_t sessionId, bool isSuccess)
+    int32_t sessionId, bool isSuccess, const sptr<IRemoteObject> &token)
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN(abms);
-    abms->NotifyCompleteContinuation(deviceId, sessionId, isSuccess);
+    abms->NotifyCompleteContinuation(deviceId, sessionId, isSuccess, token);
 }
 
 ErrCode AbilityManagerClient::ContinueAbility(const std::string &deviceId, int32_t missionId, uint32_t versionCode)

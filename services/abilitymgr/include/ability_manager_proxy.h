@@ -639,7 +639,8 @@ public:
 
     virtual int StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken, int32_t status) override;
 
-    virtual void NotifyCompleteContinuation(const std::string &deviceId, int32_t sessionId, bool isSuccess) override;
+    virtual void NotifyCompleteContinuation(const std::string &deviceId, int32_t sessionId, bool isSuccess,
+        const sptr<IRemoteObject> &token) override;
 
     virtual int NotifyContinuationResult(int32_t missionId, int32_t result) override;
 

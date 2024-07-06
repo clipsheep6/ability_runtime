@@ -4093,12 +4093,29 @@ int AbilityManagerService::StartContinuation(const Want &want, const sptr<IRemot
 }
 
 void AbilityManagerService::NotifyCompleteContinuation(const std::string &deviceId,
-    int32_t sessionId, bool isSuccess)
+    int32_t sessionId, bool isSuccess, const sptr<IRemoteObject> &token)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "NotifyCompleteContinuation.");
     AAFWK::ContinueRadar::GetInstance().ClickIconRecvOver("NotifyCompleteContinuation");
+    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
+    TAG_LOGI(AAFwkTag::ABILITYMGR,
+        "AbilityManagerService::Try to NotifyCompleteContinuation, AccessTokenID = %{public}u", accessToken);
+    int32_t callingMissionId = DEFAULT_DMS_MISSION_ID;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        callingMissionId = GetMissionIdByAbilityTokenInner(token);
+        if (!callingMissionId) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid missionId id.");
+            return;
+        }
+    } else {
+        callingMissionId = GetMissionIdByAbilityToken(token);
+    }
+    if (callingMissionId < 0) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerService::NotifyCompleteContinuation failed to get missionId.");
+        return;
+    }
     DistributedClient dmsClient;
-    dmsClient.NotifyCompleteContinuation(Str8ToStr16(deviceId), sessionId, isSuccess);
+    dmsClient.NotifyCompleteContinuation(Str8ToStr16(deviceId), sessionId, isSuccess, callingMissionId);
 }
 
 int AbilityManagerService::NotifyContinuationResult(int32_t missionId, int32_t result)
@@ -4116,7 +4133,10 @@ int AbilityManagerService::NotifyContinuationResult(int32_t missionId, int32_t r
         abilityRecord = Token::GetAbilityRecordByToken(abilityToken);
     }
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-
+    if (!JudgeSelfCalled(abilityRecord) && !CheckCallerIsDmsProcess()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Permission deny.");
+        return ERR_INVALID_VALUE;
+    }
     abilityRecord->NotifyContinuationResult(result);
     return ERR_OK;
 }

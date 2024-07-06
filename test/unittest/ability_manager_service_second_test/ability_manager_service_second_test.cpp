@@ -804,7 +804,7 @@ HWTEST_F(AbilityManagerServiceSecondTest, NotifyCompleteContinuation_001, TestSi
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     std::string deviceId = "test";
     ASSERT_NE(abilityMs_, nullptr);
-    abilityMs_->NotifyCompleteContinuation(deviceId, 1, true);
+    abilityMs_->NotifyCompleteContinuation(deviceId, 1, true, nullptr);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest NotifyCompleteContinuation_001 end");
 }
 
@@ -822,6 +822,22 @@ HWTEST_F(AbilityManagerServiceSecondTest, NotifyContinuationResult_001, TestSize
     abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
     EXPECT_EQ(abilityMs_->NotifyContinuationResult(1, 1), ERR_INVALID_VALUE);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest NotifyContinuationResult_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: NotifyContinuationResult
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService NotifyContinuationResult
+ */
+HWTEST_F(AbilityManagerServiceSecondTest, NotifyContinuationResult_002, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest NotifyContinuationResult_002 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    EXPECT_EQ(abilityMs_->NotifyContinuationResult(1, 0), ERR_INVALID_VALUE);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest NotifyContinuationResult_002 end");
 }
 
 /*
