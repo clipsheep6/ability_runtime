@@ -367,8 +367,9 @@ void CallerConnection::OnAbilityConnectDone(
     const bool isSingleton = (code == static_cast<int32_t>(AppExecFwk::LaunchMode::SINGLETON));
     localCallRecord_->SetIsSingleton(isSingleton);
 
-    auto callRecipient = new (std::nothrow) CallRecipient(
-        std::bind(&LocalCallContainer::OnCallStubDied, container, std::placeholders::_1));
+    auto callRecipient = new (std::nothrow) CallRecipient([container](const wptr<IRemoteObject> &arg) {
+        container->OnCallStubDied(arg);
+    });
     localCallRecord_->SetRemoteObject(remoteObject, callRecipient);
 
     if (isSingleton) {

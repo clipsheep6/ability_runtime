@@ -67,10 +67,14 @@ private:
     int32_t HandleScheduleDumpIpcStat(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleDumpFfrt(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleCacheProcess(MessageParcel &data, MessageParcel &reply);
-
-    using AppSchedulerFunc = int32_t (AppSchedulerHost::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, AppSchedulerFunc> memberFuncMap_;
-
+    int32_t OnRemoteRequestInner(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int32_t OnRemoteRequestInnerFirst(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int32_t OnRemoteRequestInnerSecond(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int32_t OnRemoteRequestInnerThird(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
     DISALLOW_COPY_AND_MOVE(AppSchedulerHost);
 };
 }  // namespace AppExecFwk

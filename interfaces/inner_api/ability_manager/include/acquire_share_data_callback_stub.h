@@ -42,8 +42,6 @@ private:
     
     ShareRuntimeTask shareRuntimeTask_;
     std::shared_ptr<AppExecFwk::EventHandler> handler_;
-    using StubFunc = int32_t (AcquireShareDataCallbackStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::vector<StubFunc> vecMemberFunc_;
 };
 } // namespace AAFwk
 } // namespace OHOS

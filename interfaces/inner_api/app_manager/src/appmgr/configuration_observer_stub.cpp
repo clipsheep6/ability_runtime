@@ -24,17 +24,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-ConfigurationObserverStub::ConfigurationObserverStub()
-{
-    memberFuncMap_[static_cast<uint32_t>(
-        IConfigurationObserver::Message::TRANSACT_ON_CONFIGURATION_UPDATED)] =
-        &ConfigurationObserverStub::HandleOnConfigurationUpdated;
-}
+ConfigurationObserverStub::ConfigurationObserverStub() {}
 
-ConfigurationObserverStub::~ConfigurationObserverStub()
-{
-    memberFuncMap_.clear();
-}
+ConfigurationObserverStub::~ConfigurationObserverStub() {}
 
 int ConfigurationObserverStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -48,13 +40,10 @@ int ConfigurationObserverStub::OnRemoteRequest(
         return ERR_INVALID_STATE;
     }
 
-    auto itFunc = memberFuncMap_.find(code);
-    if (itFunc != memberFuncMap_.end()) {
-        auto memberFunc = itFunc->second;
-        if (memberFunc != nullptr) {
-            return (this->*memberFunc)(data, reply);
-        }
+    if (code == static_cast<uint32_t>(IConfigurationObserver::Message::TRANSACT_ON_CONFIGURATION_UPDATED)) {
+        return HandleOnConfigurationUpdated(data, reply);
     }
+
     TAG_LOGI(AAFwkTag::APPMGR, "ConfigurationObserverStub::OnRemoteRequest end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }

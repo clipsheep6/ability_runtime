@@ -153,7 +153,7 @@ void ContinuationHandler::HandleReceiveRemoteScheduler(const sptr<IRemoteObject>
 
     if (schedulerDeathRecipient_ == nullptr) {
         schedulerDeathRecipient_ = new (std::nothrow) ReverseContinuationSchedulerRecipient(
-            std::bind(&ContinuationHandler::OnReplicaDied, this, std::placeholders::_1));
+            [this](const wptr<IRemoteObject> &arg) { this->OnReplicaDied(arg); });
     }
 
     remoteReplicaProxy_ = iface_cast<IReverseContinuationSchedulerReplica>(remoteReplica);
