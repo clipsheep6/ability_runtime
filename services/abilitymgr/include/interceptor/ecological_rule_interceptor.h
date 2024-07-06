@@ -40,11 +40,12 @@ public:
     };
 
 private:
-    void GetEcologicalTargetInfo(const Want &want, ErmsCallerInfo &callerInfo);
+    void GetEcologicalTargetInfo(const Want &want, const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
+        ErmsCallerInfo &callerInfo);
     void GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId,
         const sptr<IRemoteObject> &callerToken = nullptr);
-    void InitErmsCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId,
-        const sptr<IRemoteObject> &callerToken = nullptr);
+    void InitErmsCallerInfo(const Want &want, const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
+        ErmsCallerInfo &callerInfo, int32_t userId, const sptr<IRemoteObject> &callerToken = nullptr);
     static int32_t GetAppTypeByBundleType(int32_t bundleType);
 };
 } // namespace AAFwk

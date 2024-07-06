@@ -6569,6 +6569,7 @@ void AbilityManagerService::SubscribeScreenUnlockedEvent()
     // add listen screen unlocked.
     EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED);
+    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_USER_UNLOCKED);
     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
     subscribeInfo.SetThreadMode(EventFwk::CommonEventSubscribeInfo::COMMON);
     auto callback = [abilityManager = weak_from_this()]() {
@@ -9497,7 +9498,7 @@ int32_t AbilityManagerService::NotifySaveAsResult(const Want &want, int resultCo
     //caller check
     if (!DlpUtils::CheckCallerIsDlpManager(GetBundleManager())) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "caller check failed");
-        return ERR_INVALID_CALLER;
+        return CHECK_PERMISSION_FAILED;
     }
 
     for (const auto &item : startAbilityChain_) {
