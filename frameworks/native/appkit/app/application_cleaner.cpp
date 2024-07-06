@@ -32,7 +32,7 @@ namespace AppExecFwk {
 namespace {
 static const std::string MARK_SYMBOL{ "_useless" };
 static const std::string CONTEXT_DATA_APP{ "/data/app/" };
-static const std::vector<std::string> CONTEXT_ELS{ "el1", "el2", "el3", "el4" };
+static const std::vector<std::string> CONTEXT_ELS{ "el1", "el2", "el3", "el4", "el5" };
 static const std::string PATH_SEPARATOR = { "/" };
 static const char FILE_SEPARATOR_CHAR = '/';
 static const std::string CONTEXT_BASE{ "/base/" };
