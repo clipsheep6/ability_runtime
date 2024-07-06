@@ -20,6 +20,7 @@
 
 #include "ability_connect_callback.h"
 #include "connection_manager.h"
+#include "free_install_observer_interface.h"
 #include "local_call_container.h"
 #include "start_options.h"
 #include "want.h"
@@ -73,6 +74,8 @@ public:
      */
     ErrCode StartAbilityByCall(const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback,
         int32_t accountId = DEFAULT_INVAL_VALUE);
+
+    ErrCode AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer);
 
     /**
      * caller release by callback object

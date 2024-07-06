@@ -448,6 +448,11 @@ ErrCode Ability::StartAbility(const Want &want, AbilityStartSetting abilityStart
     return err;
 }
 
+ErrCode Ability::AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> observer)
+{
+    return AbilityContext::AddFreeInstallObserver(observer);
+}
+
 std::string Ability::GetType(const Uri &uri)
 {
     return "";

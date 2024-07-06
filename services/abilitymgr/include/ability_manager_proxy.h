@@ -886,7 +886,8 @@ public:
      * @param observer the observer of ability free install start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer) override;
+    virtual int AddFreeInstallObserver(const sptr<IRemoteObject> &callerToken,
+        const sptr<AbilityRuntime::IFreeInstallObserver> &observer) override;
 
     /**
      * Called when client complete dump.

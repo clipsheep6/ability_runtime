@@ -199,11 +199,19 @@ private:
         int ret = 0;
         if (freeInstallObserver_ == nullptr) {
             freeInstallObserver_ = new JsFreeInstallObserver(env);
-            ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(freeInstallObserver_);
+            auto context = context_.lock();
+            if (!context) {
+                TAG_LOGW(AAFwkTag::SERVICE_EXT, "context is released");
+                return;
+            }
+            ret = context->AddFreeInstallObserver(freeInstallObserver_);
         }
 
         if (ret != ERR_OK) {
             TAG_LOGE(AAFwkTag::SERVICE_EXT, "AddFreeInstallObserver failed.");
+            napi_throw(env, CreateJsError(env,
+                static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER),
+                "AddFreeInstallObserver failed."));
         } else {
             // build a callback observer with last param
             std::string bundleName = want.GetElement().GetBundleName();

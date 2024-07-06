@@ -1055,11 +1055,20 @@ void JsUIExtensionContentSession::AddFreeInstallObserver(napi_env env,
     int ret = 0;
     if (freeInstallObserver_ == nullptr) {
         freeInstallObserver_ = new JsFreeInstallObserver(env);
-        ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(freeInstallObserver_);
+        auto context = context_.lock();
+        if (!context) {
+            TAG_LOGE(AAFwkTag::CONTEXT, "context is nullptr.");
+            return;
+        }
+        ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(context->GetToken(),
+            freeInstallObserver_);
     }
 
     if (ret != ERR_OK) {
         TAG_LOGE(AAFwkTag::UI_EXT, "AddFreeInstallObserver failed");
+        napi_throw(env, CreateJsError(env,
+            static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER),
+            "AddFreeInstallObserver failed."));
     } else {
         TAG_LOGI(AAFwkTag::UI_EXT, "AddJsObserverObject.");
         // build a callback observer with last param

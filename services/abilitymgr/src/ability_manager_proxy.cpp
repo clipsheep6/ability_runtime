@@ -3884,8 +3884,10 @@ int AbilityManagerProxy::FreeInstallAbilityFromRemote(const Want &want, const sp
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
+int AbilityManagerProxy::AddFreeInstallObserver(const sptr<IRemoteObject> &callerToken,
+    const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
 {
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "token:%{public}s", callerToken == nullptr ? "true" : "false");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -3897,6 +3899,18 @@ int AbilityManagerProxy::AddFreeInstallObserver(const sptr<AbilityRuntime::IFree
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
         return INNER_ERR;
+    }
+
+    if (callerToken != nullptr) {
+        if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write flag and callerToken.");
+            return INNER_ERR;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write flag.");
+            return INNER_ERR;
+        }
     }
 
     if (!data.WriteRemoteObject(observer->AsObject())) {

@@ -22,6 +22,7 @@
 #include "caller_callback.h"
 #include "configuration.h"
 #include "context.h"
+#include "free_install_observer_interface.h"
 #include "iability_callback.h"
 #include "js_ui_extension_callback.h"
 #include "mission_info.h"
@@ -172,6 +173,8 @@ public:
 
     virtual ErrCode OpenAtomicService(AAFwk::Want& want, const AAFwk::StartOptions &options, int requestCode,
         RuntimeTask &&task) = 0;
+
+    virtual ErrCode AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer) = 0;
 
     virtual ErrCode ChangeAbilityVisibility(bool isShow) { return 0; }
 

@@ -20,6 +20,7 @@
 
 #include "ability_connect_callback.h"
 #include "extension_context.h"
+#include "free_install_observer_interface.h"
 #include "start_options.h"
 #include "want.h"
 #ifdef SUPPORT_SCREEN
@@ -149,6 +150,8 @@ public:
     ErrCode OpenAtomicService(AAFwk::Want& want, const AAFwk::StartOptions &options, int requestCode,
         RuntimeTask &&task);
     
+    ErrCode AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer);
+
     void InsertResultCallbackTask(int requestCode, RuntimeTask&& task);
 
     void RemoveResultCallbackTask(int requestCode);
