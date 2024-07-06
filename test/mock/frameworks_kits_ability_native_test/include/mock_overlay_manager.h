@@ -22,7 +22,7 @@
 #include "want.h"
 #include "iremote_proxy.h"
 #include "iremote_stub.h"
-#include "foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core/include/overlay/overlay_manager_interface.h"
+#include "overlay_manager_interface.h"
 
 namespace OHOS {
 namespace AppExecFwk {

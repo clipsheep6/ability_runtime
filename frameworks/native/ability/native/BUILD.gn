@@ -264,6 +264,7 @@ ohos_shared_library("abilitykit_native") {
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
+    "image_framework:image",
     "init:libbegetutil",
     "ipc:ipc_core",
     "ipc:ipc_napi",
@@ -283,6 +284,7 @@ ohos_shared_library("abilitykit_native") {
     "bundle_framework:appexecfwk_core",
     "jsoncpp:jsoncpp",
     "libuv:uv",
+    "napi:ace_napi",
   ]
 
   defines = []
@@ -352,6 +354,7 @@ config("extensionkit_public_config") {
     "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/distributed",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/kits",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
+    "${ability_runtime_path}/interfaces/kits/native/ability/ability_runtime",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
@@ -935,7 +938,10 @@ ohos_shared_library("service_extension_module") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "image_framework:image" ]
+    external_deps += [
+      "image_framework:image",
+      "window_manager:libwm",
+    ]
     public_external_deps = [
       "form_fwk:fmskit_provider_client",
       "form_fwk:form_manager",
