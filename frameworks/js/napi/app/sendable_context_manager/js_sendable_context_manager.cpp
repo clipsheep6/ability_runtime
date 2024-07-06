@@ -16,6 +16,7 @@
 #include "js_sendable_context_manager.h"
 
 #include "ability_context.h"
+#include "ability_stage_context.h"
 #include "application_context.h"
 #include "context.h"
 #include "js_ability_context.h"
@@ -139,8 +140,14 @@ napi_value CreateJsAbilityStageContextFromSendable(napi_env env, void* wrapped)
         return nullptr;
     }
 
+    auto abilitystageContext = Context::ConvertTo<AbilityStageContext>(context);
+    if (abilitystageContext == nullptr) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Convert to ability stage context failed.");
+        return nullptr;
+    }
+
     // create normal abilitystage context
-    return CreateJsAbilityStageContext(env, context);
+    return CreateJsAbilityStageContext(env, abilitystageContext);
 }
 
 napi_value CreateJsUIAbilityContextFromSendable(napi_env env, void* wrapped)

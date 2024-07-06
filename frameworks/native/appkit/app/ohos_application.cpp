@@ -23,6 +23,7 @@
 
 #include "ability.h"
 #include "ability_record_mgr.h"
+#include "ability_stage_context.h"
 #include "ability_thread.h"
 #include "app_loader.h"
 #include "application_context.h"
@@ -670,7 +671,7 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
     std::shared_ptr<AbilityRuntime::AbilityStage> abilityStage;
     auto iterator = abilityStages_.find(moduleName);
     if (iterator == abilityStages_.end()) {
-        std::shared_ptr<AbilityRuntime::ContextImpl> stageContext = std::make_shared<AbilityRuntime::ContextImpl>();
+        auto stageContext = std::make_shared<AbilityRuntime::AbilityStageContext>();
         stageContext->SetParentContext(abilityRuntimeContext_);
         stageContext->InitHapModuleInfo(abilityInfo);
         stageContext->SetConfiguration(GetConfiguration());
@@ -789,7 +790,7 @@ bool OHOSApplication::AddAbilityStage(const AppExecFwk::HapModuleInfo &hapModule
         return false;
     }
 
-    auto stageContext = std::make_shared<AbilityRuntime::ContextImpl>();
+    auto stageContext = std::make_shared<AbilityRuntime::AbilityStageContext>();
     stageContext->SetParentContext(abilityRuntimeContext_);
     stageContext->InitHapModuleInfo(hapModuleInfo);
     stageContext->SetConfiguration(GetConfiguration());

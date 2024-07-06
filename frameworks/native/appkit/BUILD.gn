@@ -277,6 +277,7 @@ ohos_shared_library("app_context") {
 
   sources = [
     "${ability_runtime_native_path}/appkit/ability_runtime/context/ability_lifecycle_callback.cpp",
+    "${ability_runtime_native_path}/appkit/ability_runtime/context/ability_stage_context.cpp",
     "${ability_runtime_native_path}/appkit/ability_runtime/context/application_context.cpp",
     "${ability_runtime_native_path}/appkit/ability_runtime/context/application_state_change_callback.cpp",
     "${ability_runtime_native_path}/appkit/ability_runtime/context/context_impl.cpp",
