@@ -45,6 +45,8 @@ struct FreeInstallInfo {
     uint32_t specifyTokenId = 0;
     bool isOpenAtomicServiceShortUrl = false;
     std::shared_ptr<Want> originalWant = nullptr;
+    bool isFreeInstallFinished = false;
+    int resultCode = 0;
 };
 
 /**

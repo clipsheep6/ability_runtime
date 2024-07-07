@@ -1727,7 +1727,7 @@ public:
 
     int32_t StartUIAbilityByPreInstall(const FreeInstallInfo &taskInfo);
 
-    void NotifySCBToHandleException(sptr<IRemoteObject> callerToken, int errCode,
+    void NotifySCBToHandleException(const std::string& sessionId, int errCode,
         const std::string& reason);
 
     // MSG 0 - 20 represents timeout message

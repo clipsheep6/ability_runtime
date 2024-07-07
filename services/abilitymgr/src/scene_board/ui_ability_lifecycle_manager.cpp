@@ -1398,6 +1398,26 @@ void UIAbilityLifecycleManager::NotifySCBToHandleException(const std::shared_ptr
     EraseAbilityRecord(abilityRecord);
 }
 
+void UIAbilityLifecycleManager::NotifySCBToHandleException(sptr<SessionInfo> sessionInfo,
+    int32_t errorCode, const std::string& errorReason)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
+    CHECK_POINTER(sessionInfo);
+    CHECK_POINTER(sessionInfo->sessionToken);
+    auto session = iface_cast<Rosen::ISession>(sessionInfo->sessionToken);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call notifySessionException");
+    sessionInfo->errorCode = errorCode;
+    sessionInfo->errorReason = errorReason;
+    session->NotifySessionException(sessionInfo);
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(sessionInfo->callerToken);
+    if (abilityRecord == nullptr) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "no such ability record matched token");
+        return;
+    }
+    EraseAbilityRecord(abilityRecord);
+}
+
 void UIAbilityLifecycleManager::HandleLoadTimeout(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call");

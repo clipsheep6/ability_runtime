@@ -1994,8 +1994,14 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bo
         return StartUIAbilityBySCBDefault(sessionInfo, isColdStart);
     }
 
-    if (taskInfo.isInstalled) {
+    if (taskInfo.isFreeInstallFinished) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "free install task is already finished");
+        if (!taskInfo.isInstalled) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "free install task failed,resultCode=%{public}d",
+                taskInfo.resultCode);
+            return taskInfo.resultCode;
+        }
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "free install succeeds");
         auto err = StartUIAbilityByPreInstallInner(sessionInfo, taskInfo.specifyTokenId, isColdStart);
         if (err != ERR_OK) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "StartUIAbilityByPreInstallInner failed.");
@@ -10952,9 +10958,17 @@ int32_t AbilityManagerService::PreStartMission(const std::string& bundleName, co
         return ERR_FREE_INSTALL_TASK_NOT_EXIST;
     }
 
-    if (taskInfo.isInstalled) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "atomic service is already installed.");
-        return ERR_OK;
+    if (taskInfo.isFreeInstallFinished) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "free install is finished.");
+        if (!taskInfo.isInstalled) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "free install task failed,resultCode=%{public}d",
+                taskInfo.resultCode);
+        } else {
+            TAG_LOGI(AAFwkTag::ABILITYMGR, "free install has succeeded.");
+        }
+        // if free install is already finished then either the window is opened (on success)
+        // or the user is informed of the error (on failure).
+        return taskInfo.resultCode;
     }
 
     return PreStartInner(taskInfo);
@@ -11021,6 +11035,10 @@ int32_t AbilityManagerService::StartUIAbilityByPreInstall(const FreeInstallInfo 
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Called.");
+    if (!taskInfo.isFreeInstallFinished || !taskInfo.isInstalled) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "free install is not finished or has failed.");
+        return ERR_INVALID_VALUE;
+    }
     if (!taskInfo.isStartUIAbilityBySCBCalled) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "Free install is finished, StartUIAbilityBySCB has not been called.");
         return ERR_OK;
@@ -11184,18 +11202,29 @@ int AbilityManagerService::StartUIAbilityByPreInstallInner(sptr<SessionInfo> ses
     return uiAbilityManager->StartUIAbility(abilityRequest, sessionInfo, isColdStart);
 }
 
-void AbilityManagerService::NotifySCBToHandleException(sptr<IRemoteObject> callerToken, int32_t errCode,
+void AbilityManagerService::NotifySCBToHandleException(const std::string& sessionId, int32_t errCode,
     const std::string& reason)
 {
-    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-    if (abilityRecord == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "no such ability record matched token");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Called.");
+    sptr<SessionInfo> sessionInfo = nullptr;
+    {
+        std::lock_guard<ffrt::mutex> guard(preStartSessionMapLock_);
+        auto it = preStartSessionMap_.find(sessionId);
+        if (it == preStartSessionMap_.end()) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to find session info with sessionId=%{public}s",
+                sessionId.c_str());
+            return;
+        }
+        sessionInfo = it->second;
+        preStartSessionMap_.erase(it);
+    }
+    if (sessionInfo == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sessionInfo is nullptr.");
         return;
     }
     auto uiAbilityManager = GetCurrentUIAbilityManager();
     CHECK_POINTER(uiAbilityManager);
-
-    return uiAbilityManager->NotifySCBToHandleException(abilityRecord, errCode, reason);
+    return uiAbilityManager->NotifySCBToHandleException(sessionInfo, errCode, reason);
 }
 
 void AbilityManagerService::RemovePreStartSession(const std::string& sessionId)
@@ -11298,7 +11327,7 @@ ErrCode AbilityManagerService::ConvertToExplicitWant(Want& want)
     };
     std::unique_lock<ffrt::mutex> lock(callbackDoneMutex);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "start to wait for condition.");
-    if (callbackDoneCv.wait_for(lock, seconds(CONVERT_CALLBACK_TIMEOUT_SECONDS), condition)) {
+    if (!callbackDoneCv.wait_for(lock, seconds(CONVERT_CALLBACK_TIMEOUT_SECONDS), condition)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "convert callback timeout.");
         retCode = ERR_TIMED_OUT;
     }

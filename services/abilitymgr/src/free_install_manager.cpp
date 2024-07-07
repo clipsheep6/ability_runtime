@@ -290,7 +290,8 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
             it++;
             continue;
         }
-        freeInstallInfo.isInstalled = true;
+        freeInstallInfo.isFreeInstallFinished = true;
+        freeInstallInfo.resultCode = resultCode;
         HandleFreeInstallResult(freeInstallInfo, resultCode, isAsync);
         it = freeInstallList_.erase(it);
     }
@@ -299,6 +300,7 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
 void FreeInstallManager::HandleOnFreeInstallSuccess(FreeInstallInfo &freeInstallInfo, bool isAsync)
 {
     TAG_LOGI(AAFwkTag::FREE_INSTALL, "FreeInstall success.");
+    freeInstallInfo.isInstalled = true;
 
     if (isAsync) {
         std::string startTime = freeInstallInfo.want.GetStringParam(Want::PARAM_RESV_START_TIME);
@@ -321,11 +323,16 @@ void FreeInstallManager::HandleOnFreeInstallSuccess(FreeInstallInfo &freeInstall
 void FreeInstallManager::HandleOnFreeInstallFail(FreeInstallInfo &freeInstallInfo, int resultCode, bool isAsync)
 {
     TAG_LOGI(AAFwkTag::FREE_INSTALL, "FreeInstall failed.");
+    freeInstallInfo.isInstalled = false;
 
     if (isAsync) {
-        if (freeInstallInfo.isPreStartMissionCalled) {
+        if (freeInstallInfo.isPreStartMissionCalled &&
+            freeInstallInfo.want.HasParameter(KEY_SESSION_ID) &&
+            !freeInstallInfo.want.GetStringParam(KEY_SESSION_ID).empty() &&
+            freeInstallInfo.isStartUIAbilityBySCBCalled) {
             DelayedSingleton<AbilityManagerService>::GetInstance()->NotifySCBToHandleException(
-                freeInstallInfo.callerToken, resultCode, "free install failed");
+                freeInstallInfo.want.GetStringParam(KEY_SESSION_ID),
+                resultCode, "free install failed");
         }
         std::string startTime = freeInstallInfo.want.GetStringParam(Want::PARAM_RESV_START_TIME);
         if (freeInstallInfo.isOpenAtomicServiceShortUrl
@@ -336,7 +343,6 @@ void FreeInstallManager::HandleOnFreeInstallFail(FreeInstallInfo &freeInstallInf
 
         std::string bundleName = freeInstallInfo.want.GetElement().GetBundleName();
         std::string abilityName = freeInstallInfo.want.GetElement().GetAbilityName();
-
         DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinished(
             bundleName, abilityName, startTime, resultCode);
         return;
