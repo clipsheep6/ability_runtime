@@ -3248,6 +3248,18 @@ int32_t AbilityManagerStub::StartSpecifiedAbilityBySCBInner(MessageParcel &data,
     return NO_ERROR;
 }
 
+int32_t AbilityManagerStub::StartSpecifiedProcessBySCBInner(MessageParcel &data, MessageParcel &reply)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Call.");
+    std::unique_ptr<Want> want(data.ReadParcelable<Want>());
+    if (want == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    StartSpecifiedProcessBySCB(*want);
+    return NO_ERROR;
+}
+
 int AbilityManagerStub::NotifySaveAsResultInner(MessageParcel &data, MessageParcel &reply)
 {
     std::unique_ptr<Want> want(data.ReadParcelable<Want>());

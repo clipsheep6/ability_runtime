@@ -1284,6 +1284,13 @@ public:
     virtual void StartSpecifiedAbilityBySCB(const Want &want) {};
 
     /**
+     * Start specified process by SCB.
+     *
+     * @param want Want information.
+     */
+    virtual void StartSpecifiedProcessBySCB(const Want &want) {};
+
+    /**
      * Notify sandbox app the result of saving file.
      * @param want Result of saving file, which contains the file's uri if success.
      * @param resultCode Indicates the action's result.

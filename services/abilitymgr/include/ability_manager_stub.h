@@ -244,6 +244,7 @@ private:
     int SetRootSceneSessionInner(MessageParcel &data, MessageParcel &reply);
     int CallUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
     int StartSpecifiedAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
+    int StartSpecifiedProcessBySCBInner(MessageParcel &data, MessageParcel &reply);
     int NotifySaveAsResultInner(MessageParcel &data, MessageParcel &reply);
 
     int SetSessionManagerServiceInner(MessageParcel &data, MessageParcel &reply);

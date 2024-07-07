@@ -3148,6 +3148,39 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartSpecifiedAbilityBySCBIn
 
 /*
  * Feature: AbilityManagerService
+ * Function: StartSpecifiedProcessBySCBInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartSpecifiedProcessBySCBInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function StartSpecifiedProcessBySCBInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartSpecifiedProcessBySCBInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->StartSpecifiedProcessBySCBInner(data, reply);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartSpecifiedProcessBySCBInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartSpecifiedProcessBySCBInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function StartSpecifiedProcessBySCBInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartSpecifiedProcessBySCBInner_002, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    Want want;
+    data.WriteParcelable(&want);
+    EXPECT_EQ(stub_->StartSpecifiedProcessBySCBInner(data, reply), NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: IsAbilityControllerStartInner
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService IsAbilityControllerStartInner

@@ -2351,6 +2351,20 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartSpecifiedAbilityBySCB_001, TestSize
 }
 
 /**
+ * @tc.name: UIAbilityLifecycleManager_StartSpecifiedProcessBySCB_0100
+ * @tc.desc: StartSpecifiedAbilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, StartSpecifiedProcessBySCB_001, TestSize.Level1)
+{
+    auto uiAbilityLifecycleManager = std::make_shared<UIAbilityLifecycleManager>();
+    EXPECT_NE(uiAbilityLifecycleManager, nullptr);
+    Want want;
+    uiAbilityLifecycleManager->StartSpecifiedProcessBySCB(want);
+    uiAbilityLifecycleManager.reset();
+}
+
+/**
  * @tc.name: UIAbilityLifecycleManager_GetReusedSpecifiedAbility_0100
  * @tc.desc: GetReusedSpecifiedAbility
  * @tc.type: FUNC

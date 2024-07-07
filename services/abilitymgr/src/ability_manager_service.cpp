@@ -9580,6 +9580,17 @@ void AbilityManagerService::StartSpecifiedAbilityBySCB(const Want &want)
     uiAbilityManager->StartSpecifiedAbilityBySCB(want);
 }
 
+void AbilityManagerService::StartSpecifiedProcessBySCB(const Want &want)
+{
+    if (!IsCallerSceneBoard()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Not sceneboard called, not allowed.");
+        return;
+    }
+    auto uiAbilityManager = GetUIAbilityManagerByUid(IPCSkeleton::GetCallingUid());
+    CHECK_POINTER(uiAbilityManager);
+    uiAbilityManager->StartSpecifiedProcessBySCB(want);
+}
+
 int32_t AbilityManagerService::RegisterIAbilityManagerCollaborator(
     int32_t type, const sptr<IAbilityManagerCollaborator> &impl)
 {

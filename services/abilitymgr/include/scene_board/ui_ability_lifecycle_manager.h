@@ -223,6 +223,13 @@ public:
     void StartSpecifiedAbilityBySCB(const Want &want);
 
     /**
+     * Start specified process by SCB.
+     *
+     * @param want Want information.
+     */
+    void StartSpecifiedProcessBySCB(const Want &want);
+
+    /**
      * CallRequestDone, after invoke callRequest, ability will call this interface to return callee.
      *
      * @param abilityRecord ability's record.
