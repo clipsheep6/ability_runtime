@@ -259,6 +259,48 @@ HWTEST_F(AppRunningManagerTest, AppRunningManager_UpdateConfiguration_0100, Test
 }
 
 /**
+ * @tc.name: AppRunningManager_UpdateConfiguration_0200
+ * @tc.desc: Test UpdateConfiguration config storage
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningManagerTest, AppRunningManager_UpdateConfiguration_0200, TestSize.Level1)
+{
+    auto appRunningManager = std::make_shared<AppRunningManager>();
+    EXPECT_NE(appRunningManager, nullptr);
+    Configuration config;
+    config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, ConfigurationInner::COLOR_MODE_LIGHT);
+    auto ret = appRunningManager->UpdateConfiguration(config);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_NE(appRunningManager->configuration_, nullptr);
+    EXPECT_EQ(appRunningManager->configuration_->GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE),
+        ConfigurationInner::COLOR_MODE_LIGHT);
+}
+
+/**
+ * @tc.name: AppRunningManager_UpdateConfiguration_0300
+ * @tc.desc: Test UpdateConfiguration delayed
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningManagerTest, AppRunningManager_UpdateConfiguration_0300, TestSize.Level1)
+{
+    auto appRunningManager = std::make_shared<AppRunningManager>();
+    EXPECT_NE(appRunningManager, nullptr);
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    int32_t recordId = 1;
+    std::string processName;
+    Configuration config;
+    auto appRunningRecord = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
+    appRunningManager->appRunningRecordMap_.emplace(recordId, appRunningRecord);
+    appRunningRecord = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
+    appRunningRecord->SetState(ApplicationState::APP_STATE_BACKGROUND);
+    appRunningManager->appRunningRecordMap_.emplace(++recordId, appRunningRecord);
+    auto ret = appRunningManager->UpdateConfiguration(config);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(appRunningManager->updateConfigurationDelayedMap_[0], false);
+    EXPECT_EQ(appRunningManager->updateConfigurationDelayedMap_[1], true);
+}
+
+/**
  * @tc.name: RemoveAppRunningRecordById_0100
  * @tc.desc: Remove app running record by id.
  * @tc.type: FUNC

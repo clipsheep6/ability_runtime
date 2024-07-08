@@ -23,17 +23,18 @@
 
 #include "ability_info.h"
 #include "app_debug_listener_interface.h"
+#include "app_jsheap_mem_info.h"
 #include "app_malloc_info.h"
 #include "app_mem_info.h"
 #include "app_running_record.h"
 #include "app_state_data.h"
 #include "application_info.h"
 #include "bundle_info.h"
+#include "configuration.h"
 #include "iremote_object.h"
 #include "record_query_result.h"
 #include "refbase.h"
 #include "running_process_info.h"
-#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace Rosen {
@@ -320,6 +321,8 @@ public:
     bool IsAppProcessesAllCached(const std::string &bundleName, int32_t uid,
         const std::set<std::shared_ptr<AppRunningRecord>> &cachedSet);
 
+    int32_t UpdateConfigurationDelayed(const std::shared_ptr<AppRunningRecord> &appRecord);
+
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);
     int32_t AssignRunningProcessInfoByAppRecord(
@@ -332,6 +335,10 @@ private:
 
     std::mutex uiExtensionMapLock_;
     std::map<int32_t, std::pair<pid_t, pid_t>> uiExtensionLauncherMap_;
+
+    std::shared_ptr<Configuration> configuration_;
+    std::mutex updateConfigurationDelayedLock_;
+    std::map<const int32_t, bool> updateConfigurationDelayedMap_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
