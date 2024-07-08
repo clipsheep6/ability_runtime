@@ -205,7 +205,7 @@ void ConnectionRecord::ScheduleDisconnectAbilityDone()
         handler->CancelTask(taskName);
     }
 
-    CompleteDisconnect(ERR_OK, false);
+    CompleteDisconnect(ERR_OK, GetAbilityConnectCallback() == nullptr);
 }
 
 void ConnectionRecord::ScheduleConnectAbilityDone()
