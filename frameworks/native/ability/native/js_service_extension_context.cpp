@@ -152,6 +152,11 @@ public:
         GET_NAPI_INFO_AND_CALL(env, info, JsServiceExtensionContext, OnStartExtensionAbility);
     }
 
+    static napi_value StartUIServiceExtensionAbility(napi_env env, napi_callback_info info)
+    {
+        GET_NAPI_INFO_AND_CALL(env, info, JsServiceExtensionContext, OnStartUIServiceExtension);
+    }
+
     static napi_value StartServiceExtensionAbilityWithAccount(napi_env env, napi_callback_info info)
     {
         GET_NAPI_INFO_AND_CALL(env, info, JsServiceExtensionContext, OnStartExtensionAbilityWithAccount);
@@ -895,6 +900,45 @@ private:
         return result;
     }
 
+    napi_value OnStartUIServiceExtension(napi_env env, NapiCallbackInfo& info)
+    {
+        TAG_LOGI(AAFwkTag::SERVICE_EXT, "OnStartUIServiceExtension is enter");
+        if (info.argc <ARGC_TWO) {
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "OnStartUIServiceExtension failed, not enough params.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+
+        AAFwk::Want want;
+        if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to parse want!");
+            ThrowInvalidParamError(env, "Parse param want failed, want must be Want.");
+            return CreateJsUndefined(env);
+        }
+
+        NapiAsyncTask::CompleteCallback complete =
+            [weak = context_, want](napi_env env, NapiAsyncTask& task, int32_t status) {
+                auto context = weak.lock();
+                if (!context) {
+                    TAG_LOGW(AAFwkTag::SERVICE_EXT, "context is released");
+                    task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                    return;
+                }
+                auto errcode = context->StartUIServiceExtensionAbility(want);
+                if (errcode == 0) {
+                    task.ResolveWithNoError(env, CreateJsUndefined(env));
+                } else {
+                    task.Reject(env, CreateJsErrorByNativeErr(env, errcode));
+                }
+            };
+
+        napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+        napi_value result = nullptr;
+        NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnStartUIServiceExtension",
+            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+        return result;
+    }
+
     napi_value OnStartExtensionAbilityWithAccount(napi_env env, NapiCallbackInfo& info)
     {
         TAG_LOGI(AAFwkTag::SERVICE_EXT, "StartExtensionAbilityWithAccount");
@@ -1221,6 +1265,8 @@ napi_value CreateJsServiceExtensionContext(napi_env env, std::shared_ptr<Service
         "connectServiceExtensionAbilityWithAccount", moduleName, JsServiceExtensionContext::ConnectAbilityWithAccount);
     BindNativeFunction(env, object, "startServiceExtensionAbility", moduleName,
         JsServiceExtensionContext::StartServiceExtensionAbility);
+    BindNativeFunction(env, object, "startUIServiceExtensionAbility", moduleName,
+        JsServiceExtensionContext::StartUIServiceExtensionAbility);
     BindNativeFunction(env, object, "startServiceExtensionAbilityWithAccount", moduleName,
         JsServiceExtensionContext::StartServiceExtensionAbilityWithAccount);
     BindNativeFunction(env, object, "stopServiceExtensionAbility", moduleName,

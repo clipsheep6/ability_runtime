@@ -356,6 +356,11 @@ napi_value JsAbilityContext::SetRestoreEnabled(napi_env env, napi_callback_info 
     GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnSetRestoreEnabled);
 }
 
+napi_value JsAbilityContext::StartUIServiceExtension(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnStartUIServiceExtension);
+}
+
 void JsAbilityContext::ClearFailedCallConnection(
     const std::weak_ptr<AbilityContext>& abilityContext, const std::shared_ptr<CallerCallBack> &callback)
 {
@@ -453,6 +458,43 @@ napi_value JsAbilityContext::OnStartAbility(napi_env env, NapiCallbackInfo& info
     return result;
 }
 
+napi_value JsAbilityContext::OnStartUIServiceExtension(napi_env env, NapiCallbackInfo& info)
+{
+    TAG_LOGI(AAFwkTag::CONTEXT, "StartUIServiceExtension");
+    if (info.argc < ARGC_ONE) {
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    AAFwk::Want want;
+    if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Failed to parse want!");
+        ThrowInvalidParamError(env, "Parse param want failed, want must be Want.");
+        return CreateJsUndefined(env);
+    }
+
+    NapiAsyncTask::CompleteCallback complete =
+        [weak = context_, want](napi_env env, NapiAsyncTask& task, int32_t status) {
+            auto context = weak.lock();
+            if (!context) {
+                TAG_LOGW(AAFwkTag::CONTEXT, "context is released");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                return;
+            }
+            auto errcode = context->StartUIServiceExtensionAbility(want);
+            if (errcode == 0) {
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, errcode));
+            }
+        };
+
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnStartUIServiceExtension",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
 static bool CheckUrl(std::string &urlValue)
 {
     if (urlValue.empty()) {
@@ -1657,6 +1699,8 @@ napi_value CreateJsAbilityContext(napi_env env, std::shared_ptr<AbilityContext> 
         JsAbilityContext::OpenAtomicService);
     BindNativeFunction(env, object, "moveAbilityToBackground", moduleName, JsAbilityContext::MoveAbilityToBackground);
     BindNativeFunction(env, object, "setRestoreEnabled", moduleName, JsAbilityContext::SetRestoreEnabled);
+    BindNativeFunction(env, object, "startUIServiceExtensionAbility", moduleName,
+        JsAbilityContext::StartUIServiceExtension);
 
 #ifdef SUPPORT_GRAPHICS
     BindNativeFunction(env, object, "setMissionLabel", moduleName, JsAbilityContext::SetMissionLabel);

@@ -54,6 +54,7 @@ public:
     virtual ErrCode StartAbility(const AAFwk::Want &want) const;
     virtual ErrCode StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions) const;
     virtual ErrCode StartAbility(const AAFwk::Want &want, int requestCode) const;
+    virtual ErrCode StartUIServiceExtension(const AAFwk::Want& want, int32_t accountId = -1) const;
     /**
      * @brief Destroys the current ui extension ability.
      *

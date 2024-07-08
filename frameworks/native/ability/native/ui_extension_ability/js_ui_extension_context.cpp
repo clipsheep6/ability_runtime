@@ -166,6 +166,10 @@ napi_value JsUIExtensionContext::OpenAtomicService(napi_env env, napi_callback_i
     GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContext, OnOpenAtomicService);
 }
 
+napi_value JsUIExtensionContext::StartUIServiceExtension(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContext, OnStartUIServiceExtension);
+}
 napi_value JsUIExtensionContext::OnStartAbility(napi_env env, NapiCallbackInfo& info)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -607,6 +611,49 @@ napi_value JsUIExtensionContext::OnDisconnectAbility(napi_env env, NapiCallbackI
     return result;
 }
 
+napi_value JsUIExtensionContext::OnStartUIServiceExtension(napi_env env, NapiCallbackInfo& info)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::UI_EXT, "OnStartUIServiceExtension is called");
+    if (info.argc < ARGC_ONE) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "Start UIServiceExtension failed, not enough params.");
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    size_t unwrapArgc = 0;
+    AAFwk::Want want;
+    AAFwk::StartOptions startOptions;
+    if (!CheckStartAbilityInputParam(env, info, want, startOptions, unwrapArgc)) {
+        TAG_LOGD(AAFwkTag::UI_EXT, "Failed, input param type invalid");
+        ThrowInvalidParamError(env, "Parse param want failed, want must be Want.");
+        return CreateJsUndefined(env);
+    }
+
+    NapiAsyncTask::CompleteCallback complete =
+        [weak = context_, want, startOptions, unwrapArgc](napi_env env, NapiAsyncTask& task, int32_t status) {
+            TAG_LOGD(AAFwkTag::UI_EXT, "StartUIServiceExtension begin");
+            auto context = weak.lock();
+            if (!context) {
+                TAG_LOGE(AAFwkTag::UI_EXT, "context is released");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                return;
+            }
+            ErrCode innerErrorCode = ERR_OK;
+            innerErrorCode = context->StartUIServiceExtension(want);
+            if (innerErrorCode == 0) {
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, innerErrorCode));
+            }
+        };
+
+    napi_value lastParam = (info.argc == unwrapArgc) ? nullptr : info.argv[unwrapArgc];
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JSUIExtensionContext OnStartUIServiceExtension",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
 napi_value JsUIExtensionContext::OnReportDrawnCompleted(napi_env env, NapiCallbackInfo& info)
 {
     TAG_LOGD(AAFwkTag::UI_EXT, "called.");
@@ -808,6 +855,7 @@ napi_value JsUIExtensionContext::CreateJsUIExtensionContext(napi_env env,
     BindNativeFunction(env, objValue, "disconnectServiceExtensionAbility", moduleName, DisconnectAbility);
     BindNativeFunction(env, objValue, "reportDrawnCompleted", moduleName, ReportDrawnCompleted);
     BindNativeFunction(env, objValue, "openAtomicService", moduleName, OpenAtomicService);
+    BindNativeFunction(env, objValue, "startUIServiceExtensionAbility", moduleName, StartUIServiceExtension);
 
     return objValue;
 }

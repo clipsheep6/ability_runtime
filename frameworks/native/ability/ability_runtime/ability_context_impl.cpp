@@ -274,6 +274,18 @@ ErrCode AbilityContextImpl::StartAbilityForResultWithAccount(
     return err;
 }
 
+ErrCode AbilityContextImpl::StartUIServiceExtensionAbility(const AAFwk::Want& want, int32_t accountId)
+{
+    TAG_LOGI(AAFwkTag::CONTEXT, "name:%{public}s %{public}s, accountId=%{public}d",
+        want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), accountId);
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartExtensionAbility(
+        want, token_, accountId, AppExecFwk::ExtensionAbilityType::UI_SERVICE);
+    if (err != ERR_OK) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "StartUIServiceExtension is failed %{public}d", err);
+    }
+    return err;
+}
+
 ErrCode AbilityContextImpl::StartServiceExtensionAbility(const AAFwk::Want& want, int32_t accountId)
 {
     TAG_LOGI(AAFwkTag::CONTEXT, "name:%{public}s %{public}s, accountId=%{public}d",

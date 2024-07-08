@@ -169,6 +169,17 @@ ErrCode ServiceExtensionContext::StartServiceExtensionAbility(const AAFwk::Want 
     return err;
 }
 
+ErrCode ServiceExtensionContext::StartUIServiceExtensionAbility(const AAFwk::Want &want, int32_t accountId) const
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "begin.");
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartExtensionAbility(
+        want, token_, accountId, AppExecFwk::ExtensionAbilityType::UI_SERVICE);
+    if (err != ERR_OK) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ServiceContext::StartServiceExtensionAbility is failed %{public}d", err);
+    }
+    return err;
+}
+
 ErrCode ServiceExtensionContext::StopServiceExtensionAbility(const AAFwk::Want& want, int32_t accountId) const
 {
     TAG_LOGD(AAFwkTag::APPKIT, "%{public}s begin.", __func__);
