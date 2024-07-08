@@ -507,6 +507,9 @@ CJ_EXPORT extern "C" CJEnvMethods* OHOS_GetCJEnvInstance()
         .loadCJModule = [](const char* dllName) {
             return CJEnvironment::GetInstance()->LoadCJLibrary(dllName);
         },
+        .loadLibrary = [](uint32_t kind, const char* dllName) {
+            return CJEnvironment::GetInstance()->LoadCJLibrary(static_cast<CJEnvironment::LibraryKind>(kind), dllName);
+        },
         .getSymbol = [](void* handle, const char* dllName) {
             return CJEnvironment::GetInstance()->GetSymbol(handle, dllName);
         },
