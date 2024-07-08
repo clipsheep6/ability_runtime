@@ -241,11 +241,6 @@ ohos_shared_library("appkit_native") {
 
     defines += [ "CJ_FRONTEND" ]
 
-    deps += [
-      "${ability_runtime_path}/cj_environment/frameworks/cj_environment:cj_environment",
-      "${ability_runtime_path}/frameworks/cj/ffi:cj_ability_ffi",
-    ]
-
     external_deps += [
       "bundle_framework:appexecfwk_base",
       "napi:cj_bind_ffi",
@@ -455,6 +450,9 @@ ohos_shared_library("appkit_delegator") {
       "${ability_runtime_native_path}/appkit/ability_delegator/runner_runtime/cj_test_runner.cpp",
       "${ability_runtime_native_path}/appkit/ability_delegator/runner_runtime/cj_test_runner_object.cpp",
     ]
+
+    include_dirs +=
+        [ "${ability_runtime_path}/cj_environment/interfaces/inner_api" ]
 
     defines = [ "CJ_FRONTEND" ]
   }

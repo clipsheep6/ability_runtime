@@ -15,6 +15,7 @@
 
 #include "cj_ui_ability.h"
 
+#include <dlfcn.h>
 #include <regex>
 #include <cstdlib>
 
@@ -55,6 +56,31 @@ const std::string SUPPORT_CONTINUE_PAGE_STACK_PROPERTY_NAME = "ohos.extra.param.
 // Numerical base (radix) that determines the valid characters and their interpretation.
 const int32_t BASE_DISPLAY_ID_NUM (10);
 #endif
+const char* CJWINDOW_FFI_LIBNAME = "libcj_window_ffi.z.so";
+const char* FUNC_CREATE_CJWINDOWSTAGE = "OHOS_CreateCJWindowStage";
+using CFFICreateCJWindowStage = int64_t (*)(std::shared_ptr<Rosen::WindowScene>&);
+
+sptr<Rosen::CJWindowStageImpl> CreateCJWindowStage(std::shared_ptr<Rosen::WindowScene> windowScene)
+{
+    static void* handle = nullptr;
+    if (handle == nullptr) {
+        handle = dlopen(CJWINDOW_FFI_LIBNAME, RTLD_LAZY);
+        if (handle == nullptr) {
+            TAG_LOGE(AAFwkTag::UIABILITY, "dlopen failed %{public}s, %{public}s", CJWINDOW_FFI_LIBNAME, dlerror());
+            return nullptr;
+        }
+    }
+    // get function
+    auto func = reinterpret_cast<CFFICreateCJWindowStage>(dlsym(handle, FUNC_CREATE_CJWINDOWSTAGE));
+    if (func == nullptr) {
+        TAG_LOGE(AAFwkTag::UIABILITY, "dlsym failed %{public}s, %{public}s", FUNC_CREATE_CJWINDOWSTAGE, dlerror());
+        dlclose(handle);
+        handle = nullptr;
+        return nullptr;
+    }
+    auto id = func(windowScene);
+    return OHOS::FFI::FFIData::GetData<Rosen::CJWindowStageImpl>(id);
+}
 }
 
 UIAbility *CJUIAbility::Create(const std::unique_ptr<Runtime> &runtime)
@@ -227,7 +253,7 @@ void CJUIAbility::OnSceneCreated()
         TAG_LOGE(AAFwkTag::UIABILITY, "CJAbility is not loaded.");
         return;
     }
-    cjWindowStage_ = OHOS::Rosen::CJWindowStageImpl::CreateCJWindowStage(GetScene());
+    cjWindowStage_ = CreateCJWindowStage(GetScene());
     if (!cjWindowStage_) {
         TAG_LOGE(AAFwkTag::UIABILITY, "Failed to create CJWindowStage object.");
         return;
@@ -237,7 +263,7 @@ void CJUIAbility::OnSceneCreated()
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "onWindowStageCreate");
         std::string methodName = "OnSceneCreated";
         AddLifecycleEventBeforeCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
-        cjAbilityObj_->OnSceneCreated(cjWindowStage_.get());
+        cjAbilityObj_->OnSceneCreated(cjWindowStage_.GetRefPtr());
         AddLifecycleEventAfterCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
     }
 
@@ -261,13 +287,13 @@ void CJUIAbility::OnSceneRestored()
     }
 
     if (!cjWindowStage_) {
-        cjWindowStage_ = OHOS::Rosen::CJWindowStageImpl::CreateCJWindowStage(scene_);
+        cjWindowStage_ = CreateCJWindowStage(scene_);
         if (!cjWindowStage_) {
             TAG_LOGE(AAFwkTag::UIABILITY, "Failed to create CJWindowStage object.");
             return;
         }
     }
-    cjAbilityObj_->OnSceneRestored(cjWindowStage_.get());
+    cjAbilityObj_->OnSceneRestored(cjWindowStage_.GetRefPtr());
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
@@ -525,15 +551,6 @@ void CJUIAbility::ContinuationRestore(const Want &want)
     RestorePageStack(want);
     OnSceneRestored();
     NotifyContinuationResult(want, true);
-}
-
-std::shared_ptr<Rosen::CJWindowStageImpl> CJUIAbility::GetCJWindowStage()
-{
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
-    if (cjWindowStage_ == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "CJWindowSatge is nullptr .");
-    }
-    return cjWindowStage_;
 }
 
 const CJRuntime &CJUIAbility::GetCJRuntime()

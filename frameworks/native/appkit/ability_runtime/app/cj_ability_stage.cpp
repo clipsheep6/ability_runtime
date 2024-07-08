@@ -16,13 +16,34 @@
 #include "cj_ability_stage.h"
 #include "cj_ability_stage_context.h"
 #include "cj_runtime.h"
-#include "cj_utils_ffi.h"
 #include "context_impl.h"
 #include "hilog_wrapper.h"
 #include "hilog_tag_wrapper.h"
-
+#include "securec.h"
 
 using namespace OHOS::AbilityRuntime;
+
+namespace {
+char* CreateCStringFromString(const std::string& source)
+{
+    if (source.size() == 0) {
+        return nullptr;
+    }
+    size_t length = source.size() + 1;
+    auto res = static_cast<char*>(malloc(length));
+    if (res == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "fail to mallc string.");
+        return nullptr;
+    }
+    if (strcpy_s(res, length, source.c_str()) != 0) {
+        free(res);
+        TAG_LOGE(AAFwkTag::APPKIT, "fail to strcpy source.");
+        return nullptr;
+    }
+    return res;
+}
+}
+
 extern "C" {
 CJ_EXPORT CurrentHapModuleInfo* FFICJCurrentHapModuleInfo(int64_t id)
 {

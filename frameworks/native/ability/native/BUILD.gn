@@ -569,7 +569,10 @@ ohos_shared_library("uiabilitykit_native") {
       "${ability_runtime_native_path}/ability/native/ability_runtime/cj_ui_ability.cpp",
     ]
 
-    include_dirs += [ "${ability_runtime_path}/frameworks/cj/ffi" ]
+    include_dirs += [
+      "${ability_runtime_path}/frameworks/cj/ffi",
+      "${ability_runtime_path}/cj_environment/interfaces/inner_api",
+    ]
     defines = [ "CJ_FRONTEND" ]
     external_deps += [
       "napi:cj_bind_ffi",

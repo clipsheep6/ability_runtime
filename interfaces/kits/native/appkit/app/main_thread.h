@@ -41,7 +41,7 @@
 #include "watchdog.h"
 
 #ifdef CJ_FRONTEND
-#include "cj_environment.h"
+#include "cj_envsetup.h"
 #endif
 #define ABILITY_LIBRARY_LOADER
 
