@@ -1222,6 +1222,7 @@ void JsRuntime::DumpHeapSnapshot(uint32_t tid, bool isFullGC)
     dumpOption.isPrivate = false;
     dumpOption.captureNumericValue = false;
     dumpOption.isFullGC = isFullGC;
+    dumpOption.isSync = false;
     DFXJSNApi::DumpHeapSnapshot(vm, dumpOption, tid);
 }
 
