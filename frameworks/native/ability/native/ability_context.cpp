@@ -329,5 +329,15 @@ sptr<IRemoteObject> AbilityContext::GetSessionToken()
     std::lock_guard lock(sessionTokenMutex_);
     return sessionToken_;
 }
+
+int32_t AbilityContext::AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
+{
+    TAG_LOGE(AAFwkTag::CONTEXT, "token is nullptr ? %{public}s", token_ == nullptr ? "true" : "false");
+    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(token_, observer);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "AddFreeInstallObserver error, ret: %{public}d", ret);
+    }
+    return ret;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

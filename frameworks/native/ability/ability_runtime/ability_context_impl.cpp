@@ -1008,6 +1008,16 @@ ErrCode AbilityContextImpl::ChangeAbilityVisibility(bool isShow)
     return err;
 }
 
+ErrCode AbilityContextImpl::AddFreeInstallObserver(const sptr<IFreeInstallObserver> &observer)
+{
+    TAG_LOGE(AAFwkTag::CONTEXT, "token is nullptr ? %{public}s", token_ == nullptr ? "true" : "false");
+    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(token_, observer);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "AddFreeInstallObserver error, ret: %{public}d", ret);
+    }
+    return ret;
+}
+
 ErrCode AbilityContextImpl::OpenAtomicService(AAFwk::Want& want, const AAFwk::StartOptions &options, int requestCode,
     RuntimeTask &&task)
 {

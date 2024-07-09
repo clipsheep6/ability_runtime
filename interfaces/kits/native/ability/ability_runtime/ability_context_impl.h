@@ -223,6 +223,7 @@ public:
     ErrCode ChangeAbilityVisibility(bool isShow) override;
 
     ErrCode OpenLink(const AAFwk::Want& want, int requestCode) override;
+    ErrCode AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer) override;
 
     ErrCode OpenAtomicService(AAFwk::Want& want, const AAFwk::StartOptions &options, int requestCode,
         RuntimeTask &&task) override;

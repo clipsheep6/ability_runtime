@@ -1150,10 +1150,12 @@ public:
     /**
      * Add free install observer.
      *
-     * @param observer, the observer of the ability to free install start.
+     * @param callerToken, The caller ability token.
+     * @param observer, The observer of the ability to free install start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
+    virtual int AddFreeInstallObserver(const sptr<IRemoteObject> &callerToken,
+        const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
     {
         return 0;
     }

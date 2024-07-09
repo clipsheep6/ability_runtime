@@ -9387,14 +9387,15 @@ int AbilityManagerService::CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId
     return ERR_OK;
 }
 
-int AbilityManagerService::AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
+int AbilityManagerService::AddFreeInstallObserver(const sptr<IRemoteObject> &callerToken,
+    const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (freeInstallManager_ == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "freeInstallManager_ is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    return freeInstallManager_->AddFreeInstallObserver(observer);
+    return freeInstallManager_->AddFreeInstallObserver(callerToken, observer);
 }
 
 int32_t AbilityManagerService::IsValidMissionIds(

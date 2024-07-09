@@ -18,7 +18,7 @@
 
 #include <map>
 #include <mutex>
-#include <vector>
+#include <unordered_map>
 #include "cpp/mutex.h"
 
 #include "free_install_observer_interface.h"
@@ -30,30 +30,28 @@ using namespace OHOS::AbilityRuntime;
 class FreeInstallObserverManager : public std::enable_shared_from_this<FreeInstallObserverManager> {
     DECLARE_DELAYED_SINGLETON(FreeInstallObserverManager)
 public:
-    int32_t AddObserver(const sptr<IFreeInstallObserver> &observer);
+    int32_t AddObserver(int32_t recordId, const sptr<IFreeInstallObserver> &observer);
 
     int32_t RemoveObserver(const sptr<IFreeInstallObserver> &observer);
 
-    void OnInstallFinished(const std::string &bundleName, const std::string &abilityName,
+    void OnInstallFinished(int32_t recordId, const std::string &bundleName, const std::string &abilityName,
         const std::string &startTime, const int &resultCode);
 
-    void OnInstallFinishedByUrl(const std::string &startTime, const std::string &url,
+    void OnInstallFinishedByUrl(int32_t recordId, const std::string &startTime, const std::string &url,
         const int &resultCode);
 
 private:
-    bool ObserverExistLocked(const sptr<IFreeInstallObserver> &observer);
-
     void OnObserverDied(const wptr<IRemoteObject> &remote);
 
-    void HandleOnInstallFinished(const std::string &bundleName, const std::string &abilityName,
+    void HandleOnInstallFinished(int32_t recordId, const std::string &bundleName, const std::string &abilityName,
         const std::string &startTime, const int &resultCode);
 
-    void HandleOnInstallFinishedByUrl(const std::string &startTime, const std::string &url,
+    void HandleOnInstallFinishedByUrl(int32_t recordId, const std::string &startTime, const std::string &url,
         const int &resultCode);
 
     ffrt::mutex observerLock_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_;
-    std::vector<sptr<IFreeInstallObserver>> observerList_;
+    std::unordered_map<int32_t, sptr<IFreeInstallObserver>> observerMap_;
 };
 
 class FreeInstallObserverRecipient : public IRemoteObject::DeathRecipient {

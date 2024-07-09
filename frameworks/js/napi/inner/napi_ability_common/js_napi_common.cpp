@@ -1418,14 +1418,21 @@ void JsNapiCommon::AddFreeInstallObserver(napi_env env, const AAFwk::Want &want,
 {
     // adapter free install async return install and start result
     TAG_LOGD(AAFwkTag::JSNAPI, "AddFreeInstallObserver start.");
+    if (ability_ == nullptr) {
+        TAG_LOGE(AAFwkTag::JSNAPI, "the ability is nullptr");
+        return;
+    }
     int ret = 0;
     if (freeInstallObserver_ == nullptr) {
         freeInstallObserver_ = new JsFreeInstallObserver(env);
-        ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(freeInstallObserver_);
+        ret = ability_->AddFreeInstallObserver(freeInstallObserver_);
     }
 
     if (ret != ERR_OK) {
         TAG_LOGE(AAFwkTag::JSNAPI, "AddFreeInstallObserver wrong.");
+        napi_throw(env, CreateJsError(env,
+            static_cast<int32_t>(NAPI_ERR_ACE_ABILITY),
+            "AddFreeInstallObserver failed."));
     } else {
         TAG_LOGI(AAFwkTag::JSNAPI, "AddJsObserverObject");
         // build a callback observer with last param
