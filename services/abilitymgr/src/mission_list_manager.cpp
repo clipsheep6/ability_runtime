@@ -3274,8 +3274,18 @@ int MissionListManager::CallAbilityLocked(const AbilityRequest &abilityRequest)
         TAG_LOGD(AAFwkTag::ABILITYMGR, "target ability has been resolved.");
         if (targetAbilityRecord->GetWant().GetBoolParam(Want::PARAM_RESV_CALL_TO_FOREGROUND, false)) {
             TAG_LOGD(AAFwkTag::ABILITYMGR, "target ability needs to be switched to foreground.");
-            targetAbilityRecord->PostForegroundTimeoutTask();
-            DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(targetAbilityRecord->GetToken());
+            if (targetAbilityRecord->GetPendingState() != AbilityState::INITIAL) {
+                TAG_LOGI(AAFwkTag::ABILITYMGR, "pending state is FOREGROUND or BACKGROUND, dropped.");
+                targetAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
+                return ERR_OK;
+            }
+#ifdef SUPPORT_SCREEN
+                std::shared_ptr<StartOptions> startOptions = nullptr;
+                auto callerAbility = GetAbilityRecordByTokenInner(abilityRequest.callerToken);
+                targetAbilityRecord->ProcessForegroundAbility(false, abilityRequest, startOptions, callerAbility);
+#else
+                targetAbilityRecord->ProcessForegroundAbility(0);
+#endif
         }
         return ERR_OK;
     } else if (ret == ResolveResultType::NG_INNER_ERROR) {

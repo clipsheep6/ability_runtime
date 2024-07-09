@@ -749,12 +749,12 @@ int UIAbilityLifecycleManager::MinimizeUIAbility(const std::shared_ptr<AbilityRe
         abilityRecord->SetPendingState(AbilityState::BACKGROUND);
         return ERR_OK;
     }
-    abilityRecord->SetPendingState(AbilityState::BACKGROUND);
     if (!abilityRecord->IsAbilityState(AbilityState::FOREGROUND)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "ability state is not foreground: %{public}d",
             abilityRecord->GetAbilityState());
         return ERR_OK;
     }
+    abilityRecord->SetPendingState(AbilityState::BACKGROUND);
     MoveToBackground(abilityRecord);
     return ERR_OK;
 }
@@ -847,8 +847,12 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
             sessionInfo->uiAbilityId = uiAbilityRecord->GetAbilityRecordId();
             sessionInfo->isAtomicService =
                 (abilityInfo.applicationInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE);
-            uiAbilityRecord->PostForegroundTimeoutTask();
-            DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(uiAbilityRecord->GetToken());
+            if (uiAbilityRecord->GetPendingState() != AbilityState::INITIAL) {
+                TAG_LOGI(AAFwkTag::ABILITYMGR, "pending state is FOREGROUND or BACKGROUND, dropped.");
+                uiAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
+                return NotifySCBPendingActivation(sessionInfo, abilityRequest);
+            }
+            uiAbilityRecord->ProcessForegroundAbility(sessionInfo->callingTokenId);
             return NotifySCBPendingActivation(sessionInfo, abilityRequest);
         }
         return ERR_OK;
