@@ -170,6 +170,10 @@ public:
      */
     void SetFont(std::string font);
 
+    void SetMcc(std::string mcc);
+
+    void SetMnc(std::string mnc);
+
     /**
      * @brief clear the application data by app self
      */

@@ -716,7 +716,7 @@ int32_t AmsMgrStub::HandleIsMemorySizeSufficent(MessageParcel &data, MessageParc
 {
     auto result = IsMemorySizeSufficent();
     if (!reply.WriteBool(result)) {
-        HILOG_ERROR("Fail to write result.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Fail to write result.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

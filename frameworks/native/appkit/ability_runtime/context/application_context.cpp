@@ -718,6 +718,20 @@ void ApplicationContext::SetFont(const std::string &font)
     #endif
 }
 
+void ApplicationContext::SetMcc(const std::string &mcc)
+{
+    if (contextImpl_ != nullptr) {
+        contextImpl_->SetMcc(mcc);
+    }
+}
+
+void ApplicationContext::SetMnc(const std::string &mnc)
+{
+    if (contextImpl_ != nullptr) {
+        contextImpl_->SetMnc(mnc);
+    }
+}
+
 void ApplicationContext::ClearUpApplicationData()
 {
     if (contextImpl_ != nullptr) {
