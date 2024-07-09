@@ -297,7 +297,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_GetRenderProcessTerminationStatus_001, T
     std::string abilityName = "FirstAbility";
     std::string appName = "FirstApp";
     std::string bundleName = "com.ix.First.Test";
-    int status;
+    int status = ERROR_STATE;
     auto abilityReq = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName);
     auto record = AbilityRecord::CreateAbilityRecord(abilityReq);
     auto token = record->GetToken();

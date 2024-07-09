@@ -4733,6 +4733,14 @@ int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecor
 
 int AppMgrServiceInner::GetRenderProcessTerminationStatus(pid_t renderPid, int &status)
 {
+    if (!appRunningManager_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is null");
+        return ERR_INVALID_VALUE;
+    }
+    if (!appRunningManager_->CheckCallerIsRenderHost(IPCSkeleton::GetCallingPid(), renderPid)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Permission denied, calling pid is not renderPid host.");
+        return ERR_PERMISSION_DENIED;
+    }
     if (remoteClientManager_ == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "remoteClientManager_ is null");
         return ERR_INVALID_VALUE;
