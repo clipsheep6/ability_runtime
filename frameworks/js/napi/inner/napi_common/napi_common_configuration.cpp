@@ -149,6 +149,24 @@ bool UnwrapConfiguration(napi_env env, napi_value param, Configuration &config)
         }
     }
 
+    std::string mcc {""};
+    if (UnwrapStringByPropertyName(env, param, "mcc", mcc)) {
+        TAG_LOGD(AAFwkTag::JSNAPI, "The parsed mcc part %{public}s", mcc.c_str());
+        if (!config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_MCC, mcc)) {
+            TAG_LOGE(AAFwkTag::JSNAPI, "mcc Parsing failed");
+            return false;
+        }
+    }
+
+    std::string mnc {""};
+    if (UnwrapStringByPropertyName(env, param, "mnc", mnc)) {
+        TAG_LOGD(AAFwkTag::JSNAPI, "The parsed mnc part %{public}s", mnc.c_str());
+        if (!config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_MNC, mnc)) {
+            TAG_LOGE(AAFwkTag::JSNAPI, "mnc Parsing failed");
+            return false;
+        }
+    }
+
     return true;
 }
 EXTERN_C_END

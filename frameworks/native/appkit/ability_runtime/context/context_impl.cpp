@@ -898,6 +898,8 @@ void ContextImpl::UpdateResConfig(std::shared_ptr<Global::Resource::ResourceMana
     try {
         resConfig->SetMcc(static_cast<uint32_t>(std::stoi(mcc)));
         resConfig->SetMnc(static_cast<uint32_t>(std::stoi(mnc)));
+        TAG_LOGI(AAFwkTag::APPKIT, "set mcc: %{public}u", resConfig->GetMcc());
+        TAG_LOGI(AAFwkTag::APPKIT, "set mnc: %{public}u", resConfig->GetMnc());
     } catch (...) {
         TAG_LOGW(AAFwkTag::APPKIT, "Set mcc,mnc failed mcc:%{public}s mnc:%{public}s.", mcc.c_str(), mnc.c_str());
     }

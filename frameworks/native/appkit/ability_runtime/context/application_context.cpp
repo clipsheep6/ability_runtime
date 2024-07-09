@@ -727,7 +727,7 @@ void ApplicationContext::SetMcc(const std::string &mcc)
 void ApplicationContext::SetMnc(const std::string &mnc)
 {
     if (contextImpl_ != nullptr) {
-        contextImpl_->SetMcc(mnc);
+        contextImpl_->SetMnc(mnc);
     }
 }
 
