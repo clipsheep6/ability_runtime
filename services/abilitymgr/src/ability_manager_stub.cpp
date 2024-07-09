@@ -2704,13 +2704,21 @@ int AbilityManagerStub::FreeInstallAbilityFromRemoteInner(MessageParcel &data, M
 
 int AbilityManagerStub::AddFreeInstallObserverInner(MessageParcel &data, MessageParcel &reply)
 {
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+        if (callerToken == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "caller token is nullptr.");
+            return ERR_INVALID_VALUE;
+        }
+    }
     sptr<AbilityRuntime::IFreeInstallObserver> observer =
         iface_cast<AbilityRuntime::IFreeInstallObserver>(data.ReadRemoteObject());
     if (observer == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "observer is nullptr");
         return ERR_INVALID_VALUE;
     }
-    int32_t result = AddFreeInstallObserver(observer);
+    int32_t result = AddFreeInstallObserver(callerToken, observer);
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "reply write failed.");
         return ERR_INVALID_VALUE;

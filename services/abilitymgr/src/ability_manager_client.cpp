@@ -1513,12 +1513,13 @@ void AbilityManagerClient::HandleDlpApp(Want &want)
 #endif // WITH_DLP
 }
 
-ErrCode AbilityManagerClient::AddFreeInstallObserver(sptr<AbilityRuntime::IFreeInstallObserver> observer)
+ErrCode AbilityManagerClient::AddFreeInstallObserver(const sptr<IRemoteObject> callerToken,
+    const sptr<AbilityRuntime::IFreeInstallObserver> observer)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->AddFreeInstallObserver(observer);
+    return abms->AddFreeInstallObserver(callerToken, observer);
 }
 
 int32_t AbilityManagerClient::IsValidMissionIds(

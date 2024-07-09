@@ -1055,7 +1055,13 @@ void JsUIExtensionContentSession::AddFreeInstallObserver(napi_env env,
     int ret = 0;
     if (freeInstallObserver_ == nullptr) {
         freeInstallObserver_ = new JsFreeInstallObserver(env);
-        ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(freeInstallObserver_);
+        auto context = context_.lock();
+        if (!context) {
+            TAG_LOGE(AAFwkTag::CONTEXT, "context is nullptr.");
+            return;
+        }
+        ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(context->GetToken(),
+            freeInstallObserver_);
     }
 
     if (ret != ERR_OK) {

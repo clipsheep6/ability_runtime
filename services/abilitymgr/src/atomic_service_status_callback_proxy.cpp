@@ -95,29 +95,6 @@ void AtomicServiceStatusCallbackProxy::OnRemoteInstallFinished(int resultCode, c
     }
 }
 
-void AtomicServiceStatusCallbackProxy::OnRemoveTimeoutTask(const Want &want)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    if (!data.WriteInterfaceToken(IAtomicServiceStatusCallback::GetDescriptor())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
-        return;
-    }
-
-    if (!data.WriteParcelable(&want)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write want error.");
-        return;
-    }
-
-    int32_t error = SendTransactCmd(ON_REMOVE_TIMEOUT_TASK, data, reply, option);
-    if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "OnFinished fail, error: %{public}d", error);
-        return;
-    }
-}
-
 int32_t AtomicServiceStatusCallbackProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {

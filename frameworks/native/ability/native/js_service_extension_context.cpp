@@ -204,7 +204,12 @@ private:
         int ret = 0;
         if (freeInstallObserver_ == nullptr) {
             freeInstallObserver_ = new JsFreeInstallObserver(env);
-            ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(freeInstallObserver_);
+            auto context = context_.lock();
+            if (!context) {
+                TAG_LOGW(AAFwkTag::SERVICE_EXT, "context is released");
+                return;
+            }
+            ret = context->AddFreeInstallObserver(freeInstallObserver_);
         }
 
         if (ret != ERR_OK) {

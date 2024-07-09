@@ -283,5 +283,14 @@ ErrCode UIExtensionContext::OpenLink(const AAFwk::Want& want, int requestCode)
     TAG_LOGD(AAFwkTag::UI_EXT, "Called.");
     return AAFwk::AbilityManagerClient::GetInstance()->OpenLink(want, token_, -1, requestCode);
 }
+
+ErrCode UIExtensionContext::AddFreeInstallObserver(const sptr<IFreeInstallObserver> &observer)
+{
+    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(token_, observer);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "AddFreeInstallObserver error, ret: %{public}d", ret);
+    }
+    return ret;
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -982,10 +982,10 @@ HWTEST_F(AbilityManagerServiceThirdTest, AddFreeInstallObserver_001, TestSize.Le
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest AddFreeInstallObserver_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     sptr<AbilityRuntime::IFreeInstallObserver> observer;
-    EXPECT_EQ(abilityMs_->AddFreeInstallObserver(observer), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->AddFreeInstallObserver(nullptr, observer), ERR_INVALID_VALUE);
 
     abilityMs_->freeInstallManager_ = std::make_shared<FreeInstallManager>(abilityMs_);
-    EXPECT_EQ(abilityMs_->AddFreeInstallObserver(observer), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->AddFreeInstallObserver(nullptr, observer), ERR_INVALID_VALUE);
 
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest AddFreeInstallObserver_001 end");
 }

@@ -524,12 +524,10 @@ bool JsAbilityContext::CreateOpenLinkTask(const napi_env &env, const napi_value 
             TAG_LOGW(AAFwkTag::CONTEXT, "wrap abilityResult error");
             asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
             return;
+        } else {
+            isInner ? asyncTask->Reject(env, CreateJsErrorByNativeErr(env, resultCode)) :
+                asyncTask->ResolveWithNoError(env, abilityResult);
         }
-        if (isInner) {
-            asyncTask->Reject(env, CreateJsErrorByNativeErr(env, resultCode));
-            return;
-        }
-        asyncTask->ResolveWithNoError(env, abilityResult);
     };
     curRequestCode_ = (curRequestCode_ == INT_MAX) ? 0 : (curRequestCode_ + 1);
     requestCode = curRequestCode_;
@@ -1421,11 +1419,8 @@ napi_value JsAbilityContext::OnTerminateSelf(napi_env env, NapiCallbackInfo& inf
             }
 
             auto errcode = context->TerminateSelf();
-            if (errcode == 0) {
-                task.Resolve(env, CreateJsUndefined(env));
-            } else {
+            (errcode == 0) ? task.Resolve(env, CreateJsUndefined(env)) :
                 task.Reject(env, CreateJsErrorByNativeErr(env, errcode));
-            }
         };
 
     napi_value lastParam = (info.argc > ARGC_ZERO) ? info.argv[INDEX_ZERO] : nullptr;
@@ -1528,11 +1523,8 @@ napi_value JsAbilityContext::OnReportDrawnCompleted(napi_env env, NapiCallbackIn
     };
 
     NapiAsyncTask::CompleteCallback complete = [innerErrorCode](napi_env env, NapiAsyncTask& task, int32_t status) {
-        if (*innerErrorCode == ERR_OK) {
-            task.Resolve(env, CreateJsUndefined(env));
-        } else {
+        (*innerErrorCode == ERR_OK) ? task.Resolve(env, CreateJsUndefined(env)) :
             task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
-        }
     };
 
     napi_value lastParam = info.argv[INDEX_ZERO];
@@ -1611,7 +1603,12 @@ void JsAbilityContext::AddFreeInstallObserver(napi_env env, const AAFwk::Want &w
     int ret = 0;
     if (freeInstallObserver_ == nullptr) {
         freeInstallObserver_ = new JsFreeInstallObserver(env);
-        ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(freeInstallObserver_);
+        auto context = context_.lock();
+        if (!context) {
+            TAG_LOGE(AAFwkTag::CONTEXT, "context is nullptr.");
+            return;
+        }
+        ret = context->AddFreeInstallObserver(freeInstallObserver_);
     }
 
     if (ret != ERR_OK) {
@@ -2105,11 +2102,8 @@ napi_value JsAbilityContext::OnStartAbilityByType(napi_env env, NapiCallbackInfo
             }
 #ifdef SUPPORT_SCREEN
             auto errcode = context->StartAbilityByType(type, wantParam, callback);
-            if (errcode != 0) {
-                task.Reject(env, CreateJsErrorByNativeErr(env, errcode));
-            } else {
+            (errcode != 0) ? task.Reject(env, CreateJsErrorByNativeErr(env, errcode)) :
                 task.ResolveWithNoError(env, CreateJsUndefined(env));
-            }
 #endif
         };
 
@@ -2180,11 +2174,8 @@ napi_value JsAbilityContext::ChangeAbilityVisibility(napi_env env, NapiCallbackI
                 return;
             }
             auto errCode = context->ChangeAbilityVisibility(isShow);
-            if (errCode == 0) {
-                task.ResolveWithNoError(env, CreateJsUndefined(env));
-            } else {
+            (errCode == 0) ? task.ResolveWithNoError(env, CreateJsUndefined(env)) :
                 task.Reject(env, CreateJsErrorByNativeErr(env, errCode));
-            }
         };
 
     napi_value result = nullptr;
@@ -2250,11 +2241,8 @@ napi_value JsAbilityContext::OpenAtomicServiceInner(napi_env env, NapiCallbackIn
             isInner = true;
             resultCode = ERR_INVALID_VALUE;
         }
-        if (isInner) {
-            observer->OnInstallFinished(bundleName, abilityName, startTime, resultCode);
-        } else {
+        isInner ? observer->OnInstallFinished(bundleName, abilityName, startTime, resultCode) :
             observer->OnInstallFinished(bundleName, abilityName, startTime, abilityResult);
-        }
     };
     auto context = context_.lock();
     if (context == nullptr) {

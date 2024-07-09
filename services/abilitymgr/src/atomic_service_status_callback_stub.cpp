@@ -54,18 +54,6 @@ int AtomicServiceStatusCallbackStub::OnRemoteInstallFinishedInner(MessageParcel 
     return NO_ERROR;
 }
 
-int AtomicServiceStatusCallbackStub::OnRemoveTimeoutTaskInner(MessageParcel &data, MessageParcel &reply)
-{
-    std::unique_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
-    if (want == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AtomicServiceStatusCallbackStub want is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-
-    OnRemoveTimeoutTask(*want);
-    return NO_ERROR;
-}
-
 int AtomicServiceStatusCallbackStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -83,9 +71,6 @@ int AtomicServiceStatusCallbackStub::OnRemoteRequest(
                 break;
             case IAtomicServiceStatusCallbackCmd::ON_REMOTE_FREE_INSTALL_DONE:
                 return OnRemoteInstallFinishedInner(data, reply);
-                break;
-            case IAtomicServiceStatusCallbackCmd::ON_REMOVE_TIMEOUT_TASK:
-                return OnRemoveTimeoutTaskInner(data, reply);
                 break;
         }
     }

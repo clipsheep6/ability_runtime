@@ -1181,10 +1181,12 @@ public:
     /**
      * @brief Add free install observer.
      *
+     * @param callerToken The caller ability token.
      * @param observer Free install observer.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode AddFreeInstallObserver(sptr<AbilityRuntime::IFreeInstallObserver> observer);
+    ErrCode AddFreeInstallObserver(const sptr<IRemoteObject> callToken,
+        const sptr<AbilityRuntime::IFreeInstallObserver> observer);
 
     /**
      * Called to verify that the MissionId is valid.

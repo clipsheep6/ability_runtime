@@ -98,7 +98,7 @@ HWTEST_F(FreeInstallTest, FreeInstall_StartFreeInstall_001, TestSize.Level1)
             break;
         }
     }
-    freeInstallManager_->OnInstallFinished(0, want, userId, false);
+    freeInstallManager_->OnInstallFinished(-1, 0, want, userId, false);
 
     EXPECT_EQ(res, 0);
 }
@@ -153,7 +153,7 @@ HWTEST_F(FreeInstallTest, FreeInstall_StartFreeInstall_003, TestSize.Level1)
             break;
         }
     }
-    freeInstallManager_->OnInstallFinished(1, want, userId, false);
+    freeInstallManager_->OnInstallFinished(-1, 1, want, userId, false);
 
     EXPECT_EQ(res, 0);
 }
@@ -177,7 +177,7 @@ HWTEST_F(FreeInstallTest, FreeInstall_OnInstallFinished_001, TestSize.Level1)
     FreeInstallInfo info = freeInstallManager_->BuildFreeInstallInfo(want, userId, requestCode, nullptr, false);
     freeInstallManager_->freeInstallList_.resize(0);
     freeInstallManager_->freeInstallList_.emplace_back(info);
-    freeInstallManager_->OnInstallFinished(0, want, userId, false);
+    freeInstallManager_->OnInstallFinished(-1, 0, want, userId, false);
 
     for (auto it = freeInstallManager_->freeInstallList_.begin();
         it != freeInstallManager_->freeInstallList_.end(); it++) {
@@ -211,7 +211,7 @@ HWTEST_F(FreeInstallTest, FreeInstall_OnInstallFinished_002, TestSize.Level1)
     FreeInstallInfo info = freeInstallManager_->BuildFreeInstallInfo(want, userId, requestCode, nullptr, false);
     freeInstallManager_->freeInstallList_.resize(0);
     freeInstallManager_->freeInstallList_.emplace_back(info);
-    freeInstallManager_->OnInstallFinished(1, want, userId, false);
+    freeInstallManager_->OnInstallFinished(-1, 1, want, userId, false);
 
     for (auto it = freeInstallManager_->freeInstallList_.begin();
         it != freeInstallManager_->freeInstallList_.end(); it++) {
@@ -247,7 +247,7 @@ HWTEST_F(FreeInstallTest, FreeInstall_OnInstallFinished_003, TestSize.Level1)
     freeInstallManager_->freeInstallList_.resize(0);
     info.promise.reset();
     freeInstallManager_->freeInstallList_.emplace_back(info);
-    freeInstallManager_->OnInstallFinished(0, want, userId, false);
+    freeInstallManager_->OnInstallFinished(-1, 0, want, userId, false);
 
     int size = freeInstallManager_->freeInstallList_.size();
     EXPECT_EQ(size, 1);
@@ -291,7 +291,7 @@ HWTEST_F(FreeInstallTest, FreeInstall_OnRemoteInstallFinished_001, TestSize.Leve
     FreeInstallInfo info = freeInstallManager_->BuildFreeInstallInfo(want, userId, requestCode, nullptr, false);
     freeInstallManager_->freeInstallList_.resize(0);
     freeInstallManager_->freeInstallList_.emplace_back(info);
-    freeInstallManager_->OnRemoteInstallFinished(0, want, userId);
+    freeInstallManager_->OnRemoteInstallFinished(-1, 0, want, userId);
 
     for (auto it = freeInstallManager_->freeInstallList_.begin();
         it != freeInstallManager_->freeInstallList_.end(); it++) {
