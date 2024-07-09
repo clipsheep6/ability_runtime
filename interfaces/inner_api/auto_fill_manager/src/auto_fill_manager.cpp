@@ -148,6 +148,17 @@ void AutoFillManager::UpdateCustomPopupUIExtension(uint32_t autoFillSessionId, c
     extensionCallback->UpdateCustomPopupUIExtension(viewData);
 }
 
+void AutoFillManager::CloseUIExtension(uint32_t autoFillSessionId)
+{
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    auto extensionCallback = GetAutoFillExtensionCallback(autoFillSessionId);
+    if (extensionCallback == nullptr) {
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Extension callback is nullptr.");
+        return;
+    }
+    extensionCallback->CloseUIExtension();
+}
+
 void AutoFillManager::BindModalUIExtensionCallback(
     const std::shared_ptr<AutoFillExtensionCallback> &extensionCallback, Ace::ModalUIExtensionCallbacks &callback)
 {
