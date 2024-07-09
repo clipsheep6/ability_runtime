@@ -3648,7 +3648,9 @@ int AbilityManagerService::ConnectAbilityCommon(
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::ABILITYMGR,
-        "Connect ability called, element uri: %{public}s.", want.GetElement().GetURI().c_str());
+        "Connect ability called, element uri: %{public}s, abilityName: %{public}s",
+        want.GetElement().GetURI().c_str(),
+        want.GetElement().GetAbilityName().c_str());
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
     if (extensionType == AppExecFwk::ExtensionAbilityType::SERVICE && IsCrossUserCall(userId)) {
@@ -5578,7 +5580,8 @@ int AbilityManagerService::ScheduleConnectAbilityDone(
 int AbilityManagerService::ScheduleDisconnectAbilityDone(const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "Schedule disconnect ability done.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Schedule disconnect %{public}s done.",
+        Token::GetAbilityRecordByToken(token)->GetWant().GetElement().GetAbilityName().c_str());
     if (!VerificationAllToken(token)) {
         return ERR_INVALID_VALUE;
     }
