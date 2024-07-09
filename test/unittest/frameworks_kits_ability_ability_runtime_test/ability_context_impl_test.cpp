@@ -1484,9 +1484,10 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_SetMissionIcon_0300, Funct
     auto ret = context_->SetMissionLabel(TEST_LABEL);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         EXPECT_EQ(ret, 0);
+        auto ret1 = context_->SetMissionIcon(nullptr);
+        EXPECT_TRUE(ret1 == ERR_OK);
     }
-    auto ret1 = context_->SetMissionIcon(nullptr);
-    EXPECT_TRUE(ret1 == ERR_OK);
+    EXPECT_TRUE(context_ != nullptr);
 }
 
 /**

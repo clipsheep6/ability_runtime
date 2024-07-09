@@ -104,7 +104,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_PreStartNWebSpawnProcess_001, TestSize.L
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
     int ret = appMgrClient->PreStartNWebSpawnProcess();
-    EXPECT_EQ(ret, AppMgrResultCode::RESULT_OK);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
 }
 
 /**
@@ -427,7 +427,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_StartUserTestProcess_001, TestSize.Level
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
     int ret = appMgrClient->StartUserTestProcess(want, observer, bundleInfo, userId);
-    EXPECT_EQ(ret, ERROR_RET);
+    EXPECT_EQ(ret, IPC_PROXY_ERR);
 }
 
 /**

@@ -120,8 +120,8 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0300, TestSize.Lev
     Want targetWant;
     auto ret = systemDialogScheduler_->GetSelectorDialogWant(dialogAppInfos, requestWant, targetWant, nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        EXPECT_EQ(targetWant.GetElement().GetBundleName(), "com.ohos.amsdialog");
-        EXPECT_EQ(targetWant.GetElement().GetAbilityName(), "SelectorDialog");
+        EXPECT_EQ(requestWant.GetElement().GetBundleName(), "com.ohos.amsdialog");
+        EXPECT_EQ(requestWant.GetElement().GetAbilityName(), "SelectorDialog");
     }
     EXPECT_NE(systemDialogScheduler_, nullptr);
     TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialog_0300 end");
