@@ -362,6 +362,22 @@ void ContextImpl::SwitchArea(int mode)
     TAG_LOGD(AAFwkTag::APPKIT, "currArea:%{public}s.", currArea_.c_str());
 }
 
+void ContextImpl::SetMcc(std::string mcc)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "mcc:%{public}s.", mcc.c_str());
+    if (config_) {
+        config_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_MCC, mcc);
+    }
+}
+
+void ContextImpl::SetMnc(std::string mnc)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "mnc:%{public}s.", mnc.c_str());
+    if (config_) {
+        config_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_MNC, mnc);
+    }
+}
+
 std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &moduleName)
 {
     return CreateModuleContext(GetBundleName(), moduleName);
@@ -891,6 +907,14 @@ void ContextImpl::UpdateResConfig(std::shared_ptr<Global::Resource::ResourceMana
     }
 #endif
     resConfig->SetDeviceType(GetDeviceType());
+    std::string mcc = config_->GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MCC);
+    std::string mnc = config_->GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_MNC);
+    try {
+        resConfig->SetMcc(static_cast<uint32_t>(std::stoi(mcc)));
+        resConfig->SetMnc(static_cast<uint32_t>(std::stoi(mnc)));
+    } catch (...) {
+        TAG_LOGW(AAFwkTag::APPKIT, "Set mcc,mnc failed mcc:%{public}s mnc:%{public}s.", mcc.c_str(), mnc.c_str());
+    }
     resourceManager->UpdateResConfig(*resConfig);
 }
 

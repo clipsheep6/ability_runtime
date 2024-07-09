@@ -64,7 +64,6 @@ enum class AAFwkLogTag : uint32_t {
     WANT,
     MISSION,
     CONNECTION,
-    ATOMIC_SERVICE,
     ABILITYMGR,
     ECOLOGICAL_RULE,
     DATA_ABILITY,
