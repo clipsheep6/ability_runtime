@@ -45,6 +45,8 @@ private:
     sptr<AppExecFwk::IAppMgr> GetAppMgr();
     ErrCode CreateModalUIExtension(const Want &want, const sptr<IRemoteObject> &callerToken);
     void SetInterceptInfo(const Want &want, AppExecFwk::DisposedRule &disposedRule);
+    ErrCode HandleBlockApplicationWithResult(const AbilityInterceptorParam &param,
+        AppExecFwk::DisposedRule &disposedRule);
 private:
     std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
     std::map<std::string, sptr<DisposedObserver>> disposedObserverMap_;
