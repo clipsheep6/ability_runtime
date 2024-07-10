@@ -80,7 +80,7 @@ protected:
     }
 
 private:
-    void SetModalUIExtensionCallbackFunc(Ace::ModalUIExtensionCallbacks &callback,
+    void SetModalUIExtensionCallbackFunc(OHOS::Ace::ModalUIExtensionCallbacks &callback,
         const std::shared_ptr<JsUIExtensionCallback> &uiExtensionCallbacks);
     static int ILLEGAL_REQUEST_CODE;
     sptr<Rosen::Window> window_ = nullptr;
