@@ -52,7 +52,7 @@ constexpr int OPTION_WINDOW_WIDTH = 264;
 
 const std::string DEVELOPERMODE_STATE = "const.security.developermode.state";
 
-const std::string SHORT_OPTIONS = "ch:d:a:b:e:t:p:s:m:A:U:CDSNR";
+const std::string SHORT_OPTIONS = "ch:d:a:b:e:t:p:s:m:A:U:CDESNR";
 constexpr struct option LONG_OPTIONS[] = {
     {"help", no_argument, nullptr, 'h'},
     {"device", required_argument, nullptr, 'd'},
@@ -63,6 +63,7 @@ constexpr struct option LONG_OPTIONS[] = {
     {"module", required_argument, nullptr, 'm'},
     {"cold-start", no_argument, nullptr, 'C'},
     {"debug", no_argument, nullptr, 'D'},
+    {"error-info-enhance", no_argument, nullptr, 'E'},
     {"native-debug", no_argument, nullptr, 'N'},
     {"mutil-thread", no_argument, nullptr, 'R'},
     {"action", required_argument, nullptr, 'A'},
@@ -1390,6 +1391,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
     std::string typeVal;
     bool isColdStart = false;
     bool isDebugApp = false;
+    bool isErrorInfoEnhance = false;
     bool isContinuation = false;
     bool isSandboxApp = false;
     bool isNativeDebug = false;
@@ -1886,6 +1888,13 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                 isDebugApp = true;
                 break;
             }
+            case 'E': {
+                // 'aa start -E'
+                // error info enhance
+                isErrorInfoEnhance = true;
+                TAG_LOGD(AAFwkTag::AA_TOOL, "isErrorInfoEnhance");
+                break;
+            }
             case 'S': {
                 // 'aa start -b <bundleName> -a <abilityName> -p <perf-cmd> -S'
                 // enter sandbox to perform app
@@ -1974,6 +1983,9 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
             }
             if (!typeVal.empty()) {
                 want.SetType(typeVal);
+            }
+            if (isErrorInfoEnhance) {
+                want.SetParam("errorInfoEnhance", isErrorInfoEnhance);
             }
             if (isMultiThread) {
                 want.SetParam("multiThread", isMultiThread);

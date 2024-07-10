@@ -1521,6 +1521,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         if (applicationInfo_->appProvisionType == Constants::APP_PROVISION_TYPE_DEBUG) {
             TAG_LOGD(AAFwkTag::JSRUNTIME, "Start Multi-Thread Mode: %{public}d.", appLaunchData.GetMultiThread());
             options.isMultiThread = appLaunchData.GetMultiThread();
+            TAG_LOGD(AAFwkTag::JSRUNTIME, "Start Error-Info-Enhance Mode: %{public}d.",
+                appLaunchData.GetErrorInfoEnhance());
+            options.isErrorInfoEnhance = appLaunchData.GetErrorInfoEnhance();
         }
         options.jitEnabled = appLaunchData.IsJITEnabled();
         AbilityRuntime::ChildProcessManager::GetInstance().SetForkProcessJITEnabled(appLaunchData.IsJITEnabled());

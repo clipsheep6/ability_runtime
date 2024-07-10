@@ -75,6 +75,7 @@ using namespace OHOS::AAFwk::PermissionConstants;
 const std::string DEBUG_APP = "debugApp";
 const std::string NATIVE_DEBUG = "nativeDebug";
 const std::string PERF_CMD = "perfCmd";
+const std::string ERROR_INFO_ENHANCE = "errorInfoEnhance";
 const std::string MULTI_THREAD = "multiThread";
 const std::string DMS_PROCESS_NAME = "distributedsched";
 const std::string DMS_MISSION_ID = "dmsMissionId";
@@ -2576,6 +2577,7 @@ void AbilityRecord::SetWant(const Want &want)
     auto nativeDebug = want_.GetBoolParam(NATIVE_DEBUG, false);
     auto perfCmd = want_.GetStringParam(PERF_CMD);
     auto multiThread = want_.GetBoolParam(MULTI_THREAD, false);
+    auto errorInfoEnhance = want_.GetBoolParam(ERROR_INFO_ENHANCE, false);
     want_.CloseAllFd();
 
     want_ = want;
@@ -2590,6 +2592,9 @@ void AbilityRecord::SetWant(const Want &want)
     }
     if (multiThread) {
         want_.SetParam(MULTI_THREAD, true);
+    }
+    if (errorInfoEnhance) {
+        want_.SetParam(ERROR_INFO_ENHANCE, true);
     }
 }
 

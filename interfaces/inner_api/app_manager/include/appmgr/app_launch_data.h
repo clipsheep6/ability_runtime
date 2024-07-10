@@ -182,6 +182,16 @@ public:
         return isMultiThread_;
     }
 
+    inline void SetErrorInfoEnhance(const bool errorInfoEnhance)
+    {
+        isErrorInfoEnhance_ = errorInfoEnhance;
+    }
+
+    inline bool GetErrorInfoEnhance() const
+    {
+        return isErrorInfoEnhance_;
+    }
+
     inline void SetJITEnabled(const bool jitEnabled)
     {
         jitEnabled_ = jitEnabled;
@@ -249,6 +259,7 @@ private:
     bool jitEnabled_ = false;
     bool isNativeStart_ = false;
     bool isMultiThread_ = false;
+    bool isErrorInfoEnhance_ = false;
     std::string appRunningUniqueId_;
 };
 }  // namespace AppExecFwk
