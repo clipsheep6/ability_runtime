@@ -90,6 +90,7 @@
 #include "permission_constants.h"
 #include "process_options.h"
 #include "recovery_param.h"
+#include "request_constants.h"
 #include "res_sched_util.h"
 #include "restart_app_manager.h"
 #include "sa_mgr_client.h"
@@ -3652,7 +3653,10 @@ int AbilityManagerService::ConnectAbilityCommon(
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
     if (extensionType == AppExecFwk::ExtensionAbilityType::SERVICE && IsCrossUserCall(userId)) {
         CHECK_CALLER_IS_SYSTEM_APP;
+    } else if (want.HasParameter(UISERVICEHOSTPROXY_KEY)) {
+        CHECK_CALLER_IS_SYSTEM_APP;
     }
+
     EventInfo eventInfo = BuildEventInfo(want, userId);
 
     auto result = CheckDlpForExtension(want, callerToken, userId, eventInfo, EventName::CONNECT_SERVICE_ERROR);
@@ -3892,6 +3896,11 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
     }
     if (!UriUtils::GetInstance().CheckNonImplicitShareFileUri(abilityRequest)) {
         return ERR_SHARE_FILE_URI_NON_IMPLICITLY;
+    }
+
+    result = CheckPermissionForUIService(want, abilityRequest);
+    if (result != ERR_OK) {
+        return result;
     }
 
     if (abilityRequest.abilityInfo.isStageBasedModel) {
@@ -8168,6 +8177,35 @@ int AbilityManagerService::CheckStaticCfgPermission(const AppExecFwk::AbilityReq
         return CheckStaticCfgPermissionForAbility(abilityInfo, tokenId);
     }
     return CheckStaticCfgPermissionForSkill(abilityRequest, tokenId);
+}
+
+int AbilityManagerService::CheckPermissionForUIService(const Want &want, const AbilityRequest &abilityRequest)
+{
+    AppExecFwk::ExtensionAbilityType extType = abilityRequest.abilityInfo.extensionAbilityType;
+    if (want.HasParameter(UISERVICEHOSTPROXY_KEY) && extType != AppExecFwk::ExtensionAbilityType::UI_SERVICE) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Target ability is not UI_SERVICE");
+        return ERR_WRONG_INTERFACE_CALL;
+    } else if (!want.HasParameter(UISERVICEHOSTPROXY_KEY) && extType == AppExecFwk::ExtensionAbilityType::UI_SERVICE) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "need UISERVICEHOSTPROXY_KEY to connect UI_SERVICE");
+        return ERR_WRONG_INTERFACE_CALL;
+    }
+
+    if (extType != AppExecFwk::ExtensionAbilityType::UI_SERVICE) {
+        return ERR_OK;
+    }
+
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo = CreateVerificationInfo(abilityRequest);
+    if (IsCallFromBackground(abilityRequest, verificationInfo.isBackgroundCall) != ERR_OK) {
+        return ERR_INVALID_VALUE;
+    }
+
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallServiceExtensionPermission(verificationInfo);
+    if (result != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Do not have permission to start UIServiceExtension");
+        return result;
+    }
+
+    return ERR_OK;
 }
 
 bool AbilityManagerService::IsNeedTimeoutForTest(const std::string &abilityName, const std::string &state) const
