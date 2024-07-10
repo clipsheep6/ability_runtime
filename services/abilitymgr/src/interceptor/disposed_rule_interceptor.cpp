@@ -306,6 +306,9 @@ ErrCode DisposedRuleInterceptor::HandleBlockApplicationWithResult(
         TAG_LOGD(AAFwkTag::ABILITYMGR, "generate dialogSessionId failed");
         return ERR_INVALID_VALUE;
     }
+    if (dialogSessionId == ""){
+        return ERR_INVALID_VALUE;
+    }
     disposedRule.want->SetParam("dialogSessionId", dialogSessionId);
     return CreateModalUIExtension(*disposedRule.want, param.callerToken);
 }
