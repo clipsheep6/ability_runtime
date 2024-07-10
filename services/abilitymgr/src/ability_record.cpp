@@ -701,7 +701,13 @@ void AbilityRecord::StartingWindowHot()
         return;
     }
 
-    auto pixelMap = DelayedSingleton<MissionInfoMgr>::GetInstance()->GetSnapshot(missionId_);
+    auto missionListWrap = DelayedSingleton<AbilityManagerService>::GetInstance()->GetMissionListWrap();
+    if (missionListWrap == nullptr) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "missionListWrap null.");
+        return;
+    }
+
+    auto pixelMap = missionListWrap->GetSnapshot(missionId_);
     if (!pixelMap) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "Get snapshot failed.");
     }
@@ -767,9 +773,14 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
 
 std::shared_ptr<Want> AbilityRecord::GetWantFromMission() const
 {
+    auto missionListWrap = DelayedSingleton<AbilityManagerService>::GetInstance()->GetMissionListWrap();
+    if (missionListWrap == nullptr) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "missionListWrap null.");
+        return nullptr;
+    }
+
     InnerMissionInfo innerMissionInfo;
-    int getMission = DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(
-        missionId_, innerMissionInfo);
+    int getMission = missionListWrap->GetInnerMissionInfoById(missionId_, innerMissionInfo);
     if (getMission != ERR_OK) {
         TAG_LOGE(
             AAFwkTag::ABILITYMGR, "cannot find mission info from MissionInfoList by missionId: %{public}d", missionId_);
@@ -1109,7 +1120,13 @@ void AbilityRecord::StartingWindowHot(const std::shared_ptr<StartOptions> &start
         return;
     }
 
-    auto pixelMap = DelayedSingleton<MissionInfoMgr>::GetInstance()->GetSnapshot(missionId_);
+    auto missionListWrap = DelayedSingleton<AbilityManagerService>::GetInstance()->GetMissionListWrap();
+    if (missionListWrap == nullptr) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "missionListWrap null.");
+        return;
+    }
+
+    auto pixelMap = missionListWrap->GetSnapshot(missionId_);
     if (!pixelMap) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "%{public}s, Get snapshot failed.", __func__);
     }
@@ -1407,7 +1424,9 @@ void AbilityRecord::SetAbilityStateInner(AbilityState state)
         }
     }
 
-    DelayedSingleton<MissionInfoMgr>::GetInstance()->SetMissionAbilityState(missionId_, currentState_);
+    auto missionListWrap = DelayedSingleton<AbilityManagerService>::GetInstance()->GetMissionListWrap();
+    CHECK_POINTER(missionListWrap);
+    missionListWrap->SetMissionAbilityState(missionId_, currentState_);
 }
 #endif // SUPPORT_SCREEN
 bool AbilityRecord::GetAbilityForegroundingFlag() const

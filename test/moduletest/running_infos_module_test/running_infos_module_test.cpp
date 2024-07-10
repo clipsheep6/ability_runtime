@@ -43,6 +43,7 @@
 #include "wants_info.h"
 #include "want_receiver_stub.h"
 #include "want_sender_stub.h"
+#include "mission_list_manager.h"
 
 using namespace std::placeholders;
 using namespace testing::ext;
@@ -130,7 +131,8 @@ void RunningInfosModuleTest::OnStartAms()
         abilityMgrServ_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
         abilityMgrServ_->subManagersHelper_->InitSubManagers(userId, true);
         abilityMgrServ_->subManagersHelper_->currentConnectManager_->SetTaskHandler(abilityMgrServ_->taskHandler_);
-        auto topAbility = abilityMgrServ_->GetMissionListManagerByUserId(userId)->GetCurrentTopAbilityLocked();
+        auto topAbility = reinterpret_cast<MissionListManager*>(abilityMgrServ_->
+            GetMissionListManagerByUserId(userId).get())->GetCurrentTopAbilityLocked();
         if (topAbility) {
             topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
         }
@@ -281,7 +283,8 @@ HWTEST_F(RunningInfosModuleTest, GetAbilityRunningInfos_004, TestSize.Level1)
     auto result = abilityMgrServ_->StartAbility(want);
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    auto topAbility = abilityMgrServ_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto topAbility = reinterpret_cast<MissionListManager*>(abilityMgrServ_->subManagersHelper_->
+            currentMissionListManager_.get())->GetCurrentTopAbilityLocked();
     EXPECT_TRUE(topAbility);
     topAbility->SetAbilityState(AbilityState::FOREGROUND);
 
@@ -357,7 +360,8 @@ HWTEST_F(RunningInfosModuleTest, GetAbilityRunningInfos_006, TestSize.Level1)
     auto result = abilityMgrServ_->StartAbility(want);
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    auto topAbility = abilityMgrServ_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto topAbility = reinterpret_cast<MissionListManager*>(abilityMgrServ_->subManagersHelper_->
+            currentMissionListManager_.get())->GetCurrentTopAbilityLocked();
     EXPECT_TRUE(topAbility);
     topAbility->SetAbilityState(AbilityState::FOREGROUND);
 

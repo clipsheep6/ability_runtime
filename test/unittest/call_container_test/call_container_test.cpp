@@ -19,6 +19,7 @@
 #include "call_container.h"
 #include "ability_record.h"
 #include "ability_manager_service.h"
+#include "mission_list_manager.h"
 #undef private
 #undef protected
 #include "ability_scheduler_mock.h"

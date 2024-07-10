@@ -338,6 +338,11 @@ AbilityManagerService::AbilityManagerService()
 AbilityManagerService::~AbilityManagerService()
 {}
 
+std::shared_ptr<AbilityManagerService> AbilityManagerService::GetPubInstance()
+{
+    return DelayedSingleton<AbilityManagerService>::GetInstance();
+}
+
 void AbilityManagerService::OnStart()
 {
     if (state_ == ServiceRunningState::STATE_RUNNING) {
@@ -4751,9 +4756,13 @@ int32_t AbilityManagerService::GetMissionIdByToken(const sptr<IRemoteObject> &to
 bool AbilityManagerService::IsAbilityControllerStartById(int32_t missionId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto missionListWrap = GetMissionListWrap();
+    if (missionListWrap == nullptr) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "missionListWrap null.");
+        return false;
+    }
     InnerMissionInfo innerMissionInfo;
-    int getMission = DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(
-        missionId, innerMissionInfo);
+    int getMission = missionListWrap->GetInnerMissionInfoById(missionId, innerMissionInfo);
     if (getMission != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR,
             "cannot find mission info from MissionInfoList by missionId: %{public}d", missionId);
@@ -4944,7 +4953,7 @@ void AbilityManagerService::DumpSysMissionListInner(
         DumpSysMissionListInnerBySCB(args, info, isClient, isUserID, userId);
         return;
     }
-    std::shared_ptr<MissionListManager> targetManager;
+    std::shared_ptr<MissionListManagerInterface> targetManager;
     if (isUserID) {
         auto missionListManager = GetMissionListManagerByUserId(userId);
         if (missionListManager == nullptr) {
@@ -5004,7 +5013,7 @@ void AbilityManagerService::DumpSysAbilityInner(
         DumpSysAbilityInnerBySCB(args, info, isClient, isUserID, userId);
         return;
     }
-    std::shared_ptr<MissionListManager> targetManager;
+    std::shared_ptr<MissionListManagerInterface> targetManager;
     if (isUserID) {
         auto missionListManager = GetMissionListManagerByUserId(userId);
         if (missionListManager == nullptr) {
@@ -6440,25 +6449,31 @@ std::shared_ptr<PendingWantManager> AbilityManagerService::GetPendingWantManager
     return subManagersHelper_->GetPendingWantManagerByUserId(userId);
 }
 
-std::unordered_map<int, std::shared_ptr<MissionListManager>> AbilityManagerService::GetMissionListManagers()
+std::unordered_map<int, std::shared_ptr<MissionListManagerInterface>> AbilityManagerService::GetMissionListManagers()
 {
     if (subManagersHelper_ == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "pointer is nullptr.");
-        return std::unordered_map<int, std::shared_ptr<MissionListManager>>();
+        return std::unordered_map<int, std::shared_ptr<MissionListManagerInterface>>();
     }
     return subManagersHelper_->GetMissionListManagers();
 }
 
-std::shared_ptr<MissionListManager> AbilityManagerService::GetCurrentMissionListManager()
+std::shared_ptr<MissionListManagerInterface> AbilityManagerService::GetCurrentMissionListManager()
 {
     CHECK_POINTER_AND_RETURN(subManagersHelper_, nullptr);
     return subManagersHelper_->GetCurrentMissionListManager();
 }
 
-std::shared_ptr<MissionListManager> AbilityManagerService::GetMissionListManagerByUserId(int32_t userId)
+std::shared_ptr<MissionListManagerInterface> AbilityManagerService::GetMissionListManagerByUserId(int32_t userId)
 {
     CHECK_POINTER_AND_RETURN(subManagersHelper_, nullptr);
     return subManagersHelper_->GetMissionListManagerByUserId(userId);
+}
+
+std::shared_ptr<MissionListWrap> AbilityManagerService::GetMissionListWrap()
+{
+    CHECK_POINTER_AND_RETURN(subManagersHelper_, nullptr);
+    return subManagersHelper_->GetMissionListWrap();
 }
 
 std::unordered_map<int, std::shared_ptr<UIAbilityLifecycleManager>> AbilityManagerService::GetUIAbilityManagers()
@@ -9464,12 +9479,7 @@ int32_t AbilityManagerService::AcquireShareData(
     } else {
         auto missionListManager = GetCurrentMissionListManager();
         CHECK_POINTER_AND_RETURN(missionListManager, ERR_INVALID_VALUE);
-        std::shared_ptr<Mission> mission = missionListManager->GetMissionById(missionId);
-        if (!mission) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "mission is null.");
-            return ERR_INVALID_VALUE;
-        }
-        abilityRecord = mission->GetAbilityRecord();
+        abilityRecord = missionListManager->GetAbilityRecordByMissionId(missionId);
     }
     if (!abilityRecord) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityRecord is null.");

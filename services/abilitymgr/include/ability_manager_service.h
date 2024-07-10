@@ -53,7 +53,7 @@
 #include "iacquire_share_data_callback_interface.h"
 #include "interceptor/ability_interceptor_executer.h"
 #include "iremote_object.h"
-#include "mission_list_manager.h"
+#include "mission_list_manager_interface.h"
 #include "parameter.h"
 #include "pending_want_manager.h"
 #include "permission_verification.h"
@@ -101,6 +101,8 @@ class AbilityManagerService : public SystemAbility,
     DECLARE_DELAYED_SINGLETON(AbilityManagerService)
     DECLEAR_SYSTEM_ABILITY(AbilityManagerService)
 public:
+    static std::shared_ptr<AbilityManagerService> GetPubInstance();
+
     void OnStart() override;
     void OnStop() override;
 
@@ -1143,7 +1145,7 @@ public:
 
     virtual int UnregisterAbilityFirstFrameStateObserver(
         const sptr<IAbilityFirstFrameStateObserver> &observer) override;
-    
+
     bool GetAnimationFlag();
 
 #endif
@@ -1703,7 +1705,9 @@ public:
     virtual int32_t TransferAbilityResultForExtension(const sptr<IRemoteObject> &callerToken, int32_t resultCode,
         const Want &want) override;
 
-    std::shared_ptr<MissionListManager> GetMissionListManagerByUserId(int32_t userId);
+    std::shared_ptr<MissionListManagerInterface> GetMissionListManagerByUserId(int32_t userId);
+    std::shared_ptr<MissionListWrap> GetMissionListWrap();
+
     /**
      * Notify ability manager service frozen process.
      *
@@ -1947,8 +1951,8 @@ private:
     std::shared_ptr<AbilityConnectManager> GetConnectManagerByToken(const sptr<IRemoteObject> &token);
     std::shared_ptr<PendingWantManager> GetCurrentPendingWantManager();
     std::shared_ptr<PendingWantManager> GetPendingWantManagerByUserId(int32_t userId);
-    std::unordered_map<int, std::shared_ptr<MissionListManager>> GetMissionListManagers();
-    std::shared_ptr<MissionListManager> GetCurrentMissionListManager();
+    std::unordered_map<int, std::shared_ptr<MissionListManagerInterface>> GetMissionListManagers();
+    std::shared_ptr<MissionListManagerInterface> GetCurrentMissionListManager();
     std::unordered_map<int, std::shared_ptr<UIAbilityLifecycleManager>> GetUIAbilityManagers();
     std::shared_ptr<UIAbilityLifecycleManager> GetCurrentUIAbilityManager();
     std::shared_ptr<UIAbilityLifecycleManager> GetUIAbilityManagerByUserId(int32_t userId);
