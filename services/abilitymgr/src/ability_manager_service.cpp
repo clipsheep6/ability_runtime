@@ -5549,6 +5549,61 @@ int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &toke
     }
 }
 
+int AbilityManagerService::AbilityWindowConfigTransitionDone(const sptr<IRemoteObject> &token, int state, const WindowConfig &saveData)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Lifecycle: state:%{public}d.", state);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && !VerificationAllToken(token)) {
+        return ERR_INVALID_VALUE;
+    }
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    CHECK_POINTER_AND_RETURN_LOG(abilityRecord, ERR_INVALID_VALUE, "Ability record is nullptr.");
+    if (!JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    auto abilityInfo = abilityRecord->GetAbilityInfo();
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Lifecycle: ability: %{public}s.", abilityRecord->GetURI().c_str());
+    auto type = abilityInfo.type;
+    auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
+    // force timeout ability for test
+    int targetState = AbilityRecord::ConvertLifeCycleToAbilityState(static_cast<AbilityLifeCycleState>(state));
+    bool isTerminate = abilityRecord->IsAbilityState(AbilityState::TERMINATING) && targetState == AbilityState::INITIAL;
+    std::string tempState = isTerminate ? AbilityRecord::ConvertAbilityState(AbilityState::TERMINATING) :
+        AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState));
+    if (IsNeedTimeoutForTest(abilityInfo.name, tempState)) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "force timeout ability for test, state:%{public}s, ability: %{public}s",
+            tempState.c_str(),
+            abilityInfo.name.c_str());
+        return ERR_OK;
+    }
+    if (targetState == AbilityState::BACKGROUND) {
+        FreezeUtil::LifecycleFlow flow = { token, FreezeUtil::TimeoutState::BACKGROUND };
+        auto entry = std::to_string(AbilityUtil::SystemTimeMillis()) +
+            "; AbilityManagerService::AbilityTransitionDone; the end of background lifecycle.";
+        FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
+    } else if (targetState != AbilityState::INITIAL) {
+        FreezeUtil::LifecycleFlow flow = { token, FreezeUtil::TimeoutState::FOREGROUND };
+        auto entry = std::to_string(AbilityUtil::SystemTimeMillis()) +
+            "; AbilityManagerService::AbilityTransitionDone; the end of foreground lifecycle.";
+        entry += " the end of foreground lifecycle.";
+        FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
+    }
+    int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto uiAbilityManager = GetUIAbilityManagerByUserId(ownerMissionUserId);
+        CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
+        return uiAbilityManager->AbilityWindowConfigTransactionDone(token, state, saveData);
+    } else {
+        auto missionListManager = GetMissionListManagerByUserId(ownerMissionUserId);
+        if (!missionListManager) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListManager is Null. userId=%{public}d", ownerMissionUserId);
+            return ERR_INVALID_VALUE;
+        }
+        return missionListManager->AbilityWindowConfigTransactionDone(token, state, saveData);
+    }
+}
+
 int AbilityManagerService::ScheduleConnectAbilityDone(
     const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &remoteObject)
 {

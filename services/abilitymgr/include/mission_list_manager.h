@@ -160,6 +160,16 @@ public:
     int AbilityTransactionDone(const sptr<IRemoteObject> &token, int state, const PacMap &saveData) override;
 
     /**
+     * @brief execute after the ability schedule the lifecycle
+     *
+     * @param token the ability token
+     * @param state the ability state
+     * @param saveData the saved data
+     * @return execute error code
+     */
+    int AbilityWindowConfigTransactionDone(const sptr<IRemoteObject> &token, int state, const WindowConfig &saveData) override;
+
+    /**
      * @brief search the ability from terminating list
      *
      * @param token the ability token

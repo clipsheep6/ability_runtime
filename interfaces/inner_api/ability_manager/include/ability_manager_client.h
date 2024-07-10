@@ -63,6 +63,15 @@ public:
     ErrCode AbilityTransitionDone(sptr<IRemoteObject> token, int state, const PacMap &saveData);
 
     /**
+     * AbilityWindowConfigTransitionDone, ability call this interface after lift cycle was changed.
+     *
+     * @param token,.ability's token.
+     * @param state,.the state of ability lift cycle.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode AbilityWindowConfigTransitionDone(sptr<IRemoteObject> token, int state, const WindowConfig &saveData);
+
+    /**
      * ScheduleConnectAbilityDone, service ability call this interface while session was connected.
      *
      * @param token,.service ability's token.
