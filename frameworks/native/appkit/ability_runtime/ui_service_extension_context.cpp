@@ -93,8 +93,8 @@ ErrCode UIServiceExtensionContext::StartAbilityByType(const std::string &type,
         want.SetFlags(flag);
         wantParam.Remove(FLAG_AUTH_READ_URI_PERMISSION);
     }
-    Ace::ModalUIExtensionCallbacks callback;
-    Ace::ModalUIExtensionConfig config;
+    OHOS::Ace::ModalUIExtensionCallbacks callback;
+    OHOS::Ace::ModalUIExtensionConfig config;
     SetModalUIExtensionCallbackFunc(callback, uiExtensionCallbacks);
     int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
     if (sessionId == 0) {
@@ -106,7 +106,7 @@ ErrCode UIServiceExtensionContext::StartAbilityByType(const std::string &type,
     return ERR_OK;
 }
 
-void UIServiceExtensionContext::SetModalUIExtensionCallbackFunc(Ace::ModalUIExtensionCallbacks &callback,
+void UIServiceExtensionContext::SetModalUIExtensionCallbackFunc(OHOS::Ace::ModalUIExtensionCallbacks &callback,
     const std::shared_ptr<JsUIExtensionCallback> &uiExtensionCallbacks)
 {
     callback.onError = [uiExtensionCallbacks](int32_t number) {
@@ -125,13 +125,13 @@ void UIServiceExtensionContext::SetModalUIExtensionCallbackFunc(Ace::ModalUIExte
             return;
         }
         uiExtensionCallbacks->uiContent_->CloseModalUIExtension(uiExtensionCallbacks->sessionId_);
-    }
+    };
     callback.onRelease = [uiExtensionCallbacks](int32_t code) {
         if (uiExtensionCallbacks->uiContent_ == nullptr) {
             return;
         }
         uiExtensionCallbacks->uiContent_->CloseModalUIExtension(uiExtensionCallbacks->sessionId_);
-    }
+    };
     callback.onResult = [uiExtensionCallbacks](int32_t resultCode, const AAFwk::Want &want) {
         if (uiExtensionCallbacks->env_ == nullptr) {
             return;
@@ -148,7 +148,7 @@ void UIServiceExtensionContext::SetModalUIExtensionCallbackFunc(Ace::ModalUIExte
             return;
         }
         uiExtensionCallbacks->uiContent_->CloseModalUIExtension(uiExtensionCallbacks->sessionId_);
-    }
+    };
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
