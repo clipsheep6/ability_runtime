@@ -23,6 +23,7 @@
 #endif
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "request_constants.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -88,10 +89,26 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject>& connec
     }
 }
 
+void* ConnectionManager::GetUiServiceExtProxyPtr(const AAFwk::Want& want)
+{
+    sptr<IRemoteObject> uiServiceExtProxySptr = want.GetRemoteObject(UISERVICEHOSTPROXY_KEY);
+    void* uiServiceExtProxy = nullptr;
+    if (uiServiceExtProxySptr != nullptr) {
+        uiServiceExtProxy = uiServiceExtProxySptr.GetRefPtr();
+    }
+    return uiServiceExtProxy;
+}
+
 bool ConnectionManager::MatchConnection(
     const sptr<IRemoteObject>& connectCaller, const AAFwk::Want& connectReceiver, int32_t accountId,
     const std::map<ConnectionInfo, std::vector<sptr<AbilityConnectCallback>>>::value_type& connection)
 {
+    void* uiServiceExtProxy = GetUiServiceExtProxyPtr(connectReceiver);
+    if (uiServiceExtProxy != connection.first.uiServiceExtProxy) {
+        TAG_LOGE(AAFwkTag::CONNECTION, "uiServiceExtProxy not equal, match false");
+        return false;
+    }
+
     if (accountId != connection.first.userid) {
         return false;
     }
@@ -124,6 +141,8 @@ ErrCode ConnectionManager::CreateConnection(const sptr<IRemoteObject>& connectCa
     std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
     if (ret == ERR_OK) {
         ConnectionInfo connectionInfo(connectCaller, want.GetOperation(), abilityConnection, accountId);
+        void* uiServiceExtProxy = GetUiServiceExtProxyPtr(want);
+        connectionInfo.SetUiServiceExtProxyPtr(uiServiceExtProxy);
         std::vector<sptr<AbilityConnectCallback>> callbacks;
         callbacks.push_back(connectCallback);
         abilityConnections_[connectionInfo] = callbacks;
