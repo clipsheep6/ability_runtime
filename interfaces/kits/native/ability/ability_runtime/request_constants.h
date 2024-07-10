@@ -18,6 +18,8 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+constexpr const char* UISERVICEHOSTPROXY_KEY = "ohos.ability.params.UIServiceHostProxy";
+
 namespace RequestConstants {
 constexpr const char* REQUEST_TOKEN_KEY = "ohos.ability.params.request.token";
 constexpr const char* REQUEST_CALLBACK_KEY = "ohos.ability.params.request.callback";
