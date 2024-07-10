@@ -1212,7 +1212,9 @@ private:
                       std::shared_ptr<AppRunningRecord> appRecord, const int uid, const BundleInfo &bundleInfo,
                       const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag = true,
                       bool isPreload = false, const std::string &moduleName = "", const std::string &abilityName = "",
-                      bool strictMode = false, int32_t maxChildProcess = 0);
+                      bool strictMode = false, int32_t maxChildProcess = 0, sptr<IRemoteObject> token = nullptr,
+                      std::shared_ptr<AAFwk::Want> want = nullptr,
+                      ExtensionAbilityType ExtensionAbilityType = ExtensionAbilityType::UNSPECIFIED);
 
     /**
      * PushAppFront, Adjust the latest application record to the top level.
@@ -1469,16 +1471,11 @@ private:
     std::string GetSpecifiedProcessFlag(std::shared_ptr<AbilityInfo> abilityInfo, std::shared_ptr<AAFwk::Want> want);
 
     void LoadAbilityNoAppRecord(const std::shared_ptr<AppRunningRecord> appRecord,
-        sptr<IRemoteObject> preToken,
-        std::shared_ptr<ApplicationInfo> appInfo,
-        std::shared_ptr<AbilityInfo> abilityInfo,
-        const std::string &processName,
-        const std::string &specifiedProcessFlag,
-        const BundleInfo &bundleInfo,
-        const HapModuleInfo &hapModuleInfo,
-        std::shared_ptr<AAFwk::Want> want,
-        bool appExistFlag,
-        bool isPreload);
+        sptr<IRemoteObject> preToken, std::shared_ptr<ApplicationInfo> appInfo,
+        std::shared_ptr<AbilityInfo> abilityInfo, const std::string &processName,
+        const std::string &specifiedProcessFlag, const BundleInfo &bundleInfo,
+        const HapModuleInfo &hapModuleInfo, std::shared_ptr<AAFwk::Want> want,
+        bool appExistFlag, bool isPreload, sptr<IRemoteObject> token = nullptr);
 
     int32_t CheckSetProcessCachePermission() const;
 
