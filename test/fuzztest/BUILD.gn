@@ -275,5 +275,6 @@ group("fuzztest") {
     "wantagenthelperstring_fuzzer:fuzztest",
     "wantagenthelpertrigger_fuzzer:fuzztest",
     "wantsenderstub_fuzzer:fuzztest",
+    "abilityappdebugmanager_fuzzer:fuzztest",
   ]
 }
