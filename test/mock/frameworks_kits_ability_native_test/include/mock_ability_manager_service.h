@@ -147,8 +147,8 @@ public:
     MOCK_METHOD4(StartAbilityByCall,
         int(const Want&, const sptr<IAbilityConnection>&, const sptr<IRemoteObject>&, int32_t));
 
-    MOCK_METHOD6(StartAbilityAsCaller, int(const Want& want, const sptr<IRemoteObject>& callerToken,
-        sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode, bool isSendDialogResult));
+    MOCK_METHOD5(StartAbilityAsCaller, int(const Want& want, const sptr<IRemoteObject>& callerToken,
+        sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode));
     MOCK_METHOD6(StartAbilityAsCaller, int(const Want &want, const StartOptions &startOptions,
         const sptr<IRemoteObject>& callerToken, sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId, int requestCode));

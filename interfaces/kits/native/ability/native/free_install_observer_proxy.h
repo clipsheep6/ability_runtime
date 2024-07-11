@@ -36,6 +36,17 @@ public:
      */
     virtual void OnInstallFinished(const std::string &bundleName, const std::string &abilityName,
         const std::string &startTime, const int &resultCode) override;
+
+    /**
+     * OnInstallFinishedByUrl, return free install result.
+     *
+     * @param startTime Free install start request time.
+     * @param url Free install url.
+     * @param resultCode The result of this free install.
+     */
+    virtual void OnInstallFinishedByUrl(const std::string &startTime, const std::string &url,
+        const int &resultCode) override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     static inline BrokerDelegator<FreeInstallObserverProxy> delegator_;

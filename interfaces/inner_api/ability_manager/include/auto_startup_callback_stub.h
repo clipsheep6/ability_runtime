@@ -41,8 +41,6 @@ private:
     int32_t OnAutoStartupOnInner(MessageParcel &data, MessageParcel &reply);
     int32_t OnAutoStartupOffInner(MessageParcel &data, MessageParcel &reply);
 
-    using RequestFuncType = int (AutoStartupCallBackStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, RequestFuncType> requestFuncMap_;
     DISALLOW_COPY_AND_MOVE(AutoStartupCallBackStub);
 };
 } // namespace AbilityRuntime

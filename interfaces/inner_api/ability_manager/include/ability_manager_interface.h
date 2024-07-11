@@ -203,8 +203,7 @@ public:
         const sptr<IRemoteObject> &callerToken,
         sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
-        int requestCode = DEFAULT_INVAL_VALUE,
-        bool isSendDialogResult = false)
+        int requestCode = DEFAULT_INVAL_VALUE)
     {
         return 0;
     }
@@ -942,7 +941,7 @@ public:
         return 0;
     }
 
-    virtual int SendDialogResult(const Want &want, const std::string dialogSessionId, bool isAllow)
+    virtual int SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllow)
     {
         return 0;
     }
@@ -1151,10 +1150,12 @@ public:
     /**
      * Add free install observer.
      *
-     * @param observer, the observer of the ability to free install start.
+     * @param callerToken, The caller ability token.
+     * @param observer, The observer of the ability to free install start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
+    virtual int AddFreeInstallObserver(const sptr<IRemoteObject> &callerToken,
+        const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
     {
         return 0;
     }
@@ -1537,6 +1538,21 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t RestartApp(const AAFwk::Want &want)
+    {
+        return 0;
+    }
+
+    /**
+     * Open link of ability and atomic service.
+     *
+     * @param want Ability want.
+     * @param callerToken Caller ability token.
+     * @param userId User ID.
+     * @param requestCode Ability request code.
+     * @return Returns ERR_OK on success, others on failure.
+    */
+    virtual int32_t OpenLink(const Want& want, sptr<IRemoteObject> callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = DEFAULT_INVAL_VALUE)
     {
         return 0;
     }

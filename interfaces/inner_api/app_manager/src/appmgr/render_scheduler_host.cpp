@@ -21,16 +21,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-RenderSchedulerHost::RenderSchedulerHost()
-{
-    memberFuncMap_[static_cast<uint32_t>(IRenderScheduler::Message::NOTIFY_BROWSER_FD)] =
-        &RenderSchedulerHost::HandleNotifyBrowserFd;
-}
+RenderSchedulerHost::RenderSchedulerHost() {}
 
-RenderSchedulerHost::~RenderSchedulerHost()
-{
-    memberFuncMap_.clear();
-}
+RenderSchedulerHost::~RenderSchedulerHost() {}
 
 int RenderSchedulerHost::OnRemoteRequest(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
@@ -44,13 +37,10 @@ int RenderSchedulerHost::OnRemoteRequest(uint32_t code, MessageParcel &data,
         return ERR_INVALID_STATE;
     }
 
-    auto itFunc = memberFuncMap_.find(code);
-    if (itFunc != memberFuncMap_.end()) {
-        auto memberFunc = itFunc->second;
-        if (memberFunc != nullptr) {
-            return (this->*memberFunc)(data, reply);
-        }
+    if (code == static_cast<uint32_t>(IRenderScheduler::Message::NOTIFY_BROWSER_FD)) {
+        return HandleNotifyBrowserFd(data, reply);
     }
+
     TAG_LOGI(AAFwkTag::APPMGR, "RenderSchedulerHost::OnRemoteRequest end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }

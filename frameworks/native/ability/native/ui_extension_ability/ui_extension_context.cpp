@@ -60,6 +60,18 @@ ErrCode UIExtensionContext::StartAbility(const AAFwk::Want &want, const AAFwk::S
     return err;
 }
 
+ErrCode UIExtensionContext::StartUIServiceExtension(const AAFwk::Want& want, int32_t accountId) const
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::UI_EXT, "Start UIServiceExtension begin");
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartExtensionAbility(
+        want, token_, accountId, AppExecFwk::ExtensionAbilityType::UI_SERVICE);
+    if (err != ERR_OK) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "StartUIServiceExtension is failed %{public}d", err);
+    }
+    return err;
+}
+
 ErrCode UIExtensionContext::TerminateSelf()
 {
     TAG_LOGD(AAFwkTag::UI_EXT, "TerminateSelf begin.");
@@ -117,6 +129,15 @@ void UIExtensionContext::InsertResultCallbackTask(int requestCode, RuntimeTask &
     {
         std::lock_guard<std::mutex> lock(mutexlock_);
         resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
+    }
+}
+
+void UIExtensionContext::RemoveResultCallbackTask(int requestCode)
+{
+    TAG_LOGD(AAFwkTag::UI_EXT, "Called.");
+    {
+        std::lock_guard<std::mutex> lock(mutexlock_);
+        resultCallbacks_.erase(requestCode);
     }
 }
 
@@ -255,6 +276,21 @@ ErrCode UIExtensionContext::OpenAtomicService(AAFwk::Want& want, const AAFwk::St
         OnAbilityResultInner(requestCode, err, want);
     }
     return err;
+}
+
+ErrCode UIExtensionContext::OpenLink(const AAFwk::Want& want, int requestCode)
+{
+    TAG_LOGD(AAFwkTag::UI_EXT, "Called.");
+    return AAFwk::AbilityManagerClient::GetInstance()->OpenLink(want, token_, -1, requestCode);
+}
+
+ErrCode UIExtensionContext::AddFreeInstallObserver(const sptr<IFreeInstallObserver> &observer)
+{
+    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(token_, observer);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "AddFreeInstallObserver error, ret: %{public}d", ret);
+    }
+    return ret;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

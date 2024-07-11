@@ -209,10 +209,12 @@ int32_t PermissionVerification::VerifyUpdateConfigurationPerm() const
 int32_t PermissionVerification::VerifyUpdateAPPConfigurationPerm() const
 {
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_UPDATE_APP_CONFIGURATION)) {
-        HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_UPDATE_APP_CONFIGURATION);
+        TAG_LOGI(AAFwkTag::DEFAULT,
+            "Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_UPDATE_APP_CONFIGURATION);
         return ERR_OK;
     }
-    HILOG_ERROR("Verify permission %{public}s failed.", PermissionConstants::PERMISSION_UPDATE_APP_CONFIGURATION);
+    TAG_LOGE(AAFwkTag::DEFAULT,
+        "Verify permission %{public}s failed.", PermissionConstants::PERMISSION_UPDATE_APP_CONFIGURATION);
     return ERR_PERMISSION_DENIED;
 }
 
@@ -466,10 +468,12 @@ bool PermissionVerification::VerifyShellStartExtensionType(int32_t type) const
 bool PermissionVerification::VerifyPreloadApplicationPermission() const
 {
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_PRELOAD_APPLICATION)) {
-        HILOG_DEBUG("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_PRELOAD_APPLICATION);
+        TAG_LOGD(AAFwkTag::DEFAULT, "Verify permission %{public}s succeed.",
+            PermissionConstants::PERMISSION_PRELOAD_APPLICATION);
         return true;
     }
-    HILOG_ERROR("Verify permission %{public}s failed.", PermissionConstants::PERMISSION_PRELOAD_APPLICATION);
+    TAG_LOGE(AAFwkTag::DEFAULT, "Verify permission %{public}s failed.",
+        PermissionConstants::PERMISSION_PRELOAD_APPLICATION);
     return false;
 }
 

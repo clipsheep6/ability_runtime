@@ -201,7 +201,9 @@ HWTEST_F(AppRunningRecordTest, AppRunningRecord_AddChildProcessRecord_0100, Test
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
     EXPECT_NE(appRecord, nullptr);
 
-    auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", appRecord, 0, false);
+    ChildProcessRequest request;
+    request.srcEntry = "./ets/AProcess.ts";
+    auto childRecord = std::make_shared<ChildProcessRecord>(101, request, appRecord);
     pid_t childPid = 201;
     childRecord->SetPid(childPid);
     appRecord->AddChildProcessRecord(childPid, childRecord);
@@ -223,7 +225,9 @@ HWTEST_F(AppRunningRecordTest, AppRunningRecord_RemoveChildProcessRecord_0100, T
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
     EXPECT_NE(appRecord, nullptr);
 
-    auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", appRecord, 0, false);
+    ChildProcessRequest request;
+    request.srcEntry = "./ets/AProcess.ts";
+    auto childRecord = std::make_shared<ChildProcessRecord>(101, request, appRecord);
     pid_t childPid = 201;
     childRecord->SetPid(childPid);
     appRecord->childProcessRecordMap_.emplace(childPid, childRecord);
@@ -246,7 +250,9 @@ HWTEST_F(AppRunningRecordTest, AppRunningRecord_GetChildProcessRecordByPid_0100,
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
     EXPECT_NE(appRecord, nullptr);
 
-    auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", appRecord, 0, false);
+    ChildProcessRequest request;
+    request.srcEntry = "./ets/AProcess.ts";
+    auto childRecord = std::make_shared<ChildProcessRecord>(101, request, appRecord);
     pid_t childPid = 201;
     childRecord->SetPid(childPid);
     appRecord->childProcessRecordMap_.emplace(childPid, childRecord);

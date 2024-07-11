@@ -1546,22 +1546,22 @@ int32_t AppMgrProxy::IsAppRunning(const std::string &bundleName, int32_t appClon
     return reply.ReadInt32();
 }
 
-int32_t AppMgrProxy::StartChildProcess(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount,
-    bool isStartWithDebug)
+int32_t AppMgrProxy::StartChildProcess(pid_t &childPid, const ChildProcessRequest &request)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "called");
-    if (srcEntry.empty()) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Invalid params, srcEntry:%{private}s", srcEntry.c_str());
+    TAG_LOGD(AAFwkTag::APPMGR, "StartChildProcess called.");
+    if (request.srcEntry.empty()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Invalid params, srcEntry:%{private}s", request.srcEntry.c_str());
         return ERR_INVALID_VALUE;
     }
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::APPMGR, "WriteInterfaceToken failed");
-        return ERR_FLATTEN_OBJECT;
+        return IPC_PROXY_ERR;
     }
-    PARCEL_UTIL_WRITE_RET_INT(data, String, srcEntry);
-    PARCEL_UTIL_WRITE_RET_INT(data, Int32, childProcessCount);
-    PARCEL_UTIL_WRITE_RET_INT(data, Bool, isStartWithDebug);
+    if (!data.WriteParcelable(&request)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write param request failed.");
+        return IPC_PROXY_ERR;
+    }
 
     MessageParcel reply;
     MessageOption option;

@@ -22,6 +22,7 @@
 
 #include "auto_startup_info.h"
 #include "bundle_mgr_client.h"
+#include "bundle_mgr_helper.h"
 #include "iremote_object.h"
 #include "singleton.h"
 
@@ -139,7 +140,8 @@ private:
     void CleanResource(const wptr<IRemoteObject> &remote);
     std::string GetSelfApplicationBundleName();
     bool CheckSelfApplication(const std::string &bundleName);
-    bool GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, int32_t uid, int32_t &userId);
+    bool GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, int32_t uid,
+        int32_t &userId, int32_t appIndex);
     bool GetAbilityData(const AutoStartupInfo &info, bool &isVisible,
         std::string &abilityTypeName, std::string &accessTokenId, int32_t &userId);
     std::string GetAbilityTypeName(AppExecFwk::AbilityInfo abilityInfo);

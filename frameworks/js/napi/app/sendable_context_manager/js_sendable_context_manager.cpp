@@ -16,6 +16,8 @@
 #include "js_sendable_context_manager.h"
 
 #include "ability_context.h"
+#include "ability_stage_context.h"
+#include "application_context.h"
 #include "context.h"
 #include "js_ability_context.h"
 #include "js_ability_stage_context.h"
@@ -88,8 +90,21 @@ napi_value CreateJsBaseContextFromSendable(napi_env env, void* wrapped)
         return nullptr;
     }
 
+    auto contextPtr = Context::ConvertTo<Context>(context);
+    if (contextPtr == nullptr) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Convert to context failed.");
+        return nullptr;
+    }
+
     // create normal context
-    return CreateJsBaseContext(env, context);
+    auto value = CreateJsBaseContext(env, contextPtr);
+    auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.Context", &value, 1);
+    if (systemModule == nullptr) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Load context module failed.");
+        return nullptr;
+    }
+
+    return systemModule->GetNapiValue();
 }
 
 napi_value CreateJsApplicationContextFromSendable(napi_env env, void* wrapped)
@@ -107,8 +122,21 @@ napi_value CreateJsApplicationContextFromSendable(napi_env env, void* wrapped)
         return nullptr;
     }
 
+    auto applicationContext = Context::ConvertTo<ApplicationContext>(context);
+    if (applicationContext == nullptr) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Convert to application context failed.");
+        return nullptr;
+    }
+
     // create application context
-    return JsApplicationContextUtils::CreateJsApplicationContext(env);
+    auto value = JsApplicationContextUtils::CreateJsApplicationContext(env);
+    auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.ApplicationContext", &value, 1);
+    if (systemModule == nullptr) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Load application context module failed.");
+        return nullptr;
+    }
+
+    return systemModule->GetNapiValue();
 }
 
 napi_value CreateJsAbilityStageContextFromSendable(napi_env env, void* wrapped)
@@ -126,8 +154,21 @@ napi_value CreateJsAbilityStageContextFromSendable(napi_env env, void* wrapped)
         return nullptr;
     }
 
+    auto abilitystageContext = Context::ConvertTo<AbilityStageContext>(context);
+    if (abilitystageContext == nullptr) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Convert to ability stage context failed.");
+        return nullptr;
+    }
+
     // create normal abilitystage context
-    return CreateJsAbilityStageContext(env, context);
+    auto value = CreateJsAbilityStageContext(env, abilitystageContext);
+    auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.AbilityStageContext", &value, 1);
+    if (systemModule == nullptr) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Load ability stage context module failed.");
+        return nullptr;
+    }
+
+    return systemModule->GetNapiValue();
 }
 
 napi_value CreateJsUIAbilityContextFromSendable(napi_env env, void* wrapped)
@@ -145,14 +186,21 @@ napi_value CreateJsUIAbilityContextFromSendable(napi_env env, void* wrapped)
         return nullptr;
     }
 
-    auto uiAbilityContext = AbilityRuntime::Context::ConvertTo<AbilityContext>(context);
+    auto uiAbilityContext = Context::ConvertTo<AbilityContext>(context);
     if (uiAbilityContext == nullptr) {
         TAG_LOGE(AAFwkTag::CONTEXT, "Convert to UIAbility context failed.");
         return nullptr;
     }
 
     // create normal uiability context
-    return CreateJsAbilityContext(env, uiAbilityContext);
+    auto value = CreateJsAbilityContext(env, uiAbilityContext);
+    auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.AbilityContext", &value, 1);
+    if (systemModule == nullptr) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "Load ability context module failed.");
+        return nullptr;
+    }
+
+    return systemModule->GetNapiValue();
 }
 
 class JsSendableContextManager {
@@ -216,13 +264,20 @@ private:
 
         auto context = GetStageModeContext(env, info.argv[0]);
         if (context == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "get context failed");
+            TAG_LOGE(AAFwkTag::CONTEXT, "Get context failed");
             ThrowInvalidParamError(env, "Parse param context failed, must not be nullptr.");
             return CreateJsUndefined(env);
         }
 
+        auto contextPtr = Context::ConvertTo<Context>(context);
+        if (contextPtr == nullptr) {
+            TAG_LOGE(AAFwkTag::CONTEXT, "Convert to context failed.");
+            ThrowInvalidParamError(env, "Parse param context failed, must be a context.");
+            return CreateJsUndefined(env);
+        }
+
         // create sendable context
-        return CreateSendableContextObject(env, context);
+        return CreateSendableContextObject(env, contextPtr);
     }
 
     napi_value OnConvertToContext(napi_env env, NapiCallbackInfo &info)

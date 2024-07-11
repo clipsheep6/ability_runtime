@@ -59,65 +59,6 @@ void ReverseContinuationSchedulerPrimaryStubTest::TearDown(void)
 }
 
 /**
- * @tc.number: OnRemoteRequest_0100
- * @tc.name: OnRemoteRequest
- * @tc.desc: Verify that function OnRemoteRequest
- */
-HWTEST_F(ReverseContinuationSchedulerPrimaryStubTest, OnRemoteRequest_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "OnRemoteRequest_0100 start";
-    uint32_t code = 1;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    auto result = primaryStub_->OnRemoteRequest(code, data, reply, option);
-
-    EXPECT_EQ(result, INVALID_FD);
-    GTEST_LOG_(INFO) << "OnRemoteRequest_0100 end";
-}
-
-/**
- * @tc.number: OnRemoteRequest_0200
- * @tc.name: OnRemoteRequest
- * @tc.desc: Verify that function OnRemoteRequest
- */
-HWTEST_F(ReverseContinuationSchedulerPrimaryStubTest, OnRemoteRequest_0200, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "OnRemoteRequest_0200 start";
-    uint32_t code = 1;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    std::u16string name = u"ohos.abilityshell.ReverseContinuationSchedulerMaster";
-    data.WriteInterfaceToken(name);
-    auto result = primaryStub_->OnRemoteRequest(code, data, reply, option);
-
-    EXPECT_EQ(result, ERR_NONE);
-    GTEST_LOG_(INFO) << "OnRemoteRequest_0200 end";
-}
-
-/**
- * @tc.number: OnRemoteRequest_0300
- * @tc.name: OnRemoteRequest
- * @tc.desc: Verify that function OnRemoteRequest
- */
-HWTEST_F(ReverseContinuationSchedulerPrimaryStubTest, OnRemoteRequest_0300, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "OnRemoteRequest_0300 start";
-    uint32_t code = 3;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    std::u16string name = u"ohos.abilityshell.ReverseContinuationSchedulerMaster";
-    data.WriteInterfaceToken(name);
-    primaryStub_->requestFuncMap_[3] = nullptr;
-    auto result = primaryStub_->OnRemoteRequest(code, data, reply, option);
-
-    EXPECT_EQ(result, IPC_STUB_UNKNOW_TRANS_ERR);
-    GTEST_LOG_(INFO) << "OnRemoteRequest_0300 end";
-}
-
-/**
  * @tc.number: NotifyReplicaTerminatedInner_0100
  * @tc.name: NotifyReplicaTerminatedInner
  * @tc.desc: Verify that function NotifyReplicaTerminatedInner

@@ -272,9 +272,9 @@ void UIAbilityLifecycleManager::OnAbilityRequestDone(const sptr<IRemoteObject> &
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Ability request state %{public}d done.", state);
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     AppAbilityState abilityState = DelayedSingleton<AppScheduler>::GetInstance()->ConvertToAppAbilityState(state);
     if (abilityState == AppAbilityState::ABILITY_STATE_FOREGROUND) {
+        std::lock_guard<ffrt::mutex> guard(sessionLock_);
         auto abilityRecord = GetAbilityRecordByToken(token);
         CHECK_POINTER(abilityRecord);
         std::string element = abilityRecord->GetElementName().GetURI();
@@ -749,12 +749,12 @@ int UIAbilityLifecycleManager::MinimizeUIAbility(const std::shared_ptr<AbilityRe
         abilityRecord->SetPendingState(AbilityState::BACKGROUND);
         return ERR_OK;
     }
-    abilityRecord->SetPendingState(AbilityState::BACKGROUND);
     if (!abilityRecord->IsAbilityState(AbilityState::FOREGROUND)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "ability state is not foreground: %{public}d",
             abilityRecord->GetAbilityState());
         return ERR_OK;
     }
+    abilityRecord->SetPendingState(AbilityState::BACKGROUND);
     MoveToBackground(abilityRecord);
     return ERR_OK;
 }
@@ -847,8 +847,12 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
             sessionInfo->uiAbilityId = uiAbilityRecord->GetAbilityRecordId();
             sessionInfo->isAtomicService =
                 (abilityInfo.applicationInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE);
-            uiAbilityRecord->PostForegroundTimeoutTask();
-            DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(uiAbilityRecord->GetToken());
+            if (uiAbilityRecord->GetPendingState() != AbilityState::INITIAL) {
+                TAG_LOGI(AAFwkTag::ABILITYMGR, "pending state is FOREGROUND or BACKGROUND, dropped.");
+                uiAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
+                return NotifySCBPendingActivation(sessionInfo, abilityRequest);
+            }
+            uiAbilityRecord->ProcessForegroundAbility(sessionInfo->callingTokenId);
             return NotifySCBPendingActivation(sessionInfo, abilityRequest);
         }
         return ERR_OK;
@@ -1395,6 +1399,26 @@ void UIAbilityLifecycleManager::NotifySCBToHandleException(const std::shared_ptr
     info->errorCode = errorCode;
     info->errorReason = errorReason;
     session->NotifySessionException(info);
+    EraseAbilityRecord(abilityRecord);
+}
+
+void UIAbilityLifecycleManager::NotifySCBToHandleException(sptr<SessionInfo> sessionInfo,
+    int32_t errorCode, const std::string& errorReason)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
+    CHECK_POINTER(sessionInfo);
+    CHECK_POINTER(sessionInfo->sessionToken);
+    auto session = iface_cast<Rosen::ISession>(sessionInfo->sessionToken);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call notifySessionException");
+    sessionInfo->errorCode = errorCode;
+    sessionInfo->errorReason = errorReason;
+    session->NotifySessionException(sessionInfo);
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(sessionInfo->callerToken);
+    if (abilityRecord == nullptr) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "no such ability record matched token");
+        return;
+    }
     EraseAbilityRecord(abilityRecord);
 }
 

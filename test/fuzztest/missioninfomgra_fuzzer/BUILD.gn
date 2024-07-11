@@ -48,6 +48,7 @@ ohos_fuzztest("MissionInfoMgrAFuzzTest") {
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
+    "${ability_runtime_services_path}/abilitymgr:mission_list",
     "//third_party/jsoncpp:jsoncpp",
   ]
 

@@ -483,18 +483,6 @@ bool IsCJAbility(const std::string& info)
     return std::regex_match(info, std::regex(pattern));
 }
 
-struct CJEnvMethods {
-    void (*initCJAppNS)(const std::string& path) = nullptr;
-    void (*initCJSDKNS)(const std::string& path) = nullptr;
-    void (*initCJSysNS)(const std::string& path) = nullptr;
-    void (*initCJChipSDKNS)(const std::string& path) = nullptr;
-    bool (*startRuntime)() = nullptr;
-    bool (*startUIScheduler)() = nullptr;
-    void* (*loadCJModule)(const char* dllName) = nullptr;
-    void* (*loadLibrary)(uint32_t kind, const char* dllName) = nullptr;
-    void* (*getSymbol)(void* handle, const char* symbol) = nullptr;
-};
-
 CJ_EXPORT extern "C" CJEnvMethods* OHOS_GetCJEnvInstance()
 {
     static CJEnvMethods gCJEnvMethods {
@@ -519,8 +507,26 @@ CJ_EXPORT extern "C" CJEnvMethods* OHOS_GetCJEnvInstance()
         .loadCJModule = [](const char* dllName) {
             return CJEnvironment::GetInstance()->LoadCJLibrary(dllName);
         },
+        .loadLibrary = [](uint32_t kind, const char* dllName) {
+            return CJEnvironment::GetInstance()->LoadCJLibrary(static_cast<CJEnvironment::LibraryKind>(kind), dllName);
+        },
         .getSymbol = [](void* handle, const char* dllName) {
             return CJEnvironment::GetInstance()->GetSymbol(handle, dllName);
+        },
+        .loadCJLibrary = [](const char* dllName) {
+            return CJEnvironment::GetInstance()->LoadCJLibrary(dllName);
+        },
+        .startDebugger = []() {
+            return CJEnvironment::GetInstance()->StartDebugger();
+        },
+        .registerCJUncaughtExceptionHandler = [](const CJUncaughtExceptionInfo& handle) {
+            return CJEnvironment::GetInstance()->RegisterCJUncaughtExceptionHandler(handle);
+        },
+        .isCJAbility = [](const std::string& info) {
+            return IsCJAbility(info);
+        },
+        .setSanitizerKindRuntimeVersion = [](SanitizerKind kind) {
+            return CJEnvironment::GetInstance()->SetSanitizerKindRuntimeVersion(kind);
         }
     };
     return &gCJEnvMethods;

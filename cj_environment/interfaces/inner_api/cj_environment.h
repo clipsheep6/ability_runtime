@@ -16,6 +16,8 @@
 #ifndef OHOS_ABILITY_RUNTIME_CJ_ENVIRONMENT_H
 #define OHOS_ABILITY_RUNTIME_CJ_ENVIRONMENT_H
 
+#include "cj_envsetup.h"
+
 #include <string>
 #include <functional>
 
@@ -28,17 +30,6 @@
 namespace OHOS {
 struct CJRuntimeAPI;
 
-struct CJErrorObject {
-    const char* name;
-    const char* message;
-    const char* stack;
-};
-
-struct CJUncaughtExceptionInfo {
-    const char* hapPath;
-    std::function<void(const char* summary, const CJErrorObject errorObj)> uncaughtTask;
-};
-
 using TaskFuncType = void(*)();
 
 class CJ_EXPORT CJEnvironment final {
@@ -49,12 +40,7 @@ public:
     {
         return isRuntimeStarted_;
     }
-    enum SanitizerKind {
-        NONE,
-        ASAN,
-        TSAN,
-        HWASAN,
-    };
+
     void SetSanitizerKindRuntimeVersion(SanitizerKind kind)
     {
         sanitizerKind_ = kind;

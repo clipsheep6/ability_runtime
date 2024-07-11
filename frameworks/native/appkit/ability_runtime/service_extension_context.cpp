@@ -169,6 +169,17 @@ ErrCode ServiceExtensionContext::StartServiceExtensionAbility(const AAFwk::Want 
     return err;
 }
 
+ErrCode ServiceExtensionContext::StartUIServiceExtensionAbility(const AAFwk::Want &want, int32_t accountId) const
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "begin.");
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartExtensionAbility(
+        want, token_, accountId, AppExecFwk::ExtensionAbilityType::UI_SERVICE);
+    if (err != ERR_OK) {
+        TAG_LOGE(AAFwkTag::APPKIT, "ServiceContext::StartServiceExtensionAbility is failed %{public}d", err);
+    }
+    return err;
+}
+
 ErrCode ServiceExtensionContext::StopServiceExtensionAbility(const AAFwk::Want& want, int32_t accountId) const
 {
     TAG_LOGD(AAFwkTag::APPKIT, "%{public}s begin.", __func__);
@@ -247,6 +258,15 @@ ErrCode ServiceExtensionContext::PreStartMission(const std::string& bundleName, 
     }
     TAG_LOGI(AAFwkTag::APPKIT, "End.");
     return err;
+}
+
+ErrCode ServiceExtensionContext::AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
+{
+    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(token_, observer);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::APPKIT, "AddFreeInstallObserver error, ret: %{public}d", ret);
+    }
+    return ret;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -19,7 +19,8 @@
         "SystemCapability.Ability.AbilityRuntime.Mission",
         "SystemCapability.Ability.AbilityRuntime.QuickFix",
         "SystemCapability.Ability.AbilityTools.AbilityAssistant",
-        "SystemCapability.Ability.AppStartup"
+        "SystemCapability.Ability.AppStartup",
+        "SystemCapability.Ability.AppExtension.PhotoEditorExtension"
       ],
       "features": [
         "ability_runtime_auto_fill_ability",
@@ -41,6 +42,7 @@
             "accessibility",
             "access_token",
             "ace_engine",
+            "app_domain_verify",
             "appspawn",
             "background_task_mgr",
             "bundle_framework",

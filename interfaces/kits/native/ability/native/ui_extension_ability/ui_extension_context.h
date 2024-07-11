@@ -20,6 +20,7 @@
 
 #include "ability_connect_callback.h"
 #include "extension_context.h"
+#include "free_install_observer_interface.h"
 #include "start_options.h"
 #include "want.h"
 #ifdef SUPPORT_SCREEN
@@ -54,6 +55,7 @@ public:
     virtual ErrCode StartAbility(const AAFwk::Want &want) const;
     virtual ErrCode StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions) const;
     virtual ErrCode StartAbility(const AAFwk::Want &want, int requestCode) const;
+    virtual ErrCode StartUIServiceExtension(const AAFwk::Want& want, int32_t accountId = -1) const;
     /**
      * @brief Destroys the current ui extension ability.
      *
@@ -144,10 +146,16 @@ public:
 #endif // SUPPORT_SCREEN
     Ace::UIContent* GetUIContent();
 
+    ErrCode OpenLink(const AAFwk::Want& want, int reuqestCode);
+
     ErrCode OpenAtomicService(AAFwk::Want& want, const AAFwk::StartOptions &options, int requestCode,
         RuntimeTask &&task);
     
+    ErrCode AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer);
+
     void InsertResultCallbackTask(int requestCode, RuntimeTask&& task);
+
+    void RemoveResultCallbackTask(int requestCode);
 
     using SelfType = UIExtensionContext;
     static const size_t CONTEXT_TYPE_ID;

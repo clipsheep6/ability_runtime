@@ -20,6 +20,7 @@
 #include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
+#include "napi_common_child_process_param.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -51,9 +52,7 @@ bool JsChildProcess::Init(const std::shared_ptr<ChildProcessStartInfo> &info)
         TAG_LOGE(AAFwkTag::PROCESSMGR, "ChildProcessStartInfo srcEntry is empty");
         return false;
     }
-    std::string srcPath;
-    srcPath.append(info->moduleName).append("/");
-    srcPath.append(info->srcEntry);
+    std::string srcPath = info->srcEntry;
     if (srcPath.rfind(".") != std::string::npos) {
         srcPath.erase(srcPath.rfind("."));
     }
@@ -75,6 +74,23 @@ void JsChildProcess::OnStart()
     TAG_LOGI(AAFwkTag::PROCESSMGR, "JsChildProcess OnStart called");
     ChildProcess::OnStart();
     CallObjectMethod("onStart");
+}
+
+void JsChildProcess::OnStart(std::shared_ptr<AppExecFwk::ChildProcessArgs> args)
+{
+    TAG_LOGI(AAFwkTag::PROCESSMGR, "JsChildProcess OnStart called");
+    if (!args) {
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "args is nullptr");
+        return;
+    }
+    ChildProcess::OnStart(args);
+
+    HandleScope handleScope(jsRuntime_);
+    auto env = jsRuntime_.GetNapiEnv();
+
+    napi_value jsArgs = WrapChildProcessArgs(env, *args);
+    napi_value argv[] = { jsArgs };
+    CallObjectMethod("onStart", argv, ArraySize(argv));
 }
 
 napi_value JsChildProcess::CallObjectMethod(const char *name, napi_value const *argv, size_t argc)

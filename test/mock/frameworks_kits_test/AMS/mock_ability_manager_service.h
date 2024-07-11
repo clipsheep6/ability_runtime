@@ -53,8 +53,7 @@ public:
         const sptr<IRemoteObject>& callerToken,
         sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
-        int requestCode = -1,
-        bool isSendDialogResult = false) override;
+        int requestCode = -1) override;
     int StartAbilityAsCaller(
         const Want& want,
         const StartOptions& startOptions,

@@ -148,20 +148,42 @@ void AutoFillManager::UpdateCustomPopupUIExtension(uint32_t autoFillSessionId, c
     extensionCallback->UpdateCustomPopupUIExtension(viewData);
 }
 
+void AutoFillManager::CloseUIExtension(uint32_t autoFillSessionId)
+{
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    auto extensionCallback = GetAutoFillExtensionCallback(autoFillSessionId);
+    if (extensionCallback == nullptr) {
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Extension callback is nullptr.");
+        return;
+    }
+    extensionCallback->CloseUIExtension();
+}
+
 void AutoFillManager::BindModalUIExtensionCallback(
     const std::shared_ptr<AutoFillExtensionCallback> &extensionCallback, Ace::ModalUIExtensionCallbacks &callback)
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
-    callback.onResult = std::bind(
-        &AutoFillExtensionCallback::OnResult, extensionCallback, std::placeholders::_1, std::placeholders::_2);
-    callback.onRelease = std::bind(
-        &AutoFillExtensionCallback::OnRelease, extensionCallback, std::placeholders::_1);
-    callback.onError = std::bind(&AutoFillExtensionCallback::OnError,
-        extensionCallback, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-    callback.onReceive = std::bind(&AutoFillExtensionCallback::OnReceive, extensionCallback, std::placeholders::_1);
-    callback.onRemoteReady = std::bind(&AutoFillExtensionCallback::onRemoteReady,
-        extensionCallback, std::placeholders::_1);
-    callback.onDestroy = std::bind(&AutoFillExtensionCallback::onDestroy, extensionCallback);
+    callback.onResult = [extensionCallback](int32_t errCode, const AAFwk::Want& want) {
+        extensionCallback->OnResult(errCode, want);
+    };
+
+    callback.onRelease = [extensionCallback](int arg1) {
+        extensionCallback->OnRelease(arg1);
+    };
+
+    callback.onError = [extensionCallback](int32_t errCode, const std::string& name, const std::string& message) {
+        extensionCallback->OnError(errCode, name, message);
+    };
+
+    callback.onReceive = [extensionCallback](const AAFwk::WantParams &arg1) {
+        extensionCallback->OnReceive(arg1);
+    };
+
+    callback.onRemoteReady = [extensionCallback](const std::shared_ptr<Ace::ModalUIExtensionProxy> &arg1) {
+        extensionCallback->onRemoteReady(arg1);
+    };
+
+    callback.onDestroy = [extensionCallback]() { extensionCallback->onDestroy(); };
 }
 
 int32_t AutoFillManager::CreateAutoFillExtension(Ace::UIContent *uiContent,

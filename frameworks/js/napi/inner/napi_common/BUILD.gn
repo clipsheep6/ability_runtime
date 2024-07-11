@@ -28,6 +28,7 @@ ohos_shared_library("napi_common") {
   ]
 
   sources = [
+    "napi_common_child_process_param.cpp",
     "napi_common_configuration.cpp",
     "napi_common_execute_param.cpp",
     "napi_common_execute_result.cpp",
@@ -41,6 +42,7 @@ ohos_shared_library("napi_common") {
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/ability_manager:process_options",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/runtime:runtime",
   ]
 

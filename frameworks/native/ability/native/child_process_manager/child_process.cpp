@@ -40,5 +40,7 @@ bool ChildProcess::Init(const std::shared_ptr<ChildProcessStartInfo> &info)
 
 void ChildProcess::OnStart() {}
 
+void ChildProcess::OnStart(std::shared_ptr<AppExecFwk::ChildProcessArgs> args) {}
+
 }  // namespace AbilityRuntime
 }  // namespace OHOS

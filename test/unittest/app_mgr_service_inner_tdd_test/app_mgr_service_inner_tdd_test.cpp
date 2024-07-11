@@ -595,7 +595,7 @@ HWTEST_F(AppMgrServiceInnerTest, QueryExtensionSandBox_002, TestSize.Level0)
     DataGroupInfo dataGroupInfo;
     dataGroupInfo.dataGroupId = "test3";
     dataGroupInfoList.emplace_back(dataGroupInfo);
-    bool strictMode = false;
+    bool strictMode = true;
     appMgrServiceInner->QueryExtensionSandBox(moduleName, extensionName, bundleInfo, startMsg, dataGroupInfoList,
         strictMode);
     EXPECT_EQ(startMsg.dataGroupInfoList.size(), 0);

@@ -61,6 +61,8 @@ public:
      */
     ErrCode StartAbility(const Want &want, int requestCode, const AbilityStartSetting &abilityStartSetting) override;
 
+    ErrCode AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer);
+
     /**
      * @brief Destroys the current ability.
      *

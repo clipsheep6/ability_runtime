@@ -19,12 +19,45 @@
 #include "ability_command.h"
 #include "ability_tool_command.h"
 #include "hilog_wrapper.h"
+#include "xcollie/xcollie.h"
+#include "xcollie/xcollie_define.h"
 #ifdef A11Y_ENABLE
 #include "accessibility_ability_command.h"
 #endif // A11Y_ENABLE
+
+using namespace OHOS;
+constexpr uint32_t COMMAND_TIME_OUT = 60;
+
+class CommandTimer {
+public:
+    CommandTimer(const std::string &timerName, uint32_t timeout, const std::string &operation)
+    {
+        if (operation != "test") {
+            setTimer_ = true;
+            timerId_ = HiviewDFX::XCollie::GetInstance().SetTimer("ability::aa_command", timeout,
+                nullptr, nullptr, HiviewDFX::XCOLLIE_FLAG_LOG |  HiviewDFX::XCOLLIE_FLAG_RECOVERY);
+        }
+    }
+    ~CommandTimer()
+    {
+        if (setTimer_) {
+            HiviewDFX::XCollie::GetInstance().CancelTimer(timerId_);
+        }
+    }
+private:
+    bool setTimer_ = false;
+    int32_t timerId_ = 0;
+};
+
 int main(int argc, char* argv[])
 {
+    std::string operation;
+    if (argc > 1) {
+        operation = argv[1];
+    }
+
     if (strstr(argv[0], "aa") != nullptr) {
+        CommandTimer commandTimer("ability::aa_command", COMMAND_TIME_OUT, operation);
         OHOS::AAFwk::AbilityManagerShellCommand cmd(argc, argv);
         std::cout << cmd.ExecCommand();
     } else if (strstr(argv[0], "ability_tool") != nullptr) {

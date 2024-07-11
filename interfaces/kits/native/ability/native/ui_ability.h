@@ -25,10 +25,12 @@
 #include "configuration.h"
 #include "context.h"
 #include "continuation_handler_stage.h"
-#include "foundation/ability/ability_runtime/interfaces/kits/native/ability/ability_runtime/ability_context.h"
+#include "fa_ability_context.h"
 #include "iability_callback.h"
-#include "want.h"
 #include "resource_config_helper.h"
+
+#include "want.h"
+
 #ifdef SUPPORT_SCREEN
 #include "display_manager.h"
 #include "session_info.h"
@@ -590,6 +592,7 @@ protected:
     };
 
     void OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to);
+    void UpdateConfiguration(Rosen::DisplayId to, float density, int32_t width, int32_t height);
     virtual void DoOnForeground(const AAFwk::Want &want);
     sptr<Rosen::WindowOption> GetWindowOption(const AAFwk::Want &want);
     virtual void ContinuationRestore(const AAFwk::Want &want);

@@ -73,6 +73,8 @@ public:
 
     void UpdateCustomPopupUIExtension(uint32_t autoFillSessionId, const AbilityBase::ViewData &viewData);
 
+    void CloseUIExtension(uint32_t autoFillSessionId);
+
     void HandleTimeOut(uint32_t eventId);
     void SetTimeOutEvent(uint32_t eventId);
     void RemoveEvent(uint32_t eventId);

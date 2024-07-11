@@ -18,18 +18,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-RemoteRegisterServiceStub::RemoteRegisterServiceStub()
-{
-    requestFuncMap_[COMMAND_REGISTER] = &RemoteRegisterServiceStub::RegisterInner;
-    requestFuncMap_[COMMAND_UNREGISTER] = &RemoteRegisterServiceStub::UnregisterInner;
-    requestFuncMap_[COMMAND_UPDATE_CONNECT_STATUS] = &RemoteRegisterServiceStub::UpdateConnectStatusInner;
-    requestFuncMap_[COMMAND_SHOW_DEVICE_LIST] = &RemoteRegisterServiceStub::ShowDeviceListInner;
-}
+RemoteRegisterServiceStub::RemoteRegisterServiceStub() {}
 
-RemoteRegisterServiceStub::~RemoteRegisterServiceStub()
-{
-    requestFuncMap_.clear();
-}
+RemoteRegisterServiceStub::~RemoteRegisterServiceStub() {}
 
 int RemoteRegisterServiceStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -43,15 +34,16 @@ int RemoteRegisterServiceStub::OnRemoteRequest(
         TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s local descriptor is not equal to remote", __func__);
         return ERR_INVALID_STATE;
     }
-
-    auto itFunc = requestFuncMap_.find(code);
-    if (itFunc != requestFuncMap_.end()) {
-        auto requestFunc = itFunc->second;
-        if (requestFunc != nullptr) {
-            return (this->*requestFunc)(data, reply);
-        }
+    switch (code) {
+        case COMMAND_REGISTER:
+            return RegisterInner(data, reply);
+        case COMMAND_UNREGISTER:
+            return UnregisterInner(data, reply);
+        case COMMAND_UPDATE_CONNECT_STATUS:
+            return UpdateConnectStatusInner(data, reply);
+        case COMMAND_SHOW_DEVICE_LIST:
+            return ShowDeviceListInner(data, reply);
     }
-
     TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s Not found cmd, need check.", __func__);
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }

@@ -593,18 +593,7 @@ bool UIAbilityImpl::AbilityTransaction(const AAFwk::Want &want, const AAFwk::Lif
     bool ret = true;
     switch (targetState.state) {
         case AAFwk::ABILITY_STATE_INITIAL: {
-#ifdef SUPPORT_SCREEN
-            if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() &&
-                lifecycleState_ == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
-                Background();
-            }
-#endif
-            bool isAsyncCallback = false;
-            Stop(isAsyncCallback);
-            if (isAsyncCallback) {
-                // AbilityManagerService will be notified after async callback
-                ret = false;
-            }
+            HandleInitialState(ret);
             break;
         }
         case AAFwk::ABILITY_STATE_FOREGROUND_NEW: {
@@ -642,6 +631,22 @@ bool UIAbilityImpl::AbilityTransaction(const AAFwk::Want &want, const AAFwk::Lif
     }
     TAG_LOGD(AAFwkTag::UIABILITY, "End retVal is %{public}d.", static_cast<int>(ret));
     return ret;
+}
+
+void UIAbilityImpl::HandleInitialState(bool &ret)
+{
+#ifdef SUPPORT_SCREEN
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() &&
+        lifecycleState_ == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
+        Background();
+    }
+#endif
+    bool isAsyncCallback = false;
+    Stop(isAsyncCallback);
+    if (isAsyncCallback) {
+        // AbilityManagerService will be notified after async callback
+        ret = false;
+    }
 }
 
 #ifdef SUPPORT_SCREEN

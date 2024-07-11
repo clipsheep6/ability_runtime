@@ -14,8 +14,6 @@
  */
 #include "auto_fill_extension_callback.h"
 
-#include <atomic>
-
 #include "auto_fill_error.h"
 #include "auto_fill_manager.h"
 #include "auto_fill_manager_util.h"
@@ -96,7 +94,6 @@ void AutoFillExtensionCallback::OnError(int32_t errCode, const std::string &name
 void AutoFillExtensionCallback::HandleReloadInModal(const AAFwk::WantParams &wantParams)
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
-    isReloadInModal_ = true;
     SetModalUIExtensionProxy(nullptr);
 
     auto oldWindowType = autoFillWindowType_;
@@ -106,13 +103,14 @@ void AutoFillExtensionCallback::HandleReloadInModal(const AAFwk::WantParams &wan
         SendAutoFillFailed(resultCode);
     }
 
-    auto uiContent = Ace::UIContent::GetUIContent(instanceId_);
+    auto uiContent = GetUIContent();
     if (uiContent == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UI content is nullptr.");
         return;
     }
 
     if (oldWindowType == AutoFill::AutoFillWindowType::POPUP_WINDOW) {
+        isReloadInModal_ = true;
         uiContent->DestroyCustomPopupUIExtension(oldSessionId);
     } else {
         TAG_LOGW(AAFwkTag::AUTOFILLMGR, "Window type is not popup, the window can not be destroyed.");
@@ -122,7 +120,8 @@ void AutoFillExtensionCallback::HandleReloadInModal(const AAFwk::WantParams &wan
 int32_t AutoFillExtensionCallback::ReloadInModal(const AAFwk::WantParams &wantParams)
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
-    auto uiContent = Ace::UIContent::GetUIContent(instanceId_);
+    std::lock_guard<std::mutex> lock(closeMutex_);
+    auto uiContent = GetUIContent();
     if (uiContent == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Content is nullptr.");
         return AutoFill::AUTO_FILL_OBJECT_IS_NULL;
@@ -171,25 +170,27 @@ void AutoFillExtensionCallback::OnReceive(const AAFwk::WantParams &wantParams)
 void AutoFillExtensionCallback::UpdateCustomPopupConfig(const AAFwk::WantParams &wantParams)
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
-    Ace::CustomPopupUIExtensionConfig popupConfig;
+    AutoFill::AutoFillCustomConfig autoFillCustomConfig = autoFillCustomConfig_;
     if (wantParams.HasParam(WANT_PARAMS_UPDATE_POPUP_WIDTH) &&
         wantParams.HasParam(WANT_PARAMS_UPDATE_POPUP_HEIGHT)) {
-        Ace::PopupSize popupSize;
+        AutoFill::PopupSize popupSize;
         popupSize.width = wantParams.GetIntParam(WANT_PARAMS_UPDATE_POPUP_WIDTH, 0);
         popupSize.height = wantParams.GetIntParam(WANT_PARAMS_UPDATE_POPUP_HEIGHT, 0);
-        popupConfig.targetSize = popupSize;
+        autoFillCustomConfig.targetSize = popupSize;
     }
     if (wantParams.HasParam(WANT_PARAMS_UPDATE_POPUP_PLACEMENT)) {
-        popupConfig.placement =
-            static_cast<Ace::PopupPlacement>(wantParams.GetIntParam(WANT_PARAMS_UPDATE_POPUP_PLACEMENT, 0));
+        autoFillCustomConfig.placement =
+            static_cast<AutoFill::PopupPlacement>(wantParams.GetIntParam(WANT_PARAMS_UPDATE_POPUP_PLACEMENT, 0));
     }
-    Ace::CustomPopupUIExtensionConfig popupConfigToConvert;
-    AutoFillManagerUtil::ConvertToPopupUIExtensionConfig(autoFillCustomConfig_, popupConfigToConvert);
-    popupConfig.nodeId = sessionId_;
-    popupConfig.isFocusable = popupConfigToConvert.isFocusable;
-    popupConfig.isShowInSubWindow = popupConfigToConvert.isShowInSubWindow;
-    popupConfig.isEnableArrow = popupConfigToConvert.isEnableArrow;
-    auto uiContent = Ace::UIContent::GetUIContent(instanceId_);
+    {
+        std::lock_guard<std::mutex> lock(requestCallbackMutex_);
+        if (fillCallback_ != nullptr) {
+            fillCallback_->onPopupConfigWillUpdate(autoFillCustomConfig);
+        }
+    }
+    Ace::CustomPopupUIExtensionConfig popupConfig;
+    AutoFillManagerUtil::ConvertToPopupUIExtensionConfig(autoFillCustomConfig, popupConfig);
+    auto uiContent = GetUIContent();
     if (uiContent == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UIContent is nullptr.");
         return;
@@ -235,22 +236,10 @@ void AutoFillExtensionCallback::SetFillRequestCallback(const std::shared_ptr<IFi
     fillCallback_ = callback;
 }
 
-std::shared_ptr<IFillRequestCallback> AutoFillExtensionCallback::GetFillRequestCallback()
-{
-    std::lock_guard<std::mutex> lock(requestCallbackMutex_);
-    return fillCallback_;
-}
-
 void AutoFillExtensionCallback::SetSaveRequestCallback(const std::shared_ptr<ISaveRequestCallback> &callback)
 {
     std::lock_guard<std::mutex> lock(requestCallbackMutex_);
     saveCallback_ = callback;
-}
-
-std::shared_ptr<ISaveRequestCallback> AutoFillExtensionCallback::GetSaveRequestCallback()
-{
-    std::lock_guard<std::mutex> lock(requestCallbackMutex_);
-    return saveCallback_;
 }
 
 void AutoFillExtensionCallback::SetSessionId(int32_t sessionId)
@@ -260,12 +249,17 @@ void AutoFillExtensionCallback::SetSessionId(int32_t sessionId)
 
 void AutoFillExtensionCallback::SetInstanceId(int32_t instanceId)
 {
-    instanceId_ = instanceId;
+    instanceId_.store(instanceId);
 }
 
 int32_t AutoFillExtensionCallback::GetInstanceId()
 {
-    return instanceId_;
+    return instanceId_.load();
+}
+
+Ace::UIContent* AutoFillExtensionCallback::GetUIContent()
+{
+    return Ace::UIContent::GetUIContent(GetInstanceId());
 }
 
 void AutoFillExtensionCallback::SetWindowType(const AutoFill::AutoFillWindowType &autoFillWindowType)
@@ -345,19 +339,18 @@ void AutoFillExtensionCallback::UpdateCustomPopupUIExtension(const AbilityBase::
 void AutoFillExtensionCallback::SendAutoFillSuccess(const AAFwk::Want &want)
 {
     TAG_LOGI(AAFwkTag::AUTOFILLMGR, "Called.");
-    auto fillCallback = GetFillRequestCallback();
-    if (fillCallback != nullptr) {
+    std::lock_guard<std::mutex> lock(requestCallbackMutex_);
+    if (fillCallback_ != nullptr) {
         std::string dataStr = want.GetStringParam(WANT_PARAMS_VIEW_DATA_KEY);
         AbilityBase::ViewData viewData;
         viewData.FromJsonString(dataStr.c_str());
-        fillCallback->OnFillRequestSuccess(viewData);
-        SetFillRequestCallback(nullptr);
+        fillCallback_->OnFillRequestSuccess(viewData);
+        fillCallback_ = nullptr;
     }
 
-    auto saveCallback = GetSaveRequestCallback();
-    if (saveCallback != nullptr) {
-        saveCallback->OnSaveRequestSuccess();
-        SetSaveRequestCallback(nullptr);
+    if (saveCallback_ != nullptr) {
+        saveCallback_->OnSaveRequestSuccess();
+        saveCallback_ = nullptr;
     }
     AutoFillManager::GetInstance().RemoveAutoFillExtensionCallback(callbackId_);
 }
@@ -365,28 +358,32 @@ void AutoFillExtensionCallback::SendAutoFillSuccess(const AAFwk::Want &want)
 void AutoFillExtensionCallback::SendAutoFillFailed(int32_t errCode, const AAFwk::Want &want)
 {
     TAG_LOGI(AAFwkTag::AUTOFILLMGR, "Called.");
-    auto fillCallback = GetFillRequestCallback();
-    if (fillCallback != nullptr) {
+    std::lock_guard<std::mutex> lock(requestCallbackMutex_);
+    if (fillCallback_ != nullptr) {
         std::string fillContent = want.GetStringParam(WANT_PARAMS_FILL_CONTENT);
         bool isPopup = (autoFillWindowType_ == AutoFill::AutoFillWindowType::POPUP_WINDOW);
-        fillCallback->OnFillRequestFailed(errCode, fillContent, isPopup);
-        SetFillRequestCallback(nullptr);
+        fillCallback_->OnFillRequestFailed(errCode, fillContent, isPopup);
+        fillCallback_ = nullptr;
     }
 
-    auto saveCallback = GetSaveRequestCallback();
-    if (saveCallback != nullptr) {
-        saveCallback->OnSaveRequestFailed();
-        SetSaveRequestCallback(nullptr);
+    if (saveCallback_ != nullptr) {
+        saveCallback_->OnSaveRequestFailed();
+        saveCallback_ = nullptr;
     }
     AutoFillManager::GetInstance().RemoveAutoFillExtensionCallback(callbackId_);
 }
 
 void AutoFillExtensionCallback::CloseUIExtension()
 {
-    auto uiContent = Ace::UIContent::GetUIContent(instanceId_);
-    if (uiContent == nullptr) {
-        TAG_LOGD(AAFwkTag::AUTOFILLMGR, "uiContent is nullptr.");
-        return;
+    Ace::UIContent* uiContent = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(closeMutex_);
+        uiContent = GetUIContent();
+        if (uiContent == nullptr) {
+            TAG_LOGD(AAFwkTag::AUTOFILLMGR, "uiContent is nullptr.");
+            return;
+        }
+        SetInstanceId(-1);
     }
 
     if (autoFillWindowType_ == AutoFill::AutoFillWindowType::POPUP_WINDOW) {
@@ -395,7 +392,6 @@ void AutoFillExtensionCallback::CloseUIExtension()
         uiContent->CloseModalUIExtension(sessionId_);
     }
     SetModalUIExtensionProxy(nullptr);
-    instanceId_ = -1;
 }
 #endif // SUPPORT_GRAPHICS
 } // namespace AbilityRuntime

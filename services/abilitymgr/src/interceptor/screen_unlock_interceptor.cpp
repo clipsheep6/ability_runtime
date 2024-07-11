@@ -20,6 +20,10 @@
 #include "hilog_tag_wrapper.h"
 #include "parameters.h"
 #include "start_ability_utils.h"
+#ifdef SUPPORT_SCREEN
+#include "screenlock_manager.h"
+#include "screenlock_common.h"
+#endif
 
 namespace OHOS {
 namespace AAFwk {
@@ -41,14 +45,14 @@ ErrCode ScreenUnlockInterceptor::DoProcess(AbilityInterceptorParam param)
     } else {
         auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
         if (bundleMgrHelper == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "The bundleMgrHelper is nullptr.");
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "The bundleMgrHelper is nullptr.");
             return ERR_OK;
         }
         IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->QueryAbilityInfo(param.want,
             AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, param.userId, targetAbilityInfo));
         if (targetAbilityInfo.applicationInfo.name.empty() ||
             targetAbilityInfo.applicationInfo.bundleName.empty()) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "Cannot find targetAbilityInfo, element uri: %{public}s",
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Cannot find targetAbilityInfo, element uri: %{public}s",
                 param.want.GetElement().GetURI().c_str());
             return ERR_OK;
         }
@@ -59,6 +63,11 @@ ErrCode ScreenUnlockInterceptor::DoProcess(AbilityInterceptorParam param)
         targetAbilityInfo.applicationInfo.allowAppRunWhenDeviceFirstLocked) {
         return ERR_OK;
     }
+#ifdef SUPPORT_SCREEN
+    if (OHOS::ScreenLock::ScreenLockManager::GetInstance()->IsScreenLocked()) {
+        return ERR_OK;
+    }
+#endif
     TAG_LOGE(AAFwkTag::ABILITYMGR, "Can not startup when device first locked.");
     return ERR_BLOCK_START_FIRST_BOOT_SCREEN_UNLOCK;
 }

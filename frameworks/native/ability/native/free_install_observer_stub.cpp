@@ -39,6 +39,16 @@ int FreeInstallObserverStub::OnInstallFinishedInner(MessageParcel &data, Message
     return NO_ERROR;
 }
 
+int FreeInstallObserverStub::OnInstallFinishedByUrlInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::string startTime = data.ReadString();
+    std::string url = data.ReadString();
+    int resultCode = data.ReadInt32();
+
+    OnInstallFinishedByUrl(startTime, url, resultCode);
+    return NO_ERROR;
+}
+
 int FreeInstallObserverStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -49,8 +59,11 @@ int FreeInstallObserverStub::OnRemoteRequest(
         return ERR_INVALID_STATE;
     }
 
-    if (code == IFreeInstallObserver::ON_INSTALL_FINISHED) {
-        return OnInstallFinishedInner(data, reply);
+    switch (code) {
+        case IFreeInstallObserver::ON_INSTALL_FINISHED:
+            return OnInstallFinishedInner(data, reply);
+        case IFreeInstallObserver::ON_INSTALL_FINISHED_BY_URL:
+            return OnInstallFinishedByUrlInner(data, reply);
     }
 
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

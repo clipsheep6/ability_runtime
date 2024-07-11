@@ -50,7 +50,7 @@ AppSpawnClient::AppSpawnClient(bool isNWebSpawn)
 
 AppSpawnClient::AppSpawnClient(const char* serviceName)
 {
-    HILOG_DEBUG("AppspawnCreateClient");
+    TAG_LOGD(AAFwkTag::APPMGR, "AppspawnCreateClient");
     std::string serviceName__ = serviceName;
     if (serviceName__ == APPSPAWN_SERVER_NAME) {
         serviceName_ = APPSPAWN_SERVER_NAME;
@@ -59,7 +59,7 @@ AppSpawnClient::AppSpawnClient(const char* serviceName)
     } else if (serviceName__ == NWEBSPAWN_SERVER_NAME) {
         serviceName_ = NWEBSPAWN_SERVER_NAME;
     } else {
-        HILOG_ERROR("unknown service name");
+        TAG_LOGE(AAFwkTag::APPMGR, "unknown service name");
         serviceName_ = NWEBSPAWN_SERVER_NAME;
     }
     state_ = SpawnConnectionState::STATE_NOT_CONNECT;
@@ -235,7 +235,11 @@ int32_t AppSpawnClient::SetStartFlags(const AppSpawnStartMsg &startMsg, AppSpawn
             return ret;
         }
     }
-
+    ret = SetChildProcessTypeStartFlag(reqHandle, startMsg.childProcessType);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Set childProcessType flag failed, ret: %{public}d", ret);
+        return ret;
+    }
     return ret;
 }
 
@@ -332,6 +336,14 @@ int32_t AppSpawnClient::AppspawnSetExtMsgMore(const AppSpawnStartMsg &startMsg, 
         return ret;
     }
     TAG_LOGI(AAFwkTag::APPMGR, "Send maxChildProcess %{public}s success.", maxChildProcessStr.c_str());
+
+    if (!startMsg.fds.empty()) {
+        ret = SetExtMsgFds(reqHandle, startMsg.fds);
+        if (ret != ERR_OK) {
+            TAG_LOGE(AAFwkTag::APPMGR, "SetExtMsgFds failed, ret: %{public}d", ret);
+            return ret;
+        }
+    }
 
     return ret;
 }
@@ -528,5 +540,30 @@ int32_t AppSpawnClient::GetRenderProcessTerminationStatus(const AppSpawnStartMsg
     return ret;
 }
 
+int32_t AppSpawnClient::SetChildProcessTypeStartFlag(const AppSpawnReqMsgHandle &reqHandle,
+    int32_t childProcessType)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "SetChildProcessTypeStartFlag, type:%{public}d", childProcessType);
+    if (childProcessType != CHILD_PROCESS_TYPE_NOT_CHILD) {
+        return AppSpawnReqMsgSetAppFlag(reqHandle, APP_FLAGS_CHILDPROCESS);
+    }
+    return ERR_OK;
+}
+
+int32_t AppSpawnClient::SetExtMsgFds(const AppSpawnReqMsgHandle &reqHandle,
+    const std::map<std::string, int32_t> &fds)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "SetExtMsgFds, fds size:%{public}zu", fds.size());
+    int32_t ret = ERR_OK;
+    for (const auto &item : fds) {
+        ret = AppSpawnReqMsgAddFd(reqHandle, item.first.c_str(), item.second);
+        if (ret != ERR_OK) {
+            TAG_LOGE(AAFwkTag::APPMGR, "AppSpawnReqMsgAddFd failed, key:%{public}s, fd:%{public}d, ret:%{public}d",
+                item.first.c_str(), item.second, ret);
+            return ret;
+        }
+    }
+    return ERR_OK;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

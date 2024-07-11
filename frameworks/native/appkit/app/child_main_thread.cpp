@@ -30,6 +30,7 @@ using namespace OHOS::AbilityBase::Constants;
 using OHOS::AbilityRuntime::ChildProcessManager;
 ChildMainThread::ChildMainThread()
 {
+    processArgs_ = std::make_shared<ChildProcessArgs>();
     TAG_LOGD(AAFwkTag::APPKIT, "ChildMainThread constructor called");
 }
 
@@ -38,14 +39,22 @@ ChildMainThread::~ChildMainThread()
     TAG_LOGD(AAFwkTag::APPKIT, "ChildMainThread deconstructor called");
 }
 
-void ChildMainThread::Start(const ChildProcessInfo &processInfo)
+void ChildMainThread::Start(const std::map<std::string, int32_t> &fds)
 {
     TAG_LOGI(AAFwkTag::APPKIT, "ChildMainThread start.");
+    ChildProcessInfo processInfo;
+    auto ret = GetChildProcessInfo(processInfo);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::APPKIT, "GetChildProcessInfo failed, ret:%{public}d.", ret);
+        return;
+    }
+
     sptr<ChildMainThread> thread = sptr<ChildMainThread>(new (std::nothrow) ChildMainThread());
     if (thread == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "New ChildMainThread failed.");
         return;
     }
+    thread->SetFds(fds);
     std::shared_ptr<EventRunner> runner = EventRunner::GetMainEventRunner();
     if (runner == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "runner is null.");
@@ -60,12 +69,37 @@ void ChildMainThread::Start(const ChildProcessInfo &processInfo)
         return;
     }
 
-    auto ret = runner->Run();
+    ret = runner->Run();
     if (ret != ERR_OK) {
         TAG_LOGE(AAFwkTag::APPKIT, "ChildMainThread runner->Run failed ret = %{public}d", ret);
     }
 
     TAG_LOGD(AAFwkTag::APPKIT, "ChildMainThread end.");
+}
+
+int32_t ChildMainThread::GetChildProcessInfo(ChildProcessInfo &info)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "GetChildProcessInfo called.");
+    auto object = OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(APP_MGR_SERVICE_ID);
+    if (object == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "failed to get app manager service");
+        return ERR_INVALID_VALUE;
+    }
+    auto appMgr = iface_cast<IAppMgr>(object);
+    if (appMgr == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "failed to iface_cast object to appMgr");
+        return ERR_INVALID_VALUE;
+    }
+    return appMgr->GetChildProcessInfoForSelf(info);
+}
+
+void ChildMainThread::SetFds(const std::map<std::string, int32_t> &fds)
+{
+    if (!processArgs_) {
+        TAG_LOGE(AAFwkTag::APPKIT, "processArgs_ is nullptr.");
+        return;
+    }
+    processArgs_->fds = fds;
 }
 
 bool ChildMainThread::Init(const std::shared_ptr<EventRunner> &runner, const ChildProcessInfo &processInfo)
@@ -116,14 +150,23 @@ bool ChildMainThread::ScheduleLoadJs()
         TAG_LOGE(AAFwkTag::APPKIT, "mainHandler_ is null");
         return false;
     }
+    if (!processInfo_) {
+        TAG_LOGE(AAFwkTag::APPKIT, "processInfo is nullptr.");
+        return false;
+    }
+    auto childProcessType = processInfo_->childProcessType;
     wptr<ChildMainThread> weak = this;
-    auto task = [weak]() {
+    auto task = [weak, childProcessType]() {
         auto childMainThread = weak.promote();
         if (childMainThread == nullptr) {
             TAG_LOGE(AAFwkTag::APPKIT, "childMainThread is nullptr, ScheduleLoadJs failed.");
             return;
         }
-        childMainThread->HandleLoadJs();
+        if (childProcessType == CHILD_PROCESS_TYPE_ARK) {
+            childMainThread->HandleLoadArkTs();
+        } else {
+            childMainThread->HandleLoadJs();
+        }
     };
     if (!mainHandler_->PostTask(task, "ChildMainThread::HandleLoadJs")) {
         TAG_LOGE(AAFwkTag::APPKIT, "ChildMainThread::ScheduleLoadJs PostTask task failed.");
@@ -134,7 +177,7 @@ bool ChildMainThread::ScheduleLoadJs()
 
 void ChildMainThread::HandleLoadJs()
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "HandleLoadJs called.");
     if (!processInfo_ || !bundleInfo_) {
         TAG_LOGE(AAFwkTag::APPKIT, "processInfo or bundleInfo_ is null.");
         return;
@@ -142,8 +185,8 @@ void ChildMainThread::HandleLoadJs()
     ChildProcessManager &childProcessManager = ChildProcessManager::GetInstance();
     HapModuleInfo hapModuleInfo;
     BundleInfo bundleInfoCopy = *bundleInfo_;
-    if (!childProcessManager.GetHapModuleInfo(bundleInfoCopy, hapModuleInfo)) {
-        TAG_LOGE(AAFwkTag::APPKIT, "GetHapModuleInfo failed.");
+    if (!childProcessManager.GetEntryHapModuleInfo(bundleInfoCopy, hapModuleInfo)) {
+        TAG_LOGE(AAFwkTag::APPKIT, "GetEntryHapModuleInfo failed.");
         return;
     }
 
@@ -153,17 +196,57 @@ void ChildMainThread::HandleLoadJs()
         return;
     }
     AbilityRuntime::Runtime::DebugOption debugOption;
-    debugOption.isStartWithDebug = processInfo_->isStartWithDebug;
-    debugOption.processName = processInfo_->processName;
-    debugOption.isDebugApp = processInfo_->isDebugApp;
-    debugOption.isStartWithNative = processInfo_->isStartWithNative;
+    childProcessManager.SetAppSpawnForkDebugOption(debugOption, processInfo_);
     TAG_LOGD(AAFwkTag::APPKIT, "StartDebugMode, isStartWithDebug is %{public}d, processName is %{public}s, "
         "isDebugApp is %{public}d, isStartWithNative is %{public}d.", processInfo_->isStartWithDebug,
         processInfo_->processName.c_str(), processInfo_->isDebugApp, processInfo_->isStartWithNative);
     runtime_->StartDebugMode(debugOption);
-    childProcessManager.LoadJsFile(processInfo_->srcEntry, hapModuleInfo, runtime_);
+    std::string srcPath;
+    srcPath.append(hapModuleInfo.moduleName).append("/").append(processInfo_->srcEntry);
+    childProcessManager.LoadJsFile(srcPath, hapModuleInfo, runtime_);
     TAG_LOGD(AAFwkTag::APPKIT, "ChildMainThread::HandleLoadJs end.");
     ExitProcessSafely();
+}
+
+void ChildMainThread::HandleLoadArkTs()
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "HandleLoadArkTs called.");
+    if (!processInfo_ || !bundleInfo_) {
+        TAG_LOGE(AAFwkTag::APPKIT, "processInfo or bundleInfo_ is null.");
+        return;
+    }
+    if (!processArgs_) {
+        TAG_LOGE(AAFwkTag::APPKIT, "processArgs_ is nullptr.");
+        return;
+    }
+    auto &srcEntry = processInfo_->srcEntry;
+    ChildProcessManager &childProcessManager = ChildProcessManager::GetInstance();
+    std::string moduleName = childProcessManager.GetModuleNameFromSrcEntry(srcEntry);
+    if (moduleName.empty()) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Can't find module name from srcEntry, srcEntry is %{private}s.", srcEntry.c_str());
+        return;
+    }
+    HapModuleInfo hapModuleInfo;
+    if (!childProcessManager.GetHapModuleInfo(*bundleInfo_, moduleName, hapModuleInfo)) {
+        TAG_LOGE(AAFwkTag::APPKIT, "GetHapModuleInfo failed, can't find module:%{public}s.", moduleName.c_str());
+        return;
+    }
+
+    runtime_ = childProcessManager.CreateRuntime(*bundleInfo_, hapModuleInfo, true, processInfo_->jitEnabled);
+    if (!runtime_) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Failed to create child process runtime");
+        return;
+    }
+    AbilityRuntime::Runtime::DebugOption debugOption;
+    childProcessManager.SetAppSpawnForkDebugOption(debugOption, processInfo_);
+    TAG_LOGD(AAFwkTag::APPKIT, "StartDebugMode, isStartWithDebug is %{public}d, processName is %{public}s, "
+        "isDebugApp is %{public}d, isStartWithNative is %{public}d.", processInfo_->isStartWithDebug,
+        processInfo_->processName.c_str(), processInfo_->isDebugApp, processInfo_->isStartWithNative);
+    runtime_->StartDebugMode(debugOption);
+
+    processArgs_->entryParams = processInfo_->entryParams;
+    childProcessManager.LoadJsFile(srcEntry, hapModuleInfo, runtime_, processArgs_);
+    TAG_LOGD(AAFwkTag::APPKIT, "HandleLoadArkTs end.");
 }
 
 void ChildMainThread::InitNativeLib(const BundleInfo &bundleInfo)
@@ -173,7 +256,7 @@ void ChildMainThread::InitNativeLib(const BundleInfo &bundleInfo)
     bool isSystemApp = bundleInfo.applicationInfo.isSystemApp;
     TAG_LOGD(AAFwkTag::APPKIT, "the application isSystemApp: %{public}d", isSystemApp);
 
-    if (processInfo_->processType != CHILD_PROCESS_TYPE_NATIVE) {
+    if (processInfo_->childProcessType != CHILD_PROCESS_TYPE_NATIVE) {
         AbilityRuntime::JsRuntime::SetAppLibPath(appLibPaths, isSystemApp);
     } else {
         UpdateNativeChildLibModuleName(appLibPaths, isSystemApp);

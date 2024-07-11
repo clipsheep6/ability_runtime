@@ -1091,7 +1091,7 @@ bool AmsMgrProxy::IsMemorySizeSufficent()
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return true;
     }
 
@@ -1099,7 +1099,7 @@ bool AmsMgrProxy::IsMemorySizeSufficent()
     MessageOption option(MessageOption::TF_SYNC);
     auto ret = SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::IS_MEMORY_SIZE_SUFFICIENT), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed, error code is %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request failed, error code is %{public}d.", ret);
         return true;
     }
     return reply.ReadBool();

@@ -1338,7 +1338,7 @@ ErrCode AbilityManagerClient::GetDialogSessionInfo(const std::string dialogSessi
     return abms->GetDialogSessionInfo(dialogSessionId, info);
 }
 
-ErrCode AbilityManagerClient::SendDialogResult(const Want &want, const std::string dialogSessionId, const bool isAllow)
+ErrCode AbilityManagerClient::SendDialogResult(const Want &want, const std::string &dialogSessionId, const bool isAllow)
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
@@ -1513,12 +1513,13 @@ void AbilityManagerClient::HandleDlpApp(Want &want)
 #endif // WITH_DLP
 }
 
-ErrCode AbilityManagerClient::AddFreeInstallObserver(sptr<AbilityRuntime::IFreeInstallObserver> observer)
+ErrCode AbilityManagerClient::AddFreeInstallObserver(const sptr<IRemoteObject> callerToken,
+    const sptr<AbilityRuntime::IFreeInstallObserver> observer)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->AddFreeInstallObserver(observer);
+    return abms->AddFreeInstallObserver(callerToken, observer);
 }
 
 int32_t AbilityManagerClient::IsValidMissionIds(
@@ -1928,6 +1929,14 @@ ErrCode AbilityManagerClient::PreStartMission(const std::string& bundleName, con
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->PreStartMission(bundleName, moduleName, abilityName, startTime);
+}
+
+ErrCode AbilityManagerClient::OpenLink(const Want& want, sptr<IRemoteObject> callerToken,
+    int32_t userId, int requestCode)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_INVALID_VALUE(abms);
+    return abms->OpenLink(want, callerToken, userId, requestCode);
 }
 } // namespace AAFwk
 } // namespace OHOS

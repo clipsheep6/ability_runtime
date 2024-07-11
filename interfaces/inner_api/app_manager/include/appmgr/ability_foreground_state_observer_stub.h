@@ -35,9 +35,6 @@ public:
 private:
     int32_t HandleOnAbilityStateChanged(MessageParcel &data, MessageParcel &reply);
 
-    using AbilityForegroundStateObserverFunc = int32_t (AbilityForegroundStateObserverStub::*)(
-        MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, AbilityForegroundStateObserverFunc> memberFuncMap_;
     static std::mutex callbackMutex_;
 
     DISALLOW_COPY_AND_MOVE(AbilityForegroundStateObserverStub);

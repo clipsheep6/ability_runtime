@@ -56,6 +56,7 @@ enum class AAFwkLogTag : uint32_t {
     FA,
     INTENT,
     JSNAPI,
+    CJRUNTIME,
 
     DELEGATOR = DEFAULT + 0x30, // 0xD001330
     CONTEXT,
@@ -63,7 +64,6 @@ enum class AAFwkLogTag : uint32_t {
     WANT,
     MISSION,
     CONNECTION,
-    ATOMIC_SERVICE,
     ABILITYMGR,
     ECOLOGICAL_RULE,
     DATA_ABILITY,
@@ -76,6 +76,7 @@ enum class AAFwkLogTag : uint32_t {
     UI_EXT,
     ACTION_EXT,
     EMBEDDED_EXT,
+    UISERVC_EXT,
 
     WANTAGENT = DEFAULT + 0x50, // 0xD001350
     AUTOFILLMGR,
@@ -144,7 +145,7 @@ inline const char* GetDomainName3(AAFwkLogTag tag)
 inline const char* GetDomainName4(AAFwkLogTag tag)
 {
     const char* tagNames[] = { "AAFwkExt", "AAFwkAutoFillExt", "AAFwkServiceExt", "AAFwkFormExt", "AAFwkShareExt",
-        "AAFwkUIExt", "AAFwkActionExt", "AAFwkEmbeddedExt" };
+        "AAFwkUIExt", "AAFwkActionExt", "AAFwkEmbeddedExt", "AAFwkUIServiceExt" };
     uint32_t offset = GetOffset(tag, AAFwkLogTag::EXT);
     if (offset >= sizeof(tagNames) / sizeof(const char*)) {
         return "AAFwkUN";

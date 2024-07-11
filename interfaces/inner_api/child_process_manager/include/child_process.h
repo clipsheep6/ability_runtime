@@ -18,6 +18,7 @@
 
 #include <memory>
 
+#include "child_process_args.h"
 #include "child_process_start_info.h"
 #include "runtime.h"
 
@@ -32,6 +33,7 @@ public:
     
     virtual bool Init(const std::shared_ptr<ChildProcessStartInfo> &info);
     virtual void OnStart();
+    virtual void OnStart(std::shared_ptr<AppExecFwk::ChildProcessArgs> args);
 
 protected:
     std::shared_ptr<ChildProcessStartInfo> processStartInfo_ = nullptr;

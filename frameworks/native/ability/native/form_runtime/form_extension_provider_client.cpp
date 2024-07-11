@@ -35,7 +35,7 @@ using namespace OHOS::AppExecFwk;
 int FormExtensionProviderClient::AcquireProviderFormInfo(const AppExecFwk::FormJsInfo &formJsInfo, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    TAG_LOGI(AAFwkTag::FORM_EXT, "called.");
+    TAG_LOGI(AAFwkTag::FORM_EXT, "formId:%{public}" PRId64, formJsInfo.formId);
     sptr<IFormSupply> formSupplyClient = iface_cast<IFormSupply>(callerToken);
     if (formSupplyClient == nullptr) {
         TAG_LOGE(AAFwkTag::FORM_EXT, "IFormSupply is nullptr.");

@@ -2940,23 +2940,23 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyAppMgrRecordExitReason_001, TestSize.Leve
 }
 
 /**
- * @tc.name: VerifyProcessPermission_001
+ * @tc.name: VerifyKillProcessPermission_001
  * @tc.desc: verify process permission.
  * @tc.type: FUNC
  * @tc.require: issueI5W4S7
  */
-HWTEST_F(AppMgrServiceInnerTest, VerifyProcessPermission_001, TestSize.Level0)
+HWTEST_F(AppMgrServiceInnerTest, VerifyKillProcessPermission_001, TestSize.Level0)
 {
-    TAG_LOGI(AAFwkTag::TEST, "VerifyProcessPermission_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "VerifyKillProcessPermission_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
-    appMgrServiceInner->VerifyProcessPermission("");
+    appMgrServiceInner->VerifyKillProcessPermission("");
 
     appMgrServiceInner->appRunningManager_ = nullptr;
-    appMgrServiceInner->VerifyProcessPermission("");
+    appMgrServiceInner->VerifyKillProcessPermission("");
 
-    TAG_LOGI(AAFwkTag::TEST, "VerifyProcessPermission_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "VerifyKillProcessPermission_001 end");
 }
 
 /**

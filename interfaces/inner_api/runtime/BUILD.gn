@@ -127,8 +127,6 @@ ohos_shared_library("runtime") {
         [ "${ability_runtime_path}/cj_environment/interfaces/inner_api" ]
 
     defines += [ "CJ_FRONTEND" ]
-
-    deps += [ "${ability_runtime_path}/cj_environment/frameworks/cj_environment:cj_environment" ]
   }
 
   if (is_standard_system) {

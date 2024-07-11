@@ -35,6 +35,7 @@ public:
 private:
     DISALLOW_COPY_AND_MOVE(FreeInstallObserverStub);
     int OnInstallFinishedInner(MessageParcel &data, MessageParcel &reply);
+    int OnInstallFinishedByUrlInner(MessageParcel &data, MessageParcel &reply);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

@@ -24,7 +24,7 @@
 #include "ability_event_handler.h"
 #include "cpp/mutex.h"
 #include "data_ability_manager.h"
-#include "mission_list_manager.h"
+#include "mission_list_manager_interface.h"
 #include "nocopyable.h"
 #include "pending_want_manager.h"
 #include "scene_board/ui_ability_lifecycle_manager.h"
@@ -32,10 +32,11 @@
 
 namespace OHOS {
 namespace AAFwk {
+using CreateMissionListMgrFunc = MissionListWrap*(*)();
 class SubManagersHelper {
 public:
     SubManagersHelper(std::shared_ptr<TaskHandlerWrap> taskHandler, std::shared_ptr<AbilityEventHandler> eventHandler);
-    virtual ~SubManagersHelper() = default;
+    virtual ~SubManagersHelper();
 
     void InitSubManagers(int userId, bool switchUser);
     void InitMissionListManager(int userId, bool switchUser);
@@ -59,10 +60,10 @@ public:
     std::shared_ptr<PendingWantManager> GetCurrentPendingWantManager();
     std::shared_ptr<PendingWantManager> GetPendingWantManagerByUserId(int32_t userId);
 
-    std::unordered_map<int, std::shared_ptr<MissionListManager>> GetMissionListManagers();
-    std::shared_ptr<MissionListManager> GetCurrentMissionListManager();
-    std::shared_ptr<MissionListManager> GetMissionListManagerByUserId(int32_t userId);
-    std::shared_ptr<MissionListManager> GetMissionListManagerByUid(int32_t uid);
+    std::unordered_map<int, std::shared_ptr<MissionListManagerInterface>> GetMissionListManagers();
+    std::shared_ptr<MissionListManagerInterface> GetCurrentMissionListManager();
+    std::shared_ptr<MissionListManagerInterface> GetMissionListManagerByUserId(int32_t userId);
+    std::shared_ptr<MissionListManagerInterface> GetMissionListManagerByUid(int32_t uid);
 
     std::unordered_map<int, std::shared_ptr<UIAbilityLifecycleManager>> GetUIAbilityManagers();
     std::shared_ptr<UIAbilityLifecycleManager> GetCurrentUIAbilityManager();
@@ -75,6 +76,8 @@ public:
     bool VerificationAllToken(const sptr<IRemoteObject> &token);
     bool VerificationAllTokenForConnectManagers(const sptr<IRemoteObject> &token);
 
+    std::shared_ptr<MissionListWrap> GetMissionListWrap();
+    std::shared_ptr<MissionListManagerInterface> CreateMissionListMgr(int32_t userId);
 private:
     DISALLOW_COPY_AND_MOVE(SubManagersHelper);
 
@@ -88,10 +91,14 @@ private:
     std::shared_ptr<DataAbilityManager> currentDataAbilityManager_;
     std::unordered_map<int, std::shared_ptr<PendingWantManager>> pendingWantManagers_;
     std::shared_ptr<PendingWantManager> currentPendingWantManager_;
-    std::unordered_map<int, std::shared_ptr<MissionListManager>> missionListManagers_;
-    std::shared_ptr<MissionListManager> currentMissionListManager_;
+    std::unordered_map<int, std::shared_ptr<MissionListManagerInterface>> missionListManagers_;
+    std::shared_ptr<MissionListManagerInterface> currentMissionListManager_;
     std::unordered_map<int, std::shared_ptr<UIAbilityLifecycleManager>> uiAbilityManagers_;
     std::shared_ptr<UIAbilityLifecycleManager> currentUIAbilityManager_;
+
+    std::mutex missionListWrapMutex_;
+    void* missionLibHandle_ = nullptr;
+    std::shared_ptr<MissionListWrap> missionListWrap_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

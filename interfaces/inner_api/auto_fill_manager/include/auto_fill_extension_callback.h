@@ -16,6 +16,8 @@
 #ifndef OHOS_ABILITY_RUNTIME_AUTO_FILL_EXTENSION_CALLBACK_H
 #define OHOS_ABILITY_RUNTIME_AUTO_FILL_EXTENSION_CALLBACK_H
 
+#include <atomic>
+
 #include "auto_fill_custom_config.h"
 #include "fill_request_callback_interface.h"
 #include "save_request_callback_interface.h"
@@ -60,25 +62,24 @@ public:
     uint32_t GetCallbackId() const;
     void HandleTimeOut();
     void UpdateCustomPopupUIExtension(const AbilityBase::ViewData &viewData);
+    void CloseUIExtension();
 
 private:
     void SendAutoFillSuccess(const AAFwk::Want &want);
     void SendAutoFillFailed(int32_t errCode, const AAFwk::Want &want = AAFwk::Want());
-    void CloseUIExtension();
     void HandleReloadInModal(const AAFwk::WantParams &wantParams);
     int32_t ReloadInModal(const AAFwk::WantParams &wantParams);
     void UpdateCustomPopupConfig(const AAFwk::WantParams &wantParams);
     void SetModalUIExtensionProxy(const std::shared_ptr<Ace::ModalUIExtensionProxy>& proxy);
     std::shared_ptr<Ace::ModalUIExtensionProxy> GetModalUIExtensionProxy();
-    std::shared_ptr<IFillRequestCallback> GetFillRequestCallback();
-    std::shared_ptr<ISaveRequestCallback> GetSaveRequestCallback();
     uint32_t GenerateCallbackId();
+    Ace::UIContent* GetUIContent();
 
     std::mutex requestCallbackMutex_;
     std::shared_ptr<IFillRequestCallback> fillCallback_;
     std::shared_ptr<ISaveRequestCallback> saveCallback_;
-    int32_t sessionId_;
-    int32_t instanceId_ = -1;
+    int32_t sessionId_ = -1;
+    std::atomic<int32_t> instanceId_ {-1};
     uint32_t callbackId_ = 0;
     AutoFill::AutoFillWindowType autoFillWindowType_ = AutoFill::AutoFillWindowType::MODAL_WINDOW;
     AbilityBase::ViewData viewData_;
@@ -91,6 +92,7 @@ private:
     AbilityBase::AutoFillType autoFillType_ = AbilityBase::AutoFillType::UNSPECIFIED;
     std::mutex proxyMutex_;
     std::shared_ptr<Ace::ModalUIExtensionProxy> modalUIExtensionProxy_;
+    std::mutex closeMutex_;
 };
 #endif // SUPPORT_GRAPHICS
 } // AbilityRuntime

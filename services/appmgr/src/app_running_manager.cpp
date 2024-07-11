@@ -50,6 +50,7 @@ namespace {
 using EventFwk::CommonEventSupport;
 
 AppRunningManager::AppRunningManager()
+    : configuration_(std::make_shared<Configuration>())
 {}
 AppRunningManager::~AppRunningManager()
 {}
@@ -85,8 +86,14 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CreateAppRunningRecord(
     appRecord->SetSingleton(bundleInfo.singleton);
     appRecord->SetSignCode(signCode);
     appRecord->SetJointUserId(bundleInfo.jointUserId);
-    std::lock_guard guard(runningRecordMapMutex_);
-    appRunningRecordMap_.emplace(recordId, appRecord);
+    {
+        std::lock_guard guard(runningRecordMapMutex_);
+        appRunningRecordMap_.emplace(recordId, appRecord);
+    }
+    {
+        std::lock_guard guard(updateConfigurationDelayedLock_);
+        updateConfigurationDelayedMap_.emplace(recordId, false);
+    }
     return appRecord;
 }
 
@@ -354,6 +361,10 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRe
         appRunningRecordMap_.erase(iter);
     }
     if (appRecord != nullptr) {
+        {
+            std::lock_guard guard(updateConfigurationDelayedLock_);
+            updateConfigurationDelayedMap_.erase(appRecord->GetRecordId());
+        }
         appRecord->RemoveAppDeathRecipient();
         appRecord->SetApplicationClient(nullptr);
         TAG_LOGI(AAFwkTag::APPMGR, "processName: %{public}s.", appRecord->GetProcessName().c_str());
@@ -388,6 +399,10 @@ void AppRunningManager::RemoveAppRunningRecordById(const int32_t recordId)
             appRecord = it->second;
             appRunningRecordMap_.erase(it);
         }
+    }
+    {
+        std::lock_guard guard(updateConfigurationDelayedLock_);
+        updateConfigurationDelayedMap_.erase(recordId);
     }
 
     if (appRecord != nullptr && appRecord->GetPriorityObject() != nullptr) {
@@ -729,6 +744,12 @@ void AppRunningManager::HandleStartSpecifiedAbilityTimeOut(const int64_t eventId
 int32_t AppRunningManager::UpdateConfiguration(const Configuration &config)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    std::vector<std::string> changeKeyV;
+    configuration_->CompareDifferent(changeKeyV, config);
+    if (!changeKeyV.empty()) {
+        configuration_->Merge(changeKeyV, config);
+    }
+
     auto appRunningMap = GetAppRunningRecordMap();
     TAG_LOGD(AAFwkTag::APPMGR, "current app size %{public}zu", appRunningMap.size());
     int32_t result = ERR_OK;
@@ -740,7 +761,13 @@ int32_t AppRunningManager::UpdateConfiguration(const Configuration &config)
         }
         if (appRecord && !isCollaboratorReserveType(appRecord)) {
             TAG_LOGD(AAFwkTag::APPMGR, "Notification app [%{public}s]", appRecord->GetName().c_str());
-            result = appRecord->UpdateConfiguration(config);
+            std::lock_guard guard(updateConfigurationDelayedLock_);
+            if (appRecord->GetState() != ApplicationState::APP_STATE_BACKGROUND) {
+                updateConfigurationDelayedMap_[appRecord->GetRecordId()] = false;
+                result = appRecord->UpdateConfiguration(config);
+            } else {
+                updateConfigurationDelayedMap_[appRecord->GetRecordId()] = true;
+            }
         }
     }
     return result;
@@ -886,6 +913,21 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByRender
         return false;
     });
     return ((iter == appRunningRecordMap_.end()) ? nullptr : iter->second);
+}
+
+bool AppRunningManager::CheckCallerIsRenderHost(pid_t callingPid, pid_t renderPid)
+{
+    auto hostRecord = GetAppRunningRecordByRenderPid(renderPid);
+    if (!hostRecord) {
+        TAG_LOGE(AAFwkTag::APPMGR, "hostRecord is nullptr.");
+        return false;
+    }
+    auto priorityObject = hostRecord->GetPriorityObject();
+    if (!priorityObject) {
+        TAG_LOGE(AAFwkTag::APPMGR, "priorityObject is nullptr.");
+        return false;
+    }
+    return priorityObject->GetPid() == callingPid;
 }
 
 std::shared_ptr<RenderRecord> AppRunningManager::OnRemoteRenderDied(const wptr<IRemoteObject> &remote)
@@ -1296,6 +1338,7 @@ int32_t AppRunningManager::GetAppRunningUniqueIdByPid(pid_t pid, std::string &ap
 
 int32_t AppRunningManager::GetAllUIExtensionRootHostPid(pid_t pid, std::vector<pid_t> &hostPids)
 {
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     std::lock_guard guard(uiExtensionMapLock_);
     for (auto &item: uiExtensionLauncherMap_) {
         auto temp = item.second.second;
@@ -1303,7 +1346,12 @@ int32_t AppRunningManager::GetAllUIExtensionRootHostPid(pid_t pid, std::vector<p
             hostPids.emplace_back(item.second.first);
         }
     }
-
+    std::string hostPidStr = std::accumulate(hostPids.begin(), hostPids.end(), std::string(),
+        [](const std::string& a, pid_t b) {
+            return a + std::to_string(b) + " ";
+        });
+    TAG_LOGI(AAFwkTag::APPMGR, "pid: %{public}s, hostPid: %{public}s.", std::to_string(pid).c_str(),
+        hostPidStr.c_str());
     return ERR_OK;
 }
 
@@ -1505,6 +1553,18 @@ bool AppRunningManager::IsAppProcessesAllCached(const std::string &bundleName, i
         }
     }
     return true;
+}
+
+int32_t AppRunningManager::UpdateConfigurationDelayed(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    std::lock_guard guard(updateConfigurationDelayedLock_);
+    int32_t result = ERR_OK;
+    auto it = updateConfigurationDelayedMap_.find(appRecord->GetRecordId());
+    if (it != updateConfigurationDelayedMap_.end()) {
+        result = appRecord->UpdateConfiguration(*configuration_);
+        it->second = false;
+    }
+    return result;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

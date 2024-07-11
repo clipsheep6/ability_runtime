@@ -1035,7 +1035,7 @@ public:
         std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
 
     ErrCode GetDialogSessionInfo(const std::string dialogSessionId, sptr<DialogSessionInfo> &info);
-    ErrCode SendDialogResult(const Want &want, const std::string dialogSessionId, bool isAllow);
+    ErrCode SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllow);
 #endif
 
     /**
@@ -1181,10 +1181,12 @@ public:
     /**
      * @brief Add free install observer.
      *
+     * @param callerToken The caller ability token.
      * @param observer Free install observer.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode AddFreeInstallObserver(sptr<AbilityRuntime::IFreeInstallObserver> observer);
+    ErrCode AddFreeInstallObserver(const sptr<IRemoteObject> callToken,
+        const sptr<AbilityRuntime::IFreeInstallObserver> observer);
 
     /**
      * Called to verify that the MissionId is valid.
@@ -1521,6 +1523,17 @@ public:
      */
     int32_t PreStartMission(const std::string& bundleName, const std::string& moduleName,
         const std::string& abilityName, const std::string& startTime);
+
+    /**
+     * Open link of ability and atomic service.
+     *
+     * @param want Ability want.
+     * @param callerToken Caller ability token.
+     * @param userId User ID.
+     * @param requestCode Ability request code.
+     * @return Returns ERR_OK on success, others on failure.
+    */
+    int32_t OpenLink(const Want& want, sptr<IRemoteObject> callerToken, int32_t userId, int requestCode);
 
 private:
     AbilityManagerClient();

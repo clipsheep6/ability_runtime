@@ -17,6 +17,7 @@
 #define private public
 #define protected public
 #include "ability_manager_service.h"
+#include "mission_list_manager.h"
 #undef private
 #undef protected
 #include "ability_manager_errors.h"
@@ -148,7 +149,8 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_004, TestSize.Level1)
     auto result = abilityMs_->StartAbility(want);
 
     if (result == OHOS::ERR_OK) {
-        auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+        auto topAbility = reinterpret_cast<MissionListManager*>(abilityMs_->subManagersHelper_->
+            currentMissionListManager_.get())->GetCurrentTopAbilityLocked();
         EXPECT_TRUE(topAbility);
         topAbility->SetAbilityState(AbilityState::FOREGROUND);
     }
@@ -223,7 +225,8 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_006, TestSize.Level1)
     auto result = abilityMs_->StartAbility(want);
 
     if (result == OHOS::ERR_OK) {
-        auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+        auto topAbility = reinterpret_cast<MissionListManager*>(abilityMs_->subManagersHelper_->
+            currentMissionListManager_.get())->GetCurrentTopAbilityLocked();
         EXPECT_TRUE(topAbility);
         topAbility->SetAbilityState(AbilityState::FOREGROUND);
     }
@@ -262,7 +265,8 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_007, TestSize.Level1)
     auto result = abilityMs_->StartAbility(want);
 
     if (result == OHOS::ERR_OK) {
-        auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+        auto topAbility = reinterpret_cast<MissionListManager*>(abilityMs_->subManagersHelper_->
+            currentMissionListManager_.get())->GetCurrentTopAbilityLocked();
         EXPECT_TRUE(topAbility);
         topAbility->SetAbilityState(AbilityState::ACTIVE);
 
@@ -535,7 +539,8 @@ HWTEST_F(RunningInfosTest, MissionGetAbilityRunningInfos_002, TestSize.Level1)
     auto result = abilityMs_->StartAbility(want);
 
     if (result == OHOS::ERR_OK) {
-        auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+        auto topAbility = reinterpret_cast<MissionListManager*>(abilityMs_->subManagersHelper_->
+            currentMissionListManager_.get())->GetCurrentTopAbilityLocked();
         EXPECT_TRUE(topAbility);
         topAbility->SetAbilityState(AbilityState::FOREGROUND);
     }

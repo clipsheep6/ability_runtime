@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "ability_context.h"
+#include "fa_ability_context.h"
 
 #include "ability_manager_client.h"
 #include "accesstoken_kit.h"
@@ -21,20 +21,21 @@
 #include "bundle_constants.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "iservice_registry.h"
 #include "os_account_manager_wrapper.h"
+#include "remote_object_wrapper.h"
 #include "resource_manager.h"
+#include "session_info.h"
+#include "session/host/include/zidl/session_interface.h"
+#include "string_wrapper.h"
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
-#include "hitrace_meter.h"
-#include "remote_object_wrapper.h"
+#include "want_params_wrapper.h"
+
 #ifdef SUPPORT_SCREEN
 #include "scene_board_judgement.h"
 #endif // SUPPORT_SCREEN
-#include "session/host/include/zidl/session_interface.h"
-#include "session_info.h"
-#include "string_wrapper.h"
-#include "want_params_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -327,6 +328,15 @@ sptr<IRemoteObject> AbilityContext::GetSessionToken()
 {
     std::lock_guard lock(sessionTokenMutex_);
     return sessionToken_;
+}
+
+int32_t AbilityContext::AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
+{
+    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(token_, observer);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "AddFreeInstallObserver error, ret: %{public}d", ret);
+    }
+    return ret;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

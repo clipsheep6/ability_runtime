@@ -613,7 +613,8 @@ int AbilityConnectManager::UnloadUIExtensionAbility(const std::shared_ptr<AAFwk:
         abilityRecord->GetWant().GetElement().GetModuleName(), hostBundleName);
     //delete preLoadUIExtensionMap
     CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, ERR_NULL_OBJECT);
-    uiExtensionAbilityRecordMgr_->RemoveAllPreloadUIExtensionRecord(preLoadUIExtensionInfo);
+    auto extensionRecordId = abilityRecord->GetUIExtensionAbilityId();
+    uiExtensionAbilityRecordMgr_->RemovePreloadUIExtensionRecordById(preLoadUIExtensionInfo, extensionRecordId);
     //terminate preload uiextension
     auto token = abilityRecord->GetToken();
     auto result = TerminateAbilityInner(token);
@@ -708,7 +709,7 @@ int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection
     return DisconnectAbilityLocked(connect, false);
 }
 
-int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection> &connect, bool force)
+int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection> &connect, bool callerDied)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
@@ -740,8 +741,8 @@ int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection
                 continue;
             }
 
-            result = DisconnectRecordNormal(list, connectRecord);
-            if (result != ERR_OK && force) {
+            result = DisconnectRecordNormal(list, connectRecord, callerDied);
+            if (result != ERR_OK && callerDied) {
                 DisconnectRecordForce(list, connectRecord);
                 result = ERR_OK;
             }
@@ -779,7 +780,7 @@ void AbilityConnectManager::TerminateRecord(std::shared_ptr<AbilityRecord> abili
 }
 
 int AbilityConnectManager::DisconnectRecordNormal(ConnectListType &list,
-    std::shared_ptr<ConnectionRecord> connectRecord) const
+    std::shared_ptr<ConnectionRecord> connectRecord, bool callerDied) const
 {
     auto result = connectRecord->DisconnectAbility();
     if (result != ERR_OK) {
@@ -790,7 +791,7 @@ int AbilityConnectManager::DisconnectRecordNormal(ConnectListType &list,
     if (connectRecord->GetConnectState() == ConnectionState::DISCONNECTED) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "This record: %{public}d complete disconnect directly.",
             connectRecord->GetRecordId());
-        connectRecord->CompleteDisconnect(ERR_OK, false);
+        connectRecord->CompleteDisconnect(ERR_OK, callerDied);
         list.emplace_back(connectRecord);
     }
     return ERR_OK;

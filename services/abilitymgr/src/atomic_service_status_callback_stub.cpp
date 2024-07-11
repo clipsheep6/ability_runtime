@@ -23,16 +23,7 @@
 
 namespace OHOS {
 namespace AAFwk {
-AtomicServiceStatusCallbackStub::AtomicServiceStatusCallbackStub()
-{
-    vecMemberFunc_.resize(IAtomicServiceStatusCallbackCmd::CMD_MAX);
-    vecMemberFunc_[IAtomicServiceStatusCallbackCmd::ON_FREE_INSTALL_DONE] =
-        &AtomicServiceStatusCallbackStub::OnInstallFinishedInner;
-    vecMemberFunc_[IAtomicServiceStatusCallbackCmd::ON_REMOTE_FREE_INSTALL_DONE] =
-        &AtomicServiceStatusCallbackStub::OnRemoteInstallFinishedInner;
-    vecMemberFunc_[IAtomicServiceStatusCallbackCmd::ON_REMOVE_TIMEOUT_TASK] =
-        &AtomicServiceStatusCallbackStub::OnRemoveTimeoutTaskInner;
-}
+AtomicServiceStatusCallbackStub::AtomicServiceStatusCallbackStub() {}
 
 int AtomicServiceStatusCallbackStub::OnInstallFinishedInner(MessageParcel &data, MessageParcel &reply)
 {
@@ -63,18 +54,6 @@ int AtomicServiceStatusCallbackStub::OnRemoteInstallFinishedInner(MessageParcel 
     return NO_ERROR;
 }
 
-int AtomicServiceStatusCallbackStub::OnRemoveTimeoutTaskInner(MessageParcel &data, MessageParcel &reply)
-{
-    std::unique_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
-    if (want == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "AtomicServiceStatusCallbackStub want is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-
-    OnRemoveTimeoutTask(*want);
-    return NO_ERROR;
-}
-
 int AtomicServiceStatusCallbackStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -86,8 +65,14 @@ int AtomicServiceStatusCallbackStub::OnRemoteRequest(
     }
 
     if (code < IAtomicServiceStatusCallbackCmd::CMD_MAX && code >= 0) {
-        auto memberFunc = vecMemberFunc_[code];
-        return (this->*memberFunc)(data, reply);
+        switch (code) {
+            case IAtomicServiceStatusCallbackCmd::ON_FREE_INSTALL_DONE:
+                return OnInstallFinishedInner(data, reply);
+                break;
+            case IAtomicServiceStatusCallbackCmd::ON_REMOTE_FREE_INSTALL_DONE:
+                return OnRemoteInstallFinishedInner(data, reply);
+                break;
+        }
     }
 
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
