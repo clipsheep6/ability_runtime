@@ -33,11 +33,8 @@ ohos_static_library("tools_aa_source_set") {
     "src/shell_command.cpp",
     "src/shell_command_config_loader.cpp",
     "src/shell_command_executor.cpp",
-    "src/shell_command_result.cpp",
     "src/system_time.cpp",
     "src/test_observer.cpp",
-    "src/test_observer_proxy.cpp",
-    "src/test_observer_stub.cpp",
   ]
 
   public_configs = [
@@ -58,6 +55,7 @@ ohos_static_library("tools_aa_source_set") {
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
     "${ability_runtime_innerkits_path}/ability_manager:mission_info",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/appkit:test_observer",
   ]
 
   external_deps = [

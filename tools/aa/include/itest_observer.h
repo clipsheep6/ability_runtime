@@ -25,6 +25,7 @@ class ITestObserver : public IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.aafwk.ITestObserver");
 
+    static sptr<ITestObserver> BuildTestObserver(sptr<IRemoteObject> remoteObject);
     /**
      * Outputs test status.
      *

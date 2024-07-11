@@ -3684,7 +3684,7 @@ int AppMgrServiceInner::GetHapModuleInfoForTestRunner(const AAFwk::Want &want, c
 
 int AppMgrServiceInner::UserTestAbnormalFinish(const sptr<IRemoteObject> &observer, const std::string &msg)
 {
-    sptr<AAFwk::ITestObserver> observerProxy = iface_cast<AAFwk::ITestObserver>(observer);
+    auto observerProxy = AAFwk::ITestObserver::BuildTestObserver(observer);
     if (!observerProxy) {
         TAG_LOGE(AAFwkTag::APPMGR, "Failed to get ITestObserver proxy");
         return ERR_INVALID_VALUE;
@@ -3799,7 +3799,7 @@ int AppMgrServiceInner::FinishUserTestLocked(
         return ERR_INVALID_VALUE;
     }
     if (!userTestRecord->isFinished) {
-        sptr<AAFwk::ITestObserver> observerProxy = iface_cast<AAFwk::ITestObserver>(userTestRecord->observer);
+        auto observerProxy = AAFwk::ITestObserver::BuildTestObserver(userTestRecord->observer);
         if (!observerProxy) {
             TAG_LOGE(AAFwkTag::APPMGR, "Failed to get ITestObserver proxy");
             return ERR_INVALID_VALUE;
