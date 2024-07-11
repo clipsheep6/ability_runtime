@@ -19,7 +19,6 @@
 #include "continuation_device_callback_interface.h"
 #include "continuation_request.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "request_callback.h"
 
 namespace OHOS {

@@ -22,7 +22,6 @@
 #include "child_process_info.h"
 #include "event_handler.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_app_mgr_service.h"
 #include "mock_bundle_manager.h"
 #include "sys_mgr_client.h"

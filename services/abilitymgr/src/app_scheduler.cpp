@@ -22,7 +22,6 @@
 #include "appmgr/app_mgr_constants.h"
 #include "hitrace_meter.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 
 namespace OHOS {

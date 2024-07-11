@@ -35,7 +35,6 @@
 #include "extractor.h"
 #include "file_mapper.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "iservice_registry.h"
 #include "js_runtime_utils.h"

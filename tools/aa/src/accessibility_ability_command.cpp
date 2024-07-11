@@ -26,7 +26,6 @@
 #include "accessibility_system_ability_client.h"
 #include "bool_wrapper.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iservice_registry.h"
 #include "mission_snapshot.h"
 #include "sa_mgr_client.h"

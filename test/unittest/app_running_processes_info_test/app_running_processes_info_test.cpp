@@ -25,7 +25,6 @@
 #include "app_record_id.h"
 #include "app_scheduler_host.h"
 #include "bundle_mgr_interface.h"
-#include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "iservice_registry.h"
 #include "mock_ability_token.h"

@@ -19,7 +19,6 @@
 #include "appexecfwk_errors.h"
 #include "hitrace_meter.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 
 namespace OHOS {

@@ -17,7 +17,6 @@
 
 #include "ability_util.h"
 #include "free_install_manager.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {

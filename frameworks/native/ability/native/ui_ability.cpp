@@ -20,7 +20,6 @@
 #include "configuration_convertor.h"
 #include "event_report.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_ui_ability.h"
 #ifdef CJ_FRONTEND

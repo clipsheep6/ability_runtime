@@ -26,7 +26,6 @@
 
 #include "event_runner.h"
 #include "mock_js_runtime.h"
-#include "hilog_wrapper.h"
 
 using namespace testing;
 using namespace testing::ext;

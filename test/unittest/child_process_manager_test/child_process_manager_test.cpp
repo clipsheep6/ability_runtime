@@ -26,7 +26,6 @@
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 using namespace testing;
 using namespace testing::ext;

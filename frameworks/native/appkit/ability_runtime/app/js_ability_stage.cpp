@@ -17,7 +17,6 @@
 
 #include "ability_delegator_registry.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_ability_stage_context.h"
 #include "js_context_utils.h"
 #include "js_runtime.h"

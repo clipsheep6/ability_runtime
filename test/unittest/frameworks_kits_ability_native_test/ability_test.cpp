@@ -34,7 +34,6 @@
 #include "data_ability_predicates.h"
 #include "data_ability_result.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "key_event.h"
 #include "mock_lifecycle_observer.h"
 #include "mock_page_ability.h"
@@ -3183,12 +3182,12 @@ HWTEST_F(AbilityBaseTest, Ability_RegisterAbilityLifecycleObserver_0100, Functio
  */
 HWTEST_F(AbilityBaseTest, Ability_GetModuleName_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     auto ret = ability_->GetModuleName();
     ASSERT_EQ(ret, "");
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -3198,7 +3197,7 @@ HWTEST_F(AbilityBaseTest, Ability_GetModuleName_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityBaseTest, RegisterAbilityLifecycleObserver_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     ability_->RegisterAbilityLifecycleObserver(nullptr);
     std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
@@ -3207,7 +3206,7 @@ HWTEST_F(AbilityBaseTest, RegisterAbilityLifecycleObserver_0100, TestSize.Level1
     ability_->RegisterAbilityLifecycleObserver(observer);
     EXPECT_EQ(ability_->GetLifecycle(), nullptr);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -3217,7 +3216,7 @@ HWTEST_F(AbilityBaseTest, RegisterAbilityLifecycleObserver_0100, TestSize.Level1
  */
 HWTEST_F(AbilityBaseTest, UnregisterAbilityLifecycleObserver_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     ability_->UnregisterAbilityLifecycleObserver(nullptr);
     std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
@@ -3226,7 +3225,7 @@ HWTEST_F(AbilityBaseTest, UnregisterAbilityLifecycleObserver_0100, TestSize.Leve
     ability_->UnregisterAbilityLifecycleObserver(observer);
     EXPECT_EQ(ability_->GetLifecycle(), nullptr);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -3237,7 +3236,7 @@ HWTEST_F(AbilityBaseTest, UnregisterAbilityLifecycleObserver_0100, TestSize.Leve
  */
 HWTEST_F(AbilityBaseTest, ExecuteOperation_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
     ASSERT_NE(ability, nullptr);
 
@@ -3260,7 +3259,7 @@ HWTEST_F(AbilityBaseTest, ExecuteOperation_0100, TestSize.Level1)
     auto ret = result.size();
     EXPECT_EQ(ret, 0);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -3271,7 +3270,7 @@ HWTEST_F(AbilityBaseTest, ExecuteOperation_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityBaseTest, AbilityCheckAssertQueryResult_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
     ASSERT_NE(ability, nullptr);
 
@@ -3289,7 +3288,7 @@ HWTEST_F(AbilityBaseTest, AbilityCheckAssertQueryResult_0200, TestSize.Level1)
     bool ret = ability->CheckAssertQueryResult(queryResult, nullptr);
     EXPECT_EQ(ret, true);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -3300,7 +3299,7 @@ HWTEST_F(AbilityBaseTest, AbilityCheckAssertQueryResult_0200, TestSize.Level1)
  */
 HWTEST_F(AbilityBaseTest, AbilityCheckAssertQueryResult_0300, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
     ASSERT_NE(ability, nullptr);
 
@@ -3310,7 +3309,7 @@ HWTEST_F(AbilityBaseTest, AbilityCheckAssertQueryResult_0300, TestSize.Level1)
     bool ret = ability->CheckAssertQueryResult(queryResult, operation->GetValuesBucket());
     EXPECT_EQ(ret, true);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -3321,7 +3320,7 @@ HWTEST_F(AbilityBaseTest, AbilityCheckAssertQueryResult_0300, TestSize.Level1)
  */
 HWTEST_F(AbilityBaseTest, OnShare_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
     ASSERT_NE(ability, nullptr);
 
@@ -3338,7 +3337,7 @@ HWTEST_F(AbilityBaseTest, OnShare_0100, TestSize.Level1)
     int32_t height = 1;
     ability->GetWindowRect(left, top, width, height);
     EXPECT_EQ(left, top);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

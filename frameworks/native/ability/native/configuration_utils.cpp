@@ -17,7 +17,6 @@
 
 #include "configuration_convertor.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #ifdef SUPPORT_GRAPHICS
 #include "window.h"

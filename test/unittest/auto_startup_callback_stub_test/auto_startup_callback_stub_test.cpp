@@ -18,7 +18,6 @@
 #include "ability_manager_ipc_interface_code.h"
 #include "auto_startup_info.h"
 #include "event_handler.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
 #define private public

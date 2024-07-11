@@ -16,7 +16,6 @@
 #include <gtest/gtest.h>
 
 #include "task_handler_client.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {

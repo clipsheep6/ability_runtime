@@ -21,7 +21,6 @@
 #include "child_process_record.h"
 #undef private
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "window_visibility_info.h"
 
 using namespace testing;

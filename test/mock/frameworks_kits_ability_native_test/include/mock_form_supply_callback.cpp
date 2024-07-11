@@ -14,7 +14,6 @@
  */
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_form_supply_callback.h"
 
 namespace OHOS {

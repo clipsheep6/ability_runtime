@@ -22,7 +22,6 @@
 #include <iremote_stub.h>
 
 #include "dlp_connection_info.h"
-#include "hilog_wrapper.h"
 #include "iconnection_observer.h"
 
 namespace OHOS {

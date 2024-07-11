@@ -17,7 +17,6 @@
 #include <cstring>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "napi_common_data.h"
 #include "napi_common_error.h"
 #include "securec.h"

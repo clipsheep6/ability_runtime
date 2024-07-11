@@ -20,7 +20,6 @@
 #include "authorization_result.h"
 #include "bundle_constants.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "iservice_registry.h"
 #include "os_account_manager_wrapper.h"

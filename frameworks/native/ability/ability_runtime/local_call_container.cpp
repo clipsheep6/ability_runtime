@@ -16,7 +16,6 @@
 #include "local_call_container.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ability_manager_client.h"
 #include "os_account_manager_wrapper.h"
 

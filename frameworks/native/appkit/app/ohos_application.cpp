@@ -33,7 +33,6 @@
 #include "configuration_utils.h"
 #include "context_impl.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "iservice_registry.h"
 #include "runtime.h"

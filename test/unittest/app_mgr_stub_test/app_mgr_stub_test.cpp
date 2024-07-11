@@ -23,7 +23,6 @@
 #undef protected
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "mock_app_mgr_service.h"
 #include "render_state_observer_stub.h"

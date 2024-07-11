@@ -20,7 +20,6 @@
 #include "base/account/os_account/services/accountmgr/test/mock/app_account/accesstoken_kit.h"
 #include "data_ability_impl.h"
 #include "data_ability_operation.h"
-#include "hilog_wrapper.h"
 #include "mock_ability_token.h"
 #include "mock_data_ability.h"
 #undef private

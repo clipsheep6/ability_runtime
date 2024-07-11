@@ -19,7 +19,6 @@
 #include "ability_auto_startup_service.h"
 #include "ability_manager_errors.h"
 #include "distributed_kv_data_manager.h"
-#include "hilog_wrapper.h"
 #include "mock_my_flag.h"
 #include "mock_permission_verification.h"
 #include "mock_sa_call.h"

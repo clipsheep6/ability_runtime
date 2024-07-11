@@ -16,7 +16,6 @@
 #include "quick_fix_manager_service_ability.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {

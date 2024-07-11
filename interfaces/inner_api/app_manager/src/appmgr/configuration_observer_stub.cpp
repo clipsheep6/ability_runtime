@@ -17,7 +17,6 @@
 
 #include "appexecfwk_errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ipc_types.h"
 #include "iremote_object.h"

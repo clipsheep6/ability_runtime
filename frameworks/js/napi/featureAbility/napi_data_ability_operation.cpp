@@ -19,7 +19,6 @@
 
 #include "data_ability_predicates.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "napi_common_want.h"
 #include "napi_data_ability_helper.h"
 #include "values_bucket.h"

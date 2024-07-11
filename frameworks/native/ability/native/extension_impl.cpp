@@ -22,7 +22,6 @@
 #include "ipc_object_proxy.h"
 #include "extension_context.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ui_extension_utils.h"
 
 

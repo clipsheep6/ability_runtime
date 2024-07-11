@@ -15,7 +15,6 @@
 #include <gtest/gtest.h>
 #include "sys_mgr_client.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"

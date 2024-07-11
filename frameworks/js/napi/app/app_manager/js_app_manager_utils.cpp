@@ -18,7 +18,6 @@
 #include <cstdint>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iapplication_state_observer.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"

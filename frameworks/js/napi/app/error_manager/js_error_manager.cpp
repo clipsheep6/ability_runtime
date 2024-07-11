@@ -22,7 +22,6 @@
 #include "application_data_manager.h"
 #include "event_runner.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_error_observer.h"
 #include "js_error_utils.h"
 #include "js_runtime.h"

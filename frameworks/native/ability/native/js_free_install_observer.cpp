@@ -16,7 +16,6 @@
 #include "js_free_install_observer.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_error_utils.h"
 #include "js_runtime.h"

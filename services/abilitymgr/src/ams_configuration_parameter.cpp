@@ -18,7 +18,6 @@
 #include "app_utils.h"
 #include "config_policy_utils.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {

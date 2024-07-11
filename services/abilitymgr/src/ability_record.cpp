@@ -46,7 +46,6 @@
 #include "errors.h"
 #include "event_report.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
 #include "res_sched_util.h"

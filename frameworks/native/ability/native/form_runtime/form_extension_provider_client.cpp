@@ -25,7 +25,6 @@
 #include "form_mgr_errors.h"
 #include "form_supply_proxy.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 
 namespace OHOS {

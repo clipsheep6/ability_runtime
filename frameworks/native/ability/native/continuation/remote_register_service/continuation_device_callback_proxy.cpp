@@ -14,7 +14,6 @@
  */
 #include "continuation_device_callback_proxy.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 namespace OHOS {
 namespace AppExecFwk {
 /**

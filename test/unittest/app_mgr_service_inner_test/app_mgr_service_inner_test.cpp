@@ -25,7 +25,6 @@
 #include "appspawn_util.h"
 #include "event_handler.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "mock_ability_token.h"
 #include "mock_app_scheduler.h"

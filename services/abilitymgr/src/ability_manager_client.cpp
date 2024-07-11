@@ -21,7 +21,6 @@
 #include "dlp_file_kits.h"
 #endif // WITH_DLP
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"

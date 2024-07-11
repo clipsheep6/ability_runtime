@@ -25,7 +25,6 @@
 #include "application_info.h"
 #include "application_context_manager.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "js_ability_auto_startup_callback.h"
 #include "js_ability_auto_startup_manager_utils.h"

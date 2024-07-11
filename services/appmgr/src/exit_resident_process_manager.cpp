@@ -18,7 +18,6 @@
 
 #include "ability_manager_errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "remote_client_manager.h"
 

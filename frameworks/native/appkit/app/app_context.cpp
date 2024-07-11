@@ -14,7 +14,6 @@
  */
 
 #include "app_context.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {

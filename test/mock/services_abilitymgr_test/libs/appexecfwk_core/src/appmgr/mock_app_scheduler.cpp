@@ -16,7 +16,6 @@
 #include "app_scheduler.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ability_util.h"
 #include "ability_manager_errors.h"
 #include "appmgr/app_mgr_constants.h"

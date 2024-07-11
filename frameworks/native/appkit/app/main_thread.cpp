@@ -57,7 +57,6 @@
 #include "file_path_utils.h"
 #include "freeze_util.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "resource_config_helper.h"
 #ifdef SUPPORT_SCREEN
 #include "locale_config.h"

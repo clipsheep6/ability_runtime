@@ -16,7 +16,6 @@
 #include "quick_fix_callback_proxy.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "message_parcel.h"
 #include "parcel_macro_base.h"
 

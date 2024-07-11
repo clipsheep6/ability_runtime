@@ -17,7 +17,6 @@
 
 #include "ability_manager_client.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "session_info.h"
 #include "want.h"
 

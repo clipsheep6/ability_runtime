@@ -29,7 +29,6 @@
 #undef private
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_ability_delegator_stub.h"
 #include "native_engine/native_reference.h"
 

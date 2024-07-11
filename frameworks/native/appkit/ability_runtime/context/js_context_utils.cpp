@@ -19,7 +19,6 @@
 #include "application_context.h"
 #include "application_context_manager.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "js_application_context_utils.h"
 #include "js_data_struct_converter.h"

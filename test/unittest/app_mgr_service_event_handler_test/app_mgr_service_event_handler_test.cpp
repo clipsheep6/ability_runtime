@@ -22,7 +22,6 @@
 #include <memory>
 #include "mock_app_scheduler.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "inner_event.h"
 #include <gtest/gtest.h>
 

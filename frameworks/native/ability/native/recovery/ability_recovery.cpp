@@ -25,7 +25,6 @@
 #include "context/application_context.h"
 #include "file_ex.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"

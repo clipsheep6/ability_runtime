@@ -23,7 +23,6 @@
 #include "dialog_request_callback_impl.h"
 #include "dialog_ui_extension_callback.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "remote_object_wrapper.h"
 #include "request_constants.h"
 #include "session_info.h"

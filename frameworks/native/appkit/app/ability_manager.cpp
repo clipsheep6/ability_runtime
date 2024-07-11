@@ -15,7 +15,6 @@
 
 #include "ability_manager.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "singleton.h"
 #include "sys_mgr_client.h"

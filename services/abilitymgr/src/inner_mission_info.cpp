@@ -16,7 +16,6 @@
 #include "inner_mission_info.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "nlohmann/json.hpp"
 
 namespace OHOS {

@@ -20,7 +20,6 @@
 #include "ability_manager_client.h"
 #include "dialog_callback_stub.h"
 #include "display_manager.h"
-#include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"

@@ -18,7 +18,6 @@
 #include "ability_manager_errors.h"
 #include "accesstoken_kit.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "permission_constants.h"
 #include "server_constant.h"

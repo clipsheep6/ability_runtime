@@ -15,7 +15,6 @@
 
 #include "mock_iability_monitor.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace {
 const std::string ABILITY_NAME = "com.example.myapplication.MainAbility";

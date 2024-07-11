@@ -31,7 +31,6 @@
 #include "bundle_mgr_interface.h"
 #include "event_handler.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "iremote_object.h"
 #include "mock_ability_token.h"

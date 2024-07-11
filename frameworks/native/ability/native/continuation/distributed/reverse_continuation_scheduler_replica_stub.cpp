@@ -15,7 +15,6 @@
 #include "reverse_continuation_scheduler_replica_stub.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {

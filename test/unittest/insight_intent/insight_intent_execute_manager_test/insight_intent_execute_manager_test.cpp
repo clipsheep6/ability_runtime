@@ -16,7 +16,6 @@
 #include <gtest/gtest.h>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "want.h"
 #include "insight_intent_execute_param.h"
 #include "insight_intent_execute_manager.h"

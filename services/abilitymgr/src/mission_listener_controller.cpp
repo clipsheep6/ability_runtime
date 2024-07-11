@@ -16,7 +16,6 @@
 #include "mission_listener_controller.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {

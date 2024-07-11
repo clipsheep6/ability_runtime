@@ -16,7 +16,6 @@
 #include "js_module_searcher.h"
 
 #include "file_path_utils.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

@@ -21,7 +21,6 @@
 
 #include "app_state_callback_host.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_ability_token.h"
 #include "mock_app_mgr_service_inner.h"
 #include "mock_bundle_manager.h"

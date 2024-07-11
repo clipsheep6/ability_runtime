@@ -22,7 +22,6 @@
 #include "configuration_utils.h"
 #include "hitrace_meter.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "insight_intent_execute_param.h"
 #include "insight_intent_execute_result.h"
 #include "insight_intent_executor_info.h"

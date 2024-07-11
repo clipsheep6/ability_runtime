@@ -16,7 +16,6 @@
 #include "ability_impl_factory.h"
 #include "data_ability_impl.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "new_ability_impl.h"
 #ifdef SUPPORT_GRAPHICS
 #include "page_ability_impl.h"

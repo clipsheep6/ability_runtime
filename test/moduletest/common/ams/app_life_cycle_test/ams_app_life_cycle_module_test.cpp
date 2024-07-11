@@ -24,7 +24,6 @@
 #include "app_mgr_interface.h"
 #include "iremote_object.h"
 #include "app_state_callback_proxy.h"
-#include "hilog_wrapper.h"
 #include "refbase.h"
 #include "mock_bundle_manager.h"
 #include "mock_ability_token.h"

@@ -29,7 +29,6 @@
 #include "ability_delegator_registry.h"
 #include "app_loader.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "mock_ability_delegator_stub.h"
 #include "mock_iability_monitor.h"

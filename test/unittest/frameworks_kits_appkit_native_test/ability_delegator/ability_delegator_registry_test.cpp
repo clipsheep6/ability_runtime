@@ -26,7 +26,6 @@
 #include "app_loader.h"
 #include "event_runner.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "mock_ability_delegator_stub.h"
 #include "ohos_application.h"

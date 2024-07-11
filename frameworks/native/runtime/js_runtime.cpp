@@ -36,7 +36,6 @@
 #include "file_path_utils.h"
 #include "hdc_register.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"

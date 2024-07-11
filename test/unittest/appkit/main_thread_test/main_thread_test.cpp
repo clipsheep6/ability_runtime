@@ -21,7 +21,6 @@
 #include "app_mgr_stub.h"
 #include "main_thread.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "mock_bundle_manager.h"

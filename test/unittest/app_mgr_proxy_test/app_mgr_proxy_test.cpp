@@ -19,7 +19,6 @@
 #include "app_foreground_state_observer_stub.h"
 #include "app_mgr_proxy.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_ability_foreground_state_observer_stub.h"
 #include "mock_app_mgr_service.h"
 #include "quick_fix_callback_stub.h"

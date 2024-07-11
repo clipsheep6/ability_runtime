@@ -24,7 +24,6 @@
 #undef protected
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_ability_connect_callback.h"
 #include "mock_ability_manager_collaborator.h"
 #include "session/host/include/session.h"

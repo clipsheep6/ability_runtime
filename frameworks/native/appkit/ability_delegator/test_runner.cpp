@@ -16,7 +16,6 @@
 
 #include "bundle_mgr_helper.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #ifdef CJ_FRONTEND
 #include "runner_runtime/cj_test_runner.h"
 #endif

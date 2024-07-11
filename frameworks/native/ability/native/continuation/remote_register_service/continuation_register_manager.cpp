@@ -18,7 +18,6 @@
 #include "continuation_register_manager_proxy.h"
 #include "extra_params.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "request_callback.h"
 
 namespace OHOS {

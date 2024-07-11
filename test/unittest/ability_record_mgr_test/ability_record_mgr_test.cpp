@@ -20,7 +20,6 @@
 #undef private
 #undef protected
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iremote_broker.h"
 #include "iremote_object.h"
 #include "iremote_stub.h"

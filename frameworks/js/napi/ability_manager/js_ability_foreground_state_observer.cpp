@@ -16,7 +16,6 @@
 #include "js_ability_foreground_state_observer.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
 
 namespace OHOS {

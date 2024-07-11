@@ -20,7 +20,6 @@
 #undef private
 
 #include "ability_manager_errors.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {

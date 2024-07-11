@@ -16,7 +16,6 @@
 #include "caller_info.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "nlohmann/json.hpp"
 #include "string_ex.h"
 

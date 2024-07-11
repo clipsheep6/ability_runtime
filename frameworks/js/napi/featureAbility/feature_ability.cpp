@@ -23,7 +23,6 @@
 #include "ability_process.h"
 #include "element_name.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_runtime_utils.h"
 #ifdef SUPPORT_SCREEN

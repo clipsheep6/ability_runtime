@@ -22,7 +22,6 @@
 #include "bundle_mgr_proxy.h"
 #include "bundle_mgr_interface.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "nativetoken_kit.h"

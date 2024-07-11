@@ -21,7 +21,6 @@
 #include "ability_manager_errors.h"
 #include "ability_util.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {

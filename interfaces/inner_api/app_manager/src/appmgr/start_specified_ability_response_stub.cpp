@@ -16,7 +16,6 @@
 #include "start_specified_ability_response_stub.h"
 #include "appexecfwk_errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
 

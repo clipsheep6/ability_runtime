@@ -15,7 +15,6 @@
 
 #include "event_report.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 
 namespace OHOS {

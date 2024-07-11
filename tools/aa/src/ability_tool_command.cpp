@@ -24,7 +24,6 @@
 #include "bool_wrapper.h"
 #include "element_name.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 using namespace OHOS::AppExecFwk;
 

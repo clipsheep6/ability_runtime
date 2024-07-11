@@ -20,7 +20,6 @@
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "quick_fix_callback_stub.h"
 #include "quick_fix_error_utils.h"

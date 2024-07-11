@@ -17,7 +17,6 @@
 
 #include "bundle_mgr_proxy.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "overlay_module_info.h"
 
 namespace OHOS {

@@ -16,7 +16,6 @@
 #include "system_time.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "inner_event.h"
 
 namespace OHOS {

@@ -23,7 +23,6 @@
 #include "app_utils.h"
 #include "event_handler.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ipc_skeleton.h"
 #include "ability_runtime/js_caller_complex.h"

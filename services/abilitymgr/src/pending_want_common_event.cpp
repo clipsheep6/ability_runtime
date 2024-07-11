@@ -15,7 +15,6 @@
 
 #include "pending_want_common_event.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {

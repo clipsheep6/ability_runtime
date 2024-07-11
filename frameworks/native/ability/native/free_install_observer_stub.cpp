@@ -16,7 +16,6 @@
 #include "free_install_observer_stub.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
 

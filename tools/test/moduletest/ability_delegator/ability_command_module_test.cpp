@@ -21,7 +21,6 @@
 #undef private
 #include "ability_manager_interface.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_ability_manager_stub.h"
 
 using namespace testing::ext;

@@ -18,7 +18,6 @@
 #include "ability_manager_service.h"
 #include "app_scheduler.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "mock_session_manager_service.h"
 #include "os_account_manager_wrapper.h"

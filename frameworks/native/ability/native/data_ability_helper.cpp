@@ -17,7 +17,6 @@
 #include "abs_shared_result_set.h"
 #include "datashare_helper.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "rdb_data_ability_utils.h"
 

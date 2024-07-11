@@ -25,7 +25,6 @@
 #undef protected
 #include "ability_manager_errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "scene_board_judgement.h"
 
 using namespace testing;

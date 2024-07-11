@@ -15,7 +15,6 @@
 
 #include "data_ability_observer_proxy.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "message_parcel.h"
 
 namespace OHOS {

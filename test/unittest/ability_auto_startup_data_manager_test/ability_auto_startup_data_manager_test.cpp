@@ -23,7 +23,6 @@
 #undef protected
 
 #include "auto_startup_info.h"
-#include "hilog_wrapper.h"
 #include "types.h"
 using namespace testing;
 using namespace testing::ext;

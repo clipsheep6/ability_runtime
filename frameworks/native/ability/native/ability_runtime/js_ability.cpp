@@ -25,7 +25,6 @@
 #include "ability_start_setting.h"
 #include "connection_manager.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_data_struct_converter.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"

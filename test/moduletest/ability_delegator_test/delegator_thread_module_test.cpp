@@ -20,7 +20,6 @@
 #undef private
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 using namespace testing::ext;
 using namespace OHOS;

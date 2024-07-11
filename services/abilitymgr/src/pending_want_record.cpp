@@ -16,7 +16,6 @@
 #include "pending_want_record.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "pending_want_manager.h"
 #include "int_wrapper.h"

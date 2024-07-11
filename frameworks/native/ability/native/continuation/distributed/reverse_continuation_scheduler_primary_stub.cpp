@@ -16,7 +16,6 @@
 #include "reverse_continuation_scheduler_primary_stub.h"
 #include "ability_scheduler_interface.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "string_ex.h"
 
 namespace OHOS {

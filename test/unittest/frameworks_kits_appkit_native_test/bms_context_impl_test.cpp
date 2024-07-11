@@ -23,7 +23,6 @@
 
 #include "ability_local_record.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "mock_bundle_installer_service.h"
 #include "mock_bundle_manager_service.h"

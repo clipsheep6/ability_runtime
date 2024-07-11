@@ -22,7 +22,6 @@
 #include <gtest/gtest.h>
 #include "errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "mock_app_mgr_service_inner.h"
 #include "mock_native_token.h"

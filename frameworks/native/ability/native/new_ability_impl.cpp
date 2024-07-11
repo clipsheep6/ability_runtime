@@ -17,7 +17,6 @@
 
 #include "freeze_util.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #ifdef SUPPORT_SCREEN
 #include "scene_board_judgement.h"

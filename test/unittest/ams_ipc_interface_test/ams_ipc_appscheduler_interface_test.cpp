@@ -17,7 +17,6 @@
 #include "app_scheduler_proxy.h"
 #include "app_scheduler_host.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_ability_token.h"
 #include "mock_application.h"
 

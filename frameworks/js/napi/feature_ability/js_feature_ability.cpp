@@ -18,7 +18,6 @@
 #include "distribute_constants.h"
 #include "distribute_req_param.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "napi_common_util.h"
 #include "js_error_utils.h"
 

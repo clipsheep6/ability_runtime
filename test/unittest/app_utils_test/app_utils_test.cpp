@@ -17,7 +17,6 @@
 
 #include "app_utils.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "parameters.h"
 
 using namespace testing;

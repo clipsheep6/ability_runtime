@@ -22,7 +22,6 @@
 
 #include "refbase.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "mock_bundle_manager.h"
 #include "mock_ability_token.h"

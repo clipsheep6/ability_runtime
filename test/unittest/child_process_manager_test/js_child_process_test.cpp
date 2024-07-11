@@ -19,7 +19,6 @@
 #include "js_child_process.h"
 #undef protected
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_runtime.h"
 
 using namespace testing;

@@ -20,7 +20,6 @@
 #include "app_launch_data.h"
 #undef private
 #undef protected
-#include "hilog_wrapper.h"
 
 using namespace testing;
 using namespace testing::ext;

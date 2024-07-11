@@ -18,7 +18,6 @@
 #include "common_func.h"
 #include "configuration_convertor.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 

@@ -19,7 +19,6 @@
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "parameters.h"
 #include "want.h"
 

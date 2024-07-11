@@ -22,7 +22,6 @@
 #include "double_wrapper.h"
 #include "float_wrapper.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "int_wrapper.h"
 #include "ipc_skeleton.h"
 #include "js_runtime_utils.h"

@@ -16,7 +16,6 @@
 #include <gtest/gtest.h>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #define private public
 #include "mock_quick_fix_callback_stub.h"
 #include "quick_fix_callback_proxy.h"

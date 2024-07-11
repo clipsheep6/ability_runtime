@@ -25,7 +25,6 @@
 #include "bundle_info.h"
 #include "child_process_request.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "iapp_state_callback.h"
 #include "ipc_skeleton.h"

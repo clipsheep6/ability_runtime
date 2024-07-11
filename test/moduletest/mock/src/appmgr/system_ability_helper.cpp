@@ -18,7 +18,6 @@
 #include <map>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_ability_mgr_host.h"
 #include "system_ability_definition.h"
 

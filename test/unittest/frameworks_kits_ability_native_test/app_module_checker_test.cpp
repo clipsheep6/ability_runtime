@@ -19,7 +19,6 @@
 #include "ability_handler.h"
 #include "app_module_checker.h"
 #include "context_deal.h"
-#include "hilog_wrapper.h"
 #include "locale_config.h"
 #include "ohos_application.h"
 #include "process_options.h"

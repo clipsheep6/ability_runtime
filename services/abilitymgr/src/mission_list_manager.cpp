@@ -26,7 +26,6 @@
 #include "global_constant.h"
 #include "hitrace_meter.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hisysevent.h"
 #include "mission_info_mgr.h"
 #include "in_process_call_wrapper.h"

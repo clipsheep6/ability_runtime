@@ -22,7 +22,6 @@
 #include "ability_manager_client.h"
 #include "ability_manager_errors.h"
 #include "connection_manager.h"
-#include "hilog_wrapper.h"
 #undef protected
 #undef private
 

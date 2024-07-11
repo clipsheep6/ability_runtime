@@ -49,7 +49,6 @@
 #include "deeplink_reserve/deeplink_reserve_config.h"
 #include "event_report.h"
 #include "free_install_manager.h"
-#include "hilog_wrapper.h"
 #include "iacquire_share_data_callback_interface.h"
 #include "interceptor/ability_interceptor_executer.h"
 #include "iremote_object.h"

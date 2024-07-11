@@ -22,7 +22,6 @@
 
 #include "ability_runtime_error_util.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "napi_common.h"
 #include "start_options.h"

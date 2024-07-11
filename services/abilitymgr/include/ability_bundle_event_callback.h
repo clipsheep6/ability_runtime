@@ -21,7 +21,6 @@
 #include "common_event_support.h"
 #include "task_handler_wrap.h"
 #include "ability_event_util.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {

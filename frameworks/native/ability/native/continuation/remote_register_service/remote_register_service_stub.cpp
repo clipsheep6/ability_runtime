@@ -14,7 +14,6 @@
  */
 #include "remote_register_service_stub.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {

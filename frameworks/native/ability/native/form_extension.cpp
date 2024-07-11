@@ -19,7 +19,6 @@
 #include "form_extension_context.h"
 #include "form_runtime/js_form_extension.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "runtime.h"
 
 namespace OHOS {

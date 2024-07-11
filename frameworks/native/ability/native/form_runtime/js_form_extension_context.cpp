@@ -19,7 +19,6 @@
 #include <cstdint>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "form_mgr_errors.h"
 #include "js_extension_context.h"
 #include "js_error_utils.h"

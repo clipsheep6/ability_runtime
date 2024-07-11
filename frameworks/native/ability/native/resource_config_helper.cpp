@@ -14,7 +14,6 @@
  */
 #include "resource_config_helper.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "configuration_convertor.h"
 #include "hitrace_meter.h"
 

@@ -19,7 +19,6 @@
 #include "ability_manager_client.h"
 #undef private
 #include "shell_command_result.h"
-#include "hilog_wrapper.h"
 
 using namespace testing::ext;
 using namespace OHOS;

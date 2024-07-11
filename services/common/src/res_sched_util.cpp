@@ -19,7 +19,6 @@
 
 #include "ability_info.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #ifdef RESOURCE_SCHEDULE_SERVICE_ENABLE
 #include "res_sched_client.h"
 #include "res_type.h"

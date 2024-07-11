@@ -18,7 +18,6 @@
 #include "ability_manager_client.h"
 #include "ability_manager_errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 using namespace testing;
 using namespace testing::ext;

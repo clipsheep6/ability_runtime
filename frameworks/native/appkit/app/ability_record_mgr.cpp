@@ -15,7 +15,6 @@
 
 #include "ability_record_mgr.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {

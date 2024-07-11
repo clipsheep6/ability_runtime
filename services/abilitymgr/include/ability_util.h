@@ -25,7 +25,6 @@
 #include "app_jump_control_rule.h"
 #include "bundle_mgr_helper.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
 #include "permission_verification.h"

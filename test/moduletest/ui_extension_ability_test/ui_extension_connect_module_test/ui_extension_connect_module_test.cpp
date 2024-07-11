@@ -22,7 +22,6 @@
 #include "accesstoken_kit.h"
 #include "app_mgr_interface.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "nativetoken_kit.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"

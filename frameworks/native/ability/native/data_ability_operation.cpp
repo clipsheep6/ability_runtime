@@ -17,7 +17,6 @@
 
 #include "data_ability_predicates.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "values_bucket.h"
 
 namespace OHOS {

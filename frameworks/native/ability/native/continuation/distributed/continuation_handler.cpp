@@ -18,7 +18,6 @@
 #include "distributed_errors.h"
 #include "element_name.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 using OHOS::AAFwk::WantParams;
 namespace OHOS {

@@ -22,7 +22,6 @@
 #include "app_scheduler_interface.h"
 #include "app_mgr_stub.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "app_malloc_info.h"
 #include "app_jsheap_mem_info.h"
 

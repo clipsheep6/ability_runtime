@@ -26,7 +26,6 @@
 #include "context.h"
 #include "hap_module_info.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "mock_ability_token.h"
 #include "mock_bundle_manager.h"

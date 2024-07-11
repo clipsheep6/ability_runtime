@@ -54,7 +54,6 @@
 #include "string_wrapper.h"
 #include "array_wrapper.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 using namespace testing::ext;
 using namespace OHOS::AAFwk;

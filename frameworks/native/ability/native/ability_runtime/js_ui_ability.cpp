@@ -27,7 +27,6 @@
 #include "context/application_context.h"
 #include "context/context.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
 #include "insight_intent_executor_info.h"

@@ -19,7 +19,6 @@
 #include "app_state_callback_host.h"
 #include "errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_ability_token.h"
 
 using namespace testing;

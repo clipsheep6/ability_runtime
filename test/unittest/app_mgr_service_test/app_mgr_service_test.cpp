@@ -22,7 +22,6 @@
 #include "ability_manager_errors.h"
 #include "child_main_thread.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_app_mgr_service_inner.h"
 #include "mock_native_token.h"
 #include "mock_sa_call.h"

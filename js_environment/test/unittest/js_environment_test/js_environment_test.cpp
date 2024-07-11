@@ -21,7 +21,6 @@
 #include <string>
 
 #include "ecmascript/napi/include/jsnapi.h"
-#include "hilog_wrapper.h"
 #include "ohos_js_env_logger.h"
 #include "ohos_js_environment_impl.h"
 

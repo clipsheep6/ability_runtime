@@ -15,7 +15,6 @@
 
 #include "ability_lifecycle_observer_interface.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {

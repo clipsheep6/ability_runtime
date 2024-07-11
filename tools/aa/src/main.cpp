@@ -18,7 +18,6 @@
 
 #include "ability_command.h"
 #include "ability_tool_command.h"
-#include "hilog_wrapper.h"
 #include "xcollie/xcollie.h"
 #include "xcollie/xcollie_define.h"
 #ifdef A11Y_ENABLE

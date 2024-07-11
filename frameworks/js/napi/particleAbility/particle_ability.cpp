@@ -19,7 +19,6 @@
 #include <vector>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
 #include "napi_common_ability.h"
 #include "napi/native_api.h"

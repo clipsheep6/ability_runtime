@@ -25,7 +25,6 @@
 #include "app_mgr_interface.h"
 #include "app_service_manager.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "app_mem_info.h"
 

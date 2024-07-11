@@ -18,7 +18,6 @@
 #include "bundle_mgr_service_death_recipient.h"
 #include "global_constant.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"

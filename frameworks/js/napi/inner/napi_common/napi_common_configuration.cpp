@@ -17,7 +17,6 @@
 
 #include "configuration_convertor.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "napi_common_util.h"
 
 namespace OHOS {

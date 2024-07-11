@@ -17,7 +17,6 @@
 
 #include "ability_info.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #define private public
 #include "res_sched_util.h"
 #undef private

@@ -17,7 +17,6 @@
 
 #include "bundle_mgr_helper.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "permission_verification.h"
 #include "quick_fix_error_utils.h"
