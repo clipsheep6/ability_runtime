@@ -54,6 +54,7 @@ public:
     int32_t extensionRecordId_ = INVALID_EXTENSION_RECORD_ID;
     uint32_t processMode_ = 0;
     bool isHostSpecified_ = false;
+    pid_t hostPid_ = 0;
 private:
     sptr<IRemoteObject> rootCallerToken_ = nullptr;
     sptr<AAFwk::PreLoadUIExtStateObserver> preLoadUIExtStateObserver_;

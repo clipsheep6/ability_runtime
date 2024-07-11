@@ -613,7 +613,8 @@ int AbilityConnectManager::UnloadUIExtensionAbility(const std::shared_ptr<AAFwk:
         abilityRecord->GetWant().GetElement().GetModuleName(), hostBundleName);
     //delete preLoadUIExtensionMap
     CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, ERR_NULL_OBJECT);
-    uiExtensionAbilityRecordMgr_->RemoveAllPreloadUIExtensionRecord(preLoadUIExtensionInfo);
+    auto extensionRecordId = abilityRecord->GetUIExtensionAbilityId();
+    uiExtensionAbilityRecordMgr_->RemovePreloadUIExtensionRecordById(preLoadUIExtensionInfo, extensionRecordId);
     //terminate preload uiextension
     auto token = abilityRecord->GetToken();
     auto result = TerminateAbilityInner(token);
