@@ -803,6 +803,51 @@ ohos_shared_library("service_extension") {
   part_name = "ability_runtime"
 }
 
+ohos_shared_library("ui_service_extension_connection") {
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    cfi_vcall_icall_only = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+
+  defines = [ "AMS_LOG_TAG = \"Ability\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001300" ]
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_service_extension_ability/connection" ]
+
+  sources = [
+    "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/connection/js_ui_service_host_proxy.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/connection/js_ui_service_proxy.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/connection/ui_service_host_proxy.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/connection/ui_service_host_stub.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/connection/ui_service_proxy.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_service_extension_ability/connection/ui_service_stub.cpp",
+  ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
+    "${ability_runtime_native_path}/ability/native:ability_business_error",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "access_token:libtokenid_sdk",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "ipc:ipc_napi",
+    "napi:ace_napi",
+  ]
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
 ohos_shared_library("continuation_ipc") {
   include_dirs = []
 
