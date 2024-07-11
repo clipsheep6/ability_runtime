@@ -794,7 +794,8 @@ public:
 
     virtual int StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken, int32_t status) = 0;
 
-    virtual void NotifyCompleteContinuation(const std::string &deviceId, int32_t sessionId, bool isSuccess) = 0;
+    virtual void NotifyCompleteContinuation(const std::string &deviceId, int32_t sessionId, bool isSuccess,
+        const sptr<IRemoteObject> &token) = 0;
 
     virtual int NotifyContinuationResult(int32_t missionId, int32_t result) = 0;
 

@@ -119,7 +119,7 @@ void DoSomethingInterestingWithMyAPI1(AbilityManagerService &abilityms, Want& wa
     abilityms.ContinueMission(stringParam, stringParam, int32Param, token, wantParams);
     abilityms.ContinueAbility(stringParam, int32Param, uint32Param);
     abilityms.StartContinuation(want, token, int32Param);
-    abilityms.NotifyCompleteContinuation(stringParam, int32Param, boolParam);
+    abilityms.NotifyCompleteContinuation(stringParam, int32Param, boolParam, token);
     abilityms.NotifyContinuationResult(int32Param, int32Param);
     abilityms.StartSyncRemoteMissions(stringParam, boolParam, int64Param);
     abilityms.StopSyncRemoteMissions(stringParam);

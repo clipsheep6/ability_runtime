@@ -183,7 +183,7 @@ int32_t DistributedClient::StartContinuation(const OHOS::AAFwk::Want& want, int3
 }
 
 ErrCode DistributedClient::NotifyCompleteContinuation(
-    const std::u16string &devId, int32_t sessionId, bool isSuccess)
+    const std::u16string &devId, int32_t srcSessionId, bool isSuccess, const int32_t &callingMissionId)
 {
     TAG_LOGI(AAFwkTag::DISTRIBUTED, "called");
     sptr<IRemoteObject> remote = GetDmsProxy();
@@ -200,12 +200,16 @@ ErrCode DistributedClient::NotifyCompleteContinuation(
         TAG_LOGE(AAFwkTag::DISTRIBUTED, "write deviceId error");
         return ERR_FLATTEN_OBJECT;
     }
-    if (!data.WriteInt32(sessionId)) {
+    if (!data.WriteInt32(srcSessionId)) {
         TAG_LOGE(AAFwkTag::DISTRIBUTED, "write sessionId error");
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteBool(isSuccess)) {
         TAG_LOGE(AAFwkTag::DISTRIBUTED, "write result error");
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteInt32(callingMissionId)) {
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "write sessionId error");
         return ERR_FLATTEN_OBJECT;
     }
     MessageParcel reply;

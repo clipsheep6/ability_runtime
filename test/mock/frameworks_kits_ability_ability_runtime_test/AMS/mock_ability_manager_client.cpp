@@ -276,14 +276,15 @@ ErrCode AbilityManagerClient::StartContinuation(const Want& want, sptr<IRemoteOb
     return abms->StartContinuation(want, abilityToken, status);
 }
 
-void AbilityManagerClient::NotifyCompleteContinuation(const std::string& deviceId, int32_t sessionId, bool isSuccess)
+void AbilityManagerClient::NotifyCompleteContinuation(const std::string& deviceId, int32_t sessionId, bool isSuccess,
+    const sptr<IRemoteObject> &token)
 {
     if (g_remoteObject == nullptr) {
         return;
     }
 
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(g_remoteObject);
-    abms->NotifyCompleteContinuation(deviceId, sessionId, isSuccess);
+    abms->NotifyCompleteContinuation(deviceId, sessionId, isSuccess, token);
 }
 
 ErrCode AbilityManagerClient::StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag)

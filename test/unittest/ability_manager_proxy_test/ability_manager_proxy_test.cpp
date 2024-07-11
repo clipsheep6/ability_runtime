@@ -1353,7 +1353,8 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_NotifyCompleteContinuation
     std::string deviceId = "";
     int32_t sessionId = 1;
     bool isSuccess = true;
-    proxy_->NotifyCompleteContinuation(deviceId, sessionId, isSuccess);
+    const sptr<IRemoteObject> token = nullptr;
+    proxy_->NotifyCompleteContinuation(deviceId, sessionId, isSuccess, token);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_COMPLETE_CONTINUATION), mock_->code_);
 }
 

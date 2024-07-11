@@ -305,7 +305,7 @@ void UIAbility::NotifyContinuationResult(const AAFwk::Want &want, bool success)
         return;
     }
     continuationManager_->NotifyCompleteContinuation(
-        originDeviceId, sessionId, success, reverseContinuationSchedulerReplica_);
+        originDeviceId, sessionId, success, reverseContinuationSchedulerReplica_, token_);
 }
 
 void UIAbility::OnConfigurationUpdatedNotify(const AppExecFwk::Configuration &configuration)

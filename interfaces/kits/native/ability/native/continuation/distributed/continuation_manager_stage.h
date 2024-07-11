@@ -146,9 +146,8 @@ public:
      * @param success A flag indicating the success of the continuation
      * @param reverseScheduler A remote object for reverse scheduling
      */
-    void NotifyCompleteContinuation(
-        const std::string &originDeviceId, int sessionId, bool success,
-        [[maybe_unused]] const sptr<IRemoteObject> &reverseScheduler);
+    void NotifyCompleteContinuation(const std::string &originDeviceId, int sessionId, bool success,
+        [[maybe_unused]] const sptr<IRemoteObject> &reverseScheduler, const sptr<IRemoteObject> &token);
 
     /**
      * @brief complete the continuation process

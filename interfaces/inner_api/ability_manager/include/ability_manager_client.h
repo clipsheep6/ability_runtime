@@ -622,7 +622,8 @@ public:
      * @param isSuccess, continuation result.
      * @return
      */
-    void NotifyCompleteContinuation(const std::string &deviceId, int32_t sessionId, bool isSuccess);
+    void NotifyCompleteContinuation(const std::string &deviceId, int32_t sessionId, bool isSuccess,
+        const sptr<IRemoteObject> &token);
 
     /**
      * ContinueMission, continue ability from mission center.

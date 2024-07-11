@@ -1979,8 +1979,13 @@ int AbilityManagerStub::NotifyCompleteContinuationInner(MessageParcel &data, Mes
     std::string devId = data.ReadString();
     int32_t sessionId = data.ReadInt32();
     bool isSuccess = data.ReadBool();
+    sptr<IRemoteObject> abilityToken = data.ReadRemoteObject();
+    if (abilityToken == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get abilityToken failed!");
+        return ERR_NULL_OBJECT;
+    }
 
-    NotifyCompleteContinuation(devId, sessionId, isSuccess);
+    NotifyCompleteContinuation(devId, sessionId, isSuccess, abilityToken);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "NotifyCompleteContinuationInner end");
     return NO_ERROR;
 }

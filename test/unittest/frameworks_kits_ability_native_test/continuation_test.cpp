@@ -2122,7 +2122,7 @@ HWTEST_F(ContinuationTest, continue_manager_NotifyCompleteContinuation_001, Test
     int sessionId = 0;
     bool success = true;
     sptr<IRemoteObject> reverseScheduler = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
-    continuationManager_->NotifyCompleteContinuation("originDeviceId", sessionId, success, reverseScheduler);
+    continuationManager_->NotifyCompleteContinuation("originDeviceId", sessionId, success, reverseScheduler, nullptr);
     GTEST_LOG_(INFO) << "continue_manager_NotifyCompleteContinuation_001 end";
 }
 

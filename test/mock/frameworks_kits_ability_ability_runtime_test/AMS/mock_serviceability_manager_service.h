@@ -199,7 +199,8 @@ public:
         return 0;
     }
 
-    void NotifyCompleteContinuation(const std::string& deviceId, int32_t sessionId, bool isSuccess)
+    void NotifyCompleteContinuation(const std::string& deviceId, int32_t sessionId, bool isSuccess,
+        const sptr<IRemoteObject> &token)
     {}
 
     int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag)

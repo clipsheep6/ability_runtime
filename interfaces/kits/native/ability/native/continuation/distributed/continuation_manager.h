@@ -63,8 +63,8 @@ public:
 
     bool RestoreData(const WantParams &restoreData, bool reversible, const std::string &originalDeviceId);
 
-    void NotifyCompleteContinuation(
-        const std::string &originDeviceId, int sessionId, bool success, const sptr<IRemoteObject> &reverseScheduler);
+    void NotifyCompleteContinuation(const std::string &originDeviceId, int sessionId, bool success,
+        const sptr<IRemoteObject> &reverseScheduler, const sptr<IRemoteObject> &token);
 
     void CompleteContinuation(int result);
 

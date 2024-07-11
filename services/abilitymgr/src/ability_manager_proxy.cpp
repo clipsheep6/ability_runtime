@@ -2307,7 +2307,8 @@ int AbilityManagerProxy::StartContinuation(const Want &want, const sptr<IRemoteO
     return reply.ReadInt32();
 }
 
-void AbilityManagerProxy::NotifyCompleteContinuation(const std::string &deviceId, int32_t sessionId, bool isSuccess)
+void AbilityManagerProxy::NotifyCompleteContinuation(const std::string &deviceId, int32_t sessionId, bool isSuccess,
+    const sptr<IRemoteObject> &token)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -2325,6 +2326,10 @@ void AbilityManagerProxy::NotifyCompleteContinuation(const std::string &deviceId
     }
     if (!data.WriteBool(isSuccess)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "result write failed.");
+        return;
+    }
+    if (!data.WriteRemoteObject(token)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "token write failed.");
         return;
     }
     TAG_LOGI(AAFwkTag::DISTRIBUTED, "SendRequest NotifyCompleteContinuation begin");

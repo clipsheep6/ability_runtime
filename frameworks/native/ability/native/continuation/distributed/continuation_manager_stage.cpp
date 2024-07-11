@@ -330,10 +330,11 @@ bool ContinuationManagerStage::RestoreData(
 }
 
 void ContinuationManagerStage::NotifyCompleteContinuation(
-    const std::string &originDeviceId, int sessionId, bool success, const sptr<IRemoteObject> &reverseScheduler)
+    const std::string &originDeviceId, int sessionId, bool success, const sptr<IRemoteObject> &reverseScheduler,
+    const sptr<IRemoteObject> &token)
 {
     TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
-    AAFwk::AbilityManagerClient::GetInstance()->NotifyCompleteContinuation(originDeviceId, sessionId, success);
+    AAFwk::AbilityManagerClient::GetInstance()->NotifyCompleteContinuation(originDeviceId, sessionId, success, token);
     TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
 }
 
