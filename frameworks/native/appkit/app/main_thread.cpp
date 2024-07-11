@@ -2729,6 +2729,7 @@ void MainThread::LoadAceAbilityLibrary()
 {
     void *AceAbilityLib = nullptr;
     const char *path = Ace::AceForwardCompatibility::GetAceLibName();
+    CHECK_POINTER_LOG(path, "path is null");
     AceAbilityLib = dlopen(path, RTLD_NOW | RTLD_LOCAL);
     if (AceAbilityLib == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "Fail to dlopen %{public}s, [%{public}s]", path, dlerror());
