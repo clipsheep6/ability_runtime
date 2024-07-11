@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,7 +18,7 @@
 
 #include <mutex>
 #include "feature_ability_common.h"
-#include "napi_context.h"
+#include "napi_js_context.h"
 
 namespace OHOS {
 namespace AppExecFwk {

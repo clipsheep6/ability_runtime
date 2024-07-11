@@ -31,6 +31,8 @@ ohos_shared_library("napi_ability_common") {
     "napi_common_ability_execute_utils.cpp",
     "napi_common_ability_wrap_utils.cpp",
     "napi_context.cpp",
+    "napi_context_wrap_utils.cpp",
+    "napi_js_context.cpp",
   ]
 
   deps = [

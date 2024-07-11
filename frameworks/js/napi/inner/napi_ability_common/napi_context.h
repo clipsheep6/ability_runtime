@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,14 +23,8 @@
 #include "js_runtime_utils.h"
 
 using Ability = OHOS::AppExecFwk::Ability;
-#define MODE 0771
 namespace OHOS {
 namespace AppExecFwk {
-struct CallAbilityPermissionParam {
-    std::vector<std::string> permission_list;
-    int requestCode = 0;
-    int syncOption = false;
-};
 
 /**
  * @brief Context NAPI module registration.
@@ -178,8 +172,6 @@ napi_value NAPI_SetDisplayOrientation(napi_env env, napi_callback_info info);
 #ifdef SUPPORT_GRAPHICS
 napi_value NAPI_SetDisplayOrientationWrap(napi_env env, napi_callback_info info,
     AsyncJSCallbackInfo *asyncCallbackInfo);
-bool UnwrapSetDisplayOrientation(napi_env env, size_t argc, napi_value *argv, AsyncJSCallbackInfo *asyncCallbackInfo);
-void SetDisplayOrientationExecuteCallbackWork(napi_env env, void *data);
 #endif
 
 /**
