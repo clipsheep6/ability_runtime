@@ -1140,6 +1140,7 @@ private:
     // service(ability) can be connected by multi-pages(abilites), so need to store this service's connections
     mutable ffrt::mutex connRecordListMutex_;
     std::list<std::shared_ptr<ConnectionRecord>> connRecordList_ = {};
+    std::list<AbilityState> abilityStateList_ = {};
     // service(ability) onConnect() return proxy of service ability
     sptr<IRemoteObject> connRemoteObject_ = {};
     int startId_ = 0;  // service(ability) start id

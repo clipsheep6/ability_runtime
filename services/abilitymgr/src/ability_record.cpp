@@ -1349,6 +1349,7 @@ void AbilityRecord::UpdateAbilityVisibilityState()
 void AbilityRecord::SetAbilityStateInner(AbilityState state)
 {
     currentState_ = state;
+    abilityStateList_.push_back(state);
     if (currentState_ == AbilityState::BACKGROUND) {
         isAbilityForegrounding_ = false;
     }
@@ -2348,6 +2349,17 @@ void AbilityRecord::DumpService(std::vector<std::string> &info, std::vector<std:
     DumpClientInfo(info, params, isClient);
     DumpUIExtensionRootHostInfo(info);
     DumpUIExtensionPid(info, isUIExtension);
+    decltype(abilityStateList_) abilityStateListCpy;
+    {
+        std::lock_guard guard(connRecordListMutex_);
+        abilityStateListCpy = abilityStateList_;
+    }
+    info.emplace_back("      History ability state: " + std::to_string(abilityStateListCpy.size()));
+    for (auto &&abilityState : abilityStateListCpy) {
+        if (abilityState) {
+            info.emplace_back("      > ability state: " + AbilityRecord::ConvertAbilityState(abilityState));
+        }
+    }
 }
 
 void AbilityRecord::DumpUIExtensionPid(std::vector<std::string> &info, bool isUIExtension) const
