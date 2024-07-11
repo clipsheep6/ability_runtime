@@ -54,6 +54,7 @@ ohos_unittest("uri_perm_mgr_test") {
     "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "hilog:libhilog",
     "storage_service:storage_manager_sa_proxy",
   ]
   if (background_task_mgr_continuous_task_enable) {

@@ -30,7 +30,12 @@ config("appexecfwk_core_mock_config") {
 
 ohos_static_library("appexecfwk_appmgr_mock") {
   # sources = [ "src/appmgr/mock_app_manager.cpp" ]
-
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
   configs = [ ":appexecfwk_core_mock_config" ]
   cflags = []
   if (target_cpu == "arm") {
@@ -55,6 +60,12 @@ ohos_static_library("appexecfwk_appmgr_mock") {
 }
 
 ohos_source_set("appexecfwk_bundlemgr_mock") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
   sources = [
     "src/bundlemgr/mock_app_control_manager.cpp",
     "src/bundlemgr/mock_bundle_manager.cpp",
