@@ -17,7 +17,6 @@
 #define OHOS_ABILITY_RUNTIME_UI_SERVICE_EXTENSION_H
 
 #include "extension_base.h"
-#include "freeze_util.h"
 #include "js_runtime.h"
 #include "context/context.h"
 
