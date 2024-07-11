@@ -397,6 +397,11 @@ void FreeInstallManager::StartAbilityByPreInstall(int32_t recordId, FreeInstallI
     if (result == ERR_OK) {
         result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartUIAbilityByPreInstall(info);
     }
+    if (result != ERR_OK && info.isStartUIAbilityBySCBCalled) {
+        DelayedSingleton<AbilityManagerService>::GetInstance()->NotifySCBToHandleException(
+            info.want.GetStringParam(KEY_SESSION_ID),
+            result, "start ability failed");
+    }
     IPCSkeleton::SetCallingIdentity(identity);
     TAG_LOGI(AAFwkTag::FREE_INSTALL, "The result of StartAbility is %{public}d.", result);
     DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinished(

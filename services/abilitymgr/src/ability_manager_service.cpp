@@ -240,7 +240,7 @@ constexpr int32_t SWITCH_ACCOUNT_TRY = 3;
 #ifdef ABILITY_COMMAND_FOR_TEST
 constexpr int32_t BLOCK_AMS_SERVICE_TIME = 65;
 #endif
-constexpr const int32_t CONVERT_CALLBACK_TIMEOUT_SECONDS = 2; // 2s
+constexpr int32_t CONVERT_CALLBACK_TIMEOUT_SECONDS = 2; // 2s
 constexpr const char* EMPTY_DEVICE_ID = "";
 constexpr int32_t APP_MEMORY_SIZE = 512;
 constexpr int32_t GET_PARAMETER_INCORRECT = -9;
@@ -1992,6 +1992,11 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bo
     }
 
     TAG_LOGI(AAFwkTag::ABILITYMGR, "sessionId=%{public}s", sessionId.c_str());
+
+    if (freeInstallManager_ == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "freeInstallManager_ is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
     FreeInstallInfo taskInfo;
     if (!freeInstallManager_->GetFreeInstallTaskInfo(sessionId, taskInfo)) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "failed to find free isntall task");
@@ -2020,10 +2025,6 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo, bo
 
     TAG_LOGI(AAFwkTag::ABILITYMGR, "free install task is still in progress");
     const Want& want = sessionInfo->want;
-    if (freeInstallManager_ == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "freeInstallManager_ is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
     freeInstallManager_->SetSCBCallStatus(want.GetElement().GetBundleName(), want.GetElement().GetAbilityName(),
         want.GetStringParam(Want::PARAM_RESV_START_TIME), true);
     return ERR_OK;
@@ -11071,6 +11072,7 @@ int32_t AbilityManagerService::StartUIAbilityByPreInstall(const FreeInstallInfo 
             return ERR_INVALID_VALUE;
         }
         sessionInfo = it->second;
+        (sessionInfo->want).SetElement(want.GetElement());
     }
 
     int errCode = ERR_OK;

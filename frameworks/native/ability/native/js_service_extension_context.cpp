@@ -1151,7 +1151,7 @@ private:
                 auto context = weak.lock();
                 if (!context) {
                     TAG_LOGW(AAFwkTag::SERVICE_EXT, "context is released");
-                    task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                    task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                     return;
                 }
                 auto errcode = context->PreStartMission(bundleName, moduleName, abilityName, startTime);
