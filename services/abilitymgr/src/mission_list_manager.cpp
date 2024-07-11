@@ -1213,27 +1213,6 @@ int MissionListManager::AbilityTransactionDone(const sptr<IRemoteObject> &token,
     return DispatchState(abilityRecord, targetState);
 }
 
-int MissionListManager::AbilityWindowConfigTransactionDone(const sptr<IRemoteObject> &token, int state, const WindowConfig &saveData)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    int targetState = AbilityRecord::ConvertLifeCycleToAbilityState(static_cast<AbilityLifeCycleState>(state));
-    std::string abilityState = AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState));
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "state: %{public}s.", abilityState.c_str());
-
-    std::lock_guard guard(managerLock_);
-    auto abilityRecord = Token::GetAbilityRecordByToken(token);
-    if (abilityRecord == nullptr) {
-        abilityRecord = GetAbilityRecordByTokenInner(token);
-        CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    }
-
-    std::string element = abilityRecord->GetElementName().GetURI();
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "ability: %{public}s, state: %{public}s", element.c_str(), abilityState.c_str());
-    abilityRecord->SaveAbilityState(saveData);
-
-    return ERR_OK;
-}
-
 int MissionListManager::DispatchState(const std::shared_ptr<AbilityRecord> &abilityRecord, int state)
 {
     switch (state) {

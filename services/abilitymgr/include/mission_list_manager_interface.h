@@ -59,7 +59,6 @@ public:
     virtual int TerminateAbility(const std::shared_ptr<AbilityRecord> &abilityRecord,
         int resultCode, const Want *resultWant, bool flag) = 0;
     virtual int AbilityTransactionDone(const sptr<IRemoteObject> &token, int state, const PacMap &saveData) = 0;
-    virtual int AbilityWindowConfigTransactionDone(const sptr<IRemoteObject> &token, int state, const WindowConfig &saveData) = 0;
     virtual std::shared_ptr<AbilityRecord> GetAbilityFromTerminateList(const sptr<IRemoteObject> &token) = 0;
     virtual int ClearMission(int missionId) = 0;
     virtual int ClearAllMissions() = 0;

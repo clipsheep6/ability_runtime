@@ -18,7 +18,6 @@
 
 #include <string>
 
-#include "ability_state.h"
 #include "parcel.h"
 
 namespace OHOS {
@@ -26,11 +25,11 @@ namespace AAFwk {
 struct WindowConfig : public Parcelable {
     WindowConfig() = default;
 
-    int32_t windowStageAttribute;
-    int32_t posx;
-    int32_t posy;
-    uint32_t width;
-    uint32_t height;
+    int32_t windowType = 0;
+    int32_t posx = 0;
+    int32_t posy = 0;
+    uint32_t width = 0;
+    uint32_t height = 0;
 
     virtual bool Marshalling(Parcel &parcel) const override;
     static WindowConfig *Unmarshalling(Parcel &parcel);

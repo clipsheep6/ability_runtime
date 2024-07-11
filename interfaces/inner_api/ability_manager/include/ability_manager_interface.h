@@ -650,10 +650,10 @@ public:
      * AbilityWindowConfigTransitionDone, ability call this interface after life cycle was changed.
      *
      * @param token,.ability's token.
-     * @param state,.the state of ability life cycle.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int AbilityWindowConfigTransitionDone(const sptr<IRemoteObject> &token, int state, const WindowConfig &saveData) = 0;
+    virtual int AbilityWindowConfigTransitionDone(
+        const sptr<IRemoteObject> &token, const WindowConfig &windowConfig) = 0;
 
     /**
      * ScheduleConnectAbilityDone, service ability call this interface while session was connected.

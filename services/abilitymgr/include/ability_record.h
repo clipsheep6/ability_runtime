@@ -649,7 +649,7 @@ public:
      */
     void SaveAbilityState();
     void SaveAbilityState(const PacMap &inState);
-    void SaveAbilityState(const WindowConfig &windowConfig);
+    void SaveAbilityWindowConfig(const WindowConfig &windowConfig);
 
     /**
      * restore ability state.
@@ -1164,7 +1164,7 @@ private:
     bool isLauncherRoot_ = false;
 
     PacMap stateDatas_;             // ability saved ability state data
-    WindowConfig windowconfigDatas_;
+    WindowConfig windowConfig_;
     bool isRestarting_ = false;     // is restarting ?
     AppState appState_ = AppState::BEGIN;
 

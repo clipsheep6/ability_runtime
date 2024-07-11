@@ -1047,13 +1047,12 @@ int AbilityManagerStub::AbilityTransitionDoneInner(MessageParcel &data, MessageP
 int AbilityManagerStub::AbilityWindowConfigTransitionDoneInner(MessageParcel &data, MessageParcel &reply)
 {
     auto token = data.ReadRemoteObject();
-    int targetState = data.ReadInt32();
-    std::unique_ptr<WindowConfig> saveData(data.ReadParcelable<WindowConfig>());
-    if (!saveData) {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "save data is nullptr");
+    std::unique_ptr<WindowConfig> windowConfig(data.ReadParcelable<WindowConfig>());
+    if (!windowConfig) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "windowConfig is nullptr");
         return ERR_INVALID_VALUE;
     }
-    int32_t result = AbilityWindowConfigTransitionDone(token, targetState, *saveData);
+    int32_t result = AbilityWindowConfigTransitionDone(token, *windowConfig);
     reply.WriteInt32(result);
     return NO_ERROR;
 }

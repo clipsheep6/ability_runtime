@@ -1249,7 +1249,8 @@ int AbilityManagerProxy::AbilityTransitionDone(const sptr<IRemoteObject> &token,
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::AbilityWindowConfigTransitionDone(const sptr<IRemoteObject> &token, int state, const WindowConfig &saveData)
+int AbilityManagerProxy::AbilityWindowConfigTransitionDone(
+    const sptr<IRemoteObject> &token, const WindowConfig &windowConfig)
 {
     int error;
     MessageParcel data;
@@ -1259,11 +1260,11 @@ int AbilityManagerProxy::AbilityWindowConfigTransitionDone(const sptr<IRemoteObj
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
-    if (!data.WriteRemoteObject(token) || !data.WriteInt32(state)) {
+    if (!data.WriteRemoteObject(token)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "token or state write failed.");
         return ERR_INVALID_VALUE;
     }
-    if (!data.WriteParcelable(&saveData)) {
+    if (!data.WriteParcelable(&windowConfig)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "saveData write failed.");
         return INNER_ERR;
     }

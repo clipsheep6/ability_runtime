@@ -16,10 +16,7 @@
 #include "window_config.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
-#include "nlohmann/json.hpp"
 #include "parcel_macro_base.h"
-#include "string_ex.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -31,7 +28,7 @@ WindowConfig *WindowConfig::Unmarshalling(Parcel &parcel)
         TAG_LOGE(AAFwkTag::ABILITYMGR, "data is nullptr.");
         return nullptr;
     }
-    data->windowStageAttribute = parcel.ReadInt32();
+    data->windowType = parcel.ReadInt32();
     data->posx = parcel.ReadInt32();
     data->posy = parcel.ReadInt32();
     data->width = parcel.ReadUint32();
@@ -41,7 +38,7 @@ WindowConfig *WindowConfig::Unmarshalling(Parcel &parcel)
 
 bool WindowConfig::Marshalling(Parcel &parcel) const
 {
-    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, static_cast<int32_t>(windowStageAttribute));
+    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, static_cast<int32_t>(windowType));
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, static_cast<int32_t>(posx));
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, static_cast<int32_t>(posy));
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Uint32, parcel, static_cast<uint32_t>(width));
