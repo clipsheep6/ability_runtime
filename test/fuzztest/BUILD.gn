@@ -18,6 +18,9 @@ group("fuzztest") {
 
   deps = [
     "abilityattachtimeout_fuzzer:fuzztest",
+    "abilityautostartupdatamanagera_fuzzer:fuzztest",
+    "abilityautostartupdatamanagerb_fuzzer:fuzztest",
+    "abilityautostartupservicea_fuzzer:fuzztest",
     "abilityconnectionstub_fuzzer:fuzztest",
     "abilitycontext_fuzzer:fuzztest",
     "abilitymanagerserviceb_fuzzer:fuzztest",
