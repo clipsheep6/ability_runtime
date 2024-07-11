@@ -35,8 +35,11 @@ class AssetHelper final {
 public:
     explicit AssetHelper(std::shared_ptr<JsEnv::WorkerInfo> workerInfo) : workerInfo_(workerInfo)
     {
-        if (!(workerInfo_->codePath).empty() && (workerInfo->codePath).back() != '/') {
-            (workerInfo_->codePath).append("/");
+        JsEnv::StringPacProtect codePath = JsEnv::StringPacProtect(workerInfo_->codePath);
+        if (!(codePath.GetOriginString()).empty() && (codePath.GetOriginString()).back() != '/') {
+            // (workerInfo_->codePath).append("/");
+            // workerInfo_->codePath = StringPacProtect(codePath.append("/"));
+            (workerInfo_->codePath).Append("/");
         }
     }
 

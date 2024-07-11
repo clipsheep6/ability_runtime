@@ -17,6 +17,7 @@ import("../../js_environment.gni")
 
 config("js_environment_config") {
   include_dirs = [ "${inner_api_path}" ]
+  cflags_cc = [ "-march=armv8.3a" ]
 }
 
 config("public_js_environment_config") {
@@ -29,6 +30,7 @@ config("public_js_environment_config") {
 
 ohos_shared_library("js_environment") {
   sources = [
+    "${utils_path}/src/data_protect.cpp",
     "${utils_path}/src/js_env_logger.cpp",
     "src/js_environment.cpp",
     "src/source_map.cpp",

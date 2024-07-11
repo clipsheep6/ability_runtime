@@ -315,12 +315,14 @@ void NativeRuntimeImpl::InitWorkerModule(const Options& options, const std::shar
     }
 
     std::shared_ptr<JsEnv::WorkerInfo> workerInfo = std::make_shared<JsEnv::WorkerInfo>();
-    workerInfo->codePath = options.codePath;
+    // workerInfo->codePath = options.codePath;
+    workerInfo->codePath = JsEnv::StringPacProtect(options.codePath);
     workerInfo->isDebugVersion = options.isDebugVersion;
     workerInfo->isBundle = options.isBundle;
     workerInfo->packagePathStr = options.packagePathStr;
     workerInfo->assetBasePathStr = options.assetBasePathStr;
-    workerInfo->hapPath = options.hapPath;
+    // workerInfo->hapPath = options.hapPath;
+    workerInfo->hapPath = JsEnv::StringPacProtect(options.hapPath);
     workerInfo->isStageModel = options.isStageModel;
     workerInfo->moduleName = options.moduleName;
     if (options.isJsFramework) {
