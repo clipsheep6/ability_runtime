@@ -1477,8 +1477,6 @@ private:
         const HapModuleInfo &hapModuleInfo, std::shared_ptr<AAFwk::Want> want,
         bool appExistFlag, bool isPreload, sptr<IRemoteObject> token = nullptr);
 
-    int32_t CheckSetProcessCachePermission() const;
-
     int32_t CreatNewStartMsg(const Want &want, const AbilityInfo &abilityInfo,
         const std::shared_ptr<ApplicationInfo> &appInfo, const std::string &processName,
         AppSpawnStartMsg &startMsg);

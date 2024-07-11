@@ -476,16 +476,6 @@ bool PermissionVerification::VerifyPreloadApplicationPermission() const
     return false;
 }
 
-bool PermissionVerification::VerifySetProcessCachePermission() const
-{
-    if (VerifyCallingPermission(PermissionConstants::PERMISSION_SET_PROCESS_CACHE_STATE)) {
-        TAG_LOGD(AAFwkTag::APPMGR, "Permission verification succeeded.");
-        return true;
-    }
-    TAG_LOGW(AAFwkTag::APPMGR, "Permission verification failed");
-    return false;
-}
-
 bool PermissionVerification::VerifyPreStartAtomicServicePermission() const
 {
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_PRE_START_ATOMIC_SERVICE)) {

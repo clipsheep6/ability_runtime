@@ -54,11 +54,14 @@ private:
     void AddToApplicationSet(const std::shared_ptr<AppRunningRecord> &appRecord);
     void RemoveFromApplicationSet(const std::shared_ptr<AppRunningRecord> &appRecord);
     bool CheckAndNotifyCachedState(const std::shared_ptr<AppRunningRecord> &appRecord);
+    bool IsAppSupportProcessCacheInnerFirst(const std::shared_ptr<AppRunningRecord> &appRecord);
     int32_t maxProcCacheNum_ = 0;
     std::deque<std::shared_ptr<AppRunningRecord>> cachedAppRecordQueue_;
     ffrt::recursive_mutex cacheQueueMtx;
     std::weak_ptr<AppMgrServiceInner> appMgr_;
     bool shouldCheckApi = true;
+    // whether the feature should check setSupportedProcessCache value or not
+    bool shouldCheckSupport = true;
     // bundleName->uid->record
     std::map<std::string, std::map<int32_t, std::set<std::shared_ptr<AppRunningRecord>>>> sameAppSet;
     // stores records that are servcie extension

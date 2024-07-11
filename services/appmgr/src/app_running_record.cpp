@@ -2261,10 +2261,6 @@ int AppRunningRecord::DumpFfrt(std::string& result)
 bool AppRunningRecord::SetSupportedProcessCache(bool isSupport)
 {
     TAG_LOGI(AAFwkTag::APPMGR, "Called");
-    if (procCacheSupportState_ != SupportProcessCacheState::UNSPECIFIED) {
-        TAG_LOGI(AAFwkTag::APPMGR, "Process cache not support set more than once.");
-        return false;
-    }
     procCacheSupportState_ = isSupport ? SupportProcessCacheState::SUPPORT : SupportProcessCacheState::NOT_SUPPORT;
     return true;
 }

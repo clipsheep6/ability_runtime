@@ -25,6 +25,7 @@
 namespace {
 const std::string MAX_PROC_CACHE_NUM = "persist.sys.abilityms.maxProcessCacheNum";
 const std::string PROCESS_CACHE_API_CHECK_CONFIG = "persist.sys.abilityms.processCacheApiCheck";
+const std::string PROCESS_CACHE_SET_SUPPORT_CHECK_CONFIG = "persist.sys.abilityms.processCacheSetSupportCheck";
 const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 constexpr int32_t API12 = 12;
 constexpr int32_t API_VERSION_MOD = 100;
@@ -37,6 +38,7 @@ CacheProcessManager::CacheProcessManager()
 {
     maxProcCacheNum_ = OHOS::system::GetIntParameter<int>(MAX_PROC_CACHE_NUM, 0);
     shouldCheckApi = OHOS::system::GetBoolParameter(PROCESS_CACHE_API_CHECK_CONFIG, true);
+    shouldCheckSupport = OHOS::system::GetBoolParameter(PROCESS_CACHE_SET_SUPPORT_CHECK_CONFIG, true);
     TAG_LOGW(AAFwkTag::APPMGR, "maxProcCacheNum is =%{public}d", maxProcCacheNum_);
 }
 
@@ -255,16 +257,30 @@ bool CacheProcessManager::IsAppSupportProcessCache(const std::shared_ptr<AppRunn
         TAG_LOGD(AAFwkTag::APPMGR, "shell assistant, not support.");
         return false;
     }
+    return IsAppSupportProcessCacheInnerFirst(appRecord);
+}
+
+bool CacheProcessManager::IsAppSupportProcessCacheInnerFirst(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    if (appRecord == nullptr) {
+        TAG_LOGI(AAFwkTag::APPMGR, "appRecord nullptr precheck failed");
+        return false;
+    }
     auto supportState = appRecord->GetSupportProcessCacheState();
     switch (supportState) {
         case SupportProcessCacheState::UNSPECIFIED:
-            return true;
+            TAG_LOGD(AAFwkTag::APPMGR, "App %{public}s has not defined support state.",
+                appRecord->GetBundleName().c_str());
+            return shouldCheckSupport ? false : true;
         case SupportProcessCacheState::SUPPORT:
             return true;
         case SupportProcessCacheState::NOT_SUPPORT:
+            TAG_LOGD(AAFwkTag::APPMGR, "App %{public}s defines not support.",
+                appRecord->GetBundleName().c_str());
             return false;
         default:
-            return true;
+            TAG_LOGD(AAFwkTag::APPMGR, "Invalid support state.");
+            return false;
     }
 }
 

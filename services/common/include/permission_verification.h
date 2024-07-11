@@ -99,8 +99,6 @@ struct VerificationInfo {
 
     bool VerifyPreloadApplicationPermission() const;
 
-    bool VerifySetProcessCachePermission() const;
-
     bool VerifyPreStartAtomicServicePermission() const;
 
 private:

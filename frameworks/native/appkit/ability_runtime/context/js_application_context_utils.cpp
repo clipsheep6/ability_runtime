@@ -1483,11 +1483,6 @@ napi_value JsApplicationContextUtils::OnSetSupportedProcessCacheSelf(napi_env en
 {
     TAG_LOGD(AAFwkTag::APPKIT, "called");
 
-    if (!CheckCallerIsSystemApp()) {
-        TAG_LOGE(AAFwkTag::APPKIT, "This application is not system-app, can not use system-api.");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_NOT_SYSTEM_APP);
-        return CreateJsUndefined(env);
-    }
     // only support one params
     if (info.argc == ARGC_ZERO) {
         TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
@@ -1510,12 +1505,9 @@ napi_value JsApplicationContextUtils::OnSetSupportedProcessCacheSelf(napi_env en
     }
 
     int32_t errCode = applicationContext->SetSupportedProcessCacheSelf(isSupport);
-    if (errCode == AAFwk::CHECK_PERMISSION_FAILED) {
-        TAG_LOGE(AAFwkTag::APPKIT, "check permission failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_NO_ACCESS_PERMISSION);
-    } else if (errCode == AAFwk::ERR_SET_SUPPORTED_PROCESS_CACHE_AGAIN) {
-        TAG_LOGE(AAFwkTag::APPKIT, "cannot set more than once");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_SET_SUPPORTED_PROCESS_CACHE_AGAIN);
+    if (errCode == AAFwk::ERR_CAPABILITY_NOT_SUPPORT) {
+        TAG_LOGE(AAFwkTag::APPKIT, "process cache feature is disabled.");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_NO_SUCH_SYSCAP);
     } else if (errCode != ERR_OK) {
         TAG_LOGE(AAFwkTag::APPKIT, "set failed");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR);

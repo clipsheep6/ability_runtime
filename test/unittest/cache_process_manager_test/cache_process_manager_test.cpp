@@ -266,7 +266,7 @@ HWTEST_F(CacheProcessManagerTest, CacheProcessManager_IsAppSupportProcessCache_0
     // different supportState
     auto appRecord3 = MockAppRecord(12);
     EXPECT_NE(appRecord3, nullptr);
-    EXPECT_EQ(cacheProcMgr->IsAppSupportProcessCache(appRecord3), true);
+    EXPECT_EQ(cacheProcMgr->IsAppSupportProcessCache(appRecord3), false);
     appRecord3->SetSupportedProcessCache(true);
     EXPECT_EQ(cacheProcMgr->IsAppSupportProcessCache(appRecord3), true);
     appRecord3->procCacheSupportState_ = SupportProcessCacheState::NOT_SUPPORT;
