@@ -3070,7 +3070,7 @@ void AppMgrServiceInner::ClearRecentAppList()
 
 void AppMgrServiceInner::OnRemoteDied(const wptr<IRemoteObject> &remote, bool isRenderProcess, bool isChildProcess)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "On remote died.");
+    TAG_LOGI(AAFwkTag::APPMGR, "On remote died, pid:%{public}d.", IPCSkeleton::GetCallingPid());
     if (isRenderProcess) {
         OnRenderRemoteDied(remote);
         return;
