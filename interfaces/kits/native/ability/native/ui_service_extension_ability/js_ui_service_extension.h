@@ -156,10 +156,6 @@ private:
 
     void ListenWMS();
 
-    void OnSceneWillCreated(std::shared_ptr<Rosen::ExtensionWindowConfig> extensionWindowConfig);
-
-    void OnSceneDidCreated(sptr<Rosen::Window>& window);
-
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;
     std::shared_ptr<AbilityContext> aContext_ = nullptr;
@@ -167,6 +163,8 @@ private:
     std::shared_ptr<AbilityHandler> handler_ = nullptr;
 
 #ifdef SUPPORT_GRAPHICS
+    void OnSceneWillCreated(std::shared_ptr<Rosen::ExtensionWindowConfig> extensionWindowConfig);
+    void OnSceneDidCreated(sptr<Rosen::Window>& window);
 protected:
     class JsUIServiceExtensionDisplayListener : public Rosen::DisplayManager::IDisplayListener {
     public:

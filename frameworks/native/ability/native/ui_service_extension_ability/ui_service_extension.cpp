@@ -77,7 +77,8 @@ std::shared_ptr<UIServiceExtensionContext> UIServiceExtension::CreateAndInitCont
 
 #ifdef SUPPORT_GRAPHICS
 sptr<Rosen::WindowOption> UIServiceExtension::GetWindowOption(const AAFwk::Want &want,
-    const std::shared_ptr< Rosen::ExtensionWindowConfig>& extensionWindowConfig, const sptr<AAFwk::SessionInfo>& sessionInfo)
+    const std::shared_ptr< Rosen::ExtensionWindowConfig>& extensionWindowConfig,
+    const sptr<AAFwk::SessionInfo>& sessionInfo)
 {
     auto option = sptr<Rosen::WindowOption>::MakeSptr();
     if (option == nullptr) {
@@ -88,7 +89,6 @@ sptr<Rosen::WindowOption> UIServiceExtension::GetWindowOption(const AAFwk::Want 
         AAFwk::Want::PARAM_RESV_WINDOW_MODE, AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
     TAG_LOGI(AAFwkTag::UIABILITY, "Window mode is %{public}d.", windowMode);
     option->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
-    bool showOnLockScreen = false;
     if (abilityInfo_) {
         TAG_LOGD(AAFwkTag::UIABILITY, "Set window type for launcher.");
         option->SetWindowType(Rosen::WindowType::WINDOW_TYPE_DESKTOP);
@@ -100,14 +100,16 @@ sptr<Rosen::WindowOption> UIServiceExtension::GetWindowOption(const AAFwk::Want 
         option->SetExtensionTag(true);
         option->SetSubWindowTitle(extensionWindowConfig->subWindowOptions.title);
         option->SetSubWindowDecorEnable(extensionWindowConfig->subWindowOptions.decorEnabled);
-        if(extensionWindowConfig->subWindowOptions.isModal) {
+        if (extensionWindowConfig->subWindowOptions.isModal) {
             option->AddWindowFlag(Rosen::WindowFlag::WINDOW_FLAG_IS_MODAL);
         }
     } else if (extensionWindowConfig->windowAttribute == Rosen::ExtensionWindowAttribute::SYSTEM_WINDOW) {
-        if (Rosen::JS_TO_NATIVE_WINDOW_TYPE_MAP.count(static_cast<Rosen::ApiWindowType>(extensionWindowConfig->systemWindowOptions.windowType)) != 0) {
+        if (Rosen::JS_TO_NATIVE_WINDOW_TYPE_MAP.count(
+            static_cast<Rosen::ApiWindowType>(extensionWindowConfig->systemWindowOptions.windowType)) != 0) {
             Rosen::WindowType winType = Rosen::WindowType::SYSTEM_WINDOW_BASE;
-            winType = Rosen::JS_TO_NATIVE_WINDOW_TYPE_MAP.at(static_cast<Rosen::ApiWindowType>(extensionWindowConfig->systemWindowOptions.windowType));
-            if (Rosen::WindowHelper::IsSystemWindow(winType)){
+            winType = Rosen::JS_TO_NATIVE_WINDOW_TYPE_MAP.at(
+                static_cast<Rosen::ApiWindowType>(extensionWindowConfig->systemWindowOptions.windowType));
+            if (Rosen::WindowHelper::IsSystemWindow(winType)) {
                 option->SetWindowType(winType);
             } else {
                 return nullptr;

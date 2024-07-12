@@ -20,7 +20,6 @@
 #include "js_runtime.h"
 #include "context/context.h"
 #ifdef SUPPORT_GRAPHICS
-#include "js_window_stage_config.h"
 #include "js_extension_window_config.h"
 #include "js_window_utils.h"
 #include "window_helper.h"
@@ -86,8 +85,9 @@ public:
      * @brief get the window option.
      * @return Returns a window option object pointer.
      */
-    sptr<Rosen::WindowOption> UIServiceExtension::GetWindowOption(const AAFwk::Want &want,
-        const std::shared_ptr< Rosen::ExtensionWindowConfig>& extensionWindowConfig, const sptr<AAFwk::SessionInfo>& sessionInfo);
+    sptr<Rosen::WindowOption> GetWindowOption(const AAFwk::Want &want,
+        const std::shared_ptr< Rosen::ExtensionWindowConfig>& extensionWindowConfig,
+            const sptr<AAFwk::SessionInfo>& sessionInfo);
 #endif
 };
 }  // namespace AbilityRuntime
