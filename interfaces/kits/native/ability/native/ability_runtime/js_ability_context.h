@@ -24,7 +24,6 @@
 #include "ability_context.h"
 #include "js_free_install_observer.h"
 #include "js_runtime.h"
-
 #include "event_handler.h"
 
 class NativeReference;

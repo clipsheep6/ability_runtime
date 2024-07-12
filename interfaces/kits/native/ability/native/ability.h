@@ -35,7 +35,6 @@
 #include "free_install_observer_interface.h"
 #include "iability_callback.h"
 #include "want_agent.h"
-
 #include "appexecfwk_errors.h"
 #include "iremote_object.h"
 #include "pac_map.h"
@@ -47,8 +46,8 @@
 #include "form_constants.h"
 #include "form_provider_info.h"
 #include "form_state_info.h"
-#include "foundation/multimodalinput/input/interfaces/native/innerkits/event/include/key_event.h"
-#include "foundation/multimodalinput/input/interfaces/native/innerkits/event/include/pointer_event.h"
+#include "key_event.h"
+#include "pointer_event.h"
 #include "session_info.h"
 #include "window_option.h"
 #include "window_scene.h"

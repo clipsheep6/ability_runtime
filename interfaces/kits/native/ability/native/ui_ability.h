@@ -28,7 +28,6 @@
 #include "fa_ability_context.h"
 #include "iability_callback.h"
 #include "resource_config_helper.h"
-
 #include "want.h"
 
 #ifdef SUPPORT_SCREEN

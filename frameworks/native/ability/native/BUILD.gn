@@ -264,7 +264,6 @@ ohos_shared_library("abilitykit_native") {
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
-    "image_framework:image",
     "init:libbegetutil",
     "ipc:ipc_core",
     "ipc:ipc_napi",

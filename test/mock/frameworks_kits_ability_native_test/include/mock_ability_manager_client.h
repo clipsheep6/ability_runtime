@@ -29,7 +29,6 @@
 #include "iremote_object.h"
 #include "iremote_stub.h"
 #include "values_bucket.h"
-
 #include "want.h"
 
 #define OPENFILENUM (1246)
