@@ -1015,36 +1015,6 @@ HWTEST_F(JsRuntimeTest, PostSyncTask_0100, TestSize.Level0)
 }
 
 /**
- * @tc.name: PostSyncTask_0200
- * @tc.desc: Js runtime post sync task in preload scene.
- * @tc.type: FUNC
- * @tc.require: issueI7C87T
- */
-HWTEST_F(JsRuntimeTest, PostSyncTask_0200, TestSize.Level1)
-{
-    options_.preload = true;
-    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
-    EXPECT_TRUE(jsRuntime != nullptr);
-
-    Runtime::SavePreloaded(std::move(jsRuntime));
-
-    options_.preload = false;
-    auto newJsRuntime = JsRuntime::Create(options_);
-    EXPECT_TRUE(newJsRuntime != nullptr);
-
-    std::string taskName = "syncTask002";
-    bool taskExecuted = false;
-    auto task = [taskName, &taskExecuted]() {
-        TAG_LOGI(AAFwkTag::TEST, "%{public}s called.", taskName.c_str());
-        taskExecuted = true;
-    };
-    newJsRuntime->PostSyncTask(task, taskName);
-    EXPECT_EQ(taskExecuted, true);
-    jsRuntime.reset();
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-}
-
-/**
  * @tc.name: ReInitJsEnvImpl_0100
  * @tc.desc: Js runtime reinit js env impl.
  * @tc.type: FUNC

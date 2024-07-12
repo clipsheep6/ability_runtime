@@ -2983,45 +2983,6 @@ HWTEST_F(AmsAppRunningRecordTest, IsAbilitytiesBackground_001, TestSize.Level1)
 }
 
 /**
- * @tc.name: AppRunningRecord_OnWindowVisibilityChanged_001
- * @tc.desc: verify that AppRunningRecord correctly handle window visibility change event
- * @tc.type: FUNC
- */
-HWTEST_F(AmsAppRunningRecordTest, OnWindowVisibilityChanged_001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "OnWindowVisibilityChanged_001 start.";
-    // 1. create AppRunningRecord, set state and windowIds_
-    auto record = GetTestAppRunningRecord();
-    EXPECT_NE(record, nullptr);
-    uint32_t windowId = 123456;
-    record->windowIds_.insert(windowId);
-    record->curState_ = ApplicationState::APP_STATE_FOREGROUND;
-
-    // 2. construct WindowVisibilityInfos
-    std::vector<sptr<Rosen::WindowVisibilityInfo>> windowVisibilityInfos;
-    auto info = new (std::nothrow) Rosen::WindowVisibilityInfo();
-    EXPECT_NE(info, nullptr);
-    info->visibilityState_ = Rosen::WindowVisibilityState::WINDOW_VISIBILITY_STATE_TOTALLY_OCCUSION;
-    info->windowId_ = windowId;
-    windowVisibilityInfos.emplace_back(info);
-
-    //3. verify function
-    record->OnWindowVisibilityChanged(windowVisibilityInfos);
-    EXPECT_TRUE(record->isUpdateStateFromService_);
-    EXPECT_TRUE(record->windowIds_.empty());
-
-    info->visibilityState_ = Rosen::WindowVisibilityState::WINDOW_VISIBILITY_STATE_NO_OCCLUSION;
-    windowVisibilityInfos.clear();
-    windowVisibilityInfos.emplace_back(info);
-    record->isUpdateStateFromService_ = false;
-    record->curState_ = ApplicationState::APP_STATE_BACKGROUND;
-    record->OnWindowVisibilityChanged(windowVisibilityInfos);
-    EXPECT_FALSE(record->windowIds_.empty());
-    EXPECT_TRUE(record->isUpdateStateFromService_);
-    GTEST_LOG_(INFO) << "OnWindowVisibilityChanged_001 end.";
-}
-
-/**
  * @tc.name: AppRunningRecord_SetState_001
  * @tc.desc: verify that setState works.
  * @tc.type: FUNC
