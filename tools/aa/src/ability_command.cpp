@@ -395,41 +395,55 @@ ErrCode AbilityManagerShellCommand::RunAsStopService()
     return result;
 }
 
-ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
+ErrCode AbilityManagerShellCommand::RunAsDumpsysCommandProcessingParametersc(ErrCode& result, bool& isClient)
 {
-    ErrCode result = OHOS::ERR_OK;
-    bool isUserID = false;
-    bool isClient = false;
-    int userID = DEFAULT_INVAL_VALUE;
-    bool isfirstCommand = false;
-    std::string args;
+    if (isClient == false) {
+        isClient = true;
+    } else {
+        result = OHOS::ERR_INVALID_VALUE;
+        resultReceiver_.append(HELP_MSG_DUMPSYS);
+        return result;
+    }
+
+    return OHOS::ERR_OK;
+}
+
+ErrCode AbilityManagerShellCommand::RunAsDumpsysCommandProcessingParametersu(ErrCode& result,
+    const std::vector<std::string>::iterator& it, int &userID, bool& isUserID)
+{
+    if (it + 1 == argList_.end()) {
+        result = OHOS::ERR_INVALID_VALUE;
+        resultReceiver_.append(HELP_MSG_DUMPSYS);
+        return result;
+    }
+    (void)StrToInt(*(it + 1), userID);
+    if (userID == DEFAULT_INVAL_VALUE) {
+        result = OHOS::ERR_INVALID_VALUE;
+        resultReceiver_.append(HELP_MSG_DUMPSYS);
+        return result;
+    }
+    if (isUserID == false) {
+        isUserID = true;
+    } else {
+        result = OHOS::ERR_INVALID_VALUE;
+        resultReceiver_.append(HELP_MSG_DUMPSYS);
+        return result;
+    }
+
+    return OHOS::ERR_OK;
+}
+
+ErrCode AbilityManagerShellCommand::RunAsDumpsysCommandProcessingParameters(ErrCode& result, bool& isUserID,
+    bool& isClient, int& userID, std::string& args)
+{
     for (auto it = argList_.begin(); it != argList_.end(); it++) {
         if (*it == "-c" || *it == "--client") {
-            if (isClient == false) {
-                isClient = true;
-            } else {
-                result = OHOS::ERR_INVALID_VALUE;
-                resultReceiver_.append(HELP_MSG_DUMPSYS);
-                return result;
+            if (RunAsDumpsysCommandProcessingParametersc(result, isClient) == OHOS::ERR_INVALID_VALUE) {
+                return OHOS::ERR_INVALID_VALUE;
             }
         } else if (*it == "-u" || *it == "--userId") {
-            if (it + 1 == argList_.end()) {
-                result = OHOS::ERR_INVALID_VALUE;
-                resultReceiver_.append(HELP_MSG_DUMPSYS);
-                return result;
-            }
-            (void)StrToInt(*(it + 1), userID);
-            if (userID == DEFAULT_INVAL_VALUE) {
-                result = OHOS::ERR_INVALID_VALUE;
-                resultReceiver_.append(HELP_MSG_DUMPSYS);
-                return result;
-            }
-            if (isUserID == false) {
-                isUserID = true;
-            } else {
-                result = OHOS::ERR_INVALID_VALUE;
-                resultReceiver_.append(HELP_MSG_DUMPSYS);
-                return result;
+            if (RunAsDumpsysCommandProcessingParametersu(result, it, userID, isUserID) == OHOS::ERR_INVALID_VALUE) {
+                return OHOS::ERR_INVALID_VALUE;
             }
         } else if (*it == std::to_string(userID)) {
             continue;
@@ -439,178 +453,186 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
         }
     }
 
-    while (true) {
-        int option = getopt_long(argc_, argv_, SHORT_OPTIONS_DUMPSYS.c_str(), LONG_OPTIONS_DUMPSYS, nullptr);
+    return OHOS::ERR_OK;
+}
 
-        TAG_LOGI(
-            AAFwkTag::AA_TOOL, "option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
+bool AbilityManagerShellCommand::RunAsDumpsysCommandOptionHandlerh(ErrCode& result)
+{
+    // 'aa dumpsys -h'
+    // 'aa dumpsys --help'
+    resultReceiver_.append(HELP_MSG_DUMPSYS);
+    result = OHOS::ERR_INVALID_VALUE;
+    return true;
+}
 
-        if (optind < 0 || optind > argc_) {
+bool AbilityManagerShellCommand::RunAsDumpsysCommandOptionHandlera(ErrCode& result, bool& isfirstCommand)
+{
+    // 'aa dumpsys -a'
+    // 'aa dumpsys --all'
+    if (isfirstCommand == false) {
+        isfirstCommand = true;
+    } else {
+        result = OHOS::ERR_INVALID_VALUE;
+        resultReceiver_.append(HELP_MSG_DUMPSYS);
+        return true;
+    }
+
+    return false;
+}
+
+bool AbilityManagerShellCommand::RunAsDumpsysCommandOptionHandlerl(ErrCode& result, bool& isfirstCommand)
+{
+    // 'aa dumpsys -l'
+    // 'aa dumpsys --mission-list'
+    if (isfirstCommand == false) {
+        isfirstCommand = true;
+    } else {
+        // 'aa dump -i 10 -element -lastpage'
+        // 'aa dump -i 10 -render -lastpage'
+        // 'aa dump -i 10 -layer'
+        if ((optarg != nullptr) && strcmp(optarg, "astpage") && strcmp(optarg, "ayer")) {
+            result = OHOS::ERR_INVALID_VALUE;
             resultReceiver_.append(HELP_MSG_DUMPSYS);
-            return OHOS::ERR_INVALID_VALUE;
-        }
-
-        if (option == -1) {
-            break;
-        }
-
-        switch (option) {
-            case 'h': {
-                // 'aa dumpsys -h'
-                // 'aa dumpsys --help'
-                resultReceiver_.append(HELP_MSG_DUMPSYS);
-                result = OHOS::ERR_INVALID_VALUE;
-                return result;
-            }
-            case 'a': {
-                if (isfirstCommand == false) {
-                    isfirstCommand = true;
-                } else {
-                    result = OHOS::ERR_INVALID_VALUE;
-                    resultReceiver_.append(HELP_MSG_DUMPSYS);
-                    return result;
-                }
-                // 'aa dumpsys -a'
-                // 'aa dumpsys --all'
-                break;
-            }
-            case 'l': {
-                if (isfirstCommand == false) {
-                    isfirstCommand = true;
-                } else {
-                    // 'aa dump -i 10 -element -lastpage'
-                    // 'aa dump -i 10 -render -lastpage'
-                    // 'aa dump -i 10 -layer'
-                    if ((optarg != nullptr) && strcmp(optarg, "astpage") && strcmp(optarg, "ayer")) {
-                        result = OHOS::ERR_INVALID_VALUE;
-                        resultReceiver_.append(HELP_MSG_DUMPSYS);
-                        return result;
-                    }
-                }
-                // 'aa dumpsys -l'
-                // 'aa dumpsys --mission-list'
-                break;
-            }
-            case 'i': {
-                if (isfirstCommand == false) {
-                    isfirstCommand = true;
-                    int abilityRecordId = DEFAULT_INVAL_VALUE;
-                    (void)StrToInt(optarg, abilityRecordId);
-                    if (abilityRecordId == DEFAULT_INVAL_VALUE) {
-                        result = OHOS::ERR_INVALID_VALUE;
-                        resultReceiver_.append(HELP_MSG_DUMPSYS);
-                        return result;
-                    }
-                } else {
-                    // 'aa dumpsys -i 10 -inspector'
-                    if ((optarg != nullptr) && strcmp(optarg, "nspector")) {
-                        result = OHOS::ERR_INVALID_VALUE;
-                        resultReceiver_.append(HELP_MSG_DUMPSYS);
-                        return result;
-                    }
-                }
-                // 'aa dumpsys -i'
-                // 'aa dumpsys --ability'
-                break;
-            }
-            case 'e': {
-                if (isfirstCommand == false && optarg == nullptr) {
-                    isfirstCommand = true;
-                } else {
-                    // 'aa dumpsys -i 10 -element'
-                    if ((optarg != nullptr) && strcmp(optarg, "lement")) {
-                        result = OHOS::ERR_INVALID_VALUE;
-                        resultReceiver_.append(HELP_MSG_DUMPSYS);
-                        return result;
-                    }
-                }
-                // 'aa dumpsys -e'
-                // 'aa dumpsys --extension'
-                break;
-            }
-            case 'p': {
-                if (isfirstCommand == false && optarg == nullptr) {
-                    isfirstCommand = true;
-                } else {
-                    result = OHOS::ERR_INVALID_VALUE;
-                    resultReceiver_.append(HELP_MSG_DUMPSYS);
-                    return result;
-                }
-                // 'aa dumpsys -p'
-                // 'aa dumpsys --pending'
-                break;
-            }
-            case 'r': {
-                if (isfirstCommand == false && optarg == nullptr) {
-                    isfirstCommand = true;
-                } else {
-                    // 'aa dump -i 10 -render'
-                    // 'aa dump -i 10 -rotation'
-                    // 'aa dump -i 10 -frontend'
-                    if ((optarg != nullptr) && strcmp(optarg, "ender") && strcmp(optarg, "otation") &&
-                        strcmp(optarg, "ontend")) {
-                        result = OHOS::ERR_INVALID_VALUE;
-                        resultReceiver_.append(HELP_MSG_DUMPSYS);
-                        return result;
-                    }
-                }
-                // 'aa dumpsys -r'
-                // 'aa dumpsys --process'
-                break;
-            }
-            case 'd': {
-                if (isfirstCommand == false && optarg == nullptr) {
-                    isfirstCommand = true;
-                } else {
-                    result = OHOS::ERR_INVALID_VALUE;
-                    resultReceiver_.append(HELP_MSG_DUMPSYS);
-                    return result;
-                }
-                // 'aa dumpsys -d'
-                // 'aa dumpsys --data'
-                break;
-            }
-            case 'u': {
-                // 'aa dumpsys -u'
-                // 'aa dumpsys --userId'
-                break;
-            }
-            case 'c': {
-                // 'aa dumpsys -c'
-                // 'aa dumpsys --client'
-                break;
-            }
-            case '?': {
-                if (!isfirstCommand) {
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s' with an unknown option.", cmd_.c_str());
-                    std::string unknownOption = "";
-                    std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
-                    resultReceiver_.append(unknownOptionMsg);
-                    resultReceiver_.append(HELP_MSG_DUMPSYS);
-                    result = OHOS::ERR_INVALID_VALUE;
-                    return result;
-                }
-                break;
-            }
-            default: {
-                TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s' with an unknown option.", cmd_.c_str());
-                std::string unknownOption = "";
-                std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
-                resultReceiver_.append(unknownOptionMsg);
-                result = OHOS::ERR_INVALID_VALUE;
-                break;
-            }
+            return true;
         }
     }
+
+    return false;
+}
+
+bool AbilityManagerShellCommand::RunAsDumpsysCommandOptionHandleri(ErrCode& result, bool& isfirstCommand)
+{
+    // 'aa dumpsys -i'
+    // 'aa dumpsys --ability'
+    if (isfirstCommand == false) {
+        isfirstCommand = true;
+        int abilityRecordId = DEFAULT_INVAL_VALUE;
+        (void)StrToInt(optarg, abilityRecordId);
+        if (abilityRecordId == DEFAULT_INVAL_VALUE) {
+            result = OHOS::ERR_INVALID_VALUE;
+            resultReceiver_.append(HELP_MSG_DUMPSYS);
+            return true;
+        }
+    } else {
+        // 'aa dumpsys -i 10 -inspector'
+        if ((optarg != nullptr) && strcmp(optarg, "nspector")) {
+            result = OHOS::ERR_INVALID_VALUE;
+            resultReceiver_.append(HELP_MSG_DUMPSYS);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool AbilityManagerShellCommand::RunAsDumpsysCommandOptionHandlere(ErrCode& result, bool& isfirstCommand)
+{
+    // 'aa dumpsys -e'
+    // 'aa dumpsys --extension'
+    if (isfirstCommand == false && optarg == nullptr) {
+        isfirstCommand = true;
+    } else {
+        // 'aa dumpsys -i 10 -element'
+        if ((optarg != nullptr) && strcmp(optarg, "lement")) {
+            result = OHOS::ERR_INVALID_VALUE;
+            resultReceiver_.append(HELP_MSG_DUMPSYS);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool AbilityManagerShellCommand::RunAsDumpsysCommandOptionHandlerp(ErrCode& result, bool& isfirstCommand)
+{
+    // 'aa dumpsys -p'
+    // 'aa dumpsys --pending'
+    if (isfirstCommand == false && optarg == nullptr) {
+        isfirstCommand = true;
+    } else {
+        result = OHOS::ERR_INVALID_VALUE;
+        resultReceiver_.append(HELP_MSG_DUMPSYS);
+        return true;
+    }
+
+    return false;
+}
+
+bool AbilityManagerShellCommand::RunAsDumpsysCommandOptionHandlerr(ErrCode& result, bool& isfirstCommand)
+{
+    // 'aa dumpsys -r'
+    // 'aa dumpsys --process'
+    if (isfirstCommand == false && optarg == nullptr) {
+        isfirstCommand = true;
+    } else {
+        // 'aa dump -i 10 -render'
+        // 'aa dump -i 10 -rotation'
+        // 'aa dump -i 10 -frontend'
+        if ((optarg != nullptr) && strcmp(optarg, "ender") && strcmp(optarg, "otation") &&
+            strcmp(optarg, "ontend")) {
+            result = OHOS::ERR_INVALID_VALUE;
+            resultReceiver_.append(HELP_MSG_DUMPSYS);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool AbilityManagerShellCommand::RunAsDumpsysCommandOptionHandlerd(ErrCode& result, bool& isfirstCommand)
+{
+    // 'aa dumpsys -d'
+    // 'aa dumpsys --data'
+    if (isfirstCommand == false && optarg == nullptr) {
+        isfirstCommand = true;
+    } else {
+        result = OHOS::ERR_INVALID_VALUE;
+        resultReceiver_.append(HELP_MSG_DUMPSYS);
+        return true;
+    }
+
+    return false;
+}
+
+bool AbilityManagerShellCommand::RunAsDumpsysCommandOptionHandlerQury(ErrCode& result, bool isfirstCommand)
+{
+    if (!isfirstCommand) {
+        TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s' with an unknown option.", cmd_.c_str());
+        std::string unknownOption = "";
+        std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
+        resultReceiver_.append(unknownOptionMsg);
+        resultReceiver_.append(HELP_MSG_DUMPSYS);
+        result = OHOS::ERR_INVALID_VALUE;
+        return true;
+    }
+    return false;
+}
+
+bool AbilityManagerShellCommand::RunAsDumpsysCommandOptionHandlerDefault(ErrCode& result)
+{
+    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s' with an unknown option.", cmd_.c_str());
+    std::string unknownOption = "";
+    std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
+    resultReceiver_.append(unknownOptionMsg);
+    result = OHOS::ERR_INVALID_VALUE;
+    return false;
+}
+
+void AbilityManagerShellCommand::RunAsDumpsysCommandDealResult(ErrCode& result, std::vector<bool> dealResultVec,
+    const std::string& args, int userID)
+{
+    auto isFirstCommand = dealResultVec[0];
+    auto isClient = dealResultVec[1];
+    auto isUserID = dealResultVec[2];
 
     if (result != OHOS::ERR_OK) {
         resultReceiver_.append(HELP_MSG_DUMPSYS);
     } else {
-        if (isfirstCommand != true) {
+        if (isFirstCommand != true) {
             result = OHOS::ERR_INVALID_VALUE;
             resultReceiver_.append(HELP_MSG_NO_OPTION + "\n");
             resultReceiver_.append(HELP_MSG_DUMPSYS);
-            return result;
+            return;
         }
 
         std::vector<std::string> dumpResults;
@@ -623,6 +645,66 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
             TAG_LOGI(AAFwkTag::AA_TOOL, "failed to dump state.");
         }
     }
+
+    return;
+}
+
+ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
+{
+    ErrCode result = OHOS::ERR_OK;
+    bool isUserID = false;
+    bool isClient = false;
+    int userID = DEFAULT_INVAL_VALUE;
+    bool isfirstCommand = false;
+    std::string args;
+
+    if (RunAsDumpsysCommandProcessingParameters(result, isUserID, isClient, userID, args) == OHOS::ERR_INVALID_VALUE) {
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
+    std::unordered_map<int, std::function<bool()>> optoptHandlers = {
+        {'h', [&](){ return RunAsDumpsysCommandOptionHandlerh(result); }},
+        {'a', [&](){ return RunAsDumpsysCommandOptionHandlera(result, isfirstCommand);} },
+        {'l', [&](){ return RunAsDumpsysCommandOptionHandlerl(result, isfirstCommand); }},
+        {'i', [&](){ return RunAsDumpsysCommandOptionHandleri(result, isfirstCommand); }},
+        {'e', [&](){ return RunAsDumpsysCommandOptionHandlere(result, isfirstCommand); }},
+        {'p', [&](){ return RunAsDumpsysCommandOptionHandlerp(result, isfirstCommand); }},
+        {'r', [&](){ return RunAsDumpsysCommandOptionHandlerr(result, isfirstCommand); }},
+        {'d', [&](){ return RunAsDumpsysCommandOptionHandlerd(result, isfirstCommand); }},
+        {'u', [&](){ return false; }},
+        {'c', [&](){ return false; }},
+        {'?', [&](){ return RunAsDumpsysCommandOptionHandlerQury(result, isfirstCommand); }},
+    };
+
+    while (true) {
+        int option = getopt_long(argc_, argv_, SHORT_OPTIONS_DUMPSYS.c_str(), LONG_OPTIONS_DUMPSYS, nullptr);
+        TAG_LOGI(
+            AAFwkTag::AA_TOOL, "option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
+
+        if (optind < 0 || optind > argc_) {
+            resultReceiver_.append(HELP_MSG_DUMPSYS);
+            return OHOS::ERR_INVALID_VALUE;
+        }
+
+        if (option == -1) {
+            break;
+        }
+
+        auto handler = optoptHandlers.find(option);
+        if (handler != optoptHandlers.end()) {
+            if (handler->second()) {
+                return OHOS::ERR_INVALID_VALUE;
+            }
+        } else {
+            if (RunAsDumpsysCommandOptionHandlerDefault(result)) {
+                return OHOS::ERR_INVALID_VALUE;
+            }
+        }
+    }
+
+    std::vector<bool> dealResultVec = {isfirstCommand, isClient, isUserID};
+    RunAsDumpsysCommandDealResult(result, dealResultVec, args, userID);
+
     return result;
 }
 
@@ -1069,182 +1151,31 @@ void AddEntities(const std::vector<std::string>& entities, Want& want)
         want.AddEntity(entity);
 }
 
-ErrCode AbilityManagerShellCommand::MakeWantForProcess(Want& want)
+void AbilityManagerShellCommand::MakeWantForProcessInnerWantSetParam(Want &want, std::string perfCmd,
+    std::string debugCmd, bool isSandboxApp)
 {
-    int result = OHOS::ERR_OK;
-    int option = -1;
-    int counter = 0;
-    std::string deviceId = "";
-    std::string bundleName = "";
-    std::string abilityName = "";
-    std::string moduleName = "";
-    std::string perfCmd = "";
-    std::string debugCmd = "";
-    bool isPerf = false;
-    bool isSandboxApp = false;
-
-    while (true) {
-        counter++;
-
-        option = getopt_long(argc_, argv_, SHORT_OPTIONS_PROCESS.c_str(), LONG_OPTIONS_PROCESS, nullptr);
-
-        TAG_LOGI(
-            AAFwkTag::AA_TOOL, "option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
-
-        if (optind < 0 || optind > argc_) {
-            return OHOS::ERR_INVALID_VALUE;
-        }
-
-        if (option == -1) {
-            // When scanning the first argument
-            if (counter == 1 && strcmp(argv_[optind], cmd_.c_str()) == 0) {
-                // 'aa process' with no option: aa process
-                // 'aa process' with a wrong argument: aa process xxx
-                TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s' %{public}s!", HELP_MSG_NO_OPTION.c_str(), cmd_.c_str());
-
-                resultReceiver_.append(HELP_MSG_NO_OPTION + "\n");
-                result = OHOS::ERR_INVALID_VALUE;
-            }
-            break;
-        }
-
-        if (option == '?') {
-            switch (optopt) {
-                case 'a': {
-                    // 'aa process -a' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -a' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                case 'b': {
-                    // 'aa process -b' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -b' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                case 'm': {
-                    // 'aa process -m' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -m' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                case 'p': {
-                    // 'aa process -p' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -p' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                case 'D': {
-                    // 'aa process -D' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -D' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                case 0: {
-                    // 'aa process' with an unknown option: aa process --x
-                    // 'aa process' with an unknown option: aa process --xxx
-                    std::string unknownOption = "";
-                    std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
-
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s' with an unknown option.", cmd_.c_str());
-
-                    resultReceiver_.append(unknownOptionMsg);
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                default: {
-                    // 'aa process' with an unknown option: aa process -x
-                    // 'aa process' with an unknown option: aa process -xxx
-                    std::string unknownOption = "";
-                    std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
-
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s' with an unknown option.", cmd_.c_str());
-
-                    resultReceiver_.append(unknownOptionMsg);
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-            }
-            break;
-        }
-
-        switch (option) {
-            case 'h': {
-                // 'aa process -h'
-                // 'aa process --help'
-                result = OHOS::ERR_INVALID_VALUE;
-                break;
-            }
-            case 'a': {
-                // 'aa process -a xxx'
-                // save ability name
-                abilityName = optarg;
-                break;
-            }
-            case 'b': {
-                // 'aa process -b xxx'
-                // save bundle name
-                bundleName = optarg;
-                break;
-            }
-            case 'm': {
-                // 'aa process -m xxx'
-                // save module name
-                moduleName = optarg;
-                break;
-            }
-            case 'p': {
-                // 'aa process -p xxx'
-                // save perf cmd
-                if (strlen(optarg) < PARAM_LENGTH) {
-                    perfCmd = optarg;
-                    isPerf = true;
-                }
-                break;
-            }
-            case 'D': {
-                // 'aa process -D xxx'
-                // save debug cmd
-                if (!isPerf && strlen(optarg) < PARAM_LENGTH) {
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "debug cmd.");
-                    debugCmd = optarg;
-                }
-                break;
-            }
-            case 'S': {
-                // 'aa process -S'
-                // enter sandbox to perform app
-                isSandboxApp = true;
-                break;
-            }
-            case 0: {
-                break;
-            }
-            default: {
-                break;
-            }
-        }
+    if (!perfCmd.empty()) {
+        want.SetParam("perfCmd", perfCmd);
     }
+    if (!debugCmd.empty()) {
+        want.SetParam("debugCmd", debugCmd);
+    }
+    if (isSandboxApp) {
+        want.SetParam("sandboxApp", isSandboxApp);
+    }
+
+    return;
+}
+
+ErrCode AbilityManagerShellCommand::MakeWantForProcessInner(Want &want, const std::vector<std::string>& parameters,
+    bool isSandboxApp, int& result)
+{
+    auto deviceId = parameters[0];
+    auto bundleName = parameters[1];
+    auto abilityName = parameters[2];
+    auto moduleName = parameters[3];
+    auto perfCmd = parameters[4];
+    auto debugCmd = parameters[5];
 
     if (result == OHOS::ERR_OK) {
         if (perfCmd.empty() && debugCmd.empty()) {
@@ -1270,16 +1201,166 @@ ErrCode AbilityManagerShellCommand::MakeWantForProcess(Want& want)
             ElementName element(deviceId, bundleName, abilityName, moduleName);
             want.SetElement(element);
 
-            if (!perfCmd.empty()) {
-                want.SetParam("perfCmd", perfCmd);
-            }
-            if (!debugCmd.empty()) {
-                want.SetParam("debugCmd", debugCmd);
-            }
-            if (isSandboxApp) {
-                want.SetParam("sandboxApp", isSandboxApp);
-            }
+            MakeWantForProcessInnerWantSetParam(want, perfCmd, debugCmd, isSandboxApp);
         }
+    }
+
+    return OHOS::ERR_OK;
+}
+
+void AbilityManagerShellCommand::MakeWantForProcessScanningFirstArgument(int counter, int& result)
+{
+    // When scanning the first argument
+    if (counter == 1 && strcmp(argv_[optind], cmd_.c_str()) == 0) {
+        // 'aa process' with no option: aa process
+        // 'aa process' with a wrong argument: aa process xxx
+        TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s' %{public}s!", HELP_MSG_NO_OPTION.c_str(), cmd_.c_str());
+
+        resultReceiver_.append(HELP_MSG_NO_OPTION + "\n");
+        result = OHOS::ERR_INVALID_VALUE;
+    }
+
+    return;
+}
+
+void AbilityManagerShellCommand::MakeWantForProcessHandleOptopt(int& result, std::string str)
+{
+    // 'aa process -a' with no argument
+    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -%{public}s' with no argument.", cmd_.c_str(), str.c_str());
+
+    resultReceiver_.append("error: option ");
+    resultReceiver_.append("requires a value.\n");
+
+    result = OHOS::ERR_INVALID_VALUE;
+
+    return;
+}
+
+void AbilityManagerShellCommand::MakeWantForProcessHandleOptopt(int& result)
+{
+    // 'aa process' with an unknown option: aa process --x
+    // 'aa process' with an unknown option: aa process --xxx
+    std::string unknownOption = "";
+    std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
+
+    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s' with an unknown option.", cmd_.c_str());
+
+    resultReceiver_.append(unknownOptionMsg);
+    result = OHOS::ERR_INVALID_VALUE;
+
+    return;
+}
+
+void AbilityManagerShellCommand::InitMakeWantForProcessOptoptHandlers(int& result,
+    std::unordered_map<int, std::function<void()>>& optoptHandlers)
+{
+    optoptHandlers = {
+        {'a', [&](){ MakeWantForProcessHandleOptopt(result, "a");}},
+        {'b', [&](){ MakeWantForProcessHandleOptopt(result, "b");}},
+        {'m', [&](){ MakeWantForProcessHandleOptopt(result, "m");}},
+        {'p', [&](){ MakeWantForProcessHandleOptopt(result, "p");}},
+        {'D', [&](){ MakeWantForProcessHandleOptopt(result, "D");}},
+        {0, [&](){ MakeWantForProcessHandleOptopt(result);}},
+    };
+
+    return;
+}
+
+void AbilityManagerShellCommand::MakeWantForProcessHandleOptionHandlersp(std::string& perfCmd, bool& isPerf)
+{
+    // 'aa process -p xxx'
+    // save perf cmd
+    if (strlen(optarg) < PARAM_LENGTH) {
+        perfCmd = optarg;
+        isPerf = true;
+    }
+
+    return;
+}
+
+void AbilityManagerShellCommand::MakeWantForProcessHandleOptionHandlersD(std::string& debugCmd, bool isPerf)
+{
+    // 'aa process -D xxx'
+    // save debug cmd
+    if (!isPerf && strlen(optarg) < PARAM_LENGTH) {
+        TAG_LOGI(AAFwkTag::AA_TOOL, "debug cmd.");
+        debugCmd = optarg;
+    }
+
+    return;
+}
+
+ErrCode AbilityManagerShellCommand::MakeWantForProcessInitOption(int &option)
+{
+    option = getopt_long(argc_, argv_, SHORT_OPTIONS_PROCESS.c_str(), LONG_OPTIONS_PROCESS, nullptr);
+
+    TAG_LOGI(
+        AAFwkTag::AA_TOOL, "option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
+
+    if (optind < 0 || optind > argc_) {
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
+    return OHOS::ERR_OK;
+}
+
+ErrCode AbilityManagerShellCommand::MakeWantForProcess(Want& want)
+{
+    int result = OHOS::ERR_OK;
+    int option = -1;
+    int counter = 0;
+    std::string deviceId = "";
+    std::string bundleName = "";
+    std::string abilityName = "";
+    std::string moduleName = "";
+    std::string perfCmd = "";
+    std::string debugCmd = "";
+    bool isPerf = false;
+    bool isSandboxApp = false;
+
+    std::unordered_map<int, std::function<void()>> optoptHandlers;
+    InitMakeWantForProcessOptoptHandlers(result, optoptHandlers);
+
+    std::unordered_map<int, std::function<void()>> optionHandlers = {
+        {'h', [&]() { result = OHOS::ERR_INVALID_VALUE;}},
+        {'a', [&]() { abilityName = optarg; }},
+        {'b', [&]() { bundleName = optarg; }},
+        {'m', [&]() { moduleName = optarg; }},
+        {'p', [&]() { MakeWantForProcessHandleOptionHandlersp(perfCmd, isPerf);}},
+        {'D', [&]() { MakeWantForProcessHandleOptionHandlersD(debugCmd, isPerf); }},
+        {'S', [&]() { isSandboxApp = true; }},
+        {0, [&]() { return; }},
+    };
+
+    while (true) {
+        counter++;
+
+        if (MakeWantForProcessInitOption(option) == OHOS::ERR_INVALID_VALUE) {
+            return OHOS::ERR_INVALID_VALUE;
+        }
+
+        if (option == -1) {
+            MakeWantForProcessScanningFirstArgument(counter, result);
+            break;
+        }
+
+        if (option == '?') {
+            auto it = optoptHandlers.find(optopt);
+            it != optoptHandlers.end()? it->second() : MakeWantForProcessHandleOptopt(result);
+
+            break;
+        }
+
+        auto it = optionHandlers.find(option);
+        if (it != optionHandlers.end()) {
+            it->second();
+        }
+    }
+
+    std::vector<std::string> parameters = { deviceId, bundleName, abilityName, moduleName, perfCmd, debugCmd };
+
+    if (MakeWantForProcessInner(want, parameters, isSandboxApp, result) == OHOS::ERR_INVALID_VALUE) {
+        return OHOS::ERR_INVALID_VALUE;
     }
 
     return result;
@@ -1368,6 +1449,358 @@ ErrCode AbilityManagerShellCommand::RunForceTimeoutForTest()
 }
 #endif
 
+void AbilityManagerShellCommand::MakeWantFromCmdHandleOptopt(int& result, std::string str)
+{
+    // 'aa start -'str'' with no argument
+    // 'aa stop-service -'str'' with no argument
+    std::string fmtStr = "'aa %{public}s -" + str + "' with no argument.";
+    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -%{public}s' with no argument.", cmd_.c_str(), str.c_str());
+
+    resultReceiver_.append("error: option ");
+    resultReceiver_.append("requires a value.\n");
+
+    result = OHOS::ERR_INVALID_VALUE;
+}
+
+void AbilityManagerShellCommand::InitOptoptHandlers(int& result,
+    std::unordered_map<int, std::function<void()>>& optoptHandlers)
+{
+    auto HandleOptopts = [&]() {
+        // 'aa start -s' with no argument
+        // 'aa stop-service -s' with no argument
+        TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -s' with no argument.", cmd_.c_str());
+
+        resultReceiver_.append("error: option ");
+        resultReceiver_.append(argv_[optind - 1]);
+        resultReceiver_.append("' requires a value.\n");
+
+        result = OHOS::ERR_INVALID_VALUE;
+    };
+    auto HandleOptopt0 = [&]() {
+        // 'aa start' with an unknown option: aa start --x
+        // 'aa start' with an unknown option: aa start --xxx
+        // 'aa stop-service' with an unknown option: aa stop-service --x
+        // 'aa stop-service' with an unknown option: aa stop-service --xxx
+        std::string unknownOption = "";
+        std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
+
+        TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s' with an unknown option.", cmd_.c_str());
+
+        resultReceiver_.append(unknownOptionMsg);
+        result = OHOS::ERR_INVALID_VALUE;
+    };
+
+    optoptHandlers = {
+        {'h', [&]() { result = OHOS::ERR_INVALID_VALUE; }},
+        {'d', [&]() { MakeWantFromCmdHandleOptopt(result, "d"); }},
+        {'a', [&]() { MakeWantFromCmdHandleOptopt(result, "a"); }},
+        {'b', [&]() { MakeWantFromCmdHandleOptopt(result, "b"); }},
+        {'e', [&]() { MakeWantFromCmdHandleOptopt(result, "e"); }},
+        {'t', [&]() { MakeWantFromCmdHandleOptopt(result, "t"); }},
+        {'s', HandleOptopts},
+        {'m', [&]() { MakeWantFromCmdHandleOptopt(result, "m"); }},
+        {'p', [&]() { MakeWantFromCmdHandleOptopt(result, "p"); }},
+        {OPTION_PARAMETER_INTEGER, [&]() { MakeWantFromCmdHandleOptopt(result, "-pi"); }},
+        {OPTION_PARAMETER_STRING, [&]() { MakeWantFromCmdHandleOptopt(result, "-ps"); }},
+        {OPTION_PARAMETER_BOOL, [&]() { MakeWantFromCmdHandleOptopt(result, "-pb"); }},
+        {OPTION_PARAMETER_NULL_STRING, [&]() { MakeWantFromCmdHandleOptopt(result, "-psn"); }},
+        {OPTION_WINDOW_LEFT, [&]() { MakeWantFromCmdHandleOptopt(result, "-wl"); }},
+        {OPTION_WINDOW_TOP, [&]() { MakeWantFromCmdHandleOptopt(result, "-wt"); }},
+        {OPTION_WINDOW_HEIGHT, [&]() { MakeWantFromCmdHandleOptopt(result, "-wh"); }},
+        {OPTION_WINDOW_WIDTH, [&]() { MakeWantFromCmdHandleOptopt(result, "-ww"); }},
+        {'A', [&]() { MakeWantFromCmdHandleOptopt(result, "A"); }},
+        {'U', [&]() { MakeWantFromCmdHandleOptopt(result, "U"); }},
+        {0, HandleOptopt0},
+    };
+
+    return;
+}
+
+ErrCode AbilityManagerShellCommand::MakeWantFromCmdGetOption(int& option)
+{
+    option = getopt_long(argc_, argv_, SHORT_OPTIONS.c_str(), LONG_OPTIONS, nullptr);
+
+    TAG_LOGI(
+        AAFwkTag::AA_TOOL, "option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
+
+    if (optind < 0 || optind > argc_) {
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
+    return OHOS::ERR_OK;
+}
+
+void AbilityManagerShellCommand::MakeWantFromCmdScanningFirstArgument(int counter, int& result)
+{
+     // When scanning the first argument
+    if (counter == 1 && strcmp(argv_[optind], cmd_.c_str()) == 0) {
+        // 'aa start' with no option: aa start
+        // 'aa start' with a wrong argument: aa start xxx
+        // 'aa stop-service' with no option: aa stop-service
+        // 'aa stop-service' with a wrong argument: aa stop-service xxx
+        TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s' %{public}s", HELP_MSG_NO_OPTION.c_str(), cmd_.c_str());
+
+        resultReceiver_.append(HELP_MSG_NO_OPTION + "\n");
+        result = OHOS::ERR_INVALID_VALUE;
+    }
+
+    return;
+}
+
+void AbilityManagerShellCommand::MakeWantFromCmdOptionQuery (
+    const std::unordered_map<int, std::function<void()>>& optoptHandlers, int& result)
+{
+    auto it = optoptHandlers.find(optopt);
+    if (it != optoptHandlers.end()) {
+        it->second();
+    } else {
+        // 'aa start' with an unknown option: aa start -x
+        // 'aa start' with an unknown option: aa start -xxx
+        // 'aa stop-service' with an unknown option: aa stop-service -x
+        // 'aa stop-service' with an unknown option: aa stop-service -xxx
+        std::string unknownOption = "";
+        std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
+
+        TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s' with an unknown option.", cmd_.c_str());
+
+        resultReceiver_.append(unknownOptionMsg);
+        result = OHOS::ERR_INVALID_VALUE;
+    }
+
+    return;
+}
+
+void AbilityManagerShellCommand::MakeWantFromCmdCheckPerfCmd(int& result, std::string& perfCmd)
+{
+    if (!CheckPerfCmdString(optarg, PARAM_LENGTH, perfCmd)) {
+        TAG_LOGE(AAFwkTag::AA_TOOL, "input perfCmd is invalid %{public}s", perfCmd.c_str());
+        result = OHOS::ERR_INVALID_VALUE;
+    }
+
+    return;
+}
+
+void AbilityManagerShellCommand::MakeWantFromCmdCheckPi(int& result, ParametersInteger& parametersInteger)
+{
+    // 'aa start --pi xxx'
+    if (!CheckParameters(EXTRA_ARGUMENTS_FOR_KEY_VALUE_PAIR)) {
+        resultReceiver_.append("invalid number of parameters for option --pi\n");
+        result = OHOS::ERR_INVALID_VALUE;
+        return;
+    }
+
+    // parse option arguments into a key-value map
+    result = ParseParam(parametersInteger);
+    optind++;
+
+    return;
+}
+
+void AbilityManagerShellCommand::MakeWantFromCmdCheckPs(int& result, ParametersString &parametersString)
+{
+    // 'aa start --ps xxx'
+    if (!CheckParameters(EXTRA_ARGUMENTS_FOR_KEY_VALUE_PAIR)) {
+        resultReceiver_.append("invalid number of parameters for option --ps\n");
+        result = OHOS::ERR_INVALID_VALUE;
+        return;
+    }
+
+    // parse option arguments into a key-value map
+    result = ParseParam(parametersString);
+    optind++;
+
+    return;
+}
+
+void AbilityManagerShellCommand::MakeWantFromCmdCheckPb(int& result, ParametersBool& parametersBool)
+{
+    // 'aa start --pb xxx'
+    if (!CheckParameters(EXTRA_ARGUMENTS_FOR_KEY_VALUE_PAIR)) {
+        resultReceiver_.append("invalid number of parameters for option --pb\n");
+        result = OHOS::ERR_INVALID_VALUE;
+        return;
+    }
+
+    // parse option arguments into a key-value map
+    result = ParseParam(parametersBool);
+    optind++;
+
+    return;
+}
+
+void AbilityManagerShellCommand::MakeWantFromCmdCheckPsn(int& result, ParametersString& parametersString)
+{
+    // 'aa start --psn xxx'
+    if (!CheckParameters(EXTRA_ARGUMENTS_FOR_NULL_STRING)) {
+        resultReceiver_.append("invalid number of parameters for option --psn\n");
+        result = OHOS::ERR_INVALID_VALUE;
+        return;
+    }
+
+    // parse option arguments into a key-value map
+    result = ParseParam(parametersString, true);
+
+    return;
+}
+
+void AbilityManagerShellCommand::MakeWantFromCmdCheckPwl(int& result, int& windowLeft)
+{
+    // 'aa start --wl xxx'
+    if (!IsNum(optarg)) {
+        resultReceiver_.append("invalid argument for option --wl\n");
+        result = OHOS::ERR_INVALID_VALUE;
+        return;
+    }
+    windowLeft = atoi(optarg);
+    if (windowLeft < 0) {
+        resultReceiver_.append("window left cannot be less than 0\n");
+        result = OHOS::ERR_INVALID_VALUE;
+    }
+
+    return;
+}
+
+void AbilityManagerShellCommand::MakeWantFromCmdCheckPwt(int& result, int& windowTop)
+{
+    // 'aa start --wt xxx'
+    if (!IsNum(optarg)) {
+        resultReceiver_.append("invalid argument for option --wt\n");
+        result = OHOS::ERR_INVALID_VALUE;
+        return;
+    }
+    if (windowTop < 0) {
+        resultReceiver_.append("window top cannot be less than 0\n");
+        result = OHOS::ERR_INVALID_VALUE;
+        return;
+    }
+    windowTop = atoi(optarg);
+
+    return;
+}
+
+void AbilityManagerShellCommand::MakeWantFromCmdCheckPwh(int& result, int& windowHeight)
+{
+    // 'aa start --wh xxx'
+    if (!IsNum(optarg)) {
+        resultReceiver_.append("invalid argument for option --wh\n");
+        result = OHOS::ERR_INVALID_VALUE;
+        return;
+    }
+    if (windowHeight < 0) {
+        resultReceiver_.append("window height cannot be less than 0\n");
+        result = OHOS::ERR_INVALID_VALUE;
+        return;
+    }
+    windowHeight = atoi(optarg);
+
+    return;
+}
+
+void AbilityManagerShellCommand::MakeWantFromCmdCheckPww(int& result, int& windowWidth)
+{
+    // 'aa start --ww xxx'
+    if (!IsNum(optarg)) {
+        resultReceiver_.append("invalid argument for option --ww\n");
+        result = OHOS::ERR_INVALID_VALUE;
+        return;
+    }
+    if (windowWidth < 0) {
+        resultReceiver_.append("window width cannot be less than 0\n");
+        result = OHOS::ERR_INVALID_VALUE;
+        return;
+    }
+    windowWidth = atoi(optarg);
+
+    return;
+}
+
+void AbilityManagerShellCommand::MakeWantFromCmdSetParamsOne(Want& want, bool isColdStart, bool isDebugApp,
+    bool isContinuation, const std::string& perfCmd)
+{
+    if (isColdStart) {
+        want.SetParam("coldStart", isColdStart);
+    }
+    if (isDebugApp) {
+        want.SetParam("debugApp", isDebugApp);
+    }
+    if (isContinuation) {
+        want.AddFlags(Want::FLAG_ABILITY_CONTINUATION);
+    }
+    if (!perfCmd.empty()) {
+        want.SetParam("perfCmd", perfCmd);
+    }
+
+    return;
+}
+
+void AbilityManagerShellCommand::MakeWantFromCmdSetParamsTwo(Want& want, bool isSandboxApp, bool isNativeDebug,
+    const ParametersInteger& parametersInteger, const ParametersBool& parametersBool)
+{
+    if (isSandboxApp) {
+        want.SetParam("sandboxApp", isSandboxApp);
+    }
+    if (isNativeDebug) {
+        want.SetParam("nativeDebug", isNativeDebug);
+    }
+    if (!parametersInteger.empty()) {
+        SetParams(parametersInteger, want);
+    }
+    if (!parametersBool.empty()) {
+        SetParams(parametersBool, want);
+    }
+
+    return;
+}
+
+void AbilityManagerShellCommand::MakeWantFromCmdSetParamsThree(Want& want, const ParametersString& parametersString,
+    const std::string& action, const std::string& uri, const std::vector<std::string>& entities)
+{
+    if (!parametersString.empty()) {
+        SetParams(parametersString, want);
+    }
+    if (!action.empty()) {
+        want.SetAction(action);
+    }
+    if (!uri.empty()) {
+        want.SetUri(uri);
+    }
+    if (!entities.empty()) {
+        AddEntities(entities, want);
+    }
+
+    return;
+}
+
+void AbilityManagerShellCommand::MakeWantFromCmdSetParamsFour(Want& want, const std::string& typeVal,
+    bool isMultiThread, std::vector<int> windowLTHW)
+{
+    auto windowLeft = windowLTHW[0];
+    auto windowTop = windowLTHW[1];
+    auto windowHeight = windowLTHW[2];
+    auto windowWidth = windowLTHW[3];
+
+    if (!typeVal.empty()) {
+        want.SetType(typeVal);
+    }
+    if (isMultiThread) {
+        want.SetParam("multiThread", isMultiThread);
+    }
+    if (windowLeft > 0) {
+        want.SetParam(Want::PARAM_RESV_WINDOW_LEFT, windowLeft);
+    }
+    if (windowTop > 0) {
+        want.SetParam(Want::PARAM_RESV_WINDOW_TOP, windowTop);
+    }
+    if (windowHeight > 0) {
+        want.SetParam(Want::PARAM_RESV_WINDOW_HEIGHT, windowHeight);
+    }
+    if (windowWidth > 0) {
+        want.SetParam(Want::PARAM_RESV_WINDOW_WIDTH, windowWidth);
+    }
+
+    return;
+}
+
 ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& windowMode)
 {
     int result = OHOS::ERR_OK;
@@ -1398,526 +1831,69 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
     int windowHeight = 0;
     int windowWidth = 0;
 
+    std::unordered_map<int, std::function<void()>> optoptHandlers;
+    InitOptoptHandlers(result, optoptHandlers);
+
     while (true) {
         counter++;
-
-        option = getopt_long(argc_, argv_, SHORT_OPTIONS.c_str(), LONG_OPTIONS, nullptr);
-
-        TAG_LOGI(
-            AAFwkTag::AA_TOOL, "option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
-
-        if (optind < 0 || optind > argc_) {
+        if (MakeWantFromCmdGetOption(option) == OHOS::ERR_INVALID_VALUE) {
             return OHOS::ERR_INVALID_VALUE;
         }
 
         if (option == -1) {
             // When scanning the first argument
-            if (counter == 1 && strcmp(argv_[optind], cmd_.c_str()) == 0) {
-                // 'aa start' with no option: aa start
-                // 'aa start' with a wrong argument: aa start xxx
-                // 'aa stop-service' with no option: aa stop-service
-                // 'aa stop-service' with a wrong argument: aa stop-service xxx
-                TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s' %{public}s", HELP_MSG_NO_OPTION.c_str(), cmd_.c_str());
-
-                resultReceiver_.append(HELP_MSG_NO_OPTION + "\n");
-                result = OHOS::ERR_INVALID_VALUE;
-            }
+            MakeWantFromCmdScanningFirstArgument(counter, result);
             break;
         }
 
         if (option == '?') {
-            switch (optopt) {
-                case 'h': {
-                    // 'aa start -h'
-                    // 'aa stop-service -h'
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                case 'd': {
-                    // 'aa start -d' with no argument
-                    // 'aa stop-service -d' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -d' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                case 'a': {
-                    // 'aa start -a' with no argument
-                    // 'aa stop-service -a' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -a' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                case 'b': {
-                    // 'aa start -b' with no argument
-                    // 'aa stop-service -b' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -b' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                case 'e': {
-                    // 'aa start -e' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -e with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                case 't': {
-                    // 'aa start -t' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -t with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                case 's': {
-                    // 'aa start -s' with no argument
-                    // 'aa stop-service -s' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -s' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append(argv_[optind - 1]);
-                    resultReceiver_.append("' requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                case 'm': {
-                    // 'aa start -m' with no argument
-                    // 'aa stop-service -m' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -m' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                case 'p': {
-                    // 'aa start -p' with no argument
-                    // 'aa stop-service -p' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -p' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                case OPTION_PARAMETER_INTEGER: {
-                    // 'aa start --pi' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s --pi' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-
-                    break;
-                }
-                case OPTION_PARAMETER_STRING: {
-                    // 'aa start --ps' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s --ps' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-
-                    break;
-                }
-                case OPTION_PARAMETER_BOOL: {
-                    // 'aa start --pb' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -pb' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-
-                    break;
-                }
-                case OPTION_PARAMETER_NULL_STRING: {
-                    // 'aa start --psn' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s --psn' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-
-                    break;
-                }
-                case OPTION_WINDOW_LEFT: {
-                    // 'aa start --wl' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s --wl' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-
-                    break;
-                }
-                case OPTION_WINDOW_TOP: {
-                    // 'aa start --wt' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s --wt' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-
-                    break;
-                }
-                case OPTION_WINDOW_HEIGHT: {
-                    // 'aa start --wh' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s --wh' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-
-                    break;
-                }
-                case OPTION_WINDOW_WIDTH: {
-                    // 'aa start --ww' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s --ww' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-
-                    break;
-                }
-
-                case 'A': {
-                    // 'aa start -A' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -A' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-
-                    break;
-                }
-                case 'U': {
-                    // 'aa start -U' with no argument
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -U' with no argument.", cmd_.c_str());
-
-                    resultReceiver_.append("error: option ");
-                    resultReceiver_.append("requires a value.\n");
-
-                    result = OHOS::ERR_INVALID_VALUE;
-
-                    break;
-                }
-                case 0: {
-                    // 'aa start' with an unknown option: aa start --x
-                    // 'aa start' with an unknown option: aa start --xxx
-                    // 'aa stop-service' with an unknown option: aa stop-service --x
-                    // 'aa stop-service' with an unknown option: aa stop-service --xxx
-                    std::string unknownOption = "";
-                    std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
-
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s' with an unknown option.", cmd_.c_str());
-
-                    resultReceiver_.append(unknownOptionMsg);
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                default: {
-                    // 'aa start' with an unknown option: aa start -x
-                    // 'aa start' with an unknown option: aa start -xxx
-                    // 'aa stop-service' with an unknown option: aa stop-service -x
-                    // 'aa stop-service' with an unknown option: aa stop-service -xxx
-                    std::string unknownOption = "";
-                    std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
-
-                    TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s' with an unknown option.", cmd_.c_str());
-
-                    resultReceiver_.append(unknownOptionMsg);
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-            }
+            MakeWantFromCmdOptionQuery(optoptHandlers, result);
             break;
         }
 
-        switch (option) {
-            case 'h': {
-                // 'aa start -h'
-                // 'aa start --help'
-                // 'aa stop-service -h'
-                // 'aa stop-service --help'
-                result = OHOS::ERR_INVALID_VALUE;
-                break;
-            }
-            case 'd': {
-                // 'aa start -d xxx'
-                // 'aa stop-service -d xxx'
+        auto optionHandlep = [&]() { MakeWantFromCmdCheckPerfCmd(result, perfCmd); };
+        auto optionHandlepi = [&]() { MakeWantFromCmdCheckPi(result, parametersInteger); };
+        auto optionHandleps = [&]() { MakeWantFromCmdCheckPs(result, parametersString); };
+        auto optionHandlepb = [&]() { MakeWantFromCmdCheckPb(result, parametersBool); };
+        auto optionHandlepsn = [&]() { MakeWantFromCmdCheckPsn(result, parametersString); };
+        auto optionHandlepwl = [&]() { MakeWantFromCmdCheckPwl(result, windowLeft); };
+        auto optionHandlepwt = [&]() { MakeWantFromCmdCheckPwt(result, windowTop); };
+        auto optionHandlepwh = [&]() { MakeWantFromCmdCheckPwh(result, windowHeight); };
+        auto optionHandlepww = [&]() { MakeWantFromCmdCheckPww(result, windowWidth); };
 
-                // save device ID
-                if (optarg != nullptr) {
-                    deviceId = optarg;
-                }
-                break;
-            }
-            case 'a': {
-                // 'aa start -a xxx'
-                // 'aa stop-service -a xxx'
+        const std::unordered_map<int, std::function<void()>> optionHandlers = {
+            {'h', [&]() { result = OHOS::ERR_INVALID_VALUE; }},
+            {'d', [&]() { if (optarg != nullptr) { deviceId = optarg;} }},
+            {'a', [&]() { abilityName = optarg; }},
+            {'b', [&]() { bundleName = optarg; }},
+            {'e', [&]() { entities.push_back(optarg); }},
+            {'t', [&]() { typeVal = optarg; }},
+            {'s', [&]() { windowMode = optarg; }},
+            {'m', [&]() { moduleName = optarg; }},
+            {'p', optionHandlep},
+            {OPTION_PARAMETER_INTEGER, optionHandlepi},
+            {OPTION_PARAMETER_STRING, optionHandleps},
+            {OPTION_PARAMETER_BOOL, optionHandlepb},
+            {OPTION_PARAMETER_NULL_STRING, optionHandlepsn},
+            {OPTION_WINDOW_LEFT, optionHandlepwl},
+            {OPTION_WINDOW_TOP, optionHandlepwt},
+            {OPTION_WINDOW_HEIGHT, optionHandlepwh},
+            {OPTION_WINDOW_WIDTH, optionHandlepww},
+            {'U', [&]() { uri = optarg; }},
+            {'A', [&]() { action = optarg; }},
+            {'C', [&]() { isColdStart = true; }},
+            {'D', [&]() { isDebugApp = true; }},
+            {'S', [&]() { isSandboxApp = true; }},
+            {'c', [&]() { isContinuation = true; }},
+            {'N', [&]() { isNativeDebug = true; }},
+            {'R', [&]() { isMultiThread = true;
+                            TAG_LOGD(AAFwkTag::AA_TOOL, "isMultiThread"); }},
+            {0, [&]() { return; }},
+        };
 
-                // save ability name
-                abilityName = optarg;
-                break;
-            }
-            case 'b': {
-                // 'aa start -b xxx'
-                // 'aa stop-service -b xxx'
-
-                // save bundle name
-                bundleName = optarg;
-                break;
-            }
-            case 'e': {
-                // 'aa start -e xxx'
-
-                // save entity
-                entities.push_back(optarg);
-                break;
-            }
-            case 't': {
-                // 'aa start -t xxx'
-
-                // save type
-                typeVal = optarg;
-                break;
-            }
-            case 's': {
-                // 'aa start -s xxx'
-                // save windowMode
-                windowMode = optarg;
-                break;
-            }
-            case 'm': {
-                // 'aa start -m xxx'
-                // 'aa stop-service -m xxx'
-
-                // save module name
-                moduleName = optarg;
-                break;
-            }
-            case 'p': {
-                // 'aa start -p xxx'
-                // 'aa stop-service -p xxx'
-
-                // save module name
-                if (!CheckPerfCmdString(optarg, PARAM_LENGTH, perfCmd)) {
-                    TAG_LOGE(AAFwkTag::AA_TOOL, "input perfCmd is invalid %{public}s", perfCmd.c_str());
-                    result = OHOS::ERR_INVALID_VALUE;
-                }
-                break;
-            }
-            case OPTION_PARAMETER_INTEGER: {
-                // 'aa start --pi xxx'
-                if (!CheckParameters(EXTRA_ARGUMENTS_FOR_KEY_VALUE_PAIR)) {
-                    resultReceiver_.append("invalid number of parameters for option --pi\n");
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-
-                // parse option arguments into a key-value map
-                result = ParseParam(parametersInteger);
-
-                optind++;
-
-                break;
-            }
-            case OPTION_PARAMETER_STRING: {
-                // 'aa start --ps xxx'
-                if (!CheckParameters(EXTRA_ARGUMENTS_FOR_KEY_VALUE_PAIR)) {
-                    resultReceiver_.append("invalid number of parameters for option --ps\n");
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-
-                // parse option arguments into a key-value map
-                result = ParseParam(parametersString);
-
-                optind++;
-
-                break;
-            }
-            case OPTION_PARAMETER_BOOL: {
-                // 'aa start --pb xxx'
-                if (!CheckParameters(EXTRA_ARGUMENTS_FOR_KEY_VALUE_PAIR)) {
-                    resultReceiver_.append("invalid number of parameters for option --pb\n");
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-
-                // parse option arguments into a key-value map
-                result = ParseParam(parametersBool);
-
-                optind++;
-
-                break;
-            }
-            case OPTION_PARAMETER_NULL_STRING: {
-                // 'aa start --psn xxx'
-                if (!CheckParameters(EXTRA_ARGUMENTS_FOR_NULL_STRING)) {
-                    resultReceiver_.append("invalid number of parameters for option --psn\n");
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-
-                // parse option arguments into a key-value map
-                result = ParseParam(parametersString, true);
-
-                break;
-            }
-            case OPTION_WINDOW_LEFT: {
-                // 'aa start --wl xxx'
-                if (!IsNum(optarg)) {
-                    resultReceiver_.append("invalid argument for option --wl\n");
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                windowLeft = atoi(optarg);
-                if (windowLeft < 0) {
-                    resultReceiver_.append("window left cannot be less than 0\n");
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-
-                break;
-            }
-            case OPTION_WINDOW_TOP: {
-                // 'aa start --wt xxx'
-                if (!IsNum(optarg)) {
-                    resultReceiver_.append("invalid argument for option --wt\n");
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                if (windowTop < 0) {
-                    resultReceiver_.append("window top cannot be less than 0\n");
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                windowTop = atoi(optarg);
-
-                break;
-            }
-            case OPTION_WINDOW_HEIGHT: {
-                // 'aa start --wh xxx'
-                if (!IsNum(optarg)) {
-                    resultReceiver_.append("invalid argument for option --wh\n");
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                if (windowHeight < 0) {
-                    resultReceiver_.append("window height cannot be less than 0\n");
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                windowHeight = atoi(optarg);
-
-                break;
-            }
-            case OPTION_WINDOW_WIDTH: {
-                // 'aa start --ww xxx'
-                if (!IsNum(optarg)) {
-                    resultReceiver_.append("invalid argument for option --ww\n");
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                if (windowWidth < 0) {
-                    resultReceiver_.append("window width cannot be less than 0\n");
-                    result = OHOS::ERR_INVALID_VALUE;
-                    break;
-                }
-                windowWidth = atoi(optarg);
-
-                break;
-            }
-            case 'U': {
-                // 'aa start -U xxx'
-
-                // save URI
-                uri = optarg;
-                break;
-            }
-            case 'A': {
-                // 'aa start -A xxx'
-
-                // save action
-                action = optarg;
-                break;
-            }
-            case 'C': {
-                // 'aa start -C'
-                // cold start app
-                isColdStart = true;
-                break;
-            }
-            case 'D': {
-                // 'aa start -D'
-                // debug app
-                isDebugApp = true;
-                break;
-            }
-            case 'S': {
-                // 'aa start -b <bundleName> -a <abilityName> -p <perf-cmd> -S'
-                // enter sandbox to perform app
-                isSandboxApp = true;
-                break;
-            }
-            case 'c': {
-                // 'aa start -c'
-                // set ability launch reason = continuation
-                isContinuation = true;
-                break;
-            }
-            case 'N': {
-                // 'aa start -N'
-                // wait for debug in appspawn
-                isNativeDebug = true;
-                break;
-            }
-            case 'R': {
-                // 'aa start -R'
-                // app multi thread
-                isMultiThread = true;
-                TAG_LOGD(AAFwkTag::AA_TOOL, "isMultiThread");
-                break;
-            }
-            case 0: {
-                // 'aa start' with an unknown option: aa start -x
-                // 'aa start' with an unknown option: aa start -xxx
-                break;
-            }
-            default: {
-                break;
-            }
+        auto it = optionHandlers.find(option);
+        if (it != optionHandlers.end()) {
+            it->second();
         }
     }
 
@@ -1935,60 +1911,14 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
             ElementName element(deviceId, bundleName, abilityName, moduleName);
             want.SetElement(element);
 
-            if (isColdStart) {
-                want.SetParam("coldStart", isColdStart);
-            }
-            if (isDebugApp) {
-                want.SetParam("debugApp", isDebugApp);
-            }
-            if (isContinuation) {
-                want.AddFlags(Want::FLAG_ABILITY_CONTINUATION);
-            }
-            if (!perfCmd.empty()) {
-                want.SetParam("perfCmd", perfCmd);
-            }
-            if (isSandboxApp) {
-                want.SetParam("sandboxApp", isSandboxApp);
-            }
-            if (isNativeDebug) {
-                want.SetParam("nativeDebug", isNativeDebug);
-            }
-            if (!parametersInteger.empty()) {
-                SetParams(parametersInteger, want);
-            }
-            if (!parametersBool.empty()) {
-                SetParams(parametersBool, want);
-            }
-            if (!parametersString.empty()) {
-                SetParams(parametersString, want);
-            }
-            if (!action.empty()) {
-                want.SetAction(action);
-            }
-            if (!uri.empty()) {
-                want.SetUri(uri);
-            }
-            if (!entities.empty()) {
-                AddEntities(entities, want);
-            }
-            if (!typeVal.empty()) {
-                want.SetType(typeVal);
-            }
-            if (isMultiThread) {
-                want.SetParam("multiThread", isMultiThread);
-            }
-            if (windowLeft > 0) {
-                want.SetParam(Want::PARAM_RESV_WINDOW_LEFT, windowLeft);
-            }
-            if (windowTop > 0) {
-                want.SetParam(Want::PARAM_RESV_WINDOW_TOP, windowTop);
-            }
-            if (windowHeight > 0) {
-                want.SetParam(Want::PARAM_RESV_WINDOW_HEIGHT, windowHeight);
-            }
-            if (windowWidth > 0) {
-                want.SetParam(Want::PARAM_RESV_WINDOW_WIDTH, windowWidth);
-            }
+            MakeWantFromCmdSetParamsOne(want, isColdStart, isDebugApp, isContinuation, perfCmd);
+
+            MakeWantFromCmdSetParamsTwo(want, isSandboxApp, isNativeDebug, parametersInteger, parametersBool);
+
+            MakeWantFromCmdSetParamsThree(want, parametersString, action, uri, entities);
+            
+            std::vector<int> windowLTHW = {windowLeft, windowTop, windowHeight, windowWidth};
+            MakeWantFromCmdSetParamsFour(want, typeVal, isMultiThread, windowLTHW);
         }
     }
 
