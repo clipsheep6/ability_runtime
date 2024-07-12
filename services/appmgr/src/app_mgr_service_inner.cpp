@@ -5767,6 +5767,11 @@ int32_t AppMgrServiceInner::SetAppWaitingDebug(const std::string &bundleName, bo
 {
     TAG_LOGD(AAFwkTag::APPMGR,
         "Called, bundle name is %{public}s, persist flag is %{public}d.", bundleName.c_str(), isPersist);
+    if (!AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not shell call.");
+        return ERR_PERMISSION_DENIED;
+    }
+
     if (!system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Developer mode is false.");
         return AAFwk::ERR_NOT_DEVELOPER_MODE;
@@ -5805,6 +5810,11 @@ int32_t AppMgrServiceInner::SetAppWaitingDebug(const std::string &bundleName, bo
 int32_t AppMgrServiceInner::CancelAppWaitingDebug()
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    if (!AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not shell call.");
+        return ERR_PERMISSION_DENIED;
+    }
+
     if (!system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Developer mode is false.");
         return AAFwk::ERR_NOT_DEVELOPER_MODE;
@@ -5820,6 +5830,11 @@ int32_t AppMgrServiceInner::CancelAppWaitingDebug()
 int32_t AppMgrServiceInner::GetWaitingDebugApp(std::vector<std::string> &debugInfoList)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    if (!AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not shell call.");
+        return ERR_PERMISSION_DENIED;
+    }
+
     if (!system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Developer mode is false.");
         return AAFwk::ERR_NOT_DEVELOPER_MODE;
