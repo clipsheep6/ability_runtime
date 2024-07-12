@@ -2901,6 +2901,10 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
     std::string extensionTypeStr = extensionSessionInfo->want.GetStringParam(UIEXTENSION_TYPE_KEY);
     AppExecFwk::ExtensionAbilityType extensionType = extensionTypeStr.empty() ?
         AppExecFwk::ExtensionAbilityType::UI : AppExecFwk::ConvertToExtensionAbilityType(extensionTypeStr);
+    if (extensionType == AppExecFwk::ExtensionAbilityType::UNSPECIFIED) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Input extension ability type is invalid.");
+        return ERR_INVALID_VALUE;
+    }
     EventInfo eventInfo = BuildEventInfo(extensionSessionInfo->want, userId);
     eventInfo.extensionType = static_cast<int32_t>(extensionType);
 
