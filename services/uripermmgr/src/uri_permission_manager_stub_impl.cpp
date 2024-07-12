@@ -210,8 +210,6 @@ int UriPermissionManagerStubImpl::GrantUriPermissionInner(const std::vector<Uri>
         recordId = abilityId;
         appTokenId = initiatorTokenId;
         auto callerName = UPMSUtils::GetCallerNameByTokenId(appTokenId);
-        TAG_LOGI(AAFwkTag::URIPERMMGR, "RealTokenId is %{public}u, RealCallerName is %{public}s.",
-            appTokenId, callerName.c_str());
     }
     if (uriVec.size() == 1) {
         return GrantSingleUriPermission(uriVec[0], flag, appTokenId, targetTokenId, recordId);
