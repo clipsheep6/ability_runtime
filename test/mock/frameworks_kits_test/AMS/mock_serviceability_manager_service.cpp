@@ -136,7 +136,7 @@ int MockServiceAbilityManagerService::AbilityTransitionDone(
 int MockServiceAbilityManagerService::AbilityWindowConfigTransitionDone(
     const sptr<IRemoteObject>& token, const WindowConfig& windowConfig)
 {
-    GTEST_LOG_(INFO) << "MockServiceAbilityManagerService::AbilityTransitionDone startAbility is " << startAbility;
+    GTEST_LOG_(INFO) << "MockServiceAbilityManagerService::AbilityWindowConfigTransitionDone startAbility is " << startAbility;
     want_.SetElementName("BundleName", "abilityName");
     if (abilityScheduler_ != nullptr) {
         want_.SetElementName("BundleName", "abilityName");
