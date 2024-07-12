@@ -10890,6 +10890,10 @@ int32_t AbilityManagerService::TransferAbilityResultForExtension(const sptr<IRem
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    if (!JudgeSelfCalled(abilityRecord)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Caller mismatch.");
+        return ERR_INVALID_VALUE;
+    }
     auto type = abilityRecord->GetAbilityInfo().type;
     if (type != AppExecFwk::AbilityType::EXTENSION) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "type is not uiextension.");
