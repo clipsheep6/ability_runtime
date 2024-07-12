@@ -871,6 +871,7 @@ ohos_shared_library("ui_service_extension") {
     "ace_engine:ace_uicontent",
   ]
 
+  public_external_deps = []
   if (ability_runtime_graphics) {
     external_deps += [
       "ace_engine:ace_uicontent",
@@ -880,7 +881,12 @@ ohos_shared_library("ui_service_extension") {
       "window_manager:scene_session",
       "window_manager:session_manager_lite",
       "window_manager:windowstage_kit",
+      "window_manager:window_native_kit",
     ]
+
+   public_external_deps += [
+      "window_manager:window_native_kit",
+   ]
   }
 
   subsystem_name = "ability"
@@ -951,6 +957,7 @@ ohos_shared_library("ui_service_extension_module") {
       "window_manager:scene_session",
       "window_manager:session_manager_lite",
       "window_manager:windowstage_kit",
+      "window_manager:window_native_kit",
     ]
 
     public_external_deps = [
@@ -960,6 +967,7 @@ ohos_shared_library("ui_service_extension_module") {
       "window_manager:libdm",
       "window_manager:libwmutil",
       "window_manager:windowstage_kit",
+      "window_manager:window_native_kit",
     ]
   }
 
