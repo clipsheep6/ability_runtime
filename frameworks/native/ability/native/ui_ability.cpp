@@ -29,7 +29,7 @@
 #include "reverse_continuation_scheduler_primary_stage.h"
 #include "runtime.h"
 #include "resource_config_helper.h"
-#ifdef SUPPORT_GRAPHICS
+#ifdef SUPPORT_SCREEN
 #include "wm_common.h"
 #endif
 
