@@ -155,7 +155,7 @@ bool ResourceConfigHelper::ConvertStringToUint32(std::string source, uint32_t &r
     return true;
 }
 
-Global::Resource::Direction ResourceConfigHelper::ConvertDirectionToGlobal(Rosen::DisplayOrientation display)
+Global::Resource::Direction ResourceConfigHelper::ConvertDirectionToGlobal(const Rosen::DisplayOrientation display)
 {
     if (display == Rosen::DisplayOrientation::LANDSCAPE || display == Rosen::DisplayOrientation::LANDSCAPE_INVERTED) {
         return Global::Resource::Direction::DIRECTION_HORIZONTAL;

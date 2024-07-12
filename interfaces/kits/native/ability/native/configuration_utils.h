@@ -67,7 +67,7 @@ public:
     void UpdateDisplayConfig(Rosen::DisplayId displayId, std::shared_ptr<Configuration> configuration,
         std::shared_ptr<ResourceManager> resourceManager, bool &configChanged);
 
-    void UpdateDisplayConfig(Rosen::DisplayId displayId, float &density, Rosen::DisplayOrientation orientation,
+    void UpdateDisplayConfig(Rosen::DisplayId displayId, float density, Rosen::DisplayOrientation orientation,
         std::shared_ptr<Configuration> configuration, std::shared_ptr<ResourceManager> resourceManager, bool &changed);
 private:
     bool GetDisplayConfig(Rosen::DisplayId displayId, float &density, std::string &directionStr);

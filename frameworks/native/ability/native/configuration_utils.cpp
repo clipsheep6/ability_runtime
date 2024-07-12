@@ -113,7 +113,7 @@ void ConfigurationUtils::UpdateDisplayConfig(Rosen::DisplayId displayId, std::sh
     Rosen::Window::UpdateConfigurationForAll(diffConfiguration);
 }
 
-void ConfigurationUtils::UpdateDisplayConfig(Rosen::DisplayId displayId, float &density,
+void ConfigurationUtils::UpdateDisplayConfig(Rosen::DisplayId displayId, float density,
     Rosen::DisplayOrientation orientation, std::shared_ptr<Configuration> configuration,
     std::shared_ptr<ResourceManager> resourceManager, bool &changed)
 {
