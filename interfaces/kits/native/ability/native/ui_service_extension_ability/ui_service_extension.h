@@ -17,9 +17,18 @@
 #define OHOS_ABILITY_RUNTIME_UI_SERVICE_EXTENSION_H
 
 #include "extension_base.h"
-#include "freeze_util.h"
 #include "js_runtime.h"
 #include "context/context.h"
+#ifdef SUPPORT_GRAPHICS
+#include "js_window_stage_config.h"
+#include "js_extension_window_config.h"
+#include "js_window_utils.h"
+#include "window_helper.h"
+#include "window_scene.h"
+#include "js_window_stage.h"
+#include "session_info.h"
+#endif
+
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -71,6 +80,15 @@ public:
      * @return The ui service extension instance.
      */
     static UIServiceExtension* Create(const std::unique_ptr<Runtime>& runtime);
+
+#ifdef SUPPORT_GRAPHICS
+    /**
+     * @brief get the window option.
+     * @return Returns a window option object pointer.
+     */
+    sptr<Rosen::WindowOption> UIServiceExtension::GetWindowOption(const AAFwk::Want &want,
+        const std::shared_ptr< Rosen::ExtensionWindowConfig>& extensionWindowConfig, const sptr<AAFwk::SessionInfo>& sessionInfo);
+#endif
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
