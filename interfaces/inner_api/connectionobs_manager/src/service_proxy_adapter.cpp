@@ -33,12 +33,12 @@ constexpr int32_t CYCLE_LIMIT = 1000;
 int32_t ServiceProxyAdapter::RegisterObserver(const sptr<IConnectionObserver> &observer)
 {
     if (!observer) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "IConnectObserver is invalid.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "invalid IConnectObserver");
         return ERR_INVALID_OBSERVER;
     }
 
     if (!remoteObj_) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "no abilityms proxy.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "no abilityms proxy");
         return ERR_NO_PROXY;
     }
 
@@ -47,18 +47,18 @@ int32_t ServiceProxyAdapter::RegisterObserver(const sptr<IConnectionObserver> &o
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(ABILITY_MGR_DESCRIPTOR)) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "register observer write interface token failed.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "write token failed");
         return ERR_INVALID_VALUE;
     }
 
     if (!data.WriteRemoteObject(observer->AsObject())) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "register observer write observer remote obj failed.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "write remote obj failed");
         return ERR_INVALID_VALUE;
     }
 
     error = remoteObj_->SendRequest(REGISTER_CONNECTION_OBSERVER, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "register observer Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::CONNECTION, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -67,12 +67,12 @@ int32_t ServiceProxyAdapter::RegisterObserver(const sptr<IConnectionObserver> &o
 int32_t ServiceProxyAdapter::UnregisterObserver(const sptr<IConnectionObserver> &observer)
 {
     if (!observer) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "unregister observer, IConnectObserver is invalid.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "IConnectObserver invalid");
         return ERR_INVALID_OBSERVER;
     }
 
     if (!remoteObj_) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "unregister observer, no abilityms proxy.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "no abilityms proxy");
         return ERR_NO_PROXY;
     }
 
@@ -81,18 +81,18 @@ int32_t ServiceProxyAdapter::UnregisterObserver(const sptr<IConnectionObserver> 
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(ABILITY_MGR_DESCRIPTOR)) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "unregister observer, write interface token failed.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "write token failed");
         return ERR_INVALID_VALUE;
     }
 
     if (!data.WriteRemoteObject(observer->AsObject())) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "unregister observer, write observer remote obj failed.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "write remote obj failed");
         return ERR_INVALID_VALUE;
     }
 
     error = remoteObj_->SendRequest(UNREGISTER_CONNECTION_OBSERVER, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "unregister observer, Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::CONNECTION, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -102,7 +102,7 @@ int32_t ServiceProxyAdapter::UnregisterObserver(const sptr<IConnectionObserver> 
 int32_t ServiceProxyAdapter::GetDlpConnectionInfos(std::vector<DlpConnectionInfo> &infos)
 {
     if (!remoteObj_) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "GetDlpConnectionInfos, no abilityms proxy.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "no abilityms proxy");
         return ERR_NO_PROXY;
     }
 
@@ -111,32 +111,32 @@ int32_t ServiceProxyAdapter::GetDlpConnectionInfos(std::vector<DlpConnectionInfo
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(ABILITY_MGR_DESCRIPTOR)) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "GetDlpConnectionInfos, write interface token failed.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "write token failed");
         return ERR_INVALID_VALUE;
     }
 
     error = remoteObj_->SendRequest(GET_DLP_CONNECTION_INFOS, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "GetDlpConnectionInfos, Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::CONNECTION, "Send request error: %{public}d", error);
         return error;
     }
 
     auto result = reply.ReadInt32();
     if (result != 0) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "GetDlpConnectionInfos fail, result: %{public}d", result);
+        TAG_LOGE(AAFwkTag::CONNECTION, "fail, result: %{public}d", result);
         return result;
     }
 
     int32_t infoSize = reply.ReadInt32();
     if (infoSize > CYCLE_LIMIT) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "infoSize is too large");
+        TAG_LOGE(AAFwkTag::CONNECTION, "infoSize too large");
         return ERR_INVALID_VALUE;
     }
 
     for (int32_t i = 0; i < infoSize; i++) {
         std::unique_ptr<DlpConnectionInfo> info(reply.ReadParcelable<DlpConnectionInfo>());
         if (info == nullptr) {
-            TAG_LOGE(AAFwkTag::CONNECTION, "Read GetDlpConnectionInfo infos failed");
+            TAG_LOGE(AAFwkTag::CONNECTION, "Read infos failed");
             return ERR_READ_INFO_FAILED;
         }
         infos.emplace_back(*info);
@@ -149,7 +149,7 @@ int32_t ServiceProxyAdapter::GetDlpConnectionInfos(std::vector<DlpConnectionInfo
 int32_t ServiceProxyAdapter::GetConnectionData(std::vector<ConnectionData> &connectionData)
 {
     if (!remoteObj_) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "GetConnectionData, no abilityms proxy.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "no abilityms proxy");
         return ERR_NO_PROXY;
     }
 
@@ -158,32 +158,32 @@ int32_t ServiceProxyAdapter::GetConnectionData(std::vector<ConnectionData> &conn
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(ABILITY_MGR_DESCRIPTOR)) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "GetConnectionData, write interface token failed.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "write token failed");
         return ERR_INVALID_VALUE;
     }
 
     error = remoteObj_->SendRequest(GET_CONNECTION_DATA, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "GetConnectionData, Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::CONNECTION, "Send request error: %{public}d", error);
         return error;
     }
 
     auto result = reply.ReadInt32();
     if (result != 0) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "GetConnectionData fail, result: %{public}d", result);
+        TAG_LOGE(AAFwkTag::CONNECTION, "fail, result: %{public}d", result);
         return result;
     }
 
     int32_t infoSize = reply.ReadInt32();
     if (infoSize > CYCLE_LIMIT) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "infoSize is too large");
+        TAG_LOGE(AAFwkTag::CONNECTION, "infoSize too large");
         return ERR_INVALID_VALUE;
     }
 
     for (int32_t i = 0; i < infoSize; i++) {
         std::unique_ptr<ConnectionData> item(reply.ReadParcelable<ConnectionData>());
         if (item == nullptr) {
-            TAG_LOGE(AAFwkTag::CONNECTION, "Read GetConnectionData infos failed");
+            TAG_LOGE(AAFwkTag::CONNECTION, "Read infos failed");
             return ERR_READ_INFO_FAILED;
         }
         connectionData.emplace_back(*item);

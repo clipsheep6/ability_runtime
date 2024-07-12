@@ -47,7 +47,7 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
     }
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     if (abilityRecord == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability has already been destroyed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability destroyed");
         return true;
     }
     if (abilityRecord->GetAppIndex() <= AbilityRuntime::GlobalConstant::MAX_APP_CLONE_INDEX) {
@@ -60,11 +60,11 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
     Security::DlpPermission::SandBoxExternalAuthorType authResult;
     int result = Dlp::GetSandboxExternalAuthorization(uid, want, authResult);
     if (result != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetSandboxExternalAuthorization failed %{public}d.", result);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetSandboxExternalAuthorization failed %{public}d", result);
         return false;
     }
     if (authResult != Security::DlpPermission::SandBoxExternalAuthorType::ALLOW_START_ABILITY) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Auth failed, not allow start %{public}d.", uid);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Auth failed, not allow start %{public}d", uid);
         return false;
     }
 #endif // WITH_DLP
@@ -98,11 +98,11 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
     Security::DlpPermission::SandBoxExternalAuthorType authResult;
     int result = Dlp::GetSandboxExternalAuthorization(uid, want, authResult);
     if (result != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetSandboxExternalAuthorization failed %{public}d.", result);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetSandboxExternalAuthorization failed %{public}d", result);
         return false;
     }
     if (authResult != Security::DlpPermission::SandBoxExternalAuthorType::ALLOW_START_ABILITY) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Auth failed, not allow start %{public}d.", uid);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Auth failed, not allow start %{public}d", uid);
         return false;
     }
 #endif // WITH_DLP
@@ -118,11 +118,11 @@ static bool CheckCallerIsDlpManager(const std::shared_ptr<AppExecFwk::BundleMgrH
     std::string bundleName;
     auto callerUid = IPCSkeleton::GetCallingUid();
     if (IN_PROCESS_CALL(bundleManager->GetNameForUid(callerUid, bundleName)) != ERR_OK) {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "Get Bundle Name failed.");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "Get Bundle Name failed");
         return false;
     }
     if (bundleName != "com.ohos.dlpmanager") {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "Wrong Caller.");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "Wrong Caller");
         return false;
     }
     return true;

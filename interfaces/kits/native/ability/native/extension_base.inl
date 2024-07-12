@@ -27,7 +27,7 @@ void ExtensionBase<C>::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const sptr<IRemoteObject> &token)
 {
     Extension::Init(record, application, handler, token);
-    TAG_LOGD(AAFwkTag::EXT, "begin init context");
+    TAG_LOGD(AAFwkTag::EXT, "begin");
     context_ = CreateAndInitContext(record, application, handler, token);
 }
 
@@ -37,11 +37,11 @@ std::shared_ptr<C> ExtensionBase<C>::CreateAndInitContext(const std::shared_ptr<
     std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    TAG_LOGD(AAFwkTag::EXT, "begin init base");
+    TAG_LOGD(AAFwkTag::EXT, "begin");
     std::shared_ptr<C> context = std::make_shared<C>();
     auto appContext = Context::GetApplicationContext();
     if (appContext == nullptr) {
-        TAG_LOGE(AAFwkTag::EXT, "ServiceExtension::CreateAndInitContext appContext is nullptr");
+        TAG_LOGE(AAFwkTag::EXT, "null appContext");
         return context;
     }
     context->SetApplicationInfo(appContext->GetApplicationInfo());
@@ -49,7 +49,7 @@ std::shared_ptr<C> ExtensionBase<C>::CreateAndInitContext(const std::shared_ptr<
     context->SetParentContext(appContext);
     context->SetToken(token);
     if (record == nullptr) {
-        TAG_LOGE(AAFwkTag::EXT, "ServiceExtension::CreateAndInitContext record is nullptr");
+        TAG_LOGE(AAFwkTag::EXT, "null record");
         return context;
     }
     TAG_LOGD(AAFwkTag::EXT, "begin init abilityInfo");
@@ -80,13 +80,13 @@ void ExtensionBase<C>::OnConfigurationUpdated(const AppExecFwk::Configuration &c
     TAG_LOGD(AAFwkTag::EXT, "called");
 
     if (!context_) {
-        TAG_LOGE(AAFwkTag::EXT, "context is nullptr.");
+        TAG_LOGE(AAFwkTag::EXT, "null context_");
         return;
     }
 
     auto fullConfig = context_->GetConfiguration();
     if (!fullConfig) {
-        TAG_LOGE(AAFwkTag::EXT, "configuration is nullptr.");
+        TAG_LOGE(AAFwkTag::EXT, "null config");
         return;
     }
 

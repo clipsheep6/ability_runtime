@@ -50,7 +50,7 @@ AutoFillExtensionCallback::AutoFillExtensionCallback()
 
 void AutoFillExtensionCallback::OnResult(int32_t errCode, const AAFwk::Want &want)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called, result code is %{public}d.", errCode);
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called, result code: %{public}d", errCode);
     AutoFillManager::GetInstance().RemoveEvent(callbackId_);
     CloseUIExtension();
     if (autoFillWindowType_ == AutoFill::AutoFillWindowType::POPUP_WINDOW) {
@@ -71,7 +71,7 @@ void AutoFillExtensionCallback::OnResult(int32_t errCode, const AAFwk::Want &wan
 
 void AutoFillExtensionCallback::OnRelease(int32_t errCode)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called, result code is %{public}d.", errCode);
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called, result code: %{public}d", errCode);
     AutoFillManager::GetInstance().RemoveEvent(callbackId_);
     CloseUIExtension();
     if (errCode != 0) {
@@ -81,7 +81,7 @@ void AutoFillExtensionCallback::OnRelease(int32_t errCode)
 
 void AutoFillExtensionCallback::OnError(int32_t errCode, const std::string &name, const std::string &message)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called, errcode is %{public}d, name is %{public}s, message is %{public}s",
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called, errcode: %{public}d, name: %{public}s, message: %{public}s",
         errCode, name.c_str(), message.c_str());
     AutoFillManager::GetInstance().RemoveEvent(callbackId_);
     CloseUIExtension();
@@ -104,7 +104,7 @@ void AutoFillExtensionCallback::HandleReloadInModal(const AAFwk::WantParams &wan
 
     auto uiContent = GetUIContent();
     if (uiContent == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UI content is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "null uiContent");
         return;
     }
 
@@ -112,7 +112,7 @@ void AutoFillExtensionCallback::HandleReloadInModal(const AAFwk::WantParams &wan
         isReloadInModal_ = true;
         uiContent->DestroyCustomPopupUIExtension(oldSessionId);
     } else {
-        TAG_LOGW(AAFwkTag::AUTOFILLMGR, "Window type is not popup, the window can not be destroyed.");
+        TAG_LOGW(AAFwkTag::AUTOFILLMGR, "Window type not popup, can not be destroyed");
     }
 }
 
@@ -122,7 +122,7 @@ int32_t AutoFillExtensionCallback::ReloadInModal(const AAFwk::WantParams &wantPa
     std::lock_guard<std::mutex> lock(closeMutex_);
     auto uiContent = GetUIContent();
     if (uiContent == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Content is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "null uiContent");
         return AutoFill::AUTO_FILL_OBJECT_IS_NULL;
     }
 
@@ -142,7 +142,7 @@ int32_t AutoFillExtensionCallback::ReloadInModal(const AAFwk::WantParams &wantPa
     int32_t sessionId = 0;
     sessionId = uiContent->CreateModalUIExtension(want, callback, config);
     if (sessionId == 0) {
-        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Create ui extension is failed.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Create ui extension failed");
         AutoFillManager::GetInstance().RemoveEvent(callbackId_);
         return AutoFill::AUTO_FILL_CREATE_MODULE_UI_EXTENSION_FAILED;
     }
@@ -191,7 +191,7 @@ void AutoFillExtensionCallback::UpdateCustomPopupConfig(const AAFwk::WantParams 
     AutoFillManagerUtil::ConvertToPopupUIExtensionConfig(autoFillCustomConfig, popupConfig);
     auto uiContent = GetUIContent();
     if (uiContent == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UIContent is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "null uiContent");
         return;
     }
     uiContent->UpdateCustomPopupUIExtension(popupConfig);
@@ -201,7 +201,7 @@ void AutoFillExtensionCallback::onRemoteReady(const std::shared_ptr<Ace::ModalUI
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "called");
     if (modalUIExtensionProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Proxy is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "null proxy");
         return;
     }
     SetModalUIExtensionProxy(modalUIExtensionProxy);
@@ -318,7 +318,7 @@ void AutoFillExtensionCallback::UpdateCustomPopupUIExtension(const AbilityBase::
 {
     auto modalUIExtensionProxy = GetModalUIExtensionProxy();
     if (modalUIExtensionProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UIExtensionProxy is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "null UIExtensionProxy");
         return;
     }
     AAFwk::WantParams wantParams;
@@ -372,7 +372,7 @@ void AutoFillExtensionCallback::CloseUIExtension()
         std::lock_guard<std::mutex> lock(closeMutex_);
         uiContent = GetUIContent();
         if (uiContent == nullptr) {
-            TAG_LOGD(AAFwkTag::AUTOFILLMGR, "uiContent is nullptr.");
+            TAG_LOGD(AAFwkTag::AUTOFILLMGR, "null uiContent");
             return;
         }
         SetInstanceId(-1);

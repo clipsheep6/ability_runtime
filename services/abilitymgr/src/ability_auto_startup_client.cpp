@@ -28,7 +28,7 @@ std::recursive_mutex AbilityAutoStartupClient::mutex_;
 
 #define CHECK_POINTER_RETURN_NOT_CONNECTED(object)             \
     if (!(object)) {                                             \
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "proxy is nullptr."); \
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "null proxy"); \
         return ABILITY_SERVICE_NOT_CONNECTED;                  \
     }
 
@@ -67,27 +67,27 @@ ErrCode AbilityAutoStartupClient::Connect()
     }
     sptr<ISystemAbilityManager> systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemManager == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Fail to get registry.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Get registry failed");
         return GET_ABILITY_SERVICE_FAILED;
     }
     sptr<IRemoteObject> remoteObj = systemManager->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
     if (remoteObj == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Fail to connect ability manager service.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Connect AbilityManagerService failed");
         return GET_ABILITY_SERVICE_FAILED;
     }
 
     deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new AbilityMgrDeathRecipient());
     if (deathRecipient_ == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to create AbilityMgrDeathRecipient!");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Create AbilityMgrDeathRecipient failed");
         return GET_ABILITY_SERVICE_FAILED;
     }
     if ((remoteObj->IsProxyObject()) && (!remoteObj->AddDeathRecipient(deathRecipient_))) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Add death recipient to AbilityManagerService failed.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Add death recipient to AbilityManagerService failed");
         return GET_ABILITY_SERVICE_FAILED;
     }
 
     proxy_ = iface_cast<IAbilityManager>(remoteObj);
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Connect ability manager service success.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Connect AbilityManagerService success");
     return ERR_OK;
 }
 
@@ -117,7 +117,7 @@ ErrCode AbilityAutoStartupClient::QueryAllAutoStartupApplications(std::vector<Au
 
 void AbilityAutoStartupClient::AbilityMgrDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
 {
-    TAG_LOGI(AAFwkTag::AUTO_STARTUP, "AbilityMgrDeathRecipient handle remote died.");
+    TAG_LOGI(AAFwkTag::AUTO_STARTUP, "Handle remote died");
     AbilityAutoStartupClient::GetInstance()->ResetProxy(remote);
 }
 
@@ -130,7 +130,7 @@ void AbilityAutoStartupClient::ResetProxy(wptr<IRemoteObject> remote)
 
     auto serviceRemote = proxy_->AsObject();
     if ((serviceRemote != nullptr) && (serviceRemote == remote.promote())) {
-        TAG_LOGD(AAFwkTag::AUTO_STARTUP, "To remove death recipient.");
+        TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Remove death recipient");
         serviceRemote->RemoveDeathRecipient(deathRecipient_);
         proxy_ = nullptr;
     }

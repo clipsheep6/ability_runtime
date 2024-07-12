@@ -68,10 +68,10 @@ void ExtensionConfigMgr::Init()
 
 void ExtensionConfigMgr::AddBlockListItem(const std::string& name, int32_t type)
 {
-    TAG_LOGD(AAFwkTag::EXT, "AddBlockListItem name = %{public}s, type = %{public}d", name.c_str(), type);
+    TAG_LOGD(AAFwkTag::EXT, "name: %{public}s, type: %{public}d", name.c_str(), type);
     auto iter = blocklistConfig_.find(name);
     if (iter == blocklistConfig_.end()) {
-        TAG_LOGD(AAFwkTag::EXT, "Extension name = %{public}s, not exist in blocklist config", name.c_str());
+        TAG_LOGD(AAFwkTag::EXT, "Extension name: %{public}s not exist", name.c_str());
         return;
     }
     extensionBlocklist_.emplace(type, iter->second);
@@ -80,10 +80,10 @@ void ExtensionConfigMgr::AddBlockListItem(const std::string& name, int32_t type)
 void ExtensionConfigMgr::UpdateRuntimeModuleChecker(const std::unique_ptr<AbilityRuntime::Runtime> &runtime)
 {
     if (!runtime) {
-        TAG_LOGE(AAFwkTag::EXT, "UpdateRuntimeModuleChecker faild, runtime is null");
+        TAG_LOGE(AAFwkTag::EXT, "null runtime");
         return;
     }
-    TAG_LOGD(AAFwkTag::EXT, "extensionType_ = %{public}d", extensionType_);
+    TAG_LOGD(AAFwkTag::EXT, "extensionType_: %{public}d", extensionType_);
     auto moduleChecker = std::make_shared<AppModuleChecker>(extensionType_, std::move(extensionBlocklist_));
     runtime->SetModuleLoadChecker(moduleChecker);
 }

@@ -25,12 +25,12 @@ namespace AbilityRuntime {
 SrCommonEventSubscriber::SrCommonEventSubscriber(const EventFwk::CommonEventSubscribeInfo &subscribeInfo)
     : EventFwk::CommonEventSubscriber(subscribeInfo)
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "SrCommonEventSubscriber created");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "created");
 }
 
 SrCommonEventSubscriber::~SrCommonEventSubscriber()
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "SrCommonEventSubscriber destroyed");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "destroyed");
 }
 
 void SrCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &eventData)
@@ -38,16 +38,16 @@ void SrCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &ev
     const AAFwk::Want& want = eventData.GetWant();
     std::string action = want.GetAction();
     std::string bundleName = want.GetElement().GetBundleName();
+    TAG_LOGI(AAFwkTag::SER_ROUTER, "action:%{public}s.", action.c_str());
     if (action.empty() || eventHandler_ == nullptr) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "failed, empty action: %{public}s, or invalid event handler", action.c_str());
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "Invalid action or event handler");
         return;
     }
     if (bundleName.empty() && action != EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "failed, invalid param, action: %{public}s, bundleName: %{public}s",
-            action.c_str(), bundleName.c_str());
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "invalid param, bundleName: %{public}s",
+            bundleName.c_str());
         return;
     }
-    TAG_LOGI(AAFwkTag::SER_ROUTER, "action:%{public}s.", action.c_str());
     std::weak_ptr<SrCommonEventSubscriber> weakThis = shared_from_this();
     if (action == EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED) {
         int32_t userId = eventData.GetCode();
@@ -79,7 +79,7 @@ void SrCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &ev
         };
         eventHandler_->PostTask(task, "SrCommonEventSubscriber:DeleteBundleInfo");
     } else {
-        TAG_LOGW(AAFwkTag::SER_ROUTER, "invalid action.");
+        TAG_LOGW(AAFwkTag::SER_ROUTER, "Invalid action");
     }
 }
 } // AbilityRuntime

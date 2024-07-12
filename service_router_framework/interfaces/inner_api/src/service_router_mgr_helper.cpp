@@ -35,7 +35,7 @@ ServiceRouterMgrHelper::~ServiceRouterMgrHelper()
 
 void ServiceRouterMgrHelper::OnRemoteDiedHandle()
 {
-    TAG_LOGE(AAFwkTag::SER_ROUTER, "Remove service died.");
+    TAG_LOGE(AAFwkTag::SER_ROUTER, "Remove died");
     SetServiceRouterMgr(nullptr);
     std::unique_lock<std::mutex> lock(cvLock_);
     isReady = false;
@@ -61,25 +61,25 @@ void ServiceRouterMgrHelper::LoadSA()
     }
     sptr<ISystemAbilityManager> saManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (saManager == nullptr) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "LoadSA, GetSystemAbilityManager is null.");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "null saManager");
         return;
     }
 
     sptr<ServiceRouterLoadCallback> loadCallback = new (std::nothrow) ServiceRouterLoadCallback();
     if (loadCallback == nullptr) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "LoadSA, new ServiceRouterLoadCallback return null.");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "null loadCallback");
         return;
     }
     int32_t result = saManager->LoadSystemAbility(OHOS::SERVICE_ROUTER_MGR_SERVICE_ID, loadCallback);
     if (result != ERR_OK) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "LoadSA, LoadSystemAbility result: %{public}d", result);
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "LoadSystemAbility result: %{public}d", result);
         return;
     }
 }
 
 void ServiceRouterMgrHelper::FinishStartSASuccess(const sptr<IRemoteObject> &remoteObject)
 {
-    TAG_LOGI(AAFwkTag::SER_ROUTER, "FinishStartSASuccess.");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "Called");
     SetServiceRouterMgr(OHOS::iface_cast<IServiceRouterManager>(remoteObject));
 
     {
@@ -96,7 +96,7 @@ void ServiceRouterMgrHelper::FinishStartSASuccess(const sptr<IRemoteObject> &rem
 
 void ServiceRouterMgrHelper::FinishStartSAFail()
 {
-    TAG_LOGI(AAFwkTag::SER_ROUTER, "FinishStartSAFail.");
+    TAG_LOGI(AAFwkTag::SER_ROUTER, "Called");
     SetServiceRouterMgr(nullptr);
 
     {
@@ -128,7 +128,7 @@ sptr<IServiceRouterManager> ServiceRouterMgrHelper::GetServiceRouterMgr()
 
     routerMgr = InnerGetServiceRouterMgr();
     if (routerMgr == nullptr) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "GetServiceRouterMgr, after load  routerMgr_ is null");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "null routerMgr");
     }
     return routerMgr;
 }

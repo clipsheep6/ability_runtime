@@ -32,17 +32,17 @@ const std::string SCHEME_SERVICE_ROUTER = "servicerouter";
 
 bool ServiceRouterDataMgr::LoadAllBundleInfos()
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "SRDM LoadAllBundleInfos");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "Called");
     ClearAllBundleInfos();
     auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "The bundleMgrHelper is nullptr.");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "null bundleMgrHelper");
         return false;
     }
     auto flags = (BundleFlag::GET_BUNDLE_WITH_ABILITIES | BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO);
     std::vector<BundleInfo> bundleInfos;
     if (!bundleMgrHelper->GetBundleInfos(flags, bundleInfos, SrSamgrHelper::GetCurrentActiveUserId())) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "Return false.");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "return");
         return false;
     }
 
@@ -55,16 +55,16 @@ bool ServiceRouterDataMgr::LoadAllBundleInfos()
 
 bool ServiceRouterDataMgr::LoadBundleInfo(const std::string &bundleName)
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "SRDM LoadBundleInfo");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "Called");
     auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
-        TAG_LOGI(AAFwkTag::SER_ROUTER, "The bundleMgrHelper is nullptr.");
+        TAG_LOGI(AAFwkTag::SER_ROUTER, "null bundleMgrHelper");
         return false;
     }
     BundleInfo bundleInfo;
     auto flags = (BundleFlag::GET_BUNDLE_WITH_ABILITIES | BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO);
     if (!bundleMgrHelper->GetBundleInfo(bundleName, flags, bundleInfo, SrSamgrHelper::GetCurrentActiveUserId())) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "Return false.");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "return");
         return false;
     }
 
@@ -75,7 +75,7 @@ bool ServiceRouterDataMgr::LoadBundleInfo(const std::string &bundleName)
 
 void ServiceRouterDataMgr::UpdateBundleInfoLocked(const BundleInfo &bundleInfo)
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "SRDM UpdateBundleInfo");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "Called");
     InnerServiceInfo innerServiceInfo;
     auto infoItem = innerServiceInfos_.find(bundleInfo.name);
     if (infoItem != innerServiceInfos_.end()) {
@@ -94,11 +94,11 @@ void ServiceRouterDataMgr::UpdateBundleInfoLocked(const BundleInfo &bundleInfo)
 
 void ServiceRouterDataMgr::DeleteBundleInfo(const std::string &bundleName)
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "SRDM DeleteBundleInfo");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "Called");
     std::lock_guard<std::mutex> lock(bundleInfoMutex_);
     auto infoItem = innerServiceInfos_.find(bundleName);
     if (infoItem == innerServiceInfos_.end()) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "SRDM inner service info not found by bundleName");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "innerServiceInfo not found");
         return;
     }
     innerServiceInfos_.erase(bundleName);
@@ -107,10 +107,10 @@ void ServiceRouterDataMgr::DeleteBundleInfo(const std::string &bundleName)
 int32_t ServiceRouterDataMgr::QueryBusinessAbilityInfos(const BusinessAbilityFilter &filter,
     std::vector<BusinessAbilityInfo> &businessAbilityInfos) const
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "SRDM QueryBusinessAbilityInfos");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "Called");
     BusinessType validType = GetBusinessType(filter);
     if (validType == BusinessType::UNSPECIFIED) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "SRDM QueryBusinessAbilityInfos, businessType is empty");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "BusinessType empty");
         return ERR_BUNDLE_MANAGER_PARAM_ERROR;
     }
 
@@ -124,9 +124,9 @@ int32_t ServiceRouterDataMgr::QueryBusinessAbilityInfos(const BusinessAbilityFil
 int32_t ServiceRouterDataMgr::QueryPurposeInfos(const Want &want, const std::string purposeName,
     std::vector<PurposeInfo> &purposeInfos) const
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "SRDM QueryPurposeInfos");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "Called");
     if (purposeName.empty()) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "SRDM QueryPurposeInfos, purposeName is empty");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "purposeName empty");
         return ERR_BUNDLE_MANAGER_PARAM_ERROR;
     }
 
@@ -140,7 +140,7 @@ int32_t ServiceRouterDataMgr::QueryPurposeInfos(const Want &want, const std::str
     } else {
         auto infoItem = innerServiceInfos_.find(bundleName);
         if (infoItem == innerServiceInfos_.end()) {
-            TAG_LOGE(AAFwkTag::SER_ROUTER, "SRDM QueryPurposeInfos, not found by bundleName.");
+            TAG_LOGE(AAFwkTag::SER_ROUTER, "innerServiceInfo not found");
             return ERR_BUNDLE_MANAGER_BUNDLE_NOT_EXIST;
         }
         infoItem->second.FindPurposeInfos(purposeName, purposeInfos);
@@ -160,7 +160,7 @@ BusinessType ServiceRouterDataMgr::GetBusinessType(const BusinessAbilityFilter &
 
     OHOS::Uri uri = OHOS::Uri(filter.uri);
     if (uri.GetScheme().empty() || uri.GetHost().empty() || uri.GetScheme() != SCHEME_SERVICE_ROUTER) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "GetExtensionServiceType, invalid uri: %{public}s", filter.uri.c_str());
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "Invalid uri: %{public}s", filter.uri.c_str());
         return BusinessType::UNSPECIFIED;
     }
     return BundleInfoResolveUtil::findBusinessType(uri.GetHost());

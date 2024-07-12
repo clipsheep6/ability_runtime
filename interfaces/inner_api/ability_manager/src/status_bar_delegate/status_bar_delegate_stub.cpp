@@ -29,7 +29,7 @@ int32_t StatusBarDelegateStub::OnRemoteRequest(
     std::u16string descriptor = StatusBarDelegateStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "local descriptor is not equal to remote.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "invalid descriptor");
         return ERR_INVALID_STATE;
     }
 
@@ -51,11 +51,11 @@ int32_t StatusBarDelegateStub::HandleCheckIfStatusBarItemExists(MessageParcel &d
     bool isExist = false;
     auto result = CheckIfStatusBarItemExists(accessTokenId, isExist);
     if (!reply.WriteBool(result)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write result failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write result failed");
         return AAFwk::ERR_NATIVE_IPC_PARCEL_FAILED;
     }
     if (!reply.WriteBool(isExist)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write isExist failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write isExist failed");
         return AAFwk::ERR_NATIVE_IPC_PARCEL_FAILED;
     }
     return NO_ERROR;
@@ -68,7 +68,7 @@ int32_t StatusBarDelegateStub::HandleAttachPidToStatusBarItem(MessageParcel &dat
     int32_t pid = data.ReadInt32();
     auto result = AttachPidToStatusBarItem(accessTokenId, pid);
     if (!reply.WriteInt32(result)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write result failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write result failed");
         return AAFwk::ERR_NATIVE_IPC_PARCEL_FAILED;
     }
     return NO_ERROR;

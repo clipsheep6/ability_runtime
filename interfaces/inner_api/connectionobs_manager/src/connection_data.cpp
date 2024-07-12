@@ -95,17 +95,17 @@ bool ConnectionData::ReadFromParcel(Parcel &parcel)
     extensionType = static_cast<ExtensionAbilityType>(type);
 
     if (!parcel.ReadInt32(callerUid)) {
-        TAG_LOGW(AAFwkTag::CONNECTION, "ConnectionData::ReadFromParcel read callerUid failed");
+        TAG_LOGW(AAFwkTag::CONNECTION, "read callerUid failed");
         return false;
     }
 
     if (!parcel.ReadInt32(callerPid)) {
-        TAG_LOGW(AAFwkTag::CONNECTION, "ConnectionData::ReadFromParcel read callerPid failed");
+        TAG_LOGW(AAFwkTag::CONNECTION, "read callerPid failed");
         return false;
     }
 
     if (!parcel.ReadString16(strValue)) {
-        TAG_LOGW(AAFwkTag::CONNECTION, "ConnectionData::ReadFromParcel read strValue failed");
+        TAG_LOGW(AAFwkTag::CONNECTION, "read strValue failed");
         return false;
     }
     callerName = Str16ToStr8(strValue);

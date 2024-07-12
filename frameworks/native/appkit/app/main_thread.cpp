@@ -3431,21 +3431,21 @@ void MainThread::ParseAppConfigurationParams(const std::string configuration, Co
     TAG_LOGD(AAFwkTag::APPKIT, "start");
     appConfig.AddItem(AAFwk::GlobalConfigurationKey::APP_FONT_SIZE_SCALE, DEFAULT_APP_FONT_SIZE_SCALE);
     if (configuration.empty()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "the configuration is empty");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "emptye config");
         return;
     }
     nlohmann::json configurationJson = nlohmann::json::parse(configuration, nullptr, false);
     if (configurationJson.is_discarded()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "json discarded error");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "discarded error");
         return;
     }
     if (!configurationJson.contains(JSON_KEY_APP_CONFIGURATION)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "app configuration is not exist");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "app config not exist");
         return;
     }
     nlohmann::json jsonObject = configurationJson.at(JSON_KEY_APP_CONFIGURATION).get<nlohmann::json>();
     if (jsonObject.empty()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "app configuration is null");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null app config");
         return;
     }
     if (jsonObject.contains(JSON_KEY_APP_FONT_SIZE_SCALE)
@@ -3479,7 +3479,7 @@ void MainThread::HandleCacheProcess()
     if (application_ != nullptr) {
         auto &runtime = application_->GetRuntime();
         if (runtime == nullptr) {
-            TAG_LOGE(AAFwkTag::APPKIT, "runtime nullptr");
+            TAG_LOGE(AAFwkTag::APPKIT, "null runtime");
             return;
         }
         runtime->ForceFullGC();

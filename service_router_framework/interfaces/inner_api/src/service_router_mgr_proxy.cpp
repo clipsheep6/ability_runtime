@@ -25,31 +25,31 @@ namespace AbilityRuntime {
 ServiceRouterMgrProxy::ServiceRouterMgrProxy(const sptr<IRemoteObject> &object)
     : IRemoteProxy<IServiceRouterManager>(object)
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "ServiceRouterMgrProxy instance is created");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "created");
 }
 
 ServiceRouterMgrProxy::~ServiceRouterMgrProxy()
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "ServiceRouterMgrProxy instance is destroyed");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "destroyed");
 }
 
 int32_t ServiceRouterMgrProxy::QueryBusinessAbilityInfos(const BusinessAbilityFilter &filter,
     std::vector<BusinessAbilityInfo> &abilityInfos)
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "ServiceRouterMgrProxy QueryBusinessAbilityInfos");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "Called");
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "write interfaceToken failed");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "Write interfaceToken failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     if (!data.WriteParcelable(&filter)) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "write filter failed");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "Write filter failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     int32_t res = GetParcelableInfos<BusinessAbilityInfo>(ServiceRouterMgrProxy::Message::QUERY_BUSINESS_ABILITY_INFOS,
         data, abilityInfos);
     if (res != OHOS::NO_ERROR) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "fail to QueryBusinessAbilityInfos from server, error code: %{public}d", res);
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "QueryBusinessAbilityInfos error: %{public}d", res);
     }
     return res;
 }
@@ -57,24 +57,24 @@ int32_t ServiceRouterMgrProxy::QueryBusinessAbilityInfos(const BusinessAbilityFi
 int32_t ServiceRouterMgrProxy::QueryPurposeInfos(const Want &want, const std::string purposeName,
     std::vector<PurposeInfo> &purposeInfos)
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "ServiceRouterMgrProxy QueryPurposeInfos");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "Called");
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "write interfaceToken failed");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "Write interfaceToken failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     if (!data.WriteParcelable(&want)) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "write want failed");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "Write want failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     if (!data.WriteString(purposeName)) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "write purposeName fail");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "Write purposeName failed");
         return false;
     }
     int32_t res = GetParcelableInfos<PurposeInfo>(ServiceRouterMgrProxy::Message::QUERY_PURPOSE_INFOS, data,
         purposeInfos);
     if (res != OHOS::NO_ERROR) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "fail to QueryPurposeInfos from server, error code: %{public}d", res);
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "QueryPurposeInfos error: %{public}d", res);
     }
     return res;
 }
@@ -85,30 +85,30 @@ int32_t ServiceRouterMgrProxy::StartUIExtensionAbility(const sptr<SessionInfo> &
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "write interfaceToken failed");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "Write interfaceToken failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
     if (sessionInfo) {
         if (!data.WriteBool(true) || !data.WriteParcelable(sessionInfo)) {
-            TAG_LOGE(AAFwkTag::SER_ROUTER, "flag and sessionInfo write failed.");
+            TAG_LOGE(AAFwkTag::SER_ROUTER, "Flag or sessionInfo write failed");
             return ERR_APPEXECFWK_PARCEL_ERROR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            TAG_LOGE(AAFwkTag::SER_ROUTER, "flag write failed.");
+            TAG_LOGE(AAFwkTag::SER_ROUTER, "Flag write failed");
             return ERR_APPEXECFWK_PARCEL_ERROR;
         }
     }
 
     if (!data.WriteInt32(userId)) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "StartExtensionAbility, userId write failed.");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "UserId write failed.");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
     int32_t error = SendRequest(ServiceRouterMgrProxy::Message::START_UI_EXTENSION, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "StartExtensionAbility, Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -122,44 +122,44 @@ int32_t ServiceRouterMgrProxy::ConnectUIExtensionAbility(const Want &want, const
     MessageOption option;
 
     if (!data.WriteInterfaceToken(GetDescriptor()) || !data.WriteParcelable(&want)) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "write interfaceToken or want failed");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "Write interfaceToken or want failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
     if (!connect) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "connect ability fail, connect is nullptr");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "null connect");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
     if (connect->AsObject()) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(connect->AsObject())) {
-            TAG_LOGE(AAFwkTag::SER_ROUTER, "flag and connect write failed.");
+            TAG_LOGE(AAFwkTag::SER_ROUTER, "Flag or connect write failed.");
             return ERR_APPEXECFWK_PARCEL_ERROR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            TAG_LOGE(AAFwkTag::SER_ROUTER, "flag write failed.");
+            TAG_LOGE(AAFwkTag::SER_ROUTER, "Flag write failed");
             return ERR_APPEXECFWK_PARCEL_ERROR;
         }
     }
     if (sessionInfo) {
         if (!data.WriteBool(true) || !data.WriteParcelable(sessionInfo)) {
-            TAG_LOGE(AAFwkTag::SER_ROUTER, "flag and sessionInfo write failed.");
+            TAG_LOGE(AAFwkTag::SER_ROUTER, "Flag or sessionInfo write failed");
             return ERR_APPEXECFWK_PARCEL_ERROR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            TAG_LOGE(AAFwkTag::SER_ROUTER, "flag write failed.");
+            TAG_LOGE(AAFwkTag::SER_ROUTER, "Flag write failed");
             return ERR_APPEXECFWK_PARCEL_ERROR;
         }
     }
     if (!data.WriteInt32(userId)) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "%{public}s, userId write failed.", __func__);
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "UserId write failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     int32_t error = SendRequest(ServiceRouterMgrProxy::Message::CONNECT_UI_EXTENSION, data, reply, option);
     if (error != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "%{public}s, Send request error: %{public}d", __func__, error);
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -168,16 +168,16 @@ int32_t ServiceRouterMgrProxy::ConnectUIExtensionAbility(const Want &want, const
 int32_t ServiceRouterMgrProxy::SendRequest(ServiceRouterMgrProxy::Message code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
-    TAG_LOGI(AAFwkTag::SER_ROUTER, "ServiceRouterMgrProxy SendRequest");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "Called");
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "fail to send %{public}d cmd to service, remote object is null", code);
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "null remote");
         return ERR_APPEXECFWK_FAILED_GET_REMOTE_PROXY;
     }
     int32_t result = remote->SendRequest(static_cast<uint32_t>(code), data, reply, option);
     if (result != NO_ERROR) {
         TAG_LOGE(
-            AAFwkTag::SER_ROUTER, "fail to send %{public}d cmd to service, transact error:%{public}d", code, result);
+            AAFwkTag::SER_ROUTER, "Send %{public}d cmd to service failed, transact error:%{public}d", code, result);
     }
     return result;
 }
@@ -190,13 +190,13 @@ int32_t ServiceRouterMgrProxy::GetParcelableInfos(
     MessageOption option(MessageOption::TF_SYNC);
     int32_t result = SendRequest(code, data, reply, option);
     if (result != OHOS::NO_ERROR) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "SendRequest result false");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "SendRequest result failed");
         return result;
     }
 
     int32_t res = reply.ReadInt32();
     if (res != ERR_OK) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "reply's result is %{public}d", res);
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "reply error: %{public}d", res);
         return res;
     }
 
@@ -209,7 +209,7 @@ int32_t ServiceRouterMgrProxy::GetParcelableInfos(
         }
         parcelableInfos.emplace_back(*info);
     }
-    TAG_LOGI(AAFwkTag::SER_ROUTER, "get parcelableInfos success");
+    TAG_LOGI(AAFwkTag::SER_ROUTER, "Get parcelableInfos success");
     return OHOS::NO_ERROR;
 }
 }  // namespace AbilityRuntime

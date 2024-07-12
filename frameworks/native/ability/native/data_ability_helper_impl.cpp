@@ -76,7 +76,7 @@ DataAbilityHelperImpl::DataAbilityHelperImpl(const sptr<IRemoteObject> &token)
 void DataAbilityHelperImpl::AddDataAbilityDeathRecipient(const sptr<IRemoteObject> &token)
 {
     if (token != nullptr && callerDeathRecipient_ != nullptr) {
-        TAG_LOGI(AAFwkTag::DATA_ABILITY, "Remove death recipient.");
+        TAG_LOGI(AAFwkTag::DATA_ABILITY, "Remove death recipient");
         token->RemoveDeathRecipient(callerDeathRecipient_);
     }
     if (callerDeathRecipient_ == nullptr) {
@@ -89,15 +89,15 @@ void DataAbilityHelperImpl::AddDataAbilityDeathRecipient(const sptr<IRemoteObjec
                 }
             });
     }
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Add death recipient.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Add death recipient");
     if (token == nullptr || !token->AddDeathRecipient(callerDeathRecipient_)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "AddDeathRecipient failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "AddDeathRecipient failed");
     }
 }
 
 void DataAbilityHelperImpl::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 {
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "On scheduler died.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     std::lock_guard<std::mutex> guard(lock_);
     auto object = remote.promote();
     object = nullptr;
@@ -115,13 +115,13 @@ void DataAbilityHelperImpl::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(const std::shared_ptr<Context> &context)
 {
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Input param invalid, context is nullptr.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "invalid param");
         return nullptr;
     }
 
     auto ptrDataAbilityHelperImpl = new (std::nothrow) DataAbilityHelperImpl(context);
     if (ptrDataAbilityHelperImpl == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "New DataAbilityHelperImpl failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "New failed");
         return nullptr;
     }
 
@@ -144,25 +144,25 @@ std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(
     const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind)
 {
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Input param invalid, context is null.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "invalid param");
         return nullptr;
     }
 
     if (!CheckUri(uri)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "uri is invalid");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "invalid uri");
         return nullptr;
     }
 
     sptr<IAbilityScheduler> dataAbilityProxy =
         AbilityManagerClient::GetInstance()->AcquireDataAbility(*uri.get(), tryBind, context->GetToken());
     if (dataAbilityProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Acquire data ability error.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "AcquireDataAbility error");
         return nullptr;
     }
 
     auto ptrDataAbilityHelperImpl = new (std::nothrow) DataAbilityHelperImpl(context, uri, dataAbilityProxy, tryBind);
     if (ptrDataAbilityHelperImpl == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "New DataAbilityHelperImpl error.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "New error");
         return nullptr;
     }
 
@@ -185,25 +185,25 @@ std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(
     const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind)
 {
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Input param invalid, context is nullptr.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "invalid param");
         return nullptr;
     }
 
     if (!CheckUri(uri)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "uri is invalid.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "invalid uri");
         return nullptr;
     }
 
     sptr<IAbilityScheduler> dataAbilityProxy =
         AbilityManagerClient::GetInstance()->AcquireDataAbility(*uri.get(), tryBind, context->GetToken());
     if (dataAbilityProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Acquire data ability failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "AcquireDataAbility failed");
         return nullptr;
     }
 
     auto ptrDataAbilityHelperImpl = new (std::nothrow) DataAbilityHelperImpl(context, uri, dataAbilityProxy, tryBind);
     if (ptrDataAbilityHelperImpl == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "New DataAbilityHelperImpl failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "New failed");
         return nullptr;
     }
 
@@ -220,13 +220,13 @@ std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(
 std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(const sptr<IRemoteObject> &token)
 {
     if (token == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Input param invalid, token is nullptr.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "invalid param");
         return nullptr;
     }
 
     auto ptrDataAbilityHelperImpl = new (std::nothrow) DataAbilityHelperImpl(token);
     if (ptrDataAbilityHelperImpl == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "New DataAbilityHelperImpl failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "New failed");
         return nullptr;
     }
 
@@ -247,25 +247,25 @@ std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(
     const sptr<IRemoteObject> &token, const std::shared_ptr<Uri> &uri)
 {
     if (token == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Input param invalid, token is nullptr.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "param invalid");
         return nullptr;
     }
 
     if (!CheckUri(uri)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "uri is invalid.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "invalid uri");
         return nullptr;
     }
 
     sptr<IAbilityScheduler> dataAbilityProxy =
         AbilityManagerClient::GetInstance()->AcquireDataAbility(*uri.get(), false, token);
     if (dataAbilityProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Acquire data ability failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "AcquireDataAbility failed");
         return nullptr;
     }
 
     auto ptrDataAbilityHelperImpl = new (std::nothrow) DataAbilityHelperImpl(token, uri, dataAbilityProxy);
     if (ptrDataAbilityHelperImpl == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "New DataAbilityHelperImpl failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "New failed");
         return nullptr;
     }
 
@@ -281,13 +281,13 @@ std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(
 bool DataAbilityHelperImpl::Release()
 {
     if (uri_ == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Release failed, uri_ is nullptr.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Release failed");
         return false;
     }
 
     int err = AbilityManagerClient::GetInstance()->ReleaseDataAbility(dataAbilityProxy_, token_);
     if (err != ERR_OK) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Release data ability failed, err = %{public}d.", err);
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "ReleaseDataAbility err:%{public}d", err);
         return false;
     }
 
@@ -307,14 +307,14 @@ std::vector<std::string> DataAbilityHelperImpl::GetFileTypes(Uri &uri, const std
     std::vector<std::string> matchedMIMEs;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
     if (dataAbilityProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Get data ability proxy failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "GetDataAbilityProxy failed");
         return matchedMIMEs;
     }
 
     matchedMIMEs = dataAbilityProxy->GetFileTypes(uri, mimeTypeFilter);
 
     ReleaseDataAbility(dataAbilityProxy);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Return matchedMIMEs size: %{public}zu.", matchedMIMEs.size());
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "matchedMIMEs size: %{public}zu", matchedMIMEs.size());
     return matchedMIMEs;
 }
 
@@ -334,14 +334,14 @@ int DataAbilityHelperImpl::OpenFile(Uri &uri, const std::string &mode)
     int fd = -1;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
     if (dataAbilityProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Get data ability proxy failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "GetDataAbilityProxy failed");
         return fd;
     }
 
     fd = dataAbilityProxy->OpenFile(uri, mode);
 
     ReleaseDataAbility(dataAbilityProxy);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Return fd: %{public}d.", fd);
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "fd: %{public}d", fd);
     return fd;
 }
 
@@ -362,14 +362,14 @@ int DataAbilityHelperImpl::OpenRawFile(Uri &uri, const std::string &mode)
     int fd = -1;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
     if (dataAbilityProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Get data ability proxy failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "GetDataAbilityProxy failed");
         return fd;
     }
 
     fd = dataAbilityProxy->OpenRawFile(uri, mode);
 
     ReleaseDataAbility(dataAbilityProxy);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Return fd: %{public}d.", fd);
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "fd: %{public}d", fd);
     return fd;
 }
 
@@ -386,14 +386,14 @@ int DataAbilityHelperImpl::Insert(Uri &uri, const NativeRdb::ValuesBucket &value
     int index = -1;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
     if (dataAbilityProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Get data ability proxy failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "GetDataAbilityProxy failed");
         return index;
     }
 
     index = dataAbilityProxy->Insert(uri, value);
 
     ReleaseDataAbility(dataAbilityProxy);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Return index: %{public}d.", index);
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "index: %{public}d", index);
     return index;
 }
 
@@ -403,14 +403,14 @@ std::shared_ptr<AppExecFwk::PacMap> DataAbilityHelperImpl::Call(
     std::shared_ptr<AppExecFwk::PacMap> result = nullptr;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
     if (dataAbilityProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Get data ability proxy failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "GetDataAbilityProxy failed");
         return result;
     }
 
     result = dataAbilityProxy->Call(uri, method, arg, pacMap);
 
     ReleaseDataAbility(dataAbilityProxy);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Return result is or not nullptr: %{public}d.", result == nullptr);
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "null result?: %{public}d", result == nullptr);
     return result;
 }
 
@@ -429,14 +429,14 @@ int DataAbilityHelperImpl::Update(
     int index = -1;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
     if (dataAbilityProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Get data ability proxy failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "GetDataAbilityProxy failed");
         return index;
     }
 
     index = dataAbilityProxy->Update(uri, value, predicates);
 
     ReleaseDataAbility(dataAbilityProxy);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Return index: %{public}d.", index);
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "index: %{public}d", index);
     return index;
 }
 
@@ -453,14 +453,14 @@ int DataAbilityHelperImpl::Delete(Uri &uri, const NativeRdb::DataAbilityPredicat
     int index = -1;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
     if (dataAbilityProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Get data ability proxy failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "GetDataAbilityProxy failed");
         return index;
     }
 
     index = dataAbilityProxy->Delete(uri, predicates);
 
     ReleaseDataAbility(dataAbilityProxy);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Return index: %{public}d.", index);
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "index: %{public}d", index);
     return index;
 }
 
@@ -479,14 +479,14 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityHelperImpl::Query(
     std::shared_ptr<NativeRdb::AbsSharedResultSet> resultset = nullptr;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
     if (dataAbilityProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Get data ability proxy failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "GetDataAbilityProxy failed");
         return resultset;
     }
 
     resultset = dataAbilityProxy->Query(uri, columns, predicates);
 
     ReleaseDataAbility(dataAbilityProxy);
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "Return resultset is or not nullptr: %{public}d.", resultset == nullptr);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "null resultset?: %{public}d.", resultset == nullptr);
     return resultset;
 }
 
@@ -503,14 +503,14 @@ std::string DataAbilityHelperImpl::GetType(Uri &uri)
     std::string type;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
     if (dataAbilityProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Get data ability proxy failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "GetDataAbilityProxy failed");
         return type;
     }
 
     type = dataAbilityProxy->GetType(uri);
 
     ReleaseDataAbility(dataAbilityProxy);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Return type: %{public}s.", type.c_str());
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "type: %{public}s", type.c_str());
     return type;
 }
 
@@ -529,14 +529,14 @@ bool DataAbilityHelperImpl::Reload(Uri &uri, const PacMap &extras)
     bool ret = false;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
     if (dataAbilityProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Get data ability proxy failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "GetDataAbilityProxy failed");
         return ret;
     }
 
     ret = dataAbilityProxy->Reload(uri, extras);
 
     ReleaseDataAbility(dataAbilityProxy);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Return ret: %{public}d.", ret);
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "ret: %{public}d", ret);
     return ret;
 }
 
@@ -553,14 +553,14 @@ int DataAbilityHelperImpl::BatchInsert(Uri &uri, const std::vector<NativeRdb::Va
     int ret = -1;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
     if (dataAbilityProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Get data ability proxy failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "GetDataAbilityProxy failed");
         return ret;
     }
 
     ret = dataAbilityProxy->BatchInsert(uri, values);
 
     ReleaseDataAbility(dataAbilityProxy);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Return ret: %{public}d.", ret);
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "ret: %{public}d", ret);
     return ret;
 }
 
@@ -568,7 +568,7 @@ bool DataAbilityHelperImpl::CheckUriParam(const Uri &uri)
 {
     Uri checkUri(uri.ToString());
     if (!CheckOhosUri(checkUri)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Check ohos uri failed, uri: %{public}s.", uri.ToString().c_str());
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Check failed, uri: %{public}s", uri.ToString().c_str());
         return false;
     }
 
@@ -577,12 +577,12 @@ bool DataAbilityHelperImpl::CheckUriParam(const Uri &uri)
     {
         std::lock_guard<std::mutex> guard(lock_);
         if (!uri_) {
-            TAG_LOGI(AAFwkTag::DATA_ABILITY, "uri_ is nullptr, no need check.");
+            TAG_LOGI(AAFwkTag::DATA_ABILITY, "no need check");
             return true;
         }
         Uri checkUri(uri_->ToString());
         if (!CheckOhosUri(checkUri)) {
-            TAG_LOGE(AAFwkTag::DATA_ABILITY, "Check ohos uri failed, uri_: %{public}s.", uri_->ToString().c_str());
+            TAG_LOGE(AAFwkTag::DATA_ABILITY, "Check failed, uri_: %{public}s", uri_->ToString().c_str());
             return false;
         }
 
@@ -592,7 +592,7 @@ bool DataAbilityHelperImpl::CheckUriParam(const Uri &uri)
     std::vector<std::string> checkSegments;
     checkUri.GetPathSegments(checkSegments);
     if (checkSegments.empty() || segments.empty() || checkSegments[0] != segments[0]) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "The dataability in uri doesn't equal the one in uri_.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "uri different");
         return false;
     }
 
@@ -604,19 +604,19 @@ bool DataAbilityHelperImpl::CheckOhosUri(const Uri &checkUri)
     Uri uri(checkUri);
     if (uri.GetScheme() != SchemeOhos) {
         TAG_LOGE(
-            AAFwkTag::DATA_ABILITY, "Input uri is not a dataability one, uri: %{public}s.", uri.ToString().c_str());
+            AAFwkTag::DATA_ABILITY, "not dataability uri: %{public}s", uri.ToString().c_str());
         return false;
     }
 
     std::vector<std::string> segments;
     uri.GetPathSegments(segments);
     if (segments.empty()) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "There is no segments in the uri, uri: %{public}s.", uri.ToString().c_str());
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "no segments in uri: %{public}s", uri.ToString().c_str());
         return false;
     }
 
     if (uri.GetPath() == "") {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "The path in the uri is empty, uri: %{public}s.", uri.ToString().c_str());
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "path empty in uri: %{public}s", uri.ToString().c_str());
         return false;
     }
 
@@ -632,7 +632,7 @@ bool DataAbilityHelperImpl::CheckOhosUri(const Uri &checkUri)
 void DataAbilityHelperImpl::RegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     if (!CheckUriAndDataObserver(uri, dataObserver)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "RegisterObserver param is invalid.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "invalid param");
         return;
     }
 
@@ -652,7 +652,7 @@ void DataAbilityHelperImpl::RegisterObserver(const Uri &uri, const sptr<AAFwk::I
                 return;
             }
             if (path->second != tmpUri.GetPath()) {
-                TAG_LOGE(AAFwkTag::DATA_ABILITY, "Input uri's path is not equal the one the observer used.");
+                TAG_LOGE(AAFwkTag::DATA_ABILITY, "Input uri's path diff from observer's");
                 return;
             }
             dataAbilityProxy = dataability->second;
@@ -662,7 +662,7 @@ void DataAbilityHelperImpl::RegisterObserver(const Uri &uri, const sptr<AAFwk::I
     }
 
     if (dataAbilityProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "dataAbilityProxy is nullptr.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "null dataAbilityProxy");
         registerMap_.erase(dataObserver);
         uriMap_.erase(dataObserver);
         return;
@@ -679,7 +679,7 @@ void DataAbilityHelperImpl::RegisterObserver(const Uri &uri, const sptr<AAFwk::I
 void DataAbilityHelperImpl::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     if (!CheckUriAndDataObserver(uri, dataObserver)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "UnregisterObserver param is invalid.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "invalid param");
         return;
     }
 
@@ -696,7 +696,7 @@ void DataAbilityHelperImpl::UnregisterObserver(const Uri &uri, const sptr<AAFwk:
             return;
         }
         if (path->second != tmpUri.GetPath()) {
-            TAG_LOGE(AAFwkTag::DATA_ABILITY, "Input uri's path is not equal the one the observer used.");
+            TAG_LOGE(AAFwkTag::DATA_ABILITY, "Input uri's path diff from observer's");
             return;
         }
         dataAbilityProxy = dataability->second;
@@ -705,7 +705,7 @@ void DataAbilityHelperImpl::UnregisterObserver(const Uri &uri, const sptr<AAFwk:
     }
 
     if (dataAbilityProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "dataAbilityProxy is nullptr.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "null dataAbilityProxy");
         return;
     }
 
@@ -727,7 +727,7 @@ void DataAbilityHelperImpl::NotifyChange(const Uri &uri)
 {
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
     if (dataAbilityProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Get data ability proxy failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "GetDataAbilityProxy failed");
         return;
     }
 
@@ -752,14 +752,14 @@ Uri DataAbilityHelperImpl::NormalizeUri(Uri &uri)
     Uri urivalue("");
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
     if (dataAbilityProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Get data ability proxy failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "GetDataAbilityProxy failed");
         return urivalue;
     }
 
     urivalue = dataAbilityProxy->NormalizeUri(uri);
 
     ReleaseDataAbility(dataAbilityProxy);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Return uri: %{public}s.", urivalue.ToString().c_str());
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "uri: %{public}s", urivalue.ToString().c_str());
     return urivalue;
 }
 
@@ -778,14 +778,14 @@ Uri DataAbilityHelperImpl::DenormalizeUri(Uri &uri)
     Uri urivalue("");
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
     if (dataAbilityProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Get data ability proxy failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "GetDataAbilityProxy failed");
         return urivalue;
     }
 
     urivalue = dataAbilityProxy->DenormalizeUri(uri);
 
     ReleaseDataAbility(dataAbilityProxy);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Return uri: %{public}s.", urivalue.ToString().c_str());
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "uri: %{public}s", urivalue.ToString().c_str());
     return urivalue;
 }
 
@@ -795,31 +795,31 @@ std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityHelperImpl::ExecuteBa
     std::vector<std::shared_ptr<DataAbilityResult>> results;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri, false);
     if (dataAbilityProxy == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Get data ability proxy failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "GetDataAbilityProxy failed");
         return results;
     }
 
     results = dataAbilityProxy->ExecuteBatch(operations);
 
     ReleaseDataAbility(dataAbilityProxy);
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Return results size: %{public}zu.", results.size());
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "results size: %{public}zu", results.size());
     return results;
 }
 
 sptr<AAFwk::IAbilityScheduler> DataAbilityHelperImpl::GetDataAbilityProxy(const Uri &uri, bool addDeathRecipient)
 {
     if (!CheckUriParam(uri)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Check uri param failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Check uri failed");
         return nullptr;
     }
     // if uri_ is nullptr, it indicates the operation(such as insert, delete and so on) is temporary,
     // so, we need acquire the dataability before the operation.
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = dataAbilityProxy_;
     if (uri_ == nullptr) {
-        TAG_LOGI(AAFwkTag::DATA_ABILITY, "The uri_ is nullptr, need acquire data ability.");
+        TAG_LOGI(AAFwkTag::DATA_ABILITY, "null uri_");
         dataAbilityProxy = AbilityManagerClient::GetInstance()->AcquireDataAbility(uri, tryBind_, token_);
         if (dataAbilityProxy == nullptr) {
-            TAG_LOGE(AAFwkTag::DATA_ABILITY, "Acquire data ability failed.");
+            TAG_LOGE(AAFwkTag::DATA_ABILITY, "AcquireDataAbility failed");
             return nullptr;
         }
         if (addDeathRecipient && isSystemCaller_) {
@@ -833,23 +833,23 @@ void DataAbilityHelperImpl::ReleaseDataAbility(sptr<AAFwk::IAbilityScheduler> da
 {
     // if uri_ is nullptr, it indicates the operation(such as insert, delete and so on) is temporary,
     // so, we need release the dataability after the operation.
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "ReleaseDataAbility start.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "start");
     if (!uri_ && dataAbilityProxy && token_) {
         int ret = AbilityManagerClient::GetInstance()->ReleaseDataAbility(dataAbilityProxy, token_);
-        TAG_LOGI(AAFwkTag::DATA_ABILITY, "Release data ability, ret: %{public}d.", ret);
+        TAG_LOGI(AAFwkTag::DATA_ABILITY, "ReleaseDataAbility ret: %{public}d", ret);
     }
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "ReleaseDataAbility end.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "end");
 }
 
 bool DataAbilityHelperImpl::CheckUri(const std::shared_ptr<Uri> &uri)
 {
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Input param invalid, uri is nullptr.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "invalid param");
         return false;
     }
 
     if (uri->GetScheme() != SchemeOhos) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Input param invalid, the uri is not dataability, Scheme: %{private}s.",
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "invalid param, uri not dataability, Scheme: %{private}s",
             uri->GetScheme().c_str());
         return false;
     }
@@ -861,12 +861,12 @@ bool DataAbilityHelperImpl::CheckUriAndDataObserver(const Uri &uri,
     const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     if (!CheckUriParam(uri)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Check uri param failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Check uri failed");
         return false;
     }
 
     if (dataObserver == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Input param invalid, dataObserver is nullptr.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "invalid param");
         return false;
     }
 
@@ -875,11 +875,11 @@ bool DataAbilityHelperImpl::CheckUriAndDataObserver(const Uri &uri,
 
 void DataAbilityDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "recv DataAbilityDeathRecipient death notice.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     if (handler_) {
         handler_(remote);
     }
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "OnRemoteDied end.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "end");
 }
 
 DataAbilityDeathRecipient::DataAbilityDeathRecipient(RemoteDiedHandler handler) : handler_(handler)

@@ -75,19 +75,19 @@ int OH_Ability_CreateNativeChildProcess(const char* libName, OH_Ability_OnNative
 
     std::string strLibName(libName);
     if (strLibName.find("../") != std::string::npos) {
-        TAG_LOGE(AAFwkTag::PROCESSMGR, "Do not allow use relative path");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "relative path not allow");
         return NCP_ERR_INVALID_PARAM;
     }
     
     std::unique_lock autoLock(g_mutexCallBackObj);
     if (g_Callback != nullptr || g_CallbackStub != nullptr) {
-        TAG_LOGW(AAFwkTag::PROCESSMGR, "Another native process process starting, try again later");
+        TAG_LOGW(AAFwkTag::PROCESSMGR, "Another native process starting");
         return NCP_ERR_BUSY;
     }
     
     sptr<IRemoteObject> callbackStub(new (std::nothrow) NativeChildCallback(OnNativeChildProcessStartedWapper));
     if (!callbackStub) {
-        TAG_LOGE(AAFwkTag::PROCESSMGR, "Alloc callback ipc stub object faild.");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Alloc callbackStub obj faild");
         return NCP_ERR_INTERNAL;
     }
     

@@ -87,7 +87,7 @@ DataAbilityResult *DataAbilityResult::CreateFromParcel(Parcel &parcel)
 {
     DataAbilityResult *dataAbilityResult = new (std::nothrow) DataAbilityResult(parcel);
     if (dataAbilityResult == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityResult::CreateFromParcel dataAbilityResult is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "null dataAbilityResult");
     }
     return dataAbilityResult;
 }

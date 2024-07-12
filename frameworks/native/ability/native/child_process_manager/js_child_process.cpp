@@ -31,24 +31,24 @@ std::shared_ptr<ChildProcess> JsChildProcess::Create(const std::unique_ptr<Runti
 JsChildProcess::JsChildProcess(JsRuntime &jsRuntime) : jsRuntime_(jsRuntime) {}
 JsChildProcess::~JsChildProcess()
 {
-    TAG_LOGD(AAFwkTag::PROCESSMGR, "JsChildProcess destructor.");
+    TAG_LOGD(AAFwkTag::PROCESSMGR, "Called");
     jsRuntime_.FreeNativeReference(std::move(jsChildProcessObj_));
 }
 
 bool JsChildProcess::Init(const std::shared_ptr<ChildProcessStartInfo> &info)
 {
-    TAG_LOGI(AAFwkTag::PROCESSMGR, "JsChildProcess Init called");
+    TAG_LOGI(AAFwkTag::PROCESSMGR, "called");
     if (info == nullptr) {
-        TAG_LOGE(AAFwkTag::PROCESSMGR, "info is nullptr.");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "null info");
         return false;
     }
     bool ret = ChildProcess::Init(info);
     if (!ret) {
-        TAG_LOGE(AAFwkTag::PROCESSMGR, "ChildProcess init failed.");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "ChildProcess init failed");
         return false;
     }
     if (info->srcEntry.empty()) {
-        TAG_LOGE(AAFwkTag::PROCESSMGR, "ChildProcessStartInfo srcEntry is empty");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Empty info srcEntry");
         return false;
     }
     std::string srcPath = info->srcEntry;
@@ -62,7 +62,7 @@ bool JsChildProcess::Init(const std::shared_ptr<ChildProcessStartInfo> &info)
     HandleScope handleScope(jsRuntime_);
     jsChildProcessObj_ = jsRuntime_.LoadModule(moduleName, srcPath, info->hapPath, info->isEsModule);
     if (jsChildProcessObj_ == nullptr) {
-        TAG_LOGE(AAFwkTag::PROCESSMGR, "Failed to get ChildProcess object");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "null jsChildProcessObj_");
         return false;
     }
     return true;
@@ -70,7 +70,7 @@ bool JsChildProcess::Init(const std::shared_ptr<ChildProcessStartInfo> &info)
 
 void JsChildProcess::OnStart()
 {
-    TAG_LOGI(AAFwkTag::PROCESSMGR, "JsChildProcess OnStart called");
+    TAG_LOGI(AAFwkTag::PROCESSMGR, "called");
     ChildProcess::OnStart();
     CallObjectMethod("onStart");
 }
@@ -94,9 +94,9 @@ void JsChildProcess::OnStart(std::shared_ptr<AppExecFwk::ChildProcessArgs> args)
 
 napi_value JsChildProcess::CallObjectMethod(const char *name, napi_value const *argv, size_t argc)
 {
-    TAG_LOGD(AAFwkTag::PROCESSMGR, "JsChildProcess::CallObjectMethod(%{public}s)", name);
+    TAG_LOGD(AAFwkTag::PROCESSMGR, "called, name:%{public}s", name);
     if (jsChildProcessObj_ == nullptr) {
-        TAG_LOGE(AAFwkTag::PROCESSMGR, "ChildProcess.js not found");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "null jsChildProcessObj_");
         return nullptr;
     }
 
@@ -105,14 +105,14 @@ napi_value JsChildProcess::CallObjectMethod(const char *name, napi_value const *
 
     napi_value obj = jsChildProcessObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        TAG_LOGE(AAFwkTag::PROCESSMGR, "Failed to get ChildProcess object");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Get ChildProcess obj failed");
         return nullptr;
     }
 
     napi_value methodOnCreate = nullptr;
     napi_get_named_property(env, obj, name, &methodOnCreate);
     if (methodOnCreate == nullptr) {
-        TAG_LOGE(AAFwkTag::PROCESSMGR, "Failed to get '%{public}s' from ChildProcess object", name);
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Get '%{public}s' failed", name);
         return nullptr;
     }
     napi_call_function(env, obj, methodOnCreate, argc, argv, nullptr);

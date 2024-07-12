@@ -85,7 +85,7 @@ sptr<IAbilityEcologicalRuleMgrService> AbilityEcologicalRuleMgrServiceClient::Co
 
     sptr<IAbilityEcologicalRuleMgrService> service = iface_cast<IAbilityEcologicalRuleMgrService>(systemAbility);
     if (service == nullptr) {
-        TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE, "The erms has transfer to foundation.");
+        TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE, "erms transfered to foundation");
         service = new AbilityEcologicalRuleMgrServiceProxy(systemAbility);
     }
     return service;
@@ -125,7 +125,7 @@ int32_t AbilityEcologicalRuleMgrServiceClient::EvaluateResolveInfos(const AAFwk:
     int32_t res = ecologicalRuleMgrServiceProxy_->EvaluateResolveInfos(want, callerInfo, type, abilityInfos);
     int64_t cost = GetCurrentTimeMicro() - start;
     TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE,
-        "[ERMS-DFX] EvaluateResolveInfos interface cost %{public}" PRId64 " mirco seconds.", cost);
+        "[ERMS-DFX] cost %{public}" PRId64 " ms", cost);
     return res;
 }
 
@@ -149,7 +149,7 @@ int32_t AbilityEcologicalRuleMgrServiceClient::QueryStartExperience(const OHOS::
     }
     int64_t cost = GetCurrentTimeMicro() - start;
     TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE,
-        "[ERMS-DFX] QueryStartExperience interface cost %{public}" PRId64 " mirco seconds.", cost);
+        "[ERMS-DFX] cost %{public}" PRId64 " ms", cost);
     return res;
 }
 
@@ -205,13 +205,13 @@ int32_t AbilityEcologicalRuleMgrServiceProxy::EvaluateResolveInfos(const Want &w
 
     auto remote = Remote();
     if (remote == nullptr) {
-        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "get Remote failed.");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "get remote failed");
         return ERR_FAILED;
     }
 
     int32_t ret = remote->SendRequest(EVALUATE_RESOLVE_INFO_CMD, data, reply, option);
     if (ret != ERR_NONE) {
-        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "SendRequest error, ret = %{public}d", ret);
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "SendRequest error:%{public}d", ret);
         return ERR_FAILED;
     }
 
@@ -227,14 +227,14 @@ bool AbilityEcologicalRuleMgrServiceProxy::ReadParcelableVector(std::vector<T> &
 {
     int32_t infoSize = reply.ReadInt32();
     if (infoSize > CYCLE_LIMIT) {
-        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "size is too large.");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "size too large");
         return false;
     }
     parcelableVector.clear();
     for (int32_t i = 0; i < infoSize; i++) {
         sptr<T> info = reply.ReadParcelable<T>();
         if (info == nullptr) {
-            TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "read Parcelable infos failed");
+            TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "read info failed");
             return false;
         }
         parcelableVector.emplace_back(*info);
@@ -274,7 +274,7 @@ int32_t AbilityEcologicalRuleMgrServiceProxy::QueryStartExperience(const Want &w
 
     int32_t ret = remote->SendRequest(QUERY_START_EXPERIENCE_CMD, data, reply, option);
     if (ret != ERR_NONE) {
-        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "SendRequest error, ret = %{public}d", ret);
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "SendRequest error: %{public}d", ret);
         return ERR_FAILED;
     }
 

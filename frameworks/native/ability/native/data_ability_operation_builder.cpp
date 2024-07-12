@@ -38,118 +38,103 @@ DataAbilityOperationBuilder::~DataAbilityOperationBuilder()
 
 std::shared_ptr<DataAbilityOperation> DataAbilityOperationBuilder::Build()
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::Build start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "start");
     if (type_ != DataAbilityOperation::TYPE_UPDATE || (valuesBucket_ != nullptr && !valuesBucket_->IsEmpty())) {
         std::shared_ptr<DataAbilityOperation> operation = std::make_shared<DataAbilityOperation>(shared_from_this());
-        TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::Build end");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "end");
         return operation;
     }
-    TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::Build return nullptr");
+    TAG_LOGE(AAFwkTag::DATA_ABILITY, "return null");
     return nullptr;
 }
 
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithValuesBucket(
     std::shared_ptr<NativeRdb::ValuesBucket> &values)
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithValuesBucket start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "start");
     if (type_ != DataAbilityOperation::TYPE_INSERT && type_ != DataAbilityOperation::TYPE_UPDATE &&
         type_ != DataAbilityOperation::TYPE_ASSERT) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY,
-            "DataAbilityOperationBuilder::WithValuesBucket only inserts, updates and assert can have values,"
-            " type=%{public}d",
-            type_);
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "only inserts, updates and assert can have values,"
+            " type:%{public}d", type_);
         return nullptr;
     }
 
     valuesBucket_ = std::make_shared<NativeRdb::ValuesBucket>(*values);
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithValuesBucket end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "end");
     return shared_from_this();
 }
 
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithPredicates(
     std::shared_ptr<NativeRdb::DataAbilityPredicates> &predicates)
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithPredicates start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "start");
     if (type_ != DataAbilityOperation::TYPE_DELETE && type_ != DataAbilityOperation::TYPE_UPDATE &&
         type_ != DataAbilityOperation::TYPE_ASSERT) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY,
-            "DataAbilityOperationBuilder::withPredicates only deletes, updates and assert can have selections,"
-            " type=%{public}d",
-            type_);
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "only deletes, updates and assert can have selections,"
+            " type=%{public}d", type_);
         return nullptr;
     }
     dataAbilityPredicates_ = predicates;
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithPredicates end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "end");
     return shared_from_this();
 }
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithExpectedCount(int count)
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithExpectedCount start");
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithExpectedCount expectedCount:%{public}d", count);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "start");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "expectedCount:%{public}d", count);
     if (type_ != DataAbilityOperation::TYPE_UPDATE && type_ != DataAbilityOperation::TYPE_DELETE &&
         type_ != DataAbilityOperation::TYPE_ASSERT) {
         TAG_LOGE(AAFwkTag::DATA_ABILITY,
-            "DataAbilityOperationBuilder::withExpectedCount only updates, deletes and assert "
-            "can have expected counts, "
-            "type=%{public}d",
-            type_);
+            "only updates, deletes and assert can have expected counts, "
+            "type=%{public}d", type_);
         return nullptr;
     }
     expectedCount_ = count;
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithExpectedCount end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "end");
     return shared_from_this();
 }
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithPredicatesBackReference(
     int requestArgIndex, int previousResult)
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithPredicatesBackReference start");
-    TAG_LOGI(AAFwkTag::DATA_ABILITY,
-        "DataAbilityOperationBuilder::WithPredicatesBackReference requestArgIndex:%{public}d, "
-        "previousResult:%{public}d",
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "start");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "requestArgIndex:%{public}d, previousResult:%{public}d",
         requestArgIndex, previousResult);
     if (type_ != DataAbilityOperation::TYPE_UPDATE && type_ != DataAbilityOperation::TYPE_DELETE &&
         type_ != DataAbilityOperation::TYPE_ASSERT) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY,
-            "DataAbilityOperationBuilder::withPredicatesBackReference only updates, deletes, "
-            "and asserts can have select back-references, type=%{public}d",
-            type_);
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "only updates, deletes, "
+            "and asserts can have select back-references, type=%{public}d", type_);
         return nullptr;
     }
     dataAbilityPredicatesBackReferences_.insert(std::make_pair(requestArgIndex, previousResult));
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithPredicatesBackReference end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "end");
     return shared_from_this();
 }
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithValueBackReferences(
     std::shared_ptr<NativeRdb::ValuesBucket> &backReferences)
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithValueBackReferences start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "start");
     if (type_ != DataAbilityOperation::TYPE_INSERT && type_ != DataAbilityOperation::TYPE_UPDATE &&
         type_ != DataAbilityOperation::TYPE_ASSERT) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY,
-            "DataAbilityOperationBuilder::withValueBackReferences only inserts, updates, and asserts can have "
-            "value back-references, type=%{public}d",
-            type_);
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "only inserts, updates, and asserts can have "
+            "value back-references, type=%{public}d", type_);
         return nullptr;
     }
     valuesBucketReferences_ = backReferences;
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithValueBackReferences end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "end");
     return shared_from_this();
 }
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithInterruptionAllowed(bool interrupted)
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithInterruptionAllowed start");
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithInterruptionAllowed  interrupted=%{public}d",
-        interrupted);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "start");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "interrupted=%{public}d", interrupted);
     if (type_ != DataAbilityOperation::TYPE_INSERT && type_ != DataAbilityOperation::TYPE_UPDATE &&
         type_ != DataAbilityOperation::TYPE_ASSERT && type_ != DataAbilityOperation::TYPE_DELETE) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY,
-            "DataAbilityOperationBuilder::withInterruptionAllowed only inserts, updates, delete, "
-            "and asserts can have value back-references, type=%{public}d",
-            type_);
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "only inserts, updates, delete, "
+            "and asserts can have value back-references, type=%{public}d", type_);
         return nullptr;
     }
     interrupted_ = interrupted;
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperationBuilder::WithInterruptionAllowed end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "end");
     return shared_from_this();
 }
 }  // namespace AppExecFwk

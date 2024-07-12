@@ -50,14 +50,14 @@ int32_t SrSamgrHelper::GetCurrentActiveUserId()
     std::vector<int32_t> activeIds;
     int ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(activeIds);
     if (ret != 0) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "QueryActiveOsAccountIds failed ret:%{public}d", ret);
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "Query error:%{public}d", ret);
         return Constants::INVALID_USERID;
     }
     if (activeIds.empty()) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "QueryActiveOsAccountIds activeIds empty");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "activeIds empty");
         return Constants::INVALID_USERID;
     }
-    TAG_LOGE(AAFwkTag::SER_ROUTER, "QueryActiveOsAccountIds activeIds ret:%{public}d", activeIds[0]);
+    TAG_LOGE(AAFwkTag::SER_ROUTER, "activeId:%{public}d", activeIds[0]);
     return activeIds[0];
 #else
     TAG_LOGI(AAFwkTag::SER_ROUTER, "ACCOUNT_ENABLE is false");
@@ -72,28 +72,28 @@ void SrSamgrHelper::ConnectBundleMgrLocked()
     }
     sptr<ISystemAbilityManager> saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (saManager == nullptr) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "failed to get bms saManager.");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "Get saManager failed");
         return;
     }
 
     sptr<IRemoteObject> remoteObj = saManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     if (remoteObj == nullptr) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "failed to get bms remoteObj.");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "Get remoteObj failed");
         return;
     }
 
     deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new (std::nothrow) BmsDeathRecipient());
     if (deathRecipient_ == nullptr) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "Failed to create BmsDeathRecipient!");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "Create deathRecipient_ failed");
         return;
     }
     if ((remoteObj->IsProxyObject()) && (!remoteObj->AddDeathRecipient(deathRecipient_))) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "Add death recipient to bms failed.");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "Add death recipient failed");
         return;
     }
     iBundleMgr_ = iface_cast<IBundleMgr>(remoteObj);
     if (iBundleMgr_ == nullptr) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "iface_cast failed, failed to get bms");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "null iBundleMgr_");
     }
 }
 
@@ -106,7 +106,7 @@ void SrSamgrHelper::ResetProxy(const wptr<IRemoteObject> &remote)
 
     auto serviceRemote = iBundleMgr_->AsObject();
     if ((serviceRemote != nullptr) && (serviceRemote == remote.promote())) {
-        TAG_LOGD(AAFwkTag::SER_ROUTER, "To remove death recipient.");
+        TAG_LOGD(AAFwkTag::SER_ROUTER, "Remove death recipient");
         serviceRemote->RemoveDeathRecipient(deathRecipient_);
         iBundleMgr_ = nullptr;
     }
@@ -114,7 +114,7 @@ void SrSamgrHelper::ResetProxy(const wptr<IRemoteObject> &remote)
 
 void SrSamgrHelper::BmsDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    TAG_LOGI(AAFwkTag::SER_ROUTER, "BmsDeathRecipient handle remote abilityms died.");
+    TAG_LOGI(AAFwkTag::SER_ROUTER, "Called");
     SrSamgrHelper::GetInstance().ResetProxy(remote);
 }
 } // namespace AbilityRuntime

@@ -263,19 +263,19 @@ bool ConnectionStateItem::AddConnection(std::shared_ptr<ConnectionRecord> record
     AbilityRuntime::ConnectionData &data)
 {
     if (!record) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "AddConnection, invalid connection record.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "invalid connection record");
         return false;
     }
 
     auto token = record->GetTargetToken();
     if (!token) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "AddConnection, invalid token.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "invalid token");
         return false;
     }
 
     sptr<IRemoteObject> connectionObj = record->GetConnection();
     if (!connectionObj) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "AddConnection, no connection callback for this connect.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "no connection callback");
         return false;
     }
 
@@ -291,7 +291,7 @@ bool ConnectionStateItem::AddConnection(std::shared_ptr<ConnectionRecord> record
     }
 
     if (!connectedExtension) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "AddConnection, connectedExtension is invalid");
+        TAG_LOGE(AAFwkTag::CONNECTION, "invalid connectedExtension");
         return false;
     }
 
@@ -307,31 +307,31 @@ bool ConnectionStateItem::RemoveConnection(std::shared_ptr<ConnectionRecord> rec
     AbilityRuntime::ConnectionData &data)
 {
     if (!record) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "RemoveConnection, invalid connection record.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "invalid connection record");
         return false;
     }
 
     auto token = record->GetTargetToken();
     if (!token) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "RemoveConnection, invalid token.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "invalid token");
         return false;
     }
 
     sptr<IRemoteObject> connectionObj = record->GetConnection();
     if (!connectionObj) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "RemoveConnection, no connection callback for this connect.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "no connection callback");
         return false;
     }
 
     auto it = connectionMap_.find(token);
     if (it == connectionMap_.end()) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "RemoveConnection, no such connectedExtension.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "no such connectedExtension");
         return false;
     }
 
     auto connectedExtension = it->second;
     if (!connectedExtension) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "RemoveConnection, can not find such connectedExtension");
+        TAG_LOGE(AAFwkTag::CONNECTION, "no such connectedExtension");
         return false;
     }
 
@@ -348,13 +348,13 @@ bool ConnectionStateItem::AddDataAbilityConnection(const DataAbilityCaller &call
     const std::shared_ptr<DataAbilityRecord> &dataAbility, AbilityRuntime::ConnectionData &data)
 {
     if (!dataAbility) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "invalid dataAbility.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "invalid dataAbility");
         return false;
     }
 
     auto token = dataAbility->GetToken();
     if (!token) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "invalid dataAbility token.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "invalid dataAbility token");
         return false;
     }
 
@@ -370,7 +370,7 @@ bool ConnectionStateItem::AddDataAbilityConnection(const DataAbilityCaller &call
     }
 
     if (!connectedAbility) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "connectedAbility is invalid");
+        TAG_LOGE(AAFwkTag::CONNECTION, "invalid connectedAbility");
         return false;
     }
 
@@ -386,25 +386,25 @@ bool ConnectionStateItem::RemoveDataAbilityConnection(const DataAbilityCaller &c
     const std::shared_ptr<DataAbilityRecord> &dataAbility, AbilityRuntime::ConnectionData &data)
 {
     if (!dataAbility) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "RemoveDataAbilityConnection, invalid data ability record.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "invalid data ability record");
         return false;
     }
 
     auto token = dataAbility->GetToken();
     if (!token) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "RemoveDataAbilityConnection, invalid data ability token.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "invalid data ability token");
         return false;
     }
 
     auto it = dataAbilityMap_.find(token);
     if (it == dataAbilityMap_.end()) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "RemoveDataAbilityConnection, no such connected data ability.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "no such connected data ability");
         return false;
     }
 
     auto connectedDataAbility = it->second;
     if (!connectedDataAbility) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "RemoveDataAbilityConnection, can not find such connectedDataAbility");
+        TAG_LOGE(AAFwkTag::CONNECTION, "no such connectedDataAbility");
         return false;
     }
 
@@ -426,13 +426,13 @@ bool ConnectionStateItem::HandleDataAbilityDied(const sptr<IRemoteObject> &token
 
     auto it = dataAbilityMap_.find(token);
     if (it == dataAbilityMap_.end()) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "HandleDataAbilityDied, no such connected data ability.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "no such data ability");
         return false;
     }
 
     auto connectedDataAbility = it->second;
     if (!connectedDataAbility) {
-        TAG_LOGE(AAFwkTag::CONNECTION, "HandleDataAbilityDied, can not find such connectedDataAbility");
+        TAG_LOGE(AAFwkTag::CONNECTION, "no connectedDataAbility");
         return false;
     }
 

@@ -79,7 +79,7 @@ bool JsMissionListener::IsEmpty()
 
 void JsMissionListener::CallJsMethod(const std::string &methodName, int32_t missionId)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "methodName = %{public}s", methodName.c_str());
+    TAG_LOGI(AAFwkTag::MISSION, "methodName: %{public}s", methodName.c_str());
     if (env_ == nullptr) {
         TAG_LOGE(AAFwkTag::MISSION, "env_ null");
         return;
@@ -113,7 +113,7 @@ void JsMissionListener::CallJsMethodInner(const std::string &methodName, int32_t
         napi_get_named_property(env_, obj, methodName.c_str(), &method);
         if (method == nullptr || AppExecFwk::IsTypeForNapiValue(env_, method, napi_undefined)
             || AppExecFwk::IsTypeForNapiValue(env_, method, napi_null)) {
-            TAG_LOGE(AAFwkTag::MISSION, "Failed to get %{public}s from object", methodName.c_str());
+            TAG_LOGE(AAFwkTag::MISSION, "Failed to get %{public}s", methodName.c_str());
             continue;
         }
         napi_value argv[] = { CreateJsValue(env_, missionId) };
@@ -125,14 +125,14 @@ void JsMissionListener::CallJsMethodInner(const std::string &methodName, int32_t
 #ifdef SUPPORT_SCREEN
 void JsMissionListener::OnMissionIconUpdated(int32_t missionId, const std::shared_ptr<Media::PixelMap> &icon)
 {
-    TAG_LOGI(AAFwkTag::MISSION, "OnMissionIconUpdated, missionId = %{public}d.", missionId);
+    TAG_LOGI(AAFwkTag::MISSION, "missionId: %{public}d", missionId);
     if (env_ == nullptr) {
-        TAG_LOGE(AAFwkTag::MISSION, "env_ is null");
+        TAG_LOGE(AAFwkTag::MISSION, "env_ null");
         return;
     }
 
     if (missionId <= 0 || !icon) {
-        TAG_LOGE(AAFwkTag::MISSION, "missionId or icon is invalid, missionId:%{public}d.", missionId);
+        TAG_LOGE(AAFwkTag::MISSION, "invalid missionId or icon, missionId:%{public}d", missionId);
         return;
     }
 
@@ -154,7 +154,7 @@ void JsMissionListener::OnMissionIconUpdated(int32_t missionId, const std::share
 void JsMissionListener::CallJsMissionIconUpdated(int32_t missionId, const std::shared_ptr<Media::PixelMap> &icon)
 {
     if (env_ == nullptr) {
-        TAG_LOGE(AAFwkTag::MISSION, "env_ is null, not call js mission updated.");
+        TAG_LOGE(AAFwkTag::MISSION, "null env_, return");
         return;
     }
 
@@ -165,14 +165,14 @@ void JsMissionListener::CallJsMissionIconUpdated(int32_t missionId, const std::s
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();
         if (obj == nullptr) {
-            TAG_LOGE(AAFwkTag::MISSION, "Failed to get js object");
+            TAG_LOGE(AAFwkTag::MISSION, "get js obj failed");
             continue;
         }
         napi_value method = nullptr;
         napi_get_named_property(env_, obj, "onMissionIconUpdated", &method);
         if (method == nullptr || AppExecFwk::IsTypeForNapiValue(env_, method, napi_undefined)
             || AppExecFwk::IsTypeForNapiValue(env_, method, napi_null)) {
-            TAG_LOGE(AAFwkTag::MISSION, "Failed to get onMissionIconUpdated method from object");
+            TAG_LOGE(AAFwkTag::MISSION, "Failed to get onMissionIconUpdated");
             continue;
         }
 

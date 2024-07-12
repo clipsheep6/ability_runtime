@@ -53,7 +53,7 @@ static napi_value BusinessAbilityRouterExport(napi_env env, napi_value exports)
 {
     napi_value businessType = InitBusinessTypeObject(env);
     if (businessType == nullptr) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "failed to create business type object");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "null businessType");
         return nullptr;
     }
 

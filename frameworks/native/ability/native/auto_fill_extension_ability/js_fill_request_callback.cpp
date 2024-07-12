@@ -61,7 +61,7 @@ JsFillRequestCallback::JsFillRequestCallback(
 
 void JsFillRequestCallback::Finalizer(napi_env env, void* data, void *hint)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "JsFillRequestCallback Finalizer is called");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     std::unique_ptr<JsFillRequestCallback>(static_cast<JsFillRequestCallback*>(data));
 }
 
@@ -89,7 +89,7 @@ napi_value JsFillRequestCallback::OnFillRequestSuccess(napi_env env, NapiCallbac
 {
     TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     if (info.argc < ARGC_ONE || !IsTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_object)) {
-        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to parse viewData JsonString!");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "parse viewData failed");
         ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM), ERROR_MSG_VIEWDATA_INVALID);
         SendResultCodeAndViewData(
             JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED_INVALID_PARAM, "");
@@ -100,7 +100,7 @@ napi_value JsFillRequestCallback::OnFillRequestSuccess(napi_env env, NapiCallbac
     JsAutoFillExtensionUtil::UnwrapFillResponse(env, info.argv[INDEX_ZERO], response);
     std::string jsonString = response.viewData.ToJsonString();
     if (jsonString.empty()) {
-        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "JsonString is empty");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "empty jsonString");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         SendResultCodeAndViewData(
             JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED_INVALID_PARAM, "");
@@ -126,7 +126,7 @@ napi_value JsFillRequestCallback::OnFillRequestCanceled(napi_env env, NapiCallba
         return CreateJsUndefined(env);
     }
     if (!IsTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_string)) {
-        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to parse fillContent JsonString!");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "parse fillContent failed");
         ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM), ERROR_MSG_PARAMETER_INVALID);
         SendResultCodeAndViewData(
             JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED_INVALID_PARAM, "");
@@ -134,7 +134,7 @@ napi_value JsFillRequestCallback::OnFillRequestCanceled(napi_env env, NapiCallba
     }
     std::string jsonString = UnwrapStringFromJS(env, info.argv[INDEX_ZERO], "");
     if (jsonString.empty()) {
-        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "JsonString is empty");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "empty jsonString");
         ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM), ERROR_MSG_INVALID_EMPTY);
         SendResultCodeAndViewData(
             JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED_INVALID_PARAM, "");
@@ -149,18 +149,18 @@ napi_value JsFillRequestCallback::OnFillRequestAutoFillPopupConfig(napi_env env,
     TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     auto selfToken = IPCSkeleton::GetSelfTokenID();
     if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "This application is not system-app, can not use system-api");
+        TAG_LOGE(AAFwkTag::CONTEXT, "Non-system app forbidden to call");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
         return CreateJsUndefined(env);
     }
     if (uiWindow_ == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "UIWindow is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "null uiWindow");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         return CreateJsUndefined(env);
     }
 
     if (info.argc < ARGC_ONE || !IsTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_object)) {
-        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to parse resize data!");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "parse resize failed");
         ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM),
             ERROR_MSG_AUTOFILLPOPUPCONFIG_INVALID);
         return CreateJsUndefined(env);
@@ -171,7 +171,7 @@ napi_value JsFillRequestCallback::OnFillRequestAutoFillPopupConfig(napi_env env,
     if (isValueChanged) {
         auto ret = uiWindow_->TransferExtensionData(wantParams);
         if (ret != Rosen::WMError::WM_OK) {
-            TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Transfer ability result failed.");
+            TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Transfer ability result failed");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         }
     }
@@ -208,7 +208,7 @@ void JsFillRequestCallback::SendResultCodeAndViewData(
 {
     TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     if (uiWindow_ == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "UiWindow is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "null uiWindow");
         return;
     }
 
@@ -224,13 +224,13 @@ void JsFillRequestCallback::SendResultCodeAndViewData(
 
     auto ret = uiWindow_->TransferAbilityResult(resultCode, want);
     if (ret != Rosen::WMError::WM_OK) {
-        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Transfer ability result failed.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "TransferAbilityResult failed");
         return;
     }
 
     auto errorCode = AAFwk::AbilityManagerClient::GetInstance()->TerminateUIExtensionAbility(sessionInfo_);
     if (errorCode != ERR_OK) {
-        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Terminate ui extension ability failed, errorCode: %{public}d", errorCode);
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "TerminateUIExtensionAbility error: %{public}d", errorCode);
     }
 }
 
@@ -241,7 +241,7 @@ napi_value JsFillRequestCallback::CreateJsFillRequestCallback(napi_env env,
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Object is null");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "null object");
         return CreateJsUndefined(env);
     }
 

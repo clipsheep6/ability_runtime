@@ -81,7 +81,7 @@ public:
     void UpdateBusinessAbilityInfos(const std::vector<BusinessAbilityInfo> &businessAbilityInfos)
     {
         if (businessAbilityInfos.size() == 0) {
-            TAG_LOGW(AAFwkTag::SER_ROUTER, "UpdateBusinessAbilityInfos, serviceInfos.size is 0");
+            TAG_LOGW(AAFwkTag::SER_ROUTER, "serviceInfos size: 0");
             businessAbilityInfos_.clear();
             return;
         }
@@ -96,7 +96,7 @@ public:
     void UpdatePurposeInfos(const std::vector<PurposeInfo> &purposeInfos)
     {
         if (purposeInfos.size() == 0) {
-            TAG_LOGW(AAFwkTag::SER_ROUTER, "updatePurposeInfos, purposeInfos.size is 0");
+            TAG_LOGW(AAFwkTag::SER_ROUTER, "purposeInfos size: 0");
             purposeInfos_.clear();
             return;
         }

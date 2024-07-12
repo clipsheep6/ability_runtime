@@ -29,18 +29,18 @@ void AutoStartupCallBackProxy::OnAutoStartupOn(const AutoStartupInfo &info)
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(AutoStartupCallBackProxy::GetDescriptor())) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Write interface token failed.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Write interface token failed");
         return;
     }
 
     if (!data.WriteParcelable(&info)) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Write AutoStartupInfo failed.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Write info failed");
         return;
     }
 
     auto ret = SendRequest(AbilityManagerInterfaceCode::ON_AUTO_STARTUP_ON, data, reply, option);
     if (ret != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Send request error: %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Send request error: %{public}d", ret);
     }
 }
 
@@ -50,18 +50,18 @@ void AutoStartupCallBackProxy::OnAutoStartupOff(const AutoStartupInfo &info)
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(AutoStartupCallBackProxy::GetDescriptor())) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Write interface token failed.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Write interface token failed");
         return;
     }
 
     if (!data.WriteParcelable(&info)) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Write AutoStartupInfo failed.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Write info failed");
         return;
     }
 
     auto ret = SendRequest(AbilityManagerInterfaceCode::ON_AUTO_STARTUP_OFF, data, reply, option);
     if (ret != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Send request error: %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Send request error: %{public}d", ret);
     }
 }
 
@@ -70,7 +70,7 @@ ErrCode AutoStartupCallBackProxy::SendRequest(
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "null remote");
         return INNER_ERR;
     }
 

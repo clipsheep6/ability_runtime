@@ -39,14 +39,14 @@ public:
         std::vector<BusinessAbilityInfo> &businessAbilityInfos, const AppInfo &appInfo)
     {
         if (bundleInfo.name.empty()) {
-            TAG_LOGE(AAFwkTag::SER_ROUTER, "ConvertBundleInfo, bundleInfo invalid");
+            TAG_LOGE(AAFwkTag::SER_ROUTER, "BundleInfo invalid");
             return false;
         }
         ResolveAbilityInfos(bundleInfo.abilityInfos, purposeInfos, appInfo);
         ResolveExtAbilityInfos(bundleInfo.extensionInfos, purposeInfos, businessAbilityInfos, appInfo);
         if (purposeInfos.empty() && businessAbilityInfos.empty()) {
-            TAG_LOGI(AAFwkTag::SER_ROUTER,
-                "ResolveBundleInfo, not support, bundleName: %{public}s", bundleInfo.name.c_str());
+            TAG_LOGE(AAFwkTag::SER_ROUTER,
+                "Not support, bundleName: %{public}s", bundleInfo.name.c_str());
             return false;
         }
         return true;
@@ -99,6 +99,7 @@ private:
     static void ConvertAbilityToPurposes(const AbilityInfo &abilityInfo, std::vector<PurposeInfo> &purposeInfos,
         const AppInfo &appInfo)
     {
+        TAG_LOGI(AAFwkTag::SER_ROUTER, "Called");
         std::string supportPurpose = GetAbilityMetadataValue(abilityInfo, SrConstants::METADATA_SUPPORT_PURPOSE_KEY);
         if (supportPurpose.empty()) {
             return;
@@ -114,8 +115,8 @@ private:
             purposeInfo.componentType = ComponentType::UI_ABILITY;
             purposeInfo.appInfo = appInfo;
             purposeInfos.emplace_back(purposeInfo);
-            TAG_LOGI(AAFwkTag::SER_ROUTER,
-                "AbilityToPurposes, bundle: %{public}s ,ability: %{public}s, purposeName: %{public}s",
+            TAG_LOGD(AAFwkTag::SER_ROUTER,
+                "Bundle: %{public}s ,ability: %{public}s, purposeName: %{public}s",
                 abilityInfo.bundleName.c_str(), abilityInfo.name.c_str(), name.c_str());
         }
     }
@@ -123,6 +124,7 @@ private:
     static void ConvertExtAbilityToPurposes(const ExtensionAbilityInfo &extAbilityInfo,
         std::vector<PurposeInfo> &purposeInfos, const AppInfo &appInfo)
     {
+        TAG_LOGI(AAFwkTag::SER_ROUTER, "Called");
         if (extAbilityInfo.type != ExtensionAbilityType::FORM && extAbilityInfo.type != ExtensionAbilityType::UI) {
             return;
         }
@@ -143,7 +145,7 @@ private:
                 purposeInfo.purposeName = purposeAndCard;
                 purposeInfo.componentType = ComponentType::UI_EXTENSION;
                 purposeInfos.emplace_back(purposeInfo);
-                TAG_LOGI(AAFwkTag::SER_ROUTER,
+                TAG_LOGD(AAFwkTag::SER_ROUTER,
                     "UIExtToPurposes, bundle: %{public}s, abilityName: %{public}s, purposeName: %{public}s",
                     extAbilityInfo.bundleName.c_str(), extAbilityInfo.name.c_str(), purposeAndCard.c_str());
             } else {
@@ -154,12 +156,12 @@ private:
                     purposeInfo.cardName = purposeNameAndCardName[1];
                     purposeInfo.componentType = ComponentType::FORM;
                     purposeInfos.emplace_back(purposeInfo);
-                    TAG_LOGI(AAFwkTag::SER_ROUTER,
+                    TAG_LOGD(AAFwkTag::SER_ROUTER,
                         "FormToPurposes, bundle: %{public}s, abilityName: %{public}s, purposeName: %{public}s",
                         extAbilityInfo.bundleName.c_str(), extAbilityInfo.name.c_str(),
                         purposeInfo.purposeName.c_str());
                 } else {
-                    TAG_LOGW(AAFwkTag::SER_ROUTER, "FormToPurposes invalid supportPurpose");
+                    TAG_LOGW(AAFwkTag::SER_ROUTER, "FormToPurposes invalid");
                 }
             }
         }
@@ -172,7 +174,7 @@ private:
             return;
         }
         BusinessType type = GetBusinessType(extAbilityInfo.metadata);
-        TAG_LOGI(AAFwkTag::SER_ROUTER, "ToService, abilityName: %{public}s, businessType: %{public}d",
+        TAG_LOGD(AAFwkTag::SER_ROUTER, "AbilityName: %{public}s, businessType: %{public}d",
             extAbilityInfo.name.c_str(), static_cast<int>(type));
         if (type != BusinessType::UNSPECIFIED) {
             BusinessAbilityInfo businessAbilityInfo;

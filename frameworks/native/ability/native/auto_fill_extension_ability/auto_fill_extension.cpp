@@ -53,7 +53,7 @@ std::shared_ptr<AutoFillExtensionContext> AutoFillExtension::CreateAndInitContex
     std::shared_ptr<AutoFillExtensionContext> context =
         ExtensionBase<AutoFillExtensionContext>::CreateAndInitContext(record, application, handler, token);
     if (context == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "UIExtension CreateAndInitContext context is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "null context");
         return context;
     }
     return context;

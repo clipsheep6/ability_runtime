@@ -140,131 +140,131 @@ DataAbilityOperation &DataAbilityOperation::operator=(const DataAbilityOperation
 
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperation::NewInsertBuilder(const std::shared_ptr<Uri> &uri)
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewInsertBuilder start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "start");
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewInsertBuilder uri is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "null uri");
         return nullptr;
     }
     std::shared_ptr<DataAbilityOperationBuilder> builder =
         std::make_shared<DataAbilityOperationBuilder>(TYPE_INSERT, uri);
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewInsertBuilder end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "end");
     return builder;
 }
 
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperation::NewUpdateBuilder(const std::shared_ptr<Uri> &uri)
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewUpdateBuilder start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "start");
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewUpdateBuilder uri is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "null uri");
         return nullptr;
     }
     std::shared_ptr<DataAbilityOperationBuilder> builder =
         std::make_shared<DataAbilityOperationBuilder>(TYPE_UPDATE, uri);
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewUpdateBuilder end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "end");
     return builder;
 }
 
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperation::NewDeleteBuilder(const std::shared_ptr<Uri> &uri)
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewDeleteBuilder start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "start");
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewDeleteBuilder uri is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "null uri");
         return nullptr;
     }
     std::shared_ptr<DataAbilityOperationBuilder> builder =
         std::make_shared<DataAbilityOperationBuilder>(TYPE_DELETE, uri);
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewDeleteBuilder end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "end");
     return builder;
 }
 
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperation::NewAssertBuilder(const std::shared_ptr<Uri> &uri)
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewAssertBuilder start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "start");
     if (uri == nullptr) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewAssertBuilder uri is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "null uri");
         return nullptr;
     }
     std::shared_ptr<DataAbilityOperationBuilder> builder =
         std::make_shared<DataAbilityOperationBuilder>(TYPE_ASSERT, uri);
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewAssertBuilder end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "end");
     return builder;
 }
 
 int DataAbilityOperation::GetType() const
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::GetType");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "called");
     return type_;
 }
 
 std::shared_ptr<Uri> DataAbilityOperation::GetUri() const
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::GetUri");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "called");
     return uri_;
 }
 
 std::shared_ptr<NativeRdb::ValuesBucket> DataAbilityOperation::GetValuesBucket() const
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::GetValuesBucket");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "called");
     return valuesBucket_;
 }
 
 int DataAbilityOperation::GetExpectedCount() const
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::GetExpectedCount");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "called");
     return expectedCount_;
 }
 
 std::shared_ptr<NativeRdb::DataAbilityPredicates> DataAbilityOperation::GetDataAbilityPredicates() const
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::GetDataAbilityPredicates");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "called");
     return dataAbilityPredicates_;
 }
 
 std::shared_ptr<NativeRdb::ValuesBucket> DataAbilityOperation::GetValuesBucketReferences() const
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::GetValuesBucketReferences");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "called");
     return valuesBucketReferences_;
 }
 std::map<int, int> DataAbilityOperation::GetDataAbilityPredicatesBackReferences() const
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::GetDataAbilityPredicatesBackReferences");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "called");
     return dataAbilityPredicatesBackReferences_;
 }
 bool DataAbilityOperation::IsValidOperation() const
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::IsValidOperation: type is %{public}d", type_);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "type: %{public}d", type_);
     return (type_ == TYPE_INSERT || type_ == TYPE_UPDATE || type_ == TYPE_DELETE || type_ == TYPE_ASSERT);
 }
 bool DataAbilityOperation::IsInsertOperation() const
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::IsInsertOperation: %{public}d", type_ == TYPE_INSERT);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "TYPE_INSERT?: %{public}d", type_ == TYPE_INSERT);
     return type_ == TYPE_INSERT;
 }
 bool DataAbilityOperation::IsUpdateOperation() const
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::IsUpdateOperation: %{public}d", type_ == TYPE_UPDATE);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "TYPE_UPDATE?: %{public}d", type_ == TYPE_UPDATE);
     return type_ == TYPE_UPDATE;
 }
 bool DataAbilityOperation::IsDeleteOperation() const
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::IsDeleteOperation: %{public}d", type_ == TYPE_DELETE);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "TYPE_DELETE?: %{public}d", type_ == TYPE_DELETE);
     return type_ == TYPE_DELETE;
 }
 bool DataAbilityOperation::IsAssertOperation() const
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::IsAssertOperation: %{public}d", type_ == TYPE_ASSERT);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "TYPE_ASSERT?: %{public}d", type_ == TYPE_ASSERT);
     return type_ == TYPE_ASSERT;
 }
 bool DataAbilityOperation::IsInterruptionAllowed() const
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::IsInterruptionAllowed: %{public}d", interrupted_);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "interrupted_: %{public}d", interrupted_);
     return interrupted_;
 }
 
 bool DataAbilityOperation::WriteUri(Parcel &out) const
 {
     if (uri_ == nullptr) {
-        TAG_LOGD(AAFwkTag::DATA_ABILITY, "Uri is nullptr");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "null uri_");
         return out.WriteInt32(VALUE_NULL);
     }
     if (!out.WriteInt32(VALUE_OBJECT)) {
@@ -281,7 +281,7 @@ bool DataAbilityOperation::WriteUri(Parcel &out) const
 bool DataAbilityOperation::WriteValuesBucket(Parcel &out) const
 {
     if (valuesBucket_ == nullptr) {
-        TAG_LOGD(AAFwkTag::DATA_ABILITY, "ValuesBucket is nullptr");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "null valuesBucket_");
         return out.WriteInt32(VALUE_NULL);
     }
     if (!out.WriteInt32(VALUE_OBJECT)) {
@@ -298,7 +298,7 @@ bool DataAbilityOperation::WriteValuesBucket(Parcel &out) const
 bool DataAbilityOperation::WritePredicates(Parcel &out) const
 {
     if (dataAbilityPredicates_ == nullptr) {
-        TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityPredicates is nullptr");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "null dataAbilityPredicates_");
         return out.WriteInt32(VALUE_NULL);
     }
     if (!out.WriteInt32(VALUE_OBJECT)) {
@@ -315,7 +315,7 @@ bool DataAbilityOperation::WritePredicates(Parcel &out) const
 bool DataAbilityOperation::WriteValuesBucketReferences(Parcel &out) const
 {
     if (valuesBucketReferences_ == nullptr) {
-        TAG_LOGD(AAFwkTag::DATA_ABILITY, "ValuesBucketReferences is nullptr");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "null valuesBucketReferences_");
         return out.WriteInt32(VALUE_NULL);
     }
     if (!out.WriteInt32(VALUE_OBJECT)) {
@@ -323,7 +323,7 @@ bool DataAbilityOperation::WriteValuesBucketReferences(Parcel &out) const
         return false;
     }
     if (!valuesBucketReferences_->Marshalling(out)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "ValuesBucketReferences Marshalling error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Marshalling error");
         return false;
     }
     return true;
@@ -331,17 +331,17 @@ bool DataAbilityOperation::WriteValuesBucketReferences(Parcel &out) const
 
 bool DataAbilityOperation::Marshalling(Parcel &out) const
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "start");
     if (!out.WriteInt32(type_)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling WriteInt32(type) error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "WriteInt32(type) error");
         return false;
     }
     if (!out.WriteInt32(expectedCount_)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling WriteInt32(expectedCount) error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "WriteInt32(expectedCount) error");
         return false;
     }
     if (!out.WriteBool(interrupted_)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling WriteInt32(interrupted) error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "WriteInt32(interrupted) error");
         return false;
     }
     if (!WriteUri(out) || !WriteValuesBucket(out) || !WritePredicates(out) || !WriteValuesBucketReferences(out)) {
@@ -350,46 +350,46 @@ bool DataAbilityOperation::Marshalling(Parcel &out) const
     }
     int referenceSize = (int)dataAbilityPredicatesBackReferences_.size();
     if (dataAbilityPredicatesBackReferences_.empty()) {
-        TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling dataAbilityPredicatesBackReferences_:null");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "dataAbilityPredicatesBackReferences_:null");
         if (!out.WriteInt32(referenceSize)) {
-            TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
+            TAG_LOGE(AAFwkTag::DATA_ABILITY, "WriteInt32(VALUE_OBJECT) error");
             return false;
         }
-        TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling end");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "end");
         return true;
     }
     if (!out.WriteInt32(referenceSize)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "WriteInt32(VALUE_OBJECT) error");
         return false;
     }
     if (referenceSize >= REFERENCE_THRESHOLD) {
-        TAG_LOGI(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling referenceSize >= REFERENCE_THRESHOLD");
+        TAG_LOGI(AAFwkTag::DATA_ABILITY, "referenceSize >= REFERENCE_THRESHOLD");
         return true;
     }
     for (auto it = dataAbilityPredicatesBackReferences_.begin(); it != dataAbilityPredicatesBackReferences_.end();
         it++) {
         if (!out.WriteInt32(it->first)) {
-            TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
+            TAG_LOGE(AAFwkTag::DATA_ABILITY, "WriteInt32(VALUE_OBJECT) error");
             return false;
         }
         if (!out.WriteInt32(it->second)) {
-            TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
+            TAG_LOGE(AAFwkTag::DATA_ABILITY, "WriteInt32(VALUE_OBJECT) error");
             return false;
         }
     }
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "end");
     return true;
 }
 DataAbilityOperation *DataAbilityOperation::Unmarshalling(Parcel &in)
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Unmarshalling start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "start");
     DataAbilityOperation *dataAbilityOperation = new (std::nothrow) DataAbilityOperation();
     if (dataAbilityOperation != nullptr && !dataAbilityOperation->ReadFromParcel(in)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Unmarshalling dataAbilityOperation error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "dataAbilityOperation error");
         delete dataAbilityOperation;
         dataAbilityOperation = nullptr;
     }
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Unmarshalling end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "end");
     return dataAbilityOperation;
 }
 
@@ -397,7 +397,7 @@ bool DataAbilityOperation::ReadUriFromParcel(Parcel &in)
 {
     int empty = VALUE_NULL;
     if (!in.ReadInt32(empty)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel ReadInt32(empty) error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "ReadInt32(empty) error");
         return false;
     }
     if (empty == VALUE_OBJECT) {
@@ -413,7 +413,7 @@ bool DataAbilityOperation::ReadValuesBucketFromParcel(Parcel &in)
 {
     int empty = VALUE_NULL;
     if (!in.ReadInt32(empty)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel ReadInt32(empty) error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "ReadInt32(empty) error");
         return false;
     }
     if (empty == VALUE_OBJECT) {
@@ -429,7 +429,7 @@ bool DataAbilityOperation::ReadDataAbilityPredicatesFromParcel(Parcel &in)
 {
     int empty = VALUE_NULL;
     if (!in.ReadInt32(empty)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel ReadInt32(empty) error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "ReadInt32(empty) error");
         return false;
     }
     if (empty == VALUE_OBJECT) {
@@ -445,7 +445,7 @@ bool DataAbilityOperation::ReadValuesBucketReferencesFromParcel(Parcel &in)
 {
     int empty = VALUE_NULL;
     if (!in.ReadInt32(empty)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel ReadInt32(empty) error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "ReadInt32(empty) error");
         return false;
     }
     if (empty == VALUE_OBJECT) {
@@ -460,29 +460,28 @@ bool DataAbilityOperation::ReadValuesBucketReferencesFromParcel(Parcel &in)
 
 bool DataAbilityOperation::ReadFromParcel(Parcel &in)
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "start");
     if (!in.ReadInt32(type_)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel ReadInt32(type) error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "ReadInt32(type) error");
         return false;
     }
     if (!in.ReadInt32(expectedCount_)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel ReadInt32(expectedCount) error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "ReadInt32(expectedCount) error");
         return false;
     }
     interrupted_ = in.ReadBool();
     if (!ReadUriFromParcel(in) || !ReadValuesBucketFromParcel(in) || !ReadDataAbilityPredicatesFromParcel(in) ||
         !ReadValuesBucketReferencesFromParcel(in)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "error");
         return false;
     }
     int referenceSize = 0;
     if (!in.ReadInt32(referenceSize)) {
-        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel end");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "end");
         return false;
     }
     if (referenceSize >= REFERENCE_THRESHOLD) {
-        TAG_LOGI(AAFwkTag::DATA_ABILITY,
-            "DataAbilityOperation::ReadFromParcel referenceSize:%{public}d >= REFERENCE_THRESHOLD:%{public}d",
+        TAG_LOGI(AAFwkTag::DATA_ABILITY, "referenceSize:%{public}d >= REFERENCE_THRESHOLD:%{public}d",
             referenceSize, REFERENCE_THRESHOLD);
         return true;
     }
@@ -491,36 +490,36 @@ bool DataAbilityOperation::ReadFromParcel(Parcel &in)
         int first = 0;
         int second = 0;
         if (!in.ReadInt32(first)) {
-            TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel end");
+            TAG_LOGE(AAFwkTag::DATA_ABILITY, "end");
             return false;
         }
         if (!in.ReadInt32(second)) {
-            TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel end");
+            TAG_LOGE(AAFwkTag::DATA_ABILITY, "end");
             return false;
         }
         dataAbilityPredicatesBackReferences_.insert(std::make_pair(first, second));
     }
 
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "end");
     return true;
 }
 std::shared_ptr<DataAbilityOperation> DataAbilityOperation::CreateFromParcel(Parcel &in)
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::CreateFromParcel start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "start");
     std::shared_ptr<DataAbilityOperation> operation = std::make_shared<DataAbilityOperation>(in);
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::CreateFromParcel end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "end");
     return operation;
 }
 void DataAbilityOperation::PutMap(Parcel &in)
 {
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::PutMap start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "start");
     int count = in.ReadInt32();
     if (count > 0 && count < REFERENCE_THRESHOLD) {
         for (int i = 0; i < count; ++i) {
             dataAbilityPredicatesBackReferences_.insert(std::make_pair(in.ReadInt32(), in.ReadInt32()));
         }
     }
-    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::PutMap end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

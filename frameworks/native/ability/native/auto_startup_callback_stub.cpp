@@ -40,7 +40,7 @@ int AutoStartupCallBackStub::OnRemoteRequest(
     std::u16string autoStartUpCallBackDescriptor = AutoStartupCallBackStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (autoStartUpCallBackDescriptor != remoteDescriptor) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Local descriptor is not equal to remote.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "invalid descriptor");
         return ERR_INVALID_STATE;
     }
 
@@ -53,7 +53,7 @@ int AutoStartupCallBackStub::OnRemoteRequest(
             break;
     }
 
-    TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Default case, need check.");
+    TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Default case");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
@@ -61,7 +61,7 @@ int32_t AutoStartupCallBackStub::OnAutoStartupOnInner(MessageParcel &data, Messa
 {
     sptr<AutoStartupInfo> info = data.ReadParcelable<AutoStartupInfo>();
     if (info == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to read parcelable.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Read info failed");
         return ERR_INVALID_VALUE;
     }
 
@@ -71,7 +71,7 @@ int32_t AutoStartupCallBackStub::OnAutoStartupOnInner(MessageParcel &data, Messa
     handler->PostSyncTask([weak, info]() {
         auto autoStartUpCallBackStub = weak.promote();
         if (autoStartUpCallBackStub == nullptr) {
-            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "autoStartUpCallBackStub is nullptr.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "null autoStartUpCallBackStub");
             return;
         }
         autoStartUpCallBackStub->OnAutoStartupOn(*info);
@@ -84,7 +84,7 @@ int32_t AutoStartupCallBackStub::OnAutoStartupOffInner(MessageParcel &data, Mess
 {
     sptr<AutoStartupInfo> info = data.ReadParcelable<AutoStartupInfo>();
     if (info == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to read parcelable.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Read info failed");
         return ERR_INVALID_VALUE;
     }
 
@@ -94,7 +94,7 @@ int32_t AutoStartupCallBackStub::OnAutoStartupOffInner(MessageParcel &data, Mess
     handler->PostSyncTask([weak, info]() {
         auto autoStartUpCallBackStub = weak.promote();
         if (autoStartUpCallBackStub == nullptr) {
-            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "autoStartUpCallBackStub is nullptr.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "null autoStartUpCallBackStub");
             return;
         }
         autoStartUpCallBackStub->OnAutoStartupOff(*info);

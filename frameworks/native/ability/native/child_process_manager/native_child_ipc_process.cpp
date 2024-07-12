@@ -35,20 +35,20 @@ NativeChildIpcProcess::~NativeChildIpcProcess()
     
 bool NativeChildIpcProcess::Init(const std::shared_ptr<ChildProcessStartInfo> &info)
 {
-    TAG_LOGD(AAFwkTag::PROCESSMGR, "NativeChildIpcProcess init");
+    TAG_LOGD(AAFwkTag::PROCESSMGR, "init");
     if (info == nullptr || info->ipcObj == nullptr) {
         TAG_LOGE(AAFwkTag::PROCESSMGR, "info or ipc callback is null");
         return false;
     }
 
     if (!ChildProcess::Init(info)) {
-        TAG_LOGE(AAFwkTag::PROCESSMGR, "Base class init failed.");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "init failed");
         return false;
     }
 
     auto iNotify = iface_cast<OHOS::AppExecFwk::INativeChildNotify>(info->ipcObj);
     if (iNotify == nullptr) {
-        TAG_LOGE(AAFwkTag::PROCESSMGR, "Faild cvt interface to INativeChildNotify");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "null iNotify");
         return false;
     }
 
@@ -71,7 +71,7 @@ void NativeChildIpcProcess::OnStart()
     ChildProcess::OnStart();
     OHIPCRemoteStub *ipcStub = funcNativeLibOnConnect_();
     if (ipcStub == nullptr || ipcStub->remote == nullptr) {
-        TAG_LOGE(AAFwkTag::PROCESSMGR, "Native lib OnConnect function return null stub");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "null ipctub");
         mainProcessCb_->OnError(static_cast<int32_t>(ChildProcessManagerErrorCode::ERR_CONNECTION_FAILED));
         return;
     }
@@ -83,9 +83,9 @@ void NativeChildIpcProcess::OnStart()
         mainProcessCb_->OnNativeChildStarted(childIpcStub);
     });
 
-    TAG_LOGI(AAFwkTag::PROCESSMGR, "Enter native lib MainProc");
+    TAG_LOGI(AAFwkTag::PROCESSMGR, "Enter MainProc");
     funcNativeLibMainProc_();
-    TAG_LOGI(AAFwkTag::PROCESSMGR, "Native lib MainProc returned");
+    TAG_LOGI(AAFwkTag::PROCESSMGR, "MainProc returned");
 
     if (cbThread.joinable()) {
         cbThread.join();
@@ -100,7 +100,7 @@ bool NativeChildIpcProcess::LoadNativeLib(const std::shared_ptr<ChildProcessStar
     }
 
     if (info->moduleName.empty()) {
-        TAG_LOGE(AAFwkTag::PROCESSMGR, "Module name is empty");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "empty module name");
         return false;
     }
 
@@ -108,14 +108,14 @@ bool NativeChildIpcProcess::LoadNativeLib(const std::shared_ptr<ChildProcessStar
     std::string appDlNameSpace = "moduleNs_" + info->moduleName;
     int ret = dlns_get(appDlNameSpace.c_str(), &dlnsApp);
     if (ret != 0) {
-        TAG_LOGE(AAFwkTag::PROCESSMGR, "Get app dlNamespace(%{private}s) failed, err:%{public}d",
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Get dlns(%{private}s) err:%{public}d",
             appDlNameSpace.c_str(), ret);
         return false;
     }
 
     void *libHandle = dlopen_ns(&dlnsApp, info->srcEntry.c_str(), RTLD_LAZY);
     if (libHandle == nullptr) {
-        TAG_LOGE(AAFwkTag::PROCESSMGR, "Load lib file %{private}s failed, err %{public}s",
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Load lib file %{private}s err %{public}s",
             info->srcEntry.c_str(), dlerror());
         return false;
     }
@@ -124,14 +124,14 @@ bool NativeChildIpcProcess::LoadNativeLib(const std::shared_ptr<ChildProcessStar
         NativeChildProcess_OnConnect funcOnConnect =
             reinterpret_cast<NativeChildProcess_OnConnect>(dlsym(libHandle, "NativeChildProcess_OnConnect"));
         if (funcOnConnect == nullptr) {
-            TAG_LOGE(AAFwkTag::PROCESSMGR, "Get OnConnect function address failed, err %{public}s", dlerror());
+            TAG_LOGE(AAFwkTag::PROCESSMGR, "null funcOnConnect, err %{public}s", dlerror());
             break;
         }
 
         NativeChildProcess_MainProc funcMainProc =
             reinterpret_cast<NativeChildProcess_MainProc>(dlsym(libHandle, "NativeChildProcess_MainProc"));
         if (funcMainProc == nullptr) {
-            TAG_LOGE(AAFwkTag::PROCESSMGR, "Get MainProc function address failed, err %{public}s", dlerror());
+            TAG_LOGE(AAFwkTag::PROCESSMGR, "null funcMainProc, err %{public}s", dlerror());
             break;
         }
 

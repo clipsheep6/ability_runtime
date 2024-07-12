@@ -32,16 +32,16 @@ int32_t StatusBarDelegateProxy::CheckIfStatusBarItemExists(uint32_t accessTokenI
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(IStatusBarDelegate::GetDescriptor())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write token failed");
         return AAFwk::ERR_NATIVE_IPC_PARCEL_FAILED;
     }
     if (!data.WriteUint32(accessTokenId)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "accessTokenId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "accessTokenId write failed");
         return AAFwk::ERR_NATIVE_IPC_PARCEL_FAILED;
     }
     auto ret = SendRequest(StatusBarDelegateCmd::CHECK_IF_STATUS_BAR_ITEM_EXISTS, data, reply, option);
     if (ret != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", ret);
         return ret;
     }
     ret = reply.ReadInt32();
@@ -56,20 +56,20 @@ int32_t StatusBarDelegateProxy::AttachPidToStatusBarItem(uint32_t accessTokenId,
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(IStatusBarDelegate::GetDescriptor())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write token failed");
         return AAFwk::ERR_NATIVE_IPC_PARCEL_FAILED;
     }
     if (!data.WriteUint32(accessTokenId)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write accessTokenId failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write accessTokenId failed");
         return AAFwk::ERR_NATIVE_IPC_PARCEL_FAILED;
     }
     if (!data.WriteInt32(pid)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "write pid failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write pid failed");
         return AAFwk::ERR_NATIVE_IPC_PARCEL_FAILED;
     }
     auto ret = SendRequest(StatusBarDelegateCmd::ATTACH_PID_TO_STATUS_BAR_ITEM, data, reply, option);
     if (ret != NO_ERROR) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -80,7 +80,7 @@ int32_t StatusBarDelegateProxy::SendRequest(
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null remote");
         return ERR_NULL_OBJECT;
     }
     return remote->SendRequest(static_cast<uint32_t>(code), data, reply, option);

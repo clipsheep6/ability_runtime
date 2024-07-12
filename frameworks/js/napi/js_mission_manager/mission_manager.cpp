@@ -161,7 +161,7 @@ private:
             missionListener_->AddJsListenerObject(missionListenerId_, argv[ARGC_ONE]);
             return CreateJsValue(env, missionListenerId_);
         } else {
-            TAG_LOGE(AAFwkTag::MISSION, "RegisterMissionListener failed, ret = %{public}d", ret);
+            TAG_LOGE(AAFwkTag::MISSION, "RegisterMissionListener failed, ret:%{public}d", ret);
             missionListener_ = nullptr;
             if (ret == CHECK_PERMISSION_FAILED) {
                 ThrowNoPermissionError(env, PermissionConstants::PERMISSION_MANAGE_MISSION);
@@ -198,7 +198,7 @@ private:
             missionListener_->AddJsListenerObject(missionListenerId_, argv[INDEX_ONE], true);
             return CreateJsValue(env, missionListenerId_);
         } else {
-            TAG_LOGE(AAFwkTag::MISSION, "RegisterMissionListener failed, ret = %{public}d", ret);
+            TAG_LOGE(AAFwkTag::MISSION, "RegisterMissionListener failed, ret:%{public}d", ret);
             missionListener_ = nullptr;
             if (ret == CHECK_PERMISSION_FAILED) {
                 ThrowNoPermissionError(env, PermissionConstants::PERMISSION_MANAGE_MISSION);
@@ -223,7 +223,7 @@ private:
     {
         TAG_LOGD(AAFwkTag::MISSION, "called");
         if (argc < ARG_COUNT_TWO) {
-            TAG_LOGE(AAFwkTag::MISSION, "Not enough params");
+            TAG_LOGE(AAFwkTag::MISSION, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -273,7 +273,7 @@ private:
     {
         TAG_LOGD(AAFwkTag::MISSION, "called");
         if (argc < ARG_COUNT_TWO) {
-            TAG_LOGE(AAFwkTag::MISSION, "Not enough params");
+            TAG_LOGE(AAFwkTag::MISSION, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -286,7 +286,7 @@ private:
         }
 
         if (missionListener_ == nullptr) {
-            TAG_LOGE(AAFwkTag::MISSION, "missionListener_ is nullptr");
+            TAG_LOGE(AAFwkTag::MISSION, "null missionListener_");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
             return CreateJsUndefined(env);
         }
@@ -296,7 +296,7 @@ private:
             return CreateJsUndefined(env);
         }
         if (!missionListener_->IsEmpty()) {
-            TAG_LOGD(AAFwkTag::MISSION, "Off success, missionListener is not empty");
+            TAG_LOGD(AAFwkTag::MISSION, "Off success, missionListener not empty");
             return CreateJsUndefined(env);
         }
         auto ret = AbilityManagerClient::GetInstance()->UnRegisterMissionListener(missionListener_);
@@ -316,9 +316,9 @@ private:
 
     napi_value OnGetMissionInfos(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         if (argc < ARG_COUNT_TWO) {
-            TAG_LOGE(AAFwkTag::MISSION, "Not enough params");
+            TAG_LOGE(AAFwkTag::MISSION, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -356,9 +356,9 @@ private:
 
     napi_value OnGetMissionInfo(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         if (argc < ARG_COUNT_TWO) {
-            TAG_LOGE(AAFwkTag::MISSION, "Not enough params");
+            TAG_LOGE(AAFwkTag::MISSION, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -408,7 +408,7 @@ private:
 
     napi_value GetMissionSnapShot(napi_env env, size_t argc, napi_value* argv, bool isLowResolution)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         std::string deviceId;
         int32_t missionId = -1;
         if (!CheckMissionSnapShotParams(env, argc, argv, deviceId, missionId)) {
@@ -481,15 +481,15 @@ private:
 
     napi_value OnLockMission(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         if (argc == 0) {
-            TAG_LOGE(AAFwkTag::MISSION, "OnLockMission Not enough params");
+            TAG_LOGE(AAFwkTag::MISSION, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         int32_t missionId = -1;
         if (!ConvertFromJsValue(env, argv[0], missionId)) {
-            TAG_LOGE(AAFwkTag::MISSION, "OnLockMission Parse missionId failed");
+            TAG_LOGE(AAFwkTag::MISSION, "Parse missionId failed");
             ThrowInvalidParamError(env, "Parse param missionId failed, must be a number.");
             return CreateJsUndefined(env);
         }
@@ -514,15 +514,15 @@ private:
 
     napi_value OnUnlockMission(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         if (argc == 0) {
-            TAG_LOGE(AAFwkTag::MISSION, "OnUnlockMission Not enough params");
+            TAG_LOGE(AAFwkTag::MISSION, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         int32_t missionId = -1;
         if (!ConvertFromJsValue(env, argv[0], missionId)) {
-            TAG_LOGE(AAFwkTag::MISSION, "OnUnlockMission Parse missionId failed");
+            TAG_LOGE(AAFwkTag::MISSION, "Parse missionId failed");
             ThrowInvalidParamError(env, "Parse param missionId failed, must be a number.");
             return CreateJsUndefined(env);
         }
@@ -547,15 +547,15 @@ private:
 
     napi_value OnClearMission(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         if (argc == 0) {
-            TAG_LOGE(AAFwkTag::MISSION, "OnClearMission Not enough params");
+            TAG_LOGE(AAFwkTag::MISSION, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         int32_t missionId = -1;
         if (!ConvertFromJsValue(env, argv[0], missionId)) {
-            TAG_LOGE(AAFwkTag::MISSION, "OnClearMission Parse missionId failed");
+            TAG_LOGE(AAFwkTag::MISSION, "Parse missionId failed");
             ThrowInvalidParamError(env, "Parse param missionId failed, must be a number.");
             return CreateJsUndefined(env);
         }
@@ -580,7 +580,7 @@ private:
 
     napi_value OnClearAllMissions(napi_env env, const size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         NapiAsyncTask::CompleteCallback complete =
             [](napi_env env, NapiAsyncTask &task, int32_t status) {
                 auto ret = AbilityManagerClient::GetInstance()->CleanAllMissions();
@@ -601,15 +601,15 @@ private:
 
     napi_value OnMoveMissionToFront(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         if (argc == 0) {
-            TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionToFront Not enough params");
+            TAG_LOGE(AAFwkTag::MISSION, "Not enough params");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         int32_t missionId = -1;
         if (!ConvertFromJsValue(env, argv[0], missionId)) {
-            TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionToFront Parse missionId failed");
+            TAG_LOGE(AAFwkTag::MISSION, "Parse missionId failed");
             ThrowInvalidParamError(env, "Parse param missionId failed, must be a number.");
             return CreateJsUndefined(env);
         }
@@ -617,7 +617,7 @@ private:
 
         AAFwk::StartOptions startOptions;
         if (argc > ARGC_ONE && AppExecFwk::IsTypeForNapiValue(env, argv[1], napi_object)) {
-            TAG_LOGI(AAFwkTag::MISSION, "OnMoveMissionToFront start options is used.");
+            TAG_LOGI(AAFwkTag::MISSION, "start options used");
             AppExecFwk::UnwrapStartOptions(env, argv[1], startOptions);
             unwrapArgc++;
         }
@@ -642,17 +642,17 @@ private:
 
     napi_value OnMoveMissionsToForeground(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         std::vector<int32_t> missionIds;
         if (argc < ARGC_ONE) {
-            TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToForeground Not enough params");
+            TAG_LOGE(AAFwkTag::MISSION, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         uint32_t nativeArrayLen = 0;
         napi_get_array_length(env, argv[0], &nativeArrayLen);
         if (nativeArrayLen == 0) {
-            TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToForeground MissionId is null");
+            TAG_LOGE(AAFwkTag::MISSION, "null MissionId");
             ThrowInvalidParamError(env, "Parse param missionIds failed, the size of missionIds must above zero.");
             return CreateJsUndefined(env);
         }
@@ -661,7 +661,7 @@ private:
             int32_t missionId = 0;
             napi_get_element(env, argv[0], i, &element);
             if (!ConvertFromJsValue(env, element, missionId)) {
-                TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToForeground Parse missionId failed");
+                TAG_LOGE(AAFwkTag::MISSION, "Parse missionId failed");
                 ThrowInvalidParamError(env, "Parse param missionIds failed, missionId must be a number.");
                 return CreateJsUndefined(env);
             }
@@ -672,7 +672,7 @@ private:
         decltype(argc) unwrapArgc = 1;
         if (argc > ARGC_ONE && AppExecFwk::IsTypeForNapiValue(env, argv[1], napi_number)) {
             if (!ConvertFromJsValue(env, argv[1], topMissionId)) {
-                TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToForeground Parse topMissionId failed");
+                TAG_LOGE(AAFwkTag::MISSION, "Parse topMissionId failed");
                 ThrowInvalidParamError(env, "Parse param topMission failed, must be a number.");
                 return CreateJsUndefined(env);
             }
@@ -700,17 +700,17 @@ private:
 
     napi_value OnMoveMissionsToBackground(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         std::vector<int32_t> missionIds;
         if (argc < ARGC_ONE) {
-            TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToBackground Not enough params");
+            TAG_LOGE(AAFwkTag::MISSION, "invalid argc");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         uint32_t nativeArrayLen = 0;
         napi_get_array_length(env, argv[0], &nativeArrayLen);
         if (nativeArrayLen == 0) {
-            TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToBackground MissionId is null");
+            TAG_LOGE(AAFwkTag::MISSION, "null MissionId");
             ThrowInvalidParamError(env, "Parse param missionIds failed, the size of missionIds must above zero.");
             return CreateJsUndefined(env);
         }
@@ -719,7 +719,7 @@ private:
             int32_t missionId;
             napi_get_element(env, argv[0], i, &element);
             if (!ConvertFromJsValue(env, element, missionId)) {
-                TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToBackground Parse topMissionId failed");
+                TAG_LOGE(AAFwkTag::MISSION, "Parse topMissionId failed");
                 ThrowInvalidParamError(env, "Parse param missionIds failed, missionId must be a number.");
                 return CreateJsUndefined(env);
             }
@@ -757,18 +757,18 @@ private:
         }
 
         if (!AppExecFwk::IsTypeForNapiValue(env, argv[0], napi_string)) {
-            TAG_LOGE(AAFwkTag::MISSION, "CheckOnOffType, Param 0 is not string");
+            TAG_LOGE(AAFwkTag::MISSION, "Param 0 not string");
             return false;
         }
 
         std::string type;
         if (!ConvertFromJsValue(env, argv[0], type)) {
-            TAG_LOGE(AAFwkTag::MISSION, "CheckOnOffType, Parse on off type failed");
+            TAG_LOGE(AAFwkTag::MISSION, "Parse on off type failed");
             return false;
         }
 
         if (type != ON_OFF_TYPE) {
-            TAG_LOGE(AAFwkTag::MISSION, "CheckOnOffType, args[0] should be mission.");
+            TAG_LOGE(AAFwkTag::MISSION, "args[0] should be mission");
             return false;
         }
         return true;
@@ -791,7 +791,7 @@ napi_value JsMissionManagerInit(napi_env env, napi_value exportObj)
 {
     TAG_LOGD(AAFwkTag::MISSION, "called");
     if (env == nullptr || exportObj == nullptr) {
-        TAG_LOGI(AAFwkTag::MISSION, "Invalid input parameters");
+        TAG_LOGI(AAFwkTag::MISSION, "Invalid param");
         return nullptr;
     }
 

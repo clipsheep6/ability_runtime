@@ -133,7 +133,7 @@ Ace::PopupPlacement AutoFillManagerUtil::ConvertPopupPlacement(const AutoFill::P
             popupPlacement = Ace::PopupPlacement::RIGHT_BOTTOM;
             break;
         default:
-            TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Popup placement is invalid.");
+            TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Popup placement invalid");
             break;
     }
     return popupPlacement;

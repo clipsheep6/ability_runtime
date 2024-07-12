@@ -81,7 +81,7 @@ napi_value JsAutoFillManager::OnRequestAutoSave(napi_env env, NapiCallbackInfo &
 
     if (info.argc != ARGC_ONE) {
         if (!CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
-            TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Second input parameter error.");
+            TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Second parameter error");
             ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM),
                 "Parameter error. The second parameter is not of type callback.");
             return CreateJsUndefined(env);
@@ -109,7 +109,7 @@ void JsAutoFillManager::OnRequestAutoSaveInner(napi_env env, int32_t instanceId,
         AbilityRuntime::AutoFill::AutoFillResult result;
         auto ret = AutoFillManager::GetInstance().RequestAutoSave(uiContent, request, saveRequestCallback, result);
         if (ret != ERR_OK) {
-            TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Request auto save error[%{public}d].", ret);
+            TAG_LOGE(AAFwkTag::AUTOFILLMGR, "RequestAutoSave error[%{public}d]", ret);
             ThrowError(env, GetJsErrorCodeByNativeError(ret));
             return;
         }
@@ -217,7 +217,7 @@ napi_value JsAutoFillManagerInit(napi_env env, napi_value exportObj)
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "called");
     if (env == nullptr || exportObj == nullptr) {
-        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Env or exportObj nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "null Env or exportObj");
         return nullptr;
     }
 

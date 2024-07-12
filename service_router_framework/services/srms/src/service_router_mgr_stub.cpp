@@ -29,12 +29,12 @@ namespace OHOS {
 namespace AbilityRuntime {
 ServiceRouterMgrStub::ServiceRouterMgrStub()
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "ServiceRouterMgrStub instance is created");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "instance created");
 }
 
 ServiceRouterMgrStub::~ServiceRouterMgrStub()
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "ServiceRouterMgrStub instance is destroyed");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "instance destroyed");
 }
 
 int ServiceRouterMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
@@ -43,7 +43,7 @@ int ServiceRouterMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Me
     std::u16string descriptor = ServiceRouterMgrStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "local descriptor is not equal to remote");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "descriptor diff from remote");
         return ERR_INVALID_STATE;
     }
 
@@ -53,14 +53,14 @@ int ServiceRouterMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Me
         case static_cast<uint32_t>(IServiceRouterManager::Message::QUERY_PURPOSE_INFOS):
             return HandleQueryPurposeInfos(data, reply);
         default:
-            TAG_LOGW(AAFwkTag::SER_ROUTER, "ServiceRouterMgrStub receives unknown code, code = %{public}d", code);
+            TAG_LOGW(AAFwkTag::SER_ROUTER, "receives unknown code: %{public}d", code);
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
 }
 
 int ServiceRouterMgrStub::HandleQueryBusinessAbilityInfos(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "ServiceRouterMgrStub handle query service infos");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "Called");
     if (!VerifySystemApp()) {
         TAG_LOGE(AAFwkTag::SER_ROUTER, "verify system app failed");
         return ERR_BUNDLE_MANAGER_SYSTEM_API_DENIED;
@@ -83,7 +83,7 @@ int ServiceRouterMgrStub::HandleQueryBusinessAbilityInfos(MessageParcel &data, M
     }
     if (ret == ERR_OK) {
         if (!WriteParcelableVector<BusinessAbilityInfo>(infos, reply)) {
-            TAG_LOGE(AAFwkTag::SER_ROUTER, "QueryBusinessAbilityInfos write failed");
+            TAG_LOGE(AAFwkTag::SER_ROUTER, "write infos failed");
             return ERR_APPEXECFWK_PARCEL_ERROR;
         }
     }
@@ -92,7 +92,7 @@ int ServiceRouterMgrStub::HandleQueryBusinessAbilityInfos(MessageParcel &data, M
 
 int ServiceRouterMgrStub::HandleQueryPurposeInfos(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "ServiceRouterMgrStub handle query purpose infos");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "Called");
     if (!VerifyCallingPermission(Constants::PERMISSION_GET_BUNDLE_INFO_PRIVILEGED)) {
         TAG_LOGE(AAFwkTag::SER_ROUTER, "verify GET_BUNDLE_INFO_PRIVILEGED failed");
         return ERR_BUNDLE_MANAGER_PERMISSION_DENIED;
@@ -111,7 +111,7 @@ int ServiceRouterMgrStub::HandleQueryPurposeInfos(MessageParcel &data, MessagePa
     }
     if (ret == ERR_OK) {
         if (!WriteParcelableVector<PurposeInfo>(infos, reply)) {
-            TAG_LOGE(AAFwkTag::SER_ROUTER, "QueryPurposeInfos write failed");
+            TAG_LOGE(AAFwkTag::SER_ROUTER, "write infos failed");
             return ERR_APPEXECFWK_PARCEL_ERROR;
         }
     }
@@ -120,7 +120,7 @@ int ServiceRouterMgrStub::HandleQueryPurposeInfos(MessageParcel &data, MessagePa
 
 int ServiceRouterMgrStub::HandleStartUIExtensionAbility(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "ServiceRouterMgrStub handle start ui extension ability");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "Called");
     sptr<SessionInfo> sessionInfo = nullptr;
     if (data.ReadBool()) {
         sessionInfo = data.ReadParcelable<SessionInfo>();
@@ -136,7 +136,7 @@ int ServiceRouterMgrStub::HandleStartUIExtensionAbility(MessageParcel &data, Mes
 
 int ServiceRouterMgrStub::HandleConnectUIExtensionAbility(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "ServiceRouterMgrStub handle connect ui extension ability");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "Called");
     std::unique_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         TAG_LOGE(AAFwkTag::SER_ROUTER, "ReadParcelable<want> failed");
@@ -161,7 +161,7 @@ int ServiceRouterMgrStub::HandleConnectUIExtensionAbility(MessageParcel &data, M
 
 bool ServiceRouterMgrStub::VerifyCallingPermission(const std::string &permissionName)
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "VerifyCallingPermission permission %{public}s", permissionName.c_str());
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "Verify: %{public}s", permissionName.c_str());
     OHOS::Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
     OHOS::Security::AccessToken::ATokenTypeEnum tokenType =
         OHOS::Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerToken);
@@ -178,7 +178,7 @@ bool ServiceRouterMgrStub::VerifyCallingPermission(const std::string &permission
 
 bool ServiceRouterMgrStub::VerifySystemApp()
 {
-    TAG_LOGD(AAFwkTag::SER_ROUTER, "verifying systemApp");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "Called");
     Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
     Security::AccessToken::ATokenTypeEnum tokenType =
         Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerToken);
@@ -198,13 +198,13 @@ template <typename T>
 bool ServiceRouterMgrStub::WriteParcelableVector(std::vector<T> &parcelableVector, Parcel &reply)
 {
     if (!reply.WriteInt32(parcelableVector.size())) {
-        TAG_LOGE(AAFwkTag::SER_ROUTER, "write ParcelableVector size failed");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "write size failed");
         return false;
     }
 
     for (auto &parcelable : parcelableVector) {
         if (!reply.WriteParcelable(&parcelable)) {
-            TAG_LOGE(AAFwkTag::SER_ROUTER, "write ParcelableVector failed");
+            TAG_LOGE(AAFwkTag::SER_ROUTER, "write failed");
             return false;
         }
     }

@@ -31,26 +31,26 @@ void WindowManagerServiceHandlerProxy::NotifyWindowTransition(sptr<AbilityTransi
     TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write token failed");
         return;
     }
     if (!data.WriteParcelable(fromInfo.GetRefPtr())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write fromInfo failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write fromInfo failed");
         return;
     }
     if (!data.WriteParcelable(toInfo.GetRefPtr())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write toInfo failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write toInfo failed");
         return;
     }
     if (!data.WriteBool(animaEnabled)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write animaEnabled failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write animaEnabled failed");
         return;
     }
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     int error = SendTransactCmd(WMSCmd::ON_NOTIFY_WINDOW_TRANSITION, data, reply, option);
     if (error != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest error: %{public}d", error);
     }
     animaEnabled = reply.ReadBool();
 }
@@ -60,7 +60,7 @@ int32_t WindowManagerServiceHandlerProxy::GetFocusWindow(sptr<IRemoteObject>& ab
     TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write token failed");
         return ERR_AAFWK_PARCEL_FAIL;
     }
 
@@ -68,7 +68,7 @@ int32_t WindowManagerServiceHandlerProxy::GetFocusWindow(sptr<IRemoteObject>& ab
     MessageOption option;
     int error = SendTransactCmd(WMSCmd::ON_GET_FOCUS_ABILITY, data, reply, option);
     if (error != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest error: %{public}d", error);
         return ERR_AAFWK_PARCEL_FAIL;
     }
     auto ret = reply.ReadInt32();
@@ -85,26 +85,26 @@ void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo
     TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write interface token.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write token");
         return;
     }
     if (!data.WriteParcelable(info.GetRefPtr())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write info failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write info failed");
         return;
     }
     if (!data.WriteParcelable(pixelMap.get())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write pixelMap failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write pixelMap failed");
         return;
     }
     if (!data.WriteUint32(bgColor)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write bgColor.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write bgColor");
         return;
     }
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     int error = SendTransactCmd(WMSCmd::ON_COLD_STARTING_WINDOW, data, reply, option);
     if (error != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest error: %{public}d", error);
     }
 }
 
@@ -114,22 +114,22 @@ void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo
     TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write token failed");
         return;
     }
     if (!data.WriteParcelable(info.GetRefPtr())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write info failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write info failed");
         return;
     }
     if (!data.WriteParcelable(pixelMap.get())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write pixelMap.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write pixelMap");
         return;
     }
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     int error = SendTransactCmd(WMSCmd::ON_HOT_STARTING_WINDOW, data, reply, option);
     if (error != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest error: %{public}d", error);
     }
 }
 
@@ -138,21 +138,21 @@ void WindowManagerServiceHandlerProxy::CancelStartingWindow(sptr<IRemoteObject> 
     TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write token failed");
         return;
     }
     if (!abilityToken) {
         if (!data.WriteBool(false)) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write false.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write false");
             return;
         }
     } else {
         if (!data.WriteBool(true)) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "Write true failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Write true failed");
             return;
         }
         if (!data.WriteRemoteObject(abilityToken)) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "Write abilityToken failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Write abilityToken failed");
             return;
         }
     }
@@ -160,7 +160,7 @@ void WindowManagerServiceHandlerProxy::CancelStartingWindow(sptr<IRemoteObject> 
     MessageOption option(MessageOption::TF_ASYNC);
     int error = SendTransactCmd(WMSCmd::ON_CANCEL_STARTING_WINDOW, data, reply, option);
     if (error != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest error: %{public}d", error);
     }
 }
 
@@ -169,18 +169,18 @@ void WindowManagerServiceHandlerProxy::NotifyAnimationAbilityDied(sptr<AbilityTr
     TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write token failed");
         return;
     }
     if (!data.WriteParcelable(info.GetRefPtr())) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write info.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write info");
         return;
     }
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     int error = SendTransactCmd(WMSCmd::ON_NOTIFY_ANIMATION_ABILITY_DIED, data, reply, option);
     if (error != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest error: %{public}d", error);
     }
 }
 
@@ -209,7 +209,7 @@ int32_t WindowManagerServiceHandlerProxy::MoveMissionsToForeground(const std::ve
 
     int error = SendTransactCmd(WMSCmd::ON_MOVE_MISSINONS_TO_FOREGROUND, data, reply, option);
     if (error != ERR_NONE) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendoRequest failed, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendoRequest error: %{public}d", error);
         return ERR_AAFWK_PARCEL_FAIL;
     }
     return reply.ReadInt32();
@@ -235,7 +235,7 @@ int32_t WindowManagerServiceHandlerProxy::MoveMissionsToBackground(const std::ve
 
     int error = SendTransactCmd(WMSCmd::ON_MOVE_MISSIONS_TO_BACKGROUND, data, reply, option);
     if (error != ERR_NONE) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendoRequest failed, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendoRequest error: %{public}d", error);
         return ERR_AAFWK_PARCEL_FAIL;
     }
     if (!reply.ReadInt32Vector(&result)) {
@@ -250,13 +250,13 @@ int32_t WindowManagerServiceHandlerProxy::SendTransactCmd(uint32_t code, Message
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "null remote");
         return ERR_NULL_OBJECT;
     }
 
     int32_t ret = remote->SendRequest(code, data, reply, option);
     if (ret != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest failed. code: %{public}d, ret: %{public}d", code, ret);
         return ret;
     }
     return ERR_OK;
