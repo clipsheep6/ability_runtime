@@ -4116,8 +4116,31 @@ void AbilityManagerService::NotifyCompleteContinuation(const std::string &device
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "NotifyCompleteContinuation.");
     AAFWK::ContinueRadar::GetInstance().ClickIconRecvOver("NotifyCompleteContinuation");
+    sptr<ISystemAbilityManager> samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgrProxy == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to get samgrProxy");
+        return;
+    }
+    sptr<IRemoteObject> bmsProxy = samgrProxy->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (bmsProxy == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to get bms from samgr");
+        return;
+    }
+    auto bundleMgr = iface_cast<AppExecFwk::IBundleMgr>(bmsProxy);
+    if (bundleMgr == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to get bms");
+        return;
+    }
+    int32_t callerUid = IPCSkeleton::GetCallingUid();
+    std::string callerBundleName;
+    // reset ipc identity
+    auto identity = IPCSkeleton::ResetCallingIdentity();
+    bool result = bundleMgr->GetBundleNameForUid(callerUid, callerBundleName);
+    // set ipc identity to raw
+    IPCSkeleton::SetCallingIdentity(identity);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "callerBundleName: %{public}s", callerBundleName.c_str());
     DistributedClient dmsClient;
-    dmsClient.NotifyCompleteContinuation(Str8ToStr16(deviceId), sessionId, isSuccess);
+    dmsClient.NotifyCompleteContinuation(Str8ToStr16(deviceId), sessionId, isSuccess, callerBundleName);
 }
 
 int AbilityManagerService::NotifyContinuationResult(int32_t missionId, int32_t result)
@@ -4136,6 +4159,10 @@ int AbilityManagerService::NotifyContinuationResult(int32_t missionId, int32_t r
     }
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
+    if (!JudgeSelfCalled(abilityRecord) && !CheckCallerIsDmsProcess()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Permission deny.");
+        return ERR_INVALID_VALUE;
+    }
     abilityRecord->NotifyContinuationResult(result);
     return ERR_OK;
 }
