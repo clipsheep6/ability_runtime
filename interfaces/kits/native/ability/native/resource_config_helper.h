@@ -47,6 +47,7 @@ public:
         std::shared_ptr<Global::Resource::ResourceManager> resourceManager);
 
     static bool ConvertStringToUint32(std::string source, uint32_t &result);
+    static Global::Resource::Direction ConvertDirectionToGlobal(Rosen::DisplayOrientation display);
 
 private:
     std::string language_;

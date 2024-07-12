@@ -837,23 +837,14 @@ void UIAbility::OnDisplayInfoChange(const sptr<IRemoteObject>& token, Rosen::Dis
     Rosen::DisplayOrientation orientation)
 {
     TAG_LOGI(AAFwkTag::UIABILITY, "Begin displayId: %{public}" PRIu64, displayId);
-    // Get display
-    auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
-    if (!display) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Get display by displayId %{public}" PRIu64 " failed.", displayId);
-        return;
-    }
 
-    // Notify ResourceManager
-    int32_t width = display->GetWidth();
-    int32_t height = display->GetHeight();
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     if (resConfig != nullptr) {
         auto resourceManager = GetResourceManager();
         if (resourceManager != nullptr) {
             resourceManager->GetResConfig(*resConfig);
             resConfig->SetScreenDensity(density);
-            resConfig->SetDirection(AppExecFwk::ConvertDirection(height, width));
+            resConfig->SetDirection(ResourceConfigHelper::ConvertDirectionToGlobal(orientation));
             resourceManager->UpdateResConfig(*resConfig);
             TAG_LOGD(AAFwkTag::UIABILITY, "Notify ResourceManager, Density: %{public}f, Direction: %{public}d",
                 resConfig->GetScreenDensity(), resConfig->GetDirection());
@@ -863,7 +854,8 @@ void UIAbility::OnDisplayInfoChange(const sptr<IRemoteObject>& token, Rosen::Dis
     // Notify ability
     Configuration newConfig;
     newConfig.AddItem(
-        displayId, AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION, AppExecFwk::GetDirectionStr(height, width));
+        displayId, AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION,
+        AppExecFwk::GetDirectionStr(ResourceConfigHelper::ConvertDirectionToGlobal(orientation)));
     newConfig.AddItem(
         displayId, AppExecFwk::ConfigurationInner::APPLICATION_DENSITYDPI, AppExecFwk::GetDensityStr(density));
 
