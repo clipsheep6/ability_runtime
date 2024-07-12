@@ -114,6 +114,12 @@ int MockServiceAbilityManagerService::AbilityTransitionDone(
     return 0;
 }
 
+int MockServiceAbilityManagerService::AbilityWindowConfigTransitionDone(
+    const sptr<IRemoteObject>& token, const WindowConfig& windowConfig)
+{
+    return 0;
+}
+
 int MockServiceAbilityManagerService::ScheduleConnectAbilityDone(
     const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& remoteObject)
 {
