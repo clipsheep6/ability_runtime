@@ -95,18 +95,12 @@ void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::Li
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::EXT, "sourceState:%{public}d;targetState:%{public}d;isNewWant:%{public}d",
         lifecycleState_, targetState.state, targetState.isNewWant);
-    if (sessionInfo != nullptr) {
-        TAG_LOGI(AAFwkTag::EXT, "HandleExtensionTransaction sessionInfo%{public}d",sessionInfo->hostWindowId);
-    } else {
-        TAG_LOGI(AAFwkTag::EXT, "HandleExtensionTransaction sessionInfo == null");
-    }
     if (lifecycleState_ == targetState.state) {
         TAG_LOGE(AAFwkTag::EXT, "Org lifeCycleState equals to Dst lifeCycleState.");
         return;
     }
     SetLaunchParam(targetState.launchParam);
     bool ret = true;
-
     switch (targetState.state) {
         case AAFwk::ABILITY_STATE_INITIAL: {
             bool isAsyncCallback = false;
@@ -141,7 +135,6 @@ void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::Li
             break;
         }
     }
-
     if (ret && !UIExtensionAbilityExecuteInsightIntent(want)) {
         TAG_LOGD(AAFwkTag::EXT, "call abilityms");
         AAFwk::PacMap restoreData;

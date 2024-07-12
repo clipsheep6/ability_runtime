@@ -30,8 +30,6 @@
 #include "ui_content.h"
 #endif // SUPPORT_SCREEN
 
-
-
 namespace OHOS {
 namespace AbilityRuntime {
 /**
@@ -61,6 +59,8 @@ public:
      * @return errCode ERR_OK on success, others on failure.
      */
     ErrCode TerminateSelf();
+
+    void SetWindow(sptr<Rosen::Window> window);
 
     sptr<Rosen::Window> GetWindow();
 

@@ -57,6 +57,11 @@ ErrCode UIServiceExtensionContext::TerminateSelf()
     return err;
 }
 
+void UIServiceExtensionContext::SetWindow(sptr<Rosen::Window> window)
+{
+    window_ = window;
+}
+
 sptr<Rosen::Window> UIServiceExtensionContext::GetWindow()
 {
     return window_;
