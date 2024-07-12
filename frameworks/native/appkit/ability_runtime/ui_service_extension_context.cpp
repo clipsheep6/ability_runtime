@@ -93,9 +93,19 @@ ErrCode UIServiceExtensionContext::StartAbilityByType(const std::string &type,
         want.SetFlags(flag);
         wantParam.Remove(FLAG_AUTH_READ_URI_PERMISSION);
     }
-    Ace::ModalUIExtensionCallbacks callback;
-    Ace::ModalUIExtensionConfig config;
-    SetModalUIExtensionCallbackFunc(callback, uiExtensionCallbacks);
+
+    OHOS::Ace::ModalUIExtensionCallbacks callback;
+    OHOS::Ace::ModalUIExtensionConfig config;
+    callback.onError = [uiExtensionCallbacks](int32_t arg, const std::string &str1, const std::string &str2) {
+        uiExtensionCallbacks->OnError(arg);
+    };
+    callback.onRelease = [uiExtensionCallbacks](int32_t arg) {
+        uiExtensionCallbacks->OnRelease(arg);
+    };
+    callback.onResult = [uiExtensionCallbacks](int32_t arg1, const OHOS::AAFwk::Want arg2) {
+        uiExtensionCallbacks->OnResult(arg1, arg2);
+    };
+
     int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
     if (sessionId == 0) {
         TAG_LOGD(AAFwkTag::APPKIT, "CreateModalUIExtension is failed");
@@ -104,51 +114,6 @@ ErrCode UIServiceExtensionContext::StartAbilityByType(const std::string &type,
     uiExtensionCallbacks->SetUIContent(uiContent);
     uiExtensionCallbacks->SetSessionId(sessionId);
     return ERR_OK;
-}
-
-void UIServiceExtensionContext::SetModalUIExtensionCallbackFunc(Ace::ModalUIExtensionCallbacks &callback,
-    const std::shared_ptr<JsUIExtensionCallback> &uiExtensionCallbacks)
-{
-    callback.onError = [uiExtensionCallbacks](int32_t number) {
-        if (uiExtensionCallbacks->env_ == nullptr) {
-            return;
-        }
-        std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
-            ([uiExtensionCallbacks, number](napi_env env, NapiAsyncTask &task, int32_t status) {
-                uiExtensionCallbacks->CallJsError(number);
-            });
-        napi_ref innerCallback = nullptr;
-        std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
-        NapiAsyncTask::Schedule("JsUIExtensionCallback::OnError:", uiExtensionCallbacks->env_,
-            std::make_unique<NapiAsyncTask>(innerCallback, std::move(execute), std::move(complete)));
-        if (uiExtensionCallbacks->uiContent_ == nullptr) {
-            return;
-        }
-        uiExtensionCallbacks->uiContent_->CloseModalUIExtension(uiExtensionCallbacks->sessionId_);
-    }
-    callback.onRelease = [uiExtensionCallbacks](int32_t code) {
-        if (uiExtensionCallbacks->uiContent_ == nullptr) {
-            return;
-        }
-        uiExtensionCallbacks->uiContent_->CloseModalUIExtension(uiExtensionCallbacks->sessionId_);
-    }
-    callback.onResult = [uiExtensionCallbacks](int32_t resultCode, const AAFwk::Want &want) {
-        if (uiExtensionCallbacks->env_ == nullptr) {
-            return;
-        }
-        std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
-            ([uiExtensionCallbacks, resultCode, want](napi_env env, NapiAsyncTask &task, int32_t status) {
-                    uiExtensionCallbacks->CallJsResult(resultCode, want);
-            });
-        napi_ref innerCallback = nullptr;
-        std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
-        NapiAsyncTask::Schedule("JsUIExtensionCallback::OnResult:", uiExtensionCallbacks->env_,
-            std::make_unique<NapiAsyncTask>(innerCallback, std::move(execute), std::move(complete)));
-        if (uiExtensionCallbacks->uiContent_ == nullptr) {
-            return;
-        }
-        uiExtensionCallbacks->uiContent_->CloseModalUIExtension(uiExtensionCallbacks->sessionId_);
-    }
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
