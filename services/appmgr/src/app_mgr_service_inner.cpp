@@ -1435,9 +1435,6 @@ int32_t AppMgrServiceInner::GetAllRunningProcesses(std::vector<RunningProcessInf
         if (!appRecord || !appRecord->GetSpawned()) {
             continue;
         }
-        if (GetUserIdByUid(appRecord->GetUid()) != currentUserId_) {
-            continue;
-        }
         if (isPerm) {
             GetRunningProcesses(appRecord, info);
         } else {
