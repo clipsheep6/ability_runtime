@@ -138,6 +138,7 @@ constexpr const char* FUNC_NAME = "main";
 constexpr const char* RENDER_PARAM = "invalidparam";
 constexpr const char* COLD_START = "coldStart";
 constexpr const char* PERF_CMD = "perfCmd";
+constexpr const char* ERROR_INFO_ENHANCE = "errorInfoEnhance";
 constexpr const char* MULTI_THREAD = "multiThread";
 constexpr const char* DEBUG_CMD = "debugCmd";
 constexpr const char* ENTER_SANDBOX = "sandboxApp";
@@ -1912,6 +1913,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(spt
             appRecord->SetDebugApp(true);
         }
         appRecord->SetPerfCmd(want->GetStringParam(PERF_CMD));
+        appRecord->SetErrorInfoEnhance(want->GetBoolParam(ERROR_INFO_ENHANCE, false));
         appRecord->SetMultiThread(want->GetBoolParam(MULTI_THREAD, false));
         int32_t appIndex = 0;
         (void)AbilityRuntime::StartupUtil::GetAppIndex(*want, appIndex);
@@ -3867,6 +3869,7 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
                 appRecord->SetDebugApp(true);
             }
             appRecord->SetPerfCmd(wantPtr->GetStringParam(PERF_CMD));
+            appRecord->SetErrorInfoEnhance(wantPtr->GetBoolParam(ERROR_INFO_ENHANCE, false));
             appRecord->SetMultiThread(wantPtr->GetBoolParam(MULTI_THREAD, false));
         }
         appRecord->SetProcessAndExtensionType(abilityInfoPtr);

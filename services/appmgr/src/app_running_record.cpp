@@ -453,6 +453,7 @@ void AppRunningRecord::LaunchApplication(const Configuration &config)
     launchData.SetAppIndex(appIndex_);
     launchData.SetDebugApp(isDebugApp_);
     launchData.SetPerfCmd(perfCmd_);
+    launchData.SetErrorInfoEnhance(isErrorInfoEnhance_);
     launchData.SetMultiThread(isMultiThread_);
     launchData.SetJITEnabled(jitEnabled_);
     launchData.SetNativeStart(isNativeStart_);
@@ -1757,6 +1758,11 @@ void AppRunningRecord::SetNativeDebug(bool isNativeDebug)
 void AppRunningRecord::SetPerfCmd(const std::string &perfCmd)
 {
     perfCmd_ = perfCmd;
+}
+
+void AppRunningRecord::SetErrorInfoEnhance(bool errorInfoEnhance)
+{
+    isErrorInfoEnhance_ = errorInfoEnhance;
 }
 
 void AppRunningRecord::SetMultiThread(bool multiThread)
