@@ -133,6 +133,23 @@ int MockServiceAbilityManagerService::AbilityTransitionDone(
     return 0;
 }
 
+int MockServiceAbilityManagerService::AbilityWindowConfigTransitionDone(
+    const sptr<IRemoteObject>& token, const WindowConfig& windowConfig)
+{
+    GTEST_LOG_(INFO) << "MockServiceAbilityManagerService::AbilityWindowConfigTransitionDone startAbility is " <<
+        startAbility;
+    want_.SetElementName("BundleName", "abilityName");
+    if (abilityScheduler_ != nullptr) {
+        want_.SetElementName("BundleName", "abilityName");
+        if (startAbility) {
+            abilityScheduler_->ScheduleCommandAbility(want_, false, -1);
+        } else {
+            abilityScheduler_->ScheduleConnectAbility(want_);
+        }
+    }
+    return 0;
+}
+
 int MockServiceAbilityManagerService::ScheduleConnectAbilityDone(
     const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& remoteObject)
 {

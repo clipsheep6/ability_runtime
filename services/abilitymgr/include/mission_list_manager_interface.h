@@ -28,6 +28,7 @@
 #include "snapshot.h"
 #include "start_options.h"
 #include "want.h"
+#include "window_config.h"
 #include "iability_info_callback.h"
 
 namespace OHOS {

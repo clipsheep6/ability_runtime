@@ -74,6 +74,7 @@ private:
     int MinimizeUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
     int AttachAbilityThreadInner(MessageParcel &data, MessageParcel &reply);
     int AbilityTransitionDoneInner(MessageParcel &data, MessageParcel &reply);
+    int AbilityWindowConfigTransitionDoneInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleConnectAbilityDoneInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleDisconnectAbilityDoneInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleCommandAbilityDoneInner(MessageParcel &data, MessageParcel &reply);

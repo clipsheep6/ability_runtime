@@ -5579,6 +5579,27 @@ int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &toke
     }
 }
 
+int AbilityManagerService::AbilityWindowConfigTransitionDone(
+    const sptr<IRemoteObject> &token, const WindowConfig &windowConfig)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && !VerificationAllToken(token)) {
+        return ERR_INVALID_VALUE;
+    }
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    CHECK_POINTER_AND_RETURN_LOG(abilityRecord, ERR_INVALID_VALUE, "Ability record is nullptr.");
+    if (!JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    auto abilityInfo = abilityRecord->GetAbilityInfo();
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Lifecycle: ability: %{public}s.", abilityRecord->GetURI().c_str());
+    int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
+    auto uiAbilityManager = GetUIAbilityManagerByUserId(ownerMissionUserId);
+    CHECK_POINTER_AND_RETURN(uiAbilityManager, ERR_INVALID_VALUE);
+    return uiAbilityManager->AbilityWindowConfigTransactionDone(token, windowConfig);
+}
+
 int AbilityManagerService::ScheduleConnectAbilityDone(
     const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &remoteObject)
 {

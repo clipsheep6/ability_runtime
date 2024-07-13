@@ -50,6 +50,7 @@ public:
     MOCK_METHOD2(ReleaseDataAbility, int(sptr<IAbilityScheduler>, const sptr<IRemoteObject>&));
     MOCK_METHOD2(AttachAbilityThread, int(const sptr<IAbilityScheduler>& scheduler, const sptr<IRemoteObject>& token));
     MOCK_METHOD3(AbilityTransitionDone, int(const sptr<IRemoteObject>& token, int state, const PacMap&));
+    MOCK_METHOD2(AbilityWindowConfigTransitionDone, int(const sptr<IRemoteObject>& token, const WindowConfig&));
     MOCK_METHOD2(
         ScheduleConnectAbilityDone, int(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& remoteObject));
     MOCK_METHOD1(ScheduleDisconnectAbilityDone, int(const sptr<IRemoteObject>& token));

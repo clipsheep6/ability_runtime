@@ -183,6 +183,11 @@ public:
         return 0;
     }
 
+    virtual int AbilityWindowConfigTransitionDone(const sptr<IRemoteObject>& token, const WindowConfig& windowConfig)
+    {
+        return 0;
+    }
+
     virtual int ScheduleConnectAbilityDone(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& remoteObject)
     {
         return 0;

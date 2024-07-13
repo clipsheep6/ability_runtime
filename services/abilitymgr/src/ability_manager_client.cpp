@@ -107,6 +107,14 @@ ErrCode AbilityManagerClient::AbilityTransitionDone(sptr<IRemoteObject> token, i
     return abms->AbilityTransitionDone(token, state, saveData);
 }
 
+ErrCode AbilityManagerClient::AbilityWindowConfigTransitionDone(
+    sptr<IRemoteObject> token, const WindowConfig &windowConfig)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->AbilityWindowConfigTransitionDone(token, windowConfig);
+}
+
 ErrCode AbilityManagerClient::ScheduleConnectAbilityDone(
     sptr<IRemoteObject> token, sptr<IRemoteObject> remoteObject)
 {
