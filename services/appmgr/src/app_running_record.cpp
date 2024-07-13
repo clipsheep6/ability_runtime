@@ -1152,7 +1152,6 @@ void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
     auto appRecord = shared_from_this();
     auto cacheProcMgr = DelayedSingleton<CacheProcessManager>::GetInstance();
     bool needCache = false;
-    cacheProcMgr->UpdateTypeByAbility(abilityRecord, appRecord);
     if (cacheProcMgr != nullptr && cacheProcMgr->IsAppShouldCache(appRecord)) {
         cacheProcMgr->CheckAndCacheProcess(appRecord);
         TAG_LOGI(AAFwkTag::APPMGR, "App %{public}s should cache, not remove module and terminate app.",
@@ -2334,6 +2333,16 @@ void AppRunningRecord::SetAttachedToStatusBar(bool isAttached)
 bool AppRunningRecord::IsAttachedToStatusBar()
 {
     return isAttachedToStatusBar;
+}
+
+void AppRunningRecord::SetProcessCacheBlocked(bool isBlocked)
+{
+    processCacheBlocked = isBlocked;
+}
+
+bool AppRunningRecord::GetProcessCacheBlocked()
+{
+    return processCacheBlocked;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

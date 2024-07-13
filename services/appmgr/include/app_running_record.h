@@ -825,6 +825,9 @@ public:
     {
         return isDependedOnArkWeb_;
     }
+
+    void SetProcessCacheBlocked(bool isBlocked);
+    bool GetProcessCacheBlocked();
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -982,6 +985,7 @@ private:
     bool isNativeStart_ = false;
     bool isMultiThread_ = false;
     SupportProcessCacheState procCacheSupportState_ = SupportProcessCacheState::UNSPECIFIED;
+    bool processCacheBlocked = false; // temporarily block process cache feature
     sptr<IRemoteObject> browserHost_;
     bool isGPU_ = false;
     pid_t gpuPid_ = 0;

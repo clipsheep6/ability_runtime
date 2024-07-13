@@ -20,6 +20,7 @@
 #include <deque>
 #include <mutex>
 #include <set>
+#include <unordered_set>
 #include "singleton.h"
 #include "app_running_record.h"
 #include "cpp/mutex.h"
@@ -41,9 +42,6 @@ public:
     bool IsAppShouldCache(const std::shared_ptr<AppRunningRecord> &appRecord);
     void RefreshCacheNum();
     std::string PrintCacheQueue();
-    void UpdateTypeByToken(const sptr<IRemoteObject> &token, const std::shared_ptr<AppRunningRecord> &appRecord);
-    void UpdateTypeByAbility(const std::shared_ptr<AbilityRunningRecord> &abilityRecord,
-        const std::shared_ptr<AppRunningRecord> &appRecord);
     void PrepareActivateCache(const std::shared_ptr<AppRunningRecord> &appRecord);
 private:
     bool IsAppAbilitiesEmpty(const std::shared_ptr<AppRunningRecord> &appRecord);
@@ -54,6 +52,7 @@ private:
     void AddToApplicationSet(const std::shared_ptr<AppRunningRecord> &appRecord);
     void RemoveFromApplicationSet(const std::shared_ptr<AppRunningRecord> &appRecord);
     bool CheckAndNotifyCachedState(const std::shared_ptr<AppRunningRecord> &appRecord);
+    bool IsAppContainsSrvExt(const std::shared_ptr<AppRunningRecord> &appRecord);
     bool IsAppSupportProcessCacheInnerFirst(const std::shared_ptr<AppRunningRecord> &appRecord);
     int32_t maxProcCacheNum_ = 0;
     std::deque<std::shared_ptr<AppRunningRecord>> cachedAppRecordQueue_;
@@ -66,6 +65,8 @@ private:
     std::map<std::string, std::map<int32_t, std::set<std::shared_ptr<AppRunningRecord>>>> sameAppSet;
     // stores records that are servcie extension
     std::set<std::shared_ptr<AppRunningRecord>> srvExtRecords;
+    // stores records that has been checked service extension
+    std::unordered_set<std::shared_ptr<AppRunningRecord>> srvExtCheckedFlag;
 };
 } // namespace OHOS
 } // namespace AppExecFwk

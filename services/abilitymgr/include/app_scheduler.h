@@ -434,6 +434,8 @@ public:
      */
     void AttachedToStatusBar(const sptr<IRemoteObject> &token);
 
+    void BlockProcessCacheByPids(const std::vector<int32_t>& pids);
+
 protected:
     /**
      * OnAbilityRequestDone, app manager service call this interface after ability request done.

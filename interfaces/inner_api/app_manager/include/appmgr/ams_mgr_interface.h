@@ -314,6 +314,13 @@ public:
      */
     virtual void AttachedToStatusBar(const sptr<IRemoteObject> &token) {}
 
+    /**
+     * Temporarily block the process cache feature.
+     *
+     * @param pids the pids of the processes that should be blocked.
+     */
+    virtual void BlockProcessCacheByPids(const std::vector<int32_t> &pids) {}
+
     enum class Message {
         LOAD_ABILITY = 0,
         TERMINATE_ABILITY,
@@ -359,6 +366,7 @@ public:
         SET_KEEP_ALIVE_ENABLE_STATE,
         NOTIFY_APP_MGR_RECORD_EXIT_REASON,
         ATTACHED_TO_STATUS_BAR,
+        BLOCK_PROCESS_CACHE_BY_PIDS,
     };
 };
 }  // namespace AppExecFwk

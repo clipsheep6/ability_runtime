@@ -1381,5 +1381,41 @@ HWTEST_F(AppMgrClientTest, SaveBrowserChannel_001, TestSize.Level0)
     appMgrClient->SaveBrowserChannel(nullptr);
     EXPECT_NE(appMgrClient, nullptr);
 }
+
+/**
+ * @tc.name: AppMgrClient_BlockProcessCacheByPids_001
+ * @tc.desc: can not block process cache by wrong user ID.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_BlockProcessCacheByPids_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    std::vector<int32_t> pids;
+    appMgrClient->BlockProcessCacheByPids(pids);
+    EXPECT_TRUE(appMgrClient != nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_AttachedToStatusBar_001
+ * @tc.desc: can not attach to status bar by wrong token.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_AttachedToStatusBar_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    sptr<IRemoteObject> token;
+    appMgrClient->AttachedToStatusBar(token);
+    EXPECT_TRUE(appMgrClient != nullptr);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

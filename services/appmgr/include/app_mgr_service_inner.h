@@ -1143,6 +1143,8 @@ public:
     void KillProcessDependedOnWeb();
 
     void RestartResidentProcessDependedOnWeb();
+
+    void BlockProcessCacheByPids(const std::vector<int32_t>& pids);
 private:
 
     std::string FaultTypeToString(FaultDataType type);

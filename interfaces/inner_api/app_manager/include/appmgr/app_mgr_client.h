@@ -768,6 +768,13 @@ public:
     int32_t NotifyProcessDependedOnWeb();
 
     void KillProcessDependedOnWeb();
+    
+    /**
+     * Temporarily block the process cache feature.
+     *
+     * @param pids the pids of the processes that should be blocked.
+     */
+    virtual AppMgrResultCode BlockProcessCacheByPids(const std::vector<int32_t> &pids);
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
     /**

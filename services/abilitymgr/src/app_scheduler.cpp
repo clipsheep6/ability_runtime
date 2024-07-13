@@ -600,5 +600,12 @@ void AppScheduler::AttachedToStatusBar(const sptr<IRemoteObject> &token)
     CHECK_POINTER(appMgrClient_);
     appMgrClient_->AttachedToStatusBar(token);
 }
+
+void AppScheduler::BlockProcessCacheByPids(const std::vector<int32_t> &pids)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called.");
+    CHECK_POINTER(appMgrClient_);
+    appMgrClient_->BlockProcessCacheByPids(pids);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
