@@ -1137,6 +1137,9 @@ public:
     void RestartResidentProcessDependedOnWeb();
 
     void BlockProcessCacheByPids(const std::vector<int32_t>& pids);
+
+    bool IsKilledForUpgradeWeb(const std::string &bundleName) const;
+
 private:
 
     std::string FaultTypeToString(FaultDataType type);

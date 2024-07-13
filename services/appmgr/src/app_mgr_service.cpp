@@ -1569,8 +1569,8 @@ int32_t AppMgrService::NotifyProcessDependedOnWeb()
 void AppMgrService::KillProcessDependedOnWeb()
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called.");
-    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "caller is not SA.");
+    if (!AAFwk::PermissionVerification::GetInstance()->VerifyKillProcessDependedOnWebPermission()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "caller have not permission.");
         return;
     }
     if (!appMgrServiceInner_) {

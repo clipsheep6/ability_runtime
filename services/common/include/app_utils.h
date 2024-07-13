@@ -55,6 +55,7 @@ public:
     int32_t GetLimitMaximumExtensionsPerProc();
     int32_t GetLimitMaximumExtensionsPerDevice();
     std::string GetCacheExtensionTypeList();
+    std::string GetWebBundleName();
 
 private:
     void LoadResidentProcessInExtremeMemory();

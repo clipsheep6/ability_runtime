@@ -38,12 +38,13 @@ public:
     ~ExitResidentProcessManager();
     bool IsMemorySizeSufficent() const;
     bool RecordExitResidentBundleName(const std::string &bundleName);
-    bool RecordExitResidentBundleDependedOnWeb(const std::string &bundleName);
+    void RecordExitResidentBundleDependedOnWeb(const std::string &bundleName);
     int32_t HandleMemorySizeInSufficent();
     int32_t HandleMemorySizeSufficent(std::vector<std::string>& bundleNames);
     void HandleExitResidentBundleDependedOnWeb(std::vector<std::string>& bundleNames);
     void QueryExitBundleInfos(const std::vector<std::string>& exitBundleNames,
         std::vector<AppExecFwk::BundleInfo>& exitBundleInfos);
+    bool IsKilledForUpgradeWeb(const std::string &bundleName) const;
 
 private:
     ExitResidentProcessManager();
