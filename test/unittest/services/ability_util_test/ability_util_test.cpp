@@ -44,6 +44,7 @@ void AbilityUtilTest::SetUp()
 void AbilityUtilTest::TearDown()
 {}
 
+#ifdef WITH_DLP
 /**
  * @tc.name: HandleDlpApp_0100
  * @tc.desc: HandleDlpApp Test
@@ -130,6 +131,7 @@ HWTEST_F(AbilityUtilTest, HandleDlpApp_0600, TestSize.Level0)
     bool result = AbilityUtil::HandleDlpApp(want);
     EXPECT_FALSE(result);
 }
+#endif // WITH_DLP
 
 /**
  * @tc.name: ProcessWindowMode_0100

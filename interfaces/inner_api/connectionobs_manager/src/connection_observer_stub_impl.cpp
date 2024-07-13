@@ -37,6 +37,7 @@ void ConnectionObserverStubImpl::OnExtensionDisconnected(const ConnectionData &d
     owner->HandleExtensionDisconnected(data);
 }
 
+#ifdef WITH_DLP
 void ConnectionObserverStubImpl::OnDlpAbilityOpened(const DlpStateData &data)
 {
     auto owner = owner_.lock();
@@ -54,5 +55,6 @@ void ConnectionObserverStubImpl::OnDlpAbilityClosed(const DlpStateData &data)
     }
     owner->HandleDlpAbilityClosed(data);
 }
+#endif // WITH_DLP
 }  // namespace AbilityRuntime
 }  // namespace OHOS

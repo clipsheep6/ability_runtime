@@ -61,10 +61,12 @@ public:
     {}
     void OnExtensionDisconnected(const ConnectionData& data) override
     {}
+#ifdef WITH_DLP
     void OnDlpAbilityOpened(const DlpStateData& data) override
     {}
     void OnDlpAbilityClosed(const DlpStateData& data) override
     {}
+#endif // WITH_DLP
     sptr<IRemoteObject> AsObject() override
     {
         return {};
@@ -128,9 +130,11 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     connectionObserverController->RemoveObserver(observer);
     connectionObserverController->NotifyExtensionConnected(connectionData);
     connectionObserverController->NotifyExtensionDisconnected(connectionData);
+#ifdef WITH_DLP
     AbilityRuntime::DlpStateData dlpStateData;
     connectionObserverController->NotifyDlpAbilityOpened(dlpStateData);
     connectionObserverController->NotifyDlpAbilityClosed(dlpStateData);
+#endif // WITH_DLP
     connectionObserverController->GetObservers();
     wptr<IRemoteObject> remote;
     connectionObserverController->HandleRemoteDied(remote);
@@ -198,14 +202,18 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     connectionStateManager->CheckDataAbilityConnectionParams(dataCaller, dataAbility);
     connectionStateManager->HandleDataAbilityDied(dataAbility);
     connectionStateManager->HandleDataAbilityCallerDied(int32Param);
+#ifdef WITH_DLP
     std::shared_ptr<AbilityRecord> dlpManger = GetFuzzAbilityRecord();
     connectionStateManager->AddDlpManager(dlpManger);
     connectionStateManager->RemoveDlpManager(dlpManger);
     connectionStateManager->AddDlpAbility(dlpManger);
     connectionStateManager->RemoveDlpAbility(dlpManger);
+#endif // WITH_DLP
     connectionStateManager->HandleAppDied(int32Param);
+#ifdef WITH_DLP
     std::vector<AbilityRuntime::DlpConnectionInfo> infos;
     connectionStateManager->GetDlpConnectionInfos(infos);
+#endif // WITH_DLP
     connectionStateManager->AddConnectionInner(connectionRecord, connectionData);
     connectionStateManager->RemoveConnectionInner(connectionRecord, connectionData);
     connectionStateManager->HandleCallerDied(int32Param);
@@ -213,8 +221,10 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     connectionStateManager->AddDataAbilityConnectionInner(dataCaller, dataAbility, connectionData);
     connectionStateManager->RemoveDataAbilityConnectionInner(dataCaller, dataAbility, connectionData);
     connectionStateManager->HandleDataAbilityDiedInner(token, datas);
+#ifdef WITH_DLP
     AbilityRuntime::DlpStateData dlpData;
     connectionStateManager->HandleDlpAbilityInner(dlpManger, boolParam, dlpData);
+#endif // WITH_DLP
     connectionStateManager->InitAppStateObserver();
     if (want) {
         delete want;

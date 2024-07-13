@@ -54,12 +54,16 @@ int32_t ConnectionObserverClient::UnregisterObserver(const std::shared_ptr<Conne
 
 int32_t ConnectionObserverClient::GetDlpConnectionInfos(std::vector<DlpConnectionInfo> &infos)
 {
+#ifdef WITH_DLP
     if (!clientImpl_) {
         TAG_LOGE(AAFwkTag::CONNECTION, "ConnectionObserverClient::GetDlpConnectionInfos impl is nullptr.");
         return ERR_NO_CLIENT_IMPL;
     }
 
     return clientImpl_->GetDlpConnectionInfos(infos);
+#else
+    return ERR_READ_INFO_FAILED;
+#endif // WITH_DLP
 }
 
 int32_t ConnectionObserverClient::GetConnectionData(std::vector<ConnectionData> &connectionData)

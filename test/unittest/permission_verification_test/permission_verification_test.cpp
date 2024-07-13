@@ -24,7 +24,9 @@ using namespace OHOS::AppExecFwk;
 namespace OHOS {
 namespace AAFwk {
 namespace {
+#ifdef WITH_DLP
 const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
+#endif // WITH_DLP
 }
 class PermissionVerificationTest : public testing::Test {
 public:
@@ -158,6 +160,7 @@ HWTEST_F(PermissionVerificationTest, VerifyControllerPerm_0100, TestSize.Level0)
     EXPECT_FALSE(result);
 }
 
+#ifdef WITH_DLP
 /**
  * @tc.name: VerifyDlpPermission_0100
  * @tc.desc: VerifyDlpPermission Test
@@ -171,6 +174,7 @@ HWTEST_F(PermissionVerificationTest, VerifyDlpPermission_0100, TestSize.Level0)
     bool result = AAFwk::PermissionVerification::GetInstance()->VerifyDlpPermission(want);
     EXPECT_FALSE(result);
 }
+#endif // WITH_DLP
 
 /**
  * @tc.name: VerifyMissionPermission_0100

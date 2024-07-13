@@ -26,8 +26,10 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
+#ifdef WITH_DLP
 const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 const std::string DLP_ABILITY_NAME = "SaveAsAbility";
+#endif // WITH_DLP
 
 class EmptyConnection : public IRemoteStub<IAbilityConnection> {
 public:
@@ -52,10 +54,12 @@ bool StartAbilitySandboxSavefile::MatchStartRequest(StartAbilityParams &params)
     }
 
     auto element = params.want.GetElement();
+#ifdef WITH_DLP
     if (element.GetBundleName() == DLP_BUNDLE_NAME && element.GetAbilityName() == DLP_ABILITY_NAME &&
         !ContainRecord(params.requestCode)) {
         return true;
     }
+#endif // WITH_DLP
     return false;
 }
 
@@ -69,14 +73,18 @@ int StartAbilitySandboxSavefile::HandleStartRequest(StartAbilityParams &params)
         return CHECK_PERMISSION_FAILED;
     }
 
+#ifdef WITH_DLP
     if (!params.SandboxExternalAuth()) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "sandbox external auth failed");
         return CHECK_PERMISSION_FAILED;
     }
+#endif // WITH_DLP
 
     auto reqCode = PushRecord(params.requestCode, callerRecord);
     auto &want = params.want;
+#ifdef WITH_DLP
     want.SetElementName(DLP_BUNDLE_NAME, DLP_ABILITY_NAME);
+#endif // WITH_DLP
     want.SetParam("requestCode", reqCode);
     want.SetParam("startMode", std::string("save_redirect"));
 

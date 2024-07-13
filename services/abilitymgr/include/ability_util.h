@@ -37,6 +37,8 @@ namespace AbilityUtil {
 constexpr const char* SYSTEM_BASIC = "system_basic";
 constexpr const char* SYSTEM_CORE = "system_core";
 constexpr const char* DEFAULT_DEVICE_ID = "";
+
+#ifdef WITH_DLP
 constexpr const char* DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 constexpr const char* DLP_MODULE_NAME = "entry";
 constexpr const char* DLP_ABILITY_NAME = "ViewAbility";
@@ -44,6 +46,7 @@ constexpr const char* DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
 constexpr const char* DLP_PARAMS_BUNDLE_NAME = "ohos.dlp.params.bundleName";
 constexpr const char* DLP_PARAMS_MODULE_NAME = "ohos.dlp.params.moduleName";
 constexpr const char* DLP_PARAMS_ABILITY_NAME = "ohos.dlp.params.abilityName";
+#endif // WITH_DLP
 constexpr const char* MARKET_BUNDLE_NAME = "com.huawei.hmsapp.appgallery";
 constexpr const char* MARKET_CROWD_TEST_BUNDLE_PARAM = "crowd_test_bundle_name";
 constexpr const char* BUNDLE_NAME_SELECTOR_DIALOG = "com.ohos.amsdialog";
@@ -211,6 +214,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     return ret == ERR_OK;
 }
 
+#ifdef WITH_DLP
 [[maybe_unused]] static bool HandleDlpApp(Want &want)
 {
     const std::unordered_set<std::string> whiteListDlpSet = { BUNDLE_NAME_SELECTOR_DIALOG };
@@ -232,6 +236,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
 
     return false;
 }
+#endif // WITH_DLP
 
 [[maybe_unused]] static bool IsStartIncludeAtomicService(const Want &want, const int32_t userId)
 {

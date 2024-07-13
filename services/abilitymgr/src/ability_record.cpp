@@ -83,7 +83,9 @@ const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
 const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
 const std::u16string SYSTEM_ABILITY_TOKEN_CALLBACK = u"ohos.aafwk.ISystemAbilityTokenCallback";
 const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
+#ifdef WITH_DLP
 const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
+#endif // WITH_DLP
 const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
 const std::string KEY_MISSION_ID = "ohos.anco.param.missionId";
 const std::string NEED_STARTINGWINDOW = "ohos.ability.NeedStartingWindow";
@@ -1296,7 +1298,9 @@ int AbilityRecord::TerminateAbility()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "ability:%{public}s.", abilityInfo_.name.c_str());
+#ifdef WITH_DLP
     HandleDlpClosed();
+#endif // WITH_DLP
     AAFwk::EventInfo eventInfo;
     eventInfo.bundleName = GetAbilityInfo().bundleName;
     eventInfo.abilityName = GetAbilityInfo().name;
@@ -1480,7 +1484,9 @@ void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
         pid_ = static_cast<int32_t>(IPCSkeleton::GetCallingPid()); // set pid when ability attach to service.
         // add collaborator mission bind pid
         NotifyMissionBindPid();
+#ifdef WITH_DLP
         HandleDlpAttached();
+#endif // WITH_DLP
     } else {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "scheduler is nullptr");
         isReady_ = false;
@@ -1638,7 +1644,9 @@ void AbilityRecord::Terminate(const Closure &task)
     } else {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "Is debug mode, no need to handle time out.");
     }
+#ifdef WITH_DLP
     HandleDlpClosed();
+#endif // WITH_DLP
     // schedule background after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
 #ifdef SUPPORT_SCREEN
@@ -2492,7 +2500,9 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 #ifdef SUPPORT_GRAPHICS
     NotifyAnimationAbilityDied();
 #endif
+#ifdef WITH_DLP
     HandleDlpClosed();
+#endif // WITH_DLP
     NotifyRemoveShellProcess(CollaboratorType::RESERVE_TYPE);
     NotifyRemoveShellProcess(CollaboratorType::OTHERS_TYPE);
     FreezeUtil::GetInstance().DeleteLifecycleEvent(object);
@@ -2527,7 +2537,9 @@ void AbilityRecord::OnProcessDied()
 #ifdef SUPPORT_GRAPHICS
     NotifyAnimationAbilityDied();
 #endif
+#ifdef WITH_DLP
     HandleDlpClosed();
+#endif // WITH_DLP
     NotifyRemoveShellProcess(CollaboratorType::RESERVE_TYPE);
     NotifyRemoveShellProcess(CollaboratorType::OTHERS_TYPE);
 }
@@ -3310,6 +3322,7 @@ void AbilityRecord::RevokeUriPermission()
     }
 }
 
+#ifdef WITH_DLP
 void AbilityRecord::HandleDlpAttached()
 {
     if (abilityInfo_.bundleName == DLP_BUNDLE_NAME) {
@@ -3331,6 +3344,7 @@ void AbilityRecord::HandleDlpClosed()
         DelayedSingleton<ConnectionStateManager>::GetInstance()->RemoveDlpAbility(shared_from_this());
     }
 }
+#endif // WITH_DLP
 
 void AbilityRecord::NotifyRemoveShellProcess(int32_t type)
 {

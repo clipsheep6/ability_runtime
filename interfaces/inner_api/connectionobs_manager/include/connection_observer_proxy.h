@@ -36,9 +36,11 @@ public:
 
     virtual void OnExtensionDisconnected(const ConnectionData &connectionData) override;
 
+#ifdef WITH_DLP
     virtual void OnDlpAbilityOpened(const DlpStateData &dlpData) override;
 
     virtual void OnDlpAbilityClosed(const DlpStateData &dlpData) override;
+#endif // WITH_DLP
 
 private:
     static inline BrokerDelegator<ConnectionObserverProxy> delegator_;

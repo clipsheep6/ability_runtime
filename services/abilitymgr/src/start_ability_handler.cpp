@@ -15,7 +15,9 @@
 
 #include "start_ability_handler.h"
 
+#ifdef WITH_DLP
 #include "dlp_utils.h"
+#endif // WITH_DLP
 
 namespace OHOS {
 namespace AAFwk {
@@ -24,6 +26,7 @@ bool StartAbilityParams::IsCallerSandboxApp()
     return GetCallerAppIndex() > 0;
 }
 
+#ifdef WITH_DLP
 bool StartAbilityParams::OtherAppsAccessDlp()
 {
     if (otherAppsAccessDlp.has_value()) {
@@ -55,6 +58,7 @@ bool StartAbilityParams::SandboxExternalAuth()
     sandboxExternalAuth = DlpUtils::SandboxAuthCheck(*record, want);
     return sandboxExternalAuth.value();
 }
+#endif // WITH_DLP
 
 bool StartAbilityParams::IsCallerSysApp()
 {

@@ -244,6 +244,7 @@ std::string ImplicitStartProcessor::MatchTypeAndUri(const AAFwk::Want &want)
             return "";
         }
         type = uri.substr(suffixIndex);
+#ifdef WITH_DLP
         if (type == ".dlp") {
             auto suffixDlpIndex = uri.rfind('.', suffixIndex - 1);
             if (suffixDlpIndex == std::string::npos) {
@@ -252,6 +253,7 @@ std::string ImplicitStartProcessor::MatchTypeAndUri(const AAFwk::Want &want)
             }
             type = uri.substr(suffixDlpIndex, suffixIndex - suffixDlpIndex);
         }
+#endif // WITH_DLP
     }
     return type;
 }

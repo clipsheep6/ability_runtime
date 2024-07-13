@@ -23,7 +23,9 @@
 #include "connection_data.h"
 #include "connection_observer_client.h"
 #include "connection_observer_client_impl.h"
+#ifdef WITH_DLP
 #include "dlp_state_data.h"
+#endif // WITH_DLP
 #include "hilog_tag_wrapper.h"
 #include "mock_native_token.h"
 #include "parcel.h"
@@ -162,6 +164,7 @@ HWTEST_F(ConnectionObserverTest, ConnectionObserver_Data_0100, TestSize.Level1)
     TAG_LOGI(AAFwkTag::TEST, "ConnectionObserver_Data_0100 end");
 }
 
+#ifdef WITH_DLP
 /**
  * @tc.name: ConnectionObserver_Data_0200
  * @tc.desc: DlpState data test.
@@ -298,5 +301,6 @@ HWTEST_F(ConnectionObserverTest, ConnectionObserver_Observer_0200, TestSize.Leve
     SetSelfTokenID(currentID);
     TAG_LOGI(AAFwkTag::TEST, "ConnectionObserver_Observer_0200 end");
 }
+#endif // WITH_DLP
 }  // namespace AbilityRuntime
 }  // namespace OHOS

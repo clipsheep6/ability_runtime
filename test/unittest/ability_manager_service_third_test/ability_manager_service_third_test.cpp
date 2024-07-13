@@ -2208,6 +2208,7 @@ HWTEST_F(AbilityManagerServiceThirdTest, ChangeUIAbilityVisibilityBySCB_001, Tes
     EXPECT_EQ(result, ERR_WRONG_INTERFACE_CALL);
 }
 
+#ifdef WITH_DLP
 /*
  * Feature: AbilityManagerService
  * Function: StartExtensionAbilityInner
@@ -2267,6 +2268,36 @@ HWTEST_F(AbilityManagerServiceThirdTest, StartExtensionAbilityInner_003, TestSiz
         isImplicit, isDlp);
     EXPECT_EQ(result, ERR_INVALID_CALLER);
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartExtensionAbilityInner
+ * FunctionPoints: AbilityManagerService StartExtensionAbilityInner
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, StartExtensionAbilityInner_004, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest StartExtensionAbilityInner_004 start");
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    int32_t userId = 0;
+    AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::VPN;
+    bool checkSystemCaller = true;
+    bool isImplicit = true;
+    bool isDlp = true;
+    abilityMs->interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
+    abilityMs->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    auto result = abilityMs->StartExtensionAbilityInner(want, callerToken, userId, extensionType, checkSystemCaller,
+        isImplicit, isDlp);
+    EXPECT_EQ(result, ERR_IMPLICIT_START_ABILITY_FAIL);
+
+    abilityMs-> implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
+    result = abilityMs->StartExtensionAbilityInner(want, callerToken, userId, extensionType, checkSystemCaller,
+        isImplicit, isDlp);
+    EXPECT_EQ(result, ERR_IMPLICIT_START_ABILITY_FAIL);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest StartExtensionAbilityInner_004 end");
+}
+#endif // WITH_DLP
 
 /*
  * Feature: AbilityManagerService
