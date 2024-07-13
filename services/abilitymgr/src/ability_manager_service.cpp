@@ -11361,15 +11361,15 @@ ErrCode AbilityManagerService::ConvertToExplicitWant(Want& want)
         callbackDoneCv.notify_all();
         TAG_LOGI(AAFwkTag::ABILITYMGR, "convert callback task finished");
     };
-    sptr<OHOS::AppDomainVerify::IConvertCallback> callback = new ConvertCallbackImpl(std::move(task));
+    sptr<ConvertCallbackImpl> callbackTask = new ConvertCallbackImpl(std::move(task));
+    sptr<OHOS::AppDomainVerify::IConvertCallback> callback = callbackTask;
     AppDomainVerify::AppDomainVerifyMgrClient::GetInstance()->ConvertToExplicitWant(want, callback);
-    auto condition = [&isUsed] {
-        return isUsed;
-    };
+    auto condition = [&isUsed] { return isUsed; };
     std::unique_lock<ffrt::mutex> lock(callbackDoneMutex);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "start to wait for condition.");
     if (!callbackDoneCv.wait_for(lock, seconds(CONVERT_CALLBACK_TIMEOUT_SECONDS), condition)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "convert callback timeout.");
+        callbackTask->Cancel();
         retCode = ERR_TIMED_OUT;
     }
     TAG_LOGI(AAFwkTag::ABILITYMGR, "finish wait for condition.");

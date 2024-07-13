@@ -20,6 +20,8 @@
 
 #include <functional>
 
+#include "ffrt.h"
+
 namespace OHOS {
 namespace AAFwk {
 using ConvertCallbackTask = std::function<void(int, AAFwk::Want&)>;
@@ -34,7 +36,10 @@ public:
 
     void OnConvert(int resultCode, AAFwk::Want& want) override;
 
+    void Cancel();
+
 private:
+    ffrt::mutex taskMutex_;
     ConvertCallbackTask task_;
 };
 } // namespace AAFwk

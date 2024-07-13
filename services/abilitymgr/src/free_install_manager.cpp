@@ -433,8 +433,14 @@ void FreeInstallManager::StartAbilityByOriginalWant(FreeInstallInfo &info, const
 {
     auto identity = IPCSkeleton::ResetCallingIdentity();
     IPCSkeleton::SetCallingIdentity(info.identity);
-    int32_t result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(*(info.originalWant),
-        info.callerToken, info.userId, info.requestCode);
+    int result = ERR_INVALID_VALUE;
+    if (info.originalWant) {
+        TAG_LOGI(AAFwkTag::FREE_INSTALL, "starting ability by the original want.");
+        result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(*(info.originalWant),
+            info.callerToken, info.userId, info.requestCode);
+    } else {
+        TAG_LOGE(AAFwkTag::FREE_INSTALL, "The original want is nullptr.");
+    }
     IPCSkeleton::SetCallingIdentity(identity);
     TAG_LOGI(AAFwkTag::FREE_INSTALL, "The result of StartAbility is %{public}d.", result);
     auto url = info.want.GetUriString();
