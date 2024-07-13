@@ -7931,6 +7931,13 @@ int AbilityManagerService::DelegatorMoveMissionToFront(int32_t missionId)
 void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (StartAbilityUtils::IsCallFromAncoShellOrBroker(callerToken)) {
+        int32_t callerUid = want.GetIntParam(Want::PARAM_RESV_CALLER_UID, -1);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "call from anco or broker, callerUid: %{public}d.", callerUid);
+        if (callerUid != -1) {
+            return;
+        }
+    }
     int32_t tokenId = static_cast<int32_t>(IPCSkeleton::GetCallingTokenID());
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     int32_t callerPid = IPCSkeleton::GetCallingPid();

@@ -31,6 +31,8 @@ namespace AAFwk {
 namespace {
 constexpr const char* SCREENSHOT_BUNDLE_NAME = "com.huawei.ohos.screenshot";
 constexpr const char* SCREENSHOT_ABILITY_NAME = "com.huawei.ohos.screenshot.ServiceExtAbility";
+constexpr const char* SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
+constexpr int32_t BROKER_UID = 5557;
 }
 thread_local std::shared_ptr<StartAbilityInfo> StartAbilityUtils::startAbilityInfo;
 thread_local std::shared_ptr<StartAbilityInfo> StartAbilityUtils::callerAbilityInfo;
@@ -128,11 +130,19 @@ StartAbilityInfoWrap::StartAbilityInfoWrap(const Want &want, int32_t validUserId
         isExtension = true;
         StartAbilityUtils::skipErms = true;
     }
+    Want localWant = want;
+    if (!StartAbilityUtils::IsCallFromAncoShellOrBroker(callerToken)) {
+        localWant.RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
+        localWant.RemoveParam(Want::PARAM_RESV_CALLER_UID);
+        localWant.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+        localWant.SetParam(Want::PARAM_RESV_CALLER_TOKEN, static_cast<int32_t>(IPCSkeleton::GetCallingTokenID()));
+        localWant.SetParam(Want::PARAM_RESV_CALLER_UID, IPCSkeleton::GetCallingUid());
+    }
     if (isExtension) {
-        StartAbilityUtils::startAbilityInfo = StartAbilityInfo::CreateStartExtensionInfo(want,
+        StartAbilityUtils::startAbilityInfo = StartAbilityInfo::CreateStartExtensionInfo(localWant,
             validUserId, appIndex);
     } else {
-        StartAbilityUtils::startAbilityInfo = StartAbilityInfo::CreateStartAbilityInfo(want,
+        StartAbilityUtils::startAbilityInfo = StartAbilityInfo::CreateStartAbilityInfo(localWant,
             validUserId, appIndex);
     }
     if (StartAbilityUtils::startAbilityInfo != nullptr &&
@@ -287,6 +297,19 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateCallerAbilityInfo(cons
     auto request = std::make_shared<StartAbilityInfo>();
     request->abilityInfo = abilityRecord->GetAbilityInfo();
     return request;
+}
+
+bool StartAbilityUtils::IsCallFromAncoShellOrBroker(const sptr<IRemoteObject> &callerToken)
+{
+    auto callingUid = IPCSkeleton::GetCallingUid();
+    if (callingUid == BROKER_UID) {
+        return true;
+    }
+    AppExecFwk::AbilityInfo callerAbilityInfo;
+    if (GetCallerAbilityInfo(callerToken, callerAbilityInfo)) {
+        return callerAbilityInfo.bundleName == SHELL_ASSISTANT_BUNDLENAME;
+    }
+    return false;
 }
 }
 }
