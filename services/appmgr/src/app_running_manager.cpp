@@ -166,6 +166,21 @@ bool AppRunningManager::CheckAppRunningRecordIsExistByBundleName(const std::stri
     return false;
 }
 
+bool AppRunningManager::CheckAppRunningRecordIsExistByUid(int32_t uid)
+{
+    std::lock_guard guard(runningRecordMapMutex_);
+    if (appRunningRecordMap_.empty()) {
+        return false;
+    }
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetUid() == uid && !(appRecord->GetRestartAppFlag())) {
+            return true;
+        }
+    }
+    return false;
+}
+
 int32_t AppRunningManager::CheckAppCloneRunningRecordIsExistByBundleName(const std::string &bundleName,
     int32_t appCloneIndex, bool &isRunning)
 {
