@@ -1402,7 +1402,7 @@ void UIAbilityLifecycleManager::NotifySCBToHandleException(const std::shared_ptr
     EraseAbilityRecord(abilityRecord);
 }
 
-void UIAbilityLifecycleManager::NotifySCBToHandleException(sptr<SessionInfo> sessionInfo,
+void UIAbilityLifecycleManager::NotifySCBToHandleAtomicServiceException(sptr<SessionInfo> sessionInfo,
     int32_t errorCode, const std::string& errorReason)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
@@ -1413,13 +1413,6 @@ void UIAbilityLifecycleManager::NotifySCBToHandleException(sptr<SessionInfo> ses
     sessionInfo->errorCode = errorCode;
     sessionInfo->errorReason = errorReason;
     session->NotifySessionException(sessionInfo);
-
-    auto abilityRecord = Token::GetAbilityRecordByToken(sessionInfo->callerToken);
-    if (abilityRecord == nullptr) {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "no such ability record matched token");
-        return;
-    }
-    EraseAbilityRecord(abilityRecord);
 }
 
 void UIAbilityLifecycleManager::HandleLoadTimeout(const std::shared_ptr<AbilityRecord> &abilityRecord)

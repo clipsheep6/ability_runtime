@@ -333,7 +333,7 @@ void FreeInstallManager::HandleOnFreeInstallFail(int32_t recordId, FreeInstallIn
             freeInstallInfo.want.HasParameter(KEY_SESSION_ID) &&
             !freeInstallInfo.want.GetStringParam(KEY_SESSION_ID).empty() &&
             freeInstallInfo.isStartUIAbilityBySCBCalled) {
-            DelayedSingleton<AbilityManagerService>::GetInstance()->NotifySCBToHandleException(
+            DelayedSingleton<AbilityManagerService>::GetInstance()->NotifySCBToHandleAtomicServiceException(
                 freeInstallInfo.want.GetStringParam(KEY_SESSION_ID),
                 resultCode, "free install failed");
         }
@@ -398,7 +398,7 @@ void FreeInstallManager::StartAbilityByPreInstall(int32_t recordId, FreeInstallI
         result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartUIAbilityByPreInstall(info);
     }
     if (result != ERR_OK && info.isStartUIAbilityBySCBCalled) {
-        DelayedSingleton<AbilityManagerService>::GetInstance()->NotifySCBToHandleException(
+        DelayedSingleton<AbilityManagerService>::GetInstance()->NotifySCBToHandleAtomicServiceException(
             info.want.GetStringParam(KEY_SESSION_ID),
             result, "start ability failed");
     }

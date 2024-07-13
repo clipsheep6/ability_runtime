@@ -356,7 +356,7 @@ public:
 
     int32_t GetAbilityStateByPersistentId(int32_t persistentId, bool &state);
 
-    void NotifySCBToHandleException(sptr<SessionInfo> sessionInfo, int32_t errorCode,
+    void NotifySCBToHandleAtomicServiceException(sptr<SessionInfo> sessionInfo, int32_t errorCode,
         const std::string& errorReason);
 
 private:

@@ -1731,7 +1731,7 @@ public:
 
     int32_t StartUIAbilityByPreInstall(const FreeInstallInfo &taskInfo);
 
-    void NotifySCBToHandleException(const std::string& sessionId, int errCode,
+    void NotifySCBToHandleAtomicServiceException(const std::string& sessionId, int errCode,
         const std::string& reason);
 
     // MSG 0 - 20 represents timeout message

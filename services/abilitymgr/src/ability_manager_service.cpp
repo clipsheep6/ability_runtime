@@ -11243,7 +11243,7 @@ int AbilityManagerService::StartUIAbilityByPreInstallInner(sptr<SessionInfo> ses
     return uiAbilityManager->StartUIAbility(abilityRequest, sessionInfo, isColdStart);
 }
 
-void AbilityManagerService::NotifySCBToHandleException(const std::string& sessionId, int32_t errCode,
+void AbilityManagerService::NotifySCBToHandleAtomicServiceException(const std::string& sessionId, int32_t errCode,
     const std::string& reason)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Called.");
@@ -11265,7 +11265,7 @@ void AbilityManagerService::NotifySCBToHandleException(const std::string& sessio
     }
     auto uiAbilityManager = GetCurrentUIAbilityManager();
     CHECK_POINTER(uiAbilityManager);
-    return uiAbilityManager->NotifySCBToHandleException(sessionInfo, errCode, reason);
+    return uiAbilityManager->NotifySCBToHandleAtomicServiceException(sessionInfo, errCode, reason);
 }
 
 void AbilityManagerService::RemovePreStartSession(const std::string& sessionId)
