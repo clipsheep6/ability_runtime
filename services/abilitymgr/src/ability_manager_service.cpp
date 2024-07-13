@@ -107,6 +107,7 @@
 #include "system_ability_token_callback.h"
 #include "extension_record_manager.h"
 #include "ui_extension_utils.h"
+#include "ui_service_extension_connection_constants.h"
 #include "unlock_screen_manager.h"
 #include "uri_permission_manager_client.h"
 #include "uri_utils.h"
@@ -201,6 +202,7 @@ constexpr const char* FOUNDATION_PROCESS_NAME = "foundation";
 constexpr const char* RSS_PROCESS_NAME = "resource_schedule_service";
 constexpr const char* IS_PRELOAD_UIEXTENSION_ABILITY = "ability.want.params.is_preload_uiextension_ability";
 constexpr const char* UIEXTENSION_MODAL_TYPE = "ability.want.params.modalType";
+constexpr const char* SUPPORT_CLOSE_ON_BLUR = "supportCloseOnBlur";
 constexpr const char* ATOMIC_SERVICE_PREFIX = "com.atomicservice.";
 constexpr const char* PARAM_SPECIFIED_PROCESS_FLAG = "ohosSpecifiedProcessFlag";
 
@@ -2112,6 +2114,7 @@ int AbilityManagerService::StartUIAbilityBySCBDefault(sptr<SessionInfo> sessionI
             }
             auto systemUIExtension = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
             (const_cast<Want &>(newWant)).SetParam(UIEXTENSION_MODAL_TYPE, 1);
+            (const_cast<Want &>(newWant)).SetParam(SUPPORT_CLOSE_ON_BLUR, true);
             return systemUIExtension->CreateModalUIExtension(newWant) ?
                 ERR_ECOLOGICAL_CONTROL_STATUS : INNER_ERR;
         }
@@ -3895,6 +3898,10 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
     }
     if (!UriUtils::GetInstance().CheckNonImplicitShareFileUri(abilityRequest)) {
         return ERR_SHARE_FILE_URI_NON_IMPLICITLY;
+    }
+    result = CheckPermissionForUIService(want, abilityRequest);
+    if (result != ERR_OK) {
+        return result;
     }
 
     if (abilityRequest.abilityInfo.isStageBasedModel) {
@@ -7926,6 +7933,13 @@ int AbilityManagerService::DelegatorMoveMissionToFront(int32_t missionId)
 void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (StartAbilityUtils::IsCallFromAncoShellOrBroker(callerToken)) {
+        int32_t callerUid = want.GetIntParam(Want::PARAM_RESV_CALLER_UID, -1);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "call from anco or broker, callerUid: %{public}d.", callerUid);
+        if (callerUid != -1) {
+            return;
+        }
+    }
     int32_t tokenId = static_cast<int32_t>(IPCSkeleton::GetCallingTokenID());
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     int32_t callerPid = IPCSkeleton::GetCallingPid();
@@ -8198,6 +8212,35 @@ int AbilityManagerService::CheckStaticCfgPermission(const AppExecFwk::AbilityReq
         return CheckStaticCfgPermissionForAbility(abilityInfo, tokenId);
     }
     return CheckStaticCfgPermissionForSkill(abilityRequest, tokenId);
+}
+
+int AbilityManagerService::CheckPermissionForUIService(const Want &want, const AbilityRequest &abilityRequest)
+{
+    AppExecFwk::ExtensionAbilityType extType = abilityRequest.abilityInfo.extensionAbilityType;
+    if (want.HasParameter(UISERVICEHOSTPROXY_KEY) && extType != AppExecFwk::ExtensionAbilityType::UI_SERVICE) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Target ability is not UI_SERVICE");
+        return ERR_WRONG_INTERFACE_CALL;
+    } else if (!want.HasParameter(UISERVICEHOSTPROXY_KEY) && extType == AppExecFwk::ExtensionAbilityType::UI_SERVICE) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "need UISERVICEHOSTPROXY_KEY to connect UI_SERVICE");
+        return ERR_WRONG_INTERFACE_CALL;
+    }
+
+    if (extType != AppExecFwk::ExtensionAbilityType::UI_SERVICE) {
+        return ERR_OK;
+    }
+
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo = CreateVerificationInfo(abilityRequest);
+    if (IsCallFromBackground(abilityRequest, verificationInfo.isBackgroundCall) != ERR_OK) {
+        return ERR_INVALID_VALUE;
+    }
+
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallServiceExtensionPermission(verificationInfo);
+    if (result != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Do not have permission to start UIServiceExtension");
+        return result;
+    }
+
+    return ERR_OK;
 }
 
 bool AbilityManagerService::IsNeedTimeoutForTest(const std::string &abilityName, const std::string &state) const
@@ -11243,7 +11286,7 @@ int AbilityManagerService::StartUIAbilityByPreInstallInner(sptr<SessionInfo> ses
     return uiAbilityManager->StartUIAbility(abilityRequest, sessionInfo, isColdStart);
 }
 
-void AbilityManagerService::NotifySCBToHandleException(const std::string& sessionId, int32_t errCode,
+void AbilityManagerService::NotifySCBToHandleAtomicServiceException(const std::string& sessionId, int32_t errCode,
     const std::string& reason)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Called.");
@@ -11265,7 +11308,7 @@ void AbilityManagerService::NotifySCBToHandleException(const std::string& sessio
     }
     auto uiAbilityManager = GetCurrentUIAbilityManager();
     CHECK_POINTER(uiAbilityManager);
-    return uiAbilityManager->NotifySCBToHandleException(sessionInfo, errCode, reason);
+    return uiAbilityManager->NotifySCBToHandleAtomicServiceException(sessionInfo, errCode, reason);
 }
 
 void AbilityManagerService::RemovePreStartSession(const std::string& sessionId)
@@ -11361,15 +11404,15 @@ ErrCode AbilityManagerService::ConvertToExplicitWant(Want& want)
         callbackDoneCv.notify_all();
         TAG_LOGI(AAFwkTag::ABILITYMGR, "convert callback task finished");
     };
-    sptr<OHOS::AppDomainVerify::IConvertCallback> callback = new ConvertCallbackImpl(std::move(task));
+    sptr<ConvertCallbackImpl> callbackTask = new ConvertCallbackImpl(std::move(task));
+    sptr<OHOS::AppDomainVerify::IConvertCallback> callback = callbackTask;
     AppDomainVerify::AppDomainVerifyMgrClient::GetInstance()->ConvertToExplicitWant(want, callback);
-    auto condition = [&isUsed] {
-        return isUsed;
-    };
+    auto condition = [&isUsed] { return isUsed; };
     std::unique_lock<ffrt::mutex> lock(callbackDoneMutex);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "start to wait for condition.");
     if (!callbackDoneCv.wait_for(lock, seconds(CONVERT_CALLBACK_TIMEOUT_SECONDS), condition)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "convert callback timeout.");
+        callbackTask->Cancel();
         retCode = ERR_TIMED_OUT;
     }
     TAG_LOGI(AAFwkTag::ABILITYMGR, "finish wait for condition.");

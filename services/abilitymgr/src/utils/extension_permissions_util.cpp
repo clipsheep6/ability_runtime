@@ -25,6 +25,9 @@ namespace AAFwk {
 bool ExtensionPermissionsUtil::CheckSAPermission(const AppExecFwk::ExtensionAbilityType &extensionType)
 {
     auto checkRet = false;
+    if (!PermissionVerification::GetInstance()->IsSACall()) {
+        return true;
+    }
     TAG_LOGD(AAFwkTag::ABILITYMGR, "CheckSAPermission, extensionType: %{public}d.", extensionType);
     if (extensionType == AppExecFwk::ExtensionAbilityType::FORM) {
         checkRet = PermissionVerification::GetInstance()->VerifyCallingPermission(
@@ -57,8 +60,7 @@ bool ExtensionPermissionsUtil::CheckSAPermission(const AppExecFwk::ExtensionAbil
         checkRet = PermissionVerification::GetInstance()->VerifyCallingPermission(
             "ohos.permission.CONNECT_VPN_EXTENSION");
     } else {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "No need connect permission for extension type %{public}d.", extensionType);
-        return true;
+        checkRet = CheckSAPermissionMore(extensionType);
     }
     if (!checkRet) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "SA connect permission verification failed.");
@@ -68,6 +70,28 @@ bool ExtensionPermissionsUtil::CheckSAPermission(const AppExecFwk::ExtensionAbil
     return true;
 }
 
+bool ExtensionPermissionsUtil::CheckSAPermissionMore(const AppExecFwk::ExtensionAbilityType &extensionType)
+{
+    auto checkRet = false;
+    if (extensionType == AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION) {
+        checkRet = PermissionVerification::GetInstance()->VerifyCallingPermission(
+            "ohos.permission.CONNECT_FILE_ACCESS_EXTENSION");
+    } else if (extensionType == AppExecFwk::ExtensionAbilityType::REMOTE_NOTIFICATION) {
+        checkRet = PermissionVerification::GetInstance()->VerifyCallingPermission(
+            "ohos.permission.CONNECT_REMOTE_NOTIFICATION_EXTENSION");
+    } else if (extensionType == AppExecFwk::ExtensionAbilityType::REMOTE_LOCATION) {
+        checkRet = PermissionVerification::GetInstance()->VerifyCallingPermission(
+            "ohos.permission.CONNECT_REMOTE_LOCATION_EXTENSION");
+    } else if (extensionType == AppExecFwk::ExtensionAbilityType::DRIVER) {
+        checkRet = PermissionVerification::GetInstance()->VerifyCallingPermission(
+            "ohos.permission.CONNECT_DRIVER_EXTENSION");
+    } else {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "No need connect permission for extension type %{public}d.", extensionType);
+        return true;
+    }
+
+    return checkRet;
+}
 
 } // namespace AAFwk
 } // namespace OHOS

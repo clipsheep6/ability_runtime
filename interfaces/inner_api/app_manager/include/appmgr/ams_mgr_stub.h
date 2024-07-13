@@ -92,6 +92,7 @@ private:
         MessageParcel &reply, MessageOption &option);
     int32_t OnRemoteRequestInnerThird(uint32_t code, MessageParcel &data,
         MessageParcel &reply, MessageOption &option);
+    int32_t HandleBlockProcessCacheByPids(MessageParcel &data, MessageParcel &reply);
     DISALLOW_COPY_AND_MOVE(AmsMgrStub);
 };
 }  // namespace AppExecFwk

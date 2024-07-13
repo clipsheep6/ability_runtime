@@ -1731,7 +1731,7 @@ public:
 
     int32_t StartUIAbilityByPreInstall(const FreeInstallInfo &taskInfo);
 
-    void NotifySCBToHandleException(const std::string& sessionId, int errCode,
+    void NotifySCBToHandleAtomicServiceException(const std::string& sessionId, int errCode,
         const std::string& reason);
 
     // MSG 0 - 20 represents timeout message
@@ -1984,6 +1984,8 @@ private:
 
     int CheckStaticCfgPermission(const AppExecFwk::AbilityRequest &abilityRequest, bool isStartAsCaller,
         uint32_t callerTokenId, bool isData = false, bool isSaCall = false, bool isImplicit = false);
+
+    int CheckPermissionForUIService(const Want &want, const AbilityRequest &abilityRequest);
 
     bool GetValidDataAbilityUri(const std::string &abilityInfoUri, std::string &adjustUri);
 

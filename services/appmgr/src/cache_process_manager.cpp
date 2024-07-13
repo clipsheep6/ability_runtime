@@ -185,6 +185,7 @@ void CacheProcessManager::OnProcessKilled(const std::shared_ptr<AppRunningRecord
     {
         std::lock_guard<ffrt::recursive_mutex> queueLock(cacheQueueMtx);
         srvExtRecords.erase(appRecord);
+        srvExtCheckedFlag.erase(appRecord);
     }
     if (!IsCachedProcess(appRecord)) {
         return;
@@ -235,7 +236,7 @@ bool CacheProcessManager::IsAppSupportProcessCache(const std::shared_ptr<AppRunn
             appRecord->GetName().c_str(), actualVer);
         return false;
     }
-    if (srvExtRecords.find(appRecord) != srvExtRecords.end()) {
+    if (IsAppContainsSrvExt(appRecord)) {
         TAG_LOGD(AAFwkTag::APPMGR, "%{public}s of %{public}s is service, not support cache",
             appRecord->GetProcessName().c_str(), appRecord->GetBundleName().c_str());
         return false;
@@ -253,10 +254,6 @@ bool CacheProcessManager::IsAppSupportProcessCache(const std::shared_ptr<AppRunn
         TAG_LOGD(AAFwkTag::APPMGR, "Child App, not support.");
         return false;
     }
-    if (appRecord->GetBundleName() == SHELL_ASSISTANT_BUNDLENAME) {
-        TAG_LOGD(AAFwkTag::APPMGR, "shell assistant, not support.");
-        return false;
-    }
     return IsAppSupportProcessCacheInnerFirst(appRecord);
 }
 
@@ -264,6 +261,15 @@ bool CacheProcessManager::IsAppSupportProcessCacheInnerFirst(const std::shared_p
 {
     if (appRecord == nullptr) {
         TAG_LOGI(AAFwkTag::APPMGR, "appRecord nullptr precheck failed");
+        return false;
+    }
+    if (appRecord->GetBundleName() == SHELL_ASSISTANT_BUNDLENAME) {
+        TAG_LOGD(AAFwkTag::APPMGR, "shell assistant, not support.");
+        return false;
+    }
+    if (appRecord->GetProcessCacheBlocked()) {
+        TAG_LOGD(AAFwkTag::APPMGR, "%{public}s of %{public}s 's process cache temporarily blocked.",
+            appRecord->GetProcessName().c_str(), appRecord->GetBundleName().c_str());
         return false;
     }
     auto supportState = appRecord->GetSupportProcessCacheState();
@@ -445,50 +451,6 @@ void CacheProcessManager::RemoveFromApplicationSet(const std::shared_ptr<AppRunn
     }
 }
 
-void CacheProcessManager::UpdateTypeByToken(const sptr<IRemoteObject> &token,
-    const std::shared_ptr<AppRunningRecord> &appRecord)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    if (!QueryEnableProcessCache()) {
-        return;
-    }
-    if (token == nullptr || appRecord == nullptr) {
-        return;
-    }
-    auto abilityRecord = appRecord->GetAbilityRunningRecordByToken(token);
-    if (abilityRecord == nullptr) {
-        return;
-    }
-    UpdateTypeByAbility(abilityRecord, appRecord);
-}
-
-void CacheProcessManager::UpdateTypeByAbility(const std::shared_ptr<AbilityRunningRecord> &abilityRecord,
-    const std::shared_ptr<AppRunningRecord> &appRecord)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    if (!QueryEnableProcessCache()) {
-        return;
-    }
-    if (abilityRecord == nullptr || appRecord == nullptr) {
-        return;
-    }
-    auto abilityInfo = abilityRecord->GetAbilityInfo();
-    if (abilityInfo == nullptr) {
-        return;
-    }
-    auto type = abilityInfo->type;
-    if (type == AppExecFwk::AbilityType::EXTENSION &&
-        abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE) {
-        std::lock_guard<ffrt::recursive_mutex> queueLock(cacheQueueMtx);
-        srvExtRecords.insert(appRecord);
-        // incase service record is in cache queue due to delay
-        RemoveCacheRecord(appRecord);
-        TAG_LOGD(AAFwkTag::APPMGR,
-            "%{public}s of %{public}s is service, will not cache, service records size: %{public}zu.",
-            abilityInfo->name.c_str(), appRecord->GetBundleName().c_str(), srvExtRecords.size());
-    }
-}
-
 void CacheProcessManager::PrepareActivateCache(const std::shared_ptr<AppRunningRecord> &appRecord)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
@@ -508,6 +470,43 @@ void CacheProcessManager::PrepareActivateCache(const std::shared_ptr<AppRunningR
         return;
     }
     appMgrSptr->OnAppCacheStateChanged(appRecord, ApplicationState::APP_STATE_READY);
+}
+
+bool CacheProcessManager::IsAppContainsSrvExt(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    std::lock_guard<ffrt::recursive_mutex> queueLock(cacheQueueMtx);
+    if (appRecord == nullptr) {
+        return false;
+    }
+    if (srvExtCheckedFlag.find(appRecord) != srvExtCheckedFlag.end()) {
+        return srvExtRecords.find(appRecord) != srvExtRecords.end() ? true : false;
+    }
+    auto allModuleRecord = appRecord->GetAllModuleRecord();
+    for (auto moduleRecord : allModuleRecord) {
+        if (moduleRecord == nullptr) {
+            continue;
+        }
+        HapModuleInfo hapModuleInfo;
+        moduleRecord->GetHapModuleInfo(hapModuleInfo);
+        for (auto abilityInfo : hapModuleInfo.abilityInfos) {
+            if (abilityInfo.type == AppExecFwk::AbilityType::EXTENSION &&
+                abilityInfo.extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE) {
+                    srvExtRecords.insert(appRecord);
+                TAG_LOGD(AAFwkTag::APPMGR, "%{public}s of %{public}s is service, will not cache",
+                    abilityInfo.name.c_str(), appRecord->GetBundleName().c_str());
+            }
+        }
+        for (auto extAbilityInfo : hapModuleInfo.extensionInfos) {
+            if (extAbilityInfo.type == AppExecFwk::ExtensionAbilityType::SERVICE) {
+                srvExtRecords.insert(appRecord);
+                TAG_LOGD(AAFwkTag::APPMGR, "%{public}s of %{public}s is service, will not cache",
+                    extAbilityInfo.name.c_str(), appRecord->GetBundleName().c_str());
+            }
+        }
+    }
+    srvExtCheckedFlag.insert(appRecord);
+    return srvExtRecords.find(appRecord) != srvExtRecords.end() ? true : false;
 }
 } // namespace OHOS
 } // namespace AppExecFwk

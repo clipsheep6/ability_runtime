@@ -38,6 +38,7 @@ ohos_moduletest("AmsAppServiceFlowModuleTest") {
   ]
 
   external_deps = [
+    "access_token:libaccesstoken_sdk",
     "appspawn:appspawn_client",
     "bundle_framework:appexecfwk_base",
     "ffrt:libffrt",

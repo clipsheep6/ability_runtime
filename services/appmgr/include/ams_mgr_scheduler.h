@@ -296,6 +296,8 @@ public:
      */
     void AttachedToStatusBar(const sptr<IRemoteObject> &token) override;
 
+    virtual void BlockProcessCacheByPids(const std::vector<int32_t> &pids) override;
+
 private:
     /**
      * @brief Judge whether the application service is ready.

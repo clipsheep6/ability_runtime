@@ -166,6 +166,21 @@ bool AppRunningManager::CheckAppRunningRecordIsExistByBundleName(const std::stri
     return false;
 }
 
+bool AppRunningManager::CheckAppRunningRecordIsExistByUid(int32_t uid)
+{
+    std::lock_guard guard(runningRecordMapMutex_);
+    if (appRunningRecordMap_.empty()) {
+        return false;
+    }
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetUid() == uid && !(appRecord->GetRestartAppFlag())) {
+            return true;
+        }
+    }
+    return false;
+}
+
 int32_t AppRunningManager::CheckAppCloneRunningRecordIsExistByBundleName(const std::string &bundleName,
     int32_t appCloneIndex, bool &isRunning)
 {
@@ -527,7 +542,6 @@ void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token, bool 
     if (isLastAbility && (!appRecord->IsKeepAliveApp() ||
         !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent())) {
         auto cacheProcMgr = DelayedSingleton<CacheProcessManager>::GetInstance();
-        cacheProcMgr->UpdateTypeByAbility(abilityRecord, appRecord);
         if (cacheProcMgr != nullptr && cacheProcMgr->IsAppShouldCache(appRecord)) {
             cacheProcMgr->PenddingCacheProcess(appRecord);
             TAG_LOGI(AAFwkTag::APPMGR, "App %{public}s supports process cache, not terminate record.",
@@ -590,7 +604,6 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
     if (isLastAbility && (!appRecord->IsKeepAliveApp() ||
         !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent()) && !isLauncherApp) {
         auto cacheProcMgr = DelayedSingleton<CacheProcessManager>::GetInstance();
-        cacheProcMgr->UpdateTypeByToken(token, appRecord);
         if (cacheProcMgr != nullptr && cacheProcMgr->IsAppShouldCache(appRecord)) {
             TAG_LOGI(AAFwkTag::APPMGR, "App %{public}s is cached, not terminate app.",
                 appRecord->GetBundleName().c_str());

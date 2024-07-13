@@ -474,5 +474,38 @@ HWTEST_F(CacheProcessManagerTest, CacheProcessManager_RemoveFromApplicationSet_0
     cacheProcMgr->RemoveFromApplicationSet(appRecord1);
     EXPECT_TRUE(cacheProcMgr->sameAppSet.find(DEFAULT_BUNDLE_NAME) == cacheProcMgr->sameAppSet.end());
 }
+
+/**
+ * @tc.name: CacheProcessManager_RemoveFromApplicationSet_0100
+ * @tc.desc: Test the state of RemoveFromApplicationSet
+ * @tc.type: FUNC
+ */
+HWTEST_F(CacheProcessManagerTest, CacheProcessManager_IsAppContainsSrvExt_0100, TestSize.Level1)
+{
+    auto cacheProcMgr = std::make_shared<CacheProcessManager>();
+    EXPECT_NE(cacheProcMgr, nullptr);
+    cacheProcMgr->maxProcCacheNum_ = 2;
+
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "test_ability_name1";
+    auto appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->name = "test_app_name1";
+    std::string processName = "com.ohos.test.helloworld";
+    auto appRunningRecord = std::make_shared<AppRunningRecord>(appInfo, AppRecordId::Create(), processName);
+    EXPECT_TRUE(appRunningRecord != nullptr);
+    sptr<IRemoteObject> token = new MockAbilityToken();
+    HapModuleInfo hapModuleInfo;
+    hapModuleInfo.moduleName = "module789";
+    abilityInfo->type = AppExecFwk::AbilityType::EXTENSION;
+    abilityInfo->extensionAbilityType = AppExecFwk::ExtensionAbilityType::SERVICE;
+    hapModuleInfo.abilityInfos.push_back(*abilityInfo);
+    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr, 0);
+    auto moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
+    EXPECT_TRUE(moduleRecord != nullptr);
+    auto abilityRunningRecord = moduleRecord->GetAbilityRunningRecordByToken(token);
+    EXPECT_TRUE(abilityRunningRecord != nullptr);
+    
+    EXPECT_EQ(cacheProcMgr->IsAppContainsSrvExt(appRunningRecord), true);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

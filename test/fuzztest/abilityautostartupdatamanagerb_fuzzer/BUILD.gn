@@ -22,8 +22,7 @@ module_output_path = "ability_runtime/abilitymgr"
 ohos_fuzztest("AbilityAutoStartupDataManagerbFuzzTest") {
   module_out_path = module_output_path
 
-  fuzz_config_file =
-      "${ability_runtime_test_path}/fuzztest/abilityautostartupdatamanagerb_fuzzer"
+  fuzz_config_file = "${ability_runtime_test_path}/fuzztest/abilityautostartupdatamanagerb_fuzzer"
   include_dirs = [
     "${ability_runtime_innerkits_path}/ability_manager/include",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
@@ -36,8 +35,10 @@ ohos_fuzztest("AbilityAutoStartupDataManagerbFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
 
-  sources = [ "abilityautostartupdatamanagerb_fuzzer.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_auto_startup_data_manager.cpp", ]
+  sources = [
+    "${ability_runtime_services_path}/abilitymgr/src/ability_auto_startup_data_manager.cpp",
+    "abilityautostartupdatamanagerb_fuzzer.cpp",
+  ]
 
   configs = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager_public_config",
@@ -45,9 +46,9 @@ ohos_fuzztest("AbilityAutoStartupDataManagerbFuzzTest") {
   ]
 
   deps = [
-    "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
+    "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
@@ -57,8 +58,8 @@ ohos_fuzztest("AbilityAutoStartupDataManagerbFuzzTest") {
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
-    "access_token:libtokenid_sdk",
     "access_token:libaccesstoken_sdk",
+    "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_core",

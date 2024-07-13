@@ -83,6 +83,14 @@ public:
     bool CheckAppRunningRecordIsExistByBundleName(const std::string &bundleName);
 
     /**
+     * CheckAppRunningRecordIsExistByUid, check app exist when concurrent.
+     *
+     * @param uid, the process uid.
+     * @return, Return true if exist.
+     */
+    bool CheckAppRunningRecordIsExistByUid(int32_t uid);
+
+    /**
      * CheckAppRunningRecordIsExistByBundleName, Check whether the process of the application exists.
      *
      * @param bundleName Indicates the bundle name of the bundle.

@@ -104,14 +104,6 @@ void CacheProcessManagerFuzztestFunc1(bool boolParam, std::string &stringParam, 
     mgr->AddToApplicationSet(appRecord2); // called.
     mgr->RemoveFromApplicationSet(nullptr); // called nullptr.
     mgr->RemoveFromApplicationSet(appRecord2); // called.
-
-    mgr->maxProcCacheNum_ = 0;
-    mgr->UpdateTypeByToken(nullptr, nullptr); // called nullptr.
-    mgr->maxProcCacheNum_ = 1; // 1 means maxProcCacheNum.
-    mgr->UpdateTypeByToken(nullptr, nullptr); // called nullptr.
-    sptr<Token> token = GetFuzzAbilityToken();
-    mgr->UpdateTypeByToken(token, nullptr); // called null appRecord.
-    mgr->UpdateTypeByToken(token, appRecord2); // called appRecord/token not null.
 }
 
 void CacheProcessManagerFuzztestFunc2(bool boolParam, std::string &stringParam, int32_t int32Param)
@@ -121,17 +113,6 @@ void CacheProcessManagerFuzztestFunc2(bool boolParam, std::string &stringParam, 
     std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
     std::shared_ptr<AppRunningRecord> appRecord1 = std::make_shared<AppRunningRecord>(appInfo, int32Param, stringParam);
     std::shared_ptr<AppRunningRecord> appRecord2 = std::make_shared<AppRunningRecord>(nullptr, int32Param, stringParam);
-
-    mgr->maxProcCacheNum_ = 0;
-    mgr->UpdateTypeByAbility(nullptr, nullptr); // branch maxProcCacheNum.
-    mgr->maxProcCacheNum_ = 1; // 1 means maxProcCacheNum.
-    mgr->UpdateTypeByAbility(nullptr, nullptr); // branch null abilityrecord.
-
-    std::shared_ptr<AbilityInfo> info = std::shared_ptr<AbilityInfo>();
-    sptr<Token> token = GetFuzzAbilityToken();
-    std::shared_ptr<AbilityRunningRecord> abilityRecord1 = std::make_shared<AbilityRunningRecord>(info, token, int32Param);
-    mgr->UpdateTypeByAbility(abilityRecord1, nullptr); // branch null appRecord.
-    mgr->UpdateTypeByAbility(abilityRecord1, appRecord1); // branch null appRecord.
 
     mgr->maxProcCacheNum_ = 0;
     mgr->PrepareActivateCache(nullptr); // branch 0 maxProcCacheNum_

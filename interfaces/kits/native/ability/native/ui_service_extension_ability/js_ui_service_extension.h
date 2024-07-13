@@ -27,6 +27,7 @@
 #include "window_option.h"
 #endif
 #include "ui_service_extension.h"
+#include "ui_service_stub.h"
 
 class NativeReference;
 
@@ -36,6 +37,16 @@ class UIServiceExtension;
 class Runtime;
 class UIServiceExtensionContext;
 class JsUIServiceExtension;
+
+class UIServiceStubImpl : public AAFwk::UIServiceStub {
+public:
+    UIServiceStubImpl(std::weak_ptr<JsUIServiceExtension>& ext);
+    ~UIServiceStubImpl();
+    virtual int32_t SendData(sptr<IRemoteObject> hostProxy, OHOS::AAFwk::WantParams &data) override;
+
+protected:
+    std::weak_ptr<JsUIServiceExtension> extension_;
+};
 
 /**
  * @brief Basic service components.
@@ -134,11 +145,31 @@ public:
      */
     void ConfigurationUpdated();
 
+    /**
+     * @brief Called when client send data to extension.
+     *
+     * @param hostProxy the proxy used to send data back to client
+     * @param data The data to send.
+     */
+    int32_t OnSendData(sptr<IRemoteObject> hostProxy, OHOS::AAFwk::WantParams &data);
+
 protected:
     bool showOnLockScreen_ = false;
 
 private:
+    sptr<IRemoteObject> CallOnConnect(const AAFwk::Want &want);
+
+    napi_value CallOnDisconnect(const AAFwk::Want &want);
+
     napi_value CallObjectMethod(const char* name, napi_value const *argv = nullptr, size_t argc = 0);
+
+    napi_value WrapWant(napi_env env, const AAFwk::Want &want);
+
+    void HandleSendData(sptr<IRemoteObject> hostProxy, const OHOS::AAFwk::WantParams &data);
+
+    void SetupServiceStub();
+
+    sptr<IRemoteObject> GetHostProxyFromWant(const AAFwk::Want &want);
 
     void BindContext(napi_env env, napi_value obj);
 
@@ -151,6 +182,8 @@ private:
     std::shared_ptr<AbilityContext> aContext_ = nullptr;
     std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
     std::shared_ptr<AbilityHandler> handler_ = nullptr;
+    sptr<UIServiceStubImpl> extensionStub_ = nullptr;
+    std::map<sptr<IRemoteObject>, std::unique_ptr<NativeReference>> hostProxyMap_;
 
 #ifdef SUPPORT_GRAPHICS
 protected:

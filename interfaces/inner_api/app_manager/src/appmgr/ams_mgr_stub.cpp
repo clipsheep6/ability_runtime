@@ -186,6 +186,8 @@ int32_t AmsMgrStub::OnRemoteRequestInnerThird(uint32_t code, MessageParcel &data
             return 0;
         case static_cast<uint32_t>(IAmsMgr::Message::REGISTER_ABILITY_MS_DELEGATE):
             return 0;
+        case static_cast<uint32_t>(IAmsMgr::Message::BLOCK_PROCESS_CACHE_BY_PIDS):
+            return HandleBlockProcessCacheByPids(data, reply);
     }
     return AAFwk::ERR_CODE_NOT_EXIST;
 }
@@ -726,6 +728,23 @@ ErrCode AmsMgrStub::HandleAttachedToStatusBar(MessageParcel &data, MessageParcel
     HITRACE_METER(HITRACE_TAG_APP);
     sptr<IRemoteObject> token = data.ReadRemoteObject();
     AttachedToStatusBar(token);
+    return NO_ERROR;
+}
+
+ErrCode AmsMgrStub::HandleBlockProcessCacheByPids(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    auto size = data.ReadUint32();
+    if (size == 0 || size > MAX_KILL_PROCESS_PID_COUNT) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Invalid size.");
+        return ERR_INVALID_VALUE;
+    }
+    std::vector<int32_t> pids;
+    for (uint32_t i = 0; i < size; i++) {
+        pids.emplace_back(data.ReadInt32());
+    }
+
+    BlockProcessCacheByPids(pids);
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

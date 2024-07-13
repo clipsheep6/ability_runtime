@@ -615,6 +615,7 @@ public:
     void SetDebugApp(bool isDebugApp);
     bool IsDebugApp();
     bool IsDebugging() const;
+    void SetErrorInfoEnhance(const bool errorInfoEnhance);
     void SetNativeDebug(bool isNativeDebug);
     void SetPerfCmd(const std::string &perfCmd);
     void SetMultiThread(const bool multiThread);
@@ -824,6 +825,9 @@ public:
     {
         return isDependedOnArkWeb_;
     }
+
+    void SetProcessCacheBlocked(bool isBlocked);
+    bool GetProcessCacheBlocked();
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -977,9 +981,11 @@ private:
 
     bool isRestartApp_ = false; // Only app calling RestartApp can be set to true
     bool isAssertPause_ = false;
+    bool isErrorInfoEnhance_ = false;
     bool isNativeStart_ = false;
     bool isMultiThread_ = false;
     SupportProcessCacheState procCacheSupportState_ = SupportProcessCacheState::UNSPECIFIED;
+    bool processCacheBlocked = false; // temporarily block process cache feature
     sptr<IRemoteObject> browserHost_;
     bool isGPU_ = false;
     pid_t gpuPid_ = 0;

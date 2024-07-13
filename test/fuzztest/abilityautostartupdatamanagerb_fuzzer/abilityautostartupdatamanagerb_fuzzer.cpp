@@ -90,7 +90,7 @@ void AbilityAutoStartupDataManagerFuzztest1(bool boolParam, std::string &stringP
     DistributedKv::Key key1Illegal(jsonValue1Illegal);
     DistributedKv::Value value1(jsonValue1);
     dataMgr->ConvertAutoStartupInfoFromKeyAndValue(key1, value1);
-    dataMgr->ConvertAutoStartupInfoFromKeyAndValue(key1Illegal, value1); 
+    dataMgr->ConvertAutoStartupInfoFromKeyAndValue(key1Illegal, value1);
 
     DistributedKv::Key key2(jsonKey2);
     DistributedKv::Value value2(jsonValue2);

@@ -1141,5 +1141,34 @@ void AmsMgrProxy::AttachedToStatusBar(const sptr<IRemoteObject> &token)
     }
     TAG_LOGD(AAFwkTag::APPMGR, "end");
 }
+
+void AmsMgrProxy::BlockProcessCacheByPids(const std::vector<int32_t> &pids)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "start");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
+        return;
+    }
+    if (!data.WriteUint32(pids.size())) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write size failed.");
+        return;
+    }
+    for (const auto &pid: pids) {
+        if (!data.WriteInt32(pid)) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Write pid failed.");
+            return;
+        }
+    }
+    int32_t ret =
+        SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::BLOCK_PROCESS_CACHE_BY_PIDS), data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
+    }
+    TAG_LOGD(AAFwkTag::APPMGR, "end");
+}
 } // namespace AppExecFwk
 } // namespace OHOS

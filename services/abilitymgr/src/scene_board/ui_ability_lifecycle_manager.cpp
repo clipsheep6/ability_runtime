@@ -277,6 +277,13 @@ void UIAbilityLifecycleManager::OnAbilityRequestDone(const sptr<IRemoteObject> &
         std::lock_guard<ffrt::mutex> guard(sessionLock_);
         auto abilityRecord = GetAbilityRecordByToken(token);
         CHECK_POINTER(abilityRecord);
+        if (abilityRecord->IsTerminating()) {
+            TAG_LOGI(AAFwkTag::ABILITYMGR, "ability is on terminating");
+            auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+            CHECK_POINTER(handler);
+            handler->RemoveEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+            return;
+        }
         std::string element = abilityRecord->GetElementName().GetURI();
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Ability is %{public}s, start to foreground.", element.c_str());
         abilityRecord->ForegroundAbility();
@@ -1402,7 +1409,7 @@ void UIAbilityLifecycleManager::NotifySCBToHandleException(const std::shared_ptr
     EraseAbilityRecord(abilityRecord);
 }
 
-void UIAbilityLifecycleManager::NotifySCBToHandleException(sptr<SessionInfo> sessionInfo,
+void UIAbilityLifecycleManager::NotifySCBToHandleAtomicServiceException(sptr<SessionInfo> sessionInfo,
     int32_t errorCode, const std::string& errorReason)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
@@ -1413,13 +1420,6 @@ void UIAbilityLifecycleManager::NotifySCBToHandleException(sptr<SessionInfo> ses
     sessionInfo->errorCode = errorCode;
     sessionInfo->errorReason = errorReason;
     session->NotifySessionException(sessionInfo);
-
-    auto abilityRecord = Token::GetAbilityRecordByToken(sessionInfo->callerToken);
-    if (abilityRecord == nullptr) {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "no such ability record matched token");
-        return;
-    }
-    EraseAbilityRecord(abilityRecord);
 }
 
 void UIAbilityLifecycleManager::HandleLoadTimeout(const std::shared_ptr<AbilityRecord> &abilityRecord)
@@ -2310,6 +2310,7 @@ int32_t UIAbilityLifecycleManager::KillProcessWithPrepareTerminate(const std::ve
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "do prepare terminate.");
     std::vector<int32_t> pidsToKill;
+    IN_PROCESS_CALL_WITHOUT_RET(DelayedSingleton<AppScheduler>::GetInstance()->BlockProcessCacheByPids(pids));
     for (const auto& pid: pids) {
         bool needKillProcess = true;
         std::unordered_set<std::shared_ptr<AbilityRecord>> abilitysToTerminate;

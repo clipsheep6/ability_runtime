@@ -15,18 +15,27 @@
 
 #include "ag_convert_callback_impl.h"
 
+#include <mutex>
+
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
 void ConvertCallbackImpl::OnConvert(int resultCode, AAFwk::Want& want)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Called.");
+    std::unique_lock<ffrt::mutex> lock(taskMutex_);
     if (task_) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "resultCode:%{public}d", resultCode);
         task_(resultCode, want);
     }
+}
+
+void ConvertCallbackImpl::Cancel()
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Called.");
+    std::unique_lock<ffrt::mutex> lock(taskMutex_);
+    task_ = nullptr;
 }
 } // namespace AAFwk
 } // namespace OHOS

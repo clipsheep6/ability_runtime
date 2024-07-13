@@ -1237,5 +1237,18 @@ void AppMgrClient::KillProcessDependedOnWeb()
     TAG_LOGD(AAFwkTag::APPMGR, "call");
     service->KillProcessDependedOnWeb();
 }
+
+AppMgrResultCode AppMgrClient::BlockProcessCacheByPids(const std::vector<int32_t> &pids)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service != nullptr) {
+        sptr<IAmsMgr> amsService = service->GetAmsMgr();
+        if (amsService != nullptr) {
+            amsService->BlockProcessCacheByPids(pids);
+            return AppMgrResultCode::RESULT_OK;
+        }
+    }
+    return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
