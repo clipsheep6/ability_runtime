@@ -23,6 +23,7 @@ namespace AAFwk {
 class ExtensionPermissionsUtil final {
 public:
     static bool CheckSAPermission(const AppExecFwk::ExtensionAbilityType &extensionType);
+    static bool CheckSAPermissionMore(const AppExecFwk::ExtensionAbilityType &extensionType);
 };
 
 } // namespace AAFwk
