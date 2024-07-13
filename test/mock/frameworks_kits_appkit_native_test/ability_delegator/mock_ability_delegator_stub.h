@@ -21,8 +21,6 @@
 #include "string_ex.h"
 #include "ability_manager_errors.h"
 #include "ability_manager_stub.h"
-#include "hilog_wrapper.h"
-#include "window_config.h"
 
 namespace OHOS {
 namespace AAFwk {
