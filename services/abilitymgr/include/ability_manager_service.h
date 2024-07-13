@@ -1976,15 +1976,6 @@ private:
 
     int VerifyAccountPermission(int32_t userId);
 
-    int CheckStaticCfgPermissionForAbility(const AppExecFwk::AbilityInfo &abilityInfo, uint32_t tokenId);
-
-    int CheckStaticCfgPermissionForSkill(const AppExecFwk::AbilityRequest &abilityRequest, uint32_t tokenId);
-
-    bool CheckOneSkillPermission(const AppExecFwk::Skill &skill, uint32_t tokenId);
-
-    int CheckStaticCfgPermission(const AppExecFwk::AbilityRequest &abilityRequest, bool isStartAsCaller,
-        uint32_t callerTokenId, bool isData = false, bool isSaCall = false, bool isImplicit = false);
-
     bool GetValidDataAbilityUri(const std::string &abilityInfoUri, std::string &adjustUri);
 
     int GenerateExtensionAbilityRequest(const Want &want, AbilityRequest &request,
@@ -2084,20 +2075,7 @@ private:
      */
     int CheckUIExtensionPermission(const AbilityRequest &abilityRequest);
 
-    /**
-     * Judge if Caller-Application is in background state.
-     *
-     * @param abilityRequest, abilityRequest.
-     * @param isBackgroundCall, Indicates the Caller-Application state.
-     *                          TRUE: The Caller-Application is not in focus and not in foreground state.
-     *                          FALSE: The Caller-Application is in focus or in foreground state.
-     * @return Returns ERR_OK on check success, others on check failure.
-     */
-    int IsCallFromBackground(const AbilityRequest &abilityRequest, bool &isBackgroundCall, bool isData = false);
-
     bool IsTargetPermission(const Want &want) const;
-
-    bool IsDelegatorCall(const AppExecFwk::RunningProcessInfo &processInfo, const AbilityRequest &abilityRequest) const;
 
     bool CheckNewRuleSwitchState(const std::string &param);
 
@@ -2125,7 +2103,6 @@ private:
         int requestCode, int32_t userId);
 
     bool CheckCallingTokenId(const std::string &bundleName, int32_t userId = INVALID_USER_ID, int32_t appIndex = 0);
-    bool IsCallerSceneBoard();
 
     void ReleaseAbilityTokenMap(const sptr<IRemoteObject> &token);
 
@@ -2205,9 +2182,6 @@ private:
 
     int StartUIAbilityForOptionWrap(const Want &want, const StartOptions &options, sptr<IRemoteObject> callerToken,
         int32_t userId, int requestCode, uint32_t callerTokenId = 0, bool isImplicit = false);
-
-    int32_t SetBackgroundCall(const AppExecFwk::RunningProcessInfo &processInfo,
-        const AbilityRequest &abilityRequest, bool &isBackgroundCall) const;
 
     void GetRunningMultiAppIndex(const std::string &bundleName, int32_t uid, int32_t &appIndex);
     ErrCode ConvertToExplicitWant(Want& want);
