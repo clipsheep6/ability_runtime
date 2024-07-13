@@ -56,6 +56,9 @@ bool StartAbilityUtils::GetApplicationInfo(const std::string &bundleName, int32_
         StartAbilityUtils::startAbilityInfo->GetAppBundleName() == bundleName) {
         appInfo = StartAbilityUtils::startAbilityInfo->abilityInfo.applicationInfo;
     } else {
+        if (bundleName.empty()) {
+            return false;
+        }
         auto bms = AbilityUtil::GetBundleManagerHelper();
         CHECK_POINTER_AND_RETURN(bms, false);
         bool result = IN_PROCESS_CALL(
