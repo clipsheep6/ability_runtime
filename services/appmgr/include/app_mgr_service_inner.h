@@ -755,15 +755,7 @@ public:
      */
     void NotifyAppStatus(const std::string &bundleName, const std::string &eventData);
 
-    /**
-     * KillProcessByPid, Kill process by PID.
-     *
-     * @param pid_t, the app record pid.
-     * @param reason, the reason why the process is killed, default to "foundation"
-     *
-     * @return ERR_OK, return back success，others fail.
-     */
-    int32_t KillProcessByPid(const pid_t pid, const std::string& reason = "foundation");
+    int32_t KillProcessByPid(const pid_t pid, const std::string& reason = "foundation", int32_t uid = -1);
 
     bool GetAppRunningStateByBundleName(const std::string &bundleName);
 
@@ -1296,7 +1288,7 @@ private:
      *
      * @return true, return back existed，others non-existent.
      */
-    bool ProcessExist(pid_t pid);
+    bool ProcessExist(pid_t pid, int32_t uid = -1);
 
     /**
      * CheckAllProcessExist, Determine whether all processes exist .
