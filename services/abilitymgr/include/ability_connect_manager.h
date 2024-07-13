@@ -373,6 +373,20 @@ private:
     void ConnectAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
     /**
+     * ConnectAbility.Schedule connect ability
+     *
+     * @param abilityRecord, the ptr of the ability to connect.
+     */
+    void ConnectUIServiceExtAbility(const std::shared_ptr<AbilityRecord> &abilityRecord, const Want &want);
+
+    /**
+     * ConnectAbility.Schedule Resume Connect ability
+     *
+     * @param abilityRecord, the ptr of the ability to connect.
+     */
+    void ResumeConnectAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
+
+    /**
      * CommandAbility. Schedule command ability
      *
      * @param abilityRecord, the ptr of the ability to command.

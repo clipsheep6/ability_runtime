@@ -622,10 +622,22 @@ public:
     void ConnectAbility();
 
     /**
+     * connect the ability.
+     *
+     */
+    void ConnectUIServiceExtAbility(const Want &want);
+
+    /**
      * disconnect the ability.
      *
      */
     void DisconnectAbility();
+
+    /**
+     * disconnect the ability with want
+     *
+     */
+    void DisconnectUIServiceExtAbility(const Want &want);
 
     /**
      * Command the ability.
@@ -739,6 +751,11 @@ public:
      */
     std::list<std::shared_ptr<ConnectionRecord>> GetConnectingRecordList();
 
+    /**
+     * get the count of In Progress record.
+     *
+     */
+    uint32_t GetInProgressRecordCount();
     /**
      * remove the connect record from list.
      *
