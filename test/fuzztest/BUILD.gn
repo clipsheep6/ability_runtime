@@ -17,7 +17,13 @@ group("fuzztest") {
   testonly = true
 
   deps = [
+    "abilityappdebuginfo_fuzzer:fuzztest",
+    "abilityappdebugmanager_fuzzer:fuzztest",
+    "abilityappjsheapmeminfo_fuzzer:fuzztest",
+    "abilityappmgrevent_fuzzer:fuzztest",
     "abilityattachtimeout_fuzzer:fuzztest",
+    "abilitychildprocessinfo_fuzzer:fuzztest",
+    "abilitychildprocessrecord_fuzzer:fuzztest",
     "abilityconnectionstub_fuzzer:fuzztest",
     "abilitycontext_fuzzer:fuzztest",
     "abilitymanagerserviceb_fuzzer:fuzztest",
@@ -33,6 +39,7 @@ group("fuzztest") {
     "abilitymanagerservicesecond_fuzzer:fuzztest",
     "abilitymanagerservicesixth_fuzzer:fuzztest",
     "abilitymanagerservicethird_fuzzer:fuzztest",
+    "abilitymemorylevelinfo_fuzzer:fuzztest",
     "abilitymgrrest_fuzzer:fuzztest",
     "abilityrunningrecord_fuzzer:fuzztest",
     "abilitystubabilityrecovery_fuzzer:fuzztest",
