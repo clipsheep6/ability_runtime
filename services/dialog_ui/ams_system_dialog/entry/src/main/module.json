@@ -60,14 +60,14 @@
         "label": "$string:SelectorExtAbility_label",
         "type": "sys/commonUI",
         "visible": false,
-        "exported": true
+        "exported": false
       },
       {
         "name": "AssertFaultDialog",
         "icon": "$media:icon",
         "description": "$string:AssertFaultShareExtAbility_desc",
         "type": "sys/commonUI",
-        "visible": true,
+        "visible": false,
         "srcEntry": "./ets/ShareExtAbility/AssertFaultShareExtAbility.ts"
       }
     ],
