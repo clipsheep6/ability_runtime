@@ -77,6 +77,7 @@ config("ability_public_config") {
   include_dirs = [
     "${ability_runtime_napi_path}/inner/napi_ability_common",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_path}/interfaces/kits/native/ability/ability_runtime",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/distributed",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/kits",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/remote_register_service",
