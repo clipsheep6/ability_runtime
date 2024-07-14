@@ -16,8 +16,9 @@
 #ifndef OHOS_ABILITY_RUNTIME_URI_PERMISSION_EVENT_H
 #define OHOS_ABILITY_RUNTIME_URI_PERMISSION_EVENT_H
 
-#include "event_report.h"
 #include "bundle_mgr_helper.h"
+#include "event_report.h"
+#include "uri.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -26,15 +27,18 @@ class UPMSUtils {
 public:
     static bool SendShareUnPrivilegeUriEvent(uint32_t callTokenId, uint32_t targetTokenId);
     static bool SendSystemAppGrantUriPermissionEvent(uint32_t callerTokenId, uint32_t targetTokenId,
-        const std::vector<std::string> &uriVec, const std::vector<int32_t> &resVec);
+        const std::vector<Uri> &uriVec, const std::vector<bool> &resVec);
     static int32_t GetCurrentAccountId();
-    static bool IsFoundationCall();
+    static bool IsFoundationCall(uint32_t callerTokenId = 0);
     static bool IsSAOrSystemAppCall();
-    static bool IsSystemAppCall(uint32_t tokenId);
+    static bool IsSystemAppCall();
+    static bool IsSystemAppCallByTokenId(uint32_t tokenId);
     static bool CheckIsSystemAppByTokenId(uint32_t tokenId);
     static bool GetBundleNameByTokenId(uint32_t tokenId, std::string &bundleName);
     static std::string GetCallerNameByTokenId(uint32_t callerTokenId);
     static int32_t GetTokenIdByBundleName(const std::string &bundleName, int32_t appIndex, uint32_t &tokenId);
+    static bool CheckUriTypeIsValid(Uri &uri);
+    static bool GetBundleApiTargetVersion(const std::string &bundleName, int32_t &targetApiVersion);
 
 private:
     static std::shared_ptr<AppExecFwk::BundleMgrHelper> ConnectManagerHelper();

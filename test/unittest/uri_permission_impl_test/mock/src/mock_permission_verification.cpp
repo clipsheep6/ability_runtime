@@ -25,6 +25,9 @@ constexpr const char* PERMISSION_WRITE_AUDIO = "ohos.permission.WRITE_AUDIO";
 constexpr const char* PERMISSION_READ_AUDIO = "ohos.permission.READ_AUDIO";
 constexpr const char* PERMISSION_PROXY_AUTHORIZATION_URI = "ohos.permission.PROXY_AUTHORIZATION_URI";
 constexpr const char* PERMISSION_GRANT_URI_PERMISSION_PRIVILEGED = "ohos.permission.GRANT_URI_PERMISSION_PRIVILEGED";
+constexpr const char* PERMISSION_READ_WRITE_DOWNLOAD = "ohos.permission.READ_WRITE_DOWNLOAD_DIRECTORY";
+constexpr const char* PERMISSION_READ_WRITE_DESKTON = "ohos.permission.READ_WRITE_DESKTOP_DIRECTORY";
+constexpr const char* PERMISSION_READ_WRITE_DOCUMENTS = "ohos.permission.READ_WRITE_DOCUMENTS_DIRECTORY";
 } // namespace
 
 bool PermissionVerification::VerifyPermissionByTokenId(const int &tokenId, const std::string &permissionName) const
@@ -36,22 +39,31 @@ bool PermissionVerification::VerifyPermissionByTokenId(const int &tokenId, const
         return MyFlag::permissionFileAccessManager_;
     }
     if (permissionName == PERMISSION_WRITE_IMAGEVIDEO) {
-        return MyFlag::permissionWriteImageVideo_;
+        return MyFlag::permissionWriteImageVideo_ || MyFlag::permissionAllMedia_;
     }
     if (permissionName == PERMISSION_READ_IMAGEVIDEO) {
-        return MyFlag::permissionReadImageVideo_;
+        return MyFlag::permissionReadImageVideo_ || MyFlag::permissionAllMedia_;
     }
     if (permissionName == PERMISSION_WRITE_AUDIO) {
-        return MyFlag::permissionWriteAudio_;
+        return MyFlag::permissionWriteAudio_ || MyFlag::permissionAllMedia_;
     }
     if (permissionName == PERMISSION_READ_AUDIO) {
-        return MyFlag::permissionReadAudio_;
+        return MyFlag::permissionReadAudio_ || MyFlag::permissionAllMedia_;
     }
     if (permissionName == PERMISSION_PROXY_AUTHORIZATION_URI) {
         return MyFlag::permissionProxyAuthorization_;
     }
     if (permissionName == PERMISSION_GRANT_URI_PERMISSION_PRIVILEGED) {
         return MyFlag::permissionPrivileged_;
+    }
+    if (permissionName == PERMISSION_READ_WRITE_DOWNLOAD) {
+        return MyFlag::permissionReadWriteDownload_;
+    }
+    if (permissionName == PERMISSION_READ_WRITE_DESKTON) {
+        return MyFlag::permissionReadWriteDesktop_;
+    }
+    if (permissionName == PERMISSION_READ_WRITE_DOCUMENTS) {
+        return MyFlag::permissionReadWriteDocuments_;
     }
     return false;
 }
@@ -62,6 +74,10 @@ bool PermissionVerification::VerifyCallingPermission(const std::string &permissi
 bool PermissionVerification::IsSACall() const
 {
     return (MyFlag::flag_ & MyFlag::FLAG::IS_SA_CALL);
+}
+bool PermissionVerification::IsSystemAppCall() const
+{
+    return MyFlag::IsSystempAppCall_;
 }
 bool PermissionVerification::IsShellCall() const
 {
