@@ -433,10 +433,6 @@ bool AbilityRecord::CanRestartResident()
 void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    if (GetAbilityVisibilityState() == AbilityVisibilityState::FOREGROUND_HIDE) {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "Ability visibility state is FOREGROUND_HIDE, should not do foreground again.");
-        return;
-    }
     isWindowStarted_ = true;
     TAG_LOGI(AAFwkTag::ABILITYMGR, "ForegroundLifecycle: name:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
