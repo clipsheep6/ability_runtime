@@ -455,8 +455,7 @@ void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRun
         if (!AAFwk::UIExtensionUtils::IsUIExtension(appRecord->GetExtensionType()) &&
             !AAFwk::UIExtensionUtils::IsWindowExtension(appRecord->GetExtensionType())) {
             AppStateData data = WrapAppStateData(appRecord, state);
-            TAG_LOGD(AAFwkTag::APPMGR,
-                "HandleAppStateChanged, name:%{public}s, uid:%{public}d, state:%{public}d, notify:%{public}d",
+            TAG_LOGD(AAFwkTag::APPMGR, "name:%{public}s, uid:%{public}d, state:%{public}d, notify:%{public}d",
                 data.bundleName.c_str(), data.uid, data.state, needNotifyApp);
             dummyCode_ = __LINE__;
             auto appStateObserverMapCopy = GetAppStateObserverMapCopy();

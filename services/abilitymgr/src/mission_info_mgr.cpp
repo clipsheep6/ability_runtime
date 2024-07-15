@@ -493,12 +493,10 @@ void MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const std::shared_
     Snapshot snapshot;
     snapshot.SetPixelMap(pixelMap);
 
-
     if (isPrivate) {
         CreateWhitePixelMap(snapshot);
     }
     savedSnapshot.snapshot = snapshot.GetPixelMap();
-
 
     if (!taskDataPersistenceMgr_->SaveMissionSnapshot(missionId, savedSnapshot)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: save mission snapshot failed");
