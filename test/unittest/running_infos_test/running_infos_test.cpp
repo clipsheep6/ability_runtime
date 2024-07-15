@@ -575,7 +575,6 @@ HWTEST_F(RunningInfosTest, MissionGetAbilityRunningInfos_002, TestSize.Level1)
 HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_001, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->OnStart();
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
@@ -591,11 +590,12 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_001, TestSize.Level1)
         abilityRequest.requestCode);
     dataAbilityRecord->ability_ = abilityRecord;
     const std::string dataAbilityName(abilityRequest.abilityInfo.bundleName + '.' + abilityRequest.abilityInfo.name);
-    abilityMs_->subManagersHelper_->currentDataAbilityManager_->dataAbilityRecordsLoading_.insert(
+    auto manager = std::make_shared<DataAbilityManager>();
+    manager->dataAbilityRecordsLoading_.insert(
         std::pair<std::string, std::shared_ptr<DataAbilityRecord>>(dataAbilityName, dataAbilityRecord));
 
     std::vector<AbilityRunningInfo> infos;
-    abilityMs_->subManagersHelper_->currentDataAbilityManager_->GetAbilityRunningInfos(infos, true);
+    manager->GetAbilityRunningInfos(infos, true);
     size_t infoCount{ 1 };
     EXPECT_TRUE(infos.size() == infoCount);
     if (infos.size() == infoCount) {
@@ -615,7 +615,6 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_001, TestSize.Level1)
 HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_002, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->OnStart();
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
@@ -631,11 +630,12 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_002, TestSize.Level1)
         abilityRequest.requestCode);
     dataAbilityRecord->ability_ = abilityRecord;
     const std::string dataAbilityName(abilityRequest.abilityInfo.bundleName + '.' + abilityRequest.abilityInfo.name);
-    abilityMs_->subManagersHelper_->currentDataAbilityManager_->dataAbilityRecordsLoaded_.insert(
+    auto manager = std::make_shared<DataAbilityManager>();
+    manager->dataAbilityRecordsLoaded_.insert(
         std::pair<std::string, std::shared_ptr<DataAbilityRecord>>(dataAbilityName, dataAbilityRecord));
 
     std::vector<AbilityRunningInfo> infos;
-    abilityMs_->subManagersHelper_->currentDataAbilityManager_->GetAbilityRunningInfos(infos, true);
+    manager->GetAbilityRunningInfos(infos, true);
     size_t infoCount{ 1 };
     EXPECT_TRUE(infos.size() == infoCount);
     if (infos.size() == infoCount) {
@@ -655,7 +655,6 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_002, TestSize.Level1)
 HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_003, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->OnStart();
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
@@ -671,7 +670,8 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_003, TestSize.Level1)
         abilityRequest.requestCode);
     dataAbilityRecord->ability_ = abilityRecord;
     const std::string dataAbilityName(abilityRequest.abilityInfo.bundleName + '.' + abilityRequest.abilityInfo.name);
-    abilityMs_->subManagersHelper_->currentDataAbilityManager_->dataAbilityRecordsLoading_.insert(
+    auto manager = std::make_shared<DataAbilityManager>();
+    manager->dataAbilityRecordsLoading_.insert(
         std::pair<std::string, std::shared_ptr<DataAbilityRecord>>(dataAbilityName, dataAbilityRecord));
 
     ElementName element2("device", "com.ix.hiMusic", "MusicAbilityOther");
@@ -686,11 +686,11 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_003, TestSize.Level1)
         abilityRequest2.requestCode);
     dataAbilityRecord2->ability_ = abilityRecord2;
     const std::string dataAbilityName2(abilityRequest2.abilityInfo.bundleName + '.' + abilityRequest2.abilityInfo.name);
-    abilityMs_->subManagersHelper_->currentDataAbilityManager_->dataAbilityRecordsLoaded_.insert(
+    manager->dataAbilityRecordsLoaded_.insert(
         std::pair<std::string, std::shared_ptr<DataAbilityRecord>>(dataAbilityName2, dataAbilityRecord2));
 
     std::vector<AbilityRunningInfo> infos;
-    abilityMs_->subManagersHelper_->currentDataAbilityManager_->GetAbilityRunningInfos(infos, true);
+    manager->GetAbilityRunningInfos(infos, true);
     size_t infoCount{ 2 };
     EXPECT_TRUE(infos.size() == infoCount);
     if (infos.size() == infoCount) {

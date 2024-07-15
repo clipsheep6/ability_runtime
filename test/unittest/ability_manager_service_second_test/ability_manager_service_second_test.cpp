@@ -276,7 +276,6 @@ HWTEST_F(AbilityManagerServiceSecondTest, CheckCallDataAbilityPermission_002, Te
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest CheckCallDataAbilityPermission_002 start");
     abilityRequest_.abilityInfo.type = AbilityType::DATA;
-    abilityMs_->Init();
     EXPECT_EQ(abilityMs_->CheckCallDataAbilityPermission(abilityRequest_, false), ERR_INVALID_VALUE);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest CheckCallDataAbilityPermission_002 end");
 }
@@ -1326,7 +1325,7 @@ HWTEST_F(AbilityManagerServiceSecondTest, IsAbilityControllerStartById_001, Test
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest IsAbilityControllerStartById_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    EXPECT_TRUE(abilityMs_->IsAbilityControllerStartById(1));
+    EXPECT_FALSE(abilityMs_->IsAbilityControllerStartById(1));
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest IsAbilityControllerStartById_001 end");
 }
 

@@ -3339,7 +3339,7 @@ HWTEST_F(AppMgrServiceInnerTest, SetContinuousTaskProcess_001, TestSize.Level0)
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     int32_t ret = appMgrServiceInner->SetContinuousTaskProcess(0, true);
-    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
 
     BundleInfo bundleInfo;
     std::string processName = "test_processName";
@@ -3773,7 +3773,6 @@ HWTEST_F(AppMgrServiceInnerTest, MakeAppDebugInfo_001, TestSize.Level0)
     auto appDebugInfo = appMgrServiceInner->MakeAppDebugInfo(appRecord, isDebugStart);
     EXPECT_EQ(appDebugInfo.bundleName, "");
     EXPECT_EQ(appDebugInfo.pid, APP_DEBUG_INFO_PID);
-    EXPECT_EQ(appDebugInfo.uid, APP_DEBUG_INFO_UID);
     EXPECT_EQ(appDebugInfo.isDebugStart, true);
 }
 

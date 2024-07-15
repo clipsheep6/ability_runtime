@@ -17,15 +17,9 @@
 
 #define private public
 #define protected public
-#include "js_runtime.h"
-#include "js_runtime_utils.h"
-#include "js_worker.h"
 #include "hdc_register.h"
 #undef private
 #undef protected
-
-#include "event_runner.h"
-#include "mock_js_runtime.h"
 
 using namespace testing;
 using namespace testing::ext;
