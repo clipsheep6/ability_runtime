@@ -88,7 +88,7 @@ AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0100, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetAudioBalance();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_AUDIO_BALANCE_NG);
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_AUDIO_BALANCE_OK);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0100 end";
 }
 
@@ -112,7 +112,7 @@ AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0200, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetAudioBalance();
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_AUDIO_BALANCE_NG);
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_AUDIO_BALANCE_OK);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetAudioBalance_0200 end";
 }
 
