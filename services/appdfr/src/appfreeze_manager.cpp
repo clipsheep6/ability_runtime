@@ -138,7 +138,7 @@ int AppfreezeManager::AppfreezeHandleWithStack(const FaultData& faultData, const
 
     HITRACE_METER_FMT(HITRACE_TAG_APP, "AppfreezeHandleWithStack pid:%d-name:%s",
         appInfo.pid, faultData.errorObject.name.c_str());
-    if (faultData.errorObject.name == AppFreezeType::LIFECYCLE_HALF_TIMEOUT
+    if (faultData.errorObject.name == AppFreezeType::LIFECYCLE_TIMEOUT
         || faultData.errorObject.name == AppFreezeType::APP_INPUT_BLOCK
         || faultData.errorObject.name == AppFreezeType::THREAD_BLOCK_6S) {
         if (AppExecFwk::AppfreezeManager::GetInstance()->IsNeedIgnoreFreezeEvent(appInfo.pid)) {
@@ -179,9 +179,13 @@ std::string AppfreezeManager::WriteToFile(const std::string& fileName, std::stri
         OHOS::ForceCreateDirectory(dir_path);
         OHOS::ChangeModeDirectory(dir_path, defaultLogDirMode);
     }
-
-    std::string stackPath = dir_path + "/" + fileName;
-    constexpr mode_t defaultLogFileMode = 0664;
+    std::string realPath;
+    if (!OHOS::PathToRealPath(dir_path, realPath)) {
+        TAG_LOGE(AAFwkTag::APPDFR, "PathToRealPath Failed:%{public}s.", dir_path.c_str());
+        return "";
+    }
+    std::string stackPath = realPath + "/" + fileName;
+    constexpr mode_t defaultLogFileMode = 0644;
     auto fd = open(stackPath.c_str(), O_CREAT | O_WRONLY | O_TRUNC, defaultLogFileMode);
     if (fd < 0) {
         TAG_LOGI(AAFwkTag::APPDFR, "Failed to create stackPath");
@@ -264,15 +268,15 @@ int AppfreezeManager::NotifyANR(const FaultData& faultData, const AppfreezeManag
     std::string appRunningUniqueId = "";
     DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->GetAppRunningUniqueIdByPid(appInfo.pid,
         appRunningUniqueId);
-    int ret = -1;
+    int ret = 0;
     if (faultData.errorObject.name == AppFreezeType::APP_INPUT_BLOCK) {
-        HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, faultData.errorObject.name,
+        ret = HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, faultData.errorObject.name,
             OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_UID, appInfo.uid, EVENT_PID, appInfo.pid,
             EVENT_PACKAGE_NAME, appInfo.bundleName, EVENT_PROCESS_NAME, appInfo.processName, EVENT_MESSAGE,
             faultData.errorObject.message, EVENT_STACK, faultData.errorObject.stack, BINDER_INFO, binderInfo,
             APP_RUNNING_UNIQUE_ID, appRunningUniqueId, EVENT_INPUT_ID, faultData.eventId);
     } else {
-        HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, faultData.errorObject.name,
+        ret = HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, faultData.errorObject.name,
             OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_UID, appInfo.uid, EVENT_PID, appInfo.pid,
             EVENT_PACKAGE_NAME, appInfo.bundleName, EVENT_PROCESS_NAME, appInfo.processName, EVENT_MESSAGE,
             faultData.errorObject.message, EVENT_STACK, faultData.errorObject.stack, BINDER_INFO, binderInfo,
