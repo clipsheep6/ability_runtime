@@ -2138,7 +2138,8 @@ void AbilityConnectManager::KeepAbilityAlive(const std::shared_ptr<AbilityRecord
             return;
         }
     }
-    if (DelayedSingleton<AppScheduler>::GetInstance()->IsMemorySizeSufficent() ||
+    if (!DelayedSingleton<AppScheduler>::GetInstance()->IsKilledForUpgradeWeb(abilityInfo.bundleName) ||
+        DelayedSingleton<AppScheduler>::GetInstance()->IsMemorySizeSufficent() ||
         IsLauncher(abilityRecord) || abilityRecord->IsSceneBoard() ||
         AppUtils::GetInstance().IsAllowResidentInExtremeMemory(abilityInfo.bundleName, abilityInfo.name)) {
         RestartAbility(abilityRecord, currentUserId);
