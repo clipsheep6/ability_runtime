@@ -7287,6 +7287,11 @@ void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& toke
         TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s AppRecovery::failed find abilityRecord by given token.", __func__);
         return;
     }
+    if (record->IsClearMissionFlag()) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s AppRecovery::not allow EnableRecoverAbility before clearMission.",
+            __func__);
+        return;
+    }
 
     auto callingTokenId = IPCSkeleton::GetCallingTokenID();
     auto tokenID = record->GetApplicationInfo().accessTokenId;
