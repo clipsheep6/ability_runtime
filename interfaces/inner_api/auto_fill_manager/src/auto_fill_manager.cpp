@@ -300,6 +300,21 @@ void AutoFillManager::HandleTimeOut(uint32_t eventId)
     extensionCallback->HandleTimeOut();
 }
 
+bool AutoFillManager::IsNeedToCreatePopupWindow(const AbilityBase::AutoFillType &autoFillType)
+{
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    if (autoFillType == AbilityBase::AutoFillType::PASSWORD ||
+        autoFillType == AbilityBase::AutoFillType::USER_NAME ||
+        autoFillType == AbilityBase::AutoFillType::NEW_PASSWORD) {
+        if (system::GetBoolParameter(AUTO_FILL_START_POPUP_WINDOW, false)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    return true;
+}
+
 std::shared_ptr<AutoFillExtensionCallback> AutoFillManager::GetAutoFillExtensionCallback(uint32_t callbackId)
 {
     std::lock_guard<std::mutex> lock(extensionCallbacksMutex_);
