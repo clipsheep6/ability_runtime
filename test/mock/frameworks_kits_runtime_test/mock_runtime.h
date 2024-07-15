@@ -53,14 +53,6 @@ public:
     {
         return true;
     }
-    void DumpHeapSnapshot(bool isPrivate) override
-    {
-        return;
-    }
-    void DumpCpuProfile() override
-    {
-        return;
-    }
     void DestroyHeapProfiler() override
     {
         return;
@@ -118,7 +110,6 @@ public:
     void StartProfiler(const DebugOption debugOption) override {}
 
     void DoCleanWorkAfterStageCleaned() override {}
-    void DumpHeapSnapshot(uint32_t tid, bool isFullGC) override {}
     void ForceFullGC(uint32_t tid) override {}
 
     void UpdatePkgContextInfoJson(std::string moduleName, std::string hapPath, std::string packageName) override {};

@@ -46,7 +46,6 @@ public:
     }
 
     void StartDebugMode(const DebugOption debugOption) override;
-    void DumpHeapSnapshot(bool isPrivate) override {}
     void NotifyApplicationState(bool isBackground) override {}
     bool SuspendVM(uint32_t tid) override { return false; }
     void ResumeVM(uint32_t tid) override {}
@@ -65,8 +64,6 @@ public:
     void DestroyHeapProfiler() override {};
     void ForceFullGC() override {};
     void ForceFullGC(uint32_t tid) override {};
-    void DumpHeapSnapshot(uint32_t tid, bool isFullGC) override {};
-    void DumpCpuProfile() override {};
     void AllowCrossThreadExecution() override {};
     void GetHeapPrepare() override {};
     void RegisterUncaughtExceptionHandler(const CJUncaughtExceptionInfo& uncaughtExceptionInfo);

@@ -88,9 +88,6 @@ public:
         GTEST_LOG_(INFO) << "MockJsRuntime::GetFileBuffer called";
         return true;
     }
-    void DumpHeapSnapshot(bool isPrivate)
-    {
-    }
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -19,6 +19,7 @@
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime.h"
+#include "js_utils.h"
 #include "singleton.h"
 #include "dfx_jsnapi.h"
 
@@ -49,6 +50,61 @@ void DumpRuntimeHelper::SetAppFreezeFilterCallback()
     };
     auto vm = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetEcmaVm();
     panda::DFXJSNApi::SetAppFreezeFilterCallback(vm, appfreezeFilterCallback);
+}
+
+void DumpRuntimeHelper::DumpCpuProfile()
+{
+    if (application_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "DumpCpuProfile OHOSApplication is nullptr");
+        return;
+    }
+    auto& runtime = application_->GetRuntime();
+    if (runtime == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "DumpCpuProfile GetRuntime is nullptr");
+        return;
+    }
+    auto nativeEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEnginePointer();
+    CHECK_POINTER(nativeEngine);
+    nativeEngine->DumpCpuProfile();
+}
+
+void DumpRuntimeHelper::DumpHeapSnapshot(bool isPrivate)
+{
+    if (application_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "DumpCpuProfile OHOSApplication is nullptr");
+        return;
+    }
+    auto& runtime = application_->GetRuntime();
+    if (runtime == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "DumpCpuProfile GetRuntime is nullptr");
+        return;
+    }
+    auto nativeEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEnginePointer();
+    CHECK_POINTER(nativeEngine);
+    nativeEngine->DumpHeapSnapshot(true, DumpFormat::JSON, isPrivate, false);
+}
+
+void DumpRuntimeHelper::DumpHeapSnapshot(uint32_t tid, bool isFullGC)
+{
+    if (application_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "DumpCpuProfile OHOSApplication is nullptr");
+        return;
+    }
+    auto& runtime = application_->GetRuntime();
+    if (runtime == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "DumpCpuProfile GetRuntime is nullptr");
+        return;
+    }
+    auto vm = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetEcmaVm();
+    CHECK_POINTER(vm);
+    panda::ecmascript::DumpSnapShotOption dumpOption;
+    dumpOption.dumpFormat = panda::ecmascript::DumpFormat::JSON;
+    dumpOption.isVmMode = true;
+    dumpOption.isPrivate = false;
+    dumpOption.captureNumericValue = false;
+    dumpOption.isFullGC = isFullGC;
+    dumpOption.isSync = false;
+    panda::DFXJSNApi::DumpHeapSnapshot(vm, dumpOption, tid);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

@@ -1206,34 +1206,6 @@ void JsRuntime::RemoveTask(const std::string& name)
     jsEnv_->RemoveTask(name);
 }
 
-void JsRuntime::DumpCpuProfile()
-{
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER(nativeEngine);
-    nativeEngine->DumpCpuProfile();
-}
-
-void JsRuntime::DumpHeapSnapshot(bool isPrivate)
-{
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER(nativeEngine);
-    nativeEngine->DumpHeapSnapshot(true, DumpFormat::JSON, isPrivate, false);
-}
-
-void JsRuntime::DumpHeapSnapshot(uint32_t tid, bool isFullGC)
-{
-    auto vm = GetEcmaVm();
-    CHECK_POINTER(vm);
-    panda::ecmascript::DumpSnapShotOption dumpOption;
-    dumpOption.dumpFormat = panda::ecmascript::DumpFormat::JSON;
-    dumpOption.isVmMode = true;
-    dumpOption.isPrivate = false;
-    dumpOption.captureNumericValue = false;
-    dumpOption.isFullGC = isFullGC;
-    dumpOption.isSync = false;
-    DFXJSNApi::DumpHeapSnapshot(vm, dumpOption, tid);
-}
-
 void JsRuntime::ForceFullGC(uint32_t tid)
 {
     auto vm = GetEcmaVm();
