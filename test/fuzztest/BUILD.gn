@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -17,9 +17,16 @@ group("fuzztest") {
   testonly = true
 
   deps = [
+    "abilityappdfrapplicationanrlistener_fuzzer:fuzztest",
+    "abilityappmgrpagestatedata_fuzzer:fuzztest",
+    "abilityappmgrrenderstatedata_fuzzer:fuzztest",
+    "abilityappmgrrenderstateobservermanager_fuzzer:fuzztest",
+    "abilityappmgrrunningmultiinfo_fuzzer:fuzztest",
     "abilityattachtimeout_fuzzer:fuzztest",
     "abilityconnectionstub_fuzzer:fuzztest",
     "abilitycontext_fuzzer:fuzztest",
+    "abilityframeworksnativejsworker_fuzzer:fuzztest",
+    "abilityframeworksnativeohosjsenvlogger_fuzzer:fuzztest",
     "abilitymanagerserviceb_fuzzer:fuzztest",
     "abilitymanagerservicec_fuzzer:fuzztest",
     "abilitymanagerserviced_fuzzer:fuzztest",
@@ -33,6 +40,15 @@ group("fuzztest") {
     "abilitymanagerservicesecond_fuzzer:fuzztest",
     "abilitymanagerservicesixth_fuzzer:fuzztest",
     "abilitymanagerservicethird_fuzzer:fuzztest",
+    "abilitymgrcontrolinterceptor_fuzzer:fuzztest",
+    "abilitymgrecologicalrulemgrserviceparam_fuzzer:fuzztest",
+    "abilitymgrextensionrecord_fuzzer:fuzztest",
+    "abilitymgrinsightintentexecutemanager_fuzzer:fuzztest",
+    "abilitymgrinsightintentexecuteresult_fuzzer:fuzztest",
+    "abilitymgrinsightintentutils_fuzzer:fuzztest",
+    "abilitymgrinterceptorexecuter_fuzzer:fuzztest",
+    "abilitymgrjumpinterceptor_fuzzer:fuzztest",
+    "abilitymgrrdbparserutil_fuzzer:fuzztest",
     "abilitymgrrest_fuzzer:fuzztest",
     "abilityrunningrecord_fuzzer:fuzztest",
     "abilitystubabilityrecovery_fuzzer:fuzztest",

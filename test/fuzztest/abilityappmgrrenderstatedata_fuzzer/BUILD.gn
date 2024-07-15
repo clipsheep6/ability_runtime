@@ -12,55 +12,51 @@
 # limitations under the License.
 
 #####################hydra-fuzz###################
-import("//build/config/features.gni")
-import("//build/ohos.gni")
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
-module_output_path = "ability_runtime/app_manager"
-
 ##############################fuzztest##########################################
-ohos_fuzztest("AbilityAttachTimeOutFuzzTest") {
+module_output_path = "ability_runtime/appmgrservice"
+ohos_fuzztest("AbilityAppMgrRenderStateDataFuzzTest") {
   module_out_path = module_output_path
+  fuzz_config_file = "${ability_runtime_test_path}/fuzztest/abilityappmgrrenderstatedata_fuzzer"
+  include_dirs = [
+    "${ability_runtime_services_path}/appmgr/include",
+    "${ability_runtime_services_path}/abilitymgr/include",
+  ]
 
-  fuzz_config_file =
-      "${ability_runtime_test_path}/fuzztest/abilityattachtimeout_fuzzer"
-  include_dirs = [ "${ability_runtime_innerkits_path}/ability_manager/include" ]
   cflags = [
     "-g",
     "-O0",
     "-Wno-unused-variable",
     "-fno-omit-frame-pointer",
   ]
-  sources = [ "abilityattachtimeout_fuzzer.cpp" ]
-
-  configs = [ "${ability_runtime_innerkits_path}/ability_manager:ability_manager_public_config" ]
+  sources = [ "abilityappmgrrenderstatedata_fuzzer.cpp" ]
 
   deps = [
-    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
-    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
-    "${ability_runtime_native_path}/ability/native:abilitykit_native",
-    "${ability_runtime_services_path}/abilitymgr:abilityms",
+    "${ability_runtime_services_path}/appmgr:libappms",
+    "${ability_runtime_services_path}/common:task_handler_wrap",
   ]
 
   external_deps = [
     "ability_base:configuration",
     "ability_base:want",
-    "ability_base:zuri",
+    "appspawn:appspawn_client",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
+    "faultloggerd:libdfx_dumpcatcher",
+    "faultloggerd:libfaultloggerd",
     "ffrt:libffrt",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "hitrace:hitrace_meter",
+    "init:libbegetutil",
+    "init:libbegetutil",
     "ipc:ipc_core",
-    "napi:ace_napi",
-    "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "window_manager:libwm",
   ]
-
-  if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
-  }
 }
 
 ###############################################################################
@@ -69,7 +65,7 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":AbilityAttachTimeOutFuzzTest",
+    ":AbilityAppMgrRenderStateDataFuzzTest",
   ]
 }
 ###############################################################################
