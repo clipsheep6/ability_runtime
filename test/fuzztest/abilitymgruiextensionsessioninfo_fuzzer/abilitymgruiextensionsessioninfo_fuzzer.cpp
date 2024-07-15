@@ -34,7 +34,7 @@ constexpr size_t U32_AT_SIZE = 4;
 
 bool DoSomethingInterestingWithMyAPI(const char *data, size_t size)
 {
-    std::shared_ptr<UIExtensionSessionInfo> uiExtensionSessionInfo = std::make_shared<UIExtensionSessionInfo>();
+    std::shared_ptr<UIExtensionSessionInfo> uIExtensionSessionInfo = std::make_shared<UIExtensionSessionInfo>();
     Parcel parcel;
     uIExtensionSessionInfo-> Marshalling(parcel);
     return true;
