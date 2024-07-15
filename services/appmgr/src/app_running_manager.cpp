@@ -888,21 +888,6 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByRender
     return ((iter == appRunningRecordMap_.end()) ? nullptr : iter->second);
 }
 
-bool AppRunningManager::CheckCallerIsRenderHost(pid_t callingPid, pid_t renderPid)
-{
-    auto hostRecord = GetAppRunningRecordByRenderPid(renderPid);
-    if (!hostRecord) {
-        TAG_LOGE(AAFwkTag::APPMGR, "hostRecord is nullptr.");
-        return false;
-    }
-    auto priorityObject = hostRecord->GetPriorityObject();
-    if (!priorityObject) {
-        TAG_LOGE(AAFwkTag::APPMGR, "priorityObject is nullptr.");
-        return false;
-    }
-    return priorityObject->GetPid() == callingPid;
-}
-
 std::shared_ptr<RenderRecord> AppRunningManager::OnRemoteRenderDied(const wptr<IRemoteObject> &remote)
 {
     if (remote == nullptr) {
