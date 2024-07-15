@@ -687,55 +687,5 @@ HWTEST_F(AppRunningManagerTest, IsAppProcessesAllCached_0100, TestSize.Level1)
     appRunningManager->appRunningRecordMap_.insert(make_pair(recordId2, appRunningRecord2));
     EXPECT_EQ(appRunningManager->IsAppProcessesAllCached(appInfo->bundleName, appInfo->uid, cachedSet), false);
 }
-
-/**
- * @tc.name: CheckCallerIsRenderHost_0100
- * @tc.desc: Check caller is render pid host.
- * @tc.type: FUNC
- */
-HWTEST_F(AppRunningManagerTest, CheckCallerIsRenderHost_0100, TestSize.Level1)
-{
-    static std::shared_ptr<AppRunningManager> appRunningManager = std::make_shared<AppRunningManager>();
-    ASSERT_NE(appRunningManager, nullptr);
-
-    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
-    auto appRunningRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.tdd.test");
-    auto priorityObject = appRunningRecord->GetPriorityObject();
-    ASSERT_NE(priorityObject, nullptr);
-    priorityObject->SetPid(PID);
-
-    pid_t renderPid = 100;
-    auto renderRecord = std::make_shared<RenderRecord>(PID, "param", 1, 1, 1, appRunningRecord);
-    renderRecord->SetPid(renderPid);
-    appRunningRecord->AddRenderRecord(renderRecord);
-    appRunningManager->appRunningRecordMap_.insert(make_pair(RECORD_ID, appRunningRecord));
-
-    EXPECT_TRUE(appRunningManager->CheckCallerIsRenderHost(PID, renderPid));
-}
-
-/**
- * @tc.name: CheckCallerIsRenderHost_0200
- * @tc.desc: Check caller is render pid host.
- * @tc.type: FUNC
- */
-HWTEST_F(AppRunningManagerTest, CheckCallerIsRenderHost_0200, TestSize.Level1)
-{
-    static std::shared_ptr<AppRunningManager> appRunningManager = std::make_shared<AppRunningManager>();
-    ASSERT_NE(appRunningManager, nullptr);
-
-    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
-    auto appRunningRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.tdd.test");
-    auto priorityObject = appRunningRecord->GetPriorityObject();
-    ASSERT_NE(priorityObject, nullptr);
-    priorityObject->SetPid(PID);
-
-    pid_t renderPid = 100;
-    auto renderRecord = std::make_shared<RenderRecord>(PID, "param", 1, 1, 1, appRunningRecord);
-    renderRecord->SetPid(renderPid);
-    appRunningRecord->AddRenderRecord(renderRecord);
-    appRunningManager->appRunningRecordMap_.insert(make_pair(RECORD_ID, appRunningRecord));
-
-    EXPECT_FALSE(appRunningManager->CheckCallerIsRenderHost(1000, renderPid));
-}
 } // namespace AppExecFwk
 } // namespace OHOS

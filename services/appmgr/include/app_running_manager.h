@@ -255,7 +255,6 @@ public:
     void HandleAddAbilityStageTimeOut(const int64_t eventId);
     void HandleStartSpecifiedAbilityTimeOut(const int64_t eventId);
     std::shared_ptr<AppRunningRecord> GetAppRunningRecordByRenderPid(const pid_t pid);
-    bool CheckCallerIsRenderHost(pid_t callingPid, pid_t renderPid);
     std::shared_ptr<RenderRecord> OnRemoteRenderDied(const wptr<IRemoteObject> &remote);
     bool ProcessExitByPid(pid_t pid);
     bool GetAppRunningStateByBundleName(const std::string &bundleName);
