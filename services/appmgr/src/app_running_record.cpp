@@ -1692,6 +1692,10 @@ void AppRunningRecord::AddRenderRecord(const std::shared_ptr<RenderRecord> &reco
         TAG_LOGD(AAFwkTag::APPMGR, "AddRenderRecord: record is null");
         return;
     }
+    {
+        std::lock_guard renderPidSetLock(renderPidSetLock_);
+        renderPidSet_.insert(record->GetPid());
+    }
     std::lock_guard renderRecordMapLock(renderRecordMapLock_);
     renderRecordMap_.emplace(record->GetUid(), record);
 }
@@ -1704,6 +1708,18 @@ void AppRunningRecord::RemoveRenderRecord(const std::shared_ptr<RenderRecord> &r
     }
     std::lock_guard renderRecordMapLock(renderRecordMapLock_);
     renderRecordMap_.erase(record->GetUid());
+}
+
+void AppRunningRecord::RemoveRenderPid(pid_t renderPid)
+{
+    std::lock_guard renderPidSetLock(renderPidSetLock_);
+    renderPidSet_.erase(renderPid);
+}
+
+bool AppRunningRecord::ConstainsRenderPid(pid_t renderPid)
+{
+    std::lock_guard renderPidSetLock(renderPidSetLock_);
+    return renderPidSet_.find(renderPid) != renderPidSet_.end();
 }
 
 std::shared_ptr<RenderRecord> AppRunningRecord::GetRenderRecordByPid(const pid_t pid)

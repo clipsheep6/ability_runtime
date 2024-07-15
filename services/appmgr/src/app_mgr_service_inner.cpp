@@ -4745,12 +4745,22 @@ int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecor
 
 int AppMgrServiceInner::GetRenderProcessTerminationStatus(pid_t renderPid, int &status)
 {
+    auto callingPid = IPCSkeleton::GetCallingPid();
+    TAG_LOGD(AAFwkTag::APPMGR, "GetRenderProcessTerminationStatus, callingPid:%{public}d, renderPid:%{public}d",
+        callingPid, renderPid);
     if (!appRunningManager_) {
         TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is null");
         return ERR_INVALID_VALUE;
     }
-    if (!appRunningManager_->CheckCallerIsRenderHost(IPCSkeleton::GetCallingPid(), renderPid)) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Permission denied, calling pid is not renderPid host.");
+    auto hostRecord = appRunningManager_->GetAppRunningRecordByPid(callingPid);
+    if (!hostRecord) {
+        TAG_LOGE(AAFwkTag::APPMGR, "hostRecord is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!hostRecord->ConstainsRenderPid(renderPid)) {
+        TAG_LOGE(AAFwkTag::APPMGR,
+            "Permission denied, caller is not renderPid host, callingPid:%{public}d, renderPid:%{public}d.",
+            callingPid, renderPid);
         return ERR_PERMISSION_DENIED;
     }
     if (remoteClientManager_ == nullptr) {
@@ -4773,6 +4783,8 @@ int AppMgrServiceInner::GetRenderProcessTerminationStatus(pid_t renderPid, int &
     }
     TAG_LOGD(AAFwkTag::APPMGR, "Get render process termination status success, renderPid:%{public}d, status:%{public}d",
         renderPid, status);
+    hostRecord->RemoveRenderPid(renderPid);
+
     return 0;
 }
 
