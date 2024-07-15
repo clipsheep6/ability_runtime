@@ -150,4 +150,9 @@ declare_args() {
   } else {
     hichecker_enabled = false
   }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.powermgr_power_manager)) {
+    ability_runtime_power = false
+  }
 }
