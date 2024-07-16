@@ -73,6 +73,18 @@ public:
         const std::string &processName, const int uid, const BundleInfo &bundleInfo,
         const std::string &specifiedProcessFlag = "");
 
+#ifdef APP_NO_RESPONSE_DIALOG
+    /**
+     * CheckAppRunningRecordIsExist, Check whether the process of the app exists by bundle name and process Name.
+     *
+     * @param bundleName, Indicates the bundle name of the bundle..
+     * @param ablityName, ablity name.
+     *
+     * @return true if exist.
+     */
+    bool CheckAppRunningRecordIsExist(const std::string &bundleName, const std::string &ablityName);
+#endif
+
     /**
      * CheckAppRunningRecordIsExistByBundleName, Check whether the process of the application exists.
      *

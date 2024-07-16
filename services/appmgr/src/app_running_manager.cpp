@@ -151,6 +151,33 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
     return nullptr;
 }
 
+#ifdef APP_NO_RESPONSE_DIALOG
+bool AppRunningManager::CheckAppRunningRecordIsExist(const std::string &bundleName, const std::string &ablityName)
+{
+    std::lock_guard guard(runningRecordMapMutex_);
+    if (appRunningRecordMap_.empty()) {
+        return false;
+    }
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (!appRecord) {
+            continue;
+        }
+        if (appRecord->GetBundleName() != bundleName) {
+            continue;
+        }
+        const auto &abilityRunningRecordMap = appRecord->GetAbilities();
+        for (const auto &abilityItem : abilityRunningRecordMap) {
+            const auto &abilityRunning = abilityItem.second;
+            if (abilityRunning && abilityRunning->GetName() == ablityName) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+#endif
+
 bool AppRunningManager::CheckAppRunningRecordIsExistByBundleName(const std::string &bundleName)
 {
     std::lock_guard guard(runningRecordMapMutex_);
