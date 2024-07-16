@@ -101,6 +101,8 @@ struct VerificationInfo {
 
     bool VerifyPreStartAtomicServicePermission() const;
 
+    bool VerifyKillProcessDependedOnWebPermission() const;
+
 private:
     DISALLOW_COPY_AND_MOVE(PermissionVerification);
 

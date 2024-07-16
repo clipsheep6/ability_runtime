@@ -298,6 +298,14 @@ public:
 
     virtual void BlockProcessCacheByPids(const std::vector<int32_t> &pids) override;
 
+    /**
+     * whether killed for upgrade web.
+     *
+     * @param bundleName the bundle name is killed for upgrade web.
+     * @return Returns true is killed for upgrade web, others return false.
+     */
+    virtual bool IsKilledForUpgradeWeb(const std::string &bundleName) override;
+
 private:
     /**
      * @brief Judge whether the application service is ready.

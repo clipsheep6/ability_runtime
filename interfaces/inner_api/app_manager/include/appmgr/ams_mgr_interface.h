@@ -321,6 +321,17 @@ public:
      */
     virtual void BlockProcessCacheByPids(const std::vector<int32_t> &pids) {}
 
+    /**
+     * whether killed for upgrade web.
+     *
+     * @param bundleName the bundle name is killed for upgrade web.
+     * @return Returns true is killed for upgrade web, others return false.
+     */
+    virtual bool IsKilledForUpgradeWeb(const std::string &bundleName)
+    {
+        return true;
+    }
+
     enum class Message {
         LOAD_ABILITY = 0,
         TERMINATE_ABILITY,
@@ -367,6 +378,7 @@ public:
         NOTIFY_APP_MGR_RECORD_EXIT_REASON,
         ATTACHED_TO_STATUS_BAR,
         BLOCK_PROCESS_CACHE_BY_PIDS,
+        IS_KILLED_FOR_UPGRADE_WEB,
     };
 };
 }  // namespace AppExecFwk

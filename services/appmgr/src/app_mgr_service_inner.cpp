@@ -6063,6 +6063,10 @@ void AppMgrServiceInner::ClearAppRunningDataForKeepAlive(const std::shared_ptr<A
     }
 
     if (appRecord->IsKeepAliveApp()) {
+        if (ExitResidentProcessManager::GetInstance().IsKilledForUpgradeWeb(appRecord->GetBundleName())) {
+            TAG_LOGI(AAFwkTag::APPMGR, "Is killed for upgrade web");
+            return;
+        }
         if (!AAFwk::AppUtils::GetInstance().IsAllowResidentInExtremeMemory(appRecord->GetBundleName()) &&
             ExitResidentProcessManager::GetInstance().RecordExitResidentBundleName(appRecord->GetBundleName())) {
             TAG_LOGI(AAFwkTag::APPMGR, "memory size is insufficent, record exit resident process info");
@@ -7086,17 +7090,17 @@ void AppMgrServiceInner::KillProcessDependedOnWeb()
     CHECK_POINTER_AND_RETURN_LOG(appRunningManager_, "appRunningManager_ is nullptr");
     for (const auto &item : appRunningManager_->GetAppRunningRecordMap()) {
         const auto &appRecord = item.second;
-        if (!appRecord || !appRecord->GetSpawned() || !appRecord->GetPriorityObject()) {
+        if (!appRecord || !appRecord->GetSpawned() ||
+            !appRecord->GetPriorityObject() || !appRecord->IsDependedOnArkWeb()) {
             continue;
         }
 
-        if (appRecord->IsDependedOnArkWeb()) {
-            std::string bundleName = appRecord->GetBundleName();
-            pid_t pid = appRecord->GetPriorityObject()->GetPid();
-            appRecord->IsKeepAliveApp() &&
-                ExitResidentProcessManager::GetInstance().RecordExitResidentBundleDependedOnWeb(bundleName);
-            KillProcessByPid(pid, "KillProcessDependedOnWeb");
+        std::string bundleName = appRecord->GetBundleName();
+        pid_t pid = appRecord->GetPriorityObject()->GetPid();
+        if (appRecord->IsKeepAliveApp()) {
+            ExitResidentProcessManager::GetInstance().RecordExitResidentBundleDependedOnWeb(bundleName);
         }
+        KillProcessByPid(pid, "KillProcessDependedOnWeb");
     }
 }
 
@@ -7131,6 +7135,16 @@ void AppMgrServiceInner::BlockProcessCacheByPids(const std::vector<int32_t>& pid
         }
         appRecord->SetProcessCacheBlocked(true);
     }
+}
+
+bool AppMgrServiceInner::IsKilledForUpgradeWeb(const std::string &bundleName) const
+{
+    auto callerUid = IPCSkeleton::GetCallingUid();
+    if (callerUid != FOUNDATION_UID) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not foundation call.");
+        return false;
+    }
+    return ExitResidentProcessManager::GetInstance().IsKilledForUpgradeWeb(bundleName);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

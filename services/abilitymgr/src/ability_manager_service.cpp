@@ -11017,6 +11017,7 @@ void AbilityManagerService::NotifyFrozenProcessByRSS(const std::vector<int32_t> 
 
 void AbilityManagerService::HandleRestartResidentProcessDependedOnWeb()
 {
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     auto appMgr = GetAppMgr();
     CHECK_POINTER_LOG(appMgr, "get appMgr fail");
     appMgr->RestartResidentProcessDependedOnWeb();

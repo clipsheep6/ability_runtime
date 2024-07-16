@@ -2138,6 +2138,10 @@ void AbilityConnectManager::KeepAbilityAlive(const std::shared_ptr<AbilityRecord
             return;
         }
     }
+    if (DelayedSingleton<AppScheduler>::GetInstance()->IsKilledForUpgradeWeb(abilityInfo.bundleName)) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "bundle is killed for upgrade web");
+        return;
+    }
     if (DelayedSingleton<AppScheduler>::GetInstance()->IsMemorySizeSufficent() ||
         IsLauncher(abilityRecord) || abilityRecord->IsSceneBoard() ||
         AppUtils::GetInstance().IsAllowResidentInExtremeMemory(abilityInfo.bundleName, abilityInfo.name)) {

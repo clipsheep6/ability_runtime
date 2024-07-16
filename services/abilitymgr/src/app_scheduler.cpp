@@ -607,5 +607,14 @@ void AppScheduler::BlockProcessCacheByPids(const std::vector<int32_t> &pids)
     CHECK_POINTER(appMgrClient_);
     appMgrClient_->BlockProcessCacheByPids(pids);
 }
+
+bool AppScheduler::IsKilledForUpgradeWeb(const std::string &bundleName)
+{
+    if (!appMgrClient_) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "appMgrClient is nullptr");
+        return false;
+    }
+    return appMgrClient_->IsKilledForUpgradeWeb(bundleName);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

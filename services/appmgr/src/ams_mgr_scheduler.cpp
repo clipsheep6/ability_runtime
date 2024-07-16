@@ -645,5 +645,14 @@ void AmsMgrScheduler::BlockProcessCacheByPids(const std::vector<int32_t> &pids)
     };
     amsHandler_->SubmitTask(blockProcCacheFunc, TASK_BLOCK_PROCESS_CACHE_BY_PIDS);
 }
+
+bool AmsMgrScheduler::IsKilledForUpgradeWeb(const std::string &bundleName)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return false;
+    }
+    return amsMgrServiceInner_->IsKilledForUpgradeWeb(bundleName);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
