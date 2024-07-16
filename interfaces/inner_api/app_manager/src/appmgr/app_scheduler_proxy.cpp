@@ -587,7 +587,7 @@ int32_t AppSchedulerProxy::ScheduleChangeAppGcState(int32_t state)
 
 void AppSchedulerProxy::AttachAppDebug()
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
@@ -605,7 +605,7 @@ void AppSchedulerProxy::AttachAppDebug()
 
 void AppSchedulerProxy::DetachAppDebug()
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");

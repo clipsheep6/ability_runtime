@@ -30,7 +30,7 @@ AbilityForegroundStateObserverStub::~AbilityForegroundStateObserverStub() {}
 int32_t AbilityForegroundStateObserverStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::u16string descriptor = AbilityForegroundStateObserverStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {

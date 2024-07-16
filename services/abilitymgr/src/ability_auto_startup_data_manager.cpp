@@ -299,7 +299,7 @@ AutoStartupStatus AbilityAutoStartupDataManager::QueryAutoStartupData(const Auto
 int32_t AbilityAutoStartupDataManager::QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList,
     int32_t userId)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "called");
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
@@ -332,7 +332,7 @@ int32_t AbilityAutoStartupDataManager::QueryAllAutoStartupApplications(std::vect
 int32_t AbilityAutoStartupDataManager::GetCurrentAppAutoStartupData(
     const std::string &bundleName, std::vector<AutoStartupInfo> &infoList, const std::string &accessTokenId)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "called");
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {

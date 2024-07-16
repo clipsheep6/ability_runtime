@@ -79,7 +79,7 @@ void ModalSystemAppFreezeUIExtension::ProcessAppFreeze(bool focusFlag, const Fau
 
 bool ModalSystemAppFreezeUIExtension::CreateModalUIExtension(std::string pid, std::string bundleName)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "CreateModalUIExtension Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     AAFwk::Want want = CreateSystemDialogWant(pid, bundleName);
     std::unique_lock<std::mutex> lockAssertResult(appFreezeResultMutex_);
     auto callback = GetConnection();
@@ -130,7 +130,7 @@ void ModalSystemAppFreezeUIExtension::AppFreezeDialogConnection::SetReqeustAppFr
 void ModalSystemAppFreezeUIExtension::AppFreezeDialogConnection::OnAbilityConnectDone(
     const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remote, int resultCode)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (remote == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Input remote object is nullptr.");
         return;
@@ -165,7 +165,7 @@ void ModalSystemAppFreezeUIExtension::AppFreezeDialogConnection::OnAbilityConnec
 void ModalSystemAppFreezeUIExtension::AppFreezeDialogConnection::OnAbilityDisconnectDone(
     const AppExecFwk::ElementName &element, int resultCode)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "OnAbilityDisconnectDone Called.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
 }
 } // namespace AppExecFwk
 } // namespace OHOS

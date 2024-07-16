@@ -48,7 +48,7 @@ void JSAbilityFirstFrameStateObserver::OnAbilityFirstFrameState(
 void JSAbilityFirstFrameStateObserver::HandleOnAbilityFirstFrameState(
     const AbilityFirstFrameStateData &AbilityFirstFrameStateData)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     napi_value obj = jsObserverObject_->GetNapiValue();
     napi_value argv[] = { CreateJsAbilityFirstFrameStateData(env_, AbilityFirstFrameStateData) };
     CallJsFunction(obj, "onAbilityFirstFrameDrawn", argv, ARGC_ONE);
@@ -57,7 +57,7 @@ void JSAbilityFirstFrameStateObserver::HandleOnAbilityFirstFrameState(
 void JSAbilityFirstFrameStateObserver::CallJsFunction(
     const napi_value value, const char *methodName, const napi_value *argv, const size_t argc)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (value == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "value is nullptr.");
         return;
@@ -128,7 +128,7 @@ bool JSAbilityFirstFrameStateObserverManager::IsObserverObjectExist(const napi_v
 void JSAbilityFirstFrameStateObserverManager::RemoveAllJsObserverObjects(
     sptr<OHOS::AAFwk::IAbilityManager> &abilityManager)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (abilityManager == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityManager is nullptr.");
         return;
@@ -144,7 +144,7 @@ void JSAbilityFirstFrameStateObserverManager::RemoveAllJsObserverObjects(
 void JSAbilityFirstFrameStateObserverManager::RemoveJsObserverObject(
     sptr<OHOS::AAFwk::IAbilityManager> &abilityManager, const napi_value &jsObserverObject)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (abilityManager == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityManager is nullptr.");
         return;

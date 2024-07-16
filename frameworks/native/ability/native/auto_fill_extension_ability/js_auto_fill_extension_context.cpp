@@ -31,7 +31,7 @@ constexpr size_t ARGC_ONE = 1;
 }
 void JsAutoFillExtensionContext::Finalizer(napi_env env, void *data, void *hint)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     std::unique_ptr<JsAutoFillExtensionContext>(static_cast<JsAutoFillExtensionContext*>(data));
 }
 
@@ -42,7 +42,7 @@ napi_value JsAutoFillExtensionContext::ReloadInModal(napi_env env, napi_callback
 
 napi_value JsAutoFillExtensionContext::OnReloadInModal(napi_env env, NapiCallbackInfo &info)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     if (info.argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Not enough params");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
@@ -94,7 +94,7 @@ napi_value JsAutoFillExtensionContext::OnReloadInModal(napi_env env, NapiCallbac
 napi_value JsAutoFillExtensionContext::CreateJsAutoFillExtensionContext(
     napi_env env, const std::shared_ptr<AutoFillExtensionContext> &context)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr;
     if (context != nullptr) {
         abilityInfo = context->GetAbilityInfo();

@@ -148,7 +148,7 @@ private:
 
     napi_value OnOn(napi_env env, size_t argc, napi_value *argv)
     {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
         if (argc < ARGC_TWO) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Not enough params.");
             ThrowTooFewParametersError(env);
@@ -194,7 +194,7 @@ private:
 
     napi_value OnOff(napi_env env, size_t argc, napi_value *argv)
     {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
         if (argc < ARGC_ONE) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Not enough params when off.");
             ThrowTooFewParametersError(env);
@@ -232,7 +232,7 @@ private:
 
     napi_value OnNotifyDebugAssertResult(napi_env env, size_t argc, napi_value *argv)
     {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
         if (argc < ARGC_TWO) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Not enough params when off.");
             ThrowTooFewParametersError(env);
@@ -549,7 +549,7 @@ private:
 
     napi_value OnGetForegroundUIAbilities(napi_env env, size_t argc, napi_value *argv)
     {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
         NapiAsyncTask::CompleteCallback complete = [](napi_env env, NapiAsyncTask &task, int32_t status) {
             std::vector<AppExecFwk::AbilityStateData> list;
             int32_t ret = AbilityManagerClient::GetInstance()->GetForegroundUIAbilities(list);
@@ -570,7 +570,7 @@ private:
 
     napi_value OnSetResidentProcessEnabled(napi_env env, size_t argc, napi_value *argv)
     {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
         if (argc < ARGC_TWO) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Not enough params when off.");
             ThrowTooFewParametersError(env);
@@ -620,7 +620,7 @@ private:
 
     napi_value OnIsEmbeddedOpenAllowed(napi_env env, NapiCallbackInfo& info)
     {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
         if (info.argc < ARGC_TWO) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Not enough params");
             ThrowTooFewParametersError(env);

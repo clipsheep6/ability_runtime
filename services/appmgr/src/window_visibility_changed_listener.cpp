@@ -30,7 +30,7 @@ WindowVisibilityChangedListener::WindowVisibilityChangedListener(
 void WindowVisibilityChangedListener::OnWindowVisibilityChanged(
     const std::vector<sptr<WindowVisibilityInfo>> &windowVisibilityInfos)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (windowVisibilityInfos.empty()) {
         TAG_LOGW(AAFwkTag::APPMGR, "Window visibility info is empty.");
         return;

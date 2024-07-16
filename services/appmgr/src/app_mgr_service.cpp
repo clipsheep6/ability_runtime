@@ -533,7 +533,7 @@ int32_t AppMgrService::UnregisterApplicationStateObserver(const sptr<IApplicatio
 int32_t AppMgrService::RegisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!IsReady()) {
         TAG_LOGE(AAFwkTag::APPMGR, "Not ready.");
         return ERR_INVALID_OPERATION;
@@ -543,7 +543,7 @@ int32_t AppMgrService::RegisterAbilityForegroundStateObserver(const sptr<IAbilit
 
 int32_t AppMgrService::UnregisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!IsReady()) {
         TAG_LOGE(AAFwkTag::APPMGR, "Not ready.");
         return ERR_INVALID_OPERATION;
@@ -620,7 +620,7 @@ int AppMgrService::FinishUserTest(const std::string &msg, const int64_t &resultC
 
 int AppMgrService::Dump(int fd, const std::vector<std::u16string>& args)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!IsReady()) {
         TAG_LOGE(AAFwkTag::APPMGR, "not ready.");
         return ERR_APPEXECFWK_HIDUMP_ERROR;
@@ -638,7 +638,7 @@ int AppMgrService::Dump(int fd, const std::vector<std::u16string>& args)
 
 int AppMgrService::Dump(const std::vector<std::u16string>& args, std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto size = args.size();
     if (size == 0) {
         return ShowHelp(args, result);
@@ -672,7 +672,7 @@ int AppMgrService::ShowHelp(const std::vector<std::u16string>& args, std::string
 
 int AppMgrService::DumpIpcAllInner(const AppMgrService::DumpIpcKey key, std::string& result)
 {
-    TAG_LOGI(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGI(AAFwkTag::APPMGR, "called");
     switch (key) {
         case KEY_DUMP_IPC_START:
             return DumpIpcAllStart(result);
@@ -692,7 +692,7 @@ int AppMgrService::DumpIpcAllInner(const AppMgrService::DumpIpcKey key, std::str
 int AppMgrService::DumpIpcWithPidInner(const AppMgrService::DumpIpcKey key,
     const std::string& optionPid, std::string& result)
 {
-    TAG_LOGI(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGI(AAFwkTag::APPMGR, "called");
     int32_t pid = -1;
     char* end = nullptr;
     pid = static_cast<int32_t>(std::strtol(optionPid.c_str(), &end, BASE_TEN));
@@ -840,37 +840,37 @@ int AppMgrService::DumpFfrt(const std::vector<std::u16string>& args, std::string
 
 int AppMgrService::DumpIpcAllStart(std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     return appMgrServiceInner_->DumpIpcAllStart(result);
 }
 
 int AppMgrService::DumpIpcAllStop(std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     return appMgrServiceInner_->DumpIpcAllStop(result);
 }
 
 int AppMgrService::DumpIpcAllStat(std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     return appMgrServiceInner_->DumpIpcAllStat(result);
 }
 
 int AppMgrService::DumpIpcStart(const int32_t pid, std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     return appMgrServiceInner_->DumpIpcStart(pid, result);
 }
 
 int AppMgrService::DumpIpcStop(const int32_t pid, std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     return appMgrServiceInner_->DumpIpcStop(pid, result);
 }
 
 int AppMgrService::DumpIpcStat(const int32_t pid, std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     return appMgrServiceInner_->DumpIpcStat(pid, result);
 }
 
@@ -1294,7 +1294,7 @@ int32_t AppMgrService::NotifyPageHide(const sptr<IRemoteObject> &token, const Pa
 
 int32_t AppMgrService::RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!IsReady()) {
         TAG_LOGE(AAFwkTag::APPMGR, "Not ready");
         return ERR_INVALID_OPERATION;
@@ -1304,7 +1304,7 @@ int32_t AppMgrService::RegisterAppRunningStatusListener(const sptr<IRemoteObject
 
 int32_t AppMgrService::UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!IsReady()) {
         TAG_LOGE(AAFwkTag::APPMGR, "Not ready.");
         return ERR_INVALID_OPERATION;
@@ -1314,7 +1314,7 @@ int32_t AppMgrService::UnregisterAppRunningStatusListener(const sptr<IRemoteObje
 
 int32_t AppMgrService::RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!IsReady()) {
         TAG_LOGE(AAFwkTag::APPMGR, "Not ready.");
         return ERR_INVALID_OPERATION;
@@ -1324,7 +1324,7 @@ int32_t AppMgrService::RegisterAppForegroundStateObserver(const sptr<IAppForegro
 
 int32_t AppMgrService::UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!IsReady()) {
         TAG_LOGE(AAFwkTag::APPMGR, "Not ready.");
         return ERR_INVALID_OPERATION;
@@ -1350,7 +1350,7 @@ int32_t AppMgrService::IsAppRunning(const std::string &bundleName, int32_t appCl
 
 int32_t AppMgrService::StartChildProcess(pid_t &childPid, const ChildProcessRequest &request)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!IsReady()) {
         TAG_LOGE(AAFwkTag::APPMGR, "StartChildProcess failed, AppMgrService not ready.");
         return ERR_INVALID_OPERATION;

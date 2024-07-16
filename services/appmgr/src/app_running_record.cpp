@@ -1917,7 +1917,7 @@ bool AppRunningRecord::IsAbilitytiesBackground()
 void AppRunningRecord::OnWindowVisibilityChanged(
     const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (windowVisibilityInfos.empty()) {
         TAG_LOGW(AAFwkTag::APPMGR, "Window visibility info is empty.");
         return;
@@ -2067,7 +2067,7 @@ int32_t AppRunningRecord::ChangeAppGcState(const int32_t state)
 
 void AppRunningRecord::SetAttachDebug(const bool &isAttachDebug)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     isAttachDebug_ = isAttachDebug;
 
     if (appLifeCycleDeal_ == nullptr) {
@@ -2230,7 +2230,7 @@ std::string AppRunningRecord::GetExitMsg() const
 
 int AppRunningRecord::DumpIpcStart(std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (appLifeCycleDeal_ == nullptr) {
         result.append(MSG_DUMP_IPC_START_STAT, strlen(MSG_DUMP_IPC_START_STAT))
             .append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
@@ -2243,7 +2243,7 @@ int AppRunningRecord::DumpIpcStart(std::string& result)
 
 int AppRunningRecord::DumpIpcStop(std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (appLifeCycleDeal_ == nullptr) {
         result.append(MSG_DUMP_IPC_STOP_STAT, strlen(MSG_DUMP_IPC_STOP_STAT))
             .append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
@@ -2256,7 +2256,7 @@ int AppRunningRecord::DumpIpcStop(std::string& result)
 
 int AppRunningRecord::DumpIpcStat(std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (appLifeCycleDeal_ == nullptr) {
         result.append(MSG_DUMP_IPC_STAT, strlen(MSG_DUMP_IPC_STAT))
             .append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
@@ -2269,7 +2269,7 @@ int AppRunningRecord::DumpIpcStat(std::string& result)
 
 int AppRunningRecord::DumpFfrt(std::string& result)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (appLifeCycleDeal_ == nullptr) {
         result.append(MSG_DUMP_FAIL, strlen(MSG_DUMP_FAIL))
             .append(MSG_DUMP_FAIL_REASON_INTERNAL, strlen(MSG_DUMP_FAIL_REASON_INTERNAL));

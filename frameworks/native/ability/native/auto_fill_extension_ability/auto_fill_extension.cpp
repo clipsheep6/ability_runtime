@@ -25,7 +25,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 AutoFillExtension *AutoFillExtension::Create(const std::unique_ptr<Runtime> &runtime)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     if (runtime == nullptr) {
         return new AutoFillExtension();
     }
@@ -41,7 +41,7 @@ void AutoFillExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     ExtensionBase<AutoFillExtensionContext>::Init(record, application, handler, token);
 }
 

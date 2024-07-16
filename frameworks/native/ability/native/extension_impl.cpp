@@ -469,7 +469,7 @@ void ExtensionImpl::SendResult(int requestCode, int resultCode, const Want &resu
 
 void ExtensionImpl::SetLaunchParam(const AAFwk::LaunchParam &launchParam)
 {
-    TAG_LOGD(AAFwkTag::EXT, "Called.");
+    TAG_LOGD(AAFwkTag::EXT, "called");
     if (extension_ == nullptr) {
         TAG_LOGE(AAFwkTag::EXT, "Extension is nullptr.");
         return;

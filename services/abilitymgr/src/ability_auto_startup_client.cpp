@@ -94,7 +94,7 @@ ErrCode AbilityAutoStartupClient::Connect()
 
 ErrCode AbilityAutoStartupClient::SetApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->SetApplicationAutoStartupByEDM(info, flag);
@@ -102,7 +102,7 @@ ErrCode AbilityAutoStartupClient::SetApplicationAutoStartupByEDM(const AutoStart
 
 ErrCode AbilityAutoStartupClient::CancelApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->CancelApplicationAutoStartupByEDM(info, flag);
@@ -110,7 +110,7 @@ ErrCode AbilityAutoStartupClient::CancelApplicationAutoStartupByEDM(const AutoSt
 
 ErrCode AbilityAutoStartupClient::QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList)
 {
-    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "called");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->QueryAllAutoStartupApplications(infoList);

@@ -161,7 +161,7 @@ int32_t AppExitReasonHelper::RecordProcessExitReason(const int32_t pid, const st
 int32_t AppExitReasonHelper::RecordProcessExtensionExitReason(
     const int32_t pid, const std::string &bundleName, const ExitReason &exitReason)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     CHECK_POINTER_AND_RETURN(subManagersHelper_, ERR_NULL_OBJECT);
     auto connectManager = subManagersHelper_->GetCurrentConnectManager();
     CHECK_POINTER_AND_RETURN(connectManager, ERR_NULL_OBJECT);

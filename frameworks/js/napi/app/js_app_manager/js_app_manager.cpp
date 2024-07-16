@@ -342,7 +342,7 @@ private:
 
     napi_value OnOnForeground(napi_env env, size_t argc, napi_value *argv)
     {
-        TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+        TAG_LOGD(AAFwkTag::APPMGR, "called");
         if (argc < ARGC_TWO) {
             TAG_LOGE(AAFwkTag::APPMGR, "Not enough params.");
             ThrowTooFewParametersError(env);
@@ -582,7 +582,7 @@ private:
 
     napi_value OnOffForeground(napi_env env, size_t argc, napi_value *argv)
     {
-        TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+        TAG_LOGD(AAFwkTag::APPMGR, "called");
         if (argc < ARGC_ONE) {
             TAG_LOGE(AAFwkTag::APPMGR, "Not enough params when off.");
             ThrowTooFewParametersError(env);
@@ -1226,7 +1226,7 @@ private:
 
     napi_value OnIsApplicationRunning(napi_env env, size_t argc, napi_value *argv)
     {
-        TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+        TAG_LOGD(AAFwkTag::APPMGR, "called");
         if (argc < ARGC_ONE) {
             TAG_LOGE(AAFwkTag::APPMGR, "Params not match.");
             ThrowTooFewParametersError(env);
@@ -1271,7 +1271,7 @@ private:
 
     napi_value OnIsAppRunning(napi_env env, size_t argc, napi_value *argv)
     {
-        TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+        TAG_LOGD(AAFwkTag::APPMGR, "called");
         if (argc < ARGC_ONE) {
             TAG_LOGE(AAFwkTag::APPMGR, "Params not match.");
             ThrowTooFewParametersError(env);

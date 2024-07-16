@@ -25,7 +25,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 int32_t AppRunningStatusModule::RegisterListener(const sptr<AppRunningStatusListenerInterface> &listener)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (listener == nullptr || listener->AsObject() == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "Listener is null.");
         return ERR_INVALID_OPERATION;
@@ -56,7 +56,7 @@ int32_t AppRunningStatusModule::RegisterListener(const sptr<AppRunningStatusList
 
 int32_t AppRunningStatusModule::UnregisterListener(const sptr<AppRunningStatusListenerInterface> &listener)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (listener == nullptr || listener->AsObject() == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "Input param invalid.");
         return ERR_INVALID_VALUE;
@@ -68,7 +68,7 @@ int32_t AppRunningStatusModule::UnregisterListener(const sptr<AppRunningStatusLi
 void AppRunningStatusModule::NotifyAppRunningStatusEvent(
     const std::string &bundle, int32_t uid, RunningStatus runningStatus)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::lock_guard<std::mutex> lock(listenerMutex_);
     for (const auto &item : listeners_) {
         if (item.first == nullptr) {
@@ -87,7 +87,7 @@ AppRunningStatusModule::ClientDeathRecipient::ClientDeathRecipient(const std::we
 
 void AppRunningStatusModule::ClientDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto appRunningStatus = weakPtr_.lock();
     if (appRunningStatus == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "appRunningStatus is nullptr.");
@@ -98,7 +98,7 @@ void AppRunningStatusModule::ClientDeathRecipient::OnRemoteDied(const wptr<IRemo
 
 int32_t AppRunningStatusModule::RemoveListenerAndDeathRecipient(const wptr<IRemoteObject> &remote)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto listener = remote.promote();
     if (listener == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "Remote object is nullptr.");

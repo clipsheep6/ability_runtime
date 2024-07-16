@@ -189,7 +189,7 @@ int32_t ResidentProcessManager::SetResidentProcessEnabled(
 void ResidentProcessManager::UpdateResidentProcessesStatus(
     const std::string &bundleName, bool localEnable, bool updateEnable)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (bundleName.empty()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Bundle name is empty!");
         return;

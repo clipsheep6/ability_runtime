@@ -27,7 +27,7 @@ AutoFillEventHandler::AutoFillEventHandler(const std::shared_ptr<AppExecFwk::Eve
 
 void AutoFillEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "called");
     if (event == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Event is nullptr.");
         return;

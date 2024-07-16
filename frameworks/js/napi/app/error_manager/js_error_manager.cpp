@@ -540,7 +540,7 @@ private:
             loopObserver_ = nullptr;
             TAG_LOGI(AAFwkTag::JSNAPI, "Remove loopObserver success");
         } else {
-            TAG_LOGI(AAFwkTag::JSNAPI, "Unregister loopObserver Called.");
+            TAG_LOGI(AAFwkTag::JSNAPI, "called");
         }
         return nullptr;
     }

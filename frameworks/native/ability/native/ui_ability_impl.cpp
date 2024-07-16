@@ -154,13 +154,13 @@ int32_t UIAbilityImpl::Share(AAFwk::WantParams &wantParam)
 
 void UIAbilityImpl::DispatchSaveAbilityState()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     needSaveDate_ = true;
 }
 
 void UIAbilityImpl::DispatchRestoreAbilityState(const AppExecFwk::PacMap &inState)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     hasSaveData_ = true;
     restoreData_ = inState;
 }
@@ -471,7 +471,7 @@ void UIAbilityImpl::WindowLifeCycleImpl::AfterForeground()
 void UIAbilityImpl::WindowLifeCycleImpl::AfterBackground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     FreezeUtil::LifecycleFlow flow = { token_, FreezeUtil::TimeoutState::BACKGROUND };
     std::string entry = std::to_string(TimeUtil::SystemTimeMillisecond()) +
         "; UIAbilityImpl::WindowLifeCycleImpl::AfterBackground; the background lifecycle.";
@@ -563,7 +563,7 @@ void UIAbilityImpl::Foreground(const AAFwk::Want &want)
 
 void UIAbilityImpl::WindowLifeCycleImpl::BackgroundFailed(int32_t type)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (type == static_cast<int32_t>(OHOS::Rosen::WMError::WM_DO_NOTHING)) {
         AppExecFwk::PacMap restoreData;
         AAFwk::AbilityManagerClient::GetInstance()->AbilityTransitionDone(

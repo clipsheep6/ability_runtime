@@ -1272,7 +1272,7 @@ int32_t AppMgrStub::HandleUnregisterAppForegroundStateObserver(MessageParcel &da
 int32_t AppMgrStub::HandleIsApplicationRunning(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::string bundleName = data.ReadString();
     bool isRunning = false;
     int32_t result = IsApplicationRunning(bundleName, isRunning);
@@ -1288,7 +1288,7 @@ int32_t AppMgrStub::HandleIsApplicationRunning(MessageParcel &data, MessageParce
 int32_t AppMgrStub::HandleIsAppRunning(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::string bundleName = data.ReadString();
     bool isRunning = false;
     int32_t appCloneIndex = data.ReadInt32();
@@ -1354,7 +1354,7 @@ int32_t AppMgrStub::HandleExitChildProcessSafely(MessageParcel &data, MessagePar
 
 int32_t AppMgrStub::HandleIsFinalAppProcess(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!reply.WriteBool(IsFinalAppProcess())) {
         TAG_LOGE(AAFwkTag::APPMGR, "Fail to write bool result.");
         return ERR_INVALID_VALUE;
@@ -1364,7 +1364,7 @@ int32_t AppMgrStub::HandleIsFinalAppProcess(MessageParcel &data, MessageParcel &
 
 int32_t AppMgrStub::HandleRegisterRenderStateObserver(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto callback = iface_cast<AppExecFwk::IRenderStateObserver>(data.ReadRemoteObject());
     if (callback == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "Callback is null.");
@@ -1380,7 +1380,7 @@ int32_t AppMgrStub::HandleRegisterRenderStateObserver(MessageParcel &data, Messa
 
 int32_t AppMgrStub::HandleUnregisterRenderStateObserver(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto callback = iface_cast<AppExecFwk::IRenderStateObserver>(data.ReadRemoteObject());
     if (callback == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "Callback is null.");
@@ -1396,7 +1396,7 @@ int32_t AppMgrStub::HandleUnregisterRenderStateObserver(MessageParcel &data, Mes
 
 int32_t AppMgrStub::HandleUpdateRenderState(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     int32_t pid = data.ReadInt32();
     int32_t state = data.ReadInt32();
     int32_t result = UpdateRenderState(pid, state);
@@ -1409,7 +1409,7 @@ int32_t AppMgrStub::HandleUpdateRenderState(MessageParcel &data, MessageParcel &
 
 int32_t AppMgrStub::HandleSignRestartAppFlag(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::string bundleName = data.ReadString();
     auto ret = SignRestartAppFlag(bundleName);
     if (!reply.WriteInt32(ret)) {
@@ -1421,7 +1421,7 @@ int32_t AppMgrStub::HandleSignRestartAppFlag(MessageParcel &data, MessageParcel 
 
 int32_t AppMgrStub::HandleGetAppRunningUniqueIdByPid(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     int32_t pid = data.ReadInt32();
     std::string appRunningUniqueId;
     int32_t result = GetAppRunningUniqueIdByPid(pid, appRunningUniqueId);
@@ -1492,7 +1492,7 @@ int32_t AppMgrStub::HandleNotifyMemorySizeStateChanged(MessageParcel &data, Mess
 
 int32_t AppMgrStub::HandleSetSupportedProcessCacheSelf(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     bool isSupport = data.ReadBool();
     auto ret = SetSupportedProcessCacheSelf(isSupport);
     if (!reply.WriteInt32(ret)) {
@@ -1504,7 +1504,7 @@ int32_t AppMgrStub::HandleSetSupportedProcessCacheSelf(MessageParcel &data, Mess
 
 int32_t AppMgrStub::HandleSetAppAssertionPauseState(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     bool flag = data.ReadBool();
     SetAppAssertionPauseState(flag);
     return NO_ERROR;
@@ -1512,7 +1512,7 @@ int32_t AppMgrStub::HandleSetAppAssertionPauseState(MessageParcel &data, Message
 
 int32_t AppMgrStub::HandleStartNativeChildProcess(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::string libName = data.ReadString();
     int32_t childCount = data.ReadInt32();
     sptr<IRemoteObject> callback = data.ReadRemoteObject();
@@ -1527,7 +1527,7 @@ int32_t AppMgrStub::HandleStartNativeChildProcess(MessageParcel &data, MessagePa
 
 int32_t AppMgrStub::HandleCheckCallingIsUserTestMode(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     pid_t pid = data.ReadInt32();
     bool isUserTest = false;
     int32_t ret = CheckCallingIsUserTestMode(pid, isUserTest);

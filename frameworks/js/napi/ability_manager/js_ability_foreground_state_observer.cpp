@@ -27,7 +27,7 @@ JSAbilityForegroundStateObserver::JSAbilityForegroundStateObserver(napi_env env)
 
 void JSAbilityForegroundStateObserver::OnAbilityStateChanged(const AbilityStateData &abilityStateData)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (!valid_) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "The app manager may has destroyed.");
         return;
@@ -49,7 +49,7 @@ void JSAbilityForegroundStateObserver::OnAbilityStateChanged(const AbilityStateD
 
 void JSAbilityForegroundStateObserver::HandleOnAbilityStateChanged(const AbilityStateData &abilityStateData)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     for (auto &item : jsObserverObjectSet_) {
         if (item == nullptr) {
             continue;

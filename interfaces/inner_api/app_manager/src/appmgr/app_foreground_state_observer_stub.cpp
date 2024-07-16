@@ -30,7 +30,7 @@ AppForegroundStateObserverStub::~AppForegroundStateObserverStub() {}
 int32_t AppForegroundStateObserverStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::u16string descriptor = AppForegroundStateObserverStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {

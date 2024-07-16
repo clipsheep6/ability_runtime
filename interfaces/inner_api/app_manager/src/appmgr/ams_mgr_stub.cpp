@@ -518,7 +518,7 @@ int32_t AmsMgrStub::HandleGetBundleNameByPid(MessageParcel &data, MessageParcel 
 
 int32_t AmsMgrStub::HandleRegisterAppDebugListener(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto appDebugLister = iface_cast<IAppDebugListener>(data.ReadRemoteObject());
     if (appDebugLister == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "App debug lister is null.");
@@ -535,7 +535,7 @@ int32_t AmsMgrStub::HandleRegisterAppDebugListener(MessageParcel &data, MessageP
 
 int32_t AmsMgrStub::HandleUnregisterAppDebugListener(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto appDebugLister = iface_cast<IAppDebugListener>(data.ReadRemoteObject());
     if (appDebugLister == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "App debug lister is nullptr.");
@@ -552,7 +552,7 @@ int32_t AmsMgrStub::HandleUnregisterAppDebugListener(MessageParcel &data, Messag
 
 int32_t AmsMgrStub::HandleAttachAppDebug(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto bundleName = data.ReadString();
     if (bundleName.empty()) {
         TAG_LOGE(AAFwkTag::APPMGR, "Bundle name is empty.");
@@ -569,7 +569,7 @@ int32_t AmsMgrStub::HandleAttachAppDebug(MessageParcel &data, MessageParcel &rep
 
 int32_t AmsMgrStub::HandleDetachAppDebug(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto bundleName = data.ReadString();
     if (bundleName.empty()) {
         TAG_LOGE(AAFwkTag::APPMGR, "Bundle name is empty.");
@@ -586,7 +586,7 @@ int32_t AmsMgrStub::HandleDetachAppDebug(MessageParcel &data, MessageParcel &rep
 
 int32_t AmsMgrStub::HandleSetAppWaitingDebug(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto bundleName = data.ReadString();
     if (bundleName.empty()) {
         TAG_LOGE(AAFwkTag::APPMGR, "Bundle name is empty.");
@@ -603,7 +603,7 @@ int32_t AmsMgrStub::HandleSetAppWaitingDebug(MessageParcel &data, MessageParcel 
 
 int32_t AmsMgrStub::HandleCancelAppWaitingDebug(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto result = CancelAppWaitingDebug();
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Fail to write result.");
@@ -614,7 +614,7 @@ int32_t AmsMgrStub::HandleCancelAppWaitingDebug(MessageParcel &data, MessageParc
 
 int32_t AmsMgrStub::HandleGetWaitingDebugApp(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::vector<std::string> debugInfoList;
     auto result = GetWaitingDebugApp(debugInfoList);
     if (!reply.WriteInt32(result)) {
@@ -642,7 +642,7 @@ int32_t AmsMgrStub::HandleGetWaitingDebugApp(MessageParcel &data, MessageParcel 
 
 int32_t AmsMgrStub::HandleIsWaitingDebugApp(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto bundleName = data.ReadString();
     if (bundleName.empty()) {
         TAG_LOGE(AAFwkTag::APPMGR, "Bundle name is empty.");
@@ -659,7 +659,7 @@ int32_t AmsMgrStub::HandleIsWaitingDebugApp(MessageParcel &data, MessageParcel &
 
 int32_t AmsMgrStub::HandleSetKeepAliveEnableState(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto bundleName = data.ReadString();
     auto enable = data.ReadBool();
     SetKeepAliveEnableState(bundleName, enable);
@@ -668,14 +668,14 @@ int32_t AmsMgrStub::HandleSetKeepAliveEnableState(MessageParcel &data, MessagePa
 
 int32_t AmsMgrStub::HandleClearNonPersistWaitingDebugFlag(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     ClearNonPersistWaitingDebugFlag();
     return NO_ERROR;
 }
 
 int32_t AmsMgrStub::HandleRegisterAbilityDebugResponse(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto response = iface_cast<IAbilityDebugResponse>(data.ReadRemoteObject());
     if (response == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "Response is nullptr.");
@@ -692,7 +692,7 @@ int32_t AmsMgrStub::HandleRegisterAbilityDebugResponse(MessageParcel &data, Mess
 
 int32_t AmsMgrStub::HandleIsAttachDebug(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto bundleName = data.ReadString();
     if (bundleName.empty()) {
         TAG_LOGE(AAFwkTag::APPMGR, "Bundle name is empty.");
@@ -752,7 +752,7 @@ ErrCode AmsMgrStub::HandleBlockProcessCacheByPids(MessageParcel &data, MessagePa
 
 int32_t AmsMgrStub::HandleIsKilledForUpgradeWeb(MessageParcel &data, MessageParcel &reply)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto bundleName = data.ReadString();
     if (bundleName.empty()) {
         TAG_LOGE(AAFwkTag::APPMGR, "Bundle name is empty.");

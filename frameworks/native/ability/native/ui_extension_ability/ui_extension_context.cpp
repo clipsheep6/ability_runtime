@@ -133,7 +133,7 @@ void UIExtensionContext::InsertResultCallbackTask(int requestCode, RuntimeTask &
 
 void UIExtensionContext::RemoveResultCallbackTask(int requestCode)
 {
-    TAG_LOGD(AAFwkTag::UI_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::UI_EXT, "called");
     {
         std::lock_guard<std::mutex> lock(mutexlock_);
         resultCallbacks_.erase(requestCode);
@@ -159,7 +159,7 @@ ErrCode UIExtensionContext::StartAbilityForResult(
 
 ErrCode UIExtensionContext::StartAbilityForResultAsCaller(const AAFwk::Want &want, int requestCode, RuntimeTask &&task)
 {
-    TAG_LOGD(AAFwkTag::UI_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::UI_EXT, "called");
     {
         std::lock_guard<std::mutex> lock(mutexlock_);
         resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
@@ -176,7 +176,7 @@ ErrCode UIExtensionContext::StartAbilityForResultAsCaller(const AAFwk::Want &wan
 ErrCode UIExtensionContext::StartAbilityForResultAsCaller(
     const AAFwk::Want &want, const AAFwk::StartOptions &startOptions, int requestCode, RuntimeTask &&task)
 {
-    TAG_LOGD(AAFwkTag::UI_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::UI_EXT, "called");
     {
         std::lock_guard<std::mutex> lock(mutexlock_);
         resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
@@ -279,7 +279,7 @@ ErrCode UIExtensionContext::OpenAtomicService(AAFwk::Want& want, const AAFwk::St
 
 ErrCode UIExtensionContext::OpenLink(const AAFwk::Want& want, int requestCode)
 {
-    TAG_LOGD(AAFwkTag::UI_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::UI_EXT, "called");
     return AAFwk::AbilityManagerClient::GetInstance()->OpenLink(want, token_, -1, requestCode);
 }
 

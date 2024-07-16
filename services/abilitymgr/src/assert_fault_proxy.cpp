@@ -97,7 +97,7 @@ sptr<ModalSystemAssertUIExtension::AssertDialogConnection> ModalSystemAssertUIEx
 
 bool ModalSystemAssertUIExtension::CreateModalUIExtension(const AAFwk::Want &want)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     std::unique_lock<std::mutex> lockAssertResult(assertResultMutex_);
     if (reqeustCount_++ != 0) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Task busy, waiting for processing.");
@@ -133,7 +133,7 @@ bool ModalSystemAssertUIExtension::CreateModalUIExtension(const AAFwk::Want &wan
 
 bool ModalSystemAssertUIExtension::DisconnectSystemUI()
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     bool retVal = true;
     do {
         auto abilityManagerClient = AAFwk::AbilityManagerClient::GetInstance();
@@ -190,7 +190,7 @@ void ModalSystemAssertUIExtension::AssertDialogConnection::SetReqeustAssertDialo
 void ModalSystemAssertUIExtension::AssertDialogConnection::OnAbilityConnectDone(
     const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remote, int resultCode)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (remote == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Input remote object is nullptr.");
         return;
@@ -224,7 +224,7 @@ void ModalSystemAssertUIExtension::AssertDialogConnection::OnAbilityConnectDone(
 void ModalSystemAssertUIExtension::AssertDialogConnection::OnAbilityDisconnectDone(
     const AppExecFwk::ElementName &element, int resultCode)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     ModalSystemAssertUIExtension::GetInstance().TryNotifyOneWaitingThread();
 }
 } // namespace AbilityRuntime

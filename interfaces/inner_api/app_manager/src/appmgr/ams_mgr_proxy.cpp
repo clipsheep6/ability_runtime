@@ -767,7 +767,7 @@ int32_t AmsMgrProxy::GetBundleNameByPid(const int pid, std::string &bundleName, 
 
 int32_t AmsMgrProxy::RegisterAppDebugListener(const sptr<IAppDebugListener> &listener)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
@@ -792,7 +792,7 @@ int32_t AmsMgrProxy::RegisterAppDebugListener(const sptr<IAppDebugListener> &lis
 
 int32_t AmsMgrProxy::UnregisterAppDebugListener(const sptr<IAppDebugListener> &listener)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
@@ -817,7 +817,7 @@ int32_t AmsMgrProxy::UnregisterAppDebugListener(const sptr<IAppDebugListener> &l
 
 int32_t AmsMgrProxy::AttachAppDebug(const std::string &bundleName)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
@@ -842,7 +842,7 @@ int32_t AmsMgrProxy::AttachAppDebug(const std::string &bundleName)
 
 int32_t AmsMgrProxy::DetachAppDebug(const std::string &bundleName)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
@@ -867,7 +867,7 @@ int32_t AmsMgrProxy::DetachAppDebug(const std::string &bundleName)
 
 void AmsMgrProxy::SetKeepAliveEnableState(const std::string &bundleName, bool enable)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
@@ -892,7 +892,7 @@ void AmsMgrProxy::SetKeepAliveEnableState(const std::string &bundleName, bool en
 
 int32_t AmsMgrProxy::SetAppWaitingDebug(const std::string &bundleName, bool isPersist)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
@@ -921,7 +921,7 @@ int32_t AmsMgrProxy::SetAppWaitingDebug(const std::string &bundleName, bool isPe
 
 int32_t AmsMgrProxy::CancelAppWaitingDebug()
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
@@ -940,7 +940,7 @@ int32_t AmsMgrProxy::CancelAppWaitingDebug()
 
 int32_t AmsMgrProxy::GetWaitingDebugApp(std::vector<std::string> &debugInfoList)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
@@ -977,7 +977,7 @@ int32_t AmsMgrProxy::GetWaitingDebugApp(std::vector<std::string> &debugInfoList)
 
 bool AmsMgrProxy::IsWaitingDebugApp(const std::string &bundleName)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
@@ -1001,7 +1001,7 @@ bool AmsMgrProxy::IsWaitingDebugApp(const std::string &bundleName)
 
 void AmsMgrProxy::ClearNonPersistWaitingDebugFlag()
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
@@ -1019,7 +1019,7 @@ void AmsMgrProxy::ClearNonPersistWaitingDebugFlag()
 
 int32_t AmsMgrProxy::RegisterAbilityDebugResponse(const sptr<IAbilityDebugResponse> &response)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
@@ -1044,7 +1044,7 @@ int32_t AmsMgrProxy::RegisterAbilityDebugResponse(const sptr<IAbilityDebugRespon
 
 bool AmsMgrProxy::IsAttachDebug(const std::string &bundleName)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");

@@ -90,12 +90,12 @@ UIAbility *CJUIAbility::Create(const std::unique_ptr<Runtime> &runtime)
 
 CJUIAbility::CJUIAbility(CJRuntime &cjRuntime) : cjRuntime_(cjRuntime)
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 CJUIAbility::~CJUIAbility()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (abilityContext_ != nullptr) {
         abilityContext_->Unbind();
     }
@@ -668,7 +668,7 @@ int32_t CJUIAbility::OnSaveState(int32_t reason, WantParams &wantParams)
 void CJUIAbility::OnConfigurationUpdated(const Configuration &configuration)
 {
     UIAbility::OnConfigurationUpdated(configuration);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     auto fullConfig = GetAbilityContext()->GetConfiguration();
     if (!fullConfig) {
         TAG_LOGE(AAFwkTag::UIABILITY, "configuration is nullptr.");
@@ -687,12 +687,12 @@ void CJUIAbility::OnConfigurationUpdated(const Configuration &configuration)
 void CJUIAbility::OnMemoryLevel(int level)
 {
     UIAbility::OnMemoryLevel(level);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 void CJUIAbility::UpdateContextConfiguration()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
 }
 
 void CJUIAbility::OnNewWant(const Want &want)
@@ -763,7 +763,7 @@ std::shared_ptr<AppExecFwk::ADelegatorAbilityProperty> CJUIAbility::CreateADeleg
 void CJUIAbility::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
     UIAbility::Dump(params, info);
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (!cjAbilityObj_) {
         TAG_LOGE(AAFwkTag::UIABILITY, "CJAbility is not loaded.");
         return;
@@ -774,7 +774,7 @@ void CJUIAbility::Dump(const std::vector<std::string> &params, std::vector<std::
 
 std::shared_ptr<CJAbilityObject> CJUIAbility::GetCJAbility()
 {
-    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (cjAbilityObj_ == nullptr) {
         TAG_LOGE(AAFwkTag::UIABILITY, "cjAbility object is nullptr.");
     }

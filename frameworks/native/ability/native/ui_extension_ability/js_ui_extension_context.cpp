@@ -474,7 +474,7 @@ napi_value JsUIExtensionContext::OnTerminateSelfWithResult(napi_env env, NapiCal
 
 napi_value JsUIExtensionContext::OnStartAbilityForResultAsCaller(napi_env env, NapiCallbackInfo &info)
 {
-    TAG_LOGD(AAFwkTag::UI_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::UI_EXT, "called");
     if (info.argc == ARGC_ZERO) {
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);

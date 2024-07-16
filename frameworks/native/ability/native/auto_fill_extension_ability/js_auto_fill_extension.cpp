@@ -57,7 +57,7 @@ constexpr const char *WANT_PARAMS_AUTO_FILL_POPUP_WINDOW_KEY = "ohos.ability.par
 }
 napi_value AttachAutoFillExtensionContext(napi_env env, void *value, void *)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     if (value == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Invalid parameter.");
         return nullptr;
@@ -125,7 +125,7 @@ void JsAutoFillExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     AutoFillExtension::Init(record, application, handler, token);
     if (abilityInfo_ == nullptr || abilityInfo_->srcEntrance.empty()) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Init ability info failed.");
@@ -164,7 +164,7 @@ void JsAutoFillExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record
 
 void JsAutoFillExtension::BindContext(napi_env env, napi_value obj)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     auto context = GetContext();
     if (context == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to get context.");
@@ -208,7 +208,7 @@ void JsAutoFillExtension::BindContext(napi_env env, napi_value obj)
 
 void JsAutoFillExtension::OnStart(const AAFwk::Want &want)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     Extension::OnStart(want);
     HandleScope handleScope(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
@@ -219,7 +219,7 @@ void JsAutoFillExtension::OnStart(const AAFwk::Want &want)
 
 void JsAutoFillExtension::OnStop()
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     AutoFillExtension::OnStop();
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onDestroy");
@@ -228,7 +228,7 @@ void JsAutoFillExtension::OnStop()
 
 void JsAutoFillExtension::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     if (callbackInfo == nullptr) {
         isAsyncCallback = false;
         OnStop();
@@ -263,7 +263,7 @@ void JsAutoFillExtension::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *c
 
 void JsAutoFillExtension::OnStopCallBack()
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     auto context = GetContext();
     if (context == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to get context.");
@@ -346,7 +346,7 @@ bool JsAutoFillExtension::CallPromise(napi_value result, AppExecFwk::AbilityTran
 void JsAutoFillExtension::OnCommandWindow(
     const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     if (sessionInfo == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Session info is nullptr.");
         return;
@@ -373,7 +373,7 @@ void JsAutoFillExtension::OnCommandWindow(
 
 void JsAutoFillExtension::OnCommandWindowDone(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     auto context = GetContext();
     if (context == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to get context.");
@@ -412,7 +412,7 @@ void JsAutoFillExtension::OnCommand(const AAFwk::Want &want, bool restart, int s
 
 void JsAutoFillExtension::OnForeground(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     Extension::OnForeground(want, sessionInfo);
     ForegroundWindow(want, sessionInfo);
     HandleScope handleScope(jsRuntime_);
@@ -421,7 +421,7 @@ void JsAutoFillExtension::OnForeground(const Want &want, sptr<AAFwk::SessionInfo
 
 void JsAutoFillExtension::OnBackground()
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onBackground");
     Extension::OnBackground();
@@ -429,7 +429,7 @@ void JsAutoFillExtension::OnBackground()
 
 int32_t JsAutoFillExtension::OnReloadInModal(const sptr<AAFwk::SessionInfo> &sessionInfo, const CustomData &customData)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     if (!isPopup_) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "The current window type is not popup.");
         return ERR_INVALID_OPERATION;
@@ -462,7 +462,7 @@ int32_t JsAutoFillExtension::OnReloadInModal(const sptr<AAFwk::SessionInfo> &ses
 
 void JsAutoFillExtension::UpdateRequest(const AAFwk::WantParams &wantParams)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     HandleScope handleScope(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
     napi_value request = JsAutoFillExtensionUtil::WrapUpdateRequest(wantParams, env);
@@ -476,7 +476,7 @@ void JsAutoFillExtension::UpdateRequest(const AAFwk::WantParams &wantParams)
 
 bool JsAutoFillExtension::HandleAutoFillCreate(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Invalid session info.");
         return false;
@@ -515,7 +515,7 @@ bool JsAutoFillExtension::HandleAutoFillCreate(const AAFwk::Want &want, const sp
 
 void JsAutoFillExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     if (sessionInfo == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "sessionInfo is nullptr.");
         return;
@@ -553,7 +553,7 @@ void JsAutoFillExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<A
 
 void JsAutoFillExtension::BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Invalid sessionInfo.");
         return;
@@ -572,7 +572,7 @@ void JsAutoFillExtension::BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessi
 
 void JsAutoFillExtension::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Invalid sessionInfo.");
         return;
@@ -633,7 +633,7 @@ napi_value JsAutoFillExtension::CallObjectMethod(const char *name, napi_value co
 void JsAutoFillExtension::CallJsOnRequest(
     const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, const sptr<Rosen::Window> &uiWindow)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     if (sessionInfo == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "sessionInfo is nullptr.");
         return;
@@ -684,7 +684,7 @@ void JsAutoFillExtension::CallJsOnRequest(
 
 void JsAutoFillExtension::RegisterTransferComponentDataListener(const sptr<Rosen::Window> &uiWindow)
 {
-    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "called");
     if (uiWindow == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Invalid ui window object.");
         return;

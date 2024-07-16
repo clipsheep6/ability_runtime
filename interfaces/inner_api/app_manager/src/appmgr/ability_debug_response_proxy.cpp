@@ -40,20 +40,20 @@ bool AbilityDebugResponseProxy::WriteInterfaceToken(MessageParcel &data)
 
 void AbilityDebugResponseProxy::OnAbilitysDebugStarted(const std::vector<sptr<IRemoteObject>> &tokens)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     SendRequest(IAbilityDebugResponse::Message::ON_ABILITYS_DEBUG_STARTED, tokens);
 }
 
 void AbilityDebugResponseProxy::OnAbilitysDebugStoped(const std::vector<sptr<IRemoteObject>> &tokens)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     SendRequest(IAbilityDebugResponse::Message::ON_ABILITYS_DEBUG_STOPED, tokens);
 }
 
 void AbilityDebugResponseProxy::OnAbilitysAssertDebugChange(
     const std::vector<sptr<IRemoteObject>> &tokens, bool isAssertDebug)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
@@ -95,7 +95,7 @@ void AbilityDebugResponseProxy::OnAbilitysAssertDebugChange(
 void AbilityDebugResponseProxy::SendRequest(
     const IAbilityDebugResponse::Message &message, const std::vector<sptr<IRemoteObject>> &tokens)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
