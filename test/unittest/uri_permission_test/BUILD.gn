@@ -52,6 +52,10 @@ ohos_unittest("uri_permission_test") {
     "relational_store:native_rdb",
     "storage_service:storage_manager_sa_proxy",
   ]
+
+  if (ability_runtime_feature_sandboxmanager) {
+    external_deps += [ "sandbox_manager:libsandbox_manager_sdk" ]
+  }
 }
 
 group("unittest") {

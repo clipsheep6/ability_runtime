@@ -18,6 +18,7 @@
 
 #include "access_token.h"
 #include "native_token_info.h"
+#include "hap_token_info.h"
 
 namespace OHOS {
 namespace Security {
@@ -28,6 +29,8 @@ public:
     static ATokenTypeEnum GetTokenTypeFlag(AccessTokenID tokenID);
 
     static int GetNativeTokenInfo(AccessTokenID tokenID, NativeTokenInfo& nativeTokenInfoRes);
+
+    static int GetHapTokenInfo(AccessTokenID tokenID, HapTokenInfo &hapInfo);
 };
 } // namespace AccessToken
 } // namespace Security

@@ -102,6 +102,10 @@ ohos_unittest("AMSEventHandlerTest") {
       "window_manager:libwsutils",
     ]
   }
+
+  if (ability_runtime_feature_sandboxmanager) {
+    external_deps += [ "sandbox_manager:libsandbox_manager_sdk" ]
+  }
 }
 
 group("unittest") {

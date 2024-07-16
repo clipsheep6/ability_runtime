@@ -27,6 +27,10 @@ bool MyFlag::permissionReadAudio_ = false;
 bool MyFlag::permissionProxyAuthorization_ = false;
 bool MyFlag::permissionAll_ = false;
 bool MyFlag::permissionPrivileged_ = false;
+bool MyFlag::permissionReadWriteDownload_ = false;
+bool MyFlag::permissionReadWriteDesktop_ = false;
+bool MyFlag::permissionReadWriteDocuments_ = false;
+bool MyFlag::IsSystempAppCall_ = false;
 TokenInfoMap MyFlag::tokenInfos = {};
 } // namespace AAFwk
 } // namespace OHOS

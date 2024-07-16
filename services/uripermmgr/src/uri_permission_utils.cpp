@@ -29,6 +29,7 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 constexpr int32_t DEFAULT_USER_ID = 0;
+constexpr int32_t API_VERSION_MOD = 100;
 constexpr const char* FOUNDATION_PROCESS_NAME = "foundation";
 }
 
@@ -59,19 +60,20 @@ bool UPMSUtils::SendShareUnPrivilegeUriEvent(uint32_t callerTokenId, uint32_t ta
 }
 
 bool UPMSUtils::SendSystemAppGrantUriPermissionEvent(uint32_t callerTokenId, uint32_t targetTokenId,
-    const std::vector<std::string> &uriVec, const std::vector<int32_t> &resVec)
+    const std::vector<Uri> &uriVec, const std::vector<bool> &resVec)
 {
+    TAG_LOGI(AAFwkTag::URIPERMMGR, "Send grant uri permission event start.");
     EventInfo eventInfo;
     if (!CheckAndCreateEventInfo(callerTokenId, targetTokenId, eventInfo)) {
         return false;
     }
     for (size_t i = 0; i < resVec.size(); i++) {
-        if (resVec[i] == 0 || resVec[i] == -EEXIST) {
-            eventInfo.uri = uriVec[i];
+        if (resVec[i]) {
+            eventInfo.uri = uriVec[i].ToString();
             EventReport::SendGrantUriPermissionEvent(EventName::GRANT_URI_PERMISSION, eventInfo);
         }
     }
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "Send GRANT_URI_PERMISSION Event.");
+    TAG_LOGI(AAFwkTag::URIPERMMGR, "Send grant uri permission event  end.");
     return true;
 }
 
@@ -117,9 +119,11 @@ int32_t UPMSUtils::GetCurrentAccountId()
     return osActiveAccountIds.front();
 }
 
-bool UPMSUtils::IsFoundationCall()
+bool UPMSUtils::IsFoundationCall(uint32_t callerTokenId)
 {
-    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+    if (callerTokenId == 0) {
+        callerTokenId = IPCSkeleton::GetCallingTokenID();
+    }
     TAG_LOGD(AAFwkTag::ABILITYMGR, "callerTokenId is %{public}u", callerTokenId);
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerTokenId);
     if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
@@ -142,7 +146,12 @@ bool UPMSUtils::IsSAOrSystemAppCall()
         PermissionVerification::GetInstance()->IsSACall();
 }
 
-bool UPMSUtils::IsSystemAppCall(uint32_t tokenId)
+bool UPMSUtils::IsSystemAppCall()
+{
+    return PermissionVerification::GetInstance()->IsSystemAppCall();
+}
+
+bool UPMSUtils::IsSystemAppCallByTokenId(uint32_t tokenId)
 {
     if (UPMSUtils::IsFoundationCall()) {
         return UPMSUtils::CheckIsSystemAppByTokenId(tokenId);
@@ -152,6 +161,7 @@ bool UPMSUtils::IsSystemAppCall(uint32_t tokenId)
 
 bool UPMSUtils::CheckIsSystemAppByBundleName(std::string &bundleName)
 {
+    TAG_LOGI(AAFwkTag::URIPERMMGR, "bundleName is %{public}s", bundleName.c_str());
     auto bundleMgrHelper = ConnectManagerHelper();
     if (bundleMgrHelper == nullptr) {
         TAG_LOGW(AAFwkTag::URIPERMMGR, "The bundleMgrHelper is nullptr.");
@@ -167,6 +177,23 @@ bool UPMSUtils::CheckIsSystemAppByBundleName(std::string &bundleName)
     TAG_LOGD(AAFwkTag::URIPERMMGR, "BundleName is %{public}s, isSystemApp = %{public}d", bundleName.c_str(),
         static_cast<int32_t>(isSystemApp));
     return isSystemApp;
+}
+
+bool UPMSUtils::GetBundleApiTargetVersion(const std::string &bundleName, int32_t &targetApiVersion)
+{
+    auto bundleMgrHelper = ConnectManagerHelper();
+    if (bundleMgrHelper == nullptr) {
+        TAG_LOGW(AAFwkTag::URIPERMMGR, "The bundleMgrHelper is nullptr.");
+        return false;
+    }
+    AppExecFwk::ApplicationInfo appInfo;
+    if (!IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(bundleName,
+        AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, GetCurrentAccountId(), appInfo))) {
+        TAG_LOGI(AAFwkTag::URIPERMMGR, "Get application info failed.");
+        return false;
+    }
+    targetApiVersion = (appInfo.apiTargetVersion % API_VERSION_MOD);
+    return true;
 }
 
 bool UPMSUtils::CheckIsSystemAppByTokenId(uint32_t tokenId)
@@ -254,6 +281,16 @@ int32_t UPMSUtils::GetTokenIdByBundleName(const std::string &bundleName, int32_t
     }
     tokenId = bundleInfo.applicationInfo.accessTokenId;
     return ERR_OK;
+}
+
+bool UPMSUtils::CheckUriTypeIsValid(Uri &uri)
+{
+    auto &&scheme = uri.GetScheme();
+    if (scheme != "file" && scheme != "content") {
+        TAG_LOGW(AAFwkTag::URIPERMMGR, "Type of uri is invalid, Scheme is %{public}s", scheme.c_str());
+        return false;
+    }
+    return true;
 }
 
 std::shared_ptr<AppExecFwk::BundleMgrHelper> UPMSUtils::bundleMgrHelper_ = nullptr;

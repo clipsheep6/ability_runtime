@@ -66,6 +66,9 @@ ohos_unittest("uri_perm_mgr_test") {
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
   }
+  if (ability_runtime_feature_sandboxmanager) {
+    external_deps += [ "sandbox_manager:libsandbox_manager_sdk" ]
+  }
 }
 
 group("unittest") {

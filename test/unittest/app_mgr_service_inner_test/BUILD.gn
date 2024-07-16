@@ -81,6 +81,10 @@ ohos_unittest("AppMgrServiceInnerTest") {
     ]
   }
 
+  if (ability_runtime_feature_sandboxmanager) {
+    external_deps += [ "sandbox_manager:libsandbox_manager_sdk" ]
+  }
+
   if (background_task_mgr_continuous_task_enable) {
     defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
   }

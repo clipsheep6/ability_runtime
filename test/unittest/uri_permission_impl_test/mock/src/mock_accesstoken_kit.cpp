@@ -37,6 +37,15 @@ int AccessTokenKit::GetNativeTokenInfo(AccessTokenID tokenID, NativeTokenInfo& n
     }
     return -1;
 }
+
+int AccessTokenKit::GetHapTokenInfo(AccessTokenID tokenID, HapTokenInfo &hapInfo)
+{
+    if (MyFlag::tokenInfos.find(tokenID) != MyFlag::tokenInfos.end()) {
+        hapInfo.bundleName = MyFlag::tokenInfos[tokenID].bundleName;
+        return 0;
+    }
+    return -1;
+}
 } // namespace AccessToken
 } // namespace Security
 } // namespace OHOS

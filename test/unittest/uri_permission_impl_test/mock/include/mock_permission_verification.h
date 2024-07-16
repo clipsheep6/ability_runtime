@@ -47,6 +47,8 @@ struct VerificationInfo {
  
     bool IsShellCall() const;
 
+    bool IsSystemAppCall() const;
+
     bool CheckSpecificSystemAbilityAccessPermission() const;
 
     bool VerifyRunningInfoPerm() const;
