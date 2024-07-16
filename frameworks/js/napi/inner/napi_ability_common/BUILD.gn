@@ -72,8 +72,6 @@ ohos_shared_library("napi_ability_common") {
       "form_fwk:fmskit_provider_client",
       "form_fwk:form_manager",
       "window_manager:libdm",
-      "window_manager:libdm_lite",
-      "window_manager:libwm_lite",
     ]
   }
 
