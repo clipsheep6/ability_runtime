@@ -18,6 +18,7 @@
 #include <dlfcn.h>
 #include <unistd.h>
 #include <filesystem>
+#include <regex>
 
 #include "cj_envsetup.h"
 #include "hilog_tag_wrapper.h"
@@ -113,7 +114,9 @@ void CJRuntime::RegisterUncaughtExceptionHandler(const CJUncaughtExceptionInfo& 
 
 bool CJRuntime::IsCJAbility(const std::string& info)
 {
-    return OHOS::CJEnv::LoadInstance()->isCJAbility(info);
+    // in cj application, the srcEntry format should be packageName.AbilityClassName.
+    std::string pattern = "^([a-zA-Z0-9_]+\\.)+[a-zA-Z0-9_]+$";
+    return std::regex_match(info, std::regex(pattern));
 }
 
 bool CJRuntime::LoadCJAppLibrary(const AppLibPathVec& appLibPaths)
