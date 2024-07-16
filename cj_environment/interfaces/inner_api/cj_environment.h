@@ -91,7 +91,6 @@ private:
     SanitizerKind sanitizerKind_ {SanitizerKind::NONE};
 };
 
-CJ_EXPORT bool IsCJAbility(const std::string& info);
 }
 
 #endif //OHOS_ABILITY_RUNTIME_CJ_ENVIRONMENT_H

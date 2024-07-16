@@ -15,7 +15,6 @@
 
 #include "cj_environment.h"
 
-#include <regex>
 #include <string>
 
 #include "cj_hilog.h"
@@ -476,13 +475,6 @@ bool CJEnvironment::StartDebugger()
     return true;
 }
 
-bool IsCJAbility(const std::string& info)
-{
-    // in cj application, the srcEntry format should be packageName.AbilityClassName.
-    std::string pattern = "^([a-zA-Z0-9_]+\\.)+[a-zA-Z0-9_]+$";
-    return std::regex_match(info, std::regex(pattern));
-}
-
 CJ_EXPORT extern "C" CJEnvMethods* OHOS_GetCJEnvInstance()
 {
     static CJEnvMethods gCJEnvMethods {
@@ -521,9 +513,6 @@ CJ_EXPORT extern "C" CJEnvMethods* OHOS_GetCJEnvInstance()
         },
         .registerCJUncaughtExceptionHandler = [](const CJUncaughtExceptionInfo& handle) {
             return CJEnvironment::GetInstance()->RegisterCJUncaughtExceptionHandler(handle);
-        },
-        .isCJAbility = [](const std::string& info) {
-            return IsCJAbility(info);
         },
         .setSanitizerKindRuntimeVersion = [](SanitizerKind kind) {
             return CJEnvironment::GetInstance()->SetSanitizerKindRuntimeVersion(kind);
