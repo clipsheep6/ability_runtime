@@ -3157,7 +3157,7 @@ void AbilityRecord::PublishFileOpenEvent(const Want &want)
         EventFwk::CommonEventPublishInfo commonEventPublishInfo;
         std::vector<std::string> subscriberPermissions = {"ohos.permission.MANAGE_LOCAL_ACCOUNTS"};
         commonEventPublishInfo.SetSubscriberPermissions(subscriberPermissions);
-        EventFwk::CommonEventManager::PublishCommonEvent(commonData, commonEventPublishInfo);
+        IN_PROCESS_CALL(EventFwk::CommonEventManager::PublishCommonEvent(commonData, commonEventPublishInfo));
     }
 }
 
