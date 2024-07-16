@@ -657,7 +657,7 @@ int AbilityManagerService::StartAbilityWithSpecifyTokenIdInner(const Want &want,
         "Start ability come, ability is %{public}s, userId is %{public}d, specifyTokenId is %{public}u.",
         want.GetElement().GetAbilityName().c_str(), userId, specifyTokenId);
 
-    int32_t ret = StartAbilityWrap(want, callerToken, requestCode, userId, false, false, specifyTokenId);
+    int32_t ret = StartAbilityWrap(want, callerToken, requestCode, userId, false, specifyTokenId);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
         SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
@@ -10654,7 +10654,7 @@ int32_t AbilityManagerService::RestartApp(const AAFwk::Want &want)
 
     TAG_LOGD(AAFwkTag::ABILITYMGR, "RestartApp, start ability without CheckCallAbilityPermission.");
     result = StartAbilityWrap(want, nullptr,
-        DEFAULT_INVAL_VALUE, DEFAULT_INVAL_VALUE, false, false, 0, isForegroundToRestartApp);
+        DEFAULT_INVAL_VALUE, DEFAULT_INVAL_VALUE, false, 0, isForegroundToRestartApp);
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "StartAbility error.");
         return result;
