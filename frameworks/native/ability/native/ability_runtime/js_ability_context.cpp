@@ -628,14 +628,15 @@ napi_value JsAbilityContext::OnOpenLinkInner(napi_env env, const AAFwk::Want& wa
             TAG_LOGI(AAFwkTag::CONTEXT, "OpenLink succeeded.");
             return;
         }
+        if (freeInstallObserver_ == nullptr) {
+            TAG_LOGE(AAFwkTag::CONTEXT, "freeInstallObserver_ is nullptr.");
+            RemoveOpenLinkTask(requestCode);
+            return;
+        }
         if (*innerErrorCode == AAFwk::ERR_OPEN_LINK_START_ABILITY_DEFAULT_OK) {
             TAG_LOGI(AAFwkTag::CONTEXT, "start ability by default succeeded.");
-            if (freeInstallObserver_ != nullptr) {
-                freeInstallObserver_->OnInstallFinishedByUrl(startTime, url, ERR_OK);
-                return;
-            }
-            TAG_LOGE(AAFwkTag::CONTEXT, "freeInstallObserver_ is nullptr.");
-            *innerErrorCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+            freeInstallObserver_->OnInstallFinishedByUrl(startTime, url, ERR_OK);
+            return;
         }
         TAG_LOGI(AAFwkTag::CONTEXT, "OpenLink failed.");
         freeInstallObserver_->OnInstallFinishedByUrl(startTime, url, *innerErrorCode);

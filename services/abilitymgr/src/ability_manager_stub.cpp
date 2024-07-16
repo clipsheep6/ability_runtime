@@ -3949,6 +3949,10 @@ int32_t AbilityManagerStub::PreStartMissionInner(MessageParcel &data, MessagePar
 int32_t AbilityManagerStub::OpenLinkInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<Want> want = data.ReadParcelable<Want>();
+    if (want == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
     sptr<IRemoteObject> callerToken = data.ReadRemoteObject();
     int32_t userId = data.ReadInt32();
     int requestCode = data.ReadInt32();
