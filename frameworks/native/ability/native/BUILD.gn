@@ -184,7 +184,10 @@ ohos_shared_library("abilitykit_utils") {
 }
 
 ohos_shared_library("abilitykit_native") {
-  include_dirs = [ "${ability_runtime_path}/utils/global/time/include" ]
+  include_dirs = [
+    "${ability_runtime_path}/utils/global/time/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_service_extension_ability/connection",
+  ]
 
   sources = [
     "${ability_runtime_innerkits_path}/app_manager/src/appmgr/process_info.cpp",
@@ -200,6 +203,8 @@ ohos_shared_library("abilitykit_native") {
     "${ability_runtime_native_path}/ability/native/ability_runtime/js_ability.cpp",
     "${ability_runtime_native_path}/ability/native/ability_runtime/js_ability_context.cpp",
     "${ability_runtime_native_path}/ability/native/ability_runtime/js_caller_complex.cpp",
+    "${ability_runtime_native_path}/ability/native/ability_runtime/js_uiservice_ability_connection.cpp",
+    "${ability_runtime_native_path}/ability/native/ability_runtime/ui_ability_servicehost_stub_impl.cpp",
     "${ability_runtime_native_path}/ability/native/continuation/distributed/continuation_handler.cpp",
     "${ability_runtime_native_path}/ability/native/continuation/distributed/continuation_manager.cpp",
     "${ability_runtime_native_path}/ability/native/continuation/distributed/reverse_continuation_scheduler_primary.cpp",
@@ -229,6 +234,7 @@ ohos_shared_library("abilitykit_native") {
   deps = [
     ":continuation_ipc",
     ":extension_blocklist_config",
+    ":ui_service_extension_connection",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",

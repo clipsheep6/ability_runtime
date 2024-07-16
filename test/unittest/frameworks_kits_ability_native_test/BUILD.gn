@@ -2365,6 +2365,7 @@ ohos_unittest("reverse_continuation_scheduler_replica_stub_test") {
 
 ohos_unittest("ability_connection_manager_test") {
   module_out_path = module_output_path
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_service_extension_ability/connection" ]
   sources = [
     "${ability_runtime_native_path}/ability/ability_runtime/connection_manager.cpp",
     "${ability_runtime_native_path}/appkit/app/ability_record_mgr.cpp",
