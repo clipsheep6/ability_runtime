@@ -995,7 +995,8 @@ public:
         int requestCode = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false,
         uint32_t callerTokenId = 0,
-        bool isImplicit = false);
+        bool isImplicit = false,
+        bool isCallByShortcut = false);
 
     int StartAbilityForOptionInner(
         const Want &want,
@@ -1005,7 +1006,8 @@ public:
         int requestCode = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false,
         uint32_t specifyTokenId = 0,
-        bool isImplicit = false);
+        bool isImplicit = false,
+        bool isCallByShortcut = false);
 
     int ImplicitStartAbility(
         const Want &want,
@@ -2067,7 +2069,8 @@ private:
      * @param abilityRequest, abilityRequest.
      * @return Returns whether the caller is allowed to start Ability.
      */
-    int CheckCallAbilityPermission(const AbilityRequest &abilityRequest, uint32_t specifyTokenId = 0);
+    int CheckCallAbilityPermission(const AbilityRequest &abilityRequest, uint32_t specifyTokenId = 0,
+        bool isCallByShortcut = false);
 
     /**
      * Check if Caller is allowed to start Ability(Stage) by call.
@@ -2206,7 +2209,8 @@ private:
     std::shared_ptr<AbilityDebugDeal> ConnectInitAbilityDebugDeal();
 
     int StartUIAbilityForOptionWrap(const Want &want, const StartOptions &options, sptr<IRemoteObject> callerToken,
-        int32_t userId, int requestCode, uint32_t callerTokenId = 0, bool isImplicit = false);
+        int32_t userId, int requestCode, uint32_t callerTokenId = 0, bool isImplicit = false,
+        bool isCallByShortcut = false);
 
     int32_t SetBackgroundCall(const AppExecFwk::RunningProcessInfo &processInfo,
         const AbilityRequest &abilityRequest, bool &isBackgroundCall) const;

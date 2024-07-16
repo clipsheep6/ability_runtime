@@ -296,9 +296,10 @@ int PermissionVerification::CheckCallServiceAbilityPermission(const Verification
     return ERR_OK;
 }
 
-int PermissionVerification::CheckCallAbilityPermission(const VerificationInfo &verificationInfo) const
+int PermissionVerification::CheckCallAbilityPermission(const VerificationInfo &verificationInfo,
+    bool isCallByShortcut) const
 {
-    return JudgeInvisibleAndBackground(verificationInfo);
+    return JudgeInvisibleAndBackground(verificationInfo, isCallByShortcut);
 }
 
 int PermissionVerification::CheckCallServiceExtensionPermission(const VerificationInfo &verificationInfo) const
@@ -396,15 +397,19 @@ bool PermissionVerification::JudgeAssociatedWakeUp(const uint32_t accessTokenId,
     return false;
 }
 
-int PermissionVerification::JudgeInvisibleAndBackground(const VerificationInfo &verificationInfo) const
+int PermissionVerification::JudgeInvisibleAndBackground(const VerificationInfo &verificationInfo,
+    bool isCallByShortcut) const
 {
     uint32_t specifyTokenId = verificationInfo.specifyTokenId;
+    TAG_LOGD(AAFwkTag::DEFAULT, "specifyTokenId = %{public}u, isCallByShortcut %{public}d",
+        specifyTokenId, isCallByShortcut);
     if (specifyTokenId == 0 && IPCSkeleton::GetCallingUid() != BROKER_UID &&
         SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
         TAG_LOGD(AAFwkTag::DEFAULT, "Support SA call");
         return ERR_OK;
     }
-    if (!JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible,
+    if (!isCallByShortcut &&
+        !JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible,
         specifyTokenId)) {
         return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
     }
