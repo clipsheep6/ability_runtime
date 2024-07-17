@@ -323,5 +323,181 @@ HWTEST_F(FreeInstallTest, FreeInstall_ConnectFreeInstall_001, TestSize.Level1)
     int res = freeInstallManager_->ConnectFreeInstall(want, userId, nullptr, "");
     EXPECT_NE(res, 0);
 }
+
+
+/**
+ * @tc.number: FreeInstall_UpdateElementName_001
+ * @tc.name: UpdateElementName
+ * @tc.desc: Test UpdateElementName.
+ */
+HWTEST_F(FreeInstallTest, FreeInstall_UpdateElementName_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    freeInstallManager_ = std::make_shared<FreeInstallManager>(abilityMs_);
+    Want want;
+    const int32_t userId = 1;
+    freeInstallManager_->UpdateElementName(want, userId);
+    freeInstallManager_->GetTimeStamp();
+}
+
+/**
+ * @tc.number: FreeInstall_AddFreeInstallObserver_001
+ * @tc.name: AddFreeInstallObserver
+ * @tc.desc: Test AddFreeInstallObserver.
+ */
+HWTEST_F(FreeInstallTest, FreeInstall_AddFreeInstallObserver_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    freeInstallManager_ = std::make_shared<FreeInstallManager>(abilityMs_);
+
+    const sptr<IRemoteObject> callerToken = MockToken();
+    freeInstallManager_->AddFreeInstallObserver(nullptr, nullptr);
+
+    freeInstallManager_->AddFreeInstallObserver(callerToken, nullptr);
+}
+
+/**
+ * @tc.number: FreeInstall_RemoveFreeInstallInfo_001
+ * @tc.name: RemoveFreeInstallInfo
+ * @tc.desc: Test RemoveFreeInstallInfo.
+ */
+HWTEST_F(FreeInstallTest, FreeInstall_RemoveFreeInstallInfo_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    freeInstallManager_ = std::make_shared<FreeInstallManager>(abilityMs_);
+
+    freeInstallManager_->RemoveFreeInstallInfo("com.ix.hiservcie", "ServiceAbility", "2024-7-17 00:00:00");
+}
+
+/**
+ * @tc.number: FreeInstall_GetFreeInstallTaskInfo_001
+ * @tc.name: GetFreeInstallTaskInfo
+ * @tc.desc: Test GetFreeInstallTaskInfo.
+ */
+HWTEST_F(FreeInstallTest, FreeInstall_GetFreeInstallTaskInfo_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    freeInstallManager_ = std::make_shared<FreeInstallManager>(abilityMs_);
+
+    FreeInstallInfo  freeInstallInfo;
+    freeInstallManager_->GetFreeInstallTaskInfo("sessionId", freeInstallInfo);
+}
+
+/**
+ * @tc.number: FreeInstall_SetSCBCallStatus_001
+ * @tc.name: SetSCBCallStatus
+ * @tc.desc: Test SetSCBCallStatus.
+ */
+HWTEST_F(FreeInstallTest, FreeInstall_SetSCBCallStatus_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    freeInstallManager_ = std::make_shared<FreeInstallManager>(abilityMs_);
+
+    freeInstallManager_->SetSCBCallStatus("com.ix.hiservcie", "ServiceAbility", "2024-7-17 00:00:00", false);
+}
+
+/**
+ * @tc.number: FreeInstall_SetPreStartMissionCallStatus_001
+ * @tc.name: SetPreStartMissionCallStatus
+ * @tc.desc: Test SetPreStartMissionCallStatus.
+ */
+HWTEST_F(FreeInstallTest, FreeInstall_SetPreStartMissionCallStatus_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    freeInstallManager_ = std::make_shared<FreeInstallManager>(abilityMs_);
+
+    freeInstallManager_->SetPreStartMissionCallStatus("com.ix.hiservcie", "ServiceAbility",
+        "2024-7-17 00:00:00", false);
+}
+
+/**
+ * @tc.number: FreeInstall_SetFreeInstallTaskSessionId_001
+ * @tc.name: SetFreeInstallTaskSessionId
+ * @tc.desc: Test SetFreeInstallTaskSessionId.
+ */
+HWTEST_F(FreeInstallTest, FreeInstall_SetFreeInstallTaskSessionId_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    freeInstallManager_ = std::make_shared<FreeInstallManager>(abilityMs_);
+
+    freeInstallManager_->SetFreeInstallTaskSessionId("com.ix.hiservcie", "ServiceAbility",
+        "2024-7-17 00:00:00", "sessionId");
+}
+
+/**
+ * @tc.number: FreeInstall_VerifyStartFreeInstallPermission_001
+ * @tc.name: VerifyStartFreeInstallPermission
+ * @tc.desc: Test VerifyStartFreeInstallPermission.
+ */
+HWTEST_F(FreeInstallTest, FreeInstall_VerifyStartFreeInstallPermission_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    freeInstallManager_ = std::make_shared<FreeInstallManager>(abilityMs_);
+
+    const sptr<IRemoteObject> callerToken = MockToken();
+    freeInstallManager_->VerifyStartFreeInstallPermission(callerToken);
+    freeInstallManager_->GetRecordIdByToken(callerToken);
+}
+
+/**
+ * @tc.number: FreeInstall_SetAppRunningState_001
+ * @tc.name: SetAppRunningState
+ * @tc.desc: Test SetAppRunningState.
+ */
+HWTEST_F(FreeInstallTest, FreeInstall_SetAppRunningState_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    freeInstallManager_ = std::make_shared<FreeInstallManager>(abilityMs_);
+
+    Want want;
+    freeInstallManager_->SetAppRunningState(want);
+}
+
+/**
+ * @tc.number: FreeInstall_PostUpgradeAtomicServiceTask_001
+ * @tc.name: PostUpgradeAtomicServiceTask
+ * @tc.desc: Test PostUpgradeAtomicServiceTask.
+ */
+HWTEST_F(FreeInstallTest, FreeInstall_PostUpgradeAtomicServiceTask_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    freeInstallManager_ = std::make_shared<FreeInstallManager>(abilityMs_);
+
+    Want want;
+    ElementName element("", "com.test.demo", "MainAbility");
+    want.SetElement(element);
+    const int32_t userId = 100;
+    int resultCode = 0;
+    freeInstallManager_->PostUpgradeAtomicServiceTask(resultCode, want, userId);
+}
+
+/**
+ * @tc.number: FreeInstall_StartAbilityByOriginalWant_001
+ * @tc.name: StartAbilityByOriginalWant
+ * @tc.desc: Test StartAbilityByOriginalWant.
+ */
+HWTEST_F(FreeInstallTest, FreeInstall_StartAbilityByOriginalWant_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    freeInstallManager_ = std::make_shared<FreeInstallManager>(abilityMs_);
+
+    FreeInstallInfo freeInstallInfo;
+    freeInstallManager_->StartAbilityByOriginalWant(freeInstallInfo, "2024-07-17 00:00:00");
+}
+
+/**
+ * @tc.number: FreeInstall_StartAbilityByConvertedWant_001
+ * @tc.name: StartAbilityByConvertedWant
+ * @tc.desc: Test StartAbilityByConvertedWant.
+ */
+HWTEST_F(FreeInstallTest, FreeInstall_StartAbilityByConvertedWant_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    freeInstallManager_ = std::make_shared<FreeInstallManager>(abilityMs_);
+
+    FreeInstallInfo freeInstallInfo;
+    freeInstallManager_->StartAbilityByConvertedWant(freeInstallInfo, "2024-07-17 00:00:00");
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS
