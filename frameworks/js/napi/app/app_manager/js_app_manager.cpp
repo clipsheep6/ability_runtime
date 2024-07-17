@@ -163,6 +163,24 @@ private:
         }
     }
 
+    static void OnUnregisterApplicationStateObserverInner(sptr<OHOS::AppExecFwk::IAppMgr> appManager,
+        sptr<JSAppStateObserver> observer, int64_t observerId, napi_env env, NapiAsyncTask *task)
+    {
+        if (observer == nullptr || appManager == nullptr) {
+            TAG_LOGE(AAFwkTag::APPMGR, "observer or appManager nullptr");
+            task->Reject(env, CreateJsError(env, ERROR_CODE_ONE, "observer or appManager nullptr"));
+            return;
+        }
+        int32_t ret = appManager->UnregisterApplicationStateObserver(observer);
+        if (ret == 0 && observer->RemoveJsObserverObject(observerId)) {
+            task->Resolve(env, CreateJsUndefined(env));
+            TAG_LOGD(AAFwkTag::APPMGR, "success size:%{public}zu", observer->GetJsObserverMapSize());
+        } else {
+            TAG_LOGE(AAFwkTag::APPMGR, "failed error:%{public}d", ret);
+            task->Reject(env, CreateJsError(env, ret, "UnregisterApplicationStateObserver failed"));
+        }
+    }
+
     napi_value OnUnregisterApplicationStateObserver(napi_env env, size_t argc, napi_value* argv)
     {
         TAG_LOGD(AAFwkTag::APPMGR, "called");
@@ -199,22 +217,8 @@ private:
 #endif
             if (errCode != 0) {
                 task->Reject(env, CreateJsError(env, errCode, "Invalidate params."));
-                delete task;
-                return;
-            }
-            if (observer == nullptr || appManager == nullptr) {
-                TAG_LOGE(AAFwkTag::APPMGR, "observer or appManager nullptr");
-                task->Reject(env, CreateJsError(env, ERROR_CODE_ONE, "observer or appManager nullptr"));
-                delete task;
-                return;
-            }
-            int32_t ret = appManager->UnregisterApplicationStateObserver(observer);
-            if (ret == 0 && observer->RemoveJsObserverObject(observerId)) {
-                task->Resolve(env, CreateJsUndefined(env));
-                TAG_LOGD(AAFwkTag::APPMGR, "success size:%{public}zu", observer->GetJsObserverMapSize());
             } else {
-                TAG_LOGE(AAFwkTag::APPMGR, "failed error:%{public}d", ret);
-                task->Reject(env, CreateJsError(env, ret, "UnregisterApplicationStateObserver failed"));
+                OnUnregisterApplicationStateObserverInner(appManager, observer, observerId, env, task);
             }
             delete task;
         };
@@ -438,6 +442,22 @@ private:
         return result;
     }
 
+    static void OnClearUpApplicationDataInner(std::string bundleName,
+        sptr<OHOS::AppExecFwk::IAppMgr> appManager, napi_env env, NapiAsyncTask *task)
+    {
+        if (appManager == nullptr) {
+            TAG_LOGW(AAFwkTag::APPMGR, "appManager nullptr");
+            task->Reject(env, CreateJsError(env, ERROR_CODE_ONE, "appManager nullptr"));
+            return;
+        }
+        auto ret = appManager->ClearUpApplicationData(bundleName, 0);
+        if (ret == 0) {
+            task->Resolve(env, CreateJsValue(env, ret));
+        } else {
+            task->Reject(env, CreateJsError(env, ret, "clear up application failed."));
+        }
+    }
+
     napi_value OnClearUpApplicationData(napi_env env, size_t argc, napi_value* argv)
     {
         TAG_LOGD(AAFwkTag::APPMGR, "called");
@@ -470,20 +490,8 @@ private:
 #endif
             if (errCode != 0) {
                 task->Reject(env, CreateJsError(env, errCode, "Invalidate params."));
-                delete task;
-                return;
-            }
-            if (appManager == nullptr) {
-                TAG_LOGW(AAFwkTag::APPMGR, "appManager nullptr");
-                task->Reject(env, CreateJsError(env, ERROR_CODE_ONE, "appManager nullptr"));
-                delete task;
-                return;
-            }
-            auto ret = appManager->ClearUpApplicationData(bundleName, 0);
-            if (ret == 0) {
-                task->Resolve(env, CreateJsValue(env, ret));
             } else {
-                task->Reject(env, CreateJsError(env, ret, "clear up application failed."));
+                OnClearUpApplicationDataInner(bundleName, appManager, env, task);
             }
             delete task;
         };
