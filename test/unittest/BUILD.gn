@@ -336,6 +336,7 @@ group("unittest") {
     "ability_manager_proxy_test:unittest",
     "ability_manager_service_dialog_test:unittest",
     "ability_manager_service_first_test:unittest",
+    "ability_manager_service_fourth_test:unittest",
     "ability_manager_service_second_test:unittest",
     "ability_manager_service_third_test:unittest",
     "ability_manager_stub_test:unittest",
