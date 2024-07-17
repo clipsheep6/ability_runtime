@@ -15,6 +15,7 @@
 
 #include "insight_intent_execute_manager.h"
 
+#include <chrono>
 #include <cinttypes>
 
 #include "ability_manager_errors.h"
@@ -224,11 +225,15 @@ int32_t InsightIntentExecuteManager::GenerateWant(
 
     auto srcEntry = AbilityRuntime::InsightIntentUtils::GetSrcEntry(param->bundleName_, param->moduleName_,
         param->insightIntentName_);
-    if (srcEntry.empty()) {
-        TAG_LOGE(AAFwkTag::INTENT, "Insight intent srcEntry invalid.");
-        return ERR_INVALID_VALUE;
+    if (!srcEntry.empty()) {
+        want.SetParam(INSIGHT_INTENT_SRC_ENTRY, srcEntry);
+    } else {
+        TAG_LOGI(AAFwkTag::INTENT, "Insight intent srcEntry invalid, may need free install on demand.");
+        std::string startTime = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count());
+        want.SetParam(Want::PARAM_RESV_START_TIME, startTime);
+        want.AddFlags(Want::FLAG_INSTALL_ON_DEMAND);
     }
-    want.SetParam(INSIGHT_INTENT_SRC_ENTRY, srcEntry);
 
     want.SetParam(INSIGHT_INTENT_EXECUTE_PARAM_NAME, param->insightIntentName_);
     want.SetParam(INSIGHT_INTENT_EXECUTE_PARAM_MODE, param->executeMode_);

@@ -26,6 +26,10 @@
 #include "free_install_observer_manager.h"
 #include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
+#include "insight_intent_execute_manager.h"
+#include "insight_intent_execute_param.h"
+#include "insight_intent_execute_result.h"
+#include "insight_intent_utils.h"
 #include "in_process_call_wrapper.h"
 #include "permission_constants.h"
 #include "start_ability_utils.h"
@@ -551,8 +555,12 @@ void FreeInstallManager::OnInstallFinished(int32_t recordId, int resultCode, con
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::FREE_INSTALL, "%{public}s resultCode = %{public}d", __func__, resultCode);
 
-    NotifyDmsCallback(want, resultCode);
-    NotifyFreeInstallResult(recordId, want, resultCode, isAsync);
+    if (!InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
+        NotifyDmsCallback(want, resultCode);
+        NotifyFreeInstallResult(recordId, want, resultCode, isAsync);
+    } else {
+        NotifyInsightIntentFreeInstallResult(want, resultCode);
+    }
 
     PostUpgradeAtomicServiceTask(resultCode, want, userId);
 }
@@ -712,13 +720,12 @@ bool FreeInstallManager::VerifyStartFreeInstallPermission(const sptr<IRemoteObje
     if (isSaCall || IsTopAbility(callerToken)) {
         return true;
     }
-    AppExecFwk::AbilityInfo callerInfo;
-    if (StartAbilityUtils::GetCallerAbilityInfo(callerToken, callerInfo)) {
-        if (callerInfo.applicationInfo.isSystemApp && AAFwk::PermissionVerification::GetInstance()->
-            VerifyCallingPermission(PermissionConstants::PERMISSION_START_ABILITIES_FROM_BACKGROUND)) {
-            return true;
-        }
+
+    if (AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
+        PermissionConstants::PERMISSION_START_ABILITIES_FROM_BACKGROUND)) {
+        return true;
     }
+
     return false;
 }
 
@@ -730,6 +737,63 @@ int32_t FreeInstallManager::GetRecordIdByToken(const sptr<IRemoteObject> &caller
         recordId = abilityRecord->GetRecordId();
     }
     return recordId;
+}
+
+void FreeInstallManager::NotifyInsightIntentFreeInstallResult(const Want &want, int resultCode)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGI(AAFwkTag::FREE_INSTALL, "Insight intent free install result %{public}d.", resultCode);
+    if (resultCode != ERR_OK) {
+        RemoveFreeInstallInfo(want.GetElement().GetBundleName(), want.GetElement().GetAbilityName(),
+            want.GetStringParam(Want::PARAM_RESV_START_TIME));
+        NotifyInsightIntentExecuteDone(want, resultCode);
+        return;
+    }
+
+    std::lock_guard<ffrt::mutex> lock(freeInstallListLock_);
+    if (freeInstallList_.empty()) {
+        TAG_LOGI(AAFwkTag::FREE_INSTALL, "Free install list empty.");
+        return;
+    }
+
+    for (auto it = freeInstallList_.begin(); it != freeInstallList_.end();) {
+        std::string bundleName = (*it).want.GetElement().GetBundleName();
+        std::string abilityName = (*it).want.GetElement().GetAbilityName();
+        std::string startTime = (*it).want.GetStringParam(Want::PARAM_RESV_START_TIME);
+        if (want.GetElement().GetBundleName().compare(bundleName) != 0 ||
+            want.GetElement().GetAbilityName().compare(abilityName) != 0 ||
+            want.GetStringParam(Want::PARAM_RESV_START_TIME).compare(startTime) != 0) {
+            it++;
+            continue;
+        }
+
+        auto moduleName = (*it).want.GetElement().GetModuleName();
+        auto insightIntentName = (*it).want.GetStringParam(AppExecFwk::INSIGHT_INTENT_EXECUTE_PARAM_NAME);
+        auto srcEntry = AbilityRuntime::InsightIntentUtils::GetSrcEntry(bundleName, moduleName, insightIntentName);
+        if (srcEntry.empty()) {
+            TAG_LOGE(AAFwkTag::FREE_INSTALL, "Get srcEntry failed after free install. bundleName: %{public}s, "
+                "moduleName: %{public}s, insightIntentName: %{public}s.", bundleName.c_str(), moduleName.c_str(),
+                insightIntentName.c_str());
+            NotifyInsightIntentExecuteDone(want, ERR_INVALID_VALUE);
+        } else {
+            (*it).want.SetParam(AppExecFwk::INSIGHT_INTENT_SRC_ENTRY, srcEntry);
+            StartAbilityByFreeInstall(*it, bundleName, abilityName, startTime);
+        }
+
+        it = freeInstallList_.erase(it);
+    }
+}
+
+void FreeInstallManager::NotifyInsightIntentExecuteDone(const Want &want, int resultCode)
+{
+    InsightIntentExecuteParam executeParam;
+    InsightIntentExecuteParam::GenerateFromWant(want, executeParam);
+    AppExecFwk::InsightIntentExecuteResult result;
+    auto ret = DelayedSingleton<InsightIntentExecuteManager>::GetInstance()->ExecuteIntentDone(
+        executeParam.insightIntentId_, resultCode, result);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::FREE_INSTALL, "Execute intent done failed with %{public}d.", ret);
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS
