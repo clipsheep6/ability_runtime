@@ -25,7 +25,7 @@ group("fuzztest") {
     "abilityattachtimeout_fuzzer:fuzztest",
     "abilityautostartupdatamanagera_fuzzer:fuzztest",
     "abilityautostartupdatamanagerb_fuzzer:fuzztest",
-    "abilityautostartupservicea_fuzzer:fuzztest",
+    "abilityautostartupservice_fuzzer:fuzztest",
     "abilityautostartupserviceb_fuzzer:fuzztest",
     "abilitybackgroundconnection_fuzzer:fuzztest",
     "abilitycachemanagera_fuzzer:fuzztest",
