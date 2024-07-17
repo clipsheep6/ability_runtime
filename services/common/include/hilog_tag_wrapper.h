@@ -134,7 +134,7 @@ inline const char* GetDomainName2(AAFwkLogTag tag)
 inline const char* GetDomainName3(AAFwkLogTag tag)
 {
     const char* tagNames[] = { "AAFwkDelegator", "AAFwkContext", "AAFwkUIAbility", "AAFwkWant", "AAFwkMission",
-        "AAFwkConnection", "AAFwkAtomicService", "AAFwkAbilityMgr", "AAFwkEcologicalRule", "AAFwkDataAbility" };
+        "AAFwkConnection", "AAFwkAbilityMgr", "AAFwkEcologicalRule", "AAFwkDataAbility" };
     uint32_t offset = GetOffset(tag, AAFwkLogTag::DELEGATOR);
     if (offset >= sizeof(tagNames) / sizeof(const char*)) {
         return "AAFwkUN";
