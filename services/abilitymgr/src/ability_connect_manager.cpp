@@ -1363,11 +1363,11 @@ std::shared_ptr<AbilityRecord> AbilityConnectManager::GetUIExtensioBySessionInfo
 std::shared_ptr<AbilityRecord> AbilityConnectManager::GetExtensionByTokenFromTerminatingMap(
     const sptr<IRemoteObject> &token)
 {
-    auto IsMatch = [token](auto& extension) {
-        if (extension.second == nullptr) {
+    auto IsMatch = [token](auto& extensionRecord) {
+        if (extensionRecord == nullptr) {
             return false;
         }
-        auto terminatingToken = extension.second->GetToken();
+        auto terminatingToken = extensionRecord->GetToken();
         if (terminatingToken != nullptr) {
             return terminatingToken->AsObject() == token;
         }
@@ -1376,9 +1376,9 @@ std::shared_ptr<AbilityRecord> AbilityConnectManager::GetExtensionByTokenFromTer
 
     std::lock_guard lock(serviceMapMutex_);
     auto terminatingExtensionRecord =
-        std::find_if(terminatingExtensionMap_.begin(), terminatingExtensionMap_.end(), IsMatch);
-    if (terminatingExtensionRecord != terminatingExtensionMap_.end()) {
-        return terminatingExtensionRecord->second;
+        std::find_if(terminatingExtensionList_.begin(), terminatingExtensionList_.end(), IsMatch);
+    if (terminatingExtensionRecord != terminatingExtensionList_.end()) {
+        return *terminatingExtensionRecord;
     }
     return nullptr;
 }
@@ -1935,7 +1935,7 @@ void AbilityConnectManager::RemoveServiceAbility(const std::shared_ptr<AbilityRe
     CHECK_POINTER(abilityRecord);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Remove service(%{public}s) from terminating map.", abilityRecord->GetURI().c_str());
     std::lock_guard lock(serviceMapMutex_);
-    terminatingExtensionMap_.erase(abilityRecord->GetURI());
+    terminatingExtensionList_.remove(abilityRecord);
 }
 
 void AbilityConnectManager::AddConnectDeathRecipient(sptr<IRemoteObject> connectObject)
@@ -2267,11 +2267,7 @@ void AbilityConnectManager::CloseAssertDialog(const std::string &assertSessionId
         return;
     }
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Terminate assert fault dialog called.");
-    std::string serviceKey = abilityRecord->GetURI();
-    if (FRS_BUNDLE_NAME == abilityRecord->GetAbilityInfo().bundleName) {
-        serviceKey = serviceKey + std::to_string(abilityRecord->GetWant().GetIntParam(FRS_APP_INDEX, 0));
-    }
-    terminatingExtensionMap_.emplace(serviceKey, abilityRecord);
+    terminatingExtensionList_.push_back(abilityRecord);
     sptr<IRemoteObject> token = abilityRecord->GetToken();
     if (token != nullptr) {
         std::lock_guard lock(serialMutex_);
@@ -2547,7 +2543,7 @@ void AbilityConnectManager::PauseExtensions()
             auto targetExtension = it->second;
             if (targetExtension != nullptr && targetExtension->GetAbilityInfo().type == AbilityType::EXTENSION &&
                 (IsLauncher(targetExtension) || targetExtension->IsSceneBoard())) {
-                terminatingExtensionMap_.emplace(it->first, it->second);
+                terminatingExtensionList_.push_back(it->second);
                 it = serviceMap_.erase(it);
                 TAG_LOGI(AAFwkTag::ABILITYMGR, "terminate ability:%{public}s.",
                     targetExtension->GetAbilityInfo().name.c_str());
@@ -2786,7 +2782,7 @@ void AbilityConnectManager::MoveToTerminatingMap(const std::shared_ptr<AbilityRe
     CHECK_POINTER(abilityRecord);
     auto& abilityInfo = abilityRecord->GetAbilityInfo();
     std::lock_guard lock(serviceMapMutex_);
-    terminatingExtensionMap_.emplace(abilityRecord->GetURI(), abilityRecord);
+    terminatingExtensionList_.push_back(abilityRecord);
     std::string serviceKey = abilityRecord->GetURI();
     if (FRS_BUNDLE_NAME == abilityInfo.bundleName) {
         AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name,

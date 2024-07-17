@@ -628,7 +628,7 @@ private:
 
     ffrt::mutex serviceMapMutex_;
     ServiceMapType serviceMap_;
-    ServiceMapType terminatingExtensionMap_;
+    std::list<std::shared_ptr<AbilityRecord>> terminatingExtensionList_;
 
     std::mutex recipientMapMutex_;
     RecipientMapType recipientMap_;
