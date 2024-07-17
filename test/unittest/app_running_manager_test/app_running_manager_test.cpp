@@ -165,7 +165,7 @@ HWTEST_F(AppRunningManagerTest, AppRunningManager_GetAbilityTokensByBundleName_0
 
 /**
  * @tc.name: AppRunningManager_OnWindowVisibilityChanged_0100
- * @tc.desc: verify the function of OnWindowVisibilityChanged : set windowIds and isUpdateStateFromService_
+ * @tc.desc: verify the function of OnWindowVisibilityChanged : set windowIds
  * @tc.type: FUNC
  */
 HWTEST_F(AppRunningManagerTest, AppRunningManager_OnWindowVisibilityChanged_0100, TestSize.Level1)
@@ -183,7 +183,6 @@ HWTEST_F(AppRunningManagerTest, AppRunningManager_OnWindowVisibilityChanged_0100
     auto appRunningRecord = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
     EXPECT_NE(appRunningRecord, nullptr);
     appRunningRecord->curState_ = ApplicationState::APP_STATE_BACKGROUND;
-    appRunningRecord->isUpdateStateFromService_ = false;
     appRunningRecord->GetPriorityObject()->SetPid(PID);
     appRunningManager->appRunningRecordMap_.emplace(recordId, appRunningRecord);
 
@@ -200,7 +199,6 @@ HWTEST_F(AppRunningManagerTest, AppRunningManager_OnWindowVisibilityChanged_0100
     appRunningManager->OnWindowVisibilityChanged(windowVisibilityInfos);
     EXPECT_FALSE(appRunningManager->appRunningRecordMap_.empty());
     EXPECT_FALSE(appRunningManager->appRunningRecordMap_.at(1)->windowIds_.empty());
-    EXPECT_TRUE(appRunningManager->appRunningRecordMap_.at(1)->isUpdateStateFromService_);
 }
 
 /**

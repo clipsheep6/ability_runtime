@@ -1917,7 +1917,8 @@ bool AppRunningRecord::IsAbilitytiesBackground()
 void AppRunningRecord::OnWindowVisibilityChanged(
     const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "called");
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGI(AAFwkTag::APPMGR, "called");
     if (windowVisibilityInfos.empty()) {
         TAG_LOGW(AAFwkTag::APPMGR, "Window visibility info is empty.");
         return;
@@ -1943,24 +1944,24 @@ void AppRunningRecord::OnWindowVisibilityChanged(
         }
     }
 
-    bool isScheduleForeground = (!windowIds_.empty() && curState_ != ApplicationState::APP_STATE_FOREGROUND) ||
-        (!windowIds_.empty() && curState_ == ApplicationState::APP_STATE_FOREGROUND &&
-        pendingState_ == ApplicationPendingState::BACKGROUNDING);
-    if (isScheduleForeground) {
-        SetApplicationPendingState(ApplicationPendingState::FOREGROUNDING);
-        SetUpdateStateFromService(true);
-        ScheduleForegroundRunning();
-        return;
-    }
-
-    bool isScheduleBackground = (windowIds_.empty() && IsAbilitytiesBackground() &&
-        curState_ == ApplicationState::APP_STATE_FOREGROUND) ||
-        (windowIds_.empty() && IsAbilitytiesBackground() && curState_ == ApplicationState::APP_STATE_BACKGROUND &&
-        pendingState_ == ApplicationPendingState::FOREGROUNDING);
-    if (isScheduleBackground) {
-        SetApplicationPendingState(ApplicationPendingState::BACKGROUNDING);
-        SetUpdateStateFromService(true);
-        ScheduleBackgroundRunning();
+    if (pendingState_ == ApplicationPendingState::READY) {
+        TAG_LOGD(AAFwkTag::APPMGR, "pending state is READY.");
+        if (!windowIds_.empty() && curState_ != ApplicationState::APP_STATE_FOREGROUND) {
+            SetApplicationPendingState(ApplicationPendingState::FOREGROUNDING);
+            ScheduleForegroundRunning();
+        }
+        if (windowIds_.empty() && IsAbilitytiesBackground() && curState_ == ApplicationState::APP_STATE_FOREGROUND) {
+            SetApplicationPendingState(ApplicationPendingState::BACKGROUNDING);
+            ScheduleBackgroundRunning();
+        }
+    } else {
+        TAG_LOGI(AAFwkTag::APPMGR, "pending state is not READY.");
+        if (!windowIds_.empty()) {
+            SetApplicationPendingState(ApplicationPendingState::FOREGROUNDING);
+        }
+        if (windowIds_.empty() && IsAbilitytiesBackground()) {
+            SetApplicationPendingState(ApplicationPendingState::BACKGROUNDING);
+        }
     }
 }
 #endif //SUPPORT_SCREEN
@@ -2003,16 +2004,6 @@ void AppRunningRecord::SetProcessChangeReason(ProcessChangeReason reason)
 ProcessChangeReason AppRunningRecord::GetProcessChangeReason() const
 {
     return processChangeReason_;
-}
-
-bool AppRunningRecord::IsUpdateStateFromService()
-{
-    return isUpdateStateFromService_;
-}
-
-void AppRunningRecord::SetUpdateStateFromService(bool isUpdateStateFromService)
-{
-    isUpdateStateFromService_ = isUpdateStateFromService;
 }
 
 ExtensionAbilityType AppRunningRecord::GetExtensionType() const

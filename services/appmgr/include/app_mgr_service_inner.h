@@ -1496,6 +1496,8 @@ private:
 
     bool CreateAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo);
 
+    AAFwk::EventInfo BuildEventInfo(std::shared_ptr<AppRunningRecord> appRecord) const;
+
 private:
     /**
      * Notify application status.

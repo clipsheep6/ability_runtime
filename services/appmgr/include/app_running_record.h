@@ -678,10 +678,6 @@ public:
 
     ProcessChangeReason GetProcessChangeReason() const;
 
-    bool IsUpdateStateFromService();
-
-    void SetUpdateStateFromService(bool isUpdateStateFromService);
-
     ExtensionAbilityType GetExtensionType() const;
     ProcessType GetProcessType() const;
 
@@ -830,15 +826,7 @@ public:
 
     void SetProcessCacheBlocked(bool isBlocked);
     bool GetProcessCacheBlocked();
-private:
-    /**
-     * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
-     *
-     * @return If an uninitialized data is found return true,Otherwise return false.
-     */
-    bool GetTheModuleInfoNeedToUpdated(const std::string bundleName, HapModuleInfo &info);
 
-    // drive application state changes when ability state changes.
     /**
      * ScheduleForegroundRunning, Notify application to switch to foreground.
      *
@@ -852,6 +840,14 @@ private:
      * @return
      */
     void ScheduleBackgroundRunning();
+
+private:
+    /**
+     * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
+     *
+     * @return If an uninitialized data is found return true,Otherwise return false.
+     */
+    bool GetTheModuleInfoNeedToUpdated(const std::string bundleName, HapModuleInfo &info);
 
     /**
      * AbilityForeground, Handling the ability process when switching to the foreground.
@@ -971,7 +967,6 @@ private:
     int32_t requestProcCode_ = 0;
     ProcessChangeReason processChangeReason_ = ProcessChangeReason::REASON_NONE;
 
-    bool isUpdateStateFromService_ = false;
     int32_t callerPid_ = -1;
     int32_t callerUid_ = -1;
     int32_t callerTokenId_ = -1;

@@ -2230,7 +2230,7 @@ void MainThread::HandleCleanAbility(const sptr<IRemoteObject> &token, bool isCac
 void MainThread::HandleForegroundApplication()
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPKIT, "called.");
+    TAG_LOGI(AAFwkTag::APPKIT, "called.");
     if ((application_ == nullptr) || (appMgr_ == nullptr)) {
         TAG_LOGE(AAFwkTag::APPKIT, "MainThread::handleForegroundApplication error!");
         return;

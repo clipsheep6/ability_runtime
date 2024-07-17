@@ -184,10 +184,8 @@ HWTEST_F(AmsWorkFlowTest, BackKey_001, TestSize.Level1)
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
 
     serviceInner_->UpdateAbilityState(tokenB, AbilityState::ABILITY_STATE_FOREGROUND);
-    appB.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationForegrounded(appB.appRecord_->GetRecordId());
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
-    appA.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationBackgrounded(appA.appRecord_->GetRecordId());
 
     EXPECT_EQ(AbilityState::ABILITY_STATE_FOREGROUND, appB.GetAbility(tokenB)->GetState());
@@ -247,11 +245,9 @@ HWTEST_F(AmsWorkFlowTest, BackKey_003, TestSize.Level1)
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(2);
 
     serviceInner_->UpdateAbilityState(tokenC, AbilityState::ABILITY_STATE_FOREGROUND);
-    appC.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationForegrounded(appC.appRecord_->GetRecordId());
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->UpdateAbilityState(tokenB, AbilityState::ABILITY_STATE_BACKGROUND);
-    appA.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationBackgrounded(appA.appRecord_->GetRecordId());
 
     EXPECT_EQ(AbilityState::ABILITY_STATE_FOREGROUND, appC.GetAbility(tokenC)->GetState());
@@ -288,12 +284,10 @@ HWTEST_F(AmsWorkFlowTest, BackKey_004, TestSize.Level1)
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(2);
 
     serviceInner_->UpdateAbilityState(tokenC, AbilityState::ABILITY_STATE_FOREGROUND);
-    appC.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationForegrounded(appC.appRecord_->GetRecordId());
     serviceInner_->UpdateAbilityState(tokenD, AbilityState::ABILITY_STATE_FOREGROUND);
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->UpdateAbilityState(tokenB, AbilityState::ABILITY_STATE_BACKGROUND);
-    appA.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationBackgrounded(appA.appRecord_->GetRecordId());
 
     EXPECT_EQ(AbilityState::ABILITY_STATE_FOREGROUND, appC.GetAbility(tokenC)->GetState());
@@ -330,10 +324,8 @@ HWTEST_F(AmsWorkFlowTest, BackKey_005, TestSize.Level1)
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleTerminateApplication(_)).Times(1);
 
     serviceInner_->UpdateAbilityState(tokenB, AbilityState::ABILITY_STATE_FOREGROUND);
-    appB.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationForegrounded(appB.appRecord_->GetRecordId());
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
-    appA.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationBackgrounded(appA.appRecord_->GetRecordId());
     serviceInner_->TerminateAbility(tokenA, false);
     serviceInner_->AbilityTerminated(tokenA);
@@ -373,11 +365,9 @@ HWTEST_F(AmsWorkFlowTest, BackKey_006, TestSize.Level1)
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleTerminateApplication(_)).Times(1);
 
     serviceInner_->UpdateAbilityState(tokenC, AbilityState::ABILITY_STATE_FOREGROUND);
-    appC.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationForegrounded(appC.appRecord_->GetRecordId());
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->UpdateAbilityState(tokenB, AbilityState::ABILITY_STATE_BACKGROUND);
-    appA.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationBackgrounded(appA.appRecord_->GetRecordId());
     serviceInner_->TerminateAbility(tokenA, false);
     serviceInner_->AbilityTerminated(tokenA);
@@ -424,12 +414,10 @@ HWTEST_F(AmsWorkFlowTest, BackKey_007, TestSize.Level1)
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleTerminateApplication(_)).Times(1);
 
     serviceInner_->UpdateAbilityState(tokenC, AbilityState::ABILITY_STATE_FOREGROUND);
-    appC.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationForegrounded(appC.appRecord_->GetRecordId());
     serviceInner_->UpdateAbilityState(tokenD, AbilityState::ABILITY_STATE_FOREGROUND);
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->UpdateAbilityState(tokenB, AbilityState::ABILITY_STATE_BACKGROUND);
-    appA.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationBackgrounded(appA.appRecord_->GetRecordId());
     serviceInner_->TerminateAbility(tokenA, false);
     serviceInner_->AbilityTerminated(tokenA);
@@ -462,7 +450,6 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_001, TestSize.Level1)
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
 
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
-    appA.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationBackgrounded(appA.appRecord_->GetRecordId());
 
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, appA.GetAbility(tokenA)->GetState());
@@ -490,7 +477,6 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_002, TestSize.Level1)
 
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->UpdateAbilityState(tokenB, AbilityState::ABILITY_STATE_BACKGROUND);
-    appA.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationBackgrounded(appA.appRecord_->GetRecordId());
 
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, appA.GetAbility(tokenA)->GetState());
@@ -518,7 +504,6 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_003, TestSize.Level1)
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
 
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
-    appA.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationBackgrounded(appA.appRecord_->GetRecordId());
 
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, appA.GetAbility(tokenA)->GetState());
@@ -546,7 +531,6 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_004, TestSize.Level1)
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleTerminateApplication(_)).Times(1);
 
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
-    appA.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationBackgrounded(appA.appRecord_->GetRecordId());
     serviceInner_->TerminateAbility(tokenA, false);
     serviceInner_->AbilityTerminated(tokenA);
@@ -580,7 +564,6 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_005, TestSize.Level1)
 
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->UpdateAbilityState(tokenB, AbilityState::ABILITY_STATE_BACKGROUND);
-    appA.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationBackgrounded(appA.appRecord_->GetRecordId());
     serviceInner_->TerminateAbility(tokenA, false);
     serviceInner_->AbilityTerminated(tokenA);
@@ -617,7 +600,6 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_006, TestSize.Level1)
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleTerminateApplication(_)).Times(1);
 
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
-    appA.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationBackgrounded(appA.appRecord_->GetRecordId());
     serviceInner_->TerminateAbility(tokenA, false);
     serviceInner_->AbilityTerminated(tokenA);
@@ -647,7 +629,6 @@ HWTEST_F(AmsWorkFlowTest, ScreenOn_001, TestSize.Level1)
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleForegroundApplication()).Times(1);
 
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_FOREGROUND);
-    appA.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationForegrounded(appA.appRecord_->GetRecordId());
 
     EXPECT_EQ(AbilityState::ABILITY_STATE_FOREGROUND, appA.GetAbility(tokenA)->GetState());
@@ -674,7 +655,6 @@ HWTEST_F(AmsWorkFlowTest, ScreenOn_002, TestSize.Level1)
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleForegroundApplication()).Times(1);
 
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_FOREGROUND);
-    appA.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationForegrounded(appA.appRecord_->GetRecordId());
 
     EXPECT_EQ(AbilityState::ABILITY_STATE_FOREGROUND, appA.GetAbility(tokenA)->GetState());
@@ -702,7 +682,6 @@ HWTEST_F(AmsWorkFlowTest, ScreenOn_003, TestSize.Level1)
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleForegroundApplication()).Times(1);
 
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_FOREGROUND);
-    appA.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationForegrounded(appA.appRecord_->GetRecordId());
     serviceInner_->UpdateAbilityState(tokenB, AbilityState::ABILITY_STATE_FOREGROUND);
 
@@ -808,10 +787,8 @@ HWTEST_F(AmsWorkFlowTest, ChangeAbility_003, TestSize.Level1)
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
 
     serviceInner_->UpdateAbilityState(tokenB, AbilityState::ABILITY_STATE_FOREGROUND);
-    appB.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationForegrounded(appB.appRecord_->GetRecordId());
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
-    appA.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationBackgrounded(appA.appRecord_->GetRecordId());
 
     std::shared_ptr<AbilityRunningRecord> abilityA = appA.GetAbility(tokenA);
@@ -855,12 +832,10 @@ HWTEST_F(AmsWorkFlowTest, ChangeAbility_004, TestSize.Level1)
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(2);
 
     serviceInner_->UpdateAbilityState(tokenC, AbilityState::ABILITY_STATE_FOREGROUND);
-    appC.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationForegrounded(appC.appRecord_->GetRecordId());
 
     serviceInner_->UpdateAbilityState(tokenB, AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
-    appA.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationBackgrounded(appA.appRecord_->GetRecordId());
 
     std::shared_ptr<AbilityRunningRecord> abilityA = appA.GetAbility(tokenA);
@@ -907,11 +882,9 @@ HWTEST_F(AmsWorkFlowTest, ChangeAbility_005, TestSize.Level1)
 
     serviceInner_->UpdateAbilityState(tokenC, AbilityState::ABILITY_STATE_FOREGROUND);
     serviceInner_->UpdateAbilityState(tokenB, AbilityState::ABILITY_STATE_BACKGROUND);
-    appB.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationForegrounded(appB.appRecord_->GetRecordId());
 
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
-    appA.appRecord_->SetUpdateStateFromService(true);
     serviceInner_->ApplicationBackgrounded(appA.appRecord_->GetRecordId());
 
     std::shared_ptr<AbilityRunningRecord> abilityB = appB.GetAbility(tokenB);

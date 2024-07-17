@@ -676,7 +676,6 @@ HWTEST_F(AppMgrServiceInnerTest, ApplicationForegrounded_002, TestSize.Level0)
     BundleInfo info;
     std::string processName = "test_processName";
     auto record = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
-    record->SetUpdateStateFromService(true);
     recordId_ += 1;
 
     appMgrServiceInner->ApplicationForegrounded(recordId_);
@@ -699,7 +698,6 @@ HWTEST_F(AppMgrServiceInnerTest, ApplicationForegrounded_003, TestSize.Level0)
     std::string processName = "test_processName";
     auto record = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
     recordId_ += 1;
-    record->SetUpdateStateFromService(true);
     auto record2 = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
     recordId_ += 1;
     std::shared_ptr<PriorityObject> priorityObject = std::make_shared<PriorityObject>();

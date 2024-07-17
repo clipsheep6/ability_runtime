@@ -231,7 +231,6 @@ void AmsAppLifeCycleModuleTest::ChangeAbilityStateToForegroud(const sptr<MockApp
         EXPECT_NE(appRunningRecord, nullptr);
         CHECK_POINTER_IS_NULLPTR(appRunningRecord);
         int32_t recordId = appRunningRecord->GetRecordId();
-        appRunningRecord->SetUpdateStateFromService(true);
         serviceInner_->ApplicationForegrounded(recordId);
     }
 }
@@ -252,7 +251,6 @@ void AmsAppLifeCycleModuleTest::ChangeAbilityStateToBackGroud(const sptr<MockApp
         EXPECT_NE(appRunningRecord, nullptr);
         CHECK_POINTER_IS_NULLPTR(appRunningRecord);
         int32_t recordId = appRunningRecord->GetRecordId();
-        appRunningRecord->SetUpdateStateFromService(true);
         serviceInner_->ApplicationBackgrounded(recordId);
     }
 }
