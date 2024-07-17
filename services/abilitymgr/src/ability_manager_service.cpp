@@ -115,6 +115,7 @@
 #include "xcollie/watchdog.h"
 #include "config_policy_utils.h"
 #include "running_multi_info.h"
+#include "utils/dump_utils.h"
 #include "utils/extension_permissions_util.h"
 #include "utils/window_options_utils.h"
 #ifdef SUPPORT_GRAPHICS
@@ -282,49 +283,6 @@ nlohmann::json whiteListJsonObj;
 constexpr int32_t API12 = 12;
 constexpr int32_t API_VERSION_MOD = 100;
 constexpr const char* WHITE_LIST = "white_list";
-const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("--all", KEY_DUMP_ALL),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("-a", KEY_DUMP_ALL),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("--stack-list", KEY_DUMP_STACK_LIST),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("-l", KEY_DUMP_STACK_LIST),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("--stack", KEY_DUMP_STACK),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("-s", KEY_DUMP_STACK),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("--mission", KEY_DUMP_MISSION),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("-m", KEY_DUMP_MISSION),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("--top", KEY_DUMP_TOP_ABILITY),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("-t", KEY_DUMP_TOP_ABILITY),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("--waiting-queue", KEY_DUMP_WAIT_QUEUE),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("-w", KEY_DUMP_WAIT_QUEUE),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("--serv", KEY_DUMP_SERVICE),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("-e", KEY_DUMP_SERVICE),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("--data", KEY_DUMP_DATA),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("-d", KEY_DUMP_DATA),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("-focus", KEY_DUMP_FOCUS_ABILITY),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("-f", KEY_DUMP_FOCUS_ABILITY),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("--win-mode", KEY_DUMP_WINDOW_MODE),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("-z", KEY_DUMP_WINDOW_MODE),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("--mission-list", KEY_DUMP_MISSION_LIST),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("-L", KEY_DUMP_MISSION_LIST),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("--mission-infos", KEY_DUMP_MISSION_INFOS),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("-S", KEY_DUMP_MISSION_INFOS),
-};
-
-const std::map<std::string, AbilityManagerService::DumpsysKey> AbilityManagerService::dumpsysMap = {
-    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("--all", KEY_DUMPSYS_ALL),
-    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-a", KEY_DUMPSYS_ALL),
-    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("--mission-list", KEY_DUMPSYS_MISSION_LIST),
-    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-l", KEY_DUMPSYS_MISSION_LIST),
-    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("--ability", KEY_DUMPSYS_ABILITY),
-    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-i", KEY_DUMPSYS_ABILITY),
-    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("--extension", KEY_DUMPSYS_SERVICE),
-    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-e", KEY_DUMPSYS_SERVICE),
-    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("--pending", KEY_DUMPSYS_PENDING),
-    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-p", KEY_DUMPSYS_PENDING),
-    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("--process", KEY_DUMPSYS_PROCESS),
-    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-r", KEY_DUMPSYS_PROCESS),
-    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("--data", KEY_DUMPSYS_DATA),
-    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-d", KEY_DUMPSYS_DATA),
-};
 
 const bool REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<AbilityManagerService>::GetInstance().get());
@@ -5436,28 +5394,27 @@ void AbilityManagerService::DumpState(const std::string &args, std::vector<std::
     if (argList.empty()) {
         return;
     }
-    auto it = dumpMap.find(argList[0]);
-    if (it == dumpMap.end()) {
+    auto key = DumpUtils::DumpMap(argList[0]);
+    if (!key.first) {
         return;
     }
-    DumpKey key = it->second;
-    switch (key) {
-        case KEY_DUMP_SERVICE:
+    switch (key.second) {
+        case DumpUtils::KEY_DUMP_SERVICE:
             DumpStateInner(args, info);
             break;
-        case KEY_DUMP_DATA:
+        case DumpUtils::KEY_DUMP_DATA:
             DataDumpStateInner(args, info);
             break;
-        case KEY_DUMP_ALL:
+        case DumpUtils::KEY_DUMP_ALL:
             DumpInner(args, info);
             break;
-        case KEY_DUMP_MISSION:
+        case DumpUtils::KEY_DUMP_MISSION:
             DumpMissionInner(args, info);
             break;
-        case KEY_DUMP_MISSION_LIST:
+        case DumpUtils::KEY_DUMP_MISSION_LIST:
             DumpMissionListInner(args, info);
             break;
-        case KEY_DUMP_MISSION_INFOS:
+        case DumpUtils::KEY_DUMP_MISSION_INFOS:
             DumpMissionInfosInner(args, info);
             break;
         default:
@@ -5481,31 +5438,30 @@ void AbilityManagerService::DumpSysState(
     if (argList.empty()) {
         return;
     }
-    auto it = dumpsysMap.find(argList[0]);
-    if (it == dumpsysMap.end()) {
+    auto key = DumpUtils::DumpsysMap(argList[0]);
+    if (!key.first) {
         return;
     }
-    DumpsysKey key = it->second;
-    switch (key) {
-        case KEY_DUMPSYS_ALL:
+    switch (key.second) {
+        case DumpUtils::KEY_DUMP_SYS_ALL:
             DumpSysInner(args, info, isClient, isUserID, userId);
             break;
-        case KEY_DUMPSYS_SERVICE:
+        case DumpUtils::KEY_DUMP_SYS_SERVICE:
             DumpSysStateInner(args, info, isClient, isUserID, userId);
             break;
-        case KEY_DUMPSYS_PENDING:
+        case DumpUtils::KEY_DUMP_SYS_PENDING:
             DumpSysPendingInner(args, info, isClient, isUserID, userId);
             break;
-        case KEY_DUMPSYS_PROCESS:
+        case DumpUtils::KEY_DUMP_SYS_PROCESS:
             DumpSysProcess(args, info, isClient, isUserID, userId);
             break;
-        case KEY_DUMPSYS_DATA:
+        case DumpUtils::KEY_DUMP_SYS_DATA:
             DataDumpSysStateInner(args, info, isClient, isUserID, userId);
             break;
-        case KEY_DUMPSYS_MISSION_LIST:
+        case DumpUtils::KEY_DUMP_SYS_MISSION_LIST:
             DumpSysMissionListInner(args, info, isClient, isUserID, userId);
             break;
-        case KEY_DUMPSYS_ABILITY:
+        case DumpUtils::KEY_DUMP_SYS_ABILITY:
             DumpSysAbilityInner(args, info, isClient, isUserID, userId);
             break;
         default:

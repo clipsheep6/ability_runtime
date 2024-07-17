@@ -1759,31 +1759,6 @@ public:
     static constexpr uint32_t MAX_WAIT_SYSTEM_UI_NUM = 600;
     static constexpr uint32_t MAX_WAIT_SETTINGS_DATA_NUM = 300;
 
-    enum DumpKey {
-        KEY_DUMP_ALL = 0,
-        KEY_DUMP_STACK_LIST,
-        KEY_DUMP_STACK,
-        KEY_DUMP_MISSION,
-        KEY_DUMP_TOP_ABILITY,
-        KEY_DUMP_WAIT_QUEUE,
-        KEY_DUMP_SERVICE,
-        KEY_DUMP_DATA,
-        KEY_DUMP_FOCUS_ABILITY,
-        KEY_DUMP_WINDOW_MODE,
-        KEY_DUMP_MISSION_LIST,
-        KEY_DUMP_MISSION_INFOS,
-    };
-
-    enum DumpsysKey {
-        KEY_DUMPSYS_ALL = 0,
-        KEY_DUMPSYS_MISSION_LIST,
-        KEY_DUMPSYS_ABILITY,
-        KEY_DUMPSYS_SERVICE,
-        KEY_DUMPSYS_PENDING,
-        KEY_DUMPSYS_PROCESS,
-        KEY_DUMPSYS_DATA,
-    };
-
     enum {
         ABILITY_MOVE_TO_FOREGROUND_CODE = 0,
         ABILITY_MOVE_TO_BACKGROUND_CODE,
@@ -2252,8 +2227,6 @@ private:
     sptr<AppExecFwk::IBundleMgr> iBundleManager_;
     std::shared_ptr<AppExecFwk::BundleMgrHelper> bundleMgrHelper_;
     sptr<OHOS::AppExecFwk::IAppMgr> appMgr_ { nullptr };
-    const static std::map<std::string, AbilityManagerService::DumpKey> dumpMap;
-    const static std::map<std::string, AbilityManagerService::DumpsysKey> dumpsysMap;
 
     std::shared_ptr<FreeInstallManager> freeInstallManager_;
 
