@@ -38,6 +38,7 @@ constexpr const char* SCENEBOARD_ABILITY_NAME = "com.ohos.sceneboard.MainAbility
 constexpr const char* GRANT_ABILITY_BUNDLE_NAME = "com.ohos.permissionmanager";
 constexpr const char* GRANT_ABILITY_ABILITY_NAME = "com.ohos.permissionmanager.GrantAbility";
 constexpr const char* PARAMS_STREAM = "ability.params.stream";
+constexpr const char* CALLUI_ABILITY_NAME = "com.ohos.callui.ServiceAbility";
 constexpr const char* MISSION_NAME_MARK_HEAD = "#";
 constexpr const char* MISSION_NAME_SEPARATOR = ":";
 }  // namespace AbilityConfig

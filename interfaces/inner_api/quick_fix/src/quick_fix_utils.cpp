@@ -17,7 +17,6 @@
 
 #include "bundle_mgr_helper.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "singleton.h"

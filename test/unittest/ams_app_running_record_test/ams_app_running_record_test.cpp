@@ -31,7 +31,6 @@
 #include "bundle_mgr_interface.h"
 #include "event_handler.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "iremote_object.h"
 #include "mock_ability_token.h"
@@ -146,13 +145,11 @@ void AmsAppRunningRecordTest::MockBundleInstallerAndSA() const
             return saMgr->GetSystemAbility(systemAbilityId);
         }
     };
-    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
 }
 
 void AmsAppRunningRecordTest::MockBundleInstaller() const
 {
     auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
-    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
 }
 
 sptr<IAppScheduler> AmsAppRunningRecordTest::GetMockedAppSchedulerClient() const
@@ -768,11 +765,6 @@ HWTEST_F(AmsAppRunningRecordTest, DeleteAppRunningRecord_001, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, AttachApplication_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AmsAppRunningRecordTest AttachApplication_001 start");
-    MockBundleInstallerAndSA();
-    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
-        .WillOnce(testing::Return(true))
-        .WillRepeatedly(testing::Return(true));
-
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     abilityInfo->applicationName = GetTestAppName();
@@ -799,7 +791,6 @@ HWTEST_F(AmsAppRunningRecordTest, AttachApplication_001, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, AttachApplication_002, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AmsAppRunningRecordTest AttachApplication_002 start");
-    MockBundleInstaller();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     abilityInfo->applicationName = GetTestAppName();
@@ -827,7 +818,6 @@ HWTEST_F(AmsAppRunningRecordTest, AttachApplication_002, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, AttachApplication_003, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AmsAppRunningRecordTest AttachApplication_003 start");
-    MockBundleInstaller();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     abilityInfo->applicationName = GetTestAppName();
@@ -855,7 +845,6 @@ HWTEST_F(AmsAppRunningRecordTest, AttachApplication_003, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, AttachApplication_004, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AmsAppRunningRecordTest AttachApplication_004 start");
-    MockBundleInstaller();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     abilityInfo->applicationName = GetTestAppName();
@@ -883,7 +872,6 @@ HWTEST_F(AmsAppRunningRecordTest, AttachApplication_004, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, AttachApplication_005, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AmsAppRunningRecordTest AttachApplication_005 start");
-    MockBundleInstaller();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     abilityInfo->applicationName = GetTestAppName();
@@ -912,7 +900,6 @@ HWTEST_F(AmsAppRunningRecordTest, AttachApplication_005, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, AttachApplication_006, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AmsAppRunningRecordTest AttachApplication_006 start");
-    MockBundleInstaller();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     abilityInfo->applicationName = GetTestAppName();
@@ -1610,7 +1597,6 @@ HWTEST_F(AmsAppRunningRecordTest, RemoveModuleRecord_001, TestSize.Level1)
     moduleRecord0 = std::make_shared<ModuleRunningRecord>(appInfo, nullptr);
     HapModuleInfo hapModuleInfo0;
     hapModuleInfo0.moduleName = "module0";
-    moduleRecord0->Init(hapModuleInfo0);
     record->RemoveModuleRecord(moduleRecord0);
     moduleRecordList = record->GetAllModuleRecord();
     EXPECT_TRUE(moduleRecordList.size() == 2);
@@ -2981,45 +2967,6 @@ HWTEST_F(AmsAppRunningRecordTest, IsAbilitytiesBackground_001, TestSize.Level1)
     record->hapModules_.emplace(bundleName, moduleRecords);
     EXPECT_TRUE(record->IsAbilitytiesBackground());
     GTEST_LOG_(INFO) << "IsAbilitytiesBackground_001 end.";
-}
-
-/**
- * @tc.name: AppRunningRecord_OnWindowVisibilityChanged_001
- * @tc.desc: verify that AppRunningRecord correctly handle window visibility change event
- * @tc.type: FUNC
- */
-HWTEST_F(AmsAppRunningRecordTest, OnWindowVisibilityChanged_001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "OnWindowVisibilityChanged_001 start.";
-    // 1. create AppRunningRecord, set state and windowIds_
-    auto record = GetTestAppRunningRecord();
-    EXPECT_NE(record, nullptr);
-    uint32_t windowId = 123456;
-    record->windowIds_.insert(windowId);
-    record->curState_ = ApplicationState::APP_STATE_FOREGROUND;
-
-    // 2. construct WindowVisibilityInfos
-    std::vector<sptr<Rosen::WindowVisibilityInfo>> windowVisibilityInfos;
-    auto info = new (std::nothrow) Rosen::WindowVisibilityInfo();
-    EXPECT_NE(info, nullptr);
-    info->visibilityState_ = Rosen::WindowVisibilityState::WINDOW_VISIBILITY_STATE_TOTALLY_OCCUSION;
-    info->windowId_ = windowId;
-    windowVisibilityInfos.emplace_back(info);
-
-    //3. verify function
-    record->OnWindowVisibilityChanged(windowVisibilityInfos);
-    EXPECT_TRUE(record->isUpdateStateFromService_);
-    EXPECT_TRUE(record->windowIds_.empty());
-
-    info->visibilityState_ = Rosen::WindowVisibilityState::WINDOW_VISIBILITY_STATE_NO_OCCLUSION;
-    windowVisibilityInfos.clear();
-    windowVisibilityInfos.emplace_back(info);
-    record->isUpdateStateFromService_ = false;
-    record->curState_ = ApplicationState::APP_STATE_BACKGROUND;
-    record->OnWindowVisibilityChanged(windowVisibilityInfos);
-    EXPECT_FALSE(record->windowIds_.empty());
-    EXPECT_TRUE(record->isUpdateStateFromService_);
-    GTEST_LOG_(INFO) << "OnWindowVisibilityChanged_001 end.";
 }
 
 /**

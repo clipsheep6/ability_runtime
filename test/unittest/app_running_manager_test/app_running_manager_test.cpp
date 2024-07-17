@@ -21,7 +21,6 @@
 #include "child_process_record.h"
 #undef private
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "window_visibility_info.h"
 
 using namespace testing;
@@ -217,7 +216,9 @@ HWTEST_F(AppRunningManagerTest, AppRunningManager_GetAppRunningRecordByChildProc
 
     auto appInfo = std::make_shared<ApplicationInfo>();
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
-    auto childRecord = ChildProcessRecord::CreateChildProcessRecord(PID, "./ets/AProcess.ts", appRecord, 1, false);
+    ChildProcessRequest request;
+    request.srcEntry = "./ets/AProcess.ts";
+    auto childRecord = ChildProcessRecord::CreateChildProcessRecord(PID, request, appRecord);
     pid_t childPid = 201;
     childRecord->pid_ = childPid;
     appRecord->AddChildProcessRecord(childPid, childRecord);
@@ -254,6 +255,48 @@ HWTEST_F(AppRunningManagerTest, AppRunningManager_UpdateConfiguration_0100, Test
     EXPECT_EQ(appRunningManager->appRunningRecordMap_.size(), recordId);
     auto ret = appRunningManager->UpdateConfiguration(config);
     EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: AppRunningManager_UpdateConfiguration_0200
+ * @tc.desc: Test UpdateConfiguration config storage
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningManagerTest, AppRunningManager_UpdateConfiguration_0200, TestSize.Level1)
+{
+    auto appRunningManager = std::make_shared<AppRunningManager>();
+    EXPECT_NE(appRunningManager, nullptr);
+    Configuration config;
+    config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, ConfigurationInner::COLOR_MODE_LIGHT);
+    auto ret = appRunningManager->UpdateConfiguration(config);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_NE(appRunningManager->configuration_, nullptr);
+    EXPECT_EQ(appRunningManager->configuration_->GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE),
+        ConfigurationInner::COLOR_MODE_LIGHT);
+}
+
+/**
+ * @tc.name: AppRunningManager_UpdateConfiguration_0300
+ * @tc.desc: Test UpdateConfiguration delayed
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningManagerTest, AppRunningManager_UpdateConfiguration_0300, TestSize.Level1)
+{
+    auto appRunningManager = std::make_shared<AppRunningManager>();
+    EXPECT_NE(appRunningManager, nullptr);
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    int32_t recordId = 1;
+    std::string processName;
+    Configuration config;
+    auto appRunningRecord = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
+    appRunningManager->appRunningRecordMap_.emplace(recordId, appRunningRecord);
+    appRunningRecord = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
+    appRunningRecord->SetState(ApplicationState::APP_STATE_BACKGROUND);
+    appRunningManager->appRunningRecordMap_.emplace(++recordId, appRunningRecord);
+    auto ret = appRunningManager->UpdateConfiguration(config);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(appRunningManager->updateConfigurationDelayedMap_[0], false);
+    EXPECT_EQ(appRunningManager->updateConfigurationDelayedMap_[1], true);
 }
 
 /**
@@ -631,8 +674,10 @@ HWTEST_F(AppRunningManagerTest, IsAppProcessesAllCached_0100, TestSize.Level1)
     std::string processName = "com.tdd.cacheprocesstest";
     auto appRunningRecord1 = std::make_shared<AppRunningRecord>(appInfo, recordId1, processName);
     appRunningRecord1->SetUid(appInfo->uid);
+    appRunningRecord1->SetSupportedProcessCache(true);
     auto appRunningRecord2 = std::make_shared<AppRunningRecord>(appInfo, recordId2, processName);
     appRunningRecord2->SetUid(appInfo->uid);
+    appRunningRecord2->SetSupportedProcessCache(true);
 
     appRunningManager->appRunningRecordMap_.insert(make_pair(recordId1, appRunningRecord1));
     std::set<std::shared_ptr<AppRunningRecord>> cachedSet;

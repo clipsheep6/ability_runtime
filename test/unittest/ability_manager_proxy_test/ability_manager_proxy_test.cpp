@@ -1054,6 +1054,27 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_UninstallApp_001, TestSize
 
 /*
  * Feature: AbilityManagerService
+ * Function: UninstallApp
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService UninstallApp
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of UninstallApp
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_UninstallApp_002, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    std::string bundleName = "";
+    int32_t uid = 1;
+    int32_t appIndex = 0;
+    auto res = proxy_->UninstallApp(bundleName, uid, appIndex);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::UNINSTALL_APP), mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: UpgradeApp
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService UpgradeApp
@@ -1068,7 +1089,8 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_UpgradeApp_001, TestSize.L
     std::string bundleName = "";
     int32_t uid = 1;
     std::string exitMsg = "App upgrade.";
-    auto res = proxy_->UpgradeApp(bundleName, uid, exitMsg);
+    int32_t appIndex = 0;
+    auto res = proxy_->UpgradeApp(bundleName, uid, exitMsg, appIndex);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::UPGRADE_APP), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
@@ -1606,7 +1628,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_SetMissionLabel_001, TestS
 HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RegisterWindowManagerServiceHandler_001, TestSize.Level1)
 {
     sptr<IWindowManagerServiceHandler> handler = nullptr;
-    auto res = proxy_->RegisterWindowManagerServiceHandler(handler);
+    auto res = proxy_->RegisterWindowManagerServiceHandler(handler, true);
     EXPECT_EQ(res, INNER_ERR);
 }
 

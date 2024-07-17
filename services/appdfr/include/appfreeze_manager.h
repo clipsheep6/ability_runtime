@@ -50,6 +50,8 @@ public:
     enum AppFreezeState {
         APPFREEZE_STATE_IDLE = 0,
         APPFREEZE_STATE_FREEZE = 1,
+        APPFREEZE_STATE_CANCELING = 2,
+        APPFREEZE_STATE_CANCELED = 3,
     };
 
     struct AppFreezeInfo {
@@ -79,6 +81,10 @@ public:
     bool IsProcessDebug(int32_t pid, std::string processName);
     bool IsNeedIgnoreFreezeEvent(int32_t pid);
     void DeleteStack(int pid);
+    bool CancelAppFreezeDetect(int32_t pid, const std::string& bundleName);
+    void RemoveDeathProcess(std::string bundleName);
+    void ResetAppfreezeState(int32_t pid, const std::string& bundleName);
+    bool IsValidFreezeFilter(int32_t pid, const std::string& bundleName);
 
 private:
     AppfreezeManager& operator=(const AppfreezeManager&) = delete;
@@ -106,6 +112,8 @@ private:
     std::map<int32_t, AppFreezeInfo> appfreezeInfo_;
     static ffrt::mutex catchStackMutex_;
     static std::map<int, std::string> catchStackMap_;
+    static ffrt::mutex freezeFilterMutex_;
+    std::map<std::string, AppFreezeInfo> appfreezeFilterMap_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

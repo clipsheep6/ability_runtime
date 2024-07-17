@@ -25,7 +25,6 @@
 #include "connection_observer_client_impl.h"
 #include "dlp_state_data.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_native_token.h"
 #include "parcel.h"
 

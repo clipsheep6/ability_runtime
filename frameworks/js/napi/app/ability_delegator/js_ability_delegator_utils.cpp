@@ -17,7 +17,6 @@
 
 #include <map>
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_ability_monitor.h"
 #include "napi/native_common.h"
 

@@ -21,7 +21,6 @@
 #include <sstream>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "shell_command_config_loader.h"
 
 using namespace std::chrono_literals;

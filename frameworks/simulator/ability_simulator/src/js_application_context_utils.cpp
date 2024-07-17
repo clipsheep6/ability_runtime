@@ -227,7 +227,7 @@ napi_value JsApplicationContextUtils::OnGetCloudFileDir(napi_env env, NapiCallba
 {
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
         return CreateJsUndefined(env);
     }
     std::string path = context->GetCloudFileDir();

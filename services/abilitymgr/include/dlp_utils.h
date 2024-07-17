@@ -23,7 +23,6 @@
 #endif // WITH_DLP
 #include "global_constant.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "iremote_object.h"
 #include "permission_verification.h"

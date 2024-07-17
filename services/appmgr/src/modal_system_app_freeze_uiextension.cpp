@@ -19,8 +19,8 @@
 #include <mutex>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "in_process_call_wrapper.h"
 #include "scene_board_judgement.h"
 
 namespace OHOS {
@@ -56,9 +56,30 @@ sptr<ModalSystemAppFreezeUIExtension::AppFreezeDialogConnection> ModalSystemAppF
     return dialogConnectionCallback_;
 }
 
+void ModalSystemAppFreezeUIExtension::ProcessAppFreeze(bool focusFlag, const FaultData &faultData, std::string pid,
+    std::string bundleName, std::function<void()> callback, bool isDialogExist)
+{
+    const std::string SCENE_BAOARD_NAME = "com.ohos.sceneboard";
+    if (bundleName == SCENE_BAOARD_NAME && callback) {
+        callback();
+        return;
+    }
+    FaultDataType faultType = faultData.faultType;
+    std::string name = faultData.errorObject.name;
+    bool isAppFreezeDialog = name == AppFreezeType::THREAD_BLOCK_6S || name == AppFreezeType::APP_INPUT_BLOCK ||
+        name == AppFreezeType::LIFECYCLE_TIMEOUT;
+    isAppFreezeDialog = isAppFreezeDialog && (!isDialogExist || (isDialogExist && pid != lastFreezePid));
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s is %{public}s", bundleName.c_str(), focusFlag ? " focus" : " not focus");
+    if (focusFlag && isAppFreezeDialog) {
+        CreateModalUIExtension(pid, bundleName);
+    } else if (callback && faultType != FaultDataType::APP_FREEZE) {
+        callback();
+    }
+}
+
 bool ModalSystemAppFreezeUIExtension::CreateModalUIExtension(std::string pid, std::string bundleName)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "CreateModalUIExtension Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     AAFwk::Want want = CreateSystemDialogWant(pid, bundleName);
     std::unique_lock<std::mutex> lockAssertResult(appFreezeResultMutex_);
     auto callback = GetConnection();
@@ -78,24 +99,23 @@ bool ModalSystemAppFreezeUIExtension::CreateModalUIExtension(std::string pid, st
     } else {
         systemUIWant.SetElementName("com.ohos.systemui", "com.ohos.systemui.dialog");
     }
-    auto result = abilityManagerClient->ConnectAbility(systemUIWant, callback, INVALID_USERID);
+    IN_PROCESS_CALL_WITHOUT_RET(abilityManagerClient->DisconnectAbility(callback));
+    auto result = IN_PROCESS_CALL(abilityManagerClient->ConnectAbility(systemUIWant, callback, INVALID_USERID));
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR,
             "CreateModalUIExtension ConnectSystemUi ConnectAbility dialog failed, result = %{public}d", result);
         return false;
     }
-    TAG_LOGE(AAFwkTag::ABILITYMGR,
+    lastFreezePid = pid;
+    TAG_LOGI(AAFwkTag::ABILITYMGR,
         "CreateModalUIExtension ConnectSystemUi ConnectAbility dialog success, result = %{public}d", result);
     return true;
 }
 
 AAFwk::Want ModalSystemAppFreezeUIExtension::CreateSystemDialogWant(std::string pid, std::string bundleName)
 {
-    std::string startAbilityName = "AppAbnormalAbility";
-    std::string startBundleName =
-        Rosen::SceneBoardJudgement::IsSceneBoardEnabled() ? "com.ohos.sceneboard" : "com.ohos.systemui";
     AAFwk::Want want;
-    want.SetElementName(startBundleName, startAbilityName);
+    want.SetElementName(APP_NO_RESPONSE_BUNDLENAME, APP_NO_RESPONSE_ABILITY);
     want.SetParam(UIEXTENSION_TYPE_KEY, UIEXTENSION_SYS_COMMON_UI);
     want.SetParam(APP_FREEZE_PID, pid);
     want.SetParam(START_BUNDLE_NAME, bundleName);
@@ -110,7 +130,7 @@ void ModalSystemAppFreezeUIExtension::AppFreezeDialogConnection::SetReqeustAppFr
 void ModalSystemAppFreezeUIExtension::AppFreezeDialogConnection::OnAbilityConnectDone(
     const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remote, int resultCode)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     if (remote == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Input remote object is nullptr.");
         return;
@@ -145,7 +165,7 @@ void ModalSystemAppFreezeUIExtension::AppFreezeDialogConnection::OnAbilityConnec
 void ModalSystemAppFreezeUIExtension::AppFreezeDialogConnection::OnAbilityDisconnectDone(
     const AppExecFwk::ElementName &element, int resultCode)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
 }
 } // namespace AppExecFwk
 } // namespace OHOS

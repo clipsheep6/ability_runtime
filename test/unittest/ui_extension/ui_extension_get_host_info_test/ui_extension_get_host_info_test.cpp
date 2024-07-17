@@ -16,7 +16,6 @@
 #include <gtest/gtest.h>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ability_manager_client.h"
 #include "mock_ability_token.h"
 #include "mock_native_token.h"

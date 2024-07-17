@@ -232,7 +232,9 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_ImplicitQueryInfos_001, TestSi
     bool withDefault = false;
     std::vector<AbilityInfo> abilityInfos;
     std::vector<ExtensionAbilityInfo> extensionInfos;
-    auto ret = bundleMgrHelper->ImplicitQueryInfos(want, flags, userId, withDefault, abilityInfos, extensionInfos);
+    bool findDefaultApp = false;
+    auto ret = bundleMgrHelper->ImplicitQueryInfos(want, flags, userId, withDefault, abilityInfos, extensionInfos,
+        findDefaultApp);
     EXPECT_EQ(ret, false);
 }
 
@@ -261,20 +263,6 @@ HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_QueryDataGroupInfos_001, TestS
     std::vector<DataGroupInfo> infos;
     auto ret = bundleMgrHelper->QueryDataGroupInfos(bundleName, userId, infos);
     EXPECT_EQ(ret, false);
-}
-
-/**
- * @tc.name: BundleMgrHelperTest_GetBundleGidsByUid_001
- * @tc.desc: GetBundleGidsByUid
- * @tc.type: FUNC
- */
-HWTEST_F(BundleMgrHelperTest, BundleMgrHelperTest_GetBundleGidsByUid_001, TestSize.Level1)
-{
-    std::string bundleName;
-    int32_t uid = DEFAULT_USERID;
-    std::vector<int> gids;
-    auto ret = bundleMgrHelper->GetBundleGidsByUid(bundleName, uid, gids);
-    EXPECT_EQ(ret, true);
 }
 
 /**

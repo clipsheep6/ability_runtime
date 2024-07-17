@@ -83,10 +83,17 @@ private:
     int32_t HandleClearProcessByToken(MessageParcel &data, MessageParcel &reply);
     int32_t HandleIsMemorySizeSufficent(MessageParcel &data, MessageParcel &reply);
     int32_t HandleSetKeepAliveEnableState(MessageParcel &data, MessageParcel &reply);
-
-    using AmsMgrFunc = int32_t (AmsMgrStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, AmsMgrFunc> memberFuncMap_;
-
+    int32_t HandleAttachedToStatusBar(MessageParcel &data, MessageParcel &reply);
+    int32_t OnRemoteRequestInner(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int32_t OnRemoteRequestInnerFirst(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int32_t OnRemoteRequestInnerSecond(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int32_t OnRemoteRequestInnerThird(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int32_t HandleBlockProcessCacheByPids(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleIsKilledForUpgradeWeb(MessageParcel &data, MessageParcel &reply);
     DISALLOW_COPY_AND_MOVE(AmsMgrStub);
 };
 }  // namespace AppExecFwk

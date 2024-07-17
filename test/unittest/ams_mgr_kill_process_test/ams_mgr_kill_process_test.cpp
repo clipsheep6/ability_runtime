@@ -20,7 +20,6 @@
 #undef private
 #include "app_mgr_interface.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_bundle_manager.h"
 #include "mock_native_token.h"
 #include "mock_sa_call.h"

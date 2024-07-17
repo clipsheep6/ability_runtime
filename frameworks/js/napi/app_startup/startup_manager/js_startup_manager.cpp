@@ -34,7 +34,7 @@ constexpr size_t ARGC_TWO = 2;
 } // namespace
 void JsStartupManager::Finalizer(napi_env env, void *data, void *hint)
 {
-    TAG_LOGD(AAFwkTag::STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::STARTUP, "called");
     std::unique_ptr<JsStartupManager>(static_cast<JsStartupManager *>(data));
 }
 
@@ -204,7 +204,7 @@ napi_value JsStartupManager::OnRemoveResult(napi_env env, NapiCallbackInfo &info
 
 napi_value JsStartupManagerInit(napi_env env, napi_value exportObj)
 {
-    TAG_LOGD(AAFwkTag::STARTUP, "Called.");
+    TAG_LOGD(AAFwkTag::STARTUP, "called");
     if (env == nullptr || exportObj == nullptr) {
         TAG_LOGE(AAFwkTag::STARTUP, "Env or exportObj nullptr.");
         return nullptr;

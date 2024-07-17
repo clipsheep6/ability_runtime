@@ -15,7 +15,6 @@
 
 #include <memory>
 
-#include "hilog_wrapper.h"
 #include "jsnapi.h"
 #include "mock_jsnapi.h"
 

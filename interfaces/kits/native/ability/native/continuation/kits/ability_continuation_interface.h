@@ -27,9 +27,9 @@ public:
 
     virtual bool OnStartContinuation() = 0;
 
-    virtual bool OnSaveData(WantParams &saveData) = 0;
+    virtual bool OnSaveData(AAFwk::WantParams &saveData) = 0;
 
-    virtual bool OnRestoreData(WantParams &restoreData) = 0;
+    virtual bool OnRestoreData(AAFwk::WantParams &restoreData) = 0;
 
     virtual void OnCompleteContinuation(int result) = 0;
 

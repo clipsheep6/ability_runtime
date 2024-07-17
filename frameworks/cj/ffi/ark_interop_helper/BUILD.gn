@@ -1,0 +1,54 @@
+# Copyright (C) 2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+
+ohos_shared_library("ark_interop_helper_ffi") {
+  defines = []
+
+  sources = [ "ark_interop_helper.cpp" ]
+
+  external_deps = [
+    "ets_runtime:libark_jsruntime",
+    "hilog:libhilog",
+    "napi:ace_napi",
+    "napi:ark_interop",
+  ]
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
+  deps = []
+
+  if (build_ohos_sdk) {
+    defines += [ "PREVIEW" ]
+  } else {
+    deps += [
+      "${ability_runtime_innerkits_path}/napi_base_context:napi_base_context",
+      "${ability_runtime_native_path}/ability/native:abilitykit_native",
+      "${ability_runtime_native_path}/appkit:appkit_native",
+    ]
+    external_deps += [ "ace_engine:ace_container_scope" ]
+  }
+
+  if (current_os == "mingw") {
+    defines += [ "__WINDOWS__" ]
+  }
+
+  innerapi_tags = [ "platformsdk" ]
+  part_name = "ability_runtime"
+  subsystem_name = "ability"
+}

@@ -30,7 +30,7 @@ class ApplicationAnrListener : public MMI::IAnrObserver {
 public:
     ApplicationAnrListener();
     virtual ~ApplicationAnrListener();
-    void OnAnr(int32_t pid) const override;
+    void OnAnr(int32_t pid, int32_t eventId) const override;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

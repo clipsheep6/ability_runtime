@@ -18,7 +18,6 @@
 
 #include "ability_manager_errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -27,23 +26,9 @@ WindowManagerServiceHandlerStub::WindowManagerServiceHandlerStub()
     Init();
 }
 
-WindowManagerServiceHandlerStub::~WindowManagerServiceHandlerStub()
-{
-    requestFuncMap_.clear();
-}
+WindowManagerServiceHandlerStub::~WindowManagerServiceHandlerStub() {}
 
-void WindowManagerServiceHandlerStub::Init()
-{
-    requestFuncMap_[ON_NOTIFY_WINDOW_TRANSITION] = &WindowManagerServiceHandlerStub::NotifyWindowTransitionInner;
-    requestFuncMap_[ON_GET_FOCUS_ABILITY] = &WindowManagerServiceHandlerStub::GetFocusWindowInner;
-    requestFuncMap_[ON_COLD_STARTING_WINDOW] = &WindowManagerServiceHandlerStub::StartingWindowCold;
-    requestFuncMap_[ON_HOT_STARTING_WINDOW] = &WindowManagerServiceHandlerStub::StartingWindowHot;
-    requestFuncMap_[ON_CANCEL_STARTING_WINDOW] = &WindowManagerServiceHandlerStub::CancelStartingWindowInner;
-    requestFuncMap_[ON_NOTIFY_ANIMATION_ABILITY_DIED] =
-        &WindowManagerServiceHandlerStub::NotifyAnimationAbilityDiedInner;
-    requestFuncMap_[ON_MOVE_MISSINONS_TO_FOREGROUND] = &WindowManagerServiceHandlerStub::MoveMissionsToForegroundInner;
-    requestFuncMap_[ON_MOVE_MISSIONS_TO_BACKGROUND] = &WindowManagerServiceHandlerStub::MoveMissionsToBackgroundInner;
-}
+void WindowManagerServiceHandlerStub::Init() {}
 
 int WindowManagerServiceHandlerStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -53,13 +38,25 @@ int WindowManagerServiceHandlerStub::OnRemoteRequest(
         return ERR_AAFWK_PARCEL_FAIL;
     }
 
-    auto itFunc = requestFuncMap_.find(code);
-    if (itFunc != requestFuncMap_.end()) {
-        auto requestFunc = itFunc->second;
-        if (requestFunc != nullptr) {
-            return (this->*requestFunc)(data, reply);
-        }
+    switch (code) {
+        case ON_NOTIFY_WINDOW_TRANSITION:
+            return NotifyWindowTransitionInner(data, reply);
+        case ON_GET_FOCUS_ABILITY:
+            return GetFocusWindowInner(data, reply);
+        case ON_COLD_STARTING_WINDOW:
+            return StartingWindowCold(data, reply);
+        case ON_HOT_STARTING_WINDOW:
+            return StartingWindowHot(data, reply);
+        case ON_CANCEL_STARTING_WINDOW:
+            return CancelStartingWindowInner(data, reply);
+        case ON_NOTIFY_ANIMATION_ABILITY_DIED:
+            return NotifyAnimationAbilityDiedInner(data, reply);
+        case ON_MOVE_MISSINONS_TO_FOREGROUND:
+            return MoveMissionsToForegroundInner(data, reply);
+        case ON_MOVE_MISSIONS_TO_BACKGROUND:
+            return MoveMissionsToBackgroundInner(data, reply);
     }
+
     TAG_LOGW(AAFwkTag::ABILITYMGR, "default case, it needs to be checked.");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }

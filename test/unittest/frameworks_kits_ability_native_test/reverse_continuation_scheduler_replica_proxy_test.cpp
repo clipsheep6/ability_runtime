@@ -18,7 +18,6 @@
 #include "continuation_handler.h"
 #include "continuation_manager.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_new_ability.h"
 #include "mock_reverse_continuation_scheduler_replica_stub.h"
 #include "reverse_continuation_scheduler_primary.h"

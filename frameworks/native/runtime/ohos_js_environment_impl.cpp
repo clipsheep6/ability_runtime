@@ -18,7 +18,6 @@
 #include "commonlibrary/ets_utils/js_sys_module/console/console.h"
 #include "commonlibrary/ets_utils/js_sys_module/timer/timer.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_utils.h"
 #include "js_worker.h"
 #include "ohos_loop_handler.h"

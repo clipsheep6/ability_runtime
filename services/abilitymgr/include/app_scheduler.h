@@ -21,6 +21,7 @@
 
 #include "ability_debug_response_interface.h"
 #include "ability_info.h"
+#include "ability_manager_client.h"
 #include "app_debug_listener_interface.h"
 #include "application_info.h"
 #include "appmgr/app_mgr_client.h"
@@ -252,7 +253,7 @@ public:
 
     void AttachTimeOut(const sptr<IRemoteObject> &token);
 
-    void PrepareTerminate(const sptr<IRemoteObject> &token);
+    void PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag = false);
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
 
@@ -425,6 +426,17 @@ public:
      * @return Returns true is sufficent memory size, others return false.
      */
     virtual bool IsMemorySizeSufficent() const;
+
+    /**
+     * Notifies that one ability is attached to status bar.
+     *
+     * @param token the token of the abilityRecord that is attached to status bar.
+     */
+    void AttachedToStatusBar(const sptr<IRemoteObject> &token);
+
+    void BlockProcessCacheByPids(const std::vector<int32_t>& pids);
+
+    bool IsKilledForUpgradeWeb(const std::string &bundleName);
 
 protected:
     /**

@@ -21,7 +21,6 @@
 #include "string_ex.h"
 #include "ability_manager_errors.h"
 #include "ability_manager_stub.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -31,8 +30,8 @@ public:
 
     MOCK_METHOD4(StartAbility, int(const Want& want, const sptr<IRemoteObject>& callerToken,
         int32_t userId, int requestCode));
-    MOCK_METHOD6(StartAbilityAsCaller, int(const Want &want, const sptr<IRemoteObject> &callerToken,
-        sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode, bool isSendDialogResult));
+    MOCK_METHOD5(StartAbilityAsCaller, int(const Want &want, const sptr<IRemoteObject> &callerToken,
+        sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode));
     MOCK_METHOD3(TerminateAbility, int(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant));
     MOCK_METHOD3(TerminateUIExtensionAbility, int(const sptr<SessionInfo> &extensionSessionInfo, int resultCode,
         const Want* resultWant));
@@ -72,6 +71,7 @@ public:
 
     MOCK_METHOD2(KillProcess, int(const std::string& bundleName, const bool clearPageStack));
     MOCK_METHOD2(UninstallApp, int(const std::string& bundleName, int32_t uid));
+    MOCK_METHOD3(UninstallApp, int32_t(const std::string& bundleName, int32_t uid, int32_t appIndex));
 
     MOCK_METHOD2(
         GetWantSender, sptr<IWantSender>(const WantSenderInfo& wantSenderInfo, const sptr<IRemoteObject>& callerToken));
@@ -205,7 +205,8 @@ public:
         return 0;
     }
 
-    int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler) override
+    int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler,
+        bool animationEnabled = true) override
     {
         return 0;
     }

@@ -18,7 +18,6 @@
 
 #include "ability_manager_service.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "nlohmann/json.hpp"
 #ifdef SUPPORT_GRAPHICS

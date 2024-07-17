@@ -15,23 +15,29 @@
 
 #include "interceptor/disposed_rule_interceptor.h"
 
-#include "ability_manager_service.h"
 #include "ability_record.h"
 #include "ability_util.h"
 #include "hilog_tag_wrapper.h"
+#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 #include "iservice_registry.h"
 #include "modal_system_ui_extension.h"
 #include "task_utils_wrap.h"
+#include "ui_extension_utils.h"
 
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string UNREGISTER_EVENT_TASK = "unregister event task";
-const std::string UNREGISTER_TIMEOUT_OBSERVER_TASK = "unregister timeout observer task";
+constexpr const char* UNREGISTER_EVENT_TASK = "unregister event task";
+constexpr const char* UNREGISTER_TIMEOUT_OBSERVER_TASK = "unregister timeout observer task";
 constexpr int UNREGISTER_OBSERVER_MICRO_SECONDS = 5000;
-const std::string UIEXTENSION_MODAL_TYPE = "ability.want.params.modalType";
+constexpr const char* UIEXTENSION_MODAL_TYPE = "ability.want.params.modalType";
+constexpr const char* INTERCEPT_PARAMETERS = "intercept_parammeters";
+constexpr const char* INTERCEPT_BUNDLE_NAME = "intercept_bundleName";
+constexpr const char* INTERCEPT_ABILITY_NAME = "intercept_abilityName";
+constexpr const char* INTERCEPT_MODULE_NAME = "intercept_moduleName";
+constexpr const char* IS_FROM_PARENTCONTROL = "ohos.ability.isFromParentControl";
 }
 
 ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
@@ -53,9 +59,10 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Can not start disposed want with same bundleName");
             return AbilityUtil::EdmErrorType(disposedRule.isEdm);
         }
+        SetInterceptInfo(param.want, disposedRule);
         if (disposedRule.componentType == AppExecFwk::ComponentType::UI_ABILITY) {
-            int ret = IN_PROCESS_CALL(DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(
-                *disposedRule.want, param.requestCode, param.userId));
+            int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*disposedRule.want,
+                param.requestCode, param.userId));
             if (ret != ERR_OK) {
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "DisposedRuleInterceptor start ability failed.");
                 return ret;
@@ -101,7 +108,7 @@ bool DisposedRuleInterceptor::CheckControl(const Want &want, int32_t userId,
         auto ret = IN_PROCESS_CALL(appControlMgr->GetAbilityRunningControlRule(bundleName,
             userId, disposedRuleList));
         if (ret != ERR_OK || disposedRuleList.empty()) {
-            HILOG_DEBUG("Get No DisposedRule");
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Get No DisposedRule");
             return false;
         }
     }
@@ -159,6 +166,7 @@ ErrCode DisposedRuleInterceptor::StartNonBlockRule(const Want &want, AppExecFwk:
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Can not start disposed app with same bundleName");
         return ERR_OK;
     }
+    SetInterceptInfo(want, disposedRule);
     std::string bundleName = want.GetBundle();
     {
         std::lock_guard<ffrt::mutex> guard(observerLock_);
@@ -247,6 +255,19 @@ ErrCode DisposedRuleInterceptor::CreateModalUIExtension(const Want &want, const 
         return systemUIExtension->CreateModalUIExtension(want) ? ERR_OK : INNER_ERR;
     } else {
         return abilityRecord->CreateModalUIExtension(want);
+    }
+}
+
+void DisposedRuleInterceptor::SetInterceptInfo(const Want &want, AppExecFwk::DisposedRule &disposedRule)
+{
+    if (disposedRule.want == nullptr) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "disposedWant is nullptr");
+        return;
+    }
+    if (disposedRule.want->GetBoolParam(IS_FROM_PARENTCONTROL, false)) {
+        disposedRule.want->SetParam(INTERCEPT_BUNDLE_NAME, want.GetElement().GetBundleName());
+        disposedRule.want->SetParam(INTERCEPT_ABILITY_NAME, want.GetElement().GetAbilityName());
+        disposedRule.want->SetParam(INTERCEPT_MODULE_NAME, want.GetElement().GetModuleName());
     }
 }
 } // namespace AAFwk

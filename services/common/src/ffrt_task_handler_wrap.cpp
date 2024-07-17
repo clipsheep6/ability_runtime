@@ -14,7 +14,6 @@
  */
 
 #include "ffrt_task_handler_wrap.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {

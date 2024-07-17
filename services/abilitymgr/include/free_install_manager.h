@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 
 #include <iremote_object.h>
 #include <iremote_stub.h>
+#include <memory>
 
 #include "ability_info.h"
 #include "free_install_observer_manager.h"
@@ -39,6 +40,13 @@ struct FreeInstallInfo {
     std::string identity;
     sptr<IRemoteObject> callerToken = nullptr;
     sptr<IRemoteObject> dmsCallback = nullptr;
+    bool isPreStartMissionCalled = false;
+    bool isStartUIAbilityBySCBCalled = false;
+    uint32_t specifyTokenId = 0;
+    bool isOpenAtomicServiceShortUrl = false;
+    std::shared_ptr<Want> originalWant = nullptr;
+    bool isFreeInstallFinished = false;
+    int resultCode = 0;
 };
 
 /**
@@ -57,7 +65,7 @@ public:
      * @param want, installed ability.
      * @param userId, user`s id.
      */
-    void OnInstallFinished(int resultCode, const Want &want, int32_t userId, bool isAsync = false);
+    void OnInstallFinished(int32_t recordId, int resultCode, const Want &want, int32_t userId, bool isAsync = false);
 
     /**
      * OnRemoteInstallFinished, DMS has finished.
@@ -66,7 +74,7 @@ public:
      * @param want, installed ability.
      * @param userId, user`s id.
      */
-    void OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId);
+    void OnRemoteInstallFinished(int32_t recordId, int resultCode, const Want &want, int32_t userId);
 
     /**
      * Start to free install.
@@ -76,10 +84,12 @@ public:
      * @param requestCode, ability request code.
      * @param callerToken, caller ability token.
      * @param isAsync, the request is async.
+     * @param isOpenAtomicServiceShortUrl, the flag of open atomic service short url.
      * @return Returns ERR_OK on success, others on failure.
      */
     int StartFreeInstall(const Want &want, int32_t userId, int requestCode, const sptr<IRemoteObject> &callerToken,
-        bool isAsync = false);
+        bool isAsync = false, uint32_t specifyTokenId = 0, bool isOpenAtomicServiceShortUrl = false,
+        std::shared_ptr<Want> originalWant = nullptr);
 
     /**
      * Start to remote free install.
@@ -122,13 +132,62 @@ public:
      * @param observer, the observer of the ability to free install.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer);
+    int AddFreeInstallObserver(const sptr<IRemoteObject> &callerToken,
+        const sptr<AbilityRuntime::IFreeInstallObserver> &observer);
 
     /**
-     * Remove the timeout task when bms connect FA center.
-     * @param want, the want of the ability to free install.
-     */
-    void OnRemoveTimeoutTask(const Want &want);
+     * Get free install task info.
+     *
+     * @param bundleName, the bundle name of the task.
+     * @param abilityName, the ability name of the task.
+     * @param startTime, the start time of the task.
+     * @param taskInfo, the found task info
+     * @return Returns true on success, false on failure.
+    */
+    bool GetFreeInstallTaskInfo(const std::string& bundleName, const std::string& abilityName,
+        const std::string& startTime, FreeInstallInfo& taskInfo);
+
+    /**
+     * Get free install task info.
+     *
+     * @param sessionId, the sessionId of the task.
+     * @param taskInfo, the found task info
+     * @return Returns true on success, false on failure.
+    */
+    bool GetFreeInstallTaskInfo(const std::string& sessionId, FreeInstallInfo& taskInfo);
+
+    /**
+     * Set the isStartUIAbilityBySCBCalled flag of the given free install task.
+     *
+     * @param bundleName, the bundle name of the task.
+     * @param abilityName, the abilitu name of the task.
+     * @param startTime, the start time of the task.
+     * @param scbCallStatus, the status of whether StartUIAbilityBySCB is called.
+    */
+    void SetSCBCallStatus(const std::string& bundleName, const std::string& abilityName,
+        const std::string& startTime, bool scbCallStatus);
+    
+    /**
+     * Set the isPreStartMissionCalled flag of the given free install task.
+     *
+     * @param bundleName, the bundle name of the task.
+     * @param abilityName, the abilitu name of the task.
+     * @param startTime, the start time of the task.
+     * @param preStartMissionCallStatus, the status of whether PreStartMission is called.
+    */
+    void SetPreStartMissionCallStatus(const std::string& bundleName, const std::string& abilityName,
+        const std::string& startTime, bool preStartMissionCallStatus);
+
+    /**
+     * Set the sessionId of the given free install task.
+     *
+     * @param bundleName, the bundle name of the task.
+     * @param abilityName, the abilitu name of the task.
+     * @param startTime, the start time of the task.
+     * @param sessionId, the sessionId of the free install task.
+    */
+    void SetFreeInstallTaskSessionId(const std::string& bundleName, const std::string& abilityName,
+        const std::string& startTime, const std::string& sessionId);
 
 private:
     std::weak_ptr<AbilityManagerService> server_;
@@ -138,6 +197,9 @@ private:
     ffrt::mutex distributedFreeInstallLock_;
     ffrt::mutex freeInstallListLock_;
     ffrt::mutex freeInstallObserverLock_;
+
+    int SetAppRunningState(Want &want);
+
     /**
      * Start remote free install.
      *
@@ -151,9 +213,10 @@ private:
 
     int NotifyDmsCallback(const Want &want, int resultCode);
     bool IsTopAbility(const sptr<IRemoteObject> &callerToken);
-    void NotifyFreeInstallResult(const Want &want, int resultCode, bool isAsync = false);
+    void NotifyFreeInstallResult(int32_t recordId, const Want &want, int resultCode, bool isAsync = false);
     FreeInstallInfo BuildFreeInstallInfo(const Want &want, int32_t userId, int requestCode,
-        const sptr<IRemoteObject> &callerToken, bool isAsync);
+        const sptr<IRemoteObject> &callerToken, bool isAsync, uint32_t specifyTokenId = 0,
+        bool isOpenAtomicServiceShortUrl = false, std::shared_ptr<Want> originalWant = nullptr);
     std::time_t GetTimeStamp();
 
     void RemoveFreeInstallInfo(const std::string &bundleName, const std::string &abilityName,
@@ -161,13 +224,21 @@ private:
     
     void PostUpgradeAtomicServiceTask(int resultCode, const Want &want, int32_t userId);
 
-    void PostTimeoutTask(const Want &want);
-    void HandleTimeoutTask(const std::string &bundleName, const std::string &abilityName, const std::string &startTime);
     void RemoveTimeoutTask(const std::string &bundleName, const std::string &abilityName, const std::string &startTime);
 
     void StartAbilityByFreeInstall(FreeInstallInfo &info, std::string &bundleName, std::string &abilityName,
         std::string &startTime);
+    void StartAbilityByPreInstall(int32_t recordId, FreeInstallInfo &info, std::string &bundleName,
+        std::string &abilityName, std::string &startTime);
     int32_t UpdateElementName(Want &want, int32_t userId) const;
+    void HandleFreeInstallResult(int32_t recordId, FreeInstallInfo &freeInstallInfo, int resultCode, bool isAsync);
+    void HandleOnFreeInstallSuccess(int32_t recordId, FreeInstallInfo &freeInstallInfo, bool isAsync);
+    void HandleOnFreeInstallFail(int32_t recordId, FreeInstallInfo &freeInstallInfo, int resultCode, bool isAsync);
+    void NotifySCBToHandleException(const FreeInstallInfo &info, int resultCode);
+    void StartAbilityByConvertedWant(FreeInstallInfo &info, const std::string &startTime);
+    void StartAbilityByOriginalWant(FreeInstallInfo &info, const std::string &startTime);
+    bool VerifyStartFreeInstallPermission(const sptr<IRemoteObject> &callerToken);
+    int32_t GetRecordIdByToken(const sptr<IRemoteObject> &callerToken);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

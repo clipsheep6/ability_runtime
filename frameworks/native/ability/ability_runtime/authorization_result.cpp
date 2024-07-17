@@ -15,7 +15,6 @@
 
 #include "authorization_result.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

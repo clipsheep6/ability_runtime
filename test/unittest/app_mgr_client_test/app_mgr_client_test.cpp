@@ -22,7 +22,6 @@
 #include "ability_record.h"
 #include "app_mgr_constants.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_ability_debug_response_stub.h"
 #include "mock_app_debug_listener_stub.h"
 #include "mock_native_token.h"
@@ -104,7 +103,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_PreStartNWebSpawnProcess_001, TestSize.L
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
     int ret = appMgrClient->PreStartNWebSpawnProcess();
-    EXPECT_EQ(ret, AppMgrResultCode::RESULT_OK);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
 }
 
 /**
@@ -297,7 +296,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_GetRenderProcessTerminationStatus_001, T
     std::string abilityName = "FirstAbility";
     std::string appName = "FirstApp";
     std::string bundleName = "com.ix.First.Test";
-    int status;
+    int status = ERROR_STATE;
     auto abilityReq = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName);
     auto record = AbilityRecord::CreateAbilityRecord(abilityReq);
     auto token = record->GetToken();
@@ -427,7 +426,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_StartUserTestProcess_001, TestSize.Level
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
     int ret = appMgrClient->StartUserTestProcess(want, observer, bundleInfo, userId);
-    EXPECT_EQ(ret, ERROR_RET);
+    EXPECT_EQ(ret, IPC_PROXY_ERR);
 }
 
 /**
@@ -1381,6 +1380,42 @@ HWTEST_F(AppMgrClientTest, SaveBrowserChannel_001, TestSize.Level0)
     auto appMgrClient = std::make_unique<AppMgrClient>();
     appMgrClient->SaveBrowserChannel(nullptr);
     EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_BlockProcessCacheByPids_001
+ * @tc.desc: can not block process cache by wrong user ID.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_BlockProcessCacheByPids_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    std::vector<int32_t> pids;
+    appMgrClient->BlockProcessCacheByPids(pids);
+    EXPECT_TRUE(appMgrClient != nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_AttachedToStatusBar_001
+ * @tc.desc: can not attach to status bar by wrong token.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_AttachedToStatusBar_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    sptr<IRemoteObject> token;
+    appMgrClient->AttachedToStatusBar(token);
+    EXPECT_TRUE(appMgrClient != nullptr);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

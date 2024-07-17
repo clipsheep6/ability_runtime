@@ -23,7 +23,6 @@
 
 #include "dataobs_mgr_errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "system_ability_definition.h"

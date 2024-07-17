@@ -16,7 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_CONTEXT_DEAL_H
 #define OHOS_ABILITY_RUNTIME_CONTEXT_DEAL_H
 
-#include "context.h"
+#include "fa_context.h"
 #include "lifecycle_state_info.h"
 
 namespace OHOS {

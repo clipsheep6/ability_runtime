@@ -17,7 +17,6 @@
 
 #include "continuation_device_callback_proxy.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "remote_register_service_proxy.h"
 
 namespace OHOS {

@@ -23,7 +23,6 @@
 #include "bundle_mgr_helper.h"
 #include "constants.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "parameters.h"
 
 namespace OHOS {
@@ -320,7 +319,13 @@ void ContextContainer::InitResourceManager(BundleInfo &bundleInfo, std::shared_p
         TAG_LOGE(AAFwkTag::APPKIT, "ContextContainer::InitResourceManager create resourceManager failed");
         return;
     }
+    LoadResources(bundleInfo, resourceManager, resConfig, deal);
+}
 
+void ContextContainer::LoadResources(BundleInfo &bundleInfo,
+    std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
+    std::unique_ptr<Global::Resource::ResConfig> &resConfig, std::shared_ptr<ContextDeal> &deal)
+{
     TAG_LOGD(AAFwkTag::APPKIT, "ContextContainer::InitResourceManager hapModuleInfos count: %{public}zu",
         bundleInfo.hapModuleInfos.size());
     std::regex pattern(AbilityBase::Constants::ABS_CODE_PATH);

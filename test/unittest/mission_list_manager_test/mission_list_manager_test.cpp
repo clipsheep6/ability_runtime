@@ -20,7 +20,6 @@
 #include "ability_info.h"
 #include "ability_manager_errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mission.h"
 #include "mission_info_mgr.h"
 #include "mission_list_manager.h"

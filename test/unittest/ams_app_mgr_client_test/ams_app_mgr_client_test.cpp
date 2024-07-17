@@ -20,7 +20,6 @@
 #include "ability_info.h"
 #include "application_info.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iapp_state_callback.h"
 #include "mock_ability_token.h"
 #include "mock_ams_mgr_scheduler.h"

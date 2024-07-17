@@ -17,7 +17,6 @@
 
 #include "quick_fix_error_utils.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 using namespace testing;
 using namespace testing::ext;

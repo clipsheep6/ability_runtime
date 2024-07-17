@@ -16,17 +16,13 @@
 #include "dialog_request_callback_stub.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 DialogRequestCallbackStub::DialogRequestCallbackStub()
-{
-    vecMemberFunc_.resize(IDialogRequestCallback::CODE_MAX);
-    vecMemberFunc_[CODE_SEND_RESULT] = &DialogRequestCallbackStub::SendResultInner;
-}
+{}
 
 int DialogRequestCallbackStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -38,9 +34,8 @@ int DialogRequestCallbackStub::OnRemoteRequest(
         return ERR_INVALID_STATE;
     }
 
-    if (code < IDialogRequestCallback::CODE_MAX) {
-        auto memberFunc = vecMemberFunc_[code];
-        return (this->*memberFunc)(data, reply);
+    if (code == CODE_SEND_RESULT) {
+        return SendResultInner(data, reply);
     }
 
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

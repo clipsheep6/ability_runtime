@@ -20,7 +20,7 @@
 
 #include "ability_record.h"
 #define private public
-#include "ability_context.h"
+#include "fa_ability_context.h"
 #undef private
 #include "want.h"
 #include "parcel.h"

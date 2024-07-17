@@ -26,6 +26,7 @@
 #include "application_info.h"
 #include "bundle_info.h"
 #include "child_process_info.h"
+#include "child_process_request.h"
 #include "fault_data.h"
 #include "iapp_state_callback.h"
 #include "iapplication_state_observer.h"
@@ -431,6 +432,14 @@ public:
      */
     virtual int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData) = 0;
 
+    /**
+     * Set Appfreeze Detect Filter
+     *
+     * @param pid the process pid.
+     * @return Returns true on success, others on failure.
+     */
+    virtual bool SetAppFreezeFilter(int32_t pid) = 0;
+
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     /**
      * @brief Set whether the process is continuousTask.
@@ -583,12 +592,11 @@ public:
     /**
      * Start child process, called by ChildProcessManager.
      *
-     * @param srcEntry Child process source file entrance path to be started.
      * @param childPid Created child process pid.
+     * @param request Child process start request params.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid, int32_t childProcessCount,
-        bool isStartWithDebug) = 0;
+    virtual int32_t StartChildProcess(pid_t &childPid, const ChildProcessRequest &request) = 0;
 
     /**
      * Get child process record for self.
@@ -718,6 +726,30 @@ public:
     virtual int32_t CheckCallingIsUserTestMode(const pid_t pid, bool &isUserTest)
     {
         return 0;
+    }
+
+    /**
+     * Notify that the process depends on web by itself.
+     */
+    virtual int32_t NotifyProcessDependedOnWeb()
+    {
+        return 0;
+    }
+
+    /**
+     * Kill process depended on web by sa.
+     */
+    virtual void KillProcessDependedOnWeb()
+    {
+        return;
+    }
+
+    /**
+     * Restart resident process depended on web.
+     */
+    virtual void RestartResidentProcessDependedOnWeb()
+    {
+        return;
     }
 };
 }  // namespace AppExecFwk

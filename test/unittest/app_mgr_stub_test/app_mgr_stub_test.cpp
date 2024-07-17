@@ -23,7 +23,6 @@
 #undef protected
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "mock_app_mgr_service.h"
 #include "render_state_observer_stub.h"
@@ -332,6 +331,23 @@ HWTEST_F(AppMgrStubTest, HandleNotifyFaultBySA_001, TestSize.Level1)
     EXPECT_CALL(*mockAppMgrService_, NotifyAppFaultBySA(_)).Times(1);
     auto result = mockAppMgrService_->OnRemoteRequest(
         static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_APP_FAULT_BY_SA), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: HandleSetAppFreezeFilter_001
+ * @tc.desc: Handle Set AppFreeze Filter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrStubTest, HandleSetAppFreezeFilter_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    WriteInterfaceToken(data);
+    data.WriteInt32(0);
+    auto result = mockAppMgrService_->OnRemoteRequest(
+        static_cast<uint32_t>(AppMgrInterfaceCode::SET_APPFREEZE_FILTER), data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 }
 

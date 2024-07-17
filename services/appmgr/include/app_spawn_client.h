@@ -26,6 +26,7 @@
 
 #include "appexecfwk_errors.h"
 #include "appspawn.h"
+#include "child_process_info.h"
 #include "data_group_info.h"
 #include "nocopyable.h"
 #include "shared/base_shared_bundle_info.h"
@@ -73,6 +74,8 @@ struct AppSpawnStartMsg {
     bool strictMode = false; // whether is strict mode
     std::string processType = "";
     int32_t maxChildProcess = 0;
+    int32_t childProcessType = CHILD_PROCESS_TYPE_NOT_CHILD;
+    std::map<std::string, int32_t> fds;
 };
 
 constexpr auto LEN_PID = sizeof(pid_t);
@@ -220,6 +223,10 @@ private:
     std::string serviceName_ = APPSPAWN_SERVER_NAME;
     AppSpawnClientHandle handle_ = nullptr;
     SpawnConnectionState state_ = SpawnConnectionState::STATE_NOT_CONNECT;
+
+    int32_t SetChildProcessTypeStartFlag(const AppSpawnReqMsgHandle &reqHandle, int32_t childProcessType);
+
+    int32_t SetExtMsgFds(const AppSpawnReqMsgHandle &reqHandle, const std::map<std::string, int32_t> &fds);
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

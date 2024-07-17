@@ -22,6 +22,7 @@ ohos_unittest("ability_record_test") {
     cfi = true
     cfi_cross_dso = true
     debug = false
+    blocklist = "../../cfi_blocklist.txt"
   }
   branch_protector_ret = "pac_ret"
   include_dirs = [
@@ -52,13 +53,13 @@ ohos_unittest("ability_record_test") {
   }
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
-    "${ability_runtime_innerkits_path}/ability_manager:ability_start_options",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
     "${ability_runtime_innerkits_path}/ability_manager:mission_info",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/ability/native:auto_startup_callback",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
+    "${ability_runtime_services_path}/abilitymgr:mission_list",
     "${ability_runtime_services_path}/common:perm_verification",
     "${ability_runtime_services_path}/uripermmgr:libupms_static",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/aakit:aakit_mock",
@@ -104,6 +105,7 @@ ohos_unittest("ability_record_test_call") {
     cfi = true
     cfi_cross_dso = true
     debug = false
+    blocklist = "../../cfi_blocklist.txt"
   }
   branch_protector_ret = "pac_ret"
   include_dirs = [

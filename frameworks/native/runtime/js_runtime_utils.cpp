@@ -16,7 +16,6 @@
 #include "js_runtime_utils.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "napi/native_api.h"
 
@@ -361,6 +360,7 @@ void NapiAsyncTask::Execute(napi_env env, void* data)
 
 void NapiAsyncTask::Complete(napi_env env, napi_status status, void* data)
 {
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called.");
     if (data == nullptr) {
         return;
     }

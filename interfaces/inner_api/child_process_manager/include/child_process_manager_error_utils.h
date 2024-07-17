@@ -35,6 +35,8 @@ enum class ChildProcessManagerErrorCode {
     ERR_MAX_NATIVE_CHILD_PROCESSES = 9,
     ERR_LIB_LOADING_FAILED = 10,
     ERR_CONNECTION_FAILED = 11,
+    ERR_UNSUPPORTED_START_MODE = 12,
+    ERR_MULTI_PROCESS_MODEL_DISABLED_NEW = 13,
 };
 
 const std::map<ChildProcessManagerErrorCode, AbilityErrorCode> INTERNAL_ERR_CODE_MAP = {
@@ -48,6 +50,9 @@ const std::map<ChildProcessManagerErrorCode, AbilityErrorCode> INTERNAL_ERR_CODE
     { ChildProcessManagerErrorCode::ERR_GET_BUNDLE_INFO_FAILED, AbilityErrorCode::ERROR_CODE_INNER },
     { ChildProcessManagerErrorCode::ERR_GET_APP_MGR_FAILED, AbilityErrorCode::ERROR_CODE_INNER },
     { ChildProcessManagerErrorCode::ERR_GET_APP_MGR_START_PROCESS_FAILED, AbilityErrorCode::ERROR_CODE_INNER },
+    { ChildProcessManagerErrorCode::ERR_UNSUPPORTED_START_MODE, AbilityErrorCode::ERROR_CODE_INVALID_PARAM },
+    { ChildProcessManagerErrorCode::ERR_MULTI_PROCESS_MODEL_DISABLED_NEW,
+        AbilityErrorCode::ERROR_CODE_CAPABILITY_NOT_SUPPORT },
 };
 
 class ChildProcessManagerErrorUtil {

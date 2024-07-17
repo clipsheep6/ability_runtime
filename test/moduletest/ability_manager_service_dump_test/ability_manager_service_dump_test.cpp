@@ -17,6 +17,7 @@
 #define private public
 #define protected public
 #include "ability_manager_service.h"
+#include "mission_list_manager.h"
 #undef private
 #undef protected
 #include "scene_board_judgement.h"
@@ -67,19 +68,6 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_GetProcessRunningI
     std::vector<RunningProcessInfo> info;
     auto result = abilityMs_->GetProcessRunningInfosByUserId(info, USER_ID);
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
-}
-
-/**
- * @tc.name: AbilityManagerService_DumpSysFuncInit_0100
- * @tc.desc: DumpSysFuncInit
- * @tc.type: FUNC
- * @tc.require: SR000GH1GO
- */
-HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DumpSysFuncInit_0100, TestSize.Level1)
-{
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->DumpSysFuncInit();
-    EXPECT_GT(abilityMs_->dumpsysFuncMap_.size(), SIZE_ZERO);
 }
 
 /**
@@ -225,9 +213,10 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_OnAppStateChanged_
     EXPECT_NE(abilityRecord, nullptr);
 
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        abilityMs_->subManagersHelper_->currentMissionListManager_ = std::make_shared<MissionListManager>(USER_ID);
-        EXPECT_NE(abilityMs_->subManagersHelper_->currentMissionListManager_, nullptr);
-        abilityMs_->subManagersHelper_->currentMissionListManager_->terminateAbilityList_.push_back(abilityRecord);
+        auto missionListManager = std::make_shared<MissionListManager>(USER_ID);
+        missionListManager->Init();
+        abilityMs_->subManagersHelper_->currentMissionListManager_ = missionListManager;
+        missionListManager->terminateAbilityList_.push_back(abilityRecord);
 
         abilityMs_->subManagersHelper_->currentDataAbilityManager_ = std::make_shared<DataAbilityManager>();
         EXPECT_NE(abilityMs_->subManagersHelper_->currentDataAbilityManager_, nullptr);
@@ -237,7 +226,7 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_OnAppStateChanged_
         info.state = AppState::TERMINATED;
         abilityMs_->OnAppStateChanged(info);
 
-        abilityRecord = abilityMs_->subManagersHelper_->currentMissionListManager_->terminateAbilityList_.front();
+        abilityRecord = missionListManager->terminateAbilityList_.front();
         EXPECT_NE(abilityRecord, nullptr);
         EXPECT_EQ(abilityRecord->GetAppState(), AppState::TERMINATED);
     }

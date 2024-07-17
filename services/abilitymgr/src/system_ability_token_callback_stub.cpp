@@ -17,7 +17,6 @@
 
 #include "errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
 #include "want.h"

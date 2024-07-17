@@ -19,7 +19,6 @@ module_output_path = "ability_runtime/appmgrservice"
 ohos_unittest("AmsAppStateCallbackTest") {
   module_out_path = module_output_path
   cflags_cc = []
-  include_dirs = [ "//third_party/json/include" ]
 
   sources = [
     "${ability_runtime_innerkits_path}//app_manager/src/appmgr/app_process_data.cpp",
@@ -49,6 +48,7 @@ ohos_unittest("AmsAppStateCallbackTest") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
   ]
 }
 

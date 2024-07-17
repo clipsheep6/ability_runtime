@@ -52,7 +52,6 @@ ohos_unittest("appfreeze_manager_test") {
     "${ability_runtime_services_path}/appdfr/include",
     "${ability_runtime_services_path}/appmgr/include",
     "${ability_runtime_services_path}/common/include",
-    "//third_party/json/include",
   ]
 
   configs = [
@@ -87,6 +86,7 @@ ohos_unittest("appfreeze_manager_test") {
     "hilog:libhilog",
     "init:libbeget_proxy",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
   ]
 }
 

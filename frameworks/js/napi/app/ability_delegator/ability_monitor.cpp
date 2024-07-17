@@ -16,7 +16,6 @@
 #include "ability_monitor.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_ability_delegator_utils.h"
 #include "napi/native_common.h"

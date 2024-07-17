@@ -21,7 +21,6 @@
 #include "app_mgr_service.h"
 #undef private
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_app_mgr_service_inner.h"
 #include "app_mgr_service_dump_error_code.h"
 

@@ -15,7 +15,6 @@
 
 #include "cj_environment.h"
 
-#include <regex>
 #include <string>
 
 #include "cj_hilog.h"
@@ -177,7 +176,16 @@ bool CJEnvironment::LoadRuntimeApis()
 #ifdef __OHOS__
     Dl_namespace ns;
     dlns_get(CJEnvironment::cjSDKNSName, &ns);
-    auto dso = DynamicLoadLibrary(&ns, RTLIB_NAME, 1);
+    std::string runtimeLibName = "libcangjie-runtime";
+    if (sanitizerKind_ == SanitizerKind::ASAN) {
+        runtimeLibName += "_asan";
+    } else if (sanitizerKind_ == SanitizerKind::TSAN) {
+        runtimeLibName += "_tsan";
+    } else if (sanitizerKind_ == SanitizerKind::HWASAN) {
+        runtimeLibName += "_hwasan";
+    }
+    runtimeLibName += ".so";
+    auto dso = DynamicLoadLibrary(&ns, runtimeLibName.c_str(), 1);
 #else
     auto dso = DynamicLoadLibrary(RTLIB_NAME, 1);
 #endif
@@ -467,10 +475,49 @@ bool CJEnvironment::StartDebugger()
     return true;
 }
 
-bool IsCJAbility(const std::string& info)
+CJ_EXPORT extern "C" CJEnvMethods* OHOS_GetCJEnvInstance()
 {
-    // in cj application, the srcEntry format should be packageName.AbilityClassName.
-    std::string pattern = "^([a-zA-Z0-9_]+\\.)+[a-zA-Z0-9_]+$";
-    return std::regex_match(info, std::regex(pattern));
+    static CJEnvMethods gCJEnvMethods {
+        .initCJAppNS = [](const std::string& path) {
+            CJEnvironment::GetInstance()->InitCJAppNS(path);
+        },
+        .initCJSDKNS = [](const std::string& path) {
+            CJEnvironment::GetInstance()->InitCJSDKNS(path);
+        },
+        .initCJSysNS = [](const std::string& path) {
+            CJEnvironment::GetInstance()->InitCJSysNS(path);
+        },
+        .initCJChipSDKNS = [](const std::string& path) {
+            CJEnvironment::GetInstance()->InitCJChipSDKNS(path);
+        },
+        .startRuntime = [] {
+            return CJEnvironment::GetInstance()->StartRuntime();
+        },
+        .startUIScheduler = [] {
+            return CJEnvironment::GetInstance()->StartUIScheduler();
+        },
+        .loadCJModule = [](const char* dllName) {
+            return CJEnvironment::GetInstance()->LoadCJLibrary(dllName);
+        },
+        .loadLibrary = [](uint32_t kind, const char* dllName) {
+            return CJEnvironment::GetInstance()->LoadCJLibrary(static_cast<CJEnvironment::LibraryKind>(kind), dllName);
+        },
+        .getSymbol = [](void* handle, const char* dllName) {
+            return CJEnvironment::GetInstance()->GetSymbol(handle, dllName);
+        },
+        .loadCJLibrary = [](const char* dllName) {
+            return CJEnvironment::GetInstance()->LoadCJLibrary(dllName);
+        },
+        .startDebugger = []() {
+            return CJEnvironment::GetInstance()->StartDebugger();
+        },
+        .registerCJUncaughtExceptionHandler = [](const CJUncaughtExceptionInfo& handle) {
+            return CJEnvironment::GetInstance()->RegisterCJUncaughtExceptionHandler(handle);
+        },
+        .setSanitizerKindRuntimeVersion = [](SanitizerKind kind) {
+            return CJEnvironment::GetInstance()->SetSanitizerKindRuntimeVersion(kind);
+        }
+    };
+    return &gCJEnvMethods;
 }
 }

@@ -24,7 +24,6 @@
 #include "context.h"
 #include "hitrace_meter.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "insight_intent_executor_info.h"
 #include "insight_intent_executor_mgr.h"
 #include "int_wrapper.h"
@@ -708,6 +707,7 @@ sptr<Rosen::Window> JsUIExtension::CreateUIWindow(const std::shared_ptr<UIExtens
     option->SetWindowType(Rosen::WindowType::WINDOW_TYPE_UI_EXTENSION);
     option->SetWindowSessionType(Rosen::WindowSessionType::EXTENSION_SESSION);
     option->SetParentId(sessionInfo->hostWindowId);
+    option->SetUIExtensionUsage(static_cast<uint32_t>(sessionInfo->uiExtensionUsage));
     return Rosen::Window::Create(option, GetContext(), sessionInfo->sessionToken);
 }
 

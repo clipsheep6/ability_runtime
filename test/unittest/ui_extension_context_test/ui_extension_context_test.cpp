@@ -23,7 +23,6 @@
 #undef protected
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "want.h"
 #include "mock_window.h"
 

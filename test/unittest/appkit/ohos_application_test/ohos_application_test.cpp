@@ -25,7 +25,6 @@
 #include "context_impl.h"
 #include "fa_ability_thread.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_ability_lifecycle_callbacks.h"
 #include "mock_element_callback.h"
 #include "mock_i_remote_object.h"

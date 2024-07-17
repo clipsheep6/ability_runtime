@@ -16,7 +16,6 @@
 #include "start_options.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "process_options.h"
 
 namespace OHOS {

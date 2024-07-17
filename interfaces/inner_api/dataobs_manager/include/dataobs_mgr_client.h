@@ -112,7 +112,7 @@ private:
      *
      * @return Returns SUCCESS on success, others on failure.
      */
-    Status Connect();
+    std::pair<Status, sptr<IDataObsMgr>> GetObsMgr();
 
     void ResetService();
     void OnRemoteDied();

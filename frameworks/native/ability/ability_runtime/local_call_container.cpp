@@ -16,7 +16,6 @@
 #include "local_call_container.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ability_manager_client.h"
 #include "os_account_manager_wrapper.h"
 
@@ -367,8 +366,9 @@ void CallerConnection::OnAbilityConnectDone(
     const bool isSingleton = (code == static_cast<int32_t>(AppExecFwk::LaunchMode::SINGLETON));
     localCallRecord_->SetIsSingleton(isSingleton);
 
-    auto callRecipient = new (std::nothrow) CallRecipient(
-        std::bind(&LocalCallContainer::OnCallStubDied, container, std::placeholders::_1));
+    auto callRecipient = new (std::nothrow) CallRecipient([container](const wptr<IRemoteObject> &arg) {
+        container->OnCallStubDied(arg);
+    });
     localCallRecord_->SetRemoteObject(remoteObject, callRecipient);
 
     if (isSingleton) {

@@ -17,7 +17,6 @@
 #define OHOS_ABILITY_RUNTIME_JS_UTILS_H
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

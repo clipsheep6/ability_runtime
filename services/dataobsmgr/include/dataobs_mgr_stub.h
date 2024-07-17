@@ -22,7 +22,6 @@
 #include <iremote_stub.h>
 #include <map>
 
-#include "hilog_wrapper.h"
 #include "dataobs_mgr_errors.h"
 
 namespace OHOS {

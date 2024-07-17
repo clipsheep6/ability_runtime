@@ -33,7 +33,6 @@
 #include "data_uri_utils.h"
 #include "event_report.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
@@ -446,6 +445,11 @@ ErrCode Ability::StartAbility(const Want &want, AbilityStartSetting abilityStart
     ErrCode err = AbilityContext::StartAbility(want, -1, abilityStartSetting);
     TAG_LOGD(AAFwkTag::ABILITY, "end");
     return err;
+}
+
+ErrCode Ability::AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> observer)
+{
+    return AbilityContext::AddFreeInstallObserver(observer);
 }
 
 std::string Ability::GetType(const Uri &uri)

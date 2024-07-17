@@ -63,7 +63,8 @@ inline std::unordered_set<AppExecFwk::ExtensionAbilityType> GetUiExtensionSet()
         AppExecFwk::ExtensionAbilityType::LIVEVIEW_LOCKSCREEN,
         AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOEDITOR,
         AppExecFwk::ExtensionAbilityType::PHOTO_EDITOR,
-        AppExecFwk::ExtensionAbilityType::SYSPICKER_AUDIOPICKER
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_AUDIOPICKER,
+        AppExecFwk::ExtensionAbilityType::SYS_VISUAL
     };
 }
 
@@ -99,7 +100,8 @@ inline bool IsSystemUIExtension(const AppExecFwk::ExtensionAbilityType type)
         AppExecFwk::ExtensionAbilityType::AUTO_FILL_SMART,
         AppExecFwk::ExtensionAbilityType::SYSPICKER_FILEPICKER,
         AppExecFwk::ExtensionAbilityType::SYSDIALOG_USERAUTH,
-        AppExecFwk::ExtensionAbilityType::HMS_ACCOUNT
+        AppExecFwk::ExtensionAbilityType::HMS_ACCOUNT,
+        AppExecFwk::ExtensionAbilityType::SYS_VISUAL
     };
     return systemUiExtensionSet.find(type) != systemUiExtensionSet.end();
 }
@@ -120,14 +122,26 @@ inline bool IsSystemCallerNeeded(const AppExecFwk::ExtensionAbilityType type)
 }
 
 // In this collection, extension can be embedded by public app, which requires vertical businesses to ensure security.
-inline bool IsPublicCallerForNonModal(const AppExecFwk::ExtensionAbilityType type)
+inline bool IsPublicForEmbedded(const AppExecFwk::ExtensionAbilityType type)
 {
-    const std::unordered_set<AppExecFwk::ExtensionAbilityType> callerPublicForNonModalSet = {
+    const std::unordered_set<AppExecFwk::ExtensionAbilityType> publicForEmbeddedSet = {
         AppExecFwk::ExtensionAbilityType::EMBEDDED_UI, // EMBEDDED_UI usage within the app
         AppExecFwk::ExtensionAbilityType::ADS,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOPICKER,
+        AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL,
+        AppExecFwk::ExtensionAbilityType::SYS_VISUAL,
+        AppExecFwk::ExtensionAbilityType::AUTO_FILL_SMART
+    };
+    return publicForEmbeddedSet.find(type) != publicForEmbeddedSet.end();
+}
+
+// In this collection, extension can be embedded by public app, which some UX effects are constrained
+inline bool IsPublicForConstrainedEmbedded(const AppExecFwk::ExtensionAbilityType type)
+{
+    const std::unordered_set<AppExecFwk::ExtensionAbilityType> publicForConstrainedEmbeddedSet = {
         AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOPICKER
     };
-    return callerPublicForNonModalSet.find(type) != callerPublicForNonModalSet.end();
+    return publicForConstrainedEmbeddedSet.find(type) != publicForConstrainedEmbeddedSet.end();
 }
 
 inline bool IsEnterpriseAdmin(const AppExecFwk::ExtensionAbilityType type)

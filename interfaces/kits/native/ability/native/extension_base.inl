@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/context.h"
-#include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/application_context.h"
+#include "application_context.h"
+#include "context.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
@@ -39,7 +39,6 @@ std::shared_ptr<C> ExtensionBase<C>::CreateAndInitContext(const std::shared_ptr<
 {
     TAG_LOGD(AAFwkTag::EXT, "begin init base");
     std::shared_ptr<C> context = std::make_shared<C>();
-    context->SetToken(token);
     auto appContext = Context::GetApplicationContext();
     if (appContext == nullptr) {
         TAG_LOGE(AAFwkTag::EXT, "ServiceExtension::CreateAndInitContext appContext is nullptr");
@@ -48,6 +47,7 @@ std::shared_ptr<C> ExtensionBase<C>::CreateAndInitContext(const std::shared_ptr<
     context->SetApplicationInfo(appContext->GetApplicationInfo());
     context->SetResourceManager(appContext->GetResourceManager());
     context->SetParentContext(appContext);
+    context->SetToken(token);
     if (record == nullptr) {
         TAG_LOGE(AAFwkTag::EXT, "ServiceExtension::CreateAndInitContext record is nullptr");
         return context;

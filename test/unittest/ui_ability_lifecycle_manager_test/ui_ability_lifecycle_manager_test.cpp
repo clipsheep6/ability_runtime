@@ -39,6 +39,7 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 const std::string DLP_INDEX = "ohos.dlp.params.index";
+constexpr int32_t TEST_UID = 20010001;
 };
 class UIAbilityLifecycleManagerTest : public testing::Test {
 public:
@@ -1174,7 +1175,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, NotifySCBToHandleException_001, TestSize
 {
     auto uiAbilityLifecycleManager = std::make_shared<UIAbilityLifecycleManager>();
     ASSERT_NE(uiAbilityLifecycleManager, nullptr);
-    uiAbilityLifecycleManager->NotifySCBToHandleException(nullptr,
+    std::shared_ptr<AbilityRecord> record = nullptr;
+    uiAbilityLifecycleManager->NotifySCBToHandleException(record,
         static_cast<int32_t>(ErrorLifecycleState::ABILITY_STATE_LOAD_TIMEOUT), "handleLoadTimeout");
     uiAbilityLifecycleManager.reset();
 }
@@ -2854,10 +2856,9 @@ HWTEST_F(UIAbilityLifecycleManagerTest, GetActiveAbilityList_001, TestSize.Level
     AbilityRequest abilityRequest;
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     uiAbilityLifecycleManager->sessionAbilityMap_.emplace(1, abilityRecord);
-    std::string bundleName = "com.example.unittest";
     std::vector<std::string> abilityList;
     int32_t pid = 100;
-    uiAbilityLifecycleManager->GetActiveAbilityList(bundleName, abilityList, pid);
+    uiAbilityLifecycleManager->GetActiveAbilityList(TEST_UID, abilityList, pid);
     uiAbilityLifecycleManager.reset();
 }
 
@@ -2875,13 +2876,13 @@ HWTEST_F(UIAbilityLifecycleManagerTest, GetActiveAbilityList_002, TestSize.Level
     abilityRequest.abilityInfo.name = "testAbility";
     abilityRequest.abilityInfo.moduleName = "testModule";
     abilityRequest.abilityInfo.bundleName = "com.example.unittest";
+    abilityRequest.abilityInfo.applicationInfo.uid = TEST_UID;
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     abilityRecord->SetOwnerMissionUserId(DelayedSingleton<AbilityManagerService>::GetInstance()->GetUserId());
     uiAbilityLifecycleManager->sessionAbilityMap_.emplace(1, abilityRecord);
-    std::string bundleName = "com.example.unittest";
     std::vector<std::string> abilityList;
     int32_t pid = 100;
-    uiAbilityLifecycleManager->GetActiveAbilityList(bundleName, abilityList, pid);
+    uiAbilityLifecycleManager->GetActiveAbilityList(TEST_UID, abilityList, pid);
     uiAbilityLifecycleManager.reset();
 }
 
@@ -3870,7 +3871,6 @@ HWTEST_F(UIAbilityLifecycleManagerTest, DispatchBackground_002, TestSize.Level1)
 {
     auto uiAbilityLifecycleManager = std::make_unique<UIAbilityLifecycleManager>();
     EXPECT_NE(uiAbilityLifecycleManager, nullptr);
-    OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->OnStart();
     std::shared_ptr<AbilityRecord> abilityRecord = nullptr;
     EXPECT_EQ(uiAbilityLifecycleManager->DispatchBackground(abilityRecord), ERR_INVALID_VALUE);
 }

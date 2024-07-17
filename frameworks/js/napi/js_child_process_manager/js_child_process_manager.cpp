@@ -23,6 +23,7 @@
 #include "hilog_wrapper.h"
 #include "js_error_utils.h"
 #include "js_runtime_utils.h"
+#include "napi_common_child_process_param.h"
 #include "napi_common_util.h"
 #include "napi/native_api.h"
 
@@ -31,7 +32,6 @@ namespace AbilityRuntime {
 namespace {
 constexpr const char *PROCESS_MANAGER_NAME = "JsChildProcessManager";
 constexpr size_t ARGC_TWO = 2;
-
 enum {
     MODE_SELF_FORK = 0,
     MODE_APP_SPAWN_FORK = 1,
@@ -54,10 +54,15 @@ public:
         GET_CB_INFO_AND_CALL(env, info, JsChildProcessManager, OnStartChildProcess);
     }
 
+    static napi_value StartArkChildProcess(napi_env env, napi_callback_info info)
+    {
+        GET_CB_INFO_AND_CALL(env, info, JsChildProcessManager, OnStartArkChildProcess);
+    }
+
 private:
     napi_value OnStartChildProcess(napi_env env, size_t argc, napi_value* argv)
     {
-        TAG_LOGI(AAFwkTag::PROCESSMGR, "called.");
+        TAG_LOGI(AAFwkTag::PROCESSMGR, "OnStartChildProcess called.");
         if (ChildProcessManager::GetInstance().IsChildProcess()) {
             TAG_LOGE(AAFwkTag::PROCESSMGR, "Already in child process");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED);
@@ -70,12 +75,12 @@ private:
         }
         std::string srcEntry;
         int32_t startMode;
-        if (!ConvertFromJsValue(env, argv[0], srcEntry)) {
+        if (!ConvertFromJsValue(env, argv[PARAM0], srcEntry)) {
             TAG_LOGE(AAFwkTag::PROCESSMGR, "Parse param srcEntry failed");
             ThrowInvalidParamError(env, "Parse param srcEntry failed, must be a valid string.");
             return CreateJsUndefined(env);
         }
-        if (!ConvertFromJsValue(env, argv[1], startMode)) {
+        if (!ConvertFromJsValue(env, argv[PARAM1], startMode)) {
             TAG_LOGE(AAFwkTag::PROCESSMGR, "Parse param startMode failed");
             ThrowInvalidParamError(env,
                 "Unsupported startMode, must be StartMode.SELF_FORK or StartMode.APP_SPAWN_FORK.");
@@ -88,45 +93,138 @@ private:
                 "Unsupported startMode, must be StartMode.SELF_FORK or StartMode.APP_SPAWN_FORK.");
             return CreateJsUndefined(env);
         }
-        NapiAsyncTask::CompleteCallback complete = [srcEntry, startMode](napi_env env, NapiAsyncTask &task,
-                                                                         int32_t status) {
-            ForkProcess(env, task, srcEntry, startMode);
-        };
-        napi_value lastParam = (argc <= ARGC_TWO) ? nullptr : argv[ARGC_TWO];
         napi_value result = nullptr;
-        NapiAsyncTask::Schedule("JsChildProcessManager::OnStartChildProcess",
-            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+        napi_value lastParam = (argc <= ARGC_TWO) ? nullptr : argv[ARGC_TWO];
+        if (startMode == MODE_SELF_FORK) {
+            StartChildProcessSelfForkTask(env, lastParam, result, srcEntry);
+        } else {
+            StartChildProcessAppSpawnForkTask(env, lastParam, result, srcEntry);
+        }
         return result;
     }
 
-    static void ForkProcess(napi_env env, NapiAsyncTask &task, const std::string &srcEntry, const int32_t startMode)
+    void StartChildProcessSelfForkTask(const napi_env &env, const napi_value &lastParam, napi_value &result,
+        const std::string &srcEntry)
     {
-        TAG_LOGD(AAFwkTag::PROCESSMGR, "called.");
-        pid_t pid = 0;
-        ChildProcessManagerErrorCode errorCode;
-        switch (startMode) {
-            case MODE_SELF_FORK: {
-                errorCode = ChildProcessManager::GetInstance().StartChildProcessBySelfFork(srcEntry, pid);
-                break;
+        NapiAsyncTask::CompleteCallback complete = [srcEntry](napi_env env, NapiAsyncTask &task, int32_t status) {
+            pid_t pid = 0;
+            ChildProcessManagerErrorCode errorCode =
+                ChildProcessManager::GetInstance().StartChildProcessByAppSpawnFork(srcEntry, pid);
+            if (errorCode == ChildProcessManagerErrorCode::ERR_OK) {
+                task.ResolveWithNoError(env, CreateJsValue(env, pid));
+            } else {
+                task.Reject(env, CreateJsError(env,
+                    ChildProcessManagerErrorUtil::GetAbilityErrorCode(errorCode)));
             }
-            case MODE_APP_SPAWN_FORK: {
-                errorCode = ChildProcessManager::GetInstance().StartChildProcessByAppSpawnFork(srcEntry, pid);
-                break;
-            }
-            default: {
-                TAG_LOGE(AAFwkTag::PROCESSMGR, "Not supported StartMode");
-                task.Reject(env, CreateInvalidParamJsError(env,
-                    "Unsupported startMode,must be StartMode.SELF_FORK or StartMode.APP_SPAWN_FORK."));
+        };
+        NapiAsyncTask::Schedule("JsChildProcessManager::OnStartChildProcess",
+            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    }
+
+    void StartChildProcessAppSpawnForkTask(const napi_env &env, const napi_value &lastParam, napi_value &result,
+        const std::string &srcEntry)
+    {
+        auto innerErrorCode = std::make_shared<ChildProcessManagerErrorCode>(ChildProcessManagerErrorCode::ERR_OK);
+        auto pid = std::make_shared<pid_t>(ERR_INVALID_VALUE);
+        NapiAsyncTask::ExecuteCallback execute = [srcEntry, pid, innerErrorCode]() {
+            if (!pid || !innerErrorCode) {
+                TAG_LOGE(AAFwkTag::PROCESSMGR, "innerErrorCode or pid is nullptr");
                 return;
             }
+            *innerErrorCode = ChildProcessManager::GetInstance().StartChildProcessByAppSpawnFork(srcEntry, *pid);
+        };
+        NapiAsyncTask::CompleteCallback complete =
+            [pid, innerErrorCode](napi_env env, NapiAsyncTask &task, int32_t status) {
+            if (!pid || !innerErrorCode) {
+                TAG_LOGE(AAFwkTag::PROCESSMGR, "innerErrorCode or pid is nullptr");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            if (*innerErrorCode == ChildProcessManagerErrorCode::ERR_OK) {
+                task.ResolveWithNoError(env, CreateJsValue(env, *pid));
+            } else {
+                task.Reject(env, CreateJsError(env,
+                    ChildProcessManagerErrorUtil::GetAbilityErrorCode(*innerErrorCode)));
+            }
+        };
+        NapiAsyncTask::Schedule("JsChildProcessManager::OnStartChildProcess",
+            env, CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
+    }
+
+    napi_value OnStartArkChildProcess(napi_env env, size_t argc, napi_value* argv)
+    {
+        TAG_LOGI(AAFwkTag::PROCESSMGR, "OnStartArkChildProcess called.");
+        if (ChildProcessManager::GetInstance().IsChildProcess()) {
+            TAG_LOGE(AAFwkTag::PROCESSMGR, "Already in child process");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED);
+            return CreateJsUndefined(env);
         }
-        TAG_LOGD(
-            AAFwkTag::PROCESSMGR, "ChildProcessManager start resultCode: %{public}d, pid:%{public}d", errorCode, pid);
-        if (errorCode == ChildProcessManagerErrorCode::ERR_OK) {
-            task.ResolveWithNoError(env, CreateJsValue(env, pid));
-        } else {
-            task.Reject(env, CreateJsError(env, ChildProcessManagerErrorUtil::GetAbilityErrorCode(errorCode)));
+        if (argc < ARGC_TWO) {
+            TAG_LOGE(AAFwkTag::PROCESSMGR, "Not enough params.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
         }
+        std::string srcEntry;
+        AppExecFwk::ChildProcessArgs args;
+        AppExecFwk::ChildProcessOptions options;
+        if (!ConvertFromJsValue(env, argv[PARAM0], srcEntry)) {
+            TAG_LOGE(AAFwkTag::PROCESSMGR, "Parse param srcEntry failed, must be a valid string.");
+            ThrowInvalidParamError(env, "Parse param srcEntry failed, must be a valid string.");
+            return CreateJsUndefined(env);
+        }
+        if (srcEntry.empty()) {
+            TAG_LOGE(AAFwkTag::PROCESSMGR, "Param srcEntry cannot be empty.");
+            ThrowInvalidParamError(env, "Param srcEntry cannot be empty.");
+            return CreateJsUndefined(env);
+        }
+        std::string errorMsg;
+        if (!UnwrapChildProcessArgs(env, argv[PARAM1], args, errorMsg)) {
+            TAG_LOGE(AAFwkTag::PROCESSMGR, "Parse param args failed.");
+            ThrowInvalidParamError(env, errorMsg);
+            return CreateJsUndefined(env);
+        }
+        if (argc > ARGS_TWO && !UnwrapChildProcessOptions(env, argv[PARAM2], options, errorMsg)) {
+            TAG_LOGE(AAFwkTag::PROCESSMGR, "Parse param options failed.");
+            ThrowInvalidParamError(env, errorMsg);
+            return CreateJsUndefined(env);
+        }
+        napi_value result = nullptr;
+        StartArkChildProcessTask(env, result, srcEntry, args, options);
+        return result;
+    }
+
+    void StartArkChildProcessTask(const napi_env &env, napi_value &result, const std::string &srcEntry,
+        const AppExecFwk::ChildProcessArgs &args, const AppExecFwk::ChildProcessOptions &options)
+    {
+        TAG_LOGD(AAFwkTag::PROCESSMGR, "OnStartArkChildProcess, srcEntry:%{private}s, args.entryParams:%{private}s,"
+            " args.fds size:%{public}zu, options.isolationMode:%{public}d", srcEntry.c_str(),
+            args.entryParams.c_str(), args.fds.size(), options.isolationMode);
+        auto innerErrorCode = std::make_shared<ChildProcessManagerErrorCode>(ChildProcessManagerErrorCode::ERR_OK);
+        auto pid = std::make_shared<pid_t>(0);
+        NapiAsyncTask::ExecuteCallback execute = [srcEntry, args, options, pid, innerErrorCode]() {
+            if (!pid || !innerErrorCode) {
+                TAG_LOGE(AAFwkTag::PROCESSMGR, "innerErrorCode or pid is nullptr");
+                return;
+            }
+            *innerErrorCode = ChildProcessManager::GetInstance().StartArkChildProcess(srcEntry, *pid,
+                AppExecFwk::CHILD_PROCESS_TYPE_ARK, args, options);
+        };
+        NapiAsyncTask::CompleteCallback complete =
+            [pid, innerErrorCode](napi_env env, NapiAsyncTask &task, int32_t status) {
+            if (!pid || !innerErrorCode) {
+                TAG_LOGE(AAFwkTag::PROCESSMGR, "innerErrorCode or pid is nullptr");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            if (*innerErrorCode == ChildProcessManagerErrorCode::ERR_OK) {
+                task.ResolveWithNoError(env, CreateJsValue(env, *pid));
+            } else {
+                task.Reject(env, CreateJsError(env,
+                    ChildProcessManagerErrorUtil::GetAbilityErrorCode(*innerErrorCode)));
+            }
+        };
+        NapiAsyncTask::ScheduleHighQos("JsChildProcessManager::OnStartArkChildProcess",
+            env, CreateAsyncTaskWithLastParam(env, nullptr, std::move(execute), std::move(complete), &result));
     }
 };
 
@@ -143,6 +241,7 @@ napi_value JsChildProcessManagerInit(napi_env env, napi_value exportObj)
 
     const char *moduleName = PROCESS_MANAGER_NAME;
     BindNativeFunction(env, exportObj, "startChildProcess", moduleName, JsChildProcessManager::StartChildProcess);
+    BindNativeFunction(env, exportObj, "startArkChildProcess", moduleName, JsChildProcessManager::StartArkChildProcess);
     return CreateJsUndefined(env);
 }
 }  // namespace AbilityRuntime

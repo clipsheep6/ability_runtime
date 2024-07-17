@@ -35,6 +35,7 @@ ohos_unittest("app_exit_reason_data_manager_test") {
 
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
   ]
 

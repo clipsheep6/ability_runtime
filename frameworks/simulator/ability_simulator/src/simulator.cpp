@@ -28,7 +28,6 @@
 #include "commonlibrary/ets_utils/js_sys_module/timer/timer.h"
 #include "commonlibrary/ets_utils/js_sys_module/console/console.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_ability_context.h"
 #include "js_ability_stage_context.h"
 #include "js_console_log.h"
@@ -689,8 +688,9 @@ bool SimulatorImpl::OnInit()
     }
 
     panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, (options_.debugPort != 0), options_.debugPort};
-    panda::JSNApi::StartDebugger(vm_, debugOption, 0,
-        std::bind(&DebuggerTask::OnPostTask, &debuggerTask_, std::placeholders::_1));
+    panda::JSNApi::StartDebugger(vm_, debugOption, 0, [this](std::function<void()> &&arg) {
+        debuggerTask_.OnPostTask(std::move(arg));
+    });
 
     auto nativeEngine = new (std::nothrow) ArkNativeEngine(vm_, nullptr);
     if (nativeEngine == nullptr) {

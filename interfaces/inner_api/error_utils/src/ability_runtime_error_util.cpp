@@ -18,7 +18,6 @@
 #include <map>
 #include "errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "napi/native_api.h"
 #include "runtime.h"
 
@@ -150,8 +149,6 @@ const std::map<int32_t, std::string> ERROR_MSG_MAP = {
         "Restart too frequently. Try again at least 10s later." },
     { ERR_ABILITY_RUNTIME_EXTERNAL_NOT_SYSTEM_HSP,
         "The input bundleName and moduleName is not system HSP" },
-    { ERR_ABILITY_RUNTIME_SET_SUPPORTED_PROCESS_CACHE_AGAIN,
-        "The supported process cache state cannot be set more than once" },
 };
 }
 

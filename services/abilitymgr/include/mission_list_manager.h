@@ -24,6 +24,7 @@
 
 #include "ability_running_info.h"
 #include "mission_list.h"
+#include "mission_list_manager_interface.h"
 #include "mission_listener_controller.h"
 #include "mission_info.h"
 #include "mission_snapshot.h"
@@ -34,16 +35,17 @@
 
 namespace OHOS {
 namespace AAFwk {
-class MissionListManager : public std::enable_shared_from_this<MissionListManager> {
+class MissionListManager : public MissionListManagerInterface,
+                           public std::enable_shared_from_this<MissionListManager> {
 public:
     explicit MissionListManager(int userId);
-    ~MissionListManager();
+    virtual ~MissionListManager();
 
     /**
      * init ability mission manager.
      *
      */
-    void Init();
+    void Init() override;
 
     /**
      * StartAbility with request.
@@ -51,7 +53,7 @@ public:
      * @param abilityRequest, the request of the service ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int StartAbility(AbilityRequest &abilityRequest);
+    int StartAbility(AbilityRequest &abilityRequest) override;
 
     /**
      * MinimizeAbility, minimize the special ability.
@@ -60,24 +62,24 @@ public:
      * @param fromUser mark the minimize operation source.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser);
+    int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser) override;
 
-    int RegisterMissionListener(const sptr<IMissionListener> &listener);
+    int RegisterMissionListener(const sptr<IMissionListener> &listener) override;
 
-    int UnRegisterMissionListener(const sptr<IMissionListener> &listener);
+    int UnRegisterMissionListener(const sptr<IMissionListener> &listener) override;
 
-    int GetMissionInfos(int32_t numMax, std::vector<MissionInfo> &missionInfos);
+    int GetMissionInfos(int32_t numMax, std::vector<MissionInfo> &missionInfos) override;
 
-    int GetMissionInfo(int32_t missionId, MissionInfo &missionInfo);
+    int GetMissionInfo(int32_t missionId, MissionInfo &missionInfo) override;
 
-    int MoveMissionToFront(int32_t missionId, std::shared_ptr<StartOptions> startOptions = nullptr);
+    int MoveMissionToFront(int32_t missionId, std::shared_ptr<StartOptions> startOptions = nullptr) override;
 
     int MoveMissionToFront(int32_t missionId, bool isCallerFromLauncher, bool isRecent,
-        std::shared_ptr<AbilityRecord> callerAbility, std::shared_ptr<StartOptions> startOptions = nullptr);
+        std::shared_ptr<AbilityRecord> callerAbility, std::shared_ptr<StartOptions> startOptions = nullptr) override;
 
-    void NotifyMissionFocused(const int32_t missionId);
+    void NotifyMissionFocused(int32_t missionId) override;
 
-    void NotifyMissionUnfocused(const int32_t missionId);
+    void NotifyMissionUnfocused(int32_t missionId) override;
 
     /**
      * OnAbilityRequestDone, app manager service call this interface after ability request done.
@@ -85,9 +87,9 @@ public:
      * @param token,ability's token.
      * @param state,the state of ability lift cycle.
      */
-    void OnAbilityRequestDone(const sptr<IRemoteObject> &token, const int32_t state);
+    void OnAbilityRequestDone(const sptr<IRemoteObject> &token, int32_t state) override;
 
-    void OnAppStateChanged(const AppInfo &info);
+    void OnAppStateChanged(const AppInfo &info) override;
 
     /**
      * attach ability thread ipc object.
@@ -96,7 +98,8 @@ public:
      * @param token, the token of ability.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int AttachAbilityThread(const sptr<AAFwk::IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &token);
+    int AttachAbilityThread(const sptr<AAFwk::IAbilityScheduler> &scheduler,
+        const sptr<IRemoteObject> &token) override;
 
     /**
      * start waiting ability.
@@ -109,7 +112,7 @@ public:
      * @param token the search token
      * @return std::shared_ptr<AbilityRecord> the AbilityRecord of the token
      */
-    std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
+    std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) override;
 
     /**
      * @brief Get the Mission By Id object
@@ -125,7 +128,7 @@ public:
      * @param abilityRecord the ability to move
      * @return int error code
      */
-    int MoveAbilityToBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    int MoveAbilityToBackground(const std::shared_ptr<AbilityRecord> &abilityRecord) override;
 
     /**
      * @brief Terminate ability with the given abilityRecord
@@ -137,7 +140,7 @@ public:
      * @return int error code
      */
     int TerminateAbility(const std::shared_ptr<AbilityRecord> &abilityRecord,
-        int resultCode, const Want *resultWant, bool flag);
+        int resultCode, const Want *resultWant, bool flag) override;
 
     /**
      * @brief remove the mission list from the mission list manager
@@ -154,7 +157,7 @@ public:
      * @param saveData the saved data
      * @return execute error code
      */
-    int AbilityTransactionDone(const sptr<IRemoteObject> &token, int state, const PacMap &saveData);
+    int AbilityTransactionDone(const sptr<IRemoteObject> &token, int state, const PacMap &saveData) override;
 
     /**
      * @brief search the ability from terminating list
@@ -162,7 +165,7 @@ public:
      * @param token the ability token
      * @return the ability need to terminate
      */
-    std::shared_ptr<AbilityRecord> GetAbilityFromTerminateList(const sptr<IRemoteObject> &token);
+    std::shared_ptr<AbilityRecord> GetAbilityFromTerminateList(const sptr<IRemoteObject> &token) override;
 
     /**
      * @brief clear the mission with the given id
@@ -170,14 +173,14 @@ public:
      * @param missionId the mission need to delete
      * @return int error code
      */
-    int ClearMission(int missionId);
+    int ClearMission(int missionId) override;
 
     /**
      * @brief clear all the missions
      *
      * @return int error code
      */
-    int ClearAllMissions();
+    int ClearAllMissions() override;
 
     void ClearAllMissionsLocked(std::list<std::shared_ptr<Mission>> &missionList,
         std::list<std::shared_ptr<Mission>> &foregroundAbilities, bool searchActive);
@@ -188,7 +191,7 @@ public:
      * @param missionId the id of the mission
      * @return int error code
      */
-    int SetMissionLockedState(int missionId, bool lockedState);
+    int SetMissionLockedState(int missionId, bool lockedState) override;
 
     /**
      * @brief schedule to background
@@ -204,21 +207,21 @@ public:
      * @param abilityRecordId the id of ability record
      * @param isHalf is half
      */
-    void OnTimeOut(uint32_t msgId, int64_t abilityRecordId, bool isHalf = false);
+    void OnTimeOut(uint32_t msgId, int64_t abilityRecordId, bool isHalf = false) override;
 
     /**
      * @brief handle when ability died
      *
      * @param abilityRecord the died ability
      */
-    void OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord, int32_t currentUserId);
+    void OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord, int32_t currentUserId) override;
 
     /**
      * @brief handle when call connection died
      *
      * @param callRecord the died call connection
      */
-    void OnCallConnectDied(const std::shared_ptr<CallRecord> &callRecord);
+    void OnCallConnectDied(const std::shared_ptr<CallRecord> &callRecord) override;
 
      /**
      * Get mission id by target ability token.
@@ -226,7 +229,7 @@ public:
      * @param token target ability token.
      * @return the missionId of target mission.
      */
-    int32_t GetMissionIdByAbilityToken(const sptr<IRemoteObject> &token);
+    int32_t GetMissionIdByAbilityToken(const sptr<IRemoteObject> &token) override;
 
     /**
      * Get ability token by target mission id.
@@ -234,21 +237,22 @@ public:
      * @param missionId target missionId.
      * @return the ability token of target mission.
      */
-    sptr<IRemoteObject> GetAbilityTokenByMissionId(int32_t missionId);
+    sptr<IRemoteObject> GetAbilityTokenByMissionId(int32_t missionId) override;
+    std::shared_ptr<AbilityRecord> GetAbilityRecordByMissionId(int32_t missionId) override;
 
     /**
      * @brief dump all abilities
      *
      * @param info dump result.
      */
-    void Dump(std::vector<std::string>& info);
+    void Dump(std::vector<std::string>& info) override;
 
     /**
      * @brief dump mission list
      *
      * @param info dump result.
      */
-    void DumpMissionList(std::vector<std::string> &info, bool isClient, const std::string &args = "");
+    void DumpMissionList(std::vector<std::string> &info, bool isClient, const std::string &args = "") override;
 
     /**
      * @brief dump mission list by id with params
@@ -256,32 +260,32 @@ public:
      * @param info dump result.
      * @param params dump params.
      */
-    void DumpMissionListByRecordId(
-        std::vector<std::string>& info, bool isClient, int32_t abilityRecordId, const std::vector<std::string>& params);
+    void DumpMissionListByRecordId(std::vector<std::string>& info, bool isClient, int32_t abilityRecordId,
+        const std::vector<std::string>& params) override;
 
     /**
      * @brief dump mission by id
      *
      * @param info dump result.
      */
-    void DumpMission(int missionId, std::vector<std::string> &info);
+    void DumpMission(int missionId, std::vector<std::string> &info) override;
 
     /**
      * @brief dump mission infos
      *
      * @param info dump result.
      */
-    void DumpMissionInfos(std::vector<std::string> &info);
+    void DumpMissionInfos(std::vector<std::string> &info) override;
 
-    void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag);
+    void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag) override;
 
-    void OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want);
+    void OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want) override;
     /**
      * resolve the call ipc of ability for scheduling oncall.
      *
      * @param abilityRequest, target ability request.
      */
-    int ResolveLocked(const AbilityRequest &abilityRequest);
+    int ResolveLocked(const AbilityRequest &abilityRequest) override;
 
     /**
      * release the connection of this call.
@@ -289,12 +293,12 @@ public:
      * @param connect, caller callback ipc.
      * @param element, target ability name.
      */
-    int ReleaseCallLocked(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element);
+    int ReleaseCallLocked(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element) override;
     /**
      * @brief register snapshotHandler
      * @param handler the snapshotHandler
      */
-    void RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler);
+    void RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
 
     /**
      * @brief Get the Mission Snapshot object
@@ -305,8 +309,8 @@ public:
      * @return Returns true on success, false on failure.
      */
     bool GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
-        MissionSnapshot& missionSnapshot, bool isLowResolution);
-    void GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info, bool isPerm);
+        MissionSnapshot& missionSnapshot, bool isLowResolution) override;
+    void GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info, bool isPerm) override;
 
     /**
      * Called to update mission snapshot.
@@ -314,7 +318,7 @@ public:
      * @param pixelMap The snapshot.
      */
 #ifdef SUPPORT_SCREEN
-    void UpdateSnapShot(const sptr<IRemoteObject> &token, const std::shared_ptr<Media::PixelMap> &pixelMap);
+    void UpdateSnapShot(const sptr<IRemoteObject> &token, const std::shared_ptr<Media::PixelMap> &pixelMap) override;
 #endif // SUPPORT_SCREEN
 
     /**
@@ -324,7 +328,7 @@ public:
      */
     int32_t GetAbilityNumber(const AppExecFwk::ElementName &element) const;
 
-    void EnableRecoverAbility(int32_t missionId);
+    void EnableRecoverAbility(int32_t missionId) override;
 
 #ifdef ABILITY_COMMAND_FOR_TEST
     /**
@@ -333,32 +337,35 @@ public:
      * @param abilityRecordId The Ability Record Id.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int BlockAbility(int abilityRecordId);
+    int BlockAbility(int abilityRecordId) override;
 #endif
 
-    void UninstallApp(const std::string &bundleName, int32_t uid);
+    void UninstallApp(const std::string &bundleName, int32_t uid) override;
 
-    bool IsStarted();
-    void PauseManager();
-    void ResumeManager();
+    bool IsStarted() override;
+    void PauseManager() override;
+    void ResumeManager() override;
 
     void SetMissionANRStateByTokens(const std::vector<sptr<IRemoteObject>> &tokens);
 
-    int32_t IsValidMissionIds(const std::vector<int32_t> &missionIds, std::vector<MissionValidResult> &results);
+    int32_t IsValidMissionIds(const std::vector<int32_t> &missionIds,
+        std::vector<MissionValidResult> &results) override;
 
-    int DoAbilityForeground(std::shared_ptr<AbilityRecord> &abilityRecord, uint32_t flag);
+    int DoAbilityForeground(std::shared_ptr<AbilityRecord> &abilityRecord, uint32_t flag) override;
 
-    void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList,
-        int32_t pid = NO_PID);
+    void GetActiveAbilityList(int32_t uid, std::vector<std::string> &abilityList, int32_t pid = NO_PID) override;
 
-    void CallRequestDone(const std::shared_ptr<AbilityRecord> &abilityRecord, const sptr<IRemoteObject> &callStub);
+    void CallRequestDone(const std::shared_ptr<AbilityRecord> &abilityRecord,
+        const sptr<IRemoteObject> &callStub) override;
 
-    int SetMissionContinueState(const sptr<IRemoteObject> &token, const int32_t missionId,
-        const AAFwk::ContinueState &state);
+    int SetMissionContinueState(const sptr<IRemoteObject> &token, int32_t missionId,
+        const AAFwk::ContinueState &state) override;
 
-    bool IsAbilityStarted(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetRecord);
+    bool IsAbilityStarted(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetRecord) override;
 
-    void SignRestartAppFlag(const std::string &bundleName);
+    void SignRestartAppFlag(const std::string &bundleName) override;
+
+    void SetAnimationFlag(bool IsAnimationEnabled);
 #ifdef SUPPORT_SCREEN
 public:
     /**
@@ -368,7 +375,7 @@ public:
      * @param label target label.
      * @return Return 0 if success.
      */
-    int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label);
+    int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label) override;
 
     /**
      * Set mission icon of this ability.
@@ -377,9 +384,9 @@ public:
      * @param icon target label.
      * @return Return 0 if success.
      */
-    int SetMissionIcon(const sptr<IRemoteObject> &token, const std::shared_ptr<Media::PixelMap> &icon);
+    int SetMissionIcon(const sptr<IRemoteObject> &token, const std::shared_ptr<Media::PixelMap> &icon) override;
 
-    void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) const;
+    void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override;
 
     void PostMissionLabelUpdateTask(int missionId) const;
 

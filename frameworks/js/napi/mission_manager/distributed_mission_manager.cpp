@@ -20,7 +20,6 @@
 #include "ability_manager_client.h"
 #include "dms_sa_client.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "napi_common_data.h"
 #include "napi_common_util.h"
@@ -840,7 +839,6 @@ void OffExecuteCB(napi_env env, OnCB *onCB)
     onCB->onRegistration->DelOnCallbackCBRef(env, onCB->onCallbackCB.napiCallback);
     if (!onCB->onRegistration->GetOnCallbackCBRef().empty()) {
         TAG_LOGI(AAFwkTag::MISSION, "There are still other remaining callback");
-        return;
     }
     DmsSaClient::GetInstance().DelListener(onCB->type, onCB->onRegistration);
     if (onCB->result == NO_ERROR) {

@@ -35,9 +35,6 @@ public:
 private:
     int32_t HandleOnAbilityFirstFrameStateChanged(MessageParcel &data, MessageParcel &reply);
 
-    using AbilityFirstFrameStateObserverFunc = int32_t (AbilityFirstFrameStateObserverStub::*)(
-        MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, AbilityFirstFrameStateObserverFunc> memberFuncMap_;
     static std::mutex callbackMutex_;
 
     DISALLOW_COPY_AND_MOVE(AbilityFirstFrameStateObserverStub);

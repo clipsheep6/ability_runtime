@@ -48,6 +48,7 @@ config("ability_context_public_config") {
 
 ohos_shared_library("ability_context_native") {
   public_configs = [ ":ability_context_public_config" ]
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_service_extension_ability/connection" ]
 
   sources = [
     "ability_runtime/ability_connection.cpp",

@@ -16,7 +16,6 @@
 #include "os_account_manager_wrapper.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #ifdef OS_ACCOUNT_PART_ENABLED
 #include "os_account_manager.h"
 #endif // OS_ACCOUNT_PART_ENABLED

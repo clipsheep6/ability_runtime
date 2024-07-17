@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-#include "hilog_wrapper.h"
 #include "mock_permission_verification.h"
 
 namespace OHOS {

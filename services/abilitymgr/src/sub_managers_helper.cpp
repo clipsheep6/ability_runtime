@@ -15,6 +15,8 @@
 
 #include "sub_managers_helper.h"
 
+#include <dlfcn.h>
+
 #include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
 #include "mission_info_mgr.h"
@@ -29,6 +31,15 @@ constexpr int32_t INVALID_USER_ID = -1;
 SubManagersHelper::SubManagersHelper(
     std::shared_ptr<TaskHandlerWrap> taskHandler, std::shared_ptr<AbilityEventHandler> eventHandler)
     : taskHandler_(taskHandler), eventHandler_(eventHandler) {}
+
+SubManagersHelper::~SubManagersHelper()
+{
+    if (missionLibHandle_ != nullptr) {
+        missionListWrap_ = nullptr;
+        dlclose(missionLibHandle_);
+        missionLibHandle_ = nullptr;
+    }
+}
 
 void SubManagersHelper::InitSubManagers(int userId, bool switchUser)
 {
@@ -103,12 +114,19 @@ void SubManagersHelper::InitMissionListManager(int userId, bool switchUser)
     auto it = missionListManagers_.find(userId);
     if (it != missionListManagers_.end()) {
         if (switchUser) {
-            DelayedSingleton<MissionInfoMgr>::GetInstance()->Init(userId);
+            auto missionListWrap = GetMissionListWrap();
+            if (missionListWrap) {
+                missionListWrap->InitMissionInfoMgr(userId);
+            }
             currentMissionListManager_ = it->second;
         }
         return;
     }
-    auto manager = std::make_shared<MissionListManager>(userId);
+    auto manager = CreateMissionListMgr(userId);
+    if (manager == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to create mission list manager");
+        return;
+    }
     manager->Init();
     missionListManagers_.emplace(userId, manager);
     if (switchUser) {
@@ -221,6 +239,9 @@ std::shared_ptr<AbilityConnectManager> SubManagersHelper::GetConnectManagerByTok
         if (item.second && item.second->GetExtensionByTokenFromServiceMap(token)) {
             return item.second;
         }
+        if (item.second && item.second->GetExtensionByTokenFromAbilityCache(token)) {
+            return item.second;
+        }
         if (item.second && item.second->GetExtensionByTokenFromTerminatingMap(token)) {
             return item.second;
         }
@@ -246,19 +267,19 @@ std::shared_ptr<PendingWantManager> SubManagersHelper::GetPendingWantManagerByUs
     return nullptr;
 }
 
-std::unordered_map<int, std::shared_ptr<MissionListManager>> SubManagersHelper::GetMissionListManagers()
+std::unordered_map<int, std::shared_ptr<MissionListManagerInterface>> SubManagersHelper::GetMissionListManagers()
 {
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
     return missionListManagers_;
 }
 
-std::shared_ptr<MissionListManager> SubManagersHelper::GetCurrentMissionListManager()
+std::shared_ptr<MissionListManagerInterface> SubManagersHelper::GetCurrentMissionListManager()
 {
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
     return currentMissionListManager_;
 }
 
-std::shared_ptr<MissionListManager> SubManagersHelper::GetMissionListManagerByUserId(int32_t userId)
+std::shared_ptr<MissionListManagerInterface> SubManagersHelper::GetMissionListManagerByUserId(int32_t userId)
 {
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
     auto it = missionListManagers_.find(userId);
@@ -269,7 +290,7 @@ std::shared_ptr<MissionListManager> SubManagersHelper::GetMissionListManagerByUs
     return nullptr;
 }
 
-std::shared_ptr<MissionListManager> SubManagersHelper::GetMissionListManagerByUid(int32_t uid)
+std::shared_ptr<MissionListManagerInterface> SubManagersHelper::GetMissionListManagerByUid(int32_t uid)
 {
     int32_t userId = INVALID_USER_ID;
     if (DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->GetOsAccountLocalIdFromUid(
@@ -373,6 +394,22 @@ void SubManagersHelper::UninstallAppInMissionListManagers(int32_t userId, const 
     }
 }
 
+bool SubManagersHelper::VerificationAllTokenForConnectManagers(const sptr<IRemoteObject> &token)
+{
+    for (auto& item: connectManagers_) {
+        if (item.second && item.second->GetExtensionByTokenFromServiceMap(token)) {
+            return true;
+        }
+        if (item.second && item.second->GetExtensionByTokenFromAbilityCache(token)) {
+            return true;
+        }
+        if (item.second && item.second->GetExtensionByTokenFromTerminatingMap(token)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool SubManagersHelper::VerificationAllToken(const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -405,17 +442,54 @@ bool SubManagersHelper::VerificationAllToken(const sptr<IRemoteObject> &token)
     }
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "VerificationAllToken::SearchConnectManagers_");
-        for (auto& item: connectManagers_) {
-            if (item.second && item.second->GetExtensionByTokenFromServiceMap(token)) {
-                return true;
-            }
-            if (item.second && item.second->GetExtensionByTokenFromTerminatingMap(token)) {
-                return true;
-            }
+        if (VerificationAllTokenForConnectManagers(token)) {
+            return true;
         }
     }
     TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to verify all token.");
     return false;
+}
+
+std::shared_ptr<MissionListWrap> SubManagersHelper::GetMissionListWrap()
+{
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        return nullptr;
+    }
+
+    std::lock_guard lock(missionListWrapMutex_);
+    if (missionListWrap_) {
+        return missionListWrap_;
+    }
+
+    if (missionLibHandle_ == nullptr) {
+        missionLibHandle_ = dlopen("libmission_list.z.so", RTLD_NOW | RTLD_GLOBAL);
+        if (missionLibHandle_ == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to open mission_list library");
+            return nullptr;
+        }
+    }
+
+    auto createMissionListWrapFunc = reinterpret_cast<CreateMissionListMgrFunc>(dlsym(missionLibHandle_,
+        "CreateMissionListWrap"));
+    if (createMissionListWrapFunc == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to get create func");
+        dlclose(missionLibHandle_);
+        missionLibHandle_ = nullptr;
+        return nullptr;
+    }
+
+    missionListWrap_ = std::shared_ptr<MissionListWrap>(createMissionListWrapFunc());
+    return missionListWrap_;
+}
+
+std::shared_ptr<MissionListManagerInterface> SubManagersHelper::CreateMissionListMgr(int32_t userId)
+{
+    auto missionListWrap = GetMissionListWrap();
+    if (missionListWrap != nullptr) {
+        return missionListWrap->CreateMissionListManager(userId);
+    }
+
+    return nullptr;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

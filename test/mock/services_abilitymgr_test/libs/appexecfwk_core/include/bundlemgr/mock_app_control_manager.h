@@ -18,7 +18,7 @@
 
 #include "want.h"
 #include <gmock/gmock.h>
-#include "foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core/include/app_control/app_control_interface.h"
+#include "app_control_interface.h"
 #include "iremote_proxy.h"
 
 namespace OHOS {

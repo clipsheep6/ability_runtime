@@ -19,7 +19,6 @@
 
 #include "ability_info.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #ifdef RESOURCE_SCHEDULE_SERVICE_ENABLE
 #include "res_sched_client.h"
 #include "res_type.h"
@@ -83,7 +82,8 @@ void ResSchedUtil::ReportAbilitAssociatedStartInfoToRSS(
 #endif
 }
 
-void ResSchedUtil::ReportEventToRSS(int32_t uid, std::string bundleName, std::string reason)
+void ResSchedUtil::ReportEventToRSS(const int32_t uid, const std::string &bundleName, const std::string &reason,
+    const int32_t callerPid)
 {
 #ifdef RESOURCE_SCHEDULE_SERVICE_ENABLE
     uint32_t resType = ResourceSchedule::ResType::SYNC_RES_TYPE_THAW_ONE_APP;
@@ -92,6 +92,7 @@ void ResSchedUtil::ReportEventToRSS(int32_t uid, std::string bundleName, std::st
     payload.emplace("pid", -1);
     payload.emplace("bundleName", bundleName);
     payload.emplace("reason", reason);
+    payload.emplace("callerPid", callerPid);
     nlohmann::json reply;
     TAG_LOGD(AAFwkTag::DEFAULT, "call");
     ResourceSchedule::ResSchedClient::GetInstance().ReportSyncEvent(resType, 0, payload, reply);

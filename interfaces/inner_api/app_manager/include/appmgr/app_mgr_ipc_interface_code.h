@@ -106,6 +106,11 @@ enum class AppMgrInterfaceCode {
     GET_RUNNING_PROCESS_INFO_BY_PID = 80,
     IS_APP_RUNNING = 81,
     CHECK_CALLING_IS_USER_TEST_MODE = 82,
+    SET_APPFREEZE_FILTER = 83,
+    // ipc for process depended on arkweb
+    NOTIFY_PROCESS_DEPENDED_ON_WEB = 84,
+    KILL_PROCESS_DEPENDED_ON_WEB = 85,
+    RESTART_RESIDENT_PROCESS_DEPENDED_ON_WEB = 86,
 };
 } // AppExecFwk
 } // OHOS

@@ -25,6 +25,7 @@
 #define protected public
 #include "ability_manager_errors.h"
 #include "ability_manager_service.h"
+#include "mission_list_manager.h"
 #undef private
 #undef protected
 
@@ -112,8 +113,9 @@ HWTEST_F(SpecifiedAbilityServiceTest, OnAcceptWantResponse_001, TestSize.Level1)
     abilityMgrServ_->subManagersHelper_->InitMissionListManager(11, true);
     Want want;
     want.SetElementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
-    EXPECT_TRUE(abilityMgrServ_->subManagersHelper_->currentMissionListManager_);
-    abilityMgrServ_->subManagersHelper_->currentMissionListManager_->EnqueueWaitingAbility(abilityRequest);
+    auto missionListMgr = abilityMgrServ_->subManagersHelper_->currentMissionListManager_;
+    EXPECT_TRUE(missionListMgr);
+    reinterpret_cast<MissionListManager*>(missionListMgr.get())->EnqueueWaitingAbility(abilityRequest);
     abilityMgrServ_->OnAcceptWantResponse(want, "flag");
 
     EXPECT_EQ(false, abilityRecord->IsNewWant());

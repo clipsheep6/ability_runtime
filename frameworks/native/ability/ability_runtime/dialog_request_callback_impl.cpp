@@ -16,7 +16,6 @@
 #include "dialog_request_callback_impl.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

@@ -64,6 +64,7 @@ struct FaultData : public Parcelable {
     bool notifyApp = false;
     bool forceExit = false;
     uint32_t state = 0;
+    int32_t eventId = -1;
     sptr<IRemoteObject> token = nullptr;
 };
 
@@ -84,6 +85,7 @@ struct AppFaultDataBySA : public Parcelable {
     bool notifyApp = false;
     bool forceExit = false;
     uint32_t state = 0;
+    int32_t eventId = -1;
     sptr<IRemoteObject> token = nullptr;
 };
 }  // namespace AppExecFwk

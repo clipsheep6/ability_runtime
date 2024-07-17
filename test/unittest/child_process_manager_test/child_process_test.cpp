@@ -17,7 +17,6 @@
 
 #include "child_process.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "runtime.h"
 
 using namespace testing;

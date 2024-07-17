@@ -110,6 +110,7 @@ private:
     int32_t HandleStartNativeProcessForDebugger(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyFault(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyFaultBySA(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleSetAppFreezeFilter(MessageParcel &data, MessageParcel &reply);
     int32_t HandleJudgeSandboxByPid(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetBundleNameByPid(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetRunningProcessInfoByPid(MessageParcel &data, MessageParcel &reply);
@@ -142,9 +143,24 @@ private:
     int32_t HandleStartNativeChildProcess(MessageParcel &data, MessageParcel &reply);
     int32_t HandleSaveBrowserChannel(MessageParcel &data, MessageParcel &reply);
     int32_t HandleCheckCallingIsUserTestMode(MessageParcel &data, MessageParcel &reply);
-    using AppMgrFunc = int32_t (AppMgrStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, AppMgrFunc> memberFuncMap_;
-
+    int32_t HandleNotifyProcessDependedOnWeb(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleKillProcessDependedOnWeb(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleRestartResidentProcessDependedOnWeb(MessageParcel &data, MessageParcel &reply);
+    int32_t OnRemoteRequestInner(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t OnRemoteRequestInnerFirst(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int32_t OnRemoteRequestInnerSecond(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int32_t OnRemoteRequestInnerThird(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int32_t OnRemoteRequestInnerFourth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int32_t OnRemoteRequestInnerFifth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int32_t OnRemoteRequestInnerSixth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int32_t OnRemoteRequestInnerSeventh(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
     DISALLOW_COPY_AND_MOVE(AppMgrStub);
 };
 }  // namespace AppExecFwk

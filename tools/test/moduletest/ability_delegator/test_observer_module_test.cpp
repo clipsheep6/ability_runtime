@@ -19,7 +19,6 @@
 #include <thread>
 #include <unistd.h>
 
-#include "hilog_wrapper.h"
 #include "system_time.h"
 
 #define private public

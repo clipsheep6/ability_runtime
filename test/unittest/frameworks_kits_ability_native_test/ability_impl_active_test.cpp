@@ -19,7 +19,6 @@
 #include "ability.h"
 #include "ability_impl.h"
 #include "context_deal.h"
-#include "hilog_wrapper.h"
 #include "mock_ability_token.h"
 #include "ohos_application.h"
 #include "page_ability_impl.h"

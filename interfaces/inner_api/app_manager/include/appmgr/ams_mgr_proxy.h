@@ -158,7 +158,7 @@ public:
 
     virtual void AbilityAttachTimeOut(const sptr<IRemoteObject> &token) override;
 
-    virtual void PrepareTerminate(const sptr<IRemoteObject> &token) override;
+    virtual void PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag = false) override;
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info) override;
 
@@ -275,6 +275,28 @@ public:
      * @return Returns true is sufficent memory size, others return false.
      */
     virtual bool IsMemorySizeSufficent() override;
+
+    /**
+     * Notifies that one ability is attached to status bar.
+     *
+     * @param token the token of the abilityRecord that is attached to status bar.
+     */
+    virtual void AttachedToStatusBar(const sptr<IRemoteObject> &token) override;
+
+    /**
+     * Temporarily block the process cache feature.
+     *
+     * @param pids the pids of the processes that should be blocked.
+     */
+    virtual void BlockProcessCacheByPids(const std::vector<int32_t> &pids) override;
+
+    /**
+     * whether killed for upgrade web.
+     *
+     * @param bundleName the bundle name is killed for upgrade web.
+     * @return Returns true is killed for upgrade web, others return false.
+     */
+    virtual bool IsKilledForUpgradeWeb(const std::string &bundleName) override;
 
 private:
     bool WriteInterfaceToken(MessageParcel &data);

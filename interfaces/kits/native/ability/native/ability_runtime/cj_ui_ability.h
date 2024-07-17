@@ -228,12 +228,6 @@ public:
     bool OnPrepareTerminate() override;
 
     /**
-     * @brief Get CJWindow Stage
-     * @return Returns the current CJWindowStage
-     */
-    std::shared_ptr<Rosen::CJWindowStageImpl> GetCJWindowStage();
-
-    /**
      * @brief Get CJRuntime
      * @return Returns the current CJRuntime
      */
@@ -274,7 +268,7 @@ private:
         const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
         InsightIntentExecutorInfo& executeInfo);
 
-    std::shared_ptr<Rosen::CJWindowStageImpl> cjWindowStage_;
+    sptr<Rosen::CJWindowStageImpl> cjWindowStage_;
     int32_t windowMode_ = 0;
 #endif
 #endif

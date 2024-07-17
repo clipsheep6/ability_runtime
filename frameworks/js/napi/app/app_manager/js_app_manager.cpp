@@ -19,13 +19,13 @@
 #include <mutex>
 
 #include "ability_manager_interface.h"
+#include "ability_manager_errors.h"
 #include "app_mgr_interface.h"
 
 #ifdef SUPPORT_CONTAINER_SCOPE
 #include "core/common/container_scope.h"
 #endif
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"

@@ -399,6 +399,13 @@ ohos_unittest("scene_created_test") {
 
 ohos_unittest("data_ability_helper_test") {
   module_out_path = module_output_path
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
@@ -706,7 +713,13 @@ ohos_unittest("ui_ability_impl_test") {
 
 ohos_unittest("ability_thread_test") {
   module_out_path = module_output_path
-
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "${ability_runtime_test_path}/unittest/dataobs_mgr_stub_test",
     "${ability_runtime_services_path}/dataobsmgr/include/",
@@ -778,7 +791,13 @@ ohos_unittest("ability_thread_test") {
 
 ohos_unittest("fa_ability_thread_test") {
   module_out_path = module_output_path
-
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "${ability_runtime_test_path}/unittest/dataobs_mgr_stub_test",
     "${ability_runtime_services_path}/dataobsmgr/include/",
@@ -891,6 +910,13 @@ ohos_unittest("extension_ability_thread_test") {
 
 ohos_unittest("ui_ability_thread_test") {
   module_out_path = module_output_path
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
   sources = [
     "${ability_runtime_innerkits_path}/app_manager/src/appmgr/process_info.cpp",
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",
@@ -2014,7 +2040,7 @@ ohos_unittest("reserse_continuation_scheduler_primary_proxy_test") {
 ohos_unittest("distributed_client_test") {
   module_out_path = module_output_path
   sources = [
-    "${ability_runtime_services_path}/abilitymgr/src/distributed_client.cpp",
+    "${ability_runtime_native_path}/ability/native/distributed_ability_runtime/distributed_client.cpp",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/aakit/src/mock_ability_connect_callback.cpp",
     "distributed_client_test.cpp",
   ]
@@ -2339,6 +2365,7 @@ ohos_unittest("reverse_continuation_scheduler_replica_stub_test") {
 
 ohos_unittest("ability_connection_manager_test") {
   module_out_path = module_output_path
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_service_extension_ability/connection" ]
   sources = [
     "${ability_runtime_native_path}/ability/ability_runtime/connection_manager.cpp",
     "${ability_runtime_native_path}/appkit/app/ability_record_mgr.cpp",
@@ -2432,6 +2459,7 @@ ohos_unittest("form_extension_module_loader_test") {
   external_deps = [
     "ability_base:configuration",
     "ability_base:session_info",
+    "ability_runtime:extensionkit_native",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
@@ -2776,6 +2804,7 @@ ohos_unittest("dialog_request_callback_test") {
   defines = []
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/ability/ability_runtime",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_path}/frameworks/simulator/common/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/dialog_request_callback",
   ]

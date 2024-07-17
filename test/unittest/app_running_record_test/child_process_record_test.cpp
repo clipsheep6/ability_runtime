@@ -58,7 +58,9 @@ HWTEST_F(ChildProcessRecordTest, ChildProcessRecord_0100, TestSize.Level1)
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
     EXPECT_NE(appRecord, nullptr);
 
-    auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", appRecord, 0, false);
+    ChildProcessRequest request;
+    request.srcEntry = "./ets/AProcess.ts";
+    auto childRecord = std::make_shared<ChildProcessRecord>(101, request, appRecord);
     auto hostPid = childRecord->GetHostPid();
     EXPECT_EQ(hostPid, 101);
 }
@@ -75,7 +77,9 @@ HWTEST_F(ChildProcessRecordTest, ChildProcessRecord_0200, TestSize.Level1)
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
     EXPECT_NE(appRecord, nullptr);
 
-    auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", appRecord, 0, false);
+    ChildProcessRequest request;
+    request.srcEntry = "./ets/AProcess.ts";
+    auto childRecord = std::make_shared<ChildProcessRecord>(101, request, appRecord);
     childRecord->SetUid(100);
     auto uid = childRecord->GetUid();
     EXPECT_EQ(uid, 100);
@@ -90,7 +94,9 @@ HWTEST_F(ChildProcessRecordTest, ChildProcessRecord_0300, TestSize.Level1)
 {
     TAG_LOGD(AAFwkTag::TEST, "ChildProcessRecord_0300 called.");
 
-    auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", nullptr, 0, false);
+    ChildProcessRequest request;
+    request.srcEntry = "./ets/AProcess.ts";
+    auto childRecord = std::make_shared<ChildProcessRecord>(101, request, nullptr);
     auto record = childRecord->GetHostRecord();
     EXPECT_EQ(record, nullptr);
 }
@@ -107,7 +113,9 @@ HWTEST_F(ChildProcessRecordTest, ChildProcessRecord_0400, TestSize.Level1)
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
     EXPECT_NE(appRecord, nullptr);
 
-    auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", appRecord, 0, false);
+    ChildProcessRequest request;
+    request.srcEntry = "./ets/AProcess.ts";
+    auto childRecord = std::make_shared<ChildProcessRecord>(101, request, appRecord);
     auto processName = childRecord->GetProcessName();
     EXPECT_TRUE(processName.length() > 0);
 }
@@ -121,7 +129,9 @@ HWTEST_F(ChildProcessRecordTest, ChildProcessRecord_0500, TestSize.Level1)
 {
     TAG_LOGD(AAFwkTag::TEST, "ChildProcessRecord_0500 called.");
 
-    auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", nullptr, 0, false);
+    ChildProcessRequest request;
+    request.srcEntry = "./ets/AProcess.ts";
+    auto childRecord = std::make_shared<ChildProcessRecord>(101, request, nullptr);
     auto processName = childRecord->GetProcessName();
     EXPECT_TRUE(processName.length() <= 0);
 }
@@ -138,7 +148,9 @@ HWTEST_F(ChildProcessRecordTest, ChildProcessRecord_0600, TestSize.Level1)
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
     EXPECT_NE(appRecord, nullptr);
 
-    auto childRecord = std::make_shared<ChildProcessRecord>(101, "", appRecord, 0, false);
+    ChildProcessRequest request;
+    request.srcEntry = "";
+    auto childRecord = std::make_shared<ChildProcessRecord>(101, request, appRecord);
     auto processName = childRecord->GetProcessName();
     EXPECT_TRUE(processName.length() <= 0);
 }
@@ -155,7 +167,9 @@ HWTEST_F(ChildProcessRecordTest, ChildProcessRecord_0700, TestSize.Level1)
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
     EXPECT_NE(appRecord, nullptr);
 
-    auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", appRecord, 0, false);
+    ChildProcessRequest request;
+    request.srcEntry = "./ets/AProcess.ts";
+    auto childRecord = std::make_shared<ChildProcessRecord>(101, request, appRecord);
     auto srcEntry = childRecord->GetSrcEntry();
     EXPECT_EQ(srcEntry, "./ets/AProcess.ts");
 }
@@ -169,7 +183,9 @@ HWTEST_F(ChildProcessRecordTest, ChildProcessRecord_0800, TestSize.Level1)
 {
     TAG_LOGD(AAFwkTag::TEST, "ChildProcessRecord_0800 called.");
 
-    auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", nullptr, 0, false);
+    ChildProcessRequest request;
+    request.srcEntry = "./ets/AProcess.ts";
+    auto childRecord = std::make_shared<ChildProcessRecord>(101, request, nullptr);
     sptr<IChildScheduler> scheduler;
     childRecord->SetScheduler(scheduler);
     EXPECT_NE(childRecord, nullptr);
@@ -184,7 +200,9 @@ HWTEST_F(ChildProcessRecordTest, ChildProcessRecord_0900, TestSize.Level1)
 {
     TAG_LOGD(AAFwkTag::TEST, "ChildProcessRecord_0900 called.");
 
-    auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", nullptr, 0, false);
+    ChildProcessRequest request;
+    request.srcEntry = "./ets/AProcess.ts";
+    auto childRecord = std::make_shared<ChildProcessRecord>(101, request, nullptr);
     sptr<IChildScheduler> scheduler;
     childRecord->SetScheduler(scheduler);
     EXPECT_EQ(childRecord->GetScheduler(), scheduler);
@@ -199,7 +217,9 @@ HWTEST_F(ChildProcessRecordTest, ChildProcessRecord_1000, TestSize.Level1)
 {
     TAG_LOGD(AAFwkTag::TEST, "ChildProcessRecord_1000 called.");
 
-    auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", nullptr, 0, false);
+    ChildProcessRequest request;
+    request.srcEntry = "./ets/AProcess.ts";
+    auto childRecord = std::make_shared<ChildProcessRecord>(101, request, nullptr);
     sptr<AppDeathRecipient> recipient;
     childRecord->SetDeathRecipient(recipient);
     EXPECT_NE(childRecord, nullptr);
@@ -214,7 +234,9 @@ HWTEST_F(ChildProcessRecordTest, ChildProcessRecord_1100, TestSize.Level1)
 {
     TAG_LOGD(AAFwkTag::TEST, "ChildProcessRecord_1100 called.");
 
-    auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", nullptr, 0, false);
+    ChildProcessRequest request;
+    request.srcEntry = "./ets/AProcess.ts";
+    auto childRecord = std::make_shared<ChildProcessRecord>(101, request, nullptr);
     sptr<IChildScheduler> scheduler;
     childRecord->SetScheduler(scheduler);
     sptr<AppDeathRecipient> recipient;
@@ -232,7 +254,9 @@ HWTEST_F(ChildProcessRecordTest, ChildProcessRecord_1200, TestSize.Level1)
 {
     TAG_LOGD(AAFwkTag::TEST, "ChildProcessRecord_1200 called.");
 
-    auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", nullptr, 0, false);
+    ChildProcessRequest request;
+    request.srcEntry = "./ets/AProcess.ts";
+    auto childRecord = std::make_shared<ChildProcessRecord>(101, request, nullptr);
     childRecord->RemoveDeathRecipient();
     EXPECT_NE(childRecord, nullptr);
 }
@@ -246,7 +270,9 @@ HWTEST_F(ChildProcessRecordTest, ChildProcessRecord_1300, TestSize.Level1)
 {
     TAG_LOGD(AAFwkTag::TEST, "ChildProcessRecord_1300 called.");
 
-    auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", nullptr, 0, false);
+    ChildProcessRequest request;
+    request.srcEntry = "./ets/AProcess.ts";
+    auto childRecord = std::make_shared<ChildProcessRecord>(101, request, nullptr);
     sptr<IChildScheduler> scheduler;
     childRecord->SetScheduler(scheduler);
     childRecord->RemoveDeathRecipient();
@@ -262,7 +288,9 @@ HWTEST_F(ChildProcessRecordTest, ChildProcessRecord_1400, TestSize.Level1)
 {
     TAG_LOGD(AAFwkTag::TEST, "ChildProcessRecord_1400 called.");
 
-    auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", nullptr, 0, false);
+    ChildProcessRequest request;
+    request.srcEntry = "./ets/AProcess.ts";
+    auto childRecord = std::make_shared<ChildProcessRecord>(101, request, nullptr);
     sptr<IChildScheduler> scheduler;
     childRecord->SetScheduler(scheduler);
     childRecord->ScheduleExitProcessSafely();
@@ -278,7 +306,9 @@ HWTEST_F(ChildProcessRecordTest, ChildProcessRecord_1500, TestSize.Level1)
 {
     TAG_LOGD(AAFwkTag::TEST, "ChildProcessRecord_1500 called.");
 
-    auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", nullptr, 0, false);
+    ChildProcessRequest request;
+    request.srcEntry = "./ets/AProcess.ts";
+    auto childRecord = std::make_shared<ChildProcessRecord>(101, request, nullptr);
     childRecord->ScheduleExitProcessSafely();
     EXPECT_NE(childRecord, nullptr);
 }
@@ -295,7 +325,9 @@ HWTEST_F(ChildProcessRecordTest, ChildProcessRecord_1600, TestSize.Level1)
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
     EXPECT_NE(appRecord, nullptr);
 
-    auto childRecord = ChildProcessRecord::CreateChildProcessRecord(0, "./ets/AProcess.ts", appRecord, 0, false);
+    ChildProcessRequest request;
+    request.srcEntry = "./ets/AProcess.ts";
+    auto childRecord = ChildProcessRecord::CreateChildProcessRecord(0, request, appRecord);
     EXPECT_EQ(childRecord, nullptr);
 }
 
@@ -311,7 +343,9 @@ HWTEST_F(ChildProcessRecordTest, ChildProcessRecord_1700, TestSize.Level1)
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
     EXPECT_NE(appRecord, nullptr);
 
-    auto childRecord = ChildProcessRecord::CreateChildProcessRecord(101, "", appRecord, 0, false);
+    ChildProcessRequest request;
+    request.srcEntry = "";
+    auto childRecord = ChildProcessRecord::CreateChildProcessRecord(101, request, appRecord);
     EXPECT_EQ(childRecord, nullptr);
 }
 
@@ -323,7 +357,9 @@ HWTEST_F(ChildProcessRecordTest, ChildProcessRecord_1700, TestSize.Level1)
 HWTEST_F(ChildProcessRecordTest, ChildProcessRecord_1800, TestSize.Level1)
 {
     TAG_LOGD(AAFwkTag::TEST, "ChildProcessRecord_1800 called.");
-    auto childRecord = ChildProcessRecord::CreateChildProcessRecord(101, "./ets/AProcess.ts", nullptr, 0, false);
+    ChildProcessRequest request;
+    request.srcEntry = "./ets/AProcess.ts";
+    auto childRecord = ChildProcessRecord::CreateChildProcessRecord(101, request, nullptr);
     EXPECT_EQ(childRecord, nullptr);
 }
 } // namespace AppExecFwk

@@ -27,7 +27,7 @@ JSAppForegroundStateObserver::JSAppForegroundStateObserver(napi_env env) : env_(
 
 void JSAppForegroundStateObserver::OnAppStateChanged(const AppStateData &appStateData)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!valid_) {
         TAG_LOGE(AAFwkTag::APPMGR, "The app manager may has destroyed.");
         return;
@@ -49,7 +49,7 @@ void JSAppForegroundStateObserver::OnAppStateChanged(const AppStateData &appStat
 
 void JSAppForegroundStateObserver::HandleOnAppStateChanged(const AppStateData &appStateData)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::lock_guard<std::mutex> lock(jsObserverObjectSetLock_);
     for (auto &item : jsObserverObjectSet_) {
         napi_value obj = item->GetNapiValue();

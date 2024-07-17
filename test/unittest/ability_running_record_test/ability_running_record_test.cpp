@@ -18,7 +18,6 @@
 #include "ability_running_record.h"
 #include "app_state_callback_host.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_ability_token.h"
 
 using namespace testing;

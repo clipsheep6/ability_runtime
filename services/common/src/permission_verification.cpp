@@ -18,7 +18,6 @@
 #include "ability_manager_errors.h"
 #include "accesstoken_kit.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "permission_constants.h"
 #include "server_constant.h"
@@ -55,8 +54,6 @@ bool PermissionVerification::VerifyCallingPermission(
     const std::string &permissionName, const uint32_t specifyTokenId) const
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::DEFAULT, "VerifyCallingPermission permission %{public}s, specifyTokenId is %{public}u",
-        permissionName.c_str(), specifyTokenId);
     auto callerToken = specifyTokenId == 0 ? GetCallingTokenID() : specifyTokenId;
     TAG_LOGD(AAFwkTag::DEFAULT, "callerToken is %{public}u", callerToken);
     int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permissionName, false);
@@ -209,10 +206,12 @@ int32_t PermissionVerification::VerifyUpdateConfigurationPerm() const
 int32_t PermissionVerification::VerifyUpdateAPPConfigurationPerm() const
 {
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_UPDATE_APP_CONFIGURATION)) {
-        HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_UPDATE_APP_CONFIGURATION);
+        TAG_LOGI(AAFwkTag::DEFAULT,
+            "Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_UPDATE_APP_CONFIGURATION);
         return ERR_OK;
     }
-    HILOG_ERROR("Verify permission %{public}s failed.", PermissionConstants::PERMISSION_UPDATE_APP_CONFIGURATION);
+    TAG_LOGE(AAFwkTag::DEFAULT,
+        "Verify permission %{public}s failed.", PermissionConstants::PERMISSION_UPDATE_APP_CONFIGURATION);
     return ERR_PERMISSION_DENIED;
 }
 
@@ -297,9 +296,10 @@ int PermissionVerification::CheckCallServiceAbilityPermission(const Verification
     return ERR_OK;
 }
 
-int PermissionVerification::CheckCallAbilityPermission(const VerificationInfo &verificationInfo) const
+int PermissionVerification::CheckCallAbilityPermission(const VerificationInfo &verificationInfo,
+    bool isCallByShortcut) const
 {
-    return JudgeInvisibleAndBackground(verificationInfo);
+    return JudgeInvisibleAndBackground(verificationInfo, isCallByShortcut);
 }
 
 int PermissionVerification::CheckCallServiceExtensionPermission(const VerificationInfo &verificationInfo) const
@@ -397,16 +397,19 @@ bool PermissionVerification::JudgeAssociatedWakeUp(const uint32_t accessTokenId,
     return false;
 }
 
-int PermissionVerification::JudgeInvisibleAndBackground(const VerificationInfo &verificationInfo) const
+int PermissionVerification::JudgeInvisibleAndBackground(const VerificationInfo &verificationInfo,
+    bool isCallByShortcut) const
 {
     uint32_t specifyTokenId = verificationInfo.specifyTokenId;
-    TAG_LOGD(AAFwkTag::DEFAULT, "specifyTokenId = %{public}u", specifyTokenId);
+    TAG_LOGD(AAFwkTag::DEFAULT, "specifyTokenId = %{public}u, isCallByShortcut %{public}d",
+        specifyTokenId, isCallByShortcut);
     if (specifyTokenId == 0 && IPCSkeleton::GetCallingUid() != BROKER_UID &&
         SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
         TAG_LOGD(AAFwkTag::DEFAULT, "Support SA call");
         return ERR_OK;
     }
-    if (!JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible,
+    if (!isCallByShortcut &&
+        !JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible,
         specifyTokenId)) {
         return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
     }
@@ -466,16 +469,30 @@ bool PermissionVerification::VerifyShellStartExtensionType(int32_t type) const
 bool PermissionVerification::VerifyPreloadApplicationPermission() const
 {
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_PRELOAD_APPLICATION)) {
-        HILOG_DEBUG("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_PRELOAD_APPLICATION);
+        TAG_LOGD(AAFwkTag::DEFAULT, "Verify permission %{public}s succeed.",
+            PermissionConstants::PERMISSION_PRELOAD_APPLICATION);
         return true;
     }
-    HILOG_ERROR("Verify permission %{public}s failed.", PermissionConstants::PERMISSION_PRELOAD_APPLICATION);
+    TAG_LOGE(AAFwkTag::DEFAULT, "Verify permission %{public}s failed.",
+        PermissionConstants::PERMISSION_PRELOAD_APPLICATION);
     return false;
 }
 
-bool PermissionVerification::VerifySetProcessCachePermission() const
+bool PermissionVerification::VerifyPreStartAtomicServicePermission() const
 {
-    if (VerifyCallingPermission(PermissionConstants::PERMISSION_SET_PROCESS_CACHE_STATE)) {
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_PRE_START_ATOMIC_SERVICE)) {
+        TAG_LOGD(AAFwkTag::APPMGR, "verify permission %{public}s succeeded.",
+            PermissionConstants::PERMISSION_PRE_START_ATOMIC_SERVICE);
+        return true;
+    }
+    TAG_LOGW(AAFwkTag::APPMGR, "verify permission %{public}s failed.",
+        PermissionConstants::PERMISSION_PRE_START_ATOMIC_SERVICE);
+    return false;
+}
+
+bool PermissionVerification::VerifyKillProcessDependedOnWebPermission() const
+{
+    if (IsSACall() && VerifyCallingPermission(PermissionConstants::PERMISSION_KILL_PROCESS_DEPENDED_ON_WEB)) {
         TAG_LOGD(AAFwkTag::APPMGR, "Permission verification succeeded.");
         return true;
     }

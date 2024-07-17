@@ -19,7 +19,6 @@
 #include <unistd.h>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS::AbilityRuntime {
 namespace {
@@ -173,17 +172,13 @@ void ConnectServerManager::SendDebuggerInfo(bool needBreakPoint, bool isDebugApp
 
         panda::EcmaVM* vm = reinterpret_cast<panda::EcmaVM*>(g_debuggerInfo[tid].first);
         std::lock_guard<std::mutex> lock(g_debuggerMutex);
-        const auto &debuggerPoskTask = g_debuggerInfo[tid].second;
-        if (!debuggerPoskTask) {
+        const auto &debuggerPostTask = g_debuggerInfo[tid].second;
+        if (!debuggerPostTask) {
             continue;
         }
         ConnectServerManager::Get().SendInstanceMessage(tid, instanceId, instanceName);
-        auto storeDebugInfoTask = [needBreakPoint, isDebugApp, instanceId, vm, debuggerPoskTask, instanceName]() {
-            panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? needBreakPoint : false};
-            panda::JSNApi::StoreDebugInfo(getproctid(), vm, debugOption, debuggerPoskTask, isDebugApp);
-        };
-
-        debuggerPoskTask(storeDebugInfoTask);
+        panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? needBreakPoint : false};
+        panda::JSNApi::StoreDebugInfo(tid, vm, debugOption, debuggerPostTask, isDebugApp);
     }
 }
 
@@ -204,33 +199,15 @@ void ConnectServerManager::SetConnectedCallback()
     });
 }
 
-bool ConnectServerManager::SendInstanceMessage(int32_t tid, int32_t instanceId, const std::string& instanceName)
+void ConnectServerManager::SetSwitchCallback(int32_t instanceId)
 {
-    TAG_LOGI(AAFwkTag::JSRUNTIME, "ConnectServerManager::SendInstanceMessage Add instance to connect server");
     LoadConnectServerDebuggerSo();
-
     auto setSwitchCallBack = reinterpret_cast<SetSwitchCallBack>(
-    dlsym(handlerConnectServerSo_, "SetSwitchCallBack"));
+        dlsym(handlerConnectServerSo_, "SetSwitchCallBack"));
     if (setSwitchCallBack == nullptr) {
-        TAG_LOGI(
-            AAFwkTag::JSRUNTIME, "ConnectServerManager::SendInstanceMessage failed to find symbol 'setSwitchCallBack'");
-        return false;
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::AddInstance failed to find symbol 'setSwitchCallBack'");
+        return;
     }
- 
-    auto storeMessage = reinterpret_cast<StoreMessage>(dlsym(handlerConnectServerSo_, "StoreMessage"));
-    if (storeMessage == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::SendInstanceMessage failed to find symbol 'StoreMessage'");
-        return false;
-    }
-
-    auto setProfilerCallback = reinterpret_cast<SetProfilerCallback>(
-        dlsym(handlerConnectServerSo_, "SetProfilerCallback"));
-    if (setProfilerCallback == nullptr) {
-        TAG_LOGI(AAFwkTag::JSRUNTIME,
-                 "ConnectServerManager::SendInstanceMessage failed to find symbol 'setProfilerCallback'");
-        return false;
-    }
-
     setSwitchCallBack(
         [this](bool status) {
             if (setStatus_ != nullptr) {
@@ -246,7 +223,18 @@ bool ConnectServerManager::SendInstanceMessage(int32_t tid, int32_t instanceId, 
                 TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::createLayoutInfo_ is nullptr");
             }
         }, instanceId);
-    
+}
+
+void ConnectServerManager::SetProfilerCallBack()
+{
+    LoadConnectServerDebuggerSo();
+    auto setProfilerCallback = reinterpret_cast<SetProfilerCallback>(
+        dlsym(handlerConnectServerSo_, "SetProfilerCallback"));
+    if (setProfilerCallback == nullptr) {
+        TAG_LOGE(AAFwkTag::JSRUNTIME,
+                 "ConnectServerManager::AddInstance failed to find symbol 'setProfilerCallback'");
+        return;
+    }
     setProfilerCallback([this](bool status) {
         if (setArkUIStateProfilerStatus_ != nullptr) {
             setArkUIStateProfilerStatus_(status);
@@ -254,14 +242,25 @@ bool ConnectServerManager::SendInstanceMessage(int32_t tid, int32_t instanceId, 
             TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::setArkUIStateProfilerStatus_ is nullptr");
         }
     });
+}
 
+bool ConnectServerManager::SendInstanceMessage(int32_t tid, int32_t instanceId, const std::string& instanceName)
+{
+    TAG_LOGI(AAFwkTag::JSRUNTIME, "ConnectServerManager::SendInstanceMessage Add instance to connect server");
+    ConnectServerManager::Get().SetSwitchCallback(instanceId);
+    ConnectServerManager::Get().SetProfilerCallBack();
     std::string message = GetInstanceMapMessage("addInstance", instanceId, instanceName, tid);
+    LoadConnectServerDebuggerSo();
+    auto storeMessage = reinterpret_cast<StoreMessage>(dlsym(handlerConnectServerSo_, "StoreMessage"));
+    if (storeMessage == nullptr) {
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::SendInstanceMessage failed to find symbol 'StoreMessage'");
+        return false;
+    }
     storeMessage(instanceId, message);
- 
     return true;
 }
 
- 
+
 bool ConnectServerManager::AddInstance(int32_t tid, int32_t instanceId, const std::string& instanceName)
 {
     {
@@ -280,46 +279,10 @@ bool ConnectServerManager::AddInstance(int32_t tid, int32_t instanceId, const st
     }
 
     TAG_LOGD(AAFwkTag::JSRUNTIME, "ConnectServerManager::AddInstance Add instance to connect server");
+
+    ConnectServerManager::Get().SetSwitchCallback(instanceId);
+    ConnectServerManager::Get().SetProfilerCallBack();
     LoadConnectServerDebuggerSo();
-
-    auto setSwitchCallBack = reinterpret_cast<SetSwitchCallBack>(
-        dlsym(handlerConnectServerSo_, "SetSwitchCallBack"));
-    if (setSwitchCallBack == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::AddInstance failed to find symbol 'setSwitchCallBack'");
-        return false;
-    }
-    setSwitchCallBack(
-        [this](bool status) {
-            if (setStatus_ != nullptr) {
-                setStatus_(status);
-            } else {
-                TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::setStatus_ is nullptr");
-            }
-        },
-        [this](int32_t containerId) {
-            if (createLayoutInfo_ != nullptr) {
-                createLayoutInfo_(containerId);
-            } else {
-                TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::createLayoutInfo_ is nullptr");
-            }
-        }, instanceId);
-
-    auto setProfilerCallback = reinterpret_cast<SetProfilerCallback>(
-        dlsym(handlerConnectServerSo_, "SetProfilerCallback"));
-    if (setProfilerCallback == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME,
-                 "ConnectServerManager::AddInstance failed to find symbol 'setProfilerCallback'");
-        return false;
-    }
-
-    setProfilerCallback([this](bool status) {
-        if (setArkUIStateProfilerStatus_ != nullptr) {
-            setArkUIStateProfilerStatus_(status);
-        } else {
-            TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::setArkUIStateProfilerStatus_ is nullptr");
-        }
-    });
-
     // Get the message including information of new instance, which will be send to IDE.
     std::string message = GetInstanceMapMessage("addInstance", instanceId, instanceName, tid);
 

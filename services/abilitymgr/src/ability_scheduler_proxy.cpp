@@ -21,7 +21,6 @@
 #include "data_ability_predicates.h"
 #include "data_ability_result.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ipc_types.h"
 #include "ishared_result_set.h"
@@ -32,6 +31,9 @@
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+const int64_t SCHEDULE_IPC_LOG_TIME = 10000;
+}
 bool AbilitySchedulerProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(AbilitySchedulerProxy::GetDescriptor())) {
@@ -44,16 +46,24 @@ bool AbilitySchedulerProxy::WriteInterfaceToken(MessageParcel &data)
 void AbilitySchedulerProxy::ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &stateInfo,
     sptr<SessionInfo> sessionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "begin");
+    int64_t start = std::chrono::duration_cast<std::chrono::microseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     if (!WriteInterfaceToken(data)) {
         return;
     }
-    data.WriteParcelable(&want);
+    if (!data.WriteParcelable(&want)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write want failed");
+        return;
+    }
     data.WriteParcelable(&stateInfo);
     if (sessionInfo) {
         if (!data.WriteBool(true) || !data.WriteParcelable(sessionInfo)) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "write sessionInfo failed");
             return;
         }
     } else {
@@ -64,6 +74,17 @@ void AbilitySchedulerProxy::ScheduleAbilityTransaction(const Want &want, const L
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_ABILITY_TRANSACTION, data, reply, option);
     if (err != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "ScheduleAbilityTransaction fail to SendRequest. err: %{public}d", err);
+    }
+    int64_t cost = std::chrono::duration_cast<std::chrono::microseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count() - start;
+    if (cost > SCHEDULE_IPC_LOG_TIME) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR,
+            "ScheduleAbilityTransaction proxy cost %{public}" PRId64 "mirco seconds, data size: %{public}zu",
+            cost, data.GetWritePosition());
+    } else {
+        TAG_LOGD(AAFwkTag::ABILITYMGR,
+            "ScheduleAbilityTransaction proxy cost %{public}" PRId64 "mirco seconds, data size: %{public}zu",
+            cost, data.GetWritePosition());
     }
 }
 

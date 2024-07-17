@@ -14,7 +14,6 @@
  */
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "quick_fix_load_callback.h"
 #include "quick_fix_manager_client.h"
 #include "system_ability_definition.h"

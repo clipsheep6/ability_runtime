@@ -33,7 +33,7 @@ public:
     std::string moduleName;
     std::string abilityTypeName;
     std::string accessTokenId;
-    int32_t appCloneIndex = -1;
+    int32_t appCloneIndex = 0;
     int32_t userId = -1;
 
     bool ReadFromParcel(Parcel &parcel);

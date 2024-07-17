@@ -73,6 +73,7 @@ ohos_shared_library("libupms") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
+    "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "graphic_2d:color_manager",
@@ -98,6 +99,13 @@ ohos_shared_library("libupms") {
 
 # Note: Just for test
 ohos_static_library("libupms_static") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../test/cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
   configs = [
     "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config",
     "${ability_runtime_services_path}/common:common_config",
@@ -123,6 +131,7 @@ ohos_static_library("libupms_static") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
+    "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
     "init:libbeget_proxy",

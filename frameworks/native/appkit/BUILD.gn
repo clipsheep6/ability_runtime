@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
+import("//build/config/components/ets_frontend/es2abc_config.gni")
 import("//build/ohos.gni")
 import("//build/templates/abc/ohos_abc.gni")
 import("//commonlibrary/memory_utils/purgeable_mem_config.gni")
@@ -120,6 +120,7 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_native_path}/appkit/app/child_main_thread.cpp",
     "${ability_runtime_native_path}/appkit/app/dump_ffrt_helper.cpp",
     "${ability_runtime_native_path}/appkit/app/dump_ipc_helper.cpp",
+    "${ability_runtime_native_path}/appkit/app/dump_runtime_helper.cpp",
     "${ability_runtime_native_path}/appkit/app/extension_plugin_info.cpp",
     "${ability_runtime_native_path}/appkit/app/idle_time.cpp",
     "${ability_runtime_native_path}/appkit/app/main_thread.cpp",
@@ -171,10 +172,12 @@ ohos_shared_library("appkit_native") {
     "ability_base:extractresourcemanager",
     "ability_base:string_utils",
     "ability_base:want",
+    "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "ets_runtime:libark_jsruntime",
     "eventhandler:libeventhandler",
     "faultloggerd:libbacktrace_local",
     "faultloggerd:libdfx_procinfo",
@@ -239,11 +242,6 @@ ohos_shared_library("appkit_native") {
 
     defines += [ "CJ_FRONTEND" ]
 
-    deps += [
-      "${ability_runtime_path}/cj_environment/frameworks/cj_environment:cj_environment",
-      "${ability_runtime_path}/frameworks/cj/ffi:cj_ability_ffi",
-    ]
-
     external_deps += [
       "bundle_framework:appexecfwk_base",
       "napi:cj_bind_ffi",
@@ -275,6 +273,7 @@ ohos_shared_library("app_context") {
 
   sources = [
     "${ability_runtime_native_path}/appkit/ability_runtime/context/ability_lifecycle_callback.cpp",
+    "${ability_runtime_native_path}/appkit/ability_runtime/context/ability_stage_context.cpp",
     "${ability_runtime_native_path}/appkit/ability_runtime/context/application_context.cpp",
     "${ability_runtime_native_path}/appkit/ability_runtime/context/application_state_change_callback.cpp",
     "${ability_runtime_native_path}/appkit/ability_runtime/context/context_impl.cpp",
@@ -298,7 +297,6 @@ ohos_shared_library("app_context") {
   external_deps = [
     "ability_base:extractortool",
     "ability_base:session_info",
-    "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
@@ -314,6 +312,7 @@ ohos_shared_library("app_context") {
   public_external_deps = [
     "ability_base:configuration",
     "ability_base:want",
+    "bundle_framework:appexecfwk_base",
   ]
 
   if (ability_runtime_graphics) {
@@ -452,6 +451,9 @@ ohos_shared_library("appkit_delegator") {
       "${ability_runtime_native_path}/appkit/ability_delegator/runner_runtime/cj_test_runner.cpp",
       "${ability_runtime_native_path}/appkit/ability_delegator/runner_runtime/cj_test_runner_object.cpp",
     ]
+
+    include_dirs +=
+        [ "${ability_runtime_path}/cj_environment/interfaces/inner_api" ]
 
     defines = [ "CJ_FRONTEND" ]
   }

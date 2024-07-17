@@ -23,10 +23,10 @@ DialogUIExtensionCallback::DialogUIExtensionCallback(const std::weak_ptr<AppExec
 {}
 void DialogUIExtensionCallback::OnRelease()
 {
-    HILOG_DEBUG("Called");
+    TAG_LOGD(AAFwkTag::DIALOG, "Called");
     auto abilityCallback = abilityCallback_.lock();
     if (abilityCallback == nullptr) {
-        HILOG_ERROR("abilityCallback is nullptr");
+        TAG_LOGE(AAFwkTag::DIALOG, "abilityCallback is nullptr");
         return;
     }
 #ifdef SUPPORT_SCREEN

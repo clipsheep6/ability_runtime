@@ -17,12 +17,11 @@
 #define private public
 #define protected public
 #include "ability_loader.h"
+#include "base/account/os_account/services/accountmgr/test/mock/app_account/accesstoken_kit.h"
 #include "data_ability_impl.h"
-#include "hilog_wrapper.h"
+#include "data_ability_operation.h"
 #include "mock_ability_token.h"
 #include "mock_data_ability.h"
-#include "base/account/os_account/services/accountmgr/test/mock/app_account/accesstoken_kit.h"
-#include "foundation/ability/ability_runtime/interfaces/kits/native/ability/native/data_ability_operation.h"
 #undef private
 #undef protected
 namespace OHOS {

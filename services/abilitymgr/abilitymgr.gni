@@ -16,6 +16,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 abilityms_files = [
   "src/preload_uiext_state_observer.cpp",
   "src/ability_background_connection.cpp",
+  "src/ability_cache_manager.cpp",
   "src/ability_connect_manager.cpp",
   "src/ability_debug_deal.cpp",
   "src/ability_event_handler.cpp",
@@ -34,14 +35,21 @@ abilityms_files = [
   "src/data_ability_caller_recipient.cpp",
   "src/data_ability_manager.cpp",
   "src/data_ability_record.cpp",
-  "src/dialog_session_record.cpp",
+  "src/dialog_session/dialog_session_manager.cpp",
   "src/lifecycle_deal.cpp",
+  "src/ability_running_info.cpp",
   "src/ecological_rule/ability_ecological_rule_mgr_service_param.cpp",
   "src/ecological_rule/ability_ecological_rule_mgr_service.cpp",
   "src/extension_config.cpp",
+  "src/extension_running_info.cpp",
+  "src/caller_info.cpp",
+  "src/sender_info.cpp",
   "src/sub_managers_helper.cpp",
+  "src/wants_info.cpp",
+  "src/want_sender_info.cpp",
   "src/pending_want_record.cpp",
   "src/want_receiver_proxy.cpp",
+  "src/want_sender_proxy.cpp",
   "src/want_sender_stub.cpp",
   "src/pending_want_key.cpp",
   "src/pending_want_manager.cpp",
@@ -71,27 +79,23 @@ abilityms_files = [
   "src/start_ability_utils.cpp",
 
   # new ability manager service here
-  "src/task_data_persistence_mgr.cpp",
   "src/extension_record_manager.cpp",
   "src/extension_record.cpp",
   "src/extension_record_factory.cpp",
   "src/ui_extension_record.cpp",
   "src/ui_extension_record_factory.cpp",
   "src/screen_lock/unlock_screen_manager.cpp",
+  "src/start_options.cpp",
+  "src/user_callback_proxy.cpp",
   "src/call_container.cpp",
   "src/call_record.cpp",
   "src/inner_mission_info.cpp",
-  "src/mission.cpp",
-  "src/mission_data_storage.cpp",
-  "src/mission_info_mgr.cpp",
   "src/mission_listener_controller.cpp",
   "src/mission_listener_proxy.cpp",
   "src/rdb/ability_resident_process_rdb.cpp",
   "src/rdb/parser_util.cpp",
   "src/rdb/rdb_data_manager.cpp",
   "src/remote_mission_listener_proxy.cpp",
-  "src/mission_list_manager.cpp",
-  "src/mission_list.cpp",
   "src/scene_board/status_bar_delegate_manager.cpp",
   "src/scene_board/ui_ability_lifecycle_manager.cpp",
   "src/deeplink_reserve/deeplink_reserve_config.cpp",
@@ -113,7 +117,6 @@ abilityms_files = [
   "src/atomic_service_status_callback.cpp",
   "src/free_install_manager.cpp",
   "src/free_install_observer_manager.cpp",
-  "src/distributed_client.cpp",
 
   "src/background_task_observer.cpp",
   "src/resident_process_manager.cpp",
@@ -125,12 +128,16 @@ abilityms_files = [
 
   "src/ability_auto_startup_data_manager.cpp",
   "src/ability_auto_startup_service.cpp",
+  "src/auto_startup_info.cpp",
   "src/insight_intent_execute_manager.cpp",
+  "src/insight_intent_execute_result.cpp",
 
   "src/ability_manager_event_subscriber.cpp",
 
   #utils
   "src/utils/window_options_utils.cpp",
+  "src/utils/extension_permissions_util.cpp",
+  "src/utils/app_mgr_util.cpp",
 ]
 
 if (ability_runtime_graphics) {
@@ -141,4 +148,8 @@ if (ability_runtime_graphics) {
     "src/ability_first_frame_state_observer_manager.cpp",
     "src/screen_lock/unlock_screen_callback.cpp",
   ]
+}
+
+if (include_app_domain_verify) {
+  abilityms_files += [ "src/ag_convert_callback_impl.cpp" ]
 }

@@ -17,7 +17,6 @@
 
 #include "bundle_mgr_helper.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "permission_verification.h"
 #include "quick_fix_error_utils.h"
@@ -124,7 +123,7 @@ int32_t QuickFixManagerService::GetApplyedQuickFixInfo(const std::string &bundle
 
 int32_t QuickFixManagerService::RevokeQuickFix(const std::string &bundleName)
 {
-    TAG_LOGD(AAFwkTag::QUICKFIX, "Called.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "called");
     if (!AAFwk::PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI()) {
         TAG_LOGE(AAFwkTag::QUICKFIX, "The caller is not system-app, can not use system-api");
         return QUICK_FIX_NOT_SYSTEM_APP;

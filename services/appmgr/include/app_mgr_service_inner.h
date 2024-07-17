@@ -18,6 +18,7 @@
 
 #include <list>
 #include <map>
+#include <mutex>
 #include <regex>
 #include <unordered_map>
 #include <unordered_set>
@@ -47,6 +48,7 @@
 #include "bundle_info.h"
 #include "bundle_mgr_helper.h"
 #include "child_process_info.h"
+#include "child_process_request.h"
 #include "cpp/mutex.h"
 #include "event_report.h"
 #include "fault_data.h"
@@ -592,7 +594,7 @@ public:
 
     void HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &token);
 
-    void PrepareTerminate(const sptr<IRemoteObject> &token);
+    void PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag = false);
 
     void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
         bool needNotifyApp, bool isFromWindowFocusChanged);
@@ -729,7 +731,7 @@ public:
 
     virtual int GetRenderProcessTerminationStatus(pid_t renderPid, int &status);
 
-    int VerifyProcessPermission(const sptr<IRemoteObject> &token) const;
+    int VerifyKillProcessPermission(const sptr<IRemoteObject> &token) const;
 
     int VerifyAccountPermission(const std::string &permissionName, const int userId) const;
 
@@ -753,15 +755,7 @@ public:
      */
     void NotifyAppStatus(const std::string &bundleName, const std::string &eventData);
 
-    /**
-     * KillProcessByPid, Kill process by PID.
-     *
-     * @param pid_t, the app record pid.
-     * @param reason, the reason why the process is killed, default to "foundation"
-     *
-     * @return ERR_OK, return back success，others fail.
-     */
-    int32_t KillProcessByPid(const pid_t pid, const std::string& reason = "foundation");
+    int32_t KillProcessByPid(const pid_t pid, const std::string& reason = "foundation", int32_t uid = -1);
 
     bool GetAppRunningStateByBundleName(const std::string &bundleName);
 
@@ -818,6 +812,14 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData);
+
+    /**
+     * Set Appfreeze Detect Filter
+     *
+     * @param pid the process pid.
+     * @return Returns true on success, others on failure.
+     */
+    bool SetAppFreezeFilter(int32_t pid);
 
     /**
      * get memorySize by pid.
@@ -997,12 +999,11 @@ public:
      * Start child process, called by ChildProcessManager.
      *
      * @param hostPid Host process pid.
-     * @param srcEntry Child process source file entrance path to be started.
      * @param childPid Created child process pid.
+     * @param request Child process start request params.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t StartChildProcess(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid,
-        int32_t childProcessCount, bool isStartWithDebug);
+    virtual int32_t StartChildProcess(const pid_t hostPid, pid_t &childPid, const ChildProcessRequest &request);
 
     /**
      * Get child process record for self.
@@ -1120,6 +1121,25 @@ public:
      * @return Returns ERR_OK is test ability, others is not test ability.
      */
     int32_t CheckCallingIsUserTestModeInner(const pid_t pid, bool &isUserTest);
+
+    /**
+     * Notifies that one ability is attached to status bar.
+     *
+     * @param token the token of the abilityRecord that is attached to status bar.
+     */
+    void AttachedToStatusBar(const sptr<IRemoteObject> &token);
+    void KillApplicationByRecord(const std::shared_ptr<AppRunningRecord> &appRecord);
+
+    int32_t NotifyProcessDependedOnWeb();
+
+    void KillProcessDependedOnWeb();
+
+    void RestartResidentProcessDependedOnWeb();
+
+    void BlockProcessCacheByPids(const std::vector<int32_t>& pids);
+
+    bool IsKilledForUpgradeWeb(const std::string &bundleName) const;
+
 private:
 
     std::string FaultTypeToString(FaultDataType type);
@@ -1189,7 +1209,9 @@ private:
                       std::shared_ptr<AppRunningRecord> appRecord, const int uid, const BundleInfo &bundleInfo,
                       const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag = true,
                       bool isPreload = false, const std::string &moduleName = "", const std::string &abilityName = "",
-                      bool strictMode = false, int32_t maxChildProcess = 0);
+                      bool strictMode = false, int32_t maxChildProcess = 0, sptr<IRemoteObject> token = nullptr,
+                      std::shared_ptr<AAFwk::Want> want = nullptr,
+                      ExtensionAbilityType ExtensionAbilityType = ExtensionAbilityType::UNSPECIFIED);
 
     /**
      * PushAppFront, Adjust the latest application record to the top level.
@@ -1269,7 +1291,7 @@ private:
      *
      * @return true, return back existed，others non-existent.
      */
-    bool ProcessExist(pid_t pid);
+    bool ProcessExist(pid_t pid, int32_t uid = -1);
 
     /**
      * CheckAllProcessExist, Determine whether all processes exist .
@@ -1331,9 +1353,9 @@ private:
 
     static void PointerDeviceEventCallback(const char *key, const char *value, void *context);
 
-    int VerifyProcessPermission() const;
+    int VerifyKillProcessPermission(const std::string &bundleName) const;
 
-    int VerifyProcessPermission(const std::string &bundleName) const;
+    int32_t VerifyKillProcessPermissionCommon() const;
 
     bool CheckCallerIsAppGallery();
 
@@ -1343,7 +1365,7 @@ private:
     int32_t StartChildProcessPreCheck(const pid_t callingPid);
 
     int32_t StartChildProcessImpl(const std::shared_ptr<ChildProcessRecord> childProcessRecord,
-        const std::shared_ptr<AppRunningRecord> appRecord, pid_t &childPid);
+        const std::shared_ptr<AppRunningRecord> appRecord, pid_t &childPid, const ChildProcessArgs &args);
 
     int32_t GetChildProcessInfo(const std::shared_ptr<ChildProcessRecord> childProcessRecord,
         const std::shared_ptr<AppRunningRecord> appRecord, ChildProcessInfo &info);
@@ -1446,18 +1468,11 @@ private:
     std::string GetSpecifiedProcessFlag(std::shared_ptr<AbilityInfo> abilityInfo, std::shared_ptr<AAFwk::Want> want);
 
     void LoadAbilityNoAppRecord(const std::shared_ptr<AppRunningRecord> appRecord,
-        sptr<IRemoteObject> preToken,
-        std::shared_ptr<ApplicationInfo> appInfo,
-        std::shared_ptr<AbilityInfo> abilityInfo,
-        const std::string &processName,
-        const std::string &specifiedProcessFlag,
-        const BundleInfo &bundleInfo,
-        const HapModuleInfo &hapModuleInfo,
-        std::shared_ptr<AAFwk::Want> want,
-        bool appExistFlag,
-        bool isPreload);
-
-    int32_t CheckSetProcessCachePermission() const;
+        sptr<IRemoteObject> preToken, std::shared_ptr<ApplicationInfo> appInfo,
+        std::shared_ptr<AbilityInfo> abilityInfo, const std::string &processName,
+        const std::string &specifiedProcessFlag, const BundleInfo &bundleInfo,
+        const HapModuleInfo &hapModuleInfo, std::shared_ptr<AAFwk::Want> want,
+        bool appExistFlag, bool isPreload, sptr<IRemoteObject> token = nullptr);
 
     int32_t CreatNewStartMsg(const Want &want, const AbilityInfo &abilityInfo,
         const std::shared_ptr<ApplicationInfo> &appInfo, const std::string &processName,
@@ -1493,7 +1508,6 @@ private:
      */
     void NotifyAppStatusByCallerUid(const std::string &bundleName, const int32_t userId, const int32_t callerUid,
         const std::string &eventData);
-    void KillApplicationByRecord(const std::shared_ptr<AppRunningRecord> &appRecord);
     void SendHiSysEvent(const int32_t innerEventId, const int64_t eventId);
     int FinishUserTestLocked(
         const std::string &msg, const int64_t &resultCode, const std::shared_ptr<AppRunningRecord> &appRecord);
@@ -1551,6 +1565,8 @@ private:
     std::shared_ptr<AAFwk::TaskHandlerWrap> otherTaskHandler_;
     std::shared_ptr<AppPreloader> appPreloader_;
     std::atomic<bool> sceneBoardAttachFlag_ = true;
+
+    std::mutex loadTaskListMutex_;
     std::vector<LoabAbilityTaskFunc> loadAbilityTaskFuncList_;
 };
 }  // namespace AppExecFwk

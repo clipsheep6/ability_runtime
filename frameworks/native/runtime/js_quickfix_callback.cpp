@@ -17,7 +17,6 @@
 
 #include "file_path_utils.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_runtime.h"
 
 namespace OHOS {

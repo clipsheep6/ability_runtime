@@ -15,10 +15,10 @@
 
 #include "interceptor/control_interceptor.h"
 
-#include "ability_manager_service.h"
 #include "ability_util.h"
 #include "app_running_control_rule_result.h"
 #include "hilog_tag_wrapper.h"
+#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 #include "want_params_wrapper.h"
@@ -26,11 +26,11 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string INTERCEPT_PARAMETERS = "intercept_parammeters";
-const std::string INTERCEPT_BUNDLE_NAME = "intercept_bundleName";
-const std::string INTERCEPT_ABILITY_NAME = "intercept_abilityName";
-const std::string INTERCEPT_MODULE_NAME = "intercept_moduleName";
-const std::string IS_FROM_PARENTCONTROL = "ohos.ability.isFromParentControl";
+constexpr const char* INTERCEPT_PARAMETERS = "intercept_parammeters";
+constexpr const char* INTERCEPT_BUNDLE_NAME = "intercept_bundleName";
+constexpr const char* INTERCEPT_ABILITY_NAME = "intercept_abilityName";
+constexpr const char* INTERCEPT_MODULE_NAME = "intercept_moduleName";
+constexpr const char* IS_FROM_PARENTCONTROL = "ohos.ability.isFromParentControl";
 }
 
 ErrCode ControlInterceptor::DoProcess(AbilityInterceptorParam param)
@@ -57,8 +57,8 @@ ErrCode ControlInterceptor::DoProcess(AbilityInterceptorParam param)
             controlWant->SetParam(INTERCEPT_MODULE_NAME, param.want.GetElement().GetModuleName());
             controlRule.controlWant = controlWant;
         }
-        int ret = IN_PROCESS_CALL(DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(
-            *controlRule.controlWant, param.requestCode, param.userId));
+        int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*controlRule.controlWant,
+            param.requestCode, param.userId));
         if (ret != ERR_OK) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Control implicit start appgallery failed.");
             return ret;

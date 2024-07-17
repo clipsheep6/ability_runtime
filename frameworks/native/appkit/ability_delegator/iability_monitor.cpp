@@ -14,7 +14,6 @@
  */
 #include <chrono>
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iability_monitor.h"
 
 using namespace std::chrono_literals;

@@ -15,7 +15,6 @@
 #include "want_constant.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -114,6 +113,11 @@ napi_value WantConstantInit(napi_env env, napi_value exports)
     SetNamedProperty(env, params, "ohos.extra.param.key.supportContinueSourceExit", "SUPPORT_CONTINUE_SOURCE_EXIT_KEY");
     SetNamedProperty(env, params, "ohos.extra.param.key.showMode", "SHOW_MODE_KEY");
     SetNamedProperty(env, params, "ohos.extra.param.key.appCloneIndex", "APP_CLONE_INDEX_KEY");
+    SetNamedProperty(env, params, "ohos.param.atomicservice.pagePath", "PAGE_PATH");
+    SetNamedProperty(env, params, "ohos.param.atomicservice.routerName", "ROUTER_NAME");
+    SetNamedProperty(env, params, "ohos.param.atomicservice.pageSourceFile", "PAGE_SOURCE_FILE");
+    SetNamedProperty(env, params, "ohos.param.atomicservice.buildFunction", "BUILD_FUNCTION");
+    SetNamedProperty(env, params, "ohos.param.atomicservice.subpackageName", "SUB_PACKAGE_NAME");
     napi_property_descriptor exportFuncs[] = {
         DECLARE_NAPI_PROPERTY("Action", action),
         DECLARE_NAPI_PROPERTY("Entity", entity),

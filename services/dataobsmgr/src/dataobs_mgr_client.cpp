@@ -17,7 +17,6 @@
 #include "dataobs_mgr_client.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
@@ -80,10 +79,11 @@ DataObsMgrClient::~DataObsMgrClient()
  */
 ErrCode DataObsMgrClient::RegisterObserver(const Uri &uri, sptr<IDataAbilityObserver> dataObserver)
 {
-    if (Connect() != SUCCESS) {
+    auto [errCode, dataObsManger] = GetObsMgr();
+    if (errCode != SUCCESS) {
         return DATAOBS_SERVICE_NOT_CONNECTED;
     }
-    auto status = dataObsManger_->RegisterObserver(uri, dataObserver);
+    auto status = dataObsManger->RegisterObserver(uri, dataObserver);
     if (status != NO_ERROR) {
         return status;
     }
@@ -104,10 +104,11 @@ ErrCode DataObsMgrClient::RegisterObserver(const Uri &uri, sptr<IDataAbilityObse
  */
 ErrCode DataObsMgrClient::UnregisterObserver(const Uri &uri, sptr<IDataAbilityObserver> dataObserver)
 {
-    if (Connect() != SUCCESS) {
+    auto [errCode, dataObsManger] = GetObsMgr();
+    if (errCode != SUCCESS) {
         return DATAOBS_SERVICE_NOT_CONNECTED;
     }
-    auto status = dataObsManger_->UnregisterObserver(uri, dataObserver);
+    auto status = dataObsManger->UnregisterObserver(uri, dataObserver);
     if (status != NO_ERROR) {
         return status;
     }
@@ -129,10 +130,11 @@ ErrCode DataObsMgrClient::UnregisterObserver(const Uri &uri, sptr<IDataAbilityOb
  */
 ErrCode DataObsMgrClient::NotifyChange(const Uri &uri)
 {
-    if (Connect() != SUCCESS) {
+    auto [errCode, dataObsManger] = GetObsMgr();
+    if (errCode != SUCCESS) {
         return DATAOBS_SERVICE_NOT_CONNECTED;
     }
-    return dataObsManger_->NotifyChange(uri);
+    return dataObsManger->NotifyChange(uri);
 }
 
 /**
@@ -140,43 +142,44 @@ ErrCode DataObsMgrClient::NotifyChange(const Uri &uri)
  *
  * @return Returns SUCCESS on success, others on failure.
  */
-Status DataObsMgrClient::Connect()
+std::pair<Status, sptr<IDataObsMgr>> DataObsMgrClient::GetObsMgr()
 {
     std::lock_guard<std::mutex> lock(mutex_);
 
     if (dataObsManger_ != nullptr) {
-        return SUCCESS;
+        return std::make_pair(SUCCESS, dataObsManger_);
     }
 
     sptr<ISystemAbilityManager> systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemManager == nullptr) {
         TAG_LOGE(AAFwkTag::DBOBSMGR, "fail to get Registry");
-        return GET_DATAOBS_SERVICE_FAILED;
+        return std::make_pair(GET_DATAOBS_SERVICE_FAILED, nullptr);
     }
 
     auto remoteObject = systemManager->CheckSystemAbility(DATAOBS_MGR_SERVICE_SA_ID);
     if (remoteObject == nullptr) {
         TAG_LOGE(AAFwkTag::DBOBSMGR, "fail to get systemAbility");
-        return GET_DATAOBS_SERVICE_FAILED;
+        return std::make_pair(GET_DATAOBS_SERVICE_FAILED, nullptr);
     }
 
     dataObsManger_ = iface_cast<IDataObsMgr>(remoteObject);
     if (dataObsManger_ == nullptr) {
         TAG_LOGE(AAFwkTag::DBOBSMGR, "fail to get IDataObsMgr");
-        return GET_DATAOBS_SERVICE_FAILED;
+        return std::make_pair(GET_DATAOBS_SERVICE_FAILED, nullptr);
     }
     sptr<ServiceDeathRecipient> serviceDeathRecipient(new (std::nothrow) ServiceDeathRecipient(GetInstance()));
     dataObsManger_->AsObject()->AddDeathRecipient(serviceDeathRecipient);
-    return SUCCESS;
+    return std::make_pair(SUCCESS, dataObsManger_);
 }
 
 Status DataObsMgrClient::RegisterObserverExt(const Uri &uri, sptr<IDataAbilityObserver> dataObserver,
     bool isDescendants)
 {
-    if (Connect() != SUCCESS) {
+    auto [errCode, dataObsManger] = GetObsMgr();
+    if (errCode != SUCCESS) {
         return DATAOBS_SERVICE_NOT_CONNECTED;
     }
-    auto status = dataObsManger_->RegisterObserverExt(uri, dataObserver, isDescendants);
+    auto status = dataObsManger->RegisterObserverExt(uri, dataObserver, isDescendants);
     if (status != SUCCESS) {
         return status;
     }
@@ -189,10 +192,11 @@ Status DataObsMgrClient::RegisterObserverExt(const Uri &uri, sptr<IDataAbilityOb
 
 Status DataObsMgrClient::UnregisterObserverExt(const Uri &uri, sptr<IDataAbilityObserver> dataObserver)
 {
-    if (Connect() != SUCCESS) {
+    auto [errCode, dataObsManger] = GetObsMgr();
+    if (errCode != SUCCESS) {
         return DATAOBS_SERVICE_NOT_CONNECTED;
     }
-    auto status = dataObsManger_->UnregisterObserverExt(uri, dataObserver);
+    auto status = dataObsManger->UnregisterObserverExt(uri, dataObserver);
     if (status != SUCCESS) {
         return status;
     }
@@ -207,10 +211,11 @@ Status DataObsMgrClient::UnregisterObserverExt(const Uri &uri, sptr<IDataAbility
 
 Status DataObsMgrClient::UnregisterObserverExt(sptr<IDataAbilityObserver> dataObserver)
 {
-    if (Connect() != SUCCESS) {
+    auto [errCode, dataObsManger] = GetObsMgr();
+    if (errCode != SUCCESS) {
         return DATAOBS_SERVICE_NOT_CONNECTED;
     }
-    auto status = dataObsManger_->UnregisterObserverExt(dataObserver);
+    auto status = dataObsManger->UnregisterObserverExt(dataObserver);
     if (status != SUCCESS) {
         return status;
     }
@@ -220,10 +225,11 @@ Status DataObsMgrClient::UnregisterObserverExt(sptr<IDataAbilityObserver> dataOb
 
 Status DataObsMgrClient::NotifyChangeExt(const ChangeInfo &changeInfo)
 {
-    if (Connect() != SUCCESS) {
+    auto [errCode, dataObsManger] = GetObsMgr();
+    if (errCode != SUCCESS) {
         return DATAOBS_SERVICE_NOT_CONNECTED;
     }
-    return dataObsManger_->NotifyChangeExt(changeInfo);
+    return dataObsManger->NotifyChangeExt(changeInfo);
 }
 
 void DataObsMgrClient::ResetService()
@@ -236,7 +242,8 @@ void DataObsMgrClient::OnRemoteDied()
 {
     std::this_thread::sleep_for(std::chrono::seconds(RESUB_INTERVAL));
     ResetService();
-    if (Connect() != SUCCESS) {
+    auto [errCode, dataObsManger] = GetObsMgr();
+    if (errCode != SUCCESS) {
         sptr<ISystemAbilityManager> systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (systemManager == nullptr) {
             TAG_LOGE(AAFwkTag::DBOBSMGR, "System mgr is nullptr");

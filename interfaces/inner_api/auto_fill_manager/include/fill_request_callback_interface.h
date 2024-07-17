@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_AUTO_REQUEST_CALLBACK_INTERFACE_H
 #define OHOS_ABILITY_RUNTIME_AUTO_REQUEST_CALLBACK_INTERFACE_H
 
+#include "auto_fill_custom_config.h"
 #include "view_data.h"
 
 namespace OHOS {
@@ -26,6 +27,7 @@ public:
 
     virtual void OnFillRequestSuccess(const AbilityBase::ViewData &viewData) = 0;
     virtual void OnFillRequestFailed(int32_t errCode, const std::string& fillContent = "", bool isPopup = false) = 0;
+    virtual void onPopupConfigWillUpdate(AutoFill::AutoFillCustomConfig& config) {}
 };
 } // AbilityRuntime
 } // OHOS

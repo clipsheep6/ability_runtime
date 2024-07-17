@@ -17,7 +17,6 @@
 #include "abs_shared_result_set.h"
 #include "datashare_helper.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "rdb_data_ability_utils.h"
 
@@ -291,7 +290,7 @@ std::vector<std::string> DataAbilityHelper::GetFileTypes(Uri &uri, const std::st
  */
 int DataAbilityHelper::OpenFile(Uri &uri, const std::string &mode)
 {
-    TAG_LOGI(AAFwkTag::DATA_ABILITY, "OpenFile Called.");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "called");
     int fd = -1;
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
     if (dataAbilityHelperImpl) {

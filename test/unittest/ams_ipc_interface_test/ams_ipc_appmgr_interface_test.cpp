@@ -21,7 +21,6 @@
 #include "app_mgr_proxy.h"
 #include "app_record_id.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_application.h"
 #include "mock_app_mgr_service.h"
 #include "application_state_observer_stub.h"

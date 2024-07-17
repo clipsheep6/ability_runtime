@@ -18,7 +18,6 @@
 #include "distributed_errors.h"
 #include "element_name.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 using OHOS::AAFwk::WantParams;
 namespace OHOS {
@@ -153,7 +152,7 @@ void ContinuationHandler::HandleReceiveRemoteScheduler(const sptr<IRemoteObject>
 
     if (schedulerDeathRecipient_ == nullptr) {
         schedulerDeathRecipient_ = new (std::nothrow) ReverseContinuationSchedulerRecipient(
-            std::bind(&ContinuationHandler::OnReplicaDied, this, std::placeholders::_1));
+            [this](const wptr<IRemoteObject> &arg) { this->OnReplicaDied(arg); });
     }
 
     remoteReplicaProxy_ = iface_cast<IReverseContinuationSchedulerReplica>(remoteReplica);

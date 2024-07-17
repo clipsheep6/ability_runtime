@@ -15,7 +15,6 @@
 
 #include "mock_test_runner.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {

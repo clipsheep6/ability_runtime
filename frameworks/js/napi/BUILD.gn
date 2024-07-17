@@ -42,6 +42,7 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/app/error_manager:errormanager_napi",
     "${ability_runtime_napi_path}/app/js_app_manager:appmanager",
     "${ability_runtime_napi_path}/app/recovery:apprecovery_napi",
+    "${ability_runtime_napi_path}/app/sendable_context_manager:sendablecontextmanager_napi",
     "${ability_runtime_napi_path}/app/test_runner:testrunner_napi",
     "${ability_runtime_napi_path}/app_startup/async_task_callback:asynctaskcallback_napi",
     "${ability_runtime_napi_path}/app_startup/async_task_excutor:asynctaskexcutor_napi",

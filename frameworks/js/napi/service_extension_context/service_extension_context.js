@@ -65,6 +65,11 @@ class ServiceExtensionContext extends ExtensionContext {
     return this.__context_impl__.startServiceExtensionAbility(want, callback);
   }
 
+  startUIServiceExtensionAbility(want, callback) {
+    console.log('startUIServiceExtensionAbility');
+    return this.__context_impl__.startUIServiceExtensionAbility(want, callback);
+  }
+
   startServiceExtensionAbilityWithAccount(want, accountId, callback) {
     console.log('startServiceExtensionAbilityWithAccount');
     return this.__context_impl__.startServiceExtensionAbilityWithAccount(want, accountId, callback);
@@ -153,6 +158,11 @@ class ServiceExtensionContext extends ExtensionContext {
       console.log('ServiceExtensionContext::startAbilityByCall With accountId success');
       return;
     });
+  }
+
+  preStartMission(bundleName, moduleName, abilityName, startTime) {
+    console.log('preStartMission');
+    return this.__context_impl__.preStartMission(bundleName, moduleName, abilityName, startTime);
   }
 }
 

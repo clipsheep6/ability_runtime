@@ -23,7 +23,6 @@
 #include "dialog_request_callback_impl.h"
 #include "dialog_ui_extension_callback.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "remote_object_wrapper.h"
 #include "request_constants.h"
 #include "session_info.h"
@@ -274,6 +273,18 @@ ErrCode AbilityContextImpl::StartAbilityForResultWithAccount(
     return err;
 }
 
+ErrCode AbilityContextImpl::StartUIServiceExtensionAbility(const AAFwk::Want& want, int32_t accountId)
+{
+    TAG_LOGI(AAFwkTag::CONTEXT, "name:%{public}s %{public}s, accountId=%{public}d",
+        want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), accountId);
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartExtensionAbility(
+        want, token_, accountId, AppExecFwk::ExtensionAbilityType::UI_SERVICE);
+    if (err != ERR_OK) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "StartUIServiceExtension is failed %{public}d", err);
+    }
+    return err;
+}
+
 ErrCode AbilityContextImpl::StartServiceExtensionAbility(const AAFwk::Want& want, int32_t accountId)
 {
     TAG_LOGI(AAFwkTag::CONTEXT, "name:%{public}s %{public}s, accountId=%{public}d",
@@ -301,7 +312,7 @@ ErrCode AbilityContextImpl::StopServiceExtensionAbility(const AAFwk::Want& want,
 ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, int resultCode)
 {
     TAG_LOGI(AAFwkTag::CONTEXT, "TerminateAbilityWithResult");
-    isTerminating_ = true;
+    isTerminating_.store(true);
 #ifdef SUPPORT_SCREEN
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sessionToken = GetSessionToken();
@@ -539,7 +550,7 @@ ErrCode AbilityContextImpl::MoveUIAbilityToBackground()
 ErrCode AbilityContextImpl::TerminateSelf()
 {
     TAG_LOGI(AAFwkTag::CONTEXT, "TerminateSelf");
-    isTerminating_ = true;
+    isTerminating_.store(true);
     auto sessionToken = GetSessionToken();
     if (sessionToken == nullptr) {
         TAG_LOGW(AAFwkTag::CONTEXT, "sessionToken is null");
@@ -576,7 +587,7 @@ ErrCode AbilityContextImpl::CloseAbility()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::CONTEXT, "CloseAbility");
-    isTerminating_ = true;
+    isTerminating_.store(true);
     AAFwk::Want resultWant;
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->CloseAbility(token_, -1, &resultWant);
     if (err != ERR_OK) {
@@ -779,6 +790,13 @@ void AbilityContextImpl::InsertResultCallbackTask(int requestCode, RuntimeTask &
     TAG_LOGD(AAFwkTag::CONTEXT, "InsertResultCallbackTask");
     resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
 }
+
+void AbilityContextImpl::RemoveResultCallbackTask(int requestCode)
+{
+    TAG_LOGD(AAFwkTag::CONTEXT, "called");
+    resultCallbacks_.erase(requestCode);
+}
+
 #ifdef SUPPORT_SCREEN
 void AbilityContextImpl::GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t &height)
 {
@@ -882,10 +900,16 @@ ErrCode AbilityContextImpl::StartAbilityByType(const std::string &type,
         wantParams.Remove(FLAG_AUTH_READ_URI_PERMISSION);
     }
     Ace::ModalUIExtensionCallbacks callback;
-    callback.onError = std::bind(&JsUIExtensionCallback::OnError, uiExtensionCallbacks, std::placeholders::_1);
-    callback.onRelease = std::bind(&JsUIExtensionCallback::OnRelease, uiExtensionCallbacks, std::placeholders::_1);
-    callback.onResult = std::bind(
-        &JsUIExtensionCallback::OnResult, uiExtensionCallbacks, std::placeholders::_1, std::placeholders::_2);
+    callback.onError = [uiExtensionCallbacks](int32_t arg, const std::string &str1, const std::string &str2) {
+        uiExtensionCallbacks->OnError(arg);
+    };
+    callback.onRelease = [uiExtensionCallbacks](int32_t arg) {
+        uiExtensionCallbacks->OnRelease(arg);
+    };
+    callback.onResult = [uiExtensionCallbacks](int32_t arg1, const OHOS::AAFwk::Want arg2) {
+        uiExtensionCallbacks->OnResult(arg1, arg2);
+    };
+
     Ace::ModalUIExtensionConfig config;
     int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
     if (sessionId == 0) {
@@ -940,9 +964,15 @@ ErrCode AbilityContextImpl::CreateModalUIExtensionWithApp(const AAFwk::Want &wan
     }
     auto disposedCallback = std::make_shared<DialogUIExtensionCallback>(abilityCallback);
     Ace::ModalUIExtensionCallbacks callback;
-    callback.onError = std::bind(&DialogUIExtensionCallback::OnError, disposedCallback);
-    callback.onRelease = std::bind(&DialogUIExtensionCallback::OnRelease, disposedCallback);
-    callback.onDestroy = std::bind(&DialogUIExtensionCallback::OnDestroy, disposedCallback);
+    callback.onError = [disposedCallback](int32_t arg1, const std::string &str1, const std::string &str2) {
+        disposedCallback->OnError();
+    };
+    callback.onRelease = [disposedCallback](int32_t arg1) {
+        disposedCallback->OnRelease();
+    };
+    callback.onDestroy = [disposedCallback]() {
+        disposedCallback->OnDestroy();
+    };
     Ace::ModalUIExtensionConfig config;
     int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
     if (sessionId == 0) {
@@ -977,6 +1007,15 @@ ErrCode AbilityContextImpl::ChangeAbilityVisibility(bool isShow)
     return err;
 }
 
+ErrCode AbilityContextImpl::AddFreeInstallObserver(const sptr<IFreeInstallObserver> &observer)
+{
+    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(token_, observer);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "AddFreeInstallObserver error, ret: %{public}d", ret);
+    }
+    return ret;
+}
+
 ErrCode AbilityContextImpl::OpenAtomicService(AAFwk::Want& want, const AAFwk::StartOptions &options, int requestCode,
     RuntimeTask &&task)
 {
@@ -998,6 +1037,12 @@ void AbilityContextImpl::SetRestoreEnabled(bool enabled)
 bool AbilityContextImpl::GetRestoreEnabled()
 {
     return restoreEnabled_.load();
+}
+
+ErrCode AbilityContextImpl::OpenLink(const AAFwk::Want& want, int requestCode)
+{
+    TAG_LOGD(AAFwkTag::CONTEXT, "called");
+    return AAFwk::AbilityManagerClient::GetInstance()->OpenLink(want, token_, -1, requestCode);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

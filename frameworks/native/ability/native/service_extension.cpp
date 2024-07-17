@@ -18,7 +18,6 @@
 #include "configuration_utils.h"
 #include "connection_manager.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_service_extension.h"
 #include "runtime.h"
 #include "service_extension_context.h"

@@ -25,7 +25,6 @@
 #include "feature_ability_common.h"
 #include "file_ex.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_napi_common_ability.h"
 #include "permission_list_state.h"
 #include "securec.h"

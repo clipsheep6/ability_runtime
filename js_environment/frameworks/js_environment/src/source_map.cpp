@@ -24,7 +24,6 @@
 #include <unistd.h>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace JsEnv {
@@ -490,7 +489,7 @@ ErrorPos SourceMap::GetErrorPos(const std::string& rawStack)
     if (findLineEnd == std::string::npos) {
         return std::make_pair(0, 0);
     }
-    int32_t lineEnd = findLineEnd - 1;
+    int32_t lineEnd = (int32_t)findLineEnd - 1;
     if (lineEnd < 1 || rawStack[lineEnd - 1] == '?') {
         return std::make_pair(0, 0);
     }

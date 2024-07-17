@@ -14,7 +14,6 @@
  */
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "uri_permission_load_callback.h"
 #include "uri_permission_manager_client.h"
 #include "system_ability_definition.h"

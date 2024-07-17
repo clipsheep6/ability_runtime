@@ -183,25 +183,5 @@ HWTEST_F(ConnectCallbackStubTest, AppExecFwk_ConnectCallbackStub_OnRemoteRequest
     OHOS::IPC_STUB_UNKNOW_TRANS_ERR);
     GTEST_LOG_(INFO) << "AppExecFwk_ConnectCallbackStub_OnRemoteRequest_004 end.";
 }
-
-/**
- * @tc.number: AppExecFwk_ConnectCallbackStub_OnRemoteRequest_005
- * @tc.name: OnRemoteRequest
- * @tc.desc: The input parameter code is null ptr, and the test program executes as expected without exception
- */
-HWTEST_F(ConnectCallbackStubTest, AppExecFwk_ConnectCallbackStub_OnRemoteRequest_005, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "AppExecFwk_ConnectCallbackStub_OnRemoteRequest_005 start.";
-    sptr<MockConnectCallback> object = new (std::nothrow) MockConnectCallback();
-    EXPECT_TRUE(object != nullptr);
-    MessageParcel data = {};
-    MessageParcel reply = {};
-    MessageOption option = {};
-    EXPECT_TRUE(data.WriteInterfaceToken(u"ohos.appexecfwk.iconnectcallback"));
-    object->memberFuncMap_[MockConnectCallback::COMMAND_DISCONNECT + 1] = nullptr;
-    EXPECT_EQ(object->OnRemoteRequest(MockConnectCallback::COMMAND_DISCONNECT + 1, data, reply, option),
-    IPC_STUB_UNKNOW_TRANS_ERR);
-    GTEST_LOG_(INFO) << "AppExecFwk_ConnectCallbackStub_OnRemoteRequest_005 end.";
-}
 }   // namespace AppExecFwk
 }   // namespace OHOS

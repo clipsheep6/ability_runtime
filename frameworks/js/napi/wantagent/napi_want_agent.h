@@ -24,6 +24,7 @@
 #include "ability.h"
 #include "completed_callback.h"
 #include "context/application_context.h"
+#include "js_runtime_utils.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
@@ -51,7 +52,7 @@ const uint8_t NUMBER_OF_PARAMETERS_NINE = 9;
 class TriggerCompleteCallBack;
 
 struct CallbackInfo {
-    WantAgent* wantAgent = nullptr;
+    std::shared_ptr<WantAgent> wantAgent;
     napi_env env = nullptr;
     std::unique_ptr<NativeReference> nativeRef = nullptr;
 };
@@ -112,6 +113,18 @@ private:
         std::shared_ptr<TriggerCompleteCallBack> &triggerObj);
     int32_t GetTriggerInfo(napi_env env, napi_value param, TriggerInfo &triggerInfo);
     int32_t GetWantAgentParam(napi_env env, napi_callback_info info, WantAgentWantsParas &paras);
+    void SetOnGetBundleNameCallback(std::shared_ptr<WantAgent> wantAgent,
+        AbilityRuntime::NapiAsyncTask::CompleteCallback &complete);
+    void SetOnGetUidCallback(std::shared_ptr<WantAgent> wantAgent,
+        AbilityRuntime::NapiAsyncTask::CompleteCallback &complete);
+    void SetOnCancelCallback(std::shared_ptr<WantAgent> wantAgent,
+        AbilityRuntime::NapiAsyncTask::CompleteCallback &complete);
+    void SetOnNapiGetWantAgentCallback(std::shared_ptr<WantAgentWantsParas> spParas,
+        AbilityRuntime::NapiAsyncTask::CompleteCallback &complete);
+    int32_t GetTriggerWant(napi_env env, napi_value param, std::shared_ptr<AAFwk::Want> &want);
+    int32_t GetTriggerPermission(napi_env env, napi_value param, std::string &permission);
+    int32_t GetTriggerExtraInfo(napi_env env, napi_value param, std::shared_ptr<AAFwk::WantParams> &extraInfo);
+    napi_value HandleInvalidParam(napi_env env, napi_value lastParam, const std::string &errorMessage);
 };
 
 class TriggerCompleteCallBack : public CompletedCallback {
@@ -123,7 +136,7 @@ public:
     void OnSendFinished(const AAFwk::Want &want, int resultCode, const std::string &resultData,
         const AAFwk::WantParams &resultExtras) override;
     void SetCallbackInfo(napi_env env, NativeReference* ref);
-    void SetWantAgentInstance(WantAgent* wantAgent);
+    void SetWantAgentInstance(std::shared_ptr<WantAgent> wantAgent);
 
 private:
     CallbackInfo triggerCompleteInfo_;

@@ -18,7 +18,6 @@
 #include "ability_manager_client.h"
 #include "connection_manager.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 
 namespace OHOS {
@@ -56,6 +55,18 @@ ErrCode UIExtensionContext::StartAbility(const AAFwk::Want &want, const AAFwk::S
         ILLEGAL_REQUEST_CODE);
     if (err != ERR_OK) {
         TAG_LOGE(AAFwkTag::UI_EXT, "StartAbility is failed %{public}d", err);
+    }
+    return err;
+}
+
+ErrCode UIExtensionContext::StartUIServiceExtension(const AAFwk::Want& want, int32_t accountId) const
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::UI_EXT, "Start UIServiceExtension begin");
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartExtensionAbility(
+        want, token_, accountId, AppExecFwk::ExtensionAbilityType::UI_SERVICE);
+    if (err != ERR_OK) {
+        TAG_LOGE(AAFwkTag::UI_EXT, "StartUIServiceExtension is failed %{public}d", err);
     }
     return err;
 }
@@ -120,6 +131,15 @@ void UIExtensionContext::InsertResultCallbackTask(int requestCode, RuntimeTask &
     }
 }
 
+void UIExtensionContext::RemoveResultCallbackTask(int requestCode)
+{
+    TAG_LOGD(AAFwkTag::UI_EXT, "called");
+    {
+        std::lock_guard<std::mutex> lock(mutexlock_);
+        resultCallbacks_.erase(requestCode);
+    }
+}
+
 ErrCode UIExtensionContext::StartAbilityForResult(
     const AAFwk::Want &want, const AAFwk::StartOptions &startOptions, int requestCode, RuntimeTask &&task)
 {
@@ -139,7 +159,7 @@ ErrCode UIExtensionContext::StartAbilityForResult(
 
 ErrCode UIExtensionContext::StartAbilityForResultAsCaller(const AAFwk::Want &want, int requestCode, RuntimeTask &&task)
 {
-    TAG_LOGD(AAFwkTag::UI_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::UI_EXT, "called");
     {
         std::lock_guard<std::mutex> lock(mutexlock_);
         resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
@@ -156,7 +176,7 @@ ErrCode UIExtensionContext::StartAbilityForResultAsCaller(const AAFwk::Want &wan
 ErrCode UIExtensionContext::StartAbilityForResultAsCaller(
     const AAFwk::Want &want, const AAFwk::StartOptions &startOptions, int requestCode, RuntimeTask &&task)
 {
-    TAG_LOGD(AAFwkTag::UI_EXT, "Called.");
+    TAG_LOGD(AAFwkTag::UI_EXT, "called");
     {
         std::lock_guard<std::mutex> lock(mutexlock_);
         resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
@@ -255,6 +275,21 @@ ErrCode UIExtensionContext::OpenAtomicService(AAFwk::Want& want, const AAFwk::St
         OnAbilityResultInner(requestCode, err, want);
     }
     return err;
+}
+
+ErrCode UIExtensionContext::OpenLink(const AAFwk::Want& want, int requestCode)
+{
+    TAG_LOGD(AAFwkTag::UI_EXT, "called");
+    return AAFwk::AbilityManagerClient::GetInstance()->OpenLink(want, token_, -1, requestCode);
+}
+
+ErrCode UIExtensionContext::AddFreeInstallObserver(const sptr<IFreeInstallObserver> &observer)
+{
+    ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(token_, observer);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::CONTEXT, "AddFreeInstallObserver error, ret: %{public}d", ret);
+    }
+    return ret;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

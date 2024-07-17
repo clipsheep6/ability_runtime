@@ -100,6 +100,7 @@ ohos_executable("aa") {
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:session_info",
+    "hicollie:libhicollie",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]

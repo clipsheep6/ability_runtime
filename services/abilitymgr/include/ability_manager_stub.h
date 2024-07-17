@@ -22,7 +22,6 @@
 #include <iremote_stub.h>
 
 #include "dlp_connection_info.h"
-#include "hilog_wrapper.h"
 #include "iconnection_observer.h"
 
 namespace OHOS {
@@ -66,11 +65,6 @@ public:
     virtual int GetConnectionData(std::vector<AbilityRuntime::ConnectionData> &connectionData);
 
 private:
-    void FirstStepInit();
-    void SecondStepInit();
-    void ThirdStepInit();
-    void FourthStepInit();
-    void FifthStepInit();
     int TerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
     int TerminateUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
     int CloseUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
@@ -98,7 +92,8 @@ private:
     int StartAbilityAsCallerForOptionInner(MessageParcel &data, MessageParcel &reply);
     int StartExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
     int StartUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
-    int StartUIExtensionAbilityNonModalInner(MessageParcel &data, MessageParcel &reply);
+    int StartUIExtensionAbilityEmbeddedInner(MessageParcel &data, MessageParcel &reply);
+    int StartUIExtensionConstrainedEmbeddedInner(MessageParcel &data, MessageParcel &reply);
     int StartUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
     int StopExtensionAbilityInner(MessageParcel& data, MessageParcel& reply);
     int StartAbilityAddCallerInner(MessageParcel &data, MessageParcel &reply);
@@ -218,9 +213,6 @@ private:
     int FreeInstallAbilityFromRemoteInner(MessageParcel &data, MessageParcel &reply);
     int AddFreeInstallObserverInner(MessageParcel &data, MessageParcel &reply);
 
-    using RequestFuncType = int (AbilityManagerStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, RequestFuncType> requestFuncMap_;
-
     #ifdef ABILITY_COMMAND_FOR_TEST
     int BlockAmsServiceInner(MessageParcel &data, MessageParcel &reply);
     int BlockAbilityInner(MessageParcel &data, MessageParcel &reply);
@@ -295,6 +287,7 @@ private:
     int32_t GetForegroundUIAbilitiesInner(MessageParcel &data, MessageParcel &reply);
 
     int32_t GetUIExtensionRootHostInfoInner(MessageParcel &data, MessageParcel &reply);
+    int32_t GetUIExtensionSessionInfoInner(MessageParcel &data, MessageParcel &reply);
     int32_t RestartAppInner(MessageParcel &data, MessageParcel &reply);
     int32_t RequestAssertFaultDialogInner(MessageParcel &data, MessageParcel &reply);
     int32_t NotifyDebugAssertResultInner(MessageParcel &data, MessageParcel &reply);
@@ -302,6 +295,52 @@ private:
     int32_t GetAbilityStateByPersistentIdInner(MessageParcel &data, MessageParcel &reply);
     int32_t TransferAbilityResultForExtensionInner(MessageParcel &data, MessageParcel &reply);
     int32_t NotifyFrozenProcessByRSSInner(MessageParcel &data, MessageParcel &reply);
+    int32_t PreStartMissionInner(MessageParcel &data, MessageParcel &reply);
+    int OnRemoteRequestInnerFirst(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerSecond(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerThird(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerFourth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerFifth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerSixth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerSeventh(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerEighth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerNinth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerTenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerEleventh(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInner(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerTwelveth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerThirteenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerFourteenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerFifteenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerSixteenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerSeventeenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerEighteenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int OnRemoteRequestInnerNineteenth(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int HandleOnRemoteRequestInnerFirst(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int HandleOnRemoteRequestInnerSecond(uint32_t code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
+    int32_t OpenLinkInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

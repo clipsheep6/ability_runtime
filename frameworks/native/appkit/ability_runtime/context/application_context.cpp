@@ -20,12 +20,12 @@
 #include "ability_manager_errors.h"
 #include "configuration_convertor.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "running_process_info.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
+const size_t ApplicationContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("ApplicationContext"));
 std::vector<std::shared_ptr<AbilityLifecycleCallback>> ApplicationContext::callbacks_;
 std::vector<std::shared_ptr<EnvironmentCallback>> ApplicationContext::envCallbacks_;
 std::vector<std::weak_ptr<ApplicationStateChangeCallback>> ApplicationContext::applicationStateCallback_;
@@ -231,6 +231,88 @@ void ApplicationContext::DispatchOnAbilityContinue(const std::shared_ptr<NativeR
     for (auto callback : callbacks_) {
         if (callback != nullptr) {
             callback->OnAbilityContinue(ability);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnAbilityWillContinue(const std::shared_ptr<NativeReference> &ability)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "Dispatch onAbilityWillContinue.");
+    if (ability == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Parameters invalid, ability is nullptr.");
+        return;
+    }
+
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnAbilityWillContinue(ability);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnWindowStageWillRestore(const std::shared_ptr<NativeReference> &ability,
+    const std::shared_ptr<NativeReference> &windowStage)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "Dispatch onWindowStageWillRestore.");
+    if (ability == nullptr || windowStage == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Parameters invalid, ability or windowStage is null.");
+        return;
+    }
+
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnWindowStageWillRestore(ability, windowStage);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnWindowStageRestore(const std::shared_ptr<NativeReference> &ability,
+    const std::shared_ptr<NativeReference> &windowStage)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "Dispatch onWindowStageRestore.");
+    if (ability == nullptr || windowStage == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Parameters invalid, ability or windowStage is null.");
+        return;
+    }
+
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnWindowStageRestore(ability, windowStage);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnAbilityWillSaveState(const std::shared_ptr<NativeReference> &ability)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "Dispatch onAbilityWillSaveState.");
+    if (ability == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Parameters invalid, ability is nullptr.");
+        return;
+    }
+
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnAbilityWillSaveState(ability);
+        }
+    }
+}
+
+void ApplicationContext::DispatchOnAbilitySaveState(const std::shared_ptr<NativeReference> &ability)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "Dispatch onAbilitySaveState.");
+    if (ability == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Parameters invalid, ability is nullptr.");
+        return;
+    }
+
+    std::lock_guard<std::recursive_mutex> lock(callbackLock_);
+    for (auto callback : callbacks_) {
+        if (callback != nullptr) {
+            callback->OnAbilitySaveState(ability);
         }
     }
 }
@@ -633,6 +715,20 @@ void ApplicationContext::SetFont(const std::string &font)
         appFontCallback_(config);
     }
     #endif
+}
+
+void ApplicationContext::SetMcc(const std::string &mcc)
+{
+    if (contextImpl_ != nullptr) {
+        contextImpl_->SetMcc(mcc);
+    }
+}
+
+void ApplicationContext::SetMnc(const std::string &mnc)
+{
+    if (contextImpl_ != nullptr) {
+        contextImpl_->SetMnc(mnc);
+    }
 }
 
 void ApplicationContext::ClearUpApplicationData()

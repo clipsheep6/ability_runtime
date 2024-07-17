@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iability_stage_monitor.h"
 
 namespace OHOS {

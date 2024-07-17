@@ -27,6 +27,10 @@
         {
             "type": "audioPicker",
             "typePicker": "sysPicker/audioPicker"
+        },
+        {
+            "type": "mediaControl",
+            "typePicker": "sysPicker/mediaControl"
         }
     ]
 }

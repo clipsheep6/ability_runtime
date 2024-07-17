@@ -35,8 +35,7 @@ public:
 private:
     DISALLOW_COPY_AND_MOVE(FreeInstallObserverStub);
     int OnInstallFinishedInner(MessageParcel &data, MessageParcel &reply);
-    using FreeInstallObserverFunc = int32_t (FreeInstallObserverStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::map<uint32_t, FreeInstallObserverFunc> memberFuncMap_;
+    int OnInstallFinishedByUrlInner(MessageParcel &data, MessageParcel &reply);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

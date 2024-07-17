@@ -22,7 +22,6 @@
 #include "appmgr/app_mgr_constants.h"
 #include "hitrace_meter.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 
 namespace OHOS {
@@ -278,10 +277,10 @@ void AppScheduler::AttachTimeOut(const sptr<IRemoteObject> &token)
     IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->AbilityAttachTimeOut(token));
 }
 
-void AppScheduler::PrepareTerminate(const sptr<IRemoteObject> &token)
+void AppScheduler::PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag)
 {
     CHECK_POINTER(appMgrClient_);
-    IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->PrepareTerminate(token));
+    IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->PrepareTerminate(token, clearMissionFlag));
 }
 
 void AppScheduler::OnAppStateChanged(const AppExecFwk::AppProcessData &appData)
@@ -593,6 +592,29 @@ bool AppScheduler::IsMemorySizeSufficent() const
         return true;
     }
     return appMgrClient_->IsMemorySizeSufficent();
+}
+
+void AppScheduler::AttachedToStatusBar(const sptr<IRemoteObject> &token)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called.");
+    CHECK_POINTER(appMgrClient_);
+    appMgrClient_->AttachedToStatusBar(token);
+}
+
+void AppScheduler::BlockProcessCacheByPids(const std::vector<int32_t> &pids)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called.");
+    CHECK_POINTER(appMgrClient_);
+    appMgrClient_->BlockProcessCacheByPids(pids);
+}
+
+bool AppScheduler::IsKilledForUpgradeWeb(const std::string &bundleName)
+{
+    if (!appMgrClient_) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "appMgrClient is nullptr");
+        return false;
+    }
+    return appMgrClient_->IsKilledForUpgradeWeb(bundleName);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

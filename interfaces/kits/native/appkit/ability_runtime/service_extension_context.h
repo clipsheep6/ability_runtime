@@ -20,6 +20,7 @@
 
 #include "ability_connect_callback.h"
 #include "connection_manager.h"
+#include "free_install_observer_interface.h"
 #include "local_call_container.h"
 #include "start_options.h"
 #include "want.h"
@@ -74,6 +75,8 @@ public:
     ErrCode StartAbilityByCall(const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback,
         int32_t accountId = DEFAULT_INVAL_VALUE);
 
+    ErrCode AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer);
+
     /**
      * caller release by callback object
      *
@@ -122,6 +125,8 @@ public:
 
     ErrCode StartServiceExtensionAbility(const AAFwk::Want &want, int32_t accountId = -1) const;
 
+    ErrCode StartUIServiceExtensionAbility(const AAFwk::Want &want, int32_t accountId = -1) const;
+
     ErrCode StopServiceExtensionAbility(const AAFwk::Want& want, int32_t accountId = -1) const;
 
     /**
@@ -157,6 +162,9 @@ public:
     ErrCode TerminateAbility();
 
     ErrCode RequestModalUIExtension(const Want &want);
+
+    ErrCode PreStartMission(const std::string& bundleName, const std::string& moduleName,
+        const std::string& abilityName, const std::string& startTime);
 
     using SelfType = ServiceExtensionContext;
     static const size_t CONTEXT_TYPE_ID;

@@ -26,7 +26,6 @@
 #undef private
 #undef protected
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iremote_object.h"
 #define private public
 #define protected public

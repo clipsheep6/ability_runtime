@@ -21,7 +21,6 @@
 #include "form_runtime/form_extension_provider_client.h"
 #include "form_runtime/js_form_extension_context.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_extension_context.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"

@@ -16,7 +16,6 @@
 #include "js_quick_fix_manager.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_application_quick_fix_info.h"
 #include "js_runtime_utils.h"
 #include "napi_common_util.h"

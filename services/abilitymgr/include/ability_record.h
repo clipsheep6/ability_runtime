@@ -622,10 +622,22 @@ public:
     void ConnectAbility();
 
     /**
+     * connect the ability.
+     *
+     */
+    void ConnectUIServiceExtAbility(const Want &want);
+
+    /**
      * disconnect the ability.
      *
      */
     void DisconnectAbility();
+
+    /**
+     * disconnect the ability with want
+     *
+     */
+    void DisconnectUIServiceExtAbility(const Want &want);
 
     /**
      * Command the ability.
@@ -739,6 +751,11 @@ public:
      */
     std::list<std::shared_ptr<ConnectionRecord>> GetConnectingRecordList();
 
+    /**
+     * get the count of In Progress record.
+     *
+     */
+    uint32_t GetInProgressRecordCount();
     /**
      * remove the connect record from list.
      *
@@ -1056,6 +1073,8 @@ private:
     bool GetUriListFromWant(Want &want, std::vector<std::string> &uriVec);
 
     void PublishFileOpenEvent(const Want &want);
+
+    static void SetDebugAppByWaitingDebugFlag(Want &requestWant, const std::string &bundleName, bool isDebugApp);
 
 #ifdef SUPPORT_SCREEN
     std::shared_ptr<Want> GetWantFromMission() const;

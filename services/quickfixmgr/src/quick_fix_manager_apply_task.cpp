@@ -20,7 +20,6 @@
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "quick_fix_callback_stub.h"
 #include "quick_fix_error_utils.h"
@@ -50,7 +49,7 @@ constexpr const char *PATCH_VERSION = "patchVersion";
 
 // timeout task
 constexpr const char *TIMEOUT_TASK_NAME = "timeoutTask";
-constexpr int64_t TIMEOUT_TASK_DELAY_TIME = 5000;
+constexpr int64_t TIMEOUT_TASK_DELAY_TIME = 3 * 60 * 1000;
 } // namespace
 
 class QuickFixManagerStatusCallback : public AppExecFwk::QuickFixStatusCallbackHost {
@@ -535,13 +534,8 @@ void QuickFixManagerApplyTask::RemoveTimeoutTask()
     eventHandler_->RemoveTask(TIMEOUT_TASK_NAME);
 }
 
-bool QuickFixManagerApplyTask::SetQuickFixInfo(const std::shared_ptr<AppExecFwk::QuickFixResult> &result)
+bool QuickFixManagerApplyTask::ExtractQuickFixDataFromJson(nlohmann::json& resultJson)
 {
-    auto resultJson = nlohmann::json::parse(result->ToString(), nullptr, false);
-    if (resultJson.is_discarded()) {
-        TAG_LOGE(AAFwkTag::QUICKFIX, "failed to parse json sting.");
-        return false;
-    }
     if (!resultJson.contains(QUICK_FIX_BUNDLE_NAME) || !resultJson.at(QUICK_FIX_BUNDLE_NAME).is_string()) {
         TAG_LOGE(AAFwkTag::QUICKFIX, "Invalid bundleName.");
         return false;
@@ -573,6 +567,19 @@ bool QuickFixManagerApplyTask::SetQuickFixInfo(const std::shared_ptr<AppExecFwk:
         return false;
     }
     type_ = static_cast<AppExecFwk::QuickFixType>(resultJson.at(QUICK_FIX_TYPE).get<int32_t>());
+    return true;
+}
+
+bool QuickFixManagerApplyTask::SetQuickFixInfo(const std::shared_ptr<AppExecFwk::QuickFixResult> &result)
+{
+    auto resultJson = nlohmann::json::parse(result->ToString(), nullptr, false);
+    if (resultJson.is_discarded()) {
+        TAG_LOGE(AAFwkTag::QUICKFIX, "failed to parse json sting.");
+        return false;
+    }
+    if (ExtractQuickFixDataFromJson(resultJson) != true) {
+        return false;
+    }
     if (type_ != AppExecFwk::QuickFixType::PATCH && type_ != AppExecFwk::QuickFixType::HOT_RELOAD) {
         TAG_LOGE(AAFwkTag::QUICKFIX, "Quick fix type is invalid.");
         return false;

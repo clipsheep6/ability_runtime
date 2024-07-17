@@ -72,7 +72,7 @@ Assert_Status ConvertAssertResult(AAFwk::UserStatus status)
 
 static Assert_Status AssertCallback(AssertFailureInfo assertFail)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "Called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     auto instance = DelayedSingleton<AbilityRuntime::AssertFaultTaskThread>::GetInstance();
     if (instance == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "Invalid Instance.");

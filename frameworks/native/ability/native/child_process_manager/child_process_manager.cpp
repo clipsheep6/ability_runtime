@@ -31,6 +31,7 @@
 #include "child_process.h"
 #include "native_child_ipc_process.h"
 #include "child_process_manager_error_utils.h"
+#include "child_process_request.h"
 #include "child_process_start_info.h"
 #include "constants.h"
 #include "event_runner.h"
@@ -50,6 +51,12 @@ namespace {
     AbilityRuntime::Runtime::DebugOption g_debugOption;
 }
 bool ChildProcessManager::signalRegistered_ = false;
+
+ChildProcessManager &ChildProcessManager::GetInstance()
+{
+    static ChildProcessManager instance;
+    return instance;
+}
 
 ChildProcessManager::ChildProcessManager()
 {
@@ -74,7 +81,7 @@ ChildProcessManagerErrorCode ChildProcessManager::StartChildProcessBySelfFork(co
         TAG_LOGE(AAFwkTag::PROCESSMGR, "GetBundleInfo failed.");
         return ChildProcessManagerErrorCode::ERR_GET_BUNDLE_INFO_FAILED;
     }
-    
+
     RegisterSignal();
     pid = fork();
     if (pid < 0) {
@@ -95,9 +102,20 @@ ChildProcessManagerErrorCode ChildProcessManager::StartChildProcessBySelfFork(co
 ChildProcessManagerErrorCode ChildProcessManager::StartChildProcessByAppSpawnFork(
     const std::string &srcEntry, pid_t &pid)
 {
-    TAG_LOGI(AAFwkTag::PROCESSMGR, "called, startWitDebug: %{public}d, processName: %{public}s, native: %{public}d",
-        g_debugOption.isStartWithDebug, g_debugOption.processName.c_str(), g_debugOption.isStartWithNative);
-    ChildProcessManagerErrorCode errorCode = PreCheck();
+    AppExecFwk::ChildProcessArgs args;
+    AppExecFwk::ChildProcessOptions options;
+    return StartArkChildProcess(srcEntry, pid, AppExecFwk::CHILD_PROCESS_TYPE_JS, args, options);
+}
+
+ChildProcessManagerErrorCode ChildProcessManager::StartArkChildProcess(
+    const std::string &srcEntry, pid_t &pid, int32_t childProcessType, const AppExecFwk::ChildProcessArgs &args,
+    const AppExecFwk::ChildProcessOptions &options)
+{
+    TAG_LOGI(AAFwkTag::PROCESSMGR, "StartChildProcessByAppSpawnFork, startWitDebug: %{public}d, processName:"
+        "%{public}s, native:%{public}d, entryParams:%{private}s, fdsSize:%{public}zu, options.isolationMode:%{public}d",
+        g_debugOption.isStartWithDebug, g_debugOption.processName.c_str(), g_debugOption.isStartWithNative,
+        args.entryParams.c_str(), args.fds.size(), options.isolationMode);
+    ChildProcessManagerErrorCode errorCode = PreCheck(childProcessType != AppExecFwk::CHILD_PROCESS_TYPE_JS);
     if (errorCode != ChildProcessManagerErrorCode::ERR_OK) {
         return errorCode;
     }
@@ -106,7 +124,14 @@ ChildProcessManagerErrorCode ChildProcessManager::StartChildProcessByAppSpawnFor
         TAG_LOGE(AAFwkTag::PROCESSMGR, "GetAppMgr failed.");
         return ChildProcessManagerErrorCode::ERR_GET_APP_MGR_FAILED;
     }
-    auto ret = appMgr->StartChildProcess(srcEntry, pid, childProcessCount_, g_debugOption.isStartWithDebug);
+    AppExecFwk::ChildProcessRequest request;
+    request.srcEntry = srcEntry;
+    request.childProcessType = childProcessType;
+    request.childProcessCount = childProcessCount_;
+    request.isStartWithDebug = g_debugOption.isStartWithDebug;
+    request.args = args;
+    request.options = options;
+    auto ret = appMgr->StartChildProcess(pid, request);
     childProcessCount_++;
     TAG_LOGD(AAFwkTag::PROCESSMGR, "AppMgr StartChildProcess ret:%{public}d", ret);
     if (ret != ERR_OK) {
@@ -163,11 +188,12 @@ void ChildProcessManager::HandleSigChild(int32_t signo)
     }
 }
 
-ChildProcessManagerErrorCode ChildProcessManager::PreCheck()
+ChildProcessManagerErrorCode ChildProcessManager::PreCheck(bool useNewErrorCode)
 {
     if (!AAFwk::AppUtils::GetInstance().IsMultiProcessModel()) {
         TAG_LOGE(AAFwkTag::PROCESSMGR, "Multi process model is not enabled");
-        return ChildProcessManagerErrorCode::ERR_MULTI_PROCESS_MODEL_DISABLED;
+        return useNewErrorCode ? ChildProcessManagerErrorCode::ERR_MULTI_PROCESS_MODEL_DISABLED_NEW :
+            ChildProcessManagerErrorCode::ERR_MULTI_PROCESS_MODEL_DISABLED;
     }
     if (IsChildProcess()) {
         TAG_LOGE(AAFwkTag::PROCESSMGR, "Already in child process");
@@ -193,7 +219,7 @@ ChildProcessManagerErrorCode ChildProcessManager::PreCheckNativeProcess()
 
 bool ChildProcessManager::IsChildProcess()
 {
-    return isChildProcessBySelfFork_ || hasChildProcessRecord();
+    return isChildProcessBySelfFork_ || HasChildProcessRecord();
 }
 
 void ChildProcessManager::HandleChildProcessBySelfFork(const std::string &srcEntry,
@@ -209,7 +235,7 @@ void ChildProcessManager::HandleChildProcessBySelfFork(const std::string &srcEnt
     eventRunner->Stop();
     
     AppExecFwk::HapModuleInfo hapModuleInfo;
-    if (!GetHapModuleInfo(bundleInfo, hapModuleInfo)) {
+    if (!GetEntryHapModuleInfo(bundleInfo, hapModuleInfo)) {
         TAG_LOGE(AAFwkTag::PROCESSMGR, "GetHapModuleInfo failed.");
         return;
     }
@@ -223,13 +249,15 @@ void ChildProcessManager::HandleChildProcessBySelfFork(const std::string &srcEnt
         "isDebugApp is %{public}d, isStartWithNative is %{public}d.", g_debugOption.isStartWithDebug,
         g_debugOption.processName.c_str(), g_debugOption.isDebugApp, g_debugOption.isStartWithNative);
     runtime->StartDebugMode(g_debugOption);
-    LoadJsFile(srcEntry, hapModuleInfo, runtime);
+    std::string srcPath;
+    srcPath.append(hapModuleInfo.moduleName).append("/").append(srcEntry);
+    LoadJsFile(srcPath, hapModuleInfo, runtime);
     TAG_LOGD(AAFwkTag::PROCESSMGR, "HandleChildProcessBySelfFork end.");
     exit(0);
 }
 
 bool ChildProcessManager::LoadJsFile(const std::string &srcEntry, const AppExecFwk::HapModuleInfo &hapModuleInfo,
-    std::unique_ptr<AbilityRuntime::Runtime> &runtime)
+    std::unique_ptr<AbilityRuntime::Runtime> &runtime, std::shared_ptr<AppExecFwk::ChildProcessArgs> args)
 {
     std::shared_ptr<ChildProcessStartInfo> processStartInfo = std::make_shared<ChildProcessStartInfo>();
     std::string filename = std::filesystem::path(srcEntry).stem();
@@ -249,7 +277,11 @@ bool ChildProcessManager::LoadJsFile(const std::string &srcEntry, const AppExecF
         TAG_LOGE(AAFwkTag::PROCESSMGR, "JsChildProcess init failed.");
         return false;
     }
-    process->OnStart();
+    if (args) {
+        process->OnStart(args);
+    } else {
+        process->OnStart();
+    }
     TAG_LOGD(AAFwkTag::PROCESSMGR, "LoadJsFile end.");
     return true;
 }
@@ -325,7 +357,7 @@ bool ChildProcessManager::GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo)
         static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_METADATA)), bundleInfo) == ERR_OK);
 }
 
-bool ChildProcessManager::GetHapModuleInfo(const AppExecFwk::BundleInfo &bundleInfo,
+bool ChildProcessManager::GetEntryHapModuleInfo(const AppExecFwk::BundleInfo &bundleInfo,
     AppExecFwk::HapModuleInfo &hapModuleInfo)
 {
     if (bundleInfo.hapModuleInfos.empty()) {
@@ -344,7 +376,26 @@ bool ChildProcessManager::GetHapModuleInfo(const AppExecFwk::BundleInfo &bundleI
     return result;
 }
 
-bool ChildProcessManager::hasChildProcessRecord()
+bool ChildProcessManager::GetHapModuleInfo(const AppExecFwk::BundleInfo &bundleInfo, const std::string &moduleName,
+    AppExecFwk::HapModuleInfo &hapModuleInfo)
+{
+    if (bundleInfo.hapModuleInfos.empty()) {
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "hapModuleInfos empty!");
+        return false;
+    }
+    TAG_LOGD(AAFwkTag::PROCESSMGR, "hapModueInfos size: %{public}zu", bundleInfo.hapModuleInfos.size());
+    bool result = false;
+    for (const auto &info : bundleInfo.hapModuleInfos) {
+        if (info.name == moduleName) {
+            result = true;
+            hapModuleInfo = info;
+            break;
+        }
+    }
+    return result;
+}
+
+bool ChildProcessManager::HasChildProcessRecord()
 {
     sptr<AppExecFwk::IAppMgr> appMgr = GetAppMgr();
     if (appMgr == nullptr) {
@@ -384,6 +435,19 @@ void ChildProcessManager::SetForkProcessDebugOption(const std::string bundleName
     g_debugOption.isStartWithNative = isStartWithNative;
 }
 
+void ChildProcessManager::SetAppSpawnForkDebugOption(Runtime::DebugOption &debugOption,
+    std::shared_ptr<AppExecFwk::ChildProcessInfo> processInfo)
+{
+    if (!processInfo) {
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "SetAppSpawnDebugOption failed, processInfo is nullptr.");
+        return;
+    }
+    debugOption.processName = processInfo->processName;
+    debugOption.isStartWithDebug = processInfo->isStartWithDebug;
+    debugOption.isDebugApp = processInfo->isDebugApp;
+    debugOption.isStartWithNative = processInfo->isStartWithNative;
+}
+
 void ChildProcessManager::MakeProcessName(const std::string &srcEntry)
 {
     std::string processName = g_debugOption.bundleName;
@@ -401,6 +465,19 @@ void ChildProcessManager::MakeProcessName(const std::string &srcEntry)
     childProcessCount_++;
     TAG_LOGD(AAFwkTag::PROCESSMGR, "SetForkProcessDebugOption processName is %{public}s", processName.c_str());
     g_debugOption.processName = processName;
+}
+
+std::string ChildProcessManager::GetModuleNameFromSrcEntry(const std::string &srcEntry)
+{
+    std::string::size_type pos = srcEntry.find_first_of('/');
+    if (pos == std::string::npos) {
+        return "";
+    }
+    std::string moduleName = srcEntry.substr(0, pos);
+    if (moduleName == ".") {
+        return "";
+    }
+    return moduleName;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

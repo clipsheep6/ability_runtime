@@ -177,7 +177,8 @@ enum class AbilityErrorCode {
     // target bundle not exist.
     ERROR_CODE_TARGET_BUNDLE_NOT_EXIST = 16300005,
 
-    ERROR_CODE_SET_SUPPORTED_PROCESS_CACHE_AGAIN = 16300006,
+    // target free install task does not exist.
+    ERROR_CODE_FREE_INSTALL_TASK_NOT_EXIST = 16300007,
 
     ERROR_CODE_BUNDLE_NAME_INVALID = 18500001,
 };

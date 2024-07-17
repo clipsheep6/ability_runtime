@@ -16,7 +16,6 @@
 #include "app_launch_data.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -102,6 +101,11 @@ bool AppLaunchData::Marshalling(Parcel &parcel) const
         return false;
     }
 
+    if (!parcel.WriteBool(isErrorInfoEnhance_)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write is error info enhance flag.");
+        return false;
+    }
+
     return true;
 }
 
@@ -147,6 +151,7 @@ bool AppLaunchData::ReadFromParcel(Parcel &parcel)
     isNativeStart_ = parcel.ReadBool();
     appRunningUniqueId_ = parcel.ReadString();
     isMultiThread_ = parcel.ReadBool();
+    isErrorInfoEnhance_ = parcel.ReadBool();
     return true;
 }
 

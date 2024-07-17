@@ -16,21 +16,12 @@
 #include "quick_fix_callback_stub.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
-QuickFixCallbackStub::QuickFixCallbackStub()
-{
-    requestFuncMap_[ON_NOTIFY_LOAD_PATCH] = &QuickFixCallbackStub::HandleOnLoadPatchDoneInner;
-    requestFuncMap_[ON_NOTIFY_UNLOAD_PATCH] = &QuickFixCallbackStub::HandleOnUnloadPatchDoneInner;
-    requestFuncMap_[ON_NOTIFY_RELOAD_PAGE] = &QuickFixCallbackStub::HandleOnReloadPageDoneInner;
-}
+QuickFixCallbackStub::QuickFixCallbackStub() {}
 
-QuickFixCallbackStub::~QuickFixCallbackStub()
-{
-    requestFuncMap_.clear();
-}
+QuickFixCallbackStub::~QuickFixCallbackStub() {}
 
 int QuickFixCallbackStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -40,12 +31,13 @@ int QuickFixCallbackStub::OnRemoteRequest(
         return ERR_INVALID_STATE;
     }
 
-    auto itFunc = requestFuncMap_.find(code);
-    if (itFunc != requestFuncMap_.end()) {
-        auto requestFunc = itFunc->second;
-        if (requestFunc != nullptr) {
-            return (this->*requestFunc)(data, reply);
-        }
+    switch (code) {
+        case ON_NOTIFY_LOAD_PATCH:
+            return HandleOnLoadPatchDoneInner(data, reply);
+        case ON_NOTIFY_UNLOAD_PATCH:
+            return HandleOnUnloadPatchDoneInner(data, reply);
+        case ON_NOTIFY_RELOAD_PAGE:
+            return HandleOnReloadPageDoneInner(data, reply);
     }
 
     TAG_LOGW(AAFwkTag::APPMGR, "default case, need check value of code!");

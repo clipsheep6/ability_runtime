@@ -16,7 +16,6 @@
 #include <gtest/gtest.h>
 
 #include "mock_ability_token.h"
-#include "hilog_wrapper.h"
 #define private public
 #include "mock_ability_debug_response_stub.h"
 #undef private

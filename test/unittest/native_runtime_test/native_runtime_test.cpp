@@ -16,7 +16,6 @@
 #include <gtest/gtest.h>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "js_environment.h"
 #include "native_runtime_impl.h"

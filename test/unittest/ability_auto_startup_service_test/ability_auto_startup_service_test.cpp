@@ -19,7 +19,6 @@
 #include "ability_auto_startup_service.h"
 #include "ability_manager_errors.h"
 #include "distributed_kv_data_manager.h"
-#include "hilog_wrapper.h"
 #include "mock_my_flag.h"
 #include "mock_permission_verification.h"
 #include "mock_sa_call.h"
@@ -407,8 +406,9 @@ HWTEST_F(AbilityAutoStartupServiceTest, GetBundleInfo_001, TestSize.Level1)
     auto abilityAutoStartupService = std::make_shared<AbilityAutoStartupService>();
     std::string bundleName;
     int32_t userId = 100;
+    int32_t appIndex = 0;
     AppExecFwk::BundleInfo bundleInfo;
-    auto result = abilityAutoStartupService->GetBundleInfo(bundleName, bundleInfo, -1, userId);
+    auto result = abilityAutoStartupService->GetBundleInfo(bundleName, bundleInfo, -1, userId, appIndex);
     EXPECT_FALSE(result);
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest GetBundleInfo_001 end";
 }

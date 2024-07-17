@@ -18,7 +18,6 @@
 #include <vector>
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "securec.h"
 
 namespace OHOS {

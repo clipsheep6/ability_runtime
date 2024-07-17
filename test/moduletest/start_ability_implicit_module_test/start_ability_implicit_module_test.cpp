@@ -29,6 +29,7 @@
 #include "sa_mgr_client.h"
 #include "system_ability_definition.h"
 #include "ui_service_mgr_client_mock.h"
+#include "mission_list_manager.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -113,10 +114,7 @@ void StartAbilityImplicitModuleTest::OnStartAms() const
 
 void StartAbilityImplicitModuleTest::OnStopAms() const
 {
-    abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_->missions_.clear();
-    abilityMs_->subManagersHelper_->currentMissionListManager_->defaultStandardList_->missions_.clear();
-    abilityMs_->subManagersHelper_->currentMissionListManager_->defaultSingleList_->missions_.clear();
-    abilityMs_->subManagersHelper_->currentMissionListManager_->currentMissionLists_.clear();
+    abilityMs_->subManagersHelper_->currentMissionListManager_.reset();
     abilityMs_->OnStop();
 }
 
@@ -161,7 +159,8 @@ HWTEST_F(StartAbilityImplicitModuleTest, StartAbility_001, TestSize.Level1)
     EXPECT_TRUE(!params.empty());
     EXPECT_TRUE(isCallBack);
 
-    auto abilityRecord = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto abilityRecord = reinterpret_cast<MissionListManager*>(abilityMs_->subManagersHelper_->
+            currentMissionListManager_.get())->GetCurrentTopAbilityLocked();
     EXPECT_TRUE(abilityRecord != nullptr);
 
     GTEST_LOG_(INFO) << "ability:" << abilityRecord->GetAbilityInfo().name;
@@ -193,7 +192,8 @@ HWTEST_F(StartAbilityImplicitModuleTest, StartAbility_002, TestSize.Level1)
     EXPECT_TRUE(!params.empty());
     EXPECT_TRUE(isCallBack);
 
-    auto abilityRecord = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto abilityRecord = reinterpret_cast<MissionListManager*>(abilityMs_->subManagersHelper_->
+            currentMissionListManager_.get())->GetCurrentTopAbilityLocked();
     EXPECT_TRUE(abilityRecord == nullptr);
 }
 
@@ -222,7 +222,8 @@ HWTEST_F(StartAbilityImplicitModuleTest, StartAbility_003, TestSize.Level1)
     EXPECT_TRUE(params.empty());
     EXPECT_TRUE(!isCallBack);
 
-    auto abilityRecord = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto abilityRecord = reinterpret_cast<MissionListManager*>(abilityMs_->subManagersHelper_->
+            currentMissionListManager_.get())->GetCurrentTopAbilityLocked();
     EXPECT_TRUE(abilityRecord != nullptr);
 }
 
@@ -251,7 +252,8 @@ HWTEST_F(StartAbilityImplicitModuleTest, StartAbility_004, TestSize.Level1)
     EXPECT_TRUE(!params.empty());
     EXPECT_TRUE(isCallBack);
 
-    auto abilityRecord = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto abilityRecord = reinterpret_cast<MissionListManager*>(abilityMs_->subManagersHelper_->
+            currentMissionListManager_.get())->GetCurrentTopAbilityLocked();
     EXPECT_TRUE(abilityRecord == nullptr);
 }
 

@@ -43,6 +43,7 @@ public:
     static napi_value DisconnectAbility(napi_env env, napi_callback_info info);
     static napi_value ReportDrawnCompleted(napi_env env, napi_callback_info info);
     static napi_value OpenAtomicService(napi_env env, napi_callback_info info);
+    static napi_value StartUIServiceExtension(napi_env env, napi_callback_info info);
 
 protected:
     virtual napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info);
@@ -54,6 +55,7 @@ protected:
     virtual napi_value OnDisconnectAbility(napi_env env, NapiCallbackInfo& info);
     virtual napi_value OnReportDrawnCompleted(napi_env env, NapiCallbackInfo& info);
     virtual napi_value OnOpenAtomicService(napi_env env, NapiCallbackInfo& info);
+    virtual napi_value OnStartUIServiceExtension(napi_env env, NapiCallbackInfo& info);
     void SetCallbackForTerminateWithResult(int32_t resultCode, AAFwk::Want& want,
         NapiAsyncTask::CompleteCallback& complete);
 
@@ -68,10 +70,13 @@ private:
     napi_value OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, AAFwk::Want &want,
         const AAFwk::StartOptions &options, size_t unwrapArgc);
     void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback, napi_value* result,
-        bool isAbilityResult = false);
+        bool isAbilityResult = false, bool isOpenLink = false);
     bool CreateOpenLinkTask(const napi_env &env, const napi_value &lastParam,
         AAFwk::Want &want, int &requestCode);
+    void RemoveOpenLinkTask(int requestCode);
     napi_value OnOpenLink(napi_env env, NapiCallbackInfo& info);
+    napi_value OnOpenLinkInner(napi_env env, const AAFwk::Want& want,
+        int requestCode, const std::string& startTime, const std::string& url);
 };
 
 class JSUIExtensionConnection : public AbilityConnectCallback {

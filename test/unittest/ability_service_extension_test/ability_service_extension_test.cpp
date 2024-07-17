@@ -22,7 +22,6 @@
 #include "runtime.h"
 #include "service_extension.h"
 
-#include "hilog_wrapper.h"
 #include "iremote_object.h"
 
 using namespace testing::ext;

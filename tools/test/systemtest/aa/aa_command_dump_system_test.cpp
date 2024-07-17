@@ -67,7 +67,7 @@ HWTEST_F(AaCommandDumpSystemTest, Aa_Command_Dump_SystemTest_0100, Function | Me
     ToolSystemTest::UninstallBundle(STRING_PAGE_ABILITY_BUNDLE_NAME);
 
     // install the bundle
-    ToolSystemTest::InstallBundle(STRING_PAGE_ABILITY_BUNDLE_PATH, true);
+    ToolSystemTest::InstallBundle(STRING_PAGE_ABILITY_BUNDLE_PATH, false);
 
     // dump the abilities
     std::string command = "aa dump -a";
@@ -90,7 +90,7 @@ HWTEST_F(AaCommandDumpSystemTest, Aa_Command_Dump_SystemTest_0200, Function | Me
     ToolSystemTest::UninstallBundle(STRING_DATA_ABILITY_BUNDLE_NAME);
 
     // install the bundle
-    ToolSystemTest::InstallBundle(STRING_DATA_ABILITY_BUNDLE_PATH, true);
+    ToolSystemTest::InstallBundle(STRING_DATA_ABILITY_BUNDLE_PATH, false);
 
     // dump the abilities
     std::string command = "aa dump -d";
@@ -113,7 +113,7 @@ HWTEST_F(AaCommandDumpSystemTest, Aa_Command_Dump_SystemTest_0300, Function | Me
     ToolSystemTest::UninstallBundle(STRING_SERVICE_ABILITY_BUNDLE_NAME);
 
     // install the bundle
-    ToolSystemTest::InstallBundle(STRING_SERVICE_ABILITY_BUNDLE_PATH, true);
+    ToolSystemTest::InstallBundle(STRING_SERVICE_ABILITY_BUNDLE_PATH, false);
 
     // dump the abilities
     std::string command = "aa dump -d";

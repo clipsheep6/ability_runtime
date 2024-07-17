@@ -19,7 +19,6 @@
 #include <nlohmann/json.hpp>
 #include <unistd.h>
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 using json = nlohmann::json;
 namespace OHOS {

@@ -1153,7 +1153,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_AddFreeInstallObserver_0100
         OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
     sptr<AAFwk::IAbilityManager> abms = iface_cast<AAFwk::IAbilityManager>(remoteObject_);
     EXPECT_NE(abms, nullptr);
-    EXPECT_EQ(0, abms->AddFreeInstallObserver(nullptr));
+    EXPECT_EQ(0, abms->AddFreeInstallObserver(nullptr, nullptr));
     GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_AddFreeInstallObserver_0100";
 }
 

@@ -17,7 +17,6 @@
 
 #include "ability_runtime_error_util.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "want_params_wrapper.h"
 #include "pending_want.h"

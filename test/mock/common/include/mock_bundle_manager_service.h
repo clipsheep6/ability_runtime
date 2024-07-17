@@ -47,11 +47,6 @@ public:
         return overlayModuleProxy;
     }
 
-    bool GetBundleGidsByUid(const std::string &bundleName, const int &uid, std::vector<int> &gids)
-    {
-        return true;
-    }
-
     bool GetBundleInfo(const std::string &bundleName, const AppExecFwk::BundleFlag flag,
         AppExecFwk::BundleInfo &bundleInfo, int32_t userId) override
     {

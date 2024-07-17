@@ -18,7 +18,6 @@
 
 #include "ability_manager_errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "remote_client_manager.h"
 
@@ -53,6 +52,13 @@ bool ExitResidentProcessManager::RecordExitResidentBundleName(const std::string 
     return true;
 }
 
+void ExitResidentProcessManager::RecordExitResidentBundleDependedOnWeb(const std::string &bundleName)
+{
+    std::lock_guard<ffrt::mutex> lock(webMutexLock_);
+    TAG_LOGE(AAFwkTag::APPMGR, "call");
+    exitResidentBundlesDependedOnWeb_.emplace_back(bundleName);
+}
+
 int32_t ExitResidentProcessManager::HandleMemorySizeInSufficent()
 {
     std::lock_guard<ffrt::mutex> lock(mutexLock_);
@@ -75,6 +81,14 @@ int32_t ExitResidentProcessManager::HandleMemorySizeSufficent(std::vector<std::s
     bundleNames = exitResidentBundleNames_;
     exitResidentBundleNames_.clear();
     return ERR_OK;
+}
+
+void ExitResidentProcessManager::HandleExitResidentBundleDependedOnWeb(std::vector<std::string>& bundleNames)
+{
+    std::lock_guard<ffrt::mutex> lock(webMutexLock_);
+    TAG_LOGE(AAFwkTag::APPMGR, "call");
+    bundleNames = exitResidentBundlesDependedOnWeb_;
+    exitResidentBundlesDependedOnWeb_.clear();
 }
 
 void ExitResidentProcessManager::QueryExitBundleInfos(const std::vector<std::string>& exitBundleNames,
@@ -103,6 +117,24 @@ void ExitResidentProcessManager::QueryExitBundleInfos(const std::vector<std::str
         }
         exitBundleInfos.emplace_back(bundleInfo);
     }
+}
+
+bool ExitResidentProcessManager::IsKilledForUpgradeWeb(const std::string &bundleName) const
+{
+    TAG_LOGE(AAFwkTag::APPMGR, "call");
+    std::vector<std::string> bundleNames;
+    {
+        std::lock_guard<ffrt::mutex> lock(webMutexLock_);
+        bundleNames = exitResidentBundlesDependedOnWeb_;
+    }
+    for (const auto &innerBundleName : bundleNames) {
+        if (innerBundleName == bundleName) {
+            TAG_LOGD(AAFwkTag::APPMGR, "Is killed for upgrade web.");
+            return true;
+        }
+    }
+    TAG_LOGD(AAFwkTag::APPMGR, "Not killed for upgrade web.");
+    return false;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

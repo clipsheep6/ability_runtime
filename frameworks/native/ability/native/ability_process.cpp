@@ -19,7 +19,6 @@
 
 #include "accesstoken_kit.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "permission_list_state.h"
 
 using OHOS::Security::AccessToken::AccessTokenKit;

@@ -16,7 +16,6 @@
 #include "napi_common_execute_param.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "napi_common_util.h"
 #include "napi_common_want.h"
 

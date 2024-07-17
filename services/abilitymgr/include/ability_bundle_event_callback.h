@@ -21,7 +21,6 @@
 #include "common_event_support.h"
 #include "task_handler_wrap.h"
 #include "ability_event_util.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -49,6 +48,7 @@ private:
     void HandleUpdatedModuleInfo(const std::string &bundleName, int32_t uid);
     void HandleAppUpgradeCompleted(const std::string &bundleName, int32_t uid);
     void HandleRemoveUriPermission(uint32_t tokenId);
+    void HandleRestartResidentProcessDependedOnWeb();
 
     DISALLOW_COPY_AND_MOVE(AbilityBundleEventCallback);
     AbilityEventUtil abilityEventHelper_;

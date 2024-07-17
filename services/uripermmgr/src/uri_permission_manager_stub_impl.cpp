@@ -21,7 +21,6 @@
 #include "accesstoken_kit.h"
 #include "app_utils.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
@@ -76,9 +75,49 @@ bool UriPermissionManagerStubImpl::VerifyUriPermission(const Uri &uri, uint32_t 
                 return true;
             }
         }
+        TAG_LOGI(AAFwkTag::URIPERMMGR, "Uri permission not exists.");
+        return false;
+    }
+    return VerifySubDirUriPermission(uriStr, newFlag, tokenId);
+}
+
+bool UriPermissionManagerStubImpl::VerifySubDirUriPermission(const std::string &uriStr,
+                                                             uint32_t newFlag, uint32_t tokenId)
+{
+    auto iPos = uriStr.find(CLOUND_DOCS_URI_MARK);
+    if (iPos == std::string::npos) {
+        TAG_LOGI(AAFwkTag::URIPERMMGR, "Local uri not support to verify sub directory uri permission.");
+        return false;
+    }
+
+    for (auto search = uriMap_.rbegin(); search != uriMap_.rend(); ++search) {
+        if (!IsDistributedSubDirUri(uriStr, search->first)) {
+            continue;
+        }
+        auto& list = search->second;
+        for (auto it = list.begin(); it != list.end(); it++) {
+            if ((it->targetTokenId == tokenId) && ((it->flag | FLAG_READ_URI) & newFlag) != 0) {
+                TAG_LOGD(AAFwkTag::URIPERMMGR, "have uri permission.");
+                return true;
+            }
+        }
+        break;
     }
     TAG_LOGI(AAFwkTag::URIPERMMGR, "Uri permission not exists.");
     return false;
+}
+
+bool UriPermissionManagerStubImpl::IsDistributedSubDirUri(const std::string &inputUri, const std::string &cachedUri)
+{
+    auto iPos = inputUri.find(CLOUND_DOCS_URI_MARK);
+    auto cPos = cachedUri.find(CLOUND_DOCS_URI_MARK);
+    if ((iPos == std::string::npos) || (cPos == std::string::npos)) {
+        TAG_LOGI(AAFwkTag::URIPERMMGR, "The uri is not distributed file uri.");
+        return false;
+    }
+    std::string iTempUri = inputUri.substr(0, iPos);
+    std::string cTempUri = cachedUri.substr(0, cPos);
+    return iTempUri.find(cTempUri + "/") == 0;
 }
 
 int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned int flag,
@@ -156,7 +195,7 @@ int32_t UriPermissionManagerStubImpl::GrantUriPermissionPrivileged(const std::ve
 int UriPermissionManagerStubImpl::GrantUriPermissionInner(const std::vector<Uri> &uriVec, unsigned int flag,
     const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId, int32_t abilityId)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "Called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "called");
     flag &= FLAG_READ_WRITE_URI;
     uint32_t targetTokenId = 0;
     auto ret = UPMSUtils::GetTokenIdByBundleName(targetBundleName, appIndex, targetTokenId);
@@ -171,8 +210,6 @@ int UriPermissionManagerStubImpl::GrantUriPermissionInner(const std::vector<Uri>
         recordId = abilityId;
         appTokenId = initiatorTokenId;
         auto callerName = UPMSUtils::GetCallerNameByTokenId(appTokenId);
-        TAG_LOGI(AAFwkTag::URIPERMMGR, "RealTokenId is %{public}u, RealCallerName is %{public}s.",
-            appTokenId, callerName.c_str());
     }
     if (uriVec.size() == 1) {
         return GrantSingleUriPermission(uriVec[0], flag, appTokenId, targetTokenId, recordId);
@@ -214,7 +251,7 @@ int32_t UriPermissionManagerStubImpl::CheckCalledBySandBox()
     }
     auto callerPid = IPCSkeleton::GetCallingPid();
     bool isSandbox = false;
-    if (appMgr_->JudgeSandboxByPid(callerPid, isSandbox) != ERR_OK) {
+    if (IN_PROCESS_CALL(appMgr_->JudgeSandboxByPid(callerPid, isSandbox)) != ERR_OK) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "JudgeSandboxByPid failed.");
         return INNER_ERR;
     }

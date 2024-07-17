@@ -385,7 +385,8 @@ HWTEST_F(DistributedClientTest, NotifyCompleteContinuation_0100, TestSize.Level3
     std::u16string devId = to_utf16("deviceId");
     int32_t sessionId = 0;
     bool isSuccess = true;
-    auto result = client->NotifyCompleteContinuation(devId, sessionId, isSuccess);
+    std::string callerBundleName;
+    auto result = client->NotifyCompleteContinuation(devId, sessionId, isSuccess, callerBundleName);
     if (client->GetDmsProxy() != nullptr) {
         EXPECT_EQ(result, OHOS::AAFwk::DMS_PERMISSION_DENIED);
     } else {
@@ -406,8 +407,9 @@ HWTEST_F(DistributedClientTest, NotifyCompleteContinuation_0200, TestSize.Level3
     std::u16string devId = to_utf16("deviceId");
     int32_t sessionId = 0;
     bool isSuccess = true;
+    std::string callerBundleName;
     SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = nullptr;
-    auto result = client->NotifyCompleteContinuation(devId, sessionId, isSuccess);
+    auto result = client->NotifyCompleteContinuation(devId, sessionId, isSuccess, callerBundleName);
     EXPECT_EQ(result, OHOS::AAFwk::INVALID_PARAMETERS_ERR);
 
     GTEST_LOG_(INFO) << "DistributedClientTest NotifyCompleteContinuation_0200 end";

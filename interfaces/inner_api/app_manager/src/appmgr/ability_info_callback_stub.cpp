@@ -16,22 +16,14 @@
 #include "ability_info_callback_stub.h"
 #include "appexecfwk_errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
 
 namespace OHOS {
 namespace AppExecFwk {
-AbilityInfoCallbackStub::AbilityInfoCallbackStub()
-{
-    memberFuncMap_[static_cast<uint32_t>(
-        IAbilityInfoCallback::Notify_ABILITY_TOKEN)] = &AbilityInfoCallbackStub::HandleNotifyAbilityToken;
-}
+AbilityInfoCallbackStub::AbilityInfoCallbackStub() {}
 
-AbilityInfoCallbackStub::~AbilityInfoCallbackStub()
-{
-    memberFuncMap_.clear();
-}
+AbilityInfoCallbackStub::~AbilityInfoCallbackStub() {}
 
 int AbilityInfoCallbackStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -45,13 +37,10 @@ int AbilityInfoCallbackStub::OnRemoteRequest(
         return ERR_INVALID_STATE;
     }
 
-    auto itFunc = memberFuncMap_.find(code);
-    if (itFunc != memberFuncMap_.end()) {
-        auto memberFunc = itFunc->second;
-        if (memberFunc != nullptr) {
-            return (this->*memberFunc)(data, reply);
-        }
+    if (code == static_cast<uint32_t>(IAbilityInfoCallback::Notify_ABILITY_TOKEN)) {
+        return HandleNotifyAbilityToken(data, reply);
     }
+
     TAG_LOGI(AAFwkTag::APPMGR, "AbilityInfoCallbackStub::OnReceived end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }

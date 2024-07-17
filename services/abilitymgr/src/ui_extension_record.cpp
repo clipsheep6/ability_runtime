@@ -56,28 +56,28 @@ void UIExtensionRecord::HandleNotifyUIExtensionTimeout(ErrorCode code)
 
 void UIExtensionRecord::LoadTimeout()
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     HandleNotifyUIExtensionTimeout(ErrorCode::LOAD_TIMEOUT);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Notify wms, the uiextension load time out.");
 }
 
 void UIExtensionRecord::ForegroundTimeout()
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     HandleNotifyUIExtensionTimeout(ErrorCode::FOREGROUND_TIMEOUT);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Notify wms, the uiextension move foreground time out.");
 }
 
 void UIExtensionRecord::BackgroundTimeout()
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     HandleNotifyUIExtensionTimeout(ErrorCode::BACKGROUND_TIMEOUT);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Notify wms, the uiextension move background time out.");
 }
 
 void UIExtensionRecord::TerminateTimeout()
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     HandleNotifyUIExtensionTimeout(ErrorCode::TERMINATE_TIMEOUT);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Notify wms, the uiextension terminate time out.");
 }

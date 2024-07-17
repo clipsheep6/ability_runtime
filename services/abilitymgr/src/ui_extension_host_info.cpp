@@ -15,7 +15,6 @@
 
 #include "ui_extension_host_info.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

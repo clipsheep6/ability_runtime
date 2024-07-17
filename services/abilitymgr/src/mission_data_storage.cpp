@@ -18,7 +18,6 @@
 #include "directory_ex.h"
 #include "file_ex.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "image_packer.h"
 #include "image_source.h"

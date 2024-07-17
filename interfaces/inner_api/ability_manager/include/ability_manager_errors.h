@@ -549,6 +549,21 @@ enum {
      * Native error(2097258) for target bundle not exist.
      */
     ERR_BUNDLE_NOT_EXIST,
+
+    /*
+     * Result(2097259) for open link start abilty default ok.
+     */
+    ERR_OPEN_LINK_START_ABILITY_DEFAULT_OK = 2097259,
+
+    /*
+     * Result (2097260) for target free install task does not exist.
+     */
+    ERR_FREE_INSTALL_TASK_NOT_EXIST = 2097260,
+
+    /**
+     * Native error(3000000) for target bundle not exist.
+     */
+    ERR_CODE_NOT_EXIST = 3000000,
 };
 
 enum {

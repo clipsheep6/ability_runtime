@@ -25,7 +25,6 @@
 #include "ability_recovery.h"
 #include "fa_ability_thread.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_lifecycle_observer.h"
 #include "ohos_application.h"
 #include "runtime.h"

@@ -292,8 +292,9 @@ public:
      * Prepare terminate.
      *
      * @param token Ability identify.
+     * @param clearMissionFlag Clear mission flag.
      */
-    virtual void PrepareTerminate(const sptr<IRemoteObject> &token);
+    virtual void PrepareTerminate(const sptr<IRemoteObject> &token, bool clearMissionFlag = false);
 
     /**
      * Get running process information by ability token.
@@ -515,6 +516,14 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData);
+
+    /**
+     * Set Appfreeze Detect Filter
+     *
+     * @param pid the process pid.
+     * @return Returns true on success, others on failure.
+     */
+    bool SetAppFreezeFilter(int32_t pid);
 
     /**
      * Set AbilityForegroundingFlag of an app-record to true.
@@ -747,6 +756,34 @@ public:
      * @return Returns ERR_OK is test ability, others is not test ability.
      */
     int32_t CheckCallingIsUserTestMode(const pid_t pid, bool &isUserTest);
+
+    /**
+     * Notifies that one ability is attached to status bar.
+     *
+     * @param token the token of the abilityRecord that is attached to status bar.
+     * @return Returns RESULT_OK on success, others on failure.
+     */
+    virtual AppMgrResultCode AttachedToStatusBar(const sptr<IRemoteObject> &token);
+
+    int32_t NotifyProcessDependedOnWeb();
+
+    void KillProcessDependedOnWeb();
+    
+    /**
+     * Temporarily block the process cache feature.
+     *
+     * @param pids the pids of the processes that should be blocked.
+     */
+    virtual AppMgrResultCode BlockProcessCacheByPids(const std::vector<int32_t> &pids);
+
+    /**
+     * whether killed for upgrade web.
+     *
+     * @param bundleName the bundle name is killed for upgrade web.
+     * @return Returns true is killed for upgrade web, others return false.
+     */
+    bool IsKilledForUpgradeWeb(const std::string &bundleName);
+
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
     /**

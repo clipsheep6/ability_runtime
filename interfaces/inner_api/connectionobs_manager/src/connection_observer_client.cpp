@@ -18,7 +18,6 @@
 #include "connection_observer_client_impl.h"
 #include "connection_observer_errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

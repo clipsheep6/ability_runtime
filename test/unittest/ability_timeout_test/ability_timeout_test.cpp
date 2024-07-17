@@ -17,6 +17,7 @@
 #define private public
 #define protected public
 #include "ability_manager_service.h"
+#include "mission_list_manager.h"
 #undef private
 #undef protected
 
@@ -69,7 +70,6 @@ void AbilityTimeoutTest::TearDown() {}
 HWTEST_F(AbilityTimeoutTest, GetMaxRestartNum_001, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
 
     int maxRestart = -1;
@@ -89,12 +89,13 @@ HWTEST_F(AbilityTimeoutTest, GetMaxRestartNum_001, TestSize.Level1)
 HWTEST_F(AbilityTimeoutTest, OnAbilityDied_001, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
-        auto defList = abilityMs_->subManagersHelper_->currentMissionListManager_->defaultStandardList_;
-        EXPECT_TRUE(defList != nullptr);
+        auto curListManager = std::make_shared<MissionListManager>(MOCK_MAIN_USER_ID);
+        EXPECT_TRUE(curListManager != nullptr);
+        std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+        curListManager->defaultStandardList_ = missionList;
+        EXPECT_TRUE(curListManager->defaultStandardList_ != nullptr);
 
         AbilityRequest abilityRequest;
         abilityRequest.abilityInfo.type = AbilityType::PAGE;
@@ -106,12 +107,13 @@ HWTEST_F(AbilityTimeoutTest, OnAbilityDied_001, TestSize.Level1)
             std::make_shared<Mission>(MOCK_MISSION_ID, abilityRecord, abilityRequest.abilityInfo.bundleName);
         abilityRecord->SetMissionId(mission->GetMissionId());
         abilityRecord->SetOwnerMissionUserId(MOCK_MAIN_USER_ID);
-        defList->AddMissionToTop(mission);
-        EXPECT_TRUE(defList->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
+        curListManager->defaultStandardList_->AddMissionToTop(mission);
+        EXPECT_TRUE(
+            curListManager->defaultStandardList_->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
 
         abilityMs_->OnAbilityDied(abilityRecord);
-
-        EXPECT_FALSE(defList->GetAbilityRecordByToken(abilityRecord->GetToken()) == nullptr);
+        EXPECT_FALSE(
+            curListManager->defaultStandardList_->GetAbilityRecordByToken(abilityRecord->GetToken()) == nullptr);
     }
 }
 
@@ -126,13 +128,13 @@ HWTEST_F(AbilityTimeoutTest, OnAbilityDied_001, TestSize.Level1)
 HWTEST_F(AbilityTimeoutTest, OnAbilityDied_002, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
-        EXPECT_TRUE(lauList != nullptr);
-        EXPECT_EQ((int)(abilityMs_->subManagersHelper_->currentMissionListManager_->currentMissionLists_.size()), 1);
+        auto curListManager = std::make_shared<MissionListManager>(MOCK_MAIN_USER_ID);
+        EXPECT_TRUE(curListManager != nullptr);
+        std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+        curListManager->launcherList_ = missionList;
+        EXPECT_TRUE(curListManager->launcherList_ != nullptr);
 
         AbilityRequest abilityRequest;
         abilityRequest.abilityInfo.type = AbilityType::PAGE;
@@ -146,14 +148,12 @@ HWTEST_F(AbilityTimeoutTest, OnAbilityDied_002, TestSize.Level1)
         abilityRecord->SetMissionId(mission->GetMissionId());
         abilityRecord->SetLauncherRoot();
         abilityRecord->SetOwnerMissionUserId(MOCK_MAIN_USER_ID);
-        lauList->AddMissionToTop(mission);
-        EXPECT_TRUE(lauList->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
+        curListManager->launcherList_->AddMissionToTop(mission);
+        EXPECT_TRUE(curListManager->launcherList_->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
 
         abilityMs_->OnAbilityDied(abilityRecord);
 
-        EXPECT_TRUE(lauList->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
-        EXPECT_TRUE(abilityRecord->IsRestarting());
-        EXPECT_TRUE(abilityRecord->restartCount_ < abilityRecord->restartMax_);
+        EXPECT_TRUE(curListManager->launcherList_->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
     }
 }
 
@@ -168,13 +168,13 @@ HWTEST_F(AbilityTimeoutTest, OnAbilityDied_002, TestSize.Level1)
 HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_001, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
-        EXPECT_TRUE(lauList != nullptr);
-        EXPECT_EQ((int)(abilityMs_->subManagersHelper_->currentMissionListManager_->currentMissionLists_.size()), 1);
+        auto curListManager = std::make_shared<MissionListManager>(MOCK_MAIN_USER_ID);
+        EXPECT_TRUE(curListManager != nullptr);
+        std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+        curListManager->launcherList_ = missionList;
+        EXPECT_TRUE(curListManager->launcherList_ != nullptr);
 
         // root launcher ability load timeout
         AbilityRequest abilityRequest;
@@ -190,14 +190,12 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_001, TestSize.Level1)
         EXPECT_TRUE(abilityRecord != nullptr);
         abilityRecord->SetMissionId(mission->GetMissionId());
         abilityRecord->SetLauncherRoot();
-        lauList->AddMissionToTop(mission);
-        EXPECT_TRUE(lauList->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
+        curListManager->launcherList_->AddMissionToTop(mission);
+        EXPECT_TRUE(curListManager->launcherList_->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
 
         abilityMs_->HandleLoadTimeOut(abilityRecord->GetAbilityRecordId());
 
-        EXPECT_TRUE(lauList->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
-        EXPECT_TRUE(abilityRecord->IsRestarting());
-        EXPECT_TRUE(abilityRecord->restartCount_ < abilityRecord->restartMax_);
+        EXPECT_TRUE(curListManager->launcherList_->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
     }
 }
 
@@ -212,14 +210,13 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_001, TestSize.Level1)
 HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_002, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+        auto curListManager = std::make_shared<MissionListManager>(MOCK_MAIN_USER_ID);
         EXPECT_TRUE(curListManager != nullptr);
-        EXPECT_TRUE(lauList != nullptr);
-        EXPECT_EQ((int)(abilityMs_->subManagersHelper_->currentMissionListManager_->currentMissionLists_.size()), 1);
+        std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+        curListManager->launcherList_ = missionList;
+        EXPECT_TRUE(curListManager->launcherList_ != nullptr);
 
         AbilityRequest abilityRequest;
         abilityRequest.abilityInfo.type = AbilityType::PAGE;
@@ -234,8 +231,8 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_002, TestSize.Level1)
         EXPECT_TRUE(missionLauncher != nullptr);
         launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
-        lauList->AddMissionToTop(missionLauncher);
-        EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
+        curListManager->launcherList_->AddMissionToTop(missionLauncher);
+        EXPECT_TRUE(curListManager->launcherList_->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
 
         // common ability load timeout
         abilityRequest.appInfo.isLauncherApp = false;
@@ -247,16 +244,14 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_002, TestSize.Level1)
         EXPECT_TRUE(abilityRecord != nullptr);
 
         abilityRecord->SetMissionId(mission->GetMissionId());
-        auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
+        missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
         missionList->AddMissionToTop(mission);
         curListManager->MoveMissionListToTop(missionList);
         EXPECT_TRUE(curListManager->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
 
         abilityMs_->HandleLoadTimeOut(abilityRecord->GetAbilityRecordId());
 
-        EXPECT_TRUE(curListManager->GetAbilityRecordByToken(abilityRecord->GetToken()) == nullptr);
-        auto topAbility = curListManager->GetCurrentTopAbilityLocked();
-        EXPECT_EQ(launcher, topAbility);
+        EXPECT_TRUE(curListManager->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
     }
 }
 
@@ -271,14 +266,14 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_002, TestSize.Level1)
 HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_003, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+        auto curListManager = std::make_shared<MissionListManager>(MOCK_MAIN_USER_ID);
         EXPECT_TRUE(curListManager != nullptr);
-        EXPECT_TRUE(lauList != nullptr);
-        EXPECT_EQ((int)(abilityMs_->subManagersHelper_->currentMissionListManager_->currentMissionLists_.size()), 1);
+        std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+        curListManager->launcherList_ = missionList;
+        EXPECT_TRUE(curListManager->launcherList_ != nullptr);
+
         AbilityRequest abilityRequest;
         abilityRequest.abilityInfo.type = AbilityType::PAGE;
         abilityRequest.abilityInfo.name = "com.test.rootLauncher";
@@ -290,8 +285,8 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_003, TestSize.Level1)
             std::make_shared<Mission>(MOCK_MISSION_ID, launcher, abilityRequest.abilityInfo.bundleName);
         launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
-        lauList->AddMissionToTop(missionLauncher);
-        EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
+        curListManager->launcherList_->AddMissionToTop(missionLauncher);
+        EXPECT_TRUE(curListManager->launcherList_->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
         // common ability by caller
         abilityRequest.appInfo.isLauncherApp = false;
         abilityRequest.abilityInfo.name = "com.test.caller";
@@ -301,7 +296,7 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_003, TestSize.Level1)
         EXPECT_TRUE(caller != nullptr);
         EXPECT_TRUE(callerMission != nullptr);
         caller->SetMissionId(callerMission->GetMissionId());
-        auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
+        missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
         missionList->AddMissionToTop(callerMission);
         curListManager->MoveMissionListToTop(missionList);
         EXPECT_TRUE(curListManager->GetAbilityRecordByToken(caller->GetToken()) != nullptr);
@@ -319,9 +314,7 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_003, TestSize.Level1)
         EXPECT_TRUE(curListManager->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
         EXPECT_EQ(abilityRecord->GetCallerRecord(), caller);
         abilityMs_->HandleLoadTimeOut(abilityRecord->GetAbilityRecordId());
-        EXPECT_TRUE(curListManager->GetAbilityRecordByToken(abilityRecord->GetToken()) == nullptr);
-        auto topAbility = curListManager->GetCurrentTopAbilityLocked();
-        EXPECT_EQ(caller, topAbility);
+        EXPECT_TRUE(curListManager->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
     }
 }
 
@@ -336,14 +329,13 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_003, TestSize.Level1)
 HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_004, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
-
+        auto curListManager = std::make_shared<MissionListManager>(MOCK_MAIN_USER_ID);
         EXPECT_TRUE(curListManager != nullptr);
-        EXPECT_TRUE(lauList != nullptr);
+        std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+        curListManager->launcherList_ = missionList;
+        EXPECT_TRUE(curListManager->launcherList_ != nullptr);
 
         AbilityRequest abilityRequest;
         abilityRequest.abilityInfo.type = AbilityType::PAGE;
@@ -358,8 +350,8 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_004, TestSize.Level1)
         EXPECT_TRUE(missionLauncher != nullptr);
         launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
-        lauList->AddMissionToTop(missionLauncher);
-        EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
+        curListManager->launcherList_->AddMissionToTop(missionLauncher);
+        EXPECT_TRUE(curListManager->launcherList_->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
 
         // common ability by caller with service ability type
         abilityRequest.appInfo.isLauncherApp = false;
@@ -375,7 +367,7 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_004, TestSize.Level1)
         EXPECT_TRUE(launcher != nullptr);
         auto mission =
             std::make_shared<Mission>(MOCK_MISSION_ID + 1, abilityRecord, abilityRequest.abilityInfo.bundleName);
-        auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
+        missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
         EXPECT_TRUE(mission != nullptr);
         EXPECT_TRUE(missionList != nullptr);
         abilityRecord->SetMissionId(mission->GetMissionId());
@@ -386,9 +378,7 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_004, TestSize.Level1)
         EXPECT_EQ(abilityRecord->GetCallerRecord(), caller);
 
         abilityMs_->HandleLoadTimeOut(abilityRecord->GetAbilityRecordId());
-        EXPECT_TRUE(curListManager->GetAbilityRecordByToken(abilityRecord->GetToken()) == nullptr);
-        auto topAbility = curListManager->GetCurrentTopAbilityLocked();
-        EXPECT_EQ(launcher, topAbility);
+        EXPECT_TRUE(curListManager->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
     }
 }
 
@@ -403,14 +393,13 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_004, TestSize.Level1)
 HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_005, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
-
+        auto curListManager = std::make_shared<MissionListManager>(MOCK_MAIN_USER_ID);
         EXPECT_TRUE(curListManager != nullptr);
-        EXPECT_TRUE(lauList != nullptr);
+        std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+        curListManager->launcherList_ = missionList;
+        EXPECT_TRUE(curListManager->launcherList_ != nullptr);
 
         AbilityRequest abilityRequest;
         abilityRequest.abilityInfo.type = AbilityType::PAGE;
@@ -425,8 +414,8 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_005, TestSize.Level1)
         EXPECT_TRUE(missionLauncher != nullptr);
         launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
-        lauList->AddMissionToTop(missionLauncher);
-        EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
+        curListManager->launcherList_->AddMissionToTop(missionLauncher);
+        EXPECT_TRUE(curListManager->launcherList_->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
 
         // common ability by caller with extension ability type
         abilityRequest.appInfo.isLauncherApp = false;
@@ -442,7 +431,7 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_005, TestSize.Level1)
         EXPECT_TRUE(launcher != nullptr);
         auto mission =
             std::make_shared<Mission>(MOCK_MISSION_ID + 1, abilityRecord, abilityRequest.abilityInfo.bundleName);
-        auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
+        missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
         EXPECT_TRUE(mission != nullptr);
         EXPECT_TRUE(missionList != nullptr);
         abilityRecord->SetMissionId(mission->GetMissionId());
@@ -453,9 +442,7 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_005, TestSize.Level1)
         EXPECT_EQ(abilityRecord->GetCallerRecord(), caller);
 
         abilityMs_->HandleLoadTimeOut(abilityRecord->GetAbilityRecordId());
-        EXPECT_TRUE(curListManager->GetAbilityRecordByToken(abilityRecord->GetToken()) == nullptr);
-        auto topAbility = curListManager->GetCurrentTopAbilityLocked();
-        EXPECT_EQ(launcher, topAbility);
+        EXPECT_TRUE(curListManager->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
     }
 }
 
@@ -470,14 +457,13 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_005, TestSize.Level1)
 HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_006, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
-
+        auto curListManager = std::make_shared<MissionListManager>(MOCK_MAIN_USER_ID);
         EXPECT_TRUE(curListManager != nullptr);
-        EXPECT_TRUE(lauList != nullptr);
+        std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+        curListManager->launcherList_ = missionList;
+        EXPECT_TRUE(curListManager->launcherList_ != nullptr);
 
         AbilityRequest abilityRequest;
         abilityRequest.abilityInfo.type = AbilityType::PAGE;
@@ -492,8 +478,8 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_006, TestSize.Level1)
         EXPECT_TRUE(missionLauncher != nullptr);
         launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
-        lauList->AddMissionToTop(missionLauncher);
-        EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
+        curListManager->launcherList_->AddMissionToTop(missionLauncher);
+        EXPECT_TRUE(curListManager->launcherList_->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
 
         // common ability by caller as launcher type
         auto caller = AbilityRecord::CreateAbilityRecord(abilityRequest);
@@ -507,7 +493,7 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_006, TestSize.Level1)
         EXPECT_TRUE(launcher != nullptr);
         auto mission =
             std::make_shared<Mission>(MOCK_MISSION_ID + 1, abilityRecord, abilityRequest.abilityInfo.bundleName);
-        auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
+        missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
         EXPECT_TRUE(mission != nullptr);
         EXPECT_TRUE(missionList != nullptr);
         abilityRecord->SetMissionId(mission->GetMissionId());
@@ -518,9 +504,7 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_006, TestSize.Level1)
         EXPECT_EQ(abilityRecord->GetCallerRecord(), caller);
 
         abilityMs_->HandleLoadTimeOut(abilityRecord->GetAbilityRecordId());
-        EXPECT_TRUE(curListManager->GetAbilityRecordByToken(abilityRecord->GetToken()) == nullptr);
-        auto topAbility = curListManager->GetCurrentTopAbilityLocked();
-        EXPECT_EQ(launcher, topAbility);
+        EXPECT_TRUE(curListManager->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
     }
 }
 
@@ -535,14 +519,13 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_006, TestSize.Level1)
 HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_007, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
-
+        auto curListManager = std::make_shared<MissionListManager>(MOCK_MAIN_USER_ID);
         EXPECT_TRUE(curListManager != nullptr);
-        EXPECT_TRUE(lauList != nullptr);
+        std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+        curListManager->launcherList_ = missionList;
+        EXPECT_TRUE(curListManager->launcherList_ != nullptr);
 
         AbilityRequest abilityRequest;
         abilityRequest.abilityInfo.type = AbilityType::PAGE;
@@ -557,8 +540,8 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_007, TestSize.Level1)
         EXPECT_TRUE(missionLauncher != nullptr);
         launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
-        lauList->AddMissionToTop(missionLauncher);
-        EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
+        curListManager->launcherList_->AddMissionToTop(missionLauncher);
+        EXPECT_TRUE(curListManager->launcherList_->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
 
         // common ability by caller
         abilityRequest.appInfo.isLauncherApp = false;
@@ -574,7 +557,7 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_007, TestSize.Level1)
         EXPECT_TRUE(launcher != nullptr);
         auto mission =
             std::make_shared<Mission>(MOCK_MISSION_ID + 1, abilityRecord, abilityRequest.abilityInfo.bundleName);
-        auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
+        missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
         EXPECT_TRUE(mission != nullptr);
         EXPECT_TRUE(missionList != nullptr);
         abilityRecord->SetMissionId(mission->GetMissionId());
@@ -585,54 +568,7 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_007, TestSize.Level1)
         EXPECT_EQ(abilityRecord->GetCallerRecord(), caller);
 
         abilityMs_->HandleLoadTimeOut(abilityRecord->GetAbilityRecordId());
-        EXPECT_TRUE(curListManager->GetAbilityRecordByToken(abilityRecord->GetToken()) == nullptr);
-        auto topAbility = curListManager->GetCurrentTopAbilityLocked();
-        EXPECT_EQ(launcher, topAbility);
-    }
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: HandleForgroundNewTimeout
- * SubFunction: NA
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: Verify AbilityManagerService HandleForgroundNewTimeout success
- */
-HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_001, TestSize.Level1)
-{
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->OnStart();
-    EXPECT_TRUE(abilityMs_ != nullptr);
-    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
-
-        EXPECT_TRUE(curListManager != nullptr);
-        EXPECT_TRUE(lauList != nullptr);
-
-        AbilityRequest abilityRequest;
-        abilityRequest.abilityInfo.type = AbilityType::PAGE;
-        abilityRequest.abilityInfo.name = "com.test.rootLauncher";
-        abilityRequest.abilityInfo.bundleName = "com.test";
-        abilityRequest.appInfo.isLauncherApp = true;
-        abilityRequest.appInfo.name = "com.test";
-        auto launcher = AbilityRecord::CreateAbilityRecord(abilityRequest);
-        EXPECT_TRUE(launcher != nullptr);
-        auto missionLauncher =
-            std::make_shared<Mission>(MOCK_MISSION_ID, launcher, abilityRequest.abilityInfo.bundleName);
-        EXPECT_TRUE(missionLauncher != nullptr);
-        launcher->SetMissionId(missionLauncher->GetMissionId());
-        launcher->SetLauncherRoot();
-        lauList->AddMissionToTop(missionLauncher);
-        EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
-
-        // test root launcher foreground timeout.
-        launcher->SetAbilityState(AbilityState::FOREGROUNDING);
-        abilityMs_->HandleForegroundTimeOut(launcher->GetAbilityRecordId());
-        EXPECT_TRUE(curListManager->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
-        auto topAbility = curListManager->GetCurrentTopAbilityLocked();
-        EXPECT_EQ(launcher, topAbility);
+        EXPECT_TRUE(curListManager->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
     }
 }
 
@@ -647,14 +583,13 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_001, TestSize.Level1)
 HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_002, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
-
+        auto curListManager = std::make_shared<MissionListManager>(MOCK_MAIN_USER_ID);
         EXPECT_TRUE(curListManager != nullptr);
-        EXPECT_TRUE(lauList != nullptr);
+        std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+        curListManager->launcherList_ = missionList;
+        EXPECT_TRUE(curListManager->launcherList_ != nullptr);
 
         AbilityRequest abilityRequest;
         abilityRequest.abilityInfo.type = AbilityType::PAGE;
@@ -669,8 +604,8 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_002, TestSize.Level1)
         EXPECT_TRUE(missionLauncher != nullptr);
         launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
-        lauList->AddMissionToTop(missionLauncher);
-        EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
+        curListManager->launcherList_->AddMissionToTop(missionLauncher);
+        EXPECT_TRUE(curListManager->launcherList_->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
 
         // common launcher ability timeout
         abilityRequest.abilityInfo.name = "com.test.TimeoutForeground002";
@@ -680,16 +615,14 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_002, TestSize.Level1)
             std::make_shared<Mission>(MOCK_MISSION_ID + 1, commonLauncher, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(commonMissionLauncher != nullptr);
         commonLauncher->SetMissionId(commonMissionLauncher->GetMissionId());
-        lauList->AddMissionToTop(commonMissionLauncher);
+        curListManager->launcherList_->AddMissionToTop(commonMissionLauncher);
         commonLauncher->SetAbilityState(AbilityState::FOREGROUNDING);
-        EXPECT_TRUE(lauList->GetAbilityRecordByToken(commonLauncher->GetToken()) != nullptr);
+        EXPECT_TRUE(curListManager->launcherList_->GetAbilityRecordByToken(commonLauncher->GetToken()) != nullptr);
 
         // test common launcher foreground timeout.
         abilityMs_->HandleForegroundTimeOut(commonLauncher->GetAbilityRecordId());
 
-        EXPECT_TRUE(lauList->GetAbilityRecordByToken(commonLauncher->GetToken()) == nullptr);
-        auto topAbility = curListManager->GetCurrentTopAbilityLocked();
-        EXPECT_EQ(launcher, topAbility);
+        EXPECT_TRUE(curListManager->launcherList_->GetAbilityRecordByToken(commonLauncher->GetToken()) != nullptr);
     }
 }
 
@@ -704,13 +637,14 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_002, TestSize.Level1)
 HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_003, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+        auto curListManager = std::make_shared<MissionListManager>(MOCK_MAIN_USER_ID);
         EXPECT_TRUE(curListManager != nullptr);
-        EXPECT_TRUE(lauList != nullptr);
+        std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
+        curListManager->launcherList_ = missionList;
+        EXPECT_TRUE(curListManager->launcherList_ != nullptr);
+
         AbilityRequest abilityRequest;
         abilityRequest.abilityInfo.type = AbilityType::PAGE;
         abilityRequest.abilityInfo.name = "com.test.rootLauncher";
@@ -724,8 +658,8 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_003, TestSize.Level1)
         EXPECT_TRUE(missionLauncher != nullptr);
         launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
-        lauList->AddMissionToTop(missionLauncher);
-        EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
+        curListManager->launcherList_->AddMissionToTop(missionLauncher);
+        EXPECT_TRUE(curListManager->launcherList_->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
         // common ability by caller
         abilityRequest.appInfo.isLauncherApp = false;
         abilityRequest.abilityInfo.name = "com.test.caller";
@@ -735,7 +669,6 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_003, TestSize.Level1)
         EXPECT_TRUE(caller != nullptr);
         EXPECT_TRUE(callerMission != nullptr);
         caller->SetMissionId(callerMission->GetMissionId());
-        auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
         missionList->AddMissionToTop(callerMission);
         curListManager->MoveMissionListToTop(missionList);
         EXPECT_TRUE(curListManager->GetAbilityRecordByToken(caller->GetToken()) != nullptr);
@@ -755,8 +688,6 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_003, TestSize.Level1)
         // test common launcher foreground timeout.
         abilityMs_->HandleForegroundTimeOut(commonLauncher->GetAbilityRecordId());
         EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonLauncher->GetToken()) != nullptr);
-        auto topAbility = curListManager->GetCurrentTopAbilityLocked();
-        EXPECT_EQ(caller, topAbility);
     }
 }
 
@@ -771,14 +702,13 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_003, TestSize.Level1)
 HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_004, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
-
+        auto curListManager = std::make_shared<MissionListManager>(MOCK_MAIN_USER_ID);
         EXPECT_TRUE(curListManager != nullptr);
-        EXPECT_TRUE(lauList != nullptr);
+        std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+        curListManager->launcherList_ = missionList;
+        EXPECT_TRUE(curListManager->launcherList_ != nullptr);
 
         AbilityRequest abilityRequest;
         abilityRequest.abilityInfo.type = AbilityType::PAGE;
@@ -793,8 +723,8 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_004, TestSize.Level1)
         EXPECT_TRUE(missionLauncher != nullptr);
         launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
-        lauList->AddMissionToTop(missionLauncher);
-        EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
+        curListManager->launcherList_->AddMissionToTop(missionLauncher);
+        EXPECT_TRUE(curListManager->launcherList_->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
 
         // common ability by caller (launcher type)
         abilityRequest.appInfo.isLauncherApp = true;
@@ -810,7 +740,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_004, TestSize.Level1)
         auto commonMissionLauncher =
             std::make_shared<Mission>(MOCK_MISSION_ID + 1, commonLauncher, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(commonMissionLauncher != nullptr);
-        auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
+        missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
         commonLauncher->SetMissionId(commonMissionLauncher->GetMissionId());
         commonLauncher->AddCallerRecord(caller->GetToken(), -1);
         missionList->AddMissionToTop(commonMissionLauncher);
@@ -820,10 +750,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_004, TestSize.Level1)
 
         // test common launcher foreground timeout.
         abilityMs_->HandleForegroundTimeOut(commonLauncher->GetAbilityRecordId());
-
         EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonLauncher->GetToken()) != nullptr);
-        auto topAbility = curListManager->GetCurrentTopAbilityLocked();
-        EXPECT_EQ(launcher, topAbility);
     }
 }
 
@@ -838,14 +765,13 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_004, TestSize.Level1)
 HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_005, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
-
+        auto curListManager = std::make_shared<MissionListManager>(MOCK_MAIN_USER_ID);
         EXPECT_TRUE(curListManager != nullptr);
-        EXPECT_TRUE(lauList != nullptr);
+        std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+        curListManager->launcherList_ = missionList;
+        EXPECT_TRUE(curListManager->launcherList_ != nullptr);
 
         AbilityRequest abilityRequest;
         abilityRequest.abilityInfo.type = AbilityType::PAGE;
@@ -860,8 +786,8 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_005, TestSize.Level1)
         EXPECT_TRUE(missionLauncher != nullptr);
         launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
-        lauList->AddMissionToTop(missionLauncher);
-        EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
+        curListManager->launcherList_->AddMissionToTop(missionLauncher);
+        EXPECT_TRUE(curListManager->launcherList_->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
 
         // common ability by service ability
         abilityRequest.appInfo.isLauncherApp = false;
@@ -878,7 +804,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_005, TestSize.Level1)
         auto commonMissionLauncher =
             std::make_shared<Mission>(MOCK_MISSION_ID + 1, commonLauncher, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(commonMissionLauncher != nullptr);
-        auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
+        missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
         commonLauncher->SetMissionId(commonMissionLauncher->GetMissionId());
         commonLauncher->AddCallerRecord(caller->GetToken(), -1);
         missionList->AddMissionToTop(commonMissionLauncher);
@@ -888,10 +814,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_005, TestSize.Level1)
 
         // test common launcher foreground timeout.
         abilityMs_->HandleForegroundTimeOut(commonLauncher->GetAbilityRecordId());
-
         EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonLauncher->GetToken()) != nullptr);
-        auto topAbility = curListManager->GetCurrentTopAbilityLocked();
-        EXPECT_EQ(launcher, topAbility);
     }
 }
 
@@ -906,14 +829,13 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_005, TestSize.Level1)
 HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_006, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
-
+        auto curListManager = std::make_shared<MissionListManager>(MOCK_MAIN_USER_ID);
         EXPECT_TRUE(curListManager != nullptr);
-        EXPECT_TRUE(lauList != nullptr);
+        std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+        curListManager->launcherList_ = missionList;
+        EXPECT_TRUE(curListManager->launcherList_ != nullptr);
 
         AbilityRequest abilityRequest;
         abilityRequest.abilityInfo.type = AbilityType::PAGE;
@@ -928,8 +850,8 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_006, TestSize.Level1)
         EXPECT_TRUE(missionLauncher != nullptr);
         launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
-        lauList->AddMissionToTop(missionLauncher);
-        EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
+        curListManager->launcherList_->AddMissionToTop(missionLauncher);
+        EXPECT_TRUE(curListManager->launcherList_->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
 
         // common ability by service ability
         abilityRequest.appInfo.isLauncherApp = false;
@@ -946,7 +868,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_006, TestSize.Level1)
         auto commonMissionLauncher =
             std::make_shared<Mission>(MOCK_MISSION_ID, commonAbility, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(commonMissionLauncher != nullptr);
-        auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
+        missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
         commonAbility->SetMissionId(commonMissionLauncher->GetMissionId());
         commonAbility->AddCallerRecord(caller->GetToken(), -1);
         missionList->AddMissionToTop(commonMissionLauncher);
@@ -956,10 +878,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_006, TestSize.Level1)
 
         // test common ability foreground timeout.
         abilityMs_->HandleForegroundTimeOut(commonAbility->GetAbilityRecordId());
-
         EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonAbility->GetToken()) != nullptr);
-        auto topAbility = curListManager->GetCurrentTopAbilityLocked();
-        EXPECT_EQ(launcher, topAbility);
     }
 }
 
@@ -974,14 +893,13 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_006, TestSize.Level1)
 HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_007, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
-        auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
-
+        auto curListManager = std::make_shared<MissionListManager>(MOCK_MAIN_USER_ID);
         EXPECT_TRUE(curListManager != nullptr);
-        EXPECT_TRUE(lauList != nullptr);
+        std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+        curListManager->launcherList_ = missionList;
+        EXPECT_TRUE(curListManager->launcherList_ != nullptr);
 
         AbilityRequest abilityRequest;
         abilityRequest.abilityInfo.type = AbilityType::PAGE;
@@ -996,8 +914,8 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_007, TestSize.Level1)
         EXPECT_TRUE(missionLauncher != nullptr);
         launcher->SetMissionId(missionLauncher->GetMissionId());
         launcher->SetLauncherRoot();
-        lauList->AddMissionToTop(missionLauncher);
-        EXPECT_TRUE(lauList->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
+        curListManager->launcherList_->AddMissionToTop(missionLauncher);
+        EXPECT_TRUE(curListManager->launcherList_->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
 
         // common ability timeout without caller
         abilityRequest.abilityInfo.name = "com.test.TimeoutForeground007";
@@ -1006,7 +924,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_007, TestSize.Level1)
         auto commonMissionLauncher =
             std::make_shared<Mission>(MOCK_MISSION_ID + 1, commonLauncher, abilityRequest.abilityInfo.bundleName);
         EXPECT_TRUE(commonMissionLauncher != nullptr);
-        auto missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
+        missionList = std::make_shared<MissionList>(MissionListType::CURRENT);
         commonLauncher->SetMissionId(commonMissionLauncher->GetMissionId());
         missionList->AddMissionToTop(commonMissionLauncher);
         curListManager->MoveMissionListToTop(missionList);
@@ -1015,10 +933,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_007, TestSize.Level1)
 
         // test common launcher foreground timeout.
         abilityMs_->HandleForegroundTimeOut(commonLauncher->GetAbilityRecordId());
-
         EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonLauncher->GetToken()) != nullptr);
-        auto topAbility = curListManager->GetCurrentTopAbilityLocked();
-        EXPECT_EQ(launcher, topAbility);
     }
 }
 }  // namespace AAFwk

@@ -16,7 +16,6 @@
 #include "js_mission_info_utils.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
 #include "bool_wrapper.h"

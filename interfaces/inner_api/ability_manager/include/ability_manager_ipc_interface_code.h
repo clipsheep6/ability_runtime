@@ -395,8 +395,14 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for preload UIExtension ability by want
     PRELOAD_UIEXTENSION_ABILITY = 1062,
 
-    // ipc id for start UIExtension ability non—modal
-    START_UI_EXTENSION_ABILITY_NON_MODAL = 1063,
+    // ipc id for start UIExtension ability embedded
+    START_UI_EXTENSION_ABILITY_EMBEDDED = 1063,
+
+    // ipc id for start UIExtension ability constrained embedded
+    START_UI_EXTENSION_CONSTRAINED_EMBEDDED = 1064,
+
+    // get ui extension session info
+    GET_UI_EXTENSION_SESSION_INFO = 1065,
 
     // ipc id for continue ability(1101)
     START_CONTINUATION = 1101,
@@ -443,6 +449,12 @@ enum class AbilityManagerInterfaceCode {
     TRANSFER_ABILITY_RESULT = 1129,
     // ipc for notify frozen process by RSS
     NOTIFY_FROZEN_PROCESS_BY_RSS = 1130,
+
+    // ipc id for pre-start mission
+    PRE_START_MISSION = 1135,
+
+    // ipc for open link
+    OPEN_LINK = 1140,
 
     // ipc id 2001-3000 for tools
     // ipc id for dumping state (2001)

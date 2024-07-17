@@ -18,7 +18,6 @@
 #include "ability_manager_service.h"
 #include "app_scheduler.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "mock_session_manager_service.h"
 #include "os_account_manager_wrapper.h"
@@ -175,20 +174,21 @@ int32_t UserController::StopUser(int32_t userId)
     }
     appScheduler->KillProcessesByUserId(userId);
 
-    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto taskDataPersistenceMgr = DelayedSingleton<TaskDataPersistenceMgr>::GetInstance();
-        if (!taskDataPersistenceMgr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "taskDataPersistenceMgr is null");
-            return -1;
-        }
-        taskDataPersistenceMgr->RemoveUserDir(userId);
-    }
-
     auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
     if (!abilityManagerService) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityManagerService is null");
         return -1;
     }
+
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto missionListWrap = abilityManagerService->GetMissionListWrap();
+        if (!missionListWrap) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "missionListWrap is null");
+            return -1;
+        }
+        missionListWrap->RemoveUserDir(userId);
+    }
+
     abilityManagerService->ClearUserData(userId);
 
     BroadcastUserStopped(userId);

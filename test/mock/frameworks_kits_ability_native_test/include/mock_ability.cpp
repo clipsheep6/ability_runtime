@@ -17,7 +17,6 @@
 #include <gtest/gtest.h>
 #include "ability_loader.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 

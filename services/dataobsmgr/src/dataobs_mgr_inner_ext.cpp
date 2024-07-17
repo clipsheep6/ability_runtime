@@ -17,7 +17,6 @@
 #include "data_ability_observer_stub.h"
 #include "dataobs_mgr_errors.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "common_utils.h"
 
 namespace OHOS {

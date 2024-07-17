@@ -16,16 +16,11 @@
 
 #include "ipc_types.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "string_ex.h"
 
 namespace OHOS {
 namespace AppExecFwk {
-ConnectCallbackStub::ConnectCallbackStub()
-{
-    memberFuncMap_[COMMAND_CONNECT] = &ConnectCallbackStub::ConnectInner;
-    memberFuncMap_[COMMAND_DISCONNECT] = &ConnectCallbackStub::DisconnectInner;
-}
+ConnectCallbackStub::ConnectCallbackStub() {}
 
 int ConnectCallbackStub::ConnectInner(MessageParcel &data, MessageParcel &reply)
 {
@@ -61,12 +56,11 @@ int ConnectCallbackStub::OnRemoteRequest(
         TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s Descriptor is wrong", __func__);
         return OHOS::ERR_INVALID_REPLY;
     }
-    auto localFuncIt = memberFuncMap_.find(code);
-    if (localFuncIt != memberFuncMap_.end()) {
-        auto memberFunc = localFuncIt->second;
-        if (memberFunc != nullptr) {
-            return (this->*memberFunc)(data, reply);
-        }
+    switch (code) {
+        case COMMAND_CONNECT:
+            return ConnectInner(data, reply);
+        case COMMAND_DISCONNECT:
+            return DisconnectInner(data, reply);
     }
     TAG_LOGI(AAFwkTag::CONTINUATION, "ConnectCallbackStub::OnRemoteRequest, default case, need check.");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

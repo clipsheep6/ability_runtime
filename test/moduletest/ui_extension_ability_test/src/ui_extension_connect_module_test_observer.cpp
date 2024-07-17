@@ -15,7 +15,6 @@
 
 #include "ui_extension_connect_module_test_observer.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {

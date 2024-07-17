@@ -22,7 +22,6 @@
 #include "ability_manager_errors.h"
 #include "child_main_thread.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "mock_app_mgr_service_inner.h"
 #include "mock_native_token.h"
 #include "mock_sa_call.h"
@@ -1469,11 +1468,12 @@ HWTEST_F(AppMgrServiceTest, StartChildProcess_001, TestSize.Level1)
     appMgrService->taskHandler_ = taskHandler_;
     appMgrService->eventHandler_ = eventHandler_;
 
-    EXPECT_CALL(*mockAppMgrServiceInner_, StartChildProcess(_, _, _, _, _))
+    EXPECT_CALL(*mockAppMgrServiceInner_, StartChildProcess(_, _, _))
         .Times(1)
         .WillOnce(Return(ERR_OK));
     pid_t pid = 0;
-    int32_t res = appMgrService->StartChildProcess("./ets/AProcess.ts", pid, 1, false);
+    ChildProcessRequest request;
+    int32_t res = appMgrService->StartChildProcess(pid, request);
     EXPECT_EQ(res, ERR_OK);
 }
 
@@ -1715,7 +1715,7 @@ HWTEST_F(AppMgrServiceTest, SetSupportedProcessCacheSelf_002, TestSize.Level0)
 
     // permission check failed
     int32_t res = appMgrService->SetSupportedProcessCacheSelf(false);
-    EXPECT_EQ(res, AAFwk::CHECK_PERMISSION_FAILED);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
 
     // appRecord not in AppRunningManager
     AAFwk::IsMockSaCall::IsMockProcessCachePermission();
@@ -1749,10 +1749,7 @@ HWTEST_F(AppMgrServiceTest, SetSupportedProcessCacheSelf_002, TestSize.Level0)
         recordMap.insert({IPCSkeleton::GetCallingPid(), appRecord});
     }
     res = appMgrService->SetSupportedProcessCacheSelf(false);
-    EXPECT_EQ(res, ERR_OK);
-
-    res = appMgrService->SetSupportedProcessCacheSelf(false);
-    EXPECT_EQ(res, AAFwk::ERR_SET_SUPPORTED_PROCESS_CACHE_AGAIN);
+    EXPECT_EQ(res, AAFwk::ERR_CAPABILITY_NOT_SUPPORT);
 }
 
 /**

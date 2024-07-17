@@ -15,7 +15,6 @@
 
 #include "js_demo_ui_extension.h"
 
-#include "hilog_wrapper.h"
 #include "js_ui_extension_base.h"
 #include "js_demo_ui_extension_context.h"
 

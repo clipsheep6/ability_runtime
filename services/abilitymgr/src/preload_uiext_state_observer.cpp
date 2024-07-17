@@ -26,9 +26,17 @@ PreLoadUIExtStateObserver::PreLoadUIExtStateObserver(
 
 void PreLoadUIExtStateObserver::OnProcessDied(const AppExecFwk::ProcessData &processData)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "called.");
+    auto diedProcessName = processData.processName;
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "DiedProcessName is %{public}s.", diedProcessName.c_str());
     auto extensionRecord = extensionRecord_.lock();
     if (extensionRecord != nullptr) {
+        auto hostPid = extensionRecord->hostPid_;
+        int32_t diedPid = processData.pid;
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Host pid is %{public}d, died pid is %{public}d.", hostPid, diedPid);
+        if (static_cast<int32_t>(hostPid) != diedPid) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Host pid is not equals to died pid.");
+            return;
+        }
         extensionRecord->UnloadUIExtensionAbility();
     } else {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "extensionRecord null");

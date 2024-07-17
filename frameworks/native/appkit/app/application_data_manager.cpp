@@ -17,7 +17,6 @@
 
 #include "app_recovery.h"
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {

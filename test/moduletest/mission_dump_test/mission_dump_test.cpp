@@ -19,6 +19,7 @@
 #include "ability_manager_service.h"
 #include "ability_event_handler.h"
 #include "ams_configuration_parameter.h"
+#include "mission_list_manager.h"
 #undef private
 #undef protected
 
@@ -32,6 +33,7 @@
 #include "mock_ability_token.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
+
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
