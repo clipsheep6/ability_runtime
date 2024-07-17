@@ -36,7 +36,7 @@ bool DoSomethingInterestingWithMyAPI(const char *data, size_t size)
 {
     std::shared_ptr<UIExtensionSessionInfo> uiExtensionSessionInfo = std::make_shared<UIExtensionSessionInfo>();
     Parcel parcel;
-    uIExtensionSessionInfo-> Marshalling(parcel);
+    uiExtensionSessionInfo-> Marshalling(parcel);
     return true;
 }
 } // namespace OHOS
