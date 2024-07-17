@@ -16,7 +16,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/abilitymgr"
 
-ohos_unittest("ability_manager_service_third_test") {
+ohos_unittest("ability_manager_service_fourth_test") {
   module_out_path = module_output_path
   sanitize = {
     cfi = true
@@ -29,10 +29,11 @@ ohos_unittest("ability_manager_service_third_test") {
     "${ability_runtime_innerkits_path}/uri_permission/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/ability_runtime/",
     "${ability_runtime_path}/interfaces/inner_api/ability_manager/include",
+    "${ability_runtime_path}/services/abilitymgr/include/interceptor/",
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_services_path}/common/include",
-    "${ability_runtime_test_path}/mock/mock_sa_call",
-    "${ability_runtime_test_path}/unittest/ability_manager_client_branch_test",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
+    "mock/include",
   ]
 
   sources = [
@@ -45,11 +46,14 @@ ohos_unittest("ability_manager_service_third_test") {
     "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_event_util.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/auto_startup_info.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/deeplink_reserve/deeplink_reserve_config.cpp",
     "${ability_runtime_services_path}/common/src/ffrt_task_handler_wrap.cpp",
     "${ability_runtime_services_path}/common/src/queue_task_handler_wrap.cpp",
     "${ability_runtime_services_path}/common/src/task_handler_wrap.cpp",
-    "ability_manager_service_third_test.cpp",
+    "ability_manager_service_fourth_test.cpp",
+    "mock/src/mock_ability_interceptor_executer.cpp",
+    "mock/src/mock_ipc_skeleton.cpp",
+    "mock/src/mock_my_flag.cpp",
+    "mock/src/mock_permission_verification.cpp",
   ]
 
   configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
@@ -96,5 +100,5 @@ ohos_unittest("ability_manager_service_third_test") {
 
 group("unittest") {
   testonly = true
-  deps = [ ":ability_manager_service_third_test" ]
+  deps = [ ":ability_manager_service_fourth_test" ]
 }
