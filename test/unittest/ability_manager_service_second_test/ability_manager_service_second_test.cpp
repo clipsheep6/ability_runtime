@@ -1325,7 +1325,7 @@ HWTEST_F(AbilityManagerServiceSecondTest, IsAbilityControllerStartById_001, Test
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest IsAbilityControllerStartById_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    EXPECT_FALSE(abilityMs_->IsAbilityControllerStartById(1));
+    EXPECT_TRUE(abilityMs_->IsAbilityControllerStartById(1));
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest IsAbilityControllerStartById_001 end");
 }
 

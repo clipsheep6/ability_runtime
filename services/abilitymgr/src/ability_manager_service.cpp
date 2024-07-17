@@ -4797,7 +4797,7 @@ bool AbilityManagerService::IsAbilityControllerStartById(int32_t missionId)
     auto missionListWrap = GetMissionListWrap();
     if (missionListWrap == nullptr) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "missionListWrap null.");
-        return false;
+        return true;
     }
     InnerMissionInfo innerMissionInfo;
     int getMission = missionListWrap->GetInnerMissionInfoById(missionId, innerMissionInfo);
