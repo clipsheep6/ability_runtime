@@ -49,13 +49,10 @@ ohos_shared_library("appmanager_napi") {
   ]
 
   defines = []
-  if (!build_ohos_sdk) {
-    external_deps += [
-      "napi:ace_container_scope",
-    ]
-    defines += [
-      "SUPPORT_CONTAINER_SCOPE",
-    ]
+  if (!is_cross_platform_build && !is_mingw && !is_mac && !is_linux &&
+      is_ohos_standard_system) {
+    external_deps += [ "napi:ace_container_scope" ]
+    defines += [ "SUPPORT_CONTAINER_SCOPE" ]
   }
 
   relative_install_dir = "module/application"
