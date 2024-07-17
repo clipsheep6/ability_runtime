@@ -23,6 +23,7 @@
       *AbilityInterceptorExecuter*;
       *AbilityManagerService*;
       *AbilityManagerStub*;
+      *AbilityPermissionUtil*;
       *AbilityRecord*;
       *AbilityRunningInfo*;
       *AbilitySchedulerProxy*;

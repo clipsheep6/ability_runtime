@@ -2087,18 +2087,6 @@ HWTEST_F(AbilityManagerServiceThirdTest, CheckCallingTokenId_001, TestSize.Level
 
 /*
  * Feature: AbilityManagerService
- * Function: IsCallerSceneBoard
- * FunctionPoints: AbilityManagerService IsCallerSceneBoard
- */
-HWTEST_F(AbilityManagerServiceThirdTest, IsCallerSceneBoard_001, TestSize.Level1)
-{
-    auto abilityMs = std::make_shared<AbilityManagerService>();
-    auto result = abilityMs->IsCallerSceneBoard();
-    EXPECT_EQ(result, false);
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: IsDmsAlive
  * FunctionPoints: AbilityManagerService IsDmsAlive
  */

@@ -94,7 +94,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->ForceTimeoutForTest(stringParam, stringParam);
 #endif
     AppExecFwk::AbilityRequest abilityRequest;
-    abilityms->CheckStaticCfgPermission(abilityRequest, false, -1);
     if (want) {
         delete want;
         want = nullptr;
