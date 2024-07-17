@@ -11440,16 +11440,16 @@ void AbilityManagerService::SetAbilityRequestSessionInfo(AbilityRequest &ability
     sptr<SessionInfo> sessionInfo = new SessionInfo();
     sessionInfo->callerToken = abilityRequest.callerToken;
     auto callerAbilityRecord = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
-    if(callerAbilityRecord == nullptr) {
+    if(callerAbilityRecord != nullptr) {
+        sptr<SessionInfo> callerSessionInfo = callerAbilityRecord->GetSessionInfo();
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "CreateSessionInfo %{public}d.", callerSessionInfo->persistentId);
+        sessionInfo->hostWindowId = callerSessionInfo->persistentId;
+    } else {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "callerAbilityRecord is nullptr");
     }
-    sptr<SessionInfo> callerSessionInfo = callerAbilityRecord->GetSessionInfo();
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "CreateSessionInfo %{public}d.", callerSessionInfo->persistentId);
     sessionInfo->want = abilityRequest.want;
-    sessionInfo->hostWindowId = callerSessionInfo->persistentId;
     sessionInfo->callingTokenId = static_cast<uint32_t>(abilityRequest.want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN,
-        IPCSkeleton::GetCallingTokenID()));
-
+    IPCSkeleton::GetCallingTokenID()));
     abilityRequest.sessionInfo = sessionInfo;
 }
 }  // namespace AAFwk

@@ -94,7 +94,7 @@ sptr<Rosen::WindowOption> UIServiceExtension::GetWindowOption(const AAFwk::Want 
         if (extensionWindowConfig->subWindowOptions.isModal) {
             option->AddWindowFlag(Rosen::WindowFlag::WINDOW_FLAG_IS_MODAL);
             if (extensionWindowConfig->subWindowOptions.isTopmost) {
-                option.SetWindowTopmost(true);
+                option->SetWindowTopmost(true);
             }
         }
     } else if (extensionWindowConfig->windowAttribute == Rosen::ExtensionWindowAttribute::SYSTEM_WINDOW) {
