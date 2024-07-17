@@ -21,7 +21,9 @@
 #include "ability_manager_interface.h"
 #include "app_mgr_interface.h"
 
+#ifdef SUPPORT_CONTAINER_SCOPE
 #include "core/common/container_scope.h"
+#endif
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime.h"
@@ -35,7 +37,9 @@
 #include "napi_common_util.h"
 #include "js_app_state_observer.h"
 
+#ifdef SUPPORT_CONTAINER_SCOPE
 using OHOS::Ace::ContainerScope;
+#endif
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
@@ -186,8 +190,13 @@ private:
         napi_value result = nullptr;
         std::unique_ptr<NapiAsyncTask> napiAsyncTask = CreateEmptyAsyncTask(env, lastParam, &result);
         auto asyncTask = [appManager = appManager_, observer = observer_, observerId, errCode,
-                          env, task = napiAsyncTask.get(), scopeId = ContainerScope::CurrentId()]() {
+#ifdef SUPPORT_CONTAINER_SCOPE
+                          scopeId = ContainerScope::CurrentId(),
+#endif
+                          env, task = napiAsyncTask.get()]() {
+#ifdef SUPPORT_CONTAINER_SCOPE
             ContainerScope cs(scopeId);
+#endif
             if (errCode != 0) {
                 task->Reject(env, CreateJsError(env, errCode, "Invalidate params."));
                 delete task;
@@ -231,9 +240,14 @@ private:
         napi_value lastParam = (argc == ARGC_ONE) ? argv[INDEX_ZERO] : nullptr;
         napi_value result = nullptr;
         std::unique_ptr<NapiAsyncTask> napiAsyncTask = CreateEmptyAsyncTask(env, lastParam, &result);
-        auto asyncTask = [appManager = appManager_, errCode, env, task = napiAsyncTask.get(),
-                          scopeId = ContainerScope::CurrentId()]() {
+        auto asyncTask = [appManager = appManager_, errCode,
+#ifdef SUPPORT_CONTAINER_SCOPE
+                          scopeId = ContainerScope::CurrentId(),
+#endif
+                          env, task = napiAsyncTask.get()]() {
+#ifdef SUPPORT_CONTAINER_SCOPE
             ContainerScope cs(scopeId);
+#endif
             if (errCode != 0) {
                 task->Reject(env, CreateJsError(env, errCode, "Invalidate params."));
                 delete task;
@@ -278,9 +292,14 @@ private:
         napi_value lastParam = (argc == ARGC_ONE) ? argv[INDEX_ZERO] : nullptr;
         napi_value result = nullptr;
         std::unique_ptr<NapiAsyncTask> napiAsyncTask = CreateEmptyAsyncTask(env, lastParam, &result);
-        auto asyncTask = [appManager = appManager_, errCode, env, task = napiAsyncTask.get(),
-                          scopeId = ContainerScope::CurrentId()]() {
+        auto asyncTask = [appManager = appManager_, errCode,
+#ifdef SUPPORT_CONTAINER_SCOPE
+                          scopeId = ContainerScope::CurrentId(),
+#endif
+                          env, task = napiAsyncTask.get()]() {
+#ifdef SUPPORT_CONTAINER_SCOPE
             ContainerScope cs(scopeId);
+#endif
             if (errCode != 0) {
                 task->Reject(env, CreateJsError(env, errCode, "Invalidate params."));
                 delete task;
@@ -317,9 +336,14 @@ private:
         napi_value lastParam = (argc == ARGC_ONE) ? argv[INDEX_ZERO] : nullptr;
         napi_value result = nullptr;
         std::unique_ptr<NapiAsyncTask> napiAsyncTask = CreateEmptyAsyncTask(env, lastParam, &result);
-        auto asyncTask = [abilityManager = abilityManager_, errCode, env, task = napiAsyncTask.get(),
-                          scopeId = ContainerScope::CurrentId()]() {
+        auto asyncTask = [abilityManager = abilityManager_, errCode,
+#ifdef SUPPORT_CONTAINER_SCOPE
+                          scopeId = ContainerScope::CurrentId(),
+#endif
+                          env, task = napiAsyncTask.get()]() {
+#ifdef SUPPORT_CONTAINER_SCOPE
             ContainerScope cs(scopeId);
+#endif
             if (errCode != 0) {
                 task->Reject(env, CreateJsError(env, errCode, "Invalidate params."));
                 delete task;
@@ -392,8 +416,13 @@ private:
         napi_value result = nullptr;
         std::unique_ptr<NapiAsyncTask> napiAsyncTask = CreateEmptyAsyncTask(env, lastParam, &result);
         auto asyncTask = [bundleName, clearPageStack, abilityManager = abilityManager_, errCode,
-            env, task = napiAsyncTask.get(), scopeId = ContainerScope::CurrentId()]() {
+#ifdef SUPPORT_CONTAINER_SCOPE
+                          scopeId = ContainerScope::CurrentId(),
+#endif
+                          env, task = napiAsyncTask.get()]() {
+#ifdef SUPPORT_CONTAINER_SCOPE
             ContainerScope cs(scopeId);
+#endif
             if (errCode != 0) {
                 task->Reject(env, CreateJsError(env, errCode, "Invalidate params."));
             } else {
@@ -431,9 +460,14 @@ private:
         napi_value lastParam = (argc == ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
         napi_value result = nullptr;
         std::unique_ptr<NapiAsyncTask> napiAsyncTask = CreateEmptyAsyncTask(env, lastParam, &result);
-        auto asyncTask = [bundleName, appManager = appManager_, errCode, env, task = napiAsyncTask.get(),
-                          scopeId = ContainerScope::CurrentId()]() {
+        auto asyncTask = [bundleName, appManager = appManager_, errCode,
+#ifdef SUPPORT_CONTAINER_SCOPE
+                          scopeId = ContainerScope::CurrentId(),
+#endif
+                          env, task = napiAsyncTask.get()]() {
+#ifdef SUPPORT_CONTAINER_SCOPE
             ContainerScope cs(scopeId);
+#endif
             if (errCode != 0) {
                 task->Reject(env, CreateJsError(env, errCode, "Invalidate params."));
                 delete task;
@@ -498,8 +532,13 @@ private:
         napi_value result = nullptr;
         std::unique_ptr<NapiAsyncTask> napiAsyncTask = CreateEmptyAsyncTask(env, lastParam, &result);
         auto asyncTask = [appManager = appManager_, bundleName, accountId, clearPageStack, errCode,
-            env, task = napiAsyncTask.get(), scopeId = ContainerScope::CurrentId()]() {
+#ifdef SUPPORT_CONTAINER_SCOPE
+                          scopeId = ContainerScope::CurrentId(),
+#endif
+                          env, task = napiAsyncTask.get()]() {
+#ifdef SUPPORT_CONTAINER_SCOPE
             ContainerScope cs(scopeId);
+#endif
             if (errCode != 0) {
                 task->Reject(env, CreateJsError(env, errCode, "Invalidate params."));
                 delete task;
@@ -536,9 +575,14 @@ private:
         napi_value lastParam = (argc == ARGC_ONE) ? argv[INDEX_ZERO] : nullptr;
         napi_value result = nullptr;
         std::unique_ptr<NapiAsyncTask> napiAsyncTask = CreateEmptyAsyncTask(env, lastParam, &result);
-        auto asyncTask = [abilityManager = abilityManager_, errCode, env, task = napiAsyncTask.get(),
-                          scopeId = ContainerScope::CurrentId()]() {
+        auto asyncTask = [abilityManager = abilityManager_, errCode,
+#ifdef SUPPORT_CONTAINER_SCOPE
+                          scopeId = ContainerScope::CurrentId(),
+#endif
+                          env, task = napiAsyncTask.get()]() {
+#ifdef SUPPORT_CONTAINER_SCOPE
             ContainerScope cs(scopeId);
+#endif
             if (errCode != 0) {
                 task->Reject(env, CreateJsError(env, errCode, "Invalidate params."));
                 delete task;
@@ -576,9 +620,14 @@ private:
         napi_value lastParam = (argc == ARGC_ONE) ? argv[INDEX_ZERO] : nullptr;
         napi_value result = nullptr;
         std::unique_ptr<NapiAsyncTask> napiAsyncTask = CreateEmptyAsyncTask(env, lastParam, &result);
-        auto asyncTask = [abilityManager = abilityManager_, errCode, env, task = napiAsyncTask.get(),
-                          scopeId = ContainerScope::CurrentId()]() {
+        auto asyncTask = [abilityManager = abilityManager_, errCode,
+#ifdef SUPPORT_CONTAINER_SCOPE
+                          scopeId = ContainerScope::CurrentId(),
+#endif
+                          env, task = napiAsyncTask.get()]() {
+#ifdef SUPPORT_CONTAINER_SCOPE
             ContainerScope cs(scopeId);
+#endif
             if (errCode != 0) {
                 task->Reject(env, CreateJsError(env, errCode, "Invalidate params."));
                 delete task;
